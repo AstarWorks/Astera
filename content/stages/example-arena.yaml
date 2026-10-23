@@ -1,12 +1,16 @@
-# Norma arena (2 teams, red vs blue): a floating sky-island arena the server builds itself (ADR-0246).
-# Used by the `norma` lane of content/matchmaking/queue.yaml and the star generators content/generators/arena-*.yaml.
+# Norma arena (2 teams, red vs blue): a floating sky-island arena the server builds itself (ADR-0246; scaled up
+# per the founder's playtest). Used by the `norma` lane of content/matchmaking/queue.yaml and the star generators content/generators/arena-*.yaml.
 #
-#                    north outpost (0,-26)  [generator]
-#                          |
-#   red island ---- centre island ---- blue island      (team islands 30 blocks from the centre)
-#   (-30,0)         (0,0) [2 generators]     (30,0)
-#                          |
-#                    south outpost (0,26)   [generator]
+#                       north island (0,-62)  [generator]
+#                      /          |          \
+#   red island ---- centre island (r22) ---- blue island      (team islands 66 blocks from the centre)
+#   (-66,0) r20     (0,0) [2 generators]      (66,0) r20
+#                      \          |          /
+#                       south island (0,62)  [generator]
+#
+# Three ways between the teams: straight through the centre, or round the north / south island (long flank bridges
+# red-north-blue and red-south-blue). Each team island has room for a base: spawn pad, stepped hills, boulders, trees.
+# The centre island is a stone-brick plaza with ruined walls and terraces to fight over.
 #
 # World `arenas` (void, created by Astera), top layer y=64, players stand at y=65. Everything is hand-placed
 # coordinates; the builder (ArenaIslandGenerator) decorates spawns, anchors and landmarks, so keep them on islands
@@ -20,62 +24,66 @@ display_name_key: astera.stage.example-arena.name
 world: arenas
 
 layout:
-  marker_version: 1
+  marker_version: 2
   seed: 20261023
   surface_y: 64
   kill_y: 30
   islands:
-    - { id: red, kind: base, team: red, center: { x: -30, z: 0 }, radius: 12.0 }
-    - { id: blue, kind: base, team: blue, center: { x: 30, z: 0 }, radius: 12.0 }
-    - { id: center, kind: center, center: { x: 0, z: 0 }, radius: 10.0 }
-    - { id: north, kind: outpost, center: { x: 0, z: -26 }, radius: 6.0 }
-    - { id: south, kind: outpost, center: { x: 0, z: 26 }, radius: 6.0 }
+    - { id: red, kind: base, team: red, center: { x: -66, z: 0 }, radius: 20.0 }
+    - { id: blue, kind: base, team: blue, center: { x: 66, z: 0 }, radius: 20.0 }
+    - { id: center, kind: center, center: { x: 0, z: 0 }, radius: 22.0 }
+    - { id: north, kind: outpost, center: { x: 0, z: -62 }, radius: 12.0 }
+    - { id: south, kind: outpost, center: { x: 0, z: 62 }, radius: 12.0 }
   bridges:
     - { from: red, to: center, width: 3 }
     - { from: blue, to: center, width: 3 }
     - { from: center, to: north, width: 3 }
     - { from: center, to: south, width: 3 }
+    - { from: red, to: north, width: 3 }
+    - { from: north, to: blue, width: 3 }
+    - { from: red, to: south, width: 3 }
+    - { from: south, to: blue, width: 3 }
   landmarks:
-    - { kind: generator, x: 0, z: -26 }
-    - { kind: generator, x: 0, z: 26 }
-    - { kind: generator, x: 6, z: 0 }
-    - { kind: generator, x: -7, z: 0 }
+    - { kind: generator, x: 0, z: -62 }
+    - { kind: generator, x: 0, z: 62 }
+    - { kind: generator, x: 12, z: 0 }
+    - { kind: generator, x: -12, z: 0 }
 
 regions:
   - name: full-arena
-    min: { x: -50.0, y: 20.0, z: -45.0 }
-    max: { x: 50.0, y: 140.0, z: 45.0 }
+    min: { x: -100.0, y: 20.0, z: -90.0 }
+    max: { x: 100.0, y: 140.0, z: 90.0 }
   - name: center-platform
-    min: { x: -5.0, y: 64.0, z: -5.0 }
-    max: { x: 5.0, y: 66.0, z: 5.0 }
+    min: { x: -8.0, y: 64.0, z: -8.0 }
+    max: { x: 8.0, y: 66.0, z: 8.0 }
 
 spawn_points:
   - team: red
-    position: { x: -33.5, y: 65.0, z: -2.5 }
+    position: { x: -69.5, y: 65.0, z: -2.5 }
     yaw: 270.0
   - team: red
-    position: { x: -33.5, y: 65.0, z: 3.5 }
+    position: { x: -69.5, y: 65.0, z: 3.5 }
     yaw: 270.0
   - team: red
-    position: { x: -31.5, y: 65.0, z: 0.5 }
+    position: { x: -67.5, y: 65.0, z: 0.5 }
     yaw: 270.0
   - team: red
-    position: { x: -35.5, y: 65.0, z: 0.5 }
+    position: { x: -71.5, y: 65.0, z: 0.5 }
     yaw: 270.0
   - team: blue
-    position: { x: 34.5, y: 65.0, z: -2.5 }
+    position: { x: 70.5, y: 65.0, z: -2.5 }
     yaw: 90.0
   - team: blue
-    position: { x: 34.5, y: 65.0, z: 3.5 }
+    position: { x: 70.5, y: 65.0, z: 3.5 }
     yaw: 90.0
   - team: blue
-    position: { x: 32.5, y: 65.0, z: 0.5 }
+    position: { x: 68.5, y: 65.0, z: 0.5 }
     yaw: 90.0
   - team: blue
-    position: { x: 36.5, y: 65.0, z: 0.5 }
+    position: { x: 72.5, y: 65.0, z: 0.5 }
     yaw: 90.0
   - role: lobby
     position: { x: 0.5, y: 65.0, z: 0.5 }
   - role: spectator
-    position: { x: 0.5, y: 90.0, z: 0.5 }
+    position: { x: 0.5, y: 100.0, z: 0.5 }
     pitch: 60.0

@@ -73,8 +73,8 @@ class PveWavesPlaythroughE2eTest : PlaythroughBase() {
         }
         E2eReport.check(suite, "wave 1 exists as real mob entities near the player", "RCON execute if entity / data get entity") {
             assertThat(appeared).describedAs("no entity tagged astera_pve_mob after 20s; sidebar=$sidebarFirst log=${serverErrorsSince(logFrom)}").isTrue()
-            val near = mobCountNear(bot, 45)
-            assertThat(near).describedAs("mobs exist but none within 45 blocks of the player").isGreaterThan(0)
+            val near = mobCountNear(bot, 80) // the four outposts are 58 blocks from the centre island the bot starts on
+            assertThat(near).describedAs("mobs exist but none within 80 blocks of the player").isGreaterThan(0)
             val first = clean(rcon("execute at ${bot.name} run data get entity @e[tag=astera_pve_mob,sort=nearest,limit=1] Health"))
             val dmg = clean(rcon("execute at ${bot.name} as @e[tag=astera_pve_mob,sort=nearest,limit=1] run attribute @s minecraft:attack_damage get"))
             val nameData = clean(rcon("execute at ${bot.name} run data get entity @e[tag=astera_pve_mob,sort=nearest,limit=1] CustomName"))

@@ -117,7 +117,7 @@ class BotBrain(
         exec.shutdownNow()
     }
 
-    fun summary(): String = "swings=${swings.get()} shots=${shots.get()} reloads=${reloads.get()} enemyTicks=${ticksWithEnemy.get()} edgeBlocks=${blockedByEdge.get()} loadout=$loadout"
+    fun summary(): String = "swings=${swings.get()} shots=${shots.get()} reloads=${reloads.get()} enemyTicks=${ticksWithEnemy.get()} edgeBlocks=${blockedByEdge.get()} goal=${objective?.name} loadout=$loadout"
 
     // --- the tick ------------------------------------------------------------------------------------------------
 

@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Test
  * Timers and HP come from docker/e2e-tune-content.sh (build 5s, engage 10s, every pillar 60 HP).
  *
  * The arena is a three-island sky stage in the void `arenas` world (content/stages/annihilation-arena.yaml, ADR-0246):
- * red island at (0, -333), blue at (29, -284), yellow at (-29, -284), centre island at (0, -300); top layer y=64, bots stand at y=65.
+ * red island at (0, -364), blue at (55, -268), yellow at (-55, -268) (radius 22), centre island at (0, -300) (radius 24), three
+ * flank islands between the bases; top layer y=64, bots stand at y=65.
  */
 class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
 
@@ -18,9 +19,9 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
 
     /** Pillar block cells per tier (1..3) from content/stages/annihilation-arena.yaml. */
     private val pillars = mapOf(
-        "Blue" to listOf(Triple(31, 65, -283), Triple(29, 65, -284), Triple(27, 65, -285)),
-        "Yellow" to listOf(Triple(-31, 65, -283), Triple(-29, 65, -284), Triple(-27, 65, -285)),
-        "Red" to listOf(Triple(0, 65, -335), Triple(0, 65, -333), Triple(0, 65, -331)),
+        "Blue" to listOf(Triple(52, 65, -280), Triple(43, 65, -265), Triple(57, 65, -267)),
+        "Yellow" to listOf(Triple(-43, 65, -265), Triple(-52, 65, -280), Triple(-57, 65, -267)),
+        "Red" to listOf(Triple(-9, 65, -355), Triple(9, 65, -355), Triple(0, 65, -366)),
     )
     private val pillarBlocks = listOf("minecraft:obsidian", "minecraft:crying_obsidian", "minecraft:beacon")
 
@@ -105,8 +106,8 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
                 }
             }
             assertThat(wrong).describedAs("pillar anchors: $wrong").isEmpty()
-            assertThat(arenaSolid(14, 64, -312) || arenaSolid(14, 50, -312)).describedAs("gap between the islands at (14 64 -312): the arena is islands, not a plane").isFalse()
-            "9 pillar blocks + 9 coloured footings; void at (14, 64, -312)"
+            assertThat(arenaSolid(40, 64, -310) || arenaSolid(40, 50, -310)).describedAs("gap between the islands at (40 64 -310): the arena is islands, not a plane").isFalse()
+            "9 pillar blocks + 9 coloured footings; void at (40, 64, -310)"
         }
 
         E2eReport.check(suite, "sidebar shows the Build phase and three intact 60 HP pillar sets", "SetObjective/SetScore") {
