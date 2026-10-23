@@ -1,0 +1,44 @@
+{
+  "id": "gossamer-katana-termination-candidate",
+  "rev": 1,
+  "videoId": "LkLhzmoJZ6Y",
+  "start_s": 34.9349,
+  "end_s": 35.66896666666667,
+  "skill": {
+    "name": "Inevitable Termination (candidate)",
+    "coins": null,
+    "asteraSkillId": null
+  },
+  "variant": {
+    "label": "Inevitable Termination候補",
+    "implementation": "missing",
+    "order": 3
+  },
+  "mc": {
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false
+  },
+  "segments": [
+    {
+      "id": "contact-1",
+      "kind": "hit",
+      "label": "観測上の接触 1 / f1047",
+      "t_s": 34.9349,
+      "notes": "Blue knot/flower burst directly on target / confidence: low; contact is not proof of a separate damage event."
+    }
+  ],
+  "notes": "追加観測区間。キットとの対応と実ダメージ回数は未確定。専用実装・撮影はなく、既存技の映像は流用しない。",
+  "status": "analysed",
+  "verification": {
+    "status": "unverified",
+    "reason": "参照映像のみ。専用実装・実機撮影・照合は未完了。"
+  },
+  "weapon": "gossamer-katana",
+  "identity": "Blade of the House of Spiders Ryōshū",
+  "iterations": 0,
+  "report": "/report/gossamer-katana",
+  "referenceRevision": "929b70cc701d75eaf82cc52df573c57fdee1fc0d7a45529c6c9b8f63b7dd4b6f"
+}

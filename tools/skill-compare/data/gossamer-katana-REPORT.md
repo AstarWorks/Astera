@@ -37,3 +37,19 @@ fixtureで資源を準備した後、実際のキー・マウス入力で撮影�
 - 人物の両手・膝・胴体のポーズ、反撃の条件分岐、持続的な変身セットは、今回のcontent制作で未実装。必要なruntime作業は別途特定し、今回Kotlinを拡張して解決したとは扱わない。
 
 [制作手順](../../../../docs/contributing/limbus-skill-reproduction.md) / [参照解析](/reference/gossamer-katana/notes.md)
+
+### round79：追加観測7区間を比較画面へ対応付け
+
+未対応だった追加区間を独立した参照枠に追加。7つの新技と断定せず、正式キット・状態分岐との対応は未確定として扱う。計940フレーム。専用実装・実機撮影は未完了で、既存技の撮影を流用しない。
+
+| 参照枠 | フレーム数 | 状態 |
+|---|---:|---|
+| [gossamer-katana-arc-chain](/case.html?id=gossamer-katana-arc-chain) | 80 | 未実装・未接続 |
+| [gossamer-katana-echoshear-candidate](/case.html?id=gossamer-katana-echoshear-candidate) | 142 | 未実装・未接続 |
+| [gossamer-katana-termination-candidate](/case.html?id=gossamer-katana-termination-candidate) | 22 | 未実装・未接続 |
+| [gossamer-katana-crescent-fan](/case.html?id=gossamer-katana-crescent-fan) | 67 | 未実装・未接続 |
+| [gossamer-katana-dash-flurry](/case.html?id=gossamer-katana-dash-flurry) | 82 | 未実装・未接続 |
+| [gossamer-katana-string-connection-candidate](/case.html?id=gossamer-katana-string-connection-candidate) | 332 | 未実装・未接続 |
+| [gossamer-katana-spectral-montage](/case.html?id=gossamer-katana-spectral-montage) | 215 | 未実装・未接続 |
+
+最後の連続攻撃は本体の移動と分身体の移動を分離する。短い対象上の青い発光は、追加ダメージと断定しない。今回の観察範囲と残課題は `runtime-review/gossamer-coverage-round79.json` に記録。
