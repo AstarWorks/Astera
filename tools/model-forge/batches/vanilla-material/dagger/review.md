@@ -1,62 +1,80 @@
-# Vanilla materials — dagger
+# Dagger palette restoration — ADR-0251
 
-All 100 cuboids, names, geometry, silhouette and display transforms are unchanged.
-Only materials/UVs change. No custom atlas or Mojang PNG is installed or committed.
+Restores the original muted blue-gray steel and brown leather from `36743b70`.
+The reference atlas is unchanged since that commit. Its sampled colours include
+steel `#60727c` / `#91a5ac`, edge `#a0b4bc`, leather `#453026` / `#72503a`
+and stitching `#211919`. Tints compensate for multiplication by the light base;
+they are not literal replacements for the sampled atlas pixels.
 
-| Parts | Catalog material |
-|---|---|
-| Blade sections, edge bevels, central ridges, grinding marks | `metal.iron_block` |
-| Guard, grip collars, pommel facets | `metal.anvil` |
-| Leather grip and lap bands | `cloth.brown_wool` |
-| Leather stitches | `cloth.gray_wool` |
-| Grip pins | `metal.gold_block` |
+| Parts | Vanilla pattern | Tint |
+|---|---|---|
+| Tapered blade sections | Iron block | `#a0b5bd` |
+| Ground cutting bevels | Iron block | `#b9d0da` |
+| Central ridge | Iron block | `#708894` |
+| Guard, collars, pommel facets, grip pins | Iron block | `#6e848f` |
+| Grinding marks | Iron block | `#8098a3` |
+| Leather grip | White wool | `#674737` |
+| Leather lap bands | White wool | `#503a2e` |
+| Leather stitches | White wool | `#281e1e` |
 
-`material.apply` uses seed 20261023. All 600 faces retain one texel per model unit,
-including fractions (measured range 0.9999999999999941–1.000000000000005). No splits
-are needed. Independent initial blade crops looked mottled; a horizontal shared
-crop introduced bands. Final north/south blade faces share a continuous,
-quarter-turned longitudinal iron crop via `uv.set`, removing both distractions.
+The first vanilla pass's white blade, black anvil fittings and gold pins become
+cool steel again. The darker ridge and brighter bevels keep the compact dagger
+readable without borrowing a sibling's saturated accent palette. Tinted white
+wool supplies a quiet wrap pattern. Catalog wish: a less fleecy light leather
+pattern; no custom texture or Mojang sprite is added.
 
-Opened and reviewed: `before.png`, `after.png` (same eight cameras), `contexts.png`
-(Forge), `player-contexts.jpg` (perspective, both hands, player rest pose, ground,
-frame, GUI), `angles.jpg` (26 directions; `cameras.json`) and `inventory.png`
-(16/32/64px enlarged with nearest-neighbor sampling). The stepped edge, bright
-blade, dark fittings and warm wrap remain readable. Both hands leave screen center
-clear; grip, ground pivot and frame position retain their original transforms.
-At 16px, tiny stitches/grinding marks disappear while the main groups remain clear.
+`remake.py` imports the original palette reference for `before.png`, then imports
+the current model for edits. All 100 cuboids, all 600 faces and the current display
+block match HEAD exactly; only materials, UVs and tints change. No splits are
+needed. The blade's north/south faces share a continuous longitudinal iron crop,
+retaining each part's tint. Eight deduplicated colours tint all 600 faces.
 
-Validation has zero errors. The original 225 AABB overlap reports, one possible
-coplanar contact and one disconnected-component report remain unchanged. Top,
-bottom and oblique images show no new visible gap or fighting seam; retained
-construction overlaps are not a complete geometric or animation audit.
+Reviewed `before.png`, `after.png`, `contexts.png`, `inventory.png`,
+`player-contexts.jpg` and `angles.jpg`. The eight canonical views, 26-direction
+sweep, both hands, ground/spin, frame and GUI retain steel/brown separation.
+The 16px icon retains blade/edge/grip contrast; stitches become subpixel.
+Geometry and display assertions, identical export/import, zero exported PNGs and
+one-texel/unit density are recorded in `verification.json`. Forge reports zero
+errors and the unchanged 225 overlap / one coplanar-contact / one disconnected
+component warnings. Existing bevel construction is retained; this is not a
+complete geometry or animation audit.
 
-`client.png`: raw 1280×720 real 26.3 portablemc/Xvfb/llvmpipe capture, isolated
-creative superflat, FOV 70, view bob off, GUI scale 2, exact authored model and
-minimal pack, holding `minecraft:iron_sword[minecraft:item_model="astera:dagger"]`.
-Launch through capture holds `/tmp/claude-1000/astera-mc-client.lock`; Xvfb picks a
-unique display via `-displayfd`. Game directory: `build/dagger/client-dagger`.
-The pack references vanilla block sprites directly; it contains no vanilla PNG.
-Opened the native capture: blade, dark fittings, wrap and gold pins resolve correctly.
-Small grinding-mark highlights remain visible on the blade. The log has no missing
-model/texture, mixed-atlas or duplicate-sprite messages (`client-log.txt`).
-
-Reproduce from the repository root with fresh output directories:
+Reproduction (fresh project directory, repository root; no Gradle/tests):
 
 ```sh
-git show HEAD^:content/models/items/dagger.model.json > /tmp/dagger-before.json
+git show 36743b70:content/models/items/dagger.model.json > build/dagger-original.json
 python3 tools/model-forge/batches/vanilla-material/dagger/remake.py \
-  --project build/dagger-reproduction --before /tmp/dagger-before.json
-python3 tools/model-forge/batches/vanilla-material/dagger/capture-pack.py \
-  --out build/dagger-client/resourcepacks/vanilla-material
+  --project build/dagger-tint-replay --before build/dagger-original.json
+python3 tools/model-forge/context_preview.py --viewer --out build/dagger-viewer dagger
+bun tools/model-forge/review.mjs build/dagger-viewer/viewer.html build/dagger-sweep dagger
+flock /tmp/claude-1000/astera-mc-client.lock \
+  python3 tools/model-forge/batches/vanilla-material/dagger/capture-client.py \
+  --world-source '<isolated superflat save directory>'
 ```
 
-For the orbit sweep use `context_preview.py --viewer` then `review.mjs`, as in the
-Forge README. The embedded-pixel HTML stays ignored/local. The native capture uses
-the pilot's installed runtime, enables `file/vanilla-material`, creates a creative
-superflat with commands, gives the item above and captures the Xvfb root unedited.
+The local viewer's embedded vanilla pixels stay ignored under `build/`.
+`capture-pack.py` follows the current builder's output: it removes `astera_tints`
+from the cuboid JSON and emits eight `minecraft:constant` sources in the item
+definition, preserving face indices. This is a minimal builder-equivalent pack,
+not a production ZIP build. The native client resolves iron/wool from its block
+atlas; no vanilla texture PNG is copied into the pack.
 
-Remaining risks/catalog wish: the catalog lacks quiet dark leather, so brown wool
-is the closest cloth entry. Existing bevel overlaps remain. Native capture checks
-the held model; combat animations, other FOVs and shader packs are not covered.
-Production pack/deployment and integration checks remain manager/CI work.
-No Gradle, tests, E2E, Docker, external server or push was run.
+Native capture uses portablemc 26.3, a dynamic Xvfb display, llvmpipe, 1280×720,
+FOV 70, view bob off, GUI scale 2, peaceful/noon/clear, position 0/-60/3, yaw/pitch
+0/0. The entire launch/capture/shutdown holds the shared lock. Only the copied
+superflat in `build/dagger-client` is changed; commands set creative mode and equip
+`minecraft:iron_sword[minecraft:item_model="astera:dagger"]`.
+
+Opened `client.png`: cool steel blade, darker ridge, bright cutting edges, steel
+fittings and brown wrap render correctly, including the hotbar icon. The capture
+pack model and tint sources match the authored palette. `client-log.txt` contains
+no model-loading, missing-texture or mixed-atlas errors. Offline authentication,
+unavailable audio and `minecraft:end_of_frame` post-effect messages are unrelated
+to this model. The held grip continues below the screen under the unchanged
+HEAD display transform.
+
+Remaining limits: static multiplication cannot brighten or emit light. White wool
+approximates leather at this scale. Native evidence covers first person/hotbar;
+other contexts use illustrative offline lighting. Swing/use, glint, shaders and
+other FOVs remain unverified. Production pack/deployment remain manager work.
+No Gradle, unit/integration tests, E2E, Docker, external server or push was run.

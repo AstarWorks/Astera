@@ -15,9 +15,13 @@ def main():
     if a.out.exists(): raise ValueError('Use a fresh resource-pack directory')
     source = ROOT/'content/models/items/dagger.model.json'
     model = json.loads(source.read_text())
+    palette = model.pop('astera_tints')
+    definition = {'type':'minecraft:model','model':'astera:items/dagger',
+                  'tints':[{'type':'minecraft:constant','value':rgb} for rgb in palette]}
+    assert all(0 <= face.get('tintindex',-1) < len(palette) for e in model['elements'] for face in e['faces'].values())
     files = {
         'pack.mcmeta':{'pack':{'description':'Vanilla material dagger capture','min_format':[97,0],'max_format':[97,1]}},
-        'assets/astera/items/dagger.json':{'model':{'type':'minecraft:model','model':'astera:items/dagger'}},
+        'assets/astera/items/dagger.json':{'model':definition},
         'assets/astera/models/items/dagger.json':model,
         'assets/minecraft/atlases/blocks.json':{'sources':[{'type':'directory','source':'blocks','prefix':'blocks/'}]},
     }
