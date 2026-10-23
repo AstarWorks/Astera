@@ -108,7 +108,7 @@ internal object ParticlePainters {
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
         "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
-        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue, "procuration_ribbon" to ::procurationRibbon, "crimson_orbit" to ::crimsonOrbit,
+        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue, "procuration_ribbon" to ::procurationRibbon, "crimson_orbit" to ::crimsonOrbit, "crimson_link" to ::crimsonLink,
     )
 
     /** A 4-point star that pops open, hangs, then shrinks, with a small diagonal star and a white-hot core. */
@@ -298,6 +298,23 @@ internal object ParticlePainters {
             val halfWidth = 2.2 * sin(PI * u).pow(0.65) * (1.2 - 0.5 * u)
             val edge = 1.0 - abs(y - centre) / max(0.01, halfWidth)
             if (edge <= 0.0) 0.0 else min(1.0, 0.3 + edge * 1.5)
+        }
+    }
+
+    /** Paired inward-open crescent blades on a dark spine, observed on the transformed chain. */
+    private fun crimsonLink(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val mx = if (x > C) 32.0 - x else x
+            val outer = hypot(mx - 10.0, y - C)
+            val inner = hypot(mx - 12.6, y - C)
+            if (outer < 7.0 && inner > 6.6) {
+                val depth = min(7.0 - outer, inner - 6.6)
+                min(1.0, 0.35 + depth * 0.8)
+            } else if (abs(x - C) < 1.2 && y in 1.5..30.5) {
+                0.2
+            } else if (abs(y - C) < 1.0 && x in 5.0..27.0) {
+                0.3
+            } else 0.0
         }
     }
 
