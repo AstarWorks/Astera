@@ -295,3 +295,11 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - 初回の実機probeでdomain validationがsprite alphaを拒否する経路を発見し修正。schemaのcontentLint成功だけで実読み込みを認定しない。再起動後VFX180件・失敗0を確認し、probeで64→191→4、寿命終了後の消去を確認。fixtureは削除・reload済み。
 - core/combat shadowJarとcontentLint成功。残光の幅は保ち、長さの縮小にalpha減衰を加えた。他の既存spriteにalphaキーがないことを確認。初回撮影はカメラ114ms遅延で無効、再撮影は9ms・重複最大1を採用した。
 - 記録は `runtime-review/sprite-opacity-round34.json` / `build/limbus-review/round34/`。033〜036で標的上の残光が薄くなって消えるが、身体側の爪と重なるため独立した画素測定による減衰一致は未認定。全10武器の形状・動作・命中・カメラ等の完了条件は維持する。
+
+### Round 35 — 撮影更新中も再生中の版を固定する
+
+- 比較画面のMC URLは版番号を持っていたが、サーバーは各フレームを可変の撮影出力ディレクトリから取得していた。撮り直し中にページのcount/metadataと画像がずれる経路を修正した。
+- `tools/skill-compare/scripts/publish-capture.mjs` で完成・レビュー・ハッシュ記録済みの撮影を公開する。連番PNGの欠落、空フレーム、無効capture、skill/view不一致を拒否し、完成版をSHA256の固定ディレクトリへ保存してcurrent.jsonをatomicに置換する。途中の書き出し先を公開しない。
+- 公開先はサーバー側 `/IdeaProjects/Astera/build/skill-compare-published`。新しい撮影を採用する際はREADMEの公開コマンドを必ず実行する。開いているページは旧版を使い続け、新しく開いたページだけ新版へ移る。reference/contentの一致判定は維持する。既に開いていた旧方式のページは一度再読込が必要。
+- 手動HTTP検証で、元画像・meta消去中にも旧版が取得できること、不完全/invalid公開ではcurrentが変わらないこと、新版公開後も旧版が取得できることを確認。現在参照可能だった105撮影ビュー（105スキルではない）を公開し、認証済み公開URLで版固定・S3終盤再生・ループ復帰・frame HTTP errorなしを確認した。
+- 記録は `runtime-review/publication-round35.json`。これは再生の安定性改善で、全10武器の完全一致の認定ではない。利用者側のアクセスエラーの原因はまだ未確定であり、Access認証設定は変更していない。
