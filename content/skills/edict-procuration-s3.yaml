@@ -163,7 +163,7 @@ phases:
       value: 25
   - type: play_vfx
     targets: *id001
-    vfx_id: edict-procuration-airborne
+    vfx_id: edict-procuration-dive
     delay_ticks:
       type: literal
       value: 31
