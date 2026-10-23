@@ -1,0 +1,1156 @@
+[
+  {
+    "file": "couture-rapier-orbit--45-0.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        -16.615953719357986,
+        20.88178542826607
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit--45-45.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        14.76565207960937,
+        -16.615953719357986,
+        14.765652079609374
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit--45-90.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        20.88178542826607,
+        -16.615953719357986,
+        1.2786405842603943e-15
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit--45-135.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        14.765652079609374,
+        -16.615953719357986,
+        -14.76565207960937
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit--45-180.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.5572811685207886e-15,
+        -16.615953719357986,
+        -20.88178542826607
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit--45-225.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -14.765652079609374,
+        -16.615953719357986,
+        -14.76565207960937
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit--45-270.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -20.88178542826607,
+        -16.615953719357986,
+        -3.358047211288221e-15
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit--45-315.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -14.765652079609374,
+        -16.615953719357982,
+        14.765652079609367
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-0-0.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        4.265831708908083,
+        29.53130415921874
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-0-45.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        20.881785428266067,
+        4.265831708908083,
+        20.88178542826607
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-0-90.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        29.53130415921874,
+        4.265831708908083,
+        1.8082708556617075e-15
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-0-135.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        20.88178542826607,
+        4.265831708908083,
+        -20.881785428266067
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-0-180.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        3.616541711323415e-15,
+        4.265831708908083,
+        -29.53130415921874
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-0-225.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -20.881785428266063,
+        4.265831708908083,
+        -20.881785428266078
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-0-270.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -29.53130415921874,
+        4.265831708908083,
+        -4.7489959092929515e-15
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-0-315.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -20.881785428266074,
+        4.265831708908083,
+        20.881785428266063
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-45-0.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        25.147617137174148,
+        20.88178542826607
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-45-45.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        14.76565207960937,
+        25.147617137174148,
+        14.765652079609374
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-45-90.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        20.88178542826607,
+        25.147617137174148,
+        1.2786405842603943e-15
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-45-135.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        14.765652079609374,
+        25.147617137174148,
+        -14.76565207960937
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-45-180.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.5572811685207886e-15,
+        25.147617137174148,
+        -20.88178542826607
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-45-225.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -14.765652079609374,
+        25.147617137174148,
+        -14.76565207960937
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-45-270.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -20.88178542826607,
+        25.147617137174148,
+        -3.358047211288221e-15
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-orbit-45-315.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -14.76565207960937,
+        25.147617137174148,
+        14.765652079609364
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-pole--90.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        -25.265472450295892,
+        0.000029531304166958187
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-pole-90.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        33.79713586811205,
+        0.00002953130415921382
+      ],
+      "target": [
+        0,
+        4.265831708908081,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-gui.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "gui",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        2.4492935982947065e-15,
+        40
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-firstperson_righthand.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "firstperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-firstperson_lefthand.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "firstperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-thirdperson_righthand.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "thirdperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-thirdperson_lefthand.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "thirdperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-thirdperson_righthand_side.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "thirdperson_righthand_side",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        48,
+        21.999999999999996,
+        2.9391523179536475e-15
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-ground.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "ground",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-ground_spin.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "ground_spin",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "couture-rapier-fixed.png",
+    "item": "couture-rapier",
+    "source": "content/models/items/couture-rapier.model.json",
+    "sha256": "92d925de3b20a85ecc22ccba366fbd7022e5d0c96f03cf8bd5de3ca6038285c0",
+    "context": "fixed",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.6942229581241772e-15,
+        1.3471114790620886e-15,
+        -22
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]
