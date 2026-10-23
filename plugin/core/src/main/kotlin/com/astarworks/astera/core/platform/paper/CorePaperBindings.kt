@@ -245,6 +245,7 @@ internal class CorePaperBindings(
                     messages = services.getOrThrow<IMessageRenderer>(),
                     interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
                     intents = services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>(),
+                    registry = services.get<com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry>(),
                 )
                 bodies.start()
                 npcBodyService = bodies
