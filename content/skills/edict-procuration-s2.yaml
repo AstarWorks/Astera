@@ -1,0 +1,149 @@
+id: edict-procuration-s2
+name:
+  ja: 変身後・刻み込め
+  en: 'Procuration: Engrave'
+description:
+  ja: 三群の爪撃。持続変身と通常入力への接続は未実装。
+  en: Three claw groups; form routing pending.
+archetype: sequence
+cooldown_ticks: 90
+resource_cost: 18
+params:
+  type: sequence
+phases:
+  type: sequence
+  cast:
+  - type: dash_strike
+    distance: 1
+    ticks: 5
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    delay_ticks:
+      type: literal
+      value: 0
+  - type: dash_strike
+    distance: 5.5
+    ticks: 9
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    delay_ticks:
+      type: literal
+      value: 28
+  - type: dash_strike
+    distance: 0.5
+    ticks: 1
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    local_direction:
+      x: 0
+      y: 0
+      z: -1
+    face_movement: true
+    delay_ticks:
+      type: literal
+      value: 37
+  - type: play_vfx
+    targets: &id001
+      type: caster
+    vfx_id: edict-procuration-engrave
+  - type: damage
+    targets: &id002
+      type: cone
+      from: *id001
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 6
+      angle_degrees:
+        type: literal
+        value: 65
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 5
+  - type: play_vfx
+    targets: *id002
+    vfx_id: edict-impact
+    delay_ticks:
+      type: literal
+      value: 5
+  - type: damage
+    targets: *id002
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 30
+  - type: play_vfx
+    targets: *id002
+    vfx_id: edict-impact
+    delay_ticks:
+      type: literal
+      value: 30
+  - type: damage
+    targets: *id002
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 38
+  - type: play_vfx
+    targets: *id002
+    vfx_id: edict-impact
+    delay_ticks:
+      type: literal
+      value: 38
+  - type: play_animation
+    targets: *id001
+    animation: crouch
+    ticks:
+      type: literal
+      value: 5
+    delay_ticks:
+      type: literal
+      value: 23
+  - type: play_animation
+    targets: *id001
+    animation: crouch
+    ticks:
+      type: literal
+      value: 12
+    delay_ticks:
+      type: literal
+      value: 53
+  - type: play_vfx
+    targets: *id001
+    vfx_id: edict-procuration-engrave-return
+    delay_ticks:
+      type: literal
+      value: 38
