@@ -178,7 +178,7 @@ class WeaponsE2eTest : E2eBase() {
                 }
                 E2eReport.check(suite, "$item hits a still target $tries/$tries", "server Health") {
                     assertThat(hits).describedAs("hits=$hits/$tries; ${trace.joinToString(" | ")}").isEqualTo(tries)
-                    "hits $hits/$tries (selected=$lastSelected)"
+                    "hits $hits/$tries (selected=$lastSelected); ${trace.joinToString(" | ") { it.substringBefore(" start[") }}"
                 }
             }
         }
