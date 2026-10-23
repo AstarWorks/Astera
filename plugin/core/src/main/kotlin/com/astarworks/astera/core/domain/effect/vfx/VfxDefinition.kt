@@ -198,9 +198,12 @@ public sealed interface VfxElementKind {
     public data class Item(
         public val itemKey: String,
         public val displayMode: DisplayItemMode = DisplayItemMode.FIXED,
+        /** Optional resource-pack item definition; material and gameplay item data remain vanilla. */
+        public val itemModel: String? = null,
     ) : VfxElementKind {
         init {
             require(itemKey.isNotBlank()) { "VfxElementKind.Item.itemKey must not be blank" }
+            require(itemModel == null || itemModel.matches(Regex("[a-z0-9._-]+:[a-z0-9/._-]+"))) { "item_model must be a namespaced resource key" }
             itemId // validates the key shape
         }
 

@@ -498,3 +498,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Real clients: target moved4→6m forward,+1m lateral,+1m up between contacts. Final moving77frames,camera9ms,maxrepeat2,HP200→194.096→182.288. Final static77frames,camera6ms,maxrepeat1,HP200→194.096→188.19199; static display peak55 from761 sequential observations.
 - Cold first casts delayed camera150/257ms; reject those captures. After a rehearsal, recreate scene/target and record moving/static separately. Publish static source-comparison only. Build core/combat and contentLint474 passed; schema edits limited to new fields/definition.
 - Fidelity remains failed: translation does not align blade/trail rotation or stretch links, so long-distance gaps remain. Pose/light/camera/trigger semantics and collision/occlusion remain unfinished. Evidence /evidence/couture-patterning-tracking.png; runtime-review/couture-patterning-round65.json.
+
+### round66：Cutoutの直接呼出し試作
+
+5本の鋏を頭上で展開し、同一標的へ下降させ、巨大鋏の閉鎖へ移る。接触は67/115tick、実機HPは200→194.096→188.19199。156フレーム、カメラ遅延最大9ms、連続重複最大1、Display観測最大45（752サンプル、逐次問合せ）。
+
+5本の鋏→下降接触→巨大鋏閉鎖の直接呼出し試作。花飾り・白い連結軌跡・接触時の発光・腕姿勢・カメラは未一致。追撃条件は未接続。 名前の対応も推定のまま。撮影済みは再現合格を意味しない。詳細: `runtime-review/couture-cutout-round66.json`。

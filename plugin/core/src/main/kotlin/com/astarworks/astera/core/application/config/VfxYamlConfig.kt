@@ -169,9 +169,10 @@ public sealed class VfxKindYaml {
     public data class Item(
         public val item: String,
         @SerialName("display_mode") public val displayMode: String = "fixed",
+        @SerialName("item_model") public val itemModel: String? = null,
     ) : VfxKindYaml() {
         override fun toDomain(): VfxElementKind =
-            VfxElementKind.Item(item, parseEnum<DisplayItemMode>(displayMode, "display_mode"))
+            VfxElementKind.Item(item, parseEnum<DisplayItemMode>(displayMode, "display_mode"), itemModel)
     }
 
     @Serializable

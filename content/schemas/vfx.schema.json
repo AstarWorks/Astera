@@ -600,6 +600,9 @@
                         },
                         "display_mode": {
                             "type": "string"
+                        },
+                        "item_model": {
+                            "type": "string"
                         }
                     },
                     "required": [

@@ -29,9 +29,10 @@
     "videoId": "GIe7Fna5LD4",
     "file": "extra-2.json",
     "sha256": "0088d1573794f40b284eb444517e050283b613370be1ddcb7eb6b60ddf4b3247",
-    "coverage": "reference-case-implementation-missing",
+    "coverage": "prototype-direct-capture-passive-routing-missing",
     "name": "Cutout (S2-2; probable passive follow-up)",
-    "caseId": "couture-rapier-cutout"
+    "caseId": "couture-rapier-cutout",
+    "case": "couture-rapier-cutout"
   },
   {
     "weapon": "couture-rapier",

@@ -46,10 +46,11 @@ public sealed class DisplayKind {
         init { require(blockKey.isNotBlank()) { "DisplayKind.Block.blockKey must not be blank" } }
     }
 
-    /** Renders an item model. Resolves through `IItemRegistry`. */
+    /** Vanilla item material with an optional resource-pack item model override. */
     public data class Item(
         public val itemId: ItemId,
         public val displayMode: DisplayItemMode = DisplayItemMode.NONE,
+        public val itemModel: String? = null,
     ) : DisplayKind()
 
     /**
