@@ -93,8 +93,8 @@ class AnimationImportIT {
         assertThat(arm.path("rotation")[1].path("t").asInt()).isEqualTo(5)
         assertThat(arm.path("rotation")[1].path("ease").asText()).isEqualTo("step")
         assertThat(arm.path("rotation")[2].path("ease").asText()).isEqualTo("linear")
-        assertThat(arm.path("rotation")[1].path("v")[1].asDouble()).isEqualTo(-30.0)
-        assertThat(arm.path("position")[0].path("v").map { it.asDouble() }).containsExactly(-2.0, 3.0, -4.0)
+        assertThat(arm.path("rotation")[1].path("v")[1].asDouble()).isEqualTo(30.0)
+        assertThat(arm.path("position")[0].path("v").map { it.asDouble() }).containsExactly(-2.0, 3.0, 4.0)
         assertThat(arm.path("scale")[0].path("v").map { it.asDouble() }).containsExactly(1.5, 0.75, 2.0)
     }
 

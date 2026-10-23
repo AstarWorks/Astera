@@ -48,7 +48,6 @@ The head additionally applies the live camera pitch and head-to-body yaw as an o
 
 A `player_head` renders the vanilla 8x8x8 head cube plus the 8.5 px hat cube from a 64x64 skin. The display transform
 stretches that cube to the bone's box (`scale = size / 8`). The core shader override
-(`content/pack-assets/assets/minecraft/shaders/core/entity.{vsh,fsh}`, shipped verbatim by `ResourcePackBuilder`)
 remaps the **fragment's** UV from the head-box layout to the same face of the bone's own skin box:
 
 1. the server marks a rig display with `brightness = (block 15, sky = payload)`, payload = bone id (0..5) + 8 for a
@@ -60,6 +59,14 @@ remaps the **fragment's** UV from the head-box layout to the same face of the bo
    UVs (`u >= 32`) map to the outer layer (jacket, sleeves, pants, hat).
 
 The table of `texOffs` / sizes lives in the shader (`rigRemap`); the bone ids live in `SkinRigBone`. Change both together.
+
+**No Mojang source is committed** (the repository is public). `content/shader-patches/core/entity.{vsh,fsh}.patch`
+hold only Astera's own lines plus one-line anchors (`@@ before|after|replace: <vanilla line>`). `ResourcePackBuilder`
+applies them at pack build time to the vanilla `core/entity.*` of the client version in `gradle/libs.versions.toml`
+(`minecraft`): the client jar is downloaded from Mojang's version manifest (SHA-1 verified) or taken from
+`$ASTERA_VANILLA_CLIENT_JAR`, and only the core shaders are cached under `~/.cache/astera/vanilla-shaders/<version>/`
+(never in the repo or the pack sources). An anchor that matches zero or several vanilla lines fails the build, so a
+shader change in a new Minecraft version is caught at pack build, not in the client.
 
 ### Content contract: `content/animations/<id>.yaml`
 
@@ -81,7 +88,8 @@ root: { rotation: [...], position: [...] }   # whole rig, pivot = hip (0, 12, 0)
 ```
 
 `ease` is the curve into that keyframe: `linear` (default), `step`, `ease_in`, `ease_out`, `ease_in_out`, `catmullrom`.
-Keyframes are strictly ascending, `0 <= t <= length_ticks`. Exact frame (the importer must emit this): rig frame is
+Keyframes are strictly ascending, `0 <= t <= length_ticks`. Exact frame (the importer emits this; Blockbench's front -Z is
+reflected to +Z, see `docs/contributing/add-a-player-animation.md`): rig frame is
 +Y up, player front +Z, player right hand at -X, positions in px; rotations are degrees, `R = Rz * Ry * Rx` (X applied
 first) around the vanilla joint (neck for head, `(0,24,0)` top of torso for body, shoulder for arms, hip for legs), so
 a negative X rotation swings an arm forward and up. Rotations are relative to the rest pose.
@@ -112,7 +120,7 @@ bones, channels, playback state machine, Display-transform math), kaml DTO in `a
 - Armor is hidden during playback (not drawn on the rig); capes, elytra and the skin-customization toggles (jacket,
   sleeves, pants, hat) are not modelled: outer layers always show. No elbows / knees (PoC six bones).
 - The override replaces `core/entity.{vsh,fsh}`, which every entity uses: it must be re-based when the pack format
-  changes (`min_format` / `max_format` pin 26.3), and it is a modified copy of Mojang's shader. An entity at block light
+  changes (`min_format` / `max_format` pin 26.3), and the patch anchors must be re-checked for each version. An entity at block light
   exactly 15 with a sky value in {0..5, 8..13} would be drawn wrongly (only inside light-15 sources such as lava).
 - Other resource packs that also replace `core/entity.*` conflict.
 

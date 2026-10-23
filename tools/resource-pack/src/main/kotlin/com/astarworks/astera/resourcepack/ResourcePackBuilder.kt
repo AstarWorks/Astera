@@ -35,14 +35,18 @@ public data class BuiltPack(val zip: Path, val sha1: String, val entryCount: Int
  * | `content/hud/<tree>.png`                     | `assets/astera/textures/hud/<tree>`                      |
  * | `content/hud/top-level .json`                     | providers merged into `assets/astera/font/default.json` |
  * | `content/fonts/<tree>.json`                  | `assets/astera/font/<tree>.json` (`fonts/vfx/spark.json` = font `astera:vfx/spark`, ADR-0239) |
- * | `content/pack-assets/assets/<path>`          | `assets/<path>` unchanged (skin-rig shaders + item definition, ADR-0250) |
+ * | `content/pack-assets/assets/<path>`          | `assets/<path>` unchanged (skin-rig item definition, ADR-0250) |
+ * | `content/shader-patches/core/<file>.patch`   | `assets/minecraft/shaders/core/<file>`: vanilla shader from the client jar + our patch (ADR-0250) |
  * | `content/textures/sources/` (all of it)     | not shipped (raster sources for `:tools:item-art`, ADR-0238) |
  * | (generated)                              | transparent sprites hiding the vanilla hearts / armor bar |
  *
  * The zip is reproducible: sorted entries, fixed timestamps, stored (not
  * deflated), so the same content always gives the same SHA-1 on any JVM.
  */
-public class ResourcePackBuilder(private val contentDir: Path) {
+public class ResourcePackBuilder(
+    private val contentDir: Path,
+    private val vanilla: VanillaShaders = VanillaShaders.fromEnvironment(),
+) {
 
     /** Every file of the pack: path inside the zip to bytes, sorted. */
     public fun collect(): Map<String, ByteArray> {
@@ -56,6 +60,7 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         addVanillaOverrides(files)
         addAtlases(files)
         addVerbatim(files)
+        addPatchedShaders(files)
         return files
     }
 
@@ -200,8 +205,7 @@ public class ResourcePackBuilder(private val contentDir: Path) {
 
     /**
      * Hand-written pack files shipped as they are (ADR-0250): `content/pack-assets/<path>` becomes `<path>`
-     * in the zip, and `<path>` must start with `assets/`. Used for the skin-rig core shader overrides and
-     * the `astera:skinrig` item definition. A path another section already produced is refused.
+     * in the zip, and `<path>` must start with `assets/`. Used for the `astera:skinrig` item definition. A path another section already produced is refused.
      */
     private fun addVerbatim(files: MutableMap<String, ByteArray>) {
         val root = contentDir.resolve(VERBATIM_DIR)
@@ -210,6 +214,24 @@ public class ResourcePackBuilder(private val contentDir: Path) {
             check(rel.startsWith("assets/")) { "content/$VERBATIM_DIR/$rel must live under assets/" }
             check(rel !in files) { "content/$VERBATIM_DIR/$rel collides with a pack file already built" }
             files[rel] = Files.readAllBytes(file)
+        }
+    }
+
+    /**
+     * Core shader overrides (ADR-0250): `content/shader-patches/core/<file>.patch` holds only Astera's additions
+     * and anchors; it is applied to the vanilla `core/<file>` of the target client at build time, so no Mojang
+     * source is committed. A missing or ambiguous anchor fails the build.
+     */
+    private fun addPatchedShaders(files: MutableMap<String, ByteArray>) {
+        val root = contentDir.resolve(PATCH_DIR)
+        for (file in filesUnder(PATCH_DIR)) {
+            if (!file.name.endsWith(".patch")) continue
+            val rel = file.relativeTo(root).invariantSeparatorsPathString.removeSuffix(".patch")
+            check(rel.startsWith("core/") && rel.count { it == '/' } == 1) { "content/$PATCH_DIR/$rel.patch must be core/<shader file>.patch" }
+            val shader = rel.removePrefix("core/")
+            val key = "assets/minecraft/shaders/$rel"
+            check(key !in files) { "content/$PATCH_DIR/$rel.patch collides with a pack file already built" }
+            files[key] = ShaderPatch.apply(shader, vanilla.coreShader(shader), Files.readString(file)).toByteArray()
         }
     }
 
@@ -257,6 +279,9 @@ public class ResourcePackBuilder(private val contentDir: Path) {
 
         /** Directory of files copied into the zip unchanged (shader overrides, special item definitions). */
         public const val VERBATIM_DIR: String = "pack-assets"
+
+        /** Shader patches applied to the vanilla client's shaders at build time (ADR-0250). */
+        public const val PATCH_DIR: String = "shader-patches"
 
         /** Model directory (under `models/`) that `:tools:item-art` writes. */
         public const val GENERATED_ITEM_DIR: String = "generated/items"

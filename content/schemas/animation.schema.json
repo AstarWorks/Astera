@@ -23,9 +23,6 @@
         },
         "bones": {
             "type": "object",
-            "propertyNames": {
-                "enum": ["head", "body", "right_arm", "left_arm", "right_leg", "left_leg"]
-            },
             "additionalProperties": {
                 "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigBoneTrackYaml"
             }
@@ -72,13 +69,10 @@
                     "type": "array",
                     "items": {
                         "type": "number"
-                    },
-                    "minItems": 3,
-                    "maxItems": 3
+                    }
                 },
                 "ease": {
-                    "type": ["string", "null"],
-                    "enum": ["linear", "step", "ease_in", "ease_out", "ease_in_out", "catmullrom", null]
+                    "type": "string"
                 }
             },
             "required": [

@@ -15,14 +15,14 @@
         "follow": {
             "type": "boolean"
         },
-        "replace_group": {
-            "type": ["string", "null"]
+        "follow_teleport_ticks": {
+            "type": "integer"
         },
         "attach_to_anchor": {
             "type": "boolean"
         },
-        "follow_teleport_ticks": {
-            "type": ["integer", "null"]
+        "replace_group": {
+            "type": "string"
         },
         "sample_ticks": {
             "type": "integer"
@@ -908,6 +908,21 @@
                 "t"
             ]
         },
+        "com.astarworks.astera.core.application.config.VfxTargetKeyYaml": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "integer"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "t",
+                "weight"
+            ]
+        },
         "com.astarworks.astera.core.application.config.VfxTiltYaml": {
             "type": "object",
             "properties": {
@@ -1037,21 +1052,6 @@
                 "start_t",
                 "end_t",
                 "life_ticks"
-            ]
-        },
-        "com.astarworks.astera.core.application.config.VfxTargetKeyYaml": {
-            "type": "object",
-            "properties": {
-                "t": {
-                    "type": "integer"
-                },
-                "weight": {
-                    "type": "number"
-                }
-            },
-            "required": [
-                "t",
-                "weight"
             ]
         }
     }

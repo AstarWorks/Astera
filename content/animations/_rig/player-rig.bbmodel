@@ -645,7 +645,7 @@
               "interpolation": "linear",
               "data_points": [
                 {
-                  "x": "-150",
+                  "x": "150",
                   "y": "0",
                   "z": "20"
                 }

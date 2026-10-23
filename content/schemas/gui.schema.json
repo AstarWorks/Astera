@@ -181,6 +181,9 @@
                         },
                         "count": {
                             "type": "integer"
+                        },
+                        "visible_if": {
+                            "type": "string"
                         }
                     },
                     "required": [

@@ -11,7 +11,7 @@ blend_in_ticks: 2          # interpolate from rest pose
 blend_out_ticks: 3         # interpolate back to rest pose, then restore the real player
 bones:                     # fixed bone set (PoC): head, body, right_arm, left_arm, right_leg, left_leg
   right_arm:               # any bone may be omitted = stays at rest pose
-    rotation:              # degrees, Euler X/Y/Z (Blockbench convention), relative to rest pose, pivot = vanilla joint (shoulder/hip/neck/waist)
+    rotation:              # degrees, Euler X/Y/Z (Blockbench convention), relative to rest pose, pivot = vanilla joint (shoulder / hip / neck; body = top of torso (0,24,0))
       - { t: 0, v: [0, 0, 0] }
       - { t: 4, v: [-150, 0, 20], ease: ease_out }
       - { t: 12, v: [0, 0, 0] }
@@ -19,7 +19,7 @@ bones:                     # fixed bone set (PoC): head, body, right_arm, left_a
       - { t: 0, v: [0, 0, 0] }
     scale:                 # optional, multiplier
       - { t: 0, v: [1, 1, 1] }
-root:                      # optional whole-rig transform, same channel shape (rotation/position)
+root:                      # optional whole-rig transform, same channel shape (rotation/position), pivot = hip (0,12,0) px
   position:
     - { t: 0, v: [0, 0, 0] }
 ```
@@ -66,7 +66,7 @@ matching: `RightArm`, `rightArm`, `right_arm` and `right-arm` all map to
 | Canonical name | Vanilla pivot in Blockbench pixels | Classic cube bounds (from → to) |
 | --- | --- | --- |
 | `head` | `(0, 24, 0)` neck | `(-4, 24, -4)` → `(4, 32, 4)` |
-| `body` | `(0, 24, 0)` | `(-4, 12, -2)` → `(4, 24, 2)` |
+| `body` | `(0, 24, 0)` top of torso (neck line, not the waist) | `(-4, 12, -2)` → `(4, 24, 2)` |
 | `right_arm` | `(-5, 22, 0)` shoulder | `(-8, 12, -2)` → `(-4, 24, 2)` |
 | `left_arm` | `(5, 22, 0)` shoulder | `(4, 12, -2)` → `(8, 24, 2)` |
 | `right_leg` | `(-1.9, 12, 0)` hip | `(-4, 0, -2)` → `(0, 12, 2)` |
@@ -112,15 +112,23 @@ rest instead of holding the final pose indefinitely.
 
 ## Coordinate and timing conventions
 
-The importer reads the **native Generic Model `.bbmodel` values** unchanged:
+The importer reads the **native Generic Model `.bbmodel` values** (Blockbench's own preview adds the three
+rotation and position components directly, Euler order `Rz*Ry*Rx`; no Bedrock axis flips are involved) and
+converts them from Blockbench's player convention to the runtime rig frame.
 
-- Rotation is `[x, y, z]` in degrees relative to the rest pose. All three
-  signs are preserved: a Blockbench right-arm X key of `-150` exports as
-  `[-150, 0, 0]`. No degree-to-radian conversion or axis inversion occurs.
-- Position is a rig-local pixel offset, with +Y up, +X toward the player's
-  left and the template's front facing -Z. A Blockbench offset `[-2, 3, -4]`
-  exports as `[-2, 3, -4]`. Do not divide by 16 or add the bone's pivot:
-  the runtime handles pixels-to-blocks, fixed joints and body-yaw placement.
+- **Blockbench frame** (template, Bedrock humanoid): +Y up, the player's front faces **-Z**, the right arm is
+  at **-X**. **Runtime rig frame** (`SkinRigBone`, `SkinRigTransforms`): +Y up, front **+Z**, right arm at **-X**.
+  The two differ by a reflection z -> -z, so the importer maps
+  rotation `[x, y, z]` -> `[-x, -y, z]` and position `[x, y, z]` -> `[x, y, -z]`. Scale is unchanged.
+  In practice: in Blockbench, **positive X on an arm swings it forward and up**; in the YAML (and in game) it is
+  negative X. The template's sample key `x: 150` therefore exports as `-150`. Never author the YAML sign in
+  Blockbench; pose normally and let the importer convert.
+- Rotation is in degrees, relative to the rest pose, around the vanilla joint (neck for head, `(0,24,0)` top of
+  torso for body, shoulder for arms, hip for legs); the runtime composes `R = Rz * Ry * Rx` (X first).
+- Position is a rig-local pixel offset: +Y up, +X toward the player's left (`-X` = right hand), and Blockbench
+  `-Z` (forward) exports as `+Z`. A Blockbench offset `[-2, 3, -4]` exports as `[-2, 3, 4]`. Do not divide by 16
+  or add the bone's pivot: the runtime handles pixels-to-blocks, fixed joints and body-yaw placement.
+- The optional `root` track (whole rig, pivot = hip `(0,12,0)` px) is written by hand in the runtime frame.
 - Scale is a dimensionless `[x, y, z]` multiplier and is copied unchanged;
   missing components default to 1 (rotation/position components default to 0).
 - Both animation length and key times use `round(seconds * 20)`, with
@@ -129,9 +137,9 @@ The importer reads the **native Generic Model `.bbmodel` values** unchanged:
   round to zero, and two keys on one channel rounding to the same tick fail.
   Keep authored keys on the 0.05-second grid to avoid quantization surprises.
 
-These signs follow Blockbench's native preview transforms, which add all
-three rotation and position components directly. Bedrock-export axis flips
-must **not** be applied again. See the upstream
+The reflection above is derived from Blockbench's native preview transforms
+(components added directly). Bedrock-export axis flips must **not** be applied
+again. See the upstream
 [BoneAnimator preview and interpolation implementation](https://github.com/JannisX11/blockbench/blob/master/js/animations/timeline_animators.js)
 and [Keyframe Bezier handles and numeric values](https://github.com/JannisX11/blockbench/blob/master/js/animations/keyframe.js).
 

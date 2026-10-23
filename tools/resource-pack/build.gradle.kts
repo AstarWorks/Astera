@@ -49,6 +49,8 @@ val buildResourcePack = tasks.register<JavaExec>("buildResourcePack") {
     inputs.dir("$rootDir/content/models")
     inputs.dir("$rootDir/content/sounds")
     inputs.dir("$rootDir/content/hud")
+    inputs.dir("$rootDir/content/pack-assets")
+    inputs.dir("$rootDir/content/shader-patches")
     outputs.dir(packDir)
 }
 
@@ -64,10 +66,12 @@ tasks.register<JavaExec>("generateHudArt") {
 tasks.named("check") { dependsOn(buildResourcePack) }
 
 tasks.withType<JavaExec>().configureEach {
+    systemProperty("astera.minecraftVersion", libs.versions.minecraft.get())
     systemProperty("java.awt.headless", "true")
 }
 
 tasks.test {
+    systemProperty("astera.minecraftVersion", libs.versions.minecraft.get())
     systemProperty("java.awt.headless", "true")
     systemProperty("astera.contentDir", "$rootDir/content")
 }

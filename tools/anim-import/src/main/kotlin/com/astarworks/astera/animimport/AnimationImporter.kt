@@ -9,7 +9,13 @@ import java.nio.file.Path
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-/** Reads native Blockbench values, not Bedrock-exported (axis-flipped) animation JSON. */
+/**
+ * Reads native Blockbench project values, not Bedrock-exported (axis-flipped) animation JSON.
+ *
+ * Blockbench's player-model convention (the template, Bedrock humanoid) puts the front at -Z with the right arm at -X.
+ * That is the runtime rig frame (`SkinRigBone`: front +Z, right hand -X, +Y up) reflected through the XY plane, so
+ * the emitted values are reflected the same way (see [toRig]): what the animator sees is what plays.
+ */
 object AnimationImporter {
     private val boneNames = listOf("head", "body", "right_arm", "left_arm", "right_leg", "left_leg")
     private val aliases = boneNames.associateBy { it.replace("_", "") } + mapOf("torso" to "body")
@@ -98,7 +104,7 @@ object AnimationImporter {
                     require(keys.map { it.tick }.toSet().size == keys.size) { "$context: keyframes collide after rounding to 20 tps; move them apart." }
                     if (keys.isNotEmpty()) {
                         tracks[channel] = keys.mapIndexed { index, key ->
-                            linkedMapOf<String, Any>("t" to key.tick, "v" to key.value).apply {
+                            linkedMapOf<String, Any>("t" to key.tick, "v" to toRig(channel, key.value)).apply {
                                 if (index > 0) put("ease", ease(keys[index - 1], key))
                             }
                         }
@@ -121,6 +127,17 @@ object AnimationImporter {
         return documents.map { (id, document) ->
             output.resolve("$id.yaml").also { Files.writeString(it, yaml.dump(document)) }
         }
+    }
+
+    /**
+     * Blockbench frame (front -Z) to runtime rig frame (front +Z): reflection z -> -z. Under a reflection a rotation
+     * about X or Y reverses sense and one about Z keeps it, so `Rz*Ry*Rx` stays `Rz*Ry*Rx` with `(x, y, z) -> (-x, -y, z)`;
+     * positions negate z; scale is unchanged. `+ 0.0` turns -0.0 into 0.0 for tidy YAML.
+     */
+    private fun toRig(channel: String, v: List<Double>): List<Double> = when (channel) {
+        "rotation" -> listOf(-v[0] + 0.0, -v[1] + 0.0, v[2] + 0.0)
+        "position" -> listOf(v[0] + 0.0, v[1] + 0.0, -v[2] + 0.0)
+        else -> v
     }
 
     private fun bone(name: String): String? = aliases[name.lowercase().replace(Regex("[ _-]"), "")]

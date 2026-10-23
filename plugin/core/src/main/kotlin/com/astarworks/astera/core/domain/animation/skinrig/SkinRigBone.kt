@@ -63,7 +63,7 @@ public enum class SkinRigBone(public val yamlName: String, public val id: Int) {
  * Block light 15 is the marker (only an entity standing inside a light-15 source ever has it),
  * and the sky value carries `bone id + 8 when the arm is slim`.
  *
- * The shader (`content/shaders/assets/minecraft/shaders/core/entity.vsh`) decodes exactly this;
+ * The shader patch (`content/shader-patches/core/entity.vsh.patch`) decodes exactly this;
  * change both together.
  */
 public object SkinRigMarker {
