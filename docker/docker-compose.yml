@@ -165,6 +165,32 @@ services:
       timeout: 3s
       retries: 10
 
+  # AI bots (ADR-0247): listens on Redis `astera:bots:request` and spawns protocol bots that queue and play like
+  # players ("play vs bots" in the lobby, `make bots N=2 LANE=norma`). The bots log in to the backends directly and
+  # answer Paper's Velocity modern-forwarding query with the shared secret (online-mode Velocity would refuse them).
+  # A plain service: `make dev-plugins` / `make dev-content` never touch it; rebuild with
+  #   docker compose -f docker/docker-compose.yml up -d --build bot-runner
+  bot-runner:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.bot-runner
+    image: astera/bot-runner:dev
+    restart: unless-stopped
+    environment:
+      ASTERA_REDIS_URI: "redis://redis:6379"
+      VELOCITY_FORWARDING_SECRET: "${VELOCITY_FORWARDING_SECRET:?VELOCITY_FORWARDING_SECRET is empty: run `make docker-up` (it generates one in docker/.env)}"
+      BOT_LOBBY_HOST: "lobby"
+      BOT_GAME_HOST: "game"
+      BOT_MAX: "${BOT_MAX:-8}"
+      BOT_QUEUE_TIMEOUT_MINUTES: "${BOT_QUEUE_TIMEOUT_MINUTES:-10}"
+    depends_on:
+      redis:
+        condition: service_healthy
+      lobby:
+        condition: service_started
+      game:
+        condition: service_started
+
   # Resource pack server (ADR-0182): http://<host>:8099/astera.zip
   resource-pack:
     build:

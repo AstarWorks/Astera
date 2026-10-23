@@ -84,6 +84,7 @@ abstract class LiveBase {
 
     @BeforeAll
     fun liveUp() {
+        Bot.noteSink = { E2eReport.notes += it }
         check(runCatching { LiveEnv.rcon("lobby", "list") }.isSuccess) { "lobby backend does not answer RCON" }
         check(runCatching { LiveEnv.rcon("game", "list") }.isSuccess) { "game backend does not answer RCON" }
         LiveEnv.sweepStaleBotOps()

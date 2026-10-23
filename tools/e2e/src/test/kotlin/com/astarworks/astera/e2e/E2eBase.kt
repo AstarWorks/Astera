@@ -11,6 +11,8 @@ abstract class E2eBase {
 
     @BeforeAll
     fun backendUp() {
+        Bot.defaultEndpoint = { E2eEnv.botEndpoint }
+        Bot.noteSink = { E2eReport.notes += it }
         E2eEnv.ensureUp()
         quietWorld()
     }

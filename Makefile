@@ -181,6 +181,10 @@ vfx-shot-down: ## Stop + drop the vfx-shot server (this checkout + SKILL/CASE; o
 live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=smoke|weapons|match|all (report: build/live-report.md)
 	bash scripts/live-bots.sh $(or $(SCENARIO),all)
 
+.PHONY: bots
+bots: ## Fill the live queue with AI bots (ADR-0247): make bots N=2 LANE=norma  (starts the bot-runner service if needed)
+	bash scripts/bots.sh $(or $(N),2) $(or $(LANE),norma)
+
 .PHONY: skill-compare
 skill-compare: ## Video vs intent vs Minecraft compare web app on 0.0.0.0:8097 (PORT=, HOST= to change)
 	cd tools/skill-compare && bun install && bun server.mjs
