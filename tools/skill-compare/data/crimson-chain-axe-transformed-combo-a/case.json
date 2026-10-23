@@ -66,12 +66,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "初回実機195フレーム、カメラ遅延最大3ms。横薙ぎのつもりが縦弧になり、縦ループのつもりが水平に見えるためrig軸の修正が必要。鎖は細い直線状で、花弁が多すぎる。浮遊・姿勢・床発光・変身・通常入力は未実装。仮命中範囲と値は原作一致の証拠ではない。"
+    "reason": "再撮影195フレーム、カメラ最大遅延3ms。初撃が水平、3撃目が縦弧となり軸の逆転は改善。花弁による遮蔽を削減。一方、軌跡が赤い分断棒に見える、鎖の湾曲・刃形状不足、浮遊・姿勢・床発光・変身・通常入力未実装。全体一致には未到達。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 1,
+  "iterations": 2,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
-  "contentRevision": "4bfd66932dd87169980cfcf08e9a2f25205e48713ba2322ece946c5ab2f30f48"
+  "contentRevision": "3b114dd9d150540b790694a23f5b292f3f5dd3bc03211952aad7d6f2224510a9"
 }

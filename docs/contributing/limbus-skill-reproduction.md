@@ -316,3 +316,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Added a directly castable sequence with four chain swing prototypes and provisional contacts at ticks 43/49/65/82/116; no base input binding was changed. Contact amounts/ranges are implementation assumptions, not observed game statistics.
 - `contentLint` passed; dedicated runtime reload reported VFX 183/0 failed and skills 79/0 failed. Actual-client capture: 195 frames, maximum camera lateness 3 ms, maximum identical run 1. Evidence: `build/limbus-review/round37/captures`.
 - Visual review failed: intended horizontal/vertical rig planes are reversed on screen, physical chain is too thin and straight, petals obscure the attack, orbit remains a segmented polygon, caster never floats. Body/claw pose, floor flares, form persistence and normal input routing remain absent. Correct rig axes and reduce petal emission next, then re-film; do not accept this capture as matching.
+
+### Round 38: Crimson swing axes and petal density
+
+- Read `VfxRigMotion.exact`: rotation is tilt × swing × rest; yaw motion with pitch-90 rest traces a horizontal plane. Corrected low/diagonal/loop/descending outer rolls to 0/-45/-90/-55 degrees. Removed repeated rig particle emitters while retaining the short display petal burst; other Crimson skills are unchanged.
+- `contentLint` passed. Re-filmed with unchanged camera: 195 frames, maximum camera lateness 3 ms, longest identical-frame run 1. Actual sheet confirms low horizontal first sweep and vertical third sweep; the previous petal cloud is gone.
+- Fidelity still fails: segmented red trail bars, insufficient flexible chain curvature and crescent link geometry, stationary caster, missing claw/body pose, floor glows and form/input routing. Evidence: `build/limbus-review/round38/captures`. The existing freeze/hold mechanics only apply slowness/jump suppression (and one velocity reset); they do not establish an airborne hold and must not be mistaken for hover support.
