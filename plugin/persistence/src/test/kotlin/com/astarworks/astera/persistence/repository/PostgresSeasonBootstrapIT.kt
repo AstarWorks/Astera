@@ -22,10 +22,10 @@ class PostgresSeasonBootstrapIT : PostgresIntegrationTestBase() {
             PlayerRatingUpdated(playerId = player, oldRating = 1000, newRating = 1020, won = true, matchId = MatchId("ranked-first")),
         )
         val entries = QueryLeaderboardUseCase(rankings, seasons).execute(10).getOrNull()!!
-        assertThat(entries).singleElement().satisfies {
-            assertThat(it.playerId).isEqualTo(player)
-            assertThat(it.rating).isEqualTo(1020)
-            assertThat(it.wins).isEqualTo(1L)
-        }
+        assertThat(entries).hasSize(1)
+        val entry = entries.single()
+        assertThat(entry.playerId).isEqualTo(player)
+        assertThat(entry.rating).isEqualTo(1020)
+        assertThat(entry.wins).isEqualTo(1L)
     }
 }
