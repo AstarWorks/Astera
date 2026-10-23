@@ -20,24 +20,27 @@
     "videoId": "GIe7Fna5LD4",
     "file": "extra-1.json",
     "sha256": "f256c2f71203b07c0bcbe4dabee85a9472ab6d5e2ef78e4189e3a3928661e56d",
-    "coverage": "pending-review",
-    "name": "extra-1"
+    "coverage": "reference-case-implementation-missing",
+    "name": "Patterning (S1-2; passive follow-up)",
+    "caseId": "couture-rapier-patterning"
   },
   {
     "weapon": "couture-rapier",
     "videoId": "GIe7Fna5LD4",
     "file": "extra-2.json",
     "sha256": "0088d1573794f40b284eb444517e050283b613370be1ddcb7eb6b60ddf4b3247",
-    "coverage": "pending-review",
-    "name": "extra-2"
+    "coverage": "reference-case-implementation-missing",
+    "name": "Cutout (S2-2; probable passive follow-up)",
+    "caseId": "couture-rapier-cutout"
   },
   {
     "weapon": "couture-rapier",
     "videoId": "GIe7Fna5LD4",
     "file": "extra-3.json",
     "sha256": "4eadaf77ec307f68bae37b3e1efe431168fdf72a20a59c233d18b893537bfe7e",
-    "coverage": "pending-review",
-    "name": "extra-3"
+    "coverage": "other-character-not-weapon-skill",
+    "name": "Other character: hat-wearing black-clad ally",
+    "notes": "Two ally action sequences precede Rodion follow-ups; do not assign their gold attacks to the shears weapon."
   },
   {
     "weapon": "crimson-chain-axe",

@@ -465,3 +465,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Added swings at40/46/62/79, three ticks before provisional contacts. Core JAR build/contentLint passed; dedicated core/skill deployed and hashes checked. Actual195frames, lateness8ms, repeated maximum1. Frames047/054/071/086 show arm motion; no unknown-animation/runtime-dispatch error found.
 - HP after capture: selected170.47997, other two200, same as previous five-contact result; no extra damage observed. Display sampling733 observations peaks59. Evidence under round60; summary data/runtime-review/crimson-arm-swings-round60.json.
 - This reduces idle arms, not full fidelity. Native arm direction/speed, torso twist, hand-to-chain binding, airborne contact alignment, source form/lights/camera/hits and normal input remain incomplete.
+
+### Round 61: Couture follow-up reference cases
+
+- Registered Patterning (native frames641..727) and probable Cutout (1414..1618) as missing implementations, with no asteraSkillId. Never borrow base-slot captures for an unimplemented follow-up. One reused coin in Patterning produces two visible contacts; Cutout's five falling blades are one contact cluster.
+- Prepared86/204 native frames and visually checked overhead preparation and both contacts. Browser playback reached both ends and looped without errors; index exposes both as 未実装・未接続 with no Minecraft sources. Local evidence: build/limbus-review/round61.
+- extra-3 depicts another ally, not Rodion; preserve as context for follow-up triggers, exclude from this weapon's attack count. Trigger logic, actual implementation/capture and fidelity review for both new cases remain outstanding.
