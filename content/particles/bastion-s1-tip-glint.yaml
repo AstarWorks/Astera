@@ -1,9 +1,10 @@
-# Bastion S1: one end_rod glint per tick at the blade tip (animator rig emitter).
+# Bastion S1 (round 2): pale-gold glint at the blade tip. Was end_rod (vanilla life ~60 ticks: white diamonds/blobs lingered for the whole skill).
 id: bastion-s1-tip-glint
 shape: { kind: point }
-color: { r: 255, g: 255, b: 255 }
+color: { r: 255, g: 240, b: 170 }
 count: 1
-lifetime_ticks: 8
-vanilla_particle: end_rod
-velocity: { direction: outward, speed: 0.04, spread_degrees: 90 }
+lifetime_ticks: 6
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 255, g: 246, b: 190 }, to: { r: 255, g: 190, b: 60 }, scale: 0.4 }
+velocity: { direction: outward, speed: 0.05, spread_degrees: 90 }
 force: true

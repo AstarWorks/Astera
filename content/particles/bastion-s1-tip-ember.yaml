@@ -1,9 +1,11 @@
-# Bastion S1: one orange ember per tick at the blade tip (animator rig emitter, tip [0, 2.55, 0] sword-local).
+# Bastion S1 (round 2): one ember per tick at the blade tip (rig emitter). Dust transition, not small_flame: a flame sprite
+# next to the caster camera became a 2x2 block of red/orange/yellow squares filling the view (caster f15-16).
 id: bastion-s1-tip-ember
 shape: { kind: point }
 color: { r: 255, g: 138, b: 30 }
 count: 1
-lifetime_ticks: 10
-vanilla_particle: small_flame
-velocity: { direction: along_tangent, speed: 0.12, spread_degrees: 30 }
+lifetime_ticks: 8
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 255, g: 150, b: 40 }, to: { r: 120, g: 30, b: 10 }, scale: 0.4 }
+velocity: { direction: along_tangent, speed: 0.2, spread_degrees: 30 }
 force: true

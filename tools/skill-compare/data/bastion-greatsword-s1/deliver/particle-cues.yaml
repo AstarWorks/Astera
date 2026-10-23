@@ -1,22 +1,10 @@
-# limbus-vfx -> director: vanilla particle cues (spawn_particle). Skill ticks; hit 1 contact = 7, hit 2 contact = 31.
-# "x2" = two spawn_particle calls one tick apart (files hold the hit-1 count; hit 2 is heavier).
-# Positions/shape orientation (arc: 0 = forward, + = left, horizontal plane) are NOT verified in the real client.
-cues:
-  - { id: bastion-s1-hit-crit,    hit1: { tick: 7, calls: 1, count: 8 },   hit2: { tick: 31, calls: 2, count: 16 }, target: cone target chest, note: crit white burst }
-  - { id: bastion-s1-hit-spark,   hit1: { tick: 7, calls: 1, count: 5 },   hit2: { tick: 31, calls: 2, count: 10 }, target: caster look from [0,1.1,0.5], note: electric_spark along the streak }
-  - { id: bastion-s1-ember,       hit1: { tick: "5-8", calls: 4, count: 12 }, hit2: { tick: "29-32", calls: 4, count: 12 }, target: caster at blade tip path, note: 3 per call, one call per tick; hit 2 same (brief asks 5/tick: add a second call on 30 and 31 if wanted) }
-  - { id: bastion-s1-smoke-dark,  hit1: { tick: 8, calls: 1, count: 5 },   hit2: { tick: 32, calls: 2, count: 10 }, target: caster feet, note: smoke baton after the flash }
-  - { id: bastion-s1-dust-gold,   hit1: { tick: 6, calls: 1, count: 8 },   hit2: { tick: 30, calls: 2, count: 16 }, target: caster, note: 8 points on a forward arc r 1.8 }
-  - { id: bastion-s1-dust-black,  hit1: { tick: 6, calls: 1, count: 4 },   hit2: { tick: 30, calls: 2, count: 8 }, target: caster, note: dark mix, arc r 2.1 }
-  - { id: bastion-s1-ground-poof, hit1: { tick: 6, calls: 1, count: 5 },   hit2: { tick: 30, calls: 2, count: 10 }, target: caster feet, note: ring r 0.9 }
-  - { id: bastion-s1-tip-ember,   rig_emitter: true, ticks: "e2-e8", per_tick: 1, note: animator rig emitter at sword-local [0,2.55,0] }
-  - { id: bastion-s1-tip-glint,   rig_emitter: true, ticks: "e2-e7", per_tick: 1, note: animator rig emitter, end_rod }
-vanilla_per_tick_peak: "hit 1 about 8 + 5 + 3 + 5 + 8 + 4 + 5 = 38 at tick 7-8 (limit 120)"
-display_particles:   # inside content/vfx/bastion-s1-fx-*.yaml, quads with emit (budget row = alive displays, conservative)
-  fx-high:
-    - { element: s1h1-sparks, count: 4, spawn_effect_ticks: [4, 4, 5, 5], life: [6, 8], note: orange #FFC040 -> #FF7A12 -> #B03000 }
-    - { element: s1h1-specks, count: 2, spawn_effect_ticks: [5, 6], life: [6, 8], note: dark #1A1206 }
-  fx-low:
-    - { element: s1h2-sparks, count: 4, spawn_effect_ticks: [4, 4, 5, 5], life: [6, 8] }
-    - { element: s1h2-sparks-hip, count: 1, spawn_effect_ticks: [4], life: [6, 8] }
-    - { element: s1h2-specks, count: 3, spawn_effect_ticks: [5, 6, 7], life: [8, 10], note: dark #1A1206 from the feet, direction up-forward }
+# limbus-vfx round 2 -> director: ticks/counts UNCHANGED from round 1; only the particle kinds changed.
+# small_flame/end_rod/poof/smoke (vanilla life up to 40-60 ticks; cartoon flame sprite near the caster camera) were replaced by
+# dust_color_transition at scale 0.4-0.8 (life ~5-20 ticks). Per hit: hit 1 ember 4 calls x3, dust-gold 1x8 + dust-black 1x4 +
+# ground-poof 1x5 (tick 6); hit-crit 8 + hit-spark 5 (tick 7); smoke-dark 5 (tick 8). Hit 2 = same +24 ticks, doubled as in round 1.
+# Rig emitters: tip-ember 1/tick, tip-glint 1/tick (animator keeps the ticks).
+cues: []   # no tick/count change requested
+display_particles:
+  fx-high: [{ element: s1h1-sparks, count: 4 }, { element: s1h1-specks, count: 2 }]
+  fx-low: [{ element: s1h2-sparks, count: 4 }, { element: s1h2-specks, count: 3 }]   # s1h2-sparks-hip dropped (budget)
+display_budget_peak: { fx-high: 16, fx-low: 16 }   # conservative (end tick counted alive), cap 16

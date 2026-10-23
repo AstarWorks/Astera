@@ -14,19 +14,19 @@ elements:
   end_tick: 10
   keyframes:
   - t: 0
-    translate: [0, 2.0, 0.6]
+    translate: [0, 1.9, 2.7]
     rotate: [0, 0, 20]
-    scale: [0.625, 0.625, 1.0]
+    scale: [0.5625, 0.5625, 1.0]
   - t: 2
-    scale: [0.7812, 0.7812, 1.0]
+    scale: [0.6875, 0.6875, 1.0]
     ease: out_quad
-    translate: [0, 2.0, 0.6]
+    translate: [0, 1.9, 2.7]
     rotate: [0, 0, 20]
   - t: 8
     ease: in_quad
-    translate: [0, 2.0, 0.6]
+    translate: [0, 1.9, 2.7]
     rotate: [0, 0, 20]
-    scale: [0.6641, 0.03125, 1.0]
+    scale: [0.5844, 0.0275, 1.0]
 - id: s1h1-cres-b
   kind: {type: sprite, sprite: bastion-s1-crescent, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
@@ -35,19 +35,35 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.4, 1.3, 0.8]
+    translate: [0.4, 1.4, 3.1]
     rotate: [0, 0, -20]
-    scale: [0.4688, 0.4688, 1.0]
+    scale: [0.4062, 0.4062, 1.0]
   - t: 2
-    scale: [0.5937, 0.5937, 1.0]
+    scale: [0.5, 0.5, 1.0]
     ease: out_quad
-    translate: [0.4, 1.3, 0.8]
+    translate: [0.4, 1.4, 3.1]
     rotate: [0, 0, -20]
   - t: 6
     ease: in_quad
-    translate: [0.4, 1.3, 0.8]
+    translate: [0.4, 1.4, 3.1]
     rotate: [0, 0, -20]
-    scale: [0.5047, 0.02375, 1.0]
+    scale: [0.425, 0.02, 1.0]
+- id: s1h1-ring
+  kind: {type: sprite, sprite: bastion-s1-ring, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 4
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 0.85, 2.5]
+    rotate: [0, 0, 8]
+    scale: [0.7812, 0.7812, 1.0]
+  - t: 6
+    ease: in_quad
+    translate: [0, 0.85, 2.5]
+    rotate: [0, 0, 8]
+    scale: [0.6641, 0.03125, 1.0]
 - id: s1h1-streak-main
   kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
@@ -140,13 +156,13 @@ elements:
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [0.6, 1.5, -1.2]
+    translate: [1.3, 1.7, 2.7]
     rotate: [0, 0, 30]
     scale: [0.09375, 0.09375, 1.0]
   - t: 2
     scale: [0.07969, 0.00375, 1.0]
     ease: out_quad
-    translate: [0.6, 1.5, -1.2]
+    translate: [1.3, 1.7, 2.7]
     rotate: [0, 0, 30]
 - id: s1h1-sliver-2
   kind: {type: sprite, sprite: bastion-s1-sliver, frame_ticks: 1, loop: false, see_through: true}
@@ -156,30 +172,14 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0.85, 1.65, -0.9]
+    translate: [1.5, 1.9, 2.8]
     rotate: [0, 0, -20]
     scale: [0.09375, 0.09375, 1.0]
   - t: 2
     scale: [0.07969, 0.00375, 1.0]
     ease: out_quad
-    translate: [0.85, 1.65, -0.9]
+    translate: [1.5, 1.9, 2.8]
     rotate: [0, 0, -20]
-- id: s1h1-sliver-3
-  kind: {type: sprite, sprite: bastion-s1-sliver, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 5
-  end_tick: 8
-  keyframes:
-  - t: 0
-    translate: [1.0, 1.8, -0.6]
-    rotate: [0, 0, 55]
-    scale: [0.09375, 0.09375, 1.0]
-  - t: 2
-    scale: [0.07969, 0.00375, 1.0]
-    ease: out_quad
-    translate: [1.0, 1.8, -0.6]
-    rotate: [0, 0, 55]
 - id: s1h1-smoke-a
   kind: {type: sprite, sprite: bastion-s1-smoke, frame_ticks: 2, loop: false, see_through: true}
   billboard: center

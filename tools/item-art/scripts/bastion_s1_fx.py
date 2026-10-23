@@ -78,13 +78,17 @@ def high():
     els = []
     # core: crescents (frame f2 = the peak on e4)
     els.append(sprite("s1h1-cres-a", "bastion-s1-crescent", 2, 10, [
-        kf(0, [0, 2.0, 0.6], [0, 0, 20], [s256(4.0), s256(4.0), 1.0]),
-        kf(2, scale=[s256(5.0), s256(5.0), 1.0], ease="out_quad"),
+        kf(0, [0, 1.9, 2.7], [0, 0, 20], [s256(3.6), s256(3.6), 1.0]),
+        kf(2, scale=[s256(4.4), s256(4.4), 1.0], ease="out_quad"),
         kf(6, alpha=1.0), kf(8, alpha=0.0, ease="in_quad")]))
     els.append(sprite("s1h1-cres-b", "bastion-s1-crescent", 3, 9, [
-        kf(0, [0.4, 1.3, 0.8], [0, 0, -20], [s256(3.0), s256(3.0), 1.0]),
-        kf(2, scale=[s256(3.8), s256(3.8), 1.0], ease="out_quad"),
+        kf(0, [0.4, 1.4, 3.1], [0, 0, -20], [s256(2.6), s256(2.6), 1.0]),
+        kf(2, scale=[s256(3.2), s256(3.2), 1.0], ease="out_quad"),
         kf(4, alpha=1.0), kf(6, alpha=0.0, ease="in_quad")]))
+    # low ring: one smooth ellipse around the target, frames grow then thin (6 ticks)
+    els.append(sprite("s1h1-ring", "bastion-s1-ring", 4, 10, [
+        kf(0, [0, 0.85, 2.5], [0, 0, 8], [s256(5.0), s256(5.0), 1.0]),
+        kf(6, alpha=0.0, ease="in_quad")]))
     # core: white-hot streaks, grow 2+ blocks per tick
     els.append(sprite("s1h1-streak-main", "bastion-s1-streak", 4, 12, [
         kf(0, [0, 1.1, 2.8], [0, 0, -6], [s256(0.6), 0.3, 1.0], alpha=1.0),
@@ -105,7 +109,7 @@ def high():
         kf(1, scale=[s128(1.2), s128(1.2), 1.0], ease="out_back"),
         kf(3, scale=[s128(0.7), s128(0.7), 1.0], alpha=0.0, ease="out_quad")]))
     # spark: slivers flicked off the left crescent tip, staggered e3 e4 e5, each lives 3 ticks (frames flip f0 f1 f2)
-    for i, (start, p, r) in enumerate([(3, [0.6, 1.5, -1.2], 30), (4, [0.85, 1.65, -0.9], -20), (5, [1.0, 1.8, -0.6], 55)]):
+    for i, (start, p, r) in enumerate([(3, [1.3, 1.7, 2.7], 30), (4, [1.5, 1.9, 2.8], -20)]):
         q = [p[0] + 0.18, p[1] + 0.12, p[2] + 0.2]
         els.append(sprite(f"s1h1-sliver-{i + 1}", "bastion-s1-sliver", start, start + 3, [
             kf(0, p, [0, 0, r], [s128(0.3), s128(0.3), 1.0], alpha=1.0),
@@ -129,17 +133,16 @@ def high():
 def low():
     els = []
     ink_kf = lambda pos, w, h, a0: [
-        kf(0, pos, [0, 0, 0], [s256(w), s256(h), 1.0], alpha=a0), kf(1, alpha=1.0), kf(3, alpha=0.0, ease="in_quad")]
-    els.append(sprite("s1h2-ink-a", "bastion-s1-ink", 2, 5, ink_kf([0, 1.1, 3.4], 8.0, 2.6, 0.85)))
-    els.append(sprite("s1h2-ink-b", "bastion-s1-ink", 3, 6, ink_kf([0.3, 0.8, 3.0], 6.0, 2.0, 0.85)))
-    els.append(sprite("s1h2-cres-a", "bastion-s1-crescent", 3, 11, [
-        kf(0, [0, 0.8, 0.5], [0, 0, 20], [s256(4.3), s256(4.3), 1.0]),
-        kf(2, scale=[s256(5.5), s256(5.5), 1.0], ease="out_quad"),
-        kf(6, alpha=1.0), kf(8, alpha=0.0, ease="in_quad")]))
-    els.append(sprite("s1h2-cres-b", "bastion-s1-crescent", 4, 9, [
-        kf(0, [0.5, 0.5, 0.9], [0, 0, 14], [s256(3.5), s256(3.5), 1.0]),
-        kf(2, scale=[s256(4.5), s256(4.5), 1.0], ease="out_quad"),
-        kf(3, alpha=1.0), kf(5, alpha=0.0, ease="in_quad")]))
+        kf(0, pos, [0, 0, 0], [s256(w), s256(h), 1.0]), kf(a0, alpha=0.0, ease="in_quad")]
+    els.append(sprite("s1h2-ink-a", "bastion-s1-ink", 2, 6, ink_kf([0, 1.1, 3.4], 9.5, 3.4, 4)))
+    els.append(sprite("s1h2-ink-b", "bastion-s1-ink", 3, 6, ink_kf([0.3, 0.8, 3.0], 7.0, 2.4, 3)))
+    # hit 2 is a LOW thick ring (reference e05/e06), not hit 1's high crescent
+    els.append(sprite("s1h2-ring-a", "bastion-s1-ring", 3, 10, [
+        kf(0, [0, 0.5, 2.6], [0, 0, 0], [s256(7.0), s256(7.0), 1.0]),
+        kf(7, alpha=0.0, ease="in_quad")]))
+    els.append(sprite("s1h2-ring-b", "bastion-s1-ring", 4, 9, [
+        kf(0, [0.2, 0.8, 3.0], [0, 0, -6], [s256(4.8), s256(4.8), 1.0]),
+        kf(5, alpha=0.0, ease="in_quad")]))
     els.append(sprite("s1h2-streak-main", "bastion-s1-streak", 4, 10, [
         kf(0, [0, 1.3, 3.05], [0, 0, -4], [s256(0.6), 0.32, 1.0], alpha=1.0),
         kf(1, scale=[s256(5.5), 0.32, 1.0], ease="out_expo"),
@@ -147,8 +150,7 @@ def low():
         kf(6, scale=[s256(4.8), 0.1, 1.0], alpha=0.0, ease="in_quad")]))
     # speed lines: staggered e3 e4 e7, each lives 3 ticks, each lives 3 ticks
     for i, (start, x, y, z, w, col) in enumerate([
-            (3, 1.0, 0.55, 0.8, 2.4, None), (4, -1.0, 1.05, 1.1, 2.0, "#FFE070"),
-            (7, -1.0, 1.5, 1.4, 2.2, None)]):
+            (3, 1.0, 0.55, 0.8, 2.4, None), (4, -1.0, 1.05, 1.1, 2.0, "#FFE070")]):
         els.append(sprite(f"s1h2-line-{i + 1}", "bastion-s1-streak", start, start + 3, [
             kf(0, [x, y, z + 1.0], [0, 0, 0], [s256(0.5), 0.1, 1.0], alpha=1.0),
             kf(1, scale=[s256(w), 0.1, 1.0], ease="out_expo"),
@@ -166,8 +168,6 @@ def low():
         kf(7, scale=[s256(4.0), s256(4.0) * 0.2, 1.0], alpha=0.0, ease="out_quad")], frame_ticks=2))
     els.append(quad("s1h2-sparks", "#FFC040", 4, [0, 1.0, 1.5],
                     emit(4, 2, "forward", 30, [0.4, 0.7], [6, 8], [0.04, 0.09], 0.02, SPARK_C, [1.0, 0.9, 0.0])))
-    els.append(quad("s1h2-sparks-hip", "#FFC040", 4, [0, 0.9, 0.3],
-                    emit(1, 1, "forward", 35, [0.3, 0.55], [6, 8], [0.04, 0.08], 0.02, SPARK_C, [1.0, 0.9, 0.0])))
     els.append(quad("s1h2-specks", "#1A1206", 5, [0, 0.15, 0.5],
                     emit(3, 1, "custom[0,0.5,1]", 60, [0.08, 0.2], [8, 10], [0.05, 0.1], 0.03, None, [0.9, 0.9, 0.0])))
     return {"id": "bastion-s1-fx-low", "duration_ticks": 18, "orient": "yaw", "follow": False, "sample_ticks": 1,
