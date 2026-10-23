@@ -1,0 +1,54 @@
+{
+  "runtime": {
+    "baseCommit": "d018bb60a7809ef612db01b30c361aedcce5002e",
+    "resourcePackSha1": "38014dcbb395fadb945df2684ee0525689b50a3c",
+    "deployedEvidence": {
+      "content/vfx/edict-procuration-airborne.yaml": "cd2d449fd63028eefd3056c69d04079d5f047cd95851d77f61d812e077953c5a",
+      "content/vfx/edict-procuration-dive.yaml": "c2d78ed903a26fb52f8dc1465a8c8f921abb884520933e0c309d938460c920f9",
+      "content/skills/edict-procuration-s3.yaml": "e2aa92e6f15f0331dbd3372cc8c23e614f464f61b0629b3b77da8954d9388825",
+      "content/sprites/procuration-ribbon.yaml": "4de1894675e84f16dc9c4ec6534be76cca6205f74501b9667a63fda2050cf81d",
+      "content/vfx/edict-procuration-crossing.yaml": "b12e0c23975fa2c35a1e017122b490bf2351babca5fd6bc8b8591dad326b651e",
+      "content/vfx/edict-procuration-air-trace.yaml": "dafd98c920d8d8443de36d4e8d191d4cad57e8080570ec17e4d30b79832b1862"
+    },
+    "coreSha256": "b54a8e06d0d57bd7aa364ba83c7cec57c0c4b661f159c45bbad05f19b05f5bde",
+    "combatSha256": "aef44f22621f89f3448dc9c9716652a2c0f813976f2fd934d1e4c49745e10a25",
+    "cameraRevision": "04b04967b23cc491c1a99e87f6d74bf133b3889d430de2dd3f24e51036b34699",
+    "changes": "Stationary target-local three-streak afterimage at ascent contact tick26"
+  },
+  "reference": {
+    "case": "edict-procuration-s3",
+    "sourceRelativeFrames": [
+      40,
+      42,
+      44
+    ],
+    "observed": "At42, caster is far upper-left, but three diagonal white strokes remain over the target; by44 they are absent.",
+    "trial": "Snapshot target at tick26, three two-sided ribbons shrink to zero over4ticks, removed at5ticks.",
+    "scope": "Visual residual only; no extra hit or original hidden hit-time claim.",
+    "limitations": "Target selector remains prototype nearby-entity selection; opacity decay is approximated by shrinking width."
+  },
+  "captures": [
+    {
+      "path": "build/limbus-review/round33/captures/edict-procuration-s3-1792725367266905606",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 4.0
+      }
+    },
+    {
+      "path": "build/limbus-review/round33/captures/edict-procuration-s3-1792725394213144008",
+      "quality": {
+        "maxRepeatedFrames": 3,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 4.0
+      }
+    }
+  ],
+  "visualReview": {
+    "first/frames_032_034": "Three diagonal strokes remain over target while caster moves left/up; strokes shorten.",
+    "first/frames_035_036": "Separate target trace is no longer visible; body-attached claws continue.",
+    "remaining": "Reference softness/opacity and precise timing not certified; existing target selection and overall fidelity remain prototype."
+  },
+  "fidelityStatus": "failed"
+}

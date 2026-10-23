@@ -59,12 +59,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "round32: 光帯素材128→256px、使用3定義の拡大率を半分にして寸法を維持。再撮影024/038/040で表示と輪郭の段差縮小を確認。途中コピーはメタデータ不在で不採用。帯の重なり・残光・人物姿勢、通常プレイのカメラ、持続変身・通常入力は未一致。"
+    "reason": "round33: 参照42の標的上の3本の残光を追加。26tickの標的位置に固定し、実撮影032〜034で人物と離れて残ることを確認、035〜036で消失。透明度減衰は幅縮小による近似。形状・姿勢・正確な時刻、通常プレイのカメラ、持続変身・通常入力は未一致。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 36,
+  "iterations": 38,
   "report": "/report/edict-blade",
   "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
-  "contentRevision": "fd26f9fceae1634569f80d1fde8dcd72d3f8305ae226f00ea1c884534b47673a"
+  "contentRevision": "9d55071138fe13c541b17335a006f93ae1cbad7ed712f5c77125f34800c7be28"
 }
