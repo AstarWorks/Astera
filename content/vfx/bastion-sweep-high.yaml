@@ -48,14 +48,14 @@ rigs:
     size: [0.09, 0.8, 0.09]
   swing:
   - t: 0
-    rotate: [184, 40, 0]
+    rotate: [262, 40, 0]
   - t: 1
-    rotate: [188, 40, 0]
+    rotate: [266, 40, 0]
   - t: 4
-    rotate: [-78, 14, 0]
-    ease: in_quad
+    rotate: [-96, 14, 0]
+    ease: linear
   - t: 7
-    rotate: [-100, 18, 0]
+    rotate: [-112, 18, 0]
     ease: out_cubic
   - t: 12
     rotate: [-104, 26, 0]

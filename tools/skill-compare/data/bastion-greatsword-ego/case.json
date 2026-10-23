@@ -1,13 +1,13 @@
 {
   "id": "bastion-greatsword-ego",
-  "rev": 6,
+  "rev": 7,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 0,
   "end_s": 3.8,
   "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "from-wiki",
-  "iterations": 4,
+  "iterations": 6,
   "report": "/report/bastion-greatsword",
   "skill": {
     "name": "城塞の暁",
@@ -23,7 +23,7 @@
     "castTickInTrace": 6
   },
   "segments": [],
-  "notes": "【独自設計・動作確認中 / 反復4】参照映像なし。大盾を掲げ、2.8block跳んで大剣を床に突き立て、黄金の柱と稲妻。",
+  "notes": "【独自設計・動作確認済(強制発動) / 反復6】参照映像なし。大盾を掲げ、2.8block跳んで大剣を床に突き立て、黄金の柱と稲妻。",
   "editLog": [
     {
       "who": "sonnet-bastion-greatsword",
@@ -34,11 +34,16 @@
       "who": "sonnet-bastion-greatsword",
       "at": "2026-10-23T11:18:20.486890+00:00",
       "summary": "EGO 独自設計 反復4"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T12:09:50.110366+00:00",
+      "summary": "EGO 独自設計 反復6"
     }
   ],
   "verification": {
     "status": "unverified",
-    "reason": "原動画にE.G.Oは存在しない。独自設計: 障壁→跳躍→大剣を突き立て黄金の柱+稲妻。原作再現とは呼ばない。",
+    "reason": "原動画にE.G.Oは存在しない。独自設計・動作確認済(--force撮影): 障壁→2.8block跳躍→大剣を突き立て黄金の柱+稲妻+ノックバック。通常入力(Q+ゲージ)は未確認。原作再現とは呼ばない。",
     "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
     "evidence": ""
   },

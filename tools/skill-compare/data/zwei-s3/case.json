@@ -1,6 +1,6 @@
 {
   "id": "zwei-s3",
-  "rev": 5,
+  "rev": 6,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 18.9,
   "end_s": 23.7,
@@ -100,7 +100,7 @@
       "notes": "屈み、垂直の剣を立てて保持。"
     }
   ],
-  "notes": "【現状: 検証不合格 / 反復4】接触3回(t10,t40,t63)。キャスター: 3.6blockダッシュ(t37-39)で間合い4.6→1.5block。残差: 棘・円盤。",
+  "notes": "【現状: 検証不合格 / 反復6】接触3回(t10,t40,t63)。キャスター: 3.6blockダッシュ(t37-39)で間合い4.6→1.5block。残差: 円盤・挿入演出・同期。",
   "editLog": [
     {
       "who": "sonnet-bastion-greatsword",
@@ -111,14 +111,19 @@
       "who": "sonnet-bastion-greatsword",
       "at": "2026-10-23T11:18:20.472942+00:00",
       "summary": "S3 反復4 (リング不透明化・粒子削除・棘改修)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T12:09:50.082844+00:00",
+      "summary": "S3 反復6 (全周スイープ、棘を稲妻状に、カメラを高く)"
     }
   ],
   "status": "captured",
-  "iterations": 4,
+  "iterations": 6,
   "report": "/report/bastion-greatsword",
   "verification": {
     "status": "failed",
-    "reason": "反復4: 逆手の金色リング・引きずり・3.6blockのダッシュ突き・光柱は原動画に近い。残差: 床の棘が浮いて見える→稲妻状へ変更中、水平の円盤が表示されない、tick同期ずれ。",
+    "reason": "反復6: 逆手の金色リング、引きずり、3.6blockダッシュ(間合い4.6→1.5)、水平突き、光柱+放射状の棘は原動画に近い。残差: 水平の円盤が表示されない、20.8の黄色ベタ塗り・灰色1コマなどの挿入演出未実装、tick同期ずれ、カメラの寄り。",
     "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
     "evidence": ""
   },

@@ -1,13 +1,13 @@
 {
   "id": "bastion-greatsword-def",
-  "rev": 6,
+  "rev": 7,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 23.7,
   "end_s": 31.767,
   "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "captured",
-  "iterations": 1,
+  "iterations": 3,
   "report": "/report/bastion-greatsword",
   "skill": {
     "name": "城壁の構え",
@@ -71,7 +71,7 @@
       "notes": "同上。"
     }
   ],
-  "notes": "【現状: 検証不合格 / 反復1】障壁の見え方のみ再現、被弾閃光は未実装。",
+  "notes": "【現状: 検証不合格 / 反復3】障壁の見え方のみ再現(半透明・幅・被弾閃光に差)。",
   "editLog": [
     {
       "who": "sonnet-bastion-greatsword",
@@ -82,11 +82,16 @@
       "who": "sonnet-bastion-greatsword",
       "at": "2026-10-23T11:18:20.480580+00:00",
       "summary": "DEF 反復1 (bastion-shield)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T12:09:50.094671+00:00",
+      "summary": "DEF 反復3 (障壁を大型化・彩度強化)"
     }
   ],
   "verification": {
-    "status": "unverified",
-    "reason": "反復1: 金色の半透明障壁(縦楕円)を162tick維持。被弾閃光は被弾トリガ機構が無く未再現。紋章が小さい。",
+    "status": "failed",
+    "reason": "反復3: 金色の障壁(縦楕円+紋章)を162tick維持。残差: 不透明なピクセル調で原動画の半透明の光沢がない、幅が細い、被弾閃光は被弾トリガ機構が無く未再現。",
     "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
     "evidence": ""
   },

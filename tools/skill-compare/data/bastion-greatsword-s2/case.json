@@ -1,13 +1,13 @@
 {
   "id": "bastion-greatsword-s2",
-  "rev": 6,
+  "rev": 7,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 14.633,
   "end_s": 18.4,
   "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "captured",
-  "iterations": 3,
+  "iterations": 5,
   "report": "/report/bastion-greatsword",
   "skill": {
     "name": "審判の突進",
@@ -108,7 +108,7 @@
       "notes": "屈んだまま大剣を突き立てて保持。"
     }
   ],
-  "notes": "【現状: 検証不合格 / 反復3】接触3回(t13低リング, t32高リング, t53縦アーチ+棘)。キャスター: 1.6/0.7/0.8block踏み込み。残差: 縦アーチ・棘。",
+  "notes": "【現状: 検証不合格 / 反復5】接触3回(t13低リング, t32高リング, t53縦アーチ+棘)。キャスター: 1.6/0.7/0.8block踏み込み。残差: アーチの強さ・ベタ塗り閃光・同期。",
   "editLog": [
     {
       "who": "sonnet-bastion-greatsword",
@@ -119,11 +119,16 @@
       "who": "sonnet-bastion-greatsword",
       "at": "2026-10-23T11:18:20.436820+00:00",
       "summary": "S2 反復3 (リング帯強化、粒子削除、スパイク改修)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T12:09:50.003856+00:00",
+      "summary": "S2 反復5 (縦アーチを両面化、棘を稲妻状に、リング全周)"
     }
   ],
   "verification": {
     "status": "failed",
-    "reason": "反復3: 3接触と踏み込み3回は動作、低/高リングは太い金色に。残差: 縦アーチ(垂直面の風切り)が片面描画で見えない→反復5で両面(crisp)化、床の棘のグリフが粗い→稲妻状の棘に変更中、tick同期ずれ約6。",
+    "reason": "反復5: 3接触・踏み込み3回・低/高リング・頭上構え・縦アーチ(両面スラブ)・床の稲妻状棘は動作。残差: アーチの太さ/明るさが原動画より弱い、棘の形、黄色ベタ塗り閃光未実装、同期ずれ約6tick。",
     "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
     "evidence": ""
   },
