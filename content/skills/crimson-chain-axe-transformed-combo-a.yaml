@@ -1,0 +1,262 @@
+id: crimson-chain-axe-transformed-combo-a
+name:
+  ja: 変身後の鎖連撃 A（試作）
+  en: Transformed chain combo A (prototype)
+description:
+  ja: 技名・コイン数未確定。視覚的接触候補に仮命中を配置。浮遊・変身・通常入力未接続。
+  en: Unresolved identity; provisional contact timing. Hover, form and input routing
+    pending.
+archetype: sequence
+cooldown_ticks: 190
+resource_cost: 0
+params:
+  type: sequence
+phases:
+  type: sequence
+  cast:
+  - type: play_vfx
+    targets: &id001
+      type: caster
+    vfx_id: crimson-combo-low
+    delay_ticks:
+      type: literal
+      value: 37
+  - type: play_vfx
+    targets: *id001
+    vfx_id: crimson-combo-diagonal
+    delay_ticks:
+      type: literal
+      value: 43
+  - type: play_vfx
+    targets: *id001
+    vfx_id: crimson-combo-loop
+    delay_ticks:
+      type: literal
+      value: 59
+  - type: play_vfx
+    targets: *id001
+    vfx_id: crimson-combo-descending
+    delay_ticks:
+      type: literal
+      value: 76
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 7
+      angle_degrees:
+        type: literal
+        value: 80
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 43
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 7
+      angle_degrees:
+        type: literal
+        value: 80
+      max_count: 1
+    vfx_id: crimson-chain-axe-impact
+    delay_ticks:
+      type: literal
+      value: 43
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 7
+      angle_degrees:
+        type: literal
+        value: 80
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 49
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 7
+      angle_degrees:
+        type: literal
+        value: 80
+      max_count: 1
+    vfx_id: crimson-chain-axe-impact
+    delay_ticks:
+      type: literal
+      value: 49
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 7
+      angle_degrees:
+        type: literal
+        value: 80
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 65
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 7
+      angle_degrees:
+        type: literal
+        value: 80
+      max_count: 1
+    vfx_id: crimson-chain-axe-impact
+    delay_ticks:
+      type: literal
+      value: 65
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 7
+      angle_degrees:
+        type: literal
+        value: 80
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 82
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 7
+      angle_degrees:
+        type: literal
+        value: 80
+      max_count: 1
+    vfx_id: crimson-chain-axe-impact
+    delay_ticks:
+      type: literal
+      value: 82
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 7
+      angle_degrees:
+        type: literal
+        value: 80
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 116
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 7
+      angle_degrees:
+        type: literal
+        value: 80
+      max_count: 1
+    vfx_id: crimson-chain-axe-impact
+    delay_ticks:
+      type: literal
+      value: 116
+  - type: play_vfx
+    targets: *id001
+    vfx_id: crimson-chain-axe-ego-orbit
+    delay_ticks:
+      type: literal
+      value: 116

@@ -11,7 +11,7 @@
   },
   "variant": {
     "label": "変身後・未同定連撃",
-    "implementation": "missing",
+    "implementation": "prototype",
     "order": 1
   },
   "mc": {
@@ -61,16 +61,17 @@
       "notes": "原動画 f2516、不確実幅 ±0 frame。Floor target flare after two pale flash frames。コイン数・ゲーム内部の命中は未確定。"
     }
   ],
-  "notes": "変身後の鎖連撃。横薙ぎ→斜め薙ぎ→縦ループ→長い下降弧→浮遊と交差楕円・床発光。La Castration / La Voracité の候補はあるが同定未確定。5接触候補を5コインと断定しない。実装予定ID。原資料: /reference/crimson-chain-axe/extra-3.json",
+  "notes": "変身後の鎖連撃。横薙ぎ→斜め薙ぎ→縦ループ→長い下降弧→浮遊と交差楕円・床発光。La Castration / La Voracité の候補はあるが同定未確定。5接触候補を5コインと断定しない。直接発動のみの試作。原資料: /reference/crimson-chain-axe/extra-3.json",
   "editLog": [],
-  "status": "analysed",
+  "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "観測済み・未実装。通常技や終盤の別連撃で代用しない。形状・動作・配置・時間・命中・カメラの実機照合は未実施。"
+    "reason": "初回実機195フレーム、カメラ遅延最大3ms。横薙ぎのつもりが縦弧になり、縦ループのつもりが水平に見えるためrig軸の修正が必要。鎖は細い直線状で、花弁が多すぎる。浮遊・姿勢・床発光・変身・通常入力は未実装。仮命中範囲と値は原作一致の証拠ではない。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 0,
+  "iterations": 1,
   "report": "/report/crimson-chain-axe",
-  "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002"
+  "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
+  "contentRevision": "4bfd66932dd87169980cfcf08e9a2f25205e48713ba2322ece946c5ab2f30f48"
 }
