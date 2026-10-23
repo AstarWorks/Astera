@@ -1,10 +1,10 @@
 # Bastion S1: gold dust along the front half of the sweep (arc 0 = forward, + = left). Hit 1: one call; hit 2: two calls.
 id: bastion-s1-dust-gold
-shape: { kind: arc, radius_blocks: 1.8, from_deg: -80, to_deg: 80, points: 8 }
+shape: { kind: arc, radius_blocks: 1.8, from_deg: -80, to_deg: 80, points: 4 }
 color: { r: 255, g: 210, b: 58 }
 count: 1
 lifetime_ticks: 12
 vanilla_particle: dust
-size: 0.7
+size: 0.35
 velocity: { direction: outward, speed: 0.05, spread_degrees: 40 }
 force: true

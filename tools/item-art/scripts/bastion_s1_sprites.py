@@ -207,60 +207,53 @@ Y_HOT = hexc("#FFF4B8")
 
 
 def ink_frame(size, grow, seed=5):
+    """Round 3: ONE connected flat ragged mass (reference e00-e02). Smooth low-frequency edge noise (no per-row
+    bristle stairs), wide alpha feather so magnified texels read as a soft ragged edge, tone bands + dry-brush hints."""
     n = size * SS
     X, Y = grid(size)
     rng = np.random.default_rng(seed)
-    img = blank(n)
-    bands = [  # centre y, half height, left raggedness seed, right end factor
-        (62, 17, 1.00), (128, 23, 0.93), (195, 16, 0.97),
-    ]
     xs_idx = np.clip((X * SS).astype(int), 0, n - 1)
+    cy = size / 2
     ys_idx = np.clip((Y * SS).astype(int), 0, n - 1)
-    for bi, (cy, hh, endf) in enumerate(bands):
-        brng = np.random.default_rng(seed * 31 + bi)
-        # per-row (bristle) left/right ends, in final px; rows of ~1.6 px
-        rows = noise1d(n, brng, 24, 4)
-        rows2 = noise1d(n, brng, 60, 3)
-        rows3 = noise1d(n, brng, 16, 3)
-        front = 8 + grow * (size - 24) * endf
-        right = front + (rows[ys_idx] - 0.5) * 26 + (rows2[ys_idx] - 0.5) * 22
-        left = 5 + rows3[ys_idx] * 20 + (rows2[ys_idx] - 0.5) * 10
-        # leading edge: before full width the front is a torn point cloud, so taper the band height with growth
-        prof_x = np.clip((X - left) / 60.0, 0, 1) ** 0.5 * np.clip((right - X) / 40.0, 0, 1) ** 0.6
-        edge = (noise1d(n, brng, 36, 4)[xs_idx] - 0.5) * 9 + (noise1d(n, brng, 110, 2)[xs_idx] - 0.5) * 5
-        hgt = hh * (0.55 + 0.45 * np.clip(prof_x * 1.6, 0, 1)) * (0.45 + 0.55 * min(1.0, grow * 2.0)) + edge
-        dy = np.abs(Y - cy)
-        d = np.minimum(np.minimum(hgt - dy, X - left), right - X)
-        alpha = soft(d, 0.6)
-        # tones: shadow band under, hot band over, dry-brush streaks along x
-        rel = (Y - cy) / np.maximum(hh, 1)
-        brist = noise1d(n, brng, 70, 2)[ys_idx]
-        tone = np.zeros_like(X)  # 0 flat, +1 hot, -1 shade
-        tone = np.where(rel > 0.35 + 0.25 * (brist - 0.5), -1.0, tone)
-        tone = np.where((rel < -0.25 + 0.2 * (brist - 0.5)) & (rel > -0.62), 1.0, tone)
-        # streak lines
-        for _ in range(26):
-            sy = cy + brng.uniform(-hh, hh)
-            sx0 = brng.uniform(10, size * 0.7)
-            sl = brng.uniform(30, 120)
-            sv = brng.choice([-1.0, 1.0, 0.0])
-            m = (np.abs(Y - sy) < brng.uniform(0.5, 1.4)) & (X > sx0) & (X < sx0 + sl)
-            tone = np.where(m, sv, tone)
-        col = Y_FLAT[None, None] * np.ones((n, n, 1))
-        col = np.where((tone > 0.5)[..., None], Y_HOT[None, None], col)
-        col = np.where((tone < -0.5)[..., None], Y_SHADE[None, None], col)
-        # thin dark-ish hairline at the ragged edges (reads on bright sky)
-        rimk = soft(1.1 - d, 0.5) * 0.85
-        col = col * (1 - rimk[..., None]) + hexc("#8A6A06")[None, None] * rimk[..., None]
-        img = over(img, col, alpha)
-    return img
+    nl = noise1d(n, rng, 7, 3)[ys_idx]
+    nr = noise1d(n, rng, 8, 3)[ys_idx]
+    left = 4.0 + 46.0 * nl * (1.0 - 0.5 * grow)
+    right = 22.0 + grow * (size - 56) + 34.0 * (nr - 0.5) + 30.0 * grow * nr
+    nt = noise1d(n, rng, 6, 3)[xs_idx]
+    nb = noise1d(n, rng, 5, 3)[xs_idx]
+    nt2 = noise1d(n, rng, 20, 2)[xs_idx]
+    nb2 = noise1d(n, rng, 16, 2)[xs_idx]
+    u = np.clip((X - left) / np.maximum(right - left, 1.0), 0, 1)
+    env = np.clip(u / 0.06, 0, 1) ** 0.6 * np.clip((1 - u) / 0.10, 0, 1) ** 0.5
+    top = cy - 34.0 * env * (0.5 + 0.9 * nt) - 7.0 * (nt2 - 0.5)
+    bot = cy + 30.0 * env * (0.5 + 0.9 * nb) + 7.0 * (nb2 - 0.5)
+    d = np.minimum(np.minimum(Y - top, bot - Y), np.minimum(X - left, right - X))
+    alpha = soft(d, 1.6)
+    # tones: shade band along the bottom, hot band under the top edge, a few long dry-brush hints
+    rel = (Y - top) / np.maximum(bot - top, 1.0)
+    col = Y_FLAT[None, None] * np.ones((n, n, 1))
+    hot = soft(0.30 - rel + 0.05 * (nt2 - 0.5), 0.08) * soft(rel - 0.06, 0.04)
+    shade = soft(rel - 0.66 - 0.06 * (nb2 - 0.5), 0.1)
+    col = col * (1 - hot[..., None] * 0.9) + Y_HOT[None, None] * hot[..., None] * 0.9
+    col = col * (1 - shade[..., None] * 0.9) + Y_SHADE[None, None] * shade[..., None] * 0.9
+    for _ in range(10):
+        sy = rng.uniform(0.2, 0.8)
+        sx0 = rng.uniform(left, left + (right - left) * 0.5)
+        sl = rng.uniform(40, 110)
+        sv = rng.choice([0.0, 1.0])
+        m = soft(1.6 - np.abs(rel - sy) * (bot - top), 0.9) * soft(X - sx0, 6) * soft(sx0 + sl - X, 14)
+        tgt = Y_HOT if sv else Y_SHADE
+        col = col * (1 - m[..., None] * 0.55) + tgt[None, None] * m[..., None] * 0.55
+    rimk = soft(1.8 - d, 1.2) * 0.7
+    col = col * (1 - rimk[..., None]) + hexc("#9A7A0C")[None, None] * rimk[..., None]
+    return over(blank(n), np.clip(col, 0, 1), alpha)
 
 
 def make_ink():
     size = 256
     frames = []
-    for i, g in enumerate([0.45, 0.85, 1.0, 1.0, 1.0, 1.0]):  # round 2: full width from frame 2
-        frames.append(downsample(ink_frame(size, g, seed=5 + (i % 3)), size))
+    for i, g in enumerate([0.55, 0.95, 1.0, 1.0, 1.0, 1.0]):
+        frames.append(downsample(ink_frame(size, g, seed=7 + (i % 3)), size))
     save_strip("ink", frames, size)
 
 
@@ -413,45 +406,53 @@ def make_sliver():
 # ---------------------------------------------------------------------------------------------------------
 # ring: low open ellipse band, needle tips, thickest at the bottom/front (hit 2 floor ring, reference e05/e06)
 # ---------------------------------------------------------------------------------------------------------
+PALE = hexc("#FFFBE0")
+
+
 def ring_frame(size, ext, tail, wscale):
+    """Round 3 (reference b00/b03/e05): ONE thin gold ellipse, needle tips, white-hot inner edge, thickest at the
+    lower right, faint warm halo. Flat ellipse; the director tilts it with roll. No orange body (reference is gold)."""
     X, Y = grid(size)
-    rx, ry = 120.0, 54.0
-    cx, cy = size / 2, size / 2 - 4
-    dx, dy = X - cx, Y - cy  # y down: +dy = bottom of the ellipse
+    rx, ry = 122.0, 46.0
+    cx, cy = size / 2, size / 2
+    dx, dy = X - cx, Y - cy
     rho = np.hypot(dx / rx, dy / ry)
     grad = np.hypot(dx / rx ** 2, dy / ry ** 2) / np.maximum(rho, 1e-4)
-    d_out = -(rho - 1.0) / np.maximum(grad, 1e-6)  # px inside the outer edge (>0 inside)
-    psi = np.arctan2(dx / rx, dy / ry)  # 0 at the bottom, + toward the right, +-pi at the top
-    half = math.radians(158)
-    s = psi / half
+    dist = (rho - 1.0) / np.maximum(grad, 1e-6)  # px from the ellipse line, + outside
+    psi = np.arctan2(dx / rx, dy / ry)  # 0 at the bottom, + toward the right
+    c0 = 0.7  # centre of the span (lower right)
+    half = math.pi * 0.94
+    s = np.arctan2(np.sin(psi - c0), np.cos(psi - c0)) / half  # -1..1 around the centre, wraps at the top-left
+    # the sweep grows from the +1 end back toward -1 (ext), tail trims the -1 end
     s_hi = 1.0
     s_lo = max(-1.0, 1.0 - 2.0 * ext + 2.0 * tail)
     if s_hi - s_lo < 0.08:
         s_lo = s_hi - 0.08
     u = np.clip((s - s_lo) / (s_hi - s_lo), 0, 1)
-    up = u ** 0.85
-    prof = np.clip(np.sin(np.pi * up), 0, 1) ** 1.5
-    w = 38.0 * wscale * prof
+    prof = np.clip(np.sin(np.pi * u ** 0.8), 0, 1) ** 1.25
+    w = 9.0 * wscale * prof
+    hw = w / 2
     in_span = ((s >= s_lo) & (s <= s_hi)).astype(float)
-    d_in = w - d_out
-    d = np.minimum(d_out, d_in)
-    alpha = soft(d, 1.0) * in_span
-    cut = np.minimum(s - s_lo, s_hi - s) * half * rx * 0.6
-    alpha *= soft(cut + 0.5, 1.0)
-    t = np.clip(d_out / np.maximum(w, 1e-3), 0, 1)
-    body = BODY[None, None] * (1 - t[..., None] ** 0.7) + GOLD[None, None] * t[..., None] ** 0.7
-    rim_w = np.clip(0.16 * w, 1.0, 2.6)
-    hot_w = np.clip(0.07 * w, 0.6, 1.6)
-    rim_a = soft(rim_w - d_out, 0.9)
-    col = body * (1 - rim_a[..., None]) + RIM[None, None] * rim_a[..., None]
-    hot_a = soft(hot_w - d_in, 1.5) * (1 - rim_a) * 0.8
-    col = col * (1 - hot_a[..., None]) + HOT[None, None] * hot_a[..., None]
-    return over(blank(size * SS), np.clip(col, 0, 1), alpha * 0.96)
+    d_edge = hw - np.abs(dist)  # >0 inside the band
+    alpha = soft(d_edge, 0.9) * in_span
+    t = np.clip((hw - dist) / np.maximum(w, 1e-3), 0, 1)  # 0 outer .. 1 inner (inner = toward the ellipse centre)
+    col = GOLD[None, None] * (1 - 0.0 * t[..., None])
+    hot_a = soft(1.8 - (hw + dist), 1.0)  # inner edge band
+    hot_a = np.where(dist < 0, soft(np.minimum(1.7, 0.5 * w) - (hw + dist), 0.9), 0.0)
+    col = col * (1 - hot_a[..., None] * 0.95) + PALE[None, None] * hot_a[..., None] * 0.95
+    rim_a = np.where(dist > 0, soft(0.9 - (hw - dist), 0.5), 0.0) * 0.55
+    col = col * (1 - rim_a[..., None]) + RIM[None, None] * rim_a[..., None]
+    img = blank(size * SS)
+    # soft warm halo (accent), same span, ~3x the band
+    hs = hw * 2.6 + 1.0
+    halo = soft(hs - np.abs(dist), 3.5) * in_span * np.clip(prof * 2.0, 0, 1) * 0.28 * wscale
+    img = over(img, hexc("#FFD23A")[None, None] * np.ones((1, 1, 3)), halo)
+    return over(img, np.clip(col, 0, 1), alpha)
 
 
 def make_ring():
     size = 256
-    specs = [(0.45, 0.0, 0.6), (0.8, 0.0, 0.9), (1.0, 0.0, 1.0), (1.0, 0.12, 0.85), (1.0, 0.3, 0.6), (1.0, 0.5, 0.35)]
+    specs = [(0.55, 0.0, 0.7), (0.97, 0.0, 0.95), (1.0, 0.0, 1.0), (1.0, 0.0, 0.95), (1.0, 0.18, 0.75), (1.0, 0.4, 0.5)]
     save_strip("ring", [downsample(ring_frame(size, *sp), size) for sp in specs], size)
 
 
