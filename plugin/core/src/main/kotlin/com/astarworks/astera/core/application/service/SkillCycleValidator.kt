@@ -64,6 +64,9 @@ public class SkillCycleValidator {
                     for (x in m.then_) stack.addLast(x)
                     for (x in m.else_) stack.addLast(x)
                 }
+                is Mechanic.ForEachTarget -> {
+                    for (x in m.mechanics) stack.addLast(x)
+                }
                 is Mechanic.Loop -> {
                     for (x in m.mechanics) stack.addLast(x)
                 }

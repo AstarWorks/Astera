@@ -1048,7 +1048,29 @@ public sealed class MechanicYaml {
         )
     }
 
-    // ───────────────────────── Control flow (4) ─────────────────────────
+    // ───────────────────────── Control flow (5) ─────────────────────────
+
+    @Serializable
+    @SerialName("for_each_target")
+    public data class ForEachTarget(
+        public val targets: TargeterYaml,
+        public val mechanics: List<MechanicYaml>,
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.ForEachTarget(
+            targets = targets.toDomain(),
+            mechanics = mechanics.map { it.toDomain() },
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
+        )
+    }
 
     @Serializable
     @SerialName("cast_skill")

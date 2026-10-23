@@ -137,6 +137,11 @@ direction: { kind: toward_caster }                       # pull inward
 - **Delayed / repeating mechanics** (`delay_ticks` > 0, `period_ticks`, loop stride) re-read the caster's CURRENT position and look when they fire,
   so cone / forward_ray / caster_forward / nearby_entities follow a dash. `snapshot_pose: true` on a mechanic keeps the cast-time pose instead.
   Their `condition` is also evaluated when they fire, not at cast time.
+- `for_each_target` resolves its `targets` once when the wrapper fires and dispatches `mechanics` for each distinct living entity.
+  Children using `{ type: target }` retain that entity through delays/repeats even if another enemy becomes nearer.
+  Children stop firing while the selected entity is dead, absent or in a different world. The caster/origin remain unchanged.
+  Child geometric targeters still select normally; use `target` for the bound entity. A repeating wrapper selects anew on each wrapper firing.
+  This does not make `cast_skill` inherit a target: its current platform wiring ignores the targeter/context target.
 - `params.damage` of `melee` / `aoe` honours `per_stack` like `damage` mechanics. `resist.<attribute>` applies to unarmored players too.
 - VFX (`content/vfx/*.yaml`): `end_tick` is ABSOLUTE for every formation slot (staggered slots live shorter); `slot_lifetime_ticks` gives each slot
   its own lifetime from its spawn instead. `group_keyframes` (`t`, `translate`, `rotate [yaw,pitch,roll]`, uniform `scale`, `ease`) move / spin / scale

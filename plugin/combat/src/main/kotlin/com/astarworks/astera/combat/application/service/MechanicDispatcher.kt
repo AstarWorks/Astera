@@ -408,6 +408,12 @@ public class MechanicDispatcher(
 
     /** Runs [mechanic] if its `condition` holds against [ctx] at THIS moment (cast time or fire time). */
     private fun fireGated(mechanic: Mechanic, ctx: MechanicContext) {
+        if (ctx.boundTargetWorld != null) {
+            val target = ctx.targetId ?: return
+            if (living(listOf(target)).isEmpty()) return
+            val pose = poseLookup?.poseOf(target) ?: return
+            if (pose.world != ctx.boundTargetWorld) return
+        }
         val gate = mechanic.condition
         if (gate != null && !resolveCondition(gate, ctx)) return
         execute(mechanic, ctx)
@@ -895,6 +901,14 @@ public class MechanicDispatcher(
                 castSkillInvoker.invoke(mechanic.skillId, mechanic.targets, nextCtx)
             }
 
+            is Mechanic.ForEachTarget -> {
+                val targets = living(targeterResolver.resolvePlayers(mechanic.targets, ctx)).distinct()
+                for (target in targets) {
+                    val targetWorld = poseLookup?.poseOf(target)?.world ?: continue
+                    dispatch(mechanic.mechanics, ctx.copy(targetId = target, boundTargetWorld = targetWorld))
+                }
+            }
+
             is Mechanic.IfThen -> {
                 val branch = if (resolveCondition(mechanic.predicate, ctx)) mechanic.then_ else mechanic.else_
                 dispatch(branch, ctx)
@@ -1091,6 +1105,8 @@ public class MechanicDispatcher(
 public data class MechanicContext(
     public val actorId: PlayerId,
     public val targetId: PlayerId? = null,
+    /** ForEachTarget children stop if the bound entity dies, disappears or changes world. */
+    public val boundTargetWorld: WorldId? = null,
     public val origin: Vec3,
     public val worldId: WorldId? = null,
     public val depth: Int = 0,
