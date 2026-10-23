@@ -7,7 +7,7 @@ description:
   en: Ferrous Guard
 archetype: sequence
 cooldown_ticks: 90
-resource_cost: 10
+resource_cost: 0
 params:
   type: sequence
 phases:
