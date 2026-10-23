@@ -80,7 +80,7 @@ internal object SpriteSources {
                 else -> error("$MANIFEST: sprite $id needs `draw` or `from`")
             }
             require(frames in 1..MAX_FRAMES) { "$MANIFEST: sprite $id: frames must be 1..$MAX_FRAMES" }
-            require(size in 8..256) { "$MANIFEST: sprite $id: size must be 8..256" }
+            require(size in 8..512) { "$MANIFEST: sprite $id: size must be 8..512" }
             Def(id, origin, frames, size, colors, outline)
         }
     }

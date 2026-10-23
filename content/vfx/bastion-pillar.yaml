@@ -97,7 +97,7 @@ elements:
   - t: 0
     translate: [0, 1.0, 1.7]
     rotate: [0.0, 0, 0.0]
-    scale: [1.2, 0.8, 1.0]
+    scale: [0.6, 0.4, 1.0]
 - id: pilcore
   kind:
     type: block

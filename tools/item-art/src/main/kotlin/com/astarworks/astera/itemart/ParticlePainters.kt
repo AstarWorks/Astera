@@ -29,7 +29,7 @@ internal object ParticlePainters {
         val ramp = ramp(color)
         return (0 until count).map { i ->
             val t = if (count <= 1) 0.0 else i.toDouble() / (count - 1)
-            val canvas = Canvas(size, ramp)
+            val canvas = Canvas(size, ramp, smooth = size >= 128)
             painter(canvas, t, i, count)
             canvas.image()
         }
@@ -49,12 +49,30 @@ internal object ParticlePainters {
     private const val OPAQUE = 0xFF000000.toInt()
 
     /** Paint surface in 32-px units; [put] takes an intensity and picks the ramp tone (or leaves the pixel clear). */
-    class Canvas(val size: Int, private val ramp: Ramp) {
+    class Canvas(val size: Int, private val ramp: Ramp, private val smooth: Boolean = false) {
         private val px = IntArray(size * size)
         private val k = 32.0 / size
 
+        /** Evaluates [f] on a 2x2 sub-pixel grid when [smooth] is set: tone from the mean, alpha from the covered fraction (soft edges). */
         fun forEach(f: (x: Double, y: Double) -> Double) {
-            for (py in 0 until size) for (pxl in 0 until size) put(pxl, py, f((pxl + 0.5) * k, (py + 0.5) * k))
+            if (!smooth) {
+                for (py in 0 until size) for (pxl in 0 until size) put(pxl, py, f((pxl + 0.5) * k, (py + 0.5) * k))
+                return
+            }
+            val offs = doubleArrayOf(0.25, 0.75)
+            for (py in 0 until size) for (pxl in 0 until size) {
+                var sum = 0.0
+                var covered = 0
+                for (oy in offs) for (ox in offs) {
+                    val v = f((pxl + ox) * k, (py + oy) * k)
+                    if (v >= DARK) { sum += v; covered++ }
+                }
+                if (covered == 0) continue
+                val tone = when (val m = sum / covered) { in HI..9.0 -> 3; in LIGHT..HI -> 2; in MID..LIGHT -> 1; else -> 0 }
+                val argb = ramp.tone(tone)
+                val a = (255 * covered / 4)
+                px[py * size + pxl] = (a shl 24) or (argb and 0xFFFFFF)
+            }
         }
 
         fun put(x: Int, y: Int, v: Double) {
@@ -108,7 +126,7 @@ internal object ParticlePainters {
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
         "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
-        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "arc" to ::arc, "ink" to ::ink,
+        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "arc" to ::arc, "rim" to ::rim, "crest" to ::crest, "ink" to ::ink,
     )
 
     /** A 4-point star that pops open, hangs, then shrinks, with a small diagonal star and a white-hot core. */
@@ -289,8 +307,8 @@ internal object ParticlePainters {
     }
     /** A wide tapered arc over the top (needle tips), the head racing round, then the tail eating it; bright at the head. */
     private fun arc(c: Canvas, t: Double, i: Int, n: Int) {
-        val a0 = PI * 1.02
-        val a1 = PI * 1.98
+        val a0 = PI * 1.0
+        val a1 = PI * 2.0
         val head = ease(min(1.0, (t + 0.08) / 0.5))
         val tail = if (t < 0.55) 0.0 else ((t - 0.55) / 0.45).pow(1.2)
         c.forEach { x, y ->
@@ -299,7 +317,8 @@ internal object ParticlePainters {
             val rho = hypot(dx * 1.0, dy)
             val s = (atan2(dy, dx).let { if (it < 0) it + 2 * PI else it } - a0) / (a1 - a0)
             if (s < tail || s > head || s < 0.0 || s > 1.0) return@forEach 0.0
-            val half = 0.5 + 2.6 * sin(PI * s).pow(0.9) * (1 - 0.4 * tail)
+            val w = ((s - tail) / max(0.05, head - tail)).coerceIn(0.0, 1.0)
+            val half = 0.35 + 2.7 * sin(PI * w).pow(0.85) * (1 - 0.3 * tail)
             val radial = 1.0 - abs(rho - 14.5) / half
             val bright = 0.45 + 0.55 * ((s - tail) / max(0.05, head - tail))
             radial * bright + (if (radial > 0.7) 0.25 else 0.0) * bright
@@ -331,6 +350,39 @@ internal object ParticlePainters {
             val core = 1.0 - hypot(dx * 0.7, dy * 1.2) / (8.5 * grow * fade + 0.01)
             if (core > 0 && sin(dx * 1.3 + dy * 0.9 + i) > -0.7) v = max(v, if (core > 0.45) 0.66 else 0.4)
             v
+        }
+    }
+
+    /** A heater-shield crest: a thin outline pointed at the bottom and an inner line, strokes taper to the corners. */
+    private fun crest(c: Canvas, t: Double, i: Int, n: Int) {
+        val grow = if (n <= 1) 1.0 else ease(min(1.0, t / 0.3))
+        c.forEach { x, y ->
+            val dx = (x - C) / (11.0 * grow + 0.01)
+            val dy = (y - C) / (14.5 * grow + 0.01)
+            // Shield silhouette: flat top at dy=-1, sides bow out, point at dy=+1.
+            val halfW = if (dy < -0.35) 1.0 - 0.05 * (dy + 1) else (1.0 - ((dy + 0.35) / 1.35).pow(1.6)) * 0.97
+            if (dy < -1.0 || dy > 1.0 || halfW <= 0.0) return@forEach 0.0
+            val edge = abs(abs(dx) - halfW)
+            val outer = if (edge < 0.11) 0.75 else 0.0
+            val top = if (dy < -0.92 && abs(dx) < halfW) 0.75 else 0.0
+            val innerHalf = halfW * 0.72
+            val inner = if (abs(abs(dx) - innerHalf) < 0.06 && dy > -0.8 && dy < 0.75) 0.5 else 0.0
+            val spine = if (abs(dx) < 0.045 && dy > -0.75 && dy < 0.7) 0.45 else 0.0
+            max(max(outer, top), max(inner, spine))
+        }
+    }
+
+    /** A static tapered half ring (needle tips, brighter on the inside edge) for persistent outlines such as a barrier. */
+    private fun rim(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val dx = x - C
+            val dy = y - 17.0
+            val rho = hypot(dx, dy)
+            val s = (atan2(dy, dx).let { if (it < 0) it + 2 * PI else it } - PI) / PI
+            if (s < 0.0 || s > 1.0) return@forEach 0.0
+            val half = 0.3 + 1.7 * sin(PI * s).pow(0.85)
+            val radial = 1.0 - abs(rho - 14.5) / half
+            radial * (0.7 + 0.3 * (1.0 - abs(rho - 14.5) / half).coerceIn(0.0, 1.0))
         }
     }
 }

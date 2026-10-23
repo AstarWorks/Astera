@@ -1,4 +1,4 @@
-# Bastion S3 hit1 (video 19.4-19.9s): blade carried up behind the shoulder, hilt-leading backhand sweep, tilted gold crescents + long white streaks.
+# Bastion S3 hit1 (video 19.4-19.9s): blade carried up behind the shoulder, hilt-leading backhand sweep; one tilted continuous gold ring + long white streaks.
 
 id: bastion-sweep-back
 duration_ticks: 24
@@ -119,7 +119,7 @@ elements:
     translate: [0, 0, 4.95]
     scale: [0, 0, 5.5]
     ease: in_quad
-- id: arc0
+- id: arca
   kind:
     type: sprite
     sprite: bastion-arc
@@ -132,43 +132,85 @@ elements:
   end_tick: 15
   keyframes:
   - t: 0
-    translate: [0, 0.3, 1.0]
-    rotate: [0, 0, -28]
-    scale: [1.85, 1.2, 1.0]
-- id: arc1
+    translate: [0, 0.95, 1.0]
+    rotate: [0.0, 0, -28]
+    scale: [0.925, 0.475, 1.0]
+- id: arcb
   kind:
     type: sprite
     sprite: bastion-arc
     frame_ticks: 2
     loop: false
     see_through: true
-    color: '#FFF4C0'
   billboard: center
   brightness: 15
-  start_tick: 3
-  end_tick: 15
+  start_tick: 4
+  end_tick: 16
   keyframes:
   - t: 0
-    translate: [0, 0.9, 1.0]
-    rotate: [0, 0, 150]
-    scale: [1.5, 0.7, 1.0]
-- id: arc2
+    translate: [0, 0.95, 1.0]
+    rotate: [0.0, 0, 152]
+    scale: [0.925, 0.475, 1.0]
+- id: smokea
   kind:
     type: sprite
-    sprite: bastion-arc
+    sprite: bastion-smoke
     frame_ticks: 2
     loop: false
     see_through: true
-    color: '#FFFFFF'
   billboard: center
   brightness: 15
-  start_tick: 3
-  end_tick: 15
+  start_tick: 4
+  end_tick: 16
   keyframes:
   - t: 0
-    translate: [0, 0.5, 1.0]
-    rotate: [0, 0, -28]
-    scale: [1.4, 0.9, 1.0]
+    translate: [0, 0.18, 1.0]
+    rotate: [0.0, 0, 0]
+    scale: [1.075, 0.15, 1.0]
+- id: smokeb
+  kind:
+    type: sprite
+    sprite: bastion-smoke
+    frame_ticks: 2
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 5
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [0, 0.18, 1.0]
+    rotate: [0.0, 0, 180]
+    scale: [1.075, 0.15, 1.0]
+- id: sparks
+  kind:
+    type: block
+    block: orange_concrete
+  brightness: 15
+  start_tick: 5
+  end_tick: 14
+  count: 4
+  formation:
+    curve:
+      type: line
+      from: [-0.15, 0.35, 1.3]
+      to: [0.15, 1.15, 1.3]
+    stagger_ticks: 1
+  jitter:
+    position: 0.1
+    scale: 0.4
+  keyframes:
+  - t: 0
+    scale: [0.025, 0.025, 0.25]
+  - t: 2
+    translate: [0, 0, 1.32]
+    scale: [0.03, 0.03, 2.4]
+    ease: out_expo
+  - t: 5
+    translate: [0, 0, 2.4]
+    scale: [0.0, 0.0, 2.4]
+    ease: in_quad
 - id: flash
   kind:
     type: quad

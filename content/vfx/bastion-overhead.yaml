@@ -1,4 +1,4 @@
-# Bastion S2 hit3 (video 17.2-17.7s): blade raised behind the head, overhead slam; a tall vertical gold arch with white speed lines and a crown of jagged shards at the floor.
+# Bastion S2 hit3 (video 17.2-17.7s): blade raised behind the head, overhead slam; one tall vertical gold arch with white speed lines and a crown of jagged shards.
 # Rig t0 = 6 ticks before the contact (t6).
 
 id: bastion-overhead
@@ -118,7 +118,7 @@ elements:
     translate: [0, 0, 3.9600000000000004]
     scale: [0, 0, 4.4]
     ease: in_quad
-- id: arch0
+- id: arch
   kind:
     type: sprite
     sprite: bastion-arc
@@ -127,30 +127,41 @@ elements:
     see_through: true
   billboard: center
   brightness: 15
-  start_tick: 4
-  end_tick: 16
+  start_tick: 3
+  end_tick: 15
   keyframes:
   - t: 0
     translate: [0.0, 0.2, 2.2]
     rotate: [0.0, 0, 0]
-    scale: [1.35, 1.9, 1.0]
-- id: arch1
+    scale: [0.675, 0.95, 1.0]
+- id: sparks
   kind:
-    type: sprite
-    sprite: bastion-arc
-    frame_ticks: 2
-    loop: false
-    see_through: true
-    color: '#FFFFFF'
-  billboard: center
+    type: block
+    block: orange_concrete
   brightness: 15
   start_tick: 5
-  end_tick: 17
+  end_tick: 14
+  count: 4
+  formation:
+    curve:
+      type: line
+      from: [-0.15, 0.35, 1.6]
+      to: [0.15, 1.15, 1.6]
+    stagger_ticks: 1
+  jitter:
+    position: 0.1
+    scale: 0.4
   keyframes:
   - t: 0
-    translate: [0.0, 0.3, 2.2]
-    rotate: [0.0, 0, 0]
-    scale: [1.05, 1.55, 1.0]
+    scale: [0.025, 0.025, 0.25]
+  - t: 2
+    translate: [0, 0, 1.32]
+    scale: [0.03, 0.03, 2.4]
+    ease: out_expo
+  - t: 5
+    translate: [0, 0, 2.4]
+    scale: [0.0, 0.0, 2.4]
+    ease: in_quad
 - id: ink
   kind:
     type: sprite
@@ -160,13 +171,29 @@ elements:
     see_through: true
   billboard: center
   brightness: 15
-  start_tick: 5
-  end_tick: 11
+  start_tick: 4
+  end_tick: 10
   keyframes:
   - t: 0
     translate: [0, 0.9, 1.8]
     rotate: [0.0, 0, 0.0]
-    scale: [1.7, 1.1, 1.0]
+    scale: [0.85, 0.55, 1.0]
+- id: flat
+  kind:
+    type: sprite
+    sprite: bastion-ink
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 0.3, 1.8]
+    rotate: [0.0, 0, 0.0]
+    scale: [1.0, 0.275, 1.0]
 - id: flash
   kind:
     type: quad

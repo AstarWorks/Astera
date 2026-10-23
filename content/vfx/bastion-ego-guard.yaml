@@ -1,4 +1,4 @@
-# Bastion EGO guard (独自設計, no reference footage): the barrier rises while the caster crouches to spring.
+# Bastion EGO guard (独自設計): the same barrier rising while the caster crouches to spring.
 
 id: bastion-ego-guard
 duration_ticks: 30
@@ -6,12 +6,13 @@ orient: yaw
 follow: true
 sample_ticks: 2
 elements:
-- id: rim
+- id: rim0r
   kind:
-    type: quad
-    glyph: ●
-    color: '#7A5408'
-    alpha: 0.0
+    type: sprite
+    sprite: bastion-rim
+    frame_ticks: 30
+    loop: false
+    see_through: true
   billboard: fixed
   brightness: 15
   start_tick: 0
@@ -19,25 +20,79 @@ elements:
   keyframes:
   - t: 0
     translate: [0.2, 1.3, 1.15]
+    rotate: [50.0, 0, 90]
+    scale: [0.58, 0.3, 1.0]
+- id: rim0l
+  kind:
+    type: sprite
+    sprite: bastion-rim
+    frame_ticks: 30
+    loop: false
+    see_through: true
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 30
+  keyframes:
+  - t: 0
+    translate: [0.2, 1.3, 1.15]
+    rotate: [50.0, 0, -90]
+    scale: [0.58, 0.3, 1.0]
+- id: rim1r
+  kind:
+    type: sprite
+    sprite: bastion-rim
+    frame_ticks: 30
+    loop: false
+    see_through: true
+    color: '#FFF3C8'
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 30
+  keyframes:
+  - t: 0
+    translate: [0.2, 1.3, 1.15]
+    rotate: [50.0, 0, 90]
+    scale: [0.48, 0.22, 1.0]
+- id: rim1l
+  kind:
+    type: sprite
+    sprite: bastion-rim
+    frame_ticks: 30
+    loop: false
+    see_through: true
+    color: '#FFF3C8'
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 30
+  keyframes:
+  - t: 0
+    translate: [0.2, 1.3, 1.15]
+    rotate: [50.0, 0, -90]
+    scale: [0.48, 0.22, 1.0]
+- id: crest
+  kind:
+    type: sprite
+    sprite: bastion-crest
+    frame_ticks: 30
+    loop: false
+    see_through: true
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 30
+  keyframes:
+  - t: 0
+    translate: [0.2, 1.35, 1.15]
     rotate: [50.0, 0, 0]
-    scale: [0.38, 0.82, 1.0]
-  - t: 6
-    scale: [1.9, 4.1, 1.0]
-    alpha: 0.8
-    ease: out_cubic
-  - t: 15
-    alpha: 0.6400000000000001
-  - t: 22
-    alpha: 0.8
-  - t: 30
-    scale: [1.71, 3.69, 1.0]
-    alpha: 0.0
-    ease: in_quad
+    scale: [0.26, 0.26, 1.0]
 - id: fill
   kind:
     type: quad
     glyph: ●
-    color: '#FFC93A'
+    color: '#FFD66E'
     alpha: 0.0
   billboard: fixed
   brightness: 15
@@ -47,70 +102,14 @@ elements:
   - t: 0
     translate: [0.2, 1.3, 1.15]
     rotate: [50.0, 0, 0]
-    scale: [0.33, 0.7400000000000001, 1.0]
+    scale: [0.3, 0.6, 1.0]
   - t: 6
-    scale: [1.65, 3.7, 1.0]
-    alpha: 0.6
+    scale: [1.5, 3.3, 1.0]
+    alpha: 0.14
     ease: out_cubic
-  - t: 15
-    alpha: 0.48
   - t: 22
-    alpha: 0.6
+    alpha: 0.14
   - t: 30
-    scale: [1.4849999999999999, 3.33, 1.0]
-    alpha: 0.0
-    ease: in_quad
-- id: inner
-  kind:
-    type: quad
-    glyph: ●
-    color: '#FFEFA8'
-    alpha: 0.0
-  billboard: fixed
-  brightness: 15
-  start_tick: 0
-  end_tick: 30
-  keyframes:
-  - t: 0
-    translate: [0.2, 1.3, 1.15]
-    rotate: [50.0, 0, 0]
-    scale: [0.24, 0.5599999999999999, 1.0]
-  - t: 6
-    scale: [1.2, 2.8, 1.0]
-    alpha: 0.38
-    ease: out_cubic
-  - t: 15
-    alpha: 0.30400000000000005
-  - t: 22
-    alpha: 0.38
-  - t: 30
-    scale: [1.08, 2.52, 1.0]
-    alpha: 0.0
-    ease: in_quad
-- id: emblem
-  kind:
-    type: quad
-    glyph: ▼
-    color: '#FFF6D0'
-    alpha: 0.0
-  billboard: fixed
-  brightness: 15
-  start_tick: 0
-  end_tick: 30
-  keyframes:
-  - t: 0
-    translate: [0.2, 1.6, 1.15]
-    rotate: [50.0, 0, 0]
-    scale: [0.16000000000000003, 0.24, 1.0]
-  - t: 6
-    scale: [0.8, 1.2, 1.0]
-    alpha: 0.95
-    ease: out_cubic
-  - t: 15
-    alpha: 0.76
-  - t: 22
-    alpha: 0.95
-  - t: 30
-    scale: [0.7200000000000001, 1.08, 1.0]
+    scale: [1.4, 3.1, 1.0]
     alpha: 0.0
     ease: in_quad
