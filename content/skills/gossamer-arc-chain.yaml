@@ -232,3 +232,10 @@ phases:
     delay_ticks:
       type: literal
       value: 33
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: gossamer-chain-ribbon
+    delay_ticks:
+      type: literal
+      value: 7
