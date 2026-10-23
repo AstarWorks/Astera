@@ -1,5 +1,5 @@
 # S1 sword: ONE rig (one set of sword displays) for the whole skill: hold -> swing 1 -> hold -> swing 2 -> hold. No hand-over, no duplicate sword.
-# Play at skill tick 0 with follow: true (rides the caster through the dashes), duration 58 (rig visible through tick 57; hide_held_item 56 ticks + 1 tick delay),
+# Play at skill tick 0 with follow: true (rides the caster through the dashes), duration 58 (rig visible through tick 57; hide_held_item 57 ticks with NO delay: the runtime stages the rig spawn (view_range 0 until age 1) and hides the held item in the same tick, 78dfd0f4),
 # play_vfx freeze: [{ at: 7, ticks: 2 }, { at: 31, ticks: 2 }]  (effect ticks; the hit_stop of both contacts).
 # Rig key time l is displayed at effect tick l + 1 (+ frozen ticks before it). Hit 1: e_k (e4 = contact) -> key k+2, contact displayed at effect tick 7.
 # Round 4: the sword never leaves the caster's back half (tip phi 140-180, the compare camera sits on the caster's right, +z): static REST to tick 5,
