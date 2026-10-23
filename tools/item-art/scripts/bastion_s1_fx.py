@@ -92,7 +92,7 @@ SMOKE_TINT = "#A0A8A8B0"
 
 
 def sweep(id_, name, start, end):
-    """Round 7: swing-plane smear (fixed billboard) lying in the r6 blade plane, front + back pair (a TextDisplay is
+    """Round 7: swing-plane smear (fixed billboard) lying in the r7 blade plane, front + back pair (a TextDisplay is
     only trusted from its +Z side; the back strip is mirrored so both draw the same 3D arc). Flipbook = the wipe
     following the blade, then the fade; frame k shows at element tick k + 1 (frame 0 at spawn and spawn + 1)."""
     c = [round(float(v), 3) for v in SWEEPS[name]["centre"]]
@@ -134,8 +134,8 @@ def smoke_up(id_, start, end, p, w0, w1, roll=0):
 
 def high():
     els = []
-    # Round 7: the arch is the smear of the r6 overhead chop, IN its plane (vertical, contains forward, rolled 22 deg,
-    # through the pivot), 160 deg from behind-overhead (alpha 137.5) to the forward-low contact (alpha -23). Spawn fx 1
+    # Round 7: the arch is the smear of the r7 overhead chop, IN its plane (vertical, contains forward, rolled 22 deg,
+    # through the pivot), 154 deg from behind-overhead (alpha 137.5) to the forward-low contact (alpha -16.2: tip phi 6, pitch -15, y 0.11). Spawn fx 1
     # (skill 4): frame 0 ticks 4-5 (blade straight up at 5), frame 1 tick 6, frame 2 = full arc at contact tick 7, hold 8,
     # fade 9-13. The head curls inside 0.8 blocks of the opponent eye (z 2.4) instead of passing through it.
     els += sweep("s1h1-arch", "arch", 1, 11)
@@ -179,9 +179,10 @@ def low():
     els.append(sprite("s1h2-ink", "bastion-s1-ink", 3, 6, [
         kf(0, [0, 0.45, 1.2], [0, 0, 0], [s256(6.2), s256(6.2) * 0.4, 1.0]),
         kf(2, scale=[s256(6.8), s256(6.8) * 0.36, 1.0], ease="out_quad")]))
-    # Round 7: the low ring is the smear of the r6 ring swing, IN its plane (14 deg tilt, lowest toward phi 60 = left-
-    # front, centre on the pivot axis 0.354 below the pivot, radius 2.52 = tip), turning the blade's way (left-back -> back ->
-    # right -> front), 221.5 deg from alpha 158 to the contact alpha 379.5. Spawn fx 0 (skill 27): frame 0 ticks 27-28
+    # Round 7b: the low ring is the smear of the r7 ring swing, IN its plane (10 deg tilt, lowest toward phi 60 = left-
+    # front at the floor pitch -15 / y 0.11, centre on the pivot axis at tip pitch -5, radius 2.535 = tip; fitted to the
+    # r7 keys 24-30 within 0.12 blocks), turning the blade's way (left-back -> back -> right -> front), 221 deg from
+    # alpha 158 to the contact alpha 379.1. Spawn fx 0 (skill 27): frame 0 ticks 27-28
     # (blade at 212 on 28), 265 on 29, 321 on 30, full at contact 31, hold 32, fade 33-38. The front curls to z <= 2.3.
     els += sweep("s1h2-ring", "ring", 0, 12)
     els.append(sprite("s1h2-streak-main", "bastion-s1-streak", 4, 10, [

@@ -30,8 +30,8 @@ elements:
   end_tick: 12
   keyframes:
   - t: 0
-    translate: [-0.35, 0.416, 0.29]
-    rotate: [-60.0, -76.0, -150.7]
+    translate: [-0.348, 0.551, 0.293]
+    rotate: [-60.0, -80.0, -150.4]
     scale: [0.8906, 0.8906, 1.0]
 - id: s1h2-ring-b
   kind: {type: sprite, sprite: bastion-s1-ring-b, frame_ticks: 1, loop: false, see_through: true}
@@ -41,8 +41,8 @@ elements:
   end_tick: 12
   keyframes:
   - t: 0
-    translate: [-0.35, 0.416, 0.29]
-    rotate: [120.0, 76.0, 150.7]
+    translate: [-0.348, 0.551, 0.293]
+    rotate: [120.0, 80.0, 150.4]
     scale: [0.8906, 0.8906, 1.0]
 - id: s1h2-streak-main
   kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true}

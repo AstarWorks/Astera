@@ -417,11 +417,17 @@ SWEEP_ZCAP = 2.3  # outer edge never at/behind the opponent camera (z 2.4)
 SWEEP_KEEP_OUT = 0.8  # blocks kept clear around every camera eye (caster, opponent)
 SWEEP_SMOOTH_DEG = 16.0  # gaussian sigma of the radius curl (a sharper curl reads as a wiggle)
 _CAMS = [np.array([0.0, 1.62, 0.0]), np.array([0.0, 1.62, 2.4])]  # caster eye, hit-1 opponent eye (dash stop 2.4)
-_PIVOT = np.array([-0.35, 0.77, 0.29])  # rig pivot = held-item fist (animator r6b; was [-0.15, 1.0, 0.25]); smears are placed relative to it
+_PIVOT = np.array([-0.348, 0.773, 0.293])  # rig pivot = held-item fist (animator r7, animation-notes Round 7); smears are placed relative to it
 _TIP = 2.545  # pivot -> blade tip
 _t1 = math.radians(22.0)
+# hit-2 ring plane (r7b): tip pitch on the plane ~= RING_CENTRE_PITCH - RING_TILT * cos(phi - 60). Least-squares fit to the
+# r7 blade keys 24-30 (phi 163 .. 102) with the lowest point held at the floor pitch -15 (tip y 0.11): max off-plane
+# 0.12 blocks over the whole arc. The r6 plane (-8 / 14) dipped to y -0.19 at phi 60 (under the floor) while the blade
+# stayed at -15; a -1 / 14 plane fixes the floor but sits 0.31 above the r7 wind-up keys 23-27.
+RING_CENTRE_PITCH = -5.0
+RING_TILT = 10.0
 _h60 = np.array([math.sin(math.radians(60)), 0.0, math.cos(math.radians(60))])
-_n2 = math.cos(math.radians(14)) * np.array([0.0, 1.0, 0.0]) + math.sin(math.radians(14)) * _h60
+_n2 = math.cos(math.radians(RING_TILT)) * np.array([0.0, 1.0, 0.0]) + math.sin(math.radians(RING_TILT)) * _h60
 _f2 = np.array([0.0, 0.0, 1.0]) - _n2[2] * _n2
 _f2 = _f2 / np.linalg.norm(_f2)
 
@@ -429,23 +435,25 @@ _f2 = _f2 / np.linalg.norm(_f2)
 # frames: (tail, head, thickness scale, opacity); tail/head in alpha degrees, unwrapped along the travel.
 SWEEPS = {
     # hit 1 overhead chop: vertical plane containing forward, rolled 22 deg (top toward the caster's right),
-    # through the pivot. alpha 0 = forward, 90 = up (pitch 68 at skill tick 5). Tip alpha per skill tick (r6):
-    # 155 (3), 137.5 (4), 87 (5), 36 (6), -23 contact (7, held 7-8). Played in fx-high (skill tick = fx tick + 3).
+    # through the pivot. alpha 0 = forward, 90 = up (pitch 68 at skill tick 5). Tip alpha per skill tick (r7):
+    # 155 (3), 137.5 (4), 87 (5), 36 (6), -16.2 contact (7, held 7-8: tip phi 6, pitch -15, y 0.11 ON the chop plane;
+    # r6 was -23 = y -0.15). Played in fx-high (skill tick = fx tick + 3).
     "arch": dict(centre=_PIVOT, e1=np.array([0.0, 0.0, 1.0]), e2=np.array([-math.sin(_t1), math.cos(_t1), 0.0]),
                  sign=-1, r_tip=_TIP, t_max=0.36, fan_in=1.15,
-                 frames=[(137.5, 87, 0.8, 1.0), (137.5, 36, 0.95, 1.0), (137.5, -23, 1.0, 1.0), (137.5, -23, 1.0, 1.0),
-                         (112, -23, 0.85, 0.9), (75, -23, 0.7, 0.78), (40, -23, 0.52, 0.62), (10, -23, 0.34, 0.46),
-                         (-8, -23, 0.2, 0.32)]),
-    # hit 2 low ring: plane tilted 14 deg (lowest toward phi 60 = left-front), centre on the pivot axis at the
-    # cone-centre height (tip pitch -8 -> pivot y - 0.354). alpha 0 ~ forward, +90 ~ left; the blade turns +alpha
-    # (left-back -> back -> right -> front). Tip alpha per skill tick (r6): 139 (26), 167 (27), 212 (28), 265 (29),
-    # 321 (30), 379.5 contact (31, held 31-32). Played in fx-low (skill tick = fx tick + 27).
-    "ring": dict(centre=_PIVOT + np.array([0.0, -_TIP * math.sin(math.radians(8)), 0.0]), e1=_f2,
-                 e2=np.cross(_n2, _f2), sign=1, r_tip=2.52, t_max=0.24, fan_in=1.5, cams=[np.array([0.0, 1.62, 1.7])],  # hit-2 dash stop 1.7
-                 frames=[(158, 212, 0.75, 1.0), (158, 265, 0.9, 1.0), (158, 321, 1.0, 1.0), (158, 379.5, 1.0, 1.0),
-                         (158, 379.5, 1.0, 1.0), (205, 379.5, 0.85, 0.9), (250, 379.5, 0.72, 0.8),
-                         (290, 379.5, 0.58, 0.68), (322, 379.5, 0.44, 0.54), (348, 379.5, 0.3, 0.4),
-                         (364, 379.5, 0.18, 0.28)]),
+                 frames=[(137.5, 87, 0.8, 1.0), (137.5, 36, 0.95, 1.0), (137.5, -16.2, 1.0, 1.0), (137.5, -16.2, 1.0, 1.0),
+                         (112, -16.2, 0.85, 0.9), (75, -16.2, 0.7, 0.78), (40, -16.2, 0.52, 0.62), (10, -16.2, 0.34, 0.46),
+                         (-8, -16.2, 0.2, 0.32)]),
+    # hit 2 low ring: plane tilted RING_TILT (lowest toward phi 60 = left-front), centre on the pivot axis at the
+    # cone-centre height (tip pitch RING_CENTRE_PITCH). alpha 0 ~ forward, +90 ~ left; the blade turns +alpha
+    # (left-back -> back -> right -> front). Tip alpha per skill tick (r7, in this plane): 134 (26), 163 (27),
+    # 210.8 (28), 265 (29), 320.7 (30), 379.1 contact (31, phi 18 y 0.11, held 31-32); follow 60.4 (34), 101.6 (35).
+    # Played in fx-low (skill tick = fx tick + 27).
+    "ring": dict(centre=_PIVOT + np.array([0.0, _TIP * math.sin(math.radians(RING_CENTRE_PITCH)), 0.0]), e1=_f2,
+                 e2=np.cross(_n2, _f2), sign=1, r_tip=round(_TIP * math.cos(math.radians(RING_CENTRE_PITCH)), 3), t_max=0.24, fan_in=1.5, cams=[np.array([0.0, 1.62, 1.7])],  # hit-2 dash stop 1.7
+                 frames=[(158, 210.8, 0.75, 1.0), (158, 265, 0.9, 1.0), (158, 320.7, 1.0, 1.0), (158, 379.1, 1.0, 1.0),
+                         (158, 379.1, 1.0, 1.0), (205, 379.1, 0.85, 0.9), (250, 379.1, 0.72, 0.8),
+                         (290, 379.1, 0.58, 0.68), (322, 379.1, 0.44, 0.54), (348, 379.1, 0.3, 0.4),
+                         (364, 379.1, 0.18, 0.28)]),
 }
 
 
