@@ -107,9 +107,39 @@ internal object ParticlePainters {
     }
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
-        "orrery_impact" to ::orreryImpact, "orb" to ::orb, "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
+        "gossamer_echo" to ::gossamerEcho, "gossamer_echo_mirror" to { c, t, _, n -> gossamerEcho(c, t, 1, n) }, "orrery_impact" to ::orreryImpact, "orb" to ::orb, "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
         "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue, "procuration_ribbon" to ::procurationRibbon, "crimson_orbit" to ::crimsonOrbit, "crimson_link" to ::crimsonLink,
     )
+
+    /** Forward-leaning sword silhouette; a continuous outline instead of disconnected cube limbs. */
+    private fun gossamerEcho(c: Canvas, t: Double, i: Int, n: Int) {
+        fun segment(x: Double, y: Double, ax: Double, ay: Double, bx: Double, by: Double, radius: Double): Double {
+            val dx = bx - ax
+            val dy = by - ay
+            val u = ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)
+            return radius - hypot(x - (ax + dx * u.coerceIn(0.0, 1.0)), y - (ay + dy * u.coerceIn(0.0, 1.0)))
+        }
+        c.forEach { imageX, y ->
+            val x = if (i == 1) 32.0 - imageX else imageX
+            var d = 2.8 - hypot(x - 20, y - 8.5) // head
+            val limbs = listOf(
+                doubleArrayOf(18.0, 11.0, 12.0, 18.5, 2.5), // leaning torso
+                doubleArrayOf(12.0, 19.0, 20.0, 22.0, 1.8),
+                doubleArrayOf(20.0, 22.0, 24.0, 27.0, 1.2),
+                doubleArrayOf(12.0, 19.0, 7.0, 25.0, 1.6),
+                doubleArrayOf(7.0, 25.0, 3.0, 27.0, 1.0),
+                doubleArrayOf(17.0, 12.0, 21.0, 17.0, 1.25),
+                doubleArrayOf(21.0, 17.0, 25.0, 15.0, 0.9),
+                doubleArrayOf(16.0, 13.0, 12.0, 12.0, 1.0),
+                doubleArrayOf(12.0, 12.0, 9.0, 7.0, 0.8),
+                doubleArrayOf(11.0, 17.0, 3.0, 20.0, 1.3), // trailing coat
+                doubleArrayOf(24.0, 15.0, 31.0, 13.8, 0.28), // drawn blade
+                doubleArrayOf(7.0, 18.5, 16.0, 20.0, 0.35), // separate scabbard
+            )
+            for (v in limbs) d = max(d, segment(x, y, v[0], v[1], v[2], v[3], v[4]))
+            if (d < 0) 0.0 else if (d < 0.3) 0.9 else 0.55
+        }
+    }
 
     /** Interrupted double annulus with radial teeth, observed on Concentration's victim. */
     private fun orreryImpact(c: Canvas, t: Double, i: Int, n: Int) {
