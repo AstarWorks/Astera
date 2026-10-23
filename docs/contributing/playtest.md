@@ -250,11 +250,11 @@ split across the two teams).
 ```
 /astera queue join norma         # 2 teams (red / blue) on example-arena
 /astera queue join annihilation  # 3 teams (red / blue / yellow) on annihilation-arena
-/astera queue join break-core      # siege-flat: break the enemy emerald core block (yours is protected)
-/astera queue join carry-tnt       # siege-flat: step into the centre-north zone for the TNT, run it into the enemy base (2 deliveries)
-/astera queue join capture-wool    # siege-flat: stand alone in a wool zone for 10 s to capture it; 2 of 3 zones win
-/astera queue join steal-jewelry   # siege-flat: step on the enemy diamond pedestal (inside their base), bank in your base; steal 2 to win
-/astera queue join battle-loyal    # siege-flat: team deathmatch, 5 kills win
+/astera queue join break-core      # siege-isles: break the enemy emerald core block (yours is protected)
+/astera queue join carry-tnt       # siege-isles: step into the centre-north zone for the TNT, run it into the enemy base (2 deliveries)
+/astera queue join capture-wool    # siege-isles: stand alone in a wool zone for 10 s to capture it; 2 of 3 zones win
+/astera queue join steal-jewelry   # siege-isles: step on the enemy diamond pedestal (inside their base), bank in your base; steal 2 to win
+/astera queue join battle-loyal    # siege-isles: team deathmatch, 5 kills win
 /astera queue status         # your position + how many players are queued
 /astera queue leave          # optional: leave the queue
 ```
@@ -324,17 +324,21 @@ Without the pack you still play: vanilla hearts plus an `HP 200/200` text line.
 
 ## World and coordinates
 
-The playtest world is superflat: the surface block is y=-61, you stand at y=-60.
-Everything you should see in a playtest uses that height: the lobby NPCs
-(`content/lobby-npcs/*.yaml`, y=-60; logical world `lobby` = the main world),
-the lobby spawn (the world spawn, x~0 z~0) and the `example-arena` /
-`annihilation-arena` / `siege-flat` stages. The siege lanes share `siege-flat`
-(red base at x=-40, blue at x=+40; objective zones in `content/stages/siege-flat.yaml`),
-so one siege match runs at a time; their tunables are in `content/game-modes/<mode>.yaml`.
-Objective modes only work through their queue lane (the admin `/astera match start`
-has no mode key and runs plain Norma). A stage names its Bukkit world with `world:`
-(default `world`, the server's main world). The other stages (`siege-arena`,
-`forest-arena`, `boss-arena`) keep y>=64 coordinates and are not playable on the flat world.
+The main world is superflat (surface block y=-61, you stand at y=-60); the lobby and the matches are not in it:
+
+- The lobby is the generated void `lobby` world (ADR-0180) on backends that host the lobby.
+- Matches are played on **sky islands the server builds itself** in the void `arenas` world (ADR-0246), created on
+  every backend that hosts matches. Top layer y=64, you stand at y=65. The stages live side by side in that world:
+  `example-arena` (norma, around z=0: red island x=-30, blue x=+30, centre island, two outposts),
+  `annihilation-arena` (around z=-300: three team islands on a triangle of radius ~33 around a centre island) and
+  `siege-isles` (around z=300: red x=-33, blue x=+33, centre island, two outposts). The siege lanes share
+  `siege-isles` (objective zones in `content/stages/siege-isles.yaml`), so one siege match runs at a time; their
+  tunables are in `content/game-modes/<mode>.yaml`. Objective modes only work through their queue lane (the admin
+  `/astera match start` has no mode key and runs plain Norma).
+- To look at an arena: `/execute in minecraft:arenas run tp @s 0 70 0` (norma), `... 0 70 300` (siege), `... 0 70 -300`
+  (annihilation). Falling below y=30 kills you.
+- A stage names its Bukkit world with `world:` (default `world`, the server's main world); a stage with a `layout:`
+  is built into that world on boot (versioned marker, see `content/stages/README.md`).
 
 ## Logs / reset
 

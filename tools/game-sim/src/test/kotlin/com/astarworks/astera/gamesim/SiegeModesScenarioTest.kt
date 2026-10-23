@@ -22,17 +22,18 @@ import org.junit.jupiter.params.provider.ValueSource
 
 /**
  * WP11: every siege (objective) mode is played to its win condition on the real
- * `content/` (stage `siege-flat`, game-mode YAML config, queue lanes) with two
+ * `content/` (stage `siege-isles`, game-mode YAML config, queue lanes) with two
  * teams and the minimum number of players.
  */
 class SiegeModesScenarioTest {
 
-    private val redCore = Vec3(-46.0, -60.0, 0.0)
-    private val blueCore = Vec3(46.0, -60.0, 0.0)
-    private val tntSpawn = Vec3(0.0, -60.0, -20.0)
-    private val redBase = Vec3(-40.0, -60.0, 0.0)
-    private val blueBase = Vec3(40.0, -60.0, 0.0)
-    private val nowhere = Vec3(0.0, -60.0, 30.0)
+    // The sky-island siege stage (content/stages/siege-isles.yaml): top layer y=64, players stand at y=65, z=300.
+    private val redCore = Vec3(-41.0, 65.0, 300.0)
+    private val blueCore = Vec3(41.0, 65.0, 300.0)
+    private val tntSpawn = Vec3(0.0, 65.0, 294.0)
+    private val redBase = Vec3(-30.0, 65.0, 300.0)
+    private val blueBase = Vec3(30.0, 65.0, 300.0)
+    private val nowhere = Vec3(0.0, 65.0, 340.0)
 
     // ---- helpers ----------------------------------------------------------
 
@@ -81,7 +82,7 @@ class SiegeModesScenarioTest {
             assertThat(blockAt(redCore)).isEqualTo("minecraft:emerald_block")
             assertThat(blockAt(blueCore)).isEqualTo("minecraft:emerald_block")
             assertThat(attacker.position).`as`("spawned on a red spawn").isIn(
-                Vec3(-40.0, -60.0, -3.0), Vec3(-40.0, -60.0, 3.0), Vec3(-38.0, -60.0, 0.0), Vec3(-42.0, -60.0, 0.0),
+                Vec3(-29.5, 65.0, 297.5), Vec3(-29.5, 65.0, 303.5), Vec3(-27.5, 65.0, 300.5), Vec3(-31.5, 65.0, 300.5),
             )
 
             // Own core: block comes back, match goes on.
@@ -90,7 +91,7 @@ class SiegeModesScenarioTest {
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             // A plain block next to the enemy core does not count.
-            attacker.breaks(Vec3(46.0, -61.0, 0.0))
+            attacker.breaks(Vec3(41.0, 64.0, 300.0))
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             attacker.breaks(blueCore)
@@ -112,7 +113,7 @@ class SiegeModesScenarioTest {
             val runner = player("runner", at = nowhere)
             val guard = player("guard", at = nowhere)
             val matchId = startMatch("carry-tnt", mapOf(runner to "red", guard to "blue"))
-            assertThat(blockAt(tntSpawn.copy(y = -61.0))).isEqualTo("minecraft:tnt")
+            assertThat(blockAt(tntSpawn.copy(y = 64.0))).isEqualTo("minecraft:tnt")
 
             // Delivering without the TNT scores nothing.
             runner.moveTo(blueBase)
@@ -121,7 +122,7 @@ class SiegeModesScenarioTest {
             // Runner grabs the TNT and is shot down: the TNT is back, so the guard can take it.
             guard.holds("pistol")
             runner.moveTo(tntSpawn)
-            guard.moveTo(Vec3(0.0, -60.0, -10.0))
+            guard.moveTo(Vec3(0.0, 65.0, 288.0))
             kill(guard, runner)
             respawnAt(runner, nowhere)
             guard.moveTo(tntSpawn)
@@ -140,7 +141,7 @@ class SiegeModesScenarioTest {
             val end = ended()
             assertThat(end.matchId).isEqualTo(matchId)
             assertThat(end.winningTeam).isEqualTo(TeamId("red"))
-            assertThat(blockAt(tntSpawn.copy(y = -61.0))).`as`("marker removed").isEqualTo("minecraft:grass_block")
+            assertThat(blockAt(tntSpawn.copy(y = 64.0))).`as`("marker removed").isEqualTo("minecraft:grass_block")
         }
     }
 
@@ -152,13 +153,13 @@ class SiegeModesScenarioTest {
             val holder = player("holder", at = nowhere)
             val rival = player("rival", at = nowhere)
             val matchId = startMatch("capture-wool", mapOf(holder to "red", rival to "blue"))
-            val woolA = Vec3(-20.0, -61.0, 0.0)
-            val woolB = Vec3(0.0, -61.0, 20.0)
+            val woolA = Vec3(0.0, 64.0, 274.0)
+            val woolB = Vec3(0.0, 64.0, 306.0)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
 
             // Both stand in wool-a for longer than the capture time: nobody captures.
-            holder.moveTo(Vec3(-20.0, -60.0, 0.0))
-            rival.moveTo(Vec3(-19.0, -60.0, 1.0))
+            holder.moveTo(Vec3(0.0, 65.0, 274.0))
+            rival.moveTo(Vec3(1.0, 65.0, 275.0))
             advance(20 * 14)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
 
@@ -167,7 +168,7 @@ class SiegeModesScenarioTest {
             assertThat(advanceUntil(20 * 12) { blockAt(woolA) == "minecraft:red_wool" }).isTrue()
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
-            holder.moveTo(Vec3(0.0, -60.0, 20.0))
+            holder.moveTo(Vec3(0.0, 65.0, 306.0))
             assertThat(advanceUntil(20 * 12) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
 
             val end = ended()
@@ -185,14 +186,14 @@ class SiegeModesScenarioTest {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
             val matchId = startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"))
-            val bluePedestal = Vec3(44.0, -60.0, 7.0)
-            val pedestalMarker = Vec3(44.0, -61.0, 7.0)
+            val bluePedestal = Vec3(37.0, 65.0, 307.0)
+            val pedestalMarker = Vec3(37.0, 64.0, 307.0)
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:diamond_block")
 
             // Thief steals one jewel, the keeper shoots them down before banking.
             keeper.holds("pistol")
             thief.moveTo(bluePedestal)
-            keeper.moveTo(Vec3(44.0, -60.0, 17.0))
+            keeper.moveTo(Vec3(37.0, 65.0, 317.0))
             kill(keeper, thief)
             respawnAt(thief, nowhere)
             thief.moveTo(redBase)
@@ -246,7 +247,7 @@ class SiegeModesScenarioTest {
 
     // ---- queue lanes ------------------------------------------------------
 
-    @ParameterizedTest(name = "lane {0} forms a siege-flat match for two queued players")
+    @ParameterizedTest(name = "lane {0} forms a siege-isles match for two queued players")
     @ValueSource(strings = ["break-core", "carry-tnt", "capture-wool", "steal-jewelry", "battle-loyal"])
     fun `each siege lane forms a match once both sides have a player`(lane: String) {
         scenario("siege-lane-$lane") {
@@ -259,7 +260,7 @@ class SiegeModesScenarioTest {
             assertThat(advanceUntil(600) { eventsOf<MatchStarted>().isNotEmpty() }).isTrue()
             val started = eventsOf<MatchStarted>().single()
             assertThat(started.modeKey).isEqualTo(lane)
-            assertThat(started.stageId).isEqualTo(StageId("siege-flat"))
+            assertThat(started.stageId).isEqualTo(StageId("siege-isles"))
             // The 10 s in-arena countdown ends and the match is live.
             assertThat(advanceUntil(20 * 15) { phaseOf(started.matchId) == MatchPhase.ACTIVE }).isTrue()
         }

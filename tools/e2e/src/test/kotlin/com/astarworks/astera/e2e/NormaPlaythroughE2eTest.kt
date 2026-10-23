@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test
  * queue -> match found -> countdown -> ACTIVE -> pistol duels (aim, shoot, reload) -> deaths, respawns and score on the
  * sidebar -> the third kill of one team ends the match (content timers are shortened by docker/e2e-tune-content.sh:
  * 3 kills to win) -> summary, rewards, back in the lobby.
+ *
+ * The arena is a floating sky-island stage in the void `arenas` world (content/stages/example-arena.yaml, ADR-0246): red
+ * island at x=-30, blue at x=+30, centre island, two outposts; the top layer is y=64, bots stand at y=65.
  */
 class NormaPlaythroughE2eTest : PlaythroughBase() {
 
@@ -52,6 +55,21 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             assertThat(red).describedAs("teams by spawn side: ${teams.mapKeys { it.key.name }}").hasSize(2)
             assertThat(blue).hasSize(2)
             "red=${red.map { it.name }} blue=${blue.map { it.name }} positions=${bots.map { posOf(it) }}"
+        }
+        E2eReport.check(suite, "every bot spawns standing on a solid island block in the arenas world (not the flat world)", "RCON data get Dimension/Pos + execute unless block") {
+            val problems = bots.mapNotNull { islandStanceProblem(it) }
+            assertThat(problems).describedAs("bots not on an arena island: $problems").isEmpty()
+            "dimension minecraft:arenas, solid block under every bot: ${bots.map { it.name to posOf(it) }}"
+        }
+        E2eReport.check(suite, "the arena is built: generator pedestals, team-coloured spawn pads, and void between the islands", "RCON execute if block") {
+            val pedestals = listOf(Triple(0, 64, -26), Triple(0, 64, 26), Triple(6, 64, 0), Triple(-7, 64, 0))
+            val missing = pedestals.filterNot { (x, y, z) -> arenaBlockIs(x, y, z, "minecraft:iron_block") }
+            assertThat(missing).describedAs("generator pedestal (iron_block) missing at $missing").isEmpty()
+            assertThat(arenaBlockIs(-34, 64, 0, "minecraft:red_terracotta")).describedAs("red spawn pad").isTrue()
+            assertThat(arenaBlockIs(34, 64, 0, "minecraft:blue_terracotta")).describedAs("blue spawn pad").isTrue()
+            assertThat(arenaSolid(10, 64, -15) || arenaSolid(10, 60, -15)).describedAs("blocks in the gap beside the north bridge (the arena is islands, not a plane)").isFalse()
+            assertThat(arenaSolid(0, 64, -15)).describedAs("the bridge between the centre and the north outpost").isTrue()
+            "4 generator pedestals, red/blue spawn pads, bridge at (0,64,-15), void at (10,64,-15)"
         }
         E2eReport.check(suite, "match sidebar shows the team scores at 0 and replaced the lobby sidebar", "SetObjective/SetScore") {
             val lines = sidebar(bots[0])
