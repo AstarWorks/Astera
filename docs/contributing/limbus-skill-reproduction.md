@@ -368,3 +368,10 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - First capture exposed omitted `billboard: fixed` (quad defaults to center): segments faced the camera independently. Added fixed orientation and re-filmed. Final195-frame recording has maximum repeat1 and camera lateness2ms; frame140 confirms continuous crossed ellipses without top clipping.
 - ContentLint and runtime reload passed (185 VFX/0 failed,79 skills/0 failed). Final actual-cast count762 samples peaks at59; sequential sampling remains limited evidence, not a full upper-bound proof. Evidence `build/limbus-review/round45/{captures,live-displays-repeat.json}`.
 - Fidelity still failed: thin polygonal red lines instead of bright curved ribbons; missing floor flares, original body/chain shapes, transformation and normal input routing.
+
+### Round 46: smooth white-core hover ribbons
+
+- Added deterministic `crimson_orbit` painter and256px sprite using the existing item-art pipeline, with white core/red rim. Regenerated only this sprite/font/metadata. Replaced48 polygon quads with4 fixed sprite faces (two crossed ellipses, both sides), preserving fade timing and comparison framing.
+- Item-art generation, resource-pack build and contentLint passed. Dedicated pack reloaded SHA1 `245cb2747aab6317c25984936082365b43200fc9`; sprite and VFX runtime reloads succeeded.
+- Actual195-frame recording: maximum repeated run1, camera lateness2ms. Frame140 confirms smooth ellipses with bright cores. One-cast entity sampling768 observations peaks at59; ellipse stage uses4 planned displays. Evidence `build/limbus-review/round46/{captures,live-displays.json,astera.zip}`.
+- Still failed against original: static uniform rings instead of evolving streaks, floor glow absent, body/claw/chain shapes and form/input routing unfinished. Smooth sprite edges are partial progress, not a matching certification.
