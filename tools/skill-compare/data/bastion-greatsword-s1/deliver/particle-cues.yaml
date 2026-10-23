@@ -1,18 +1,24 @@
-# limbus-vfx round 3 -> director.
-# 1. play_vfx delays: NO CHANGE (fx-high delay 3, fx-low delay 27). Round 2 peaks at ticks 8-9 came from the old crescent/ring keyframes
-#    (peak e4-e6), not from the delay. Round 3 ring starts at fx tick 1 (hit 1) / 5 (hit 2) and is full at fx tick 3 / 7:
-#    hit 1: full ring at skill tick 6 (1 tick before contact 7), alive skill ticks 4..15; hit 2: contact 31, ring full 34-37, alive 32..44.
-#    If the director still wants the ring one tick earlier, the only knob is delay_ticks 3 -> 2 on the fx-high play_vfx (contact then moves to skill tick 6): do NOT, contact is tied to the rig.
-# 2. Vanilla particle calls (optional, readable layer is now display sprites; vanilla only a small accent):
-#    drop the 2nd calls of bastion-s1-hit-crit / hit-spark / ember / dust-* at skill ticks 32 and 33 and the ground-poof call at ticks 6 / 30 / 31
-#    (particle yamls already shrunk: dust size 0.35-0.4, 3-4 points, smoke-dark count 3).
-# 3. Opponent view root cause: fx are placed relative to the caster AFTER the dash (stop_before_target 2.4). The opponent camera IS the target,
-#    i.e. at fx z = 2.4. Round 2 put crescents/ring/streak/flash at z 2.4-3.1 = at or behind the camera: invisible. Round 3 keeps every sprite at z <= 1.9
-#    (ring around the caster at z 0.35). Spark streaks may fly to z 2.35 at most.
+# limbus-vfx round 5 (particle layer) -> director.
+# The whole new layer lives INSIDE content/vfx/bastion-s1-fx-high.yaml / -fx-low.yaml as `kind: particle` elements (ids s1h1-p-* / s1h2-p-*),
+# so it is tick-exact on the fx clock (fx-high delay 3, fx-low delay 27; contact = effect tick 4) and costs ZERO displays.
+# Particle definitions: content/particles/bastion-s1-p-*.yaml (22 files). Generator: tools/item-art/scripts/bastion_s1_particles.py
+# (run it AFTER tools/item-art/scripts/bastion_s1_fx.py: that script rewrites the fx files and drops the marked particle block).
+#
+# Skill YAML: NO step has to be added. The old caster-feet spawn_particle steps become redundant noise (they spawn flat at the feet,
+# 3-5 particles) and should be REMOVED from content/skills/bastion-greatsword-s1.yaml; keep the two bastion-s1-hit-crit steps (target chest burst).
+remove_steps:            # type: spawn_particle, targets: caster, delay_ticks as listed
+  - {particle_id: bastion-s1-ember,       delay_ticks: [5, 6, 7, 8, 29, 30, 31]}
+  - {particle_id: bastion-s1-dust-gold,   delay_ticks: [6, 30, 31]}
+  - {particle_id: bastion-s1-dust-black,  delay_ticks: [6, 30, 31]}
+  - {particle_id: bastion-s1-hit-spark,   delay_ticks: [7, 31]}
+  - {particle_id: bastion-s1-smoke-dark,  delay_ticks: [8, 32]}
+keep_steps:
+  - {particle_id: bastion-s1-hit-crit, delay_ticks: [7, 31], targets: cone target}
 cues: []
-display_particles:   # quad emitters removed (square look); every element below is one smooth sprite display
-  fx-high: { sprites_total: 16, spark_streaks: 6, dark_chips: 3, smoke: 2 }
-  fx-low:  { sprites_total: 19, spark_streaks: 7, dark_chips: 3, smoke: 2 }
-display_budget_peak: { fx-high: 16, fx-low: 18 }   # conservative (end tick counted alive); rig 20 + fx 18 = 38 of cast cap 60 (hit 1 and hit 2 fx never overlap)
-# limbus-vfx round 4 -> director: no skill-YAML change needed. Hit-1 ring (s1h1-ring, now sprite bastion-s1-arch) start_tick 1 -> 3
-# inside bastion-s1-fx-high (fx-high delay stays 3): first visible skill tick 6, contact 7. Hit-2 ring unchanged (start_tick 5).
+# Per-tick vanilla particle totals (computed by script from the shipped YAML, along_path points included):
+#   hit 1 (skill tick = e + 3): e2 10, e3 42, e4 53, e5 58, e6 51, e7 27, e8 25, e9 5, e10 5   (total 276, peak 58)
+#   hit 2 (skill tick = e + 27): e2 10, e3 47, e4 108, e5 111, e6 96, e7 61, e8 40, e9 19, e10 10, e11 10, e12 3   (total 515, peak 111; limit 300, brief 120)
+display_particles:
+  fx-high: {added_displays: 0}
+  fx-low:  {added_displays: 0}
+display_budget_peak: {fx-high: 16, fx-low: 18}   # unchanged
