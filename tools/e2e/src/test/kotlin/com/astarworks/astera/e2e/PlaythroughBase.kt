@@ -142,6 +142,11 @@ abstract class PlaythroughBase : E2eBase() {
         .filter { it.contains("/ERROR]") || it.contains("NotImplementedError") || it.contains(" threw") || (it.contains("/WARN]") && it.contains("Exception")) }
         .toList()
 
+    /** Vanilla death lines ("Sg1 was slain by Zombie") the server logged since line [from]: names the killer when a bot dies. */
+    protected fun deathsSince(from: Int): List<String> = ServerLog.read().lineSequence().drop(from)
+        .filter { it.contains("/INFO]") && Regex(" (was|died|drowned|fell|burned|hit the ground|suffocated|starved|withered|tried to)\\b").containsMatchIn(it) }
+        .map { it.substringAfter("]: ", it) }.toList()
+
     protected fun logLineCount(): Int = ServerLog.read().lineSequence().count()
 
     /**

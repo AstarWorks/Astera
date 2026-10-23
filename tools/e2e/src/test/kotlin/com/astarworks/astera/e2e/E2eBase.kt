@@ -12,6 +12,19 @@ abstract class E2eBase {
     @BeforeAll
     fun backendUp() {
         E2eEnv.ensureUp()
+        quietWorld()
+    }
+
+    /**
+     * The flat arena world is night-time on `normal` difficulty: zombies, skeletons and slimes wander into the match
+     * arenas, kill bots mid-duel / mid-dig (the "[Kill] died" lines of the flaky Siege and Norma playthroughs) and
+     * soak up skill hits. Every suite starts in a bright, mob-free world. (Peaceful is no option: vanilla refills
+     * food there, which would move the energy bar.)
+     */
+    private fun quietWorld() {
+        for (rule in listOf("spawn_mobs", "doMobSpawning", "advance_time", "doDaylightCycle")) rcon("gamerule $rule false")
+        rcon("time set day")
+        rcon("execute in minecraft:overworld run kill @e[type=!minecraft:player,type=!minecraft:item_display,type=!minecraft:text_display,type=!minecraft:block_display,type=!minecraft:interaction]")
     }
 
     protected fun bot(prefix: String, packPolicy: PackPolicy = PackPolicy.LOAD, waitForJoin: Boolean = true, exactName: String? = null): Bot =
