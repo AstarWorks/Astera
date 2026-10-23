@@ -66,12 +66,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "Round39: 195フレーム、カメラ遅延3ms、連続同一最大2。横薙ぎの赤い線の連続性は改善。縦振りでは赤い面が消え白い縁だけ見えるため、片面描画の向きが疑われる。両面表示の検証が必要。浮遊・姿勢・鎖の刃形状・床発光・変身/通常入力も未一致。"
+    "reason": "Round40: 裏面の追加で縦振りの赤い面が復帰。frame055で連続した赤い弧を確認。195フレーム、カメラ最大遅延3ms、同一フレーム最大2。弧の角張り・白い発光・鎖の刃形状・浮遊・姿勢・床発光・変身/通常入力は未一致。両面化後の全詠唱表示数は未検証。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 3,
+  "iterations": 4,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
-  "contentRevision": "b62ab8d5de6700a2d684b95f511d47fad4529828cf92e720296c4ac5474e213b"
+  "contentRevision": "cc4dd217e0998ee63e9727b6e727c3be74dd95db67cb865f524e1397b7c2fbd3"
 }

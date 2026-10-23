@@ -329,3 +329,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - For the four transformed-combo rigs only, switched the red band to existing `soft` quads, whose transform remains fixed while opacity fades. White outer edge remains a thin slab that shrinks in thickness rather than chord length. Reduced angular sampling step from 24 to 18 degrees. No shared renderer behavior was changed.
 - `contentLint` passed; actual-client comparison is required before accepting visual improvement. Floating/body pose, chain geometry, floor effects, transformation and input routing remain unfinished.
 - Actual capture completed: 195 frames, 3 ms maximum camera lateness, maximum repeated-frame run 2. Review **failed**: horizontal red arc is continuous, but tilted/vertical red surfaces are nearly absent while white edges remain. Suspect back-face visibility of the soft quad; inspect orientation and provide two-sided rendering before calling this an improvement across all four swings. Keep this failed capture as diagnostic evidence, not an accepted replacement.
+
+### Round 40: Crimson trail back faces
+
+- Added an opposite-facing soft trail by reversing its radial endpoints. Cross product in `VfxRigPlanner.surface` reverses the face normal; omitted the duplicate edge. No renderer/API changes were needed.
+- `contentLint` passed; runtime VFX reload succeeded. Actual-client capture: 195 frames, camera lateness maximum 3 ms, repeated-frame run maximum 2. `frame_055.png` shows the previously missing tilted red surface, now a continuous translucent arc. This supports the back-face diagnosis from round 39.
+- Still failed: polygonal corners, weak white glow, chain shape and caster motion/pose, floor effects, transformation/input routing. The additional faces increase display usage; complete-cast live display budget remains unverified and must be measured, including overlapping swings and impact effects. Capture: `build/limbus-review/round40/captures`.
