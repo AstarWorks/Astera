@@ -199,61 +199,81 @@ def make_crescent():
 
 
 # ---------------------------------------------------------------------------------------------------------
-# ink: torn yellow brush flash, 3 stacked ragged bands, tone bands, dry-brush streaks
+# ink: ONE connected pale-yellow brush mass with horizontal tongues (reference e00-e02), translucent toward the
+# tips, dissolving over the last 3 frames (round 8: the r7 slab read as an opaque flat yellow bar and snapped off)
 # ---------------------------------------------------------------------------------------------------------
-Y_FLAT = hexc("#F6E060")
-Y_SHADE = hexc("#E0BC24")
-Y_HOT = hexc("#FFF4B8")
+INK_FLAT = hexc("#F7EC9A")
+INK_HOT = hexc("#FFFBE0")
+INK_SHADE = hexc("#D9BC3A")
+INK_RIM = hexc("#8C6E10")
+# tongue table: centre y offset from the sprite centre (px, + = down), half thickness at the tip end, reach (0..1 of
+# the full width), wobble seed. The root (left) spine joins them, the gaps open toward the tips.
+INK_TONGUES = [(-62, 11, 0.70, 1), (-30, 17, 1.00, 2), (6, 20, 0.92, 3), (40, 15, 0.80, 4), (66, 9, 0.55, 5)]
 
 
-def ink_frame(size, grow, seed=5):
-    """Round 3: ONE connected flat ragged mass (reference e00-e02). Smooth low-frequency edge noise (no per-row
-    bristle stairs), wide alpha feather so magnified texels read as a soft ragged edge, tone bands + dry-brush hints."""
+def ink_frame(size, grow, diss, boil=0.0, seed=7):
+    """grow: 0..1 reach of the tongues; diss: 0 (solid) .. 1 (gone), eroding tips first through 2D noise; boil: a
+    small phase shift of the edge noise so consecutive full frames are not identical."""
     n = size * SS
     X, Y = grid(size)
     rng = np.random.default_rng(seed)
-    xs_idx = np.clip((X * SS).astype(int), 0, n - 1)
     cy = size / 2
-    ys_idx = np.clip((Y * SS).astype(int), 0, n - 1)
-    nl = noise1d(n, rng, 7, 3)[ys_idx]
-    nr = noise1d(n, rng, 8, 3)[ys_idx]
-    left = 4.0 + 46.0 * nl * (1.0 - 0.5 * grow)
-    right = 22.0 + grow * (size - 56) + 34.0 * (nr - 0.5) + 30.0 * grow * nr
-    nt = noise1d(n, rng, 6, 3)[xs_idx]
-    nb = noise1d(n, rng, 5, 3)[xs_idx]
-    nt2 = noise1d(n, rng, 20, 2)[xs_idx]
-    nb2 = noise1d(n, rng, 16, 2)[xs_idx]
-    u = np.clip((X - left) / np.maximum(right - left, 1.0), 0, 1)
-    env = np.clip(u / 0.06, 0, 1) ** 0.6 * np.clip((1 - u) / 0.10, 0, 1) ** 0.5
-    top = cy - 34.0 * env * (0.5 + 0.9 * nt) - 7.0 * (nt2 - 0.5)
-    bot = cy + 30.0 * env * (0.5 + 0.9 * nb) + 7.0 * (nb2 - 0.5)
-    d = np.minimum(np.minimum(Y - top, bot - Y), np.minimum(X - left, right - X))
-    alpha = soft(d, 1.6)
-    # tones: shade band along the bottom, hot band under the top edge, a few long dry-brush hints
-    rel = (Y - top) / np.maximum(bot - top, 1.0)
-    col = Y_FLAT[None, None] * np.ones((n, n, 1))
-    hot = soft(0.30 - rel + 0.05 * (nt2 - 0.5), 0.08) * soft(rel - 0.06, 0.04)
-    shade = soft(rel - 0.66 - 0.06 * (nb2 - 0.5), 0.1)
-    col = col * (1 - hot[..., None] * 0.9) + Y_HOT[None, None] * hot[..., None] * 0.9
-    col = col * (1 - shade[..., None] * 0.9) + Y_SHADE[None, None] * shade[..., None] * 0.9
-    for _ in range(10):
-        sy = rng.uniform(0.2, 0.8)
-        sx0 = rng.uniform(left, left + (right - left) * 0.5)
-        sl = rng.uniform(40, 110)
-        sv = rng.choice([0.0, 1.0])
-        m = soft(1.6 - np.abs(rel - sy) * (bot - top), 0.9) * soft(X - sx0, 6) * soft(sx0 + sl - X, 14)
-        tgt = Y_HOT if sv else Y_SHADE
-        col = col * (1 - m[..., None] * 0.55) + tgt[None, None] * m[..., None] * 0.55
-    rimk = soft(1.8 - d, 1.2) * 0.7
-    col = col * (1 - rimk[..., None]) + hexc("#9A7A0C")[None, None] * rimk[..., None]
+    left = 18.0
+    width = size - 30.0
+    u = np.clip((X - left) / width, 0, 1)  # 0 root .. 1 far tip
+    xs_idx = np.clip((X * SS + boil * 40 * SS).astype(int), 0, n - 1)
+    field = np.full(X.shape, -9.0)
+    tone = np.zeros(X.shape)  # 0 top of the tongue .. 1 bottom, for the hot/shade bands
+    for yc, h, reach, ts in INK_TONGUES:
+        r2 = np.random.default_rng(seed * 10 + ts)
+        wob = noise1d(n, r2, 5, 3)[xs_idx]
+        thick = noise1d(n, r2, 9, 2)[xs_idx]
+        tipn = noise1d(n, r2, 12, 2)[np.clip((Y * SS).astype(int), 0, n - 1)]
+        tip = reach * grow * (0.86 + 0.14 * tipn)  # ragged, slightly torn tip line
+        centre = cy + yc * (0.55 + 0.45 * u) + 9.0 * (wob - 0.5)  # tongues fan out from the spine
+        hh = h * (0.75 + 0.5 * thick) * (1.0 + 1.4 * (1 - np.clip(u / 0.35, 0, 1)) ** 2)  # fatter at the root
+        hh = hh * np.clip((tip - u) / 0.12, 0, 1) ** 0.45  # taper into the tip
+        bow = left + 2.0 + 34.0 * ((Y - cy) / 90.0) ** 2 + 8.0 * (tipn - 0.5)  # rounded, ragged back edge
+        d = np.minimum(np.minimum(hh - np.abs(Y - centre), (tip - u) * width), X - bow)
+        better = d > field
+        tone = np.where(better, np.clip((Y - (centre - hh)) / np.maximum(2 * hh, 1e-3), 0, 1), tone)
+        field = np.maximum(field, d)
+    # root: a ragged ellipse joining every tongue (one connected mass), radius modulated by angle noise
+    cx, rx, ry = left + 22.0, 24.0, 74.0 * grow ** 0.5
+    ang = np.arctan2(Y - cy, X - cx)
+    an = noise1d(720, rng, 16, 3)[np.clip(((ang + np.pi) / (2 * np.pi) * 719).astype(int), 0, 719)]
+    rr = np.hypot((X - cx) / rx, (Y - cy) / ry) / (0.72 + 0.5 * an)
+    sd = (1.0 - rr) * rx
+    field = np.maximum(field, np.minimum(sd, X - 3.0))
+    alpha = soft(field, 1.6)
+    # translucency gradient: opaque root, see-through tips; dry-brush breaks in the outer half
+    streak = fbm(n, np.random.default_rng(seed + 99), base=3, octaves=3)
+    streak = np.asarray(Image.fromarray(streak.astype(np.float32), mode="F").resize((n, n // 6), Image.BICUBIC)
+                        .resize((n, n), Image.BICUBIC))  # stretched horizontally = brush grain
+    alpha *= (1.0 - 0.42 * u ** 1.4) * (1.0 - 0.6 * np.clip(u - 0.25, 0, 1) / 0.75 * soft(streak - 0.55, 0.06))
+    # dissolve: tips first, then holes through the body, then the root
+    if diss > 0:
+        dn = fbm(n, np.random.default_rng(seed + 7), base=6, octaves=3)
+        thr = 0.55 * dn + 0.45 * u
+        alpha *= soft((1.0 - diss) - thr, 0.05) * (1.0 - 0.4 * diss)
+    col = INK_FLAT[None, None] * np.ones((n, n, 1))
+    hot = soft(0.38 - tone, 0.12) * soft(field - 2.0, 1.5)
+    shade = soft(tone - 0.72, 0.1)
+    col = col * (1 - hot[..., None] * 0.85) + INK_HOT[None, None] * hot[..., None] * 0.85
+    col = col * (1 - shade[..., None] * 0.8) + INK_SHADE[None, None] * shade[..., None] * 0.8
+    g = soft(streak - 0.62, 0.05)[..., None] * 0.35
+    col = col * (1 - g) + INK_SHADE[None, None] * g
+    rimk = soft(1.6 - field, 1.0) * 0.55
+    col = col * (1 - rimk[..., None]) + INK_RIM[None, None] * rimk[..., None]
     return over(blank(n), np.clip(col, 0, 1), alpha)
 
 
 def make_ink():
+    """6 frames, frame k shows at element tick k + 1 (frame 0 on spawn and spawn + 1): splash (0.8 reach), full,
+    full (boiled edge), then a 3-tick dissolve (0.25 / 0.45 / 0.7)."""
     size = 256
-    frames = []
-    for i, g in enumerate([0.55, 0.95, 1.0, 1.0, 1.0, 1.0]):
-        frames.append(downsample(ink_frame(size, g, seed=7 + (i % 3)), size))
+    specs = [(0.80, 0.0, 0.0), (1.0, 0.0, 0.0), (1.0, 0.0, 0.5), (1.0, 0.25, 0.7), (1.0, 0.45, 0.9), (1.0, 0.7, 1.0)]
+    frames = [downsample(ink_frame(size, g, d, boil=b), size) for g, d, b in specs]
     save_strip("ink", frames, size)
 
 

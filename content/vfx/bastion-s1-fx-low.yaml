@@ -11,16 +11,16 @@ elements:
   billboard: center
   brightness: 15
   start_tick: 3
-  end_tick: 6
+  end_tick: 9
   keyframes:
   - t: 0
-    translate: [0, 0.45, 1.2]
+    translate: [0, 0.75, 1.2]
     rotate: [0, 0, 0]
-    scale: [0.9688, 0.3875, 1.0]
+    scale: [0.7812, 0.3516, 1.0]
   - t: 2
-    scale: [1.062, 0.3825, 1.0]
+    scale: [0.875, 0.3937, 1.0]
     ease: out_quad
-    translate: [0, 0.45, 1.2]
+    translate: [0, 0.75, 1.2]
     rotate: [0, 0, 0]
 - id: s1h2-ring
   kind: {type: sprite, sprite: bastion-s1-ring, frame_ticks: 1, loop: false, see_through: true}

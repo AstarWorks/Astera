@@ -175,10 +175,12 @@ def high():
 
 def low():
     els = []
-    # ONE connected ragged ink mass, low (floor-level, not covering the caster), 3 ticks (3..5) around the contact
-    els.append(sprite("s1h2-ink", "bastion-s1-ink", 3, 6, [
-        kf(0, [0, 0.45, 1.2], [0, 0, 0], [s256(6.2), s256(6.2) * 0.4, 1.0]),
-        kf(2, scale=[s256(6.8), s256(6.8) * 0.36, 1.0], ease="out_quad")]))
+    # ONE connected ragged ink mass of horizontal brush tongues (reference e00-e02), camera-facing (billboard center),
+    # hip-to-chest height (0.0-1.5) so it reads as a mass from eye level instead of a flat floor slab; tips translucent.
+    # Round 8 flipbook: f0 splash on fx 3-4 (contact), full fx 5-6, dissolve fx 7-9 (3 frames eroding tips first).
+    els.append(sprite("s1h2-ink", "bastion-s1-ink", 3, 9, [
+        kf(0, [0, 0.75, 1.2], [0, 0, 0], [s256(5.0), s256(5.0) * 0.45, 1.0]),
+        kf(2, scale=[s256(5.6), s256(5.6) * 0.45, 1.0], ease="out_quad")]))
     # Round 7b: the low ring is the smear of the r7 ring swing, IN its plane (10 deg tilt, lowest toward phi 60 = left-
     # front at the floor pitch -15 / y 0.11, centre on the pivot axis at tip pitch -5, radius 2.535 = tip; fitted to the
     # r7 keys 24-30 within 0.12 blocks), turning the blade's way (left-back -> back -> right -> front), 221 deg from
