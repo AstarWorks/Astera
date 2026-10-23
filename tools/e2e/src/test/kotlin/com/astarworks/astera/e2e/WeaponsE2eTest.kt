@@ -61,24 +61,40 @@ class WeaponsE2eTest : E2eBase() {
         repeat(12) { attempt ->
             face(a, b, distance)
             Thread.sleep(settleMs)
-            if (inOverworld(a) && inOverworld(b)) {
+            // Heal after (re-)arrival: a heal given before the teleport is lost to a lobby respawn.
+            rcon("effect give ${a.name} minecraft:instant_health 1 4 true")
+            rcon("effect give ${b.name} minecraft:instant_health 1 4 true")
+            Thread.sleep(500)
+            if (ready(a, 0.5, 0.5) && ready(b, 0.5, 0.5 + distance)) {
+                // Still alive and full after the window: no status is ticking the target down.
                 Thread.sleep(700)
-                if (inOverworld(a) && inOverworld(b)) return
+                if (ready(a, 0.5, 0.5) && ready(b, 0.5, 0.5 + distance)) return
             }
-            if (attempt == 2) E2eReport.notes += "Weapons stage attempt ${attempt + 1} failed: a=${rcon("data get entity ${a.name} Dimension").trim().substringAfter("data: ")} hp=${hp(a)} gm=${rcon("data get entity ${a.name} playerGameType").trim().substringAfter("data: ")}; b=${rcon("data get entity ${b.name} Dimension").trim().substringAfter("data: ")} hp=${hp(b)}; chat a=${a.chatTexts().takeLast(3)} b=${b.chatTexts().takeLast(3)}"
+            if (attempt == 2) E2eReport.notes += "Weapons stage attempt ${attempt + 1} failed: a=${rcon("data get entity ${a.name} Dimension").trim().substringAfter("data: ")} hp=${hp(a)} pos=${pos(a)} gm=${rcon("data get entity ${a.name} playerGameType").trim().substringAfter("data: ")}; b=${rcon("data get entity ${b.name} Dimension").trim().substringAfter("data: ")} hp=${hp(b)} pos=${pos(b)}; chat a=${a.chatTexts().takeLast(3)} b=${b.chatTexts().takeLast(3)}"
         }
+        E2eReport.notes += "Weapons stage gave up after 12 attempts: hp a=${hp(a)} b=${hp(b)} pos a=${pos(a)} b=${pos(b)}"
     }
 
-    /** Lowest target HP seen while polling: a killing blow resets the HP mirror on respawn, so sample during. */
-    private fun lowestHp(b: Bot, windowMs: Long): Double? {
-        var min: Double? = null
-        val end = System.currentTimeMillis() + windowMs
-        while (System.currentTimeMillis() < end) {
-            hp(b)?.let { v -> if (min == null || v < min!!) min = v }
-            Thread.sleep(50)
-        }
-        return min
+    private fun pos(b: Bot): Triple<Double, Double, Double>? {
+        val nums = Regex("(-?[0-9.]+)d").findAll(rcon("data get entity ${b.name} Pos")).map { it.groupValues[1].toDouble() }.toList()
+        return if (nums.size == 3) Triple(nums[0], nums[1], nums[2]) else null
     }
+
+    private fun survival(b: Bot): Boolean = rcon("data get entity ${b.name} playerGameType").trim().endsWith(" 0")
+
+    /** Alive in the overworld, at full HP, in survival and standing within a block of the staged spot. */
+    private fun ready(b: Bot, x: Double, z: Double): Boolean {
+        if (!inOverworld(b)) return false
+        val h = hp(b) ?: return false
+        val p = pos(b) ?: return false
+        return h >= 19.9 && survival(b) && Math.abs(p.first - x) < 1.0 && Math.abs(p.third - z) < 1.0
+    }
+
+    /** launch_speed (blocks per tick) of each ranged right-click skill, from content/skills. */
+    private val launchSpeed = mapOf(
+        "pistol" to 3.2, "rifle" to 4.5, "fire-staff" to 1.4, "frost-staff" to 2.2,
+        "thunder-staff" to 3.0, "verdant-staff" to 2.4, "shotgun" to 20.0,
+    )
 
     @Test
     fun `melee left click spends energy and ranged skills damage a still target`() {
@@ -132,19 +148,33 @@ class WeaponsE2eTest : E2eBase() {
                 var hits = 0
                 val trace = mutableListOf<String>()
                 val tries = 4
-                repeat(tries) {
-                    rcon("effect give ${a.name} minecraft:instant_health 1 4 true")
-                    rcon("effect give ${b.name} minecraft:instant_health 1 4 true")
+                // The projectile needs distance / speed to arrive; sample that long plus a margin for the cast
+                // dispatch and the server-to-bot packet, instead of a fixed window.
+                val windowMs = (4.0 / (launchSpeed[item] ?: 3.0) * 50.0).toLong() + 2_000
+                repeat(tries) { n ->
                     stage(a, b, 4.0, 2_500)
                     val before = hp(b)
                     val chatBefore = b.chat.size
+                    val histBefore = b.healthHistory.size
+                    val logBefore = ServerLog.lines("weapons-debug").size
+                    val startPos = "a=${pos(a)} b=${pos(b)} overworld a=${inOverworld(a)} b=${inOverworld(b)}"
+                    val t0 = System.currentTimeMillis()
                     a.useItem(0f, 0f)
-                    val after = lowestHp(b, 1_800)
-                    // A lethal hit resets the victim to full HP in the lobby before the poll can see it: the
-                    // "You were defeated" notice is the evidence of that hit.
-                    val killed = b.chatTexts().drop(chatBefore).any { it.contains("defeated", ignoreCase = true) }
-                    if (killed || (before != null && after != null && after < before)) hits++
-                    trace += "try: hp $before -> $after; a=${rcon("data get entity ${a.name} Pos").trim().substringAfter("data: ")} b=${rcon("data get entity ${b.name} Pos").trim().substringAfter("data: ")} dim=${rcon("data get entity ${b.name} Dimension").trim().substringAfterLast(" ")}; bar='${status(a)}'"
+                    var after: Double? = null
+                    var hitAtMs = -1L
+                    var killed = false
+                    while (System.currentTimeMillis() - t0 < windowMs) {
+                        hp(b)?.let { v -> if (after == null || v < after!!) after = v }
+                        // A lethal hit resets the victim to full HP in the lobby before a poll can see it: the
+                        // "You were defeated" notice and the client's own SetHealth dip are evidence of that hit.
+                        killed = b.chatTexts().drop(chatBefore).any { it.contains("defeated", ignoreCase = true) }
+                        val dipped = before != null && (b.healthHistory.drop(histBefore).any { it < before } || (after ?: before) < before)
+                        if (killed || dipped) { hitAtMs = System.currentTimeMillis() - t0; break }
+                        Thread.sleep(50)
+                    }
+                    if (hitAtMs >= 0) hits++
+                    val srv = ServerLog.lines("weapons-debug").drop(logBefore).filter { a.name in it || a.uuid.toString() in it }.map { it.substringAfter("[weapons-debug]").trim() }.takeLast(4)
+                    trace += "try $n: hp $before -> $after hitAt=${hitAtMs}ms window=${windowMs}ms killed=$killed start[$startPos] server=$srv bar='${status(a)}'"
                 }
                 E2eReport.check(suite, "$item hits a still target $tries/$tries", "server Health") {
                     assertThat(hits).describedAs("hits=$hits/$tries; ${trace.joinToString(" | ")}").isEqualTo(tries)
