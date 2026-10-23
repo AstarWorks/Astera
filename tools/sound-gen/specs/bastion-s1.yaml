@@ -1,0 +1,18 @@
+# Recipe record for the bastion-greatsword S1 SFX. Route: FREE procedural synthesis, no API, no network, no paid service.
+# Build:   python3 tools/sound-gen/scripts/bastion_s1_synth.py      (numpy + scipy + ffmpeg/libvorbis)
+# Check:   python3 tools/sound-gen/scripts/bastion_s1_evidence.py <dir>   (ffprobe, levels, wave+spectro PNG)
+#          python3 tools/sound-gen/scripts/bastion_s1_timeline.py <dir>   (placed-cue timeline, per-tick peaks)
+# Encode:  libvorbis -q:a 5, mono, 44.1 kHz. NOT to_ogg.sh (its per-file loudnorm flattens layer levels);
+#          peak-normalised to the target below, re-trimmed so the DECODED peak is within 0.1 dB.
+# Sources: all synth. No CC0 sample, no ripped audio, no vanilla audio used inside the files.
+sounds:
+  - {file: bastion-s1-step-scuff,   seed: 11,  peak_dbfs: -14.0, recipe: "band-passed noise 0.5-3 kHz, 40 ms swell + 9 metal ticks 2.2-5.2 kHz + cloth tail"}
+  - {file: bastion-s1-blade-lift,   seed: 21,  peak_dbfs: -16.0, recipe: "swept SVF band-pass noise 150->800 Hz, 95->60 Hz hum, 3.9/4.85 kHz tink at 55 ms"}
+  - {file: bastion-s1-flash-sting,  seed: 31,  peak_dbfs: -8.0,  recipe: "noise 3-9 kHz, 8 ms attack, 22 ms decay, tail faded to silence by 120 ms"}
+  - {file: bastion-s1-whoosh-heavy, seed: 41,  peak_dbfs: -9.0,  recipe: "swept SVF band-pass noise 400->2500 Hz (120 ms) ->700 Hz (600 ms) + 200->90 Hz body with 2nd harmonic"}
+  - {file: bastion-s1-impact-steel, seed: 51,  peak_dbfs: -1.5,  recipe: "120->60 Hz thump + modal clang base 520 Hz ratios 1:2.76:5.40:8.93 (tau 250/200/120/80 ms, +0.3% detune) + 1.5 ms click + 2.4 kHz ping"}
+  - {file: bastion-s1-cut-thud,     seed: 61,  peak_dbfs: -6.0,  recipe: "900 Hz low-passed noise burst + 150->100 Hz thud"}
+  - {file: bastion-s1-armor-ring,   seed: 71,  peak_dbfs: -12.0, recipe: "modal base 1.1 kHz ratios 1:2.32:3.87:5.61 (tau 0.40-0.12 s) + 550 Hz hum + strike tick, two Schroeder all-pass stages"}
+  - {file: bastion-s1-ground-slam,  seed: 81,  peak_dbfs: -2.0,  recipe: "sub sine 70->38 Hz + gravel grains (noise 200-1200 Hz, 0.4 s) + 800 Hz+ crack"}
+  - {file: bastion-s1-ring-whirl,   seed: 91,  peak_dbfs: -12.0, recipe: "comb-filtered noise 2-6 kHz (two combs, 2.7 and 4.1 kHz) + four rising partials 2-6 kHz with tremolo, swell to 250 ms"}
+  - {file: bastion-s1-sword-settle, seed: 101, peak_dbfs: -16.0, recipe: "3.3/4.5/6.1 kHz steel tink at 30 ms + 4 leather/cloth rattle bursts"}

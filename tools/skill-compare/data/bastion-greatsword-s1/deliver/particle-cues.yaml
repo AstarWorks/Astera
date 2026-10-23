@@ -1,0 +1,43 @@
+# limbus-vfx round 5 (particle layer) -> director.
+# The whole new layer lives INSIDE content/vfx/bastion-s1-fx-high.yaml / -fx-low.yaml as `kind: particle` elements (ids s1h1-p-* / s1h2-p-*),
+# so it is tick-exact on the fx clock (fx-high delay 3, fx-low delay 27; contact = effect tick 4) and costs ZERO displays.
+# Particle definitions: content/particles/bastion-s1-p-*.yaml (22 files). Generator: tools/item-art/scripts/bastion_s1_particles.py
+# (run it AFTER tools/item-art/scripts/bastion_s1_fx.py: that script rewrites the fx files and drops the marked particle block).
+#
+# Skill YAML: NO step has to be added. The old caster-feet spawn_particle steps become redundant noise (they spawn flat at the feet,
+# 3-5 particles) and should be REMOVED from content/skills/bastion-greatsword-s1.yaml; keep the two bastion-s1-hit-crit steps (target chest burst).
+remove_steps:            # type: spawn_particle, targets: caster, delay_ticks as listed
+  - {particle_id: bastion-s1-ember,       delay_ticks: [5, 6, 7, 8, 29, 30, 31]}
+  - {particle_id: bastion-s1-dust-gold,   delay_ticks: [6, 30, 31]}
+  - {particle_id: bastion-s1-dust-black,  delay_ticks: [6, 30, 31]}
+  - {particle_id: bastion-s1-hit-spark,   delay_ticks: [7, 31]}
+  - {particle_id: bastion-s1-smoke-dark,  delay_ticks: [8, 32]}
+keep_steps:
+  - {particle_id: bastion-s1-hit-crit, delay_ticks: [7, 31], targets: cone target}
+cues: []
+# Round 7b (particle-artist): emitters re-ridden on the r7 rig (pivot [-0.348, 0.773, 0.293], tip table evidence/animator/r7/per-key-tip-face.txt):
+#   hit 1: blade path fx 1-9 = skill 4-12 (chop plane tilted 22 deg -> contact phi 6 / pitch -15 at fx 4 -> floor drag to phi 106);
+#          gold r 2.15, dark r 2.45 (smear's dark rim), half-tick lagging gold r 2.0, inner gold/dark r 1.5 for the last 50 deg into the contact.
+#          Contact cluster on the contact blade at r 1.85 = (-0.16, 0.29, 2.06); ground grain below it (y 0.1).
+#   hit 2: blade path fx 1-8 = skill 28-35 on the low ring (phi 210 -> contact phi 18 at fx 4 -> follow phi 102), + a 0.3-higher line;
+#          contact cluster on the contact blade at r 1.2 = (0.02, 0.46, 1.40) (in front of the target body, dash stop 1.7);
+#          shockwave rings centred under the ring smear's pivot (-0.348, 0.08, 0.293).
+#   Chords that would cut a camera keep-out (caster eye < 1.55, opponent eye < 0.85) are dropped by splitting the along_path element.
+#   Particle defs changed: crit speed 1.0 -> 0.7, spark-up 1.6 -> 1.0, nugget 0.28 -> 0.22, coal 0.22 -> 0.18 (contact sits 1.2-1.4 under
+#   the opponent eye), converge arc = FRONT half r 0.55 (the back half reached 1.0 from the caster eye in hit 2).
+# Per-tick vanilla particle totals (computed by script from the shipped YAML, along_path points included):
+#   hit 1 (skill tick = e + 3): e1 2, e2 19, e3 38, e4 58, e5 52, e6 43, e7 16, e8 19, e9 20, e10 5   (total 272, peak 58; r5 276 / 58)
+#   hit 2 (skill tick = e + 27): e1 2, e2 27, e3 59, e4 114, e5 104, e6 74, e7 42, e8 31, e9 22, e10 10, e11 10, e12 3   (total 498, peak 114; r5 515 / 111)
+# Clearance (emission points): caster eye min >= 1.5 (0 points inside; r5 had 54 / 112 inside), opponent eye min 0.85 (both hits).
+# Round 8 (particle-artist, real-client r5 diffs): lingering types removed. bastion-s1-p-glow + -p-trail-glint (wax_on, hung 30-40 ticks)
+#   and -p-firework (white flecks, hung 15-20+ ticks) are DELETED; replaced by `trail` glints that travel and die on arrival:
+#   bastion-s1-p-glint (gold, 6 ticks), -p-glint-hot (white-gold, 4 ticks), -p-glint-rise (orange, 9 ticks); one element per glint
+#   (ids s1h1-p-glint*, s1h2-p-glint*), count 1, trail_to = its own target in the fx frame.
+#   hit 1: blade shed fx 1-8 (gold r 2.15 -> r 2.55, 0.7 tick ahead) + fx 2-7 (hot r 1.85 -> r 2.2); contact glints fx 4-7 (8): 20 kept.
+#   hit 2: blade shed fx 1-8 + fx 2-7 + high line fx 2-8 (y +0.35); contact glints fx 4-8 (10): 28 kept.
+#   Travel 0.4-1.7 blocks; every start->target chord clears caster eye >= 1.55 and opponent eye >= 1.03.
+#   Net per-tick count change vs r7b: wax_on glint path points (1 per 0.45-0.6 block) out, 1 trail per element in; peaks drop slightly.
+display_particles:
+  fx-high: {added_displays: 0}
+  fx-low:  {added_displays: 0}
+display_budget_peak: {fx-high: 16, fx-low: 18}   # unchanged

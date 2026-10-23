@@ -1,0 +1,11 @@
+# Bastion S1 (round 2): orange embers flung along the swing tangent. Dust transition (orange -> dark red), small scale = short life
+# (vanilla dust life ~ 8/U * scale, so 0.5 lives ~5-20 ticks); replaces small_flame (cartoon flame sprite, lived up to 40 ticks, filled the caster view).
+id: bastion-s1-ember
+shape: { kind: point }
+color: { r: 255, g: 138, b: 30 }
+count: 3
+lifetime_ticks: 10
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 255, g: 150, b: 40 }, to: { r: 120, g: 30, b: 10 }, scale: 0.5 }
+velocity: { direction: along_tangent, speed: 0.25, spread_degrees: 25 }
+force: true

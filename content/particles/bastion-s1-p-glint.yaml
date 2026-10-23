@@ -1,0 +1,9 @@
+# gold glint shed off the blade edge: travels ~0.6-1.5 blocks ahead/outward along the swing in 6 ticks, then dies
+id: bastion-s1-p-glint
+shape: { kind: point }
+color: { r: 255, g: 214, b: 70 }
+count: 1
+lifetime_ticks: 6
+vanilla_particle: trail
+data: { kind: trail, toward: true, color: { r: 255, g: 214, b: 70 }, duration_ticks: 6 }
+force: true

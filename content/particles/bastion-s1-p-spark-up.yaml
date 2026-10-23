@@ -1,0 +1,9 @@
+# electric_spark streaks fired up in a wide cone (r7b speed 1.0: rise <= ~0.75, stays clear of the opponent eye above the contact)
+id: bastion-s1-p-spark-up
+shape: { kind: point }
+color: { r: 255, g: 240, b: 190 }
+count: 3
+lifetime_ticks: 3
+vanilla_particle: electric_spark
+velocity: { direction: up, speed: 1.0, spread_degrees: 70 }
+force: true

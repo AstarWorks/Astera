@@ -1,6 +1,6 @@
 {
   "id": "zwei-s3",
-  "rev": 3,
+  "rev": 7,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 18.9,
   "end_s": 23.7,
@@ -10,7 +10,7 @@
     "asteraSkillId": "bastion-greatsword-s3"
   },
   "intent": {
-    "file": "intent-round2.json"
+    "file": "intent-redo.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -26,42 +26,111 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "S3",
+      "label": "S3 巨剣墜つ (Ward)",
       "start_s": 18.9,
       "end_s": 23.7
     },
     {
+      "id": "ready",
+      "kind": "range",
+      "label": "構え",
+      "start_s": 18.9,
+      "end_s": 19.37,
+      "notes": "低く大剣を後方に構える。MC: 大剣rig上段(肩の後ろ)。"
+    },
+    {
       "id": "hit1",
       "kind": "hit",
-      "label": "接触 1",
+      "label": "接触1 逆手の薙ぎ",
       "t_s": 19.4,
-      "notes": "astra2 source frame 582; melee; game tick 10. Coin grouping uncertainty remains in reference analysis."
+      "notes": "f582/t10。大剣を肩の後ろ上に担ぎ、細い柄側が右へ薙ぐ。傾いたリング+長い白筋。MC: sweep-back、cone4.8。"
+    },
+    {
+      "id": "scrape",
+      "kind": "range",
+      "label": "引きずり",
+      "start_s": 20.233,
+      "end_s": 20.8,
+      "notes": "前傾し大剣の切先を床に引きずり橙の火花。足は動かない。"
+    },
+    {
+      "id": "dash",
+      "kind": "range",
+      "label": "ダッシュ",
+      "start_s": 20.767,
+      "end_s": 21.0,
+      "notes": "右へ2〜3.5H前進し敵との間合いが約1Hに。MC: dash_strike 3.6block/3tick、stop_before_target 1.5。"
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "接触 2",
+      "label": "接触2 突き",
       "t_s": 20.9,
-      "notes": "astra2 source frame 627; dash_melee; game tick 40. Coin grouping uncertainty remains in reference analysis."
+      "notes": "f627/t40。両手で大剣を水平に前へ構えた突進。橙の閃光+白筋。MC: thrust。"
+    },
+    {
+      "id": "raise",
+      "kind": "range",
+      "label": "頭上へ構え",
+      "start_s": 21.43,
+      "end_s": 22.0,
+      "notes": "敵の隣で大剣を頭上後方へ。"
     },
     {
       "id": "hit3",
       "kind": "hit",
-      "label": "接触 3",
+      "label": "接触3 柱の叩きつけ",
       "t_s": 22.033,
-      "notes": "astra2 source frame 661; melee; game tick 63. Coin grouping uncertainty remains in reference analysis."
+      "notes": "f661/t63。閃光後、床に立てた刃を中心に縦の光柱+水平の円盤+放射状の鋭い棘。MC: pillar。"
+    },
+    {
+      "id": "pillar",
+      "kind": "range",
+      "label": "柱",
+      "start_s": 22.233,
+      "end_s": 22.73,
+      "notes": "約0.45秒、その後床の火花が23.4まで残る。"
+    },
+    {
+      "id": "hold",
+      "kind": "range",
+      "label": "余韻",
+      "start_s": 22.73,
+      "end_s": 23.7,
+      "notes": "屈み、垂直の剣を立てて保持。"
     }
   ],
-  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/s3.json を参照。",
-  "editLog": [],
+  "notes": "【現状: 検証不合格 / 反復9】円盤が出ない原因は text display の水平 fixed 配置が実機で出ないこと(preview では出る)。ブロックの放射スラブに置換し表示を確認。",
+  "editLog": [
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T10:41:24.002967+00:00",
+      "summary": "S3 作り直し 反復2 (逆手薙ぎ・引きずり・ダッシュ突き・柱)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T11:18:20.472942+00:00",
+      "summary": "S3 反復4 (リング不透明化・粒子削除・棘改修)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T12:09:50.082844+00:00",
+      "summary": "S3 反復6 (全周スイープ、棘を稲妻状に、カメラを高く)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T12:59:27.898372+00:00",
+      "summary": "S3 反復9 (hide_held_item、三日月スプライト、円盤をブロックスラブ化)"
+    }
+  ],
   "status": "captured",
-  "iterations": 2,
+  "iterations": 9,
   "report": "/report/bastion-greatsword",
   "verification": {
     "status": "failed",
-    "reason": "身体の低い踏み込み・両手の上段姿勢・原動画の極端な寄りを再現できていない。斬撃と柱の輪郭、光量にも差がある。",
-    "normalInput": "実入力撮影あり。標的HP 183.27202f（回数の測定ではない）",
-    "evidence": "/evidence/zwei-s3.png"
+    "reason": "反復9: 逆手の三日月、引きずり、3.6blockダッシュ、水平突き、光柱+稲妻状の棘+平たい円盤(ブロックの放射スラブ)は動作。円盤が出なかった原因=text display(fixed)の水平配置が実機で描画されない、をブロックスラブで解消。残差: 円盤が橙が強く原動画の白金の薄い円盤と差、挿入演出の灰色1コマ未実装、同期ずれ。",
+    "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
+    "evidence": ""
   },
   "weapon": "bastion-greatsword",
   "identity": "Zwei West Section 3 Ishmael",
