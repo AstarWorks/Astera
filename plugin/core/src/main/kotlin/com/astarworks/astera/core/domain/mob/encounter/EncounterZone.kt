@@ -45,6 +45,9 @@ import com.astarworks.astera.core.domain.mob.boss.BossId
  * @property deathPenalty Rule applied when a player dies inside the zone
  *   (Wave 5pve-content, ADR-0099). Defaults to [DeathPenaltyRule.SafeDeath]
  *   so existing pre-ADR-0099 zones keep their previous behaviour.
+ * @property waves Scripted waves of a match-driven encounter (ADR-0249): the PvE game mode
+ *   spawns them one after the other and the encounter is won when the last one is cleared.
+ *   Empty for the open-world zones, which use [mobPool] / [maxConcurrent] instead.
  */
 public data class EncounterZone(
     public val id: EncounterZoneId,
@@ -55,6 +58,7 @@ public data class EncounterZone(
     public val difficulty: DifficultyCurve = DifficultyCurve.Flat,
     public val boss: BossId? = null,
     public val deathPenalty: DeathPenaltyRule = DeathPenaltyRule.SafeDeath,
+    public val waves: List<EncounterWave> = emptyList(),
 ) {
     init {
         require(maxConcurrent >= 0) {
@@ -88,5 +92,27 @@ public data class EncounterMobEntry(
         require(weight > 0) {
             "EncounterMobEntry($mobTypeId).weight must be > 0: $weight"
         }
+    }
+}
+
+/** One scripted wave of an [EncounterZone] (ADR-0249): everything in [mobs] is spawned together. */
+public data class EncounterWave(
+    public val mobs: List<EncounterWaveMob>,
+) {
+    init {
+        require(mobs.isNotEmpty()) { "EncounterWave must spawn at least one mob" }
+    }
+
+    /** How many mobs the wave spawns in total. */
+    public val size: Int get() = mobs.sumOf { it.count }
+}
+
+/** [count] mobs of [mobTypeId] in an [EncounterWave]. */
+public data class EncounterWaveMob(
+    public val mobTypeId: MobTypeId,
+    public val count: Int,
+) {
+    init {
+        require(count > 0) { "EncounterWaveMob($mobTypeId).count must be > 0: $count" }
     }
 }

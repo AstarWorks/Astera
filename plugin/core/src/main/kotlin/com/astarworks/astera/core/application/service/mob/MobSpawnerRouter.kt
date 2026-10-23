@@ -80,6 +80,9 @@ public class MobSpawnerRouter(
         return adapter.despawn(handle)
     }
 
+    override fun isAlive(handle: EntityHandle): Boolean =
+        adapters.firstOrNull { it.backendId().value == handle.backendId }?.isAlive(handle) ?: false
+
     override fun activeBackendId(): MobBackendId? = selectAvailableAdapter()?.backendId()
 
     private fun selectAvailableAdapter(): IMobAdapter? =

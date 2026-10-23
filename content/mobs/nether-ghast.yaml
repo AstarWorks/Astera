@@ -43,3 +43,6 @@ spawn_conditions:
     - "minecraft:soul_sand_valley"
 
 ai: pathfind
+
+# Real entity the Paper body is built on (ADR-0249).
+vanilla_entity: minecraft:ghast

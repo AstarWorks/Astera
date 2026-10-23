@@ -55,6 +55,9 @@ public interface IMobSpawner {
      */
     public fun despawn(handle: EntityHandle): Result<Unit, MobError>
 
+    /** Whether the mob behind [handle] still exists and is alive (ADR-0249); `true` when unknown. */
+    public fun isAlive(handle: EntityHandle): Boolean = true
+
     /**
      * The adapter the router would pick for the next spawn, given current
      * availability. Returns `null` if no adapter is available. Used by

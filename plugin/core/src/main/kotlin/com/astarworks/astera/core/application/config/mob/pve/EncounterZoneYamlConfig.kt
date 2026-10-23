@@ -8,6 +8,8 @@ import com.astarworks.astera.core.domain.mob.boss.BossId
 import com.astarworks.astera.core.domain.mob.encounter.DeathPenaltyRule
 import com.astarworks.astera.core.domain.mob.encounter.DifficultyCurve
 import com.astarworks.astera.core.domain.mob.encounter.EncounterMobEntry
+import com.astarworks.astera.core.domain.mob.encounter.EncounterWave
+import com.astarworks.astera.core.domain.mob.encounter.EncounterWaveMob
 import com.astarworks.astera.core.domain.mob.encounter.EncounterZone
 import com.astarworks.astera.core.domain.mob.encounter.EncounterZoneId
 import kotlinx.serialization.SerialName
@@ -45,6 +47,9 @@ import kotlinx.serialization.Serializable
  * death_penalty:
  *   type: item_drop
  *   grace_ticks: 600
+ * waves:                    # match-driven encounters only (ADR-0249)
+ *   - mobs:
+ *       - { mob_type_id: astera:dark-zombie, count: 3 }
  * ```
  *
  * # Difficulty curve discriminator
@@ -69,6 +74,7 @@ public data class EncounterZoneYamlConfig(
     public val difficulty: DifficultyCurveYaml? = null,
     public val boss: String? = null,
     @SerialName("death_penalty") public val deathPenalty: DeathPenaltyYaml? = null,
+    public val waves: List<EncounterWaveYaml> = emptyList(),
 ) {
     public fun toEntry(): Pair<EncounterZoneId, EncounterZone> {
         val zoneId = EncounterZoneId(id)
@@ -85,10 +91,25 @@ public data class EncounterZoneYamlConfig(
             difficulty = difficulty?.toDomain(zoneId) ?: DifficultyCurve.Flat,
             boss = boss?.let { BossId(it) },
             deathPenalty = deathPenalty?.toDomain(zoneId) ?: DeathPenaltyRule.SafeDeath,
+            waves = waves.map { it.toDomain() },
         )
         return zoneId to zone
     }
 }
+
+/** One scripted wave (ADR-0249). */
+@Serializable
+public data class EncounterWaveYaml(
+    public val mobs: List<EncounterWaveMobYaml>,
+) {
+    public fun toDomain(): EncounterWave = EncounterWave(mobs.map { EncounterWaveMob(MobTypeId(it.mobTypeId), it.count) })
+}
+
+@Serializable
+public data class EncounterWaveMobYaml(
+    @SerialName("mob_type_id") public val mobTypeId: String,
+    public val count: Int = 1,
+)
 
 @Serializable
 public data class EncounterMobEntryYaml(

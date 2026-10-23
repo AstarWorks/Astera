@@ -51,7 +51,7 @@ public data class QueueYamlConfig(
                 stage = StageId(it.stage),
                 teams = it.teams,
                 playersPerTeam = it.playersPerTeam,
-                minPlayers = floor.coerceAtMost(it.teams * it.playersPerTeam),
+                minPlayers = floor.coerceAtMost(if (kind == LaneKind.PVE) it.playersPerTeam else it.teams * it.playersPerTeam),
                 kind = kind,
             )
         }

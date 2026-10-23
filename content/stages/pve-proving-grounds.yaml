@@ -1,0 +1,53 @@
+# Proving Grounds (ADR-0249): the arena of the `pve-waves` lane, on the docker playtest superflat
+# world (grass top y=-61, players stand at y=-60). A plain open stage (StageYamlConfig only),
+# placed east of the siege stage so the two never overlap.
+#
+#   players start in the middle (x=200, z=0); `mob-spawn-*` are the four spots a wave appears at
+#   (PveWaveGameMode uses them in turn); `full-arena` is the playable area.
+# Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
+
+id: pve-proving-grounds
+
+display_name_key: astera.stage.pve-proving-grounds.name
+
+world: world
+
+regions:
+  - name: full-arena
+    min: { x: 170.0, y: -61.0, z: -30.0 }
+    max: { x: 230.0, y: -30.0, z:  30.0 }
+
+  - name: mob-spawn-north
+    min: { x: 199.0, y: -60.0, z: -17.0 }
+    max: { x: 201.0, y: -60.0, z: -15.0 }
+  - name: mob-spawn-east
+    min: { x: 215.0, y: -60.0, z: -1.0 }
+    max: { x: 217.0, y: -60.0, z:  1.0 }
+  - name: mob-spawn-south
+    min: { x: 199.0, y: -60.0, z:  15.0 }
+    max: { x: 201.0, y: -60.0, z:  17.0 }
+  - name: mob-spawn-west
+    min: { x: 183.0, y: -60.0, z: -1.0 }
+    max: { x: 185.0, y: -60.0, z:  1.0 }
+
+spawn_points:
+  - team: red
+    position: { x: 200.0, y: -60.0, z: -2.0 }
+    yaw: 0.0
+  - team: red
+    position: { x: 198.0, y: -60.0, z: 0.0 }
+    yaw: 0.0
+  - team: red
+    position: { x: 202.0, y: -60.0, z: 0.0 }
+    yaw: 0.0
+  - team: red
+    position: { x: 200.0, y: -60.0, z: 2.0 }
+    yaw: 0.0
+  - team: blue
+    position: { x: 200.0, y: -60.0, z: 0.0 }
+    yaw: 0.0
+  - role: lobby
+    position: { x: 200.0, y: -60.0, z: 0.0 }
+  - role: spectator
+    position: { x: 200.0, y: -45.0, z: 0.0 }
+    pitch: 60.0

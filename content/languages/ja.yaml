@@ -854,6 +854,9 @@ astera:
         norma-time-draw: "<gray>制限時間終了。スコアは同点です。</gray>"
         cancelled: "<gray>マッチがキャンセルされました。</gray>"
         world-unloaded: "<gray>マッチのワールドがアンロードされました。</gray>"
+        encounter-cleared: "<green>エンカウンターの全 {waves} ウェーブを突破しました。</green>"
+        encounter-failed: "<red>パーティはウェーブ {wave}/{waves} で倒れました。</red>"
+        encounter-time-up: "<red>ウェーブ {wave}/{waves} で時間切れになりました。</red>"
     # F3-4 — 試合終了時のリザルト画面（チャット部分）。ロビーへ戻る前に表示。
     result:
       score:
@@ -1076,6 +1079,12 @@ astera:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>納品</gray>"
         carried: "<gray>TNT 所持:</gray> <{color}>{team}</{color}>"
         loose: "<gray>TNT は誰でも取れる</gray>"
+      pve-waves:
+        ready: "<gray>準備しよう: <white>{waves}</white> ウェーブが来る</gray>"
+        wave: "<gold>ウェーブ {wave}/{waves}</gold> <gray>-</gray> <white>{left}</white> <gray>体残り</gray>"
+        next: "<gold>ウェーブ {wave}/{waves}</gold> <gray>まで</gray> <white>{seconds}秒</white>"
+        lives: "<gray>残機:</gray> <red>{lives}</red><gray>/{max}</gray>"
+        kills: "<gray>撃破:</gray> <white>{kills}</white>"
       capture-wool:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>ゾーン</gray>"
         open: "<gray>未占領ゾーン:</gray> <white>{open}/{total}</white>"
@@ -1390,6 +1399,12 @@ astera:
       dropped: "<gray>TNT の運び手が倒れた。TNT は元の場所に戻った。</gray>"
     carry-mini-tnt:
       title: "<gold>ミニ TNT 収集</gold>"
+    pve-waves:
+      title: "<gold>PvE ウェーブ</gold>"
+      wave-start: "<gold>ウェーブ {wave}/{waves}！</gold> <gray>敵が {count} 体向かってくる。</gray>"
+      wave-cleared: "<green>ウェーブ {wave}/{waves} を突破。</green> <gray>次のウェーブが迫っている。</gray>"
+      cleared: "<green><bold>全 {waves} ウェーブを突破！</bold></green>"
+      life-lost: "<red>倒れた。</red> <gray>残機: {lives}</gray>"
     capture-wool:
       title: "<gold>ウール制圧</gold>"
       captured: "<green>{team} チームが {zone} を制圧！ ({score}/{goal})</green>"

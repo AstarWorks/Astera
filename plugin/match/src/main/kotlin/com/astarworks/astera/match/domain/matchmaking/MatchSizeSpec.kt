@@ -24,6 +24,11 @@ public data class MatchSizeSpec(
      * three sides, not just three bodies). An admin force start (explicit `minPlayers`) bypasses it.
      */
     val requireAllTeams: Boolean = false,
+    /**
+     * PvE (ADR-0249): everybody fights on the first team, up to [playersPerTeam] players; the other
+     * teams exist only so the stage and the result screen have an opposing side (an empty one).
+     */
+    val cooperative: Boolean = false,
 ) {
     init {
         require(teamCount >= 2) { "MatchSizeSpec.teamCount must be >= 2; got $teamCount" }

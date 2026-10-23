@@ -176,7 +176,7 @@ public class InMemoryMatchmaker(
                 )
             }
             val teamIdx = teams.withIndex()
-                .filter { (_, team) -> team.size + party.size <= perTeam }
+                .filter { (idx, team) -> (!spec.cooperative || idx == 0) && team.size + party.size <= perTeam }
                 .minByOrNull { (_, team) -> team.size }?.index
                 ?: continue
             teams[teamIdx].addAll(party.map { it.playerId })
@@ -190,12 +190,12 @@ public class InMemoryMatchmaker(
         val rankedSolos = solos.sortedByDescending { (it.rating ?: Rating.DEFAULT).value }
         for (solo in rankedSolos) {
             val target = teams.withIndex()
-                .filter { (_, team) -> team.size < perTeam }
+                .filter { (idx, team) -> (!spec.cooperative || idx == 0) && team.size < perTeam }
                 .minWithOrNull(compareBy({ (_, team) -> team.size }, { (_, team) -> teamAverage(team) }))
                 ?: break
             teams[target.index].add(solo.playerId)
             pickedEntries += solo
-            if (teams.all { it.size >= perTeam }) break
+            if (teams.withIndex().all { (idx, team) -> (spec.cooperative && idx != 0) || team.size >= perTeam }) break
         }
         // Final check: enough players were placed (parties that did not fit stay queued).
         if (pickedEntries.size < required) {
