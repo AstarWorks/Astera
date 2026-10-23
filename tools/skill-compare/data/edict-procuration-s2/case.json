@@ -52,12 +52,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "白い尖った破片と青い幅広の破片を実機確認。最初の撮影は攻撃中に9フレーム連続停止し除外、同内容を再撮影。破片の分布・形の精度、足元光、姿勢、カメラ、描画開始時刻は未一致。持続変身・通常入力未接続。"
+    "reason": "同tickの反転→VFXの順序を修正し、37tickで標的側へ出ることを実機2撮影で確認。爪の曲線・幅・青白い光帯、身体との接続、人物姿勢・カメラは未一致。持続変身と通常入力は未接続。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 11,
+  "iterations": 15,
   "report": "/report/edict-blade",
   "referenceRevision": "b37d2efcfa09e705a57c7ad5b5990b2f325a2a39a2eaff45b1c7a565488cd70e",
-  "contentRevision": "ede30e2c1e54cb936b068b98830849c141f9fc22b5294783709b50bb00f5ea41"
+  "contentRevision": "d85d3af4165f5f35991ca88d480c517deefaa93e2c535f7d21cef2f75f5559e2"
 }

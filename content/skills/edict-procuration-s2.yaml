@@ -146,7 +146,7 @@ phases:
     vfx_id: edict-procuration-engrave-return
     delay_ticks:
       type: literal
-      value: 38
+      value: 37
   - type: play_vfx
     targets:
       type: cone
