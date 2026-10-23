@@ -59,11 +59,11 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "着地後の短い爪と遠距離連撃中の背後の腕を追加。空中用の寿命と追従補間を撮影比較し、試作3tick。反転直後の身体と爪の位置ずれ・重なりが残る。形・姿勢・光線・画面効果・カメラも未一致。通常入力・持続変身未接続。"
+    "reason": "VFX開始tickの二重進行と予約済み移動前の追従位置取得を修正し実機撮影。空中の継続中の爪は身体付近だが、frame_040の新規爪は身体より先行し旧方向の爪も残る。人物姿勢、曲線と光帯、遠距離斬線、カメラ、持続変身・通常入力も未一致。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 7,
+  "iterations": 9,
   "report": "/report/edict-blade",
   "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
   "contentRevision": "7d9828d9a50b08e5a1831d7469be861aad2f273189cb387151aaa6016f038f57"

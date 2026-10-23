@@ -99,7 +99,7 @@ public class VfxPlayer(
         val selfMoving: Boolean = plan.updates.any { it.position != null }
     }
 
-    private class Instance(val request: VfxRequest, val plan: VfxPlan) {
+    private class Instance(val request: VfxRequest, val plan: VfxPlan, val startedAt: Long) {
         val elements: List<ElementState> = plan.elements.map(::ElementState)
         var position: Vec3 = request.origin
         var age: Int = 0
@@ -121,13 +121,17 @@ public class VfxPlayer(
             log.debug("VFX {} dropped: {} + {} live displays exceed the cap {}", request.vfxId, reserved, plan.displayCount, maxLiveDisplays)
             return Result.failure(VfxPlayError.OverCapacity(reserved, plan.displayCount, maxLiveDisplays))
         }
-        val instance = Instance(request, plan)
+        val instance = Instance(request, plan, scheduler.currentTick())
         reserved += plan.displayCount
         if (advance(instance)) {
             finish(instance)
         } else {
             instances += instance
-            if (ticker == null) ticker = scheduler.runRepeating(ticks(1), ticks(1)) { tickAll() }
+            if (ticker == null) ticker = scheduler.runRepeating(ticks(1), ticks(1)) {
+                // Equal-tick FIFO dispatch puts this after already queued dash steps.
+                // Sample the anchor after movement, not halfway through the mechanic queue.
+                scheduler.runLater(ticks(0)) { tickAll() }
+            }
         }
         return Result.success(Unit)
     }
@@ -142,6 +146,9 @@ public class VfxPlayer(
 
     private fun tickAll() {
         for (instance in instances.toList()) {
+            // play() already processed age 0. A delayed cast can precede our shared ticker
+            // in this same server tick; it must not immediately consume age 1 as well.
+            if (instance.startedAt == scheduler.currentTick()) continue
             instance.age++
             try {
                 if (advance(instance)) finish(instance)
