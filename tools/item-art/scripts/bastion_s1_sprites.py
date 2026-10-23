@@ -116,8 +116,8 @@ def save_strip(name, frames, size):
 # crescent: needle-tipped gold crescent, dark outer rim, white-hot inner edge
 # ---------------------------------------------------------------------------------------------------------
 GOLD = hexc("#FFD23A")
-BODY = hexc("#E8A010")
-HOT = hexc("#FFFBE0")
+BODY = hexc("#E88A0C")  # round 2: more orange body
+HOT = hexc("#FFF6D0")
 RIM = hexc("#3A2A06")
 
 
@@ -125,7 +125,7 @@ def crescent_frame(size, ext, tail, wscale, seed):
     """ext = how much of the arc is drawn from the leading (right) tip, tail = trimmed from the left tip."""
     X, Y = grid(size)
     rng = np.random.default_rng(seed)
-    R, wmax = 138.0, 40.0 * wscale
+    R, wmax = 138.0, 48.0 * wscale  # round 2: thicker (was 40)
     cx, cy = size / 2, size * 0.5 + 76  # arc spans the top of the circle, vertically centred in the frame
     half = math.radians(65)
     dx, dy = X - cx, cy - Y  # y up
@@ -152,7 +152,7 @@ def crescent_frame(size, ext, tail, wscale, seed):
     alpha *= soft(cut + 0.5, 1.0)
     # colour: depth from the outer edge (dark rim) to the inner edge (white hot)
     rim_w = np.clip(0.2 * w, 1.0, 3.0)
-    hot_w = np.clip(0.12 * w, 0.8, 2.0)
+    hot_w = np.clip(0.07 * w, 0.6, 1.4)
     t = np.clip(d_out / np.maximum(w, 1e-3), 0, 1)  # 0 outer .. 1 inner
     streak = np.interp(np.clip(th * 6.0, -9, 9), np.linspace(-9, 9, 4000), noise1d(4000, rng, 40))
     body = BODY[None, None] * (1 - t[..., None] ** 0.8) + GOLD[None, None] * t[..., None] ** 0.8
@@ -160,7 +160,7 @@ def crescent_frame(size, ext, tail, wscale, seed):
     col = body
     rim_a = soft(rim_w - d_out, 0.9)
     col = col * (1 - rim_a[..., None]) + RIM[None, None] * rim_a[..., None]
-    hot_a = soft(hot_w - d_in, 0.7) * (1 - rim_a)
+    hot_a = soft(hot_w - d_in, 1.6) * (1 - rim_a) * 0.8  # round 2: softer inner glow
     col = col * (1 - hot_a[..., None]) + HOT[None, None] * hot_a[..., None]
     img = blank(size * SS)
     return over(img, np.clip(col, 0, 1), alpha)
@@ -201,9 +201,9 @@ def make_crescent():
 # ---------------------------------------------------------------------------------------------------------
 # ink: torn yellow brush flash, 3 stacked ragged bands, tone bands, dry-brush streaks
 # ---------------------------------------------------------------------------------------------------------
-Y_FLAT = hexc("#FFE45A")
-Y_SHADE = hexc("#E8B810")
-Y_HOT = hexc("#FFF6B0")
+Y_FLAT = hexc("#F6E060")
+Y_SHADE = hexc("#E0BC24")
+Y_HOT = hexc("#FFF4B8")
 
 
 def ink_frame(size, grow, seed=5):
@@ -259,7 +259,7 @@ def ink_frame(size, grow, seed=5):
 def make_ink():
     size = 256
     frames = []
-    for i, g in enumerate([0.12, 0.3, 0.52, 0.74, 0.9, 1.0]):
+    for i, g in enumerate([0.45, 0.85, 1.0, 1.0, 1.0, 1.0]):  # round 2: full width from frame 2
         frames.append(downsample(ink_frame(size, g, seed=5 + (i % 3)), size))
     save_strip("ink", frames, size)
 
@@ -410,8 +410,53 @@ def make_sliver():
     save_strip("sliver", frames, size)
 
 
+# ---------------------------------------------------------------------------------------------------------
+# ring: low open ellipse band, needle tips, thickest at the bottom/front (hit 2 floor ring, reference e05/e06)
+# ---------------------------------------------------------------------------------------------------------
+def ring_frame(size, ext, tail, wscale):
+    X, Y = grid(size)
+    rx, ry = 120.0, 54.0
+    cx, cy = size / 2, size / 2 - 4
+    dx, dy = X - cx, Y - cy  # y down: +dy = bottom of the ellipse
+    rho = np.hypot(dx / rx, dy / ry)
+    grad = np.hypot(dx / rx ** 2, dy / ry ** 2) / np.maximum(rho, 1e-4)
+    d_out = -(rho - 1.0) / np.maximum(grad, 1e-6)  # px inside the outer edge (>0 inside)
+    psi = np.arctan2(dx / rx, dy / ry)  # 0 at the bottom, + toward the right, +-pi at the top
+    half = math.radians(158)
+    s = psi / half
+    s_hi = 1.0
+    s_lo = max(-1.0, 1.0 - 2.0 * ext + 2.0 * tail)
+    if s_hi - s_lo < 0.08:
+        s_lo = s_hi - 0.08
+    u = np.clip((s - s_lo) / (s_hi - s_lo), 0, 1)
+    up = u ** 0.85
+    prof = np.clip(np.sin(np.pi * up), 0, 1) ** 1.5
+    w = 38.0 * wscale * prof
+    in_span = ((s >= s_lo) & (s <= s_hi)).astype(float)
+    d_in = w - d_out
+    d = np.minimum(d_out, d_in)
+    alpha = soft(d, 1.0) * in_span
+    cut = np.minimum(s - s_lo, s_hi - s) * half * rx * 0.6
+    alpha *= soft(cut + 0.5, 1.0)
+    t = np.clip(d_out / np.maximum(w, 1e-3), 0, 1)
+    body = BODY[None, None] * (1 - t[..., None] ** 0.7) + GOLD[None, None] * t[..., None] ** 0.7
+    rim_w = np.clip(0.16 * w, 1.0, 2.6)
+    hot_w = np.clip(0.07 * w, 0.6, 1.6)
+    rim_a = soft(rim_w - d_out, 0.9)
+    col = body * (1 - rim_a[..., None]) + RIM[None, None] * rim_a[..., None]
+    hot_a = soft(hot_w - d_in, 1.5) * (1 - rim_a) * 0.8
+    col = col * (1 - hot_a[..., None]) + HOT[None, None] * hot_a[..., None]
+    return over(blank(size * SS), np.clip(col, 0, 1), alpha * 0.96)
+
+
+def make_ring():
+    size = 256
+    specs = [(0.45, 0.0, 0.6), (0.8, 0.0, 0.9), (1.0, 0.0, 1.0), (1.0, 0.12, 0.85), (1.0, 0.3, 0.6), (1.0, 0.5, 0.35)]
+    save_strip("ring", [downsample(ring_frame(size, *sp), size) for sp in specs], size)
+
+
 MAKERS = {"crescent": make_crescent, "ink": make_ink, "streak": make_streak, "smoke": make_smoke,
-          "glint": make_glint, "sliver": make_sliver}
+          "glint": make_glint, "sliver": make_sliver, "ring": make_ring}
 
 if __name__ == "__main__":
     for nm in (sys.argv[1:] or MAKERS):
