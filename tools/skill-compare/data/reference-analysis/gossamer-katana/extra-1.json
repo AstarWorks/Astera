@@ -64,7 +64,7 @@
       "type": "body/weapon afterimages",
       "count_visible": "2–4 each pass",
       "origin": "caster",
-      "path": "alternating sides of target",
+      "path": "Overlapping echoes on both sides; do not infer real-body alternation from each echo.",
       "size_H": 1,
       "timing": {
         "start_frame": 643,
@@ -94,7 +94,7 @@
       "end_frame_exclusive": 683,
       "start_s": 21.988633,
       "end_s": 22.789433,
-      "description": "Two rapid changes of side, each ~2–3 H."
+      "description": "First two contacts remain on the initial screen-right side. Clear body-side transition occurs between source665 and672; third and fourth contacts and recovery are on screen-left. Overlapping blue/red echoes obscure exact crossing frames."
     },
     {
       "start_frame": 683,
@@ -325,5 +325,25 @@
     "official_coins": null,
     "verified_coin_assignments": false,
     "note": "Visual contact groups do not establish hidden game damage events. Null coins retain unresolved mapping."
+  },
+  "review_round80": {
+    "frames_reviewed": [
+      642,
+      645,
+      648,
+      652,
+      655,
+      659,
+      662,
+      665,
+      670,
+      672,
+      676,
+      682,
+      683,
+      689,
+      698
+    ],
+    "correction": "Earlier two rapid changes-of-side description over-counted real-body crossings. One clear transition after second contact; exact path remains uncertain."
   }
 }

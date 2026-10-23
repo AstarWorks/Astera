@@ -7,11 +7,11 @@
   "skill": {
     "name": "Unresolved four-contact arc chain",
     "coins": null,
-    "asteraSkillId": null
+    "asteraSkillId": "gossamer-arc-chain"
   },
   "variant": {
     "label": "4接触の連続斬撃（対応未確定）",
-    "implementation": "missing",
+    "implementation": "prototype",
     "order": 1
   },
   "mc": {
@@ -51,15 +51,16 @@
       "notes": "Further blue cross as red-afterimage return pass begins / confidence: med; contact is not proof of a separate damage event."
     }
   ],
-  "notes": "追加観測区間。キットとの対応と実ダメージ回数は未確定。専用実装・撮影はなく、既存技の映像は流用しない。",
-  "status": "analysed",
+  "notes": "4接触の専用直接呼出し試作。通常入力・状態分岐・正式キット対応は未確定。試作ダメージ4回を原作の確定ダメージ回数として扱わない。",
+  "status": "captured",
   "verification": {
-    "status": "unverified",
-    "reason": "参照映像のみ。専用実装・実機撮影・照合は未完了。"
+    "status": "failed",
+    "reason": "同じ側から2接触、通過後に反対側で2接触と低い回復姿勢の試作を実機確認。正式キット・コイン対応・ダメージ回数は未確定。身体の向き、箱状残像、刀の曲率、途切れる細い縁、白い帯状残光、花模様、カメラは未一致。"
   },
   "weapon": "gossamer-katana",
   "identity": "Blade of the House of Spiders Ryōshū",
-  "iterations": 0,
+  "iterations": 2,
   "report": "/report/gossamer-katana",
-  "referenceRevision": "f824347892e0db403417081bf8bbb8a4fa3e8d62c0ba3084344a77b1d621d02d"
+  "referenceRevision": "b4a6153c026f88c462eb7e0054e298c4f104f513b253e237275999201a833ae3",
+  "contentRevision": "34304b98e48a0c6deb4db3b10386b280fb7771c9d6111a0ea289a90df47fcd5b"
 }
