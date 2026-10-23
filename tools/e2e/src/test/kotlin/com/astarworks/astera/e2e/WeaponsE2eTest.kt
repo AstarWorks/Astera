@@ -60,6 +60,10 @@ class WeaponsE2eTest : E2eBase() {
     private fun stage(a: Bot, b: Bot, distance: Double, settleMs: Long) {
         repeat(12) { attempt ->
             face(a, b, distance)
+            // A stray mob (the verdant-staff run met a Slime) soaks the bolt that was meant for the target.
+            // Purge everything that is not a player or a skill visual around the arena before every shot.
+            val purged = rcon("execute in minecraft:overworld positioned 0.5 -60 2.5 run kill @e[distance=..24,type=!minecraft:player,type=!minecraft:item_display,type=!minecraft:text_display,type=!minecraft:block_display,type=!minecraft:interaction]").trim()
+            if (!purged.startsWith("No entity") && purged.isNotEmpty()) E2eReport.notes += "Weapons stage purged stray entities: $purged"
             Thread.sleep(settleMs)
             // Heal after (re-)arrival: a heal given before the teleport is lost to a lobby respawn.
             rcon("effect give ${a.name} minecraft:instant_health 1 4 true")
