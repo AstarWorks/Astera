@@ -8,7 +8,7 @@ import java.time.Instant
  * Cross-server portal signal (Wave 5e).
  *
  * Published by `MatchSpawnUseCase` on the game-server side ([EntryReady])
- * and by `RestoreInventoryOnPlayerJoinedListener` on the lobby-server
+ * and by `PlayerHandoffService` on the lobby-server
  * restore side ([ExitReady]). Wave 6b's `BukkitEventAdapter` will publish
  * these in response to Bukkit `PlayerJoinEvent` / `PlayerQuitEvent`.
  *

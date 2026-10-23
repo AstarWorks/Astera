@@ -1,0 +1,7 @@
+# World baseline (ADR-0245): applied by Astera to EVERY loaded world on the lobby, game and all roles
+# (overworld, nether, end, arena worlds, the lobby sky island) when the world loads and once the server is up.
+# PvE mobs are spawned by Astera itself (MobSpawnerRouter), never by vanilla natural spawning.
+id: baseline
+mob_spawning: false     # gamerule spawn_mobs
+time_of_day: 6000       # noon
+time_frozen: true       # gamerule advance_time = false

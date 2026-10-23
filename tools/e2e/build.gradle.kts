@@ -53,7 +53,7 @@ val e2e by tasks.registering(Test::class) {
     systemProperty("astera.e2e.composeFile", rootProject.file("docker/docker-compose.e2e.yml").absolutePath)
     // QA-3: the compose project of this checkout (must match scripts/e2e.sh: astera-e2e-<id>).
     systemProperty("astera.e2e.project", "astera-e2e-$e2eId")
-    listOf("host", "port", "rconPort", "rconPassword", "autostart", "serverLog", "via", "proxyHost", "proxyPort", "velocityLog").forEach { k ->
+    listOf("host", "port", "rconPort", "rconPassword", "autostart", "serverLog", "via", "proxyHost", "proxyPort", "velocityLog", "redisHost", "redisPort").forEach { k ->
         (project.findProperty("e2e.$k") as String?)?.let { systemProperty("astera.e2e.$k", it) }
     }
     testLogging.showStandardStreams = false

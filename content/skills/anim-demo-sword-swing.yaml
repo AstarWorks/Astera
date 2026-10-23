@@ -1,0 +1,23 @@
+# Skin-rig demo (ADR-0250): plays content/animations/sword-swing.yaml on the caster, no damage, no VFX.
+# Not bound to any item. Film it from the side with `make vfx-shot SKILL=anim-demo-sword-swing VIEW=side TICKS=40`
+# (see tools/vfx-shot/README.md, "Skin-rig animations").
+id: anim-demo-sword-swing
+name:
+  ja: "デモ・剣の袈裟斬りモーション"
+  en: "Demo Sword Swing Motion"
+description:
+  ja: "プレイヤー本人のスキンのまま、キーフレームの斬撃モーションを再生するデモ。"
+  en: "Plays the keyframed sword-swing motion on the caster's own skin."
+archetype: sequence
+cooldown_ticks: 40
+resource_cost: 0
+tags: [ demo, animation ]
+params:
+  type: sequence
+phases:
+  type: sequence
+  cast:
+  - type: play_animation
+    targets:
+      type: caster
+    animation: sword-swing

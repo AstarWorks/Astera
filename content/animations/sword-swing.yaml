@@ -1,0 +1,44 @@
+# Big overhead-to-diagonal slash (ADR-0250). Rotations are degrees around the vanilla joint, X first
+# (negative X on an arm swings it forward and up). Skill use: `play_animation: sword-swing`.
+id: sword-swing
+length_ticks: 12
+loop: false
+lock_movement: true
+blend_in_ticks: 2
+blend_out_ticks: 3
+bones:
+  right_arm:
+    rotation:
+      - { t: 0, v: [0, 0, 0] }
+      - { t: 3, v: [-165, 0, -15], ease: ease_out }   # wind-up overhead
+      - { t: 4, v: [-170, 0, -20] }                    # hold at the top
+      - { t: 7, v: [-45, 0, 35], ease: ease_in }       # slash down across the body
+      - { t: 9, v: [-30, 0, 45], ease: ease_out }      # follow-through
+      - { t: 12, v: [0, 0, 0], ease: ease_in_out }
+  left_arm:
+    rotation:
+      - { t: 0, v: [0, 0, 0] }
+      - { t: 4, v: [-30, 0, -10], ease: ease_out }
+      - { t: 7, v: [20, 0, -5], ease: ease_in }
+      - { t: 12, v: [0, 0, 0], ease: ease_in_out }
+  body:
+    rotation:
+      - { t: 0, v: [0, 0, 0] }
+      - { t: 4, v: [-4, -20, 0], ease: ease_out }      # twist to the sword side
+      - { t: 7, v: [10, 25, 0], ease: ease_in }        # whip through, lean in
+      - { t: 12, v: [0, 0, 0], ease: ease_in_out }
+  right_leg:
+    rotation:
+      - { t: 0, v: [0, 0, 0] }
+      - { t: 7, v: [-25, 0, 0], ease: ease_in }        # step into the cut
+      - { t: 12, v: [0, 0, 0], ease: ease_in_out }
+  left_leg:
+    rotation:
+      - { t: 0, v: [0, 0, 0] }
+      - { t: 7, v: [20, 0, 0], ease: ease_in }
+      - { t: 12, v: [0, 0, 0], ease: ease_in_out }
+root:
+  position:
+    - { t: 0, v: [0, 0, 0] }
+    - { t: 7, v: [0, -1.5, 0], ease: ease_in }
+    - { t: 12, v: [0, 0, 0], ease: ease_in_out }

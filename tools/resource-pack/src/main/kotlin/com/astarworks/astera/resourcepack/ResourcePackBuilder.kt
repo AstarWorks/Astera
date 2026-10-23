@@ -35,6 +35,7 @@ public data class BuiltPack(val zip: Path, val sha1: String, val entryCount: Int
  * | `content/hud/<tree>.png`                     | `assets/astera/textures/hud/<tree>`                      |
  * | `content/hud/top-level .json`                     | providers merged into `assets/astera/font/default.json` |
  * | `content/fonts/<tree>.json`                  | `assets/astera/font/<tree>.json` (`fonts/vfx/spark.json` = font `astera:vfx/spark`, ADR-0239) |
+ * | `content/pack-assets/assets/<path>`          | `assets/<path>` unchanged (skin-rig shaders + item definition, ADR-0250) |
  * | `content/textures/sources/` (all of it)     | not shipped (raster sources for `:tools:item-art`, ADR-0238) |
  * | (generated)                              | transparent sprites hiding the vanilla hearts / armor bar |
  *
@@ -54,6 +55,7 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         addFonts(files)
         addVanillaOverrides(files)
         addAtlases(files)
+        addVerbatim(files)
         return files
     }
 
@@ -196,6 +198,21 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         }
     }
 
+    /**
+     * Hand-written pack files shipped as they are (ADR-0250): `content/pack-assets/<path>` becomes `<path>`
+     * in the zip, and `<path>` must start with `assets/`. Used for the skin-rig core shader overrides and
+     * the `astera:skinrig` item definition. A path another section already produced is refused.
+     */
+    private fun addVerbatim(files: MutableMap<String, ByteArray>) {
+        val root = contentDir.resolve(VERBATIM_DIR)
+        for (file in filesUnder(VERBATIM_DIR)) {
+            val rel = file.relativeTo(root).invariantSeparatorsPathString
+            check(rel.startsWith("assets/")) { "content/$VERBATIM_DIR/$rel must live under assets/" }
+            check(rel !in files) { "content/$VERBATIM_DIR/$rel collides with a pack file already built" }
+            files[rel] = Files.readAllBytes(file)
+        }
+    }
+
     /** Fully transparent sprites over the vanilla hearts and armor bar: the status HUD draws HP itself. */
     private fun addVanillaOverrides(files: MutableMap<String, ByteArray>) {
         val transparent = transparentSprite()
@@ -237,6 +254,9 @@ public class ResourcePackBuilder(private val contentDir: Path) {
 
         /** Subdirectory of `content/textures/` holding generator inputs (ADR-0238); never packed. */
         public const val SOURCES_DIR: String = "sources"
+
+        /** Directory of files copied into the zip unchanged (shader overrides, special item definitions). */
+        public const val VERBATIM_DIR: String = "pack-assets"
 
         /** Model directory (under `models/`) that `:tools:item-art` writes. */
         public const val GENERATED_ITEM_DIR: String = "generated/items"

@@ -126,11 +126,15 @@ public class RemoteMatchFormer(
             is AssignmentStatus.Accepted -> {
                 flight.ackTimeout?.cancel()
                 flight.accepted = true
+                log.info(
+                    "Assignment {} accepted by {}; transferring {} players",
+                    status.assignmentId, settings.gameServer, flight.formation.players.size,
+                )
                 for (player in flight.formation.players) {
                     notifier.notify(player, MessageKey("astera.match.matchmaking.transferring"), emptyMap())
                     when (val moved = transfers.transfer(player, settings.gameServer, TransferReason.MatchFound)) {
                         is Result.Failure -> log.warn("Transfer of {} to {} failed: {}", player, settings.gameServer, moved.error)
-                        is Result.Success -> Unit
+                        is Result.Success -> log.info("Transfer of {} to {} requested (assignment {})", player, settings.gameServer, status.assignmentId)
                     }
                 }
             }

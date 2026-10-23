@@ -21,6 +21,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
         com.astarworks.astera.core.application.service.animation.InMemoryPlayerAnimationGateway(
             eventBus = eventBus,
             tickClock = scheduler::currentTick,
+            skinRig = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
         ),
         priority = 0,
     )
@@ -31,6 +32,24 @@ internal fun CoreWiringState.wireGameplayLoop() {
         )
     }
     logger.info("Wave 5animation (ADR-0113) PlayerAnimation port wired (InMemory @ p=0, Paper @ p=100 via ADR-0161).")
+
+    // ── ADR-0250 — keyframed skin-rig animations (`play_animation` + `/astera emote`) ──
+    //
+    // The headless animator runs the same playback timeline without rendering; the Paper overlay
+    // (Display-entity rig) replaces it at p=100. The animation gateway above looks it up lazily.
+    services.register<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>(
+        com.astarworks.astera.core.application.service.animation.InMemorySkinRigAnimator(
+            registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
+            scheduler = scheduler,
+        ),
+        priority = 0,
+    )
+    ports.skinRigAnimator?.let {
+        services.register<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>(
+            it(services),
+            priority = 100,
+        )
+    }
 
     // ── Wave 5transitions (ADR-0115) — DisplayEntity transition foundation ─
     //
@@ -265,6 +284,11 @@ internal fun CoreWiringState.wireGameplayLoop() {
         .HudDiagnosticsService(hudGateway, scheduler, packConfigured = { resourcePackService.current() != null })
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hudDiagnostics.onJoined(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hudDiagnostics.onQuit(it) }
+    // A client that quit loses its sidebar. Without this the HUD gateway and the scoreboard manager keep believing the
+    // old board is on screen, and the same player logging in again (a mid-match reconnect) is never shown one.
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) {
+        hudGateway.clearFor(it.playerId, com.astarworks.astera.core.domain.hud.HudRegion.SIDEBAR)
+    }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { hudDiagnostics.onPackStatus(it) }
     val pushOnJoin = com.astarworks.astera.core.application.eventbus.listeners.hud
         .ResourcePackPushOnJoinListener(hudGateway) { resourcePackService.current() }

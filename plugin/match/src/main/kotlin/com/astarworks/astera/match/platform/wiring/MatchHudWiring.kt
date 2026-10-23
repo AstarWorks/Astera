@@ -74,6 +74,12 @@ internal object MatchHudWiring {
             env.matches.findMatchOf(event.victim)?.let { matchSidebar.refresh(it.id) }
         }
         subscriptions += eventBus.subscribe(MatchEnded::class) { matchSidebar.release(it.matchId) }
+        // A rejoining participant has a blank client: drop the dedupe entry and redraw the match sidebar at once.
+        subscriptions += eventBus.subscribe(PlayerQuitServer::class) { matchSidebar.forget(it.playerId) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PlayerReconnectedToMatch::class) {
+            matchSidebar.forget(it.playerId)
+            matchSidebar.refreshPlayer(it.playerId)
+        }
         subscriptions += eventBus.subscribe(CurrencyChanged::class) { matchSidebar.refreshPlayer(it.playerId) }
 
         installNameplatesAndTab(env, modeOf)
@@ -87,6 +93,8 @@ internal object MatchHudWiring {
             stars = stars,
             scheduler = env.scheduler,
             gold = { player -> services.get<ICurrencyLedger>()?.balance(player, Currency.GOLD) },
+            settings = { env.queueSettings.current() },
+            progress = { env.queueProgress },
         )
         env.shutdownHooks += { lobbySidebar.stop() }
 

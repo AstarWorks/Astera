@@ -49,7 +49,7 @@ class GameLoopE2eTest : PlaythroughBase() {
 
         // --- death inside the match -----------------------------------------------------------------------------------
         val deathsBefore = b.deaths.size
-        rcon("damage ${b.name} 1000 minecraft:player_attack by ${a.name}")
+        rcon("damage ${b.name} 1000 minecraft:magic by ${a.name}")
         val died = b.waitUntil(8_000) { b.deaths.size > deathsBefore }
         val respawnMs = awaitRespawn(b)
         Thread.sleep(1_500)

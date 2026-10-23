@@ -4,6 +4,8 @@
 
 Unit tests (one class / use case / listener / domain object exercised with fakes, mocks or in-memory stubs) cost more to maintain than they return. Do not write them. Delete them on sight.
 
+**E2E execution (2026-10-23):** Agents may run `flock /tmp/claude-1000/astera-e2e.lock make e2e` (serialized: one at a time on this host, ~12+ min, per-checkout isolated harness, report `build/e2e-report.md`) when the task needs player-visible verification; never in parallel; never touch the live `astera-dev-*` containers. Compile-only Gradle tasks are allowed; unit tests and `./gradlew check`/test tasks stay forbidden.
+
 ## Allowed (integration)
 
 - `tools/game-sim` scenario tests: boot the real wiring and drive it.

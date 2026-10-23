@@ -32,6 +32,7 @@ Everything else (incl. `.claude/CLAUDE.md`, `.claude/settings.json`, hooks, rule
 |---|---|
 | `git` merge/commit/push/fetch/log/status/diff/show/worktree/branch/merge-base/rev-parse/add/stash/switch/checkout/restore --staged | `git mv/rm/apply/am/clean`, `git checkout -- p`, `git restore` (worktree), `reset --hard` |
 | `make dev-content/dev-plugins/dev-pack/docker-up/dev-hotswap*/help/check` | other `make` targets |
+| `flock /tmp/claude-1000/astera-e2e.lock make e2e` (serialized) | |
 | `flock … -c '…'` / `bash -c` (inner command is analysed recursively) | |
 | `docker …`, `gh …`, `codex exec …`, `scripts/codex-task.sh` | |
 | read-only: grep, rg, ls, cat, head, tail, find, wc, jq, git read cmds | `sed -i`, `perl -i`, `tee`, `dd of=`, `cp/mv/rm/ln/touch/mkdir/chmod/patch/rsync/unzip/install`, `tar x`, `curl -o`, `find -delete`, `>`/`>>` to repo paths |
@@ -44,3 +45,7 @@ Known limit: `python3 script.py` / `bun x.ts` of an existing file is not inspect
 - Claude subagent: Agent tool (`astera-worker`, `general-purpose`, `isolation: worktree`); start the prompt with the contents of `.claude/prompts/agent-preamble.md`.
 - Codex: write the task to a file under `/tmp/claude-1000/`, run `scripts/codex-task.sh <task-id> <prompt-file>`. It creates `.claude/worktrees/<task-id>` on `wp/<task-id>` from local `main`, prepends `.claude/prompts/codex-preamble.md`, runs `codex exec -p astar-implement -s danger-full-access` in the background; progress in `/tmp/claude-1000/codex/<task-id>.log` (ends with `EXIT=<code>`), final message in `<task-id>-last.md`. Then merge `wp/<task-id>` locally.
 - Harness changes (`.claude/**`, this rule included) also go through an agent.
+
+## E2E (founder decision 2026-10-23)
+
+Manager and agents agents may run `flock /tmp/claude-1000/astera-e2e.lock make e2e` (serialized: one at a time on this host, ~12+ min, per-checkout isolated harness, report `build/e2e-report.md`) when the task needs player-visible verification; never in parallel; never touch the live `astera-dev-*` containers. Compile-only Gradle tasks are allowed; unit tests and `./gradlew check`/test tasks stay forbidden.

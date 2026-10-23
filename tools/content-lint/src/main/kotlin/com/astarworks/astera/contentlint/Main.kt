@@ -151,6 +151,8 @@ internal object SchemaMapping {
         SchemaTarget("particle.schema.json", "particles"),
         // ADR-0220: display choreographies, one definition per file.
         SchemaTarget("vfx.schema.json", "vfx"),
+        // ADR-0250: keyframed skin-rig player animations, one per file.
+        SchemaTarget("animation.schema.json", "animations"),
         // ADR-0239: generated particle sprite metadata (written by :tools:item-art).
         SchemaTarget("sprite.schema.json", "sprites"),
         // element-matrix is a balance singleton, not a directory of authored
@@ -213,6 +215,7 @@ internal class LintRunner(private val cli: CliArgs) {
             particles = idsIn("particles"),
             vfx = idsIn("vfx"),
             sprites = idsIn("sprites"),
+            animations = idsIn("animations"),
         )
         val out = mutableListOf<FileResult>()
         for (dir in listOf("skills", "items", "vfx")) {

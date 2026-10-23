@@ -17,6 +17,8 @@ content/
 ├── balance/        バランス調整 (block-durability 等)
 ├── gui/            GUI レイアウト定義
 ├── particles/      パーティクル定義
+├── animations/     プレイヤーのスキンリグ・キーフレームアニメ (ADR-0250、`play_animation` / `/astera emote`)
+├── pack-assets/    リソースパックへそのまま入れる手書きファイル (スキンリグのシェーダ等、`assets/...`)
 ├── sounds/         サウンド定義
 ├── models/         3D model JSON
 ├── textures/       32×32 PNG アセット (items / blocks / entities / animations)

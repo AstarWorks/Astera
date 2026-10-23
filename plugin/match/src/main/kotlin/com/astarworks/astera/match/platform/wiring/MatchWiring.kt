@@ -120,6 +120,9 @@ internal class MatchWiringEnv(
 ) {
     /** Set by [MatchGameplayWiring]; `null` when the host registered no `ISpectator`. */
     var spectatorCycler: com.astarworks.astera.match.application.service.death.SpectatorTargetCycler? = null
+
+    /** Set by [MatchGameplayWiring] on lobby backends (ADR-0248): the queue scheduler's countdown / hold state for the HUD. */
+    var queueProgress: com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueProgress? = null
 }
 
 /**
@@ -425,6 +428,17 @@ public object MatchWiring {
             "Loaded ${gameModeReport.loaded} game-mode spec(s) from $gameModeContentDir " +
                 "(failed: ${gameModeReport.failed})",
         )
+        val modeConfigOf: (com.astarworks.astera.core.domain.match.MatchId) -> Map<String, String> = { id ->
+            val key = matchModeRegistry.modeKeyOf(id)?.takeIf { it.isNotBlank() }
+                ?.let { runCatching { GameModeId(it) }.getOrNull() }
+            (key?.let { gameModeContents.find(it) } ?: gameModeContents.find(NormaGameMode.ID))?.defaultConfig
+                ?: emptyMap()
+        }
+
+        // The Norma sidebar shows the kill goal of the match's own mode config.
+        val normaGoal: (com.astarworks.astera.core.domain.match.MatchId) -> Int = { id ->
+            modeConfigOf(id)["score_threshold"]?.toIntOrNull()?.takeIf { it > 0 } ?: NormaGameMode.DEFAULT_GOAL
+        }
         // Reflective impl resolution (Phase 1 PoC; Koin replaces this in
         // Phase 3 per ADR-0106). Each spec whose impl_class resolves to a
         // concrete IGameMode singleton becomes available via the registry.
@@ -436,12 +450,12 @@ public object MatchWiring {
         // working "norma" mode. The eventBus binding is wired in here so
         // lifecycle hooks publish framework events.
         if (gameModeFrameworkRegistry.get(NormaGameMode.ID) == null) {
-            gameModeFrameworkRegistry.register(NormaGameMode(eventBus = eventBus))
+            gameModeFrameworkRegistry.register(NormaGameMode(eventBus = eventBus, goal = normaGoal))
             logger.info("game-modes: NormaGameMode programmatically registered (YAML fallback).")
         } else {
             // Replace the reflection-built (eventBus-less) instance with the
             // bus-wired one so framework events actually publish in prod.
-            gameModeFrameworkRegistry.register(NormaGameMode(eventBus = eventBus))
+            gameModeFrameworkRegistry.register(NormaGameMode(eventBus = eventBus, goal = normaGoal))
         }
 
         // Wave 5annihilation (ADR-0108) — Astera Annihilation mode foundation.
@@ -600,13 +614,6 @@ public object MatchWiring {
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>(
             com.astarworks.astera.match.application.service.MatchRepositoryTeamLookup(matches),
         )
-
-        val modeConfigOf: (com.astarworks.astera.core.domain.match.MatchId) -> Map<String, String> = { id ->
-            val key = matchModeRegistry.modeKeyOf(id)?.takeIf { it.isNotBlank() }
-                ?.let { runCatching { GameModeId(it) }.getOrNull() }
-            (key?.let { gameModeContents.find(it) } ?: gameModeContents.find(NormaGameMode.ID))?.defaultConfig
-                ?: emptyMap()
-        }
 
         val env = MatchWiringEnv(
             ctx = ctx, ports = ports, matches = matches, stages = stages, eventBus = eventBus,

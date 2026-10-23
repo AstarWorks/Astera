@@ -21,6 +21,7 @@ internal fun CoreWiringState.wireTutorialGuide() {
     val npcs = mutableListOf<LobbyNpcYamlConfig>()
     ContentLoader(ContentLoader.DEFAULT_PARSERS, LobbyNpcYamlConfig.serializer())
         .loadFrom(contentDir.resolve("lobby-npcs")) { npcs += it }
+    fun npcById(id: String): Vec3? = npcs.firstOrNull { it.id == id }?.spawn?.let { Vec3(it.x, it.y, it.z) }
     fun npc(intent: String): Vec3? = npcs.firstOrNull { it.interaction.rightClickIntent == intent }
         ?.spawn?.let { Vec3(it.x, it.y, it.z) }
     val guide = TutorialGuide(
@@ -30,7 +31,8 @@ internal fun CoreWiringState.wireTutorialGuide() {
             "menu" -> Vec3(lobby.spawn.x, lobby.spawn.y, lobby.spawn.z)
             "shop" -> npc("lobby.shop.open")
             "vault" -> npc("lobby.customize.show")
-            "queue" -> services.get<LobbyLanePadService>()?.pads()?.values?.firstOrNull()
+            // ADR-0248: the marker points at the Play gate in front of the spawn, not at a far lane pad.
+            "queue" -> npcById("play-npc") ?: services.get<LobbyLanePadService>()?.pads()?.values?.firstOrNull()
             else -> null
         } },
     )
@@ -59,6 +61,10 @@ internal fun CoreWiringState.wireTutorialGuide() {
         if (it.weapon.value == "pistol") tutorialSequencer.recordAction(it.playerId, "reload")
     }
     ctx.subscriptions += eventBus.subscribe(LobbyLanePadEntered::class) {
+        tutorialSequencer.recordAction(it.playerId, "queue")
+    }
+    // Queueing from the Play picker counts too (ADR-0248).
+    ctx.subscriptions += eventBus.subscribe(MatchQueueJoined::class) {
         tutorialSequencer.recordAction(it.playerId, "queue")
     }
     val task = scheduler.runRepeatingTicks(10, 10) { guide.tick() }

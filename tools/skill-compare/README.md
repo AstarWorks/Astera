@@ -34,6 +34,9 @@ MC tick = `floor((ms - castMs)/50)` with `castMs` = skill start + offset slider;
 Focus zones: +-150 ms around strong onsets (>= 50 % of the max) and every cut; playback drops to `min(speed, factor)` there
 (factor default 0.2, toggle `F`).
 
+The Minecraft column shows a provenance badge (branch, commit, capture time, FOV + mode, resolution, published / unpublished, repeated-frame warning); a red chip means the capture did not record that field. Columns are labelled
+Reference / Intent / In-game and always share one equal 16:9 size. `[` / `]` or the contact buttons jump to the previous / next hit.
+
 Keys: Space play/pause, Left/Right 1 video frame, Shift+Left/Right 1 tick, 1-4 speed 1/.5/.25/.1, F focus slow-mo,
 H add hit, Del remove, Esc clear loop, Ctrl+S save. Shift-drag the timeline = loop range. Drag hits / segments (and
 segment edges); they snap to video frames. Column focus buttons enlarge one column.
@@ -69,6 +72,9 @@ Each agent works in its own worktree; frames stay in that worktree's `build/`, o
 4. **Capture**: `SKILL=<skill> VIEW=compare CASE=<id> bash tools/vfx-shot/vfx-shot.sh` (queues on the global slots, see `tools/vfx-shot/README.md`).
 5. **Pairs**: `make skill-pairs CASE=<id> [SKILL=<skill>] AT="19.7:hit1 20.9:hit2"` (t = absolute video seconds; video, t0 and pre-ticks are derived)
    -> `build/pairs/<id>.png`; read it, compare, go back to 3.
+5b. **Brief (AI, no browser)**: `make skill-brief CASE=<id> [VIEW=compare] [AT="t:label"] [NO_INTENT=1]` -> `build/brief/<id>/sheet-NN.png` (rows = start / each hit / end, columns = reference | intent | in-game, equal scale) +
+   `manifest.json` (per-row video s / master ms / MC tick / frame / file paths; capture branch, commit, time, FOV, resolution, published revision; `warnings`). Alignment is the page's (cast = skill segment start + `mc.offset_ms`).
+   Capture source: `build/skill-compare-published/<skill>/<view>/current.json` if published, else `build/vfx-shot/<skill>/<view>` (override with `--mc <dir>` via `python3 -I scripts/brief.py`). The intent column renders through Chromium (`scripts/intent-shots.mjs`; needs `bun install`).
 6. **Review**: `make skill-compare` serves cases from the checkout it runs in. To also show other worktrees' captures:
    `SKILL_COMPARE_MEDIA_DIRS=/path/wt-a/build/vfx-shot:/path/wt-b/build/vfx-shot make skill-compare` (the main dir is searched first).
 

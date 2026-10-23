@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.world.WorldDifficulty
 import com.astarworks.astera.core.domain.world.WorldId
 import org.bukkit.Difficulty
 import org.bukkit.GameRule
+import org.bukkit.GameRules
 import org.bukkit.Server
 import org.slf4j.LoggerFactory
 
@@ -20,10 +21,10 @@ import org.slf4j.LoggerFactory
  *  - [setDifficulty] → `world.difficulty = <Difficulty>`
  *    ([WorldDifficulty.PEACEFUL/EASY/NORMAL/HARD] ↔ Bukkit [Difficulty]).
  *  - [setKeepInventoryOnDeath] → `setGameRule(GameRule.KEEP_INVENTORY, ...)`.
- *  - [setDoMobSpawning] → `setGameRule(GameRule.DO_MOB_SPAWNING, ...)`.
+ *  - [setDoMobSpawning] → `setGameRule(GameRules.SPAWN_MOBS, ...)`.
  *  - [setDoFireTick] → `setGameRule(GameRule.DO_FIRE_TICK, ...)`.
  *  - [setDoWeatherCycle] → `setGameRule(GameRule.DO_WEATHER_CYCLE, ...)`.
- *  - [setDoDaylightCycle] → `setGameRule(GameRule.DO_DAYLIGHT_CYCLE, ...)`.
+ *  - [setDoDaylightCycle] → `setGameRule(GameRules.ADVANCE_TIME, ...)`.
  *  - [setPvP] → `world.pvp = enabled` (Bukkit's `World.setPVP` Kotlin
  *    accessor).
  *  - Getters mirror the same gamerule / property reads. Missing gamerule
@@ -77,7 +78,7 @@ public class PaperWorldRulesGateway(
 
     override fun setDoMobSpawning(world: WorldId, enabled: Boolean) {
         write(world, "setDoMobSpawning", enabled) { w ->
-            w.setGameRule(GameRule.DO_MOB_SPAWNING, enabled)
+            w.setGameRule(GameRules.SPAWN_MOBS, enabled)
         }
     }
 
@@ -95,7 +96,7 @@ public class PaperWorldRulesGateway(
 
     override fun setDoDaylightCycle(world: WorldId, enabled: Boolean) {
         write(world, "setDoDaylightCycle", enabled) { w ->
-            w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, enabled)
+            w.setGameRule(GameRules.ADVANCE_TIME, enabled)
         }
     }
 
@@ -114,7 +115,7 @@ public class PaperWorldRulesGateway(
         readGameRule(world, GameRule.KEEP_INVENTORY, default = false)
 
     override fun isDoMobSpawning(world: WorldId): Boolean =
-        readGameRule(world, GameRule.DO_MOB_SPAWNING, default = false)
+        readGameRule(world, GameRules.SPAWN_MOBS, default = false)
 
     override fun isDoFireTick(world: WorldId): Boolean =
         readGameRule(world, GameRule.DO_FIRE_TICK, default = false)
@@ -123,7 +124,7 @@ public class PaperWorldRulesGateway(
         readGameRule(world, GameRule.DO_WEATHER_CYCLE, default = false)
 
     override fun isDoDaylightCycle(world: WorldId): Boolean =
-        readGameRule(world, GameRule.DO_DAYLIGHT_CYCLE, default = false)
+        readGameRule(world, GameRules.ADVANCE_TIME, default = false)
 
     override fun isPvP(world: WorldId): Boolean =
         server.getWorld(world.value)?.pvp ?: false

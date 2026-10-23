@@ -48,9 +48,13 @@ class JoinE2eTest : E2eBase() {
         E2eReport.check(suite, "action bar shows the HP status line", "ClientboundSetActionBarText / SystemChat(overlay)") {
             assertThat(b.actionBars).describedAs("no action bar message received at all").isNotEmpty()
             val history = b.actionBars.map { visible(it.text) }
+            // The first-join tutorial hint takes the action bar over for a few seconds, so the HP line is checked over the
+            // whole history (it must have been shown and not be blank now).
             val last = b.actionBars.last().text
             assertThat(last).describedAs("last action bar text is blank (HP line cleared or never sent); history=$history").isNotBlank()
-            assertThat(last).describedAs("action bar must show an HP figure (digits) or the HP glyph bar").containsPattern("\\d|[\uE000-\uF8FF]")
+            b.waitUntil(8_000) { b.actionBars.any { Regex("\\d|[\uE000-\uF8FF]").containsMatchIn(it.text) } }
+            assertThat(b.actionBars.map { it.text }.filter { Regex("\\d|[\uE000-\uF8FF]").containsMatchIn(it) })
+                .describedAs("no action bar showed an HP figure (digits) or the HP glyph bar; history=$history").isNotEmpty()
             "count=${b.actionBars.size}; last='${visible(last)}'; history=$history"
         }
 

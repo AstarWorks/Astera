@@ -84,7 +84,7 @@ public class LobbyMenuKit(entries: List<KitEntry>) {
             require(e.area != KitArea.HOTBAR || e.slot in HotbarLayout.KIT_SLOTS) {
                 "kit entry '${e.id}': hotbar slot ${e.slot} is in the weapon zone; kit slots are ${HotbarLayout.KIT_SLOTS}"
             }
-            require(e.area != KitArea.HOTBAR || this.entries.count { it.area == KitArea.HOTBAR } <= HotbarLayout.MAX_KIT_ITEMS) {
+            require(e.area != KitArea.HOTBAR || this.entries.filter { it.area == KitArea.HOTBAR }.map { it.slot }.toSet().size <= HotbarLayout.MAX_KIT_ITEMS) {
                 "kit has more than ${HotbarLayout.MAX_KIT_ITEMS} hotbar item (ADR-0232: the hotbar belongs to the player)"
             }
             require(places.add(Triple(e.area, e.slot, e.visibleIf))) { "kit slot ${e.area}/${e.slot} is used twice" }
@@ -99,8 +99,11 @@ public class LobbyMenuKit(entries: List<KitEntry>) {
      * visible conditional entry replaces the unconditional entry at the same area/slot. The result
      * has no conditions left, so the usual accessors apply.
      */
-    public fun forViewer(hasPermission: (node: String) -> Boolean): LobbyMenuKit {
-        val visible = entries.filter { GuiVisibility.isVisible(it.visibleIf, hasPermission) }
+    public fun forViewer(
+        hasState: (state: String) -> Boolean = { false },
+        hasPermission: (node: String) -> Boolean,
+    ): LobbyMenuKit {
+        val visible = entries.filter { GuiVisibility.isVisible(it.visibleIf, hasPermission, hasState) }
         val overridden = visible.filter { it.visibleIf != null }.map { it.area to it.slot }.toSet()
         return LobbyMenuKit(
             visible.filter { it.visibleIf != null || (it.area to it.slot) !in overridden }

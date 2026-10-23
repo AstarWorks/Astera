@@ -41,7 +41,7 @@ public class SaveInventorySnapshotUseCase(
 
 /**
  * Expected failure modes shared by [SaveInventorySnapshotUseCase] and
- * [RestoreInventorySnapshotUseCase] (Wave 5e).
+ * `PlayerHandoffService` (ADR-0187).
  *
  * - [InvalidShape]: domain `init` validation failed — sizes are wrong
  *   or a [com.astarworks.astera.core.domain.player.InventoryItemSlot.ContentItem]

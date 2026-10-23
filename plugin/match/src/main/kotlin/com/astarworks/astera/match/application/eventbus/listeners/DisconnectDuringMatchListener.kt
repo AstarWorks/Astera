@@ -5,8 +5,10 @@ import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.player.PlayerSession
 import com.astarworks.astera.core.domain.player.SessionState
 import com.astarworks.astera.match.application.usecase.match.ApplyForfeitUseCase
 import com.astarworks.astera.match.application.usecase.match.RemoveFromMatchUseCase
@@ -36,7 +38,7 @@ import org.slf4j.LoggerFactory
  * - [MatchPhase.WAITING] / [MatchPhase.ENDED] — no-op: pre-match queue
  *   bookkeeping owns WAITING, and ENDED matches have nothing left to lose.
  *
- * Non-participant disconnects (no session, no currentMatch, or unknown match)
+ * Non-participant disconnects (no claim and not on an ACTIVE roster, or unknown match)
  * are silently dropped: this listener is intentionally scoped to the
  * "player was in a match and dropped" path.
  */
@@ -52,8 +54,12 @@ public class DisconnectDuringMatchListener(
     private val log = LoggerFactory.getLogger(DisconnectDuringMatchListener::class.java)
 
     public fun handle(event: PlayerQuitServer) {
-        val session = sessions.find(event.playerId) ?: return
-        val matchId = session.currentMatch ?: return
+        val session = sessions.find(event.playerId)
+        // Sessions are not flipped to InMatch on entry (the match repository is the source of truth for
+        // membership), so a roster member of a running ACTIVE match counts even without a session claim.
+        val matchId = session?.currentMatch
+            ?: matches.findMatchOf(event.playerId)?.takeIf { it.phase == MatchPhase.ACTIVE }?.id
+            ?: return
         val match = matches.findById(matchId) ?: return
 
         when (match.phase) {
@@ -76,7 +82,10 @@ public class DisconnectDuringMatchListener(
 
                 // Flip to Disconnected first so a fast reconnect observes the
                 // right state when the rejoin path checks it.
-                sessions.upsert(session.copy(state = SessionState.Disconnected))
+                sessions.upsert(
+                    (session ?: PlayerSession(playerId = event.playerId, state = SessionState.Disconnected))
+                        .copy(state = SessionState.Disconnected, currentMatch = matchId),
+                )
 
                 // Schedule the timeout-driven removal. The re-check is essential:
                 // a player who rejoins within the window will have their state
@@ -122,6 +131,17 @@ public class DisconnectDuringMatchListener(
             MatchPhase.WAITING,
             -> {
                 // No-op: pre-match queue / post-match cleanup own these phases.
+            }
+        }
+    }
+
+    /** A finished match leaves nothing to come back to: players still marked as dropped from it are lobby players again. */
+    public fun onMatchEnded(event: MatchEnded) {
+        val members = matches.findById(event.matchId)?.teams?.flatMap { it.members } ?: return
+        for (member in members) {
+            val session = sessions.find(member) ?: continue
+            if (session.state is SessionState.Disconnected && session.currentMatch == event.matchId) {
+                sessions.upsert(session.copy(state = SessionState.Lobby, currentMatch = null))
             }
         }
     }
