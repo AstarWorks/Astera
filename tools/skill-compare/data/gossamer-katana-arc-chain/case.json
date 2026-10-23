@@ -55,12 +55,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "台形素材で帯の内側の大きな重なりを解消。区間境界の細い隙間、外周の角・発光、白い残光・花模様、残像の衣服と姿勢、刀の曲率、カメラは未一致。通常入力・状態分岐・正式キット対応は未確定。"
+    "reason": "最初の接触に白い交差残光を追加し拡大・退色を実機確認。線が規則的で原映像の強弱・流れ・煙状の塊は未一致。構え時の足元の輪、後半の白い残光、花模様、帯の継ぎ目・発光、残像の衣服と姿勢、刀の曲率、カメラも未一致。通常入力・状態分岐・正式キット対応は未確定。"
   },
   "weapon": "gossamer-katana",
   "identity": "Blade of the House of Spiders Ryōshū",
-  "iterations": 9,
+  "iterations": 10,
   "report": "/report/gossamer-katana",
   "referenceRevision": "b4a6153c026f88c462eb7e0054e298c4f104f513b253e237275999201a833ae3",
-  "contentRevision": "fc3c1902fdfc7f93e32ddaf08076a7102a8840e38a5b465f4be7df12eff099bd"
+  "contentRevision": "ae621ea641cd518ed8870d9b3a67f115f94efb7a9e4c57c3111cf4fff5e938c8"
 }

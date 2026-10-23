@@ -110,9 +110,26 @@ internal object ParticlePainters {
         "gossamer_trail_wedge" to { c, _, _, _ ->
             c.forEach { x, y -> if (abs(y - 16.0) <= 16.0 * (0.63 + 0.37 * x / 32.0)) 1.0 else 0.0 }
         },
+        "gossamer_ribbon" to ::gossamerRibbon,
         "gossamer_echo" to ::gossamerEcho, "gossamer_echo_mirror" to { c, t, _, n -> gossamerEcho(c, t, 1, n) }, "orrery_impact" to ::orreryImpact, "orb" to ::orb, "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
         "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue, "procuration_ribbon" to ::procurationRibbon, "crimson_orbit" to ::crimsonOrbit, "crimson_link" to ::crimsonLink,
     )
+
+    /** Shallow crossing white loops at the first contact; open ends follow the visible orbital streaks. */
+    private fun gossamerRibbon(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            var v = 0.0
+            for (strand in 0..3) {
+                val dx = (x - 16.0) / (14.0 - strand * 0.45)
+                val dy = (y - 16.0 - (strand - 1.5) * 0.35 - (if (strand % 2 == 0) 0.14 else -0.14) * (x - 16.0)) / (2.5 + strand * 0.3)
+                val a = (atan2(dy, dx) + PI * 3.0 + i * 0.35 + strand * 0.3) % (2.0 * PI)
+                val tail = (a / 0.7).coerceIn(0.0, 1.0)
+                val line = (1.0 - abs(hypot(dx, dy) - 1.0) / (0.035 + strand * 0.008)).coerceAtLeast(0.0)
+                v = max(v, line * tail)
+            }
+            v
+        }
+    }
 
     /** Forward-leaning sword silhouette; a continuous outline instead of disconnected cube limbs. */
     private fun gossamerEcho(c: Canvas, t: Double, i: Int, n: Int) {
