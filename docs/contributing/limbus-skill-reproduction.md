@@ -348,3 +348,10 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Initial runtime reload rejected a zero-length particle emitter interval despite schema lint passing; corrected to ticks 6..7 and successfully reloaded **before** capture began. Final contentLint passed.
 - Actual capture: 195 frames, camera lateness 5 ms, identical-frame maximum 1. Frame 055 confirms chain and red arc. Actual sequential sampling: 756 observations, peak 61 (36 block + 25 text), down from 133, but the 60 cap is not proven. Next reduce duplicate contact-ray geometry without losing the four-point flash. Original shape, glow, pose, float and form/input routing still fail.
 - Evidence: `build/limbus-review/round42/{captures,live-displays.json}` and `data/runtime-review/crimson-display-budget-round42.json`.
+
+### Round 43: combine contact flash rays
+
+- Combined opposite contact rays into two perpendicular full-length rays, retaining the core: five→three displays, horizontal extents -1.2..1.3 and vertical extents -0.25..2.65 in the intended local geometry. Base skills remain unchanged. ContentLint and runtime reload passed.
+- Actual one-cast sampling: 763 observations, maximum 59 (34 block + 25 text), compared with 61 previously. This is sampled evidence, not an atomic per-tick upper-bound proof or fidelity certification. Frame052 shows the four-arm flash.
+- First recording has 12 identical frames175..186 crossing the orbit's expiry; marked invalid despite the automatic threshold not triggering. Re-record the same content before publishing. Independent runtime-count evidence remains usable: `build/limbus-review/round43/live-displays.json`.
+- Repeat recording completed with the same content: 195 frames, maximum repeated run 2, camera lateness 2 ms. Rechecked frame052 four-arm flash. Publish the repeat only; preserve the first invalid recording in the archive. Fidelity remains failed.
