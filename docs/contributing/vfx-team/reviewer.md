@@ -38,7 +38,7 @@ Status vocabulary for the report: 未分析 / 実装済・未検証 / 検証不�
 - HP loss does not count hits (random 10% x2 crits); count contacts on frames or events.
 - Headless time is wall-clock, not server ticks; do not accept per-hit offset tuning that hides sync drift.
 - Only one real-client capture runs at a time; a compare capture and a 3-view capture of the same skill share a `SHOT_ID`. Do not start captures yourself unless the director asks.
-- Runtime facts that explain "missing" effects: font sprites render only up to 256 px (512 fails); a horizontal `fixed`-billboard TextDisplay does not render in the real client; `emit.size_over_life` with more than 2 values silently drops the whole VFX while content-lint passes; hit VFX must peak on the damage tick; `hide_held_item` is only on `wp/pilot-bastion-s1`/ee976100, not main (two weapons visible on other branches is expected until merged).
+- Runtime facts that explain "missing" effects: font sprites render only up to 256 px (512 fails); a horizontal `fixed`-billboard TextDisplay does not render in the real client; hit VFX must peak on the damage tick; `hide_held_item` is only on `wp/pilot-bastion-s1`/ee976100, not main (two weapons visible on other branches is expected until merged).
 
 ## Rejected looks (fail on sight, label with owner)
 

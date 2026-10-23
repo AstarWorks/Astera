@@ -27,6 +27,7 @@ sealed interface Prim {
         val billboard: DisplayBillboard,
         val styled: StyledText,
         val glowArgb: Int?,
+        val alpha: Double = 1.0,
     ) : Prim
 
     /** Item sprite (centred on [center]); drawn as a blade-like shape with its name. */
@@ -89,6 +90,7 @@ object SceneBuilder {
                     billboard = d.billboard,
                     styled = MiniText.style(d.text ?: kind.text),
                     glowArgb = d.glowArgb,
+                    alpha = d.textAlpha,
                 )
                 is VfxElementKind.Quad -> {
                     val unit = if (kind.glyph == null) Vec3(VfxQuad.SOLID_SCALE_X, VfxQuad.SOLID_SCALE_Y, 1.0) else Vec3(VfxQuad.GLYPH_SCALE, VfxQuad.GLYPH_SCALE, 1.0)

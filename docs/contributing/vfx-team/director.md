@@ -37,7 +37,6 @@ Agent: `.claude/agents/vfx-director.md`. Team overview: [README.md](README.md).
 
 - Font sprites render only up to 256 px; 512 px fails. (Commit `ee976100` on `wp/pilot-bastion-s1`: "512px sprites do not render in the real client (font page limit); 256px with 2x2 supersampled edges is the working maximum.")
 - A TextDisplay with `fixed` billboard laid horizontal does not render in the real client (it does in vfx-preview). Never trust vfx-preview alone for horizontal text boards.
-- `emit.size_over_life` with more than 2 values silently drops the whole VFX at runtime, while content-lint passes it. Grep every VFX for it before capture.
 - Hit VFX must peak on the damage tick. Verify in the capture frame at the hit tick.
 - Only one weapon may be visible during a skill: mechanic `hide_held_item` exists only on branch `wp/pilot-bastion-s1` (it is in `content/schemas/skill.schema.json` and `content/skills/bastion-greatsword-{s1,s2,ego}.yaml` there) and is **not on main**. Until merged, the pilot branch is the only place it works; bring that mechanic with the merge before using it elsewhere.
 - Rejected looks: crescents built from uniform boxes (hoops); fire made of squares (cubes); poles for jets; a static ring standing like a wall; separate floating sprites instead of one continuous sweep; a pixel-art staircase at close-up; black `#`-like smoke glyphs.

@@ -38,7 +38,6 @@ Make one skill or effect (for example a Limbus weapon skill reproduced from a re
 - Every beat has an owner and a brief line; nothing relies on a specialist guessing.
 - Damage tick equals hit VFX peak tick in the capture, not only in YAML.
 - Display budget computed (rig trails, delayed instances, freeze extension included).
-- `emit.size_over_life` has at most 2 values everywhere (content-lint does not catch it).
 - Capture is valid, published, and its revision matches the content.
 - Never call a skill done on reviewer PASS alone: it still needs founder approval on skill-compare, recorded in the weapon REPORT (date, published revision).
 

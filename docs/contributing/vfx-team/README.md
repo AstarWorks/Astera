@@ -98,7 +98,6 @@ Runtime facts (confirmed in the real client by earlier passes):
 
 - Font sprites render only up to 256 px; 512 px fails.
 - A TextDisplay with `fixed` billboard laid horizontal does not render in the real client (it does in vfx-preview).
-- `emit.size_over_life` with more than 2 values silently drops the whole VFX at runtime, while content-lint passes it.
 - Hit VFX must peak on the damage tick.
 - Machine load causes 2-6 tick (sometimes ~20) capture lag. Reject frozen or magenta-cube captures (`captureQuality.invalid`).
 
