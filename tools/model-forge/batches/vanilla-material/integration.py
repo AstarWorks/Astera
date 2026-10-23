@@ -21,6 +21,14 @@ def main():
         original = copy.deepcopy(p.state)
         p.call('history.snapshot', {'name':'before'})
         id = p.model['elements'][0]['id']
+        # Exercise the extended catalog through persistent apply/undo, without client pixels.
+        for material in ('wood.stripped_crimson_stem', 'wood.stripped_warped_stem',
+                         'gem.redstone_block', 'stone.quartz_pillar', 'concrete.red_concrete',
+                         'leather.mushroom_stem'):
+            p.call('material.apply', {'ids':[id], 'material':material})
+            assert p.call('validate')['valid']
+            p.call('history.undo')
+            assert p.state == original
         args = {'ops':[
             {'op':'element.update','args':{'id':id,'changes':{'to':[8.75,19.5,8.75]}}},
             {'op':'material.apply','args':{'ids':[id],'material':'wood.stripped_oak_log','seed':7}}]}

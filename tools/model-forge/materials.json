@@ -41,6 +41,24 @@
     "texture": "minecraft:block/dark_oak_planks",
     "grain": "u"
   },
+  "wood.stripped_crimson_stem": {
+    "texture": "minecraft:block/stripped_crimson_stem",
+    "grain": "v",
+    "end": "minecraft:block/stripped_crimson_stem_top"
+  },
+  "wood.crimson_planks": {
+    "texture": "minecraft:block/crimson_planks",
+    "grain": "u"
+  },
+  "wood.stripped_warped_stem": {
+    "texture": "minecraft:block/stripped_warped_stem",
+    "grain": "v",
+    "end": "minecraft:block/stripped_warped_stem_top"
+  },
+  "wood.warped_planks": {
+    "texture": "minecraft:block/warped_planks",
+    "grain": "u"
+  },
   "metal.iron_block": {
     "texture": "minecraft:block/iron_block"
   },
@@ -77,6 +95,17 @@
   "metal.anvil": {
     "texture": "minecraft:block/anvil_top"
   },
+  "metal.raw_gold_block": {
+    "texture": "minecraft:block/raw_gold_block"
+  },
+  "metal.netherite_block": {
+    "texture": "minecraft:block/netherite_block"
+  },
+  "metal.ancient_debris": {
+    "texture": "minecraft:block/ancient_debris_side",
+    "grain": "v",
+    "end": "minecraft:block/ancient_debris_top"
+  },
   "stone.deepslate": {
     "texture": "minecraft:block/deepslate"
   },
@@ -107,6 +136,66 @@
   "stone.obsidian": {
     "texture": "minecraft:block/obsidian"
   },
+  "stone.red_nether_bricks": {
+    "texture": "minecraft:block/red_nether_bricks"
+  },
+  "stone.nether_bricks": {
+    "texture": "minecraft:block/nether_bricks"
+  },
+  "stone.red_terracotta": {
+    "texture": "minecraft:block/red_terracotta"
+  },
+  "stone.dark_prismarine": {
+    "texture": "minecraft:block/dark_prismarine"
+  },
+  "stone.prismarine_bricks": {
+    "texture": "minecraft:block/prismarine_bricks"
+  },
+  "stone.purpur_block": {
+    "texture": "minecraft:block/purpur_block"
+  },
+  "stone.crying_obsidian": {
+    "texture": "minecraft:block/crying_obsidian"
+  },
+  "stone.tuff": {
+    "texture": "minecraft:block/tuff"
+  },
+  "stone.calcite": {
+    "texture": "minecraft:block/calcite"
+  },
+  "stone.purpur_pillar": {
+    "texture": "minecraft:block/purpur_pillar_side",
+    "grain": "v",
+    "end": "minecraft:block/purpur_pillar_top"
+  },
+  "stone.quartz_pillar": {
+    "texture": "minecraft:block/quartz_pillar_side",
+    "grain": "v",
+    "end": "minecraft:block/quartz_pillar_top"
+  },
+  "stone.bone_block": {
+    "texture": "minecraft:block/bone_block_side",
+    "grain": "v",
+    "end": "minecraft:block/bone_block_top"
+  },
+  "stone.basalt": {
+    "texture": "minecraft:block/basalt_side",
+    "grain": "v",
+    "end": "minecraft:block/basalt_top"
+  },
+  "stone.polished_basalt": {
+    "texture": "minecraft:block/polished_basalt_side",
+    "grain": "v",
+    "end": "minecraft:block/polished_basalt_top"
+  },
+  "stone.quartz_block": {
+    "texture": "minecraft:block/quartz_block_side",
+    "grain": "v",
+    "end": "minecraft:block/quartz_block_top"
+  },
+  "stone.smooth_quartz": {
+    "texture": "minecraft:block/quartz_block_bottom"
+  },
   "gem.amethyst_block": {
     "texture": "minecraft:block/amethyst_block"
   },
@@ -115,6 +204,12 @@
   },
   "gem.emerald_block": {
     "texture": "minecraft:block/emerald_block"
+  },
+  "gem.redstone_block": {
+    "texture": "minecraft:block/redstone_block"
+  },
+  "gem.lapis_block": {
+    "texture": "minecraft:block/lapis_block"
   },
   "cloth.white_wool": {
     "texture": "minecraft:block/white_wool"
@@ -163,5 +258,59 @@
   },
   "cloth.black_wool": {
     "texture": "minecraft:block/black_wool"
+  },
+  "concrete.white_concrete": {
+    "texture": "minecraft:block/white_concrete"
+  },
+  "concrete.black_concrete": {
+    "texture": "minecraft:block/black_concrete"
+  },
+  "concrete.gray_concrete": {
+    "texture": "minecraft:block/gray_concrete"
+  },
+  "concrete.light_gray_concrete": {
+    "texture": "minecraft:block/light_gray_concrete"
+  },
+  "concrete.red_concrete": {
+    "texture": "minecraft:block/red_concrete"
+  },
+  "concrete.blue_concrete": {
+    "texture": "minecraft:block/blue_concrete"
+  },
+  "concrete.light_blue_concrete": {
+    "texture": "minecraft:block/light_blue_concrete"
+  },
+  "concrete.cyan_concrete": {
+    "texture": "minecraft:block/cyan_concrete"
+  },
+  "concrete.purple_concrete": {
+    "texture": "minecraft:block/purple_concrete"
+  },
+  "concrete.magenta_concrete": {
+    "texture": "minecraft:block/magenta_concrete"
+  },
+  "concrete.yellow_concrete": {
+    "texture": "minecraft:block/yellow_concrete"
+  },
+  "concrete.orange_concrete": {
+    "texture": "minecraft:block/orange_concrete"
+  },
+  "concrete.lime_concrete": {
+    "texture": "minecraft:block/lime_concrete"
+  },
+  "concrete.green_concrete": {
+    "texture": "minecraft:block/green_concrete"
+  },
+  "leather.mushroom_stem": {
+    "texture": "minecraft:block/mushroom_stem",
+    "grain": "v"
+  },
+  "leather.brown_mushroom_block": {
+    "texture": "minecraft:block/brown_mushroom_block"
+  },
+  "leather.dried_kelp_block": {
+    "texture": "minecraft:block/dried_kelp_side",
+    "grain": "v",
+    "end": "minecraft:block/dried_kelp_top"
   }
 }

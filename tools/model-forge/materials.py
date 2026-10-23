@@ -23,9 +23,9 @@ def vanilla_ref(ref):
         raise ValueError('Expected minecraft:block/... or minecraft:item/...: '+ref)
     if ref in ANIMATED: raise ValueError('Animated material is excluded until client-verified: '+ref)
     name = ref.split('/')[-1]
-    if (any(s in name for s in ('leaves', 'grass', 'fern', 'water', 'vine', 'lily_pad', 'redstone_dust', 'stem'))
+    if (any(s in name for s in ('leaves', 'grass', 'fern', 'water', 'vine', 'lily_pad', 'redstone_dust'))
             or name.startswith(('leather_', 'potion', 'tipped_arrow', 'spawn_egg', 'filled_map', 'firework_star', 'wolf_armor'))
-            or name in ('sugar_cane', 'attached_melon_stem', 'attached_pumpkin_stem')):
+            or name in ('sugar_cane', 'melon_stem', 'pumpkin_stem', 'attached_melon_stem', 'attached_pumpkin_stem')):
         raise ValueError('Tint-dependent material is excluded: '+ref)
     return ref
 

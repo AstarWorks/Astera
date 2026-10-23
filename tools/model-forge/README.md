@@ -159,9 +159,13 @@ implemented; Blockbench can import the vanilla JSON/PNG bundle.
 
 Choose semantic names from [materials.json](materials.json), for example
 `wood.stripped_oak_log`, `metal.gold_block`, `stone.polished_blackstone`,
-`gem.diamond_block`, or `cloth.brown_wool`. `material.apply` accepts catalog
-names; imports also accept `minecraft:block/...` and `minecraft:item/...`.
+`gem.redstone_block`, `wood.stripped_crimson_stem`, `stone.crying_obsidian`,
+`concrete.red_concrete`, `leather.brown_mushroom_block`, or `cloth.brown_wool`.
+`material.apply` accepts catalog names; imports also accept `minecraft:block/...` and `minecraft:item/...`.
 Faces use `#slot` references to the model's `textures` map as usual.
+Unstripped crimson/warped stems and prismarine are animated in 26.3 and excluded;
+the stripped stems, dark prismarine and prismarine bricks are static alternatives.
+`smooth_quartz` uses the vanilla block's `quartz_block_bottom` texture.
 
 ```sh
 python3 tools/model-forge/forge.py --project /tmp/hammer call material.apply \
