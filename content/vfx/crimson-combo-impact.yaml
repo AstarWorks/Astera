@@ -1,0 +1,284 @@
+id: crimson-combo-impact
+duration_ticks: 5
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: ray-0-0
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.15
+    - 0.65
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 1.15
+    - 0.65
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.3
+  - t: 2
+    translate:
+    - 0
+    - 1.15
+    - 0.65
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.3
+  - t: 4
+    translate:
+    - 0
+    - 1.15
+    - 0.65
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  brightness: 15
+- id: ray-0-2
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.9
+    - 4.592425496802574e-17
+    rotate:
+    - 0
+    - -90
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 1.9
+    - 4.592425496802574e-17
+    rotate:
+    - 0
+    - -90
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.5
+  - t: 2
+    translate:
+    - 0
+    - 1.9
+    - 4.592425496802574e-17
+    rotate:
+    - 0
+    - -90
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.5
+  - t: 4
+    translate:
+    - 0
+    - 1.9
+    - 4.592425496802574e-17
+    rotate:
+    - 0
+    - -90
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  brightness: 15
+- id: ray-0-4
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.15
+    - -0.6
+    rotate:
+    - 0
+    - -180
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 1.15
+    - -0.6
+    rotate:
+    - 0
+    - -180
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.2
+  - t: 2
+    translate:
+    - 0
+    - 1.15
+    - -0.6
+    rotate:
+    - 0
+    - -180
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.2
+  - t: 4
+    translate:
+    - 0
+    - 1.15
+    - -0.6
+    rotate:
+    - 0
+    - -180
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  brightness: 15
+- id: ray-0-6
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 0.44999999999999996
+    - -1.2858791391047207e-16
+    rotate:
+    - 0
+    - -270
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 0.44999999999999996
+    - -1.2858791391047207e-16
+    rotate:
+    - 0
+    - -270
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.4
+  - t: 2
+    translate:
+    - 0
+    - 0.44999999999999996
+    - -1.2858791391047207e-16
+    rotate:
+    - 0
+    - -270
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.4
+  - t: 4
+    translate:
+    - 0
+    - 0.44999999999999996
+    - -1.2858791391047207e-16
+    rotate:
+    - 0
+    - -270
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  brightness: 15
+- id: core
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FFF0DC'
+    alpha: 1
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.15
+    - 0
+    scale:
+    - 0.05
+    - 0.05
+    - 1
+  - t: 1
+    translate:
+    - 0
+    - 1.15
+    - 0
+    scale:
+    - 0.8
+    - 0.8
+    - 1
+  - t: 4
+    translate:
+    - 0
+    - 1.15
+    - 0
+    scale:
+    - 0
+    - 0
+    - 1

@@ -78,7 +78,7 @@ phases:
         type: literal
         value: 80
       max_count: 1
-    vfx_id: crimson-chain-axe-impact
+    vfx_id: crimson-combo-impact
     delay_ticks:
       type: literal
       value: 43
@@ -121,7 +121,7 @@ phases:
         type: literal
         value: 80
       max_count: 1
-    vfx_id: crimson-chain-axe-impact
+    vfx_id: crimson-combo-impact
     delay_ticks:
       type: literal
       value: 49
@@ -164,7 +164,7 @@ phases:
         type: literal
         value: 80
       max_count: 1
-    vfx_id: crimson-chain-axe-impact
+    vfx_id: crimson-combo-impact
     delay_ticks:
       type: literal
       value: 65
@@ -207,7 +207,7 @@ phases:
         type: literal
         value: 80
       max_count: 1
-    vfx_id: crimson-chain-axe-impact
+    vfx_id: crimson-combo-impact
     delay_ticks:
       type: literal
       value: 82
@@ -250,7 +250,7 @@ phases:
         type: literal
         value: 80
       max_count: 1
-    vfx_id: crimson-chain-axe-impact
+    vfx_id: crimson-combo-impact
     delay_ticks:
       type: literal
       value: 116

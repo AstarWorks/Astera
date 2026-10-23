@@ -341,3 +341,10 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Ran the actual direct combo cast with RCON sampling of block/text/item displays within 20 blocks of the scene: 757 samples, initial count zero, observed combined peak 133. Queries for the three types are sequential, so the sum is not an atomic tick snapshot; nevertheless **one block-display query returned 104**, independently proving the handoff limit of 60 is exceeded.
 - Capture completed: 195 frames, maximum camera lateness 2 ms, repeated-frame maximum 3. Raw timestamped command replies: `build/limbus-review/round41/live-displays.json`; summary: `data/runtime-review/crimson-display-budget-round41.json`.
 - Do not use successful runtime admission (global engine budget 600) as proof of the per-cast 60 limit. Rework overlapping physical rigs and impact counts while retaining two-sided trails, then repeat full-cast measurement and visual comparison. No fidelity pass.
+
+### Round 42: reduce overlapping Crimson displays
+
+- Replaced previous physical-chain group when the next swing starts. Kept ten links, combining each pair of white edge bars into one spanning bar (30→20 parts). Both soft trail faces remain. Replaced display petals with two short particle emissions. Added a dedicated five-element, five-tick contact flash; base Crimson skills are unchanged.
+- Initial runtime reload rejected a zero-length particle emitter interval despite schema lint passing; corrected to ticks 6..7 and successfully reloaded **before** capture began. Final contentLint passed.
+- Actual capture: 195 frames, camera lateness 5 ms, identical-frame maximum 1. Frame 055 confirms chain and red arc. Actual sequential sampling: 756 observations, peak 61 (36 block + 25 text), down from 133, but the 60 cap is not proven. Next reduce duplicate contact-ray geometry without losing the four-point flash. Original shape, glow, pose, float and form/input routing still fail.
+- Evidence: `build/limbus-review/round42/{captures,live-displays.json}` and `data/runtime-review/crimson-display-budget-round42.json`.
