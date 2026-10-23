@@ -83,7 +83,7 @@ object SceneBuilder {
                     glowArgb = d.glowArgb,
                 )
                 is VfxElementKind.Text -> prims += Prim.Text(
-                    center = t.translation + shift,
+                    center = d.offset + t.translation + shift,
                     rotation = t.rotation,
                     size = t.scale,
                     billboard = d.billboard,
