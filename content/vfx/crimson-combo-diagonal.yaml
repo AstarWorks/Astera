@@ -1,4 +1,4 @@
-# Combo A: yaw sweeps in XZ; outer roll tilts the plane toward vertical.
+# Combo A: translucent trail keeps chord length while fading; no shrinking red block gaps.
 id: crimson-combo-diagonal
 duration_ticks: 17
 orient: yaw
@@ -420,15 +420,14 @@ rigs:
     start_t: 2
     end_t: 6
     life_ticks: 5
-    step_deg: 24
-    style: crisp
+    step_deg: 18
+    style: soft
     bands:
     - from: 0.0
       to: 1.0
-      color: '#E0DA1634'
-      color_to: '#303A0712'
-      block: red_concrete
+      color: '#F0EF2445'
+      color_to: '#3069091C'
     edge:
-      block: pink_concrete
+      block: white_concrete
       width: 0.055
   emitters: []
