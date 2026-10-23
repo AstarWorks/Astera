@@ -1,5 +1,5 @@
 id: gossamer-chain-horizontal
-duration_ticks: 9
+duration_ticks: 7
 orient: yaw
 follow: false
 sample_ticks: 1
@@ -18,7 +18,7 @@ rigs:
   - 0
   - 0
   respect_hit_stop: false
-  end_tick: 8
+  end_tick: 6
   parts:
   - id: blade
     block: iron_block
@@ -63,7 +63,7 @@ rigs:
     - 0
     - 0
     ease: linear
-  - t: 7
+  - t: 6
     rotate:
     - 95
     - 0
