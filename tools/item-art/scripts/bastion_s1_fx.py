@@ -142,21 +142,21 @@ def high():
     # white-hot cut streak on the chop line (steep, the chop comes down through the target line): roll 80 is the
     # compromise between the side camera (chop tangent ~100) and first person (plane seen edge-on, ~68)
     els.append(sprite("s1h1-streak-main", "bastion-s1-streak", 4, 11, [
-        kf(0, [-0.2, 1.3, 1.5], [0, 0, 80], [s256(0.6), 0.3, 1.0]),
+        kf(0, [-0.55, 1.3, 1.5], [0, 0, 80], [s256(0.6), 0.3, 1.0]),
         kf(1, scale=[s256(3.0), 0.3, 1.0], ease="out_expo"),
         kf(6, scale=[s256(2.3), 0.03, 1.0], ease="in_quad")]))
-    # flash at the contact point on the chop plane (alpha ~5, r 1.75: x -0.21, y 1.14, z 2.0 -> pulled to z 1.8, the
+    # flash at the contact point on the chop plane (chop plane at y 1.15 is x -0.50 for pivot [-0.35, 0.77, 0.29]; z pulled to 1.8, the
     # opponent eye is at z 2.4); dark star under the glint
     els.append(sprite("s1h1-flash-dark", "bastion-s1-glint", 4, 8, [
-        kf(0, [-0.2, 1.15, 1.83], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
+        kf(0, [-0.5, 1.15, 1.83], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(1.5), s128(1.5), 1.0], ease="out_back"),
         kf(3, scale=[s128(1.0), s128(0.05), 1.0], ease="out_quad")], color="#8C000000"))
     els.append(sprite("s1h1-flash", "bastion-s1-glint", 4, 8, [
-        kf(0, [-0.2, 1.15, 1.8], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
+        kf(0, [-0.5, 1.15, 1.8], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(1.2), s128(1.2), 1.0], ease="out_back"),
         kf(3, scale=[s128(0.7), s128(0.04), 1.0], ease="out_quad")]))
     # orange spark streaks off the contact over ticks 4..10 (staggered pairs, distinct origins and angles)
-    P = [-0.2, 1.15, 1.55]
+    P = [-0.5, 1.15, 1.55]
     for i, (st, dx, dy, th, ln, ds) in enumerate([
             (4, 0.0, 0.0, 22, 1.0, 0.8), (4, 0.15, -0.1, 4, 1.3, 0.8), (5, -0.15, 0.1, 38, 0.8, 0.7),
             (5, 0.1, -0.2, 162, 0.9, 0.9), (6, -0.1, 0.05, -14, 1.1, 0.8), (6, 0.2, 0.15, 14, 0.7, 0.7)]):
@@ -180,7 +180,7 @@ def low():
         kf(0, [0, 0.45, 1.2], [0, 0, 0], [s256(6.2), s256(6.2) * 0.4, 1.0]),
         kf(2, scale=[s256(6.8), s256(6.8) * 0.36, 1.0], ease="out_quad")]))
     # Round 7: the low ring is the smear of the r6 ring swing, IN its plane (14 deg tilt, lowest toward phi 60 = left-
-    # front, centre on the pivot axis at y 0.646, radius 2.52 = tip), turning the blade's way (left-back -> back ->
+    # front, centre on the pivot axis 0.354 below the pivot, radius 2.52 = tip), turning the blade's way (left-back -> back ->
     # right -> front), 221.5 deg from alpha 158 to the contact alpha 379.5. Spawn fx 0 (skill 27): frame 0 ticks 27-28
     # (blade at 212 on 28), 265 on 29, 321 on 30, full at contact 31, hold 32, fade 33-38. The front curls to z <= 2.3.
     els += sweep("s1h2-ring", "ring", 0, 12)

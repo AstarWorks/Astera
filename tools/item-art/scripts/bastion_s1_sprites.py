@@ -417,7 +417,7 @@ SWEEP_ZCAP = 2.3  # outer edge never at/behind the opponent camera (z 2.4)
 SWEEP_KEEP_OUT = 0.8  # blocks kept clear around every camera eye (caster, opponent)
 SWEEP_SMOOTH_DEG = 16.0  # gaussian sigma of the radius curl (a sharper curl reads as a wiggle)
 _CAMS = [np.array([0.0, 1.62, 0.0]), np.array([0.0, 1.62, 2.4])]  # caster eye, hit-1 opponent eye (dash stop 2.4)
-_PIVOT = np.array([-0.15, 1.0, 0.25])  # rig pivot (content/vfx/bastion-s1-rig.yaml)
+_PIVOT = np.array([-0.35, 0.77, 0.29])  # rig pivot = held-item fist (animator r6b; was [-0.15, 1.0, 0.25]); smears are placed relative to it
 _TIP = 2.545  # pivot -> blade tip
 _t1 = math.radians(22.0)
 _h60 = np.array([math.sin(math.radians(60)), 0.0, math.cos(math.radians(60))])
@@ -437,7 +437,7 @@ SWEEPS = {
                          (112, -23, 0.85, 0.9), (75, -23, 0.7, 0.78), (40, -23, 0.52, 0.62), (10, -23, 0.34, 0.46),
                          (-8, -23, 0.2, 0.32)]),
     # hit 2 low ring: plane tilted 14 deg (lowest toward phi 60 = left-front), centre on the pivot axis at the
-    # cone-centre height (tip pitch -8 -> y 0.646). alpha 0 ~ forward, +90 ~ left; the blade turns +alpha
+    # cone-centre height (tip pitch -8 -> pivot y - 0.354). alpha 0 ~ forward, +90 ~ left; the blade turns +alpha
     # (left-back -> back -> right -> front). Tip alpha per skill tick (r6): 139 (26), 167 (27), 212 (28), 265 (29),
     # 321 (30), 379.5 contact (31, held 31-32). Played in fx-low (skill tick = fx tick + 27).
     "ring": dict(centre=_PIVOT + np.array([0.0, -_TIP * math.sin(math.radians(8)), 0.0]), e1=_f2,

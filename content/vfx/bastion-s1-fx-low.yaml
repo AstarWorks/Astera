@@ -30,7 +30,7 @@ elements:
   end_tick: 12
   keyframes:
   - t: 0
-    translate: [-0.15, 0.646, 0.25]
+    translate: [-0.35, 0.416, 0.29]
     rotate: [-60.0, -76.0, -150.7]
     scale: [0.8906, 0.8906, 1.0]
 - id: s1h2-ring-b
@@ -41,7 +41,7 @@ elements:
   end_tick: 12
   keyframes:
   - t: 0
-    translate: [-0.15, 0.646, 0.25]
+    translate: [-0.35, 0.416, 0.29]
     rotate: [120.0, 76.0, 150.7]
     scale: [0.8906, 0.8906, 1.0]
 - id: s1h2-streak-main
