@@ -1,0 +1,24 @@
+# limbus-vfx -> animator/director: wind-trail look for the S1 rigs (paste into `trails:` of bastion-s1-rig-high / -low).
+# Gold body, white-hot inner edge, dark outer rim, one fan face (open top). Not previewed on the animator's rig yet.
+high:
+  style: soft
+  step_deg: 20
+  fade_power: 1.0
+  life_ticks: 9
+  bands:
+    - { from: 0.0, to: 0.8, color: '#00FFC040', color_to: '#00FFC040' }
+    - { from: 0.8, to: 0.93, color: '#C0FFC83A', color_to: '#30FFA818' }
+    - { from: 0.93, to: 1.0, color: '#FFFFFBE0', color_to: '#80FFE070' }
+  edge: { block: white_concrete, width: 0.04 }
+  dark_rim: { color: '#B0180C04', width: 0.16 }
+low:
+  style: soft
+  step_deg: 20
+  fade_power: 1.0
+  life_ticks: 10
+  bands:        # body 25% denser than high
+    - { from: 0.0, to: 0.76, color: '#00FFC040', color_to: '#00FFC040' }
+    - { from: 0.76, to: 0.93, color: '#E6FFC83A', color_to: '#50FFA818' }
+    - { from: 0.93, to: 1.0, color: '#FFFFFBE0', color_to: '#90FFE070' }
+  edge: { block: white_concrete, width: 0.05 }
+  dark_rim: { color: '#C0180C04', width: 0.2 }

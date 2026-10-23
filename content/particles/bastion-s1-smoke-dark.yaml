@@ -1,0 +1,9 @@
+# Bastion S1: dark smoke handed over after the flash, low around the caster's feet. Hit 1: 5, hit 2: two calls (10).
+id: bastion-s1-smoke-dark
+shape: { kind: burst, spread_blocks: 0.5 }
+color: { r: 60, g: 60, b: 66 }
+count: 5
+lifetime_ticks: 18
+vanilla_particle: smoke
+velocity: { direction: outward, speed: 0.04, spread_degrees: 80 }
+force: true

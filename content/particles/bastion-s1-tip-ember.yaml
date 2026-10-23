@@ -1,0 +1,9 @@
+# Bastion S1: one orange ember per tick at the blade tip (animator rig emitter, tip [0, 2.55, 0] sword-local).
+id: bastion-s1-tip-ember
+shape: { kind: point }
+color: { r: 255, g: 138, b: 30 }
+count: 1
+lifetime_ticks: 10
+vanilla_particle: small_flame
+velocity: { direction: along_tangent, speed: 0.12, spread_degrees: 30 }
+force: true
