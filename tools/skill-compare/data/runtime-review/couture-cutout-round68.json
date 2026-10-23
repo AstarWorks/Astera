@@ -1,0 +1,23 @@
+{
+  "case": "couture-rapier-cutout",
+  "round": 68,
+  "status": "failed",
+  "capture": "build/limbus-review/round68/captures/couture-rapier-cutout-1792738923245495916",
+  "frames": 156,
+  "quality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 3.0
+  },
+  "sourceReviewFrame": 1434,
+  "reviewedCaptureFrames": [
+    20,
+    34
+  ],
+  "changes": [
+    "鋏の集合前の位置を手の周囲へ分離。",
+    "既存40面の軌跡開始を31から6tickへ早めて集合中の連結を追加。放出部のキー時刻は維持。",
+    "撮影前にウォームアップ由来の経験値オーブも除去。"
+  ],
+  "review": "集合前の5本の分離配置と白い連結線を追加。実機で集合を確認したが、接写時の中央への線の集中・端点のずれ・鋏の細部・腕姿勢・発光・追撃条件は未一致。"
+}

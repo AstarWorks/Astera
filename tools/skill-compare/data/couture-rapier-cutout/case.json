@@ -41,12 +41,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "白い連結軌跡を実機で視認できるよう改善。輪郭はまだ均一で、節間・方向・始点の離れ、花飾り・発光・腕姿勢・追撃条件は未一致。see_throughによる遮蔽越しの表示も未解決。"
+    "reason": "集合前の5本の分離配置と白い連結線を追加。実機で集合を確認したが、接写時の中央への線の集中・端点のずれ・鋏の細部・腕姿勢・発光・追撃条件は未一致。"
   },
   "weapon": "couture-rapier",
   "identity": "Haute Couture::Alteration Shop Rodion",
-  "iterations": 3,
+  "iterations": 4,
   "report": "/report/couture-rapier",
   "referenceRevision": "0088d1573794f40b284eb444517e050283b613370be1ddcb7eb6b60ddf4b3247",
-  "contentRevision": "8a436f007551c8d7dec7043d7fa003e97782f2be581343601db2f35b23fd42ba"
+  "contentRevision": "f3bc7b8b9b1c760df4e4d2ffdf6e91a530c83de1f5f5cb3069731786124f3efb"
 }
