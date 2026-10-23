@@ -545,3 +545,43 @@ phases:
     delay_ticks:
       type: literal
       value: 76
+  - type: play_animation
+    targets:
+      type: caster
+    animation: swing-main-hand
+    ticks:
+      type: literal
+      value: 6
+    delay_ticks:
+      type: literal
+      value: 40
+  - type: play_animation
+    targets:
+      type: caster
+    animation: swing-main-hand
+    ticks:
+      type: literal
+      value: 6
+    delay_ticks:
+      type: literal
+      value: 46
+  - type: play_animation
+    targets:
+      type: caster
+    animation: swing-main-hand
+    ticks:
+      type: literal
+      value: 6
+    delay_ticks:
+      type: literal
+      value: 62
+  - type: play_animation
+    targets:
+      type: caster
+    animation: swing-main-hand
+    ticks:
+      type: literal
+      value: 6
+    delay_ticks:
+      type: literal
+      value: 79

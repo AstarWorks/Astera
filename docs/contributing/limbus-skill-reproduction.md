@@ -458,3 +458,10 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Source f2407/2440/2465 has a low/leaning caster through contacts. Applied existing crouch animation at37..47,59..69,76..103, ending before ascent. This is only a vanilla height/lean approximation; no arm extension or torso twist was added.
 - ContentLint and runtime reload passed; deployed skill bytes checked. Actual195frames, lateness3ms, identical maximum1. Frames050/071/086 show crouch;115 shows normal stance during ascent. Sampling766 observations peaks59. Evidence under round59; summary data/runtime-review/crimson-crouch-round59.json.
 - Fidelity failed: arms still hang downward, chain origin does not follow a matching hand pose, airborne contact/chain height remains wrong, source body/claw/cape form, light/camera/hit semantics and normal form/input remain unfinished. Do not label crouch as the original full pose.
+
+### Round 60: native arm swing alongside the chain
+
+- Exposed existing main-hand swing through play_animation using swing-main-hand. A positive ticks value emits one native swing; zero skips it, and duration does not retime or hold the native animation. Reuses swingArm, including its existing event. Repository search found no skill-trigger consumer of PlayerSwungArm. Unknown custom animations retain failure behavior.
+- Added swings at40/46/62/79, three ticks before provisional contacts. Core JAR build/contentLint passed; dedicated core/skill deployed and hashes checked. Actual195frames, lateness8ms, repeated maximum1. Frames047/054/071/086 show arm motion; no unknown-animation/runtime-dispatch error found.
+- HP after capture: selected170.47997, other two200, same as previous five-contact result; no extra damage observed. Display sampling733 observations peaks59. Evidence under round60; summary data/runtime-review/crimson-arm-swings-round60.json.
+- This reduces idle arms, not full fidelity. Native arm direction/speed, torso twist, hand-to-chain binding, airborne contact alignment, source form/lights/camera/hits and normal input remain incomplete.

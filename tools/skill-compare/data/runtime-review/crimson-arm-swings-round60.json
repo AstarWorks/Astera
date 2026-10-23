@@ -1,0 +1,28 @@
+{
+  "case": "crimson-chain-axe-transformed-combo-a",
+  "contentRevision": "1f6cf967b2eea0e9a0dff1e8f6571f900bb47516cbe64c3bdc5f8949ab2b43b3",
+  "status": "native-arm-swings-observed-fidelity-failed",
+  "captureQuality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 8.0
+  },
+  "capturedAt": "2026-10-23T05:41:48.915343+00:00",
+  "peakDisplays": 59,
+  "sampleCount": 733,
+  "swingTicks": [
+    40,
+    46,
+    62,
+    79
+  ],
+  "healthAfter": {
+    "selected": 170.47997,
+    "bystanders": [
+      200,
+      200
+    ]
+  },
+  "review": "Round60: 標準の腕振りを4回の鎖振りへ追加。実機frame047/054/071/086で腕の動きを確認。標的HPは170.47997、他2体200で前版と同じ。原作の腕/胴体の軌道、手と鎖の固定接続、空中標的への高さ、光/カメラ/命中仕様/通常入力は未一致。",
+  "scope": "One native main-hand swing per call; positive duration does not retime the client animation. No damage mechanic added. Actual arm path/hand attachment not matched."
+}

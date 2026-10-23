@@ -289,6 +289,10 @@ public class PaperPlayerAnimationGateway(
         }
         if (!server.isPrimaryThread) return offMain("playCustomAnimation")
         val player = onlinePlayer(playerId) ?: return unknownPlayer(playerId)
+        if (animation.value == "swing-main-hand") {
+            // One native swing: duration gates zero but does not retime the client's arm animation.
+            return if (durationTicks == 0L) Result.success(Unit) else swingArm(playerId, PlayerHand.MainHand)
+        }
         if (animation.value != "crouch") return Result.failure(PlayerAnimationError.UnknownCustomAnimation(animation))
         if (durationTicks == 0L) return Result.success(Unit)
         val clock = scheduler ?: return Result.failure(PlayerAnimationError.Platform("Animation scheduler unavailable"))

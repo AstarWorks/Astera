@@ -149,6 +149,10 @@ direction: { kind: toward_caster }                       # pull inward
   its own lifetime from its spawn instead. `group_keyframes` (`t`, `translate`, `rotate [yaw,pitch,roll]`, uniform `scale`, `ease`) move / spin / scale
   the whole formation about the anchor before per-slot keyframes, e.g. a hoop travelling along local +Z: `group_keyframes: [{ t: 0 }, { t: 10, translate: [0, 0, 8] }]`.
 
+`play_animation` currently supports `crouch` (temporary pose for `ticks`) and `swing-main-hand` (one native arm swing).
+For `swing-main-hand`, zero ticks skips the action; a positive duration requests one swing and does not change its native playback speed or hold the arm in place.
+Neither animation adds a damage event. These are pose approximations, not custom skeletal clips.
+
 ## Screen flash (cut-in overlays)
 
 ```yaml
