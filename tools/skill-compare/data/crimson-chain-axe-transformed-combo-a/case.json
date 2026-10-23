@@ -66,12 +66,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "Round49: 対の三日月刃スプライトで浮遊〜終端に残る14節の鎖を追加。frame168で消光後も鎖が残ることを確認。195フレーム、遅延3ms・同一最大2、三標的768サンプルで表示ピーク59。静的な鎖の曲線/人物接続、前半の横棒状の鎖、人物姿勢、光と動き、変身/通常入力、命中仕様は未一致。"
+    "reason": "Round50: 前半4振りの物理鎖を10節/両面20スプライトへ置換。frame072で三日月形の刃と振りへの追従を確認。横薙ぎframe048は薄い角度で刃が読みにくい。195フレーム、遅延2ms・同一最大2、三標的769サンプルでピーク59。手接続・動的変形・人物姿勢・光/命中仕様・変身/通常入力は未一致。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 15,
+  "iterations": 16,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
-  "contentRevision": "ccd67098e8f417f5c1421a18dc38236950e72d9a3fb4b58b7f790385f48c6842"
+  "contentRevision": "583e5e1a204501f3f075d180b6aa8965461138f1024a761290d662a40c9d9a52"
 }

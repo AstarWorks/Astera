@@ -1,315 +1,1137 @@
-# One physical chain group; ten links retain paired edge span with one bar each.
 id: crimson-combo-low
 duration_ticks: 17
 orient: yaw
 follow: true
 sample_ticks: 1
-elements: []
+elements:
+- id: link-0-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.0, 0.35]
+    rotate: [-0.0, 90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-0-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.0, 0.35]
+    rotate: [180.0, -90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-1-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.109446, 0.0, 0.71]
+    rotate: [-0.0, 90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-1-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.109446, 0.0, 0.71]
+    rotate: [180.0, -90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-2-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.205692, 0.0, 1.07]
+    rotate: [-0.0, 90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-2-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.205692, 0.0, 1.07]
+    rotate: [180.0, -90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-3-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.277128, 0.0, 1.43]
+    rotate: [-0.0, 90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-3-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.277128, 0.0, 1.43]
+    rotate: [180.0, -90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-4-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.315138, 0.0, 1.79]
+    rotate: [-0.0, 90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-4-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.315138, 0.0, 1.79]
+    rotate: [180.0, -90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-5-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.315138, 0.0, 2.15]
+    rotate: [-0.0, 90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-5-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.315138, 0.0, 2.15]
+    rotate: [180.0, -90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-6-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.277128, 0.0, 2.51]
+    rotate: [-0.0, 90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-6-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.277128, 0.0, 2.51]
+    rotate: [180.0, -90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-7-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.205692, 0.0, 2.87]
+    rotate: [-0.0, 90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-7-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.205692, 0.0, 2.87]
+    rotate: [180.0, -90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-8-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.109446, 0.0, 3.23]
+    rotate: [-0.0, 90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-8-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.109446, 0.0, 3.23]
+    rotate: [180.0, -90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-9-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.0, 3.59]
+    rotate: [-0.0, 90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
+- id: link-9-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.0, 3.59]
+    rotate: [180.0, -90.0, 0.0]
+    scale: [0.09, 0.066, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [170.0, 0.0, 0.0]
+  - t: 1
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [175.0, 0.0, 0.0]
+  - t: 2
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [180.0, 0.0, 0.0]
+  - t: 3
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [101.25, 0.0, 0.0]
+  - t: 4
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [45.0, 0.0, 0.0]
+  - t: 5
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [11.25, 0.0, 0.0]
+  - t: 6
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [0.0, 0.0, 0.0]
+  - t: 7
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-5.0, 0.0, 0.0]
+  - t: 8
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-10.0, 0.0, 0.0]
+  - t: 9
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-14.88, 0.0, 0.0]
+  - t: 10
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-17.84, 0.0, 0.0]
+  - t: 11
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.36, 0.0, 0.0]
+  - t: 12
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-19.92, 0.0, 0.0]
+  - t: 13
+    translate: [-0.25, 1.0, 0.3]
+    rotate: [-20.0, 0.0, 0.0]
 rigs:
 - id: chain
-  pivot:
-  - -0.25
-  - 1.0
-  - 0.3
-  rest:
-  - 0
-  - 90
-  - 0
-  tilt:
-  - 0
-  - 0
-  - 0
+  pivot: [-0.25, 1.0, 0.3]
+  rest: [0, 90, 0]
+  tilt: [0, 0, 0]
   respect_hit_stop: true
   end_tick: 14
-  parts:
-  - id: link-0
-    block: black_concrete
-    offset:
-    - 0.0
-    - 0.35
-    - 0
-    size:
-    - 0.08
-    - 0.38
-    - 0.12
-  - id: edge-0
-    block: white_concrete
-    offset:
-    - 0.0
-    - 0.43
-    - 0
-    size:
-    - 0.46
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: link-1
-    block: black_concrete
-    offset:
-    - 0.109446445864214
-    - 0.71
-    - 0
-    size:
-    - 0.08
-    - 0.38
-    - 0.12
-  - id: edge-1
-    block: white_concrete
-    offset:
-    - 0.109446445864214
-    - 0.7899999999999999
-    - 0
-    size:
-    - 0.46
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: link-2
-    block: black_concrete
-    offset:
-    - 0.20569203509969256
-    - 1.0699999999999998
-    - 0
-    size:
-    - 0.08
-    - 0.38
-    - 0.12
-  - id: edge-2
-    block: white_concrete
-    offset:
-    - 0.20569203509969256
-    - 1.15
-    - 0
-    size:
-    - 0.46
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: link-3
-    block: black_concrete
-    offset:
-    - 0.27712812921102037
-    - 1.4300000000000002
-    - 0
-    size:
-    - 0.08
-    - 0.38
-    - 0.12
-  - id: edge-3
-    block: white_concrete
-    offset:
-    - 0.27712812921102037
-    - 1.5100000000000002
-    - 0
-    size:
-    - 0.46
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: link-4
-    block: black_concrete
-    offset:
-    - 0.31513848096390656
-    - 1.79
-    - 0
-    size:
-    - 0.08
-    - 0.38
-    - 0.12
-  - id: edge-4
-    block: white_concrete
-    offset:
-    - 0.31513848096390656
-    - 1.87
-    - 0
-    size:
-    - 0.46
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: link-5
-    block: black_concrete
-    offset:
-    - 0.31513848096390656
-    - 2.15
-    - 0
-    size:
-    - 0.08
-    - 0.38
-    - 0.12
-  - id: edge-5
-    block: white_concrete
-    offset:
-    - 0.31513848096390656
-    - 2.23
-    - 0
-    size:
-    - 0.46
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: link-6
-    block: black_concrete
-    offset:
-    - 0.27712812921102037
-    - 2.5100000000000002
-    - 0
-    size:
-    - 0.08
-    - 0.38
-    - 0.12
-  - id: edge-6
-    block: white_concrete
-    offset:
-    - 0.27712812921102037
-    - 2.5900000000000003
-    - 0
-    size:
-    - 0.46
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: link-7
-    block: black_concrete
-    offset:
-    - 0.20569203509969264
-    - 2.87
-    - 0
-    size:
-    - 0.08
-    - 0.38
-    - 0.12
-  - id: edge-7
-    block: white_concrete
-    offset:
-    - 0.20569203509969264
-    - 2.95
-    - 0
-    size:
-    - 0.46
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: link-8
-    block: black_concrete
-    offset:
-    - 0.10944644586421404
-    - 3.23
-    - 0
-    size:
-    - 0.08
-    - 0.38
-    - 0.12
-  - id: edge-8
-    block: white_concrete
-    offset:
-    - 0.10944644586421404
-    - 3.31
-    - 0
-    size:
-    - 0.46
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: link-9
-    block: black_concrete
-    offset:
-    - 3.91886975727153e-17
-    - 3.59
-    - 0
-    size:
-    - 0.08
-    - 0.38
-    - 0.12
-  - id: edge-9
-    block: white_concrete
-    offset:
-    - 3.91886975727153e-17
-    - 3.67
-    - 0
-    size:
-    - 0.46
-    - 0.07
-    - 0.1
-    brightness: 15
+  parts: []
   swing:
   - t: 0
-    rotate:
-    - 170
-    - 0
-    - 0
+    rotate: [170, 0, 0]
   - t: 2
-    rotate:
-    - 180
-    - 0
-    - 0
+    rotate: [180, 0, 0]
     ease: in_out_quad
   - t: 6
-    rotate:
-    - 0
-    - 0
-    - 0
+    rotate: [0, 0, 0]
     ease: out_quad
   - t: 8
-    rotate:
-    - -10
-    - 0
-    - 0
+    rotate: [-10, 0, 0]
   - t: 13
-    rotate:
-    - -20
-    - 0
-    - 0
+    rotate: [-20, 0, 0]
     ease: out_cubic
   trails:
   - id: blade-fan
-    from:
-    - 0
-    - 3.65
-    - 0
-    to:
-    - 0
-    - 4.0
-    - 0
+    from: [0, 3.65, 0]
+    to: [0, 4.0, 0]
     start_t: 2
     end_t: 6
     life_ticks: 5
     step_deg: 18
     style: soft
     bands:
-    - from: 0.0
-      to: 1.0
-      color: '#F0EF2445'
-      color_to: '#3069091C'
-    edge:
-      block: white_concrete
-      width: 0.055
+    - {from: 0.0, to: 1.0, color: '#F0EF2445', color_to: '#3069091C'}
+    edge: {block: white_concrete, width: 0.055}
   - id: blade-fan-back
-    from:
-    - 0
-    - 4.0
-    - 0
-    to:
-    - 0
-    - 3.65
-    - 0
+    from: [0, 4.0, 0]
+    to: [0, 3.65, 0]
     start_t: 2
     end_t: 6
     life_ticks: 5
     step_deg: 18
     style: soft
     bands:
-    - from: 0.0
-      to: 1.0
-      color: '#F0EF2445'
-      color_to: '#3069091C'
+    - {from: 0.0, to: 1.0, color: '#F0EF2445', color_to: '#3069091C'}
   emitters:
   - id: contact-petals
     particle_id: crimson-chain-axe-petals
-    point:
-    - 0
-    - 4
-    - 0
+    point: [0, 4, 0]
     start_t: 6
     end_t: 7
 replace_group: crimson-combo-chain
