@@ -775,6 +775,7 @@ astera:
       transferring: "<green>マッチ成立！ アリーナサーバーへ移動します…</green>"
       dispatch-failure: "<red>アリーナサーバーが応答しませんでした。キューに戻しました。</red>"
       wrong-server: "<gray>このサーバーはマッチ専用です。ロビーに戻します…</gray>"
+      arrival-waiting: "<yellow>あと <gold>{remaining}</gold> 人を待っています… 試合開始まで無敵です。</yellow>"
     # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
     queue:
       unknown-mode: "<red>未知のキューモードです。</red>"

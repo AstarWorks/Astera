@@ -160,6 +160,7 @@ abstract class LiveBase {
         }
         // "Match found! Moving you..." arrives when the game backend accepted the assignment; the Connect follows at once.
         a.waitUntil(45_000) { a.chatTexts().any { it.contains("Moving you") } }
+        val worldsBeforeHop = listOf(a, b).associateWith { it.worldHistory.size }
         val moved = listOf(a, b).all { p -> p.waitUntil(12_000) { "game" in p.hops } }
         E2eReport.check(suite, "queue sends both bots to the game backend (BungeeCord Connect -> game)", "BungeeCord plugin message") {
             assertThat(moved).describedAs(
@@ -170,6 +171,11 @@ abstract class LiveBase {
         }
         if (!moved) listOf(a, b).forEach { p -> p.forceHop("game") }
         listOf(a, b).forEach { p -> p.waitUntil(30_000) { p.joined && serverOf(p) == "game" } }
+        E2eReport.check(suite, "each bot logs in to the game backend directly in the arenas dimension (never the flat world), before the match starts", "ClientboundLogin spawn world") {
+            val firstGameWorld = listOf(a, b).associate { p -> p.name to p.worldHistory.getOrNull(worldsBeforeHop.getValue(p)) }
+            assertThat(firstGameWorld.values).describedAs("first world on the game backend: $firstGameWorld").allMatch { it == "minecraft:arenas" }
+            "first game-backend world: $firstGameWorld"
+        }
         var line: String? = null
         val active = a.waitUntil(60_000) {
             line = matchLines().firstOrNull { matchIdOf(it) != null }

@@ -768,6 +768,7 @@ astera:
       transferring: "<green>Match found! Moving you to the arena server…</green>"
       dispatch-failure: "<red>The arena server did not answer; you were put back in the queue.</red>"
       wrong-server: "<gray>This server only hosts matches. Sending you back to the lobby…</gray>"
+      arrival-waiting: "<yellow>Waiting for <gold>{remaining}</gold> more player(s)… you are protected until the match starts.</yellow>"
     # Wave 5lobby-content (ADR-0119) — lobby `lobby.queue.*` GuiIntent surface.
     queue:
       unknown-mode: "<red>Unknown queue mode.</red>"
