@@ -1,0 +1,58 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb display :0 (allocated by -displayfd), llvmpipe, 1280x720",
+  "capture": "Isolated commands-enabled creative superflat singleplayer, unique build/rtm-blaster-client directory; copied greatsword capture save excluding session.lock, cleared inventory and teleported to 0/-60/0 yaw -90 pitch 0, noon and clear weather. Entire launch/capture held astera-mc-client.lock. Native Xvfb root screenshot, no image editing. No external server, Docker, Gradle or tests.",
+  "item": "minecraft:iron_axe[minecraft:item_model=\"astera:rtm-blaster\"]",
+  "resourcePack": "Minimal capture pack with exact authored model and item definition, builder-equivalent blocks/ directory source. All resources use minecraft:block/; no custom or vanilla PNG files.",
+  "modelElements": 177,
+  "sha256": {
+    "content/models/items/rtm-blaster.model.json": "a2cc9bd12adb8d5e9401d1fe7e6edc10771076fd6930e0823d08b6e1308f3b78",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/before.png": "2144622d3929ef0c1a9b0dc83fdae35928dcfa89a8bb0c351d09e74eefd6d5a3",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/after.png": "a17d589a329d2b409368eece907f4bb7307ae6d114be1c99fc3425f0bb76abf2",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/contexts.png": "cf04f69b20eb9fc5c4d198633eb437255acc4d3a00e7f567ce7d85f5e62a788e",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/client.png": "b362f7bb285b36c6cb3932809e7999cc707cd574e59f5ebc8882d74142491d5a",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/angles.png": "a5d9df606b84ac3f8059fed394d0068343d59209a7400120a14a0ca213073850",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/inventory.png": "55bccf0432811fc0577c34c4f9ceb8591150206a2282e2d3f254bb2e8c09a895",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/operations.json": "42d3b14f81b34b15463a3b822122ef3ab5576a888b139b6ae57606d91712866b",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/remake.py": "81f1d4a604f18731ace3f2a1e8e1b73eece5892346ab3f2864cc94a8d6e4abd7",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/capture-client.py": "37fb2d0da63c1a2e445090a162846c0ca68fe07aeb31859878bd65672201352c",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/capture-pack.py": "2ca9d305372780aff5c228e1189dfe99a3724b4e7d7ee19659ad4562242389fd",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/cameras.json": "e5f01e23ad1a97847bfe823bb98349d9d19918deda7ab70b1503afee9017fd4b"
+  },
+  "remainingRisks": [
+    "Production pack build and integration checks deferred to manager CI.",
+    "Offline lighting/camera differs from the native first-person perspective; native first-person reviewed, runtime animations and alternate FOVs not exhaustively reviewed.",
+    "Pre-existing 543 AABB overlaps, 27 contact candidates and one component warning retained unchanged.",
+    "Vanilla color accents are not emissive bloom."
+  ],
+  "validation": {
+    "valid": true,
+    "errors": 0,
+    "beforeWarnings": {
+      "overlap_aabb": 543,
+      "coplanar_contact_possible_zfight": 27,
+      "floating_components_aabb": 1
+    },
+    "afterWarnings": {
+      "overlap_aabb": 543,
+      "coplanar_contact_possible_zfight": 27,
+      "floating_components_aabb": 1
+    },
+    "geometryUnchanged": true,
+    "displayTransformsUnchanged": true,
+    "facesAtOneTexelPerUnit": 1062,
+    "deterministicFreshReplay": true
+  },
+  "visualReview": {
+    "opened": [
+      "before.png",
+      "after.png",
+      "contexts.png",
+      "angles.png",
+      "inventory.png",
+      "client.png"
+    ],
+    "nativeFinding": "Native material textures resolve correctly. Forward muzzle and scope are readable, central aim stays clear. Stock extends to lower-right screen edge at the original display transform.",
+    "clientLog": "No missing-texture/model or mixed-atlas errors. Offline account/Realms authentication, unavailable audio and existing end_of_frame post-effect messages only."
+  },
+  "catalogWishes": []
+}
