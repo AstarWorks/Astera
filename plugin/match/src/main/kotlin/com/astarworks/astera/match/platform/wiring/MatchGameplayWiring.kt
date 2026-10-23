@@ -195,7 +195,11 @@ internal object MatchGameplayWiring {
                 notifier = queueNotifier,
                 settings = crossServer,
                 waivers = services.get<com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers>(),
+                stages = stages,
+                worlds = worldGateway,
+                hud = queueHud,
             )
+            registrations += services.register<com.astarworks.astera.match.application.service.matchmaking.IArrivalSpawns>(receiver, priority = 0)
             receiver.start()
             env.shutdownHooks += { receiver.stop() }
             // A player who drops out of the running match is announced to the lobby, which sends them back

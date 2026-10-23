@@ -1,7 +1,16 @@
 package com.astarworks.astera.match.application.service.matchmaking
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IStageRegistry
+import com.astarworks.astera.core.application.port.outbound.IWorldGateway
+import com.astarworks.astera.core.domain.hud.HudComponent
+import com.astarworks.astera.core.domain.hud.HudLayout
+import com.astarworks.astera.core.domain.hud.HudRegion
+import com.astarworks.astera.core.domain.stage.SpawnPoint
+import com.astarworks.astera.core.domain.stage.SpawnRole
+import com.astarworks.astera.match.application.usecase.match.StartMatchUseCase
 import com.astarworks.astera.core.application.port.outbound.IProxyMessenger
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IServerTransferGateway
@@ -51,7 +60,10 @@ public class MatchAssignmentReceiver(
     private val notifier: IQueueNotifier,
     private val settings: CrossServerSettings,
     private val waivers: MatchMinPlayerWaivers? = null,
-) {
+    private val stages: IStageRegistry? = null,
+    private val worlds: IWorldGateway? = null,
+    private val hud: IHudGateway? = null,
+) : IArrivalSpawns {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -63,6 +75,7 @@ public class MatchAssignmentReceiver(
         var arrivalTimeout: IScheduler.TaskHandle? = null,
     )
 
+    @Volatile
     private var session: Session? = null
     private val handles = mutableListOf<() -> Unit>()
 
@@ -116,7 +129,63 @@ public class MatchAssignmentReceiver(
             return
         }
         current.arrived += playerId
-        if (current.arrived.size == current.assignment.players.size) startMatch(current)
+        placeOnArena(current, playerId)
+        if (current.arrived.size == current.assignment.players.size) startMatch(current) else showWaiting(current)
+    }
+
+    override fun spawnFor(playerId: PlayerId): SpawnPoint? {
+        val current = session?.takeIf { it.matchId == null } ?: return null
+        val teamIndex = current.assignment.teams.indexOfFirst { playerId in it }
+        if (teamIndex < 0) return null
+        val stage = stages?.find(current.assignment.stageId) ?: return null
+        val teamIds = teamIdsFor(current.assignment.modeKey)
+        val teamId = teamIds[teamIndex % teamIds.size]
+        val own = stage.spawnPoints.filter { it.role == SpawnRole.TEAM && it.team == teamId }
+        if (own.isNotEmpty()) {
+            val slot = current.assignment.teams[teamIndex].indexOf(playerId)
+            return own[slot.coerceAtLeast(0) % own.size]
+        }
+        return stage.spawnPoints.firstOrNull { it.role == SpawnRole.LOBBY }
+    }
+
+    override fun isWaiting(playerId: PlayerId): Boolean {
+        val current = session ?: return false
+        return current.matchId == null && playerId in current.assignment.players
+    }
+
+    private fun teamIdsFor(modeKey: String?) =
+        if (modeKey == StartMatchUseCase.MODE_KEY_ANNIHILATION) StartMatchUseCase.DEFAULT_ANNIHILATION_TEAMS else StartMatchUseCase.DEFAULT_TEAMS
+
+    /** Fallback for a login that was not placed at spawn time: teleport onto the arena now. */
+    private fun placeOnArena(current: Session, playerId: PlayerId) {
+        val gateway = worlds ?: return
+        val spawn = spawnFor(playerId) ?: return
+        if (!gateway.teleport(playerId, spawn.pos, spawn.world, spawn.yaw, spawn.pitch)) {
+            log.warn("Arrival teleport of {} to {} failed (assignment {}).", playerId, spawn.world, current.assignment.id)
+        }
+    }
+
+    private fun showWaiting(current: Session) {
+        val gateway = hud ?: return
+        val remaining = current.assignment.players.size - current.arrived.size
+        current.arrived.forEach { player ->
+            gateway.showFor(
+                player,
+                HudLayout.ActionBar(
+                    component = HudComponent.Text(
+                        MessageKey("astera.match.matchmaking.arrival-waiting"),
+                        placeholders = mapOf("remaining" to remaining.toString()),
+                    ),
+                    ttlTicks = 1200,
+                    priority = 1,
+                ),
+            )
+        }
+    }
+
+    private fun clearWaiting(current: Session) {
+        val gateway = hud ?: return
+        current.arrived.forEach { gateway.clearFor(it, HudRegion.ACTION_BAR) }
     }
 
     /**
@@ -147,6 +216,7 @@ public class MatchAssignmentReceiver(
 
     private fun startMatch(current: Session) {
         current.arrivalTimeout?.cancel()
+        clearWaiting(current)
         if (current.arrived.isEmpty()) {
             log.warn("Assignment {}: nobody arrived; dropping it.", current.assignment.id)
             finish(current)
