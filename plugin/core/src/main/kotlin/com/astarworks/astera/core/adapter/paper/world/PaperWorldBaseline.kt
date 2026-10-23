@@ -34,7 +34,7 @@ public class PaperWorldBaseline(
 
     @EventHandler
     public fun onWorldLoad(event: WorldLoadEvent) {
-        apply(WorldId(event.world.name))
+        safeApply(WorldId(event.world.name))
     }
 
     @EventHandler
@@ -43,7 +43,16 @@ public class PaperWorldBaseline(
     }
 
     private fun applyAll() {
-        for (world in plugin.server.worlds) apply(WorldId(world.name))
+        for (world in plugin.server.worlds) safeApply(WorldId(world.name))
+    }
+
+    /** One world failing must not stop the baseline reaching the others. */
+    private fun safeApply(world: WorldId) {
+        try {
+            apply(world)
+        } catch (t: Exception) {
+            log.warn("World baseline failed for '{}'", world.value, t)
+        }
     }
 
     private fun apply(world: WorldId) {

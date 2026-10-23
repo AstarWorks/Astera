@@ -67,7 +67,15 @@ public class PaperWorldTimeGateway(
             log.debug("PaperWorldTimeGateway.setTime: world {} not loaded", world)
             return
         }
-        w.time = timeOfDay
+        // Paper 26.x: dimensions without a world clock (e.g. the nether) reject setTime with this exact
+        // IllegalArgumentException; the API has no clock query (isFixedTime is a different flag). Time of day
+        // is meaningless there, so skip it. Any other failure propagates.
+        try {
+            w.time = timeOfDay
+        } catch (e: IllegalArgumentException) {
+            if (e.message?.contains("without world clock") != true) throw e
+            log.debug("PaperWorldTimeGateway.setTime: world {} has no world clock; time left alone", world)
+        }
     }
 
     override fun freezeTime(world: WorldId, frozen: Boolean) {
