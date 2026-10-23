@@ -13,13 +13,14 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageColor
 from raster import faces, element_points, default_uv
 from validate import schema_errors
+from materials import texture_ref, vanilla_path, apply as apply_material
 
 ROOT = Path(__file__).resolve().parents[2]
 READS = {'scene.get', 'scene.element', 'texture.get', 'texture.palette', 'texture.regions',
          'measure', 'validate', 'history.list', 'history.diff', 'render', 'board', 'compare', 'export'}
 MUTATIONS = {'import', 'element.add', 'element.update', 'element.delete', 'element.duplicate',
              'element.mirror', 'group.create', 'group.move', 'texture.create', 'texture.paint',
-             'uv.set', 'uv.auto', 'batch', 'history.snapshot', 'history.undo', 'history.restore'}
+             'material.apply', 'uv.set', 'uv.auto', 'batch', 'history.snapshot', 'history.undo', 'history.restore'}
 
 
 def encoded(im):
@@ -73,7 +74,11 @@ class Project:
         return next((e for e in self.model['elements'] if e['id'] == id), None) or self.fail('Unknown element: '+id)
     @staticmethod
     def fail(message): raise ValueError(message)
-    def image(self, key): return decoded(self.state['images'][key.lstrip('#')])
+    def image(self, key):
+        key = key.lstrip('#')
+        ref = texture_ref(self.model, '#'+key)
+        if ref.startswith('minecraft:'): return Image.open(vanilla_path(ref)).convert('RGBA')
+        return decoded(self.state['images'][key])
     def save_image(self, key, im): self.state['images'][key.lstrip('#')] = encoded(im)
     def vanilla(self):
         m = copy.deepcopy(self.model)
@@ -123,15 +128,34 @@ class Project:
         errors = schema_errors(self.vanilla(), schema)
         warnings = []
         if errors: return {'valid': False, 'errors': errors, 'warnings': warnings}
+        for key in self.model['textures']:
+            try: texture_ref(self.model, '#'+key)
+            except (ValueError, KeyError) as ex: errors.append('Invalid texture '+key+': '+str(ex))
+        # 26.3 bakes one atlas per cuboid model; native block/item sprites cannot mix.
+        atlases = set()
+        used = {f['texture'] for e in self.model['elements'] for f in e['faces'].values()}
+        if 'particle' in self.model['textures']: used.add('#particle')
+        for slot in used:
+            try: ref = texture_ref(self.model, slot)
+            except (ValueError, KeyError): continue
+            if ref.startswith(('minecraft:block/', 'astera:blocks/')): atlases.add('blocks')
+            if ref.startswith(('minecraft:item/', 'astera:items/', 'astera:generated/items/')): atlases.add('items')
+        if len(atlases)>1:
+            warnings.append({'kind':'mixed_texture_atlases', 'message':'26.3 rejects one cuboid model spanning item and block atlases; install custom atlases alongside its vanilla material (blocks/ or items/).'})
         boxes = []
         for e in self.model['elements']:
             if np.any(np.subtract(e['to'],e['from']) <= 0): errors.append(e['id']+': nonpositive volume')
             boxes.append(np.array(bbox(e)))
             for face,f in e['faces'].items():
                 key = f['texture'].lstrip('#')
-                if key not in self.state['images']: errors.append(e['id']+': missing texture '+key); continue
+                try: ref = texture_ref(self.model, '#'+key)
+                except (ValueError, KeyError) as ex:
+                    errors.append(e['id']+': invalid texture '+str(ex)); continue
+                if not ref.startswith('minecraft:') and key not in self.state['images']:
+                    errors.append(e['id']+': missing texture '+key); continue
                 uv = f.get('uv', default_uv(e,face))
                 if min(uv)<0 or max(uv)>16: errors.append(e['id']+': UV outside 0..16'); continue
+                if ref.startswith('minecraft:'): continue  # Validation/export never require or store client pixels.
                 im = self.image(key); u,v,U,V = uv
                 crop = im.crop((math.floor(min(u,U)*im.width/16), math.floor(min(v,V)*im.height/16),
                                 math.ceil(max(u,U)*im.width/16), math.ceil(max(v,V)*im.height/16)))
@@ -171,6 +195,9 @@ class Project:
             def resolve(ref, seen=()):
                 if ref in seen: raise ValueError('Texture alias cycle')
                 if ref.startswith('#'): return resolve(m['textures'][ref[1:]], seen+(ref,))
+                if ref.startswith('minecraft:'):
+                    texture_ref(m, ref)
+                    return None
                 override=a.get('textures',{}).get(ref)
                 if override: p=Path(override)
                 elif ref.startswith('astera:'): p=ROOT/'content/textures'/(ref.split(':',1)[1]+'.png')
@@ -178,7 +205,8 @@ class Project:
                 return encoded(Image.open(p).convert('RGBA'))
             for key,ref in m.get('textures',{}).items():
                 if not re.fullmatch(r'[a-zA-Z0-9_]+',key): raise ValueError('Invalid texture key')
-                images[key]=resolve(ref)
+                pixels=resolve(ref)
+                if pixels is not None: images[key]=pixels
             for i,e in enumerate(m.get('elements',[])): e['id']=f'e{i+1:04d}'
             self.db['state']={'model':m,'images':images,'groups':{}}
             return {'elements':len(m['elements'])}
@@ -194,7 +222,7 @@ class Project:
             for e in self.model['elements']:
                 if root and e.get('group') not in groups and e['id']!=root: continue
                 row={**e,'bbox':bbox(e)}; rows.append({k:row.get(k) for k in fields})
-            return {'elements':rows,'groups':self.state['groups'],'textures':list(self.state['images'])}
+            return {'elements':rows,'groups':self.state['groups'],'textures':copy.deepcopy(self.model['textures'])}
         if op == 'batch':
             results=[]
             for item in a['ops']:
@@ -267,14 +295,16 @@ class Project:
         if op=='texture.create':
             key=a['key']
             if not re.fullmatch(r'[a-zA-Z0-9_]+',key): raise ValueError('Invalid texture key')
-            if key in self.state['images']: raise ValueError('Texture already exists')
+            if key in self.model['textures']: raise ValueError('Texture already exists')
             size=a.get('size',[64,64])
             if len(size)!=2 or not all(type(n)==int and 1<=n<=2048 for n in size): raise ValueError('Texture size 1..2048')
             self.save_image(key,Image.new('RGBA',tuple(size),a.get('color','#00000000')))
             self.model['textures'][key]='textures/'+key
             return {'key':key}
         if op=='texture.paint':
-            key=a['key']; im=self.image(key); d=ImageDraw.Draw(im)
+            key=a['key']
+            if key not in self.state['images']: raise ValueError('Vanilla materials are read-only; create a custom atlas for emblems/runes')
+            im=self.image(key); d=ImageDraw.Draw(im)
             for p in a['ops']:
                 kind=p['type']; color=p.get('color','#ffffffff')
                 coords=([p['box'][:2],p['box'][2:]] if 'box' in p else
@@ -297,15 +327,22 @@ class Project:
                         d.line([(xx,y),(xx,Y)],fill=tuple(np.rint(c0*(1-t)+c1*t).astype(int)))
                 else: raise ValueError('Unknown paint operation '+kind)
             self.save_image(key,im); return {'key':key}
-        if op=='texture.get': return self.artifact(self.image(a['key']),a.get('name','texture'),a)
+        if op=='texture.get':
+            ref=texture_ref(self.model, '#'+a['key'].lstrip('#'))
+            if ref.startswith('minecraft:'): return {'path':str(vanilla_path(ref)), 'read_only':True}
+            return self.artifact(self.image(a['key']),a.get('name','texture'),a)
         if op=='texture.palette':
             colors=self.image(a['key']).getcolors(2048*2048)
             return {'colors':[{'rgba':list(c),'count':n} for n,c in sorted(colors,reverse=True)[:a.get('limit',32)]]}
         if op=='texture.regions': return {'regions':self.regions()}
+        if op=='material.apply':
+            return apply_material(self.model, a['ids'], a['material'], a.get('faces'), a.get('seed',0))
         if op=='uv.set':
             self.element(a['id'])['faces'][a['face']]=copy.deepcopy(a['value']); return {'id':a['id']}
         if op=='uv.auto':
-            key=a['key']; im=self.image(key); density=float(a.get('density',2)); x=y=row=0; packed=[]
+            key=a['key']
+            if key not in self.state['images']: raise ValueError('uv.auto requires a custom atlas; use material.apply for vanilla')
+            im=self.image(key); density=float(a.get('density',2)); x=y=row=0; packed=[]
             if a.get('ids') and any(r['texture']=='#'+key and r['id'] not in a['ids'] for r in self.regions()):
                 raise ValueError('Selected UV packing needs a dedicated texture; otherwise repack all faces')
             if density<=0: raise ValueError('Density must be positive')
@@ -325,7 +362,7 @@ class Project:
             for e in self.model['elements']:
                 b=bbox(e); dims=np.subtract(e['to'],e['from']); parts.append({'id':e['id'],'bbox':b,'lengths':dims.tolist(),'transformed_edge_lengths':[float(np.linalg.norm(element_points(e,[e['from'],(np.array(e['from'])+np.eye(3)[i]*dims[i]).tolist()])[1]-element_points(e,[e['from']])[0])) for i in range(3)],'ratios_to_longest':(dims/max(dims)).tolist()})
                 for face,f in e['faces'].items():
-                    p=element_points(e,faces(e)[face][0]); im=self.image(f['texture']); uv=f.get('uv',default_uv(e,face)); tex=np.abs(np.subtract(uv[2:],uv[:2]))*np.array(im.size)/16
+                    p=element_points(e,faces(e)[face][0]); ref=texture_ref(self.model,f['texture']); size=(16,16) if ref.startswith('minecraft:') else self.image(f['texture']).size; uv=f.get('uv',default_uv(e,face)); tex=np.abs(np.subtract(uv[2:],uv[:2]))*np.array(size)/16
                     if f.get('rotation',0) in (90,270): tex=tex[::-1]
                     densities.append({'id':e['id'],'face':face,'texels_per_unit':(tex/[np.linalg.norm(p[1]-p[0]),np.linalg.norm(p[2]-p[1])]).tolist()})
             bounds=np.array([p['bbox'] for p in parts])

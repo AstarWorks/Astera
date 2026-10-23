@@ -62,8 +62,8 @@ shown; optional fields and defaults are described inline. IDs are stable across 
 
 | Operation | Arguments / result |
 |---|---|
-| `import` | `{path, textures?: {resource_reference: png_path}}`; explicit cuboids, local Astera parents, PNGs. Replaces current scene with undo. Texture aliases resolve into independent editable atlases. |
-| `scene.get` | `{fields?: ["id","name","group","from","to","rotation","faces","bbox"], root?: group_or_element_id}`; compact element rows, groups, texture keys. Root groups include descendants. |
+| `import` | `{path, textures?: {resource_reference: png_path}}`; explicit cuboids, local Astera parents, PNGs and vanilla material references. Replaces current scene with undo. Custom texture aliases resolve into editable atlases; vanilla aliases retain references. |
+| `scene.get` | `{fields?: ["id","name","group","from","to","rotation","faces","bbox"], root?: group_or_element_id}`; compact element rows, groups, texture key-to-resource map. Root groups include descendants. |
 | `scene.element` | `{id}`; full element. |
 | `element.add` | `{id?: stable_id, element: {name, from:[x,y,z], to:[x,y,z], faces:{south:{texture:"#0",uv:[u,v,U,V]},...}, rotation?, group?}}`; omitted ID is generated. |
 | `element.update` | `{id, changes:{...}}`; shallow property replacement (a supplied `faces` replaces the face map). IDs cannot change. |
@@ -74,10 +74,11 @@ shown; optional fields and defaults are described inline. IDs are stable across 
 | `group.move` | `{ids:[element_or_group_id,...], parent:group_id_or_null}`; reparent; cycles rejected. |
 | `batch` | `{ops:[{op:"element.update",args:{...}},...]}`; one atomic geometry/texture transaction, one undo step. History/import/nested batches excluded. |
 | `texture.create` | `{key, size?:[64,64], color?:"#00000000"}`; new RGBA atlas, dimensions 1–2048. Existing keys rejected. |
-| `texture.get` | `{key, name?, base64?}`; PNG artifact. |
+| `texture.get` | `{key, name?, base64?}`; custom PNG artifact. Vanilla slots return a read-only cache path, never an exported PNG. |
 | `texture.palette` | `{key, limit?:32}`; most common RGBA colors with counts. |
 | `texture.paint` | `{key, ops:[...]}`; pixel coordinates, Pillow color strings; forms below. |
 | `texture.regions` | `{}`; element ID, face, texture key and UV rectangle for every face. |
+| `material.apply` | `{ids:[element_id,...], material:catalog_name, faces?:["north",...], seed?:0}`; assign static vanilla material, crop at one texel/model unit, deterministic varied offsets, grain along longest local axis. Splits cuboids over 16 units; returns resulting IDs. Atomic and undoable, including splits. |
 | `uv.set` | `{id, face, value:{texture:"#0",uv:[0,0,4,4],rotation?:90}}`; replace one face descriptor. |
 | `uv.auto` | `{key, density?:2, ids?:[...]}`; shelf pack with one pixel gutters; texels/model unit. Atomic failure if atlas is full. Selection requires a dedicated texture unused by unselected faces. Repaint after packing. |
 | `render` | See below; individual image paths and clipping diagnostics. |
@@ -90,7 +91,7 @@ shown; optional fields and defaults are described inline. IDs are stable across 
 | `history.undo` | `{}`; undo last edit including texture pixels; snapshots do not consume undo steps. |
 | `history.restore` | `{name}`; restore checkpoint, itself undoable. |
 | `history.diff` | `{a:snapshot_name,b:snapshot_name_or_"current"}`; values before/after; textures represented by SHA-256 digests. |
-| `export` | `{path:directory}`; `model.json` and `textures/*.png`. Rewrites texture resource references for the bundle. |
+| `export` | `{path:directory}`; `model.json` and custom `textures/*.png`. Rewrites custom references for the bundle; vanilla references stay unchanged, with no vanilla PNGs. |
 
 All mutations return `{result,diff,validation}`. Invalid edits and failed batches roll back.
 The canonical `project.json` contains current model, PNG bytes, undo states and snapshots;
@@ -153,6 +154,57 @@ Vanilla export drops editor IDs/groups; models with vanilla builtin/inaccessible
 be resolved to explicit cuboids first. Bundle texture names must be installed under matching
 resource-pack namespace paths (or rewritten by your pack pipeline). `.bbmodel` export is not
 implemented; Blockbench can import the vanilla JSON/PNG bundle.
+
+## Vanilla materials
+
+Choose semantic names from [materials.json](materials.json), for example
+`wood.stripped_oak_log`, `metal.gold_block`, `stone.polished_blackstone`,
+`gem.diamond_block`, or `cloth.brown_wool`. `material.apply` accepts catalog
+names; imports also accept `minecraft:block/...` and `minecraft:item/...`.
+Faces use `#slot` references to the model's `textures` map as usual.
+
+```sh
+python3 tools/model-forge/forge.py --project /tmp/hammer call material.apply \
+  '{"ids":["e0001"],"material":"wood.stripped_dark_oak_log","seed":42}'
+```
+
+One local model unit spans one vanilla texel, including fractional units. We keep
+this density before display transforms: scaling the entire held item scales its
+material texels along with its geometry, as for vanilla items. We do not increase
+density to compensate for small GUI/hand/ground scales. Element `rescale` similarly
+scales its texels. Log side grain follows the longest local element axis; end faces
+use the corresponding log top. Planks follow their horizontal grain. Cuboids over
+16 units split into <=16-unit cells, omit internal faces, retain rotation/group and
+interpolate unselected external UVs (including quarter turns and mirrors). The
+first cell retains the ID, others use `_tileN`; inspect returned IDs before editing
+again. Crop offsets depend on seed, original ID, cell and face, never global RNG.
+Splits can introduce visible pattern seams; inspect and adjust `uv.set` if needed.
+
+Only render/board/preview and explicit texture inspection read Mojang pixels.
+Set `MODEL_FORGE_CLIENT_JAR` to a local client jar (default:
+`/tmp/astera-hud-client-26.3.jar`). A missing jar produces an actionable error;
+import, scene, measure, validation, history and export still work without it.
+Static 16x16 PNGs are extracted on demand into ignored `tools/model-forge/.cache/`,
+keyed by jar path/size/mtime. They never enter project images, history, exports or
+`content/`. Do not commit the cache, copy Mojang PNGs into a pack, or publish an
+HTML viewer with embedded vanilla pixels. Preview boards may show the materials.
+Tint-dependent resources and known 26.3 animations (`animated-textures.json`) are
+excluded without a jar; additional animations/non-16x16 resources are rejected
+when resolving the client jar. Custom painting is reserved for emblems, glow lines
+and runes; mix its atlas with vanilla slots in one model. Vanilla slots are read-only.
+
+The pack builder copies model JSON verbatim. `make dev-pack` refreshes the pack
+hash after a rebuild; it does not rebuild models or resolve PNG references. In the
+26.3 client, `MaterialBaker.bake` tries the item atlas then the block atlas, but
+`CuboidItemModelWrapper.validateAtlasUsage` rejects models spanning both atlases.
+Install the custom atlas of a block-material model under `astera:blocks/...` /
+`content/textures/blocks/`, covered by the builder's existing block atlas source.
+For vanilla item materials use `astera:items/...`. Avoid mixing native block and
+item sprites in one model: duplicate registration produces 26.3 warnings and is
+scheduled for rejection by a future client. Do not duplicate vanilla atlas sources. Forge validation warns about recognized
+block/item atlas mixtures; unknown installation namespaces still require client review. The runtime
+`ItemModelCatalog` / `PaperItemMaterializer` select `astera:<id>`; texture slots
+remain a client concern. See [pilot evidence and reproduction](batches/vanilla-material/review.md).
 
 ## Reproduce the recorded session
 

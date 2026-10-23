@@ -1,0 +1,20 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer. Same launcher/runtime as vfx-shot; no server, Docker, Gradle or tests. Native screenshot, no image editing.",
+  "item": "minecraft:iron_axe[minecraft:item_model=\"astera:verdict-hammer\"]",
+  "resourcePack": "Minimal capture pack with exact authored model, Astera rune PNG and existing builder blocks/ directory source. No vanilla PNG files.",
+  "modelElements": 162,
+  "sha256": {
+    "content/models/items/verdict-hammer.model.json": "7e471f573e7a95a310c1f8da412128d0eb1f19ae7cc3b0e2cc3ea9a2115e97aa",
+    "content/textures/blocks/verdict-hammer-runes.png": "5e5449ee208db9bd1df5151f91e57216c5225e9eed49810704b757084fda4885",
+    "tools/model-forge/batches/vanilla-material/before.png": "552eda1f37be0a52158692abd298e5baef049473ec02d3f568b609fece0de6f2",
+    "tools/model-forge/batches/vanilla-material/after.png": "63b1dcad21dd3ba0bc8d968844384b434c21d9087af98c58751e24bab4f67ccb",
+    "tools/model-forge/batches/vanilla-material/client.png": "3cf5cf5b85f0c1f90c3268182bf9caa3a9b621fb0db113e79eacbc5a27339f7e"
+  },
+  "remainingRisks": [
+    "Production pack build and integration checks deferred to manager CI.",
+    "Offline Forge lighting/camera and approximate hand differ from real first-person view.",
+    "Native block/item sprites must not span atlases in the same 26.3 cuboid model; custom atlas must share the material atlas.",
+    "Pre-existing overlapping bevel cuboids and tiny ornament gaps retained with silhouette."
+  ]
+}

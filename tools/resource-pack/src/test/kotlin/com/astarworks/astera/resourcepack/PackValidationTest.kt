@@ -40,6 +40,25 @@ class PackValidationTest {
     }
 
     @Test
+    fun `vanilla material pilot ships verbatim references without vanilla pixels`() {
+        val path = "assets/astera/models/items/verdict-hammer.json"
+        assertThat(files.getValue(path)).isEqualTo(
+            java.nio.file.Files.readAllBytes(contentDir.resolve("models/items/verdict-hammer.model.json")),
+        )
+        val refs = json(path).path("textures").elements().asSequence().map { it.asText() }.toList()
+        assertThat(refs).anyMatch { it.startsWith("minecraft:block/") }
+        for (ref in refs.filter { it.startsWith("minecraft:") }) {
+            assertThat(files).doesNotContainKey("assets/minecraft/textures/${ref.removePrefix("minecraft:")}.png")
+        }
+        assertThat(refs).contains("astera:blocks/verdict-hammer-runes")
+        val blockSources = json("assets/minecraft/atlases/blocks.json").path("sources")
+            .map { it.path("source").asText() }
+        assertThat(blockSources).contains("blocks")
+        assertThat(json("assets/astera/items/verdict-hammer.json").path("model").path("model").asText())
+            .isEqualTo("astera:items/verdict-hammer")
+    }
+
+    @Test
     fun `every generated model has an item definition and every definition points at a packed model`() {
         val generated = files.keys.filter { it.startsWith("assets/astera/models/generated/items/") }
             .map { it.substringAfterLast('/').removeSuffix(".json") }
