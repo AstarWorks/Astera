@@ -70,7 +70,7 @@ elements:
 - id: petal-1
   kind:
     type: sprite
-    sprite: procuration-petal
+    sprite: procuration-petal-blue
     frame_ticks: 1
     loop: false
   billboard: center
@@ -88,8 +88,8 @@ elements:
     - 0
     - 73
     scale:
-    - 0.073
-    - 0.0657
+    - 0.08394999999999998
+    - 0.07555499999999998
     - 1
   - t: 6
     translate:
@@ -101,8 +101,8 @@ elements:
     - 0
     - 128
     scale:
-    - 0.073
-    - 0.0657
+    - 0.08394999999999998
+    - 0.07555499999999998
     - 1
   - t: 16
     translate:
@@ -114,8 +114,8 @@ elements:
     - 0
     - 203
     scale:
-    - 0.0584
-    - 0.052559999999999996
+    - 0.06716
+    - 0.06044399999999999
     - 1
   - t: 20
     translate:
@@ -127,7 +127,7 @@ elements:
     - 0
     - 243
     scale:
-    - 0
+    - 0.0
     - 0.0
     - 1
 - id: petal-2
@@ -259,7 +259,7 @@ elements:
 - id: petal-4
   kind:
     type: sprite
-    sprite: procuration-petal
+    sprite: procuration-petal-blue
     frame_ticks: 1
     loop: false
   billboard: center
@@ -277,8 +277,8 @@ elements:
     - 0
     - 292
     scale:
-    - 0.055
-    - 0.049499999999999995
+    - 0.06325
+    - 0.05692499999999999
     - 1
   - t: 6
     translate:
@@ -290,8 +290,8 @@ elements:
     - 0
     - 347
     scale:
-    - 0.055
-    - 0.049499999999999995
+    - 0.06325
+    - 0.05692499999999999
     - 1
   - t: 13
     translate:
@@ -303,8 +303,8 @@ elements:
     - 0
     - 422
     scale:
-    - 0.044000000000000004
-    - 0.0396
+    - 0.0506
+    - 0.04554
     - 1
   - t: 17
     translate:
@@ -316,7 +316,7 @@ elements:
     - 0
     - 462
     scale:
-    - 0
+    - 0.0
     - 0.0
     - 1
 - id: petal-5
@@ -448,7 +448,7 @@ elements:
 - id: petal-7
   kind:
     type: sprite
-    sprite: procuration-petal
+    sprite: procuration-petal-blue
     frame_ticks: 1
     loop: false
   billboard: center
@@ -466,8 +466,8 @@ elements:
     - 0
     - 151
     scale:
-    - 0.10899999999999999
-    - 0.09809999999999998
+    - 0.12534999999999996
+    - 0.11281499999999997
     - 1
   - t: 6
     translate:
@@ -479,8 +479,8 @@ elements:
     - 0
     - 206
     scale:
-    - 0.10899999999999999
-    - 0.09809999999999998
+    - 0.12534999999999996
+    - 0.11281499999999997
     - 1
   - t: 22
     translate:
@@ -492,8 +492,8 @@ elements:
     - 0
     - 281
     scale:
-    - 0.0872
-    - 0.07848
+    - 0.10028
+    - 0.09025199999999999
     - 1
   - t: 26
     translate:
@@ -505,7 +505,7 @@ elements:
     - 0
     - 321
     scale:
-    - 0
+    - 0.0
     - 0.0
     - 1
 - id: petal-8
@@ -637,7 +637,7 @@ elements:
 - id: petal-10
   kind:
     type: sprite
-    sprite: procuration-petal
+    sprite: procuration-petal-blue
     frame_ticks: 1
     loop: false
   billboard: center
@@ -655,8 +655,8 @@ elements:
     - 0
     - 10
     scale:
-    - 0.091
-    - 0.08189999999999999
+    - 0.10464999999999999
+    - 0.09418499999999998
     - 1
   - t: 6
     translate:
@@ -668,8 +668,8 @@ elements:
     - 0
     - 65
     scale:
-    - 0.091
-    - 0.08189999999999999
+    - 0.10464999999999999
+    - 0.09418499999999998
     - 1
   - t: 19
     translate:
@@ -681,8 +681,8 @@ elements:
     - 0
     - 140
     scale:
-    - 0.0728
-    - 0.06552
+    - 0.08372
+    - 0.07534799999999998
     - 1
   - t: 23
     translate:
@@ -694,7 +694,7 @@ elements:
     - 0
     - 180
     scale:
-    - 0
+    - 0.0
     - 0.0
     - 1
 - id: petal-11
