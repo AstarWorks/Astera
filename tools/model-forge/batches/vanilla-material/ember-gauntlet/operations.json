@@ -1,0 +1,4699 @@
+[
+  {
+    "op": "import",
+    "args": {
+      "path": "/tmp/ember-gauntlet-before.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 290,
+        "coplanar_contact_possible_zfight": 20,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "scene.get",
+    "args": {
+      "fields": [
+        "id",
+        "name",
+        "faces"
+      ]
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "before"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 290,
+        "coplanar_contact_possible_zfight": 20,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "before"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0001"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0002"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0003"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0004"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0005"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0006"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0007"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0008"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0009"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0010"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0011"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0012"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0013"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0014"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0015"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0016"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0017"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0018"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0019"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0020"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0021"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0022"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0023"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0024"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0025"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0026"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0027"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0028"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0029"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0030"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0031"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0032"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0033"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0034"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0035"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0036"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0037"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0038"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0039"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0040"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0041"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0042"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0043"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0044"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0045"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0046"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0047"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0048"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0049"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0050"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0051"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0052"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0053"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0054"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0055"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0056"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0057"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0058"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0059"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0060"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0061"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0062"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0063"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0064"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0065"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0066"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0067"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0068"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0069"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0070"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0071"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0072"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0073"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0074"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0075"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0076"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0077"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0078"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0079"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0080"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0081"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0082"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0083"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0084"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0085"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0086"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0087"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0088"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0089"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0090"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0091"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0092"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0093"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0094"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0095"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0096"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0097"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0098"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0099"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0100"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0101"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0102"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0103"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0104"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0105"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0106"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0107"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0108"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0109"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0110"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0111"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0112"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0113"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0114"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0115"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0116"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0117"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0118"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0119"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0120"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0121"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0122"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0123"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0124"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0125"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0126"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0127"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0128"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0129"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0130"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0131"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0132"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0133"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0134"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0135"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0136"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0137"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0138"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0139"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0140"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0141"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0142"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0143"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0144"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0145"
+    },
+    "validation": null
+  },
+  {
+    "op": "batch",
+    "args": {
+      "ops": [
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0001",
+              "e0002",
+              "e0003",
+              "e0004",
+              "e0005",
+              "e0006",
+              "e0007",
+              "e0008",
+              "e0033",
+              "e0034",
+              "e0035",
+              "e0036",
+              "e0037",
+              "e0038",
+              "e0039",
+              "e0040",
+              "e0041",
+              "e0042",
+              "e0043",
+              "e0044",
+              "e0045",
+              "e0046",
+              "e0047",
+              "e0048",
+              "e0049",
+              "e0079",
+              "e0081",
+              "e0083",
+              "e0085",
+              "e0087",
+              "e0099",
+              "e0101"
+            ],
+            "material": "metal.anvil",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0009",
+              "e0010",
+              "e0011",
+              "e0012",
+              "e0013",
+              "e0014",
+              "e0015",
+              "e0016",
+              "e0025",
+              "e0026",
+              "e0027",
+              "e0028",
+              "e0029",
+              "e0030",
+              "e0031",
+              "e0032",
+              "e0055",
+              "e0056",
+              "e0062",
+              "e0063",
+              "e0069",
+              "e0070",
+              "e0076",
+              "e0077",
+              "e0093",
+              "e0094",
+              "e0104",
+              "e0105",
+              "e0106",
+              "e0107",
+              "e0108",
+              "e0109",
+              "e0110",
+              "e0111",
+              "e0112",
+              "e0113",
+              "e0115",
+              "e0116",
+              "e0117",
+              "e0118",
+              "e0119",
+              "e0120",
+              "e0121",
+              "e0122",
+              "e0123",
+              "e0124",
+              "e0125",
+              "e0126",
+              "e0127",
+              "e0128"
+            ],
+            "material": "metal.copper_block",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0017",
+              "e0018",
+              "e0019",
+              "e0020",
+              "e0021",
+              "e0022",
+              "e0023",
+              "e0024",
+              "e0053",
+              "e0054",
+              "e0060",
+              "e0061",
+              "e0067",
+              "e0068",
+              "e0074",
+              "e0075",
+              "e0095",
+              "e0096",
+              "e0097",
+              "e0098",
+              "e0100",
+              "e0102",
+              "e0129",
+              "e0130",
+              "e0131",
+              "e0132",
+              "e0144",
+              "e0145"
+            ],
+            "material": "metal.iron_block",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "texture.create",
+          "args": {
+            "key": "embers",
+            "size": [
+              16,
+              16
+            ],
+            "color": "#f2670d"
+          }
+        },
+        {
+          "op": "texture.paint",
+          "args": {
+            "key": "embers",
+            "ops": [
+              {
+                "type": "rect",
+                "box": [
+                  8,
+                  0,
+                  15,
+                  15
+                ],
+                "color": "#fff6bd"
+              }
+            ]
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0050",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0050",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0050",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0050",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0050",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0050",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0051",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0051",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0051",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0051",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0051",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0051",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0052",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0052",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0052",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0052",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0052",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0052",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0057",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0057",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0057",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0057",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0057",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0057",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0058",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0058",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0058",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0058",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0058",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0058",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0059",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0059",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0059",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0059",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0059",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0059",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0064",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0064",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0064",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0064",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0064",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0064",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0065",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0065",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0065",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0065",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0065",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0065",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0066",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0066",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0066",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0066",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0066",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0066",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0071",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0071",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0071",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0071",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0071",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0071",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0072",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0072",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0072",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0072",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0072",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0072",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0073",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0073",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0073",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0073",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0073",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0073",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0078",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0078",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0078",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0078",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0078",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0078",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0080",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0080",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0080",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0080",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0080",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0080",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0082",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0082",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0082",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0082",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0082",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0082",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0084",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0084",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0084",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0084",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0084",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0084",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0086",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0086",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0086",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0086",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0086",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0086",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0088",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0088",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0088",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0088",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0088",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0088",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0089",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0089",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0089",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0089",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0089",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0089",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0090",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0090",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0090",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0090",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0090",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0090",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0091",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0091",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0091",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0091",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0091",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0091",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0092",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0092",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0092",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0092",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0092",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0092",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0103",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0103",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0103",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0103",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0103",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0103",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0114",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0114",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0114",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0114",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0114",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0114",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                0,
+                0,
+                4,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0133",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0133",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0133",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0133",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0133",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0133",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0134",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0134",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0134",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0134",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0134",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0134",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0135",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0135",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0135",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0135",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0135",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0135",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0136",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0136",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0136",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0136",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0136",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0136",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0137",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0137",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0137",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0137",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0137",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0137",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0138",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0138",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0138",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0138",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0138",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0138",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0139",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0139",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0139",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0139",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0139",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0139",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0140",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0140",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0140",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0140",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0140",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0140",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0141",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0141",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0141",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0141",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0141",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0141",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0142",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0142",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0142",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0142",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0142",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0142",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0143",
+            "face": "north",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0143",
+            "face": "south",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0143",
+            "face": "east",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0143",
+            "face": "west",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0143",
+            "face": "up",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0143",
+            "face": "down",
+            "value": {
+              "texture": "#embers",
+              "uv": [
+                8,
+                0,
+                12,
+                4
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "mixed_texture_atlases": 1,
+        "overlap_aabb": 290,
+        "coplanar_contact_possible_zfight": 20,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "import",
+    "args": {
+      "path": "/IdeaProjects/Astera/.claude/worktrees/vm-ember-gauntlet/content/models/items/ember-gauntlet.model.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 290,
+        "coplanar_contact_possible_zfight": 20,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "after"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 290,
+        "coplanar_contact_possible_zfight": 20,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "gui",
+        "firstperson_righthand",
+        "firstperson_lefthand",
+        "thirdperson_righthand",
+        "thirdperson_lefthand",
+        "ground",
+        "fixed"
+      ],
+      "resolution": 256,
+      "name": "contexts"
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.diff",
+    "args": {
+      "a": "before",
+      "b": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "export",
+    "args": {
+      "path": "/tmp/ember-gauntlet-forge-final/export"
+    },
+    "validation": null
+  }
+]
