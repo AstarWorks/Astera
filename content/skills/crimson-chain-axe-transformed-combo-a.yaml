@@ -515,3 +515,33 @@ phases:
       delay_ticks:
         type: literal
         value: 64
+  - type: play_animation
+    targets:
+      type: caster
+    animation: crouch
+    ticks:
+      type: literal
+      value: 10
+    delay_ticks:
+      type: literal
+      value: 37
+  - type: play_animation
+    targets:
+      type: caster
+    animation: crouch
+    ticks:
+      type: literal
+      value: 10
+    delay_ticks:
+      type: literal
+      value: 59
+  - type: play_animation
+    targets:
+      type: caster
+    animation: crouch
+    ticks:
+      type: literal
+      value: 27
+    delay_ticks:
+      type: literal
+      value: 76

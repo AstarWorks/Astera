@@ -452,3 +452,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Source f2440 shows the elevated contact in-frame; round57 close frame072 cropped the target's head above the top. Changed only comparison camera key65 from pos(3,1.8,3)/target(3,1.1,0) to pos(2,2.8,4)/target(2,2,0). All skill/target-motion data remains round57.
 - Actual195-frame capture: lateness4ms, identical maximum1. Close frames070/071 now contain the airborne head and grounded caster;072 has already returned wide. Do not assume an old frame number always has the same cut boundary. Sampling759 observations peaks59. Camera hash and evidence under round58.
 - This improves comparison visibility, not gameplay camera or exact source framing. Body scale/pose, chain height, light and other fidelity gaps remain failed. Existing custom player-animation gateway currently accepts only crouch; arm swing has a separate gateway method and is not exposed by play_animation.
+
+### Round 59: lower caster posture during grounded swings
+
+- Source f2407/2440/2465 has a low/leaning caster through contacts. Applied existing crouch animation at37..47,59..69,76..103, ending before ascent. This is only a vanilla height/lean approximation; no arm extension or torso twist was added.
+- ContentLint and runtime reload passed; deployed skill bytes checked. Actual195frames, lateness3ms, identical maximum1. Frames050/071/086 show crouch;115 shows normal stance during ascent. Sampling766 observations peaks59. Evidence under round59; summary data/runtime-review/crimson-crouch-round59.json.
+- Fidelity failed: arms still hang downward, chain origin does not follow a matching hand pose, airborne contact/chain height remains wrong, source body/claw/cape form, light/camera/hit semantics and normal form/input remain unfinished. Do not label crouch as the original full pose.
