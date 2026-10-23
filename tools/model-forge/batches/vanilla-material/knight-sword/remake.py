@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Reproduce knight-sword through Forge operations (no test runner/server/build)."""
 import argparse
+import copy
 import json
 from pathlib import Path
 import shutil
@@ -47,18 +48,26 @@ def main():
     board_args = {'resolution':384, 'name':'before'}
     before = call('board', board_args)
     shutil.copyfile(before['path'], a.evidence/'before.png')
+    # Palette reference is historical; geometry and display always come from current source.
+    call('import', {'path':str(ROOT/'content/models/items/knight-sword.model.json')})
+    original = copy.deepcopy(p.vanilla())
+    original_display = copy.deepcopy(p.model['display'])
+    call('history.snapshot', {'name':'head'})
     ops = []
     groups = {}
     for e in p.model['elements']:
         name = e.get('name','')
-        if name == 'leather grip': material = 'cloth.brown_wool'
-        elif name == 'leather diagonal binding': material = 'cloth.black_wool'
-        elif name in ('dark inset fuller', 'guard rivet bezel'): material = 'stone.polished_blackstone'
-        elif name in ('ricasso', 'blade web', 'long edge bevel', 'point taper', 'fuller silver lip', 'edge nick highlight'): material = 'metal.iron_block'
-        else: material = 'metal.gold_block'
-        groups.setdefault(material, []).append(e['id'])
-    for material, ids in groups.items():
-        ops.append({'op':'material.apply', 'args':{'ids':ids,'material':material,'seed':20261023}})
+        if name == 'leather grip': material, tint = 'cloth.white_wool', '#602f21'
+        elif name == 'leather diagonal binding': material, tint = 'cloth.white_wool', '#301d17'
+        elif name == 'dark inset fuller': material, tint = 'metal.iron_block', '#8196a6'
+        elif name == 'guard rivet bezel': material, tint = 'metal.iron_block', '#c08532'
+        elif name in ('ricasso', 'blade web', 'point taper'): material, tint = 'metal.iron_block', '#b0c7ce'
+        elif name in ('long edge bevel', 'fuller silver lip', 'edge nick highlight'): material, tint = 'metal.iron_block', '#e0f5f6'
+        elif name in ('guard arm', 'guard center', 'wheel middle', 'collar'): material, tint = 'metal.iron_block', '#e9af38'
+        else: material, tint = 'metal.iron_block', '#ffda71'
+        groups.setdefault((material, tint), []).append(e['id'])
+    for (material, tint), ids in groups.items():
+        ops.append({'op':'material.apply', 'args':{'ids':ids,'material':material,'tint':tint,'seed':20261024}})
     call('batch', {'ops':ops})
     # Install references, retaining only used slots. Re-import records this packaging step in history.
     model = p.vanilla()
@@ -68,15 +77,38 @@ def main():
     target = ROOT/'content/models/items/knight-sword.model.json'
     target.write_text(json.dumps(model,indent=2)+'\n')
     if model['display'] != original_display: raise ValueError('Display transforms changed')
+    geometry = lambda m: [{k:v for k,v in e.items() if k != 'faces'} for e in m['elements']]
+    assert geometry(model) == geometry(original), 'HEAD geometry changed'
+    assert [[*e['faces']] for e in model['elements']] == [[*e['faces']] for e in original['elements']]
+    assert len(model['astera_tints']) == len(set(model['astera_tints'])) == 8
+
     call('import', {'path':str(target)})
     call('history.snapshot', {'name':'after'})
     after = call('board', {**board_args,'name':'after'})
     shutil.copyfile(after['path'], a.evidence/'after.png')
     contexts = call('board', {'views':['gui','firstperson_righthand','firstperson_lefthand','thirdperson_righthand','thirdperson_lefthand','ground','fixed'],'resolution':256,'name':'contexts'})
     shutil.copyfile(contexts['path'], a.evidence/'contexts.png')
+    inventory = call('render', {'views':['gui'],'resolution':64,'name':'inventory'})
+    with Image.open(inventory['images'][0]['path']) as im:
+        sheet = Image.new('RGB', (450,175), '#202b39')
+        draw = ImageDraw.Draw(sheet)
+        for i, size in enumerate((16,32,64)):
+            thumb = im.resize((size,size), Image.Resampling.NEAREST)
+            sheet.paste(thumb.resize((128,128), Image.Resampling.NEAREST), (i*150,25))
+            draw.text((i*150,3), f'{size}px', fill='white')
+        sheet.save(a.evidence/'inventory.png')
     call('measure'); call('validate')
     call('history.diff', {'a':'before','b':'after'})
-    call('export', {'path':str(a.project/'export')})
+    exported = call('export', {'path':str(a.project/'export')})
+    roundtrip = Project(a.project/'roundtrip')
+    roundtrip.call('import', {'path':exported['path']})
+    assert roundtrip.vanilla() == p.vanilla()
+    assert not list((a.project/'export/textures').glob('*.png'))
+    (a.evidence/'verification.json').write_text(json.dumps({
+        'headElements':len(original['elements']), 'finalElements':len(model['elements']),
+        'headGeometryExactlyPreserved':True, 'headDisplayExactlyPreserved':True,
+        'palette':model['astera_tints'], 'exportImportIdentical':True, 'exportedPngs':0,
+        'validationErrors':p.call('validate')['errors']}, indent=2)+'\n')
     # Existing client-context renderer and orbit reviewer; keep embedded vanilla pixels local.
     context = a.project/'contexts'
     viewer = a.project/'viewer'

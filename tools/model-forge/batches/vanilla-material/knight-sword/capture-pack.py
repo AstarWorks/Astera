@@ -15,9 +15,12 @@ def main():
     if a.out.exists(): raise ValueError('Use a fresh resource-pack directory')
     source = ROOT/'content/models/items/knight-sword.model.json'
     model = json.loads(source.read_text())
+    palette = model.pop('astera_tints', [])
+    definition = {'type':'minecraft:model','model':'astera:items/knight-sword'}
+    if palette: definition['tints'] = [{'type':'minecraft:constant','value':rgb} for rgb in palette]
     files = {
         'pack.mcmeta':{'pack':{'description':'Knight sword vanilla material capture','min_format':[97,0],'max_format':[97,1]}},
-        'assets/astera/items/knight-sword.json':{'model':{'type':'minecraft:model','model':'astera:items/knight-sword'}},
+        'assets/astera/items/knight-sword.json':{'model':definition},
         'assets/astera/models/items/knight-sword.json':model,
         'assets/minecraft/atlases/blocks.json':{'sources':[{'type':'directory','source':'blocks','prefix':'blocks/'}]},
     }
