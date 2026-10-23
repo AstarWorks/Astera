@@ -215,3 +215,25 @@ LOW
 - Residual: vanilla arm bob. Held item drifts 50.4 (f58) -> 47.2 deg (f64, length 1.02) = bobArms xRot +0.05 rad (predicted 47.9 / 0.998); +-3 deg, not reachable from the rig. Measurement image: evidence/animator/r8/r5-side-handover-grid.png (frames 57, 58, 64; 10 px grid). Per-key: evidence/animator/r8/per-key-r8.txt.
 - Emitters unchanged: tip_ember_1 starts at key 3 (still the held pose) - one static tick of embers before the pull-back; vfx role may move it to 4.
 - Preview (vfx-preview --freeze 7:2 --freeze 31:2, planner accepted): evidence/animator/r8/strip-start-side.png, strip-end-side.png, strip-start-eye.png, strip-top.png, all opened. Real client NOT run (by instruction).
+
+## Round 9 (real-client r6: hit 1 reads smaller than r5; contact moved to tick 8)
+- Director r6 `side-h1-close`: f4-f5 still the held pose, f6 ~vertical, f7 contact. The single pull-back key (key 4, theta 100) was never on screen; the client interpolation skipped it. The apex needs two keys.
+- Timing (manager decision): hit-1 contact = key 7, displayed at tick 8. `play_vfx` freeze = `[{at: 8, ticks: 2}, {at: 31, ticks: 2}]`. Key -> tick: l+1 (l<=7), l+3 (8..28), l+5 (29+). Hit 2 keys/ticks unchanged (contact key 28 = tick 31).
+- Deviation: only keys 0-1 hold the held pose (the brief said 0-3). Keys 0-3 held leaves 3 keys for lift + 2-frame apex + chop: lift from held to >= 43 deg behind vertical is >= 82 deg (2 chunks at <= 60), a 2-key apex, and a 150+ deg chop to the floor contact needs 3 chunks. That is 6 chunks, so motion starts at key 2. The r6 side-start strip shows the rig first drawn at f2 (= key 0); keys 0-1 held still cover the vanilla -> rig switch, and every chunk after that is <= 59 deg, so there is no snap.
+- Hit 1 keys (in-plane theta in the 22 deg-tilted chop plane; side = angle behind vertical as seen from the side camera, + = behind):
+
+| key | tick | theta | tip (phi, pitch) | side | tip y | chunk |
+|---|---|---|---|---|---|---|
+| 0-1 | 1-2 | held | 0, 52 | -38 | 2.74 | 0 |
+| 2 | 3 | 95 | 257, 67 | +5 | 3.08 | 48.1 |
+| 3 | 4 | 132 | 203, 44 | +44 | 2.50 | 37.0 |
+| 4 | 5 | 145 (apex) | 195, 32 | +57 | 2.10 | 13.0 |
+| 5 | 6 | 100 | 245, 66 | +11 | 3.06 | 45.0 |
+| 6 | 7 | 43 | 341, 39 | -49 | 2.35 | 57.0 |
+| 7 | 8-10 | -16.2 contact | 6, -15 | -105 | 0.12 | 59.2 |
+| 8-18 | 11-21 | r8 keys 7-17 (drag left/back, overshoot) | | | | <= 58.9 |
+| 19-20 | 22-23 | REST | 180, -15 | | 0.13 | |
+
+- Expected on-screen arc from the side camera: apex 44-57 deg behind vertical (r5 ~43, r6 ~23), apex -> contact ~160 deg (r6 ~95-110, r5 ~140). Lift eases out (48/37/13), chop eases in (45/57/59). With the ~1-2 tick client lag the apex should be on screen at ~f5-f7 and the contact at f8-f10.
+- Emitters: tip_ember_1 3-15, tip_glint_1 5-11 (were 4-14 / 4-10).
+- Preview: `vfx-preview bastion-s1-rig --view side|top --freeze 8:2 --freeze 31:2`, the planner accepted it. Strips (both opened): `evidence/animator/r9/strip-hit1-side.png` (f0-2 held, f3 vertical, f4-5 blade behind the shoulder, f6-7 chop, f8-10 contact frozen, f11+ drag), `strip-hit1-top.png`. Per-key table: `evidence/animator/r9/per-key-r9.txt`. Real client not run (by instruction).

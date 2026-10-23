@@ -1,17 +1,18 @@
 # S1 sword: ONE rig (one set of sword displays) for the whole skill: hold -> swing 1 -> hold -> swing 2 -> hold. No hand-over, no duplicate sword.
 # Play at skill tick 0 with follow: true (rides the caster through the dashes), duration 58 (rig visible through tick 57; hide_held_item 57 ticks with NO delay: the runtime stages the rig spawn (view_range 0 until age 1) and hides the held item in the same tick, 78dfd0f4),
-# play_vfx freeze: [{ at: 7, ticks: 2 }, { at: 31, ticks: 2 }]  (effect ticks; the hit_stop of both contacts).
-# Rig key time l is displayed at effect tick l + 1 (+ frozen ticks before it). Hit 1: e_k (e4 = contact) -> key k+2, contact displayed at effect tick 7.
+# play_vfx freeze: [{ at: 8, ticks: 2 }, { at: 31, ticks: 2 }]  (effect ticks; the hit_stop of both contacts; r9: hit 1 contact moved 7 -> 8).
+# Rig key time l is displayed at effect tick l + 1 (+ frozen ticks before it); the real client shows it ~1-2 ticks later (r6/r8). Hit 1 contact = key 7, displayed at effect tick 8.
 # Round 6 (founder: the weapon barely moved): both hits are BIG arcs. Hit 1 = overhead chop in a vertical plane tilted 22 deg (top leans to the caster's right):
-# r8: keys 0-3 (ticks 1-4) = the held item pose exactly (the client shows the rig 2-3 ticks late), pull-back 52 deg to in-plane theta 100 (key 4, tick 5), chop 116 deg in 2 ticks (keys 4-6, 58/tick), contact held ticks 7-8 (r7: in-plane tip phi 6 pitch -15, tip y 0.11),
-# then a floor-level drag to the left and round behind with overshoot (keys 7-17), REST by key 18. Hit 2 = low horizontal ring (plane lowest at phi 60, highest at 240, 14 deg tilt, centre pitch -8):
+# r9: keys 0-1 (ticks 1-2) = the held item pose exactly (the rig first shows in the client at ~f2 = key 0), lift past vertical keys 2-4 (in-plane theta 95/132/145, chunks 48/37/13 = ease-out into the apex;
+#   side-camera angle behind vertical +5/+44/+57 deg, apex on keys 3-4 = ticks 4-5), chop 161 deg in 3 ticks (keys 4-7, 45/57/59 = ease-in), contact key 7 held ticks 8-10 (tip phi 6 pitch -15, tip y 0.12),
+# then a floor-level drag to the left and round behind with overshoot (keys 8-18, = r8 keys 7-17 shifted +1), REST by key 19 (one REST hold key 20). Hit 2 = low horizontal ring (plane lowest at phi 60, highest at 240, 14 deg tilt, centre pitch -8):
 # pull-back keys 21-22, keys 23-28 ON the plane (r7, vfx ring), 220 deg in 5 ticks, contact key 28 = tick 31 (held 31-32; pitch clamped to -15 where the plane dips under the floor: phi 0-110), follow-through round the left/back with overshoot, REST by key 39.
 # Face = plane normal in the chop (edge leads), ~28 deg off vertical in the ring (face visible from the side camera), rolls back to the sideways REST face.
 # Round 7: pivot = the held item's fist [-0.348, 0.773, 0.293] (handover_s1.py), so REST / floor keys use pitch -15 (tip y 0.11; -20 would sink under the floor).
 # Keys 40-50 (r8: was 42-52) lift OUTSIDE the first-person frustum: REST -> up the caster's right side (slerp, keys 40-46, tip right-up phi 270 pitch 52 at key 46 = tick 51)
 # -> horizontal wiper in to the held pose (keys 47-50, ticks 52-55); keys 50-52 = held item exactly (0.0 deg, grip offset 0), held 2 ticks because the real client shows key l about 2 ticks late (r5 side f57 = key 50). FP coverage <= 6% (perspective ray-cast).
-# Key -> tick: l+1 (l<=6), l+3 (7..28), l+5 (29+).
-# Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt (keys 0-6 and 40-52 changed in r8: evidence/animator/r8/per-key-r8.txt).
+# Key -> tick: l+1 (l<=7), l+3 (8..28), l+5 (29+).
+# Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt (keys 0-6 and 40-52 changed in r8: evidence/animator/r8/per-key-r8.txt; keys 0-20 in r9: evidence/animator/r9/per-key-r9.txt).
 # Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
 # Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
 # Parts: verbatim deliver/rig-parts.yaml (22 parts, round 7: + guard_plate, hilt_flare). Face normal = local Z, edges = +-X, blade = +Y. fx / sprites live in bastion-s1-fx-high/low.yaml.
@@ -53,23 +54,23 @@ rigs:
   swing:
   - { t: 0, rotate: [-336.4, -47.8, -59.4] }
   - { t: 1, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 2, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 3, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 4, rotate: [-255.2, -47.0, 10.9] }
-  - { t: 5, rotate: [-328.9, -29.8, -39.5] }
-  - { t: 6, rotate: [-371.0, 12.0, -46.8] }
-  - { t: 7, rotate: [-404.9, 0.5, -89.5] }
-  - { t: 8, rotate: [-433.6, -4.2, -142.2] }
-  - { t: 9, rotate: [-465.5, -4.3, -185.4] }
-  - { t: 10, rotate: [-495.9, 1.3, -210.7] }
-  - { t: 11, rotate: [-522.7, 9.7, -234.8] }
-  - { t: 12, rotate: [-540.4, 16.1, -254.7] }
-  - { t: 13, rotate: [-549.9, 19.5, -270.4] }
-  - { t: 14, rotate: [-550.8, 19.9, -280.4] }
-  - { t: 15, rotate: [-547.0, 18.5, -286.6] }
-  - { t: 16, rotate: [-542.3, 16.8, -289.2] }
-  - { t: 17, rotate: [-537.6, 15.1, -290.2] }
-  - { t: 18, rotate: [-534.8, 14.1, -290.6] }
+  - { t: 2, rotate: [-262.6, -47.7, 5.5] }
+  - { t: 3, rotate: [-216.6, -33.5, 36.6] }
+  - { t: 4, rotate: [-205.1, -25.2, 42.2] }
+  - { t: 5, rotate: [-255.2, -47.0, 10.9] }
+  - { t: 6, rotate: [-328.0, -30.4, -39.1] }
+  - { t: 7, rotate: [-371.0, 12.0, -46.8] }
+  - { t: 8, rotate: [-404.9, 0.5, -89.5] }
+  - { t: 9, rotate: [-433.6, -4.2, -142.2] }
+  - { t: 10, rotate: [-465.5, -4.3, -185.4] }
+  - { t: 11, rotate: [-495.9, 1.3, -210.7] }
+  - { t: 12, rotate: [-522.7, 9.7, -234.8] }
+  - { t: 13, rotate: [-540.4, 16.1, -254.7] }
+  - { t: 14, rotate: [-549.9, 19.5, -270.4] }
+  - { t: 15, rotate: [-550.8, 19.9, -280.4] }
+  - { t: 16, rotate: [-547.0, 18.5, -286.6] }
+  - { t: 17, rotate: [-542.3, 16.8, -289.2] }
+  - { t: 18, rotate: [-537.6, 15.1, -290.2] }
   - { t: 19, rotate: [-534.8, 14.1, -290.6] }
   - { t: 20, rotate: [-534.8, 14.1, -290.6] }
   - { t: 21, rotate: [-527.7, 10.4, -261.5] }
@@ -105,7 +106,7 @@ rigs:
   - { t: 51, rotate: [-1056.4, -47.8, -419.4] }
   - { t: 52, rotate: [-1056.4, -47.8, -419.4] }
   emitters:
-  - { id: tip_ember_1, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 4, end_t: 14 }  # r8: key 3 is still the held pose
-  - { id: tip_glint_1, particle_id: bastion-s1-tip-glint, point: [0, 2.5, 0], start_t: 4, end_t: 10 }
+  - { id: tip_ember_1, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 3, end_t: 15 }  # r9: apex keys 3-4, chop 5-7, drag to 15
+  - { id: tip_glint_1, particle_id: bastion-s1-tip-glint, point: [0, 2.5, 0], start_t: 5, end_t: 11 }
   - { id: tip_ember_2, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 24, end_t: 36 }
   - { id: tip_glint_2, particle_id: bastion-s1-tip-glint, point: [0, 2.5, 0], start_t: 25, end_t: 33 }
