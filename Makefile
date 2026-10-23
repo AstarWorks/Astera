@@ -87,6 +87,16 @@ dev-content: ## Fast loop: push content/ into the running backends, reload it in
 dev-pack: ## Fast loop: after `docker compose up -d --build resource-pack`, re-read the pack hash and re-push the pack to everybody online
 	./scripts/dev-deploy.sh pack
 
+.PHONY: dev-autodeploy-up dev-autodeploy-down dev-autodeploy-status
+dev-autodeploy-up: ## Start the host-local origin/main watcher (survives reboot)
+	./scripts/dev-autodeploy.sh up
+
+dev-autodeploy-down: ## Pause auto-deploy after any active deployment finishes
+	./scripts/dev-autodeploy.sh down
+
+dev-autodeploy-status: ## Show watcher status and recent deploy events
+	./scripts/dev-autodeploy.sh status
+
 .PHONY: docker-down
 docker-down: ## Stop local stack (keeps volumes)
 	$(DOCKER_COMPOSE) down
