@@ -1,0 +1,49 @@
+{
+  "round": 71,
+  "weapon": "orrery-staff",
+  "status": "failed",
+  "sourceCloseupFrame": 446,
+  "modelParts": 11,
+  "resourcePackSha1": "17bb5821bc8e5f7093d340df5e9555648818ccf9  astera.zip",
+  "captures": [
+    {
+      "case": "orrery-staff-s1",
+      "capture": "build/limbus-review/round71/captures/orrery-staff-s1-1792739791055713795",
+      "frames": 107,
+      "quality": {
+        "maxRepeatedFrames": 2,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 3.0
+      },
+      "healthAfter": "Husk has the following entity data: 184.256f"
+    },
+    {
+      "case": "orrery-staff-s2",
+      "capture": "build/limbus-review/round71/captures/orrery-staff-s2-1792739823097027619",
+      "frames": 126,
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 3.0
+      },
+      "healthAfter": "Husk has the following entity data: 179.336f"
+    },
+    {
+      "case": "orrery-staff-s3",
+      "capture": "build/limbus-review/round71/captures/orrery-staff-s3-1792739864964041591",
+      "frames": 224,
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 1.0
+      },
+      "healthAfter": "Husk has the following entity data: 167.52798f"
+    }
+  ],
+  "review": "角形ヘッド・金属軸・側面ケーブルへ修正。手持ちと演出用武器の二重表示、細部・色・持ち位置・腕姿勢・発光が未一致。S3のビームは標的を越えて伸びる。",
+  "notVerified": [
+    "追加の単体S3反復区間は未実装・未撮影。",
+    "ケーブルは静的な折線で、参照の柔らかい曲線・装備への接続は未再現。",
+    "最大同時Display数は今回の撮影で計測していない。"
+  ]
+}

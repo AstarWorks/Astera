@@ -50,15 +50,13 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "ロッド先端の構え、輪の密度と重なり、ビーム発光と発砲時刻の実機表示遅延、カメラ寄りが未一致。",
-    "normalInput": "実入力撮影あり。標的HP 177.368f（回数の測定ではない）",
-    "evidence": "/evidence/orrery-staff-s1.png"
+    "reason": "角形ヘッド・金属軸・側面ケーブルへ修正。手持ちと演出用武器の二重表示、細部・色・持ち位置・腕姿勢・発光が未一致。S3のビームは標的を越えて伸びる。"
   },
   "weapon": "orrery-staff",
   "identity": "R Corp. 4th Pack Reindeer Rodion",
   "videoTitle": "R Corp. 4th Pack Reindeer Rodion — skill showcase",
-  "iterations": 2,
+  "iterations": 3,
   "report": "/report/orrery-staff",
   "referenceRevision": "fbf0e6d15634cf9b327fa2ad16431e36532685609749bf7c38c5d692b76e953b",
-  "contentRevision": "ed5b119b1f2533879870aadf77a85e909606c33431a5f6653b337221c156587a"
+  "contentRevision": "67f4c9899a612d9a971735864533b6e4a2615f20a24826e1d77b4cbce10fa5ef"
 }
