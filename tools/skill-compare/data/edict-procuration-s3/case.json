@@ -59,12 +59,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "VFX開始tickの二重進行と予約済み移動前の追従位置取得を修正し実機撮影。空中の継続中の爪は身体付近だが、frame_040の新規爪は身体より先行し旧方向の爪も残る。人物姿勢、曲線と光帯、遠距離斬線、カメラ、持続変身・通常入力も未一致。"
+    "reason": "空中爪を25〜31tickと31〜37tickで切替え、旧方向との重複を除去。実機2撮影ともカメラ遅れ最大3ms。新規爪は補間中の身体より先行し、frame_038で身体が素手に見える隙間が残る。人物姿勢、形状・光帯、遠距離斬線、カメラ、持続変身・通常入力も未一致。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 9,
+  "iterations": 11,
   "report": "/report/edict-blade",
   "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
-  "contentRevision": "7d9828d9a50b08e5a1831d7469be861aad2f273189cb387151aaa6016f038f57"
+  "contentRevision": "4e7220e33fc3795f955491028ef98ef8a15a24b634d821602c3f56d45e682115"
 }
