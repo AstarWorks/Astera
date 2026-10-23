@@ -47,9 +47,13 @@ internal object MatchHudWiring {
         val subscriptions = env.ctx.subscriptions
         val eventBus = env.eventBus
         val modes = services.get<IGameModeFrameworkRegistry>()
-        // Resolved per call: the economy plugin registers the ledger after match wiring ran.
-        val stars: (com.astarworks.astera.core.domain.player.PlayerId) -> Long? =
-            { player -> services.get<ICurrencyLedger>()?.balance(player, Currency.STAR) }
+        // In-match stars (match-scoped, never the wallet): the line shows only in matches whose stage has generators.
+        val matchStars = checkNotNull(env.stars) { "MatchStarWiring runs before the HUD wiring" }
+        val stars: (com.astarworks.astera.core.domain.player.PlayerId) -> Long? = { player ->
+            env.matches.findMatchOf(player)
+                ?.takeIf { matchStars.stageHasStars(it.stageId.value) }
+                ?.let { matchStars.store.get(it.id, player).toLong() }
+        }
 
         val modeOf: (MatchId) -> IGameMode? = { id ->
             val key = env.matchModeRegistry.modeKeyOf(id)?.takeIf { it.isNotBlank() }
@@ -80,7 +84,7 @@ internal object MatchHudWiring {
             matchSidebar.forget(it.playerId)
             matchSidebar.refreshPlayer(it.playerId)
         }
-        subscriptions += eventBus.subscribe(CurrencyChanged::class) { matchSidebar.refreshPlayer(it.playerId) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.StarsCollected::class) { matchSidebar.refreshPlayer(it.playerId) }
 
         installNameplatesAndTab(env, modeOf)
 
@@ -90,7 +94,6 @@ internal object MatchHudWiring {
             matchmaker = matchmaker,
             hud = hudGateway,
             messages = env.msgRenderer,
-            stars = stars,
             scheduler = env.scheduler,
             gold = { player -> services.get<ICurrencyLedger>()?.balance(player, Currency.GOLD) },
             settings = { env.queueSettings.current() },

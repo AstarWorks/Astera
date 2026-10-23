@@ -19,18 +19,22 @@ import com.astarworks.astera.match.domain.generator.StarGenerator
  */
 public class InMemoryGeneratorRepository : IGeneratorRepository {
 
-    private val store: MutableMap<GeneratorId, StarGenerator> = mutableMapOf()
+    private val store: MutableMap<Pair<MatchId, GeneratorId>, StarGenerator> = mutableMapOf()
 
     override fun listForMatch(matchId: MatchId): List<StarGenerator> =
         store.values.filter { it.matchId == matchId }
 
     override fun save(generator: StarGenerator) {
-        store[generator.id] = generator
+        store[generator.matchId to generator.id] = generator
     }
 
     override fun remove(id: GeneratorId) {
-        store.remove(id)
+        store.keys.removeAll { it.second == id }
     }
 
-    override fun findById(id: GeneratorId): StarGenerator? = store[id]
+    override fun removeForMatch(matchId: MatchId) {
+        store.keys.removeAll { it.first == matchId }
+    }
+
+    override fun findById(id: GeneratorId): StarGenerator? = store.values.firstOrNull { it.id == id }
 }

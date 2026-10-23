@@ -26,6 +26,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.match.application.eventbus.listeners.respawn.EliminatedTeamSpectators
+import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
 import com.astarworks.astera.match.application.service.ISpawnSelector
 import com.astarworks.astera.match.application.service.SpawnStrategy
 import com.astarworks.astera.match.application.usecase.respawn.RespawnSpec
@@ -76,6 +77,7 @@ public class DeathRespawnCoordinator(
     private val cycler: SpectatorTargetCycler?,
     private val eliminatedTeams: EliminatedTeamSpectators?,
     private val configOf: (MatchId) -> DeathRespawnConfig,
+    private val stars: IMatchStarStore? = null,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -97,7 +99,7 @@ public class DeathRespawnCoordinator(
         // Eliminated teams spectate until match end instead of respawning.
         if (eliminatedTeams?.takeOver(match, victim) == true) return
 
-        val config = configOf(match.id)
+        val config = withStarDiscount(configOf(match.id), match.id, victim)
         if (config.respawnDelaySeconds <= 0) {
             respawn(victim, match.id, config)
             return
@@ -130,6 +132,18 @@ public class DeathRespawnCoordinator(
         state.tasks += scheduler.runLaterTicks(config.respawnDelaySeconds * TICKS_PER_SECOND.toLong()) {
             pending.remove(victim)
             respawn(victim, match.id, config)
+        }
+    }
+
+    /**
+     * The in-match star sink: a victim holding [RESPAWN_STAR_COST] star(s) spends them to halve the respawn wait.
+     * Nothing is spent when the wait is already 1 s or less.
+     */
+    private fun withStarDiscount(base: DeathRespawnConfig, matchId: MatchId, victim: PlayerId): DeathRespawnConfig {
+        if (stars == null || base.respawnDelaySeconds <= 1) return base
+        return when (stars.spend(matchId, victim, RESPAWN_STAR_COST)) {
+            is Result.Success -> base.copy(respawnDelaySeconds = (base.respawnDelaySeconds + 1) / 2)
+            is Result.Failure -> base
         }
     }
 
@@ -248,6 +262,8 @@ public class DeathRespawnCoordinator(
     private fun nameOf(player: PlayerId): String = players.nameOf(player) ?: player.uuid.toString().take(8)
 
     public companion object {
+        /** Stars a victim spends to halve the respawn wait (the in-match star sink). */
+        public const val RESPAWN_STAR_COST: Int = 1
         private const val TICKS_PER_SECOND = 20
         private const val FADE_IN_TICKS = 5
         private const val FADE_OUT_TICKS = 10

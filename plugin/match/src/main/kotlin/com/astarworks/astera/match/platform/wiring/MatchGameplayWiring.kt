@@ -297,6 +297,8 @@ internal object MatchGameplayWiring {
 
         // F3-5: death screen -> death cam -> countdown -> respawn at a team spawn -> spawn protection.
         val deathConfigLogged = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+        val matchStars = MatchStarWiring.install(env)
+        env.stars = matchStars
         val deathRespawn = DeathRespawnCoordinator(
             matches = matches,
             stages = stages,
@@ -313,6 +315,7 @@ internal object MatchGameplayWiring {
             spectator = spectatorPort,
             cycler = cycler,
             eliminatedTeams = eliminatedTeams,
+            stars = matchStars.store,
             configOf = { matchId ->
                 val parsed = DeathRespawnConfig.parse(env.modeConfigOf(matchId))
                 parsed.warnings.filter { deathConfigLogged.add(it) }.forEach { logger.warning(it) }

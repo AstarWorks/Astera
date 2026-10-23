@@ -12,9 +12,6 @@
         "position": {
             "$ref": "#/definitions/com.astarworks.astera.match.application.config.Vec3YamlConfig"
         },
-        "currency": {
-            "type": "string"
-        },
         "period_seconds": {
             "type": "number"
         },
@@ -26,13 +23,18 @@
         },
         "affiliation": {
             "$ref": "#/definitions/com.astarworks.astera.match.application.config.AffiliationYamlConfig"
+        },
+        "stockpile_cap": {
+            "type": "integer"
+        },
+        "pickup_radius": {
+            "type": "number"
         }
     },
     "required": [
         "id",
         "match_stage_id",
         "position",
-        "currency",
         "period_seconds",
         "amount",
         "tier",
