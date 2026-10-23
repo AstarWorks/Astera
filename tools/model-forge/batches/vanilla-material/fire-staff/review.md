@@ -1,105 +1,86 @@
-# Fire staff — vanilla materials
+# Fire staff — extended vanilla material redo
 
-| Parts | Catalog material |
+| Parts | Material |
 | --- | --- |
-| Wooden shaft, spiral wood ridge/return | `wood.stripped_dark_oak_log` |
-| Leather grip and raised leather wrap | `cloth.brown_wool` |
-| Flame contour and curl point | `metal.copper_block` |
-| Stepped crystal facets (flame core and pommel), collars/bevels, cradle/fork, socket and engraved ridges, facet glints | `metal.gold_block` |
-| Socket and pommel rubies | `cloth.red_wool` |
+| Flame contour and curl point | `concrete.orange_concrete` |
+| Front/back outer flame core and glints | `concrete.yellow_concrete` |
+| Ten innermost core facets | custom `astera:blocks/fire-staff-glow` (16×16 yellow-white glow line) |
+| Socket and pommel rubies | `gem.redstone_block` |
+| Shaft and spiral wood | `wood.stripped_dark_oak_log` (retained) |
+| Grip and raised wraps | `cloth.brown_wool` (retained) |
+| Fork, cradle, collars, engraving and pommel facets | `metal.gold_block` (retained) |
 
-Seed 20261023. All faces use `material.apply` crops at one vanilla texel per local
-model unit, including fractional dimensions. Grain follows each wood element's longest
-axis. All references stay on the native block atlas; no custom atlas or Mojang PNG is
-installed. Gold retains the flame's bright core against the warm copper outline.
-Catalog wishes: static amber/orange crystal and ruby-red gem. Copper/gold approximate
-the flame crystal; the sub-unit ruby accents use wool for their red color.
+The first pass's copper silhouette and gold core read as dull terracotta/metal.
+The redo replaces those flame materials with saturated orange and yellow; ruby
+accents now use redstone instead of wool. A small authored glow atlas raises the inner core to pale yellow-white.
+Catalog wishes: none for this redo. Materials remain static and do not emit light.
+The custom atlas stays under `blocks/`, sharing the native block atlas; no Mojang PNGs are installed.
 
-## Visual review and verification
+## Critic and verifier
 
-Opened before.png, after.png, contexts.png, player-contexts.jpg, sweep.png and
-inventory.png. The matching eight-view Forge boards preserve the existing silhouette.
-The player board includes both first/third-person hands, third-person side, two ground
-spins, fixed and GUI. The 26-direction sweep and its nine contexts are recorded in
-cameras.json. No concept image was supplied; the original is a regression reference.
+Opened and reviewed `before.png`, `after.png`, `contexts.png`,
+`player-contexts.jpg`, `sweep.png` (26 directions), and `inventory.png`.
+The original from `36743b70` is a regression reference; no concept was supplied.
+The proposed fix was limited to orange flame contours/curl, yellow core/glints,
+and redstone rubies (41 elements). The first native capture showed that client
+lighting darkened the concrete-only center; a second fix adds a pale glow line to
+the ten inner core facets, leaving the yellow outer core in place. The eight-view and player-context boards
+show stronger orange/yellow separation than the copper first pass. Front and
+back cores stay distinct from the gold cradle, and oblique/side views retain
+an orange silhouette. At 16px the hot head reads as a compact orange/yellow
+mark; at 32/64px the inner flame is clearer. Tiny ruby details merge at 16px.
+No new visible material seam, missing face or hand-context regression was seen.
 
-- Silhouette/proportions: retained. The only split is the 20-unit wooden shaft at Y=16,
-  yielding 113 → 114 elements, with internal faces omitted. Display transforms match
-  exactly. Other cuboid coordinates match within 5.56e-17 export rounding; rotations
-  are unchanged. measure.json records the final geometry and validation.
-- Bevels/joins: the gold fork, collar steps, spiral wood, flame curl and ruby accents
-  remain visible in front/back/oblique views. Existing layered facet seams and ornament
-  separations remain; this task does not redesign geometry.
-- UVs/palette: no stretched texels or exposed shaft split cap observed. Thin gold
-  fittings remain simple, and shaft grain runs lengthwise. The first material attempt
-  assigned copper to all crystal facets and lost the bright flame core; the final map
-  restores gold to those facets and the pommel. Both sides improved with no silhouette
-  change or hand-context regression.
-- Inventory/contexts: the flame, dark shaft and gold fittings read at 32/64px. At 16px
-  the staff outline and warm head remain identifiable but tiny rubies and ridges merge.
-  inventory.png shows 16px nearest-neighbor downsample of the 32px Forge GUI render,
-  plus native 32/64px renders enlarged for inspection. The shaft continues below the
-  first-person screen as in the original transform; the center remains clear.
-
-Forge validation: zero errors. Before: 199 AABB overlaps, 2 possible coplanar contacts,
-1 disconnected-component report. After: 201 / 3 / 1. The added contact is the shaft split;
-these conservative diagnostics are candidates, not a complete z-fighting audit.
+Compared with the first pass, all 114 elements retain exactly the same geometry,
+rotations and display transforms. Vanilla UV coordinates remain unchanged; the
+ten custom glow facets use their whole 16×16 atlas to show the bright center line. Wood, grip and gold
+fittings are unchanged. Relative to the original 113-element model, only the
+previously recorded 20-unit shaft split remains; its internal faces are omitted.
+One vanilla texel per local model unit, deterministic seed 20261023.
+`measure.json` records zero validation errors, 201 conservative overlap candidates,
+3 possible coplanar contacts and 1 disconnected-component report, unchanged from
+the first pass. These inherited intersections are not a complete z-fighting audit.
+A fresh replay reproduced the installed model and Forge boards byte-for-byte.
 
 ## Reproduction
 
-From the repository root, save the original from the parent commit and use a fresh project:
-
 ```sh
-git show 659893b9fd76639a41dda706ac14adf6ff24ebab:content/models/items/fire-staff.model.json > /tmp/fire-staff-before.json
-python3 tools/model-forge/batches/vanilla-material/fire-staff/remake.py --project /tmp/fire-staff-fresh --before /tmp/fire-staff-before.json
+git show 36743b70:content/models/items/fire-staff.model.json > build/fire-staff-original.json
+python3 tools/model-forge/batches/vanilla-material/fire-staff/remake.py --project build/fire-staff-fresh --before build/fire-staff-original.json
 python3 tools/model-forge/context_preview.py --out build/fire-staff-contexts fire-staff
 python3 tools/model-forge/context_preview.py --viewer --out build/fire-staff-viewer fire-staff
 bun tools/model-forge/review.mjs build/fire-staff-viewer/viewer.html build/fire-staff-review fire-staff
 python3 tools/model-forge/batches/vanilla-material/fire-staff/capture-pack.py --out build/fire-staff-client/resourcepacks/vanilla-material
+flock /tmp/claude-1000/astera-mc-client.lock python3 tools/model-forge/batches/vanilla-material/fire-staff/capture-client.py
 ```
 
-The last command requires a fresh pack directory. Set MODEL_FORGE_CLIENT_JAR to a local
-26.3 jar if the default `/tmp/astera-hud-client-26.3.jar` is unavailable. Preview caches
-and the standalone viewer remain ignored; only review images are committed.
+Use fresh project/pack directories. Native capture requires an isolated creative
+superflat named `Fire Staff Materials` in `build/fire-staff-client/saves/` with
+commands enabled. The capture script uses the installed portablemc 26.3 runtime,
+unique Xvfb display, software GL, FOV 70, view bob off and GUI scale 2. It removes
+old display entities/inventory and gives the exact authored `astera:fire-staff`
+model on an iron axe. Screenshot is an unedited 1280×720 Xvfb root capture.
 
-## Native client capture
+## Native client verification
 
-Opened and reviewed [client.png](client.png): native 26.3, portablemc, Xvfb/llvmpipe,
-1280×720 first-person right hand. Copper is darker than Forge lighting, but the gold
-core, fork and collars stay distinct, ruby accents remain red and wood grain follows
-the shaft. No missing model/texture, mixed-atlas or duplicate-sprite diagnostics were
-found for this model. The capture is a raw root-window screenshot, without resizing,
-painting or compositing. HUD remains enabled so the held item is visible.
+Opened the final `client.png`: native 26.3, Xvfb/llvmpipe, 1280×720.
+The pale inner glow now stays distinct from the darker yellow-gold fittings;
+the orange contour, yellow outer core and red socket gem render correctly.
+The hot center remains visible in the native hotbar icon. Client lighting still
+darkens the orange compared with the offline board. No missing-model/texture,
+mixed-atlas or duplicate-sprite diagnostics occurred. Offline authentication,
+unavailable audio and an unrelated post-effect warning do not affect this render.
+The installed minimal-pack model and glow PNG match the committed sources exactly.
 
-The complete launch/capture lifetime held `/tmp/claude-1000/astera-mc-client.lock`.
-Xvfb `-displayfd` assigned unique display :0. The unique game directory is
-`build/fire-staff-client`; its creative superflat is an isolated copy of an earlier
-capture world, with the prior item display and inventory removed. The pack contains
-only the exact authored fire-staff JSON, item definition and builder-equivalent block
-atlas source. No Mojang PNGs are present.
-
-Use the installed `~/.cache/astera-vfx-shot/venv/bin/portablemc` with main directory
-`~/.cache/astera-vfx-shot/mcdir`, `start 26.3`, the unique `--mc-dir`, username
-`FireStaffReview`, resolution 1280x720, software GL and `LP_NUM_THREADS=4`.
-Enable `file/vanilla-material`, view bob off, GUI scale 2 and FOV 70. In an isolated
-creative superflat with commands enabled:
-
-```text
-/kill @e[type=minecraft:item_display]
-/clear @s
-/give @s minecraft:iron_axe[minecraft:item_model="astera:fire-staff"]
-/time set noon
-/weather clear
-/tp @s 0 -60 3 180 0
-```
-
-After chat fades, capture the Xvfb root with ImageMagick `import -window root`.
-The exact minimal-pack model was verified byte-for-byte against the authored asset.
-This does not establish production pack deployment or server behavior.
+Both native sessions held the shared client lock for their entire lifetime.
+The unique game directory is `build/fire-staff-client`, display dynamically
+assigned `:0`. The creative superflat was copied from the previous isolated
+thunder-staff capture, with inventory and display entity cleared before capture.
+The screenshot is raw and unedited; production pack/server deployment is unverified.
 
 ## Remaining risks
 
-Copper and gold are static material approximations of the flame; they do not animate
-or emit light. Wool approximates the ruby accents. Original bevel intersections and
-small ornament gaps remain. Production pack compilation, server deployment and manager
-CI remain unexecuted. No Gradle tasks, unit tests, E2E, Docker, server or push was run.
+Static flame colors do not animate or emit light. Existing bevel intersections
+and ornament gaps remain. Offline previews approximate client lighting/cameras.
+Production pack compilation and server deployment remain manager responsibilities.
+No Gradle, tests, E2E, Docker, standalone server or push was run.
