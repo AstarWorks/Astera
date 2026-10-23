@@ -52,12 +52,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "専用S2を3回撮影。要素相対時刻と反転後VFXの方向を修正。接触時の爪の展開・斬線が遅く、青白い発光・破片・姿勢・カメラ未一致。持続変身と通常入力未接続。"
+    "reason": "最初の接触付近と反転後の爪の展開を早めて再撮影。反転後は次tick発動で左向きを確認。黒い枝が太く標的を覆い、斬線の青白い発光・破片・姿勢・カメラは未一致。持続変身・通常入力未接続。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 3,
+  "iterations": 5,
   "report": "/report/edict-blade",
   "referenceRevision": "b37d2efcfa09e705a57c7ad5b5990b2f325a2a39a2eaff45b1c7a565488cd70e",
-  "contentRevision": "c7c4a0c08a413f3899110a6254a3363d1a9f58a0bdf5e339b28ae0297a6156cd"
+  "contentRevision": "81f3c36ae7adac9cbf53473ca68dae650e22b6575f811904e5be2fb54c0ab3db"
 }
