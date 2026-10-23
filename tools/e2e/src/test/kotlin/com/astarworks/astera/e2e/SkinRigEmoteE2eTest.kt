@@ -15,7 +15,7 @@ class SkinRigEmoteE2eTest : E2eBase() {
 
     private fun rigDisplays(actor: Bot): Int {
         val reply = rcon("execute as ${actor.name} at @s if entity @e[type=minecraft:item_display,distance=..3]").trim()
-        return Regex("count: (\\d+)").find(reply)?.groupValues?.get(1)?.toInt() ?: if (reply.startsWith("Test passed")) 1 else 0
+        return Regex("(?i)count: (\\d+)").find(reply)?.groupValues?.get(1)?.toInt() ?: if (reply.startsWith("Test passed")) 1 else 0
     }
 
     private fun speed(actor: Bot): Double =
@@ -35,12 +35,21 @@ class SkinRigEmoteE2eTest : E2eBase() {
         val addedBefore = watcher.entityEvents.size
 
         actor.command("astera emote wave")
-        val spawned = actor.waitUntil(4_000) { rigDisplays(actor) >= displaysBefore + 6 }
-        Thread.sleep(300)
+        // `wave` is a 30-tick non-loop emote (about 1.65 s with blend-out), so every "during" reading is taken in
+        // one pass and only counts once the rig, the invisible flag and the speed lock are all seen together.
+        var displaysDuring = displaysBefore
+        var flagsDuring = 0
+        var speedDuring = Double.NaN
+        val spawned = actor.waitUntil(4_000) {
+            displaysDuring = rigDisplays(actor)
+            flagsDuring = watcher.entityFlags[actorId] ?: 0
+            speedDuring = speed(actor)
+            displaysDuring >= displaysBefore + 6 && (flagsDuring and invisibleBit) != 0 && speedDuring < speedBefore
+        }
 
         E2eReport.check(suite, "display rig entities spawn near the emoting bot", "RCON @e[type=item_display,distance=..3]") {
-            assertThat(spawned).describedAs("rig displays did not appear (before=$displaysBefore, now=${rigDisplays(actor)})").isTrue()
-            "item_display near actor: $displaysBefore -> ${rigDisplays(actor)}"
+            assertThat(spawned).describedAs("rig, invisible flag and speed lock never held together (displays $displaysBefore -> $displaysDuring, flags=0x${flagsDuring.toString(16)}, speed $speedBefore -> $speedDuring)").isTrue()
+            "item_display near actor: $displaysBefore -> $displaysDuring"
         }
         E2eReport.check(suite, "watcher client receives the rig displays", "ClientboundAddEntity(ITEM_DISPLAY)") {
             val added = watcher.entityEvents.drop(addedBefore).count { it.added && it.type == "ITEM_DISPLAY" }
@@ -48,16 +57,16 @@ class SkinRigEmoteE2eTest : E2eBase() {
             "ITEM_DISPLAY adds seen by watcher: $added"
         }
         E2eReport.check(suite, "emoting bot is invisible to the watcher", "ClientboundSetEntityData(flags 0x20)") {
-            val flags = watcher.entityFlags[actorId] ?: 0
-            assertThat(flags and invisibleBit).describedAs("actor flags=0x${flags.toString(16)}").isNotZero()
-            "actor flags=0x${flags.toString(16)}"
+            assertThat(flagsDuring and invisibleBit).describedAs("actor flags=0x${flagsDuring.toString(16)}").isNotZero()
+            "actor flags=0x${flagsDuring.toString(16)}"
         }
         E2eReport.check(suite, "movement speed is locked during the emote", "RCON attribute movement_speed") {
-            val during = speed(actor)
-            assertThat(during).describedAs("speed before=$speedBefore during=$during").isLessThan(speedBefore)
-            "movement_speed $speedBefore -> $during"
+            assertThat(speedDuring).describedAs("speed before=$speedBefore during=$speedDuring").isLessThan(speedBefore)
+            "movement_speed $speedBefore -> $speedDuring"
         }
 
+        // The emote may already have ended on its own (then `stop` just answers emote-not-playing); the end state
+        // below is what counts either way.
         actor.command("astera emote stop")
         val gone = actor.waitUntil(5_000) { rigDisplays(actor) <= displaysBefore }
         Thread.sleep(500)
