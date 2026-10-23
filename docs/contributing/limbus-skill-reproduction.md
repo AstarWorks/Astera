@@ -484,3 +484,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Inspected sourcef677/707; added8 overlapping outline links with two faces, and moved flight-arrival keys1tick earlier to account for interpolation delay. First capture had gaps and overlong second trail; widened link overlap and ended second trail at51, then recaptured.
 - Final77frames; camera5ms, identical maximum2 (036/037 only). Sequential display sample771 observations peaks59. HP200→194.096→188.19199, two drops about1.006s apart. No damage changes.
 - Failed fidelity persists: fixed4m static geometry, pose/model detail, original braid/glow, thin horizontal impact rays, source camera and passive routing are not matched. Same-time images at /evidence/couture-patterning-tail.png; runtime-review/couture-patterning-round63.json.
+
+### Round 64: Patterning impact shape
+
+- Replaced shared impact only in Patterning with a dedicated glint-based horizontal pair, brief vertical/core pulses, and six emitted petals. First capture was too thin/occluded; increased thickness/core and enabled sprite see_through, then recaptured. Occlusion through walls is not verified.
+- Final77frames, camera6ms, repeated maximum2 (019/020 held preparation). Display sample773 observations peaks55; HP200→188.192→182.288, two drops1.003s apart. Damage mechanics unchanged.
+- Fidelity failed: enlarged32px glint has hard edges; vertical punch/glow/petals, target-relative flight, original pose/camera and passive routing remain incomplete. Evidence /evidence/couture-patterning-impact.png and runtime-review/couture-patterning-round64.json.

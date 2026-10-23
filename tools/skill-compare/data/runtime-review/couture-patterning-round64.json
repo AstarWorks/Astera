@@ -1,0 +1,23 @@
+{
+  "status": "failed",
+  "case": "couture-rapier-patterning",
+  "round": 64,
+  "captureFrames": 77,
+  "cameraMaxLatenessMs": 6,
+  "maxRepeatedFrames": 2,
+  "repeatedFrames": [
+    19,
+    20
+  ],
+  "displayPeak": 55,
+  "displaySamples": 773,
+  "health": [
+    200,
+    188.192,
+    182.288
+  ],
+  "notes": "命中光を専用の先細り横光へ変更。輪郭の硬さ、縦の接触光、発光・花片、固定4m軌道、腕・装飾・カメラ・追撃条件は未一致。",
+  "evidence": "/evidence/couture-patterning-impact.png",
+  "acceptedCapture": "round64/repeat-captures",
+  "supersededCapture": "round64/captures: rays too thin and center occluded"
+}

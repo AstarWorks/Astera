@@ -41,12 +41,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "白いリンク状の尾と鋏の到達を改善。固定4m軌道、腕上げ、鋏の装飾、細い横閃光、カメラ、移動標的追従、追撃発動条件が未一致・未実装。"
+    "reason": "命中光を専用の先細り横光へ変更。輪郭の硬さ、縦の接触光、発光・花片、固定4m軌道、腕・装飾・カメラ・追撃条件は未一致。"
   },
   "weapon": "couture-rapier",
   "identity": "Haute Couture::Alteration Shop Rodion",
-  "iterations": 4,
+  "iterations": 6,
   "report": "/report/couture-rapier",
   "referenceRevision": "f256c2f71203b07c0bcbe4dabee85a9472ab6d5e2ef78e4189e3a3928661e56d",
-  "contentRevision": "73e71e0355336d86ae67ff14bca3d9502ceca708f9ab9ab3b4d60f753ced2d69"
+  "contentRevision": "6f5857b7e1b7416c93ad743d9e10116e8e6e6b5ba2b8eef539fcbb2376c0594b"
 }
