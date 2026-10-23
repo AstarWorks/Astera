@@ -64,6 +64,14 @@ public data class VfxUpdate(
      * trajectories go through the entity position instead.
      */
     public val position: Vec3? = null,
+    /** Teleport window for [position]; `null` = [interpolationTicks]. Lets a long transform window keep short position steps. */
+    public val positionTicks: Int? = null,
+    /**
+     * `true`: leave the transformation (and its running interpolation window, which colour / alpha share on the
+     * client) untouched; [transform] / [interpolationTicks] are ignored. Used for position-only and
+     * text-swap-only updates of emitter particles.
+     */
+    public val keepTransform: Boolean = false,
 )
 
 /**

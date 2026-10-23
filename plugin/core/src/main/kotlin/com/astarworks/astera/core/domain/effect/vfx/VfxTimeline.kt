@@ -85,7 +85,7 @@ public object VfxTimeline {
         scale: Double,
         sprites: SpriteFrames,
     ): List<VfxElementPlan> {
-        if (el.emit != null) return VfxEmitterPlanner.plan(def, el, elementIndex, anchorRot, seed, scale)
+        if (el.emit != null) return VfxEmitterPlanner.plan(def, el, elementIndex, anchorRot, seed, scale, sprites)
         val formation = el.formation
         val curveParams = formation?.curve?.distribute(el.count, formation.closed) ?: List(el.count) { 0.0 }
         val tilt = formation?.tiltYawPitchRoll?.let { Quaternion.fromEulerDegrees(it.x, it.y, it.z) } ?: Quaternion.IDENTITY

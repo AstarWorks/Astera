@@ -66,12 +66,18 @@ def quad(id_, color, start, origin, emit):
     return el, ("emit", start, emit)
 
 
+def curve(values):
+    """Evenly spaced list -> curve keys [{t, v}] (emit *_over_life format)."""
+    n = len(values)
+    return [{"t": round(i / (n - 1), 4) if n > 1 else 0, "v": v} for i, v in enumerate(values)]
+
+
 def emit(count, rate, direction, spread, speed, life, size, gravity, colors, alphas, drag=0.04, sol=(1.0, 0.3), spin=0):
     d = {"count": count, "rate_per_tick": rate, "speed": speed, "direction": direction, "spread_deg": spread,
-         "gravity": gravity, "drag": drag, "life_ticks": life, "size": size, "size_over_life": list(sol)}
-    if colors: d["color_over_life"] = colors
-    d["alpha_over_life"] = alphas
-    if spin: d["spin_deg_per_tick"] = spin
+         "gravity": gravity, "drag": drag, "life_ticks": life, "size": size, "size_over_life": curve(list(sol))}
+    if colors: d["color_over_life"] = curve(colors)
+    d["alpha_over_life"] = curve(alphas)
+    if spin: d["spin_over_life"] = [{"t": 0, "v": spin}]
     return d
 
 

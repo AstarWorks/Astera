@@ -86,7 +86,7 @@ elements:
     drag: 0.06
     life_ticks: [10, 17]
     size: [0.08, 0.18]
-    alpha_over_life: [0.8, 0]
+    alpha_over_life: [{ t: 0, v: 0.8 }, { t: 1, v: 0 }]
   keyframes:
   - t: 0
     translate: [0, 1.8, 0]

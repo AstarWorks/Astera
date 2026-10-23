@@ -34,7 +34,7 @@ Hard limits:
 - Every particle is attached to a named core element and beat tick; the stagger is stated (spawn ticks, no overlapping positions).
 - Vanilla life is estimated from the catalog in `particles.md`, not from `lifetime_ticks` (not enforced for vanilla particles).
 - Nothing spawns inside the caster camera near field; each spawn offset and z is stated.
-- Every `emit.size_over_life` has at most 2 values; display-particle counts per element (at most 40) and the cast display budget are stated.
+- Over-life curves are key lists `[{ t, v, ease? }]` (any length); display-particle counts per element (at most 40) and the cast display budget are stated.
 - A particle-only pass (core hidden) and a core-only pass were both viewed: the core still reads alone, the particles add motion and presence.
 - `particle-cues.yaml` lists each call (id, tick, anchor) for the director.
 

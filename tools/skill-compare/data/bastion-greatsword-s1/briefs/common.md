@@ -23,7 +23,7 @@ The founder judged the previous one-generalist weapons as cheap: blocky single-c
 ## Hard runtime facts (from the previous attempt; do not rediscover)
 - Font sprites render up to **256 px**; 512 px fails. Sprite strips are square frames in one row.
 - A TextDisplay with `fixed` billboard laid horizontal did NOT render in the real client (the offline preview shows it). Horizontal 3D shapes must be built from block displays or rig trail quads. Billboard-center sprites always face the camera.
-- `emit.size_over_life` with 3 elements is silently dropped (use 2 elements or `sample_ticks` updates).
+- `emit.size_over_life` is a multi-key curve `[{ t, v, ease? }]` (any number of keys).
 - Client interpolation: one update per tick; a rotation chunk above 60 degrees or a 1-tick ease above 170 degrees is rejected/misbehaves (see art-direction §7). Rig parts are **block displays only** (`VfxRigPart.block`), budget <= 60 displays alive per cast (sword rig <= 20, trail <= 24, fx <= 16), <= 256 slots per effect.
 - `hide_held_item` already hides the player's own held sword for 46 ticks; the rig sword is the only sword visible.
 - The old files `content/vfx/bastion-sweep-high.yaml`, `bastion-sweep-low.yaml`, `bastion-arc/ink/smoke/rim/crest` sprites and `bastion-s3-*` particles are **also used by S2/S3/EGO. Do not edit or delete them.** New work uses new ids `bastion-s1-*`.
