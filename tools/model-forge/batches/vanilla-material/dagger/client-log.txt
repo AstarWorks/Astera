@@ -1,0 +1,16 @@
+[02:29:44] [Render thread/INFO]: Setting user: DaggerReview
+[02:29:44] [Render thread/INFO]: Using graphics backend OpenGL, using drivers: 4.5 (Core Profile) Mesa 22.3.6
+[02:29:45] [Render thread/INFO]: Reloading ResourceManager: vanilla, vanilla, file/vanilla-material
+[02:29:46] [Render thread/INFO]: Created: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[02:29:46] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/items.png-atlas
+[02:30:47] [Server thread/INFO]: System chat: [DaggerReview: The difficulty has been set to Peaceful]
+[02:30:47] [Render thread/INFO]: [System] [CHAT] The difficulty has been set to Peaceful
+[02:30:47] [Server thread/INFO]: System chat: [DaggerReview: Set minecraft:overworld to time marker minecraft:noon]
+[02:30:47] [Render thread/INFO]: [System] [CHAT] Set minecraft:overworld to time marker minecraft:noon
+[02:30:48] [Server thread/INFO]: System chat: [DaggerReview: Set the weather to clear]
+[02:30:48] [Render thread/INFO]: [System] [CHAT] Set the weather to clear
+[02:30:49] [Server thread/INFO]: System chat: [DaggerReview: Gave 1 [Iron Sword] to DaggerReview]
+[02:30:49] [Render thread/INFO]: [System] [CHAT] Gave 1 [Iron Sword] to DaggerReview
+[02:30:49] [Server thread/INFO]: System chat: [DaggerReview: Teleported DaggerReview to 0.500000, -60.000000, 0.500000]
+[02:30:49] [Render thread/INFO]: [System] [CHAT] Teleported DaggerReview to 0.500000, -60.000000, 0.500000
+Material loading review: no missing texture/model, multiple-atlas or duplicate-sprite messages.

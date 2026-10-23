@@ -1,0 +1,2665 @@
+[
+  {
+    "op": "import",
+    "args": {
+      "path": "build/dagger/before.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 225,
+        "coplanar_contact_possible_zfight": 1,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "scene.get",
+    "args": {
+      "fields": [
+        "id",
+        "name",
+        "faces"
+      ]
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "before"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 225,
+        "coplanar_contact_possible_zfight": 1,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "before"
+    },
+    "validation": null
+  },
+  {
+    "op": "batch",
+    "args": {
+      "ops": [
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0001",
+              "e0074",
+              "e0075",
+              "e0076",
+              "e0077",
+              "e0078",
+              "e0079",
+              "e0080",
+              "e0081"
+            ],
+            "material": "cloth.brown_wool",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0002",
+              "e0063",
+              "e0064",
+              "e0065",
+              "e0066",
+              "e0067",
+              "e0068",
+              "e0069",
+              "e0070",
+              "e0071",
+              "e0072",
+              "e0073",
+              "e0092"
+            ],
+            "material": "metal.anvil",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0003",
+              "e0004",
+              "e0005",
+              "e0006",
+              "e0007",
+              "e0008",
+              "e0009",
+              "e0010",
+              "e0011",
+              "e0012",
+              "e0013",
+              "e0014",
+              "e0015",
+              "e0016",
+              "e0017",
+              "e0018",
+              "e0019",
+              "e0020",
+              "e0021",
+              "e0022",
+              "e0023",
+              "e0024",
+              "e0025",
+              "e0026",
+              "e0027",
+              "e0028",
+              "e0029",
+              "e0030",
+              "e0031",
+              "e0032",
+              "e0033",
+              "e0034",
+              "e0035",
+              "e0036",
+              "e0037",
+              "e0038",
+              "e0039",
+              "e0040",
+              "e0041",
+              "e0042",
+              "e0043",
+              "e0044",
+              "e0045",
+              "e0046",
+              "e0047",
+              "e0048",
+              "e0049",
+              "e0050",
+              "e0051",
+              "e0052",
+              "e0053",
+              "e0054",
+              "e0055",
+              "e0056",
+              "e0057",
+              "e0058",
+              "e0059",
+              "e0060",
+              "e0061",
+              "e0062",
+              "e0093",
+              "e0094",
+              "e0095",
+              "e0096",
+              "e0097",
+              "e0098",
+              "e0099",
+              "e0100"
+            ],
+            "material": "metal.iron_block",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0082",
+              "e0083",
+              "e0084",
+              "e0085"
+            ],
+            "material": "metal.gold_block",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0086",
+              "e0087",
+              "e0088",
+              "e0089",
+              "e0090",
+              "e0091"
+            ],
+            "material": "cloth.gray_wool",
+            "seed": 20261023
+          }
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "mixed_texture_atlases": 1,
+        "overlap_aabb": 225,
+        "coplanar_contact_possible_zfight": 1,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "batch",
+    "args": {
+      "ops": [
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0003",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                10.55,
+                3.4000000000000004,
+                11.45,
+                6.6
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0003",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                10.55,
+                3.4000000000000004,
+                11.45,
+                6.6
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0004",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                10.53,
+                3.12,
+                11.47,
+                3.5200000000000005
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0004",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                10.53,
+                3.12,
+                11.47,
+                3.5200000000000005
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0005",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                10.53,
+                6.48,
+                11.47,
+                6.879999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0005",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                10.53,
+                6.48,
+                11.47,
+                6.879999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0006",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                10.53,
+                4.875,
+                11.47,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0006",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                10.53,
+                4.875,
+                11.47,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0007",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                10.53,
+                4.875,
+                11.47,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0007",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                10.53,
+                4.875,
+                11.47,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0008",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.700000000000001,
+                3.54,
+                10.6,
+                6.460000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0008",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.700000000000001,
+                3.54,
+                10.6,
+                6.460000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0009",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.68,
+                3.26,
+                10.62,
+                3.66
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0009",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.68,
+                3.26,
+                10.62,
+                3.66
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0010",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.68,
+                6.34,
+                10.62,
+                6.739999999999998
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0010",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.68,
+                6.34,
+                10.62,
+                6.739999999999998
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0011",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.68,
+                4.855,
+                10.62,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0011",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.68,
+                4.855,
+                10.62,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.68,
+                4.855,
+                10.62,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.68,
+                4.855,
+                10.62,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.850000000000001,
+                3.6799999999999997,
+                9.75,
+                6.32
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.850000000000001,
+                3.6799999999999997,
+                9.75,
+                6.32
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.83,
+                3.3999999999999995,
+                9.77,
+                3.8
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.83,
+                3.3999999999999995,
+                9.77,
+                3.8
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.83,
+                6.200000000000001,
+                9.77,
+                6.6
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.83,
+                6.200000000000001,
+                9.77,
+                6.6
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0016",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.83,
+                4.875,
+                9.77,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0016",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.83,
+                4.875,
+                9.77,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0017",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.83,
+                4.875,
+                9.77,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0017",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.83,
+                4.875,
+                9.77,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0018",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.0,
+                3.8200000000000003,
+                8.899999999999999,
+                6.18
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0018",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.0,
+                3.8200000000000003,
+                8.899999999999999,
+                6.18
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0019",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.98,
+                3.54,
+                8.92,
+                3.9400000000000004
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0019",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.98,
+                3.54,
+                8.92,
+                3.9400000000000004
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0020",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.98,
+                6.0600000000000005,
+                8.92,
+                6.459999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0020",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.98,
+                6.0600000000000005,
+                8.92,
+                6.459999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0021",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.98,
+                4.855,
+                8.92,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0021",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.98,
+                4.855,
+                8.92,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0022",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.98,
+                4.855,
+                8.92,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0022",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.98,
+                4.855,
+                8.92,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0023",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.15,
+                3.96,
+                8.049999999999999,
+                6.039999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0023",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.15,
+                3.96,
+                8.049999999999999,
+                6.039999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0024",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.130000000000001,
+                3.6799999999999997,
+                8.07,
+                4.08
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0024",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.130000000000001,
+                3.6799999999999997,
+                8.07,
+                4.08
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0025",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.130000000000001,
+                5.920000000000002,
+                8.07,
+                6.32
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0025",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.130000000000001,
+                5.920000000000002,
+                8.07,
+                6.32
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0026",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.130000000000001,
+                4.875,
+                8.07,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0026",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.130000000000001,
+                4.875,
+                8.07,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0027",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.130000000000001,
+                4.875,
+                8.07,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0027",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.130000000000001,
+                4.875,
+                8.07,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0028",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                6.300000000000001,
+                4.1,
+                7.199999999999999,
+                5.9
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0028",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                6.300000000000001,
+                4.1,
+                7.199999999999999,
+                5.9
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0029",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                6.279999999999999,
+                3.8199999999999994,
+                7.220000000000001,
+                4.22
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0029",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                6.279999999999999,
+                3.8199999999999994,
+                7.220000000000001,
+                4.22
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0030",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                6.279999999999999,
+                5.780000000000001,
+                7.220000000000001,
+                6.18
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0030",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                6.279999999999999,
+                5.780000000000001,
+                7.220000000000001,
+                6.18
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0031",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                6.279999999999999,
+                4.855,
+                7.220000000000001,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0031",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                6.279999999999999,
+                4.855,
+                7.220000000000001,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0032",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                6.279999999999999,
+                4.855,
+                7.220000000000001,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0032",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                6.279999999999999,
+                4.855,
+                7.220000000000001,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0033",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.450000000000001,
+                4.24,
+                6.35,
+                5.76
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0033",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.450000000000001,
+                4.24,
+                6.35,
+                5.76
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0034",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.43,
+                3.96,
+                6.369999999999999,
+                4.36
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0034",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.43,
+                3.96,
+                6.369999999999999,
+                4.36
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0035",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.43,
+                5.640000000000001,
+                6.369999999999999,
+                6.039999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0035",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.43,
+                5.640000000000001,
+                6.369999999999999,
+                6.039999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0036",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.43,
+                4.875,
+                6.369999999999999,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0036",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.43,
+                4.875,
+                6.369999999999999,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0037",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.43,
+                4.875,
+                6.369999999999999,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0037",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.43,
+                4.875,
+                6.369999999999999,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0038",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4.600000000000001,
+                4.38,
+                5.5,
+                5.619999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0038",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4.600000000000001,
+                4.38,
+                5.5,
+                5.619999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0039",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4.58,
+                4.1,
+                5.52,
+                4.5
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0039",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4.58,
+                4.1,
+                5.52,
+                4.5
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0040",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4.58,
+                5.5,
+                5.52,
+                5.899999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0040",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4.58,
+                5.5,
+                5.52,
+                5.899999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0041",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4.58,
+                4.855,
+                5.52,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0041",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4.58,
+                4.855,
+                5.52,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0042",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4.58,
+                4.855,
+                5.52,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0042",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4.58,
+                4.855,
+                5.52,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0043",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                3.75,
+                4.5200000000000005,
+                4.649999999999999,
+                5.48
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0043",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                3.75,
+                4.5200000000000005,
+                4.649999999999999,
+                5.48
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0044",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                3.7300000000000004,
+                4.24,
+                4.67,
+                4.640000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0044",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                3.7300000000000004,
+                4.24,
+                4.67,
+                4.640000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0045",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                3.7300000000000004,
+                5.360000000000001,
+                4.67,
+                5.76
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0045",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                3.7300000000000004,
+                5.360000000000001,
+                4.67,
+                5.76
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0046",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                3.7300000000000004,
+                4.875,
+                4.67,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0046",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                3.7300000000000004,
+                4.875,
+                4.67,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0047",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                3.7300000000000004,
+                4.875,
+                4.67,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0047",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                3.7300000000000004,
+                4.875,
+                4.67,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0048",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.900000000000002,
+                4.66,
+                3.8000000000000007,
+                5.34
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0048",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.900000000000002,
+                4.66,
+                3.8000000000000007,
+                5.34
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0049",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.879999999999999,
+                4.38,
+                3.8200000000000003,
+                4.78
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0049",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.879999999999999,
+                4.38,
+                3.8200000000000003,
+                4.78
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0050",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.879999999999999,
+                5.220000000000001,
+                3.8200000000000003,
+                5.619999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0050",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.879999999999999,
+                5.220000000000001,
+                3.8200000000000003,
+                5.619999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0051",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.879999999999999,
+                4.855,
+                3.8200000000000003,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0051",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.879999999999999,
+                4.855,
+                3.8200000000000003,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0052",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.879999999999999,
+                4.855,
+                3.8200000000000003,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0052",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.879999999999999,
+                4.855,
+                3.8200000000000003,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0053",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.0500000000000007,
+                4.8,
+                2.9499999999999993,
+                5.199999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0053",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.0500000000000007,
+                4.8,
+                2.9499999999999993,
+                5.199999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0054",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.030000000000001,
+                4.52,
+                2.969999999999999,
+                4.92
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0054",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.030000000000001,
+                4.52,
+                2.969999999999999,
+                4.92
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0055",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.030000000000001,
+                5.08,
+                2.969999999999999,
+                5.479999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0055",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.030000000000001,
+                5.08,
+                2.969999999999999,
+                5.479999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0056",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.030000000000001,
+                4.875,
+                2.969999999999999,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0056",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.030000000000001,
+                4.875,
+                2.969999999999999,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0057",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.030000000000001,
+                4.875,
+                2.969999999999999,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0057",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                2.030000000000001,
+                4.875,
+                2.969999999999999,
+                5.125
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0058",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                1.1600000000000001,
+                4.925,
+                2.1400000000000006,
+                5.074999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0058",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                1.1600000000000001,
+                4.925,
+                2.1400000000000006,
+                5.074999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0059",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                1.1799999999999997,
+                4.704000000000001,
+                2.120000000000001,
+                5.016
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0059",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                1.1799999999999997,
+                4.704000000000001,
+                2.120000000000001,
+                5.016
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0060",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                1.1999999999999993,
+                4.984000000000001,
+                2.099999999999998,
+                5.296000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0060",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                1.1999999999999993,
+                4.984000000000001,
+                2.099999999999998,
+                5.296000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0061",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                1.1999999999999993,
+                4.855,
+                2.099999999999998,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0061",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                1.1999999999999993,
+                4.855,
+                2.099999999999998,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0062",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                1.1999999999999993,
+                4.855,
+                2.099999999999998,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0062",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                1.1999999999999993,
+                4.855,
+                2.099999999999998,
+                5.145
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0093",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.825,
+                5.299999999999999,
+                10.175,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0093",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.825,
+                5.299999999999999,
+                10.175,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0094",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.424999999999999,
+                5.299999999999999,
+                8.775,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0094",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.424999999999999,
+                5.299999999999999,
+                8.775,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0095",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.024999999999999,
+                5.299999999999999,
+                7.375,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0095",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.024999999999999,
+                5.299999999999999,
+                7.375,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0096",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.625,
+                5.299999999999999,
+                5.975000000000001,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0096",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.625,
+                5.299999999999999,
+                5.975000000000001,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0097",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.825,
+                5.299999999999999,
+                10.175,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0097",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                9.825,
+                5.299999999999999,
+                10.175,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0098",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.424999999999999,
+                5.299999999999999,
+                8.775,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0098",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                8.424999999999999,
+                5.299999999999999,
+                8.775,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0099",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.024999999999999,
+                5.299999999999999,
+                7.375,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0099",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                7.024999999999999,
+                5.299999999999999,
+                7.375,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0100",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.625,
+                5.299999999999999,
+                5.975000000000001,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0100",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                5.625,
+                5.299999999999999,
+                5.975000000000001,
+                5.4
+              ],
+              "rotation": 90
+            }
+          }
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "mixed_texture_atlases": 1,
+        "overlap_aabb": 225,
+        "coplanar_contact_possible_zfight": 1,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "import",
+    "args": {
+      "path": "/IdeaProjects/Astera/.claude/worktrees/vm-dagger/content/models/items/dagger.model.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 225,
+        "coplanar_contact_possible_zfight": 1,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "after"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 225,
+        "coplanar_contact_possible_zfight": 1,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "gui",
+        "firstperson_righthand",
+        "firstperson_lefthand",
+        "thirdperson_righthand",
+        "thirdperson_lefthand",
+        "ground",
+        "fixed"
+      ],
+      "resolution": 256,
+      "name": "contexts"
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.diff",
+    "args": {
+      "a": "before",
+      "b": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "export",
+    "args": {
+      "path": "build/dagger/reproduce-final/export"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 32,
+      "name": "inventory-16"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 32,
+      "name": "inventory-32"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 64,
+      "name": "inventory-64"
+    },
+    "validation": null
+  }
+]
