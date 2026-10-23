@@ -66,12 +66,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "Round47: 116tickから標的の地面に発光と拡大輪を追加、150tick付近で消失。frame140で足元固定を確認。一体のみ撮影、多標的配置は未確認。195フレーム、遅延2ms・同一最大2、表示数769サンプルでピーク59。床の光量不足、軌跡の動き、人物/鎖形状、変身/通常入力、命中仕様は未一致。"
+    "reason": "Round48: 三体の足元に床輪/赤い発光を確認。カメラ向きの光芯を追加。195フレーム、遅延2ms、同一最大4、全詠唱769サンプルのピーク59。配置のみの確認で命中数は未認定。原動画の強い白赤の光、軌跡の動き、人物/鎖形状、変身/通常入力は未一致。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 13,
+  "iterations": 14,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
-  "contentRevision": "64dad6ff2cf840cc6a1f330b09c81f21453a607f3ba94db213ba8d35d30ea905"
+  "contentRevision": "2206141edfcf3836e5871e948ce1e7154a7c024e8ec42a0bd3d22bfcba2f13bc"
 }
