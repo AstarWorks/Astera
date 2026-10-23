@@ -53,7 +53,7 @@ sprites:
   thunder-spark: { from: vfx-v1, row: 4, frames: 6 }
   blood-splash: { from: vfx-v1, row: 5, frames: 6 }
   bastion-s1-crescent: { from: bastion-s1-crescent, raw: true, frames: 6, size: 256 }
-  bastion-s1-ink: { from: bastion-s1-ink, raw: true, frames: 6, size: 256 }
+  bastion-s1-ink: { from: bastion-s1-ink, raw: true, frames: 2, size: 256 }
   bastion-s1-streak: { from: bastion-s1-streak, raw: true, frames: 1, size: 256 }
   bastion-s1-smoke: { from: bastion-s1-smoke, raw: true, frames: 4, size: 256 }
   bastion-s1-glint: { from: bastion-s1-glint, raw: true, frames: 2, size: 128 }
