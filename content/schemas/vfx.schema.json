@@ -38,6 +38,12 @@
             "items": {
                 "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxRigYaml"
             }
+        },
+        "target_reference": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
         }
     },
     "required": [
@@ -370,6 +376,12 @@
                 },
                 "emit": {
                     "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxEmitYaml"
+                },
+                "target_track": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxTargetKeyYaml"
+                    }
                 }
             },
             "required": [
@@ -1013,6 +1025,21 @@
                 "start_t",
                 "end_t",
                 "life_ticks"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxTargetKeyYaml": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "integer"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "t",
+                "weight"
             ]
         }
     }

@@ -232,6 +232,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0--1-edge-0
   kind:
     type: block
@@ -460,6 +471,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0--1-blade-1
   kind:
     type: block
@@ -688,6 +710,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0--1-edge-1
   kind:
     type: block
@@ -916,6 +949,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0--1-blade-2
   kind:
     type: block
@@ -1144,6 +1188,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0--1-edge-2
   kind:
     type: block
@@ -1372,6 +1427,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0--1-handle-0
   kind:
     type: block
@@ -1600,6 +1666,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0--1-handle-1
   kind:
     type: block
@@ -1828,6 +1905,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0--1-handle-2
   kind:
     type: block
@@ -2056,6 +2144,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0--1-handle-3
   kind:
     type: block
@@ -2284,6 +2383,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0--1-handle-4
   kind:
     type: block
@@ -2512,6 +2622,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-1-blade-0
   kind:
     type: block
@@ -2740,6 +2861,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-1-edge-0
   kind:
     type: block
@@ -2968,6 +3100,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-1-blade-1
   kind:
     type: block
@@ -3196,6 +3339,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-1-edge-1
   kind:
     type: block
@@ -3424,6 +3578,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-1-blade-2
   kind:
     type: block
@@ -3652,6 +3817,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-1-edge-2
   kind:
     type: block
@@ -3880,6 +4056,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-1-handle-0
   kind:
     type: block
@@ -4108,6 +4295,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-1-handle-1
   kind:
     type: block
@@ -4336,6 +4534,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-1-handle-2
   kind:
     type: block
@@ -4564,6 +4773,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-1-handle-3
   kind:
     type: block
@@ -4792,6 +5012,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-1-handle-4
   kind:
     type: block
@@ -5020,6 +5251,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-hinge-flower-0
   kind:
     type: block
@@ -5180,6 +5422,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-hinge-flower-1
   kind:
     type: block
@@ -5340,6 +5593,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-hinge-flower-2
   kind:
     type: block
@@ -5500,6 +5764,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-hinge-flower-3
   kind:
     type: block
@@ -5660,6 +5935,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 17
+    weight: 0
+  - t: 18
+    weight: 0.3
+  - t: 19
+    weight: 0.6
+  - t: 20
+    weight: 1
 - id: 0-orbit-cut--1
   kind:
     type: sprite
@@ -5988,6 +6274,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30--1-edge-0
   kind:
     type: block
@@ -6164,6 +6461,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30--1-blade-1
   kind:
     type: block
@@ -6340,6 +6648,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30--1-edge-1
   kind:
     type: block
@@ -6516,6 +6835,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30--1-blade-2
   kind:
     type: block
@@ -6692,6 +7022,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30--1-edge-2
   kind:
     type: block
@@ -6868,6 +7209,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30--1-handle-0
   kind:
     type: block
@@ -7044,6 +7396,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30--1-handle-1
   kind:
     type: block
@@ -7220,6 +7583,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30--1-handle-2
   kind:
     type: block
@@ -7396,6 +7770,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30--1-handle-3
   kind:
     type: block
@@ -7572,6 +7957,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30--1-handle-4
   kind:
     type: block
@@ -7748,6 +8144,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-1-blade-0
   kind:
     type: block
@@ -7924,6 +8331,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-1-edge-0
   kind:
     type: block
@@ -8100,6 +8518,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-1-blade-1
   kind:
     type: block
@@ -8276,6 +8705,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-1-edge-1
   kind:
     type: block
@@ -8452,6 +8892,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-1-blade-2
   kind:
     type: block
@@ -8628,6 +9079,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-1-edge-2
   kind:
     type: block
@@ -8804,6 +9266,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-1-handle-0
   kind:
     type: block
@@ -8980,6 +9453,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-1-handle-1
   kind:
     type: block
@@ -9156,6 +9640,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-1-handle-2
   kind:
     type: block
@@ -9332,6 +9827,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-1-handle-3
   kind:
     type: block
@@ -9508,6 +10014,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-1-handle-4
   kind:
     type: block
@@ -9684,6 +10201,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-hinge-flower-0
   kind:
     type: block
@@ -9808,6 +10336,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-hinge-flower-1
   kind:
     type: block
@@ -9932,6 +10471,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-hinge-flower-2
   kind:
     type: block
@@ -10056,6 +10606,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-hinge-flower-3
   kind:
     type: block
@@ -10180,6 +10741,17 @@ elements:
     - 0.0
     - 0.0
     - 0.0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 7
+    weight: 0
+  - t: 8
+    weight: 0.3
+  - t: 9
+    weight: 0.6
+  - t: 10
+    weight: 1
 - id: 30-orbit-cut--1
   kind:
     type: sprite
@@ -10379,6 +10951,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.0625
 - id: tether-19-0-1
   kind:
     type: quad
@@ -10426,6 +11003,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.0625
 - id: tether-19-1-0
   kind:
     type: quad
@@ -10473,6 +11055,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.1875
 - id: tether-19-1-1
   kind:
     type: quad
@@ -10520,6 +11107,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.1875
 - id: tether-19-2-0
   kind:
     type: quad
@@ -10567,6 +11159,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.3125
 - id: tether-19-2-1
   kind:
     type: quad
@@ -10614,6 +11211,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.3125
 - id: tether-19-3-0
   kind:
     type: quad
@@ -10661,6 +11263,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.4375
 - id: tether-19-3-1
   kind:
     type: quad
@@ -10708,6 +11315,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.4375
 - id: tether-19-4-0
   kind:
     type: quad
@@ -10755,6 +11367,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.5625
 - id: tether-19-4-1
   kind:
     type: quad
@@ -10802,6 +11419,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.5625
 - id: tether-19-5-0
   kind:
     type: quad
@@ -10849,6 +11471,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.6875
 - id: tether-19-5-1
   kind:
     type: quad
@@ -10896,6 +11523,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.6875
 - id: tether-19-6-0
   kind:
     type: quad
@@ -10943,6 +11575,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.8125
 - id: tether-19-6-1
   kind:
     type: quad
@@ -10990,6 +11627,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.8125
 - id: tether-19-7-0
   kind:
     type: quad
@@ -11037,6 +11679,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.9375
 - id: tether-19-7-1
   kind:
     type: quad
@@ -11084,6 +11731,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.9375
 - id: tether-39-0-0
   kind:
     type: quad
@@ -11131,6 +11783,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.0625
 - id: tether-39-0-1
   kind:
     type: quad
@@ -11178,6 +11835,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.0625
 - id: tether-39-1-0
   kind:
     type: quad
@@ -11225,6 +11887,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.1875
 - id: tether-39-1-1
   kind:
     type: quad
@@ -11272,6 +11939,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.1875
 - id: tether-39-2-0
   kind:
     type: quad
@@ -11319,6 +11991,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.3125
 - id: tether-39-2-1
   kind:
     type: quad
@@ -11366,6 +12043,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.3125
 - id: tether-39-3-0
   kind:
     type: quad
@@ -11413,6 +12095,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.4375
 - id: tether-39-3-1
   kind:
     type: quad
@@ -11460,6 +12147,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.4375
 - id: tether-39-4-0
   kind:
     type: quad
@@ -11507,6 +12199,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.5625
 - id: tether-39-4-1
   kind:
     type: quad
@@ -11554,6 +12251,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.5625
 - id: tether-39-5-0
   kind:
     type: quad
@@ -11601,6 +12303,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.6875
 - id: tether-39-5-1
   kind:
     type: quad
@@ -11648,6 +12355,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.6875
 - id: tether-39-6-0
   kind:
     type: quad
@@ -11695,6 +12407,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.8125
 - id: tether-39-6-1
   kind:
     type: quad
@@ -11742,6 +12459,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.8125
 - id: tether-39-7-0
   kind:
     type: quad
@@ -11789,6 +12511,11 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.9375
 - id: tether-39-7-1
   kind:
     type: quad
@@ -11836,3 +12563,12 @@ elements:
     - 0
     - 0
     - 0
+  target_track:
+  - t: 0
+    weight: 0
+  - t: 1
+    weight: 0.9375
+target_reference:
+- 0
+- 0
+- 4

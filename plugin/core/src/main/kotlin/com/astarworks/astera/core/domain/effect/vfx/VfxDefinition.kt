@@ -82,6 +82,8 @@ public data class VfxDefinition(
     public val attachToAnchor: Boolean = false,
     /** Replace an earlier following effect in this group on the same entity and world. */
     public val replaceGroup: String? = null,
+    /** Authored target feet position in anchor-local coordinates; tracked slots translate by the live correction. */
+    public val targetReference: Vec3? = null,
 ) {
     init {
         require(durationTicks in 1..MAX_DURATION_TICKS) { "VfxDefinition.durationTicks must be 1..$MAX_DURATION_TICKS: $durationTicks" }
@@ -89,6 +91,8 @@ public data class VfxDefinition(
         require(replaceGroup == null || replaceGroup.matches(Regex("[a-z][a-z0-9-]{0,63}"))) { "replaceGroup must be lower-kebab, at most 64 characters" }
         require(sampleTicks >= 1) { "VfxDefinition.sampleTicks must be >= 1: $sampleTicks" }
         require(elements.isNotEmpty() || rigs.isNotEmpty()) { "VfxDefinition needs elements or rigs" }
+        require(targetReference == null || (!follow && !attachToAnchor)) { "target tracking requires a fixed anchor without native attachment" }
+        require(elements.none { it.targetTrack.isNotEmpty() } || targetReference != null) { "target tracks require target_reference" }
         val ids = elements.map { it.id } + rigs.map { it.id }
         require(ids.toSet().size == ids.size) { "VfxDefinition element ids must be unique: $ids" }
         val slots = elements.sumOf { it.slotCount }
@@ -140,6 +144,8 @@ public data class VfxElement(
      * is the emitter origin) and [count] / [formation] / [oscillate] are unused.
      */
     public val emit: VfxEmitter? = null,
+    /** Keys share the element keyframe clock: spawn + 1 + t. Model scale and rotation are preserved. */
+    public val targetTrack: List<VfxTargetKey> = emptyList(),
 ) {
     /** Display slots this element can plan (emitter particles count individually toward the budget). */
     public val slotCount: Int get() = emit?.count ?: count
@@ -154,6 +160,8 @@ public data class VfxElement(
         require(keyframes.isNotEmpty() || emit != null) { "element '$id' needs at least one keyframe" }
         require(keyframes.isEmpty() || keyframes.first().t >= 0) { "element '$id' keyframe t must be >= 0" }
         require(emit == null || kind is VfxElementKind.Quad) { "element '$id': emit needs kind quad" }
+        require(targetTrack.isEmpty() || (emit == null && kind !is VfxElementKind.Particle)) { "target tracking supports non-emitting displays only" }
+        targetTrack.zipWithNext().forEach { (a, b) -> require(b.t > a.t) { "target track times must increase" } }
         keyframes.zipWithNext().forEach { (a, b) ->
             require(b.t > a.t) { "element '$id' keyframe t must be strictly increasing (${a.t} then ${b.t})" }
         }

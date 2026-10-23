@@ -554,6 +554,8 @@ public sealed class Mechanic {
     public data class PlayVfx(
         override val targets: Targeter,
         val vfxId: VfxId,
+        /** Requires the target selected by for_each_target. */
+        val trackBoundTarget: Boolean = false,
         val scale: NumericValue = NumericValue.Literal(1.0),
         val follow: BoolValue? = null,
         /** Hit-stop windows (effect-relative ticks) that freeze the rigs with `respect_hit_stop`. */

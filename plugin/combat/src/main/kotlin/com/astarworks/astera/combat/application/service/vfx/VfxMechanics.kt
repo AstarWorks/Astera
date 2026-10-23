@@ -20,6 +20,7 @@ internal class VfxMechanics(
     private val targeters: TargeterResolver,
     private val poseLookup: IPlayerPoseLookup?,
     private val scheduler: IScheduler,
+    private val isLiving: (com.astarworks.astera.core.domain.player.PlayerId) -> Boolean,
     private val log: Logger,
 ) {
 
@@ -27,6 +28,11 @@ internal class VfxMechanics(
 
     fun play(m: Mechanic.PlayVfx, ctx: MechanicContext, scale: Double, follow: Boolean?, freeze: List<VfxFreeze> = emptyList()) {
         val world = ctx.worldId ?: return log.debug("PlayVfx {} dropped: ctx.worldId is null", m.vfxId)
+        val trackedTarget = if (m.trackBoundTarget) {
+            val id = ctx.targetId ?: return
+            if (ctx.boundTargetWorld != world) return
+            id
+        } else null
         val casterPosition = ctx.pose?.position ?: ctx.origin
         val look = ctx.pose?.direction?.takeIf { it.lengthSquared() > 1e-9 }
 
@@ -53,6 +59,12 @@ internal class VfxMechanics(
                 freeze = freeze,
                 anchor = live,
                 anchorEntityId = entities.getOrNull(index),
+                target = trackedTarget?.let { id -> {
+                    val position = if (ctx.boundTargetState?.cancelled != true && isLiving(id))
+                        poseLookup?.poseOf(id)?.takeIf { it.world == world }?.position else null
+                    if (position == null) ctx.boundTargetState?.cancelled = true
+                    position
+                } },
                 seed = scheduler.currentTick() * 1_000_003L + ctx.actorId.hashCode() * 31L + index,
             )
             when (val result = player.play(request)) {

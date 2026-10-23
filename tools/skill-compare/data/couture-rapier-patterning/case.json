@@ -37,16 +37,16 @@
       "notes": "Same remotely directed shears make second cutting contact; target star flares after launch flash f699."
     }
   ],
-  "notes": "1コイン再使用の2接触。直接呼出し試作、追撃条件・通常入力未接続。固定4mの鋏と8節の尾、同一標的へ21/41tickの暫定命中。尾は追加済みだが形・発光は未一致。",
+  "notes": "1コイン再使用の2接触。直接呼出し試作、追撃条件・通常入力は未接続。選択標的の現在位置へ鋏の終点を補正し、21/41tickに同じ標的へ命中。尾の各節も位置補正するが長距離の間隔・向きは未一致。",
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "命中光を専用の先細り横光へ変更。輪郭の硬さ、縦の接触光、発光・花片、固定4m軌道、腕・装飾・カメラ・追撃条件は未一致。"
+    "reason": "鋏の終点を同一標的へ追従させ、移動・消失を実機確認。長距離の尾の節間/向き、鋏の進行方向、腕・装飾・発光・カメラ・追撃発動条件は未一致。"
   },
   "weapon": "couture-rapier",
   "identity": "Haute Couture::Alteration Shop Rodion",
-  "iterations": 6,
+  "iterations": 11,
   "report": "/report/couture-rapier",
   "referenceRevision": "f256c2f71203b07c0bcbe4dabee85a9472ab6d5e2ef78e4189e3a3928661e56d",
-  "contentRevision": "6f5857b7e1b7416c93ad743d9e10116e8e6e6b5ba2b8eef539fcbb2376c0594b"
+  "contentRevision": "83605beea356c6b5efa9b8ed3f5a32d7e1502751cf91357a8e56f3fad9ba9025"
 }

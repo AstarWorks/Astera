@@ -271,6 +271,7 @@ public class MechanicDispatcher(
                     log = log,
                 ),
                 targeters = targeterResolver,
+                isLiving = { living(listOf(it)).isNotEmpty() },
                 poseLookup = poseLookup,
                 scheduler = scheduler,
                 log = log,
@@ -408,11 +409,14 @@ public class MechanicDispatcher(
 
     /** Runs [mechanic] if its `condition` holds against [ctx] at THIS moment (cast time or fire time). */
     private fun fireGated(mechanic: Mechanic, ctx: MechanicContext) {
+        if (ctx.boundTargetState?.cancelled == true) return
         if (ctx.boundTargetWorld != null) {
-            val target = ctx.targetId ?: return
-            if (living(listOf(target)).isEmpty()) return
-            val pose = poseLookup?.poseOf(target) ?: return
-            if (pose.world != ctx.boundTargetWorld) return
+            val target = ctx.targetId
+            val pose = target?.let { poseLookup?.poseOf(it) }
+            if (target == null || living(listOf(target)).isEmpty() || pose?.world != ctx.boundTargetWorld) {
+                ctx.boundTargetState?.cancelled = true
+                return
+            }
         }
         val gate = mechanic.condition
         if (gate != null && !resolveCondition(gate, ctx)) return
@@ -905,7 +909,7 @@ public class MechanicDispatcher(
                 val targets = living(targeterResolver.resolvePlayers(mechanic.targets, ctx)).distinct()
                 for (target in targets) {
                     val targetPose = poseLookup?.poseOf(target) ?: continue
-                    dispatch(mechanic.mechanics, ctx.copy(targetId = target, boundTargetWorld = targetPose.world, boundTargetOrigin = targetPose.position))
+                    dispatch(mechanic.mechanics, ctx.copy(targetId = target, boundTargetWorld = targetPose.world, boundTargetOrigin = targetPose.position, boundTargetState = BoundTargetState()))
                 }
             }
 
@@ -1109,6 +1113,7 @@ public data class MechanicContext(
     /** ForEachTarget children stop if the bound entity dies, disappears or changes world. */
     public val boundTargetWorld: WorldId? = null,
     public val boundTargetOrigin: Vec3? = null,
+    public val boundTargetState: BoundTargetState? = null,
     public val origin: Vec3,
     public val worldId: WorldId? = null,
     public val depth: Int = 0,
@@ -1126,3 +1131,8 @@ public data class MechanicContext(
      */
     public val hitLocation: Vec3? = null,
 )
+
+/** Shared by delayed children and tracked VFX of one selected target; main-thread only. */
+public class BoundTargetState {
+    public var cancelled: Boolean = false
+}
