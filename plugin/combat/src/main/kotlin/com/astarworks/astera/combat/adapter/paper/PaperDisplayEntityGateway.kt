@@ -10,6 +10,8 @@ import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
+import com.astarworks.astera.core.domain.player.PlayerId
+import org.bukkit.entity.Player
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Color
@@ -37,6 +39,27 @@ public class PaperDisplayEntityGateway(
 ) : IDisplayEntityGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
+    private class Attachment(val anchor: PlayerId, val world: org.bukkit.World,
+        var offset: Vec3, var transform: DisplayTransform)
+    private val attachments = mutableMapOf<DisplayHandle, Attachment>()
+
+    override fun attach(handle: DisplayHandle, anchor: PlayerId, offset: Vec3, transform: DisplayTransform): Boolean {
+        val display = server.getEntity(handle.id) as? Display ?: return false
+        val player = server.getPlayer(anchor.uuid) ?: return false
+        if (display.billboard != Display.Billboard.FIXED || player.world != display.world || !player.addPassenger(display)) return false
+        attachments[handle] = Attachment(anchor, player.world, offset, transform)
+        update(handle, transform, 0)
+        return true
+    }
+
+    private fun attachmentOwner(handle: DisplayHandle, display: Display, attachment: Attachment): Player? {
+        val player = server.getPlayer(attachment.anchor.uuid)
+        if (player == null || player.world != attachment.world || display.world != attachment.world || display.vehicle != player) {
+            remove(handle)
+            return null
+        }
+        return player
+    }
 
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): DisplayHandle? {
         val bukkitWorld = server.getWorld(world.value) ?: return null
@@ -95,7 +118,14 @@ public class PaperDisplayEntityGateway(
 
     override fun update(handle: DisplayHandle, transform: DisplayTransform, interpolationTicks: Int) {
         val display = server.getEntity(handle.id) as? Display ?: return
-        val next = transformation(transform)
+        val attachment = attachments[handle]
+        val effective = if (attachment != null) {
+            val player = attachmentOwner(handle, display, attachment) ?: return
+            attachment.transform = transform
+            // Player passenger origin is at the current pose's height; content remains feet-relative.
+            transform.copy(translation = transform.translation + attachment.offset - Vec3(0.0, player.height, 0.0))
+        } else transform
+        val next = transformation(effective)
         // Re-sending the start tick without a changed transform restarts client interpolation
         // toward the same endpoint, including when a camera cut starts tracking this entity.
         if (display.transformation == next) return
@@ -124,6 +154,14 @@ public class PaperDisplayEntityGateway(
 
     override fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
         val display = server.getEntity(handle.id) as? Display ?: return
+        val attachment = attachments[handle]
+        if (attachment != null) {
+            val player = attachmentOwner(handle, display, attachment) ?: return
+            val origin = player.location
+            attachment.offset = at - Vec3(origin.x, origin.y, origin.z)
+            update(handle, attachment.transform, teleportTicks)
+            return
+        }
         display.teleportDuration = teleportTicks.coerceIn(0, 59)
         display.teleport(Location(display.world, at.x, at.y, at.z, yaw, pitch))
     }
@@ -139,6 +177,7 @@ public class PaperDisplayEntityGateway(
         ItemDisplay.ItemDisplayTransform.valueOf(mode.name)
 
     override fun remove(handle: DisplayHandle) {
+        attachments.remove(handle)
         server.getEntity(handle.id)?.remove()
     }
 

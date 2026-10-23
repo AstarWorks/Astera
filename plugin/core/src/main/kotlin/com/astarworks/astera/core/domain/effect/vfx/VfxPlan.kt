@@ -16,6 +16,8 @@ public data class VfxPlan(
     public val follow: Boolean,
     public val elements: List<VfxElementPlan>,
     public val followTeleportTicks: Int? = null,
+    /** Opt-in native attachment for fixed displays following a player anchor. */
+    public val attachToAnchor: Boolean = false,
 ) {
     /** Number of display entities the plan spawns (particle slots spawn none). */
     public val displayCount: Int get() = elements.count { it.kind !is VfxElementKind.Particle }

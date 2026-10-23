@@ -15,6 +15,9 @@
         "follow": {
             "type": "boolean"
         },
+        "attach_to_anchor": {
+            "type": "boolean"
+        },
         "follow_teleport_ticks": {
             "type": ["integer", "null"]
         },

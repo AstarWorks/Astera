@@ -2,6 +2,7 @@ id: edict-procuration-airborne
 duration_ticks: 6
 orient: yaw
 follow: true
+attach_to_anchor: true
 follow_teleport_ticks: 3
 sample_ticks: 1
 elements:

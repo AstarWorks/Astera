@@ -76,8 +76,10 @@ public data class VfxDefinition(
     public val elements: List<VfxElement>,
     /** Weapon rigs + 風切り trails ([VfxRig]); planned into ordinary slots by [VfxRigPlanner]. */
     public val rigs: List<VfxRig> = emptyList(),
-    /** Optional anchor teleport smoothing override; 0 keeps fast attached effects at the current anchor. */
+    /** Optional anchor teleport smoothing override; 0 disables teleport smoothing. */
     public val followTeleportTicks: Int? = null,
+    /** Opt-in native attachment for fixed displays following a player anchor. */
+    public val attachToAnchor: Boolean = false,
 ) {
     init {
         require(durationTicks in 1..MAX_DURATION_TICKS) { "VfxDefinition.durationTicks must be 1..$MAX_DURATION_TICKS: $durationTicks" }
