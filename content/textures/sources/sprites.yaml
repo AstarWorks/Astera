@@ -15,6 +15,7 @@ sources:
   bastion-s1-glint: { file: images/bastion-s1-glint.png }
   bastion-s1-sliver: { file: images/bastion-s1-sliver.png }
   bastion-s1-ring: { file: images/bastion-s1-ring.png }
+  bastion-s1-arch: { file: images/bastion-s1-arch.png }
 
 sprites:
   gossamer-ribbon: { draw: gossamer_ribbon, frames: 4, size: 128, color: "#DDE5F5" }
@@ -56,3 +57,4 @@ sprites:
   bastion-s1-glint: { from: bastion-s1-glint, raw: true, frames: 2, size: 128 }
   bastion-s1-sliver: { from: bastion-s1-sliver, raw: true, frames: 3, size: 128 }
   bastion-s1-ring: { from: bastion-s1-ring, raw: true, frames: 6, size: 256 }
+  bastion-s1-arch: { from: bastion-s1-arch, raw: true, frames: 6, size: 256 }

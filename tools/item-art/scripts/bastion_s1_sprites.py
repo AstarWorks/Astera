@@ -321,10 +321,10 @@ def smoke_frame(size, turn, grow, dissolve, seed):
     dens = band * (0.3 + 1.0 * n1)
     dens = np.clip((dens - dissolve) / max(1 - dissolve, 1e-3), 0, 1)
     dens = smooth(dens * 1.5)
-    light, dark = hexc("#B8B8C0"), hexc("#4A4A52")
+    light, dark = hexc("#B8B8C0"), hexc("#62626C")
     mix = smooth((n2 - 0.38) * 2.4)[..., None]
     col = dark[None, None] * (1 - mix) + light[None, None] * mix
-    alpha = np.clip(0.2 + 0.5 * dens, 0, 0.7) * smooth(dens * 7)
+    alpha = np.clip(0.1 + 0.4 * dens, 0, 0.5) * smooth(dens * 5)
     return over(blank(n), col, alpha)
 
 
@@ -409,7 +409,7 @@ def make_sliver():
 PALE = hexc("#FFFBE0")
 
 
-def ring_frame(size, ext, tail, wscale):
+def ring_frame(size, ext, tail, wscale, c0=0.7, half_f=0.94):
     """Round 3 (reference b00/b03/e05): ONE thin gold ellipse, needle tips, white-hot inner edge, thickest at the
     lower right, faint warm halo. Flat ellipse; the director tilts it with roll. No orange body (reference is gold)."""
     X, Y = grid(size)
@@ -420,8 +420,7 @@ def ring_frame(size, ext, tail, wscale):
     grad = np.hypot(dx / rx ** 2, dy / ry ** 2) / np.maximum(rho, 1e-4)
     dist = (rho - 1.0) / np.maximum(grad, 1e-6)  # px from the ellipse line, + outside
     psi = np.arctan2(dx / rx, dy / ry)  # 0 at the bottom, + toward the right
-    c0 = 0.7  # centre of the span (lower right)
-    half = math.pi * 0.94
+    half = math.pi * half_f  # c0 = centre of the span (default lower right; the arch uses the top)
     s = np.arctan2(np.sin(psi - c0), np.cos(psi - c0)) / half  # -1..1 around the centre, wraps at the top-left
     # the sweep grows from the +1 end back toward -1 (ext), tail trims the -1 end
     s_hi = 1.0
@@ -456,8 +455,15 @@ def make_ring():
     save_strip("ring", [downsample(ring_frame(size, *sp), size) for sp in specs], size)
 
 
+def make_arch():
+    """Hit 1 (reference b03): only the UPPER arc of a tilted ellipse, needle tips fading out toward the sides."""
+    size = 256
+    specs = [(0.55, 0.0, 0.7), (0.97, 0.0, 0.95), (1.0, 0.0, 1.0), (1.0, 0.0, 0.95), (1.0, 0.18, 0.75), (1.0, 0.4, 0.5)]
+    save_strip("arch", [downsample(ring_frame(size, *sp, c0=math.pi, half_f=0.56), size) for sp in specs], size)
+
+
 MAKERS = {"crescent": make_crescent, "ink": make_ink, "streak": make_streak, "smoke": make_smoke,
-          "glint": make_glint, "sliver": make_sliver, "ring": make_ring}
+          "glint": make_glint, "sliver": make_sliver, "ring": make_ring, "arch": make_arch}
 
 if __name__ == "__main__":
     for nm in (sys.argv[1:] or MAKERS):
