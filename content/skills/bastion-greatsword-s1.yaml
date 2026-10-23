@@ -1,179 +1,212 @@
+# Zwei West Section 3 Ishmael, Knight's Greatsword Form (video 11.633-14.233): two waist-high sweeps. Director integration (pilot, ONE rig).
+# bastion-s1-rig plays at skill tick 0 for the whole skill (freeze 8/31 = the two hit_stops; r9 hit-1 contact tick 8); fx-high/low play at 4/27 (contact = effect tick 4).
+# Hit-1 dash_strike starts at tick 2 (rig keys 0-1 hold the held pose while the caster stands; r6 rig drawn ~1 block ahead when the dash began at tick 0).
+# Sounds: deliver/sound-cues.yaml; vanilla particles ride the blade inside fx-high/low (deliver/particle-cues.yaml round 7b); only the target hit-crit bursts stay here. Caster movement: step-in before hit 1, crouched lunge before hit 2.
 id: bastion-greatsword-s1
-name:
-  ja: 月輪の薙ぎ
-  en: Moon Sweep
-description:
-  ja: 腰の高さで二度薙ぎ払う。初撃が当たると溜めを得る。
-  en: Two broad waist-high sweeps. Landing the first banks charge.
+name: {ja: 月輪の薙ぎ, en: Moon Sweep}
+description: {ja: 一歩踏み込んで腰の高さで二度薙ぎ払う。初撃が当たると溜めを得る。, en: Step in and sweep twice at waist height. Landing the first banks charge.}
 archetype: sequence
 cooldown_ticks: 64
 resource_cost: 20
-tags:
-- melee
-- physical
-- charge
-params:
-  type: sequence
+tags: [melee, physical, charge]
+params: {type: sequence}
 phases:
   type: sequence
   cast:
+  - type: hide_held_item
+    targets: {type: caster}
+    ticks: {type: literal, value: 57}
   - type: play_vfx
-    vfx_id: bastion-s1-sweep
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 3
+    targets: {type: caster}
+    vfx_id: bastion-s1-rig
+    freeze:
+    - {at: 8, ticks: 2}
+    - {at: 31, ticks: 2}
+  - type: dash_strike
+    distance: 1.6
+    ticks: 3
+    radius: 0.3
+    hit_once: true
+    stop_on_block: true
+    follow_pitch: false
+    on_hit: []
+    stop_before_target: 2.4
+    delay_ticks: {type: literal, value: 2}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-step-scuff'
+    volume: {type: literal, value: 0.56}
+    pitch: {type: literal, value: 1.0}
+    delay_ticks: {type: literal, value: 2}
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: bastion-s1-fx-high
+    delay_ticks: {type: literal, value: 4}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-blade-lift'
+    volume: {type: literal, value: 0.56}
+    pitch: {type: literal, value: 1.0}
+    delay_ticks: {type: literal, value: 4}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-whoosh-heavy'
+    volume: {type: literal, value: 0.65}
+    pitch: {type: literal, value: 1.0}
+    delay_ticks: {type: literal, value: 5}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-impact-steel'
+    volume: {type: literal, value: 0.56}
+    pitch: {type: literal, value: 1.0}
+    delay_ticks: {type: literal, value: 8}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-cut-thud'
+    volume: {type: literal, value: 0.56}
+    pitch: {type: literal, value: 1.0}
+    delay_ticks: {type: literal, value: 8}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-armor-ring'
+    volume: {type: literal, value: 0.56}
+    pitch: {type: literal, value: 1.1}
+    delay_ticks: {type: literal, value: 8}
   - type: damage
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 3.4
-      angle_degrees:
-        type: literal
-        value: 110
-      max_count: 1
+    targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 3.6}, angle_degrees: {type: literal, value: 110}, max_count: 1}
     components:
-    - base:
-        type: literal
-        value: 7
+    - base: {type: literal, value: 7}
       attribute: physical
-    ignore_invulnerability:
-      type: literal
-      value: true
-    delay_ticks:
-      type: literal
-      value: 7
-  - type: spawn_particle
-    targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
-    particle_id: bastion-s3-hit-crit
-    delay_ticks:
-      type: literal
-      value: 7
+    ignore_invulnerability: {type: literal, value: true}
+    delay_ticks: {type: literal, value: 8}
   - type: hit_stop
-    targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
+    targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 3.6}, angle_degrees: {type: literal, value: 110}, max_count: 1}
     ticks: 2
     include_caster: true
-    delay_ticks:
-      type: literal
-      value: 7
-  - type: play_sound
-    targets:
-      type: caster
-    sound_id: entity.player.attack.strong
-    delay_ticks:
-      type: literal
-      value: 7
+    delay_ticks: {type: literal, value: 8}
   - type: apply_status
-    targets:
-      type: caster
+    targets: {type: caster}
     status_id: charge
-    effect_duration_ticks:
-      type: literal
-      value: 400
-    stack_count:
-      type: literal
-      value: 1
-    delay_ticks:
-      type: literal
-      value: 7
+    effect_duration_ticks: {type: literal, value: 400}
+    stack_count: {type: literal, value: 1}
     condition:
       type: distance_less_than
-      a:
-        type: caster
+      a: {type: caster}
       b:
         type: nearby_entities
-        center:
-          type: caster
-        radius:
-          type: literal
-          value: 3.3
+        center: {type: caster}
+        radius: {type: literal, value: 3.7}
         exclude_caster: true
-      distance:
-        type: literal
-        value: 3.4
-  - type: play_vfx
-    vfx_id: bastion-s1-rise
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 27
-  - type: damage
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 3.4
-      angle_degrees:
-        type: literal
-        value: 110
-      max_count: 1
-    components:
-    - base:
-        type: literal
-        value: 9
-      attribute: physical
-    ignore_invulnerability:
-      type: literal
-      value: true
-    delay_ticks:
-      type: literal
-      value: 31
+      distance: {type: literal, value: 3.6}
+    delay_ticks: {type: literal, value: 8}
   - type: spawn_particle
-    targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
-    particle_id: bastion-s3-hit-crit
-    delay_ticks:
-      type: literal
-      value: 31
+    targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 3.6}, angle_degrees: {type: literal, value: 110}, max_count: 1}
+    particle_id: bastion-s1-hit-crit
+    delay_ticks: {type: literal, value: 8}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-ring-whirl'
+    volume: {type: literal, value: 0.51}
+    pitch: {type: literal, value: 1.2}
+    delay_ticks: {type: literal, value: 9}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-sword-settle'
+    volume: {type: literal, value: 0.62}
+    pitch: {type: literal, value: 1.0}
+    delay_ticks: {type: literal, value: 20}
+  - type: dash_strike
+    distance: 0.7
+    ticks: 3
+    radius: 0.3
+    hit_once: true
+    stop_on_block: true
+    follow_pitch: false
+    on_hit: []
+    stop_before_target: 1.7
+    delay_ticks: {type: literal, value: 24}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-step-scuff'
+    volume: {type: literal, value: 0.4}
+    pitch: {type: literal, value: 0.85}
+    delay_ticks: {type: literal, value: 24}
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: bastion-s1-fx-low
+    delay_ticks: {type: literal, value: 27}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-blade-lift'
+    volume: {type: literal, value: 0.4}
+    pitch: {type: literal, value: 0.9}
+    delay_ticks: {type: literal, value: 27}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-whoosh-heavy'
+    volume: {type: literal, value: 0.5}
+    pitch: {type: literal, value: 0.8}
+    delay_ticks: {type: literal, value: 27}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-flash-sting'
+    volume: {type: literal, value: 0.4}
+    pitch: {type: literal, value: 1.0}
+    delay_ticks: {type: literal, value: 30}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-impact-steel'
+    volume: {type: literal, value: 0.46}
+    pitch: {type: literal, value: 0.85}
+    delay_ticks: {type: literal, value: 31}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-cut-thud'
+    volume: {type: literal, value: 0.46}
+    pitch: {type: literal, value: 0.9}
+    delay_ticks: {type: literal, value: 31}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-armor-ring'
+    volume: {type: literal, value: 0.46}
+    pitch: {type: literal, value: 0.8}
+    delay_ticks: {type: literal, value: 31}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-ground-slam'
+    volume: {type: literal, value: 0.46}
+    pitch: {type: literal, value: 1.0}
+    delay_ticks: {type: literal, value: 31}
+  - type: damage
+    targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 3.6}, angle_degrees: {type: literal, value: 110}, max_count: 1}
+    components:
+    - base: {type: literal, value: 9}
+      attribute: physical
+    ignore_invulnerability: {type: literal, value: true}
+    delay_ticks: {type: literal, value: 31}
   - type: hit_stop
-    targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
+    targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 3.6}, angle_degrees: {type: literal, value: 110}, max_count: 1}
     ticks: 2
     include_caster: true
-    delay_ticks:
-      type: literal
-      value: 31
+    delay_ticks: {type: literal, value: 31}
+  - type: knockback
+    targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 3.6}, angle_degrees: {type: literal, value: 110}, max_count: 1}
+    direction: {type: away_from_caster, vertical: 0.2}
+    strength: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 31}
+  - type: spawn_particle
+    targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 3.6}, angle_degrees: {type: literal, value: 110}, max_count: 1}
+    particle_id: bastion-s1-hit-crit
+    delay_ticks: {type: literal, value: 31}
   - type: play_sound
-    targets:
-      type: caster
-    sound_id: entity.player.attack.strong
-    delay_ticks:
-      type: literal
-      value: 31
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-ring-whirl'
+    volume: {type: literal, value: 0.46}
+    pitch: {type: literal, value: 1.0}
+    delay_ticks: {type: literal, value: 32}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: 'astera:weapons/bastion-s1-sword-settle'
+    volume: {type: literal, value: 0.4}
+    pitch: {type: literal, value: 0.9}
+    delay_ticks: {type: literal, value: 40}

@@ -1,0 +1,9 @@
+# electric_spark streaks (life 2-3 ticks, v = 0.25 * speed) fired forward in a cone: reads from compare/side
+id: bastion-s1-p-spark
+shape: { kind: point }
+color: { r: 255, g: 240, b: 190 }
+count: 4
+lifetime_ticks: 3
+vanilla_particle: electric_spark
+velocity: { direction: from_caster_look, speed: 1.8, spread_degrees: 55 }
+force: true

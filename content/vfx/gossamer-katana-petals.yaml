@@ -29,12 +29,8 @@ elements:
     size:
     - 0.12
     - 0.25
-    size_over_life:
-    - 1
-    - 0
-    alpha_over_life:
-    - 1
-    - 0
+    size_over_life: [{ t: 0, v: 1 }, { t: 1, v: 0 }]
+    alpha_over_life: [{ t: 0, v: 1 }, { t: 1, v: 0 }]
   keyframes:
   - t: 0
     translate:
@@ -65,12 +61,8 @@ elements:
     size:
     - 0.06
     - 0.15
-    size_over_life:
-    - 1
-    - 0
-    alpha_over_life:
-    - 1
-    - 0
+    size_over_life: [{ t: 0, v: 1 }, { t: 1, v: 0 }]
+    alpha_over_life: [{ t: 0, v: 1 }, { t: 1, v: 0 }]
   keyframes:
   - t: 0
     translate:

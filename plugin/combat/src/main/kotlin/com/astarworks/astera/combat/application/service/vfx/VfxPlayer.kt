@@ -2,6 +2,7 @@ package com.astarworks.astera.combat.application.service.vfx
 
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayHandle
+import com.astarworks.astera.combat.application.service.HeldItemHider
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IVfxRegistry
 import com.astarworks.astera.core.application.port.outbound.ticks
@@ -95,6 +96,8 @@ public class VfxPlayer(
     private val maxLiveDisplays: Int = MAX_LIVE_DISPLAYS,
     /** Flipbook frame counts for `sprite` elements (ADR-0239); unknown sprites play as one frame. */
     private val sprites: SpriteFrames = SpriteFrames.NONE,
+    /** When set, an effect played while the anchor's `hide_held_item` is waiting is staged (see [HeldItemHider]). */
+    private val heldItems: HeldItemHider? = null,
 ) {
 
     private class ElementState(val plan: VfxElementPlan) {
@@ -121,6 +124,9 @@ public class VfxPlayer(
         val elements: List<ElementState> = plan.elements.map(::ElementState)
         var position: Vec3 = request.origin
         var age: Int = 0
+
+        /** Spawned hidden (view range 0) so it replaces the anchor's held weapon in the tick it is revealed. */
+        var staged: Boolean = false
     }
 
     private val instances: MutableList<Instance> = ArrayList()
@@ -175,6 +181,9 @@ public class VfxPlayer(
         }
         replaced.forEach(::finish)
         reserved += plan.displayCount
+        // The client needs one tick to render a new display, the held-item hide needs none: spawn the displays
+        // invisible now, reveal them (and send the hide) next tick, when the client has them ticked.
+        instance.staged = request.anchorEntityId?.let { heldItems?.stage(it) } == true
         if (advance(instance)) {
             finish(instance)
         } else {
@@ -219,6 +228,7 @@ public class VfxPlayer(
     private fun advance(instance: Instance): Boolean {
         val age = instance.age
         val plan = instance.plan
+        if (instance.staged && age == 1) reveal(instance)
         val targetCorrection = instance.request.target?.let { target ->
             val live = target() ?: return true
             live - (instance.position + (instance.targetReference ?: return true))
@@ -248,8 +258,9 @@ public class VfxPlayer(
                     u.style?.let { displays.setTextStyle(handle, it.backgroundArgb, it.textOpacity, it.textRgb) }
                     u.position?.let {
                         state.offset = it
-                        displays.teleport(handle, instance.position + it + state.targetOffset, 0f, 0f, (if (plan.follow && !state.attached) plan.followTeleportTicks else null) ?: u.interpolationTicks.coerceIn(0, MAX_TELEPORT_TICKS))
+                        displays.teleport(handle, instance.position + it + state.targetOffset, 0f, 0f, (if (plan.follow && !state.attached) plan.followTeleportTicks else null) ?: (u.positionTicks ?: u.interpolationTicks).coerceIn(0, MAX_TELEPORT_TICKS))
                     }
+                    if (u.keepTransform) continue
                     state.authoredTransform = u.transform
                     if (state.lineCorrection == null) displays.update(handle, u.transform, u.interpolationTicks)
                 }
@@ -273,6 +284,14 @@ public class VfxPlayer(
             }
         }
         return age >= plan.durationTicks
+    }
+
+    /** Makes the staged displays visible and sends the waiting hide in the same server tick. */
+    private fun reveal(instance: Instance) {
+        for (state in instance.elements) {
+            state.handle?.let { displays.setViewRange(it, state.plan.viewRange ?: DEFAULT_VIEW_RANGE) }
+        }
+        instance.request.anchorEntityId?.let { heldItems?.reveal(it) }
     }
 
     private fun emitParticleCalls(instance: Instance, kind: VfxElementKind.Particle, p: VfxParticleEmission) {
@@ -303,7 +322,7 @@ public class VfxPlayer(
             billboard = e.billboard,
             brightness = e.brightness,
             glowArgb = e.glowArgb,
-            viewRange = e.viewRange,
+            viewRange = if (instance.staged && instance.age == 0) 0f else e.viewRange,
         )
         val lines = when (val k = e.kind) {
             is VfxElementKind.Text -> listOf(k.text)
@@ -380,6 +399,10 @@ public class VfxPlayer(
             state.handle = null
         }
         instances.remove(instance)
+        if (instance.staged) {
+            instance.staged = false
+            instance.request.anchorEntityId?.let { heldItems?.rigEnded(it) }
+        }
         reserved = (reserved - instance.plan.displayCount).coerceAtLeast(0)
     }
 
@@ -392,5 +415,8 @@ public class VfxPlayer(
 
         /** Client maximum for `teleport_duration`. */
         public const val MAX_TELEPORT_TICKS: Int = 59
+
+        /** Vanilla `view_range` of a display that does not set one. */
+        public const val DEFAULT_VIEW_RANGE: Float = 1.0f
     }
 }

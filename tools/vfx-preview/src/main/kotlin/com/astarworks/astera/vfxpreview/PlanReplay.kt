@@ -4,6 +4,7 @@ import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementPlan
+import com.astarworks.astera.core.domain.effect.vfx.VfxQuad
 import com.astarworks.astera.core.domain.effect.vfx.VfxPlan
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
@@ -26,6 +27,8 @@ data class LiveDisplay(
     /** Current colour / alpha of a quad (after style updates), `null` for other kinds. */
     val quadRgb: Int? = null,
     val quadAlpha: Double = 1.0,
+    /** Glyph opacity of text / sprite displays (after style updates), 0..1. */
+    val textAlpha: Double = 1.0,
 )
 
 /**
@@ -66,27 +69,40 @@ class PlanReplay(val plan: VfxPlan) {
         var posStart = el.spawnTick
         var posDuration = 1
         val quad = el.kind as? VfxElementKind.Quad
-        var rgb = quad?.colorRgb
-        var alpha = quad?.alpha ?: 1.0
+        // Colour / alpha are assumed to share the transformation's interpolation window (see VfxEmitterPlanner.STYLE_PER_KEY).
+        var rgbFrom = quad?.colorRgb ?: 0xFFFFFF
+        var rgbTo = rgbFrom
+        var alphaFrom = quad?.alpha ?: ((el.kind as? VfxElementKind.Text)?.textOpacity?.div(255.0) ?: 1.0)
+        var alphaTo = alphaFrom
+        var styleStart = el.spawnTick
+        var styleDuration = 1
+        val isText = el.kind is VfxElementKind.Text
         var block = (el.kind as? VfxElementKind.Block)?.blockKey
         var text = (el.kind as? VfxElementKind.Text)?.text
         for (u in el.updates) {
             if (u.tick > tick) break
-            from = interpolate(from, to, start, duration, u.tick)
-            to = u.transform
-            start = u.tick
-            duration = u.interpolationTicks.coerceAtLeast(1)
+            if (!u.keepTransform) {
+                from = interpolate(from, to, start, duration, u.tick)
+                to = u.transform
+                start = u.tick
+                duration = u.interpolationTicks.coerceAtLeast(1)
+            }
             u.block?.let { block = it }
             u.text?.let { text = it }
             u.position?.let {
                 posFrom = lerp(posFrom, posTo, ((u.tick - posStart).toDouble() / posDuration).coerceIn(0.0, 1.0))
                 posTo = it
                 posStart = u.tick
-                posDuration = u.interpolationTicks.coerceAtLeast(1)
+                posDuration = (u.positionTicks ?: u.interpolationTicks).coerceAtLeast(1)
             }
             u.style?.let {
-                if (quad?.glyph == null) alpha = (it.backgroundArgb ushr 24) / 255.0 else alpha = it.textOpacity / 255.0
-                rgb = it.textRgb ?: (it.backgroundArgb and 0xFFFFFF)
+                val f = ((u.tick - styleStart).toDouble() / styleDuration).coerceIn(0.0, 1.0)
+                alphaFrom = alphaFrom + (alphaTo - alphaFrom) * f
+                rgbFrom = VfxQuad.lerpRgb(rgbFrom, rgbTo, f)
+                alphaTo = if (isText || quad?.glyph != null) it.textOpacity / 255.0 else (it.backgroundArgb ushr 24) / 255.0
+                rgbTo = it.textRgb ?: (it.backgroundArgb and 0xFFFFFF)
+                styleStart = u.tick
+                styleDuration = u.interpolationTicks.coerceAtLeast(1)
             }
         }
         return LiveDisplay(
@@ -100,8 +116,9 @@ class PlanReplay(val plan: VfxPlan) {
             brightness = el.brightness,
             billboard = el.billboard,
             offset = lerp(posFrom, posTo, ((tick - posStart).toDouble() / posDuration).coerceIn(0.0, 1.0)),
-            quadRgb = rgb,
-            quadAlpha = alpha,
+            quadRgb = if (quad != null) VfxQuad.lerpRgb(rgbFrom, rgbTo, styleFraction(tick, styleStart, styleDuration)) else null,
+            quadAlpha = if (isText) 1.0 else alphaNow(alphaFrom, alphaTo, tick, styleStart, styleDuration),
+            textAlpha = if (isText) alphaNow(alphaFrom, alphaTo, tick, styleStart, styleDuration) else 1.0,
         )
     }
 
@@ -117,6 +134,11 @@ class PlanReplay(val plan: VfxPlan) {
     }
 
     private fun lerp(a: Vec3, b: Vec3, f: Double): Vec3 = a + (b - a) * f
+
+    private fun styleFraction(tick: Int, start: Int, duration: Int): Double = ((tick - start).toDouble() / duration).coerceIn(0.0, 1.0)
+
+    private fun alphaNow(from: Double, to: Double, tick: Int, start: Int, duration: Int): Double =
+        from + (to - from) * styleFraction(tick, start, duration)
 
     companion object {
         const val PARTICLE_LIFETIME_TICKS: Int = 4

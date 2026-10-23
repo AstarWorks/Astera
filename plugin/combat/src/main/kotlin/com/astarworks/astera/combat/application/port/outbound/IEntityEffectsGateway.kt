@@ -43,4 +43,7 @@ public interface IEntityEffectsGateway {
 
     /** Turns the outline glow (visible through walls) on or off (WP5: Glow). */
     public fun setGlowing(target: PlayerId, glowing: Boolean)
+
+    /** Hides (or restores) the held item of [target] for every other viewer; the target's own first-person hand is client side and unaffected. */
+    public fun setHeldItemHidden(target: PlayerId, hidden: Boolean)
 }

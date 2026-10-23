@@ -1,0 +1,10 @@
+bastion-s1-armor-ring: codec_name=vorbis sample_rate=44100 channels=1 duration=0.900000 size=8594B max=-12.1dB mean=-32.3dB I=-32.1LUFS truepeak=-11.6dBFS peak@4ms dc=-0.00000 lead-silence=0.0ms tail-below-50dB=0ms
+bastion-s1-blade-lift: codec_name=vorbis sample_rate=44100 channels=1 duration=0.300000 size=7218B max=-16.0dB mean=-30.8dB I=-70.0LUFS truepeak=-15.9dBFS peak@59ms dc=0.00004 lead-silence=1.0ms tail-below-50dB=0ms
+bastion-s1-cut-thud: codec_name=vorbis sample_rate=44100 channels=1 duration=0.250000 size=5654B max=-6.0dB mean=-19.4dB I=-70.0LUFS truepeak=-6.0dBFS peak@5ms dc=-0.00036 lead-silence=0.0ms tail-below-50dB=23ms
+bastion-s1-flash-sting: codec_name=vorbis sample_rate=44100 channels=1 duration=0.120000 size=5274B max=-8.1dB mean=-27.6dB I=-70.0LUFS truepeak=-7.5dBFS peak@10ms dc=0.00000 lead-silence=0.0ms tail-below-50dB=9ms
+bastion-s1-ground-slam: codec_name=vorbis sample_rate=44100 channels=1 duration=0.600000 size=7894B max=-2.1dB mean=-18.6dB I=-22.7LUFS truepeak=-2.1dBFS peak@4ms dc=-0.00022 lead-silence=0.0ms tail-below-50dB=4ms
+bastion-s1-impact-steel: codec_name=vorbis sample_rate=44100 channels=1 duration=0.450000 size=6007B max=-1.6dB mean=-17.8dB I=-17.4LUFS truepeak=-1.4dBFS peak@2ms dc=-0.00018 lead-silence=0.0ms tail-below-50dB=0ms
+bastion-s1-ring-whirl: codec_name=vorbis sample_rate=44100 channels=1 duration=0.900000 size=12433B max=-12.0dB mean=-27.4dB I=-22.9LUFS truepeak=-12.0dBFS peak@248ms dc=-0.00000 lead-silence=1.6ms tail-below-50dB=0ms
+bastion-s1-step-scuff: codec_name=vorbis sample_rate=44100 channels=1 duration=0.350000 size=7650B max=-13.9dB mean=-29.7dB I=-70.0LUFS truepeak=-13.9dBFS peak@44ms dc=0.00000 lead-silence=1.3ms tail-below-50dB=0ms
+bastion-s1-sword-settle: codec_name=vorbis sample_rate=44100 channels=1 duration=0.250000 size=6428B max=-15.9dB mean=-32.4dB I=-70.0LUFS truepeak=-15.8dBFS peak@31ms dc=0.00000 lead-silence=5.9ms tail-below-50dB=2ms
+bastion-s1-whoosh-heavy: codec_name=vorbis sample_rate=44100 channels=1 duration=0.600000 size=10275B max=-9.1dB mean=-26.2dB I=-24.4LUFS truepeak=-8.5dBFS peak@121ms dc=0.00014 lead-silence=1.1ms tail-below-50dB=0ms

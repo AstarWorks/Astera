@@ -1,0 +1,9 @@
+# gold-orange glint flung up and out of the contact over 9 ticks (replaces wax_on motes and firework flecks)
+id: bastion-s1-p-glint-rise
+shape: { kind: point }
+color: { r: 255, g: 170, b: 50 }
+count: 1
+lifetime_ticks: 9
+vanilla_particle: trail
+data: { kind: trail, toward: true, color: { r: 255, g: 170, b: 50 }, duration_ticks: 9 }
+force: true
