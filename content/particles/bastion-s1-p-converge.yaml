@@ -1,6 +1,6 @@
-# gold trail specks gathering onto the contact (trail flies to the element's trail_to over 4 ticks): 6 points on the back half arc
+# gold trail specks gathering onto the contact (trail flies to the element's trail_to over 4 ticks): 6 points on the front half arc (r7b: the back half reached 1.0 from the caster eye in hit 2)
 id: bastion-s1-p-converge
-shape: { kind: arc, radius_blocks: 0.75, from_deg: 100, to_deg: 260, points: 6 }
+shape: { kind: arc, radius_blocks: 0.55, from_deg: -100, to_deg: 100, points: 6 }
 color: { r: 255, g: 226, b: 140 }
 count: 1
 lifetime_ticks: 6

@@ -1,9 +1,9 @@
-# white-gold crit sparks flung in every direction from the contact (crit: v = 0.4 * speed, friction 0.7)
+# white-gold crit sparks flung in every direction from the contact (crit: v = 0.4 * speed, friction 0.7; r7b speed 0.7: the floor contact sits 1.2-1.4 under the opponent eye)
 id: bastion-s1-p-crit
 shape: { kind: point }
 color: { r: 255, g: 240, b: 190 }
 count: 5
 lifetime_ticks: 8
 vanilla_particle: crit
-velocity: { direction: outward, speed: 1.0, spread_degrees: 0 }
+velocity: { direction: outward, speed: 0.7, spread_degrees: 0 }
 force: true

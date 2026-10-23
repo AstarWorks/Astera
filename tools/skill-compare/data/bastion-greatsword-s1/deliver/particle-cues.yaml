@@ -15,9 +15,20 @@ remove_steps:            # type: spawn_particle, targets: caster, delay_ticks as
 keep_steps:
   - {particle_id: bastion-s1-hit-crit, delay_ticks: [7, 31], targets: cone target}
 cues: []
+# Round 7b (particle-artist): emitters re-ridden on the r7 rig (pivot [-0.348, 0.773, 0.293], tip table evidence/animator/r7/per-key-tip-face.txt):
+#   hit 1: blade path fx 1-9 = skill 4-12 (chop plane tilted 22 deg -> contact phi 6 / pitch -15 at fx 4 -> floor drag to phi 106);
+#          gold r 2.15, dark r 2.45 (smear's dark rim), half-tick lagging gold r 2.0, inner gold/dark r 1.5 for the last 50 deg into the contact.
+#          Contact cluster on the contact blade at r 1.85 = (-0.16, 0.29, 2.06); ground grain below it (y 0.1).
+#   hit 2: blade path fx 1-8 = skill 28-35 on the low ring (phi 210 -> contact phi 18 at fx 4 -> follow phi 102), + a 0.3-higher line;
+#          contact cluster on the contact blade at r 1.2 = (0.02, 0.46, 1.40) (in front of the target body, dash stop 1.7);
+#          shockwave rings centred under the ring smear's pivot (-0.348, 0.08, 0.293).
+#   Chords that would cut a camera keep-out (caster eye < 1.55, opponent eye < 0.85) are dropped by splitting the along_path element.
+#   Particle defs changed: crit speed 1.0 -> 0.7, spark-up 1.6 -> 1.0, nugget 0.28 -> 0.22, coal 0.22 -> 0.18 (contact sits 1.2-1.4 under
+#   the opponent eye), converge arc = FRONT half r 0.55 (the back half reached 1.0 from the caster eye in hit 2).
 # Per-tick vanilla particle totals (computed by script from the shipped YAML, along_path points included):
-#   hit 1 (skill tick = e + 3): e2 10, e3 42, e4 53, e5 58, e6 51, e7 27, e8 25, e9 5, e10 5   (total 276, peak 58)
-#   hit 2 (skill tick = e + 27): e2 10, e3 47, e4 108, e5 111, e6 96, e7 61, e8 40, e9 19, e10 10, e11 10, e12 3   (total 515, peak 111; limit 300, brief 120)
+#   hit 1 (skill tick = e + 3): e1 2, e2 19, e3 38, e4 58, e5 52, e6 43, e7 16, e8 19, e9 20, e10 5   (total 272, peak 58; r5 276 / 58)
+#   hit 2 (skill tick = e + 27): e1 2, e2 27, e3 59, e4 114, e5 104, e6 74, e7 42, e8 31, e9 22, e10 10, e11 10, e12 3   (total 498, peak 114; r5 515 / 111)
+# Clearance (emission points): caster eye min >= 1.5 (0 points inside; r5 had 54 / 112 inside), opponent eye min 0.85 (both hits).
 display_particles:
   fx-high: {added_displays: 0}
   fx-low:  {added_displays: 0}
