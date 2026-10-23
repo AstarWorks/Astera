@@ -236,6 +236,9 @@ public class MechanicDispatcher(
         resolveDouble = { value, c -> resolveDouble(value, c) },
     )
 
+    /** `hide_held_item` state, shared with [VfxPlayer] so a rig replaces the held weapon in the same tick. */
+    private val heldItemHider: HeldItemHider? = entityEffects?.let { HeldItemHider(it, scheduler) }
+
     /** WP5 mechanics batch B (explode, lightning, blocks, display, summon, heal, glow, shake). */
     private val worldMechanics = WorldMechanics(
         host = this,
@@ -249,6 +252,7 @@ public class MechanicDispatcher(
         summons = summonGateway,
         summonRegistry = summonRegistry,
         effects = entityEffects,
+        heldItems = heldItemHider,
         feedback = feedback,
         messageRenderer = messageRenderer,
         teamLookup = teamLookup,
@@ -269,6 +273,7 @@ public class MechanicDispatcher(
                     sprites = spriteFrames,
                     emitParticle = ::emitVfxParticle,
                     log = log,
+                    heldItems = heldItemHider,
                 ),
                 targeters = targeterResolver,
                 isLiving = { living(listOf(it)).isNotEmpty() },

@@ -15,7 +15,6 @@ phases:
   - type: hide_held_item
     targets: {type: caster}
     ticks: {type: literal, value: 57}
-    delay_ticks: {type: literal, value: 1}
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-s1-rig
