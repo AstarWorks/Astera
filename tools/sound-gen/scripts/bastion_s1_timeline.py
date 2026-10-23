@@ -24,7 +24,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")
 CUES = os.path.join(ROOT, "tools/skill-compare/data/bastion-greatsword-s1/deliver/sound-cues.yaml")
 SND = os.path.join(ROOT, "content/sounds/weapons")
 TICKS = 52
-CONTACT = {"hit1": 7, "hit2": 31}
+CONTACT = {"hit1": 8, "hit2": 31}  # r9 rig: hit-1 contact skill tick 8
 
 
 def decode(name):
