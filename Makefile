@@ -182,7 +182,7 @@ live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=
 	bash scripts/live-bots.sh $(or $(SCENARIO),all)
 
 .PHONY: skill-compare
-skill-compare: ## Video vs intent vs Minecraft compare web app on 0.0.0.0:8097 (PORT=, HOST= to change)
+skill-compare: ## Video vs Minecraft (+ text beat sheet) compare web app on 0.0.0.0:8097 (PORT=, HOST= to change)
 	cd tools/skill-compare && bun install && bun server.mjs
 
 .PHONY: skill-compare-fetch
@@ -199,10 +199,10 @@ skill-compare-case: ## New case + native-fps frames: make skill-compare-case CAS
 	cd tools/skill-compare && bun install && bun scripts/scaffold.mjs "$(CASE)" "$(VIDEO)" "$(START)" "$(END)" "$(SKILL)" "$(NAME)" "$(COINS)" "$(IDENTITY)" "$(WEAPON)" "$(TITLE)"
 
 .PHONY: skill-brief
-skill-brief: ## Browser-free AI brief: reference|intent|in-game contact sheets + manifest.json -> build/brief/<case>/: make skill-brief CASE=<id> [SKILL=..] [VIEW=compare] [AT="t:label .."] [NO_INTENT=1]
-	@test -n "$(CASE)" || { echo "usage: make skill-brief CASE=<id> [SKILL=<skill>] [VIEW=compare|input|caster|opponent|side] [AT=\"19.7:extra\"] [NO_INTENT=1]"; exit 2; }
+skill-brief: ## Browser-free AI brief: reference|in-game contact sheets + manifest.json -> build/brief/<case>/: make skill-brief CASE=<id> [SKILL=..] [VIEW=compare] [AT="t:label .."]
+	@test -n "$(CASE)" || { echo "usage: make skill-brief CASE=<id> [SKILL=<skill>] [VIEW=compare|input|caster|opponent|side] [AT=\"19.7:extra\"]"; exit 2; }
 	cd tools/skill-compare && bun install >/dev/null
-	python3 -I tools/skill-compare/scripts/brief.py --case "$(CASE)" $(if $(SKILL),--skill "$(SKILL)") $(if $(VIEW),--view "$(VIEW)") $(if $(NO_INTENT),--no-intent) $(if $(OUT),--out "$(OUT)") $(AT)
+	python3 -I tools/skill-compare/scripts/brief.py --case "$(CASE)" $(if $(SKILL),--skill "$(SKILL)") $(if $(VIEW),--view "$(VIEW)") $(if $(OUT),--out "$(OUT)") $(AT)
 
 .PHONY: skill-pairs
 skill-pairs: ## Video vs MC frame pairs at video times -> build/pairs/<case>.png: make skill-pairs CASE=<id> [SKILL=<skill>] AT="t1:label t2:label ..."

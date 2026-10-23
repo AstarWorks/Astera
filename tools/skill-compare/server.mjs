@@ -99,12 +99,10 @@ export function makeHandler(opts = {}) {
     const rec = S.allCases().get(id);
     if (!rec) return null;
     const { c, src } = rec, dir = join(src.dataDir, id);
-    const intentPath = join(dir, c.intent?.file ?? "intent.json");
-    const intent = inside(dir, intentPath) && existsSync(intentPath) ? readJson(intentPath) : null;
     const cdir = S.cacheFor(id, src);
     const ap = cdir && join(cdir, "analysis.json");
     return {
-      case: c, intent, from: { worktree: src.name, branch: src.branch },
+      case: c, from: { worktree: src.name, branch: src.branch },
       weapon: weaponOf(c.skill?.asteraSkillId, c.weapon),
       media: cdir ? { ready: true, ...readJson(join(cdir, "meta.json")), revision: c.referenceRevision || String(c.rev ?? 0), base: `/media/${id}/frames/` } : { ready: false },
       analysis: ap && existsSync(ap) ? readJson(ap) : { waveform: [], waveformStepMs: 10, onsets: [], cuts: [] },

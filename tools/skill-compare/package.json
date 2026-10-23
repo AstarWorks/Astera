@@ -3,13 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Local LAN web app: reference video (native fps) vs intent render vs Minecraft frames on one millisecond clock",
+  "description": "Local LAN web app: reference video (native fps) vs Minecraft frames, with a text beat sheet on one millisecond clock",
   "scripts": {
     "start": "bun server.mjs",
     "shot": "bun scripts/shot.mjs"
   },
   "dependencies": {
-    "three": "0.170.0",
     "playwright-core": "1.58.2"
   }
 }

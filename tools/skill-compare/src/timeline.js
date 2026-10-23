@@ -2,7 +2,6 @@
 // Master clock = milliseconds since the case range start (case.start_s). Everything else is derived from it:
 //   video frame  = floor(ms * fps / 1000)            (native fps, 30 for the source videos)
 //   MC tick      = floor((ms - castMs) / 50)         (castMs = skill start + offset slider)
-//   intent tick  = fractional tick of intent.json    (its own source.start_s anchors tick 0)
 
 export const TICK_MS = 50;
 
@@ -16,11 +15,6 @@ export const videoFrameToMs = (i, fps) => (i * 1000) / fps;
 
 export const msToTick = (ms, castMs) => Math.floor((ms - castMs) / TICK_MS + 1e-6);
 export const tickToMs = (tick, castMs) => castMs + tick * TICK_MS;
-
-/** Fractional intent tick for a master-clock time. */
-export function msToIntentTick(ms, caseStartS, intentStartS) {
-  return ((caseStartS - intentStartS) * 1000 + ms) / TICK_MS;
-}
 
 /** Absolute video seconds <-> master clock ms. */
 export const sToMs = (s, caseStartS) => Math.round((s - caseStartS) * 1000);
@@ -65,6 +59,7 @@ export function effectiveSpeed(ms, base, zones, enabled, factor) {
 export const CASE_ID_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
 export const VIDEO_ID_RE = /^[A-Za-z0-9_-]{6,20}$/;
 const KINDS = ["skill", "range", "hit"];
+export const BEAT_TEXT = ["label", "weapon", "caster_move", "vfx", "notes"];
 
 /** Returns a list of human-readable problems (empty = valid). */
 export function validateCase(c) {
@@ -88,6 +83,14 @@ export function validateCase(c) {
     if (s.kind === "hit") {
       if (!num(s.t_s)) e.push(`${s.id}: hit needs t_s`);
     } else if (!num(s.start_s) || !num(s.end_s) || s.end_s < s.start_s) e.push(`${s.id}: needs start_s <= end_s`);
+  }
+  if (c.beats != null) {
+    if (!Array.isArray(c.beats)) e.push("beats must be an array");
+    else c.beats.forEach((b, i) => {
+      if (!b || typeof b !== "object") { e.push(`beats[${i}] must be an object`); return; }
+      if (!num(b.t_s)) e.push(`beats[${i}]: t_s must be a number`);
+      for (const k of BEAT_TEXT) if (b[k] != null && typeof b[k] !== "string") e.push(`beats[${i}]: ${k} must be a string`);
+    });
   }
   if (c.mc && !num(c.mc.offset_ms ?? 0)) e.push("mc.offset_ms must be a number");
   if (c.focus && (!num(c.focus.factor) || c.focus.factor <= 0 || c.focus.factor > 1)) e.push("focus.factor must be in (0,1]");

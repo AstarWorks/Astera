@@ -1,5 +1,5 @@
 // Screenshot a case page at a given master-clock time (ms) with Chromium (playwright-core, same as skill-viewer).
-//   bun scripts/shot.mjs [--url http://127.0.0.1:8097] [--case zwei-s3] [--ms 1100] [--out build/shot.png] [--width 1800] [--focus video|intent|mc]
+//   bun scripts/shot.mjs [--url http://127.0.0.1:8097] [--case zwei-s3] [--ms 1100] [--out build/shot.png] [--width 1800] [--focus video|mc]
 import { chromium } from "playwright-core";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";

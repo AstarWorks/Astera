@@ -34,7 +34,7 @@ make skill-compare-case CASE=<case> VIDEO=<id> START=<seconds> END=<seconds> SKI
 - 基準時間は技開始からの経過時間。`tick = floor((video_seconds - skill_start_seconds) * 20 + 0.5)`。ケース開始と技開始が異なる場合は両方を記録する。
 - 接触イベントとコイン数は別々に観察する。多段演出や装飾フラッシュを自動的に追加ダメージにしない。
 - キャラクター身長等の共通基準で大きさを測る。カメラ変更による見かけの変化と、物体自体の拡縮を区別する。
-- caseの `intent.file` が指すJSON（round 2では `intent-round2.json`）にカメラ・人物・武器・演出を記す。intentは原動画の解釈であり、正しさの証明ではない。実装に合わせて目標を変更しない。
+- case.jsonの `beats`（`[{t_s, label, weapon, caster_move, vfx, notes}]`、動画絶対秒）に、武器の向き・振り・術者の動き・演出を時刻ごとに文章で記す。beatsは原動画の解釈であり、正しさの証明ではない。実装に合わせて目標を変更しない。
 - Minecraft向けの変更（操作、状態異常、時間、射程等）は理由と原作との差を一覧にする。修正漏れを「仕様」として扱わない。
 
 ## 4. 実装する
@@ -92,7 +92,7 @@ make skill-compare
 AIは画面を開かず、次の1コマンドで「原動画 | 設計図 | 実機」の3列を接触ごとに並べた画像とmanifestを得る。
 
 ```sh
-make skill-brief CASE=<case> [VIEW=compare] [AT="<seconds>:extra"] [NO_INTENT=1]
+make skill-brief CASE=<case> [VIEW=compare] [AT="<seconds>:extra"]
 # -> build/brief/<case>/sheet-01.png ... , frames/ , manifest.json
 ```
 

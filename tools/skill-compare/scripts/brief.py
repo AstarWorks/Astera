@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
-"""Browser-free comparison brief for AI agents: reference | intent | in-game at the key moments of a case.
+"""Browser-free comparison brief for AI agents: reference | in-game at the key moments of a case.
 
   python3 -I tools/skill-compare/scripts/brief.py --case <case-id> [options] [t_s:label ...]
   make skill-brief CASE=<case-id> [SKILL=..] [VIEW=compare] [AT="19.7:extra"]
 
 Moments default to: start, every hit segment of the case, end (absolute video seconds; extra `t:label` args add more).
 Output (default build/brief/<case>/):
-  sheet-01.png ...   rows of three equal-scale panels (reference | intent | in-game), labelled, <= ROWS_PER_SHEET rows each
-  frames/            the individual frames used (reference_NN.png, intent_NN.png, minecraft_NN.png)
+  sheet-01.png ...   rows of two equal-scale panels (reference | in-game), labelled, <= ROWS_PER_SHEET rows each
+  frames/            the individual frames used (reference_NN.png, minecraft_NN.png)
   manifest.json      machine-readable: moments (video s / master ms / MC tick / frame), files, provenance
                      (branch, commit, capture time, FOV, resolution, published revision), warnings
 stdout: the manifest path, then a one-line summary. Read the PNGs to judge; read manifest.json for the facts.
 
 Alignment is the page's own: master ms = (t - case.start_s) * 1000, cast ms = skill segment start + mc.offset_ms,
 MC tick = floor((ms - castMs) / 50), MC frame = tick + cast_tick_ms / 50 (clamped to the capture, and warned).
-The intent column needs bun + Chromium (scripts/intent-shots.mjs); --no-intent skips it, a failure is recorded as a warning.
 """
 import argparse, datetime, json, math, os, subprocess, sys, tempfile
 from PIL import Image, ImageDraw, ImageFont
@@ -24,8 +23,8 @@ SC = os.path.dirname(HERE)                       # tools/skill-compare
 REPO = os.path.dirname(os.path.dirname(SC))
 PANEL_W, PANEL_H, HEAD_H, GAP = 560, 315, 22, 6  # 16:9 panels, identical scale for all three columns
 ROWS_PER_SHEET = int(os.environ.get("ROWS_PER_SHEET", "3"))
-COLUMNS = ("reference", "intent", "minecraft")
-TITLES = {"reference": "REFERENCE (video)", "intent": "INTENT (my reading)", "minecraft": "IN-GAME (Minecraft)"}
+COLUMNS = ("reference", "minecraft")
+TITLES = {"reference": "REFERENCE (video)", "minecraft": "IN-GAME (Minecraft)"}
 
 
 def git(*args):
@@ -100,7 +99,6 @@ def main():
     ap.add_argument("--mc", help="capture directory (frame_NNN.png + meta.json); default: published current, else build/vfx-shot")
     ap.add_argument("--out")
     ap.add_argument("--offset-ms", type=int, help="override case.mc.offset_ms")
-    ap.add_argument("--no-intent", action="store_true")
     ap.add_argument("moments", nargs="*", help="extra moments t_s:label (absolute video seconds)")
     a = ap.parse_args()
 
@@ -141,30 +139,13 @@ def main():
         if case.get(key) and meta.get(key) != case.get(key):
             warnings.append("%s of the capture (%s) does not match the case (%s): recapture before judging" % (key, (meta.get(key) or "none")[:8], case[key][:8]))
     if meta and not meta.get("fov"):
-        warnings.append("capture has no FOV recorded (taken before FOV tracking; vanilla/intent-key FOV unknown)")
+        warnings.append("capture has no FOV recorded (taken before FOV tracking; vanillaFOV unknown)")
     if meta.get("captureQuality", {}).get("invalid"):
         warnings.append("capture is marked invalid")
     elif meta.get("captureQuality", {}).get("reviewRequired"):
         warnings.append("capture has long runs of repeated frames: check for a stalled client")
 
-    # --- intent frames via the page (optional)
-    intent_files = {}
     ms_list = [round((t - start_s) * 1000) for t, _ in moments]
-    if not a.no_intent:
-        idir = os.path.join(fdir, "_intent")
-        os.makedirs(idir, exist_ok=True)
-        try:
-            r = subprocess.run(["bun", os.path.join(HERE, "intent-shots.mjs"), "--case", a.case, "--ms", ",".join(map(str, ms_list)), "--outdir", idir],
-                               cwd=SC, capture_output=True, text=True, timeout=240)
-            if r.returncode != 0:
-                warnings.append("intent column unavailable: " + (r.stderr.strip().splitlines() or r.stdout.strip().splitlines() or ["intent-shots failed"])[-1][:200])
-            else:
-                for i in range(len(ms_list)):
-                    p = os.path.join(idir, "intent_%02d.png" % i)
-                    if os.path.exists(p):
-                        intent_files[i] = p
-        except (OSError, subprocess.TimeoutExpired) as e:
-            warnings.append("intent column unavailable: %s" % e)
 
     rows, entries = [], []
     sf, hf, tf = font(13), font(12), font(15)
@@ -182,14 +163,6 @@ def main():
             panels["reference"] = fit(Image.open(rp))
         else:
             panels["reference"] = placeholder("reference video missing")
-        # intent
-        if i in intent_files:
-            ip = os.path.join(fdir, "intent_%02d.png" % i)
-            os.replace(intent_files[i], ip)
-            files["intent"] = ip
-            panels["intent"] = fit(Image.open(ip))
-        else:
-            panels["intent"] = placeholder("intent not rendered" if a.no_intent else "intent unavailable (see warnings)")
         # minecraft
         mp = frame_path(mcdir, n_used, ext) if have_mc else None
         if mp:
@@ -201,7 +174,7 @@ def main():
                 warnings.append("moment '%s': MC tick %d is outside the capture (frame %d/%d), showing the nearest frame" % (label, tick, n, frames_total))
         else:
             panels["minecraft"] = placeholder("no in-game frame")
-        W = 3 * PANEL_W + 4 * GAP
+        W = 2 * PANEL_W + 3 * GAP
         row = Image.new("RGB", (W, HEAD_H + PANEL_H + 2 * GAP), (22, 24, 32))
         d = ImageDraw.Draw(row)
         d.text((GAP, 4), "%s   video %.3fs  |  master %d ms  |  MC tick %d (frame %d)%s" % (label, t, ms, tick, n_used, "  [OUT OF RANGE]" if clamped else ""),
@@ -231,10 +204,6 @@ def main():
         p = os.path.join(out, "sheet-%02d.png" % (s0 // ROWS_PER_SHEET + 1))
         sheet.save(p)
         sheets.append(p)
-    try:
-        os.rmdir(os.path.join(fdir, "_intent"))
-    except OSError:
-        pass
 
     manifest = {"case": a.case, "skill": skill, "view": a.view, "generatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                 "briefRepo": {"branch": git("rev-parse", "--abbrev-ref", "HEAD"), "commit": git("rev-parse", "HEAD")},

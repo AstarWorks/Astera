@@ -13,15 +13,13 @@
     <h1 id="title">loading&hellip;</h1>
     <span class="sub" id="sub"></span>
     <span>focus column:
-      <button data-focus="">all</button><button data-focus="video">video</button><button data-focus="intent">intent</button><button data-focus="mc">minecraft</button>
+      <button data-focus="">all</button><button data-focus="video">video</button><button data-focus="mc">minecraft</button>
     </span>
   </div>
   <nav id="skillnav" aria-label="この武器のスキル"></nav>
   <div class="cols" id="cols">
     <section class="col" data-col="video"><h2>参照映像 <span class="tag">Reference</span> <small id="vinfo"></small></h2>
       <div class="view"><canvas id="vcv"></canvas><div class="ph on" id="vph">frames not cached: make skill-compare-fetch</div></div></section>
-    <section class="col" data-col="intent"><h2>設計図 <span class="tag">Intent</span> <small id="iinfo"></small></h2>
-      <div class="view" id="stage"><canvas id="cv"></canvas><div id="flash"></div><div id="labels"></div><div class="hud" id="hud"></div></div></section>
     <section class="col" data-col="mc"><h2>実機 <span class="tag">In-game</span> <small id="minfo"></small></h2>
       <div class="view"><img id="mimg" alt="minecraft frame"><div class="ph on" id="mph">no Minecraft frames</div><div class="badge" id="mbadge" hidden></div></div>
       <div class="mcctl">
@@ -30,6 +28,11 @@
       </div>
       <div class="prov" id="prov" aria-label="capture provenance"></div></section>
   </div>
+  <section class="beats" id="beats" aria-label="beat sheet">
+    <div class="bcol"><h3>セグメント（時系列）</h3><div class="blist" id="seglist"></div></div>
+    <div class="bcol"><h3>ケースメモ</h3><div class="cnote" id="cnoteView"></div></div>
+    <div class="bcol wide" id="beatwrap" hidden><h3>ビート表（フレーム単位の読み）</h3><div class="blist"><table class="beatt"><thead><tr><th>t</th><th>内容</th><th>武器</th><th>術者の動き</th><th>演出</th><th>メモ</th></tr></thead><tbody id="beatbody"></tbody></table></div></div>
+  </section>
   <div id="buffer" role="status" hidden><span id="bufferText"></span> <button id="bRetry" hidden>再読み込み</button></div>
   <div class="ctl">
     <button id="bFm" title="back 1 video frame (Left)">&#9664; frame</button>
