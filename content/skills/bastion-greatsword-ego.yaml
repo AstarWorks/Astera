@@ -1,119 +1,135 @@
+# 独自設計 (reference footage has no E.G.O): raise the barrier, spring forward and drive the blade into the floor in a pillar of golden lightning.
 id: bastion-greatsword-ego
-name:
-  ja: 城塞の暁
-  en: Citadel Dawn
-description:
-  ja: 大盾を掲げ、剣を突き立てて黄金の稲妻を放つ。E.G.Oゲージを全て消費する。
-  en: Raise the tower shield, then plant the blade in a burst of golden lightning. Consumes the full E.G.O gauge.
+name: {ja: 城塞の暁, en: Citadel Dawn}
+description: {ja: 大盾を掲げて跳び、剣を突き立てて黄金の稲妻を放つ。E.G.Oゲージを全て消費する。, en: 'Raise the barrier, leap and plant the blade in a burst of golden lightning. Consumes the full E.G.O gauge.'}
 archetype: sequence
 cooldown_ticks: 300
 resource_cost: 0
 tags: [aoe, physical, finisher, charge]
-params:
-  type: sequence
+params: {type: sequence}
 phases:
   type: sequence
   cast:
   - type: play_vfx
-    targets:
-      type: caster
+    targets: {type: caster}
     vfx_id: bastion-ego-guard
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: bastion-s3-raise
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.shield.block
+    pitch: {type: literal, value: 0.8}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.armor.equip_netherite
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 14}
+  - type: propel
+    targets: {type: caster}
+    direction: {type: up}
+    strength: {type: literal, value: 0.3}
+    delay_ticks: {type: literal, value: 20}
+  - type: dash_strike
+    distance: 2.8
+    ticks: 6
+    radius: 0.3
+    hit_once: true
+    stop_on_block: true
+    follow_pitch: false
+    on_hit: []
+    stop_before_target: 1.6
     delay_ticks: {type: literal, value: 20}
   - type: play_vfx
-    targets:
-      type: caster_forward
-      distance: 2.2
-      height: -1.62
-    vfx_id: bastion-s3-planted
-    delay_ticks: {type: literal, value: 34}
-  - type: play_vfx
-    targets:
-      type: caster_forward
-      distance: 2.2
-      height: -1.62
-    vfx_id: bastion-s3-slam
-    delay_ticks: {type: literal, value: 36}
+    targets: {type: caster}
+    vfx_id: bastion-ego-slam
+    delay_ticks: {type: literal, value: 27}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.trident.return
+    volume: {type: literal, value: 0.8}
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 27}
   - type: damage
     targets:
-      type: nearby_entities
-      center:
-        type: caster_forward
-        distance: 2.2
-        height: -1.62
-      radius: {type: literal, value: 3.3}
-      exclude_caster: true
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.8}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
     components:
     - base: {type: literal, value: 28}
       attribute: physical
-      per_stack:
-        status_id: charge
-        amount: 0.5
-        'on': caster
-        consume: true
-    ignore_invulnerability:
-      type: literal
-      value: true
-    delay_ticks: {type: literal, value: 36}
+      per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: true}
+    ignore_invulnerability: {type: literal, value: true}
+    delay_ticks: {type: literal, value: 31}
   - type: spawn_particle
     targets:
-      type: nearby_entities
-      center:
-        type: caster_forward
-        distance: 2.2
-        height: -1.62
-      radius: {type: literal, value: 3.3}
-      exclude_caster: true
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.8}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
     particle_id: bastion-s3-hit-crit
-    delay_ticks: {type: literal, value: 36}
+    delay_ticks: {type: literal, value: 31}
   - type: hit_stop
     targets:
-      type: nearby_entities
-      center:
-        type: caster_forward
-        distance: 2.2
-        height: -1.62
-      radius: {type: literal, value: 3.3}
-      exclude_caster: true
-    ticks: 2
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.8}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
+    ticks: 4
     include_caster: true
-    delay_ticks: {type: literal, value: 36}
+    delay_ticks: {type: literal, value: 31}
   - type: play_sound
-    targets:
-      type: caster
-    sound_id: entity.player.attack.strong
-    delay_ticks: {type: literal, value: 36}
-  - type: screen_flash
-    targets:
-      type: caster
-    overlay: gold_burst
-    stay:
-      type: literal
-      value: 1
-    fade_in:
-      type: literal
-      value: 0
-    fade_out:
-      type: literal
-      value: 2
-    delay_ticks: {type: literal, value: 36}
+    targets: {type: caster}
+    sound_id: block.anvil.land
+    pitch: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 31}
   - type: knockback
     targets:
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.8}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
+    direction: {type: away_from_caster, vertical: 0.3}
+    strength: {type: literal, value: 1.6}
+    delay_ticks: {type: literal, value: 31}
+  - type: camera_shake
+    targets:
       type: nearby_entities
-      center:
-        type: caster_forward
-        distance: 2.2
-        height: -1.62
-      radius: {type: literal, value: 3.3}
+      center: {type: caster}
+      radius: {type: literal, value: 9.0}
       exclude_caster: true
-    direction:
-      type: away_from_caster
-      vertical: 0.3
-    strength:
-      type: literal
-      value: 1.6
-    delay_ticks: {type: literal, value: 36}
+    intensity: {type: literal, value: 1.0}
+    ticks: {type: literal, value: 10}
+    delay_ticks: {type: literal, value: 31}
+  - type: screen_flash
+    targets: {type: caster}
+    overlay: gold_burst
+    color: '#FFC84A'
+    fade_in: {type: literal, value: 0}
+    stay: {type: literal, value: 2}
+    fade_out: {type: literal, value: 2}
+    delay_ticks: {type: literal, value: 31}
+  - type: screen_flash
+    targets:
+      type: nearby_entities
+      center: {type: caster}
+      radius: {type: literal, value: 5.0}
+      exclude_caster: true
+    overlay: gold_burst
+    color: '#FFC84A'
+    fade_in: {type: literal, value: 0}
+    stay: {type: literal, value: 2}
+    fade_out: {type: literal, value: 2}
+    delay_ticks: {type: literal, value: 31}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.generic.explode
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 31}
 ego_cost: 100

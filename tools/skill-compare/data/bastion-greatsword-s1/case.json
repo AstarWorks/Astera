@@ -1,13 +1,13 @@
 {
   "id": "bastion-greatsword-s1",
-  "rev": 4,
+  "rev": 6,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 11.633,
   "end_s": 14.233,
   "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "captured",
-  "iterations": 2,
+  "iterations": 4,
   "report": "/report/bastion-greatsword",
   "skill": {
     "name": "月輪の薙ぎ",
@@ -15,7 +15,7 @@
     "asteraSkillId": "bastion-greatsword-s1"
   },
   "intent": {
-    "file": "intent-round2.json"
+    "file": "intent-redo.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -26,32 +26,91 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "S1",
+      "label": "S1 月輪の薙ぎ",
       "start_s": 11.633,
       "end_s": 14.233
     },
     {
+      "id": "step1",
+      "kind": "range",
+      "label": "構え+踏み込み",
+      "start_s": 11.633,
+      "end_s": 11.933,
+      "notes": "原動画: 低く構え大剣を後方の床に寝かせる、移動はほぼ無い。MC: 大剣rigを後方低位置、dash_strike 1.6block/3tick で敵へ詰める。"
+    },
+    {
       "id": "hit1",
       "kind": "hit",
-      "label": "接触 1",
+      "label": "接触1 高い傾きリング",
       "t_s": 11.967,
-      "notes": "astra2 source frame 359; melee; game tick 7. Coin grouping uncertainty remains in reference analysis."
+      "notes": "f359/t7。上体を起こし水平に薙ぐ。頭上を回る傾いた金色の楕円リング+腰の高さの白い筋が右へ約3H、先端に橙の火花。MC: sweep-high、damage t7。"
+    },
+    {
+      "id": "ring1",
+      "kind": "range",
+      "label": "リング1",
+      "start_s": 11.933,
+      "end_s": 12.5,
+      "notes": "リングは12.07まで明るく12.43に消える。MC: 風切り扇の外縁のみ金色、内側は透明、暗い縁。"
+    },
+    {
+      "id": "rec1",
+      "kind": "range",
+      "label": "戻り",
+      "start_s": 12.5,
+      "end_s": 13.0,
+      "notes": "大剣を左下(後方)へ下ろす。移動無し。MC: rigがt20で後方低位置へ戻る。"
+    },
+    {
+      "id": "step2",
+      "kind": "range",
+      "label": "屈み+踏み込み2",
+      "start_s": 13.0,
+      "end_s": 13.133,
+      "notes": "深く屈み前傾。MC: dash_strike 0.7block/3tick (t24-26)。"
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "接触 2",
+      "label": "接触2 低い水平リング",
       "t_s": 13.2,
-      "notes": "astra2 source frame 396; melee; game tick 31. Coin grouping uncertainty remains in reference analysis."
+      "notes": "f396/t31。13.133に黄色い不定形のベタ塗り(演出のみ)、足元の低い金色リング+胸高の白い筋。敵が右へ弾かれる。MC: sweep-low+knockback。"
+    },
+    {
+      "id": "ring2",
+      "kind": "range",
+      "label": "リング2",
+      "start_s": 13.133,
+      "end_s": 13.7,
+      "notes": "足元の金色リングが術者を取り巻く(幅約3.5H)。"
+    },
+    {
+      "id": "rec2",
+      "kind": "range",
+      "label": "余韻",
+      "start_s": 13.7,
+      "end_s": 14.233,
+      "notes": "大剣を低く後方へ構え直す。"
     }
   ],
-  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/s1.json を参照。",
-  "editLog": [],
+  "notes": "【現状: 検証不合格 / 反復4】作り直し(原動画30fps全コマ再観察)。接触2回(t7,t31)。キャスター: 1.6block踏み込み(t0-3)、0.7block前傾(t24-26)。残差: リングの見え方(カメラ角)・ベタ塗り閃光未実装・白筋が細い。撮影同期は±4tick。詳細は notes.md。",
+  "editLog": [
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T10:41:23.991952+00:00",
+      "summary": "S1 作り直し 反復2 (rig板状大剣、外縁のみのリング、dash_strike 追加)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T11:18:20.427856+00:00",
+      "summary": "S1 反復4 (リング不透明化・太く、外縁のみ、粒子削除)"
+    }
+  ],
   "verification": {
     "status": "failed",
-    "reason": "身体の低い踏み込み・両手の上段姿勢・原動画の極端な寄りを再現できていない。斬撃と柱の輪郭、光量にも差がある。",
-    "normalInput": "実入力撮影あり。標的HP 184.256f（回数の測定ではない）",
-    "evidence": "/evidence/bastion-greatsword-s1.png"
+    "reason": "反復4: 大剣は板状、踏み込みdash・接触t7/t31・金色リングの太さと色はほぼ一致。残差: リングが術者を取り巻く楕円に見えない(カメラが低く手前の弧しか見えない→反復5でカメラを高く)、黄色い不定形のベタ塗り未実装、白筋が細い、撮影のtick同期は最大約4tickずれる。",
+    "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
+    "evidence": ""
   },
   "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
   "referenceRevision": "9a9b8b2062d3b702777cdc0b7abe0fe9c2c5987e676d581d992ca3640125bb5e",

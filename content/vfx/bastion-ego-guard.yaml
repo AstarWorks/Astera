@@ -1,85 +1,116 @@
+# Bastion EGO guard (独自設計, no reference footage): the barrier rises while the caster crouches to spring.
+
 id: bastion-ego-guard
-duration_ticks: 20
+duration_ticks: 30
 orient: yaw
 follow: true
-sample_ticks: 1
+sample_ticks: 2
 elements:
-- id: aura-0
-  kind: {type: block, block: yellow_stained_glass}
+- id: rim
+  kind:
+    type: quad
+    glyph: ●
+    color: '#6B4A08'
+    alpha: 0.0
+  billboard: fixed
+  brightness: 15
   start_tick: 0
-  end_tick: 20
+  end_tick: 30
   keyframes:
-  - {t: 0, translate: [0.35, 0.1, 0.8], scale: [0.01, 0.01, 0.02]}
-  - {t: 4, scale: [0.8139, 0.38, 0.04], ease: out_cubic}
-  - {t: 20, scale: [0, 0, 0]}
-  brightness: 12
-- id: aura-1
-  kind: {type: block, block: yellow_stained_glass}
+  - t: 0
+    translate: [0.3, 1.15, 1.0]
+    rotate: [60.0, 0, 0]
+    scale: [0.26, 0.54, 1.0]
+  - t: 6
+    scale: [1.3, 2.7, 1.0]
+    alpha: 0.6
+    ease: out_cubic
+  - t: 15
+    alpha: 0.48
+  - t: 22
+    alpha: 0.6
+  - t: 30
+    scale: [1.1700000000000002, 2.43, 1.0]
+    alpha: 0.0
+    ease: in_quad
+- id: fill
+  kind:
+    type: quad
+    glyph: ●
+    color: '#FFD66E'
+    alpha: 0.0
+  billboard: fixed
+  brightness: 15
   start_tick: 0
-  end_tick: 20
+  end_tick: 30
   keyframes:
-  - {t: 0, translate: [0.35, 0.45, 0.8], scale: [0.01, 0.01, 0.02]}
-  - {t: 4, scale: [1.2427, 0.38, 0.04], ease: out_cubic}
-  - {t: 20, scale: [0, 0, 0]}
-  brightness: 12
-- id: aura-2
-  kind: {type: block, block: yellow_stained_glass}
+  - t: 0
+    translate: [0.3, 1.15, 1.0]
+    rotate: [60.0, 0, 0]
+    scale: [0.22400000000000003, 0.5, 1.0]
+  - t: 6
+    scale: [1.12, 2.5, 1.0]
+    alpha: 0.42
+    ease: out_cubic
+  - t: 15
+    alpha: 0.336
+  - t: 22
+    alpha: 0.42
+  - t: 30
+    scale: [1.0080000000000002, 2.25, 1.0]
+    alpha: 0.0
+    ease: in_quad
+- id: inner
+  kind:
+    type: quad
+    glyph: ●
+    color: '#FFF0B8'
+    alpha: 0.0
+  billboard: fixed
+  brightness: 15
   start_tick: 0
-  end_tick: 20
+  end_tick: 30
   keyframes:
-  - {t: 0, translate: [0.35, 0.8, 0.8], scale: [0.01, 0.01, 0.02]}
-  - {t: 4, scale: [1.44, 0.38, 0.04], ease: out_cubic}
-  - {t: 20, scale: [0, 0, 0]}
-  brightness: 12
-- id: aura-3
-  kind: {type: block, block: yellow_stained_glass}
+  - t: 0
+    translate: [0.3, 1.15, 1.0]
+    rotate: [60.0, 0, 0]
+    scale: [0.16000000000000003, 0.37000000000000005, 1.0]
+  - t: 6
+    scale: [0.8, 1.85, 1.0]
+    alpha: 0.3
+    ease: out_cubic
+  - t: 15
+    alpha: 0.24
+  - t: 22
+    alpha: 0.3
+  - t: 30
+    scale: [0.7200000000000001, 1.665, 1.0]
+    alpha: 0.0
+    ease: in_quad
+- id: emblem
+  kind:
+    type: quad
+    glyph: ▼
+    color: '#FFF6D0'
+    alpha: 0.0
+  billboard: fixed
+  brightness: 15
   start_tick: 0
-  end_tick: 20
+  end_tick: 30
   keyframes:
-  - {t: 0, translate: [0.35, 1.15, 0.8], scale: [0.01, 0.01, 0.02]}
-  - {t: 4, scale: [1.5, 0.38, 0.04], ease: out_cubic}
-  - {t: 20, scale: [0, 0, 0]}
-  brightness: 12
-- id: aura-4
-  kind: {type: block, block: yellow_stained_glass}
-  start_tick: 0
-  end_tick: 20
-  keyframes:
-  - {t: 0, translate: [0.35, 1.5, 0.8], scale: [0.01, 0.01, 0.02]}
-  - {t: 4, scale: [1.44, 0.38, 0.04], ease: out_cubic}
-  - {t: 20, scale: [0, 0, 0]}
-  brightness: 12
-- id: aura-5
-  kind: {type: block, block: yellow_stained_glass}
-  start_tick: 0
-  end_tick: 20
-  keyframes:
-  - {t: 0, translate: [0.35, 1.85, 0.8], scale: [0.01, 0.01, 0.02]}
-  - {t: 4, scale: [1.2427, 0.38, 0.04], ease: out_cubic}
-  - {t: 20, scale: [0, 0, 0]}
-  brightness: 12
-- id: aura-6
-  kind: {type: block, block: yellow_stained_glass}
-  start_tick: 0
-  end_tick: 20
-  keyframes:
-  - {t: 0, translate: [0.35, 2.2, 0.8], scale: [0.01, 0.01, 0.02]}
-  - {t: 4, scale: [0.8139, 0.38, 0.04], ease: out_cubic}
-  - {t: 20, scale: [0, 0, 0]}
-  brightness: 12
-rigs:
-- id: shield
-  pivot: [0.35, 1.1, 0.7]
-  end_tick: 19
-  parts:
-  - {id: face, block: gray_concrete, offset: [0, 0, 0], size: [0.85, 1.8, 0.12]}
-  - {id: inset, block: black_concrete, offset: [0, 0, 0.07], size: [0.6, 1.48, 0.025]}
-  - {id: left, block: gold_block, offset: [-0.45, 0, 0.09], size: [0.06, 1.9, 0.05]}
-  - {id: right, block: gold_block, offset: [0.45, 0, 0.09], size: [0.06, 1.9, 0.05]}
-  - {id: top, block: gold_block, offset: [0, 0.94, 0.09], size: [0.9, 0.06, 0.05]}
-  - {id: bottom, block: gold_block, offset: [0, -0.94, 0.09], size: [0.9, 0.06, 0.05]}
-  - {id: spine, block: gold_block, offset: [0, 0, 0.09], size: [0.06, 1.7, 0.05]}
-  swing:
-  - {t: 0, rotate: [0, 0, 0]}
-  - {t: 3, rotate: [-12, 0, 0], ease: out_cubic}
-  - {t: 19, rotate: [-70, 0, 0]}
+  - t: 0
+    translate: [0.3, 1.3499999999999999, 1.0]
+    rotate: [60.0, 0, 0]
+    scale: [0.1, 0.15000000000000002, 1.0]
+  - t: 6
+    scale: [0.5, 0.75, 1.0]
+    alpha: 0.85
+    ease: out_cubic
+  - t: 15
+    alpha: 0.68
+  - t: 22
+    alpha: 0.85
+  - t: 30
+    scale: [0.45, 0.675, 1.0]
+    alpha: 0.0
+    ease: in_quad

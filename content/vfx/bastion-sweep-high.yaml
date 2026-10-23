@@ -1,0 +1,139 @@
+# Bastion S1 beat 1 (reference Zwei West S3 Ishmael, S1 hit1, video 11.933-12.5s): tall tilted gold ring over the shoulder + white waist streak.
+# Rig t0 = 3 ticks before the contact (contact = rig t4). Blade passes the front at ~t4.4. 独自の補間はなし: planner の in_quad 加速で前方通過。
+
+id: bastion-sweep-high
+duration_ticks: 22
+orient: yaw
+follow: false
+sample_ticks: 1
+rigs:
+- id: sword
+  pivot: [-0.1, 1.1, 0.2]
+  rest: [0, 90, 0]
+  tilt: [0, 0, 24]
+  respect_hit_stop: true
+  end_tick: 21
+  parts:
+  - id: face
+    block: gray_concrete
+    offset: [0, 1.55, 0]
+    size: [0.46, 1.9, 0.07]
+  - id: rim_l
+    block: white_concrete
+    offset: [0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: rim_r
+    block: white_concrete
+    offset: [-0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: tip
+    block: white_concrete
+    offset: [0, 2.5, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: base
+    block: white_concrete
+    offset: [0, 0.62, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: inset
+    block: yellow_concrete
+    offset: [0, 0.86, 0]
+    size: [0.09, 0.2, 0.09]
+  - id: guard
+    block: black_concrete
+    offset: [0, 0.5, 0]
+    size: [0.62, 0.1, 0.18]
+  - id: grip
+    block: black_concrete
+    offset: [0, 0.05, 0]
+    size: [0.09, 0.8, 0.09]
+  swing:
+  - t: 0
+    rotate: [184, 40, 0]
+  - t: 1
+    rotate: [188, 40, 0]
+  - t: 4
+    rotate: [-78, 14, 0]
+    ease: in_quad
+  - t: 7
+    rotate: [-100, 18, 0]
+    ease: out_cubic
+  - t: 12
+    rotate: [-104, 26, 0]
+  - t: 20
+    rotate: [180, 42, 0]
+    ease: in_out_quad
+  trails:
+  - id: wind
+    from: [0, 0.7, 0]
+    to: [0, 2.55, 0]
+    start_t: 1
+    end_t: 7
+    life_ticks: 11
+    lag_ticks: 0
+    style: soft
+    step_deg: 22
+    fade_power: 0.8
+    bands:
+    - from: 0.42
+      to: 0.74
+      color: '#D8FFC93A'
+      color_to: '#80FFA818'
+    - from: 0.74
+      to: 1.0
+      color: '#FFFFEC70'
+      color_to: '#FFFFC030'
+    edge:
+      block: white_concrete
+      width: 0.05
+    dark_rim:
+      color: '#C0161008'
+      width: 0.2
+elements:
+- id: streaks
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 4
+  end_tick: 12
+  count: 5
+  formation:
+    curve:
+      type: line
+      from: [0.0, 0.9, 0.5]
+      to: [0.0, 1.7, 0.5]
+  jitter:
+    position: 0.12
+    scale: 0.45
+  keyframes:
+  - t: 0
+    scale: [0.06, 0.06, 0.3]
+  - t: 2
+    translate: [0, 0, 2.3]
+    scale: [0.06, 0.06, 4.6]
+    ease: out_expo
+  - t: 7
+    translate: [0, 0, 4.14]
+    scale: [0, 0, 4.6]
+    ease: in_quad
+- id: flash
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FFEFA0'
+    alpha: 1.0
+  brightness: 15
+  start_tick: 4
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.2, 2.6]
+    scale: [0.165, 0.165, 1.0]
+  - t: 1
+    scale: [1.1, 1.1, 1.0]
+    ease: out_back
+  - t: 5
+    scale: [0.55, 0.55, 1.0]
+    color: '#FF9A30'
+    alpha: 0.0
+    ease: out_quad

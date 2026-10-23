@@ -1,27 +1,22 @@
-# Zwei West Section 3 Ishmael / DEF
+# Zwei West Section 3 Ishmael / DEF 城壁の構え (Your Shield)
 
-状態: astra2解析済・再制作中
+動画 `Svaaq9F7Ty8` 23.7–31.767 s (30 fps)。bind: スニーク+左 `bastion-greatsword-def`。
+native fps (4 コマ間引きで全区間) を自分で見直した。tick = floor(dt*20+0.5)、dt = 動画秒 - 23.7。
 
-原資料: [フレーム解析](/reference/bastion-greatsword/def.json) / [kit](/reference/bastion-greatsword/kit.md)
+## 観察表
 
-| source seconds | source frame | game tick | range |
-|---:|---:|---:|---|
+| 区間 (動画秒 / tick) | 原動画の観察 | Minecraft での目標 | 根拠 |
+|---|---|---|---|
+| 展開 23.7–24.3 / t0–12 | 暗転から術者が現れ、23.97 に**半透明の金色の縦長楕円** (高さ約 1.5H、幅約 0.7H、盾の紋章が浮き彫り) が術者の前に張られる。大剣は床に寝かせたまま。術者は低く構え、ほぼ移動しない | `bastion-shield`: 縦楕円 3 枚 (縁 / 面 / 内側) + 紋章、60° 回して術者の視界を塞がない | f711–f731 |
+| 保持 24.3–31.3 | 敵が右から 4 回斬撃 (24.767, 26.233, 28.7, 31.234)。そのたびに障壁が橙に閃き、円環が走り、星形の閃光 (27.03) とダメージ数字 (UI) が出る。障壁自体は消えず保持 | 障壁を 162 tick 保持しゆっくり脈動。被弾の閃光は**未再現** (skill / status に被弾トリガ機構が無い: schema の mechanic 一覧に on-damaged 系なし) | f743, f787, f861, f937 |
+| 終了 | 31.767 に白一色 → 次の画へ | 末尾 10 tick で消える | f953 |
 
-1 tick = 50 ms。量子化は最近傍、半tickは切り上げ。原資料記載の接触遮蔽・コイン対応の不確実性は保持。旧intentは履歴資料であり、新しい再現結果ではない。
+### キャスター移動
+原動画では**移動なし** (構えを取るのみ)。MC も移動なし (DEF は buff のため)。
 
-## round 2 実装と検証
+### Minecraft 側の変更
+- 被弾閃光なし。物理耐性 +0.7 / ノックバック耐性 1.0 (162 tick)、charge 3 スタックは Astera 側の設計。
+- 原作の「Defensive Stance」「Tremor」は再現しない。
 
-S1/S2/S3の接触時刻を再解析に合わせ、薙ぎの幅・薄さを修正。DEFは観測された防御区間に合わせた。
-
-比較用接触tick: 原動画の攻撃接触なし。源のコイン対応にある不確実性は保持する。
-
-状態: 現版撮影あり。身体の低い踏み込み・両手の上段姿勢・原動画の極端な寄りを再現できていない。斬撃と柱の輪郭、光量にも差がある。
-
-- 内容SHA-256: `b85080deaf351bce967f5457e644d82bb8168c4e145fe2f536f7b63af08e28f3`
-- 参照SHA-256: `4daf8ac4dcb8b285f47cdfb73bd29e4a631a0880ce587022a807ec00a77190cd`
-- 修正反復: 1 / 最大4（同版の撮影停止による再撮影は別記）
-- 撮影: `build/vfx-shot/bastion-greatsword-def/compare/`、標的HP: 200.0f
-- [共通起点の比較画像](/evidence/bastion-greatsword-def.png)
-- [全操作の記録](/report/bastion-greatsword)
-
-強制発動の撮影は資源・クールダウン・入力の証明ではない。HP減少は10%・2倍のランダムクリティカルの影響を受け、実ヒット数と読み替えない。
+## 反復ログ
+- 反復1: 障壁の縦楕円は回転して表示される。残差: 盾の紋章が小さく見えにくい、金色の彩度が弱い、被弾閃光は未実装。

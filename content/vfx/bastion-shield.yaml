@@ -1,0 +1,117 @@
+# Bastion DEF (video 23.9-28.4s): a translucent gold oval barrier with an embossed shield mark, held in front of the caster for the 162-tick buff.
+# The reference shows guard flares when the enemy strikes; Astera has no on-damaged trigger, so the oval only fades in / pulses.
+
+id: bastion-shield
+duration_ticks: 162
+orient: yaw
+follow: true
+sample_ticks: 4
+elements:
+- id: rim
+  kind:
+    type: quad
+    glyph: ●
+    color: '#6B4A08'
+    alpha: 0.0
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 162
+  keyframes:
+  - t: 0
+    translate: [0.3, 1.15, 1.0]
+    rotate: [60.0, 0, 0]
+    scale: [0.26, 0.54, 1.0]
+  - t: 6
+    scale: [1.3, 2.7, 1.0]
+    alpha: 0.6
+    ease: out_cubic
+  - t: 81
+    alpha: 0.48
+  - t: 152
+    alpha: 0.6
+  - t: 162
+    scale: [1.1700000000000002, 2.43, 1.0]
+    alpha: 0.0
+    ease: in_quad
+- id: fill
+  kind:
+    type: quad
+    glyph: ●
+    color: '#FFD66E'
+    alpha: 0.0
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 162
+  keyframes:
+  - t: 0
+    translate: [0.3, 1.15, 1.0]
+    rotate: [60.0, 0, 0]
+    scale: [0.22400000000000003, 0.5, 1.0]
+  - t: 6
+    scale: [1.12, 2.5, 1.0]
+    alpha: 0.42
+    ease: out_cubic
+  - t: 81
+    alpha: 0.336
+  - t: 152
+    alpha: 0.42
+  - t: 162
+    scale: [1.0080000000000002, 2.25, 1.0]
+    alpha: 0.0
+    ease: in_quad
+- id: inner
+  kind:
+    type: quad
+    glyph: ●
+    color: '#FFF0B8'
+    alpha: 0.0
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 162
+  keyframes:
+  - t: 0
+    translate: [0.3, 1.15, 1.0]
+    rotate: [60.0, 0, 0]
+    scale: [0.16000000000000003, 0.37000000000000005, 1.0]
+  - t: 6
+    scale: [0.8, 1.85, 1.0]
+    alpha: 0.3
+    ease: out_cubic
+  - t: 81
+    alpha: 0.24
+  - t: 152
+    alpha: 0.3
+  - t: 162
+    scale: [0.7200000000000001, 1.665, 1.0]
+    alpha: 0.0
+    ease: in_quad
+- id: emblem
+  kind:
+    type: quad
+    glyph: ▼
+    color: '#FFF6D0'
+    alpha: 0.0
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 162
+  keyframes:
+  - t: 0
+    translate: [0.3, 1.3499999999999999, 1.0]
+    rotate: [60.0, 0, 0]
+    scale: [0.1, 0.15000000000000002, 1.0]
+  - t: 6
+    scale: [0.5, 0.75, 1.0]
+    alpha: 0.85
+    ease: out_cubic
+  - t: 81
+    alpha: 0.68
+  - t: 152
+    alpha: 0.85
+  - t: 162
+    scale: [0.45, 0.675, 1.0]
+    alpha: 0.0
+    ease: in_quad

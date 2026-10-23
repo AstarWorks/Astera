@@ -1,6 +1,6 @@
 {
   "id": "bastion-greatsword-def",
-  "rev": 4,
+  "rev": 6,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 23.7,
   "end_s": 31.767,
@@ -15,7 +15,7 @@
     "asteraSkillId": "bastion-greatsword-def"
   },
   "intent": {
-    "file": "intent-round2.json"
+    "file": "intent-redo.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -26,18 +26,69 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "DEF",
+      "label": "DEF 城壁の構え",
       "start_s": 23.7,
       "end_s": 31.767
+    },
+    {
+      "id": "shield",
+      "kind": "range",
+      "label": "障壁展開",
+      "start_s": 23.9,
+      "end_s": 24.3,
+      "notes": "半透明の金色の縦長楕円(約1.5H)が術者の前に展開、盾の紋章が浮く。大剣は床に寝かせる。MC: bastion-shield 162tick。"
+    },
+    {
+      "id": "guard1",
+      "kind": "range",
+      "label": "敵の攻撃を受ける",
+      "start_s": 24.767,
+      "end_s": 25.2,
+      "notes": "被弾で障壁が橙に閃き輪が走る。Asteraには被弾トリガ無し(skill/status schemaに該当機構なし)なので再現せず。"
+    },
+    {
+      "id": "guard2",
+      "kind": "range",
+      "label": "被弾2",
+      "start_s": 26.233,
+      "end_s": 26.6,
+      "notes": "同上。"
+    },
+    {
+      "id": "guard3",
+      "kind": "range",
+      "label": "被弾3/星",
+      "start_s": 27.0,
+      "end_s": 27.6,
+      "notes": "星形の閃光とダメージ数字(UI)。MC側は未再現。"
+    },
+    {
+      "id": "guard4",
+      "kind": "range",
+      "label": "被弾4",
+      "start_s": 28.7,
+      "end_s": 29.0,
+      "notes": "同上。"
     }
   ],
-  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/def.json を参照。",
-  "editLog": [],
+  "notes": "【現状: 検証不合格 / 反復1】障壁の見え方のみ再現、被弾閃光は未実装。",
+  "editLog": [
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T10:41:24.007856+00:00",
+      "summary": "DEF 作り直し 反復1 (bastion-shield)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T11:18:20.480580+00:00",
+      "summary": "DEF 反復1 (bastion-shield)"
+    }
+  ],
   "verification": {
-    "status": "failed",
-    "reason": "身体の低い踏み込み・両手の上段姿勢・原動画の極端な寄りを再現できていない。斬撃と柱の輪郭、光量にも差がある。",
-    "normalInput": "実入力撮影あり。標的HP 200.0f（回数の測定ではない）",
-    "evidence": "/evidence/bastion-greatsword-def.png"
+    "status": "unverified",
+    "reason": "反復1: 金色の半透明障壁(縦楕円)を162tick維持。被弾閃光は被弾トリガ機構が無く未再現。紋章が小さい。",
+    "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
+    "evidence": ""
   },
   "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
   "referenceRevision": "4daf8ac4dcb8b285f47cdfb73bd29e4a631a0880ce587022a807ec00a77190cd",

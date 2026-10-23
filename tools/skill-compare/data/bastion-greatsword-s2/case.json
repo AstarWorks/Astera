@@ -1,13 +1,13 @@
 {
   "id": "bastion-greatsword-s2",
-  "rev": 4,
+  "rev": 6,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 14.633,
   "end_s": 18.4,
   "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "captured",
-  "iterations": 2,
+  "iterations": 3,
   "report": "/report/bastion-greatsword",
   "skill": {
     "name": "審判の突進",
@@ -15,7 +15,7 @@
     "asteraSkillId": "bastion-greatsword-s2"
   },
   "intent": {
-    "file": "intent-round2.json"
+    "file": "intent-redo.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -26,39 +26,106 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "S2",
+      "label": "S2 審判の突進",
       "start_s": 14.633,
       "end_s": 18.4
     },
     {
+      "id": "crouch",
+      "kind": "range",
+      "label": "屈み構え",
+      "start_s": 14.833,
+      "end_s": 15.2,
+      "notes": "低く屈み大剣を後方に水平に構える。MC: dash_strike 1.6block(t6-8)。"
+    },
+    {
       "id": "hit1",
       "kind": "hit",
-      "label": "接触 1",
+      "label": "接触1 低い水平リング",
       "t_s": 15.3,
-      "notes": "astra2 source frame 459; melee; game tick 13. Coin grouping uncertainty remains in reference analysis."
+      "notes": "f459/t13。黄色いベタ塗り→足元の傾いた金リング+胸高の白い筋が右へ。MC: sweep-low。"
+    },
+    {
+      "id": "ring1",
+      "kind": "range",
+      "label": "リング1",
+      "start_s": 15.233,
+      "end_s": 15.7,
+      "notes": ""
+    },
+    {
+      "id": "stand",
+      "kind": "range",
+      "label": "立ち直り",
+      "start_s": 15.7,
+      "end_s": 16.1,
+      "notes": "大剣を下ろし立つ。血痕。MC: dash 0.7block (t26-28)。"
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "接触 2",
+      "label": "接触2 高い大リング",
       "t_s": 16.233,
-      "notes": "astra2 source frame 487; melee; game tick 32. Coin grouping uncertainty remains in reference analysis."
+      "notes": "f487/t32。16.133に大きい傾いたリング、顔の寄り、橙の筋。MC: sweep-high。"
+    },
+    {
+      "id": "ring2",
+      "kind": "range",
+      "label": "リング2",
+      "start_s": 16.133,
+      "end_s": 16.7,
+      "notes": ""
+    },
+    {
+      "id": "raise",
+      "kind": "range",
+      "label": "頭上へ構え",
+      "start_s": 16.7,
+      "end_s": 17.2,
+      "notes": "大剣を頭の後ろ斜め上に掲げ保持(約0.5秒)。MC: dash 0.8block+rig上段。"
     },
     {
       "id": "hit3",
       "kind": "hit",
-      "label": "接触 3",
+      "label": "接触3 縦アーチ+床の棘",
       "t_s": 17.3,
-      "notes": "astra2 source frame 519; melee; game tick 53. Coin grouping uncertainty remains in reference analysis."
+      "notes": "f519/t53。高さ約2Hの縦アーチ、右の床に鋭い棘の扇、白い水平筋。術者は屈み大剣を床に突く。MC: overhead+knockback+shake。"
+    },
+    {
+      "id": "arch",
+      "kind": "range",
+      "label": "縦アーチ残存",
+      "start_s": 17.2,
+      "end_s": 17.7,
+      "notes": "約0.4秒アーチが残る。"
+    },
+    {
+      "id": "rec",
+      "kind": "range",
+      "label": "余韻",
+      "start_s": 17.7,
+      "end_s": 18.4,
+      "notes": "屈んだまま大剣を突き立てて保持。"
     }
   ],
-  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/s2.json を参照。",
-  "editLog": [],
+  "notes": "【現状: 検証不合格 / 反復3】接触3回(t13低リング, t32高リング, t53縦アーチ+棘)。キャスター: 1.6/0.7/0.8block踏み込み。残差: 縦アーチ・棘。",
+  "editLog": [
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T10:41:23.996813+00:00",
+      "summary": "S2 作り直し 反復1 (低/高リング+頭上斬り下ろし、踏み込み3回)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T11:18:20.436820+00:00",
+      "summary": "S2 反復3 (リング帯強化、粒子削除、スパイク改修)"
+    }
+  ],
   "verification": {
     "status": "failed",
-    "reason": "身体の低い踏み込み・両手の上段姿勢・原動画の極端な寄りを再現できていない。斬撃と柱の輪郭、光量にも差がある。",
-    "normalInput": "実入力撮影あり。標的HP 159.656f（回数の測定ではない）",
-    "evidence": "/evidence/bastion-greatsword-s2.png"
+    "reason": "反復3: 3接触と踏み込み3回は動作、低/高リングは太い金色に。残差: 縦アーチ(垂直面の風切り)が片面描画で見えない→反復5で両面(crisp)化、床の棘のグリフが粗い→稲妻状の棘に変更中、tick同期ずれ約6。",
+    "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
+    "evidence": ""
   },
   "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
   "referenceRevision": "c4f92d2c5f3d2b5058d4932f0f8d2127d55cf21d0e135d850783b7c783f01a25",

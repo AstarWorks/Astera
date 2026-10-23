@@ -1,0 +1,345 @@
+# Bastion S3 beat 3 (video 22.03-23.4s): downstroke, blade planted upright; white-gold pillar crossed by a flat disc, jagged spikes at the floor.
+
+id: bastion-pillar
+duration_ticks: 40
+orient: yaw
+follow: false
+sample_ticks: 1
+rigs:
+- id: sword
+  pivot: [0.0, 1.4, 0.3]
+  rest: [0, 90, 0]
+  tilt: [0, 0, 0]
+  respect_hit_stop: true
+  end_tick: 39
+  parts:
+  - id: face
+    block: gray_concrete
+    offset: [0, 1.55, 0]
+    size: [0.46, 1.9, 0.07]
+  - id: rim_l
+    block: white_concrete
+    offset: [0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: rim_r
+    block: white_concrete
+    offset: [-0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: tip
+    block: white_concrete
+    offset: [0, 2.5, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: base
+    block: white_concrete
+    offset: [0, 0.62, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: inset
+    block: yellow_concrete
+    offset: [0, 0.86, 0]
+    size: [0.09, 0.2, 0.09]
+  - id: guard
+    block: black_concrete
+    offset: [0, 0.5, 0]
+    size: [0.62, 0.1, 0.18]
+  - id: grip
+    block: black_concrete
+    offset: [0, 0.05, 0]
+    size: [0.09, 0.8, 0.09]
+  swing:
+  - t: 0
+    rotate: [0, -125, 0]
+  - t: 1
+    rotate: [0, -150, 0]
+    ease: in_out_quad
+  - t: 3
+    rotate: [0, 62, 0]
+    ease: in_quad
+  - t: 5
+    rotate: [0, 66, 0]
+    ease: out_cubic
+  - t: 36
+    rotate: [0, 66, 0]
+elements:
+- id: flash
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FFEFA0'
+    alpha: 1.0
+  brightness: 15
+  start_tick: 4
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 1.0, 1.7]
+    scale: [0.36, 0.36, 1.0]
+  - t: 1
+    scale: [2.4, 2.4, 1.0]
+    ease: out_back
+  - t: 6
+    scale: [1.2, 1.2, 1.0]
+    color: '#FF9A30'
+    alpha: 0.0
+    ease: out_quad
+- id: pilcore
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 4
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 3.5, 1.7]
+    scale: [0.108, 0.3, 0.108]
+  - t: 1
+    scale: [0.36, 7.0, 0.36]
+    ease: out_expo
+  - t: 6
+    scale: [0.306, 7.0, 0.306]
+  - t: 10
+    scale: [0.0, 7.0, 0.0]
+    ease: in_quad
+- id: pilbloom
+  kind:
+    type: block
+    block: yellow_stained_glass
+  brightness: 15
+  start_tick: 4
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 3.3, 1.7]
+    scale: [0.36, 0.3, 0.36]
+  - t: 1
+    scale: [1.008, 6.6, 1.008]
+    ease: out_expo
+  - t: 10
+    scale: [0.0, 6.6, 0.0]
+    ease: in_quad
+- id: pildisc
+  kind:
+    type: quad
+    glyph: ●
+    color: '#FFF2B0'
+    alpha: 0.95
+  billboard: fixed
+  brightness: 15
+  start_tick: 4
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate: [0, 1.25, 1.7]
+    rotate: [0, 90, 0]
+    scale: [0.4, 0.4, 1.0]
+  - t: 2
+    scale: [3.6, 3.6, 1.0]
+    ease: out_expo
+  - t: 8
+    scale: [3.9, 3.9, 1.0]
+    color: '#FFD060'
+    alpha: 0.0
+    ease: out_quad
+- id: spike0
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 4
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [0.5701248242093367, 1.54, 1.8647942741279193]
+      segments: 5
+      amplitude: 0.28
+      seed: 31
+    offset: [0, 0.0, 1.7]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 0.7454320894622126]
+    ease: out_expo
+  - t: 8
+    scale: [0.1, 0.1, 0.7454320894622126]
+  - t: 11
+    scale: [0.0, 0.0, 0.7454320894622126]
+    ease: in_quad
+- id: spike1
+  kind:
+    type: block
+    block: yellow_concrete
+  brightness: 15
+  start_tick: 4
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [2.5376660948694236, 2.8, 0.5659070515112622]
+      segments: 5
+      amplitude: 0.28
+      seed: 32
+    offset: [0, 0.0, 1.7]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 1.1462983904725679]
+    ease: out_expo
+  - t: 8
+    scale: [0.1, 0.1, 1.1462983904725679]
+  - t: 11
+    scale: [0.0, 0.0, 1.1462983904725679]
+    ease: in_quad
+- id: spike2
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 4
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [1.6911752799694104, 2.17, -0.97078636806477]
+      segments: 5
+      amplitude: 0.28
+      seed: 33
+    offset: [0, 0.0, 1.7]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 0.8752291128613123]
+    ease: out_expo
+  - t: 8
+    scale: [0.1, 0.1, 0.8752291128613123]
+  - t: 11
+    scale: [0.0, 0.0, 0.8752291128613123]
+    ease: in_quad
+- id: spike3
+  kind:
+    type: block
+    block: yellow_concrete
+  brightness: 15
+  start_tick: 4
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [-0.012965249280769968, 1.54, -2.599967673320399]
+      segments: 5
+      amplitude: 0.28
+      seed: 34
+    offset: [0, 0.0, 1.7]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 0.9065561207117848]
+    ease: out_expo
+  - t: 8
+    scale: [0.1, 0.1, 0.9065561207117848]
+  - t: 11
+    scale: [0.0, 0.0, 0.9065561207117848]
+    ease: in_quad
+- id: spike4
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 4
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [-1.322768629774586, 2.8, -1.4327536955402573]
+      segments: 5
+      amplitude: 0.28
+      seed: 35
+    offset: [0, 0.0, 1.7]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 1.0236332350993689]
+    ease: out_expo
+  - t: 8
+    scale: [0.1, 0.1, 1.0236332350993689]
+  - t: 11
+    scale: [0.0, 0.0, 1.0236332350993689]
+    ease: in_quad
+- id: spike5
+  kind:
+    type: block
+    block: yellow_concrete
+  brightness: 15
+  start_tick: 4
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [-2.5318960161115567, 2.17, 0.5911874183356998]
+      segments: 5
+      amplitude: 0.28
+      seed: 36
+    offset: [0, 0.0, 1.7]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 1.015972932710316]
+    ease: out_expo
+  - t: 8
+    scale: [0.1, 0.1, 1.015972932710316]
+  - t: 11
+    scale: [0.0, 0.0, 1.015972932710316]
+    ease: in_quad
+- id: spike6
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 4
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [-1.1024878581583002, 1.54, 1.6084217489867279]
+      segments: 5
+      amplitude: 0.28
+      seed: 37
+    offset: [0, 0.0, 1.7]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 0.7454320894622126]
+    ease: out_expo
+  - t: 8
+    scale: [0.1, 0.1, 0.7454320894622126]
+  - t: 11
+    scale: [0.0, 0.0, 0.7454320894622126]
+    ease: in_quad
