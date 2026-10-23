@@ -66,12 +66,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "Round48: 三体の足元に床輪/赤い発光を確認。カメラ向きの光芯を追加。195フレーム、遅延2ms、同一最大4、全詠唱769サンプルのピーク59。配置のみの確認で命中数は未認定。原動画の強い白赤の光、軌跡の動き、人物/鎖形状、変身/通常入力は未一致。"
+    "reason": "Round49: 対の三日月刃スプライトで浮遊〜終端に残る14節の鎖を追加。frame168で消光後も鎖が残ることを確認。195フレーム、遅延3ms・同一最大2、三標的768サンプルで表示ピーク59。静的な鎖の曲線/人物接続、前半の横棒状の鎖、人物姿勢、光と動き、変身/通常入力、命中仕様は未一致。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 14,
+  "iterations": 15,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
-  "contentRevision": "2206141edfcf3836e5871e948ce1e7154a7c024e8ec42a0bd3d22bfcba2f13bc"
+  "contentRevision": "ccd67098e8f417f5c1421a18dc38236950e72d9a3fb4b58b7f790385f48c6842"
 }

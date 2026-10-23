@@ -334,3 +334,10 @@ phases:
     delay_ticks:
       type: literal
       value: 116
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: crimson-combo-recovery-chain
+    delay_ticks:
+      type: literal
+      value: 116
