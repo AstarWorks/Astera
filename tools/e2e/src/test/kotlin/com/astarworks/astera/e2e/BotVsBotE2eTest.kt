@@ -108,10 +108,15 @@ class BotVsBotE2eTest : PlaythroughBase() {
         val chats = bots.associateWith { b -> b.chat.drop(chatFrom.getValue(b)).map { clean(it.text) } }
         E2eReport.check(suite, "a winner is declared: the summary names a team and the scores differ", "SystemChat") {
             val summary = chats.getValue(bots[0])
-            val reason = summary.firstOrNull { it.contains("reached the norma") || it.contains("was ahead") }
+            val reason = summary.firstOrNull { it.contains("reached the norma") || it.contains("was ahead") || it.contains("reached Norma level") }
             val score = summary.firstOrNull { it.startsWith("Score") }.orEmpty()
-            val numbers = Regex("(Red|Blue)\\D*(\\d+)").findAll(score).associate { it.groupValues[1] to it.groupValues[2].toInt() }
             assertThat(reason).describedAs("no winner reason (draw?):\n${quote(summary, 40)}").isNotNull()
+            if (reason!!.contains("Norma level")) {
+                // Won on Norma levels (stars or kills): the winner need not lead on the kill score.
+                assertThat(reason).describedAs("level win names no team").containsPattern("Red|Blue")
+                return@check "reason='$reason'; score='$score' (level win)"
+            }
+            val numbers = Regex("(Red|Blue)\\D*(\\d+)").findAll(score).associate { it.groupValues[1] to it.groupValues[2].toInt() }
             assertThat(numbers.values.toSet().size).describedAs("scores tied: '$score'").isGreaterThan(1)
             val winner = numbers.maxByOrNull { it.value }?.key
             assertThat(reason).describedAs("reason does not name the leading team $winner").contains(winner!!)

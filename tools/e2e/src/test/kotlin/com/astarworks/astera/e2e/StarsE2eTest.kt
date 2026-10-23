@@ -87,6 +87,9 @@ class StarsE2eTest : PlaythroughBase() {
         val replyFrom = c.chat.size
         c.command("astera norma choose kill")
         val choose = c.chatSince(replyFrom)
+        // A dies away from its own spawn (centre island, clear of every pedestal) so it cannot respawn onto its own burst.
+        tpArena(a.name, 0.5, 65.0, 4.0, 0f, 0f)
+        Thread.sleep(1_200)
         val deathSpot = posOf(a)
         val tKill = System.currentTimeMillis()
         rcon("damage ${a.name} 1000 minecraft:magic by ${c.name}")
