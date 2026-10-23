@@ -103,8 +103,8 @@ class BotSession(
                 backSince = 0L
             }
             // Kicked / connection lost (a hop resets the reason, so a set reason without a login is real).
-            if (bot.disconnectReason != null && !bot.loggedIn) {
-                if (goneSince == 0L) goneSince = now else if (now - goneSince > 3_000) { log.info("{} disconnected: {}", name, bot.disconnectReason); return }
+            if (bot.disconnectReason != null && !bot.loggedIn && !bot.joined) {
+                if (goneSince == 0L) goneSince = now else if (now - goneSince > 8_000) { log.info("{} disconnected: {}", name, bot.disconnectReason); return }
             } else {
                 goneSince = 0L
             }
