@@ -66,11 +66,11 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "Round57: 同じ標的へ5接触を保持し、位置基準の上昇/保持/下降を実装。実機100→102→100、選択標的のみHP200→170.47997、他2体200。速度指定だけの初回試作は上昇せず撤回。高さ・時刻は仮、空中標的に対する鎖の低さ、人物姿勢、光/カメラ/命中仕様/通常入力は未一致。"
+    "reason": "Round58: 接写カメラを上げ後退し、実機frame070/071で空中標的の頭部と術者が画面内に入ることを確認。構図・人物サイズ・空中標的と鎖の高さ・姿勢・光・命中仕様・通常入力は未一致。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 25,
+  "iterations": 26,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
   "contentRevision": "81f5c7d4f38dddf5c16621b88a4b121473caac25882759352572909beeecf9f1"

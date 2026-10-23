@@ -446,3 +446,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - JAR builds succeeded; combined schema generation/lint initially ran lint before fresh schemas. After generation, preserved unrelated pre-existing schema fields and ran lint sequentially:471 passed. Dedicated server loaded the new definition; deployed JAR/skill hashes checked.
 - Repeat actual195-frame capture: lateness8ms, identical maximum2. Positions show selected A100→102→100; HP has five reductions200→170.47997. B/C stayY100,HP200. Frames065/075/100/115 confirm rise/airborne/landing;075 also exposes chain too low for airborne body. Sampling738 observations peaks59. Evidence under round57, summary data/runtime-review/crimson-target-motion-round57.json.
 - Fidelity failed: precise trajectory/height/timing, chain-to-target alignment, body/claw/cape pose, light/camera, hit semantics and normal form/input routing. Collision, active AI, player targets and interruption not validated.
+
+### Round 58: keep the airborne target inside the close-up
+
+- Source f2440 shows the elevated contact in-frame; round57 close frame072 cropped the target's head above the top. Changed only comparison camera key65 from pos(3,1.8,3)/target(3,1.1,0) to pos(2,2.8,4)/target(2,2,0). All skill/target-motion data remains round57.
+- Actual195-frame capture: lateness4ms, identical maximum1. Close frames070/071 now contain the airborne head and grounded caster;072 has already returned wide. Do not assume an old frame number always has the same cut boundary. Sampling759 observations peaks59. Camera hash and evidence under round58.
+- This improves comparison visibility, not gameplay camera or exact source framing. Body scale/pose, chain height, light and other fidelity gaps remain failed. Existing custom player-animation gateway currently accepts only crouch; arm swing has a separate gateway method and is not exposed by play_animation.
