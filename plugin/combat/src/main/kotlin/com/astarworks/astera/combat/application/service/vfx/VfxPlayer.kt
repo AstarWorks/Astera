@@ -121,10 +121,17 @@ public class VfxPlayer(
         val effective = request.follow?.let { def.copy(follow = it) } ?: def
         val frame = effective.orient.frame(request.origin, request.look, request.toTarget)
         val plan = VfxTimeline.plan(effective, frame, request.seed, request.scale, sprites, request.freeze)
-        if (reserved + plan.displayCount > maxLiveDisplays) {
-            log.debug("VFX {} dropped: {} + {} live displays exceed the cap {}", request.vfxId, reserved, plan.displayCount, maxLiveDisplays)
-            return Result.failure(VfxPlayError.OverCapacity(reserved, plan.displayCount, maxLiveDisplays))
+        val replaced = if (plan.follow && plan.replaceGroup != null && request.anchorEntityId != null) {
+            instances.filter { it.plan.follow && it.plan.replaceGroup == plan.replaceGroup &&
+                it.request.anchorEntityId == request.anchorEntityId && it.request.world == request.world }
+        } else emptyList()
+        val remaining = reserved - replaced.sumOf { it.plan.displayCount }
+        if (remaining + plan.displayCount > maxLiveDisplays) {
+            log.debug("VFX {} dropped: {} after replacement + {} displays exceed cap {}", request.vfxId, remaining, plan.displayCount, maxLiveDisplays)
+            return Result.failure(VfxPlayError.OverCapacity(remaining, plan.displayCount, maxLiveDisplays))
         }
+        // Keep the current effect if the new plan cannot fit; only replace after admission.
+        replaced.forEach(::finish)
         val instance = Instance(request, plan, scheduler.currentTick())
         reserved += plan.displayCount
         if (advance(instance)) {

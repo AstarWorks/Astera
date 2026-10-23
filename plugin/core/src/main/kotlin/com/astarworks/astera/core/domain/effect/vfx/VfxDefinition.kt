@@ -80,10 +80,13 @@ public data class VfxDefinition(
     public val followTeleportTicks: Int? = null,
     /** Opt-in native attachment for fixed displays following a player anchor. */
     public val attachToAnchor: Boolean = false,
+    /** Replace an earlier following effect in this group on the same entity and world. */
+    public val replaceGroup: String? = null,
 ) {
     init {
         require(durationTicks in 1..MAX_DURATION_TICKS) { "VfxDefinition.durationTicks must be 1..$MAX_DURATION_TICKS: $durationTicks" }
         require(followTeleportTicks == null || followTeleportTicks in 0..59) { "followTeleportTicks must be 0..59" }
+        require(replaceGroup == null || replaceGroup.matches(Regex("[a-z][a-z0-9-]{0,63}"))) { "replaceGroup must be lower-kebab, at most 64 characters" }
         require(sampleTicks >= 1) { "VfxDefinition.sampleTicks must be >= 1: $sampleTicks" }
         require(elements.isNotEmpty() || rigs.isNotEmpty()) { "VfxDefinition needs elements or rigs" }
         val ids = elements.map { it.id } + rigs.map { it.id }

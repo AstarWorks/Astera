@@ -18,6 +18,8 @@ public data class VfxPlan(
     public val followTeleportTicks: Int? = null,
     /** Opt-in native attachment for fixed displays following a player anchor. */
     public val attachToAnchor: Boolean = false,
+    /** Replace an earlier following effect in this group on the same entity and world. */
+    public val replaceGroup: String? = null,
 ) {
     /** Number of display entities the plan spawns (particle slots spawn none). */
     public val displayCount: Int get() = elements.count { it.kind !is VfxElementKind.Particle }

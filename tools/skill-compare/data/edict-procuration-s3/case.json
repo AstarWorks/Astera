@@ -59,12 +59,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "着地37tickでその場反転し標的側へ爪を構える。着地爪も取付方式へ変更し、初出位置・transformを生成時に補正。frame_043〜048で足元への落ち込みがない切替を確認。輪郭・光帯・人物姿勢、後続区間の素手表示、カメラ、持続変身・通常入力は未一致。"
+    "reason": "身体側VFXにnative取付と同一アンカーのグループ置換を適用し、地上通過を13/17/20/46tickへ揃えた。別プレイヤーを消さないことを実機確認。frame_024の初出位置ずれと026の短い空白が残る。輪郭・光帯・人物姿勢、しゃがみ時の腕位置、カメラ、持続変身・通常入力も未一致。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 19,
+  "iterations": 21,
   "report": "/report/edict-blade",
   "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
-  "contentRevision": "0a347a2080f635b8c388d72e9e4803b59ed1bf765d5391547f517ac678a32a5a"
+  "contentRevision": "d5308825960518f28276232438de30b607ad460c6d3cb1ddd11e34042759481c"
 }

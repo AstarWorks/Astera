@@ -15,6 +15,9 @@
         "follow": {
             "type": "boolean"
         },
+        "replace_group": {
+            "type": ["string", "null"]
+        },
         "attach_to_anchor": {
             "type": "boolean"
         },
