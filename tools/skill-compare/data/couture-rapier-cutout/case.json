@@ -41,12 +41,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "5本の鋏→下降接触→巨大鋏閉鎖の直接呼出し試作。花飾り・白い連結軌跡・接触時の発光・腕姿勢・カメラは未一致。追撃条件は未接続。"
+    "reason": "白い連結軌跡を実機で視認できるよう改善。輪郭はまだ均一で、節間・方向・始点の離れ、花飾り・発光・腕姿勢・追撃条件は未一致。see_throughによる遮蔽越しの表示も未解決。"
   },
   "weapon": "couture-rapier",
   "identity": "Haute Couture::Alteration Shop Rodion",
-  "iterations": 1,
+  "iterations": 3,
   "report": "/report/couture-rapier",
   "referenceRevision": "0088d1573794f40b284eb444517e050283b613370be1ddcb7eb6b60ddf4b3247",
-  "contentRevision": "bc34d16d40ea6aff5058a1e3da40ead4549d8ca19a87ed8e168840058e86d22b"
+  "contentRevision": "8a436f007551c8d7dec7043d7fa003e97782f2be581343601db2f35b23fd42ba"
 }
