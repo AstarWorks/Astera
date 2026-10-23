@@ -108,7 +108,7 @@ internal object ParticlePainters {
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
         "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
-        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit,
+        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal,
     )
 
     /** A 4-point star that pops open, hangs, then shrinks, with a small diagonal star and a white-hot core. */
@@ -264,6 +264,18 @@ internal object ParticlePainters {
 
     /** Fine cutting ribbon, preserving the slash arc and sweep timing. */
     private fun slice(c: Canvas, t: Double, i: Int, n: Int) = crescent(c, t, 1.2)
+
+    /** Asymmetric pointed fragment with a white face and blue rim; rotation comes from the VFX. */
+    private fun petal(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val u = (y - 4.0) / 24.0
+            if (u !in 0.0..1.0) return@forEach 0.0
+            val width = 7.0 * sin(PI * u).pow(0.65) * (0.65 + 0.65 * u)
+            val centre = 16.0 + 3.0 * (u - 0.5) + 0.8 * sin(3.0 * PI * u)
+            val edge = 1.0 - abs(x - centre) / max(0.01, width)
+            if (edge <= 0.0) 0.0 else min(1.0, 0.3 + edge * 1.4)
+        }
+    }
 
     /** A long, tapered orbit ribbon; the VFX timeline supplies its rotation. */
     private fun orbit(c: Canvas, t: Double, i: Int, n: Int) {
