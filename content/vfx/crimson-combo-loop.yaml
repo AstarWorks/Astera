@@ -1,4 +1,4 @@
-# Transformed combo A prototype; source f2342–2605, identity unresolved.
+# Combo A: yaw sweeps in XZ; outer roll tilts the plane toward vertical.
 id: crimson-combo-loop
 duration_ticks: 17
 orient: yaw
@@ -54,7 +54,7 @@ rigs:
   tilt:
   - 0
   - 0
-  - 0
+  - -90
   respect_hit_stop: true
   end_tick: 14
   parts:
@@ -431,12 +431,4 @@ rigs:
     edge:
       block: pink_concrete
       width: 0.055
-  emitters:
-  - id: blood-flecks
-    particle_id: crimson-chain-axe-petals
-    point:
-    - 0
-    - 4.0
-    - 0
-    start_t: 2
-    end_t: 8
+  emitters: []
