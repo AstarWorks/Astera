@@ -1,0 +1,35 @@
+{
+  "round": 84,
+  "case": "gossamer-katana-arc-chain",
+  "status": "failed",
+  "capture": "build/limbus-review/round84/captures/gossamer-katana-arc-chain-1792747491527021129",
+  "frames": 73,
+  "quality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 3.0
+  },
+  "runtime": {
+    "coreSha256": "709f270d03ba4b483b2157c2dffb9be04446cfe41ff56ef6600fafac31df9c49",
+    "combatSha256": "f118565f5e591447a46888c3af6822318d14008723ab9b4ec2f604fca94470ca",
+    "resourcePackSha1": "782fd0be185cb97fce86fe5df4997af2268e081a"
+  },
+  "health": [
+    200.0,
+    194.096,
+    182.288,
+    176.38399,
+    170.47998
+  ],
+  "displayPeak": 52,
+  "displaySamples": 766,
+  "displayScope": "One direct Gossamer arc-chain prototype cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "review": "分割を25度に細分化し外周の角を軽減。矩形の重なりによる内側の突起、原映像の滑らかな発光・白い残光・花模様、残像の衣服と姿勢、刀の曲率、カメラは未一致。通常入力・状態分岐・正式キット対応は未確定。",
+  "reviewedCaptureFrames": [
+    24,
+    26
+  ],
+  "comparison": "Round83 frame26 and round84 frame24 show the near-full rise arc. Compare visible phase, not identical frame index: client presentation varies relative to server cast. Timing fidelity remains unproven.",
+  "implementation": "Change four arc-chain trails step_deg40 to25. For70deg-per-tick rise, each tick now has3 chord segments rather than2. Unchanged lifetime, contact timing, bands and double-sided faces.",
+  "limits": "Inner sawtooth overlap remains because each swept trapezoid is approximated by a rectangle. More samples alone does not solve this. Peak52 in one stationary direct-cast scene, not multi-caster stress validation. Second damage delta doubled in this capture; four distinct changes confirmed, fixed damage value not asserted."
+}
