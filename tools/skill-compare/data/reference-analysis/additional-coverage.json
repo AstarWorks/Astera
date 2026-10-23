@@ -157,7 +157,7 @@
     "videoId": "x6sc9JkW77c",
     "file": "extra-2.json",
     "sha256": "b37d2efcfa09e705a57c7ad5b5990b2f325a2a39a2eaff45b1c7a565488cd70e",
-    "coverage": "case-registered-implementation-missing",
+    "coverage": "prototype-direct-capture-form-routing-missing",
     "name": "Procuration: Engrave",
     "case": "edict-procuration-s2"
   },

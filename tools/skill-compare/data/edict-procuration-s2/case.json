@@ -11,7 +11,7 @@
   },
   "variant": {
     "label": "変身後 S2",
-    "implementation": "missing",
+    "implementation": "prototype",
     "order": 2
   },
   "mc": {
@@ -47,16 +47,17 @@
       "notes": "原動画 f1417〜1419、med確度。開始から38.04tick。実装の命中時刻ではない。"
     }
   ],
-  "notes": "Procuration形態の追加参照。技同定の確度はmed。通常形態の映像・実装を代用しない。実装予定IDであり、現時点で発動する技ではない。原資料: /reference/edict-blade/extra-2.json 接触候補は約5.34 / 30.03 / 38.04tick。f1373・1378・1383およびf1426・1430・1433の斬線の向き替えを追加ダメージとして数えない。",
+  "notes": "Procuration形態の専用S2試作。5/30/38tickの三群の接触、28tickからの通過、37tickの反転を構成。持続変身・通常入力未接続。技同定med。原動画接触候補は約5.34/30.03/38.04tick。斬線の向き替えを追加ダメージとして数えない。",
   "editLog": [],
-  "status": "analysed",
+  "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "原動画の変身後技は観測済み。持続変身、専用技、バインド、実機撮影はいずれも未実装。通常形態のS1〜S3で代用して合格としない。"
+    "reason": "専用S2を3回撮影。要素相対時刻と反転後VFXの方向を修正。接触時の爪の展開・斬線が遅く、青白い発光・破片・姿勢・カメラ未一致。持続変身と通常入力未接続。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 0,
+  "iterations": 3,
   "report": "/report/edict-blade",
-  "referenceRevision": "b37d2efcfa09e705a57c7ad5b5990b2f325a2a39a2eaff45b1c7a565488cd70e"
+  "referenceRevision": "b37d2efcfa09e705a57c7ad5b5990b2f325a2a39a2eaff45b1c7a565488cd70e",
+  "contentRevision": "c7c4a0c08a413f3899110a6254a3363d1a9f58a0bdf5e339b28ae0297a6156cd"
 }
