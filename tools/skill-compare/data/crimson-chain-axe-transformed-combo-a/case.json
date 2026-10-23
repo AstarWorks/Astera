@@ -66,12 +66,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "Round54: 斜め振りの鎖が頭上へ湾曲し接触付近にも曲がりを保持することを実機frame055/056で確認。frame054の薄化、原作の正確な曲線・手接続・縦/下降振り・人物姿勢・光・カメラ・命中・通常変身入力は未一致。"
+    "reason": "Round55: 下降振りの物理鎖を前方の赤い軌跡から分離。実機frame089/092で背後の上向きフック、095で低い前方戻りを確認。接写のはみ出し・手/人物姿勢・正確な形状・標的の浮遊・光/カメラ/命中/通常変身入力は未一致。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 22,
+  "iterations": 23,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
-  "contentRevision": "d12563e3d31e28d436a0a923eaf82e6eeb7a48d9b5ebcc1e64703e1545bc155f"
+  "contentRevision": "7dbdd142ef49e0459da293fd8278a4c474811e7ccbdbd564cbcb166cac5669a6"
 }
