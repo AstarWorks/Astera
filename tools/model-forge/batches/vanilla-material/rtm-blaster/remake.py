@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""Reproduce the rtm-blaster material pass through Forge operations (no test runner/server/build)."""
+"""Reproduce the rtm-blaster palette restoration through Forge operations (no test runner/server/build)."""
 import argparse
+import copy
+from PIL import Image
 import json
 from pathlib import Path
 import shutil
@@ -12,7 +14,8 @@ from core import Project, ROOT
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--project', type=Path, required=True)
-    parser.add_argument('--before', type=Path, required=True, help='Original model, e.g. git show HEAD:content/models/items/rtm-blaster.model.json')
+    parser.add_argument('--before', type=Path, required=True, help='Colour target from git show 36743b70:content/models/items/rtm-blaster.model.json')
+    parser.add_argument('--current', type=Path, required=True, help='HEAD model with current geometry/display')
     parser.add_argument('--evidence', type=Path, default=Path(__file__).parent)
     a = parser.parse_args()
     if (a.project/'project.json').exists(): raise ValueError('Use a fresh project directory')
@@ -41,27 +44,49 @@ def main():
     board_args = {'resolution':384, 'name':'before'}
     before = call('board', board_args)
     shutil.copyfile(before['path'], a.evidence/'before.png')
-    ops = []
+    # Render the historical colour target, but author only on the current geometry/display.
+    reference = json.loads(a.before.read_text())
+    source = ROOT/'content/textures/items/rtm-blaster.png'
+    atlas = Image.open(source).convert('RGB')
+    baseline = json.loads(a.current.read_text())
+    call('import', {'path':str(a.current)})
+    original = copy.deepcopy(p.model)
     groups = {}
-    for e in p.model['elements']:
-        name = e.get('name','')
-        if any(word in name for word in ('long pink core', 'battery window', 'charge indicator', 'luminous bore', 'coil top highlight')): material = 'concrete.magenta_concrete'
-        elif 'violet' in name or 'energy coil' in name or 'identity stripe' in name: material = 'gem.amethyst_block'
-        elif 'lens' in name and 'retaining' not in name: material = 'gem.amethyst_block'
-        elif name in ('grip', 'stock buttpad', 'buttplate ribs') or 'grip ribs' in name: material = 'cloth.black_wool'
-        elif name in ('stock core', 'stock sloping heel', 'stock neck', 'cheek comb'): material = 'wood.stripped_dark_oak_log'
-        elif any(word in name for word in ('bevel', 'collar', 'fastener', 'screw', 'rail', 'retaining', 'clamp', 'trigger', 'selector', 'forearm edge')): material = 'metal.iron_block'
-        elif any(word in name for word in ('recess', 'dark muzzle', 'muzzle port')): material = 'concrete.black_concrete'
-        else: material = 'metal.netherite_block'
-        groups.setdefault(material, []).append(e['id'])
-    for material, ids in groups.items():
-        ops.append({'op':'material.apply', 'args':{'ids':ids,'material':material,'seed':20261023}})
+    palette_map = []
+    for element, colour_part in zip(p.model['elements'], reference['elements'], strict=True):
+        name = element['name']
+        assert name == colour_part['name']
+        # The original atlas has region highlights; average the same first-face crop
+        # for a stable per-part hue, including subpixel faces.
+        u,v,U,V = next(iter(colour_part['faces'].values()))['uv']
+        box = (min(u,U)*atlas.width/16, min(v,V)*atlas.height/16,
+               max(u,U)*atlas.width/16+.01, max(v,V)*atlas.height/16+.01)
+        rgb = atlas.transform((32,32), Image.Transform.EXTENT, box).resize((1,1)).getpixel((0,0))
+        if name in ('stock core','stock sloping heel','stock neck','cheek comb'):
+            material, gain = 'wood.stripped_oak_log', (1.45,1.7,2.7)
+        elif name in ('grip','stock buttpad','buttplate ribs'):
+            material, gain = 'cloth.white_wool', 1.25
+        elif any(word in name for word in ('pink core','battery window','charge indicator','luminous bore','coil top highlight','identity stripe','forearm edge','violet channel','forearm fluting','lens exposed','lens facet','selector')):
+            material, gain = 'concrete.white_concrete', 1.08
+        else:
+            material, gain = 'metal.iron_block', 1.12
+        gains = gain if isinstance(gain,tuple) else (gain,)*3
+        tint = '#%02x%02x%02x' % tuple(min(255,round(c*g)) for c,g in zip(rgb,gains))
+        groups.setdefault((material,tint), []).append(element['id'])
+        palette_map.append({'id':element['id'],'part':name,'originalRGB':list(rgb),'material':material,'tint':tint})
+    ops = [{'op':'material.apply','args':{'ids':ids,'material':material,'tint':tint,'seed':20261024}}
+           for (material,tint),ids in groups.items()]
     call('batch', {'ops':ops})
+    geometry = lambda model: [{k:v for k,v in e.items() if k!='faces'} for e in model['elements']]
+    assert geometry(p.model) == geometry(original)
+    assert p.model['display'] == original['display']
+    assert not p.call('validate')['errors']
+    (a.evidence/'palette.json').write_text(json.dumps(palette_map,indent=2)+'\n')
     # Install references, retaining only used slots. Re-import records this packaging step in history.
     model = p.vanilla()
     used = {f['texture'][1:] for e in model['elements'] for f in e['faces'].values()}
     model['textures'] = {k:v for k,v in model['textures'].items() if k in used}
-    model['textures']['particle'] = 'minecraft:block/netherite_block'
+    model['textures']['particle'] = 'minecraft:block/iron_block'
     target = ROOT/'content/models/items/rtm-blaster.model.json'
     target.write_text(json.dumps(model,indent=2)+'\n')
     call('import', {'path':str(target)})
@@ -72,7 +97,12 @@ def main():
     shutil.copyfile(contexts['path'], a.evidence/'contexts.png')
     call('measure'); call('validate')
     call('history.diff', {'a':'before','b':'after'})
-    call('export', {'path':str(a.project/'export')})
+    exported = call('export', {'path':str(a.project/'export')})
+    roundtrip = Project(a.project/'roundtrip')
+    roundtrip.call('import', {'path':exported['path']})
+    assert roundtrip.vanilla() == p.vanilla()
+    assert model['display'] == baseline['display']
+    (a.evidence/'verification.json').write_text(json.dumps({'geometryUnchanged':True,'displayUnchanged':True,'elements':len(model['elements']),'exportImportIdentical':True,'validationErrors':p.call('validate')['errors']},indent=2)+'\n')
     (a.evidence/'operations.json').write_text(json.dumps(log,indent=2)+'\n')
 
 if __name__=='__main__': main()

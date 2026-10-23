@@ -1,13 +1,33 @@
 """Run under the shared client flock with an isolated creative superflat save. No server."""
-import os, subprocess, time, signal
+import argparse, gzip, os, shutil, subprocess, time, signal
 from pathlib import Path
-wd=Path.cwd()/"build/rtm-blaster-client"
+# Isolate the capture from cleanup signals sent to another worker's process group.
+if os.getpgrp()!=os.getpid():os.setsid()
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--world-source',type=Path,required=True)
+parser.add_argument('--game-dir',type=Path,default=Path('build/rtm-blaster-client'))
+a=parser.parse_args()
+wd=a.game_dir.resolve()
+if 'rtm-blaster' not in wd.name:raise ValueError('Game directory must contain rtm-blaster')
 wd.mkdir(parents=True, exist_ok=True)
 root=Path.cwd()
+world=wd/'saves/Blaster Material Review'
+if not world.exists():shutil.copytree(a.world_source,world,ignore=shutil.ignore_patterns('session.lock'))
+settings=world/'data/minecraft/world_gen_settings.dat'
+if not settings.exists() or b'minecraft:flat' not in gzip.decompress(settings.read_bytes()):
+ raise ValueError('Capture requires an isolated superflat save')
+level=world/'level.dat'
+nbt=gzip.decompress(level.read_bytes())
+flag=b'\x01\x00\x0dallowCommands'
+assert nbt.count(flag)==1
+pos=nbt.index(flag)+len(flag)
+level.write_bytes(gzip.compress(nbt[:pos]+b'\x01'+nbt[pos+1:]))
 pack=wd/'resourcepacks/vanilla-material'
 subprocess.run(['python3','tools/model-forge/batches/vanilla-material/rtm-blaster/capture-pack.py','--out',str(pack)],check=True)
 (wd/'options.txt').write_text('version:5023\nfov:0.0\nbobView:false\nrenderDistance:6\nsimulationDistance:5\nguiScale:2\npauseOnLostFocus:false\nmaxFps:30\nenableVsync:false\nsoundCategory_master:0.0\ntutorialStep:none\nonboardAccessibility:false\nresourcePacks:["vanilla","file/vanilla-material"]\n')
-x=subprocess.Popen(['Xvfb','-displayfd','1','-screen','0','1280x720x24','-nolisten','tcp'],stdout=open(wd/'display','w'),stderr=open(wd/'xvfb.log','w'))
+(wd/'display').write_text('')
+(wd/'logs/latest.log').unlink(missing_ok=True)
+x=subprocess.Popen(['Xvfb','-displayfd','1','-screen','0','1280x720x24','-nolisten','tcp'],stdout=open(wd/'display','w'),stderr=open(wd/'xvfb.log','w'),start_new_session=True)
 c=None
 try:
  while not (wd/'display').read_text().strip():time.sleep(.1)
@@ -23,7 +43,7 @@ try:
  else:raise RuntimeError('World join timed out; inspect client.log')
  time.sleep(8)
  def key(*args):subprocess.run(['xdotool',*args],env=env,check=True)
- for command in ('/clear @s','/give @s minecraft:iron_axe[minecraft:item_model="astera:rtm-blaster"]','/tp @s 0 -60 0 -90 0','/time set noon','/weather clear'):
+ for command in ('/clear @s','/give @s minecraft:iron_axe[minecraft:item_model="astera:rtm-blaster"]','/gamemode creative','/difficulty peaceful','/tp @s 0 -60 0 -90 0','/time set noon','/weather clear'):
   key('key','t');time.sleep(.3)
   key('type','--clearmodifiers','--delay','1',command);key('key','Return');time.sleep(.8)
  key('key','1')
@@ -31,5 +51,5 @@ try:
  subprocess.run(['import','-window','root',str(root/'tools/model-forge/batches/vanilla-material/rtm-blaster/client.png')],env=env,check=True)
  print('Captured native rtm-blaster/client.png',flush=True)
 finally:
- if c and c.poll() is None:os.killpg(c.pid,signal.SIGTERM)
- x.terminate()
+ if c and c.poll() is None:os.killpg(c.pid,signal.SIGTERM);c.wait(timeout=30)
+ x.terminate();x.wait(timeout=10)
