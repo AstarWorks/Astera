@@ -14,7 +14,7 @@ rigs:
   - 0
   - 0
   tilt:
-  - 180
+  - 0
   - 0
   - 0
   respect_hit_stop: false

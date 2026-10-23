@@ -1,5 +1,5 @@
 id: gossamer-chain-recovery
-duration_ticks: 19
+duration_ticks: 15
 orient: yaw
 follow: true
 sample_ticks: 1
@@ -14,11 +14,11 @@ rigs:
   - 0
   - 0
   tilt:
-  - 180
+  - 0
   - 0
   - 0
   respect_hit_stop: true
-  end_tick: 18
+  end_tick: 14
   parts:
   - id: blade
     block: iron_block
@@ -57,7 +57,7 @@ rigs:
     - 0
     - 105
     - 0
-  - t: 18
+  - t: 14
     rotate:
     - 0
     - 105

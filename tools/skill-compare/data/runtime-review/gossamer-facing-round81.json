@@ -1,0 +1,55 @@
+{
+  "round": 81,
+  "case": "gossamer-katana-arc-chain",
+  "status": "failed",
+  "capture": "build/limbus-review/round81/final-captures/gossamer-katana-arc-chain-1792745838248888002",
+  "frames": 73,
+  "quality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 2.0
+  },
+  "runtime": {
+    "coreSha256": "6d25726243810e67722d94467616c5cdeae3a53b7e8f425f46248d9e772f6a01",
+    "combatSha256": "f118565f5e591447a46888c3af6822318d14008723ab9b4ec2f604fca94470ca",
+    "resourcePackSha1": "eb1edf64b96408bae5d48a5b7315a69ec2bf8d56"
+  },
+  "health": [
+    200.0,
+    194.096,
+    188.19199,
+    182.28798,
+    176.38397
+  ],
+  "displayPeak": 30,
+  "displaySamples": 773,
+  "displayScope": "One direct Gossamer arc-chain prototype cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "turnBefore": {
+    "time": 1792745828.1163394,
+    "Pos": [
+      307.5,
+      100.0,
+      300.5
+    ],
+    "Rotation": [
+      -90.0,
+      0.0
+    ]
+  },
+  "turnAfter": {
+    "time": 1792745828.1425982,
+    "Pos": [
+      307.5,
+      100.0,
+      300.5
+    ],
+    "Rotation": [
+      90.0,
+      0.0
+    ]
+  },
+  "review": "通過後に位置を変えず敵側へ向き直ることを実機映像と座標・角度記録で確認。刀の表示期間の重なりを解消。箱状残像、刀の曲率、途切れる細い縁、白い帯状残光、花模様、腕姿勢、カメラは未一致。通常入力・状態分岐・正式キット対応は未確定。",
+  "implementation": "Existing zero-distance dash with local_direction -Z and face_movement turns at tick25 without sweep or immunity. Remove compensating180deg tilt from later rigs. Separate held-weapon rig windows: ready0..6, horizontal7..13, rise14..22, arrive25..29, return30..38, recovery39..53.",
+  "rejected": "First capture confirmed turn but showed2 solid weapon rigs during overlapping windows; shortened horizontal/arrive lifetimes and delayed recovery, then recaptured.",
+  "limits": "Fixed180deg turn follows this observed crossing, not arbitrary live target movement. No general live-facing feature added. Four damage events remain a prototype timing fixture."
+}

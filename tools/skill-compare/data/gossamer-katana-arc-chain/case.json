@@ -55,12 +55,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "同じ側から2接触、通過後に反対側で2接触と低い回復姿勢の試作を実機確認。正式キット・コイン対応・ダメージ回数は未確定。身体の向き、箱状残像、刀の曲率、途切れる細い縁、白い帯状残光、花模様、カメラは未一致。"
+    "reason": "通過後に位置を変えず敵側へ向き直ることを実機映像と座標・角度記録で確認。刀の表示期間の重なりを解消。箱状残像、刀の曲率、途切れる細い縁、白い帯状残光、花模様、腕姿勢、カメラは未一致。通常入力・状態分岐・正式キット対応は未確定。"
   },
   "weapon": "gossamer-katana",
   "identity": "Blade of the House of Spiders Ryōshū",
-  "iterations": 2,
+  "iterations": 4,
   "report": "/report/gossamer-katana",
   "referenceRevision": "b4a6153c026f88c462eb7e0054e298c4f104f513b253e237275999201a833ae3",
-  "contentRevision": "34304b98e48a0c6deb4db3b10386b280fb7771c9d6111a0ea289a90df47fcd5b"
+  "contentRevision": "991568071d50ffb9ad56f98dfe82cd22bcebc4f5c3a193bb90acfdee693dbc35"
 }

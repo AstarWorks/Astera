@@ -133,6 +133,22 @@ phases:
     delay_ticks:
       type: literal
       value: 22
+  - type: dash_strike
+    distance: 0
+    ticks: 1
+    radius: 0.8
+    hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    local_direction:
+      x: 0
+      y: 0
+      z: -1
+    face_movement: true
+    on_hit: []
+    delay_ticks:
+      type: literal
+      value: 25
   - type: play_animation
     targets:
       type: caster
@@ -194,7 +210,7 @@ phases:
     vfx_id: gossamer-chain-recovery
     delay_ticks:
       type: literal
-      value: 36
+      value: 39
   - type: play_vfx
     targets:
       type: caster

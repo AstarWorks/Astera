@@ -1,5 +1,5 @@
 id: gossamer-chain-arrive
-duration_ticks: 9
+duration_ticks: 5
 orient: yaw
 follow: false
 sample_ticks: 1
@@ -14,11 +14,11 @@ rigs:
   - 0
   - 0
   tilt:
-  - 180
+  - 0
   - 0
   - 0
   respect_hit_stop: false
-  end_tick: 8
+  end_tick: 4
   parts:
   - id: blade
     block: iron_block
@@ -63,7 +63,7 @@ rigs:
     - 145
     - 0
     ease: linear
-  - t: 7
+  - t: 4
     rotate:
     - 0
     - 150
