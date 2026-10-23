@@ -310,3 +310,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Reviewed the source contact sheet (`build/limbus-review/round36/crimson-combo.jpg`): claw introduction, low and diagonal chain sweeps, vertical loop, descending arc, then airborne crossed ellipses and floor glows. Five visual contact candidates are markers, not proof of five coins or internal damage events. Do not substitute the later column finisher or base-form captures.
 - Remaining Crimson extra records describe a transformation and ally/support preparation; do not count them as two additional attack skills without further evidence.
 - Index Minecraft thumbnails now use the same published revision and image extension as the comparison player. All 54 available thumbnail URLs returned HTTP 200 after deployment. This fixes capture consistency, not Cloudflare login permissions or reproduction fidelity.
+
+### Round 37: Crimson transformed combo A first prototype
+
+- Added a directly castable sequence with four chain swing prototypes and provisional contacts at ticks 43/49/65/82/116; no base input binding was changed. Contact amounts/ranges are implementation assumptions, not observed game statistics.
+- `contentLint` passed; dedicated runtime reload reported VFX 183/0 failed and skills 79/0 failed. Actual-client capture: 195 frames, maximum camera lateness 3 ms, maximum identical run 1. Evidence: `build/limbus-review/round37/captures`.
+- Visual review failed: intended horizontal/vertical rig planes are reversed on screen, physical chain is too thin and straight, petals obscure the attack, orbit remains a segmented polygon, caster never floats. Body/claw pose, floor flares, form persistence and normal input routing remain absent. Correct rig axes and reduce petal emission next, then re-film; do not accept this capture as matching.

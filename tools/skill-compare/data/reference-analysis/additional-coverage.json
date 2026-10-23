@@ -60,7 +60,7 @@
     "videoId": "Gpj-lvOnAgs",
     "file": "extra-3.json",
     "sha256": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
-    "coverage": "reference-case-created-implementation-missing",
+    "coverage": "prototype-captured-fidelity-failed",
     "name": "Unresolved first transformed chain/hover combo",
     "caseId": "crimson-chain-axe-transformed-combo-a",
     "notes": "Native f2342–2605 exclusive. Skill identity and coin count unresolved; five visual contacts are not proof of five coins."
