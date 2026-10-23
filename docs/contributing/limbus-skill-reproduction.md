@@ -39,6 +39,8 @@ make skill-compare-case CASE=<case> VIDEO=<id> START=<seconds> END=<seconds> SKI
 
 ## 4. 実装する
 
+チーム体制（director + 専門役 + 独立reviewer）と役割別の知識docは [skill-team/README.md](skill-team/README.md)。
+
 YAMLの形式は [add-a-skill-yaml.md](add-a-skill-yaml.md)、形・色・武器rig・trailは [vfx-art-direction.md](vfx-art-direction.md) に従う。
 
 1. まず武器の始点・支点・振る方向・接触位置・移動・ヒット回数を合わせる。
