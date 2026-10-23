@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.service.mob
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.mob.IMobAdapter
+import com.astarworks.astera.core.application.port.outbound.mob.IMobBodyGateway
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.entity.EntityHandle
 import com.astarworks.astera.core.domain.event.MobSkillTriggered
@@ -23,15 +24,17 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * # What it does in Phase 1
  *
- * Pure in-memory bookkeeping: spawn records the handle + position + spec;
+ * In-memory bookkeeping: spawn records the handle + position + spec;
  * despawn removes it; [applySkill] publishes [SkillCastRequested] (which
  * combat already subscribes to) plus [MobSkillTriggered] (for mob-aware
  * subscribers like analytics).
  *
- * The Wave 6b Paper subclass (`PaperMinimalMobAdapter`) overlays this with
- * real ArmorStand + Display entity spawns; the routing + skill-publish
- * shape stays identical, so combat resolves a mob-cast skill exactly the
- * same way it resolves a player-cast skill.
+ * **Bodies (ADR-0249).** With an [IMobBodyGateway] the spawn is a real
+ * entity (a vanilla-based mob carrying Astera's HP / damage / name) and the
+ * handle's id is the entity's own UUID; without one (headless hosts) the
+ * adapter stays pure bookkeeping. Routing and skill-publish shape are the
+ * same either way, so combat resolves a mob-cast skill exactly the same way
+ * it resolves a player-cast skill.
  *
  * # AI support
  *
@@ -48,6 +51,12 @@ import java.util.concurrent.ConcurrentHashMap
 public class MinimalMobAdapter(
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
+    /**
+     * Physical bodies (ADR-0249). Present on a real server: every spawn is a live vanilla-based
+     * entity and the handle carries the entity's own UUID. Absent in headless hosts, where the
+     * adapter is pure bookkeeping.
+     */
+    private val bodies: IMobBodyGateway? = null,
 ) : IMobAdapter {
 
     private data class TrackedMob(
@@ -71,9 +80,22 @@ public class MinimalMobAdapter(
         position: Vec3,
         spec: MobSpec,
     ): Result<EntityHandle, MobError> {
-        val handle = EntityHandle(id = UUID.randomUUID(), backendId = BACKEND_ID.value)
+        val entityId = if (bodies == null) {
+            UUID.randomUUID()
+        } else {
+            when (val body = bodies.spawn(world, position, spec)) {
+                is Result.Success -> body.value
+                is Result.Failure -> return Result.failure(body.error)
+            }
+        }
+        val handle = EntityHandle(id = entityId, backendId = BACKEND_ID.value)
         tracked[handle] = TrackedMob(world, position, spec)
         return Result.success(handle)
+    }
+
+    override fun isAlive(handle: EntityHandle): Boolean {
+        if (!tracked.containsKey(handle)) return false
+        return bodies?.isAlive(handle.id) ?: true
     }
 
     override fun applySkill(
@@ -106,6 +128,7 @@ public class MinimalMobAdapter(
 
     override fun despawn(handle: EntityHandle): Result<Unit, MobError> {
         val removed = tracked.remove(handle) != null
+        if (removed) bodies?.remove(handle.id)
         return if (removed) Result.success(Unit)
         else Result.failure(MobError.BackendError("handle not tracked: $handle"))
     }

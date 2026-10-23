@@ -68,3 +68,13 @@ lanes:
     players_per_team: 4
     min_players: 2
     kind: pvp
+
+  # PvE Waves (ADR-0249): a solo / co-op run against waves of real mobs. `kind: pve` means one
+  # player is enough and everyone queued fights on the same side (the lane holds
+  # players_per_team players; a full lane starts at once, otherwise after the queue countdown).
+  - id: pve-waves
+    stage: pve-proving-grounds
+    teams: 2
+    players_per_team: 2
+    min_players: 1
+    kind: pve

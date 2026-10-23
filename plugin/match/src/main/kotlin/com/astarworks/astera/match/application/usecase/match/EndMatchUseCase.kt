@@ -39,6 +39,8 @@ public class EndMatchUseCase(
             is EndReason.TeamVictory -> reason.winner
             is EndReason.NormaReached -> reason.winner
             is EndReason.NormaTimeLimit -> reason.leader
+            is EndReason.EncounterCleared -> reason.winner
+            is EndReason.EncounterFailed -> reason.opponent
             else -> victoryEvaluator.evaluate(ended)
         }
 

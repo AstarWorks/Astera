@@ -1,0 +1,37 @@
+# ADR-0249 — Proving Grounds: the scripted solo / co-op PvE run of the `pve-waves` lane.
+#
+# Unlike the open-world zones next to it (blazing-pit, whispering-cavern) this encounter is
+# match-driven: PveWaveGameMode spawns the `waves` one after the other on the stage
+# `pve-proving-grounds` and the run is won when the last wave is cleared. Mob numbers (HP,
+# damage, speed, vanilla body) come from content/mobs/<id>.yaml.
+
+id: astera:proving-grounds
+
+display_name:
+  en: "<gold>Proving Grounds</gold>"
+  ja: "<gold>試練の闘技場</gold>"
+
+region: proving-grounds
+
+mob_pool:
+  - mob_type_id: astera:dark-zombie
+    weight: 70
+  - mob_type_id: astera:cave-spider
+    weight: 30
+
+max_concurrent: 8
+
+difficulty:
+  type: flat
+
+death_penalty:
+  type: safe
+
+waves:
+  - mobs:
+      - { mob_type_id: astera:dark-zombie, count: 2 }
+  - mobs:
+      - { mob_type_id: astera:dark-zombie, count: 3 }
+  - mobs:
+      - { mob_type_id: astera:dark-zombie, count: 3 }
+      - { mob_type_id: astera:cave-spider, count: 2 }

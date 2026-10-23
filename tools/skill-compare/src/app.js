@@ -1,8 +1,7 @@
 // skill-compare case page. Master clock = ms since case.start_s; see timeline.js for the mappings.
 import { createFrameCache } from "./frame-cache.js";
-import { createIntentRenderer } from "./intent-renderer.js";
 import {
-  TICK_MS, clamp, msToVideoFrame, videoFrameToMs, msToTick, tickToMs, msToIntentTick, sToMs, msToS, castMs, focusZones, effectiveSpeed,
+  TICK_MS, clamp, msToVideoFrame, videoFrameToMs, msToTick, tickToMs, sToMs, msToS, castMs, focusZones, effectiveSpeed,
 } from "./timeline.js";
 
 const $ = (id) => document.getElementById(id);
@@ -11,9 +10,9 @@ const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) 
 const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* private mode */ } } };
 
 const S = {
-  data: null, c: null, intent: null, ir: null,
+  data: null, c: null,
   ms: 0, playing: false, speed: 1, zones: [], loop: null, sel: null, saved: "", dur: 1,
-  fps: 30, frames: [], frameCount: 0, lastVideo: -1, lastMc: "", lastIntent: -1, lastTs: 0,
+  fps: 30, frames: [], frameCount: 0, lastVideo: -1, lastMc: "", lastTs: 0,
 };
 
 // ---- load -----------------------------------------------------------------------------------------------------
@@ -21,7 +20,7 @@ fetch("/api/cases/" + encodeURIComponent(caseId)).then((r) => { if (!r.ok) throw
   .catch((e) => { $("title").textContent = "failed to load case: " + e.message; });
 
 function init(d) {
-  S.data = d; S.c = d.case; S.intent = d.intent;
+  S.data = d; S.c = d.case;
   S.c.mc ??= { source: "vfx-caster", offset_ms: 0, castTickInTrace: 5 };
   S.c.focus ??= { enabled: false, factor: 0.2, windowMs: 150 };
   S.dur = Math.round((S.c.end_s - S.c.start_s) * 1000);
@@ -41,9 +40,6 @@ function init(d) {
   $("cnotes").value = S.c.notes || "";
   S.frameCache = createFrameCache(() => { S.needsRedraw = true; });
   setupVideo();
-  if (S.intent) {
-    S.ir = createIntentRenderer({ cv: $("cv"), stage: $("stage"), labels: $("labels"), flash: $("flash"), hud: $("hud") }, S.intent);
-  } else $("iinfo").textContent = "新しい解析に基づく図解を準備中";
   setupSkillNav();
   setupMc();
   setupControls();
@@ -52,7 +48,7 @@ function init(d) {
   syncFocusUi();
   const m = /[#&?]t=(\d+)/.exec(location.hash + location.search);
   if (m) S.ms = clamp(+m[1], 0, S.dur);
-  const fm = /[#&?]focus=(video|intent|mc)/.exec(location.hash + location.search);
+  const fm = /[#&?]focus=(video|mc)/.exec(location.hash + location.search);
   if (fm) setFocusCol(fm[1]);
   update(true);
   requestAnimationFrame(tickLoop);
@@ -264,7 +260,7 @@ function buildTimeline() {
   for (const ms of mcHitMs()) {
     const e = el("div", "mch", "mc hit"); e.style.left = xOf(ms) + "px"; tl.appendChild(e);
   }
-  drawBg(); renderEditor(); updateHead();
+  drawBg(); renderEditor(); updateHead(); buildBeats();
 }
 function updateHead() { $("head").style.left = xOf(S.ms) + "px"; }
 
@@ -411,13 +407,12 @@ function update(force) {
   prepareFrames(S.ms);
   if (force || vf !== S.lastVideo) { S.lastVideo = vf; drawVideo(S.ms); }
   $("vinfo").textContent = `frame ${vf} / ${Math.max(0, S.frameCount - 1)} @ ${S.fps} fps`;
-  const it = msToIntentTick(S.ms, S.c.start_s, S.intent?.source?.start_s ?? S.c.start_s);
-  if (S.ir) { S.ir.render(it); $("iinfo").textContent = `tick ${it.toFixed(1)}`; }
   showMc(S.ms);
   const tick = msToTick(S.ms, castOf());
   const inZ = S.c.focus.enabled && S.zones.some((z) => S.ms >= z.from && S.ms <= z.to);
   $("read").innerHTML = `<b>${S.ms.toFixed(0)}</b> ms &middot; video <b>${(S.c.start_s + S.ms / 1000).toFixed(3)}s</b> f<b>${vf}</b> &middot; MC tick <b>${tick}</b>${inZ ? " &middot; <b style='color:var(--accent)'>focus</b>" : ""}`;
   updateHead();
+  updateBeats();
 }
 
 function setFocusCol(name) {
@@ -441,7 +436,7 @@ function setupControls() {
   $("fzF").onchange = (e) => { S.c.focus.factor = clamp(+e.target.value || 0.2, 0.02, 1); e.target.value = S.c.focus.factor; markDirty(); };
   $("bLoop").onclick = () => { S.loop = null; drawBg(); };
   $("bAddHit").onclick = addHit; $("bAddSeg").onclick = addSeg; $("bSave").onclick = save;
-  $("cnotes").oninput = () => { S.c.notes = $("cnotes").value; markDirty(); };
+  $("cnotes").oninput = () => { S.c.notes = $("cnotes").value; renderCaseNotes(); markDirty(); };
   document.querySelectorAll("[data-focus]").forEach((b) => (b.onclick = () => setFocusCol(b.dataset.focus)));
   renderLog();
   window.addEventListener("keydown", (e) => {
@@ -464,4 +459,58 @@ function setupControls() {
   // test / screenshot hooks
   window.__seekMs = (ms) => { pause(); S.ms = clamp(ms, 0, S.dur); update(true); };
   window.__state = S;
+}
+
+// ---- beat sheet (text) --------------------------------------------------------------------------------------------
+const fmtT = (s) => s.toFixed(2) + "s";
+const BEAT_COLS = ["label", "weapon", "caster_move", "vfx", "notes"];
+function segSorted() { return [...(S.c.segments || [])].sort((a, b) => (a.start_s ?? a.t_s) - (b.start_s ?? b.t_s)); }
+function buildBeats() {
+  const list = $("seglist"); list.textContent = "";
+  S.segRows = segSorted().map((s) => {
+    const t0 = s.kind === "hit" ? s.t_s : s.start_s, t1 = s.kind === "hit" ? s.t_s : s.end_s;
+    const row = el("div", "brow");
+    const head = el("div", "bhead");
+    head.append(el("span", "bt", s.kind === "hit" ? fmtT(t0) : `${fmtT(t0)}-${fmtT(t1)}`), el("span", "bk k-" + s.kind, s.kind), el("b", "", s.label || s.id));
+    row.append(head);
+    if (s.notes) row.append(el("div", "bn", s.notes));
+    row.onclick = () => seek(sToMs(t0, S.c.start_s));
+    list.append(row);
+    return { row, t0, t1 };
+  });
+  if (!S.segRows.length) list.append(el("div", "bn", "セグメントなし"));
+  const bt = $("beatbody"); bt.textContent = "";
+  const beats = [...(S.c.beats || [])].sort((a, b) => a.t_s - b.t_s);
+  $("beatwrap").hidden = !beats.length;
+  S.beatRows = beats.map((b) => {
+    const tr = el("tr"); tr.append(el("td", "bt", fmtT(b.t_s)));
+    for (const k of BEAT_COLS) tr.append(el("td", k === "label" ? "bl" : "", b[k] || ""));
+    tr.onclick = () => seek(sToMs(b.t_s, S.c.start_s));
+    bt.append(tr);
+    return { row: tr, t: b.t_s };
+  });
+  S.activeSeg = ""; S.activeBeat = -1;
+  renderCaseNotes();
+}
+function renderCaseNotes() { $("cnoteView").textContent = $("cnotes").value || "（メモなし）"; }
+function scrollTo(row) {
+  const box = row.closest(".blist");
+  if (box) box.scrollTop = row.offsetTop - box.offsetTop - box.clientHeight / 2 + row.clientHeight / 2;
+}
+function updateBeats() {
+  if (!S.segRows) return;
+  const t = S.c.start_s + S.ms / 1000, eps = 0.5 / S.fps;
+  const act = S.segRows.map((r, i) => (r.t0 === r.t1 ? Math.abs(t - r.t0) <= eps * 2 : t >= r.t0 && t <= r.t1) ? i : -1).filter((i) => i >= 0);
+  const key = act.join(",");
+  if (key !== S.activeSeg) {
+    S.activeSeg = key;
+    S.segRows.forEach((r, i) => r.row.classList.toggle("active", act.includes(i)));
+    if (act.length) scrollTo(S.segRows[act[0]].row);
+  }
+  let bi = -1; S.beatRows.forEach((b, i) => { if (b.t <= t + 1e-6) bi = i; });
+  if (bi !== S.activeBeat) {
+    S.activeBeat = bi;
+    S.beatRows.forEach((b, i) => b.row.classList.toggle("active", i === bi));
+    if (bi >= 0) scrollTo(S.beatRows[bi].row);
+  }
 }

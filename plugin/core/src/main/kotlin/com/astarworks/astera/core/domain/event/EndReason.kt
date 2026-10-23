@@ -49,4 +49,24 @@ public sealed interface EndReason {
 
     /** Norma: the time limit ran out; [leader] was strictly ahead on kills, `null` is a draw. */
     public data class NormaTimeLimit(val leader: com.astarworks.astera.core.domain.match.TeamId?) : EndReason
+
+    /**
+     * PvE (ADR-0249): the party cleared all [waves] waves of the encounter. [winner] is the party's
+     * team and is carried into `MatchEnded.winningTeam`, so everybody in it sees VICTORY.
+     */
+    public data class EncounterCleared(
+        val winner: com.astarworks.astera.core.domain.match.TeamId,
+        val waves: Int,
+    ) : EndReason
+
+    /**
+     * PvE (ADR-0249): the party lost on wave [wave] of [waves] (out of lives, or [timeUp]). [opponent]
+     * is the empty side of the match, carried into `MatchEnded.winningTeam` so the party sees DEFEAT.
+     */
+    public data class EncounterFailed(
+        val opponent: com.astarworks.astera.core.domain.match.TeamId,
+        val wave: Int,
+        val waves: Int,
+        val timeUp: Boolean,
+    ) : EndReason
 }

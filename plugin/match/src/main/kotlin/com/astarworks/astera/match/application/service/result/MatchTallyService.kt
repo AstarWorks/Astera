@@ -47,6 +47,13 @@ public class MatchTallyService(private val matches: IMatchRepository) {
         bump(match.id, killer) { it.copy(kills = it.kills + 1) }
     }
 
+    /** A participant killed a mob (PvE, ADR-0249): counts as a kill; the mob has no team and no deaths. */
+    public fun onMobKill(killer: PlayerId?) {
+        if (killer == null) return
+        val match = liveMatchOf(killer) ?: return
+        bump(match.id, killer) { it.copy(kills = it.kills + 1) }
+    }
+
     public fun onAssist(assistant: PlayerId, victim: PlayerId) {
         val match = liveMatchOf(victim) ?: return
         if (!match.hasParticipant(assistant) || assistant == victim) return

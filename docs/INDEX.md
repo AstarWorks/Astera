@@ -8,6 +8,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 - **アーキテクチャの全体像** → [architecture/overview.md](architecture/overview.md)
 - **今の到達点と範囲 (2026-10 core vision)** → [plans/2026-10-core-vision-backlog.md](plans/2026-10-core-vision-backlog.md) — 作業パッケージ一覧。Phase 4+ は範囲外
 - **遊んでみる** → [contributing/playtest.md](contributing/playtest.md) — Docker 起動 → 武器 → マッチ
+- **Limbus スキル再現チーム (director + 専門役 + reviewer)** → [contributing/skill-team/README.md](contributing/skill-team/README.md)
 - **ヘッドレス・シミュレータ** → [`tools/game-sim/README.md`](../tools/game-sim/README.md) + [ADR-0174](adr/0174-host-neutral-wiring-and-headless-game-simulator.md)
 - **コマンド (`/astera <area> <action>` 単一ツリー)** → [ADR-0184](adr/0184-single-astera-command-tree.md) — 権限スキーム・補完・help・追加方法
 - **進行中の Phase** → [roadmap.md](roadmap.md)

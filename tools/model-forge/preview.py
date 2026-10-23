@@ -22,7 +22,7 @@ def preview(project, op, a):
     mode=a.get('mode','textured')
     if mode not in ('textured','solid','wireframe','xray','uv'): raise ValueError('Unknown render mode')
     if mode=='uv':
-        key=a.get('key',next(iter(project.state['images']),'0')); im=project.image(key).resize((size,size),Image.Resampling.NEAREST)
+        key=a.get('key',next(iter(project.model['textures']),'0')); im=project.image(key).resize((size,size),Image.Resampling.NEAREST)
         d=ImageDraw.Draw(im)
         for r in project.regions():
             if r['texture']!='#'+key: continue
@@ -37,7 +37,7 @@ def preview(project, op, a):
     center=(boxes[:,0].min(0)+boxes[:,1].max(0))/2 if len(boxes) else np.array([8,8,8])
     # One shared framing across canonical views preserves proportions between tiles.
     span=max(1,float(np.linalg.norm(boxes[:,1].max(0)-boxes[:,0].min(0)))*1.15) if len(boxes) else 32
-    textures={'#'+k:np.array(project.image(k)) for k in project.state['images']}
+    textures={'#'+k:np.array(project.image(k)) for k in project.model['textures']}
     images=[]; artifacts=[]; metrics={}
     for view in views:
         camera=None

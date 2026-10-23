@@ -143,6 +143,12 @@ public class MatchEndSummaryListener(
                     send("astera.match.summary.reason.norma-time-draw")
                 }
             }
+            is EndReason.EncounterCleared -> send("astera.match.summary.reason.encounter-cleared", "waves" to reason.waves.toString())
+            is EndReason.EncounterFailed -> send(
+                if (reason.timeUp) "astera.match.summary.reason.encounter-time-up" else "astera.match.summary.reason.encounter-failed",
+                "wave" to reason.wave.toString(),
+                "waves" to reason.waves.toString(),
+            )
             else -> send("astera.match.summary.reason.${reasonKindOf(event)}")
         }
 
@@ -228,6 +234,9 @@ public class MatchEndSummaryListener(
             is EndReason.TeamVictory -> "objective"
             // Norma results are named by pushChat (they carry the team); this is only the generic fallback.
             is EndReason.NormaReached, is EndReason.NormaTimeLimit -> "score-threshold"
+            // PvE results are named by pushChat (they carry the wave counts); this is only the generic fallback.
+            is EndReason.EncounterCleared -> "encounter-cleared"
+            is EndReason.EncounterFailed -> "encounter-failed"
         }
 
     public companion object {

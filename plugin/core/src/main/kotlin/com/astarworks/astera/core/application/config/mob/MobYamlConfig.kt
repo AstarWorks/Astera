@@ -68,6 +68,7 @@ import kotlinx.serialization.Serializable
  *   region_id: forest-edge
  *   time_of_day_range: [0, 14000]
  * ai: pathfind
+ * vanilla_entity: minecraft:wolf   # the real entity the Paper body is built on (ADR-0249)
  * ```
  *
  * # Validation
@@ -90,6 +91,7 @@ public data class MobYamlConfig(
     @SerialName("loot_table") public val lootTable: String = LootTableId.EMPTY.value,
     @SerialName("spawn_conditions") public val spawnConditions: SpawnConditionsYaml = SpawnConditionsYaml(),
     public val ai: String = "default",
+    @SerialName("vanilla_entity") public val vanillaEntity: String? = null,
 ) {
 
     /**
@@ -121,6 +123,7 @@ public data class MobYamlConfig(
             lootTable = LootTableId(lootTable),
             spawnConditions = spawnConditions.toDomain(mobId),
             ai = parseAi(ai, mobId),
+            vanillaEntity = vanillaEntity?.trim()?.takeIf { it.isNotEmpty() },
         )
     }
 

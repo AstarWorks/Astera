@@ -98,6 +98,13 @@ public interface IMobAdapter {
     public fun despawn(handle: EntityHandle): Result<Unit, MobError>
 
     /**
+     * Whether the mob behind [handle] still exists and is alive (ADR-0249). A PvE encounter polls
+     * this so a mob that fell out of the world or was removed by the host does not block the
+     * wave forever. Defaults to `true` (no way to know).
+     */
+    public fun isAlive(handle: EntityHandle): Boolean = true
+
+    /**
      * Whether this adapter can honour the given AI [hint] for newly-spawned
      * mobs. The router does NOT consult this for adapter selection — it's
      * a capability advertisement so the spawner can warn at registration
