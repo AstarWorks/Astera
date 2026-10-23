@@ -13,6 +13,8 @@
 #   visible_if: optional (ADR-0240) `permission:<node>` - shown only to ops / holders of the node; a visible
 #         conditional entry REPLACES the unconditional entry at the same area/slot (the 2x2 grid is full).
 #   extra_lore: optional extra lore lines, each `{ key, visible_if }`.
+#   visible_if: also `state:queued` / `state:idle` (ADR-0248): the hotbar compass is swapped for "Leave queue" while
+#         the player waits in a queue (still exactly one hotbar item, slot 8).
 #   intent: any GuiIntent key; payload is passed through (gui.open {gui: <id>} opens content/gui/<id>.yaml)
 #
 # Keybinds (weapons bind LC / RC / sneak+click / Q / shoot, never F):
@@ -29,6 +31,15 @@ entries:
     lore_key: astera.lobby-kit.hint.compass
     extra_lore:
       - { key: astera.lobby-kit.hint.admin, visible_if: "permission:astera.admin.panel" }
+
+  # ADR-0248: while queued, the compass becomes "Leave queue" (one click, no menu). F still opens the menu.
+  - id: hotbar-leave-queue
+    area: hotbar
+    slot: 8
+    item: gui-tile-leave-queue
+    intent: lobby.queue.leave
+    lore_key: astera.lobby-kit.hint.leave
+    visible_if: "state:queued"
 
   - id: key-menu
     area: key_swap

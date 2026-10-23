@@ -35,6 +35,9 @@ import com.astarworks.astera.core.domain.event.MatchStarted
 /** Queue, rating, respawn, HUD, win-condition, lobby intent, admin commands (original Wave 5wireup .. 5admin-ops). */
 internal object MatchGameplayWiring {
 
+    /** Queue notifier keys that also show a title (ADR-0248). */
+    private val QUEUE_TITLE_BEATS: Set<String> = setOf("found", "tick", "transferring", "match-found")
+
     fun install(env: MatchWiringEnv) {
         val services = env.ctx.services
         val logger = env.ctx.logger
@@ -101,8 +104,28 @@ internal object MatchGameplayWiring {
         }
 
         // ── WP8: queue → match. Scheduled tryFormMatch + auto start/entry ──
+        // ADR-0248: chat for everything, plus a full-screen title for the beats a player must not miss: the
+        // roster is ready ("found"), the last three seconds ("tick"), and the move into the arena.
+        val queueHud = services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
         val queueNotifier = com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueNotifier { id, key, ph ->
-            playerGateway.sendMessage(id, env.msgRenderer.render(id, key, ph))
+            val suffix = key.value.substringAfterLast('.')
+            if (suffix != "found" && suffix != "tick") playerGateway.sendMessage(id, env.msgRenderer.render(id, key, ph))
+            if (suffix in QUEUE_TITLE_BEATS) {
+                queueHud?.showFor(
+                    id,
+                    com.astarworks.astera.core.domain.hud.HudLayout.Subtitle(
+                        component = com.astarworks.astera.core.domain.hud.HudComponent.Text(
+                            com.astarworks.astera.core.domain.i18n.MessageKey("astera.play.title.$suffix.subtitle"), placeholders = ph,
+                        ),
+                        title = com.astarworks.astera.core.domain.hud.HudComponent.Text(
+                            com.astarworks.astera.core.domain.i18n.MessageKey("astera.play.title.$suffix.title"), placeholders = ph,
+                        ),
+                        fadeInTicks = 4,
+                        stayTicks = if (suffix == "tick") 14 else 30,
+                        fadeOutTicks = 6,
+                    ),
+                )
+            }
         }
         val planFor: (com.astarworks.astera.match.domain.matchmaking.MatchmakingMode) -> com.astarworks.astera.match.application.usecase.matchmaking.MatchPlan = { mode ->
             val lane = env.queueSettings.current().laneFor(mode)
@@ -138,13 +161,15 @@ internal object MatchGameplayWiring {
                     }
                 }
             adminFormer = matchFormer
-            scheduledTasks += com.astarworks.astera.match.application.service.matchmaking.QueueMatchScheduler(
+            val queueScheduler = com.astarworks.astera.match.application.service.matchmaking.QueueMatchScheduler(
                 matchmaker = matchmaker,
                 matchFound = matchFormer,
                 notifier = queueNotifier,
                 scheduler = scheduler,
                 settings = { env.queueSettings.current() },
-            ).start()
+            )
+            env.queueProgress = queueScheduler
+            scheduledTasks += queueScheduler.start()
         }
         if (role.hostsLobby && !role.hostsMatches) {
             // LOBBY: a login that the game server holds a seat for goes straight back to the running match.
@@ -565,15 +590,47 @@ internal object MatchGameplayWiring {
         // The handler resolves the player's party via IPartyRepository for
         // party-aware enqueue (Wave 5w contract).
         if (role.hostsLobby) {
+            // ADR-0248: "Play vs bots" asks the runner over Redis; without Redis it answers "unavailable".
+            val botRequester = com.astarworks.astera.match.application.service.matchmaking.BotMatchRequester(
+                gateway = services.get<com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway>()
+                    ?: com.astarworks.astera.core.application.port.outbound.bots.UnavailableBotRequestGateway(),
+                scheduler = scheduler,
+                notifier = queueNotifier,
+                nameOf = { playerGateway.nameOf(it) },
+            ).also { requester ->
+                requester.start()
+                env.shutdownHooks += { requester.stop() }
+            }
             val lobbyQueueIntentHandler =
                 com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler(
                     matchmaker = matchmaker,
-                    parties = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPartyRepository>(),
+                    joiner = com.astarworks.astera.match.application.service.matchmaking.LaneQueueJoiner(
+                        matchmaker = matchmaker,
+                        parties = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPartyRepository>(),
+                        matches = matches,
+                    ),
+                    settings = { env.queueSettings.current() },
                     guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
                     mcServer = services.getOrThrow<IMcServer>(),
                     messages = services.getOrThrow<IMessageRenderer>(),
                     playerGateway = playerGateway,
+                    bots = botRequester,
                 )
+            // Kit / menu tiles swap Play for "Leave queue" (visible_if state:queued) and are rebuilt on every change.
+            registrations += services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyQueueState>(
+                com.astarworks.astera.core.application.port.outbound.lobby.ILobbyQueueState { player -> matchmaker.queueStatus(player) != null },
+                priority = 0,
+            )
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class) {
+                services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyKitRefresher>()?.refresh(it.playerId)
+            }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) {
+                services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyKitRefresher>()?.refresh(it.playerId)
+            }
+            val queueLog = com.astarworks.astera.match.application.service.matchmaking.QueueActivityLogger { playerGateway.nameOf(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class) { queueLog.onJoined(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) { queueLog.onLeft(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { queueLog.onFormed(it) }
             val lobbyQueueIntentRouter =
                 services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>()
             registrations += lobbyQueueIntentRouter.register(

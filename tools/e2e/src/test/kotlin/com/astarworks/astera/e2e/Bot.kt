@@ -69,7 +69,9 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.level.Serve
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundMovePlayerPosRotPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundSetCarriedItemPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundUseItemPacket
+import org.cloudburstmc.math.vector.Vector3d
 import org.cloudburstmc.math.vector.Vector3i
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundInteractPacket
 import org.geysermc.mcprotocollib.protocol.data.game.entity.`object`.Direction
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.PlayerAction
 import org.geysermc.mcprotocollib.protocol.data.game.inventory.ContainerAction
@@ -167,6 +169,8 @@ class Bot private constructor(
     val sounds = CopyOnWriteArrayList<String>()
     /** Plain text of every text-component entity metadata value received (text displays, custom names). */
     val entityTexts = CopyOnWriteArrayList<String>()
+    /** The same texts per entity id (ADR-0248: tells the Play NPC's name tag from the hologram above it). */
+    val entityTextsById = ConcurrentHashMap<Int, CopyOnWriteArrayList<String>>()
     val screens = CopyOnWriteArrayList<ScreenView>()
     val contents = ConcurrentHashMap<Int, List<SlotView>>()
     val slotUpdates = CopyOnWriteArrayList<SlotView>()
@@ -323,6 +327,7 @@ class Bot private constructor(
                 (m.value as? Component)?.let { c ->
                     val txt = plain(c)
                     entityTexts += txt
+                    entityTextsById.computeIfAbsent(packet.entityId) { CopyOnWriteArrayList() } += txt
                     // floating damage numbers ("-7", "-12.5"): one text display per landed hit
                     if (DAMAGE_NUMBER.matches(txt) && seenDamageNumberEntities.add(packet.entityId)) damageNumbers += txt
                 }
@@ -469,6 +474,10 @@ class Bot private constructor(
         buf.writeByte(v)
         session.send(org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundAttackPacket(buf))
     }
+
+    /** Right-click on [entityId] (what a client sends when interacting with an NPC). */
+    fun interact(entityId: Int) =
+        session.send(ServerboundInteractPacket(entityId, Hand.MAIN_HAND, Vector3d.ZERO, false))
 
     /** Holds/releases sneak (shift) - `sneak_right` bindings need it held while right-clicking. */
     fun sneak(on: Boolean) = session.send(ServerboundPlayerInputPacket(false, false, false, false, false, on, false))

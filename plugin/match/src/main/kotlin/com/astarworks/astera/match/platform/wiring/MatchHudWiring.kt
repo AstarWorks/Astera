@@ -93,6 +93,8 @@ internal object MatchHudWiring {
             stars = stars,
             scheduler = env.scheduler,
             gold = { player -> services.get<ICurrencyLedger>()?.balance(player, Currency.GOLD) },
+            settings = { env.queueSettings.current() },
+            progress = { env.queueProgress },
         )
         env.shutdownHooks += { lobbySidebar.stop() }
 

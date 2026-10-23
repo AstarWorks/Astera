@@ -111,6 +111,7 @@ public object LobbyIslandGenerator {
                 LobbyTrainingLayout.BRIDGE_FROM_X, LobbyTrainingLayout.ISLAND_Z,
                 LobbyTrainingLayout.BRIDGE_TO_X, LobbyTrainingLayout.ISLAND_Z,
             )
+            playGate()
             signposts()
             trainingIsland()
             marketIsland()
@@ -281,6 +282,23 @@ public object LobbyIslandGenerator {
                     lampPost(cx + sx * 4, cz + sz * 9)
                 }
             }
+        }
+
+        /**
+         * The Play gate (ADR-0248): a lit quartz arch two blocks in front of the spawn tile, facing it. The Play
+         * NPC stands under it; its hologram ("Play / プレイ") floats above the lintel. The one obvious place to start a game.
+         */
+        private fun playGate() {
+            val gz = cz + PLAY_GATE_DZ
+            for (side in intArrayOf(-2, 2)) {
+                for (h in 1..4) set(cx + side, s + h, gz, "minecraft:quartz_pillar[axis=y]")
+                set(cx + side, s + 5, gz, "minecraft:sea_lantern")
+            }
+            for (dx in -1..1) set(cx + dx, s + 5, gz, "minecraft:chiseled_quartz_block")
+            for (dx in intArrayOf(-1, 1)) set(cx + dx, s + 4, gz, "minecraft:lantern[hanging=true]")
+            // Glowing floor strip so the gate reads as a portal from the spawn tile.
+            for (dx in -1..1) set(cx + dx, s, gz, "minecraft:smooth_quartz")
+            npcSpots["play-npc"] = LobbyNpcSpot(cx + 0.5, s + 1.0, gz + 0.5, 0f)
         }
 
         private fun lampPost(x: Int, z: Int) {
@@ -773,6 +791,8 @@ public object LobbyIslandGenerator {
     }
 
     private const val WALL = "minecraft:stone_brick_wall"
+    /** Z offset (south of the plaza centre) of the Play gate, between the fountain and the spawn tile. */
+    private const val PLAY_GATE_DZ: Int = 4
     private const val TRAINING_SALT: Long = 0x7261696e696e67L
 
     /** The training deck is wide, so its underside is flattened to stay clear of the void-rescue line. */
