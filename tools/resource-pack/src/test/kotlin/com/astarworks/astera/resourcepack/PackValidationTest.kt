@@ -46,9 +46,24 @@ class PackValidationTest {
         assertThat(generated).hasSizeGreaterThan(50)
         for (id in generated) assertThat(files).`as`("definition of $id").containsKey("assets/astera/items/$id.json")
         for (def in files.keys.filter { it.startsWith("assets/astera/items/") }) {
+            // Special-model definitions (the skin rig head, ADR-0250) render a built-in model: no model file to find.
+            if (json(def).path("model").path("type").asText() != "minecraft:model") continue
             val model = json(def).path("model").path("model").asText()
             assertThat(files).`as`(def).containsKey(modelKey(model))
         }
+    }
+
+    @Test
+    fun `the skin rig ships its item definition and both core shader stages with matching markers`() {
+        assertThat(files).containsKey("assets/astera/items/skinrig.json")
+        assertThat(json("assets/astera/items/skinrig.json").path("model").path("model").path("type").asText())
+            .isEqualTo("minecraft:player_head")
+        val vsh = String(files.getValue("assets/minecraft/shaders/core/entity.vsh"))
+        val fsh = String(files.getValue("assets/minecraft/shaders/core/entity.fsh"))
+        // The vertex stage writes the part id at location 8 and the fragment stage reads the same slot.
+        assertThat(vsh).contains("layout(location = 8) flat out int rigPart;")
+        assertThat(fsh).contains("layout(location = 8) flat in int rigPart;")
+        assertThat(vsh).contains("UV2.x == 240")
     }
 
     @Test

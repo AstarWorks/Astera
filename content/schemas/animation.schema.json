@@ -1,0 +1,90 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/animation.schema.json",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "length_ticks": {
+            "type": "integer"
+        },
+        "loop": {
+            "type": "boolean"
+        },
+        "lock_movement": {
+            "type": "boolean"
+        },
+        "blend_in_ticks": {
+            "type": "integer"
+        },
+        "blend_out_ticks": {
+            "type": "integer"
+        },
+        "bones": {
+            "type": "object",
+            "propertyNames": {
+                "enum": ["head", "body", "right_arm", "left_arm", "right_leg", "left_leg"]
+            },
+            "additionalProperties": {
+                "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigBoneTrackYaml"
+            }
+        },
+        "root": {
+            "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigBoneTrackYaml"
+        }
+    },
+    "required": [
+        "id",
+        "length_ticks"
+    ],
+    "definitions": {
+        "com.astarworks.astera.core.application.config.RigBoneTrackYaml": {
+            "type": "object",
+            "properties": {
+                "rotation": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigKeyframeYaml"
+                    }
+                },
+                "position": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigKeyframeYaml"
+                    }
+                },
+                "scale": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigKeyframeYaml"
+                    }
+                }
+            }
+        },
+        "com.astarworks.astera.core.application.config.RigKeyframeYaml": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "integer"
+                },
+                "v": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                },
+                "ease": {
+                    "type": ["string", "null"],
+                    "enum": ["linear", "step", "ease_in", "ease_out", "ease_in_out", "catmullrom", null]
+                }
+            },
+            "required": [
+                "t",
+                "v"
+            ]
+        }
+    }
+}

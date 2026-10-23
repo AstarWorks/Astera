@@ -69,7 +69,8 @@ import java.util.concurrent.ConcurrentHashMap
  *    is animation-only; the use case must update inventory state
  *    separately" — material lookup needs `IItemRegistry`, which Wave 6d
  *    deliberately keeps out of the animation gateway surface.
- *  - [playCustomAnimation] → `crouch` temporarily fixes the visual pose, then restores
+ *  - [playCustomAnimation] → ids in `content/animations/` start the skin rig (ADR-0250; the `durationTicks`
+ *    argument is ignored, the animation file owns its length); `crouch` temporarily fixes the visual pose, then restores
  *    the prior pose/fixed state. Unknown animation ids fail. This is not joint animation.
  *
  * # ADR-0149 §C invariant
@@ -121,6 +122,8 @@ public class PaperPlayerAnimationGateway(
     private val eventBus: IDomainEventBus,
     private val tickClock: () -> Long = { 0L },
     private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler? = null,
+    /** ADR-0250: ids registered in `content/animations/` are played by the skin rig; looked up lazily (Paper overlay at p=100). */
+    private val skinRig: () -> com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator? = { null },
 ) : IPlayerAnimationGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -339,6 +342,16 @@ public class PaperPlayerAnimationGateway(
         if (animation.value == "swing-main-hand") {
             // One native swing: duration gates zero but does not retime the client's arm animation.
             return if (durationTicks == 0L) Result.success(Unit) else swingArm(playerId, PlayerHand.MainHand)
+        }
+        skinRig()?.let { rig ->
+            when (val played = rig.play(playerId, animation)) {
+                is Result.Success -> return Result.success(Unit)
+                is Result.Failure -> when (val error = played.error) {
+                    is com.astarworks.astera.core.domain.animation.skinrig.SkinRigError.UnknownAnimation -> Unit
+                    is com.astarworks.astera.core.domain.animation.skinrig.SkinRigError.UnknownPlayer -> return unknownPlayer(playerId)
+                    else -> return Result.failure(PlayerAnimationError.Platform(error.toString()))
+                }
+            }
         }
         if (animation.value != "crouch") return Result.failure(PlayerAnimationError.UnknownCustomAnimation(animation))
         if (durationTicks == 0L) return Result.success(Unit)

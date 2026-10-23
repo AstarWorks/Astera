@@ -304,6 +304,16 @@ internal fun CoreWiringState.wireProgression() {
             savedState = tutorialStateRepo::find,
         ),
     )
+    // ADR-0250: skin-rig emotes. Animator and registry are resolved per call (the Paper overlay lands later).
+    commands.register(
+        com.astarworks.astera.core.application.command.buildEmoteCommandSpec(
+            animator = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
+            animationIds = {
+                services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>()
+                    ?.all()?.map { it.id.value }?.sorted().orEmpty()
+            },
+        ),
+    )
 
     // F3-6 (ADR-0187): reliable server hand-off. Transfer request -> "moving"
     // notice, state saved and a hand-off token published BEFORE the proxy

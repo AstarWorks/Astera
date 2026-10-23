@@ -76,6 +76,23 @@ vanilla atlas covers, so every Astera item is magenta/black without help. `overl
 client's `resourcepacks/`) adds `assets/minecraft/atlases/items.json`. Remove it once the pack builder ships
 that atlas itself.
 
+## Skin-rig animations (ADR-0250)
+
+`content/animations/*.yaml` motions replace the caster's body with a Display-entity rig for their length. To film one
+from the side on the caster's own skin, use the demo skill that plays it:
+
+```
+make vfx-shot SKILL=anim-demo-sword-swing VIEW=side TICKS=40        # 12 ticks of motion + 3 blend-out, 40 leaves a tail
+```
+
+`VIEW=side` puts a spectator `Watcher` 6 blocks away looking at the caster (a second real client), which is the
+third-person footage needed to judge the rig. Check, frame by frame: the rig appears with no pop at `t+0` (rest pose
+equals the vanilla body), the head / torso / both arms / both legs show the right parts of the skin (not the head
+texture stretched over every bone), the held item sits in the right hand, and the real body is back after ~15 ticks.
+To add another motion, copy `content/skills/anim-demo-sword-swing.yaml` and change `animation:`. The offline-mode test
+clients have the default Steve / Alex skin of their UUID, not a custom skin: to film a real skin, join an online-mode
+dev server with the pack and run `/astera emote sword-swing` (any id in `content/animations/`).
+
 ## Knobs (env)
 
 `VIEW`, `TICKS`, `ITEM` (default: skill id minus `-sN`/`-def`), `TIME_OF_DAY` (6000), `DISTANCE` (4),

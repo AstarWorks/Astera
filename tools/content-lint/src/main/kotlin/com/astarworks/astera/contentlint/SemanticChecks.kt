@@ -37,7 +37,12 @@ internal object SemanticChecks {
         val particles: Set<String>,
         val vfx: Set<String> = emptySet(),
         val sprites: Set<String> = emptySet(),
+        /** ADR-0250: ids in `content/animations/`. */
+        val animations: Set<String> = emptySet(),
     )
+
+    /** `play_animation` ids the Paper gateway handles itself, besides the skin-rig animations. */
+    private val BUILTIN_ANIMATIONS: Set<String> = setOf("crouch", "hide-main-hand", "swing-main-hand")
 
     fun check(root: JsonNode, known: KnownIds): List<String> {
         val errors = mutableListOf<String>()
@@ -57,6 +62,7 @@ internal object SemanticChecks {
                 checkRef(node, "vfx_id", known.vfx, "vfx", path, errors)
                 // ADR-0239: only a vfx element kind (`type: sprite`) carries a sprite reference.
                 if (type == "sprite") checkRef(node, "sprite", known.sprites, "sprite", path, errors)
+                if (type == "play_animation") checkRef(node, "animation", known.animations + BUILTIN_ANIMATIONS, "animation", path, errors)
                 for ((key, child) in node.properties()) {
                     // `params.type` is the archetype discriminator (projectile,
                     // summon, teleport, ...), not a mechanic -- skip its own type.

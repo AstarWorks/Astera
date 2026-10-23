@@ -143,6 +143,15 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     services.register<com.astarworks.astera.core.application.port.outbound.IVfxRegistry>(vfxContents, priority = 0)
     reloadRegistry.register(vfxContents, vfxContentDir)
 
+    // ---- Skin-rig animations (ADR-0250) -----------------------------
+    // Keyframed player poses at content/animations/, played by `play_animation` and `/astera emote`.
+    val animationsContentDir = contentDir.resolve("animations")
+    val skinRigContents = com.astarworks.astera.core.application.contents.SkinRigContents()
+    val skinRigReport = skinRigContents.bootstrap(animationsContentDir)
+    logger.info("Skin-rig animations loaded: ${skinRigReport.loaded} ok, ${skinRigReport.failed} failed")
+    services.register<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>(skinRigContents, priority = 0)
+    reloadRegistry.register(skinRigContents, animationsContentDir)
+
     // ---- Sound contents (Wave 5effects, ADR-0109) -------------------
     // SoundDefinition domain + Contents-driven YAML at content/sounds/.
     // Walks the per-category subdirectories (skills/, combat/, match/, ...)
