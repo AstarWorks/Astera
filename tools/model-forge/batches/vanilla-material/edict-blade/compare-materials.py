@@ -22,7 +22,7 @@ def call(op, args):
 call('import', {'path':str(a.before.resolve())})
 call('history.snapshot', {'name':'original'})
 materials = ['original', 'metal.gold_block', 'metal.raw_gold_block', 'metal.exposed_copper',
-             'metal.weathered_copper', 'stone.red_terracotta', 'leather.brown_mushroom_block', 'selected khaki copper crops']
+             'metal.weathered_copper', 'stone.red_terracotta', 'leather.brown_mushroom_block', 'tinted iron + wool (final)']
 board = Image.new('RGB', (2048, 610), '#20252b')
 draw = ImageDraw.Draw(board)
 for i, material in enumerate(materials):

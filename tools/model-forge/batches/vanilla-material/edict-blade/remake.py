@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Reproduce the edict-blade through Forge operations (no test runner/server/build)."""
 import argparse
+import copy
 import json
 from pathlib import Path
 import shutil
@@ -17,6 +18,8 @@ def main():
     a = parser.parse_args()
     if (a.project/'project.json').exists(): raise ValueError('Use a fresh project directory')
     a.evidence.mkdir(parents=True, exist_ok=True)
+    target = ROOT/'content/models/items/edict-blade.model.json'
+    current = json.loads(target.read_text())
     p = Project(a.project)
     log = []
     def call(op, args=None):
@@ -36,26 +39,22 @@ def main():
     board_args = {'resolution':384, 'name':'before'}
     before = call('board', board_args)
     shutil.copyfile(before['path'], a.evidence/'before.png')
+    call('import', {'path':str(target)})
+    original = copy.deepcopy(p.model)
     ops = []
     groups = {}
     for e in p.model['elements']:
         name = e.get('name','')
-        if 'glove' in name or 'finger' in name: material = 'cloth.white_wool'
-        else: material = 'metal.exposed_copper'
-        groups.setdefault(material, []).append(e['id'])
-    for material, ids in groups.items():
-        ops.append({'op':'material.apply', 'args':{'ids':ids,'material':material,'seed':20261023}})
-    call('batch', {'ops':ops})
-    # Use khaki patina crops, avoiding the broad pink/green patches.
-    patina_ops = []
+        if name.startswith('white-glove-'): material, tint = 'cloth.white_wool', '#f2f6fc'
+        elif name.startswith('finger-'): material, tint = 'cloth.white_wool', '#d6deec'
+        elif name.startswith('brass-cuff-'): material, tint = 'metal.iron_block', '#aba175'
+        else: material, tint = 'metal.iron_block', '#e5dcae'
+        groups.setdefault((material, tint), []).append(e['id'])
+    for (material, tint), ids in groups.items():
+        ops.append({'op':'material.apply', 'args':{'ids':ids,'material':material,'tint':tint,'seed':20261024}})
     for e in p.model['elements']:
-        if not (e.get('name', '').startswith('brass-cuff-') or e.get('name', '').startswith('chain-')): continue
         call('scene.element', {'id':e['id']})
-        for face, f in e['faces'].items():
-            u, v, U, V = f['uv']
-            origin = (1, 2) if e['name'].startswith('chain-') else ((1, 10) if face not in ('up', 'down') else (8, 6))
-            patina_ops.append({'op':'uv.set', 'args':{'id':e['id'], 'face':face, 'value':{**f, 'uv':[origin[0], origin[1], origin[0]+U-u, origin[1]+V-v]}}})
-    call('batch', {'ops':patina_ops})
+    call('batch', {'ops':ops})
     # Match coplanar fingertip faces to the glove beneath, retaining 1 texel/unit.
     seam_ops = []
     for e in p.model['elements']:
@@ -70,14 +69,17 @@ def main():
             else:
                 u += glove['to'][0]-X; v += glove['to'][1]-Y
                 uv = [u, v, u+X-x, v+Y-y]
-            seam_ops.append({'op':'uv.set','args':{'id':e['id'],'face':face,'value':{'texture':glove['faces'][face]['texture'],'uv':uv}}})
+            seam_ops.append({'op':'uv.set','args':{'id':e['id'],'face':face,'value':{'texture':glove['faces'][face]['texture'],'tintindex':glove['faces'][face]['tintindex'],'uv':uv}}})
     call('batch', {'ops':seam_ops})
     # Install references, retaining only used slots. Re-import records this packaging step in history.
     model = p.vanilla()
     used = {f['texture'][1:] for e in model['elements'] for f in e['faces'].values()}
     model['textures'] = {k:v for k,v in model['textures'].items() if k in used}
-    model['textures']['particle'] = 'minecraft:block/exposed_copper'
-    target = ROOT/'content/models/items/edict-blade.model.json'
+    model['textures']['particle'] = 'minecraft:block/iron_block'
+    assert model['display'] == current['display']
+    geometry = lambda m: [{k:v for k,v in e.items() if k != 'faces'} for e in m['elements']]
+    assert geometry(model) == geometry(current)
+    assert geometry(p.model) == geometry(original)
     target.write_text(json.dumps(model,indent=2)+'\n')
     call('import', {'path':str(target)})
     call('history.snapshot', {'name':'after'})
@@ -87,7 +89,12 @@ def main():
     shutil.copyfile(contexts['path'], a.evidence/'contexts.png')
     call('measure'); call('validate')
     call('history.diff', {'a':'before','b':'after'})
-    call('export', {'path':str(a.project/'export')})
+    exported = call('export', {'path':str(a.project/'export')})
+    roundtrip = Project(a.project/'roundtrip')
+    roundtrip.call('import', {'path':exported['path']})
+    assert roundtrip.vanilla() == p.vanilla()
+    assert not list((a.project/'export/textures').glob('*.png'))
+    (a.evidence/'verification.json').write_text(json.dumps({'geometryUnchanged':True,'displayUnchanged':True,'exportImportIdentical':True,'palette':p.model['astera_tints'],'validation':p.call('validate')},indent=2)+'\n')
     (a.evidence/'operations.json').write_text(json.dumps(log,indent=2)+'\n')
 
 if __name__=='__main__': main()

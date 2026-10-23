@@ -2,7 +2,7 @@
   {
     "op": "import",
     "args": {
-      "path": "/IdeaProjects/Astera/.claude/worktrees/vm-edict-blade/build/edict-redo/original.json"
+      "path": "/tmp/claude-1000/vm/edict-blade-original.json"
     }
   },
   {

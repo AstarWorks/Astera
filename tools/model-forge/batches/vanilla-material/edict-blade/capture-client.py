@@ -1,10 +1,23 @@
 #!/usr/bin/env python3
 """Run only under flock /tmp/claude-1000/astera-mc-client.lock; isolated capture world required."""
-import os, subprocess, time, signal
+import argparse, gzip, os, shutil, subprocess, time, signal
 from pathlib import Path
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--world-source', required=True, type=Path)
+a = parser.parse_args()
 wd=Path.cwd()/"build/edict-blade-client"
 wd.mkdir(parents=True, exist_ok=True)
 root=Path.cwd()
+world = wd/'saves/Edict Blade Materials'
+if not world.exists(): shutil.copytree(a.world_source, world, ignore=shutil.ignore_patterns('session.lock'))
+level = world/'level.dat'
+nbt = gzip.decompress(level.read_bytes())
+flag = b'\x01\x00\x0dallowCommands'
+assert nbt.count(flag) == 1
+pos = nbt.index(flag)+len(flag)
+level.write_bytes(gzip.compress(nbt[:pos]+b'\x01'+nbt[pos+1:]))
+(wd/'display').write_text('')
+(wd/'logs/latest.log').unlink(missing_ok=True)
 (wd/'options.txt').write_text('version:5023\nfov:0.0\nbobView:false\nrenderDistance:6\nsimulationDistance:5\nguiScale:2\npauseOnLostFocus:false\nmaxFps:30\nenableVsync:false\nsoundCategory_master:0.0\ntutorialStep:none\nonboardAccessibility:false\nresourcePacks:["vanilla","file/vanilla-material"]\n')
 x=subprocess.Popen(['Xvfb','-displayfd','1','-screen','0','1280x720x24','-nolisten','tcp'],stdout=open(wd/'display','w'),stderr=open(wd/'xvfb.log','w'))
 c=None
@@ -28,6 +41,8 @@ try:
   key('Return');time.sleep(1)
  command('/kill @e[type=minecraft:item_display]')
  command('/clear @s')
+ command('/gamemode creative')
+ command('/difficulty peaceful')
  command('/give @s minecraft:iron_sword[minecraft:item_model="astera:edict-blade"]')
  key('1')
  command('/time set noon')
@@ -41,5 +56,8 @@ try:
  key('2');time.sleep(8)
  subprocess.run(['import','-window','root',str(root/'tools/model-forge/batches/vanilla-material/edict-blade/client-detail.png')],env=env,check=True)
 finally:
- if c and c.poll() is None:os.killpg(c.pid,signal.SIGTERM)
+ if c and c.poll() is None:
+  os.killpg(c.pid,signal.SIGTERM)
+  c.wait(timeout=30)
  x.terminate()
+ x.wait(timeout=10)

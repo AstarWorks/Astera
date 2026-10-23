@@ -15,9 +15,12 @@ def main():
     if a.out.exists(): raise ValueError('Use a fresh resource-pack directory')
     source = ROOT/'content/models/items/edict-blade.model.json'
     model = json.loads(source.read_text())
+    tints = model.pop('astera_tints', [])
+    definition = {'type':'minecraft:model','model':'astera:items/edict-blade',
+                  'tints':[{'type':'minecraft:constant','value':value} for value in tints]}
     files = {
         'pack.mcmeta':{'pack':{'description':'Vanilla material edict-blade capture','min_format':[97,0],'max_format':[97,1]}},
-        'assets/astera/items/edict-blade.json':{'model':{'type':'minecraft:model','model':'astera:items/edict-blade'}},
+        'assets/astera/items/edict-blade.json':{'model':definition},
         'assets/astera/models/items/edict-blade.json':model,
         'assets/minecraft/atlases/blocks.json':{'sources':[{'type':'directory','source':'blocks','prefix':'blocks/'}]},
     }
