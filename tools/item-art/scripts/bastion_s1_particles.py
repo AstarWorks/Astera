@@ -142,8 +142,8 @@ PIVOT = (-0.348, 0.773, 0.293)
 CASTER_EYE = (0.0, 1.62, 0.0)
 NEAR = 1.55  # caster camera near field: nothing emitted closer (brief: < 1.5)
 EYE_KEEP = 0.85  # opponent eye keep-out for path points
-H1_KEYS = {3: (185, 25), 4: (196, 40), 5: (278, 68), 6: (345, 33), 7: (6, -15), 10: (43, -15), 11: (73, -15),
-           12: (106, -15), 13: (138, -15), 14: (167, -15)}
+H1_KEYS = {4: (0.1, 52), 5: (244.8, 65.9), 6: (341.3, 38.3), 7: (6.2, -15), 10: (43, -14.5), 11: (73.1, -15),
+           12: (106, -15), 13: (138, -15), 14: (167, -15)}  # r8 rig: ticks 1-4 = held pose, pull-back at tick 5
 H2_KEYS = {26: (135, -12), 27: (163, -5), 28: (210, 4), 29: (265, 5), 30: (320, -6), 31: (18, -15), 34: (60, -15),
            35: (102, -15), 36: (134, -12), 37: (159, -9)}
 H1_DELAY, H2_DELAY = 3, 27  # skill tick = fx tick + delay
@@ -250,14 +250,15 @@ def hit1():
     # ground grain on the floor below it.
     c = on_blade(H1_KEYS, 7, 1.85)
     g = (c[0], 0.1, c[2])
-    # (c) blade path: fx 1 (skill 4, blade behind-up) -> fx 4 contact (chop plane) -> fx 9 floor drag to phi 106.
-    # The fx 1 -> 2 chord (behind-up -> overhead) would cut the caster near field and the fx 3 -> 4 chord passes the
+    # (c) blade path: r8 rig holds the held pose to skill 4 (fx 1), so the path starts at fx 2 (skill 5, pull-back
+    # behind-up) -> fx 4 contact (chop plane) -> fx 9 floor drag to phi 106.
+    # The fx 2 -> 3 chord (behind-up -> overhead) may cut the caster near field and the fx 3 -> 4 chord passes the
     # opponent eye (the chop plane itself is only 0.64 from it): ride() drops such chords, the smear covers that span.
-    gold = blade_path(H1_KEYS, H1_DELAY, 1, 9, 2.15, H1_EYE)
-    ride(f, "trail-gold", "trail-gold", 1, gold, 0.2, H1_EYE)
-    ride(f, "trail-dark", "trail-dark", 1, blade_path(H1_KEYS, H1_DELAY, 1, 9, 2.45, H1_EYE), 0.25, H1_EYE)
-    ride(f, "trail-gold", "trail-gold", 2, blade_path(H1_KEYS, H1_DELAY, 2, 6, 2.0, H1_EYE, lag=0.5), 0.3, H1_EYE)
-    shed(f, H1_KEYS, H1_DELAY, 1, 8, 2.15, 2.55, 0.7, H1_EYE, "glint")
+    gold = blade_path(H1_KEYS, H1_DELAY, 2, 9, 2.15, H1_EYE)
+    ride(f, "trail-gold", "trail-gold", 2, gold, 0.2, H1_EYE)
+    ride(f, "trail-dark", "trail-dark", 2, blade_path(H1_KEYS, H1_DELAY, 2, 9, 2.45, H1_EYE), 0.25, H1_EYE)
+    ride(f, "trail-gold", "trail-gold", 3, blade_path(H1_KEYS, H1_DELAY, 3, 6, 2.0, H1_EYE, lag=0.5), 0.3, H1_EYE)
+    shed(f, H1_KEYS, H1_DELAY, 2, 8, 2.15, 2.55, 0.7, H1_EYE, "glint")
     shed(f, H1_KEYS, H1_DELAY, 2, 7, 1.85, 2.2, 0.45, H1_EYE, "glint-hot", dy=0.08)
     ride(f, "trail-spark", "trail-spark", 2, blade_path(H1_KEYS, H1_DELAY, 2, 7, 2.3, H1_EYE), 0.45, H1_EYE)
     # inner line (r 1.5) carries the last 50 deg of the chop into the contact, fx 3 -> 4 (-> 6 drag), where the outer

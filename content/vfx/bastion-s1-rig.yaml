@@ -105,7 +105,7 @@ rigs:
   - { t: 51, rotate: [-1056.4, -47.8, -419.4] }
   - { t: 52, rotate: [-1056.4, -47.8, -419.4] }
   emitters:
-  - { id: tip_ember_1, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 3, end_t: 14 }
+  - { id: tip_ember_1, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 4, end_t: 14 }  # r8: key 3 is still the held pose
   - { id: tip_glint_1, particle_id: bastion-s1-tip-glint, point: [0, 2.5, 0], start_t: 4, end_t: 10 }
   - { id: tip_ember_2, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 24, end_t: 36 }
   - { id: tip_glint_2, particle_id: bastion-s1-tip-glint, point: [0, 2.5, 0], start_t: 25, end_t: 33 }
