@@ -1,0 +1,135 @@
+{
+  "runtime": {
+    "coreSha256": "eab6bed244410a2383ff893534fcce4d68e42dc5db63c38c9952ec8876c49c68",
+    "combatSha256": "a9dd412790d8eddaffa41ef9e763797bee89924443bae9ed876572649702955f",
+    "baseCommit": "72590991",
+    "changes": "uncommitted local_direction, face_movement, feet and path collision probes",
+    "scope": "Dedicated direction fixtures and representative existing dash captures; not original-reference fidelity approval"
+  },
+  "directionChecks": [
+    {
+      "scenario": "backward-without-turning",
+      "position": [
+        294.5,
+        100.0,
+        300.5
+      ],
+      "rotation": [
+        -90.0,
+        15.0
+      ],
+      "pass": true
+    },
+    {
+      "scenario": "reverse-stops-at-wall",
+      "position": [
+        299.5,
+        100.0,
+        300.5
+      ],
+      "rotation": [
+        90.0,
+        15.0
+      ],
+      "pass": true
+    },
+    {
+      "scenario": "one-tick-reverse-cannot-skip-wall",
+      "position": [
+        300.5,
+        100.0,
+        300.5
+      ],
+      "pass": true
+    }
+  ],
+  "representativeCaptures": [
+    {
+      "skill": "couture-rapier-s1",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 3.0
+      },
+      "health": "Husk has the following entity data: 192.128f"
+    },
+    {
+      "skill": "edict-s1",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 5.0
+      },
+      "health": "Husk has the following entity data: 173.43199f"
+    },
+    {
+      "skill": "vendetta-rifle-s1",
+      "quality": {
+        "maxRepeatedFrames": 4,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 6.0
+      },
+      "health": "Husk has the following entity data: 183.272f"
+    },
+    {
+      "skill": "bastion-greatsword-s3",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 10.0
+      },
+      "health": "Husk has the following entity data: 183.27202f"
+    },
+    {
+      "skill": "ember-gauntlet-s1",
+      "quality": {
+        "maxRepeatedFrames": 4,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 3.0
+      },
+      "health": "Husk has the following entity data: 182.288f"
+    },
+    {
+      "skill": "gossamer-katana-s1",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 4.0
+      },
+      "health": "Husk has the following entity data: 182.28801f"
+    },
+    {
+      "skill": "orrery-s1",
+      "quality": {
+        "maxRepeatedFrames": 3,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 2.0
+      },
+      "health": "Husk has the following entity data: 184.256f"
+    },
+    {
+      "skill": "sigil-rifle-s1",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 3.0
+      },
+      "health": "Husk has the following entity data: 191.144f"
+    },
+    {
+      "skill": "verdict-hammer-s1",
+      "quality": {
+        "maxRepeatedFrames": 2,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 4.0
+      },
+      "health": "Husk has the following entity data: 176.384f"
+    }
+  ],
+  "limitations": [
+    "Forced cast with real equipped item; not normal input regression",
+    "Stationary target and flat arena; not full-body swept collision coverage",
+    "Not original-reference fidelity approval",
+    "Source frame sheets and captures retained in build/limbus-review/round12"
+  ]
+}

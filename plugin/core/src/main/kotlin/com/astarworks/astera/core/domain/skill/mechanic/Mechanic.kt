@@ -267,13 +267,25 @@ public sealed class Mechanic {
         val followPitch: BoolValue = BoolValue.Literal(false),
         /** Optional approach spacing; clamp travel before the first body in the dash corridor. */
         val stopBeforeTarget: Double? = null,
+        /** Direction in caster axes: +Z forward, +X left, +Y up; null preserves the look heading. */
+        val localDirection: com.astarworks.astera.core.domain.geometry.Vec3? = null,
+        /** Turn horizontal facing toward movement, preserving camera pitch. */
+        val faceMovement: Boolean = false,
         val onHit: List<Mechanic> = emptyList(),
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
         override val snapshotPose: Boolean = false,
-    ) : Mechanic()
+    ) : Mechanic() {
+        init {
+            localDirection?.let {
+                require(it.x.isFinite() && it.y.isFinite() && it.z.isFinite() && it.lengthSquared() > 1e-12) {
+                    "DashStrike.localDirection must be finite and nonzero"
+                }
+            }
+        }
+    }
 
     /**
      * Freeze [targets] in place for [ticks] ticks to sell an impact (zero velocity, no walking, no
