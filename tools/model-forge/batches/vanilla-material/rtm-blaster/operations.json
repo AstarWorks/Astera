@@ -2,7 +2,7 @@
   {
     "op": "import",
     "args": {
-      "path": "build/rtm-blaster/before.json"
+      "path": "build/rtm-blaster-recolour/original.json"
     },
     "validation": {
       "valid": true,
@@ -1307,6 +1307,21 @@
     "validation": null
   },
   {
+    "op": "import",
+    "args": {
+      "path": "build/rtm-blaster-recolour/head.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 27,
+        "overlap_aabb": 543,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
     "op": "batch",
     "args": {
       "ops": [
@@ -1316,86 +1331,88 @@
             "ids": [
               "e0001",
               "e0004",
-              "e0005",
-              "e0014",
-              "e0015",
-              "e0025",
-              "e0026",
-              "e0027",
-              "e0028",
-              "e0033",
-              "e0034",
-              "e0035",
-              "e0036",
-              "e0037",
-              "e0038",
-              "e0039",
-              "e0040",
-              "e0041",
-              "e0042",
-              "e0043",
-              "e0044",
-              "e0045",
-              "e0050",
-              "e0062",
-              "e0063",
-              "e0064",
-              "e0065",
-              "e0066",
-              "e0078",
-              "e0079",
-              "e0080",
-              "e0081",
-              "e0090",
-              "e0091",
-              "e0092",
-              "e0093",
-              "e0126",
-              "e0127",
-              "e0128",
-              "e0129",
-              "e0149",
-              "e0156"
+              "e0149"
             ],
-            "material": "metal.netherite_block",
-            "seed": 20261023
+            "material": "metal.iron_block",
+            "tint": "#26303c",
+            "seed": 20261024
           }
         },
         {
           "op": "material.apply",
           "args": {
             "ids": [
-              "e0002",
-              "e0006",
-              "e0007",
+              "e0002"
+            ],
+            "material": "wood.stripped_oak_log",
+            "tint": "#b28177",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0003"
+            ],
+            "material": "cloth.white_wool",
+            "tint": "#2e3a48",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0005"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#9db4c4",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0006"
+            ],
+            "material": "wood.stripped_oak_log",
+            "tint": "#be8d7f",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0007"
+            ],
+            "material": "wood.stripped_oak_log",
+            "tint": "#c2907f",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0008"
+            ],
+            "material": "cloth.white_wool",
+            "tint": "#455162",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
               "e0009"
             ],
-            "material": "wood.stripped_dark_oak_log",
-            "seed": 20261023
-          }
-        },
-        {
-          "op": "material.apply",
-          "args": {
-            "ids": [
-              "e0003",
-              "e0008",
-              "e0057",
-              "e0058",
-              "e0059",
-              "e0060",
-              "e0061",
-              "e0073",
-              "e0074",
-              "e0075",
-              "e0076",
-              "e0077",
-              "e0138",
-              "e0139",
-              "e0140"
-            ],
-            "material": "cloth.black_wool",
-            "seed": 20261023
+            "material": "wood.stripped_oak_log",
+            "tint": "#fcc9a5",
+            "seed": 20261024
           }
         },
         {
@@ -1406,61 +1423,418 @@
               "e0011",
               "e0012",
               "e0013",
-              "e0016",
+              "e0039",
+              "e0150",
+              "e0151"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#bcd7e3",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0014"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#343e4a",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0015"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#546170",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0016"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#d0eaf4",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
               "e0017",
+              "e0021"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#485463",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
               "e0018",
+              "e0022"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#4d5a68",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
               "e0019",
+              "e0023"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#535f6e",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
               "e0020",
-              "e0021",
-              "e0022",
-              "e0023",
-              "e0024",
+              "e0024"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#6a7884",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0025"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#b0cad7",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0026"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#b2ccd9",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0027"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#b4cedd",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0028"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#bed8e4",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0029"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#5f6d7a",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0030"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#677482",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0031"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#72818d",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0032"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#98a9b3",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0033",
+              "e0037"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#29323f",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0034",
+              "e0035"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#27313e",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0036"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#28313e",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0038"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#bad5e1",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0040"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#bed9e4",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0041"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#c8e2ec",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0042"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#343e4b",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0043"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#353f4c",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0044"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#37414e",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0045"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#3e4955",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0046",
+              "e0062",
+              "e0063",
+              "e0064",
+              "e0065",
+              "e0078",
+              "e0079",
+              "e0080",
+              "e0081",
+              "e0130"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#f376ff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0047",
+              "e0131"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#f97dff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0048",
+              "e0132",
+              "e0146"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#ff8aff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0049",
+              "e0133"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#ffa1ff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0050",
+              "e0066"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#98b1c3",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0051",
+              "e0067"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#353f4b",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
               "e0052",
+              "e0068",
+              "e0134",
+              "e0135",
+              "e0136",
+              "e0137",
+              "e0159",
+              "e0160",
+              "e0161",
+              "e0164",
+              "e0165",
+              "e0166",
+              "e0175",
+              "e0176",
+              "e0177"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#ffc7ff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
               "e0053",
               "e0054",
               "e0055",
               "e0056",
-              "e0068",
               "e0069",
               "e0070",
               "e0071",
               "e0072",
-              "e0082",
-              "e0083",
-              "e0084",
-              "e0085",
-              "e0086",
-              "e0087",
-              "e0088",
-              "e0089",
-              "e0094",
-              "e0095",
-              "e0096",
-              "e0097",
-              "e0098",
-              "e0099",
               "e0100",
               "e0101",
-              "e0102",
-              "e0103",
-              "e0104",
-              "e0105",
-              "e0106",
-              "e0107",
               "e0108",
               "e0109",
-              "e0135",
-              "e0137",
-              "e0141",
-              "e0142",
-              "e0143",
-              "e0144",
-              "e0150",
-              "e0151",
-              "e0152",
-              "e0153",
-              "e0154",
-              "e0155",
               "e0167",
               "e0168",
               "e0169",
@@ -1469,85 +1843,393 @@
               "e0172"
             ],
             "material": "metal.iron_block",
-            "seed": 20261023
+            "tint": "#fcffff",
+            "seed": 20261024
           }
         },
         {
           "op": "material.apply",
           "args": {
             "ids": [
-              "e0029",
-              "e0030",
-              "e0031",
-              "e0032",
-              "e0051",
-              "e0067",
+              "e0057",
+              "e0058",
+              "e0059",
+              "e0060",
+              "e0061",
+              "e0073",
+              "e0074",
+              "e0075",
+              "e0076",
+              "e0077",
+              "e0143"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#cee8f2",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0082",
+              "e0086"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#c5e0eb",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0083",
+              "e0087",
+              "e0141"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#c7e2ec",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0084",
+              "e0088"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#cce7f0",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0085",
+              "e0089"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#daf4fc",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0090"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#c8e2ed",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0091"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#cde7f1",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0092"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#d5f0f8",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0093"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#e9ffff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0094",
+              "e0095",
+              "e0096",
+              "e0097",
+              "e0098",
+              "e0099",
+              "e0102",
+              "e0103",
+              "e0104",
+              "e0105",
+              "e0106",
+              "e0107",
               "e0110",
               "e0111",
               "e0112",
               "e0113"
             ],
-            "material": "concrete.black_concrete",
-            "seed": 20261023
+            "material": "metal.iron_block",
+            "tint": "#a2b3bd",
+            "seed": 20261024
           }
         },
         {
           "op": "material.apply",
           "args": {
             "ids": [
-              "e0046",
-              "e0047",
-              "e0048",
-              "e0049",
               "e0114",
-              "e0115",
-              "e0116",
-              "e0117",
               "e0118",
+              "e0122"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#df5afa",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0115",
               "e0119",
+              "e0123"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#e460fd",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0116",
               "e0120",
+              "e0124"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#ec69ff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0117",
               "e0121",
-              "e0122",
-              "e0123",
-              "e0124",
-              "e0125",
-              "e0134",
-              "e0136",
-              "e0145",
-              "e0146",
-              "e0147",
-              "e0148",
+              "e0125"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#ff89ff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0126",
+              "e0127"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#2c3542",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0128"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#2d3643",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0129"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#303947",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0138",
+              "e0139",
+              "e0140"
+            ],
+            "material": "cloth.white_wool",
+            "tint": "#505e6e",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0142"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#cae4ef",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0144"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#ddf6fd",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0145"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#ff85ff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0147"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#ff94ff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0148"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#ffb1ff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0152"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#35404c",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0153"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#36414e",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0154"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#374250",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0155"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#3e4a56",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0156"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#293240",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0157",
+              "e0162"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#ffa7ff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0158",
+              "e0163"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#ffb9ff",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
               "e0173",
               "e0174"
             ],
-            "material": "gem.amethyst_block",
-            "seed": 20261023
-          }
-        },
-        {
-          "op": "material.apply",
-          "args": {
-            "ids": [
-              "e0130",
-              "e0131",
-              "e0132",
-              "e0133",
-              "e0157",
-              "e0158",
-              "e0159",
-              "e0160",
-              "e0161",
-              "e0162",
-              "e0163",
-              "e0164",
-              "e0165",
-              "e0166",
-              "e0175",
-              "e0176",
-              "e0177"
-            ],
-            "material": "concrete.magenta_concrete",
-            "seed": 20261023
+            "material": "concrete.white_concrete",
+            "tint": "#ff91ff",
+            "seed": 20261024
           }
         }
       ]
@@ -1556,7 +2238,6 @@
       "valid": true,
       "errors": [],
       "warnings": {
-        "mixed_texture_atlases": 1,
         "coplanar_contact_possible_zfight": 27,
         "overlap_aabb": 543,
         "floating_components_aabb": 1
@@ -1648,7 +2329,7 @@
   {
     "op": "export",
     "args": {
-      "path": "build/rtm-blaster/replay/export"
+      "path": "build/rtm-blaster-recolour/final/export"
     },
     "validation": null
   }
