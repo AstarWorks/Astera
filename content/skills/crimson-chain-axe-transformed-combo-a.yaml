@@ -15,26 +15,29 @@ phases:
   type: sequence
   cast:
   - type: play_vfx
-    targets: &id001
+    targets:
       type: caster
     vfx_id: crimson-combo-low
     delay_ticks:
       type: literal
       value: 37
   - type: play_vfx
-    targets: *id001
+    targets:
+      type: caster
     vfx_id: crimson-combo-diagonal
     delay_ticks:
       type: literal
-      value: 43
+      value: 47
   - type: play_vfx
-    targets: *id001
+    targets:
+      type: caster
     vfx_id: crimson-combo-loop
     delay_ticks:
       type: literal
       value: 59
   - type: play_vfx
-    targets: *id001
+    targets:
+      type: caster
     vfx_id: crimson-combo-descending
     delay_ticks:
       type: literal
@@ -255,7 +258,8 @@ phases:
       type: literal
       value: 116
   - type: play_vfx
-    targets: *id001
+    targets:
+      type: caster
     vfx_id: crimson-combo-hover-orbits
     delay_ticks:
       type: literal
