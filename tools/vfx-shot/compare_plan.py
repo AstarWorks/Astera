@@ -1,6 +1,6 @@
 """Plan for `VIEW=compare`: maps a skill-compare case's intent.json onto world space.
 
-usage: python3 -I compare_plan.py <intent.json|-> <mode case|side> <cx> <cy> <cz> <plan_out> [client_fov_degrees]
+usage: python3 -I compare_plan.py <intent.json|-> <mode case|side> <cx> <cy> <cz> <plan_out> [client_fov_degrees|-] [dolly|nodolly]
 
 Intent units: x toward the enemy, y up, z toward the side camera, caster at the origin. The world mapping is the
 identity (world = (cx+x, cy+y, cz+z)); the caster faces +x (yaw -90), so the side camera at +z sees the enemy on its
@@ -8,6 +8,9 @@ right. The client FOV option is fixed per run (the first key's fov); keys with a
 camera along its view ray (distance * tan(fov/2) / tan(fov0/2)) so the framing matches.
 For a reused client, pass its actual FOV as the optional final argument; every camera key, including the first,
 is then converted to that FOV. Without it, the caller must launch the client with CMP_FOV_OPT.
+
+With "nodolly" the camera positions of the intent are kept as they are and only the client FOV changes (a wider
+view of the same place instead of the same framing); the default "dolly" keeps the reference framing.
 
 Writes <plan_out> as `t_ms<TAB>command` lines (t relative to the cast) and prints shell assignments on stdout.
 """
@@ -38,7 +41,9 @@ def main() -> int:
     if mode == "side" or not keys:
         mid = enemy_x / 2
         keys = [{"t": 0, "pos": [mid, 1.6, 6.0], "target": [mid, 1.0, 0.0], "fov": 55}]
-    fov0 = float(sys.argv[7]) if len(sys.argv) > 7 else float(keys[0].get("fov", 70))
+    explicit = len(sys.argv) > 7 and sys.argv[7] != "-"
+    dolly = not (len(sys.argv) > 8 and sys.argv[8] == "nodolly")
+    fov0 = float(sys.argv[7]) if explicit else float(keys[0].get("fov", 70))
     if not 30 <= fov0 <= 110:
         raise ValueError("client FOV must be between 30 and 110 degrees")
     fov_opt = max(-1.0, min(1.0, (fov0 - 70.0) / 40.0))
@@ -59,7 +64,7 @@ def main() -> int:
     lines = []
     for key in keys:
         pos, tgt = key["pos"], key["target"]
-        s = math.tan(math.radians(key.get("fov", fov0)) / 2) / k0
+        s = math.tan(math.radians(key.get("fov", fov0)) / 2) / k0 if dolly else 1.0
         p = [tgt[i] + (pos[i] - tgt[i]) * s for i in range(3)]
         yaw, pitch = look(p, tgt)
         # spectator tp sets the feet; the eye is 1.62 above
@@ -73,6 +78,7 @@ def main() -> int:
     print("ENEMY_X=%.2f" % enemy_x)
     print("DURATION_TICKS=%d" % duration)
     print("CMP_FOV_OPT=%.4f" % fov_opt)
+    print("CMP_FOV_DEG=%.1f" % fov0)
     print("CAM0_CMD='%s'" % first)
     return 0
 

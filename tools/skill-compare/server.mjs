@@ -38,6 +38,11 @@ export function makeHandler(opts = {}) {
     }));
   }
 
+  /** Capture provenance shown as a badge on the page (and written to the brief manifest by scripts/brief.py). */
+  const provOf = (m) => ({ branch: m.branch ?? null, commit: m.implementationCommit ?? null, capturedAt: m.capturedAt ?? null,
+    fov: m.fov ?? null, fovMode: m.fovMode ?? null, resolution: m.resolution ?? null, view: m.view ?? null,
+    repeated: m.captureQuality?.maxRepeatedFrames ?? null, reviewRequired: !!m.captureQuality?.reviewRequired });
+
   function mcInfo(skill, referenceRevision, contentRevision) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return info;
@@ -50,7 +55,7 @@ export function makeHandler(opts = {}) {
               (referenceRevision && meta.referenceRevision !== referenceRevision) ||
               (contentRevision && meta.contentRevision !== contentRevision)) continue;
           info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`,
-            count: meta.frames, castFrame: Math.round((meta.cast_tick_ms ?? 0) / 50), extension, revision };
+            count: meta.frames, castFrame: Math.round((meta.cast_tick_ms ?? 0) / 50), extension, revision, prov: { ...provOf(meta), published: true } };
         } catch { /* Never fall back to a partially overwritten source after publication. */ }
         continue;
       }
@@ -62,9 +67,9 @@ export function makeHandler(opts = {}) {
         }
         const n = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).length;
         const webpReady = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).every((f) => existsSync(join(d, f.replace(/\.png$/, ".webp"))));
-        let castFrame = 0;  // compare: frames before the cast (meta.json cast_tick_ms)
-        try { castFrame = Math.round((readJson(join(d, "meta.json")).cast_tick_ms ?? 0) / 50); } catch { /* no meta: frame 0 = cast */ }
-        if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n, castFrame,
+        let castFrame = 0, prov = { published: false };  // compare: frames before the cast (meta.json cast_tick_ms)
+        try { const m = readJson(join(d, "meta.json")); castFrame = Math.round((m.cast_tick_ms ?? 0) / 50); prov = { ...provOf(m), published: false }; } catch { /* no meta: frame 0 = cast */ }
+        if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n, castFrame, prov,
           extension: webpReady ? "webp" : "png",
           revision: String(statSync(existsSync(join(d, "meta.json")) ? join(d, "meta.json") : d).mtimeMs) };
       }
