@@ -52,6 +52,9 @@ public interface IDisplayEntityGateway {
         offset: Vec3,
     ): DisplayHandle? = null
 
+    /** Whether this live display is still riding the requested anchor in the requested world. */
+    public fun isAttached(handle: DisplayHandle, anchor: PlayerId, world: WorldId): Boolean = false
+
     /** Removes a display; unknown / already removed handles are ignored. */
     public fun remove(handle: DisplayHandle)
 

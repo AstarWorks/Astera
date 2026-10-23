@@ -59,11 +59,11 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "身体側VFXにnative取付と同一アンカーのグループ置換を適用し、地上通過を13/17/20/46tickへ揃えた。別プレイヤーを消さないことを実機確認。frame_024の初出位置ずれと026の短い空白が残る。輪郭・光帯・人物姿勢、しゃがみ時の腕位置、カメラ、持続変身・通常入力も未一致。"
+    "reason": "round27: 同じアンカーの互換Displayを再利用し、再撮影022〜028では方向転換をまたいで爪が継続。旧026の空白は解消。2プレイヤーでUUID維持・色の初期化・新寿命での終了を確認。参照の太い白青曲線、人物姿勢、カメラ、持続変身・通常入力は未一致。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 21,
+  "iterations": 24,
   "report": "/report/edict-blade",
   "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
   "contentRevision": "d5308825960518f28276232438de30b607ad460c6d3cb1ddd11e34042759481c"
