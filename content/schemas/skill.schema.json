@@ -1089,6 +1089,18 @@
                     "required": [
                         "type"
                     ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "target_origin"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
                 }
             ]
         },

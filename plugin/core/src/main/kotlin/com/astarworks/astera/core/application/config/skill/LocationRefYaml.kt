@@ -32,6 +32,12 @@ public sealed class LocationRefYaml {
     }
 
     @Serializable
+    @SerialName("target_origin")
+    public data object TargetOrigin : LocationRefYaml() {
+        override fun toDomain(): LocationRef = LocationRef.TargetOrigin
+    }
+
+    @Serializable
     @SerialName("origin")
     public data object Origin : LocationRefYaml() {
         override fun toDomain(): LocationRef = LocationRef.Origin

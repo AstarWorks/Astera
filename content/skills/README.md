@@ -141,6 +141,8 @@ direction: { kind: toward_caster }                       # pull inward
   Children using `{ type: target }` retain that entity through delays/repeats even if another enemy becomes nearer.
   Children stop firing while the selected entity is dead, absent or in a different world. The caster/origin remain unchanged.
   Child geometric targeters still select normally; use `target` for the bound entity. A repeating wrapper selects anew on each wrapper firing.
+  Location `{ type: target_origin }` refers to that entity's position/world when the wrapper selected it, and stays fixed as it moves.
+  It is unavailable outside a target-bound context. Teleport offsets from it are absolute choreography, with no automatic collision clearance.
   This does not make `cast_skill` inherit a target: its current platform wiring ignores the targeter/context target.
 - `params.damage` of `melee` / `aoe` honours `per_stack` like `damage` mechanics. `resist.<attribute>` applies to unarmored players too.
 - VFX (`content/vfx/*.yaml`): `end_tick` is ABSOLUTE for every formation slot (staggered slots live shorter); `slot_lifetime_ticks` gives each slot

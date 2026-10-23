@@ -904,8 +904,8 @@ public class MechanicDispatcher(
             is Mechanic.ForEachTarget -> {
                 val targets = living(targeterResolver.resolvePlayers(mechanic.targets, ctx)).distinct()
                 for (target in targets) {
-                    val targetWorld = poseLookup?.poseOf(target)?.world ?: continue
-                    dispatch(mechanic.mechanics, ctx.copy(targetId = target, boundTargetWorld = targetWorld))
+                    val targetPose = poseLookup?.poseOf(target) ?: continue
+                    dispatch(mechanic.mechanics, ctx.copy(targetId = target, boundTargetWorld = targetPose.world, boundTargetOrigin = targetPose.position))
                 }
             }
 
@@ -1055,6 +1055,7 @@ public class MechanicDispatcher(
     private fun resolveLocation(location: LocationRef, ctx: MechanicContext): ResolvedLocation? = when (location) {
         LocationRef.Caster, LocationRef.Origin -> ResolvedLocation(ctx.origin, ctx.worldId)
         LocationRef.Target -> ctx.targetId?.let { ResolvedLocation(targeterResolver.targetLocation(ctx), ctx.worldId) }
+        LocationRef.TargetOrigin -> ctx.boundTargetOrigin?.let { ResolvedLocation(it, ctx.boundTargetWorld) }
         is LocationRef.Absolute -> ResolvedLocation(location.position, location.world)
         is LocationRef.Offset -> {
             val base = resolveLocation(location.from, ctx) ?: return null
@@ -1107,6 +1108,7 @@ public data class MechanicContext(
     public val targetId: PlayerId? = null,
     /** ForEachTarget children stop if the bound entity dies, disappears or changes world. */
     public val boundTargetWorld: WorldId? = null,
+    public val boundTargetOrigin: Vec3? = null,
     public val origin: Vec3,
     public val worldId: WorldId? = null,
     public val depth: Int = 0,
