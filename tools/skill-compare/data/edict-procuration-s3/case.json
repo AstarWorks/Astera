@@ -59,12 +59,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "専用S3を直接発動して2回撮影。往復・跳躍・着地・左側からの標的上の連撃を確認。開始の囲いとカメラを修正。爪の持続・形、後半の光線、黒白フラッシュ、人物姿勢、カメラと接触時刻は未一致。持続変身・通常入力未接続。"
+    "reason": "着地後の短い爪と遠距離連撃中の背後の腕を追加。空中用の寿命と追従補間を撮影比較し、試作3tick。反転直後の身体と爪の位置ずれ・重なりが残る。形・姿勢・光線・画面効果・カメラも未一致。通常入力・持続変身未接続。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 2,
+  "iterations": 7,
   "report": "/report/edict-blade",
   "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
-  "contentRevision": "efa7034ade80e18247ec240b2141e4cb0a14e885225fc59a4654ea84ccc0c09a"
+  "contentRevision": "7d9828d9a50b08e5a1831d7469be861aad2f273189cb387151aaa6016f038f57"
 }

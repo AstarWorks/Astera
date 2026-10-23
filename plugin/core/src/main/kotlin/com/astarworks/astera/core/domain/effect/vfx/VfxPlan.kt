@@ -15,6 +15,7 @@ public data class VfxPlan(
     public val durationTicks: Int,
     public val follow: Boolean,
     public val elements: List<VfxElementPlan>,
+    public val followTeleportTicks: Int? = null,
 ) {
     /** Number of display entities the plan spawns (particle slots spawn none). */
     public val displayCount: Int get() = elements.count { it.kind !is VfxElementKind.Particle }

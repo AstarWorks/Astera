@@ -164,7 +164,7 @@ public class VfxPlayer(
         if (plan.follow && anchor != null) {
             anchor()?.let { instance.position = it }
             for (state in instance.elements) {
-                if (!state.selfMoving) state.handle?.let { displays.teleport(it, instance.position + state.offset, 0f, 0f, FOLLOW_TELEPORT_TICKS) }
+                if (!state.selfMoving) state.handle?.let { displays.teleport(it, instance.position + state.offset, 0f, 0f, plan.followTeleportTicks ?: FOLLOW_TELEPORT_TICKS) }
             }
         }
         for (state in instance.elements) {
@@ -180,7 +180,7 @@ public class VfxPlayer(
                     u.style?.let { displays.setTextStyle(handle, it.backgroundArgb, it.textOpacity, it.textRgb) }
                     u.position?.let {
                         state.offset = it
-                        displays.teleport(handle, instance.position + it, 0f, 0f, u.interpolationTicks.coerceIn(0, MAX_TELEPORT_TICKS))
+                        displays.teleport(handle, instance.position + it, 0f, 0f, (if (plan.follow) plan.followTeleportTicks else null) ?: u.interpolationTicks.coerceIn(0, MAX_TELEPORT_TICKS))
                     }
                     displays.update(handle, u.transform, u.interpolationTicks)
                 }

@@ -70,7 +70,7 @@ public object VfxTimeline {
         val slots = def.elements.flatMapIndexed { index, element ->
             planElement(def, element, index, anchor.rotation, seed, scale, sprites)
         } + def.rigs.flatMap { VfxRigPlanner.plan(def, it, anchor.rotation, scale, freezes) }
-        return VfxPlan(anchor.origin, def.durationTicks, def.follow, slots.sortedBy { it.spawnTick })
+        return VfxPlan(anchor.origin, def.durationTicks, def.follow, slots.sortedBy { it.spawnTick }, def.followTeleportTicks)
     }
 
     // ---- element ---------------------------------------------------------------
