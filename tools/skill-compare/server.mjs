@@ -20,6 +20,7 @@ export function makeHandler(opts = {}) {
   const vfxShotDir = opts.vfxShotDir ?? process.env.SKILL_COMPARE_VFX_SHOT ?? join(repo, "build", "vfx-shot");
   const S = makeSources({ root, repo, vfxShotDir, mediaDirs: opts.mediaDirs, worktrees: opts.worktrees ?? true });
   const vfxFind = S.vfxFind;
+  const publishedDir = opts.publishedDir ?? process.env.SKILL_COMPARE_PUBLISHED ?? join(repo, "build", "skill-compare-published");
   const viewerDir = opts.viewerDir ?? join(repo, "tools", "skill-viewer", "build", "skill-frames");
   const tracesDir = opts.tracesDir ?? join(repo, "tools", "game-sim", "build", "sim-traces");
 
@@ -41,6 +42,18 @@ export function makeHandler(opts = {}) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return info;
     for (const view of ["compare", "input", "caster", "opponent", "side"]) {
+      const pointer = join(publishedDir, skill, view, "current.json");
+      if (existsSync(pointer)) {
+        try {
+          const { revision, extension, meta } = readJson(pointer);
+          if (!/^[a-f0-9]{64}$/.test(revision) || meta.captureQuality?.invalid ||
+              (referenceRevision && meta.referenceRevision !== referenceRevision) ||
+              (contentRevision && meta.contentRevision !== contentRevision)) continue;
+          info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`,
+            count: meta.frames, castFrame: Math.round((meta.cast_tick_ms ?? 0) / 50), extension, revision };
+        } catch { /* Never fall back to a partially overwritten source after publication. */ }
+        continue;
+      }
       const base = vfxFind(skill, view);
       const d = base && join(base, skill, view);
       if (base) {
@@ -170,6 +183,11 @@ export function makeHandler(opts = {}) {
       return inside(cdir, f) ? file(f, "image/jpeg") : err(400, "bad path");
     }
     if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|input|caster|opponent|side)\/(frame_\d{3,4}\.(?:png|webp))$/.exec(p))) {
+      const revision = new URL(req.url).searchParams.get("v");
+      if (/^[a-f0-9]{64}$/.test(revision || "")) {
+        const f = join(publishedDir, m[1], m[2], revision, m[3]);
+        return file(f, f.endsWith("webp") ? "image/webp" : "image/png");
+      }
       const base = vfxFind(m[1], m[2]) ?? vfxShotDir;
       const f = join(base, m[1], m[2], m[3]);
       return inside(base, f) ? file(f, f.endsWith("webp") ? "image/webp" : "image/png") : err(400, "bad path");
