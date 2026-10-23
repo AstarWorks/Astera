@@ -229,22 +229,100 @@ def contact(f, c, ticks):
             f.at("spark-up", "spark-up", tick, off(c, 0.05 - 0.15 * i, 0.05, -0.05))
 
 
+# ---------------------------------------------------------------------------------------------------------
+# r11: hit 1 rides the r10 rig (animation-notes Round 10): a tilted HORIZONTAL sweep whose tip stays on the plane
+# y = 1.15 + tan(20) z. Tip position = the tip circle about (-0.35, 1.15, 0) at horizontal angle alpha (0 = left, 90 =
+# forward, 180 = right; alpha = 90 - phi): skill 6 181.2, 7 134.8, 8 93.5 (contact, frozen 8-10), 11 45.2, 12 -3.3. The root
+# moves, so the old fixed-pivot slerp (on_blade) no longer applies to hit 1 (H1_KEYS stays only as the r9 record). Same alpha
+# as the display core's ring smear (bastion_s1_sprites.SWEEPS["hring"]); h1_point can clamp to its edge (inset) or ride the
+# blade radius (inset None).
+# ---------------------------------------------------------------------------------------------------------
+import sys  # noqa: E402
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import numpy as _np  # noqa: E402
+from bastion_s1_sprites import ring_radius as _ring_radius  # noqa: E402
+
+H1_ALPHA = {6: 181.2, 7: 134.8, 8: 93.5, 9: 93.5, 10: 93.5, 11: 45.2, 12: -3.3}
+H1_C = (-0.35, 1.15, 0.0)
+_T20 = math.tan(math.radians(20.0))
+_RA, _RR = _ring_radius("hring")
+
+
+def h1_alpha(tick):
+    ks = sorted(H1_ALPHA)
+    tick = min(max(tick, ks[0]), ks[-1])
+    for a, b in zip(ks, ks[1:]):
+        if a <= tick <= b:
+            return H1_ALPHA[a] + (H1_ALPHA[b] - H1_ALPHA[a]) * (tick - a) / (b - a)
+    return H1_ALPHA[ks[-1]]
+
+
+def clear_runs(f, name, pid, fx0, pts, step, eye):
+    """ride() over each run of points that are themselves clear of both camera keep-outs."""
+    run, t0 = [], fx0
+    for i, q in enumerate(pts + [None]):
+        ok = q is not None and math.dist(q, eye) >= EYE_KEEP and math.dist(q, CASTER_EYE) >= NEAR
+        if ok:
+            if not run:
+                t0 = fx0 + i
+            run.append(q)
+        elif run:
+            ride(f, name, pid, t0, run, step, eye)
+            run = []
+
+
+def h1_point(tick, r, inset):
+    """Point on the r10 tip plane at horizontal radius min(r, ring outer edge - inset) for (fractional) skill tick."""
+    al = h1_alpha(tick)
+    rr = r if inset is None else min(r, float(_np.interp(al, _RA, _RR)) - inset)  # None: on the blade, not the smear
+    x, z = H1_C[0] + rr * math.cos(math.radians(al)), rr * math.sin(math.radians(al))
+    return (x, H1_C[1] + _T20 * z, z)
+
+
 def hit1():
     f = Fx("s1h1")
-    # contact (fx 4 = skill 8): blade phi 6, pitch -15, tip y 0.11 at z 2.74 (under/behind the target). Sparks sit on the
-    # contact blade at r 1.85 = (-0.16, 0.29, 2.06), 1.38 from the opponent eye, 2.1 from the caster eye.
-    c = on_blade(H1_KEYS, 8, 1.85)
-    spark_path(f, H1_KEYS, H1_DELAY, 2, 6, H1_EYE)  # fx 2 (skill 6, chop from the top) -> contact -> 2 ticks of drag
-    contact(f, c, (4, 5, 6))
-    # display particles: gold glint stars flung up-left / up-right and back (away from the opponent eye), dark slivers
-    # flung up and back. Spawned 0.25 above the contact (knee 0.5 reached on the first tick), life <= 6.
-    s = off(c, 0, 0.25, -0.1)
+    # blade path (electric_spark flicks thrown along the swing tangent): skill 6 -> 8 (the sweep into contact) and 10 -> 12
+    # (the follow-through after the hit-stop; the frozen contact ticks get the contact cluster instead). Lines: the tip (r 2.45)
+    # and a half-tick lagging inner line (r 2.05) that fills the chord sag. Chords that would cut a camera keep-out are split by
+    # ride().
+    # The ring's front (pulled back to z ~1.45 for the opponent eye) is also ~1.5 from the caster eye, so front points and
+    # chords fail one keep-out or the other: those are dropped (clear_runs) and the front is covered by the contact cluster.
+    # A third, leading line (+0.4 tick, r 2.6) thickens the sides. The lines follow the BLADE radius (tip 2.45), not the
+    # smear's pulled-in front, so the follow-through flicks stay on the tip where the ring is drawn inside it.
+    for fx0, fx1 in ((2, 4), (6, 8)):
+        for r, inset, lag, step in ((2.45, None, 0.0, 0.4), (2.05, None, 0.5, 0.45), (2.6, None, -0.4, 0.5)):
+            pts = [h1_point(t + H1_DELAY - lag, r, inset) for t in range(fx0, fx1 + 1)]
+            clear_runs(f, "trail-spark", "trail-spark", fx0, pts, step, H1_EYE)
+    # contact (fx 4 = skill 8, blade frozen 8-10): the tip (-0.50, 2.04, 2.44) is past the opponent eye, so the cluster sits on the
+    # contact blade at 45% c = (-0.44, 1.54, 1.59) (= the display core's flash H1_HIT): 0.93 from the opponent eye, 1.65 from the
+    # caster eye. Front of both cameras: the band between them (z 1.55-1.6) is the only spot clear of both keep-outs.
+    c = (-0.44, 1.54, 1.59)
+    # cut flicks: a 2-key path along the cut (toward the caster's left, +x, the sweep direction) gives `along_tangent` a
+    # direction; staggered fx 4 / 5 / 6, each from a different point on the blade
+    # (just under the blade, y 1.25-1.4, so the flicks cross the eye line 0.9+ below/behind the opponent eye)
+    for i, (tick, o) in enumerate(((4, (-0.06, -0.29, -0.04)), (5, (-0.12, -0.17, -0.12)), (6, (0.0, -0.22, 0.02)))):
+        p0 = off(c, *o)
+        f.add("cut-spark", "trail-spark", tick, tick + 2, [p0, off(p0, 0.4, 0.02, 0.0)], along=True, step=0.13)
+    # bursts from behind the contact (outward 1.4: ~0.7-1.0 block; 1.3 from the opponent eye) and up-flicks (rise <= 0.75)
+    b = (-0.75, 1.4, 1.45)
+    for i, tick in enumerate((4, 5, 6)):
+        f.at("spark-burst", "spark-burst", tick, off(b, (0.1, -0.1, 0.0)[i], 0.06 * i, -0.05 * i))
+    for i, tick in enumerate((4, 5)):
+        f.at("spark-up", "spark-up", tick, off(c, 0.05 - 0.15 * i, 0.05, 0.05))
+    # sprite display particles: gold glint stars flung up-left / up-right and back (away from the opponent eye), dark slivers
+    # up and back, from just above the contact cluster; life <= 6, all above the knee (y >= 1.3)
+    s = off(c, 0, 0.15, -0.1)
     f.els.append(emitter("s1h1-p-glints-l", "bastion-s1-glint", GLINT_TINT, 4, s, 4, 2, (0.24, 0.34), "custom[1, 1.1, -0.3]", 30,
                          0.03, 0.12, (3, 5), (0.09, 0.13), GLINT_SOL, 25))
     f.els.append(emitter("s1h1-p-glints-r", "bastion-s1-glint", GLINT_TINT, 4, s, 4, 2, (0.24, 0.34), "custom[-1, 1.1, -0.3]", 30,
                          0.03, 0.12, (3, 5), (0.09, 0.13), GLINT_SOL, -25))
     f.els.append(emitter("s1h1-p-slivers", "bastion-s1-sliver", SLIVER_TINT, 4, off(s, 0, 0, -0.1), 5, 3, (0.2, 0.28),
                          "custom[0, 1, -0.8]", 50, 0.03, 0.08, (4, 6), (0.08, 0.12), SLIVER_SOL, 40))
+    # r11: glints shed off the blade on the sweep, where the smear head passes: front-right at skill 7 (fx 3) and front-left at
+    # skill 11 (fx 7), flung outward (away from the ring centre) and up; 3 each, staggered over 2 ticks
+    for eid, tick, al_t, dirn in (("s1h1-p-shed-r", 3, 7, "custom[-1, 0.6, 0.6]"), ("s1h1-p-shed-l", 7, 11, "custom[1, 0.6, 0.4]")):
+        f.els.append(emitter(eid, "bastion-s1-glint", GLINT_TINT, tick, h1_point(al_t, 2.45, 0.2), 3, 2, (0.22, 0.32), dirn, 35,
+                             0.03, 0.12, (3, 5), (0.08, 0.12), GLINT_SOL, 30))
     return f
 
 

@@ -66,7 +66,26 @@ cues: []
 #   Knee rule (nothing below y 0.5 after contact + 3): blade-path spark points below the knee only up to fx 5; contact spark calls
 #   after fx 5 start 0.35 higher. Every particle dies <= 6 ticks after spawn (electric_spark 2-3).
 #   Hit-1 timing: H1_DELAY 4 + r9 keys (contact skill 8 = fx 4), fx-relative timing unchanged.
+# Round 11 (particle-artist, rig r10: hit 1 = tilted horizontal sweep, tip on y = 1.15 + tan20 z; display core = gold ring smear
+#   s1h1-ring / -ring-b in that plane). Hit-1 layer re-ridden; hit 2 unchanged. Tip path = circle about (-0.35, 1.15, 0) at
+#   horizontal angle alpha (0 left, 90 forward, 180 right): skill 6 181.2, 7 134.8, 8 93.5 (contact, frozen 8-10), 11 45.2, 12 -3.3.
+#   s1h1-p-trail-spark*  electric_spark along_tangent on the blade path, 3 lines (tip r 2.45, lagging inner r 2.05 -0.5 tick,
+#                        leading r 2.6 +0.4 tick), fx 2-4 (skill 6-8, right side into the front) and fx 6-8 (skill 10-12,
+#                        follow-through round the left); front points/chords inside a camera keep-out are dropped.
+#   s1h1-p-cut-spark*    electric_spark flicks thrown ALONG the cut (+x, the sweep direction) from just under the contact blade,
+#                        fx 4 / 5 / 6, 0.4-block 2-key paths (y 1.25-1.37, z 1.47-1.61).
+#   s1h1-p-spark-burst*  outward burst behind the contact at (-0.75, 1.4, 1.45), fx 4 / 5 / 6.
+#   s1h1-p-spark-up*     up-flicks at the contact (-0.44, 1.54, 1.59) +-, fx 4 / 5.
+#   s1h1-p-glints-l / -r / -slivers  unchanged emitters, spawned at (-0.44, 1.69, 1.49) (contact + 0.15 up): 4 + 4 + 5 displays.
+#   s1h1-p-shed-r / -l   NEW sprite glint emitters on the blade tip where the smear head passes: front-right fx 3 (skill 7),
+#                        front-left fx 7 (skill 11), 3 each (rate 2), flung outward + up, life 3-5.
+#   (the old forward-cone `bastion-s1-p-spark` call is gone from hit 1: at eye height it would fly into the opponent camera)
+#   Clearance (emission points + chords): caster eye >= 1.50, opponent eye >= 0.84 (hit 2 unchanged: 1.39 / 0.71).
+#   Emission per fx tick (def count x path points), hit 1: e2 3, e3 13, e4 12, e5 12, e6 9, e7 6, e8 10 (total 65; r10 39).
+#   Expected visible at once (electric_spark ~2-3 tick life + sprite particles alive):
+#     hit 1: contact skill 8-10 ~26-30 sparks + 10-16 sprite glints/slivers (~40-46 moving particles), follow-through skill 11-12
+#            ~20 sparks + 9-16 sprites; hit 2 (unchanged): contact skill 31-33 ~34-41 sparks + 10-16 sprites (~50-57).
 display_particles:
-  fx-high: {added_displays: 13}   # glints 8 + slivers 5, all alive fx 5-8
+  fx-high: {added_displays: 19}   # glints 8 + slivers 5 + shed 6 (shed-r alive fx 3-8, shed-l fx 7-12)
   fx-low:  {added_displays: 16}   # glints 10 + slivers 6
-display_budget_peak: {fx-high: 29, fx-low: 34}   # sprites 16 / 18 (conservative end-inclusive count) + particles; + rig 22 = 51 / 56 <= 60 per cast
+display_budget_peak: {fx-high: 34, fx-low: 34}   # conservative: fx-high sprites 15 + 19 particles (all lives max) at fx 7-8; + rig 22 = 56 <= 60
