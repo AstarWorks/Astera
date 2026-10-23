@@ -21,7 +21,7 @@ The cwd/path is NOT used to decide. Hook errors fail open. Founder override: lau
 |---|---|
 | `/tmp/claude-1000/**` (scratchpad) | prompts, temp files |
 | `/home/node/.claude-accounts/*/**/memory/**` | memory |
-| `.claude/state/handoff.md` | handoff is the manager's job |
+| `.claude/state/handoffs/*.md` (under any checkout/worktree root) | per-stream handoff is the manager's job |
 | `/dev/null`, `/dev/std{out,err}` | redirects |
 
 Everything else (incl. `.claude/CLAUDE.md`, `.claude/settings.json`, hooks, rules) is blocked for Edit/Write/NotebookEdit and for Bash writers.

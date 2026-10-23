@@ -6,6 +6,6 @@ target:
   type: xp_gain
   amount: 400
 reward:
-  currency_id: STAR
+  currency_id: GOLD
   currency_amount: 25
   xp: 50

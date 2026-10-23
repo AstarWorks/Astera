@@ -11,7 +11,7 @@ import java.util.UUID
 
 /**
  * Wave 5e (ADR-0058 §5) IT: round-trip a player container with mixed values
- * (STAT_KILLS number, WALLET_STAR number, flag, modifier) and verify that
+ * (STAT_KILLS number, WALLET_GOLD number, flag, modifier) and verify that
  * a *fresh* store instance against the same database reads back equivalent
  * state. Testcontainers-gated by [PostgresIntegrationTestBase].
  */
@@ -24,7 +24,7 @@ public class PostgresPlayerAttributeContainerIT : PostgresIntegrationTestBase() 
 
         val container = store.containerFor(id)
         container.set(Attributes.STAT_KILLS, AttributeValue.NumberValue(7.0))
-        container.set(Attributes.WALLET_STAR, AttributeValue.NumberValue(1500.0))
+        container.set(Attributes.WALLET_GOLD, AttributeValue.NumberValue(1500.0))
         container.addModifier(
             AttributeModifier(
                 key = Attributes.RESIST_FIRE,
@@ -40,7 +40,7 @@ public class PostgresPlayerAttributeContainerIT : PostgresIntegrationTestBase() 
         val reloaded = freshStore.containerFor(id)
 
         assertThat((reloaded.get(Attributes.STAT_KILLS) as AttributeValue.NumberValue).value).isEqualTo(7.0)
-        assertThat((reloaded.get(Attributes.WALLET_STAR) as AttributeValue.NumberValue).value).isEqualTo(1500.0)
+        assertThat((reloaded.get(Attributes.WALLET_GOLD) as AttributeValue.NumberValue).value).isEqualTo(1500.0)
         val fireMods = reloaded.modifiers().filter { it.key == Attributes.RESIST_FIRE }
         assertThat(fireMods).hasSize(1)
         assertThat(fireMods[0].sourceId).isEqualTo("armor:fire-chest")

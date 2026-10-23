@@ -20,12 +20,12 @@ class PostgresBettingEscrowConcurrencyIT : PostgresIntegrationTestBase() {
         val match = BettingMatch.initiate(
             BettingMatchId.mint(), BettingPolicy.DEFAULT,
             PlayerId(UUID.randomUUID()), PlayerId(UUID.randomUUID()),
-            BetStake(Currency.STAR, 100L), Instant.now(),
+            BetStake(Currency.GOLD, 100L), Instant.now(),
         )
         PostgresBettingMatchRepository(db).save(match)
         val ledger = PostgresCurrencyLedger(db)
-        ledger.credit(match.challengerId, Currency.STAR, 1_000L)
-        ledger.credit(match.opponentId, Currency.STAR, 1_000L)
+        ledger.credit(match.challengerId, Currency.GOLD, 1_000L)
+        ledger.credit(match.opponentId, Currency.GOLD, 1_000L)
         return match
     }
 
@@ -44,13 +44,13 @@ class PostgresBettingEscrowConcurrencyIT : PostgresIntegrationTestBase() {
         val match = match()
         val outcomes = whileWalletLocked(match.challengerId) {
             PostgresBettingEscrowService(db, PostgresCurrencyLedger(db)).hold(
-                match.id, match.challengerId, match.opponentId, Currency.STAR, 100L, Instant.now(),
+                match.id, match.challengerId, match.opponentId, Currency.GOLD, 100L, Instant.now(),
             )
         }
         assertThat(outcomes.count { it is Result.Success }).isEqualTo(1)
         val ledger = PostgresCurrencyLedger(db)
-        assertThat(ledger.balance(match.challengerId, Currency.STAR)).isEqualTo(900L)
-        assertThat(ledger.balance(match.opponentId, Currency.STAR)).isEqualTo(900L)
+        assertThat(ledger.balance(match.challengerId, Currency.GOLD)).isEqualTo(900L)
+        assertThat(ledger.balance(match.opponentId, Currency.GOLD)).isEqualTo(900L)
     }
 
     @Test
@@ -58,13 +58,13 @@ class PostgresBettingEscrowConcurrencyIT : PostgresIntegrationTestBase() {
         val match = match()
         val ledger = PostgresCurrencyLedger(db)
         val escrow = PostgresBettingEscrowService(db, ledger)
-        escrow.hold(match.id, match.challengerId, match.opponentId, Currency.STAR, 100L, Instant.now())
+        escrow.hold(match.id, match.challengerId, match.opponentId, Currency.GOLD, 100L, Instant.now())
         whileWalletLocked(match.challengerId) {
             PostgresBettingEscrowService(db, PostgresCurrencyLedger(db))
                 .releaseToWinner(match.id, match.challengerId, 1.0, Instant.now())
         }
-        assertThat(ledger.balance(match.challengerId, Currency.STAR)).isEqualTo(1_100L)
-        assertThat(ledger.balance(match.opponentId, Currency.STAR)).isEqualTo(900L)
+        assertThat(ledger.balance(match.challengerId, Currency.GOLD)).isEqualTo(1_100L)
+        assertThat(ledger.balance(match.opponentId, Currency.GOLD)).isEqualTo(900L)
     }
 
     @Test
@@ -72,12 +72,12 @@ class PostgresBettingEscrowConcurrencyIT : PostgresIntegrationTestBase() {
         val match = match()
         val ledger = PostgresCurrencyLedger(db)
         PostgresBettingEscrowService(db, ledger)
-            .hold(match.id, match.challengerId, match.opponentId, Currency.STAR, 100L, Instant.now())
+            .hold(match.id, match.challengerId, match.opponentId, Currency.GOLD, 100L, Instant.now())
         whileWalletLocked(match.challengerId) {
             PostgresBettingEscrowService(db, PostgresCurrencyLedger(db)).refundBoth(match.id, Instant.now())
         }
-        assertThat(ledger.balance(match.challengerId, Currency.STAR)).isEqualTo(1_000L)
-        assertThat(ledger.balance(match.opponentId, Currency.STAR)).isEqualTo(1_000L)
+        assertThat(ledger.balance(match.challengerId, Currency.GOLD)).isEqualTo(1_000L)
+        assertThat(ledger.balance(match.opponentId, Currency.GOLD)).isEqualTo(1_000L)
     }
 
     // Hold the first wallet write until all contenders are waiting in Postgres. Before the fix,

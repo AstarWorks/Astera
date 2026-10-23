@@ -31,9 +31,9 @@ import java.util.concurrent.ConcurrentHashMap
  * (`content/balance/match-rewards.yaml`, F3-4) exactly once, tells them what
  * they got, and records the result for the lobby.
  *
- * Per player: STAR and GOLD go through [DepositUseCase] (reason `MatchReward`),
+ * Per player: GOLD goes through [DepositUseCase] (reason `MatchReward`),
  * XP through [GrantXpUseCase] (source `MatchWin` for a win, `MatchParticipation`
- * otherwise; XP never converts to STAR on top, ADR-0235), then a breakdown goes to chat, the [LastMatchRecord] is saved to the
+ * otherwise; XP never converts to a currency on top), then a breakdown goes to chat, the [LastMatchRecord] is saved to the
  * shared player store, and finally one [MatchRewardsGranted] is published.
  *
  * "Once" is per match: a second [MatchSummaryReady] for the same match id is
@@ -76,7 +76,6 @@ public class GrantMatchRewardsOnSummaryListener(
     }
 
     private fun pay(playerId: PlayerId, planned: MatchRewardResult, matchId: MatchId): MatchRewardResult {
-        credit(playerId, Currency.STAR, planned.star, matchId)
         credit(playerId, Currency.GOLD, planned.gold, matchId)
         val levelService = levels() ?: return planned
         val before = levelService.currentLevel(playerId).value
@@ -114,7 +113,6 @@ public class GrantMatchRewardsOnSummaryListener(
         }
         for (row in result.lines) {
             val amounts = buildList {
-                if (row.star > 0) add(messages.render(playerId, MessageKey("astera.match.reward.amount.star"), mapOf("amount" to row.star.toString())))
                 if (row.gold > 0) add(messages.render(playerId, MessageKey("astera.match.reward.amount.gold"), mapOf("amount" to row.gold.toString())))
                 if (row.xp > 0) add(messages.render(playerId, MessageKey("astera.match.reward.amount.xp"), mapOf("amount" to row.xp.toString())))
             }.joinToString(" ")
@@ -130,7 +128,6 @@ public class GrantMatchRewardsOnSummaryListener(
         }
         send(
             "astera.match.reward.total",
-            "star" to result.star.toString(),
             "gold" to result.gold.toString(),
             "xp" to result.xp.toString(),
         )
@@ -162,7 +159,6 @@ public class GrantMatchRewardsOnSummaryListener(
         assists = line.assists,
         objective = line.objective,
         mvp = line.playerId == summary.mvp,
-        star = result.star,
         gold = result.gold,
         xp = result.xp,
         level = result.levelAfter,

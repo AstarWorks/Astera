@@ -17,8 +17,7 @@ import com.astarworks.astera.core.domain.economy.Currency
  * Per the JP regulatory posture inherited from ADR-0035 (CurrencyPolicy):
  *
  * - Wagering is permitted **only** with in-game currencies that are NOT
- *   redeemable for cash. Currently that means [Currency.STAR] (match-bound)
- *   and [Currency.GOLD] (account-bound). [Currency.GEM] is **forbidden**
+ *   redeemable for cash. Currently that means [Currency.GOLD] (account-bound). [Currency.GEM] is **forbidden**
  *   because it is a paid premium currency; gambling paid currency could be
  *   reclassified as gambling real money under JP law.
  *

@@ -1,6 +1,6 @@
 # Wave 2 R1.a starter: Daily-Kills Norma example.
 #
-# Defines a daily mission ("kill 5 players") that grants STAR currency + XP
+# Defines a daily mission ("kill 5 players") that grants GOLD currency + XP
 # on completion. The Stats plugin emits a MissionCompleted domain event when
 # the target counter reaches `count`; Economy / Level plugins subscribe to
 # grant the reward.
@@ -23,9 +23,9 @@ target:
   count: 5
 
 # Reward granted on completion. currency_id is opaque to Stats — the
-# Economy plugin resolves it (e.g. "STAR", "GOLD"). Omit currency_id for
+# Economy plugin resolves it (e.g. "GOLD", "GEM"). Omit currency_id for
 # XP-only rewards.
 reward:
-  currency_id: STAR
+  currency_id: GOLD
   currency_amount: 50
   xp: 100

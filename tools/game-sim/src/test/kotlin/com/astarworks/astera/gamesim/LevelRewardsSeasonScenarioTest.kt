@@ -40,17 +40,17 @@ class LevelRewardsSeasonScenarioTest {
             assertThat(sim.services.getOrThrow<IPlayerUnlockView>().unlocks(alice.id))
                 .containsExactlyInAnyOrder("title:newcomer", "cosmetic:rising-star")
             assertThat(sim.server.view(alice.id)!!.messages.joinToString("\n"))
-                .contains("Level 2 rewards:", "Level 3 rewards:", "+50 STAR", "+75 STAR")
+                .contains("Level 2 rewards:", "Level 3 rewards:", "+50 GOLD", "+75 GOLD")
             val view = sim.server.view(alice.id)!!
             sim.services.getOrThrow<IGuiIntentRouter>().dispatch(view, GuiIntent("lobby.profile.show"))
             val card = sim.services.getOrThrow<IGuiAdapter>().currentSpec(view)!!
             val unlockIds = card.slots.values.filterIsInstance<GuiSlot.Static>().flatMap { it.lore }
                 .filter { it.key.value == "astera.progression.unlocks.entry" }.map { it.args["id"] }
             assertThat(unlockIds).containsExactlyInAnyOrder("title:newcomer", "cosmetic:rising-star")
-            val settled = ledger.balance(alice.id, Currency.STAR)
+            val settled = ledger.balance(alice.id, Currency.GOLD)
             sim.detachPlayer(alice.id)
             sim.attachPlayer(alice.id, "alice")
-            assertThat(ledger.balance(alice.id, Currency.STAR)).isEqualTo(settled)
+            assertThat(ledger.balance(alice.id, Currency.GOLD)).isEqualTo(settled)
             assertThat(eventsOf<CurrencyChanged>().count { it.reason is CurrencyChangeReason.LevelReward }).isEqualTo(2)
         }
     }

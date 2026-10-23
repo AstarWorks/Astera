@@ -107,7 +107,7 @@ public class PostgresPlayerAttributeContainer(private val db: Database) : IPlaye
                 "payload = jsonb_set(EXCLUDED.payload, '{values}', " +
                 "COALESCE(EXCLUDED.payload -> 'values', '{}'::jsonb) || COALESCE((" +
                 "SELECT jsonb_object_agg(e.key, e.value) FROM jsonb_each(pa.payload -> 'values') e " +
-                "WHERE e.key IN ('wallet.star', 'wallet.gold', 'wallet.gem')), '{}'::jsonb)), " +
+                "WHERE e.key IN ('wallet.gold', 'wallet.gem')), '{}'::jsonb)), " +
                 "updated_at = now()"
     }
 }

@@ -19,9 +19,9 @@ import kotlinx.serialization.Serializable
  * ```yaml
  * days:
  *   - day: 1
- *     reward: { currency: STAR, amount: 10 }
+ *     reward: { currency: GOLD, amount: 10 }
  *   - day: 7
- *     reward: { currency: STAR, amount: 100, items: [welcome-pack] }
+ *     reward: { currency: GOLD, amount: 100, items: [welcome-pack] }
  * ```
  */
 @Serializable

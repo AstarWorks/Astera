@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 /**
- * ADR-0237: sandbag hits, lobby brawls and wild mob kills leave XP, STAR, missions, quests, achievements,
+ * ADR-0237: sandbag hits, lobby brawls and wild mob kills leave XP, GOLD, missions, quests, achievements,
  * stats and the kill feed untouched; a PvP kill between match participants moves them.
  */
 class CombatContextProgressionScenarioTest {
@@ -44,7 +44,7 @@ class CombatContextProgressionScenarioTest {
 
     /** Everything the progression loop could have changed for [id]. */
     private data class Snapshot(
-        val star: Long,
+        val gold: Long,
         val xp: Long,
         val kills: Long,
         val damageDealt: Long,
@@ -60,7 +60,7 @@ class CombatContextProgressionScenarioTest {
         val id = entity.id
         val stats = sim.services.getOrThrow<IPlayerStatsRepository>().find(id)
         return Snapshot(
-            star = sim.services.getOrThrow<ICurrencyLedger>().balance(id, Currency.STAR),
+            gold = sim.services.getOrThrow<ICurrencyLedger>().balance(id, Currency.GOLD),
             xp = sim.services.getOrThrow<ILevelService>().totalXp(id).value,
             kills = stats?.kills ?: 0L,
             damageDealt = stats?.damageDealt ?: 0L,
@@ -138,7 +138,7 @@ class CombatContextProgressionScenarioTest {
     }
 
     @Test
-    fun `a PvP kill between match participants moves stats, XP, missions and the kill feed but pays no STAR`() {
+    fun `a PvP kill between match participants moves stats, XP, missions and the kill feed but pays no GOLD`() {
         scenario("context-match-kill") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
@@ -158,8 +158,8 @@ class CombatContextProgressionScenarioTest {
             assertThat(after.xp).isGreaterThan(before.xp)
             assertThat(after.missions).isNotEqualTo(before.missions)
             assertThat(after.messages).describedAs("kill feed line").isGreaterThan(before.messages)
-            // XP no longer converts to STAR: only the match-end table pays STAR.
-            assertThat(after.star).isEqualTo(before.star)
+            // XP never converts to a currency: only the match-end table pays GOLD.
+            assertThat(after.gold).isEqualTo(before.gold)
         }
     }
 }

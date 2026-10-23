@@ -78,7 +78,7 @@ class GuiIntentCoverageScenarioTest {
             assertThat(texts.map { it.key.value }).contains(
                 "astera.gui.profile-card.level.name",
                 "astera.gui.profile-card.matches.played",
-                "astera.gui.profile-card.wallet.star",
+                "astera.gui.profile-card.wallet.gold",
             )
         }
     }
@@ -101,5 +101,5 @@ class GuiIntentCoverageScenarioTest {
         }
     }
 
-    private fun emptySnapshot() = ProfileCardGuiSpec.Snapshot(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    private fun emptySnapshot() = ProfileCardGuiSpec.Snapshot(1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 }

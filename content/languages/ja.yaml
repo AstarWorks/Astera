@@ -10,7 +10,7 @@
 # and placeholders: {player}, {weapon}, {amount}.
 
 astera:
-  progression.reward.chat: "<gold>レベル {level} 報酬:</gold> +{star} STAR、+{gold} GOLD。解放: {unlocks}"
+  progression.reward.chat: "<gold>レベル {level} 報酬:</gold> +{gold} GOLD。解放: {unlocks}"
   progression.reward.title: "<gold>レベル {level} 報酬を獲得！</gold>"
   progression.unlocks.name: "<gold>解放済みコンテンツ</gold>"
   progression.unlocks.entry: "<gray>{id}</gray>"
@@ -31,7 +31,7 @@ astera:
   proxy.transfer.actionbar: "<yellow>{server} へ移動中...</yellow>"
   economy.insufficient_funds: "<red>残高が足りません。</red>"
   economy.invalid_amount: "<red>無効な数量 <gold>{amount}</gold> です。</red>"
-  economy.invalid_currency: "<red>未知の通貨 <gold>{currency}</gold> です。star / gold / gem から選んでください。</red>"
+  economy.invalid_currency: "<red>未知の通貨 <gold>{currency}</gold> です。gold / gem から選んでください。</red>"
   economy.player_not_found: "<red>プレイヤー <gold>{player}</gold> はオフラインか存在しません。</red>"
   economy.transfer_same_account: "<red>同じアカウントへは送金できません。</red>"
   economy.balance_entry: "<gray>{player} {currency}:</gray> <gold>{amount}</gold>"
@@ -154,7 +154,7 @@ astera:
       match-start: "/astera match start example-arena"
       match-abort: "/astera match abort <id> --confirm"
       match-cancel: "/astera match cancel <id> --confirm"
-      economy-grant: "/astera economy grant Steve star 100"
+      economy-grant: "/astera economy grant Steve gold 100"
       friend-add: "/astera friend add Steve"
       party-invite: "/astera party invite Steve"
       chat-msg: "/astera chat msg Steve こんにちは"
@@ -496,7 +496,6 @@ astera:
         rate: "<gray>勝率: <white>{rate}%</white></gray>"
       wallet:
         name: "<gold>ウォレット</gold>"
-        star: "<gray>スター: <white>{amount}</white></gray>"
         gold: "<gray>ゴールド: <white>{amount}</white></gray>"
         gem: "<gray>ジェム: <white>{amount}</white></gray>"
     friends-list:
@@ -534,7 +533,6 @@ astera:
   # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
   economy:
     currency:
-      star: "<yellow>STAR</yellow>"
       gold: "<gold>GOLD</gold>"
       gem: "<light_purple>GEM</light_purple>"
     shop:
@@ -874,11 +872,10 @@ astera:
       header: "<gold>-- 報酬 --</gold>"
       none: "<gray>今回の試合の報酬はありません。</gray>"
       line: " <gray>{label}</gray> <dark_gray>></dark_gray> {amounts}"
-      total: "<gold><bold>合計</bold></gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      total: "<gold><bold>合計</bold></gold> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
       level: "<aqua>レベル {level}</aqua> <gray>(次のレベルまで {into} / {next} XP)</gray>"
       levelup: "<green><bold>レベルアップ！</bold></green> <white>{from}</white> <gray>-></gray> <white>{to}</white>"
       amount:
-        star: "<yellow>+{amount} STAR</yellow>"
         gold: "<gold>+{amount} GOLD</gold>"
         xp: "<aqua>+{amount} XP</aqua>"
       kind:
@@ -1198,7 +1195,7 @@ astera:
       score: "<gray>スコア:</gray> <white>{scores}</white>"
       you: "<aqua>あなた:</aqua> <white>{kills}</white> <gray>キル</gray>、<white>{deaths}</white> <gray>デス</gray>、<white>{assists}</white> <gray>アシスト</gray>、<white>{objective}</white> <gray>目標</gray>"
       mvp: "<gold>あなたが MVP でした！</gold>"
-      rewards: "<gold>報酬</gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      rewards: "<gold>報酬</gold> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
       level: "<aqua>レベル {level}</aqua> <gray>(次のレベルまで {into} / {next} XP)</gray>"
 
     # Wave 5flex (ADR-0102) — マッチネームプレートのマイルストーン表示。
@@ -1700,7 +1697,7 @@ astera:
     grant_currency:
       root: "<gray>プレイヤーに通貨残高をクレジットします。</gray>"
       player_not_found: "<red>プレイヤー '{player}' はオフラインか存在しません。</red>"
-      unknown_currency: "<red>不明な通貨 '{currency}' です。star / gold / gem を指定してください。</red>"
+      unknown_currency: "<red>不明な通貨 '{currency}' です。gold / gem を指定してください。</red>"
     grant_xp:
       root: "<gray>プレイヤーに XP を付与します。</gray>"
       player_not_found: "<red>プレイヤー '{player}' はオフラインか存在しません。</red>"
@@ -1861,7 +1858,7 @@ astera:
       "match.validate.issues": "<red>{categories} カテゴリ中 <white>{issues}</white> 件の問題があります。</red>"
       "match.validate.line": "<gray> - {issue}</gray>"
       "currency.tile": "<gold>通貨を付与</gold>"
-      "currency.tile.lore": "<gray>star / gold / gem をプリセット額で付与します。</gray>"
+      "currency.tile.lore": "<gray>gold / gem をプリセット額で付与します。</gray>"
       "currency.title": "管理: 通貨付与"
       "currency.preset": "<yellow>+{amount} {currency}</yellow>"
       "currency.granted": "<green><white>{amount} {currency}</white> を付与しました（残高 {balance}）。</green>"
@@ -2251,7 +2248,7 @@ astera:
   tutorial.guide.queue.subtitle: "スポーン横のプレイゲートへ"
   tutorial.guide.queue.hint: "スポーンの隣で光るプレイゲートへ歩き、案内人を右クリックしてモードを選ぶ。コンパスでQを押しても同じ選択画面が開く。"
   tutorial.guide.complete.title: "チュートリアル完了！"
-  tutorial.guide.complete.subtitle: "初回クリア報酬は50 STAR。対戦を楽しもう！"
+  tutorial.guide.complete.subtitle: "初回クリア報酬は50 GOLD。対戦を楽しもう！"
   tutorial.guide.status.paused: "ステップ{step}で停止中。/astera tutorial start で再開。"
   tutorial.guide.status.completed: "完了済み。/astera tutorial start で再プレイ可能（報酬は初回のみ）。"
   command.help.tutorial-skip: "チュートリアルを停止。tutorial startで再開。"

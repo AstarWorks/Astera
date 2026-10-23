@@ -6,15 +6,15 @@ import com.astarworks.astera.core.domain.match.result.PlayerMatchLine
 import com.astarworks.astera.core.domain.match.result.RewardLine
 import com.astarworks.astera.core.domain.match.result.RewardLineKind
 
-/** STAR, GOLD and XP of one reward row. */
-public data class RewardAmounts(val star: Long = 0L, val gold: Long = 0L, val xp: Long = 0L) {
+/** GOLD and XP of one reward row. */
+public data class RewardAmounts(val gold: Long = 0L, val xp: Long = 0L) {
     init {
-        require(star >= 0 && gold >= 0 && xp >= 0) { "reward amounts must be >= 0" }
+        require(gold >= 0 && xp >= 0) { "reward amounts must be >= 0" }
     }
 
-    public operator fun times(count: Int): RewardAmounts = RewardAmounts(star * count, gold * count, xp * count)
+    public operator fun times(count: Int): RewardAmounts = RewardAmounts(gold * count, xp * count)
 
-    public val isZero: Boolean get() = star == 0L && gold == 0L && xp == 0L
+    public val isZero: Boolean get() = gold == 0L && xp == 0L
 
     public companion object {
         public val ZERO: RewardAmounts = RewardAmounts()
@@ -72,11 +72,11 @@ public data class MatchRewardTable(
         modes[modeKey]?.applyTo(default) ?: default
 
     public companion object {
-        /** Used when the YAML is missing or broken: the pre-F3-4 behaviour, 100 STAR to winners. */
+        /** Used when the YAML is missing or broken: the pre-F3-4 behaviour, 100 GOLD to winners. */
         public val FALLBACK: MatchRewardTable = MatchRewardTable(
             default = RewardSet(
                 participation = RewardAmounts.ZERO,
-                win = RewardAmounts(star = 100L),
+                win = RewardAmounts(gold = 100L),
                 lose = RewardAmounts.ZERO,
                 draw = RewardAmounts.ZERO,
                 perKill = RewardAmounts.ZERO,
@@ -120,9 +120,9 @@ public object MatchRewardCalculator {
             add(row(RewardLineKind.OBJECTIVES, line.objective, set.perObjective * line.objective))
             if (isMvp) add(row(RewardLineKind.MVP, 1, set.mvp))
         }
-        return MatchRewardResult(outcome = outcome, lines = rows.filter { it.star > 0 || it.gold > 0 || it.xp > 0 })
+        return MatchRewardResult(outcome = outcome, lines = rows.filter { it.gold > 0 || it.xp > 0 })
     }
 
     private fun row(kind: RewardLineKind, count: Int, amounts: RewardAmounts): RewardLine =
-        RewardLine(kind, count, amounts.star, amounts.gold, amounts.xp)
+        RewardLine(kind, count, amounts.gold, amounts.xp)
 }

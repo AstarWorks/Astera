@@ -11,13 +11,12 @@ public data class LevelRewardsYamlConfig(val levels: Map<Int, LevelRewardYamlCon
 
 @Serializable
 public data class LevelRewardYamlConfig(
-    val star: Long = 0,
     val gold: Long = 0,
     val titles: List<String> = emptyList(),
     val cosmetics: List<String> = emptyList(),
     val items: List<String> = emptyList(),
 ) {
-    public fun toDomain(): LevelReward = LevelReward(star, gold, titles, cosmetics, items)
+    public fun toDomain(): LevelReward = LevelReward(gold, titles, cosmetics, items)
 }
 
 @Serializable

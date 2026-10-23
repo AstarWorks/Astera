@@ -8,7 +8,7 @@ import java.time.Instant
 /**
  * `wallets` table — per-(player, currency) balance ledger. Compound PK.
  *
- * ADR-0020 / Wave 3 (R2). Currency is stored as its enum name (`STAR`/`GOLD`/`GEM`)
+ * ADR-0020 / Wave 3 (R2). Currency is stored as its enum name (`GOLD`/`GEM`)
  * in a TEXT column rather than an enum type so future currencies can be added
  * by Astera plugins without an `ALTER TYPE`. `balance >= 0` is enforced via a
  * CHECK constraint in V3 migration so any DB-direct write also respects the

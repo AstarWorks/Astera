@@ -12,13 +12,12 @@ import com.astarworks.astera.stats.domain.level.XpCurve
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Bridges Norma (mission completion) → Level (advancement) for the README
- * "レベルアップには一定のスター or キルが必要" rule (Wave 5e, RTM
- * `LevelUpMission.kt`).
+ * Bridges Norma (mission completion) → Level (advancement) for the level-up
+ * kill-threshold rule (Wave 5e, RTM `LevelUpMission.kt`).
  *
  * Subscribes [MissionCompleted]. The listener consults
  * [criterionByLevel] (per-player current-level → required mission /
- * threshold) and accumulates per-player counters for KILL / STAR. When
+ * threshold) and accumulates per-player KILL counters. When
  * the criterion at the player's current level is satisfied, the listener
  * grants enough XP via [GrantXpUseCase] to cross the next-level
  * threshold — i.e. it nudges [ILevelService] (the SSOT for level state)
@@ -50,26 +49,15 @@ public class AdvanceLevelOnNormaCompletedListener(
         if (!handled.add(HandledKey(event.playerId, event.normaId.value))) return
 
         val counter = counters.getOrPut(event.playerId) { Counters() }
-        // Classify the completed mission. The reward carries the currency
-        // id — "STAR" currency means a star-collection mission. Otherwise
-        // fall back to NormaTarget shape inference via reward.xp > 0 ≈
-        // not a star mission. For Phase 1 PoC, the explicit currency
-        // check is enough.
-        val classification = classify(event)
-        when (classification) {
-            LevelUpMission.STAR -> counter.stars += starUnits(event.reward.currencyAmount)
-            LevelUpMission.KILL -> counter.kills += 1
-            null -> return
-        }
+        // Every completed mission counts as one KILL-style unit.
+        val classification = LevelUpMission.KILL
+        counter.kills += 1
 
         val level = levelService.currentLevel(event.playerId).value
         val criterion = criterionByLevel[level] ?: return
         if (criterion.mission != classification) return
 
-        val current = when (criterion.mission) {
-            LevelUpMission.STAR -> counter.stars
-            LevelUpMission.KILL -> counter.kills
-        }
+        val current = counter.kills
         if (current < criterion.threshold) return
 
         // Threshold met: grant enough XP to reach the *next* level start.
@@ -82,31 +70,12 @@ public class AdvanceLevelOnNormaCompletedListener(
         grantXp.execute(event.playerId, deficit, XpSource.MissionReward)
 
         // Consume the threshold so the next level's criterion starts from 0.
-        when (criterion.mission) {
-            LevelUpMission.STAR -> counter.stars -= criterion.threshold
-            LevelUpMission.KILL -> counter.kills -= criterion.threshold
-        }
+        counter.kills -= criterion.threshold
     }
-
-    private fun classify(event: MissionCompleted): LevelUpMission? {
-        val cur = event.reward.currencyId
-        return when {
-            cur != null && cur.equals("STAR", ignoreCase = true) -> LevelUpMission.STAR
-            // Heuristic for Phase 1: missions without a STAR currency
-            // reward that fire from kill-based progress are KILL missions.
-            // The NormaTarget shape is not on MissionCompleted, so the
-            // event-payload-only inference uses the reward as the proxy.
-            else -> LevelUpMission.KILL
-        }
-    }
-
-    /** Stars-per-currency-unit. 1:1 in Phase 1; configurable later. */
-    private fun starUnits(currencyAmount: Long): Long = currencyAmount
 
     private data class HandledKey(val playerId: PlayerId, val normaIdValue: String)
 
     private class Counters {
-        @Volatile var stars: Long = 0L
         @Volatile var kills: Long = 0L
     }
 
@@ -116,16 +85,11 @@ public class AdvanceLevelOnNormaCompletedListener(
          * `ConfiguredLevelParameter` once that type carries it; until
          * then the listener uses the constant.
          *
-         * Shape: README "1 → 2 needs 50 stars, 2 → 3 needs 10 kills,
-         * 3 → 4 needs 100 stars, 4 → 5 needs 25 kills, 5 → 6 needs
-         * 200 stars". Aligns with the README "スター or キル" intent.
+         * Shape: 2 → 3 needs 10 kills, 4 → 5 needs 25 kills.
          */
         public val DEFAULT_CRITERION_BY_LEVEL: Map<Int, ConfiguredNormaParameter> = mapOf(
-            1 to ConfiguredNormaParameter(LevelUpMission.STAR, 50),
             2 to ConfiguredNormaParameter(LevelUpMission.KILL, 10),
-            3 to ConfiguredNormaParameter(LevelUpMission.STAR, 100),
             4 to ConfiguredNormaParameter(LevelUpMission.KILL, 25),
-            5 to ConfiguredNormaParameter(LevelUpMission.STAR, 200),
         )
     }
 }

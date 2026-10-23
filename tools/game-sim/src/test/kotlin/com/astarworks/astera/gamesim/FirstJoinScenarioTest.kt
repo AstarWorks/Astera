@@ -12,14 +12,14 @@ import org.junit.jupiter.api.Test
 class FirstJoinScenarioTest {
 
     @Test
-    fun `first join creates the profile and grants the starter STAR once`() {
+    fun `first join creates the profile and delivers the starter weapons once and grants no currency`() {
         scenario("first-join-starter-grant") {
             val ledger = sim.services.getOrThrow<ICurrencyLedger>()
             val newcomer = player("newcomer")
             advance(1)
 
             assertThat(eventsOf<FirstTimeProfileCreated>().map { it.playerId }).containsExactly(newcomer.id)
-            assertThat(ledger.balance(newcomer.id, Currency.STAR)).isEqualTo(150L)
+            assertThat(ledger.balance(newcomer.id, Currency.GOLD)).isZero()
             // The starter weapons (content/balance/starter-grant.yaml) are in the inventory, delivered once.
             assertThat(checkNotNull(sim.server.view(newcomer.id)).givenItems)
                 .containsExactly("knight-sword", "frost-staff")
@@ -29,7 +29,7 @@ class FirstJoinScenarioTest {
             advance(1)
 
             assertThat(eventsOf<FirstTimeProfileCreated>()).hasSize(1)
-            assertThat(ledger.balance(newcomer.id, Currency.STAR)).isEqualTo(150L)
+            assertThat(ledger.balance(newcomer.id, Currency.GOLD)).isZero()
             assertThat(checkNotNull(sim.server.view(newcomer.id)).givenItems).hasSize(2)
         }
     }

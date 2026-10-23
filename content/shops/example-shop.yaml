@@ -1,12 +1,10 @@
 # Lobby shop (default target of the lobby shop NPC, the main-menu tile and
 # `/astera shop`). Every `item` must exist in content/items/ (ShopShippedContentTest).
-# Currency design (docs/game-design/economy/README.md, ADR-0199):
-#   STAR  = the everyday currency, paid by every match (content/balance/match-rewards.yaml)
-#           -> standard weapons, 100-320 STAR (about 2-6 matches each).
-#   GOLD  = scarce prestige currency (quests, advancements, a little per win)
-#           -> the top-tier greatsword / thunder staff, 120-150 GOLD.
-# A new player starts with 150 STAR (content/balance/starter-grant.yaml): the cheapest offer is
-# affordable at once, everything else has to be earned.
+# Currency design (docs/game-design/economy/README.md, ADR-0251):
+#   GOLD  = the one persistent currency, earned from matches (content/balance/match-rewards.yaml),
+#           quests, advancements and the login bonus.
+#           -> standard weapons 100-320 GOLD, the top-tier greatsword / thunder staff 120-150 GOLD.
+# A new player starts with no GOLD: every offer has to be earned.
 # Offers priced at >= 100 need a confirming second click in the GUI (ShopIntentHandler.CONFIRM_AT).
 # Offers iterate in YAML order, 9 per GUI row, 45 per page; the footer row holds paging, the category
 # cycle (when offers declare `category:`), the wallet and the purchase history (ADR-0211).
@@ -20,7 +18,7 @@ offers:
     item: pistol
     category: gun
     price:
-      currency: STAR
+      currency: GOLD
       amount: 120
     stock:
       type: unlimited
@@ -29,7 +27,7 @@ offers:
     item: knight-sword
     category: sword
     price:
-      currency: STAR
+      currency: GOLD
       amount: 100
     stock:
       type: unlimited
@@ -38,7 +36,7 @@ offers:
     item: dagger
     category: sword
     price:
-      currency: STAR
+      currency: GOLD
       amount: 140
     stock:
       type: unlimited
@@ -47,7 +45,7 @@ offers:
     item: frost-staff
     category: staff
     price:
-      currency: STAR
+      currency: GOLD
       amount: 150
     stock:
       type: unlimited
@@ -56,7 +54,7 @@ offers:
     item: fire-staff
     category: staff
     price:
-      currency: STAR
+      currency: GOLD
       amount: 200
     stock:
       type: unlimited
@@ -65,7 +63,7 @@ offers:
     item: shotgun
     category: gun
     price:
-      currency: STAR
+      currency: GOLD
       amount: 260
     stock:
       type: unlimited
@@ -74,7 +72,7 @@ offers:
     item: rifle
     category: gun
     price:
-      currency: STAR
+      currency: GOLD
       amount: 300
     stock:
       type: unlimited
@@ -83,7 +81,7 @@ offers:
     item: verdant-staff
     category: staff
     price:
-      currency: STAR
+      currency: GOLD
       amount: 320
     stock:
       type: unlimited

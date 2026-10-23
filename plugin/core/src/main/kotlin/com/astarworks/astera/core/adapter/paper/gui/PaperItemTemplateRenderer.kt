@@ -81,7 +81,7 @@ public class PaperItemTemplateRenderer(
      * Reactive resolution via [bindingResolver]. Unknown bindings return null
      * → render BARRIER. Wave 5f returns [ResolvedReactiveSlot] so the resolver
      * can override display name / lore / count for numeric bindings
-     * (`player.coins.star`, `player.kills`).
+     * (`player.coins.gold`, `player.kills`).
      */
     private fun resolveReactive(slot: GuiSlot.Reactive, viewer: PlayerId?): ItemStack {
         val resolved = bindingResolver.resolve(slot.binding, viewer)

@@ -30,11 +30,11 @@ public class PostgresCurrencyLedgerIT : PostgresIntegrationTestBase() {
         val lobby = PostgresCurrencyLedger(db)
         val p = id()
 
-        game.credit(p, Currency.STAR, 120)
-        assertThat(lobby.balance(p, Currency.STAR)).isEqualTo(120)
-        lobby.credit(p, Currency.STAR, 5)
-        assertThat(game.balance(p, Currency.STAR)).isEqualTo(125)
-        assertThat(game.wallet(p).balances()).containsEntry(Currency.STAR, 125L)
+        game.credit(p, Currency.GOLD, 120)
+        assertThat(lobby.balance(p, Currency.GOLD)).isEqualTo(120)
+        lobby.credit(p, Currency.GOLD, 5)
+        assertThat(game.balance(p, Currency.GOLD)).isEqualTo(125)
+        assertThat(game.wallet(p).balances()).containsEntry(Currency.GOLD, 125L)
     }
 
     @Test
@@ -60,15 +60,15 @@ public class PostgresCurrencyLedgerIT : PostgresIntegrationTestBase() {
         val p = id()
 
         // The lobby loads the player (wallet 10) and keeps the container cached.
-        gameLedger.credit(p, Currency.STAR, 10)
+        gameLedger.credit(p, Currency.GOLD, 10)
         val cached = lobbyStore.containerFor(p)
-        assertThat((cached.get(Attributes.WALLET_STAR) as AttributeValue.NumberValue).value).isEqualTo(10.0)
+        assertThat((cached.get(Attributes.WALLET_GOLD) as AttributeValue.NumberValue).value).isEqualTo(10.0)
 
         // The game server pays out a match reward, then the lobby saves an unrelated stat.
-        gameLedger.credit(p, Currency.STAR, 100)
+        gameLedger.credit(p, Currency.GOLD, 100)
         cached.set(Attributes.STAT_KILLS, AttributeValue.NumberValue(3.0))
 
-        assertThat(lobbyLedger.balance(p, Currency.STAR)).`as`("money survives a stale whole-document write").isEqualTo(110)
+        assertThat(lobbyLedger.balance(p, Currency.GOLD)).`as`("money survives a stale whole-document write").isEqualTo(110)
         val fresh = PostgresPlayerAttributeContainer(db).containerFor(p)
         assertThat((fresh.get(Attributes.STAT_KILLS) as AttributeValue.NumberValue).value).isEqualTo(3.0)
     }

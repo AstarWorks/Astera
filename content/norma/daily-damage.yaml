@@ -6,6 +6,6 @@ target:
   type: damage
   amount: 1500
 reward:
-  currency_id: STAR
+  currency_id: GOLD
   currency_amount: 30
   xp: 60

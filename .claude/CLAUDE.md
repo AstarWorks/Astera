@@ -126,7 +126,7 @@ SSOT.
 **Hand off, don't ask to hand off.** When you checkpoint / pause / hit an
 incomplete or blocked state — or whenever you'd ask the user "should I
 continue or stop / fresh-session this?" or "残りも進める？" — **do not
-ask**. Refresh `.claude/state/handoff.md` immediately so the user has a
+ask**. Refresh your stream's handoff (`.claude/state/handoffs/<stream>.md`) immediately so the user has a
 paste-ready next-session prompt, then state what shipped and what's next
 in chat. Asking about **requirements / intent** is right; making the
 user instruct a mechanical next-action you can just produce (the handoff,
@@ -134,7 +134,7 @@ the continue/stop call) is not. Never leave the user as the thing that
 has to act next when you can produce the artifact. (Mirrors AstarManagement
 CLAUDE.md §"Hand off, don't ask to hand off".)
 
-**Always write `.claude/state/handoff.md`** when any substantive work
+**Always write your stream's handoff `.claude/state/handoffs/<stream>.md`** when any substantive work
 happened this session (≥1 commit, ≥1 wave shipped, ≥1 non-trivial
 decision, or significant state change like a push / merge / branch
 cleanup). The user explicitly does not want to manually hand context
@@ -158,7 +158,24 @@ Trigger automatically:
 
 ### File location
 
-Single file, **overwritten** each handoff: `.claude/state/handoff.md`.
+One file **per work stream**, overwritten each handoff:
+`.claude/state/handoffs/<stream>.md`, relative to the stream worktree root.
+`<stream>` is a short kebab-case slug of the work stream (e.g.
+`limbus-skill-team`, `vanilla-material`). Only sessions of that stream
+overwrite its file; a session never edits another stream's file.
+
+**Streams are isolated by worktree.** Every parallel stream runs from its own
+git worktree, e.g. `git worktree add /IdeaProjects/Astera-<stream> -b wp/<stream> origin/main`,
+and its sessions are launched from that directory, so each stream has its own
+`.claude/` (agents, hooks, state). Merge to main with `git push origin HEAD:main`
+from the stream worktree. The primary checkout `/IdeaProjects/Astera` is not
+used for stream work.
+
+**Session start:** read only your stream's handoff. If the user did not name a
+stream, list `.claude/state/handoffs/` and ask, or infer from the cwd/branch.
+
+The Resume prompt must state the directory to launch the next session in and
+the handoff file path.
 
 (No git-track. `.claude/state/` is already gitignored per Astera convention.
 History lives in commits + ADRs; handoff is a moving snapshot for the *next*
@@ -167,9 +184,10 @@ session's entry point, not an archive.)
 ### Required sections (keep tight — this gets pasted as a prompt)
 
 ```markdown
-# Session handoff — <ISO date>
+# Session handoff — <stream> — <ISO date>
 
 ## Where we left off
+- stream: `<stream>`, worktree dir `<abs path>`, branch `wp/<stream>`
 - main HEAD: `<short-sha>` "<commit subject>"
 - Unpushed: N commits
 - Build: ./gradlew check <green | failing on X>
@@ -195,7 +213,7 @@ ROADMAP cross-deps + any user-stated future intent this session.)
 ## Resume prompt
 Paste-ready, one paragraph, addressed to next-session Claude:
 
-> 前 session で <X / Y / Z> を ship 済み (main HEAD `<sha>`)。
+> `<abs worktree dir>` で起動 (handoff: `.claude/state/handoffs/<stream>.md`)。前 session で <X / Y / Z> を ship 済み (main HEAD `<sha>`)。
 > 残り priority: <#1 from Pending>。<one-line context the next session
 > needs to act without re-reading: which ports / which ADR allowlist
 > entry / which plugin>. `.claude/CLAUDE.md` の Session bootstrap +

@@ -44,11 +44,11 @@ class ProgressionLoopScenarioTest {
         scenario("progression-login-bonus") {
             val alice = player("alice")
             val ledger = sim.services.getOrThrow<ICurrencyLedger>()
-            val before = ledger.balance(alice.id, Currency.STAR)
+            val before = ledger.balance(alice.id, Currency.GOLD)
 
             advance(110)
 
-            assertThat(ledger.balance(alice.id, Currency.STAR)).isEqualTo(before + 10L)
+            assertThat(ledger.balance(alice.id, Currency.GOLD)).isEqualTo(before + 10L)
             assertThat(eventsOf<LoginBonusClaimed>().single().streakDays).isEqualTo(1)
             val streak = sim.services.getOrThrow<ILoginBonusService>().streakOf(alice.id)!!
             assertThat(streak.streakDays).isEqualTo(1)
@@ -57,7 +57,7 @@ class ProgressionLoopScenarioTest {
 
             // A second claim the same day pays nothing.
             advance(200)
-            assertThat(ledger.balance(alice.id, Currency.STAR)).isEqualTo(before + 10L)
+            assertThat(ledger.balance(alice.id, Currency.GOLD)).isEqualTo(before + 10L)
         }
     }
 
