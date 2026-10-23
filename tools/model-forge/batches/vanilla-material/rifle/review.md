@@ -1,94 +1,100 @@
-# Vanilla materials — rifle
+# Rifle palette restoration (ADR-0251)
 
-All 137 cuboids retain their names, geometry, rotations and display transforms.
-No splits are needed. Only material references and face UVs change; there are no
-custom PNGs and no copied Mojang textures.
+Restored the original `36743b70` rifle's blue-black steel, silver-blue barrel and
+fittings, warm brown stock/forearm and lime lens/identity stripe. `before.png`
+is the Forge render of that revision's original atlas. Current HEAD geometry and
+display are imported separately: all 137 cuboids, element order, names, bounds,
+rotations and display transforms remain exactly unchanged. Only materials, UVs
+and constant face tints change. No texture PNGs are installed or exported.
 
-| Parts | Catalog material |
-|---|---|
-| Stock, stock neck, cheek comb, forearm | `wood.stripped_dark_oak_log` |
-| Forearm fluting | `wood.stripped_spruce_log` |
-| Receiver, magazine, scope bodies, guard, trigger, rail, muzzle shroud | `metal.netherite_block` |
-| Barrel | `metal.anvil` |
-| Receiver bevels, screws/fasteners, barrel collars, scope clamps, grip ribs, forearm edges, lens retaining lip | `metal.iron_block` |
-| Grip, buttpad, buttplate ribs | `cloth.black_wool` |
-| Scope lens and exposed lens center | `gem.emerald_block` |
-| Receiver identity stripe | `metal.oxidized_copper` |
-| Ejection recess, muzzle face and ports | `concrete.black_concrete` |
+| Original atlas region / parts | Vanilla pattern | Tint |
+|---|---|---|
+| Blue-black receiver, magazine, scope bodies, rail, guard and collars | `metal.iron_block` | `#293442` |
+| Silver-blue barrel, bevels, muzzle shroud, plates, fasteners, scope clamps/turret, grip/magazine ribs and lens lip | `metal.iron_block` | `#8ba4ba` |
+| Walnut stock, heel, neck, cheek comb, forearm, fluting and forearm edges | `wood.stripped_oak_log` | `#b98276` |
+| Dark grip, buttpad and buttplate ribs | `cloth.white_wool` | `#293442` |
+| Ejection recess, muzzle face and ports | `concrete.white_concrete` | `#18212c` |
+| Lime lens, exposed lens center, selector and receiver identity stripe | `concrete.white_concrete` | `#83d852` |
 
-`material.apply` uses seed 20261023. All 822 faces retain one vanilla texel per
-model unit (measured 0.9999999999999952–1.0000000000000029). Wood grain follows
-the longest local axis; end faces use native log tops. No density compensation
-for display scaling. Replaying the recipe in a fresh project produced identical
-model JSON and before/after/context PNG bytes.
+The recipe reads each original element's atlas UV quadrant, rather than treating
+all similarly named gun parts alike. This also restores the originally dark
+barrel collars and wooden forearm edges. Bright iron's multiplication yields
+silver-blue steel; light stripped oak retains longitudinal grain while its tint
+makes it walnut brown. Quiet white concrete keeps tiny lime details readable.
+Five deduplicated RGB entries serve all 822 faces. Seed: 20261024.
 
-Opened and reviewed: `before.png`, `after.png` (same eight cameras), `contexts.png`
-(Forge), `player-contexts.jpg` (perspective player, both hands, ground/spin, frame,
-GUI), `angles.jpg` (26 directions with `cameras.json`) and `inventory.png`
-(16/32/64px; 16px is a nearest-neighbor downsample from Forge's minimum 32px).
-The barrel initially used netherite; its varied crops made the thin tube appear
-patchy. Anvil makes that part quieter. The grip initially used wood; the final
-black wrap and iron ribs restore the original dark grip. Green emerald lens and
-oxidized-copper stripe preserve the original green accent role. The dark stock,
-bright collars and long barrel stay distinguishable at 32/64px. At 16px the rifle
-outline survives while small ribs and sight detail disappear.
+## Visual review
 
-Critic/verifier: the stock, barrel and scope silhouettes are unchanged across
-canonical and orbit views; there is no new gap or visible material seam. Both
-perspective hand views point forward and leave the center clear. The original
-first-person transforms show a large stock near the lower edge; retained as
-required. Third person, dropped and frame placement retain the original scale.
-No image-generated concept was supplied; the before image is regression evidence.
+Opened `before.png`, `after.png`, `contexts.png`, `inventory.png`,
+`player-contexts.jpg` and `angles.jpg` (26 orbit directions, saved cameras).
+The original warm wood / cool metal contrast is restored. Bright barrel and
+receiver fittings separate from the blue-black body. Lime accents stay green
+instead of the previous oxidized-copper mint. Wood grain follows long axes;
+no new seams, stretched texels or missing textures are visible. At 32/64px the
+stock, silver barrel and green stripe remain readable. At 16px the wood/steel
+silhouette survives, while tiny green details and ribs are below pixel scale.
+Both hands point forward with the existing screen-center clearance; third
+person, ground/spin and frame retain current placement. Existing cuboid
+intersections were not changed. No separate concept image was supplied.
 
-Validation has zero errors. The original 311 AABB overlap reports, 25 possible
-coplanar contacts and one disconnected-component report are unchanged. Existing
-bevel/facet overlaps remain; this material pass is not a full z-fighting audit.
+## Verification and reproduction
 
-`client.png` was opened and reviewed: the native 26.3 first-person view shows
-resolved wood grain, iron collars/bevels, a quiet anvil barrel, dark scope/body,
-and a mint receiver stripe. The stock fills the lower-right foreground using
-the unchanged transforms. No missing-model cube, stretched barrel texture or
-new visible seam is present. The green objective lens faces away in this view;
-its front is covered by the canonical/orbit boards. `client-log.txt` records no
-missing model/texture, mixed-atlas or duplicate-sprite diagnostics. The offline
-launcher reports expected authentication, unavailable audio and post-effect
-warnings; these do not affect model rendering. The capture used a copy of a
-prepared creative superflat save in the dedicated game directory.
-
-## Reproduction
-
-From the repository root, use fresh project/evidence directories:
+`verification.json` records exact geometry/display preservation, zero validation
+errors, identical export/import, zero exported PNGs and one texel per model unit.
+Original warnings remain: 311 AABB overlaps, 25 possible coplanar contacts and one
+disconnected-component warning. These are conservative pre-existing candidates.
+`operations.json` contains Forge imports, scene inspection, snapshots, material
+batch, before/after boards, measurements, validation, history diff and export.
 
 ```sh
-git show HEAD^:content/models/items/rifle.model.json > /tmp/rifle-before.json
+git show 36743b70:content/models/items/rifle.model.json > build/rifle-original.json
+# Save the current geometry/display input before replay (recipe must not read its own output).
+cp content/models/items/rifle.model.json build/rifle-head.json
 python3 tools/model-forge/batches/vanilla-material/rifle/remake.py \
-  --project build/rifle-reproduction --before /tmp/rifle-before.json
+  --project build/rifle-tint-replay-new --before build/rifle-original.json \
+  --current build/rifle-head.json
 python3 tools/model-forge/context_preview.py --out build/rifle-contexts rifle
 python3 tools/model-forge/context_preview.py --viewer --out build/rifle-viewer rifle
 bun tools/model-forge/review.mjs build/rifle-viewer/viewer.html build/rifle-angles rifle
+./gradlew :tools:resource-pack:buildResourcePack --console=plain
 ```
 
-The viewer embeds cached vanilla pixels and must stay local/ignored. The runtime
-capture script builds a minimal pack from the exact authored model and no PNGs.
-Provide an isolated creative superflat with commands enabled at
-`build/rifle-client/saves/rifle-review`, then run:
+The actual resource-pack builder completed successfully. Its emitted rifle model
+matches the authored model after removing `astera_tints`; its item definition
+contains all five matching `minecraft:constant` tint sources. The capture script
+takes the exact model, item definition and pack metadata from that generated ZIP.
+Local viewers/cache contain vanilla pixels and remain ignored.
+
+## Native capture
 
 ```sh
 flock /tmp/claude-1000/astera-mc-client.lock \
-  python3 tools/model-forge/batches/vanilla-material/rifle/capture-client.py
+  python3 tools/model-forge/batches/vanilla-material/rifle/capture-client.py \
+  --world-source '<isolated creative superflat world directory>'
 ```
 
-It uses the pilot's installed portablemc 26.3 runtime, a unique Xvfb display via
-`-displayfd`, software GL, 1280×720, FOV 70, view bob off and GUI scale 2. The game
-directory contains `rifle`. The held item is
-`minecraft:iron_hoe[minecraft:item_model="astera:rifle"]`. The screenshot is the
-native Xvfb root capture, without resizing or painting.
+The script copies the isolated world into `build/rifle-client`, enables commands
+only in the copy, allocates Xvfb with `-displayfd`, and launches portablemc 26.3
+with llvmpipe at 1280x720. FOV 70, view bob off, GUI scale 2, noon, clear weather,
+peaceful, position 0/-60/0 and yaw/pitch -35/0. The equipped item is
+`minecraft:iron_hoe[minecraft:item_model="astera:rifle"]`. `client.png` is the native
+root-window screenshot, without resizing or painting.
+
+Opened `client.png`: warm walnut stock/forearm, blue-black receiver/scope,
+silver-blue barrel and fittings, lime receiver stripe and a matching hotbar icon
+are visibly rendered by the native client. No missing-texture cube, stretched
+barrel texture or new seam is visible. The objective lens faces away in this
+capture; its green front is covered by the offline front/orbit boards.
+`client-log.txt` records selected actual diagnostics. No model/texture, mixed-atlas
+or tint-loading errors appear. Offline authentication, unavailable audio and the
+post-effect warning are unrelated to this model.
 
 ## Remaining risks / catalog wishes
 
-Quiet blued steel and black leather/rubber would better match the original rifle;
-netherite/anvil and black wool are the closest existing catalog choices. No shared
-catalog change is needed. Existing intersecting bevels remain. Alternate FOVs,
-combat/use animations, shader packs and production pack deployment are outside
-this capture. Production integration checks remain manager/CI work.
-No Gradle, tests, E2E, Docker, external server or push was run.
+Catalog wish: light stripped birch for more neutral tintable wood; the available
+stripped oak pattern works for this walnut palette. No shared catalog edits.
+Constant tints do not emit light; the lens is opaque green. Existing intersecting
+bevels remain. Other native contexts, alternate FOVs, combat/use animations,
+glint/shader packs and deployment remain unverified. Offline lighting is
+illustrative. No unit tests, check/test tasks, E2E, Docker, external server, live
+containers or push were run.
