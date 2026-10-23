@@ -144,13 +144,13 @@ phases:
     vfx_id: edict-procuration-airborne
     delay_ticks:
       type: literal
-      value: 26
+      value: 25
   - type: play_vfx
     targets: *id001
     vfx_id: edict-procuration-airborne
     delay_ticks:
       type: literal
-      value: 32
+      value: 31
   - type: play_vfx
     targets: *id001
     vfx_id: edict-procuration-crossing
