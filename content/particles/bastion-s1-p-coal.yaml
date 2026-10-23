@@ -1,0 +1,10 @@
+# dark chips mixed with the gold (item particle charcoal)
+id: bastion-s1-p-coal
+shape: { kind: point }
+color: { r: 30, g: 24, b: 20 }
+count: 3
+lifetime_ticks: 12
+vanilla_particle: item
+data: { kind: item, item: charcoal }
+velocity: { direction: outward, speed: 0.22, spread_degrees: 0 }
+force: true

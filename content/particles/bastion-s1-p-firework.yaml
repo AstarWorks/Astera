@@ -1,0 +1,9 @@
+# a few long-lived white-gold spark flecks that arc up and fall (firework: v = speed, gravity 0.1, friction 0.91; lives ~2 s, keep count low)
+id: bastion-s1-p-firework
+shape: { kind: point }
+color: { r: 255, g: 236, b: 170 }
+count: 2
+lifetime_ticks: 20
+vanilla_particle: firework
+velocity: { direction: up, speed: 0.2, spread_degrees: 65 }
+force: true
