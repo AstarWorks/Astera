@@ -1,0 +1,353 @@
+[
+  {
+    "op": "import",
+    "args": {
+      "path": "build/orrery-staff/before.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 10
+      }
+    }
+  },
+  {
+    "op": "scene.get",
+    "args": {
+      "fields": [
+        "id",
+        "name",
+        "faces"
+      ]
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 10
+      }
+    }
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "before"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 10
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "before"
+    },
+    "validation": null
+  },
+  {
+    "op": "batch",
+    "args": {
+      "ops": [
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0001"
+            ],
+            "material": "wood.stripped_dark_oak_log",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0002",
+              "e0003",
+              "e0005"
+            ],
+            "material": "metal.iron_block",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0004"
+            ],
+            "material": "stone.polished_blackstone",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0006",
+              "e0007"
+            ],
+            "material": "metal.copper_block",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0008",
+              "e0009",
+              "e0010",
+              "e0011"
+            ],
+            "material": "cloth.black_wool",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "texture.create",
+          "args": {
+            "key": "runes",
+            "size": [
+              16,
+              16
+            ],
+            "color": "#9b411b"
+          }
+        },
+        {
+          "op": "texture.paint",
+          "args": {
+            "key": "runes",
+            "ops": [
+              {
+                "type": "rect",
+                "box": [
+                  6,
+                  0,
+                  9,
+                  15
+                ],
+                "color": "#ffac38"
+              },
+              {
+                "type": "rect",
+                "box": [
+                  7,
+                  0,
+                  8,
+                  15
+                ],
+                "color": "#ffe299"
+              },
+              {
+                "type": "line",
+                "points": [
+                  [
+                    3,
+                    4
+                  ],
+                  [
+                    12,
+                    4
+                  ]
+                ],
+                "color": "#ffcc66",
+                "width": 1
+              },
+              {
+                "type": "line",
+                "points": [
+                  [
+                    3,
+                    11
+                  ],
+                  [
+                    12,
+                    11
+                  ]
+                ],
+                "color": "#ffcc66",
+                "width": 1
+              }
+            ]
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0006",
+            "face": "north",
+            "value": {
+              "texture": "#runes",
+              "uv": [
+                0,
+                0,
+                16,
+                16
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0007",
+            "face": "south",
+            "value": {
+              "texture": "#runes",
+              "uv": [
+                0,
+                0,
+                16,
+                16
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 1,
+        "overlap_aabb": 10
+      }
+    }
+  },
+  {
+    "op": "import",
+    "args": {
+      "path": "/IdeaProjects/Astera/.claude/worktrees/vm-orrery-staff/content/models/items/orrery-staff.model.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 1,
+        "overlap_aabb": 10
+      }
+    }
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "after"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 1,
+        "overlap_aabb": 10
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "gui",
+        "firstperson_righthand",
+        "firstperson_lefthand",
+        "thirdperson_righthand",
+        "thirdperson_lefthand",
+        "ground",
+        "fixed"
+      ],
+      "resolution": 256,
+      "name": "contexts"
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 1,
+        "overlap_aabb": 10
+      }
+    }
+  },
+  {
+    "op": "history.diff",
+    "args": {
+      "a": "before",
+      "b": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "export",
+    "args": {
+      "path": "build/orrery-staff/reproduction-project/export"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 32,
+      "name": "inventory-16"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 32,
+      "name": "inventory-32"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 64,
+      "name": "inventory-64"
+    },
+    "validation": null
+  }
+]

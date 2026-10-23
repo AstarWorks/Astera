@@ -1,0 +1,83 @@
+{
+  "valid": true,
+  "errors": [],
+  "warnings": [
+    {
+      "kind": "coplanar_contact_possible_zfight",
+      "ids": [
+        "e0002",
+        "e0001"
+      ]
+    },
+    {
+      "kind": "overlap_aabb",
+      "ids": [
+        "e0003",
+        "e0001"
+      ]
+    },
+    {
+      "kind": "overlap_aabb",
+      "ids": [
+        "e0004",
+        "e0002"
+      ]
+    },
+    {
+      "kind": "overlap_aabb",
+      "ids": [
+        "e0005",
+        "e0002"
+      ]
+    },
+    {
+      "kind": "overlap_aabb",
+      "ids": [
+        "e0006",
+        "e0005"
+      ]
+    },
+    {
+      "kind": "overlap_aabb",
+      "ids": [
+        "e0007",
+        "e0005"
+      ]
+    },
+    {
+      "kind": "overlap_aabb",
+      "ids": [
+        "e0008",
+        "e0005"
+      ]
+    },
+    {
+      "kind": "overlap_aabb",
+      "ids": [
+        "e0009",
+        "e0005"
+      ]
+    },
+    {
+      "kind": "overlap_aabb",
+      "ids": [
+        "e0010",
+        "e0009"
+      ]
+    },
+    {
+      "kind": "overlap_aabb",
+      "ids": [
+        "e0011",
+        "e0010"
+      ]
+    },
+    {
+      "kind": "overlap_aabb",
+      "ids": [
+        "e0012",
+        "e0011"
+      ]
+    }
+  ]
+}
