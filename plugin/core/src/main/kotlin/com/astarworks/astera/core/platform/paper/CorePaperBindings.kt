@@ -80,6 +80,7 @@ internal class CorePaperBindings(
 
     /** ADR-0179: closed on [shutdown]. */
     private var redisProxyMessenger: com.astarworks.astera.core.adapter.paper.proxy.RedisProxyMessenger? = null
+    private var botRequestGateway: com.astarworks.astera.core.adapter.paper.bots.LettuceBotRequestGateway? = null
     private var bungeeConnector: com.astarworks.astera.core.adapter.paper.proxy.BungeeCordPlayerConnector? = null
 
     /** Retained so [shutdown] can release the HTTP port (Wave _ops). */
@@ -103,6 +104,7 @@ internal class CorePaperBindings(
     private var paperGuiAdapter: PaperGuiAdapter? = null
     private var lobbyMenuKit: com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyMenuKit? = null
     private var lobbyLaneHolograms: com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyLaneHolograms? = null
+    private var playGateHologram: com.astarworks.astera.core.adapter.paper.lobby.PaperPlayGateHologram? = null
 
     fun buildPorts(): CorePlatformPorts {
         // ---- Vendor-neutral abstraction over Paper -----------------------
@@ -245,6 +247,7 @@ internal class CorePaperBindings(
                     messages = services.getOrThrow<IMessageRenderer>(),
                     interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
                     intents = services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>(),
+                    registry = services.get<com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry>(),
                 )
                 bodies.start()
                 npcBodyService = bodies
@@ -388,11 +391,40 @@ internal class CorePaperBindings(
     }
 
     /**
+     * "Play vs bots" (ADR-0248): Redis pub/sub link to the bot runner. Lobby-hosting backends only. A missing
+     * `ASTERA_BOTS_REDIS_URI` / `ASTERA_REDIS_URI` or an unreachable Redis leaves the unavailable default, so the
+     * lobby tells the player that bots are not available instead of pretending.
+     */
+    private fun registerBotRequestGateway(ctx: WiringContext) {
+        if (!serverEnvironment.role.hostsLobby) return
+        val uri = (System.getenv("ASTERA_BOTS_REDIS_URI") ?: System.getenv("ASTERA_REDIS_URI"))?.takeIf { it.isNotBlank() } ?: run {
+            logger.info("Bot requests: no ASTERA_BOTS_REDIS_URI / ASTERA_REDIS_URI; \"Play vs bots\" will report bots unavailable.")
+            return
+        }
+        val gateway = com.astarworks.astera.core.adapter.paper.bots.LettuceBotRequestGateway(
+            redisUri = io.lettuce.core.RedisURI.create(uri),
+            dispatch = { block -> plugin.server.scheduler.runTask(plugin, Runnable { block() }) },
+        )
+        try {
+            gateway.start()
+        } catch (ex: RuntimeException) {
+            logger.warning("Bot request gateway could not connect to $uri (${ex.message}); \"Play vs bots\" unavailable.")
+            return
+        }
+        botRequestGateway = gateway
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway>(
+            gateway,
+            priority = 100,
+        )
+    }
+
+    /**
      * Runs after `CoreWiring.install`: registers the Bukkit listeners and
      * starts the Paper services that need the [JavaPlugin].
      */
     fun afterWiring(ctx: WiringContext, result: CoreWiringResult) {
         messageRenderer = { ctx.services.get<IMessageRenderer>() }
+        registerBotRequestGateway(ctx)
         itemMaterializer = { ctx.services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>() }
         // The single /astera Brigadier tree (ADR-0184): publishes the registry's
         // merged snapshot on Paper's COMMANDS event and re-publishes it when a
@@ -472,6 +504,9 @@ internal class CorePaperBindings(
         // Never let the lobby world fail Core's onEnable (it would disable every Astera plugin).
         runCatching { installLobbyWorld(ctx) }
             .onFailure { logger.log(java.util.logging.Level.SEVERE, "Lobby world setup failed; lobby stays on the main world.", it) }
+        // ADR-0246: sky-island arenas in the void `arenas` world, on backends that host matches.
+        runCatching { installArenaWorld(ctx) }
+            .onFailure { logger.log(java.util.logging.Level.SEVERE, "Arena world setup failed; stages stay hand-built.", it) }
         bukkitEventAdapterTimeTaskHandle = bukkitEventAdapter.start(plugin)
         // ADR-0206: chat lines read `Name » message`, the name in the sender's team colour.
         server.pluginManager.registerEvents(
@@ -524,6 +559,7 @@ internal class CorePaperBindings(
             intents = result.guiIntentRouter,
             mcServer = mcServer,
             visibility = { ctx.services.get<com.astarworks.astera.core.application.gui.ViewerVisibility>() },
+            queued = { id -> ctx.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyQueueState>()?.isQueued(id) ?: false },
             onMenuKey = { id ->
                 val player = mcServer.findPlayer(id)
                 if (player != null && result.guiAdapter.currentSpec(player)?.id?.value == "main-menu") {
@@ -540,6 +576,10 @@ internal class CorePaperBindings(
         )
         server.pluginManager.registerEvents(menuKit, plugin)
         lobbyMenuKit = menuKit
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyKitRefresher>(
+            com.astarworks.astera.core.application.port.outbound.lobby.ILobbyKitRefresher { id -> menuKit.refreshLater(id) },
+            priority = 100,
+        )
         val bus = ctx.services.getOrThrow<IDomainEventBus>()
         ctx.subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { menuKit.refreshAll() }
         ctx.subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) { menuKit.refreshAll() }
@@ -650,12 +690,76 @@ internal class CorePaperBindings(
         server.scheduler.runTask(plugin, create)
     }
 
+    /**
+     * ADR-0246 — sky-island arenas. Only on backends that host matches (`serverRole.hostsMatches`): registers
+     * the Paper [com.astarworks.astera.core.application.port.outbound.IArenaBuilder] and the void-fall kill plane,
+     * and builds every layout stage into its void world once the server finished loading (Paper forbids
+     * `createWorld` at STARTUP, the same constraint as the lobby world).
+     */
+    private fun installArenaWorld(ctx: WiringContext) {
+        if (!ctx.serverRole.hostsMatches) {
+            logger.info("Arena worlds skipped (server role ${ctx.serverRole}).")
+            return
+        }
+        val arena = com.astarworks.astera.core.adapter.paper.arena.PaperArenaWorld(
+            plugin = plugin,
+            stages = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IStageRegistry>() },
+        )
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(
+            arena,
+            priority = 100,
+        )
+        server.pluginManager.registerEvents(
+            com.astarworks.astera.core.adapter.paper.arena.PaperArenaVoidListener(
+                killY = arena::killY,
+                health = { ctx.services.get<IPlayerHealthGateway>() },
+            ),
+            plugin,
+        )
+        val built = java.util.concurrent.atomic.AtomicBoolean(false)
+        val attempts = java.util.concurrent.atomic.AtomicInteger(0)
+        lateinit var create: Runnable
+        create = Runnable {
+            if (!built.compareAndSet(false, true)) return@Runnable
+            try {
+                val (count, total) = arena.installAll()
+                check(count == total) { "only $count of $total arena stage(s) could be built" }
+                logger.info("Arena worlds ready: $count stage(s) built.")
+            } catch (t: Throwable) {
+                if (attempts.incrementAndGet() < MAX_LOBBY_WORLD_ATTEMPTS) {
+                    logger.warning("Arena world creation failed (${t.message}); retrying in 1s.")
+                    built.set(false)
+                    server.scheduler.runTaskLater(plugin, create, 20L)
+                } else {
+                    logger.log(java.util.logging.Level.SEVERE, "Arena world creation failed; matches run on a bare world.", t)
+                }
+            }
+        }
+        server.pluginManager.registerEvents(
+            object : org.bukkit.event.Listener {
+                @org.bukkit.event.EventHandler
+                fun onServerLoad(event: org.bukkit.event.server.ServerLoadEvent) = create.run()
+            },
+            plugin,
+        )
+        // /reload: ServerLoadEvent never fires again, so also try on the next tick.
+        server.scheduler.runTask(plugin, create)
+    }
+
     /** F3-1 — one live "lane name + queued" text display above each lane pad. */
     private fun installLobbyLaneHolograms(
         ctx: WiringContext,
         worldName: String,
         plan: com.astarworks.astera.core.domain.lobby.LobbyBuildPlan,
     ) {
+        plan.npcSpots["play-npc"]?.let { spot ->
+            playGateHologram?.remove()
+            playGateHologram = com.astarworks.astera.core.adapter.paper.lobby.PaperPlayGateHologram(
+                plugin = plugin,
+                messages = ctx.services.getOrThrow<IMessageRenderer>(),
+                registry = ctx.services.get<com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry>(),
+            ).also { it.install(worldName, com.astarworks.astera.core.domain.geometry.Vec3(spot.x, spot.y, spot.z)) }
+        }
         val board = ctx.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneBoard>() ?: return
         lobbyLaneHolograms?.removeAll()
         lobbyLaneHolograms = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyLaneHolograms(
@@ -681,6 +785,8 @@ internal class CorePaperBindings(
         lobbyMenuKit = null
         lobbyLaneHolograms?.removeAll()
         lobbyLaneHolograms = null
+        playGateHologram?.remove()
+        playGateHologram = null
         npcBodyService?.removeAll()
         npcBodyService = null
         mobBodyGateway?.removeAll()
@@ -699,6 +805,8 @@ internal class CorePaperBindings(
         lettuceBroadcaster = null
         redisProxyMessenger?.stop()
         redisProxyMessenger = null
+        botRequestGateway?.stop()
+        botRequestGateway = null
         bungeeConnector?.close()
         bungeeConnector = null
         // Wave 6c-stub-packetevents (ADR-0170) — PE 2.x lifecycle phase 3

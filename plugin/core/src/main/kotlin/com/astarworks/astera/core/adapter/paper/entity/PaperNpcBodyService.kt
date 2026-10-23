@@ -47,6 +47,11 @@ internal class PaperNpcBodyService(
     private val messages: IMessageRenderer,
     private val interactions: INpcInteractionRouter,
     private val intents: IGuiIntentRouter,
+    /**
+     * Claims each body (ADR-0248). The managed-entity janitor removes every `astera_managed` entity nobody has
+     * claimed when a world / chunk's entities load, so an unclaimed NPC body vanishes as soon as the lobby is built.
+     */
+    private val registry: com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry? = null,
 ) : INpcBodyMaterializer, Listener {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -88,6 +93,7 @@ internal class PaperNpcBodyService(
         val remove = Runnable {
             pending.clear()
             bodies.values.forEach { id -> plugin.server.getEntity(id)?.remove() }
+            bodies.keys.forEach { handle -> registry?.release("npc:${handle.id}") }
             bodies.clear()
         }
         if (plugin.server.isPrimaryThread) remove.run() else plugin.server.scheduler.runTask(plugin, remove)
@@ -130,6 +136,7 @@ internal class PaperNpcBodyService(
             v.persistentDataContainer.set(tagKey, PersistentDataType.STRING, encode(req.handle))
         }
         bodies[req.handle] = villager.uniqueId
+        registry?.claim("npc:${req.handle.id}", villager.uniqueId)
         return true
     }
 

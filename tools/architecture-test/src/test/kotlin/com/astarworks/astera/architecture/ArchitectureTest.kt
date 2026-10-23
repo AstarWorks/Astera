@@ -827,10 +827,7 @@ class ArchitectureTest {
             // IPlayerVisionGateway.
             // Wave 6a-N1 (ADR-0154) closed IMatchTimerService — impl is in
             // plugin/match/.../application/service/MatchTimerService.kt.
-            // Wave 6a-N3 (ADR-0159) closed IStructurePaste — impl is in
-            // plugin/core/.../application/service/InMemoryStructurePaste.kt
-            // (Phase 1 stub; Wave 6b+ FAWE adapter `PaperStructurePaste`
-            // overlays at priority 100 when shipped).
+            // IStructurePaste (ADR-0159) was removed in ADR-0246: nothing consumed it.
             // Allow-set intentionally empty; restore an entry only when
             // a NEW Wave-6 deferred port is introduced.
         )

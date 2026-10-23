@@ -26,8 +26,8 @@ lanes:
     kind: pvp
     min_players: 2
 
-  # Annihilation: 3 teams (red / blue / yellow) on the flat playtest world.
-  # One player per team: three sides, never a solo start.
+  # Annihilation: 3 teams (red / blue / yellow), one sky island each around a centre island
+  # (content/stages/annihilation-arena.yaml). One player per team: three sides, never a solo start.
   - id: annihilation
     stage: annihilation-arena
     teams: 3
@@ -35,35 +35,35 @@ lanes:
     min_players: 3
     kind: pvp
 
-  # Siege / objective modes (WP11) on the flat playtest world. They share the
-  # `siege-flat` stage, so one siege match runs at a time (the next lane waits).
-  # Each mode reads its own regions: see content/stages/siege-flat.yaml.
+  # Siege / objective modes (WP11) on sky islands. They share the
+  # `siege-isles` stage, so one siege match runs at a time (the next lane waits).
+  # Each mode reads its own regions: see content/stages/siege-isles.yaml.
   - id: break-core
-    stage: siege-flat
+    stage: siege-isles
     teams: 2
     players_per_team: 4
     min_players: 2
     kind: pvp
   - id: carry-tnt
-    stage: siege-flat
+    stage: siege-isles
     teams: 2
     players_per_team: 4
     min_players: 2
     kind: pvp
   - id: capture-wool
-    stage: siege-flat
+    stage: siege-isles
     teams: 2
     players_per_team: 4
     min_players: 2
     kind: pvp
   - id: steal-jewelry
-    stage: siege-flat
+    stage: siege-isles
     teams: 2
     players_per_team: 4
     min_players: 2
     kind: pvp
   - id: battle-loyal
-    stage: siege-flat
+    stage: siege-isles
     teams: 2
     players_per_team: 4
     min_players: 2

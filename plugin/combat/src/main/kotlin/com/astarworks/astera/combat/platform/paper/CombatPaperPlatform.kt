@@ -76,7 +76,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             entityDamageGateway = gateway
             gateway
         },
-        entityEffectsGateway = { PaperEntityEffectsGateway(plugin.server) },
+        entityEffectsGateway = { PaperEntityEffectsGateway(plugin.server, plugin) },
         displayEntityGateway = { PaperDisplayEntityGateway(plugin.server) },
         summonGateway = { PaperSummonGateway(plugin.server) },
         trainingDummyShells = { PaperTrainingDummyShells(plugin) },

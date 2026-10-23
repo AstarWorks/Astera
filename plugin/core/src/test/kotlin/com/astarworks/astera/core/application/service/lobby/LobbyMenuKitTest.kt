@@ -72,8 +72,11 @@ class LobbyMenuKitTest {
 
     @Test
     fun `shipped hotbar kit is exactly one item and leaves the weapon zone free`() {
-        val slots = kit.entries(KitArea.HOTBAR).map { it.slot }
+        // ADR-0248: slot 8 holds the compass, or "Leave queue" (visible_if state:queued) in its place - still one item per viewer.
+        val slots = kit.entries(KitArea.HOTBAR).map { it.slot }.distinct()
         assertThat(slots).containsExactly(8)
+        assertThat(kit.forViewer({ false }) { false }.entries(KitArea.HOTBAR)).hasSize(1)
+        assertThat(kit.forViewer({ it == "queued" }) { false }.entries(KitArea.HOTBAR).map { it.itemId.value }).containsExactly("gui-tile-leave-queue")
         assertThat(slots.size).isLessThanOrEqualTo(HotbarLayout.MAX_KIT_ITEMS)
         assertThat(HotbarLayout.WEAPON_SLOTS.count()).isEqualTo(8)
     }
@@ -83,7 +86,7 @@ class LobbyMenuKitTest {
         assertThat(kit.at(KitArea.KEY_SWAP, 0)?.intent?.payload).containsEntry("gui", "main-menu")
         assertThat(kit.at(KitArea.KEY_SNEAK_SWAP, 0)?.intent?.key).isEqualTo("lobby.customize.open")
         assertThat(kit.at(KitArea.KEY_DROP, 0)?.intent?.key).isEqualTo("lobby.queue.show")
-        assertThat(kit.entries(KitArea.HOTBAR).size + kit.entries.count { it.area.isKeybind }).isEqualTo(4)
+        assertThat(kit.entries(KitArea.HOTBAR).map { it.slot }.distinct().size + kit.entries.count { it.area.isKeybind }).isEqualTo(4)
     }
 
     @Test

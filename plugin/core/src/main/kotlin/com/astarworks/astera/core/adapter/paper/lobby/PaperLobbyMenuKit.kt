@@ -89,6 +89,7 @@ internal class PaperLobbyMenuKit(
     private val mcServer: IMcServer,
     private val inMatch: (PlayerId) -> Boolean,
     private val visibility: () -> ViewerVisibility?,
+    private val queued: (PlayerId) -> Boolean = { false },
     private val onMenuKey: (PlayerId) -> Unit = {},
 ) : Listener {
 
@@ -101,7 +102,16 @@ internal class PaperLobbyMenuKit(
         val all = kit
         if (!all.hasConditionalEntries) return all
         val v = visibility()
-        return all.forViewer { node -> v?.hasPermission(id, node) ?: false }
+        return all.forViewer(
+            hasPermission = { node -> v?.hasPermission(id, node) ?: false },
+            hasState = { state ->
+                when (state) {
+                    "queued" -> queued(id)
+                    "idle" -> !queued(id)
+                    else -> false
+                }
+            },
+        )
     }
     private val log = LoggerFactory.getLogger(javaClass)
     private val lastPress = HashMap<UUID, Long>()
@@ -120,6 +130,12 @@ internal class PaperLobbyMenuKit(
         } catch (t: Throwable) {
             log.warn("Lobby menu kit refresh failed for {}", player.name, t)
         }
+    }
+
+    /** Rebuild one player's kit on the next tick (ADR-0248: queue state changed). Safe from any thread. */
+    fun refreshLater(id: PlayerId) {
+        val player = plugin.server.getPlayer(id.uuid) ?: return
+        later(player)
     }
 
     fun refreshAll() {
