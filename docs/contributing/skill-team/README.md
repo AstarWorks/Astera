@@ -35,7 +35,11 @@ All are `model: sonnet` agents defined in `.claude/agents/limbus-*.md`. The main
               outputs diffs each labelled with its owning role
 5. Director   routes each diff to its role as a new brief section -> back to 2
               (only the affected roles run again)
-Stop when the reviewer passes every row with evidence. An iteration count is never a stop condition.
+6. Founder    after reviewer PASS the director reports to the manager, who asks the
+              founder to review the published capture on skill-compare
+              (https://skill-compare.astarworks.com)
+              approve -> done | reject -> comments become diffs routed by role -> back to 2
+Stop when the reviewer passes every row with evidence AND the founder approves on skill-compare. Reviewer PASS alone is not done. An iteration count is never a stop condition.
 ```
 
 Rules of the loop:
@@ -54,8 +58,9 @@ Rules of the loop:
 | Specialist delivery | files in its territory + report (format in the agent file) | specialist | director |
 | Brief sheet / pairs | `build/brief/<case>/`, `build/pairs/<case>.png` (`make skill-brief`, `make skill-pairs`) | any | reviewer, director |
 | Capture | `build/vfx-shot/<skill>/<view>/` (`meta.json` provenance) | director | reviewer |
-| Published capture | `build/skill-compare-published/<skill>/<view>/current.json` | director | reviewer, founder |
+| Published capture | `build/skill-compare-published/<skill>/<view>/current.json` | director | reviewer, founder (approval review on skill-compare) |
 | Review diffs | reviewer report, each diff `[owner: role]` | reviewer | director |
+| Founder approval | weapon REPORT: date + published revision; rejection comments become review diffs | director (records, via manager) | manager, reviewer |
 | Learnings | `## Learnings log` of each knowledge doc | each role | next skill's roles |
 
 `beats` is a new field in `case.json`; the page preserves unknown fields on save only if documented in `tools/skill-compare/README.md`, so the first director to use it checks that a Save in the page does not drop it.

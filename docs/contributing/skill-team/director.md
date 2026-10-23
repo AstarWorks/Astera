@@ -9,7 +9,7 @@ Agent: `.claude/agents/limbus-director.md`. Team overview: [README.md](README.md
 ## Verified facts and where they live
 
 ### Procedure and acceptance
-- Procedure, acceptance table, status vocabulary (未分析 / 実装済・未検証 / 検証不合格 / 再現合格 / 独自設計・動作確認済): [limbus-skill-reproduction.md](../limbus-skill-reproduction.md) sections 1-7. The 2026-10-23 founder instruction removed the "max 4 iterations" stop: iterate until the match is shown with evidence.
+- Procedure, acceptance table, status vocabulary (未分析 / 実装済・未検証 / 検証不合格 / 再現合格 / 独自設計・動作確認済): [limbus-skill-reproduction.md](../limbus-skill-reproduction.md) sections 1-7. The 2026-10-23 founder instruction removed the "max 4 iterations" stop: iterate until the match is shown with evidence. A skill is done only when the reviewer passes every row AND the founder approves the published capture on skill-compare; the director records the approval (date, published revision) in the weapon REPORT.
 - Do not change the target to fit the implementation; `intent` is an interpretation of the video, not proof.
 - Observation: measure sizes against character height; separate camera change from object scaling.
 

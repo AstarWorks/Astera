@@ -20,7 +20,7 @@ The reviewer is read-only on content, code, briefs and case data. It never fixes
 
 Add for this team: a sound exists for every beat; only one weapon is visible during the skill; the model is multi-part, multi-material, not a flat slab; sprites are smooth at close-up.
 
-Status vocabulary for the report: 未分析 / 実装済・未検証 / 検証不合格 / 再現合格 / 独自設計・動作確認済. "Captured" or "iteration limit reached" is never a pass. A skill with no observed reference never gets an original-match verdict.
+Status vocabulary for the report: 未分析 / 実装済・未検証 / 検証不合格 / 再現合格 / 独自設計・動作確認済. "Captured" or "iteration limit reached" is never a pass, and a reviewer pass alone is never done: the founder must also approve on skill-compare. A skill with no observed reference never gets an original-match verdict.
 
 ## How to review (verified commands)
 
