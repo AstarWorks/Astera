@@ -9,6 +9,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 from raster import VIEWS, CENTER, SPAN, render
 from validate import validate
+from materials import vanilla_path
 
 ROOT=Path(__file__).resolve().parents[2]
 WORK=Path(__file__).resolve().parent/'work'
@@ -23,7 +24,8 @@ def texture_map(model,override=None):
         if ref in seen: raise ValueError('Cyclic texture alias: '+ref)
         if ref.startswith('#'): return resolve(model['textures'][ref[1:]],seen+(ref,))
         if ref not in cache:
-            if override: path=override
+            if ref.startswith('minecraft:'): path=vanilla_path(ref)
+            elif override: path=override
             else:
                 namespace,rel=ref.split(':',1)
                 if namespace!='astera' or '..' in Path(rel).parts: raise ValueError('Only local astera textures are supported: '+ref)

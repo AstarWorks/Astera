@@ -37,11 +37,18 @@ behind the tool: history and validation must describe every model/texture change
    with an honest incomplete report on a two-round plateau or the default six-round cap.
    Preserve snapshots, critic/verifier notes, concept identity, comparison metrics and images.
 
-Detail targets for a finished hero prop: **80–200 elements**, deliberate stepped bevels,
-separate ornament pieces and **64–128 px textures**. These are art targets, not vanilla
-format limits. Never add invisible cubes just to reach the target. The 40-element imported
-hammer and 42-element API demonstration are tooling evidence, not a newly polished hero asset.
-Use `uv.auto` at a chosen texel density, then paint; packing does not preserve earlier pixels.
+Detail targets for a finished hero prop: **80–200 elements** and deliberate stepped
+bevels/ornament; never add invisible cubes to meet a target. Texture faces by
+**material**, choosing semantic names from `materials.json` via `material.apply`.
+Reference vanilla `minecraft:block/...` / `minecraft:item/...` resources in JSON;
+never copy Mojang PNGs into the public repo or shipped pack. Use one local model
+unit per vanilla texel, crop offsets varied by face and grain along the long axis.
+Faces over 16 units must tile through split geometry; inspect split seams. Display
+transforms scale material pixels with the model (no compensating density increase).
+Use custom-painted atlases only for emblems, glow lines or runes with no vanilla
+material equivalent; one model can mix both. Exclude tinted and unverified animated
+textures. The client jar/cache is preview input only; never export cached PNGs.
+See README for `MODEL_FORGE_CLIENT_JAR`, read-only materials and the density rule.
 
 Architecture references: [BlenderMCP](https://github.com/ahujasid/mcp-for-blender) for compact
 state query and visual inspection; [Blockbench MCP](https://jasonjgardner.github.io/blockbench-mcp-plugin/)

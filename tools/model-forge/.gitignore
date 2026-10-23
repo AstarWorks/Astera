@@ -6,3 +6,6 @@ work/*/*
 !work/*/concept-sheet.png
 !work/*/concept.json
 !work/*/review.md
+
+# Local Mojang pixels: preview input only; never export or commit.
+.cache/

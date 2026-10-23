@@ -32,11 +32,11 @@ def schema_errors(value,s,path='$'):
     return errors
 
 
-def validate(model,textures,budget=64,density=2):
+def validate(model,textures,budget=None,density=None):
     schema=json.loads(Path(__file__).with_name('model.schema.json').read_text())
     errors=schema_errors(model,schema);warnings=[];densities=[];allpoints=[]
     if errors: return {'valid':False,'errors':errors,'warnings':warnings}
-    if len(model['elements'])>budget: errors.append(f'Element budget exceeded: {len(model["elements"])}/{budget}')
+    if budget is not None and len(model['elements'])>budget: errors.append(f'Element budget exceeded: {len(model["elements"])}/{budget}')
     for i,e in enumerate(model['elements']):
         dims=np.subtract(e['to'],e['from'])
         if (dims<=0).any(): errors.append(f'element {i}: require positive cuboid volume')
@@ -53,7 +53,7 @@ def validate(model,textures,budget=64,density=2):
             if f.get('rotation',0) in (90,270): texels=texels[::-1]
             if (lengths<=0).any(): continue
             ds=texels/lengths;densities.extend(ds.tolist())
-            if not np.allclose(ds,density,rtol=.05,atol=.01): errors.append(f'element {i}/{face}: density {ds.tolist()}, expected {density}')
+            if density is not None and not np.allclose(ds,density,rtol=.05,atol=.01): errors.append(f'element {i}/{face}: density {ds.tolist()}, expected {density}')
     bounds=np.array(allpoints)
     if (bounds<-16-1e-6).any() or (bounds>32+1e-6).any(): warnings.append('Rotated geometry extends beyond authoring coordinate box')
     for key,a in textures.items():
