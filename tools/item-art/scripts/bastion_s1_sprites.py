@@ -451,15 +451,23 @@ _f2 = _f2 / np.linalg.norm(_f2)
 # alpha = in-plane angle atan2(b, a) in degrees (a along e1, b along e2), sign = travel direction of the blade.
 # frames: (tail, head, thickness scale, opacity); tail/head in alpha degrees, unwrapped along the travel.
 SWEEPS = {
-    # hit 1 overhead chop: vertical plane containing forward, rolled 22 deg (top toward the caster's right),
-    # through the pivot. alpha 0 = forward, 90 = up (pitch 68 at skill tick 5). Tip alpha per skill tick (r7):
-    # 155 (3), 137.5 (4), 87 (5), 36 (6), -16.2 contact (7, held 7-8: tip phi 6, pitch -15, y 0.11 ON the chop plane;
-    # r6 was -23 = y -0.15). Played in fx-high (skill tick = fx tick + 3).
-    "arch": dict(centre=_PIVOT, e1=np.array([0.0, 0.0, 1.0]), e2=np.array([-math.sin(_t1), math.cos(_t1), 0.0]),
-                 sign=-1, r_tip=_TIP, t_max=0.36, fan_in=1.15,
-                 frames=[(137.5, 87, 0.8, 1.0), (137.5, 36, 0.95, 1.0), (137.5, -16.2, 1.0, 1.0), (137.5, -16.2, 1.0, 1.0),
-                         (112, -16.2, 0.85, 0.9), (75, -16.2, 0.7, 0.78), (40, -16.2, 0.52, 0.62), (10, -16.2, 0.34, 0.46),
-                         (-8, -16.2, 0.2, 0.32)]),
+    # hit 1 (r10 rig): tilted horizontal sweep. The tip stays on the plane y = 1.15 + tan(20 deg) z (animator Round 10), so
+    # the smear is a RING lying in that plane around the caster at chest (sides) / head (front) height. e1 = caster's left,
+    # e2 = forward rising 20 deg. `aniso` = cos(20): pixel (a, b) -> horizontal radius hypot(a, b cos20) and angle
+    # alpha = atan2(b cos20, a) about the tip circle centre (-0.35, 1.15, 0) (tip radius 2.44-2.48 at every on-plane key),
+    # so alpha 0 = left, 90 = forward, 180 = right, 270 = back. The blade travels right -> front -> left (alpha decreasing).
+    # Blade tip alpha per skill tick: 214 (4, raised wind-up extreme), 226 (5), 181.2 (6, on plane), 134.8 (7), 93.5 (8,
+    # contact, held 8-10), 45.2 (11), -3.3 (12), -48.4 (13, leaving the plane down). Played in fx-high (skill = fx + 4).
+    # Outer edge 2.75 (diameter 5.5 blocks across the sides), band 0.42 thick so the tip runs along the white-hot INNER
+    # edge; dark rim outside. Front pulled in by z <= 2.3 and the opponent-eye keep-out, back held >= y 0.22 (the plane
+    # meets the floor behind the caster); one global radius curve (no monotone curl: the ring continues past the front).
+    "hring": dict(centre=np.array([-0.35, 1.15, 0.0]), e1=np.array([1.0, 0.0, 0.0]),
+                  e2=np.array([0.0, math.sin(math.radians(20.0)), math.cos(math.radians(20.0))]), sign=-1, r_tip=2.75,
+                  t_max=0.42, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(20.0)), ellipse=(-0.35, -0.50, 2.72, 2.09), ymin=0.2,
+                  smooth=10.0, hot="inner", fan_alpha=0.16,
+                  frames=[(240, 216, 0.5, 0.75), (240, 181.2, 0.8, 1.0), (240, 134.8, 0.95, 1.0), (240, 93.5, 1.0, 1.0),
+                          (240, 93.5, 1.0, 1.0), (236, 93.5, 1.0, 1.0), (232, 45.2, 1.0, 1.0), (228, -3.3, 1.0, 1.0),
+                          (205, -30, 0.85, 0.9), (145, -30, 0.62, 0.74), (85, -30, 0.42, 0.56), (30, -30, 0.24, 0.38)]),
     # hit 2 low ring: plane tilted RING_TILT (lowest toward phi 60 = left-front), centre on the pivot axis at the
     # cone-centre height (tip pitch RING_CENTRE_PITCH). alpha 0 ~ forward, +90 ~ left; the blade turns +alpha
     # (left-back -> back -> right -> front). Tip alpha per skill tick (r7, in this plane): 134 (26), 163 (27),
@@ -521,6 +529,80 @@ def sweep_radius(name, tail, head, n=721):
     return qs, np.convolve(rp, ker / ker.sum(), mode="valid") - 0.03
 
 
+def sweep_dir(sw, al):
+    """3D offset per unit horizontal radius for in-plane angle(s) al (radians); unit vectors unless aniso."""
+    k = sw.get("aniso", 1.0)
+    return np.cos(al)[:, None] * sw["e1"][None] + (np.sin(al) / k)[:, None] * sw["e2"][None]
+
+
+def ring_radius(name):
+    """hit-1 ring: outer radius as ONE function of the absolute (unwrapped) alpha, shared by every frame: the polar radius
+    (about the tip circle centre) of a horizontal ELLIPSE (`ellipse` = centre x, centre z, semi x, semi z). The ellipse is
+    squashed front-to-back and shifted back so its front stays at z <= ~1.85 (0.6 clear of the opponent eye at z 2.4) and
+    its back stays above ymin; a dent around the eye read as a wiggle (r10 attempt), a smooth ellipse reads as a ring."""
+    sw = SWEEPS[name]
+    ex, ez, ax, az = sw["ellipse"]
+    al_deg = np.arange(-200.0, 400.0, 0.5)
+    al = np.radians(al_deg)
+    c = sw["centre"]
+    ux, uz = np.cos(al), np.sin(al)  # horizontal ray from the tip circle centre
+    ox, oz = c[0] - ex, c[2] - ez
+    A = (ux / ax) ** 2 + (uz / az) ** 2
+    B = 2 * (ox * ux / ax ** 2 + oz * uz / az ** 2)
+    C = (ox / ax) ** 2 + (oz / az) ** 2 - 1
+    r = (-B + np.sqrt(B * B - 4 * A * C)) / (2 * A)
+    d = sweep_dir(sw, al)
+    r = np.minimum(r, np.where(d[:, 1] < -1e-3, (c[1] - sw["ymin"]) / np.maximum(-d[:, 1], 1e-3), 99.0))
+    return al_deg, r
+
+
+def ring_frame(size, name, tail, head, tscale, opacity):
+    """hit-1 ring frame (front view, X = e1): gold band whose INNER edge is white-hot (the blade tip runs along it), dark
+    rim outside, needle toward the tail, faint fan inward. Radius / angle are horizontal (aniso)."""
+    sw = SWEEPS[name]
+    X, Y = grid(size)
+    half = sw["half"]
+    px = 2.0 * half / size
+    a = (X - size / 2) * px
+    b = (size / 2 - Y) * px
+    zz = b * sw["aniso"]
+    r = np.hypot(a, zz)
+    ang = np.degrees(np.arctan2(zz, a))
+    sgn = sw["sign"]
+    q = np.mod(sgn * (ang - tail), 360.0)
+    qh = sgn * (head - tail)
+    dh = qh - q
+    span = qh
+    al_pix = tail + sgn * np.clip(q, 0, span)
+    world = (sw["centre"][:, None, None] + a[None] * sw["e1"][:, None, None] + b[None] * sw["e2"][:, None, None])
+    als, rs = ring_radius(name)
+    r_out = np.interp(al_pix, als, rs)
+    u = np.clip(dh / max(span, 1e-3), 0, 1)
+    prof = smooth(dh / 26.0) * np.clip(1.0 - u, 0, 1) ** 0.7  # needle head over ~26 deg (no blunt radial cut)
+    inside = (dh >= 0) & (dh <= span)
+    T = sw["t_max"] * tscale * prof
+    d_out = (r_out - r) / px
+    d_in = (r - (r_out - T)) / px
+    band = soft(np.minimum(d_out, d_in), 0.9) * inside
+    cut = np.minimum(dh, span - dh) * math.radians(1.0) * r / px
+    band *= soft(cut + 0.4, 1.0)
+    floor = soft((world[1] - 0.04) / px, 1.0)
+    tt = np.clip(d_out / np.maximum(T / px, 1e-3), 0, 1)  # 0 outer .. 1 inner
+    col = BODY[None, None] * (1 - tt[..., None] ** 0.7) + GOLD[None, None] * tt[..., None] ** 0.7
+    hot = soft(np.minimum(3.0, 0.2 * T / px) - d_in, 0.8) * (d_in > -0.5)
+    col = col * (1 - hot[..., None] * 0.95) + PALE[None, None] * hot[..., None] * 0.95
+    img = blank(size * SS)
+    fan_r0 = sw["fan_in"]
+    fr = np.clip((r - fan_r0) / np.maximum(r_out - T - fan_r0, 1e-3), 0, 1)
+    fan = (fr ** 1.6) * (r < r_out - T * 0.5) * (r > fan_r0) * inside * np.clip(1 - u, 0, 1) ** 1.6 * np.clip(dh / 10, 0, 1)
+    img = over(img, hexc("#FFC83A")[None, None] * np.ones((1, 1, 3)), fan * sw["fan_alpha"] * tscale * floor)
+    rim = soft(1.4 - np.abs(d_out + 1.0), 0.6) * inside * np.clip(prof * 3, 0, 1) * soft(cut + 0.4, 1.0)
+    img = over(img, RIM[None, None] * np.ones((1, 1, 3)), rim * 0.85 * floor)
+    img = over(img, np.clip(col, 0, 1), band * floor)
+    img[..., :4] *= opacity
+    return img
+
+
 def sweep_frame(size, name, tail, head, tscale, opacity):
     """One smear frame (front view, X = e1): crisp gold band along the tip path (outer edge = blade tip, white-hot
     outer line, dark rim outside), thickest just behind the head, needle toward the tail, plus a faint fan face
@@ -571,7 +653,8 @@ def sweep_frame(size, name, tail, head, tscale, opacity):
 
 def make_sweep(name):
     size = 256
-    frames = [downsample(sweep_frame(size, name, *f), size) for f in SWEEPS[name]["frames"]]
+    fn = ring_frame if "aniso" in SWEEPS[name] else sweep_frame
+    frames = [downsample(fn(size, name, *f), size) for f in SWEEPS[name]["frames"]]
     save_strip(name, frames, size)
     save_strip(name + "-b", [np.ascontiguousarray(f[:, ::-1]) for f in frames], size)
 
@@ -580,12 +663,12 @@ def make_ring():
     make_sweep("ring")
 
 
-def make_arch():
-    make_sweep("arch")
+def make_hring():
+    make_sweep("hring")
 
 
 MAKERS = {"crescent": make_crescent, "ink": make_ink, "streak": make_streak, "smoke": make_smoke,
-          "glint": make_glint, "sliver": make_sliver, "ring": make_ring, "arch": make_arch}
+          "glint": make_glint, "sliver": make_sliver, "ring": make_ring, "hring": make_hring}
 
 if __name__ == "__main__":
     for nm in (sys.argv[1:] or MAKERS):

@@ -15,8 +15,8 @@ sources:
   bastion-s1-glint: { file: images/bastion-s1-glint.png }
   bastion-s1-sliver: { file: images/bastion-s1-sliver.png }
   bastion-s1-ring: { file: images/bastion-s1-ring.png }
-  bastion-s1-arch: { file: images/bastion-s1-arch.png }
-  bastion-s1-arch-b: { file: images/bastion-s1-arch-b.png }
+  bastion-s1-hring: { file: images/bastion-s1-hring.png }
+  bastion-s1-hring-b: { file: images/bastion-s1-hring-b.png }
   bastion-s1-ring-b: { file: images/bastion-s1-ring-b.png }
 
 sprites:
@@ -60,5 +60,5 @@ sprites:
   bastion-s1-sliver: { from: bastion-s1-sliver, raw: true, frames: 3, size: 128 }
   bastion-s1-ring: { from: bastion-s1-ring, raw: true, frames: 11, size: 256 }
   bastion-s1-ring-b: { from: bastion-s1-ring-b, raw: true, frames: 11, size: 256 }
-  bastion-s1-arch: { from: bastion-s1-arch, raw: true, frames: 9, size: 256 }
-  bastion-s1-arch-b: { from: bastion-s1-arch-b, raw: true, frames: 9, size: 256 }
+  bastion-s1-hring: { from: bastion-s1-hring, raw: true, frames: 12, size: 256 }
+  bastion-s1-hring-b: { from: bastion-s1-hring-b, raw: true, frames: 12, size: 256 }

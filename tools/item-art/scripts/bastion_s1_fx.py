@@ -96,7 +96,7 @@ def sweep(id_, name, start, end):
     only trusted from its +Z side; the back strip is mirrored so both draw the same 3D arc). Flipbook = the wipe
     following the blade, then the fade; frame k shows at element tick k + 1 (frame 0 at spawn and spawn + 1)."""
     c = [round(float(v), 3) for v in SWEEPS[name]["centre"]]
-    sc = 2 * SWEEP_HALF / 6.4
+    sc = 2 * SWEEPS[name].get("half", SWEEP_HALF) / 6.4
     out = []
     for suffix, back in (("", False), ("-b", True)):
         el, m = sprite(id_ + suffix, "bastion-s1-" + name + suffix, start, end, [
@@ -132,43 +132,58 @@ def smoke_up(id_, start, end, p, w0, w1, roll=0):
         frame_ticks=2, color=SMOKE_TINT)
 
 
+def spark3(id_, start, p, d, roll, length, life=4, color=ORANGE):
+    """r10: orange spark streak flying along a 3D direction d (blocks travelled over its life); roll = its screen angle."""
+    pos = lambda f: [round(p[0] + d[0] * f, 3), round(p[1] + d[1] * f, 3), round(p[2] + d[2] * f, 3)]
+    return sprite(id_, "bastion-s1-streak", start, start + life, [
+        kf(0, pos(0.0), [0, 0, roll], [s256(length * 0.35), 0.05, 1.0]),
+        kf(1, pos(0.4), scale=[s256(length), 0.05, 1.0], ease="out_expo"),
+        kf(life - 1, pos(1.0), scale=[s256(length * 0.45), 0.012, 1.0], ease="in_quad")], color=color)
+
+
+# r10 hit-1 contact (rig Round 10): blade root (-0.39, 1.13, 0.89) -> tip (-0.50, 2.04, 2.44) at skill 8 = fx 4, held 8-10.
+# The tip is past the opponent eye (0, 1.62, 2.4), so the core sits ON the contact blade at 45% (-0.44, 1.54, 1.59): 0.93 from
+# the opponent eye, 1.6 from the caster eye, at the ring smear's front edge (z 1.6).
+H1_HIT = [-0.44, 1.54, 1.59]
+
+
 def high():
     els = []
-    # Round 7: the arch is the smear of the r7 overhead chop, IN its plane (vertical, contains forward, rolled 22 deg,
-    # through the pivot), 154 deg from behind-overhead (alpha 137.5) to the forward-low contact (alpha -16.2: tip phi 6, pitch -15, y 0.11). Spawn fx 1
-    # (skill 4): frame 0 ticks 4-5 (blade straight up at 5), frame 1 tick 6, frame 2 = full arc at contact tick 7, hold 8,
-    # fade 9-13. The head curls inside 0.8 blocks of the opponent eye (z 2.4) instead of passing through it.
-    els += sweep("s1h1-arch", "arch", 1, 11)
-    # white-hot cut streak on the chop line (steep, the chop comes down through the target line): roll 80 is the
-    # compromise between the side camera (chop tangent ~100) and first person (plane seen edge-on, ~68)
+    # r10: hit 1 is a tilted horizontal sweep (tip plane y = 1.15 + tan20 z). The smear is a gold RING in that plane around the
+    # caster (bastion_s1_sprites.py SWEEPS["hring"]: chest height at the sides, head height in front, ~0.2 above the floor
+    # behind), front + back pair. Spawn fx 0 (skill 4): frame 0 (seed at the wind-up extreme) on skill 4-5, frame k on skill
+    # 5 + k: 181 deg at 6, 135 at 7, contact 93.5 at 8 (held 9-10), 45 at 11, -3 at 12 (follow-through), fade frames 8-11 on
+    # skill 13-16.
+    els += sweep("s1h1-ring", "hring", 0, 13)
+    # white-hot cut streak through the contact, horizontal on screen (the cut is horizontal: roll 6 reads as the slash in first
+    # person and as the forward streak of reference b01/b03 from the side cameras)
     els.append(sprite("s1h1-streak-main", "bastion-s1-streak", 4, 11, [
-        kf(0, [-0.55, 1.3, 1.5], [0, 0, 80], [s256(0.6), 0.3, 1.0]),
+        kf(0, [-0.44, 1.58, 1.5], [0, 0, 6], [s256(0.6), 0.3, 1.0]),
         kf(1, scale=[s256(3.0), 0.3, 1.0], ease="out_expo"),
         kf(6, scale=[s256(2.3), 0.03, 1.0], ease="in_quad")]))
-    # flash at the contact point on the chop plane (chop plane at y 1.15 is x -0.50 for pivot [-0.35, 0.77, 0.29]; z pulled to 1.8, the
-    # opponent eye is at z 2.4); dark star under the glint
+    # flash on the contact blade + dark star under it
     els.append(sprite("s1h1-flash-dark", "bastion-s1-glint", 4, 8, [
-        kf(0, [-0.5, 1.15, 1.83], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
+        kf(0, [H1_HIT[0], H1_HIT[1], H1_HIT[2] + 0.03], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(1.5), s128(1.5), 1.0], ease="out_back"),
         kf(3, scale=[s128(1.0), s128(0.05), 1.0], ease="out_quad")], color="#8C000000"))
     els.append(sprite("s1h1-flash", "bastion-s1-glint", 4, 8, [
-        kf(0, [-0.5, 1.15, 1.8], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
+        kf(0, H1_HIT, [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(1.2), s128(1.2), 1.0], ease="out_back"),
         kf(3, scale=[s128(0.7), s128(0.04), 1.0], ease="out_quad")]))
-    # orange spark streaks off the contact over ticks 4..10 (staggered pairs, distinct origins and angles)
-    P = [-0.5, 1.15, 1.55]
-    for i, (st, dx, dy, th, ln, ds) in enumerate([
-            (4, 0.0, 0.0, 22, 1.0, 0.8), (4, 0.15, -0.1, 4, 1.3, 0.8), (5, -0.15, 0.1, 38, 0.8, 0.7),
-            (5, 0.1, -0.2, 162, 0.9, 0.9), (6, -0.1, 0.05, -14, 1.1, 0.8), (6, 0.2, 0.15, 14, 0.7, 0.7)]):
-        els.append(spark(f"s1h1-spark-{i + 1}", st, [P[0] + dx, P[1] + dy, P[2]], th, ln, ds))
+    # orange spark streaks off the contact, staggered pairs: three thrown along the cut (toward the caster's left, +x, and a
+    # little forward: the sweep carries them), three up/forward (side-camera read). All end >= 0.75 from the opponent eye.
+    P = [H1_HIT[0], H1_HIT[1] - 0.1, H1_HIT[2] - 0.15]
+    for i, (st, o, d, roll, ln) in enumerate([
+            (4, [0.0, 0.0, 0.0], [0.9, 0.05, 0.25], 4, 1.1), (4, [0.1, -0.12, 0.0], [0.15, 0.3, 0.45], 30, 1.0),
+            (5, [-0.1, 0.1, 0.0], [0.85, -0.12, 0.15], -8, 1.2), (5, [0.05, 0.15, -0.05], [-0.1, 0.45, 0.3], 55, 0.8),
+            (6, [0.1, -0.05, 0.0], [0.8, 0.15, -0.1], 12, 0.9), (6, [-0.1, 0.0, 0.05], [0.0, -0.3, 0.45], -28, 0.8)]):
+        els.append(spark3(f"s1h1-spark-{i + 1}", st, [P[0] + o[0], P[1] + o[1], P[2] + o[2]], d, roll, ln))
     # dark debris mixed in
-    for i, (st, dr, roll) in enumerate([(5, [0.2, 0.5, 0.35], 35), (5, [-0.2, 0.2, -0.3], -50), (6, [0.1, 0.4, 0.45], 120)]):
-        els.append(chip(f"s1h1-chip-{i + 1}", st, [0.1 * i - 0.1, 1.15 - 0.1 * i, 1.7], dr, roll))
-    # smoke mass after the flash + floor swirl
-    els.append(smoke_up("s1h1-smoke-up", 5, 12, [0.0, 0.85, 1.7], 0.9, 1.4))
-    els.append(sprite("s1h1-smoke-a", "bastion-s1-smoke", 5, 12, [
-        kf(0, [0.3, 0.18, 1.5], [0, 0, 0], [s256(1.3), s256(1.3) * 0.25, 1.0]),
-        kf(7, scale=[s256(1.9), s256(1.9) * 0.25, 1.0], ease="out_quad")], frame_ticks=2, color=SMOKE_TINT))
+    for i, (st, dr, roll) in enumerate([(5, [0.3, 0.4, 0.2], 35), (5, [-0.25, 0.25, -0.3], -50), (6, [0.45, 0.3, -0.1], 120)]):
+        els.append(chip(f"s1h1-chip-{i + 1}", st, [H1_HIT[0] + 0.1 * i, H1_HIT[1] - 0.15 - 0.1 * i, H1_HIT[2] - 0.1], dr, roll))
+    # smoke hand-off after the flash: one puff rising from just below the contact (no floor swirl: hit 1 no longer touches the
+    # ground, r10)
+    els.append(smoke_up("s1h1-smoke-up", 5, 12, [-0.3, 1.0, 1.55], 0.9, 1.4))
     return {"id": "bastion-s1-fx-high", "duration_ticks": 20, "orient": "yaw", "follow": False, "sample_ticks": 1,
             "elements": [e for e, _ in els]}, [m for _, m in els]
 
@@ -264,7 +279,7 @@ def write(path, header, doc):
 
 
 if __name__ == "__main__":
-    for fn, name, header in ((high, "bastion-s1-fx-high", "# Bastion S1 hit 1 (video 11.933-12.5 s): gold chop-plane arch smear (front + back) + cut streak + orange spark-streak sprites + dark chips + smoke. Played at skill tick 3, contact = effect tick 4.\n# Generated by tools/item-art/scripts/bastion_s1_fx.py; sprites from tools/item-art/scripts/bastion_s1_sprites.py. Elements only (rig is the animator's).\n"),
+    for fn, name, header in ((high, "bastion-s1-fx-high", "# Bastion S1 hit 1 (video 11.933-12.5 s): gold ring smear in the tilted horizontal sweep plane (front + back) + cut streak + flash + orange spark-streak sprites + dark chips + smoke. Played at skill tick 4, contact = effect tick 4 (skill 8).\n# Generated by tools/item-art/scripts/bastion_s1_fx.py; sprites from tools/item-art/scripts/bastion_s1_sprites.py. Elements only (rig is the animator's).\n"),
                              (low, "bastion-s1-fx-low", "# Bastion S1 hit 2 (video 13.1-13.7 s): yellow ink backdrop (3 ticks, depth-tested), low ring smear in the swing plane (front + back), streak + speed lines, flash, particles. Played at skill tick 27, contact = effect tick 4.\n# Generated by tools/item-art/scripts/bastion_s1_fx.py. Elements only.\n")):
         doc, meta = fn()
         write(f"content/vfx/{name}.yaml", header, doc)
