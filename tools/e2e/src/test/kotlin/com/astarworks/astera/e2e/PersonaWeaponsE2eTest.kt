@@ -36,6 +36,9 @@ class PersonaWeaponsE2eTest : E2eBase() {
         "orrery-staff" to listOf(2..2, 4..4, 7..8), "edict-blade" to listOf(3..3, 3..3, 6..6),
     )
 
+    /** Defensive bindings whose reference design has no VFX at all (frame analysis: two backward evasions); they are checked by displacement instead of display spawns. */
+    private val displayFreeDefs = setOf("crimson-chain-axe")
+
     private val triggers = listOf("left_click" to true, "right_click" to true, "sneak_right" to true, "sneak_left" to false)
 
     private val displayTypes = setOf("BLOCK_DISPLAY", "ITEM_DISPLAY", "TEXT_DISPLAY")
@@ -126,6 +129,9 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 val targetChatBefore = t.chat.size
                 val selfDmgBefore = t.damageEventEntities.size
                 val numbersBefore = a.damageNumbers.size
+                val posOf = { Regex("\\[([-0-9.]+)d, ([-0-9.]+)d, ([-0-9.]+)d\\]").find(rcon("data get entity ${a.name} Pos")) }
+                val zBeforeCast = posOf()?.groupValues?.get(3)?.toDoubleOrNull()
+                var maxBackward = 0.0
                 val castAt = System.currentTimeMillis()
 
                 when (trigger) {
@@ -139,6 +145,7 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 val deadline = castAt + 12_000
                 while (System.currentTimeMillis() < deadline) {
                     Thread.sleep(250)
+                    if (!offensive && w in displayFreeDefs && zBeforeCast != null) posOf()?.groupValues?.get(3)?.toDoubleOrNull()?.let { maxBackward = maxOf(maxBackward, zBeforeCast - it) }
                     if (offensive && trace.size < 60) trace += "${System.currentTimeMillis() - castAt}ms hp=${hp(t)} aPos=${rcon("data get entity ${a.name} Pos").substringAfter("data: ").trim()} tPos=${rcon("data get entity ${t.name} Pos").substringAfter("data: ").trim()}"
                     if (System.currentTimeMillis() - castAt < 6_000) continue
                     val ev = a.entityEvents.drop(evBefore)
@@ -190,7 +197,10 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 }
                 rows += Row(w, trigger, spawnedIds.size, maxLive, leaked.isEmpty(), peakMix.entries.joinToString(" ") { "${it.key.removeSuffix("_DISPLAY").lowercase()}=${it.value}" }, lifetime, "$hpBefore->$hpAfter", hitEvents, healthDrops, died, simExp)
 
-                E2eReport.check(suite, "$label: display entities spawn", "ClientboundAddEntity (block/item/text display)") {
+                if (!offensive && w in displayFreeDefs) E2eReport.check(suite, "$label: evasion moves the caster backward", "server Pos") {
+                    assertThat(maxBackward).describedAs("caster z before cast=$zBeforeCast, max backward displacement=$maxBackward").isGreaterThan(0.5)
+                    "moved back %.2f blocks".format(maxBackward)
+                } else E2eReport.check(suite, "$label: display entities spawn", "ClientboundAddEntity (block/item/text display)") {
                     assertThat(spawnedIds).describedAs("no display entity reached the attacker; add-packets=${ev.filter { it.added }.groupingBy { it.type }.eachCount()}; actionbar=${a.actionBars.takeLast(3).map { visible(it.text) }}").isNotEmpty()
                     "spawned ${spawnedIds.size} $typeCounts, max concurrent $maxLive"
                 }
