@@ -258,8 +258,9 @@ public class VfxPlayer(
                     u.style?.let { displays.setTextStyle(handle, it.backgroundArgb, it.textOpacity, it.textRgb) }
                     u.position?.let {
                         state.offset = it
-                        displays.teleport(handle, instance.position + it + state.targetOffset, 0f, 0f, (if (plan.follow && !state.attached) plan.followTeleportTicks else null) ?: u.interpolationTicks.coerceIn(0, MAX_TELEPORT_TICKS))
+                        displays.teleport(handle, instance.position + it + state.targetOffset, 0f, 0f, (if (plan.follow && !state.attached) plan.followTeleportTicks else null) ?: (u.positionTicks ?: u.interpolationTicks).coerceIn(0, MAX_TELEPORT_TICKS))
                     }
+                    if (u.keepTransform) continue
                     state.authoredTransform = u.transform
                     if (state.lineCorrection == null) displays.update(handle, u.transform, u.interpolationTicks)
                 }
