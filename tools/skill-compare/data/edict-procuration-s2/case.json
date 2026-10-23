@@ -24,8 +24,30 @@
     "factor": 0.2,
     "windowMs": 150
   },
-  "segments": [],
-  "notes": "Procuration形態の追加参照。技同定の確度はmed。通常形態の映像・実装を代用しない。実装予定IDであり、現時点で発動する技ではない。原資料: /reference/edict-blade/extra-2.json",
+  "segments": [
+    {
+      "id": "procuration-s2-contact-1",
+      "kind": "hit",
+      "label": "接触候補1",
+      "t_s": 45.6456,
+      "notes": "原動画 f1368〜1372、med確度。開始から5.34tick。実装の命中時刻ではない。"
+    },
+    {
+      "id": "procuration-s2-contact-2",
+      "kind": "hit",
+      "label": "接触候補2",
+      "t_s": 46.88016666666667,
+      "notes": "原動画 f1405〜1405、high確度。開始から30.03tick。実装の命中時刻ではない。"
+    },
+    {
+      "id": "procuration-s2-contact-3",
+      "kind": "hit",
+      "label": "接触候補3",
+      "t_s": 47.280566666666665,
+      "notes": "原動画 f1417〜1419、med確度。開始から38.04tick。実装の命中時刻ではない。"
+    }
+  ],
+  "notes": "Procuration形態の追加参照。技同定の確度はmed。通常形態の映像・実装を代用しない。実装予定IDであり、現時点で発動する技ではない。原資料: /reference/edict-blade/extra-2.json 接触候補は約5.34 / 30.03 / 38.04tick。f1373・1378・1383およびf1426・1430・1433の斬線の向き替えを追加ダメージとして数えない。",
   "editLog": [],
   "status": "analysed",
   "verification": {

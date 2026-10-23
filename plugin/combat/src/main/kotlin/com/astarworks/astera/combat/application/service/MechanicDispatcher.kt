@@ -657,6 +657,8 @@ public class MechanicDispatcher(
                         stopOnBlock = resolveBool(mechanic.stopOnBlock, ctx),
                         followPitch = resolveBool(mechanic.followPitch, ctx),
                         stopBeforeTarget = mechanic.stopBeforeTarget,
+                        localDirection = mechanic.localDirection,
+                        faceMovement = mechanic.faceMovement,
                         onHit = mechanic.onHit,
                     ),
                     ctx = ctx,

@@ -1393,6 +1393,12 @@
                         "follow_pitch": {
                             "type": "boolean"
                         },
+                        "local_direction": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.Vec3Yaml"
+                        },
+                        "face_movement": {
+                            "type": "boolean"
+                        },
                         "on_hit": {
                             "type": "array",
                             "items": {
