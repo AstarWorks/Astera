@@ -256,7 +256,7 @@ phases:
       value: 116
   - type: play_vfx
     targets: *id001
-    vfx_id: crimson-chain-axe-ego-orbit
+    vfx_id: crimson-combo-hover-orbits
     delay_ticks:
       type: literal
       value: 116
