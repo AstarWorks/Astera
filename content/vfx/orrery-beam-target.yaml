@@ -1,5 +1,5 @@
 id: orrery-beam-target
-duration_ticks: 33
+duration_ticks: 36
 orient: yaw
 sample_ticks: 1
 elements:
@@ -9,7 +9,7 @@ elements:
     block: white_concrete
   brightness: 15
   start_tick: 0
-  end_tick: 32
+  end_tick: 36
   keyframes:
   - t: 0
     translate:
@@ -29,7 +29,7 @@ elements:
     - 0.08
     - 0.08
     - 4.061095911204265
-  - t: 32
+  - t: 35
     scale:
     - 0.0
     - 0.0
@@ -41,7 +41,7 @@ elements:
     block: yellow_stained_glass
   brightness: 15
   start_tick: 0
-  end_tick: 32
+  end_tick: 36
   keyframes:
   - t: 0
     translate:
@@ -61,7 +61,7 @@ elements:
     - 0.22
     - 0.22
     - 4.061095911204265
-  - t: 32
+  - t: 35
     scale:
     - 0.0
     - 0.0
@@ -73,7 +73,7 @@ elements:
     block: black_concrete
   brightness: 15
   start_tick: 0
-  end_tick: 32
+  end_tick: 36
   keyframes:
   - t: 0
     translate:
@@ -93,7 +93,7 @@ elements:
     - 0.025
     - 0.025
     - 4.061095911204265
-  - t: 32
+  - t: 35
     scale:
     - 0.0
     - 0.0

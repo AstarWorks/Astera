@@ -1,0 +1,42 @@
+{
+  "round": 73,
+  "case": "orrery-staff-s3",
+  "status": "failed",
+  "static": {
+    "capture": "build/limbus-review/round73/captures/orrery-staff-s3-1792740821299634991",
+    "frames": 224,
+    "quality": {
+      "maxRepeatedFrames": 2,
+      "reviewRequired": false,
+      "cameraMaxLatenessMs": 2.0
+    }
+  },
+  "moving": {
+    "capture": "build/limbus-review/round73/captures/orrery-staff-s3-1792740863109087045",
+    "frames": 224,
+    "quality": {
+      "maxRepeatedFrames": 2,
+      "reviewRequired": false,
+      "cameraMaxLatenessMs": 2.0
+    }
+  },
+  "movingHealth": [
+    200.0,
+    194.096,
+    188.19199,
+    182.28798,
+    167.52798
+  ],
+  "observedHitChanges": 4,
+  "referenceFinalBeamFrames": [
+    919,
+    972
+  ],
+  "referenceFinalImpactFrames": [
+    919,
+    977
+  ],
+  "review": "S3の命中輪を同じ標的へ追従させ、最後の輪とビームの持続を延長。移動後に輪が元位置へ残る問題は改善。輪の形・中心位置・光、武器の二重表示、姿勢・カメラ・Charge分岐は未一致。",
+  "evidence": "/evidence/orrery-impact-tracking.png",
+  "evidenceScope": "標的移動時のビーム・命中輪の追従確認。参照との完全一致は示さない。"
+}
