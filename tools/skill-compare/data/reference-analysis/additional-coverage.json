@@ -98,8 +98,8 @@
     "weapon": "gossamer-katana",
     "videoId": "LkLhzmoJZ6Y",
     "file": "extra-1.json",
-    "sha256": "f824347892e0db403417081bf8bbb8a4fa3e8d62c0ba3084344a77b1d621d02d",
-    "coverage": "reference-case-added-implementation-missing",
+    "sha256": "b4a6153c026f88c462eb7e0054e298c4f104f513b253e237275999201a833ae3",
+    "coverage": "prototype-direct-captured-kit-routing-missing",
     "name": "Unresolved four-contact arc chain",
     "case": "gossamer-katana-arc-chain"
   },

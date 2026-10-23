@@ -1,0 +1,43 @@
+{
+  "round": 80,
+  "case": "gossamer-katana-arc-chain",
+  "status": "failed",
+  "capture": "build/limbus-review/round80/final-captures/gossamer-katana-arc-chain-1792745349905131364",
+  "frames": 73,
+  "quality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 3.0
+  },
+  "runtime": {
+    "coreSha256": "6d25726243810e67722d94467616c5cdeae3a53b7e8f425f46248d9e772f6a01",
+    "combatSha256": "f118565f5e591447a46888c3af6822318d14008723ab9b4ec2f604fca94470ca",
+    "resourcePackSha1": "eb1edf64b96408bae5d48a5b7315a69ec2bf8d56"
+  },
+  "referenceContacts": [
+    645,
+    659,
+    672,
+    683
+  ],
+  "prototypeDamageTicks": [
+    7,
+    17,
+    25,
+    33
+  ],
+  "health": [
+    200.0,
+    194.096,
+    188.19199,
+    182.28798,
+    176.38397
+  ],
+  "displayPeak": 30,
+  "displaySamples": 773,
+  "displayScope": "One direct Gossamer arc-chain prototype cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "review": "同じ側から2接触、通過後に反対側で2接触と低い回復姿勢の試作を実機確認。正式キット・コイン対応・ダメージ回数は未確定。身体の向き、箱状残像、刀の曲率、途切れる細い縁、白い帯状残光、花模様、カメラは未一致。",
+  "implementation": "Direct cast only; no normal input or state routing. Prototype4x6 damage is a timing fixture, not proven kit damage. Approach4m then3m pass after contact2; later caster body facing still wrong.",
+  "rejected": "Initial first slash anchored before approach and remained behind; rescheduled after approach. Back-side soft trails invisible; added thin cyan solid edges, which remain visibly segmented.",
+  "sourceCorrection": "Earlier description over-counted body crossings based on overlapping ghosts; native selected frames show first2 contacts on screen-right and later2 on screen-left. Exact crossing path remains uncertain."
+}
