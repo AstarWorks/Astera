@@ -59,12 +59,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "round28: 横移動・空中移動の白い分割直線を、青い縁と先細りを持つ曲線スプライトへ置換。各VFXは78→54表示。実機で新素材と反転時の継続を確認。参照の光帯の広がり・動き、黒い爪の曲線、人物姿勢、カメラ、持続変身・通常入力は未一致。"
+    "reason": "round29: 上昇25tickは移動方向と逆の右下、下降31tickは進行方向の右下へ爪・光帯を向ける定義に分離。実撮影031〜040で確認。角度は目視調整。下降時の参照ズーム、光帯の広がり、黒い爪の曲線、人物姿勢、持続変身・通常入力は未一致。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 26,
+  "iterations": 28,
   "report": "/report/edict-blade",
   "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
-  "contentRevision": "ba5428050bd123ef1ae886ccae2d44ab6e730a4fd41d2fba51646f5c00d9d5de"
+  "contentRevision": "077f4a8313610af4e0540a0f7f39be7d2aa3164c462c8e9f10d4bea8ec892549"
 }
