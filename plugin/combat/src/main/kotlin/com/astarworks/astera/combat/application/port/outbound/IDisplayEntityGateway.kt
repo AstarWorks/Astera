@@ -3,6 +3,7 @@ package com.astarworks.astera.combat.application.port.outbound
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
 import java.util.UUID
 
@@ -41,6 +42,14 @@ public interface IDisplayEntityGateway {
 
     /** Moves the display; the client smooths the move over [teleportTicks] (`teleport_duration`). */
     public fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int)
+
+    /** Native player attachment for fixed displays. False leaves ordinary follow behavior intact. */
+    public fun attach(
+        handle: DisplayHandle,
+        anchor: PlayerId,
+        offset: Vec3,
+        transform: DisplayTransform,
+    ): Boolean = false
 
     /** Removes a display; unknown / already removed handles are ignored. */
     public fun remove(handle: DisplayHandle)

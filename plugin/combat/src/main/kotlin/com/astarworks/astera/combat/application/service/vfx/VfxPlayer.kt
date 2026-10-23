@@ -6,6 +6,7 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IVfxRegistry
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.ParticleId
@@ -53,6 +54,8 @@ public class VfxRequest(
     public val caster: PlayerId? = null,
     /** Hit-stop windows (effect ticks) that freeze rigs with `respect_hit_stop`. */
     public val freeze: List<VfxFreeze> = emptyList(),
+    /** Entity identity for optional native attachment; location anchors leave this null. */
+    public val anchorEntityId: PlayerId? = null,
 )
 
 /** One particle element emission handed to the runtime (which plans it through `ParticleEmitter`). */
@@ -91,6 +94,7 @@ public class VfxPlayer(
         var handle: DisplayHandle? = null
         var nextUpdate: Int = 0
         var nextParticle: Int = 0
+        var attached: Boolean = false
 
         /** Entity position offset from the anchor (quads sit at their own point; `0` for ordinary displays). */
         var offset: Vec3 = plan.spawnOffset
@@ -187,7 +191,7 @@ public class VfxPlayer(
                     u.style?.let { displays.setTextStyle(handle, it.backgroundArgb, it.textOpacity, it.textRgb) }
                     u.position?.let {
                         state.offset = it
-                        displays.teleport(handle, instance.position + it, 0f, 0f, (if (plan.follow) plan.followTeleportTicks else null) ?: u.interpolationTicks.coerceIn(0, MAX_TELEPORT_TICKS))
+                        displays.teleport(handle, instance.position + it, 0f, 0f, (if (plan.follow && !state.attached) plan.followTeleportTicks else null) ?: u.interpolationTicks.coerceIn(0, MAX_TELEPORT_TICKS))
                     }
                     displays.update(handle, u.transform, u.interpolationTicks)
                 }
@@ -243,6 +247,11 @@ public class VfxPlayer(
             else -> emptyList()
         }
         state.handle = displays.spawn(instance.request.world, instance.position + e.spawnOffset, spec, lines)
+        val anchorId = instance.request.anchorEntityId
+        if (instance.plan.follow && instance.plan.attachToAnchor && anchorId != null && e.billboard == DisplayBillboard.FIXED) {
+            state.handle?.let { state.attached = displays.attach(it, anchorId, e.spawnOffset, e.initial) }
+            if (!state.attached) log.debug("VFX {}: native attachment unavailable for '{}'", instance.request.vfxId, e.elementId)
+        }
         if (state.handle == null) log.debug("VFX {}: display for element '{}' was not spawned", instance.request.vfxId, e.elementId)
     }
 

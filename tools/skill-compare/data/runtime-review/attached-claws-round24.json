@@ -1,0 +1,52 @@
+{
+  "runtime": {
+    "baseCommit": "99f817a8b30230fb8eb3b76843aea51cb5bc8f4c",
+    "changes": "Opt-in attach_to_anchor for fixed displays following a player; native passenger follows rendered body",
+    "scope": "Airborne Procuration S3 prototype; no complete fidelity claim",
+    "coreSha256": "39d1fe49f7e0b46a3845b046ed6926995feb073114255c6281b6956c8630b1dd",
+    "combatSha256": "f0258600e85da4aec6a6fb85b3b33509521ce5e8087421f022ebffacefd059c1"
+  },
+  "deployedEvidence": {
+    "content/skills/edict-procuration-s3.yaml": "521b78046ffcb6a638287f5686c8770e5a548a436f0658e2afffd0e422fb99b0",
+    "content/vfx/edict-procuration-airborne.yaml": "e1b6f9dec3e419d4b8a27783ff24f2bcbad84f17a5d0f63e0e0ae061ddd17823"
+  },
+  "setting": "follow: true; attach_to_anchor: true on edict-procuration-airborne only",
+  "scope": "Player anchors and fixed displays; unsupported anchors/billboards retain previous behavior",
+  "captureQuality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 11.0
+  },
+  "excludedCameraLatenessMs": [
+    166
+  ],
+  "visualReview": {
+    "frame_038": "Claw and light-strip roots stay near airborne caster after reversal.",
+    "frame_040": "Roots remain near descending caster instead of detached ahead.",
+    "frame_042": "Bare-hand interval at landing transition remains."
+  },
+  "passengerLifetime": [
+    {
+      "atSeconds": 1.4752116203308105,
+      "reply": "count has 78 [attach_probe]"
+    },
+    {
+      "atSeconds": 1.7972288131713867,
+      "reply": "count has 78 [attach_probe]"
+    },
+    {
+      "atSeconds": 2.303699493408203,
+      "reply": "count has 0 [attach_probe]"
+    },
+    {
+      "atSeconds": 7.5018579959869385,
+      "reply": "count has 0 [attach_probe]"
+    }
+  ],
+  "limitations": [
+    "Incomplete source fidelity",
+    "Crouch, disconnect, world transfer and external dismount not client-verified",
+    "Other claws remain on previous follow mode",
+    "Persistent form and normal input routing missing"
+  ]
+}

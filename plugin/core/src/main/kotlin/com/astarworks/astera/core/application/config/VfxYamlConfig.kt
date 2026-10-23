@@ -72,6 +72,7 @@ public data class VfxYamlConfig(
     public val orient: String = "look",
     public val follow: Boolean = false,
     @SerialName("follow_teleport_ticks") public val followTeleportTicks: Int? = null,
+    @SerialName("attach_to_anchor") public val attachToAnchor: Boolean = false,
     @SerialName("sample_ticks") public val sampleTicks: Int = 2,
     public val elements: List<VfxElementYaml> = emptyList(),
     /** Weapon rigs with 風切り trails (see [VfxRigYaml]). */
@@ -86,6 +87,7 @@ public data class VfxYamlConfig(
                 orient = parseEnum<VfxOrient>(orient, "orient"),
                 follow = follow,
                 followTeleportTicks = followTeleportTicks,
+                attachToAnchor = attachToAnchor,
                 sampleTicks = sampleTicks,
                 elements = elements.map { it.toDomain() },
                 rigs = rigs.map { it.toDomain() },

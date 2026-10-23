@@ -52,6 +52,7 @@ internal class VfxMechanics(
                 caster = ctx.actorId,
                 freeze = freeze,
                 anchor = live,
+                anchorEntityId = entities.getOrNull(index),
                 seed = scheduler.currentTick() * 1_000_003L + ctx.actorId.hashCode() * 31L + index,
             )
             when (val result = player.play(request)) {
