@@ -55,12 +55,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "単体反復映像専用の直接呼出し試作。前進、構え直し、4回の命中を実機確認。光球が箱状、発光・緑の装備表示・腕姿勢・曲線・接写タイミングは未一致。通常入力とCharge分岐は未接続。"
+    "reason": "立方体の輪郭を円形へ改善。発光のにじみ、位置、周囲の軌跡、腕姿勢、カメラは未一致。通常入力・Charge分岐の未接続も残る。"
   },
   "weapon": "orrery-staff",
   "identity": "R Corp. 4th Pack Reindeer Rodion",
-  "iterations": 3,
+  "iterations": 5,
   "report": "/report/orrery-staff",
   "referenceRevision": "697ab87c4632f98a9914713b9c413d3024954d07d5c3e243dd4bba2b0172309a",
-  "contentRevision": "2c8e36294d0cd148291959a5a229a0f31e58a9a1fd9a2c1b792b25b51051329e"
+  "contentRevision": "b0b5e97434b5f2da97db38404e7f20bee85ca6c0c4f4cda899e702acd577a1e6"
 }

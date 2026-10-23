@@ -107,9 +107,17 @@ internal object ParticlePainters {
     }
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
-        "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
+        "orb" to ::orb, "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
         "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue, "procuration_ribbon" to ::procurationRibbon, "crimson_orbit" to ::crimsonOrbit, "crimson_link" to ::crimsonLink,
     )
+
+    /** Round charge light: broad white centre, narrow gold rim, no star arms. */
+    private fun orb(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val r = hypot(x - C, y - C) / 15.0
+            if (r > 1.0) 0.0 else (1.0 - r.pow(4)).coerceIn(0.0, 1.0)
+        }
+    }
 
     /** A 4-point star that pops open, hangs, then shrinks, with a small diagonal star and a white-hot core. */
     private fun spark(c: Canvas, t: Double, i: Int, n: Int) {

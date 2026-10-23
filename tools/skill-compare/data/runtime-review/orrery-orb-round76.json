@@ -1,0 +1,47 @@
+{
+  "round": 76,
+  "status": "failed",
+  "captures": [
+    {
+      "case": "orrery-staff-s2",
+      "capture": "build/limbus-review/round76/final-captures/orrery-staff-s2-1792743378570191392",
+      "frames": 126,
+      "quality": {
+        "maxRepeatedFrames": 2,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 5.0
+      }
+    },
+    {
+      "case": "orrery-staff-s3-repeat",
+      "capture": "build/limbus-review/round76/final-captures/orrery-staff-s3-repeat-1792743466080554355",
+      "frames": 244,
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 3.0
+      }
+    },
+    {
+      "case": "orrery-staff-s3",
+      "capture": "build/limbus-review/round76/final-captures/orrery-staff-s3-1792743420628582707",
+      "frames": 224,
+      "quality": {
+        "maxRepeatedFrames": 2,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 1.0
+      }
+    }
+  ],
+  "runtime": {
+    "coreSha256": "6d25726243810e67722d94467616c5cdeae3a53b7e8f425f46248d9e772f6a01",
+    "combatSha256": "f118565f5e591447a46888c3af6822318d14008723ab9b4ec2f604fca94470ca",
+    "resourcePackSha1": "1c32924995b256c335a272caa4796eae1c22ed14"
+  },
+  "displayPeak": 58,
+  "displaySamples": 772,
+  "displayScope": "One direct Mind Whip repeat cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "review": "立方体の輪郭を円形へ改善。発光のにじみ、位置、周囲の軌跡、腕姿勢、カメラは未一致。通常入力・Charge分岐の未接続も残る。",
+  "rejected": "First three captures oversized: 128px font glyph is 3.2 blocks per unit scale; corrected scaling and recaptured all affected observed cases.",
+  "unobserved": "orrery-ego shares changed orb; no fidelity claim or reference capture."
+}

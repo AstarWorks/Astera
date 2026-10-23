@@ -5,8 +5,12 @@ sample_ticks: 2
 elements:
 - id: core
   kind:
-    type: block
-    block: white_concrete
+    type: sprite
+    sprite: orrery-orb
+    frame_ticks: 1
+    loop: false
+    color: '#FFFFFF'
+    see_through: true
   brightness: 15
   start_tick: 0
   end_tick: 44
@@ -16,106 +20,31 @@ elements:
     - -0.3
     - 1.4
     - 1.95
-    rotate:
-    - 0
-    - 0
-    - 0
     scale:
-    - 0.065
-    - 0.065
-    - 0.065
+    - 0.0264062
+    - 0.0264062
+    - 1
   - t: 14
-    rotate:
-    - 360
-    - 360
-    - 0
     scale:
-    - 0.39
-    - 0.39
-    - 0.39
+    - 0.1584375
+    - 0.1584375
+    - 1
     ease: in_out_quad
   - t: 16
-    rotate:
-    - 450
-    - 450
-    - 90
     scale:
-    - 0.585
-    - 0.585
-    - 0.585
+    - 0.2376562
+    - 0.2376562
+    - 1
     ease: out_expo
   - t: 38
-    rotate:
-    - 1080
-    - 1080
-    - 360
   - t: 44
-    rotate:
-    - 1260
-    - 1260
-    - 360
     scale:
     - 0.0
     - 0.0
-    - 0.0
+    - 1
     ease: in_quad
   oscillate:
     axis: scale_xyz
-    amplitude: 0.05
+    amplitude: 0.015625
     period_ticks: 2
-- id: shell
-  kind:
-    type: block
-    block: orange_stained_glass
-  brightness: 15
-  start_tick: 0
-  end_tick: 44
-  keyframes:
-  - t: 0
-    translate:
-    - -0.3
-    - 1.4
-    - 1.95
-    rotate:
-    - 0
-    - 0
-    - 0
-    scale:
-    - 0.1
-    - 0.1
-    - 0.1
-  - t: 14
-    rotate:
-    - -180
-    - 90
-    - 0
-    scale:
-    - 0.5
-    - 0.5
-    - 0.5
-    ease: out_quad
-  - t: 16
-    rotate:
-    - -220
-    - 90
-    - 0
-    scale:
-    - 0.75
-    - 0.75
-    - 0.75
-    ease: out_expo
-  - t: 38
-    rotate:
-    - -720
-    - 90
-    - 0
-  - t: 44
-    scale:
-    - 0.0
-    - 0.0
-    - 0.0
-    ease: in_quad
-  oscillate:
-    axis: scale_xyz
-    amplitude: 0.1
-    period_ticks: 3
+  billboard: center

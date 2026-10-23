@@ -64,13 +64,13 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "演出中に手持ち武器の見た目だけを隠し、二重表示を改善。本人視点の手持ち・ホットバーも一時的に空になる。実アイテムID・個数・モデル指定は不変で、終了後の表示復帰を確認。腕姿勢・武器位置・形状細部・光・カメラは未一致。"
+    "reason": "立方体の輪郭を円形へ改善。発光のにじみ、位置、周囲の軌跡、腕姿勢、カメラは未一致。通常入力・Charge分岐の未接続も残る。"
   },
   "weapon": "orrery-staff",
   "identity": "R Corp. 4th Pack Reindeer Rodion",
   "videoTitle": "R Corp. 4th Pack Reindeer Rodion — skill showcase",
-  "iterations": 8,
+  "iterations": 10,
   "report": "/report/orrery-staff",
   "referenceRevision": "37cecbf269279ceeb30fc8758063b98bfd2b4119e0e80d61007e51ec20da4f94",
-  "contentRevision": "b7d7d31228d398ba8a338fc816cb4eec82c6f1d2528c172b0c399874d1c6afc3"
+  "contentRevision": "bb3860b4fba4585583c05eb023985e5daf25235dd9676f9a21d4bf81442cf184"
 }
