@@ -264,12 +264,8 @@ elements:
     size:
     - 0.045
     - 0.1
-    size_over_life:
-    - 1
-    - 0.1
-    alpha_over_life:
-    - 1
-    - 0
+    size_over_life: [{ t: 0, v: 1 }, { t: 1, v: 0.1 }]
+    alpha_over_life: [{ t: 0, v: 1 }, { t: 1, v: 0 }]
 - id: sparks
   kind:
     type: particle

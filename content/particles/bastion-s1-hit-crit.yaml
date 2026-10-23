@@ -1,0 +1,9 @@
+# Bastion S1: white crit burst at the victim's chest on contact. Hit 1: one call (5); hit 2: two calls one tick apart (10). r9: 8 -> 5, the crit X read as a big glyph at the compare close-up.
+id: bastion-s1-hit-crit
+shape: { kind: burst, spread_blocks: 0.3 }
+color: { r: 255, g: 255, b: 255 }
+count: 5
+lifetime_ticks: 12
+vanilla_particle: crit
+velocity: { direction: outward, speed: 0.45, spread_degrees: 70 }
+force: true

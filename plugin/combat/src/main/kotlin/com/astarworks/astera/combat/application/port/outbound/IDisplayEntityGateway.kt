@@ -55,6 +55,12 @@ public interface IDisplayEntityGateway {
     /** Whether this live display is still riding the requested anchor in the requested world. */
     public fun isAttached(handle: DisplayHandle, anchor: PlayerId, world: WorldId): Boolean = false
 
+    /**
+     * Sets `view_range`. The client reads it every frame (not per tick), so `0` hides an already ticked display
+     * and the original value shows it again in the same frame as any other packet of that server tick.
+     */
+    public fun setViewRange(handle: DisplayHandle, viewRange: Float) {}
+
     /** Removes a display; unknown / already removed handles are ignored. */
     public fun remove(handle: DisplayHandle)
 

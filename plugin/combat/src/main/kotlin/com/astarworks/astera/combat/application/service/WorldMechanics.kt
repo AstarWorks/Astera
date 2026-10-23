@@ -56,6 +56,7 @@ internal class WorldMechanics(
     private val summons: ISummonGateway?,
     private val summonRegistry: SummonRegistry,
     private val effects: IEntityEffectsGateway?,
+    private val heldItems: HeldItemHider?,
     private val feedback: IPlayerFeedbackGateway?,
     private val messageRenderer: IMessageRenderer?,
     private val teamLookup: IMatchTeamLookup?,
@@ -294,6 +295,15 @@ internal class WorldMechanics(
         }
     }
 
+    // ---- HideHeldItem --------------------------------------------------------
+
+    fun hideHeldItem(m: Mechanic.HideHeldItem, ctx: MechanicContext) {
+        val hider = heldItems ?: return warnMissing("HideHeldItem", "IEntityEffectsGateway")
+        val duration = host.resolveInt(m.ticks, ctx).toLong()
+        if (duration <= 0) return
+        for (target in living(targeters.resolvePlayers(m.targets, ctx))) hider.hide(target, duration)
+    }
+
     // ---- CameraShake ---------------------------------------------------------
 
     fun cameraShake(m: Mechanic.CameraShake, ctx: MechanicContext) {
@@ -322,6 +332,7 @@ internal class WorldMechanics(
         summonRegistry.all().forEach { summonRegistry.forget(it) }
         glowUntil.keys.toList().forEach { effects?.setGlowing(it, false) }
         glowUntil.clear()
+        heldItems?.shutdown()
     }
 
     private fun warnMissing(mechanic: String, port: String) {

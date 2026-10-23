@@ -1,0 +1,10 @@
+# small gold flecks at the contact, gold -> orange (dust scale 0.35: life ~3-14 ticks, never lands)
+id: bastion-s1-p-fleck-gold
+shape: { kind: burst, spread_blocks: 0.14 }
+color: { r: 255, g: 210, b: 58 }
+count: 3
+lifetime_ticks: 8
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 255, g: 222, b: 70 }, to: { r: 225, g: 110, b: 20 }, scale: 0.35 }
+velocity: { direction: outward, speed: 0.1, spread_degrees: 80 }
+force: true

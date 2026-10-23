@@ -1,0 +1,10 @@
+# grey grit kicked up at the contact's feet, grey -> dark (dust scale 0.35, spawned 0.15-0.3 above the floor; replaces block_crumble)
+id: bastion-s1-p-grit
+shape: { kind: burst, spread_blocks: 0.15 }
+color: { r: 150, g: 146, b: 140 }
+count: 4
+lifetime_ticks: 8
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 160, g: 156, b: 150 }, to: { r: 60, g: 56, b: 52 }, scale: 0.35 }
+velocity: { direction: up, speed: 0.1, spread_degrees: 55 }
+force: true

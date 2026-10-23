@@ -1,0 +1,9 @@
+# Bastion S1: thin bright sparks flung along the streak (caster look). Hit 1: 5, hit 2: two calls (10).
+id: bastion-s1-hit-spark
+shape: { kind: burst, spread_blocks: 0.12 }
+color: { r: 255, g: 226, b: 140 }
+count: 5
+lifetime_ticks: 8
+vanilla_particle: electric_spark
+velocity: { direction: from_caster_look, speed: 0.55, spread_degrees: 14 }
+force: true
