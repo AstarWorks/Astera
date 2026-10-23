@@ -40,8 +40,11 @@ export function reviewDiff(before, after) {
 }
 
 export function makeAnim({ repo, root, S }) {
-  const animDir = join(repo, "content", "animations");
-  const skillDir = join(repo, "content", "skills");
+  // content/ comes from the checkout this server runs from (its own tools/skill-compare/../..); the configured repo is only the fallback.
+  const checkout = resolve(root, "..", "..");
+  const contentRoot = existsSync(join(checkout, "content", "animations")) ? checkout : repo;
+  const animDir = join(contentRoot, "content", "animations");
+  const skillDir = join(contentRoot, "content", "skills");
 
   function definition(id) {
     const file = join(animDir, id + ".yaml");

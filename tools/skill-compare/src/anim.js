@@ -34,6 +34,7 @@ function init(d) {
   }
   renderProv($("prov"), cap.prov);
   $("from").textContent = `撮影元: ${cap.from.branch || cap.from.worktree}`;
+  $("restTitle").textContent = `バニラ ↔ リグ 比較（リグは t+${cap.restTick} の静止画）`;
   renderRest(cap);
   renderStrips();
   initPlayer(cap);
