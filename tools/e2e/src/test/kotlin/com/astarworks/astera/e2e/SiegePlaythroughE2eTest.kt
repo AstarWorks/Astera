@@ -88,7 +88,7 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
             fallen = attacker.waitUntil(5_000) { sidebar(attacker).any { it.contains("core down", true) } || matchLines().isEmpty() }
         }
         E2eReport.check(suite, "breaking the enemy core eliminates that team", "SetScore (sidebar) / chat") {
-            assertThat(fallen).describedAs("core never fell; sidebar=${sidebar(attacker)} chat=${attacker.chatTexts().takeLast(5)}").isTrue()
+            assertThat(fallen).describedAs("core never fell; deaths=${deathsSince(logFrom)} sidebar=${sidebar(attacker)} chat=${attacker.chatTexts().takeLast(5)}").isTrue()
             assertThat(creativeFallback).describedAs("survival dig with haste-100 + diamond pickaxe did nothing; only creative worked").isFalse()
             "creativeFallback=$creativeFallback; chat=${attacker.chatTexts().takeLast(3)}"
         }
