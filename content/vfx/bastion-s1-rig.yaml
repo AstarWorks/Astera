@@ -1,0 +1,135 @@
+# S1 sword: ONE rig (one set of sword displays) for the whole skill: hold -> swing 1 -> hold -> swing 2 -> hold. No hand-over, no duplicate sword.
+# Play at skill tick 0 with follow: true (rides the caster through the dashes), duration 52,
+# play_vfx freeze: [{ at: 7, ticks: 2 }, { at: 31, ticks: 2 }]  (effect ticks; the hit_stop of both contacts).
+# Rig key time l is displayed at effect tick l + 1 (+ frozen ticks before it). Hit 1: e_k (e4 = contact) -> key k+2, contact displayed at effect tick 7.
+# Hit 2: e_k -> key k+24 (the first 2-tick freeze shifts it), contact displayed at effect tick 31.
+# Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
+# Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
+# PLACEHOLDER parts (round 1): re-paste deliver/rig-parts.yaml in round 2. fx / sprites live in bastion-s1-fx-high/low.yaml.
+
+id: bastion-s1-rig
+duration_ticks: 52
+orient: yaw
+follow: true
+sample_ticks: 1
+rigs:
+- id: sword
+  pivot: [-0.15, 0.92, 0.25]
+  rest: [0, 90, 0]
+  tilt: [0, 0, -20]
+  respect_hit_stop: true
+  parts:
+  - id: blade_face
+    block: gray_concrete
+    offset: [0, 1.55, 0]
+    size: [0.46, 1.9, 0.07]
+  - id: rim_l
+    block: white_concrete
+    offset: [0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: rim_r
+    block: white_concrete
+    offset: [-0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: tip
+    block: white_concrete
+    offset: [0, 2.5, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: base
+    block: white_concrete
+    offset: [0, 0.62, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: inset
+    block: yellow_concrete
+    offset: [0, 0.86, 0]
+    size: [0.09, 0.2, 0.09]
+  - id: guard
+    block: black_concrete
+    offset: [0, 0.5, 0]
+    size: [0.62, 0.1, 0.18]
+  - id: grip
+    block: black_concrete
+    offset: [0, 0.05, 0]
+    size: [0.09, 0.8, 0.09]
+  swing:
+  - { t: 0, rotate: [-172.9, 18.7, 68.8] }
+  - { t: 2, rotate: [-172.9, 18.7, 68.8] }
+  - { t: 3, rotate: [-159.2, -1.0, 9.2] }
+  - { t: 4, rotate: [-245.2, 28.4, -2.6] }
+  - { t: 5, rotate: [-322.9, 9.3, 25.1] }
+  - { t: 6, rotate: [-357.6, -6.6, 19.4] }
+  - { t: 7, rotate: [-408.2, -15.2, 3.7] }
+  - { t: 8, rotate: [-455.1, -12.9, -10.6] }
+  - { t: 9, rotate: [-491.0, -3.1, -22.8] }
+  - { t: 10, rotate: [-519.9, 11.9, 0.3] }
+  - { t: 11, rotate: [-542.6, 21.2, 28.8] }
+  - { t: 12, rotate: [-540.6, 21.0, 48.7] }
+  - { t: 13, rotate: [-535.7, 19.8, 60.7] }
+  - { t: 14, rotate: [-533.8, 19.1, 66.8] }
+  - { t: 16, rotate: [-533.4, 18.9, 68.8] }
+  - { t: 19, rotate: [-532.9, 18.7, 68.8] }
+  - { t: 24, rotate: [-532.9, 18.7, 68.8] }
+  - { t: 25, rotate: [-506.6, -0.9, 11.1] }
+  - { t: 26, rotate: [-588.7, 34.8, -12.9] }
+  - { t: 27, rotate: [-679.5, 23.7, 25.6] }
+  - { t: 28, rotate: [-721.4, 3.8, 20.4] }
+  - { t: 29, rotate: [-770.5, -5.4, 4.7] }
+  - { t: 30, rotate: [-814.8, -3.9, -3.2] }
+  - { t: 31, rotate: [-853.6, -1.4, -15.8] }
+  - { t: 32, rotate: [-884.4, 13.5, -0.3] }
+  - { t: 33, rotate: [-907.4, 22.9, 29.0] }
+  - { t: 34, rotate: [-905.3, 22.7, 48.8] }
+  - { t: 35, rotate: [-899.4, 21.1, 60.7] }
+  - { t: 36, rotate: [-895.7, 19.8, 66.7] }
+  - { t: 38, rotate: [-892.9, 18.7, 68.8] }
+  trails:
+  - id: wind1
+    from: [0, 0.7, 0]
+    to: [0, 2.55, 0]
+    start_t: 4
+    end_t: 8
+    life_ticks: 9
+    lag_ticks: 0
+    style: soft
+    step_deg: 40
+    fade_power: 1.0
+    bands:
+    - from: 0.0
+      to: 0.8
+      color: '#00FFC040'
+      color_to: '#00FFC040'
+    - from: 0.8
+      to: 1.0
+      color: '#C0FFD878'
+      color_to: '#30FFA818'
+    edge:
+      block: white_concrete
+      width: 0.04
+  - id: wind2
+    from: [0, 0.7, 0]
+    to: [0, 2.55, 0]
+    start_t: 26
+    end_t: 30
+    life_ticks: 9
+    lag_ticks: 0
+    style: soft
+    step_deg: 40
+    fade_power: 1.0
+    bands:
+    - from: 0.0
+      to: 0.8
+      color: '#00FFC040'
+      color_to: '#00FFC040'
+    - from: 0.8
+      to: 1.0
+      color: '#C0FFD878'
+      color_to: '#30FFA818'
+    edge:
+      block: white_concrete
+      width: 0.04
+
+  emitters:
+  - { id: tip_ember_1, particle_id: bastion-s1-tip-ember, point: [0, 2.55, 0], start_t: 4, end_t: 10 }
+  - { id: tip_glint_1, particle_id: bastion-s1-tip-glint, point: [0, 2.55, 0], start_t: 4, end_t: 9 }
+  - { id: tip_ember_2, particle_id: bastion-s1-tip-ember, point: [0, 2.55, 0], start_t: 26, end_t: 32 }
+  - { id: tip_glint_2, particle_id: bastion-s1-tip-glint, point: [0, 2.55, 0], start_t: 26, end_t: 31 }
