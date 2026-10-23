@@ -5,8 +5,12 @@ sample_ticks: 1
 elements:
 - id: gold
   kind:
-    type: block
-    block: yellow_concrete
+    type: sprite
+    sprite: orrery-orb
+    frame_ticks: 1
+    loop: false
+    color: '#FFFFFF'
+    see_through: true
   brightness: 15
   start_tick: 0
   end_tick: 55
@@ -17,49 +21,23 @@ elements:
     - 2.75
     - 0.3
     scale:
-    - 0.15
-    - 0.15
-    - 0.15
+    - 0.0609375
+    - 0.0609375
+    - 1
   - t: 10
     scale:
-    - 0.55
-    - 0.55
-    - 0.55
+    - 0.2234375
+    - 0.2234375
+    - 1
     ease: out_cubic
   - t: 53
     scale:
-    - 0.55
-    - 0.55
-    - 0.55
+    - 0.2234375
+    - 0.2234375
+    - 1
   - t: 55
     scale:
-    - 0
-    - 0
-    - 0
-- id: bloom
-  kind:
-    type: quad
-    color: '#FFB42C'
-    alpha: 0.25
+    - 0.0
+    - 0.0
+    - 1
   billboard: center
-  brightness: 15
-  start_tick: 0
-  end_tick: 55
-  keyframes:
-  - t: 0
-    translate:
-    - -0.3
-    - 2.75
-    - 0.3
-    scale:
-    - 0.4
-    - 0.4
-    - 0.02
-  - t: 10
-    scale:
-    - 0.9
-    - 0.9
-    - 0.02
-    ease: out_cubic
-  - t: 55
-    alpha: 0.0
