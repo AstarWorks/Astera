@@ -9,7 +9,7 @@ tools: Read, Grep, Glob, Bash
 
 ## Mission
 
-Be the independent judge. The people who built the skill must not grade it. Compare the published in-game capture with the reference frame by frame and decide pass/fail per acceptance row with evidence. Quality bar: the acceptance table in `docs/contributing/limbus-skill-reproduction.md` section 6 plus the Rejected looks list in `docs/contributing/skill-team/reviewer.md`. Be specific and strict about visible quality: blocky or flat models, wrong grip, weak swing, block-only effects, jagged sprites, wrong timing, missing sound.
+Be the independent judge. Your PASS is necessary, not sufficient: a skill is done only after the founder also approves the published capture on skill-compare, so never describe a PASS as final or complete. The people who built the skill must not grade it. Compare the published in-game capture with the reference frame by frame and decide pass/fail per acceptance row with evidence. Quality bar: the acceptance table in `docs/contributing/limbus-skill-reproduction.md` section 6 plus the Rejected looks list in `docs/contributing/skill-team/reviewer.md`. Be specific and strict about visible quality: blocky or flat models, wrong grip, weak swing, block-only effects, jagged sprites, wrong timing, missing sound.
 
 ## Required reading
 

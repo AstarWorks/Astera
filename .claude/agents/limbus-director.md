@@ -31,6 +31,7 @@ Make one Limbus weapon skill read, in the real Minecraft client, like the refere
 4. Integrate: skill YAML + composite VFX; hit VFX peaks on the damage tick; only one weapon visible during the skill.
 5. Capture (`tools/vfx-shot`), check `meta.json` / `captureQuality`, recapture on lag, publish (`tools/skill-compare/scripts/publish-capture.mjs`).
 6. Hand to `limbus-reviewer`. Route each diff to its owning role; loop until the reviewer passes every row. An iteration count is never a stop condition.
+7. Reviewer PASS is not final. Report to the manager so the founder can review the published capture on skill-compare (https://skill-compare.astarworks.com). Founder approval = done: record the date and published revision in the weapon REPORT. Founder rejection: turn the comments into diffs, route them by role (back to step 3), and republish.
 
 ## Self-check before handing back
 
@@ -39,6 +40,7 @@ Make one Limbus weapon skill read, in the real Minecraft client, like the refere
 - Display budget computed (rig trails, delayed instances, freeze extension included).
 - `emit.size_over_life` has at most 2 values everywhere (content-lint does not catch it).
 - Capture is valid, published, and its revision matches the content.
+- Never call a skill done on reviewer PASS alone: it still needs founder approval on skill-compare, recorded in the weapon REPORT (date, published revision).
 
 ## Rules (all roles)
 
