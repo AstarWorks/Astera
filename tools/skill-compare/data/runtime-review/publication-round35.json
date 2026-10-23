@@ -1,0 +1,554 @@
+{
+  "scope": "Comparison playback publication, not skill fidelity certification",
+  "publishedViewCount": 105,
+  "publications": [
+    {
+      "id": "edict-procuration-s1/compare",
+      "revision": "49f85c19b1767544be481bfc64d23c85e30a7a3d30b5a050f0b51d1b5ea74c76",
+      "count": 57
+    },
+    {
+      "id": "sigil-rifle-s2/compare",
+      "revision": "3637732cebf77a18e77350e5248cd3265336f9393000063b844bd7960726ceeb",
+      "count": 113
+    },
+    {
+      "id": "sigil-rifle-s2/input",
+      "revision": "d0bdeb4ede2d98982685eac9ad46d6ea7a14d5f3e077e9b345a844ff8dad1d65",
+      "count": 113
+    },
+    {
+      "id": "gossamer-katana-s3/compare",
+      "revision": "321e4fdc1a48bf9bfa823fd3771491c45f94e3ce3f860aab3ac82a7179d5bc2d",
+      "count": 81
+    },
+    {
+      "id": "gossamer-katana-s3/input",
+      "revision": "b3dd483dae3c44b9ab9aab3962fa5154da28c39a8e1ce4365bd4d7dc74ff6052",
+      "count": 81
+    },
+    {
+      "id": "vendetta-rifle-ego/compare",
+      "revision": "7552dc1274318aec473c4400730579196e65da29f86695c219a5a5e901f01135",
+      "count": 290
+    },
+    {
+      "id": "vendetta-rifle-ego/input",
+      "revision": "afe932735ab2a472aa49fb18bf80df6d4027f27d51e7664f9213bb9eda997de2",
+      "count": 290
+    },
+    {
+      "id": "sigil-rifle-def/compare",
+      "revision": "67adc8f5dbf4a934c7be43799ce07547a6a49cd4f5772d2664a417850e6a6d9d",
+      "count": 79
+    },
+    {
+      "id": "sigil-rifle-def/input",
+      "revision": "a14e4c06fd4740ff771e6fb3f5efa79a2c1ef2e538254faa7fea8798f012e77f",
+      "count": 79
+    },
+    {
+      "id": "bastion-greatsword-s3/compare",
+      "revision": "ebc267ccbd9721785fcd2ff17366525a4c0fdad439d583c53b5e60ee863ff6f7",
+      "count": 116
+    },
+    {
+      "id": "bastion-greatsword-s3/input",
+      "revision": "93187fb388a8323a2d1f135044a544d8df604e721310bfb61ec2be7cff54e214",
+      "count": 116
+    },
+    {
+      "id": "edict-s2/compare",
+      "revision": "a1dfb060cc25a4b246dae9775d6558ca983ba4a7a8e462ec64cf7ae333ac488c",
+      "count": 108
+    },
+    {
+      "id": "edict-s2/input",
+      "revision": "7c301d6e57a8de886291c8d6e6313e9f221bf132af79842c70ee5b1a405e0098",
+      "count": 108
+    },
+    {
+      "id": "gossamer-katana-ego/compare",
+      "revision": "d6081e764a40754a6740253e0d6fb96468484924ed6b7b3c3a5d6c10071c411e",
+      "count": 119
+    },
+    {
+      "id": "gossamer-katana-ego/input",
+      "revision": "c4a232e1a6478af4dcd9a543aee8cf86cf802c568077d0b48563bbadd56606eb",
+      "count": 119
+    },
+    {
+      "id": "crimson-chain-axe-s1/compare",
+      "revision": "a9f81de14fca12ed93c5b2ea0340418baff8ef2aaac8314999bc61e8ce4d1c23",
+      "count": 62
+    },
+    {
+      "id": "crimson-chain-axe-s1/input",
+      "revision": "858e2c31215e591276ad5f5adac7060cc6b884b76b4e35967c456658cf19ecbb",
+      "count": 62
+    },
+    {
+      "id": "couture-rapier-s3/compare",
+      "revision": "b66190eb57137052f5dfe4b544667e5d1ecb2a7ca26eeb9f1f483affa1a04298",
+      "count": 167
+    },
+    {
+      "id": "couture-rapier-s3/input",
+      "revision": "a1ea55bfb9d5e0c7157ecf75c35eb4cdaec243f896d4d98dda47771f612ad864",
+      "count": 167
+    },
+    {
+      "id": "edict-s3/compare",
+      "revision": "0094e0a81a2ec04c51284746e4e30251e263098c920d6e48b0203ddb304bceb9",
+      "count": 109
+    },
+    {
+      "id": "edict-s3/input",
+      "revision": "02c23682ae0741605f6a65a53401c5af3eaa1bea1fc6d6d5f01227c9bec933fb",
+      "count": 109
+    },
+    {
+      "id": "crimson-chain-axe-s2/compare",
+      "revision": "5407cd88a6e68d30c37eb6a11029ce58fac64fffa75dbf1f5f437cc88a08ac79",
+      "count": 94
+    },
+    {
+      "id": "crimson-chain-axe-s2/input",
+      "revision": "69a82bbabb3733b7dd726d974ab59d6b599b0c05f07a51c2f963aade0ae7a30a",
+      "count": 94
+    },
+    {
+      "id": "sigil-rifle-s3/compare",
+      "revision": "f5934c05c04d8113a42c10d3d3a61523d1b16e18607b0da2fcce8e4a918c7a1b",
+      "count": 155
+    },
+    {
+      "id": "sigil-rifle-s3/input",
+      "revision": "d2b5d213a0c74f853e003c82b671712ca412efed3c6903e325a7a38ae8b717e6",
+      "count": 155
+    },
+    {
+      "id": "ember-gauntlet-ego/compare",
+      "revision": "2ee2c617d5c129c06487533930fce732747e43fe743067c5497bb19b42871cd2",
+      "count": 127
+    },
+    {
+      "id": "ember-gauntlet-ego/input",
+      "revision": "f67f4a2547af2340e7509e03461fafbc84bf49a32cfd0e6190aaa67efcd9c394",
+      "count": 127
+    },
+    {
+      "id": "crimson-chain-axe-def/compare",
+      "revision": "a834a0b99a65a279d880ff485700d1e3812dfd7bd63ad583925f3000937ead0f",
+      "count": 58
+    },
+    {
+      "id": "crimson-chain-axe-def/input",
+      "revision": "bf31cdf26ba3ee53a84b1cd402ae8a873563313afd9e066b872de84ce62a6aed",
+      "count": 58
+    },
+    {
+      "id": "crimson-chain-axe-s3/compare",
+      "revision": "ebb0f605def35094d4315eea21878a141e95dbc971e537819013e049c8ca34fc",
+      "count": 160
+    },
+    {
+      "id": "crimson-chain-axe-s3/input",
+      "revision": "e415d0b10ee59f8bfc7bdb6f538e4e5e221579e9b8d5d5b793e79e26ad86ae56",
+      "count": 160
+    },
+    {
+      "id": "couture-rapier-ego/compare",
+      "revision": "3627c11d57fcee5fcdfd1e1ba48609f81844b69466c6762dd8c0568d48cd3f90",
+      "count": 121
+    },
+    {
+      "id": "couture-rapier-ego/input",
+      "revision": "315fbb65a1392e0162dcf58801c3ef96e449571410d46c5fb296def44b741d3b",
+      "count": 121
+    },
+    {
+      "id": "vendetta-rifle-s3/compare",
+      "revision": "69a3caafb3b95be8fba8763a7bf9803bdddf91709fa937f3d679398ff44f2513",
+      "count": 82
+    },
+    {
+      "id": "vendetta-rifle-s3/input",
+      "revision": "190eeaf756663c52b7f8028000af5c5756e84f02a2446963e8458a1d43d347c9",
+      "count": 82
+    },
+    {
+      "id": "orrery-s3/compare",
+      "revision": "2ae126ad03fe0d0282aa856715417845c1c45c243ea1c8ff47ddc5d35a91453f",
+      "count": 224
+    },
+    {
+      "id": "orrery-s3/input",
+      "revision": "625acdca8454953cf96c6482a4fa6988d75c3ec5c37ab13d0a3bf70232c5e833",
+      "count": 224
+    },
+    {
+      "id": "verdict-hammer-s3/compare",
+      "revision": "a213b00e6965ac42dc3e744c0d7d20d79dd1227c99370d80d38ee9b98df9a29b",
+      "count": 156
+    },
+    {
+      "id": "verdict-hammer-s3/input",
+      "revision": "8294d9d7ad2c6a36cda94d2cfe3d7897f8f44fd2d0a5aa4f992b640124f37071",
+      "count": 156
+    },
+    {
+      "id": "orrery-s2/compare",
+      "revision": "164a06b4025fc472f76714fbeaa5f5592613b05b418206ed951317d031e95c1b",
+      "count": 126
+    },
+    {
+      "id": "orrery-s2/input",
+      "revision": "e065c42f1683942a059267780724a53324c5b5d5e5f481b0375a85e6d6041013",
+      "count": 126
+    },
+    {
+      "id": "pistol-reload/compare",
+      "revision": "514cdce1d553f712703a0f3ea609549b22a61d6cfc77cc9746d245544d38ae73",
+      "count": 59
+    },
+    {
+      "id": "pistol-reload/input",
+      "revision": "508692fad192f4ccd4a75809cedcef50b4b536cc465a711bbc1443ba1aa5f0c5",
+      "count": 59
+    },
+    {
+      "id": "vendetta-rifle-s2/compare",
+      "revision": "fe877dc19ef77e8f78a35bdeab85705e5c815df2a46d16c6a00bc45872a4a2a7",
+      "count": 71
+    },
+    {
+      "id": "vendetta-rifle-s2/input",
+      "revision": "325428e4486440b82c0829fd956fc2b3be23f9635284137453bd93a89485069f",
+      "count": 71
+    },
+    {
+      "id": "ember-gauntlet-s3/compare",
+      "revision": "0eef9604e54dfdba5add8a80ee338bffe21b5dec57cafd93601c3b7c4bdf6a25",
+      "count": 104
+    },
+    {
+      "id": "ember-gauntlet-s3/input",
+      "revision": "d8d3a17540a2c1d97b55925385b5d6b50fa6f345d9419f00b48543c15dba0054",
+      "count": 104
+    },
+    {
+      "id": "vendetta-rifle-s1/compare",
+      "revision": "b11acb9bf018eea8b3384f9f27c6540d35591589ab8d702f618a97c35cd917bb",
+      "count": 61
+    },
+    {
+      "id": "vendetta-rifle-s1/input",
+      "revision": "e2c157236ca04606b2dea5270b0ba0cb828474567d1a5745ede768b8e4f01187",
+      "count": 61
+    },
+    {
+      "id": "bastion-greatsword-ego/compare",
+      "revision": "b8519999d62d9f15221de9e1337a4e000d87a19364553b9985d26fdee7792d93",
+      "count": 95
+    },
+    {
+      "id": "bastion-greatsword-ego/input",
+      "revision": "3b1eafca1fef61423c9410527dda088d77039bdd9d32632f77dedd800f3647d6",
+      "count": 95
+    },
+    {
+      "id": "sigil-rifle-ego/compare",
+      "revision": "fbfac2132e76db5ec348c5a7836a2fd4b9a1c4e12354c7d9142e2da76a3e2fa3",
+      "count": 119
+    },
+    {
+      "id": "sigil-rifle-ego/input",
+      "revision": "8988c8c5c1146754b41e29ca033207cb23392609e5d4541b6758df07c884f13e",
+      "count": 119
+    },
+    {
+      "id": "ember-gauntlet-s1/compare",
+      "revision": "61ddd60ae524df1a125ef4474c578d9cf08c991ebba384118df9fbce31b76815",
+      "count": 80
+    },
+    {
+      "id": "ember-gauntlet-s1/input",
+      "revision": "ff73eb434511ac77a479c28e64f676ad552fe7851d8ec1203cac58cfa70e3ff0",
+      "count": 80
+    },
+    {
+      "id": "ember-gauntlet-s2/compare",
+      "revision": "2ef41f41253f9a08d47b590c28fcce16579602602719f6a4403541244f6c8cf6",
+      "count": 65
+    },
+    {
+      "id": "ember-gauntlet-s2/input",
+      "revision": "ee7e6ee142e2932e62f66bd8a922405648a260990023fc599a80ff9e944a5dff",
+      "count": 65
+    },
+    {
+      "id": "edict-procuration-s3/compare",
+      "revision": "d9344b2574b58bc92568eea2659ba486ec839f112ba2f70ad9cbda2d09687882",
+      "count": 150
+    },
+    {
+      "id": "orrery-ego/compare",
+      "revision": "42bc4f78e26ad259b8b9904460c22316c6e66487cfbc1acb9660b863aeac66b2",
+      "count": 83
+    },
+    {
+      "id": "orrery-ego/input",
+      "revision": "bd550fb47af2ede7efbd317422d8a956be1d57413c915780fb0c4b11900e12da",
+      "count": 83
+    },
+    {
+      "id": "edict-ego/compare",
+      "revision": "67eadfddea7489541c1208b9794153d535e60cd0a78770c1b83fcd667bfec670",
+      "count": 65
+    },
+    {
+      "id": "edict-ego/input",
+      "revision": "ec95b02b55612640f725fa2205c811022f8202b5516198055e3404303f2f3179",
+      "count": 65
+    },
+    {
+      "id": "edict-s1/compare",
+      "revision": "284c54bb72a035edaecd1f81c3acbb8ee1dc84fb0f8aa580acb7d396ff69ba10",
+      "count": 59
+    },
+    {
+      "id": "edict-s1/input",
+      "revision": "0a8e3f9ec88220683ded0cbe813ec7ac790990fddf7db393618a262158802c76",
+      "count": 59
+    },
+    {
+      "id": "verdict-hammer-s2/compare",
+      "revision": "f1b39b7088964bde145622825aa68869264d75139a2d31a099675543521a78a5",
+      "count": 61
+    },
+    {
+      "id": "verdict-hammer-s2/input",
+      "revision": "0c4c0850fdc2091768ad94c537a19638cd6f27556195f3ea77129b10f06b9381",
+      "count": 61
+    },
+    {
+      "id": "sigil-rifle-s1/compare",
+      "revision": "c4022f93ad915455b7ce266b25724f94b42d82093b1ea78f6f4c79fb2d99670f",
+      "count": 57
+    },
+    {
+      "id": "sigil-rifle-s1/input",
+      "revision": "9c6fa760f0147f748081e9c65eafe08c8d98405d33fc2191351339da998f9a35",
+      "count": 57
+    },
+    {
+      "id": "vendetta-rifle-def/compare",
+      "revision": "e4d82a13fbd9e8d57a029a8686c7355ba49139a0e3ddc5c2c48db4e3c2872292",
+      "count": 79
+    },
+    {
+      "id": "vendetta-rifle-def/input",
+      "revision": "0a26b79c4ade6eab1b8a3f34a35c805db391a6b0379cf0bea5610ecfba383e34",
+      "count": 79
+    },
+    {
+      "id": "bastion-greatsword-def/compare",
+      "revision": "5541646c4309012834f67c63bdffb135c86f06237349601028ca2a8b872e67d3",
+      "count": 181
+    },
+    {
+      "id": "bastion-greatsword-def/input",
+      "revision": "71f40d0f156bd6f42bdf12d8dd6c8f82150ea6cbf03de9224549cea10baf1a6d",
+      "count": 181
+    },
+    {
+      "id": "verdict-hammer-def/compare",
+      "revision": "28c469be17cf80f8257b54255f1977f6494f6c4e2b4d827bb748c41d28e696b7",
+      "count": 169
+    },
+    {
+      "id": "verdict-hammer-def/input",
+      "revision": "e6e340c0c74d95db4856f5d6410e0cd32f89e2085dc758e6d31f61c000f3ff03",
+      "count": 169
+    },
+    {
+      "id": "bastion-greatsword-s2/compare",
+      "revision": "967a052f75313888387582661ca67331fa5c63c77a033237982f0d2e4152d77d",
+      "count": 95
+    },
+    {
+      "id": "bastion-greatsword-s2/input",
+      "revision": "374bdc0f38f7b3166f60f5fd7ad1e357953a7e45ffb4c56ce526b98246b2dfdb",
+      "count": 95
+    },
+    {
+      "id": "orrery-def/compare",
+      "revision": "c35b59b4ee7e6da9032a8925cbe6c825ab380acd75afe5892e29533eb7fe9641",
+      "count": 79
+    },
+    {
+      "id": "orrery-def/input",
+      "revision": "3ad097ffe04e6dd3ef8b9b6c2b9df5f4e9e22f09e4c2295a7f3322f2231d96dd",
+      "count": 79
+    },
+    {
+      "id": "ember-gauntlet-def/compare",
+      "revision": "4e39a5dfffac4561280a6beaa58e111ab9421df4719fab87e0df91e8829b6e56",
+      "count": 151
+    },
+    {
+      "id": "ember-gauntlet-def/input",
+      "revision": "f2632976e4a8fae1591eb551e7c4667ad6ec84329a15e0599046b1d5ee7c3feb",
+      "count": 151
+    },
+    {
+      "id": "bastion-greatsword-s1/compare",
+      "revision": "97493a5f23e114d747faa0595eb95ecfef053c2fed1b79488d7f174bd69a0bb8",
+      "count": 72
+    },
+    {
+      "id": "bastion-greatsword-s1/input",
+      "revision": "d6df4ae20aabcb92c95de054a54e20777677822a9fff8aa9869fc9552b0ba451",
+      "count": 72
+    },
+    {
+      "id": "gossamer-katana-s1/compare",
+      "revision": "05b5eef66efa056b3a3ffabbcd033facdd50fbf044aa5d970f9e3fc4528ae049",
+      "count": 82
+    },
+    {
+      "id": "gossamer-katana-s1/input",
+      "revision": "f89561dd8bff63ae301b440e275835fe703ed4cf7a17cfccba87eba51c611561",
+      "count": 82
+    },
+    {
+      "id": "verdict-hammer-s1/compare",
+      "revision": "5da9cc0efe3297111018808062e4de3cf7aa91e87415d9d6d95f4958be454dcf",
+      "count": 66
+    },
+    {
+      "id": "verdict-hammer-s1/input",
+      "revision": "c8bdd45e01ec4de9d9b051057d345e55671cbf339a976ed3be1f3b11cf2fa7ee",
+      "count": 66
+    },
+    {
+      "id": "gossamer-katana-def/compare",
+      "revision": "ad574fa36817cca356e70c898d73669d42609138642ff333da57beac6542834b",
+      "count": 68
+    },
+    {
+      "id": "gossamer-katana-def/input",
+      "revision": "9cca401e9fa3ebe972cdb4e262b801d6e6dea9a9a817c16da8684175bdd13587",
+      "count": 68
+    },
+    {
+      "id": "gossamer-katana-s2/compare",
+      "revision": "25943f833c573091cae767961d9eb3295a893764b15712132c075197819207a7",
+      "count": 120
+    },
+    {
+      "id": "gossamer-katana-s2/input",
+      "revision": "cfbf33e282ee49953489090c3cdd9ed2259eee1764237cb20b3f77e62bf90081",
+      "count": 120
+    },
+    {
+      "id": "verdict-hammer-ego/compare",
+      "revision": "622f3a531a8dbe1c7b0968049265e2d9dd29e4b0993a414fc26b24e7fd96107c",
+      "count": 250
+    },
+    {
+      "id": "verdict-hammer-ego/input",
+      "revision": "b8c8379b1e6192b747d6ed7e8a196ba569e93a3fe59f2ee2b7cc7f109752fa74",
+      "count": 250
+    },
+    {
+      "id": "couture-rapier-def/compare",
+      "revision": "367e8022082b16fa41a448f452c5dcab67c4c8408bbd175f3bb0ee93cc56fdfa",
+      "count": 79
+    },
+    {
+      "id": "couture-rapier-def/input",
+      "revision": "3606b4ec58daee1a894f7ba033931e5f3fe3232554a98393b099cd1dceb3825e",
+      "count": 79
+    },
+    {
+      "id": "crimson-chain-axe-ego/compare",
+      "revision": "bfac7c8efcad1e95de532637a9b0e0363a35ecd9936bddc423f6820be0ef4dee",
+      "count": 99
+    },
+    {
+      "id": "crimson-chain-axe-ego/input",
+      "revision": "7846aac4a0a4297f6944f607f63034b6a0f7772b51707099c740f5d3c9dbb5a3",
+      "count": 99
+    },
+    {
+      "id": "edict-procuration-s2/compare",
+      "revision": "7f70a73df5ebae41b785641bd5aba10004b6e8c485e6dbda19dab6271670d662",
+      "count": 85
+    },
+    {
+      "id": "edict-def/compare",
+      "revision": "f886e601b7c6669a7300415861ee45df037c745b31d78ffb8b44018ee1ed315a",
+      "count": 99
+    },
+    {
+      "id": "edict-def/input",
+      "revision": "0160ea5dd83b85d867c514a6d63f2d26506b42caa61096efc641d4f0a2c3bdb4",
+      "count": 99
+    },
+    {
+      "id": "orrery-s1/compare",
+      "revision": "c9ddee0c67f415ca6147db90b1bdaa7ea20d3cc7dc1d6f5a5874248964661313",
+      "count": 107
+    },
+    {
+      "id": "orrery-s1/input",
+      "revision": "15e237b09f0613c92d83caf82cb50ef835c51cbb3067cce0c7094b1688aaff32",
+      "count": 107
+    },
+    {
+      "id": "couture-rapier-s1/compare",
+      "revision": "57af73e3f52cee7e92c7209542ab4518e82457f01e752197d91b2e5d7eeb3190",
+      "count": 56
+    },
+    {
+      "id": "couture-rapier-s1/input",
+      "revision": "1dea9273a273b3455ee339564d8ad08363fe3102497493e80e0526edddbf3ff8",
+      "count": 56
+    },
+    {
+      "id": "couture-rapier-s2/compare",
+      "revision": "2d60c5d0916f3df0a41f084ab132c0d34377241acb72871bb7d3a4687dc9900b",
+      "count": 118
+    },
+    {
+      "id": "couture-rapier-s2/input",
+      "revision": "c8cdb61b0be2121a7c636b8c9cdb0a1cc526c8d0fe84f00cd82da1c0049d00c7",
+      "count": 118
+    }
+  ],
+  "manualHttpProbe": {
+    "passed": true,
+    "oldPageSurvivesMissingSource": true,
+    "incompleteAndInvalidPublicationRejected": true,
+    "newPageUsesNewRevision": true,
+    "oldRevisionRetained": true
+  },
+  "publicBrowser": {
+    "authenticated": true,
+    "revisionPinned": true,
+    "s3ReachedEnd": true,
+    "s3LoopRestarted": true,
+    "frameHttpErrors": [],
+    "pageErrors": [],
+    "evidence": "build/limbus-review/round35/public-playback.log"
+  },
+  "limitations": [
+    "Legacy pages opened before deployment need one reload",
+    "Unpublished legacy captures still use the old route; publish accepted new captures explicitly",
+    "Cloudflare Access remains enabled; user-specific access failure still awaits its error details",
+    "No claim that all possible network buffering is eliminated",
+    "All weapon fidelity work remains incomplete"
+  ]
+}
