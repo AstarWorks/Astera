@@ -1,5 +1,6 @@
 package com.astarworks.astera.schemagen
 
+import com.astarworks.astera.core.application.config.MinItems
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -21,7 +22,7 @@ import kotlin.io.path.writeText
  *
  * Supported kinds:
  *  - STRUCTURE  → `{"type": "object", "properties": {...}, "required": [...]}`
- *  - LIST       → `{"type": "array", "items": <recurse>}`
+ *  - LIST       → `{"type": "array", "items": <recurse>}` (+ `minItems` for `@MinItems` properties)
  *  - MAP        → `{"type": "object", "additionalProperties": <recurse on value>}`
  *  - Primitive  → `{"type": "string|integer|number|boolean"}`
  *  - ENUM       → `{"type": "string", "enum": [...]}`
@@ -166,7 +167,11 @@ object SchemaGenerator {
             val elemDescriptor = descriptor.getElementDescriptor(i)
             val isOptional = descriptor.isElementOptional(i)
 
-            properties[name] = descriptorToSchema(elemDescriptor)
+            var schema = descriptorToSchema(elemDescriptor)
+            descriptor.getElementAnnotations(i).filterIsInstance<MinItems>().firstOrNull()?.let { min ->
+                schema = JsonObject(schema + ("minItems" to JsonPrimitive(min.value)))
+            }
+            properties[name] = schema
             if (!isOptional) required += name
         }
 

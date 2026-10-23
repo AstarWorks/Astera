@@ -317,6 +317,11 @@ public class SimEntityEffectsGateway(
         recorder?.recordEffect(clock(), "glow", entity.position, "${entity.name} ${if (glowing) "on" else "off"}")
     }
 
+    override fun setHeldItemHidden(target: PlayerId, hidden: Boolean) {
+        val entity = world.find(target) ?: return
+        recorder?.recordEffect(clock(), "hide_held_item", entity.position, "${entity.name} ${if (hidden) "on" else "off"}")
+    }
+
     override fun setVelocity(target: PlayerId, velocity: Vec3) {
         world.find(target)?.velocity = velocity
     }

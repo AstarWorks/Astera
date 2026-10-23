@@ -21,7 +21,7 @@ elements:
     drag: 0.05
     life_ticks: [5, 10]
     size: [0.1, 0.18]
-    alpha_over_life: [1, 0]
+    alpha_over_life: [{ t: 0, v: 1 }, { t: 1, v: 0 }]
 - id: trailing-thread-0
   kind: {type: block, block: black_concrete}
   brightness: 15

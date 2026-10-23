@@ -1,0 +1,10 @@
+# shockwave ring 3 of 3 (radius 1.35, flat on the floor, dust spreading outward); hit 2 slam, one ring per tick
+id: bastion-s1-p-wave-3
+shape: { kind: ring, radius_blocks: 1.35, points: 19 }
+color: { r: 200, g: 190, b: 170 }
+count: 1
+lifetime_ticks: 10
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 215, g: 205, b: 185 }, to: { r: 110, g: 100, b: 90 }, scale: 0.45 }
+velocity: { direction: outward, speed: 0.06, spread_degrees: 25 }
+force: true

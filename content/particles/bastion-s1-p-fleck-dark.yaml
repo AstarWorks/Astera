@@ -1,0 +1,10 @@
+# small near-black dust flecks mixed with the gold (replaces charcoal chips; scale 0.3, life ~2-12 ticks)
+id: bastion-s1-p-fleck-dark
+shape: { kind: burst, spread_blocks: 0.16 }
+color: { r: 26, g: 20, b: 14 }
+count: 3
+lifetime_ticks: 8
+vanilla_particle: dust
+size: 0.3
+velocity: { direction: outward, speed: 0.08, spread_degrees: 80 }
+force: true

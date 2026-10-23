@@ -910,6 +910,28 @@ public sealed class MechanicYaml {
     }
 
     @Serializable
+    @SerialName("hide_held_item")
+    public data class HideHeldItem(
+        public val targets: TargeterYaml,
+        public val ticks: IntValueYaml,
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.HideHeldItem(
+            targets = targets.toDomain(),
+            ticks = ticks.toDomain(),
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
+        )
+    }
+
+    @Serializable
     @SerialName("camera_shake")
     public data class CameraShake(
         public val targets: TargeterYaml,

@@ -1,0 +1,10 @@
+# warm grey dust puffs at the feet of the contact (small, short)
+id: bastion-s1-p-dust-ground
+shape: { kind: burst, spread_blocks: 0.25 }
+color: { r: 190, g: 180, b: 164 }
+count: 3
+lifetime_ticks: 12
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 200, g: 190, b: 172 }, to: { r: 90, g: 84, b: 76 }, scale: 0.45 }
+velocity: { direction: outward, speed: 0.04, spread_degrees: 80 }
+force: true

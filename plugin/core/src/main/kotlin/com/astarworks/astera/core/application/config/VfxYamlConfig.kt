@@ -10,7 +10,10 @@ import com.astarworks.astera.core.domain.effect.vfx.VfxAlign
 import com.astarworks.astera.core.domain.effect.vfx.VfxDefinition
 import com.astarworks.astera.core.domain.effect.vfx.VfxElement
 import com.astarworks.astera.core.domain.effect.vfx.VfxEmitDirection
+import com.astarworks.astera.core.domain.effect.vfx.VfxCurve
+import com.astarworks.astera.core.domain.effect.vfx.VfxCurveKey
 import com.astarworks.astera.core.domain.effect.vfx.VfxEmitter
+import com.astarworks.astera.core.domain.effect.vfx.VfxStartFrame
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxFormation
 import com.astarworks.astera.core.domain.effect.vfx.VfxGroupKeyframe
@@ -35,6 +38,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Curve
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.SerialInfo
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 
@@ -124,7 +128,7 @@ public data class VfxElementYaml(
     public val oscillate: VfxOscillateYaml? = null,
     /** Whole-formation track: translate / rotate / scale of all slots together, before per-slot keyframes. */
     @SerialName("group_keyframes") public val groupKeyframes: List<VfxGroupKeyframeYaml> = emptyList(),
-    /** Display-particle emitter (kind `quad` only); keyframes become optional. */
+    /** Display-particle emitter (kind `quad` or `sprite`); keyframes become optional. */
     public val emit: VfxEmitYaml? = null,
     @SerialName("target_track") public val targetTrack: List<VfxTargetKeyYaml> = emptyList(),
     @SerialName("target_line") public val targetLine: Boolean = false,
@@ -134,7 +138,7 @@ public data class VfxElementYaml(
         kind = kind.toDomain(),
         brightness = brightness,
         glowArgb = glowColor?.let { parseArgb(it, "glow_color") },
-        billboard = parseEnum<DisplayBillboard>(billboard ?: if (kind is VfxKindYaml.Quad) "center" else "fixed", "billboard"),
+        billboard = parseEnum<DisplayBillboard>(billboard ?: if (kind is VfxKindYaml.Quad || (kind is VfxKindYaml.Sprite && emit != null)) "center" else "fixed", "billboard"),
         viewRange = viewRange?.toFloat(),
         startTick = startTick,
         endTick = endTick,
@@ -419,8 +423,45 @@ public data class VfxOscillateYaml(
     public fun toDomain(): VfxOscillate = VfxOscillate(parseEnum<VfxOscillateAxis>(axis, "oscillate.axis"), amplitude, periodTicks)
 }
 
+/** Schema hint: the annotated list property gets `minItems` in the generated JSON Schema. */
+@OptIn(ExperimentalSerializationApi::class)
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+public annotation class MinItems(public val value: Int)
+
+/** One numeric curve key (size / alpha / spin): value [v] at normalised lifetime [t] (0..1), eased by [ease]. */
+@Serializable
+public data class VfxCurveKeyYaml(
+    public val t: Double,
+    public val v: Double,
+    public val ease: String? = null,
+) {
+    public fun toDomain(): VfxCurveKey<Double> = VfxCurveKey(t, v, parseCurveEase(ease))
+}
+
+/** One colour curve key: `v` is `#RRGGBB`. */
+@Serializable
+public data class VfxColorKeyYaml(
+    public val t: Double,
+    public val v: String,
+    public val ease: String? = null,
+) {
+    public fun toDomain(field: String): VfxCurveKey<Int> = VfxCurveKey(t, parseRgb(v, field), parseCurveEase(ease))
+}
+
+private fun parseCurveEase(ease: String?): Easing =
+    ease?.let { Easing.fromKey(it) ?: throw IllegalArgumentException("unknown ease '$it'") } ?: Easing.LINEAR
+
+private fun curveOf(keys: List<VfxCurveKeyYaml>?, field: String): VfxCurve<Double>? {
+    if (keys == null) return null
+    require(keys.isNotEmpty()) { "emit.$field needs at least 1 key" }
+    return VfxCurve(keys.map { it.toDomain() })
+}
+
 /**
- * Display-particle emitter (ADR-0220), see [VfxEmitter]. Ranges are `[min, max]`.
+ * Display-particle emitter (ADR-0220), see [VfxEmitter]. Ranges are `[min, max]`. The `*_over_life` fields are
+ * multi-key curves over the particle's normalised lifetime (any number of keys, `t` ascending in 0..1,
+ * the `ease` of a key shapes the segment ending at it).
  *
  * ```yaml
  * emit:
@@ -431,8 +472,13 @@ public data class VfxOscillateYaml(
  *   gravity: 0.02
  *   life_ticks: [16, 24]
  *   size: [0.05, 0.1]
- *   color_over_life: ["#ffd24a", "#ff4a10", "#601000"]
- *   alpha_over_life: [1.0, 0.0]
+ *   size_over_life: [{ t: 0, v: 0.2 }, { t: 0.15, v: 1, ease: out_quad }, { t: 1, v: 0 }]
+ *   color_over_life: [{ t: 0, v: "#ffd24a" }, { t: 0.5, v: "#ff4a10" }, { t: 1, v: "#601000" }]
+ *   alpha_over_life: [{ t: 0, v: 1 }, { t: 0.7, v: 1 }, { t: 1, v: 0 }]
+ *   spin_over_life: [{ t: 0, v: 12 }]   # degrees per tick
+ *   # sprite elements only: per-particle flipbook
+ *   start_frame: random    # random | <int>
+ *   frame_ticks: [2, 4]
  * ```
  */
 @Serializable
@@ -447,17 +493,21 @@ public data class VfxEmitYaml(
     public val drag: Double = 0.0,
     @SerialName("life_ticks") public val lifeTicks: List<Int> = listOf(20, 20),
     public val size: List<Double> = listOf(0.1, 0.1),
-    @SerialName("size_over_life") public val sizeOverLife: List<Double> = listOf(1.0, 1.0),
-    @SerialName("color_over_life") public val colorOverLife: List<String> = emptyList(),
-    @SerialName("alpha_over_life") public val alphaOverLife: List<Double> = emptyList(),
-    @SerialName("spin_deg_per_tick") public val spinDegPerTick: Double = 0.0,
+    @MinItems(1) @SerialName("size_over_life") public val sizeOverLife: List<VfxCurveKeyYaml>? = null,
+    @MinItems(1) @SerialName("color_over_life") public val colorOverLife: List<VfxColorKeyYaml>? = null,
+    @MinItems(1) @SerialName("alpha_over_life") public val alphaOverLife: List<VfxCurveKeyYaml>? = null,
+    /** Roll about the view axis, degrees per tick (random sign per particle). */
+    @MinItems(1) @SerialName("spin_over_life") public val spinOverLife: List<VfxCurveKeyYaml>? = null,
+    /** Sprite elements: first flipbook frame, `random` (default) or a frame number. */
+    @SerialName("start_frame") public val startFrame: String? = null,
+    /** Sprite elements: `[min, max]` ticks per flipbook frame, drawn per particle; default = the sprite kind's `frame_ticks`. */
+    @SerialName("frame_ticks") public val frameTicks: List<Int>? = null,
 ) {
     public fun toDomain(): VfxEmitter {
         require(speed.size == 2) { "emit.speed must be [min, max]" }
         require(lifeTicks.size == 2) { "emit.life_ticks must be [min, max]" }
         require(size.size == 2) { "emit.size must be [min, max]" }
-        require(sizeOverLife.size == 2) { "emit.size_over_life must be [start, end]" }
-        require(colorOverLife.size != 1 && alphaOverLife.size != 1) { "emit.color_over_life / alpha_over_life need at least 2 stops" }
+        require(frameTicks == null || frameTicks.size == 2) { "emit.frame_ticks must be [min, max]" }
         return VfxEmitter(
             count = count,
             ratePerTick = ratePerTick,
@@ -471,13 +521,26 @@ public data class VfxEmitYaml(
             lifeMax = lifeTicks[1],
             sizeMin = size[0],
             sizeMax = size[1],
-            sizeStart = sizeOverLife[0],
-            sizeEnd = sizeOverLife[1],
-            colorOverLife = colorOverLife.map { parseRgb(it, "emit.color_over_life") },
-            alphaOverLife = alphaOverLife,
-            spinDegPerTick = spinDegPerTick,
+            sizeOverLife = curveOf(sizeOverLife, "size_over_life") ?: VfxCurve.constant(1.0),
+            colorOverLife = colorOverLife?.let { keys ->
+                require(keys.isNotEmpty()) { "emit.color_over_life needs at least 1 key" }
+                VfxCurve(keys.map { it.toDomain("emit.color_over_life") })
+            },
+            alphaOverLife = curveOf(alphaOverLife, "alpha_over_life"),
+            spinDegPerTick = curveOf(spinOverLife, "spin_over_life") ?: VfxCurve.constant(0.0),
+            startFrame = parseStartFrame(startFrame),
+            frameTicksMin = frameTicks?.get(0),
+            frameTicksMax = frameTicks?.get(1),
         )
     }
+}
+
+private fun parseStartFrame(raw: String?): VfxStartFrame {
+    val s = raw?.trim()?.lowercase() ?: return VfxStartFrame.Random
+    if (s == "random") return VfxStartFrame.Random
+    val n = s.toIntOrNull()
+    require(n != null && n >= 0) { "emit.start_frame must be 'random' or a frame number >= 0, got '$raw'" }
+    return VfxStartFrame.Fixed(n)
 }
 
 /**

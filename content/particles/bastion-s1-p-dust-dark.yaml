@@ -1,0 +1,10 @@
+# near-black dust at the feet, dark mixed into the grey
+id: bastion-s1-p-dust-dark
+shape: { kind: burst, spread_blocks: 0.25 }
+color: { r: 40, g: 34, b: 30 }
+count: 2
+lifetime_ticks: 10
+vanilla_particle: dust
+size: 0.35
+velocity: { direction: outward, speed: 0.04, spread_degrees: 80 }
+force: true
