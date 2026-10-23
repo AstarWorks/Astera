@@ -15,6 +15,7 @@ import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 /**
  * Pure planner: [VfxDefinition] + anchor orientation + cast seed -> [VfxPlan].
@@ -346,6 +347,7 @@ public object VfxTimeline {
                 backgroundArgb = 0,
                 shadow = false,
                 seeThrough = k.seeThrough,
+                textOpacity = spriteOpacity(el, 0.0),
             )
             is VfxElementKind.Block -> if (first.t == 0 && first.block != null) k.copy(blockKey = first.block) else k
             is VfxElementKind.Text -> if (first.t == 0 && first.text != null) k.copy(text = first.text) else k
@@ -403,12 +405,19 @@ public object VfxTimeline {
                 val endU = startU + u.interpolationTicks
                 u.copy(
                     position = ctx.centerAt(endU),
-                    style = if (styled && quad != null) VfxQuad.trackAt(el, quad, startU + u.interpolationTicks / 2.0).let { (c, a) -> VfxQuad.style(quad, c, a) } else null,
+                    style = when {
+                        styled && quad != null -> VfxQuad.trackAt(el, quad, startU + u.interpolationTicks / 2.0).let { (c, a) -> VfxQuad.style(quad, c, a) }
+                        sprite != null && el.keyframes.any { it.alpha != null } -> VfxQuadStyle(0, spriteOpacity(el, startU + u.interpolationTicks / 2.0), null)
+                        else -> null
+                    },
                 )
             }
         }
         return byTick.values.sortedBy { it.tick }
     }
+
+    private fun spriteOpacity(el: VfxElement, u: Double): Int =
+        (VfxQuad.trackAt(el, 0xFFFFFF, 1.0, u).second * 255).roundToInt().coerceIn(VfxQuad.MIN_TEXT_OPACITY, 255)
 
     private class Swap(val u: Int, val block: String?, val text: String?)
 

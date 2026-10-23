@@ -364,7 +364,7 @@ public data class VfxKeyframeYaml(
     public val text: String? = null,
     /** Quad only: `#RRGGBB`. */
     public val color: String? = null,
-    /** Quad only: 0..1. */
+    /** Quad or sprite: 0..1. */
     public val alpha: Double? = null,
 ) {
     public fun toDomain(): VfxKeyframe = VfxKeyframe(
