@@ -67,10 +67,6 @@ phases:
     targets: {type: caster}
     particle_id: bastion-s1-dust-black
     delay_ticks: {type: literal, value: 6}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-ground-poof
-    delay_ticks: {type: literal, value: 6}
   - type: play_sound
     targets: {type: caster}
     sound_id: 'astera:weapons/bastion-s1-impact-steel'
@@ -202,10 +198,6 @@ phases:
     targets: {type: caster}
     particle_id: bastion-s1-dust-black
     delay_ticks: {type: literal, value: 30}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-ground-poof
-    delay_ticks: {type: literal, value: 30}
   - type: play_sound
     targets: {type: caster}
     sound_id: 'astera:weapons/bastion-s1-impact-steel'
@@ -267,10 +259,6 @@ phases:
     targets: {type: caster}
     particle_id: bastion-s1-dust-black
     delay_ticks: {type: literal, value: 31}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-ground-poof
-    delay_ticks: {type: literal, value: 31}
   - type: play_sound
     targets: {type: caster}
     sound_id: 'astera:weapons/bastion-s1-ring-whirl'
@@ -278,25 +266,9 @@ phases:
     pitch: {type: literal, value: 1.0}
     delay_ticks: {type: literal, value: 32}
   - type: spawn_particle
-    targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 3.6}, angle_degrees: {type: literal, value: 110}, max_count: 1}
-    particle_id: bastion-s1-hit-crit
-    delay_ticks: {type: literal, value: 32}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-hit-spark
-    delay_ticks: {type: literal, value: 32}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-ember
-    delay_ticks: {type: literal, value: 32}
-  - type: spawn_particle
     targets: {type: caster}
     particle_id: bastion-s1-smoke-dark
     delay_ticks: {type: literal, value: 32}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-smoke-dark
-    delay_ticks: {type: literal, value: 33}
   - type: play_sound
     targets: {type: caster}
     sound_id: 'astera:weapons/bastion-s1-sword-settle'
