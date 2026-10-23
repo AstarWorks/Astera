@@ -1,0 +1,75 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer; installed pilot portablemc runtime. Entire launch/capture serialized with /tmp/claude-1000/astera-mc-client.lock; unique Xvfb display and edict-blade game directory. Native screenshots with no resizing or painting. No server, Docker, Gradle or tests.",
+  "item": "minecraft:iron_sword[minecraft:item_model=\"astera:edict-blade\"]",
+  "resourcePack": "Minimal capture pack with exact authored model, item definition and builder-equivalent blocks/ directory source. Native block references only; no vanilla PNG files and no custom texture needed.",
+  "modelElements": 15,
+  "clientDetail": "Supplemental native item_display using authored GUI context, entity scale [3,3,3] and translation [0,0.4,0]; model/display JSON unchanged.",
+  "clientGameDirectory": "build/edict-blade-client",
+  "sourceCommit": "36743b70",
+  "sha256": {
+    "content/models/items/edict-blade.model.json": "8fd8eb7e37a5acad0520b153f02a4ce7819a17560180dfb1ad5d5862d681c47c",
+    "tools/model-forge/batches/vanilla-material/edict-blade/after.png": "34b79e47209ad49f2a9c8fd0c0c817dccf412bfc6992c98b9fe49639da924fd0",
+    "tools/model-forge/batches/vanilla-material/edict-blade/before.png": "7546ef845434db74821f3f0dc1c7eccabee0fd73018ed507902dc114a687edef",
+    "tools/model-forge/batches/vanilla-material/edict-blade/cameras.json": "8610c50d80476375423194a5235c02bbc8a9da1e9dbe9bfb02b4254146609531",
+    "tools/model-forge/batches/vanilla-material/edict-blade/capture-pack.py": "41c5316e166c0aaa789d374f3aae76ed453d2d82fa0abb745f7aa3f26ce65542",
+    "tools/model-forge/batches/vanilla-material/edict-blade/client-detail.png": "6186508e749ad6e8af149e048f3f363ecfdac489092b612a43947980072de781",
+    "tools/model-forge/batches/vanilla-material/edict-blade/client.png": "0dbbd4d177cf5a4d072986623906ca1883c0ad2a9f35485777169a5815011767",
+    "tools/model-forge/batches/vanilla-material/edict-blade/contexts-player.png": "9b0040a3c8fadde04d0ef11105598216d105c385cf0a06af3293155974762c19",
+    "tools/model-forge/batches/vanilla-material/edict-blade/contexts.png": "c38dde76acffa1d0d9bd14b6449e7c197e7dcb8e0a10fbb0b264087e81f2e4e5",
+    "tools/model-forge/batches/vanilla-material/edict-blade/inventory.png": "5cfff0c4edf96b6322ea2abfd73021777e77603b7eec25d2e2c5e44c6bd6c3e8",
+    "tools/model-forge/batches/vanilla-material/edict-blade/operations.json": "0be8c5b45d5f3b416a5cb4ff690343fbf26e6c64178e88202b1f23561e1ec60e",
+    "tools/model-forge/batches/vanilla-material/edict-blade/remake.py": "d8fcb976edf15f1b86793d5e069b6b43c13d412100a8e7067d5a546b573031d7",
+    "tools/model-forge/batches/vanilla-material/edict-blade/review.md": "f7678774c1f0a8a38a53a5e4bc61751c1f62fedcc1e3110ccd41e3e12a537dd5",
+    "tools/model-forge/batches/vanilla-material/edict-blade/sweep.png": "e8415dcf08291fd928a8bb4dfa2563bdb3ac3898b87ade857a4ef8b6213dfc46"
+  },
+  "remainingRisks": [
+    "Production pack compilation and server deployment remain manager responsibilities.",
+    "Original coincident finger/glove geometry and partly separated chain assemblies retained; matching coplanar UVs remove material speckling.",
+    "Native client and perspective preview both clip the inherited first-person placement at the viewport bottom; display transforms are unchanged per task scope.",
+    "Thin chain links become subpixel at smallest inventory sizes; no swing, bob, glint, shader or alternate-FOV verification."
+  ],
+  "geometryVerification": {
+    "unchanged": true,
+    "displayUnchanged": true,
+    "guiLightUnchanged": true,
+    "ambientOcclusionUnchanged": true,
+    "faceCoverageUnchanged": true,
+    "beforeElements": 15,
+    "afterElements": 15
+  },
+  "validation": {
+    "errors": 0,
+    "overlapAabbWarnings": 14,
+    "floatingComponentsAabbWarnings": 1,
+    "warningCountsUnchanged": true,
+    "materialFaces": 90,
+    "texelsPerModelUnit": [
+      1,
+      1
+    ]
+  },
+  "materials": {
+    "cloth.white_wool": [
+      "white-glove-*",
+      "finger-*"
+    ],
+    "metal.gold_block": [
+      "brass-cuff-*",
+      "chain-*"
+    ]
+  },
+  "catalogWishes": [
+    "Muted brass: gold_block used as the closest available warm polished metal."
+  ],
+  "reviewedImages": [
+    "before.png",
+    "after.png",
+    "contexts.png",
+    "contexts-player.png",
+    "inventory.png",
+    "sweep.png",
+    "client.png",
+    "client-detail.png"
+  ]
+}
