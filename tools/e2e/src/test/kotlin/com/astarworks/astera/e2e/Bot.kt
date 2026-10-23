@@ -324,7 +324,8 @@ class Bot private constructor(
             is ClientboundRemoveEntitiesPacket -> packet.entityIds.forEach { entityEvents += EntityEvent(System.currentTimeMillis(), it, "", false) }
             is ClientboundSoundPacket -> sounds += packet.sound.toString()
             is ClientboundSetEntityDataPacket -> packet.metadata.forEach { m ->
-                (m.value as? Component)?.let { c ->
+                // Custom names are OPTIONAL_COMPONENT: unwrap the Optional, or a villager's name tag is never seen.
+                ((m.value as? Component) ?: ((m.value as? java.util.Optional<*>)?.orElse(null) as? Component))?.let { c ->
                     val txt = plain(c)
                     entityTexts += txt
                     entityTextsById.computeIfAbsent(packet.entityId) { CopyOnWriteArrayList() } += txt
