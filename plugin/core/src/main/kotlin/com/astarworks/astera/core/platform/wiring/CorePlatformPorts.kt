@@ -84,6 +84,8 @@ public class CorePlatformPorts(
     public val hologramGateway: ((ServiceRegistry) -> IHologramGateway)? = null,
     /** Physical bodies for the NPCs in `content/lobby-npcs/`; absent in headless hosts. */
     public val npcBodies: ((ServiceRegistry) -> INpcBodyMaterializer)? = null,
+    /** Physical bodies for PvE mobs (ADR-0249); absent in headless hosts, where mobs are bookkeeping only. */
+    public val mobBodies: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.mob.IMobBodyGateway)? = null,
     // ---- Player / effects -----------------------------------------------
     public val playerSoundGateway: IPlayerSoundGateway? = null,
     public val playerHealthGateway: ((ServiceRegistry) -> IPlayerHealthGateway)? = null,

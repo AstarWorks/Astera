@@ -214,7 +214,11 @@ internal fun CoreWiringState.wirePlayerSystems() {
     services.register<IMobRegistry>(mobContents, priority = 0)
     reloadRegistry.register(mobContents, mobsContentDir)
 
-    val minimalMobAdapter = MinimalMobAdapter(eventBus, scheduler)
+    val mobBodies = ports.mobBodies?.invoke(services)
+    if (mobBodies != null) {
+        services.register<com.astarworks.astera.core.application.port.outbound.mob.IMobBodyGateway>(mobBodies, priority = 0)
+    }
+    val minimalMobAdapter = MinimalMobAdapter(eventBus, scheduler, mobBodies)
     val mythicMobsMobAdapter = MythicMobsMobAdapter()
     services.register<IMobAdapter>(mythicMobsMobAdapter, priority = 10)
     services.register<IMobAdapter>(minimalMobAdapter, priority = 0)

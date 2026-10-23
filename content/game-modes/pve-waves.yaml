@@ -1,0 +1,28 @@
+# PvE Waves (ADR-0249): a solo / co-op run against scripted waves of real mobs.
+#
+# The lane `pve-waves` (kind: pve, min 1 player) plays the encounter below on the stage
+# `pve-proving-grounds`. Each wave is spawned when the previous one is cleared; the sidebar
+# shows "Wave n/N, k enemies left". Clearing the last wave wins; running out of lives (or time)
+# loses. Everyone in a PvE match is on the same side, rewards come from
+# content/balance/match-rewards.yaml (`modes.pve-waves`).
+# Implementation: PveWaveGameMode, ticked once per second.
+#
+# default_config
+#   encounter                 id of a content/pve/encounters/ entry that has `waves`
+#   lives                     deaths the whole party may take; the run is lost on the last one
+#   first_wave_delay_seconds  wait between the match turning ACTIVE and the first wave
+#   intermission_seconds      wait between a cleared wave and the next one
+#   time_limit_seconds        the run is lost when it takes longer (0 = no limit)
+id: pve-waves
+title_key: astera.gamemode.pve-waves.title
+impl_class: com.astarworks.astera.match.application.gamemode.PveWaveGameMode
+tick_period_ticks: 20
+default_config:
+  respawn_delay_seconds: "5"
+  death_cam_seconds: "2"
+  spawn_protection_seconds: "3"
+  encounter: "astera:proving-grounds"
+  lives: "2"
+  first_wave_delay_seconds: "3"
+  intermission_seconds: "5"
+  time_limit_seconds: "600"

@@ -847,6 +847,9 @@ astera:
         norma-time-draw: "<gray>Time limit reached with the score tied.</gray>"
         cancelled: "<gray>Match was cancelled.</gray>"
         world-unloaded: "<gray>The match world was unloaded.</gray>"
+        encounter-cleared: "<green>All {waves} waves of the encounter were cleared.</green>"
+        encounter-failed: "<red>The party fell on wave {wave}/{waves}.</red>"
+        encounter-time-up: "<red>Time ran out on wave {wave}/{waves}.</red>"
     # F3-4 — result screen (chat part) shown at match end, before the transfer back.
     result:
       score:
@@ -1070,6 +1073,12 @@ astera:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>delivered</gray>"
         carried: "<gray>TNT carried by</gray> <{color}>{team}</{color}>"
         loose: "<gray>TNT is up for grabs</gray>"
+      pve-waves:
+        ready: "<gray>Get ready: <white>{waves}</white> waves incoming</gray>"
+        wave: "<gold>Wave {wave}/{waves}</gold> <gray>-</gray> <white>{left}</white> <gray>enemies left</gray>"
+        next: "<gold>Wave {wave}/{waves}</gold> <gray>in</gray> <white>{seconds}s</white>"
+        lives: "<gray>Lives:</gray> <red>{lives}</red><gray>/{max}</gray>"
+        kills: "<gray>Defeated:</gray> <white>{kills}</white>"
       capture-wool:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>zones</gray>"
         open: "<gray>Open zones:</gray> <white>{open}/{total}</white>"
@@ -1393,6 +1402,12 @@ astera:
       dropped: "<gray>The TNT carrier fell. The TNT is back at its spawn.</gray>"
     carry-mini-tnt:
       title: "<gold>Carry Mini TNT</gold>"
+    pve-waves:
+      title: "<gold>PvE Waves</gold>"
+      wave-start: "<gold>Wave {wave}/{waves}!</gold> <gray>{count} enemies are coming.</gray>"
+      wave-cleared: "<green>Wave {wave}/{waves} cleared.</green> <gray>The next wave is on its way.</gray>"
+      cleared: "<green><bold>All {waves} waves cleared!</bold></green>"
+      life-lost: "<red>You fell.</red> <gray>Lives left: {lives}</gray>"
     capture-wool:
       title: "<gold>Capture Wool</gold>"
       captured: "<green>Team {team} captured {zone}! ({score}/{goal})</green>"
@@ -2277,6 +2292,7 @@ astera:
   play.lane.capture-wool.desc: "<gray>Capture the wool zones before the other team.</gray>"
   play.lane.steal-jewelry.desc: "<gray>Steal jewels from rival pedestals and bank them.</gray>"
   play.lane.battle-loyal.desc: "<gray>Team deathmatch. First to the kill goal wins.</gray>"
+  play.lane.pve-waves.desc: "<gray>Play alone or with a friend. Clear 3 waves of monsters.</gray>"
   play.queue.joined: "<green>Queued for <gold>{lane}</gold>.</green> <gray>Watch the sidebar. Leave with the red hotbar item or the menu.</gray>"
   play.queue.already-here: "<yellow>You are already queued for <gold>{lane}</gold>.</yellow>"
   play.queue.left: "<yellow>You left the queue <gray>{lane}</gray>.</yellow>"

@@ -95,6 +95,8 @@ internal class CorePaperBindings(
 
     /** Retained so [shutdown] can remove the lobby NPC bodies. */
     private var npcBodyService: com.astarworks.astera.core.adapter.paper.entity.PaperNpcBodyService? = null
+    /** Retained so [shutdown] can remove the PvE mob bodies (ADR-0249). */
+    private var mobBodyGateway: com.astarworks.astera.core.adapter.paper.mob.PaperMobBodyGateway? = null
     /** WP12: closed on [shutdown] so open vaults are saved. */
     private var paperVaultWindow: com.astarworks.astera.core.adapter.paper.vault.PaperVaultWindow? = null
 
@@ -250,6 +252,13 @@ internal class CorePaperBindings(
                 bodies.start()
                 npcBodyService = bodies
                 bodies
+            },
+            mobBodies = { _ ->
+                // ADR-0249: PvE mobs are real vanilla-based entities carrying Astera's numbers.
+                val gateway = com.astarworks.astera.core.adapter.paper.mob.PaperMobBodyGateway(plugin)
+                gateway.start()
+                mobBodyGateway = gateway
+                gateway
             },
             playerSoundGateway = com.astarworks.astera.core.adapter.paper.effect.PaperPlayerSoundGateway(server),
             adminPlayerGateway = com.astarworks.astera.core.adapter.paper.admin.PaperAdminPlayerGateway(server),
@@ -780,6 +789,8 @@ internal class CorePaperBindings(
         playGateHologram = null
         npcBodyService?.removeAll()
         npcBodyService = null
+        mobBodyGateway?.removeAll()
+        mobBodyGateway = null
         paperVaultWindow?.closeAll()
         paperVaultWindow = null
         matchQueueMetric?.stop()

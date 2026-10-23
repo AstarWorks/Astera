@@ -31,6 +31,13 @@ default:
   mvp:           { star: 25, gold: 10, xp: 50 }
 
 modes:
+  # PvE waves (ADR-0249): the whole party shares the outcome; every mob defeated pays like a
+  # kill (a mob is worth less than a player), clearing the encounter pays the win row.
+  pve-waves:
+    win:           { star: 60, gold: 10, xp: 120 }
+    lose:          { star: 15, gold: 2, xp: 40 }
+    per_kill:      { star: 3, gold: 0, xp: 12 }
+    mvp:           { star: 10, gold: 2, xp: 25 }
   # Nexus siege: longer matches, destroying a Nexus is the point.
   annihilation:
     win:           { star: 150, gold: 30, xp: 200 }

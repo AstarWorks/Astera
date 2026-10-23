@@ -513,6 +513,9 @@ internal object MatchGameplayWiring {
         subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) {
             matchTally.onKill(it.victim, it.killer)
         }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MobKilled::class) {
+            matchTally.onMobKill(it.killerId)
+        }
         subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.AssistCredited::class) {
             matchTally.onAssist(it.player, it.victim)
         }
