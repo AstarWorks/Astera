@@ -44,7 +44,7 @@ import com.astarworks.astera.core.domain.status.StatusEffectId
  *  - Visual (5) — SpawnParticle / ScheduleParticleAnimation / PlaySound /
  *    SpawnDisplay / Glow / CameraShake (6 with CameraShake)
  *  - Messages (3) — SendMessage / SendActionBar / SendTitle
- *  - Control flow (4) — CastSkill / IfThen / Loop / Choose
+ *  - Control flow (5) — CastSkill / IfThen / Loop / Choose
  *
  * Wave _skills-2 / ADR-0077.
  */
@@ -643,7 +643,18 @@ public sealed class Mechanic {
         override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
-    // ───────────────────────── Control flow (4) ─────────────────────────
+    // ───────────────────────── Control flow (5) ─────────────────────────
+
+    /** Resolve once, then keep each entity as Target in delayed/repeated children. */
+    public data class ForEachTarget(
+        override val targets: Targeter,
+        val mechanics: List<Mechanic>,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic()
 
     /**
      * Cast another skill from inside this mechanic chain. Cycle detection
