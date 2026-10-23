@@ -1,0 +1,76 @@
+{
+  "id": "crimson-chain-axe-transformed-combo-a",
+  "rev": 1,
+  "videoId": "Gpj-lvOnAgs",
+  "start_s": 78.14473333333333,
+  "end_s": 86.92016666666666,
+  "skill": {
+    "name": "変身後の鎖連撃 A（技名未確定）",
+    "coins": null,
+    "asteraSkillId": "crimson-chain-axe-transformed-combo-a"
+  },
+  "variant": {
+    "label": "変身後・未同定連撃",
+    "implementation": "missing",
+    "order": 1
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "contact-1",
+      "kind": "hit",
+      "label": "視覚的接触候補 1",
+      "t_s": 80.31356666666667,
+      "notes": "原動画 f2407、不確実幅 ±1 frame。First clear target star after low chain sweep。コイン数・ゲーム内部の命中は未確定。"
+    },
+    {
+      "id": "contact-2",
+      "kind": "hit",
+      "label": "視覚的接触候補 2",
+      "t_s": 80.5805,
+      "notes": "原動画 f2415、不確実幅 ±0 frame。Second downward sweep target star。コイン数・ゲーム内部の命中は未確定。"
+    },
+    {
+      "id": "contact-3",
+      "kind": "hit",
+      "label": "視覚的接触候補 3",
+      "t_s": 81.41466666666666,
+      "notes": "原動画 f2440、不確実幅 ±0 frame。Near-vertical loop sweep target star。コイン数・ゲーム内部の命中は未確定。"
+    },
+    {
+      "id": "contact-4",
+      "kind": "hit",
+      "label": "視覚的接触候補 4",
+      "t_s": 82.24883333333334,
+      "notes": "原動画 f2465、不確実幅 ±0 frame。Long descending chain arc target star。コイン数・ゲーム内部の命中は未確定。"
+    },
+    {
+      "id": "contact-5",
+      "kind": "hit",
+      "label": "視覚的接触候補 5",
+      "t_s": 83.95053333333334,
+      "notes": "原動画 f2516、不確実幅 ±0 frame。Floor target flare after two pale flash frames。コイン数・ゲーム内部の命中は未確定。"
+    }
+  ],
+  "notes": "変身後の鎖連撃。横薙ぎ→斜め薙ぎ→縦ループ→長い下降弧→浮遊と交差楕円・床発光。La Castration / La Voracité の候補はあるが同定未確定。5接触候補を5コインと断定しない。実装予定ID。原資料: /reference/crimson-chain-axe/extra-3.json",
+  "editLog": [],
+  "status": "analysed",
+  "verification": {
+    "status": "failed",
+    "reason": "観測済み・未実装。通常技や終盤の別連撃で代用しない。形状・動作・配置・時間・命中・カメラの実機照合は未実施。"
+  },
+  "weapon": "crimson-chain-axe",
+  "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+  "iterations": 0,
+  "report": "/report/crimson-chain-axe",
+  "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002"
+}

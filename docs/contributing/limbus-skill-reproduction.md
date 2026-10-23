@@ -303,3 +303,10 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - 公開先はサーバー側 `/IdeaProjects/Astera/build/skill-compare-published`。新しい撮影を採用する際はREADMEの公開コマンドを必ず実行する。開いているページは旧版を使い続け、新しく開いたページだけ新版へ移る。reference/contentの一致判定は維持する。既に開いていた旧方式のページは一度再読込が必要。
 - 手動HTTP検証で、元画像・meta消去中にも旧版が取得できること、不完全/invalid公開ではcurrentが変わらないこと、新版公開後も旧版が取得できることを確認。現在参照可能だった105撮影ビュー（105スキルではない）を公開し、認証済み公開URLで版固定・S3終盤再生・ループ復帰・frame HTTP errorなしを確認した。
 - 記録は `runtime-review/publication-round35.json`。これは再生の安定性改善で、全10武器の完全一致の認定ではない。利用者側のアクセスエラーの原因はまだ未確定であり、Access認証設定は変更していない。
+
+### Round 36: additional Crimson reference and thumbnail consistency
+
+- Added `crimson-chain-axe-transformed-combo-a`: source Gpj-lvOnAgs, native frames 2342–2605 (exclusive), 263 frames at 30000/1001 fps. The comparison row is explicitly observed / implementation missing, with an unresolved skill name and coin count.
+- Reviewed the source contact sheet (`build/limbus-review/round36/crimson-combo.jpg`): claw introduction, low and diagonal chain sweeps, vertical loop, descending arc, then airborne crossed ellipses and floor glows. Five visual contact candidates are markers, not proof of five coins or internal damage events. Do not substitute the later column finisher or base-form captures.
+- Remaining Crimson extra records describe a transformation and ally/support preparation; do not count them as two additional attack skills without further evidence.
+- Index Minecraft thumbnails now use the same published revision and image extension as the comparison player. All 54 available thumbnail URLs returned HTTP 200 after deployment. This fixes capture consistency, not Cloudflare login permissions or reproduction fidelity.
