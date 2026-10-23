@@ -1,0 +1,27 @@
+{
+  "case": "couture-rapier-cutout",
+  "round": 69,
+  "status": "failed",
+  "capture": "build/limbus-review/round69/captures/couture-rapier-cutout-1792739211621651849",
+  "frames": 156,
+  "quality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 8.0
+  },
+  "reviewedCaptureFrames": [
+    34,
+    56
+  ],
+  "changes": [
+    "Quaternion.fromEulerDegreesのyaw=-angleに合わせ、軌跡のroll算出の符号を修正。",
+    "itemの移動・roll・scaleからヒンジ中心を推定して軌跡終点に使用。",
+    "短い区間では菱形の高さも縮小。"
+  ],
+  "limits": [
+    "ヒンジはモデル中心との差からの推定。各キー間の描画補間および移動標的では未検証。",
+    "追従補正のweightは従来の区間比率。長距離移動時の回転・伸長には未対応。",
+    "see_throughの遮蔽問題は残る。"
+  ],
+  "review": "軌跡のyaw符号を修正し、鋏の位置・向きから終点を算出。線の連続性と接写時の集中を改善したが、参照の曲率・輪郭幅・正確な端点・鋏細部・腕姿勢・発光・追撃条件は未一致。"
+}
