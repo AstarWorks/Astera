@@ -3,15 +3,18 @@
 # play_vfx freeze: [{ at: 7, ticks: 2 }, { at: 31, ticks: 2 }]  (effect ticks; the hit_stop of both contacts).
 # Rig key time l is displayed at effect tick l + 1 (+ frozen ticks before it). Hit 1: e_k (e4 = contact) -> key k+2, contact displayed at effect tick 7.
 # Round 6 (founder: the weapon barely moved): both hits are BIG arcs. Hit 1 = overhead chop in a vertical plane tilted 22 deg (top leans to the caster's right):
-# lift behind (keys 0-3, ticks 1-4), chop over the head 150+ deg in 3 ticks (keys 3-6, ticks 4-7, blade straight up at key 4), contact held ticks 7-8 (tip phi 18 pitch -17, hip height, left of the target line),
+# lift behind (keys 0-3, ticks 1-4), chop over the head 150+ deg in 3 ticks (keys 3-6, ticks 4-7, blade straight up at key 4), contact held ticks 7-8 (r7: in-plane tip phi 6 pitch -15, tip y 0.11),
 # then a floor-level drag to the left and round behind with overshoot (keys 7-17), REST by key 18. Hit 2 = low horizontal ring (plane lowest at phi 60, highest at 240, 14 deg tilt, centre pitch -8):
-# pull-back keys 21-23, 220 deg in 5 ticks (keys 23-28), contact key 28 = tick 31 (held 31-32), follow-through round the left/back with overshoot, REST by key 39.
+# pull-back keys 21-22, keys 23-28 ON the plane (r7, vfx ring), 220 deg in 5 ticks, contact key 28 = tick 31 (held 31-32; pitch clamped to -15 where the plane dips under the floor: phi 0-110), follow-through round the left/back with overshoot, REST by key 39.
 # Face = plane normal in the chop (edge leads), ~28 deg off vertical in the ring (face visible from the side camera), rolls back to the sideways REST face.
-# Keys 42-52 lift the sword to the held-item pose (unchanged, shifted by yaw -720 / roll -360: the rig now winds two turns). Key -> tick: l+1 (l<=6), l+3 (7..28), l+5 (29+).
-# Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r6/per-key-tip-face.txt.
+# Round 7: pivot = the held item's fist [-0.348, 0.773, 0.293] (handover_s1.py), so REST / floor keys use pitch -15 (tip y 0.11; -20 would sink under the floor).
+# Keys 42-52 lift OUTSIDE the first-person frustum: REST -> up the caster's right side (slerp, keys 42-48, tip right-up phi 270 pitch 52 at key 48 = tick 53)
+# -> horizontal wiper in to the held pose (keys 49-52, ticks 54-57); key 52 = held item exactly (0.0 deg, grip offset 0). FP coverage <= 6% (perspective ray-cast).
+# Key -> tick: l+1 (l<=6), l+3 (7..28), l+5 (29+).
+# Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt.
 # Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
 # Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
-# Parts: verbatim deliver/rig-parts.yaml (20 parts, round 2). Face normal = local Z, edges = +-X, blade = +Y. fx / sprites live in bastion-s1-fx-high/low.yaml.
+# Parts: verbatim deliver/rig-parts.yaml (22 parts, round 7: + guard_plate, hilt_flare). Face normal = local Z, edges = +-X, blade = +Y. fx / sprites live in bastion-s1-fx-high/low.yaml.
 
 id: bastion-s1-rig
 duration_ticks: 58
@@ -20,7 +23,7 @@ follow: true
 sample_ticks: 1
 rigs:
 - id: sword
-  pivot: [-0.15, 1.0, 0.25]
+  pivot: [-0.348, 0.773, 0.293]
   rest: [0, 90, 0]
   tilt: [0, 0, -20]
   respect_hit_stop: true
@@ -42,62 +45,64 @@ rigs:
   - { id: guard_2, block: polished_deepslate, offset: [0.0, 0.2875, 0.0], size: [0.575, 0.0875, 0.0813] }
   - { id: guard_cap_l, block: gold_block, offset: [0.2987, 0.2938, 0.0], size: [0.0225, 0.1, 0.0938] }
   - { id: guard_cap_r, block: gold_block, offset: [-0.2987, 0.2938, 0.0], size: [0.0225, 0.1, 0.0938] }
+  - { id: guard_plate, block: gold_block, offset: [0.0, 0.285, 0.0], size: [0.2125, 0.0825, 0.1312] }
+  - { id: hilt_flare, block: gold_block, offset: [0.0, 0.3888, 0.0], size: [0.35, 0.0875, 0.0562] }
   - { id: grip, block: black_wool, offset: [0.0, 0.0563, 0.0], size: [0.1, 0.2625, 0.1] }
   - { id: grip_collar, block: gold_block, offset: [0.0, 0.2031, 0.0], size: [0.125, 0.0312, 0.125] }
   - { id: pommel, block: polished_blackstone, offset: [0.0, -0.1625, 0.0], size: [0.1562, 0.125, 0.1437] }
   swing:
-  - { t: 0, rotate: [-172.9, 18.7, 68.8] }
+  - { t: 0, rotate: [-174.8, 14.1, 69.4] }
   - { t: 1, rotate: [-176.1, 9.2, 66.7] }
   - { t: 2, rotate: [-193.1, -21.5, 57.5] }
   - { t: 3, rotate: [-209.9, -32.5, 43.1] }
   - { t: 4, rotate: [-274.5, -47.9, -3.3] }
   - { t: 5, rotate: [-334.1, -25.9, -41.9] }
-  - { t: 6, rotate: [-382.6, 10.0, -53.5] }
-  - { t: 7, rotate: [-410.7, 3.8, -100.7] }
-  - { t: 8, rotate: [-438.7, 0.4, -145.9] }
-  - { t: 9, rotate: [-468.8, 1.1, -186.7] }
-  - { t: 10, rotate: [-496.4, 6.6, -211.3] }
-  - { t: 11, rotate: [-521.0, 14.4, -235.1] }
-  - { t: 12, rotate: [-538.5, 20.8, -255.3] }
-  - { t: 13, rotate: [-548.0, 24.2, -271.1] }
-  - { t: 14, rotate: [-548.9, 24.5, -281.1] }
-  - { t: 15, rotate: [-545.1, 23.2, -287.3] }
-  - { t: 16, rotate: [-540.4, 21.5, -289.8] }
-  - { t: 17, rotate: [-535.7, 19.8, -290.8] }
-  - { t: 18, rotate: [-532.9, 18.7, -291.2] }
-  - { t: 19, rotate: [-532.9, 18.7, -291.2] }
-  - { t: 20, rotate: [-532.9, 18.7, -291.2] }
+  - { t: 6, rotate: [-371.0, 12.0, -46.8] }
+  - { t: 7, rotate: [-404.9, 0.5, -89.5] }
+  - { t: 8, rotate: [-433.6, -4.2, -142.2] }
+  - { t: 9, rotate: [-465.5, -4.3, -185.4] }
+  - { t: 10, rotate: [-495.9, 1.3, -210.7] }
+  - { t: 11, rotate: [-522.7, 9.7, -234.8] }
+  - { t: 12, rotate: [-540.4, 16.1, -254.7] }
+  - { t: 13, rotate: [-549.9, 19.5, -270.4] }
+  - { t: 14, rotate: [-550.8, 19.9, -280.4] }
+  - { t: 15, rotate: [-547.0, 18.5, -286.6] }
+  - { t: 16, rotate: [-542.3, 16.8, -289.2] }
+  - { t: 17, rotate: [-537.6, 15.1, -290.2] }
+  - { t: 18, rotate: [-534.8, 14.1, -290.6] }
+  - { t: 19, rotate: [-534.8, 14.1, -290.6] }
+  - { t: 20, rotate: [-534.8, 14.1, -290.6] }
   - { t: 21, rotate: [-527.7, 10.4, -261.5] }
   - { t: 22, rotate: [-512.5, -6.4, -220.7] }
-  - { t: 23, rotate: [-498.2, -19.2, -178.7] }
-  - { t: 24, rotate: [-526.4, -12.5, -159.8] }
-  - { t: 25, rotate: [-571.2, 1.1, -162.2] }
+  - { t: 23, rotate: [-493.9, -2.7, -178.5] }
+  - { t: 24, rotate: [-522.4, -1.2, -159.7] }
+  - { t: 25, rotate: [-569.7, 5.9, -162.3] }
   - { t: 26, rotate: [-624.8, 15.2, -159.7] }
   - { t: 27, rotate: [-683.3, 18.1, -149.6] }
-  - { t: 28, rotate: [-743.0, 11.3, -142.4] }
-  - { t: 29, rotate: [-782.0, 3.0, -143.1] }
-  - { t: 30, rotate: [-821.4, -1.1, -152.3] }
-  - { t: 31, rotate: [-852.5, -1.3, -170.2] }
-  - { t: 32, rotate: [-876.9, 2.5, -196.5] }
-  - { t: 33, rotate: [-894.9, 8.2, -228.8] }
-  - { t: 34, rotate: [-905.6, 13.7, -256.7] }
-  - { t: 35, rotate: [-909.5, 17.7, -274.7] }
-  - { t: 36, rotate: [-904.7, 18.9, -285.2] }
-  - { t: 37, rotate: [-899.2, 19.1, -289.4] }
-  - { t: 38, rotate: [-894.9, 19.0, -290.6] }
-  - { t: 39, rotate: [-892.9, 18.7, -291.2] }
-  - { t: 40, rotate: [-892.9, 18.7, -291.2] }
-  - { t: 41, rotate: [-892.9, 18.7, -291.2] }
-  - { t: 42, rotate: [-898.6, 18.1, -289.5] }
-  - { t: 43, rotate: [-905.3, 12.7, -288.6] }
-  - { t: 44, rotate: [-912.7, 2.5, -289.9] }
-  - { t: 45, rotate: [-921.3, -12.0, -294.8] }
-  - { t: 46, rotate: [-933.8, -29.7, -305.5] }
-  - { t: 47, rotate: [-956.5, -47.0, -327.2] }
-  - { t: 48, rotate: [-988.1, -54.7, -358.1] }
-  - { t: 49, rotate: [-1016.9, -53.6, -385.9] }
-  - { t: 50, rotate: [-1036.2, -49.7, -403.4] }
-  - { t: 51, rotate: [-1048.4, -47.1, -413.4] }
+  - { t: 28, rotate: [-741.9, 8.1, -142.6] }
+  - { t: 29, rotate: [-781.1, -2.5, -143.1] }
+  - { t: 30, rotate: [-821.6, -4.6, -152.3] }
+  - { t: 31, rotate: [-852.8, -2.2, -170.3] }
+  - { t: 32, rotate: [-877.4, 1.1, -196.5] }
+  - { t: 33, rotate: [-895.6, 6.2, -228.8] }
+  - { t: 34, rotate: [-906.6, 11.0, -256.5] }
+  - { t: 35, rotate: [-910.8, 14.4, -274.4] }
+  - { t: 36, rotate: [-906.2, 15.1, -284.8] }
+  - { t: 37, rotate: [-900.9, 14.9, -288.9] }
+  - { t: 38, rotate: [-896.8, 14.4, -290.1] }
+  - { t: 39, rotate: [-894.8, 14.1, -290.6] }
+  - { t: 40, rotate: [-894.8, 14.1, -290.6] }
+  - { t: 41, rotate: [-894.8, 14.1, -290.6] }
+  - { t: 42, rotate: [-894.1, 9.2, -294.5] }
+  - { t: 43, rotate: [-893.9, -3.0, -303.9] }
+  - { t: 44, rotate: [-897.9, -22.2, -319.8] }
+  - { t: 45, rotate: [-913.8, -42.8, -347.5] }
+  - { t: 46, rotate: [-947.7, -51.7, -391.7] }
+  - { t: 47, rotate: [-975.6, -45.0, -427.8] }
+  - { t: 48, rotate: [-990.0, -32.0, -450.0] }
+  - { t: 49, rotate: [-1013.3, -34.2, -437.3] }
+  - { t: 50, rotate: [-1033.7, -39.5, -427.4] }
+  - { t: 51, rotate: [-1048.6, -44.8, -421.7] }
   - { t: 52, rotate: [-1056.4, -47.8, -419.4] }
   emitters:
   - { id: tip_ember_1, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 3, end_t: 14 }
