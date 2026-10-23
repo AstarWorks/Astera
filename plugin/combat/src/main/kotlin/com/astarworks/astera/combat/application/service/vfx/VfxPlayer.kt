@@ -8,6 +8,8 @@ import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayKind
+import com.astarworks.astera.core.domain.effect.DisplayTransform
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.effect.vfx.SpriteFrames
@@ -104,6 +106,8 @@ public class VfxPlayer(
         /** Entity position offset from the anchor (quads sit at their own point; `0` for ordinary displays). */
         var offset: Vec3 = plan.spawnOffset
         var targetOffset: Vec3 = Vec3.ZERO
+        var authoredTransform: DisplayTransform = plan.initial
+        var lineCorrection: Vec3? = null
 
         /** Quad updates move the entity themselves, so the per-tick follow teleport would fight them. */
         val selfMoving: Boolean = plan.updates.any { it.position != null }
@@ -112,6 +116,7 @@ public class VfxPlayer(
     private class Instance(
         val request: VfxRequest, val plan: VfxPlan, val startedAt: Long,
         val targetReference: Vec3?, val targetTracks: Map<String, List<VfxTargetKey>>,
+        val targetLines: Set<String>,
     ) {
         val elements: List<ElementState> = plan.elements.map(::ElementState)
         var position: Vec3 = request.origin
@@ -146,7 +151,8 @@ public class VfxPlayer(
         // Keep the current effect if the new plan cannot fit; only replace after admission.
         val instance = Instance(request, plan, scheduler.currentTick(),
             def.targetReference?.let { frame.rotation.rotate(it * request.scale) },
-            def.elements.filter { it.targetTrack.isNotEmpty() }.associate { it.id to it.targetTrack })
+            def.elements.filter { it.targetTrack.isNotEmpty() }.associate { it.id to it.targetTrack },
+            def.elements.filter { it.targetLine }.map { it.id }.toSet())
         if (plan.attachToAnchor && request.anchorEntityId != null) {
             val reusable = replaced.flatMap { it.elements }.filter { state ->
                 state.attached && state.handle?.let {
@@ -230,6 +236,7 @@ public class VfxPlayer(
             if (targetCorrection != null && track != null) {
                 state.targetOffset = targetCorrection * track.targetWeightAt(age - e.spawnTick - VfxTimeline.ANIMATION_DELAY_TICKS)
             }
+            if (e.elementId in instance.targetLines) state.lineCorrection = targetCorrection
             if (e.kind !is VfxElementKind.Particle && age == e.spawnTick) spawn(instance, state)
             val handle = state.handle
             if (handle != null) {
@@ -243,8 +250,12 @@ public class VfxPlayer(
                         state.offset = it
                         displays.teleport(handle, instance.position + it + state.targetOffset, 0f, 0f, (if (plan.follow && !state.attached) plan.followTeleportTicks else null) ?: u.interpolationTicks.coerceIn(0, MAX_TELEPORT_TICKS))
                     }
-                    displays.update(handle, u.transform, u.interpolationTicks)
+                    state.authoredTransform = u.transform
+                    if (state.lineCorrection == null) displays.update(handle, u.transform, u.interpolationTicks)
                 }
+            }
+            if (handle != null && state.lineCorrection != null) {
+                displays.update(handle, lineTransform(state.authoredTransform, state.lineCorrection!!), 0)
             }
             if (handle != null && track != null && targetCorrection != null) {
                 displays.teleport(handle, instance.position + state.offset + state.targetOffset, 0f, 0f, 0)
@@ -287,7 +298,7 @@ public class VfxPlayer(
         val e = state.plan
         val spec = DisplaySpec(
             kind = displayKind(e.kind) ?: return,
-            transform = e.initial,
+            transform = state.lineCorrection?.let { lineTransform(e.initial, it) } ?: e.initial,
             lifetimeTicks = (e.despawnTick - e.spawnTick).toLong().coerceAtLeast(1L),
             billboard = e.billboard,
             brightness = e.brightness,
@@ -322,6 +333,19 @@ public class VfxPlayer(
         }
         if (state.handle == null) state.handle = displays.spawn(instance.request.world, instance.position + e.spawnOffset + state.targetOffset, spec, lines)
         if (state.handle == null) log.debug("VFX {}: display for element '{}' was not spawned", instance.request.vfxId, e.elementId)
+    }
+
+    /** Block transforms use corner origins. Reconstruct both centreline endpoints before stretching. */
+    private fun lineTransform(t: DisplayTransform, correction: Vec3): DisplayTransform {
+        val center = t.translation + t.rotation.rotate(t.scale * 0.5)
+        val half = t.rotation.rotate(Vec3(0.0, 0.0, t.scale.z * 0.5))
+        val start = center - half
+        val end = center + half + correction
+        val delta = end - start
+        val length = delta.length()
+        val rotation = if (length < 1e-8) t.rotation else Quaternion.lookRotation(delta, t.rotation.rotate(Vec3(0.0, 1.0, 0.0)))
+        val scale = Vec3(t.scale.x, t.scale.y, length)
+        return DisplayTransform((start + end) * 0.5 - rotation.rotate(scale * 0.5), rotation, scale)
     }
 
     private fun displayKind(kind: VfxElementKind): DisplayKind? = when (kind) {

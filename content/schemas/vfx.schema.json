@@ -382,6 +382,9 @@
                     "items": {
                         "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxTargetKeyYaml"
                     }
+                },
+                "target_line": {
+                    "type": "boolean"
                 }
             },
             "required": [

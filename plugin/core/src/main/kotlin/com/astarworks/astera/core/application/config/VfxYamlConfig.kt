@@ -127,6 +127,7 @@ public data class VfxElementYaml(
     /** Display-particle emitter (kind `quad` only); keyframes become optional. */
     public val emit: VfxEmitYaml? = null,
     @SerialName("target_track") public val targetTrack: List<VfxTargetKeyYaml> = emptyList(),
+    @SerialName("target_line") public val targetLine: Boolean = false,
 ) {
     public fun toDomain(): VfxElement = VfxElement(
         id = id,
@@ -146,6 +147,7 @@ public data class VfxElementYaml(
         groupKeyframes = groupKeyframes.map { it.toDomain() },
         emit = emit?.toDomain(),
         targetTrack = targetTrack.map { VfxTargetKey(it.t, it.weight) },
+        targetLine = targetLine,
     )
 }
 

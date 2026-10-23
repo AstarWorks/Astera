@@ -92,7 +92,8 @@ public data class VfxDefinition(
         require(sampleTicks >= 1) { "VfxDefinition.sampleTicks must be >= 1: $sampleTicks" }
         require(elements.isNotEmpty() || rigs.isNotEmpty()) { "VfxDefinition needs elements or rigs" }
         require(targetReference == null || (!follow && !attachToAnchor)) { "target tracking requires a fixed anchor without native attachment" }
-        require(elements.none { it.targetTrack.isNotEmpty() } || targetReference != null) { "target tracks require target_reference" }
+        require(elements.none { it.targetLine } || sampleTicks == 1) { "target_line requires sample_ticks: 1" }
+        require(elements.none { it.targetTrack.isNotEmpty() || it.targetLine } || targetReference != null) { "target tracks require target_reference" }
         val ids = elements.map { it.id } + rigs.map { it.id }
         require(ids.toSet().size == ids.size) { "VfxDefinition element ids must be unique: $ids" }
         val slots = elements.sumOf { it.slotCount }
@@ -146,6 +147,8 @@ public data class VfxElement(
     public val emit: VfxEmitter? = null,
     /** Keys share the element keyframe clock: spawn + 1 + t. Model scale and rotation are preserved. */
     public val targetTrack: List<VfxTargetKey> = emptyList(),
+    /** Stretch local +Z endpoint to the bound target; preserve the authored -Z endpoint. */
+    public val targetLine: Boolean = false,
 ) {
     /** Display slots this element can plan (emitter particles count individually toward the budget). */
     public val slotCount: Int get() = emit?.count ?: count
@@ -161,6 +164,7 @@ public data class VfxElement(
         require(keyframes.isEmpty() || keyframes.first().t >= 0) { "element '$id' keyframe t must be >= 0" }
         require(emit == null || kind is VfxElementKind.Quad) { "element '$id': emit needs kind quad" }
         require(targetTrack.isEmpty() || (emit == null && kind !is VfxElementKind.Particle)) { "target tracking supports non-emitting displays only" }
+        require(!targetLine || (kind is VfxElementKind.Block && billboard == DisplayBillboard.FIXED && count == 1 && formation == null && emit == null && targetTrack.isEmpty())) { "target_line requires one fixed block without target_track or formation" }
         targetTrack.zipWithNext().forEach { (a, b) -> require(b.t > a.t) { "target track times must increase" } }
         keyframes.zipWithNext().forEach { (a, b) ->
             require(b.t > a.t) { "element '$id' keyframe t must be strictly increasing (${a.t} then ${b.t})" }

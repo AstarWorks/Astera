@@ -64,13 +64,13 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "角形ヘッド・金属軸・側面ケーブルへ修正。手持ちと演出用武器の二重表示、細部・色・持ち位置・腕姿勢・発光が未一致。S3のビームは標的を越えて伸びる。"
+    "reason": "固定長のビームを同一標的への回転・伸縮へ変更。静止標的と上下・横・近距離への移動で終点追従を実機確認。命中輪は元の位置に残り、武器二重表示・光の形・姿勢・カメラ・Charge分岐は未一致。"
   },
   "weapon": "orrery-staff",
   "identity": "R Corp. 4th Pack Reindeer Rodion",
   "videoTitle": "R Corp. 4th Pack Reindeer Rodion — skill showcase",
-  "iterations": 2,
+  "iterations": 4,
   "report": "/report/orrery-staff",
   "referenceRevision": "37cecbf269279ceeb30fc8758063b98bfd2b4119e0e80d61007e51ec20da4f94",
-  "contentRevision": "849019222f775a45e2966454c1df33a239f5d2b699b9c6607f40e1211336330c"
+  "contentRevision": "4685cb2d6b31eec58cb0b8cbc63173ae041356bb372393360f78d81d1aae5fc1"
 }
