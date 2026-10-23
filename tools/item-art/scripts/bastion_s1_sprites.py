@@ -199,17 +199,16 @@ def make_crescent():
 
 
 # ---------------------------------------------------------------------------------------------------------
-# ink: ONE connected pale-yellow brush mass with horizontal tongues (reference e00-e02), translucent toward the
-# tips, dissolving over the last 3 frames (round 8: the r7 slab read as an opaque flat yellow bar and snapped off)
+# ink: ONE connected flat-yellow brush mass with horizontal tongues and torn edges (reference e00-e02), opaque, shown
+# for 3 ticks (full mass, then split / eaten) like the reference's 2-frame flash
 # ---------------------------------------------------------------------------------------------------------
-# r9 (real client r6): the r8 ink read pale cream (hot top band + shade bottom + see-through tips washed it over the grey
-# ground: measured in-game mean (228, 214, 152), hue 50). Reference e00-e02 ink pixels sampled: a FLAT lemon yellow,
-# mean (252, 253, 174) = #FCFDAE, hue 60, s 0.31, v 0.99, with almost no variance. Fill = that colour, nearly opaque,
-# no hot band; only a faint same-hue shade on the tongue bottoms and the dark rim (dark mixed with bright).
-INK_FLAT = hexc("#FCFDAE")
-INK_HOT = hexc("#FFFFD0")
-INK_SHADE = hexc("#E6E070")
-INK_RIM = hexc("#5E5A14")
+# r10 (reviewer on real client r7: ink pale cream, soft edges, 5-6 ticks, hides caster + weapon). Colour decision:
+# the reference pixels are #FCFDAE (s 0.31), but that is a light-on-near-black composite; over Minecraft's mid-grey
+# daylight ground the same value reads cream (r6/r7 captures). The beat sheet (case.json t30: #FFE45A) names the
+# perceived colour, a flat saturated yellow, so the fill is #FFE45A, fully opaque, no hot band and no shade (any tint
+# variation washed it toward cream before). Contrast comes from a thin dark olive rim only.
+INK_FLAT = hexc("#FFE45A")
+INK_RIM = hexc("#4A3C08")
 # tongue table: centre y offset from the sprite centre (px, + = down), half thickness at the tip end, reach (0..1 of
 # the full width), wobble seed. The root (left) spine joins them, the gaps open toward the tips.
 INK_TONGUES = [(-62, 11, 0.70, 1), (-30, 17, 1.00, 2), (6, 20, 0.92, 3), (40, 15, 0.80, 4), (66, 9, 0.55, 5)]
@@ -227,7 +226,6 @@ def ink_frame(size, grow, diss, boil=0.0, seed=7):
     u = np.clip((X - left) / width, 0, 1)  # 0 root .. 1 far tip
     xs_idx = np.clip((X * SS + boil * 40 * SS).astype(int), 0, n - 1)
     field = np.full(X.shape, -9.0)
-    tone = np.zeros(X.shape)  # 0 top of the tongue .. 1 bottom, for the hot/shade bands
     for yc, h, reach, ts in INK_TONGUES:
         r2 = np.random.default_rng(seed * 10 + ts)
         wob = noise1d(n, r2, 5, 3)[xs_idx]
@@ -239,8 +237,6 @@ def ink_frame(size, grow, diss, boil=0.0, seed=7):
         hh = hh * np.clip((tip - u) / 0.12, 0, 1) ** 0.45  # taper into the tip
         bow = left + 2.0 + 34.0 * ((Y - cy) / 90.0) ** 2 + 8.0 * (tipn - 0.5)  # rounded, ragged back edge
         d = np.minimum(np.minimum(hh - np.abs(Y - centre), (tip - u) * width), X - bow)
-        better = d > field
-        tone = np.where(better, np.clip((Y - (centre - hh)) / np.maximum(2 * hh, 1e-3), 0, 1), tone)
         field = np.maximum(field, d)
     # root: a ragged ellipse joining every tongue (one connected mass), radius modulated by angle noise
     cx, rx, ry = left + 22.0, 24.0, 74.0 * grow ** 0.5
@@ -249,34 +245,31 @@ def ink_frame(size, grow, diss, boil=0.0, seed=7):
     rr = np.hypot((X - cx) / rx, (Y - cy) / ry) / (0.72 + 0.5 * an)
     sd = (1.0 - rr) * rx
     field = np.maximum(field, np.minimum(sd, X - 3.0))
-    alpha = soft(field, 1.6)
-    # translucency gradient: opaque root, see-through tips; dry-brush breaks in the outer half
+    # r10: torn brush edge = high-frequency edge noise (2-5 px bites), crisp 0.6 px feather, no translucent tips
+    rag = fbm(n, np.random.default_rng(seed + 31 + int(boil * 10)), base=24, octaves=3) - 0.5
+    field = field + 7.0 * rag * soft(12.0 - np.abs(field), 4.0)
+    alpha = soft(field, 0.6)
     streak = fbm(n, np.random.default_rng(seed + 99), base=3, octaves=3)
     streak = np.asarray(Image.fromarray(streak.astype(np.float32), mode="F").resize((n, n // 6), Image.BICUBIC)
                         .resize((n, n), Image.BICUBIC))  # stretched horizontally = brush grain
-    alpha *= (1.0 - 0.12 * u ** 2) * (1.0 - 0.6 * np.clip(u - 0.25, 0, 1) / 0.75 * soft(streak - 0.55, 0.06))
+    # dry-brush: a few hard-edged horizontal breaks in the outer half only (holes, not translucency)
+    alpha *= 1.0 - soft(streak - 0.68, 0.02) * soft(u - 0.45, 0.05)
     # dissolve: tips first, then holes through the body, then the root
     if diss > 0:
         dn = fbm(n, np.random.default_rng(seed + 7), base=6, octaves=3)
         thr = 0.55 * dn + 0.45 * u
-        alpha *= soft((1.0 - diss) - thr, 0.05) * (1.0 - 0.4 * diss)
+        alpha *= smooth(((1.0 - diss) - thr) / 0.02 + 0.5)  # r10: hard torn holes, no global fade (fading read cream)
     col = INK_FLAT[None, None] * np.ones((n, n, 1))
-    hot = soft(0.38 - tone, 0.12) * soft(field - 2.0, 1.5)
-    shade = soft(tone - 0.72, 0.1)
-    col = col * (1 - hot[..., None] * 0.15) + INK_HOT[None, None] * hot[..., None] * 0.15
-    col = col * (1 - shade[..., None] * 0.35) + INK_SHADE[None, None] * shade[..., None] * 0.35
-    g = soft(streak - 0.62, 0.05)[..., None] * 0.12
-    col = col * (1 - g) + INK_SHADE[None, None] * g
-    rimk = soft(1.6 - field, 1.0) * 0.45
+    rimk = soft(1.2 - field, 0.6) * 0.6
     col = col * (1 - rimk[..., None]) + INK_RIM[None, None] * rimk[..., None]
     return over(blank(n), np.clip(col, 0, 1), alpha)
 
 
 def make_ink():
-    """6 frames, frame k shows at element tick k + 1 (frame 0 on spawn and spawn + 1): splash (0.8 reach), full,
-    full (boiled edge), then a 3-tick dissolve (0.25 / 0.45 / 0.7)."""
+    """r10: 2 frames, frame 0 shows on spawn and spawn + 1, frame 1 on spawn + 2 (element lives 3 ticks): the full torn
+    mass (reference t30), then the same mass split and eaten (reference t31 bands, tips gone first)."""
     size = 256
-    specs = [(0.80, 0.0, 0.0), (1.0, 0.0, 0.0), (1.0, 0.0, 0.5), (1.0, 0.25, 0.7), (1.0, 0.45, 0.9), (1.0, 0.7, 1.0)]
+    specs = [(1.0, 0.0, 0.0), (1.0, 0.42, 0.6)]
     frames = [downsample(ink_frame(size, g, d, boil=b), size) for g, d, b in specs]
     save_strip("ink", frames, size)
 

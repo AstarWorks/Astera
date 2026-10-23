@@ -49,7 +49,24 @@ cues: []
 #   Emission per fx tick (count x shape points x along_path points): hit 1 e2 11, e3 25, e4 65, e5 51, e6 38, e7 16, e8 15, e9 15, e10 3
 #   (total 239, r8 246); hit 2 e1 3, e2 26, e3 50, e4 98, e5 93, e6 66, e7 39, e8 24, e9 15, e10-11 6, e12 3 (total 429, r8 453).
 #   Fx-relative timing unchanged (the director shifts fx-high's play delay +1 for the tick-8 contact).
+# Round 10 (particle-artist, reviewer FAIL on real client r7: dust / dust_color_transition render as pixel `#` splats and sit
+#   still; `trail` dots are flat squares that do not move; orange-brown ember cluster hung at waist height t41-52).
+#   REBUILT. Deleted: every dust / dust_color_transition / trail / crit def of this layer (bastion-s1-p-chip-*, -converge, -crit,
+#   -dust-*, -ember, -fleck-*, -glint*, -grit, -trail-gold, -trail-dark, -wave-*) and the unreferenced round-1 defs
+#   (bastion-s1-ember, -dust-gold, -dust-black, -ground-poof, -hit-spark, -smoke-dark). Rewritten to electric_spark (2-3 ticks):
+#   bastion-s1-tip-ember / -tip-glint (rig emitters, ids unchanged) and bastion-s1-hit-crit (skill YAML, id unchanged, count 6).
+#   Layer now = vanilla electric_spark only (-p-spark, -p-spark-up, -p-spark-burst (new, replaces crit), -p-trail-spark on the
+#   blade path) + SPRITE display particles (emit on sprite elements, one display each):
+#     s1h1-p-glints-l / -r   bastion-s1-glint '#FFC850'  4+4  rate 2 (fx 4-5)  speed 0.24-0.34  custom[+-1, 1.1, -0.3] spread 30  drag 0.12
+#                            gravity 0.03  life 3-5  size 0.09-0.13 (0.29-0.42 blocks)  grow 0.5 -> 1 at 25% -> 0  spin 25 deg/tick
+#     s1h1-p-slivers         bastion-s1-sliver '#FF2A2218'  5  rate 3 (fx 4-5)  speed 0.2-0.28  custom[0, 1, -0.8] spread 50  life 4-6
+#     s1h2-p-glints-l / -r   as hit 1, 5+5 rate 3, size 0.1-0.14, custom[+-1, 1, 0.1] (sideways only: caster eye 1.8 behind)
+#     s1h2-p-slivers-l / -r  3+3 rate 2, custom[+-0.9, 1, -0.1] spread 35
+#   All sprite particles spawn 0.25 above the contact (hit 1 y 0.54, hit 2 y 0.71), fly up/out ~0.6-1.2 blocks, shrink to 0.
+#   Knee rule (nothing below y 0.5 after contact + 3): blade-path spark points below the knee only up to fx 5; contact spark calls
+#   after fx 5 start 0.35 higher. Every particle dies <= 6 ticks after spawn (electric_spark 2-3).
+#   Hit-1 timing: H1_DELAY 4 + r9 keys (contact skill 8 = fx 4), fx-relative timing unchanged.
 display_particles:
-  fx-high: {added_displays: 0}
-  fx-low:  {added_displays: 0}
-display_budget_peak: {fx-high: 16, fx-low: 18}   # unchanged
+  fx-high: {added_displays: 13}   # glints 8 + slivers 5, all alive fx 5-8
+  fx-low:  {added_displays: 16}   # glints 10 + slivers 6
+display_budget_peak: {fx-high: 29, fx-low: 34}   # sprites 16 / 18 (conservative end-inclusive count) + particles; + rig 22 = 51 / 56 <= 60 per cast
