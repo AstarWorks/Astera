@@ -1,4 +1,4 @@
-# Combo A: translucent trail keeps chord length while fading; no shrinking red block gaps.
+# Opposite radial ordering reverses the soft surface normal; edge emitted only once.
 id: crimson-combo-descending
 duration_ticks: 17
 orient: yaw
@@ -430,4 +430,23 @@ rigs:
     edge:
       block: white_concrete
       width: 0.055
+  - id: blade-fan-back
+    from:
+    - 0
+    - 4.0
+    - 0
+    to:
+    - 0
+    - 3.65
+    - 0
+    start_t: 2
+    end_t: 6
+    life_ticks: 5
+    step_deg: 18
+    style: soft
+    bands:
+    - from: 0.0
+      to: 1.0
+      color: '#F0EF2445'
+      color_to: '#3069091C'
   emitters: []
