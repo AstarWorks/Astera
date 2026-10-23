@@ -199,6 +199,8 @@ class Bot private constructor(
     val damageNumbers = CopyOnWriteArrayList<String>()
     private val seenDamageNumberEntities = java.util.Collections.newSetFromMap(ConcurrentHashMap<Int, Boolean>())
     val entityEvents = CopyOnWriteArrayList<EntityEvent>()
+    /** Latest entity-data flags byte (metadata index 0: 0x20 = invisible) per entity id, as sent to this client. */
+    val entityFlags = ConcurrentHashMap<Int, Int>()
     val packetCounts = ConcurrentHashMap<String, AtomicInteger>()
 
     val stateIds = ConcurrentHashMap<Int, Int>()
@@ -324,6 +326,7 @@ class Bot private constructor(
             is ClientboundRemoveEntitiesPacket -> packet.entityIds.forEach { entityEvents += EntityEvent(System.currentTimeMillis(), it, "", false) }
             is ClientboundSoundPacket -> sounds += packet.sound.toString()
             is ClientboundSetEntityDataPacket -> packet.metadata.forEach { m ->
+                if (m.id == 0 && m.value is Byte) entityFlags[packet.entityId] = (m.value as Byte).toInt()
                 // Custom names are OPTIONAL_COMPONENT: unwrap the Optional, or a villager's name tag is never seen.
                 ((m.value as? Component) ?: ((m.value as? java.util.Optional<*>)?.orElse(null) as? Component))?.let { c ->
                     val txt = plain(c)

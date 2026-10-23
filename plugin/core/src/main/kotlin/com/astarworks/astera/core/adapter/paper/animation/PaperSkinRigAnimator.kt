@@ -79,6 +79,11 @@ public class PaperSkinRigAnimator(
         var held: ItemDisplay? = null
         var heldStack: ItemStack? = null
         var lockedMovement: Boolean = false
+
+        /** Estimated client-side body yaw (see [PaperSkinRigAnimator.advanceBodyYaw]); seeded with the head yaw. */
+        var bodyYaw: Float = player.location.yaw
+        var lastX: Double = player.location.x
+        var lastZ: Double = player.location.z
     }
 
     private val rigs = LinkedHashMap<PlayerId, Rig>()
@@ -118,8 +123,8 @@ public class PaperSkinRigAnimator(
         }
         val playback = SkinRigPlayback(definition)
         val owner = "skinrig:${playerId.uuid}"
-        val origin = anchor(player)
-        val rest = SkinRigTransforms.compute(playback.frame(), slim, headLook(player))
+        val origin = player.location.also { it.pitch = 0f }
+        val rest = SkinRigTransforms.compute(playback.frame(), slim, Vec3.ZERO)
         val displays = SkinRigBone.entries.associateWith { bone ->
             origin.world.spawn(origin, ItemDisplay::class.java) { d ->
                 PaperManagedEntities.mark(d, owner)
@@ -127,14 +132,19 @@ public class PaperSkinRigAnimator(
                 d.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.NONE
                 d.brightness = Display.Brightness(SkinRigMarker.BLOCK_LIGHT, SkinRigMarker.skyPayload(bone, slim))
                 d.billboard = Display.Billboard.FIXED
-                d.shadowRadius = 0f
+                // The hidden player's shadow disappears with them; the body display stands in for it (vanilla 0.5 / 1.0).
+                d.shadowRadius = if (bone == SkinRigBone.BODY) SHADOW_RADIUS else 0f
+                d.shadowStrength = if (bone == SkinRigBone.BODY) SHADOW_STRENGTH else 0f
                 d.interpolationDuration = 1
                 d.teleportDuration = 1
-                d.transformation = transformation(rest.bones.getValue(bone))
+                d.transformation = transformation(rest.bones.getValue(bone), cancelItemFlip = true)
             }
         }
         val rig = Rig(player, playback, slim, displays, player.isInvisible)
         rigs[playerId] = rig
+        // Spawn the held-item display in the same tick the equipment packet blanks the real one, or the sword
+        // vanishes until the first tick() (handoff gap).
+        updateHeld(rig, origin, rest.heldItem)
         player.isInvisible = true
         if (definition.lockMovement) lockMovement(player, true).also { rig.lockedMovement = true }
         hideEquipment(rig)
@@ -183,11 +193,12 @@ public class PaperSkinRigAnimator(
             teardown(rig)
             return
         }
-        val transforms = SkinRigTransforms.compute(rig.playback.frame(), rig.slim, headLook(player))
-        val at = anchor(player)
+        advanceBodyYaw(rig)
+        val transforms = SkinRigTransforms.compute(rig.playback.frame(), rig.slim, headLook(rig))
+        val at = anchor(rig)
         for ((bone, display) in rig.displays) {
             display.teleport(at)
-            display.transformation = transformation(transforms.bones.getValue(bone))
+            display.transformation = transformation(transforms.bones.getValue(bone), cancelItemFlip = true)
         }
         updateHeld(rig, at, transforms.heldItem)
         if (!player.isInvisible) player.isInvisible = true
@@ -263,23 +274,54 @@ public class PaperSkinRigAnimator(
 
     // ---- geometry glue ---------------------------------------------------------
 
-    /** Feet position with the body yaw, so the Display entity's own yaw matches the rig frame. */
-    private fun anchor(player: Player): Location =
-        player.location.also { it.yaw = player.bodyYaw; it.pitch = 0f }
+    /** Feet position with the rig body yaw, so the Display entity's own yaw matches the rig frame. */
+    private fun anchor(rig: Rig): Location =
+        rig.player.location.also { it.yaw = rig.bodyYaw; it.pitch = 0f }
+
+    /**
+     * The server's `player.bodyYaw` is not what viewers draw: a client starts a remote player's body at its head
+     * yaw when it begins tracking and only runs the vanilla clamp from there, so the two histories diverge (up to
+     * the 50 degree clamp). The rig therefore keeps its own estimate, seeded with the head yaw at `play` and
+     * advanced like vanilla `LivingEntity.tickHeadTurn`: while moving the body eases toward the head yaw, and the
+     * head may never be more than 50 degrees off the body. On blend-out the real body (which the client kept
+     * updating while hidden) is where this estimate ends up.
+     */
+    private fun advanceBodyYaw(rig: Rig) {
+        val loc = rig.player.location
+        val dx = loc.x - rig.lastX
+        val dz = loc.z - rig.lastZ
+        rig.lastX = loc.x
+        rig.lastZ = loc.z
+        if (dx * dx + dz * dz > MOVED_SQ) rig.bodyYaw += wrapDegrees(loc.yaw - rig.bodyYaw) * 0.3f
+        val diff = wrapDegrees(loc.yaw - rig.bodyYaw)
+        if (kotlin.math.abs(diff) > MAX_HEAD_OFFSET) rig.bodyYaw += diff - Math.signum(diff) * MAX_HEAD_OFFSET
+    }
+
+    private fun wrapDegrees(deg: Float): Float {
+        var d = deg % 360f
+        if (d >= 180f) d -= 360f
+        if (d < -180f) d += 360f
+        return d
+    }
 
     /** Live head look as an outer rotation: pitch about X, and the head-to-body yaw delta about Y (MC yaw is clockwise). */
-    private fun headLook(player: Player): Vec3 {
-        var delta = player.location.yaw - player.bodyYaw
+    private fun headLook(rig: Rig): Vec3 {
+        val player = rig.player
+        var delta = player.location.yaw - rig.bodyYaw
         while (delta > 180f) delta -= 360f
         while (delta < -180f) delta += 360f
         return Vec3(player.location.pitch.toDouble(), -delta.coerceIn(-75f, 75f).toDouble(), 0.0)
     }
 
-    private fun transformation(part: RigPartTransform): Transformation = Transformation(
+    /**
+     * @param cancelItemFlip bones only: `ItemDisplay` draws its item after a `rotY(180)`, which would turn the skull
+     * cube's face to the back; a `right_rotation` of the same angle (applied before the scale) cancels it.
+     */
+    private fun transformation(part: RigPartTransform, cancelItemFlip: Boolean = false): Transformation = Transformation(
         Vector3f(part.translation.x.toFloat(), part.translation.y.toFloat(), part.translation.z.toFloat()),
         Quaternionf(part.rotation.x, part.rotation.y, part.rotation.z, part.rotation.w),
         Vector3f(part.scale.x.toFloat(), part.scale.y.toFloat(), part.scale.z.toFloat()),
-        Quaternionf(),
+        if (cancelItemFlip) Quaternionf().rotationY(Math.PI.toFloat()) else Quaternionf(),
     )
 
     private companion object {
@@ -287,8 +329,16 @@ public class PaperSkinRigAnimator(
         val ITEM_MODEL = NamespacedKey("astera", "skinrig")
         val LOCK_KEY = NamespacedKey("astera", "skinrig_lock")
 
+        /** Vanilla player shadow (`AvatarRenderer.shadowRadius` 0.5, full strength), carried by the body display. */
+        const val SHADOW_RADIUS = 0.5f
+        const val SHADOW_STRENGTH = 1.0f
+
         /** `MULTIPLY_SCALAR_1`: speed x (1 - 0.85) while a `lock_movement` animation plays. */
         const val LOCK_AMOUNT = -0.85
+
+        /** Vanilla `tickHeadTurn`: a body counts as moved above 0.0025 blocks^2 per tick; head/body offset clamp. */
+        const val MOVED_SQ = 0.0025
+        const val MAX_HEAD_OFFSET = 50f
 
         val HIDDEN_SLOTS = listOf(
             EquipmentSlot.HAND,

@@ -45,10 +45,29 @@ public object SkinRigTransforms {
     private const val CUBE_PX = 8.0
 
     /**
-     * Held-item anchor relative to the right arm joint, in px in the arm's frame after the vanilla
-     * `ItemInHandLayer` rotations (X -90, Y 180): `(+1, -2, +10)`.
+     * Vanilla renders every player at 15/16 (`AvatarRenderer.scale`, about the feet); the whole rig and the
+     * held item carry the same factor so a rig at rest coincides with the real body.
      */
-    private val HAND_OFFSET = Vector3d(1.0, -2.0, 10.0)
+    public const val PLAYER_SCALE: Double = 0.9375
+
+    /**
+     * Held-item anchor relative to the right arm joint, in px in the frame after [HELD_TILT].
+     * Derivation: vanilla `ItemInHandLayer` does `rotX(-90) rotY(180) translate(1, 2, -10)/16` in the y-down model
+     * space; the rig frame is that space turned by `rotX(180)` (renderer flip x entity yaw), and `ItemDisplay`
+     * itself adds a `rotY(180)` before drawing. Folding both gives a `rotX(90)` tilt and the offset `(-1, 2, 10)`:
+     * 10 px below the joint, 2 px in front, centred on the arm (x -6).
+     */
+    private val HAND_OFFSET = Vector3d(-1.0, 2.0, 10.0)
+
+    /** Tilt of the held-item frame relative to the arm, degrees about X; see [HAND_OFFSET]. */
+    private const val HELD_TILT = 90.0
+
+    /**
+     * Vanilla `poseRightArm` for a held item: `xRot = xRot * 0.5 - PI/10`, i.e. the item arm is lifted 18 degrees
+     * forward. The skin arm follows the animation, but the item keeps this wrist pitch so the held blade stands
+     * like the vanilla one at rest (negative X swings forward and up).
+     */
+    private const val HELD_ARM_PITCH = -18.0
 
     /**
      * @param headLook live head look as Euler degrees `(pitch about X, yaw about Y, 0)`, applied to the head bone
@@ -71,12 +90,12 @@ public object SkinRigTransforms {
             val center = vec(rest.pivot).add(vec(pose.position)).add(offset)
             val world = toWorld(center)
             RigPartTransform(
-                translation = Vec3(world.x * PX, world.y * PX, world.z * PX),
+                translation = Vec3(world.x * PX * PLAYER_SCALE, world.y * PX * PLAYER_SCALE, world.z * PX * PLAYER_SCALE),
                 rotation = quat(Quaterniond(rootRot).mul(rot)),
                 scale = Vec3(
-                    rest.size.x * scale.x / CUBE_PX,
-                    rest.size.y * scale.y / CUBE_PX,
-                    rest.size.z * scale.z / CUBE_PX,
+                    rest.size.x * scale.x / CUBE_PX * PLAYER_SCALE,
+                    rest.size.y * scale.y / CUBE_PX * PLAYER_SCALE,
+                    rest.size.z * scale.z / CUBE_PX * PLAYER_SCALE,
                 ),
             )
         }
@@ -86,13 +105,12 @@ public object SkinRigTransforms {
         val armRot = euler(armPose.rotation)
         val joint = vec(arm.rest(slim).pivot).add(vec(armPose.position))
         val handRot = Quaterniond(rootRot).mul(armRot)
-            .rotateX(Math.toRadians(-90.0))
-            .rotateY(Math.toRadians(180.0))
+            .rotateX(Math.toRadians(HELD_TILT + HELD_ARM_PITCH))
         val handPos = toWorld(joint).add(Vector3d(HAND_OFFSET).rotate(handRot))
         val held = RigPartTransform(
-            translation = Vec3(handPos.x * PX, handPos.y * PX, handPos.z * PX),
+            translation = Vec3(handPos.x * PX * PLAYER_SCALE, handPos.y * PX * PLAYER_SCALE, handPos.z * PX * PLAYER_SCALE),
             rotation = quat(handRot),
-            scale = Vec3(1.0, 1.0, 1.0),
+            scale = Vec3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE),
         )
         return RigTransforms(bones, held)
     }

@@ -13,6 +13,11 @@ services:
     networks:
       default:
         ipv4_address: "${SHOT_SUBNET_PREFIX:-10.211.77}.3"
+  # depends_on pulls the ADR-0248 redis in; pin it too, or docker hands it the first free address (.2 = the server).
+  e2e-redis:
+    networks:
+      default:
+        ipv4_address: "${SHOT_SUBNET_PREFIX:-10.211.77}.4"
 networks:
   default:
     ipam:

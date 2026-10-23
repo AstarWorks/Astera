@@ -106,7 +106,7 @@ a negative X rotation swings an arm forward and up. Rotations are relative to th
 `plugin:core`. Both combat skills (via the core gateway) and lobby emotes use it; combat and lobby only see the core
 port `ISkinRigAnimator`, so ADR-0022 isolation is unchanged. Layers: pure domain (`core.domain.animation.skinrig`:
 bones, channels, playback state machine, Display-transform math), kaml DTO in `application/config`, `SkinRigContents`
-(`/astera reload animations`), `InMemorySkinRigAnimator` (same timeline, no rendering: game-sim) and
+(`/astera admin reload animations`), `InMemorySkinRigAnimator` (same timeline, no rendering: game-sim) and
 `PaperSkinRigAnimator` (p=100).
 
 ## Consequences
