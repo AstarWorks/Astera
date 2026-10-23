@@ -82,14 +82,14 @@ rigs:
     step_deg: 40
     fade_power: 1.0
     bands:
-    - from: 0.0
-      to: 0.8
-      color: '#00FFC040'
-      color_to: '#00FFC040'
     - from: 0.8
-      to: 1.0
-      color: '#C0FFD878'
+      to: 0.93
+      color: '#C0FFC83A'
       color_to: '#30FFA818'
+    - from: 0.93
+      to: 1.0
+      color: '#FFFFFBE0'
+      color_to: '#80FFE070'
     edge:
       block: white_concrete
       width: 0.04
@@ -98,20 +98,20 @@ rigs:
     to: [0, 2.5, 0]
     start_t: 26
     end_t: 30
-    life_ticks: 9
+    life_ticks: 10
     lag_ticks: 0
     style: soft
     step_deg: 40
     fade_power: 1.0
     bands:
-    - from: 0.0
-      to: 0.8
-      color: '#00FFC040'
-      color_to: '#00FFC040'
-    - from: 0.8
+    - from: 0.76
+      to: 0.93
+      color: '#E6FFC83A'
+      color_to: '#50FFA818'
+    - from: 0.93
       to: 1.0
-      color: '#C0FFD878'
-      color_to: '#30FFA818'
+      color: '#FFFFFBE0'
+      color_to: '#90FFE070'
     edge:
       block: white_concrete
       width: 0.04
