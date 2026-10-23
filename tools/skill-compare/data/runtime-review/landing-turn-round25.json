@@ -1,0 +1,83 @@
+{
+  "runtime": {
+    "baseCommit": "0a395bf8bff067ef7f291cb113688c5348db1358",
+    "changes": "Explicit zero-distance facing turn; landed claws attached; attached displays spawn at riding origin with corrected initial metadata",
+    "scope": "S3 landing and direct zero-turn probe; not full fidelity",
+    "coreSha256": "39d1fe49f7e0b46a3845b046ed6926995feb073114255c6281b6956c8630b1dd",
+    "combatSha256": "95587d477568134d5e3469560ee841344f7b35fd6700fd11c9dd7428456c0ac2"
+  },
+  "deployedEvidence": {
+    "content/skills/edict-procuration-s3.yaml": "1f930c578ed51fe4fed03e9651efb138d43a7b278c5be99dd89991adc6834308",
+    "content/vfx/edict-procuration-landed-claws.yaml": "edbf16e677e52a0cc078ea184595738fdb633320df07f9c10249efbc0c8d37c2",
+    "content/vfx/edict-procuration-airborne.yaml": "e1b6f9dec3e419d4b8a27783ff24f2bcbad84f17a5d0f63e0e0ae061ddd17823"
+  },
+  "zeroTurnProbe": {
+    "before": {
+      "position": [
+        300.5,
+        100.0,
+        300.5
+      ],
+      "rotation": [
+        -90.0,
+        15.0
+      ]
+    },
+    "castReply": "§aCast §fcapture-turn-in-place§a for Caster.\n",
+    "after": {
+      "position": [
+        300.5,
+        100.0,
+        300.5
+      ],
+      "rotation": [
+        90.0,
+        15.0
+      ]
+    },
+    "passed": true
+  },
+  "sourceFrames": [
+    1564,
+    1571
+  ],
+  "changes": [
+    "37-tick in-place turn; 46-tick dash now local forward",
+    "Native attachment for landed claws",
+    "Attached displays initialized at riding origin with corrected first transform before tracking"
+  ],
+  "finalCaptureQuality": {
+    "maxRepeatedFrames": 6,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 20.0
+  },
+  "repeatedFrameReview": {
+    "preCast": [
+      0,
+      5
+    ],
+    "activePair": [
+      20,
+      21
+    ],
+    "recoveryPair": [
+      140,
+      141
+    ]
+  },
+  "excludedCameraLatenessMs": [
+    144,
+    164,
+    169
+  ],
+  "visualReview": {
+    "frames_043_to_048": "Airborne claws switch to left-facing landed claws near caster body; first-frame floor drop not seen in this sequence.",
+    "frames_056_060": "Next dash still crosses target to the left."
+  },
+  "temporaryFixtureRemoved": true,
+  "limitations": [
+    "Not full source fidelity",
+    "Other choreography, light-band shape and pose differences remain",
+    "Non-standing pose and world/disconnect lifecycle not client-verified"
+  ]
+}

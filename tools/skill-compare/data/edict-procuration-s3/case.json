@@ -59,12 +59,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "空中の爪と光帯にnative取付を適用。frame_038/040の根元が身体付近に留まり、反転直後の大きな先行を改善。終了後の取付0を確認。frame_042の着地切替で素手に見える区間、人物姿勢、曲線・光帯、遠距離斬線、カメラ、持続変身・通常入力は未一致。"
+    "reason": "着地37tickでその場反転し標的側へ爪を構える。着地爪も取付方式へ変更し、初出位置・transformを生成時に補正。frame_043〜048で足元への落ち込みがない切替を確認。輪郭・光帯・人物姿勢、後続区間の素手表示、カメラ、持続変身・通常入力は未一致。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 13,
+  "iterations": 19,
   "report": "/report/edict-blade",
   "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
-  "contentRevision": "2f8b15307515d76f55475da75b6074b4c660056bf4bceefd7c339f984a125126"
+  "contentRevision": "0a347a2080f635b8c388d72e9e4803b59ed1bf765d5391547f517ac678a32a5a"
 }

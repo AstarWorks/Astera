@@ -43,13 +43,14 @@ public interface IDisplayEntityGateway {
     /** Moves the display; the client smooths the move over [teleportTicks] (`teleport_duration`). */
     public fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int)
 
-    /** Native player attachment for fixed displays. False leaves ordinary follow behavior intact. */
-    public fun attach(
-        handle: DisplayHandle,
+    /** Spawn at the native riding origin with a corrected initial transform. Null requests ordinary follow fallback. */
+    public fun spawnAttached(
+        world: WorldId,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
         anchor: PlayerId,
         offset: Vec3,
-        transform: DisplayTransform,
-    ): Boolean = false
+    ): DisplayHandle? = null
 
     /** Removes a display; unknown / already removed handles are ignored. */
     public fun remove(handle: DisplayHandle)

@@ -70,7 +70,7 @@ internal class DashStrikeRunner(
             log.warn("DashStrike dropped: no pose for caster {}", caster)
             return false
         }
-        if (!params.distance.isFinite() || params.distance <= 0.0) return false
+        if (!params.distance.isFinite() || params.distance < 0.0) return false
         val steps = params.ticks.coerceAtLeast(1)
         val forward = heading(pose.direction, params.followPitch)
         val direction = params.localDirection?.let {
@@ -79,6 +79,12 @@ internal class DashStrikeRunner(
         if (!direction.x.isFinite() || !direction.y.isFinite() || !direction.z.isFinite() || direction.lengthSquared() < 1e-12) return false
         val level = Vec3(direction.x, 0.0, direction.z)
         val face = if (params.faceMovement && level.lengthSquared() > 1e-12) level.normalize() else null
+        // An explicit zero-length, facing dash is a turn in place, without a sweep or immunity.
+        if (params.distance == 0.0) {
+            val facing = face ?: return false
+            return worldGateway.teleport(caster, pose.position, pose.world,
+                yaw = Math.toDegrees(atan2(-facing.x, facing.z)).toFloat())
+        }
         val distance = approachDistance(caster, pose, direction, params)
         if (distance <= 0.0) return false
         val dash = Dash(

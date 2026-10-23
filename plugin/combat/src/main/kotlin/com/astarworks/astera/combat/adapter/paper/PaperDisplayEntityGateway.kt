@@ -43,13 +43,22 @@ public class PaperDisplayEntityGateway(
         var offset: Vec3, var transform: DisplayTransform)
     private val attachments = mutableMapOf<DisplayHandle, Attachment>()
 
-    override fun attach(handle: DisplayHandle, anchor: PlayerId, offset: Vec3, transform: DisplayTransform): Boolean {
-        val display = server.getEntity(handle.id) as? Display ?: return false
-        val player = server.getPlayer(anchor.uuid) ?: return false
-        if (display.billboard != Display.Billboard.FIXED || player.world != display.world || !player.addPassenger(display)) return false
-        attachments[handle] = Attachment(anchor, player.world, offset, transform)
-        update(handle, transform, 0)
-        return true
+    override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3): DisplayHandle? {
+        val player = server.getPlayer(anchor.uuid) ?: return null
+        if (spec.billboard != DisplayBillboard.FIXED || player.world.name != world.value) return null
+        val location = player.location
+        val origin = Vec3(location.x, location.y + player.height, location.z)
+        // Both the spawn position and its first metadata must already use the riding origin:
+        // a post-spawn correction can otherwise render a frame below the player's feet.
+        val initial = spec.transform.copy(translation = spec.transform.translation + offset - Vec3(0.0, player.height, 0.0))
+        val handle = spawn(world, origin, spec.copy(transform = initial), renderedLines) ?: return null
+        val display = server.getEntity(handle.id) as? Display ?: return null
+        if (!player.addPassenger(display)) {
+            remove(handle)
+            return null
+        }
+        attachments[handle] = Attachment(anchor, player.world, offset, spec.transform)
+        return handle
     }
 
     private fun attachmentOwner(handle: DisplayHandle, display: Display, attachment: Attachment): Player? {
