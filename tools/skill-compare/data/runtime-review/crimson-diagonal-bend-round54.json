@@ -1,0 +1,18 @@
+{
+  "case": "crimson-chain-axe-transformed-combo-a",
+  "contentRevision": "d12563e3d31e28d436a0a923eaf82e6eeb7a48d9b5ebcc1e64703e1545bc155f",
+  "status": "diagonal-bend-observed-fidelity-failed",
+  "scope": "One direct Crimson combo cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "peak": 59,
+  "limit": 60,
+  "sampleCount": 765,
+  "captureQuality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 2.0
+  },
+  "capturedAt": "2026-10-23T05:07:07.772308+00:00",
+  "rawEvidence": "build/limbus-review/round54/live-displays.json",
+  "review": "Round54: 斜め振りの鎖が頭上へ湾曲し接触付近にも曲がりを保持することを実機frame055/056で確認。frame054の薄化、原作の正確な曲線・手接続・縦/下降振り・人物姿勢・光・カメラ・命中・通常変身入力は未一致。",
+  "sourceReview": "Native f2414/2416 diagonal curved chain; f2438/2440 loop obscured; f2463/2465/2466/2468/2471 descending hook differs from luminous fan. No loop or descending shape changes this round."
+}

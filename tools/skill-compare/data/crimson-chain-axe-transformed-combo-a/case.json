@@ -66,12 +66,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "Round53: 横振りの鎖を弓なりから接触時の直線へ変形。実機frame044/048/050で確認。195frames、遅延2ms、同一連続最大1、表示実測最大59。原動画の3D曲線・手接続・他の振り・人物姿勢・光・カメラ・命中・通常変身入力は未一致。"
+    "reason": "Round54: 斜め振りの鎖が頭上へ湾曲し接触付近にも曲がりを保持することを実機frame055/056で確認。frame054の薄化、原作の正確な曲線・手接続・縦/下降振り・人物姿勢・光・カメラ・命中・通常変身入力は未一致。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 21,
+  "iterations": 22,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
-  "contentRevision": "61251de09e3eaa0caba1f7b168b380d738e335d84309950e7feef6d219605763"
+  "contentRevision": "d12563e3d31e28d436a0a923eaf82e6eeb7a48d9b5ebcc1e64703e1545bc155f"
 }
