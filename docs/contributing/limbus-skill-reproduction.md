@@ -381,3 +381,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Source extra3 describes2–3 floor flares with thin rings from83.951–85.6s. Added a dedicated fixed-world six-display flare (two-sided red/cream star plus expanding ring), starting116 for34 ticks, using the cast-origin ground cone to select up to3 targets. Added visual effects only; damage count/amount unchanged because visual pulses alone do not prove additional hits.
 - ContentLint and runtime VFX/skill reloads passed. One-target actual195-frame capture, camera lateness2ms, repeated-frame maximum2. Frame140 confirms the flare on the target's feet, separate from the elevated caster. Whole-cast sampling769 observations peaks at59.
 - Failed fidelity review: insufficient light intensity, only one target validated; multi-target layout remains to film. Original moving ribbons, character/claw/chain form, input routing and actual hit semantics remain unfinished. Evidence `build/limbus-review/round47/{captures,live-displays.json}` and `data/runtime-review/crimson-floor-round47.json`.
+
+### Round 48: three ground flares and brighter cores
+
+- Added a camera-facing red halo/cream core above each floor flare while keeping the ground ring fixed. Tested with three actual husks at world(305.5,100,300.5),(304.5,100,298.5),(306.5,100,302.5); fixture runner archived under `build/limbus-review/round48/capture-three-targets.sh`. Removed the fixture husks after capture.
+- ContentLint and runtime reload passed. Actual195-frame recording: camera lateness2ms, repeated-frame maximum4. Frame140 shows three separate ground flares below the airborne caster. Sampling769 observations peaks at59. Evidence `build/limbus-review/round48/{captures,live-displays.json}`.
+- This verifies three visual targets only. Damage semantics remain unverified; no extra damage events were added. White/red flare strength, evolving ribbons, body/chain form and normal transformation/input routing remain unmatched.

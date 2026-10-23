@@ -1,0 +1,28 @@
+{
+  "scope": "One direct Crimson combo cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "peak": 59,
+  "limit": 60,
+  "case": "crimson-chain-axe-transformed-combo-a",
+  "contentRevision": "2206141edfcf3836e5871e948ce1e7154a7c024e8ec42a0bd3d22bfcba2f13bc",
+  "status": "three-target-visual-observed-fidelity-failed",
+  "sampleCount": 769,
+  "targetsWorld": [
+    [
+      305.5,
+      100,
+      300.5
+    ],
+    [
+      304.5,
+      100,
+      298.5
+    ],
+    [
+      306.5,
+      100,
+      302.5
+    ]
+  ],
+  "rawEvidence": "build/limbus-review/round48/live-displays.json",
+  "limitations": "Visual targeting only; no proof of original hit semantics. Sequential entity queries are not atomic."
+}
