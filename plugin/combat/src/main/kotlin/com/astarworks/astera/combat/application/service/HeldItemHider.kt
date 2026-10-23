@@ -9,11 +9,12 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * `hide_held_item` runtime. A rig that draws the same weapon (VfxPlayer) must replace the real one with no
  * visible gap or overlap, so the hide is not sent when the step runs: if a rig [stage]s itself in the same tick
  * the hide waits for [reveal], which fires in the same server tick the rig's displays are made visible. The
- * displays were spawned a tick earlier (hidden by view range 0), so the client already has them ticked and both
+ * displays were spawned a tick earlier (hidden by view range 0), so the client already has them ticked; the gateway sends
+ * the hide at server tick end, after the tracker flushed the reveal, so the client never gets the hide first and both
  * changes land together. Without a rig the hide is sent at the end of the step's own tick.
  *
  * The restore is sent [hide]`.duration` ticks after the hide took effect; while a staged rig is still alive it waits for
- * [rigEnded], which runs right after the rig's displays were removed.
+ * [rigEnded], which runs just before the rig's displays are removed.
  */
 public class HeldItemHider(
     private val effects: IEntityEffectsGateway,
@@ -54,7 +55,7 @@ public class HeldItemHider(
         if (st.pendingTicks > 0) apply(target, st)
     }
 
-    /** A staged rig ended (its displays are already removed): restore if the hide is due, else drop an unrevealed hide. */
+    /** A staged rig is ending (its displays are removed right after this): restore if the hide is due, else drop an unrevealed hide. */
     public fun rigEnded(target: PlayerId) {
         val st = states[target] ?: return
         if (st.staged > 0) st.staged--

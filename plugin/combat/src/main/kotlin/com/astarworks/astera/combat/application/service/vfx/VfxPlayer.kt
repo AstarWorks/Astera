@@ -394,15 +394,16 @@ public class VfxPlayer(
     }
 
     private fun finish(instance: Instance) {
+        // Restore the held weapon before the rig's displays go: overlap for an instant, never a frame with neither.
+        if (instance.staged) {
+            instance.staged = false
+            instance.request.anchorEntityId?.let { heldItems?.rigEnded(it) }
+        }
         for (state in instance.elements) {
             state.handle?.let(displays::remove)
             state.handle = null
         }
         instances.remove(instance)
-        if (instance.staged) {
-            instance.staged = false
-            instance.request.anchorEntityId?.let { heldItems?.rigEnded(it) }
-        }
         reserved = (reserved - instance.plan.displayCount).coerceAtLeast(0)
     }
 

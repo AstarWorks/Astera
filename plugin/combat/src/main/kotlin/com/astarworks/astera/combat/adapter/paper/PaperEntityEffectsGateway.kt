@@ -103,7 +103,45 @@ public class PaperEntityEffectsGateway(
         entity(target)?.isGlowing = glowing
     }
 
+    /** Hides waiting for the end of the server tick (after the entity tracker flushed this tick's display metadata). */
+    private val pendingHides: MutableSet<PlayerId> = LinkedHashSet()
+    private var tickEndListenerRegistered: Boolean = false
+
     override fun setHeldItemHidden(target: PlayerId, hidden: Boolean) {
+        if (!hidden) {
+            // The restore goes out immediately: callers send it before the rig's displays are removed, so the real
+            // weapon is visible again before the rig disappears (two coincident weapons for an instant, never none).
+            pendingHides.remove(target)
+            sendHeldItem(target, hidden = false)
+            return
+        }
+        val owner = plugin
+        if (owner == null) {
+            sendHeldItem(target, hidden = true)
+            return
+        }
+        // Display metadata (the rig's reveal, view_range 0 -> n) is not sent when the reveal runs: the entity tracker
+        // flushes it later in the same server tick, so an equipment packet sent right away reaches a client tens of ms
+        // before the rig does (compare view: one frame with no weapon). Send the hide only after that flush, at tick
+        // end, so it can only land after the rig is visible: ordered, never a gap.
+        pendingHides.add(target)
+        if (!tickEndListenerRegistered) {
+            tickEndListenerRegistered = true
+            server.pluginManager.registerEvents(TickEndFlush(), owner)
+        }
+    }
+
+    private inner class TickEndFlush : org.bukkit.event.Listener {
+        @org.bukkit.event.EventHandler
+        fun onTickEnd(event: com.destroystokyo.paper.event.server.ServerTickEndEvent) {
+            if (pendingHides.isEmpty()) return
+            val due = pendingHides.toList()
+            pendingHides.clear()
+            due.forEach { sendHeldItem(it, hidden = true) }
+        }
+    }
+
+    private fun sendHeldItem(target: PlayerId, hidden: Boolean) {
         val owner = server.getPlayer(target.uuid)?.takeIf { it.isValid } ?: return
         val shown = if (hidden) org.bukkit.inventory.ItemStack.of(org.bukkit.Material.AIR) else owner.inventory.itemInMainHand
         // Includes the owner: the client applies the equipment packet to its own selected hotbar slot, so first person
