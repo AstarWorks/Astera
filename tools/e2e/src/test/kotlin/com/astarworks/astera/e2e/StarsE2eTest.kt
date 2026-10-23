@@ -214,7 +214,8 @@ class StarsE2eTest : PlaythroughBase() {
             }
             val ending = b.chat.drop(chatFrom.getValue(b)).map { clean(it.text) }
             E2eReport.check(suite, "${b.name}: no chat line during or after the match grants or mentions stars", "SystemChat") {
-                assertThat(ending.filter { STAR_WORD.containsMatchIn(it) }).describedAs("star amounts in chat: ${quote(ending, 40)}").isEmpty()
+                // The reply to choosing the STAR goal ("Norma goal: star.") names the goal, it grants nothing.
+                assertThat(ending.filter { STAR_WORD.containsMatchIn(it) && !it.contains("Norma goal:") }).describedAs("star amounts in chat: ${quote(ending, 40)}").isEmpty()
                 "ok"
             }
         }
