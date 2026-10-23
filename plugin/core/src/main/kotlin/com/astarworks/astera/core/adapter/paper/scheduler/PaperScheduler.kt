@@ -8,6 +8,8 @@ import org.bukkit.Bukkit
 import org.bukkit.scheduler.BukkitTask
 import org.bukkit.plugin.Plugin
 import java.util.PriorityQueue
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.time.Duration
@@ -43,13 +45,25 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler {
      * Min-heap ordered by execution tick, then enqueue order for equal ticks.
      * A turn and a VFX scheduled for the same tick must keep their authored order.
      *
-     * Only accessed from the Paper main thread (inside [dispatchTick]) so no
-     * external synchronisation is needed for the heap itself.
+     * PriorityQueue is not thread-safe. It is touched ONLY by the Paper main
+     * thread ([dispatchTick] / [stop]). Schedule calls from any other thread
+     * (Redis listeners, async events, bot messages) go through [pending] and
+     * are drained into the heap at the start of [dispatchTick]; mutating the
+     * heap concurrently corrupted it (null entries -> NPE in the comparator,
+     * silently dropped timers).
      */
     private val heap: PriorityQueue<HeapEntry> = PriorityQueue(
         compareBy<HeapEntry> { it.executeAtTick }.thenBy { it.sequence },
     )
-    private var nextSequence: Long = 0L
+    private val pending: ConcurrentLinkedQueue<HeapEntry> = ConcurrentLinkedQueue()
+    private val nextSequence = AtomicLong(0L)
+
+    private fun drainPending() {
+        while (true) {
+            val e = pending.poll() ?: break
+            heap.offer(e)
+        }
+    }
 
     /** Start the single-ticker BukkitTask. Call from [Plugin.onEnable]. */
     public fun start() {
@@ -62,12 +76,14 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler {
         tickerTask?.cancel()
         tickerTask = null
         heap.clear()
+        pending.clear()
     }
 
     /** Called once per server tick by [tickerTask]. O(k log n) where k = tasks due this tick. */
     private fun dispatchTick() {
         val now = currentTick()
         while (true) {
+            drainPending()
             val head = heap.peek() ?: break
             if (head.executeAtTick > now) break
             heap.poll()
@@ -79,7 +95,7 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler {
             }
             if (head.periodTicks > 0L) {
                 // Re-arm repeating task relative to its last fire time to avoid drift.
-                heap.offer(HeapEntry(now + head.periodTicks, head.periodTicks, head.task, head.handle, nextSequence++))
+                heap.offer(HeapEntry(now + head.periodTicks, head.periodTicks, head.task, head.handle, nextSequence.getAndIncrement()))
             }
         }
     }
@@ -129,9 +145,9 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler {
         task: () -> Unit,
     ): HeapTaskHandle {
         val handle = HeapTaskHandle()
-        val entry = HeapEntry(executeAtTick, periodTicks, task, handle, nextSequence++)
+        val entry = HeapEntry(executeAtTick, periodTicks, task, handle, nextSequence.getAndIncrement())
         handle.entry = entry
-        heap.offer(entry)
+        pending.offer(entry)
         return handle
     }
 
