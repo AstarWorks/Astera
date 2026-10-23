@@ -1,0 +1,13 @@
+{
+  "case": "crimson-chain-axe-transformed-combo-a",
+  "contentRevision": "9ba4b1938afacb182cc0c313e981b7b4c0d5aac12903f973af697202b4d60bb4",
+  "status": "partial-blade-readability-improvement-fidelity-failed",
+  "peak": 59,
+  "sampleCount": 768,
+  "limit": 60,
+  "scope": "One direct Crimson combo cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "rawEvidence": "build/limbus-review/round51/live-displays-repeat.json",
+  "acceptedCapture": "build/limbus-review/round51/captures/crimson-chain-axe-transformed-combo-a-1792730965363773900",
+  "rejectedTrial": "Earlier raised-pivot capture: chest attachment; final pivot restored to [-0.25,1,0.3].",
+  "review": "Round51実機195frames: 振り始め・縦振りで対の刃を確認。ただし横振り接触付近frame048/050で消失・薄化が残る。始点上げ試案は胸接続となり撤回。手接続、人物姿勢、hit-stop同期、原作の光・命中、変身状態と通常入力は未一致。"
+}
