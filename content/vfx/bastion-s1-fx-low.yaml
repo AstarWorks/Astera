@@ -14,13 +14,13 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0, 0.75, 1.2]
+    translate: [0, 0.5, 1.35]
     rotate: [0, 0, 0]
-    scale: [0.7812, 0.3516, 1.0]
+    scale: [0.625, 0.2625, 1.0]
   - t: 2
-    scale: [0.875, 0.3937, 1.0]
+    scale: [0.6875, 0.2888, 1.0]
     ease: out_quad
-    translate: [0, 0.75, 1.2]
+    translate: [0, 0.5, 1.35]
     rotate: [0, 0, 0]
 - id: s1h2-ring
   kind: {type: sprite, sprite: bastion-s1-ring, frame_ticks: 1, loop: false, see_through: true}
@@ -362,7 +362,7 @@ elements:
   - t: 7
     translate: [1.683, 0.217, -0.139]
 - id: s1h2-p-trail-dark
-  kind: {type: particle, particle_id: bastion-s1-p-trail-dark, every_ticks: 1, along_path: true, step_blocks: 0.32}
+  kind: {type: particle, particle_id: bastion-s1-p-trail-dark, every_ticks: 1, along_path: true, step_blocks: 0.42}
   start_tick: 1
   end_tick: 9
   keyframes:
@@ -532,7 +532,7 @@ elements:
   - t: 7
     translate: [1.825, 0.478, -0.169]
 - id: s1h2-p-trail-dark-2
-  kind: {type: particle, particle_id: bastion-s1-p-trail-dark, every_ticks: 1, along_path: true, step_blocks: 0.4}
+  kind: {type: particle, particle_id: bastion-s1-p-trail-dark, every_ticks: 1, along_path: true, step_blocks: 0.52}
   start_tick: 2
   end_tick: 10
   keyframes:
@@ -628,33 +628,19 @@ elements:
     translate: [0.01, 0.462, 1.345]
 - id: s1h2-p-crit-2
   kind: {type: particle, particle_id: bastion-s1-p-crit, every_ticks: 1}
-  start_tick: 4
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0.13, 0.542, 1.295]
-- id: s1h2-p-crit-3
-  kind: {type: particle, particle_id: bastion-s1-p-crit, every_ticks: 1}
   start_tick: 5
   end_tick: 6
   keyframes:
   - t: 0
     translate: [-0.09, 0.412, 1.295]
-- id: s1h2-p-crit-4
-  kind: {type: particle, particle_id: bastion-s1-p-crit, every_ticks: 1}
-  start_tick: 5
-  end_tick: 6
-  keyframes:
-  - t: 0
-    translate: [0.06, 0.512, 1.245]
-- id: s1h2-p-crit-5
+- id: s1h2-p-crit-3
   kind: {type: particle, particle_id: bastion-s1-p-crit, every_ticks: 1}
   start_tick: 6
   end_tick: 7
   keyframes:
   - t: 0
     translate: [-0.14, 0.562, 1.295]
-- id: s1h2-p-crit-6
+- id: s1h2-p-crit-4
   kind: {type: particle, particle_id: bastion-s1-p-crit, every_ticks: 1}
   start_tick: 7
   end_tick: 8
@@ -724,64 +710,78 @@ elements:
   keyframes:
   - t: 0
     translate: [0.11, 0.542, 1.295]
-- id: s1h2-p-nugget
-  kind: {type: particle, particle_id: bastion-s1-p-nugget, every_ticks: 1}
+- id: s1h2-p-fleck-gold
+  kind: {type: particle, particle_id: bastion-s1-p-fleck-gold, every_ticks: 1}
   start_tick: 4
   end_tick: 5
   keyframes:
   - t: 0
     translate: [0.01, 0.462, 1.245]
-- id: s1h2-p-nugget-2
-  kind: {type: particle, particle_id: bastion-s1-p-nugget, every_ticks: 1}
+- id: s1h2-p-fleck-gold-2
+  kind: {type: particle, particle_id: bastion-s1-p-fleck-gold, every_ticks: 1}
   start_tick: 4
   end_tick: 5
   keyframes:
   - t: 0
     translate: [-0.14, 0.512, 1.195]
-- id: s1h2-p-nugget-3
-  kind: {type: particle, particle_id: bastion-s1-p-nugget, every_ticks: 1}
+- id: s1h2-p-fleck-gold-3
+  kind: {type: particle, particle_id: bastion-s1-p-fleck-gold, every_ticks: 1}
   start_tick: 5
   end_tick: 6
   keyframes:
   - t: 0
     translate: [0.11, 0.512, 1.195]
-- id: s1h2-p-nugget-4
-  kind: {type: particle, particle_id: bastion-s1-p-nugget, every_ticks: 1}
+- id: s1h2-p-fleck-gold-4
+  kind: {type: particle, particle_id: bastion-s1-p-fleck-gold, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.16, 0.562, 1.295]
+- id: s1h2-p-fleck-gold-5
+  kind: {type: particle, particle_id: bastion-s1-p-fleck-gold, every_ticks: 1}
   start_tick: 6
   end_tick: 7
   keyframes:
   - t: 0
     translate: [0.01, 0.412, 1.195]
-- id: s1h2-p-coal
-  kind: {type: particle, particle_id: bastion-s1-p-coal, every_ticks: 1}
+- id: s1h2-p-fleck-gold-6
+  kind: {type: particle, particle_id: bastion-s1-p-fleck-gold, every_ticks: 1}
+  start_tick: 7
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [-0.09, 0.562, 1.295]
+- id: s1h2-p-fleck-dark
+  kind: {type: particle, particle_id: bastion-s1-p-fleck-dark, every_ticks: 1}
   start_tick: 4
   end_tick: 5
   keyframes:
   - t: 0
     translate: [-0.09, 0.462, 1.195]
-- id: s1h2-p-coal-2
-  kind: {type: particle, particle_id: bastion-s1-p-coal, every_ticks: 1}
+- id: s1h2-p-fleck-dark-2
+  kind: {type: particle, particle_id: bastion-s1-p-fleck-dark, every_ticks: 1}
   start_tick: 4
   end_tick: 5
   keyframes:
   - t: 0
     translate: [0.16, 0.512, 1.295]
-- id: s1h2-p-coal-3
-  kind: {type: particle, particle_id: bastion-s1-p-coal, every_ticks: 1}
+- id: s1h2-p-fleck-dark-3
+  kind: {type: particle, particle_id: bastion-s1-p-fleck-dark, every_ticks: 1}
   start_tick: 5
   end_tick: 6
   keyframes:
   - t: 0
     translate: [0.13, 0.412, 1.245]
-- id: s1h2-p-coal-4
-  kind: {type: particle, particle_id: bastion-s1-p-coal, every_ticks: 1}
+- id: s1h2-p-fleck-dark-4
+  kind: {type: particle, particle_id: bastion-s1-p-fleck-dark, every_ticks: 1}
   start_tick: 6
   end_tick: 7
   keyframes:
   - t: 0
     translate: [0.01, 0.562, 1.245]
-- id: s1h2-p-coal-5
-  kind: {type: particle, particle_id: bastion-s1-p-coal, every_ticks: 1}
+- id: s1h2-p-fleck-dark-5
+  kind: {type: particle, particle_id: bastion-s1-p-fleck-dark, every_ticks: 1}
   start_tick: 7
   end_tick: 8
   keyframes:
@@ -878,48 +878,76 @@ elements:
     translate: [0.26, 0.732, 1.345]
   - t: 7
     translate: [0.26, 0.777, 1.345]
-- id: s1h2-p-debris
-  kind: {type: particle, particle_id: bastion-s1-p-debris, every_ticks: 1}
+- id: s1h2-p-grit
+  kind: {type: particle, particle_id: bastion-s1-p-grit, every_ticks: 1}
   start_tick: 4
   end_tick: 5
   keyframes:
   - t: 0
-    translate: [0.06, 0.1, 1.345]
-- id: s1h2-p-debris-2
-  kind: {type: particle, particle_id: bastion-s1-p-debris, every_ticks: 1}
+    translate: [0.06, 0.3, 1.345]
+- id: s1h2-p-grit-2
+  kind: {type: particle, particle_id: bastion-s1-p-grit, every_ticks: 1}
   start_tick: 5
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [-0.19, 0.1, 1.395]
-- id: s1h2-p-debris-3
-  kind: {type: particle, particle_id: bastion-s1-p-debris, every_ticks: 1}
+    translate: [-0.19, 0.25, 1.395]
+- id: s1h2-p-grit-3
+  kind: {type: particle, particle_id: bastion-s1-p-grit, every_ticks: 1}
   start_tick: 6
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0.31, 0.1, 1.345]
-- id: s1h2-p-debris-dark
-  kind: {type: particle, particle_id: bastion-s1-p-debris-dark, every_ticks: 1}
+    translate: [0.31, 0.3, 1.345]
+- id: s1h2-p-chip
+  kind: {type: particle, particle_id: bastion-s1-p-chip-grey, every_ticks: 1, trail_to: [0.76, 0.65, 1.545]}
   start_tick: 4
   end_tick: 5
   keyframes:
   - t: 0
-    translate: [0.26, 0.1, 1.345]
-- id: s1h2-p-debris-dark-2
-  kind: {type: particle, particle_id: bastion-s1-p-debris-dark, every_ticks: 1}
+    translate: [0.16, 0.2, 1.345]
+- id: s1h2-p-chip-2
+  kind: {type: particle, particle_id: bastion-s1-p-chip-dark, every_ticks: 1, trail_to: [-0.69, 0.6, 1.495]}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [-0.04, 0.2, 1.345]
+- id: s1h2-p-chip-3
+  kind: {type: particle, particle_id: bastion-s1-p-chip-dark, every_ticks: 1, trail_to: [0.41, 0.75, 1.845]}
   start_tick: 5
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [-0.04, 0.1, 1.245]
-- id: s1h2-p-debris-dark-3
-  kind: {type: particle, particle_id: bastion-s1-p-debris-dark, every_ticks: 1}
+    translate: [0.11, 0.2, 1.395]
+- id: s1h2-p-chip-4
+  kind: {type: particle, particle_id: bastion-s1-p-chip-grey, every_ticks: 1, trail_to: [-0.84, 0.4, 1.695]}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [-0.09, 0.2, 1.395]
+- id: s1h2-p-chip-5
+  kind: {type: particle, particle_id: bastion-s1-p-chip-dark, every_ticks: 1, trail_to: [1.01, 0.5, 1.645]}
   start_tick: 6
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0.06, 0.1, 1.445]
+    translate: [0.21, 0.2, 1.395]
+- id: s1h2-p-chip-6
+  kind: {type: particle, particle_id: bastion-s1-p-chip-dark, every_ticks: 1, trail_to: [-0.34, 0.8, 1.795]}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.01, 0.2, 1.395]
+- id: s1h2-p-chip-7
+  kind: {type: particle, particle_id: bastion-s1-p-chip-grey, every_ticks: 1, trail_to: [0.36, 0.55, 1.945]}
+  start_tick: 7
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0.06, 0.2, 1.395]
 - id: s1h2-p-dust-ground
   kind: {type: particle, particle_id: bastion-s1-p-dust-ground, every_ticks: 1}
   start_tick: 4

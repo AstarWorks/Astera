@@ -1,0 +1,9 @@
+# grey stone chip flung up and out of the floor contact: a `trail` dot that dies on arrival in mid-air (5 ticks)
+id: bastion-s1-p-chip-grey
+shape: { kind: point }
+color: { r: 130, g: 126, b: 120 }
+count: 1
+lifetime_ticks: 5
+vanilla_particle: trail
+data: { kind: trail, toward: true, color: { r: 130, g: 126, b: 120 }, duration_ticks: 5 }
+force: true

@@ -37,6 +37,18 @@ cues: []
 #   hit 2: blade shed fx 1-8 + fx 2-7 + high line fx 2-8 (y +0.35); contact glints fx 4-8 (10): 28 kept.
 #   Travel 0.4-1.7 blocks; every start->target chord clears caster eye >= 1.55 and opponent eye >= 1.03.
 #   Net per-tick count change vs r7b: wax_on glint path points (1 per 0.45-0.6 block) out, 1 trail per element in; peaks drop slightly.
+# Round 9 (particle-artist, real-client r6 diffs): nothing may rest on the floor. `item` chips (gold_nugget: yellow square still t13-26;
+#   charcoal) and `block_crumble` debris (stone/deepslate/gravel: dark squares on the floor t44-66+) landed and stayed. DELETED
+#   bastion-s1-p-nugget / -p-coal / -p-debris / -p-debris-dark; -p-wave-chip is now dust. New: -p-fleck-gold (dust_color_transition
+#   gold->orange 0.35, burst 0.14), -p-fleck-dark (dust #1A140E 0.3), -p-grit (dust_color_transition grey->dark 0.35, 0.15-0.3 above
+#   the floor), -p-chip-grey / -p-chip-dark (`trail` 5 / 6 ticks, flung up/out from the floor contact, removed on arrival in mid-air;
+#   hit 1: 5 chips fx 4-6, hit 2: 7 chips fx 4-7, keep-out checked).
+#   Glyph look at the hit-2 close-up: crit count 5 -> 3 per call, hit 2 crit calls 6 -> 4; -p-trail-spark crit -> electric_spark
+#   (speed 1.6 along_tangent); bastion-s1-hit-crit (skill YAML cone target) 8 -> 5 per call. Dust scales down: trail-dark 0.55 -> 0.32
+#   (hit 2 steps 0.32/0.4 -> 0.42/0.52), trail-gold 0.5 -> 0.4, dust-dark 0.7 -> 0.35, dust-ground 0.7 -> 0.45, waves 0.6 -> 0.45.
+#   Emission per fx tick (count x shape points x along_path points): hit 1 e2 11, e3 25, e4 65, e5 51, e6 38, e7 16, e8 15, e9 15, e10 3
+#   (total 239, r8 246); hit 2 e1 3, e2 26, e3 50, e4 98, e5 93, e6 66, e7 39, e8 24, e9 15, e10-11 6, e12 3 (total 429, r8 453).
+#   Fx-relative timing unchanged (the director shifts fx-high's play delay +1 for the tick-8 contact).
 display_particles:
   fx-high: {added_displays: 0}
   fx-low:  {added_displays: 0}

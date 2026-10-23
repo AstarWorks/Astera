@@ -202,10 +202,14 @@ def make_crescent():
 # ink: ONE connected pale-yellow brush mass with horizontal tongues (reference e00-e02), translucent toward the
 # tips, dissolving over the last 3 frames (round 8: the r7 slab read as an opaque flat yellow bar and snapped off)
 # ---------------------------------------------------------------------------------------------------------
-INK_FLAT = hexc("#F7EC9A")
-INK_HOT = hexc("#FFFBE0")
-INK_SHADE = hexc("#D9BC3A")
-INK_RIM = hexc("#8C6E10")
+# r9 (real client r6): the r8 ink read pale cream (hot top band + shade bottom + see-through tips washed it over the grey
+# ground: measured in-game mean (228, 214, 152), hue 50). Reference e00-e02 ink pixels sampled: a FLAT lemon yellow,
+# mean (252, 253, 174) = #FCFDAE, hue 60, s 0.31, v 0.99, with almost no variance. Fill = that colour, nearly opaque,
+# no hot band; only a faint same-hue shade on the tongue bottoms and the dark rim (dark mixed with bright).
+INK_FLAT = hexc("#FCFDAE")
+INK_HOT = hexc("#FFFFD0")
+INK_SHADE = hexc("#E6E070")
+INK_RIM = hexc("#5E5A14")
 # tongue table: centre y offset from the sprite centre (px, + = down), half thickness at the tip end, reach (0..1 of
 # the full width), wobble seed. The root (left) spine joins them, the gaps open toward the tips.
 INK_TONGUES = [(-62, 11, 0.70, 1), (-30, 17, 1.00, 2), (6, 20, 0.92, 3), (40, 15, 0.80, 4), (66, 9, 0.55, 5)]
@@ -250,7 +254,7 @@ def ink_frame(size, grow, diss, boil=0.0, seed=7):
     streak = fbm(n, np.random.default_rng(seed + 99), base=3, octaves=3)
     streak = np.asarray(Image.fromarray(streak.astype(np.float32), mode="F").resize((n, n // 6), Image.BICUBIC)
                         .resize((n, n), Image.BICUBIC))  # stretched horizontally = brush grain
-    alpha *= (1.0 - 0.42 * u ** 1.4) * (1.0 - 0.6 * np.clip(u - 0.25, 0, 1) / 0.75 * soft(streak - 0.55, 0.06))
+    alpha *= (1.0 - 0.12 * u ** 2) * (1.0 - 0.6 * np.clip(u - 0.25, 0, 1) / 0.75 * soft(streak - 0.55, 0.06))
     # dissolve: tips first, then holes through the body, then the root
     if diss > 0:
         dn = fbm(n, np.random.default_rng(seed + 7), base=6, octaves=3)
@@ -259,11 +263,11 @@ def ink_frame(size, grow, diss, boil=0.0, seed=7):
     col = INK_FLAT[None, None] * np.ones((n, n, 1))
     hot = soft(0.38 - tone, 0.12) * soft(field - 2.0, 1.5)
     shade = soft(tone - 0.72, 0.1)
-    col = col * (1 - hot[..., None] * 0.85) + INK_HOT[None, None] * hot[..., None] * 0.85
-    col = col * (1 - shade[..., None] * 0.8) + INK_SHADE[None, None] * shade[..., None] * 0.8
-    g = soft(streak - 0.62, 0.05)[..., None] * 0.35
+    col = col * (1 - hot[..., None] * 0.15) + INK_HOT[None, None] * hot[..., None] * 0.15
+    col = col * (1 - shade[..., None] * 0.35) + INK_SHADE[None, None] * shade[..., None] * 0.35
+    g = soft(streak - 0.62, 0.05)[..., None] * 0.12
     col = col * (1 - g) + INK_SHADE[None, None] * g
-    rimk = soft(1.6 - field, 1.0) * 0.55
+    rimk = soft(1.6 - field, 1.0) * 0.45
     col = col * (1 - rimk[..., None]) + INK_RIM[None, None] * rimk[..., None]
     return over(blank(n), np.clip(col, 0, 1), alpha)
 
