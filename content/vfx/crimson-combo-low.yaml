@@ -13,50 +13,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.0, 0.0, 0.35]
-    rotate: [-0.0, 90.0, 0.0]
+    rotate: [90.0, 30.0, -90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-0-1
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -67,50 +67,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.0, 0.0, 0.35]
-    rotate: [180.0, -90.0, 0.0]
+    rotate: [-90.0, -30.0, 90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-1-0
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -121,50 +121,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.109446, 0.0, 0.71]
-    rotate: [-0.0, 90.0, 0.0]
+    rotate: [90.0, 30.0, -90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-1-1
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -175,50 +175,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.109446, 0.0, 0.71]
-    rotate: [180.0, -90.0, 0.0]
+    rotate: [-90.0, -30.0, 90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-2-0
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -229,50 +229,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.205692, 0.0, 1.07]
-    rotate: [-0.0, 90.0, 0.0]
+    rotate: [90.0, 30.0, -90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-2-1
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -283,50 +283,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.205692, 0.0, 1.07]
-    rotate: [180.0, -90.0, 0.0]
+    rotate: [-90.0, -30.0, 90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-3-0
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -337,50 +337,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.277128, 0.0, 1.43]
-    rotate: [-0.0, 90.0, 0.0]
+    rotate: [90.0, 30.0, -90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-3-1
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -391,50 +391,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.277128, 0.0, 1.43]
-    rotate: [180.0, -90.0, 0.0]
+    rotate: [-90.0, -30.0, 90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-4-0
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -445,50 +445,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.315138, 0.0, 1.79]
-    rotate: [-0.0, 90.0, 0.0]
+    rotate: [90.0, 30.0, -90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-4-1
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -499,50 +499,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.315138, 0.0, 1.79]
-    rotate: [180.0, -90.0, 0.0]
+    rotate: [-90.0, -30.0, 90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-5-0
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -553,50 +553,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.315138, 0.0, 2.15]
-    rotate: [-0.0, 90.0, 0.0]
+    rotate: [90.0, 30.0, -90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-5-1
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -607,50 +607,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.315138, 0.0, 2.15]
-    rotate: [180.0, -90.0, 0.0]
+    rotate: [-90.0, -30.0, 90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-6-0
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -661,50 +661,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.277128, 0.0, 2.51]
-    rotate: [-0.0, 90.0, 0.0]
+    rotate: [90.0, 30.0, -90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-6-1
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -715,50 +715,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.277128, 0.0, 2.51]
-    rotate: [180.0, -90.0, 0.0]
+    rotate: [-90.0, -30.0, 90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-7-0
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -769,50 +769,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.205692, 0.0, 2.87]
-    rotate: [-0.0, 90.0, 0.0]
+    rotate: [90.0, 30.0, -90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-7-1
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -823,50 +823,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.205692, 0.0, 2.87]
-    rotate: [180.0, -90.0, 0.0]
+    rotate: [-90.0, -30.0, 90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-8-0
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -877,50 +877,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.109446, 0.0, 3.23]
-    rotate: [-0.0, 90.0, 0.0]
+    rotate: [90.0, 30.0, -90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-8-1
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -931,50 +931,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.109446, 0.0, 3.23]
-    rotate: [180.0, -90.0, 0.0]
+    rotate: [-90.0, -30.0, 90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-9-0
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -985,50 +985,50 @@ elements:
   keyframes:
   - t: 0
     translate: [0.0, 0.0, 3.59]
-    rotate: [-0.0, 90.0, 0.0]
+    rotate: [90.0, 30.0, -90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 - id: link-9-1
   kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
@@ -1039,54 +1039,54 @@ elements:
   keyframes:
   - t: 0
     translate: [0.0, 0.0, 3.59]
-    rotate: [180.0, -90.0, 0.0]
+    rotate: [-90.0, -30.0, 90.0]
     scale: [0.09, 0.066, 1]
   group_keyframes:
   - t: 0
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [170.0, 0.0, 0.0]
   - t: 1
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [175.0, 0.0, 0.0]
   - t: 2
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [180.0, 0.0, 0.0]
   - t: 3
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [101.25, 0.0, 0.0]
   - t: 4
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [45.0, 0.0, 0.0]
   - t: 5
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [11.25, 0.0, 0.0]
   - t: 6
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [0.0, 0.0, 0.0]
   - t: 7
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-5.0, 0.0, 0.0]
   - t: 8
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-10.0, 0.0, 0.0]
   - t: 9
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-14.88, 0.0, 0.0]
   - t: 10
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-17.84, 0.0, 0.0]
   - t: 11
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.36, 0.0, 0.0]
   - t: 12
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-19.92, 0.0, 0.0]
   - t: 13
-    translate: [-0.25, 1.0, 0.3]
+    translate: [-0.25, 1, 0.3]
     rotate: [-20.0, 0.0, 0.0]
 rigs:
 - id: chain
-  pivot: [-0.25, 1.0, 0.3]
+  pivot: [-0.25, 1, 0.3]
   rest: [0, 90, 0]
   tilt: [0, 0, 0]
   respect_hit_stop: true

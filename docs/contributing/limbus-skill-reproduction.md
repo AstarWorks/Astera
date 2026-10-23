@@ -400,3 +400,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Initial YAML shared-reference output exceeded the runtime alias limit, despite contentLint passing. Rewrote without aliases; runtime loaded187 VFX/0 failed at04:41:40, before actual cast04:41:42.261. Final lint passed. Do not bypass parser limits.
 - Actual195-frame capture: camera lateness2ms, repeated-frame maximum2. Close frame072 confirms paired blades; low frame048 exposes edge-on visibility loss. Three-target whole-cast sampling769 observations peaks at59. Evidence and source generator under `build/limbus-review/round50`.
 - Fidelity remains failed: edge-on readability, rigid link geometry/hand attachment, independent hit-stop tracks, character pose, original lights/hits and transformation/input routing. Removed fixture husks after capture.
+
+### Round 51: blade orientation review
+
+- Twisted the paired-blade planes by60/30/0/20 degrees for low/diagonal/loop/descending swings. Rejected the first raised-pivot trial because it attached at the chest; restored original pivot[-0.25,1,0.3]. No added displays or resource-pack change.
+- Final contentLint and runtime reload passed. Final repeat capture195 frames: camera lateness2ms, maximum identical run1. Actual display sampling768 observations peaks at59; sequential queries are not an atomic upper-bound proof. Use round51/live-displays-repeat.json and the archive ending1792730965363773900, not the earlier trial.
+- Frames044/046 and072 show paired blades more clearly. Frame048 loses the chain and050 is nearly edge-on: this is partial improvement, not solved horizontal visibility. Hand attachment, pose, independent hit-stop tracks, original motion/lights/hits and normal transformation/input routing remain failed or unverified.
