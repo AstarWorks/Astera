@@ -3,7 +3,7 @@
     "file": "greatsword-orbit--45-0.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -36,7 +36,7 @@
     "file": "greatsword-orbit--45-45.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -69,7 +69,7 @@
     "file": "greatsword-orbit--45-90.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -102,7 +102,7 @@
     "file": "greatsword-orbit--45-135.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -135,7 +135,7 @@
     "file": "greatsword-orbit--45-180.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -168,7 +168,7 @@
     "file": "greatsword-orbit--45-225.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -201,7 +201,7 @@
     "file": "greatsword-orbit--45-270.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -234,7 +234,7 @@
     "file": "greatsword-orbit--45-315.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -267,7 +267,7 @@
     "file": "greatsword-orbit-0-0.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -300,7 +300,7 @@
     "file": "greatsword-orbit-0-45.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -333,7 +333,7 @@
     "file": "greatsword-orbit-0-90.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -366,7 +366,7 @@
     "file": "greatsword-orbit-0-135.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -399,7 +399,7 @@
     "file": "greatsword-orbit-0-180.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -432,7 +432,7 @@
     "file": "greatsword-orbit-0-225.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -465,7 +465,7 @@
     "file": "greatsword-orbit-0-270.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -498,7 +498,7 @@
     "file": "greatsword-orbit-0-315.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -531,7 +531,7 @@
     "file": "greatsword-orbit-45-0.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -564,7 +564,7 @@
     "file": "greatsword-orbit-45-45.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -597,7 +597,7 @@
     "file": "greatsword-orbit-45-90.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -630,7 +630,7 @@
     "file": "greatsword-orbit-45-135.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -663,7 +663,7 @@
     "file": "greatsword-orbit-45-180.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -696,7 +696,7 @@
     "file": "greatsword-orbit-45-225.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -729,7 +729,7 @@
     "file": "greatsword-orbit-45-270.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -762,7 +762,7 @@
     "file": "greatsword-orbit-45-315.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -795,7 +795,7 @@
     "file": "greatsword-pole--90.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -828,7 +828,7 @@
     "file": "greatsword-pole-90.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "model",
     "mode": "textured",
     "camera": {
@@ -861,7 +861,7 @@
     "file": "greatsword-gui.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "gui",
     "mode": "textured",
     "camera": {
@@ -893,7 +893,7 @@
     "file": "greatsword-firstperson_righthand.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "firstperson_righthand",
     "mode": "textured",
     "camera": {
@@ -926,7 +926,7 @@
     "file": "greatsword-firstperson_lefthand.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "firstperson_lefthand",
     "mode": "textured",
     "camera": {
@@ -959,7 +959,7 @@
     "file": "greatsword-thirdperson_righthand.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "thirdperson_righthand",
     "mode": "textured",
     "camera": {
@@ -992,7 +992,7 @@
     "file": "greatsword-thirdperson_lefthand.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "thirdperson_lefthand",
     "mode": "textured",
     "camera": {
@@ -1025,7 +1025,7 @@
     "file": "greatsword-thirdperson_righthand_side.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "thirdperson_righthand_side",
     "mode": "textured",
     "camera": {
@@ -1058,7 +1058,7 @@
     "file": "greatsword-ground.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "ground",
     "mode": "textured",
     "camera": {
@@ -1091,7 +1091,7 @@
     "file": "greatsword-ground_spin.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "ground_spin",
     "mode": "textured",
     "camera": {
@@ -1124,7 +1124,7 @@
     "file": "greatsword-fixed.png",
     "item": "greatsword",
     "source": "content/models/items/greatsword.model.json",
-    "sha256": "0ec7b967eeea603d29bc66ac0273fac91a6ec7c0e32550d7faf8fbc52b342927",
+    "sha256": "6b6d7acab97c88ed7c28b7579f3f76f491ab7d6bb64df80d3e3fd90cab8112b0",
     "context": "fixed",
     "mode": "textured",
     "camera": {

@@ -46,9 +46,20 @@ unit per vanilla texel, crop offsets varied by face and grain along the long axi
 Faces over 16 units must tile through split geometry; inspect split seams. Display
 transforms scale material pixels with the model (no compensating density increase).
 Use custom-painted atlases only for emblems, glow lines or runes with no vanilla
-material equivalent; one model can mix both. Exclude tinted and unverified animated
-textures. The client jar/cache is preview input only; never export cached PNGs.
+material equivalent; one model can mix both. Exclude biome/item-dependent tinted
+resources and unverified animated textures; explicit constant face tints are
+supported. The client jar/cache is preview input only; never export cached PNGs.
 See README for `MODEL_FORGE_CLIENT_JAR`, read-only materials and the density rule.
+
+**Founder rule (2026-10-24): patterns stay vanilla-based; colour is freely custom.**
+Use `material.apply` with optional `tint:"#rrggbb"`. Equal colours share a face
+`tintindex` in the model's `astera_tints` integer RGB array. Keep that array with
+exported models; the pack builder moves it into item-definition constant tints.
+Tint a light vanilla base (iron_block, smooth_stone, white_concrete, white_wool,
+quartz or calcite) to get the colour while keeping pattern contrast. Multiplication
+only darkens; black stays black. Validate dark-base warnings and open the tinted
+board/player contexts plus a native client capture. Never commit Mojang PNGs or
+recoloured/derived Mojang PNGs; preview caches and embedded-pixel viewers stay local.
 
 Architecture references: [BlenderMCP](https://github.com/ahujasid/mcp-for-blender) for compact
 state query and visual inspection; [Blockbench MCP](https://jasonjgardner.github.io/blockbench-mcp-plugin/)

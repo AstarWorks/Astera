@@ -123,7 +123,8 @@
                     ]
                   },
                   "tintindex": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": -1
                   }
                 },
                 "required": [
@@ -169,7 +170,8 @@
                     ]
                   },
                   "tintindex": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": -1
                   }
                 },
                 "required": [
@@ -215,7 +217,8 @@
                     ]
                   },
                   "tintindex": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": -1
                   }
                 },
                 "required": [
@@ -261,7 +264,8 @@
                     ]
                   },
                   "tintindex": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": -1
                   }
                 },
                 "required": [
@@ -307,7 +311,8 @@
                     ]
                   },
                   "tintindex": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": -1
                   }
                 },
                 "required": [
@@ -353,7 +358,8 @@
                     ]
                   },
                   "tintindex": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": -1
                   }
                 },
                 "required": [
@@ -676,6 +682,14 @@
         "thirdperson_righthand"
       ],
       "additionalProperties": false
+    },
+    "astera_tints": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 16777215
+      }
     }
   },
   "required": [

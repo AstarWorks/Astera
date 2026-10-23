@@ -2,6 +2,8 @@
 """Reproduce the greatsword through Forge operations (no test runner/server/build)."""
 import argparse
 import json
+import copy
+import math
 from pathlib import Path
 import shutil
 import sys
@@ -32,6 +34,7 @@ def main():
     call('import', {'path':str(a.before)})
     call('scene.get', {'fields':['id','name','faces']})
     call('measure'); call('validate')
+    original = copy.deepcopy(p.model)
     call('history.snapshot', {'name':'before'})
     board_args = {'resolution':384, 'name':'before'}
     before = call('board', board_args)
@@ -42,32 +45,36 @@ def main():
     groups = {}
     for e in p.model['elements']:
         name = e.get('name','')
-        if name == 'black grip': material = 'wood.stripped_dark_oak_log'
-        elif 'grip wrap' in name: material = 'cloth.black_wool'
-        elif name in ('dark steel blade', 'stepped spear point', 'deep central channel', 'guard central frame', 'grip collar'): material = 'metal.anvil'
-        elif any(word in name for word in ('red guard', 'crimson', 'pommel bevel', 'guard raised boss', 'guard narrow ridge', 'pommel inset')): material = 'metal.copper_block'
-        else: material = 'metal.iron_block'
-        groups.setdefault(material, []).append(e['id'])
-    for material, ids in groups.items():
-        ops.append({'op':'material.apply', 'args':{'ids':ids,'material':material,'seed':20261023}})
+        if name == 'black grip': material, tint = 'wood.stripped_dark_oak_log', None
+        elif 'grip wrap' in name: material, tint = 'cloth.black_wool', None
+        elif name in ('dark steel blade', 'stepped spear point'): material, tint = 'metal.iron_block', '#557caa'
+        elif name == 'deep central channel': material, tint = 'metal.iron_block', '#243c59'
+        elif name in ('guard central frame', 'grip collar'): material, tint = 'metal.iron_block', '#354c69'
+        elif any(word in name for word in ('red guard', 'crimson', 'pommel bevel', 'guard raised boss', 'guard narrow ridge', 'pommel inset')):
+            material, tint = 'metal.iron_block', '#bf293e'
+        else: material, tint = 'metal.iron_block', '#b4cee8'
+        groups.setdefault((material, tint), []).append(e['id'])
+    for (material, tint), ids in groups.items():
+        ops.append({'op':'material.apply', 'args':{'ids':ids,'material':material,'tint':tint,'seed':20261024}})
     call('batch', {'ops':ops})
-    # anvil_top has transparent U=0..3 and 13..16 gutters; keep metal crops opaque.
-    opaque = []
-    for e in p.model['elements']:
-        for face, value in e['faces'].items():
-            if p.model['textures'][value['texture'][1:]] != 'minecraft:block/anvil_top': continue
-            u, v, U, V = value['uv']
-            assert abs(U-u) <= 10
-            shift = max(0, 3-min(u,U)) + min(0, 13-max(u,U))
-            if shift:
-                opaque.append({'op':'uv.set', 'args':{'id':e['id'], 'face':face,
-                    'value':{**value, 'uv':[u+shift,v,U+shift,V]}}})
-    call('batch', {'ops':opaque})
+    # Verify the real import -> material/split -> export workflow against original geometry.
+    split_count = 0
+    for element in original['elements']:
+        parts = [e for e in p.model['elements'] if e['id'] == element['id'] or e['id'].startswith(element['id']+'_tile')]
+        split_count += len(parts) > 1
+        volume = lambda e: math.prod(b-a for a,b in zip(e['from'],e['to']))
+        assert math.isclose(sum(map(volume, parts)), volume(element))
+        assert all(e.get('rotation') == element.get('rotation') and e.get('name') == element.get('name') for e in parts)
+        for axis in range(3):
+            assert math.isclose(min(e['from'][axis] for e in parts), element['from'][axis], abs_tol=1e-12)
+            assert math.isclose(max(e['to'][axis] for e in parts), element['to'][axis], abs_tol=1e-12)
+    assert p.model['display'] == original['display']
+    assert len(p.model['astera_tints']) == len(set(p.model['astera_tints'])) == 5
     # Install references, retaining only used slots. Re-import records this packaging step in history.
     model = p.vanilla()
     used = {f['texture'][1:] for e in model['elements'] for f in e['faces'].values()}
     model['textures'] = {k:v for k,v in model['textures'].items() if k in used}
-    model['textures']['particle'] = 'minecraft:block/anvil_top'
+    model['textures']['particle'] = 'minecraft:block/iron_block'
     target = ROOT/'content/models/items/greatsword.model.json'
     target.write_text(json.dumps(model,indent=2)+'\n')
     call('import', {'path':str(target)})
@@ -78,7 +85,20 @@ def main():
     shutil.copyfile(contexts['path'], a.evidence/'contexts.png')
     call('measure'); call('validate')
     call('history.diff', {'a':'before','b':'after'})
-    call('export', {'path':str(a.project/'export')})
+    exported = call('export', {'path':str(a.project/'export')})
+    roundtrip = Project(a.project/'roundtrip')
+    roundtrip.call('import', {'path':exported['path']})
+    assert roundtrip.vanilla() == p.vanilla()
+    assert not list((a.project/'export/textures').glob('*.png'))
+    measurement = p.call('measure')
+    (a.evidence/'verification.json').write_text(json.dumps({
+        'originalElements':len(original['elements']), 'finalElements':len(p.model['elements']),
+        'splitOriginalElements':split_count, 'geometry':'Original envelopes, volumes, names and rotations preserved.',
+        'displayUnchanged':True, 'palette':p.model['astera_tints'], 'paletteDeduplicated':True,
+        'exportImportIdentical':True, 'exportedPngs':0, 'validation':p.call('validate')['errors'],
+        'bbox':measurement['bbox'],
+        'texelsPerLocalUnit':[min(n for d in measurement['density'] for n in d['texels_per_unit']),
+                              max(n for d in measurement['density'] for n in d['texels_per_unit'])]}, indent=2)+'\n')
     (a.evidence/'operations.json').write_text(json.dumps(log,indent=2)+'\n')
 
 if __name__=='__main__': main()

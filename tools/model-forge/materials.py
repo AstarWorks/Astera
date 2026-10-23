@@ -60,7 +60,7 @@ def vanilla_path(ref):
     return out
 
 
-def apply(model, ids, material, selected_faces=None, seed=0):
+def apply(model, ids, material, selected_faces=None, seed=0, tint=None):
     """Split oversized cuboids, preserve external faces, and crop one texel/model unit."""
     if material not in CATALOG: raise ValueError('Unknown material; choose a name from materials.json: '+material)
     if not ids or len(set(ids)) != len(ids): raise ValueError('Supply distinct element ids')
@@ -68,6 +68,14 @@ def apply(model, ids, material, selected_faces=None, seed=0):
     selected = set(selected_faces) if selected_faces is not None else set(faces({'from':[0]*3,'to':[1]*3}))
     if not selected or selected-set(('up','down','north','south','east','west')): raise ValueError('Invalid material faces')
     spec = CATALOG[material]
+    tint_index = None
+    if tint is not None:
+        if not isinstance(tint, str) or not re.fullmatch(r'#[0-9a-fA-F]{6}', tint):
+            raise ValueError('Tint must be #rrggbb')
+        color = int(tint[1:], 16)
+        table = model.setdefault('astera_tints', [])
+        if color not in table: table.append(color)
+        tint_index = table.index(color)
     added = []
     used_ids = {e['id'] for e in model['elements']}
     def key_for(ref):
@@ -111,6 +119,8 @@ def apply(model, ids, material, selected_faces=None, seed=0):
                     digest = hashlib.sha256(f'{seed}:{e["id"]}:{index}:{face}'.encode()).digest()
                     u, v = digest[0] % (math.floor(16-w+1e-8)+1), digest[1] % (math.floor(16-h+1e-8)+1)
                     value.update(texture='#'+key_for(ref), uv=[u,v,u+w,v+h], rotation=rotation)
+                    value.pop('tintindex', None)
+                    if tint_index is not None: value['tintindex'] = tint_index
                 else:
                     # Interpolate existing (possibly mirrored/rotated) UVs onto each external patch.
                     u,v,U,V = f.get('uv', default_uv(e,face))

@@ -102,6 +102,10 @@ def render(model, textures, view, size=256, clay=False, camera=None, mode='textu
                 tx=np.clip(np.floor(coords[:,:,0]*atlas.shape[1]).astype(int),0,atlas.shape[1]-1)
                 ty=np.clip(np.floor(coords[:,:,1]*atlas.shape[0]).astype(int),0,atlas.shape[0]-1)
                 color=atlas[ty,tx].copy();hit&=color[:,:,3]>=128
+                index = f.get('tintindex', -1)
+                if 0 <= index < len(model.get('astera_tints', [])):
+                    rgb = model['astera_tints'][index]
+                    color[:,:,:3] = np.rint(color[:,:,:3] * np.array([rgb>>16, (rgb>>8)&255, rgb&255]) / 255).astype(np.uint8)
                 if clay or mode=='solid': color[:,:,:3]=[178,190,204]
                 if e.get('id') in highlight: color[:,:,:3]=[255,186,58]
                 color[:,:,:3]=np.rint(color[:,:,:3]*shade).clip(0,255).astype(np.uint8)

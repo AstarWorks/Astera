@@ -5,13 +5,14 @@ import re
 from pathlib import Path
 import numpy as np
 from raster import faces, element_points, default_uv
+from materials import texture_ref
 
 
 def schema_errors(value,s,path='$'):
     errors=[]
     typ=s.get('type')
     ok={'object':isinstance(value,dict),'array':isinstance(value,list),'string':isinstance(value,str),
-        'number':type(value) in (int,float) and math.isfinite(value),'boolean':type(value) is bool}
+        'integer':type(value) is int, 'number':type(value) in (int,float) and math.isfinite(value),'boolean':type(value) is bool}
     if typ and not ok[typ]: return [f'{path}: expected {typ}']
     if 'enum' in s and value not in s['enum']: errors.append(f'{path}: not in {s["enum"]}')
     if isinstance(value,(int,float)) and not isinstance(value,bool):
@@ -32,10 +33,42 @@ def schema_errors(value,s,path='$'):
     return errors
 
 
+def tint_errors(model):
+    table = model.get('astera_tints', [])
+    if not isinstance(table, list) or any(type(c) is not int or not 0 <= c <= 0xffffff for c in table):
+        return ['astera_tints must be an array of integer RGB values (0..16777215)']
+    errors = []
+    for i, e in enumerate(model.get('elements', [])):
+        for face, f in e['faces'].items():
+            index = f.get('tintindex', -1)
+            if type(index) is not int or index < -1 or index >= len(table):
+                errors.append(f'element {i}/{face}: tintindex must be -1 or an index into astera_tints')
+    return errors
+
+
+def tint_warnings(model):
+    # Known dark bases only: authoring/validation must work without client pixels.
+    warnings = []
+    seen = set()
+    for e in model.get('elements', []):
+        for f in e['faces'].values():
+            if f.get('tintindex', -1) < 0: continue
+            try: ref = texture_ref(model, f['texture'])
+            except (ValueError, KeyError): continue
+            if ref in seen: continue
+            seen.add(ref)
+            if re.search(r'/(dark_|brown_|anvil|black_|blackstone|polished_blackstone|obsidian|crying_obsidian|coal_block|deepslate|polished_deepslate|netherite_block|gray_|stripped_dark_oak)', ref):
+                warnings.append({'kind':'dark_tint_base', 'texture':ref,
+                    'message':'Multiplicative tint can only darken. Try iron_block, smooth_stone, white_concrete, white_wool, quartz or calcite; keep pattern contrast.'})
+    return warnings
+
+
 def validate(model,textures,budget=None,density=None):
     schema=json.loads(Path(__file__).with_name('model.schema.json').read_text())
     errors=schema_errors(model,schema);warnings=[];densities=[];allpoints=[]
+    if not errors: errors += tint_errors(model)
     if errors: return {'valid':False,'errors':errors,'warnings':warnings}
+    warnings = tint_warnings(model)
     if budget is not None and len(model['elements'])>budget: errors.append(f'Element budget exceeded: {len(model["elements"])}/{budget}')
     for i,e in enumerate(model['elements']):
         dims=np.subtract(e['to'],e['from'])

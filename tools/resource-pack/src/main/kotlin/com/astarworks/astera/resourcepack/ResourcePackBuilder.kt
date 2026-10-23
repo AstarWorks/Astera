@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.json.JsonWriteFeature
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 import org.yaml.snakeyaml.Yaml
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
@@ -108,7 +109,13 @@ public class ResourcePackBuilder(
         for (file in filesUnder("models")) {
             if (!file.name.endsWith(".model.json")) continue
             val rel = file.relativeTo(modelsDir).invariantSeparatorsPathString.removeSuffix(".model.json")
-            files["assets/$NAMESPACE/models/$rel.json"] = Files.readAllBytes(file)
+            val bytes = Files.readAllBytes(file)
+            val model = mapper.readTree(bytes)
+            modelTints(model) // Fail malformed palettes/indices before shipping the model.
+            files["assets/$NAMESPACE/models/$rel.json"] = if (model.has("astera_tints")) {
+                (model as ObjectNode).remove("astera_tints")
+                json(model).toByteArray()
+            } else bytes
         }
         // Item model definitions: only for models the manifest lists AND whose model file made it in.
         val manifest = modelsDir.resolve("manifest.json")
@@ -118,7 +125,7 @@ public class ResourcePackBuilder(
                 if ("assets/$NAMESPACE/models/$id.json" !in files) continue
                 val itemId = id.removePrefix("items/")
                 files["assets/$NAMESPACE/items/$itemId.json"] =
-                    json(mapOf("model" to mapOf("type" to "minecraft:model", "model" to "$NAMESPACE:$id"))).toByteArray()
+                    itemDefinition(id)
             }
         }
         addGeneratedItemDefinitions(files)
@@ -140,8 +147,36 @@ public class ResourcePackBuilder(
             val model = studio[id]?.removePrefix("assets/$NAMESPACE/models/")?.removeSuffix(".json")
                 ?: "$GENERATED_ITEM_DIR/$id"
             files["assets/$NAMESPACE/items/$id.json"] =
-                json(mapOf("model" to mapOf("type" to "minecraft:model", "model" to "$NAMESPACE:$model"))).toByteArray()
+                itemDefinition(model)
         }
+    }
+
+    /** Authoring metadata belongs in the item definition, never the cuboid model. */
+    private fun itemDefinition(model: String): ByteArray {
+        val source = mapper.readTree(Files.readAllBytes(contentDir.resolve("models/$model.model.json")))
+        val definition = linkedMapOf<String, Any>("type" to "minecraft:model", "model" to "$NAMESPACE:$model")
+        val tints = modelTints(source)
+        if (tints.isNotEmpty()) definition["tints"] = tints.map { mapOf("type" to "minecraft:constant", "value" to it) }
+        return json(mapOf("model" to definition)).toByteArray()
+    }
+
+    private fun modelTints(model: JsonNode): List<Int> {
+        val table = model.path("astera_tints")
+        require(table.isMissingNode || table.isArray) { "astera_tints must be an RGB array" }
+        val colors = table.map {
+            require(it.isIntegralNumber && it.canConvertToInt() && it.intValue() in 0..0xffffff) {
+                "astera_tints values must be integer RGB (0..16777215)"
+            }
+            it.intValue()
+        }
+        for (element in model.path("elements")) for (face in element.path("faces")) {
+            val index = face.path("tintindex")
+            require(index.isMissingNode || (index.isIntegralNumber && index.canConvertToInt() &&
+                (index.intValue() == -1 || index.intValue() in colors.indices))) {
+                "tintindex must be -1 or an index into astera_tints"
+            }
+        }
+        return colors
     }
 
     private fun addSounds(files: MutableMap<String, ByteArray>) {

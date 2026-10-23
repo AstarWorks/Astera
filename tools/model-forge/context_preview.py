@@ -11,6 +11,7 @@ from PIL import Image, ImageDraw
 from raster import faces, element_points, default_uv
 from recipe import ROOT, load_model, texture_map
 from surfaces import surface_pairs
+import numpy as np
 
 VIEWS = ['firstperson_righthand', 'firstperson_lefthand', 'thirdperson_righthand',
          'thirdperson_lefthand', 'thirdperson_righthand_side', 'ground', 'ground_spin', 'fixed', 'gui']
@@ -31,6 +32,8 @@ def main():
             continue
         model = load_model(path)
         polygons = []
+        source_textures = texture_map(model)
+        textures = {}
         for i, element in enumerate(model['elements']):
             for face, (points, _) in faces(element).items():
                 if face not in element['faces']:
@@ -41,13 +44,17 @@ def main():
                 shift = f.get('rotation', 0)//90
                 if shift:
                     uv = uv[-shift:]+uv[:-shift]
+                index = f.get('tintindex', -1)
+                rgb = model['astera_tints'][index] if index >= 0 else 0xffffff
+                key = f['texture'][1:] + '_' + format(rgb, '06x')
+                if key not in textures:
+                    pixels = source_textures[f['texture']].copy()
+                    pixels[:,:,:3] = np.rint(pixels[:,:,:3] * np.array([rgb>>16, (rgb>>8)&255, rgb&255]) / 255).astype(np.uint8)
+                    buffer = io.BytesIO()
+                    Image.fromarray(pixels).save(buffer, format='PNG')
+                    textures[key] = 'data:image/png;base64,'+base64.b64encode(buffer.getvalue()).decode()
                 polygons.append({'id': f'e{i+1:04d}', 'name': element.get('name', f'element {i+1}'), 'face': face, 'p': (element_points(element, points)-8).tolist(),
-                                 'uv': [[a/16, b/16] for a, b in uv], 't': f['texture'][1:]})
-        textures = {}
-        for key, pixels in texture_map(model).items():
-            buffer = io.BytesIO()
-            Image.fromarray(pixels).save(buffer, format='PNG')
-            textures[key[1:]] = 'data:image/png;base64,'+base64.b64encode(buffer.getvalue()).decode()
+                                 'uv': [[a/16, b/16] for a, b in uv], 't': key})
         items[name] = {'faces': polygons, 'textures': textures, 'display': model['display'],
                        'source': str(path.relative_to(ROOT)),
                        'sha256': hashlib.sha256(json.dumps({'model': model, 'textures': textures}, sort_keys=True).encode()).hexdigest(),

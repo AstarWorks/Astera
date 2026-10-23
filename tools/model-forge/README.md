@@ -78,7 +78,7 @@ shown; optional fields and defaults are described inline. IDs are stable across 
 | `texture.palette` | `{key, limit?:32}`; most common RGBA colors with counts. |
 | `texture.paint` | `{key, ops:[...]}`; pixel coordinates, Pillow color strings; forms below. |
 | `texture.regions` | `{}`; element ID, face, texture key and UV rectangle for every face. |
-| `material.apply` | `{ids:[element_id,...], material:catalog_name, faces?:["north",...], seed?:0}`; assign static vanilla material, crop at one texel/model unit, deterministic varied offsets, grain along longest local axis. Splits cuboids over 16 units; returns resulting IDs. Atomic and undoable, including splits. |
+| `material.apply` | `{ids:[element_id,...], material:catalog_name, faces?:["north",...], seed?:0, tint?:"#rrggbb"}`; assign static vanilla material, crop at one texel/model unit, deterministic varied offsets, grain along longest local axis. Splits cuboids over 16 units; returns resulting IDs. Atomic and undoable, including splits. |
 | `uv.set` | `{id, face, value:{texture:"#0",uv:[0,0,4,4],rotation?:90}}`; replace one face descriptor. |
 | `uv.auto` | `{key, density?:2, ids?:[...]}`; shelf pack with one pixel gutters; texels/model unit. Atomic failure if atlas is full. Selection requires a dedicated texture unused by unselected faces. Repaint after packing. |
 | `render` | See below; individual image paths and clipping diagnostics. |
@@ -133,7 +133,7 @@ Wireframe and xray show hidden edges; ID labels are diagnostic and may overlap.
 Display views `gui`, `firstperson_righthand`, `thirdperson_righthand`, `ground`, `fixed`
 apply the model's stored rotation, scale and translation. The hand is a labelled approximate
 screen-space guide behind the transformed grip, not a Minecraft player renderer. Lighting,
-cutout alpha and cameras are illustrative; no tint/glint/AO, perspective, cullface world context
+cutout alpha and cameras are illustrative; no glint/AO, perspective, cullface world context
 or Minecraft runtime parity is claimed. Camera overrides replace view orientation.
 
 Comparison expects aligned single-view reference crops (not an entire sheet). It resizes each
@@ -163,6 +163,23 @@ Choose semantic names from [materials.json](materials.json), for example
 `concrete.red_concrete`, `leather.brown_mushroom_block`, or `cloth.brown_wool`.
 `material.apply` accepts catalog names; imports also accept `minecraft:block/...` and `minecraft:item/...`.
 Faces use `#slot` references to the model's `textures` map as usual.
+Patterns stay vanilla-based; colour is freely custom (founder decision 2026-10-24).
+Pass `"tint":"#557caa"` to tint a light vanilla material blue steel. Equal colours
+share an index, selected faces receive `tintindex`, and omitted/null tint removes
+it from selected faces. Unselected faces retain their tint, including after splits.
+The project's model and exported JSON store `"astera_tints":[5602474,...]` (integer
+RGB, indexed from zero). Keep that field when installing `<id>.model.json`.
+The pack builder removes it from the shipped cuboid JSON and emits
+`"tints":[{"type":"minecraft:constant","value":5602474},...]` in the selected
+`assets/astera/items/<id>.json`, including authored overrides of generated icons.
+Import/export, history, render/board and player-context previews preserve the palette.
+
+Palette tip: tint light bases (`iron_block`, `smooth_stone`, `white_concrete`,
+`white_wool`, quartz or calcite) to reach the desired colour and retain pattern
+contrast. Multiplication can only darken each channel; black stays black. Validation
+warns for known dark vanilla bases without needing the jar (it is a heuristic,
+not pixel analysis). This is static item colour, not biome tint, emissive colour,
+or recoloured PNG output. Do not commit Mojang PNGs or recoloured/derived PNGs.
 Unstripped crimson/warped stems and prismarine are animated in 26.3 and excluded;
 the stripped stems, dark prismarine and prismarine bricks are static alternatives.
 `smooth_quartz` uses the vanilla block's `quartz_block_bottom` texture.
@@ -197,7 +214,7 @@ excluded without a jar; additional animations/non-16x16 resources are rejected
 when resolving the client jar. Custom painting is reserved for emblems, glow lines
 and runes; mix its atlas with vanilla slots in one model. Vanilla slots are read-only.
 
-The pack builder copies model JSON verbatim. `make dev-pack` refreshes the pack
+The pack builder moves `astera_tints` metadata into item definitions; other model fields are preserved. `make dev-pack` refreshes the pack
 hash after a rebuild; it does not rebuild models or resolve PNG references. In the
 26.3 client, `MaterialBaker.bake` tries the item atlas then the block atlas, but
 `CuboidItemModelWrapper.validateAtlasUsage` rejects models spanning both atlases.

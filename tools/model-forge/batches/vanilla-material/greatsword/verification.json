@@ -2,15 +2,33 @@
   "originalElements": 96,
   "finalElements": 109,
   "splitOriginalElements": 13,
-  "geometry": "Every original cuboid retains its envelope, volume, name and rotation; Y splits only.",
+  "geometry": "Original envelopes, volumes, names and rotations preserved.",
   "displayUnchanged": true,
+  "palette": [
+    12527934,
+    5602474,
+    11849448,
+    2374745,
+    3492969
+  ],
+  "paletteDeduplicated": true,
+  "exportImportIdentical": true,
+  "exportedPngs": 0,
+  "validation": [],
+  "bbox": [
+    [
+      2.4499999999999993,
+      -1.9499999999999993,
+      6.1499999999999995
+    ],
+    [
+      13.55,
+      28.2,
+      9.850000000000001
+    ]
+  ],
   "texelsPerLocalUnit": [
     0.9999999999999963,
     1.0000000000000093
-  ],
-  "anvilOpaqueU": [
-    3,
-    13
-  ],
-  "validation": []
+  ]
 }

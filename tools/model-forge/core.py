@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageColor
 from raster import faces, element_points, default_uv
-from validate import schema_errors
+from validate import schema_errors, tint_errors, tint_warnings
 from materials import texture_ref, vanilla_path, apply as apply_material
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -126,8 +126,10 @@ class Project:
         schema['properties']['elements']['minItems'] = 0
         schema['properties']['display']['required'] = []
         errors = schema_errors(self.vanilla(), schema)
+        if not errors: errors += tint_errors(self.model)
         warnings = []
         if errors: return {'valid': False, 'errors': errors, 'warnings': warnings}
+        warnings = tint_warnings(self.model)
         for key in self.model['textures']:
             try: texture_ref(self.model, '#'+key)
             except (ValueError, KeyError) as ex: errors.append('Invalid texture '+key+': '+str(ex))
@@ -222,7 +224,7 @@ class Project:
             for e in self.model['elements']:
                 if root and e.get('group') not in groups and e['id']!=root: continue
                 row={**e,'bbox':bbox(e)}; rows.append({k:row.get(k) for k in fields})
-            return {'elements':rows,'groups':self.state['groups'],'textures':copy.deepcopy(self.model['textures'])}
+            return {'elements':rows,'groups':self.state['groups'],'textures':copy.deepcopy(self.model['textures']), 'astera_tints':copy.deepcopy(self.model.get('astera_tints', []))}
         if op == 'batch':
             results=[]
             for item in a['ops']:
@@ -336,7 +338,7 @@ class Project:
             return {'colors':[{'rgba':list(c),'count':n} for n,c in sorted(colors,reverse=True)[:a.get('limit',32)]]}
         if op=='texture.regions': return {'regions':self.regions()}
         if op=='material.apply':
-            return apply_material(self.model, a['ids'], a['material'], a.get('faces'), a.get('seed',0))
+            return apply_material(self.model, a['ids'], a['material'], a.get('faces'), a.get('seed',0), a.get('tint'))
         if op=='uv.set':
             self.element(a['id'])['faces'][a['face']]=copy.deepcopy(a['value']); return {'id':a['id']}
         if op=='uv.auto':

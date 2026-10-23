@@ -1,31 +1,85 @@
 {
-  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
-  "capture": "Isolated creative superflat singleplayer. Native unedited Xvfb root screenshot; FOV 70, view bob off, GUI scale 2, noon, clear, peaceful, yaw/pitch 0/0. Entire launch/capture/shutdown serialized by /tmp/claude-1000/astera-mc-client.lock. Unique Xvfb display via -displayfd; game directory build/greatsword-client. No standalone server, Docker, Gradle or tests.",
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, native 1280x720",
+  "capture": "Raw unedited root-window screenshot. Isolated copied superflat singleplayer. Entire launch/capture/shutdown serialized by /tmp/claude-1000/astera-mc-client.lock. Commands enabled only in the local world copy. No Docker, server deployment, tests or e2e.",
   "item": "minecraft:iron_sword[minecraft:item_model=\"astera:greatsword\"]",
-  "resourcePack": "Minimal capture pack with the exact authored model and item definition. Only native block atlas references; no custom PNGs or copied vanilla sprites.",
-  "modelElements": 109,
+  "resourcePack": "Exact builder-emitted cuboid model and item definition extracted from build/resource-pack/astera.zip; vanilla block texture references only. Metadata removed from shipped cuboid JSON.",
+  "packSha1": "917862947706d1f2c2d3cebf23ea56e49ae09a1e",
+  "clientJarSha256": "4508d006323f24fa02876310c192d739af56516eb259000ac50f0909a68c9a2d",
   "baseCommit": "36743b70a5074a438dcc20e4d58beb774be06d65",
+  "modelElements": 109,
+  "tintedFaces": 561,
+  "itemDefinition": {
+    "model": {
+      "type": "minecraft:model",
+      "model": "astera:items/greatsword",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": 12527934
+        },
+        {
+          "type": "minecraft:constant",
+          "value": 5602474
+        },
+        {
+          "type": "minecraft:constant",
+          "value": 11849448
+        },
+        {
+          "type": "minecraft:constant",
+          "value": 2374745
+        },
+        {
+          "type": "minecraft:constant",
+          "value": 3492969
+        }
+      ]
+    }
+  },
+  "codecVerification": {
+    "dispatch": "ItemModels.bootstrap -> CuboidItemModelWrapper$Unbaked.MAP_CODEC",
+    "palette": "ItemTintSources.CODEC.listOf().optionalFieldOf(\"tints\", List.of()); no fixed count cap",
+    "constant": "ItemTintSources.bootstrap -> Constant.MAP_CODEC -> ExtraCodecs.RGB_COLOR_CODEC value; opaque alpha",
+    "index": "CuboidFace$Deserializer.getTintIndex -> integer, default -1; BakedQuad.MaterialInfo stores int",
+    "render": "CuboidItemModelWrapper.update fills tintLayers; ItemFeatureRenderer.getLayerColorSafe indexes array; item.fsh multiplies sampled colour by vertexColor",
+    "inspection": "javap -classpath <26.3 client jar> -c -p <classes above>; shader read directly from jar"
+  },
+  "verification": {
+    "compile": ":tools:resource-pack:compileKotlin BUILD SUCCESSFUL",
+    "pack": "Real ResourcePackBuilder CLI from compiled classes; 415 entries; both asset bytes match capture pack",
+    "forge": "remake.py real import/material/split/render/export/reimport workflow; no texture PNG output",
+    "openedImages": [
+      "before.png",
+      "after.png",
+      "contexts.png",
+      "inventory.png",
+      "player-contexts.jpg",
+      "sweep.jpg",
+      "client.png"
+    ],
+    "clientModelErrors": []
+  },
   "sha256": {
-    "content/models/items/greatsword.model.json": "81d2ed5ea21246dbe0de1be3b4473be488c25ee86c25a2a8a723455734832c4c",
-    "tools/model-forge/batches/vanilla-material/greatsword/after.png": "a24a467bf013f0fbd37d70ce82858cba5728c2ab397a0a8e69a50bedd83dda63",
+    "content/models/items/greatsword.model.json": "802cc855ae62f45c4020a73033428e0a457a69544a43f46aba7394d97abb9a90",
+    "tools/model-forge/batches/vanilla-material/greatsword/after.png": "c2f443cfa3558ca27eb8d47917a62758600a0a9539924588e0aeacc31544895f",
     "tools/model-forge/batches/vanilla-material/greatsword/before.png": "9c5ac9bc6701e1855deca9f743d072bac71b2b81f96593e9aa58d02c70bf0a04",
-    "tools/model-forge/batches/vanilla-material/greatsword/cameras.json": "592a9a97bcf1cdb090abcf26fcac25d850e5303e16b389b7560fc15028268060",
-    "tools/model-forge/batches/vanilla-material/greatsword/capture-client.py": "fb4369583d221140bcc5823557bffefae494d6965639ed75f04a6dc3334236c7",
-    "tools/model-forge/batches/vanilla-material/greatsword/client.png": "0ac79294d4abdf6f0d87c81611488e8b3054b376f614c5011a05fc2f4544fd26",
-    "tools/model-forge/batches/vanilla-material/greatsword/contexts.png": "7df94aabf49225d6138723a955f0215a4345ab005fd4488c62171e2f925d5982",
-    "tools/model-forge/batches/vanilla-material/greatsword/inventory.png": "5cb23a8029a377fddd8c5cda5d07957d29c1c754fc75ac50df27baa009e92809",
-    "tools/model-forge/batches/vanilla-material/greatsword/operations.json": "ecee86023dc19e4e45b526e3292c9b5aa6f2c2601c36f4ef283851bd53807cd7",
-    "tools/model-forge/batches/vanilla-material/greatsword/player-contexts.jpg": "c6a8e5e9cdb6adee83e85ca9d72cfaf7fc1ba551bf06d847b73df2bdeb61ac39",
-    "tools/model-forge/batches/vanilla-material/greatsword/remake.py": "0fbd6e8b6a30fa4c77e90ea90cf50eb605366bc6fe33dc9451d810208e8371bf",
-    "tools/model-forge/batches/vanilla-material/greatsword/review.md": "84f84f3becec9ff0e5b6ef6c76dbb841a5e73303a08bce2f5cb3f93f70f0d3b1",
-    "tools/model-forge/batches/vanilla-material/greatsword/sweep.jpg": "afb62b7531f978875becc35cc1a26d9ed2d2c75094c6e5a63d8ef33674cfa870",
-    "tools/model-forge/batches/vanilla-material/greatsword/verification.json": "ccae4407200c13f48f5e7c120531a816873b930eb24f2d21b27fd3e22b08422e"
+    "tools/model-forge/batches/vanilla-material/greatsword/cameras.json": "e720c35ff4f48007dd8efcbe3db9318912ef1f7109c2419cfe3b516fc34f4e10",
+    "tools/model-forge/batches/vanilla-material/greatsword/capture-client.py": "69b68963385a6182b2e01969fbb4420200ef5d2a34d2f3a24986c1a572c3fd5c",
+    "tools/model-forge/batches/vanilla-material/greatsword/client.png": "af69bced988170ac14fc12508f43fd6b7c4d1467b51d00a780f0993808fa5dc3",
+    "tools/model-forge/batches/vanilla-material/greatsword/contexts.png": "e94517bd324c6ab9bd6106c3195c9e155729d6a4e354f47e84133afae4d1bbb9",
+    "tools/model-forge/batches/vanilla-material/greatsword/inventory.png": "b866a8080df9fa196f3ab4e29888573635e37a55ead0f7f17966e2f3c3807c6f",
+    "tools/model-forge/batches/vanilla-material/greatsword/operations.json": "1f4a7c311f439be83a90f5b562ef4793970650789d749b39ffbe5df0fa94c874",
+    "tools/model-forge/batches/vanilla-material/greatsword/player-contexts.jpg": "5cadffeb8c7743f31c5d4d22b091347a6abf314b7fae8081d948287118ac4ca4",
+    "tools/model-forge/batches/vanilla-material/greatsword/remake.py": "a0e22319ede1470fea647ccfb3c25865a0f97cdf624f05220fb560c6a34e70b4",
+    "tools/model-forge/batches/vanilla-material/greatsword/review.md": "7b2b495392934eadb437cc9109c5945cab91aba84634b61921667f04bf9dbebd",
+    "tools/model-forge/batches/vanilla-material/greatsword/sweep.jpg": "2ba674cad88c51dad9be2a08c9cf3dcd85abc71b397fba69acb050ef38efe664",
+    "tools/model-forge/batches/vanilla-material/greatsword/verification.json": "4c0060e3192620e0ee7ca1cf66caf7a43b68988277d318401ef9a3a3936711a5"
   },
   "remainingRisks": [
-    "Production pack build and integration verification remain manager responsibilities.",
-    "Original overlapping bevels and tiny ornament separations are retained; no complete z-fighting audit.",
-    "Copper replaces original crimson; wish for opaque dark red metal and full-width opaque dark steel catalog entries.",
-    "Both hands, third person, ground and fixed reviewed offline; native capture covers first person.",
-    "Swing/use, glint, shaders and dynamic FOV remain unverified."
+    "Static multiplicative opaque RGB only; cannot brighten black or emit light.",
+    "Dark-base warnings use known vanilla resource names, not pixel analysis.",
+    "Native evidence covers first person and hotbar; other contexts reviewed offline.",
+    "Original bevel overlaps and ornament gaps retained; swing/use, glint, shaders and dynamic FOV unverified.",
+    "ADR-0251 remains Proposed for manager review."
   ]
 }

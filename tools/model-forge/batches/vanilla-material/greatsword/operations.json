@@ -2,7 +2,7 @@
   {
     "op": "import",
     "args": {
-      "path": "/tmp/greatsword-before.json"
+      "path": "build/greatsword-original.json"
     },
     "validation": {
       "valid": true,
@@ -741,7 +741,8 @@
               "e0001"
             ],
             "material": "wood.stripped_dark_oak_log",
-            "seed": 20261023
+            "tint": null,
+            "seed": 20261024
           }
         },
         {
@@ -775,8 +776,9 @@
               "e0085",
               "e0088"
             ],
-            "material": "metal.copper_block",
-            "seed": 20261023
+            "material": "metal.iron_block",
+            "tint": "#bf293e",
+            "seed": 20261024
           }
         },
         {
@@ -789,16 +791,11 @@
               "e0022",
               "e0025",
               "e0028",
-              "e0031",
-              "e0032",
-              "e0033",
-              "e0037",
-              "e0047",
-              "e0067",
-              "e0068"
+              "e0031"
             ],
-            "material": "metal.anvil",
-            "seed": 20261023
+            "material": "metal.iron_block",
+            "tint": "#557caa",
+            "seed": 20261024
           }
         },
         {
@@ -853,7 +850,34 @@
               "e0096"
             ],
             "material": "metal.iron_block",
-            "seed": 20261023
+            "tint": "#b4cee8",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0032",
+              "e0033"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#243c59",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0037",
+              "e0047",
+              "e0067",
+              "e0068"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#354c69",
+            "seed": 20261024
           }
         },
         {
@@ -872,653 +896,8 @@
               "e0066"
             ],
             "material": "cloth.black_wool",
-            "seed": 20261023
-          }
-        }
-      ]
-    },
-    "validation": {
-      "valid": true,
-      "errors": [],
-      "warnings": {
-        "mixed_texture_atlases": 1,
-        "overlap_aabb": 187,
-        "coplanar_contact_possible_zfight": 35,
-        "floating_components_aabb": 1
-      }
-    }
-  },
-  {
-    "op": "batch",
-    "args": {
-      "ops": [
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0003",
-            "face": "north",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                0,
-                7.800000000000001,
-                16.0
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0003",
-            "face": "south",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                8.2,
-                0,
-                13.0,
-                16.0
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0003",
-            "face": "west",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                0,
-                4.6000000000000005,
-                16.0
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0003_tile1",
-            "face": "north",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                0,
-                7.800000000000001,
-                1.5
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0003_tile1",
-            "face": "south",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                8.2,
-                11,
-                13.0,
-                12.5
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0003_tile1",
-            "face": "west",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                6,
-                4.6000000000000005,
-                7.5
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0016",
-            "face": "south",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                8,
-                7.84,
-                8.600000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0016",
-            "face": "east",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                11.36,
-                14,
-                13.0,
-                14.600000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0016",
-            "face": "up",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                1,
-                7.84,
-                2.6400000000000006
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0019",
-            "face": "east",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                8,
-                4.3500000000000005,
-                8.600000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0019",
-            "face": "west",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                15,
-                4.3500000000000005,
-                15.600000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0019",
-            "face": "down",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                9.0,
-                9,
-                13.0,
-                10.350000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0025",
-            "face": "north",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                10.600000000000001,
-                5,
-                13.0,
-                5.600000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0025",
-            "face": "south",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                10.600000000000001,
-                3,
-                13.0,
-                3.6000000000000014
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0025",
-            "face": "east",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                13,
-                3.8500000000000005,
-                13.600000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0025",
-            "face": "up",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                14,
-                5.399999999999999,
-                14.850000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0028",
-            "face": "east",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                12.399999999999999,
-                14,
-                13.0,
-                14.600000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0028",
-            "face": "up",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                11.399999999999999,
-                10,
-                13.0,
-                10.600000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0031",
-            "face": "north",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                2,
-                3.8000000000000007,
-                2.6000000000000014
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0031",
-            "face": "east",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                3,
-                3.3500000000000005,
-                3.6000000000000014
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0031",
-            "face": "down",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                2,
-                3.8000000000000007,
-                2.3500000000000005
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0032",
-            "face": "west",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                0,
-                3.16,
-                16.0
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0032",
-            "face": "down",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                12.2,
-                15,
-                13.0,
-                15.16
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0032_tile1",
-            "face": "south",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                12.2,
-                11,
-                13.0,
-                11.52
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0032_tile1",
-            "face": "east",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                0,
-                3.16,
-                0.5199999999999996
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0032_tile1",
-            "face": "up",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                13,
-                3.8000000000000007,
-                13.16
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0033_tile1",
-            "face": "south",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                12.2,
-                4,
-                13.0,
-                4.52
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0037",
-            "face": "north",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                0,
-                5.6000000000000005,
-                2.6000000000000005
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0037",
-            "face": "south",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                13,
-                5.6000000000000005,
-                15.600000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0037",
-            "face": "east",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                12.6,
-                12,
-                13.0,
-                14.600000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0037",
-            "face": "west",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                12.6,
-                2,
-                13.0,
-                4.6000000000000005
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0047",
-            "face": "west",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                12.600000000000001,
-                9,
-                13.0,
-                11.600000000000001
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0047",
-            "face": "up",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                10.399999999999999,
-                4,
-                13.0,
-                4.399999999999999
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0067",
-            "face": "south",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                10.899999999999999,
-                3,
-                13.0,
-                3.35
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0068",
-            "face": "east",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                10.7,
-                12,
-                13.0,
-                12.35
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0068",
-            "face": "west",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                10.7,
-                12,
-                13.0,
-                12.35
-              ],
-              "rotation": 0
-            }
-          }
-        },
-        {
-          "op": "uv.set",
-          "args": {
-            "id": "e0068",
-            "face": "up",
-            "value": {
-              "texture": "#material_anvil_top",
-              "uv": [
-                3,
-                4,
-                5.1000000000000005,
-                6.300000000000001
-              ],
-              "rotation": 0
-            }
+            "tint": null,
+            "seed": 20261024
           }
         }
       ]
@@ -1537,7 +916,7 @@
   {
     "op": "import",
     "args": {
-      "path": "/IdeaProjects/Astera/.claude/worktrees/vm-greatsword/content/models/items/greatsword.model.json"
+      "path": "/IdeaProjects/Astera/.claude/worktrees/vm-tint/content/models/items/greatsword.model.json"
     },
     "validation": {
       "valid": true,
@@ -1610,7 +989,7 @@
   {
     "op": "export",
     "args": {
-      "path": "/tmp/greatsword-forge-opaque/export"
+      "path": "build/greatsword-tint-final/export"
     },
     "validation": null
   }
