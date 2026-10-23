@@ -1,0 +1,29 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer, peaceful, noon, clear. Native root screenshot, no image editing. Whole launch/capture serialized under /tmp/claude-1000/astera-mc-client.lock; unique build/verdant-staff-client game directory. No standalone server, Docker, Gradle or tests.",
+  "item": "minecraft:stick[minecraft:item_model=\"astera:verdant-staff\"]",
+  "resourcePack": "Minimal capture pack with exact authored model and builder-equivalent blocks directory atlas source. Native block references only; no custom or vanilla PNG files.",
+  "modelElements": 153,
+  "sha256": {
+    "content/models/items/verdant-staff.model.json": "142bc0b97270eb0b2b53701f68f0513f4fe493b43655e1159e45475ec5f49477",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/after.png": "0a79b4d8d5244540dc6ecd9436e0aada8c05ebbbd8870e19e46b3b4bf889335a",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/before.png": "97ef1480df9660c85aaebb23eeb450c34c4dcb8b39cd24c59caa05cd6d1c9ff7",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/cameras.json": "859e0092833feb868d0706306b857761bb0d97523d73cff06d4b3c67617c16bd",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/capture-pack.py": "7f4374b23712e0e31403a725f4066453c72ce0451426e7adf2e5fb7864ed1afd",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/client.png": "6b1eec19b801c0d0a347321ac6072be5de94552d6af236cf10c388095c0da1c8",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/contexts.png": "003cb1e6e56f445f694e2341b41fdacabd7824f6042e517773700c62abf8b5be",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/inventory.png": "2a75a8f7095807b94ece046c93575c89e72bb6996614a4f4c1ad89a900cbb2c0",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/operations.json": "3c290252b92afcd6d6043278d397c720d470d53e51512ba09a2262fda947c34b",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/player-contexts.jpg": "2dd9c747d2386014c69360f5a27b0515f75d3acd9baebcc02accd89fe6b642ec",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/remake.py": "26a281f9572d43bf6dff2f9fc79e7a7c5cf87a28b1ba31f781673ba3634231ac",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/review.md": "de7a159abeae024bc64f181454e9e178839824b7388612550be1ed006927c92a",
+    "tools/model-forge/batches/vanilla-material/verdant-staff/sweep.jpg": "142d1e61d7240c53e6b248edbc4188561900709e0575c32169d8eef909b92453"
+  },
+  "remainingRisks": [
+    "Production pack build/deployment and integration checks remain manager responsibilities.",
+    "Offline lighting/camera and approximate hands differ from native first-person perspective; other native contexts and animations were not captured.",
+    "Pre-existing overlaps, contacts, ornament gaps and original display transforms retained.",
+    "Green/lime wool approximates untinted foliage, exposed copper approximates bronze; emerald is more saturated than the original pale seed.",
+    "Tiny ornament disappears at 16px inventory resolution."
+  ]
+}
