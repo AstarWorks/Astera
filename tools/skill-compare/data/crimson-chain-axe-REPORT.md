@@ -1,6 +1,6 @@
 # Haute Couture::The Crimson God of Le Rouge Sinclair / crimson-chain-axe
 
-2026-10-23 round 2。**再現合格ではない。** 撮影と一致判定を分けて記録する。
+2026-10-23。通常形態はround2の記録、追加変身連撃はround52で再検証。**再現合格ではない。** 撮影と一致判定を分けて記録する。
 
 通常形態を素手からの赤い針へ変更。S3は表示専用の追加投射体で連射を描き、ダメージ付き投射体は3発に限定。
 
@@ -13,6 +13,18 @@
 | [S3](/case.html?id=crimson-chain-axe-s3) | `crimson-chain-axe-s3` | 原動画あり | 現版撮影あり | 3 | 179.336f |
 | [DEF](/case.html?id=crimson-chain-axe-def) | `crimson-chain-axe-def` | 原動画あり | 現版撮影あり | 2 | 200.0f |
 | [EGO](/case.html?id=crimson-chain-axe-ego) | `crimson-chain-axe-ego` | wiki由来 | 現版撮影あり | 2 | 200.0f |
+
+## 追加観測: 変身後の鎖連撃 A
+
+[比較画面](/case.html?id=crimson-chain-axe-transformed-combo-a) / [原資料](/reference/crimson-chain-axe/extra-3.json)
+
+原動画f2342–2604、29.970fps。技名はLa Castration / La Voracitéの候補があり同定未確定。視覚的な5接触を5コインとは認定しない。通常操作・持続的な変身状態には未接続の直接発動試作。
+
+round37–51で横薙ぎ、斜め薙ぎ、縦ループ、下降弧、上昇・浮遊、交差した赤い楕円、3標的の床発光、発光後に残る物理鎖を実装・撮影した。鎖の刃は対の三日月形スプライトへ変更。**形状、人物姿勢、手への接続、光の強度、鎖の変形、カメラ、命中仕様は一致未達。** 実機撮影があることを再現合格と扱わない。
+
+round52では原動画f2407–2412の接触後も伸びた鎖が残ることを再確認。旧実装が1撃目の接触tick43で鎖を2撃目へ置き換えていたため、切替をtick47へ変更し、2撃目の振りを2tickへ短縮した。接触候補tick43/49は変更しない。再撮影frame050/052で鎖の保持を確認。195frames、最大カメラ遅延2ms、同一画像連続最大2。最初の撮影は動作中に8枚同一画像が続いたため除外。結果はruntime-review/crimson-chain-transition-round52.jsonに記録。
+
+表示数は3標的を含む実機計測で最大59。これは逐次問い合わせの観測最大値であり、全状況での原子的な上限証明ではない。通常形態の未測定項目まで合格扱いしない。
 
 ## 通常操作の記録
 

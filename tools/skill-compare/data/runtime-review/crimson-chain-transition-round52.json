@@ -1,0 +1,18 @@
+{
+  "case": "crimson-chain-axe-transformed-combo-a",
+  "contentRevision": "1ce359b68558d299a155e80eec954f1af44b74c3a547d7d391510d2b04308a67",
+  "status": "first-contact-chain-retention-confirmed-fidelity-failed",
+  "scope": "One direct Crimson combo cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "peak": 59,
+  "limit": 60,
+  "sampleCount": 768,
+  "captureQuality": {
+    "maxRepeatedFrames": 2,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 2.0
+  },
+  "acceptedCapturedAt": "2026-10-23T04:59:42.801498+00:00",
+  "rawEvidence": "build/limbus-review/round52/live-displays-repeat.json",
+  "rejectedCapture": "First capture: identical frames140..147 during active effects; archived with invalid=true.",
+  "review": "Round52: 1撃目接触時の早すぎる鎖置換を修正。再撮影frame050/052で伸びた鎖が残る。195frames、カメラ遅延2ms、同一連続最大2。最初の8枚停止撮影は除外。鎖の変形・手接続・人物姿勢・光・カメラ・命中仕様・通常変身入力は未一致。"
+}
