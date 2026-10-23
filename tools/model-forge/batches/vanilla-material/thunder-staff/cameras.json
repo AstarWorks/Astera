@@ -1,0 +1,1156 @@
+[
+  {
+    "file": "thunder-staff-orbit--45-0.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        -18.58526249933526,
+        24.38151284265802
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit--45-45.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.24033306663038,
+        -18.58526249933526,
+        17.240333066630384
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit--45-90.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        24.38151284265802,
+        -18.58526249933526,
+        1.4929370830565614e-15
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit--45-135.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.240333066630384,
+        -18.58526249933526,
+        -17.24033306663038
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit--45-180.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.9858741661131228e-15,
+        -18.58526249933526,
+        -24.38151284265802
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit--45-225.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.240333066630384,
+        -18.58526249933526,
+        -17.24033306663038
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit--45-270.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.38151284265802,
+        -18.58526249933526,
+        -3.9208463035660154e-15
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit--45-315.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.240333066630384,
+        -18.585262499335258,
+        17.240333066630374
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-0-0.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        5.796250343322756,
+        34.48066613326076
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-0-45.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        24.381512842658015,
+        5.796250343322756,
+        24.38151284265802
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-0-90.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        34.48066613326076,
+        5.796250343322756,
+        2.1113318706283167e-15
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-0-135.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        24.38151284265802,
+        5.796250343322756,
+        -24.381512842658015
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-0-180.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        4.222663741256633e-15,
+        5.796250343322756,
+        -34.48066613326076
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-0-225.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.381512842658008,
+        5.796250343322756,
+        -24.381512842658026
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-0-270.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -34.48066613326076,
+        5.796250343322756,
+        -5.544914018483475e-15
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-0-315.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.381512842658022,
+        5.796250343322756,
+        24.38151284265801
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-45-0.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        30.17776318598077,
+        24.38151284265802
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-45-45.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.24033306663038,
+        30.17776318598077,
+        17.240333066630384
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-45-90.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        24.38151284265802,
+        30.17776318598077,
+        1.4929370830565614e-15
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-45-135.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.240333066630384,
+        30.17776318598077,
+        -17.24033306663038
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-45-180.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.9858741661131228e-15,
+        30.17776318598077,
+        -24.38151284265802
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-45-225.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.240333066630384,
+        30.17776318598077,
+        -17.24033306663038
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-45-270.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.38151284265802,
+        30.17776318598077,
+        -3.9208463035660154e-15
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-orbit-45-315.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.24033306663038,
+        30.17776318598077,
+        17.240333066630374
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-pole--90.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        -28.684415789920763,
+        0.00003448066614229732
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-pole-90.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        40.27691647656627,
+        0.00003448066613325502
+      ],
+      "target": [
+        0,
+        5.796250343322754,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-gui.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "gui",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        2.4492935982947065e-15,
+        40
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-firstperson_righthand.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "firstperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-firstperson_lefthand.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "firstperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-thirdperson_righthand.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "thirdperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-thirdperson_lefthand.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "thirdperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-thirdperson_righthand_side.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "thirdperson_righthand_side",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        48,
+        21.999999999999996,
+        2.9391523179536475e-15
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-ground.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "ground",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-ground_spin.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "ground_spin",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "thunder-staff-fixed.png",
+    "item": "thunder-staff",
+    "source": "content/models/items/thunder-staff.model.json",
+    "sha256": "2b41d6fada57cae05a5a85589c570af4b600b2c85104d2e53cec2b74943a17b3",
+    "context": "fixed",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.6942229581241772e-15,
+        1.3471114790620886e-15,
+        -22
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]
