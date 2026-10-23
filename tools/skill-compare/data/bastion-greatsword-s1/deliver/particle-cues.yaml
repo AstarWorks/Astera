@@ -14,3 +14,5 @@ display_particles:   # quad emitters removed (square look); every element below 
   fx-high: { sprites_total: 16, spark_streaks: 6, dark_chips: 3, smoke: 2 }
   fx-low:  { sprites_total: 19, spark_streaks: 7, dark_chips: 3, smoke: 2 }
 display_budget_peak: { fx-high: 16, fx-low: 18 }   # conservative (end tick counted alive); rig 20 + fx 18 = 38 of cast cap 60 (hit 1 and hit 2 fx never overlap)
+# limbus-vfx round 4 -> director: no skill-YAML change needed. Hit-1 ring (s1h1-ring, now sprite bastion-s1-arch) start_tick 1 -> 3
+# inside bastion-s1-fx-high (fx-high delay stays 3): first visible skill tick 6, contact 7. Hit-2 ring unchanged (start_tick 5).

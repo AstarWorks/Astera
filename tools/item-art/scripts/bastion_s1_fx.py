@@ -78,7 +78,7 @@ import math
 
 ORANGE = "#FF8A1E"
 DARK_CHIP = "#FF2A2218"
-SMOKE_TINT = "#E8A0A0A8"
+SMOKE_TINT = "#A0A8A8B0"
 
 
 def spark(id_, start, p, theta, length, dist, life=4, color=ORANGE):
@@ -109,9 +109,10 @@ def smoke_up(id_, start, end, p, w0, w1, roll=0):
 
 def high():
     els = []
-    # ONE thin tilted gold ring AROUND THE CASTER (z 0.35), 12 ticks, full from fx tick 3 (skill tick 6), contact fx tick 4.
-    els.append(sprite("s1h1-ring", "bastion-s1-ring", 1, 12, [
-        kf(0, [0, 0.95, 0.35], [0, 0, -8], [s256(4.8), s256(4.8), 1.0]),
+    # Round 4: ONE tilted gold ARCH (upper arc only, reference b03) above the heads, z 1.0 (not at the caster's camera: the
+    # ring at z 0.35 filled the caster's first person with a blocky band). First visible fx tick 3 (skill tick 6), contact fx tick 4.
+    els.append(sprite("s1h1-ring", "bastion-s1-arch", 3, 14, [
+        kf(0, [0, 1.3, 1.0], [0, 0, -8], [s256(4.8), s256(4.8), 1.0]),
         kf(11, scale=[s256(5.4), s256(5.4), 1.0], ease="out_quad")], frame_ticks=2))
     # white-hot streaks between caster and target (z < 2.2 so they stay in front of the target's camera)
     els.append(sprite("s1h1-streak-main", "bastion-s1-streak", 4, 11, [
@@ -141,10 +142,10 @@ def high():
     for i, (st, dr, roll) in enumerate([(5, [0.2, 0.5, 0.35], 35), (5, [-0.2, 0.2, -0.3], -50), (6, [0.1, 0.4, 0.45], 120)]):
         els.append(chip(f"s1h1-chip-{i + 1}", st, [0.1 * i - 0.1, 1.15 - 0.1 * i, 1.7], dr, roll))
     # smoke mass after the flash + floor swirl
-    els.append(smoke_up("s1h1-smoke-up", 5, 12, [0.0, 0.85, 1.7], 1.6, 2.6))
+    els.append(smoke_up("s1h1-smoke-up", 5, 12, [0.0, 0.85, 1.7], 0.9, 1.4))
     els.append(sprite("s1h1-smoke-a", "bastion-s1-smoke", 5, 12, [
-        kf(0, [0.3, 0.18, 1.5], [0, 0, 0], [s256(2.4), s256(2.4) * 0.25, 1.0]),
-        kf(7, scale=[s256(3.4), s256(3.4) * 0.25, 1.0], ease="out_quad")], frame_ticks=2, color=SMOKE_TINT))
+        kf(0, [0.3, 0.18, 1.5], [0, 0, 0], [s256(1.3), s256(1.3) * 0.25, 1.0]),
+        kf(7, scale=[s256(1.9), s256(1.9) * 0.25, 1.0], ease="out_quad")], frame_ticks=2, color=SMOKE_TINT))
     return {"id": "bastion-s1-fx-high", "duration_ticks": 20, "orient": "yaw", "follow": False, "sample_ticks": 1,
             "elements": [e for e, _ in els]}, [m for _, m in els]
 
@@ -157,7 +158,7 @@ def low():
         kf(2, scale=[s256(6.8), s256(6.8) * 0.36, 1.0], ease="out_quad")]))
     # thin ring around the caster, peak ~ticks 7-10 (reference e05/e06), life 12
     els.append(sprite("s1h2-ring", "bastion-s1-ring", 5, 17, [
-        kf(0, [0, 0.8, 0.3], [0, 0, -6], [s256(5.6), s256(5.6), 1.0]),
+        kf(0, [0, 0.8, 1.0], [0, 0, -6], [s256(5.6), s256(5.6), 1.0]),
         kf(12, scale=[s256(6.2), s256(6.2), 1.0], ease="out_quad")], frame_ticks=2))
     els.append(sprite("s1h2-streak-main", "bastion-s1-streak", 4, 10, [
         kf(0, [0, 1.3, 1.4], [0, 0, -4], [s256(0.6), 0.32, 1.0]),
@@ -185,10 +186,10 @@ def low():
         els.append(spark(f"s1h2-spark-{i + 1}", st, [P[0] + dx, P[1] + dy, P[2]], th, ln, ds))
     for i, (st, dr, roll) in enumerate([(5, [0.2, 0.5, 0.35], 35), (6, [-0.2, 0.2, -0.3], -50), (6, [0.1, 0.4, 0.45], 120)]):
         els.append(chip(f"s1h2-chip-{i + 1}", st, [0.1 * i - 0.1, 1.1 - 0.1 * i, 1.65], dr, roll))
-    els.append(smoke_up("s1h2-smoke-up", 6, 13, [0.0, 0.85, 1.6], 1.8, 2.8, roll=180))
+    els.append(smoke_up("s1h2-smoke-up", 6, 13, [0.0, 0.85, 1.6], 1.0, 1.6, roll=180))
     els.append(sprite("s1h2-smoke", "bastion-s1-smoke", 6, 14, [
-        kf(0, [0.3, 0.18, 1.4], [0, 0, 0], [s256(2.8), s256(2.8) * 0.25, 1.0]),
-        kf(7, scale=[s256(4.0), s256(4.0) * 0.25, 1.0], ease="out_quad")], frame_ticks=2, color=SMOKE_TINT))
+        kf(0, [0.3, 0.18, 1.4], [0, 0, 0], [s256(1.5), s256(1.5) * 0.25, 1.0]),
+        kf(7, scale=[s256(2.2), s256(2.2) * 0.25, 1.0], ease="out_quad")], frame_ticks=2, color=SMOKE_TINT))
     return {"id": "bastion-s1-fx-low", "duration_ticks": 18, "orient": "yaw", "follow": False, "sample_ticks": 1,
             "elements": [e for e, _ in els]}, [m for _, m in els]
 
