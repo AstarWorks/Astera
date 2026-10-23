@@ -1,5 +1,6 @@
 // Screenshot a case page at a given master-clock time (ms) with Chromium (playwright-core, same as skill-viewer).
 //   bun scripts/shot.mjs [--url http://127.0.0.1:8097] [--case zwei-s3] [--ms 1100] [--out build/shot.png] [--width 1800] [--focus video|mc]
+// Any other page: --path /anim  or  --path "/anim.html?id=wave" [--tick 8] (animation player at tick N; --wait ms, default 2500)
 import { chromium } from "playwright-core";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
@@ -11,11 +12,17 @@ const browser = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=sw
 const page = await browser.newPage({ viewport: { width: Number(a.width ?? 1800), height: Number(a.height ?? 1500) }, colorScheme: "dark" });
 page.on("console", (m) => { if (m.type() === "error" || m.type() === "warning") console.log("[page]", m.text()); });
 page.on("pageerror", (e) => console.log("[pageerror]", e.message));
-await page.goto(`${url}/case.html?id=${id}${a.focus ? "#focus=" + a.focus : ""}`);
-await page.waitForFunction(() => window.__ready === true, null, { timeout: 15000 });
-await page.waitForTimeout(2500); // frames + mc images
-await page.evaluate((t) => window.__seekMs(t), ms);
-await page.waitForTimeout(600);
+if (a.path) {
+  await page.goto(url + a.path);
+  await page.waitForTimeout(Number(a.wait ?? 2500)); // JSON + images
+  if (a.tick != null) { await page.evaluate((t) => window.__seekTick(t), Number(a.tick)); await page.waitForTimeout(600); }
+} else {
+  await page.goto(`${url}/case.html?id=${id}${a.focus ? "#focus=" + a.focus : ""}`);
+  await page.waitForFunction(() => window.__ready === true, null, { timeout: 15000 });
+  await page.waitForTimeout(2500); // frames + mc images
+  await page.evaluate((t) => window.__seekMs(t), ms);
+  await page.waitForTimeout(600);
+}
 await page.screenshot({ path: out, fullPage: true });
 console.log("wrote", out);
 await browser.close();

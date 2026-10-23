@@ -490,6 +490,8 @@ run_view() { # view
 }
 
 # ---------------------------------------------------------------- main
+# `VFX_SHOT_SOURCED=1 . vfx-shot.sh` loads the functions above only (anim-shot.sh builds on them).
+[ "${VFX_SHOT_SOURCED:-0}" = 1 ] && return 0
 trap cleanup EXIT
 trap 'exit 130' INT TERM
 acquire_slot   # global concurrency limit across worktrees; held (fd) until this process exits

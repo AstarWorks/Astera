@@ -95,6 +95,32 @@ To add another motion, copy `content/skills/anim-demo-sword-swing.yaml` and chan
 clients have the default Steve / Alex skin of their UUID, not a custom skin: to film a real skin, join an online-mode
 dev server with the pack and run `/astera emote sword-swing` (any id in `content/animations/`).
 
+### Animation review capture (`anim-shot.sh`)
+
+One command per motion, feeding the skill-compare `/anim` pages (founder review in the browser):
+
+```
+make anim-shot ANIM=wave                        # an animation id: played with `/astera emote wave`
+make anim-shot ANIM=anim-demo-sword-swing       # a skill id whose play_animation runs the motion (id looked up in content/skills/)
+```
+
+Same machinery as `vfx-shot.sh` (it sources the file with `VFX_SHOT_SOURCED=1`): slot queue, throwaway server, `Watcher` spectator
+at 1280x720 FOV 90 + a `Caster` client, wall-clock sync on the RCON stamp. Camera: 2.4 blocks from the caster, `front` (looking at
+the caster's face), `side` (90 degrees), `top` (3 blocks above, looking down). Output `build/vfx-shot/anim/<animation-id>/`:
+
+| file | what |
+|---|---|
+| `vanilla-{front,side,top}.png` | the real body at rest |
+| `rig-{front,side,top}.png` | the rig at tick `REST_TICK` (default max(2, blend_in_ticks): the first tick the rig is surely on screen, since at t+0 the client has not drawn it yet; the real tick is in `meta.json` `restTick` and on the page) |
+| `play/{front,side}/frame_NNN.{png,webp}` | every tick of the motion plus its blend-out (`length + blend_out + 4` ticks; a `loop: true` motion films `length` ticks); NNN = tick + 3, so `frame_000` = t-3 |
+| `blend-in/{front,side}/`, `blend-out/{front,side}/` | slices of `play/` around the blends (a looping motion films its blend-out separately, relative to `emote stop`); first tick in `meta.json` |
+| `meta.json` | provenance: `branch`, `implementationCommit`, `capturedAt`, `anim`, `trigger`, `lengthTicks`, `loop`, blend lengths, `playPreTicks`, `resolution`, `fov` |
+
+Knobs: `ITEM` (held item, default `bastion-greatsword`), `D` (camera distance), `REST_TICK`, plus `RES`, `FOV`, `SETTLE`, `CAST_LAG_MS`, `SHOT_KEEP`. Run it under
+the global lock like every capture (`flock /tmp/claude-1000/astera-e2e.lock make anim-shot ANIM=...`). Frames are not "published" (no
+`publish-capture.mjs` step: that tool wants a contiguous `frame_NNN` set per skill/view); pages cache-bust on the capture's mtime.
+Read the result in the browser: `make skill-compare` -> `/anim` (see `tools/skill-compare/README.md`).
+
 ## Knobs (env)
 
 `VIEW`, `TICKS`, `ITEM` (default: skill id minus `-sN`/`-def`), `TIME_OF_DAY` (6000), `DISTANCE` (4),
