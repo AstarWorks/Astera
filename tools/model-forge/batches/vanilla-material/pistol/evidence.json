@@ -1,0 +1,52 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer, peaceful, noon/clear, FOV 70, bob off, GUI scale 2, yaw/pitch 0/0. Native unedited Xvfb root screenshot. Shared flock covers launch/capture/shutdown; unique display via -displayfd; game directory build/pistol-client. No standalone server, Docker, Gradle or tests.",
+  "item": "minecraft:iron_hoe[minecraft:item_model=\"astera:pistol\"]",
+  "resourcePack": "Minimal pack with exact authored model and item definition; builder-equivalent block atlas directory source. Native block sprites only; no custom atlas or vanilla PNG files.",
+  "modelElements": 82,
+  "sha256": {
+    "content/models/items/pistol.model.json": "0ac2ab18224e8d392af33a2b4b3793aab1fc7ba869f3fcdd65d967dc731f9d6e",
+    "tools/model-forge/batches/vanilla-material/pistol/after.png": "1cb7b240fdb6c8cadf2b037369b223532c5ae247e62873ed2b93eef5212442b5",
+    "tools/model-forge/batches/vanilla-material/pistol/angles.jpg": "0c21d93e55f9edfee579e0678b4490bf6bff796ac8fb086d143d4173134b3c6f",
+    "tools/model-forge/batches/vanilla-material/pistol/before.png": "4977f0f7aa674d2085a57f052c9865e457623efa15034ce43620a67b4afec3ab",
+    "tools/model-forge/batches/vanilla-material/pistol/cameras.json": "1952a50de2497697f7bf89da664765baf17a83b1e6e4bb7806918fd9125a3193",
+    "tools/model-forge/batches/vanilla-material/pistol/capture-client.py": "d7df388d5a888b806650ed09b9f140b8b449f787bc27f1c2c6bd58ec6138a9de",
+    "tools/model-forge/batches/vanilla-material/pistol/capture-pack.py": "6791ed8fee921a94bb5796eca75c65340c7f7b0ac3ea9eafa82f17a69d1a02f5",
+    "tools/model-forge/batches/vanilla-material/pistol/client.png": "e8e83fc96ace3d8c9b9cf9697a40c29bdb6234d04ffb2926382dab5691b826f5",
+    "tools/model-forge/batches/vanilla-material/pistol/contexts.png": "82bb7f65b18138c28e06bfd7b9dff6c606ad023239bcef9ef696b893f657c5b0",
+    "tools/model-forge/batches/vanilla-material/pistol/inventory.png": "3a05235d0376242349b49fcbe08f15e9ebec9ef87e31fdbb9eb43e8391f9b7b7",
+    "tools/model-forge/batches/vanilla-material/pistol/operations.json": "662e294f927cc903c17d24655b55d5920328ddb6718b95115a80d04cfddf7313",
+    "tools/model-forge/batches/vanilla-material/pistol/player-contexts.jpg": "ea2482dffda022a1f6f77d3aa151668bd697fdbccaf1233b746ca58664b6d20a",
+    "tools/model-forge/batches/vanilla-material/pistol/remake.py": "e49448bdb8add99ad98df7185bba73a5aea9ef15fbe78f4101ecd1e11a230301",
+    "tools/model-forge/batches/vanilla-material/pistol/review.md": "3b83f662d14c51de0db825cdf18a2402e156031c9b5993ace3cb8a10292e8691"
+  },
+  "remainingRisks": [
+    "Production pack build and integration checks deferred to manager CI.",
+    "Pre-existing 97 AABB overlaps, 20 possible coplanar contacts and one disconnected-component warning retained; not a complete z-fighting audit.",
+    "Offline camera/lighting and hands differ from native first person; unchanged lower grip extends below native screen.",
+    "Use/swing, other FOVs and shader packs not verified. Diamond cyan hardware is not emissive."
+  ],
+  "materialMap": {
+    "body": "metal.netherite_block",
+    "brightEdgesAndHardware": "metal.iron_block",
+    "gripInsets": "wood.stripped_dark_oak_log",
+    "cyanHardware": "gem.diamond_block"
+  },
+  "catalogWishes": [],
+  "geometryUnchanged": true,
+  "displayUnchanged": true,
+  "vanillaTexelsPerModelUnit": [
+    0.9999999999999902,
+    1.0000000000000029
+  ],
+  "validation": {
+    "errors": 0,
+    "warnings": {
+      "overlap_aabb": 97,
+      "coplanar_contact_possible_zfight": 20,
+      "floating_components_aabb": 1
+    }
+  },
+  "clientXvfbDisplay": "0",
+  "clientLogFindings": "No missing-model/texture, mixed-atlas or duplicate-sprite errors. Offline Realms invalid-session error only."
+}
