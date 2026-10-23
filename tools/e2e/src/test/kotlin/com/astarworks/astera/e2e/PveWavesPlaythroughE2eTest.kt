@@ -23,11 +23,16 @@ class PveWavesPlaythroughE2eTest : PlaythroughBase() {
 
     private val waveLine = Regex("Wave\\s+(\\d+)/(\\d+).*?(\\d+)\\s+enemies left", RegexOption.IGNORE_CASE)
 
-    private fun mobCount(): Int =
-        Regex("count: (\\d+)").find(clean(rcon("execute if entity @e[tag=astera_pve_mob]")))?.groupValues?.get(1)?.toInt() ?: 0
+    /** `execute if entity` answers "Test passed" for exactly one match, "Test passed, count: N" otherwise. */
+    private fun countOf(reply: String): Int {
+        val text = clean(reply)
+        return Regex("count: (\\d+)").find(text)?.groupValues?.get(1)?.toInt() ?: if (text.startsWith("Test passed")) 1 else 0
+    }
+
+    private fun mobCount(): Int = countOf(rcon("execute if entity @e[tag=astera_pve_mob]"))
 
     private fun mobCountNear(b: Bot, radius: Int): Int =
-        Regex("count: (\\d+)").find(clean(rcon("execute at ${b.name} if entity @e[tag=astera_pve_mob,distance=..$radius]")))?.groupValues?.get(1)?.toInt() ?: 0
+        countOf(rcon("execute at ${b.name} if entity @e[tag=astera_pve_mob,distance=..$radius]"))
 
     private fun nearestMob(b: Bot): Mob? {
         val reply = rcon("execute at ${b.name} run data get entity @e[tag=astera_pve_mob,sort=nearest,limit=1] Pos")
@@ -86,14 +91,14 @@ class PveWavesPlaythroughE2eTest : PlaythroughBase() {
         val m0 = nearestMob(bot)
         val d0 = m0?.let { distanceTo(bot, it) }
         val hp0 = bot.health
-        Thread.sleep(3_000)
+        Thread.sleep(1_500)
         val m1 = nearestMob(bot)
         val d1 = m1?.let { distanceTo(bot, it) }
         E2eReport.check(suite, "the mobs walk towards the player (they target it)", "RCON data get entity Pos") {
             assertThat(d0).describedAs("no mob position").isNotNull()
             assertThat(d1 != null && d0 != null && (d1 < d0 - 2.0 || d1 < 3.0 || bot.health < hp0))
                 .describedAs("nearest mob distance $d0 -> $d1, bot health $hp0 -> ${bot.health}").isTrue()
-            "nearest mob %.1f -> %.1f blocks in 3s; bot health %.1f -> %.1f".format(d0, d1, hp0, bot.health)
+            "nearest mob %.1f -> %.1f blocks in 1.5s; bot health %.1f -> %.1f".format(d0, d1, hp0, bot.health)
         }
 
         // --- clear the waves with the pistol ---------------------------------------------------------------------

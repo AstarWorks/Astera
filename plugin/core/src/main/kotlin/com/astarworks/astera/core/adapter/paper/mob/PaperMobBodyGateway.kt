@@ -26,6 +26,7 @@ import org.bukkit.entity.Zombie
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityCombustEvent
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
@@ -45,7 +46,7 @@ import java.util.concurrent.ConcurrentHashMap
  *  - name tag from `display_name` (MiniMessage), glow from `appearance`.
  *  - aggression: vanilla goals find players by themselves, and a 1 s sweep forces the nearest live
  *    player as target so wolves and anything else without a player-hunting goal still come.
- *  - no vanilla loot / XP, no daylight burning, no reinforcements, never persisted, tagged
+ *  - no vanilla loot / XP, no daylight burning (`EntityCombustEvent` is cancelled for these bodies), no reinforcements, never persisted, tagged
  *    `astera_managed` + [PVE_TAG].
  *
  * Main thread only.
@@ -175,6 +176,16 @@ public class PaperMobBodyGateway(
             ?.takeIf { it.location.distanceSquared(mob.location) <= HUNT_RANGE * HUNT_RANGE }
 
     private fun GameMode.isHuntable(): Boolean = this == GameMode.SURVIVAL || this == GameMode.ADVENTURE
+
+    /**
+     * No ignition from the environment (sunlight on a frozen-noon world, ADR-0245): the Zombie / Skeleton
+     * `setShouldBurnInDay(false)` switch alone did not stop continuous burning on the live server. Skill
+     * ignites set `fireTicks` directly and never raise this event, so fire skills still work.
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public fun onCombust(event: EntityCombustEvent) {
+        if (event.entity.uniqueId in bodies) event.isCancelled = true
+    }
 
     /** Mobs of this gateway drop nothing vanilla: loot is Astera's (`IPveLootDistributor`). */
     @EventHandler(priority = EventPriority.HIGH)
