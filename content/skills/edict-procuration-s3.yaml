@@ -325,3 +325,19 @@ phases:
     delay_ticks:
       type: literal
       value: 57
+  - type: play_vfx
+    targets:
+      type: nearby_entities
+      center:
+        type: caster
+      radius:
+        type: literal
+        value: 3.2
+      max_count:
+        type: literal
+        value: 1
+      exclude_caster: true
+    vfx_id: edict-procuration-air-trace
+    delay_ticks:
+      type: literal
+      value: 26
