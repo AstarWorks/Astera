@@ -2,36 +2,37 @@
   "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
   "capture": "Isolated creative superflat singleplayer copied locally into Edict Blade Materials; installed pilot portablemc runtime. Entire launch/capture serialized with /tmp/claude-1000/astera-mc-client.lock; Xvfb -displayfd and edict-blade game directory. Native screenshots without resizing or painting. No Docker, Gradle or tests; no external server.",
   "item": "minecraft:iron_sword[minecraft:item_model=\"astera:edict-blade\"]",
-  "resourcePack": "Minimal capture pack with exact authored model, item definition and builder-equivalent blocks/ directory source. Native block references only; no vanilla PNG files and no custom texture needed.",
+  "resourcePack": "Minimal capture pack: authoring astera_tints removed from cuboid JSON, matching minecraft:constant tints emitted in the item definition exactly as the current builder; block-atlas sources only, no copied or derived vanilla PNGs.",
   "modelElements": 15,
   "clientDetail": "Supplemental native item_display using authored GUI context, entity scale [3,3,3] and translation [0,0.4,0]; model/display JSON unchanged.",
   "clientGameDirectory": "build/edict-blade-client",
   "sourceCommit": "36743b70",
   "sha256": {
-    "content/models/items/edict-blade.model.json": "9d8fd9aeb1fa4fc04b0a0410410435964d6e63f6523874b28cc3324aa64c3eaa",
-    "tools/model-forge/batches/vanilla-material/edict-blade/after.png": "abe78ebca9c1c4b7cf8824c538265c6c8de6344acfb7c99ad9d3b1f4378d0f5b",
+    "content/models/items/edict-blade.model.json": "db1faa046039aef55dde9d48406aa8bc14bbc9a356346ba7dc5db5a63c1ca138",
+    "tools/model-forge/batches/vanilla-material/edict-blade/after.png": "fcc0678eef3a84cc45772c8296c7da9c65e3aea03f91e2910ae918c90cd722d4",
     "tools/model-forge/batches/vanilla-material/edict-blade/before.png": "7546ef845434db74821f3f0dc1c7eccabee0fd73018ed507902dc114a687edef",
-    "tools/model-forge/batches/vanilla-material/edict-blade/cameras.json": "4c8dfdd915b91f2d5b4c8647eed1f111fab2da3479383a2534278f1f72a8cc4a",
-    "tools/model-forge/batches/vanilla-material/edict-blade/capture-client.py": "34475fa409ba6b24bf0973e06025a4e3fdd6f158bdace405fb0133f0656718d8",
-    "tools/model-forge/batches/vanilla-material/edict-blade/capture-pack.py": "41c5316e166c0aaa789d374f3aae76ed453d2d82fa0abb745f7aa3f26ce65542",
-    "tools/model-forge/batches/vanilla-material/edict-blade/client-detail.png": "4704df2c6ab83db2906d4b1f2a774dd899235a8ad3a857a052f7d2dac2c9fc78",
-    "tools/model-forge/batches/vanilla-material/edict-blade/client.png": "f742faf937e8112174f507f010506e4f4c464fcc2988347b1f74be1dcab47eb4",
-    "tools/model-forge/batches/vanilla-material/edict-blade/compare-materials.py": "fca9f0f3ddf6c2022f411d62d65c5822ed09b50254851792fd2cf0185f114e10",
-    "tools/model-forge/batches/vanilla-material/edict-blade/comparison-operations.json": "8ac2260cce5ee03b652b896d261b68bc39780f2d40a758fb0b0d08655ffd2443",
-    "tools/model-forge/batches/vanilla-material/edict-blade/contexts-player.png": "a68b41f98f6293be780289e1ab74fb43b8c29bd952a38255c560617a8e0eccb4",
-    "tools/model-forge/batches/vanilla-material/edict-blade/contexts.png": "934012e03fe12bb6ddb1bd04c8fcc5fa9487376b5e23ace2148d825ec8b2ee99",
-    "tools/model-forge/batches/vanilla-material/edict-blade/inventory.png": "75e879787c7e797c81ac98bf38d8c7f4140330a26225add3f366d90ac3715897",
-    "tools/model-forge/batches/vanilla-material/edict-blade/material-comparison.png": "e16568ed4b7249e015914ed60a953eaddbc572a11adc729a5a300f8e07200889",
-    "tools/model-forge/batches/vanilla-material/edict-blade/operations.json": "ad7d60ddeb018ac76196e0d0b17a54627fd4d63ec9d5eb100e6397723632a29a",
-    "tools/model-forge/batches/vanilla-material/edict-blade/remake.py": "83d5c308da0d225401108c6ab99e3d8c1e063723d6419db10d7819dc371e302e",
-    "tools/model-forge/batches/vanilla-material/edict-blade/review.md": "7402cbd79c44d97e2e41fd9cc8a1dbed66bf7dc6365070d39aaf3abf3e05c5f8",
-    "tools/model-forge/batches/vanilla-material/edict-blade/sweep.png": "adb985a3f06ec32af177febed92626263367575619698bcb8f261fe362a727f0"
+    "tools/model-forge/batches/vanilla-material/edict-blade/cameras.json": "efff94778b38aedc88aa7b82c3946050c047bdb02bc5b9b3f263408901d83022",
+    "tools/model-forge/batches/vanilla-material/edict-blade/capture-client.py": "23f0a70d578594597d046e1e453952d84a4cb9d9e43cecca2f20f88fe456c82e",
+    "tools/model-forge/batches/vanilla-material/edict-blade/capture-pack.py": "5b462cd5e844728bc47bdf70d581396e928ed888cbce299689cfdf1b9b779cb7",
+    "tools/model-forge/batches/vanilla-material/edict-blade/client-detail.png": "19abf270af18ab108648382a30a8448cd83faf743d31525fcd0e8f9a8f809a4a",
+    "tools/model-forge/batches/vanilla-material/edict-blade/client.png": "c4856d5e18d78cd0db05cb8e0c1f0629ca51860e45243d8fb3e5cb45acaf4985",
+    "tools/model-forge/batches/vanilla-material/edict-blade/compare-materials.py": "c6a83041149139e1203b50d4e4d6635aeb156e701045d87ac68e131fc2ce20f1",
+    "tools/model-forge/batches/vanilla-material/edict-blade/comparison-operations.json": "96f81ca19b5f9c2f98cbbcb6ce87fcc186419931cab6d9dccf21bfaa87628787",
+    "tools/model-forge/batches/vanilla-material/edict-blade/contexts-player.png": "57fef83d8eb168bf2f6e11381d37fc94d21705ca7668916cd4d55259ed4d8480",
+    "tools/model-forge/batches/vanilla-material/edict-blade/contexts.png": "97f3a530752e70cdbf734fb1fd050bd4efba22022cb66ddb3afdf80e1bd10dd8",
+    "tools/model-forge/batches/vanilla-material/edict-blade/inventory.png": "b38cb0e93919dd81b26122ca207fb9e77b66d69f1c0d4fe19ee7daf6ceb43892",
+    "tools/model-forge/batches/vanilla-material/edict-blade/material-comparison.png": "c8523094e3fc0cf0fabbe024cbe45b27516b8348c02e1d5b67241788230e1574",
+    "tools/model-forge/batches/vanilla-material/edict-blade/operations.json": "118ddf654f70fc6b756f43c36a155c038021819585a847cd534c4fb153f54f8e",
+    "tools/model-forge/batches/vanilla-material/edict-blade/remake.py": "f3b9d68b7de5fd9de77d6d5ff7c836815a7a15a3a23970cb777f1084edefb593",
+    "tools/model-forge/batches/vanilla-material/edict-blade/review.md": "cdab25adc343ed8b410f197b096f3c9aa4342c7e70ea8f5f81474ff58c8e11ef",
+    "tools/model-forge/batches/vanilla-material/edict-blade/sweep.png": "cccd7aa95a4f401f09a19b04ef47c34849458cbfba5e7a28e6ca45c787d57bb9",
+    "tools/model-forge/batches/vanilla-material/edict-blade/verification.json": "784cc4d5737d9eb08cc1a5de8826a9ef73ae23fba118634306ab0f4cd5e713c5"
   },
   "remainingRisks": [
     "Production pack compilation and deployment remain manager responsibilities.",
-    "Original coincident finger/glove geometry and separated chain assemblies retained; matching coplanar UVs remove material speckling.",
-    "Inherited first-person placement clips below the viewport; authored transforms remain unchanged.",
-    "Copper retains some brown/green patina instead of perfectly flat brass. Thin chain becomes subpixel at 16px. Animation and alternate-FOV variants unverified."
+    "Original coincident finger/glove geometry and separated chain assemblies retained; coplanar UVs and tints match.",
+    "Thin chain becomes subpixel at 16px; alternate FOV, animation and shaders unverified.",
+    "Multiplicative vanilla patterns introduce brightness variation relative to original flat colours."
   ],
   "geometryVerification": {
     "unchanged": true,
@@ -54,18 +55,20 @@
     ]
   },
   "materials": {
-    "cloth.white_wool": [
-      "white-glove-*",
-      "finger-*"
+    "cloth.white_wool #f2f6fc": [
+      "white-glove-*"
     ],
-    "metal.exposed_copper": [
-      "brass-cuff-*",
+    "cloth.white_wool #d6deec": [
+      "finger-* (coplanar up/north use glove tint)"
+    ],
+    "metal.iron_block #aba175": [
+      "brass-cuff-*"
+    ],
+    "metal.iron_block #e5dcae": [
       "chain-*"
     ]
   },
-  "catalogWishes": [
-    "Dedicated low-contrast muted brass would match the original more closely than the selected copper patina; no catalog addition required."
-  ],
+  "catalogWishes": [],
   "reviewedImages": [
     "before.png",
     "material-comparison.png",
@@ -79,19 +82,8 @@
   ],
   "sourceModelSha256": "2fa12bff98c3e4e210089bab370a94ceecd2dc2242823ad36deddbeccc1024e6",
   "materialCrops": {
-    "brass-cuff sides": [
-      1,
-      10
-    ],
-    "brass-cuff up/down": [
-      8,
-      6
-    ],
-    "chain": [
-      1,
-      2
-    ],
-    "density": "one vanilla texel per local model unit; unchanged UV extents"
+    "seed": 20261024,
+    "density": "one vanilla texel per local model unit; coplanar finger UVs and tint match gloves"
   },
   "materialComparison": {
     "image": "material-comparison.png",
@@ -103,14 +95,30 @@
       "metal.weathered_copper",
       "stone.red_terracotta",
       "leather.brown_mushroom_block",
-      "selected exposed-copper khaki crops"
+      "tinted iron + wool (final)"
     ],
-    "verdict": "Cropped exposed copper preserves the original muted olive/khaki family; raw gold stays saturated, weathered copper is too green, terracotta red and mushroom brown."
+    "verdict": "Tinted light iron restores the original muted olive brass cuffs and pale brass chain without copper pink/green patches; cool-tinted wool preserves the gloves."
   },
   "clientLogReview": {
     "missingTextureOrModelWarnings": 0,
     "mixedAtlasWarnings": 0,
     "duplicateSpriteWarnings": 0,
-    "summonAndEntityTransformCommandsSucceeded": true
-  }
+    "summonAndEntityTransformCommandsSucceeded": true,
+    "unrelatedMessages": [
+      "Offline account properties/Realms authentication",
+      "No OpenAL device",
+      "Requested minecraft:end_of_frame post effect unavailable"
+    ],
+    "nativeTintsVisuallyConfirmed": true,
+    "firstPersonPlacement": "Current HEAD transforms display the complete pair at lower right; no clipping seen in this capture."
+  },
+  "displayBaseline": "HEAD 10c182aa; original 36743b70 is used only for palette/before render.",
+  "palette": [
+    15922940,
+    11247989,
+    14081772,
+    15064238
+  ],
+  "verification": "verification.json: exact geometry/display preservation and export/import identity assertions in remake.py.",
+  "captureWorld": "Local copy of a 26.3 creative singleplayer superflat, verified minecraft:flat generator. Only this worktree copy is modified."
 }
