@@ -1,9 +1,11 @@
-# Bastion S1: white crit burst at the victim's chest on contact. Hit 1: one call (5); hit 2: two calls one tick apart (10). r9: 8 -> 5, the crit X read as a big glyph at the compare close-up.
+# Bastion S1: spark burst at the victim's chest on contact (skill YAML, cone target). Hit 1: one call; hit 2: two calls one
+# tick apart. r10: electric_spark (2-3 tick streaks) instead of vanilla crit, whose pale X read as a big glyph at the
+# compare close-up and fell for up to ~10 ticks.
 id: bastion-s1-hit-crit
 shape: { kind: burst, spread_blocks: 0.3 }
 color: { r: 255, g: 255, b: 255 }
-count: 5
-lifetime_ticks: 12
-vanilla_particle: crit
-velocity: { direction: outward, speed: 0.45, spread_degrees: 70 }
+count: 6
+lifetime_ticks: 3
+vanilla_particle: electric_spark
+velocity: { direction: outward, speed: 1.4, spread_degrees: 70 }
 force: true

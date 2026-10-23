@@ -1,0 +1,9 @@
+# r10: electric_spark burst flung in every direction from the contact (replaces vanilla crit, whose X read as a big glyph and fell)
+id: bastion-s1-p-spark-burst
+shape: { kind: point }
+color: { r: 255, g: 240, b: 190 }
+count: 4
+lifetime_ticks: 3
+vanilla_particle: electric_spark
+velocity: { direction: outward, speed: 1.4, spread_degrees: 0 }
+force: true

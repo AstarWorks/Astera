@@ -1,4 +1,4 @@
-# electric_spark flicks thrown along the swing tangent from the path (r9: was crit, whose white X read as a big glyph at close-up)
+# electric_spark flicks thrown along the swing tangent from the path (r10: the only blade-path particle; gold/dark path dust removed)
 id: bastion-s1-p-trail-spark
 shape: { kind: point }
 color: { r: 255, g: 240, b: 190 }
