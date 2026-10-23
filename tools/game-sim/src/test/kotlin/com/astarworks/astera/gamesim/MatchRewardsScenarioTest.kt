@@ -27,7 +27,7 @@ class MatchRewardsScenarioTest {
             val matchId = startMatch("norma", mapOf(red to "red", blue to "blue"))
             val bus = sim.services.getOrThrow<IDomainEventBus>()
             val ledger = sim.services.getOrThrow<ICurrencyLedger>()
-            val starBefore = ledger.balance(red.id, Currency.STAR) to ledger.balance(blue.id, Currency.STAR)
+            val goldBefore = ledger.balance(red.id, Currency.GOLD) to ledger.balance(blue.id, Currency.GOLD)
 
             // red kills blue twice (kills/deaths tallied, red becomes MVP).
             repeat(2) { bus.publish(PlayerKilled(blue.id, red.id, DamageSource.Environment.Fall(1.0), 1L)) }
@@ -41,26 +41,25 @@ class MatchRewardsScenarioTest {
             assertThat(summary.players.first { it.playerId == red.id }.kills).isEqualTo(2)
             assertThat(summary.players.first { it.playerId == blue.id }.deaths).isEqualTo(2)
 
-            // norma uses the default rows: red = participation 10 + win 100 + 2 kills * 5 + mvp 25 STAR;
-            // blue = participation 10 + lose 30 STAR.
+            // norma uses the default rows: red = participation 10 + win 100 + 2 kills * 5 + mvp 35 GOLD;
+            // blue = participation 10 + lose 35 GOLD.
             val granted = eventsOf<MatchRewardsGranted>().single().rewards
-            assertThat(granted.getValue(red.id).star).isEqualTo(145L)
-            assertThat(granted.getValue(red.id).gold).isEqualTo(30L)
-            assertThat(granted.getValue(blue.id).star).isEqualTo(40L)
+            assertThat(granted.getValue(red.id).gold).isEqualTo(175L)
+            assertThat(granted.getValue(blue.id).gold).isEqualTo(45L)
             // The wallet also moves for reasons that are not the match table (kill-XP conversion, a daily
             // mission, the login bonus), so the match payout is read from the MatchReward deposits.
-            fun matchStar(id: com.astarworks.astera.core.domain.player.PlayerId) =
+            fun matchGold(id: com.astarworks.astera.core.domain.player.PlayerId) =
                 eventsOf<com.astarworks.astera.core.domain.event.CurrencyChanged>()
-                    .filter { it.playerId == id && it.currency == Currency.STAR && it.reason == com.astarworks.astera.core.domain.event.CurrencyChangeReason.MatchReward }
+                    .filter { it.playerId == id && it.currency == Currency.GOLD && it.reason == com.astarworks.astera.core.domain.event.CurrencyChangeReason.MatchReward }
                     .sumOf { it.delta }
-            assertThat(matchStar(red.id)).isEqualTo(145L)
-            assertThat(matchStar(blue.id)).isEqualTo(40L)
-            assertThat(ledger.balance(red.id, Currency.STAR)).isGreaterThanOrEqualTo(starBefore.first + 145L)
-            assertThat(ledger.balance(blue.id, Currency.STAR)).isGreaterThanOrEqualTo(starBefore.second + 40L)
+            assertThat(matchGold(red.id)).isEqualTo(175L)
+            assertThat(matchGold(blue.id)).isEqualTo(45L)
+            assertThat(ledger.balance(red.id, Currency.GOLD)).isGreaterThanOrEqualTo(goldBefore.first + 175L)
+            assertThat(ledger.balance(blue.id, Currency.GOLD)).isGreaterThanOrEqualTo(goldBefore.second + 45L)
 
             // The result screen and the reward breakdown reached the players' chat.
             val redChat = sim.server.view(red.id)!!.messages.joinToString("\n")
-            assertThat(redChat).contains("Top players").contains("Rewards").contains("+145")
+            assertThat(redChat).contains("Top players").contains("Rewards").contains("+175")
             assertThat(sim.server.view(blue.id)!!.messages.joinToString("\n")).contains("Rewards")
 
             // Cross-server record for the lobby.
@@ -68,12 +67,12 @@ class MatchRewardsScenarioTest {
             assertThat(last.outcome).isEqualTo(MatchOutcome.WIN)
             assertThat(last.kills).isEqualTo(2)
             assertThat(last.mvp).isTrue()
-            assertThat(last.star).isEqualTo(145L)
+            assertThat(last.gold).isEqualTo(175L)
 
             // A repeated summary does not pay again.
-            val settled = ledger.balance(red.id, Currency.STAR)
+            val settled = ledger.balance(red.id, Currency.GOLD)
             bus.publish(MatchSummaryReady(summary))
-            assertThat(ledger.balance(red.id, Currency.STAR)).isEqualTo(settled)
+            assertThat(ledger.balance(red.id, Currency.GOLD)).isEqualTo(settled)
         }
     }
 }

@@ -26,7 +26,6 @@ public class PostgresLevelRewardRepository(private val db: Database) : ILevelRew
                     st.executeUpdate() > 0
                 }
                 if (!inserted) return@transaction false
-                ledger.credit(playerId, Currency.STAR, reward.star)
                 ledger.credit(playerId, Currency.GOLD, reward.gold)
                 for (unlock in reward.unlocks.sorted()) {
                     c.prepareStatement(

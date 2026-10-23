@@ -6,6 +6,6 @@ target:
   type: match_wins
   count: 1
 reward:
-  currency_id: STAR
+  currency_id: GOLD
   currency_amount: 60
   xp: 100

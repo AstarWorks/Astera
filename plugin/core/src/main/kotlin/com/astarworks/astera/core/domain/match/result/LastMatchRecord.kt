@@ -17,7 +17,6 @@ public data class LastMatchRecord(
     val assists: Int,
     val objective: Int,
     val mvp: Boolean,
-    val star: Long,
     val gold: Long,
     val xp: Long,
     val level: Int,

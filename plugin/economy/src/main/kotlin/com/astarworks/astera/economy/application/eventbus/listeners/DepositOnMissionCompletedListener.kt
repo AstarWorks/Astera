@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
  * Subscribes to [MissionCompleted] (published by Stats) and deposits the
  * Norma's currency reward into the player's wallet.
  *
- * Per ADR-0022, the Norma reward carries `currencyId: String?` (e.g. "STAR")
+ * Per ADR-0022, the Norma reward carries `currencyId: String?` (e.g. "GOLD")
  * rather than the [Currency] enum because Stats must not import economy.*.
  * This listener performs the mapping; an unknown / null currencyId is logged
  * and skipped (no exception — robustness over strictness).

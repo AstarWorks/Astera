@@ -8,8 +8,8 @@ import com.astarworks.astera.core.domain.item.ItemId
  *
  * Wave 4.5 returned `ItemId?` — sufficient for `player.loadout.<slot>` style
  * bindings where the slot picks an icon. Wave 5f (RTM #21) needs numeric
- * bindings like `player.coins.star` → render an "indicator-coin" icon with
- * a display name override (`"500 STAR"`) and count override (500).
+ * bindings like `player.coins.gold` → render an "indicator-coin" icon with
+ * a display name override (`"500 GOLD"`) and count override (500).
  * [com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer]
  * applies the overrides via MiniMessage.
  *

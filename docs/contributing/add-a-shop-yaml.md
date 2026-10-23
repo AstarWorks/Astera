@@ -43,7 +43,7 @@ offers:
 | `offers` | `List<ShopOffer>` | ✅ | 売り物 (≥ 1) |
 | `offers[].id` | `String` | ✅ | offer 識別子 (shop 内で unique) |
 | `offers[].item` | `String` | ✅ | `ItemId` (`content/items/` 参照) |
-| `offers[].price.currency` | `enum` | ✅ | `GOLD` / `STAR` / `GEM` (Currency 一覧は `Currency.kt`) |
+| `offers[].price.currency` | `enum` | ✅ | `GOLD` / `GEM` (Currency 一覧は `Currency.kt`) |
 | `offers[].price.amount` | `Long` | ✅ | > 0 |
 | `offers[].stock.type` | `enum` | ✅ | `unlimited` / `limited` |
 | `offers[].stock.count` | `Int` | `limited` 時必須 | 在庫数 |
@@ -76,7 +76,6 @@ plugin 有効時)、reload では維持される (offer 定義のみ swap)。
 | Currency | 用途 |
 |---|---|
 | `GOLD` | 汎用通貨 (rewards / 普通の merchant) |
-| `STAR` | premium (限定 offers) |
 | `GEM` | (将来予約) |
 
 価格は `Currency` 単位で 1 つ。multi-currency / 複合支払いは Phase 4 で

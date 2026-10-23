@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 /**
  * Appends one [AuditEvent.CurrencyMovement] per [CurrencyChanged] (ADR-0202):
  * who, which currency, signed delta, balance after, and why. This is the
- * transaction log that answers "where did my STAR go" and lets support replay
+ * transaction log that answers "where did my GOLD go" and lets support replay
  * a dispute. A missing or failing audit store never blocks the money movement:
  * the failure is logged and swallowed.
  *

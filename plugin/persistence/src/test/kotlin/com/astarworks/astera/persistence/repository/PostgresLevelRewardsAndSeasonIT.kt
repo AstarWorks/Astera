@@ -17,7 +17,7 @@ public class PostgresLevelRewardsAndSeasonIT : PostgresIntegrationTestBase() {
     @Test
     public fun `competing backends credit one reward and restart preserves claims and unlocks`() {
         val player = PlayerId(UUID.randomUUID())
-        val reward = LevelReward(star = 50, gold = 2, titles = listOf("newcomer"), items = listOf("training-sword"))
+        val reward = LevelReward(gold = 52, titles = listOf("newcomer"), items = listOf("training-sword"))
         val pool = Executors.newFixedThreadPool(4)
         try {
             val results = pool.invokeAll((1..12).map { Callable {
@@ -29,14 +29,13 @@ public class PostgresLevelRewardsAndSeasonIT : PostgresIntegrationTestBase() {
         val restarted = PostgresLevelRewardRepository(db)
         assertThat(restarted.apply(player, 2, reward).getOrNull()).isFalse()
         assertThat(restarted.unlocks(player)).containsExactlyInAnyOrder("title:newcomer", "item:training-sword")
-        assertThat(PostgresCurrencyLedger(db).balance(player, Currency.STAR)).isEqualTo(50)
-        assertThat(PostgresCurrencyLedger(db).balance(player, Currency.GOLD)).isEqualTo(2)
+        assertThat(PostgresCurrencyLedger(db).balance(player, Currency.GOLD)).isEqualTo(52)
     }
 
     @Test
     public fun `rollback undoes the claim wallet credits and unlocks together`() {
         val player = PlayerId(UUID.randomUUID())
-        val reward = LevelReward(star = 75, gold = 2, cosmetics = listOf("spark"))
+        val reward = LevelReward(gold = 77, cosmetics = listOf("spark"))
         assertThatThrownBy {
             transaction(db) {
                 assertThat(PostgresLevelRewardRepository(db).apply(player, 3, reward).getOrNull()).isTrue()
@@ -45,10 +44,9 @@ public class PostgresLevelRewardsAndSeasonIT : PostgresIntegrationTestBase() {
         }.isInstanceOf(IllegalStateException::class.java)
         val restarted = PostgresLevelRewardRepository(db)
         assertThat(restarted.unlocks(player)).isEmpty()
-        assertThat(PostgresCurrencyLedger(db).balance(player, Currency.STAR)).isZero()
         assertThat(PostgresCurrencyLedger(db).balance(player, Currency.GOLD)).isZero()
         assertThat(restarted.apply(player, 3, reward).getOrNull()).isTrue()
-        assertThat(PostgresCurrencyLedger(db).balance(player, Currency.STAR)).isEqualTo(75)
+        assertThat(PostgresCurrencyLedger(db).balance(player, Currency.GOLD)).isEqualTo(77)
     }
 
     @Test

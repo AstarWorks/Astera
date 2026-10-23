@@ -198,7 +198,7 @@ public object EconomyWiring {
         registrations += services.register<CancelListingUseCase>(cancelListing)
 
         // ── Listeners ──────────────────────────────────────────────────────────
-        // ADR-0235: XP never converts to STAR (the old DepositOnXpListener is gone); STAR comes from the
+        // XP never converts to a currency (the old DepositOnXpListener is gone); GOLD comes from the
         // match-end table, mission / quest / achievement rewards and the login bonus only.
         // F3-4: the match-end payout. Reward amounts come from
         // content/balance/match-rewards.yaml, re-read at every match end so
@@ -232,7 +232,7 @@ public object EconomyWiring {
         }
 
         // ── Wave K 5integration-wire (ADR-0128) ──────────────────────────────
-        //   TutorialCompleted → DepositUseCase(STAR, 50, TutorialReward).
+        //   TutorialCompleted → DepositUseCase(GOLD, 50, TutorialReward).
         //   Closes the onboarding loop on the economy side; the achievement
         //   side is wired in AsteraStatsPlugin
         //   (GrantAchievementOnTutorialCompletedListener). Both subscribers

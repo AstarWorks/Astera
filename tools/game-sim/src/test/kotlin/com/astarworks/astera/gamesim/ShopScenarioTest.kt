@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * Shop loop on the real wired graph (ADR-0199 / ADR-0202): a new player starts with the
- * STAR grant, opens the lobby shop, sees prices in the right currency, needs a confirming
+ * starting GOLD, opens the lobby shop, sees prices in the right currency, needs a confirming
  * second click for an expensive offer, is told what is missing when short, and every
  * movement lands in the audit log.
  */
@@ -69,7 +69,7 @@ class ShopScenarioTest {
             val ledger = sim.services.getOrThrow<ICurrencyLedger>()
             val buyer = player("buyer")
             advance(1)
-            assertThat(ledger.balance(buyer.id, Currency.STAR)).`as`("starter grant").isEqualTo(150L)
+            ledger.credit(buyer.id, Currency.GOLD, 150L)
 
             dispatch(buyer, "lobby.shop.open")
             val view = checkNotNull(sim.server.view(buyer.id))
@@ -78,18 +78,18 @@ class ShopScenarioTest {
             val firstOffer = spec.slotAt(SlotIndex(0)) as GuiSlot.Static
             assertThat(firstOffer.lore.map { it.key.value }).contains("astera.economy.shop.gui.price")
 
-            // knight-sword costs 100 STAR: the first click only asks for confirmation.
+            // knight-sword costs 100 GOLD: the first click only asks for confirmation.
             buyClick(buyer, "knight-sword")
-            assertThat(ledger.balance(buyer.id, Currency.STAR)).isEqualTo(150L)
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(150L)
             assertThat(view.givenItems).containsExactly("knight-sword", "frost-staff") // starter grant only
 
             buyClick(buyer, "knight-sword")
-            assertThat(ledger.balance(buyer.id, Currency.STAR)).isEqualTo(50L)
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(50L)
             assertThat(view.givenItems).containsExactly("knight-sword", "frost-staff", "knight-sword")
 
-            // 120 STAR pistol with 50 STAR left: refused, nothing charged, shortfall named.
+            // 120 GOLD pistol with 50 GOLD left: refused, nothing charged, shortfall named.
             buyClick(buyer, "pistol")
-            assertThat(ledger.balance(buyer.id, Currency.STAR)).isEqualTo(50L)
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(50L)
             assertThat(view.messages.joinToString("\n")).contains("need 120").contains("you have 50").contains("70 short")
 
             // Transaction log: starter grant is not a CurrencyChanged, the purchase is.
@@ -109,14 +109,15 @@ class ShopScenarioTest {
             val ledger = sim.services.getOrThrow<ICurrencyLedger>()
             val buyer = player("owner")
             advance(1)
+            ledger.credit(buyer.id, Currency.GOLD, 150L)
             dispatch(buyer, "lobby.shop.open")
             buyClick(buyer, "knight-sword")
             buyClick(buyer, "knight-sword") // confirming click: bought for 100
-            assertThat(ledger.balance(buyer.id, Currency.STAR)).isEqualTo(50L)
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(50L)
 
             buyClick(buyer, "knight-sword") // owned: free replica or "already carrying", never a second charge
             buyClick(buyer, "knight-sword")
-            assertThat(ledger.balance(buyer.id, Currency.STAR)).isEqualTo(50L)
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(50L)
 
             dispatch(buyer, "shop.history", "shop_id" to "example-shop")
             val view = checkNotNull(sim.server.view(buyer.id))

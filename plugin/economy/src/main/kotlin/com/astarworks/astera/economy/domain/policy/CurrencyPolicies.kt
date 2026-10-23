@@ -7,8 +7,6 @@ import com.astarworks.astera.core.domain.economy.Currency
  *
  * Phase 1 PoC hard-codes the JP 資金決済法 (Payment Services Act) compliant
  * shape:
- *  - **STAR** (match-bound): non-tradable, non-redeemable, 180-day expiry,
- *    no circulation cap. `Earned` source class.
  *  - **GOLD** (account-bound): tradable, non-redeemable, 180-day expiry,
  *    ¥10M circulation cap. `Earned` source class.
  *  - **GEM** (premium / paid): non-tradable, non-redeemable, 180-day expiry,
@@ -26,15 +24,6 @@ public object CurrencyPolicies {
     public const val JP_CAP_YEN: Long = 10_000_000L
 
     private val defaults: Map<Currency, CurrencyPolicy> = mapOf(
-        Currency.STAR to CurrencyPolicy(
-            currency = Currency.STAR,
-            expirable = true,
-            expirationDays = JP_EXPIRY_DAYS,
-            circulationCap = null,
-            redeemable = false,
-            tradable = false,
-            sourceClass = SourceClass.Earned,
-        ),
         Currency.GOLD to CurrencyPolicy(
             currency = Currency.GOLD,
             expirable = true,

@@ -11,7 +11,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
  *
  * The domain [HudLayout] / [HudComponent] types are pure data classes with
  * verbose constructors — fine for adapters, painful for hand-written
- * call-sites such as `ManaBarHud` or `StarCounterHud` that compose 5+
+ * call-sites such as `ManaBarHud` that compose 5+
  * primitives. This DSL mirrors the `GuiSpecBuilder.kt` (Wave 5i Worker β)
  * and `DialogSpecBuilder.kt` (Wave 5i Worker γ) shape so the whole UI
  * surface — chest GUIs, dialogs, HUDs — reads the same way:

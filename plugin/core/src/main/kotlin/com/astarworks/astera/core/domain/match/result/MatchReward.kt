@@ -5,13 +5,12 @@ public enum class RewardLineKind { PARTICIPATION, RESULT, KILLS, ASSISTS, OBJECT
 
 /**
  * One row of a player's reward breakdown: [count] of something (kills,
- * assists; 1 for the flat rows) worth [star] STAR, [gold] GOLD and [xp] XP in
+ * assists; 1 for the flat rows) worth [gold] GOLD and [xp] XP in
  * total (already multiplied).
  */
 public data class RewardLine(
     val kind: RewardLineKind,
     val count: Int,
-    val star: Long,
     val gold: Long,
     val xp: Long,
 )
@@ -29,7 +28,6 @@ public data class MatchRewardResult(
     val xpIntoLevel: Long = 0L,
     val xpForNextLevel: Long = 0L,
 ) {
-    val star: Long get() = lines.sumOf { it.star }
     val gold: Long get() = lines.sumOf { it.gold }
     val xp: Long get() = lines.sumOf { it.xp }
     val leveledUp: Boolean get() = levelAfter > levelBefore && levelBefore > 0

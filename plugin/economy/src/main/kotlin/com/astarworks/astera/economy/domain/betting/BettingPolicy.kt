@@ -24,7 +24,7 @@ import kotlin.time.Duration.Companion.seconds
  * | [acceptanceTimeout]         | 10 min          | 申請 timeout (ADR-0103 §"Workflow" step 2)                  |
  * | [lossStreakLimit]           | 5                | 連敗時の auto-disable 閾値                                  |
  * | [lossStreakCooldown]        | 24 h             | 連敗時の disable 期間                                       |
- * | [allowedCurrencies]         | STAR + GOLD      | GEM (paid premium) は domain で hard-rejected                |
+ * | [allowedCurrencies]         | GOLD            | GEM (paid premium) は domain で hard-rejected                |
  * | [payoutSplit]               | 1.0 (winner all) | Phase 1: house cut なし。Phase 4 で tunable に               |
  *
  * `payoutSplit < 1.0` means a fraction goes to the server vault (Phase 4 hook;
@@ -80,7 +80,7 @@ public data class BettingPolicy(
             acceptanceTimeout = 10.minutes,
             lossStreakLimit = 5,
             lossStreakCooldown = 24.hours,
-            allowedCurrencies = setOf(Currency.STAR, Currency.GOLD),
+            allowedCurrencies = setOf(Currency.GOLD),
             payoutSplit = 1.0,
         )
 
@@ -93,7 +93,7 @@ public data class BettingPolicy(
             acceptanceTimeout: Duration = 30.seconds,
             lossStreakLimit: Int = 3,
             lossStreakCooldown: Duration = 5.seconds,
-            allowedCurrencies: Set<Currency> = setOf(Currency.STAR, Currency.GOLD),
+            allowedCurrencies: Set<Currency> = setOf(Currency.GOLD),
             payoutSplit: Double = 1.0,
         ): BettingPolicy = BettingPolicy(
             id = id,

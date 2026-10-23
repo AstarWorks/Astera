@@ -14,15 +14,15 @@ import kotlinx.serialization.Serializable
  *
  * ```yaml
  * default:                      # every row is required here
- *   participation: { star: 10, xp: 25 }
- *   win:  { star: 100, gold: 20, xp: 150 }
+ *   participation: { gold: 10, xp: 25 }
+ *   win:  { gold: 120, xp: 150 }
  *   ...
  * modes:                        # optional per-mode overrides, any subset of rows
  *   annihilation:
- *     win: { star: 150, gold: 30, xp: 200 }
+ *     win: { gold: 180, xp: 200 }
  * ```
  *
- * Each amount row has `star`, `gold` and `xp`, all default 0, all `>= 0`.
+ * Each amount row has `gold` and `xp`, all default 0, all `>= 0`.
  */
 @Serializable
 public data class MatchRewardsYamlConfig(
@@ -31,7 +31,6 @@ public data class MatchRewardsYamlConfig(
 ) {
     @Serializable
     public data class Amounts(
-        public val star: Long = 0L,
         public val gold: Long = 0L,
         public val xp: Long = 0L,
     )
@@ -62,7 +61,7 @@ public data class MatchRewardsYamlConfig(
 
     public fun toDomain(): Result<MatchRewardTable, ConfigError> {
         fun check(field: String, a: Amounts): ConfigError? {
-            if (a.star < 0 || a.gold < 0 || a.xp < 0) {
+            if (a.gold < 0 || a.xp < 0) {
                 return ConfigError.OutOfRange(field = field, rawValue = a.toString(), constraint = "amounts must be >= 0")
             }
             return null
@@ -111,5 +110,5 @@ public data class MatchRewardsYamlConfig(
         )
     }
 
-    private fun Amounts.toDomain(): RewardAmounts = RewardAmounts(star = star, gold = gold, xp = xp)
+    private fun Amounts.toDomain(): RewardAmounts = RewardAmounts(gold = gold, xp = xp)
 }

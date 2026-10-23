@@ -220,7 +220,7 @@ class HudScenarioTest {
             assertThat(sim.hud.actionBar(shooter.id)).isNull()
 
             sim.eventBus.publish(
-                CurrencyChanged(shooter.id, Currency.STAR, delta = 5, newBalance = 30, reason = CurrencyChangeReason.MatchReward),
+                CurrencyChanged(shooter.id, Currency.GOLD, delta = 5, newBalance = 30, reason = CurrencyChangeReason.MatchReward),
             )
             advance(2)
             val toast = checkNotNull(sim.hud.actionBar(shooter.id))

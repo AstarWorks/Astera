@@ -31,7 +31,6 @@ public class AttributeLastMatchStore(
         c.setNum(ASSISTS, record.assists)
         c.setNum(OBJECTIVE, record.objective)
         c.setNum(MVP, if (record.mvp) 1 else 0)
-        c.setNum(STAR, record.star)
         c.setNum(GOLD, record.gold)
         c.setNum(XP, record.xp)
         c.setNum(LEVEL, record.level)
@@ -65,7 +64,6 @@ public class AttributeLastMatchStore(
             assists = c.long(ASSISTS).toInt(),
             objective = c.long(OBJECTIVE).toInt(),
             mvp = c.long(MVP) == 1L,
-            star = c.long(STAR),
             gold = c.long(GOLD),
             xp = c.long(XP),
             level = c.long(LEVEL).toInt(),
@@ -100,7 +98,6 @@ public class AttributeLastMatchStore(
         val ASSISTS = AttributeKey("lastmatch.assists")
         val OBJECTIVE = AttributeKey("lastmatch.objective")
         val MVP = AttributeKey("lastmatch.mvp")
-        val STAR = AttributeKey("lastmatch.star")
         val GOLD = AttributeKey("lastmatch.gold")
         val XP = AttributeKey("lastmatch.xp")
         val LEVEL = AttributeKey("lastmatch.level")

@@ -71,7 +71,6 @@ public class LobbyProfileShowIntentHandler(
             matchesPlayed = s?.matchesPlayed ?: 0L,
             wins = s?.wins ?: 0L,
             losses = s?.losses ?: 0L,
-            star = ledger?.balance(id, Currency.STAR) ?: 0L,
             gold = ledger?.balance(id, Currency.GOLD) ?: 0L,
             gem = ledger?.balance(id, Currency.GEM) ?: 0L,
         )

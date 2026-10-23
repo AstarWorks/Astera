@@ -2,7 +2,7 @@
 # See ja.yaml for key naming conventions and MiniMessage syntax.
 
 astera:
-  progression.reward.chat: "<gold>Level {level} rewards:</gold> +{star} STAR, +{gold} GOLD. Unlocks: {unlocks}"
+  progression.reward.chat: "<gold>Level {level} rewards:</gold> +{gold} GOLD. Unlocks: {unlocks}"
   progression.reward.title: "<gold>Level {level} rewards claimed!</gold>"
   progression.unlocks.name: "<gold>Permanent unlocks</gold>"
   progression.unlocks.entry: "<gray>{id}</gray>"
@@ -23,7 +23,7 @@ astera:
   proxy.transfer.actionbar: "<yellow>Moving to {server}...</yellow>"
   economy.insufficient_funds: "<red>Insufficient funds.</red>"
   economy.invalid_amount: "<red>Invalid amount <gold>{amount}</gold>.</red>"
-  economy.invalid_currency: "<red>Unknown currency <gold>{currency}</gold>. Use star / gold / gem.</red>"
+  economy.invalid_currency: "<red>Unknown currency <gold>{currency}</gold>. Use gold / gem.</red>"
   economy.player_not_found: "<red>Player <gold>{player}</gold> is offline or unknown.</red>"
   economy.transfer_same_account: "<red>Cannot transfer to the same account.</red>"
   economy.balance_entry: "<gray>{player} {currency}:</gray> <gold>{amount}</gold>"
@@ -146,7 +146,7 @@ astera:
       match-start: "/astera match start example-arena"
       match-abort: "/astera match abort <id> --confirm"
       match-cancel: "/astera match cancel <id> --confirm"
-      economy-grant: "/astera economy grant Steve star 100"
+      economy-grant: "/astera economy grant Steve gold 100"
       friend-add: "/astera friend add Steve"
       party-invite: "/astera party invite Steve"
       chat-msg: "/astera chat msg Steve hello"
@@ -488,7 +488,6 @@ astera:
         rate: "<gray>Win rate: <white>{rate}%</white></gray>"
       wallet:
         name: "<gold>Wallet</gold>"
-        star: "<gray>Star: <white>{amount}</white></gray>"
         gold: "<gray>Gold: <white>{amount}</white></gray>"
         gem: "<gray>Gem: <white>{amount}</white></gray>"
     friends-list:
@@ -526,7 +525,6 @@ astera:
   # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
   economy:
     currency:
-      star: "<yellow>STAR</yellow>"
       gold: "<gold>GOLD</gold>"
       gem: "<light_purple>GEM</light_purple>"
     shop:
@@ -867,11 +865,10 @@ astera:
       header: "<gold>-- Rewards --</gold>"
       none: "<gray>No rewards this match.</gray>"
       line: " <gray>{label}</gray> <dark_gray>></dark_gray> {amounts}"
-      total: "<gold><bold>Total</bold></gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      total: "<gold><bold>Total</bold></gold> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
       level: "<aqua>Level {level}</aqua> <gray>({into} / {next} XP to the next level)</gray>"
       levelup: "<green><bold>LEVEL UP!</bold></green> <white>{from}</white> <gray>-></gray> <white>{to}</white>"
       amount:
-        star: "<yellow>+{amount} STAR</yellow>"
         gold: "<gold>+{amount} GOLD</gold>"
         xp: "<aqua>+{amount} XP</aqua>"
       kind:
@@ -1196,7 +1193,7 @@ astera:
       score: "<gray>Score:</gray> <white>{scores}</white>"
       you: "<aqua>You:</aqua> <white>{kills}</white> <gray>kills</gray>, <white>{deaths}</white> <gray>deaths</gray>, <white>{assists}</white> <gray>assists</gray>, <white>{objective}</white> <gray>objectives</gray>"
       mvp: "<gold>You were the MVP!</gold>"
-      rewards: "<gold>Rewards</gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      rewards: "<gold>Rewards</gold> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
       level: "<aqua>Level {level}</aqua> <gray>({into} / {next} XP to the next level)</gray>"
 
     # Wave 5flex (ADR-0102) — match-nameplate milestone labels. Keyed by
@@ -1708,7 +1705,7 @@ astera:
     grant_currency:
       root: "<gray>Credit a currency balance to a player.</gray>"
       player_not_found: "<red>Player '{player}' is offline or unknown.</red>"
-      unknown_currency: "<red>Unknown currency '{currency}'. Use star / gold / gem.</red>"
+      unknown_currency: "<red>Unknown currency '{currency}'. Use gold / gem.</red>"
     grant_xp:
       root: "<gray>Grant XP to a player.</gray>"
       player_not_found: "<red>Player '{player}' is offline or unknown.</red>"
@@ -1869,7 +1866,7 @@ astera:
       "match.validate.issues": "<red>Content has <white>{issues}</white> issue(s) in {categories} categories checked.</red>"
       "match.validate.line": "<gray> - {issue}</gray>"
       "currency.tile": "<gold>Give currency</gold>"
-      "currency.tile.lore": "<gray>Preset amounts of star / gold / gem.</gray>"
+      "currency.tile.lore": "<gray>Preset amounts of gold / gem.</gray>"
       "currency.title": "Admin: Give currency"
       "currency.preset": "<yellow>+{amount} {currency}</yellow>"
       "currency.granted": "<green>Granted <white>{amount} {currency}</white> (balance {balance}).</green>"
@@ -2263,7 +2260,7 @@ astera:
   tutorial.guide.queue.subtitle: "Go to the Play gate by the spawn"
   tutorial.guide.queue.hint: "Walk to the glowing Play gate next to the spawn and right-click the Play guide, then pick a mode. Q on the compass opens the same picker."
   tutorial.guide.complete.title: "Training complete!"
-  tutorial.guide.complete.subtitle: "Your first graduation earns 50 STAR. Have fun!"
+  tutorial.guide.complete.subtitle: "Your first graduation earns 50 GOLD. Have fun!"
   tutorial.guide.status.paused: "Tutorial paused at step {step}. Resume with /astera tutorial start."
   tutorial.guide.status.completed: "Tutorial complete. Replay with /astera tutorial start (graduation reward is once only)."
   command.help.tutorial-skip: "Pause the tutorial; resume with tutorial start."
