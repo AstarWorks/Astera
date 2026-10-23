@@ -105,6 +105,8 @@ public data class VfxTrailBand(
     public val argb: Int,
     public val toArgb: Int? = null,
     public val block: String? = null,
+    /** Optional 8px-calibrated glyph; uses outer-edge chord width instead of rectangular overlap. */
+    public val glyph: String? = null,
 ) {
     init {
         require(from >= 0.0 && to > from) { "trail band needs 0 <= from < to: $from..$to" }

@@ -619,6 +619,7 @@ public data class VfxTrailBandYaml(
     @SerialName("color_to") public val colorTo: String? = null,
     /** Crisp slab block (styles `crisp` / `both`). */
     public val block: String? = null,
+    public val glyph: String? = null,
 ) {
     public fun toDomain(): VfxTrailBand = VfxTrailBand(
         from = from,
@@ -626,6 +627,7 @@ public data class VfxTrailBandYaml(
         argb = parseArgb(color, "band.color"),
         toArgb = colorTo?.let { parseArgb(it, "band.color_to") },
         block = block,
+        glyph = glyph,
     )
 }
 

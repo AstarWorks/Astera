@@ -939,6 +939,9 @@
                 },
                 "block": {
                     "type": "string"
+                },
+                "glyph": {
+                    "type": "string"
                 }
             },
             "required": [
