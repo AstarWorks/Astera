@@ -190,3 +190,10 @@ LOW
 - Diff 1: duration_ticks 52 -> 58, the final REST hold lasts through tick 57 (hide_held_item 56 ticks + the 1 tick delay the director adds); despawn at 58. Rig first drawn tick 0 in the plan (initial = rotationAt(0), REST); the real client draws a new display 1 tick late (coordinator measured), so hide_held_item must be delayed 1 tick. Rig first visible tick 0 (plan) / 1 (client), last visible tick 57.
 - Trails start at the strike keys (rig ticks 4-7 and 27-29), so the pull-back no longer paints a ribbon over the head. Displays: 20 parts + a few trail intervals x 3 per swing; preview plans without error. Real client not run.
 - Strips opened: evidence/animator/r3/strip-hit1-side.png, strip-hit2-side.png, strip-hit1-top.png (hit2-top rendered, eye view not run).
+
+## Round 6 (founder: the weapon almost does not move)
+- Redesign: hit 1 = overhead chop (vertical plane, tilt 22 deg, top leans to the caster right; ring/arch plane = that plane), hit 2 = low horizontal ring (plane tilt 14 deg about centre pitch -8, lowest at phi 60 left-front, highest at phi 240 right-back). Numbers: evidence/animator/r6/per-key-tip-face.txt, strips r6/strip-hit{1,2}-{side,top,eye}.png, r6/compare-projection.png.
+- Hit 1 keys: lift 200->137 deg (keys 0-3, ticks 1-4), chop theta 137->87->36->contact in 3 ticks = 160 deg (chunks 50/51/59), contact tick 7-8 tip (phi 18, pitch -17, y 0.26), drag round the left to REST with +17 deg overshoot, REST key 18.
+- Hit 2 keys: pull-back keys 21-23 (tip back-up to phi 135 pitch +5), ring 220 deg in 5 ticks (chunks 30/47/55/56/59), contact key 28 = tick 31 (phi 18, pitch -18), follow-through to REST with +15 overshoot by key 39. All chunks <= 60 deg; planner accepts.
+- Contact poses are left of the target line (phi 18), tip behind the target body as seen from the compare camera (caster right), so the target is never covered; the tip overlaps only its silhouette at floor level.
+- Not verified: real client (no vfx-shot by instruction), fx ring alignment (vfx role), first-person feel.
