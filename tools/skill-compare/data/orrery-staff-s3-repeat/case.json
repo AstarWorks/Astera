@@ -7,11 +7,11 @@
   "skill": {
     "name": "Mind Whip / single-opponent repetition",
     "coins": 4,
-    "asteraSkillId": null
+    "asteraSkillId": "orrery-s3-repeat"
   },
   "variant": {
     "label": "S3 / 単体への反復映像",
-    "implementation": "missing",
+    "implementation": "prototype",
     "order": 1
   },
   "mc": {
@@ -51,15 +51,16 @@
       "notes": "Long fourth-coin beam reaches target; later beam flicker and renewed muzzle burst are part of this same channel."
     }
   ],
-  "notes": "S3の別撮影であり新しい技ではない。Charge数値と分岐条件は映像から確定できない。既存S3の撮影は流用しない。",
-  "status": "analysed",
+  "notes": "S3の別撮影であり新しい技ではない。Charge数値と分岐条件は映像から確定できない。既存S3の撮影は流用しない。 直接呼出し試作を追加。通常入力・Charge分岐は未接続。",
+  "status": "captured",
   "verification": {
-    "status": "unverified",
-    "reason": "この区間専用の実装・実機撮影は未作成。"
+    "status": "failed",
+    "reason": "単体反復映像専用の直接呼出し試作。前進、構え直し、4回の命中を実機確認。光球が箱状、発光・緑の装備表示・腕姿勢・曲線・接写タイミングは未一致。通常入力とCharge分岐は未接続。"
   },
   "weapon": "orrery-staff",
   "identity": "R Corp. 4th Pack Reindeer Rodion",
-  "iterations": 0,
+  "iterations": 3,
   "report": "/report/orrery-staff",
-  "referenceRevision": "697ab87c4632f98a9914713b9c413d3024954d07d5c3e243dd4bba2b0172309a"
+  "referenceRevision": "697ab87c4632f98a9914713b9c413d3024954d07d5c3e243dd4bba2b0172309a",
+  "contentRevision": "2c8e36294d0cd148291959a5a229a0f31e58a9a1fd9a2c1b792b25b51051329e"
 }

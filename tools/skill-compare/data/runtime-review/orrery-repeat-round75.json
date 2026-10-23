@@ -1,0 +1,33 @@
+{
+  "round": 75,
+  "case": "orrery-staff-s3-repeat",
+  "status": "failed",
+  "capture": "build/limbus-review/round75/final-captures/orrery-staff-s3-repeat-1792742474878967341",
+  "frames": 244,
+  "quality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 3.0
+  },
+  "contactTicks": [
+    40,
+    57,
+    67,
+    139
+  ],
+  "health": [
+    200.0,
+    194.096,
+    188.19199,
+    182.28798,
+    167.52798
+  ],
+  "displayPeak": 59,
+  "displaySamples": 767,
+  "displayScope": "One direct Mind Whip repeat cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "rejected": [
+    "Initial VFX duration218 exceeded engine maximum200; split attack and held recovery. Reload during first recording invalidated it.",
+    "Second recording observed67 live displays. Removed overlapping dark ring parts and reduced inner ring copies; final peak59."
+  ],
+  "review": "単体反復映像専用の直接呼出し試作。前進、構え直し、4回の命中を実機確認。光球が箱状、発光・緑の装備表示・腕姿勢・曲線・接写タイミングは未一致。通常入力とCharge分岐は未接続。"
+}
