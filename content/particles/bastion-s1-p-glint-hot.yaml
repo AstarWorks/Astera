@@ -1,0 +1,9 @@
+# white-gold glint, shorter (4 ticks): the hot head of the shed sparks
+id: bastion-s1-p-glint-hot
+shape: { kind: point }
+color: { r: 255, g: 244, b: 200 }
+count: 1
+lifetime_ticks: 4
+vanilla_particle: trail
+data: { kind: trail, toward: true, color: { r: 255, g: 244, b: 200 }, duration_ticks: 4 }
+force: true

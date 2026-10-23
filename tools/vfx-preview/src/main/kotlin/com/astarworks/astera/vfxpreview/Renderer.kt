@@ -296,12 +296,15 @@ class Renderer(
             // Font glyph (ADR-0239): H px square, centred on the display origin by ascent = H/2 - 2.
             out += Drawable(camera.depth(t.center) - 0.0005) { g ->
                 val old = g.transform
+                val oldComposite = g.composite
                 val hint = g.getRenderingHint(RenderingHints.KEY_INTERPOLATION)
+                if (t.alpha < 1.0) g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, t.alpha.toFloat().coerceIn(0f, 1f))
                 g.transform(tx)
                 g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR)
                 g.drawImage(sprite, -sprite.width / 2, -sprite.height / 2, sprite.width, sprite.height, null)
                 g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint ?: RenderingHints.VALUE_INTERPOLATION_BILINEAR)
                 g.transform = old
+                g.composite = oldComposite
             }
             return
         }

@@ -21,6 +21,8 @@ Output: `build/vfx-shot/<skill>/<view>/`
 
 比較撮影の`meta.json`は参照・contentの版、撮影日時、実装コミット、カメラ内容のハッシュを保持する。
 `captureQuality.maxRepeatedFrames`が15以上なら停止映像の疑いを目視確認する。静止した場面もあるため、自動で不合格にはしない。
+視聴側クライアントのログ(`viewer-client.log`)に`You were defeated`・ロビー復帰・ワールド変更があるか、視聴者が撮影前位置から40ブロック超動いた(`viewer-pos.txt`)場合は、`captureQuality.invalid: true`と`reason`が自動で付く。再撮影が必要。
+opponent視点のTargetは最大HP200で全回復してから撮影する(多段ヒットでの死亡を防ぐ)。
 実際に描画停止を確認した撮影には`captureQuality.invalid: true`を付けると比較画面から除外できる。
 ソフトウェア描画は既定で`LP_NUM_THREADS=4`。共有環境では撮影と重いビルドを重ねない。
 
