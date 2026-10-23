@@ -1,0 +1,30 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer, seed 20261024, structures off, peaceful, noon, clear weather. FOV 70, bob off, GUI scale 2. Native unedited Xvfb root screenshot. Whole launch/capture held /tmp/claude-1000/astera-mc-client.lock; unique Xvfb :0, game directory build/frost-staff/client-frost-staff. No external server, Docker, Gradle or tests.",
+  "item": "minecraft:iron_axe[minecraft:item_model=\"astera:frost-staff\"]",
+  "resourcePack": "Minimal capture pack with byte-identical authored model and builder-equivalent custom blocks/ directory source. All face materials are native minecraft:block/... references; no custom or Mojang PNG files.",
+  "modelElements": 166,
+  "sha256": {
+    "content/models/items/frost-staff.model.json": "765b3f0e10bb1d7ffacbe2191182371eaa4e390c0dada5393e4db7fc79933cac",
+    "tools/model-forge/batches/vanilla-material/frost-staff/after.png": "5413c653d053b69d5f983a339715d4a3fb576b23c0849e8486949739aeb38e4b",
+    "tools/model-forge/batches/vanilla-material/frost-staff/before.png": "847ae47d6dad34b0abea94557101fc506315419434a38ae87fd3fa1679221af7",
+    "tools/model-forge/batches/vanilla-material/frost-staff/capture-pack.py": "5b89710f7debe9a843d2db41be0c95b52ed47a7009601867a28ff166455b99bc",
+    "tools/model-forge/batches/vanilla-material/frost-staff/client-log.txt": "b14a4b7bf5da05495a93e019ee9a68f3523c1802cf679b85a58d2b706e80fa39",
+    "tools/model-forge/batches/vanilla-material/frost-staff/client.png": "7c9c15be8cb34c5e8f41cdc75beef64df3b9da02dfaabe18068c2da863535f7e",
+    "tools/model-forge/batches/vanilla-material/frost-staff/contexts.png": "f1a5a5090b0b6efa80c022fd6cf7053a1bc1f22aea93c1c1e7f3fbd557ff743d",
+    "tools/model-forge/batches/vanilla-material/frost-staff/head-detail.png": "fe17a87a76566de1e6b800d481e66daa41741b9722bd305d2313c408ee3e3cca",
+    "tools/model-forge/batches/vanilla-material/frost-staff/inventory.png": "badb5f125f2c83f764ba0a250f5bd22eed617339ba37c0187cd8238371a704f4",
+    "tools/model-forge/batches/vanilla-material/frost-staff/operations.json": "331c1f031549b594c8091845fada25fa4735006406948be87d739f3f70b33e18",
+    "tools/model-forge/batches/vanilla-material/frost-staff/remake.py": "9ed35d6877c2a082601786080ba02032c7ee3319f0780c7b0cf009c746de7a24",
+    "tools/model-forge/batches/vanilla-material/frost-staff/review-cameras.json": "7605b7f48e35de6fec7a19c8a854fab24fca4ae949b25e626a1759fcd42f1682",
+    "tools/model-forge/batches/vanilla-material/frost-staff/review.md": "bacee21501d5d23eb9bf33a52452d7bec5f008ef6f875b6c20796b98b4e2b88d",
+    "tools/model-forge/batches/vanilla-material/frost-staff/sweep.png": "0db394828fbdb2778e7104e469f0e08a0620b8a01622bbc3c56cddfd95e22d91"
+  },
+  "remainingRisks": [
+    "Diamond block is the closest catalog entry for ice, brighter/greener than the original blue. Wish: verified static packed_ice/blue_ice catalog materials.",
+    "Gold substitutes for bronze, and brown wool substitutes for leather.",
+    "Original bevel/facet overlaps retained; this is not a complete z-fighting audit. Validation has zero errors, 416 overlap candidates and two contact warnings.",
+    "Very thin details alias away at 16px. Offline light/cameras differ from native first-person rendering; unchanged native transform places the lower grip below the frame.",
+    "Production pack compilation/server deployment, glint, swing and varied FOV remain manager verification."
+  ]
+}
