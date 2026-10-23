@@ -237,3 +237,33 @@ LOW
 - Expected on-screen arc from the side camera: apex 44-57 deg behind vertical (r5 ~43, r6 ~23), apex -> contact ~160 deg (r6 ~95-110, r5 ~140). Lift eases out (48/37/13), chop eases in (45/57/59). With the ~1-2 tick client lag the apex should be on screen at ~f5-f7 and the contact at f8-f10.
 - Emitters: tip_ember_1 3-15, tip_glint_1 5-11 (were 4-14 / 4-10).
 - Preview: `vfx-preview bastion-s1-rig --view side|top --freeze 8:2 --freeze 31:2`, the planner accepted it. Strips (both opened): `evidence/animator/r9/strip-hit1-side.png` (f0-2 held, f3 vertical, f4-5 blade behind the shoulder, f6-7 chop, f8-10 contact frozen, f11+ drag), `strip-hit1-top.png`. Per-key table: `evidence/animator/r9/per-key-r9.txt`. Real client not run (by instruction).
+
+## Round 10 (reviewer r9: size passes, hit-1 plane wrong -> tilted horizontal sweep)
+- Plane (manager decision): hit 1 is a horizontal sweep whose tip stays on the plane y = 1.15 + tan(20 deg) * z (anchor x left, y up, z forward): forward end 20 deg higher, which is the reference ring's "right end higher" in the compare camera (screen-right = caster forward). Tip y: front 2.04 (head), sides 1.1-1.25 (chest), the plane would pass the back at ~0.4 (the follow-through leaves it there and drops to REST). Plane pitch of the tip: 30.5 (phi 0), 11.2 (phi 90/270), -9.5 (phi 180). Travel right -> front -> left -> back (phi increasing). `tilt` unchanged (hit 2 shares it); the solver works in the anchor frame.
+- Keys (tick = l+1 for l <= 7, l+3 for 8..28):
+
+| key | tick | tip (phi, pitch) | tip (x, y, z) | chunk | note |
+|---|---|---|---|---|---|
+| 0-1 | 1-2 | 0, 52 | -0.35, 2.74, 1.83 | 0 | held pose |
+| 2 | 3 | 290, 40 | -2.15, 2.38, 0.95 | 57.1 | up the right side, outside the FP frustum |
+| 3 | 4 | 230, 24 | -2.10, 1.79, -1.18 | 56.6 | wind-up extreme 1 (back-right, raised) |
+| 4 | 5 | 219, 22 | -1.81, 1.71, -1.51 | 24.8 | extreme 2 (11 deg creep + roll toward the cut) |
+| 5 | 6 | 262, 8 | -2.80, 1.13, -0.05 | 51.7 | on plane, edge turning to lead (40 deg) |
+| 6 | 7 | 310, 24 | -2.10, 1.79, 1.76 | 49.0 | on plane, edge leads 24 |
+| 7 | 8-10 | 356, 30 | -0.50, 2.04, 2.44 | 41.9 | CONTACT (freeze 8:2), edge leads 23 |
+| 8 | 11 | 50, 24 | 1.40, 1.79, 1.76 | 48.9 | follow-through on plane |
+| 9 | 12 | 100, 8 | 2.09, 1.10, -0.14 | 51.5 | on plane, edge leads 8 |
+| 10 | 13 | 143, -9 | 1.14, 0.40, -1.68 | 48.8 | leaves plane down to the floor |
+| 11-12 | 14-15 | 175 / 197, -15 | | 38.2 / 31.3 | |
+| 13 | 16 | 206, -12 | -1.42, 0.25, -1.90 | 31.5 | overshoot 26 deg past REST |
+| 14-18 | 17-21 | slerp to REST (0.35/0.62/0.82/0.94/1) | | 9/7/5/3/2 | REST at key 18 = tick 21 |
+| 19-20 | 22-23 | REST 180, -15 | | 0 | unchanged, hit 2 unchanged from key 21 |
+
+- Travel: phi 219 (extreme) -> 356 (contact) = 137 deg in 3 ticks (ease-in 52/49/42 deg rotation), contact -> phi 100 in 2 ticks still on the plane, overshoot at phi 566: 347 deg of phi from the extreme, 393 deg of rotation. The on-plane part (keys 5-9, phi 262 -> 460) is ~200 deg of ring around the body at chest/head height.
+- Edge lead (edge axis vs the chord to the next key): wind-up keys 2-4 60-67 (face leads backward: anticipation, not a cut), sweep 40/24/23 (keys 5-7), follow 23/8/15 (8-10), then the face rolls back to the sideways REST face (keys 11-13). Brief target <= 25 met on keys 6-10.
+- First person (ray-cast, eye (0,1.62,0) +Z, vfov 70, 16:9; also the half-tick slerp): t0-2 5.9% (held pose), half-tick held->k2 7.0% (r9: 18.5%, this is what the client showed at ~t4), t3-6 0.0%, t7 4.6%, t8-10 4.0% (contact), t11 5.9%, t12 0.0%. No part within 0.3 of the eye. Preview `eye` t3-7 empty; t8/t11 blade in the lower-left (preview eye reads ~10% there).
+- Compare camera (intent-redo cuts, my projection `evidence/animator/r10/proj-compare.png`, 640x360): wide cut t4-5: blade horizontal pointing BEHIND the caster (screen-left), 101-115 px (~0.3 screen height); close cut t6 (camera 1 block from the caster's right-side tip path): key 5 tip comes toward the camera, 246 px bar leaving the bottom edge; t7 a 313 px bar across to the right edge; t8-10 contact 282 px rising 28 deg to the upper right (toward the target) = the "right end higher" slope; wide cut t11+: follow-through swings to screen-left behind the caster, REST lower-left. Side camera (vfx-shot, caster's left, `proj-side.png`): wind-up t4-5 tip behind (screen-right) at 28-35 deg up, sweep passes the far side (short), contact t8-10 tip forward-up 31 deg, follow-through drops to the floor behind.
+- Client lag: the client shows key l ~2 ticks late, so expect the extreme on screen ~f6-7 and contact ~f10 (freeze still at effect tick 8).
+- Emitters unchanged (tip_ember_1 3-15, tip_glint_1 5-11 cover the extreme, sweep and follow-through).
+- Preview: `vfx-preview bastion-s1-rig --view side|top|eye --freeze 8:2 --freeze 31:2`, planner accepted. Strips (all three opened): `evidence/animator/r10/strip-hit1-{side,top,eye}.png` (ticks 2,3,4,5,6,7,8,11,12,13,16,21). Top: tip back-right t4-5 -> right t6 -> front-right t7 -> front t8 -> left t11-12 -> back-left t13 -> back-right overshoot t16 -> REST t21 (a full circle of emitter dots). Per-key: `evidence/animator/r10/per-key-r10.txt`. Real client not run (by instruction).
+- For the vfx ring: blade root (local y 0.7) / tip (local y 2.5) per displayed tick 4-10 in anchor coords: t4 (-0.84,1.06,-0.12)/(-2.10,1.79,-1.18); t5 (-0.76,1.04,-0.21)/(-1.81,1.71,-1.51); t6 (-1.03,0.87,0.20)/(-2.80,1.13,-0.05); t7 (-0.84,1.06,0.70)/(-2.10,1.79,1.76); t8-10 (-0.39,1.13,0.89)/(-0.50,2.04,2.44); t11 (0.14,1.06,0.70)/(1.40,1.79,1.76); t12 (0.34,0.86,0.17)/(2.09,1.10,-0.14).

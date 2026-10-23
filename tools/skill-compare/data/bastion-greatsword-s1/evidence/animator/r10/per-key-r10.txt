@@ -1,0 +1,124 @@
+h0 1.15 psi -28.0; plane pitch at phi 0/90/180/270: 30.5 11.2 -9.5 11.2
+key tick   phi  pitch  chunk  eulerd  tip(x,y,z)            face
+  0    1    0.1   52.0    0.0    0.0  (-0.35, 2.74, 1.83)  [-1.  0.  0.]  euler (-336.4, -47.8, -59.4)
+  1    2    0.1   52.0    0.0    0.0  (-0.35, 2.74, 1.83)  [-1.  0.  0.]  euler (-336.4, -47.8, -59.4)
+  2    3  290.0   40.0   57.1   50.1  (-2.15, 2.38, 0.95)  [-0.54 -0.29 -0.79]  euler (-286.3, -21.0, -60.8)
+  3    4  230.0   24.0   56.6   52.7  (-2.10, 1.79,-1.18)  [ 0.36 -0.51 -0.78]  euler (-233.6, -8.2, -69.0)
+  4    5  219.0   22.0   24.8   21.0  (-1.81, 1.71,-1.51)  [ 0.69 -0.25 -0.68]  euler (-223.2, -8.8, -90.0)
+  5    6  262.0    8.2   51.7   38.7  (-2.80, 1.13,-0.05)  [ 0.19  0.42 -0.89]  euler (-261.9, 11.6, -117.6)
+  6    7  310.0   24.0   49.0   44.5  (-2.10, 1.79, 1.76)  [-0.22  0.66 -0.72]  euler (-306.4, -8.2, -123.7)
+  7    8  356.0   30.4   41.9   38.7  (-0.50, 2.04, 2.44)  [-0.46  0.75 -0.47]  euler (-345.0, -27.1, -128.1)
+  8   11   50.0   24.0   48.9   56.4  ( 1.40, 1.79, 1.76)  [-0.44  0.89 -0.09]  euler (-401.4, -38.5, -151.1)
+  9   12  100.0    7.5   51.5   59.7  ( 2.09, 1.10,-0.14)  [-0.16  0.97 -0.18]  euler (-461.2, -27.2, -195.9)
+ 10   13  143.0   -8.5   48.8   41.2  ( 1.14, 0.40,-1.68)  [-0.31  0.87 -0.39]  euler (-502.3, -3.7, -224.9)
+ 11   14  175.0  -14.5   38.2   28.0  (-0.14, 0.15,-2.12)  [-0.67  0.7  -0.24]  euler (-530.3, 11.9, -244.1)
+ 12   15  197.0  -14.7   31.3   20.6  (-1.06, 0.14,-2.02)  [-0.87  0.47  0.14]  euler (-551.0, 19.5, -261.6)
+ 13   16  206.0  -12.0   31.5   26.9  (-1.42, 0.25,-1.90)  [-0.9   0.01  0.44]  euler (-560.7, 20.0, -288.4)
+ 14   17  197.0  -13.1    9.1    9.2  (-1.06, 0.21,-2.04)  [-0.96  0.01  0.29]  euler (-551.5, 18.0, -289.5)
+ 15   18  189.9  -13.9    7.0    7.0  (-0.77, 0.17,-2.10)  [-0.99  0.01  0.17]  euler (-544.5, 16.4, -290.1)
+ 16   19  184.7  -14.5    5.2    5.1  (-0.55, 0.15,-2.12)  [-1.    0.    0.08]  euler (-539.4, 15.2, -290.4)
+ 17   20  181.6  -14.8    3.1    3.1  (-0.42, 0.13,-2.12)  [-1.    0.    0.03]  euler (-536.3, 14.5, -290.6)
+ 18   21  180.0  -15.0    1.6    1.5  (-0.35, 0.13,-2.12)  [-1.  0.  0.]  euler (-534.8, 14.1, -290.6)
+ 19   22  180.0  -15.0    0.0    0.0  (-0.35, 0.13,-2.12)  [-1.  0.  0.]  euler (-534.8, 14.1, -290.6)
+ 20   23  180.0  -15.0    0.0    0.0  (-0.35, 0.13,-2.12)  [-1.  0.  0.]  euler (-534.8, 14.1, -290.6)
+ 21   24  172.0  -14.0   31.6   29.1  (-0.01, 0.17,-2.11)  [-0.85  0.47 -0.24]  euler (-527.7, 10.4, -261.5)
+ 22   25  152.0   -3.0   46.9   40.8  ( 0.83, 0.64,-1.91)  [-0.32  0.92 -0.23]  euler (-512.5, -6.4, -220.7)
+phi travel key4->key13 347.0 chunk sum 4->13 392.67031487970456
+OK
+wrote /IdeaProjects/Astera/.claude/worktrees/agent-ad2ee7cf6b372bb67/content/vfx/bastion-s1-rig.yaml
+FP coverage (eye (0,1.62,0) +Z, vfov 70, 16:9):
+tick  0 key  0:   5.9%  half-tick ->k1:   5.9%  near<0.3: False
+tick  1 key  0:   5.9%  half-tick ->k1:   5.9%  near<0.3: False
+tick  2 key  1:   5.9%  half-tick ->k2:   7.0%  near<0.3: False
+tick  3 key  2:   0.0%  half-tick ->k3:   0.0%  near<0.3: False
+tick  4 key  3:   0.0%  half-tick ->k4:   0.0%  near<0.3: False
+tick  5 key  4:   0.0%  half-tick ->k5:   0.0%  near<0.3: False
+tick  6 key  5:   0.0%  half-tick ->k6:   0.0%  near<0.3: False
+tick  7 key  6:   4.6%  half-tick ->k7:   4.7%  near<0.3: False
+tick  8 key  7:   4.0%  half-tick ->k8:   4.2%  near<0.3: False
+tick  9 key  7:   4.0%  half-tick ->k8:   4.2%  near<0.3: False
+tick 10 key  7:   4.0%  half-tick ->k8:   4.2%  near<0.3: False
+tick 11 key  8:   5.9%  half-tick ->k9:   0.4%  near<0.3: False
+tick 12 key  9:   0.0%  half-tick ->k10:   0.0%  near<0.3: False
+
+blade per displayed tick (anchor x=left y=up z=fwd; caster feet origin): root = local y 0.7, tip = local y 2.5
+tick  3 key  2 root (-0.85, 1.22, 0.48) tip (-2.15, 2.38, 0.95)
+tick  4 key  3 root (-0.84, 1.06,-0.12) tip (-2.10, 1.79,-1.18)
+tick  5 key  4 root (-0.76, 1.04,-0.21) tip (-1.81, 1.71,-1.51)
+tick  6 key  5 root (-1.03, 0.87, 0.20) tip (-2.80, 1.13,-0.05)
+tick  7 key  6 root (-0.84, 1.06, 0.70) tip (-2.10, 1.79, 1.76)
+tick  8 key  7 root (-0.39, 1.13, 0.89) tip (-0.50, 2.04, 2.44)
+tick  9 key  7 root (-0.39, 1.13, 0.89) tip (-0.50, 2.04, 2.44)
+tick 10 key  7 root (-0.39, 1.13, 0.89) tip (-0.50, 2.04, 2.44)
+tick 11 key  8 root ( 0.14, 1.06, 0.70) tip ( 1.40, 1.79, 1.76)
+tick 12 key  9 root ( 0.34, 0.86, 0.17) tip ( 2.09, 1.10,-0.14)
+tick 13 key 10 root ( 0.07, 0.67,-0.26) tip ( 1.14, 0.40,-1.68)
+tick 14 key 11 root (-0.29, 0.60,-0.38) tip (-0.14, 0.15,-2.12)
+tick 15 key 12 root (-0.55, 0.60,-0.35) tip (-1.06, 0.14,-2.02)
+tick 16 key 13 root (-0.65, 0.63,-0.32) tip (-1.42, 0.25,-1.90)
+tick 17 key 14 root (-0.55, 0.62,-0.36) tip (-1.06, 0.21,-2.04)
+tick 18 key 15 root (-0.47, 0.61,-0.38) tip (-0.77, 0.17,-2.10)
+tick 19 key 16 root (-0.40, 0.60,-0.38) tip (-0.55, 0.15,-2.12)
+tick 20 key 17 root (-0.37, 0.59,-0.38) tip (-0.42, 0.13,-2.12)
+tick 21 key 18 root (-0.35, 0.59,-0.38) tip (-0.35, 0.13,-2.12)
+tick 22 key 19 root (-0.35, 0.59,-0.38) tip (-0.35, 0.13,-2.12)
+
+edge lead (angle between the nearer edge axis and the tip chord to the next key):
+key  2:  66.7 deg
+key  3:  64.9 deg
+key  4:  62.7 deg
+key  5:  40.3 deg
+key  6:  24.0 deg
+key  7:  23.2 deg
+key  8:  23.0 deg
+key  9:   7.7 deg
+key 10:  15.2 deg
+key 11:  40.6 deg
+key 12:  76.8 deg
+key 13:  83.0 deg
+compare
+  t 1 k 0 root (  256, 180) tip (  330,  86) screen-angle   52.2 len  120px/360
+  t 2 k 1 root (  285, 180) tip (  360,  86) screen-angle   51.4 len  121px/360
+  t 3 k 2 root (  307, 186) tip (  345, 128) screen-angle   57.2 len   70px/360
+  t 4 k 3 root (  293, 190) tip (  195, 168) screen-angle  167.3 len  101px/360
+  t 5 k 4 root (  291, 190) tip (  178, 167) screen-angle  168.6 len  115px/360
+  t 6 k 5 root (  294, 220) tip (  198, 447) screen-angle -113.0 len  246px/360
+  t 7 k 6 root (  320, 207) tip (  631, 172) screen-angle    6.3 len  313px/360
+  t 8 k 7 root (  328, 194) tip (  577,  63) screen-angle   27.7 len  282px/360
+  t 9 k 7 root (  328, 194) tip (  577,  63) screen-angle   27.7 len  282px/360
+  t10 k 7 root (  328, 194) tip (  577,  63) screen-angle   27.7 len  282px/360
+  t11 k 8 root (  296, 184) tip (  378, 100) screen-angle   45.9 len  117px/360
+  t12 k 9 root (  281, 187) tip (  270, 130) screen-angle  101.1 len   58px/360
+  t13 k10 root (  267, 196) tip (  175, 184) screen-angle  172.5 len   93px/360
+  t14 k11 root (  262, 202) tip (  120, 232) screen-angle -168.3 len  145px/360
+  t15 k12 root (  262, 205) tip (   97, 266) screen-angle -159.9 len  176px/360
+  t16 k13 root (  262, 206) tip (   90, 274) screen-angle -158.4 len  186px/360
+  t17 k14 root (  262, 205) tip (   94, 261) screen-angle -161.4 len  177px/360
+  t18 k15 root (  262, 204) tip (  101, 252) screen-angle -163.4 len  168px/360
+  t19 k16 root (  262, 204) tip (  107, 245) screen-angle -164.8 len  160px/360
+  t20 k17 root (  262, 203) tip (  111, 242) screen-angle -165.6 len  155px/360
+  t21 k18 root (  262, 203) tip (  114, 240) screen-angle -166.0 len  153px/360
+  t22 k19 root (  262, 203) tip (  114, 240) screen-angle -166.0 len  153px/360
+side
+  t 1 k 0 root (  306, 154) tip (  265, 102) screen-angle  128.1 len   66px/360
+  t 2 k 1 root (  306, 154) tip (  265, 102) screen-angle  128.1 len   66px/360
+  t 3 k 2 root (  310, 156) tip (  298, 123) screen-angle  109.1 len   35px/360
+  t 4 k 3 root (  317, 158) tip (  347, 137) screen-angle   35.1 len   37px/360
+  t 5 k 4 root (  318, 158) tip (  356, 138) screen-angle   28.1 len   43px/360
+  t 6 k 5 root (  313, 160) tip (  321, 152) screen-angle   44.4 len   11px/360
+  t 7 k 6 root (  307, 158) tip (  280, 137) screen-angle  142.1 len   34px/360
+  t 8 k 7 root (  304, 157) tip (  250, 125) screen-angle  149.3 len   63px/360
+  t 9 k 7 root (  304, 157) tip (  250, 125) screen-angle  149.3 len   63px/360
+  t10 k 7 root (  304, 157) tip (  250, 125) screen-angle  149.3 len   63px/360
+  t11 k 8 root (  306, 158) tip (  249, 122) screen-angle  148.2 len   68px/360
+  t12 k 9 root (  313, 160) tip (  326, 150) screen-angle   37.3 len   17px/360
+  t13 k10 root (  318, 163) tip (  382, 177) screen-angle  -12.6 len   65px/360
+  t14 k11 root (  320, 163) tip (  382, 180) screen-angle  -14.8 len   64px/360
+  t15 k12 root (  320, 163) tip (  371, 177) screen-angle  -14.5 len   53px/360
+  t16 k13 root (  319, 163) tip (  366, 173) screen-angle  -12.1 len   48px/360
+  t17 k14 root (  320, 163) tip (  372, 175) screen-angle  -12.9 len   53px/360
+  t18 k15 root (  320, 163) tip (  375, 177) screen-angle  -13.7 len   57px/360
+  t19 k16 root (  320, 163) tip (  378, 178) screen-angle  -14.3 len   60px/360
+  t20 k17 root (  320, 163) tip (  379, 179) screen-angle  -14.8 len   61px/360
+  t21 k18 root (  320, 163) tip (  380, 180) screen-angle  -15.1 len   62px/360
+  t22 k19 root (  320, 163) tip (  380, 180) screen-angle  -15.1 len   62px/360
