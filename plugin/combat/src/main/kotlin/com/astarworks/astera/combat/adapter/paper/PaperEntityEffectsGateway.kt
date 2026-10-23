@@ -106,8 +106,11 @@ public class PaperEntityEffectsGateway(
     override fun setHeldItemHidden(target: PlayerId, hidden: Boolean) {
         val owner = server.getPlayer(target.uuid)?.takeIf { it.isValid } ?: return
         val shown = if (hidden) org.bukkit.inventory.ItemStack.of(org.bukkit.Material.AIR) else owner.inventory.itemInMainHand
+        // Includes the owner: the client applies the equipment packet to its own selected hotbar slot, so first person
+        // and own third person stop drawing the real weapon while a rig draws it. Packet-only; the server inventory
+        // is untouched, and the restore (hidden = false) re-sends the real stack. Any later inventory sync also restores it.
         for (viewer in owner.world.players) {
-            if (viewer != owner) viewer.sendEquipmentChange(owner, org.bukkit.inventory.EquipmentSlot.HAND, shown)
+            viewer.sendEquipmentChange(owner, org.bukkit.inventory.EquipmentSlot.HAND, shown)
         }
     }
 
