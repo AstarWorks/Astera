@@ -13,6 +13,13 @@ params:
 phases:
   type: sequence
   cast:
+  - type: play_animation
+    targets:
+      type: caster
+    animation: hide-main-hand
+    ticks:
+      type: literal
+      value: 60
   - type: play_vfx
     targets:
       type: caster
@@ -117,6 +124,16 @@ phases:
     delay_ticks:
       type: literal
       value: 35
+  - type: play_animation
+    targets:
+      type: caster
+    animation: hide-main-hand
+    ticks:
+      type: literal
+      value: 18
+    delay_ticks:
+      type: literal
+      value: 54
   - type: play_vfx
     targets:
       type: cone

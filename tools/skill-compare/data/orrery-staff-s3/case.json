@@ -64,13 +64,13 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "S3の命中輪を同じ標的へ追従させ、最後の輪とビームの持続を延長。移動後に輪が元位置へ残る問題は改善。輪の形・中心位置・光、武器の二重表示、姿勢・カメラ・Charge分岐は未一致。"
+    "reason": "演出中に手持ち武器の見た目だけを隠し、二重表示を改善。本人視点の手持ち・ホットバーも一時的に空になる。実アイテムID・個数・モデル指定は不変で、終了後の表示復帰を確認。腕姿勢・武器位置・形状細部・光・カメラは未一致。"
   },
   "weapon": "orrery-staff",
   "identity": "R Corp. 4th Pack Reindeer Rodion",
   "videoTitle": "R Corp. 4th Pack Reindeer Rodion — skill showcase",
-  "iterations": 6,
+  "iterations": 8,
   "report": "/report/orrery-staff",
   "referenceRevision": "37cecbf269279ceeb30fc8758063b98bfd2b4119e0e80d61007e51ec20da4f94",
-  "contentRevision": "ec41a846024c938b36c220aa1e5f15439675b131b11f5b789f6283078fd9acc8"
+  "contentRevision": "b7d7d31228d398ba8a338fc816cb4eec82c6f1d2528c172b0c399874d1c6afc3"
 }

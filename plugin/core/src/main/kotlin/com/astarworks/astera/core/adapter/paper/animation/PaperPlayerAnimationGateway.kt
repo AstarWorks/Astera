@@ -17,6 +17,9 @@ import com.astarworks.astera.core.domain.item.EquipSlot
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
+import org.bukkit.Material
+import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.ItemStack
 import org.bukkit.Location
 import org.bukkit.Server
 import org.bukkit.entity.ArmorStand
@@ -123,6 +126,48 @@ public class PaperPlayerAnimationGateway(
     private val log = LoggerFactory.getLogger(javaClass)
     private data class PoseOverride(val player: Player, val previous: org.bukkit.entity.Pose, val fixed: Boolean)
     private val poseOverrides = mutableMapOf<PlayerId, PoseOverride>()
+    private class HandOverride(val player: Player, var until: Long) {
+        var task: com.astarworks.astera.core.application.port.outbound.IScheduler.TaskHandle? = null
+    }
+    private val handOverrides = mutableMapOf<PlayerId, HandOverride>()
+
+    private fun showHand(player: Player, item: ItemStack) {
+        // Appearance packets only. Never replace inventory contents or restore an old item snapshot.
+        player.world.players.forEach { viewer -> viewer.sendEquipmentChange(player, EquipmentSlot.HAND, item) }
+    }
+
+    private fun releaseHand(id: PlayerId, state: HandOverride) {
+        if (handOverrides[id] !== state) return
+        handOverrides.remove(id)
+        state.task?.cancel()
+        if (onlinePlayer(id) === state.player) showHand(state.player, state.player.inventory.itemInMainHand)
+    }
+
+    private fun hideHand(id: PlayerId, player: Player, duration: Long): Result<Unit, PlayerAnimationError> {
+        if (duration == 0L) return Result.success(Unit)
+        val clock = scheduler ?: return Result.failure(PlayerAnimationError.Platform("Animation scheduler unavailable"))
+        val until = clock.currentTick() + duration
+        handOverrides[id]?.let { old ->
+            if (old.player === player) {
+                old.until = maxOf(old.until, until)
+                return Result.success(Unit)
+            }
+            releaseHand(id, old)
+        }
+        val state = HandOverride(player, until)
+        handOverrides[id] = state
+        val empty = ItemStack(Material.AIR)
+        showHand(player, empty)
+        state.task = clock.runRepeating(
+            com.astarworks.astera.core.application.port.outbound.ticks(1),
+            com.astarworks.astera.core.application.port.outbound.ticks(1),
+        ) {
+            if (!player.isOnline || player.isDead || clock.currentTick() >= state.until) releaseHand(id, state)
+            else showHand(player, empty)
+        }
+        return Result.success(Unit)
+    }
+
 
     private fun releasePose(id: PlayerId, state: PoseOverride) {
         if (poseOverrides[id] !== state) return
@@ -137,6 +182,7 @@ public class PaperPlayerAnimationGateway(
     /** Release visual pose overrides before the scheduler stops on plugin disable. */
     public fun shutdown() {
         poseOverrides.toMap().forEach { (id, state) -> releasePose(id, state) }
+        handOverrides.toMap().forEach { (id, state) -> releaseHand(id, state) }
     }
 
     private val sneakStates: ConcurrentHashMap<PlayerId, Boolean> = ConcurrentHashMap()
@@ -289,6 +335,7 @@ public class PaperPlayerAnimationGateway(
         }
         if (!server.isPrimaryThread) return offMain("playCustomAnimation")
         val player = onlinePlayer(playerId) ?: return unknownPlayer(playerId)
+        if (animation.value == "hide-main-hand") return hideHand(playerId, player, durationTicks)
         if (animation.value == "swing-main-hand") {
             // One native swing: duration gates zero but does not retime the client's arm animation.
             return if (durationTicks == 0L) Result.success(Unit) else swingArm(playerId, PlayerHand.MainHand)
