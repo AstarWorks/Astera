@@ -1,0 +1,18 @@
+{
+  "case": "crimson-chain-axe-transformed-combo-a",
+  "contentRevision": "7dbdd142ef49e0459da293fd8278a4c474811e7ccbdbd564cbcb166cac5669a6",
+  "status": "descending-hook-return-observed-fidelity-failed",
+  "scope": "One direct Crimson combo cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "peak": 59,
+  "limit": 60,
+  "sampleCount": 769,
+  "captureQuality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 2.0
+  },
+  "capturedAt": "2026-10-23T05:10:47.561856+00:00",
+  "rawEvidence": "build/limbus-review/round55/live-displays.json",
+  "review": "Round55: 下降振りの物理鎖を前方の赤い軌跡から分離。実機frame089/092で背後の上向きフック、095で低い前方戻りを確認。接写のはみ出し・手/人物姿勢・正確な形状・標的の浮遊・光/カメラ/命中/通常変身入力は未一致。",
+  "sourceReview": "f2463/2465/2466/2468/2471: behind/up hook separate from forward luminous arch, then low return. f2431/2434/2436 target elevated while caster grounded; target motion remains unimplemented."
+}
