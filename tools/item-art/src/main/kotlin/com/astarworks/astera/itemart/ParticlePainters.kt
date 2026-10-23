@@ -108,7 +108,7 @@ internal object ParticlePainters {
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
         "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
-        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal,
+        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue,
     )
 
     /** A 4-point star that pops open, hangs, then shrinks, with a small diagonal star and a white-hot core. */
@@ -274,6 +274,18 @@ internal object ParticlePainters {
             val centre = 16.0 + 3.0 * (u - 0.5) + 0.8 * sin(3.0 * PI * u)
             val edge = 1.0 - abs(x - centre) / max(0.01, width)
             if (edge <= 0.0) 0.0 else min(1.0, 0.3 + edge * 1.4)
+        }
+    }
+
+    /** Broader, chipped blue face seen alongside the pointed white petals. */
+    private fun petalBlue(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val u = (y - 5.0) / 22.0
+            if (u !in 0.0..1.0) return@forEach 0.0
+            val width = 9.0 * sin(PI * u).pow(0.4) * (0.85 + 0.12 * sin(7.0 * PI * u))
+            val centre = 16.0 - 3.0 * u + sin(2.0 * PI * u)
+            val edge = 1.0 - abs(x - centre) / max(0.01, width)
+            if (edge <= 0.0) 0.0 else 0.3 + 0.4 * edge
         }
     }
 

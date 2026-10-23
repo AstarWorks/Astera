@@ -10,6 +10,7 @@ sources:
   vfx-v1: { file: sheets/vfx-v1.png, grid: [6, 6] }
 
 sprites:
+  procuration-petal-blue: { draw: petal_blue, frames: 1, size: 128, color: "#809de9" }
   procuration-petal: { draw: petal, frames: 1, size: 128, color: "#9cbcff" }
   spark: { draw: spark, frames: 6, color: "#ffe27a" }
   ring: { draw: ring, frames: 6, color: "#7fd6ff" }
