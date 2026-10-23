@@ -204,3 +204,10 @@ S3の2撮影はカメラ遅れ29ms/7ms、同一フレーム最大1/2で基準内
 - 専用サーバーの2プレイヤー検証で Caster の UUID を維持したまま赤から初期色の青へ戻り、Watcher の UUID と赤色が維持された。新しい20tickの寿命終了後、Caster の表示が消えることも確認。証拠は `build/limbus-review/round27/reuse-probe.json`。
 - `:plugin:core:shadowJar :plugin:combat:shadowJar contentLint` 成功。初回撮影はカメラ134ms遅延で無効、再撮影は8ms・連続重複最大2フレーム。`repeat-valid` の022〜028で爪が継続し、前回空白だった026にも存在する。
 - 完全一致は未達。参照相対27/30/32/35/38/41フレームでは太い曲線状の白い光帯と青い縁、低い人物姿勢があり、現状の細い直線と角張った黒い爪とは異なる。カメラ追従、変身の状態保持と通常入力も未一致。次はこの形状・姿勢差を修正する。
+
+### Round 28 — 横移動・空中移動の白青の光帯
+
+- 参照相対27/30/32/35/38/41を再観察し、先端が細い白い中心と青い縁を持つ浅い曲線を既存 item-art の painter に追加。`procuration-ribbon` の生成元・PNG・フォント・sprite metadata を保存した。
+- crossing / airborne の分割quad30個を両面sprite6個へ置換し、各VFXは黒い爪48個を含め78→54表示となった。60表示以内という確認はこの2定義単独についてのみで、スキル全体の同時表示上限は未認定。
+- contentLint 458件成功。専用サーバーで sprite/VFX/pack を再読込し、配信ZIPのSHA1と実クライアントで新素材を確認。撮影とruntime/packハッシュは `runtime-review/ribbons-round28.json`、画像は `build/limbus-review/round28/`。
+- 実撮影024で曲線と青い縁を確認し、021〜028の反転でも表示は継続した。031〜034の空中光帯はまだ水平に寄りすぎる。参照の扇状の広がり・高速な形状変化、人物の低い姿勢、黒い爪の丸み、カメラは未一致。完全一致にはしていない。
