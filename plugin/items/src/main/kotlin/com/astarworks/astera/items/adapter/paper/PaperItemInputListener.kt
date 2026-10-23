@@ -63,6 +63,17 @@ public class PaperItemInputListener(
         if (dispatch(attacker, InputKind.LEFT_CLICK, attacker.inventory.itemInMainHand)) e.isCancelled = true
     }
 
+    /** E2E trace only: whether the arm swing / the attack packet reached the server at all. */
+    @EventHandler(ignoreCancelled = false)
+    public fun traceSwing(e: io.papermc.paper.event.player.PlayerArmSwingEvent) {
+        if (TRACE) log.info("[weapons-debug] swing {} hand={} dim={}", e.player.name, e.hand, e.player.world.name)
+    }
+
+    @EventHandler(ignoreCancelled = false)
+    public fun tracePreAttack(e: io.papermc.paper.event.player.PrePlayerAttackEntityEvent) {
+        if (TRACE) log.info("[weapons-debug] preattack {} victim={} cancelled={}", e.player.name, e.attacked.name, e.isCancelled)
+    }
+
     @EventHandler
     public fun onDrop(e: PlayerDropItemEvent) {
         if (dispatch(e.player, InputKind.DROP, e.itemDrop.itemStack)) e.isCancelled = true
