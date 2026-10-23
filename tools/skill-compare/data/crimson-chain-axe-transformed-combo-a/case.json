@@ -66,12 +66,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "Round59: 接触前後3区間に既存crouchを適用。frame050/071/086で低い姿勢、115で上昇時の通常姿勢を確認。腕の伸ばし・胴体の捻り・手と鎖の接続・空中標的との高さ・光/カメラ/命中/通常入力は未一致。"
+    "reason": "Round60: 標準の腕振りを4回の鎖振りへ追加。実機frame047/054/071/086で腕の動きを確認。標的HPは170.47997、他2体200で前版と同じ。原作の腕/胴体の軌道、手と鎖の固定接続、空中標的への高さ、光/カメラ/命中仕様/通常入力は未一致。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 27,
+  "iterations": 28,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
-  "contentRevision": "ff30cd147eeaa95ff891199b259d5187f662cb67aeb41faf3d5520f1ccdeff0a"
+  "contentRevision": "1f6cf967b2eea0e9a0dff1e8f6571f900bb47516cbe64c3bdc5f8949ab2b43b3"
 }
