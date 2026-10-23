@@ -326,7 +326,7 @@ public class VfxPlayer(
 
     private fun displayKind(kind: VfxElementKind): DisplayKind? = when (kind) {
         is VfxElementKind.Block -> DisplayKind.Block(kind.blockKey)
-        is VfxElementKind.Item -> DisplayKind.Item(kind.itemId, kind.displayMode)
+        is VfxElementKind.Item -> DisplayKind.Item(kind.itemId, kind.displayMode, kind.itemModel)
         is VfxElementKind.Text -> DisplayKind.Text(
             lines = listOf(LocalizedText(mapOf(LocaleCode.EN to kind.text))),
             backgroundArgb = kind.backgroundArgb,

@@ -1,0 +1,44 @@
+id: couture-cutout-ground-ring
+duration_ticks: 12
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: floor-ripple
+  kind:
+    type: sprite
+    sprite: ring
+    frame_ticks: 2
+    loop: false
+    color: '#FFF0E9'
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 0.08
+    - 0
+    rotate:
+    - 0
+    - 90
+    - 0
+    scale:
+    - 2
+    - 1.2
+    - 1
+    alpha: 1
+  - t: 5
+    scale:
+    - 4
+    - 2.4
+    - 1
+    alpha: 0.8
+  - t: 10
+    scale:
+    - 5
+    - 3
+    - 1
+    alpha: 0

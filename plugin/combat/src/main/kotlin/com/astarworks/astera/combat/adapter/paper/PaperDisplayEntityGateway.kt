@@ -17,6 +17,7 @@ import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.Server
 import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
@@ -31,8 +32,8 @@ import org.slf4j.LoggerFactory
 /**
  * Paper [IDisplayEntityGateway] (WP5): spawns non-persistent `BlockDisplay` /
  * `ItemDisplay` / `TextDisplay` entities. Item displays resolve the item id as
- * a vanilla material key (Astera custom items need the Items plugin and are not
- * resolvable from Combat). Main thread only.
+ * a vanilla material key and optionally apply a resource-pack item_model.
+ * No custom-item gameplay data or Items plugin dependency is required. Main thread only.
  */
 public class PaperDisplayEntityGateway(
     private val server: Server,
@@ -93,8 +94,13 @@ public class PaperDisplayEntityGateway(
                 val material = Material.matchMaterial(kind.itemId.value)
                     ?: Material.matchMaterial(kind.itemId.value.replace('-', '_'))
                     ?: return unsupported("item '${kind.itemId.value}' is not a vanilla material")
+                val stack = ItemStack(material)
+                kind.itemModel?.let { key ->
+                    val model = NamespacedKey.fromString(key) ?: return unsupported("invalid item model '$key'")
+                    stack.itemMeta = stack.itemMeta.apply { itemModel = model }
+                }
                 bukkitWorld.spawn(location, ItemDisplay::class.java) {
-                    it.setItemStack(ItemStack(material))
+                    it.setItemStack(stack)
                     it.itemDisplayTransform = itemMode(kind.displayMode)
                     configure(it, spec)
                 }

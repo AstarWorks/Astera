@@ -6,11 +6,12 @@
   "end_s": 53.98726666666666,
   "skill": {
     "name": "Cutout (S2-2; probable passive follow-up)",
-    "coins": 2
+    "coins": 2,
+    "asteraSkillId": "couture-rapier-cutout"
   },
   "variant": {
     "label": "Cutout / 追撃",
-    "implementation": "missing",
+    "implementation": "prototype",
     "order": 2
   },
   "mc": {
@@ -36,15 +37,16 @@
       "notes": "Giant detached floral scissors descend and close through enemy; first target overlap visible f1586, closure flash f1587."
     }
   ],
-  "notes": "対応名は推定。5本の下降刃は1接触群。巨大鋏の閉鎖が2接触目。E.G.Oへ割り当てない。 追撃条件・動作・命中・カメラは未実装。別スキルの撮影を流用しない。",
-  "status": "analysed",
+  "notes": "対応名は推定。5本の下降鋏は1接触群、巨大鋏の閉鎖が2接触目。直接呼出し試作で、追撃分岐・通常入力は未接続。",
+  "status": "captured",
   "verification": {
-    "status": "unverified",
-    "notes": "対応名は推定。5本の下降刃は1接触群。巨大鋏の閉鎖が2接触目。E.G.Oへ割り当てない。 追撃条件・動作・命中・カメラは未実装。別スキルの撮影を流用しない。"
+    "status": "failed",
+    "reason": "5本の鋏→下降接触→巨大鋏閉鎖の直接呼出し試作。花飾り・白い連結軌跡・接触時の発光・腕姿勢・カメラは未一致。追撃条件は未接続。"
   },
   "weapon": "couture-rapier",
   "identity": "Haute Couture::Alteration Shop Rodion",
-  "iterations": 0,
+  "iterations": 1,
   "report": "/report/couture-rapier",
-  "referenceRevision": "0088d1573794f40b284eb444517e050283b613370be1ddcb7eb6b60ddf4b3247"
+  "referenceRevision": "0088d1573794f40b284eb444517e050283b613370be1ddcb7eb6b60ddf4b3247",
+  "contentRevision": "bc34d16d40ea6aff5058a1e3da40ead4549d8ca19a87ed8e168840058e86d22b"
 }
