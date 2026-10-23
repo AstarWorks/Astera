@@ -15,9 +15,12 @@ def main():
     if a.out.exists(): raise ValueError('Use a fresh resource-pack directory')
     source = ROOT/'content/models/items/vendetta-rifle.model.json'
     model = json.loads(source.read_text())
+    tints = model.pop('astera_tints')
+    definition = {'type':'minecraft:model','model':'astera:items/vendetta-rifle',
+                  'tints':[{'type':'minecraft:constant','value':rgb} for rgb in tints]}
     files = {
         'pack.mcmeta':{'pack':{'description':'Vanilla material vendetta-rifle capture','min_format':[97,0],'max_format':[97,1]}},
-        'assets/astera/items/vendetta-rifle.json':{'model':{'type':'minecraft:model','model':'astera:items/vendetta-rifle'}},
+        'assets/astera/items/vendetta-rifle.json':{'model':definition},
         'assets/astera/models/items/vendetta-rifle.json':model,
         'assets/minecraft/atlases/blocks.json':{'sources':[{'type':'directory','source':'blocks','prefix':'blocks/'}]},
     }

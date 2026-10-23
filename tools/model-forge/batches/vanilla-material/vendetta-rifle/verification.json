@@ -1,27 +1,1806 @@
 {
-  "elementCount": 178,
-  "bbox": [
-    [
-      -7.899999999999999,
-      7.307617736356693,
-      5.7749999999999995
-    ],
-    [
-      24.900000000000002,
-      19.56,
-      10.81
-    ]
+  "originalRevision": "36743b70",
+  "geometryAndDisplayMatchHead": true,
+  "elements": 178,
+  "palette": [
+    2634560,
+    11368786,
+    8690611,
+    16744727,
+    14625621,
+    13516536
   ],
-  "allFaceDensitiesOne": true,
-  "measuredFaces": 1068,
+  "exportImportIdentical": true,
+  "exportedPngs": 0,
   "validation": {
     "valid": true,
     "errors": [],
     "warnings": {
-      "coplanar_contact_possible_zfight": 39,
       "overlap_aabb": 466,
-      "floating_components_aabb": 1
+      "floating_components_aabb": 1,
+      "coplanar_contact_possible_zfight": 39
     }
   },
-  "geometryAndDisplayUnchanged": true
+  "partMap": [
+    {
+      "id": "e0001",
+      "name": "receiver",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0002",
+      "name": "stock core",
+      "originalRegion": [
+        12,
+        0
+      ],
+      "material": "wood.stripped_oak_log",
+      "tint": "#ad7952"
+    },
+    {
+      "id": "e0003",
+      "name": "grip",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0004",
+      "name": "forearm",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0005",
+      "name": "barrel",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0006",
+      "name": "stock sloping heel",
+      "originalRegion": [
+        12,
+        0
+      ],
+      "material": "wood.stripped_oak_log",
+      "tint": "#ad7952"
+    },
+    {
+      "id": "e0007",
+      "name": "stock neck",
+      "originalRegion": [
+        12,
+        0
+      ],
+      "material": "wood.stripped_oak_log",
+      "tint": "#ad7952"
+    },
+    {
+      "id": "e0008",
+      "name": "stock buttpad",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0009",
+      "name": "cheek comb",
+      "originalRegion": [
+        12,
+        0
+      ],
+      "material": "wood.stripped_oak_log",
+      "tint": "#ad7952"
+    },
+    {
+      "id": "e0010",
+      "name": "receiver upper bevel",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0011",
+      "name": "receiver lower bevel",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0012",
+      "name": "receiver upper bevel",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0013",
+      "name": "receiver lower bevel",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0014",
+      "name": "guard heel",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0015",
+      "name": "guard front",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0016",
+      "name": "trigger",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0017",
+      "name": "barrel collar facet 0",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0018",
+      "name": "barrel collar facet 1",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0019",
+      "name": "barrel collar facet 2",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0020",
+      "name": "barrel collar facet 3",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0021",
+      "name": "barrel collar facet 0",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0022",
+      "name": "barrel collar facet 1",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0023",
+      "name": "barrel collar facet 2",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0024",
+      "name": "barrel collar facet 3",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0025",
+      "name": "muzzle shroud facet 0",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0026",
+      "name": "muzzle shroud facet 1",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0027",
+      "name": "muzzle shroud facet 2",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0028",
+      "name": "muzzle shroud facet 3",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0029",
+      "name": "dark muzzle face facet 0",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "concrete.white_concrete",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0030",
+      "name": "dark muzzle face facet 1",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "concrete.white_concrete",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0031",
+      "name": "dark muzzle face facet 2",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "concrete.white_concrete",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0032",
+      "name": "dark muzzle face facet 3",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "concrete.white_concrete",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0033",
+      "name": "front sight post",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0034",
+      "name": "scope mounts",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0035",
+      "name": "scope main facet 0",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0036",
+      "name": "scope main facet 1",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0037",
+      "name": "scope main facet 2",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0038",
+      "name": "scope main facet 3",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0039",
+      "name": "scope ocular facet 0",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0040",
+      "name": "scope ocular facet 1",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0041",
+      "name": "scope ocular facet 2",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0042",
+      "name": "scope ocular facet 3",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0043",
+      "name": "scope objective facet 0",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0044",
+      "name": "scope objective facet 1",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0045",
+      "name": "scope objective facet 2",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0046",
+      "name": "scope objective facet 3",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0047",
+      "name": "lens facet 0",
+      "originalRegion": [
+        4,
+        0
+      ],
+      "material": "stone.calcite",
+      "tint": "#ff8117"
+    },
+    {
+      "id": "e0048",
+      "name": "lens facet 1",
+      "originalRegion": [
+        4,
+        0
+      ],
+      "material": "stone.calcite",
+      "tint": "#ff8117"
+    },
+    {
+      "id": "e0049",
+      "name": "lens facet 2",
+      "originalRegion": [
+        4,
+        0
+      ],
+      "material": "stone.calcite",
+      "tint": "#ff8117"
+    },
+    {
+      "id": "e0050",
+      "name": "lens facet 3",
+      "originalRegion": [
+        4,
+        0
+      ],
+      "material": "stone.calcite",
+      "tint": "#ff8117"
+    },
+    {
+      "id": "e0051",
+      "name": "receiver side plate",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0052",
+      "name": "ejection recess",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "concrete.white_concrete",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0053",
+      "name": "selector",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0054",
+      "name": "receiver fastener",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0055",
+      "name": "receiver fastener",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0056",
+      "name": "receiver fastener",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0057",
+      "name": "receiver fastener",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0058",
+      "name": "grip ribs",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0059",
+      "name": "grip ribs",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0060",
+      "name": "grip ribs",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0061",
+      "name": "grip ribs",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0062",
+      "name": "grip ribs",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0063",
+      "name": "forearm fluting",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0064",
+      "name": "forearm fluting",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0065",
+      "name": "forearm fluting",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0066",
+      "name": "forearm fluting",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0067",
+      "name": "receiver side plate",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0068",
+      "name": "ejection recess",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "concrete.white_concrete",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0069",
+      "name": "selector",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0070",
+      "name": "receiver fastener",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0071",
+      "name": "receiver fastener",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0072",
+      "name": "receiver fastener",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0073",
+      "name": "receiver fastener",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0074",
+      "name": "grip ribs",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0075",
+      "name": "grip ribs",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0076",
+      "name": "grip ribs",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0077",
+      "name": "grip ribs",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0078",
+      "name": "grip ribs",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0079",
+      "name": "forearm fluting",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0080",
+      "name": "forearm fluting",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0081",
+      "name": "forearm fluting",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0082",
+      "name": "forearm fluting",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0083",
+      "name": "scope clamp facet 0",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0084",
+      "name": "scope clamp facet 1",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0085",
+      "name": "scope clamp facet 2",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0086",
+      "name": "scope clamp facet 3",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0087",
+      "name": "scope clamp facet 0",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0088",
+      "name": "scope clamp facet 1",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0089",
+      "name": "scope clamp facet 2",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0090",
+      "name": "scope clamp facet 3",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0091",
+      "name": "scope turret facet 0",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0092",
+      "name": "scope turret facet 1",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0093",
+      "name": "scope turret facet 2",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0094",
+      "name": "scope turret facet 3",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0095",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0096",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0097",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0098",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0099",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0100",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0101",
+      "name": "stock screw",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0102",
+      "name": "stock screw",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0103",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0104",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0105",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0106",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0107",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0108",
+      "name": "top rail tooth",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0109",
+      "name": "stock screw",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0110",
+      "name": "stock screw",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0111",
+      "name": "muzzle port",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "concrete.white_concrete",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0112",
+      "name": "muzzle port",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "concrete.white_concrete",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0113",
+      "name": "muzzle port",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "concrete.white_concrete",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0114",
+      "name": "muzzle port",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "concrete.white_concrete",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0115",
+      "name": "receiver identity stripe",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0116",
+      "name": "forearm edge",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0117",
+      "name": "receiver identity stripe",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0118",
+      "name": "forearm edge",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0119",
+      "name": "buttplate ribs",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0120",
+      "name": "buttplate ribs",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0121",
+      "name": "buttplate ribs",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0122",
+      "name": "lens retaining lip facet 0",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0123",
+      "name": "lens retaining lip facet 1",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0124",
+      "name": "lens retaining lip facet 2",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0125",
+      "name": "lens retaining lip facet 3",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0126",
+      "name": "lens exposed center facet 0",
+      "originalRegion": [
+        4,
+        0
+      ],
+      "material": "stone.calcite",
+      "tint": "#ff8117"
+    },
+    {
+      "id": "e0127",
+      "name": "lens exposed center facet 1",
+      "originalRegion": [
+        4,
+        0
+      ],
+      "material": "stone.calcite",
+      "tint": "#ff8117"
+    },
+    {
+      "id": "e0128",
+      "name": "lens exposed center facet 2",
+      "originalRegion": [
+        4,
+        0
+      ],
+      "material": "stone.calcite",
+      "tint": "#ff8117"
+    },
+    {
+      "id": "e0129",
+      "name": "lens exposed center facet 3",
+      "originalRegion": [
+        4,
+        0
+      ],
+      "material": "stone.calcite",
+      "tint": "#ff8117"
+    },
+    {
+      "id": "e0130",
+      "name": "short magazine",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0131",
+      "name": "dark wood forearm",
+      "originalRegion": [
+        12,
+        0
+      ],
+      "material": "wood.stripped_oak_log",
+      "tint": "#ad7952"
+    },
+    {
+      "id": "e0132",
+      "name": "blade root",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0133",
+      "name": "blade taper",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0134",
+      "name": "blade tip",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0135",
+      "name": "blade point",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0136",
+      "name": "bayonet red guard",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0137",
+      "name": "bayonet mount",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0138",
+      "name": "crimson optic ring facet 0",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0139",
+      "name": "crimson optic ring facet 1",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0140",
+      "name": "crimson optic ring facet 2",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0141",
+      "name": "crimson optic ring facet 3",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0142",
+      "name": "crimson optic ring facet 0",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0143",
+      "name": "crimson optic ring facet 1",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0144",
+      "name": "crimson optic ring facet 2",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0145",
+      "name": "crimson optic ring facet 3",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0146",
+      "name": "crimson upper receiver",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0147",
+      "name": "magenta receiver inset",
+      "originalRegion": [
+        8,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#ce3ef8"
+    },
+    {
+      "id": "e0148",
+      "name": "magenta forearm inset",
+      "originalRegion": [
+        8,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#ce3ef8"
+    },
+    {
+      "id": "e0149",
+      "name": "crimson upper receiver",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0150",
+      "name": "magenta receiver inset",
+      "originalRegion": [
+        8,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#ce3ef8"
+    },
+    {
+      "id": "e0151",
+      "name": "magenta forearm inset",
+      "originalRegion": [
+        8,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#ce3ef8"
+    },
+    {
+      "id": "e0152",
+      "name": "jewel crimson bezel",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0153",
+      "name": "jewel magenta facet",
+      "originalRegion": [
+        8,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#ce3ef8"
+    },
+    {
+      "id": "e0154",
+      "name": "jewel crimson bezel",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0155",
+      "name": "jewel magenta facet",
+      "originalRegion": [
+        8,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#ce3ef8"
+    },
+    {
+      "id": "e0156",
+      "name": "jewel crimson bezel",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0157",
+      "name": "jewel magenta facet",
+      "originalRegion": [
+        8,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#ce3ef8"
+    },
+    {
+      "id": "e0158",
+      "name": "jewel crimson bezel",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0159",
+      "name": "jewel magenta facet",
+      "originalRegion": [
+        8,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#ce3ef8"
+    },
+    {
+      "id": "e0160",
+      "name": "blade bevel edge",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0161",
+      "name": "blade bevel edge",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0162",
+      "name": "crimson receiver collar",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0163",
+      "name": "crimson receiver collar",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0164",
+      "name": "crimson receiver collar",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0165",
+      "name": "crimson receiver collar",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0166",
+      "name": "crimson receiver collar",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0167",
+      "name": "crimson receiver collar",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0168",
+      "name": "butt red binding",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0169",
+      "name": "butt red binding",
+      "originalRegion": [
+        4,
+        8
+      ],
+      "material": "cloth.white_wool",
+      "tint": "#df2b55"
+    },
+    {
+      "id": "e0170",
+      "name": "blade fuller",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0171",
+      "name": "blade tip bevel",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0172",
+      "name": "blade fuller",
+      "originalRegion": [
+        0,
+        0
+      ],
+      "material": "metal.iron_block",
+      "tint": "#283340"
+    },
+    {
+      "id": "e0173",
+      "name": "blade tip bevel",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0174",
+      "name": "bolt lever",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0175",
+      "name": "bolt knob facet 0",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0176",
+      "name": "bolt knob facet 1",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0177",
+      "name": "bolt knob facet 2",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    },
+    {
+      "id": "e0178",
+      "name": "bolt knob facet 3",
+      "originalRegion": [
+        0,
+        8
+      ],
+      "material": "metal.iron_block",
+      "tint": "#849bb3"
+    }
+  ]
 }
