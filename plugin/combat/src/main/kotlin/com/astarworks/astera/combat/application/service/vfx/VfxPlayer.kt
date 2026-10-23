@@ -131,8 +131,28 @@ public class VfxPlayer(
             return Result.failure(VfxPlayError.OverCapacity(remaining, plan.displayCount, maxLiveDisplays))
         }
         // Keep the current effect if the new plan cannot fit; only replace after admission.
-        replaced.forEach(::finish)
         val instance = Instance(request, plan, scheduler.currentTick())
+        if (plan.attachToAnchor && request.anchorEntityId != null) {
+            val reusable = replaced.flatMap { it.elements }.filter { state ->
+                state.attached && state.handle?.let {
+                    displays.isAttached(it, request.anchorEntityId, request.world)
+                } == true
+            }.toMutableList()
+            for (state in instance.elements) {
+                val next = state.plan
+                if (next.spawnTick != 0 || next.billboard != DisplayBillboard.FIXED) continue
+                val previous = reusable.firstOrNull { old ->
+                    old.plan.kind == next.kind && old.plan.billboard == next.billboard &&
+                        old.plan.brightness == next.brightness && old.plan.glowArgb == next.glowArgb &&
+                        old.plan.viewRange == next.viewRange
+                } ?: continue
+                state.handle = previous.handle
+                state.attached = true
+                previous.handle = null
+                reusable.remove(previous)
+            }
+        }
+        replaced.forEach(::finish)
         reserved += plan.displayCount
         if (advance(instance)) {
             finish(instance)
@@ -252,6 +272,21 @@ public class VfxPlayer(
             is VfxElementKind.Text -> listOf(k.text)
             is VfxElementKind.Quad -> listOf(VfxQuad.text(k))
             else -> emptyList()
+        }
+        // A replacement retains compatible passengers so the client never waits for a
+        // new entity's first render. Reset animated content as well as its transform.
+        state.handle?.let { handle ->
+            when (val kind = spec.kind) {
+                is DisplayKind.Block -> displays.setBlock(handle, kind.blockKey)
+                is DisplayKind.Text -> {
+                    displays.setText(handle, lines)
+                    displays.setTextStyle(handle, kind.backgroundArgb, kind.textOpacity, kind.textRgb)
+                }
+                is DisplayKind.Item -> Unit // Identical kind includes item and display mode.
+            }
+            displays.teleport(handle, instance.position + e.spawnOffset, 0f, 0f, 0)
+            displays.update(handle, e.initial, 0)
+            return
         }
         val anchorId = instance.request.anchorEntityId
         if (instance.plan.follow && instance.plan.attachToAnchor && anchorId != null && e.billboard == DisplayBillboard.FIXED) {

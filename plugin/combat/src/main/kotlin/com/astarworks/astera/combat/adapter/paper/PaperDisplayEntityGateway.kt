@@ -61,6 +61,13 @@ public class PaperDisplayEntityGateway(
         return handle
     }
 
+    override fun isAttached(handle: DisplayHandle, anchor: PlayerId, world: WorldId): Boolean {
+        val attachment = attachments[handle] ?: return false
+        val display = server.getEntity(handle.id) as? Display ?: return false
+        return display.isValid && attachment.anchor == anchor && attachment.world.name == world.value &&
+            attachmentOwner(handle, display, attachment) != null
+    }
+
     private fun attachmentOwner(handle: DisplayHandle, display: Display, attachment: Attachment): Player? {
         val player = server.getPlayer(attachment.anchor.uuid)
         if (player == null || player.world != attachment.world || display.world != attachment.world || display.vehicle != player) {
