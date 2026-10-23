@@ -1,4 +1,4 @@
-# Brief: limbus-modeler (3D weapon model) — bastion-greatsword
+# Brief: model-artist (3D weapon model) — bastion-greatsword
 
 Read `common.md` first. Role: you build the weapon the caster holds and swings. Two deliverables: (A) the item model (what the player's inventory / dropped item / third-person hand show), (B) a block-display **rig-parts list** (what the S1 swing animation actually flies through the air, because rig parts are block displays only).
 

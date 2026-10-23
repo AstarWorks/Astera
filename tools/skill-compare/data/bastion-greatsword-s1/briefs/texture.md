@@ -1,4 +1,4 @@
-# Brief: limbus-vfx, part 1 — 2D effect textures (sprite strips)
+# Brief: vfx-artist, part 1 — 2D effect textures (sprite strips)
 
 Read `common.md` first, then this, then `particles.md` (same role, done after the textures). Role: draw the high-quality 2D art the effects are made of. You do the textures first and hand the sprite ids to yourself for `particles.md`.
 

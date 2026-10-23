@@ -1,6 +1,6 @@
 # Modeler knowledge base
 
-Agent: `.claude/agents/limbus-modeler.md`. Team overview: [README.md](README.md).
+Agent: `.claude/agents/model-artist.md`. Team overview: [README.md](README.md).
 
 ## What the modeler produces
 

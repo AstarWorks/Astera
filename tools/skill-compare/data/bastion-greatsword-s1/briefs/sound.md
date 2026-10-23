@@ -1,4 +1,4 @@
-# Brief: limbus-sound (SFX) — S1 月輪の薙ぎ
+# Brief: sound-designer (SFX) — S1 月輪の薙ぎ
 
 Read `common.md` first. Role: the sound of the two sweeps: swing whoosh, impact, armour/metal, ground hit, plus small foley. You deliver OGG files and a cue table; the director wires `play_sound` steps in the skill YAML (you do not edit it).
 

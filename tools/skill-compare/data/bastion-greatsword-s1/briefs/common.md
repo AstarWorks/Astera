@@ -2,7 +2,7 @@
 
 Skill: `bastion-greatsword-s1` 月輪の薙ぎ (Zwei West Ishmael, 動画 `Svaaq9F7Ty8`, 11.633-14.233 s, 30 fps). Item: `bastion-greatsword`.
 Branch `wp/pilot-bastion-s1` is the start point (commit `ee976100` + director commit). Work in your OWN worktree branched from it, commit there, never push.
-Role names: limbus-modeler (model.md), limbus-animator (animation.md), limbus-vfx (texture.md + particles.md, textures first), limbus-sound (sound.md), limbus-reviewer (independent, judges on the compare site; not briefed here). The director owns `content/skills/bastion-greatsword-s1.yaml`, `case.json` and `briefs/`.
+Role names: model-artist (model.md), animator (animation.md), vfx-artist (texture.md, then the display-core part of particles.md; textures first), particle-artist (vanilla-particle part of particles.md, from the 2026-10-24 split), sound-designer (sound.md), vfx-reviewer (independent, judges on the compare site; not briefed here). The director owns `content/skills/bastion-greatsword-s1.yaml`, `case.json` and `briefs/`.
 
 ## Why a pilot
 The founder judged the previous one-generalist weapons as cheap: blocky single-colour low-poly model, slightly wrong sword orientation, poor swing animation, VFX made of block displays with almost no particles, low-res 2D textures, and self-grading. This pilot perfects ONE skill with specialists, then the process is copied to the other weapons. **You never grade yourself as passed.** You deliver, attach evidence, list what is still wrong, and stop. The reviewer decides.
@@ -38,10 +38,10 @@ The founder judged the previous one-generalist weapons as cheap: blocky single-c
 ## File-territory overview (no overlaps)
 | Role | May create / edit | Delivers to the director |
 |---|---|---|
-| limbus-modeler | `content/models/items/bastion-greatsword.model.json`, `content/textures/blocks/bastion-greatsword-*.png`, `tools/model-forge/work/bastion-greatsword/**`, `tools/model-forge/batches/bastion-greatsword/**`, evidence/modeler | `deliver/rig-parts.yaml` |
-| limbus-animator | `content/vfx/bastion-s1-rig-high.yaml`, `content/vfx/bastion-s1-rig-low.yaml`, `content/vfx/bastion-s1-rig-hold.yaml`, evidence/animator | `deliver/animation-notes.md` |
-| limbus-vfx | `content/textures/sources/sprites.yaml` (only `bastion-s1-*` lines), `content/sprites/bastion-s1-*.yaml`, `content/fonts/vfx/bastion-s1-*.json`, `content/textures/generated/sprites/bastion-s1-*.png`, `tools/item-art/scripts/bastion_s1_*.py`, `content/vfx/bastion-s1-fx-high.yaml`, `content/vfx/bastion-s1-fx-low.yaml`, `content/particles/bastion-s1-*.yaml`, evidence/vfx | `deliver/trail-bands.yaml`, `deliver/particle-cues.yaml` |
-| limbus-sound | `content/sounds/weapons/bastion-s1-*.ogg` + `.yaml`, `tools/sound-gen/scripts/bastion_s1_*.py`, `tools/sound-gen/specs/bastion-s1.yaml`, evidence/sound | `deliver/sound-cues.yaml` |
+| model-artist | `content/models/items/bastion-greatsword.model.json`, `content/textures/blocks/bastion-greatsword-*.png`, `tools/model-forge/work/bastion-greatsword/**`, `tools/model-forge/batches/bastion-greatsword/**`, evidence/modeler | `deliver/rig-parts.yaml` |
+| animator | `content/vfx/bastion-s1-rig-high.yaml`, `content/vfx/bastion-s1-rig-low.yaml`, `content/vfx/bastion-s1-rig-hold.yaml`, evidence/animator | `deliver/animation-notes.md` |
+| vfx-artist | `content/textures/sources/sprites.yaml` (only `bastion-s1-*` lines), `content/sprites/bastion-s1-*.yaml`, `content/fonts/vfx/bastion-s1-*.json`, `content/textures/generated/sprites/bastion-s1-*.png`, `tools/item-art/scripts/bastion_s1_*.py`, `content/vfx/bastion-s1-fx-high.yaml`, `content/vfx/bastion-s1-fx-low.yaml`, `content/particles/bastion-s1-*.yaml`, evidence/vfx | `deliver/trail-bands.yaml`, `deliver/particle-cues.yaml` |
+| sound-designer | `content/sounds/weapons/bastion-s1-*.ogg` + `.yaml`, `tools/sound-gen/scripts/bastion_s1_*.py`, `tools/sound-gen/specs/bastion-s1.yaml`, evidence/sound | `deliver/sound-cues.yaml` |
 | director | `content/skills/bastion-greatsword-s1.yaml`, `case.json`, `briefs/**`, `deliver/**` merges, evidence/integration | |
 
 `deliver/` = `tools/skill-compare/data/bastion-greatsword-s1/deliver/`. A specialist writes only its own deliver file. The director never edits a specialist's content file except the two integration edits named in integration.md (pasting trail bands, setting play_vfx ids).
@@ -52,9 +52,9 @@ The founder judged the previous one-generalist weapons as cheap: blocky single-c
 | `bastion-s1-rig-high` | `content/vfx/bastion-s1-rig-high.yaml` | animator | `rigs:` only (sword parts, swing, trail geometry). Played at skill tick 3. duration 20, `follow: false` |
 | `bastion-s1-rig-low` | `content/vfx/bastion-s1-rig-low.yaml` | animator | same for hit 2. Played at skill tick 27. duration 18 |
 | `bastion-s1-rig-hold` | `content/vfx/bastion-s1-rig-hold.yaml` | animator | static REST sword rigs, `follow: true`, played at skill tick 0, duration 48: three rigs (`hold_a` ticks 0-3, `hold_b` 21-27, `hold_c` 42-47) |
-| `bastion-s1-fx-high` | `content/vfx/bastion-s1-fx-high.yaml` | limbus-vfx | `elements:` only: sprites, streaks, flashes, display particles. Played at skill tick 3 (same anchor, same orient). duration 20 |
-| `bastion-s1-fx-low` | `content/vfx/bastion-s1-fx-low.yaml` | limbus-vfx | same for hit 2. Played at skill tick 27. duration 18 |
-| particles `bastion-s1-*` | `content/particles/bastion-s1-*.yaml` | limbus-vfx | vanilla-particle emitters referenced by the fx files and by skill `spawn_particle` |
+| `bastion-s1-fx-high` | `content/vfx/bastion-s1-fx-high.yaml` | vfx-artist | `elements:` only: sprites, streaks, flashes, display particles. Played at skill tick 3 (same anchor, same orient). duration 20 |
+| `bastion-s1-fx-low` | `content/vfx/bastion-s1-fx-low.yaml` | vfx-artist | same for hit 2. Played at skill tick 27. duration 18 |
+| particles `bastion-s1-*` | `content/particles/bastion-s1-*.yaml` | particle-artist | vanilla-particle emitters referenced by the fx files and by skill `spawn_particle` |
 | sound events `astera:weapons/bastion-s1-*` | `content/sounds/weapons/` | sound | see sound.md |
 
 Both rig and fx effects use the same anchor and the same `orient: yaw`, `follow: false`; they are layered by playing them at the same tick, so keep the effect ticks of the two files aligned (contact at effect tick 4).

@@ -1,4 +1,4 @@
-# Brief: limbus-vfx, part 2 — particles, effect elements and the trail look
+# Brief: vfx-artist, part 2 — particles, effect elements and the trail look
 
 Read `common.md` and `texture.md` first (the sprite ids come from there). Role: everything that is not the sword and not its motion: the light/ring/streak/ink layers, display-particles and vanilla particles, and the colour of the sword's wind trail. The previous attempt was blocks + almost no particles.
 

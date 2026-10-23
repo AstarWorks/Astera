@@ -1,6 +1,6 @@
 # Sound knowledge base
 
-Agent: `.claude/agents/limbus-sound.md`. Team overview: [README.md](README.md).
+Agent: `.claude/agents/sound-designer.md`. Team overview: [README.md](README.md).
 
 ## What the sound designer produces
 

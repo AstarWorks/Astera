@@ -1,9 +1,9 @@
-# Integration plan (director) and acceptance rows (for limbus-reviewer)
+# Integration plan (director) and acceptance rows (for vfx-reviewer)
 
 ## Order of work
-1. **Parallel round 1**: limbus-modeler (model + `rig-parts.yaml`), limbus-animator (rigs with placeholder parts, re-pasted when `rig-parts.yaml` lands), limbus-vfx part 1 (textures), limbus-sound (all cues). No shared files.
-2. **Round 2**: limbus-vfx part 2 (fx files, particles, trail bands, cues) once the textures exist; animator re-pastes parts and trail bands; director integrates.
-3. **Round 3**: independent limbus-reviewer on the site; findings go back to the owning specialist as a row-addressed fix list; repeat until all rows pass with evidence. The reviewer never edits content.
+1. **Parallel round 1**: model-artist (model + `rig-parts.yaml`), animator (rigs with placeholder parts, re-pasted when `rig-parts.yaml` lands), vfx-artist part 1 (textures), sound-designer (all cues). No shared files.
+2. **Round 2**: vfx-artist part 2 (fx files, particles, trail bands, cues) once the textures exist; animator re-pastes parts and trail bands; director integrates.
+3. **Round 3**: independent vfx-reviewer on the site; findings go back to the owning specialist as a row-addressed fix list; repeat until all rows pass with evidence. The reviewer never edits content.
 
 ## What the director assembles (no edits inside specialist content files except the two named below)
 `content/skills/bastion-greatsword-s1.yaml` (director-owned), rewritten as:

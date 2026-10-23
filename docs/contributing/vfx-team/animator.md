@@ -1,6 +1,6 @@
 # Animator knowledge base
 
-Agent: `.claude/agents/limbus-animator.md`. Team overview: [README.md](README.md).
+Agent: `.claude/agents/animator.md`. Team overview: [README.md](README.md).
 
 ## What the animator produces
 

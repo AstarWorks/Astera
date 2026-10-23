@@ -1,6 +1,6 @@
-# Brief: limbus-animator (sword swing animation) — S1 月輪の薙ぎ
+# Brief: animator (sword swing animation) — S1 月輪の薙ぎ
 
-Read `common.md` first. Role: the motion of the rig sword, nothing else. You do not choose colours, sprites or particles (limbus-vfx), you do not model the sword (limbus-modeler). Your swing is what makes the weapon look expensive or cheap.
+Read `common.md` first. Role: the motion of the rig sword, nothing else. You do not choose colours, sprites or particles (vfx-artist), you do not model the sword (model-artist). Your swing is what makes the weapon look expensive or cheap.
 
 ## Goal
 Two swings (hit 1 at skill tick 7, hit 2 at skill tick 31) plus the static REST holds between them, with: anticipation, a very fast main motion inside the first quarter of the effect, overshoot and settle, a 1-2 tick hold at the apex (the contact), the **cutting edge leading**, and the sword **pointing the right way in the hands**. The previous attempt: sword orientation slightly wrong, swing looked like a rotating plank, no weight.
@@ -37,8 +37,8 @@ During e2..e7 the cutting edge normal (the rig-local +-X edge on the travel side
 - Main motion (e1 -> e4, anticipation to contact) takes <= 3 ticks = inside the first quarter of the effect's visible life. No linear easing on the main motion (`in_quad`/`in_cubic` into the contact, `out_cubic` out of it).
 - Every rotation chunk <= 100 degrees/tick and never a 1-tick ease > 170 degrees (planner rejects it; art-direction §7). Use `sample_ticks: 1`.
 - `respect_hit_stop: true` on the swing rigs.
-- Display budget: swing rig parts (from `deliver/rig-parts.yaml`, <= 20) + trail displays: **rig parts + trail <= 44 displays alive at any tick** (cast-wide limit 60: sword 20 + trail 24 + the fx file 16 from limbus-vfx). Trail: <= 24 alive (raise `step_deg` or drop `dark_rim` if over), `step_deg <= 30`, `life_ticks` 8-10, bands 2-3 + edge + dark_rim; geometry from the blade root (local y 0.7) to tip (local y 2.55); the colours/bands come from limbus-vfx's `deliver/trail-bands.yaml` (until it exists, use neutral gold bands; the director pastes the final ones).
-- Tip emitters: in each swing rig add `emitters:` entries `{id: tip_ember, particle_id: bastion-s1-tip-ember, point: [0, 2.55, 0], start_t: 2, end_t: 8}` and `{id: tip_glint, particle_id: bastion-s1-tip-glint, point: [0, 2.55, 0], start_t: 2, end_t: 7}` (particle files come from limbus-vfx; if they do not exist yet the preview skips them).
+- Display budget: swing rig parts (from `deliver/rig-parts.yaml`, <= 20) + trail displays: **rig parts + trail <= 44 displays alive at any tick** (cast-wide limit 60: sword 20 + trail 24 + the fx file 16 from vfx-artist). Trail: <= 24 alive (raise `step_deg` or drop `dark_rim` if over), `step_deg <= 30`, `life_ticks` 8-10, bands 2-3 + edge + dark_rim; geometry from the blade root (local y 0.7) to tip (local y 2.55); the colours/bands come from vfx-artist's `deliver/trail-bands.yaml` (until it exists, use neutral gold bands; the director pastes the final ones).
+- Tip emitters: in each swing rig add `emitters:` entries `{id: tip_ember, particle_id: bastion-s1-tip-ember, point: [0, 2.55, 0], start_t: 2, end_t: 8}` and `{id: tip_glint, particle_id: bastion-s1-tip-glint, point: [0, 2.55, 0], start_t: 2, end_t: 7}` (particle files come from vfx-artist; if they do not exist yet the preview skips them).
 - The REST pose of `bastion-s1-rig-hold` (3 static rigs, `follow: true`) must be pixel-identical to e0 of the swing rigs and to e17/e14 settle poses so no pop appears at the hand-over ticks (skill ticks 3, 21, 27, 42).
 
 ### In-hand correctness
@@ -46,7 +46,7 @@ During e2..e7 the cutting edge normal (the rig-local +-X edge on the travel side
 - At REST the tip points backward, 20 degrees down (compare `f01` frame: the blade crosses behind the caster's legs).
 
 ## Parts source
-Parts come from `tools/skill-compare/data/bastion-greatsword-s1/deliver/rig-parts.yaml` (limbus-modeler). Paste the list verbatim under `parts:` in all three of your files (do not edit its numbers; if something is wrong, put it in "requests"). Until it exists, use the 8-part list of `bastion-sweep-high.yaml` as a placeholder and re-paste when the file appears. `blade_face` is the only part id you may refer to.
+Parts come from `tools/skill-compare/data/bastion-greatsword-s1/deliver/rig-parts.yaml` (model-artist). Paste the list verbatim under `parts:` in all three of your files (do not edit its numbers; if something is wrong, put it in "requests"). Until it exists, use the 8-part list of `bastion-sweep-high.yaml` as a placeholder and re-paste when the file appears. `blade_face` is the only part id you may refer to.
 
 ## File territory
 Create/edit only:
@@ -55,7 +55,7 @@ Create/edit only:
 - `content/vfx/bastion-s1-rig-hold.yaml` (id `bastion-s1-rig-hold`, `duration_ticks: 48`, `follow: true`, three static rigs `hold_a` end_tick 3, `hold_b` start_tick 21 end_tick 27, `hold_c` start_tick 42 end_tick 47)
 - `tools/skill-compare/data/bastion-greatsword-s1/deliver/animation-notes.md` (the per-tick tables, the pivot/tilt/rest numbers, any request to change skill timing)
 - `tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/**`
-Do not touch the skill YAML, `elements:` (limbus-vfx), or other weapons' VFX. Skill-timing changes (dash ticks, delays) are requests to the director.
+Do not touch the skill YAML, `elements:` (vfx-artist), or other weapons' VFX. Skill-timing changes (dash ticks, delays) are requests to the director.
 
 ## Self-check before handing back
 1. `./gradlew :tools:vfx-preview:run --args='bastion-s1-rig-high --view side'`, then `top`, `eye`, and with `--freeze 4:2`; same for `-low`, and `bastion-s1-rig-hold`. Open the sheets. Produce a labelled strip of ticks e0..e10 for each view (a contact sheet is enough).

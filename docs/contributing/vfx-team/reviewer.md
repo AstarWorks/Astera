@@ -1,6 +1,6 @@
 # Reviewer knowledge base
 
-Agent: `.claude/agents/limbus-reviewer.md`. Team overview: [README.md](README.md).
+Agent: `.claude/agents/vfx-reviewer.md`. Team overview: [README.md](README.md).
 
 ## Independence rule
 

@@ -1,6 +1,6 @@
 # Director knowledge base
 
-Agent: `.claude/agents/limbus-director.md`. Team overview: [README.md](README.md).
+Agent: `.claude/agents/vfx-director.md`. Team overview: [README.md](README.md).
 
 ## What the director produces
 
