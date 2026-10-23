@@ -42,18 +42,34 @@ def main():
         name = e.get('name','')
         if 'wood' in name or name == 'wooden shaft': material = 'wood.stripped_dark_oak_log'
         elif 'leather' in name: material = 'cloth.brown_wool'
-        elif 'ruby' in name: material = 'cloth.red_wool'
-        elif name in ('flame contour', 'curl point'): material = 'metal.copper_block'
+        elif 'ruby' in name: material = 'gem.redstone_block'
+        elif name in ('flame contour', 'curl point'): material = 'concrete.orange_concrete'
+        elif (name == 'stepped crystal facet' and e['from'][1] > 20) or name == 'flame facet glint': material = 'concrete.yellow_concrete'
         else: material = 'metal.gold_block'
         groups.setdefault(material, []).append(e['id'])
     for material, ids in groups.items():
         ops.append({'op':'material.apply', 'args':{'ids':ids,'material':material,'seed':20261023}})
+    ops.append({'op':'texture.create','args':{'key':'glow','size':[16,16],'color':'#fff7b0'}})
+    ops.append({'op':'texture.paint','args':{'key':'glow','ops':[
+        {'type':'rect','box':[5,0,10,15],'color':'#ffffdd'},
+        {'type':'line','points':[[8,0],[8,15]],'color':'#ffffff','width':2}
+    ]}})
+    for e in p.model['elements']:
+        if (e.get('name') == 'stepped crystal facet' and e['from'][1] > 20
+                and e['to'][2] - e['from'][2] < .21
+                and (e['from'][2] < 6.1 or e['from'][2] > 9.84)):
+            for face, value in e['faces'].items():
+                ops.append({'op':'uv.set','args':{'id':e['id'],'face':face,'value':{'texture':'#glow','uv':[0,0,16,16]}}})
     call('batch', {'ops':ops})
     # Install references, retaining only used slots. Re-import records this packaging step in history.
     model = p.vanilla()
     used = {f['texture'][1:] for e in model['elements'] for f in e['faces'].values()}
     model['textures'] = {k:v for k,v in model['textures'].items() if k in used}
     model['textures']['particle'] = 'minecraft:block/stripped_dark_oak_log'
+    glow_path = ROOT/'content/textures/blocks/fire-staff-glow.png'
+    glow_path.parent.mkdir(parents=True, exist_ok=True)
+    p.image('glow').save(glow_path)
+    model['textures']['glow'] = 'astera:blocks/fire-staff-glow'
     target = ROOT/'content/models/items/fire-staff.model.json'
     target.write_text(json.dumps(model,indent=2)+'\n')
     call('import', {'path':str(target)})
