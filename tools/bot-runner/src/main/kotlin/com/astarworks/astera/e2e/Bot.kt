@@ -27,6 +27,19 @@ import org.geysermc.mcprotocollib.protocol.data.game.ResourcePackStatus
 import org.geysermc.mcprotocollib.protocol.data.game.command.CommandNode
 import org.geysermc.mcprotocollib.protocol.data.game.command.CommandType
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.Hand
+import org.geysermc.mcprotocollib.protocol.data.game.entity.player.GameMode
+import org.geysermc.mcprotocollib.protocol.data.game.item.ItemStack
+import org.geysermc.mcprotocollib.protocol.data.game.item.component.DataComponentTypes
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundPlayerInfoUpdatePacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundEntityPositionSyncPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundMoveEntityPosPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundMoveEntityPosRotPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundTeleportEntityPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundBlockUpdatePacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundForgetLevelChunkPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundLevelChunkWithLightPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundSectionBlocksUpdatePacket
+import com.astarworks.astera.bots.Terrain
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.PositionElement
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.HandPreference
 import org.geysermc.mcprotocollib.protocol.data.game.scoreboard.ObjectiveAction
@@ -99,7 +112,12 @@ data class ScoreView(var value: Int, var display: String?)
 data class TeamView(var prefix: String, var suffix: String, val players: MutableSet<String> = mutableSetOf(), var color: String? = null)
 data class ScreenView(val containerId: Int, val type: String, val title: String)
 data class EntityEvent(val at: Long, val id: Int, val type: String, val added: Boolean)
-data class SlotView(val containerId: Int, val slot: Int, val itemId: Int, val amount: Int)
+/** Where a bot last saw an entity (feet position) and what it is; players also carry their account name. */
+class EntityView(val id: Int, val uuid: UUID, val type: String, @Volatile var x: Double, @Volatile var y: Double, @Volatile var z: Double) {
+    @Volatile var updatedAt: Long = System.currentTimeMillis()
+    fun moveTo(nx: Double, ny: Double, nz: Double) { x = nx; y = ny; z = nz; updatedAt = System.currentTimeMillis() }
+}
+data class SlotView(val containerId: Int, val slot: Int, val itemId: Int, val amount: Int, val lore: String = "")
 
 /** Flattens an Adventure component the way a client would display it; translatable keys stay visible as `<key>`. */
 fun plain(c: Component?): String {
@@ -185,6 +203,16 @@ class Bot private constructor(
     @Volatile var worldName: String? = null; private set
     val worldHistory = CopyOnWriteArrayList<String>()
     val positionPackets = AtomicInteger()
+    /** Every entity this client currently knows (spawned, not yet removed), by entity id. */
+    val entities = ConcurrentHashMap<Int, EntityView>()
+    /** Account name by profile UUID, from the tab list (player entities carry only the UUID). */
+    val playerNames = ConcurrentHashMap<UUID, String>()
+    /** Own game mode as the server last set it (spectator = death cam). */
+    @Volatile var gameMode: GameMode = GameMode.SURVIVAL; private set
+    /** Blocks around the bot, from chunk and block-update packets (edge probing for the combat AI). */
+    val terrain = Terrain()
+    /** Hotbar slot the server believes is selected (our own last SetCarriedItem). */
+    @Volatile var selectedSlot = 0; private set
     /** Every entity add / remove packet in arrival order (display-entity lifetime checks). */
     /** Entity id by UUID for every entity spawned at this client (players included), for attack packets. */
     val entityIdByUuid = ConcurrentHashMap<UUID, Int>()
@@ -218,7 +246,7 @@ class Bot private constructor(
                 try {
                     handle(packet)
                 } catch (t: Throwable) {
-                    E2eReport.notes += "bot $name: handler error on ${packet.javaClass.simpleName}: $t"
+                    Bot.note("bot $name: handler error on ${packet.javaClass.simpleName}: $t")
                 }
             }
 
@@ -242,6 +270,7 @@ class Bot private constructor(
             is ClientboundPlayerCombatKillPacket -> deaths += plain(packet.message)
             is ClientboundGameEventPacket -> if (packet.notification == GameEvent.CHANGE_GAME_MODE) {
                 gameModes += packet.value.toString()
+                (packet.value as? GameMode)?.let { gameMode = it }
                 // Astera deaths never raise a vanilla death (ADR-0149: the HP mirror is held above zero), so no
                 // ClientboundPlayerCombatKill arrives. The visible death is the death cam: spectator mode.
                 if (packet.value == org.geysermc.mcprotocollib.protocol.data.game.entity.player.GameMode.SPECTATOR) deaths += "death cam (spectator)"
@@ -259,6 +288,7 @@ class Bot private constructor(
                 }
                 worldName = packet.commonPlayerSpawnInfo.worldName.asString()
                 worldHistory += worldName!!
+                gameMode = packet.commonPlayerSpawnInfo.gameMode
                 session.send(
                     ServerboundClientInformationPacket(
                         locale, 8, ChatVisibility.FULL, true, emptyList(), HandPreference.RIGHT_HAND, false, true, ParticleStatus.MINIMAL,
@@ -268,6 +298,9 @@ class Bot private constructor(
             is ClientboundRespawnPacket -> {
                 worldName = packet.commonPlayerSpawnInfo.worldName.asString()
                 worldHistory += worldName!!
+                gameMode = packet.commonPlayerSpawnInfo.gameMode
+                entities.clear()
+                terrain.clear()
             }
             is ClientboundPlayerPositionPacket -> {
                 // Relative flags (a vanilla client applies them to its own state before echoing the absolute result).
@@ -316,8 +349,43 @@ class Bot private constructor(
                 spawnedEntityTypes.computeIfAbsent(packet.type.name) { AtomicInteger() }.incrementAndGet()
                 entityEvents += EntityEvent(System.currentTimeMillis(), packet.entityId, packet.type.name, true)
                 entityIdByUuid[packet.uuid] = packet.entityId
+                entities[packet.entityId] = EntityView(packet.entityId, packet.uuid, packet.type.name, packet.x, packet.y, packet.z)
             }
-            is ClientboundRemoveEntitiesPacket -> packet.entityIds.forEach { entityEvents += EntityEvent(System.currentTimeMillis(), it, "", false) }
+            is ClientboundRemoveEntitiesPacket -> packet.entityIds.forEach {
+                entityEvents += EntityEvent(System.currentTimeMillis(), it, "", false)
+                entities.remove(it)
+            }
+            is ClientboundMoveEntityPosPacket -> entities[packet.entityId]?.let { e ->
+                if (packet.stepCount <= 0) e.moveTo(e.x + packet.moveX, e.y + packet.moveY, e.z + packet.moveZ)
+                else {
+                    val steps = packet.steps
+                    e.moveTo(e.x + steps.sumOf { it.moveX }, e.y + steps.sumOf { it.moveY }, e.z + steps.sumOf { it.moveZ })
+                }
+            }
+            is ClientboundMoveEntityPosRotPacket -> entities[packet.entityId]?.let { e ->
+                if (packet.stepCount <= 0) e.moveTo(e.x + packet.moveX, e.y + packet.moveY, e.z + packet.moveZ)
+                else {
+                    val steps = packet.steps
+                    e.moveTo(e.x + steps.sumOf { it.moveX }, e.y + steps.sumOf { it.moveY }, e.z + steps.sumOf { it.moveZ })
+                }
+            }
+            is ClientboundTeleportEntityPacket -> entities[packet.id]?.let { e ->
+                val rel = packet.relatives
+                e.moveTo(
+                    if (PositionElement.X in rel) e.x + packet.position.x else packet.position.x,
+                    if (PositionElement.Y in rel) e.y + packet.position.y else packet.position.y,
+                    if (PositionElement.Z in rel) e.z + packet.position.z else packet.position.z,
+                )
+            }
+            is ClientboundEntityPositionSyncPacket -> entities[packet.id]?.let { e ->
+                val end = packet.endPosition ?: packet.steps?.lastOrNull()?.position
+                if (end != null) e.moveTo(end.x, end.y, end.z)
+            }
+            is ClientboundPlayerInfoUpdatePacket -> packet.entries.forEach { en -> en.profile?.name?.let { playerNames[en.profileId] = it } }
+            is ClientboundLevelChunkWithLightPacket -> terrain.load(packet.x, packet.z, packet.chunkData)
+            is ClientboundForgetLevelChunkPacket -> terrain.forget(packet.x, packet.z)
+            is ClientboundBlockUpdatePacket -> terrain.set(packet.entry.position.x, packet.entry.position.y, packet.entry.position.z, packet.entry.block)
+            is ClientboundSectionBlocksUpdatePacket -> packet.entries.forEach { terrain.set(it.position.x, it.position.y, it.position.z, it.block) }
             is ClientboundSoundPacket -> sounds += packet.sound.toString()
             is ClientboundSetEntityDataPacket -> packet.metadata.forEach { m ->
                 (m.value as? Component)?.let { c ->
@@ -337,11 +405,11 @@ class Bot private constructor(
             is ClientboundOpenScreenPacket -> screens += ScreenView(packet.containerId, packet.type.name, plain(packet.title))
             is ClientboundContainerSetContentPacket -> {
                 stateIds[packet.containerId] = packet.stateId
-                contents[packet.containerId] = packet.items.mapIndexed { i, st -> SlotView(packet.containerId, i, st?.id ?: -1, st?.amount ?: 0) }
+                contents[packet.containerId] = packet.items.mapIndexed { i, st -> SlotView(packet.containerId, i, st?.id ?: -1, st?.amount ?: 0, loreOf(st)) }
             }
             is ClientboundContainerSetSlotPacket -> {
                 stateIds[packet.containerId] = packet.stateId
-                val view = SlotView(packet.containerId, packet.slot, packet.item?.id ?: -1, packet.item?.amount ?: 0)
+                val view = SlotView(packet.containerId, packet.slot, packet.item?.id ?: -1, packet.item?.amount ?: 0, loreOf(packet.item))
                 slotUpdates += view
                 contents.compute(packet.containerId) { _, old ->
                     val list = (old ?: emptyList()).toMutableList()
@@ -373,7 +441,7 @@ class Bot private constructor(
         }.getOrNull() ?: return
         val ep = servers[target]
         if (ep == null) {
-            E2eReport.notes += "bot $name: proxy Connect to unknown server '$target' ignored"
+            Bot.note("bot $name: proxy Connect to unknown server '$target' ignored")
             return
         }
         hops += target
@@ -453,7 +521,10 @@ class Bot private constructor(
         return if (waitUntil(timeoutMs) { suggestions.containsKey(id) }) suggestions[id] else null
     }
 
-    fun selectHotbar(slot: Int) = session.send(ServerboundSetCarriedItemPacket(slot))
+    fun selectHotbar(slot: Int) {
+        selectedSlot = slot
+        session.send(ServerboundSetCarriedItemPacket(slot))
+    }
 
     fun useItem(yaw: Float, pitch: Float) =
         session.send(ServerboundUseItemPacket(Hand.MAIN_HAND, sequence.getAndIncrement(), yaw, pitch))
@@ -518,6 +589,12 @@ class Bot private constructor(
         session.send(ServerboundClientTickEndPacket.INSTANCE)
     }
 
+    /** Moves the bot to a pose of its own choosing and reports it like a client tick (see [nudge]). */
+    fun moveTo(nx: Double, ny: Double, nz: Double, yaw: Float, pitch: Float) {
+        x = nx; y = ny; z = nz; yawDeg = yaw; pitchDeg = pitch
+        nudge()
+    }
+
     // --- queries ---------------------------------------------------------------------------------------------
     fun waitUntil(timeoutMs: Long = 10_000, cond: () -> Boolean): Boolean {
         val end = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMs)
@@ -569,6 +646,13 @@ class Bot private constructor(
 
     fun sidebarTitle(): String? = displaySlots[ScoreboardPosition.SIDEBAR]?.let { objectives[it] }
 
+    /** Item lore as plain text lines joined by " | " (what a client shows under the name), or "". */
+    private fun loreOf(stack: ItemStack?): String =
+        stack?.dataComponentsPatch?.get(DataComponentTypes.LORE)?.joinToString(" | ") { plain(it) }.orEmpty()
+
+    /** Lore of hotbar slot 0..8 (container 0, slots 36..44) as plain text, "" when empty or unknown. */
+    fun hotbarLore(slot: Int): String = contents[0]?.getOrNull(36 + slot)?.lore.orEmpty()
+
     /** Hotbar slots 0..8 of the player inventory window (container 0, slots 36..44): itemId or -1 when empty. */
     fun hotbar(): List<Int> = (0..8).map { i -> contents[0]?.getOrNull(36 + i)?.takeIf { it.amount > 0 }?.itemId ?: -1 }
 
@@ -583,6 +667,14 @@ class Bot private constructor(
 
     companion object {
         private val DAMAGE_NUMBER = Regex("-[0-9]+(\\.[0-9]+)?")
+
+        /** Where harness diagnostics go (the e2e report installs its own sink). */
+        @Volatile var noteSink: (String) -> Unit = { System.err.println("[bot] $it") }
+        internal fun note(text: String) = noteSink(text)
+
+        /** Where [join] connects when no endpoint is passed (e2e: the proxy or backend of the compose project). */
+        @Volatile var defaultEndpoint: () -> Endpoint = { error("Bot.defaultEndpoint is not set") }
+
         /** Paper rejects a second connection from one IP within `connection-throttle` (4s): space our logins out. */
         fun offlineUuid(name: String): UUID = UUID.nameUUIDFromBytes("OfflinePlayer:$name".toByteArray(Charsets.UTF_8))
 
@@ -609,7 +701,7 @@ class Bot private constructor(
             packPolicy: PackPolicy = PackPolicy.LOAD,
             locale: String = "en_us",
             waitForJoin: Boolean = true,
-            endpoint: Endpoint = E2eEnv.botEndpoint,
+            endpoint: Endpoint = defaultEndpoint(),
             servers: Map<String, Endpoint> = emptyMap(),
             exactName: String? = null,
         ): Bot {

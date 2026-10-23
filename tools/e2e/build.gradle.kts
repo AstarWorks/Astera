@@ -18,6 +18,8 @@ plugins {
 }
 
 dependencies {
+    // The Bot client + combat AI live in :tools:bot-runner (ADR-0247) so the runner service can share them.
+    testImplementation(project(":tools:bot-runner"))
     testImplementation(libs.mcprotocollib)
     testImplementation(libs.slf4j.api)
     testImplementation(libs.junit.platform.launcher)

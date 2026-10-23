@@ -293,6 +293,29 @@ Admin shortcuts (skip the queue): `/astera match start example-arena`, then
 `/astera match entry <matchId> <name>` (teleports and auto-balances teams), plus
 `/astera match phase|end|abort|list`.
 
+### Bots: play against AI or fill a queue (ADR-0247)
+
+The `bot-runner` compose service starts with the stack (`make docker-up`). It turns a request on Redis into bots
+named `Bot_Ash`, `Bot_Birch`, ... that log in, queue for a lane and fight like players, then leave after the match.
+
+```bash
+make bots N=2 LANE=norma     # two bots queue norma; prints spawning -> queued (or the failure reason)
+make bots N=1 LANE=norma     # one bot waits in the queue; join the lane yourself: /astera queue join norma
+make bots N=3 LANE=annihilation
+```
+
+- A PvP lane needs a player on every team, so `N=1` plus you is a duel; `N=2` alone is bot vs bot (the bots play it out and leave;
+  `/astera match list` shows it while it runs).
+- Cap: `BOT_MAX` bots at once (default 8, set in `docker/.env`). A request over the cap is rejected as a whole.
+  Logins are ~5 s apart (Paper's connection throttle), so 4 bots take ~20 s.
+- The same request can be published by hand: `docker compose -f docker/docker-compose.yml exec redis redis-cli PUBLISH
+  astera:bots:request '{"requestId":"x1","lane":"norma","count":2,"requestedBy":"me"}'`; replies come on
+  `astera:bots:status`. Protocol and AI details: `docs/adr/0247-ai-protocol-bots-and-bot-runner.md`.
+- Logs: `docker compose -f docker/docker-compose.yml logs -f bot-runner`. After changing the AI:
+  `docker compose -f docker/docker-compose.yml up -d --build bot-runner` (`make dev-plugins` does not rebuild it).
+- Bots that are still waiting leave after 10 minutes; `docker compose ... restart bot-runner` drops all of them.
+- E2E: `make e2e` runs `BotVsBotE2eTest` (two AI bots, a whole Norma match, no RCON kills).
+
 ## Resource pack (custom HP bar, ADR-0182)
 
 Vanilla hearts are a lossy mirror of Astera's HP, so Astera ships a resource pack that
