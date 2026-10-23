@@ -48,7 +48,8 @@ rollback() {
 confirm() {
   local svc=$1 command=$2 expected=$3 out attempt
   for ((attempt=0; attempt<3; attempt++)); do
-    out=$(docker exec "astera-dev-$svc-1" rcon-cli "$command") || return 1
+    # rcon-cli colors its replies (ESC[32mReloaded ESC[33mall...): strip SGR codes and CRs before matching.
+    out=$(docker exec "astera-dev-$svc-1" rcon-cli "$command" | sed 's/\x1b\[[0-9;]*m//g; s/\r//g') || return 1
     printf '%s\n' "$out"
     [[ "$out" == *"$expected"* ]] && return 0
     [ -z "$out" ] || return 1
