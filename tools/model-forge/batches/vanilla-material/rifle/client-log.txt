@@ -1,0 +1,13 @@
+Selected native-client diagnostics (offline authentication/audio warnings are expected).
+[02:55:43] [Render thread] [INFO] Using graphics backend OpenGL, using drivers: 4.5 (Core Profile) Mesa 22.3.6
+[02:55:43] [Download-2] [ERROR] com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+[02:55:44] [Render thread] [INFO] Reloading ResourceManager: vanilla, vanilla, file/vanilla-material
+[02:55:44] [Download-1] [ERROR] com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+[02:55:45] [Render thread] [ERROR] java.lang.IllegalStateException: Failed to open OpenAL device
+[02:55:48] [Server thread] [INFO] RifleReview[local:E:73900e4a] logged in with entity id 6 at (-7.5, -60.0, -2.5)
+[02:55:48] [Server thread] [INFO] System chat: RifleReview joined the game
+[02:55:48] [Render thread] [WARN] Requested post effect does not exist: minecraft:end_of_frame
+[02:56:04] [Server thread] [INFO] System chat: [RifleReview: Gave 1 [Iron Hoe] to RifleReview]
+[02:56:04] [Render thread] [INFO] [System] [CHAT] Gave 1 [Iron Hoe] to RifleReview
+
+Model/texture/atlas diagnostic matches: 0
