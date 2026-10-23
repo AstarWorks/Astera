@@ -106,11 +106,7 @@ class WeaponsE2eTest : E2eBase() {
         val b = bot("Target")
         op(a)
         op(b)
-        // The overworld arena is a night-time flat world: wandering zombies hit the bots, kill them (Astera
-        // sends an out-of-match death to the lobby, where damage and hunger are off) and soak up skill arcs.
-        // Keep it empty and bright. (Peaceful is not an option: vanilla refills food there and would move the bar.)
-        for (rule in listOf("spawn_mobs", "doMobSpawning", "advance_time", "doDaylightCycle")) rcon("gamerule $rule false")
-        rcon("time set day")
+        // The server keeps the arena mob-free and bright (ADR-0245, asserted by E2eBase); just clear leftovers.
         rcon("execute in minecraft:overworld run kill @e[type=!minecraft:player]")
         rcon("gamemode survival ${a.name}")
         rcon("gamemode survival ${b.name}")

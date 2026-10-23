@@ -448,6 +448,15 @@ internal class CorePaperBindings(
                 }.againstEntity(killer)
             },
         )
+        // ADR-0245: every world, every role: no vanilla mob spawning, fixed daytime.
+        runCatching {
+            com.astarworks.astera.core.adapter.paper.world.PaperWorldBaseline(
+                plugin = plugin,
+                config = com.astarworks.astera.core.application.service.world.WorldBaselineContent.load(ctx.contentDir),
+                rules = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway>(),
+                time = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway>(),
+            ).start()
+        }.onFailure { logger.log(java.util.logging.Level.SEVERE, "World baseline setup failed.", it) }
         // Never let the lobby world fail Core's onEnable (it would disable every Astera plugin).
         runCatching { installLobbyWorld(ctx) }
             .onFailure { logger.log(java.util.logging.Level.SEVERE, "Lobby world setup failed; lobby stays on the main world.", it) }

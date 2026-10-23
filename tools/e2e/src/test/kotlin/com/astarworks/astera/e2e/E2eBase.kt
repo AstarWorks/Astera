@@ -16,14 +16,15 @@ abstract class E2eBase {
     }
 
     /**
-     * The flat arena world is night-time on `normal` difficulty: zombies, skeletons and slimes wander into the match
-     * arenas, kill bots mid-duel / mid-dig (the "[Kill] died" lines of the flaky Siege and Norma playthroughs) and
-     * soak up skill hits. Every suite starts in a bright, mob-free world. (Peaceful is no option: vanilla refills
-     * food there, which would move the energy bar.)
+     * The server owns a quiet world (ADR-0245, `content/world-rules/baseline.yaml`): no natural mob spawning, fixed
+     * noon. This only asserts that it did, then clears mobs left over from earlier runs of the persisted world.
+     * (Peaceful difficulty is no option: vanilla refills food there, which would move the energy bar.)
      */
     private fun quietWorld() {
-        for (rule in listOf("spawn_mobs", "doMobSpawning", "advance_time", "doDaylightCycle")) rcon("gamerule $rule false")
-        rcon("time set day")
+        for (rule in listOf("spawn_mobs", "advance_time")) {
+            val answer = rcon("gamerule $rule")
+            check(answer.trimEnd().endsWith("false")) { "server must ship with gamerule $rule=false (ADR-0245), got: $answer" }
+        }
         rcon("execute in minecraft:overworld run kill @e[type=!minecraft:player,type=!minecraft:item_display,type=!minecraft:text_display,type=!minecraft:block_display,type=!minecraft:interaction]")
     }
 
