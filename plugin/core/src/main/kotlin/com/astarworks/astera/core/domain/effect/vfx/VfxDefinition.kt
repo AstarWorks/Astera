@@ -141,7 +141,7 @@ public data class VfxElement(
     public val groupKeyframes: List<VfxGroupKeyframe> = emptyList(),
     /**
      * Particle emitter (display particles): spawns up to [VfxEmitter.count] quads whose trajectories the
-     * planner precomputes. Needs kind `quad`; [keyframes] are then optional (the first keyframe's `translate`
+     * planner precomputes. Needs kind `quad` or `sprite` (sprite: per-particle flipbook); [keyframes] are then optional (the first keyframe's `translate`
      * is the emitter origin) and [count] / [formation] / [oscillate] are unused.
      */
     public val emit: VfxEmitter? = null,
@@ -162,7 +162,8 @@ public data class VfxElement(
         require(count in 1..MAX_COUNT) { "element '$id' count must be 1..$MAX_COUNT: $count" }
         require(keyframes.isNotEmpty() || emit != null) { "element '$id' needs at least one keyframe" }
         require(keyframes.isEmpty() || keyframes.first().t >= 0) { "element '$id' keyframe t must be >= 0" }
-        require(emit == null || kind is VfxElementKind.Quad) { "element '$id': emit needs kind quad" }
+        require(emit == null || kind is VfxElementKind.Quad || kind is VfxElementKind.Sprite) { "element '$id': emit needs kind quad or sprite" }
+        require(emit?.colorOverLife == null || kind is VfxElementKind.Quad) { "element '$id': emit.color_over_life needs kind quad" }
         require(targetTrack.isEmpty() || (emit == null && kind !is VfxElementKind.Particle)) { "target tracking supports non-emitting displays only" }
         require(!targetLine || (kind is VfxElementKind.Block && billboard == DisplayBillboard.FIXED && count == 1 && formation == null && emit == null && targetTrack.isEmpty())) { "target_line requires one fixed block without target_track or formation" }
         targetTrack.zipWithNext().forEach { (a, b) -> require(b.t > a.t) { "target track times must increase" } }

@@ -1,13 +1,13 @@
 {
   "id": "bastion-greatsword-ego",
-  "rev": 4,
+  "rev": 8,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 0,
   "end_s": 3.8,
   "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "from-wiki",
-  "iterations": 1,
+  "iterations": 8,
   "report": "/report/bastion-greatsword",
   "skill": {
     "name": "城塞の暁",
@@ -15,7 +15,7 @@
     "asteraSkillId": "bastion-greatsword-ego"
   },
   "intent": {
-    "file": "intent-round2.json"
+    "file": "intent-redo.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -23,13 +23,34 @@
     "castTickInTrace": 6
   },
   "segments": [],
-  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
-  "editLog": [],
+  "notes": "【独自設計・動作確認済(強制発動) / 反復8】参照映像なし。",
+  "editLog": [
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T10:41:24.012021+00:00",
+      "summary": "EGO 独自設計 反復2"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T11:18:20.486890+00:00",
+      "summary": "EGO 独自設計 反復4"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T12:09:50.110366+00:00",
+      "summary": "EGO 独自設計 反復6"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T12:59:27.929955+00:00",
+      "summary": "EGO 独自設計 反復8 (hide_held_item)"
+    }
+  ],
   "verification": {
     "status": "unverified",
-    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
-    "normalInput": "実入力撮影あり。標的HP 172.448f（回数の測定ではない）",
-    "evidence": "/evidence/bastion-greatsword-ego.png"
+    "reason": "原動画にE.G.Oは存在しない。独自設計・動作確認済(--force撮影): 障壁→跳躍→突き立て→光柱+稲妻。持ち替え剣は非表示。",
+    "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
+    "evidence": ""
   },
   "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
   "referenceRevision": "a40478a425ea3fcf5bbad88a61b0bc624b7e2e17e746b01723ac5a046b6ce99a",

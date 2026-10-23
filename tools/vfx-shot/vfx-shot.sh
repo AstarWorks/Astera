@@ -316,7 +316,8 @@ give_item() { # player
 # ---------------------------------------------------------------- capture
 film() { # viewer view_dir
   local viewer="$1" dir="$2" rec="$OUT_ROOT/.rec-$$.mkv" d="${DISP[$1]}"
-  local dur t_total cast_stamp first_pts offset
+  local dur t_total cast_stamp first_pts offset clog="$CLIENTS/$1/client.log" log_off pos_start pos_end
+  log_off="$(stat -c %s "$clog" 2>/dev/null || echo 0)"
   dur="$(awk -v t="$TICKS" -v p="$PRE_ROLL" 'BEGIN{printf "%.2f", p + t/20 + 2.0}')"
   local cast_cmd="astera skill cast $SKILL Caster --force"
   t_total="$(awk -v d="$dur" 'BEGIN{printf "%.2f", d + 1.5}')"
@@ -328,6 +329,7 @@ film() { # viewer view_dir
   local fpid=$!
   for i in $(seq 1 100); do grep -q ' pts:' "$rec.log" 2>/dev/null && break; sleep 0.1; done
   sleep "$PRE_ROLL"
+  pos_start="$(rcon "data get entity $viewer Pos" | sed 's/.*data: //') in $(rcon "data get entity $viewer Dimension" | sed 's/.*data: //')"
   log "caster before cast: $(rcon "data get entity Caster Pos" | sed 's/.*data: //') in $(rcon "data get entity Caster Dimension" | sed 's/.*data: //')"
   if [ "$VIEW" = compare ]; then
     # one RCON connection: cast, then the camera cuts of the plan on the wall clock
@@ -338,6 +340,7 @@ film() { # viewer view_dir
   fi
   [ -n "$cast_stamp" ] || { kill "$fpid" 2>/dev/null; die "cast command failed"; }
   wait "$fpid"
+  pos_end="$(rcon "data get entity $viewer Pos" | sed 's/.*data: //') in $(rcon "data get entity $viewer Dimension" | sed 's/.*data: //')"
   [ -s "$rec" ] || die "recording failed"
   # showinfo's `pts:` is in microseconds (wall-clock timebase 1/1e6)
   first_pts="$(grep -m1 -o ' pts:[0-9]*' "$rec.log" | tr -dc '0-9' | awk '{printf "%.6f", $1/1000000}')"
@@ -347,6 +350,9 @@ film() { # viewer view_dir
   log "cast at +${offset}s into the recording (cast $cast_stamp, first frame $first_pts, last frame $last_pts)"
   rm -rf "$dir"; mkdir -p "$dir"
   if [ "$VIEW" = compare ]; then cp "$STATE/director.stderr" "$dir/director-timing.log"; fi
+  # viewer session evidence for capture_meta.py: client log written during the recording + position before/after
+  tail -c +"$((log_off + 1))" "$clog" > "$dir/viewer-client.log" 2>/dev/null || : > "$dir/viewer-client.log"
+  printf '%s\n%s\n' "$pos_start" "$pos_end" > "$dir/viewer-pos.txt"
   ffmpeg -nostdin -loglevel error -y -i "$rec" \
     -vf "fps=20:start_time=$offset,setpts=N/20/TB" -frames:v "$((TICKS + PRE_TICKS + 1))" -start_number 0 "$dir/frame_%03d.png" \
     || die "frame extraction failed"
@@ -406,6 +412,9 @@ place_scene() { # view target_z
       summon_target ;;
     opponent)
       rcon "gamemode survival Target" >/dev/null
+      # the target is a real survival player: without this a multi-hit skill kills it mid-capture (lobby return)
+      rcon "attribute Target minecraft:max_health base set 200" >/dev/null
+      rcon "effect give Target minecraft:instant_health 1 30 true" >/dev/null
       tp Target "$CX" "$Y" "$tz" 180 0 ;;
     compare)
       # caster faces +x (yaw -90); enemy ENEMY_X ahead looking back; spectator camera from the plan

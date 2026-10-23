@@ -1,0 +1,25 @@
+== hit1 (contact tick 7); placed peaks, rel = dB vs loudest impact-layer cue (-6.6 dBFS) ==
+  bastion-s1-step-scuff        peak at tick  0.88   -19.0 dBFS  rel -12.4 dB  [foley]
+  bastion-s1-blade-lift        peak at tick  4.18   -21.0 dBFS  rel -14.4 dB  [foley]
+  bastion-s1-whoosh-heavy      peak at tick  6.43   -12.8 dBFS  rel  -6.2 dB  [whoosh]
+  bastion-s1-impact-steel      peak at tick  7.05    -6.6 dBFS  rel  +0.0 dB  [impact]
+  bastion-s1-cut-thud          peak at tick  7.09   -11.1 dBFS  rel  -4.4 dB  [impact]
+  bastion-s1-armor-ring        peak at tick  7.10   -18.3 dBFS  rel -11.6 dB  [armour]
+  bastion-s1-ring-whirl        peak at tick 12.25   -18.2 dBFS  rel -11.5 dB  [armour]
+  bastion-s1-sword-settle      peak at tick 19.63   -20.1 dBFS  rel -13.4 dB  [foley]
+  mixed timeline peak -3.4 dBFS at tick 7.03
+  per-tick peak dBFS: 0:-19 1:-19 2:-21 3:-21 4:-20 5:-15 6:-13 7:-3 8:-10 9:-12 10:-12 11:-13 12:-15 13:-17 14:-20 15:-22 16:-25 17:-28 18:-31 19:-20 20:-22 21:-30 22:-35 23:-42 24:-180 25:-180 26:-180 27:-180 28:-180 29:-180 30:-180 31:-180 32:-180 33:-180 34:-180 35:-180 36:-180 37:-180 38:-180 39:-180 40:-180 41:-180 42:-180 43:-180 44:-180 45:-180 46:-180 47:-180 48:-180 49:-180 50:-180 51:-180
+== hit2 (contact tick 31); placed peaks, rel = dB vs loudest impact-layer cue (-8.3 dBFS) ==
+  bastion-s1-step-scuff        peak at tick 25.09   -22.1 dBFS  rel -13.8 dB  [foley]
+  bastion-s1-blade-lift        peak at tick 28.45   -24.1 dBFS  rel -15.8 dB  [foley]
+  bastion-s1-flash-sting       peak at tick 30.19   -16.0 dBFS  rel  -7.7 dB  [sting]
+  bastion-s1-whoosh-heavy      peak at tick 30.03   -15.2 dBFS  rel  -6.8 dB  [whoosh]
+  bastion-s1-impact-steel      peak at tick 31.05    -8.3 dBFS  rel  +0.0 dB  [impact]
+  bastion-s1-cut-thud          peak at tick 31.10   -12.8 dBFS  rel  -4.4 dB  [impact]
+  bastion-s1-armor-ring        peak at tick 31.10   -19.6 dBFS  rel -11.2 dB  [armour]
+  bastion-s1-ground-slam       peak at tick 31.08    -8.8 dBFS  rel  -0.5 dB  [ground]
+  bastion-s1-ring-whirl        peak at tick 36.95   -18.7 dBFS  rel -10.4 dB  [armour]
+  bastion-s1-sword-settle      peak at tick 40.70   -23.9 dBFS  rel -15.5 dB  [foley]
+  mixed timeline peak -1.1 dBFS at tick 31.05
+  per-tick peak dBFS: 0:-180 1:-180 2:-180 3:-180 4:-180 5:-180 6:-180 7:-180 8:-180 9:-180 10:-180 11:-180 12:-180 13:-180 14:-180 15:-180 16:-180 17:-180 18:-180 19:-180 20:-180 21:-180 22:-180 23:-180 24:-24 25:-22 26:-24 27:-24 28:-19 29:-17 30:-13 31:-1 32:-9 33:-10 34:-13 35:-13 36:-13 37:-16 38:-17 39:-20 40:-19 41:-21 42:-26 43:-28 44:-30 45:-31 46:-36 47:-38 48:-37 49:-39 50:-44 51:-45
+contact-window peak hit1 -3.4 dBFS, hit2 -1.1 dBFS, hit2-hit1 = +2.3 dB

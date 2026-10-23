@@ -1,0 +1,10 @@
+# stone chips thrown outward on the slam ring (block_crumble, outward over the floor)
+id: bastion-s1-p-wave-chip
+shape: { kind: ring, radius_blocks: 0.8, points: 10 }
+color: { r: 128, g: 128, b: 128 }
+count: 1
+lifetime_ticks: 14
+vanilla_particle: block_crumble
+data: { kind: block, block: gravel }
+velocity: { direction: outward, speed: 0.35, spread_degrees: 30 }
+force: true

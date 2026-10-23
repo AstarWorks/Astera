@@ -1,0 +1,101 @@
+# Bastion S3 beat 2 (video 20.9-21.4s): lunge with the blade carried horizontally forward in both hands, played at the dash end position.
+
+id: bastion-thrust
+duration_ticks: 14
+orient: yaw
+follow: false
+sample_ticks: 1
+rigs:
+- id: sword
+  pivot: [-0.15, 1.15, 0.1]
+  rest: [0, 90, 0]
+  tilt: [0, 0, 0]
+  respect_hit_stop: true
+  end_tick: 13
+  parts:
+  - id: face
+    block: gray_concrete
+    offset: [0, 1.55, 0]
+    size: [0.46, 1.9, 0.07]
+  - id: rim_l
+    block: white_concrete
+    offset: [0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: rim_r
+    block: white_concrete
+    offset: [-0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: tip
+    block: white_concrete
+    offset: [0, 2.5, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: base
+    block: white_concrete
+    offset: [0, 0.62, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: inset
+    block: yellow_concrete
+    offset: [0, 0.86, 0]
+    size: [0.09, 0.2, 0.09]
+  - id: guard
+    block: black_concrete
+    offset: [0, 0.5, 0]
+    size: [0.62, 0.1, 0.18]
+  - id: grip
+    block: black_concrete
+    offset: [0, 0.05, 0]
+    size: [0.09, 0.8, 0.09]
+  swing:
+  - t: 0
+    rotate: [0, 0, 0]
+  - t: 12
+    rotate: [0, 0, 0]
+elements:
+- id: streaks
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 9
+  count: 6
+  formation:
+    curve:
+      type: line
+      from: [0.0, 0.8, 0.6]
+      to: [0.0, 1.6, 0.6]
+  jitter:
+    position: 0.12
+    scale: 0.45
+  keyframes:
+  - t: 0
+    scale: [0.06, 0.06, 0.3]
+  - t: 1
+    translate: [0, 0, 2.2]
+    scale: [0.06, 0.06, 4.4]
+    ease: out_expo
+  - t: 7
+    translate: [0, 0, 3.9600000000000004]
+    scale: [0, 0, 4.4]
+    ease: in_quad
+- id: flash
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FFEFA0'
+    alpha: 1.0
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0, 1.2, 2.3]
+    scale: [0.18, 0.18, 1.0]
+  - t: 1
+    scale: [1.2, 1.2, 1.0]
+    ease: out_back
+  - t: 5
+    scale: [0.6, 0.6, 1.0]
+    color: '#FF9A30'
+    alpha: 0.0
+    ease: out_quad

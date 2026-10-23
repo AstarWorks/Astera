@@ -1,0 +1,9 @@
+# gold trail specks gathering onto the contact (trail flies to the element's trail_to over 4 ticks): 6 points on the back half arc
+id: bastion-s1-p-converge
+shape: { kind: arc, radius_blocks: 0.75, from_deg: 100, to_deg: 260, points: 6 }
+color: { r: 255, g: 226, b: 140 }
+count: 1
+lifetime_ticks: 6
+vanilla_particle: trail
+data: { kind: trail, toward: true, color: { r: 255, g: 226, b: 140 }, duration_ticks: 4 }
+force: true
