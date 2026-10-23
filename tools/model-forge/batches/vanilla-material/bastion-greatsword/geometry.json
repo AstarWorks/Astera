@@ -1,0 +1,29 @@
+{
+  "bbox": [
+    [
+      2.0999999999999996,
+      -2.418456203060215,
+      6.45
+    ],
+    [
+      13.9,
+      29.10162274614728,
+      9.55
+    ]
+  ],
+  "elementCount": 112,
+  "materialFaceCount": 656,
+  "densityRange": [
+    0.9999999999999943,
+    1.0000000000000064
+  ],
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warningCounts": {
+      "coplanar_contact_possible_zfight": 20,
+      "floating_components_aabb": 1,
+      "overlap_aabb": 203
+    }
+  }
+}
