@@ -106,6 +106,7 @@ class BotBrain(
     private var progressZ = 0.0
     private var progressAt = 0L
     private var preferredSide = 1
+    private var screensSeen = bot.screens.size
 
     fun start(): BotBrain {
         exec.scheduleAtFixedRate({ runCatching { tick() }.onFailure { Bot.noteSink("bot ${bot.name}: brain error $it") } }, 500, 50, TimeUnit.MILLISECONDS)
@@ -124,6 +125,7 @@ class BotBrain(
     private fun tick() {
         val now = System.currentTimeMillis()
         if (!bot.joined) return
+        dismissScreens()
         if (mode != Mode.FIGHT) {
             wasFighting = false
             idleNudge(now)
@@ -207,6 +209,19 @@ class BotBrain(
         } else {
             move(heading, speed, yaw, pitch, now)
         }
+    }
+
+    /**
+     * Server-opened windows (the Norma goal picker opens 2 s after match start and at each level-up) swallow clicks
+     * until closed. The bot answers by closing them: closing keeps the default goal, STAR.
+     */
+    private fun dismissScreens() {
+        val seen = bot.screens.size
+        if (seen < screensSeen) screensSeen = 0 // the bot hopped servers and its screen list was reset
+        if (seen == screensSeen) return
+        val last = bot.screens.lastOrNull()
+        screensSeen = seen
+        if (last != null) bot.closeWindow(last.containerId)
     }
 
     private fun idleNudge(now: Long) {
