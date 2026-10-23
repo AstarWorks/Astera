@@ -1,0 +1,60 @@
+{
+  "purpose": "Actual-client diagnostic for the new-display/body separation in Procuration S3",
+  "productionImplementationChanged": false,
+  "runtimeBaseCommit": "8112a57939cce80ad855ee23c6a12869537bb1a5",
+  "probeSource": "build/limbus-review/round23/probe-plugin/AttachProbe.java",
+  "probeSourceSha256": "2fb77cb69c2b0a80d029bf7ca5137de9d1e4b09bb73a600d7b6aaafff793ebac",
+  "captures": [
+    "build/limbus-review/round23/repeat-2"
+  ],
+  "markers": {
+    "blue": "Mounted before motion",
+    "red": "Independent world-position teleport each tick, duration 0",
+    "green": "Mounted at reversal tick 11"
+  },
+  "motion": "5 ticks up-left by 7 horizontal / 3 vertical, then 5 ticks down-right; crouch at 20 and release at 26",
+  "serverEvidence": {
+    "mountHeightStanding": 1.7999999523162842,
+    "teleportsSucceeded": 10,
+    "retainedMount": true,
+    "lateAttached": true,
+    "secondRunUsedDefaultTeleport": true
+  },
+  "visualReview": {
+    "frames": [
+      18,
+      20,
+      22,
+      28,
+      34
+    ],
+    "observation": "Mounted blue and newly mounted green markers stay near the rendered body; red marker visibly leads the moving body.",
+    "limitations": [
+      "Small marker geometry only; no animated claw rig applied yet",
+      "First appearance and crouch attachment offsets need frame-by-frame validation",
+      "No world-change/disconnect or full gameplay input validation",
+      "Not a full skill fidelity claim"
+    ]
+  },
+  "apiReference": "https://jd.papermc.io/paper/1.21.11/io/papermc/paper/entity/TeleportFlag.EntityState.html",
+  "captureQuality": {
+    "maxRepeatedFrames": 5,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 3.0
+  },
+  "repeatedFrameReview": "Frames 7..11 repeat before the airborne movement; reviewed airborne frames 18/20/22 differ.",
+  "excludedCaptures": [
+    {
+      "directory": "build/limbus-review/round23/mounted-probe",
+      "cameraMaxLatenessMs": 105
+    },
+    {
+      "directory": "build/limbus-review/round23/late-mounted-probe",
+      "cameraMaxLatenessMs": 132
+    },
+    {
+      "directory": "build/limbus-review/round23/repeat-1",
+      "cameraMaxLatenessMs": 108
+    }
+  ]
+}
