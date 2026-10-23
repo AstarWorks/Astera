@@ -1,0 +1,1156 @@
+[
+  {
+    "file": "dagger-orbit--45-0.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        -13.19256044274727,
+        14.937560566724935
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit--45-45.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        10.562450371115968,
+        -13.19256044274727,
+        10.56245037111597
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit--45-90.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        14.937560566724935,
+        -13.19256044274727,
+        9.146617867554707e-16
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit--45-135.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        10.56245037111597,
+        -13.19256044274727,
+        -10.562450371115968
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit--45-180.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.8293235735109415e-15,
+        -13.19256044274727,
+        -14.937560566724935
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit--45-225.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -10.56245037111597,
+        -13.19256044274727,
+        -10.562450371115968
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit--45-270.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -14.937560566724935,
+        -13.19256044274727,
+        -2.402142947826694e-15
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit--45-315.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -10.562450371115972,
+        -13.19256044274727,
+        10.562450371115967
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-0-0.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        1.7450001239776625,
+        21.124900742231937
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-0-45.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        14.937560566724931,
+        1.7450001239776625,
+        14.937560566724935
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-0-90.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        21.124900742231937,
+        1.7450001239776625,
+        1.2935271038139944e-15
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-0-135.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        14.937560566724935,
+        1.7450001239776625,
+        -14.937560566724931
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-0-180.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.587054207627989e-15,
+        1.7450001239776625,
+        -21.124900742231937
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-0-225.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -14.937560566724928,
+        1.7450001239776625,
+        -14.937560566724938
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-0-270.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -21.124900742231937,
+        1.7450001239776625,
+        -3.3971431355753964e-15
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-0-315.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -14.937560566724937,
+        1.7450001239776625,
+        14.93756056672493
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-45-0.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        16.682560690702594,
+        14.937560566724935
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-45-45.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        10.562450371115968,
+        16.682560690702594,
+        10.56245037111597
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-45-90.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        14.937560566724935,
+        16.682560690702594,
+        9.146617867554707e-16
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-45-135.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        10.56245037111597,
+        16.682560690702594,
+        -10.562450371115968
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-45-180.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.8293235735109415e-15,
+        16.682560690702594,
+        -14.937560566724935
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-45-225.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -10.56245037111597,
+        16.682560690702594,
+        -10.562450371115968
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-45-270.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -14.937560566724935,
+        16.682560690702594,
+        -2.402142947826694e-15
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-orbit-45-315.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -10.562450371115972,
+        16.682560690702594,
+        10.562450371115967
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-pole--90.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        -19.379900618243713,
+        0.000021124900747768267
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-pole-90.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        22.869900866199036,
+        0.000021124900742228414
+      ],
+      "target": [
+        0,
+        1.7450001239776611,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-gui.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "gui",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        2.4492935982947065e-15,
+        40
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-firstperson_righthand.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "firstperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-firstperson_lefthand.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "firstperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-thirdperson_righthand.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "thirdperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-thirdperson_lefthand.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "thirdperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-thirdperson_righthand_side.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "thirdperson_righthand_side",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        48,
+        21.999999999999996,
+        2.9391523179536475e-15
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-ground.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "ground",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-ground_spin.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "ground_spin",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "dagger-fixed.png",
+    "item": "dagger",
+    "source": "content/models/items/dagger.model.json",
+    "sha256": "04c6102e063b486aabe2c1dd3a9ac72491483a2a5a180bc8eaec1d8a87c0097b",
+    "context": "fixed",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.6942229581241772e-15,
+        1.3471114790620886e-15,
+        -22
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]
