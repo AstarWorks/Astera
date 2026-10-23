@@ -4,7 +4,7 @@ package com.astarworks.astera.e2e
 private val RAW_KEY = Regex("[<\\[]astera\\.[a-z0-9_-]+(\\.[a-z0-9_-]+)+[>\\]]|^astera\\.[a-z0-9_-]+(\\.[a-z0-9_-]+)+$")
 
 /** The word "star(s)" (not "start", "starting"): how the star line / currency shows up in sidebars and chat. */
-val STAR_WORD = Regex("\\bstars?\\b", RegexOption.IGNORE_CASE)
+val STAR_WORD = Regex("(?<![\\w-])stars?(?![\\w-])", RegexOption.IGNORE_CASE)
 
 fun rawKeys(lines: Collection<String>): List<String> = lines.filter { RAW_KEY.containsMatchIn(it.trim()) }
 
