@@ -107,9 +107,25 @@ internal object ParticlePainters {
     }
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
-        "orb" to ::orb, "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
+        "orrery_impact" to ::orreryImpact, "orb" to ::orb, "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
         "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue, "procuration_ribbon" to ::procurationRibbon, "crimson_orbit" to ::crimsonOrbit, "crimson_link" to ::crimsonLink,
     )
+
+    /** Interrupted double annulus with radial teeth, observed on Concentration's victim. */
+    private fun orreryImpact(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val dx = x - C
+            val dy = y - C
+            val r = hypot(dx, dy)
+            val a = atan2(dy, dx) + i * PI / 48
+            val sector = (a * 12 / PI + 48) % 1.0
+            val gap = sector < 0.10
+            val outer = if (!gap) max(0.0, 1.0 - abs(r - 12.0) / 1.8) else 0.0
+            val inner = if (sector > 0.18) max(0.0, 0.9 - abs(r - 9.2) / 0.65) else 0.0
+            val tooth = if (sector in 0.38..0.58 && r in 10.0..14.8) 0.65 else 0.0
+            max(max(outer, inner), tooth)
+        }
+    }
 
     /** Round charge light: broad white centre, narrow gold rim, no star arms. */
     private fun orb(c: Canvas, t: Double, i: Int, n: Int) {

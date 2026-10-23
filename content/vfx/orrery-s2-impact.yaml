@@ -1,0 +1,84 @@
+id: orrery-s2-impact
+duration_ticks: 16
+orient: yaw
+follow: false
+sample_ticks: 1
+target_reference:
+- 0
+- 0
+- 0
+elements:
+- id: annulus
+  kind:
+    type: sprite
+    sprite: orrery-impact
+    frame_ticks: 2
+    loop: true
+    color: '#FFFFFF'
+    see_through: true
+  brightness: 15
+  billboard: center
+  start_tick: 0
+  end_tick: 15
+  target_track:
+  - t: 0
+    weight: 1
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.1
+    - 0
+    scale:
+    - 0.312
+    - 0.459
+    - 1
+  - t: 2
+    scale:
+    - 0.494
+    - 0.7155
+    - 1
+    ease: out_expo
+  - t: 11
+    scale:
+    - 0.494
+    - 0.7155
+    - 1
+  - t: 15
+    scale:
+    - 0.507
+    - 0.7425
+    - 1
+    alpha: 0
+- id: violet-flash
+  kind:
+    type: sprite
+    sprite: glint
+    frame_ticks: 1
+    loop: false
+    color: '#9A63EE'
+    see_through: true
+  brightness: 15
+  billboard: center
+  start_tick: 0
+  end_tick: 7
+  target_track:
+  - t: 0
+    weight: 1
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.1
+    - 0
+    scale:
+    - 0.6
+    - 2.1
+    - 1
+    alpha: 0.8
+  - t: 7
+    scale:
+    - 0.2
+    - 2.5
+    - 1
+    alpha: 0

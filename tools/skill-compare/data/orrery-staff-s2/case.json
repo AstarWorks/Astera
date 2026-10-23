@@ -50,13 +50,13 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "前進、術者側の振り上げ・構え直し・頭上保持、武器先端への光球追従を実機確認。敵位置に出ていた別武器を撤去。腕姿勢、光のにじみ、周囲の曲線、紫の残像、緑の装備表示、接写画角は未一致。"
+    "reason": "小さな8本の棒から、敵を囲む分割二重リングと紫の閃光へ変更。実機で2命中と対象上のリングを確認。発光のにじみ、破片の不規則な動き、傾き・遠近感、腕姿勢、カメラは未一致。移動対象・複数対象の今回版実機検証は未実施。"
   },
   "weapon": "orrery-staff",
   "identity": "R Corp. 4th Pack Reindeer Rodion",
   "videoTitle": "R Corp. 4th Pack Reindeer Rodion — skill showcase",
-  "iterations": 7,
+  "iterations": 9,
   "report": "/report/orrery-staff",
   "referenceRevision": "6737ff3fd4f9e53d06a7489c746c48b7f11a053a63cb1e9f6e887fe232da6eab",
-  "contentRevision": "718b68938cefc64a903c4db4eea991485debc52a9d86cd15562d18bf6d3264d1"
+  "contentRevision": "59206bd39dd38a7299df0cfef3966a2b7139a83533f46b6d67510b91c5045505"
 }
