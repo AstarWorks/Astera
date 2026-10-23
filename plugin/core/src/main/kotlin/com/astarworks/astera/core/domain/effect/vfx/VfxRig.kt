@@ -152,6 +152,8 @@ public data class VfxTrail(
     public val darkRim: VfxTrailRim? = null,
     public val stepDeg: Double = 30.0,
     public val fadePower: Double = 1.5,
+    /** Emit a reversed soft face as well; crisp slabs already have both sides. */
+    public val doubleSided: Boolean = false,
 ) {
     init {
         require(id.isNotBlank()) { "VfxTrail.id must not be blank" }

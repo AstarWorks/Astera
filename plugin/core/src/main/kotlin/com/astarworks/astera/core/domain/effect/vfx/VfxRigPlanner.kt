@@ -284,6 +284,14 @@ public object VfxRigPlanner {
         val counters = HashMap<String, Int>()
         fun slot(id: String): Int = counters.merge(id, 1, Int::plus)!! - 1
 
+        fun addSoft(id: String, surf: Surface, argb: Int, toArgb: Int?, clock: FadeClock) {
+            out += softQuad(id, slot(id), surf, argb, toArgb, trail.fadePower, clock)
+            if (trail.doubleSided) {
+                val back = Surface(surf.center, surf.rotation * Quaternion.fromEulerDegrees(180.0, 0.0, 0.0), surf.radial, surf.chord)
+                out += softQuad("$id.back", slot("$id.back"), back, argb, toArgb, trail.fadePower, clock)
+            }
+        }
+
         for ((s0, s1) in intervals) {
             val spawn = m.effectTickEnd(ceil(s1 - 1e-9).toInt()) + trail.lagTicks
             if (spawn >= def.durationTicks) continue
@@ -293,7 +301,7 @@ public object VfxRigPlanner {
                 val surf = surface(at(band.from, s0), at(band.to, s0), at(band.from, s1), at(band.to, s1), BAND_OUTER_WEIGHT)
                     ?: return@forEachIndexed
                 if (soft) {
-                    out += softQuad("${trail.id}.b$index", slot("${trail.id}.b$index"), surf, band.argb, band.toArgb, trail.fadePower, clock)
+                    addSoft("${trail.id}.b$index", surf, band.argb, band.toArgb, clock)
                 }
                 if (crisp && band.block != null) {
                     out += slab("${trail.id}.k$index", slot("${trail.id}.k$index"), band.block, surf, surf.radial, SLAB_THICKNESS, trail.fadePower, clock, shrink = false)
@@ -309,7 +317,7 @@ public object VfxRigPlanner {
                 trail.darkRim?.let { rim ->
                     val to = 1.0 + rim.width / bladeLen
                     surface(at(1.0, s0), at(to, s0), at(1.0, s1), at(to, s1))?.let { surf ->
-                        out += softQuad("${trail.id}.rim", slot("${trail.id}.rim"), surf, rim.argb, null, trail.fadePower, clock)
+                        addSoft("${trail.id}.rim", surf, rim.argb, null, clock)
                     }
                 }
             }

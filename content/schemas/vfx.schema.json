@@ -1022,6 +1022,9 @@
                 },
                 "fade_power": {
                     "type": "number"
+                },
+                "double_sided": {
+                    "type": "boolean"
                 }
             },
             "required": [
