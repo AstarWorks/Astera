@@ -781,6 +781,18 @@ astera:
       chosen: "<green>Norma goal: <gold>{goal}</gold>.</green>"
       not-in-match: "<red>Norma levels exist only inside a Norma match.</red>"
       max-level: "<yellow>You are at the top Norma level.</yellow>"
+      gui:
+        title: "<gold>Norma goal</gold> <gray>- pick one</gray>"
+        star:
+          name: "<gold><bold>★ Star goal</bold></gold>"
+          lore: "<gray>Carry <gold>{goal}</gold> stars.</gray>"
+        kill:
+          name: "<red><bold>⚔ Kill goal</bold></red>"
+          lore: "<gray>Make <red>{goal}</red> kills at this level.</gray>"
+        level: "<gray>Norma level <white>{level}/{max}</white></gray>"
+        default: "<dark_gray>No pick in 10 s = Star goal.</dark_gray>"
+    star:
+      collected: "<gold>+{amount} ★</gold> <gray>(carrying {total})</gray>"
     # Wave 5lobby-content (ADR-0119) — lobby `lobby.queue.*` GuiIntent surface.
     queue:
       unknown-mode: "<red>Unknown queue mode.</red>"

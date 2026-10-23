@@ -1,6 +1,8 @@
 package com.astarworks.astera.e2e
 
 import org.assertj.core.api.Assertions.assertThat
+import org.geysermc.mcprotocollib.protocol.data.game.inventory.ClickItemAction
+import org.geysermc.mcprotocollib.protocol.data.game.inventory.ContainerActionType
 import org.junit.jupiter.api.Test
 
 /**
@@ -26,6 +28,13 @@ class StarsE2eTest : PlaythroughBase() {
     private fun levelOf(b: Bot): Pair<Int, Int>? =
         sidebar(b).firstNotNullOfOrNull { Regex("Lv\\s*(\\d+)/(\\d+)").find(it)?.let { m -> m.groupValues[1].toInt() to m.groupValues[2].toInt() } }
 
+    /** The `Goal: ...` sidebar line, or null. */
+    private fun goalLine(b: Bot): String? = sidebar(b).firstOrNull { it.contains("Goal:") }
+
+    /** Dropped-item entities (a star drop is a glowing NETHER_STAR item) this bot currently sees within [r] blocks of (x, z). */
+    private fun itemsNear(b: Bot, x: Double, z: Double, r: Double): Int =
+        b.entities.values.count { it.type.equals("ITEM", ignoreCase = true) && Math.hypot(it.x - x, it.z - z) <= r }
+
     @Test
     fun `stars pop on the map, burst on a kill, level the norma up and nothing survives the match`() {
         val a = bot("Sa", PackPolicy.DECLINE)
@@ -43,7 +52,8 @@ class StarsE2eTest : PlaythroughBase() {
             "line='${active?.raw}'"
         }
         if (active == null) return
-        Thread.sleep(2_500) // generators have popped at least once; nobody stands on a pedestal
+        // Nobody stands on a pedestal. Keep the pre-pedestal steps short: every 3 s each generator holds one more star.
+        both.forEach { b -> b.waitUntil(5_000) { goalLine(b) != null } }
 
         E2eReport.check(suite, "the match sidebar shows 0 stars, Lv 1/3 and the goal (Stars 0/2) for everyone at the start", "SetScore") {
             for (b in both) {
@@ -53,6 +63,47 @@ class StarsE2eTest : PlaythroughBase() {
                 assertThat(rawKeys(sidebar(b))).isEmpty()
             }
             quote(sidebar(a))
+        }
+
+        // Norma choice without commands: the picker window opens by itself (start of the match), a click picks the goal.
+        val windows = both.associateWith { b -> b.waitUntil(10_000) { b.screens.any { it.title.contains("Norma goal") } } }
+        E2eReport.check(suite, "a Norma goal picker window opens for every player at match start", "ClientboundOpenScreen") {
+            for (b in both) {
+                assertThat(windows.getValue(b)).describedAs("${b.name}: no picker; screens=${b.screens.map { it.title }}; chat=${b.chatTexts().takeLast(3)}").isTrue()
+                val sc = b.screens.last { it.title.contains("Norma goal") }
+                assertThat(rawKeys(listOf(sc.title))).isEmpty()
+                assertThat(b.waitUntil(3_000) { b.contents[sc.containerId]?.any { it.amount > 0 } == true }).describedAs("picker window is empty").isTrue()
+            }
+            "titles=${both.map { b -> b.screens.last { it.title.contains("Norma goal") }.title }}"
+        }
+        E2eReport.check(suite, "clicking the KILL tile (slot 6) switches the goal to Kills 0/1; clicking STAR (slot 2) keeps Stars 0/2", "ServerboundContainerClick -> SetScore") {
+            val sc = c.screens.last { it.title.contains("Norma goal") }
+            val before = c.chat.size
+            c.clickSlot(sc.containerId, 6, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
+            assertThat(c.waitUntil(6_000) { sidebar(c).any { Regex("Goal:\\s*Kills\\s*0/1").containsMatchIn(it) } })
+                .describedAs("C goal did not become Kills 0/1: ${sidebar(c)}; chat=${c.chatSince(before).map { clean(it) }}").isTrue()
+            val sa = a.screens.last { it.title.contains("Norma goal") }
+            a.clickSlot(sa.containerId, 2, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
+            Thread.sleep(800)
+            assertThat(sidebar(a).any { Regex("Goal:\\s*Stars\\s*0/2").containsMatchIn(it) }).describedAs("A sidebar ${sidebar(a)}").isTrue()
+            "C: ${sidebar(c)}; A: ${sidebar(a)}"
+        }
+        // The window closes by itself after 10 s; /astera norma choose keeps working (C goes back to STAR for the pedestal run).
+        val cmdFrom = c.chat.size
+        c.command("astera norma choose star")
+        E2eReport.check(suite, "/astera norma choose star still works", "SystemChat") {
+            val reply = c.chatSince(cmdFrom).map { clean(it) }.joinToString(" ")
+            assertThat(reply).describedAs("no reply").containsIgnoringCase("star")
+            assertThat(c.waitUntil(4_000) { sidebar(c).any { Regex("Goal:\\s*Stars").containsMatchIn(it) } }).describedAs("C sidebar ${sidebar(c)}").isTrue()
+            reply
+        }
+
+        // (generator star is a visible entity) A stands 5 blocks off the east generator and must see the dropped star there.
+        tpArena(a.name, 17.5, 65.0, 0.5, 0f, 0f)
+        val seen = a.waitUntil(10_000) { a.nudge(); c.nudge(); itemsNear(a, 12.5, 0.5, 2.5) >= 1 }
+        E2eReport.check(suite, "a generator star appears in the world as an item entity at the generator", "ClientboundAddEntity(ITEM)") {
+            assertThat(seen).describedAs("no ITEM entity near (12.5, 0.5); entities=${a.entities.values.map { it.type }.groupingBy { it }.eachCount()}").isTrue()
+            "items near generator: ${itemsNear(a, 12.5, 0.5, 2.5)}"
         }
 
         // (a) + STAR-goal level-up: A stands on the east generator (12.5, 65, 0.5) and takes what pops; 2 stars clear level 1.
@@ -65,6 +116,7 @@ class StarsE2eTest : PlaythroughBase() {
         E2eReport.check(suite, "a bot standing on a generator picks up the popped stars and the STAR goal levels it up (Lv 1 -> 2)", "SetScore") {
             assertThat(leveled).describedAs("level stayed ${levelOf(a)}; stars=${starCount(a)}; sidebar=${sidebar(a)}").isTrue()
             assertThat(starCount(a)).describedAs("stars are kept by a level-up: ${sidebar(a)}").isGreaterThanOrEqualTo(2)
+            assertThat(a.actionBars.any { "★" in it.text && "+" in it.text }).describedAs("no '+N ★' action bar: ${a.actionBars.map { it.text }}").isTrue()
             "A sidebar: ${sidebar(a)}"
         }
         E2eReport.check(suite, "a bot far from every generator stays at 0 stars and Lv 1", "SetScore") {
@@ -91,6 +143,10 @@ class StarsE2eTest : PlaythroughBase() {
         tpArena(a.name, 0.5, 65.0, 4.0, 0f, 0f)
         Thread.sleep(1_200)
         val deathSpot = posOf(a)
+        // C watches from 4 blocks away (inside entity tracking range) while the burst flies out.
+        tpArena(c.name, 4.5, 65.0, 4.0, 0f, 0f)
+        Thread.sleep(800)
+        val burstEventsFrom = c.entityEvents.size
         val tKill = System.currentTimeMillis()
         val logFromKill = logLineCount()
         rcon("damage ${a.name} 1000 minecraft:magic by ${c.name}")
@@ -100,6 +156,13 @@ class StarsE2eTest : PlaythroughBase() {
             assertThat(choose.map { clean(it) }.joinToString(" ")).describedAs("no reply to /astera norma choose kill").contains("kill")
             assertThat(victimCleared).describedAs("victim still carries ${starCount(a)} stars: ${sidebar(a)} (carried before: $carried); server log: ${ServerLog.read().lineSequence().drop(logFromKill).filter { it.contains("star", true) || it.contains("ERROR") || it.contains("threw") }.take(12).toList()}").isTrue()
             "victim stars $carried -> ${starCount(a)} ${System.currentTimeMillis() - tKill} ms after the kill"
+        }
+        val expectedBurst = minOf(carried ?: 0, 6)
+        E2eReport.check(suite, "the burst creates N star item entities around the death spot (N = min(stars carried, 6))", "ClientboundAddEntity(ITEM)") {
+            val spawned = c.entityEvents.drop(burstEventsFrom).count { it.added && it.type.equals("ITEM", ignoreCase = true) }
+            assertThat(expectedBurst).describedAs("victim carried nothing").isGreaterThan(0)
+            assertThat(spawned).describedAs("ITEM entities that appeared after the kill").isGreaterThanOrEqualTo(expectedBurst)
+            "carried=$carried expected>=$expectedBurst spawned=$spawned"
         }
         E2eReport.check(suite, "the KILL goal levels the killer up (Lv 1 -> 2 after one kill)", "SetScore") {
             assertThat(c.waitUntil(6_000) { levelOf(c)?.first == 2 }).describedAs("killer sidebar ${sidebar(c)}").isTrue()
@@ -151,7 +214,8 @@ class StarsE2eTest : PlaythroughBase() {
             }
             val ending = b.chat.drop(chatFrom.getValue(b)).map { clean(it.text) }
             E2eReport.check(suite, "${b.name}: no chat line during or after the match grants or mentions stars", "SystemChat") {
-                assertThat(ending.filter { STAR_WORD.containsMatchIn(it) }).describedAs("star amounts in chat: ${quote(ending, 40)}").isEmpty()
+                // The reply to choosing the STAR goal ("Norma goal: star.") names the goal, it grants nothing.
+                assertThat(ending.filter { STAR_WORD.containsMatchIn(it) && !it.contains("Norma goal:") }).describedAs("star amounts in chat: ${quote(ending, 40)}").isEmpty()
                 "ok"
             }
         }

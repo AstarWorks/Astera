@@ -1,0 +1,7 @@
+# Norma goal picker (match start / level-up): make kills.
+
+id: gui-tile-norma-kill
+material: IRON_SWORD
+name:
+  ja: "<red><bold>⚔ キル目標</bold></red>"
+  en: "<red><bold>⚔ Kill goal</bold></red>"

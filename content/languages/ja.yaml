@@ -788,6 +788,18 @@ astera:
       chosen: "<green>ノルマ目標：<gold>{goal}</gold></green>"
       not-in-match: "<red>ノルマレベルはノルマ戦の中だけです。</red>"
       max-level: "<yellow>最高ノルマレベルです。</yellow>"
+      gui:
+        title: "<gold>ノルマ目標</gold> <gray>- どちらか選択</gray>"
+        star:
+          name: "<gold><bold>★ スター目標</bold></gold>"
+          lore: "<gray>スターを <gold>{goal}</gold> 個持つ。</gray>"
+        kill:
+          name: "<red><bold>⚔ キル目標</bold></red>"
+          lore: "<gray>このレベルで <red>{goal}</red> キルする。</gray>"
+        level: "<gray>ノルマレベル <white>{level}/{max}</white></gray>"
+        default: "<dark_gray>10秒選ばないとスター目標になります。</dark_gray>"
+    star:
+      collected: "<gold>+{amount} ★</gold> <gray>(所持 {total})</gray>"
     # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
     queue:
       unknown-mode: "<red>未知のキューモードです。</red>"

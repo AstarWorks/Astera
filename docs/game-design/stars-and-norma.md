@@ -32,7 +32,8 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
 - Per-(match, player) integer counter held by the match plugin on the host server. 0 at match start; dropped at match end.
   Never in the wallet, Postgres, inventory snapshot or lobby HUD.
 - **Sources:** (1) Star Generators (`content/generators/`) pop stars on their period; stars lie on the map as pickable
-  star drops (pickup by walking within the pickup radius, first come first served). Output grows late in the match
+  star drops: a glowing, named `★ xN` NETHER_STAR item entity that never enters an inventory (pickup by touching it or
+  walking within the pickup radius, first come first served; "+N ★" action bar and a pickup sound). Output grows late in the match
   (generator `late_game_multiplier`). (2) Kill burst (below). Nothing else: winning, quests, login, level rewards, dummy
   hits and lobby activity give no stars.
 - **Kill burst:** when a player dies in a match, `floor(carried * death_drop_ratio)` stars leave the victim's counter and
@@ -46,7 +47,8 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
 - Every player has a Norma level, starting at 1, up to `max_level`.
 - At each level the player holds one active goal, picked from two: **STAR** (carry at least `stars_goal(level)` stars) or
   **KILL** (get `kills_goal(level)` kills since reaching this level). Default pick if the player never chooses:
-  STAR. Choose with `/astera norma choose star|kill` (also in the sidebar hint). The choice is allowed any time before
+  STAR. Choose in the picker GUI that opens at match start and at each level-up (closes after 10 s; no pick = STAR) or with
+  `/astera norma choose star|kill`. The choice is allowed any time before
   the goal is reached.
 - Reaching the goal raises the Norma level at once (no home check in v1), resets the kill progress, re-opens the choice.
   Stars are kept.

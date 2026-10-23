@@ -1,6 +1,14 @@
 package com.astarworks.astera.match.platform.wiring
 
 import com.astarworks.astera.combat.domain.event.PlayerKilled
+import com.astarworks.astera.core.adapter.api.server.IMcServer
+import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
+import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.runLaterTicks
+import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.match.application.service.NormaChoicePrompter
+import com.astarworks.astera.match.domain.event.NormaLevelUp
 import com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.services.get
@@ -45,6 +53,9 @@ internal object MatchStarWiring {
         fun stageHasStars(stageId: String): Boolean = generators.all().any { it.matchStageId == stageId }
     }
 
+    /** Let the arena settle (teleports, kit) before the picker opens. */
+    private const val PROMPT_DELAY_TICKS = 40L
+
     fun install(env: MatchWiringEnv): Wired {
         val services = env.ctx.services
         val eventBus = env.eventBus
@@ -59,6 +70,7 @@ internal object MatchStarWiring {
             ?: LocationLookupMatchPlayerPositions { services.get<IPlayerLocationLookup>() }
         val configOf: (MatchId) -> NormaConfig = { id -> NormaConfig.parse(env.modeConfigOf(id)) }
 
+        val dropWorld = env.ports.starDropWorld?.invoke(services)
         val drops = StarDropService(
             matches = env.matches,
             generators = generators,
@@ -66,9 +78,9 @@ internal object MatchStarWiring {
             positions = positions,
             store = store,
             eventBus = eventBus,
-            marker = env.ports.starDropMarker?.invoke(services),
+            world = dropWorld,
             deathDropRatio = { id -> configOf(id).deathDropRatio },
-            log = { env.ctx.logger.info(it) },
+            log = { env.ctx.logger.fine(it) },
         )
         val norma = NormaLevelService(
             matches = env.matches,
@@ -98,6 +110,41 @@ internal object MatchStarWiring {
         subs += eventBus.subscribe(PlayerKilled::class) { drops.onKilled(it) }
         subs += eventBus.subscribe(PlayerKilled::class) { norma.onKilled(it) }
         subs += eventBus.subscribe(StarsCollected::class) { norma.onStarsCollected(it) }
+        // A touched star drop (its vanilla pickup is cancelled by the host) is credited here.
+        dropWorld?.onPickupAttempt { handle, player -> drops.onTouched(handle, player) }
+        // Pickup feedback: "+3 ★" on the action bar.
+        val mcServer = services.get<IMcServer>()
+        if (mcServer != null) {
+            subs += eventBus.subscribe(StarsCollected::class) { e ->
+                mcServer.findPlayer(e.playerId)?.sendActionBar(
+                    MessageKey("astera.match.star.collected"),
+                    mapOf("amount" to e.amount.toString(), "total" to e.total.toString()),
+                )
+            }
+        }
+        // Norma goal picker (GUI) at match start and at each level-up; default STAR after 10 s.
+        val guiAdapter = services.get<IGuiAdapter>()
+        val renderer = services.get<IMessageRenderer>()
+        if (mcServer != null && guiAdapter != null && renderer != null) {
+            val prompter = NormaChoicePrompter(
+                matches = env.matches,
+                norma = norma,
+                configOf = configOf,
+                guiAdapter = guiAdapter,
+                mcServer = mcServer,
+                scheduler = env.scheduler,
+                messages = { p, key, args -> p.sendMessage(renderer.render(p.id, key, args)) },
+            )
+            env.ctx.registrations += services.getOrThrow<IGuiIntentRouter>().register(NormaChoicePrompter.INTENT_PREFIX) { intent, player ->
+                prompter.handle(intent, player)
+            }
+            subs += eventBus.subscribe(NormaLevelUp::class) { e -> env.scheduler.runLaterTicks(PROMPT_DELAY_TICKS) { prompter.prompt(e.playerId) } }
+            subs += eventBus.subscribe(MatchStarted::class) { e ->
+                env.scheduler.runLaterTicks(PROMPT_DELAY_TICKS) {
+                    env.matches.findById(e.matchId)?.teams?.flatMap { it.members }?.forEach(prompter::prompt)
+                }
+            }
+        }
         // Command teleports raise no move event: a short poll covers them and redraws the drop markers.
         env.scheduledTasks += env.scheduler.runRepeatingTicks(initialDelayTicks = 10L, periodTicks = 10L) { drops.poll() }
         return Wired(store, registry, norma, drops, configOf)

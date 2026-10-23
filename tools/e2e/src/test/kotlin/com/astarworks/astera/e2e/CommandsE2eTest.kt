@@ -97,6 +97,8 @@ class CommandsE2eTest : E2eBase() {
         E2eReport.check(suite, "`/astera queue join` without lane shows the expected syntax", "SystemChat (ADR-0234)") {
             val before = player.chat.size
             player.command("astera queue join")
+            // The daily login-bonus line can arrive first; wait for the syntax line itself.
+            player.waitUntil(6_000) { player.chat.drop(before).any { it.text.contains("/astera queue join <lane>") } }
             val lines = player.chatSince(before)
             assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
             assertThat(lines.joinToString("\n")).contains("/astera queue join <lane>")
