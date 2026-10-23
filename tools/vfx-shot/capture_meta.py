@@ -1,6 +1,7 @@
 """Stamp a completed capture with its case version and repeated-frame diagnostics.
 
-Usage: capture_meta.py <case.json> <capture-directory> [camera-intent.json]
+Usage: capture_meta.py <case.json|-> <capture-directory> [camera-intent.json]
+Also records provenance (branch, commit) so a comparison always states which build produced the frames.
 Repeated frames request visual review; an idle scene alone is not proof of a stall.
 """
 import datetime
@@ -12,7 +13,7 @@ import subprocess
 import sys
 
 case_path, directory = map(Path, sys.argv[1:3])
-case = json.loads(case_path.read_text())
+case = json.loads(case_path.read_text()) if str(case_path) != "-" else {}
 path = directory / "meta.json"
 meta = json.loads(path.read_text())
 meta.update({key: case[key] for key in ("referenceRevision", "contentRevision") if key in case})
@@ -42,4 +43,8 @@ root = Path(__file__).resolve().parents[2]
 meta["implementationCommit"] = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
 if len(sys.argv) > 3 and Path(sys.argv[3]).is_file():
     meta["cameraRevision"] = hashlib.sha256(Path(sys.argv[3]).read_bytes()).hexdigest()
+try:
+    meta["branch"] = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=root, text=True).strip()
+except subprocess.CalledProcessError:
+    pass
 path.write_text(json.dumps(meta, indent=2) + "\n")

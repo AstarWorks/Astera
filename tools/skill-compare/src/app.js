@@ -141,7 +141,23 @@ function mcFrame(ms) {
   let k = src.keys[0]; for (const x of src.keys) if (x <= abs) k = x;
   return { url: `${src.base}key-${k}.png`, dim: abs < src.keys[0], label: `t+${tick} (nearest key tick ${k})`, tick };
 }
+function showProv() {
+  const box = $("prov"), src = S.data.mc.sources[S.c.mc.source], key = src ? S.c.mc.source + (src.revision || "") : "";
+  if (S.provKey === key) return;
+  S.provKey = key; box.textContent = "";
+  if (!src?.prov) { box.hidden = true; return; }
+  const p = src.prov, chip = (txt, cls) => box.appendChild(el("span", "pv " + (cls || ""), txt));
+  box.hidden = false;
+  chip(p.branch || "branch ?", p.branch ? "" : "warn");
+  chip(p.commit ? p.commit.slice(0, 8) : "commit ?", p.commit ? "" : "warn");
+  chip(p.capturedAt ? p.capturedAt.replace("T", " ").slice(0, 16) + " UTC" : "撮影日時 ?", p.capturedAt ? "" : "warn");
+  chip(p.fov ? `FOV ${p.fov}°${p.fovMode ? " (" + p.fovMode + ")" : ""}` : "FOV 記録なし", p.fov ? "" : "warn");
+  if (p.resolution) chip(p.resolution);
+  chip(p.published ? "公開版" : "未公開（作業中の撮影）", p.published ? "ok" : "warn");
+  if (p.reviewRequired) chip(`静止フレーム最大 ${p.repeated}`, "warn");
+}
 function showMc(ms) {
+  showProv();
   const f = mcFrame(ms), img = $("mimg"), ph = $("mph"), badge = $("mbadge");
   if (!f) {
     ph.classList.add("on"); ph.textContent = "このスキルの実機映像は準備中";
@@ -360,6 +376,12 @@ function renderLog() {
 }
 
 // ---- transport ---------------------------------------------------------------------------------------------------
+function hitMsList() { return (S.c.segments || []).filter((s) => s.kind === "hit" && s.t_s != null).map((s) => sToMs(s.t_s, S.c.start_s)).sort((x, y) => x - y); }
+function jumpHit(dir) {
+  const list = hitMsList(), cur = S.ms, eps = 1;
+  const t = dir > 0 ? list.find((x) => x > cur + eps) : [...list].reverse().find((x) => x < cur - eps);
+  if (t != null) seek(t);
+}
 function seek(ms) { S.ms = clamp(ms, 0, S.dur); update(); }
 function play() { if (S.ms >= S.dur) S.ms = S.loop?.from ?? 0; S.playing = true; S.lastTs = 0; $("bPlay").textContent = "Pause"; }
 function pause() { S.playing = false; $("bPlay").textContent = "Play"; }
@@ -412,6 +434,7 @@ function setupControls() {
   $("bRetry").onclick = () => S.frameCache.retry();
   $("bPlay").onclick = () => (S.playing ? pause() : play());
   $("bFm").onclick = () => stepFrame(-1); $("bFp").onclick = () => stepFrame(1);
+  $("bHp").onclick = () => jumpHit(-1); $("bHn").onclick = () => jumpHit(1);
   $("bTm").onclick = () => stepTick(-1); $("bTp").onclick = () => stepTick(1);
   $("speed").onchange = (e) => setSpeed(+e.target.value);
   $("fzOn").onchange = (e) => { S.c.focus.enabled = e.target.checked; markDirty(); update(); };
@@ -430,6 +453,8 @@ function setupControls() {
     else if (e.code === "ArrowRight") { e.preventDefault(); e.shiftKey ? stepTick(1) : stepFrame(1); }
     else if (e.key >= "1" && e.key <= "4") setSpeed([1, 0.5, 0.25, 0.1][+e.key - 1]);
     else if (e.key === "f" || e.key === "F") { S.c.focus.enabled = !S.c.focus.enabled; $("fzOn").checked = S.c.focus.enabled; markDirty(); update(); }
+    else if (e.key === "[") jumpHit(-1);
+    else if (e.key === "]") jumpHit(1);
     else if (e.key === "h" || e.key === "H") addHit();
     else if (e.key === "Delete" || e.key === "Backspace") removeSel();
     else if (e.key === "Escape") { S.loop = null; drawBg(); }

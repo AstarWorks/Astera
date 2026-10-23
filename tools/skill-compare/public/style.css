@@ -114,3 +114,11 @@ a.slot:hover{background:var(--head)}
 #skillnav { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
 #skillnav [aria-current="page"] { outline:2px solid var(--accent); }
 #buffer { padding:10px; color:var(--accent); }
+
+.col h2 .tag{font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);border:1px solid var(--line);border-radius:99px;padding:0 7px}
+.col h2 small{margin-left:auto}
+.prov{display:flex;flex-wrap:wrap;gap:4px 6px;padding:6px 10px;border-top:1px solid var(--line);font-size:11.5px}
+.prov[hidden]{display:none}
+.pv{padding:0 7px;border-radius:99px;border:1px solid var(--line);color:var(--ink);font-variant-numeric:tabular-nums}
+.pv.ok{border-color:var(--mc);color:var(--mc)}
+.pv.warn{border-color:var(--onset);color:var(--onset)}

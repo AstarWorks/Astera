@@ -35,7 +35,16 @@ TICKS="${TICKS:-60}"                 # ticks filmed after the cast (compare: the
 RES="${RES:-1280x720}"               # viewer resolution
 HIDE_HUD="${HIDE_HUD:-1}"            # 1 = F1 (hand + world only), 0 = keep the HUD
 GUI_SCALE="${GUI_SCALE:-2}"
-FOV_OPT="${FOV_OPT:-0.0}"            # options.txt fov is normalised: 0.0 = 70, +-1 = 110 / 30
+# Client FOV in degrees (vertical, same as the in-game slider). Default 90 for caster/opponent/side: what most players
+# run; vanilla 70 reads narrow in a 16:9 viewer. VIEW=compare defaults to the case's intent camera fov (reference
+# framing, e.g. 45-50) unless FOV is set; with FOV set, each key's own fov is emulated by dollying (FOV_DOLLY=1, same
+# framing as the reference) or ignored (FOV_DOLLY=0: same camera positions, wider view of the scene).
+# FOV_OPT (raw normalised options.txt value, 0.0 = 70, +-1 = 110 / 30) stays as a low-level override.
+FOV="${FOV:-}"
+FOV_DOLLY="${FOV_DOLLY:-1}"
+FOV_OPT="${FOV_OPT:-}"
+FOV_FROM_ENV=0
+[ -n "$FOV" ] && FOV_FROM_ENV=1
 RENDER_DISTANCE="${RENDER_DISTANCE:-6}"
 TIME_OF_DAY="${TIME_OF_DAY:-6000}"   # `time set`; 6000 = noon (target + floor readable), 13000 = dusk (glow pops, husk goes dark)
 DISTANCE="${DISTANCE:-4}"            # caster -> target, blocks
@@ -53,6 +62,7 @@ PRE_TICKS=0                          # frames filmed before the cast (compare on
 ARENA_R=15                           # floor half-size around the arena centre
 ARENA_H=12                           # air cleared above the floor
 CMP_FOV_OPT=""
+CMP_FOV_DEG=""
 CAM0_CMD=""
 ENEMY_X=4.2
 case "$VIEW" in caster|opponent|side|compare|all) ;; *) die "VIEW must be caster|opponent|side|compare|all";; esac
@@ -65,6 +75,15 @@ if [ "$VIEW" = compare ]; then
   ARENA_R=30
   ARENA_H=7
   FLOOR_BLOCK="${FLOOR_BLOCK:-minecraft:light_gray_concrete}"
+fi
+if [ -n "$FOV" ]; then
+  python3 -c 'import sys; v=float(sys.argv[1]); sys.exit(0 if 30<=v<=110 else 1)' "$FOV" || die "FOV must be a number of degrees between 30 and 110"
+fi
+if [ -z "$FOV_OPT" ] && [ -z "$FOV" ] && [ "$VIEW" != compare ]; then
+  FOV=90
+fi
+if [ -n "$FOV" ] && [ -z "$FOV_OPT" ]; then
+  FOV_OPT="$(python3 -c 'import sys; print("%.4f" % ((float(sys.argv[1]) - 70.0) / 40.0))' "$FOV")"
 fi
 [ -n "$ITEM" ] || ITEM="$(printf '%s' "$SKILL" | sed -E 's/-(s[0-9]+|def)$//')"
 
@@ -159,7 +178,7 @@ write_client_files() { # name width height
   rm -f "$wd/options.txt"
   cat > "$wd/options.txt" <<EOF
 version:5023
-fov:$FOV_OPT
+fov:${FOV_OPT:-0.0}
 bobView:false
 renderDistance:$RENDER_DISTANCE
 simulationDistance:6
@@ -351,10 +370,18 @@ make_outputs() { # dir view
     -pix_fmt yuv420p "$dir/$SKILL-$view.mp4" || log "WARN: mp4 failed"
   ffmpeg -nostdin -loglevel error -y -i "$dir/frame_%03d.png" -c:v libwebp -quality 85 \
     -compression_level 4 -threads 2 -start_number 0 "$dir/frame_%03d.webp" || log "WARN: web preview failed; serving PNG"
+  local fov_mode=fixed
   if [ "$view" = compare ]; then
-    printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":20,"cast_tick_ms":%d,"frames":%d}\n' \
-      "$CASE" "$CAMERA" "$SKILL" "$((PRE_TICKS * 50))" "$n" > "$dir/meta.json"
+    if [ "$FOV_FROM_ENV" != 1 ]; then fov_mode=intent-first-key
+    elif [ "$FOV_DOLLY" = 0 ]; then fov_mode=override-nodolly
+    else fov_mode=override-dolly; fi
+    printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":20,"cast_tick_ms":%d,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
+      "$CASE" "$CAMERA" "$SKILL" "$((PRE_TICKS * 50))" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
     python3 -I "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT"
+  else
+    printf '{"view":"%s","skill":"%s","fps":20,"cast_tick_ms":0,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
+      "$view" "$SKILL" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
+    python3 -I "$HERE/capture_meta.py" - "$dir"
   fi
   log "$view: $n frames -> $dir (sheet.png, $SKILL-$view.gif, $SKILL-$view.mp4)"
 }
@@ -409,8 +436,11 @@ run_view() { # view
     compare)  viewer="Watcher"; dummy_caster=1 ;;
   esac
   if [ "$view" = compare ]; then
-    eval "$(python3 -I "$HERE/compare_plan.py" "$INTENT" "$CAMERA" "$CX" "$Y" "$CZ" "$STATE/camera-plan.tsv")"
+    local dolly=dolly
+    [ "$FOV_DOLLY" = 0 ] && dolly=nodolly
+    eval "$(python3 -I "$HERE/compare_plan.py" "$INTENT" "$CAMERA" "$CX" "$Y" "$CZ" "$STATE/camera-plan.tsv" "${FOV:--}" "$dolly")"
     FOV_OPT="$CMP_FOV_OPT"
+    FOV="$CMP_FOV_DEG"
     [ -n "$TICKS_SET" ] || TICKS="$DURATION_TICKS"
   fi
   log "=== view $view (viewer $viewer) ==="
