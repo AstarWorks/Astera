@@ -3,15 +3,15 @@
 # play_vfx freeze: [{ at: 7, ticks: 2 }, { at: 31, ticks: 2 }]  (effect ticks; the hit_stop of both contacts).
 # Rig key time l is displayed at effect tick l + 1 (+ frozen ticks before it). Hit 1: e_k (e4 = contact) -> key k+2, contact displayed at effect tick 7.
 # Round 6 (founder: the weapon barely moved): both hits are BIG arcs. Hit 1 = overhead chop in a vertical plane tilted 22 deg (top leans to the caster's right):
-# lift behind (keys 0-3, ticks 1-4), chop over the head 150+ deg in 3 ticks (keys 3-6, ticks 4-7, blade straight up at key 4), contact held ticks 7-8 (r7: in-plane tip phi 6 pitch -15, tip y 0.11),
+# r8: keys 0-3 (ticks 1-4) = the held item pose exactly (the client shows the rig 2-3 ticks late), pull-back 52 deg to in-plane theta 100 (key 4, tick 5), chop 116 deg in 2 ticks (keys 4-6, 58/tick), contact held ticks 7-8 (r7: in-plane tip phi 6 pitch -15, tip y 0.11),
 # then a floor-level drag to the left and round behind with overshoot (keys 7-17), REST by key 18. Hit 2 = low horizontal ring (plane lowest at phi 60, highest at 240, 14 deg tilt, centre pitch -8):
 # pull-back keys 21-22, keys 23-28 ON the plane (r7, vfx ring), 220 deg in 5 ticks, contact key 28 = tick 31 (held 31-32; pitch clamped to -15 where the plane dips under the floor: phi 0-110), follow-through round the left/back with overshoot, REST by key 39.
 # Face = plane normal in the chop (edge leads), ~28 deg off vertical in the ring (face visible from the side camera), rolls back to the sideways REST face.
 # Round 7: pivot = the held item's fist [-0.348, 0.773, 0.293] (handover_s1.py), so REST / floor keys use pitch -15 (tip y 0.11; -20 would sink under the floor).
-# Keys 42-52 lift OUTSIDE the first-person frustum: REST -> up the caster's right side (slerp, keys 42-48, tip right-up phi 270 pitch 52 at key 48 = tick 53)
-# -> horizontal wiper in to the held pose (keys 49-52, ticks 54-57); key 52 = held item exactly (0.0 deg, grip offset 0). FP coverage <= 6% (perspective ray-cast).
+# Keys 40-50 (r8: was 42-52) lift OUTSIDE the first-person frustum: REST -> up the caster's right side (slerp, keys 40-46, tip right-up phi 270 pitch 52 at key 46 = tick 51)
+# -> horizontal wiper in to the held pose (keys 47-50, ticks 52-55); keys 50-52 = held item exactly (0.0 deg, grip offset 0), held 2 ticks because the real client shows key l about 2 ticks late (r5 side f57 = key 50). FP coverage <= 6% (perspective ray-cast).
 # Key -> tick: l+1 (l<=6), l+3 (7..28), l+5 (29+).
-# Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt.
+# Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt (keys 0-6 and 40-52 changed in r8: evidence/animator/r8/per-key-r8.txt).
 # Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
 # Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
 # Parts: verbatim deliver/rig-parts.yaml (22 parts, round 7: + guard_plate, hilt_flare). Face normal = local Z, edges = +-X, blade = +Y. fx / sprites live in bastion-s1-fx-high/low.yaml.
@@ -51,12 +51,12 @@ rigs:
   - { id: grip_collar, block: gold_block, offset: [0.0, 0.2031, 0.0], size: [0.125, 0.0312, 0.125] }
   - { id: pommel, block: polished_blackstone, offset: [0.0, -0.1625, 0.0], size: [0.1562, 0.125, 0.1437] }
   swing:
-  - { t: 0, rotate: [-174.8, 14.1, 69.4] }
-  - { t: 1, rotate: [-176.1, 9.2, 66.7] }
-  - { t: 2, rotate: [-193.1, -21.5, 57.5] }
-  - { t: 3, rotate: [-209.9, -32.5, 43.1] }
-  - { t: 4, rotate: [-274.5, -47.9, -3.3] }
-  - { t: 5, rotate: [-334.1, -25.9, -41.9] }
+  - { t: 0, rotate: [-336.4, -47.8, -59.4] }
+  - { t: 1, rotate: [-336.4, -47.8, -59.4] }
+  - { t: 2, rotate: [-336.4, -47.8, -59.4] }
+  - { t: 3, rotate: [-336.4, -47.8, -59.4] }
+  - { t: 4, rotate: [-255.2, -47.0, 10.9] }
+  - { t: 5, rotate: [-328.9, -29.8, -39.5] }
   - { t: 6, rotate: [-371.0, 12.0, -46.8] }
   - { t: 7, rotate: [-404.9, 0.5, -89.5] }
   - { t: 8, rotate: [-433.6, -4.2, -142.2] }
@@ -91,18 +91,18 @@ rigs:
   - { t: 37, rotate: [-900.9, 14.9, -288.9] }
   - { t: 38, rotate: [-896.8, 14.4, -290.1] }
   - { t: 39, rotate: [-894.8, 14.1, -290.6] }
-  - { t: 40, rotate: [-894.8, 14.1, -290.6] }
-  - { t: 41, rotate: [-894.8, 14.1, -290.6] }
-  - { t: 42, rotate: [-894.1, 9.2, -294.5] }
-  - { t: 43, rotate: [-893.9, -3.0, -303.9] }
-  - { t: 44, rotate: [-897.9, -22.2, -319.8] }
-  - { t: 45, rotate: [-913.8, -42.8, -347.5] }
-  - { t: 46, rotate: [-947.7, -51.7, -391.7] }
-  - { t: 47, rotate: [-975.6, -45.0, -427.8] }
-  - { t: 48, rotate: [-990.0, -32.0, -450.0] }
-  - { t: 49, rotate: [-1013.3, -34.2, -437.3] }
-  - { t: 50, rotate: [-1033.7, -39.5, -427.4] }
-  - { t: 51, rotate: [-1048.6, -44.8, -421.7] }
+  - { t: 40, rotate: [-894.1, 9.2, -294.5] }
+  - { t: 41, rotate: [-893.9, -3.0, -303.9] }
+  - { t: 42, rotate: [-897.9, -22.2, -319.8] }
+  - { t: 43, rotate: [-913.8, -42.8, -347.5] }
+  - { t: 44, rotate: [-947.7, -51.7, -391.7] }
+  - { t: 45, rotate: [-975.6, -45.0, -427.8] }
+  - { t: 46, rotate: [-990.0, -32.0, -450.0] }
+  - { t: 47, rotate: [-1013.3, -34.2, -437.3] }
+  - { t: 48, rotate: [-1033.7, -39.5, -427.4] }
+  - { t: 49, rotate: [-1048.6, -44.8, -421.7] }
+  - { t: 50, rotate: [-1056.4, -47.8, -419.4] }
+  - { t: 51, rotate: [-1056.4, -47.8, -419.4] }
   - { t: 52, rotate: [-1056.4, -47.8, -419.4] }
   emitters:
   - { id: tip_ember_1, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 3, end_t: 14 }
