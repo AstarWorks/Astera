@@ -1,0 +1,7 @@
+# ADR-0248 — "Play vs bots" button of the mode picker.
+
+id: gui-tile-play-bots
+material: SKELETON_SKULL
+name:
+  ja: "<aqua>ボットと対戦</aqua>"
+  en: "<aqua>Play vs bots</aqua>"

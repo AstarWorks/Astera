@@ -3,7 +3,7 @@
 # Every team owns one core block (stage region `core-<team>`, a single block).
 # Breaking an enemy core eliminates that team; the last team with an intact
 # core wins. Implementation: BreakCoreGameMode (SiegeGameMode); the stage
-# supplies the regions (content/stages/siege-flat.yaml), the lane is
+# supplies the regions (content/stages/siege-isles.yaml), the lane is
 # `break-core` in content/matchmaking/queue.yaml.
 #
 # default_config

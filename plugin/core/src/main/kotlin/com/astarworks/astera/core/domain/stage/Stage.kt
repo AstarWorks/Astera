@@ -8,8 +8,8 @@ import com.astarworks.astera.core.domain.world.WorldId
  *
  * WP9: [world] is the Bukkit world the stage is played in (default: the
  * server's main world, `world`); [spawnPoints] are per-team spawns plus lobby /
- * spectator points, all in that world. Geometry (schematic) is not modelled:
- * stages are hand-built in the world, [regions] only name areas of it.
+ * spectator points, all in that world. [regions] name areas of it. The geometry comes from
+ * [layout] (sky islands the server builds, ADR-0246); a stage without a layout is hand-built.
  */
 public data class Stage(
     val id: StageId,
@@ -18,6 +18,8 @@ public data class Stage(
     val spawnPoints: List<SpawnPoint> = emptyList(),
     val world: WorldId = WorldId(DEFAULT_WORLD),
     val pillars: List<StagePillar> = emptyList(),
+    /** Sky-island block layout a Paper-side builder places into [world] (ADR-0246); `null` = hand-built stage. */
+    val layout: ArenaLayout? = null,
 ) {
     /** The region the stage YAML named [name], or `null`. */
     public fun region(name: String): Region? = regions.firstOrNull { it.name == name }

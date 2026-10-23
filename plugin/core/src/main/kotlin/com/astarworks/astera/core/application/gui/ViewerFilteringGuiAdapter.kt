@@ -16,13 +16,24 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public class ViewerVisibility(
     private val permissions: IPermissionService,
     private val isOperator: (PlayerId) -> Boolean,
+    private val queueState: () -> com.astarworks.astera.core.application.port.outbound.lobby.ILobbyQueueState? = { null },
 ) {
     public fun hasPermission(viewer: PlayerId, node: String): Boolean =
         isOperator(viewer) || permissions.check(viewer, Permission(node))
 
+    /** Whether `state:<name>` holds for [viewer] (ADR-0248): `queued` / `idle`. */
+    public fun hasState(viewer: PlayerId, state: String): Boolean {
+        val queued = queueState()?.isQueued(viewer) ?: false
+        return when (state) {
+            "queued" -> queued
+            "idle" -> !queued
+            else -> false
+        }
+    }
+
     /** [spec] reduced to what [viewer] may see. */
     public fun filter(viewer: PlayerId, spec: GuiSpec): GuiSpec =
-        GuiVisibility.filter(spec) { node -> hasPermission(viewer, node) }
+        GuiVisibility.filter(spec, { node -> hasPermission(viewer, node) }, { state -> hasState(viewer, state) })
 }
 
 /**
@@ -45,6 +56,6 @@ public class ViewerFilteringGuiAdapter(
 
     private fun visible(player: IMcPlayer, spec: GuiSpec): GuiSpec {
         val v = visibility()
-        return if (v != null) v.filter(player.id, spec) else GuiVisibility.filter(spec) { false }
+        return if (v != null) v.filter(player.id, spec) else GuiVisibility.filter(spec, { false })
     }
 }

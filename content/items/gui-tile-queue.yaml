@@ -1,8 +1,9 @@
-# Wave 5lobby-content (ADR-0119) — placeholder tile icon for queue.
+# Wave 5lobby-content (ADR-0119) — "Play" tile icon (ADR-0248: first and most prominent entry of the main menu,
+# also the picker's per-lane "Queue" button and the crafting-grid result button).
 # Wave 6+ texture pack can override the visual via custom_model_data.
 
 id: gui-tile-queue
-material: BOOK
+material: EMERALD
 name:
-  ja: "<gold>キュー</gold>"
-  en: "<gold>Queue</gold>"
+  ja: "<green><bold>▶ プレイ</bold></green>"
+  en: "<green><bold>▶ Play</bold></green>"

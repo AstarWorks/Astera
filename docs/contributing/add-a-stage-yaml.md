@@ -5,6 +5,10 @@ Astera Stage は `content/stages/<id>.yaml` 1 ファイルで定義します
 形 (regions / spawn points / per-match overlay) を宣言的に書きます。
 Kotlin コードは触りません。
 
+> **ADR-0246 以降**: 出荷される Stage はすべて、サーバーが `arenas` (void) ワールドに自動で建てる空島アリーナです。
+> `layout:` (islands / bridges / landmarks)、`world: arenas`、スポーン・目標リージョンの書き方は
+> `content/stages/README.md` が最新です。以下の最小例 (boss-arena) は削除済みの旧形式 (手置き AABB のみ) です。
+
 ## 最小例 (boss-arena)
 
 ```yaml

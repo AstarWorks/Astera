@@ -1,7 +1,8 @@
 package com.astarworks.astera.bots
 
-import com.astarworks.astera.core.application.bots.BotChannels
+import com.astarworks.astera.core.application.bots.BotMatchWire
 import com.astarworks.astera.core.application.bots.BotRequest
+import com.astarworks.astera.core.application.bots.BotState
 import com.astarworks.astera.core.application.bots.BotStatus
 import io.lettuce.core.RedisClient
 import io.lettuce.core.pubsub.RedisPubSubAdapter
@@ -44,7 +45,7 @@ data class RunnerConfig(
 }
 
 /** Account names of the form `Bot_Ash`; a name is busy while its bot is connected. */
-class BotNames(private val prefix: String = BotChannels.NAME_PREFIX) {
+class BotNames(private val prefix: String = "Bot_") {
     private val inUse = ConcurrentHashMap.newKeySet<String>()
 
     @Synchronized
@@ -73,8 +74,8 @@ class BotNames(private val prefix: String = BotChannels.NAME_PREFIX) {
 }
 
 /**
- * The bot runner service (ADR-0247): listens on [BotChannels.REQUEST], spawns that many bots (capped), reports on
- * [BotChannels.STATUS]. Each bot is a [BotSession]: it logs in as a Velocity-forwarded player, queues for the lane,
+ * The bot runner service (ADR-0247): listens on [BotMatchWire.REQUEST_CHANNEL], spawns that many bots (capped), reports on
+ * [BotMatchWire.STATUS_CHANNEL]. Each bot is a [BotSession]: it logs in as a Velocity-forwarded player, queues for the lane,
  * plays the match with [BotBrain] and disconnects once it is back in the lobby.
  */
 class BotRunner(private val config: RunnerConfig) : AutoCloseable {
@@ -89,32 +90,32 @@ class BotRunner(private val config: RunnerConfig) : AutoCloseable {
     fun start() {
         subscriber.addListener(object : RedisPubSubAdapter<String, String>() {
             override fun message(channel: String, message: String) {
-                if (channel == BotChannels.REQUEST) pool.execute { handle(message) }
+                if (channel == BotMatchWire.REQUEST_CHANNEL) pool.execute { handle(message) }
             }
         })
-        subscriber.sync().subscribe(BotChannels.REQUEST)
-        log.info("bot-runner ready: listening on {}, cap {} bots, lobby={} game={}", BotChannels.REQUEST, config.maxBots, config.lobbyHost, config.gameHost)
+        subscriber.sync().subscribe(BotMatchWire.REQUEST_CHANNEL)
+        log.info("bot-runner ready: listening on {}, cap {} bots, lobby={} game={}", BotMatchWire.REQUEST_CHANNEL, config.maxBots, config.lobbyHost, config.gameHost)
     }
 
-    private fun status(requestId: String, state: BotStatus.State, bots: List<String> = emptyList(), reason: String = "") {
-        val json = BotStatus(requestId, state, bots, reason).toJson()
-        runCatching { publisher.publish(BotChannels.STATUS, json) }.onFailure { log.warn("could not publish status: {}", it.toString()) }
+    private fun status(requestId: String, state: BotState, bots: List<String> = emptyList(), reason: String = "") {
+        val json = BotMatchWire.encode(BotStatus(requestId, state, bots, reason.ifEmpty { null }))
+        runCatching { publisher.publish(BotMatchWire.STATUS_CHANNEL, json) }.onFailure { log.warn("could not publish status: {}", it.toString()) }
         log.info("status {}", json)
     }
 
     private fun handle(message: String) {
-        val request = runCatching { BotRequest.fromJson(message) }.getOrElse {
-            log.warn("ignoring malformed bot request '{}': {}", message.take(200), it.toString())
+        val request = BotMatchWire.decodeRequest(message) ?: run {
+            log.warn("ignoring malformed bot request '{}'", message.take(200))
             return
         }
         val id = request.requestId
         val lane = request.lane.trim()
         if (lane.isEmpty() || !lane.all { it.isLetterOrDigit() || it == '-' || it == '_' }) {
-            status(id, BotStatus.State.FAILED, reason = "invalid lane '${request.lane}'")
+            status(id, BotState.FAILED, reason = "invalid lane '${request.lane}'")
             return
         }
         if (request.count < 1) {
-            status(id, BotStatus.State.FAILED, reason = "count must be at least 1")
+            status(id, BotState.FAILED, reason = "count must be at least 1")
             return
         }
         val group = BotSession.Group(id, request.count) { a, b, c, d -> status(a, b, c, d) }
@@ -133,10 +134,10 @@ class BotRunner(private val config: RunnerConfig) : AutoCloseable {
             }
         }
         if (sessions.isEmpty()) {
-            status(id, BotStatus.State.FAILED, reason = "bot cap reached: ${active.size}/${config.maxBots} running, ${request.count} requested")
+            status(id, BotState.FAILED, reason = "bot cap reached: ${active.size}/${config.maxBots} running, ${request.count} requested")
             return
         }
-        status(id, BotStatus.State.SPAWNING, group.names)
+        status(id, BotState.SPAWNING, group.names)
         sessions.forEach { s -> pool.execute { s.run() } }
     }
 

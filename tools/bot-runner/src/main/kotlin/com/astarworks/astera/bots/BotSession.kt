@@ -1,6 +1,6 @@
 package com.astarworks.astera.bots
 
-import com.astarworks.astera.core.application.bots.BotStatus
+import com.astarworks.astera.core.application.bots.BotState
 import com.astarworks.astera.e2e.Bot
 import com.astarworks.astera.e2e.Endpoint
 import com.astarworks.astera.e2e.PackPolicy
@@ -28,18 +28,18 @@ class BotSession(
     class Group(
         private val requestId: String,
         size: Int,
-        private val publish: (String, BotStatus.State, List<String>, String) -> Unit,
+        private val publish: (String, BotState, List<String>, String) -> Unit,
     ) {
         @Volatile var names: List<String> = emptyList()
         private val pending = AtomicInteger(size)
         private val failedOnce = AtomicBoolean(false)
 
         fun queued() {
-            if (pending.decrementAndGet() == 0 && !failedOnce.get()) publish(requestId, BotStatus.State.QUEUED, names, "")
+            if (pending.decrementAndGet() == 0 && !failedOnce.get()) publish(requestId, BotState.QUEUED, names, "")
         }
 
         fun failed(reason: String) {
-            if (failedOnce.compareAndSet(false, true)) publish(requestId, BotStatus.State.FAILED, names, reason)
+            if (failedOnce.compareAndSet(false, true)) publish(requestId, BotState.FAILED, names, reason)
         }
     }
 

@@ -87,8 +87,9 @@ public class ScenarioScope(public val sim: GameSim) {
         sim.breakBlock(this, cell)
     }
 
-    /** Block placed at [cell] in the simulated world, or `null`. */
-    public fun blockAt(cell: Vec3): String? = sim.world.blockAt(com.astarworks.astera.core.domain.world.WorldId("world"), cell)?.key
+    /** Block placed at [cell] in the simulated [world] (default: the sky-island `arenas` world of the shipped stages), or `null`. */
+    public fun blockAt(cell: Vec3, world: String = "arenas"): String? =
+        sim.world.blockAt(com.astarworks.astera.core.domain.world.WorldId(world), cell)?.key
 
     /** Presses Q with the held item; [sneaking] selects Shift+Q. The pistol reloads on Q. */
     public fun SimEntity.drop(sneaking: Boolean = false) {
@@ -129,7 +130,7 @@ public class ScenarioScope(public val sim: GameSim) {
     public fun startMatch(
         mode: String,
         teams: Map<SimEntity, String>,
-        stage: String = "siege-flat",
+        stage: String = "siege-isles",
     ): com.astarworks.astera.core.domain.match.MatchId {
         val lifecycle = sim.services.getOrThrow<com.astarworks.astera.match.application.port.inbound.IMatchLifecycle>()
         val matchId = when (val started = lifecycle.start(com.astarworks.astera.core.domain.stage.StageId(stage), mode)) {

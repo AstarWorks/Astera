@@ -41,13 +41,13 @@ fight on their own.
 
 ### Request protocol (Redis pub/sub, DTOs in `core.application.bots`)
 
-`BotChannels`, `BotRequest`, `BotStatus` live in `plugin:core` so the lobby/match plugins can publish and consume them
+`BotMatchWire` (channels + JSON codec), `BotRequest`, `BotStatus`, `BotState` (ADR-0248) live in `plugin:core` so the lobby/match plugins can publish and consume them
 without depending on the runner; the runner depends on `:plugin:core` for the same classes.
 
 | Channel | Payload |
 |---|---|
 | `astera:bots:request` | `{"requestId","lane","count","requestedBy"}` (`BotRequest`) |
-| `astera:bots:status` | `{"requestId","state":"spawning\|queued\|failed","bots":[names],"reason"}` (`BotStatus`) |
+| `astera:bots:status` | `{"requestId","state":"spawning\|queued\|failed","bots":[names],"reason"}` (`BotStatus`, `reason` may be null) |
 
 Flow: the runner answers `spawning` with the chosen names at once; bots log in one by one (Paper throttles logins from
 one address, ~5 s apart); after every bot of the request issued `astera queue join <lane>` and got a chat reply it
@@ -55,7 +55,7 @@ publishes `queued`. `failed` carries the reason (invalid lane, count < 1, cap re
 fields are ignored on both sides, so either side may add fields first.
 
 Rules: at most `BOT_MAX` (default 8) bots connected at once; a request that would exceed the cap fails as a whole.
-Names are `Bot_Ash`, `Bot_Birch`, ... (`BotChannels.NAME_PREFIX`). A bot disconnects ~6 s after it is back in the
+Names are `Bot_Ash`, `Bot_Birch`, ... (prefix `Bot_`). A bot disconnects ~6 s after it is back in the
 lobby from a match (time to read the result and rewards), after `BOT_QUEUE_TIMEOUT_MINUTES` (default 10) without a
 match, on being kicked, or after 40 minutes.
 
