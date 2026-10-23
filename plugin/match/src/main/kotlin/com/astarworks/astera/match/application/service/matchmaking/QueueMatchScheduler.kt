@@ -5,6 +5,8 @@ import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
+import com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueProgress
+import com.astarworks.astera.match.application.port.outbound.matchmaking.LaneProgress
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueNotifier
 import com.astarworks.astera.match.application.usecase.matchmaking.MatchFormer
 import com.astarworks.astera.match.domain.matchmaking.LaneKind
@@ -36,7 +38,7 @@ public class QueueMatchScheduler(
     private val notifier: IQueueNotifier,
     private val scheduler: IScheduler,
     private val settings: () -> QueueSettings,
-) {
+) : IQueueProgress {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -45,14 +47,23 @@ public class QueueMatchScheduler(
         var lastAnnouncedSeconds: Int? = null
         var lastQueued: Int = 0
         var heldNotice: String? = null
+        var held: Boolean = false
+        var remainingSeconds: Int? = null
 
         fun reset() {
             countdownStartTick = null
             lastAnnouncedSeconds = null
+            remainingSeconds = null
         }
     }
 
     private val states: MutableMap<String, LaneState> = mutableMapOf()
+
+    /** The countdown / hold state of [laneKey] as of the last tick (ADR-0248: sidebar + action bar). */
+    override fun progressOf(laneKey: String): LaneProgress {
+        val state = states[laneKey] ?: return LaneProgress.IDLE
+        return LaneProgress(countdownSecondsLeft = state.remainingSeconds, held = state.held)
+    }
 
     /** Arm the repeating check. The caller owns the handle and cancels it on disable. */
     public fun start(): IScheduler.TaskHandle {
@@ -82,9 +93,11 @@ public class QueueMatchScheduler(
         val missingOpponents = lane.kind == LaneKind.PVP && sides < lane.teams
         if (queued.size < lane.minPlayers || missingOpponents) {
             if (state.countdownStartTick != null) {
+                log.info("Queue lane '{}' countdown cancelled: {} queued, {} needed", lane.key, queued.size, lane.minPlayers)
                 queued.forEach { notify(it, "countdown-cancelled", lane, queued.size) }
             }
             state.reset()
+            state.held = false
             val waiting = "waiting-opponents:${queued.size}"
             if (queued.isNotEmpty() && state.heldNotice != waiting) {
                 queued.forEach { notify(it, "waiting-opponents", lane, queued.size) }
@@ -95,18 +108,27 @@ public class QueueMatchScheduler(
         if (matchFound.isStageBusy(mode)) {
             val notice = matchFound.holdNotice(mode)
             if (state.heldNotice != notice) {
+                log.info("Queue lane '{}' held: {} ({} queued)", lane.key, notice, queued.size)
                 queued.forEach { notify(it, notice, lane, queued.size) }
                 state.heldNotice = notice
             }
             state.reset()
+            state.held = true
             return
         }
         state.heldNotice = null
+        state.held = false
 
         if (state.countdownStartTick != null && queued.size < previousQueued) {
             state.reset() // somebody left: restart the countdown
         }
-        val startTick = state.countdownStartTick ?: now.also { state.countdownStartTick = it }
+        val startTick = state.countdownStartTick ?: now.also {
+            state.countdownStartTick = it
+            log.info(
+                "Queue lane '{}' roster ready: {} queued, countdown {}s",
+                lane.key, queued.size, config.queueCountdownSeconds,
+            )
+        }
         val remainingTicks = config.queueCountdownSeconds * TICKS_PER_SECOND - (now - startTick)
         if (queued.size >= lane.capacity || remainingTicks <= 0) {
             state.reset()
@@ -114,11 +136,18 @@ public class QueueMatchScheduler(
             return
         }
         val remainingSeconds = ((remainingTicks + TICKS_PER_SECOND - 1) / TICKS_PER_SECOND).toInt()
+        state.remainingSeconds = remainingSeconds
         if (remainingSeconds != state.lastAnnouncedSeconds &&
             (state.lastAnnouncedSeconds == null || remainingSeconds in ANNOUNCE_AT)
         ) {
+            val first = state.lastAnnouncedSeconds == null
             state.lastAnnouncedSeconds = remainingSeconds
-            queued.forEach { notify(it, "countdown", lane, queued.size, remainingSeconds) }
+            queued.forEach { entry ->
+                notify(entry, "countdown", lane, queued.size, remainingSeconds)
+                // Titles (ADR-0248): "match found" when the countdown opens, big digits for the last three seconds.
+                if (first) notify(entry, "found", lane, queued.size, remainingSeconds)
+                else if (remainingSeconds <= 3) notify(entry, "tick", lane, queued.size, remainingSeconds)
+            }
         }
     }
 
@@ -126,6 +155,8 @@ public class QueueMatchScheduler(
         when (val result = matchFound.execute(lane.mode)) {
             is Result.Success -> if (result.value != null) {
                 log.info("Queue lane '{}' formed match {}", lane.key, result.value)
+            } else {
+                log.info("Queue lane '{}' could not form a match yet (roster changed or arena unavailable)", lane.key)
             }
             is Result.Failure -> log.warn("Queue lane '{}' could not form a match: {}", lane.key, result.error)
         }

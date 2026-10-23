@@ -9,6 +9,9 @@
 # adapter (gui-tile texture pack) supplies the actual visuals; for now
 # the items render through whatever the InMemoryItemRegistry returns.
 #
+# Slot 1 is the Play tile (ADR-0248): the first and most prominent entry, a green emerald "Play / プレイ".
+# Slot 5 is "Leave queue", shown only while the viewer is waiting in a queue (`visible_if: state:queued`).
+#
 # Slots 0 and 8 are ops-only (ADR-0240): `visible_if: permission:astera.admin.panel` hides them
 # for everyone who is neither op nor holds the node. Both dispatch guarded `admin.*` intents.
 id: main-menu
@@ -44,6 +47,14 @@ slots:
       key: lobby.customize.open
     tooltip:
       - astera.gui.main-menu.customize.tooltip
+  - type: static
+    index: 5
+    item: gui-tile-leave-queue
+    visible_if: "state:queued"
+    on_left:
+      key: lobby.queue.leave
+    tooltip:
+      - astera.gui.main-menu.leave-queue.tooltip
   - type: static
     index: 6
     item: gui-tile-travel

@@ -120,6 +120,9 @@ internal class MatchWiringEnv(
 ) {
     /** Set by [MatchGameplayWiring]; `null` when the host registered no `ISpectator`. */
     var spectatorCycler: com.astarworks.astera.match.application.service.death.SpectatorTargetCycler? = null
+
+    /** Set by [MatchGameplayWiring] on lobby backends (ADR-0248): the queue scheduler's countdown / hold state for the HUD. */
+    var queueProgress: com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueProgress? = null
 }
 
 /**

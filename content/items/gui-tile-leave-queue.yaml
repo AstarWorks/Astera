@@ -1,0 +1,7 @@
+# ADR-0248 — "Leave queue": the hotbar item that replaces the compass while queued, and the main-menu / picker tile.
+
+id: gui-tile-leave-queue
+material: BARRIER
+name:
+  ja: "<red><bold>キューを抜ける</bold></red>"
+  en: "<red><bold>Leave queue</bold></red>"

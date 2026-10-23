@@ -12,9 +12,13 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
+import com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueProgress
+import com.astarworks.astera.match.domain.matchmaking.QueueSettings
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.domain.matchmaking.QueueEntry
 import org.slf4j.LoggerFactory
+import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -48,6 +52,9 @@ public class LobbySidebarService(
     scheduler: IScheduler,
     private val gold: (PlayerId) -> Long? = { null },
     pollPeriodTicks: Long = DEFAULT_POLL_PERIOD_TICKS,
+    private val settings: () -> QueueSettings = { QueueSettings.DEFAULT },
+    private val progress: () -> IQueueProgress? = { null },
+    private val clock: () -> Instant = { Instant.now() },
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -101,6 +108,7 @@ public class LobbySidebarService(
             return
         }
         val layout = layoutFor(playerId, onlineCount)
+        showQueueActionBar(playerId)
         if (lastSent[playerId] == layout) return
         lastSent[playerId] = layout
         when (val outcome = hud.showFor(playerId, layout)) {
@@ -120,15 +128,12 @@ public class LobbySidebarService(
             if (entry == null) {
                 add(text("astera.hud.lobby.queue.idle"))
             } else {
+                // ADR-0248: lane, players X/min, elapsed time, and what we are waiting for.
+                val wait = waitingState(entry)
                 add(text("astera.hud.lobby.queue.mode", "mode" to modeLabel(playerId, entry.mode)))
-                add(
-                    text(
-                        "astera.hud.lobby.queue.position",
-                        "position" to positionOf(entry).toString(),
-                        "size" to matchmaker.pendingByMode(entry.mode).size.toString(),
-                    ),
-                )
-                add(text("astera.hud.lobby.queue.eta", "eta" to entry.estimatedWaitSec.toString()))
+                add(text("astera.hud.lobby.queue.players", "players" to wait.queued.toString(), "required" to wait.required.toString()))
+                add(text("astera.hud.lobby.queue.elapsed", "time" to wait.elapsed))
+                add(text(wait.statusKey, "seconds" to (wait.seconds ?: 0).toString()))
             }
             stars(playerId)?.let {
                 add(text("astera.hud.sidebar.spacer"))
@@ -140,9 +145,53 @@ public class LobbySidebarService(
         return HudLayout.Sidebar(titleKey = TITLE_KEY, lines = lines)
     }
 
-    private fun positionOf(entry: QueueEntry): Int {
-        val index = matchmaker.pendingByMode(entry.mode).toList().indexOfFirst { it.playerId == entry.playerId }
-        return if (index >= 0) index + 1 else 0
+    /** What the queued player is shown (ADR-0248). */
+    private data class WaitingState(
+        val queued: Int,
+        val required: Int,
+        val elapsed: String,
+        val statusKey: String,
+        val seconds: Int?,
+    )
+
+    private fun waitingState(entry: QueueEntry): WaitingState {
+        val lane = settings().laneFor(entry.mode)
+        val queued = matchmaker.pendingByMode(entry.mode).size
+        val required = lane?.minPlayers ?: queued
+        val seconds = Duration.between(entry.enqueuedAt, clock()).seconds.coerceAtLeast(0)
+        val laneProgress = lane?.let { progress()?.progressOf(it.key) }
+        val statusKey = when {
+            laneProgress?.countdownSecondsLeft != null -> "astera.hud.lobby.queue.status.starting"
+            laneProgress?.held == true -> "astera.hud.lobby.queue.status.busy"
+            else -> "astera.hud.lobby.queue.status.waiting"
+        }
+        return WaitingState(
+            queued = queued,
+            required = required,
+            elapsed = "%d:%02d".format(seconds / 60, seconds % 60),
+            statusKey = statusKey,
+            seconds = laneProgress?.countdownSecondsLeft,
+        )
+    }
+
+    /** The always-visible one-liner above the hotbar while queued (ADR-0248). Expires by itself once the player leaves. */
+    private fun showQueueActionBar(playerId: PlayerId) {
+        val entry = matchmaker.queueStatus(playerId) ?: return
+        val wait = waitingState(entry)
+        val suffix = wait.statusKey.substringAfterLast('.')
+        val bar = HudLayout.ActionBar(
+            component = text(
+                "astera.hud.lobby.queue.actionbar.$suffix",
+                "lane" to modeLabel(playerId, entry.mode),
+                "players" to wait.queued.toString(),
+                "required" to wait.required.toString(),
+                "time" to wait.elapsed,
+                "seconds" to (wait.seconds ?: 0).toString(),
+            ),
+            ttlTicks = ACTION_BAR_TTL_TICKS,
+            priority = 1,
+        )
+        hud.showFor(playerId, bar)
     }
 
     private fun modeLabel(viewer: PlayerId, mode: MatchmakingMode): String {
@@ -161,6 +210,7 @@ public class LobbySidebarService(
 
     public companion object {
         public const val DEFAULT_POLL_PERIOD_TICKS: Long = 20L
+        private const val ACTION_BAR_TTL_TICKS: Int = 30
         private val TITLE_KEY: MessageKey = MessageKey("astera.hud.lobby.title")
     }
 }
