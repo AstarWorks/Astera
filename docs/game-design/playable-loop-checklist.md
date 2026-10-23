@@ -42,7 +42,7 @@ build if a patched key disappears from content.
 
 - Norma sidebar shows scores without the goal ("Red: 2" not "2/10"); end reason prints "objective completion" for
   Norma wins (TeamVictory is mapped to that text).
-- Norma stars/generators still do not score.
+- Norma stars and levels are in (docs/game-design/stars-and-norma.md, ADR-0251): generators pop star drops, a kill bursts the victim's stars, norma levels (star or kill goal) are the match win path next to the kill score. Stars still do not add to the kill score; spending stars (items, ultimates) is not built yet.
 - A kill that ends the match may race the death/respawn coordinator for the last victim (victim is returned to the
   lobby by match end; unverified).
 - Pistol bullets hitting pillars, survival block-break speed on pillars/cores, and the shared arena between lanes are

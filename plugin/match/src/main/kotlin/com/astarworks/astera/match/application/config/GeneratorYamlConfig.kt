@@ -65,6 +65,7 @@ public data class GeneratorYamlConfig(
     public val affiliation: AffiliationYamlConfig,
     @SerialName("stockpile_cap") public val stockpileCap: Int = StarGenerator.DEFAULT_STOCKPILE_CAP,
     @SerialName("pickup_radius") public val pickupRadius: Double = StarGenerator.DEFAULT_PICKUP_RADIUS,
+    @SerialName("late_game_multiplier") public val lateGameMultiplier: Double = 1.0,
 ) {
     /**
      * Convert the parsed DTO into a domain [StarGenerator] under [matchId].
@@ -112,6 +113,7 @@ public data class GeneratorYamlConfig(
                 attributes = attributes,
                 stockpileCap = stockpileCap,
                 pickupRadius = pickupRadius,
+                lateGameMultiplier = lateGameMultiplier,
             ),
         )
     }

@@ -29,6 +29,9 @@
         },
         "pickup_radius": {
             "type": "number"
+        },
+        "late_game_multiplier": {
+            "type": "number"
         }
     },
     "required": [

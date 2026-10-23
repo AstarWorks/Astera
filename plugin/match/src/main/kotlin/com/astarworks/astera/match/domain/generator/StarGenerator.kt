@@ -24,6 +24,7 @@ import kotlin.time.Duration
  * - [id] / [matchId] — identity within a match.
  * - [position] — world placement (vendor-neutral [Vec3]).
  * - [stockpileCap] — most stars the generator holds uncollected at its position.
+ * - [lateGameMultiplier] — factor on each pop once the match is in sudden death (generators pay more late).
  * - [pickupRadius] — blocks within which a participant collects the stockpile.
  * - [period] — base interval between spawns ([kotlin.time.Duration]).
  * - [amount] — base per-spawn quantity (integer; the AMOUNT_MULTIPLIER
@@ -48,10 +49,12 @@ public data class StarGenerator(
     val attributes: IAttributeContainer,
     val stockpileCap: Int = DEFAULT_STOCKPILE_CAP,
     val pickupRadius: Double = DEFAULT_PICKUP_RADIUS,
+    val lateGameMultiplier: Double = 1.0,
 ) {
     init {
         require(amount >= 1) { "StarGenerator.amount must be >= 1 (was $amount)" }
         require(stockpileCap >= 1) { "StarGenerator.stockpileCap must be >= 1 (was $stockpileCap)" }
+        require(lateGameMultiplier >= 1.0) { "StarGenerator.lateGameMultiplier must be >= 1 (was $lateGameMultiplier)" }
         require(pickupRadius > 0.0) { "StarGenerator.pickupRadius must be > 0 (was $pickupRadius)" }
         require(period.isPositive()) { "StarGenerator.period must be positive (was $period)" }
     }

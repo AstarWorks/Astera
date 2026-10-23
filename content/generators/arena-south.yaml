@@ -13,3 +13,5 @@ amount: 1
 tier: iron
 affiliation:
   kind: neutral
+# Sudden death (late game) multiplies each pop.
+late_game_multiplier: 2.0

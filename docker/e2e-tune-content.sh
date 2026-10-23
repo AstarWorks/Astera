@@ -37,3 +37,9 @@ patch stages/annihilation-arena.yaml 's/^(    hp:) 800$/\1 60/' '^    hp: 800$'
 for g in arena-east arena-west arena-north arena-south; do
   patch "generators/$g.yaml" 's/^period_seconds:.*/period_seconds: 3.0/' '^period_seconds:'
 done
+
+# Norma levels: 3 levels, small goals so a suite reaches them (star goal 2 then 3, kill goal 1 then 2), and the whole
+# carried stack bursts on death.
+patch game-modes/norma.yaml 's/^(  norma_max_level:).*/\1 "3"/' '^  norma_max_level:'
+patch game-modes/norma.yaml 's/^(  norma_stars_goal:).*/\1 "2,3"/' '^  norma_stars_goal:'
+patch game-modes/norma.yaml 's/^(  norma_kills_goal:).*/\1 "1,2"/' '^  norma_kills_goal:'

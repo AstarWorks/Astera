@@ -49,10 +49,10 @@ internal object MatchHudWiring {
         val modes = services.get<IGameModeFrameworkRegistry>()
         // In-match stars (match-scoped, never the wallet): the line shows only in matches whose stage has generators.
         val matchStars = checkNotNull(env.stars) { "MatchStarWiring runs before the HUD wiring" }
-        val stars: (com.astarworks.astera.core.domain.player.PlayerId) -> Long? = { player ->
+        val norma: (com.astarworks.astera.core.domain.player.PlayerId) -> com.astarworks.astera.match.domain.norma.NormaHud? = { player ->
             env.matches.findMatchOf(player)
                 ?.takeIf { matchStars.stageHasStars(it.stageId.value) }
-                ?.let { matchStars.store.get(it.id, player).toLong() }
+                ?.let { matchStars.norma.hudOf(player) }
         }
 
         val modeOf: (MatchId) -> IGameMode? = { id ->
@@ -66,7 +66,7 @@ internal object MatchHudWiring {
             modeOf = modeOf,
             hud = hudGateway,
             messages = env.msgRenderer,
-            stars = stars,
+            norma = norma,
             scheduler = env.scheduler,
         )
         env.shutdownHooks += { matchSidebar.stop() }
@@ -85,6 +85,7 @@ internal object MatchHudWiring {
             matchSidebar.refreshPlayer(it.playerId)
         }
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.StarsCollected::class) { matchSidebar.refreshPlayer(it.playerId) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.NormaLevelUp::class) { matchSidebar.refreshPlayer(it.playerId) }
 
         installNameplatesAndTab(env, modeOf)
 

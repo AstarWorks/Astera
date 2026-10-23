@@ -23,3 +23,12 @@ default_config:
   # wins; after time_limit_seconds of ACTIVE time the team in front wins (tie = draw).
   score_threshold: "10"
   time_limit_seconds: "600"
+  # Norma levels (docs/game-design/stars-and-norma.md, 100% Orange Juice style): every player starts at level 1 and
+  # clears each level with ONE goal of their choice, `/astera norma choose star|kill` (STAR by default): carry
+  # norma_stars_goal[level] stars (not consumed) or make norma_kills_goal[level] kills at that level. The first team
+  # with a member at norma_max_level wins. Lists are indexed by the level being cleared.
+  norma_max_level: "5"
+  norma_stars_goal: "3,5,8,12"
+  norma_kills_goal: "1,2,3,4"
+  # Share of a victim's carried stars that bursts out on death (floor(carried * ratio)); 0..1.
+  death_drop_ratio: "1.0"

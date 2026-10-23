@@ -11,6 +11,8 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.domain.gamemode.HudLine
 import com.astarworks.astera.match.domain.gamemode.IGameMode
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationHudStatus
+import com.astarworks.astera.match.domain.norma.NormaGoal
+import com.astarworks.astera.match.domain.norma.NormaHud
 
 /**
  * Viewer-neutral content of a match sidebar (WP14, ADR-0177).
@@ -21,7 +23,7 @@ import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationHudS
  *                       <- spacer
  * <mode lines>          <- per team: score / pillars / objective progress
  *                       <- spacer
- * You: Red   Stars: 40  <- added per viewer by [MatchSidebarModel.layoutFor]
+ * You: Red   Stars / Lv / goal  <- added per viewer by [MatchSidebarModel.layoutFor]
  * ```
  */
 public data class SidebarModel(
@@ -60,15 +62,15 @@ public object MatchSidebarModel {
 
     /**
      * Resolves [model] for one viewer: team names / colours in the viewer's
-     * locale, plus the viewer's own team and star balance (omitted when
-     * [stars] is `null`) as the footer.
+     * locale, plus the viewer's own team and star count, Norma level and goal (omitted when
+     * [norma] is `null`) as the footer.
      */
     public fun layoutFor(
         model: SidebarModel,
         match: Match,
         viewer: PlayerId,
         messages: IMessageRenderer,
-        stars: Long?,
+        norma: NormaHud?,
     ): HudLayout.Sidebar {
         val teams = match.teams.associateBy { it.id }
         val body = model.lines.map { line -> toText(line, teams[line.team], viewer, messages) }
@@ -77,8 +79,15 @@ public object MatchSidebarModel {
             match.teams.firstOrNull { viewer in it.members }?.let { own ->
                 add(toText(HudLine(MessageKey("astera.hud.sidebar.you"), team = own.id), own, viewer, messages))
             }
-            if (stars != null) {
-                add(HudComponent.Text(MessageKey("astera.hud.sidebar.stars"), placeholders = mapOf("stars" to stars.toString())))
+            if (norma != null) {
+                add(HudComponent.Text(MessageKey("astera.hud.sidebar.stars"), placeholders = mapOf("stars" to norma.stars.toString())))
+                add(HudComponent.Text(MessageKey("astera.hud.sidebar.level"), placeholders = mapOf("level" to norma.level.toString(), "max" to norma.maxLevel.toString())))
+                if (norma.level >= norma.maxLevel) {
+                    add(HudComponent.Text(MessageKey("astera.hud.sidebar.objective-max")))
+                } else {
+                    val key = if (norma.goal == NormaGoal.STAR) "astera.hud.sidebar.objective-star" else "astera.hud.sidebar.objective-kill"
+                    add(HudComponent.Text(MessageKey(key), placeholders = mapOf("progress" to norma.progress.toString(), "target" to norma.target.toString())))
+                }
             }
         }
         return HudLayout.Sidebar(titleKey = model.titleKey, lines = (body + footer).take(15))

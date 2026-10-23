@@ -188,6 +188,8 @@ astera:
       queue-join: "キューのレーンに参加（norma / custom:<モード>）"
       queue-leave: "キューから抜ける"
       queue-status: "キューの待ち順を表示"
+      norma: "ノルマレベル"
+      norma-choose: "ノルマの目標（スターかキル）を選ぶ"
       match: "マッチ"
       match-list: "進行中のマッチ一覧"
       match-start: "ステージを指定してマッチを開始"
@@ -774,6 +776,10 @@ astera:
       dispatch-failure: "<red>アリーナサーバーが応答しませんでした。キューに戻しました。</red>"
       wrong-server: "<gray>このサーバーはマッチ専用です。ロビーに戻します…</gray>"
       arrival-waiting: "<yellow>あと <gold>{remaining}</gold> 人を待っています… 試合開始まで無敵です。</yellow>"
+    norma-choice:
+      chosen: "<green>ノルマ目標：<gold>{goal}</gold></green>"
+      not-in-match: "<red>ノルマレベルはノルマ戦の中だけです。</red>"
+      max-level: "<yellow>最高ノルマレベルです。</yellow>"
     # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
     queue:
       unknown-mode: "<red>未知のキューモードです。</red>"
@@ -851,6 +857,7 @@ astera:
         norma-reached: "<{color}><bold>{team}</bold></{color}> <gray>がノルマを達成しました（{goal}キル）。</gray>"
         norma-time-limit: "<gray>制限時間終了:</gray> <{color}><bold>{team}</bold></{color}> <gray>がリードしていました。</gray>"
         norma-time-draw: "<gray>制限時間終了。スコアは同点です。</gray>"
+        norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>がノルマレベル{level}に到達しました。</gray>"
         cancelled: "<gray>マッチがキャンセルされました。</gray>"
         world-unloaded: "<gray>マッチのワールドがアンロードされました。</gray>"
         encounter-cleared: "<green>エンカウンターの全 {waves} ウェーブを突破しました。</green>"
@@ -1090,6 +1097,10 @@ astera:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>確保、</gray><white>{left}</white> <gray>残り</gray>"
       you: "<gray>あなた:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>スター</gray>"
+      level: "<gray>ノルマ</gray> <white>Lv {level}/{max}</white>"
+      objective-star: "<gray>目標：</gray> <yellow>スター</yellow> <white>{progress}/{target}</white>"
+      objective-kill: "<gray>目標：</gray> <red>キル</red> <white>{progress}/{target}</white>"
+      objective-max: "<gold>最高ノルマレベル</gold>"
       gold: "<gold>*</gold> <white>{gold}</white> <gray>ゴールド</gray>"
     lobby:
       title: "<gold><bold>Astera</bold></gold>"

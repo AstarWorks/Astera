@@ -9,14 +9,15 @@ import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
 /**
  * Per-match generator and star bookkeeping. At [MatchStarted] every generator authored for the match's stage
  * (`content/generators/`, `match_stage_id`) is instantiated under the match so the charge scheduler drives it; at
- * [MatchEnded] the generators, the stockpiles and every player's star count are dropped. Nothing about stars is read
+ * [MatchEnded] the generators, the star drops lying on the map, every player's star count and Norma state are dropped. Nothing about stars is read
  * or kept after the match.
  */
 public class MatchStarLifecycle(
     private val registry: IGeneratorRegistry,
     private val generators: IGeneratorRepository,
     private val store: IMatchStarStore,
-    private val stockpiles: StarStockpileService,
+    private val drops: StarDropService,
+    private val norma: NormaLevelService,
     private val onInvalid: (generatorId: String, reason: String) -> Unit = { _, _ -> },
 ) {
     public fun onStarted(event: MatchStarted) {
@@ -30,7 +31,8 @@ public class MatchStarLifecycle(
 
     public fun onEnded(event: MatchEnded) {
         generators.removeForMatch(event.matchId)
-        stockpiles.clear(event.matchId)
+        drops.clear(event.matchId)
+        norma.clear(event.matchId)
         store.clear(event.matchId)
     }
 }

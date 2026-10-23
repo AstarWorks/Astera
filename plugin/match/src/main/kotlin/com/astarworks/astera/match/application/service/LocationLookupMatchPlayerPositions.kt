@@ -9,5 +9,5 @@ import com.astarworks.astera.match.application.port.outbound.IMatchPlayerPositio
 public class LocationLookupMatchPlayerPositions(
     private val lookup: () -> IPlayerLocationLookup?,
 ) : IMatchPlayerPositions {
-    override fun positionOf(playerId: PlayerId): PlayerLocation? = lookup()?.locate(playerId)
+    override fun positionOf(playerId: PlayerId, includeDead: Boolean): PlayerLocation? = lookup()?.locate(playerId)
 }

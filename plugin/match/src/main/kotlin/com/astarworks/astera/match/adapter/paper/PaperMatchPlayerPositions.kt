@@ -8,11 +8,11 @@ import com.astarworks.astera.match.application.port.outbound.IMatchPlayerPositio
 import org.bukkit.GameMode
 import org.bukkit.Server
 
-/** Live Bukkit read: alive, non-spectator, online players only. */
+/** Live Bukkit read: online players; alive and non-spectator unless the caller asks to include the dead. */
 public class PaperMatchPlayerPositions(private val server: Server) : IMatchPlayerPositions {
-    override fun positionOf(playerId: PlayerId): PlayerLocation? {
+    override fun positionOf(playerId: PlayerId, includeDead: Boolean): PlayerLocation? {
         val player = server.getPlayer(playerId.uuid) ?: return null
-        if (player.isDead || player.gameMode == GameMode.SPECTATOR) return null
+        if (!includeDead && (player.isDead || player.gameMode == GameMode.SPECTATOR)) return null
         val loc = player.location
         return PlayerLocation(WorldId(loc.world.name), Vec3(loc.x, loc.y, loc.z))
     }

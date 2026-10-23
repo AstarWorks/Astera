@@ -180,6 +180,8 @@ astera:
       queue-join: "Join a queue lane (norma, custom:<mode>)"
       queue-leave: "Leave the queue"
       queue-status: "Show your queue position"
+      norma: "Norma levels"
+      norma-choose: "Choose your Norma goal (star or kill)"
       match: "Matches"
       match-list: "List active matches"
       match-start: "Start a match on a stage"
@@ -767,6 +769,10 @@ astera:
       dispatch-failure: "<red>The arena server did not answer; you were put back in the queue.</red>"
       wrong-server: "<gray>This server only hosts matches. Sending you back to the lobby…</gray>"
       arrival-waiting: "<yellow>Waiting for <gold>{remaining}</gold> more player(s)… you are protected until the match starts.</yellow>"
+    norma-choice:
+      chosen: "<green>Norma goal: <gold>{goal}</gold>.</green>"
+      not-in-match: "<red>Norma levels exist only inside a Norma match.</red>"
+      max-level: "<yellow>You are at the top Norma level.</yellow>"
     # Wave 5lobby-content (ADR-0119) — lobby `lobby.queue.*` GuiIntent surface.
     queue:
       unknown-mode: "<red>Unknown queue mode.</red>"
@@ -844,6 +850,7 @@ astera:
         norma-reached: "<{color}><bold>{team}</bold></{color}> <gray>reached the norma ({goal} kills).</gray>"
         norma-time-limit: "<gray>Time limit reached:</gray> <{color}><bold>{team}</bold></{color}> <gray>was ahead.</gray>"
         norma-time-draw: "<gray>Time limit reached with the score tied.</gray>"
+        norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>reached Norma level {level}.</gray>"
         cancelled: "<gray>Match was cancelled.</gray>"
         world-unloaded: "<gray>The match world was unloaded.</gray>"
         encounter-cleared: "<green>All {waves} waves of the encounter were cleared.</green>"
@@ -1084,6 +1091,10 @@ astera:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>banked,</gray> <white>{left}</white> <gray>left</gray>"
       you: "<gray>You:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>Stars</gray>"
+      level: "<gray>Norma</gray> <white>Lv {level}/{max}</white>"
+      objective-star: "<gray>Goal:</gray> <yellow>Stars</yellow> <white>{progress}/{target}</white>"
+      objective-kill: "<gray>Goal:</gray> <red>Kills</red> <white>{progress}/{target}</white>"
+      objective-max: "<gold>Top Norma level</gold>"
       gold: "<gold>*</gold> <white>{gold}</white> <gray>Gold</gray>"
     lobby:
       title: "<gold><bold>Astera</bold></gold>"
