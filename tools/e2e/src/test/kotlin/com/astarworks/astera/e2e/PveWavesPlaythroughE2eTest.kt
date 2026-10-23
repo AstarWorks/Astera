@@ -91,14 +91,14 @@ class PveWavesPlaythroughE2eTest : PlaythroughBase() {
         val m0 = nearestMob(bot)
         val d0 = m0?.let { distanceTo(bot, it) }
         val hp0 = bot.health
-        Thread.sleep(1_500)
+        Thread.sleep(3_000) // mobs close ~1.2 blocks/s on the sky-island arena (path around void); 1.5s landed at 1.8 < 2.0
         val m1 = nearestMob(bot)
         val d1 = m1?.let { distanceTo(bot, it) }
         E2eReport.check(suite, "the mobs walk towards the player (they target it)", "RCON data get entity Pos") {
             assertThat(d0).describedAs("no mob position").isNotNull()
             assertThat(d1 != null && d0 != null && (d1 < d0 - 2.0 || d1 < 3.0 || bot.health < hp0))
                 .describedAs("nearest mob distance $d0 -> $d1, bot health $hp0 -> ${bot.health}").isTrue()
-            "nearest mob %.1f -> %.1f blocks in 1.5s; bot health %.1f -> %.1f".format(d0, d1, hp0, bot.health)
+            "nearest mob %.1f -> %.1f blocks in 3s; bot health %.1f -> %.1f".format(d0, d1, hp0, bot.health)
         }
 
         // --- clear the waves with the pistol ---------------------------------------------------------------------
