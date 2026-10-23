@@ -66,12 +66,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "Round52: 1撃目接触時の早すぎる鎖置換を修正。再撮影frame050/052で伸びた鎖が残る。195frames、カメラ遅延2ms、同一連続最大2。最初の8枚停止撮影は除外。鎖の変形・手接続・人物姿勢・光・カメラ・命中仕様・通常変身入力は未一致。"
+    "reason": "Round53: 横振りの鎖を弓なりから接触時の直線へ変形。実機frame044/048/050で確認。195frames、遅延2ms、同一連続最大1、表示実測最大59。原動画の3D曲線・手接続・他の振り・人物姿勢・光・カメラ・命中・通常変身入力は未一致。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 20,
+  "iterations": 21,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
-  "contentRevision": "1ce359b68558d299a155e80eec954f1af44b74c3a547d7d391510d2b04308a67"
+  "contentRevision": "61251de09e3eaa0caba1f7b168b380d738e335d84309950e7feef6d219605763"
 }
