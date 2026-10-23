@@ -1,0 +1,58 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer copied into a private Crimson Chain Axe Materials world, commands enabled. Native unedited 1280x720 Xvfb root screenshot. Exact updated model on item_display in fixed context, entity scale 1.7, GUI hidden. Client launch/capture serialized with /tmp/claude-1000/astera-mc-client.lock; dynamically assigned Xvfb display; unique build/crimson-chain-axe-client game directory. No standalone server, Docker, Gradle or tests.",
+  "item": "minecraft:iron_axe[minecraft:item_model=\"astera:crimson-chain-axe\"]",
+  "resourcePack": "Minimal capture pack with exact authored JSON, item definition, and builder-equivalent blocks directory source; native block resources only, no PNGs copied.",
+  "modelElements": 164,
+  "baselineCommit": "36743b70a5074a438dcc20e4d58beb774be06d65",
+  "sha256": {
+    "content/models/items/crimson-chain-axe.model.json": "32da664261ce9d8299d462760a03e6ffb4daf487c4eb0f8f72ecf565f55896bf",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/after.png": "677d7f448e2b0843874895db06db43d241438353a5bda48ab1dd352239896eeb",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/before.png": "fb2bd6c20bec09d613d51c777d97207216f4b0f8423444411119cae1c2bb50d6",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/cameras.json": "a319c46adb4acd0655af3b4a6cc6f4eb1ce3e4ca3e134df63a9658e76a894978",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/capture-pack.py": "9f5ad156cda932e271959f1bfcf1ebbc83470a10a9858d34cf20574ea6b3d865",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/client.png": "ce0ee15d38b21c067983f9ced4d3b68ef40e92cc6b9d7f57f9c9b8beebe56572",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/contexts.png": "b4e1b38d8058c94367bfcdcb199286473d324228d846a0e3b2e3f1a219ac55bb",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/detail-camera.json": "5583fc090c39cb77d9ce3d56e4a17baaa71c8d758060ee25dda7b9a233e4dcd8",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/detail.png": "8d3c28bf42566bb55187747996796993fbaa7bd73fe08ea582fe5459865f0231",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/inventory.png": "b8bd5266493d29c1bb09e6ad9c23a317764d724527819a9a84c0489218b1ff1c",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/measure.json": "047cbe5ec41d8909f930bbba6f19dc6de55f85d8298920f7d85c8baf61f34353",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/operations.json": "4e9b1dfa955ba68f192ecb3044b725ea4dad18aaa9fdb54017dc805370a77763",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/player-contexts.jpg": "1d810b75683a02cefa8a77a5943745382456158d6c369db727dcf288d5109f5a",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/remake.py": "38f74af3a5c99f9d9185c0af8006eb7d65fcf154c1fd123bd915f474eddefc8d",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/review.md": "4bde398699453fd7de4b31caccbacc06aa2503242979134059bfa65c2b35b791",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/sweep.png": "4d30bfc1b7bf70fc910c255516d23749755b0df37969949271417c6e187dd13e",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/xray-camera.json": "3733b76a56788b4b0f128fb5d7c2a8b55497e51a38d47cd0a4f08338e64a4941",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/xray.png": "7b264c71dff86ae9537748f9e894f62c3075d3dc67596a6ebdc09bcf8de02ec9"
+  },
+  "remainingRisks": [
+    "Existing first/third-person transforms have zero scale in both hands; preserved, so the item remains invisible when held.",
+    "Red concrete blades prioritize crimson hue over metallic sheen. Crimson stem has a wine-purple cast; redstone is a vanilla mineral approximation for ruby.",
+    "Existing stepped-blade overlaps, socket-star gaps and disconnected ornament remain; no geometry cleanup authorized.",
+    "Production pack build and manager CI were not run; native verification uses a minimal exact-model capture pack."
+  ],
+  "validation": {
+    "errors": 0,
+    "beforeWarnings": {
+      "overlap_aabb": 297,
+      "coplanar_contact_possible_zfight": 5,
+      "floating_components_aabb": 1
+    },
+    "afterWarnings": {
+      "overlap_aabb": 299,
+      "coplanar_contact_possible_zfight": 6,
+      "floating_components_aabb": 1
+    }
+  },
+  "catalogWishes": [
+    "A static deep-crimson metal block material; red concrete now preserves hue without a metallic surface."
+  ],
+  "geometryVerification": "All 164 cuboid non-face properties, face sets and display transforms exactly match the prior texture pass. Relative to the 163-element original at 36743b70, the same 20-unit haft split at Y=16 remains, internal faces omitted.",
+  "materials": {
+    "haft": "wood.stripped_crimson_stem",
+    "crescents": "concrete.red_concrete",
+    "dark fittings and ribs": "metal.netherite_block",
+    "ruby crown and facets": "gem.redstone_block",
+    "bevels, chains and bright accents": "metal.iron_block"
+  }
+}

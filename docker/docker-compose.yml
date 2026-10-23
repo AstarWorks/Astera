@@ -50,9 +50,9 @@ x-astera-backend: &astera-backend
     # `make dev-plugins` updates both copies; a rebuilt image (make docker-up) must win (ADR-0186).
     SYNC_SKIP_NEWER_IN_DESTINATION: "false"
     CFG_VELOCITY_SECRET: "${VELOCITY_FORWARDING_SECRET:?VELOCITY_FORWARDING_SECRET is empty: run `make docker-up` (it generates one in docker/.env)}"
-    # Playtest world: superflat (surface block y=-61, stand at y=-60), so
-    # content/stages/example-arena.yaml coordinates sit on ground. Only
-    # applies when the world is first created (see playtest.md "reset").
+    # Main world: superflat (surface block y=-61, stand at y=-60). Matches are not played here: the
+    # stages in content/stages/ are sky islands Astera builds into the void `arenas` world (ADR-0246).
+    # Only applies when the world is first created (see playtest.md "reset").
     LEVEL_TYPE: "minecraft:flat"
     # 26.3 rejects empty flat settings ("No key layers in MapLike[{}]"), so spell the vanilla
     # default out: bedrock y=-64, dirt -63..-62, grass -61 (stand at y=-60). Lobby backend: the
@@ -164,6 +164,32 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  # AI bots (ADR-0247): listens on Redis `astera:bots:request` and spawns protocol bots that queue and play like
+  # players ("play vs bots" in the lobby, `make bots N=2 LANE=norma`). The bots log in to the backends directly and
+  # answer Paper's Velocity modern-forwarding query with the shared secret (online-mode Velocity would refuse them).
+  # A plain service: `make dev-plugins` / `make dev-content` never touch it; rebuild with
+  #   docker compose -f docker/docker-compose.yml up -d --build bot-runner
+  bot-runner:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.bot-runner
+    image: astera/bot-runner:dev
+    restart: unless-stopped
+    environment:
+      ASTERA_REDIS_URI: "redis://redis:6379"
+      VELOCITY_FORWARDING_SECRET: "${VELOCITY_FORWARDING_SECRET:?VELOCITY_FORWARDING_SECRET is empty: run `make docker-up` (it generates one in docker/.env)}"
+      BOT_LOBBY_HOST: "lobby"
+      BOT_GAME_HOST: "game"
+      BOT_MAX: "${BOT_MAX:-8}"
+      BOT_QUEUE_TIMEOUT_MINUTES: "${BOT_QUEUE_TIMEOUT_MINUTES:-10}"
+    depends_on:
+      redis:
+        condition: service_healthy
+      lobby:
+        condition: service_started
+      game:
+        condition: service_started
 
   # Resource pack server (ADR-0182): http://<host>:8099/astera.zip
   resource-pack:

@@ -1,0 +1,30 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer (copy of completed dagger review world), inventory cleared, unique game directory build/sigil-rifle-client, unique Xvfb display via -displayfd. Entire launch and native unedited capture under /tmp/claude-1000/astera-mc-client.lock. No external server, Docker, Gradle or tests.",
+  "item": "minecraft:crossbow[minecraft:item_model=\"astera:sigil-rifle\"]",
+  "resourcePack": "Minimal capture pack with exact authored model and native vanilla block references. No custom or vanilla PNG files.",
+  "modelElements": 174,
+  "sha256": {
+    "content/models/items/sigil-rifle.model.json": "9a4f121f0dd56e723f5a7730125d93ba1e0bab63d238008aab236fe80500bdd1",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/after.png": "56d4f626c3e8c17b98f5eecd0732bbd56a9b183044a9a9a20268d14c3e098b0f",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/angles.jpg": "a4d93b050b20669e0236f4b4302cea42981d1de56e60154a13a95e574ee6f209",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/before.png": "f6ffe323018533ca396746527d0c45b59591e22d9282cb5fb20f55702dc98330",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/cameras.json": "f7aec9594161a32033cec8d2aa64f21153cb6c9f3c7be0e2b4b33f567d061d63",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/capture-client.py": "1f9198f578f257a19dfe8dd1e40d9a83467a09bef18b9c08916239ba4cbc1915",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/capture-pack.py": "16c53ea058e3856f032ac660e3501856a7eb7ebe7b8441dd118363d93a699530",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/client-log.txt": "55597ff7f1b99d03aae758475d79e03e6b78c7cde8e9aff88ab855b18cc7d62a",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/client.png": "4126bac549a087a6f3fb662466783e11c663f3f516bfdf57cb857ba4f2e4d2a2",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/contexts.png": "11f5bbc4098ebc20ac024fbc06811e9a004358522cb8bc9a3aa7cef90dff2f34",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/inventory.png": "1d123b4ff8c207ccb5efc4dd96d355d4cd26dcd79d568654cca6efb53580095f",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/operations.json": "07fccfd9d84099e31af82bf9130bd873f908dd4545288056a74cc0489cfef835",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/player-contexts.jpg": "63caf047ab0ff77228ef1c706111a7d9e4b991f3b93d382f99b624a07a152631",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/remake.py": "9839403c2ec1a3665b94256e85c3a218665a9ab61773a683607501db4a97af21",
+    "tools/model-forge/batches/vanilla-material/sigil-rifle/review.md": "88d8b8438962be1356df4527c054af2518e180a62592fffda6f0be3f258825c4"
+  },
+  "remainingRisks": [
+    "Production pack build, deployment and integration checks remain manager/CI work.",
+    "Original overlapping bevels and layered ornament remain (378 AABB overlaps, 22 possible coplanar contacts, one disconnected-component report).",
+    "Offline camera, lighting and approximate hands differ from native rendering.",
+    "Native screenshot verifies first person only; charging/combat animations, other FOVs and shader packs are unverified."
+  ]
+}

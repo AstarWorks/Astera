@@ -1,0 +1,27 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated new creative superflat singleplayer, structures off, peaceful, clear, time 6000; FOV 70, bob off, GUI scale 2. Whole client session serialized with flock /tmp/claude-1000/astera-mc-client.lock. Native Xvfb root screenshot, no image editing. No Gradle, tests, Docker or external server.",
+  "item": "minecraft:iron_sword[minecraft:item_model=\"astera:bastion-greatsword\"]",
+  "resourcePack": "Minimal capture pack with exact authored model and item definition, existing builder blocks/ directory atlas source. All references minecraft:block/. No custom or vanilla PNG files.",
+  "modelElements": 112,
+  "sha256": {
+    "content/models/items/bastion-greatsword.model.json": "a0df545820d1238270582163aed56c109dddbf9eae0a7e3654c085a0f720310a",
+    "tools/model-forge/batches/vanilla-material/bastion-greatsword/after.png": "9ae7449e7af49bd1b96308470f0f9ed3d659b0d3bf52160395e470b795a0cad4",
+    "tools/model-forge/batches/vanilla-material/bastion-greatsword/before.png": "943d1b88dfdf3329d437ade8815668372eecb51f83cea3daa103fed85050aacd",
+    "tools/model-forge/batches/vanilla-material/bastion-greatsword/capture-pack.py": "5fa761108e521a3bb6fbc13e60655fb1cf3d8ccb44d4b9e675f19b33321d1263",
+    "tools/model-forge/batches/vanilla-material/bastion-greatsword/client.png": "61ec05c7db0ce361371f15e8f4da616feee3c70bd2b8b2c1a8262b6c6345d8f3",
+    "tools/model-forge/batches/vanilla-material/bastion-greatsword/contexts.png": "e7f9859d8c39901b035148b0c653e58512f74959406b68f2f71565d8de6754a7",
+    "tools/model-forge/batches/vanilla-material/bastion-greatsword/geometry.json": "1f306d6acaba7caaa1ef57f5a089713e5d56e2502d55a7c54ab5d5ef32ef8793",
+    "tools/model-forge/batches/vanilla-material/bastion-greatsword/inventory.png": "cd3fbb85fa4c8e0fcb48b96cae39b673bbe0aec4ead260ed85fb23c85c80e74d",
+    "tools/model-forge/batches/vanilla-material/bastion-greatsword/operations.json": "5b396ec5c91e6d64f2b57de01769b8220ced0b6718d26acbe91e39fa6dd8964e",
+    "tools/model-forge/batches/vanilla-material/bastion-greatsword/player-contexts.png": "8e0379754115961525ea0753e55a85246a7e89a550a6771b78200b3a9fb2a4cc",
+    "tools/model-forge/batches/vanilla-material/bastion-greatsword/remake.py": "355d7cf2e4831a2c3148e8fba62e947be3b41dc6422cc1e53ad0f162eb75ec4d",
+    "tools/model-forge/batches/vanilla-material/bastion-greatsword/review.md": "ba58a5390cff32a226693b9197a1a7c9355cfd515e478ac9996dd85f5b9bc215"
+  },
+  "remainingRisks": [
+    "Production pack build and integration checks deferred to manager CI.",
+    "Offline lighting/camera and mannequin differ from real first-person view; animation/FOV/glint and other native contexts remain unverified.",
+    "Pre-existing decorative overlaps and tiny ornament separations retained with silhouette.",
+    "Native gold-block border bands are visible on the blade; black wool approximates the original leather grip."
+  ]
+}

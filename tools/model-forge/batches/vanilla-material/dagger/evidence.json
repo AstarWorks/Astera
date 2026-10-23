@@ -1,0 +1,56 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer. Native screenshot, no image editing. Launch and capture serialized with /tmp/claude-1000/astera-mc-client.lock. No server, Docker, Gradle or tests.",
+  "item": "minecraft:iron_sword[minecraft:item_model=\"astera:dagger\"]",
+  "resourcePack": "Minimal capture pack with exact authored model and item definition. Native vanilla block sprites only; no vanilla PNG files.",
+  "modelElements": 100,
+  "sha256": {
+    "content/models/items/dagger.model.json": "488ff8de57db34cca3b1123e432d8f2dc54ce9cf9619d8823bf0644275291d2b",
+    "tools/model-forge/batches/vanilla-material/dagger/after.png": "7bed4c3a76bb8c1f1fc211428f953cfad0d0cd551862ef6ecf34c23db0ffa6ee",
+    "tools/model-forge/batches/vanilla-material/dagger/angles.jpg": "923a0d7234c2002d6d789b27eb55e923b2fa9268ba9ba0b9dc8dd9cf965e1332",
+    "tools/model-forge/batches/vanilla-material/dagger/before.png": "f5512c7f1336eaccc627baa924cc3177fcc53883f463253d37134a5d83156bc8",
+    "tools/model-forge/batches/vanilla-material/dagger/cameras.json": "8c44972e4c59979a36f9924cf9aaa10617d4ee249456bd72245b39a1ddf50450",
+    "tools/model-forge/batches/vanilla-material/dagger/capture-pack.py": "8520cf642e605ec970ebf8300f6c56160e7d1e2a99613b6f7934f529037691b9",
+    "tools/model-forge/batches/vanilla-material/dagger/client-log.txt": "4b754a351ca21e2b2865d5fef248373f825fcb8973c906f89b38fd2d56306736",
+    "tools/model-forge/batches/vanilla-material/dagger/client.png": "0ce5fb89029d73a58d75f48ac3965b327828ede2e18c76f54dce4ba679710044",
+    "tools/model-forge/batches/vanilla-material/dagger/contexts.png": "d7ecc07d1be5650a5e0f7ed4f8df34f59ccfead9248494ffc7ddfe3f48c249c4",
+    "tools/model-forge/batches/vanilla-material/dagger/inventory.png": "1315b71682c036366e143321517f5add38d921d97ceb2ce17dee5736507c8435",
+    "tools/model-forge/batches/vanilla-material/dagger/operations.json": "0489be2712412be39af68da82ef8b095704895a7717946f92bdf1ee8b6c2f01b",
+    "tools/model-forge/batches/vanilla-material/dagger/player-contexts.jpg": "b0d1dc3027c664b0b859f15c8d59da9b66a19c852eee284284dfec4bb0336d5f",
+    "tools/model-forge/batches/vanilla-material/dagger/remake.py": "b88dc0e5d0e402fd0aecf44516fbc7ed70c405d3a039c623982784b0728c543b",
+    "tools/model-forge/batches/vanilla-material/dagger/review.md": "30441c972bdc16c585504ac68f409f9ab521748e5e5bcb5cff2a2e239ab019c6"
+  },
+  "sourceCommit": "36743b70a5074a438dcc20e4d58beb774be06d65",
+  "geometryUnchanged": true,
+  "displayTransformsUnchanged": true,
+  "validation": {
+    "errors": 0,
+    "warnings": {
+      "overlap_aabb": 225,
+      "coplanar_contact_possible_zfight": 1,
+      "floating_components_aabb": 1
+    }
+  },
+  "texelsPerModelUnit": 1,
+  "remainingRisks": [
+    "Production pack build and integration checks deferred to manager CI.",
+    "Catalog lacks quiet dark leather; closest cloth entry brown wool used.",
+    "Offline Forge lighting/camera and approximate hands differ from native first-person view.",
+    "Pre-existing overlapping bevel cuboids and small ornament separations retained.",
+    "Combat animations, other FOVs and shader packs not covered by native still capture."
+  ],
+  "nativeCamera": {
+    "yaw": 0,
+    "pitch": 10,
+    "fov": 70,
+    "bobView": false,
+    "guiScale": 2,
+    "world": "Dagger material review",
+    "worldType": "superflat",
+    "gameMode": "creative",
+    "difficulty": "peaceful",
+    "time": "noon",
+    "weather": "clear"
+  },
+  "clientMaterialErrors": []
+}

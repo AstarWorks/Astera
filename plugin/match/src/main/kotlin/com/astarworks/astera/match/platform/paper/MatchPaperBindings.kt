@@ -61,6 +61,9 @@ internal object MatchPaperBindings {
         ).start(plugin)
         // WP10: enemy block breaks on Annihilation pillar blocks damage the pillar.
         PaperPillarBlockListener(wired.pillarTargets).start(plugin)
+        // Game servers: lobby hand-off arrivals appear on their team's arena spawn and are shielded until start.
+        ctx.services.get(com.astarworks.astera.match.application.service.matchmaking.IArrivalSpawns::class)
+            ?.let { com.astarworks.astera.match.adapter.paper.PaperArrivalSpawnListener(it).start(plugin) }
         // F3-5: spectators cannot interact / damage / pick up; clicks cycle the camera.
         PaperSpectatorInputListener(wired.spectatorCycler).start(plugin)
     }

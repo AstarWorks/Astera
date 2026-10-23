@@ -40,3 +40,6 @@ spawn_conditions:
     - "minecraft:lush_caves"
 
 ai: stationary
+
+# Real entity the Paper body is built on (ADR-0249).
+vanilla_entity: minecraft:skeleton

@@ -96,6 +96,8 @@ internal class CorePaperBindings(
 
     /** Retained so [shutdown] can remove the lobby NPC bodies. */
     private var npcBodyService: com.astarworks.astera.core.adapter.paper.entity.PaperNpcBodyService? = null
+    /** Retained so [shutdown] can remove the PvE mob bodies (ADR-0249). */
+    private var mobBodyGateway: com.astarworks.astera.core.adapter.paper.mob.PaperMobBodyGateway? = null
     /** WP12: closed on [shutdown] so open vaults are saved. */
     private var paperVaultWindow: com.astarworks.astera.core.adapter.paper.vault.PaperVaultWindow? = null
 
@@ -251,6 +253,13 @@ internal class CorePaperBindings(
                 bodies.start()
                 npcBodyService = bodies
                 bodies
+            },
+            mobBodies = { _ ->
+                // ADR-0249: PvE mobs are real vanilla-based entities carrying Astera's numbers.
+                val gateway = com.astarworks.astera.core.adapter.paper.mob.PaperMobBodyGateway(plugin)
+                gateway.start()
+                mobBodyGateway = gateway
+                gateway
             },
             playerSoundGateway = com.astarworks.astera.core.adapter.paper.effect.PaperPlayerSoundGateway(server),
             adminPlayerGateway = com.astarworks.astera.core.adapter.paper.admin.PaperAdminPlayerGateway(server),
@@ -507,6 +516,9 @@ internal class CorePaperBindings(
         // Never let the lobby world fail Core's onEnable (it would disable every Astera plugin).
         runCatching { installLobbyWorld(ctx) }
             .onFailure { logger.log(java.util.logging.Level.SEVERE, "Lobby world setup failed; lobby stays on the main world.", it) }
+        // ADR-0246: sky-island arenas in the void `arenas` world, on backends that host matches.
+        runCatching { installArenaWorld(ctx) }
+            .onFailure { logger.log(java.util.logging.Level.SEVERE, "Arena world setup failed; stages stay hand-built.", it) }
         bukkitEventAdapterTimeTaskHandle = bukkitEventAdapter.start(plugin)
         // ADR-0206: chat lines read `Name » message`, the name in the sender's team colour.
         server.pluginManager.registerEvents(
@@ -690,6 +702,62 @@ internal class CorePaperBindings(
         server.scheduler.runTask(plugin, create)
     }
 
+    /**
+     * ADR-0246 — sky-island arenas. Only on backends that host matches (`serverRole.hostsMatches`): registers
+     * the Paper [com.astarworks.astera.core.application.port.outbound.IArenaBuilder] and the void-fall kill plane,
+     * and builds every layout stage into its void world once the server finished loading (Paper forbids
+     * `createWorld` at STARTUP, the same constraint as the lobby world).
+     */
+    private fun installArenaWorld(ctx: WiringContext) {
+        if (!ctx.serverRole.hostsMatches) {
+            logger.info("Arena worlds skipped (server role ${ctx.serverRole}).")
+            return
+        }
+        val arena = com.astarworks.astera.core.adapter.paper.arena.PaperArenaWorld(
+            plugin = plugin,
+            stages = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IStageRegistry>() },
+        )
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(
+            arena,
+            priority = 100,
+        )
+        server.pluginManager.registerEvents(
+            com.astarworks.astera.core.adapter.paper.arena.PaperArenaVoidListener(
+                killY = arena::killY,
+                health = { ctx.services.get<IPlayerHealthGateway>() },
+            ),
+            plugin,
+        )
+        val built = java.util.concurrent.atomic.AtomicBoolean(false)
+        val attempts = java.util.concurrent.atomic.AtomicInteger(0)
+        lateinit var create: Runnable
+        create = Runnable {
+            if (!built.compareAndSet(false, true)) return@Runnable
+            try {
+                val (count, total) = arena.installAll()
+                check(count == total) { "only $count of $total arena stage(s) could be built" }
+                logger.info("Arena worlds ready: $count stage(s) built.")
+            } catch (t: Throwable) {
+                if (attempts.incrementAndGet() < MAX_LOBBY_WORLD_ATTEMPTS) {
+                    logger.warning("Arena world creation failed (${t.message}); retrying in 1s.")
+                    built.set(false)
+                    server.scheduler.runTaskLater(plugin, create, 20L)
+                } else {
+                    logger.log(java.util.logging.Level.SEVERE, "Arena world creation failed; matches run on a bare world.", t)
+                }
+            }
+        }
+        server.pluginManager.registerEvents(
+            object : org.bukkit.event.Listener {
+                @org.bukkit.event.EventHandler
+                fun onServerLoad(event: org.bukkit.event.server.ServerLoadEvent) = create.run()
+            },
+            plugin,
+        )
+        // /reload: ServerLoadEvent never fires again, so also try on the next tick.
+        server.scheduler.runTask(plugin, create)
+    }
+
     /** F3-1 — one live "lane name + queued" text display above each lane pad. */
     private fun installLobbyLaneHolograms(
         ctx: WiringContext,
@@ -735,6 +803,8 @@ internal class CorePaperBindings(
         playGateHologram = null
         npcBodyService?.removeAll()
         npcBodyService = null
+        mobBodyGateway?.removeAll()
+        mobBodyGateway = null
         paperVaultWindow?.closeAll()
         paperVaultWindow = null
         matchQueueMetric?.stop()

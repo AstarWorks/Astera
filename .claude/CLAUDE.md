@@ -121,102 +121,53 @@ SSOT.
 - `.claude/hooks/konsist-watcher.sh` — PostToolUse, records dirty modules in
   `.claude/state/konsist-dirty.txt`, never blocks.
 
-## Session handoff (auto-baton)
+## Session handoff (auto-baton) + one worktree per track
 
-**Hand off, don't ask to hand off.** When you checkpoint / pause / hit an
-incomplete or blocked state — or whenever you'd ask the user "should I
-continue or stop / fresh-session this?" or "残りも進める？" — **do not
-ask**. Refresh `.claude/state/handoff.md` immediately so the user has a
-paste-ready next-session prompt, then state what shipped and what's next
-in chat. Asking about **requirements / intent** is right; making the
-user instruct a mechanical next-action you can just produce (the handoff,
-the continue/stop call) is not. Never leave the user as the thing that
-has to act next when you can produce the artifact. (Mirrors AstarManagement
-CLAUDE.md §"Hand off, don't ask to hand off".)
+**Track = one line of work** (e.g. `vanilla-material`, `limbus-redo`), named by a
+stable kebab-case slug — not a session id, so the next session finds it by name.
+Several sessions run in parallel; each owns exactly one track.
 
-**Always write `.claude/state/handoff.md`** when any substantive work
-happened this session (≥1 commit, ≥1 wave shipped, ≥1 non-trivial
-decision, or significant state change like a push / merge / branch
-cleanup). The user explicitly does not want to manually hand context
-between sessions — this file IS the baton.
+**Worktree per track (always, not only for parallel waves).** A track lives in
+`/IdeaProjects/Astera/.claude/worktrees/<slug>` on branch `wp/<slug>`
+(`git -C /IdeaProjects/Astera worktree add .claude/worktrees/<slug> -b wp/<slug> origin/main`,
+after `fetch`; launch the session in that dir). The
+manager merges agent/Codex branches *there* and ships from there:
+`git fetch origin && git merge origin/main && git push origin HEAD:main`.
+Never commit, merge, stash or switch branches in the primary checkout
+`/IdeaProjects/Astera` — it may be dirty from other sessions. Codex
+(`scripts/codex-task.sh`, run from the track worktree) and `isolation: worktree`
+agents branch off the track's HEAD.
 
-Trigger automatically:
-- After the last commit/merge of a wave when no further work is planned this turn.
-- After a meaningful state change the next session must know about
-  (push to `origin/main`, branch deletes, worktree removes, dep adoption,
-  posture-shift ADR landing).
-- Whenever you would otherwise ask "続けるか止めるか" / "次の session 行く？" /
-  "should we continue / split / stop?" — write/refresh handoff first,
-  THEN report; the user can act on the artifact.
-- Before responding "残り次回" / "let's stop here" / similar.
-- When the user types `/handoff` (write it then; don't end the session).
+**Hand off, don't ask to hand off.** Whenever you would ask "続ける？/止める？/
+次 session？", pause, hit a blocked state, or the user types `/handoff` —
+write the track's handoff first, then report. Write it after any substantive
+work (≥1 commit, merge, push, non-trivial decision, branch/worktree change).
+Skip it for pure Q&A, read-only exploration, or obvious mid-wave pauses.
 
-**Do NOT write it for**:
-- Conversational turns (questions answered without code change).
-- Read-only exploration that produced no commit and no decision.
-- Mid-wave pauses where the work obviously continues next message.
+**File:** `/IdeaProjects/Astera/.claude/state/handoffs/<slug>.md` — always this
+absolute path in the primary checkout (gitignored), even when working in a
+worktree. Overwrite only your own track's file; never edit or delete another
+track's. Track finished (merged + pushed, nothing pending) ⇒ delete its file
+and its worktree. History lives in commits + ADRs, not here.
 
-### File location
-
-Single file, **overwritten** each handoff: `.claude/state/handoff.md`.
-
-(No git-track. `.claude/state/` is already gitignored per Astera convention.
-History lives in commits + ADRs; handoff is a moving snapshot for the *next*
-session's entry point, not an archive.)
-
-### Required sections (keep tight — this gets pasted as a prompt)
+Format (under 80 lines; no code snippets, no "things I tried"):
 
 ```markdown
-# Session handoff — <ISO date>
+# Handoff — <slug> — <ISO date>
+- Track: <slug> | Worktree: /IdeaProjects/Astera/.claude/worktrees/<slug> | Branch: wp/<slug>
+- HEAD: `<sha>` "<subject>" | origin/main: `<sha>` | unpushed: N | build/e2e: <state>
 
-## Where we left off
-- main HEAD: `<short-sha>` "<commit subject>"
-- Unpushed: N commits
-- Build: ./gradlew check <green | failing on X>
-- Konsist: N rules <green | failing>
-
-## What shipped this session
-- Wave Nx (ADR-NNNN) — 1-line summary
-- Wave Ny (ADR-NNNN) — 1-line summary
-(one bullet per merged wave; link to ADR; no LOC, no diff)
-
-## Live decisions / posture changes
-- Any rule shift, ADR supersede, naming convention divergence,
-  policy decision the user made mid-session. None ⇒ skip section.
-
-## Pending — ranked
-1. <highest-priority next work> — why it matters + the one or two
-   files / ports / allowlist entries it touches
-2. <next> — same shape
-3. <next> — same shape
-(3-7 items. Pulled from ADR-0072 / ADR-0134 allowlists + IMPLEMENTATION-
-ROADMAP cross-deps + any user-stated future intent this session.)
-
+## Shipped this session      (one bullet each, ADR link, pushed or not)
+## Live decisions            (founder decisions / rule shifts; omit if none)
+## Pending — ranked          (3-7 items: why + the 1-2 files it touches)
 ## Resume prompt
-Paste-ready, one paragraph, addressed to next-session Claude:
-
-> 前 session で <X / Y / Z> を ship 済み (main HEAD `<sha>`)。
-> 残り priority: <#1 from Pending>。<one-line context the next session
-> needs to act without re-reading: which ports / which ADR allowlist
-> entry / which plugin>. `.claude/CLAUDE.md` の Session bootstrap +
-> Wave protocol を読んで Phase A から始めて。
+> `/IdeaProjects/Astera/.claude/worktrees/<slug>` で起動。handoff は
+> `/IdeaProjects/Astera/.claude/state/handoffs/<slug>.md`。<state + SHAs>。
+> 次: <Pending #1 with absolute paths / ADR numbers>。
 ```
 
-The "Resume prompt" section is the load-bearing one — the user copies that
-verbatim into the next session's first message. Keep it self-contained
-(absolute file paths, ADR numbers, commit SHAs) so the next session can
-act with zero re-discovery.
-
-### What NOT to put in the handoff
-
-- Code snippets (commit + ADR have them).
-- Verbose explanations of why each wave was done (commit message has them).
-- "Things I learned" / "things I tried" (memory system handles those).
-- Pending items the user has explicitly deferred to Phase 2+ unless they
-  unblock the immediate next priority.
-
-Write tight. Under 80 lines total. If a section needs more, it belongs in
-an ADR, not the handoff.
+The Resume prompt is load-bearing — the user pastes it verbatim, so keep it
+self-contained (absolute paths, SHAs, ADR numbers).
 
 ## What to use
 

@@ -1,0 +1,32 @@
+# syntax=docker/dockerfile:1.7
+#
+# Astera bot runner (ADR-0247): the long-running service behind `make bots` and the lobby's "play vs bots" choice.
+# Build context is the repository root (the module needs the Gradle build and plugin:core for the request DTO):
+#
+#     docker build -f docker/Dockerfile.bot-runner -t astera/bot-runner:dev .
+#
+# Not part of `make dev-plugins`: it is a plain compose service (docker/docker-compose.yml `bot-runner`).
+
+FROM gradle:9.5.1-jdk25 AS builder
+
+WORKDIR /workspace
+
+COPY settings.gradle.kts build.gradle.kts gradle.properties /workspace/
+COPY gradle /workspace/gradle/
+COPY buildSrc /workspace/buildSrc/
+COPY config /workspace/config/
+COPY tools /workspace/tools/
+COPY plugin /workspace/plugin/
+COPY content /workspace/content/
+
+RUN --mount=type=cache,target=/home/gradle/.gradle \
+    gradle --no-daemon -x test :tools:bot-runner:installDist
+
+FROM eclipse-temurin:25-jre AS runtime
+
+COPY --from=builder /workspace/tools/bot-runner/build/install/bot-runner /opt/bot-runner
+# The stage / queue content the servers run: lets the bots find mode objectives (enemy core ...).
+COPY content /content/
+
+ENV JAVA_OPTS="-Xmx512m"
+ENTRYPOINT ["/opt/bot-runner/bin/bot-runner"]

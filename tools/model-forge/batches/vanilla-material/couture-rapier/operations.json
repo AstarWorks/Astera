@@ -1,0 +1,1893 @@
+[
+  {
+    "op": "import",
+    "args": {
+      "path": "/tmp/couture-rapier-before.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 54
+      }
+    }
+  },
+  {
+    "op": "scene.get",
+    "args": {
+      "fields": [
+        "id",
+        "name",
+        "faces"
+      ]
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0001"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0007"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0023"
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "before"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 54
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "before"
+    },
+    "validation": null
+  },
+  {
+    "op": "batch",
+    "args": {
+      "ops": [
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0001",
+              "e0002",
+              "e0003",
+              "e0004",
+              "e0005",
+              "e0006",
+              "e0012",
+              "e0013",
+              "e0014",
+              "e0015",
+              "e0016",
+              "e0017",
+              "e0023",
+              "e0024",
+              "e0025",
+              "e0026"
+            ],
+            "material": "metal.iron_block",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0007",
+              "e0008",
+              "e0009",
+              "e0010",
+              "e0011",
+              "e0018",
+              "e0019",
+              "e0020",
+              "e0021",
+              "e0022"
+            ],
+            "material": "stone.polished_blackstone",
+            "seed": 20261023
+          }
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "mixed_texture_atlases": 1,
+        "overlap_aabb": 54
+      }
+    }
+  },
+  {
+    "op": "batch",
+    "args": {
+      "ops": [
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0001",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                5.399999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0001",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                5.399999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0001",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0001",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0001",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.399999999999999,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0001",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.399999999999999,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.119999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.119999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.439999999999998
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.4399999999999995
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999997,
+                4.4399999999999995
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999999,
+                4.439999999999998
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0003",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.8999999999999995
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0003",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.899999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0003",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0003",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0003",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0003",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0004",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.119999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0004",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.119999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0004",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.439999999999998
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0004",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.4399999999999995
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0004",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999999,
+                4.439999999999998
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0004",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999999,
+                4.4399999999999995
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0005",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.300000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0005",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.300000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0005",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0005",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0005",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.300000000000001,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0005",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.300000000000001,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0006",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.119999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0006",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.119999999999997
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0006",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.439999999999998
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0006",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.4399999999999995
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0006",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999999,
+                4.439999999999998
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0006",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999997,
+                4.4399999999999995
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                5.399999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                5.3999999999999995
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.399999999999999,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.399999999999999,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.119999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.119999999999997
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.440000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                12.0,
+                4.440000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999999,
+                4.440000000000001
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999997,
+                4.440000000000001
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.899999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.899999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.119999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.119999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.440000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                10.0,
+                4.440000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999999,
+                4.440000000000001
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999999,
+                4.440000000000001
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0016",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.300000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0016",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.300000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0016",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0016",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.359999999999999
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0016",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.300000000000001,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0016",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.300000000000001,
+                4.359999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0017",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.119999999999997
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0017",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.119999999999997
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0017",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.440000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0017",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                8.0,
+                4.440000000000001
+              ],
+              "rotation": 90
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0017",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999997,
+                4.440000000000001
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0017",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.119999999999999,
+                4.440000000000001
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0023",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.9,
+                4.9
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0023",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.9,
+                4.899999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0023",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.199999999999999,
+                4.9
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0023",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.199999999999999,
+                4.9
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0023",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.9,
+                5.199999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0023",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                5.199999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0024",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                4.9
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0024",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                4.9
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0024",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.199999999999999,
+                4.9
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0024",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.199999999999999,
+                4.9
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0024",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                5.199999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0024",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                5.199999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0025",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.8999999999999995,
+                4.9
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0025",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                4.9
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0025",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.199999999999999,
+                4.899999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0025",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.199999999999999,
+                4.9
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0025",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                5.199999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0025",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.8999999999999995,
+                5.199999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0026",
+            "face": "north",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.8999999999999995,
+                4.899999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0026",
+            "face": "south",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                4.899999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0026",
+            "face": "east",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.199999999999999,
+                4.899999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0026",
+            "face": "west",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                5.199999999999999,
+                4.899999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0026",
+            "face": "up",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                5.199999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0026",
+            "face": "down",
+            "value": {
+              "texture": "#material_iron_block",
+              "uv": [
+                4,
+                4,
+                4.899999999999999,
+                5.199999999999999
+              ],
+              "rotation": 0
+            }
+          }
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "mixed_texture_atlases": 1,
+        "overlap_aabb": 54
+      }
+    }
+  },
+  {
+    "op": "import",
+    "args": {
+      "path": "/IdeaProjects/Astera/.claude/worktrees/vm-couture-rapier/content/models/items/couture-rapier.model.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 54
+      }
+    }
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "after"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 54
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "gui",
+        "firstperson_righthand",
+        "firstperson_lefthand",
+        "thirdperson_righthand",
+        "thirdperson_lefthand",
+        "ground",
+        "fixed"
+      ],
+      "resolution": 256,
+      "name": "contexts"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 32,
+      "name": "inventory-16"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 32,
+      "name": "inventory-32"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 64,
+      "name": "inventory-64"
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.diff",
+    "args": {
+      "a": "before",
+      "b": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "export",
+    "args": {
+      "path": "/tmp/couture-rapier-final-replay/export"
+    },
+    "validation": null
+  }
+]

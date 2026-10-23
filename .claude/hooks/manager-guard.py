@@ -19,7 +19,8 @@ import json, os, re, shlex, sys
 ALLOWED_PREFIXES = ("/tmp/claude-1000/", "/dev/fd/")
 ALLOWED_EXACT = ("/dev/null", "/dev/stderr", "/dev/stdout", "/tmp/claude-1000")
 MEMORY_RE = re.compile(r"^/home/node/\.claude-accounts/[^/]+/(?:.*/)?memory/")
-HANDOFF_RE = re.compile(r"(?:^|/)\.claude/state/handoff\.md$")
+# One baton per track, in the primary checkout's state dir only (not a worktree copy).
+HANDOFF_RE = re.compile(r"^(?!.*/\.claude/worktrees/).*/\.claude/state/handoffs/[a-z0-9][a-z0-9-]*\.md$")
 
 MAKE_OK = re.compile(r"^(dev-content|dev-plugins|dev-pack|docker-up|dev-hotswap\S*|help|check)$")
 GIT_DENY = {"mv", "rm", "apply", "am", "clean"}

@@ -1,62 +1,81 @@
-# Demo stage for the 2-team Norma queue lane (red vs blue).
-# Y coordinates target the docker playtest superflat world: grass top is y=-61,
-# players stand at y=-60 (see docs/contributing/playtest.md).
-# Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
+# Norma arena (2 teams, red vs blue): a floating sky-island arena the server builds itself (ADR-0246).
+# Used by the `norma` lane of content/matchmaking/queue.yaml and the star generators content/generators/arena-*.yaml.
 #
-# See content/stages/README.md for the schema.
+#                    north outpost (0,-26)  [generator]
+#                          |
+#   red island ---- centre island ---- blue island      (team islands 30 blocks from the centre)
+#   (-30,0)         (0,0) [2 generators]     (30,0)
+#                          |
+#                    south outpost (0,26)   [generator]
+#
+# World `arenas` (void, created by Astera), top layer y=64, players stand at y=65. Everything is hand-placed
+# coordinates; the builder (ArenaIslandGenerator) decorates spawns, anchors and landmarks, so keep them on islands
+# (the build logs a warning for a spawn that is off an island, and ShippedArenaStagesBuildTest fails the build).
+# Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
 
 id: example-arena
 
-# Bukkit world the stage is played in (default "world" = the server's main world).
-world: world
-
-# i18n keys; actual text in content/languages/{ja,en}.yaml
 display_name_key: astera.stage.example-arena.name
 
-# Axis-aligned bounding boxes. Bounds are inclusive on both ends; min must be
-# componentwise <= max (Region's init block enforces this).
+world: arenas
+
+layout:
+  marker_version: 1
+  seed: 20261023
+  surface_y: 64
+  kill_y: 30
+  islands:
+    - { id: red, kind: base, team: red, center: { x: -30, z: 0 }, radius: 12.0 }
+    - { id: blue, kind: base, team: blue, center: { x: 30, z: 0 }, radius: 12.0 }
+    - { id: center, kind: center, center: { x: 0, z: 0 }, radius: 10.0 }
+    - { id: north, kind: outpost, center: { x: 0, z: -26 }, radius: 6.0 }
+    - { id: south, kind: outpost, center: { x: 0, z: 26 }, radius: 6.0 }
+  bridges:
+    - { from: red, to: center, width: 3 }
+    - { from: blue, to: center, width: 3 }
+    - { from: center, to: north, width: 3 }
+    - { from: center, to: south, width: 3 }
+  landmarks:
+    - { kind: generator, x: 0, z: -26 }
+    - { kind: generator, x: 0, z: 26 }
+    - { kind: generator, x: 6, z: 0 }
+    - { kind: generator, x: -7, z: 0 }
+
 regions:
   - name: full-arena
-    min: { x: -50.0, y: -60.0, z: -50.0 }
-    max: { x:  50.0, y: -30.0, z:  50.0 }
-
+    min: { x: -50.0, y: 20.0, z: -45.0 }
+    max: { x: 50.0, y: 140.0, z: 45.0 }
   - name: center-platform
-    min: { x: -5.0, y: -60.0, z: -5.0 }
-    max: { x:  5.0, y: -58.0, z:  5.0 }
+    min: { x: -5.0, y: 64.0, z: -5.0 }
+    max: { x: 5.0, y: 66.0, z: 5.0 }
 
-# Spawn points (WP9): per-team spawns for the 2-team Norma lane plus lobby /
-# spectator points. Schema (SpawnPointYamlConfig): exactly one of
-#   team: <team id>         per-team spawn (red / blue here)
-#   role: lobby | spectator team-less point
-# plus position {x,y,z}, optional yaw / pitch. All spawns are in the stage's world.
-# Several spawns per team: entry/respawn hands out the least-used one (Spread).
 spawn_points:
   - team: red
-    position: { x: -45.0, y: -60.0, z: -3.0 }
+    position: { x: -33.5, y: 65.0, z: -2.5 }
     yaw: 270.0
   - team: red
-    position: { x: -45.0, y: -60.0, z: 3.0 }
+    position: { x: -33.5, y: 65.0, z: 3.5 }
     yaw: 270.0
   - team: red
-    position: { x: -43.0, y: -60.0, z: 0.0 }
+    position: { x: -31.5, y: 65.0, z: 0.5 }
     yaw: 270.0
   - team: red
-    position: { x: -47.0, y: -60.0, z: 0.0 }
+    position: { x: -35.5, y: 65.0, z: 0.5 }
     yaw: 270.0
   - team: blue
-    position: { x: 45.0, y: -60.0, z: -3.0 }
+    position: { x: 34.5, y: 65.0, z: -2.5 }
     yaw: 90.0
   - team: blue
-    position: { x: 45.0, y: -60.0, z: 3.0 }
+    position: { x: 34.5, y: 65.0, z: 3.5 }
     yaw: 90.0
   - team: blue
-    position: { x: 43.0, y: -60.0, z: 0.0 }
+    position: { x: 32.5, y: 65.0, z: 0.5 }
     yaw: 90.0
   - team: blue
-    position: { x: 47.0, y: -60.0, z: 0.0 }
+    position: { x: 36.5, y: 65.0, z: 0.5 }
     yaw: 90.0
   - role: lobby
-    position: { x: 0.0, y: -60.0, z: 0.0 }
+    position: { x: 0.5, y: 65.0, z: 0.5 }
   - role: spectator
-    position: { x: 0.0, y: -50.0, z: 0.0 }
-    pitch: 45.0
+    position: { x: 0.5, y: 90.0, z: 0.5 }
+    pitch: 60.0

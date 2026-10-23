@@ -24,6 +24,8 @@ import com.astarworks.astera.match.application.contents.GameModeContents
 import com.astarworks.astera.match.application.gamemode.BattleLoyalGameMode
 import com.astarworks.astera.match.application.gamemode.BreakCoreGameMode
 import com.astarworks.astera.match.application.gamemode.CaptureWoolGameMode
+import com.astarworks.astera.match.application.gamemode.PveEnv
+import com.astarworks.astera.match.application.gamemode.PveWaveGameMode
 import com.astarworks.astera.match.application.gamemode.CarryMiniTntGameMode
 import com.astarworks.astera.match.application.gamemode.CarryTntGameMode
 import com.astarworks.astera.match.application.gamemode.NormaGameMode
@@ -530,6 +532,16 @@ public object MatchWiring {
             gameModeFrameworkRegistry.register(mode)
             subscriptions += mode.subscribe()
         }
+        // ADR-0249: PvE waves. Mobs come from Core's IMobSpawner (real entities when a body gateway
+        // is registered); without the spawner or the encounter registry the mode stays inert.
+        val pveSpawner = services.get<com.astarworks.astera.core.application.port.outbound.mob.IMobSpawner>()
+        val pveEncounters = services.get<com.astarworks.astera.core.application.port.outbound.mob.IEncounterZoneRegistry>()
+        val pveMode = PveWaveGameMode(
+            env = siegeEnv(PveWaveGameMode.ID),
+            pve = if (pveSpawner != null && pveEncounters != null) PveEnv(pveSpawner, pveEncounters) else null,
+        )
+        gameModeFrameworkRegistry.register(pveMode)
+        subscriptions += pveMode.subscribeAll()
         gameModeFrameworkRegistry.register(CarryMiniTntGameMode(eventBus = eventBus))
         logger.info("WP11 wiring: ${siegeModes.size} objective game modes + carry-mini-tnt registered into IGameModeFrameworkRegistry.")
 

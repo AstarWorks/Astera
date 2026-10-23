@@ -8,7 +8,10 @@ public enum class LaneKind {
     /** Teams fight each other: every team needs at least one player, so nobody starts a PvP match alone. */
     PVP,
 
-    /** Cooperative / against the environment: a solo start is fine. */
+    /**
+     * Cooperative / against the environment: a solo start is fine, and everybody queued plays on the same
+     * side (the lane holds `players_per_team` players, ADR-0249).
+     */
     PVE,
 
     /** Practice lane: a solo start is fine. */
@@ -49,14 +52,20 @@ public data class QueueLane(
     public val modeKey: String? get() = key.takeIf { it != NORMA_KEY }
 
     /** Roster cap: a full queue starts immediately. */
-    public val capacity: Int get() = teams * playersPerTeam
+    public val capacity: Int get() = if (kind == LaneKind.PVE) playersPerTeam else teams * playersPerTeam
 
     /**
      * PvP lanes never form a match with an empty team ([MatchSizeSpec.requireAllTeams]); PvE / training lanes
      * may start with a single player.
      */
     public fun sizeSpec(): MatchSizeSpec =
-        MatchSizeSpec(teams, playersPerTeam, minPlayers, requireAllTeams = kind == LaneKind.PVP)
+        MatchSizeSpec(
+            teams,
+            playersPerTeam,
+            minPlayers,
+            requireAllTeams = kind == LaneKind.PVP,
+            cooperative = kind == LaneKind.PVE,
+        )
 
     public companion object {
         public const val NORMA_KEY: String = "norma"

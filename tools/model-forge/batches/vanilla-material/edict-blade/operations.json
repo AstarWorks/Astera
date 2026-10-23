@@ -1,0 +1,1173 @@
+[
+  {
+    "op": "import",
+    "args": {
+      "path": "build/edict-redo/original.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 14,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "scene.get",
+    "args": {
+      "fields": [
+        "id",
+        "name",
+        "faces"
+      ]
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "before"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 14,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "before"
+    },
+    "validation": null
+  },
+  {
+    "op": "batch",
+    "args": {
+      "ops": [
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0001",
+              "e0003",
+              "e0004",
+              "e0005",
+              "e0006",
+              "e0008",
+              "e0009",
+              "e0010"
+            ],
+            "material": "cloth.white_wool",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0002",
+              "e0007",
+              "e0011",
+              "e0012",
+              "e0013",
+              "e0014",
+              "e0015"
+            ],
+            "material": "metal.exposed_copper",
+            "seed": 20261023
+          }
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "mixed_texture_atlases": 1,
+        "overlap_aabb": 14,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0002"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0007"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0011"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0012"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0013"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0014"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0015"
+    },
+    "validation": null
+  },
+  {
+    "op": "batch",
+    "args": {
+      "ops": [
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "north",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                10,
+                4.6,
+                12.0
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "south",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                10,
+                4.6,
+                12.0
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "east",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                10,
+                5.1000000000000005,
+                12.0
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "west",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                10,
+                5.1000000000000005,
+                12.0
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "up",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                8,
+                6,
+                11.600000000000001,
+                10.100000000000001
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0002",
+            "face": "down",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                8,
+                6,
+                11.600000000000001,
+                10.100000000000001
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0007",
+            "face": "north",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                10,
+                4.600000000000001,
+                12.0
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0007",
+            "face": "south",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                10,
+                4.600000000000001,
+                12.0
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0007",
+            "face": "east",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                10,
+                5.100000000000001,
+                12.0
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0007",
+            "face": "west",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                10,
+                5.100000000000001,
+                12.0
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0007",
+            "face": "up",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                8,
+                6,
+                11.600000000000001,
+                10.100000000000001
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0007",
+            "face": "down",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                8,
+                6,
+                11.600000000000001,
+                10.100000000000001
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0011",
+            "face": "north",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999995
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0011",
+            "face": "south",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0011",
+            "face": "east",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0011",
+            "face": "west",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999995
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0011",
+            "face": "up",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.5
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0011",
+            "face": "down",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.5
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "north",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "south",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "east",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "west",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999995
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "up",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.5
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0012",
+            "face": "down",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.5
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "north",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5000000000000009,
+                2.3999999999999995
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "south",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "east",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "west",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "up",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.5
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0013",
+            "face": "down",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.5
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "north",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "south",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "east",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "west",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999995
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "up",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.5
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0014",
+            "face": "down",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.5
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "north",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999995
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "south",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "east",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "west",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.3999999999999986
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "up",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.5
+              ],
+              "rotation": 0
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0015",
+            "face": "down",
+            "value": {
+              "texture": "#material_exposed_copper",
+              "uv": [
+                1,
+                2,
+                1.5,
+                2.5
+              ],
+              "rotation": 0
+            }
+          }
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "mixed_texture_atlases": 1,
+        "overlap_aabb": 14,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "batch",
+    "args": {
+      "ops": [
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0003",
+            "face": "up",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                12.2,
+                4.0,
+                12.849999999999998,
+                7.6
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0003",
+            "face": "north",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                9.15,
+                3.0,
+                9.8,
+                3.5
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0004",
+            "face": "up",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                13.2,
+                4.0,
+                13.849999999999998,
+                7.6
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0004",
+            "face": "north",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                8.15,
+                3.0,
+                8.8,
+                3.5
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0005",
+            "face": "up",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                14.2,
+                4.0,
+                14.849999999999998,
+                7.6
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0005",
+            "face": "north",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                7.15,
+                3.0,
+                7.8,
+                3.5
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0008",
+            "face": "up",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                3.1999999999999993,
+                7.0,
+                3.8499999999999996,
+                10.600000000000001
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0008",
+            "face": "north",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                10.15,
+                3.0,
+                10.8,
+                3.5
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0009",
+            "face": "up",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                4.199999999999999,
+                7.0,
+                4.85,
+                10.600000000000001
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0009",
+            "face": "north",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                9.15,
+                3.0,
+                9.8,
+                3.5
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0010",
+            "face": "up",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                5.199999999999999,
+                7.0,
+                5.849999999999998,
+                10.600000000000001
+              ]
+            }
+          }
+        },
+        {
+          "op": "uv.set",
+          "args": {
+            "id": "e0010",
+            "face": "north",
+            "value": {
+              "texture": "#material_white_wool",
+              "uv": [
+                8.15,
+                3.0,
+                8.8,
+                3.5
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "mixed_texture_atlases": 1,
+        "overlap_aabb": 14,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "import",
+    "args": {
+      "path": "/IdeaProjects/Astera/.claude/worktrees/vm-edict-blade/content/models/items/edict-blade.model.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 14,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "after"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "overlap_aabb": 14,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "gui",
+        "firstperson_righthand",
+        "firstperson_lefthand",
+        "thirdperson_righthand",
+        "thirdperson_lefthand",
+        "ground",
+        "fixed"
+      ],
+      "resolution": 256,
+      "name": "contexts"
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.diff",
+    "args": {
+      "a": "before",
+      "b": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "export",
+    "args": {
+      "path": "build/edict-redo/final2/export"
+    },
+    "validation": null
+  }
+]

@@ -38,3 +38,6 @@ spawn_conditions:
     - "minecraft:deep_dark"
 
 ai: pathfind
+
+# Real entity the Paper body is built on (ADR-0249).
+vanilla_entity: minecraft:zombie

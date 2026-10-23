@@ -1,0 +1,27 @@
+{
+  "elementCount": 178,
+  "bbox": [
+    [
+      -7.899999999999999,
+      7.307617736356693,
+      5.7749999999999995
+    ],
+    [
+      24.900000000000002,
+      19.56,
+      10.81
+    ]
+  ],
+  "allFaceDensitiesOne": true,
+  "measuredFaces": 1068,
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": {
+      "coplanar_contact_possible_zfight": 39,
+      "overlap_aabb": 466,
+      "floating_components_aabb": 1
+    }
+  },
+  "geometryAndDisplayUnchanged": true
+}

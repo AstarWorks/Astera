@@ -84,6 +84,8 @@ include(
     // Black-box E2E: MCProtocolLib bots join a real Paper backend (docker, `make e2e`) and assert
     // on the packets a client receives (ADR-0222). Needs docker; NOT part of `check`. Not shipped.
     ":tools:e2e",
+    // AI protocol bots + the `bot-runner` compose service (play-vs-bot, bot-vs-bot E2E; ADR-0247). Not shipped.
+    ":tools:bot-runner",
     // Software-rendered contact sheets of content/vfx choreographies (ADR-0220). No Minecraft. Not shipped.
     ":tools:vfx-preview",
 )

@@ -38,3 +38,6 @@ loot_table: astera:empty
 spawn_conditions: {}
 
 ai: pathfind
+
+# Real entity the Paper body is built on (ADR-0249).
+vanilla_entity: minecraft:wither_skeleton

@@ -10,40 +10,24 @@ The user just triggered a wave implementation. **Read the four docs in this
 exact order**, then produce a one-screen summary so the orchestrator (you)
 has the right context before Phase A starts.
 
-## Step 0 — Detect parallel triggers, propose worktree if needed
+## Step 0 — Be in the wave's own worktree
 
-Before reading any doc, scan the user's trigger phrase for parallel-wave
-indicators:
+Every track runs in its own worktree (`.claude/rules/wave-execution.md
+§"Every track → its own worktree"`); no confirmation needed. Slug =
+`wave-{N}{x}` (one worktree per wave if several are triggered at once).
 
-- Multiple wave IDs in one prompt: `Wave 5a と Wave 5b を並列で`,
-  `Wave 8c / 8d / 8e を同時に`, `Wave 10a-f all parallel`
-- Explicit keywords: `並列`, `同時`, `parallel`, `同セッションで`
-- A wave letter that the roadmap's "Parallelization windows" section
-  lists as parallel-blessed AND the user is launching it while another
-  wave session is known to be in flight (check `git status` for unstaged
-  changes pointing at another wave's territory)
-
-**If detected**: stop, propose a worktree before doing anything else:
+- If `/IdeaProjects/Astera/.claude/state/handoffs/wave-{N}{x}.md` exists,
+  read it first and resume from it.
+- If the cwd is already `/IdeaProjects/Astera/.claude/worktrees/wave-{N}{x}`,
+  continue. Otherwise create it and work from there:
 
 ```
-Wave Nx と Wave Ny を並列で動かす場合、build break / commit scope
-bleed を避けるため別 worktree で進めることを推奨します
-(`.claude/rules/wave-execution.md §"Parallel waves → separate worktrees"`)。
-
-提案:
-    git worktree add ../astera-wave-{N}{y} -b wave-{N}{y}
-    cd ../astera-wave-{N}{y}
-
-ここで Wave Ny を、現在のディレクトリで Wave Nx を進めます。
-これで進めていい？ (それとも同一 tree でいい？)
+git -C /IdeaProjects/Astera fetch origin
+git -C /IdeaProjects/Astera worktree add .claude/worktrees/wave-{N}{x} -b wp/wave-{N}{x} origin/main
+cd /IdeaProjects/Astera/.claude/worktrees/wave-{N}{x}
 ```
 
-Wait for explicit confirmation. If the user opts in, run the
-`git worktree add` + `cd` (the new worktree shares the same git objects
-so it's near-instant; the new branch's HEAD is the current HEAD).
-
-If the user opts out ("同一 tree で") or there's no parallel indicator,
-proceed to Step 1 in the current tree.
+Never run the wave in the primary checkout `/IdeaProjects/Astera`.
 
 ## Step 1 — Read in this order
 

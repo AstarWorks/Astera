@@ -21,7 +21,7 @@ The cwd/path is NOT used to decide. Hook errors fail open. Founder override: lau
 |---|---|
 | `/tmp/claude-1000/**` (scratchpad) | prompts, temp files |
 | `/home/node/.claude-accounts/*/**/memory/**` | memory |
-| `.claude/state/handoff.md` | handoff is the manager's job |
+| `/IdeaProjects/Astera/.claude/state/handoffs/<slug>.md` (primary checkout's state dir, not a `.claude/worktrees/*` copy; own track only; `rm` when the track is done) | handoff is the manager's job |
 | `/dev/null`, `/dev/std{out,err}` | redirects |
 
 Everything else (incl. `.claude/CLAUDE.md`, `.claude/settings.json`, hooks, rules) is blocked for Edit/Write/NotebookEdit and for Bash writers.
@@ -43,7 +43,7 @@ Known limit: `python3 script.py` / `bun x.ts` of an existing file is not inspect
 ## How to delegate
 
 - Claude subagent: Agent tool (`astera-worker`, `general-purpose`, `isolation: worktree`); start the prompt with the contents of `.claude/prompts/agent-preamble.md`.
-- Codex: write the task to a file under `/tmp/claude-1000/`, run `scripts/codex-task.sh <task-id> <prompt-file>`. It creates `.claude/worktrees/<task-id>` on `wp/<task-id>` from local `main`, prepends `.claude/prompts/codex-preamble.md`, runs `codex exec -p astar-implement -s danger-full-access` in the background; progress in `/tmp/claude-1000/codex/<task-id>.log` (ends with `EXIT=<code>`), final message in `<task-id>-last.md`. Then merge `wp/<task-id>` locally.
+- Codex: write the task to a file under `/tmp/claude-1000/`, run `scripts/codex-task.sh <task-id> <prompt-file>`. Run it from the track worktree. It creates `.claude/worktrees/<task-id>` on `wp/<task-id>` from the invoking checkout's `HEAD` (optional 3rd arg = base ref), prepends `.claude/prompts/codex-preamble.md`, runs `codex exec -p astar-implement -s danger-full-access` in the background; progress in `/tmp/claude-1000/codex/<task-id>.log` (ends with `EXIT=<code>`), final message in `<task-id>-last.md`. Then merge `wp/<task-id>` into the track branch inside the track worktree (never in the primary checkout).
 - Harness changes (`.claude/**`, this rule included) also go through an agent.
 
 ## E2E (founder decision 2026-10-23)

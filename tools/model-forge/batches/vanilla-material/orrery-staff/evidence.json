@@ -1,0 +1,42 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer in build/orrery-staff-client, cloned from a closed capture world; old display entities removed in the copy. Whole launch/capture serialized with flock /tmp/claude-1000/astera-mc-client.lock. Raw root-window screenshot, no image editing. FOV 70, GUI scale 2, view bob off.",
+  "item": "minecraft:stick[minecraft:item_model=\"astera:orrery-staff\"]",
+  "resourcePack": "Minimal pack with exact authored model, Astera blocks/ glow PNG, and builder-equivalent block directory source. No vanilla PNG files.",
+  "modelElements": 12,
+  "sha256": {
+    "content/models/items/orrery-staff.model.json": "a78b02a1b19c1eb319e75817b98ac8b138e42395fa84f3652332cf178683f088",
+    "content/textures/blocks/orrery-staff-runes.png": "488477fc0daa9003e01cf4d5f76991c65193a95c1957bc420a89c30d5e8db459",
+    "tools/model-forge/batches/vanilla-material/orrery-staff/before.png": "ac39e391ce74e078f46e790dcfa72de5bc89667bab0723144950437bb653befc",
+    "tools/model-forge/batches/vanilla-material/orrery-staff/after.png": "5ddc9ef38ee683fc18f98e453e847248a4e3356df73c9707638472575f846ef5",
+    "tools/model-forge/batches/vanilla-material/orrery-staff/contexts.png": "e704fefc922c40db468072f983d6125957c5a882ec6d473d3b38d8f1b8dfc2cf",
+    "tools/model-forge/batches/vanilla-material/orrery-staff/client.png": "1a4865f3b666da008a367cf56386dea00882fd5592cc65e90ae26bbacbc9f788",
+    "tools/model-forge/batches/vanilla-material/orrery-staff/inventory.png": "b78409d299f21fe535a975bf50d81d853f7e51bbdecbc46781915e462c30cd08",
+    "tools/model-forge/batches/vanilla-material/orrery-staff/sweep.png": "edcf8da62f45310946978b3c16674cc65132e97773898caf28c2e9d938b85028",
+    "tools/model-forge/batches/vanilla-material/orrery-staff/operations.json": "7513a62186502fdc721fd1eb25320b06239613487806a7495d4a825e15141295",
+    "tools/model-forge/batches/vanilla-material/orrery-staff/measure.json": "f0d898bf973018da3554ce4563193ff6f61b3e38cc061d7fa9138e457b103daa",
+    "tools/model-forge/batches/vanilla-material/orrery-staff/validation.json": "92aa1f1c126d543ba00418961fa3298b6e8d163019e62d0b5c792b74d0486931",
+    "tools/model-forge/batches/vanilla-material/orrery-staff/cameras.json": "66f6704273cd8aff3ae49ddef5b4cacad1eb2edf45213c7deb5ded1df81efd78"
+  },
+  "remainingRisks": [
+    "Existing GUI top crop and fixed-frame overflow retained because display transforms are frozen.",
+    "16px GUI reduces glow inscription to an orange accent.",
+    "Original intersections retained; split shaft has subtle grain crop transition.",
+    "Native swing/use animation, FOV variants and production-built pack remain manager verification.",
+    "Custom glow is painted color, without emissive lighting."
+  ],
+  "catalogWishes": [
+    "Optional quiet black rubber for cable insulation; closest present catalog entry cloth.black_wool used."
+  ],
+  "verification": {
+    "forgeErrors": 0,
+    "overlapWarnings": 10,
+    "contactWarnings": 1,
+    "nativeFacesAtOneTexelPerUnit": 68,
+    "customGlowFaces": 2,
+    "geometryAndDisplayPreserved": true,
+    "browserCaptures": 35,
+    "browserErrors": 0,
+    "testsRun": false
+  }
+}

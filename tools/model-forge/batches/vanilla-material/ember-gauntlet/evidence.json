@@ -1,0 +1,32 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated newly created creative peaceful superflat, structures disabled, commands enabled. Main-hand first person, default FOV 70, GUI scale 2, view bob off. Raw native screenshot, no image editing. Entire launch/capture/cleanup serialized with /tmp/claude-1000/astera-mc-client.lock; unique Xvfb display and build/ember-gauntlet-client game directory. No standalone server, Docker, Gradle or tests.",
+  "item": "minecraft:iron_axe[minecraft:item_model=\"astera:ember-gauntlet\"]",
+  "resourcePack": "Minimal capture pack with exact authored model, custom ember PNG and builder-equivalent blocks directory source. No vanilla PNG files.",
+  "modelElements": 145,
+  "sha256": {
+    "content/models/items/ember-gauntlet.model.json": "e49816a787c6c8ebfc95b791681d26d5f7046e84a9aabdc2b39a0eed39fab3c2",
+    "content/textures/blocks/ember-gauntlet-embers.png": "75d8eb1a3331a4302ab93929999e1bef28fd55d089b3ea9c168b998a69017551",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/after.png": "0ad89810510121337dd93036d278a0c16265a0e5e7a0795a25fdf66d1a3f6bfe",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/before.png": "bde89c6c161e67394b6a6c0248fab796eafd7bbd29228271bf3b6f3c491901c1",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/cameras.json": "8f67f56b8d0f22abd68134f1b68fd03e1e8bb0561952e56e908b2e0433dfd5b8",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/capture-pack.py": "b8879bb74e13a0bd7a9342c5763082051c69c85795a3c700f21559e7c8d8f4e6",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/client.png": "ad4a88e20971c733ecd99b209023cce9756d6231c6a163e8fd9a69a786087ceb",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/contexts.png": "27e6bf4bc3061a30ceb7df7a638b55efecc42ad9069a289876e3eb2caed791d9",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/inventory.png": "67fa5d4b69bf4266f7f8b77224afb20dc77f61b54e6223e6a63c23285741f30a",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/operations.json": "aa568d64bc59b2ce9251bb3fcdfc4a8f1d19e8a3cea146bf71ba91884898f4ca",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/player-contexts.jpg": "0be2738304108884b0325051b7b7c02064a167a471f186aedd9d0920b06c58fa",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/remake.py": "2ed621dd833fa25f449a770470a1161daf5d529f6285506f2be59cd9ffbc348b",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/review.md": "01c48fb2528609409cecf58fb5d432a3838edd2e0f94fd27dc14e974f9760e5b",
+    "tools/model-forge/batches/vanilla-material/ember-gauntlet/sweep.png": "2f94f24d1aaeb1150ae77a8fe80a595c1f71006a7fd6ddf80c46693755a20902"
+  },
+  "catalogWishes": [
+    "Static dark blue-gray steel; metal.anvil used as the closest dark metal."
+  ],
+  "remainingRisks": [
+    "Production pack build and manager CI were not run.",
+    "Offline lighting and hand guides differ from native perspective; native screenshot verifies main-hand idle view only.",
+    "Original overlapping bevel/cuff geometry and display transforms retained.",
+    "Copper and anvil approximate original bronze and cool steel; glow colors do not emit light."
+  ]
+}

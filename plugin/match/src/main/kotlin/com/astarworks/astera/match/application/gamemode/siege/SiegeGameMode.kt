@@ -198,10 +198,15 @@ public abstract class SiegeGameMode<R : SiegeRun>(
 
     /** Declares [winner] (`null` = draw) and ends the match once. */
     protected fun win(run: R, winner: TeamId?) {
+        endWith(run, EndReason.TeamVictory(winner))
+    }
+
+    /** Ends the match once with a mode-specific [reason] (PvE results carry wave counts, ADR-0249). */
+    protected fun endWith(run: R, reason: EndReason) {
         val e = env ?: return
         if (run.ended) return
         run.ended = true
-        e.lifecycle.end(run.matchId, EndReason.TeamVictory(winner))
+        e.lifecycle.end(run.matchId, reason)
     }
 
     /** Sends [key] to every current member of the match. */
@@ -231,7 +236,8 @@ public abstract class SiegeGameMode<R : SiegeRun>(
     protected fun teamOfRegion(region: String, prefix: String, match: Match): TeamId? =
         region.takeIf { it.startsWith(prefix) }?.removePrefix(prefix)?.let { id -> match.teams.firstOrNull { it.id.value == id }?.id }
 
-    private fun dispatch(matchId: MatchId, action: (R, Match) -> Unit) {
+    /** Runs [action] on the live run of [matchId]; ignored when the match is unknown, ended, or runs another mode. */
+    protected fun dispatch(matchId: MatchId, action: (R, Match) -> Unit) {
         val e = env ?: return
         val run = runs[matchId] ?: return
         val match = e.matches.findById(matchId) ?: return

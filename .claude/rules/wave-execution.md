@@ -3,30 +3,34 @@
 Session protocol for Wave-style implementation in Astera. **Not enforced by
 CI** — violating these has burned past sessions, so treat them as durable.
 
-## Parallel waves → separate worktrees
+## Every track → its own worktree
 
-A Wave session may run alongside another Wave session in parallel
-(`docs/IMPLEMENTATION-ROADMAP.md §"Parallelization windows"` lists which
-pairs are roadmap-blessed: Wave 5a + 5b, Wave 8c/d/e/f after 8b,
-Wave 10a–f, Wave _ops + anything). **When two waves share the same
-working tree at the same time, they will produce build breaks and
-commit scope bleed**. Concretely seen in Wave 5b (`078f6e1`): the
-parallel Wave 5c session landed in-progress `plugin/match/` files with
-a KDoc syntax error that broke `./gradlew check` and YAML additions
-that stowed away into Wave 5b's commit.
+Several Claude sessions run at once. **Two sessions sharing one working tree
+produce build breaks, commit scope bleed and blocked merges** (Wave 5b
+`078f6e1`: a parallel 5c session's half-written `plugin/match/` files broke
+`check` and stowed away into 5b's commit; 2026-10-24: a dirty primary
+checkout blocked merges for every other session, and a single shared
+handoff file let one session wipe another's baton).
 
-**Rule**: the moment you launch a second wave alongside an in-flight
-one, the second wave runs in its own `git worktree`:
+**Rule**: every work track — a wave, a fix round, an asset rollout, anything
+that commits — runs in its own worktree from the start, single-stream or not.
+Slug = stable kebab-case track name (e.g. `vanilla-material`):
 
 ```
-git worktree add ../astera-wave-{N}{y} -b wave-{N}{y}
-cd ../astera-wave-{N}{y}
-# … run wave-start from here, single tree, isolated check
+git -C /IdeaProjects/Astera fetch origin
+git -C /IdeaProjects/Astera worktree add .claude/worktrees/<slug> -b wp/<slug> origin/main
+cd /IdeaProjects/Astera/.claude/worktrees/<slug>   # launch / work here
 ```
 
-Single-stream waves (the 90% case) stay in the primary tree — worktree
-is pure overhead there. The `wave-start` skill detects parallel triggers
-and proposes the worktree before reading the four canonical docs.
+- Merge agent/Codex branches into `wp/<slug>` inside that worktree; ship with
+  `git fetch origin && git merge origin/main && git push origin HEAD:main`.
+- Never commit, merge, stash or check out in the primary checkout
+  `/IdeaProjects/Astera`; treat its working tree as someone else's.
+- Codex (`scripts/codex-task.sh`, run from the track worktree) and
+  `isolation: worktree` agents branch off the track's HEAD.
+- Baton: `/IdeaProjects/Astera/.claude/state/handoffs/<slug>.md`, one file per
+  track, written only by that track (`.claude/CLAUDE.md` §"Session handoff").
+  Track done ⇒ remove its worktree and delete its handoff file.
 
 Why: Claude sessions have no in-band signaling, no shared mental model,
 and no merge tooling between them — so the cost of conflict is higher

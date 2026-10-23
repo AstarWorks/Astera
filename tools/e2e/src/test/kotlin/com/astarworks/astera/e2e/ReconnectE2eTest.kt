@@ -66,7 +66,8 @@ class ReconnectE2eTest : PlaythroughBase() {
             val pos = posOf(back)
             assertThat(sideBefore).describedAs("could not read the position before the drop: $posBefore").isNotNull()
             assertThat(side(back)).describedAs("came back on the other side / the lobby: before=$posBefore after=$pos").isEqualTo(sideBefore)
-            assertThat(Math.abs(pos!!.first)).describedAs("still at the lobby spawn (arena spawns are at |x| ~ 45, the lobby at x ~ 0): $pos").isGreaterThan(30.0)
+            assertThat(Math.abs(pos!!.first)).describedAs("still at the lobby spawn (arena spawns are at |x| ~ 32-37, the lobby at x ~ 0): $pos").isGreaterThan(25.0)
+            assertThat(islandStanceProblem(back)).describedAs("the returning player is not standing on an arena island").isNull()
             "before=$posBefore after=$pos"
         }
         E2eReport.check(suite, "the returning player plays again and the match still lists it as the same single match", "RCON playerGameType + astera match list") {

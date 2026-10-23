@@ -1,0 +1,1156 @@
+[
+  {
+    "file": "fire-staff-orbit--45-0.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        -18.511918413882867,
+        25.20950530791821
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit--45-45.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.58078057588223,
+        -18.511918413882867,
+        17.92730755628232
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit--45-90.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        24.862978327518125,
+        -18.511918413882867,
+        0.34652698040008684
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit--45-135.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.580780575882233,
+        -18.511918413882867,
+        -17.234253595482144
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit--45-180.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        3.0448366826065086e-15,
+        -18.511918413882867,
+        -24.51645134711804
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit--45-225.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.580780575882233,
+        -18.511918413882867,
+        -17.234253595482144
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit--45-270.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.862978327518125,
+        -18.511918413882867,
+        0.34652698040008134
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit--45-315.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.580780575882237,
+        -18.511918413882867,
+        17.92730755628231
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-0-0.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        6.351059913635256,
+        35.508088132164545
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-0-45.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        24.86297832751812,
+        6.351059913635256,
+        25.20950530791821
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-0-90.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        35.16156115176446,
+        6.351059913635256,
+        0.3465269804000875
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-0-135.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        24.862978327518125,
+        6.351059913635256,
+        -24.516451347118036
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-0-180.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        4.306049331753227e-15,
+        6.351059913635256,
+        -34.815034171364374
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-0-225.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.86297832751811,
+        6.351059913635256,
+        -24.516451347118046
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-0-270.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -35.16156115176446,
+        6.351059913635256,
+        0.3465269804000797
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-0-315.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.862978327518128,
+        6.351059913635256,
+        25.2095053079182
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-45-0.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        31.214038241153375,
+        25.20950530791821
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-45-45.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.58078057588223,
+        31.214038241153375,
+        17.92730755628232
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-45-90.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        24.862978327518125,
+        31.214038241153375,
+        0.34652698040008684
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-45-135.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.580780575882233,
+        31.214038241153375,
+        -17.234253595482144
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-45-180.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        3.0448366826065086e-15,
+        31.214038241153375,
+        -24.51645134711804
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-45-225.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.580780575882233,
+        31.214038241153375,
+        -17.234253595482144
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-45-270.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.862978327518125,
+        31.214038241153375,
+        0.34652698040008134
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-orbit-45-315.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.580780575882237,
+        31.214038241153375,
+        17.92730755628231
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-pole--90.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        -28.810501238111627,
+        0.3465621419612463
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-pole-90.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        41.512621065382135,
+        0.3465621419612371
+      ],
+      "target": [
+        0,
+        6.351059913635254,
+        0.34652698040008534
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-gui.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "gui",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        2.4492935982947065e-15,
+        40
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-firstperson_righthand.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "firstperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-firstperson_lefthand.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "firstperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-thirdperson_righthand.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "thirdperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-thirdperson_lefthand.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "thirdperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-thirdperson_righthand_side.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "thirdperson_righthand_side",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        48,
+        21.999999999999996,
+        2.9391523179536475e-15
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-ground.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "ground",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-ground_spin.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "ground_spin",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "fire-staff-fixed.png",
+    "item": "fire-staff",
+    "source": "content/models/items/fire-staff.model.json",
+    "sha256": "f08645e68cbbc5bc26222a75a94b985b248d93a775c295ef5709227105930ad9",
+    "context": "fixed",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.6942229581241772e-15,
+        1.3471114790620886e-15,
+        -22
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]

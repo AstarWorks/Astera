@@ -47,3 +47,6 @@ spawn_conditions:
     - 14000
 
 ai: pathfind
+
+# Real entity the Paper body is built on (ADR-0249).
+vanilla_entity: minecraft:wolf

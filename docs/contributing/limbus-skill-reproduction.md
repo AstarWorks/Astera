@@ -1,6 +1,6 @@
 # Limbus参照武器スキルの制作・修正手順
 
-この文書を制作フローの入口とする。目的は、参照動画で確認できる技の動き・形・命中をMinecraft上で再現し、実武器を装備した実機映像で確認すること。YAMLが読める、撮影できる、所定回数を修正した、だけでは完了しない。
+この文書を制作フローの入口とする。目的は、参照動画で確認できる技の動き・形・命中をMinecraft上で再現し、実武器を装備した実機映像で確認すること。YAMLが読める、撮影できる、所定回数を修正した、`limbus-reviewer` が合格した、だけでは完了しない。完了はレビュアー合格とユーザー承認（skill-compare の公開キャプチャ https://skill-compare.astarworks.com での確認）の両方が揃った時点。
 
 ## 1. 対象と作業場所を確定する
 
@@ -34,10 +34,12 @@ make skill-compare-case CASE=<case> VIDEO=<id> START=<seconds> END=<seconds> SKI
 - 基準時間は技開始からの経過時間。`tick = floor((video_seconds - skill_start_seconds) * 20 + 0.5)`。ケース開始と技開始が異なる場合は両方を記録する。
 - 接触イベントとコイン数は別々に観察する。多段演出や装飾フラッシュを自動的に追加ダメージにしない。
 - キャラクター身長等の共通基準で大きさを測る。カメラ変更による見かけの変化と、物体自体の拡縮を区別する。
-- caseの `intent.file` が指すJSON（round 2では `intent-round2.json`）にカメラ・人物・武器・演出を記す。intentは原動画の解釈であり、正しさの証明ではない。実装に合わせて目標を変更しない。
+- case.jsonの `beats`（`[{t_s, label, weapon, caster_move, vfx, notes}]`、動画絶対秒）に、武器の向き・振り・術者の動き・演出を時刻ごとに文章で記す。beatsは原動画の解釈であり、正しさの証明ではない。実装に合わせて目標を変更しない。
 - Minecraft向けの変更（操作、状態異常、時間、射程等）は理由と原作との差を一覧にする。修正漏れを「仕様」として扱わない。
 
 ## 4. 実装する
+
+チーム体制（director + 専門役 + 独立reviewer）と役割別の知識docは [skill-team/README.md](skill-team/README.md)。
 
 YAMLの形式は [add-a-skill-yaml.md](add-a-skill-yaml.md)、形・色・武器rig・trailは [vfx-art-direction.md](vfx-art-direction.md) に従う。
 
@@ -92,7 +94,7 @@ make skill-compare
 AIは画面を開かず、次の1コマンドで「原動画 | 設計図 | 実機」の3列を接触ごとに並べた画像とmanifestを得る。
 
 ```sh
-make skill-brief CASE=<case> [VIEW=compare] [AT="<seconds>:extra"] [NO_INTENT=1]
+make skill-brief CASE=<case> [VIEW=compare] [AT="<seconds>:extra"]
 # -> build/brief/<case>/sheet-01.png ... , frames/ , manifest.json
 ```
 
@@ -123,6 +125,8 @@ make skill-brief CASE=<case> [VIEW=compare] [AT="<seconds>:extra"] [NO_INTENT=1]
 - **検証不合格**：確認した不一致が残る。残差と次の修正を列挙する。
 - **再現合格**：参照あり、上の項目を確認し、証拠画像と実装版が結び付いている。
 - **独自設計・動作確認済**：参照のない技について操作・表示・命中等を確認済み。原作再現とは呼ばない。
+
+技の完了は、`limbus-reviewer` が全受入行を証拠付きで合格にし、かつユーザーが skill-compare の公開キャプチャを確認して承認した時点。レビュアー合格は必要条件であり十分条件ではない。レビュアー合格後、director は manager に報告し、manager がユーザーへ skill-compare での確認を依頼する。承認の日付と公開revisionを武器REPORTに記録する。ユーザーが差し戻した場合はコメントを担当ロール別の差分に変換し、改修に戻る。承認のない「再現合格」を完了にしない。
 
 武器単位のREPORTに全バインドの結果を並べ、未確認を空欄にしない。最新の比較画像、観察表、既知の制約、検証コマンドと結果へリンクする。全武器修正の完了は、全バインドの処理と残差の説明が揃い、未検証・不合格を「完了」に含めていないことが条件。
 

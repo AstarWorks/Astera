@@ -64,6 +64,8 @@ import com.astarworks.astera.core.domain.item.ItemId
  *   committing to spawn. Defaults to [SpawnConditions.ANY].
  * @property ai Adapter-advisory AI behaviour hint. Defaults to
  *   [MobAiHint.Default].
+ * @property vanillaEntity Vanilla entity key the body is built on (`minecraft:zombie`,
+ *   ADR-0249). `null` = the mob has no physical body (the adapter refuses to spawn it).
  */
 public data class MobSpec(
     public val id: MobTypeId,
@@ -76,6 +78,7 @@ public data class MobSpec(
     public val lootTable: LootTableId = LootTableId.EMPTY,
     public val spawnConditions: SpawnConditions = SpawnConditions.ANY,
     public val ai: MobAiHint = MobAiHint.Default,
+    public val vanillaEntity: String? = null,
 ) {
     init {
         // Equipment uniqueness: a single mob cannot bind two items to the

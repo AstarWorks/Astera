@@ -1,8 +1,12 @@
 {
   "credit": "Astera / Codex gpt-6-astra / image-generated target",
   "textures": {
-    "0": "astera:items/pistol",
-    "particle": "astera:items/pistol"
+    "material_netherite_block": "minecraft:block/netherite_block",
+    "material_iron_block": "minecraft:block/iron_block",
+    "material_stripped_dark_oak_log": "minecraft:block/stripped_dark_oak_log",
+    "material_stripped_dark_oak_log_top": "minecraft:block/stripped_dark_oak_log_top",
+    "material_diamond_block": "minecraft:block/diamond_block",
+    "particle": "minecraft:block/netherite_block"
   },
   "gui_light": "front",
   "ambientocclusion": false,
@@ -21,58 +25,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            4.0,
-            0.875
-          ]
+            0,
+            5,
+            16.0,
+            8.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            4.0,
-            0.875
-          ]
+            0,
+            6,
+            16.0,
+            9.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.875,
-            0.875
-          ]
+            3,
+            1,
+            6.5,
+            4.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.875,
-            0.875
-          ]
+            0,
+            9,
+            3.5,
+            12.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            4.0,
-            0.875
-          ]
+            0,
+            11,
+            16.0,
+            14.5
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            4.0,
-            0.875
-          ]
+            0,
+            8,
+            16.0,
+            11.5
+          ],
+          "rotation": 0
         }
       }
     },
@@ -90,58 +100,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.75,
-            1.75
-          ]
+            1,
+            5,
+            4.0,
+            12.0
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.75,
-            1.75
-          ]
+            9,
+            6,
+            12.0,
+            13.0
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.75,
-            1.75
-          ]
+            1,
+            6,
+            4.0,
+            13.0
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.75,
-            1.75
-          ]
+            12,
+            5,
+            15.0,
+            12.0
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.75,
-            0.75
-          ]
+            12,
+            12,
+            15.0,
+            15.0
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.75,
-            0.75
-          ]
+            9,
+            4,
+            12.0,
+            7.0
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -168,58 +184,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            3.0,
-            0.375
-          ]
+            2,
+            9,
+            14.0,
+            10.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            3.0,
-            0.375
-          ]
+            1,
+            12,
+            13.0,
+            13.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.75,
-            0.375
-          ]
+            5,
+            11,
+            8.04,
+            12.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.75,
-            0.375
-          ]
+            2,
+            12,
+            5.039999999999999,
+            13.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            3.0,
-            0.75
-          ]
+            3,
+            0,
+            15.0,
+            3.039999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            3.0,
-            0.75
-          ]
+            1,
+            2,
+            13.0,
+            5.039999999999999
+          ],
+          "rotation": 0
         }
       }
     },
@@ -237,58 +259,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.125
-          ]
+            1,
+            2,
+            16.0,
+            2.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.125
-          ]
+            0,
+            8,
+            15.0,
+            8.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            3,
+            8,
+            3.5,
+            8.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            15,
+            7,
+            15.5,
+            7.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.125
-          ]
+            0,
+            2,
+            15.0,
+            2.5
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.125
-          ]
+            1,
+            9,
+            16.0,
+            9.5
+          ],
+          "rotation": 0
         }
       }
     },
@@ -306,58 +334,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.1
-          ]
+            1,
+            11,
+            16.0,
+            11.399999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.1
-          ]
+            1,
+            3,
+            16.0,
+            3.3999999999999986
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.10000000000000009,
-            8.1
-          ]
+            1,
+            12,
+            1.4000000000000004,
+            12.399999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.10000000000000009,
-            8.1
-          ]
+            2,
+            12,
+            2.4000000000000004,
+            12.399999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.1
-          ]
+            1,
+            10,
+            16.0,
+            10.4
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.1
-          ]
+            0,
+            11,
+            15.0,
+            11.4
+          ],
+          "rotation": 0
         }
       }
     },
@@ -375,58 +409,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log",
           "uv": [
-            12.0,
-            0.0,
-            12.5625,
-            1.375
-          ]
+            3,
+            1,
+            5.25,
+            6.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log",
           "uv": [
-            12.0,
-            0.0,
-            12.5625,
-            1.375
-          ]
+            6,
+            4,
+            8.25,
+            9.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log",
           "uv": [
-            12.0,
-            0.0,
-            12.0625,
-            1.375
-          ]
+            1,
+            6,
+            1.25,
+            11.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log",
           "uv": [
-            12.0,
-            0.0,
-            12.0625,
-            1.375
-          ]
+            1,
+            0,
+            1.25,
+            5.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log_top",
           "uv": [
-            12.0,
-            0.0,
-            12.5625,
-            0.0625
-          ]
+            11,
+            5,
+            13.25,
+            5.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log_top",
           "uv": [
-            12.0,
-            0.0,
-            12.5625,
-            0.0625
-          ]
+            6,
+            9,
+            8.25,
+            9.25
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -453,58 +493,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.125
-          ]
+            1,
+            13,
+            16.0,
+            13.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.125
-          ]
+            0,
+            11,
+            15.0,
+            11.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            1,
+            6,
+            1.5,
+            6.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            13,
+            11,
+            13.5,
+            11.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.125
-          ]
+            1,
+            14,
+            16.0,
+            14.5
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.125
-          ]
+            1,
+            4,
+            16.0,
+            4.5
+          ],
+          "rotation": 0
         }
       }
     },
@@ -522,58 +568,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.1
-          ]
+            1,
+            14,
+            16.0,
+            14.399999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.1
-          ]
+            1,
+            10,
+            16.0,
+            10.399999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.09999999999999964,
-            8.1
-          ]
+            8,
+            1,
+            8.399999999999999,
+            1.3999999999999986
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.09999999999999964,
-            8.1
-          ]
+            5,
+            8,
+            5.399999999999999,
+            8.399999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.1
-          ]
+            0,
+            14,
+            15.0,
+            14.399999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            3.75,
-            8.1
-          ]
+            1,
+            12,
+            16.0,
+            12.399999999999999
+          ],
+          "rotation": 0
         }
       }
     },
@@ -591,58 +643,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log",
           "uv": [
-            12.0,
-            0.0,
-            12.5625,
-            1.375
-          ]
+            10,
+            4,
+            12.25,
+            9.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log",
           "uv": [
-            12.0,
-            0.0,
-            12.5625,
-            1.375
-          ]
+            3,
+            3,
+            5.25,
+            8.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log",
           "uv": [
-            12.0,
-            0.0,
-            12.0625,
-            1.375
-          ]
+            11,
+            5,
+            11.25,
+            10.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log",
           "uv": [
-            12.0,
-            0.0,
-            12.0625,
-            1.375
-          ]
+            15,
+            0,
+            15.25,
+            5.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log_top",
           "uv": [
-            12.0,
-            0.0,
-            12.5625,
-            0.0625
-          ]
+            13,
+            15,
+            15.25,
+            15.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_stripped_dark_oak_log_top",
           "uv": [
-            12.0,
-            0.0,
-            12.5625,
-            0.0625
-          ]
+            7,
+            0,
+            9.25,
+            0.25
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -669,58 +727,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.95,
-            8.175
-          ]
+            7,
+            6,
+            10.8,
+            6.699999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.95,
-            8.175
-          ]
+            6,
+            9,
+            9.8,
+            9.7
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.875,
-            8.175
-          ]
+            4,
+            4,
+            7.5,
+            4.699999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.875,
-            8.175
-          ]
+            2,
+            4,
+            5.5,
+            4.699999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.95,
-            8.875
-          ]
+            6,
+            2,
+            9.8,
+            5.5
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.95,
-            8.875
-          ]
+            8,
+            4,
+            11.8,
+            7.5
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -747,58 +811,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            1.0,
-            0.125
-          ]
+            9,
+            14,
+            13.0,
+            14.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            1.0,
-            0.125
-          ]
+            1,
+            0,
+            5.0,
+            0.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.25,
-            0.125
-          ]
+            14,
+            14,
+            15.0,
+            14.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.25,
-            0.125
-          ]
+            5,
+            6,
+            6.0,
+            6.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            1.0,
-            0.25
-          ]
+            3,
+            15,
+            7.0,
+            16.0
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            1.0,
-            0.25
-          ]
+            10,
+            11,
+            14.0,
+            12.0
+          ],
+          "rotation": 0
         }
       }
     },
@@ -816,58 +886,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.125,
-            0.5499999999999998
-          ]
+            3,
+            13,
+            3.5,
+            15.2
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.125,
-            0.5499999999999998
-          ]
+            11,
+            8,
+            11.5,
+            10.2
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.25,
-            0.5499999999999998
-          ]
+            0,
+            5,
+            1.0399999999999991,
+            7.199999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.25,
-            0.5499999999999998
-          ]
+            7,
+            9,
+            8.04,
+            11.2
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.125,
-            0.25
-          ]
+            15,
+            2,
+            15.5,
+            3.039999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.125,
-            0.25
-          ]
+            3,
+            14,
+            3.5,
+            15.04
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -894,58 +970,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.10000000000000009,
-            8.45
-          ]
+            2,
+            13,
+            2.4000000000000004,
+            14.8
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.10000000000000009,
-            8.45
-          ]
+            10,
+            8,
+            10.4,
+            9.8
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.45
-          ]
+            7,
+            4,
+            7.5,
+            5.800000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.45
-          ]
+            15,
+            0,
+            15.5,
+            1.8000000000000007
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.10000000000000009,
-            8.125
-          ]
+            6,
+            11,
+            6.4,
+            11.5
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.10000000000000009,
-            8.125
-          ]
+            8,
+            7,
+            8.4,
+            7.5
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -972,58 +1054,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.7
-          ]
+            10,
+            10,
+            10.5,
+            12.799999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.7
-          ]
+            1,
+            1,
+            1.5,
+            3.799999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.7000000000000002,
-            8.7
-          ]
+            2,
+            9,
+            4.800000000000001,
+            11.799999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.7000000000000002,
-            8.7
-          ]
+            10,
+            7,
+            12.8,
+            9.799999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.7
-          ]
+            11,
+            5,
+            11.5,
+            7.800000000000001
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.7
-          ]
+            8,
+            4,
+            8.5,
+            6.800000000000001
+          ],
+          "rotation": 0
         }
       }
     },
@@ -1041,58 +1129,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.5250000000000004
-          ]
+            14,
+            4,
+            14.25,
+            6.100000000000001
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.5250000000000004
-          ]
+            14,
+            0,
+            14.25,
+            2.1000000000000014
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5250000000000001,
-            0.5250000000000004
-          ]
+            1,
+            5,
+            3.1000000000000005,
+            7.100000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5250000000000001,
-            0.5250000000000004
-          ]
+            5,
+            1,
+            7.1000000000000005,
+            3.1000000000000014
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.5250000000000001
-          ]
+            7,
+            5,
+            7.25,
+            7.1000000000000005
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.5250000000000001
-          ]
+            13,
+            12,
+            13.25,
+            14.100000000000001
+          ],
+          "rotation": 0
         }
       }
     },
@@ -1110,58 +1204,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.34999999999999964
-          ]
+            5,
+            14,
+            5.25,
+            15.399999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.34999999999999964
-          ]
+            15,
+            8,
+            15.25,
+            9.399999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.35,
-            0.34999999999999964
-          ]
+            7,
+            5,
+            8.399999999999999,
+            6.399999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.35,
-            0.34999999999999964
-          ]
+            3,
+            0,
+            4.3999999999999995,
+            1.3999999999999986
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.34999999999999987
-          ]
+            6,
+            12,
+            6.25,
+            13.399999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.34999999999999987
-          ]
+            15,
+            7,
+            15.25,
+            8.399999999999999
+          ],
+          "rotation": 0
         }
       }
     },
@@ -1179,58 +1279,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.375,
-            8.2
-          ]
+            2,
+            6,
+            3.5,
+            6.799999999999997
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.375,
-            8.2
-          ]
+            12,
+            8,
+            13.5,
+            8.799999999999997
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.25,
-            8.2
-          ]
+            3,
+            0,
+            4.0,
+            0.7999999999999972
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.25,
-            8.2
-          ]
+            0,
+            2,
+            1.0,
+            2.799999999999997
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.375,
-            8.25
-          ]
+            9,
+            8,
+            10.5,
+            9.0
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.375,
-            8.25
-          ]
+            6,
+            6,
+            7.5,
+            7.0
+          ],
+          "rotation": 0
         }
       }
     },
@@ -1248,58 +1354,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.375,
-            8.2
-          ]
+            5,
+            13,
+            6.5,
+            13.799999999999997
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.375,
-            8.2
-          ]
+            10,
+            12,
+            11.5,
+            12.799999999999997
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.25,
-            8.2
-          ]
+            2,
+            4,
+            3.0,
+            4.799999999999997
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
+            7,
+            10,
             8.0,
-            0.25,
-            8.2
-          ]
+            10.799999999999997
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.375,
-            8.25
-          ]
+            14,
+            12,
+            15.5,
+            13.0
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.375,
-            8.25
-          ]
+            7,
+            2,
+            8.5,
+            3.0
+          ],
+          "rotation": 0
         }
       }
     },
@@ -1317,58 +1429,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            2.0,
-            0.375
-          ]
+            5,
+            6,
+            13.0,
+            7.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            2.0,
-            0.375
-          ]
+            2,
+            5,
+            10.0,
+            6.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.375
-          ]
+            3,
+            9,
+            3.25,
+            10.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.375
-          ]
+            11,
+            9,
+            11.25,
+            10.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            2.0,
-            0.0625
-          ]
+            1,
+            0,
+            9.0,
+            0.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            2.0,
-            0.0625
-          ]
+            3,
+            9,
+            11.0,
+            9.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -1386,58 +1504,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.1875
-          ]
+            2,
+            15,
+            9.5,
+            15.75
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.1875
-          ]
+            2,
+            2,
+            9.5,
+            2.75
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.1875
-          ]
+            2,
+            0,
+            2.25,
+            0.75
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.1875
-          ]
+            10,
+            6,
+            10.25,
+            6.75
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.0625
-          ]
+            8,
+            15,
+            15.5,
+            15.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.0625
-          ]
+            2,
+            15,
+            9.5,
+            15.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -1455,58 +1579,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08750000000000002,
-            8.4
-          ]
+            10,
+            4,
+            10.35,
+            5.600000000000001
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08750000000000002,
-            8.4
-          ]
+            3,
+            4,
+            3.35,
+            5.600000000000001
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            9,
+            4,
+            9.3,
+            5.600000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            11,
+            1,
+            11.3,
+            2.6000000000000014
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08750000000000002,
-            8.075
-          ]
+            14,
+            3,
+            14.35,
+            3.3000000000000007
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08750000000000002,
-            8.075
-          ]
+            15,
+            5,
+            15.35,
+            5.300000000000001
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -1533,58 +1663,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            14,
+            4,
+            14.35,
+            5.600000000000001
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            3,
+            10,
+            3.3499999999999996,
+            11.600000000000001
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            2,
+            2,
+            2.3000000000000007,
+            3.6000000000000014
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            9,
+            3,
+            9.3,
+            4.600000000000001
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            9,
+            7,
+            9.35,
+            7.300000000000001
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            15,
+            15,
+            15.35,
+            15.3
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -1611,58 +1747,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            0,
+            1,
+            0.34999999999999964,
+            2.6000000000000014
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            12,
+            6,
+            12.35,
+            7.600000000000001
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            1,
+            3,
+            1.3000000000000007,
+            4.600000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            7,
+            12,
+            7.300000000000001,
+            13.600000000000001
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            1,
+            12,
+            1.3499999999999996,
+            12.3
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            14,
+            2,
+            14.35,
+            2.3000000000000007
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -1689,58 +1831,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            3,
+            11,
+            3.3499999999999996,
+            12.600000000000001
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            3,
+            5,
+            3.3499999999999996,
+            6.600000000000001
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            7,
+            9,
+            7.300000000000001,
+            10.600000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            11,
+            1,
+            11.3,
+            2.6000000000000014
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            14,
+            5,
+            14.35,
+            5.300000000000001
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            2,
+            13,
+            2.3499999999999996,
+            13.3
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -1767,58 +1915,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.20000000000000018
-          ]
+            15,
+            10,
+            15.45,
+            10.8
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.20000000000000018
-          ]
+            6,
+            4,
+            6.449999999999999,
+            4.800000000000001
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.20000000000000018
-          ]
+            15,
+            4,
+            15.25,
+            4.800000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.20000000000000018
-          ]
+            13,
+            13,
+            13.25,
+            13.8
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.0625
-          ]
+            12,
+            8,
+            12.45,
+            8.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.0625
-          ]
+            6,
+            11,
+            6.449999999999999,
+            11.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -1836,58 +1990,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.20000000000000018
-          ]
+            14,
+            5,
+            14.45,
+            5.800000000000001
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.20000000000000018
-          ]
+            13,
+            3,
+            13.45,
+            3.8000000000000007
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.20000000000000018
-          ]
+            6,
+            8,
+            6.25,
+            8.8
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.20000000000000018
-          ]
+            5,
+            4,
+            5.25,
+            4.800000000000001
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.0625
-          ]
+            14,
+            6,
+            14.45,
+            6.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.0625
-          ]
+            1,
+            12,
+            1.4499999999999993,
+            12.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -1905,58 +2065,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            8,
+            12,
+            10.0,
+            12.15
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            5,
+            14,
+            7.0,
+            14.15
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.03750000000000009,
-            0.03750000000000009
-          ]
+            6,
+            14,
+            6.15,
+            14.15
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.03750000000000009,
-            0.03750000000000009
-          ]
+            13,
+            15,
+            13.15,
+            15.15
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            10,
+            15,
+            12.0,
+            15.15
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            13,
+            15,
+            15.0,
+            15.15
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -1983,58 +2149,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            6,
+            0,
+            8.0,
+            0.14999999999999858
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            9,
+            13,
+            11.0,
+            13.149999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.03750000000000009,
-            0.037499999999999645
-          ]
+            3,
+            5,
+            3.1500000000000004,
+            5.149999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.03750000000000009,
-            0.037499999999999645
-          ]
+            4,
+            9,
+            4.15,
+            9.149999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            10,
+            2,
+            12.0,
+            2.1500000000000004
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            10,
+            2,
+            12.0,
+            2.1500000000000004
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -2061,58 +2233,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            3,
+            9,
+            5.0,
+            9.149999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            6,
+            14,
+            8.0,
+            14.149999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.03750000000000009,
-            0.037499999999999645
-          ]
+            4,
+            10,
+            4.15,
+            10.149999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.03750000000000009,
-            0.037499999999999645
-          ]
+            12,
+            15,
+            12.15,
+            15.149999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            10,
+            6,
+            12.0,
+            6.15
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            8,
+            12,
+            10.0,
+            12.15
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -2139,58 +2317,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            7,
+            0,
+            9.0,
+            0.14999999999999858
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            4,
+            3,
+            6.0,
+            3.1499999999999986
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.03750000000000009,
-            0.037499999999999645
-          ]
+            6,
+            0,
+            6.15,
+            0.14999999999999858
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.03750000000000009,
-            0.037499999999999645
-          ]
+            5,
+            3,
+            5.15,
+            3.1499999999999986
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            7,
+            8,
+            9.0,
+            8.15
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            10,
+            3,
+            12.0,
+            3.1500000000000004
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -2217,58 +2401,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.4999999999999999,
-            0.037499999999999645
-          ]
+            0,
+            7,
+            1.9999999999999996,
+            7.149999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.4999999999999999,
-            0.037499999999999645
-          ]
+            0,
+            1,
+            1.9999999999999996,
+            1.1499999999999986
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.03750000000000009,
-            0.037499999999999645
-          ]
+            10,
+            4,
+            10.15,
+            4.149999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.03750000000000009,
-            0.037499999999999645
-          ]
+            3,
+            3,
+            3.1500000000000004,
+            3.1499999999999986
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.4999999999999999,
-            0.03750000000000009
-          ]
+            12,
+            13,
+            14.0,
+            13.15
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.4999999999999999,
-            0.03750000000000009
-          ]
+            10,
+            10,
+            12.0,
+            10.15
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -2295,58 +2485,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            2.0,
-            0.375
-          ]
+            4,
+            7,
+            12.0,
+            8.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            2.0,
-            0.375
-          ]
+            7,
+            2,
+            15.0,
+            3.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.375
-          ]
+            9,
+            5,
+            9.25,
+            6.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.375
-          ]
+            15,
+            7,
+            15.25,
+            8.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            2.0,
-            0.0625
-          ]
+            4,
+            0,
+            12.0,
+            0.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            2.0,
-            0.0625
-          ]
+            1,
+            6,
+            9.0,
+            6.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -2364,58 +2560,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.1875
-          ]
+            3,
+            12,
+            10.5,
+            12.75
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.1875
-          ]
+            4,
+            0,
+            11.5,
+            0.75
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.1875
-          ]
+            2,
+            9,
+            2.25,
+            9.75
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.1875
-          ]
+            8,
+            15,
+            8.25,
+            15.75
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.0625
-          ]
+            4,
+            14,
+            11.5,
+            14.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.0625
-          ]
+            1,
+            8,
+            8.5,
+            8.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -2433,58 +2635,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08750000000000002,
-            8.4
-          ]
+            9,
+            4,
+            9.35,
+            5.600000000000001
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08750000000000002,
-            8.4
-          ]
+            15,
+            12,
+            15.35,
+            13.600000000000001
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            2,
+            9,
+            2.3000000000000007,
+            10.600000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            11,
+            12,
+            11.3,
+            13.600000000000001
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08750000000000002,
-            8.075
-          ]
+            0,
+            13,
+            0.3500000000000001,
+            13.3
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08750000000000002,
-            8.075
-          ]
+            5,
+            10,
+            5.35,
+            10.3
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -2511,58 +2719,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            0,
+            11,
+            0.34999999999999964,
+            12.600000000000001
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            11,
+            5,
+            11.35,
+            6.600000000000001
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            12,
+            6,
+            12.3,
+            7.600000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            3,
+            7,
+            3.3000000000000007,
+            8.600000000000001
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            7,
+            4,
+            7.35,
+            4.300000000000001
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            11,
+            6,
+            11.35,
+            6.300000000000001
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -2589,58 +2803,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            5,
+            10,
+            5.35,
+            11.600000000000001
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            10,
+            13,
+            10.35,
+            14.600000000000001
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            7,
+            11,
+            7.300000000000001,
+            12.600000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            5,
+            8,
+            5.300000000000001,
+            9.600000000000001
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            0,
+            11,
+            0.34999999999999964,
+            11.3
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            11,
+            5,
+            11.35,
+            5.300000000000001
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -2667,58 +2887,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            5,
+            7,
+            5.35,
+            8.600000000000001
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.4
-          ]
+            14,
+            0,
+            14.35,
+            1.6000000000000014
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            4,
+            12,
+            4.300000000000001,
+            13.600000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.4
-          ]
+            9,
+            8,
+            9.3,
+            9.600000000000001
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            4,
+            2,
+            4.35,
+            2.3000000000000007
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.08749999999999991,
-            8.075
-          ]
+            5,
+            8,
+            5.35,
+            8.3
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -2745,58 +2971,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.20000000000000018
-          ]
+            7,
+            15,
+            7.449999999999999,
+            15.8
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.20000000000000018
-          ]
+            13,
+            14,
+            13.45,
+            14.8
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.20000000000000018
-          ]
+            14,
+            0,
+            14.25,
+            0.8000000000000007
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.20000000000000018
-          ]
+            3,
+            4,
+            3.25,
+            4.800000000000001
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.0625
-          ]
+            9,
+            9,
+            9.45,
+            9.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.0625
-          ]
+            3,
+            9,
+            3.4499999999999993,
+            9.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -2814,58 +3046,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.20000000000000018
-          ]
+            2,
+            9,
+            2.4499999999999993,
+            9.8
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.20000000000000018
-          ]
+            8,
+            11,
+            8.45,
+            11.8
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.20000000000000018
-          ]
+            12,
+            8,
+            12.25,
+            8.8
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.20000000000000018
-          ]
+            15,
+            12,
+            15.25,
+            12.8
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.0625
-          ]
+            2,
+            9,
+            2.4499999999999993,
+            9.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_diamond_block",
           "uv": [
-            8.0,
-            0.0,
-            8.1125,
-            0.0625
-          ]
+            2,
+            4,
+            2.4499999999999993,
+            4.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -2883,58 +3121,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            0,
+            12,
+            2.0,
+            12.15
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.03750000000000009
-          ]
+            12,
+            14,
+            14.0,
+            14.15
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.037499999999999645,
-            0.03750000000000009
-          ]
+            5,
+            1,
+            5.149999999999999,
+            1.1500000000000004
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.037499999999999645,
-            0.03750000000000009
-          ]
+            13,
+            2,
+            13.149999999999999,
+            2.1500000000000004
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            0,
+            0,
+            2.0,
+            0.14999999999999858
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            6,
+            4,
+            8.0,
+            4.149999999999999
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -2961,58 +3205,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            7,
+            1,
+            9.0,
+            1.1499999999999986
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            0,
+            14,
+            2.0,
+            14.149999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.037499999999999645,
-            0.037499999999999645
-          ]
+            10,
+            15,
+            10.149999999999999,
+            15.149999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.037499999999999645,
-            0.037499999999999645
-          ]
+            12,
+            14,
+            12.149999999999999,
+            14.149999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            1,
+            8,
+            3.0,
+            8.149999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            2,
+            8,
+            4.0,
+            8.149999999999999
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -3039,58 +3289,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            8,
+            14,
+            10.0,
+            14.149999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            11,
+            14,
+            13.0,
+            14.149999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.037499999999999645,
-            0.037499999999999645
-          ]
+            13,
+            13,
+            13.149999999999999,
+            13.149999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.037499999999999645,
-            0.037499999999999645
-          ]
+            0,
+            6,
+            0.14999999999999858,
+            6.149999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            6,
+            4,
+            8.0,
+            4.149999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            1,
+            15,
+            3.0,
+            15.149999999999999
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -3117,58 +3373,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            11,
+            15,
+            13.0,
+            15.149999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            2,
+            2,
+            4.0,
+            2.1499999999999986
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.037499999999999645,
-            0.037499999999999645
-          ]
+            7,
+            3,
+            7.149999999999999,
+            3.1499999999999986
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.037499999999999645,
-            0.037499999999999645
-          ]
+            13,
+            6,
+            13.149999999999999,
+            6.149999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            3,
+            6,
+            5.0,
+            6.149999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.5,
-            0.037499999999999645
-          ]
+            4,
+            1,
+            6.0,
+            1.1499999999999986
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -3195,58 +3457,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.4999999999999999,
-            0.037499999999999645
-          ]
+            6,
+            12,
+            8.0,
+            12.149999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.4999999999999999,
-            0.037499999999999645
-          ]
+            10,
+            11,
+            12.0,
+            11.149999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.037499999999999645,
-            0.037499999999999645
-          ]
+            3,
+            14,
+            3.1499999999999986,
+            14.149999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.037499999999999645,
-            0.037499999999999645
-          ]
+            4,
+            0,
+            4.149999999999999,
+            0.14999999999999858
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.4999999999999999,
-            0.037499999999999645
-          ]
+            13,
+            6,
+            15.0,
+            6.149999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.4999999999999999,
-            0.037499999999999645
-          ]
+            2,
+            11,
+            3.9999999999999996,
+            11.149999999999999
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -3273,58 +3541,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            9,
+            7,
+            9.5,
+            7.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            13,
+            13,
+            13.5,
+            13.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            5,
+            2,
+            5.52,
+            2.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            15,
+            13,
+            15.52,
+            13.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            15,
+            7,
+            15.5,
+            7.52
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            12,
+            1,
+            12.5,
+            1.5199999999999996
+          ],
+          "rotation": 0
         }
       }
     },
@@ -3342,58 +3616,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            3,
+            13,
+            3.5,
+            13.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            7,
+            0,
+            7.5,
+            0.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            12,
+            8,
+            12.52,
+            8.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            0,
+            6,
+            0.5199999999999996,
+            6.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            11,
+            13,
+            11.5,
+            13.52
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            0,
+            9,
+            0.5,
+            9.52
+          ],
+          "rotation": 0
         }
       }
     },
@@ -3411,58 +3691,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            4,
+            10,
+            4.5,
+            10.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            7,
+            3,
+            7.5,
+            3.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            9,
+            7,
+            9.52,
+            7.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            14,
+            2,
+            14.52,
+            2.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            2,
+            8,
+            2.5,
+            8.52
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            1,
+            6,
+            1.5,
+            6.52
+          ],
+          "rotation": 0
         }
       }
     },
@@ -3480,58 +3766,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            10,
+            5,
+            10.5,
+            5.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            6,
+            0,
+            6.5,
+            0.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            5,
+            0,
+            5.52,
+            0.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            9,
+            7,
+            9.52,
+            7.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            3,
+            13,
+            3.5,
+            13.52
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            5,
+            13,
+            5.5,
+            13.52
+          ],
+          "rotation": 0
         }
       }
     },
@@ -3549,58 +3841,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            3,
+            8,
+            3.5,
+            8.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            7,
+            3,
+            7.5,
+            3.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            9,
+            0,
+            9.52,
+            0.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            6,
+            2,
+            6.52,
+            2.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            4,
+            1,
+            4.5,
+            1.5199999999999996
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            1,
+            15,
+            1.5,
+            15.52
+          ],
+          "rotation": 0
         }
       }
     },
@@ -3618,58 +3916,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            7,
+            3,
+            7.5,
+            3.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            0,
+            6,
+            0.5,
+            6.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            3,
+            12,
+            3.5199999999999996,
+            12.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            1,
+            3,
+            1.5199999999999996,
+            3.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            14,
+            9,
+            14.5,
+            9.52
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            7,
+            15,
+            7.5,
+            15.52
+          ],
+          "rotation": 0
         }
       }
     },
@@ -3687,58 +3991,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            2,
+            8,
+            2.5,
+            8.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            0,
+            4,
+            0.5,
+            4.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            10,
+            1,
+            10.52,
+            1.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            15,
+            9,
+            15.52,
+            9.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            0,
+            14,
+            0.5,
+            14.52
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            13,
+            7,
+            13.5,
+            7.52
+          ],
+          "rotation": 0
         }
       }
     },
@@ -3756,58 +4066,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            14,
+            9,
+            14.5,
+            9.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            4,
+            3,
+            4.5,
+            3.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            12,
+            7,
+            12.52,
+            7.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            9,
+            1,
+            9.52,
+            1.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            1,
+            4,
+            1.5,
+            4.52
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            10,
+            8,
+            10.5,
+            8.52
+          ],
+          "rotation": 0
         }
       }
     },
@@ -3825,58 +4141,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000001,
-            8.075
-          ]
+            13,
+            6,
+            13.3,
+            6.300000000000001
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000001,
-            8.075
-          ]
+            1,
+            0,
+            1.3,
+            0.3000000000000007
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            5,
+            6,
+            5.219999999999999,
+            6.300000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            0,
+            15,
+            0.21999999999999886,
+            15.3
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000001,
-            8.05
-          ]
+            8,
+            15,
+            8.3,
+            15.219999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000001,
-            8.05
-          ]
+            2,
+            0,
+            2.3,
+            0.21999999999999886
+          ],
+          "rotation": 0
         }
       }
     },
@@ -3894,58 +4216,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            4,
+            2,
+            4.300000000000001,
+            2.299999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            9,
+            15,
+            9.3,
+            15.299999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            15,
+            2,
+            15.219999999999999,
+            2.299999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            9,
+            0,
+            9.219999999999999,
+            0.29999999999999893
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.05
-          ]
+            9,
+            8,
+            9.3,
+            8.219999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.05
-          ]
+            1,
+            14,
+            1.3000000000000007,
+            14.219999999999999
+          ],
+          "rotation": 0
         }
       }
     },
@@ -3963,58 +4291,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            2,
+            10,
+            2.3000000000000007,
+            10.3
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            6,
+            9,
+            6.300000000000001,
+            9.3
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            0,
+            14,
+            0.21999999999999886,
+            14.3
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            6,
+            3,
+            6.219999999999999,
+            3.3000000000000007
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.05
-          ]
+            11,
+            1,
+            11.3,
+            1.2199999999999989
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.05
-          ]
+            13,
+            10,
+            13.3,
+            10.219999999999999
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4032,58 +4366,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.075
-          ]
+            6,
+            0,
+            6.3,
+            0.3000000000000007
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.075
-          ]
+            6,
+            11,
+            6.3,
+            11.3
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            1,
+            14,
+            1.1999999999999993,
+            14.3
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            10,
+            11,
+            10.2,
+            11.3
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.05
-          ]
+            7,
+            12,
+            7.3,
+            12.2
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.05
-          ]
+            10,
+            14,
+            10.3,
+            14.2
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4101,58 +4441,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.075
-          ]
+            12,
+            14,
+            12.3,
+            14.3
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.075
-          ]
+            6,
+            3,
+            6.3,
+            3.3000000000000007
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            2,
+            7,
+            2.1999999999999993,
+            7.300000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            12,
+            1,
+            12.2,
+            1.3000000000000007
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.05
-          ]
+            4,
+            2,
+            4.3,
+            2.1999999999999993
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.05
-          ]
+            1,
+            4,
+            1.2999999999999998,
+            4.199999999999999
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4170,58 +4516,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            9,
+            4,
+            9.3,
+            4.449999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            11,
+            7,
+            11.3,
+            7.449999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            14,
+            6,
+            14.25,
+            6.449999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            4,
+            6,
+            4.25,
+            6.449999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            14,
+            14,
+            14.3,
+            14.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            8,
+            9,
+            8.3,
+            9.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4239,58 +4591,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            10,
+            4,
+            10.3,
+            4.449999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            8,
+            2,
+            8.3,
+            2.4499999999999993
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            2,
+            2,
+            2.25,
+            2.4499999999999993
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            1,
+            11,
+            1.25,
+            11.45
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            1,
+            5,
+            1.3000000000000007,
+            5.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            7,
+            14,
+            7.300000000000001,
+            14.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4308,58 +4666,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            15,
+            11,
+            15.3,
+            11.45
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            1,
+            6,
+            1.3000000000000007,
+            6.449999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            5,
+            1,
+            5.25,
+            1.4499999999999993
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            10,
+            10,
+            10.25,
+            10.45
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            14,
+            8,
+            14.3,
+            8.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            12,
+            15,
+            12.3,
+            15.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4377,58 +4741,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            13,
+            10,
+            13.3,
+            10.45
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            4,
+            5,
+            4.300000000000001,
+            5.449999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            0,
+            12,
+            0.25,
+            12.45
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            7,
+            7,
+            7.25,
+            7.449999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            5,
+            6,
+            5.300000000000001,
+            6.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            8,
+            0,
+            8.3,
+            0.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4446,58 +4816,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000001,
-            8.075
-          ]
+            10,
+            2,
+            10.3,
+            2.3000000000000007
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000001,
-            8.075
-          ]
+            0,
+            7,
+            0.30000000000000004,
+            7.300000000000001
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            13,
+            13,
+            13.219999999999999,
+            13.3
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            11,
+            12,
+            11.219999999999999,
+            12.3
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000001,
-            8.05
-          ]
+            3,
+            8,
+            3.3,
+            8.219999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000001,
-            8.05
-          ]
+            8,
+            7,
+            8.3,
+            7.219999999999999
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4515,58 +4891,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            15,
+            9,
+            15.3,
+            9.299999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            15,
+            1,
+            15.3,
+            1.299999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            7,
+            1,
+            7.219999999999999,
+            1.299999999999999
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            3,
+            15,
+            3.219999999999999,
+            15.299999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.05
-          ]
+            10,
+            7,
+            10.3,
+            7.219999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.05
-          ]
+            2,
+            11,
+            2.3000000000000007,
+            11.219999999999999
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4584,58 +4966,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            14,
+            8,
+            14.3,
+            8.3
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            0,
+            8,
+            0.3000000000000007,
+            8.3
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            1,
+            5,
+            1.2199999999999989,
+            5.300000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            6,
+            13,
+            6.219999999999999,
+            13.3
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.05
-          ]
+            10,
+            9,
+            10.3,
+            9.219999999999999
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.05
-          ]
+            12,
+            6,
+            12.3,
+            6.219999999999999
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4653,58 +5041,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.075
-          ]
+            8,
+            11,
+            8.3,
+            11.3
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.075
-          ]
+            6,
+            12,
+            6.3,
+            12.3
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            4,
+            6,
+            4.199999999999999,
+            6.300000000000001
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            11,
+            6,
+            11.2,
+            6.300000000000001
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.05
-          ]
+            9,
+            9,
+            9.3,
+            9.2
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.05
-          ]
+            15,
+            1,
+            15.3,
+            1.1999999999999993
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4722,58 +5116,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.075
-          ]
+            15,
+            4,
+            15.3,
+            4.300000000000001
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.075
-          ]
+            13,
+            15,
+            13.3,
+            15.3
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            12,
+            2,
+            12.2,
+            2.3000000000000007
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.04999999999999982,
-            8.075
-          ]
+            7,
+            14,
+            7.199999999999999,
+            14.3
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.05
-          ]
+            4,
+            2,
+            4.3,
+            2.1999999999999993
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999996,
-            8.05
-          ]
+            5,
+            13,
+            5.3,
+            13.2
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4791,58 +5191,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            9,
+            13,
+            9.3,
+            13.45
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            9,
+            6,
+            9.3,
+            6.449999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            5,
+            14,
+            5.25,
+            14.45
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            11,
+            10,
+            11.25,
+            10.45
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            13,
+            9,
+            13.3,
+            9.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            0,
+            13,
+            0.3000000000000007,
+            13.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4860,58 +5266,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            8,
+            9,
+            8.3,
+            9.45
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            6,
+            14,
+            6.300000000000001,
+            14.45
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            10,
+            1,
+            10.25,
+            1.4499999999999993
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            0,
+            2,
+            0.25,
+            2.4499999999999993
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            1,
+            11,
+            1.3000000000000007,
+            11.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            9,
+            15,
+            9.3,
+            15.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4929,58 +5341,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            15,
+            4,
+            15.3,
+            4.449999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            9,
+            10,
+            9.3,
+            10.45
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            4,
+            9,
+            4.25,
+            9.45
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            0,
+            1,
+            0.25,
+            1.4499999999999993
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            10,
+            2,
+            10.3,
+            2.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            10,
+            0,
+            10.3,
+            0.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -4998,58 +5416,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            1,
+            7,
+            1.3000000000000007,
+            7.449999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.11249999999999982
-          ]
+            1,
+            2,
+            1.3000000000000007,
+            2.4499999999999993
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            4,
+            2,
+            4.25,
+            2.4499999999999993
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.0625,
-            0.11249999999999982
-          ]
+            5,
+            0,
+            5.25,
+            0.4499999999999993
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            15,
+            13,
+            15.3,
+            13.25
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            0.0,
-            0.07500000000000018,
-            0.0625
-          ]
+            1,
+            11,
+            1.3000000000000007,
+            11.25
+          ],
+          "rotation": 0
         }
       }
     },
@@ -5067,58 +5491,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            1.75,
-            8.0625
-          ]
+            0,
+            4,
+            7.0,
+            4.25
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            1.75,
-            8.0625
-          ]
+            8,
+            0,
+            15.0,
+            0.25
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.25,
-            8.0625
-          ]
+            14,
+            3,
+            15.0,
+            3.25
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.25,
-            8.0625
-          ]
+            11,
+            2,
+            12.0,
+            2.25
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            1.75,
-            8.25
-          ]
+            0,
+            0,
+            7.0,
+            1.0
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            1.75,
-            8.25
-          ]
+            7,
+            14,
+            14.0,
+            15.0
+          ],
+          "rotation": 0
         }
       }
     },
@@ -5136,58 +5566,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.5
-          ]
+            6,
+            14,
+            6.25,
+            16.0
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.5
-          ]
+            8,
+            5,
+            8.25,
+            7.0
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            8.0,
-            0.0,
-            8.5,
-            0.5
-          ]
+            13,
+            14,
+            15.0,
+            16.0
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            8.0,
-            0.0,
-            8.5,
-            0.5
-          ]
+            5,
+            10,
+            7.0,
+            12.0
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.5
-          ]
+            13,
+            14,
+            13.25,
+            16.0
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0625,
-            0.5
-          ]
+            14,
+            2,
+            14.25,
+            4.0
+          ],
+          "rotation": 0
         }
       }
     },
@@ -5205,58 +5641,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.04999999999999982
-          ]
+            1,
+            4,
+            8.54,
+            4.199999999999999
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.04999999999999982
-          ]
+            4,
+            10,
+            11.54,
+            10.2
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0375,
-            0.04999999999999982
-          ]
+            8,
+            15,
+            8.17,
+            15.2
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0375,
-            0.04999999999999982
-          ]
+            10,
+            4,
+            10.17,
+            4.199999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.03750000000000009
-          ]
+            6,
+            9,
+            13.54,
+            9.17
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.03750000000000009
-          ]
+            8,
+            5,
+            15.54,
+            5.17
+          ],
+          "rotation": 0
         }
       }
     },
@@ -5274,58 +5716,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            14,
+            14,
+            14.3,
+            15.25
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            8,
+            13,
+            8.3,
+            14.25
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            5,
+            11,
+            5.300000000000001,
+            12.25
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            7,
+            12,
+            7.300000000000001,
+            13.25
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            14,
+            5,
+            14.3,
+            5.300000000000001
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            3,
+            11,
+            3.3000000000000007,
+            11.3
+          ],
+          "rotation": 0
         }
       }
     },
@@ -5343,58 +5791,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            7,
+            9,
+            7.300000000000001,
+            10.25
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            3,
+            5,
+            3.3000000000000007,
+            6.25
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            9,
+            2,
+            9.3,
+            3.25
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            0,
+            5,
+            0.3000000000000007,
+            6.25
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            4,
+            3,
+            4.300000000000001,
+            3.3000000000000007
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            15,
+            7,
+            15.3,
+            7.300000000000001
+          ],
+          "rotation": 0
         }
       }
     },
@@ -5412,58 +5866,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.04999999999999982
-          ]
+            3,
+            11,
+            10.54,
+            11.2
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.04999999999999982
-          ]
+            4,
+            4,
+            11.54,
+            4.199999999999999
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0375,
-            0.04999999999999982
-          ]
+            12,
+            13,
+            12.169999999999998,
+            13.2
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            8.0375,
-            0.04999999999999982
-          ]
+            4,
+            6,
+            4.169999999999998,
+            6.199999999999999
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.037499999999999645
-          ]
+            8,
+            15,
+            15.54,
+            15.169999999999998
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            8.0,
-            0.0,
-            9.875,
-            0.037499999999999645
-          ]
+            1,
+            4,
+            8.54,
+            4.169999999999998
+          ],
+          "rotation": 0
         }
       }
     },
@@ -5481,58 +5941,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            13,
+            7,
+            13.3,
+            8.25
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            5,
+            12,
+            5.300000000000001,
+            13.25
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            4,
+            8,
+            4.300000000000001,
+            9.25
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            9,
+            2,
+            9.3,
+            3.25
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            15,
+            6,
+            15.3,
+            6.300000000000001
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            6,
+            8,
+            6.300000000000001,
+            8.3
+          ],
+          "rotation": 0
         }
       }
     },
@@ -5550,58 +6016,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            5,
+            5,
+            5.300000000000001,
+            6.25
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            4,
+            13,
+            4.300000000000001,
+            14.25
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            0,
+            3,
+            0.3000000000000007,
+            4.25
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.3125
-          ]
+            15,
+            11,
+            15.3,
+            12.25
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            11,
+            6,
+            11.3,
+            6.300000000000001
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_netherite_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07500000000000018,
-            8.075
-          ]
+            4,
+            10,
+            4.300000000000001,
+            10.3
+          ],
+          "rotation": 0
         }
       }
     },
@@ -5619,58 +6091,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            2,
+            2,
+            2.299999999999997,
+            2.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            14,
+            15,
+            14.299999999999997,
+            15.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            10,
+            12,
+            10.5,
+            12.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            0,
+            0,
+            0.5,
+            0.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            12,
+            15,
+            12.299999999999997,
+            15.5
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            5,
+            0,
+            5.299999999999997,
+            0.5
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -5697,58 +6175,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            5,
+            7,
+            5.299999999999997,
+            7.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            12,
+            3,
+            12.299999999999997,
+            3.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            11,
+            5,
+            11.5,
+            5.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            6,
+            12,
+            6.5,
+            12.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            6,
+            2,
+            6.299999999999997,
+            2.5
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            8,
+            11,
+            8.299999999999997,
+            11.5
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -5775,58 +6259,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            15,
+            8,
+            15.299999999999997,
+            8.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            13,
+            12,
+            13.299999999999997,
+            12.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            10,
+            0,
+            10.5,
+            0.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            0,
+            3,
+            0.5,
+            3.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            13,
+            7,
+            13.299999999999997,
+            7.5
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            11,
+            11,
+            11.299999999999997,
+            11.5
+          ],
+          "rotation": 0
         }
       },
       "rotation": {
@@ -5853,58 +6343,64 @@
       ],
       "faces": {
         "north": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            3,
+            12,
+            3.299999999999997,
+            12.5
+          ],
+          "rotation": 0
         },
         "south": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            8,
+            11,
+            8.299999999999997,
+            11.5
+          ],
+          "rotation": 0
         },
         "east": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            8,
+            3,
+            8.5,
+            3.5
+          ],
+          "rotation": 0
         },
         "west": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.125,
-            8.125
-          ]
+            1,
+            11,
+            1.5,
+            11.5
+          ],
+          "rotation": 0
         },
         "up": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            5,
+            0,
+            5.299999999999997,
+            0.5
+          ],
+          "rotation": 0
         },
         "down": {
-          "texture": "#0",
+          "texture": "#material_iron_block",
           "uv": [
-            0.0,
-            8.0,
-            0.07499999999999929,
-            8.125
-          ]
+            3,
+            12,
+            3.299999999999997,
+            12.5
+          ],
+          "rotation": 0
         }
       },
       "rotation": {

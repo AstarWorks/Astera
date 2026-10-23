@@ -120,13 +120,10 @@ internal fun CoreWiringState.wireHudAndWorld() {
     schematicLoader = InMemorySchematicLoader()
     services.register<IBlockStateGateway>(blockStateGateway, priority = 0)
     services.register<ISchematicLoader>(schematicLoader, priority = 0)
-    // Wave 6a-N3 (ADR-0159): InMemoryStructurePaste — Phase 1 stub for
-    // IStructurePaste. Wave 6b+ FAWE adapter (`PaperStructurePaste`)
-    // will overlay at priority 100; until then this in-memory delta
-    // capture satisfies anomaly-spawned-structure use cases
-    // (paste-then-undo round trip with no real world I/O).
-    services.register<com.astarworks.astera.core.application.port.outbound.IStructurePaste>(
-        com.astarworks.astera.core.application.service.InMemoryStructurePaste(),
+    // ADR-0246: stages with an arena layout are built by the Paper adapter (priority 100);
+    // hosts without blocks (simulator, tests) keep this no-op.
+    services.register<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(
+        com.astarworks.astera.core.application.service.NoopArenaBuilder(),
         priority = 0,
     )
 

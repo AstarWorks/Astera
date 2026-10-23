@@ -1,0 +1,16 @@
+{
+  "originalElements": 96,
+  "finalElements": 109,
+  "splitOriginalElements": 13,
+  "geometry": "Every original cuboid retains its envelope, volume, name and rotation; Y splits only.",
+  "displayUnchanged": true,
+  "texelsPerLocalUnit": [
+    0.9999999999999963,
+    1.0000000000000093
+  ],
+  "anvilOpaqueU": [
+    3,
+    13
+  ],
+  "validation": []
+}

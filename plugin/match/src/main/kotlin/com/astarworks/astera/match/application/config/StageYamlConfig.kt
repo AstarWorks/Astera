@@ -4,6 +4,12 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.nexus.NexusPillarTier
+import com.astarworks.astera.core.domain.stage.ArenaBridge
+import com.astarworks.astera.core.domain.stage.ArenaIsland
+import com.astarworks.astera.core.domain.stage.ArenaIslandKind
+import com.astarworks.astera.core.domain.stage.ArenaLandmark
+import com.astarworks.astera.core.domain.stage.ArenaLandmarkKind
+import com.astarworks.astera.core.domain.stage.ArenaLayout
 import com.astarworks.astera.core.domain.stage.Region
 import com.astarworks.astera.core.domain.stage.StagePillar
 import com.astarworks.astera.core.domain.world.BlockType
@@ -26,12 +32,12 @@ import kotlinx.serialization.Serializable
  *     max: { x:  50.0, y: -30.0, z:  50.0 }
  * spawn_points: [...]     # see [SpawnPointYamlConfig]
  * pillars: [...]          # Annihilation pillar sites, see [PillarYamlConfig]
+ * layout: {...}           # sky-island block layout the server builds, see [ArenaLayoutYamlConfig] (ADR-0246)
  * ```
  *
  * `name` on a [RegionYamlConfig] is informational: other YAMLs reference areas
- * of a stage by it. WP9 decision: stages are hand-built in their world, so
- * `schematic` / `core` are not part of the schema (a strict decode rejects
- * them); they return only together with a consumer.
+ * of a stage by it. There is no schematic / `core` field: the geometry is the
+ * `layout`, built by the server (ADR-0246); a stage without one is hand-built.
  */
 @Serializable
 public data class StageYamlConfig(
@@ -41,6 +47,7 @@ public data class StageYamlConfig(
     public val regions: List<RegionYamlConfig> = emptyList(),
     @SerialName("spawn_points") public val spawnPoints: List<SpawnPointYamlConfig> = emptyList(),
     public val pillars: List<PillarYamlConfig> = emptyList(),
+    public val layout: ArenaLayoutYamlConfig? = null,
 ) {
     /**
      * Convert the parsed DTO into a domain [Stage]. Any kebab-case / i18n key
@@ -57,7 +64,96 @@ public data class StageYamlConfig(
             spawnPoints = spawnPoints.map { it.toDomain(worldId) },
             world = worldId,
             pillars = pillars.map { it.toDomain() },
+            layout = layout?.toDomain(),
         )
+    }
+}
+
+/**
+ * YAML-shaped DTO for a stage's `layout:` (ADR-0246): floating islands, bridges and decorated landmarks a
+ * Paper-side builder turns into blocks. Spawns, `core-*` / `wool-*` / ... regions and pillars stay on the stage
+ * and are decorated by the builder, so the anchors sit at exactly the built positions.
+ *
+ * ```yaml
+ * layout:
+ *   marker_version: 1        # bump to force a rebuild when the builder code changed the look
+ *   seed: 20261023
+ *   surface_y: 64            # top layer of every island; players stand at 65
+ *   kill_y: 30               # void-fall kill plane (default surface_y - 34)
+ *   islands:
+ *     - { id: red, kind: base, team: red, center: { x: -30, z: 0 }, radius: 12 }
+ *     - { id: center, kind: center, center: { x: 0, z: 0 }, radius: 10 }
+ *   bridges:
+ *     - { from: red, to: center, width: 3 }
+ *   landmarks:
+ *     - { kind: generator, x: 0, z: -26 }
+ * ```
+ */
+@Serializable
+public data class ArenaLayoutYamlConfig(
+    @SerialName("marker_version") public val markerVersion: Int = 1,
+    public val seed: Long,
+    @SerialName("surface_y") public val surfaceY: Int = 64,
+    @SerialName("kill_y") public val killY: Int? = null,
+    public val islands: List<ArenaIslandYamlConfig>,
+    public val bridges: List<ArenaBridgeYamlConfig> = emptyList(),
+    public val landmarks: List<ArenaLandmarkYamlConfig> = emptyList(),
+) {
+    public fun toDomain(): ArenaLayout = ArenaLayout(
+        markerVersion = markerVersion,
+        seed = seed,
+        surfaceY = surfaceY,
+        killY = killY ?: (surfaceY - ArenaLayout.DEFAULT_KILL_DEPTH),
+        islands = islands.map { it.toDomain() },
+        bridges = bridges.map { ArenaBridge(it.from, it.to, it.width) },
+        landmarks = landmarks.map { it.toDomain() },
+    )
+}
+
+@Serializable
+public data class ArenaIslandYamlConfig(
+    public val id: String,
+    public val kind: String,
+    public val center: ArenaXzYamlConfig,
+    public val radius: Double,
+    public val team: String? = null,
+    public val accent: String? = null,
+) {
+    public fun toDomain(): ArenaIsland = ArenaIsland(
+        id = id,
+        kind = parseKind(kind),
+        x = center.x,
+        z = center.z,
+        radius = radius,
+        team = team?.let { TeamId(it) },
+        accent = accent,
+    )
+
+    private fun parseKind(raw: String): ArenaIslandKind =
+        ArenaIslandKind.entries.firstOrNull { it.name.equals(raw.trim(), ignoreCase = true) }
+            ?: throw IllegalArgumentException("Unknown island kind '$raw'. Expected: ${ArenaIslandKind.entries.joinToString { it.name.lowercase() }}")
+}
+
+@Serializable
+public data class ArenaXzYamlConfig(public val x: Int, public val z: Int)
+
+@Serializable
+public data class ArenaBridgeYamlConfig(
+    public val from: String,
+    public val to: String,
+    public val width: Int = 3,
+)
+
+@Serializable
+public data class ArenaLandmarkYamlConfig(
+    public val kind: String,
+    public val x: Int,
+    public val z: Int,
+) {
+    public fun toDomain(): ArenaLandmark {
+        val parsed = ArenaLandmarkKind.entries.firstOrNull { it.name.equals(kind.trim(), ignoreCase = true) }
+            ?: throw IllegalArgumentException("Unknown landmark kind '$kind'. Expected: ${ArenaLandmarkKind.entries.joinToString { it.name.lowercase() }}")
+        return ArenaLandmark(parsed, x, z)
     }
 }
 

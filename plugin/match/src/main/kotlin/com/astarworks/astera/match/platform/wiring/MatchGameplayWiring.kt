@@ -195,7 +195,11 @@ internal object MatchGameplayWiring {
                 notifier = queueNotifier,
                 settings = crossServer,
                 waivers = services.get<com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers>(),
+                stages = stages,
+                worlds = worldGateway,
+                hud = queueHud,
             )
+            registrations += services.register<com.astarworks.astera.match.application.service.matchmaking.IArrivalSpawns>(receiver, priority = 0)
             receiver.start()
             env.shutdownHooks += { receiver.stop() }
             // A player who drops out of the running match is announced to the lobby, which sends them back
@@ -512,6 +516,9 @@ internal object MatchGameplayWiring {
         subscriptions += eventBus.subscribe(MatchStarted::class) { matchTally.onMatchStarted(it.matchId, it.modeKey.orEmpty()) }
         subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) {
             matchTally.onKill(it.victim, it.killer)
+        }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MobKilled::class) {
+            matchTally.onMobKill(it.killerId)
         }
         subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.AssistCredited::class) {
             matchTally.onAssist(it.player, it.victim)

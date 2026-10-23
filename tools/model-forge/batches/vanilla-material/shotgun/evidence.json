@@ -1,0 +1,36 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer, native main/offhand Xvfb screenshots without image editing. Shared astera-mc-client.lock held throughout launcher/capture. No standalone server, Docker, Gradle or tests.",
+  "item": "minecraft:iron_axe[minecraft:item_model=\"astera:shotgun\"]",
+  "resourcePack": "Minimal capture pack with exact authored model and native block references. No custom or vanilla PNG files.",
+  "modelElements": 127,
+  "sha256": {
+    "content/models/items/shotgun.model.json": "fb365e2f6a17b5d6e3bb4f00e76db04cf045dc2c62b9862c36d23963930e13b8",
+    "tools/model-forge/batches/vanilla-material/shotgun/after.png": "20657a3645c82529ed2d9dc0206c4bdc94326c8f228ea344561e0dc118cfa7ed",
+    "tools/model-forge/batches/vanilla-material/shotgun/angles.png": "6bed84f4f9e6a2a9151182e614a94a46c93407237b36384790b3307bc5bfb036",
+    "tools/model-forge/batches/vanilla-material/shotgun/before.png": "ad8e7f930fea2afdc6c706a09229e8265bf7d1099b29f2a52a5765570908c818",
+    "tools/model-forge/batches/vanilla-material/shotgun/client-offhand.png": "0099a7009a6df5c82816fce0a6bb6f30687694b0b93e715aad568b2f944d6bc2",
+    "tools/model-forge/batches/vanilla-material/shotgun/client.png": "e7bf7dd6bb12afd26e8d4068220141d14e7e3a69b5ed850b04a0a811708a129b",
+    "tools/model-forge/batches/vanilla-material/shotgun/contexts.png": "8aec6f6feb2f2f198b2ba871e161149e720abf185cbc189b66f89f44d0ce57d1",
+    "tools/model-forge/batches/vanilla-material/shotgun/inventory.png": "58bf0e463847229da5dc184e986f27333e3bc55567c19419e15ae146fdfb4b0c",
+    "tools/model-forge/batches/vanilla-material/shotgun/player-contexts.png": "97cb555b6a6472f2b173effb863b4f98971e4155e777587a8bda1d3fc0f843de"
+  },
+  "remainingRisks": [
+    "Production pack build and deployment deferred to manager.",
+    "Offline cameras and lighting differ from native first-person perspective.",
+    "Pre-existing overlaps and small facet separations retained.",
+    "Netherite is a close catalog substitute for blued steel, with broader panel markings."
+  ],
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": {
+      "overlap_aabb": 402,
+      "coplanar_contact_possible_zfight": 9,
+      "floating_components_aabb": 1
+    },
+    "allFaceTexelsPerLocalUnit": 1,
+    "displayTransformsUnchanged": true,
+    "deterministicReplay": true
+  }
+}
