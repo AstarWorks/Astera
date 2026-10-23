@@ -1,5 +1,5 @@
 # bastion-greatsword rig parts (sword local frame), delivered by limbus-modeler.
-# 20 parts, 7 distinct blocks: black_wool, gold_block, iron_block, lime_concrete, polished_blackstone, polished_deepslate, smooth_quartz.
+# 22 parts, 7 distinct blocks: black_wool, gold_block, iron_block, lime_concrete, polished_blackstone, polished_deepslate, smooth_quartz.
 # AXES (rig-local, pivot = grip centre = origin):
 #   blade LENGTH axis  = +Y (grip -> tip). grip end y=-0.225, tip y=2.545; total 2.770 block.
 #   EDGE axis          = +-X (the two cutting edges are the +X and -X sides; blade width 0.24 block along X).
@@ -25,6 +25,8 @@
 #  guard_2      polished_deepslate   [0.575, 0.0875, 0.0813] [0.0, 0.2875, 0.0]
 #  guard_cap_l  gold_block           [0.0225, 0.1, 0.0938] [0.2987, 0.2938, 0.0]
 #  guard_cap_r  gold_block           [0.0225, 0.1, 0.0938] [-0.2987, 0.2938, 0.0]
+#  guard_plate  gold_block           [0.2125, 0.0825, 0.1312] [0.0, 0.285, 0.0]   (gold face plates over guard_1; held model guard_plate_f/b)
+#  hilt_flare   gold_block           [0.35, 0.0875, 0.0562] [0.0, 0.3888, 0.0]    (gold collar + shoulder flares either side of the ricasso; held guard_collar/shoulder_flare_l/r)
 #  grip         black_wool           [0.1, 0.2625, 0.1] [0.0, 0.0563, 0.0]
 #  grip_collar  gold_block           [0.125, 0.0312, 0.125] [0.0, 0.2031, 0.0]
 #  pommel       polished_blackstone  [0.1562, 0.125, 0.1437] [0.0, -0.1625, 0.0]
@@ -46,6 +48,8 @@ parts:
   - { id: guard_2, block: polished_deepslate, offset: [0.0, 0.2875, 0.0], size: [0.575, 0.0875, 0.0813] }
   - { id: guard_cap_l, block: gold_block, offset: [0.2987, 0.2938, 0.0], size: [0.0225, 0.1, 0.0938] }
   - { id: guard_cap_r, block: gold_block, offset: [-0.2987, 0.2938, 0.0], size: [0.0225, 0.1, 0.0938] }
+  - { id: guard_plate, block: gold_block, offset: [0.0, 0.285, 0.0], size: [0.2125, 0.0825, 0.1312] }
+  - { id: hilt_flare, block: gold_block, offset: [0.0, 0.3888, 0.0], size: [0.35, 0.0875, 0.0562] }
   - { id: grip, block: black_wool, offset: [0.0, 0.0563, 0.0], size: [0.1, 0.2625, 0.1] }
   - { id: grip_collar, block: gold_block, offset: [0.0, 0.2031, 0.0], size: [0.125, 0.0312, 0.125] }
   - { id: pommel, block: polished_blackstone, offset: [0.0, -0.1625, 0.0], size: [0.1562, 0.125, 0.1437] }
