@@ -315,3 +315,22 @@ phases:
     duration_ticks:
       type: literal
       value: 61
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 7
+      angle_degrees:
+        type: literal
+        value: 80
+      max_count: 3
+    vfx_id: crimson-combo-floor-flare
+    snapshot_pose: true
+    delay_ticks:
+      type: literal
+      value: 116

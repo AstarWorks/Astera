@@ -375,3 +375,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Item-art generation, resource-pack build and contentLint passed. Dedicated pack reloaded SHA1 `245cb2747aab6317c25984936082365b43200fc9`; sprite and VFX runtime reloads succeeded.
 - Actual195-frame recording: maximum repeated run1, camera lateness2ms. Frame140 confirms smooth ellipses with bright cores. One-cast entity sampling768 observations peaks at59; ellipse stage uses4 planned displays. Evidence `build/limbus-review/round46/{captures,live-displays.json,astera.zip}`.
 - Still failed against original: static uniform rings instead of evolving streaks, floor glow absent, body/claw/chain shapes and form/input routing unfinished. Smooth sprite edges are partial progress, not a matching certification.
+
+### Round 47: ground-target flare
+
+- Source extra3 describes2–3 floor flares with thin rings from83.951–85.6s. Added a dedicated fixed-world six-display flare (two-sided red/cream star plus expanding ring), starting116 for34 ticks, using the cast-origin ground cone to select up to3 targets. Added visual effects only; damage count/amount unchanged because visual pulses alone do not prove additional hits.
+- ContentLint and runtime VFX/skill reloads passed. One-target actual195-frame capture, camera lateness2ms, repeated-frame maximum2. Frame140 confirms the flare on the target's feet, separate from the elevated caster. Whole-cast sampling769 observations peaks at59.
+- Failed fidelity review: insufficient light intensity, only one target validated; multi-target layout remains to film. Original moving ribbons, character/claw/chain form, input routing and actual hit semantics remain unfinished. Evidence `build/limbus-review/round47/{captures,live-displays.json}` and `data/runtime-review/crimson-floor-round47.json`.
