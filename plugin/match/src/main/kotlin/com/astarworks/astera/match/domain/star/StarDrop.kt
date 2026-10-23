@@ -20,4 +20,8 @@ public data class StarDrop(
     /** A kill burst cannot be taken back by its victim until [deniedUntilMillis] (wall clock). */
     val deniedTo: com.astarworks.astera.core.domain.player.PlayerId? = null,
     val deniedUntilMillis: Long = 0L,
+    /** Handle of the world thing showing this drop ([com.astarworks.astera.match.application.port.outbound.IStarDropWorld]); null in headless hosts. */
+    val entity: String? = null,
+    /** Not takeable before this wall-clock time (lets a kill burst be seen flying out). */
+    val readyAtMillis: Long = 0L,
 )

@@ -7,7 +7,7 @@ import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.match.adapter.paper.PaperBarrierGateway
 import com.astarworks.astera.match.adapter.paper.PaperItemPickupAdapter
 import com.astarworks.astera.match.adapter.paper.PaperMatchPlayerPositions
-import com.astarworks.astera.match.adapter.paper.PaperStarDropMarker
+import com.astarworks.astera.match.adapter.paper.PaperStarDropWorld
 import com.astarworks.astera.match.adapter.paper.PaperMatchWorldInputAdapter
 import com.astarworks.astera.match.adapter.paper.PaperPillarBlockListener
 import com.astarworks.astera.match.adapter.paper.spectator.PaperSpectator
@@ -42,7 +42,7 @@ internal object MatchPaperBindings {
         // F3-5: death cam + eliminated-team spectating use Bukkit spectator mode.
         spectator = { services -> PaperSpectator(plugin.server, services.getOrThrow<IScheduler>()) },
         playerPositions = { PaperMatchPlayerPositions(plugin.server) },
-        starDropMarker = { PaperStarDropMarker(plugin.server) },
+        starDropWorld = { PaperStarDropWorld(plugin) },
     )
 
     fun bind(plugin: JavaPlugin, ctx: WiringContext, wired: MatchWiringResult) {

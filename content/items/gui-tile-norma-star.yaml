@@ -1,0 +1,7 @@
+# Norma goal picker (match start / level-up): collect stars.
+
+id: gui-tile-norma-star
+material: NETHER_STAR
+name:
+  ja: "<gold><bold>★ スター目標</bold></gold>"
+  en: "<gold><bold>★ Star goal</bold></gold>"
