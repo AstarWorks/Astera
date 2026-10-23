@@ -478,3 +478,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Initial runtime load rejected duplicate keys; corrected before capture. First capture exposed second-flight timing error: element keys must be relative to spawn, not whole VFX time. Corrected and recaptured; keep rejected evidence separate.
 - Final77frames, camera5ms, repeated maximum1. HP200→188.192→182.288 in two steps about0.993s apart; critical damage means magnitude is not a reference match. Display sample peak43 across769 sequential observations.
 - Fidelity failed: fixed4m flight does not track arbitrary targets; linked trail/pose/model detail/light/camera and exact arrival versus damage remain incomplete. VfxTimeline also starts interpolation1tick after element spawn; account for this in timing review. Evidence build/limbus-review/round62, runtime-review/couture-patterning-round62.json.
+
+### Round 63: Patterning linked trail and interpolation timing
+
+- Inspected sourcef677/707; added8 overlapping outline links with two faces, and moved flight-arrival keys1tick earlier to account for interpolation delay. First capture had gaps and overlong second trail; widened link overlap and ended second trail at51, then recaptured.
+- Final77frames; camera5ms, identical maximum2 (036/037 only). Sequential display sample771 observations peaks59. HP200→194.096→188.19199, two drops about1.006s apart. No damage changes.
+- Failed fidelity persists: fixed4m static geometry, pose/model detail, original braid/glow, thin horizontal impact rays, source camera and passive routing are not matched. Same-time images at /evidence/couture-patterning-tail.png; runtime-review/couture-patterning-round63.json.

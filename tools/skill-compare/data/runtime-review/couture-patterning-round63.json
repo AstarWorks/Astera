@@ -1,0 +1,23 @@
+{
+  "status": "failed",
+  "case": "couture-rapier-patterning",
+  "round": 63,
+  "captureFrames": 77,
+  "cameraMaxLatenessMs": 5,
+  "maxRepeatedFrames": 2,
+  "repeatedFrames": [
+    36,
+    37
+  ],
+  "displayPeak": 59,
+  "displaySamples": 771,
+  "health": [
+    200,
+    194.096,
+    188.19199
+  ],
+  "notes": "白いリンク状の尾と鋏の到達を改善。固定4m軌道、腕上げ、鋏の装飾、細い横閃光、カメラ、移動標的追従、追撃発動条件が未一致・未実装。",
+  "evidence": "/evidence/couture-patterning-tail.png",
+  "acceptedCapture": "round63/repeat-captures",
+  "supersededCapture": "round63/captures: gaps between links; second trail overlong"
+}
