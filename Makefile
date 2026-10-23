@@ -27,6 +27,11 @@ help: ## Show this help
 build: ## Build the 7 Astera plugin shadow jars (plugin/*/build/libs/astera-*.jar)
 	$(GRADLEW) $(foreach p,core items combat match stats economy persistence,:plugin:$(p):shadowJar)
 
+.PHONY: anim-import
+anim-import: ## Import Blockbench player animations: make anim-import BB=path.bbmodel [OUT=content/animations]
+	@test -n "$(BB)" || { echo "usage: make anim-import BB=<path.bbmodel> [OUT=content/animations]"; exit 2; }
+	$(GRADLEW) :tools:anim-import:importAnimations -Pbb="$(BB)" -PanimOut="$(or $(OUT),content/animations)"
+
 .PHONY: skill-frames
 skill-frames: ## Render PNG frames + contact sheet + GIF for one skill: make skill-frames SKILL=simple-shoot
 	@test -n "$(SKILL)" || { echo "usage: make skill-frames SKILL=<skill id>"; exit 2; }

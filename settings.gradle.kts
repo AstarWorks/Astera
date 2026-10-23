@@ -70,6 +70,7 @@ include(
     ":tools:content-lint",
     // Resource pack pipeline + HUD glyph art generator (ADR-0182). Not shipped.
     ":tools:resource-pack",
+    ":tools:anim-import", // Blockbench player-rig authoring bridge. Not shipped.
     // Procedural 32x32 item icons + item model JSON for weapons (ADR-0193). Not shipped.
     ":tools:item-art",
     // Headless game simulator: boots the production wiring with simulator
