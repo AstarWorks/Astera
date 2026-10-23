@@ -4,7 +4,6 @@ import com.astarworks.astera.core.application.config.ConfigError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.attribute.AttributeValue
 import com.astarworks.astera.core.domain.attribute.SimpleAttributeContainer
-import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.match.domain.generator.Affiliation
@@ -30,7 +29,6 @@ import kotlin.time.Duration.Companion.seconds
  * id: arena-center
  * match_stage_id: example-arena
  * position: { x: 0.0, y: 64.0, z: 0.0 }
- * currency: STAR
  * period_seconds: 30.0
  * amount: 1
  * tier: iron
@@ -61,11 +59,12 @@ public data class GeneratorYamlConfig(
     public val id: String,
     @SerialName("match_stage_id") public val matchStageId: String,
     public val position: Vec3YamlConfig,
-    public val currency: String,
     @SerialName("period_seconds") public val periodSeconds: Double,
     public val amount: Int,
     public val tier: String,
     public val affiliation: AffiliationYamlConfig,
+    @SerialName("stockpile_cap") public val stockpileCap: Int = StarGenerator.DEFAULT_STOCKPILE_CAP,
+    @SerialName("pickup_radius") public val pickupRadius: Double = StarGenerator.DEFAULT_PICKUP_RADIUS,
 ) {
     /**
      * Convert the parsed DTO into a domain [StarGenerator] under [matchId].
@@ -89,10 +88,6 @@ public data class GeneratorYamlConfig(
      * `ConfigError` here.
      */
     public fun toDomain(matchId: MatchId): Result<StarGenerator, ConfigError> {
-        val parsedCurrency = parseCurrency(currency)
-            .onFailure { return Result.failure(it) }
-            .let { (it as Result.Success).value }
-
         val parsedTier = parseTier(tier)
             .onFailure { return Result.failure(it) }
             .let { (it as Result.Success).value }
@@ -110,29 +105,16 @@ public data class GeneratorYamlConfig(
                 id = GeneratorId(id),
                 matchId = matchId,
                 position = position.toVec3(),
-                currency = parsedCurrency,
                 period = periodSeconds.seconds,
                 amount = amount,
                 tier = parsedTier,
                 affiliation = parsedAffiliation,
                 attributes = attributes,
+                stockpileCap = stockpileCap,
+                pickupRadius = pickupRadius,
             ),
         )
     }
-
-    private fun parseCurrency(raw: String): Result<Currency, ConfigError> =
-        runCatching { Currency.valueOf(raw) }.fold(
-            onSuccess = { Result.success(it) },
-            onFailure = {
-                Result.failure(
-                    ConfigError.UnknownEnumValue(
-                        field = "currency",
-                        rawValue = raw,
-                        accepted = Currency.entries.map { it.name },
-                    ),
-                )
-            },
-        )
 
     private fun parseTier(raw: String): Result<GeneratorTier, ConfigError> = when (raw.lowercase()) {
         "iron" -> Result.success(GeneratorTier.Iron)

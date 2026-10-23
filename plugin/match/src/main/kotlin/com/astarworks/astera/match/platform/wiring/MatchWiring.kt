@@ -125,6 +125,9 @@ internal class MatchWiringEnv(
 
     /** Set by [MatchGameplayWiring] on lobby backends (ADR-0248): the queue scheduler's countdown / hold state for the HUD. */
     var queueProgress: com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueProgress? = null
+
+    /** Set by [MatchGameplayWiring] (before the death coordinator): the match-scoped star store + sidebar gate. */
+    var stars: MatchStarWiring.Wired? = null
 }
 
 /**

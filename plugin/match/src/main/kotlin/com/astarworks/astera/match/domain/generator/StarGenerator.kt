@@ -1,7 +1,6 @@
 package com.astarworks.astera.match.domain.generator
 
 import com.astarworks.astera.core.domain.attribute.IAttributeContainer
-import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import kotlin.time.Duration
@@ -24,7 +23,8 @@ import kotlin.time.Duration
  *
  * - [id] / [matchId] — identity within a match.
  * - [position] — world placement (vendor-neutral [Vec3]).
- * - [currency] — what it produces ([Currency.STAR], etc.).
+ * - [stockpileCap] — most stars the generator holds uncollected at its position.
+ * - [pickupRadius] — blocks within which a participant collects the stockpile.
  * - [period] — base interval between spawns ([kotlin.time.Duration]).
  * - [amount] — base per-spawn quantity (integer; the AMOUNT_MULTIPLIER
  *   modifier may scale it).
@@ -41,15 +41,23 @@ public data class StarGenerator(
     val id: GeneratorId,
     val matchId: MatchId,
     val position: Vec3,
-    val currency: Currency,
     val period: Duration,
     val amount: Int,
     val tier: GeneratorTier,
     val affiliation: Affiliation,
     val attributes: IAttributeContainer,
+    val stockpileCap: Int = DEFAULT_STOCKPILE_CAP,
+    val pickupRadius: Double = DEFAULT_PICKUP_RADIUS,
 ) {
     init {
         require(amount >= 1) { "StarGenerator.amount must be >= 1 (was $amount)" }
+        require(stockpileCap >= 1) { "StarGenerator.stockpileCap must be >= 1 (was $stockpileCap)" }
+        require(pickupRadius > 0.0) { "StarGenerator.pickupRadius must be > 0 (was $pickupRadius)" }
         require(period.isPositive()) { "StarGenerator.period must be positive (was $period)" }
+    }
+
+    public companion object {
+        public const val DEFAULT_STOCKPILE_CAP: Int = 5
+        public const val DEFAULT_PICKUP_RADIUS: Double = 3.0
     }
 }

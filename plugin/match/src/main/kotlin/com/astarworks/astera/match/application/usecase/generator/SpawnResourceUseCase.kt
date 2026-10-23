@@ -50,7 +50,6 @@ public class SpawnResourceUseCase(
                 generatorId = generator.id,
                 matchId = generator.matchId,
                 position = generator.position,
-                currency = generator.currency,
                 amount = finalAmount,
                 atTick = scheduler.currentTick(),
             ),
