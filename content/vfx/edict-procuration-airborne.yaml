@@ -7,741 +7,6 @@ follow_teleport_ticks: 3
 sample_ticks: 1
 replace_group: edict-procuration-arms
 elements:
-- id: light-5-0-0-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - -0.065
-    - 0.36694631307311826
-    - 0.54
-    rotate:
-    - -90
-    - 0
-    - -36.31907671663968
-    scale:
-    - 1.340397516354521
-    - 0.12600000000000003
-    - 1
-    t: 0
-  - translate:
-    - -0.065
-    - 0.36694631307311826
-    - 0.54
-    rotate:
-    - -90
-    - 0
-    - -36.31907671663968
-    scale:
-    - 1.340397516354521
-    - 0.12600000000000003
-    - 1
-    t: 2
-  - translate:
-    - -0.065
-    - 0.36694631307311826
-    - 0.54
-    rotate:
-    - -90
-    - 0
-    - -36.31907671663968
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-0-1-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - -0.065
-    - 1.1047104421469067
-    - 1.62
-    rotate:
-    - -90
-    - 0
-    - -32.257830502785126
-    scale:
-    - 1.277116727168612
-    - 0.10500000000000001
-    - 1
-    t: 0
-  - translate:
-    - -0.065
-    - 1.1047104421469067
-    - 1.62
-    rotate:
-    - -90
-    - 0
-    - -32.257830502785126
-    scale:
-    - 1.277116727168612
-    - 0.10500000000000001
-    - 1
-    t: 2
-  - translate:
-    - -0.065
-    - 1.1047104421469067
-    - 1.62
-    rotate:
-    - -90
-    - 0
-    - -32.257830502785126
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-0-2-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - -0.065
-    - 1.6955282581475768
-    - 2.7
-    rotate:
-    - -90
-    - 0
-    - -24.842389105455187
-    scale:
-    - 1.1901260437449472
-    - 0.08400000000000002
-    - 1
-    t: 0
-  - translate:
-    - -0.065
-    - 1.6955282581475768
-    - 2.7
-    rotate:
-    - -90
-    - 0
-    - -24.842389105455187
-    scale:
-    - 1.1901260437449472
-    - 0.08400000000000002
-    - 1
-    t: 2
-  - translate:
-    - -0.065
-    - 1.6955282581475768
-    - 2.7
-    rotate:
-    - -90
-    - 0
-    - -24.842389105455187
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-0-3-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - -0.065
-    - 2.1047104421469065
-    - 3.7800000000000002
-    rotate:
-    - -90
-    - 0
-    - -16.424558655689975
-    scale:
-    - 1.1259466554021047
-    - 0.06300000000000001
-    - 1
-    t: 0
-  - translate:
-    - -0.065
-    - 2.1047104421469065
-    - 3.7800000000000002
-    rotate:
-    - -90
-    - 0
-    - -16.424558655689975
-    scale:
-    - 1.1259466554021047
-    - 0.06300000000000001
-    - 1
-    t: 2
-  - translate:
-    - -0.065
-    - 2.1047104421469065
-    - 3.7800000000000002
-    rotate:
-    - -90
-    - 0
-    - -16.424558655689975
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-0-4-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - -0.065
-    - 2.366946313073118
-    - 4.86
-    rotate:
-    - -90
-    - 0
-    - -10.804420376785353
-    scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
-    - 1
-    t: 0
-  - translate:
-    - -0.065
-    - 2.366946313073118
-    - 4.86
-    rotate:
-    - -90
-    - 0
-    - -10.804420376785353
-    scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
-    - 1
-    t: 2
-  - translate:
-    - -0.065
-    - 2.366946313073118
-    - 4.86
-    rotate:
-    - -90
-    - 0
-    - -10.804420376785353
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-1-0-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.015
-    - 0.6469463130731183
-    - 0.54
-    rotate:
-    - -90
-    - 0
-    - -36.31907671663968
-    scale:
-    - 1.340397516354521
-    - 0.12600000000000003
-    - 1
-    t: 0
-  - translate:
-    - 0.015
-    - 0.6469463130731183
-    - 0.54
-    rotate:
-    - -90
-    - 0
-    - -36.31907671663968
-    scale:
-    - 1.340397516354521
-    - 0.12600000000000003
-    - 1
-    t: 2
-  - translate:
-    - 0.015
-    - 0.6469463130731183
-    - 0.54
-    rotate:
-    - -90
-    - 0
-    - -36.31907671663968
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-1-1-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.015
-    - 1.3847104421469068
-    - 1.62
-    rotate:
-    - -90
-    - 0
-    - -32.257830502785126
-    scale:
-    - 1.277116727168612
-    - 0.10500000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.015
-    - 1.3847104421469068
-    - 1.62
-    rotate:
-    - -90
-    - 0
-    - -32.257830502785126
-    scale:
-    - 1.277116727168612
-    - 0.10500000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.015
-    - 1.3847104421469068
-    - 1.62
-    rotate:
-    - -90
-    - 0
-    - -32.257830502785126
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-1-2-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.015
-    - 1.9755282581475768
-    - 2.7
-    rotate:
-    - -90
-    - 0
-    - -24.842389105455187
-    scale:
-    - 1.1901260437449472
-    - 0.08400000000000002
-    - 1
-    t: 0
-  - translate:
-    - 0.015
-    - 1.9755282581475768
-    - 2.7
-    rotate:
-    - -90
-    - 0
-    - -24.842389105455187
-    scale:
-    - 1.1901260437449472
-    - 0.08400000000000002
-    - 1
-    t: 2
-  - translate:
-    - 0.015
-    - 1.9755282581475768
-    - 2.7
-    rotate:
-    - -90
-    - 0
-    - -24.842389105455187
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-1-3-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.015
-    - 2.3847104421469068
-    - 3.7800000000000002
-    rotate:
-    - -90
-    - 0
-    - -16.424558655689985
-    scale:
-    - 1.125946655402105
-    - 0.06300000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.015
-    - 2.3847104421469068
-    - 3.7800000000000002
-    rotate:
-    - -90
-    - 0
-    - -16.424558655689985
-    scale:
-    - 1.125946655402105
-    - 0.06300000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.015
-    - 2.3847104421469068
-    - 3.7800000000000002
-    rotate:
-    - -90
-    - 0
-    - -16.424558655689985
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-1-4-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.015
-    - 2.6469463130731183
-    - 4.86
-    rotate:
-    - -90
-    - 0
-    - -10.804420376785353
-    scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.015
-    - 2.6469463130731183
-    - 4.86
-    rotate:
-    - -90
-    - 0
-    - -10.804420376785353
-    scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.015
-    - 2.6469463130731183
-    - 4.86
-    rotate:
-    - -90
-    - 0
-    - -10.804420376785353
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-2-0-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.095
-    - 0.9269463130731183
-    - 0.54
-    rotate:
-    - -90
-    - 0
-    - -36.31907671663967
-    scale:
-    - 1.340397516354521
-    - 0.12600000000000003
-    - 1
-    t: 0
-  - translate:
-    - 0.095
-    - 0.9269463130731183
-    - 0.54
-    rotate:
-    - -90
-    - 0
-    - -36.31907671663967
-    scale:
-    - 1.340397516354521
-    - 0.12600000000000003
-    - 1
-    t: 2
-  - translate:
-    - 0.095
-    - 0.9269463130731183
-    - 0.54
-    rotate:
-    - -90
-    - 0
-    - -36.31907671663967
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-2-1-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.095
-    - 1.6647104421469066
-    - 1.62
-    rotate:
-    - -90
-    - 0
-    - -32.257830502785126
-    scale:
-    - 1.277116727168612
-    - 0.10500000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.095
-    - 1.6647104421469066
-    - 1.62
-    rotate:
-    - -90
-    - 0
-    - -32.257830502785126
-    scale:
-    - 1.277116727168612
-    - 0.10500000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.095
-    - 1.6647104421469066
-    - 1.62
-    rotate:
-    - -90
-    - 0
-    - -32.257830502785126
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-2-2-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.095
-    - 2.255528258147577
-    - 2.7
-    rotate:
-    - -90
-    - 0
-    - -24.842389105455208
-    scale:
-    - 1.1901260437449475
-    - 0.08400000000000002
-    - 1
-    t: 0
-  - translate:
-    - 0.095
-    - 2.255528258147577
-    - 2.7
-    rotate:
-    - -90
-    - 0
-    - -24.842389105455208
-    scale:
-    - 1.1901260437449475
-    - 0.08400000000000002
-    - 1
-    t: 2
-  - translate:
-    - 0.095
-    - 2.255528258147577
-    - 2.7
-    rotate:
-    - -90
-    - 0
-    - -24.842389105455208
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-2-3-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.095
-    - 2.664710442146907
-    - 3.7800000000000002
-    rotate:
-    - -90
-    - 0
-    - -16.424558655689985
-    scale:
-    - 1.125946655402105
-    - 0.06300000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.095
-    - 2.664710442146907
-    - 3.7800000000000002
-    rotate:
-    - -90
-    - 0
-    - -16.424558655689985
-    scale:
-    - 1.125946655402105
-    - 0.06300000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.095
-    - 2.664710442146907
-    - 3.7800000000000002
-    rotate:
-    - -90
-    - 0
-    - -16.424558655689985
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-2-4-core
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.095
-    - 2.9269463130731186
-    - 4.86
-    rotate:
-    - -90
-    - 0
-    - -10.804420376785353
-    scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.095
-    - 2.9269463130731186
-    - 4.86
-    rotate:
-    - -90
-    - 0
-    - -10.804420376785353
-    scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.095
-    - 2.9269463130731186
-    - 4.86
-    rotate:
-    - -90
-    - 0
-    - -10.804420376785353
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
 - id: branch-2-claw-0-curve-0
   kind:
     type: block
@@ -1702,738 +967,381 @@ elements:
     - 0.066
     - 0.018
     - 0.3156400798377804
-- id: light-5-0-0-core-back
+- id: ribbon-0--1
   kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
   start_tick: 0
   end_tick: 5
-  brightness: 15
   keyframes:
   - translate:
-    - -0.065
-    - 0.36694631307311826
-    - 0.54
+    - -0.02
+    - 0.99
+    - 2.3
     rotate:
-    - 90
+    - -90
     - 0
-    - 36.31907671663968
+    - 5
     scale:
-    - 1.340397516354521
-    - 0.12600000000000003
+    - 1.95
+    - 0.46499999999999997
     - 1
     t: 0
   - translate:
-    - -0.065
-    - 0.36694631307311826
-    - 0.54
+    - -0.02
+    - 0.99
+    - 2.3
     rotate:
-    - 90
+    - -90
     - 0
-    - 36.31907671663968
+    - 5
     scale:
-    - 1.340397516354521
-    - 0.12600000000000003
+    - 1.95
+    - 0.62
     - 1
-    t: 2
+    t: 1
   - translate:
-    - -0.065
-    - 0.36694631307311826
-    - 0.54
+    - -0.02
+    - 0.99
+    - 2.3
     rotate:
-    - 90
+    - -90
     - 0
-    - 36.31907671663968
+    - 5
     scale:
+    - 1.95
+    - 0.403
+    - 1
+    t: 3
+  - translate:
+    - -0.02
+    - 0.99
+    - 2.3
+    rotate:
+    - -90
     - 0
-    - 0
-    - 0
+    - 5
+    scale:
+    - 1.95
+    - 0.0
+    - 1
     t: 4
-  billboard: fixed
-- id: light-5-0-1-core-back
+- id: ribbon-0-1
   kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
   start_tick: 0
   end_tick: 5
-  brightness: 15
   keyframes:
   - translate:
-    - -0.065
-    - 1.1047104421469067
-    - 1.62
+    - 0.02
+    - 0.99
+    - 2.3
     rotate:
     - 90
     - 0
-    - 32.257830502785126
+    - -5
     scale:
-    - 1.277116727168612
-    - 0.10500000000000001
+    - 1.95
+    - 0.46499999999999997
     - 1
     t: 0
   - translate:
-    - -0.065
-    - 1.1047104421469067
-    - 1.62
+    - 0.02
+    - 0.99
+    - 2.3
     rotate:
     - 90
     - 0
-    - 32.257830502785126
+    - -5
     scale:
-    - 1.277116727168612
-    - 0.10500000000000001
+    - 1.95
+    - 0.62
     - 1
-    t: 2
+    t: 1
   - translate:
-    - -0.065
-    - 1.1047104421469067
-    - 1.62
+    - 0.02
+    - 0.99
+    - 2.3
     rotate:
     - 90
     - 0
-    - 32.257830502785126
+    - -5
     scale:
+    - 1.95
+    - 0.403
+    - 1
+    t: 3
+  - translate:
+    - 0.02
+    - 0.99
+    - 2.3
+    rotate:
+    - 90
     - 0
-    - 0
-    - 0
+    - -5
+    scale:
+    - 1.95
+    - 0.0
+    - 1
     t: 4
-  billboard: fixed
-- id: light-5-0-2-core-back
+- id: ribbon-1--1
   kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
   start_tick: 0
   end_tick: 5
-  brightness: 15
   keyframes:
   - translate:
-    - -0.065
-    - 1.6955282581475768
-    - 2.7
+    - -0.02
+    - 1.25
+    - 2.3
     rotate:
-    - 90
+    - -90
     - 0
-    - 24.842389105455187
+    - 0
     scale:
-    - 1.1901260437449472
-    - 0.08400000000000002
+    - 1.95
+    - 0.46499999999999997
     - 1
     t: 0
   - translate:
-    - -0.065
-    - 1.6955282581475768
-    - 2.7
+    - -0.02
+    - 1.25
+    - 2.3
     rotate:
-    - 90
+    - -90
     - 0
-    - 24.842389105455187
+    - 0
     scale:
-    - 1.1901260437449472
-    - 0.08400000000000002
+    - 1.95
+    - 0.62
     - 1
-    t: 2
+    t: 1
   - translate:
-    - -0.065
-    - 1.6955282581475768
-    - 2.7
+    - -0.02
+    - 1.25
+    - 2.3
     rotate:
-    - 90
+    - -90
     - 0
-    - 24.842389105455187
+    - 0
     scale:
+    - 1.95
+    - 0.403
+    - 1
+    t: 3
+  - translate:
+    - -0.02
+    - 1.25
+    - 2.3
+    rotate:
+    - -90
     - 0
     - 0
-    - 0
+    scale:
+    - 1.95
+    - 0.0
+    - 1
     t: 4
-  billboard: fixed
-- id: light-5-0-3-core-back
+- id: ribbon-1-1
   kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
   start_tick: 0
   end_tick: 5
-  brightness: 15
   keyframes:
   - translate:
-    - -0.065
-    - 2.1047104421469065
-    - 3.7800000000000002
+    - 0.02
+    - 1.25
+    - 2.3
     rotate:
     - 90
     - 0
-    - 16.424558655689975
+    - 0
     scale:
-    - 1.1259466554021047
-    - 0.06300000000000001
+    - 1.95
+    - 0.46499999999999997
     - 1
     t: 0
   - translate:
-    - -0.065
-    - 2.1047104421469065
-    - 3.7800000000000002
+    - 0.02
+    - 1.25
+    - 2.3
     rotate:
     - 90
     - 0
-    - 16.424558655689975
+    - 0
     scale:
-    - 1.1259466554021047
-    - 0.06300000000000001
+    - 1.95
+    - 0.62
     - 1
-    t: 2
+    t: 1
   - translate:
-    - -0.065
-    - 2.1047104421469065
-    - 3.7800000000000002
+    - 0.02
+    - 1.25
+    - 2.3
     rotate:
     - 90
     - 0
-    - 16.424558655689975
+    - 0
     scale:
+    - 1.95
+    - 0.403
+    - 1
+    t: 3
+  - translate:
+    - 0.02
+    - 1.25
+    - 2.3
+    rotate:
+    - 90
     - 0
     - 0
-    - 0
+    scale:
+    - 1.95
+    - 0.0
+    - 1
     t: 4
-  billboard: fixed
-- id: light-5-0-4-core-back
+- id: ribbon-2--1
   kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
   start_tick: 0
   end_tick: 5
-  brightness: 15
   keyframes:
   - translate:
-    - -0.065
-    - 2.366946313073118
-    - 4.86
+    - -0.02
+    - 1.51
+    - 2.3
     rotate:
-    - 90
+    - -90
     - 0
-    - 10.804420376785353
+    - -5
     scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
+    - 1.95
+    - 0.46499999999999997
     - 1
     t: 0
   - translate:
-    - -0.065
-    - 2.366946313073118
-    - 4.86
+    - -0.02
+    - 1.51
+    - 2.3
     rotate:
-    - 90
+    - -90
     - 0
-    - 10.804420376785353
+    - -5
     scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
+    - 1.95
+    - 0.62
     - 1
-    t: 2
+    t: 1
   - translate:
-    - -0.065
-    - 2.366946313073118
-    - 4.86
+    - -0.02
+    - 1.51
+    - 2.3
     rotate:
-    - 90
+    - -90
     - 0
-    - 10.804420376785353
+    - -5
     scale:
+    - 1.95
+    - 0.403
+    - 1
+    t: 3
+  - translate:
+    - -0.02
+    - 1.51
+    - 2.3
+    rotate:
+    - -90
     - 0
-    - 0
-    - 0
+    - -5
+    scale:
+    - 1.95
+    - 0.0
+    - 1
     t: 4
-  billboard: fixed
-- id: light-5-1-0-core-back
+- id: ribbon-2-1
   kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
   start_tick: 0
   end_tick: 5
-  brightness: 15
   keyframes:
   - translate:
-    - 0.015
-    - 0.6469463130731183
-    - 0.54
+    - 0.02
+    - 1.51
+    - 2.3
     rotate:
     - 90
     - 0
-    - 36.31907671663968
+    - 5
     scale:
-    - 1.340397516354521
-    - 0.12600000000000003
+    - 1.95
+    - 0.46499999999999997
     - 1
     t: 0
   - translate:
-    - 0.015
-    - 0.6469463130731183
-    - 0.54
+    - 0.02
+    - 1.51
+    - 2.3
     rotate:
     - 90
     - 0
-    - 36.31907671663968
+    - 5
     scale:
-    - 1.340397516354521
-    - 0.12600000000000003
+    - 1.95
+    - 0.62
     - 1
-    t: 2
+    t: 1
   - translate:
-    - 0.015
-    - 0.6469463130731183
-    - 0.54
+    - 0.02
+    - 1.51
+    - 2.3
     rotate:
     - 90
     - 0
-    - 36.31907671663968
+    - 5
     scale:
+    - 1.95
+    - 0.403
+    - 1
+    t: 3
+  - translate:
+    - 0.02
+    - 1.51
+    - 2.3
+    rotate:
+    - 90
     - 0
-    - 0
-    - 0
+    - 5
+    scale:
+    - 1.95
+    - 0.0
+    - 1
     t: 4
-  billboard: fixed
-- id: light-5-1-1-core-back
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.015
-    - 1.3847104421469068
-    - 1.62
-    rotate:
-    - 90
-    - 0
-    - 32.257830502785126
-    scale:
-    - 1.277116727168612
-    - 0.10500000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.015
-    - 1.3847104421469068
-    - 1.62
-    rotate:
-    - 90
-    - 0
-    - 32.257830502785126
-    scale:
-    - 1.277116727168612
-    - 0.10500000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.015
-    - 1.3847104421469068
-    - 1.62
-    rotate:
-    - 90
-    - 0
-    - 32.257830502785126
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-1-2-core-back
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.015
-    - 1.9755282581475768
-    - 2.7
-    rotate:
-    - 90
-    - 0
-    - 24.842389105455187
-    scale:
-    - 1.1901260437449472
-    - 0.08400000000000002
-    - 1
-    t: 0
-  - translate:
-    - 0.015
-    - 1.9755282581475768
-    - 2.7
-    rotate:
-    - 90
-    - 0
-    - 24.842389105455187
-    scale:
-    - 1.1901260437449472
-    - 0.08400000000000002
-    - 1
-    t: 2
-  - translate:
-    - 0.015
-    - 1.9755282581475768
-    - 2.7
-    rotate:
-    - 90
-    - 0
-    - 24.842389105455187
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-1-3-core-back
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.015
-    - 2.3847104421469068
-    - 3.7800000000000002
-    rotate:
-    - 90
-    - 0
-    - 16.424558655689985
-    scale:
-    - 1.125946655402105
-    - 0.06300000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.015
-    - 2.3847104421469068
-    - 3.7800000000000002
-    rotate:
-    - 90
-    - 0
-    - 16.424558655689985
-    scale:
-    - 1.125946655402105
-    - 0.06300000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.015
-    - 2.3847104421469068
-    - 3.7800000000000002
-    rotate:
-    - 90
-    - 0
-    - 16.424558655689985
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-1-4-core-back
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.015
-    - 2.6469463130731183
-    - 4.86
-    rotate:
-    - 90
-    - 0
-    - 10.804420376785353
-    scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.015
-    - 2.6469463130731183
-    - 4.86
-    rotate:
-    - 90
-    - 0
-    - 10.804420376785353
-    scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.015
-    - 2.6469463130731183
-    - 4.86
-    rotate:
-    - 90
-    - 0
-    - 10.804420376785353
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-2-0-core-back
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.095
-    - 0.9269463130731183
-    - 0.54
-    rotate:
-    - 90
-    - 0
-    - 36.31907671663967
-    scale:
-    - 1.340397516354521
-    - 0.12600000000000003
-    - 1
-    t: 0
-  - translate:
-    - 0.095
-    - 0.9269463130731183
-    - 0.54
-    rotate:
-    - 90
-    - 0
-    - 36.31907671663967
-    scale:
-    - 1.340397516354521
-    - 0.12600000000000003
-    - 1
-    t: 2
-  - translate:
-    - 0.095
-    - 0.9269463130731183
-    - 0.54
-    rotate:
-    - 90
-    - 0
-    - 36.31907671663967
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-2-1-core-back
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.095
-    - 1.6647104421469066
-    - 1.62
-    rotate:
-    - 90
-    - 0
-    - 32.257830502785126
-    scale:
-    - 1.277116727168612
-    - 0.10500000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.095
-    - 1.6647104421469066
-    - 1.62
-    rotate:
-    - 90
-    - 0
-    - 32.257830502785126
-    scale:
-    - 1.277116727168612
-    - 0.10500000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.095
-    - 1.6647104421469066
-    - 1.62
-    rotate:
-    - 90
-    - 0
-    - 32.257830502785126
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-2-2-core-back
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.095
-    - 2.255528258147577
-    - 2.7
-    rotate:
-    - 90
-    - 0
-    - 24.842389105455208
-    scale:
-    - 1.1901260437449475
-    - 0.08400000000000002
-    - 1
-    t: 0
-  - translate:
-    - 0.095
-    - 2.255528258147577
-    - 2.7
-    rotate:
-    - 90
-    - 0
-    - 24.842389105455208
-    scale:
-    - 1.1901260437449475
-    - 0.08400000000000002
-    - 1
-    t: 2
-  - translate:
-    - 0.095
-    - 2.255528258147577
-    - 2.7
-    rotate:
-    - 90
-    - 0
-    - 24.842389105455208
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-2-3-core-back
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.095
-    - 2.664710442146907
-    - 3.7800000000000002
-    rotate:
-    - 90
-    - 0
-    - 16.424558655689985
-    scale:
-    - 1.125946655402105
-    - 0.06300000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.095
-    - 2.664710442146907
-    - 3.7800000000000002
-    rotate:
-    - 90
-    - 0
-    - 16.424558655689985
-    scale:
-    - 1.125946655402105
-    - 0.06300000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.095
-    - 2.664710442146907
-    - 3.7800000000000002
-    rotate:
-    - 90
-    - 0
-    - 16.424558655689985
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed
-- id: light-5-2-4-core-back
-  kind:
-    type: quad
-    color: '#F4FAFF'
-    alpha: 1
-  start_tick: 0
-  end_tick: 5
-  brightness: 15
-  keyframes:
-  - translate:
-    - 0.095
-    - 2.9269463130731186
-    - 4.86
-    rotate:
-    - 90
-    - 0
-    - 10.804420376785353
-    scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
-    - 1
-    t: 0
-  - translate:
-    - 0.095
-    - 2.9269463130731186
-    - 4.86
-    rotate:
-    - 90
-    - 0
-    - 10.804420376785353
-    scale:
-    - 1.0994909047176766
-    - 0.04200000000000001
-    - 1
-    t: 2
-  - translate:
-    - 0.095
-    - 2.9269463130731186
-    - 4.86
-    rotate:
-    - 90
-    - 0
-    - 10.804420376785353
-    scale:
-    - 0
-    - 0
-    - 0
-    t: 4
-  billboard: fixed

@@ -108,7 +108,7 @@ internal object ParticlePainters {
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
         "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
-        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue,
+        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue, "procuration_ribbon" to ::procurationRibbon,
     )
 
     /** A 4-point star that pops open, hangs, then shrinks, with a small diagonal star and a white-hot core. */
@@ -286,6 +286,18 @@ internal object ParticlePainters {
             val centre = 16.0 - 3.0 * u + sin(2.0 * PI * u)
             val edge = 1.0 - abs(x - centre) / max(0.01, width)
             if (edge <= 0.0) 0.0 else 0.3 + 0.4 * edge
+        }
+    }
+
+    /** Shallow pointed white/blue streak, observed during Procuration's horizontal passes. */
+    private fun procurationRibbon(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val u = (x - 1.0) / 30.0
+            if (u !in 0.0..1.0) return@forEach 0.0
+            val centre = 18.0 - 7.0 * sin(PI * u) + 2.0 * u
+            val halfWidth = 2.2 * sin(PI * u).pow(0.65) * (1.2 - 0.5 * u)
+            val edge = 1.0 - abs(y - centre) / max(0.01, halfWidth)
+            if (edge <= 0.0) 0.0 else min(1.0, 0.3 + edge * 1.5)
         }
     }
 
