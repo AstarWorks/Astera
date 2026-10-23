@@ -71,6 +71,7 @@ public data class VfxYamlConfig(
     @SerialName("duration_ticks") public val durationTicks: Int,
     public val orient: String = "look",
     public val follow: Boolean = false,
+    @SerialName("follow_teleport_ticks") public val followTeleportTicks: Int? = null,
     @SerialName("sample_ticks") public val sampleTicks: Int = 2,
     public val elements: List<VfxElementYaml> = emptyList(),
     /** Weapon rigs with 風切り trails (see [VfxRigYaml]). */
@@ -84,6 +85,7 @@ public data class VfxYamlConfig(
                 durationTicks = durationTicks,
                 orient = parseEnum<VfxOrient>(orient, "orient"),
                 follow = follow,
+                followTeleportTicks = followTeleportTicks,
                 sampleTicks = sampleTicks,
                 elements = elements.map { it.toDomain() },
                 rigs = rigs.map { it.toDomain() },

@@ -15,6 +15,9 @@
         "follow": {
             "type": "boolean"
         },
+        "follow_teleport_ticks": {
+            "type": ["integer", "null"]
+        },
         "sample_ticks": {
             "type": "integer"
         },

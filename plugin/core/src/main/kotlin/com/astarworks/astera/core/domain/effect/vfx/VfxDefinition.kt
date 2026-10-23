@@ -76,9 +76,12 @@ public data class VfxDefinition(
     public val elements: List<VfxElement>,
     /** Weapon rigs + 風切り trails ([VfxRig]); planned into ordinary slots by [VfxRigPlanner]. */
     public val rigs: List<VfxRig> = emptyList(),
+    /** Optional anchor teleport smoothing override; 0 keeps fast attached effects at the current anchor. */
+    public val followTeleportTicks: Int? = null,
 ) {
     init {
         require(durationTicks in 1..MAX_DURATION_TICKS) { "VfxDefinition.durationTicks must be 1..$MAX_DURATION_TICKS: $durationTicks" }
+        require(followTeleportTicks == null || followTeleportTicks in 0..59) { "followTeleportTicks must be 0..59" }
         require(sampleTicks >= 1) { "VfxDefinition.sampleTicks must be >= 1: $sampleTicks" }
         require(elements.isNotEmpty() || rigs.isNotEmpty()) { "VfxDefinition needs elements or rigs" }
         val ids = elements.map { it.id } + rigs.map { it.id }

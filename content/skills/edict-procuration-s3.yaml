@@ -141,13 +141,13 @@ phases:
       value: 21
   - type: play_vfx
     targets: *id001
-    vfx_id: edict-procuration-crossing
+    vfx_id: edict-procuration-airborne
     delay_ticks:
       type: literal
       value: 26
   - type: play_vfx
     targets: *id001
-    vfx_id: edict-procuration-crossing
+    vfx_id: edict-procuration-airborne
     delay_ticks:
       type: literal
       value: 32
@@ -295,3 +295,17 @@ phases:
     delay_ticks:
       type: literal
       value: 110
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: edict-procuration-landed-claws
+    delay_ticks:
+      type: literal
+      value: 37
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: edict-procuration-distant-fan
+    delay_ticks:
+      type: literal
+      value: 57
