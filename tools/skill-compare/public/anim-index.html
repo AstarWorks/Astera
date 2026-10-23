@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>アニメーション一覧</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/anim.css">
+</head>
+<body>
+<div id="app">
+  <div class="top"><h1>アニメーション確認</h1><a href="/">&larr; 武器一覧</a><span class="sub">スキンリグのプレイヤーモーション (ADR-0250, <code>content/animations/*.yaml</code>) ・ <span id="count"></span></span></div>
+  <div class="animlist" id="list">読み込み中&hellip;</div>
+  <p class="note">撮影: <code>make anim-shot ANIM=&lt;animation-id | skill-id&gt;</code> ・ レビューは <code>tools/skill-compare/data/anim/&lt;id&gt;/review.json</code> に保存されます。</p>
+</div>
+<script src="/anim-index.js"></script>
+</body>
+</html>

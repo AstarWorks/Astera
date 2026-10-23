@@ -80,6 +80,26 @@ Each agent works in its own worktree; frames stay in that worktree's `build/`, o
 6. **Review**: `make skill-compare` serves cases from the checkout it runs in. To also show other worktrees' captures:
    `SKILL_COMPARE_MEDIA_DIRS=/path/wt-a/build/vfx-shot:/path/wt-b/build/vfx-shot make skill-compare` (the main dir is searched first).
 
+## Animation review (`/anim`, skin-rig motions of ADR-0250)
+
+Pages: `/anim` (one row per `content/animations/*.yaml`, `_rig/` excluded: thumbnail, length, loop / movement-lock flags, the latest capture's
+commit + date, review status 未レビュー / OK / NG with the latest comment) and `/anim.html?id=<animation id>`:
+(a) rest comparison, vanilla above rig x front / side / top; (b) blend-in / blend-out strips labelled by tick (click = jump the player there);
+(c) player over `play/` frames: play / pause, tick step, speed 1 / .5 / .25 / .1, front / side (Space, arrows, 1-4); (d) the same provenance badge as the case page
+(`src/prov.js`); (e) review box: status, overall comment, comments pinned to the tick shown in the player. The main index header links to `/anim`.
+
+Capture (one command per motion, `make anim-shot ANIM=<animation id | skill id>`, see `tools/vfx-shot/README.md`) writes
+`build/vfx-shot/anim/<id>/` (`vanilla-*.png`, `rig-*.png`, `play/`, `blend-in/`, `blend-out/`, `meta.json`). It is found like every other capture: this checkout's
+`build/vfx-shot`, other worktrees', and `SKILL_COMPARE_MEDIA_DIRS`; the most recently written `anim/<id>/meta.json` wins. There is no publish step
+for animations (frame URLs carry the capture's mtime so a recapture is never shown stale). Media is served only at
+`/anim-media/<id>/(vanilla|rig)-(front|side|top).png` and `/anim-media/<id>/(play|blend-in|blend-out)/(front|side)/frame_NNN.(png|webp)`.
+
+**Where agents read the founder's feedback**: `tools/skill-compare/data/anim/<id>/review.json`
+`{id, rev, status: unreviewed|ok|ng, comment, pins: [{tick, text}], editLog: [{who, at, summary}]}`. `tick` is relative to the trigger (t+0 = first rig tick, negative = before).
+Saving POSTs `/api/anims/<id>/review` with the `rev` it loaded (409 if someone saved meanwhile), appends `status old->new`, `comment "..."`, `+pin@7 "..."`, `-pin@7`
+to `editLog`, and writes the file atomically. Highest `rev` across main + worktrees wins when reading (as for cases); commit the file with the fix it asked for.
+`GET /api/anims` and `GET /api/anims/<id>` are the JSON.
+
 ## Index (weapon roster) and multi-worktree aggregation
 
 The index lists the persona weapons (`content/items/*.yaml` with ADR-0230 bindings, 10 today) with item-art icon, ja/en name, and one row per bound slot
