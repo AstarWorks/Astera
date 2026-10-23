@@ -15,9 +15,12 @@ def main():
     if a.out.exists(): raise ValueError('Use a fresh resource-pack directory')
     source = ROOT/'content/models/items/gossamer-katana.model.json'
     model = json.loads(source.read_text())
+    palette = model.pop('astera_tints')
+    item_model = {'type':'minecraft:model','model':'astera:items/gossamer-katana',
+                  'tints':[{'type':'minecraft:constant','value':rgb} for rgb in palette]}
     files = {
         'pack.mcmeta':{'pack':{'description':'Vanilla material gossamer-katana capture','min_format':[97,0],'max_format':[97,1]}},
-        'assets/astera/items/gossamer-katana.json':{'model':{'type':'minecraft:model','model':'astera:items/gossamer-katana'}},
+        'assets/astera/items/gossamer-katana.json':{'model':item_model},
         'assets/astera/models/items/gossamer-katana.json':model,
         'assets/minecraft/atlases/blocks.json':{'sources':[{'type':'directory','source':'blocks','prefix':'blocks/'}]},
     }

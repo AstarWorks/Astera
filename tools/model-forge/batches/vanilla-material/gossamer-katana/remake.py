@@ -2,6 +2,8 @@
 """Reproduce gossamer-katana through Forge operations (no test runner/server/build)."""
 import argparse
 import json
+import copy
+from collections import Counter
 from pathlib import Path
 import shutil
 import sys
@@ -13,7 +15,8 @@ from PIL import Image, ImageDraw
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--project', type=Path, required=True)
-    parser.add_argument('--before', type=Path, required=True, help='Original model, e.g. git show HEAD:content/models/items/gossamer-katana.model.json')
+    parser.add_argument('--before', type=Path, required=True, help='Palette reference: git show 36743b70:content/models/items/gossamer-katana.model.json')
+    parser.add_argument('--head', type=Path, required=True, help='Saved HEAD model; geometry and display authority')
     parser.add_argument('--evidence', type=Path, default=Path(__file__).parent)
     a = parser.parse_args()
     if (a.project/'project.json').exists(): raise ValueError('Use a fresh project directory')
@@ -32,24 +35,30 @@ def main():
         return result
     call('import', {'path':str(a.before)})
     call('scene.get', {'fields':['id','name','faces']})
-    call('scene.element', {'id':'e0003'})
+    for e in p.model['elements']:
+        call('scene.element', {'id':e['id']})
     call('measure'); call('validate')
     call('history.snapshot', {'name':'before'})
     board_args = {'resolution':384, 'name':'before'}
     before = call('board', board_args)
     shutil.copyfile(before['path'], a.evidence/'before.png')
+    # Palette reference is historical; geometry and display come exclusively from HEAD.
+    call('import', {'path':str(a.head)})
+    original = copy.deepcopy(p.model)
     ops = []
     groups = {}
     for e in p.model['elements']:
         name = e.get('name','')
-        if name == 'blue underwrap': material = 'cloth.blue_wool'
-        elif 'silk' in name: material = 'cloth.red_wool'
-        elif name in ('curved silver section', 'bright cutting edge', 'web spoke'): material = 'metal.iron_block'
-        elif name in ('dark spine', 'tsuba core'): material = 'metal.anvil'
-        else: material = 'metal.gold_block'
-        groups.setdefault(material, []).append(e['id'])
-    for material, ids in groups.items():
-        ops.append({'op':'material.apply', 'args':{'ids':ids,'material':material,'seed':20261023}})
+        if name == 'blue underwrap': material, tint = 'cloth.white_wool', '#1463b5'
+        elif 'silk' in name: material, tint = 'cloth.white_wool', '#f6686d'
+        elif name == 'curved silver section': material, tint = 'metal.iron_block', '#cce4f4'
+        elif name in ('bright cutting edge', 'web spoke'): material, tint = 'metal.iron_block', '#b9d0da'
+        elif name == 'dark spine': material, tint = 'metal.iron_block', '#293641'
+        elif name == 'tsuba core': material, tint = 'metal.iron_block', '#ffb638'
+        else: material, tint = 'metal.iron_block', '#ffdc79'
+        groups.setdefault((material, tint), []).append(e['id'])
+    for (material, tint), ids in groups.items():
+        ops.append({'op':'material.apply', 'args':{'ids':ids,'material':material,'tint':tint,'seed':20261024}})
     call('batch', {'ops':ops})
     # Align tiny blade segments on quiet metal crops so random borders do not form bands.
     aligned = []
@@ -61,6 +70,11 @@ def main():
             x, y, X, Y = value['uv']
             aligned.append({'op':'uv.set','args':{'id':e['id'],'face':face,'value':{**value,'uv':[u,v,u+X-x,v+Y-y]}}})
     call('batch', {'ops':aligned})
+    assert len(p.model['elements']) == len(original['elements'])
+    for before, after in zip(original['elements'], p.model['elements']):
+        assert {k:v for k,v in before.items() if k != 'faces'} == {k:v for k,v in after.items() if k != 'faces'}
+        assert before['faces'].keys() == after['faces'].keys()
+    assert p.model['display'] == original['display']
     # Install references, retaining only used slots. Re-import records this packaging step in history.
     model = p.vanilla()
     used = {f['texture'][1:] for e in model['elements'] for f in e['faces'].values()}
@@ -85,7 +99,14 @@ def main():
     scales.save(a.evidence/'inventory.png')
     call('measure'); call('validate')
     call('history.diff', {'a':'before','b':'after'})
-    call('export', {'path':str(a.project/'export')})
+    exported = call('export', {'path':str(a.project/'export')})
+    roundtrip = Project(a.project/'roundtrip')
+    roundtrip.call('import', {'path':exported['path']})
+    assert roundtrip.vanilla() == p.vanilla()
+    assert not list((a.project/'export/textures').glob('*.png'))
+    validation = p.call('validate')
+    validation['warnings'] = dict(Counter(w['kind'] for w in validation['warnings']))
+    (a.evidence/'verification.json').write_text(json.dumps({'geometryUnchanged':True,'displayUnchanged':True,'faceCoverageUnchanged':True,'elements':len(original['elements']),'exportImportIdentical':True,'exportedPngs':0,'validation':validation}, indent=2)+'\n')
     (a.evidence/'operations.json').write_text(json.dumps(log,indent=2)+'\n')
 
 if __name__=='__main__': main()

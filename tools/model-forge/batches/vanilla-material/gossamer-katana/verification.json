@@ -1,0 +1,17 @@
+{
+  "geometryUnchanged": true,
+  "displayUnchanged": true,
+  "faceCoverageUnchanged": true,
+  "elements": 148,
+  "exportImportIdentical": true,
+  "exportedPngs": 0,
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": {
+      "coplanar_contact_possible_zfight": 19,
+      "overlap_aabb": 342,
+      "floating_components_aabb": 1
+    }
+  }
+}

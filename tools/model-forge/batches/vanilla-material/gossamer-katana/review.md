@@ -1,104 +1,92 @@
-# Gossamer katana — vanilla materials
+# Gossamer katana — restored palette (ADR-0251)
 
-| Parts | Catalog material |
-|---|---|
-| Curved silver sections, cutting edge, guard web spokes | `metal.iron_block` |
-| Dark blade spine, tsuba core | `metal.anvil` |
-| Guard rim, ferrules, pommel, pins, habaki engraving | `metal.gold_block` |
-| Blue underwrap | `cloth.blue_wool` |
-| Crossed crimson silk and side returns | `cloth.red_wool` |
+Palette authority: `36743b70:content/models/items/gossamer-katana.model.json`
+and its original 128×128 atlas. `before.png` renders that historical model through
+Forge. Geometry, face coverage and display authority: this commit's parent HEAD.
 
-All 148 original cuboids, rotations, face coverage and display transforms are
-unchanged. Every face uses one vanilla texel per local model unit, including
-fractional dimensions. No split was required. No custom or Mojang PNG is shipped.
+| Parts | Vanilla pattern | Tint |
+|---|---|---|
+| Blue underwrap | `cloth.white_wool` | `#1463b5` |
+| Crossed silk / side returns | `cloth.white_wool` | `#f6686d` |
+| Curved silver blade | `metal.iron_block` | `#cce4f4` |
+| Cutting edge / web spokes | `metal.iron_block` | `#b9d0da` |
+| Dark spine | `metal.iron_block` | `#293641` |
+| Tsuba core | `metal.iron_block` | `#ffb638` |
+| Rim, ferrules, pommel, pins, engraving | `metal.iron_block` | `#ffdc79` |
 
-The first material pass produced conspicuous alternating blade bands where
-independent section crops hit iron borders. The second Forge batch aligns silver,
-edge and spine crops within quiet parts of their metal textures, retaining density.
-Opened and reviewed `before.png`, final `after.png`, `contexts.png`, `inventory.png`,
-`player-contexts.png` and `sweep.png`. Inventory evidence includes 16/32/64px
-nearest-neighbor samples; silhouette and metal/gold/grip separation survive. Red/blue grip detail
-is clearer at 32/64px; subpixel web spokes and pins merge at 16px as expected. The blade is readable from both sides and
-oblique views; red crossings remain distinct against blue, and gold frames the
-handle. Thin dark spine visibility in edge views is expected. Original stepped
-blade joins remain visible; changing their geometry is outside this task.
+The historical atlas's silver is cool blue-gray, not white. Its underwrap is
+navy/blue, crossed silk is coral/crimson, and **the tsuba core is gold**, despite
+the first vanilla pass assigning anvil there. Light iron and white wool preserve
+metal and fabric patterns while allowing those colours to survive multiplication.
+Gold fittings contrast with the blue underwrap and red crossing, keeping this
+thin curved katana recognizable among the other blades. No new textures.
 
-The player board includes both hands in first/third person, a third-person side
-view, two ground spins, fixed and GUI. The viewer sweep covers 26 directions and
-nine contexts with no browser errors; `cameras.json` records its asset and cameras.
-The interactive viewer and cached vanilla pixels stay in ignored `build/`/`.cache/`.
+## Critic and verifier
 
-## Critic / verifier
+Opened `before.png`, `after.png`, `contexts.png`, `inventory.png`,
+`player-contexts.png` and `sweep.png`. The latter covers 26 orbit directions;
+player contexts cover both hands in first/third person, a side view, two ground
+spins, fixed and GUI. The browser rendered all 35 views without errors.
 
-- Silhouette faithful to original: yes, eight matching views and identical cuboid
-  geometry. No separate concept image was supplied for this material-only task.
-- Lengths, proportions, rotations and display fit retained: yes, exact structural
-  comparison of all 148 elements and every display transform.
-- Front/back/oblique ornament reads: yes; guard and crossed wrap remain visible.
-- Joins intentional: existing overlaps retained; no new geometry or face removals.
-- UV coverage/palette: yes, block-only references and one texel/unit on every face.
-- Proposed fix: e0003–e0050 (silver/edge/spine triplets), replace random UV offsets
-  with silver (4,7), edge (4,1), spine (6,5), keeping each rectangle's dimensions.
-  Expected: remove dark/light bands caused by texture borders on adjacent pieces.
-- Verifier: final eight-view board removes the bands and retains the narrow dark
-  spine; neither opposite side nor player contexts regresses. Fine segment joins
-  are existing geometry. Native-client verification is recorded below.
+- Silhouette/proportions: yes, all 148 elements' non-face fields are exactly HEAD.
+  No splits, geometry edits, face removal, or display changes.
+- Ornament/front/back/oblique readability: yes, the gold guard frames the red/blue
+  grip; cool silver and dark spine survive opposite views. Thin edge-on blade
+  visibility follows the original geometry.
+- Palette/UVs: yes, seven constant tints; quiet aligned iron crops on blade sections
+  retain the existing seam mitigation and one texel per model unit.
+- Inventory: yes at 32/64px; at 16px the slender silhouette and gold/red grip read,
+  while individual wrapping crosses and spokes merge into subpixel detail.
+- Joins: original stepped blade edges and layered wrap remain. No claim of a new
+  geometry/z-fighting audit; no separate concept image supplied for this recolour.
+- Requested fix: recover historical part hues, including the gold tsuba, with light
+  vanilla bases. Verifier: before/after boards show matching colour families and
+  the same shape; neither reverse views nor player contexts show a new regression.
+
+`verification.json` records exact geometry/display preservation and identical
+Forge export/reimport. Validation has zero errors and unchanged conservative
+warnings: 342 AABB overlaps, 19 possible coplanar contacts, one disconnected
+component report. No unit/integration tests, Gradle, E2E, Docker, server or push.
 
 ## Reproduction
 
-Save the original model from this commit's parent and use a fresh project:
+From this commit's parent, save the two independent inputs and use a fresh project:
 
 ```sh
-git show <parent>:content/models/items/gossamer-katana.model.json > /tmp/gossamer-before.json
+git show 36743b70:content/models/items/gossamer-katana.model.json > /tmp/gossamer-original.json
+git show <parent>:content/models/items/gossamer-katana.model.json > /tmp/gossamer-head.json
 python3 tools/model-forge/batches/vanilla-material/gossamer-katana/remake.py \
-  --project /tmp/gossamer-forge --before /tmp/gossamer-before.json
-python3 tools/model-forge/batches/vanilla-material/gossamer-katana/capture-pack.py \
-  --out build/gossamer-katana/game/resourcepacks/vanilla-material
+  --project /tmp/gossamer-tint-forge --before /tmp/gossamer-original.json \
+  --head /tmp/gossamer-head.json
+flock /tmp/claude-1000/astera-mc-client.lock \
+  python3 tools/model-forge/batches/vanilla-material/gossamer-katana/capture-client.py
 ```
 
-Forge operations and their validation summaries are in `operations.json`.
-Validation has zero errors; conservative warnings are unchanged: 342 AABB overlaps,
-19 possible coplanar contacts and one disconnected-component report. These reflect
-existing layered wrap, ornaments and stepped blade construction. The transient
-mixed-atlas warning in the two material batches refers to the unused original item
-texture slot; packaging removes it, and final import has no atlas warning.
+The capture helper expects a fresh game/pack directory under
+`build/gossamer-katana-client`. Create a creative superflat with commands enabled
+in its UI; the helper applies capture commands after login. It uses portablemc
+26.3, dynamic Xvfb display, llvmpipe, 1280×720, FOV 70, view bob off, GUI scale 2.
+The minimal pack follows the builder: remove `astera_tints` from cuboid JSON and
+emit all seven `minecraft:constant` sources in the item definition. Exact model
+and tint-array equality with that extraction are checked. No vanilla PNGs copied.
 
-## Native client verification
+## Remaining risks / catalog wishes
 
-`client.png` is the unedited 1280×720 Xvfb root screenshot from the real Minecraft
-Java 26.3 portablemc runtime, llvmpipe/OpenGL. It was opened and reviewed. Capture
-ran inside the shared `/tmp/claude-1000/astera-mc-client.lock` for the complete
-Xvfb/client session, using a dynamically allocated display and unique game directory
-`build/gossamer-katana/game`. No server or production deployment was used.
+Existing stepped blade joins and overlapping ornaments remain visible, especially
+at native first-person scale. Still captures do not cover swing/use animations,
+alternate FOV or shader packs. Production pack/build/deployment verification stays
+with manager CI. No catalog additions needed; wool remains coarser than silk at
+close range, but supplies the required cloth pattern without a new asset.
 
-The isolated singleplayer world is creative superflat, structures off, commands on,
-peaceful, noon, FOV 70, view bob off, GUI scale 2. The player holds
-`minecraft:iron_sword[minecraft:item_model="astera:gossamer-katana"]`. The minimal
-capture pack contains the exact authored model bytes and a builder-equivalent
-`blocks/` atlas directory source, with no vanilla PNGs or atlas duplication.
+## Native client verdict
 
-Native iron, dark spine, gold and blue/red cloth are present without missing-model
-fallbacks; the screen center is clear. Existing stepped joins are more visible at
-native perspective scale, and the grip continues below the frame with the original
-display transform. The successful client log has no mixed-atlas, missing-texture,
-model-loading or duplicate-sprite warnings. Offline-account Realms authentication
-errors are unrelated to this local singleplayer capture.
-
-Launch with the existing portablemc runtime under `flock`, Xvfb `-displayfd`,
-`LIBGL_ALWAYS_SOFTWARE=1`, `LP_NUM_THREADS=4`, `SDL_VIDEODRIVER=x11`, at 1280×720.
-Truncate the display file before launch and wait for both its number and a successful
-`xdpyinfo` response before starting the client. Two startup-only attempts were
-corrected (an unsupported launcher option, then a stale-display startup race);
-neither involved changing the asset or capture pack. Final capture uses the normal
-`start 26.3 --mc-dir ... -u KatanaReview --resolution 1280x720 --jvm-arg=-Xmx1G`.
-
-## Remaining risks and catalog wishes
-
-- Existing tiny intersections and stepped blade joins are retained; this is not a
-  full geometry/z-fighting audit.
-- Offline lighting and approximate hands differ from the native client; animation,
-  swing, FOV variation and shader packs are not covered by still captures.
-- Production pack/deployment verification remains with manager CI. No Gradle,
-  tests, E2E, Docker, server or push is run by this worker.
-- Catalog wish: a low-contrast brushed steel and smooth crimson silk material.
-  Iron and red wool are the closest existing entries; the catalog is unchanged.
+Opened the final `client.png`: the blue-gray blade, dark spine, golden tsuba and
+fittings, navy underwrap and coral crossings render in the real 26.3 client.
+The centre stays clear; the current HEAD display places the lower grip below the
+screen. Original blade steps are pronounced at this perspective, retained as
+required. The raw screenshot is unedited 1280×720. This capture used a newly
+created isolated creative superflat named `Gossamer Tint Review`, structures off,
+commands on, peaceful/noon/clear. The whole launch, UI and screenshot session held
+the shared flock. No mixed-atlas, missing-texture, model-loading, duplicate-sprite
+or failed capture-command messages occurred. Offline-account Realms errors are
+unrelated to this local singleplayer review.

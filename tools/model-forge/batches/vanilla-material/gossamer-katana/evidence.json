@@ -1,66 +1,232 @@
 {
-  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe/OpenGL, 1280x720",
-  "capture": "Isolated creative superflat singleplayer; structures off, peaceful, noon, FOV 70, view bob off, GUI scale 2. Native screenshot, no image editing. Entire client session serialized with flock /tmp/claude-1000/astera-mc-client.lock; dynamic Xvfb display, unique build/gossamer-katana/game directory. No server, Docker, Gradle, tests or push.",
+  "client": "Minecraft Java 26.3, portablemc, dynamic Xvfb, llvmpipe/OpenGL, 1280x720",
+  "capture": "New isolated creative superflat Gossamer Tint Review; structures off, commands on, peaceful, noon, clear, FOV 70, view bob off, GUI scale 2. Native unedited screenshot. Entire launch/capture serialized by flock /tmp/claude-1000/astera-mc-client.lock. Unique game directory build/gossamer-katana-client. No server, Docker, Gradle, tests or push.",
   "item": "minecraft:iron_sword[minecraft:item_model=\"astera:gossamer-katana\"]",
-  "resourcePack": "Minimal capture pack with exact authored model bytes and builder-equivalent blocks/ directory atlas source. Only vanilla block references; no custom or copied vanilla PNGs.",
+  "resourcePack": "Minimal capture pack: cuboid JSON exactly equals authored model with astera_tints removed; item definition has the identical seven minecraft:constant RGB values. Builder-equivalent blocks/ directory atlas source. No custom or copied Mojang PNGs.",
   "modelElements": 148,
-  "sha256": {
-    "content/models/items/gossamer-katana.model.json": "36074b72bbdae59825f91d84bf18953d9d4ec5872ecd2048ddd039737d2efc62",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/after.png": "9b44166759050a7f5dadb1b7f02bf91248c4208b2ebbc028c6a77a98040684e4",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/before.png": "200e5c64e71d1cd0e4aff5780293c466919144dcd49d984783386a32f718acfd",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/cameras.json": "b39d42c97f794e44e645df653dd614c80ba3cb9f9bacbc35e6ec16df12c1f6bb",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/capture-pack.py": "7b0ecccd47f6d1e3f6e623711e73c251ed3f6a029a863805b1316d672fb9fb3d",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/client.png": "2f32d7bfe595b6fcc8c30efcb56c5ee493324da8157119b9498ea02938e028d1",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/contexts.png": "746e3cf2abca3ec7d28794cdb8b3ceaa3b02307aaa98448295a3bd9257fc6676",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/inventory.png": "e6c8e8b30b1dec27613fdcfe1606b649fbbad84c34c9c2a425d146d59365a857",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/operations.json": "14aa21f71a1dfe4f3933081a52746f712502703e5edc4c9642f62b9cac3c37e7",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/player-contexts.png": "4ae680376e3e63ea1639ecc5ec744395258769a66a3b6c52e84bc2a355e56986",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/remake.py": "5aaf4d279422046d024e3fa21627b3f74074cf617c3ae88f6596503359e60641",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/review.md": "59581991d3f25642368a2ab8f975c932178d75e1bfc25bc748e256775323368f",
-    "tools/model-forge/batches/vanilla-material/gossamer-katana/sweep.png": "358cc4c3994cbc65f08a0ba05b54172a567fca9b764f23bf1318af7c25ad9001"
-  },
-  "remainingRisks": [
-    "Production pack build and deployment verification deferred to manager CI.",
-    "Original stepped blade joins and overlapping ornament cuboids retained; segment seams are visible in native perspective.",
-    "Offline hand/camera/lighting differ from native rendering; still captures do not cover swing, use animations, alternate FOVs or shader packs.",
-    "Original first-person display transform places the lower grip beyond the bottom screen edge."
+  "paletteSourceCommit": "36743b70",
+  "geometryAndDisplaySourceCommit": "10c182aaef7d9a44490bcf7e8e5f44749cd32a96",
+  "sourceModelSha256": "0f8cac4c7e2ed8700135af948360f8214ecd6e7846fc9bed9c3eecb1163ff0f5",
+  "sourceTextureSha256": "d2b09a9d4ed2e22b11962ad5868be57fb31a9403330a5fd73d5de5558db61773",
+  "palette": [
+    "#1463b5",
+    "#ffb638",
+    "#cce4f4",
+    "#b9d0da",
+    "#293641",
+    "#ffdc79",
+    "#f6686d"
   ],
   "materialMap": {
-    "silverBladeCuttingEdgeAndWebSpokes": "metal.iron_block",
-    "darkSpineAndTsubaCore": "metal.anvil",
-    "goldFittingsPinsAndEngraving": "metal.gold_block",
-    "blueUnderwrap": "cloth.blue_wool",
-    "crimsonSilk": "cloth.red_wool"
+    "#1463b5": {
+      "material": "cloth.white_wool",
+      "ids": [
+        "e0001"
+      ]
+    },
+    "#ffb638": {
+      "material": "metal.iron_block",
+      "ids": [
+        "e0002"
+      ]
+    },
+    "#cce4f4": {
+      "material": "metal.iron_block",
+      "ids": [
+        "e0003",
+        "e0006",
+        "e0009",
+        "e0012",
+        "e0015",
+        "e0018",
+        "e0021",
+        "e0024",
+        "e0027",
+        "e0030",
+        "e0033",
+        "e0036",
+        "e0039",
+        "e0042",
+        "e0045",
+        "e0048"
+      ]
+    },
+    "#b9d0da": {
+      "material": "metal.iron_block",
+      "ids": [
+        "e0004",
+        "e0007",
+        "e0010",
+        "e0013",
+        "e0016",
+        "e0019",
+        "e0022",
+        "e0025",
+        "e0028",
+        "e0031",
+        "e0034",
+        "e0037",
+        "e0040",
+        "e0043",
+        "e0046",
+        "e0049",
+        "e0124",
+        "e0125",
+        "e0126",
+        "e0127",
+        "e0128",
+        "e0129",
+        "e0130",
+        "e0131",
+        "e0132",
+        "e0133",
+        "e0134",
+        "e0135"
+      ]
+    },
+    "#293641": {
+      "material": "metal.iron_block",
+      "ids": [
+        "e0005",
+        "e0008",
+        "e0011",
+        "e0014",
+        "e0017",
+        "e0020",
+        "e0023",
+        "e0026",
+        "e0029",
+        "e0032",
+        "e0035",
+        "e0038",
+        "e0041",
+        "e0044",
+        "e0047",
+        "e0050"
+      ]
+    },
+    "#ffdc79": {
+      "material": "metal.iron_block",
+      "ids": [
+        "e0051",
+        "e0052",
+        "e0053",
+        "e0054",
+        "e0055",
+        "e0056",
+        "e0057",
+        "e0058",
+        "e0059",
+        "e0060",
+        "e0061",
+        "e0062",
+        "e0063",
+        "e0064",
+        "e0065",
+        "e0066",
+        "e0067",
+        "e0068",
+        "e0069",
+        "e0070",
+        "e0071",
+        "e0104",
+        "e0105",
+        "e0106",
+        "e0107",
+        "e0136",
+        "e0137",
+        "e0138",
+        "e0139",
+        "e0140",
+        "e0141",
+        "e0142",
+        "e0143",
+        "e0144",
+        "e0145",
+        "e0146",
+        "e0147",
+        "e0148"
+      ]
+    },
+    "#f6686d": {
+      "material": "cloth.white_wool",
+      "ids": [
+        "e0072",
+        "e0073",
+        "e0074",
+        "e0075",
+        "e0076",
+        "e0077",
+        "e0078",
+        "e0079",
+        "e0080",
+        "e0081",
+        "e0082",
+        "e0083",
+        "e0084",
+        "e0085",
+        "e0086",
+        "e0087",
+        "e0088",
+        "e0089",
+        "e0090",
+        "e0091",
+        "e0092",
+        "e0093",
+        "e0094",
+        "e0095",
+        "e0096",
+        "e0097",
+        "e0098",
+        "e0099",
+        "e0100",
+        "e0101",
+        "e0102",
+        "e0103",
+        "e0108",
+        "e0109",
+        "e0110",
+        "e0111",
+        "e0112",
+        "e0113",
+        "e0114",
+        "e0115",
+        "e0116",
+        "e0117",
+        "e0118",
+        "e0119",
+        "e0120",
+        "e0121",
+        "e0122",
+        "e0123"
+      ]
+    }
   },
-  "catalogWishes": [
-    "Low-contrast brushed steel; used metal.iron_block.",
-    "Smooth crimson silk; used cloth.red_wool."
-  ],
-  "sourceCommit": "659893b9fd76639a41dda706ac14adf6ff24ebab",
-  "sourceModelSha256": "0f8cac4c7e2ed8700135af948360f8214ecd6e7846fc9bed9c3eecb1163ff0f5",
   "structuralVerification": {
-    "geometryRotationsFaceCoverageUnchanged": true,
-    "allTopLevelFieldsExceptTexturesAndElementFacesUnchanged": true,
+    "geometryRotationsNamesFaceCoverageUnchanged": true,
     "displayTransformsUnchanged": true,
+    "noSplits": true,
     "allFacesOneTexelPerLocalModelUnit": true,
-    "noSplitsRequired": true,
-    "blockAtlasOnly": true,
-    "capturePackModelByteIdentical": true
+    "otherTopLevelMetadataUnchanged": true,
+    "exportImportIdentical": true,
+    "exportedPngs": 0,
+    "capturePackMatchesBuilderTintExtraction": true
   },
   "validation": {
-    "errors": 0,
+    "valid": true,
+    "errors": [],
     "warnings": {
-      "overlap_aabb": 342,
       "coplanar_contact_possible_zfight": 19,
+      "overlap_aabb": 342,
       "floating_components_aabb": 1
-    },
-    "unchangedFromOriginal": true
+    }
   },
   "clientLogVerification": {
     "mixedAtlasErrors": 0,
     "missingTextureErrors": 0,
     "modelLoadingErrors": 0,
-    "duplicateSpriteWarnings": 0
+    "duplicateSpriteWarnings": 0,
+    "captureCommandErrors": 0
   },
   "visualReview": {
     "opened": [
@@ -74,6 +240,30 @@
     ],
     "offlineSweepViews": 35,
     "browserErrors": 0,
-    "fix": "Aligned silver/edge/spine UV offsets within quiet metal regions after first-pass random crops produced alternating bands."
+    "verdict": "Historical part hues restored, including gold tsuba core; metal and cloth patterns retained, original geometry and HEAD display unchanged."
+  },
+  "catalogWishes": [],
+  "remainingRisks": [
+    "Existing stepped blade joins and overlapping ornaments retained.",
+    "Wool pattern is coarser than silk at close range.",
+    "Still captures do not cover swing/use, alternate FOVs or shaders.",
+    "Production pack build and deployment verification deferred to manager CI."
+  ],
+  "sha256": {
+    "content/models/items/gossamer-katana.model.json": "6ffe35413650d967a3ce9f2bf5496da3f32a43b7f6607cf96e6b851f20042514",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/after.png": "107cbafb1f7726895434ca1739766070295565a24bdea47c41ef61c13c9be330",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/before.png": "200e5c64e71d1cd0e4aff5780293c466919144dcd49d984783386a32f718acfd",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/cameras.json": "0664cc40acf0c4326362713eb9f7e54b7bcf3a6ba2176dde106407222afea0d0",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/capture-client.py": "4380ac68c11ca4fef7e52ac19d7dded332ce62877d80e5ca9ad89608d9e08bff",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/capture-pack.py": "0e68b6caec9db2ed0af52037388a35aa1702d1cc61bcf91b63ebcd1a8dca6302",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/client.png": "eb70d28f891e7eba1d5d938d910492f81eec73663ff49b76636283cf2c820a07",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/contexts.png": "84e888c6c41a39102fb1bf1380709c73517c2ca009e1d8a29c0859a1ea553a4c",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/inventory.png": "aa240dc8a29f560facb9aa5b9de1d35e0b3c5641aa696d0884663e543380bce2",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/operations.json": "f8d39a34b0270fb4e1f4b44f26d81bd9098cccce8c08e6eb894b5ccd0402ab4a",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/player-contexts.png": "e1b940fa4207d0dfae8972c2cb97b3667dd329d73c617dd40bedc8be3fe82ca2",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/remake.py": "d62693e9f130d1455b809d09bdc90547e8f25f866f4cf0820480ff6b179c1559",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/review.md": "b2f472047f3f4dc4f5914a84478648c018e2a85c54e7467f42add68e89c1a287",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/sweep.png": "eaa5af85c27059774d32041e9f0fd6709ecb8b3313b43d8b3875dcec894c6613",
+    "tools/model-forge/batches/vanilla-material/gossamer-katana/verification.json": "cbaba1415c250e039f9e4506d2e3a5049ce751ae4cc35dea1e2a62374548a03f"
   }
 }
