@@ -79,7 +79,9 @@ docker rm -f "$RUNNER" >/dev/null 2>&1 || true
 if [ "$E2E_VIA" = "velocity" ]; then
   VLOG=build/e2e-velocity.log
   "${C[@]}" logs --no-color --no-log-prefix e2e-velocity > "$VLOG" 2>&1 || true
-  bad="$(grep -nE 'Exception|did not decode|Failed to decode|decode.*(error|fail)|ERROR' "$VLOG" | head -20)"
+  # A client socket that vanished mid-write (backend kicked the bot) logs "decode frame" + "Broken pipe": a peer
+  # disconnect race, not a protocol decode failure. Those line pairs are ignored.
+  bad="$(awk '{l[NR]=$0} END{for(i=1;i<=NR;i++){ if (l[i] ~ /Exception|did not decode|Failed to decode|decode.*(error|fail)|ERROR/ && l[i] !~ /Broken pipe|Connection reset/ && l[i+1] !~ /Broken pipe|Connection reset/) print i":"l[i] }}' "$VLOG" | head -20)"
   if [ -n "$bad" ]; then
     echo "[e2e] FAIL: Velocity logged decode errors / exceptions (see $VLOG):"; echo "$bad"
     rc=1

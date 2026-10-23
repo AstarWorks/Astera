@@ -10,12 +10,51 @@ import org.assertj.core.api.Assertions.assertThat
  * targets stand still, so a fixed "3 blocks behind the target, looking at it" pose is the deterministic stand-in).
  * Server truth (positions, game mode) is read over RCON; everything a player *sees* (sidebar, chat, action bar) is read
  * from the bot's own packets.
+ *
+ * Matches are played on sky islands in the void `arenas` world (ADR-0246, top layer y=64, players stand at y=65). A console
+ * command without `execute in` runs in the overworld, so every arena coordinate below goes through [inArena].
  */
 abstract class PlaythroughBase : E2eBase() {
 
     protected data class MatchLine(val id: String, val phase: String, val raw: String)
 
     protected fun clean(s: String): String = s.replace(Regex("§.|\u001B\\[[0-9;]*m"), "")
+
+    /** [command] executed in the `arenas` world (console commands default to the overworld). */
+    protected fun inArena(command: String): String = rcon("execute in minecraft:arenas $command")
+
+    /** Teleports [name] inside the arena world (a bare `tp x y z` from the console would pull the bot into the overworld). */
+    protected fun tpArena(name: String, x: Double, y: Double, z: Double, yaw: Float, pitch: Float) {
+        inArena("run tp $name $x $y $z $yaw $pitch")
+    }
+
+    /** True when the arena-world block at the cell is [block] (e.g. `minecraft:emerald_block`). */
+    protected fun arenaBlockIs(x: Int, y: Int, z: Int, block: String): Boolean =
+        clean(inArena("if block $x $y $z $block")).startsWith("Test passed")
+
+    /** True when the arena-world cell holds anything but air. */
+    protected fun arenaSolid(x: Int, y: Int, z: Int): Boolean =
+        clean(inArena("unless block $x $y $z minecraft:air")).startsWith("Test passed")
+
+    /** The dimension id the server says [b] is in (`minecraft:arenas`), or null. */
+    protected fun dimensionOf(b: Bot): String? =
+        Regex("\"(minecraft:[a-z_]+)\"").find(rcon("data get entity ${b.name} Dimension"))?.groupValues?.get(1)
+
+    /**
+     * Null when [b] stands on a solid block of the arena world (feet above a non-air block, in `minecraft:arenas`),
+     * otherwise a description of what is wrong. This is the "spawns on an island, not in the flat world / the void" proof.
+     */
+    protected fun islandStanceProblem(b: Bot): String? {
+        val dim = dimensionOf(b)
+        if (dim != "minecraft:arenas") return "${b.name} is in dimension $dim, not minecraft:arenas"
+        val (x, y, z) = posOf(b) ?: return "${b.name} has no position"
+        val bx = kotlin.math.floor(x).toInt()
+        val bz = kotlin.math.floor(z).toInt()
+        val below = kotlin.math.floor(y - 0.001).toInt()
+        if (!arenaSolid(bx, below, bz)) return "${b.name} at ($x, $y, $z) has no block under its feet (cell $bx $below $bz is air)"
+        if (y - (below + 1) > 0.6) return "${b.name} at ($x, $y, $z) is ${y - (below + 1)} blocks above the block under it (falling?)"
+        return null
+    }
 
     protected fun matchLines(): List<MatchLine> =
         clean(rcon("astera match list")).lineSequence().mapNotNull { line ->
@@ -141,6 +180,11 @@ abstract class PlaythroughBase : E2eBase() {
         .filter { !it.contains("authlib") && !it.contains("sessionserver.mojang.com") && !it.contains("SocketTimeoutException") }
         .filter { it.contains("/ERROR]") || it.contains("NotImplementedError") || it.contains(" threw") || (it.contains("/WARN]") && it.contains("Exception")) }
         .toList()
+
+    /** Vanilla death lines ("Sg1 was slain by Zombie") the server logged since line [from]: names the killer when a bot dies. */
+    protected fun deathsSince(from: Int): List<String> = ServerLog.read().lineSequence().drop(from)
+        .filter { it.contains("/INFO]") && Regex(" (was|died|drowned|fell|burned|hit the ground|suffocated|starved|withered|tried to)\\b").containsMatchIn(it) }
+        .map { it.substringAfter("]: ", it) }.toList()
 
     protected fun logLineCount(): Int = ServerLog.read().lineSequence().count()
 

@@ -36,6 +36,9 @@ class PersonaWeaponsE2eTest : E2eBase() {
         "orrery-staff" to listOf(2..2, 4..4, 7..8), "edict-blade" to listOf(3..3, 3..3, 6..6),
     )
 
+    /** Defensive bindings whose reference design has no VFX at all (frame analysis: two backward evasions); they are checked by the caster's velocity packets (propel) instead of display spawns. */
+    private val displayFreeDefs = setOf("crimson-chain-axe")
+
     private val triggers = listOf("left_click" to true, "right_click" to true, "sneak_right" to true, "sneak_left" to false)
 
     private val displayTypes = setOf("BLOCK_DISPLAY", "ITEM_DISPLAY", "TEXT_DISPLAY")
@@ -123,8 +126,10 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 val dmgPacketsBefore = t.packetCounts["ClientboundDamageEventPacket"]?.get() ?: 0
                 val hurtBefore = t.packetCounts["ClientboundHurtAnimationPacket"]?.get() ?: 0
                 val deathsBefore = t.deaths.size
+                val targetChatBefore = t.chat.size
                 val selfDmgBefore = t.damageEventEntities.size
                 val numbersBefore = a.damageNumbers.size
+                val motionBefore = a.packetCounts["ClientboundSetEntityMotionPacket"]?.get() ?: 0
                 val castAt = System.currentTimeMillis()
 
                 when (trigger) {
@@ -165,7 +170,10 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 val typeCounts = spawnedAt.groupingBy { it.type }.eachCount()
 
                 val hpAfter = hp(t)
-                val damaged = (hpBefore != null && hpAfter != null && hpAfter < hpBefore) || t.healthHistory.drop(healthHistBefore).any { hpBefore != null && it < hpBefore }
+                // A lethal hit outside a match sends the victim to the lobby at full HP before any poll sees the dip;
+                // the "You were defeated" notice is the evidence of that hit.
+                val defeated = t.chatTexts().drop(targetChatBefore).any { it.contains("defeated", ignoreCase = true) }
+                val damaged = defeated || (hpBefore != null && hpAfter != null && hpAfter < hpBefore) || t.healthHistory.drop(healthHistBefore).any { hpBefore != null && it < hpBefore }
                 val hits = (t.packetCounts["ClientboundDamageEventPacket"]?.get() ?: 0) - dmgPacketsBefore
                 val hurts = (t.packetCounts["ClientboundHurtAnimationPacket"]?.get() ?: 0) - hurtBefore
                 // Reliable hit count: damage-event packets whose victim is the target itself (the server sends one per
@@ -186,7 +194,11 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 }
                 rows += Row(w, trigger, spawnedIds.size, maxLive, leaked.isEmpty(), peakMix.entries.joinToString(" ") { "${it.key.removeSuffix("_DISPLAY").lowercase()}=${it.value}" }, lifetime, "$hpBefore->$hpAfter", hitEvents, healthDrops, died, simExp)
 
-                E2eReport.check(suite, "$label: display entities spawn", "ClientboundAddEntity (block/item/text display)") {
+                if (!offensive && w in displayFreeDefs) E2eReport.check(suite, "$label: evasion pushes the caster (propel)", "ClientboundSetEntityMotion") {
+                    val pushes = (a.packetCounts["ClientboundSetEntityMotionPacket"]?.get() ?: 0) - motionBefore
+                    assertThat(pushes).describedAs("no velocity packet reached the caster after the evasion cast; actionbar=${a.actionBars.takeLast(2).map { visible(it.text) }}").isGreaterThanOrEqualTo(1)
+                    "$pushes velocity packets (bots do not simulate physics, so displacement is not observable)"
+                } else E2eReport.check(suite, "$label: display entities spawn", "ClientboundAddEntity (block/item/text display)") {
                     assertThat(spawnedIds).describedAs("no display entity reached the attacker; add-packets=${ev.filter { it.added }.groupingBy { it.type }.eachCount()}; actionbar=${a.actionBars.takeLast(3).map { visible(it.text) }}").isNotEmpty()
                     "spawned ${spawnedIds.size} $typeCounts, max concurrent $maxLive"
                 }

@@ -13,7 +13,7 @@ import java.time.Instant
  * `BukkitEventAdapter.onPlayerJoin` will translate the Paper event into this
  * domain variant.
  *
- * Initial subscriber: `RestoreInventoryOnPlayerJoinedListener`, which fires
+ * Initial subscriber: `PlayerHandoffService`, which fires
  * `RestoreInventorySnapshotUseCase`. Future Wave-6b subscribers may include
  * the tutorial-step resume listener and the level-up greeting listener.
  *

@@ -165,7 +165,7 @@ e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, v
 	bash scripts/e2e.sh down
 
 .PHONY: vfx-shot
-vfx-shot: ## Film a skill with a real headless MC client: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|all] [TICKS=60]
+vfx-shot: ## Film a skill with a real headless MC client: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|all] [TICKS=60] [FOV=90]
 	@test -n "$(SKILL)" || { echo "usage: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|all] [TICKS=60]"; exit 2; }
 	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(or $(TICKS),60)" bash tools/vfx-shot/vfx-shot.sh
 
@@ -182,7 +182,7 @@ live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=
 	bash scripts/live-bots.sh $(or $(SCENARIO),all)
 
 .PHONY: skill-compare
-skill-compare: ## Video vs intent vs Minecraft compare web app on 0.0.0.0:8097 (PORT=, HOST= to change)
+skill-compare: ## Video vs Minecraft (+ text beat sheet) compare web app on 0.0.0.0:8097 (PORT=, HOST= to change)
 	cd tools/skill-compare && bun install && bun server.mjs
 
 .PHONY: skill-compare-fetch
@@ -197,6 +197,12 @@ export SKILL_COMPARE_VIDEO_DIR ?= $(HOME)/.cache/astera-skill-compare/videos
 skill-compare-case: ## New case + native-fps frames: make skill-compare-case CASE=<id> VIDEO=<youtubeId> START=<s> END=<s> SKILL=<astera-skill-id> [NAME=..] [COINS=..] [IDENTITY=..] [WEAPON=<item-id>] [TITLE=<video title>]
 	@test -n "$(CASE)" -a -n "$(VIDEO)" -a -n "$(START)" -a -n "$(END)" -a -n "$(SKILL)" || { echo "usage: make skill-compare-case CASE=<id> VIDEO=<youtubeId> START=<s> END=<s> SKILL=<astera-skill-id> [NAME=..] [COINS=..] [IDENTITY=..] [WEAPON=<item-id>] [TITLE=<video title>]"; exit 2; }
 	cd tools/skill-compare && bun install && bun scripts/scaffold.mjs "$(CASE)" "$(VIDEO)" "$(START)" "$(END)" "$(SKILL)" "$(NAME)" "$(COINS)" "$(IDENTITY)" "$(WEAPON)" "$(TITLE)"
+
+.PHONY: skill-brief
+skill-brief: ## Browser-free AI brief: reference|in-game contact sheets + manifest.json -> build/brief/<case>/: make skill-brief CASE=<id> [SKILL=..] [VIEW=compare] [AT="t:label .."]
+	@test -n "$(CASE)" || { echo "usage: make skill-brief CASE=<id> [SKILL=<skill>] [VIEW=compare|input|caster|opponent|side] [AT=\"19.7:extra\"]"; exit 2; }
+	cd tools/skill-compare && bun install >/dev/null
+	python3 -I tools/skill-compare/scripts/brief.py --case "$(CASE)" $(if $(SKILL),--skill "$(SKILL)") $(if $(VIEW),--view "$(VIEW)") $(if $(OUT),--out "$(OUT)") $(AT)
 
 .PHONY: skill-pairs
 skill-pairs: ## Video vs MC frame pairs at video times -> build/pairs/<case>.png: make skill-pairs CASE=<id> [SKILL=<skill>] AT="t1:label t2:label ..."

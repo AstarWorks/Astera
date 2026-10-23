@@ -50,9 +50,9 @@ x-astera-backend: &astera-backend
     # `make dev-plugins` updates both copies; a rebuilt image (make docker-up) must win (ADR-0186).
     SYNC_SKIP_NEWER_IN_DESTINATION: "false"
     CFG_VELOCITY_SECRET: "${VELOCITY_FORWARDING_SECRET:?VELOCITY_FORWARDING_SECRET is empty: run `make docker-up` (it generates one in docker/.env)}"
-    # Playtest world: superflat (surface block y=-61, stand at y=-60), so
-    # content/stages/example-arena.yaml coordinates sit on ground. Only
-    # applies when the world is first created (see playtest.md "reset").
+    # Main world: superflat (surface block y=-61, stand at y=-60). Matches are not played here: the
+    # stages in content/stages/ are sky islands Astera builds into the void `arenas` world (ADR-0246).
+    # Only applies when the world is first created (see playtest.md "reset").
     LEVEL_TYPE: "minecraft:flat"
     # 26.3 rejects empty flat settings ("No key layers in MapLike[{}]"), so spell the vanilla
     # default out: bedrock y=-64, dirt -63..-62, grass -61 (stand at y=-60). Lobby backend: the

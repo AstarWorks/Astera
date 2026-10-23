@@ -13,22 +13,26 @@
     <h1 id="title">loading&hellip;</h1>
     <span class="sub" id="sub"></span>
     <span>focus column:
-      <button data-focus="">all</button><button data-focus="video">video</button><button data-focus="intent">intent</button><button data-focus="mc">minecraft</button>
+      <button data-focus="">all</button><button data-focus="video">video</button><button data-focus="mc">minecraft</button>
     </span>
   </div>
   <nav id="skillnav" aria-label="この武器のスキル"></nav>
   <div class="cols" id="cols">
-    <section class="col" data-col="video"><h2>Video <small id="vinfo"></small></h2>
+    <section class="col" data-col="video"><h2>参照映像 <span class="tag">Reference</span> <small id="vinfo"></small></h2>
       <div class="view"><canvas id="vcv"></canvas><div class="ph on" id="vph">frames not cached: make skill-compare-fetch</div></div></section>
-    <section class="col" data-col="intent"><h2>Intent (my reading) <small id="iinfo"></small></h2>
-      <div class="view" id="stage"><canvas id="cv"></canvas><div id="flash"></div><div id="labels"></div><div class="hud" id="hud"></div></div></section>
-    <section class="col" data-col="mc"><h2>Minecraft <small id="minfo"></small></h2>
+    <section class="col" data-col="mc"><h2>実機 <span class="tag">In-game</span> <small id="minfo"></small></h2>
       <div class="view"><img id="mimg" alt="minecraft frame"><div class="ph on" id="mph">no Minecraft frames</div><div class="badge" id="mbadge" hidden></div></div>
       <div class="mcctl">
         <select id="msrc" aria-label="minecraft source"></select>
         <label>cast offset <input id="moff" type="range" min="-2000" max="2000" step="10" value="0"> <input id="moffn" type="number" step="10" value="0"> ms</label>
-      </div></section>
+      </div>
+      <div class="prov" id="prov" aria-label="capture provenance"></div></section>
   </div>
+  <section class="beats" id="beats" aria-label="beat sheet">
+    <div class="bcol"><h3>セグメント（時系列）</h3><div class="blist" id="seglist"></div></div>
+    <div class="bcol"><h3>ケースメモ</h3><div class="cnote" id="cnoteView"></div></div>
+    <div class="bcol wide" id="beatwrap" hidden><h3>ビート表（フレーム単位の読み）</h3><div class="blist"><table class="beatt"><thead><tr><th>t</th><th>内容</th><th>武器</th><th>術者の動き</th><th>演出</th><th>メモ</th></tr></thead><tbody id="beatbody"></tbody></table></div></div>
+  </section>
   <div id="buffer" role="status" hidden><span id="bufferText"></span> <button id="bRetry" hidden>再読み込み</button></div>
   <div class="ctl">
     <button id="bFm" title="back 1 video frame (Left)">&#9664; frame</button>
@@ -36,6 +40,8 @@
     <button id="bPlay" class="primary" title="Space">Play</button>
     <button id="bTp" title="forward 1 tick (Shift+Right)">tick &#9654;</button>
     <button id="bFp" title="forward 1 video frame (Right)">frame &#9654;</button>
+    <button id="bHp" title="previous contact ([)">&#9664;&#9664; 接触</button>
+    <button id="bHn" title="next contact (])">接触 &#9654;&#9654;</button>
     <span class="sep"></span>
     <select id="speed" aria-label="speed"><option value="1">1x</option><option value="0.5">0.5x</option><option value="0.25">0.25x</option><option value="0.1">0.1x</option></select>
     <label class="chk"><input type="checkbox" id="fzOn"> 命中付近を自動スロー</label>
@@ -64,7 +70,7 @@
     <label class="ed wide" style="width:100%;display:flex;flex-direction:column"><span style="color:var(--mute);font-size:11.5px">case notes</span><textarea id="cnotes"></textarea></label>
     <div class="log" id="log"></div>
   </div>
-  <div class="note">Space play/pause &middot; &larr;/&rarr; 1 video frame &middot; Shift+&larr;/&rarr; 1 tick (50 ms) &middot; 1-4 speed 1/.5/.25/.1 &middot; F 命中付近を自動スロー &middot; H add hit &middot; Del remove &middot; Esc clear loop &middot; Ctrl+S save &middot; shift-drag timeline = loop &middot; drag hits/segments (snaps to video frames)</div>
+  <div class="note">Space play/pause &middot; &larr;/&rarr; 1 video frame &middot; Shift+&larr;/&rarr; 1 tick (50 ms) &middot; 1-4 speed 1/.5/.25/.1 &middot; F 命中付近を自動スロー &middot; H add hit &middot; Del remove &middot; [ / ] 前/次の接触 &middot; Esc clear loop &middot; Ctrl+S save &middot; shift-drag timeline = loop &middot; drag hits/segments (snaps to video frames)</div>
 </div>
 <script src="/app.js"></script>
 </body>

@@ -67,9 +67,9 @@ class HudE2eTest : E2eBase() {
         a.command("astera items give ${a.name} pistol")
         a.waitUntil(4_000) { a.slotUpdates.size > slotsBefore }
         val hotbarIndex = a.slotUpdates.drop(slotsBefore).lastOrNull { it.containerId == 0 && it.amount > 0 && it.slot in 36..44 }?.let { it.slot - 36 } ?: 0
-        // Face each other on a line at A's position, whatever the arena.
-        rcon("tp ${a.name} ${a.x} ${a.y} ${a.z} 0 0")
-        rcon("tp ${b.name} ${a.x} ${a.y} ${a.z + 4} 180 0")
+        // Face each other on a line at A's position, whatever the arena (it is the void `arenas` world: a bare console tp would pull them into the overworld).
+        rcon("execute in minecraft:arenas run tp ${a.name} ${a.x} ${a.y} ${a.z} 0 0")
+        rcon("execute in minecraft:arenas run tp ${b.name} ${a.x} ${a.y} ${a.z + 4} 180 0")
         Thread.sleep(1_000)
         a.selectHotbar(hotbarIndex)
         Thread.sleep(500)
@@ -115,6 +115,10 @@ class HudE2eTest : E2eBase() {
 
         val worldsBefore = b.worldHistory.size
         val posBefore = b.positionPackets.get()
+        // A PvP lane never starts with one player (game-loop queue floor): bring an opponent.
+        val partner = bot("HudTab2")
+        partner.waitUntil(15_000) { partner.sidebarLines().isNotEmpty() }
+        partner.command("astera queue join norma")
         b.command("astera queue join norma")
         b.waitUntil(45_000) { b.positionPackets.get() > posBefore || b.worldHistory.size > worldsBefore }
         b.waitUntil(15_000) { b.teamOf(b.name)?.first?.startsWith("ast_np_") == true }

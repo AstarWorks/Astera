@@ -51,7 +51,7 @@ class LobbyWorldContentTest {
         val report = ContentLoader(ContentLoader.DEFAULT_PARSERS, LobbyNpcYamlConfig.serializer())
             .loadFrom(content.resolve("lobby-npcs")) { npcs += it }
         assertThat(report.failures).isEmpty()
-        assertThat(npcs).hasSize(7)
+        assertThat(npcs).hasSize(8)
         npcs.forEach { npc ->
             assertThat(npc.spawn.world).describedAs(npc.id).isEqualTo(config.id)
             val at = Vec3(npc.spawn.x, npc.spawn.y, npc.spawn.z)

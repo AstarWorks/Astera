@@ -12,10 +12,24 @@ abstract class E2eBase {
     @BeforeAll
     fun backendUp() {
         E2eEnv.ensureUp()
+        quietWorld()
     }
 
-    protected fun bot(prefix: String, packPolicy: PackPolicy = PackPolicy.LOAD, waitForJoin: Boolean = true): Bot =
-        Bot.join(prefix, packPolicy, waitForJoin = waitForJoin).also { bots += it }
+    /**
+     * The server owns a quiet world (ADR-0245, `content/world-rules/baseline.yaml`): no natural mob spawning, fixed
+     * noon. This only asserts that it did, then clears mobs left over from earlier runs of the persisted world.
+     * (Peaceful difficulty is no option: vanilla refills food there, which would move the energy bar.)
+     */
+    private fun quietWorld() {
+        for (rule in listOf("spawn_mobs", "advance_time")) {
+            val answer = rcon("gamerule $rule")
+            check(answer.trimEnd().endsWith("false")) { "server must ship with gamerule $rule=false (ADR-0245), got: $answer" }
+        }
+        rcon("execute in minecraft:overworld run kill @e[type=!minecraft:player,type=!minecraft:item_display,type=!minecraft:text_display,type=!minecraft:block_display,type=!minecraft:interaction]")
+    }
+
+    protected fun bot(prefix: String, packPolicy: PackPolicy = PackPolicy.LOAD, waitForJoin: Boolean = true, exactName: String? = null): Bot =
+        Bot.join(prefix, packPolicy, waitForJoin = waitForJoin, exactName = exactName).also { bots += it }
 
     protected fun rcon(cmd: String): String = Rcon(E2eEnv.host, E2eEnv.rconPort, E2eEnv.rconPassword).use { it.command(cmd) }
 

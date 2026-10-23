@@ -81,6 +81,7 @@ public class EnergyFoodBarListener(
         val max = pools.capFor(playerId, ResourceType.Energy).maxPool
         val level = EnergyFoodBar.foodLevelFor(pool.energy, max)
         if (!force && lastLevel[playerId] == level) return
+        if (TRACE && level != EnergyFoodBar.MAX_FOOD_LEVEL) log.info("[weapons-debug] food sync {} energy={}/{} level={} force={}", playerId, pool.energy, max, level, force)
         when (val outcome = food.mirrorEnergy(playerId, level)) {
             is Result.Success -> lastLevel[playerId] = level
             is Result.Failure -> if (outcome.error is FoodMutationError.BackendUnavailable) {
@@ -89,7 +90,11 @@ public class EnergyFoodBarListener(
         }
     }
 
+    private val log = org.slf4j.LoggerFactory.getLogger(EnergyFoodBarListener::class.java)
+
     public companion object {
+        private val TRACE: Boolean = System.getenv("ASTERA_DEBUG_WEAPONS") != null
+
         /** One second: faster than a player notices a stale bar after a respawn. */
         public const val RESYNC_PERIOD_TICKS: Long = 20L
     }

@@ -171,6 +171,7 @@ public class CastSkillUseCase(
                         return reject(casterId, skillId, CastRejectionReason.RELOADING, CastSkillError.Reloading(casterId))
                     }
                     val spend = pool.spendResource(casterId, type, cost)
+                    if (TRACE) log.info("[weapons-debug] cast spend {} skill={} {}x{} -> {} tick={}", casterId, skillId.value, type, cost, spend, now)
                     if (spend is Result.Failure) {
                         val have = (spend.error as? ResourceError.Insufficient)?.available ?: 0
                         return reject(
@@ -251,6 +252,7 @@ public class CastSkillUseCase(
         reason: CastRejectionReason,
         error: CastSkillError,
     ): Result<SkillSpec, CastSkillError> {
+        if (TRACE) log.info("[weapons-debug] cast rejected {} skill={} reason={} tick={}", casterId, skillId.value, reason, scheduler.currentTick())
         eventBus.publish(SkillCastRejected(casterId, skillId, reason, scheduler.currentTick()))
         return Result.failure(error)
     }
@@ -260,7 +262,11 @@ public class CastSkillUseCase(
         ResourceType.Energy -> CastRejectionReason.INSUFFICIENT_ENERGY
     }
 
+    private val log = org.slf4j.LoggerFactory.getLogger(CastSkillUseCase::class.java)
+
     private companion object {
+        /** E2E-only trace (`ASTERA_DEBUG_WEAPONS`), quiet by default. */
+        val TRACE: Boolean = System.getenv("ASTERA_DEBUG_WEAPONS") != null
         val SILENCE_ID = StatusEffectId("silence")
         const val TICKS_TO_MS: Long = 50L // 20 tps
     }

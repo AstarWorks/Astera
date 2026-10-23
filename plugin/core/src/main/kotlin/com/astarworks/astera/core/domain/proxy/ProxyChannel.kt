@@ -42,5 +42,8 @@ public value class ProxyChannel(public val name: String) {
 
         /** Game to lobby: accepted / rejected / ended answers to an assignment (ADR-0179). */
         public val MATCH_STATUS: ProxyChannel = ProxyChannel("astera.match.status")
+
+        /** Game to lobby: a player dropped out of a running match and may still come back to it (hold / release). */
+        public val MATCH_RECONNECT: ProxyChannel = ProxyChannel("astera.match.reconnect")
     }
 }

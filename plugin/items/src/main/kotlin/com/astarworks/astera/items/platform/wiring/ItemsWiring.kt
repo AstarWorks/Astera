@@ -129,11 +129,17 @@ public object ItemsWiring {
                     registrations += services.register<IRefinementRandomizer>(it, priority = 0)
                 }
         val refinementProfiles = RefinementProfileRegistry()
-        val refinementReport = com.astarworks.astera.core.application.service.ContentLoader(
-            com.astarworks.astera.core.application.service.ContentLoader.DEFAULT_PARSERS,
-            com.astarworks.astera.items.application.config.refinement.RefinementProfileYaml.serializer(),
-        ).loadFrom(ctx.contentDir.resolve("refinement"), refinementProfiles::registerFromYaml)
-        logger.info("Refinement profiles loaded: ${refinementReport.loaded} ok, ${refinementReport.failed} failed")
+        // Refinement is optional content: no `content/refinement/` means no profiles, not a warning.
+        val refinementDir = ctx.contentDir.resolve("refinement")
+        if (java.nio.file.Files.isDirectory(refinementDir)) {
+            val refinementReport = com.astarworks.astera.core.application.service.ContentLoader(
+                com.astarworks.astera.core.application.service.ContentLoader.DEFAULT_PARSERS,
+                com.astarworks.astera.items.application.config.refinement.RefinementProfileYaml.serializer(),
+            ).loadFrom(refinementDir, refinementProfiles::registerFromYaml)
+            logger.info("Refinement profiles loaded: ${refinementReport.loaded} ok, ${refinementReport.failed} failed")
+        } else {
+            logger.info("No content/refinement directory; refinement profiles not loaded.")
+        }
         registrations += services.register(refinementProfiles, priority = 0)
         // The refinement use cases are exposed as services so the Wave 6
         // inspect-GUI subcommand (item-refine / item-reroll) can resolve

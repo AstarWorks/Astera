@@ -136,7 +136,7 @@ class CombatMatchBugHuntScenarioTest {
             val red = player("red")
             val blue = player("blue")
             val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
-            val started = lifecycle.start(StageId("siege-flat"), "norma")
+            val started = lifecycle.start(StageId("siege-isles"), "norma")
             check(started is Result.Success)
             lifecycle.entry(started.value, red.id, TeamId("red"))
             lifecycle.entry(started.value, blue.id, TeamId("blue"))
@@ -154,7 +154,7 @@ class CombatMatchBugHuntScenarioTest {
     fun `aborting countdown frees the stage for the next match`() {
         scenario("bug-hunt-abort-countdown") {
             val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
-            val stage = StageId("siege-flat")
+            val stage = StageId("siege-isles")
             val first = lifecycle.start(stage)
             check(first is Result.Success)
             lifecycle.end(first.value, EndReason.Cancelled("admin-abort"))

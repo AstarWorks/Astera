@@ -14,8 +14,9 @@
 # checkouts never fight over 25570/8098; the runner reaches the backend over the compose network.
 # Find the host port of a running backend with: `docker compose -p astera-e2e-<id> ... port e2e 25565`.
 #
-# No Postgres / Redis: the in-memory repositories apply when ASTERA_PG_URL /
-# ASTERA_REDIS_URI are unset (role `all` needs no cross-server transfer).
+# No Postgres: the in-memory repositories apply when ASTERA_PG_URL / ASTERA_REDIS_URI are unset (role `all`
+# needs no cross-server transfer). A throw-away Redis (`e2e-redis`) exists only for the "Play vs bots" request
+# and status channels (ADR-0248, ASTERA_BOTS_REDIS_URI); the suite publishes/reads them over a raw socket.
 # The image is built from the same Dockerfile as the dev stack but tagged
 # `astera/minecraft-server:e2e` so it never replaces the dev image.
 
@@ -64,7 +65,11 @@ services:
       CFG_VELOCITY_SECRET: "${E2E_FORWARDING_SECRET:-astera-e2e-forwarding-secret}"
       ASTERA_SERVER_ROLE: "all"
       ASTERA_SERVER_NAME: "e2e"
+      # ADR-0248: "Play vs bots" publishes on astera:bots:request here and listens on astera:bots:status.
+      ASTERA_BOTS_REDIS_URI: "redis://e2e-redis:6379"
       ASTERA_METRICS_ENABLED: "false"
+      # Quiet by default elsewhere: weapon input / cast / energy-bar trace lines ("[weapons-debug]").
+      ASTERA_DEBUG_WEAPONS: "1"
       # Pack URL as a client would see it; the sha1 is read inside the network.
       # Bots never download the pack (they only record the push packet), so the URL is an in-network name.
       ASTERA_RESOURCE_PACK_URL: "http://e2e-resource-pack/astera.zip"
@@ -74,12 +79,24 @@ services:
     depends_on:
       e2e-resource-pack:
         condition: service_started
+      e2e-redis:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "mc-health"]
       interval: 5s
       timeout: 5s
       retries: 60
       start_period: 60s
+
+  # ADR-0248: Redis for the bot request / status channels only.
+  e2e-redis:
+    profiles: ["e2e"]
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
 
   # QA-7: the production front door. Velocity (offline-mode, modern forwarding) in front of the
   # backend, with -Dvelocity.packet-decode-logging=true so every clientbound packet Velocity cannot
@@ -155,6 +172,9 @@ services:
       - -Pe2e.proxyHost=e2e-velocity
       - -Pe2e.proxyPort=25565
       - -Pe2e.velocityLog=/e2e-velocity/logs/latest.log
+      # ADR-0248: the throw-away Redis the suite talks to over a raw socket (bot request / status channels).
+      - -Pe2e.redisHost=e2e-redis
+      - -Pe2e.redisPort=6379
     volumes:
       # The backend's latest.log, read-only: lets checks assert on server-side log lines (HUD diagnostics).
       - e2e-data:/e2e-server:ro

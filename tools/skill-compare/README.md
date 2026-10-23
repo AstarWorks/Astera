@@ -2,25 +2,27 @@
 
 制作・修正の統一手順と合格条件: [Limbus参照武器スキルの制作・修正手順](../../docs/contributing/limbus-skill-reproduction.md)。撮影済み・反復回数到達は再現合格を意味しない。
 
-Local web app (Bun + three.js 0.170, same stack as `tools/skill-viewer`): a reference video at **native fps**, my
-"intent" render of it, and Astera's Minecraft frames, on one millisecond clock with an editable timeline.
+Local web app (Bun): a reference video at **native fps** and Astera's Minecraft frames, side by side on one millisecond clock with an
+editable timeline, plus a text **beat sheet** (segments, case notes, optional `beats`) that follows the clock.
 Not shipped, not in `check`. Needs `bun`, and for fetching `yt-dlp`, `ffmpeg`, `python3` + `numpy`.
 
 ```
 make skill-compare-fetch VIDEO=Svaaq9F7Ty8     # download + native-fps frames + waveform/onsets/cuts into cache/
 make skill-compare                              # http://0.0.0.0:8097  (PORT=, HOST= env); founder: http://192.168.11.5:8097
-bun scripts/shot.mjs --ms 1100 --out build/shot.png [--focus video|intent|mc] [--width 600]   # Chromium screenshot
+bun scripts/shot.mjs --ms 1100 --out build/shot.png [--focus video|mc] [--width 600]   # Chromium screenshot
 ```
 
-Pages: `/` case index, `/case.html?id=<case>`.
+Pages: `/` case index, `/case.html?id=<case>` (video | Minecraft columns, beat sheet under them, timeline below).
 
 ## Data
 
 | Path | In git | What |
 |---|---|---|
-| `data/<case>/case.json` | yes | videoId, start_s/end_s, skill (name, coins, `asteraSkillId`), `segments`, `mc` (source, `offset_ms`, `castTickInTrace`), `focus`, `notes`, `rev`, `editLog` |
-| `data/<case>/intent.json` | yes | my reading of the video (prototype schema; tick 0 = `source.start_s`, 20 ticks/s) |
+| `data/<case>/case.json` | yes | videoId, start_s/end_s, skill (name, coins, `asteraSkillId`), `segments`, optional `beats`, `mc` (source, `offset_ms`, `castTickInTrace`), `focus`, `notes`, `rev`, `editLog` |
 | `cache/` | **no** (gitignored, copyright) | `videos/<id>.mp4`, `<case>/frames/frame_NNNNN.jpg` (native fps, 720p), `meta.json`, `analysis.json` |
+
+Beats (optional, shown as a table in the beat sheet, active row highlighted, click = seek): `[{t_s, label, weapon, caster_move, vfx, notes}]`,
+`t_s` in absolute video seconds, the rest strings (weapon orientation, caster movement, effects per moment). Old `intent*.json` files are ignored.
 
 Segments: `{id, kind: skill|range|hit, label, notes, start_s,end_s | t_s}`, times in absolute video seconds.
 **Save** POSTs the case; the server validates, checks `rev` (409 if someone saved meanwhile), writes `case.json`
@@ -30,9 +32,12 @@ founder's corrections.
 ## Timeline model
 
 Master clock = ms since `start_s`. Video frame = `floor(ms*fps/1000)` (30 fps: 33.3 ms, never resampled);
-MC tick = `floor((ms - castMs)/50)` with `castMs` = skill start + offset slider; intent tick is fractional.
+MC tick = `floor((ms - castMs)/50)` with `castMs` = skill start + offset slider.
 Focus zones: +-150 ms around strong onsets (>= 50 % of the max) and every cut; playback drops to `min(speed, factor)` there
 (factor default 0.2, toggle `F`).
+
+The Minecraft column shows a provenance badge (branch, commit, capture time, FOV + mode, resolution, published / unpublished, repeated-frame warning); a red chip means the capture did not record that field. Columns are labelled
+Reference / In-game and always share one equal 16:9 size. The beat sheet lists the segments in time order (active ones highlighted and scrolled into view; click = seek), the case `notes`, and the `beats` table. `[` / `]` or the contact buttons jump to the previous / next hit.
 
 Keys: Space play/pause, Left/Right 1 video frame, Shift+Left/Right 1 tick, 1-4 speed 1/.5/.25/.1, F focus slow-mo,
 H add hit, Del remove, Esc clear loop, Ctrl+S save. Shift-drag the timeline = loop range. Drag hits / segments (and
@@ -62,13 +67,16 @@ URL patterns with strict file-name regexes. Binding `0.0.0.0` is intended for th
 Each agent works in its own worktree; frames stay in that worktree's `build/`, only `data/<case>/` is committed.
 
 1. **Case**: `make skill-compare-case CASE=<id> VIDEO=<youtubeId> START=<s> END=<s> SKILL=<astera-skill-id> [NAME=.. COINS=..]` writes `data/<id>/case.json`
-   + an `intent.json` template and extracts native-fps frames/onsets/cuts. Several cases per video share one download (`SKILL_COMPARE_VIDEO_DIR`,
+   and extracts native-fps frames/onsets/cuts. Several cases per video share one download (`SKILL_COMPARE_VIDEO_DIR`,
    default `~/.cache/astera-skill-compare/videos` via make).
-2. **Intent**: fill `intent.json` (camera / actors / weapon / effects; tick 0 = START, schema = `data/zwei-s3/intent.json`).
+2. **Beats**: write the frame-by-frame reading of the video into `case.json` `beats` (weapon orientation, swing, caster movement, effects) and the `segments` notes.
 3. **Author**: write/adjust the Astera skill YAML / VFX.
 4. **Capture**: `SKILL=<skill> VIEW=compare CASE=<id> bash tools/vfx-shot/vfx-shot.sh` (queues on the global slots, see `tools/vfx-shot/README.md`).
 5. **Pairs**: `make skill-pairs CASE=<id> [SKILL=<skill>] AT="19.7:hit1 20.9:hit2"` (t = absolute video seconds; video, t0 and pre-ticks are derived)
    -> `build/pairs/<id>.png`; read it, compare, go back to 3.
+5b. **Brief (AI, no browser)**: `make skill-brief CASE=<id> [VIEW=compare] [AT="t:label"]` -> `build/brief/<id>/sheet-NN.png` (rows = start / each hit / end, columns = reference | in-game, equal scale) +
+   `manifest.json` (per-row video s / master ms / MC tick / frame / file paths; capture branch, commit, time, FOV, resolution, published revision; `warnings`). Alignment is the page's (cast = skill segment start + `mc.offset_ms`).
+   Capture source: `build/skill-compare-published/<skill>/<view>/current.json` if published, else `build/vfx-shot/<skill>/<view>` (override with `--mc <dir>` via `python3 -I scripts/brief.py`).
 6. **Review**: `make skill-compare` serves cases from the checkout it runs in. To also show other worktrees' captures:
    `SKILL_COMPARE_MEDIA_DIRS=/path/wt-a/build/vfx-shot:/path/wt-b/build/vfx-shot make skill-compare` (the main dir is searched first).
 

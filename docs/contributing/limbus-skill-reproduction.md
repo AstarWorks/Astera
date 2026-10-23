@@ -34,7 +34,7 @@ make skill-compare-case CASE=<case> VIDEO=<id> START=<seconds> END=<seconds> SKI
 - 基準時間は技開始からの経過時間。`tick = floor((video_seconds - skill_start_seconds) * 20 + 0.5)`。ケース開始と技開始が異なる場合は両方を記録する。
 - 接触イベントとコイン数は別々に観察する。多段演出や装飾フラッシュを自動的に追加ダメージにしない。
 - キャラクター身長等の共通基準で大きさを測る。カメラ変更による見かけの変化と、物体自体の拡縮を区別する。
-- caseの `intent.file` が指すJSON（round 2では `intent-round2.json`）にカメラ・人物・武器・演出を記す。intentは原動画の解釈であり、正しさの証明ではない。実装に合わせて目標を変更しない。
+- case.jsonの `beats`（`[{t_s, label, weapon, caster_move, vfx, notes}]`、動画絶対秒）に、武器の向き・振り・術者の動き・演出を時刻ごとに文章で記す。beatsは原動画の解釈であり、正しさの証明ではない。実装に合わせて目標を変更しない。
 - Minecraft向けの変更（操作、状態異常、時間、射程等）は理由と原作との差を一覧にする。修正漏れを「仕様」として扱わない。
 
 ## 4. 実装する
@@ -71,6 +71,7 @@ make vfx-shot SKILL=<skill-id> ITEM=<item-id> VIEW=opponent TICKS=<recovery-end-
 make vfx-shot SKILL=<skill-id> ITEM=<item-id> VIEW=side TICKS=<recovery-end-plus-margin>
 ```
 
+- 視野角: `FOV=<度>`（30〜110、垂直FOV）。caster/opponent/side は既定90（一般的なプレイヤー設定。vanilla 70は16:9で狭く見える）。`VIEW=compare` は既定で案のカメラkeyのFOV（原動画の画角、45〜50前後）に合わせる。`FOV=90` を付けるとkeyごとの画角差を距離で補正して同じ構図を保ち、`FOV=90 FOV_DOLLY=0` はカメラ位置を変えずに広く写す。使ったFOVは `meta.json` の `fov` / `fovMode` に記録される。
 - `ITEM` は必ず明示する。特にQの `-ego` は既定の武器ID推定に頼らない。
 - 実装コミットと未コミット差分、撮影コマンド、pack版、撮影日時、出力先をnotesに記録する。古い画像を新実装の証拠にしない。
 - 原動画比較用カメラに加え、術者・相手・横の視点で確認する。spectatorには術者だけのtitle overlayが見えない。
@@ -87,6 +88,15 @@ make vfx-shot SKILL=<skill-id> ITEM=<item-id> VIEW=side TICKS=<recovery-end-plus
 make skill-pairs CASE=<case> AT="<seconds>:windup <seconds>:hit1 <seconds>:finish <seconds>:recovery"
 make skill-compare
 ```
+
+AIは画面を開かず、次の1コマンドで「原動画 | 設計図 | 実機」の3列を接触ごとに並べた画像とmanifestを得る。
+
+```sh
+make skill-brief CASE=<case> [VIEW=compare] [AT="<seconds>:extra"]
+# -> build/brief/<case>/sheet-01.png ... , frames/ , manifest.json
+```
+
+行は start / 各hit / end（`AT` で追加可）。`manifest.json` に各行の動画秒・master ms・MC tick・frame、撮影のbranch / commit / 撮影日時 / FOV / 解像度 / 公開revision、`warnings`（参照・content版の不一致、FOV未記録、範囲外tick、設計図未生成など）が入る。警告が出た画像は証拠にしない。PNGをReadして判定する。
 
 生成したペア画像を実際に開き、通常速度とコマ送りの両方を見る。接触の瞬間だけでなく、その直前・直後も確認する。
 

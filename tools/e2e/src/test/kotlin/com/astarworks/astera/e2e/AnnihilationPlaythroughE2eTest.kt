@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Test
  * Build-phase immunity, damage by pistol shots and by breaking the pillar block, the tier gates, elimination of blue
  * and then yellow, winner declared, summary/rewards, everyone (spectators included) back in the lobby.
  * Timers and HP come from docker/e2e-tune-content.sh (build 5s, engage 10s, every pillar 60 HP).
+ *
+ * The arena is a three-island sky stage in the void `arenas` world (content/stages/annihilation-arena.yaml, ADR-0246):
+ * red island at (0, -333), blue at (29, -284), yellow at (-29, -284), centre island at (0, -300); top layer y=64, bots stand at y=65.
  */
 class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
 
@@ -15,13 +18,15 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
 
     /** Pillar block cells per tier (1..3) from content/stages/annihilation-arena.yaml. */
     private val pillars = mapOf(
-        "Blue" to listOf(Triple(36, -60, 20), Triple(34, -60, 19), Triple(32, -60, 18)),
-        "Yellow" to listOf(Triple(-36, -60, 20), Triple(-34, -60, 19), Triple(-32, -60, 18)),
+        "Blue" to listOf(Triple(31, 65, -283), Triple(29, 65, -284), Triple(27, 65, -285)),
+        "Yellow" to listOf(Triple(-31, 65, -283), Triple(-29, 65, -284), Triple(-27, 65, -285)),
+        "Red" to listOf(Triple(0, 65, -335), Triple(0, 65, -333), Triple(0, 65, -331)),
     )
+    private val pillarBlocks = listOf("minecraft:obsidian", "minecraft:crying_obsidian", "minecraft:beacon")
 
     private fun teamOfBot(b: Bot): String? = posOf(b)?.let { (x, _, z) ->
         when {
-            z < -20 -> "Red"
+            z < -320 -> "Red"
             x > 0 -> "Blue"
             else -> "Yellow"
         }
@@ -42,12 +47,14 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
 
     /** Stand 3.5 blocks north of the pillar block, look south at it. */
     private fun stand(a: Bot, p: Triple<Int, Int, Int>) {
-        rcon("tp ${a.name} ${p.first + 0.5} ${p.second.toDouble()} ${p.third - 3.5} 0 16")
+        tpArena(a.name, p.first + 0.5, p.second.toDouble(), p.third - 3.5, 0f, 16f)
         Thread.sleep(400)
     }
 
     private fun shoot(a: Bot, times: Int) {
         repeat(times) {
+            // The magazine holds 12; an empty one fires nothing (Shift+Q reloads).
+            if ((ammoOf(a) ?: 12) <= 0) reload(a)
             a.useItem(0f, 16f)
             Thread.sleep(330)
         }
@@ -83,6 +90,24 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
         }
         if (a == null || blue == null || yellow == null) return
         val idle = listOf(blue, yellow)
+
+        E2eReport.check(suite, "every team spawns standing on a solid island block in the arenas world (not the flat world)", "RCON data get Dimension/Pos + execute unless block") {
+            val problems = bots.mapNotNull { islandStanceProblem(it) }
+            assertThat(problems).describedAs("bots not on an arena island: $problems").isEmpty()
+            "dimension minecraft:arenas, solid block under every bot: ${bots.map { it.name to posOf(it) }}"
+        }
+        E2eReport.check(suite, "all nine pillar blocks stand in the arena world on team-coloured footings, with void between the islands", "RCON execute if block") {
+            val wrong = mutableListOf<String>()
+            for ((team, cells) in pillars) {
+                cells.forEachIndexed { i, (x, y, z) ->
+                    if (!arenaBlockIs(x, y, z, pillarBlocks[i])) wrong += "$team tier ${i + 1} block ${pillarBlocks[i]} missing at ($x $y $z)"
+                    if (!arenaBlockIs(x, y - 1, z, "minecraft:${team.lowercase()}_concrete")) wrong += "$team tier ${i + 1} footing ${team.lowercase()}_concrete missing at ($x ${y - 1} $z)"
+                }
+            }
+            assertThat(wrong).describedAs("pillar anchors: $wrong").isEmpty()
+            assertThat(arenaSolid(14, 64, -312) || arenaSolid(14, 50, -312)).describedAs("gap between the islands at (14 64 -312): the arena is islands, not a plane").isFalse()
+            "9 pillar blocks + 9 coloured footings; void at (14, 64, -312)"
+        }
 
         E2eReport.check(suite, "sidebar shows the Build phase and three intact 60 HP pillar sets", "SetObjective/SetScore") {
             val lines = sidebar(a)

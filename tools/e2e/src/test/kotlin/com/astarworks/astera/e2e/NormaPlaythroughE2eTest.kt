@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test
  * queue -> match found -> countdown -> ACTIVE -> pistol duels (aim, shoot, reload) -> deaths, respawns and score on the
  * sidebar -> the third kill of one team ends the match (content timers are shortened by docker/e2e-tune-content.sh:
  * 3 kills to win) -> summary, rewards, back in the lobby.
+ *
+ * The arena is a floating sky-island stage in the void `arenas` world (content/stages/example-arena.yaml, ADR-0246): red
+ * island at x=-30, blue at x=+30, centre island, two outposts; the top layer is y=64, bots stand at y=65.
  */
 class NormaPlaythroughE2eTest : PlaythroughBase() {
 
@@ -53,11 +56,34 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             assertThat(blue).hasSize(2)
             "red=${red.map { it.name }} blue=${blue.map { it.name }} positions=${bots.map { posOf(it) }}"
         }
+        E2eReport.check(suite, "every bot spawns standing on a solid island block in the arenas world (not the flat world)", "RCON data get Dimension/Pos + execute unless block") {
+            val problems = bots.mapNotNull { islandStanceProblem(it) }
+            assertThat(problems).describedAs("bots not on an arena island: $problems").isEmpty()
+            "dimension minecraft:arenas, solid block under every bot: ${bots.map { it.name to posOf(it) }}"
+        }
+        E2eReport.check(suite, "the arena is built: generator pedestals, team-coloured spawn pads, and void between the islands", "RCON execute if block") {
+            val pedestals = listOf(Triple(0, 64, -26), Triple(0, 64, 26), Triple(6, 64, 0), Triple(-7, 64, 0))
+            val missing = pedestals.filterNot { (x, y, z) -> arenaBlockIs(x, y, z, "minecraft:iron_block") }
+            assertThat(missing).describedAs("generator pedestal (iron_block) missing at $missing").isEmpty()
+            assertThat(arenaBlockIs(-34, 64, 0, "minecraft:red_terracotta")).describedAs("red spawn pad").isTrue()
+            assertThat(arenaBlockIs(34, 64, 0, "minecraft:blue_terracotta")).describedAs("blue spawn pad").isTrue()
+            assertThat(arenaSolid(10, 64, -15) || arenaSolid(10, 60, -15)).describedAs("blocks in the gap beside the north bridge (the arena is islands, not a plane)").isFalse()
+            assertThat(arenaSolid(0, 64, -15)).describedAs("the bridge between the centre and the north outpost").isTrue()
+            "4 generator pedestals, red/blue spawn pads, bridge at (0,64,-15), void at (10,64,-15)"
+        }
         E2eReport.check(suite, "match sidebar shows the team scores at 0 and replaced the lobby sidebar", "SetObjective/SetScore") {
             val lines = sidebar(bots[0])
             assertThat(bots[0].sidebarTitle()).describedAs("still the lobby sidebar").isNotEqualTo(lobbyTitle)
             assertThat(lines.count { it.contains("Red", true) || it.contains("Blue", true) }).describedAs("no team score lines: $lines").isGreaterThanOrEqualTo(2)
             assertThat(rawKeys(lines)).isEmpty()
+            quote(lines)
+        }
+        E2eReport.check(suite, "the sidebar names the team goal and every team's progress towards it (Red 0/3)", "SetScore") {
+            val lines = sidebar(bots[0])
+            assertThat(lines.any { it.contains("3") && it.contains("kills", true) && !it.contains("Red", true) && !it.contains("Blue", true) })
+                .describedAs("no goal line (first to 3 kills): $lines").isTrue()
+            assertThat(lines.filter { it.contains("Red", true) || it.contains("Blue", true) }.filter { Regex("0\\s*/\\s*3").containsMatchIn(it) })
+                .describedAs("team lines without 0/3 progress: $lines").hasSizeGreaterThanOrEqualTo(2)
             quote(lines)
         }
         if (red.size != 2 || blue.size != 2) return
@@ -83,7 +109,7 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             }
             if (!fight.killed) {
                 // Fallback so the rest of the loop (win condition, ending) is still exercised.
-                rcon("damage ${victim.name} 1000 minecraft:player_attack by ${shooter.name}")
+                rcon("damage ${victim.name} 1000 minecraft:magic by ${shooter.name}")
                 victim.waitUntil(5_000) { victim.deaths.isNotEmpty() }
             }
             if (!last) {
@@ -118,7 +144,10 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             val loserChat = blue[0].chat.drop(chatFrom.getValue(blue[0])).map { clean(it.text) }
             val scoreLine = winnerChat.firstOrNull { it.startsWith("Score") }.orEmpty()
             assertThat(Regex("Red\\D*3").containsMatchIn(scoreLine)).describedAs("score line should read Red 3: '$scoreLine'").isTrue()
-            "winner score line='$scoreLine'; loser score line='${loserChat.firstOrNull { it.startsWith("Score") }}'"
+            val reasons = (winnerChat + loserChat).filter { it.contains("Red") && it.contains("norma", true) }
+            assertThat(winnerChat.none { it.contains("objective completion", true) }).describedAs("generic win reason: ${quote(winnerChat, 40)}").isTrue()
+            assertThat(reasons).describedAs("no 'Red reached the norma' reason in the result: ${quote(winnerChat, 40)}").isNotEmpty()
+            "winner score line='$scoreLine'; loser score line='${loserChat.firstOrNull { it.startsWith("Score") }}'; reason='${reasons.firstOrNull()}'"
         }
         E2eReport.check(suite, "server log stayed free of errors during the match", "server log") {
             val errs = serverErrorsSince(logFrom)

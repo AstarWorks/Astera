@@ -4,7 +4,7 @@ You are an implementation worker launched by the Astera manager session. Follow 
 
 - Read `.claude/CLAUDE.md` and `.claude/rules/*.md` first. Konsist rules and the pre-release posture (no back-compat shims, no `@Deprecated`) apply.
 - Work only inside your worktree (`.claude/worktrees/<task-id>`, branch `wp/<task-id>`).
-- NEVER run gradle, tests, or docker locally. The manager verifies via deploy/CI. Compile-by-reading carefully instead.
+- NEVER run unit tests or `./gradlew check`/test tasks, and never touch live `astera-dev-*` containers. Compile-only Gradle tasks are allowed. E2E: you may run `flock /tmp/claude-1000/astera-e2e.lock make e2e` (serialized, one at a time, ~12+ min, report `build/e2e-report.md`) when the task needs player-visible verification; never in parallel.
 - Tests: integration tests only. Do NOT add unit tests.
 - NEVER push. Commit in your worktree only, with the trailer:
   `Co-Authored-By: Codex (gpt-6.1-sol) <noreply@openai.com>`

@@ -2,13 +2,13 @@ package com.astarworks.astera.core.adapter.paper.world
 
 import com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway
 import com.astarworks.astera.core.domain.world.WorldId
-import org.bukkit.GameRule
+import org.bukkit.GameRules
 import org.bukkit.Server
 import org.slf4j.LoggerFactory
 
 /**
  * Paper concrete of [IWorldTimeGateway] (Wave 6d, ADR-0161). Wraps Bukkit
- * `World.setTime` / `setGameRule(GameRule.DO_DAYLIGHT_CYCLE, ...)` API 1:1
+ * `World.setTime` / `setGameRule(GameRules.ADVANCE_TIME, ...)` API 1:1
  * onto the vendor-neutral port — overlays
  * [com.astarworks.astera.core.application.service.world.InMemoryWorldTimeGateway]
  * at priority 100 once registered in `AsteraCorePlugin.onEnable`.
@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory
  *
  *  - [setTime] → `world.time = ticks` (Bukkit normalises modulo 24000 internally,
  *    matching the InMemory SSOT's `((ticks % 24000) + 24000) % 24000` clamp).
- *  - [freezeTime] → `world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, !frozen)`
+ *  - [freezeTime] → `world.setGameRule(GameRules.ADVANCE_TIME, !frozen)`
  *    (vanilla gamerule, exposed here for the per-match config overlay).
  *  - [getCurrentTime] → `world.time` (returns null when world unknown).
- *  - [isTimeFrozen] → `!world.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE)`
+ *  - [isTimeFrozen] → `!world.getGameRuleValue(GameRules.ADVANCE_TIME)`
  *    (returns `false` per port contract when world unknown — callers needing
  *    to distinguish "unknown" should call [getCurrentTime] first).
  *
@@ -67,7 +67,15 @@ public class PaperWorldTimeGateway(
             log.debug("PaperWorldTimeGateway.setTime: world {} not loaded", world)
             return
         }
-        w.time = timeOfDay
+        // Paper 26.x: dimensions without a world clock (e.g. the nether) reject setTime with this exact
+        // IllegalArgumentException; the API has no clock query (isFixedTime is a different flag). Time of day
+        // is meaningless there, so skip it. Any other failure propagates.
+        try {
+            w.time = timeOfDay
+        } catch (e: IllegalArgumentException) {
+            if (e.message?.contains("without world clock") != true) throw e
+            log.debug("PaperWorldTimeGateway.setTime: world {} has no world clock; time left alone", world)
+        }
     }
 
     override fun freezeTime(world: WorldId, frozen: Boolean) {
@@ -83,7 +91,7 @@ public class PaperWorldTimeGateway(
             log.debug("PaperWorldTimeGateway.freezeTime: world {} not loaded", world)
             return
         }
-        w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, !frozen)
+        w.setGameRule(GameRules.ADVANCE_TIME, !frozen)
     }
 
     override fun getCurrentTime(world: WorldId): Long? =
@@ -91,6 +99,6 @@ public class PaperWorldTimeGateway(
 
     override fun isTimeFrozen(world: WorldId): Boolean {
         val w = server.getWorld(world.value) ?: return false
-        return w.getGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE)?.not() ?: false
+        return w.getGameRuleValue(GameRules.ADVANCE_TIME)?.not() ?: false
     }
 }

@@ -2,7 +2,6 @@ package com.astarworks.astera.core.platform.wiring
 
 import com.astarworks.astera.core.application.contents.AdvancementContents
 import com.astarworks.astera.core.application.contents.TutorialContents
-import com.astarworks.astera.core.application.eventbus.listeners.RestoreInventoryOnPlayerJoinedListener
 import com.astarworks.astera.core.application.port.inbound.IAdvancementService
 import com.astarworks.astera.core.application.port.inbound.INpcDialogService
 import com.astarworks.astera.core.application.port.inbound.IQuestService
@@ -38,7 +37,6 @@ import com.astarworks.astera.core.application.usecase.vault.OpenVaultUseCase
 import com.astarworks.astera.core.application.usecase.vault.SaveVaultUseCase
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
-import com.astarworks.astera.core.application.usecase.inventory.RestoreInventorySnapshotUseCase
 import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
 import com.astarworks.astera.core.application.usecase.quest.GrantQuestRewardUseCase
 import com.astarworks.astera.core.application.usecase.quest.ProgressQuestUseCase
@@ -258,12 +256,9 @@ internal fun CoreWiringState.wireProgression() {
     // snapshotRepo is already the final implementation: Persistence registered its
     // overlay in onLoad (ADR-0195), so it is captured once like any other port.
     val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
-    val restoreSnapshotUseCase = RestoreInventorySnapshotUseCase(snapshotRepo, sessionRepo, eventBus)
-    // Wave H 5content-depth: preexisting bug from Wave E 5admin-ops —
-    // RestoreInventoryOnPlayerJoinedListener gained `sessionRepo` for the
-    // double-join idempotency guard but the caller wasn't updated.
-    val restoreOnJoin = RestoreInventoryOnPlayerJoinedListener(restoreSnapshotUseCase, sessionRepo)
-    wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { restoreOnJoin.handle(it) }
+    // The join-time restore is owned by PlayerHandoffService (ADR-0187, driven by
+    // PlayerInventoryLifecycleListener), which marks the session before PlayerJoinedServer
+    // is published; a PlayerJoinedServer-driven restore here was always a no-op.
 
     // WP12: per-match snapshot — save on entry (MatchStarted), restore on exit
     // (MatchEnded). Host-neutral: the IPlayerInventoryGateway is resolved lazily
