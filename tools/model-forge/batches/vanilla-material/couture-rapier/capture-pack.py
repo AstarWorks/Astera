@@ -15,9 +15,12 @@ def main():
     if a.out.exists(): raise ValueError('Use a fresh resource-pack directory')
     source = ROOT/'content/models/items/couture-rapier.model.json'
     model = json.loads(source.read_text())
+    tints = model.pop('astera_tints')
+    definition = {'type':'minecraft:model','model':'astera:items/couture-rapier',
+                  'tints':[{'type':'minecraft:constant','value':rgb} for rgb in tints]}
     files = {
         'pack.mcmeta':{'pack':{'description':'Vanilla material pilot capture','min_format':[97,0],'max_format':[97,1]}},
-        'assets/astera/items/couture-rapier.json':{'model':{'type':'minecraft:model','model':'astera:items/couture-rapier'}},
+        'assets/astera/items/couture-rapier.json':{'model':definition},
         'assets/astera/models/items/couture-rapier.json':model,
         'assets/minecraft/atlases/blocks.json':{'sources':[{'type':'directory','source':'blocks','prefix':'blocks/'}]},
     }
