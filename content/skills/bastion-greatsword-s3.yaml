@@ -11,6 +11,9 @@ params: {type: sequence}
 phases:
   type: sequence
   cast:
+  - type: hide_held_item
+    targets: {type: caster}
+    ticks: {type: literal, value: 84}
   - type: play_sound
     targets: {type: caster}
     sound_id: item.armor.equip_netherite
@@ -18,12 +21,12 @@ phases:
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-sweep-back
-    delay_ticks: {type: literal, value: 6}
+    delay_ticks: {type: literal, value: 4}
   - type: play_sound
     targets: {type: caster}
     sound_id: entity.player.attack.sweep
     pitch: {type: literal, value: 0.75}
-    delay_ticks: {type: literal, value: 8}
+    delay_ticks: {type: literal, value: 6}
   - type: damage
     targets:
       type: cone

@@ -108,7 +108,7 @@ internal object ParticlePainters {
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
         "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
-        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice,
+        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "arc" to ::arc, "ink" to ::ink,
     )
 
     /** A 4-point star that pops open, hangs, then shrinks, with a small diagonal star and a white-hot core. */
@@ -285,6 +285,52 @@ internal object ParticlePainters {
             val span = max(0.05, head - tail)
             val bright = 0.5 + 0.5 * ((s - tail) / span)
             radial * bright * lerp(1.0, 0.8, t) + (if (radial > 0.6) 0.2 else 0.0) * bright
+        }
+    }
+    /** A wide tapered arc over the top (needle tips), the head racing round, then the tail eating it; bright at the head. */
+    private fun arc(c: Canvas, t: Double, i: Int, n: Int) {
+        val a0 = PI * 1.02
+        val a1 = PI * 1.98
+        val head = ease(min(1.0, (t + 0.08) / 0.5))
+        val tail = if (t < 0.55) 0.0 else ((t - 0.55) / 0.45).pow(1.2)
+        c.forEach { x, y ->
+            val dx = x - C
+            val dy = y - 17.0
+            val rho = hypot(dx * 1.0, dy)
+            val s = (atan2(dy, dx).let { if (it < 0) it + 2 * PI else it } - a0) / (a1 - a0)
+            if (s < tail || s > head || s < 0.0 || s > 1.0) return@forEach 0.0
+            val half = 0.5 + 2.6 * sin(PI * s).pow(0.9) * (1 - 0.4 * tail)
+            val radial = 1.0 - abs(rho - 14.5) / half
+            val bright = 0.45 + 0.55 * ((s - tail) / max(0.05, head - tail))
+            radial * bright + (if (radial > 0.7) 0.25 else 0.0) * bright
+        }
+    }
+
+    /** An amorphous flat flash: a few long horizontal lens-shaped bands with pointed, uneven ends round a ragged core. */
+    private fun ink(c: Canvas, t: Double, i: Int, n: Int) {
+        val grow = if (t < 0.25) ease(t / 0.25) else 1.0
+        val fade = if (t < 0.55) 1.0 else (1.0 - (t - 0.55) / 0.45).coerceAtLeast(0.0)
+        val bands = listOf(
+            doubleArrayOf(-9.0, 15.5, 1.7, -2.0), doubleArrayOf(-5.0, 14.0, 2.4, 1.0), doubleArrayOf(-1.0, 15.8, 3.0, -1.0),
+            doubleArrayOf(3.5, 12.5, 2.2, 3.0), doubleArrayOf(7.5, 14.5, 1.6, -3.0), doubleArrayOf(11.0, 9.0, 1.2, 2.0),
+        )
+        c.forEach { x, y ->
+            val dx = x - C
+            val dy = y - C
+            var v = 0.0
+            for ((bi, b) in bands.withIndex()) {
+                val len = b[1] * grow * fade
+                val cx = b[3] * grow
+                val u = (dx - cx) / max(len, 0.01)
+                if (abs(u) >= 1.0) continue
+                val wob = 0.35 * sin(dx * 0.7 + bi * 2.1 + i)
+                val half = b[2] * (1.0 - abs(u).pow(1.6)) * (1.0 - 0.3 * fade.let { 1 - it })
+                val d = 1.0 - abs(dy - b[0] - wob) / max(half, 0.01)
+                if (d > 0) v = max(v, if (d > 0.55) 0.62 else 0.42)
+            }
+            val core = 1.0 - hypot(dx * 0.7, dy * 1.2) / (8.5 * grow * fade + 0.01)
+            if (core > 0 && sin(dx * 1.3 + dy * 0.9 + i) > -0.7) v = max(v, if (core > 0.45) 0.66 else 0.4)
+            v
         }
     }
 }

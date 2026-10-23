@@ -11,6 +11,9 @@ params: {type: sequence}
 phases:
   type: sequence
   cast:
+  - type: hide_held_item
+    targets: {type: caster}
+    ticks: {type: literal, value: 66}
   - type: dash_strike
     distance: 1.6
     ticks: 3
@@ -24,12 +27,12 @@ phases:
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-sweep-low
-    delay_ticks: {type: literal, value: 9}
+    delay_ticks: {type: literal, value: 7}
   - type: play_sound
     targets: {type: caster}
     sound_id: entity.player.attack.sweep
     pitch: {type: literal, value: 0.8}
-    delay_ticks: {type: literal, value: 11}
+    delay_ticks: {type: literal, value: 9}
   - type: damage
     targets:
       type: cone
@@ -82,12 +85,12 @@ phases:
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-sweep-high
-    delay_ticks: {type: literal, value: 28}
+    delay_ticks: {type: literal, value: 26}
   - type: play_sound
     targets: {type: caster}
     sound_id: entity.player.attack.sweep
     pitch: {type: literal, value: 0.7}
-    delay_ticks: {type: literal, value: 30}
+    delay_ticks: {type: literal, value: 28}
   - type: damage
     targets:
       type: cone
@@ -145,7 +148,7 @@ phases:
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-overhead
-    delay_ticks: {type: literal, value: 49}
+    delay_ticks: {type: literal, value: 47}
   - type: damage
     targets:
       type: cone

@@ -1,17 +1,17 @@
-# Bastion S1 beat 2 / S2 beat 1 (video 13.133-13.7s, 15.233-15.7s): low crouched sweep, flat gold ring around the caster at hip height.
+# Bastion S1 hit2 / S2 hit1 (video 13.133-13.7s, 15.233-15.7s): wide flat yellow bands fill the close-up, then a low gold ring around the caster.
 
 id: bastion-sweep-low
-duration_ticks: 22
+duration_ticks: 24
 orient: yaw
 follow: false
 sample_ticks: 1
 rigs:
 - id: sword
-  pivot: [-0.1, 0.85, 0.2]
+  pivot: [-0.1, 0.9, 0.2]
   rest: [0, 90, 0]
-  tilt: [0, 0, -12]
+  tilt: [0, 0, -10]
   respect_hit_stop: true
-  end_tick: 21
+  end_tick: 23
   parts:
   - id: face
     block: gray_concrete
@@ -51,50 +51,54 @@ rigs:
   - t: 1
     rotate: [266, 52, 0]
   - t: 4
-    rotate: [-98, 10, 0]
+    rotate: [-98, 26, 0]
     ease: linear
   - t: 7
-    rotate: [-114, 14, 0]
+    rotate: [-114, 30, 0]
     ease: out_cubic
   - t: 12
-    rotate: [-108, 24, 0]
+    rotate: [-106, 38, 0]
   - t: 20
-    rotate: [180, 52, 0]
+    rotate: [180, 54, 0]
     ease: in_out_quad
   trails:
   - id: wind
     from: [0, 0.7, 0]
     to: [0, 2.55, 0]
     start_t: 1
-    end_t: 7
-    life_ticks: 11
+    end_t: 8
+    life_ticks: 9
     lag_ticks: 0
     style: soft
-    step_deg: 22
-    fade_power: 0.8
+    step_deg: 20
+    fade_power: 1.0
     bands:
-    - from: 0.42
-      to: 0.74
-      color: '#D8FFC93A'
-      color_to: '#80FFA818'
-    - from: 0.74
+    - from: 0.0
+      to: 0.8
+      color: '#00FFC040'
+      color_to: '#00FFC040'
+    - from: 0.8
+      to: 0.93
+      color: '#C0FFC83A'
+      color_to: '#30FFA818'
+    - from: 0.93
       to: 1.0
-      color: '#FFFFEC70'
-      color_to: '#FFFFC030'
+      color: '#FFFFFBE0'
+      color_to: '#80FFE070'
     edge:
       block: white_concrete
-      width: 0.05
+      width: 0.04
     dark_rim:
-      color: '#C0161008'
-      width: 0.2
+      color: '#B0180C04'
+      width: 0.16
 elements:
 - id: streaks
   kind:
     type: block
     block: white_concrete
   brightness: 15
-  start_tick: 4
-  end_tick: 12
+  start_tick: 6
+  end_tick: 14
   count: 5
   formation:
     curve:
@@ -106,15 +110,81 @@ elements:
     scale: 0.45
   keyframes:
   - t: 0
-    scale: [0.06, 0.06, 0.3]
+    scale: [0.09, 0.09, 0.3]
   - t: 2
-    translate: [0, 0, 2.3]
-    scale: [0.06, 0.06, 4.6]
+    translate: [0, 0, 2.5]
+    scale: [0.09, 0.09, 5.0]
     ease: out_expo
   - t: 7
-    translate: [0, 0, 4.14]
-    scale: [0, 0, 4.6]
+    translate: [0, 0, 4.5]
+    scale: [0, 0, 5.0]
     ease: in_quad
+- id: arc0
+  kind:
+    type: sprite
+    sprite: bastion-arc
+    frame_ticks: 2
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 15
+  keyframes:
+  - t: 0
+    translate: [0, 0.95, 1.0]
+    rotate: [0, 0, 4]
+    scale: [1.9, 0.62, 1.0]
+- id: arc1
+  kind:
+    type: sprite
+    sprite: bastion-arc
+    frame_ticks: 2
+    loop: false
+    see_through: true
+    color: '#FFF4C0'
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 15
+  keyframes:
+  - t: 0
+    translate: [0, 0.8, 1.0]
+    rotate: [0, 0, 180]
+    scale: [1.9, 0.62, 1.0]
+- id: arc2
+  kind:
+    type: sprite
+    sprite: bastion-arc
+    frame_ticks: 2
+    loop: false
+    see_through: true
+    color: '#FFFFFF'
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 15
+  keyframes:
+  - t: 0
+    translate: [0, 1.05, 1.0]
+    rotate: [0, 0, 4]
+    scale: [1.4, 0.45, 1.0]
+- id: ink
+  kind:
+    type: sprite
+    sprite: bastion-ink
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.1, 1.5]
+    rotate: [0.0, 0, 0]
+    scale: [1.8, 1.2, 1.0]
 - id: flash
   kind:
     type: quad
@@ -122,17 +192,17 @@ elements:
     color: '#FFEFA0'
     alpha: 1.0
   brightness: 15
-  start_tick: 4
-  end_tick: 9
+  start_tick: 6
+  end_tick: 10
   keyframes:
   - t: 0
     translate: [0, 1.2, 2.6]
-    scale: [0.165, 0.165, 1.0]
+    scale: [0.135, 0.135, 1.0]
   - t: 1
-    scale: [1.1, 1.1, 1.0]
+    scale: [0.9, 0.9, 1.0]
     ease: out_back
-  - t: 5
-    scale: [0.55, 0.55, 1.0]
+  - t: 4
+    scale: [0.45, 0.45, 1.0]
     color: '#FF9A30'
     alpha: 0.0
     ease: out_quad

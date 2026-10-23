@@ -1,13 +1,13 @@
 {
   "id": "bastion-greatsword-s1",
-  "rev": 7,
+  "rev": 8,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 11.633,
   "end_s": 14.233,
   "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "captured",
-  "iterations": 6,
+  "iterations": 9,
   "report": "/report/bastion-greatsword",
   "skill": {
     "name": "月輪の薙ぎ",
@@ -93,7 +93,7 @@
       "notes": "大剣を低く後方へ構え直す。"
     }
   ],
-  "notes": "【現状: 検証不合格 / 反復6】ゼロから作り直し(原動画30fps全コマ再観察)。接触2回(t7,t31)。キャスター: 1.6block踏み込み(t0-3)、0.7block前傾(t24-26)。残差: ベタ塗り閃光・橙火花の筋・リングの規模・同期ずれ。詳細はnotes.md。",
+  "notes": "【現状: 検証不合格 / 反復9】前回指摘への対応: 1)持ち替え剣は hide_held_item で他視点から非表示、2)swing開始を前倒しし接触tick(t7)で三日月がピーク、3)三日月は先端が針状のスプライト(金+白縁)、4)hit2のベタ塗り閃光を実装(bastion-ink)。残差: ベタ塗りの解像度・灰色の渦と橙火花の筋・リングの傾き。",
   "editLog": [
     {
       "who": "sonnet-bastion-greatsword",
@@ -109,11 +109,16 @@
       "who": "sonnet-bastion-greatsword",
       "at": "2026-10-23T12:09:49.990929+00:00",
       "summary": "S1 反復6 (全周スイープ、リング不透明化、白筋、カメラを高く)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T12:59:27.834841+00:00",
+      "summary": "S1 反復9 (hide_held_item、三日月スプライト、ベタ塗りスプライト、接触tickに合わせたタイミング)"
     }
   ],
   "verification": {
     "status": "failed",
-    "reason": "反復6: 板状大剣・踏み込みdash(1.6/0.7block)・接触t7/t31・金色の太い風切り(全周)・白筋・敵の被弾は動作。残差: 原動画の黄色い不定形ベタ塗り閃光と灰色の渦・橙火花の筋が未実装、リングの明るさ/大きさは原動画の約6割、カメラ角度は原動画の極端な寄りに届かない、撮影のtick同期が最大約4ずれる(ヒット毎に補正していない)。",
+    "reason": "反復9: 持ち替え剣を非表示(hide_held_item)、スイープは接触tick(t7)にピーク、先端が針状の金色の三日月スプライト+白縁、hit2は黄色い不定形のベタ塗りを追加。残差: ベタ塗りが原動画より低解像度でぼやける、リング傾きが原動画ほど斜めでない、灰色の渦・橙火花の筋が未実装、同期ずれ約2tick。",
     "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
     "evidence": ""
   },

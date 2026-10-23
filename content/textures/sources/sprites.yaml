@@ -18,6 +18,8 @@ sprites:
   glint: { draw: glint, frames: 6, color: "#e8f6ff" }
   slash: { draw: slash, frames: 6, color: "#d8e4ff" }
   couture-cut: { draw: slice, frames: 6, size: 128, color: "#fff4ee" }
+  bastion-arc: { draw: arc, frames: 6, size: 128, color: "#ffcf3a" }
+  bastion-ink: { draw: ink, frames: 6, size: 128, color: "#ffe36a" }
 
   fire-burst: { from: vfx-v1, row: 0, frames: 6 }
   frost-shatter: { from: vfx-v1, row: 1, frames: 6 }

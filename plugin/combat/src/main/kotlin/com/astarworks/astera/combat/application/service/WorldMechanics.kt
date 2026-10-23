@@ -294,6 +294,27 @@ internal class WorldMechanics(
         }
     }
 
+    // ---- HideHeldItem --------------------------------------------------------
+
+    private val hiddenUntil: MutableMap<PlayerId, Long> = HashMap()
+
+    fun hideHeldItem(m: Mechanic.HideHeldItem, ctx: MechanicContext) {
+        val gateway = effects ?: return warnMissing("HideHeldItem", "IEntityEffectsGateway")
+        val duration = host.resolveInt(m.ticks, ctx).toLong()
+        if (duration <= 0) return
+        for (target in living(targeters.resolvePlayers(m.targets, ctx))) {
+            gateway.setHeldItemHidden(target, true)
+            hiddenUntil[target] = scheduler.currentTick() + duration
+            // A later hide on the same target pushes the end out; only the last one restores the item.
+            scheduler.runLaterTicks(duration) {
+                if ((hiddenUntil[target] ?: 0L) <= scheduler.currentTick()) {
+                    hiddenUntil.remove(target)
+                    gateway.setHeldItemHidden(target, false)
+                }
+            }
+        }
+    }
+
     // ---- CameraShake ---------------------------------------------------------
 
     fun cameraShake(m: Mechanic.CameraShake, ctx: MechanicContext) {
@@ -322,6 +343,8 @@ internal class WorldMechanics(
         summonRegistry.all().forEach { summonRegistry.forget(it) }
         glowUntil.keys.toList().forEach { effects?.setGlowing(it, false) }
         glowUntil.clear()
+        hiddenUntil.keys.toList().forEach { effects?.setHeldItemHidden(it, false) }
+        hiddenUntil.clear()
     }
 
     private fun warnMissing(mechanic: String, port: String) {

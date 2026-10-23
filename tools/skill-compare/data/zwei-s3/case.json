@@ -1,6 +1,6 @@
 {
   "id": "zwei-s3",
-  "rev": 6,
+  "rev": 7,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 18.9,
   "end_s": 23.7,
@@ -100,7 +100,7 @@
       "notes": "屈み、垂直の剣を立てて保持。"
     }
   ],
-  "notes": "【現状: 検証不合格 / 反復6】接触3回(t10,t40,t63)。キャスター: 3.6blockダッシュ(t37-39)で間合い4.6→1.5block。残差: 円盤・挿入演出・同期。",
+  "notes": "【現状: 検証不合格 / 反復9】円盤が出ない原因は text display の水平 fixed 配置が実機で出ないこと(preview では出る)。ブロックの放射スラブに置換し表示を確認。",
   "editLog": [
     {
       "who": "sonnet-bastion-greatsword",
@@ -116,14 +116,19 @@
       "who": "sonnet-bastion-greatsword",
       "at": "2026-10-23T12:09:50.082844+00:00",
       "summary": "S3 反復6 (全周スイープ、棘を稲妻状に、カメラを高く)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T12:59:27.898372+00:00",
+      "summary": "S3 反復9 (hide_held_item、三日月スプライト、円盤をブロックスラブ化)"
     }
   ],
   "status": "captured",
-  "iterations": 6,
+  "iterations": 9,
   "report": "/report/bastion-greatsword",
   "verification": {
     "status": "failed",
-    "reason": "反復6: 逆手の金色リング、引きずり、3.6blockダッシュ(間合い4.6→1.5)、水平突き、光柱+放射状の棘は原動画に近い。残差: 水平の円盤が表示されない、20.8の黄色ベタ塗り・灰色1コマなどの挿入演出未実装、tick同期ずれ、カメラの寄り。",
+    "reason": "反復9: 逆手の三日月、引きずり、3.6blockダッシュ、水平突き、光柱+稲妻状の棘+平たい円盤(ブロックの放射スラブ)は動作。円盤が出なかった原因=text display(fixed)の水平配置が実機で描画されない、をブロックスラブで解消。残差: 円盤が橙が強く原動画の白金の薄い円盤と差、挿入演出の灰色1コマ未実装、同期ずれ。",
     "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
     "evidence": ""
   },

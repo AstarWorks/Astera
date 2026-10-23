@@ -1,8 +1,8 @@
-# Bastion S2 beat 3 (video 17.2-17.7s): blade raised behind the head, then an overhead slam; tall vertical gold arch in front, white speed lines
-# and a crown of jagged spikes at the floor. Rig t0 = 4 ticks before the contact. Pose pitch: - tips the blade up, + down.
+# Bastion S2 hit3 (video 17.2-17.7s): blade raised behind the head, overhead slam; a tall vertical gold arch with white speed lines and a crown of jagged shards at the floor.
+# Rig t0 = 6 ticks before the contact (t6).
 
 id: bastion-overhead
-duration_ticks: 30
+duration_ticks: 32
 orient: yaw
 follow: false
 sample_ticks: 1
@@ -12,7 +12,7 @@ rigs:
   rest: [0, 90, 0]
   tilt: [0, 0, 6]
   respect_hit_stop: true
-  end_tick: 29
+  end_tick: 31
   parts:
   - id: face
     block: gray_concrete
@@ -52,49 +52,52 @@ rigs:
   - t: 1
     rotate: [0, -152, 0]
     ease: in_out_quad
-  - t: 4
+  - t: 5
     rotate: [0, 52, 0]
     ease: in_quad
-  - t: 7
+  - t: 8
     rotate: [0, 56, 0]
     ease: out_cubic
-  - t: 26
+  - t: 28
     rotate: [0, 56, 0]
   trails:
   - id: wind
     from: [0, 0.7, 0]
     to: [0, 2.55, 0]
-    start_t: 1
-    end_t: 6
-    life_ticks: 10
+    start_t: 2
+    end_t: 7
+    life_ticks: 9
     lag_ticks: 0
-    style: both
+    style: soft
     step_deg: 20
-    fade_power: 0.8
+    fade_power: 1.0
     bands:
-    - from: 0.42
-      to: 0.74
-      color: '#D8FFC93A'
-      color_to: '#80FFA818'
-    - from: 0.74
+    - from: 0.0
+      to: 0.8
+      color: '#00FFC040'
+      color_to: '#00FFC040'
+    - from: 0.8
+      to: 0.93
+      color: '#C0FFC83A'
+      color_to: '#30FFA818'
+    - from: 0.93
       to: 1.0
-      color: '#FFFFEC70'
-      color_to: '#FFFFC030'
-      block: yellow_concrete
+      color: '#FFFFFBE0'
+      color_to: '#80FFE070'
     edge:
       block: white_concrete
-      width: 0.05
+      width: 0.04
     dark_rim:
-      color: '#C0161008'
-      width: 0.22
+      color: '#B0180C04'
+      width: 0.16
 elements:
 - id: streaks
   kind:
     type: block
     block: white_concrete
   brightness: 15
-  start_tick: 4
-  end_tick: 12
+  start_tick: 6
+  end_tick: 14
   count: 6
   formation:
     curve:
@@ -106,15 +109,64 @@ elements:
     scale: 0.45
   keyframes:
   - t: 0
-    scale: [0.06, 0.06, 0.3]
+    scale: [0.09, 0.09, 0.3]
   - t: 2
     translate: [0, 0, 2.2]
-    scale: [0.06, 0.06, 4.4]
+    scale: [0.09, 0.09, 4.4]
     ease: out_expo
   - t: 7
     translate: [0, 0, 3.9600000000000004]
     scale: [0, 0, 4.4]
     ease: in_quad
+- id: arch0
+  kind:
+    type: sprite
+    sprite: bastion-arc
+    frame_ticks: 2
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 4
+  end_tick: 16
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.2, 2.2]
+    rotate: [0.0, 0, 0]
+    scale: [1.35, 1.9, 1.0]
+- id: arch1
+  kind:
+    type: sprite
+    sprite: bastion-arc
+    frame_ticks: 2
+    loop: false
+    see_through: true
+    color: '#FFFFFF'
+  billboard: center
+  brightness: 15
+  start_tick: 5
+  end_tick: 17
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.3, 2.2]
+    rotate: [0.0, 0, 0]
+    scale: [1.05, 1.55, 1.0]
+- id: ink
+  kind:
+    type: sprite
+    sprite: bastion-ink
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 5
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0, 0.9, 1.8]
+    rotate: [0.0, 0, 0.0]
+    scale: [1.7, 1.1, 1.0]
 - id: flash
   kind:
     type: quad
@@ -122,8 +174,8 @@ elements:
     color: '#FFEFA0'
     alpha: 1.0
   brightness: 15
-  start_tick: 4
-  end_tick: 9
+  start_tick: 6
+  end_tick: 11
   keyframes:
   - t: 0
     translate: [0, 0.7, 2.2]
@@ -141,8 +193,8 @@ elements:
     type: block
     block: white_concrete
   brightness: 15
-  start_tick: 4
-  end_tick: 13
+  start_tick: 6
+  end_tick: 15
   count: 5
   formation:
     curve:
@@ -170,8 +222,8 @@ elements:
     type: block
     block: yellow_concrete
   brightness: 15
-  start_tick: 4
-  end_tick: 13
+  start_tick: 6
+  end_tick: 15
   count: 5
   formation:
     curve:
@@ -199,8 +251,8 @@ elements:
     type: block
     block: white_concrete
   brightness: 15
-  start_tick: 4
-  end_tick: 13
+  start_tick: 6
+  end_tick: 15
   count: 5
   formation:
     curve:
@@ -228,8 +280,8 @@ elements:
     type: block
     block: yellow_concrete
   brightness: 15
-  start_tick: 4
-  end_tick: 13
+  start_tick: 6
+  end_tick: 15
   count: 5
   formation:
     curve:
@@ -257,8 +309,8 @@ elements:
     type: block
     block: white_concrete
   brightness: 15
-  start_tick: 4
-  end_tick: 13
+  start_tick: 6
+  end_tick: 15
   count: 5
   formation:
     curve:
@@ -286,8 +338,8 @@ elements:
     type: block
     block: yellow_concrete
   brightness: 15
-  start_tick: 4
-  end_tick: 13
+  start_tick: 6
+  end_tick: 15
   count: 5
   formation:
     curve:

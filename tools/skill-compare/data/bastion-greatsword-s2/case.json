@@ -1,13 +1,13 @@
 {
   "id": "bastion-greatsword-s2",
-  "rev": 7,
+  "rev": 8,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 14.633,
   "end_s": 18.4,
   "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "captured",
-  "iterations": 5,
+  "iterations": 8,
   "report": "/report/bastion-greatsword",
   "skill": {
     "name": "審判の突進",
@@ -108,7 +108,7 @@
       "notes": "屈んだまま大剣を突き立てて保持。"
     }
   ],
-  "notes": "【現状: 検証不合格 / 反復5】接触3回(t13低リング, t32高リング, t53縦アーチ+棘)。キャスター: 1.6/0.7/0.8block踏み込み。残差: アーチの強さ・ベタ塗り閃光・同期。",
+  "notes": "【現状: 検証不合格 / 反復8】持ち替え剣を非表示、スイープ・アーチは三日月スプライト。残差: アーチの太さ・床の棘。",
   "editLog": [
     {
       "who": "sonnet-bastion-greatsword",
@@ -124,11 +124,16 @@
       "who": "sonnet-bastion-greatsword",
       "at": "2026-10-23T12:09:50.003856+00:00",
       "summary": "S2 反復5 (縦アーチを両面化、棘を稲妻状に、リング全周)"
+    },
+    {
+      "who": "sonnet-bastion-greatsword",
+      "at": "2026-10-23T12:59:27.856124+00:00",
+      "summary": "S2 反復8 (hide_held_item、三日月スプライト、縦アーチ、ベタ塗り)"
     }
   ],
   "verification": {
     "status": "failed",
-    "reason": "反復5: 3接触・踏み込み3回・低/高リング・頭上構え・縦アーチ(両面スラブ)・床の稲妻状棘は動作。残差: アーチの太さ/明るさが原動画より弱い、棘の形、黄色ベタ塗り閃光未実装、同期ずれ約6tick。",
+    "reason": "反復8: 3接触、踏み込み3回、頭上斬り下ろしの縦アーチ(針状の三日月スプライト)、ベタ塗り、床の棘は動作。残差: アーチが原動画より細く暗い縁、棘の形、同期ずれ。",
     "normalInput": "実入力での拒否条件・資源は未確認 (--force 撮影のみ)",
     "evidence": ""
   },

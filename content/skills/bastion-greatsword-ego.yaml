@@ -10,6 +10,9 @@ params: {type: sequence}
 phases:
   type: sequence
   cast:
+  - type: hide_held_item
+    targets: {type: caster}
+    ticks: {type: literal, value: 44}
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-ego-guard

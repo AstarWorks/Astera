@@ -73,7 +73,7 @@ public object MechanicSupport {
         is Mechanic.Resurrect, is Mechanic.GiveItem, is Mechanic.ConsumeItem -> true
         // WP5 batch B: implemented in WorldMechanics.
         is Mechanic.Heal, is Mechanic.SummonLightning, is Mechanic.Summon, is Mechanic.SetBlock,
-        is Mechanic.RemoveBlock, is Mechanic.Explode, is Mechanic.SpawnDisplay, is Mechanic.PlayVfx, is Mechanic.Glow,
+        is Mechanic.RemoveBlock, is Mechanic.Explode, is Mechanic.SpawnDisplay, is Mechanic.PlayVfx, is Mechanic.Glow, is Mechanic.HideHeldItem,
         is Mechanic.CameraShake, is Mechanic.ScreenFlash -> false
         is Mechanic.Damage, is Mechanic.ApplyStatus, is Mechanic.Knockback, is Mechanic.Knockup,
         is Mechanic.RemoveStatus, is Mechanic.Cleanse, is Mechanic.Ignite, is Mechanic.Freeze,

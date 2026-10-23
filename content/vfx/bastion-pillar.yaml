@@ -1,4 +1,5 @@
-# Bastion S3 beat 3 (video 22.03-23.4s): downstroke, blade planted upright; white-gold pillar crossed by a flat disc, jagged spikes at the floor.
+# Bastion S3 hit3 (video 22.03-23.4s): downstroke, blade planted upright; white-gold pillar crossed by a flat disc, jagged shards at the floor.
+# The disc is made of flat radial block slabs: the earlier fixed text-display disc never appeared in the real client.
 
 id: bastion-pillar
 duration_ticks: 40
@@ -81,6 +82,22 @@ elements:
     color: '#FF9A30'
     alpha: 0.0
     ease: out_quad
+- id: burst
+  kind:
+    type: sprite
+    sprite: bastion-ink
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.0, 1.7]
+    rotate: [0.0, 0, 0.0]
+    scale: [1.2, 0.8, 1.0]
 - id: pilcore
   kind:
     type: block
@@ -117,29 +134,56 @@ elements:
   - t: 10
     scale: [0.0, 6.6, 0.0]
     ease: in_quad
-- id: pildisc
+- id: disc0
   kind:
-    type: quad
-    glyph: ●
-    color: '#FFF2B0'
-    alpha: 0.95
-  billboard: fixed
+    type: block
+    block: white_concrete
   brightness: 15
   start_tick: 4
-  end_tick: 12
+  end_tick: 14
+  count: 16
+  formation:
+    curve:
+      type: circle
+      radius: 0.55
+    offset: [0, 0.1, 1.7]
+    align: outward
   keyframes:
   - t: 0
-    translate: [0, 1.25, 1.7]
-    rotate: [0, 90, 0]
-    scale: [0.4, 0.4, 1.0]
+    scale: [0.05, 0.03, 0.1]
   - t: 2
-    scale: [3.6, 3.6, 1.0]
+    scale: [0.5, 0.04, 1.1]
     ease: out_expo
-  - t: 8
-    scale: [3.9, 3.9, 1.0]
-    color: '#FFD060'
-    alpha: 0.0
-    ease: out_quad
+  - t: 7
+    scale: [0.45, 0.04, 1.1]
+  - t: 10
+    scale: [0.0, 0.0, 1.1]
+    ease: in_quad
+- id: disc1
+  kind:
+    type: block
+    block: yellow_concrete
+  brightness: 15
+  start_tick: 4
+  end_tick: 14
+  count: 16
+  formation:
+    curve:
+      type: circle
+      radius: 1.45
+    offset: [0, 0.1, 1.7]
+    align: outward
+  keyframes:
+  - t: 0
+    scale: [0.05, 0.03, 0.1]
+  - t: 2
+    scale: [0.5, 0.04, 1.0]
+    ease: out_expo
+  - t: 7
+    scale: [0.45, 0.04, 1.0]
+  - t: 10
+    scale: [0.0, 0.0, 1.0]
+    ease: in_quad
 - id: spike0
   kind:
     type: block

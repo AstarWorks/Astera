@@ -539,6 +539,17 @@ public sealed class Mechanic {
         override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
+    /** Hides the held item from every other viewer for [ticks] (the skill's own weapon rig stands in for it). */
+    public data class HideHeldItem(
+        override val targets: Targeter,
+        val ticks: IntValue,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic()
+
     /** Camera shake for [ticks] with [intensity] (0..1). */
     public data class CameraShake(
         override val targets: Targeter,
