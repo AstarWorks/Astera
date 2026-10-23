@@ -1,0 +1,50 @@
+{
+  "id": "couture-rapier-patterning",
+  "rev": 1,
+  "videoId": "GIe7Fna5LD4",
+  "start_s": 21.388033333333333,
+  "end_s": 24.257566666666666,
+  "skill": {
+    "name": "Patterning (S1-2; passive follow-up)",
+    "coins": 1
+  },
+  "variant": {
+    "label": "Patterning / 追撃",
+    "implementation": "missing",
+    "order": 1
+  },
+  "mc": {
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false
+  },
+  "segments": [
+    {
+      "id": "hit-1",
+      "kind": "hit",
+      "label": "接触 1 / f672",
+      "t_s": 22.4224,
+      "notes": "Detached/extended floral shears meet target; pale diagonal tether and transverse cutting flare."
+    },
+    {
+      "id": "hit-2",
+      "kind": "hit",
+      "label": "接触 2 / f703",
+      "t_s": 23.456766666666667,
+      "notes": "Same remotely directed shears make second cutting contact; target star flares after launch flash f699."
+    }
+  ],
+  "notes": "1コインの再使用による2接触。発射光は命中として数えない。 追撃条件・動作・命中・カメラは未実装。別スキルの撮影を流用しない。",
+  "status": "analysed",
+  "verification": {
+    "status": "unverified",
+    "notes": "1コインの再使用による2接触。発射光は命中として数えない。 追撃条件・動作・命中・カメラは未実装。別スキルの撮影を流用しない。"
+  },
+  "weapon": "couture-rapier",
+  "identity": "Haute Couture::Alteration Shop Rodion",
+  "iterations": 0,
+  "report": "/report/couture-rapier",
+  "referenceRevision": "f256c2f71203b07c0bcbe4dabee85a9472ab6d5e2ef78e4189e3a3928661e56d"
+}
