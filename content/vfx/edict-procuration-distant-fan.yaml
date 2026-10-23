@@ -3,6 +3,8 @@ duration_ticks: 75
 orient: yaw
 follow: true
 sample_ticks: 1
+attach_to_anchor: true
+replace_group: edict-procuration-arms
 elements:
 - id: claw-0-0
   kind:

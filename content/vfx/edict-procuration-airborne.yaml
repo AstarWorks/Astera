@@ -5,6 +5,7 @@ follow: true
 attach_to_anchor: true
 follow_teleport_ticks: 3
 sample_ticks: 1
+replace_group: edict-procuration-arms
 elements:
 - id: light-5-0-0-core
   kind:
