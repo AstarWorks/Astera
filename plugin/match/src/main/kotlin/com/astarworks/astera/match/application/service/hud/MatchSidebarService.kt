@@ -72,6 +72,14 @@ public class MatchSidebarService(
     }
 
     /**
+     * A client that disconnected lost its sidebar: drop what we think it shows so the next push is sent
+     * even when the layout is unchanged (a returning player would otherwise see the lobby sidebar).
+     */
+    public fun forget(playerId: PlayerId) {
+        lastSent.remove(playerId)
+    }
+
+    /**
      * The match is over: forget what was sent to its members. The sidebar itself
      * stays up (final scores) until the lobby service draws over it; clearing the
      * region here would race with that and leave the player with no sidebar.

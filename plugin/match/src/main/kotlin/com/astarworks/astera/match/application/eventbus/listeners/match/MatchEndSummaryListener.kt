@@ -131,7 +131,20 @@ public class MatchEndSummaryListener(
         }
 
         send("astera.match.summary.header")
-        send("astera.match.summary.reason.${reasonKindOf(event)}")
+        val reason = event.reason
+        when (reason) {
+            is EndReason.NormaReached ->
+                send("astera.match.summary.reason.norma-reached", *teamParams(viewer, teamsById[reason.winner], reason.winner.value), "goal" to reason.goal.toString())
+            is EndReason.NormaTimeLimit -> {
+                val leader = reason.leader
+                if (leader != null) {
+                    send("astera.match.summary.reason.norma-time-limit", *teamParams(viewer, teamsById[leader], leader.value))
+                } else {
+                    send("astera.match.summary.reason.norma-time-draw")
+                }
+            }
+            else -> send("astera.match.summary.reason.${reasonKindOf(event)}")
+        }
 
         // Score line: "Score  Red 3 - Blue 5".
         val scores = summary.teams.joinToString(SCORE_SEPARATOR) { r ->
@@ -183,6 +196,12 @@ public class MatchEndSummaryListener(
         }
     }
 
+    private fun teamParams(viewer: PlayerId, team: com.astarworks.astera.core.domain.match.Team?, fallbackName: String): Array<Pair<String, String>> =
+        arrayOf(
+            "team" to (team?.let { messages.render(viewer, it.displayNameKey) } ?: fallbackName),
+            "color" to teamColor(viewer, team),
+        )
+
     private fun teamColor(viewer: PlayerId, team: com.astarworks.astera.core.domain.match.Team?): String =
         team?.let { messages.render(viewer, it.colorKey) }?.takeIf { it in COLORS } ?: "white"
 
@@ -207,6 +226,8 @@ public class MatchEndSummaryListener(
             EndReason.WorldUnloaded -> "world-unloaded"
             is EndReason.Cancelled -> "cancelled"
             is EndReason.TeamVictory -> "objective"
+            // Norma results are named by pushChat (they carry the team); this is only the generic fallback.
+            is EndReason.NormaReached, is EndReason.NormaTimeLimit -> "score-threshold"
         }
 
     public companion object {

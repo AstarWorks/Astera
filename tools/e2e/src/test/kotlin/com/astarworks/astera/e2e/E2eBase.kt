@@ -14,8 +14,8 @@ abstract class E2eBase {
         E2eEnv.ensureUp()
     }
 
-    protected fun bot(prefix: String, packPolicy: PackPolicy = PackPolicy.LOAD, waitForJoin: Boolean = true): Bot =
-        Bot.join(prefix, packPolicy, waitForJoin = waitForJoin).also { bots += it }
+    protected fun bot(prefix: String, packPolicy: PackPolicy = PackPolicy.LOAD, waitForJoin: Boolean = true, exactName: String? = null): Bot =
+        Bot.join(prefix, packPolicy, waitForJoin = waitForJoin, exactName = exactName).also { bots += it }
 
     protected fun rcon(cmd: String): String = Rcon(E2eEnv.host, E2eEnv.rconPort, E2eEnv.rconPassword).use { it.command(cmd) }
 

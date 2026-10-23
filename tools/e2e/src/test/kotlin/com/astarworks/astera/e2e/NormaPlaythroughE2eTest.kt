@@ -60,6 +60,14 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             assertThat(rawKeys(lines)).isEmpty()
             quote(lines)
         }
+        E2eReport.check(suite, "the sidebar names the team goal and every team's progress towards it (Red 0/3)", "SetScore") {
+            val lines = sidebar(bots[0])
+            assertThat(lines.any { it.contains("3") && it.contains("kills", true) && !it.contains("Red", true) && !it.contains("Blue", true) })
+                .describedAs("no goal line (first to 3 kills): $lines").isTrue()
+            assertThat(lines.filter { it.contains("Red", true) || it.contains("Blue", true) }.filter { Regex("0\\s*/\\s*3").containsMatchIn(it) })
+                .describedAs("team lines without 0/3 progress: $lines").hasSizeGreaterThanOrEqualTo(2)
+            quote(lines)
+        }
         if (red.size != 2 || blue.size != 2) return
 
         // --- the fight ---------------------------------------------------------------------------------------------
@@ -118,7 +126,10 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             val loserChat = blue[0].chat.drop(chatFrom.getValue(blue[0])).map { clean(it.text) }
             val scoreLine = winnerChat.firstOrNull { it.startsWith("Score") }.orEmpty()
             assertThat(Regex("Red\\D*3").containsMatchIn(scoreLine)).describedAs("score line should read Red 3: '$scoreLine'").isTrue()
-            "winner score line='$scoreLine'; loser score line='${loserChat.firstOrNull { it.startsWith("Score") }}'"
+            val reasons = (winnerChat + loserChat).filter { it.contains("Red") && it.contains("norma", true) }
+            assertThat(winnerChat.none { it.contains("objective completion", true) }).describedAs("generic win reason: ${quote(winnerChat, 40)}").isTrue()
+            assertThat(reasons).describedAs("no 'Red reached the norma' reason in the result: ${quote(winnerChat, 40)}").isNotEmpty()
+            "winner score line='$scoreLine'; loser score line='${loserChat.firstOrNull { it.startsWith("Score") }}'; reason='${reasons.firstOrNull()}'"
         }
         E2eReport.check(suite, "server log stayed free of errors during the match", "server log") {
             val errs = serverErrorsSince(logFrom)
