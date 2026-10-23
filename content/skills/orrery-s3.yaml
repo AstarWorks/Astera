@@ -47,10 +47,11 @@ phases:
     - type: play_vfx
       targets:
         type: target
-      vfx_id: orrery-ring-hit
+      vfx_id: orrery-ring-hit-target
       delay_ticks:
         type: literal
         value: 45
+      track_bound_target: true
     - type: play_sound
       targets:
         type: target
@@ -89,10 +90,11 @@ phases:
     - type: play_vfx
       targets:
         type: target
-      vfx_id: orrery-ring-hit
+      vfx_id: orrery-ring-hit-target
       delay_ticks:
         type: literal
         value: 60
+      track_bound_target: true
     - type: play_sound
       targets:
         type: target
@@ -131,10 +133,11 @@ phases:
     - type: play_vfx
       targets:
         type: target
-      vfx_id: orrery-ring-hit
+      vfx_id: orrery-ring-hit-target
       delay_ticks:
         type: literal
         value: 72
+      track_bound_target: true
     - type: play_sound
       targets:
         type: target
@@ -173,10 +176,11 @@ phases:
     - type: play_vfx
       targets:
         type: target
-      vfx_id: orrery-ring-hit
+      vfx_id: orrery-ring-hit-target-long
       delay_ticks:
         type: literal
         value: 143
+      track_bound_target: true
     - type: play_sound
       targets:
         type: target
