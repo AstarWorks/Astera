@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>アニメーション確認</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/anim.css">
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <span class="crumb"><a href="/anim">&larr; アニメーション一覧</a> ・ <a href="/">武器一覧</a></span>
+    <h1 id="title">loading&hellip;</h1>
+    <span class="sub" id="sub"></span>
+  </div>
+  <p class="note" id="note"></p>
+  <p class="note" id="skills"></p>
+  <div class="panel" id="nocap" hidden>
+    <span>まだ撮影がありません。撮影: <code id="capcmd"></code>（<code>tools/vfx-shot/README.md</code> 参照）。下のレビュー欄は撮影前でも保存できます。</span>
+  </div>
+
+  <section class="needcap">
+    <div class="prov" id="prov" aria-label="capture provenance"></div>
+    <div class="note" id="from"></div>
+  </section>
+
+  <section class="needcap">
+    <h2 class="sec">安静時の比較（バニラ ↔ リグ、リグは最初の tick）</h2>
+    <div class="rest" id="rest"></div>
+  </section>
+
+  <section class="needcap" id="player">
+    <h2 class="sec">再生</h2>
+    <div class="col">
+      <div class="view"><canvas id="pcv"></canvas><div class="ph on" id="pph">読み込み中…</div></div>
+      <div class="mcctl">
+        <button id="bPlay" class="primary">再生</button>
+        <button id="bPrev" title="1 tick 戻る (←)">&#9664; tick</button>
+        <button id="bNext" title="1 tick 進む (→)">tick &#9654;</button>
+        <input id="slider" type="range" min="0" max="0" step="1" value="0" aria-label="tick">
+        <span class="read" id="ptick"></span>
+        <span class="sep"></span>
+        <span>速度</span>
+        <button data-speed="1">1x</button><button data-speed="0.5">0.5x</button><button data-speed="0.25">0.25x</button><button data-speed="0.1">0.1x</button>
+        <span class="sep"></span>
+        <button data-view="front">正面</button><button data-view="side">側面</button>
+      </div>
+    </div>
+    <div class="note">Space 再生/一時停止 ・ ←/→ 1 tick ・ 1-4 速度 1/.5/.25/.1 ・ 20 tick = 1 秒 ・ t+0 = 発動 tick（t-3 から収録）</div>
+  </section>
+
+  <section class="needcap">
+    <h2 class="sec">ブレンドイン（t-3 から。クリックでプレイヤーへ）</h2>
+    <div class="strip" id="stripIn"></div>
+    <h2 class="sec">ブレンドアウト</h2>
+    <div class="strip" id="stripOut"></div>
+  </section>
+
+  <section class="panel rv" aria-label="レビュー">
+    <h3>レビュー（保存すると tools/skill-compare/data/anim/&lt;id&gt;/review.json に記録され、エージェントが読みます）</h3>
+    <div class="rvrow">
+      <button data-status="unreviewed">未レビュー</button><button data-status="ok">OK</button><button data-status="ng">NG</button>
+    </div>
+    <label class="rvl">コメント（全体）<textarea id="comment" rows="3"></textarea></label>
+    <div class="rvl">tick に紐づくコメント
+      <div class="rvrow">
+        <span>現在 <b id="pinTick">t+0</b></span>
+        <input type="text" id="pinText" size="40" placeholder="例: 腕がワープする / 肘が逆">
+        <button id="pinAdd">この tick に追加</button>
+      </div>
+      <div id="pins"></div>
+    </div>
+    <div class="rvrow">
+      <label class="chk">名前 <input type="text" id="who" size="10" placeholder="who"></label>
+      <button id="bSave" class="primary" title="Ctrl+S">保存</button>
+      <button id="bReload" hidden>再読み込み</button>
+      <span class="status" id="status"></span>
+    </div>
+    <div class="log" id="log"></div>
+  </section>
+</div>
+<script src="/anim.js"></script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 // skill-compare case page. Master clock = ms since case.start_s; see timeline.js for the mappings.
 import { createFrameCache } from "./frame-cache.js";
+import { renderProv } from "./prov.js";
 import {
   TICK_MS, clamp, msToVideoFrame, videoFrameToMs, msToTick, tickToMs, sToMs, msToS, castMs, focusZones, effectiveSpeed,
 } from "./timeline.js";
@@ -142,15 +143,7 @@ function showProv() {
   if (S.provKey === key) return;
   S.provKey = key; box.textContent = "";
   if (!src?.prov) { box.hidden = true; return; }
-  const p = src.prov, chip = (txt, cls) => box.appendChild(el("span", "pv " + (cls || ""), txt));
-  box.hidden = false;
-  chip(p.branch || "branch ?", p.branch ? "" : "warn");
-  chip(p.commit ? p.commit.slice(0, 8) : "commit ?", p.commit ? "" : "warn");
-  chip(p.capturedAt ? p.capturedAt.replace("T", " ").slice(0, 16) + " UTC" : "撮影日時 ?", p.capturedAt ? "" : "warn");
-  chip(p.fov ? `FOV ${p.fov}°${p.fovMode ? " (" + p.fovMode + ")" : ""}` : "FOV 記録なし", p.fov ? "" : "warn");
-  if (p.resolution) chip(p.resolution);
-  chip(p.published ? "公開版" : "未公開（作業中の撮影）", p.published ? "ok" : "warn");
-  if (p.reviewRequired) chip(`静止フレーム最大 ${p.repeated}`, "warn");
+  renderProv(box, src.prov);
 }
 function showMc(ms) {
   showProv();
