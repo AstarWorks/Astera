@@ -12,8 +12,9 @@
     "videoId": "0DYvUxa24wo",
     "file": "extra-1.json",
     "sha256": "697ab87c4632f98a9914713b9c413d3024954d07d5c3e243dd4bba2b0172309a",
-    "coverage": "pending-review",
-    "name": "Mind Whip"
+    "coverage": "observed-repeat-case-created-implementation-missing",
+    "name": "Mind Whip",
+    "case": "orrery-staff-s3-repeat"
   },
   {
     "weapon": "couture-rapier",

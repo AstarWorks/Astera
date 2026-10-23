@@ -1,0 +1,65 @@
+{
+  "id": "orrery-staff-s3-repeat",
+  "rev": 1,
+  "videoId": "0DYvUxa24wo",
+  "start_s": 34.200833333333335,
+  "end_s": 45.4454,
+  "skill": {
+    "name": "Mind Whip / single-opponent repetition",
+    "coins": 4,
+    "asteraSkillId": null
+  },
+  "variant": {
+    "label": "S3 / 単体への反復映像",
+    "implementation": "missing",
+    "order": 1
+  },
+  "mc": {
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false
+  },
+  "segments": [
+    {
+      "id": "hit-1",
+      "kind": "hit",
+      "label": "接触 1 / f1085",
+      "t_s": 36.20283333333333,
+      "notes": "Thin continuous gold line from emitter to target; orange annulus and purple target flash. Initial connection is outside the close-up crop; this is first visible target contact."
+    },
+    {
+      "id": "hit-2",
+      "kind": "hit",
+      "label": "接触 2 / f1110",
+      "t_s": 37.037,
+      "notes": "Thin continuous gold line from emitter to target; orange annulus and purple target flash. Renewed muzzle ring distinguishes this attack beat from residual target flicker."
+    },
+    {
+      "id": "hit-3",
+      "kind": "hit",
+      "label": "接触 3 / f1126",
+      "t_s": 37.57086666666667,
+      "notes": "Thin continuous gold line from emitter to target; orange annulus and purple target flash. Renewed muzzle ring distinguishes this attack beat from residual target flicker."
+    },
+    {
+      "id": "hit-4",
+      "kind": "hit",
+      "label": "接触 4 / f1234",
+      "t_s": 41.17446666666667,
+      "notes": "Long fourth-coin beam reaches target; later beam flicker and renewed muzzle burst are part of this same channel."
+    }
+  ],
+  "notes": "S3の別撮影であり新しい技ではない。Charge数値と分岐条件は映像から確定できない。既存S3の撮影は流用しない。",
+  "status": "analysed",
+  "verification": {
+    "status": "unverified",
+    "reason": "この区間専用の実装・実機撮影は未作成。"
+  },
+  "weapon": "orrery-staff",
+  "identity": "R Corp. 4th Pack Reindeer Rodion",
+  "iterations": 0,
+  "report": "/report/orrery-staff",
+  "referenceRevision": "697ab87c4632f98a9914713b9c413d3024954d07d5c3e243dd4bba2b0172309a"
+}
