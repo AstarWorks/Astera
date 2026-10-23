@@ -13,6 +13,183 @@ params:
 phases:
   type: sequence
   cast:
+  - type: for_each_target
+    targets:
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 14
+    mechanics:
+    - type: play_vfx
+      targets:
+        type: caster
+      vfx_id: orrery-beam-short
+      delay_ticks:
+        type: literal
+        value: 45
+      track_bound_target: true
+    - type: damage
+      targets:
+        type: target
+      ignore_invulnerability:
+        type: literal
+        value: true
+      components:
+      - base:
+          type: literal
+          value: 6
+        attribute: physical
+      delay_ticks:
+        type: literal
+        value: 45
+    - type: play_vfx
+      targets:
+        type: target
+      vfx_id: orrery-ring-hit
+      delay_ticks:
+        type: literal
+        value: 45
+    - type: play_sound
+      targets:
+        type: target
+      sound_id: entity.player.attack.strong
+      volume:
+        type: literal
+        value: 0.7
+      pitch:
+        type: literal
+        value: 1.1
+      delay_ticks:
+        type: literal
+        value: 45
+    - type: play_vfx
+      targets:
+        type: caster
+      vfx_id: orrery-beam-short
+      delay_ticks:
+        type: literal
+        value: 60
+      track_bound_target: true
+    - type: damage
+      targets:
+        type: target
+      ignore_invulnerability:
+        type: literal
+        value: true
+      components:
+      - base:
+          type: literal
+          value: 6
+        attribute: physical
+      delay_ticks:
+        type: literal
+        value: 60
+    - type: play_vfx
+      targets:
+        type: target
+      vfx_id: orrery-ring-hit
+      delay_ticks:
+        type: literal
+        value: 60
+    - type: play_sound
+      targets:
+        type: target
+      sound_id: entity.player.attack.strong
+      volume:
+        type: literal
+        value: 0.7
+      pitch:
+        type: literal
+        value: 1.1
+      delay_ticks:
+        type: literal
+        value: 60
+    - type: play_vfx
+      targets:
+        type: caster
+      vfx_id: orrery-beam-short
+      delay_ticks:
+        type: literal
+        value: 72
+      track_bound_target: true
+    - type: damage
+      targets:
+        type: target
+      ignore_invulnerability:
+        type: literal
+        value: true
+      components:
+      - base:
+          type: literal
+          value: 6
+        attribute: physical
+      delay_ticks:
+        type: literal
+        value: 72
+    - type: play_vfx
+      targets:
+        type: target
+      vfx_id: orrery-ring-hit
+      delay_ticks:
+        type: literal
+        value: 72
+    - type: play_sound
+      targets:
+        type: target
+      sound_id: entity.player.attack.strong
+      volume:
+        type: literal
+        value: 0.7
+      pitch:
+        type: literal
+        value: 1.1
+      delay_ticks:
+        type: literal
+        value: 72
+    - type: play_vfx
+      targets:
+        type: caster
+      vfx_id: orrery-beam-target
+      delay_ticks:
+        type: literal
+        value: 143
+      track_bound_target: true
+    - type: damage
+      targets:
+        type: target
+      ignore_invulnerability:
+        type: literal
+        value: true
+      components:
+      - base:
+          type: literal
+          value: 15
+        attribute: physical
+      delay_ticks:
+        type: literal
+        value: 143
+    - type: play_vfx
+      targets:
+        type: target
+      vfx_id: orrery-ring-hit
+      delay_ticks:
+        type: literal
+        value: 143
+    - type: play_sound
+      targets:
+        type: target
+      sound_id: entity.player.attack.strong
+      volume:
+        type: literal
+        value: 0.7
+      pitch:
+        type: literal
+        value: 1.1
+      delay_ticks:
+        type: literal
+        value: 143
   - type: play_vfx
     targets:
       type: caster
@@ -30,7 +207,7 @@ phases:
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: orrery-beam-short
+    vfx_id: orrery-seal-front
     delay_ticks:
       type: literal
       value: 45
@@ -40,62 +217,6 @@ phases:
     vfx_id: orrery-seal-front
     delay_ticks:
       type: literal
-      value: 45
-  - type: damage
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 6
-      attribute: physical
-    delay_ticks:
-      type: literal
-      value: 45
-  - type: play_vfx
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    vfx_id: orrery-ring-hit
-    delay_ticks:
-      type: literal
-      value: 45
-  - type: play_sound
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    sound_id: entity.player.attack.strong
-    volume:
-      type: literal
-      value: 0.7
-    pitch:
-      type: literal
-      value: 1.1
-    delay_ticks:
-      type: literal
-      value: 45
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: orrery-beam-short
-    delay_ticks:
-      type: literal
       value: 60
   - type: play_vfx
     targets:
@@ -103,179 +224,11 @@ phases:
     vfx_id: orrery-seal-front
     delay_ticks:
       type: literal
-      value: 60
-  - type: damage
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 6
-      attribute: physical
-    delay_ticks:
-      type: literal
-      value: 60
-  - type: play_vfx
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    vfx_id: orrery-ring-hit
-    delay_ticks:
-      type: literal
-      value: 60
-  - type: play_sound
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    sound_id: entity.player.attack.strong
-    volume:
-      type: literal
-      value: 0.7
-    pitch:
-      type: literal
-      value: 1.1
-    delay_ticks:
-      type: literal
-      value: 60
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: orrery-beam-short
-    delay_ticks:
-      type: literal
       value: 72
   - type: play_vfx
     targets:
       type: caster
     vfx_id: orrery-seal-front
-    delay_ticks:
-      type: literal
-      value: 72
-  - type: damage
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 6
-      attribute: physical
-    delay_ticks:
-      type: literal
-      value: 72
-  - type: play_vfx
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    vfx_id: orrery-ring-hit
-    delay_ticks:
-      type: literal
-      value: 72
-  - type: play_sound
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    sound_id: entity.player.attack.strong
-    volume:
-      type: literal
-      value: 0.7
-    pitch:
-      type: literal
-      value: 1.1
-    delay_ticks:
-      type: literal
-      value: 72
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: orrery-beam
-    delay_ticks:
-      type: literal
-      value: 143
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: orrery-seal-front
-    delay_ticks:
-      type: literal
-      value: 143
-  - type: damage
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 15
-      attribute: physical
-    delay_ticks:
-      type: literal
-      value: 143
-  - type: play_vfx
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    vfx_id: orrery-ring-hit
-    delay_ticks:
-      type: literal
-      value: 143
-  - type: play_sound
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 14
-    sound_id: entity.player.attack.strong
-    volume:
-      type: literal
-      value: 0.7
-    pitch:
-      type: literal
-      value: 1.1
     delay_ticks:
       type: literal
       value: 143

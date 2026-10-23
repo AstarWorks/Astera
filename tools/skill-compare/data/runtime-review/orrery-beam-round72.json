@@ -1,0 +1,59 @@
+{
+  "round": 72,
+  "case": "orrery-staff-s3",
+  "status": "failed",
+  "static": {
+    "capture": "build/limbus-review/round72/captures/orrery-staff-s3-1792740354412627718",
+    "frames": 224,
+    "quality": {
+      "maxRepeatedFrames": 2,
+      "reviewRequired": false,
+      "cameraMaxLatenessMs": 3.0
+    },
+    "repeatedFrames": [
+      [
+        19,
+        20
+      ],
+      [
+        139,
+        140
+      ]
+    ]
+  },
+  "moving": {
+    "capture": "build/limbus-review/round72/moving-captures/orrery-staff-s3-1792740480374022942",
+    "frames": 224,
+    "quality": {
+      "maxRepeatedFrames": 2,
+      "reviewRequired": false,
+      "cameraMaxLatenessMs": 2.0
+    },
+    "repeatedFrames": [
+      [
+        19,
+        20
+      ]
+    ]
+  },
+  "health": [
+    200.0,
+    188.192,
+    182.288,
+    176.38399,
+    161.624
+  ],
+  "moveFrom": [
+    307.5,
+    100,
+    300.5
+  ],
+  "moveTo": [
+    304.5,
+    101,
+    302.5
+  ],
+  "review": "固定長のビームを同一標的への回転・伸縮へ変更。静止標的と上下・横・近距離への移動で終点追従を実機確認。命中輪は元の位置に残り、武器二重表示・光の形・姿勢・カメラ・Charge分岐は未一致。",
+  "evidence": "/evidence/orrery-beam-tracking.png",
+  "evidenceScope": "移動標的への終点追従の実機フレーム。原映像の再現一致を証明するものではない。"
+}
