@@ -1,7 +1,7 @@
 package com.astarworks.astera.match.platform.wiring
 
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
-import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
+import com.astarworks.astera.core.application.port.outbound.IArenaBuilder
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
@@ -43,8 +43,7 @@ internal object MatchWorldWiring {
         // onDisable can cancel cleanly.
         // -----------------------------------------------------------------
         val blockStateGateway = services.getOrThrow<IBlockStateGateway>()
-        @Suppress("UnusedVariable") // reserved for Wave 6 PaperSchematicLoader integration
-        val schematicLoader = services.getOrThrow<ISchematicLoader>()
+        val arenaBuilder = services.getOrThrow<IArenaBuilder>()
 
         // Wave 6b-1 (ADR-0156): PaperBarrierGateway overlays InMemory at
         // priority 100. Bukkit BlockDisplay-backed visual; Phase 1 limits
@@ -102,16 +101,16 @@ internal object MatchWorldWiring {
         subscriptions += restoreOnEnd.subscribe(eventBus)
 
         // Per-match world lifecycle — Create on MatchStarted, Destroy on MatchEnded.
-        // Wave 5d ships in-memory only; Wave 6 wires PaperWorldGateway-backed
-        // world creation. Soft-fail on schematic miss (logs + saves MatchWorld
-        // record so block tracking + barrier placement still have a target).
+        // ADR-0246: Create makes sure the stage's sky-island arena is built in its world
+        // (idempotent) and records the stage's real world; Destroy schedules the arena repair.
         val createMatchWorld = CreateMatchWorldUseCase(
-            schematicLoader = schematicLoader,
+            stages = env.stages,
+            arenas = arenaBuilder,
             matchWorlds = matchWorlds,
         )
         subscriptions += createMatchWorld.subscribe(eventBus)
 
-        val destroyMatchWorld = DestroyMatchWorldUseCase(matchWorlds = matchWorlds)
+        val destroyMatchWorld = DestroyMatchWorldUseCase(matchWorlds = matchWorlds, arenas = arenaBuilder)
         subscriptions += destroyMatchWorld.subscribe(eventBus)
 
         // Wave L 5hardening-complete (ADR-0129): end every match in an

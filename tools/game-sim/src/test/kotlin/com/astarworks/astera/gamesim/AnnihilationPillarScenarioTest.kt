@@ -15,7 +15,6 @@ import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.nexus.NexusPillarTier
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.core.domain.stage.StagePillar
-import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPillarTargets
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig
@@ -56,7 +55,7 @@ class AnnihilationPillarScenarioTest {
             val stage = checkNotNull(sim.services.getOrThrow<IStageRegistry>().find(StageId("annihilation-arena")))
             val targets = sim.services.getOrThrow<IStructureTargets>()
             val pillars = stage.pillars.associateBy { it.team.value to it.tier }
-            val world = WorldId("world")
+            val world = stage.world
 
             fun pillar(team: String, tier: NexusPillarTier): StagePillar = checkNotNull(pillars[team to tier])
             fun id(team: String, tier: NexusPillarTier) =
@@ -76,7 +75,7 @@ class AnnihilationPillarScenarioTest {
 
             /** Red stands 5 blocks from [p] and burns it with flame-burst until [done]. */
             fun siege(p: StagePillar, maxCasts: Int = 120, done: () -> Boolean) {
-                red.position = Vec3(p.centre.x, groundY, p.centre.z + 5.0)
+                red.position = Vec3(p.centre.x, p.position.y, p.centre.z + 5.0)
                 red.lookAt(p.centre)
                 var casts = 0
                 while (!done() && casts++ < maxCasts) {
@@ -87,7 +86,7 @@ class AnnihilationPillarScenarioTest {
             }
 
             // --- Phase 1 (Build): pillars are immune --------------------------------
-            red.position = Vec3(pillar("blue", NexusPillarTier.TIER_1).centre.x, groundY, pillar("blue", NexusPillarTier.TIER_1).centre.z + 5.0)
+            red.position = Vec3(pillar("blue", NexusPillarTier.TIER_1).centre.x, pillar("blue", NexusPillarTier.TIER_1).position.y, pillar("blue", NexusPillarTier.TIER_1).centre.z + 5.0)
             red.holds("fire-staff")
             red.lookAt(pillar("blue", NexusPillarTier.TIER_1).centre)
             red.cast("flame-burst")
@@ -98,7 +97,7 @@ class AnnihilationPillarScenarioTest {
 
             // --- own pillar: a team cannot damage itself ----------------------------
             val ownT1 = pillar("red", NexusPillarTier.TIER_1)
-            red.position = Vec3(ownT1.centre.x, groundY, ownT1.centre.z - 5.0)
+            red.position = Vec3(ownT1.centre.x, ownT1.position.y, ownT1.centre.z - 5.0)
             red.lookAt(ownT1.centre)
             repeat(3) { red.cast("flame-burst"); advance(85) }
             assertThat(hp("red", NexusPillarTier.TIER_1)).`as`("ally damage is ignored").isEqualTo(40.0)
