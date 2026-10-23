@@ -1,0 +1,9 @@
+# Bastion S1: orange embers flung along the swing tangent from the blade tip; cheap volume (3 per call, one call per tick for 4 ticks).
+id: bastion-s1-ember
+shape: { kind: point }
+color: { r: 255, g: 138, b: 30 }
+count: 3
+lifetime_ticks: 12
+vanilla_particle: small_flame
+velocity: { direction: along_tangent, speed: 0.2, spread_degrees: 25 }
+force: true

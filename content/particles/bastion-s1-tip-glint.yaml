@@ -1,0 +1,9 @@
+# Bastion S1: one end_rod glint per tick at the blade tip (animator rig emitter).
+id: bastion-s1-tip-glint
+shape: { kind: point }
+color: { r: 255, g: 255, b: 255 }
+count: 1
+lifetime_ticks: 8
+vanilla_particle: end_rod
+velocity: { direction: outward, speed: 0.04, spread_degrees: 90 }
+force: true
