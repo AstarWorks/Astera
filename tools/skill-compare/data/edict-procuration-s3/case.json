@@ -59,12 +59,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "round31: 下降時の白青光帯を3→5本、太さと開きを時間変化させ、黒い爪の厚みを55%へ縮小。再撮影040で白い面積の増加を確認。初回000〜007の重複は開始をまたぐため無効。128px素材の拡大による段差、輪郭・人物姿勢、通常プレイのカメラ、持続変身・通常入力は未一致。"
+    "reason": "round32: 光帯素材128→256px、使用3定義の拡大率を半分にして寸法を維持。再撮影024/038/040で表示と輪郭の段差縮小を確認。途中コピーはメタデータ不在で不採用。帯の重なり・残光・人物姿勢、通常プレイのカメラ、持続変身・通常入力は未一致。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 34,
+  "iterations": 36,
   "report": "/report/edict-blade",
   "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
-  "contentRevision": "b78d92fbe6831fd037a0f0c45ff887afb073a3a318dc5519b23ddcd01e4f81c5"
+  "contentRevision": "fd26f9fceae1634569f80d1fde8dcd72d3f8305ae226f00ea1c884534b47673a"
 }

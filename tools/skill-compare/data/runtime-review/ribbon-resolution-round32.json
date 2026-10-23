@@ -1,0 +1,51 @@
+{
+  "runtime": {
+    "baseCommit": "5d6d43ad91119d2a70d26e750f1cadaf905401a1",
+    "resourcePackSha1": "38014dcbb395fadb945df2684ee0525689b50a3c",
+    "deployedEvidence": {
+      "content/vfx/edict-procuration-airborne.yaml": "cd2d449fd63028eefd3056c69d04079d5f047cd95851d77f61d812e077953c5a",
+      "content/vfx/edict-procuration-dive.yaml": "c2d78ed903a26fb52f8dc1465a8c8f921abb884520933e0c309d938460c920f9",
+      "content/skills/edict-procuration-s3.yaml": "9ff2048abb38312f6458319b6305ec22c836f1a49e04f5931314dd691c85dd29",
+      "content/sprites/procuration-ribbon.yaml": "4de1894675e84f16dc9c4ec6534be76cca6205f74501b9667a63fda2050cf81d",
+      "content/vfx/edict-procuration-crossing.yaml": "b12e0c23975fa2c35a1e017122b490bf2351babca5fd6bc8b8591dad326b651e"
+    },
+    "coreSha256": "b54a8e06d0d57bd7aa364ba83c7cec57c0c4b661f159c45bbad05f19b05f5bde",
+    "combatSha256": "aef44f22621f89f3448dc9c9716652a2c0f813976f2fd934d1e4c49745e10a25",
+    "cameraRevision": "04b04967b23cc491c1a99e87f6d74bf133b3889d430de2dd3f24e51036b34699",
+    "changes": "256px ribbon sprite with half glyph scale in crossing, airborne and dive"
+  },
+  "sizeChecks": [
+    {
+      "vfx": "crossing",
+      "rescaledRibbonElements": 6,
+      "glyphSizeTimesScalePreserved": true
+    },
+    {
+      "vfx": "airborne",
+      "rescaledRibbonElements": 6,
+      "glyphSizeTimesScalePreserved": true
+    },
+    {
+      "vfx": "dive",
+      "rescaledRibbonElements": 10,
+      "glyphSizeTimesScalePreserved": true
+    }
+  ],
+  "capture": {
+    "path": "build/limbus-review/round32/repeat",
+    "quality": {
+      "maxRepeatedFrames": 1,
+      "reviewRequired": false,
+      "cameraMaxLatenessMs": 10.0
+    }
+  },
+  "excludedArchive": {
+    "path": "build/limbus-review/round32/partial-archive-not-for-review",
+    "reason": "Copied during output replacement; metadata absent, not accepted as a complete capture."
+  },
+  "visualReview": {
+    "frames_024_038_040": "Ribbon dimensions broadly retained; stretched blue/white edge steps finer at 256px than previous128px.",
+    "limitations": "Not pixel-aligned repeat: actor phase and pose vary. Overlapping silhouettes, source afterglow, posture and gameplay camera still differ."
+  },
+  "fidelityStatus": "failed"
+}
