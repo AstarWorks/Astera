@@ -184,6 +184,11 @@ vfx-shot: ## Film a skill with a real headless MC client: make vfx-shot SKILL=<s
 	@test -n "$(SKILL)" || { echo "usage: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|all] [TICKS=60]"; exit 2; }
 	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(or $(TICKS),60)" bash tools/vfx-shot/vfx-shot.sh
 
+.PHONY: anim-shot
+anim-shot: ## Film a skin-rig animation for the skill-compare /anim review: make anim-shot ANIM=<animation-id | skill-id>
+	@test -n "$(ANIM)" || { echo "usage: make anim-shot ANIM=<animation-id | skill-id>"; exit 2; }
+	bash tools/vfx-shot/anim-shot.sh "$(ANIM)"
+
 .PHONY: vfx-shot-down
 vfx-shot-down: ## Stop + drop the vfx-shot server (this checkout + SKILL/CASE; only needed after SHOT_KEEP=1)
 	bash tools/vfx-shot/vfx-shot.sh down

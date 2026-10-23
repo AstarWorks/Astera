@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { CASE_ID_RE, validateCase, diffSummary } from "./src/timeline.js";
 import { makeSources } from "./lib/sources.mjs";
 import { buildIndex } from "./lib/weapons.mjs";
+import { makeAnim, ANIM_ID_RE } from "./lib/anim.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MAX_BODY = 1_000_000;
@@ -20,6 +21,7 @@ export function makeHandler(opts = {}) {
   const vfxShotDir = opts.vfxShotDir ?? process.env.SKILL_COMPARE_VFX_SHOT ?? join(repo, "build", "vfx-shot");
   const S = makeSources({ root, repo, vfxShotDir, mediaDirs: opts.mediaDirs, worktrees: opts.worktrees ?? true });
   const vfxFind = S.vfxFind;
+  const A = makeAnim({ repo, root, S });
   const publishedDir = opts.publishedDir ?? process.env.SKILL_COMPARE_PUBLISHED ?? join(repo, "build", "skill-compare-published");
   const viewerDir = opts.viewerDir ?? join(repo, "tools", "skill-viewer", "build", "skill-frames");
   const tracesDir = opts.tracesDir ?? join(repo, "tools", "game-sim", "build", "sim-traces");
@@ -146,16 +148,30 @@ export function makeHandler(opts = {}) {
     return new Response(Bun.file(path), { headers: { ...(type ? { "content-type": type } : {}), "cache-control": /\.(png|jpg|webp)$/.test(path) ? "private, max-age=300" : "no-cache" } });
   }
 
-  let bundle = { stamp: 0, text: "" };
-  async function appJs() {
+  const bundles = new Map();   // entry name -> { stamp, text }; app.js = the case page, anim.js = the animation review pages
+  async function appJs(entry = "app") {
     const srcDir = join(root, "src");
     const stamp = Math.max(...readdirSync(srcDir).map((f) => statSync(join(srcDir, f)).mtimeMs), statSync(join(root, "package.json")).mtimeMs);
-    if (stamp !== bundle.stamp) {
-      const r = await Bun.build({ entrypoints: [join(srcDir, "app.js")], target: "browser", minify: false });
+    let b = bundles.get(entry);
+    if (!b || stamp !== b.stamp) {
+      const r = await Bun.build({ entrypoints: [join(srcDir, entry + ".js")], target: "browser", minify: false });
       if (!r.success) return new Response(r.logs.join("\n"), { status: 500 });
-      bundle = { stamp, text: await r.outputs[0].text() };
+      b = { stamp, text: await r.outputs[0].text() };
+      bundles.set(entry, b);
     }
-    return new Response(bundle.text, { headers: { "content-type": "text/javascript", "cache-control": "no-store" } });
+    return new Response(b.text, { headers: { "content-type": "text/javascript", "cache-control": "no-store" } });
+  }
+
+  async function saveReview(id, req) {
+    if (!(req.headers.get("content-type") || "").startsWith("application/json")) return err(415, "application/json required");
+    const text = await req.text();
+    if (text.length > MAX_BODY) return err(413, "body too large");
+    let body;
+    try { body = JSON.parse(text); } catch { return err(400, "invalid JSON"); }
+    const r = A.applyReview(id, body.review, body.who);
+    if (r.status !== 200) return json(r.body, r.status);
+    writeCaseFile(r.file, r.next);
+    return json(r.body);
   }
 
   return async function handle(req) {
@@ -167,6 +183,22 @@ export function makeHandler(opts = {}) {
     if ((m = /^\/evidence\/([a-z0-9-]+)\.png$/.exec(p))) return file(join(repo, "build", "limbus-review", "pairs-round2", m[1] + ".png"), "image/png");
     if ((m = /^\/report\/([a-z0-9-]+)$/.exec(p))) return file(join(root, "data", m[1] + "-REPORT.md"), "text/plain; charset=utf-8");
     if ((m = /^\/reference\/([a-z0-9-]+)\/([a-z0-9-]+\.(?:json|md))$/.exec(p))) return file(join(root, "data", "reference-analysis", m[1], m[2]), m[2].endsWith("json") ? "application/json" : "text/plain; charset=utf-8");
+    if (p === "/anim" || p === "/anim/") return file(join(publicDir, "anim-index.html"), "text/html; charset=utf-8");
+    if (p === "/anim.html") return file(join(publicDir, "anim.html"), "text/html; charset=utf-8");
+    if (p === "/anim-index.js") return file(join(publicDir, "anim-index.js"), "text/javascript");
+    if (p === "/anim.js") return appJs("anim");
+    if (p === "/anim.css") return file(join(publicDir, "anim.css"), "text/css");
+    if (p === "/api/anims" && req.method === "GET") return json(A.list());
+    if ((m = /^\/api\/anims\/([a-z0-9-]+)(\/review)?$/.exec(p))) {
+      if (!ANIM_ID_RE.test(m[1])) return err(400, "bad id");
+      if (!m[2] && req.method === "GET") { const d = A.detail(m[1]); return d ? json(d) : err(404, "no such animation"); }
+      if (m[2] && req.method === "POST") return saveReview(m[1], req);
+      return err(405, "method not allowed");
+    }
+    if ((m = /^\/anim-media\/([a-z0-9-]+)\/(.+)$/.exec(p))) {
+      const f = A.mediaFile(m[1], m[2]);
+      return f ? file(f, f.endsWith(".webp") ? "image/webp" : "image/png") : err(404, "not found");
+    }
     if (p === "/app.js") return appJs();
     if (p === "/index.js") return file(join(publicDir, "index.js"), "text/javascript");
     if (p === "/style.css") return file(join(publicDir, "style.css"), "text/css");
