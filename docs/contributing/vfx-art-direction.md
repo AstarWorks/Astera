@@ -1,6 +1,7 @@
 # VFX art direction — which part reproduces what
 
 制作全体の順序・比較方法・合格条件は [統一手順書](limbus-skill-reproduction.md) を参照。このページは演出の部品選びと表現基準。
+出典つきの詳細・失敗事例・技法カードは [`docs/reference/vfx/`](../reference/vfx/README.md) (skill を作る・直す前に読む)。
 
 Limbus Company 風の 2D 演出を Minecraft で再現するときの「部品選び」の正本。
 Display entity (block / item / text) と particle は役割が違う。**形と面は Display、動きと粒立ちは particle**。
@@ -60,6 +61,40 @@ ItemDisplay はほぼ使わない。
 8. 命中: 接触点に火花、ヒットストップ (強さで 2–4 tick)、被弾側の揺れ、音。
 9. 余韻で要素を減らしてから消す。次の技や相手の姿を隠さない。
 10. Display 数・寿命・視聴者あたりの上限を守る。比較ページ (動画 | 意図 | Minecraft) で確認する。
+
+## 0.6 追加規則 (詳細と出典は [`reference/vfx/`](../reference/vfx/README.md))
+
+**失敗パターンのチェック** ([failure-patterns](../reference/vfx/failure-patterns.md))。レビューで次を確認する:
+1. 全ヒットで同じ `hit_stop` になっていないか (軽 1-2t / 重 3-4t / 決め 6t 目安 [二次]。多段は各 beat で足し、最終打だけ大きく)。
+2. 単発の命中が視野を覆っていないか (12-18% 目安 [二次])。`screen_flash` の白を連続させていないか (1-2t、間に暗転)。
+3. 脅威の予兆の色系統を命中演出と分けたか。**白黒にしても主役が読めるか** (vfx-shot の frame を `ffmpeg -vf format=gray`)。
+4. 多段技の途中 beat に粒子を盛っていないか (最終打だけ大きく)。
+5. 見た目の通過 tick = damage tick。命中 tick にだけ演出を出す (振っただけで出さない)。
+
+**音の規則** ([reference: 音の層とピッチの弧](../reference/vfx/re-diverse-patterns.md))。音は体験の半分。
+- 音量・ピッチ・層の数を重要度 (1-10) に揃える。ヒット音は立ち上がり (transient) を強く、残響は控えめ。
+- 層: 同じ音を 2 ピッチ同時 / 低音をベースに高音をトップに。チャージ = ピッチ上昇、スイング・減衰 = 下降、頂点で一瞬の無音 → 一撃。
+- 命中の 1-2t 前に低い予兆音、命中 tick に transient。ミス音とブロック音は別。同じ爆発音を乱用しない (音のインフレ)。
+- `play_sound` の pitch は clamp される (`SoundSpec.MIN_PITCH..MAX_PITCH`)。音の弧を宣言する構文と `stopsound` 相当は未対応 (`delay_ticks` で並べる)。
+
+**予兆 (telegraph) の規則** ([reference: telegraph](../reference/vfx/re-diverse-patterns.md))。
+- 立ち上がり 2.5-4t・保持 5-11t が目安 [二次]。予兆は相手から見える地面と頭上に出す。
+- 範囲予告は「外縁 = 即時で全径、内塗り = 着弾までかけて全径」の 2 枚重ねにすると、着弾までの時間が見える [社内参考]。判定半径 = 見た目半径。
+- 大技 (importance 8 以上) は可視の予告を必須にする。固定時間は 20t 以内、固定中は軽減か無敵。
+
+**技の格** (レアリティ別の表現ラダー、[re-diverse-patterns §3](../reference/vfx/re-diverse-patterns.md))。Astera の人格武器は rarity がほぼ epic なので、
+格は **importance** で決める。格が上がるほど スケール・層・持続・音・必須ギミック を段階的に上げ、`cooldown_ticks` / `ego_cost` と連動させる。
+大技 (E.G.O) は時間経過で色・密度・ピッチが上がる 3 フェーズを持たせる。
+
+**Minecraft ならではの技法** ([minecraft-techniques](../reference/vfx/minecraft-techniques.md))。
+- スプライト Display (1 エンティティの絵) は数百粒より軽いことが多い。ヒットスパーク・閃光は sprite を使う (ADR-0239)。
+- クライアント補間は終点を 1 回設定して放置する (毎 tick 更新しない)。
+- 大型の実体を振る (rig)、十字断面クアッドのビーム + `easing_inback` (発射前に一度すぼめる)、接線方向の粒子で渦、`DUST_COLOR_TRANSITION` で 1 粒の色遷移。
+- 対応状況は各カードの「Astera 対応」を見る。`camera_shake` は単発の視点ずらしで、減衰する揺れではない。
+
+**要実機検証 (出典同士が食い違うもの)**
+- TextDisplay の `background` / `text_opacity` の補間: Minecraft Wiki (https://minecraft.wiki/w/Display) は "Interpolated" と記載。一方、本書 §5 の
+  「クライアントは色を補間しない」は実機での観察。どちらが正しいか未確定。検証手順は [next-improvements の 10](../reference/vfx/next-improvements.md)。確認できるまで §5 の運用を変えない。
 
 ## 1. 二つの素材の性質
 
