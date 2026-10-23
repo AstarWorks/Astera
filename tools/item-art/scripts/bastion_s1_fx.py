@@ -6,8 +6,12 @@ so a 256 px sprite is 6.4 blocks * scale and a 128 px sprite is 3.2 blocks * sca
     python3 tools/item-art/scripts/bastion_s1_fx.py
 """
 import os
+import sys
 
 import yaml
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from bastion_s1_sprites import SWEEP_HALF, SWEEPS, sweep_euler  # noqa: E402  (one geometry for art + placement)
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
@@ -81,6 +85,21 @@ DARK_CHIP = "#FF2A2218"
 SMOKE_TINT = "#A0A8A8B0"
 
 
+def sweep(id_, name, start, end):
+    """Round 7: swing-plane smear (fixed billboard) lying in the r6 blade plane, front + back pair (a TextDisplay is
+    only trusted from its +Z side; the back strip is mirrored so both draw the same 3D arc). Flipbook = the wipe
+    following the blade, then the fade; frame k shows at element tick k + 1 (frame 0 at spawn and spawn + 1)."""
+    c = [round(float(v), 3) for v in SWEEPS[name]["centre"]]
+    sc = 2 * SWEEP_HALF / 6.4
+    out = []
+    for suffix, back in (("", False), ("-b", True)):
+        el, m = sprite(id_ + suffix, "bastion-s1-" + name + suffix, start, end, [
+            kf(0, c, sweep_euler(name, back), [sc, sc, 1.0])])
+        el["billboard"] = "fixed"
+        out.append((el, m))
+    return out
+
+
 def spark(id_, start, p, theta, length, dist, life=4, color=ORANGE):
     """Orange spark streak (tinted white-hot streak sprite): flies along (0, sin, cos) of theta, shrinks to a needle."""
     r = math.radians(theta)
@@ -109,31 +128,29 @@ def smoke_up(id_, start, end, p, w0, w1, roll=0):
 
 def high():
     els = []
-    # Round 4: ONE tilted gold ARCH (upper arc only, reference b03) above the heads, z 1.0 (not at the caster's camera: the
-    # ring at z 0.35 filled the caster's first person with a blocky band). First visible fx tick 3 (skill tick 6), contact fx tick 4.
-    els.append(sprite("s1h1-ring", "bastion-s1-arch", 3, 14, [
-        kf(0, [0, 1.3, 1.0], [0, 0, -8], [s256(4.8), s256(4.8), 1.0]),
-        kf(11, scale=[s256(5.4), s256(5.4), 1.0], ease="out_quad")], frame_ticks=2))
-    # white-hot streaks between caster and target (z < 2.2 so they stay in front of the target's camera)
+    # Round 7: the arch is the smear of the r6 overhead chop, IN its plane (vertical, contains forward, rolled 22 deg,
+    # through the pivot), 160 deg from behind-overhead (alpha 137.5) to the forward-low contact (alpha -23). Spawn fx 1
+    # (skill 4): frame 0 ticks 4-5 (blade straight up at 5), frame 1 tick 6, frame 2 = full arc at contact tick 7, hold 8,
+    # fade 9-13. The head curls inside 0.8 blocks of the opponent eye (z 2.4) instead of passing through it.
+    els += sweep("s1h1-arch", "arch", 1, 11)
+    # white-hot cut streak on the chop line (steep, the chop comes down through the target line): roll 80 is the
+    # compromise between the side camera (chop tangent ~100) and first person (plane seen edge-on, ~68)
     els.append(sprite("s1h1-streak-main", "bastion-s1-streak", 4, 11, [
-        kf(0, [0, 1.1, 1.3], [0, 0, -5], [s256(0.6), 0.3, 1.0]),
-        kf(1, scale=[s256(4.4), 0.3, 1.0], ease="out_expo"),
-        kf(6, scale=[s256(3.4), 0.03, 1.0], ease="in_quad")]))
-    els.append(sprite("s1h1-streak-2", "bastion-s1-streak", 5, 10, [
-        kf(0, [0, 1.3, 1.2], [0, 0, -5], [s256(0.6), 0.14, 1.0]),
-        kf(1, scale=[s256(3.0), 0.14, 1.0], ease="out_expo"),
-        kf(4, scale=[s256(2.2), 0.02, 1.0], ease="in_quad")], color="#FFE070"))
-    # flash at the contact point (dark star under the glint)
+        kf(0, [-0.2, 1.3, 1.5], [0, 0, 80], [s256(0.6), 0.3, 1.0]),
+        kf(1, scale=[s256(3.0), 0.3, 1.0], ease="out_expo"),
+        kf(6, scale=[s256(2.3), 0.03, 1.0], ease="in_quad")]))
+    # flash at the contact point on the chop plane (alpha ~5, r 1.75: x -0.21, y 1.14, z 2.0 -> pulled to z 1.8, the
+    # opponent eye is at z 2.4); dark star under the glint
     els.append(sprite("s1h1-flash-dark", "bastion-s1-glint", 4, 8, [
-        kf(0, [0, 1.2, 1.83], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
+        kf(0, [-0.2, 1.15, 1.83], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(1.5), s128(1.5), 1.0], ease="out_back"),
         kf(3, scale=[s128(1.0), s128(0.05), 1.0], ease="out_quad")], color="#8C000000"))
     els.append(sprite("s1h1-flash", "bastion-s1-glint", 4, 8, [
-        kf(0, [0, 1.2, 1.8], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
+        kf(0, [-0.2, 1.15, 1.8], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(1.2), s128(1.2), 1.0], ease="out_back"),
         kf(3, scale=[s128(0.7), s128(0.04), 1.0], ease="out_quad")]))
     # orange spark streaks off the contact over ticks 4..10 (staggered pairs, distinct origins and angles)
-    P = [0.0, 1.2, 1.55]
+    P = [-0.2, 1.15, 1.55]
     for i, (st, dx, dy, th, ln, ds) in enumerate([
             (4, 0.0, 0.0, 22, 1.0, 0.8), (4, 0.15, -0.1, 4, 1.3, 0.8), (5, -0.15, 0.1, 38, 0.8, 0.7),
             (5, 0.1, -0.2, 162, 0.9, 0.9), (6, -0.1, 0.05, -14, 1.1, 0.8), (6, 0.2, 0.15, 14, 0.7, 0.7)]):
@@ -156,12 +173,13 @@ def low():
     els.append(sprite("s1h2-ink", "bastion-s1-ink", 3, 6, [
         kf(0, [0, 0.45, 1.2], [0, 0, 0], [s256(6.2), s256(6.2) * 0.4, 1.0]),
         kf(2, scale=[s256(6.8), s256(6.8) * 0.36, 1.0], ease="out_quad")]))
-    # thin ring around the caster, peak ~ticks 7-10 (reference e05/e06), life 12
-    els.append(sprite("s1h2-ring", "bastion-s1-ring", 5, 17, [
-        kf(0, [0, 0.8, 1.0], [0, 0, -6], [s256(5.6), s256(5.6), 1.0]),
-        kf(12, scale=[s256(6.2), s256(6.2), 1.0], ease="out_quad")], frame_ticks=2))
+    # Round 7: the low ring is the smear of the r6 ring swing, IN its plane (14 deg tilt, lowest toward phi 60 = left-
+    # front, centre on the pivot axis at y 0.646, radius 2.52 = tip), turning the blade's way (left-back -> back ->
+    # right -> front), 221.5 deg from alpha 158 to the contact alpha 379.5. Spawn fx 0 (skill 27): frame 0 ticks 27-28
+    # (blade at 212 on 28), 265 on 29, 321 on 30, full at contact 31, hold 32, fade 33-38. The front curls to z <= 2.3.
+    els += sweep("s1h2-ring", "ring", 0, 12)
     els.append(sprite("s1h2-streak-main", "bastion-s1-streak", 4, 10, [
-        kf(0, [0, 1.3, 1.4], [0, 0, -4], [s256(0.6), 0.32, 1.0]),
+        kf(0, [0, 1.3, 1.1], [0, 0, -4], [s256(0.6), 0.32, 1.0]),
         kf(1, scale=[s256(4.6), 0.32, 1.0], ease="out_expo"),
         kf(6, scale=[s256(3.6), 0.04, 1.0], ease="in_quad")]))
     for i, (start, x, y, z, w, col) in enumerate([
@@ -171,24 +189,23 @@ def low():
             kf(1, scale=[s256(w), 0.1, 1.0], ease="out_expo"),
             kf(2, scale=[s256(w * 0.7), 0.02, 1.0], ease="in_quad")], color=col))
     els.append(sprite("s1h2-flash-dark", "bastion-s1-glint", 4, 8, [
-        kf(0, [0, 1.2, 1.73], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
+        kf(0, [0, 1.2, 1.18], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(2.0), s128(2.0), 1.0], ease="out_back"),
         kf(3, scale=[s128(1.4), s128(0.06), 1.0], ease="out_quad")], color="#8C000000"))
     els.append(sprite("s1h2-flash", "bastion-s1-glint", 4, 8, [
-        kf(0, [0, 1.2, 1.7], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
+        kf(0, [0, 1.2, 1.15], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(1.6), s128(1.6), 1.0], ease="out_back"),
         kf(3, scale=[s128(0.9), s128(0.05), 1.0], ease="out_quad")]))
-    P = [0.0, 1.2, 1.5]
+    P = [0.0, 1.2, 0.85]  # r7: hit-2 dash stops 1.7 short of the target = the opponent eye; sparks fly <= 0.9 forward
     for i, (st, dx, dy, th, ln, ds) in enumerate([
             (4, 0.0, 0.0, 24, 1.2, 0.8), (4, 0.15, -0.15, 6, 1.4, 0.8), (5, -0.15, 0.1, 40, 0.9, 0.7),
-            (5, 0.1, 0.2, 165, 1.0, 0.9), (6, -0.1, -0.1, -12, 1.2, 0.8), (6, 0.2, 0.05, 18, 0.8, 0.7),
-            (7, 0.0, 0.1, 30, 0.9, 0.7)]):
+            (5, 0.1, 0.2, 165, 1.0, 0.9), (6, -0.1, -0.1, -12, 1.2, 0.8), (6, 0.2, 0.05, 18, 0.8, 0.7)]):
         els.append(spark(f"s1h2-spark-{i + 1}", st, [P[0] + dx, P[1] + dy, P[2]], th, ln, ds))
-    for i, (st, dr, roll) in enumerate([(5, [0.2, 0.5, 0.35], 35), (6, [-0.2, 0.2, -0.3], -50), (6, [0.1, 0.4, 0.45], 120)]):
-        els.append(chip(f"s1h2-chip-{i + 1}", st, [0.1 * i - 0.1, 1.1 - 0.1 * i, 1.65], dr, roll))
-    els.append(smoke_up("s1h2-smoke-up", 6, 13, [0.0, 0.85, 1.6], 1.0, 1.6, roll=180))
+    for i, (st, dr, roll) in enumerate([(5, [0.2, 0.5, 0.35], 35), (6, [-0.2, 0.2, -0.3], -50)]):  # r7: 2 chips (budget: the ring is a front + back pair)
+        els.append(chip(f"s1h2-chip-{i + 1}", st, [0.1 * i - 0.1, 1.1 - 0.1 * i, 1.1], dr, roll))
+    els.append(smoke_up("s1h2-smoke-up", 6, 13, [0.0, 0.85, 1.1], 1.0, 1.6, roll=180))
     els.append(sprite("s1h2-smoke", "bastion-s1-smoke", 6, 14, [
-        kf(0, [0.3, 0.18, 1.4], [0, 0, 0], [s256(1.5), s256(1.5) * 0.25, 1.0]),
+        kf(0, [0.3, 0.18, 1.1], [0, 0, 0], [s256(1.5), s256(1.5) * 0.25, 1.0]),
         kf(7, scale=[s256(2.2), s256(2.2) * 0.25, 1.0], ease="out_quad")], frame_ticks=2, color=SMOKE_TINT))
     return {"id": "bastion-s1-fx-low", "duration_ticks": 18, "orient": "yaw", "follow": False, "sample_ticks": 1,
             "elements": [e for e, _ in els]}, [m for _, m in els]
@@ -235,8 +252,8 @@ def write(path, header, doc):
 
 
 if __name__ == "__main__":
-    for fn, name, header in ((high, "bastion-s1-fx-high", "# Bastion S1 hit 1 (video 11.933-12.5 s): ONE thin gold ring around the caster + streaks + orange spark-streak sprites + dark chips + smoke. Played at skill tick 3, contact = effect tick 4.\n# Generated by tools/item-art/scripts/bastion_s1_fx.py; sprites from tools/item-art/scripts/bastion_s1_sprites.py. Elements only (rig is the animator's).\n"),
-                             (low, "bastion-s1-fx-low", "# Bastion S1 hit 2 (video 13.1-13.7 s): yellow ink backdrop, low gold crescents, streak + speed lines, flash, particles. Played at skill tick 27, contact = effect tick 4.\n# Generated by tools/item-art/scripts/bastion_s1_fx.py. Elements only.\n")):
+    for fn, name, header in ((high, "bastion-s1-fx-high", "# Bastion S1 hit 1 (video 11.933-12.5 s): gold chop-plane arch smear (front + back) + cut streak + orange spark-streak sprites + dark chips + smoke. Played at skill tick 3, contact = effect tick 4.\n# Generated by tools/item-art/scripts/bastion_s1_fx.py; sprites from tools/item-art/scripts/bastion_s1_sprites.py. Elements only (rig is the animator's).\n"),
+                             (low, "bastion-s1-fx-low", "# Bastion S1 hit 2 (video 13.1-13.7 s): yellow ink backdrop, low ring smear in the swing plane (front + back), streak + speed lines, flash, particles. Played at skill tick 27, contact = effect tick 4.\n# Generated by tools/item-art/scripts/bastion_s1_fx.py. Elements only.\n")):
         doc, meta = fn()
         write(f"content/vfx/{name}.yaml", header, doc)
         print(name, "elements:", len(doc["elements"]))
