@@ -17,4 +17,7 @@ public data class StarDrop(
     val amount: Int,
     val pickupRadius: Double,
     val generatorId: GeneratorId?,
+    /** A kill burst cannot be taken back by its victim until [deniedUntilMillis] (wall clock). */
+    val deniedTo: com.astarworks.astera.core.domain.player.PlayerId? = null,
+    val deniedUntilMillis: Long = 0L,
 )

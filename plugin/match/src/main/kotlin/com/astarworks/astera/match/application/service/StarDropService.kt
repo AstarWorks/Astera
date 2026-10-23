@@ -82,7 +82,7 @@ public class StarDropService(
             val angle = random.nextDouble(0.0, 2 * Math.PI)
             val dist = random.nextDouble(0.5, BURST_SCATTER)
             val pos = Vec3(at.position.x + cos(angle) * dist, at.position.y, at.position.z + sin(angle) * dist)
-            val drop = StarDrop(nextId.getAndIncrement(), match.id, at.world, pos, amount, BURST_PICKUP_RADIUS, null)
+            val drop = StarDrop(nextId.getAndIncrement(), match.id, at.world, pos, amount, BURST_PICKUP_RADIUS, null, event.victim, System.currentTimeMillis() + VICTIM_DENY_MILLIS)
             drops[drop.id] = drop
             tryCollect(drop)
         }
@@ -118,6 +118,7 @@ public class StarDropService(
         val match = matches.findById(drop.matchId) ?: return
         val radiusSq = drop.pickupRadius * drop.pickupRadius
         val taker = match.teams.asSequence().flatMap { it.members.asSequence() }
+            .filterNot { it == drop.deniedTo && System.currentTimeMillis() < drop.deniedUntilMillis }
             .mapNotNull { player ->
                 val loc = positions.positionOf(player) ?: return@mapNotNull null
                 if (loc.world != drop.world) return@mapNotNull null
@@ -134,5 +135,6 @@ public class StarDropService(
         const val MAX_BURST_DROPS = 6
         const val BURST_SCATTER = 2.5
         const val BURST_PICKUP_RADIUS = 1.5
+        const val VICTIM_DENY_MILLIS = 8_000L
     }
 }
