@@ -1,46 +1,10 @@
-# Opposite radial ordering reverses the soft surface normal; edge emitted only once.
+# One physical chain group; ten links retain paired edge span with one bar each.
 id: crimson-combo-diagonal
 duration_ticks: 17
 orient: yaw
-follow: false
+follow: true
 sample_ticks: 1
-elements:
-- id: petals
-  kind:
-    type: quad
-    color: '#B3152A'
-    alpha: 0.85
-    glyph: ◆
-  brightness: 15
-  start_tick: 5
-  end_tick: 14
-  emit:
-    count: 4
-    speed:
-    - 0.08
-    - 0.2
-    spread_deg: 100
-    direction: outward
-    gravity: 0.008
-    drag: 0.06
-    life_ticks:
-    - 5
-    - 8
-    size:
-    - 0.08
-    - 0.16
-    alpha_over_life:
-    - 0.9
-    - 0
-    color_over_life:
-    - '#E72840'
-    - '#330711'
-  keyframes:
-  - t: 0
-    translate:
-    - 0
-    - 1.0
-    - 3.4
+elements: []
 rigs:
 - id: chain
   pivot:
@@ -67,26 +31,15 @@ rigs:
     size:
     - 0.08
     - 0.38
-    - 0.08
-  - id: edge-0-0
-    block: white_concrete
-    offset:
-    - -0.12
-    - 0.43
-    - 0
-    size:
-    - 0.22
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: edge-0-2
-    block: white_concrete
-    offset:
     - 0.12
+  - id: edge-0
+    block: white_concrete
+    offset:
+    - 0.0
     - 0.43
     - 0
     size:
-    - 0.22
+    - 0.46
     - 0.07
     - 0.1
     brightness: 15
@@ -99,26 +52,15 @@ rigs:
     size:
     - 0.08
     - 0.38
-    - 0.08
-  - id: edge-1-0
+    - 0.12
+  - id: edge-1
     block: white_concrete
     offset:
-    - -0.010553554135786
+    - 0.109446445864214
     - 0.7899999999999999
     - 0
     size:
-    - 0.22
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: edge-1-2
-    block: white_concrete
-    offset:
-    - 0.22944644586421398
-    - 0.7899999999999999
-    - 0
-    size:
-    - 0.22
+    - 0.46
     - 0.07
     - 0.1
     brightness: 15
@@ -131,26 +73,15 @@ rigs:
     size:
     - 0.08
     - 0.38
-    - 0.08
-  - id: edge-2-0
+    - 0.12
+  - id: edge-2
     block: white_concrete
     offset:
-    - 0.08569203509969256
+    - 0.20569203509969256
     - 1.15
     - 0
     size:
-    - 0.22
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: edge-2-2
-    block: white_concrete
-    offset:
-    - 0.3256920350996926
-    - 1.15
-    - 0
-    size:
-    - 0.22
+    - 0.46
     - 0.07
     - 0.1
     brightness: 15
@@ -163,26 +94,15 @@ rigs:
     size:
     - 0.08
     - 0.38
-    - 0.08
-  - id: edge-3-0
+    - 0.12
+  - id: edge-3
     block: white_concrete
     offset:
-    - 0.15712812921102037
+    - 0.27712812921102037
     - 1.5100000000000002
     - 0
     size:
-    - 0.22
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: edge-3-2
-    block: white_concrete
-    offset:
-    - 0.39712812921102036
-    - 1.5100000000000002
-    - 0
-    size:
-    - 0.22
+    - 0.46
     - 0.07
     - 0.1
     brightness: 15
@@ -195,26 +115,15 @@ rigs:
     size:
     - 0.08
     - 0.38
-    - 0.08
-  - id: edge-4-0
+    - 0.12
+  - id: edge-4
     block: white_concrete
     offset:
-    - 0.19513848096390657
+    - 0.31513848096390656
     - 1.87
     - 0
     size:
-    - 0.22
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: edge-4-2
-    block: white_concrete
-    offset:
-    - 0.43513848096390656
-    - 1.87
-    - 0
-    size:
-    - 0.22
+    - 0.46
     - 0.07
     - 0.1
     brightness: 15
@@ -227,26 +136,15 @@ rigs:
     size:
     - 0.08
     - 0.38
-    - 0.08
-  - id: edge-5-0
+    - 0.12
+  - id: edge-5
     block: white_concrete
     offset:
-    - 0.19513848096390657
+    - 0.31513848096390656
     - 2.23
     - 0
     size:
-    - 0.22
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: edge-5-2
-    block: white_concrete
-    offset:
-    - 0.43513848096390656
-    - 2.23
-    - 0
-    size:
-    - 0.22
+    - 0.46
     - 0.07
     - 0.1
     brightness: 15
@@ -259,26 +157,15 @@ rigs:
     size:
     - 0.08
     - 0.38
-    - 0.08
-  - id: edge-6-0
+    - 0.12
+  - id: edge-6
     block: white_concrete
     offset:
-    - 0.15712812921102037
+    - 0.27712812921102037
     - 2.5900000000000003
     - 0
     size:
-    - 0.22
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: edge-6-2
-    block: white_concrete
-    offset:
-    - 0.39712812921102036
-    - 2.5900000000000003
-    - 0
-    size:
-    - 0.22
+    - 0.46
     - 0.07
     - 0.1
     brightness: 15
@@ -291,26 +178,15 @@ rigs:
     size:
     - 0.08
     - 0.38
-    - 0.08
-  - id: edge-7-0
+    - 0.12
+  - id: edge-7
     block: white_concrete
     offset:
-    - 0.08569203509969264
+    - 0.20569203509969264
     - 2.95
     - 0
     size:
-    - 0.22
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: edge-7-2
-    block: white_concrete
-    offset:
-    - 0.32569203509969263
-    - 2.95
-    - 0
-    size:
-    - 0.22
+    - 0.46
     - 0.07
     - 0.1
     brightness: 15
@@ -323,26 +199,15 @@ rigs:
     size:
     - 0.08
     - 0.38
-    - 0.08
-  - id: edge-8-0
+    - 0.12
+  - id: edge-8
     block: white_concrete
     offset:
-    - -0.010553554135785959
+    - 0.10944644586421404
     - 3.31
     - 0
     size:
-    - 0.22
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: edge-8-2
-    block: white_concrete
-    offset:
-    - 0.22944644586421403
-    - 3.31
-    - 0
-    size:
-    - 0.22
+    - 0.46
     - 0.07
     - 0.1
     brightness: 15
@@ -355,26 +220,15 @@ rigs:
     size:
     - 0.08
     - 0.38
-    - 0.08
-  - id: edge-9-0
+    - 0.12
+  - id: edge-9
     block: white_concrete
     offset:
-    - -0.11999999999999995
+    - 3.91886975727153e-17
     - 3.67
     - 0
     size:
-    - 0.22
-    - 0.07
-    - 0.1
-    brightness: 15
-  - id: edge-9-2
-    block: white_concrete
-    offset:
-    - 0.12000000000000004
-    - 3.67
-    - 0
-    size:
-    - 0.22
+    - 0.46
     - 0.07
     - 0.1
     brightness: 15
@@ -449,4 +303,13 @@ rigs:
       to: 1.0
       color: '#F0EF2445'
       color_to: '#3069091C'
-  emitters: []
+  emitters:
+  - id: contact-petals
+    particle_id: crimson-chain-axe-petals
+    point:
+    - 0
+    - 4
+    - 0
+    start_t: 6
+    end_t: 7
+replace_group: crimson-combo-chain
