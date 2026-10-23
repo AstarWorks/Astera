@@ -255,7 +255,7 @@ class Bot private constructor(
             }
 
             override fun disconnected(event: DisconnectedEvent) {
-                if (event.session !== session) return
+                if (event.session !== session || hopping) return
                 if (disconnectReason == null) {
                     disconnectReason = plain(event.reason) + (event.cause?.let { " [cause: $it]" } ?: "")
                 }
@@ -469,8 +469,22 @@ class Bot private constructor(
     /** Emulates what Velocity does on `Connect`: drop the backend connection and log in to [ep] with forwarding. */
     private fun hopTo(ep: Endpoint) {
         val old = session
+        // Our own "hop" disconnect (and the login throttle wait in connect()) must never look like a lost connection.
+        hopping = true
+        try {
+            hopTo0(old, ep)
+        } finally {
+            hopping = false
+        }
+        disconnectReason = null
+    }
+
+    @Volatile private var hopping = false
+
+    private fun hopTo0(old: ClientSession, ep: Endpoint) {
         joined = false; loggedIn = false; disconnectReason = null
         runCatching { old.disconnect("hop") }
+        entities.clear(); terrain.clear()
         objectives.clear(); displaySlots.clear(); scores.clear(); teams.clear(); bossBars.clear()
         contents.clear(); screens.clear(); stateIds.clear()
         endpoint = ep
