@@ -1,0 +1,46 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer, native screenshot without editing. Full copy/launch/capture/shutdown serialized by /tmp/claude-1000/astera-mc-client.lock; unique Xvfb display via -displayfd; game directory build/rifle-client.",
+  "item": "minecraft:iron_hoe[minecraft:item_model=\"astera:rifle\"]",
+  "resourcePack": "Exact model, item definition and metadata copied from the real buildResourcePack output ZIP. Five minecraft:constant sources match authored astera_tints. Only native block textures; no PNGs shipped in capture pack.",
+  "modelElements": 137,
+  "palette": [
+    2700354,
+    12157558,
+    9151674,
+    1581356,
+    8640594
+  ],
+  "originalRevision": "36743b70",
+  "geometryExactlyMatchesHEAD": true,
+  "displayExactlyMatchesHEAD": true,
+  "verification": "Forge material batch, validation, exact geometry/display assertions, export/import equality, pack builder output and real native client capture. No tests run.",
+  "capturePackSha256": {
+    "assets/astera/items/rifle.json": "9274edca88fbe1beb2080c850a1f0dc1e69b480d95d3d7e78e30e7ac0a9e4ea0",
+    "assets/astera/models/items/rifle.json": "8271d5000db1a3558c280d8cd3b017de6bcd76be1925f213f0bc5904b1956ef0",
+    "pack.mcmeta": "30cac3c73a6b37a37124f535b607008641a4b2810b45226a641042c026344d68"
+  },
+  "sha256": {
+    "content/models/items/rifle.model.json": "70881ae36390dcb226563e5755eb13303d26964cf690808e9f4c9f4a0bbb0483",
+    "tools/model-forge/batches/vanilla-material/rifle/after.png": "26b15f84cdcaa367db0a0c64514d090050cefb073b8d1343e3438bbb4ef6baa0",
+    "tools/model-forge/batches/vanilla-material/rifle/angles.jpg": "507a39e919f24a74c062c9e21fc09d291c54904a368684965f8162cf557c3fe6",
+    "tools/model-forge/batches/vanilla-material/rifle/before.png": "993f30399d05c4969c02d319f746f245bd258a6480a6e37b7fb23ca25c588ce1",
+    "tools/model-forge/batches/vanilla-material/rifle/cameras.json": "a451a0403d3aa2f04c1b5a4392216f31ca5ddad6abf2fe952bfefc7073983edd",
+    "tools/model-forge/batches/vanilla-material/rifle/capture-client.py": "abc3b675339704c1c3a607a4cf5a7ae2ef25fc70779233b281f36520aaf16b28",
+    "tools/model-forge/batches/vanilla-material/rifle/client-log.txt": "4b1a7f79244d32ab81db70cf1c4ec0e61672f47354ed23e815d94e0478928d93",
+    "tools/model-forge/batches/vanilla-material/rifle/client.png": "f0e492605255aa401a368c86a4597fc0b6e427f5f12e630903354ef2bdbd817b",
+    "tools/model-forge/batches/vanilla-material/rifle/contexts.png": "803995d1917f0dcb083f5a33b0c04ccee09501d29487d5ae91963b35e600d0bf",
+    "tools/model-forge/batches/vanilla-material/rifle/inventory.png": "181f8886bfb8655a8a8067211006f148ca6d8e77a82208bcde8ea7119097e5ff",
+    "tools/model-forge/batches/vanilla-material/rifle/operations.json": "a6a220478543aee195a9c8bef101cf5d2a2ba021752f4eaf6d07d6451bbeef65",
+    "tools/model-forge/batches/vanilla-material/rifle/player-contexts.jpg": "cdf60789012a6454f19d2e810e8644972a25e964a4cf131eb8c86829811aeb16",
+    "tools/model-forge/batches/vanilla-material/rifle/remake.py": "bc65579c1eeb6c7406712806c50784a4f5db53fb061982271e33f91aefd4690c",
+    "tools/model-forge/batches/vanilla-material/rifle/review.md": "2611c720b63195b16e29dcd3ecf7950317766b61c96a8a155ceae20b698111e7",
+    "tools/model-forge/batches/vanilla-material/rifle/verification.json": "24a961d169513c3efcef3db7c3046f6a1cdc7c027e02e383b3f8ac07ecd6cb4a"
+  },
+  "remainingRisks": [
+    "Existing 311 AABB overlaps, 25 possible coplanar contacts and one disconnected-component warning retained with unchanged geometry.",
+    "Native screenshot covers first person and hotbar; other contexts are offline previews. Alternate FOVs, combat/use, glint and shaders unverified.",
+    "Tint multiplication darkens and is not emissive; the lens is opaque green.",
+    "Catalog wish: light stripped birch; tinted stripped oak used for walnut grain."
+  ]
+}

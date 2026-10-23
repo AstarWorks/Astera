@@ -1,0 +1,1197 @@
+{
+  "sweep": [
+    {
+      "file": "frost-staff-orbit--45-0.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          0.1010347604751587,
+          -19.63677456149223,
+          25.971557042685784
+        ],
+        "target": [
+          0.1010347604751587,
+          5.776249885559084,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit--45-45.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          18.07075667744466,
+          -19.63677456149223,
+          18.528254512603965
+        ],
+        "target": [
+          0.1010347604751587,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit--45-90.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          25.514059207526483,
+          -19.63677456149223,
+          0.558532595634462
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit--45-135.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          18.070756677444663,
+          -19.63677456149223,
+          -17.41118932133504
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit--45-180.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          0.10103476047516183,
+          -19.63677456149223,
+          -24.854491851416864
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit--45-225.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -17.868687156494346,
+          -19.63677456149223,
+          -17.41118932133504
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit--45-270.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -25.311989686576165,
+          -19.63677456149223,
+          0.5585325956344563
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit--45-315.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -17.86868715649435,
+          -19.63677456149223,
+          18.528254512603958
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-0-0.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          0.10103476047515872,
+          5.7762498855590865,
+          36.49797642957346
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-0-45.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          25.514059207526476,
+          5.7762498855590865,
+          25.971557042685784
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-0-90.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          36.04047859441416,
+          5.7762498855590865,
+          0.5585325956344627
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-0-135.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          25.514059207526483,
+          5.7762498855590865,
+          -24.854491851416856
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-0-180.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          0.10103476047516312,
+          5.7762498855590865,
+          -35.38091123830454
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-0-225.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -25.31198968657615,
+          5.7762498855590865,
+          -24.85449185141687
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-0-270.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -35.83840907346384,
+          5.7762498855590865,
+          0.5585325956344547
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-0-315.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -25.31198968657617,
+          5.7762498855590865,
+          25.971557042685774
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-45-0.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          0.10103476047515872,
+          31.189274332610402,
+          25.971557042685784
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-45-45.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          18.07075667744466,
+          31.189274332610402,
+          18.528254512603965
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-45-90.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          25.514059207526483,
+          31.189274332610402,
+          0.558532595634462
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-45-135.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          18.070756677444663,
+          31.189274332610402,
+          -17.41118932133504
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-45-180.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          0.10103476047516183,
+          31.189274332610402,
+          -24.854491851416864
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-45-225.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -17.868687156494346,
+          31.189274332610402,
+          -17.41118932133504
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-45-270.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -25.311989686576165,
+          31.189274332610402,
+          0.5585325956344563
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-orbit-45-315.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -17.86868715649435,
+          31.189274332610402,
+          18.528254512603958
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-pole--90.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          0.10103476047515872,
+          -30.163193948361947,
+          0.5585685350783038
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-pole-90.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          0.10103476047515872,
+          41.715693719480115,
+          0.5585685350782944
+        ],
+        "target": [
+          0.10103476047515872,
+          5.776249885559085,
+          0.5585325956344604
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-gui.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "gui",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          0,
+          2.4492935982947065e-15,
+          40
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-firstperson_righthand.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "firstperson_righthand",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          0,
+          24.000000000000004,
+          32.39999999999999
+        ],
+        "target": [
+          0,
+          24,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-firstperson_lefthand.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "firstperson_lefthand",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          0,
+          24.000000000000004,
+          32.39999999999999
+        ],
+        "target": [
+          0,
+          24,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-thirdperson_righthand.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "thirdperson_righthand",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -44,
+          40,
+          -43.99999999999999
+        ],
+        "target": [
+          0,
+          14,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 42
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-thirdperson_lefthand.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "thirdperson_lefthand",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -44,
+          40,
+          -43.99999999999999
+        ],
+        "target": [
+          0,
+          14,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 42
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-thirdperson_righthand_side.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "thirdperson_righthand_side",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          48,
+          21.999999999999996,
+          2.9391523179536475e-15
+        ],
+        "target": [
+          0,
+          14,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 42
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-ground.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "ground",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -24.000000000000004,
+          21,
+          -24
+        ],
+        "target": [
+          0,
+          4,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 42
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-ground_spin.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "ground_spin",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          -24.000000000000004,
+          21,
+          -24
+        ],
+        "target": [
+          0,
+          4,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 42
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    },
+    {
+      "file": "frost-staff-fixed.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "fixed",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          2.6942229581241772e-15,
+          1.3471114790620886e-15,
+          -22
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 42
+      },
+      "selected": [],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    }
+  ],
+  "headDetail": [
+    {
+      "file": "frost-staff-detail.png",
+      "item": "frost-staff",
+      "source": "content/models/items/frost-staff.model.json",
+      "sha256": "d21d112743e8772977d561f41d17127506dd4f28a7cb455831324fe93c9fbf16",
+      "context": "model",
+      "mode": "textured",
+      "camera": {
+        "position": [
+          7.038934879042845,
+          17.316251834717175,
+          -8.219453774430493
+        ],
+        "target": [
+          -1.1805188953876495,
+          13.5393648147583,
+          0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "fov": 70
+      },
+      "selected": [
+        {
+          "id": "e0072"
+        }
+      ],
+      "hidden": [],
+      "size": [
+        1130,
+        856
+      ]
+    }
+  ]
+}

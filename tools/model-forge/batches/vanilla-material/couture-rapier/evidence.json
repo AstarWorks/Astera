@@ -1,0 +1,86 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated copied creative superflat, noon/clear, FOV 70, bob off, GUI scale 2. Entire launch/capture under client flock. Unedited 1280x720 Xvfb root screenshots; first-person plus stationary fixed-context item display, then front third-person.",
+  "item": "minecraft:iron_sword[minecraft:item_model=\"astera:couture-rapier\"]",
+  "resourcePack": "Builder-equivalent: exact final cuboid model minus astera_tints, with palette-order minecraft:constant sources in item definition. Native block-atlas references only; no PNG textures.",
+  "modelElements": 26,
+  "sha256": {
+    "content/models/items/couture-rapier.model.json": "a1051abae8b095646634f61f91c81f0ff4b37ee8e1d508bc6ad77af739220519",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/after.png": "b1503f555c20acfbd068697fd9a0648b0fb5b86f69d57cce73e291713e7dfa8f",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/all-angles.png": "1fa799f63ffd7b53c1607428733abcacd314d255d1d92666df68b86d3686a0eb",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/before.png": "744a862855cbf9fa1cc2139da30c93836bbbe87fad2fb5356d844a23f9ffefcf",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/cameras.json": "0ba5ec3674ae37f2fe251d8d73770f70b25f16a7971fc609dc86ba7d83a6a796",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/capture-client.py": "facf8199c0a2ec5de0750c81621a01f277b0099678608dc88cac884237612263",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/capture-pack.py": "e9f170dddf29ce843c9eb1843b5a6578584daad66406d2a52bd9d03855fab757",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/client-thirdperson.png": "0a8358e88cf8facfa22a0156db904d9c7db80f921566b6b1e998bb0b3f631b1e",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/client.png": "5b655d1d5081d65154080678262306bd132f757bceafef0904b08caa00edde46",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/contexts.png": "4a8ad8f258a6a15e7f757fb7450bf760121b35de77bc8f928dd41f8b69fb8486",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/forge-contexts.png": "98aaf8dfa851ddc9208cc4e721bac0a63c10bfc73453e960d452a116d71dac07",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/inventory.png": "3c3dfd2bf8e23002a128d1e4d096506081cff9c8054cb7b1a7dd4f5d8ff24623",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/operations.json": "ec984d44ba66e4e84b4ee3569b3cc63845c98f3c1ed4616ab7fa4f001ffcfbfa",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/remake.py": "c6f2fa947672a8d28b19a20aadea02ca3021d3ec4364c89ff82a14852b1ee242",
+    "tools/model-forge/batches/vanilla-material/couture-rapier/review.md": "b0400c33654ecaa6e3b552411772c2e8a900d5d5211e54260c746d2178ca99f8"
+  },
+  "remainingRisks": [
+    "Production pack build and integration verification deferred to manager; capture uses builder-equivalent minimal assembly.",
+    "Preserved display places the handles mostly below first-person screen and blades edge-on.",
+    "Offline light/mannequin differs from client; swing, FOV variation and shaders unverified.",
+    "54 pre-existing conservative overlap warnings retained; not a full z-fighting audit."
+  ],
+  "catalogWishes": [],
+  "validation": {
+    "errors": 0,
+    "beforeWarnings": {
+      "overlap_aabb": 54
+    },
+    "afterWarnings": {
+      "overlap_aabb": 54
+    },
+    "geometryAndDisplayUnchanged": true,
+    "exportImportIdentical": true,
+    "captureModelAndConstantTintsMatchBuilderTransformation": true,
+    "exportedTexturePNGs": 0,
+    "texelsPerLocalUnit": [
+      0.9999999999999784,
+      1.0000000000000069
+    ]
+  },
+  "clientGameDirectory": "build/couture-rapier-client",
+  "clientLock": "/tmp/claude-1000/astera-mc-client.lock",
+  "clientXvfbDisplay": "0",
+  "paletteSource": "36743b70:content/models/items/couture-rapier.model.json",
+  "geometryAndDisplaySource": "10c182aaef7d9a44490bcf7e8e5f44749cd32a96",
+  "palette": [
+    "#3c4353",
+    "#f5deea",
+    "#20242d",
+    "#fff3fa"
+  ],
+  "originalPaletteRGB": {
+    "blade": [
+      52,
+      58,
+      72
+    ],
+    "edge": [
+      213,
+      193,
+      203
+    ],
+    "handle": [
+      28,
+      31,
+      39
+    ],
+    "flower": [
+      242,
+      230,
+      236
+    ]
+  },
+  "clientWorldSource": "/IdeaProjects/Astera/.claude/worktrees/vm-shotgun/build/shotgun-client/saves/Shotgun Superflat Review",
+  "captureNotes": [
+    "Optional item-display scale was rejected; screenshot uses default unit scale. Reproducer omits optional transformation.",
+    "Offline-account authentication/Realms and unavailable audio errors do not affect model rendering; no model/tint/atlas errors."
+  ]
+}

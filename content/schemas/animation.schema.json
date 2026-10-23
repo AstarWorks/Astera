@@ -1,0 +1,84 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/animation.schema.json",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "length_ticks": {
+            "type": "integer"
+        },
+        "loop": {
+            "type": "boolean"
+        },
+        "lock_movement": {
+            "type": "boolean"
+        },
+        "blend_in_ticks": {
+            "type": "integer"
+        },
+        "blend_out_ticks": {
+            "type": "integer"
+        },
+        "bones": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigBoneTrackYaml"
+            }
+        },
+        "root": {
+            "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigBoneTrackYaml"
+        }
+    },
+    "required": [
+        "id",
+        "length_ticks"
+    ],
+    "definitions": {
+        "com.astarworks.astera.core.application.config.RigBoneTrackYaml": {
+            "type": "object",
+            "properties": {
+                "rotation": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigKeyframeYaml"
+                    }
+                },
+                "position": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigKeyframeYaml"
+                    }
+                },
+                "scale": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigKeyframeYaml"
+                    }
+                }
+            }
+        },
+        "com.astarworks.astera.core.application.config.RigKeyframeYaml": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "integer"
+                },
+                "v": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "ease": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "t",
+                "v"
+            ]
+        }
+    }
+}

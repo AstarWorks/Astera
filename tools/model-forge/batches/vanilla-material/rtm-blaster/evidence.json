@@ -1,0 +1,43 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer. Native unedited Xvfb root screenshot. Final capture completed normally; no Gradle, tests, Docker, external server or push.",
+  "item": "minecraft:iron_axe[minecraft:item_model=\"astera:rtm-blaster\"]",
+  "resourcePack": "Minimal capture pack: exact authored cuboids with astera_tints removed, matching minecraft:constant item-definition tints, vanilla block references and builder-equivalent block directory atlas source. No PNGs.",
+  "modelElements": 177,
+  "referenceCommit": "36743b70",
+  "gameDirectory": "build/rtm-blaster-client-final",
+  "geometryAndDisplayUnchanged": true,
+  "nativeModelTextureTintAtlasErrors": [],
+  "sha256": {
+    "content/models/items/rtm-blaster.model.json": "4d7f78f4aa757ccb1bbf202fca6e59a85002586ff983fa61f18deada175a6bb2",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/before.png": "2144622d3929ef0c1a9b0dc83fdae35928dcfa89a8bb0c351d09e74eefd6d5a3",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/after.png": "72544ca032832ce34fd29d9d546318c99f7ff825945fea66b1a6a1ff59294cae",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/contexts.png": "409f69d750fea9409572c51bf3ee3110cf2f237ce72c55d9a6cea4f0df7a249a",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/client.png": "f13e6a4e8682f01dc445083a0d48983a856ea7b3a8bda86aa78b49564ef7c784",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/angles.png": "dec1dd3d0c4c4f0fcd8be5c0d52509ea6cfe9a10ba52711f62a4a03b2f94c60f",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/inventory.png": "ad0430eae1f4bc7f0755469bccdd8cb58833dc2e17171220bbbea44faf1f8208",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/cameras.json": "f7057a2b352eaa3080664159a4350705de41b4ce35209d01e485852bc0bbc8da",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/operations.json": "cbcd4feb58001b92eeef5f5d85195896a62f7cdda34262b4bfcf770e1c497418",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/palette.json": "75103fda071d8f150f74501d031755540ba887fc55273e55f869c9d544c976a1",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/verification.json": "15775272515268c56fee50eb3d6159ff40d025d321e1fe0028d33ecae230eeae",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/remake.py": "f71c25d8b4fe616ba159bea22eb0ef2925a2c5d0a594d12ec51b0ae999d7b6d0",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/capture-pack.py": "d12a2a28658e669ef6d6864556def8d3ae670f43f9a3f5f9ee549d736b67f910",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/capture-client.py": "ffeebf81656fc92341f1b7e0a82e5843335ceac4c0121a9a2ed2f09bb057e2e7",
+    "tools/model-forge/batches/vanilla-material/rtm-blaster/review.md": "62dbd54a7810c9da84d19eee04b7d13ba0c7c4570e33836941c75679eedf16de"
+  },
+  "capturePackSha256": {
+    "assets/astera/items/rtm-blaster.json": "e8012a61b753f4a9ab81e5b7d53c329b9a2653af721cbc4b9b11f0eb8fc727c9",
+    "assets/astera/models/items/rtm-blaster.json": "16bafba510b70e9e4182e38398587b114d0ca74cd0be449de054e612766a652d",
+    "assets/minecraft/atlases/blocks.json": "1d00707e6dd10689f53f5c4a338cfdc48e58547e588afdc8e5d8c8e5ab334737",
+    "pack.mcmeta": "0bfe537cf52d26a871bcf6353a998f74b7fae8ef87fa980a0869781987ec8365"
+  },
+  "remainingRisks": [
+    "Constant tint is not emission or bloom.",
+    "Existing layered facet overlaps and animation/FOV variants remain.",
+    "Production pack build, deployment and integration checks are deferred to manager CI.",
+    "Stock reaches the lower-right edge in first person at the unchanged HEAD transform."
+  ],
+  "catalogWishes": [
+    "wood.stripped_birch_log; stripped oak with channel compensation covers the warm stock in this pass."
+  ]
+}

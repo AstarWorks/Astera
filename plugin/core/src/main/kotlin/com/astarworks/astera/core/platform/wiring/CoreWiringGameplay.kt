@@ -21,6 +21,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
         com.astarworks.astera.core.application.service.animation.InMemoryPlayerAnimationGateway(
             eventBus = eventBus,
             tickClock = scheduler::currentTick,
+            skinRig = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
         ),
         priority = 0,
     )
@@ -31,6 +32,24 @@ internal fun CoreWiringState.wireGameplayLoop() {
         )
     }
     logger.info("Wave 5animation (ADR-0113) PlayerAnimation port wired (InMemory @ p=0, Paper @ p=100 via ADR-0161).")
+
+    // ── ADR-0250 — keyframed skin-rig animations (`play_animation` + `/astera emote`) ──
+    //
+    // The headless animator runs the same playback timeline without rendering; the Paper overlay
+    // (Display-entity rig) replaces it at p=100. The animation gateway above looks it up lazily.
+    services.register<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>(
+        com.astarworks.astera.core.application.service.animation.InMemorySkinRigAnimator(
+            registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
+            scheduler = scheduler,
+        ),
+        priority = 0,
+    )
+    ports.skinRigAnimator?.let {
+        services.register<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>(
+            it(services),
+            priority = 100,
+        )
+    }
 
     // ── Wave 5transitions (ADR-0115) — DisplayEntity transition foundation ─
     //

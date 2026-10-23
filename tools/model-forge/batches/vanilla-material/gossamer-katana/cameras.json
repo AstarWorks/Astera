@@ -1,0 +1,1156 @@
+[
+  {
+    "file": "gossamer-katana-orbit--45-0.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.6829019784927368,
+        -17.35791770220996,
+        22.944465553772464
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit--45-45.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        16.9070891622664,
+        -17.35791770220996,
+        16.22418718377366
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit--45-90.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        23.6273675322652,
+        -17.35791770220996,
+        1.4049433149287076e-15
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit--45-135.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        16.9070891622664,
+        -17.35791770220996,
+        -16.22418718377366
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit--45-180.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.6829019784927396,
+        -17.35791770220996,
+        -22.944465553772464
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit--45-225.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -15.541285205280925,
+        -17.35791770220996,
+        -16.22418718377366
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit--45-270.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -22.261563575279727,
+        -17.35791770220996,
+        -3.689751474174688e-15
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit--45-315.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -15.541285205280928,
+        -17.35791770220996,
+        16.224187183773658
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-0-0.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.6829019784927368,
+        5.586547851562502,
+        32.44837436754732
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-0-45.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        23.627367532265197,
+        5.586547851562502,
+        22.944465553772464
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-0-90.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        33.13127634604006,
+        5.586547851562502,
+        1.9868898903375925e-15
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-0-135.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        23.6273675322652,
+        5.586547851562502,
+        -22.94446555377246
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-0-180.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.6829019784927408,
+        5.586547851562502,
+        -32.44837436754732
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-0-225.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -22.261563575279723,
+        5.586547851562502,
+        -22.944465553772478
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-0-270.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -31.765472389054587,
+        5.586547851562502,
+        -5.218096576563965e-15
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-0-315.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -22.26156357527973,
+        5.586547851562502,
+        22.944465553772456
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-45-0.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.6829019784927368,
+        28.53101340533496,
+        22.944465553772464
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-45-45.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        16.9070891622664,
+        28.53101340533496,
+        16.22418718377366
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-45-90.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        23.6273675322652,
+        28.53101340533496,
+        1.4049433149287076e-15
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-45-135.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        16.9070891622664,
+        28.53101340533496,
+        -16.22418718377366
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-45-180.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.6829019784927396,
+        28.53101340533496,
+        -22.944465553772464
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-45-225.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -15.541285205280925,
+        28.53101340533496,
+        -16.22418718377366
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-45-270.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -22.261563575279727,
+        28.53101340533496,
+        -3.689751474174688e-15
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-orbit-45-315.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -15.541285205280928,
+        28.53101340533496,
+        16.224187183773658
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-pole--90.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.6829019784927368,
+        -26.861826515968595,
+        0.00003244837437605126
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-pole-90.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.6829019784927368,
+        38.034922219093595,
+        0.000032448374367541916
+      ],
+      "target": [
+        0.6829019784927368,
+        5.5865478515625,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-gui.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "gui",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        2.4492935982947065e-15,
+        40
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-firstperson_righthand.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "firstperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-firstperson_lefthand.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "firstperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-thirdperson_righthand.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "thirdperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-thirdperson_lefthand.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "thirdperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-thirdperson_righthand_side.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "thirdperson_righthand_side",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        48,
+        21.999999999999996,
+        2.9391523179536475e-15
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-ground.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "ground",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-ground_spin.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "ground_spin",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "gossamer-katana-fixed.png",
+    "item": "gossamer-katana",
+    "source": "content/models/items/gossamer-katana.model.json",
+    "sha256": "12e0b4add9ec754bfc23f2c2e8b749cbeefe787949a69cadb9ac88fa960887d4",
+    "context": "fixed",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.6942229581241772e-15,
+        1.3471114790620886e-15,
+        -22
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]

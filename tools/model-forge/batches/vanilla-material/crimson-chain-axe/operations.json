@@ -1,0 +1,401 @@
+[
+  {
+    "op": "import",
+    "args": {
+      "path": "/tmp/crimson-chain-axe-original-redo.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 5,
+        "overlap_aabb": 297,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "scene.get",
+    "args": {
+      "fields": [
+        "id",
+        "name",
+        "faces"
+      ]
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "before"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 5,
+        "overlap_aabb": 297,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "before"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0001"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0002"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0003"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0004"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0081"
+    },
+    "validation": null
+  },
+  {
+    "op": "batch",
+    "args": {
+      "ops": [
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0001"
+            ],
+            "material": "wood.stripped_crimson_stem",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0002",
+              "e0005",
+              "e0008",
+              "e0011",
+              "e0014",
+              "e0017",
+              "e0020",
+              "e0023",
+              "e0026",
+              "e0029",
+              "e0032",
+              "e0035",
+              "e0038",
+              "e0041",
+              "e0044",
+              "e0047",
+              "e0050",
+              "e0053",
+              "e0056",
+              "e0059",
+              "e0062",
+              "e0065",
+              "e0068",
+              "e0071",
+              "e0074",
+              "e0075",
+              "e0080",
+              "e0085",
+              "e0144",
+              "e0145",
+              "e0146",
+              "e0147",
+              "e0148",
+              "e0149",
+              "e0150",
+              "e0151",
+              "e0162",
+              "e0163"
+            ],
+            "material": "metal.netherite_block",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0003",
+              "e0006",
+              "e0009",
+              "e0012",
+              "e0015",
+              "e0018",
+              "e0021",
+              "e0024",
+              "e0027",
+              "e0030",
+              "e0033",
+              "e0036",
+              "e0039",
+              "e0042",
+              "e0045",
+              "e0048",
+              "e0051",
+              "e0054",
+              "e0057",
+              "e0060",
+              "e0063",
+              "e0066",
+              "e0069",
+              "e0072"
+            ],
+            "material": "concrete.red_concrete",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0004",
+              "e0007",
+              "e0010",
+              "e0013",
+              "e0016",
+              "e0019",
+              "e0022",
+              "e0025",
+              "e0028",
+              "e0031",
+              "e0034",
+              "e0037",
+              "e0040",
+              "e0043",
+              "e0046",
+              "e0049",
+              "e0052",
+              "e0055",
+              "e0058",
+              "e0061",
+              "e0064",
+              "e0067",
+              "e0070",
+              "e0073",
+              "e0076",
+              "e0077",
+              "e0078",
+              "e0079",
+              "e0084",
+              "e0086",
+              "e0087",
+              "e0088",
+              "e0089",
+              "e0090",
+              "e0091",
+              "e0092",
+              "e0093",
+              "e0094",
+              "e0095",
+              "e0096",
+              "e0097",
+              "e0098",
+              "e0099",
+              "e0100",
+              "e0101",
+              "e0102",
+              "e0103",
+              "e0104",
+              "e0105",
+              "e0106",
+              "e0107",
+              "e0108",
+              "e0109",
+              "e0110",
+              "e0111",
+              "e0112",
+              "e0113",
+              "e0114",
+              "e0115",
+              "e0116",
+              "e0117",
+              "e0118",
+              "e0119",
+              "e0120",
+              "e0121",
+              "e0122",
+              "e0123",
+              "e0124",
+              "e0125",
+              "e0126",
+              "e0127",
+              "e0128",
+              "e0129",
+              "e0130",
+              "e0131",
+              "e0132",
+              "e0133",
+              "e0134",
+              "e0135",
+              "e0136",
+              "e0137",
+              "e0138",
+              "e0139",
+              "e0140",
+              "e0141",
+              "e0142",
+              "e0143",
+              "e0152",
+              "e0153",
+              "e0154",
+              "e0155",
+              "e0156",
+              "e0157",
+              "e0158",
+              "e0159",
+              "e0160",
+              "e0161"
+            ],
+            "material": "metal.iron_block",
+            "seed": 20261023
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0081",
+              "e0082",
+              "e0083"
+            ],
+            "material": "gem.redstone_block",
+            "seed": 20261023
+          }
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "mixed_texture_atlases": 1,
+        "coplanar_contact_possible_zfight": 6,
+        "overlap_aabb": 299,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "import",
+    "args": {
+      "path": "/IdeaProjects/Astera/.claude/worktrees/vm-crimson-chain-axe/content/models/items/crimson-chain-axe.model.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 6,
+        "overlap_aabb": 299,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "after"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 6,
+        "overlap_aabb": 299,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "gui",
+        "firstperson_righthand",
+        "firstperson_lefthand",
+        "thirdperson_righthand",
+        "thirdperson_lefthand",
+        "ground",
+        "fixed"
+      ],
+      "resolution": 256,
+      "name": "contexts"
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.diff",
+    "args": {
+      "a": "before",
+      "b": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "export",
+    "args": {
+      "path": "/tmp/crimson-chain-axe-redo-forge/export"
+    },
+    "validation": null
+  }
+]

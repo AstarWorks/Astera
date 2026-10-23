@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.json.JsonWriteFeature
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.databind.node.ObjectNode
 import org.yaml.snakeyaml.Yaml
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
@@ -35,13 +36,18 @@ public data class BuiltPack(val zip: Path, val sha1: String, val entryCount: Int
  * | `content/hud/<tree>.png`                     | `assets/astera/textures/hud/<tree>`                      |
  * | `content/hud/top-level .json`                     | providers merged into `assets/astera/font/default.json` |
  * | `content/fonts/<tree>.json`                  | `assets/astera/font/<tree>.json` (`fonts/vfx/spark.json` = font `astera:vfx/spark`, ADR-0239) |
+ * | `content/pack-assets/assets/<path>`          | `assets/<path>` unchanged (skin-rig item definition, ADR-0250) |
+ * | `content/shader-patches/core/<file>.patch`   | `assets/minecraft/shaders/core/<file>`: vanilla shader from the client jar + our patch (ADR-0250) |
  * | `content/textures/sources/` (all of it)     | not shipped (raster sources for `:tools:item-art`, ADR-0238) |
  * | (generated)                              | transparent sprites hiding the vanilla hearts / armor bar |
  *
  * The zip is reproducible: sorted entries, fixed timestamps, stored (not
  * deflated), so the same content always gives the same SHA-1 on any JVM.
  */
-public class ResourcePackBuilder(private val contentDir: Path) {
+public class ResourcePackBuilder(
+    private val contentDir: Path,
+    private val vanilla: VanillaShaders = VanillaShaders.fromEnvironment(),
+) {
 
     /** Every file of the pack: path inside the zip to bytes, sorted. */
     public fun collect(): Map<String, ByteArray> {
@@ -54,6 +60,8 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         addFonts(files)
         addVanillaOverrides(files)
         addAtlases(files)
+        addVerbatim(files)
+        addPatchedShaders(files)
         return files
     }
 
@@ -101,7 +109,13 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         for (file in filesUnder("models")) {
             if (!file.name.endsWith(".model.json")) continue
             val rel = file.relativeTo(modelsDir).invariantSeparatorsPathString.removeSuffix(".model.json")
-            files["assets/$NAMESPACE/models/$rel.json"] = Files.readAllBytes(file)
+            val bytes = Files.readAllBytes(file)
+            val model = mapper.readTree(bytes)
+            modelTints(model) // Fail malformed palettes/indices before shipping the model.
+            files["assets/$NAMESPACE/models/$rel.json"] = if (model.has("astera_tints")) {
+                (model as ObjectNode).remove("astera_tints")
+                json(model).toByteArray()
+            } else bytes
         }
         // Item model definitions: only for models the manifest lists AND whose model file made it in.
         val manifest = modelsDir.resolve("manifest.json")
@@ -111,7 +125,7 @@ public class ResourcePackBuilder(private val contentDir: Path) {
                 if ("assets/$NAMESPACE/models/$id.json" !in files) continue
                 val itemId = id.removePrefix("items/")
                 files["assets/$NAMESPACE/items/$itemId.json"] =
-                    json(mapOf("model" to mapOf("type" to "minecraft:model", "model" to "$NAMESPACE:$id"))).toByteArray()
+                    itemDefinition(id)
             }
         }
         addGeneratedItemDefinitions(files)
@@ -133,8 +147,36 @@ public class ResourcePackBuilder(private val contentDir: Path) {
             val model = studio[id]?.removePrefix("assets/$NAMESPACE/models/")?.removeSuffix(".json")
                 ?: "$GENERATED_ITEM_DIR/$id"
             files["assets/$NAMESPACE/items/$id.json"] =
-                json(mapOf("model" to mapOf("type" to "minecraft:model", "model" to "$NAMESPACE:$model"))).toByteArray()
+                itemDefinition(model)
         }
+    }
+
+    /** Authoring metadata belongs in the item definition, never the cuboid model. */
+    private fun itemDefinition(model: String): ByteArray {
+        val source = mapper.readTree(Files.readAllBytes(contentDir.resolve("models/$model.model.json")))
+        val definition = linkedMapOf<String, Any>("type" to "minecraft:model", "model" to "$NAMESPACE:$model")
+        val tints = modelTints(source)
+        if (tints.isNotEmpty()) definition["tints"] = tints.map { mapOf("type" to "minecraft:constant", "value" to it) }
+        return json(mapOf("model" to definition)).toByteArray()
+    }
+
+    private fun modelTints(model: JsonNode): List<Int> {
+        val table = model.path("astera_tints")
+        require(table.isMissingNode || table.isArray) { "astera_tints must be an RGB array" }
+        val colors = table.map {
+            require(it.isIntegralNumber && it.canConvertToInt() && it.intValue() in 0..0xffffff) {
+                "astera_tints values must be integer RGB (0..16777215)"
+            }
+            it.intValue()
+        }
+        for (element in model.path("elements")) for (face in element.path("faces")) {
+            val index = face.path("tintindex")
+            require(index.isMissingNode || (index.isIntegralNumber && index.canConvertToInt() &&
+                (index.intValue() == -1 || index.intValue() in colors.indices))) {
+                "tintindex must be -1 or an index into astera_tints"
+            }
+        }
+        return colors
     }
 
     private fun addSounds(files: MutableMap<String, ByteArray>) {
@@ -196,6 +238,38 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         }
     }
 
+    /**
+     * Hand-written pack files shipped as they are (ADR-0250): `content/pack-assets/<path>` becomes `<path>`
+     * in the zip, and `<path>` must start with `assets/`. Used for the `astera:skinrig` item definition. A path another section already produced is refused.
+     */
+    private fun addVerbatim(files: MutableMap<String, ByteArray>) {
+        val root = contentDir.resolve(VERBATIM_DIR)
+        for (file in filesUnder(VERBATIM_DIR)) {
+            val rel = file.relativeTo(root).invariantSeparatorsPathString
+            check(rel.startsWith("assets/")) { "content/$VERBATIM_DIR/$rel must live under assets/" }
+            check(rel !in files) { "content/$VERBATIM_DIR/$rel collides with a pack file already built" }
+            files[rel] = Files.readAllBytes(file)
+        }
+    }
+
+    /**
+     * Core shader overrides (ADR-0250): `content/shader-patches/core/<file>.patch` holds only Astera's additions
+     * and anchors; it is applied to the vanilla `core/<file>` of the target client at build time, so no Mojang
+     * source is committed. A missing or ambiguous anchor fails the build.
+     */
+    private fun addPatchedShaders(files: MutableMap<String, ByteArray>) {
+        val root = contentDir.resolve(PATCH_DIR)
+        for (file in filesUnder(PATCH_DIR)) {
+            if (!file.name.endsWith(".patch")) continue
+            val rel = file.relativeTo(root).invariantSeparatorsPathString.removeSuffix(".patch")
+            check(rel.startsWith("core/") && rel.count { it == '/' } == 1) { "content/$PATCH_DIR/$rel.patch must be core/<shader file>.patch" }
+            val shader = rel.removePrefix("core/")
+            val key = "assets/minecraft/shaders/$rel"
+            check(key !in files) { "content/$PATCH_DIR/$rel.patch collides with a pack file already built" }
+            files[key] = ShaderPatch.apply(shader, vanilla.coreShader(shader), Files.readString(file)).toByteArray()
+        }
+    }
+
     /** Fully transparent sprites over the vanilla hearts and armor bar: the status HUD draws HP itself. */
     private fun addVanillaOverrides(files: MutableMap<String, ByteArray>) {
         val transparent = transparentSprite()
@@ -237,6 +311,12 @@ public class ResourcePackBuilder(private val contentDir: Path) {
 
         /** Subdirectory of `content/textures/` holding generator inputs (ADR-0238); never packed. */
         public const val SOURCES_DIR: String = "sources"
+
+        /** Directory of files copied into the zip unchanged (shader overrides, special item definitions). */
+        public const val VERBATIM_DIR: String = "pack-assets"
+
+        /** Shader patches applied to the vanilla client's shaders at build time (ADR-0250). */
+        public const val PATCH_DIR: String = "shader-patches"
 
         /** Model directory (under `models/`) that `:tools:item-art` writes. */
         public const val GENERATED_ITEM_DIR: String = "generated/items"

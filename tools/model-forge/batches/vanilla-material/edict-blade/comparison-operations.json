@@ -1,0 +1,354 @@
+[
+  {
+    "op": "import",
+    "args": {
+      "path": "/tmp/claude-1000/vm/edict-blade-original.json"
+    }
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "original"
+    }
+  },
+  {
+    "op": "history.restore",
+    "args": {
+      "name": "original"
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "front",
+        "iso"
+      ],
+      "resolution": 256,
+      "name": "candidate-0"
+    }
+  },
+  {
+    "op": "history.restore",
+    "args": {
+      "name": "original"
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0001",
+        "e0003",
+        "e0004",
+        "e0005",
+        "e0006",
+        "e0008",
+        "e0009",
+        "e0010"
+      ],
+      "material": "cloth.white_wool",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0002",
+        "e0007",
+        "e0011",
+        "e0012",
+        "e0013",
+        "e0014",
+        "e0015"
+      ],
+      "material": "metal.gold_block",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "front",
+        "iso"
+      ],
+      "resolution": 256,
+      "name": "candidate-1"
+    }
+  },
+  {
+    "op": "history.restore",
+    "args": {
+      "name": "original"
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0001",
+        "e0003",
+        "e0004",
+        "e0005",
+        "e0006",
+        "e0008",
+        "e0009",
+        "e0010"
+      ],
+      "material": "cloth.white_wool",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0002",
+        "e0007",
+        "e0011",
+        "e0012",
+        "e0013",
+        "e0014",
+        "e0015"
+      ],
+      "material": "metal.raw_gold_block",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "front",
+        "iso"
+      ],
+      "resolution": 256,
+      "name": "candidate-2"
+    }
+  },
+  {
+    "op": "history.restore",
+    "args": {
+      "name": "original"
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0001",
+        "e0003",
+        "e0004",
+        "e0005",
+        "e0006",
+        "e0008",
+        "e0009",
+        "e0010"
+      ],
+      "material": "cloth.white_wool",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0002",
+        "e0007",
+        "e0011",
+        "e0012",
+        "e0013",
+        "e0014",
+        "e0015"
+      ],
+      "material": "metal.exposed_copper",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "front",
+        "iso"
+      ],
+      "resolution": 256,
+      "name": "candidate-3"
+    }
+  },
+  {
+    "op": "history.restore",
+    "args": {
+      "name": "original"
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0001",
+        "e0003",
+        "e0004",
+        "e0005",
+        "e0006",
+        "e0008",
+        "e0009",
+        "e0010"
+      ],
+      "material": "cloth.white_wool",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0002",
+        "e0007",
+        "e0011",
+        "e0012",
+        "e0013",
+        "e0014",
+        "e0015"
+      ],
+      "material": "metal.weathered_copper",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "front",
+        "iso"
+      ],
+      "resolution": 256,
+      "name": "candidate-4"
+    }
+  },
+  {
+    "op": "history.restore",
+    "args": {
+      "name": "original"
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0001",
+        "e0003",
+        "e0004",
+        "e0005",
+        "e0006",
+        "e0008",
+        "e0009",
+        "e0010"
+      ],
+      "material": "cloth.white_wool",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0002",
+        "e0007",
+        "e0011",
+        "e0012",
+        "e0013",
+        "e0014",
+        "e0015"
+      ],
+      "material": "stone.red_terracotta",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "front",
+        "iso"
+      ],
+      "resolution": 256,
+      "name": "candidate-5"
+    }
+  },
+  {
+    "op": "history.restore",
+    "args": {
+      "name": "original"
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0001",
+        "e0003",
+        "e0004",
+        "e0005",
+        "e0006",
+        "e0008",
+        "e0009",
+        "e0010"
+      ],
+      "material": "cloth.white_wool",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "material.apply",
+    "args": {
+      "ids": [
+        "e0002",
+        "e0007",
+        "e0011",
+        "e0012",
+        "e0013",
+        "e0014",
+        "e0015"
+      ],
+      "material": "leather.brown_mushroom_block",
+      "seed": 20261023
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "front",
+        "iso"
+      ],
+      "resolution": 256,
+      "name": "candidate-6"
+    }
+  },
+  {
+    "op": "history.restore",
+    "args": {
+      "name": "original"
+    }
+  },
+  {
+    "op": "import",
+    "args": {
+      "path": "/IdeaProjects/Astera/.claude/worktrees/vm-edict-blade/content/models/items/edict-blade.model.json"
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "front",
+        "iso"
+      ],
+      "resolution": 256,
+      "name": "candidate-7"
+    }
+  }
+]

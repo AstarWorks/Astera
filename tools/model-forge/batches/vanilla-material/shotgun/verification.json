@@ -1,0 +1,30 @@
+{
+  "geometryUnchanged": true,
+  "displayUnchanged": true,
+  "elements": 127,
+  "exportImportIdentical": true,
+  "allFaceTexelsPerLocalUnit": 1,
+  "palette": [
+    2370874,
+    11898219,
+    4148317,
+    16768938,
+    12966886,
+    3885144,
+    16751786,
+    10663103,
+    15483236,
+    16773285,
+    1383720
+  ],
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": {
+      "coplanar_contact_possible_zfight": 9,
+      "overlap_aabb": 402,
+      "floating_components_aabb": 1
+    }
+  },
+  "deterministicReplay": true
+}

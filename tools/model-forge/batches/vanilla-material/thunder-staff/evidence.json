@@ -1,0 +1,39 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated copy of the creative superflat capture world in build/thunder-staff-client; commands enabled, peaceful, default FOV 70, view bob off, GUI scale 2. Entire launch/capture protected by flock /tmp/claude-1000/astera-mc-client.lock. Xvfb auto-selects its display. Native root-window screenshot, no image editing. No dedicated server, Docker, Gradle or tests.",
+  "item": "minecraft:iron_axe[minecraft:item_model=\"astera:thunder-staff\"]",
+  "resourcePack": "Minimal capture pack with exact authored model and builder-equivalent blocks/ directory atlas source; all references are native block materials. No copied vanilla PNGs or custom textures.",
+  "modelElements": 147,
+  "sha256": {
+    "content/models/items/thunder-staff.model.json": "8a809c4ea3c02c63bc4cbcb9f80893f0674c4ae2294d745f1834654975c49a29",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/before.png": "2cde9d01efada649e2997f82f390898a3f8b4edb127de5f7d966b8dcd525ae41",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/after.png": "2318b8e566f23df4581c5ad0b64d989e5055efa630a2d5b9cc17db381e7672d0",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/contexts.png": "da9053967e1d3986afe773c016ac5e4e4ee2278e9e843eb516dd8cc52963fcf4",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/contexts-forge.png": "c88484a42f884e74d0d0c048632c3a774129ab3bc07c1701d95185b01cc360b6",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/client.png": "c3b2f28e79f73ec970522daae36a334a735b929e510cd65a47f091bf3eaa2e53",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/angles.png": "965ec296f8a75063c0b341eae8a932f486e542f2085bb3b56610fb70fe8b8504",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/inventory.png": "3f55f6403a9572e98aa17c72e535f24c1ec7b745e70e8630043e8712615e085b",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/operations.json": "6dcf39c70b6e3af9164ce1401886be98ddfc0d00eb12272881b4f4b315ae0c84",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/validation.json": "46762517f778ed88fd94ac8fccd952df1bdba10afc79b47291f0165b81e3cc1d",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/cameras.json": "f122959b318cdd2055b2c809495b3e74bf7fb9b12e192b39002baece24b7749f",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/remake.py": "083cc00bd56a104d784c2c54fbfa505301cc46fa57a84dff7dc996b8bcd24c9a",
+    "tools/model-forge/batches/vanilla-material/thunder-staff/capture-pack.py": "e0321becd9f67b17f9e721072d1813cd70218a725a7cd3a75e624d7745aa2114"
+  },
+  "materialMap": {
+    "shaft / spiral ridges": "wood.stripped_dark_oak_log",
+    "grip / leather wraps": "cloth.brown_wool",
+    "collars / prongs / studs / lightning / bezel": "metal.gold_block",
+    "orb / crystals / amethyst / insets": "gem.amethyst_block",
+    "bolt mounting posts": "metal.iron_block",
+    "orb glints": "gem.diamond_block"
+  },
+  "catalogWishes": [
+    "Quiet brown leather surface; current fallback is cloth.brown_wool."
+  ],
+  "remainingRisks": [
+    "Production pack compilation and integration checks deferred to manager.",
+    "Offline light/cameras and hand guides differ from native rendering.",
+    "Original overlapping facets/bevels and small ornament gaps retained; not a complete z-fighting audit.",
+    "At 16px inventory scale the bolt detail merges into the orb; readable at 32/64px."
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "geometryUnchanged": true,
+  "displayUnchanged": true,
+  "elements": 177,
+  "exportImportIdentical": true,
+  "validationErrors": [],
+  "referenceCommit": "36743b70",
+  "geometrySha256": "5e0ae4bd8f7522597a1196a0e1b6f11d17b9e6e448909d38962db5a1e6ae2fd2",
+  "displaySha256": "4249a6d28845586980f7365e920488b3256b1f01e08524cdf89e0d69d0049186",
+  "paletteSize": 73,
+  "capturePackModelExact": true,
+  "capturePackConstantTintsExact": true,
+  "capturePackPngCount": 0,
+  "texelsPerLocalUnit": [
+    0.9999999999999952,
+    1.0000000000000029
+  ],
+  "warnings": {
+    "coplanar_contact_possible_zfight": 27,
+    "floating_components_aabb": 1,
+    "overlap_aabb": 543
+  }
+}

@@ -1,0 +1,127 @@
+[02:50:48] [Datafixer Bootstrap #0/INFO]: 307 Datafixer optimizations took 332 milliseconds
+[02:50:52] [Render thread/INFO]: Environment: Environment[discoveryUrl=https://discovery.minecraftservices.com/minecraft/client, name=PROD]
+[02:50:52] [Render thread/INFO]: Setting user: SigilReview
+[02:50:52] [Render thread/INFO]: Backend library: LWJGL version 3.4.3+4
+[02:50:52] [Render thread/INFO]: SDL [SYSTEM]: App name: Minecraft
+[02:50:52] [Render thread/INFO]: SDL [SYSTEM]: App version: 26.3
+[02:50:52] [Render thread/INFO]: SDL [SYSTEM]: App ID: com.mojang.minecraft
+[02:50:52] [Render thread/INFO]: SDL [SYSTEM]: SDL revision: SDL-3.4.14--128-NOTFOUND
+[02:50:52] [Render thread/INFO]: Using graphics backend OpenGL, using drivers: 4.5 (Core Profile) Mesa 22.3.6
+[02:50:52] [Render thread/INFO]: Using graphics device: llvmpipe (LLVM 15.0.6, 256 bits) (Mesa/X.org)
+[02:50:52] [Render thread/INFO]: Using graphics device extensions: GL_ARB_multi_draw_indirect, GL_ARB_buffer_storage, GL_ARB_shader_draw_parameters, GL_ARB_base_instance, GL_KHR_debug, GL_ARB_draw_indirect, GL_ARB_clip_control, GL_ARB_vertex_attrib_binding, GL_ARB_direct_state_access, GL_EXT_texture_filter_anisotropic
+[02:50:52] [Render thread/INFO]: Created window using SDL video driver: x11
+[02:50:53] [Download-2/ERROR]: Failed to fetch user properties
+com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:70)
+	at com.mojang.authlib.services.MinecraftServicesUserApiService.fetchProperties(MinecraftServicesUserApiService.java:168)
+	at net.minecraft.client.Minecraft.lambda$new$1(Minecraft.java:451)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+Caused by: MinecraftClientHttpException[type=HTTP_ERROR, status=401, response=ErrorResponse[path=/player/attributes, error=null, errorMessage=null, details=null]]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:170)
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:147)
+	at com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81)
+	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65)
+	at com.mojang.authlib.services.MinecraftServicesUserApiService.fetchProperties(MinecraftServicesUserApiService.java:118)
+	... 5 more
+[02:50:53] [Render thread/INFO]: Reloading ResourceManager: vanilla, vanilla, file/vanilla-material
+[02:50:53] [Download-2/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+[02:50:53] [Download-2/ERROR]: Failed to fetch Realms feature flags
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+	at com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:625)
+	at com.mojang.realmsclient.client.RealmsClient.fetchFeatureFlags(RealmsClient.java:204)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[02:50:53] [Worker-Main-22/INFO]: Found unifont_pua-17.0.01.hex, loading
+[02:50:53] [Worker-Main-21/INFO]: Found unifont_all_no_pua-17.0.01.hex, loading
+[02:50:53] [Worker-Main-18/INFO]: Found unifont_jp_patch-17.0.01.hex, loading
+[02:50:54] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+java.lang.IllegalStateException: Failed to open OpenAL device
+	at com.mojang.blaze3d.audio.Library.openDeviceOrFallback(Library.java:274)
+	at com.mojang.blaze3d.audio.Library.init(Library.java:149)
+	at net.minecraft.client.sounds.SoundEngine.loadLibrary(SoundEngine.java:121)
+	at net.minecraft.client.sounds.SoundEngine.reload(SoundEngine.java:110)
+	at net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:122)
+	at net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:41)
+	at net.minecraft.server.packs.resources.SimplePreparableReloadListener.lambda$reload$1(SimplePreparableReloadListener.java:15)
+	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:739)
+	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:503)
+	at net.minecraft.server.packs.resources.SimpleReloadInstance.lambda$prepareTasks$3(SimpleReloadInstance.java:59)
+	at net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+	at net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+	at net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:147)
+	at net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:127)
+	at net.minecraft.client.Minecraft.runTick(Minecraft.java:1240)
+	at net.minecraft.client.Minecraft.run(Minecraft.java:967)
+	at net.minecraft.client.main.Main.main(Main.java:292)
+[02:50:54] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[02:50:54] [Render thread/INFO]: Created: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[02:50:54] [Render thread/INFO]: Created: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[02:50:54] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[02:50:54] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[02:50:54] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[02:50:54] [Render thread/INFO]: Created: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[02:50:54] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/items.png-atlas
+[02:50:54] [Render thread/INFO]: Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[02:50:54] [Render thread/INFO]: Created: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[02:50:54] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[02:50:54] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[02:50:55] [Download-2/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+[02:50:55] [Download-2/ERROR]: Couldn't connect to realms
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+	at com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:625)
+	at com.mojang.realmsclient.client.RealmsClient.clientCompatible(RealmsClient.java:354)
+	at com.mojang.realmsclient.RealmsAvailability.lambda$check$0(RealmsAvailability.java:48)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[02:51:52] [Worker-Main-13/INFO]: Loaded 1866 advancements
+[02:51:52] [Server thread/INFO]: Starting integrated minecraft server version 26.3
+[02:51:52] [Server thread/INFO]: Generating keypair
+[02:51:53] [Server thread/INFO]: Loading 0 persistent chunks...
+[02:51:53] [Server thread/INFO]: Preparing spawn area: 16%
+[02:51:53] [Server thread/INFO]: Saving chunks for level 'ServerLevel[Dagger material review]'/minecraft:overworld
+[02:51:53] [Server thread/INFO]: Saving chunks for level 'ServerLevel[Dagger material review]'/minecraft:the_end
+[02:51:53] [Server thread/INFO]: Saving chunks for level 'ServerLevel[Dagger material review]'/minecraft:the_nether
+[02:51:53] [Server thread/INFO]: Loading 48 chunks for player spawn...
+[02:51:53] [Server thread/INFO]: Preparing spawn area: 16%
+[02:51:53] [Server thread/INFO]: Time elapsed: 569 ms
+[02:51:54] [Server thread/INFO]: SigilReview[local:E:90782fae] logged in with entity id 1 at (-5.5, -60.0, -8.5)
+[02:51:54] [Server thread/INFO]: System chat: SigilReview joined the game
+[02:51:54] [Server thread/INFO]: Changing view distance to 16, from 10
+[02:51:54] [Server thread/INFO]: Changing simulation distance to 12, from 0
+[02:51:54] [Render thread/INFO]: Loaded 2 advancements
+[02:51:54] [Render thread/WARN]: Requested post effect does not exist: minecraft:end_of_frame
+[02:51:54] [Render thread/INFO]: Resizing Dynamic Transforms UBO, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[02:51:54] [Render thread/INFO]: Resizing Dynamic Transforms UBO, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[02:51:54] [Render thread/INFO]: Resizing Dynamic Transforms UBO, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[02:51:54] [Render thread/INFO]: Resizing Chunk Sections Command Buffer, capacity limit of 2 reached during a single frame. New capacity will be 8.
+[02:51:54] [Render thread/INFO]: Resizing Chunk Sections Instanced, capacity limit of 2 reached during a single frame. New capacity will be 8.
+[02:51:55] [Render thread/INFO]: Resizing Chunk Sections Command Buffer, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[02:51:55] [Render thread/INFO]: Resizing Chunk Sections Instanced, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[02:51:55] [Render thread/INFO]: Resizing Chunk Sections Command Buffer, capacity limit of 16 reached during a single frame. New capacity will be 32.
+[02:51:55] [Render thread/INFO]: Resizing Chunk Sections Instanced, capacity limit of 16 reached during a single frame. New capacity will be 32.
+[02:51:55] [Render thread/INFO]: Resizing Chunk Sections Command Buffer, capacity limit of 32 reached during a single frame. New capacity will be 64.
+[02:51:55] [Render thread/INFO]: Resizing Chunk Sections Instanced, capacity limit of 32 reached during a single frame. New capacity will be 64.
+[02:51:55] [Render thread/INFO]: Resizing Chunk Sections Command Buffer, capacity limit of 64 reached during a single frame. New capacity will be 128.
+[02:51:55] [Render thread/INFO]: Resizing Chunk Sections Instanced, capacity limit of 64 reached during a single frame. New capacity will be 128.
+[02:51:56] [Render thread/INFO]: Resizing Chunk Sections Command Buffer, capacity limit of 128 reached during a single frame. New capacity will be 256.
+[02:51:56] [Render thread/INFO]: Resizing Chunk Sections Instanced, capacity limit of 128 reached during a single frame. New capacity will be 256.
+[02:51:56] [Render thread/INFO]: Resizing Chunk Sections Command Buffer, capacity limit of 256 reached during a single frame. New capacity will be 512.
+[02:51:56] [Render thread/INFO]: Resizing Chunk Sections Instanced, capacity limit of 256 reached during a single frame. New capacity will be 512.
+[02:52:06] [Render thread/INFO]: [System] [CHAT] No items were found on player SigilReview
+[02:52:07] [Server thread/INFO]: System chat: [SigilReview: The difficulty has been set to Peaceful]
+[02:52:07] [Render thread/INFO]: [System] [CHAT] The difficulty has been set to Peaceful
+[02:52:08] [Server thread/INFO]: System chat: [SigilReview: Set minecraft:overworld to time marker minecraft:noon]
+[02:52:08] [Render thread/INFO]: [System] [CHAT] Set minecraft:overworld to time marker minecraft:noon
+[02:52:08] [Server thread/INFO]: System chat: [SigilReview: Set the weather to clear]
+[02:52:08] [Render thread/INFO]: [System] [CHAT] Set the weather to clear
+[02:52:09] [Server thread/INFO]: System chat: [SigilReview: Gave 1 [Crossbow] to SigilReview]
+[02:52:09] [Render thread/INFO]: [System] [CHAT] Gave 1 [Crossbow] to SigilReview
+[02:52:10] [Server thread/INFO]: System chat: [SigilReview: Teleported SigilReview to -5.500000, -60.000000, -8.500000]
+[02:52:10] [Render thread/INFO]: [System] [CHAT] Teleported SigilReview to -5.500000, -60.000000, -8.500000

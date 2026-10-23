@@ -1,0 +1,1156 @@
+[
+  {
+    "file": "vendetta-rifle-orbit--45-0.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.5,
+        -22.080619749426745,
+        27.806928840279486
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit--45-45.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        19.955639199949346,
+        -22.080619749426745,
+        19.748139219022836
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit--45-90.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        28.014428821206,
+        -22.080619749426745,
+        0.292500019073488
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit--45-135.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        19.95563919994935,
+        -22.080619749426745,
+        -19.16313918087586
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit--45-180.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.5000000000000033,
+        -22.080619749426745,
+        -27.221928802132513
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit--45-225.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.95563919994935,
+        -22.080619749426745,
+        -19.16313918087586
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit--45-270.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -27.014428821206,
+        -22.080619749426745,
+        0.2925000190734819
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit--45-315.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.955639199949353,
+        -22.080619749426745,
+        19.74813921902283
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-0-0.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.5,
+        5.433809071779254,
+        39.20377841897218
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-0-45.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        28.014428821205996,
+        5.433809071779254,
+        27.806928840279486
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-0-90.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        39.41127839989869,
+        5.433809071779254,
+        0.2925000190734887
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-0-135.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        28.014428821206,
+        5.433809071779254,
+        -27.22192880213251
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-0-180.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.5000000000000048,
+        5.433809071779254,
+        -38.618778380825205
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-0-225.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -27.014428821206003,
+        5.433809071779254,
+        -27.221928802132513
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-0-270.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -38.41127839989869,
+        5.433809071779254,
+        0.29250001907348006
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-0-315.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -27.014428821206003,
+        5.433809071779254,
+        27.806928840279475
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-45-0.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.5,
+        32.94823789298525,
+        27.806928840279486
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-45-45.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        19.955639199949346,
+        32.94823789298525,
+        19.748139219022836
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-45-90.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        28.014428821206,
+        32.94823789298525,
+        0.292500019073488
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-45-135.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        19.95563919994935,
+        32.94823789298525,
+        -19.16313918087586
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-45-180.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.5000000000000033,
+        32.94823789298525,
+        -27.221928802132513
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-45-225.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.95563919994935,
+        32.94823789298525,
+        -19.16313918087586
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-45-270.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -27.014428821206,
+        32.94823789298525,
+        0.2925000190734819
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-orbit-45-315.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.955639199949353,
+        32.94823789298525,
+        19.74813921902283
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-pole--90.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.5,
+        -33.477469328099986,
+        0.29253893035189643
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-pole-90.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.5,
+        44.34508747165849,
+        0.2925389303518862
+      ],
+      "target": [
+        0.5,
+        5.433809071779251,
+        0.29250001907348633
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-gui.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "gui",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        2.4492935982947065e-15,
+        40
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-firstperson_righthand.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "firstperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-firstperson_lefthand.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "firstperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-thirdperson_righthand.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "thirdperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-thirdperson_lefthand.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "thirdperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-thirdperson_righthand_side.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "thirdperson_righthand_side",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        48,
+        21.999999999999996,
+        2.9391523179536475e-15
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-ground.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "ground",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-ground_spin.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "ground_spin",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "vendetta-rifle-fixed.png",
+    "item": "vendetta-rifle",
+    "source": "content/models/items/vendetta-rifle.model.json",
+    "sha256": "5af20a0004f258216ba9dee6d9268d50c668b2fb9fa18267b6805dbbc908a15e",
+    "context": "fixed",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.6942229581241772e-15,
+        1.3471114790620886e-15,
+        -22
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]

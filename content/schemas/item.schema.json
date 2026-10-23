@@ -1220,6 +1220,52 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "counter"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "window_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "max_distance": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "on_hit": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                            }
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "window_ticks",
+                        "max_distance",
+                        "on_hit"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "damage"
                         },
                         "targets": {
@@ -1287,6 +1333,9 @@
                         "follow_pitch": {
                             "type": "boolean"
                         },
+                        "stop_before_target": {
+                            "type": "number"
+                        },
                         "local_direction": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.Vec3Yaml"
                         },
@@ -1313,10 +1362,6 @@
                         },
                         "snapshot_pose": {
                             "type": "boolean"
-                        },
-                        "stop_before_target": {
-                            "type": "number",
-                            "minimum": 0
                         }
                     },
                     "required": [
@@ -1373,6 +1418,44 @@
                         "type",
                         "targets",
                         "power"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "for_each_target"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "mechanics": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                            }
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "mechanics"
                     ]
                 },
                 {
@@ -1841,52 +1924,6 @@
                     "properties": {
                         "type": {
                             "type": "string",
-                            "const": "counter"
-                        },
-                        "targets": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
-                        },
-                        "window_ticks": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
-                        },
-                        "max_distance": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
-                        },
-                        "on_hit": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
-                            }
-                        },
-                        "delay_ticks": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
-                        },
-                        "period_ticks": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
-                        },
-                        "duration_ticks": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
-                        },
-                        "condition": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
-                        },
-                        "snapshot_pose": {
-                            "type": "boolean"
-                        }
-                    },
-                    "required": [
-                        "type",
-                        "targets",
-                        "window_ticks",
-                        "max_distance",
-                        "on_hit"
-                    ]
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "type": {
-                            "type": "string",
                             "const": "play_animation"
                         },
                         "targets": {
@@ -1974,6 +2011,9 @@
                         "vfx_id": {
                             "type": "string"
                         },
+                        "track_bound_target": {
+                            "type": "boolean"
+                        },
                         "scale": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
                         },
@@ -1999,9 +2039,6 @@
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
                         },
                         "snapshot_pose": {
-                            "type": "boolean"
-                        },
-                        "track_bound_target": {
                             "type": "boolean"
                         }
                     },
@@ -2748,44 +2785,6 @@
                         "targets",
                         "destination"
                     ]
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "type": {
-                            "type": "string",
-                            "const": "for_each_target"
-                        },
-                        "targets": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
-                        },
-                        "mechanics": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
-                            }
-                        },
-                        "delay_ticks": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
-                        },
-                        "period_ticks": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
-                        },
-                        "duration_ticks": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
-                        },
-                        "condition": {
-                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
-                        },
-                        "snapshot_pose": {
-                            "type": "boolean"
-                        }
-                    },
-                    "required": [
-                        "type",
-                        "targets",
-                        "mechanics"
-                    ]
                 }
             ]
         },
@@ -3155,8 +3154,7 @@
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
                         },
                         "max_count": {
-                            "type": "integer",
-                            "minimum": 0
+                            "type": "integer"
                         }
                     },
                     "required": [

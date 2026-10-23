@@ -1,0 +1,1156 @@
+[
+  {
+    "file": "verdant-staff-orbit--45-0.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.09999990463256836,
+        -18.304400149156614,
+        25.140732410718964
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit--45-45.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.875414510981273,
+        -18.304400149156614,
+        17.777914603964522
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit--45-90.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.23823231773572,
+        -18.304400149156614,
+        0.002499997615815748
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit--45-135.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.875414510981276,
+        -18.304400149156614,
+        -17.77291460873289
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit--45-180.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.09999990463257144,
+        -18.304400149156614,
+        -25.135732415487336
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit--45-225.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.67541470171614,
+        -18.304400149156614,
+        -17.77291460873289
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit--45-270.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.038232508470582,
+        -18.304400149156614,
+        0.0024999976158101666
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit--45-315.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.675414701716143,
+        -18.304400149156614,
+        17.777914603964515
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-0-0.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.09999990463256836,
+        6.833832263946535,
+        35.55332921031322
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-0-45.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.238232317735715,
+        6.833832263946535,
+        25.140732410718964
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-0-90.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        35.65082911732998,
+        6.833832263946535,
+        0.0024999976158163856
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-0-135.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.23823231773572,
+        6.833832263946535,
+        -25.135732415487333
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-0-180.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.09999990463257272,
+        6.833832263946535,
+        -35.548329215081594
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-0-225.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.038232508470568,
+        6.833832263946535,
+        -25.135732415487343
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-0-270.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -35.45082930806484,
+        6.833832263946535,
+        0.0024999976158084918
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-0-315.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.038232508470585,
+        6.833832263946535,
+        25.140732410718957
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-45-0.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.09999990463256836,
+        31.97206467704968,
+        25.140732410718964
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-45-45.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.875414510981273,
+        31.97206467704968,
+        17.777914603964522
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-45-90.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.23823231773572,
+        31.97206467704968,
+        0.002499997615815748
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-45-135.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        17.875414510981276,
+        31.97206467704968,
+        -17.77291460873289
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-45-180.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.09999990463257144,
+        31.97206467704968,
+        -25.135732415487336
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-45-225.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.67541470171614,
+        31.97206467704968,
+        -17.77291460873289
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-45-270.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.038232508470582,
+        31.97206467704968,
+        0.0024999976158101666
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-orbit-45-315.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -17.675414701716143,
+        31.97206467704968,
+        17.777914603964515
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-pole--90.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.09999990463256836,
+        -28.716996948733097,
+        0.0025355484450362235
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-pole-90.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.09999990463256836,
+        42.384661476626164,
+        0.0025355484450269006
+      ],
+      "target": [
+        0.09999990463256836,
+        6.833832263946533,
+        0.002499997615814209
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-gui.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "gui",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        2.4492935982947065e-15,
+        40
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-firstperson_righthand.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "firstperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-firstperson_lefthand.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "firstperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-thirdperson_righthand.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "thirdperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-thirdperson_lefthand.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "thirdperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-thirdperson_righthand_side.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "thirdperson_righthand_side",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        48,
+        21.999999999999996,
+        2.9391523179536475e-15
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-ground.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "ground",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-ground_spin.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "ground_spin",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "verdant-staff-fixed.png",
+    "item": "verdant-staff",
+    "source": "content/models/items/verdant-staff.model.json",
+    "sha256": "3d2a52761fe6d4ca33cb6a589f57c54b7b1b2d267d634b474f6379e003d841e8",
+    "context": "fixed",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.6942229581241772e-15,
+        1.3471114790620886e-15,
+        -22
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]

@@ -1,0 +1,237 @@
+{
+  "baseline": "a58afeb98e5be0af9975c124c257f6637e25efbc",
+  "model": "content/models/items/crimson-chain-axe.model.json",
+  "modelBeforeSha256": "32da664261ce9d8299d462760a03e6ffb4daf487c4eb0f8f72ecf565f55896bf",
+  "modelAfterSha256": "d87baf06cfe58825912000f71d3a908bcee79f967b968a02999b24115f10594c",
+  "onlyDisplayChanged": true,
+  "unchangedNonDisplaySha256": "ee736ab670c02d1e2133c5682fbb47395995bda2bb064fa6575014404cf29e62",
+  "changedContexts": {
+    "firstperson_righthand": {
+      "before": {
+        "rotation": [
+          0,
+          -35,
+          12
+        ],
+        "translation": [
+          1,
+          -1,
+          -3
+        ],
+        "scale": [
+          0,
+          0,
+          0
+        ]
+      },
+      "after": {
+        "rotation": [
+          0,
+          -35,
+          12
+        ],
+        "translation": [
+          -0.3338,
+          0.9172,
+          -3.2337
+        ],
+        "scale": [
+          0.56,
+          0.56,
+          0.56
+        ]
+      }
+    },
+    "firstperson_lefthand": {
+      "before": {
+        "rotation": [
+          0,
+          35,
+          -12
+        ],
+        "translation": [
+          1,
+          -1,
+          -3
+        ],
+        "scale": [
+          0,
+          0,
+          0
+        ]
+      },
+      "after": {
+        "rotation": [
+          0,
+          -35,
+          12
+        ],
+        "translation": [
+          -0.3338,
+          0.9172,
+          -3.2337
+        ],
+        "scale": [
+          0.56,
+          0.56,
+          0.56
+        ]
+      }
+    },
+    "thirdperson_righthand": {
+      "before": {
+        "rotation": [
+          0,
+          65,
+          -10
+        ],
+        "translation": [
+          0,
+          2.5,
+          0
+        ],
+        "scale": [
+          0,
+          0,
+          0
+        ]
+      },
+      "after": {
+        "rotation": [
+          35,
+          -90,
+          0
+        ],
+        "translation": [
+          0.0,
+          2.1503,
+          1.5056
+        ],
+        "scale": [
+          0.75,
+          0.75,
+          0.75
+        ]
+      }
+    },
+    "thirdperson_lefthand": {
+      "before": {
+        "rotation": [
+          0,
+          -65,
+          10
+        ],
+        "translation": [
+          0,
+          2.5,
+          0
+        ],
+        "scale": [
+          0,
+          0,
+          0
+        ]
+      },
+      "after": {
+        "rotation": [
+          35,
+          -90,
+          0
+        ],
+        "translation": [
+          -0.0,
+          2.1503,
+          1.5056
+        ],
+        "scale": [
+          0.75,
+          0.75,
+          0.75
+        ]
+      }
+    }
+  },
+  "validation": {
+    "errors": 0,
+    "inheritedWarnings": 306
+  },
+  "nativeClient": {
+    "version": "26.3",
+    "launcher": "portablemc",
+    "renderer": "llvmpipe",
+    "resolution": [
+      1280,
+      720
+    ],
+    "fov": 70,
+    "guiScale": 2,
+    "viewBob": false,
+    "capture": "Unedited Xvfb root-window capture with ImageMagick import",
+    "lock": "/tmp/claude-1000/astera-mc-client.lock",
+    "gameDirectory": "build/display/client",
+    "world": "Display Creative Review",
+    "seed": 20261024,
+    "lan": false,
+    "exactModelAndCustomTexturesVerified": true
+  },
+  "reviewedImages": [
+    "client-firstperson-lefthand.png",
+    "client-firstperson.png",
+    "client-inventory.png",
+    "client-thirdperson-lefthand.png",
+    "client-thirdperson-righthand.png",
+    "context-after.png",
+    "context-before.png"
+  ],
+  "images": {
+    "client-firstperson-lefthand.png": {
+      "sha256": "cffc0b01d4204026f38a7292e159aa7a3aae721ecf29bb675fce33aeb59d5ea7",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-firstperson.png": {
+      "sha256": "d1aceb7106e980a99d4a124404cb3b92d8603d76b93fecd5347ac8703be2718e",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-inventory.png": {
+      "sha256": "d10bf33dee17fa5bbc10409045cd770df00c6e8161eb82465d46510e5d9ac83a",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-thirdperson-lefthand.png": {
+      "sha256": "2ed2820d1ab5b44c92a7011f65ecbdd3841501e0b6598abcafe5d1b048792b59",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-thirdperson-righthand.png": {
+      "sha256": "e08e8d78bf08ad4a048e8fc02060010eba64b829e81b956f7c0da107b96616ed",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "context-after.png": {
+      "sha256": "e4b04b7eacba9bafc290ece80e9c014fecf233454a2c9d97e7b5e994d07c035f",
+      "dimensions": [
+        1440,
+        1032
+      ]
+    },
+    "context-before.png": {
+      "sha256": "d55ca1a8ebbd5a07571e34e617b22382eb0fc4a8a3076f0e1c0438d9a897e444",
+      "dimensions": [
+        1440,
+        1032
+      ]
+    }
+  }
+}

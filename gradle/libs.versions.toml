@@ -64,6 +64,9 @@ networknt-json-schema-validator = "1.5.4"   # Active maintenance; supports Draft
 snakeyaml = "2.4"                            # YAML 1.1 parser — produces nested Maps/Lists/scalars
 jackson = "2.21.0"                           # ObjectMapper.valueToTree(...) bridges SnakeYAML output → JsonNode for the validator
 
+# Vanilla client version the resource pack targets (shader patch base, ADR-0250); keep equal to the Paper game version.
+minecraft = "26.3"
+
 # tools:e2e - protocol bots that speak Minecraft Java 26.3 (ADR-0185). Release tag == game version.
 mcprotocollib = "26.3"
 

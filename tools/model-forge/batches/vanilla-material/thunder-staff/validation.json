@@ -1,0 +1,30 @@
+{
+  "elementCount": 147,
+  "bbox": [
+    [
+      3.944885463393878,
+      -1.0075000000000003,
+      4.83
+    ],
+    [
+      12.055114536606123,
+      28.6,
+      11.17
+    ]
+  ],
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warningCounts": {
+      "coplanar_contact_possible_zfight": 1,
+      "overlap_aabb": 306,
+      "floating_components_aabb": 1
+    }
+  },
+  "displayUnchanged": true,
+  "replayModelSha256Identical": true,
+  "nonShaftGeometryUnchangedWithin": 1e-12,
+  "facesAtOneTexelPerLocalUnit": 878,
+  "originalElementCount": 146,
+  "shaftSplitY": 16
+}

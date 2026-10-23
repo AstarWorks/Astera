@@ -71,6 +71,7 @@ internal class CorePaperBindings(
     private lateinit var scheduler: IScheduler
 
     private var playerAnimationGateway: com.astarworks.astera.core.adapter.paper.animation.PaperPlayerAnimationGateway? = null
+    private var skinRigAnimator: com.astarworks.astera.core.adapter.paper.animation.PaperSkinRigAnimator? = null
 
     /** Retained so [shutdown] can call [PaperScheduler.stop]. */
     private var paperScheduler: PaperScheduler? = null
@@ -295,7 +296,18 @@ internal class CorePaperBindings(
                     eventBus = services.getOrThrow<IDomainEventBus>(),
                     tickClock = scheduler::currentTick,
                     scheduler = scheduler,
+                    skinRig = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
                 ).also { playerAnimationGateway = it }
+            },
+            skinRigAnimator = { services ->
+                com.astarworks.astera.core.adapter.paper.animation.PaperSkinRigAnimator(
+                    server = server,
+                    scheduler = scheduler,
+                    registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
+                ).also {
+                    it.start(plugin)
+                    skinRigAnimator = it
+                }
             },
             cameraGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.cinematic.PaperCameraGateway(
@@ -775,6 +787,8 @@ internal class CorePaperBindings(
 
     /** Paper-side teardown; the host-neutral wiring tears down via `WiringContext.close()` + `CoreWiringResult.shutdown()`. */
     fun shutdown() {
+        skinRigAnimator?.shutdown()
+        skinRigAnimator = null
         playerAnimationGateway?.shutdown()
         playerAnimationGateway = null
         paperHologramGateway?.despawnAll()

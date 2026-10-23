@@ -40,6 +40,8 @@ import java.util.concurrent.ConcurrentHashMap
 public class InMemoryPlayerAnimationGateway(
     private val eventBus: IDomainEventBus,
     private val tickClock: () -> Long = { 0L },
+    /** ADR-0250: ids registered in `content/animations/` start the (headless) skin rig; looked up lazily. */
+    private val skinRig: () -> com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator? = { null },
 ) : IPlayerAnimationGateway {
 
     private val sneakStates: ConcurrentHashMap<PlayerId, Boolean> = ConcurrentHashMap()
@@ -153,8 +155,13 @@ public class InMemoryPlayerAnimationGateway(
                 ),
             )
         }
-        // Phase 1 impl: accept any id and succeed. The Phase 4 cosmetic
-        // emote registry will validate at the call site before invoking.
+        skinRig()?.let { rig ->
+            val played = rig.play(playerId, animation)
+            if (played is Result.Failure && played.error !is com.astarworks.astera.core.domain.animation.skinrig.SkinRigError.UnknownAnimation) {
+                return Result.failure(PlayerAnimationError.Platform(played.error.toString()))
+            }
+        }
+        // Any other id succeeds: the pose-only animations (crouch, hide-main-hand, ...) live in the Paper adapter.
         return Result.success(Unit)
     }
 

@@ -1,0 +1,139 @@
+{
+  "geometryUnchanged": true,
+  "displayUnchanged": true,
+  "exportImportIdentical": true,
+  "palette": [
+    15922940,
+    11247989,
+    14081772,
+    15064238
+  ],
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": [
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0002",
+          "e0001"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0003",
+          "e0001"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0004",
+          "e0001"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0005",
+          "e0001"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0007",
+          "e0006"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0008",
+          "e0006"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0009",
+          "e0006"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0010",
+          "e0006"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0011",
+          "e0002"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0013",
+          "e0011"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0013",
+          "e0012"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0014",
+          "e0007"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0015",
+          "e0007"
+        ]
+      },
+      {
+        "kind": "overlap_aabb",
+        "ids": [
+          "e0015",
+          "e0014"
+        ]
+      },
+      {
+        "kind": "floating_components_aabb",
+        "components": [
+          [
+            "e0001",
+            "e0005",
+            "e0004",
+            "e0003",
+            "e0002",
+            "e0011",
+            "e0013",
+            "e0012"
+          ],
+          [
+            "e0006",
+            "e0008",
+            "e0007",
+            "e0015",
+            "e0014",
+            "e0010",
+            "e0009"
+          ]
+        ]
+      }
+    ]
+  }
+}

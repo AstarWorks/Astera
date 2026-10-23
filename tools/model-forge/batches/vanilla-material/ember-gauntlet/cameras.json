@@ -1,0 +1,1156 @@
+[
+  {
+    "file": "ember-gauntlet-orbit--45-0.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.2966947555541992,
+        -16.29577283529964,
+        17.790772720858723
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit--45-45.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        13.876670789022045,
+        -16.29577283529964,
+        12.579976033467847
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit--45-90.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        19.08746747641292,
+        -16.29577283529964,
+        1.0893706433478841e-15
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit--45-135.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        13.876670789022047,
+        -16.29577283529964,
+        -12.579976033467846
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit--45-180.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.2966947555542014,
+        -16.29577283529964,
+        -17.790772720858723
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit--45-225.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -11.283281277913643,
+        -16.29577283529964,
+        -12.579976033467853
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit--45-270.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -16.494077965304523,
+        -16.29577283529964,
+        -2.860974456766215e-15
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit--45-315.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -11.283281277913652,
+        -16.29577283529964,
+        12.579976033467844
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-0-0.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.2966947555541992,
+        1.4949998855590836,
+        25.159952066935695
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-0-45.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        19.08746747641292,
+        1.4949998855590836,
+        17.790772720858723
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-0-90.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        26.456646822489894,
+        1.4949998855590836,
+        1.5406027382736816e-15
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-0-135.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        19.08746747641292,
+        1.4949998855590836,
+        -17.790772720858723
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-0-180.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.2966947555542023,
+        1.4949998855590836,
+        -25.159952066935695
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-0-225.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -16.494077965304523,
+        1.4949998855590836,
+        -17.790772720858723
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-0-270.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -23.863257311381496,
+        1.4949998855590836,
+        -4.046028878361779e-15
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-0-315.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -16.494077965304527,
+        1.4949998855590836,
+        17.79077272085872
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-45-0.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.2966947555541992,
+        19.285772606417805,
+        17.790772720858723
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-45-45.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        13.876670789022045,
+        19.285772606417805,
+        12.579976033467847
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-45-90.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        19.08746747641292,
+        19.285772606417805,
+        1.0893706433478841e-15
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-45-135.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        13.876670789022047,
+        19.285772606417805,
+        -12.579976033467846
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-45-180.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.2966947555542014,
+        19.285772606417805,
+        -17.790772720858723
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-45-225.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -11.283281277913643,
+        19.285772606417805,
+        -12.579976033467853
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-45-270.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -16.494077965304523,
+        19.285772606417805,
+        -2.860974456766215e-15
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-orbit-45-315.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -11.283281277913652,
+        19.285772606417805,
+        12.579976033467844
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-pole--90.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.2966947555541992,
+        -23.664952181364033,
+        0.000025159952073529512
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-pole-90.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.2966947555541992,
+        26.654951952482197,
+        0.0000251599520669315
+      ],
+      "target": [
+        1.2966947555541992,
+        1.494999885559082,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-gui.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "gui",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        2.4492935982947065e-15,
+        40
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-firstperson_righthand.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "firstperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-firstperson_lefthand.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "firstperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-thirdperson_righthand.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "thirdperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-thirdperson_lefthand.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "thirdperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-thirdperson_righthand_side.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "thirdperson_righthand_side",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        48,
+        21.999999999999996,
+        2.9391523179536475e-15
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-ground.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "ground",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-ground_spin.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "ground_spin",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "ember-gauntlet-fixed.png",
+    "item": "ember-gauntlet",
+    "source": "content/models/items/ember-gauntlet.model.json",
+    "sha256": "86664a726bc28202a7ca77fb9a3228425155b332f858e73d518b7b797b52d845",
+    "context": "fixed",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.6942229581241772e-15,
+        1.3471114790620886e-15,
+        -22
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]

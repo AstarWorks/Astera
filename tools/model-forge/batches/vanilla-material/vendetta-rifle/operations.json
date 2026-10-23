@@ -1,0 +1,489 @@
+[
+  {
+    "op": "import",
+    "args": {
+      "path": "/tmp/claude-1000/vendetta-original.json",
+      "textures": {
+        "astera:items/vendetta-rifle": "build/vendetta-recolour/verify/original.png"
+      }
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 39,
+        "overlap_aabb": 466,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "scene.get",
+    "args": {
+      "fields": [
+        "id",
+        "name",
+        "faces"
+      ]
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0002"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0132"
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "before"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 39,
+        "overlap_aabb": 466,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "before"
+    },
+    "validation": null
+  },
+  {
+    "op": "import",
+    "args": {
+      "path": "build/vendetta-recolour/head.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 39,
+        "overlap_aabb": 466,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "batch",
+    "args": {
+      "ops": [
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0001",
+              "e0004",
+              "e0005",
+              "e0014",
+              "e0015",
+              "e0017",
+              "e0018",
+              "e0019",
+              "e0020",
+              "e0021",
+              "e0022",
+              "e0023",
+              "e0024",
+              "e0033",
+              "e0034",
+              "e0035",
+              "e0036",
+              "e0037",
+              "e0038",
+              "e0043",
+              "e0044",
+              "e0045",
+              "e0046",
+              "e0095",
+              "e0096",
+              "e0097",
+              "e0098",
+              "e0099",
+              "e0100",
+              "e0103",
+              "e0104",
+              "e0105",
+              "e0106",
+              "e0107",
+              "e0108",
+              "e0130",
+              "e0137",
+              "e0170",
+              "e0172"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#283340",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0002",
+              "e0006",
+              "e0007",
+              "e0009",
+              "e0131"
+            ],
+            "material": "wood.stripped_oak_log",
+            "tint": "#ad7952",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0003",
+              "e0008",
+              "e0119",
+              "e0120",
+              "e0121"
+            ],
+            "material": "cloth.white_wool",
+            "tint": "#283340",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0010",
+              "e0011",
+              "e0012",
+              "e0013",
+              "e0016",
+              "e0025",
+              "e0026",
+              "e0027",
+              "e0028",
+              "e0039",
+              "e0040",
+              "e0041",
+              "e0042",
+              "e0051",
+              "e0054",
+              "e0055",
+              "e0056",
+              "e0057",
+              "e0067",
+              "e0070",
+              "e0071",
+              "e0072",
+              "e0073",
+              "e0083",
+              "e0084",
+              "e0085",
+              "e0086",
+              "e0087",
+              "e0088",
+              "e0089",
+              "e0090",
+              "e0091",
+              "e0092",
+              "e0093",
+              "e0094",
+              "e0101",
+              "e0102",
+              "e0109",
+              "e0110",
+              "e0122",
+              "e0123",
+              "e0124",
+              "e0125",
+              "e0132",
+              "e0133",
+              "e0134",
+              "e0135",
+              "e0160",
+              "e0161",
+              "e0171",
+              "e0173",
+              "e0174",
+              "e0175",
+              "e0176",
+              "e0177",
+              "e0178"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#849bb3",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0029",
+              "e0030",
+              "e0031",
+              "e0032",
+              "e0052",
+              "e0068",
+              "e0111",
+              "e0112",
+              "e0113",
+              "e0114"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#283340",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0047",
+              "e0048",
+              "e0049",
+              "e0050",
+              "e0126",
+              "e0127",
+              "e0128",
+              "e0129"
+            ],
+            "material": "stone.calcite",
+            "tint": "#ff8117",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0053",
+              "e0063",
+              "e0064",
+              "e0065",
+              "e0066",
+              "e0069",
+              "e0079",
+              "e0080",
+              "e0081",
+              "e0082",
+              "e0115",
+              "e0116",
+              "e0117",
+              "e0118",
+              "e0136",
+              "e0138",
+              "e0139",
+              "e0140",
+              "e0141",
+              "e0142",
+              "e0143",
+              "e0144",
+              "e0145",
+              "e0146",
+              "e0149",
+              "e0152",
+              "e0154",
+              "e0156",
+              "e0158",
+              "e0162",
+              "e0163",
+              "e0164",
+              "e0165",
+              "e0166",
+              "e0167"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#df2b55",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0058",
+              "e0059",
+              "e0060",
+              "e0061",
+              "e0062",
+              "e0074",
+              "e0075",
+              "e0076",
+              "e0077",
+              "e0078"
+            ],
+            "material": "cloth.white_wool",
+            "tint": "#849bb3",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0147",
+              "e0148",
+              "e0150",
+              "e0151",
+              "e0153",
+              "e0155",
+              "e0157",
+              "e0159"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#ce3ef8",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0168",
+              "e0169"
+            ],
+            "material": "cloth.white_wool",
+            "tint": "#df2b55",
+            "seed": 20261024
+          }
+        }
+      ]
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 39,
+        "overlap_aabb": 466,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "import",
+    "args": {
+      "path": "/IdeaProjects/Astera/.claude/worktrees/vm-vendetta-rifle/content/models/items/vendetta-rifle.model.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 39,
+        "overlap_aabb": 466,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "after"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 39,
+        "overlap_aabb": 466,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "board",
+    "args": {
+      "resolution": 384,
+      "name": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "board",
+    "args": {
+      "views": [
+        "gui",
+        "firstperson_righthand",
+        "firstperson_lefthand",
+        "thirdperson_righthand",
+        "thirdperson_lefthand",
+        "ground",
+        "fixed"
+      ],
+      "resolution": 256,
+      "name": "contexts"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 32,
+      "name": "inventory-32"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 64,
+      "name": "inventory-64"
+    },
+    "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "history.diff",
+    "args": {
+      "a": "before",
+      "b": "after"
+    },
+    "validation": null
+  },
+  {
+    "op": "export",
+    "args": {
+      "path": "build/vendetta-recolour/verify/export"
+    },
+    "validation": null
+  }
+]

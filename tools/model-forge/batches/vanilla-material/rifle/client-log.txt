@@ -1,0 +1,14 @@
+Selected native 26.3 diagnostics; offline authentication/audio warnings are expected.
+[04:24:46] [Render thread/INFO]: Using graphics backend OpenGL, using drivers: 4.5 (Core Profile) Mesa 22.3.6
+[04:24:46] [Download-2/ERROR]: Failed to fetch user properties
+Caused by: MinecraftClientHttpException[type=HTTP_ERROR, status=401, response=ErrorResponse[path=/player/attributes, error=null, errorMessage=null, details=null]]
+[04:24:47] [Download-1/ERROR]: Failed to fetch Realms feature flags
+[04:24:47] [Render thread/INFO]: Reloading ResourceManager: vanilla, vanilla, file/vanilla-material
+[04:24:48] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+[04:24:48] [Render thread/INFO]: Created: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[04:24:49] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/items.png-atlas
+[04:24:52] [Server thread/INFO]: RifleReview[local:E:3d9b28ee] logged in with entity id 1 at (3.5, -60.0, 10.5)
+[04:24:52] [Render thread/WARN]: Requested post effect does not exist: minecraft:end_of_frame
+[04:25:09] [Server thread/INFO]: System chat: [RifleReview: Gave 1 [Iron Hoe] to RifleReview]
+[04:25:09] [Render thread/INFO]: [System] [CHAT] Gave 1 [Iron Hoe] to RifleReview
+No missing-model, missing-texture, mixed-atlas or tint-loading diagnostics were found.

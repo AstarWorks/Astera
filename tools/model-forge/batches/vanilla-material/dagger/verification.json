@@ -1,0 +1,23 @@
+{
+  "originalElements": 100,
+  "finalElements": 100,
+  "geometryExactlyMatchesHead": true,
+  "displayExactlyMatchesHead": true,
+  "exportImportIdentical": true,
+  "exportedPngs": 0,
+  "palette": [
+    6768439,
+    7242895,
+    10532285,
+    12177626,
+    7374996,
+    5257774,
+    2629150,
+    8427683
+  ],
+  "validationErrors": [],
+  "texelsPerLocalUnit": [
+    0.9999999999999941,
+    1.000000000000005
+  ]
+}

@@ -1,0 +1,230 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, native 1280x720",
+  "capture": "Raw unedited root-window screenshot. Isolated copied creative superflat. Entire launch/capture/shutdown serialized by /tmp/claude-1000/astera-mc-client.lock. No Docker, external server, Gradle or tests.",
+  "item": "minecraft:iron_sword[minecraft:item_model=\"astera:dagger\"]",
+  "resourcePack": "Minimal builder-equivalent pack: strips astera_tints from cuboid JSON and emits constant item-definition tints. Native block atlas, zero PNG files. Production ZIP not built.",
+  "baseCommit": "10c182aaef7d9a44490bcf7e8e5f44749cd32a96",
+  "paletteReferenceCommit": "36743b70a5074a438dcc20e4d58beb774be06d65",
+  "modelElements": 100,
+  "tintedFaces": 600,
+  "itemDefinition": {
+    "model": {
+      "type": "minecraft:model",
+      "model": "astera:items/dagger",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": 6768439
+        },
+        {
+          "type": "minecraft:constant",
+          "value": 7242895
+        },
+        {
+          "type": "minecraft:constant",
+          "value": 10532285
+        },
+        {
+          "type": "minecraft:constant",
+          "value": 12177626
+        },
+        {
+          "type": "minecraft:constant",
+          "value": 7374996
+        },
+        {
+          "type": "minecraft:constant",
+          "value": 5257774
+        },
+        {
+          "type": "minecraft:constant",
+          "value": 2629150
+        },
+        {
+          "type": "minecraft:constant",
+          "value": 8427683
+        }
+      ]
+    }
+  },
+  "originalAtlasNorthFaceSamples": {
+    "leather grip": [
+      {
+        "rgb": "#453026",
+        "pixels": 54
+      },
+      {
+        "rgb": "#72503a",
+        "pixels": 20
+      },
+      {
+        "rgb": "#211919",
+        "pixels": 1
+      }
+    ],
+    "guard core": [
+      {
+        "rgb": "#60727c",
+        "pixels": 8
+      },
+      {
+        "rgb": "#91a5ac",
+        "pixels": 4
+      },
+      {
+        "rgb": "#384852",
+        "pixels": 4
+      }
+    ],
+    "tapered blade section": [
+      {
+        "rgb": "#91a5ac",
+        "pixels": 8
+      },
+      {
+        "rgb": "#60727c",
+        "pixels": 6
+      },
+      {
+        "rgb": "#384852",
+        "pixels": 4
+      }
+    ],
+    "ground edge bevel": [
+      {
+        "rgb": "#a0b4bc",
+        "pixels": 2
+      }
+    ],
+    "central ridge": [
+      {
+        "rgb": "#60727c",
+        "pixels": 2
+      }
+    ],
+    "guard bevel": [
+      {
+        "rgb": "#60727c",
+        "pixels": 2
+      }
+    ],
+    "grip collar": [
+      {
+        "rgb": "#60727c",
+        "pixels": 3
+      },
+      {
+        "rgb": "#91a5ac",
+        "pixels": 3
+      }
+    ],
+    "pommel facet": [
+      {
+        "rgb": "#60727c",
+        "pixels": 9
+      },
+      {
+        "rgb": "#91a5ac",
+        "pixels": 9
+      }
+    ],
+    "leather lap": [
+      {
+        "rgb": "#453026",
+        "pixels": 4
+      },
+      {
+        "rgb": "#211919",
+        "pixels": 1
+      }
+    ],
+    "grip pin": [
+      {
+        "rgb": "#60727c",
+        "pixels": 1
+      }
+    ],
+    "leather stitch": [
+      {
+        "rgb": "#211919",
+        "pixels": 1
+      }
+    ],
+    "pommel diagonal facet": [
+      {
+        "rgb": "#60727c",
+        "pixels": 12
+      },
+      {
+        "rgb": "#91a5ac",
+        "pixels": 4
+      }
+    ],
+    "subtle grinding mark": [
+      {
+        "rgb": "#60727c",
+        "pixels": 1
+      }
+    ]
+  },
+  "verification": {
+    "originalElements": 100,
+    "finalElements": 100,
+    "geometryExactlyMatchesHead": true,
+    "displayExactlyMatchesHead": true,
+    "exportImportIdentical": true,
+    "exportedPngs": 0,
+    "palette": [
+      6768439,
+      7242895,
+      10532285,
+      12177626,
+      7374996,
+      5257774,
+      2629150,
+      8427683
+    ],
+    "validationErrors": [],
+    "texelsPerLocalUnit": [
+      0.9999999999999941,
+      1.000000000000005
+    ]
+  },
+  "openedImages": [
+    "before.png",
+    "after.png",
+    "contexts.png",
+    "inventory.png",
+    "player-contexts.jpg",
+    "angles.jpg",
+    "client.png"
+  ],
+  "clientModelErrors": [],
+  "catalogWishes": [
+    "Quiet light leather pattern; tinted white wool used for the wrap."
+  ],
+  "remainingRisks": [
+    "Original overlap/contact/component warnings retained; zero validation errors.",
+    "Native screenshot covers first person/hotbar; other contexts reviewed offline.",
+    "Static multiplicative tint; swing/use, glint, shaders and other FOVs unverified.",
+    "Production pack build/deployment remain manager work."
+  ],
+  "sha256": {
+    "content/models/items/dagger.model.json": "ee44771a0da07ef2d0122046230a9617fec7068ce946a2a9ba937f0df87435cf",
+    "tools/model-forge/batches/vanilla-material/dagger/after.png": "44f2dcd42c2b3c28569f51a4ed670fa9e61d344cd9508079b989f58a59c210fc",
+    "tools/model-forge/batches/vanilla-material/dagger/angles.jpg": "46db9db765bc1d538b3557922182ec63420c49b7bcc8fcbfe86747b26d80ab20",
+    "tools/model-forge/batches/vanilla-material/dagger/before.png": "f5512c7f1336eaccc627baa924cc3177fcc53883f463253d37134a5d83156bc8",
+    "tools/model-forge/batches/vanilla-material/dagger/cameras.json": "18fbe417f7505f34b2def46b8bc9b04b7f4ef6669e013371b8a977188b05209d",
+    "tools/model-forge/batches/vanilla-material/dagger/capture-client.py": "d636b0edff47a8d5367208c83b821c1446283151abff8b98f78a5ab8b97f8c8f",
+    "tools/model-forge/batches/vanilla-material/dagger/capture-pack.py": "ba1d23bd13ae2e31edf947ddfe69442b12e4b47f4ed1e95cdc12feb498be47e6",
+    "tools/model-forge/batches/vanilla-material/dagger/client-log.txt": "e1f3e2376f92c9328fbd60ffd8a4637b64e59a484348fc06c7810cb046607e33",
+    "tools/model-forge/batches/vanilla-material/dagger/client.png": "1c989ac6189cdb5c8966f6a9821590cea5eb7c71b78308e34dba734baa24d03f",
+    "tools/model-forge/batches/vanilla-material/dagger/contexts.png": "f2720a7f2868b4708fced4a14122d5668e15c95e43735c9be883aa501287fa96",
+    "tools/model-forge/batches/vanilla-material/dagger/inventory.png": "e2db41af97b3a4784c3f533bc7bdbd2c498e7cb4794c96ef0ce80d6668844ac0",
+    "tools/model-forge/batches/vanilla-material/dagger/operations.json": "1d84c58d95b51ae360c59aaa733dae2ad64ce8c6015b6230e187434309510a65",
+    "tools/model-forge/batches/vanilla-material/dagger/player-contexts.jpg": "d26554c1f211a258bc4eaafc43a2af46451237404f3472e43871f7a5b9214075",
+    "tools/model-forge/batches/vanilla-material/dagger/remake.py": "7990bec7fe02a702aea66a732543227ff034f1a80c9cf88b0b62f8787531351b",
+    "tools/model-forge/batches/vanilla-material/dagger/review.md": "a3b35a03e10df497c536be7a889d0c682125265a81a7396b652280b3e3d6e5ad",
+    "tools/model-forge/batches/vanilla-material/dagger/verification.json": "4f3e782e6bb92aea98f0e3a4add4733b661b559d788eeec0843975394fc57315"
+  }
+}

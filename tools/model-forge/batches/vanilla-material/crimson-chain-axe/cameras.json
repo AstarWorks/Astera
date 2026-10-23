@@ -1,0 +1,1156 @@
+[
+  {
+    "file": "crimson-chain-axe-orbit--45-0.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -0.04999995231628418,
+        -19.857017196829776,
+        25.560353793318733
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit--45-45.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.021205265028776,
+        -19.857017196829776,
+        18.075015503866975
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit--45-90.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.506543554480537,
+        -19.857017196829776,
+        0.003810286521913186
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit--45-135.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.02120526502878,
+        -19.857017196829776,
+        -18.06739493082315
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit--45-180.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -0.04999995231628105,
+        -19.857017196829776,
+        -25.55273322027491
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit--45-225.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.121205169661348,
+        -19.857017196829776,
+        -18.06739493082315
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit--45-270.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.606543459113105,
+        -19.857017196829776,
+        0.003810286521907511
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit--45-315.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.12120516966135,
+        -19.857017196829776,
+        18.075015503866968
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-0-0.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -0.04999995231628418,
+        5.699526309967043,
+        36.14622072121203
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-0-45.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.506543554480533,
+        5.699526309967043,
+        25.560353793318733
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-0-90.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        36.092410482373836,
+        5.699526309967043,
+        0.003810286521913834
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-0-135.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.506543554480537,
+        5.699526309967043,
+        -25.552733220274906
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-0-180.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -0.04999995231627975,
+        5.699526309967043,
+        -36.13860014816821
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-0-225.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.606543459113094,
+        5.699526309967043,
+        -25.552733220274916
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-0-270.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -36.192410387006404,
+        5.699526309967043,
+        0.003810286521905809
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-0-315.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.60654345911311,
+        5.699526309967043,
+        25.560353793318725
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-45-0.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -0.04999995231628418,
+        31.25606981676386,
+        25.560353793318733
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-45-45.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.021205265028776,
+        31.25606981676386,
+        18.075015503866975
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-45-90.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.506543554480537,
+        31.25606981676386,
+        0.003810286521913186
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-45-135.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.02120526502878,
+        31.25606981676386,
+        -18.06739493082315
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-45-180.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -0.04999995231628105,
+        31.25606981676386,
+        -25.55273322027491
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-45-225.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.121205169661348,
+        31.25606981676386,
+        -18.06739493082315
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-45-270.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.606543459113105,
+        31.25606981676386,
+        0.003810286521907511
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-orbit-45-315.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.12120516966135,
+        31.25606981676386,
+        18.075015503866968
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-pole--90.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -0.04999995231628418,
+        -30.442884124705003,
+        0.003846428932355783
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-pole-90.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -0.04999995231628418,
+        41.841936744639085,
+        0.003846428932346305
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-gui.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "gui",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        2.4492935982947065e-15,
+        40
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-firstperson_righthand.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "firstperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-firstperson_lefthand.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "firstperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-thirdperson_righthand.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "thirdperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-thirdperson_lefthand.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "thirdperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-thirdperson_righthand_side.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "thirdperson_righthand_side",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        48,
+        21.999999999999996,
+        2.9391523179536475e-15
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-ground.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "ground",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-ground_spin.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "ground_spin",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "crimson-chain-axe-fixed.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "fixed",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.6942229581241772e-15,
+        1.3471114790620886e-15,
+        -22
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]

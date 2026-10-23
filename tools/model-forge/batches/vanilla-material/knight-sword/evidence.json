@@ -1,0 +1,30 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer; full launch/capture/shutdown serialized by flock /tmp/claude-1000/astera-mc-client.lock. Native screenshot without image editing.",
+  "item": "minecraft:iron_sword[minecraft:item_model=\"astera:knight-sword\"]",
+  "resourcePack": "Minimal builder-equivalent pack: exact source cuboid minus astera_tints, eight minecraft:constant item-definition sources; vanilla block references, no PNGs.",
+  "originalPaletteReference": "36743b70:content/models/items/knight-sword.model.json",
+  "modelElements": 117,
+  "tintedFaces": 683,
+  "tintSources": 8,
+  "geometry": "Exact HEAD element metadata, coordinates, rotations and face directions retained. Display block exactly unchanged.",
+  "sha256": {
+    "content/models/items/knight-sword.model.json": "3f78b71d7e7618d33758f3617c2c33e1c4a71a0303e1857827aaf3fe7f23fe72",
+    "tools/model-forge/batches/vanilla-material/knight-sword/before.png": "9ff0329bbc293fce365349053e6c02efd9e7d3bcd5baa75c238cd7727147a319",
+    "tools/model-forge/batches/vanilla-material/knight-sword/after.png": "a5151908e55434d21f5b89e2d8e8d2d4686ff362b60b4eb8dde4a72f6ccfe37a",
+    "tools/model-forge/batches/vanilla-material/knight-sword/contexts.png": "459696c90c32438ee4fc5dcc743ce6afba4ad2dee6c426f48b9b1d8bdc16db4e",
+    "tools/model-forge/batches/vanilla-material/knight-sword/contexts-faithful.jpg": "c349282eec27ce79f8f3aa4f92712ed129dfddaf40945a6911ef100abe2548b8",
+    "tools/model-forge/batches/vanilla-material/knight-sword/orbits.png": "b0b6d417cc95ccaa58ccd708be44682f0de547bec69cd7f2a87adbbf8d9e325f",
+    "tools/model-forge/batches/vanilla-material/knight-sword/inventory.png": "96090db95b0cdcc9cf009c7795ce4e6ed1785a3296bda13b755e1c9b519335f0",
+    "tools/model-forge/batches/vanilla-material/knight-sword/client.png": "59f271139d8829d3c292fc817e52a1e089b807212c205a979f6ab3cf9a023c9c",
+    "build/knight-sword-client/resourcepacks/vanilla-material/assets/astera/models/items/knight-sword.json": "205e58c66010585b66c24186773d8d9eb0892af9b6eea5e3a3674266ab64c44b",
+    "build/knight-sword-client/resourcepacks/vanilla-material/assets/astera/items/knight-sword.json": "4051e7286b25c1033cca952e96b82c6ec6ed0c3134113dfc5c0ebb2ed5da1396"
+  },
+  "remainingRisks": [
+    "Production pack build and integration checks deferred to manager.",
+    "Native capture covers first person and hotbar; use/swing, shaders, glint and other native contexts remain unverified.",
+    "Pre-existing overlapping bevels and ornament joins retained; offline lighting is illustrative."
+  ],
+  "clientReview": "Opened native client.png: silver-blue steel, darker blue-gray fuller, warm gold fittings, reddish leather and dark diagonal wraps render correctly; hotbar icon retains colour separation. No model, texture, atlas or tint loading errors. Offline authentication, unavailable audio device and end_of_frame post-effect messages are unrelated.",
+  "worldSource": "Client-created isolated Shotgun Superflat Review copied into build/knight-sword-client/saves/KnightSword Tint Review; Paper-exported world rejected before final capture."
+}
