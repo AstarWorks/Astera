@@ -57,6 +57,51 @@ edit-test loop use the fast targets below instead (start with the decision table
 The stack is Velocity (proxy) + `lobby` + `game` (two Paper servers) + Postgres +
 Redis; see `docker/README.md` and ADR-0179.
 
+### Automatic deploy of `origin/main` on the founder's host
+
+`scripts/dev-autodeploy.sh` fetches every 60 seconds and deploys into the detached checkout
+`/IdeaProjects/Astera/.claude/worktrees/dev-deploy`. This is the checkout that owns the
+`astera-dev` Compose stack; its gitignored `docker/.env` holds the existing forwarding secret.
+No GitHub CI, webhook or external service is involved.
+
+- Start/resume: `make dev-autodeploy-up`; pause/stop: `make dev-autodeploy-down`
+  (waits for an active deploy to finish); inspect: `make dev-autodeploy-status`.
+- Events: `/IdeaProjects/Astera/.claude/state/dev-deploy/deploy.log`; detailed build output:
+  `build.log` in that directory. `last-sha` records successful deployment; `attempted-sha`
+  prevents retrying a failed push, including after restarts. The next push diffs from `last-sha`.
+- Runtime: Docker container `astera-dev-autodeploy`, with `unless-stopped`, supervises a
+  `docker exec` watcher in this development container (also `unless-stopped`). The host
+  Docker daemon cannot bind-mount this container's repo, so the supervisor mounts only the
+  Docker socket. Both resume after a host reboot; the devcontainer and its checkout must be
+  retained. `up` installs a runtime copy of the script in the state directory; rerun `up`
+  after changing watcher code. `docker logs astera-dev-autodeploy` shows events too.
+- Content YAML runs `dev-content`; plugin/build changes run `dev-plugins`; pack assets
+  (models, textures, sounds, sprites, effects, HUD, fonts, animations, pack assets, shaders)
+  and pack-builder changes rebuild the resource-pack service then run `dev-pack`.
+  Core/build changes also rebuild the pack because its builder consumes Core glyphs.
+  Mixed changes stage new content before restarting plugins (supports breaking YAML schema
+  changes), then apply plugins, pack, content reload. First start deploys all three.
+- Deploys require 10 GiB free on the checkout filesystem before building; insufficient
+  space records a failed attempt, leaving live files alone. Builds finish before live
+  files change. Rollback copies restore previous jars/content
+  and the previous pack image after an apply failure. Backends may restart and matches
+  may be cancelled. Postgres/Redis and all named data volumes remain untouched.
+  A rollback failure is logged explicitly and requires manual recovery; DB migrations
+  performed by plugin startup cannot be automatically undone.
+- Dockerfiles, `docker/**` and Compose changes hold the **whole range**. A
+  `manual deploy needed` event and `manual-needed` state file are the local notification;
+  no chat message is sent. Bot-runner/tooling changes outside these dispatch rules are
+  also not rebuilt automatically. Unknown paths (e.g. docs) record `[none]`.
+  For a manual deploy, pause the watcher, switch the deploy checkout with
+  `git checkout --detach origin/main`, and apply the reviewed Docker changes there.
+  Write the deployed `git rev-parse HEAD` to `last-sha`, remove `manual-needed`, then resume. To explicitly
+  retry a failed SHA, pause, remove `attempted-sha`, then resume.
+
+All automatic work holds `/tmp/claude-1000/astera-dev-deploy.lock`. Hold the same lock for
+manual operations against this stack. Never run `docker-down`/`docker-nuke` as part of
+watcher recovery. Only the dedicated detached checkout is switched; other worktrees
+are not changed.
+
 ### Fast loop: change code, content or the pack without `make docker-up` (ADR-0186, ADR-0224)
 
 **Which command for which change** (restart = a backend stops and boots, about 55 s; players are
