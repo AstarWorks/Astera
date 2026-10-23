@@ -1,0 +1,129 @@
+{
+  "baseline": "a58afeb98e5be0af9975c124c257f6637e25efbc",
+  "model": "content/models/items/orrery-staff.model.json",
+  "modelBeforeSha256": "a78b02a1b19c1eb319e75817b98ac8b138e42395fa84f3652332cf178683f088",
+  "modelAfterSha256": "c32ee6a4737f536512f266d917ac419982828a3c493de5e5c6dffa1f90968540",
+  "onlyDisplayChanged": true,
+  "unchangedNonDisplaySha256": "87db75df77ca7866b1bcdc0c56a79e75fce75cad2eb9c0638c79675599aa3de7",
+  "changedContexts": {
+    "gui": {
+      "before": {
+        "rotation": [
+          10,
+          -15,
+          -35
+        ],
+        "translation": [
+          0,
+          -2,
+          0
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      },
+      "after": {
+        "rotation": [
+          10,
+          -15,
+          -35
+        ],
+        "translation": [
+          -3.066,
+          -4.058,
+          0
+        ],
+        "scale": [
+          0.54,
+          0.54,
+          0.54
+        ]
+      }
+    }
+  },
+  "validation": {
+    "errors": 0,
+    "inheritedWarnings": 11
+  },
+  "nativeClient": {
+    "version": "26.3",
+    "launcher": "portablemc",
+    "renderer": "llvmpipe",
+    "resolution": [
+      1280,
+      720
+    ],
+    "fov": 70,
+    "guiScale": 2,
+    "viewBob": false,
+    "capture": "Unedited Xvfb root-window capture with ImageMagick import",
+    "lock": "/tmp/claude-1000/astera-mc-client.lock",
+    "gameDirectory": "build/display/client",
+    "world": "Display Creative Review",
+    "seed": 20261024,
+    "lan": false,
+    "exactModelAndCustomTexturesVerified": true
+  },
+  "reviewedImages": [
+    "client-firstperson-lefthand.png",
+    "client-firstperson.png",
+    "client-inventory.png",
+    "client-thirdperson-lefthand.png",
+    "client-thirdperson-righthand.png",
+    "context-after.png",
+    "context-before.png"
+  ],
+  "images": {
+    "client-firstperson-lefthand.png": {
+      "sha256": "40b8474bed758a7eeca6935ad9b13565750f0366b37867bae8423b3f4c1df6b4",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-firstperson.png": {
+      "sha256": "e2abc0a7b5a642d254da0d69e5fd2015319cb987cb76e6f6e9949ceecc71b95e",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-inventory.png": {
+      "sha256": "41240e57dfc2b8bc9034ddff8c5fe057c1c0c46eff43eb9f373855357381f714",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-thirdperson-lefthand.png": {
+      "sha256": "6f4bd13fd33d38cd67609e2b1f9cf821f08437fe6da23c0f86456375be29abe1",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-thirdperson-righthand.png": {
+      "sha256": "ecce6ba0c4148a19733d2d5b3f2320ba48b664472a66e1867e34c23b5c60887d",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "context-after.png": {
+      "sha256": "fa64783b731d4ad5f57b0f5877729f3c80b40ae226a0b4d5fff45c1233733ae5",
+      "dimensions": [
+        1440,
+        1032
+      ]
+    },
+    "context-before.png": {
+      "sha256": "bec6bee5d143f4dbcd779ffbb7e09e743d4eb3caa1c5f7c57dbc96be17b4a7ae",
+      "dimensions": [
+        1440,
+        1032
+      ]
+    }
+  }
+}

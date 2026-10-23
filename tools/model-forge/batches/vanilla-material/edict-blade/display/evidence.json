@@ -1,0 +1,273 @@
+{
+  "baseline": "a58afeb98e5be0af9975c124c257f6637e25efbc",
+  "model": "content/models/items/edict-blade.model.json",
+  "modelBeforeSha256": "9d8fd9aeb1fa4fc04b0a0410410435964d6e63f6523874b28cc3324aa64c3eaa",
+  "modelAfterSha256": "0750b8731fc830c183f3fcbf3bfe6aa24326d10de46a8432fcdc080b4355d66e",
+  "onlyDisplayChanged": true,
+  "unchangedNonDisplaySha256": "ba7441559523c52126d669862cf7b132c1ccc9bdae1b1094dc66688e94467b3d",
+  "changedContexts": {
+    "gui": {
+      "before": {
+        "rotation": [
+          25,
+          -30,
+          0
+        ],
+        "translation": [
+          0,
+          -3,
+          0
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      },
+      "after": {
+        "rotation": [
+          25,
+          -30,
+          0
+        ],
+        "translation": [
+          0,
+          0.35,
+          0
+        ],
+        "scale": [
+          1.6,
+          1.6,
+          1.6
+        ]
+      }
+    },
+    "firstperson_righthand": {
+      "before": {
+        "rotation": [
+          0,
+          -90,
+          25
+        ],
+        "translation": [
+          1,
+          0,
+          0
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ]
+      },
+      "after": {
+        "rotation": [
+          0,
+          -25,
+          0
+        ],
+        "translation": [
+          -1.5,
+          4,
+          -6
+        ],
+        "scale": [
+          0.55,
+          0.55,
+          0.55
+        ]
+      }
+    },
+    "firstperson_lefthand": {
+      "before": {
+        "rotation": [
+          0,
+          90,
+          -25
+        ],
+        "translation": [
+          1,
+          0,
+          0
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ]
+      },
+      "after": {
+        "rotation": [
+          0,
+          -25,
+          0
+        ],
+        "translation": [
+          -1.5,
+          4,
+          -6
+        ],
+        "scale": [
+          0.55,
+          0.55,
+          0.55
+        ]
+      }
+    },
+    "thirdperson_righthand": {
+      "before": {
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "translation": [
+          0,
+          2,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "after": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          1,
+          0
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      }
+    },
+    "thirdperson_lefthand": {
+      "before": {
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "translation": [
+          0,
+          2,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "after": {
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          1,
+          0
+        ],
+        "scale": [
+          0.65,
+          0.65,
+          0.65
+        ]
+      }
+    }
+  },
+  "validation": {
+    "errors": 0,
+    "inheritedWarnings": 15
+  },
+  "nativeClient": {
+    "version": "26.3",
+    "launcher": "portablemc",
+    "renderer": "llvmpipe",
+    "resolution": [
+      1280,
+      720
+    ],
+    "fov": 70,
+    "guiScale": 2,
+    "viewBob": false,
+    "capture": "Unedited Xvfb root-window capture with ImageMagick import",
+    "lock": "/tmp/claude-1000/astera-mc-client.lock",
+    "gameDirectory": "build/display/client",
+    "world": "Display Creative Review",
+    "seed": 20261024,
+    "lan": false,
+    "exactModelAndCustomTexturesVerified": true
+  },
+  "reviewedImages": [
+    "client-firstperson-lefthand.png",
+    "client-firstperson.png",
+    "client-inventory.png",
+    "client-thirdperson-lefthand.png",
+    "client-thirdperson-righthand.png",
+    "context-after.png",
+    "context-before.png"
+  ],
+  "images": {
+    "client-firstperson-lefthand.png": {
+      "sha256": "af75c955c0af1eb49cc89bdd47698ec7eb1b75f6f410da4eaba9fbd2add4e8ac",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-firstperson.png": {
+      "sha256": "3e6b1152869d1d9190445cbcb0767b93b7a8b648ab35cee8d08c30088ea41122",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-inventory.png": {
+      "sha256": "4068fe2f848cb06ea32a9292e36abd36f43176d3202c670d3614630a14ecfb60",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-thirdperson-lefthand.png": {
+      "sha256": "2ff133566c9b4e2bcb47d4fd61a56d8b2d935043d0348e85b7e397692f434e01",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "client-thirdperson-righthand.png": {
+      "sha256": "0fd38744a677130ccdccb364be78efd520de0aa0257b5b54f4a754cffd103c6f",
+      "dimensions": [
+        1280,
+        720
+      ]
+    },
+    "context-after.png": {
+      "sha256": "f8762bd8033909a205dded5799289d73f5128377f8a996c84abf2abcfa6ea0b8",
+      "dimensions": [
+        1440,
+        1032
+      ]
+    },
+    "context-before.png": {
+      "sha256": "a9a007ec9ff87ac49b0cb55de144f61052fd808801dc095cd9cf742a9ecceaac",
+      "dimensions": [
+        1440,
+        1032
+      ]
+    }
+  }
+}
