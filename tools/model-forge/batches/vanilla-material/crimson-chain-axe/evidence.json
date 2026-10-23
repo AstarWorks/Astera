@@ -1,0 +1,47 @@
+{
+  "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
+  "capture": "Isolated creative superflat singleplayer, commands enabled. Native unedited Xvfb root screenshot. Exact model on item_display in fixed context, entity scale 1.7, GUI hidden. Client launch/capture serialized with /tmp/claude-1000/astera-mc-client.lock; dynamically assigned Xvfb display; unique build/crimson-chain-axe-client game directory. No standalone server, Docker, Gradle or tests.",
+  "item": "minecraft:iron_axe[minecraft:item_model=\"astera:crimson-chain-axe\"]",
+  "resourcePack": "Minimal capture pack with exact authored JSON, item definition, and builder-equivalent blocks directory source; native block resources only, no PNGs copied.",
+  "modelElements": 164,
+  "baselineCommit": "36743b70a5074a438dcc20e4d58beb774be06d65",
+  "sha256": {
+    "content/models/items/crimson-chain-axe.model.json": "4f3121328c700f5f9945fe6029448a6e4a1fe126fed58adaa340f8ad3e17520d",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/after.png": "57f2e0ad0302b17811a6c262102d0e4445afb09b6b3b33d28342461971ad4a3a",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/before.png": "fb2bd6c20bec09d613d51c777d97207216f4b0f8423444411119cae1c2bb50d6",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/cameras.json": "0f29bd496bd9b391055dab73b3ffe1f67f7575f8d9e90c8eecd8be9d88c912b2",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/capture-pack.py": "9f5ad156cda932e271959f1bfcf1ebbc83470a10a9858d34cf20574ea6b3d865",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/client.png": "cb005c644095bed96f7ad1b44bab2bd1920b6fc33caf8ee41e5e55846a6f591f",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/contexts.png": "b4d5c193784fed8910a7fa85d8d48ad3e827a741ccf601632259f298b51e0141",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/inventory.png": "5e1bedfe905b2e895b8301f44489a944f77cf8473dd2062d38528a3277b48d36",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/measure.json": "047cbe5ec41d8909f930bbba6f19dc6de55f85d8298920f7d85c8baf61f34353",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/operations.json": "10fc8504c576410e89cbcc34d9d3de12fc0e6c11e1a086cf4c67ac924b52da98",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/player-contexts.jpg": "2e8c5a8e6db8ddafe8e2856949292ae27fbda887a8230dd5ec8227db7c6ed761",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/remake.py": "003d251bb67363fce2e5d2a38fc495138cc0393e549e21290db37ff983c0ba06",
+    "tools/model-forge/batches/vanilla-material/crimson-chain-axe/sweep.png": "38532bb0d686ecea51b970bb57c2c259115c5890f9a56416cd4529f28a214a29"
+  },
+  "remainingRisks": [
+    "Existing first/third-person transforms have zero scale in both hands; preserved, so the item remains invisible when held.",
+    "Copper is orange-brown rather than the original crimson; red wool on sub-unit ruby facets is a catalog approximation.",
+    "Existing stepped-blade overlaps, socket-star gaps and disconnected ornament remain; no geometry cleanup authorized.",
+    "Production pack build and manager CI were not run; native verification uses a minimal exact-model capture pack."
+  ],
+  "validation": {
+    "errors": 0,
+    "beforeWarnings": {
+      "overlap_aabb": 297,
+      "coplanar_contact_possible_zfight": 5,
+      "floating_components_aabb": 1
+    },
+    "afterWarnings": {
+      "overlap_aabb": 299,
+      "coplanar_contact_possible_zfight": 6,
+      "floating_components_aabb": 1
+    }
+  },
+  "catalogWishes": [
+    "A static deep-crimson metal block material.",
+    "A static ruby-red gem block material."
+  ],
+  "geometryVerification": "Original cuboids, rotations and display retained; 20-unit haft splits at Y=16 with internal faces omitted. Numeric coordinates agree within 1e-12 model units."
+}
