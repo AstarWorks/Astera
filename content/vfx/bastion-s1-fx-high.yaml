@@ -87,72 +87,177 @@ elements:
     scale: [0.2187, 0.2187, 1.0]
     ease: out_quad
 # --- particle layer (tools/item-art/scripts/bastion_s1_particles.py): do not edit by hand ---
-- id: s1h1-p-shed-r
-  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-2.346, 1.135, -0.042]
-  emit: { count: 3, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-1.00, 0.60, -0.02]', spread_deg: 35, gravity: 0.02, drag: 0.15,
-    life_ticks: [3, 4], size: [0.12, 0.17], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
-- id: s1h1-p-shed-r2
-  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
+- id: s1h1-p-shed
+  kind: {type: particle, particle_id: bastion-s1-p-shed, every_ticks: 2}
   start_tick: 3
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-1.429, 1.546, 1.087]
-  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-0.70, 0.60, 0.71]', spread_deg: 35, gravity: 0.02, drag: 0.15,
-    life_ticks: [3, 4], size: [0.12, 0.17], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
-- id: s1h1-p-shed-l
-  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
+    translate: [-2.191, 1.242, 0.253]
+  - t: 1
+    translate: [-2.188, 1.256, 0.268]
+- id: s1h1-p-shed-2
+  kind: {type: particle, particle_id: bastion-s1-p-shed, every_ticks: 2}
+  start_tick: 3
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [-1.956, 1.35, 0.55]
+  - t: 1
+    translate: [-1.953, 1.363, 0.565]
+- id: s1h1-p-shed-3
+  kind: {type: particle, particle_id: bastion-s1-p-shed, every_ticks: 2}
   start_tick: 7
+  end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.936, 1.621, 1.295]
-  emit: { count: 3, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[0.70, 0.60, 0.71]', spread_deg: 35, gravity: 0.02, drag: 0.15,
-    life_ticks: [3, 4], size: [0.12, 0.17], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
-- id: s1h1-p-shed-l2
-  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
+    translate: [0.634, 1.651, 1.377]
+  - t: 1
+    translate: [0.652, 1.658, 1.381]
+- id: s1h1-p-shed-4
+  kind: {type: particle, particle_id: bastion-s1-p-shed, every_ticks: 2}
+  start_tick: 7
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.992, 1.642, 1.351]
+  - t: 1
+    translate: [1.01, 1.649, 1.355]
+- id: s1h1-p-shed-5
+  kind: {type: particle, particle_id: bastion-s1-p-shed, every_ticks: 2}
   start_tick: 8
+  end_tick: 10
   keyframes:
   - t: 0
-    translate: [2.096, 1.099, -0.141]
-  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[1.00, 0.60, -0.06]', spread_deg: 35, gravity: 0.02, drag: 0.15,
-    life_ticks: [3, 4], size: [0.12, 0.17], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
-- id: s1h1-p-sparks-r
-  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
+    translate: [1.203, 1.533, 1.053]
+  - t: 1
+    translate: [1.22, 1.537, 1.044]
+- id: s1h1-p-shed-6
+  kind: {type: particle, particle_id: bastion-s1-p-shed, every_ticks: 2}
+  start_tick: 8
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [1.414, 1.425, 0.756]
+  - t: 1
+    translate: [1.43, 1.429, 0.745]
+- id: s1h1-p-spray
+  kind: {type: particle, particle_id: bastion-s1-p-spray, every_ticks: 1}
   start_tick: 4
+  end_tick: 6
   keyframes:
   - t: 0
-    translate: [-0.44, 1.69, 1.49]
-  emit: { count: 7, rate_per_tick: 3, speed: [0.3, 0.45], direction: 'custom[-1, 0.45, 0.15]', spread_deg: 35, gravity: 0.02, drag: 0.15,
-    life_ticks: [3, 4], size: [0.14, 0.2], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
-- id: s1h1-p-sparks-up
-  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
+    translate: [-0.72, 1.62, 1.55]
+  - t: 1
+    translate: [-0.739, 1.624, 1.553]
+- id: s1h1-p-spray-2
+  kind: {type: particle, particle_id: bastion-s1-p-spray, every_ticks: 1}
   start_tick: 4
+  end_tick: 6
   keyframes:
   - t: 0
-    translate: [-0.54, 1.69, 1.44]
-  emit: { count: 5, rate_per_tick: 2, speed: [0.2, 0.3], direction: 'custom[-0.35, 1, 0.15]', spread_deg: 25, gravity: 0.03, drag: 0.15,
-    life_ticks: [3, 4], size: [0.12, 0.18], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+    translate: [-0.75, 1.55, 1.45]
+  - t: 1
+    translate: [-0.769, 1.555, 1.445]
+- id: s1h1-p-spray-3
+  kind: {type: particle, particle_id: bastion-s1-p-spray, every_ticks: 2}
+  start_tick: 5
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [-0.8, 1.7, 1.5]
+  - t: 1
+    translate: [-0.819, 1.706, 1.5]
+- id: s1h1-p-spray-4
+  kind: {type: particle, particle_id: bastion-s1-p-spray, every_ticks: 2}
+  start_tick: 5
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [-0.78, 1.5, 1.55]
+  - t: 1
+    translate: [-0.798, 1.506, 1.556]
+- id: s1h1-p-spray-5
+  kind: {type: particle, particle_id: bastion-s1-p-spray, every_ticks: 2}
+  start_tick: 6
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [-0.85, 1.6, 1.4]
+  - t: 1
+    translate: [-0.87, 1.604, 1.398]
+- id: s1h1-p-spray-6
+  kind: {type: particle, particle_id: bastion-s1-p-spray, every_ticks: 2}
+  start_tick: 7
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [-0.9, 1.55, 1.45]
+  - t: 1
+    translate: [-0.919, 1.557, 1.452]
+- id: s1h1-p-fan
+  kind: {type: particle, particle_id: bastion-s1-p-fan, every_ticks: 1}
+  start_tick: 4
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [-1.05, 1.7, 1.35]
+  - t: 1
+    translate: [-1.057, 1.719, 1.349]
+  - t: 2
+    translate: [-1.063, 1.738, 1.348]
+- id: s1h1-p-spray-7
+  kind: {type: particle, particle_id: bastion-s1-p-spray, every_ticks: 1}
+  start_tick: 8
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [1.518, 1.41, 0.715]
+  - t: 1
+    translate: [1.53, 1.417, 0.7]
+- id: s1h1-p-ember
+  kind: {type: particle, particle_id: bastion-s1-p-ember, every_ticks: 1, along_path: true, step_blocks: 0.22}
+  start_tick: 4
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [-1.661, 1.592, 1.751]
+  - t: 1
+    translate: [-1.651, 1.555, 1.532]
+  - t: 2
+    translate: [-1.862, 1.558, 1.559]
+  - t: 3
+    translate: [-1.932, 1.767, 1.601]
+  - t: 4
+    translate: [-1.969, 1.888, 1.777]
+  - t: 5
+    translate: [-1.51, 1.631, 1.252]
+- id: s1h1-p-ember-hot
+  kind: {type: particle, particle_id: bastion-s1-p-ember-hot, every_ticks: 1, along_path: true, step_blocks: 0.28}
+  start_tick: 4
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [-1.41, 1.663, 1.567]
+  - t: 1
+    translate: [-1.543, 1.404, 1.45]
+  - t: 2
+    translate: [-1.49, 1.724, 1.576]
+- id: s1h1-p-ember-deep
+  kind: {type: particle, particle_id: bastion-s1-p-ember-deep, every_ticks: 1, along_path: true, step_blocks: 0.28}
+  start_tick: 6
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [-1.967, 1.411, 1.647]
+  - t: 1
+    translate: [-2.068, 1.135, 1.687]
+  - t: 2
+    translate: [-2.083, 1.319, 1.271]
+  - t: 3
+    translate: [-1.935, 1.259, 1.77]
+  - t: 4
+    translate: [-1.652, 1.009, 1.321]
 - id: s1h1-p-streaks
   kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A1E'}
   billboard: center
@@ -164,28 +269,6 @@ elements:
   emit: { count: 5, rate_per_tick: 2, speed: [0.35, 0.5], direction: 'custom[-1, 0.2, 0.25]', spread_deg: 25, gravity: 0.0, drag: 0.2,
     life_ticks: [3, 4], size: [0.07, 0.1], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.15, v: 1.0, ease: out_expo }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
-- id: s1h1-p-motes-up
-  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 4
-  keyframes:
-  - t: 0
-    translate: [-1.25, 1.75, 1.75]
-  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-0.5, 1.1, 0.25]', spread_deg: 25, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 4], size: [0.1, 0.13], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
-- id: s1h1-p-motes-r
-  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 5
-  keyframes:
-  - t: 0
-    translate: [-1.25, 1.75, 1.75]
-  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-1, 1.1, 0.15]', spread_deg: 30, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 4], size: [0.1, 0.13], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
 - id: s1h1-p-slivers
   kind: {type: sprite, sprite: bastion-s1-sliver, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
@@ -193,7 +276,7 @@ elements:
   start_tick: 4
   keyframes:
   - t: 0
-    translate: [-0.44, 1.69, 1.39]
-  emit: { count: 5, rate_per_tick: 2, speed: [0.18, 0.26], direction: 'custom[-1, 0.8, 0.1]', spread_deg: 40, gravity: 0.03, drag: 0.08,
+    translate: [-0.74, 1.69, 1.44]
+  emit: { count: 6, rate_per_tick: 2, speed: [0.18, 0.26], direction: 'custom[-1, 0.8, 0.1]', spread_deg: 40, gravity: 0.03, drag: 0.08,
     life_ticks: [4, 5], size: [0.04, 0.06], size_over_life: [{ t: 0, v: 1.0 }, { t: 0.6, v: 0.85 }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }

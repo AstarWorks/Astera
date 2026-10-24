@@ -1,0 +1,10 @@
+# r16 ember: retextured entity_effect, deep red-orange (cooling).
+id: bastion-s1-p-ember-deep
+shape: { kind: point }
+color: { r: 226, g: 84, b: 26 }
+count: 1
+lifetime_ticks: 24
+vanilla_particle: entity_effect
+data: { kind: tint, color: { r: 226, g: 84, b: 26 } }
+velocity: { direction: up, speed: 0.05, spread_degrees: 0, speed_jitter: 0.5 }
+force: true
