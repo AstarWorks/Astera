@@ -32,6 +32,7 @@ fi
 VIEW="${VIEW:-all}"
 TICKS_SET="${TICKS:-}"
 TICKS="${TICKS:-60}"                 # ticks filmed after the cast (compare: the case duration_ticks)
+FPS="${FPS:-20}"                     # recording rate; FPS=60 keeps 3 frames per tick (frame_NNN = NNN/3 ticks), no sheet/gif/meta
 RES="${RES:-1280x720}"               # viewer resolution
 HIDE_HUD="${HIDE_HUD:-1}"            # 1 = F1 (hand + world only), 0 = keep the HUD
 GUI_SCALE="${GUI_SCALE:-2}"
@@ -323,7 +324,7 @@ film() { # viewer view_dir
   t_total="$(awk -v d="$dur" 'BEGIN{printf "%.2f", d + 1.5}')"
   rm -f "$rec"
   # showinfo (before the rebase) logs each frame's wall-clock pts -> epoch time of the first frame
-  ffmpeg -nostdin -loglevel info -y -copyts -use_wallclock_as_timestamps 1 -f x11grab -framerate 20 \
+  ffmpeg -nostdin -loglevel info -y -copyts -use_wallclock_as_timestamps 1 -f x11grab -framerate "$FPS" \
     -video_size "$RES_FILM" -i ":$d" -t "$t_total" -vf "showinfo,setpts=PTS-STARTPTS" \
     -c:v libx264 -preset ultrafast -crf 10 -pix_fmt yuv444p -f matroska "$rec" 2>"$rec.log" &
   local fpid=$!
@@ -354,7 +355,7 @@ film() { # viewer view_dir
   tail -c +"$((log_off + 1))" "$clog" > "$dir/viewer-client.log" 2>/dev/null || : > "$dir/viewer-client.log"
   printf '%s\n%s\n' "$pos_start" "$pos_end" > "$dir/viewer-pos.txt"
   ffmpeg -nostdin -loglevel error -y -i "$rec" \
-    -vf "fps=20:start_time=$offset,setpts=N/20/TB" -frames:v "$((TICKS + PRE_TICKS + 1))" -start_number 0 "$dir/frame_%03d.png" \
+    -vf "fps=$FPS:start_time=$offset,setpts=N/$FPS/TB" -frames:v "$(((TICKS + PRE_TICKS + 1) * FPS / 20))" -start_number 0 "$dir/frame_%03d.png" \
     || die "frame extraction failed"
   rm -f "$rec" "$rec.log"
 }
@@ -483,7 +484,7 @@ run_view() { # view
   DISPLAY=":${DISP[$viewer]}" xdotool mousemove 640 360 2>/dev/null || true
   sleep 1
   film "$viewer" "$OUT_ROOT/$SKILL/$view"
-  make_outputs "$OUT_ROOT/$SKILL/$view" "$view"
+  if [ "$FPS" = 20 ]; then make_outputs "$OUT_ROOT/$SKILL/$view" "$view"; else log "FPS=$FPS: raw frames only in $OUT_ROOT/$SKILL/$view"; fi
   stop_client "$viewer"
   [ "$dummy_caster" = 1 ] && stop_client "Caster"
   rcon "kill @e[type=minecraft:husk]" >/dev/null

@@ -158,6 +158,7 @@ public class PaperEntityEffectsGateway(
         // and, on restore, no re-equip raise. Packet-only; the server inventory is untouched, and the restore
         // (hidden = false) re-sends the real stack. Any later inventory sync also restores it.
         val displays = if (hidden) reveal.mapNotNull { r ->
+            r.beforeSend()
             (server.getEntity(r.handle.id) as? org.bukkit.entity.Display)?.also { it.viewRange = r.viewRange }
         } else emptyList()
         val packets = if (displays.isEmpty()) null else bundler
