@@ -129,3 +129,11 @@ display_budget_peak: {fx-high: 34, fx-low: 34}   # conservative: fx-high sprites
 #     z 1.7 (r11 calibration puts the opponent eye at z ~2.0-2.2, i.e. >= ~0.8).
 #   Smoke: s1h2-smoke-up (sprite, display core file, assigned to this role) y 0.85 -> 0.4 (rises to 0.75), width 1.0 -> 1.5,
 #     tint '#A0A8A8B0' -> '#80B4B4BC' (fainter, lighter). Display counts and peaks unchanged (fx-high 29 / fx-low 29 conservative).
+# Round 24 (particle-artist, director r23: detached orange streak in the coil): the generator no longer carries any rig keys or
+#   delays. tools/item-art/scripts/rig_path.py reads content/vfx/bastion-s1-rig.yaml + content/skills/bastion-greatsword-s1.yaml
+#   (rig / fx play delays, freezes, dashes) and gives the blade path in each fx frame; bastion_s1_particles.py derives from it:
+#   contacts (fx-high 4, fx-low 4), shed windows by blade speed >= 1 block/tick (fx-high 3-4 and 6-10, fx-low 0-4 and 6-10),
+#   sheds every 0.4 block on the true arc (r 2.3; hit-2 follow-through r 2.0), ring embers on the arc, contact anchors = blade
+#   r 1.5 / 1.2 at contact, follow-through spray on the blade tangent. Same element ids / particle files; display counts unchanged.
+#   After any animator re-key: run bastion_s1_fx.py, then bastion_s1_particles.py. Nothing to change in the skill YAML.
+#   For the director/vfx-artist: the compare coil flick is the ring tile s1h1-ring-q2 frame 0 (fx 0), not a particle.
