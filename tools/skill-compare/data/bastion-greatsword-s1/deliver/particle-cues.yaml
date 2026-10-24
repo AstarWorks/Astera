@@ -119,3 +119,13 @@ display_budget_peak: {fx-high: 34, fx-low: 34}   # conservative: fx-high sprites
 #   Keep-out (planner maths): glints caster eye >= 2.17 (was 1.39-1.49), opponent eye >= 1.41 (hit 1) / 1.29 (hit 2).
 #   Display peaks unchanged: fx-high 29 / fx-low 29 conservative particles (+ core 5 / 9 + rig 22).
 #   DIRECTOR: hit-2 peak fx 5 = rig 22 + core 9 + particles 27 expected (29 conservative) = 58-60; a +4 rig part round exceeds 60.
+# Round 15 (particle-artist, reviewer r11: flat orange 4-point stars under the target in caster f11-14; grey smoke curl at chest
+#   height between the players compare t37-39 / side t38). No 4-point star sprite left in the particle layer:
+#     s1h1-p-motes-up / -r   spark (untinted, spin 0)  2+2 fx 4 / 5  spawn (-1.25, 1.75, 1.75)  size 0.1-0.13  (were glints-up / -r)
+#     s1h2-p-motes-l / -r    spark (untinted, spin 0)  2+2 fx 5      spawn (+-0.9, 0.96, 1.75) custom[+-1, 0.3, 0.15] gravity 0.02
+#   Hit-2 contact sprays raised: spawn y 0.84 -> 0.96 (streaks 0.76 -> 0.91), cones custom[+-1, 0.3, 0] gravity 0.01;
+#     shed-2 floor 0.6 -> 0.9. y_min over every flight (planner maths): hit 1 >= 0.89, hit 2 >= 0.62 (was 0.32-0.47).
+#   Keep-out: hit 1 unchanged (caster >= 1.30, opponent >= 0.95); hit 2 caster >= 1.38, opponent >= 0.59 at the nominal eye
+#     z 1.7 (r11 calibration puts the opponent eye at z ~2.0-2.2, i.e. >= ~0.8).
+#   Smoke: s1h2-smoke-up (sprite, display core file, assigned to this role) y 0.85 -> 0.4 (rises to 0.75), width 1.0 -> 1.5,
+#     tint '#A0A8A8B0' -> '#80B4B4BC' (fainter, lighter). Display counts and peaks unchanged (fx-high 29 / fx-low 29 conservative).

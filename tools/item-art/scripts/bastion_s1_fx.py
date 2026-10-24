@@ -88,6 +88,7 @@ import math
 
 ORANGE = "#FF8A1E"
 SMOKE_TINT = "#A0A8A8B0"
+SMOKE_TINT_LOW = "#80B4B4BC"  # r15: lighter / fainter for the low hit-2 puff
 
 
 def sweep(id_, name, start, end):
@@ -133,11 +134,11 @@ def spark(id_, start, p, theta, length, dist, life=4, color=ORANGE):
         kf(life - 1, pos(1.0), scale=[s256(length * 0.45), 0.012, 1.0], ease="in_quad")], color=color)
 
 
-def smoke_up(id_, start, end, p, w0, w1, roll=0):
+def smoke_up(id_, start, end, p, w0, w1, roll=0, tint=None):
     return sprite(id_, "bastion-s1-smoke", start, end, [
         kf(0, p, [0, 0, roll], [s256(w0), s256(w0), 1.0]),
         kf(end - start, [p[0], p[1] + 0.35, p[2]], [0, 0, roll + 25], [s256(w1), s256(w1), 1.0], ease="out_quad")],
-        frame_ticks=2, color=SMOKE_TINT)
+        frame_ticks=2, color=tint or SMOKE_TINT)
 
 
 def spark3(id_, start, p, d, roll, length, life=4, color=ORANGE):
@@ -241,7 +242,9 @@ def low():
         kf(3, scale=[s256(0.45), s256(0.45), 1.0], ease="out_quad")]))
     # r12 (particle-artist): static orange spark sprites removed (see high()); moving streak particles s1h2-p-streaks-*
     # r12: static chips removed (see high()); dark debris = sliver display particles of the particle layer
-    els.append(smoke_up("s1h2-smoke-up", 6, 13, [0.0, 0.85, 1.1], 1.0, 1.6, roll=180))
+    # r15 (particle-artist, reviewer r11 MINOR: the grey curl floated at chest height between the players, compare t37-39 /
+    # side t38): starts just above the floor (y 0.4, rises to 0.75 = still below the knees-to-waist band), lighter tint.
+    els.append(smoke_up("s1h2-smoke-up", 6, 13, [0.0, 0.4, 1.1], 1.0, 1.5, roll=180, tint=SMOKE_TINT_LOW))
     # r13: the flattened floor smoke (s1h2-smoke, y 0.18) is dropped: it read as a low grey smear on t35-39 (reviewer r9).
     return {"id": "bastion-s1-fx-low", "duration_ticks": 18, "orient": "yaw", "follow": False, "sample_ticks": 1,
             "elements": [e for e, _ in els]}, [m for _, m in els]
