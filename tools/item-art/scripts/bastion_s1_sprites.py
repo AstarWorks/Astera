@@ -905,19 +905,18 @@ def _first_contact(rp):
 
 
 def _reversal_window(name, rp, last):
-    """r25b `track: reversal`: (s, c, r, e) where s (fractional, 1/16 tick) is the last moment before the contact at which the
+    """r25b `track: reversal`: (s, c, r, e) where s (fractional, 1/16 tick) is the strike start (strike_windows), i.e. the moment at which the
     tip's in-plane angle turned into the swing direction (the bottom of a coil; the descent into it runs the other way and is
     NOT trail), and e is the last whole tick on which the follow-through still advances >= 3 deg in the swing direction."""
     sw = SWEEPS[name]
     sgn = sw["sign"]
     c, r = _first_contact(rp)
+    # start = rig_path.strike_windows (last hold / axis turn before the contact: the coil drop is excluded), shared with the
+    # particle layer; then trimmed to where the in-plane angle really advances in the swing direction
+    s = next(w[0] for w in rp.strike_windows() if w[1] == c)
     step = 1.0 / 16.0
-    s, a_hi = float(c), sweep_alpha(name, rp.blade_point(c))
-    while s - step >= 0.0:
-        a = sweep_alpha(name, rp.blade_point(s - step))
-        if sgn * _wrap(a_hi - a) <= 1e-3:  # going back in time the angle must keep receding against the travel
-            break
-        s, a_hi = s - step, a
+    while s + step < c and sgn * _wrap(sweep_alpha(name, rp.blade_point(s + step)) - sweep_alpha(name, rp.blade_point(s))) <= 1e-3:
+        s += step
     e = r
     while e + 1 <= last:
         da = 0.0
