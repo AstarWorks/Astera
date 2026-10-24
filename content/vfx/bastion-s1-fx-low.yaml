@@ -14,9 +14,9 @@ elements:
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [0.15, 1.15, 1.05]
+    translate: [0.15, 0.75, 1.05]
     rotate: [0, 0, 0]
-    scale: [0.3125, 0.1313, 1.0]
+    scale: [0.375, 0.375, 1.0]
 - id: s1h2-ring-q0
   kind: {type: sprite, sprite: bastion-s1-ring-q0, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
