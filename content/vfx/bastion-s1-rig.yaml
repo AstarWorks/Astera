@@ -22,6 +22,10 @@
 # r13 (opponent view at rest showed only the gold hilt): both REST holds yawed 18 deg OUTWARD (world Y, tip phi 180 -> 198, toward the caster's right),
 #   ramped in through the settles so the overshoot stays (hit 1: 217 -> 198, hit 2: 207 -> 198) and out through keys 21 / 40-41. Keys 13-21 and 34-41 changed;
 #   keys 0-1 and 46-52 untouched; max chunk 52 deg. Numbers: evidence/animator/r13/per-key-r13.txt.
+# r14 (director r12 opponent: held edge-on t1 -> rig 25 deg lean + broad face t2): cause = key 2 (the client's FIRST visible rig frame in the front view; keys 0-1
+#   are never seen there), not the rest yaw (keys 0-1 are still the held pose to 0.00 deg / 0.0005 block). Keys 2-3 re-solved, key 4 (extreme) unchanged:
+#   front lean -5.8 -> -16.6 -> -28.4 -> -37.7 (11/12/9 per tick), face opening 35 -> 57 -> 76 -> 68 (turn spread over 2 ticks), chunks 52/58/35 (eases INTO the extreme),
+#   side -> 9.5 / -25 / -61.5. Keys 5+ untouched (contact key 7 = tick 8). Numbers: evidence/animator/r14/per-key-r14.txt.
 # Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt (keys 0-6 and 40-52 changed in r8: evidence/animator/r8/per-key-r8.txt; keys 0-20 in r9: evidence/animator/r9/per-key-r9.txt). r10: keys 2-18 in evidence/animator/r10/per-key-r10.txt. r11: keys 39-52 + 3-axis check vs the held item in evidence/animator/r11/per-key-r11.txt.
 # Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
 # Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
@@ -64,8 +68,8 @@ rigs:
   swing:
   - { t: 0, rotate: [-336.4, -47.8, -59.4] }
   - { t: 1, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 2, rotate: [-285.2, -47.2, -68.5] }
-  - { t: 3, rotate: [-241.4, -18.8, -73.3] }
+  - { t: 2, rotate: [-284.0, -55.3, -58.2] }
+  - { t: 3, rotate: [-243.9, -34.8, -75.9] }
   - { t: 4, rotate: [-227.0, -11.9, -90.7] }
   - { t: 5, rotate: [-261.9, 11.6, -117.6] }
   - { t: 6, rotate: [-306.4, -8.2, -123.7] }
