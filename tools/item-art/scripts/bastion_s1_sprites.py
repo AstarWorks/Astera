@@ -570,10 +570,14 @@ SWEEPS = {
                   # displays on skill 8-10, so the contact frame 3 is what every camera sees until t11. Frame 3 is now the
                   # CLOSED loop (head at the contact angle 93.5, floor 0.7 so the step where the head meets the tail stays small) as in reference b00/b01 (the
                   # ring is already nearly whole at t06-07); frames 0-2 lead the blade slightly so the arc grows with it.
-                  frames=[(240, 200, 0.6, 1.0), (240, 160, 0.85, 1.0), (250, 110, 1.0, 1.0, 0.2), (453.5, 93.5, 1.0, 1.0, 0.7),
-                          (453.5, 93.5, 1.0, 1.0, 0.7), (405.2, 45.2, 1.0, 1.0, 0.6), (356.7, -3.3, 1.0, 1.0, 0.5),
-                          (330, -30, 0.9, 1.0, 0.4), (330, -30, 0.7, 0.95, 0.35), (330, -30, 0.55, 0.9, 0.3),
-                          (330, -30, 0.4, 0.85, 0.3), (330, -30, 0.3, 0.8, 0.3)]),
+                  # r25 (director r23 / particle-artist r24: frame 0 of the hard-coded r13 frame table put a tile sliver at the
+                  # right-back on skill 3, while the r23 blade was still raised in the coil): NO frame table. The frames
+                  # are the blade tip's own trail, read from the rig (`ring_schedule`, rig_path.RigPath): tail = the tip's
+                  # in-plane angle when its fast swing starts, head = the tip's angle on each fx tick, closed once it has
+                  # gone 360 deg; then the `fade` frames. Each tile spawns on the first tick its quarter holds any band.
+                  fx="bastion-s1-fx-high", track_floor=0.6,
+                  fade=[(0.0, 0.9, 1.0, 0.4), (0.0, 0.7, 0.95, 0.35), (0.0, 0.55, 0.9, 0.3), (0.0, 0.4, 0.85, 0.3),
+                        (0.0, 0.3, 0.8, 0.3)]),
     # hit 2 low ring: plane tilted RING_TILT (lowest toward phi 60 = left-front), centre on the pivot axis at the
     # cone-centre height (tip pitch RING_CENTRE_PITCH). alpha 0 ~ forward, +90 ~ left; the blade turns +alpha
     # (left-back -> back -> right -> front). Tip alpha per skill tick (r7, in this plane): 134 (26), 163 (27),
@@ -598,10 +602,12 @@ SWEEPS = {
                  # (tail = head - 360: uniform thickness all round, no head needle / tail taper, see sweep_frame); the fade
                  # frames open the loop again from the tail side.
                  t_max=0.42,
-                 frames=[(158, 210.8, 0.75, 1.0), (158, 265, 0.9, 1.0), (130, 320.7, 1.0, 1.0), (19.1, 379.1, 1.0, 1.0),
-                         (19.1, 379.1, 1.0, 1.0), (19.1, 379.1, 0.85, 0.9), (110, 379.1, 0.72, 0.8),
-                         (200, 379.1, 0.58, 0.68), (270, 379.1, 0.44, 0.54), (320, 379.1, 0.3, 0.4),
-                         (355, 379.1, 0.18, 0.28)]),
+                 # r25: frames from the rig (`ring_schedule`, as hring): the trail of the tip from the start of its fast swing,
+                 # thickening over the first two ticks (`grow`), then `fade` = the tail chasing the head (erase fraction of the
+                 # span, thickness, opacity).
+                 fx="bastion-s1-fx-low", grow=[0.75, 0.9],
+                 fade=[(0.0, 0.85, 0.9), (0.25, 0.72, 0.8), (0.5, 0.58, 0.68), (0.7, 0.44, 0.54), (0.85, 0.3, 0.4),
+                       (0.93, 0.18, 0.28)]),
 }
 
 
@@ -840,28 +846,134 @@ def sweep_frame(size, name, tail, head, tscale, opacity, window=None):
 TILES = [(-1, 1), (1, 1), (-1, -1), (1, -1)]  # tile q = (sa, sb): sign of the e1 / e2 offset of its centre
 
 
+# ---------------------------------------------------------------------------------------------------------
+# r25: plane rings follow the RIG, not a frame table (director r23: hit-1 tile `hring-q2` showed a sliver at the right-back
+# on skill 3, before the blade got there). `ring_schedule(name)` reads the blade path with rig_path.RigPath (the rig and
+# skill YAML: keys, eases, hit-stop clock, play_vfx delays) and returns, per fx tick, the ring state = the trail of the tip:
+#   * window = rp.swing_windows(min_speed=1.0)[0]: start s (end of the slow coil / wind-up), contact c, end e of the
+#     follow-through
+#   * tail = the tip's in-plane angle at s; head = the tip's angle at each tick (unwrapped along the TRUE slerped arc, so a
+#     120 deg one-tick chunk is followed the way the client draws it); span >= 360 -> closed loop (tail = head -+ 360)
+#   * after e: the sweep's `fade` frames (erase fraction of the span from the tail, thickness, opacity[, floor])
+#   * tile q's first band tick f = the first tick its quarter holds band texels. The runtime flipbook (VfxTimeline
+#     flipbookSwaps) shows frame 0 on spawn AND spawn + 1 and frame k on spawn + 1 + k, so a tile spawns at
+#     max(0, f - 2) with a BLANK frame 0 and frame k = the state of tick spawn + 1 + k: its band first shows exactly on f
+#     (one tick late when f < 2), never before. Nothing exists before the tip has passed it, whatever the animator keys.
+#     bastion_s1_fx.py places the tile elements from the same schedule ('spawn').
+# ---------------------------------------------------------------------------------------------------------
+SKILL_ID, RIG_VFX = "bastion-greatsword-s1", "bastion-s1-rig"
+
+
+def sweep_alpha(name, p):
+    """In-plane angle (deg) of a 3D point as the frame painter measures it: atan2(b * aniso, a) about the sweep centre."""
+    sw = SWEEPS[name]
+    rel = np.asarray(p, dtype=float) - sw["centre"]
+    return math.degrees(math.atan2((rel @ sw["e2"]) * sw.get("aniso", 1.0), rel @ sw["e1"]))
+
+
+def _wrap(d):
+    return (d + 180.0) % 360.0 - 180.0
+
+
+_SCHEDULES = {}
+
+
+def ring_schedule(name, probe=48):
+    """Rig-driven frames of a tiled plane ring: dict with 'states' {fx tick: frame args}, 'start' {tile q: spawn fx tick},
+    'last' (last fx tick with a frame), 'window' (s, c, r, e), 'strips' {q: [frame args or None]}, 'frames' (strip length),
+    'off_plane' (max |tip - plane| over the tracked ticks), 'tail'."""
+    if name in _SCHEDULES:
+        return _SCHEDULES[name]
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from rig_path import RigPath
+    sw = SWEEPS[name]
+    rp = RigPath(SKILL_ID, RIG_VFX, fx_vfx=sw["fx"])
+    s, c, r, e = rp.swing_windows(min_speed=1.0)[0]
+    sgn = sw["sign"]
+    tail = sweep_alpha(name, rp.blade_point(s))
+    heads, cur, prev = {s: tail}, tail, tail
+    for t in range(s + 1, e + 1):
+        for i in range(1, 17):  # unwrap along the true arc (fractional ticks)
+            a = sweep_alpha(name, rp.blade_point(t - 1 + i / 16.0))
+            cur += _wrap(a - prev)
+            prev = a
+        heads[t] = cur
+    n = np.cross(sw["e1"], sw["e2"])
+    n = n / np.linalg.norm(n)
+    off = max(abs((np.asarray(rp.blade_point(t)) - sw["centre"]) @ n) for t in range(s, e + 1))
+    ring = "aniso" in sw
+    grow = sw.get("grow", [])
+    states = {}
+    for i, t in enumerate(range(s, e + 1)):
+        span = sgn * (heads[t] - tail)
+        if span <= 0.5:
+            continue  # the tip has not moved forward yet: nothing to draw
+        tl = heads[t] - sgn * 360.0 if span >= 360.0 else tail
+        ts = grow[i - 1] if 0 < i <= len(grow) else 1.0
+        states[t] = (tl, heads[t], ts, 1.0, sw["track_floor"]) if ring else (tl, heads[t], ts, 1.0)
+    last_tl, last_hd = states[e][0], states[e][1]
+    span = sgn * (last_hd - last_tl)
+    for j, f in enumerate(sw.get("fade", [])):
+        erase, ts, op = f[0], f[1], f[2]
+        tl = last_tl + sgn * erase * span
+        states[e + 1 + j] = (tl, last_hd, ts, op, f[3]) if ring else (tl, last_hd, ts, op)
+    last = max(states)
+    fn = ring_frame if ring else sweep_frame
+    nt = sw["tiles"]
+    af = max(sw.get("alpha_floor", 0.0), 0.1)
+    first = {}
+    for qi, (sa, sb) in enumerate(TILES):
+        for t in sorted(states):
+            img = fn(probe, name, *states[t], window=(sa, sb, nt))
+            if (img[..., 3] >= af).sum() >= 4 * SS * SS:  # >= ~4 probe texels of band (a few stray 256 px texels are noise)
+                first[qi] = t
+                break
+    strips = {}
+    spawn = {qi: max(0, t0 - 2) for qi, t0 in first.items()}
+    for qi, s0 in spawn.items():
+        strips[qi] = [None] + [states.get(t) for t in range(s0 + 2, last + 1)]
+    nfr = max(len(v) for v in strips.values())
+    for qi in strips:
+        strips[qi] += [None] * (nfr - len(strips[qi]))
+    out = {"states": states, "start": first, "spawn": spawn, "last": last, "window": (s, c, r, e), "strips": strips, "frames": nfr,
+           "off_plane": off, "tail": tail}
+    _SCHEDULES[name] = out
+    return out
+
+
+def _sync_sprite_frames(prefix, nfr):
+    """Keep content/textures/sources/sprites.yaml `frames:` of the tile sprites equal to the generated strip length."""
+    import re
+    path = os.path.join(ROOT, "content", "textures", "sources", "sprites.yaml")
+    txt = open(path).read()
+    new = re.sub(r"(\n  bastion-s1-%s-b?q\d: \{ from: [^,]+, raw: true, frames: )\d+" % re.escape(prefix),
+                 lambda m: m.group(1) + str(nfr), txt)
+    if new != txt:
+        open(path, "w").write(new)
+        print(f"sprites.yaml: bastion-s1-{prefix}-*q* frames -> {nfr}")
+
+
 def make_sweep(name):
     size = 256
     sw = SWEEPS[name]
-    if sw.get("tiles") and "aniso" in sw:  # r23: hit-1 ring as n x n tiles on BOTH faces: <name>-q<i> + <name>-bq<i>
+    if sw.get("tiles"):  # r25: tiles from the rig schedule (ring_schedule); hit-1 ring on BOTH faces (-q + -bq), hit 2 front only
         n = sw["tiles"]
+        ring = "aniso" in sw
+        fn = ring_frame if ring else sweep_frame
         af = sw.get("alpha_floor", 0.0)
+        sch = ring_schedule(name)
+        print(f"{name}: window {sch['window']}, tail {sch['tail']:.1f}, tile first band {sch['start']}, spawn {sch['spawn']}, last {sch['last']}, "
+              f"frames {sch['frames']}, tip off-plane max {sch['off_plane']:.2f}")
+        empty = np.zeros((size, size, 4), np.uint8)
         for qi, (sa, sb) in enumerate(TILES):
-            frames = [downsample(ring_frame(size, name, *f, window=(sa, sb, n)), size) for f in sw["frames"]]
-            for fr in frames:
+            frames = [downsample(fn(size, name, *st, window=(sa, sb, n)), size) if st else empty.copy()
+                      for st in sch["strips"].get(qi, [None] * sch["frames"])]
+            for fr in frames:  # the client discards text alpha < 0.1; 0.1-0.3 over the sky reads as a grey skirt
                 fr[fr[..., 3] < af * 255] = 0
             save_strip(f"{name}-q{qi}", frames, size)
-            # back face: basis X -> -e1, so the same world patch is the mirrored tile image at the same centre
-            save_strip(f"{name}-bq{qi}", [np.ascontiguousarray(f[:, ::-1]) for f in frames], size)
-        return
-    if SWEEPS[name].get("tiles"):  # r13: front-only tiles <name>-q0..q3 (every camera is on the +Z side of the plane)
-        n = SWEEPS[name]["tiles"]
-        for qi, (sa, sb) in enumerate(TILES):
-            frames = [downsample(sweep_frame(size, name, *f, window=(sa, sb, n)), size) for f in SWEEPS[name]["frames"]]
-            af = SWEEPS[name].get("alpha_floor", 0.0)
-            for fr in frames:  # r14: the client discards text alpha < 0.1; zero it here so frame 0 is clean outside the arc
-                fr[fr[..., 3] < af * 255] = 0
-            save_strip(f"{name}-q{qi}", frames, size)
+            if ring:  # back face: basis X -> -e1, so the same world patch is the mirrored tile image at the same centre
+                save_strip(f"{name}-bq{qi}", [np.ascontiguousarray(f[:, ::-1]) for f in frames], size)
+        _sync_sprite_frames(name, sch["frames"])
         return
     fn = ring_frame if "aniso" in SWEEPS[name] else sweep_frame
     frames = [downsample(fn(size, name, *f), size) for f in SWEEPS[name]["frames"]]

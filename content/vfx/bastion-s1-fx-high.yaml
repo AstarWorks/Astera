@@ -10,8 +10,8 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-hring-q0, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 0
-  end_tick: 13
+  start_tick: 2
+  end_tick: 16
   keyframes:
   - t: 0
     translate: [-1.85, 1.513, 1.455]
@@ -21,8 +21,8 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-hring-q1, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 0
-  end_tick: 13
+  start_tick: 5
+  end_tick: 16
   keyframes:
   - t: 0
     translate: [1.15, 1.513, 1.455]
@@ -32,8 +32,8 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-hring-q2, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 0
-  end_tick: 13
+  start_tick: 2
+  end_tick: 16
   keyframes:
   - t: 0
     translate: [-1.85, 0.787, -1.455]
@@ -43,8 +43,8 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-hring-q3, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 0
-  end_tick: 13
+  start_tick: 6
+  end_tick: 16
   keyframes:
   - t: 0
     translate: [1.15, 0.787, -1.455]
@@ -54,8 +54,8 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-hring-bq0, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 0
-  end_tick: 13
+  start_tick: 2
+  end_tick: 16
   keyframes:
   - t: 0
     translate: [-1.85, 1.513, 1.455]
@@ -65,8 +65,8 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-hring-bq1, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 0
-  end_tick: 13
+  start_tick: 5
+  end_tick: 16
   keyframes:
   - t: 0
     translate: [1.15, 1.513, 1.455]
@@ -76,8 +76,8 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-hring-bq2, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 0
-  end_tick: 13
+  start_tick: 2
+  end_tick: 16
   keyframes:
   - t: 0
     translate: [-1.85, 0.787, -1.455]
@@ -87,8 +87,8 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-hring-bq3, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 0
-  end_tick: 13
+  start_tick: 6
+  end_tick: 16
   keyframes:
   - t: 0
     translate: [1.15, 0.787, -1.455]
@@ -102,18 +102,18 @@ elements:
   end_tick: 11
   keyframes:
   - t: 0
-    translate: [-0.44, 1.58, 1.5]
+    translate: [-0.439, 1.58, 1.5]
     rotate: [0, 0, 6]
     scale: [0.09375, 0.3, 1.0]
   - t: 1
     scale: [0.4688, 0.3, 1.0]
     ease: out_expo
-    translate: [-0.44, 1.58, 1.5]
+    translate: [-0.439, 1.58, 1.5]
     rotate: [0, 0, 6]
   - t: 6
     scale: [0.3594, 0.03, 1.0]
     ease: in_quad
-    translate: [-0.44, 1.58, 1.5]
+    translate: [-0.439, 1.58, 1.5]
     rotate: [0, 0, 6]
 - id: s1h1-flash
   kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true}
@@ -123,18 +123,18 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [-0.44, 1.54, 1.59]
+    translate: [-0.439, 1.54, 1.59]
     rotate: [0, 0, 0]
     scale: [0.02344, 0.02344, 1.0]
   - t: 1
     scale: [0.1719, 0.1719, 1.0]
     ease: out_back
-    translate: [-0.44, 1.54, 1.59]
+    translate: [-0.439, 1.54, 1.59]
     rotate: [0, 0, 0]
   - t: 3
     scale: [0.07812, 0.07812, 1.0]
     ease: out_quad
-    translate: [-0.44, 1.54, 1.59]
+    translate: [-0.439, 1.54, 1.59]
     rotate: [0, 0, 0]
 # --- particle layer (tools/item-art/scripts/bastion_s1_particles.py): do not edit by hand ---
 - id: s1h1-p-shed
