@@ -357,6 +357,7 @@ public class VfxPlayer(
             brightness = e.brightness,
             glowArgb = e.glowArgb,
             viewRange = if (instance.staged && instance.age == 0) 0f else e.viewRange,
+            weaponRigShading = e.weaponRigShading,
         )
         val lines = when (val k = e.kind) {
             is VfxElementKind.Text -> listOf(k.text)

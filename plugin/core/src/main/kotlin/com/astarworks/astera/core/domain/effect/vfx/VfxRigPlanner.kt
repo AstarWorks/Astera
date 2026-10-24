@@ -248,6 +248,8 @@ public object VfxRigPlanner {
             initial = at(m.rotationAt(0.0)),
             updates = updates,
             particles = emptyList(),
+            // A part with its own brightness is an effect prop; every other part is the held weapon (ADR-0253).
+            weaponRigShading = part.brightness == null,
         )
     }
 
