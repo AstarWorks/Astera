@@ -14,10 +14,12 @@ sources:
   bastion-s1-smoke: { file: images/bastion-s1-smoke.png }
   bastion-s1-glint: { file: images/bastion-s1-glint.png }
   bastion-s1-sliver: { file: images/bastion-s1-sliver.png }
-  bastion-s1-ring: { file: images/bastion-s1-ring.png }
+  bastion-s1-ring-q0: { file: images/bastion-s1-ring-q0.png }
+  bastion-s1-ring-q1: { file: images/bastion-s1-ring-q1.png }
+  bastion-s1-ring-q2: { file: images/bastion-s1-ring-q2.png }
+  bastion-s1-ring-q3: { file: images/bastion-s1-ring-q3.png }
   bastion-s1-hring: { file: images/bastion-s1-hring.png }
   bastion-s1-hring-b: { file: images/bastion-s1-hring-b.png }
-  bastion-s1-ring-b: { file: images/bastion-s1-ring-b.png }
   bastion-s1-spark: { file: images/bastion-s1-spark.png }
 
 sprites:
@@ -59,8 +61,10 @@ sprites:
   bastion-s1-smoke: { from: bastion-s1-smoke, raw: true, frames: 4, size: 256 }
   bastion-s1-glint: { from: bastion-s1-glint, raw: true, frames: 2, size: 128 }
   bastion-s1-sliver: { from: bastion-s1-sliver, raw: true, frames: 3, size: 128 }
-  bastion-s1-ring: { from: bastion-s1-ring, raw: true, frames: 11, size: 256 }
-  bastion-s1-ring-b: { from: bastion-s1-ring-b, raw: true, frames: 11, size: 256 }
+  bastion-s1-ring-q0: { from: bastion-s1-ring-q0, raw: true, frames: 11, size: 256 }
+  bastion-s1-ring-q1: { from: bastion-s1-ring-q1, raw: true, frames: 11, size: 256 }
+  bastion-s1-ring-q2: { from: bastion-s1-ring-q2, raw: true, frames: 11, size: 256 }
+  bastion-s1-ring-q3: { from: bastion-s1-ring-q3, raw: true, frames: 11, size: 256 }
   bastion-s1-hring: { from: bastion-s1-hring, raw: true, frames: 12, size: 256 }
   bastion-s1-hring-b: { from: bastion-s1-hring-b, raw: true, frames: 12, size: 256 }
   bastion-s1-spark: { from: bastion-s1-spark, raw: true, frames: 4, size: 64 }
