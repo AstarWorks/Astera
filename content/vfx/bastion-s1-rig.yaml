@@ -66,12 +66,12 @@ rigs:
   tilt: [0, 0, -20]
   respect_hit_stop: true
   parts:
-  - { id: blade_face, block: iron_block, offset: [0.0, 1.31625, 0.0], size: [0.16875, 1.7575, 0.05] }
+  - { id: blade_face, block: iron_block, offset: [0.0, 1.38125, 0.0], size: [0.16875, 1.8875, 0.05] }
   - { id: edges, block: smooth_quartz, offset: [0.0, 1.31625, 0.0], size: [0.2125, 1.7575, 0.0425] }
   - { id: rims, block: polished_blackstone, offset: [0.0, 1.31625, 0.0], size: [0.24, 1.7575, 0.03] }
   - { id: fuller, block: polished_deepslate, offset: [0.0, 1.4375, 0.0], size: [0.0275, 1.425, 0.06625] }
-  - { id: tip_1, block: iron_block, offset: [0.0, 2.2725, 0.0], size: [0.175, 0.155, 0.05] }
-  - { id: tip_2, block: polished_blackstone, offset: [0.0, 2.4475, 0.0], size: [0.075, 0.195, 0.03] }
+  - { id: tip_1, block: polished_blackstone, offset: [0.0, 2.265, 0.0], size: [0.2, 0.14, 0.03] }
+  - { id: tip_2, block: polished_blackstone, offset: [0.0, 2.44, 0.0], size: [0.08, 0.21, 0.03] }
   - { id: inlay, block: lime_concrete, offset: [0.0, 0.6, 0.0], size: [0.09, 0.2, 0.07] }
   - { id: inlay_frame, block: gold_block, offset: [0.0, 0.6, 0.0], size: [0.1125, 0.225, 0.0625] }
   - { id: ricasso, block: polished_blackstone, offset: [0.0, 0.40187, 0.0], size: [0.24, 0.07125, 0.065] }

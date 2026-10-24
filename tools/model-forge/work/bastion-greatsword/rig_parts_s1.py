@@ -7,9 +7,12 @@ Round r11 (director r10: end overlap showed two swords; rig guard = plain yellow
   * every face-detail part goes through the blade (z > core), so BOTH faces show the fuller / inlay;
   * nested parts differ by >= 0.006 block per side (no z-fight at distance).
 Usage: rig_parts_s1.py  (writes the yaml; prints the table)"""
+import json
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 OUT = ROOT/'tools/skill-compare/data/bastion-greatsword-s1/deliver/rig-parts.yaml'
+RIG = ROOT/'content/vfx/bastion-s1-rig.yaml'
+HELD = ROOT/'content/models/items/bastion-greatsword.model.json'
 G = (8.0, -10.0, 8.0)
 
 def box(pid, block, x, y, z, note):
@@ -25,15 +28,19 @@ def xc(w):
     return (8-w/2, 8+w/2)
 
 BLADE_Y = (-3.0, 25.12)
+TIP_Y = 27.36  # held tip1 / tip2 step
 P = [
     # blade (core z 0.8 units = 0.05 block)
-    box('blade_face', 'iron_block',          xc(2.7),   BLADE_Y, zc(0.8),  'held blade_core'),
+    # r22: the core runs on into the tip (held tip0/tip1 cores are the same 0.8-deep iron), so the tip needs no iron part of its own;
+    # it stops 0.16 below tip_1's top so no iron top face is coplanar with the rim top (z-fight) and no iron side face is ever outermost.
+    box('blade_face', 'iron_block',          xc(2.7),   (BLADE_Y[0], TIP_Y - 0.16), zc(0.8),  'held blade_core + tip0_core/tip1_core'),
     box('edges',      'smooth_quartz',       xc(3.4),   BLADE_Y, zc(0.68), 'held bevel_hi_l/r (middle inside the core)'),
     box('rims',       'polished_blackstone', xc(3.84),  BLADE_Y, zc(0.48), 'held bevel_rim_l/r (middle inside the edges)'),
     box('fuller',     'polished_deepslate',  xc(0.44),  (1.6, 24.4), zc(1.06), 'held fuller_ridge/start/end_f/b (both faces; hi strips + pinstripes cut for the 22-part cap)'),
-    # tip (5 held steps -> 2)
-    box('tip_1', 'iron_block',          xc(2.8),  (25.12, 27.6), zc(0.8),  'held tip0 + tip1 + tip2 (mean rimmed width)'),
-    box('tip_2', 'polished_blackstone', xc(1.2),  (27.6, 30.72), zc(0.48), 'held tip3 + tip_point'),
+    # tip (5 held steps -> 2). r22 (director r20: the old tip_1 was a 0.05-deep IRON box, so edge-on its light side face stood out past
+    # the 0.03 dark rims as a second object). Now the held profile: dark 0.48 rim outermost (flush with `rims`), 0.8 iron core inside it.
+    box('tip_1', 'polished_blackstone', xc(3.2),  (BLADE_Y[1], TIP_Y), zc(0.48), 'held tip0/tip1 rims (frame round the blade_face core; middle inside the core)'),
+    box('tip_2', 'polished_blackstone', xc(1.28), (TIP_Y, 30.72), zc(0.48),     'held tip2 + tip3 + tip_point (mean outer width)'),
     # inlay window (through: both faces)
     box('inlay',       'lime_concrete', xc(1.44), (-2.0, 1.2), zc(1.12), 'held inlay_f/b'),
     box('inlay_frame', 'gold_block',    xc(1.8),  (-2.2, 1.4), zc(1.0),  'held inlay_frame_*'),
@@ -59,7 +66,7 @@ P = [
 def main():
     blocks = sorted({p['block'] for p in P})
     hdr = [
-        '# bastion-greatsword rig parts (sword local frame), delivered by model-artist r11 (generator: tools/model-forge/work/bastion-greatsword/rig_parts_s1.py).',
+        '# bastion-greatsword rig parts (sword local frame), delivered by model-artist r22 (generator: tools/model-forge/work/bastion-greatsword/rig_parts_s1.py).',
         f'# {len(P)} parts, {len(blocks)} distinct blocks: {", ".join(blocks)}.',
         '# AXES (rig-local, pivot = grip centre = origin = held model point (8,-10,8)):',
         '#   blade LENGTH axis  = +Y (grip -> tip). pommel end y=-0.225, tip y=2.545; total 2.770 block.',
@@ -75,7 +82,58 @@ def main():
         hdr.append(f"#  {p['id']:12s} {p['block']:20s} {p['size']} {p['offset']}  {p['note']}")
     body = ['parts:'] + [f"  - {{ id: {p['id']}, block: {p['block']}, offset: {p['offset']}, size: {p['size']} }}" for p in P]
     OUT.write_text('\n'.join(hdr+body)+'\n')
+    write_rig(body[1:])
     print('\n'.join(hdr[1:2]+body))
+    profile_check()
+
+def write_rig(lines):
+    """Replace ONLY the part lines of the sword rig in content/vfx (swing keys / header belong to the animator)."""
+    src = RIG.read_text().split('\n')
+    i = src.index('  parts:') + 1
+    j = i
+    while src[j].startswith('  - { id:'):
+        j += 1
+    RIG.write_text('\n'.join(src[:i] + lines + src[j:]))
+
+# held texture -> rig block (same vanilla texture)
+TEX = {'0': 'iron_block', 'material_quartz_block_bottom': 'smooth_quartz', 'material_black_wool': 'dried_kelp_block',
+       'material_dried_kelp_side': 'dried_kelp_block', 'material_dried_kelp_top': 'dried_kelp_block'}
+
+def profile_check():
+    """Edge-on read check: per 0.04-unit slice along the blade, the OUTERMOST box in +X (what an edge-on viewer sees first)
+    in the held model vs the rig: its material and its depth (z). Prints every run where they differ."""
+    held = []
+    for e in json.loads(HELD.read_text())['elements']:
+        if e.get('rotation'):
+            continue  # flares / crests: rotated detail, compared by eye
+        t = next(iter(e['faces'].values()))['texture'].lstrip('#')
+        held.append((e['from'], e['to'], TEX.get(t, t.replace('material_', '')), e['name']))
+    rig = []
+    for p in P:
+        lo = [G[k] + 16*(p['offset'][k] - p['size'][k]/2) for k in range(3)]
+        hi = [G[k] + 16*(p['offset'][k] + p['size'][k]/2) for k in range(3)]
+        rig.append((lo, hi, p['block'], p['id']))
+    def outer(boxes, y):
+        hit = [b for b in boxes if b[0][1] <= y < b[1][1] and b[1][0] > 8]
+        if not hit:
+            return None
+        xmax = max(b[1][0] for b in hit)
+        top = [b for b in hit if b[1][0] >= xmax - 1e-6]
+        b = max(top, key=lambda b: b[1][2] - b[0][2])
+        return round(xmax - 8, 2), round(b[1][2] - b[0][2], 2), b[2], b[3]
+    runs, prev = [], None
+    y = -13.58
+    while y < 30.72:
+        h, r = outer(held, y), outer(rig, y)
+        bad = h and r and (h[2] != r[2] or abs(h[1] - r[1]) > 0.12 or abs(h[0] - r[0]) > 0.3)
+        key = (bad, h and h[3], r and r[3])
+        if key != prev:
+            runs.append([round(y, 2), h, r, bad])
+            prev = key
+        y += 0.04
+    print('\nedge-on outermost (+X) check: y_from | held (half-width, depth, block, element) | rig (...) | MISMATCH')
+    for y0, h, r, bad in runs:
+        print(f"  {y0:7.2f}  {h}  {r}  {'MISMATCH' if bad else ''}")
 
 if __name__ == '__main__':
     main()
