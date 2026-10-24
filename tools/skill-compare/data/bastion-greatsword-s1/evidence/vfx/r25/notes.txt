@@ -1,0 +1,19 @@
+# vfx-artist r25 (hit-1 ring refit). Content commit 58087ace (codeDirty/contentDirty false), wp/integrate-limbus 444fef55 merged,
+# regen chain (tools/item-art/scripts/bastion_s1_regen.sh) re-run after the merge (idempotent: no content diff).
+# Ticks = cast tick (compare frame = tick + 6).
+
+Generator (hring): window (2.0, 4, 6, 12) = strike start at the coil bottom (rig key 4) .. follow-through stop (fx 12);
+  least-squares plane tilt 21.2 deg, centre (-0.35, 0.96, 0), e1 (0.944, 0, -0.331) (yawed 19 deg);
+  tip off-plane max 0.22 (r24: 1.20); all four tiles placed (first band q0 fx4, q1 fx7, q2 fx3, q3 fx9); loop closes at fx 12
+  (skill 15) from the blade's own sweep (362 deg), no visual closure needed; fade fx 13-17, tiles end fx 18 (< 20).
+  hit-2 ring unchanged (speed window, byte-identical sprites).
+hring-schedule.png: per fx tick top / side / front projections of the ring band (gold) vs the tip path (blue) and the blade
+  (white, red = tip): the head is on the tip every tick, nothing ahead of it; closed loop fx 12-17.
+
+Captures (tries): compare 2 (1st maxRepeatedFrames 5), opponent 4 (1 maxRepeatedFrames 6, 2 'You were defeated').
+compare (cmp-t4-18): no ring t4-8 (coil); t9-12 the arc trails from the coil side into the blade; t13-14 head at the blade
+  behind the caster; t15-18 one closed tilted ellipse around the caster's body with the blade inside it.
+opponent (opp-t4-18): no ring t4-6; t7-9 arc behind the blade; t10 head at the blade; t11 loop nearly closed; t12-18 closed
+  ellipse around the body at chest height, near (front) arc a hairline across the caster (fp_thin), as r9-r23.
+Ring height: front y ~1.6 (head), back y ~0.25 (follows the tip, which runs at y 0.13-0.24 behind the caster).
+Display peak: not RCON-polled this round; +2 hring tiles vs r24 (8 instead of 6) -> ~44-45 expected (r24 measured 41-43).
