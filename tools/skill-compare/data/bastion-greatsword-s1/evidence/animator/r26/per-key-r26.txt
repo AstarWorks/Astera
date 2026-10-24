@@ -65,3 +65,12 @@ key tick  tip(phi,pitch)  chunk | front lean @2.4/3.2/4.0 (step) | face@3.2 (ste
  52   57 (    0, 52.0)   0.0 |   10.6( +0.0)    6.8( +0.0)    5.0( +0.0) |   9.3( +0.0) |  -37.5(  +0.0) |   39.3(  +0.0) |  4.2/ 4.2  [-1056.4, -47.8, -239.4]
 worst weighted k->k+2 front step: (15.7, 48, 50)
 max chunk 39-52: 41.7
+
+== Real-client captures (commit 6808d3c7 = r26 keys + merged rig parts 2eaa122b; one at a time; t = cast tick)
+compare 20 fps (compare-*.jpg, maxRepeatedFrames 1, camera lateness 66 ms): t0-4 forward diagonal (held / keys 0-2), t5 blade low and horizontal behind,
+  t6 low-back + ring head, t7 contact close cut. No upright frame (r25 f10 showed the vertical mid-chunk). Recovery: low-back t44-49, small rise t50,
+  lift t51-52 (back-lean, edge-on), forward t53, held angle t54-58, held item t58 with no pop.
+opponent 20 fps take A (opponent-a-*, valid): t0-3 vertical, t4 ~45 deg, t5-6 low-left (client ~1.5 keys late at the reveal: keys 1-2 skipped, step ~42).
+  End: low t44-49, rise t50-52 (3 -> 22 deg), 25/20/10/5/5 t53-57, held t58: steps <= 20, one blade every frame.
+opponent take B (opponent-b-t0-8.jpg; whole clip invalid: maxRepeatedFrames 5 later, early frames moving): t1 3, t2 ~15, t3 ~35, t4 ~55, t5 ~70, t6 low-left:
+  every step <= ~20 when the client draws keys on time. The take-A pop is the known reveal stall (learning 124), not the keys.
