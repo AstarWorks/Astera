@@ -16,7 +16,10 @@ case_path, directory = map(Path, sys.argv[1:3])
 case = json.loads(case_path.read_text()) if str(case_path) != "-" else {}
 path = directory / "meta.json"
 meta = json.loads(path.read_text())
-meta.update({key: case[key] for key in ("referenceRevision", "contentRevision") if key in case})
+# The case's own revisions are the keys skill-compare matches on; they say nothing about what was filmed.
+meta.update({key: case[key] for key in ("referenceRevision",) if key in case})
+if "contentRevision" in case:
+    meta["caseContentRevision"] = case["contentRevision"]
 frames = sorted(directory.glob("frame_*.png"))
 longest = run = 0
 previous = None
@@ -67,7 +70,32 @@ if session_problem:
 if frames:
     meta["capturedAt"] = datetime.datetime.fromtimestamp(frames[-1].stat().st_mtime, datetime.timezone.utc).isoformat()
 root = Path(__file__).resolve().parents[2]
-meta["implementationCommit"] = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+
+
+def git(*args):
+    return subprocess.check_output(["git", *args], cwd=root, text=True).strip()
+
+
+def dirty_digest(pathspec):
+    """sha256 over the uncommitted state (modified, deleted, untracked) under pathspec."""
+    names = sorted({n for n in git("ls-files", "-m", "-d", "-o", "--exclude-standard", "-z", "--", pathspec).split("\0") if n})
+    digest = hashlib.sha256()
+    for name in names:
+        file = root / name
+        digest.update(name.encode() + b"\0")
+        digest.update(file.read_bytes() if file.is_file() else b"<deleted>")
+    return digest.hexdigest()[:12], bool(names)
+
+
+head = git("rev-parse", "HEAD")
+meta["implementationCommit"] = head
+meta["codeRevision"] = head
+# contentRevision fingerprints what was actually filmed: the git tree of content/ plus a digest of any
+# uncommitted change under it. codeRevision is HEAD; codeDirty marks uncommitted changes outside content/.
+content_digest, content_dirty = dirty_digest("content")
+meta["contentRevision"] = git("rev-parse", "HEAD:content") + ("+dirty-" + content_digest if content_dirty else "")
+meta["contentDirty"] = content_dirty
+meta["codeDirty"] = bool(git("status", "--porcelain", "--", ".", ":(exclude)content"))
 if len(sys.argv) > 3 and Path(sys.argv[3]).is_file():
     meta["cameraRevision"] = hashlib.sha256(Path(sys.argv[3]).read_bytes()).hexdigest()
 try:

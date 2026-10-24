@@ -55,7 +55,7 @@ export function makeHandler(opts = {}) {
           const { revision, extension, meta } = readJson(pointer);
           if (!/^[a-f0-9]{64}$/.test(revision) || meta.captureQuality?.invalid ||
               (referenceRevision && meta.referenceRevision !== referenceRevision) ||
-              (contentRevision && meta.contentRevision !== contentRevision)) continue;
+              (contentRevision && meta.caseContentRevision !== contentRevision)) continue;
           info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`,
             count: meta.frames, castFrame: Math.round((meta.cast_tick_ms ?? 0) / 50), extension, revision, prov: { ...provOf(meta), published: true } };
         } catch { /* Never fall back to a partially overwritten source after publication. */ }
@@ -65,7 +65,7 @@ export function makeHandler(opts = {}) {
       const d = base && join(base, skill, view);
       if (base) {
         if (referenceRevision) {
-          try { const m = readJson(join(d, "meta.json")); if (m.captureQuality?.invalid || m.referenceRevision !== referenceRevision || (contentRevision && m.contentRevision !== contentRevision)) continue; } catch { continue; }
+          try { const m = readJson(join(d, "meta.json")); if (m.captureQuality?.invalid || m.referenceRevision !== referenceRevision || (contentRevision && m.caseContentRevision !== contentRevision)) continue; } catch { continue; }
         }
         const n = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).length;
         const webpReady = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).every((f) => existsSync(join(d, f.replace(/\.png$/, ".webp"))));

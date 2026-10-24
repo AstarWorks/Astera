@@ -54,7 +54,17 @@ clock). The client FOV option is the first key's fov; other keys' fov is emulate
 which skill-compare reads (source `vfx-compare`, the default) to align the frames with the case's skill start.
 
 Every view writes `meta.json` (`view`, `skill`, `frames`, `fov`, `fovMode` = `fixed` | `intent-first-key` | `override-dolly` | `override-nodolly`, `resolution`,
-`capturedAt`, `branch`, `implementationCommit`); skill-compare shows it as the provenance badge and `make skill-brief` copies it into its manifest.
+`capturedAt`, `branch`, `implementationCommit`, plus the revision fields below); skill-compare shows it as the provenance badge and `make skill-brief` copies it into its manifest.
+
+| revision field | meaning |
+|---|---|
+| `contentRevision` | fingerprint of what was filmed: `git rev-parse HEAD:content` (tree hash of `content/`), plus `+dirty-<12 hex>` (sha256 over every modified / deleted / untracked file under `content/`) when the tree is not clean |
+| `contentDirty` | `content/` had uncommitted changes at capture time (the fingerprint then only reproduces from that working tree) |
+| `codeRevision` | `git rev-parse HEAD` of the checkout that built the server (same value as `implementationCommit`) |
+| `codeDirty` | uncommitted changes outside `content/` at capture time |
+| `referenceRevision`, `caseContentRevision` | copied from the skill-compare `case.json` (compare view only); skill-compare matches captures to cases on these, never on `contentRevision` |
+
+Equal `contentRevision` + `codeRevision` (neither dirty) means identical content and code were filmed.
 
 ## How it works
 
