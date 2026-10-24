@@ -274,3 +274,18 @@ LOW
 - Fix: same lift path re-timed (quaternion slerp of the r10 path at u = 39 + (j-39)*11/7): keys 40-46 = REST -> right side -> wiper; held pose reached at key 46 (tick 51) and held through key 52 (tick 57), 6 ticks. Chunks 15.0 / 35.6 / 48.4 / 39.6 / 28.2 / 41.1 / 21.5 (max 48 <= 60). Front lean per key 40-46: 129 / 22 / -6 / -28 / -35 / -16 / 0. First-person coverage stays <= 5.9% (0% through key 44, half-ticks included).
 - Keys 0-1 unchanged (0.0 / 0.0 / 0.0 vs held).
 - Preview (opened): `evidence/animator/r11/strip-end-front.png`, `strip-end-side.png` (`vfx-preview --view front|side --freeze 8:2 --freeze 31:2`, ticks 42-57 then 0-3): front upright from t51 to t57 and identical at t0-2; side steady forward-up from t50. Real client not run (by instruction). Numbers: `evidence/animator/r11/per-key-r11.txt`; opponent crop `opp-r8-f44-59.jpg`.
+
+## Round 14 (director r12 real client: front-view pose pop t1 -> t2 at the start, ~7 px tip offset in the end overlap)
+- Diagnosis checked against the code, not taken from the brief: keys 0-1 are still the held pose (handover_s1.py chain vs the shipped thirdperson_righthand: 0.00 deg in all three axes, grip offset 0.0005 block); the 18 deg rest yaw (r13) only touches keys 13-21 and 34-41. The pop is key 2: in the opponent capture t2 and t3 both show key 2's pose (front lean -25, broad face 69 deg open), t4 key 3/4. The front view never shows keys 0-1 of the rig: its first visible rig frame is already key 2, so held (t1) -> key 2 (t2) was a 19.5 deg lean + 34 deg face turn in one frame.
+- Fix: keys 2-3 re-solved as slerp(held, extreme key 4, u) re-aimed at a tip target, scanned on (u, phi, pitch) for front lean steps, face-opening steps (angle of the edge axis to the view ray, 0 = edge-on, 90 = broad face), chunks <= 60 and FP coverage. Picked k2 = (u 0.40, phi 300, pitch 74), k3 = (u 0.78, phi 234, pitch 52). Key 4 (extreme) and keys 5+ unchanged; contact key 7 = tick 8.
+
+| key | tick | tip phi/pitch | chunk | front lean (d) | face open (d) | side (d) | FP% / half |
+|---|---|---|---|---|---|---|---|
+| 0-1 | 1-2 | 0 / 52 (held) | 0 | -5.8 | 35.1 | 38.4 | 5.9 |
+| 2 | 3 | 300 / 74 | 52.0 | -16.6 (-10.7) | 56.7 (+21.7) | 9.5 (-28.9) | 1.4 / 7.4 |
+| 3 | 4 | 234 / 52 | 57.7 | -28.4 (-11.8) | 75.5 (+18.8) | -25.2 (-34.7) | 0 / 0 |
+| 4 | 5 | 222 / 26 extreme | 34.9 | -37.7 (-9.3) | 67.6 (-7.9) | -61.5 (-36.3) | 0 / 0 |
+| 5 | 6 | 262 / 8 (sweep) | 49.4 | -79.0 | 53.9 | -92.7 | 0 |
+(r13: key 2 = -25.3 (-19.5) / 69.2 (+34.1), key 3 -41.7 / 80.5, chunks 58/54/26.) Front lean steps 11/12/9 (<= 15), face turn spread over 2 ticks (+22/+19, was +34 in one), chunks 52/58/35 = deceleration into the extreme (ease-out), the extreme reads behind the shoulder in the side view at -61.5 (unchanged). If the client skips one key the worst front jump is ~22 deg (k1 -> k3).
+- End overlap: keys 46-52 = held 0.00 deg / 0.0005 block (unchanged). The r12 opponent crop measures the t56 rig blade ~6.8 deg and the t58 held blade ~5.3 deg from screen vertical, and the t57 double tip ~25 px apart over a ~530 px blade at 2x (~2.7 deg): inside the bobArms envelope (worst 3.7 deg, phase = per-viewer client age). No key change can remove it; not changed.
+- Preview (planner accepted, opened): `vfx-preview bastion-s1-rig --view front|side --freeze 8:2 --freeze 31:2` -> `evidence/animator/r14/strip-front.png` (t0-2 held vertical, t3 ~15 deg, t4 ~30, t5 ~40 extreme, t6+ sweep; t50-57 held upright), `strip-side.png` (t0-2 held, t3 near vertical, t4 behind, t5 extreme behind the shoulder, t8 contact; t50-57 held). Per-key: `evidence/animator/r14/per-key-r14.txt`. Real client not run (by instruction).
