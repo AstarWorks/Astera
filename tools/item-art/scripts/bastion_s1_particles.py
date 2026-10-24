@@ -59,7 +59,8 @@ def defs():
          "electric_spark", 1, 3, color=(255, 240, 190), velocity="{ direction: along_tangent, speed: 1.6, spread_degrees: 25 }")
 
 
-GLINT_TINT, SLIVER_TINT = "'#FFC850'", "'#FF2A2218'"
+GLINT_TINT = "'#FFC850'"
+SLIVER_TINT = None  # r12: the sliver sprite is painted dark brown at alpha 0.8; the old '#FF2A2218' tint turned it black
 
 
 def emitter(eid, sprite, tint, start, p, n, rate, speed, direction, spread, gravity, drag, life, size, sol, spin):
@@ -67,7 +68,7 @@ def emitter(eid, sprite, tint, start, p, n, rate, speed, direction, spread, grav
     keys = ", ".join("{ t: %s, v: %s%s }" % (t, v, ", ease: " + e if e else "") for t, v, e in sol)
     return "\n".join([
         "- id: " + eid,
-        "  kind: {type: sprite, sprite: %s, frame_ticks: 1, loop: false, see_through: true, color: %s}" % (sprite, tint),
+        "  kind: {type: sprite, sprite: %s, frame_ticks: 1, loop: false, see_through: true%s}" % (sprite, ", color: " + tint if tint else ""),
         "  billboard: center",
         "  brightness: 15",
         "  start_tick: %d" % start,
@@ -316,8 +317,11 @@ def hit1():
                          0.03, 0.12, (3, 5), (0.09, 0.13), GLINT_SOL, 25))
     f.els.append(emitter("s1h1-p-glints-r", "bastion-s1-glint", GLINT_TINT, 4, s, 4, 2, (0.24, 0.34), "custom[-1, 1.1, -0.3]", 30,
                          0.03, 0.12, (3, 5), (0.09, 0.13), GLINT_SOL, -25))
-    f.els.append(emitter("s1h1-p-slivers", "bastion-s1-sliver", SLIVER_TINT, 4, off(s, 0, 0, -0.1), 5, 3, (0.2, 0.28),
-                         "custom[0, 1, -0.8]", 50, 0.03, 0.08, (4, 6), (0.08, 0.12), SLIVER_SOL, 40))
+    # r12 (real client r8: black "X" shuriken marks, huge in caster FP t10-12): the slivers flew BACK toward the caster
+    # (custom z -0.8) and spun 40 deg/tick. Now dark-brown needles, no spin, half the size (0.13-0.19 blocks long), thrown
+    # sideways to the caster's right (-x, away from both eye columns) and up, never back toward the caster.
+    f.els.append(emitter("s1h1-p-slivers", "bastion-s1-sliver", SLIVER_TINT, 4, off(s, 0, 0, -0.1), 5, 3, (0.18, 0.26),
+                         "custom[-1, 0.8, 0.1]", 40, 0.03, 0.08, (4, 6), (0.04, 0.06), SLIVER_SOL, 0))
     # r11: glints shed off the blade on the sweep, where the smear head passes: front-right at skill 7 (fx 3) and front-left at
     # skill 11 (fx 7), flung outward (away from the ring centre) and up; 3 each, staggered over 2 ticks
     for eid, tick, al_t, dirn in (("s1h1-p-shed-r", 3, 7, "custom[-1, 0.6, 0.6]"), ("s1h1-p-shed-l", 7, 11, "custom[1, 0.6, 0.4]")):
@@ -342,10 +346,10 @@ def hit2():
                          0.03, 0.12, (3, 5), (0.1, 0.14), GLINT_SOL, 25))
     f.els.append(emitter("s1h2-p-glints-r", "bastion-s1-glint", GLINT_TINT, 4, s, 5, 3, (0.26, 0.36), "custom[-1, 1, 0.1]", 30,
                          0.03, 0.12, (3, 5), (0.1, 0.14), GLINT_SOL, -25))
-    f.els.append(emitter("s1h2-p-slivers-l", "bastion-s1-sliver", SLIVER_TINT, 4, s, 3, 2, (0.2, 0.28), "custom[0.9, 1, -0.1]", 35,
-                         0.03, 0.08, (4, 6), (0.08, 0.12), SLIVER_SOL, 40))
-    f.els.append(emitter("s1h2-p-slivers-r", "bastion-s1-sliver", SLIVER_TINT, 4, s, 3, 2, (0.2, 0.28), "custom[-0.9, 1, -0.1]", 35,
-                         0.03, 0.08, (4, 6), (0.08, 0.12), SLIVER_SOL, -40))
+    f.els.append(emitter("s1h2-p-slivers-l", "bastion-s1-sliver", SLIVER_TINT, 4, s, 3, 2, (0.2, 0.28), "custom[0.9, 1, 0.1]", 35,
+                         0.03, 0.08, (4, 6), (0.04, 0.06), SLIVER_SOL, 0))
+    f.els.append(emitter("s1h2-p-slivers-r", "bastion-s1-sliver", SLIVER_TINT, 4, s, 3, 2, (0.2, 0.28), "custom[-0.9, 1, 0.1]", 35,
+                         0.03, 0.08, (4, 6), (0.04, 0.06), SLIVER_SOL, 0))
     return f
 
 
