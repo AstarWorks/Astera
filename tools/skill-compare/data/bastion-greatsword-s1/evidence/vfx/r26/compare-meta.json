@@ -1,0 +1,28 @@
+{
+  "view": "compare",
+  "case": "bastion-greatsword-s1",
+  "camera": "case",
+  "skill": "bastion-greatsword-s1",
+  "fps": 20,
+  "cast_tick_ms": 300,
+  "frames": 79,
+  "fov": 45.0,
+  "fovMode": "intent-first-key",
+  "resolution": "1280x720",
+  "referenceRevision": "9a9b8b2062d3b702777cdc0b7abe0fe9c2c5987e676d581d992ca3640125bb5e",
+  "caseContentRevision": "065058aa6fee8b39a0d31d59aca98e4012cf8023a457b8aef074866deb8f20c6",
+  "captureQuality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 33.0,
+    "viewerMovedBlocks": 0.6
+  },
+  "capturedAt": "2026-10-24T14:35:44.143678+00:00",
+  "implementationCommit": "8ba00b4c84852834dec665242fa7727dfae64d9a",
+  "codeRevision": "8ba00b4c84852834dec665242fa7727dfae64d9a",
+  "contentRevision": "2f7ab9dfa4539ad222c036cc8686c924c058c9b0",
+  "contentDirty": false,
+  "codeDirty": false,
+  "cameraRevision": "7be1b3f0189ceabe7cbed0c4e96549a42bca729d8d73b79effb3298dc3125651",
+  "branch": "worktree-agent-af9f52fe8be86917c"
+}
