@@ -121,6 +121,25 @@ def sweep_tiles(id_, name, start, end):
     return out
 
 
+def sweep_tiles2(id_, name, start, end):
+    """r23: n x n tiles on BOTH faces (hit-1 ring: opponent below the plane, compare / side above it). Front tile q at
+    centre + sa*h*e1 + sb*h*e2 (`<sprite>-q<i>`), back tile at the same centre with the back euler (`<sprite>-bq<i>`, the
+    mirrored image: basis X -> -e1)."""
+    sw = SWEEPS[name]
+    n = sw["tiles"]
+    h = sw.get("tile_half", SWEEP_HALF) / n
+    sc = 2 * h / 6.4
+    out = []
+    for back, pre in ((False, "q"), (True, "bq")):
+        for qi, (sa, sb) in enumerate(TILES):
+            c = [round(float(v), 3) for v in sw["centre"] + sa * h * sw["e1"] + sb * h * sw["e2"]]
+            el, m = sprite(f"{id_}-{pre}{qi}", f"bastion-s1-{name}-{pre}{qi}", start, end,
+                           [kf(0, c, sweep_euler(name, back), [sc, sc, 1.0])])
+            el["billboard"] = "fixed"
+            out.append((el, m))
+    return out
+
+
 def spark(id_, start, p, theta, length, dist, life=4, color=ORANGE):
     """Orange spark streak (tinted white-hot streak sprite): flies along (0, sin, cos) of theta, shrinks to a needle."""
     r = math.radians(theta)
@@ -154,7 +173,8 @@ def high():
     # behind), front + back pair. Spawn fx 0 (skill 4): frame 0 (seed at the wind-up extreme) on skill 4-5, frame k on skill
     # 5 + k: 181 deg at 6, 135 at 7, contact 93.5 at 8 (held 9-10), 45 at 11, -3 at 12 (follow-through), fade frames 8-11 on
     # skill 13-16.
-    els += sweep("s1h1-ring", "hring", 0, 13)
+    # r23: 2 x 2 tiles per face (texels half as big: no stair at the compare close-up), tilt 14 (bastion_s1_sprites.HRING_TILT).
+    els += sweep_tiles2("s1h1-ring", "hring", 0, 13)
     # white-hot cut streak through the contact, horizontal on screen (the cut is horizontal: roll 6 reads as the slash in first
     # person and as the forward streak of reference b01/b03 from the side cameras)
     els.append(sprite("s1h1-streak-main", "bastion-s1-streak", 4, 11, [
@@ -232,6 +252,15 @@ def low():
     # left only a ~90 px sliver at the bottom edge.
     els.append(sprite("s1h2-ink", "bastion-s1-ink", 4, 6, [
         kf(0, [0.15, 0.75, 1.05], [0, 0, 0], [s256(2.4), s256(2.4), 1.0])], see_through=False))
+    # r23 (reviewer r22: reference t30 = 13.133 s, one frame BEFORE the hit-2 contact, is an irregular flat yellow fill on
+    # the floor around the caster, streaking along the cut; nothing at t30-31 in any view): the ink brush mass laid FLAT on
+    # the floor (fixed, rotate [0, -90, 90] = front up, long axis along fx z), 4.4 blocks long (bands ~4.2 x 1.4), y 0.03,
+    # depth-tested so the bodies stand on it. Spawn fx 3 (skill 30), end fx 5: frame 0 full mass on 30, frame 1 torn on
+    # 31; the hit_stop (31-33) may hold the torn frame a tick or two. +1 display.
+    floor_fill, m = sprite("s1h2-floor-fill", "bastion-s1-ink", 3, 5, [
+        kf(0, [0.25, 0.03, 0.5], [0, -90, 90], [s256(4.4), s256(4.4), 1.0])], see_through=False)
+    floor_fill["billboard"] = "fixed"
+    els.append((floor_fill, m))
     # Round 7b: the low ring is the smear of the r7 ring swing, IN its plane (10 deg tilt, lowest toward phi 60 = left-
     # front at the floor pitch -15 / y 0.11, centre on the pivot axis at tip pitch -5, radius 2.535 = tip; fitted to the
     # r7 keys 24-30 within 0.12 blocks), turning the blade's way (left-back -> back -> right -> front), 221 deg from

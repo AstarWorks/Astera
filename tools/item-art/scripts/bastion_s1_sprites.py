@@ -519,6 +519,12 @@ _f2 = _f2 / np.linalg.norm(_f2)
 
 # alpha = in-plane angle atan2(b, a) in degrees (a along e1, b along e2), sign = travel direction of the blade.
 # frames: (tail, head, thickness scale, opacity); tail/head in alpha degrees, unwrapped along the travel.
+# r23 (reviewer r22: the hit-1 ring dipped to the floor at its low end from compare; reference ellipse sits at chest / head
+# height all round): plane tilt 20 -> 14 deg about the x axis through the tip-circle centre. The sides (z 0) are unchanged
+# (y 1.15 = the blade tip there); the back (z -1.9) rises from y 0.46 to 0.68 (above the knee), the front (z 1.6) drops
+# from 1.73 to 1.55, i.e. the band sits <= 0.2 off the r10 tip plane at the very front / back.
+HRING_TILT = 14.0
+
 SWEEPS = {
     # hit 1 (r10 rig): tilted horizontal sweep. The tip stays on the plane y = 1.15 + tan(20 deg) z (animator Round 10), so
     # the smear is a RING lying in that plane around the caster at chest (sides) / head (front) height. e1 = caster's left,
@@ -531,8 +537,8 @@ SWEEPS = {
     # edge; dark rim outside. Front pulled in by z <= 2.3 and the opponent-eye keep-out, back held >= y 0.22 (the plane
     # meets the floor behind the caster); one global radius curve (no monotone curl: the ring continues past the front).
     "hring": dict(centre=np.array([-0.35, 1.15, 0.0]), e1=np.array([1.0, 0.0, 0.0]),
-                  e2=np.array([0.0, math.sin(math.radians(20.0)), math.cos(math.radians(20.0))]), sign=-1, r_tip=2.75,
-                  t_max=0.42, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(20.0)), ellipse=(0.0, -0.15, 2.55, 1.75), ymin=0.2,
+                  e2=np.array([0.0, math.sin(math.radians(HRING_TILT)), math.cos(math.radians(HRING_TILT))]), sign=-1, r_tip=2.75,
+                  t_max=0.42, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(HRING_TILT)), ellipse=(0.0, -0.15, 2.55, 1.75), ymin=0.2,
                   smooth=10.0, hot="inner", fan_alpha=0.0,
                   # r23 (director r22, opponent t9-10: the outer rim read as an ~8 px dark grey band over the sky). Cause:
                   # the r12 dark rim (#3A2A06 at <= 0.6 alpha, centred 1.5 px OUTSIDE the band) plus the 1.5 px outer
@@ -541,7 +547,12 @@ SWEEPS = {
                   # (opacity 0.4 / 0.25) were 100% translucent. Fix: no rim outside (`rim_alpha` 0), no fan, a narrow outer
                   # feather (0.7 px), an OPAQUE ember edge line inside the silhouette (`edge` = colour, width px: dark
                   # mixed with bright, but it keeps its hue), alpha < 0.3 zeroed, and fades by thinning (opacity >= 0.8).
-                  rim_alpha=0.0, feather_out=0.7, edge=("#C8500A", 1.8), alpha_floor=0.3,
+                  rim_alpha=0.0, feather_out=1.0, edge=("#C8500A", 1.8), alpha_floor=0.3,
+                  # r23 (reviewer r22: ~10 px stair on the band edge at the compare close-up f16-18; one texel of the 256 px
+                  # / 6-block sprite = 0.023 blocks): shipped as 2 x 2 tiles on BOTH faces (`<id>-q0..3` front +
+                  # `<id>-bq0..3` back, mirrored), texels 0.0117 blocks; the 1.0 full-px outer feather = a 2-texel ramp
+                  # (alpha >= 0.3 only, so no faint skirt). +6 displays (2 -> 8).
+                  tiles=2, tile_half=3.0,
                   # r16 (director r12: in the caster FP the front arc, which passes ~0.1 above the caster's eye at z 1.6,
                   # crossed the target's head / the crosshair as a ~60 px opaque band on t10-14): `fp_thin` = (floor, a0,
                   # a1) scales the band thickness by the horizontal angle from the caster's eye: a hairline (12%) within
@@ -669,16 +680,24 @@ def ring_radius(name):
     return al_deg, r
 
 
-def ring_frame(size, name, tail, head, tscale, opacity, floor_t=0.0):
+def ring_frame(size, name, tail, head, tscale, opacity, floor_t=0.0, window=None):
     """hit-1 ring frame (front view, X = e1): gold band whose INNER edge is white-hot (the blade tip runs along it), dark
     rim outside, needle toward the tail, faint fan inward. Radius / angle are horizontal (aniso).
-    floor_t: minimum thickness (fraction of t_max) along the whole span; a span >= 360 deg is a CLOSED loop (no end cuts)."""
+    floor_t: minimum thickness (fraction of t_max) along the whole span; a span >= 360 deg is a CLOSED loop (no end cuts).
+    window = (sa, sb, n): tile (sa, sb) of an n x n split (r23, as sweep_frame): feathers stay in full-sprite px (px),
+    only the texels shrink."""
     sw = SWEEPS[name]
     X, Y = grid(size)
     half = sw["half"]
     px = 2.0 * half / size
-    a = (X - size / 2) * px
-    b = (size / 2 - Y) * px
+    if window is None:
+        a = (X - size / 2) * px
+        b = (size / 2 - Y) * px
+    else:
+        sa, sb, n = window
+        h = sw.get("tile_half", half) / n
+        a = sa * h + (X - size / 2) * (2 * h / size)
+        b = sb * h + (size / 2 - Y) * (2 * h / size)
     zz = b * sw["aniso"]
     r = np.hypot(a, zz)
     ang = np.degrees(np.arctan2(zz, a))
@@ -823,6 +842,18 @@ TILES = [(-1, 1), (1, 1), (-1, -1), (1, -1)]  # tile q = (sa, sb): sign of the e
 
 def make_sweep(name):
     size = 256
+    sw = SWEEPS[name]
+    if sw.get("tiles") and "aniso" in sw:  # r23: hit-1 ring as n x n tiles on BOTH faces: <name>-q<i> + <name>-bq<i>
+        n = sw["tiles"]
+        af = sw.get("alpha_floor", 0.0)
+        for qi, (sa, sb) in enumerate(TILES):
+            frames = [downsample(ring_frame(size, name, *f, window=(sa, sb, n)), size) for f in sw["frames"]]
+            for fr in frames:
+                fr[fr[..., 3] < af * 255] = 0
+            save_strip(f"{name}-q{qi}", frames, size)
+            # back face: basis X -> -e1, so the same world patch is the mirrored tile image at the same centre
+            save_strip(f"{name}-bq{qi}", [np.ascontiguousarray(f[:, ::-1]) for f in frames], size)
+        return
     if SWEEPS[name].get("tiles"):  # r13: front-only tiles <name>-q0..q3 (every camera is on the +Z side of the plane)
         n = SWEEPS[name]["tiles"]
         for qi, (sa, sb) in enumerate(TILES):

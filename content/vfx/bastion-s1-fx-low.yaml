@@ -17,6 +17,17 @@ elements:
     translate: [0.15, 0.75, 1.05]
     rotate: [0, 0, 0]
     scale: [0.375, 0.375, 1.0]
+- id: s1h2-floor-fill
+  kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: false}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.25, 0.03, 0.5]
+    rotate: [0, -90, 90]
+    scale: [0.6875, 0.6875, 1.0]
 - id: s1h2-ring-q0
   kind: {type: sprite, sprite: bastion-s1-ring-q0, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
