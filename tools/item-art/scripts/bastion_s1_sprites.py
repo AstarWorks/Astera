@@ -576,6 +576,16 @@ SWEEPS = {
                   # in-plane angle when its fast swing starts, head = the tip's angle on each fx tick, closed once it has
                   # gone 360 deg; then the `fade` frames. Each tile spawns on the first tick its quarter holds any band.
                   fx="bastion-s1-fx-high", track_floor=0.6,
+                  # r25b (director r24: after the down-back coil re-key the ring became a 3/4 crescent diving to the floor
+                  # behind the caster, tile q2 was dropped and the tip ran up to 1.20 off the fixed 14 deg plane): the plane is
+                  # FITTED to the tip path (`fit_plane`: least squares y = y0 + gx x + gz z over the swing + follow-through,
+                  # `centre` x / z = the polar origin, `e1` / `e2` / `aniso` / tilt derived; the values above are only the
+                  # seed), and the trail is tracked by DIRECTION (`track: reversal`): it starts where the tip's in-plane angle
+                  # last turned into the swing direction (the bottom of the coil; a fast descent INTO the coil runs the other
+                  # way) and ends where the follow-through stops advancing, not where the speed drops under 1 block/tick.
+                  # If the blade does not sweep a full turn the ring is closed on the follow-through (`close_ticks`) by
+                  # drawing the tail back to meet the head, while the head stays on the blade.
+                  fit_plane=True, track="reversal", close_ticks=2,
                   fade=[(0.0, 0.9, 1.0, 0.4), (0.0, 0.7, 0.95, 0.35), (0.0, 0.55, 0.9, 0.3), (0.0, 0.4, 0.85, 0.3),
                         (0.0, 0.3, 0.8, 0.3)]),
     # hit 2 low ring: plane tilted RING_TILT (lowest toward phi 60 = left-front), centre on the pivot axis at the
@@ -675,7 +685,11 @@ def ring_radius(name):
     al_deg = np.arange(-400.0, 800.0, 0.5)
     al = np.radians(al_deg)
     c = sw["centre"]
-    ux, uz = np.cos(al), np.sin(al)  # horizontal ray from the tip circle centre
+    # horizontal ray from the tip circle centre: e1 is horizontal, e2's horizontal part has length aniso (r25b: the fitted
+    # plane may also be yawed, so e1 is not always the x axis)
+    h2 = np.array([sw["e2"][0], 0.0, sw["e2"][2]]) / sw["aniso"]
+    ux = np.cos(al) * sw["e1"][0] + np.sin(al) * h2[0]
+    uz = np.cos(al) * sw["e1"][2] + np.sin(al) * h2[2]
     ox, oz = c[0] - ex, c[2] - ez
     A = (ux / ax) ** 2 + (uz / az) ** 2
     B = 2 * (ox * ux / ax ** 2 + oz * uz / az ** 2)
@@ -876,48 +890,143 @@ def _wrap(d):
 
 
 _SCHEDULES = {}
+OFF_PLANE_REFIT = 0.5  # blocks: past this the tip no longer runs along the ring band (vfx.md "Core elements that follow a rig")
+
+
+def _first_contact(rp):
+    cs = [t for t in rp.contact_fx_ticks() if 0 <= t < (rp.fx_duration or 999)]
+    if not cs:
+        raise SystemExit(f"ring_schedule: no contact (hit-stop freeze) inside {rp.fx_duration} fx ticks")
+    c = cs[0]
+    r = c
+    while rp.frozen_fx(r):
+        r += 1
+    return c, r
+
+
+def _reversal_window(name, rp, last):
+    """r25b `track: reversal`: (s, c, r, e) where s (fractional, 1/16 tick) is the last moment before the contact at which the
+    tip's in-plane angle turned into the swing direction (the bottom of a coil; the descent into it runs the other way and is
+    NOT trail), and e is the last whole tick on which the follow-through still advances >= 3 deg in the swing direction."""
+    sw = SWEEPS[name]
+    sgn = sw["sign"]
+    c, r = _first_contact(rp)
+    step = 1.0 / 16.0
+    s, a_hi = float(c), sweep_alpha(name, rp.blade_point(c))
+    while s - step >= 0.0:
+        a = sweep_alpha(name, rp.blade_point(s - step))
+        if sgn * _wrap(a_hi - a) <= 1e-3:  # going back in time the angle must keep receding against the travel
+            break
+        s, a_hi = s - step, a
+    e = r
+    while e + 1 <= last:
+        da = 0.0
+        for i in range(1, 17):
+            da += _wrap(sweep_alpha(name, rp.blade_point(e + i / 16.0)) - sweep_alpha(name, rp.blade_point(e + (i - 1) / 16.0)))
+        if sgn * da < 3.0:
+            break
+        e += 1
+    return s, c, r, e
+
+
+def _fit_plane(name, rp, t0, t1):
+    """r25b: least-squares plane y = y0 + gx x + gz z through the tip path (arc-length samples of the TRUE slerped arc) between
+    fx ticks t0 and t1; rewrites the sweep's centre (polar origin x / z kept, y on the plane), e1 (horizontal strike line,
+    toward +x), e2 (= e1 x up-normal: up the slope), aniso (= cos tilt). Returns (tilt deg, max |tip - plane|)."""
+    sw = SWEEPS[name]
+    pts = np.array([p for _, p, _ in rp.arc(t0, t1, step=0.05)])
+    A = np.c_[np.ones(len(pts)), pts[:, 0], pts[:, 2]]
+    y0, gx, gz = np.linalg.lstsq(A, pts[:, 1], rcond=None)[0]
+    nup = np.array([-gx, 1.0, -gz])
+    nup /= np.linalg.norm(nup)
+    g = math.hypot(gx, gz)
+    e1 = np.array([gz, 0.0, -gx]) / g if g > 1e-6 else np.array([1.0, 0.0, 0.0])
+    if e1[0] < 0:
+        e1 = -e1
+    e2 = np.cross(e1, nup)
+    cx, cz = float(sw["centre"][0]), float(sw["centre"][2])
+    sw["centre"] = np.array([cx, y0 + gx * cx + gz * cz, cz])
+    sw["e1"], sw["e2"], sw["aniso"] = e1, e2, float(nup[1])
+    off = float(np.max(np.abs((pts - sw["centre"]) @ nup)))
+    return math.degrees(math.acos(min(1.0, nup[1]))), off
 
 
 def ring_schedule(name, probe=48):
-    """Rig-driven frames of a tiled plane ring: dict with 'states' {fx tick: frame args}, 'start' {tile q: spawn fx tick},
-    'last' (last fx tick with a frame), 'window' (s, c, r, e), 'strips' {q: [frame args or None]}, 'frames' (strip length),
-    'off_plane' (max |tip - plane| over the tracked ticks), 'tail'."""
+    """Rig-driven frames of a tiled plane ring: dict with 'states' {fx tick: frame args}, 'start' {tile q: first band fx tick},
+    'spawn' {tile q: spawn fx tick}, 'last' (last fx tick with a frame), 'window' (s, c, r, e), 'strips' {q: [frame args or
+    None]}, 'frames' (strip length), 'off_plane' (max |tip - plane| over the trail), 'tail', 'closed_at', 'plane'.
+    Fails (SystemExit) instead of dropping a tile or shipping a ring whose plane no longer fits the tip."""
     if name in _SCHEDULES:
         return _SCHEDULES[name]
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from rig_path import RigPath
     sw = SWEEPS[name]
     rp = RigPath(SKILL_ID, RIG_VFX, fx_vfx=sw["fx"])
-    s, c, r, e = rp.swing_windows(min_speed=1.0)[0]
     sgn = sw["sign"]
-    tail = sweep_alpha(name, rp.blade_point(s))
-    heads, cur, prev = {s: tail}, tail, tail
-    for t in range(s + 1, e + 1):
-        for i in range(1, 17):  # unwrap along the true arc (fractional ticks)
-            a = sweep_alpha(name, rp.blade_point(t - 1 + i / 16.0))
-            cur += _wrap(a - prev)
-            prev = a
-        heads[t] = cur
-    n = np.cross(sw["e1"], sw["e2"])
-    n = n / np.linalg.norm(n)
-    off = max(abs((np.asarray(rp.blade_point(t)) - sw["centre"]) @ n) for t in range(s, e + 1))
     ring = "aniso" in sw
+    n_tail = len(sw.get("fade", [])) + sw.get("close_ticks", 0)
+    last_ok = (rp.fx_duration or 999) - 1 - n_tail  # every tile must end (last + 1) inside the fx file
+    plane = None
+    if sw.get("track") == "reversal":
+        win = _reversal_window(name, rp, last_ok)
+        if sw.get("fit_plane"):
+            for _ in range(4):  # window <-> plane: the in-plane angle depends on the plane; converges in 1-2 rounds
+                plane = _fit_plane(name, rp, win[0], win[3])
+                nw = _reversal_window(name, rp, last_ok)
+                if nw == win:
+                    break
+                win = nw
+    else:
+        win = rp.swing_windows(min_speed=1.0)[0]
+    s, c, r, e = win
+    tail = sweep_alpha(name, rp.blade_point(s))
+    # head per whole tick, unwrapped along the TRUE arc at 1/16-tick steps (a 120 deg one-tick chunk otherwise unwraps wrong)
+    grid_t = [s] + [k / 16.0 for k in range(int(math.floor(s * 16)) + 1, int(e * 16) + 1)]
+    heads, cur, prev = {}, tail, tail
+    for t in grid_t[1:]:
+        a = sweep_alpha(name, rp.blade_point(t))
+        cur += _wrap(a - prev)
+        prev = a
+        if abs(t - round(t)) < 1e-9:
+            heads[int(round(t))] = cur
+    nrm = np.cross(sw["e1"], sw["e2"])
+    nrm = nrm / np.linalg.norm(nrm)
+    off = max(abs((np.asarray(p) - sw["centre"]) @ nrm) for _, p, _ in rp.arc(s, e, step=0.05))
     grow = sw.get("grow", [])
-    states = {}
-    for i, t in enumerate(range(s, e + 1)):
-        span = sgn * (heads[t] - tail)
+    states, closed_at = {}, None
+    t_first = int(math.ceil(s - 1e-9))
+    for i, t in enumerate(range(t_first, e + 1)):
+        span = sgn * (heads.get(t, tail) - tail)
         if span <= 0.5:
             continue  # the tip has not moved forward yet: nothing to draw
+        if span >= 360.0 and closed_at is None:
+            closed_at = t
         tl = heads[t] - sgn * 360.0 if span >= 360.0 else tail
         ts = grow[i - 1] if 0 < i <= len(grow) else 1.0
         states[t] = (tl, heads[t], ts, 1.0, sw["track_floor"]) if ring else (tl, heads[t], ts, 1.0)
+    if e not in states:
+        raise SystemExit(f"ring_schedule({name}): the tip never advanced in the swing direction between fx {s} and {e}")
     last_tl, last_hd = states[e][0], states[e][1]
     span = sgn * (last_hd - last_tl)
+    t = e
+    if span < 359.9 and sw.get("close_ticks"):
+        # visual closure on the follow-through: the TAIL draws back to meet the head (the head stays on the blade)
+        gap = 360.0 - span
+        for j in range(1, sw["close_ticks"] + 1):
+            t += 1
+            tl = last_tl - sgn * gap * j / sw["close_ticks"]
+            states[t] = (tl, last_hd, 1.0, 1.0, sw["track_floor"]) if ring else (tl, last_hd, 1.0, 1.0)
+        last_tl, span, closed_at = last_hd - sgn * 360.0, 360.0, t
     for j, f in enumerate(sw.get("fade", [])):
         erase, ts, op = f[0], f[1], f[2]
         tl = last_tl + sgn * erase * span
-        states[e + 1 + j] = (tl, last_hd, ts, op, f[3]) if ring else (tl, last_hd, ts, op)
+        states[t + 1 + j] = (tl, last_hd, ts, op, f[3]) if ring else (tl, last_hd, ts, op)
     last = max(states)
+    if last + 1 > (rp.fx_duration or 999):
+        raise SystemExit(f"ring_schedule({name}): last frame fx {last} does not fit the {rp.fx_duration}-tick fx file")
+    if off > OFF_PLANE_REFIT:
+        raise SystemExit(f"ring_schedule({name}): tip off-plane max {off:.2f} > {OFF_PLANE_REFIT} over fx {s}..{e}: the ring plane "
+                         f"does not fit the swing (refit or change the follow-through)")
     fn = ring_frame if ring else sweep_frame
     nt = sw["tiles"]
     af = max(sw.get("alpha_floor", 0.0), 0.1)
@@ -928,6 +1037,10 @@ def ring_schedule(name, probe=48):
             if (img[..., 3] >= af).sum() >= 4 * SS * SS:  # >= ~4 probe texels of band (a few stray 256 px texels are noise)
                 first[qi] = t
                 break
+    missing = [qi for qi in range(len(TILES)) if qi not in first]
+    if missing:  # r25b: never drop a tile silently (r24 lost q2 = a quarter of the ring without any error)
+        raise SystemExit(f"ring_schedule({name}): tile(s) {missing} never hold band texels over fx {min(states)}..{last} "
+                         f"(window {win}, tail {tail:.1f}, head {last_hd:.1f}): the ring does not reach that quarter")
     strips = {}
     spawn = {qi: max(0, t0 - 2) for qi, t0 in first.items()}
     for qi, s0 in spawn.items():
@@ -936,7 +1049,7 @@ def ring_schedule(name, probe=48):
     for qi in strips:
         strips[qi] += [None] * (nfr - len(strips[qi]))
     out = {"states": states, "start": first, "spawn": spawn, "last": last, "window": (s, c, r, e), "strips": strips, "frames": nfr,
-           "off_plane": off, "tail": tail}
+           "off_plane": off, "tail": tail, "closed_at": closed_at, "plane": plane}
     _SCHEDULES[name] = out
     return out
 
@@ -963,7 +1076,9 @@ def make_sweep(name):
         af = sw.get("alpha_floor", 0.0)
         sch = ring_schedule(name)
         print(f"{name}: window {sch['window']}, tail {sch['tail']:.1f}, tile first band {sch['start']}, spawn {sch['spawn']}, last {sch['last']}, "
-              f"frames {sch['frames']}, tip off-plane max {sch['off_plane']:.2f}")
+              f"frames {sch['frames']}, tip off-plane max {sch['off_plane']:.2f}, closed at fx {sch['closed_at']}"
+              + (f", fitted plane tilt {sch['plane'][0]:.1f} deg, centre {np.round(sw['centre'], 2).tolist()}, "
+                 f"e1 {np.round(sw['e1'], 3).tolist()}" if sch["plane"] else ""))
         empty = np.zeros((size, size, 4), np.uint8)
         for qi, (sa, sb) in enumerate(TILES):
             frames = [downsample(fn(size, name, *st, window=(sa, sb, n)), size) if st else empty.copy()

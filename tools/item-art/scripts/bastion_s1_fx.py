@@ -112,7 +112,7 @@ def sweep_tiles(id_, name, faces=("q",)):
     r25: start / end of every tile come from the RIG (bastion_s1_sprites.ring_schedule, rig_path.RigPath): a tile spawns
     so that its band first shows on the tick the blade tip has swept into its quarter (blank frame 0, see the schedule),
     and all tiles end after the last fade frame. No hard-coded ticks: re-run this script and bastion_s1_sprites.py after
-    any rig / skill timing change. A tile the tip never reaches is not placed."""
+    any rig / skill timing change. A tile the tip never reaches is an error (r25b), never silently left out."""
     sw = SWEEPS[name]
     sch = ring_schedule(name)
     n = sw["tiles"]
@@ -121,8 +121,8 @@ def sweep_tiles(id_, name, faces=("q",)):
     out = []
     for pre in faces:
         for qi, (sa, sb) in enumerate(TILES):
-            if qi not in sch["spawn"]:
-                continue
+            if qi not in sch["spawn"]:  # r25b: never drop a tile silently (ring_schedule already fails on this)
+                raise SystemExit(f"sweep_tiles({name}): tile q{qi} has no spawn tick in the rig schedule")
             c = [round(float(v), 3) for v in sw["centre"] + sa * h * sw["e1"] + sb * h * sw["e2"]]
             el, m = sprite(f"{id_}-{pre}{qi}", f"bastion-s1-{name}-{pre}{qi}", sch["spawn"][qi], sch["last"] + 1,
                            [kf(0, c, sweep_euler(name, pre == "bq"), [sc, sc, 1.0])])
