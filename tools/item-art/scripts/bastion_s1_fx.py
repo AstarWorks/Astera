@@ -87,8 +87,6 @@ SPARK_C = ["#FFC040", "#FF7A12", "#B03000"]
 import math
 
 ORANGE = "#FF8A1E"
-SMOKE_TINT = "#A0A8A8B0"
-SMOKE_TINT_LOW = "#80B4B4BC"  # r15: lighter / fainter for the low hit-2 puff
 
 
 def sweep(id_, name, start, end):
@@ -134,13 +132,6 @@ def spark(id_, start, p, theta, length, dist, life=4, color=ORANGE):
         kf(life - 1, pos(1.0), scale=[s256(length * 0.45), 0.012, 1.0], ease="in_quad")], color=color)
 
 
-def smoke_up(id_, start, end, p, w0, w1, roll=0, tint=None):
-    return sprite(id_, "bastion-s1-smoke", start, end, [
-        kf(0, p, [0, 0, roll], [s256(w0), s256(w0), 1.0]),
-        kf(end - start, [p[0], p[1] + 0.35, p[2]], [0, 0, roll + 25], [s256(w1), s256(w1), 1.0], ease="out_quad")],
-        frame_ticks=2, color=tint or SMOKE_TINT)
-
-
 def spark3(id_, start, p, d, roll, length, life=4, color=ORANGE):
     """r10: orange spark streak flying along a 3D direction d (blocks travelled over its life); roll = its screen angle."""
     pos = lambda f: [round(p[0] + d[0] * f, 3), round(p[1] + d[1] * f, 3), round(p[2] + d[2] * f, 3)]
@@ -184,9 +175,9 @@ def high():
     # r12: the three static chip sprites are gone (a sprite cannot move, it only turned 70 deg in place: with the tinted-black
     # slanted shard it read as an "X" shuriken). Dark debris = the moving sliver display particles of the particle layer
     # (bastion_s1_particles.py, dark-brown needle sprite, no spin).
-    # smoke hand-off after the flash: one puff rising from just below the contact (no floor swirl: hit 1 no longer touches the
-    # ground, r10)
-    els.append(smoke_up("s1h1-smoke-up", 5, 12, [-0.3, 1.0, 1.55], 0.9, 1.4))
+    # r16 (director r12: the grey spiral puffs read as hard "C" crescents behind the target, t14-16 compare + caster FP): the
+    # smoke sprites are dropped from both hits. The 0.1-0.5 alpha spiral is cut at alpha 0.1 by the client's text shader, so
+    # its outline is a hard-edged crescent at every size; the grain after the flash is carried by the particle layer.
     return {"id": "bastion-s1-fx-high", "duration_ticks": 20, "orient": "yaw", "follow": False, "sample_ticks": 1,
             "elements": [e for e, _ in els]}, [m for _, m in els]
 
@@ -213,8 +204,21 @@ def low():
     # flash beside the pair: centre (1.7, 1.35, 0.85) (bottom y ~0.7, top ~2.0), 2.2 x 1.21 blocks (ratio 0.55, was 0.42).
     # Perspective model (vfov 90 = the review captures; calibrated on r11: caster 6.5 model vs 6.1 measured): caster 4.4%,
     # opponent 6.5-8.4% (eye z 2.2 / 1.7), side 0.7% at the bodies' waist-chest band, compare 2.4%.
-    els.append(sprite("s1h2-ink", "bastion-s1-ink", 3, 5, [
-        kf(0, [1.7, 1.35, 0.85], [0, 0, 0], [s256(2.2), s256(2.2) * 0.55, 1.0])], see_through=False))
+    # r16 (director r12: at (1.7, 1.35, 0.85) the ink sat at the target's side, so the opponent saw a flat yellow blob floating
+    # in the right third of its screen on t30-31, BEFORE the contact tint (t32), and the caster saw it at the left screen
+    # edge): the ink IS the impact flash (reference e00-e02: a ragged horizontal band across the contact). Centre ON the
+    # contact between the bodies, (0.15, 1.15, 1.05): 1.05 in front of the caster eye, ~0.9 in front of the opponent eye
+    # (z 1.95), at the s1h2-flash core (0.05, 1.05, 1.0), which draws on top of it (see_through) = flash core in an ink band.
+    # A flatter band (2.0 x 0.84 blocks, ratio 0.42) so it crosses the screen instead of filling it. Spawn fx 4 (skill 31 =
+    # the damage tick), life 2: r12 showed the opponent draws a display on its spawn tick (fx 3 -> t30-31) and the caster
+    # / compare 1-2 ticks later (t32-33 / t31-33), so fx 4 gives opponent t31-32, compare t32-33, caster ~t33-34 around the
+    # tint frame t32 (the reference ink also leads the contact by one frame, e00 t30 -> e02 t31).
+    # Perspective model (vfov 90, recalibrated on the r12 captures: caster pitch 0, opponent eye (0, 1.62, 1.95) pitch -3;
+    # r12 placement models caster 4.3 / opponent 7.6 vs 4.0 / 7.7 measured): frame 0 caster 6.8%, opponent 9.7%, side 0.2%,
+    # compare 2.5%; frame 1 4.9 / 7.0 / 0.1 / 1.8. Screen centre: caster ndc (-0.08, -0.45) = across the target's waist,
+    # opponent (0.07, -0.59) = across the caster's waist where the blade comes in.
+    els.append(sprite("s1h2-ink", "bastion-s1-ink", 4, 6, [
+        kf(0, [0.15, 1.15, 1.05], [0, 0, 0], [s256(2.0), s256(2.0) * 0.42, 1.0])], see_through=False))
     # Round 7b: the low ring is the smear of the r7 ring swing, IN its plane (10 deg tilt, lowest toward phi 60 = left-
     # front at the floor pitch -15 / y 0.11, centre on the pivot axis at tip pitch -5, radius 2.535 = tip; fitted to the
     # r7 keys 24-30 within 0.12 blocks), turning the blade's way (left-back -> back -> right -> front), 221 deg from
@@ -242,9 +246,7 @@ def low():
         kf(3, scale=[s256(0.45), s256(0.45), 1.0], ease="out_quad")]))
     # r12 (particle-artist): static orange spark sprites removed (see high()); moving streak particles s1h2-p-streaks-*
     # r12: static chips removed (see high()); dark debris = sliver display particles of the particle layer
-    # r15 (particle-artist, reviewer r11 MINOR: the grey curl floated at chest height between the players, compare t37-39 /
-    # side t38): starts just above the floor (y 0.4, rises to 0.75 = still below the knees-to-waist band), lighter tint.
-    els.append(smoke_up("s1h2-smoke-up", 6, 13, [0.0, 0.4, 1.1], 1.0, 1.5, roll=180, tint=SMOKE_TINT_LOW))
+    # r16: s1h2-smoke-up dropped (hard grey "C" crescent between the bodies, compare t36-40; see high()).
     # r13: the flattened floor smoke (s1h2-smoke, y 0.18) is dropped: it read as a low grey smear on t35-39 (reviewer r9).
     return {"id": "bastion-s1-fx-low", "duration_ticks": 18, "orient": "yaw", "follow": False, "sample_ticks": 1,
             "elements": [e for e, _ in els]}, [m for _, m in els]
@@ -291,7 +293,7 @@ def write(path, header, doc):
 
 
 if __name__ == "__main__":
-    for fn, name, header in ((high, "bastion-s1-fx-high", "# Bastion S1 hit 1 (video 11.933-12.5 s): gold ring smear in the tilted horizontal sweep plane (front + back) + cut streak + flash + smoke. Played at skill tick 4, contact = effect tick 4 (skill 8).\n# Generated by tools/item-art/scripts/bastion_s1_fx.py; sprites from tools/item-art/scripts/bastion_s1_sprites.py. Elements only (rig is the animator's).\n"),
+    for fn, name, header in ((high, "bastion-s1-fx-high", "# Bastion S1 hit 1 (video 11.933-12.5 s): gold ring smear in the tilted horizontal sweep plane (front + back) + cut streak + flash. Played at skill tick 4, contact = effect tick 4 (skill 8).\n# Generated by tools/item-art/scripts/bastion_s1_fx.py; sprites from tools/item-art/scripts/bastion_s1_sprites.py. Elements only (rig is the animator's).\n"),
                              (low, "bastion-s1-fx-low", "# Bastion S1 hit 2 (video 13.1-13.7 s): yellow ink flash (2 ticks, depth-tested), low ring smear in the swing plane (4 front-only tiles), streak + speed lines, flash, particles. Played at skill tick 27, contact = effect tick 4.\n# Generated by tools/item-art/scripts/bastion_s1_fx.py. Elements only.\n")):
         doc, meta = fn()
         write(f"content/vfx/{name}.yaml", header, doc)

@@ -10,13 +10,13 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: false}
   billboard: center
   brightness: 15
-  start_tick: 3
-  end_tick: 5
+  start_tick: 4
+  end_tick: 6
   keyframes:
   - t: 0
-    translate: [1.7, 1.35, 0.85]
+    translate: [0.15, 1.15, 1.05]
     rotate: [0, 0, 0]
-    scale: [0.3438, 0.1891, 1.0]
+    scale: [0.3125, 0.1313, 1.0]
 - id: s1h2-ring-q0
   kind: {type: sprite, sprite: bastion-s1-ring-q0, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
@@ -145,22 +145,6 @@ elements:
     ease: out_quad
     translate: [0.05, 1.05, 1.0]
     rotate: [0, 0, 0]
-- id: s1h2-smoke-up
-  kind: {type: sprite, sprite: bastion-s1-smoke, frame_ticks: 2, loop: false, see_through: true, color: '#80B4B4BC'}
-  billboard: center
-  brightness: 15
-  start_tick: 6
-  end_tick: 13
-  keyframes:
-  - t: 0
-    translate: [0.0, 0.4, 1.1]
-    rotate: [0, 0, 180]
-    scale: [0.1562, 0.1562, 1.0]
-  - t: 7
-    translate: [0.0, 0.75, 1.1]
-    rotate: [0, 0, 205]
-    scale: [0.2344, 0.2344, 1.0]
-    ease: out_quad
 # --- particle layer (tools/item-art/scripts/bastion_s1_particles.py): do not edit by hand ---
 - id: s1h2-p-shed
   kind: {type: particle, particle_id: bastion-s1-p-shed, every_ticks: 2}

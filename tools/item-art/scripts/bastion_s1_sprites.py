@@ -516,6 +516,12 @@ SWEEPS = {
                   e2=np.array([0.0, math.sin(math.radians(20.0)), math.cos(math.radians(20.0))]), sign=-1, r_tip=2.75,
                   t_max=0.42, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(20.0)), ellipse=(0.0, -0.15, 2.55, 1.75), ymin=0.2,
                   smooth=10.0, hot="inner", fan_alpha=0.16,
+                  # r16 (director r12: in the caster FP the front arc, which passes ~0.1 above the caster's eye at z 1.6,
+                  # crossed the target's head / the crosshair as a ~60 px opaque band on t10-14): `fp_thin` = (floor, a0,
+                  # a1) scales the band thickness by the horizontal angle from the caster's eye: a hairline (12%) within
+                  # 12 deg of straight ahead, full again past 46 deg. The loop stays closed, so compare / side / opponent
+                  # still see one ellipse around the body (its front end, at the target, becomes a fine line).
+                  fp_thin=(0.12, 12.0, 46.0),
                   # r15 (reviewer r11: ring centre read 1-1.5 blocks BEHIND the caster from side / compare): ellipse centre
                   # z -0.50 -> -0.15 (within 0.3 of the caster), semi z 2.09 -> 1.75: the front stays at z 1.6 (opponent-eye
                   # keep-out unchanged), the back comes in from z -2.59 to -1.9 (y 0.46 there, was 0.2).
@@ -664,6 +670,10 @@ def ring_frame(size, name, tail, head, tscale, opacity, floor_t=0.0):
     closed = span >= 359.9
     if floor_t > 0:
         prof = floor_t + (1 - floor_t) * prof
+    if sw.get("fp_thin"):  # r16: thin the near arc in front of the caster's eye (x 0) down to a hairline
+        lo, a0, a1 = sw["fp_thin"]
+        th = np.degrees(np.abs(np.arctan2(world[0], np.maximum(world[2], 1e-3))))
+        prof = prof * np.where(world[2] > 0, lo + (1 - lo) * smooth((th - a0) / (a1 - a0)), 1.0)
     inside = (dh >= 0) & (dh <= span) if not closed else np.ones_like(dh, dtype=bool)
     T = sw["t_max"] * tscale * prof
     d_out = (r_out - r) / px
