@@ -124,6 +124,9 @@ import sys  # noqa: E402
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import numpy as _np  # noqa: E402
 from rig_path import RigPath  # noqa: E402
+from bastion_s1_sprites import SWEEPS as _SWEEPS  # noqa: E402
+
+H1_LEAD = _SWEEPS["hring"].get("lead", 0)  # r26: same lead as the hit-1 ring tiles and the contact flash
 
 SKILL, RIG = "bastion-greatsword-s1", "bastion-s1-rig"
 RP1 = RigPath(SKILL, RIG, fx_vfx="bastion-s1-fx-high")
@@ -355,6 +358,11 @@ def hit1(rp=RP1):
     from the rig path; the contact zones were authored around C0 and move with c."""
     f = Fx("s1h1")
     s0, k, res, e = rp.strike_windows()[0]
+    # r26 (reviewer r25 #2: no sparks on the compare contact / tint frames f13-14, first at f15): the contact-zone bursts
+    # (sprays, fan, embers, display streaks / slivers) go out `lead` ticks before the rig's reached-contact tick, with the
+    # display flash (bastion_s1_fx.H1_LEAD; the rig pose packet of the contact is sent one tick before it is reached).
+    # Blade-riding sheds / ring embers keep the rig path timing.
+    kc = k - H1_LEAD
     c, C0 = rp.blade_point(k, radius=1.5), (-0.44, 1.54, 1.59)
     # sheds: one spark per 0.4 blocks along the blade arc at r 2.3 while it sweeps fast (coil end -> contact, resume -> end)
     ring_sheds(f, "shed", "shed", rp, s0, k, 2.3, H1_EYES, 0.4, 0.5)
@@ -370,24 +378,24 @@ def hit1(rp=RP1):
             (1, (-0.78, 1.5, 1.55), (-1.0, 0.3, 0.3)),
             (2, (-0.85, 1.6, 1.4), (-1.0, 0.2, -0.1)),
             (3, (-0.9, 1.55, 1.45), (-1.0, 0.35, 0.1)))):
-        spray(f, "spray", "spray", k + dt, rel(c, p, C0), d, ticks=2 if i < 2 else 1)
+        spray(f, "spray", "spray", kc + dt, rel(c, p, C0), d, ticks=2 if i < 2 else 1)
     # upward fan out of the contact's right half (contact .. +2)
-    spray(f, "fan", "fan", k, rel(c, (-1.05, 1.7, 1.35), C0), (-0.35, 1.0, -0.05), ticks=3)
+    spray(f, "fan", "fan", kc, rel(c, (-1.05, 1.7, 1.35), C0), (-0.35, 1.0, -0.05), ticks=3)
     # follow-through: the blade leaves the target and throws a last wave along its own tangent off the left flank
     ft = res + 1.5
     tg = rp.arc(ft - 0.1, ft + 0.1, radius=2.0, step=0.05)[1][2]
     spray(f, "spray", "spray", res + 2, blade_safe(rp, ft, 2.0, H1_EYES), (tg[0], max(tg[1], 0.0) + 0.35, tg[2]), ticks=2)
     # embers: right contact zone (contact .. +5, ~5 per tick), blade-arc flanks before the contact and on the follow-through
-    scatter(f, "ember", "ember", k, rel_box(c, ((-2.0, -1.25), (1.2, 1.9), (1.15, 1.8)), C0), 8, 11, 0.22)
-    scatter(f, "ember-hot", "ember-hot", k, rel_box(c, ((-1.6, -1.2), (1.4, 1.8), (1.3, 1.7)), C0), 5, 12)
-    scatter(f, "ember-deep", "ember-deep", k + 2, rel_box(c, ((-2.2, -1.3), (1.0, 1.6), (1.1, 1.9)), C0), 7, 13)
+    scatter(f, "ember", "ember", kc, rel_box(c, ((-2.0, -1.25), (1.2, 1.9), (1.15, 1.8)), C0), 8, 11, 0.22)
+    scatter(f, "ember-hot", "ember-hot", kc, rel_box(c, ((-1.6, -1.2), (1.4, 1.8), (1.3, 1.7)), C0), 5, 12)
+    scatter(f, "ember-deep", "ember-deep", kc + 2, rel_box(c, ((-2.2, -1.3), (1.0, 1.6), (1.1, 1.9)), C0), 7, 13)
     ring_embers(f, "ember-ring", "ember", rp, s0, k, 2.2, H1_EYES, 0.35)
     ring_embers(f, "ember-ring", "ember-deep", rp, res, e, 2.1, H1_EYES, 0.25)
     # display sprites: orange streaks along the cut (5) and hot-headed char-tailed slivers (8, r21), the parts the channels cannot draw
     s = off(c, 0, 0.15, -0.1)
-    f.els.append(emitter("s1h1-p-streaks", "bastion-s1-streak", STREAK_TINT, k, off(c, 0, -0.1, -0.15), 5, 2, (0.35, 0.5),
+    f.els.append(emitter("s1h1-p-streaks", "bastion-s1-streak", STREAK_TINT, kc, off(c, 0, -0.1, -0.15), 5, 2, (0.35, 0.5),
                          "custom[-1, 0.2, 0.25]", 25, 0.0, 0.2, (3, 4), (0.07, 0.1), STREAK_SOL, 0))
-    f.els.append(emitter("s1h1-p-slivers", "bastion-s1-sliver", SLIVER_TINT, k, off(s, -0.3, 0, -0.05), 8, 2, (0.18, 0.26),
+    f.els.append(emitter("s1h1-p-slivers", "bastion-s1-sliver", SLIVER_TINT, kc, off(s, -0.3, 0, -0.05), 8, 2, (0.18, 0.26),
                          "custom[-1, 0.8, 0.1]", 40, 0.03, 0.08, (4, 5), (0.04, 0.06), SLIVER_SOL, SLIVER_SPIN))
     return f
 

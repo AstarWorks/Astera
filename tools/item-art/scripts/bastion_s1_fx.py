@@ -12,7 +12,7 @@ import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from bastion_s1_sprites import (RIG_VFX, SKILL_ID, SWEEP_HALF, SWEEPS, TILES, ring_schedule,  # noqa: E402
-                                sweep_euler)  # one geometry (and one rig-driven schedule) for art + placement
+                                sweep_euler, tile_grow)  # one geometry (and one rig-driven schedule) for art + placement
 from rig_path import RigPath  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
@@ -117,14 +117,14 @@ def sweep_tiles(id_, name, faces=("q",)):
     sch = ring_schedule(name)
     n = sw["tiles"]
     h = sw.get("tile_half", SWEEP_HALF) / n
-    sc = 2 * h / 6.4
+    sc = 2 * h * tile_grow(name) / 6.4  # r26: tiles overlap by tile_overlap texels per edge (no crack at the join)
     out = []
     for pre in faces:
         for qi, (sa, sb) in enumerate(TILES):
             if qi not in sch["spawn"]:  # r25b: never drop a tile silently (ring_schedule already fails on this)
                 raise SystemExit(f"sweep_tiles({name}): tile q{qi} has no spawn tick in the rig schedule")
             c = [round(float(v), 3) for v in sw["centre"] + sa * h * sw["e1"] + sb * h * sw["e2"]]
-            el, m = sprite(f"{id_}-{pre}{qi}", f"bastion-s1-{name}-{pre}{qi}", sch["spawn"][qi], sch["last"] + 1,
+            el, m = sprite(f"{id_}-{pre}{qi}", f"bastion-s1-{name}-{pre}{qi}", sch["spawn"][qi], sch["end"],
                            [kf(0, c, sweep_euler(name, pre == "bq"), [sc, sc, 1.0])])
             el["billboard"] = "fixed"
             out.append((el, m))
@@ -171,6 +171,7 @@ def spark3(id_, start, p, d, roll, length, life=4, color=ORANGE):
 # the opponent eye, 1.6 from the caster eye, at the ring smear's front edge (z 1.6).
 # r25: no hard-coded contact point any more: contact_anchor("bastion-s1-fx-high", 1.5) reads it from the rig
 # ((-0.439, 1.533, 1.583) on fx 4 for the r23 keys); the offsets below are the camera-tuned shifts from that blade point.
+H1_LEAD = SWEEPS["hring"].get("lead", 0)  # r26: hit-1 contact displays spawn this many ticks before the rig contact
 H1_R, H2_R = 1.5, 1.2  # blade radius (from the rig pivot) of the hit-1 / hit-2 contact anchors
 
 
@@ -188,18 +189,24 @@ def high():
     els += sweep_tiles("s1h1-ring", "hring", faces=("q", "bq"))
     # white-hot cut streak through the contact, horizontal on screen (the cut is horizontal: roll 6 reads as the slash in first
     # person and as the forward streak of reference b01/b03 from the side cameras)
-    els.append(sprite("s1h1-streak-main", "bastion-s1-streak", c, c + 7, [
-        kf(0, at(hit, (0.0, 0.047, -0.083)), [0, 0, 6], [s256(0.6), 0.3, 1.0]),
-        kf(1, scale=[s256(3.0), 0.3, 1.0], ease="out_expo"),
+    # r26 (reviewer r25 #2: compare f13-14 = the contact and tint frames showed no streak / flash, both first read at f15):
+    # they spawned ON the contact as a 0.15-0.6 block seed that only grew to full size two ticks later (keyframe clock
+    # spawn + 1, then a 1-tick interpolation), and a spawn sent on the "reached" contact tick shows a client tick after the
+    # blade (the rig pose packet goes out one tick before, see SWEEPS hring `lead`). Now both spawn `lead` ticks before
+    # the contact at (near) PEAK size: the spawn tick itself carries the impact, so it reads on the tint frame.
+    s0 = c - H1_LEAD
+    els.append(sprite("s1h1-streak-main", "bastion-s1-streak", s0, s0 + 7, [
+        kf(0, at(hit, (0.0, 0.047, -0.083)), [0, 0, 6], [s256(2.5), 0.3, 1.0]),
+        kf(1, scale=[s256(3.0), 0.3, 1.0], ease="out_quad"),
         kf(6, scale=[s256(2.3), 0.03, 1.0], ease="in_quad")]))
     # flash on the contact blade. r13: the dark-tinted glint behind it is gone (reviewer r9: it rendered as a big black "+"
     # across the target); contrast comes from the glint's own orange halo and the dark sliver particles.
     # r15 (reviewer r11: the 128 px 4-point glint read as an axis-aligned pixel "+"): `bastion-s1-flare` (256 px, soft radial
     # core + two slanted tapered spikes), shrinking uniformly instead of collapsing into a horizontal slit.
-    els.append(sprite("s1h1-flash", "bastion-s1-flare", c, c + 4, [
-        kf(0, at(hit, (0.0, 0.007, 0.007)), [0, 0, 0], [s256(0.15), s256(0.15), 1.0]),
-        kf(1, scale=[s256(1.1), s256(1.1), 1.0], ease="out_back"),
-        kf(3, scale=[s256(0.5), s256(0.5), 1.0], ease="out_quad")]))
+    els.append(sprite("s1h1-flash", "bastion-s1-flare", s0, s0 + 4, [  # r26: peak on spawn (see the streak above)
+        kf(0, at(hit, (0.0, 0.007, 0.007)), [0, 0, 0], [s256(1.1), s256(1.1), 1.0]),
+        kf(1, scale=[s256(0.95), s256(0.95), 1.0], ease="out_quad"),
+        kf(3, scale=[s256(0.45), s256(0.45), 1.0], ease="in_quad")]))
     # r12 (particle-artist): the six static orange spark-streak sprites are gone. A sprite element cannot move (it only
     # scaled in place) and they held 6 of the ~38 displays hit 1 can spend; the orange streaks are now MOVING display
     # particles (s1h1-p-streaks in bastion_s1_particles.py), next to the gold spark particles.

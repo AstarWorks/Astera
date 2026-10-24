@@ -586,6 +586,17 @@ SWEEPS = {
                   # If the blade does not sweep a full turn the ring is closed on the follow-through (`close_ticks`) by
                   # drawing the tail back to meet the head, while the head stays on the blade.
                   fit_plane=True, track="reversal", close_ticks=2,
+                  # r26 (reviewer r25 #2: the compare close-up showed no ring on the contact frames f13-14, the band came
+                  # one tick after the hurt tint): `lead` = ticks the tile frames run AHEAD of the tip state. The rig pose of
+                  # tick l is SENT at l - 1 and interpolated over that client tick (rig_path "reached" = l), while a text
+                  # swap / spawn sent at l only shows a client tick later, so a discrete frame scheduled on the reached tick
+                  # lands one tick behind the blade. lead 1 = swap on the tick the pose packet goes out.
+                  lead=1,
+                  # r26 (reviewer r25 #3: a 1 px dotted seam across the band at the tile join, compare f16 at 2x): two quads
+                  # that only abut leave a sub-pixel crack; each tile now covers `tile_overlap` texels (of 256) past every
+                  # edge (sprite scale grows by the same factor), so neighbours overlap by 2 x that across the join. The
+                  # band core is opaque, so the double-drawn strip does not show.
+                  tile_overlap=2,
                   fade=[(0.0, 0.9, 1.0, 0.4), (0.0, 0.7, 0.95, 0.35), (0.0, 0.55, 0.9, 0.3), (0.0, 0.4, 0.85, 0.3),
                         (0.0, 0.3, 0.8, 0.3)]),
     # hit 2 low ring: plane tilted RING_TILT (lowest toward phi 60 = left-front), centre on the pivot axis at the
@@ -700,6 +711,11 @@ def ring_radius(name):
     return al_deg, r
 
 
+def tile_grow(name):
+    """r26: scale factor of one tile (sprite extent and placement scale): 1 + 2 * tile_overlap / 256."""
+    return 1.0 + 2.0 * SWEEPS[name].get("tile_overlap", 0) / 256.0
+
+
 def ring_frame(size, name, tail, head, tscale, opacity, floor_t=0.0, window=None):
     """hit-1 ring frame (front view, X = e1): gold band whose INNER edge is white-hot (the blade tip runs along it), dark
     rim outside, needle toward the tail, faint fan inward. Radius / angle are horizontal (aniso).
@@ -716,8 +732,9 @@ def ring_frame(size, name, tail, head, tscale, opacity, floor_t=0.0, window=None
     else:
         sa, sb, n = window
         h = sw.get("tile_half", half) / n
-        a = sa * h + (X - size / 2) * (2 * h / size)
-        b = sb * h + (size / 2 - Y) * (2 * h / size)
+        hw = h * tile_grow(name)  # r26: the tile reaches tile_overlap texels past its edges (no crack at the join)
+        a = sa * h + (X - size / 2) * (2 * hw / size)
+        b = sb * h + (size / 2 - Y) * (2 * hw / size)
     zz = b * sw["aniso"]
     r = np.hypot(a, zz)
     ang = np.degrees(np.arctan2(zz, a))
@@ -1041,13 +1058,14 @@ def ring_schedule(name, probe=48):
         raise SystemExit(f"ring_schedule({name}): tile(s) {missing} never hold band texels over fx {min(states)}..{last} "
                          f"(window {win}, tail {tail:.1f}, head {last_hd:.1f}): the ring does not reach that quarter")
     strips = {}
-    spawn = {qi: max(0, t0 - 2) for qi, t0 in first.items()}
+    lead = sw.get("lead", 0)  # r26: frames run `lead` ticks ahead of the tip state (client display lag, see SWEEPS hring)
+    spawn = {qi: max(0, t0 - 2 - lead) for qi, t0 in first.items()}
     for qi, s0 in spawn.items():
-        strips[qi] = [None] + [states.get(t) for t in range(s0 + 2, last + 1)]
+        strips[qi] = [None] + [states.get(t + lead) for t in range(s0 + 2, last + 1 - lead)]
     nfr = max(len(v) for v in strips.values())
     for qi in strips:
         strips[qi] += [None] * (nfr - len(strips[qi]))
-    out = {"states": states, "start": first, "spawn": spawn, "last": last, "window": (s, c, r, e), "strips": strips, "frames": nfr,
+    out = {"states": states, "start": first, "spawn": spawn, "last": last, "end": last + 1 - lead, "lead": lead, "window": (s, c, r, e), "strips": strips, "frames": nfr,
            "off_plane": off, "tail": tail, "closed_at": closed_at, "plane": plane}
     _SCHEDULES[name] = out
     return out
@@ -1075,7 +1093,7 @@ def make_sweep(name):
         af = sw.get("alpha_floor", 0.0)
         sch = ring_schedule(name)
         print(f"{name}: window {sch['window']}, tail {sch['tail']:.1f}, tile first band {sch['start']}, spawn {sch['spawn']}, last {sch['last']}, "
-              f"frames {sch['frames']}, tip off-plane max {sch['off_plane']:.2f}, closed at fx {sch['closed_at']}"
+              f"frames {sch['frames']}, lead {sch['lead']}, end {sch['end']}, tip off-plane max {sch['off_plane']:.2f}, closed at fx {sch['closed_at']}"
               + (f", fitted plane tilt {sch['plane'][0]:.1f} deg, centre {np.round(sw['centre'], 2).tolist()}, "
                  f"e1 {np.round(sw['e1'], 3).tolist()}" if sch["plane"] else ""))
         empty = np.zeros((size, size, 4), np.uint8)
