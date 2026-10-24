@@ -1,0 +1,32 @@
+# ADR-0252 demo: plays content/vfx/demo-particle-skins.yaml in front of the caster. Not bound to any
+# item; cast it with `caster.cast(...)` in the simulator.
+
+id: vfx-demo-particle-skins
+
+name:
+  ja: "デモ・パーティクル外装"
+  en: "Demo Particle Skins"
+description:
+  ja: "リテクスチャした本物のパーティクル（火の粉・火花・煙）を大量に飛ばすデモ。"
+  en: "Bursts of retextured vanilla particles (embers, sparks, smoke), dozens at once."
+
+archetype: aoe
+cooldown_ticks: 60
+tags: [ demo, vfx ]
+
+params:
+  type: aoe
+  radius: 4.0
+  falloff: linear
+  damage:
+    - base: { type: literal, value: 1.0 }
+      attribute: physical
+
+phases:
+  type: aoe
+  cast:
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: demo-particle-skins
+  hit_entity: []
+  expire: []

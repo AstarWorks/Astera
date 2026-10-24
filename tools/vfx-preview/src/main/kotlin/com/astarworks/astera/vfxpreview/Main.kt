@@ -35,6 +35,7 @@ data class PreviewOptions(
     val sprites: SpriteFrames = SpriteFrames.NONE,
     /** Glyph art of those sprites (`content/textures/generated/sprites`). */
     val spriteStrips: SpriteStrips = SpriteStrips.default(),
+    val particleSkins: ParticleSkinFrames = ParticleSkinFrames.default(),
 )
 
 /** Frames of one effect, rendered but not yet written. */
@@ -75,7 +76,7 @@ object VfxPreview {
         // Frame once for the whole effect so tiles are comparable.
         val all = ticks.flatMap { SceneBuilder.points(SceneBuilder.build(replay, it, shiftAt(it))) }
         val camera = Camera.fit(opts.view, all, opts.width, opts.height)
-        val renderer = Renderer(camera, def.id.value, opts.spriteStrips)
+        val renderer = Renderer(camera, def.id.value, opts.spriteStrips, opts.particleSkins)
         val frames = ticks.map { t -> renderer.render(SceneBuilder.build(replay, t, shiftAt(t)), t, shiftAt(t)) }
         return RenderedEffect(def.id.value, replay, frames)
     }
@@ -135,7 +136,7 @@ fun main(args: Array<String>) {
         }
         i++
     }
-    opts = opts.copy(sprites = VfxPreview.loadSprites(File(contentDir, "sprites")), spriteStrips = SpriteStrips(contentDir))
+    opts = opts.copy(sprites = VfxPreview.loadSprites(File(contentDir, "sprites")), spriteStrips = SpriteStrips(contentDir), particleSkins = ParticleSkinFrames(contentDir))
     val vfxDir = File(contentDir, "vfx")
     val files = if (all) {
         vfxDir.listFiles { f -> f.extension == "yaml" }?.sortedBy { it.name }.orEmpty()

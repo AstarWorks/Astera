@@ -35,7 +35,7 @@ data class LiveDisplay(
  * A particle emission still visible, [age] ticks after it was emitted. [direction] is the element's
  * direction of travel (the `along_tangent` velocity), [trailTarget] the plan-relative `toward` point.
  */
-data class LiveParticle(val position: Vec3, val age: Int, val direction: Vec3? = null, val trailTarget: Vec3? = null)
+data class LiveParticle(val position: Vec3, val age: Int, val direction: Vec3? = null, val trailTarget: Vec3? = null, val particleId: String? = null)
 
 /**
  * Replays a [VfxPlan] the way a vanilla client would see it: a display is live from its spawn
@@ -52,11 +52,11 @@ class PlanReplay(val plan: VfxPlan) {
     fun liveCount(tick: Int): Int = live(tick).size
 
     fun particles(tick: Int, lifetime: Int = PARTICLE_LIFETIME_TICKS): List<LiveParticle> = plan.elements
-        .flatMap { el -> el.particles }
-        .filter { it.tick <= tick && tick - it.tick < lifetime }
-        .flatMap { e ->
+        .flatMap { el -> val id = (el.kind as? VfxElementKind.Particle)?.particleId?.value; el.particles.map { it to id } }
+        .filter { (e, _) -> e.tick <= tick && tick - e.tick < lifetime }
+        .flatMap { (e, id) ->
             // along_path elements emit the whole streak between the previous and current position
-            e.pathOffsets.ifEmpty { listOf(e.offset) }.map { LiveParticle(it, tick - e.tick, e.tangent, e.trailTarget) }
+            e.pathOffsets.ifEmpty { listOf(e.offset) }.map { LiveParticle(it, tick - e.tick, e.tangent, e.trailTarget, id) }
         }
 
     private fun liveOf(el: VfxElementPlan, tick: Int): LiveDisplay {
@@ -142,6 +142,9 @@ class PlanReplay(val plan: VfxPlan) {
 
     companion object {
         const val PARTICLE_LIFETIME_TICKS: Int = 4
+
+        /** Emissions are kept this long so a skinned particle can play its frames (plain dots still fade after [PARTICLE_LIFETIME_TICKS]). */
+        const val SKIN_LIFETIME_TICKS: Int = 40
     }
 }
 

@@ -53,7 +53,7 @@ sealed interface Prim {
         val glyph: String?,
     ) : Prim
 
-    data class Dot(val position: Vec3, val age: Int) : Prim
+    data class Dot(val position: Vec3, val age: Int, val particleId: String? = null) : Prim
 }
 
 object SceneBuilder {
@@ -109,7 +109,7 @@ object SceneBuilder {
                 is VfxElementKind.Sprite -> error("sprite elements are resolved to text by VfxTimeline.plan")
             }
         }
-        for (p in replay.particles(tick)) prims += Prim.Dot(p.position + shift, p.age)
+        for (p in replay.particles(tick, PlanReplay.SKIN_LIFETIME_TICKS)) prims += Prim.Dot(p.position + shift, p.age, p.particleId)
         return prims
     }
 

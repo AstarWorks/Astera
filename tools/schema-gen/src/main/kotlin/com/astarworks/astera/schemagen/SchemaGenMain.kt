@@ -6,6 +6,7 @@ import com.astarworks.astera.combat.application.config.StatusEffectYamlConfig
 import com.astarworks.astera.core.application.config.BlockDurabilityYamlConfig
 import com.astarworks.astera.core.application.config.GuiYamlConfig
 import com.astarworks.astera.core.application.config.ItemYamlConfig
+import com.astarworks.astera.core.application.config.ParticleSkinYamlConfig
 import com.astarworks.astera.core.application.config.ParticleYamlConfig
 import com.astarworks.astera.core.application.config.SpriteYamlConfig
 import com.astarworks.astera.core.application.config.SkinRigAnimationYamlConfig
@@ -97,6 +98,11 @@ fun main(args: Array<String>) {
             name = "particle",
             serializer = serializer<ParticleYamlConfig>(),
             schemaId = "https://astera.astarworks.com/schemas/particle.schema.json",
+        ),
+        SchemaEntry(
+            name = "particle-skin",
+            serializer = serializer<ParticleSkinYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/particle-skin.schema.json",
         ),
         SchemaEntry(
             name = "vfx",
