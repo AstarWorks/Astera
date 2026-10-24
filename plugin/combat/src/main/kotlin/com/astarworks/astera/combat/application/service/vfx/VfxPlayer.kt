@@ -229,6 +229,8 @@ public class VfxPlayer(
         val age = instance.age
         val plan = instance.plan
         if (instance.staged && age == 1) reveal(instance)
+        // Restore the held weapon a full tick before the rig's displays go (overlap, never a frame with neither).
+        if (instance.staged && age >= plan.durationTicks - 1) releaseHeldItem(instance)
         val targetCorrection = instance.request.target?.let { target ->
             val live = target() ?: return true
             live - (instance.position + (instance.targetReference ?: return true))
@@ -393,12 +395,14 @@ public class VfxPlayer(
         is VfxElementKind.Sprite -> error("sprite elements are resolved to text by VfxTimeline.plan")
     }
 
+    private fun releaseHeldItem(instance: Instance) {
+        if (!instance.staged) return
+        instance.staged = false
+        instance.request.anchorEntityId?.let { heldItems?.rigEnded(it) }
+    }
+
     private fun finish(instance: Instance) {
-        // Restore the held weapon before the rig's displays go: overlap for an instant, never a frame with neither.
-        if (instance.staged) {
-            instance.staged = false
-            instance.request.anchorEntityId?.let { heldItems?.rigEnded(it) }
-        }
+        releaseHeldItem(instance)
         for (state in instance.elements) {
             state.handle?.let(displays::remove)
             state.handle = null

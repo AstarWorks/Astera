@@ -8,13 +8,14 @@ import com.astarworks.astera.core.domain.player.PlayerId
 /**
  * `hide_held_item` runtime. A rig that draws the same weapon (VfxPlayer) must replace the real one with no
  * visible gap or overlap, so the hide is not sent when the step runs: if a rig [stage]s itself in the same tick
- * the hide waits for [reveal], which fires in the same server tick the rig's displays are made visible. The
- * displays were spawned a tick earlier (hidden by view range 0), so the client already has them ticked; the gateway sends
- * the hide at server tick end, after the tracker flushed the reveal, so the client never gets the hide first and both
- * changes land together. Without a rig the hide is sent at the end of the step's own tick.
+ * the hide waits for [reveal], which fires in the tick the rig's displays are made visible. The displays were spawned a
+ * tick earlier (hidden by view range 0), so the client already has them ticked. Without a rig the hide is sent at the end
+ * of the step's own tick (gateway: server tick end).
  *
- * The restore is sent [hide]`.duration` ticks after the hide took effect; while a staged rig is still alive it waits for
- * [rigEnded], which runs just before the rig's displays are removed.
+ * [reveal] only schedules the hide one full server tick later (held item and rig overlap for a tick; the rig's first keys
+ * equal the held item's pose, so the overlap reads as one weapon). The restore is sent [hide]`.duration` ticks after the
+ * hide took effect; while a staged rig is still alive it waits for [rigEnded], which VfxPlayer runs a full tick before the
+ * rig's displays are removed.
  */
 public class HeldItemHider(
     private val effects: IEntityEffectsGateway,
@@ -26,7 +27,6 @@ public class HeldItemHider(
         var hidden: Boolean = false
         var hiddenUntil: Long = 0
         var staged: Int = 0
-        var restoreDue: Boolean = false
         var token: Long = 0
     }
 
@@ -49,13 +49,23 @@ public class HeldItemHider(
         return true
     }
 
-    /** The staged rig's displays were made visible this tick: send the waiting hide now. */
+    /**
+     * The staged rig's displays were made visible this tick. The hide follows one full tick later: the rig's first keys
+     * are exactly the held item's pose, so held item + rig overlapping for a tick looks like one weapon, while a gap
+     * (the client needs a tick before a new display draws) shows nothing.
+     */
     public fun reveal(target: PlayerId) {
         val st = states[target] ?: return
-        if (st.pendingTicks > 0) apply(target, st)
+        if (st.pendingTicks <= 0) return
+        scheduler.runLater(ticks(1)) {
+            if (states[target] === st && st.pendingTicks > 0) apply(target, st)
+        }
     }
 
-    /** A staged rig is ending (its displays are removed right after this): restore if the hide is due, else drop an unrevealed hide. */
+    /**
+     * A staged rig is ending (VfxPlayer calls this a full tick before its displays are removed): restore the held item now
+     * so it overlaps the rig for a tick, never leaving a frame with neither. Drops a hide that was never applied.
+     */
     public fun rigEnded(target: PlayerId) {
         val st = states[target] ?: return
         if (st.staged > 0) st.staged--
@@ -66,7 +76,7 @@ public class HeldItemHider(
             states.remove(target)
             return
         }
-        if (st.restoreDue) restore(target, st)
+        if (st.hidden) restore(target, st)
     }
 
     public fun shutdown() {
@@ -79,19 +89,17 @@ public class HeldItemHider(
         st.pendingTicks = 0
         effects.setHeldItemHidden(target, true)
         st.hidden = true
-        st.restoreDue = false
         st.hiddenUntil = maxOf(st.hiddenUntil, scheduler.currentTick() + duration)
         val token = ++st.token
         // A later hide on the same target pushes the end out; only the last one restores the item.
         scheduler.runLater(ticks(duration)) {
             if (states[target] !== st || st.token != token) return@runLater
             if (scheduler.currentTick() < st.hiddenUntil) return@runLater
-            if (st.staged > 0) st.restoreDue = true else restore(target, st)
+            if (st.staged == 0) restore(target, st)
         }
     }
 
     private fun restore(target: PlayerId, st: State) {
-        st.restoreDue = false
         st.hidden = false
         states.remove(target)
         effects.setHeldItemHidden(target, false)

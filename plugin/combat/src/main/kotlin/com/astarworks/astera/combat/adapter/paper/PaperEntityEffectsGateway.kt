@@ -109,8 +109,8 @@ public class PaperEntityEffectsGateway(
 
     override fun setHeldItemHidden(target: PlayerId, hidden: Boolean) {
         if (!hidden) {
-            // The restore goes out immediately: callers send it before the rig's displays are removed, so the real
-            // weapon is visible again before the rig disappears (two coincident weapons for an instant, never none).
+            // The restore goes out immediately: callers send it a full tick before the rig's displays are removed, so the
+            // real weapon is visible again before the rig disappears (two coincident weapons for a tick, never none).
             pendingHides.remove(target)
             sendHeldItem(target, hidden = false)
             return
