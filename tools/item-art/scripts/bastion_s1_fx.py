@@ -88,6 +88,7 @@ import math
 
 ORANGE = "#FF8A1E"
 SMOKE_TINT = "#A0A8A8B0"
+SMOKE_TINT_LOW = "#80B4B4BC"  # r15: lighter / fainter for the low hit-2 puff
 
 
 def sweep(id_, name, start, end):
@@ -133,11 +134,11 @@ def spark(id_, start, p, theta, length, dist, life=4, color=ORANGE):
         kf(life - 1, pos(1.0), scale=[s256(length * 0.45), 0.012, 1.0], ease="in_quad")], color=color)
 
 
-def smoke_up(id_, start, end, p, w0, w1, roll=0):
+def smoke_up(id_, start, end, p, w0, w1, roll=0, tint=None):
     return sprite(id_, "bastion-s1-smoke", start, end, [
         kf(0, p, [0, 0, roll], [s256(w0), s256(w0), 1.0]),
         kf(end - start, [p[0], p[1] + 0.35, p[2]], [0, 0, roll + 25], [s256(w1), s256(w1), 1.0], ease="out_quad")],
-        frame_ticks=2, color=SMOKE_TINT)
+        frame_ticks=2, color=tint or SMOKE_TINT)
 
 
 def spark3(id_, start, p, d, roll, length, life=4, color=ORANGE):
@@ -171,10 +172,12 @@ def high():
         kf(6, scale=[s256(2.3), 0.03, 1.0], ease="in_quad")]))
     # flash on the contact blade. r13: the dark-tinted glint behind it is gone (reviewer r9: it rendered as a big black "+"
     # across the target); contrast comes from the glint's own orange halo and the dark sliver particles.
-    els.append(sprite("s1h1-flash", "bastion-s1-glint", 4, 8, [
-        kf(0, H1_HIT, [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
-        kf(1, scale=[s128(1.2), s128(1.2), 1.0], ease="out_back"),
-        kf(3, scale=[s128(0.7), s128(0.04), 1.0], ease="out_quad")]))
+    # r15 (reviewer r11: the 128 px 4-point glint read as an axis-aligned pixel "+"): `bastion-s1-flare` (256 px, soft radial
+    # core + two slanted tapered spikes), shrinking uniformly instead of collapsing into a horizontal slit.
+    els.append(sprite("s1h1-flash", "bastion-s1-flare", 4, 8, [
+        kf(0, H1_HIT, [0, 0, 0], [s256(0.15), s256(0.15), 1.0]),
+        kf(1, scale=[s256(1.1), s256(1.1), 1.0], ease="out_back"),
+        kf(3, scale=[s256(0.5), s256(0.5), 1.0], ease="out_quad")]))
     # r12 (particle-artist): the six static orange spark-streak sprites are gone. A sprite element cannot move (it only
     # scaled in place) and they held 6 of the ~38 displays hit 1 can spend; the orange streaks are now MOVING display
     # particles (s1h1-p-streaks in bastion_s1_particles.py), next to the gold spark particles.
@@ -204,8 +207,14 @@ def low():
     # centre (1.4, 0.72, 1.0) = bottom edge y 0.13 (still above the floor clip), 0.4 farther out to the caster's left.
     # Perspective model (calibrated on r9/r10 captures, caster pitch 15 / opponent pitch 25, real ~1.25x model):
     # caster 7.5% / opponent 9.8% model -> ~9-10% / ~12-13% expected (r10 model 14.1 / 20.6).
+    # r15 (reviewer r11: from caster, side AND opponent the ink read as a ragged floor puddle; only the low compare camera saw it
+    # upright): the billboard is camera-facing (center) but sat at y 0.13-1.3, 1.7 blocks from the caster / opponent eyes,
+    # so both looked DOWN on a wide flat slab and the side camera saw it at the bodies' feet. Now a chest-height upright
+    # flash beside the pair: centre (1.7, 1.35, 0.85) (bottom y ~0.7, top ~2.0), 2.2 x 1.21 blocks (ratio 0.55, was 0.42).
+    # Perspective model (vfov 90 = the review captures; calibrated on r11: caster 6.5 model vs 6.1 measured): caster 4.4%,
+    # opponent 6.5-8.4% (eye z 2.2 / 1.7), side 0.7% at the bodies' waist-chest band, compare 2.4%.
     els.append(sprite("s1h2-ink", "bastion-s1-ink", 3, 5, [
-        kf(0, [1.4, 0.72, 1.0], [0, 0, 0], [s256(2.8), s256(2.8) * 0.42, 1.0])], see_through=False))
+        kf(0, [1.7, 1.35, 0.85], [0, 0, 0], [s256(2.2), s256(2.2) * 0.55, 1.0])], see_through=False))
     # Round 7b: the low ring is the smear of the r7 ring swing, IN its plane (10 deg tilt, lowest toward phi 60 = left-
     # front at the floor pitch -15 / y 0.11, centre on the pivot axis at tip pitch -5, radius 2.535 = tip; fitted to the
     # r7 keys 24-30 within 0.12 blocks), turning the blade's way (left-back -> back -> right -> front), 221 deg from
@@ -223,13 +232,19 @@ def low():
             kf(1, scale=[s256(w), 0.1, 1.0], ease="out_expo"),
             kf(2, scale=[s256(w * 0.7), 0.02, 1.0], ease="in_quad")], color=col))
     # r13: s1h2-flash-dark removed (black "+" across the target, see high())
-    els.append(sprite("s1h2-flash", "bastion-s1-glint", 4, 8, [
-        kf(0, [0, 1.2, 1.15], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
-        kf(1, scale=[s128(1.6), s128(1.6), 1.0], ease="out_back"),
-        kf(3, scale=[s128(0.9), s128(0.05), 1.0], ease="out_quad")]))
+    # r15 (reviewer r11, opponent f33: a big axis-aligned cross with stair-stepped rays): the 128 px glint at 1.6 blocks sat
+    # ~0.6-0.9 blocks from the opponent eye. Now `bastion-s1-flare` (256 px, soft radial core + slanted tapered spikes,
+    # 2.5x the texel density per block), peak 1.0 block, moved 0.15 lower / closer to the caster (1.0 / 0.95 from the
+    # opponent eye at z 1.7 / 2.0), shrinking uniformly.
+    els.append(sprite("s1h2-flash", "bastion-s1-flare", 4, 8, [
+        kf(0, [0.05, 1.05, 1.0], [0, 0, 0], [s256(0.15), s256(0.15), 1.0]),
+        kf(1, scale=[s256(1.0), s256(1.0), 1.0], ease="out_back"),
+        kf(3, scale=[s256(0.45), s256(0.45), 1.0], ease="out_quad")]))
     # r12 (particle-artist): static orange spark sprites removed (see high()); moving streak particles s1h2-p-streaks-*
     # r12: static chips removed (see high()); dark debris = sliver display particles of the particle layer
-    els.append(smoke_up("s1h2-smoke-up", 6, 13, [0.0, 0.85, 1.1], 1.0, 1.6, roll=180))
+    # r15 (particle-artist, reviewer r11 MINOR: the grey curl floated at chest height between the players, compare t37-39 /
+    # side t38): starts just above the floor (y 0.4, rises to 0.75 = still below the knees-to-waist band), lighter tint.
+    els.append(smoke_up("s1h2-smoke-up", 6, 13, [0.0, 0.4, 1.1], 1.0, 1.5, roll=180, tint=SMOKE_TINT_LOW))
     # r13: the flattened floor smoke (s1h2-smoke, y 0.18) is dropped: it read as a low grey smear on t35-39 (reviewer r9).
     return {"id": "bastion-s1-fx-low", "duration_ticks": 18, "orient": "yaw", "follow": False, "sample_ticks": 1,
             "elements": [e for e, _ in els]}, [m for _, m in els]

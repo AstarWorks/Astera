@@ -59,7 +59,6 @@ def defs():
             f.unlink()
 
 
-GLINT_TINT = "'#FFC850'"
 SLIVER_TINT = None  # r12: the sliver sprite is painted dark brown at alpha 0.8; the old '#FF2A2218' tint turned it black
 
 
@@ -88,7 +87,6 @@ def emitter(eid, sprite, tint, start, p, n, rate, speed, direction, spread, grav
 EMITS = []  # every sprite emitter written this run (for the keep-out / budget report)
 
 
-GLINT_SOL = [(0, 0.5, None), (0.25, 1.0, "out_quad"), (1, 0.0, "in_quad")]
 SLIVER_SOL = [(0, 1.0, None), (0.6, 0.85, None), (1, 0.0, "in_quad")]
 
 
@@ -329,10 +327,13 @@ def hit1():
     # OUTER tips of the right-side spray, spawned at g (-1.25, 1.75, 1.75) = 2.15 from the caster eye (1.41 from the opponent
     # eye), flying -x / up / slightly forward (never back toward the caster), and 25% smaller. Count unchanged (2 + 2).
     g = (-1.25, 1.75, 1.75)
-    f.els.append(emitter("s1h1-p-glints-up", "bastion-s1-glint", GLINT_TINT, 4, g, 2, 2, (0.24, 0.34), "custom[-0.5, 1.1, 0.25]", 25,
-                         0.03, 0.12, (3, 4), (0.07, 0.1), GLINT_SOL, 25))
-    f.els.append(emitter("s1h1-p-glints-r", "bastion-s1-glint", GLINT_TINT, 5, g, 2, 2, (0.24, 0.34), "custom[-1, 1.1, 0.15]", 30,
-                         0.03, 0.12, (3, 4), (0.07, 0.1), GLINT_SOL, -25))
+    # r15 (reviewer r11, caster f11-14: large flat orange 4-point stars read as floor decals / "+"): no 4-point star sprite in
+    # the layer any more. The outer-tip accents are `bastion-s1-spark` (round white-hot core + tapered gold tails along the
+    # screen-horizontal, spin 0 = camera-facing streaks), untinted, same spawn spot and flight.
+    f.els.append(emitter("s1h1-p-motes-up", SPARK, None, 4, g, 2, 2, (0.24, 0.34), "custom[-0.5, 1.1, 0.25]", 25,
+                         0.03, 0.12, (3, 4), (0.1, 0.13), SPARK_SOL, 0))
+    f.els.append(emitter("s1h1-p-motes-r", SPARK, None, 5, g, 2, 2, (0.24, 0.34), "custom[-1, 1.1, 0.15]", 30,
+                         0.03, 0.12, (3, 4), (0.1, 0.13), SPARK_SOL, 0))
     f.els.append(emitter("s1h1-p-slivers", "bastion-s1-sliver", SLIVER_TINT, 4, off(s, 0, 0, -0.1), 5, 2, (0.18, 0.26),
                          "custom[-1, 0.8, 0.1]", 40, 0.03, 0.08, (4, 5), (0.04, 0.06), SLIVER_SOL, 0))
     return f
@@ -344,22 +345,25 @@ def hit2():
     sideways (+-x) with little rise; the caster eye is 1.8 behind."""
     f = Fx("s1h2")
     c = on_blade(H2_KEYS, 31, 1.2)
-    s = off(c, 0, 0.38, 0.0)  # y 0.84: the downward half of the cones stays above the knee (0.5)
+    # r15 (reviewer r11: nothing flat near the floor; sparks above ~0.6): the contact sprays start at y 0.96 (was 0.84) and
+    # their cones point a little more up with less gravity, so y_min >= 0.6 over the whole flight.
+    s = off(c, 0, 0.5, 0.0)
     # blade sheds on the ring sweep before the contact (skill 29 / 30 = fx 2 / 3), flung outward from the pivot axis
     for eid, tick in (("s1h2-p-shed", 2), ("s1h2-p-shed-2", 3)):
         d = blade_dir(H2_KEYS, tick + H2_DELAY)
         p = on_blade(H2_KEYS, tick + H2_DELAY, 2.3, H2_EYE)
-        f.els.append(emitter(eid, SPARK, None, tick, (p[0], max(p[1], 0.6), p[2]), 3 if tick == 2 else 2, 2, (0.24, 0.34),
+        f.els.append(emitter(eid, SPARK, None, tick, (p[0], max(p[1], 0.9), p[2]), 3 if tick == 2 else 2, 2, (0.24, 0.34),
                              "custom[%.2f, 0.5, %.2f]" % (d[0], d[2]), 35, 0.02, 0.15, (3, 4), (0.12, 0.17), SPARK_SOL, 0))
     for side, sg in (("l", 1), ("r", -1)):
-        f.els.append(emitter("s1h2-p-sparks-" + side, SPARK, None, 4, s, 6, 3, (0.3, 0.45), "custom[%d, 0.15, 0.0]" % sg, 20,
-                             0.02, 0.15, (3, 4), (0.14, 0.2), SPARK_SOL, 0))
-        f.els.append(emitter("s1h2-p-streaks-" + side, "bastion-s1-streak", STREAK_TINT, 4, off(c, 0, 0.3, -0.1), 2, 2,
+        f.els.append(emitter("s1h2-p-sparks-" + side, SPARK, None, 4, s, 6, 3, (0.3, 0.45), "custom[%d, 0.3, 0.0]" % sg, 20,
+                             0.01, 0.15, (3, 4), (0.14, 0.2), SPARK_SOL, 0))
+        f.els.append(emitter("s1h2-p-streaks-" + side, "bastion-s1-streak", STREAK_TINT, 4, off(c, 0, 0.45, -0.1), 2, 2,
                              (0.35, 0.5), "custom[%d, 0.1, 0.15]" % sg, 20, 0.0, 0.2, (3, 4), (0.07, 0.1), STREAK_SOL, 0))
         # r14: stars spawn at the outer ends of the side sprays (x +-0.9, z 1.75: 2.12 from the caster eye, 1.19 from the
         # opponent eye), fly outward and slightly forward, 20% smaller (caster FP t36 showed them large at ~1.5 blocks).
-        f.els.append(emitter("s1h2-p-glints-" + side, "bastion-s1-glint", GLINT_TINT, 5, (0.9 * sg, s[1], 1.75), 2, 2, (0.26, 0.36),
-                             "custom[%d, 0.2, 0.15]" % sg, 20, 0.03, 0.12, (3, 4), (0.08, 0.11), GLINT_SOL, 25 * sg))
+        # r15: round-core spark motes instead of 4-point glint stars (see hit1)
+        f.els.append(emitter("s1h2-p-motes-" + side, SPARK, None, 5, (0.9 * sg, s[1], 1.75), 2, 2, (0.26, 0.36),
+                             "custom[%d, 0.3, 0.15]" % sg, 20, 0.02, 0.12, (3, 4), (0.1, 0.13), SPARK_SOL, 0))
         f.els.append(emitter("s1h2-p-slivers-" + side, "bastion-s1-sliver", SLIVER_TINT, 4, s, 2, 2, (0.2, 0.28),
                              "custom[%.1f, 0.3, 0.1]" % (0.9 * sg), 20, 0.015, 0.08, (4, 5), (0.04, 0.06), SLIVER_SOL, 0))
     return f

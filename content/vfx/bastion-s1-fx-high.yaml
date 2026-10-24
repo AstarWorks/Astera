@@ -50,7 +50,7 @@ elements:
     translate: [-0.44, 1.58, 1.5]
     rotate: [0, 0, 6]
 - id: s1h1-flash
-  kind: {type: sprite, sprite: bastion-s1-glint, frame_ticks: 1, loop: false, see_through: true}
+  kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 4
@@ -59,14 +59,14 @@ elements:
   - t: 0
     translate: [-0.44, 1.54, 1.59]
     rotate: [0, 0, 0]
-    scale: [0.03125, 0.03125, 1.0]
+    scale: [0.02344, 0.02344, 1.0]
   - t: 1
-    scale: [0.375, 0.375, 1.0]
+    scale: [0.1719, 0.1719, 1.0]
     ease: out_back
     translate: [-0.44, 1.54, 1.59]
     rotate: [0, 0, 0]
   - t: 3
-    scale: [0.2187, 0.0125, 1.0]
+    scale: [0.07812, 0.07812, 1.0]
     ease: out_quad
     translate: [-0.44, 1.54, 1.59]
     rotate: [0, 0, 0]
@@ -94,7 +94,7 @@ elements:
   start_tick: 2
   keyframes:
   - t: 0
-    translate: [-2.289, 1.135, -0.041]
+    translate: [-2.346, 1.135, -0.042]
   emit: { count: 3, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-1.00, 0.60, -0.02]', spread_deg: 35, gravity: 0.02, drag: 0.15,
     life_ticks: [3, 4], size: [0.12, 0.17], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
@@ -105,7 +105,7 @@ elements:
   start_tick: 3
   keyframes:
   - t: 0
-    translate: [-1.379, 1.527, 1.036]
+    translate: [-1.429, 1.546, 1.087]
   emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-0.70, 0.60, 0.71]', spread_deg: 35, gravity: 0.02, drag: 0.15,
     life_ticks: [3, 4], size: [0.12, 0.17], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
@@ -116,7 +116,7 @@ elements:
   start_tick: 7
   keyframes:
   - t: 0
-    translate: [0.905, 1.61, 1.264]
+    translate: [0.936, 1.621, 1.295]
   emit: { count: 3, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[0.70, 0.60, 0.71]', spread_deg: 35, gravity: 0.02, drag: 0.15,
     life_ticks: [3, 4], size: [0.12, 0.17], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
@@ -164,8 +164,8 @@ elements:
   emit: { count: 5, rate_per_tick: 2, speed: [0.35, 0.5], direction: 'custom[-1, 0.2, 0.25]', spread_deg: 25, gravity: 0.0, drag: 0.2,
     life_ticks: [3, 4], size: [0.07, 0.1], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.15, v: 1.0, ease: out_expo }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
-- id: s1h1-p-glints-up
-  kind: {type: sprite, sprite: bastion-s1-glint, frame_ticks: 1, loop: false, see_through: true, color: '#FFC850'}
+- id: s1h1-p-motes-up
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 4
@@ -173,10 +173,10 @@ elements:
   - t: 0
     translate: [-1.25, 1.75, 1.75]
   emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-0.5, 1.1, 0.25]', spread_deg: 25, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 4], size: [0.07, 0.1], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 25 }], start_frame: random, frame_ticks: [1, 2] }
-- id: s1h1-p-glints-r
-  kind: {type: sprite, sprite: bastion-s1-glint, frame_ticks: 1, loop: false, see_through: true, color: '#FFC850'}
+    life_ticks: [3, 4], size: [0.1, 0.13], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+- id: s1h1-p-motes-r
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 5
@@ -184,8 +184,8 @@ elements:
   - t: 0
     translate: [-1.25, 1.75, 1.75]
   emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-1, 1.1, 0.15]', spread_deg: 30, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 4], size: [0.07, 0.1], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: -25 }], start_frame: random, frame_ticks: [1, 2] }
+    life_ticks: [3, 4], size: [0.1, 0.13], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
 - id: s1h1-p-slivers
   kind: {type: sprite, sprite: bastion-s1-sliver, frame_ticks: 1, loop: false, see_through: true}
   billboard: center

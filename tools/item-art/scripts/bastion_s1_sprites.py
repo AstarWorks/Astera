@@ -387,6 +387,52 @@ def make_glint():
 
 
 # ---------------------------------------------------------------------------------------------------------
+# flare (r15): contact flash = soft radial burst + two SLANTED, tapered spikes (no axis-aligned "+")
+# ---------------------------------------------------------------------------------------------------------
+# reviewer r11: the 128 px `glint` scaled to 1.6 blocks at ~0.8 blocks from the opponent eye read as a big axis-aligned
+# cross with stair-stepped rays (texels nearest-neighbour). The flare is 256 px, the spikes are slanted (+14 deg long,
+# -58 deg short, unequal arm lengths) and taper to needles with a 1.4 px feather, and the radial part is an opaque white /
+# amber core with a translucent orange halo whose alpha is zeroed below 0.12 (the client discards text alpha < 0.1, so a
+# fading halo would otherwise end in an unplanned hard contour).
+FLARE_SPIKES = [(14.0, 118.0, 74.0, 5.2), (-58.0, 54.0, 38.0, 3.6)]  # angle deg, arm length +, arm length -, half width (px)
+
+
+def flare_frame(size, k, glow):
+    X, Y = grid(size)
+    c = size / 2
+    dx, dy = X - c, c - Y
+    r = np.hypot(dx, dy)
+    white, amber, orange = hexc("#FFFFFF"), hexc("#FFC040"), hexc("#FF7A12")
+    img = blank(size * SS)
+    R = 44.0 * k
+    halo = 0.5 * glow * np.clip(1 - (r / R) ** 2, 0, 1) ** 1.6
+    halo = np.where(halo < 0.12, 0.0, halo)
+    img = over(img, orange[None, None] * np.ones((1, 1, 3)), halo)
+    for ang, lp, lm, hw in FLARE_SPIKES:
+        a = math.radians(ang)
+        u = dx * math.cos(a) + dy * math.sin(a)
+        v = -dx * math.sin(a) + dy * math.cos(a)
+        L = np.where(u >= 0, lp, lm) * k
+        t = np.clip(1 - np.abs(u) / L, 0, 1)
+        w = hw * k * t ** 1.8
+        for mul, col, al in ((1.9, orange, 0.55 * glow), (1.25, amber, 0.95), (0.6, white, 1.0)):
+            img = over(img, col[None, None] * np.ones((1, 1, 3)), soft(w * mul - np.abs(v), 1.4) * (t > 0) * al)
+    img = over(img, amber[None, None] * np.ones((1, 1, 3)), soft(17.0 * k - r, 1.5))
+    img = over(img, white[None, None] * np.ones((1, 1, 3)), soft(10.0 * k - r, 1.5))
+    return img
+
+
+def make_flare():
+    size = 256
+    frames = []
+    for k, g in ((1.0, 1.0), (0.7, 0.6)):
+        fr = downsample(flare_frame(size, k, g), size)
+        fr[fr[..., 3] < 0.1 * 255] = 0
+        frames.append(fr)
+    save_strip("flare", frames, size)
+
+
+# ---------------------------------------------------------------------------------------------------------
 # sliver: thin slanted shards, 3 variants
 # ---------------------------------------------------------------------------------------------------------
 def sliver_frame(size, ang_deg, length, wid, peak, bend, alpha_max=0.8):
@@ -468,8 +514,11 @@ SWEEPS = {
     # meets the floor behind the caster); one global radius curve (no monotone curl: the ring continues past the front).
     "hring": dict(centre=np.array([-0.35, 1.15, 0.0]), e1=np.array([1.0, 0.0, 0.0]),
                   e2=np.array([0.0, math.sin(math.radians(20.0)), math.cos(math.radians(20.0))]), sign=-1, r_tip=2.75,
-                  t_max=0.42, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(20.0)), ellipse=(0.0, -0.50, 2.55, 2.09), ymin=0.2,
+                  t_max=0.42, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(20.0)), ellipse=(0.0, -0.15, 2.55, 1.75), ymin=0.2,
                   smooth=10.0, hot="inner", fan_alpha=0.16,
+                  # r15 (reviewer r11: ring centre read 1-1.5 blocks BEHIND the caster from side / compare): ellipse centre
+                  # z -0.50 -> -0.15 (within 0.3 of the caster), semi z 2.09 -> 1.75: the front stays at z 1.6 (opponent-eye
+                  # keep-out unchanged), the back comes in from z -2.59 to -1.9 (y 0.46 there, was 0.2).
                   # r12: ellipse centred on the CASTER (x 0, was the tip-circle centre -0.35) and 2.55 wide (was 2.72): the
                   # right side (compare / side close-ups sit there) is 0.52 farther from those lenses, the left edge stays
                   # inside the 3.0 sprite half. Frames 7+ CLOSE the loop (span 360, thickness floor = 5th value): the
@@ -488,11 +537,11 @@ SWEEPS = {
     # 210.8 (28), 265 (29), 320.7 (30), 379.1 contact (31, phi 18 y 0.11, held 31-32); follow 60.4 (34), 101.6 (35).
     # Played in fx-low (skill tick = fx tick + 27).
     "ring": dict(centre=_PIVOT + np.array([0.0, _TIP * math.sin(math.radians(RING_CENTRE_PITCH)), 0.0]), e1=_f2,
-                 e2=np.cross(_n2, _f2), sign=1, r_tip=round(_TIP * math.cos(math.radians(RING_CENTRE_PITCH)), 3), t_max=0.24, fan_in=1.5, cams=[np.array([0.0, 1.62, 1.7])],  # hit-2 dash stop 1.7
+                 e2=np.cross(_n2, _f2), sign=1, r_tip=round(_TIP * math.cos(math.radians(RING_CENTRE_PITCH)), 3), fan_in=1.5, cams=[np.array([0.0, 1.62, 1.7])],  # hit-2 dash stop 1.7
                  # r13: shipped as 4 quadrant TILES (front face only, 2x texel density) with a soft edge, a thickness floor
                  # (the tail no longer dies to a needle) and a thicker BACK arc (alpha 120-250): the opponent (z 1.7) only
                  # sees the back half, nearly edge-on (~14 deg), so the r9 0.24-block band read as a hairline.
-                 tiles=2, feather=1.2, floor_t=0.55, tail_deg=70.0, boost=(185.0, 70.0, 2.2),
+                 tiles=2, feather=1.2, floor_t=0.55, tail_deg=70.0, boost=(185.0, 70.0, 1.0),
                  # r14 (director r10, compare close-up t32: frame 0 showed a straight head cut and a translucent khaki wash with
                  # a straight top = the fan face, whose alpha-0.1 contour the client's text shader turns into a hard edge;
                  # outer edge still a 1-2 px comb at 2x): no fan (alpha exactly 0 inside the ring), an 18 deg needle head
@@ -500,10 +549,16 @@ SWEEPS = {
                  # softer rim, every alpha < 0.1 zeroed in the art (the client discards it anyway), and tiles that only cover
                  # the ring (tile_half 2.65 instead of 2.85: 7.5% smaller texels at the same 4 displays).
                  fan_alpha=0.0, head_deg=18.0, feather_out=2.0, rim=(0.45, 1.6), tile_half=2.65, alpha_floor=0.1,
-                 frames=[(158, 210.8, 0.75, 1.0), (158, 265, 0.9, 1.0), (158, 320.7, 1.0, 1.0), (158, 379.1, 1.0, 1.0),
-                         (158, 379.1, 1.0, 1.0), (205, 379.1, 0.85, 0.9), (250, 379.1, 0.72, 0.8),
-                         (290, 379.1, 0.58, 0.68), (322, 379.1, 0.44, 0.54), (348, 379.1, 0.3, 0.4),
-                         (364, 379.1, 0.18, 0.28)]),
+                 # r15 (reviewer r11: from the opponent / caster the low ring read as a thin PARTIAL arc; reference e04-e06 is a
+                 # thick FULL low ring): t_max 0.24 -> 0.42 (front arc ~0.2 blocks on screen from the caster, seen ~29 deg from
+                 # above), the back boost 2.2 -> 1.0 (0.84 blocks in-plane, was 0.77) and the contact frames 3-4 are CLOSED
+                 # (tail = head - 360: uniform thickness all round, no head needle / tail taper, see sweep_frame); the fade
+                 # frames open the loop again from the tail side.
+                 t_max=0.42,
+                 frames=[(158, 210.8, 0.75, 1.0), (158, 265, 0.9, 1.0), (130, 320.7, 1.0, 1.0), (19.1, 379.1, 1.0, 1.0),
+                         (19.1, 379.1, 1.0, 1.0), (19.1, 379.1, 0.85, 0.9), (110, 379.1, 0.72, 0.8),
+                         (200, 379.1, 0.58, 0.68), (270, 379.1, 0.44, 0.54), (320, 379.1, 0.3, 0.4),
+                         (355, 379.1, 0.18, 0.28)]),
 }
 
 
@@ -543,7 +598,8 @@ def sweep_radius(name, tail, head, n=721):
         r1 = -wd - np.sqrt(np.maximum(disc, 0.0))
         tip_in = np.linalg.norm(w[None] + r[:, None] * d, axis=1) < SWEEP_KEEP_OUT  # only where the arc itself is inside
         r = np.minimum(r, np.where(tip_in & (disc > 0) & (r1 > 0), r1, 99.0))
-    r = np.minimum.accumulate(r)
+    if span < 359.9:  # r15: a closed loop keeps the per-angle limit (no curl: the ring continues past the front)
+        r = np.minimum.accumulate(r)
     k = max(1, int(SWEEP_SMOOTH_DEG / max(span, 1e-3) * n))
     ker = np.exp(-0.5 * (np.arange(-3 * k, 3 * k + 1) / k) ** 2)
     lim = r
@@ -670,12 +726,15 @@ def sweep_frame(size, name, tail, head, tscale, opacity, window=None):
     if sw.get("floor_t"):  # r13: hold a minimum thickness, taper only the last tail_deg into a needle
         ft = sw["floor_t"]
         prof = head * (ft + (1 - ft) * np.clip(1.0 - u, 0, 1) ** 0.8) * smooth(q / sw["tail_deg"])
+    closed = span >= 359.9
+    if closed:  # r15: a closed loop has no head / tail: uniform thickness all round (boost still applies)
+        prof = np.ones_like(dh)
     if sw.get("boost"):  # r13: thicker band around alpha c (+- w deg, cosine bump), factor 1 + k
         c, w, k = sw["boost"]
         al = tail + sw["sign"] * np.clip(q, 0, span)
         dd = np.abs((al - c + 180.0) % 360.0 - 180.0)
         prof = prof * (1.0 + k * 0.5 * (1 + np.cos(np.pi * np.clip(dd / w, 0, 1))))
-    inside = (dh >= 0) & (dh <= span)
+    inside = ((dh >= 0) & (dh <= span)) | closed
     T = sw["t_max"] * tscale * prof
     fe = sw.get("feather", 0.9)
     d_out = (r_out - r) / px  # px inside the outer edge
@@ -685,6 +744,8 @@ def sweep_frame(size, name, tail, head, tscale, opacity, window=None):
     else:
         band = soft(np.minimum(d_out, d_in), fe) * inside
     cut = np.minimum(dh, span - dh) * math.radians(1.0) * r / px  # soften the angular ends
+    if closed:
+        cut = np.full_like(dh, 99.0)
     band *= soft(cut + 0.4, 1.0)
     floor = soft((world[1] - 0.04) / px, 1.0)  # see_through text would show under the floor
     tt = np.clip(d_out / np.maximum(T / px, 1e-3), 0, 1)  # 0 outer .. 1 inner
@@ -742,7 +803,7 @@ def make_hring():
 
 
 MAKERS = {"crescent": make_crescent, "ink": make_ink, "streak": make_streak, "smoke": make_smoke,
-          "glint": make_glint, "sliver": make_sliver, "ring": make_ring, "hring": make_hring}
+          "glint": make_glint, "flare": make_flare, "sliver": make_sliver, "ring": make_ring, "hring": make_hring}
 
 if __name__ == "__main__":
     for nm in (sys.argv[1:] or MAKERS):
