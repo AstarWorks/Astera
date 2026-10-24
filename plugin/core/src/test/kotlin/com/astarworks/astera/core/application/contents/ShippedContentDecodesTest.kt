@@ -47,6 +47,7 @@ class ShippedContentDecodesTest {
             "blocks" to { d -> CustomBlockContents().bootstrap(d) },
             "particles" to { d -> ParticleContents().bootstrap(d) },
             "sprites" to { d -> SpriteContents().bootstrap(d) },
+            "particle-skins" to { d -> ParticleSkinContents().bootstrap(d) },
             "vfx" to { d -> VfxContents().bootstrap(d) },
             "animations" to { d -> SkinRigContents().bootstrap(d) },
             "gathering" to { d -> GatheringSpotContents().bootstrap(d) },

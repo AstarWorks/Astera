@@ -200,6 +200,7 @@ internal object ItemArt {
         // Items with a source but no code design (neither weapon nor icon): always converted.
         for (id in sources.keys) if ("$TEXTURE_DIR/$id.png" !in files) put(id, ModelStyle.GENERATED) { error(id) }
         files.putAll(SpriteSources.renderAll(contentDir))
+        files.putAll(ParticleSkins.renderAll(contentDir))
         return files
     }
 
@@ -224,6 +225,7 @@ internal object ItemArt {
             if (Files.isDirectory(dir)) Files.list(dir).use { s -> s.forEach { if (contentDir.relativize(it).toString().replace('\\', '/') !in files) Files.delete(it) } }
         }
         SpriteSources.orphans(contentDir, files.keys).forEach(Files::delete)
+        ParticleSkins.orphans(contentDir, files.keys).forEach(Files::delete)
         for ((rel, bytes) in files) {
             val file = contentDir.resolve(rel)
             Files.createDirectories(file.parent)

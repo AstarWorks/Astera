@@ -32,6 +32,8 @@ so tiles on a sheet share one framing. Block colours are approximations (`BlockC
 size assumes 1 font pixel = 1/40 block.
 
 
+Retextured vanilla particles (ADR-0252): an emission whose particle definition names a vanilla type with a `content/particle-skins/<type>.yaml` is drawn as that skin frame (age / `lifetime_ticks` over the frame count; grey skins multiplied by the `data: {kind: tint}` colour) instead of a dot. One frame per emission, no velocity: it shows the art, not the motion.
+
 Sprites (ADR-0239): a text display whose MiniMessage is `<font:astera:vfx/<id>>` + a char U+E000+i
 draws frame i of `content/textures/generated/sprites/<id>.png` (strip of square frames, size = strip
 height) instead of text: nearest-neighbour, `height / 40 * scale` blocks, centred on the display origin

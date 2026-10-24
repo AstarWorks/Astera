@@ -37,6 +37,8 @@ public data class BuiltPack(val zip: Path, val sha1: String, val entryCount: Int
  * | `content/hud/top-level .json`                     | providers merged into `assets/astera/font/default.json` |
  * | `content/fonts/<tree>.json`                  | `assets/astera/font/<tree>.json` (`fonts/vfx/spark.json` = font `astera:vfx/spark`, ADR-0239) |
  * | `content/pack-assets/assets/<path>`          | `assets/<path>` unchanged (skin-rig item definition, ADR-0250) |
+ * | `content/particle-skins/generated/<frame>.png` | `assets/minecraft/textures/particle/` (retextured vanilla particle frames, ADR-0252) |
+ * | `content/particle-skins/generated/<type>.json` | `assets/minecraft/particles/<type>.json` (sprite list; a missing PNG fails the build) |
  * | `content/shader-patches/core/<file>.patch`   | `assets/minecraft/shaders/core/<file>`: vanilla shader from the client jar + our patch (ADR-0250) |
  * | `content/textures/sources/` (all of it)     | not shipped (raster sources for `:tools:item-art`, ADR-0238) |
  * | (generated)                              | transparent sprites hiding the vanilla hearts / armor bar |
@@ -61,6 +63,7 @@ public class ResourcePackBuilder(
         addVanillaOverrides(files)
         addAtlases(files)
         addVerbatim(files)
+        addParticleSkins(files)
         addPatchedShaders(files)
         return files
     }
@@ -253,6 +256,40 @@ public class ResourcePackBuilder(
     }
 
     /**
+     * Retextured vanilla particle types (ADR-0252): `:tools:item-art` writes `content/particle-skins/generated/`
+     * with `astera_<channel>_<i>.png` frames and a vanilla-format `<type>.json` sprite list per skinned type.
+     * The PNGs ship as `assets/minecraft/textures/particle/` (the particle atlas reads that directory), the lists as
+     * `assets/minecraft/particles/<type>.json`. A list that names a PNG that is not there fails the build (the client
+     * would otherwise render the missing-texture checkerboard for every particle of that type), as does a list that
+     * collides with a verbatim file.
+     */
+    private fun addParticleSkins(files: MutableMap<String, ByteArray>) {
+        val dir = contentDir.resolve(PARTICLE_SKINS_DIR)
+        for (file in filesUnder(PARTICLE_SKINS_DIR)) {
+            val rel = file.relativeTo(dir).invariantSeparatorsPathString
+            if (!rel.startsWith("generated/")) continue
+            val name = rel.removePrefix("generated/")
+            when {
+                file.extension == "png" -> files["assets/minecraft/textures/particle/$name"] = Files.readAllBytes(file)
+                file.extension == "json" -> {
+                    val key = "assets/minecraft/particles/$name"
+                    check(key !in files) { "content/$PARTICLE_SKINS_DIR/$rel collides with $key already built" }
+                    files[key] = Files.readAllBytes(file)
+                }
+            }
+        }
+        for ((key, bytes) in files.toSortedMap()) {
+            if (!key.startsWith("assets/minecraft/particles/") || !key.endsWith(".json")) continue
+            for (texture in mapper.readTree(bytes).path("textures")) {
+                val sprite = texture.asText().removePrefix("minecraft:")
+                check("assets/minecraft/textures/particle/$sprite.png" in files) {
+                    "$key lists '$texture' but content/$PARTICLE_SKINS_DIR/generated/$sprite.png is missing (run :tools:item-art:run)"
+                }
+            }
+        }
+    }
+
+    /**
      * Core shader overrides (ADR-0250): `content/shader-patches/core/<file>.patch` holds only Astera's additions
      * and anchors; it is applied to the vanilla `core/<file>` of the target client at build time, so no Mojang
      * source is committed. A missing or ambiguous anchor fails the build.
@@ -314,6 +351,9 @@ public class ResourcePackBuilder(
 
         /** Directory of files copied into the zip unchanged (shader overrides, special item definitions). */
         public const val VERBATIM_DIR: String = "pack-assets"
+
+        /** Retextured vanilla particle types: generated frames + sprite lists live in `<dir>/generated/` (ADR-0252). */
+        public const val PARTICLE_SKINS_DIR: String = "particle-skins"
 
         /** Shader patches applied to the vanilla client's shaders at build time (ADR-0250). */
         public const val PATCH_DIR: String = "shader-patches"

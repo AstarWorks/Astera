@@ -49,9 +49,17 @@ Cross-cutting facts:
 
 ## Custom-particle foundation
 
-Status: not built. Goal: custom particles with enough per-tick animation (movement, spin, scale/colour over life, flipbook by age, randomised variants) to match vanilla particle liveliness. Today's route is TextDisplay glyph sprites ([ADR-0239](../../adr/0239-custom-particle-sprites-as-textdisplay-glyphs.md)): a sprite is placed once at its first keyframe and cannot fade or move ([vfx.md](vfx.md) Learnings 2026-10-24), which is the expressiveness gap.
+Status: **P1 built (route A)**, [ADR-0252](../../adr/0252-particle-foundation-retextured-vanilla-particle-channels.md). A channel = a vanilla particle type whose sprite list the resource pack replaces with hand-drawn smooth frames (`content/particle-skins/<type>.yaml` -> `:tools:item-art` -> `content/particle-skins/generated/` -> pack). Motion, lifetime and billboarding stay vanilla ("every tick looks different"); only the picture is ours. The display core (ADR-0239/0220) stays for hero shapes; routes B (shader) and D (animated item display) are deferred.
 
-Placeholder: link the foundation ADR here once written (number TBD). Resource-pack particle retextures and animated particle sprite sheets are documented here when the first one lands.
+| Channel | Vanilla type | Tint | Frames | Behaviour of the type (26.3 client jar) |
+|---|---|---|---|---|
+| `ember` | `entity_effect` | grey; server colour via `data: {kind: tint, color}` | 8 | translucent; rises (gravity -0.1, friction 0.96), vertical velocity x0.2, life 10-40 ticks; texture must fade itself (no fade in the type) |
+| `spark` | `firework` | baked | 32 (0-7 drawn, rest clear) | white multiplier; velocity kept, friction 0.91, gravity 0.1; life 48-60 ticks, so the visible part is the first 8 frames (~12-15 ticks) |
+| `smoke` | `cloud` | baked grey | 12 | translucent; grey multiplier 0.7-1.0 per particle; life ~18-66 ticks; pulled toward a player within 2 blocks |
+
+Authoring a channel: add `content/particle-skins/<vanilla-type>.yaml`, add/extend a painter in `ParticleSkinPainters.kt` (continuous colour + alpha field, transparent border), `./gradlew :tools:item-art:run`, look at `docs/assets/particle-skin-preview.png`, commit the generated files. Pick a type that (1) picks its sprite by age, (2) renders on the TRANSLUCENT layer when the art needs soft alpha (the `smoke`/`large_smoke`/`white_smoke`/`poof`/`explosion` and `electric_spark`/glow families are OPAQUE: binary alpha only), (3) has a neutral or known colour multiplier, (4) is not used by vanilla gameplay Astera players see. A reskin is server-wide for that type; `contentLint` lists the Astera particle files that use each skinned type.
+
+Emitting 30-100 moving particles per contact costs no display: a `kind: particle` fx element (`start_tick..end_tick`, `every_ticks`) plays a particle definition whose `count: N`, `velocity: {direction, speed, spread_degrees, speed_jitter}` and `shape` plan N particles per call through the `count = 0` directed-particle trick. Demo: skill `vfx-demo-particle-skins` (`content/vfx/demo-particle-skins.yaml`, `content/particles/skin-demo-*.yaml`).
 
 ## Rejected looks
 

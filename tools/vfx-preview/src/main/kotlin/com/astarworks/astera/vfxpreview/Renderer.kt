@@ -102,6 +102,7 @@ class Renderer(
     private val camera: Camera,
     private val label: String,
     private val sprites: SpriteStrips = SpriteStrips.default(),
+    private val skins: ParticleSkinFrames = ParticleSkinFrames.default(),
 ) {
 
     private class Drawable(val depth: Double, val draw: (java.awt.Graphics2D) -> Unit)
@@ -419,6 +420,16 @@ class Renderer(
     private fun dot(out: MutableList<Drawable>, d: Prim.Dot) {
         val s = camera.project(d.position) ?: return
         val z = camera.depth(d.position)
+        val skin = d.particleId?.let { skins.frame(it, d.age) }
+        if (skin != null) {
+            // ADR-0252: the particle's vanilla type is retextured: draw the skin frame (tinted for grey skins).
+            val px = (SKIN_WORLD_SIZE * camera.focal / z).coerceAtLeast(6.0)
+            out += Drawable(z) { g ->
+                g.drawImage(skin, (s[0] - px / 2).toInt(), (s[1] - px / 2).toInt(), px.toInt(), px.toInt(), null)
+            }
+            return
+        }
+        if (d.age >= PlanReplay.PARTICLE_LIFETIME_TICKS) return
         val fade = 1.0 - d.age / (PlanReplay.PARTICLE_LIFETIME_TICKS + 0.0)
         val r = max(2.5, 0.07 * camera.focal / z)
         out += Drawable(z) { g ->
@@ -427,6 +438,11 @@ class Renderer(
             g.color = Color(255, 240, 160, (255 * fade).toInt().coerceIn(0, 255))
             g.fill(Ellipse2D.Double(s[0] - r, s[1] - r, r * 2, r * 2))
         }
+    }
+
+    private companion object {
+        /** Block size a skinned particle quad is drawn at (vanilla quads are ~0.2-0.4 blocks wide). */
+        const val SKIN_WORLD_SIZE = 0.36
     }
 
     private fun scale(c: Color, f: Double): Color =

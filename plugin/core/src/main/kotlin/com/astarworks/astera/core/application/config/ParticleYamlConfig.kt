@@ -167,6 +167,7 @@ public data class ParticleVelocityDto(
     public val custom: List<Double>? = null,
     public val speed: Double = 0.1,
     @SerialName("spread_degrees") public val spreadDegrees: Double = 0.0,
+    @SerialName("speed_jitter") public val speedJitter: Double = 0.0,
 ) {
     public fun toDomain(): ParticleVelocity = ParticleVelocity(
         direction = when (direction.lowercase()) {
@@ -181,6 +182,7 @@ public data class ParticleVelocityDto(
         },
         speed = speed,
         spreadDegrees = spreadDegrees,
+        speedJitter = speedJitter,
     )
 }
 
