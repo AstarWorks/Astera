@@ -19,6 +19,9 @@
 # (0.0 deg yaw/pitch/roll, grip offset 0), held 6 ticks: r8 opponent capture showed the rig at the wiper start (front lean -38 / -33 deg, keys 46-47) until f54 and the
 # held item at f55, so the old 2-tick hold never reached the screen in the front view (side/compare do not see the wiper's sideways lean). FP coverage <= 5.9%.
 # Key -> tick: l+1 (l<=7), l+3 (8..28), l+5 (29+).
+# r13 (opponent view at rest showed only the gold hilt): both REST holds yawed 18 deg OUTWARD (world Y, tip phi 180 -> 198, toward the caster's right),
+#   ramped in through the settles so the overshoot stays (hit 1: 217 -> 198, hit 2: 207 -> 198) and out through keys 21 / 40-41. Keys 13-21 and 34-41 changed;
+#   keys 0-1 and 46-52 untouched; max chunk 52 deg. Numbers: evidence/animator/r13/per-key-r13.txt.
 # Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt (keys 0-6 and 40-52 changed in r8: evidence/animator/r8/per-key-r8.txt; keys 0-20 in r9: evidence/animator/r9/per-key-r9.txt). r10: keys 2-18 in evidence/animator/r10/per-key-r10.txt. r11: keys 39-52 + 3-axis check vs the held item in evidence/animator/r11/per-key-r11.txt.
 # Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
 # Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
@@ -72,15 +75,15 @@ rigs:
   - { t: 10, rotate: [-502.3, -3.7, -224.9] }
   - { t: 11, rotate: [-530.3, 11.9, -244.1] }
   - { t: 12, rotate: [-551.0, 19.5, -261.6] }
-  - { t: 13, rotate: [-560.7, 20.0, -288.4] }
-  - { t: 14, rotate: [-551.5, 18.0, -289.5] }
-  - { t: 15, rotate: [-544.5, 16.4, -290.1] }
-  - { t: 16, rotate: [-539.4, 15.2, -290.4] }
-  - { t: 17, rotate: [-536.3, 14.5, -290.6] }
-  - { t: 18, rotate: [-534.8, 14.1, -290.6] }
-  - { t: 19, rotate: [-534.8, 14.1, -290.6] }
-  - { t: 20, rotate: [-534.8, 14.1, -290.6] }
-  - { t: 21, rotate: [-527.7, 10.4, -261.5] }
+  - { t: 13, rotate: [-571.5, 23.3, -286.7] }
+  - { t: 14, rotate: [-565.6, 22.7, -287.8] }
+  - { t: 15, rotate: [-560.1, 21.8, -288.9] }
+  - { t: 16, rotate: [-556.6, 21.3, -289.5] }
+  - { t: 17, rotate: [-553.4, 20.6, -290.1] }
+  - { t: 18, rotate: [-551.8, 20.2, -290.2] }
+  - { t: 19, rotate: [-551.8, 20.2, -290.2] }
+  - { t: 20, rotate: [-551.8, 20.2, -290.2] }
+  - { t: 21, rotate: [-536.1, 13.4, -261.9] }
   - { t: 22, rotate: [-512.5, -6.4, -220.7] }
   - { t: 23, rotate: [-493.9, -2.7, -178.5] }
   - { t: 24, rotate: [-522.4, -1.2, -159.7] }
@@ -93,14 +96,14 @@ rigs:
   - { t: 31, rotate: [-852.8, -2.2, -170.3] }
   - { t: 32, rotate: [-877.4, 1.1, -196.5] }
   - { t: 33, rotate: [-895.6, 6.2, -228.8] }
-  - { t: 34, rotate: [-906.6, 11.0, -256.5] }
-  - { t: 35, rotate: [-910.8, 14.4, -274.4] }
-  - { t: 36, rotate: [-906.2, 15.1, -284.8] }
-  - { t: 37, rotate: [-900.9, 14.9, -288.9] }
-  - { t: 38, rotate: [-896.8, 14.4, -290.1] }
-  - { t: 39, rotate: [-894.8, 14.1, -290.6] }
-  - { t: 40, rotate: [-893.7, 2.2, -299.9] }
-  - { t: 41, rotate: [-899.3, -25.5, -323.0] }
+  - { t: 34, rotate: [-911.7, 12.8, -256.2] }
+  - { t: 35, rotate: [-922.1, 18.2, -273.2] }
+  - { t: 36, rotate: [-921.0, 20.2, -283.5] }
+  - { t: 37, rotate: [-917.3, 20.7, -287.9] }
+  - { t: 38, rotate: [-913.9, 20.5, -289.5] }
+  - { t: 39, rotate: [-911.8, 20.2, -290.2] }
+  - { t: 40, rotate: [-903.8, 5.9, -300.0] }
+  - { t: 41, rotate: [-904.3, -23.7, -322.9] }
   - { t: 42, rotate: [-936.5, -51.0, -377.6] }
   - { t: 43, rotate: [-980.7, -41.8, -435.0] }
   - { t: 44, rotate: [-1010.0, -33.6, -439.1] }
