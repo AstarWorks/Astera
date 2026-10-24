@@ -217,8 +217,21 @@ def low():
     # r12 placement models caster 4.3 / opponent 7.6 vs 4.0 / 7.7 measured): frame 0 caster 6.8%, opponent 9.7%, side 0.2%,
     # compare 2.5%; frame 1 4.9 / 7.0 / 0.1 / 1.8. Screen centre: caster ndc (-0.08, -0.45) = across the target's waist,
     # opponent (0.07, -0.59) = across the caster's waist where the blade comes in.
+    # r17 (director real client r13: opponent 20.9% yellow / caster 9.1%, a flat opaque slab over the caster's waist,
+    # hands and blade; compare: ~0.4 block ABOVE the blade). The r16 model missed that the hit-2 dash closes to ~1 block:
+    # fitting the projection to the r13 ink masks (inverse ray -> quad, alpha > 0.1, vfov 90, 1280x720; IoU 0.67) puts
+    # the opponent eye at fx (0, 1.62, ~1.35) pitched ~18 deg DOWN (its view tilts on the hit) and the caster eye at
+    # (0, 1.57, ~0.2) pitch ~-4 (the caster ends ~0.2 past the fx origin). That model gives the r13 ink 28.5% / 11.2%
+    # footprint; 70% of it is yellow in the capture, the rest is the white streak, ring and flare drawn over it
+    # (-> 20-21% / 8-9% yellow, as measured). New: the shaded soft band sprite (core + bands, ~18% alpha area of the
+    # frame vs 32%), lowered 0.4 onto the blade line, 2.4 x 2.4 blocks (content band ~2.3 x 0.77, y ~0.37-1.13).
+    # Model footprint frame 0: opponent 8.3% (5.9-10.0 over eye z 1.45-1.3), caster 8.1% (8.1-9.8); frame 1 6.0 / 6.8;
+    # x 0.73 for the overlays drawn on it -> ~6% yellow pixels. At the contact the blade line is at the BOTTOM of both
+    # first-person views (waist height ~1 block from the eye), so the band now enters there (opponent rows ~580-720 of
+    # 720 across the caster's hands/hilt, caster ~580-720, partly under the hotbar). A 2.4 x 1.92 quad (5.1 / 5.7%)
+    # left only a ~90 px sliver at the bottom edge.
     els.append(sprite("s1h2-ink", "bastion-s1-ink", 4, 6, [
-        kf(0, [0.15, 1.15, 1.05], [0, 0, 0], [s256(2.0), s256(2.0) * 0.42, 1.0])], see_through=False))
+        kf(0, [0.15, 0.75, 1.05], [0, 0, 0], [s256(2.4), s256(2.4), 1.0])], see_through=False))
     # Round 7b: the low ring is the smear of the r7 ring swing, IN its plane (10 deg tilt, lowest toward phi 60 = left-
     # front at the floor pitch -15 / y 0.11, centre on the pivot axis at tip pitch -5, radius 2.535 = tip; fitted to the
     # r7 keys 24-30 within 0.12 blocks), turning the blade's way (left-back -> back -> right -> front), 221 deg from

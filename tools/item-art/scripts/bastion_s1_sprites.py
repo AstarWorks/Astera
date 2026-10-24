@@ -199,78 +199,84 @@ def make_crescent():
 
 
 # ---------------------------------------------------------------------------------------------------------
-# ink: ONE connected flat-yellow brush mass with horizontal tongues and torn edges (reference e00-e02), opaque, shown
-# for 3 ticks (full mass, then split / eaten) like the reference's 2-frame flash
+# ink: the hit-2 impact flash as a SHADED horizontal brush band (reference e00-e02: flat saturated yellow ragged
+# bands streaming across the contact), centred on a bright core, soft-edged, slightly see-through
 # ---------------------------------------------------------------------------------------------------------
-# r10 (reviewer on real client r7: ink pale cream, soft edges, 5-6 ticks, hides caster + weapon). Colour decision:
-# the reference pixels are #FCFDAE (s 0.31), but that is a light-on-near-black composite; over Minecraft's mid-grey
-# daylight ground the same value reads cream (r6/r7 captures). The beat sheet (case.json t30: #FFE45A) names the
-# perceived colour, a flat saturated yellow, so the fill is #FFE45A, fully opaque, no hot band and no shade (any tint
-# variation washed it toward cream before). Contrast comes from a thin dark olive rim only.
+# r10: the colour is the perceived beat-sheet yellow #FFE45A (case.json t30), not the reference's sampled #FCFDAE
+# (that is light over near-black; over Minecraft's grey daylight it reads cream).
+# r17 (director real client r13: the r10-r16 sprite, an opaque #FFE45A fill with a 0.6 px feather, high-frequency
+# edge bites and a dark olive rim, read in caster FP and opponent as a FLAT OPAQUE SLAB with a cut-out pixel edge at
+# 0.5-0.8 blocks from the eye, where one texel is ~6 screen px): rebuilt as an impact shape.
+# - Layout: symmetric about a central core (the contact) so it reads the same from the caster and the opponent (a
+#   billboard is mirrored between the two views; the old root-left mass put the root on different sides of the blade).
+#   Four horizontal brush bands leave the core both ways, unequal reaches, gaps between them show the scene.
+# - Shading: white-hot core #FFFBE0 (anisotropic gaussian, ~18% of the width) -> flat #FFE45A body -> warm gold
+#   #F2B926 along the band edges (no dark rim: the rim made the cut-out outline).
+# - Alpha: 0.9 in the core falling to ~0.6 at the band tips (bodies show through the outer half), a 3 px soft edge
+#   with LOW-frequency raggedness (base 7, +-5 px) instead of 2-5 px bites (texel staircases when magnified); the
+#   shader discards alpha < 0.1, so the soft edge ends in a faint 10% step, not a hard outline.
 INK_FLAT = hexc("#FFE45A")
-INK_RIM = hexc("#4A3C08")
-# tongue table: centre y offset from the sprite centre (px, + = down), half thickness at the tip end, reach (0..1 of
-# the full width), wobble seed. The root (left) spine joins them, the gaps open toward the tips.
-INK_TONGUES = [(-62, 11, 0.70, 1), (-30, 17, 1.00, 2), (6, 20, 0.92, 3), (40, 15, 0.80, 4), (66, 9, 0.55, 5)]
+INK_HOT = hexc("#FFFBE0")
+INK_EDGE = hexc("#F2B926")
+# bands: centre y offset (px, + = down), half thickness at the core, reach left / right (0..1 of the half width)
+INK_BANDS = [(-36, 9, 0.58, 0.78, 1), (-13, 16, 0.88, 0.82, 2), (12, 15, 0.80, 0.88, 3), (35, 9, 0.66, 0.54, 4)]
 
 
-def ink_frame(size, grow, diss, boil=0.0, seed=7):
-    """grow: 0..1 reach of the tongues; diss: 0 (solid) .. 1 (gone), eroding tips first through 2D noise; boil: a
-    small phase shift of the edge noise so consecutive full frames are not identical."""
+def ink_frame(size, diss, core=1.0, seed=11):
+    """diss: 0 (full band) .. 1 (gone), tips first then holes; core: weight of the white-hot core."""
     n = size * SS
     X, Y = grid(size)
-    rng = np.random.default_rng(seed)
-    cy = size / 2
-    left = 18.0
-    width = size - 30.0
-    u = np.clip((X - left) / width, 0, 1)  # 0 root .. 1 far tip
-    xs_idx = np.clip((X * SS + boil * 40 * SS).astype(int), 0, n - 1)
+    cx, cy = size / 2, size / 2
+    half = size / 2 - 8.0
+    u = (X - cx) / half  # -1 left tip .. +1 right tip
+    au = np.abs(u)
     field = np.full(X.shape, -9.0)
-    for yc, h, reach, ts in INK_TONGUES:
+    xs_idx = np.clip((X * SS).astype(int), 0, n - 1)
+    for yc, h, rl, rr, ts in INK_BANDS:
         r2 = np.random.default_rng(seed * 10 + ts)
-        wob = noise1d(n, r2, 5, 3)[xs_idx]
-        thick = noise1d(n, r2, 9, 2)[xs_idx]
-        tipn = noise1d(n, r2, 12, 2)[np.clip((Y * SS).astype(int), 0, n - 1)]
-        tip = reach * grow * (0.86 + 0.14 * tipn)  # ragged, slightly torn tip line
-        centre = cy + yc * (0.55 + 0.45 * u) + 9.0 * (wob - 0.5)  # tongues fan out from the spine
-        hh = h * (0.75 + 0.5 * thick) * (1.0 + 1.4 * (1 - np.clip(u / 0.35, 0, 1)) ** 2)  # fatter at the root
-        hh = hh * np.clip((tip - u) / 0.12, 0, 1) ** 0.45  # taper into the tip
-        bow = left + 2.0 + 34.0 * ((Y - cy) / 90.0) ** 2 + 8.0 * (tipn - 0.5)  # rounded, ragged back edge
-        d = np.minimum(np.minimum(hh - np.abs(Y - centre), (tip - u) * width), X - bow)
+        wob = noise1d(n, r2, 4, 2)[xs_idx]
+        thick = noise1d(n, r2, 6, 2)[xs_idx]
+        reach = np.where(u < 0, rl, rr)
+        centre = cy + yc * (0.75 + 0.25 * au) + 6.0 * (wob - 0.5)
+        hh = h * (0.8 + 0.4 * thick) * np.clip(1.0 - au / reach, 0, 1) ** 0.55 * (1.0 - 0.45 * diss)
+        d = hh - np.abs(Y - centre)
         field = np.maximum(field, d)
-    # root: a ragged ellipse joining every tongue (one connected mass), radius modulated by angle noise
-    cx, rx, ry = left + 22.0, 24.0, 74.0 * grow ** 0.5
+    # core: a ragged ellipse joining the bands (one connected mass)
+    rng = np.random.default_rng(seed)
     ang = np.arctan2(Y - cy, X - cx)
-    an = noise1d(720, rng, 16, 3)[np.clip(((ang + np.pi) / (2 * np.pi) * 719).astype(int), 0, 719)]
-    rr = np.hypot((X - cx) / rx, (Y - cy) / ry) / (0.72 + 0.5 * an)
-    sd = (1.0 - rr) * rx
-    field = np.maximum(field, np.minimum(sd, X - 3.0))
-    # r10: torn brush edge = high-frequency edge noise (2-5 px bites), crisp 0.6 px feather, no translucent tips
-    rag = fbm(n, np.random.default_rng(seed + 31 + int(boil * 10)), base=24, octaves=3) - 0.5
-    field = field + 7.0 * rag * soft(12.0 - np.abs(field), 4.0)
-    alpha = soft(field, 0.6)
-    streak = fbm(n, np.random.default_rng(seed + 99), base=3, octaves=3)
-    streak = np.asarray(Image.fromarray(streak.astype(np.float32), mode="F").resize((n, n // 6), Image.BICUBIC)
-                        .resize((n, n), Image.BICUBIC))  # stretched horizontally = brush grain
-    # dry-brush: a few hard-edged horizontal breaks in the outer half only (holes, not translucency)
-    alpha *= 1.0 - soft(streak - 0.68, 0.02) * soft(u - 0.45, 0.05)
-    # dissolve: tips first, then holes through the body, then the root
+    an = noise1d(720, rng, 9, 2)[np.clip(((ang + np.pi) / (2 * np.pi) * 719).astype(int), 0, 719)]
+    rx, ry = 36.0, 30.0
+    rr_ = np.hypot((X - cx) / rx, (Y - cy) / ry) / (0.8 + 0.35 * an)
+    field = np.maximum(field, (1.0 - rr_ / (1.0 - 0.5 * diss)) * ry)
+    # low-frequency ragged edge (no texel-sized bites)
+    rag = fbm(n, np.random.default_rng(seed + 31), base=7, octaves=2) - 0.5
+    tear = fbm(n, np.random.default_rng(seed + 47), base=16, octaves=2) - 0.5
+    field = field + (10.0 * rag + 5.0 * tear) * soft(10.0 - np.abs(field), 4.0)
+    body = 0.97 - 0.2 * np.clip(au, 0, 1) ** 1.5
+    alpha = soft(field, 1.8) * body * soft(np.minimum(X, size - X) - 10.0, 5.0)  # tips fade before the frame edge
     if diss > 0:
-        dn = fbm(n, np.random.default_rng(seed + 7), base=6, octaves=3)
-        thr = 0.55 * dn + 0.45 * u
-        alpha *= smooth(((1.0 - diss) - thr) / 0.02 + 0.5)  # r10: hard torn holes, no global fade (fading read cream)
+        dn = fbm(n, np.random.default_rng(seed + 7), base=5, octaves=2)
+        thr = 0.6 * dn + 0.4 * au
+        alpha *= smooth(((1.0 - 0.6 * diss) - thr) / 0.08 + 0.5)
+    # shading: hot core, flat body, warm gold toward the band edges, faint horizontal brush grain
+    g = np.exp(-(((X - cx) / 32.0) ** 2 + ((Y - cy) / 17.0) ** 2)) * core
+    edge = (1.0 - soft(field - 4.0, 2.5)) * 0.5
+    grain = np.asarray(Image.fromarray(fbm(n, np.random.default_rng(seed + 99), base=3, octaves=3).astype(np.float32), mode="F")
+                       .resize((n, n // 8), Image.BICUBIC).resize((n, n), Image.BICUBIC))
     col = INK_FLAT[None, None] * np.ones((n, n, 1))
-    rimk = soft(1.2 - field, 0.6) * 0.6
-    col = col * (1 - rimk[..., None]) + INK_RIM[None, None] * rimk[..., None]
+    col = col * (1 - edge[..., None]) + INK_EDGE[None, None] * edge[..., None]
+    col = col * (1 - g[..., None]) + INK_HOT[None, None] * g[..., None]
+    col = col * (0.96 + 0.08 * (grain[..., None] - 0.5))
+    alpha = np.clip(alpha + 0.08 * g, 0, 1)
     return over(blank(n), np.clip(col, 0, 1), alpha)
 
 
 def make_ink():
-    """r10: 2 frames, frame 0 shows on spawn and spawn + 1, frame 1 on spawn + 2 (element lives 3 ticks): the full torn
-    mass (reference t30), then the same mass split and eaten (reference t31 bands, tips gone first)."""
+    """2 frames (element life 2): frame 0 = full band with the hot core (contact), frame 1 = tips eaten, holes, core
+    cooled (reference t31)."""
     size = 256
-    specs = [(1.0, 0.0, 0.0), (1.0, 0.42, 0.6)]
-    frames = [downsample(ink_frame(size, g, d, boil=b), size) for g, d, b in specs]
+    specs = [(0.0, 1.0), (0.45, 0.45)]
+    frames = [downsample(ink_frame(size, d, core=c), size) for d, c in specs]
     save_strip("ink", frames, size)
 
 
