@@ -2,6 +2,7 @@ package com.astarworks.astera.combat.adapter.paper
 
 import com.astarworks.astera.combat.application.port.outbound.HeldItemAudience
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
+import com.astarworks.astera.combat.application.port.outbound.RigReveal
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.NamespacedKey
@@ -106,26 +107,29 @@ public class PaperEntityEffectsGateway(
 
     /** Hides waiting for the end of the server tick (after the entity tracker flushed this tick's display metadata). */
     private val pendingHides: MutableMap<PlayerId, HeldItemAudience> = LinkedHashMap()
+    private val pendingReveals: MutableMap<PlayerId, List<RigReveal>> = LinkedHashMap()
     private var tickEndListenerRegistered: Boolean = false
+    private val bundler: PaperPacketBundler? by lazy { PaperPacketBundler.create(server.javaClass.classLoader) }
 
-    override fun setHeldItemHidden(target: PlayerId, hidden: Boolean, audience: HeldItemAudience) {
+    override fun setHeldItemHidden(target: PlayerId, hidden: Boolean, audience: HeldItemAudience, reveal: List<RigReveal>) {
         if (!hidden) {
             // The restore goes out immediately; the caller times it per audience against the rig's removal.
             pendingHides.remove(target)
+            pendingReveals.remove(target)
             sendHeldItem(target, hidden = false, audience)
             return
         }
         val owner = plugin
         if (owner == null) {
-            sendHeldItem(target, hidden = true, audience)
+            sendHeldItem(target, hidden = true, audience, reveal)
             return
         }
-        // Display metadata (the rig's reveal, view_range 0 -> n) is not sent when the reveal runs: the entity tracker
-        // flushes it later in the same server tick, so an equipment packet sent right away reaches a client tens of ms
-        // before the rig does (compare view: one frame with no weapon). Send the hide only after that flush, at tick
-        // end, so it can only land after the rig is visible: ordered, never a gap.
+        // The hide goes out at tick end, after the entity tracker's metadata flush of this tick. A rig reveal rides in the
+        // same packet bundle as the hide (see PaperPacketBundler), so the order of the two never matters to a client:
+        // two separate packets, even microseconds apart, can straddle a client frame (a frame with two weapons or none).
         val queued = pendingHides[target]
         pendingHides[target] = if (queued == null || queued == audience) audience else HeldItemAudience.ALL
+        if (reveal.isNotEmpty()) pendingReveals[target] = (pendingReveals[target] ?: emptyList()) + reveal
         if (!tickEndListenerRegistered) {
             tickEndListenerRegistered = true
             server.pluginManager.registerEvents(TickEndFlush(), owner)
@@ -137,12 +141,14 @@ public class PaperEntityEffectsGateway(
         fun onTickEnd(event: com.destroystokyo.paper.event.server.ServerTickEndEvent) {
             if (pendingHides.isEmpty()) return
             val due = pendingHides.toList()
+            val reveals = pendingReveals.toMap()
             pendingHides.clear()
-            due.forEach { (target, audience) -> sendHeldItem(target, hidden = true, audience) }
+            pendingReveals.clear()
+            due.forEach { (target, audience) -> sendHeldItem(target, hidden = true, audience, reveals[target].orEmpty()) }
         }
     }
 
-    private fun sendHeldItem(target: PlayerId, hidden: Boolean, audience: HeldItemAudience) {
+    private fun sendHeldItem(target: PlayerId, hidden: Boolean, audience: HeldItemAudience, reveal: List<RigReveal> = emptyList()) {
         val owner = server.getPlayer(target.uuid)?.takeIf { it.isValid } ?: return
         val real = owner.inventory.itemInMainHand
         // Includes the owner: the client applies the equipment packet to its own selected hotbar slot, so first person
@@ -150,6 +156,14 @@ public class PaperEntityEffectsGateway(
         // draws nothing and swaps without the hand animation (pack: astera:held_hidden): no lowering sword in first person
         // and, on restore, no re-equip raise. Packet-only; the server inventory is untouched, and the restore
         // (hidden = false) re-sends the real stack. Any later inventory sync also restores it.
+        val displays = if (hidden) reveal.mapNotNull { r ->
+            (server.getEntity(r.handle.id) as? org.bukkit.entity.Display)?.also { it.viewRange = r.viewRange }
+        } else emptyList()
+        val packets = if (displays.isEmpty()) null else bundler
+        // Setting the view range marked the displays dirty: take that metadata now and bundle it with the hide for every
+        // client that tracks the rig, so the tracker's own later flush has nothing left to send for it.
+        val data = packets?.dirtyDataPackets(displays) ?: emptyList()
+        val tracking = displays.flatMap { it.trackedBy }.map { it.uniqueId }.toSet()
         for (viewer in owner.world.players) {
             val isOwner = viewer.uniqueId == owner.uniqueId
             if (isOwner && audience == HeldItemAudience.OTHERS) continue
@@ -159,7 +173,20 @@ public class PaperEntityEffectsGateway(
                 isOwner -> emptyHandStack(real)
                 else -> org.bukkit.inventory.ItemStack.of(org.bukkit.Material.AIR)
             }
-            viewer.sendEquipmentChange(owner, org.bukkit.inventory.EquipmentSlot.HAND, shown)
+            val owningPlugin = plugin
+            if (isOwner && displays.isNotEmpty() && owningPlugin != null) {
+                // The owner's first-person hand swaps its item only on the client's own tick (ItemInHandRenderer.tick), while a
+                // display whose view range flips is drawn at once: the rig would show 0-3 frames before the hand empties. A
+                // display that is (re)added is drawn from its first tick, the same client tick that updates the hand, so the
+                // owner gets the rig as a fresh entity next to the hide, not as a view-range change.
+                displays.forEach { viewer.hideEntity(owningPlugin, it) }
+                displays.forEach { viewer.showEntity(owningPlugin, it) }
+                viewer.sendEquipmentChange(owner, org.bukkit.inventory.EquipmentSlot.HAND, shown)
+            } else if (packets != null && viewer.uniqueId in tracking) {
+                packets.send(viewer, owner, shown, data)
+            } else {
+                viewer.sendEquipmentChange(owner, org.bukkit.inventory.EquipmentSlot.HAND, shown)
+            }
         }
     }
 

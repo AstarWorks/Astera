@@ -2,6 +2,7 @@ package com.astarworks.astera.combat.application.service
 
 import com.astarworks.astera.combat.application.port.outbound.HeldItemAudience
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
+import com.astarworks.astera.combat.application.port.outbound.RigReveal
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -13,12 +14,13 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * tick earlier (hidden by view range 0), so the client already has them ticked. Without a rig the hide is sent at the end
  * of the step's own tick (gateway: server tick end).
  *
- * Two audiences are timed apart while a rig is staged. Other viewers see the rig's first/last pose equal the third-person
- * held pose, so for them the hide follows [reveal] one full tick later and the restore is sent at [rigEnded] (a full tick
- * before the rig's displays are removed): a one-tick overlap reads as one weapon. The owner's own client draws the held item
- * with the first-person hand model, nowhere near the rig, so any overlap shows two swords: the owner is hidden in the very tick
- * of [reveal] and restored exactly when the rig is removed ([rigRemoved]). Without a rig both audiences are one hide.
- * The restore for others is sent [hide]`.duration` ticks after their hide took effect.
+ * Every viewer, the owner included, gets the hide and the rig's reveal in ONE client packet bundle ([reveal] hands the
+ * staged displays to the gateway): a client applies a bundle atomically, so no frame can show the held item next to the
+ * rig (two weapons) or neither. Two separate packets, even in the same server tick, race the client's frame loop. The
+ * restore for others is sent at [rigEnded] (a full tick before the rig's displays are removed): the rig's last pose equals
+ * the third-person held pose, so that overlap reads as one weapon. The owner's own client draws the held item with the
+ * first-person hand model, nowhere near the rig, so the owner is restored exactly when the rig is removed ([rigRemoved]).
+ * The restore for others is sent [hide]`.duration` ticks after the hide took effect.
  */
 public class HeldItemHider(
     private val effects: IEntityEffectsGateway,
@@ -43,7 +45,7 @@ public class HeldItemHider(
         scheduler.runLater(ticks(0)) {
             if (states[target] === st && st.pendingTicks > 0 && st.staged == 0) {
                 st.ownerHidden = true
-                applyOthers(target, st, HeldItemAudience.ALL)
+                applyHide(target, st, HeldItemAudience.ALL, emptyList())
             }
         }
     }
@@ -57,20 +59,15 @@ public class HeldItemHider(
     }
 
     /**
-     * The staged rig's displays were made visible this tick. The owner's held item is hidden in this same tick (first-person
-     * hand and rig never coincide, so no overlap); other viewers follow one full tick later (the rig's first keys equal the
-     * held item's pose, so a one-tick overlap looks like one weapon, while a gap shows nothing).
+     * The staged rig's displays become visible now: [rig] goes to the gateway together with the hide for every viewer.
+     * Returns `true` when the hide took over the reveal; `false` (no hide pending) means the caller reveals the rig itself.
      */
-    public fun reveal(target: PlayerId) {
-        val st = states[target] ?: return
-        if (st.pendingTicks <= 0) return
-        if (!st.ownerHidden) {
-            effects.setHeldItemHidden(target, true, HeldItemAudience.OWNER)
-            st.ownerHidden = true
-        }
-        scheduler.runLater(ticks(1)) {
-            if (states[target] === st && st.pendingTicks > 0) applyOthers(target, st, HeldItemAudience.OTHERS)
-        }
+    public fun reveal(target: PlayerId, rig: List<RigReveal>): Boolean {
+        val st = states[target] ?: return false
+        if (st.pendingTicks <= 0) return false
+        st.ownerHidden = true
+        applyHide(target, st, HeldItemAudience.ALL, rig)
+        return true
     }
 
     /**
@@ -109,10 +106,10 @@ public class HeldItemHider(
         states.clear()
     }
 
-    private fun applyOthers(target: PlayerId, st: State, audience: HeldItemAudience) {
+    private fun applyHide(target: PlayerId, st: State, audience: HeldItemAudience, rig: List<RigReveal>) {
         val duration = st.pendingTicks
         st.pendingTicks = 0
-        effects.setHeldItemHidden(target, true, audience)
+        effects.setHeldItemHidden(target, true, audience, rig)
         st.othersHidden = true
         st.hiddenUntil = maxOf(st.hiddenUntil, scheduler.currentTick() + duration)
         val token = ++st.token
