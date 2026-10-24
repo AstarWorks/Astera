@@ -109,8 +109,3 @@ rigs:
   - { t: 50, rotate: [-1056.4, -47.8, -419.4] }
   - { t: 51, rotate: [-1056.4, -47.8, -419.4] }
   - { t: 52, rotate: [-1056.4, -47.8, -419.4] }
-  emitters:
-  - { id: tip_ember_1, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 3, end_t: 15 }  # r10: wind-up extreme keys 3-4, sweep 5-7, follow-through to 15
-  - { id: tip_glint_1, particle_id: bastion-s1-tip-glint, point: [0, 2.5, 0], start_t: 5, end_t: 11 }
-  - { id: tip_ember_2, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 24, end_t: 36 }
-  - { id: tip_glint_2, particle_id: bastion-s1-tip-glint, point: [0, 2.5, 0], start_t: 25, end_t: 33 }
