@@ -1,7 +1,7 @@
 # Zwei West Section 3 Ishmael, Knight's Greatsword Form (video 11.633-14.233): two waist-high sweeps. Director integration (pilot, ONE rig).
 # bastion-s1-rig plays at skill tick 0 for the whole skill (freeze 8/31 = the two hit_stops; r9 hit-1 contact tick 8); fx-high/low play at 4/27 (contact = effect tick 4).
 # Hit-1 dash_strike starts at tick 2 (rig keys 0-1 hold the held pose while the caster stands; r6 rig drawn ~1 block ahead when the dash began at tick 0).
-# Sounds: deliver/sound-cues.yaml; vanilla particles ride the blade inside fx-high/low (deliver/particle-cues.yaml round 7b); only the target hit-crit bursts stay here. Caster movement: step-in before hit 1, crouched lunge before hit 2.
+# Sounds: deliver/sound-cues.yaml; vanilla particles ride the blade inside fx-high/low (deliver/particle-cues.yaml round 7b); no spawn_particle steps remain here (no electric_spark user since r9; ADR-0252 ember/spark channels). Caster movement: step-in before hit 1, crouched lunge before hit 2.
 id: bastion-greatsword-s1
 name: {ja: 月輪の薙ぎ, en: Moon Sweep}
 description: {ja: 一歩踏み込んで腰の高さで二度薙ぎ払う。初撃が当たると溜めを得る。, en: Step in and sweep twice at waist height. Landing the first banks charge.}
