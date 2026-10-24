@@ -45,6 +45,9 @@ id: bastion-s1-rig
 duration_ticks: 58
 orient: yaw
 follow: true
+# attach_to_anchor: the displays ride the caster as native passengers (client-side vehicle interpolation), so the rig no longer trails the caster's own camera by ~1 tick
+# during dash_strike (r16 FP lag); keys 0-1 may hold the held pose again. VfxPlayer skips the per-tick follow teleport for attached displays.
+attach_to_anchor: true
 sample_ticks: 1
 rigs:
 - id: sword

@@ -243,7 +243,9 @@ public class VfxPlayer(
         if (plan.follow && anchor != null) {
             anchor()?.let { instance.position = it }
             for (state in instance.elements) {
-                if (!state.selfMoving) state.handle?.let { displays.teleport(it, instance.position + state.offset, 0f, 0f, plan.followTeleportTicks ?: FOLLOW_TELEPORT_TICKS) }
+                // A native passenger already rides the anchor in every client (the caster's own included); a server
+                // teleport here would only re-send a pose-cache-noise offset and make it lag the camera.
+                if (!state.selfMoving && !state.attached) state.handle?.let { displays.teleport(it, instance.position + state.offset, 0f, 0f, plan.followTeleportTicks ?: FOLLOW_TELEPORT_TICKS) }
             }
         }
         for (state in instance.elements) {
