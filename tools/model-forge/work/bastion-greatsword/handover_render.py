@@ -17,7 +17,7 @@ from recipe import texture_map
 from materials import vanilla_path
 ROOT = h.ROOT
 RIG_PARTS = ROOT/'tools/skill-compare/data/bastion-greatsword-s1/deliver/rig-parts.yaml'
-BLOCK_TEX = {'smooth_quartz': 'quartz_block_bottom'}
+BLOCK_TEX = {'smooth_quartz': 'quartz_block_bottom', 'dried_kelp_block': 'dried_kelp_side'}
 
 def png_uri(pixels):
     b = io.BytesIO(); Image.fromarray(pixels).save(b, format='PNG')
@@ -86,7 +86,9 @@ def main():
     rig, nparts = rig_quads(textures)
     body = player_quads()
     cams = {'side': {'pos': [-4.2, 1.3, 0.9], 'target': [0, 1.3, 0.9], 'fov': 40},
-            'front': {'pos': [0.3, 1.5, 5.2], 'target': [0, 1.3, 0.5], 'fov': 40}}
+            'front': {'pos': [0.3, 1.5, 5.2], 'target': [0, 1.3, 0.5], 'fov': 40},
+            'hilt': {'pos': [-1.9, 0.95, 0.55], 'target': [-0.348, 0.85, 0.35], 'fov': 30},
+            'reverse': {'pos': [3.6, 2.2, 1.2], 'target': [-0.3, 1.9, 1.3], 'fov': 40}}
     for label, path in labels.items():
         model = json.loads(Path(path).read_text())
         A = h.hand_chain(False)
