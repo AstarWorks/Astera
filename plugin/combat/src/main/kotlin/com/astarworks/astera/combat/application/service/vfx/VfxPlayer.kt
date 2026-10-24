@@ -194,7 +194,7 @@ public class VfxPlayer(
         // The client needs one tick to render a new display, the held-item hide needs none: spawn the displays
         // invisible now, reveal them (and send the hide) at age REVEAL_AGE. A client ticks a new display only on its own 20 Hz
         // clock, so a reveal one server tick after the spawn can beat that tick (rig drawn a frame late = a frame with no
-        // weapon). Rig keys 0-1 hold the held pose, so the rig is still at the held pose when it is revealed.
+        // weapon). A rig's keys before REVEAL_AGE hold the held pose, so the rig starts from the held pose when it is revealed.
         instance.staged = request.anchorEntityId?.let { heldItems?.stage(it) } == true
         instance.holdsOwnerHide = instance.staged
         if (advance(instance)) {
@@ -479,7 +479,11 @@ public class VfxPlayer(
         /** Vanilla `view_range` of a display that does not set one. */
         public const val DEFAULT_VIEW_RANGE: Float = 1.0f
 
-        /** Effect age at which a staged rig is revealed (it spawns hidden at age 0). */
-        public const val REVEAL_AGE: Int = 2
+        /**
+         * Effect age at which a staged rig is revealed (it spawns hidden at age 0). 1 = the earliest a rig can move: the reveal
+         * bundle carries the key 0 -> 1 update, so only key 0 must equal the held pose (bastion S1 r24 coil). r18 chose 2 because a
+         * display spawned one server tick earlier may not have had a client tick yet; r24 re-measured 1 at 60 fps (2 side + 2 opponent): one weapon in every frame, no empty or doubled reveal frame.
+         */
+        public const val REVEAL_AGE: Int = 1
     }
 }

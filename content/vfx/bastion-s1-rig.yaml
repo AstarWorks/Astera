@@ -4,12 +4,19 @@
 # Rig key time l is displayed at effect tick l + 1 (+ frozen ticks before it); the real client shows it ~1-2 ticks later (r6/r8). Hit 1 contact = key 6, displayed at effect tick 7.
 # r23 (reviewer r22: wind-up coil missing, hit 1 late; director r22: opponent start pop): hit 1 re-keyed, keys 0-6 new, old keys 8-20 -> 7-19, key 20 = an extra REST hold
 #   (hit 2 keeps key 28 = tick 31), keys 21-52 unchanged except a 180 deg turn about the blade from key 6 on (invisible on the symmetric sword; it keeps
-#   the over-the-top drop and the sweep short). Keys 0-1 = held (runtime REVEAL_AGE 2). Keys 2-3 lift over the top slightly outward with the broad face kept
+#   the over-the-top drop and the sweep short). Keys 0-1 = held (runtime REVEAL_AGE 2; r24: 1, only key 0). Keys 2-3 lift over the top slightly outward with the broad face kept
 #   on the caster's left/right axis (front view: edge-on, lean 6 -> 15 -> 30; compare view: broad silver face), keys 4-5 = low-back coil (tip phi 215
 #   pitch -15, tip y 0.11, face to the caster's right; key 5 creeps 21 deg into the sweep), key 6 = contact (the old key-7 pose), one 121 deg chunk 5 -> 6
 #   (cap exception: the reference completes the swing between two frames, the fx-high ring is the swing). Chunks 51/46/55/21/121.
 #   Comments below that name keys >= 8 refer to the pre-r23 numbering (subtract 1 up to key 20).
 #   Numbers: evidence/animator/r23/per-key-r23.txt.
+# r24 (director r23: the r23 keys 2-3 lifted the blade OVER THE TOP t3-5 = a raise, not a coil; reference holds it low behind t0-5): keys 0-5 re-keyed,
+#   runtime REVEAL_AGE 2 -> 1 (VfxPlayer): only key 0 = held, the rig moves from tick 2. The blade goes DOWN and back round the caster's right side,
+#   never above the held pitch (max 52): tip (phi, pitch) 0,52 -> 345,51 -> 315,51 -> 247,33 -> 215,-12 (keys 0-4, tip y 2.78/2.75/2.74/2.16/0.24),
+#   chunks 10/19/52/55; low-back coil at key 4 = tick 5, key 5 creeps 28 deg toward the sweep, contact key 6 = tick 7 unchanged, one 120 deg chunk 5 -> 6
+#   (approved swing exception). Keys 1-2 move little in the FRONT view (lean 5 -> 20 -> 39) because the client's first rig frame lands up to ~1.5 keys after
+#   the reveal under load (r24 60 fps: a 3-chunk path with key 1 at lean 34 popped 45 deg in one frame). FP 0 % from key 3 on. Keys 6-52 untouched.
+#   Numbers + captures: evidence/animator/r24/.
 # Round 10 (reviewer r9: hit-1 PLANE wrong): hit 1 = big TILTED HORIZONTAL SWEEP. Tip plane y = 1.15 + tan(20) * z (anchor; forward end 20 deg higher, as the
 #   reference ring's right end on screen): tip y ~2.04 at the front (head), ~1.1-1.25 at the sides (chest), the plane passes the back at ~0.4. Travel: right -> front -> left -> back.
 # r12 (director r10: opponent saw a 45 deg lean jump t2->t3): keys 2-4 re-routed so the FRONT view leans 0 -> 25 -> 42 -> 38 deg (<= 20/tick):
@@ -98,11 +105,11 @@ rigs:
   - { id: pommel_gold, block: gold_block, offset: [0.0, -0.15, 0.0], size: [0.125, 0.15, 0.125] }
   swing:
   - { t: 0, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 1, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 2, rotate: [-254.1, -51.4, 15.7] }
-  - { t: 3, rotate: [-226.3, -16.2, 51.4] }
-  - { t: 4, rotate: [-208.6, 25.6, 82.2] }
-  - { t: 5, rotate: [-228.7, 15.6, 87.6] }
+  - { t: 1, rotate: [-325.2, -42.5, -50.3] }
+  - { t: 2, rotate: [-303.1, -35.0, -35.5] }
+  - { t: 3, rotate: [-250.3, -14.4, -9.7] }
+  - { t: 4, rotate: [-209.6, 22.8, -14.4] }
+  - { t: 5, rotate: [-239.5, 29.3, 5.5] }
   - { t: 6, rotate: [-345.0, -27.1, 51.9] }
   - { t: 7, rotate: [-401.4, -38.5, 28.9] }
   - { t: 8, rotate: [-461.2, -27.2, -15.9] }
