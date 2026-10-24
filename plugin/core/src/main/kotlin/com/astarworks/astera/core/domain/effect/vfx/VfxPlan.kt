@@ -44,6 +44,8 @@ public data class VfxElementPlan(
     public val particles: List<VfxParticleEmission>,
     /** Spawn position as an offset from the plan origin (emitter particles start at their own point). */
     public val spawnOffset: Vec3 = Vec3.ZERO,
+    /** Rig part standing in for the held item: lit by the weapon-rig shader rule (ADR-0253), see `DisplaySpec.weaponRigShading`. */
+    public val weaponRigShading: Boolean = false,
 )
 
 /**

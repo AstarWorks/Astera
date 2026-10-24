@@ -110,6 +110,8 @@ def build():
         else:
             B('tip_point', 'rim', -hw, hw, y0, y1, -0.24, 0.24)
 
+import weapon_shading  # noqa: E402  (sibling module)
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--project', type=Path, required=True)
@@ -134,6 +136,7 @@ def main():
     used = {f['texture'][1:] for e in model['elements'] for f in e['faces'].values()}
     model['textures'] = {k: v for k, v in model['textures'].items() if k in used}
     model['textures']['particle'] = 'minecraft:block/iron_block'
+    weapon_shading.mark(model)  # ADR-0253: same shading rule as the rig parts
     a.out.write_text(json.dumps(model, indent=2)+'\n')
     print(len(model['elements']), 'elements', sorted(model['textures']))
 

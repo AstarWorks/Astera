@@ -8,6 +8,7 @@ import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
+import com.astarworks.astera.core.domain.effect.WeaponRigShading
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -131,6 +132,9 @@ public class PaperDisplayEntityGateway(
         }
         display.transformation = transformation(spec.transform)
         spec.brightness?.let { display.brightness = Display.Brightness(it, it) }
+        if (spec.weaponRigShading) {
+            display.brightness = Display.Brightness(WeaponRigShading.BLOCK_LIGHT, WeaponRigShading.SKY_LIGHT)
+        }
         spec.glowArgb?.let {
             display.isGlowing = true
             display.glowColorOverride = Color.fromARGB(it)

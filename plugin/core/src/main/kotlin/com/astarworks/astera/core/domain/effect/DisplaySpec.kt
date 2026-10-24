@@ -29,9 +29,16 @@ public data class DisplaySpec(
     public val glowArgb: Int? = null,
     /** Render-distance multiplier; `null` = vanilla default. */
     public val viewRange: Float? = null,
+    /**
+     * `true`: a weapon-rig part that stands in for the held item. The adapter sends the [WeaponRigShading]
+     * light marker, which the pack's item shader lights like an outdoor held item with a lifted underside (ADR-0253).
+     * Excludes [brightness].
+     */
+    public val weaponRigShading: Boolean = false,
 ) {
     init {
         require(brightness == null || brightness in 0..15) { "DisplaySpec.brightness must be 0..15: $brightness" }
+        require(!(weaponRigShading && brightness != null)) { "DisplaySpec.weaponRigShading excludes brightness ($brightness)" }
         require(lifetimeTicks > 0L) { "DisplaySpec.lifetimeTicks must be > 0: $lifetimeTicks" }
     }
 }
