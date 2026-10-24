@@ -1,0 +1,62 @@
+# r11 @b9c532bb (rig parts cab7c364, rig r12 735dbfd3, vfx r14 48a38148, particles r14 82dcdbba), TICKS=72. Ticks = cast tick (compare frame = tick + 6).
+# Published (build/skill-compare-published/bastion-greatsword-s1/<view>/current.json confirmed):
+#   compare e52d9834cbcd (79 f), side fae64fbf681e, caster 7b12f6d07f7d, opponent a6b3dff583dc (73 f each).
+# Quality: compare maxRep 1, cameraMaxLatenessMs 31; side 1; caster 2; opponent 1. Tries: compare 1, side 1, caster 1,
+#   opponent 2 (1st invalid: 'You were defeated'). Early-frame grey diff check: no frozen start in any view.
+
+## (0) Display budget, live count (RCON `execute if entity @e[type=<item|block|text>_display]`, ~2.25 polls/tick, opponent run)
+baseline before cast: 10 text_display (scene/lobby holograms), 0 item, 0 block.
+above baseline: t0-2 22 (rig = 22 block_display) | t7 43 t8 54 t9 55 t10 51 | t30 51 t31 59 t32 57 t33-34 48 | t45-57 12-13 | t58 rig gone.
+PEAK 59 at tick 31 (opponent take 2); 60 at tick 31 (opponent take 1, invalid take, same content). <= 60: within budget, zero headroom.
+The hit-2 contact (t30-32) is the only tick at the limit; the count likely includes a damage-indicator text display (text count sits at baseline+1 for t17-25, not verified).
+(side/caster polls returned 0 because of a parser bug: reply is 'Count: N' capitalised; fixed before the opponent run.)
+
+## (1) weapon t0-5 / t50-61 (one sword?)
+side:     every frame one weapon. Start overlap t2 reads as ONE sword (guards coincide). t3 rig. t4 the tip piece separates
+          from the blade for 1 frame while the blade turns edge-on (also in r10 t4; not new). End: t57 rig -> t58 held, no doubled
+          frame visible; guard shifts ~12 px and blade texture changes (rig: plain grey + white edge dots; held: gold inlay dashes).
+          side-start-3x.jpg, side-end-2x.jpg, side-end-overlap-5x.jpg
+compare:  every frame one weapon. Start overlap t2: ONE sword, right blade edge doubled (~3 px). End overlap t57: ONE sword,
+          guards are both studded now and nearly coincide, blade edges doubled ~3-5 px near the guard (r10: two different crossguards,
+          read as two swords). cmp-start-overlap-3x.jpg, cmp-end-overlap-3x.jpg
+opponent: every frame one weapon, but overlap frames read as TWO thin blades from the front: t2 two parallel rods (~5 px apart,
+          two tips), t57 two tips ~12 px apart, rig tip higher and leaning ~3 deg more than the held item. opp-start-wide.jpg,
+          opp-end-overlap-4x.jpg
+model:    rig blade face has no gold inlay dashes in compare/side (held shows them on the same face), rig tip ends square with a dark
+          rod (held tapers), rig blade ~15-20 % wider in compare t3 vs held t1. These make the hand-over pop at 3x even when the pose matches.
+
+## (2) opponent t1-6 (in-plane blade angle from vertical, camera fixed)
+t1 0, t2 0 (doubled), t3 8, t4 32, t5 35, t6 63, t7 70 deg -> steps 0/8/24/3/28/7. Caster dash makes the body jump closer t5->t6 (expected).
+t3->t4 the blade also turns from edge-on (thin rod) to full face in one tick: reads as a pose pop (smaller than r10's 45 deg).
+End side: t48 15, t49 30, t50 25, t51 8, t52 3 deg; t50->t51 face goes edge-on in one tick.
+
+## (3) ink (#FFE35B flat, sampled #F8E058; % of frame within RGB distance 28, 2 px grid)
+opponent t31 1.5 t32 6.2 t33 0.1     target <= 13 PASS (r10 26.6)
+caster   t31 6.0 t32 6.0              target <= 10 PASS (r10 17.5)
+compare  t30 0.2 t31 1.8 t32 0.2      (r10 3.8)
+side     t31 0.4 t32 0.4              (r10 0.8)
+Opponent: ink lies low at the target's feet / lower-right (opp-ink.jpg), not over the face.
+
+## (4) hit-2 ring first frame (compare)
+Left tile first visible t30, right tile t31: no straight cut ends, no wash membrane, needle head clean (cmp-h2-ring-first.jpg,
+cmp-h2-ring-right.jpg). Outer edge at 2x: smooth soft dark falloff, no comb visible (cmp-h2-ring-edge-2x.jpg). PASS.
+
+## (5) caster first person stars (cas-stars.jpg, cas-stars-2x.jpg)
+Gold glints t10-13: small round glows with short horizontal streaks (8-20 px at 1x), well above/beside the target: no longer in the
+camera near field. PASS for the glints. Still present: 2 orange 4-point star particles t12 top-right (~55 px, read as shuriken);
+5-6 dark brown flat slivers ('-' lens dashes, ~40-80 px) t11-13 next to the glints; orange flat lozenges on the floor t11-13.
+Large 4-point flare on the streak (sprite) t11-12 bottom-left.
+
+## (6) gold/orange blobs per frame (hue 15-58, sat > 0.45, val > 0.6, 6-600 px; moved = no blob within 2 px in previous frame)
+NB mask is not the r10 mask; compare shapes, not absolute numbers. The gold guard of the sword counts as blobs.
+compare  hit1 t6-17:  4 10 2 36 39 45 48 45 29 23 23 37   moved 0 10 2 36 11 24 48 30 20 8 6 30
+compare  hit2 t29-41: 6 23 27 54 60 49 57 52 10 19 13 12 14   moved 0 22 25 52 27 23 57 47 10 18 10 11 11
+side     hit1: 2 4 6 7 8 11 12 15 11 11 16 9 ; hit2: 2 3 2 12 16 25 15 15 16 9 7 8 3
+opponent hit1: 23 17 15 27 22 26 22 14 25 56 5 3 ; hit2: 9 9 11 24 38 31 26 19 6 3 2 4 6
+caster   hit1: 0 0 1 1 35 34 24 7 16 62 65 19 ; hit2: 0 0 2 19 35 35 33 34 31 12 9 11 9
+Ring phases: hit-1 ring t10-16 compare 39-48 then 29/23, opponent 22-26 -> 56 (t15) -> 5; hit-2 ring t32-38 compare 54-60 -> 10,
+opponent 24-38 -> 6, caster 33-35 -> 12. Freeze ticks 8-10 / 31-33 lower the 'moved' share as expected.
+
+## (7) regressions vs r10
+None found. Same: hit-1 ring timing/shape (side t9-16), side t4 tip separation, damage tint ticks. Improved: compare end overlap
+(one sword), ink share (opponent 26.6 -> 6.2, caster 17.5 -> 6.0), hit-2 ring first frame and edge, caster glints out of near field.
