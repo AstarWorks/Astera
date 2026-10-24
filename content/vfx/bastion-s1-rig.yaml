@@ -26,6 +26,10 @@
 #   are never seen there), not the rest yaw (keys 0-1 are still the held pose to 0.00 deg / 0.0005 block). Keys 2-3 re-solved, key 4 (extreme) unchanged:
 #   front lean -5.8 -> -16.6 -> -28.4 -> -37.7 (11/12/9 per tick), face opening 35 -> 57 -> 76 -> 68 (turn spread over 2 ticks), chunks 52/58/35 (eases INTO the extreme),
 #   side -> 9.5 / -25 / -61.5. Keys 5+ untouched (contact key 7 = tick 8). Numbers: evidence/animator/r14/per-key-r14.txt.
+# r15 (director r13 caster FP: the r14 key 2 (phi 300 pitch 74, a raised blade 0.4 block right-front of the eye) filled ~17 % of the right half t2-3; the FOV-70 model said 1.4,
+#   at the capture FOV 90 it is 17.9 = measured). Keys 2-3 re-solved, key 4 (extreme) and keys 5+ unchanged: key 2 = tip phi 342 pitch 56 (stays near the held pose,
+#   FP 5.2 % of the right half), key 3 = phi 238 pitch 51 (behind the eye plane, FP 0). The pass in front of the eye happens inside the 2->3 chunk (mid-chunk <= 9 %, keys show).
+#   front lean -5.8 -> -20.0 -> -30.9 -> -37.7 (14/11/7 per tick), face opening 35 -> 56 -> 81 -> 68 (+21/+25: over 2 ticks), chunks 35/59/55. Numbers: evidence/animator/r15/per-key-r15.txt.
 # Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt (keys 0-6 and 40-52 changed in r8: evidence/animator/r8/per-key-r8.txt; keys 0-20 in r9: evidence/animator/r9/per-key-r9.txt). r10: keys 2-18 in evidence/animator/r10/per-key-r10.txt. r11: keys 39-52 + 3-axis check vs the held item in evidence/animator/r11/per-key-r11.txt.
 # Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
 # Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
@@ -68,8 +72,8 @@ rigs:
   swing:
   - { t: 0, rotate: [-336.4, -47.8, -59.4] }
   - { t: 1, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 2, rotate: [-284.0, -55.3, -58.2] }
-  - { t: 3, rotate: [-243.9, -34.8, -75.9] }
+  - { t: 2, rotate: [-320.0, -46.0, -80.6] }
+  - { t: 3, rotate: [-246.5, -33.2, -49.9] }
   - { t: 4, rotate: [-227.0, -11.9, -90.7] }
   - { t: 5, rotate: [-261.9, 11.6, -117.6] }
   - { t: 6, rotate: [-306.4, -8.2, -123.7] }
