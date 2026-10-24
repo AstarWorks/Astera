@@ -1,0 +1,62 @@
+# r13 @baef0d22 (wp/integrate-limbus ff: animator r14 b4304d44, vfx r16 17c4b44e). TICKS=72. Ticks = cast tick (compare frame = tick + 6).
+# Integration: no skill-YAML / composite change needed (ink spawn fx 4 = skill 31 = damage tick already); contentLint 542/542 OK; shadowJar OK.
+# Published (build/skill-compare-published/bastion-greatsword-s1/<view>/current.json confirmed, meta.implementationCommit baef0d22):
+#   compare d16feab73107 (79 f), side 81e4c1e3a6b5, opponent 48ad127524ad, caster 3161dcaba319 (73 f each; caster HIDE_HUD=0).
+# Quality: compare maxRep 1, cameraMaxLatenessMs 49; side 1; opponent 1; caster 2. Tries: compare 1, side 1, opponent 1,
+#   caster 3 (1st maxRep 8 + 7 zero-diff early frames, 2nd maxRep 7 + 5). Early-frame grey-diff check passes on the used takes.
+# Display peak (RCON live count above the 10 text_display baseline): compare 41 @t31, side 41 @t31, opponent 42 @t31, caster 41 @t31
+#   (r12 40-41). Rig 22 block_display t0-57.
+
+## (1) weapon t0-6 / t50-62, opponent start pose
+opponent: t0-1 held item edge-on vertical; t2 overlap tick (held + rig, two thin blades ~6 px apart at the tip, one sword read);
+          t3 rig ~10 deg lean, face barely open; t4 ~25 deg, face opening; t5 ~30; t6 ~45 (sweep). Steps <= ~15 deg/frame,
+          face turn spread over t3-t4. NO POSE POP (r12: ~25 deg lean + broad face in one frame t1->t2). opp-start.jpg
+          End: t50 ~40 deg -> t51 ~25 -> t52 vertical, t52-57 rig vertical edge-on, t58 overlap (tip doubled ~5 px), t59+ held. opp-end.jpg
+one weapon every frame t0-6 and t50-62 in compare (cmp-start/cmp-end), side (side-start-2x/side-end-2x) and opponent.
+  Overlap frames: compare t2 (no visible double) / t58; side t58 (doubled tip); opponent t2 / t58 (doubled tip). As r12.
+caster FP (HUD on): t0-1 held item; t2-3 rig blade near the camera, broad, covering the upper-right ~15 % of the frame
+  (diff vs empty frame, right half, HUD box excluded: t2 16.7 %, t3 17.9 %, held item t0-1 6.6 %, empty t4 2.7 % = noise);
+  r12 showed a thin blade from the bottom t2-3 and one big frame at t4. t4-49 no weapon. t50-57 rig at the right edge,
+  t58 held item back already in its final pose (no raise). cas-start.jpg, cas-end.jpg
+
+## (2) ink (#FFE35B, sampled #F8E058 / #FFE459; % of frame within RGB 28, 2 px grid)
+            t30  t31  t32  t33  t34   tint (red target) | ink on the tint frame?
+compare     0.0  0.2  1.8  0.3  0.0   t32               | yes, t32 only (1 frame)
+side        0.0  0.0  0.0  0.1  0.0   t32               | ink t33 (1 frame after the tint), small, partly behind the target body
+caster FP   0.1  5.5  6.0  9.1  0.0   t31               | yes, t31-33 (3 frames)
+opponent    0.0  0.1  0.1 20.9  0.3   own view: no tint | ink t33 with the hit flare and cut streak (contact frame of this view)
+Placement: compare = between the bodies from the caster's chest to the target's arms, ~0.4 block ABOVE the blade (cmp-ink-2x.jpg);
+  caster FP = across the target's waist, on the hit (cas-h2.jpg); opponent = across the caster's waist where the blade enters, on
+  the hit (opp-ink.jpg). Position is now on the contact in every view (r12: detached blob beside the target, 1-2 frames early).
+Read: compare reads as a yellow impact smear with a white speed streak, joining the two bodies. Caster FP and opponent read as a
+  FLAT, OPAQUE, RAGGED-EDGED YELLOW SLAB (no internal shading, no core, cut-out pixel edge), not as an impact burst.
+  Opponent 20.9 % of the frame on t33 (vfx-artist model 9.7 %): at the contact the caster has dashed to ~1 block from the target's
+  eye, so the quad sits ~0.5-0.8 block from the opponent camera and covers the lower 40 % of the screen, hiding the caster's
+  waist, hands and blade. Caster FP 9.1 % on t33 (model 6.8 %).
+
+## (3) hit-1 ring
+caster FP t10-14: the band through the target's head is now a 4-8 px translucent hairline at eye level; the head and face are visible
+  every frame (r12: ~60 px opaque gold band t10-14). cas-ring-2x.jpg. PASS. The white cut streak still crosses the target's
+  arms/chest (below the head) t9-15.
+opponent t10-14: the thinned arc is the NEAR (lower) arc of the ellipse from the front; it tapers smoothly from full width at the
+  sides to a hairline in the middle, the far (top) arc behind the caster's head stays full. Reads as the near rim of one closed
+  ellipse, no notch/dent. opp-h1.jpg, opp-ring-2x.jpg. PASS.
+compare t10-15: closed ellipse around the caster, the target-side arc thin; side t10-14 as r12.
+
+## (4) hits without smoke; particles (gold/orange blobs per frame, hue 15-58, sat>0.45, val>0.6, 6-600 px; moved = no blob within 2 px)
+No grey "C" crescents in any view (compare t13-16 / t36-40, caster FP t14-16 were the r12 places). Hits still read from ring + flare +
+  cut streak + tint + sparks/embers; smoke was not carrying either hit.
+compare  hit1 t6-17:  8 5 12 34 40 50 49 56 59 67 86 69       moved 0 3 12 22 30 31 49 42 43 50 66 49   (r12 5..63)
+compare  hit2 t29-41: 12 16 26 43 48 76 52 67 71 64 62 44 55  moved 0 14 26 35 38 63 52 59 53 58 58 42 41 (r12 9..98)
+side     hit1: 5 5 6 9 9 11 13 12 17 16 19 14 ; hit2: 4 4 5 10 13 11 18 29 34 33 34 33 23
+opponent hit1: 20 8 15 14 21 28 21 26 28 32 25 30 ; hit2: 13 10 10 13 15 31 42 52 44 52 47 44 43
+caster   hit1: 21 22 22 42 46 37 37 42 64 46 37 35 ; hit2: 23 22 37 48 62 104 103 108 74 71 73 56 54
+Skins unchanged (soft gold twinkles, round embers); no lavender, squares, "+" or spirals. Small orange embers drift in front of the
+  caster's face in compare t29-33 (cmp-ink-2x.jpg t31-32), as r12.
+
+## (5) regressions vs r12
+- caster FP wind-up: the rig blade (keys 2-3) is a broad blade across the upper right ~15 % of the frame for 2 frames (t2-3),
+  vs r12 thin blade t2-3 + one big frame t4. animator.
+- opponent ink 20.9 % (r12 7.7 %) and reads as a flat slab over the caster's waist/blade. vfx-artist.
+Improved: opponent start pop gone; ink on the contact in every view and on the tint frame (compare, caster); FP hit-1 ring no longer
+  covers the target's head; grey crescents gone; display peak unchanged (41-42).
