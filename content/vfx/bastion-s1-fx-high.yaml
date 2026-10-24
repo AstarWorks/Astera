@@ -171,9 +171,9 @@ elements:
   start_tick: 4
   keyframes:
   - t: 0
-    translate: [-0.44, 1.69, 1.49]
-  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-0.3, 1.1, 0.1]', spread_deg: 25, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 4], size: [0.09, 0.13], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    translate: [-1.25, 1.75, 1.75]
+  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-0.5, 1.1, 0.25]', spread_deg: 25, gravity: 0.03, drag: 0.12,
+    life_ticks: [3, 4], size: [0.07, 0.1], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: 25 }], start_frame: random, frame_ticks: [1, 2] }
 - id: s1h1-p-glints-r
   kind: {type: sprite, sprite: bastion-s1-glint, frame_ticks: 1, loop: false, see_through: true, color: '#FFC850'}
@@ -182,9 +182,9 @@ elements:
   start_tick: 5
   keyframes:
   - t: 0
-    translate: [-0.44, 1.69, 1.49]
-  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-1, 1.1, -0.1]', spread_deg: 30, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 4], size: [0.09, 0.13], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    translate: [-1.25, 1.75, 1.75]
+  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-1, 1.1, 0.15]', spread_deg: 30, gravity: 0.03, drag: 0.12,
+    life_ticks: [3, 4], size: [0.07, 0.1], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: -25 }], start_frame: random, frame_ticks: [1, 2] }
 - id: s1h1-p-slivers
   kind: {type: sprite, sprite: bastion-s1-sliver, frame_ticks: 1, loop: false, see_through: true}

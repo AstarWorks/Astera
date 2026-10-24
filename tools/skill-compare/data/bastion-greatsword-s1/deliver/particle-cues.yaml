@@ -111,3 +111,11 @@ display_budget_peak: {fx-high: 34, fx-low: 34}   # conservative: fx-high sprites
 #       blade tip, 1-2.5 blocks from the caster eye in every tick -> remove those four emitter lines (the ring + sheds carry the tip);
 #     content/skills/bastion-greatsword-s1.yaml spawn_particle bastion-s1-hit-crit (lines ~104 and ~199, target chest = right under
 #       the opponent camera) -> remove both steps (the fx contact clusters carry the hit).
+# Round 14 (particle-artist, director r10 cas-sparks-3x: orange glint stars large in the caster FP t11-13 / t36).
+#   Counts, ticks and the rest of the layer unchanged; only the four glint emitters moved out of the caster near field:
+#     s1h1-p-glints-up  glint '#FFC850' 2 fx 4  spawn (-1.25, 1.75, 1.75) custom[-0.5, 1.1, 0.25]  size 0.07-0.1 (was 0.09-0.13)
+#     s1h1-p-glints-r   glint '#FFC850' 2 fx 5  spawn (-1.25, 1.75, 1.75) custom[-1, 1.1, 0.15]     size 0.07-0.1
+#     s1h2-p-glints-l/r glint '#FFC850' 2+2 fx 5 spawn (+-0.9, 0.84, 1.75) custom[+-1, 0.2, 0.15]  size 0.08-0.11 (was 0.1-0.14)
+#   Keep-out (planner maths): glints caster eye >= 2.17 (was 1.39-1.49), opponent eye >= 1.41 (hit 1) / 1.29 (hit 2).
+#   Display peaks unchanged: fx-high 29 / fx-low 29 conservative particles (+ core 5 / 9 + rig 22).
+#   DIRECTOR: hit-2 peak fx 5 = rig 22 + core 9 + particles 27 expected (29 conservative) = 58-60; a +4 rig part round exceeds 60.

@@ -213,9 +213,9 @@ elements:
   start_tick: 5
   keyframes:
   - t: 0
-    translate: [0.01, 0.842, 1.395]
-  emit: { count: 2, rate_per_tick: 2, speed: [0.26, 0.36], direction: 'custom[1, 0.2, 0.0]', spread_deg: 20, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 4], size: [0.1, 0.14], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    translate: [0.9, 0.842, 1.75]
+  emit: { count: 2, rate_per_tick: 2, speed: [0.26, 0.36], direction: 'custom[1, 0.2, 0.15]', spread_deg: 20, gravity: 0.03, drag: 0.12,
+    life_ticks: [3, 4], size: [0.08, 0.11], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: 25 }], start_frame: random, frame_ticks: [1, 2] }
 - id: s1h2-p-slivers-l
   kind: {type: sprite, sprite: bastion-s1-sliver, frame_ticks: 1, loop: false, see_through: true}
@@ -257,9 +257,9 @@ elements:
   start_tick: 5
   keyframes:
   - t: 0
-    translate: [0.01, 0.842, 1.395]
-  emit: { count: 2, rate_per_tick: 2, speed: [0.26, 0.36], direction: 'custom[-1, 0.2, 0.0]', spread_deg: 20, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 4], size: [0.1, 0.14], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    translate: [-0.9, 0.842, 1.75]
+  emit: { count: 2, rate_per_tick: 2, speed: [0.26, 0.36], direction: 'custom[-1, 0.2, 0.15]', spread_deg: 20, gravity: 0.03, drag: 0.12,
+    life_ticks: [3, 4], size: [0.08, 0.11], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: -25 }], start_frame: random, frame_ticks: [1, 2] }
 - id: s1h2-p-slivers-r
   kind: {type: sprite, sprite: bastion-s1-sliver, frame_ticks: 1, loop: false, see_through: true}

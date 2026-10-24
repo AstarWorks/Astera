@@ -325,10 +325,14 @@ def hit1():
                          0.03, 0.15, (3, 4), (0.12, 0.18), SPARK_SOL, 0))
     f.els.append(emitter("s1h1-p-streaks", "bastion-s1-streak", STREAK_TINT, 4, off(c, 0, -0.1, -0.15), 5, 2, (0.35, 0.5),
                          "custom[-1, 0.2, 0.25]", 25, 0.0, 0.2, (3, 4), (0.07, 0.1), STREAK_SOL, 0))
-    f.els.append(emitter("s1h1-p-glints-up", "bastion-s1-glint", GLINT_TINT, 4, s, 2, 2, (0.24, 0.34), "custom[-0.3, 1.1, 0.1]", 25,
-                         0.03, 0.12, (3, 4), (0.09, 0.13), GLINT_SOL, 25))
-    f.els.append(emitter("s1h1-p-glints-r", "bastion-s1-glint", GLINT_TINT, 5, s, 2, 2, (0.24, 0.34), "custom[-1, 1.1, -0.1]", 30,
-                         0.03, 0.12, (3, 4), (0.09, 0.13), GLINT_SOL, -25))
+    # r14 (director r10 cas-sparks-3x: the orange glint stars filled the caster FP t11-13 at 1.4-1.5 blocks): the stars are the
+    # OUTER tips of the right-side spray, spawned at g (-1.25, 1.75, 1.75) = 2.15 from the caster eye (1.41 from the opponent
+    # eye), flying -x / up / slightly forward (never back toward the caster), and 25% smaller. Count unchanged (2 + 2).
+    g = (-1.25, 1.75, 1.75)
+    f.els.append(emitter("s1h1-p-glints-up", "bastion-s1-glint", GLINT_TINT, 4, g, 2, 2, (0.24, 0.34), "custom[-0.5, 1.1, 0.25]", 25,
+                         0.03, 0.12, (3, 4), (0.07, 0.1), GLINT_SOL, 25))
+    f.els.append(emitter("s1h1-p-glints-r", "bastion-s1-glint", GLINT_TINT, 5, g, 2, 2, (0.24, 0.34), "custom[-1, 1.1, 0.15]", 30,
+                         0.03, 0.12, (3, 4), (0.07, 0.1), GLINT_SOL, -25))
     f.els.append(emitter("s1h1-p-slivers", "bastion-s1-sliver", SLIVER_TINT, 4, off(s, 0, 0, -0.1), 5, 2, (0.18, 0.26),
                          "custom[-1, 0.8, 0.1]", 40, 0.03, 0.08, (4, 5), (0.04, 0.06), SLIVER_SOL, 0))
     return f
@@ -352,8 +356,10 @@ def hit2():
                              0.02, 0.15, (3, 4), (0.14, 0.2), SPARK_SOL, 0))
         f.els.append(emitter("s1h2-p-streaks-" + side, "bastion-s1-streak", STREAK_TINT, 4, off(c, 0, 0.3, -0.1), 2, 2,
                              (0.35, 0.5), "custom[%d, 0.1, 0.15]" % sg, 20, 0.0, 0.2, (3, 4), (0.07, 0.1), STREAK_SOL, 0))
-        f.els.append(emitter("s1h2-p-glints-" + side, "bastion-s1-glint", GLINT_TINT, 5, s, 2, 2, (0.26, 0.36),
-                             "custom[%d, 0.2, 0.0]" % sg, 20, 0.03, 0.12, (3, 4), (0.1, 0.14), GLINT_SOL, 25 * sg))
+        # r14: stars spawn at the outer ends of the side sprays (x +-0.9, z 1.75: 2.12 from the caster eye, 1.19 from the
+        # opponent eye), fly outward and slightly forward, 20% smaller (caster FP t36 showed them large at ~1.5 blocks).
+        f.els.append(emitter("s1h2-p-glints-" + side, "bastion-s1-glint", GLINT_TINT, 5, (0.9 * sg, s[1], 1.75), 2, 2, (0.26, 0.36),
+                             "custom[%d, 0.2, 0.15]" % sg, 20, 0.03, 0.12, (3, 4), (0.08, 0.11), GLINT_SOL, 25 * sg))
         f.els.append(emitter("s1h2-p-slivers-" + side, "bastion-s1-sliver", SLIVER_TINT, 4, s, 2, 2, (0.2, 0.28),
                              "custom[%.1f, 0.3, 0.1]" % (0.9 * sg), 20, 0.015, 0.08, (4, 5), (0.04, 0.06), SLIVER_SOL, 0))
     return f
