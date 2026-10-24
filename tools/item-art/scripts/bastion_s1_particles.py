@@ -226,9 +226,9 @@ def channel_defs():
     for old in PART.glob("bastion-s1-p-*.yaml"):
         old.unlink()
     S, E = "spark", "ember"
-    chdef("spray", S, 3, 0.3, 16, 0.45, comment="r16 hit spray: retextured firework sparks (ADR-0252) thrown along the element's creep direction.")
-    chdef("fan", S, 3, 0.22, 28, 0.4, comment="r16 upward fan: firework sparks rising out of the contact.")
-    chdef("shed", S, 2, 0.17, 25, 0.4, comment="r16 ring shed: one firework spark per path point, flung along the sweep tangent.")
+    chdef("spray", S, 4, 0.3, 16, 0.45, comment="r16 hit spray: retextured firework sparks (ADR-0252) thrown along the element's creep direction.")
+    chdef("fan", S, 4, 0.22, 28, 0.4, comment="r16 upward fan: firework sparks rising out of the contact.")
+    chdef("shed", S, 3, 0.17, 25, 0.4, comment="r16 ring shed: one firework spark per path point, flung along the sweep tangent.")
     chdef("ember", E, 1, 0.05, 0, 0.5, "up", EMBER, "r16 ember: retextured entity_effect, orange; `up` with spread 0 (x = z = 0 exactly) makes the client scale its random sideways drift x0.1, then it rises.")
     chdef("ember-hot", E, 1, 0.05, 0, 0.5, "up", EMBER_HOT, "r16 ember: retextured entity_effect, gold-white hot core.")
     chdef("ember-deep", E, 1, 0.05, 0, 0.5, "up", EMBER_DEEP, "r16 ember: retextured entity_effect, deep red-orange (cooling).")
@@ -354,11 +354,14 @@ def hit1(rp=RP1):
     two eye columns; embers fill the right-hand contact zone and the blade arc's flanks. Every blade-riding element comes
     from the rig path; the contact zones were authored around C0 and move with c."""
     f = Fx("s1h1")
-    s0, k, res, e = rp.swing_windows()[0]
+    s0, k, res, e = rp.strike_windows()[0]
     c, C0 = rp.blade_point(k, radius=1.5), (-0.44, 1.54, 1.59)
     # sheds: one spark per 0.4 blocks along the blade arc at r 2.3 while it sweeps fast (coil end -> contact, resume -> end)
     ring_sheds(f, "shed", "shed", rp, s0, k, 2.3, H1_EYES, 0.4, 0.5)
-    ring_sheds(f, "shed", "shed", rp, res, e, 2.3, H1_EYES, 0.4, 0.5)
+    # r25: the arc after the contact carries the volume (director r24: hit 1 measured 418-527 vs r23 620-750): two rows,
+    # 0.25 apart along the arc, the inner one lifted more so the rows separate as they fly
+    ring_sheds(f, "shed", "shed", rp, res, e, 2.3, H1_EYES, 0.25, 0.5)
+    ring_sheds(f, "shed", "shed", rp, res, e, 1.8, H1_EYES, 0.3, 0.7)
     # contact sprays: three waves to the right, fanned forward / level / back, start on the cut line right of the flash
     for i, (dt, p, d) in enumerate((
             (0, (-0.72, 1.62, 1.55), (-1.0, 0.18, 0.15)),
@@ -375,11 +378,11 @@ def hit1(rp=RP1):
     tg = rp.arc(ft - 0.1, ft + 0.1, radius=2.0, step=0.05)[1][2]
     spray(f, "spray", "spray", res + 2, blade_safe(rp, ft, 2.0, H1_EYES), (tg[0], max(tg[1], 0.0) + 0.35, tg[2]), ticks=2)
     # embers: right contact zone (contact .. +5, ~5 per tick), blade-arc flanks before the contact and on the follow-through
-    scatter(f, "ember", "ember", k, rel_box(c, ((-2.0, -1.25), (1.2, 1.9), (1.15, 1.8)), C0), 6, 11, 0.22)
-    scatter(f, "ember-hot", "ember-hot", k, rel_box(c, ((-1.6, -1.2), (1.4, 1.8), (1.3, 1.7)), C0), 3, 12)
-    scatter(f, "ember-deep", "ember-deep", k + 2, rel_box(c, ((-2.2, -1.3), (1.0, 1.6), (1.1, 1.9)), C0), 5, 13)
+    scatter(f, "ember", "ember", k, rel_box(c, ((-2.0, -1.25), (1.2, 1.9), (1.15, 1.8)), C0), 8, 11, 0.22)
+    scatter(f, "ember-hot", "ember-hot", k, rel_box(c, ((-1.6, -1.2), (1.4, 1.8), (1.3, 1.7)), C0), 5, 12)
+    scatter(f, "ember-deep", "ember-deep", k + 2, rel_box(c, ((-2.2, -1.3), (1.0, 1.6), (1.1, 1.9)), C0), 7, 13)
     ring_embers(f, "ember-ring", "ember", rp, s0, k, 2.2, H1_EYES, 0.35)
-    ring_embers(f, "ember-ring", "ember-deep", rp, res, e, 2.1, H1_EYES, 0.35)
+    ring_embers(f, "ember-ring", "ember-deep", rp, res, e, 2.1, H1_EYES, 0.25)
     # display sprites: orange streaks along the cut (5) and hot-headed char-tailed slivers (8, r21), the parts the channels cannot draw
     s = off(c, 0, 0.15, -0.1)
     f.els.append(emitter("s1h1-p-streaks", "bastion-s1-streak", STREAK_TINT, k, off(c, 0, -0.1, -0.15), 5, 2, (0.35, 0.5),
@@ -394,12 +397,13 @@ def hit2(rp=RP2):
     the opponent eye: sparks spray sideways (+-x) from 0.45-0.5 off the centre line with a little lift; embers fill both
     side zones; the ring sweep sheds sparks ON the blade arc (r24: no longer lifted to y 0.8-1.0 off the low blade)."""
     f = Fx("s1h2")
-    s0, k, res, e = rp.swing_windows()[0]
+    s0, k, res, e = rp.strike_windows()[0]
     c = rp.blade_point(k, radius=1.2)
     ring_sheds(f, "shed", "shed", rp, s0, k, 2.3, H2_EYES, 0.4, 0.55)
     # follow-through: the blade drags at floor pitch (tip y ~0.1, y ~0.25 at r 2.0): sheds start just above it (y >= 0.45)
     # and rise off it (the scrape); late in their life they may sink to 0.25
-    ring_sheds(f, "shed", "shed", rp, res, e, 2.0, H2_EYES, 0.3, 0.75, ymin=0.45, floor=0.25)
+    ring_sheds(f, "shed", "shed", rp, res, e, 2.0, H2_EYES, 0.22, 0.75, ymin=0.45, floor=0.25)
+    ring_sheds(f, "shed", "shed", rp, res, e, 1.6, H2_EYES, 0.3, 0.9, ymin=0.45, floor=0.25)  # r25 inner row (density)
     for sg, side in ((1, "l"), (-1, "r")):
         for dt, dx, dy, dz, d in ((0, 0.5, 0.55, -0.02, (1.0, 0.3, 0.05)), (0, 0.55, 0.55, 0.1, (1.0, 0.4, -0.2)),
                                   (1, 0.6, 0.6, -0.05, (1.0, 0.4, 0.15)), (2, 0.65, 0.5, 0.0, (1.0, 0.3, -0.05))):
@@ -417,7 +421,7 @@ def hit2(rp=RP2):
         f.els.append(emitter("s1h2-p-slivers-" + side, "bastion-s1-sliver", SLIVER_TINT, k, off(c, 0.45 * sg, 0.5, 0.0), 3, 2,
                              (0.2, 0.28), "custom[%.1f, 0.3, 0.1]" % (0.9 * sg), 20, 0.015, 0.08, (4, 5), (0.04, 0.06),
                              SLIVER_SOL, SLIVER_SPIN))
-    ring_embers(f, "ember-ring", "ember-deep", rp, res, e, 2.4, H2_EYES, 0.35, ymin=0.3)
+    ring_embers(f, "ember-ring", "ember-deep", rp, res, e, 2.4, H2_EYES, 0.25, ymin=0.3)
     return f
 
 
