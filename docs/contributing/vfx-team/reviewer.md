@@ -77,3 +77,6 @@ Further checks from [failure-patterns.md](../../reference/vfx/failure-patterns.m
 (The director appends the reviewer's learnings after each skill. Format: `- YYYY-MM-DD <case>: <fact / pitfall / number>`.)
 
 - 2026-10-23 seed: created from repo docs; no skill run yet.
+- 2026-10-24 bastion-greatsword-s1 r22: build ref|compare|side|opponent|caster rows per tick with ffmpeg (fps=20 from case.start_s; compare frame = tick+6). Wind-up fidelity has to be checked against ref t0-5, not only from the hand-over onward; a correct hand-over can hide a missing anticipation pose.
+- 2026-10-24 bastion-greatsword-s1 r22: the hand-over between the held item and the rig can change blade luminance (silver -> near-black). Compare brightness across the hand-over frame as well as the count of blades.
+- 2026-10-24 bastion-greatsword-s1 r22: ring band stair-stepping shows at compare close-up f16-18 at native resolution. Zoom 2x with point filter on the band edge each round.
