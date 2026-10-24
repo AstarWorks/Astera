@@ -11,7 +11,7 @@ import sys
 import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from bastion_s1_sprites import SWEEP_HALF, SWEEPS, sweep_euler  # noqa: E402  (one geometry for art + placement)
+from bastion_s1_sprites import SWEEP_HALF, SWEEPS, TILES, sweep_euler  # noqa: E402  (one geometry for art + placement)
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
@@ -105,6 +105,23 @@ def sweep(id_, name, start, end):
     return out
 
 
+def sweep_tiles(id_, name, start, end):
+    """r13: a plane smear shipped as n x n front-only tiles (`<sprite>-q<i>`, bastion_s1_sprites.make_sweep): each tile is
+    the same plane at 1/n of the size, centred at centre + sa*h*e1 + sb*h*e2 (h = half / n), so the texels are n times
+    smaller at the same display cost per tile. Front only: every camera is on the plane's +Z (up) side."""
+    sw = SWEEPS[name]
+    n = sw["tiles"]
+    h = SWEEP_HALF / n
+    sc = 2 * h / 6.4
+    out = []
+    for qi, (sa, sb) in enumerate(TILES):
+        c = [round(float(v), 3) for v in sw["centre"] + sa * h * sw["e1"] + sb * h * sw["e2"]]
+        el, m = sprite(f"{id_}-q{qi}", f"bastion-s1-{name}-q{qi}", start, end, [kf(0, c, sweep_euler(name), [sc, sc, 1.0])])
+        el["billboard"] = "fixed"
+        out.append((el, m))
+    return out
+
+
 def spark(id_, start, p, theta, length, dist, life=4, color=ORANGE):
     """Orange spark streak (tinted white-hot streak sprite): flies along (0, sin, cos) of theta, shrinks to a needle."""
     r = math.radians(theta)
@@ -152,11 +169,8 @@ def high():
         kf(0, [-0.44, 1.58, 1.5], [0, 0, 6], [s256(0.6), 0.3, 1.0]),
         kf(1, scale=[s256(3.0), 0.3, 1.0], ease="out_expo"),
         kf(6, scale=[s256(2.3), 0.03, 1.0], ease="in_quad")]))
-    # flash on the contact blade + dark star under it
-    els.append(sprite("s1h1-flash-dark", "bastion-s1-glint", 4, 8, [
-        kf(0, [H1_HIT[0], H1_HIT[1], H1_HIT[2] + 0.03], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
-        kf(1, scale=[s128(1.5), s128(1.5), 1.0], ease="out_back"),
-        kf(3, scale=[s128(1.0), s128(0.05), 1.0], ease="out_quad")], color="#8C000000"))
+    # flash on the contact blade. r13: the dark-tinted glint behind it is gone (reviewer r9: it rendered as a big black "+"
+    # across the target); contrast comes from the glint's own orange halo and the dark sliver particles.
     els.append(sprite("s1h1-flash", "bastion-s1-glint", 4, 8, [
         kf(0, H1_HIT, [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(1.2), s128(1.2), 1.0], ease="out_back"),
@@ -183,14 +197,17 @@ def low():
     #   centre x +1.0, z 1.0, y 0.55, and depth-tested (see_through false): the caster, the target and the blade in
     #   front of it occlude it instead of being painted over, and the floor clips its lower edge. Opponent eye
     #   (0, 1.62, 1.7) and caster eye see it ~40 deg below the view centre (mostly under the frame, as r9).
-    els.append(sprite("s1h2-ink", "bastion-s1-ink", 3, 6, [
-        kf(0, [1.0, 0.55, 1.0], [0, 0, 0], [s256(4.4), s256(4.4) * 0.42, 1.0])], see_through=False))
+    # r13 (reviewer r9: visible t30-33 = 4 ticks, a flat floor puddle from the caster view): hit_stop freezes the displays
+    # on skill 31-33, so life 2 (fx 3-5, end exclusive) is removed at skill 33 -> on screen t30-32; raised to y 0.95 (spans
+    # ~0.1-1.8, the floor no longer clips it) and 4.0 wide: a screen-facing flash beside the bodies as in reference e00/e01.
+    els.append(sprite("s1h2-ink", "bastion-s1-ink", 3, 5, [
+        kf(0, [1.0, 0.95, 1.0], [0, 0, 0], [s256(4.0), s256(4.0) * 0.42, 1.0])], see_through=False))
     # Round 7b: the low ring is the smear of the r7 ring swing, IN its plane (10 deg tilt, lowest toward phi 60 = left-
     # front at the floor pitch -15 / y 0.11, centre on the pivot axis at tip pitch -5, radius 2.535 = tip; fitted to the
     # r7 keys 24-30 within 0.12 blocks), turning the blade's way (left-back -> back -> right -> front), 221 deg from
     # alpha 158 to the contact alpha 379.1. Spawn fx 0 (skill 27): frame 0 ticks 27-28
     # (blade at 212 on 28), 265 on 29, 321 on 30, full at contact 31, hold 32, fade 33-38. The front curls to z <= 2.3.
-    els += sweep("s1h2-ring", "ring", 0, 12)
+    els += sweep_tiles("s1h2-ring", "ring", 0, 12)  # r13: 4 front-only tiles (2x texels, soft edge): no sawtooth at the t31 close-up
     els.append(sprite("s1h2-streak-main", "bastion-s1-streak", 4, 10, [
         kf(0, [0, 1.3, 1.1], [0, 0, -4], [s256(0.6), 0.32, 1.0]),
         kf(1, scale=[s256(4.6), 0.32, 1.0], ease="out_expo"),
@@ -201,10 +218,7 @@ def low():
             kf(0, [x, y, z + 0.4], [0, 0, 0], [s256(0.5), 0.1, 1.0]),
             kf(1, scale=[s256(w), 0.1, 1.0], ease="out_expo"),
             kf(2, scale=[s256(w * 0.7), 0.02, 1.0], ease="in_quad")], color=col))
-    els.append(sprite("s1h2-flash-dark", "bastion-s1-glint", 4, 8, [
-        kf(0, [0, 1.2, 1.18], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
-        kf(1, scale=[s128(2.0), s128(2.0), 1.0], ease="out_back"),
-        kf(3, scale=[s128(1.4), s128(0.06), 1.0], ease="out_quad")], color="#8C000000"))
+    # r13: s1h2-flash-dark removed (black "+" across the target, see high())
     els.append(sprite("s1h2-flash", "bastion-s1-glint", 4, 8, [
         kf(0, [0, 1.2, 1.15], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(1.6), s128(1.6), 1.0], ease="out_back"),
@@ -212,9 +226,7 @@ def low():
     # r12 (particle-artist): static orange spark sprites removed (see high()); moving streak particles s1h2-p-streaks-*
     # r12: static chips removed (see high()); dark debris = sliver display particles of the particle layer
     els.append(smoke_up("s1h2-smoke-up", 6, 13, [0.0, 0.85, 1.1], 1.0, 1.6, roll=180))
-    els.append(sprite("s1h2-smoke", "bastion-s1-smoke", 6, 14, [
-        kf(0, [0.3, 0.18, 1.1], [0, 0, 0], [s256(1.5), s256(1.5) * 0.25, 1.0]),
-        kf(7, scale=[s256(2.2), s256(2.2) * 0.25, 1.0], ease="out_quad")], frame_ticks=2, color=SMOKE_TINT))
+    # r13: the flattened floor smoke (s1h2-smoke, y 0.18) is dropped: it read as a low grey smear on t35-39 (reviewer r9).
     return {"id": "bastion-s1-fx-low", "duration_ticks": 18, "orient": "yaw", "follow": False, "sample_ticks": 1,
             "elements": [e for e, _ in els]}, [m for _, m in els]
 
@@ -260,8 +272,8 @@ def write(path, header, doc):
 
 
 if __name__ == "__main__":
-    for fn, name, header in ((high, "bastion-s1-fx-high", "# Bastion S1 hit 1 (video 11.933-12.5 s): gold ring smear in the tilted horizontal sweep plane (front + back) + cut streak + flash + orange spark-streak sprites + smoke. Played at skill tick 4, contact = effect tick 4 (skill 8).\n# Generated by tools/item-art/scripts/bastion_s1_fx.py; sprites from tools/item-art/scripts/bastion_s1_sprites.py. Elements only (rig is the animator's).\n"),
-                             (low, "bastion-s1-fx-low", "# Bastion S1 hit 2 (video 13.1-13.7 s): yellow ink backdrop (3 ticks, depth-tested), low ring smear in the swing plane (front + back), streak + speed lines, flash, particles. Played at skill tick 27, contact = effect tick 4.\n# Generated by tools/item-art/scripts/bastion_s1_fx.py. Elements only.\n")):
+    for fn, name, header in ((high, "bastion-s1-fx-high", "# Bastion S1 hit 1 (video 11.933-12.5 s): gold ring smear in the tilted horizontal sweep plane (front + back) + cut streak + flash + smoke. Played at skill tick 4, contact = effect tick 4 (skill 8).\n# Generated by tools/item-art/scripts/bastion_s1_fx.py; sprites from tools/item-art/scripts/bastion_s1_sprites.py. Elements only (rig is the animator's).\n"),
+                             (low, "bastion-s1-fx-low", "# Bastion S1 hit 2 (video 13.1-13.7 s): yellow ink flash (2 ticks, depth-tested), low ring smear in the swing plane (4 front-only tiles), streak + speed lines, flash, particles. Played at skill tick 27, contact = effect tick 4.\n# Generated by tools/item-art/scripts/bastion_s1_fx.py. Elements only.\n")):
         doc, meta = fn()
         write(f"content/vfx/{name}.yaml", header, doc)
         print(name, "elements:", len(doc["elements"]))

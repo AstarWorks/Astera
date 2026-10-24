@@ -474,10 +474,14 @@ SWEEPS = {
                   # right side (compare / side close-ups sit there) is 0.52 farther from those lenses, the left edge stays
                   # inside the 3.0 sprite half. Frames 7+ CLOSE the loop (span 360, thickness floor = 5th value): the
                   # ring reads as one ellipse around the body from every camera, as in the reference, not as a 230 deg arc.
-                  frames=[(240, 216, 0.5, 0.75), (240, 181.2, 0.8, 1.0), (240, 134.8, 0.95, 1.0), (240, 93.5, 1.0, 1.0),
-                          (240, 93.5, 1.0, 1.0), (236, 93.5, 1.0, 1.0), (300, 45.2, 1.0, 1.0, 0.25), (356.7, -3.3, 1.0, 1.0, 0.4),
+                  # r13 (reviewer r9: from the side camera the ring first showed at t12, contact t8): hit_stop freezes the
+                  # displays on skill 8-10, so the contact frame 3 is what every camera sees until t11. Frame 3 is now the
+                  # CLOSED loop (head at the contact angle 93.5, floor 0.7 so the step where the head meets the tail stays small) as in reference b00/b01 (the
+                  # ring is already nearly whole at t06-07); frames 0-2 lead the blade slightly so the arc grows with it.
+                  frames=[(240, 200, 0.6, 0.85), (240, 160, 0.85, 1.0), (250, 110, 1.0, 1.0, 0.2), (453.5, 93.5, 1.0, 1.0, 0.7),
+                          (453.5, 93.5, 1.0, 1.0, 0.7), (405.2, 45.2, 1.0, 1.0, 0.6), (356.7, -3.3, 1.0, 1.0, 0.5),
                           (330, -30, 0.9, 0.95, 0.4), (330, -30, 0.7, 0.8, 0.35), (330, -30, 0.5, 0.6, 0.3),
-                          (330, -30, 0.3, 0.4, 0.25)]),
+                          (330, -30, 0.3, 0.4, 0.25), (330, -30, 0.2, 0.25, 0.2)]),
     # hit 2 low ring: plane tilted RING_TILT (lowest toward phi 60 = left-front), centre on the pivot axis at the
     # cone-centre height (tip pitch RING_CENTRE_PITCH). alpha 0 ~ forward, +90 ~ left; the blade turns +alpha
     # (left-back -> back -> right -> front). Tip alpha per skill tick (r7, in this plane): 134 (26), 163 (27),
@@ -485,6 +489,10 @@ SWEEPS = {
     # Played in fx-low (skill tick = fx tick + 27).
     "ring": dict(centre=_PIVOT + np.array([0.0, _TIP * math.sin(math.radians(RING_CENTRE_PITCH)), 0.0]), e1=_f2,
                  e2=np.cross(_n2, _f2), sign=1, r_tip=round(_TIP * math.cos(math.radians(RING_CENTRE_PITCH)), 3), t_max=0.24, fan_in=1.5, cams=[np.array([0.0, 1.62, 1.7])],  # hit-2 dash stop 1.7
+                 # r13: shipped as 4 quadrant TILES (front face only, 2x texel density) with a soft edge, a thickness floor
+                 # (the tail no longer dies to a needle) and a thicker BACK arc (alpha 120-250): the opponent (z 1.7) only
+                 # sees the back half, nearly edge-on (~14 deg), so the r9 0.24-block band read as a hairline.
+                 tiles=2, feather=1.2, floor_t=0.55, tail_deg=70.0, boost=(185.0, 70.0, 2.2),
                  frames=[(158, 210.8, 0.75, 1.0), (158, 265, 0.9, 1.0), (158, 320.7, 1.0, 1.0), (158, 379.1, 1.0, 1.0),
                          (158, 379.1, 1.0, 1.0), (205, 379.1, 0.85, 0.9), (250, 379.1, 0.72, 0.8),
                          (290, 379.1, 0.58, 0.68), (322, 379.1, 0.44, 0.54), (348, 379.1, 0.3, 0.4),
@@ -552,7 +560,7 @@ def ring_radius(name):
     its back stays above ymin; a dent around the eye read as a wiggle (r10 attempt), a smooth ellipse reads as a ring."""
     sw = SWEEPS[name]
     ex, ez, ax, az = sw["ellipse"]
-    al_deg = np.arange(-200.0, 400.0, 0.5)
+    al_deg = np.arange(-400.0, 800.0, 0.5)
     al = np.radians(al_deg)
     c = sw["centre"]
     ux, uz = np.cos(al), np.sin(al)  # horizontal ray from the tip circle centre
@@ -620,15 +628,24 @@ def ring_frame(size, name, tail, head, tscale, opacity, floor_t=0.0):
     return img
 
 
-def sweep_frame(size, name, tail, head, tscale, opacity):
+def sweep_frame(size, name, tail, head, tscale, opacity, window=None):
     """One smear frame (front view, X = e1): crisp gold band along the tip path (outer edge = blade tip, white-hot
     outer line, dark rim outside), thickest just behind the head, needle toward the tail, plus a faint fan face
-    inward toward the pivot (wind-slash fan). Outer radius from sweep_radius."""
+    inward toward the pivot (wind-slash fan). Outer radius from sweep_radius.
+    window = (sa, sb, n): render tile (sa, sb) (each -1/+1 per axis) of an n x n split of the full sprite square, at
+    `size` px per tile (n x texel density). Distances / feathers stay in full-sprite px (px), so the shape is identical
+    and only the texels shrink."""
     sw = SWEEPS[name]
     X, Y = grid(size)
-    px = 2.0 * SWEEP_HALF / size  # blocks per final px
-    a = (X - size / 2) * px
-    b = (size / 2 - Y) * px
+    px = 2.0 * SWEEP_HALF / size  # blocks per full-sprite px (shape units)
+    if window is None:
+        a = (X - size / 2) * px
+        b = (size / 2 - Y) * px
+    else:
+        sa, sb, n = window
+        h = SWEEP_HALF / n
+        a = sa * h + (X - size / 2) * (2 * h / size)
+        b = sb * h + (size / 2 - Y) * (2 * h / size)
     r = np.hypot(a, b)
     ang = np.degrees(np.arctan2(b, a))
     sgn = sw["sign"]
@@ -642,11 +659,20 @@ def sweep_frame(size, name, tail, head, tscale, opacity):
     # thickness along the span: 6 deg blunt head ramp, then decay to a needle at the tail
     u = np.clip(dh / max(span, 1e-3), 0, 1)
     prof = np.clip(dh / 6.0, 0, 1) * np.clip(1.0 - u, 0, 1) ** 0.8
+    if sw.get("floor_t"):  # r13: hold a minimum thickness, taper only the last tail_deg into a needle
+        ft = sw["floor_t"]
+        prof = np.clip(dh / 6.0, 0, 1) * (ft + (1 - ft) * np.clip(1.0 - u, 0, 1) ** 0.8) * smooth(q / sw["tail_deg"])
+    if sw.get("boost"):  # r13: thicker band around alpha c (+- w deg, cosine bump), factor 1 + k
+        c, w, k = sw["boost"]
+        al = tail + sw["sign"] * np.clip(q, 0, span)
+        dd = np.abs((al - c + 180.0) % 360.0 - 180.0)
+        prof = prof * (1.0 + k * 0.5 * (1 + np.cos(np.pi * np.clip(dd / w, 0, 1))))
     inside = (dh >= 0) & (dh <= span)
     T = sw["t_max"] * tscale * prof
+    fe = sw.get("feather", 0.9)
     d_out = (r_out - r) / px  # px inside the outer edge
     d_in = (r - (r_out - T)) / px  # px outside the inner edge
-    band = soft(np.minimum(d_out, d_in), 0.9) * inside
+    band = soft(np.minimum(d_out, d_in), fe) * inside
     cut = np.minimum(dh, span - dh) * math.radians(1.0) * r / px  # soften the angular ends
     band *= soft(cut + 0.4, 1.0)
     floor = soft((world[1] - 0.04) / px, 1.0)  # see_through text would show under the floor
@@ -661,15 +687,28 @@ def sweep_frame(size, name, tail, head, tscale, opacity):
     fan = (fr ** 1.6) * (r < r_out - T * 0.5) * (r > fan_r0) * inside * np.clip(1 - u, 0, 1) ** 1.4 * np.clip(dh / 10, 0, 1)
     img = over(img, hexc("#FFC83A")[None, None] * np.ones((1, 1, 3)), fan * 0.3 * tscale * floor)
     # dark rim just outside the outer edge (dark mixed with bright)
-    rim = soft(1.3 - np.abs(d_out + 0.9), 0.6) * inside * np.clip(prof * 3, 0, 1) * soft(cut + 0.4, 1.0)
-    img = over(img, RIM[None, None] * np.ones((1, 1, 3)), rim * 0.75 * floor)
+    if fe > 1.0:  # r13: soft, lighter rim (font texels are nearest-neighbour: a hard near-black line is the worst stair)
+        rim = soft(1.6 - np.abs(d_out + 1.5), 1.0) * inside * np.clip(prof * 3, 0, 1) * soft(cut + 0.4, 1.0)
+        img = over(img, RIM[None, None] * np.ones((1, 1, 3)), rim * 0.55 * floor)
+    else:
+        rim = soft(1.3 - np.abs(d_out + 0.9), 0.6) * inside * np.clip(prof * 3, 0, 1) * soft(cut + 0.4, 1.0)
+        img = over(img, RIM[None, None] * np.ones((1, 1, 3)), rim * 0.75 * floor)
     img = over(img, np.clip(col, 0, 1), band * floor)
     img[..., :4] *= opacity  # premultiplied: fade by frame
     return img
 
 
+TILES = [(-1, 1), (1, 1), (-1, -1), (1, -1)]  # tile q = (sa, sb): sign of the e1 / e2 offset of its centre
+
+
 def make_sweep(name):
     size = 256
+    if SWEEPS[name].get("tiles"):  # r13: front-only tiles <name>-q0..q3 (every camera is on the +Z side of the plane)
+        n = SWEEPS[name]["tiles"]
+        for qi, (sa, sb) in enumerate(TILES):
+            frames = [downsample(sweep_frame(size, name, *f, window=(sa, sb, n)), size) for f in SWEEPS[name]["frames"]]
+            save_strip(f"{name}-q{qi}", frames, size)
+        return
     fn = ring_frame if "aniso" in SWEEPS[name] else sweep_frame
     frames = [downsample(fn(size, name, *f), size) for f in SWEEPS[name]["frames"]]
     save_strip(name, frames, size)
