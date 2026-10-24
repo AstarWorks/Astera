@@ -65,6 +65,13 @@ Every view writes `meta.json` (`view`, `skill`, `frames`, `fov`, `fovMode` = `fi
 3. Clients: `portablemc` (offline name) with `--join-server`. Options are written per client
    (render distance 6, FOV 90 (compare: the intent's), no view bob, particles all, GUI scale 2, sound off, no pause on focus loss).
    F1 hides the HUD (`HIDE_HUD=0` keeps it; note F1 also hides the first-person hand).
+   **Caster view caveat:** with the default `HIDE_HUD=1` the caster's own held item is NEVER drawn in first person, before,
+   during or after the skill (f0-2 are empty-handed too). Only world entities show, so a `hide_held_item` rig appears and
+   then the hand looks empty to the last frame. That is the capture, not a missing restore. To judge the held-item
+   hand-over in first person, run `HIDE_HUD=0 make vfx-shot ... VIEW=caster`. Bastion S1 at 5dbac89d with the HUD on: held sword f0-2,
+   held sword + rig overlap f2-4, bare hand + rig f48-58, held sword back at f59 (vanilla re-equip raise from the bottom-right,
+   settled by ~f72). `PaperEntityEffectsGateway.sendHeldItem` sends both hide and restore to every player in the
+   world, the caster included.
 4. `ffmpeg -f x11grab` records with wall-clock timestamps; `rcon.py --stamp` prints the epoch time just before
    the cast, so frame 0 is the cast tick (plus `CAST_LAG_MS`, default 60, for render/network lag).
 5. Everything (clients, Xvfb, server) is torn down on exit (trap), unless `SHOT_KEEP=1`.
