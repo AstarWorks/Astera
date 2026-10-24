@@ -22,6 +22,7 @@ internal class PaperPacketBundler private constructor(
     private val dataPacketCtor: java.lang.reflect.Constructor<*>,
     private val equipmentPacketCtor: java.lang.reflect.Constructor<*>,
     private val bundleCtor: java.lang.reflect.Constructor<*>,
+    private val removeCtor: java.lang.reflect.Constructor<*>,
     private val pairOf: java.lang.reflect.Method,
     private val mainHand: Any,
     private val asNmsCopy: java.lang.reflect.Method,
@@ -45,6 +46,19 @@ internal class PaperPacketBundler private constructor(
         sendMethod.invoke(connection, bundle)
     }
 
+    /** One bundle to [viewer]: [owner]'s main hand shows [shown] and the entities [ids] are removed from the client. */
+    fun sendRemoval(viewer: Player, owner: Player, shown: ItemStack, ids: IntArray) {
+        val nmsStack = asNmsCopy.invoke(null, shown)
+        val equipment = equipmentPacketCtor.newInstance(owner.entityId, listOf(pairOf.invoke(null, mainHand, nmsStack)))
+        val removal = removeCtor.newInstance(ids)
+        val bundle = bundleCtor.newInstance(listOf(equipment, removal))
+        val connection = connectionField.get(getEntityHandle.invoke(viewer))
+        sendMethod.invoke(connection, bundle)
+    }
+
+    /** Takes the pending entity-data changes of [display] (consumes the dirty set), as a packet to bundle. */
+    fun dirtyDataPacket(display: Entity): Any? = dirtyDataPackets(listOf(display)).firstOrNull()
+
     companion object {
         private val log = LoggerFactory.getLogger(PaperPacketBundler::class.java)
 
@@ -67,6 +81,8 @@ internal class PaperPacketBundler private constructor(
                     .getConstructor(Int::class.javaPrimitiveType, List::class.java),
                 bundleCtor = cls("net.minecraft.network.protocol.game.ClientboundBundlePacket")
                     .getConstructor(Iterable::class.java),
+                removeCtor = cls("net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket")
+                    .getConstructor(IntArray::class.java),
                 pairOf = cls("com.mojang.datafixers.util.Pair").getMethod("of", Any::class.java, Any::class.java),
                 mainHand = equipmentSlot.getField("MAINHAND").get(null),
                 asNmsCopy = cls("org.bukkit.craftbukkit.inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack::class.java),

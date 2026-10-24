@@ -58,6 +58,16 @@ public interface IEntityEffectsGateway {
         audience: HeldItemAudience = HeldItemAudience.ALL,
         reveal: List<RigReveal> = emptyList(),
     )
+
+    /**
+     * Restores the held item for [audience] in the same client step in which the rig displays [rig] stop being drawn:
+     * other viewers get one bundle that removes [rig] and restores the item; the owner gets the item back together with the
+     * rig scaled to zero (the owner's hand only updates on the client's own tick). The caller removes the displays afterwards
+     * (a tick later for the owner). Hosts without packets just restore.
+     */
+    public fun restoreHeldItem(target: PlayerId, audience: HeldItemAudience, rig: List<IDisplayEntityGateway.DisplayHandle>) {
+        setHeldItemHidden(target, false, audience)
+    }
 }
 
 /** A staged display and the view range it takes when revealed. */

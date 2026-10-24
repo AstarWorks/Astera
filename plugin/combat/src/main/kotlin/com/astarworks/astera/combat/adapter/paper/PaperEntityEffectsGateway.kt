@@ -1,6 +1,7 @@
 package com.astarworks.astera.combat.adapter.paper
 
 import com.astarworks.astera.combat.application.port.outbound.HeldItemAudience
+import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
 import com.astarworks.astera.combat.application.port.outbound.RigReveal
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -186,6 +187,41 @@ public class PaperEntityEffectsGateway(
                 packets.send(viewer, owner, shown, data)
             } else {
                 viewer.sendEquipmentChange(owner, org.bukkit.inventory.EquipmentSlot.HAND, shown)
+            }
+        }
+    }
+
+    override fun restoreHeldItem(target: PlayerId, audience: HeldItemAudience, rig: List<IDisplayEntityGateway.DisplayHandle>) {
+        pendingHides.remove(target)
+        pendingReveals.remove(target)
+        val owner = server.getPlayer(target.uuid)?.takeIf { it.isValid } ?: return
+        val real = owner.inventory.itemInMainHand
+        val displays = rig.mapNotNull { server.getEntity(it.id) as? org.bukkit.entity.Display }
+        val packets = if (displays.isEmpty()) null else bundler
+        // The owner's rig is scaled to zero (applied on the client tick that also updates the hand); the entity data is taken
+        // here and sent only to the owner, so other viewers keep the full-size rig until the bundle that removes it.
+        val ownerData = if (packets != null && audience != HeldItemAudience.OTHERS) {
+            displays.mapNotNull { display ->
+                ConcealedDisplays.add(display.uniqueId)
+                display.interpolationDelay = 0
+                display.interpolationDuration = 0
+                val t = display.transformation
+                display.transformation = org.bukkit.util.Transformation(
+                    t.translation, t.leftRotation, org.joml.Vector3f(0f, 0f, 0f), t.rightRotation,
+                )
+                packets.dirtyDataPacket(display)
+            }
+        } else emptyList()
+        val ids = displays.map { it.entityId }.toIntArray()
+        val tracking = displays.flatMap { it.trackedBy }.map { it.uniqueId }.toSet()
+        for (viewer in owner.world.players) {
+            val isOwner = viewer.uniqueId == owner.uniqueId
+            if (isOwner && audience == HeldItemAudience.OTHERS) continue
+            if (!isOwner && audience == HeldItemAudience.OWNER) continue
+            if (packets != null && viewer.uniqueId in tracking) {
+                if (isOwner) packets.send(viewer, owner, real, ownerData) else packets.sendRemoval(viewer, owner, real, ids)
+            } else {
+                viewer.sendEquipmentChange(owner, org.bukkit.inventory.EquipmentSlot.HAND, real)
             }
         }
     }

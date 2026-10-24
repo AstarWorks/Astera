@@ -206,7 +206,7 @@ public class VfxPlayer(
 
     /** Removes every live display and stops ticking. */
     public fun shutdown() {
-        instances.toList().forEach(::finish)
+        instances.toList().forEach { finish(it, immediate = true) }
         instances.clear()
         ticker?.cancel()
         ticker = null
@@ -236,8 +236,12 @@ public class VfxPlayer(
         val age = instance.age
         val plan = instance.plan
         if (instance.staged && age == minOf(REVEAL_AGE, plan.durationTicks - 1).coerceAtLeast(1)) reveal(instance)
-        // Restore the held weapon a full tick before the rig's displays go (overlap, never a frame with neither).
+        // The owner gets the held weapon back a tick before the rig's displays go (the rig is scaled to zero for the owner in the
+        // same client step); other viewers get it in the bundle that removes the displays (handOverHeldItem).
         if (instance.staged && age >= plan.durationTicks - 1) releaseHeldItem(instance)
+        if (instance.holdsOwnerHide && age >= (instance.elements.filter { it.handle != null }.minOfOrNull { it.plan.despawnTick } ?: Int.MAX_VALUE)) {
+            handOverHeldItem(instance)
+        }
         val targetCorrection = instance.request.target?.let { target ->
             val live = target() ?: return true
             live - (instance.position + (instance.targetReference ?: return true))
@@ -405,21 +409,40 @@ public class VfxPlayer(
         is VfxElementKind.Sprite -> error("sprite elements are resolved to text by VfxTimeline.plan")
     }
 
+    /**
+     * The rig's displays are about to be removed (called before the first one is): the held item is given back to every
+     * viewer in the step that removes them (HeldItemHider / gateway bundle).
+     */
+    private fun handOverHeldItem(instance: Instance) {
+        releaseHeldItem(instance)
+        if (!instance.holdsOwnerHide) return
+        instance.holdsOwnerHide = false
+        val handles = rigHandles(instance)
+        instance.request.anchorEntityId?.let { heldItems?.rigRemoved(it, handles) }
+    }
+
+    private fun rigHandles(instance: Instance): List<DisplayHandle> = instance.elements.mapNotNull { it.handle }
+
     private fun releaseHeldItem(instance: Instance) {
         if (!instance.staged) return
         instance.staged = false
-        instance.request.anchorEntityId?.let { heldItems?.rigEnded(it) }
+        instance.request.anchorEntityId?.let { heldItems?.rigEnded(it, rigHandles(instance)) }
     }
 
-    private fun finish(instance: Instance) {
-        releaseHeldItem(instance)
-        for (state in instance.elements) {
-            state.handle?.let(displays::remove)
-            state.handle = null
-        }
-        if (instance.holdsOwnerHide) {
-            instance.holdsOwnerHide = false
-            instance.request.anchorEntityId?.let { heldItems?.rigRemoved(it) }
+    /**
+     * Ends [instance]. A normal end already gave the owner the held item back a tick earlier ([releaseHeldItem] at
+     * duration - 1); a cancel (replace, anchor gone) does it here, and then the displays stay one more tick so the owner's
+     * hand, which only updates on the client's tick, never meets a rig that is already gone.
+     */
+    private fun finish(instance: Instance, immediate: Boolean = false) {
+        val abrupt = instance.staged
+        val handles = rigHandles(instance)
+        handOverHeldItem(instance)
+        for (state in instance.elements) state.handle = null
+        if (abrupt && !immediate && handles.isNotEmpty()) {
+            scheduler.runLater(ticks(1)) { handles.forEach(displays::remove) }
+        } else {
+            handles.forEach(displays::remove)
         }
         instances.remove(instance)
         reserved = (reserved - instance.plan.displayCount).coerceAtLeast(0)

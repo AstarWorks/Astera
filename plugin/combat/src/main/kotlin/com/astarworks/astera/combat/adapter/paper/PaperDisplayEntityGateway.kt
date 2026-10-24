@@ -139,6 +139,7 @@ public class PaperDisplayEntityGateway(
     }
 
     override fun update(handle: DisplayHandle, transform: DisplayTransform, interpolationTicks: Int) {
+        if (ConcealedDisplays.contains(handle.id)) return
         val display = server.getEntity(handle.id) as? Display ?: return
         val attachment = attachments[handle]
         val effective = if (attachment != null) {
@@ -204,6 +205,7 @@ public class PaperDisplayEntityGateway(
 
     override fun remove(handle: DisplayHandle) {
         attachments.remove(handle)
+        ConcealedDisplays.remove(handle.id)
         server.getEntity(handle.id)?.remove()
     }
 
