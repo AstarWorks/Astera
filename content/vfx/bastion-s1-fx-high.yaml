@@ -261,6 +261,6 @@ elements:
   keyframes:
   - t: 0
     translate: [-0.74, 1.69, 1.44]
-  emit: { count: 6, rate_per_tick: 2, speed: [0.18, 0.26], direction: 'custom[-1, 0.8, 0.1]', spread_deg: 40, gravity: 0.03, drag: 0.08,
+  emit: { count: 8, rate_per_tick: 2, speed: [0.18, 0.26], direction: 'custom[-1, 0.8, 0.1]', spread_deg: 40, gravity: 0.03, drag: 0.08,
     life_ticks: [4, 5], size: [0.04, 0.06], size_over_life: [{ t: 0, v: 1.0 }, { t: 0.6, v: 0.85 }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+    spin_over_life: [{ t: 0, v: 12 }], start_frame: random, frame_ticks: [1, 2] }

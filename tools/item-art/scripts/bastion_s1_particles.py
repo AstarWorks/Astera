@@ -46,7 +46,8 @@ def pdef(name, comment, vanilla, count, lifetime, shape="{ kind: point }", color
 
 GOLD = (255, 210, 58)
 ORANGE = (255, 150, 40)
-SLIVER_TINT = None  # r12: the sliver sprite is painted dark brown at alpha 0.8; the old '#FF2A2218' tint turned it black
+SLIVER_TINT = None  # painted in its final colours (r21: opaque hot head + char tail); the r8 '#FF2A2218' tint turned it black
+SLIVER_SPIN = 12  # deg/tick, random sign per particle: the shards tumble apart instead of all lying at the sprite's 28 deg tilt
 
 
 def emitter(eid, sprite, tint, start, p, n, rate, speed, direction, spread, gravity, drag, life, size, sol, spin, aol=None):
@@ -433,13 +434,13 @@ def hit1():
     scatter(f, "ember-deep", "ember-deep", 6, ((-2.2, -1.3), (1.0, 1.6), (1.1, 1.9)), 5, 13)
     ring_embers(f, "ember-ring", "ember", 3, [h1_point(t + H1_DELAY, 2.2, 0.25) for t in range(3, 7)], H1_EYES, 0.35)
     ring_embers(f, "ember-ring", "ember-deep", 7, [h1_point(t + H1_DELAY + 0.5, 2.1, 0.3) for t in range(7, 10)], H1_EYES, 0.35)
-    # display sprites: orange streaks along the cut (5) and dark brown slivers (6), the parts the channels cannot draw
+    # display sprites: orange streaks along the cut (5) and hot-headed char-tailed slivers (8, r21), the parts the channels cannot draw
     c = (-0.44, 1.54, 1.59)
     s = off(c, 0, 0.15, -0.1)
     f.els.append(emitter("s1h1-p-streaks", "bastion-s1-streak", STREAK_TINT, 4, off(c, 0, -0.1, -0.15), 5, 2, (0.35, 0.5),
                          "custom[-1, 0.2, 0.25]", 25, 0.0, 0.2, (3, 4), (0.07, 0.1), STREAK_SOL, 0))
-    f.els.append(emitter("s1h1-p-slivers", "bastion-s1-sliver", SLIVER_TINT, 4, off(s, -0.3, 0, -0.05), 6, 2, (0.18, 0.26),
-                         "custom[-1, 0.8, 0.1]", 40, 0.03, 0.08, (4, 5), (0.04, 0.06), SLIVER_SOL, 0))
+    f.els.append(emitter("s1h1-p-slivers", "bastion-s1-sliver", SLIVER_TINT, 4, off(s, -0.3, 0, -0.05), 8, 2, (0.18, 0.26),
+                         "custom[-1, 0.8, 0.1]", 40, 0.03, 0.08, (4, 5), (0.04, 0.06), SLIVER_SOL, SLIVER_SPIN))
     return f
 
 
@@ -471,7 +472,7 @@ def hit2():
                              (0.35, 0.5), "custom[%d, 0.1, 0.15]" % sg, 20, 0.0, 0.2, (3, 4), (0.07, 0.1), STREAK_SOL, 0))
         f.els.append(emitter("s1h2-p-slivers-" + side, "bastion-s1-sliver", SLIVER_TINT, 4, off(c, 0.45 * sg, 0.5, 0.0), 3, 2,
                              (0.2, 0.28), "custom[%.1f, 0.3, 0.1]" % (0.9 * sg), 20, 0.015, 0.08, (4, 5), (0.04, 0.06),
-                             SLIVER_SOL, 0))
+                             SLIVER_SOL, SLIVER_SPIN))
     ring_embers(f, "ember-ring", "ember-deep", 5, [ringpt(t + 0.5, 2.4) for t in range(5, 10)], H2_EYES, 0.35)
     return f
 

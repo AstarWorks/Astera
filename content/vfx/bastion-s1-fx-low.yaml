@@ -447,7 +447,7 @@ elements:
     translate: [0.46, 0.962, 1.395]
   emit: { count: 3, rate_per_tick: 2, speed: [0.2, 0.28], direction: 'custom[0.9, 0.3, 0.1]', spread_deg: 20, gravity: 0.015, drag: 0.08,
     life_ticks: [4, 5], size: [0.04, 0.06], size_over_life: [{ t: 0, v: 1.0 }, { t: 0.6, v: 0.85 }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+    spin_over_life: [{ t: 0, v: 12 }], start_frame: random, frame_ticks: [1, 2] }
 - id: s1h2-p-spray-r
   kind: {type: particle, particle_id: bastion-s1-p-spray, every_ticks: 1}
   start_tick: 4
@@ -551,7 +551,7 @@ elements:
     translate: [-0.44, 0.962, 1.395]
   emit: { count: 3, rate_per_tick: 2, speed: [0.2, 0.28], direction: 'custom[-0.9, 0.3, 0.1]', spread_deg: 20, gravity: 0.015, drag: 0.08,
     life_ticks: [4, 5], size: [0.04, 0.06], size_over_life: [{ t: 0, v: 1.0 }, { t: 0.6, v: 0.85 }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+    spin_over_life: [{ t: 0, v: 12 }], start_frame: random, frame_ticks: [1, 2] }
 - id: s1h2-p-ember-ring
   kind: {type: particle, particle_id: bastion-s1-p-ember-deep, every_ticks: 1, along_path: true, step_blocks: 0.35}
   start_tick: 6
