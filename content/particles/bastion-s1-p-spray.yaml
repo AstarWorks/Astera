@@ -2,7 +2,7 @@
 id: bastion-s1-p-spray
 shape: { kind: point }
 color: { r: 255, g: 255, b: 255 }
-count: 3
+count: 4
 lifetime_ticks: 14
 vanilla_particle: firework
 velocity: { direction: along_tangent, speed: 0.3, spread_degrees: 16, speed_jitter: 0.45 }
