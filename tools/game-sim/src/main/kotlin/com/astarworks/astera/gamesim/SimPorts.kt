@@ -317,7 +317,9 @@ public class SimEntityEffectsGateway(
         recorder?.recordEffect(clock(), "glow", entity.position, "${entity.name} ${if (glowing) "on" else "off"}")
     }
 
-    override fun setHeldItemHidden(target: PlayerId, hidden: Boolean) {
+    override fun setHeldItemHidden(target: PlayerId, hidden: Boolean, audience: com.astarworks.astera.combat.application.port.outbound.HeldItemAudience) {
+        // The owner leg is a client-side timing detail of the same hide; the log keeps one on/off per hide.
+        if (audience == com.astarworks.astera.combat.application.port.outbound.HeldItemAudience.OWNER) return
         val entity = world.find(target) ?: return
         recorder?.recordEffect(clock(), "hide_held_item", entity.position, "${entity.name} ${if (hidden) "on" else "off"}")
     }

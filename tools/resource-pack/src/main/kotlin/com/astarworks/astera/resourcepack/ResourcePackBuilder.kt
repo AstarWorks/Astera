@@ -57,6 +57,7 @@ public class ResourcePackBuilder(
         files["pack.mcmeta"] = packMcmeta().toByteArray()
         addTextures(files)
         addModels(files)
+        addHeldHiddenDefinition(files)
         addSounds(files)
         addHud(files)
         addFonts(files)
@@ -160,7 +161,18 @@ public class ResourcePackBuilder(
         val definition = linkedMapOf<String, Any>("type" to "minecraft:model", "model" to "$NAMESPACE:$model")
         val tints = modelTints(source)
         if (tints.isNotEmpty()) definition["tints"] = tints.map { mapOf("type" to "minecraft:constant", "value" to it) }
-        return json(mapOf("model" to definition)).toByteArray()
+        // The first-person hand swaps to / from an Astera item in one frame (no lower-and-raise): a rig that replaces the
+        // held weapon (hide_held_item) hands over without two swords or the re-equip animation.
+        return json(mapOf("model" to definition, "hand_animation_on_swap" to false)).toByteArray()
+    }
+
+    /**
+     * `astera:held_hidden`: an item that draws nothing. The server sends it in place of the caster's weapon while a rig
+     * draws that weapon; the client replaces the first-person item at once instead of lowering the old one first.
+     */
+    private fun addHeldHiddenDefinition(files: MutableMap<String, ByteArray>) {
+        files["assets/$NAMESPACE/items/held_hidden.json"] =
+            json(mapOf("model" to mapOf("type" to "minecraft:empty"), "hand_animation_on_swap" to false)).toByteArray()
     }
 
     private fun modelTints(model: JsonNode): List<Int> {

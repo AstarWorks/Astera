@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import com.astarworks.astera.combat.application.port.outbound.HeldItemAudience
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -104,27 +105,27 @@ public class PaperEntityEffectsGateway(
     }
 
     /** Hides waiting for the end of the server tick (after the entity tracker flushed this tick's display metadata). */
-    private val pendingHides: MutableSet<PlayerId> = LinkedHashSet()
+    private val pendingHides: MutableMap<PlayerId, HeldItemAudience> = LinkedHashMap()
     private var tickEndListenerRegistered: Boolean = false
 
-    override fun setHeldItemHidden(target: PlayerId, hidden: Boolean) {
+    override fun setHeldItemHidden(target: PlayerId, hidden: Boolean, audience: HeldItemAudience) {
         if (!hidden) {
-            // The restore goes out immediately: callers send it a full tick before the rig's displays are removed, so the
-            // real weapon is visible again before the rig disappears (two coincident weapons for a tick, never none).
+            // The restore goes out immediately; the caller times it per audience against the rig's removal.
             pendingHides.remove(target)
-            sendHeldItem(target, hidden = false)
+            sendHeldItem(target, hidden = false, audience)
             return
         }
         val owner = plugin
         if (owner == null) {
-            sendHeldItem(target, hidden = true)
+            sendHeldItem(target, hidden = true, audience)
             return
         }
         // Display metadata (the rig's reveal, view_range 0 -> n) is not sent when the reveal runs: the entity tracker
         // flushes it later in the same server tick, so an equipment packet sent right away reaches a client tens of ms
         // before the rig does (compare view: one frame with no weapon). Send the hide only after that flush, at tick
         // end, so it can only land after the rig is visible: ordered, never a gap.
-        pendingHides.add(target)
+        val queued = pendingHides[target]
+        pendingHides[target] = if (queued == null || queued == audience) audience else HeldItemAudience.ALL
         if (!tickEndListenerRegistered) {
             tickEndListenerRegistered = true
             server.pluginManager.registerEvents(TickEndFlush(), owner)
@@ -137,24 +138,48 @@ public class PaperEntityEffectsGateway(
             if (pendingHides.isEmpty()) return
             val due = pendingHides.toList()
             pendingHides.clear()
-            due.forEach { sendHeldItem(it, hidden = true) }
+            due.forEach { (target, audience) -> sendHeldItem(target, hidden = true, audience) }
         }
     }
 
-    private fun sendHeldItem(target: PlayerId, hidden: Boolean) {
+    private fun sendHeldItem(target: PlayerId, hidden: Boolean, audience: HeldItemAudience) {
         val owner = server.getPlayer(target.uuid)?.takeIf { it.isValid } ?: return
-        val shown = if (hidden) org.bukkit.inventory.ItemStack.of(org.bukkit.Material.AIR) else owner.inventory.itemInMainHand
+        val real = owner.inventory.itemInMainHand
         // Includes the owner: the client applies the equipment packet to its own selected hotbar slot, so first person
-        // and own third person stop drawing the real weapon while a rig draws it. Packet-only; the server inventory
-        // is untouched, and the restore (hidden = false) re-sends the real stack. Any later inventory sync also restores it.
+        // and own third person stop drawing the real weapon while a rig draws it. The owner gets a stack whose item model
+        // draws nothing and swaps without the hand animation (pack: astera:held_hidden): no lowering sword in first person
+        // and, on restore, no re-equip raise. Packet-only; the server inventory is untouched, and the restore
+        // (hidden = false) re-sends the real stack. Any later inventory sync also restores it.
         for (viewer in owner.world.players) {
+            val isOwner = viewer.uniqueId == owner.uniqueId
+            if (isOwner && audience == HeldItemAudience.OTHERS) continue
+            if (!isOwner && audience == HeldItemAudience.OWNER) continue
+            val shown = when {
+                !hidden -> real
+                isOwner -> emptyHandStack(real)
+                else -> org.bukkit.inventory.ItemStack.of(org.bukkit.Material.AIR)
+            }
             viewer.sendEquipmentChange(owner, org.bukkit.inventory.EquipmentSlot.HAND, shown)
         }
+    }
+
+    /**
+     * The owner's stand-in for [real]: the same item and name with only the item model swapped for the empty one. Vanilla
+     * restarts the attack-strength ticker (the hand rises from the bottom, ~13 frames) and the item-name popup whenever the
+     * held item type or name changes, so a different item (a stick) would replay both on hide and on restore.
+     */
+    private fun emptyHandStack(real: org.bukkit.inventory.ItemStack): org.bukkit.inventory.ItemStack {
+        val stack = if (real.type.isAir) org.bukkit.inventory.ItemStack.of(org.bukkit.Material.STICK) else real.clone()
+        stack.editMeta { it.itemModel = HELD_HIDDEN_MODEL }
+        return stack
     }
 
     private fun entity(id: PlayerId): Entity? = server.getEntity(id.uuid)?.takeIf { it.isValid }
 
     private companion object {
+        /** Pack item definition that draws nothing and swaps without the hand animation (ResourcePackBuilder). */
+        val HELD_HIDDEN_MODEL: NamespacedKey = NamespacedKey("astera", "held_hidden")
+
         /** Slowness 7: walk speed multiplier is negative-clamped to a stand-still. */
         const val ROOT_AMPLIFIER: Int = 6
     }
