@@ -1,0 +1,19 @@
+# modeler r22 - rig tip read as a second object (director r20 opp-start-zoom t4, runtime r21)
+Two causes, both fixed in tools/model-forge/work/bastion-greatsword/rig_parts_s1.py (parts only; no swing key changed):
+1. Material/depth: old tip_1 = iron_block 0.05 deep with NO rim beside it, so edge-on its light side face was the outermost box
+   while the blade shows the 0.03 dark rim there. Held tip = 0.48 blackstone rim outermost, 0.8 iron core inside.
+   Fix: blade_face runs on to y 27.2 (held tip0/tip1 cores), tip_1 = blackstone 0.48 frame (3.2 wide = held tip0 outline), tip_2 point
+   blackstone 1.28 wide x 0.6 (rim + quartz strips).
+2. Interpolation drift (found in the interim capture, interim-material-only-t3-5.jpg: tip still detached mid-chunk, now dark + a grey core end):
+   VfxRigPlanner sends translation = pivot + R*(offset - size/2) (the box corner); the client LERPS translation and SLERPS rotation,
+   so a corner d from the pivot sits d*(1-cos(step/2)) off the arc mid-chunk. Old tip corner 2.2 block -> ~0.2 block at a 50 deg chunk;
+   blade parts' corners are ~0.45 (0.04). Fix: tip_1 / tip_2 start at y -6.3 inside guard_1 and run hidden through hilt and blade
+   (tip_1 inside edges 0.68, tip_2 inside the 0.8 core): corners 0.25 / 0.24 block. Generator now prints per-part drift; only the fuller
+   is > 0.6 (0.73; relative radial slide vs the blade 0.026 block, along the blade, not visible).
+Capture (one at a time): opponent TICKS=40 at 755a20f2, contentDirty false. maxRepeatedFrames 16: client froze t12-28 (ring static);
+   t0-10 and t29-40 move. Frames opened: t0-9 (opp-start-t0-9), tip zoom t3-6 (t3-4 held item, t5-6 rig: dark tip on the blade line,
+   no grey block), hit-2 mid-swing t29 (tip continuous, dark point on line), t36-37 (rim + dark point flush).
+   Hit-1 mid-sweep t7-10: tip off-screen in this framing, not judged.
+Edge-on outermost check vs held (rig_parts_s1.py output): tip now blackstone 0.48 / 0.6 outermost like held; remaining diffs are
+   deliberate simplifications: grip wrap bands (kelp vs blackstone), guard tip beads missing, guard_caps 1.2 deep vs held 1.5 (a 1.5 cap
+   would turn guard step 3 gold), 2-step tip outline vs 5 held steps.

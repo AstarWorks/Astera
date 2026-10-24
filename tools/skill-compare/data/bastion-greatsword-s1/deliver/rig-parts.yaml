@@ -1,4 +1,4 @@
-# bastion-greatsword rig parts (sword local frame), delivered by model-artist r11 (generator: tools/model-forge/work/bastion-greatsword/rig_parts_s1.py).
+# bastion-greatsword rig parts (sword local frame), delivered by model-artist r22 (generator: tools/model-forge/work/bastion-greatsword/rig_parts_s1.py).
 # 22 parts, 7 distinct blocks: dried_kelp_block, gold_block, iron_block, lime_concrete, polished_blackstone, polished_deepslate, smooth_quartz.
 # AXES (rig-local, pivot = grip centre = origin = held model point (8,-10,8)):
 #   blade LENGTH axis  = +Y (grip -> tip). pommel end y=-0.225, tip y=2.545; total 2.770 block.
@@ -9,12 +9,12 @@
 # Face detail (fuller, highlights, pinstripes, inlay) passes through the core, so both faces carry it.
 # No rotated parts; no part id is referenced elsewhere.
 # name | block | size [x,y,z] | offset [x,y,z] | held source
-#  blade_face   iron_block           [0.16875, 1.7575, 0.05] [0.0, 1.31625, 0.0]  held blade_core
+#  blade_face   iron_block           [0.16875, 1.8875, 0.05] [0.0, 1.38125, 0.0]  held blade_core + tip0_core/tip1_core
 #  edges        smooth_quartz        [0.2125, 1.7575, 0.0425] [0.0, 1.31625, 0.0]  held bevel_hi_l/r (middle inside the core)
 #  rims         polished_blackstone  [0.24, 1.7575, 0.03] [0.0, 1.31625, 0.0]  held bevel_rim_l/r (middle inside the edges)
 #  fuller       polished_deepslate   [0.0275, 1.425, 0.06625] [0.0, 1.4375, 0.0]  held fuller_ridge/start/end_f/b (both faces; hi strips + pinstripes cut for the 22-part cap)
-#  tip_1        iron_block           [0.175, 0.155, 0.05] [0.0, 2.2725, 0.0]  held tip0 + tip1 + tip2 (mean rimmed width)
-#  tip_2        polished_blackstone  [0.075, 0.195, 0.03] [0.0, 2.4475, 0.0]  held tip3 + tip_point
+#  tip_1        polished_blackstone  [0.2, 2.10375, 0.03] [0.0, 1.28313, 0.0]  held tip0/tip1 rims (frame round the blade_face core; hidden inside edges below 25.12)
+#  tip_2        polished_blackstone  [0.08, 2.31375, 0.0375] [0.0, 1.38813, 0.0]  held tip2 + tip3 + tip_point (mean outer width; 0.6 = rim + quartz strips; hidden in the core below 27.2)
 #  inlay        lime_concrete        [0.09, 0.2, 0.07] [0.0, 0.6, 0.0]  held inlay_f/b
 #  inlay_frame  gold_block           [0.1125, 0.225, 0.0625] [0.0, 0.6, 0.0]  held inlay_frame_*
 #  ricasso      polished_blackstone  [0.24, 0.07125, 0.065] [0.0, 0.40187, 0.0]  held ricasso
@@ -32,12 +32,12 @@
 #  pommel       polished_blackstone  [0.15625, 0.09375, 0.14375] [0.0, -0.14687, 0.0]  held pommel_ball
 #  pommel_gold  gold_block           [0.125, 0.15, 0.125] [0.0, -0.15, 0.0]  held pommel_cap + pommel_collar (middle inside the ball)
 parts:
-  - { id: blade_face, block: iron_block, offset: [0.0, 1.31625, 0.0], size: [0.16875, 1.7575, 0.05] }
+  - { id: blade_face, block: iron_block, offset: [0.0, 1.38125, 0.0], size: [0.16875, 1.8875, 0.05] }
   - { id: edges, block: smooth_quartz, offset: [0.0, 1.31625, 0.0], size: [0.2125, 1.7575, 0.0425] }
   - { id: rims, block: polished_blackstone, offset: [0.0, 1.31625, 0.0], size: [0.24, 1.7575, 0.03] }
   - { id: fuller, block: polished_deepslate, offset: [0.0, 1.4375, 0.0], size: [0.0275, 1.425, 0.06625] }
-  - { id: tip_1, block: iron_block, offset: [0.0, 2.2725, 0.0], size: [0.175, 0.155, 0.05] }
-  - { id: tip_2, block: polished_blackstone, offset: [0.0, 2.4475, 0.0], size: [0.075, 0.195, 0.03] }
+  - { id: tip_1, block: polished_blackstone, offset: [0.0, 1.28313, 0.0], size: [0.2, 2.10375, 0.03] }
+  - { id: tip_2, block: polished_blackstone, offset: [0.0, 1.38813, 0.0], size: [0.08, 2.31375, 0.0375] }
   - { id: inlay, block: lime_concrete, offset: [0.0, 0.6, 0.0], size: [0.09, 0.2, 0.07] }
   - { id: inlay_frame, block: gold_block, offset: [0.0, 0.6, 0.0], size: [0.1125, 0.225, 0.0625] }
   - { id: ricasso, block: polished_blackstone, offset: [0.0, 0.40187, 0.0], size: [0.24, 0.07125, 0.065] }
