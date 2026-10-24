@@ -127,6 +127,9 @@ public class VfxPlayer(
 
         /** Spawned hidden (view range 0) so it replaces the anchor's held weapon in the tick it is revealed. */
         var staged: Boolean = false
+
+        /** Set with [staged], kept after the restore for others: the owner's held item returns when the rig is removed. */
+        var holdsOwnerHide: Boolean = false
     }
 
     private val instances: MutableList<Instance> = ArrayList()
@@ -184,6 +187,7 @@ public class VfxPlayer(
         // The client needs one tick to render a new display, the held-item hide needs none: spawn the displays
         // invisible now, reveal them (and send the hide) next tick, when the client has them ticked.
         instance.staged = request.anchorEntityId?.let { heldItems?.stage(it) } == true
+        instance.holdsOwnerHide = instance.staged
         if (advance(instance)) {
             finish(instance)
         } else {
@@ -406,6 +410,10 @@ public class VfxPlayer(
         for (state in instance.elements) {
             state.handle?.let(displays::remove)
             state.handle = null
+        }
+        if (instance.holdsOwnerHide) {
+            instance.holdsOwnerHide = false
+            instance.request.anchorEntityId?.let { heldItems?.rigRemoved(it) }
         }
         instances.remove(instance)
         reserved = (reserved - instance.plan.displayCount).coerceAtLeast(0)
