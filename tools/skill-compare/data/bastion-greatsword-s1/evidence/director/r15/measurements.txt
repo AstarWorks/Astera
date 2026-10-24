@@ -1,0 +1,54 @@
+# r15 @c544632b (wp/integrate-limbus ff: animator r16 = only key 0 holds the held pose, key 1 lifts up/back-right; contact tick 8).
+# No director content change this round. shadowJar OK; contentLint 542/542 OK. TICKS=72. Ticks = cast tick (compare frame = tick + 6).
+# Published (build/skill-compare-published/bastion-greatsword-s1/<view>/current.json confirmed, implementationCommit c544632b):
+#   compare 4b18908fe883 (79 f), side a5a7f16bcecd, opponent 664827e1f38f, caster e3ae51694142 (73 f each; caster HIDE_HUD=0).
+# Quality: compare maxRep 2 / cameraMaxLatenessMs 51, side 1, opponent 1, caster 2. Tries: compare 1, side 3 (maxRep 4 + 4 frozen
+#   early frames; maxRep 20 reviewRequired), opponent 1, caster 2 (1st: 6 zero-diff early frames t10-15). Load avg 5-16.
+# Display peak (RCON, minus 10 text_display baseline): side/caster 41, opponent 42, compare 37 (poll sampled) - unchanged vs r14.
+
+## (1) caster first person, t1-5 blade coverage (HUD on)
+Visual (cas-start.jpg, cas-start-br.jpg = lower-right 400x340 crop at 1x):
+  t0-1 held item (FP hand model), t2 a small gold guard corner at the bottom edge + a thin blade edge in the bottom-right corner,
+  t3, t4, t5, t6 NO weapon in frame, t7 the blade enters bottom-right on the sweep (expected, contact t8).
+Numbers: weapon-only diff in the lower-right quadrant (x>900, y>380), frame vs next frame, % of full frame:
+  t0 1.74 (held) | t1 1.74 (held) | t2 0.16 | t3 0.02 | t4 0.03 | t5 0.00   -> rig wind-up <= 0.2 % every frame (target <= ~7 %).
+  Full-frame diff vs t4 (same code as r14, includes dash scene motion): t0 7.9 t1 7.9 t2 4.0 t3 4.3 (scene only, no blade) t4 0.
+  r14 same code: t0 7.5 t1 7.5 t2 6.2 t3 20.3 (broad blade) t4 0.  -> r14 t3 broad-blade frame is gone.
+End (cas-end.jpg): t50-56 rig blade thin at the right edge, t58 held item back in its final pose, no raise; one weapon per frame.
+
+## (2) front (opponent) view t0-6, screen lean from vertical (grip->tip) and face, by eye at 0.8x crop (+-5 deg)
+       t0   t1   t2   t3   t4   t5   t6
+r15    0    0    ~22  ~28  ~72  ~78  ~80     face: t0-1 edge-on, t2 partly open, t3 fully open (broad), t4+ broad, horizontal
+r14    0    0    0*   0    ~35  ~30  ~70     (*t2 overlap, doubled tip)
+Steps r15: t1->t2 ~22 deg + face opening (largest start change; animator modelled 14.1 lean / 23 face for held->key 2),
+  t2->t3 ~6, t3->t4 ~44 (to near-horizontal: the extreme/sweep reaches the front view one frame after the key 3 pose),
+  t4->t5 ~6, t5->t6 ~2. Not the <= 9.5 deg/key the preview predicts: t1->t2 is ~2.3x it and t3->t4 is the r14 t5->t6 sweep
+  step moved two frames earlier. Still one rig, no doubled blade t0-6 in the front view (r14 had a doubled tip at t2).
+  opp-start-r14-vs-r15.jpg (top r14, bottom r15).
+End (opp-end.jpg): t50-62 vertical edge-on, smooth, one weapon (t56 faint doubled tip at the top = overlap tick).
+
+## (3) one weapon every frame, t0-6 / t50-62
+compare  t0-6: OK (t3 slight doubled blade = overlap at the held pose, reads as one sword); t50-62 OK.
+side     t0-6: FAIL at t3: the held item (diagonal) AND the rig (key 1 pose, near vertical) are both drawn = TWO SWORDS for one frame
+         (side-start-r14-vs-r15.jpg; r14 t3 was one sword). t50-62 OK (side-end.jpg).
+opponent t0-6 OK, t50-62 OK.  caster FP t0-6 OK (held t0-1, none t3-6), t50-62 OK.
+Cause: the runtime one-tick overlap (held item still drawn on the rig's first client frame) was invisible only because rig key 0/1
+  equalled the held pose; with key 1 now leaving the held pose, the side player client draws the overlap tick with the rig already
+  at key 1. Same mechanism as the r10 Learnings line ("overlap needs the same model AND the same last-key pose").
+
+## (4) side / compare start
+side (side-start-2x.jpg): t0-2 held diagonal, t3 double (see 3), t4 rig near vertical behind the head, t5 tipping back (extreme),
+  t6 sweep low, t7 contact path. r14: wind-up visible from t4, so it now starts one frame earlier as briefed; read is a lift then a
+  pull-back over the shoulder, but the t3 double sword spoils the first frame.
+compare (cmp-start.jpg): t0-3 held (t3 overlap), t4 vertical, t5 over the shoulder (extreme), t6 horizontal sweep, t7 trail.
+  Reads OK: a clear 2-frame wind-up then the chop.
+
+## (5) regressions vs r14
+- NEW: side t3 two weapons (held + rig key 1). integration/animation (see 3).
+- front view: start change moved from t3->t4 (~35 + face) to t1->t2 (~22 + face); new ~44 deg step t3->t4 into the horizontal sweep
+  (was t5->t6 in r14). animator.
+- Hit timing: hurt tint side t10 / t33, compare t11 / t33 (r14 hit 2 at t32): +1 frame on hit 2, within the 0-3 tick client lag.
+- Ink/warm mask peak (same m14 mask): compare 13.7 (t33-35, freeze + cut) r14 13.7; side 1.0 r14 1.0; opponent 16.2 (t32) r14 14.6;
+  caster 7.8 (t32) r14 7.7. No change (content unchanged).
+- Display peak unchanged (41-42). No new static particles seen in h2 frames (cmp-h2.jpg).
+Improved: caster FP t3 broad-blade frame (20 %) gone; FP wind-up shows no rig t3-6.
