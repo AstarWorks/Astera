@@ -8,6 +8,7 @@ import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.floor
 import kotlin.math.hypot
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sin
 
@@ -90,39 +91,57 @@ internal object ParticleSkinPainters {
     // ---- ember (entity_effect, grey, server-tinted) -------------------------------------------------
 
     /**
-     * A lumpy glowing ember: a hot core that is the full tint colour with a darker rim, a faint halo, an outline
-     * that reshapes every frame (flicker) and a few specks orbiting it. It shrinks while it cools and fades out,
-     * since `entity_effect` has no fade of its own.
+     * A lumpy glowing ember: an opaque hot core at the full tint colour with a short falloff, an outline that
+     * reshapes every frame (flicker) and a few specks orbiting it. It shrinks while it cools and fades out, since
+     * `entity_effect` has no fade of its own.
+     *
+     * No wide low-alpha halo: the server tint multiplies the texture, so the old 0.6-grey halo at alpha 0.1-0.26 that
+     * spanned the whole quad became a dim brown-orange that, translucent over the sky, read as a blue-grey disc
+     * (bastion-s1 r21). Darker texels ([EMBER_MIN_LUMA]) only sit where alpha is still high.
+     * Alpha below [ALPHA_FLOOR] is zeroed because the particle shader discards it anyway (`a < 0.1`); what the PNG
+     * shows is what the client draws, and no wide low-alpha skirt survives as a hard-edged disc.
      */
     private fun ember(t: Double, i: Int, n: Int): Field {
         val shrink = smooth(0.0, 1.0, t)
-        val rBase = mix(0.50, 0.19, shrink) * (1.0 + 0.30 * (hash(i, 3, 11) - 0.5))
+        val rBase = mix(0.36, 0.08, shrink) * (1.0 + 0.30 * (hash(i, 3, 11) - 0.5))
         val cx = (hash(i, 1, 11) - 0.5) * 0.10
         val cy = (hash(i, 2, 11) - 0.5) * 0.10 - 0.05 * t
         val pa = hash(i, 4, 11) * 2 * PI
         val pb = hash(i, 5, 11) * 2 * PI
-        val fade = 1.0 - 0.97 * smooth(0.5, 1.0, t)
+        // Cools by shrinking; alpha fades only a little at the end (a translucent orange over the sky reads grey).
+        val fade = 1.0 - 0.55 * smooth(0.6, 1.0, t)
+        val flicker = 0.96 + 0.04 * sin(i * 2.1 + 1.0)
         val specks = (0 until 3).map { k ->
             val ang = hash(i, 20 + k, 11) * 2 * PI
-            val rad = rBase * (1.25 + 0.9 * hash(i, 30 + k, 11))
+            val rad = rBase * (1.35 + 0.7 * hash(i, 30 + k, 11))
             Triple(cx + rad * cos(ang), cy + rad * sin(ang), 0.030 + 0.012 * hash(i, 40 + k, 11))
         }
         return Field { x, y ->
             val dx = x - cx; val dy = y - cy
             val r = hypot(dx, dy)
             val th = atan2(dy, dx)
-            val rr = rBase * (1.0 + 0.07 * sin(2 * th + pa) + 0.05 * sin(5 * th + pb))
+            val rr = rBase * (1.0 + 0.07 * sin(2 * th + pa) + 0.03 * sin(5 * th + pb))
             val q = r / rr
-            val core = exp(-q * q * 2.2) * (0.88 + 0.12 * sin(i * 2.1 + 1.0))
-            val halo = 0.26 * exp(-(r / (rBase * 2.2)).pow(2) * 2.0)
-            var a = (core * 1.25 + halo).coerceIn(0.0, 1.0)
+            // Opaque hot body, then a short falloff (q 0.45 -> 1.15) that stays mostly above alpha 0.4: warm, not hazy.
+            val body = (1.0 - smooth(0.45, 1.15, q)) * flicker
             var speck = 0.0
             for ((sx, sy, w) in specks) speck += exp(-((x - sx).pow(2) + (y - sy).pow(2)) / (w * w))
-            a = (a + 0.7 * speck * (1.0 - t)).coerceIn(0.0, 1.0)
-            val g = 0.60 + 0.40 * exp(-q * q * 5.0)
-            Px(g, g, g, a * fade * edge(x, y))
+            val speckA = (0.9 * speck * (1.0 - t)).coerceIn(0.0, 1.0)
+            var a = max(body, speckA) * fade * edge(x, y)
+            if (a < ALPHA_FLOOR) a = 0.0
+            // Full tint at the centre, deeper (0.72 x tint) toward the rim where alpha is still high: a hot core with
+            // a warm falloff. The rim is never as dark as the old 0.6 halo, and never at low alpha. Specks are
+            // full-bright sparks (at the rim grey they read as dark brown dots, bastion-s1 r21 capture).
+            val g = if (speckA > body) 1.0 else EMBER_MIN_LUMA + (1.0 - EMBER_MIN_LUMA) * exp(-q * q * 4.0)
+            Px(g, g, g, a)
         }
     }
+
+    /** Darkest grey an ember texel may have; the tint (not the texture) carries the hue and the warmth. */
+    private const val EMBER_MIN_LUMA = 0.72
+
+    /** The particle shader discards alpha < 0.1; zero it in the art so the PNG matches the client. */
+    private const val ALPHA_FLOOR = 0.1
 
     // ---- spark (firework, baked) ---------------------------------------------------------------------
 
