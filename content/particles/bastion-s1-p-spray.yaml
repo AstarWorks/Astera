@@ -1,0 +1,9 @@
+# r16 hit spray: retextured firework sparks (ADR-0252) thrown along the element's creep direction.
+id: bastion-s1-p-spray
+shape: { kind: point }
+color: { r: 255, g: 255, b: 255 }
+count: 3
+lifetime_ticks: 14
+vanilla_particle: firework
+velocity: { direction: along_tangent, speed: 0.3, spread_degrees: 16, speed_jitter: 0.45 }
+force: true

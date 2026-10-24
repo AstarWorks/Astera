@@ -1,0 +1,10 @@
+# r16 ember: retextured entity_effect, orange; `up` with spread 0 (x = z = 0 exactly) makes the client scale its random sideways drift x0.1, then it rises.
+id: bastion-s1-p-ember
+shape: { kind: point }
+color: { r: 255, g: 140, b: 40 }
+count: 1
+lifetime_ticks: 24
+vanilla_particle: entity_effect
+data: { kind: tint, color: { r: 255, g: 140, b: 40 } }
+velocity: { direction: up, speed: 0.05, spread_degrees: 0, speed_jitter: 0.5 }
+force: true
