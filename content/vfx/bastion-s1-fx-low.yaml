@@ -14,9 +14,9 @@ elements:
   end_tick: 5
   keyframes:
   - t: 0
-    translate: [1.4, 0.72, 1.0]
+    translate: [1.7, 1.35, 0.85]
     rotate: [0, 0, 0]
-    scale: [0.4375, 0.1837, 1.0]
+    scale: [0.3438, 0.1891, 1.0]
 - id: s1h2-ring-q0
   kind: {type: sprite, sprite: bastion-s1-ring-q0, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
@@ -125,25 +125,25 @@ elements:
     translate: [-0.5, 1.05, 1.4]
     rotate: [0, 0, 0]
 - id: s1h2-flash
-  kind: {type: sprite, sprite: bastion-s1-glint, frame_ticks: 1, loop: false, see_through: true}
+  kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 4
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0, 1.2, 1.15]
+    translate: [0.05, 1.05, 1.0]
     rotate: [0, 0, 0]
-    scale: [0.03125, 0.03125, 1.0]
+    scale: [0.02344, 0.02344, 1.0]
   - t: 1
-    scale: [0.5, 0.5, 1.0]
+    scale: [0.1562, 0.1562, 1.0]
     ease: out_back
-    translate: [0, 1.2, 1.15]
+    translate: [0.05, 1.05, 1.0]
     rotate: [0, 0, 0]
   - t: 3
-    scale: [0.2812, 0.01562, 1.0]
+    scale: [0.07031, 0.07031, 1.0]
     ease: out_quad
-    translate: [0, 1.2, 1.15]
+    translate: [0.05, 1.05, 1.0]
     rotate: [0, 0, 0]
 - id: s1h2-smoke-up
   kind: {type: sprite, sprite: bastion-s1-smoke, frame_ticks: 2, loop: false, see_through: true, color: '#A0A8A8B0'}
