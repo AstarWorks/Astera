@@ -36,6 +36,11 @@
 #   slightly back-right: behind the eye plane once the rig lags), key 2 = phi 226 pitch 60, key 3 = phi 228 pitch 48. FP full frame (vfov 90) keys 1-4 <= 0.6 % at
 #   every rig lag 0..1.06. Front lean -5.8 -> -15.4 -> -19.9 -> -28.3 -> -37.7 (10/5/8/9 per key; held -> key 2 = 14), face 35 -> 39 -> 58 -> 78 -> 68
 #   (+4/+19/+19/-10), chunks 52/22/53/33. Numbers: evidence/animator/r16/per-key-r16.txt.
+# r17 (director r15: side t3 two swords = held item + rig key 1 at another pose; front 22 / 44 deg steps). attach_to_anchor removed the dash lag, so keys 0-1 are the
+#   held pose again (exact). Keys 2-4 re-solved, keys 5+ unchanged (contact key 7 = tick 8): key 2 = tip phi 318 pitch 68 (lift up-right), key 3 = phi 254 pitch 40
+#   (already low on the right), key 4 = phi 237 pitch 18 (pull-back extreme, 25 deg behind the sweep start). Chunks 44/45/56 then sweep 36; front lean
+#   -5.8 -> -19.5 -> -46.7 -> -56.3 -> -79 (14/27/10/23). Real-client front views dropped key 4 in 2 of 3 captures, so key 3 -> key 5 is kept at 32 deg by itself.
+#   Numbers + observed frames: evidence/animator/r17/per-key-r17.txt.
 # Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt (keys 0-6 and 40-52 changed in r8: evidence/animator/r8/per-key-r8.txt; keys 0-20 in r9: evidence/animator/r9/per-key-r9.txt). r10: keys 2-18 in evidence/animator/r10/per-key-r10.txt. r11: keys 39-52 + 3-axis check vs the held item in evidence/animator/r11/per-key-r11.txt.
 # Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
 # Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
@@ -80,10 +85,10 @@ rigs:
   - { id: pommel_gold, block: gold_block, offset: [0.0, -0.15, 0.0], size: [0.125, 0.15, 0.125] }
   swing:
   - { t: 0, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 1, rotate: [-257.9, -53.9, -18.0] }
-  - { t: 2, rotate: [-241.3, -43.7, -21.0] }
-  - { t: 3, rotate: [-238.2, -31.9, -71.0] }
-  - { t: 4, rotate: [-227.0, -11.9, -90.7] }
+  - { t: 1, rotate: [-336.4, -47.8, -59.4] }
+  - { t: 2, rotate: [-296.7, -51.8, -65.0] }
+  - { t: 3, rotate: [-257.0, -20.6, -48.7] }
+  - { t: 4, rotate: [-238.8, -1.0, -94.5] }
   - { t: 5, rotate: [-261.9, 11.6, -117.6] }
   - { t: 6, rotate: [-306.4, -8.2, -123.7] }
   - { t: 7, rotate: [-345.0, -27.1, -128.1] }
