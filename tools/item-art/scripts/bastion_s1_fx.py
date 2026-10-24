@@ -111,7 +111,7 @@ def sweep_tiles(id_, name, start, end):
     smaller at the same display cost per tile. Front only: every camera is on the plane's +Z (up) side."""
     sw = SWEEPS[name]
     n = sw["tiles"]
-    h = SWEEP_HALF / n
+    h = sw.get("tile_half", SWEEP_HALF) / n
     sc = 2 * h / 6.4
     out = []
     for qi, (sa, sb) in enumerate(TILES):
@@ -200,8 +200,12 @@ def low():
     # r13 (reviewer r9: visible t30-33 = 4 ticks, a flat floor puddle from the caster view): hit_stop freezes the displays
     # on skill 31-33, so life 2 (fx 3-5, end exclusive) is removed at skill 33 -> on screen t30-32; raised to y 0.95 (spans
     # ~0.1-1.8, the floor no longer clips it) and 4.0 wide: a screen-facing flash beside the bodies as in reference e00/e01.
+    # r14 (director r10: y 0.95 / 4.0 wide filled 21-27% of the opponent view and 17% of the caster FP): 2.8 x 1.18 blocks,
+    # centre (1.4, 0.72, 1.0) = bottom edge y 0.13 (still above the floor clip), 0.4 farther out to the caster's left.
+    # Perspective model (calibrated on r9/r10 captures, caster pitch 15 / opponent pitch 25, real ~1.25x model):
+    # caster 7.5% / opponent 9.8% model -> ~9-10% / ~12-13% expected (r10 model 14.1 / 20.6).
     els.append(sprite("s1h2-ink", "bastion-s1-ink", 3, 5, [
-        kf(0, [1.0, 0.95, 1.0], [0, 0, 0], [s256(4.0), s256(4.0) * 0.42, 1.0])], see_through=False))
+        kf(0, [1.4, 0.72, 1.0], [0, 0, 0], [s256(2.8), s256(2.8) * 0.42, 1.0])], see_through=False))
     # Round 7b: the low ring is the smear of the r7 ring swing, IN its plane (10 deg tilt, lowest toward phi 60 = left-
     # front at the floor pitch -15 / y 0.11, centre on the pivot axis at tip pitch -5, radius 2.535 = tip; fitted to the
     # r7 keys 24-30 within 0.12 blocks), turning the blade's way (left-back -> back -> right -> front), 221 deg from

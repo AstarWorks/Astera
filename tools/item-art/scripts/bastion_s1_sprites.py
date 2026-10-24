@@ -493,6 +493,13 @@ SWEEPS = {
                  # (the tail no longer dies to a needle) and a thicker BACK arc (alpha 120-250): the opponent (z 1.7) only
                  # sees the back half, nearly edge-on (~14 deg), so the r9 0.24-block band read as a hairline.
                  tiles=2, feather=1.2, floor_t=0.55, tail_deg=70.0, boost=(185.0, 70.0, 2.2),
+                 # r14 (director r10, compare close-up t32: frame 0 showed a straight head cut and a translucent khaki wash with
+                 # a straight top = the fan face, whose alpha-0.1 contour the client's text shader turns into a hard edge;
+                 # outer edge still a 1-2 px comb at 2x): no fan (alpha exactly 0 inside the ring), an 18 deg needle head
+                 # instead of the 6 deg blunt ramp, a wider OUTER ramp (2.0 px half-feather = ~8.5 tile texels) with a fainter,
+                 # softer rim, every alpha < 0.1 zeroed in the art (the client discards it anyway), and tiles that only cover
+                 # the ring (tile_half 2.65 instead of 2.85: 7.5% smaller texels at the same 4 displays).
+                 fan_alpha=0.0, head_deg=18.0, feather_out=2.0, rim=(0.45, 1.6), tile_half=2.65, alpha_floor=0.1,
                  frames=[(158, 210.8, 0.75, 1.0), (158, 265, 0.9, 1.0), (158, 320.7, 1.0, 1.0), (158, 379.1, 1.0, 1.0),
                          (158, 379.1, 1.0, 1.0), (205, 379.1, 0.85, 0.9), (250, 379.1, 0.72, 0.8),
                          (290, 379.1, 0.58, 0.68), (322, 379.1, 0.44, 0.54), (348, 379.1, 0.3, 0.4),
@@ -643,7 +650,7 @@ def sweep_frame(size, name, tail, head, tscale, opacity, window=None):
         b = (size / 2 - Y) * px
     else:
         sa, sb, n = window
-        h = SWEEP_HALF / n
+        h = sw.get("tile_half", SWEEP_HALF) / n
         a = sa * h + (X - size / 2) * (2 * h / size)
         b = sb * h + (size / 2 - Y) * (2 * h / size)
     r = np.hypot(a, b)
@@ -658,10 +665,11 @@ def sweep_frame(size, name, tail, head, tscale, opacity, window=None):
     r_out = np.interp(np.clip(q, 0, span), qs, rs)
     # thickness along the span: 6 deg blunt head ramp, then decay to a needle at the tail
     u = np.clip(dh / max(span, 1e-3), 0, 1)
-    prof = np.clip(dh / 6.0, 0, 1) * np.clip(1.0 - u, 0, 1) ** 0.8
+    head = smooth(dh / sw["head_deg"]) if sw.get("head_deg") else np.clip(dh / 6.0, 0, 1)  # r14: needle head, no blunt cut
+    prof = head * np.clip(1.0 - u, 0, 1) ** 0.8
     if sw.get("floor_t"):  # r13: hold a minimum thickness, taper only the last tail_deg into a needle
         ft = sw["floor_t"]
-        prof = np.clip(dh / 6.0, 0, 1) * (ft + (1 - ft) * np.clip(1.0 - u, 0, 1) ** 0.8) * smooth(q / sw["tail_deg"])
+        prof = head * (ft + (1 - ft) * np.clip(1.0 - u, 0, 1) ** 0.8) * smooth(q / sw["tail_deg"])
     if sw.get("boost"):  # r13: thicker band around alpha c (+- w deg, cosine bump), factor 1 + k
         c, w, k = sw["boost"]
         al = tail + sw["sign"] * np.clip(q, 0, span)
@@ -672,7 +680,10 @@ def sweep_frame(size, name, tail, head, tscale, opacity, window=None):
     fe = sw.get("feather", 0.9)
     d_out = (r_out - r) / px  # px inside the outer edge
     d_in = (r - (r_out - T)) / px  # px outside the inner edge
-    band = soft(np.minimum(d_out, d_in), fe) * inside
+    if sw.get("feather_out"):  # r14: wider ramp on the outer (silhouette) edge only, the inner edge stays crisp
+        band = soft(d_out, sw["feather_out"]) * soft(d_in, fe) * inside
+    else:
+        band = soft(np.minimum(d_out, d_in), fe) * inside
     cut = np.minimum(dh, span - dh) * math.radians(1.0) * r / px  # soften the angular ends
     band *= soft(cut + 0.4, 1.0)
     floor = soft((world[1] - 0.04) / px, 1.0)  # see_through text would show under the floor
@@ -685,9 +696,13 @@ def sweep_frame(size, name, tail, head, tscale, opacity, window=None):
     fan_r0 = sw["fan_in"]
     fr = np.clip((r - fan_r0) / np.maximum(r_out - T - fan_r0, 1e-3), 0, 1)
     fan = (fr ** 1.6) * (r < r_out - T * 0.5) * (r > fan_r0) * inside * np.clip(1 - u, 0, 1) ** 1.4 * np.clip(dh / 10, 0, 1)
-    img = over(img, hexc("#FFC83A")[None, None] * np.ones((1, 1, 3)), fan * 0.3 * tscale * floor)
+    img = over(img, hexc("#FFC83A")[None, None] * np.ones((1, 1, 3)), fan * sw.get("fan_alpha", 0.3) * tscale * floor)
     # dark rim just outside the outer edge (dark mixed with bright)
-    if fe > 1.0:  # r13: soft, lighter rim (font texels are nearest-neighbour: a hard near-black line is the worst stair)
+    if sw.get("rim"):  # r14: (alpha, feather) of the soft rim, centred just outside the wider outer ramp
+        ra, rf = sw["rim"]
+        rim = soft(1.6 - np.abs(d_out + 1.5 + 0.5 * (sw.get("feather_out", fe) - fe)), rf) * inside * np.clip(prof * 3, 0, 1) * soft(cut + 0.4, 1.0)
+        img = over(img, RIM[None, None] * np.ones((1, 1, 3)), rim * ra * floor)
+    elif fe > 1.0:  # r13: soft, lighter rim (font texels are nearest-neighbour: a hard near-black line is the worst stair)
         rim = soft(1.6 - np.abs(d_out + 1.5), 1.0) * inside * np.clip(prof * 3, 0, 1) * soft(cut + 0.4, 1.0)
         img = over(img, RIM[None, None] * np.ones((1, 1, 3)), rim * 0.55 * floor)
     else:
@@ -707,6 +722,9 @@ def make_sweep(name):
         n = SWEEPS[name]["tiles"]
         for qi, (sa, sb) in enumerate(TILES):
             frames = [downsample(sweep_frame(size, name, *f, window=(sa, sb, n)), size) for f in SWEEPS[name]["frames"]]
+            af = SWEEPS[name].get("alpha_floor", 0.0)
+            for fr in frames:  # r14: the client discards text alpha < 0.1; zero it here so frame 0 is clean outside the arc
+                fr[fr[..., 3] < af * 255] = 0
             save_strip(f"{name}-q{qi}", frames, size)
         return
     fn = ring_frame if "aniso" in SWEEPS[name] else sweep_frame
