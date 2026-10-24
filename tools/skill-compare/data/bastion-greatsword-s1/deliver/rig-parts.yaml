@@ -13,8 +13,8 @@
 #  edges        smooth_quartz        [0.2125, 1.7575, 0.0425] [0.0, 1.31625, 0.0]  held bevel_hi_l/r (middle inside the core)
 #  rims         polished_blackstone  [0.24, 1.7575, 0.03] [0.0, 1.31625, 0.0]  held bevel_rim_l/r (middle inside the edges)
 #  fuller       polished_deepslate   [0.0275, 1.425, 0.06625] [0.0, 1.4375, 0.0]  held fuller_ridge/start/end_f/b (both faces; hi strips + pinstripes cut for the 22-part cap)
-#  tip_1        polished_blackstone  [0.2, 2.10375, 0.03] [0.0, 1.28313, 0.0]  held tip0/tip1 rims (frame round the blade_face core; hidden inside edges below 25.12)
-#  tip_2        polished_blackstone  [0.08, 2.31375, 0.0375] [0.0, 1.38813, 0.0]  held tip2 + tip3 + tip_point (mean outer width; 0.6 = rim + quartz strips; hidden in the core below 27.2)
+#  tip_1        polished_blackstone  [0.2, 1.8975, 0.03] [0.0, 1.38625, 0.0]  held tip0/tip1 rims (frame round the blade_face core; hidden inside edges below 25.12)
+#  tip_2        polished_blackstone  [0.08, 2.1075, 0.0375] [0.0, 1.49125, 0.0]  held tip2 + tip3 + tip_point (mean outer width; 0.6 = rim + quartz strips; hidden in the core below 27.2)
 #  inlay        lime_concrete        [0.09, 0.2, 0.07] [0.0, 0.6, 0.0]  held inlay_f/b
 #  inlay_frame  gold_block           [0.1125, 0.225, 0.0625] [0.0, 0.6, 0.0]  held inlay_frame_*
 #  ricasso      polished_blackstone  [0.24, 0.07125, 0.065] [0.0, 0.40187, 0.0]  held ricasso
@@ -36,8 +36,8 @@ parts:
   - { id: edges, block: smooth_quartz, offset: [0.0, 1.31625, 0.0], size: [0.2125, 1.7575, 0.0425] }
   - { id: rims, block: polished_blackstone, offset: [0.0, 1.31625, 0.0], size: [0.24, 1.7575, 0.03] }
   - { id: fuller, block: polished_deepslate, offset: [0.0, 1.4375, 0.0], size: [0.0275, 1.425, 0.06625] }
-  - { id: tip_1, block: polished_blackstone, offset: [0.0, 1.28313, 0.0], size: [0.2, 2.10375, 0.03] }
-  - { id: tip_2, block: polished_blackstone, offset: [0.0, 1.38813, 0.0], size: [0.08, 2.31375, 0.0375] }
+  - { id: tip_1, block: polished_blackstone, offset: [0.0, 1.38625, 0.0], size: [0.2, 1.8975, 0.03] }
+  - { id: tip_2, block: polished_blackstone, offset: [0.0, 1.49125, 0.0], size: [0.08, 2.1075, 0.0375] }
   - { id: inlay, block: lime_concrete, offset: [0.0, 0.6, 0.0], size: [0.09, 0.2, 0.07] }
   - { id: inlay_frame, block: gold_block, offset: [0.0, 0.6, 0.0], size: [0.1125, 0.225, 0.0625] }
   - { id: ricasso, block: polished_blackstone, offset: [0.0, 0.40187, 0.0], size: [0.24, 0.07125, 0.065] }

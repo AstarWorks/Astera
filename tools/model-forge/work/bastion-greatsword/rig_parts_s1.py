@@ -29,7 +29,12 @@ def xc(w):
 
 BLADE_Y = (-3.0, 25.12)
 TIP_Y = 27.36  # held tip1 / tip2 step
-TIP_ROOT = -6.3  # 0.1 above guard_1's bottom (-6.4): inside guard_1, no coplanar bottom face; 0.23 block from the grip pivot
+# r26: the tip parts start where the blade core / edges / rims start (BLADE_Y[0], the ricasso top), so their box corner has the
+# SAME y as the parts that hide them. r22-r25 rooted them at -6.3 (inside guard_1, corner 0.2 block lower): the lerp-vs-slerp
+# error then differed by up to 0.024 block, more than the 0.006-0.01 nesting margin, and mid-chunk the 0.03-thick blackstone
+# tip_1 / tip_2 came out THROUGH the iron core face (vfx-reviewer r25 compare f31/f37: violet blade, two tip outlines).
+# Check every nesting margin against the drift with evidence/modeler/r26/nest_drift.py after any part change.
+TIP_ROOT = BLADE_Y[0]
 P = [
     # blade (core z 0.8 units = 0.05 block)
     # r22: the core runs on into the tip (held tip0/tip1 cores are the same 0.8-deep iron), so the tip needs no iron part of its own;
@@ -42,8 +47,8 @@ P = [
     # the 0.03 dark rims as a second object). Now the held profile: dark 0.48 rim outermost (flush with `rims`), 0.8 iron core inside it.
     # ROOTED NEAR THE PIVOT: the planner sends translation = pivot + R*(offset - size/2) (the box corner) and the client LERPS it while it
     # SLERPS the rotation, so mid-chunk a corner at distance d sits d*(1-cos(step/2)) off the arc (old tip: 2.2 block -> 0.2 block off the
-    # blade at a 50 deg chunk = the "second object" in r20/r22 opponent t4-5). Both tip parts therefore start at TIP_ROOT inside guard_1 and
-    # run hidden through guard/collar/ricasso/blade (tip_1 inside `edges` 0.68, tip_2 inside the 0.8 core), so their corner = the blade's.
+    # blade at a 50 deg chunk = the "second object" in r20/r22 opponent t4-5). Both tip parts therefore start at TIP_ROOT (= the blade
+    # core's start) and run hidden through the blade (tip_1 inside `edges` 0.68, tip_2 inside the 0.8 core), so their corner = the blade's.
     box('tip_1', 'polished_blackstone', xc(3.2),  (TIP_ROOT, TIP_Y), zc(0.48), 'held tip0/tip1 rims (frame round the blade_face core; hidden inside edges below 25.12)'),
     box('tip_2', 'polished_blackstone', xc(1.28), (TIP_ROOT, 30.72), zc(0.6),  'held tip2 + tip3 + tip_point (mean outer width; 0.6 = rim + quartz strips; hidden in the core below 27.2)'),
     # inlay window (through: both faces)

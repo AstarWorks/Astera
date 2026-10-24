@@ -1,0 +1,47 @@
+# r26 modeler: vfx-reviewer r25 minor diff 1 (hit-2 pull-back compare f31 = t25 and f37 = t31: blade violet-dark, RGB ~83/76/91,
+# luma 156 -> 79, two tip outlines). Base wp/integrate-limbus 1173a627. Real-client captures, one at a time.
+# Tools: lumrgb.py (= r25/lum.py masking + median R/G/B and B-R), gridcrop.py (crops with a frame-coordinate grid to read the
+# hilt/tip segment), nest_drift.py (nesting margin vs lerp/slerp drift per nested rig-part pair).
+
+## Cause: hidden tip parts came out THROUGH the blade face mid-interpolation (not the shader, not z-fighting of coplanar faces)
+- The violet surface is polished_blackstone: texel mean (53, 49, 57) x r25 lift 1.99 x up-face shade 0.77 = (81, 74, 87),
+  measured (84, 79, 95). The face that should show is the 0.05-block iron core, so a 0.03-block blackstone box was IN FRONT.
+- Diagnostic capture (content dirty, uncommitted, reverted): tip_1 -> red_concrete, rims -> light_blue_concrete.
+  diag-colored-tip-f31-34.jpg: at the hit-2 pull-back the broad face is RED (tip_1) with tip_2 above it as the second tip
+  outline; the blue rims only show where they should (edge-on, outermost). So tip_1 / tip_2, not the rims.
+- Mechanism (nest_drift.py): the planner sends translation = pivot + R*corner (corner = box min corner) and the client LERPS the
+  translation while it SLERPS the rotation. A part's mid-chunk error depends on its corner; tip_1/tip_2 were rooted at y -6.3
+  (inside guard_1, corner 0.2 block below the core's -3.0), so their error differed from the core's by up to 0.024 block along
+  the face normal, more than the 0.006-0.010 nesting margin. Original rig, worst margin (block, < 0 = pokes through):
+    all chunks: tip_1/core z -0.0140, tip_1/edges x -0.0231 z -0.0167, tip_2/core z -0.0146 (k5->6, the 121 deg hit-1 chunk)
+    hit 2 (keys 20-35): tip_1/core z -0.0003, tip_1/edges z -0.0035, tip_2/core z -0.0031 (k21->22 = compare t25)
+- Fix (rig_parts_s1.py): TIP_ROOT = BLADE_Y[0] (-3.0, where core / edges / rims start): same corner y, so only the tiny
+  x/z corner differences remain. After: every tip pair positive on all chunks (tip_1/core z +0.0085, tip_1/edges x +0.0027
+  z +0.0055, tip_2/core z +0.0023). Visible geometry is unchanged (only the hidden root moved); corner distance 0.45 block
+  (= the core's), held-vs-rig profile check unchanged.
+- Residual (not fixed, minor): the deepslate fuller (starts at 1.6, corner 0.29 block above the core's) still sinks INTO the
+  core for a frame in fast chunks (core/fuller z -0.0064 at hit 2, -0.028 at the hit-1 121 deg chunk): the dark fuller line
+  can vanish for one frame; nothing extra appears. Rooting it lower makes it show on the inlay frame / poke the gem window.
+
+## Real client, compare (case camera), final content (r25 shader unchanged), capture 2: maxRepeatedFrames 1, lateness 67 ms
+  frame (tick)   r25 published (8b836e2c)        r26
+  f30 (t24)      167  RGB 167/167/167            173  RGB 173/173/173
+  f31 (t25)       81  RGB  84/ 79/ 95  B-R +11   178  RGB 178/177/175  B-R -3   (reviewer's frame: face, neutral, one tip)
+  f32 (t26)       81  RGB  84/ 79/ 91  B-R  +7    80  RGB  82/ 78/ 90  B-R +8   (truly edge-on: rims)
+  f33 (t27)        -                               88  RGB  90/ 86/ 97  B-R +7   (edge-on)
+  f34 (t28)        -                               77  RGB  80/ 75/ 90  B-R +10  (edge-on, thin)
+  f35-37 (t29-31)  f37 violet (sheet)             173 / 164 / 167, B-R 0 / -5 / 0  (f37 = reviewer's second frame: silver)
+  f28-29 (t22-23)  -                              154 / 154 neutral
+  Segments: '28:523,409,229,516;29:523,406,229,515;30:517,398,256,441;31:523,389,361,356;32:536,383,432,369;
+  33:556,388,385,391;34:644,380,433,433;35:651,380,708,481;36:623,367,870,459;37:708,405,905,440' (r25 published:
+  '30:515,400,245,465;31:520,394,300,378;32:525,390,387,355'). Sheets: cmp-r26-f28-33.jpg, cmp-r26-f34-39.jpg (2x / 1x grid).
+- Side view t22-33 (side-r26-t22-33.jpg, maxRepeatedFrames 1): one silver blade every frame, one tip, no broad dark face.
+
+## What is left: the 2-3 truly edge-on frames (t26-28) show the rims' +X face = polished_blackstone, luma 77-88, B-R +7..+10.
+- That is the material: polished_blackstone's dominant texel is (60, 57, 71) (B-R +11; other texels (49, 44, 54), (39, 34, 28)).
+  Edge-on there is no face to show, so luma >= 100 there needs a lighter rim; |B-R| <= 5 needs a neutral rim (polished_deepslate
+  (72.5, 72.6, 73.1) lifts to (112, 112, 113)). Both are a held-model + rig material swap (content/models), not in this brief.
+- Shader trial rejected (capture 1): adding the fsh lift as neutral grey instead of scaling rgb keeps the texel's own chroma
+  but measured no gain on the edge-on rims (capture 1 f33 B-R +10, same as the scale rule's +7..+10: the shade term already
+  shrinks the chroma) and it greys the kelp grip: rig grip RGB 62/77/47 (chroma 29) -> 62/69/56 (chroma 13).
+  Any luma-only rule that neutralises blackstone (chroma 11) also greys kelp (chroma 19). Reverted; r25 shader kept.
