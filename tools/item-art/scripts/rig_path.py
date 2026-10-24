@@ -305,6 +305,51 @@ class RigPath:
             out.append((s, c, r, e))
         return out
 
+    def spin_axis(self, fx_tick, h=1.0 / 16):
+        """Unit rotation axis of the blade at fractional fx tick (blade dir x its derivative); None while the blade holds."""
+        a, b = self.blade_dir(fx_tick - h), self.blade_dir(fx_tick + h)
+        w = (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
+        L = math.sqrt(sum(x * x for x in w))
+        return tuple(x / L for x in w) if L > 1e-6 else None
+
+    def strike_windows(self, frac=1.0, first=0, last=None, hold_speed=0.5, max_turn_deg=60.0, follow_speed=1.0,
+                       fine=16):
+        """(start, contact, resume, end) fx ticks per contact, like swing_windows, but the START is where the strike
+        itself begins, not the first fast tick: walking back from the contact on a 1/`fine` tick grid, the window stops at
+        the last anticipation hold (tip speed < hold_speed) or the last turn (the blade's rotation axis differs from the
+        axis it has entering the contact by > max_turn_deg: a direction reversal, the drop into a coil, a wind-up lift).
+        So wind-up motion never belongs to a window however fast it is (r24: the drop into the coil ran at 1.3-3.2
+        blocks/tick and swing_windows counted it as swing). `start` is fractional (feed it to arc / blade_point; emit at
+        ceil). resume / end: the hit-stop end and the follow-through while the tip moves >= follow_speed blocks/tick
+        (whole-tick chords, as swing_windows)."""
+        last = self.fx_duration - 1 if last is None and self.fx_duration else last
+        cmax = math.cos(math.radians(max_turn_deg))
+        h = 1.0 / fine
+        out = []
+        for c in self.contact_fx_ticks():
+            if last is not None and c > last or c < first:
+                continue
+            ref = self.spin_axis(c - h / 2, h / 2)
+            s = float(c)
+            while s - h >= first - 1e-9:
+                u = s - h / 2
+                if self.tip_speed(u, frac, h / 2) < hold_speed:
+                    break
+                ax = self.spin_axis(u, h / 2)
+                if ref is not None and (ax is None or sum(x * y for x, y in zip(ax, ref)) < cmax):
+                    break
+                s -= h
+            s = max(float(first), round(s * fine) / fine)
+            r = c
+            while self.frozen_fx(r):
+                r += 1
+            e = r
+            while (last is None or e + 1 <= last) and math.dist(self.blade_point(e, frac),
+                                                                 self.blade_point(e + 1, frac)) >= follow_speed:
+                e += 1
+            out.append((s, c, r, e))
+        return out
+
     def arc(self, t0, t1, frac=1.0, radius=None, step=0.3):
         """Points along the TRUE (slerped) blade path between fx ticks t0 and t1, spaced <= step blocks: list of
         (fractional fx tick, point, unit tangent). Never a straight chord (a 120 deg chunk's chord cuts through the body)."""

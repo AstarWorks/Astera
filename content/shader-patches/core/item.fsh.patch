@@ -1,0 +1,14 @@
+# Astera weapon shading (ADR-0253, r25 rule in docs/contributing/vfx-team/modeler.md): our own additions to Mojang's
+# core/item.fsh, applied at pack build time to the vanilla shader from the client jar (never committed).
+# Faces marked as weapon by item.vsh.patch (rig parts and the held weapon model, not GUI) get a toe lift on dark texels:
+# on luma y' = y + 0.3 * (1 - y)^2, applied as a scale of rgb so hue is kept (per channel it greyed gold and the gem).
+# polished_blackstone 50 -> 100, deepslate 73 -> 112, iron 220 -> 221, gold 206 -> 209: a blade seen edge-on (only the
+# dark rim visible) no longer reads near-black, and the light materials are untouched.
+@@ after: layout(location = 5) in vec2 texCoord0;
+layout(location = 7) in float asteraWeaponTone;
+
+@@ before: color *= vertexColor * ColorModulator;
+    if (asteraWeaponTone > 0.5) {
+        float asteraY = max(dot(color.rgb, vec3(0.2126, 0.7152, 0.0722)), 1.0 / 255.0);
+        color.rgb = min(color.rgb * ((asteraY + 0.3 * (1.0 - asteraY) * (1.0 - asteraY)) / asteraY), vec3(1.0));
+    }
