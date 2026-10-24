@@ -149,9 +149,14 @@ internal object ParticleSkinPainters {
     const val SPARK_ACTIVE: Int = 8
 
     /**
-     * A hot gold glint: white core, gold halo and two thin tapered streaks that turn a little every frame. It cools
-     * white -> gold -> orange -> red while it shrinks, and the frames after [SPARK_ACTIVE] are empty, so the
+     * A hot gold glint: white core, a compact gold glow and two thin tapered streaks that turn a little every frame.
+     * It cools white -> gold -> orange while it shrinks, and the frames after [SPARK_ACTIVE] are empty, so the
      * particle is gone ~12-15 ticks after it spawns although the client keeps it alive.
+     *
+     * No wide translucent halo (bastion-s1 r22): the old 0.47-alpha gaussian halo left half of the visible texels at
+     * alpha 0.1-0.25, which over the sky read as a pale disc with an octagon edge (the shader discards < 0.1), and its
+     * late red-orange turned pinkish-lavender there. The glow is mostly opaque, the spark cools by shrinking (alpha
+     * fades only 30%), it never cools past orange, and alpha < [ALPHA_FLOOR] is zeroed.
      */
     private fun spark(t: Double, i: Int, n: Int): Field {
         if (i >= SPARK_ACTIVE) return EMPTY
@@ -159,23 +164,28 @@ internal object ParticleSkinPainters {
         val warm = ramp(u, listOf(
             0.0 to doubleArrayOf(1.0, 0.96, 0.78),
             0.3 to doubleArrayOf(1.0, 0.80, 0.30),
-            0.65 to doubleArrayOf(1.0, 0.52, 0.12),
-            1.0 to doubleArrayOf(0.80, 0.20, 0.06),
+            0.65 to doubleArrayOf(1.0, 0.58, 0.14),
+            1.0 to doubleArrayOf(1.0, 0.42, 0.08),
         ))
         val spin = Math.toRadians(32.0 + 11.0 * i)
-        val rCore = mix(0.16, 0.055, u)
-        val rHalo = mix(0.46, 0.18, u)
+        val rCore = mix(0.16, 0.06, u)
+        val rGlow = mix(0.26, 0.11, u)
         val len1 = mix(0.92, 0.36, u)
         val len2 = len1 * 0.52
-        val fade = 1.0 - 0.88 * u.pow(1.5)
+        val fade = 1.0 - 0.30 * u * u
         return Field { x, y ->
             val r = hypot(x, y)
             val core = exp(-(r / rCore).pow(2) * 1.6)
-            val halo = 0.55 * exp(-(r / rHalo).pow(2) * 2.2)
+            // Compact glow body: 0.95 inside and a short falloff, so it keeps its gold over the sky (an orange at
+            // 30-50% alpha over sky blue blends to a pinkish grey; keep that band thin).
+            val glow = 0.95 * (1.0 - smooth(0.6, 1.0, r / rGlow))
             val s = streak(x, y, spin, len1, 0.030) + 0.75 * streak(x, y, spin + PI / 2 + 0.55, len2, 0.026)
             val w = (core * 1.2).coerceIn(0.0, 1.0)
-            val a = (core * 1.1 + halo * 0.85 + s * 0.9).coerceIn(0.0, 1.0).pow(0.9)
-            Px(mix(warm[0], 1.0, w), mix(warm[1], 1.0, w), mix(warm[2], 0.95, w), a * fade * edge(x, y))
+            // Streaks: a crisp line (smoothstep on the gaussian) instead of a wide translucent fringe.
+            val line = smooth(0.12, 0.55, s)
+            var a = max(max(core * 1.1, glow), line).coerceIn(0.0, 1.0) * fade * edge(x, y)
+            if (a < ALPHA_FLOOR) a = 0.0
+            Px(mix(warm[0], 1.0, w), mix(warm[1], 1.0, w), mix(warm[2], 0.95, w), a)
         }
     }
 
