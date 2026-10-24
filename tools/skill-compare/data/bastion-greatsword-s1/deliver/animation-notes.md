@@ -305,3 +305,36 @@ LOW
 - Cost: no ease-out into the extreme any more (chunks 35/59/55 instead of 52/58/35): key 2 has to stay near the held pose for FP, which leaves ~115 deg for two chunks. Side view: key 2 stays forward-up (34 vs held 38), the lift backward happens over keys 3-4.
 - Risk: key 2 is sensitive to a rig lagging BEHIND the camera (rig z -0.3 block: 14 %). r13 showed no such lag (the old key 2 matched zero offset), so it is not modelled; recheck in the next caster capture.
 - Preview (planner accepted, opened): `vfx-preview bastion-s1-rig --view front|side|eye --freeze 8:2 --freeze 31:2` -> `evidence/animator/r15/strip-front.png` (t0-2 held vertical, t3 ~15 deg, t4 ~30, t5 ~40 extreme, t6 sweep, t8 contact), `strip-side.png` (t0-3 forward-up, t4 behind vertical, t5 extreme behind, t8 contact), `strip-eye.png` (vfov 70: t3 thin blade at the held pose's place, t4-6 empty). FOV-90 right-half masks of keys 1-4: `evidence/animator/r15/fp90-mask-keys1-4.png`. Per-key + chunk curves: `evidence/animator/r15/per-key-r15.txt`. Real client not run (by instruction).
+
+## Round 16 (director r14: caster FP t3 one broad blade ~20 %; front t3 edge-on -> t4 ~35 deg lean + face open)
+- Diagnosis (model outlines over the real r14 caster frames, `evidence/animator/r16/fp-lag-fit-r14.png`): t2 = key 1 = held pose with no lag (fits the held outline);
+  t3 = the SAME held pose with the rig drawn ~0.55 block BEHIND the camera (outline "k1 dz-0.55" traces the real blade edge); t4 empty. The dash_strike starts at
+  skill tick 2 (1.6 blocks / 3 ticks = 0.53 per tick) and the follow rig trails the caster's own first-person camera by ~1 tick. So the t3 frame was not the
+  r15 2->3 crossing and no key 2-3 change could remove it: the held pose itself is 7.6 / 19.5 % full frame at rig lag 0.27 / 0.55.
+- Fix (contact 8 kept, no director shift needed): only key 0 holds the held pose; key 1 (tick 2) already leaves it for a pose that is behind the eye plane
+  once the rig lags. Keys 1-3 re-solved, key 4 (extreme) and keys 5+ unchanged.
+
+| key | tick | tip phi / pitch | chunk | front lean | step | face open | step | side | FP full % (vfov 90) at rig lag 0 / .27 / .55 / .8 / 1.06 |
+|---|---|---|---|---|---|---|---|---|---|
+| 0 | 1 | 0 / 52 (held) | - | -5.8 | - | 35.1 | - | 38.4 | 4.2 / 7.6 / 19.5 / 19.6 / 0.1 |
+| 1 | 2 | 245 / 73 | 52.5 | -15.4 | -9.5 | 39.0 | +3.9 | -6.6 | 0.6 / 0 / 0 / 0 / 0 |
+| 2 | 3 | 226 / 60 | 21.5 | -19.9 | -4.5 | 58.3 | +19.3 | -22.0 | 0 at every lag |
+| 3 | 4 | 228 / 48 | 53.2 | -28.3 | -8.4 | 77.7 | +19.4 | -32.3 | 0 at every lag |
+| 4 | 5 | 222 / 26 (extreme, unchanged) | 32.8 | -37.7 | -9.5 | 67.6 | -10.0 | -61.5 | 0 at every lag |
+| 5 | 6 | 262 / 8 (sweep, unchanged) | 49.4 | -79.0 | -41.3 | 53.9 | -13.8 | -92.7 | 0 |
+
+  Front view skips key 1 (first rig frame = key 2): held -> key 2 = lean -14.1, face +23.2, still inside 15 / 25. Euler keys 1-3: [-257.9, -53.9, -18.0],
+  [-241.3, -43.7, -21.0], [-238.2, -31.9, -71.0].
+- Search: 3 keys x (slerp fraction toward the extreme u, tip phi, tip pitch), keys filtered to FP <= 0.8 % at lags 0 / .27 / .55 / .8, path scored by
+  max(lean step / 12, face step / 22, chunk / 60) with held -> key 2 also <= 15 lean / 25 face; 27 surviving paths, all share key 1 (245, 73). Late-chunk
+  (u .75 / .9) FP is 0 on chunks 1->2, 2->3, 3->4 at every lag.
+- Residual (not removable with contact 8): the held -> key 1 chunk crosses in front of the eye mid-chunk: lag 0 gives 10 / 14 / 20 / 13 / 5 % at u .5 / .6 / .7 / .8 / .9.
+  Every key-1 candidate that keeps the front lean step <= 13 has 14-16 % somewhere in that chunk, because a lean-free path from forward-up to behind goes over
+  the top in front of the eye. Captures so far show whole keys, and if the lag grows during that chunk (0 at key 0 -> 0.55 at key 1, as measured) the late chunk is 0 %.
+  Moving the extreme to key 5 / contact to 9 does not help this (the crossing is in the first chunk either way), so I did not use it.
+- Cost: no longer two held keys at the start, so side/compare see the wind-up begin one tick earlier (side angle 38 -> -7 in key 1, a 45 deg step) and the first
+  chunk is 52 deg out of the hold (no ease-in). Chunks 52/22/53/33 are uneven (the scan's minimax picked them; 2nd-best 52/22/51/41).
+- Preview (planner accepted; opened): `vfx-preview bastion-s1-rig --view front|side|eye --freeze 8:2 --freeze 31:2` -> `evidence/animator/r16/strip-front.png`
+  (t0-1 held vertical, t2-t5 lean grows steadily to the extreme, t6 sweep, t8 contact), `strip-side.png` (t0-1 forward-up, t2 vertical, t3-4 tipping back, t5 extreme),
+  `strip-eye.png` (preview eye has no lag, vfov 70: t0-1 held, t2-t7 empty, t8 contact). Per-key + held -> key 1 chunk curve: `evidence/animator/r16/per-key-r16.txt`.
+  Real client not run (by instruction). Recheck in the director's next caster capture: t3 should be empty or <= the held footprint.

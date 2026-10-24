@@ -30,6 +30,12 @@
 #   at the capture FOV 90 it is 17.9 = measured). Keys 2-3 re-solved, key 4 (extreme) and keys 5+ unchanged: key 2 = tip phi 342 pitch 56 (stays near the held pose,
 #   FP 5.2 % of the right half), key 3 = phi 238 pitch 51 (behind the eye plane, FP 0). The pass in front of the eye happens inside the 2->3 chunk (mid-chunk <= 9 %, keys show).
 #   front lean -5.8 -> -20.0 -> -30.9 -> -37.7 (14/11/7 per tick), face opening 35 -> 56 -> 81 -> 68 (+21/+25: over 2 ticks), chunks 35/59/55. Numbers: evidence/animator/r15/per-key-r15.txt.
+# r16 (director r14 caster FP t3 = one broad blade ~20 %; front t3 -> t4 one ~35 deg lean + face step): the FP t3 frame is the HELD pose (key 1) drawn ~0.55 block
+#   behind the dashing camera (dash_strike from tick 2, 0.53/tick; the follow rig trails ~1 tick), not the 2->3 crossing (evidence/animator/r16/fp-lag-fit-r14.png).
+#   Only key 0 is held now; keys 1-3 re-solved, key 4 (extreme) and keys 5+ unchanged, contact key 7 = tick 8. Key 1 (tick 2) = tip phi 245 pitch 73 (nearly up,
+#   slightly back-right: behind the eye plane once the rig lags), key 2 = phi 226 pitch 60, key 3 = phi 228 pitch 48. FP full frame (vfov 90) keys 1-4 <= 0.6 % at
+#   every rig lag 0..1.06. Front lean -5.8 -> -15.4 -> -19.9 -> -28.3 -> -37.7 (10/5/8/9 per key; held -> key 2 = 14), face 35 -> 39 -> 58 -> 78 -> 68
+#   (+4/+19/+19/-10), chunks 52/22/53/33. Numbers: evidence/animator/r16/per-key-r16.txt.
 # Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt (keys 0-6 and 40-52 changed in r8: evidence/animator/r8/per-key-r8.txt; keys 0-20 in r9: evidence/animator/r9/per-key-r9.txt). r10: keys 2-18 in evidence/animator/r10/per-key-r10.txt. r11: keys 39-52 + 3-axis check vs the held item in evidence/animator/r11/per-key-r11.txt.
 # Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
 # Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
@@ -71,9 +77,9 @@ rigs:
   - { id: pommel_gold, block: gold_block, offset: [0.0, -0.15, 0.0], size: [0.125, 0.15, 0.125] }
   swing:
   - { t: 0, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 1, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 2, rotate: [-320.0, -46.0, -80.6] }
-  - { t: 3, rotate: [-246.5, -33.2, -49.9] }
+  - { t: 1, rotate: [-257.9, -53.9, -18.0] }
+  - { t: 2, rotate: [-241.3, -43.7, -21.0] }
+  - { t: 3, rotate: [-238.2, -31.9, -71.0] }
   - { t: 4, rotate: [-227.0, -11.9, -90.7] }
   - { t: 5, rotate: [-261.9, 11.6, -117.6] }
   - { t: 6, rotate: [-306.4, -8.2, -123.7] }
