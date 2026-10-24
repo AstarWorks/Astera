@@ -29,6 +29,7 @@ def xc(w):
 
 BLADE_Y = (-3.0, 25.12)
 TIP_Y = 27.36  # held tip1 / tip2 step
+TIP_ROOT = -6.3  # 0.1 above guard_1's bottom (-6.4): inside guard_1, no coplanar bottom face; 0.23 block from the grip pivot
 P = [
     # blade (core z 0.8 units = 0.05 block)
     # r22: the core runs on into the tip (held tip0/tip1 cores are the same 0.8-deep iron), so the tip needs no iron part of its own;
@@ -39,8 +40,12 @@ P = [
     box('fuller',     'polished_deepslate',  xc(0.44),  (1.6, 24.4), zc(1.06), 'held fuller_ridge/start/end_f/b (both faces; hi strips + pinstripes cut for the 22-part cap)'),
     # tip (5 held steps -> 2). r22 (director r20: the old tip_1 was a 0.05-deep IRON box, so edge-on its light side face stood out past
     # the 0.03 dark rims as a second object). Now the held profile: dark 0.48 rim outermost (flush with `rims`), 0.8 iron core inside it.
-    box('tip_1', 'polished_blackstone', xc(3.2),  (BLADE_Y[1], TIP_Y), zc(0.48), 'held tip0/tip1 rims (frame round the blade_face core; middle inside the core)'),
-    box('tip_2', 'polished_blackstone', xc(1.28), (TIP_Y, 30.72), zc(0.48),     'held tip2 + tip3 + tip_point (mean outer width)'),
+    # ROOTED NEAR THE PIVOT: the planner sends translation = pivot + R*(offset - size/2) (the box corner) and the client LERPS it while it
+    # SLERPS the rotation, so mid-chunk a corner at distance d sits d*(1-cos(step/2)) off the arc (old tip: 2.2 block -> 0.2 block off the
+    # blade at a 50 deg chunk = the "second object" in r20/r22 opponent t4-5). Both tip parts therefore start at TIP_ROOT inside guard_1 and
+    # run hidden through guard/collar/ricasso/blade (tip_1 inside `edges` 0.68, tip_2 inside the 0.8 core), so their corner = the blade's.
+    box('tip_1', 'polished_blackstone', xc(3.2),  (TIP_ROOT, TIP_Y), zc(0.48), 'held tip0/tip1 rims (frame round the blade_face core; hidden inside edges below 25.12)'),
+    box('tip_2', 'polished_blackstone', xc(1.28), (TIP_ROOT, 30.72), zc(0.6),  'held tip2 + tip3 + tip_point (mean outer width; 0.6 = rim + quartz strips; hidden in the core below 27.2)'),
     # inlay window (through: both faces)
     box('inlay',       'lime_concrete', xc(1.44), (-2.0, 1.2), zc(1.12), 'held inlay_f/b'),
     box('inlay_frame', 'gold_block',    xc(1.8),  (-2.2, 1.4), zc(1.0),  'held inlay_frame_*'),
@@ -85,6 +90,18 @@ def main():
     write_rig(body[1:])
     print('\n'.join(hdr[1:2]+body))
     profile_check()
+    corner_check()
+
+def corner_check():
+    """Mid-chunk drift of each part vs the arc: |corner| * (1 - cos(step/2)), corner = offset - size/2 (block, from the pivot).
+    A part whose drift differs from the blade's by more than ~0.02 block at a 50 deg chunk detaches visibly in the client."""
+    import math
+    k = 1 - math.cos(math.radians(25))
+    print('\nmid-chunk drift at a 50 deg chunk (block): part | |corner| | drift')
+    for p in P:
+        c = [o - s/2 for o, s in zip(p['offset'], p['size'])]
+        d = math.sqrt(sum(v*v for v in c))
+        print(f"  {p['id']:12s} {d:6.3f}  {d*k:6.3f}{'  <-- far from pivot' if d > 0.6 else ''}")
 
 def write_rig(lines):
     """Replace ONLY the part lines of the sword rig in content/vfx (swing keys / header belong to the animator)."""

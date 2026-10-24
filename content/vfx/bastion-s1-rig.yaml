@@ -70,8 +70,8 @@ rigs:
   - { id: edges, block: smooth_quartz, offset: [0.0, 1.31625, 0.0], size: [0.2125, 1.7575, 0.0425] }
   - { id: rims, block: polished_blackstone, offset: [0.0, 1.31625, 0.0], size: [0.24, 1.7575, 0.03] }
   - { id: fuller, block: polished_deepslate, offset: [0.0, 1.4375, 0.0], size: [0.0275, 1.425, 0.06625] }
-  - { id: tip_1, block: polished_blackstone, offset: [0.0, 2.265, 0.0], size: [0.2, 0.14, 0.03] }
-  - { id: tip_2, block: polished_blackstone, offset: [0.0, 2.44, 0.0], size: [0.08, 0.21, 0.03] }
+  - { id: tip_1, block: polished_blackstone, offset: [0.0, 1.28313, 0.0], size: [0.2, 2.10375, 0.03] }
+  - { id: tip_2, block: polished_blackstone, offset: [0.0, 1.38813, 0.0], size: [0.08, 2.31375, 0.0375] }
   - { id: inlay, block: lime_concrete, offset: [0.0, 0.6, 0.0], size: [0.09, 0.2, 0.07] }
   - { id: inlay_frame, block: gold_block, offset: [0.0, 0.6, 0.0], size: [0.1125, 0.225, 0.0625] }
   - { id: ricasso, block: polished_blackstone, offset: [0.0, 0.40187, 0.0], size: [0.24, 0.07125, 0.065] }
