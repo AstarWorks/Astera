@@ -254,7 +254,9 @@ def low():
     # 2.5x the texel density per block), peak 1.0 block, moved 0.15 lower / closer to the caster (1.0 / 0.95 from the
     # opponent eye at z 1.7 / 2.0), shrinking uniformly.
     els.append(sprite("s1h2-flash", "bastion-s1-flare", 4, 8, [
-        kf(0, [0.05, 1.05, 1.0], [0, 0, 0], [s256(0.15), s256(0.15), 1.0]),
+        # r14 director: lowered 1.05 -> 0.8 onto the r17 ink band (centre y 0.75, the blade line) so the flare core sits on
+        # the contact inside the ink instead of ~0.3 above it.
+        kf(0, [0.05, 0.8, 1.0], [0, 0, 0], [s256(0.15), s256(0.15), 1.0]),
         kf(1, scale=[s256(1.0), s256(1.0), 1.0], ease="out_back"),
         kf(3, scale=[s256(0.45), s256(0.45), 1.0], ease="out_quad")]))
     # r12 (particle-artist): static orange spark sprites removed (see high()); moving streak particles s1h2-p-streaks-*

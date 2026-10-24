@@ -132,18 +132,18 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.05, 1.05, 1.0]
+    translate: [0.05, 0.8, 1.0]
     rotate: [0, 0, 0]
     scale: [0.02344, 0.02344, 1.0]
   - t: 1
     scale: [0.1562, 0.1562, 1.0]
     ease: out_back
-    translate: [0.05, 1.05, 1.0]
+    translate: [0.05, 0.8, 1.0]
     rotate: [0, 0, 0]
   - t: 3
     scale: [0.07031, 0.07031, 1.0]
     ease: out_quad
-    translate: [0.05, 1.05, 1.0]
+    translate: [0.05, 0.8, 1.0]
     rotate: [0, 0, 0]
 # --- particle layer (tools/item-art/scripts/bastion_s1_particles.py): do not edit by hand ---
 - id: s1h2-p-shed
