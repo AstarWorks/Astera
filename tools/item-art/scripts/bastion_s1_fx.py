@@ -161,14 +161,9 @@ def high():
         kf(0, H1_HIT, [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(1.2), s128(1.2), 1.0], ease="out_back"),
         kf(3, scale=[s128(0.7), s128(0.04), 1.0], ease="out_quad")]))
-    # orange spark streaks off the contact, staggered pairs: three thrown along the cut (toward the caster's left, +x, and a
-    # little forward: the sweep carries them), three up/forward (side-camera read). All end >= 0.75 from the opponent eye.
-    P = [H1_HIT[0], H1_HIT[1] - 0.1, H1_HIT[2] - 0.15]
-    for i, (st, o, d, roll, ln) in enumerate([
-            (4, [0.0, 0.0, 0.0], [0.9, 0.05, 0.25], 4, 1.1), (4, [0.1, -0.12, 0.0], [0.15, 0.3, 0.45], 30, 1.0),
-            (5, [-0.1, 0.1, 0.0], [0.85, -0.12, 0.15], -8, 1.2), (5, [0.05, 0.15, -0.05], [-0.1, 0.45, 0.3], 55, 0.8),
-            (6, [0.1, -0.05, 0.0], [0.8, 0.15, -0.1], 12, 0.9), (6, [-0.1, 0.0, 0.05], [0.0, -0.3, 0.45], -28, 0.8)]):
-        els.append(spark3(f"s1h1-spark-{i + 1}", st, [P[0] + o[0], P[1] + o[1], P[2] + o[2]], d, roll, ln))
+    # r12 (particle-artist): the six static orange spark-streak sprites are gone. A sprite element cannot move (it only
+    # scaled in place) and they held 6 of the ~38 displays hit 1 can spend; the orange streaks are now MOVING display
+    # particles (s1h1-p-streaks in bastion_s1_particles.py), next to the gold spark particles.
     # r12: the three static chip sprites are gone (a sprite cannot move, it only turned 70 deg in place: with the tinted-black
     # slanted shard it read as an "X" shuriken). Dark debris = the moving sliver display particles of the particle layer
     # (bastion_s1_particles.py, dark-brown needle sprite, no spin).
@@ -214,11 +209,7 @@ def low():
         kf(0, [0, 1.2, 1.15], [0, 0, 0], [s128(0.1), s128(0.1), 1.0]),
         kf(1, scale=[s128(1.6), s128(1.6), 1.0], ease="out_back"),
         kf(3, scale=[s128(0.9), s128(0.05), 1.0], ease="out_quad")]))
-    P = [0.0, 1.2, 0.85]  # r7: hit-2 dash stops 1.7 short of the target = the opponent eye; sparks fly <= 0.9 forward
-    for i, (st, dx, dy, th, ln, ds) in enumerate([
-            (4, 0.0, 0.0, 24, 1.2, 0.8), (4, 0.15, -0.15, 6, 1.4, 0.8), (5, -0.15, 0.1, 40, 0.9, 0.7),
-            (5, 0.1, 0.2, 165, 1.0, 0.9), (6, -0.1, -0.1, -12, 1.2, 0.8), (6, 0.2, 0.05, 18, 0.8, 0.7)]):
-        els.append(spark(f"s1h2-spark-{i + 1}", st, [P[0] + dx, P[1] + dy, P[2]], th, ln, ds))
+    # r12 (particle-artist): static orange spark sprites removed (see high()); moving streak particles s1h2-p-streaks-*
     # r12: static chips removed (see high()); dark debris = sliver display particles of the particle layer
     els.append(smoke_up("s1h2-smoke-up", 6, 13, [0.0, 0.85, 1.1], 1.0, 1.6, roll=180))
     els.append(sprite("s1h2-smoke", "bastion-s1-smoke", 6, 14, [

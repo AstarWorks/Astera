@@ -91,132 +91,6 @@ elements:
     ease: out_quad
     translate: [-0.44, 1.54, 1.59]
     rotate: [0, 0, 0]
-- id: s1h1-spark-1
-  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A1E'}
-  billboard: center
-  brightness: 15
-  start_tick: 4
-  end_tick: 8
-  keyframes:
-  - t: 0
-    translate: [-0.44, 1.44, 1.44]
-    rotate: [0, 0, 4]
-    scale: [0.06016, 0.05, 1.0]
-  - t: 1
-    translate: [-0.08, 1.46, 1.54]
-    scale: [0.1719, 0.05, 1.0]
-    ease: out_expo
-    rotate: [0, 0, 4]
-  - t: 3
-    translate: [0.46, 1.49, 1.69]
-    scale: [0.07734, 0.012, 1.0]
-    ease: in_quad
-    rotate: [0, 0, 4]
-- id: s1h1-spark-2
-  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A1E'}
-  billboard: center
-  brightness: 15
-  start_tick: 4
-  end_tick: 8
-  keyframes:
-  - t: 0
-    translate: [-0.34, 1.32, 1.44]
-    rotate: [0, 0, 30]
-    scale: [0.05469, 0.05, 1.0]
-  - t: 1
-    translate: [-0.28, 1.44, 1.62]
-    scale: [0.1562, 0.05, 1.0]
-    ease: out_expo
-    rotate: [0, 0, 30]
-  - t: 3
-    translate: [-0.19, 1.62, 1.89]
-    scale: [0.07031, 0.012, 1.0]
-    ease: in_quad
-    rotate: [0, 0, 30]
-- id: s1h1-spark-3
-  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A1E'}
-  billboard: center
-  brightness: 15
-  start_tick: 5
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-0.54, 1.54, 1.44]
-    rotate: [0, 0, -8]
-    scale: [0.06562, 0.05, 1.0]
-  - t: 1
-    translate: [-0.2, 1.492, 1.5]
-    scale: [0.1875, 0.05, 1.0]
-    ease: out_expo
-    rotate: [0, 0, -8]
-  - t: 3
-    translate: [0.31, 1.42, 1.59]
-    scale: [0.08438, 0.012, 1.0]
-    ease: in_quad
-    rotate: [0, 0, -8]
-- id: s1h1-spark-4
-  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A1E'}
-  billboard: center
-  brightness: 15
-  start_tick: 5
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-0.39, 1.59, 1.39]
-    rotate: [0, 0, 55]
-    scale: [0.04375, 0.05, 1.0]
-  - t: 1
-    translate: [-0.43, 1.77, 1.51]
-    scale: [0.125, 0.05, 1.0]
-    ease: out_expo
-    rotate: [0, 0, 55]
-  - t: 3
-    translate: [-0.49, 2.04, 1.69]
-    scale: [0.05625, 0.012, 1.0]
-    ease: in_quad
-    rotate: [0, 0, 55]
-- id: s1h1-spark-5
-  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A1E'}
-  billboard: center
-  brightness: 15
-  start_tick: 6
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-0.34, 1.39, 1.44]
-    rotate: [0, 0, 12]
-    scale: [0.04922, 0.05, 1.0]
-  - t: 1
-    translate: [-0.02, 1.45, 1.4]
-    scale: [0.1406, 0.05, 1.0]
-    ease: out_expo
-    rotate: [0, 0, 12]
-  - t: 3
-    translate: [0.46, 1.54, 1.34]
-    scale: [0.06328, 0.012, 1.0]
-    ease: in_quad
-    rotate: [0, 0, 12]
-- id: s1h1-spark-6
-  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A1E'}
-  billboard: center
-  brightness: 15
-  start_tick: 6
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-0.54, 1.44, 1.49]
-    rotate: [0, 0, -28]
-    scale: [0.04375, 0.05, 1.0]
-  - t: 1
-    translate: [-0.54, 1.32, 1.67]
-    scale: [0.125, 0.05, 1.0]
-    ease: out_expo
-    rotate: [0, 0, -28]
-  - t: 3
-    translate: [-0.54, 1.14, 1.94]
-    scale: [0.05625, 0.012, 1.0]
-    ease: in_quad
-    rotate: [0, 0, -28]
 - id: s1h1-smoke-up
   kind: {type: sprite, sprite: bastion-s1-smoke, frame_ticks: 2, loop: false, see_through: true, color: '#A0A8A8B0'}
   billboard: center
@@ -234,123 +108,84 @@ elements:
     scale: [0.2187, 0.2187, 1.0]
     ease: out_quad
 # --- particle layer (tools/item-art/scripts/bastion_s1_particles.py): do not edit by hand ---
-- id: s1h1-p-trail-spark
-  kind: {type: particle, particle_id: bastion-s1-p-trail-spark, every_ticks: 1, along_path: true, step_blocks: 0.4}
+- id: s1h1-p-shed-r
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
   start_tick: 2
-  end_tick: 4
   keyframes:
   - t: 0
-    translate: [-2.799, 1.131, -0.051]
-  - t: 1
-    translate: [-2.076, 1.783, 1.738]
-- id: s1h1-p-trail-spark-2
-  kind: {type: particle, particle_id: bastion-s1-p-trail-spark, every_ticks: 1, along_path: true, step_blocks: 0.45}
-  start_tick: 2
-  end_tick: 5
+    translate: [-2.289, 1.135, -0.041]
+  emit: { count: 3, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-1.00, 0.60, -0.02]', spread_deg: 35, gravity: 0.02, drag: 0.15,
+    life_ticks: [3, 4], size: [0.12, 0.17], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+- id: s1h1-p-shed-r2
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 3
   keyframes:
   - t: 0
-    translate: [-2.4, 1.134, -0.043]
-  - t: 1
-    translate: [-2.251, 1.43, 0.768]
-  - t: 2
-    translate: [-1.189, 1.831, 1.871]
-- id: s1h1-p-trail-spark-3
-  kind: {type: particle, particle_id: bastion-s1-p-trail-spark, every_ticks: 1, along_path: true, step_blocks: 0.5}
-  start_tick: 2
-  end_tick: 4
-  keyframes:
-  - t: 0
-    translate: [-2.832, 1.432, 0.776]
-  - t: 1
-    translate: [-1.582, 1.983, 2.29]
-- id: s1h1-p-trail-spark-4
-  kind: {type: particle, particle_id: bastion-s1-p-trail-spark, every_ticks: 1, along_path: true, step_blocks: 0.4}
+    translate: [-1.379, 1.527, 1.036]
+  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-0.70, 0.60, 0.71]', spread_deg: 35, gravity: 0.02, drag: 0.15,
+    life_ticks: [3, 4], size: [0.12, 0.17], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+- id: s1h1-p-shed-l
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
   start_tick: 7
-  end_tick: 9
   keyframes:
   - t: 0
-    translate: [1.376, 1.783, 1.738]
-  - t: 1
-    translate: [2.096, 1.099, -0.141]
-- id: s1h1-p-trail-spark-5
-  kind: {type: particle, particle_id: bastion-s1-p-trail-spark, every_ticks: 1, along_path: true, step_blocks: 0.45}
+    translate: [0.905, 1.61, 1.264]
+  emit: { count: 3, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[0.70, 0.60, 0.71]', spread_deg: 35, gravity: 0.02, drag: 0.15,
+    life_ticks: [3, 4], size: [0.12, 0.17], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+- id: s1h1-p-shed-l2
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
   start_tick: 8
-  end_tick: 9
   keyframes:
   - t: 0
-    translate: [1.564, 1.417, 0.733]
-- id: s1h1-p-trail-spark-6
-  kind: {type: particle, particle_id: bastion-s1-p-trail-spark, every_ticks: 1, along_path: true, step_blocks: 0.5}
-  start_tick: 7
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [1.991, 1.562, 1.132]
-  - t: 1
-    translate: [2.246, 1.096, -0.15]
-- id: s1h1-p-cut-spark
-  kind: {type: particle, particle_id: bastion-s1-p-trail-spark, every_ticks: 1, along_path: true, step_blocks: 0.13}
+    translate: [2.096, 1.099, -0.141]
+  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[1.00, 0.60, -0.06]', spread_deg: 35, gravity: 0.02, drag: 0.15,
+    life_ticks: [3, 4], size: [0.12, 0.17], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+- id: s1h1-p-sparks-r
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
   start_tick: 4
-  end_tick: 6
   keyframes:
   - t: 0
-    translate: [-0.5, 1.25, 1.55]
-  - t: 1
-    translate: [-0.1, 1.27, 1.55]
-- id: s1h1-p-cut-spark-2
-  kind: {type: particle, particle_id: bastion-s1-p-trail-spark, every_ticks: 1, along_path: true, step_blocks: 0.13}
-  start_tick: 5
-  end_tick: 7
-  keyframes:
-  - t: 0
-    translate: [-0.56, 1.37, 1.47]
-  - t: 1
-    translate: [-0.16, 1.39, 1.47]
-- id: s1h1-p-cut-spark-3
-  kind: {type: particle, particle_id: bastion-s1-p-trail-spark, every_ticks: 1, along_path: true, step_blocks: 0.13}
-  start_tick: 6
-  end_tick: 8
-  keyframes:
-  - t: 0
-    translate: [-0.44, 1.32, 1.61]
-  - t: 1
-    translate: [-0.04, 1.34, 1.61]
-- id: s1h1-p-spark-burst
-  kind: {type: particle, particle_id: bastion-s1-p-spark-burst, every_ticks: 1}
+    translate: [-0.44, 1.69, 1.49]
+  emit: { count: 7, rate_per_tick: 3, speed: [0.3, 0.45], direction: 'custom[-1, 0.45, 0.15]', spread_deg: 35, gravity: 0.02, drag: 0.15,
+    life_ticks: [3, 4], size: [0.14, 0.2], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+- id: s1h1-p-sparks-up
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
   start_tick: 4
-  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-0.65, 1.4, 1.45]
-- id: s1h1-p-spark-burst-2
-  kind: {type: particle, particle_id: bastion-s1-p-spark-burst, every_ticks: 1}
-  start_tick: 5
-  end_tick: 6
-  keyframes:
-  - t: 0
-    translate: [-0.85, 1.46, 1.4]
-- id: s1h1-p-spark-burst-3
-  kind: {type: particle, particle_id: bastion-s1-p-spark-burst, every_ticks: 1}
-  start_tick: 6
-  end_tick: 7
-  keyframes:
-  - t: 0
-    translate: [-0.75, 1.52, 1.35]
-- id: s1h1-p-spark-up
-  kind: {type: particle, particle_id: bastion-s1-p-spark-up, every_ticks: 1}
+    translate: [-0.54, 1.69, 1.44]
+  emit: { count: 5, rate_per_tick: 2, speed: [0.2, 0.3], direction: 'custom[-0.35, 1, 0.15]', spread_deg: 25, gravity: 0.03, drag: 0.15,
+    life_ticks: [3, 4], size: [0.12, 0.18], size_over_life: [{ t: 0, v: 0.6 }, { t: 0.2, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+- id: s1h1-p-streaks
+  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A1E'}
+  billboard: center
+  brightness: 15
   start_tick: 4
-  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-0.39, 1.59, 1.64]
-- id: s1h1-p-spark-up-2
-  kind: {type: particle, particle_id: bastion-s1-p-spark-up, every_ticks: 1}
-  start_tick: 5
-  end_tick: 6
-  keyframes:
-  - t: 0
-    translate: [-0.54, 1.59, 1.64]
-- id: s1h1-p-glints-l
+    translate: [-0.44, 1.44, 1.44]
+  emit: { count: 5, rate_per_tick: 2, speed: [0.35, 0.5], direction: 'custom[-1, 0.2, 0.25]', spread_deg: 25, gravity: 0.0, drag: 0.2,
+    life_ticks: [3, 4], size: [0.07, 0.1], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.15, v: 1.0, ease: out_expo }, { t: 1, v: 0.0, ease: in_quad }],
+    spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
+- id: s1h1-p-glints-up
   kind: {type: sprite, sprite: bastion-s1-glint, frame_ticks: 1, loop: false, see_through: true, color: '#FFC850'}
   billboard: center
   brightness: 15
@@ -358,19 +193,19 @@ elements:
   keyframes:
   - t: 0
     translate: [-0.44, 1.69, 1.49]
-  emit: { count: 4, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[1, 1.1, -0.3]', spread_deg: 30, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 5], size: [0.09, 0.13], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-0.3, 1.1, 0.1]', spread_deg: 25, gravity: 0.03, drag: 0.12,
+    life_ticks: [3, 4], size: [0.09, 0.13], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: 25 }], start_frame: random, frame_ticks: [1, 2] }
 - id: s1h1-p-glints-r
   kind: {type: sprite, sprite: bastion-s1-glint, frame_ticks: 1, loop: false, see_through: true, color: '#FFC850'}
   billboard: center
   brightness: 15
-  start_tick: 4
+  start_tick: 5
   keyframes:
   - t: 0
     translate: [-0.44, 1.69, 1.49]
-  emit: { count: 4, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-1, 1.1, -0.3]', spread_deg: 30, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 5], size: [0.09, 0.13], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
+  emit: { count: 2, rate_per_tick: 2, speed: [0.24, 0.34], direction: 'custom[-1, 1.1, -0.1]', spread_deg: 30, gravity: 0.03, drag: 0.12,
+    life_ticks: [3, 4], size: [0.09, 0.13], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: -25 }], start_frame: random, frame_ticks: [1, 2] }
 - id: s1h1-p-slivers
   kind: {type: sprite, sprite: bastion-s1-sliver, frame_ticks: 1, loop: false, see_through: true}
@@ -380,28 +215,6 @@ elements:
   keyframes:
   - t: 0
     translate: [-0.44, 1.69, 1.39]
-  emit: { count: 5, rate_per_tick: 3, speed: [0.18, 0.26], direction: 'custom[-1, 0.8, 0.1]', spread_deg: 40, gravity: 0.03, drag: 0.08,
-    life_ticks: [4, 6], size: [0.04, 0.06], size_over_life: [{ t: 0, v: 1.0 }, { t: 0.6, v: 0.85 }, { t: 1, v: 0.0, ease: in_quad }],
+  emit: { count: 5, rate_per_tick: 2, speed: [0.18, 0.26], direction: 'custom[-1, 0.8, 0.1]', spread_deg: 40, gravity: 0.03, drag: 0.08,
+    life_ticks: [4, 5], size: [0.04, 0.06], size_over_life: [{ t: 0, v: 1.0 }, { t: 0.6, v: 0.85 }, { t: 1, v: 0.0, ease: in_quad }],
     spin_over_life: [{ t: 0, v: 0 }], start_frame: random, frame_ticks: [1, 2] }
-- id: s1h1-p-shed-r
-  kind: {type: sprite, sprite: bastion-s1-glint, frame_ticks: 1, loop: false, see_through: true, color: '#FFC850'}
-  billboard: center
-  brightness: 15
-  start_tick: 3
-  keyframes:
-  - t: 0
-    translate: [-1.379, 1.527, 1.036]
-  emit: { count: 3, rate_per_tick: 2, speed: [0.22, 0.32], direction: 'custom[-1, 0.6, 0.6]', spread_deg: 35, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 5], size: [0.08, 0.12], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 30 }], start_frame: random, frame_ticks: [1, 2] }
-- id: s1h1-p-shed-l
-  kind: {type: sprite, sprite: bastion-s1-glint, frame_ticks: 1, loop: false, see_through: true, color: '#FFC850'}
-  billboard: center
-  brightness: 15
-  start_tick: 7
-  keyframes:
-  - t: 0
-    translate: [0.905, 1.61, 1.264]
-  emit: { count: 3, rate_per_tick: 2, speed: [0.22, 0.32], direction: 'custom[1, 0.6, 0.4]', spread_deg: 35, gravity: 0.03, drag: 0.12,
-    life_ticks: [3, 5], size: [0.08, 0.12], size_over_life: [{ t: 0, v: 0.5 }, { t: 0.25, v: 1.0, ease: out_quad }, { t: 1, v: 0.0, ease: in_quad }],
-    spin_over_life: [{ t: 0, v: 30 }], start_frame: random, frame_ticks: [1, 2] }
