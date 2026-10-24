@@ -17,6 +17,13 @@
 #   (approved swing exception). Keys 1-2 move little in the FRONT view (lean 5 -> 20 -> 39) because the client's first rig frame lands up to ~1.5 keys after
 #   the reveal under load (r24 60 fps: a 3-chunk path with key 1 at lean 34 popped 45 deg in one frame). FP 0 % from key 3 on. Keys 6-52 untouched.
 #   Numbers + captures: evidence/animator/r24/.
+# r26 (reviewer r25 #4: one-tick upright blade at t4; #5: recovery lifts ~4 ticks early): keys 2-3 and 40-50 re-keyed, keys 0-1, 4-39, 51-52 untouched.
+#   #4: the client shows the 2->3 CHUNK at t4 (compare f10 = mid-chunk tip ~(270,45), long and vertical). Key 2 = tip (315,48), key 3 = (250,20) at chest height
+#   (tip y 1.64, was (247,33) y 2.16): the vertical crossing now happens as a foreshortened stub pointing at the caster's right (wide-cam length 0.09 vs held 0.24),
+#   key 3 already reads back-horizontal in compare. Chunks 20/59/47; front lean 20 -> 42 -> 60 -> 75 (steps <= 22, was 28); FP mid-chunk <= 8.5 %.
+#   #5: low-back REST held through key 43 (tick 48); lift keys 44-51 (ticks 49-56) re-sample the accepted r21 path but go from its over-the-top key (r25 key 43,
+#   tip (254,62)) straight into the held pose (no wiper overshoot), ease-out by cost; held pose at keys 51-52. Front steps <= 20, face steps <= 24, max chunk 42,
+#   FP <= 7 %. Numbers: evidence/animator/r26/per-key-r26.txt.
 # Round 10 (reviewer r9: hit-1 PLANE wrong): hit 1 = big TILTED HORIZONTAL SWEEP. Tip plane y = 1.15 + tan(20) * z (anchor; forward end 20 deg higher, as the
 #   reference ring's right end on screen): tip y ~2.04 at the front (head), ~1.1-1.25 at the sides (chest), the plane passes the back at ~0.4. Travel: right -> front -> left -> back.
 # r12 (director r10: opponent saw a 45 deg lean jump t2->t3): keys 2-4 re-routed so the FRONT view leans 0 -> 25 -> 42 -> 38 deg (<= 20/tick):
@@ -106,8 +113,8 @@ rigs:
   swing:
   - { t: 0, rotate: [-336.4, -47.8, -59.4] }
   - { t: 1, rotate: [-325.2, -42.5, -50.3] }
-  - { t: 2, rotate: [-303.1, -35.0, -35.5] }
-  - { t: 3, rotate: [-250.3, -14.4, -9.7] }
+  - { t: 2, rotate: [-304.1, -32.4, -35.8] }
+  - { t: 3, rotate: [-251.2, -1.1, -11.7] }
   - { t: 4, rotate: [-209.6, 22.8, -14.4] }
   - { t: 5, rotate: [-239.5, 29.3, 5.5] }
   - { t: 6, rotate: [-345.0, -27.1, 51.9] }
@@ -144,16 +151,16 @@ rigs:
   - { t: 37, rotate: [-917.3, 20.7, -107.9] }
   - { t: 38, rotate: [-913.9, 20.5, -109.5] }
   - { t: 39, rotate: [-911.8, 20.2, -110.2] }
-  - { t: 40, rotate: [-902.6, -3.8, -127.3] }
-  - { t: 41, rotate: [-910.4, -35.5, -157.4] }
-  - { t: 42, rotate: [-950.0, -51.6, -214.6] }
-  - { t: 43, rotate: [-979.9, -42.4, -253.9] }
-  - { t: 44, rotate: [-1013.0, -34.1, -257.5] }
-  - { t: 45, rotate: [-1025.2, -36.9, -251.3] }
-  - { t: 46, rotate: [-1035.4, -40.0, -246.7] }
-  - { t: 47, rotate: [-1043.8, -43.0, -243.4] }
-  - { t: 48, rotate: [-1050.8, -45.6, -241.0] }
-  - { t: 49, rotate: [-1055.0, -47.2, -239.8] }
-  - { t: 50, rotate: [-1056.4, -47.8, -239.4] }
+  - { t: 40, rotate: [-911.8, 20.2, -110.2] }
+  - { t: 41, rotate: [-911.8, 20.2, -110.2] }
+  - { t: 42, rotate: [-911.8, 20.2, -110.2] }
+  - { t: 43, rotate: [-911.8, 20.2, -110.2] }
+  - { t: 44, rotate: [-902.9, -13.0, -134.8] }
+  - { t: 45, rotate: [-916.9, -41.8, -168.4] }
+  - { t: 46, rotate: [-958.4, -50.7, -225.2] }
+  - { t: 47, rotate: [-1002.0, -42.4, -248.9] }
+  - { t: 48, rotate: [-1024.5, -43.9, -244.1] }
+  - { t: 49, rotate: [-1040.7, -45.7, -241.3] }
+  - { t: 50, rotate: [-1051.5, -47.1, -239.9] }
   - { t: 51, rotate: [-1056.4, -47.8, -239.4] }
   - { t: 52, rotate: [-1056.4, -47.8, -239.4] }
