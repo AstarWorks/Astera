@@ -1,9 +1,0 @@
-# electric_spark flicks thrown along the swing tangent from the path (r10: the only blade-path particle; gold/dark path dust removed)
-id: bastion-s1-p-trail-spark
-shape: { kind: point }
-color: { r: 255, g: 240, b: 190 }
-count: 1
-lifetime_ticks: 3
-vanilla_particle: electric_spark
-velocity: { direction: along_tangent, speed: 1.6, spread_degrees: 25 }
-force: true

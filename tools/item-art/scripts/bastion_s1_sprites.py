@@ -389,7 +389,11 @@ def make_glint():
 # ---------------------------------------------------------------------------------------------------------
 # sliver: thin slanted shards, 3 variants
 # ---------------------------------------------------------------------------------------------------------
-def sliver_frame(size, ang_deg, length, wid, peak, bend):
+def sliver_frame(size, ang_deg, length, wid, peak, bend, alpha_max=0.8):
+    """r12 (real client r8: tinted-black slanted shards read as "X" shuriken marks, huge in caster FP): one dark-BROWN needle
+    shard, long axis along image +X in every variant (the flipbook no longer rotates it, so it reads as one shard moving,
+    not a spinning cross), thin (wid 5-7 px of 128), max alpha 0.8, wide 1.4 px feather. Painted in its final colour (use it
+    untinted): umber body, warm tan edge glint on one side, near-black rim on the other."""
     X, Y = grid(size)
     c = size / 2
     a = math.radians(ang_deg)
@@ -401,21 +405,22 @@ def sliver_frame(size, ang_deg, length, wid, peak, bend):
     hw = wid / 2 * (sc / peak) ** 0.75 * (np.where(sc < peak, 1, ((1 - sc) / (1 - peak)) ** 1.05))
     hw = np.where((s > 0) & (s < 1), hw, 0)
     d = hw - np.abs(u)
-    alpha = soft(d, 0.8) * ((s > 0) & (s < 1))
-    body, edge, rim = hexc("#FFD23A"), hexc("#FFFBE0"), hexc("#3A2A06")
+    alpha = soft(d, 1.4) * ((s > 0) & (s < 1)) * alpha_max
+    body, edge, rim = hexc("#5A3A22"), hexc("#B08850"), hexc("#22160C")
     t = np.clip((u + hw) / np.maximum(2 * hw, 1e-3), 0, 1)  # 0 rim side .. 1 bright side
     col = body[None, None] * (0.85 + 0.15 * t[..., None]) * np.ones((1, 1, 3))
-    hot = soft(1.5 - (hw - u), 0.5)
-    dark = soft(1.0 - (hw + u), 0.5)
-    col = col * (1 - hot[..., None]) + edge[None, None] * hot[..., None]
-    col = col * (1 - dark[..., None] * 0.95) + rim[None, None] * dark[..., None] * 0.95
+    hot = soft(1.2 - (hw - u), 0.6)
+    dark = soft(1.0 - (hw + u), 0.6)
+    col = col * (1 - hot[..., None] * 0.7) + edge[None, None] * hot[..., None] * 0.7
+    col = col * (1 - dark[..., None] * 0.8) + rim[None, None] * dark[..., None] * 0.8
     img = blank(size * SS)
     return over(img, np.clip(col, 0, 1), alpha)
 
 
 def make_sliver():
     size = 128
-    variants = [(32, 118, 12.0, 0.32, 0.0), (-24, 104, 9.5, 0.4, 0.015), (48, 124, 13.0, 0.26, -0.015)]
+    # all variants along image +X (no per-frame rotation); they differ in length, thickness and bend only
+    variants = [(0, 112, 6.5, 0.34, 0.0), (0, 96, 5.5, 0.42, 0.012), (0, 120, 7.0, 0.3, -0.012)]
     frames = [downsample(sliver_frame(size, *v), size) for v in variants]
     save_strip("sliver", frames, size)
 
@@ -463,11 +468,16 @@ SWEEPS = {
     # meets the floor behind the caster); one global radius curve (no monotone curl: the ring continues past the front).
     "hring": dict(centre=np.array([-0.35, 1.15, 0.0]), e1=np.array([1.0, 0.0, 0.0]),
                   e2=np.array([0.0, math.sin(math.radians(20.0)), math.cos(math.radians(20.0))]), sign=-1, r_tip=2.75,
-                  t_max=0.42, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(20.0)), ellipse=(-0.35, -0.50, 2.72, 2.09), ymin=0.2,
+                  t_max=0.42, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(20.0)), ellipse=(0.0, -0.50, 2.55, 2.09), ymin=0.2,
                   smooth=10.0, hot="inner", fan_alpha=0.16,
+                  # r12: ellipse centred on the CASTER (x 0, was the tip-circle centre -0.35) and 2.55 wide (was 2.72): the
+                  # right side (compare / side close-ups sit there) is 0.52 farther from those lenses, the left edge stays
+                  # inside the 3.0 sprite half. Frames 7+ CLOSE the loop (span 360, thickness floor = 5th value): the
+                  # ring reads as one ellipse around the body from every camera, as in the reference, not as a 230 deg arc.
                   frames=[(240, 216, 0.5, 0.75), (240, 181.2, 0.8, 1.0), (240, 134.8, 0.95, 1.0), (240, 93.5, 1.0, 1.0),
-                          (240, 93.5, 1.0, 1.0), (236, 93.5, 1.0, 1.0), (232, 45.2, 1.0, 1.0), (228, -3.3, 1.0, 1.0),
-                          (205, -30, 0.85, 0.9), (145, -30, 0.62, 0.74), (85, -30, 0.42, 0.56), (30, -30, 0.24, 0.38)]),
+                          (240, 93.5, 1.0, 1.0), (236, 93.5, 1.0, 1.0), (300, 45.2, 1.0, 1.0, 0.25), (356.7, -3.3, 1.0, 1.0, 0.4),
+                          (330, -30, 0.9, 0.95, 0.4), (330, -30, 0.7, 0.8, 0.35), (330, -30, 0.5, 0.6, 0.3),
+                          (330, -30, 0.3, 0.4, 0.25)]),
     # hit 2 low ring: plane tilted RING_TILT (lowest toward phi 60 = left-front), centre on the pivot axis at the
     # cone-centre height (tip pitch RING_CENTRE_PITCH). alpha 0 ~ forward, +90 ~ left; the blade turns +alpha
     # (left-back -> back -> right -> front). Tip alpha per skill tick (r7, in this plane): 134 (26), 163 (27),
@@ -556,9 +566,10 @@ def ring_radius(name):
     return al_deg, r
 
 
-def ring_frame(size, name, tail, head, tscale, opacity):
+def ring_frame(size, name, tail, head, tscale, opacity, floor_t=0.0):
     """hit-1 ring frame (front view, X = e1): gold band whose INNER edge is white-hot (the blade tip runs along it), dark
-    rim outside, needle toward the tail, faint fan inward. Radius / angle are horizontal (aniso)."""
+    rim outside, needle toward the tail, faint fan inward. Radius / angle are horizontal (aniso).
+    floor_t: minimum thickness (fraction of t_max) along the whole span; a span >= 360 deg is a CLOSED loop (no end cuts)."""
     sw = SWEEPS[name]
     X, Y = grid(size)
     half = sw["half"]
@@ -579,12 +590,17 @@ def ring_frame(size, name, tail, head, tscale, opacity):
     r_out = np.interp(al_pix, als, rs)
     u = np.clip(dh / max(span, 1e-3), 0, 1)
     prof = smooth(dh / 26.0) * np.clip(1.0 - u, 0, 1) ** 0.7  # needle head over ~26 deg (no blunt radial cut)
-    inside = (dh >= 0) & (dh <= span)
+    closed = span >= 359.9
+    if floor_t > 0:
+        prof = floor_t + (1 - floor_t) * prof
+    inside = (dh >= 0) & (dh <= span) if not closed else np.ones_like(dh, dtype=bool)
     T = sw["t_max"] * tscale * prof
     d_out = (r_out - r) / px
     d_in = (r - (r_out - T)) / px
-    band = soft(np.minimum(d_out, d_in), 0.9) * inside
-    cut = np.minimum(dh, span - dh) * math.radians(1.0) * r / px
+    # r12: 1.5 px half-feather (was 0.9): the real client draws font texels nearest-neighbour, so at the compare close-up
+    # (~16 screen px per texel) a 1-2 texel edge is a hard stair; a 3-texel ramp reads as a soft edge.
+    band = soft(np.minimum(d_out, d_in), 1.5) * inside
+    cut = np.minimum(dh, span - dh) * math.radians(1.0) * r / px if not closed else np.full_like(dh, 99.0)
     band *= soft(cut + 0.4, 1.0)
     floor = soft((world[1] - 0.04) / px, 1.0)
     tt = np.clip(d_out / np.maximum(T / px, 1e-3), 0, 1)  # 0 outer .. 1 inner
@@ -596,8 +612,9 @@ def ring_frame(size, name, tail, head, tscale, opacity):
     fr = np.clip((r - fan_r0) / np.maximum(r_out - T - fan_r0, 1e-3), 0, 1)
     fan = (fr ** 1.6) * (r < r_out - T * 0.5) * (r > fan_r0) * inside * np.clip(1 - u, 0, 1) ** 1.6 * np.clip(dh / 10, 0, 1)
     img = over(img, hexc("#FFC83A")[None, None] * np.ones((1, 1, 3)), fan * sw["fan_alpha"] * tscale * floor)
-    rim = soft(1.4 - np.abs(d_out + 1.0), 0.6) * inside * np.clip(prof * 3, 0, 1) * soft(cut + 0.4, 1.0)
-    img = over(img, RIM[None, None] * np.ones((1, 1, 3)), rim * 0.85 * floor)
+    # dark rim: softer and lighter than r11 (hard 0.85 near-black line = the highest-contrast stair at the close-up)
+    rim = soft(1.6 - np.abs(d_out + 1.5), 1.0) * inside * np.clip(prof * 3, 0, 1) * soft(cut + 0.4, 1.0)
+    img = over(img, RIM[None, None] * np.ones((1, 1, 3)), rim * 0.6 * floor)
     img = over(img, np.clip(col, 0, 1), band * floor)
     img[..., :4] *= opacity
     return img
