@@ -439,40 +439,52 @@ def make_flare():
 
 
 # ---------------------------------------------------------------------------------------------------------
-# sliver: thin slanted shards, 3 variants
+# sliver: hot-headed shards with a charred tail, 3 variants
 # ---------------------------------------------------------------------------------------------------------
-def sliver_frame(size, ang_deg, length, wid, peak, bend, alpha_max=0.8):
-    """r12 (real client r8: tinted-black slanted shards read as "X" shuriken marks, huge in caster FP): one dark-BROWN needle
-    shard, long axis along image +X in every variant (the flipbook no longer rotates it, so it reads as one shard moving,
-    not a spinning cross), thin (wid 5-7 px of 128), max alpha 0.8, wide 1.4 px feather. Painted in its final colour (use it
-    untinted): umber body, warm tan edge glint on one side, near-black rim on the other."""
+# r21 (director r20: the r12 umber needles, alpha 0.8 with a 1.4 px feather on a 5-7 px body, read in caster FP t12 and
+# compare t11-12 as thin GREY horizontal dashes around the hit-1 spark burst: a thin half-transparent dark lens mixes with
+# the sky/floor behind it and loses its hue). Rebuilt as a spark shard: an opaque white-hot -> orange head on the leading
+# end and a dark char tail, so the burst reads warm and the dark is a deliberate accent attached to a bright spark, never
+# a free-floating smudge. Fully opaque body (alpha 1, 0.7 px feather), thicker (9-11 px of 128); every variant shares
+# the 28 deg up-tilt (no per-frame rotation: a rotating flipbook read as a spinning "X" in r8), the emitter's slow
+# random-sign spin varies the angle per particle.
+SLIVER_TILT = 28.0
+SLIVER_HOT, SLIVER_ORANGE, SLIVER_EMBER, SLIVER_CHAR = hexc("#FFF6C8"), hexc("#FF9A28"), hexc("#B8400E"), hexc("#2A1810")
+
+
+def sliver_frame(size, ang_deg, length, wid, peak, bend, char=0.45):
+    """One shard along the tilted axis; s = 0 tail .. 1 head. Head (s > 0.72) white-hot fading to orange, mid ember,
+    tail (s < char) charcoal. Width peaks near the head (peak) and tapers to a needle at the tail."""
     X, Y = grid(size)
     c = size / 2
     a = math.radians(ang_deg)
     ca, sa = math.cos(a), math.sin(a)
     px, py = X - c, c - Y
-    s = (px * ca + py * sa) / length + 0.5  # 0..1 along the shard
-    u = -px * sa + py * ca + bend * length * (s - 0.5) ** 2 * 4 - bend * length  # across, with a slight bend
+    s = (px * ca + py * sa) / length + 0.5
+    u = -px * sa + py * ca + bend * length * ((s - 0.5) ** 2 * 4 - 1)
     sc = np.clip(s, 0, 1)
-    hw = wid / 2 * (sc / peak) ** 0.75 * (np.where(sc < peak, 1, ((1 - sc) / (1 - peak)) ** 1.05))
-    hw = np.where((s > 0) & (s < 1), hw, 0)
-    d = hw - np.abs(u)
-    alpha = soft(d, 1.4) * ((s > 0) & (s < 1)) * alpha_max
-    body, edge, rim = hexc("#5A3A22"), hexc("#B08850"), hexc("#22160C")
-    t = np.clip((u + hw) / np.maximum(2 * hw, 1e-3), 0, 1)  # 0 rim side .. 1 bright side
-    col = body[None, None] * (0.85 + 0.15 * t[..., None]) * np.ones((1, 1, 3))
-    hot = soft(1.2 - (hw - u), 0.6)
-    dark = soft(1.0 - (hw + u), 0.6)
-    col = col * (1 - hot[..., None] * 0.7) + edge[None, None] * hot[..., None] * 0.7
-    col = col * (1 - dark[..., None] * 0.8) + rim[None, None] * dark[..., None] * 0.8
+    hw = wid / 2 * np.where(sc < peak, (sc / peak) ** 0.8, ((1 - sc) / (1 - peak)) ** 0.6)
+    inside = (s > 0) & (s < 1)
+    hw = np.where(inside, hw, 0)
+    alpha = soft(hw - np.abs(u), 0.7) * inside
+    # colour along the shard: char tail -> ember -> orange -> white-hot head
+    t_ember = smooth((sc - (char - 0.12)) / 0.2)
+    t_orange = smooth((sc - (char + 0.1)) / 0.18)
+    t_hot = smooth((sc - 0.64) / 0.14)
+    col = SLIVER_CHAR[None, None] * (1 - t_ember[..., None]) + SLIVER_EMBER[None, None] * t_ember[..., None]
+    col = col * (1 - t_orange[..., None]) + SLIVER_ORANGE[None, None] * t_orange[..., None]
+    # hot core only along the centre line of the head (edges stay orange so the head keeps a warm outline)
+    core = soft(hw * 0.7 - np.abs(u), 0.6) * t_hot
+    col = col * (1 - core[..., None]) + SLIVER_HOT[None, None] * core[..., None]
     img = blank(size * SS)
     return over(img, np.clip(col, 0, 1), alpha)
 
 
 def make_sliver():
     size = 128
-    # all variants along image +X (no per-frame rotation); they differ in length, thickness and bend only
-    variants = [(0, 112, 6.5, 0.34, 0.0), (0, 96, 5.5, 0.42, 0.012), (0, 120, 7.0, 0.3, -0.012)]
+    # same tilt for every variant; they differ in length, thickness, bend and how far the char runs up the tail
+    variants = [(SLIVER_TILT, 100, 10.0, 0.7, 0.0, 0.45), (SLIVER_TILT, 84, 9.0, 0.66, 0.015, 0.38),
+                (SLIVER_TILT, 108, 11.0, 0.72, -0.012, 0.5)]
     frames = [downsample(sliver_frame(size, *v), size) for v in variants]
     save_strip("sliver", frames, size)
 
