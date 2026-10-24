@@ -1,0 +1,39 @@
+# r23 @02febd4b (wp/integrate-limbus 3d8673b9 + director sync: hit-1 sound cues at contact t7, fx header comments).
+#   Content: animator r23 low-back coil + hit-1 contact t7 (skill YAML -1 tick on hit 1), vfx-artist ring warm rim, 2x2 tiles,
+#   tilt 14, hit-2 t30 floor fill. TICKS=72. Ticks = cast tick (compare frame = tick + 6).
+# Every capture: codeRevision 02febd4b (codeDirty false), contentRevision e1381dc0 (contentDirty false).
+# Published (/IdeaProjects/Astera/build/skill-compare-published/bastion-greatsword-s1/<view>/):
+#   compare 7ecbf8e98ec6 (79 f)  side dbdd3c8fd876 (73 f)  opponent 36d0b2b45da4 (73 f)  caster 1bf9cfe67948 (73 f, HIDE_HUD=0)
+# Quality: maxRepeatedFrames 2/1/1/1, compare cameraMaxLatenessMs 73. Tries at load 6-22: compare 3 (#1 4 zero-diff early frames,
+#   #2 7 zero-diff + stutter), side 4 (#1-2 server failed to start, #3 maxRep 30), opponent 2 (#1 passed qcheck but froze t7-t9 in
+#   the wind-up window, rejected by eye), caster 2.
+# Display peak (RCON poll, all display types, minus 10 text_display baseline): compare 43, side 43, opponent 46, caster 44 (<= 60).
+#   The peak moved from hit 2 to hit 1 (2x2 ring tiles): hit 1 43-46, hit 2 40-42.
+
+## Reviewer r22 diffs
+1 [animator] wind-up missing: NOT RESOLVED (improved). Ref t0-5 blade low behind, tip near the floor. Game compare t0-2 held
+  diagonal, t3 vertical, t4-5 raised over the top/behind the head, t6-7 low back (2 frames, r22: 1). Side t4 vertical, t5-6 low
+  back at waist height. Opponent t0-4 edge-on vertical, t6 lean, t7-8 low to the side. (windup-ref-cmp-side-t0-7.jpg)
+2 [animator/runtime] opponent start pop t1->t2: RESOLVED. Opponent t0-4 edge-on vertical, t5 slight lean, t6 ~20 deg, t7 the swing
+  drop; no one-frame face-open lean (opp-start-zoom.jpg, opp-t0-17.jpg).
+3 [vfx-artist] ring staircase at compare close-up: RESOLVED. t9-12 at 2x: 1-2 px aliasing steps only, no ~10 px stair
+  (cmp-ring-edge-2x.jpg).
+4 [director/animator] hit-1 timing: RESOLVED within lag. Server contact t7 (YAML + sound cues). Compare blade at target t8, tint t9;
+  caster FP ring t7-8, tint t8; opponent ring t8-9, blade passes the camera t9; side tint t10. r22 tint t10 (compare). Same +1-2 tick
+  client lag as hit 2 (caster tint t31-32).
+5 [model/runtime] rig blade luminance: PARTLY. Hand-over frame compare t3 rig silver like the held item (cmp-start-zoom.jpg). But
+  side t5-6 the coiled blade reads navy/near-black with two dark rails (side-start-4x.jpg), opponent t9 the blade passing the camera
+  is dark grey (opp-ring-rim-3x.jpg). Shading by face orientation, not the hand-over.
+6 [vfx-artist] ring grey rim: RESOLVED. Opponent t9-12 warm orange outer edge against the sky (opp-ring-rim-3x.jpg).
+7 [vfx-artist/director] hit-2 flat yellow fill: RESOLVED. Irregular yellow floor fill compare t30-33, caster t32-33 (cmp-t26-37,
+  cas-t28-61). Ref t30-31; game 4 frames incl. lag, acceptable.
+8 [vfx-artist/director] ring tilt: RESOLVED. Opponent t9-14 ring at waist/chest height, ends level; compare t12-15 the low near rim
+  is the perspective of the near side, not a dip (cmp-t12-23.jpg).
+
+## New in r23
+- [particles/vfx-artist] detached orange streak during the coil: compare t5 an orange flick on the floor left of the caster while
+  the blade is raised; side t5-6 a thin orange line at head height above the waist-high blade. The particle layer still rides the
+  r9 blade keys (bastion_s1_particles.py H1_KEYS, H1_DELAY 4); the r23 per-key table is evidence/animator/r23/per-key-r23.txt.
+- One weapon every frame in all four views t0-8 and t48-61 (cmp-start-zoom, side-start-4x, opp-start-zoom, cas-t28-61).
+- Caster FP: held t0-2, no rig blade t3-57, held back t58 in its final pose. No FP wind-up cue t3-6 (playability note unchanged).
+- Particles: compare blobs 620-750 at hit 1 (t9-11), 500-724 at hit 2 (t31-34); moving frame to frame.
