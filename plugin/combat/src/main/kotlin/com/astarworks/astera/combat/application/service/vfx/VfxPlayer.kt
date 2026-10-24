@@ -131,6 +131,12 @@ public class VfxPlayer(
 
         /** Set with [staged], kept after the restore for others: the owner's held item returns when the rig is removed. */
         var holdsOwnerHide: Boolean = false
+
+        /** Displays whose transform updates wait in [revealUpdates] this tick (the hide took their reveal over). */
+        var deferUpdates: Set<DisplayHandle> = emptySet()
+
+        /** Transform updates of the reveal tick, applied by the gateway at tick end inside the reveal bundle. */
+        val revealUpdates: MutableMap<DisplayHandle, () -> Unit> = HashMap()
     }
 
     private val instances: MutableList<Instance> = ArrayList()
@@ -235,6 +241,8 @@ public class VfxPlayer(
     private fun advance(instance: Instance): Boolean {
         val age = instance.age
         val plan = instance.plan
+        // Safety net: a reveal bundle that never ran (host without packets, rig ended first) must not drop the update.
+        if (instance.revealUpdates.isNotEmpty()) instance.revealUpdates.values.toList().forEach { it() }.also { instance.revealUpdates.clear() }
         if (instance.staged && age == minOf(REVEAL_AGE, plan.durationTicks - 1).coerceAtLeast(1)) reveal(instance)
         // The owner gets the held weapon back a tick before the rig's displays go (the rig is scaled to zero for the owner in the
         // same client step); other viewers get it in the bundle that removes the displays (handOverHeldItem).
@@ -277,7 +285,13 @@ public class VfxPlayer(
                     }
                     if (u.keepTransform) continue
                     state.authoredTransform = u.transform
-                    if (state.lineCorrection == null) displays.update(handle, u.transform, u.interpolationTicks)
+                    if (state.lineCorrection == null) {
+                        // The reveal tick's update must not reach clients through the entity tracker: its 22 packets are
+                        // separate sends, a client tick can fall between them (some parts one step behind at the very frame the
+                        // rig appears). It joins the reveal bundle instead (RigReveal.beforeSend).
+                        if (handle in instance.deferUpdates) instance.revealUpdates[handle] = { displays.update(handle, u.transform, u.interpolationTicks) }
+                        else displays.update(handle, u.transform, u.interpolationTicks)
+                    }
                 }
             }
             if (handle != null && state.lineCorrection != null) {
@@ -298,15 +312,19 @@ public class VfxPlayer(
                 state.handle = null
             }
         }
+        instance.deferUpdates = emptySet()
         return age >= plan.durationTicks
     }
 
     /** Makes the staged displays visible; with a waiting hide both reach every client in one packet bundle. */
     private fun reveal(instance: Instance) {
         val rig = instance.elements.mapNotNull { state ->
-            state.handle?.let { RigReveal(it, state.plan.viewRange ?: DEFAULT_VIEW_RANGE) }
+            state.handle?.let { handle ->
+                RigReveal(handle, state.plan.viewRange ?: DEFAULT_VIEW_RANGE) { instance.revealUpdates.remove(handle)?.invoke() }
+            }
         }
         val handled = instance.request.anchorEntityId?.let { heldItems?.reveal(it, rig) } == true
+        instance.deferUpdates = if (handled) rig.mapTo(HashSet()) { it.handle } else emptySet()
         if (!handled) rig.forEach { displays.setViewRange(it.handle, it.viewRange) }
     }
 

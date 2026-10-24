@@ -70,8 +70,16 @@ public interface IEntityEffectsGateway {
     }
 }
 
-/** A staged display and the view range it takes when revealed. */
-public data class RigReveal(val handle: IDisplayEntityGateway.DisplayHandle, val viewRange: Float)
+/**
+ * A staged display and the view range it takes when revealed. [beforeSend] runs at the moment the bundle is built (server tick
+ * end, after the entity tracker's flush) and applies the display's transform update of the reveal tick, so that update is
+ * delivered in the bundle too and not as a separate tracker packet.
+ */
+public data class RigReveal(
+    val handle: IDisplayEntityGateway.DisplayHandle,
+    val viewRange: Float,
+    val beforeSend: () -> Unit = {},
+)
 
 /** Who a held-item hide / restore is sent to. */
 public enum class HeldItemAudience { ALL, OWNER, OTHERS }
