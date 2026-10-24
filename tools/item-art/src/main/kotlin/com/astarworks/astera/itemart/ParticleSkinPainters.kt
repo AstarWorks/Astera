@@ -123,15 +123,16 @@ internal object ParticleSkinPainters {
             val rr = rBase * (1.0 + 0.07 * sin(2 * th + pa) + 0.03 * sin(5 * th + pb))
             val q = r / rr
             // Opaque hot body, then a short falloff (q 0.45 -> 1.15) that stays mostly above alpha 0.4: warm, not hazy.
-            var a = (1.0 - smooth(0.45, 1.15, q)) * flicker
+            val body = (1.0 - smooth(0.45, 1.15, q)) * flicker
             var speck = 0.0
             for ((sx, sy, w) in specks) speck += exp(-((x - sx).pow(2) + (y - sy).pow(2)) / (w * w))
-            a = max(a, (0.9 * speck * (1.0 - t)).coerceIn(0.0, 1.0))
-            a *= fade * edge(x, y)
+            val speckA = (0.9 * speck * (1.0 - t)).coerceIn(0.0, 1.0)
+            var a = max(body, speckA) * fade * edge(x, y)
             if (a < ALPHA_FLOOR) a = 0.0
             // Full tint at the centre, deeper (0.72 x tint) toward the rim where alpha is still high: a hot core with
-            // a warm falloff. The rim is never as dark as the old 0.6 halo, and never at low alpha.
-            val g = EMBER_MIN_LUMA + (1.0 - EMBER_MIN_LUMA) * exp(-q * q * 4.0)
+            // a warm falloff. The rim is never as dark as the old 0.6 halo, and never at low alpha. Specks are
+            // full-bright sparks (at the rim grey they read as dark brown dots, bastion-s1 r21 capture).
+            val g = if (speckA > body) 1.0 else EMBER_MIN_LUMA + (1.0 - EMBER_MIN_LUMA) * exp(-q * q * 4.0)
             Px(g, g, g, a)
         }
     }
