@@ -533,7 +533,15 @@ SWEEPS = {
     "hring": dict(centre=np.array([-0.35, 1.15, 0.0]), e1=np.array([1.0, 0.0, 0.0]),
                   e2=np.array([0.0, math.sin(math.radians(20.0)), math.cos(math.radians(20.0))]), sign=-1, r_tip=2.75,
                   t_max=0.42, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(20.0)), ellipse=(0.0, -0.15, 2.55, 1.75), ymin=0.2,
-                  smooth=10.0, hot="inner", fan_alpha=0.16,
+                  smooth=10.0, hot="inner", fan_alpha=0.0,
+                  # r23 (director r22, opponent t9-10: the outer rim read as an ~8 px dark grey band over the sky). Cause:
+                  # the r12 dark rim (#3A2A06 at <= 0.6 alpha, centred 1.5 px OUTSIDE the band) plus the 1.5 px outer
+                  # feather: 23-27% of the visible texels of the contact frames were that translucent umber (straight
+                  # (88, 59, 7), mean alpha 0.52), which over sky blue composites to grey (~(110, 115, 130)); fade frames
+                  # (opacity 0.4 / 0.25) were 100% translucent. Fix: no rim outside (`rim_alpha` 0), no fan, a narrow outer
+                  # feather (0.7 px), an OPAQUE ember edge line inside the silhouette (`edge` = colour, width px: dark
+                  # mixed with bright, but it keeps its hue), alpha < 0.3 zeroed, and fades by thinning (opacity >= 0.8).
+                  rim_alpha=0.0, feather_out=0.7, edge=("#C8500A", 1.8), alpha_floor=0.3,
                   # r16 (director r12: in the caster FP the front arc, which passes ~0.1 above the caster's eye at z 1.6,
                   # crossed the target's head / the crosshair as a ~60 px opaque band on t10-14): `fp_thin` = (floor, a0,
                   # a1) scales the band thickness by the horizontal angle from the caster's eye: a hairline (12%) within
@@ -551,10 +559,10 @@ SWEEPS = {
                   # displays on skill 8-10, so the contact frame 3 is what every camera sees until t11. Frame 3 is now the
                   # CLOSED loop (head at the contact angle 93.5, floor 0.7 so the step where the head meets the tail stays small) as in reference b00/b01 (the
                   # ring is already nearly whole at t06-07); frames 0-2 lead the blade slightly so the arc grows with it.
-                  frames=[(240, 200, 0.6, 0.85), (240, 160, 0.85, 1.0), (250, 110, 1.0, 1.0, 0.2), (453.5, 93.5, 1.0, 1.0, 0.7),
+                  frames=[(240, 200, 0.6, 1.0), (240, 160, 0.85, 1.0), (250, 110, 1.0, 1.0, 0.2), (453.5, 93.5, 1.0, 1.0, 0.7),
                           (453.5, 93.5, 1.0, 1.0, 0.7), (405.2, 45.2, 1.0, 1.0, 0.6), (356.7, -3.3, 1.0, 1.0, 0.5),
-                          (330, -30, 0.9, 0.95, 0.4), (330, -30, 0.7, 0.8, 0.35), (330, -30, 0.5, 0.6, 0.3),
-                          (330, -30, 0.3, 0.4, 0.25), (330, -30, 0.2, 0.25, 0.2)]),
+                          (330, -30, 0.9, 1.0, 0.4), (330, -30, 0.7, 0.95, 0.35), (330, -30, 0.55, 0.9, 0.3),
+                          (330, -30, 0.4, 0.85, 0.3), (330, -30, 0.3, 0.8, 0.3)]),
     # hit 2 low ring: plane tilted RING_TILT (lowest toward phi 60 = left-front), centre on the pivot axis at the
     # cone-centre height (tip pitch RING_CENTRE_PITCH). alpha 0 ~ forward, +90 ~ left; the blade turns +alpha
     # (left-back -> back -> right -> front). Tip alpha per skill tick (r7, in this plane): 134 (26), 163 (27),
@@ -698,7 +706,10 @@ def ring_frame(size, name, tail, head, tscale, opacity, floor_t=0.0):
     d_in = (r - (r_out - T)) / px
     # r12: 1.5 px half-feather (was 0.9): the real client draws font texels nearest-neighbour, so at the compare close-up
     # (~16 screen px per texel) a 1-2 texel edge is a hard stair; a 3-texel ramp reads as a soft edge.
-    band = soft(np.minimum(d_out, d_in), 1.5) * inside
+    # r23 (director r22: the outer rim read as a dark grey band over the sky, opponent t9-10): a separate, narrower OUTER
+    # feather (`feather_out`) so the silhouette has at most ~1 partial texel; the inner (white-hot) edge keeps 1.5.
+    fo = sw.get("feather_out", 1.5)
+    band = soft(d_out, fo) * soft(d_in, 1.5) * inside
     cut = np.minimum(dh, span - dh) * math.radians(1.0) * r / px if not closed else np.full_like(dh, 99.0)
     band *= soft(cut + 0.4, 1.0)
     floor = soft((world[1] - 0.04) / px, 1.0)
@@ -706,14 +717,19 @@ def ring_frame(size, name, tail, head, tscale, opacity, floor_t=0.0):
     col = BODY[None, None] * (1 - tt[..., None] ** 0.7) + GOLD[None, None] * tt[..., None] ** 0.7
     hot = soft(np.minimum(3.0, 0.2 * T / px) - d_in, 0.8) * (d_in > -0.5)
     col = col * (1 - hot[..., None] * 0.95) + PALE[None, None] * hot[..., None] * 0.95
+    if sw.get("edge"):  # r23: crisp warm outer edge INSIDE the silhouette (opaque, keeps its hue over the sky)
+        ec, ew = sw["edge"]
+        e = soft(ew - d_out, 0.6) * (1 - hot)
+        col = col * (1 - e[..., None]) + hexc(ec)[None, None] * e[..., None]
     img = blank(size * SS)
     fan_r0 = sw["fan_in"]
     fr = np.clip((r - fan_r0) / np.maximum(r_out - T - fan_r0, 1e-3), 0, 1)
     fan = (fr ** 1.6) * (r < r_out - T * 0.5) * (r > fan_r0) * inside * np.clip(1 - u, 0, 1) ** 1.6 * np.clip(dh / 10, 0, 1)
     img = over(img, hexc("#FFC83A")[None, None] * np.ones((1, 1, 3)), fan * sw["fan_alpha"] * tscale * floor)
-    # dark rim: softer and lighter than r11 (hard 0.85 near-black line = the highest-contrast stair at the close-up)
+    # dark rim: softer and lighter than r11 (hard 0.85 near-black line = the highest-contrast stair at the close-up).
+    # r23: `rim_alpha` 0 for hring: a translucent near-black skirt OUTSIDE the band mixes with the sky into grey.
     rim = soft(1.6 - np.abs(d_out + 1.5), 1.0) * inside * np.clip(prof * 3, 0, 1) * soft(cut + 0.4, 1.0)
-    img = over(img, RIM[None, None] * np.ones((1, 1, 3)), rim * 0.6 * floor)
+    img = over(img, RIM[None, None] * np.ones((1, 1, 3)), rim * sw.get("rim_alpha", 0.6) * floor)
     img = over(img, np.clip(col, 0, 1), band * floor)
     img[..., :4] *= opacity
     return img
@@ -818,6 +834,9 @@ def make_sweep(name):
         return
     fn = ring_frame if "aniso" in SWEEPS[name] else sweep_frame
     frames = [downsample(fn(size, name, *f), size) for f in SWEEPS[name]["frames"]]
+    af = SWEEPS[name].get("alpha_floor", 0.0)
+    for fr in frames:  # r23: no faint texels (the client discards < 0.1; 0.1-0.3 over the sky reads as a grey skirt)
+        fr[fr[..., 3] < af * 255] = 0
     save_strip(name, frames, size)
     save_strip(name + "-b", [np.ascontiguousarray(f[:, ::-1]) for f in frames], size)
 
