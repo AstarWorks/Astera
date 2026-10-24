@@ -4,7 +4,10 @@
 # Rig key time l is displayed at effect tick l + 1 (+ frozen ticks before it); the real client shows it ~1-2 ticks later (r6/r8). Hit 1 contact = key 7, displayed at effect tick 8.
 # Round 10 (reviewer r9: hit-1 PLANE wrong): hit 1 = big TILTED HORIZONTAL SWEEP. Tip plane y = 1.15 + tan(20) * z (anchor; forward end 20 deg higher, as the
 #   reference ring's right end on screen): tip y ~2.04 at the front (head), ~1.1-1.25 at the sides (chest), the plane passes the back at ~0.4. Travel: right -> front -> left -> back.
-# r10 hit 1: keys 0-1 (ticks 1-2) = held pose; key 2 (tick 3) up the caster's RIGHT side (phi 290, pitch 40: out of the first-person frustum);
+# r12 (director r10: opponent saw a 45 deg lean jump t2->t3): keys 2-4 re-routed so the FRONT view leans 0 -> 25 -> 42 -> 38 deg (<= 20/tick):
+#   key 2 (tick 3) = tip phi 296 pitch 66 (high, slightly right; side view ~vertical), keys 3-4 = raised back-right extreme phi 236/222 pitch 36/26
+#   (chunks 58/54/26, then sweep 49; FP half-tick max 6.3%). Numbers: evidence/animator/r12/per-key-r12.txt.
+# r10 hit 1 (keys 2-4 superseded by r12): keys 0-1 (ticks 1-2) = held pose; key 2 (tick 3) up the caster's RIGHT side (phi 290, pitch 40: out of the first-person frustum);
 #   wind-up extreme keys 3-4 (ticks 4-5) tip back-right raised (phi 230/219, pitch 24/22, 11 deg creep); sweep keys 5-7 ON the plane (phi 262/310/356, chunks 52/49/42),
 #   contact key 7 = tick 8 held 8-10 (tip phi 356 pitch 30, tip y 2.04, edge leads 23 deg); follow-through ON the plane keys 8-9 (phi 50/100) then down round the left/back
 #   (keys 10-12), overshoot key 13 (phi 206 = 26 deg past REST), settle slerp keys 14-18, REST by key 18 (tick 21), REST hold keys 19-20. Hit 2 = low horizontal ring (unchanged):
@@ -19,7 +22,7 @@
 # Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt (keys 0-6 and 40-52 changed in r8: evidence/animator/r8/per-key-r8.txt; keys 0-20 in r9: evidence/animator/r9/per-key-r9.txt). r10: keys 2-18 in evidence/animator/r10/per-key-r10.txt. r11: keys 39-52 + 3-axis check vs the held item in evidence/animator/r11/per-key-r11.txt.
 # Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
 # Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
-# Parts: verbatim deliver/rig-parts.yaml (22 parts, round 7: + guard_plate, hilt_flare). Face normal = local Z, edges = +-X, blade = +Y. fx / sprites live in bastion-s1-fx-high/low.yaml.
+# Parts: verbatim deliver/rig-parts.yaml (22 parts; r11 regenerated from the held model: stepped guard, plate + inset, rivets, collar + flares, kelp grip, pommel gold; cast cap 60 = rig 22 + fx 9 + particles 29). Face normal = local Z, edges = +-X, blade = +Y. fx / sprites live in bastion-s1-fx-high/low.yaml.
 
 id: bastion-s1-rig
 duration_ticks: 58
@@ -33,34 +36,34 @@ rigs:
   tilt: [0, 0, -20]
   respect_hit_stop: true
   parts:
-  - { id: blade_face, block: iron_block, offset: [0.0, 1.3162, 0.0], size: [0.1688, 1.7575, 0.05] }
-  - { id: edge_l, block: smooth_quartz, offset: [0.0953, 1.3162, 0.0], size: [0.0219, 1.7575, 0.0425] }
-  - { id: edge_r, block: smooth_quartz, offset: [-0.0953, 1.3162, 0.0], size: [0.0219, 1.7575, 0.0425] }
-  - { id: rim_l, block: polished_blackstone, offset: [0.1131, 1.3162, 0.0], size: [0.0137, 1.7575, 0.03] }
-  - { id: rim_r, block: polished_blackstone, offset: [-0.1131, 1.3162, 0.0], size: [0.0137, 1.7575, 0.03] }
-  - { id: fuller, block: polished_deepslate, offset: [0.0, 1.4312, 0.0], size: [0.0275, 1.3125, 0.06] }
-  - { id: tip_1, block: iron_block, offset: [0.0, 2.23, 0.0], size: [0.2, 0.07, 0.05] }
-  - { id: tip_2, block: iron_block, offset: [0.0, 2.3, 0.0], size: [0.16, 0.07, 0.05] }
-  - { id: tip_3, block: smooth_quartz, offset: [0.0, 2.37, 0.0], size: [0.12, 0.07, 0.0425] }
-  - { id: tip_4, block: polished_blackstone, offset: [0.0, 2.475, 0.0], size: [0.08, 0.14, 0.03] }
+  - { id: blade_face, block: iron_block, offset: [0.0, 1.31625, 0.0], size: [0.16875, 1.7575, 0.05] }
+  - { id: edges, block: smooth_quartz, offset: [0.0, 1.31625, 0.0], size: [0.2125, 1.7575, 0.0425] }
+  - { id: rims, block: polished_blackstone, offset: [0.0, 1.31625, 0.0], size: [0.24, 1.7575, 0.03] }
+  - { id: fuller, block: polished_deepslate, offset: [0.0, 1.4375, 0.0], size: [0.0275, 1.425, 0.06625] }
+  - { id: tip_1, block: iron_block, offset: [0.0, 2.2725, 0.0], size: [0.175, 0.155, 0.05] }
+  - { id: tip_2, block: polished_blackstone, offset: [0.0, 2.4475, 0.0], size: [0.075, 0.195, 0.03] }
   - { id: inlay, block: lime_concrete, offset: [0.0, 0.6, 0.0], size: [0.09, 0.2, 0.07] }
   - { id: inlay_frame, block: gold_block, offset: [0.0, 0.6, 0.0], size: [0.1125, 0.225, 0.0625] }
-  - { id: ricasso, block: polished_blackstone, offset: [0.0, 0.4019, 0.0], size: [0.24, 0.0712, 0.065] }
-  - { id: guard_1, block: polished_deepslate, offset: [0.0, 0.285, 0.0], size: [0.2875, 0.12, 0.1187] }
-  - { id: guard_2, block: polished_deepslate, offset: [0.0, 0.2875, 0.0], size: [0.575, 0.0875, 0.0813] }
-  - { id: guard_cap_l, block: gold_block, offset: [0.2987, 0.2938, 0.0], size: [0.0225, 0.1, 0.0938] }
-  - { id: guard_cap_r, block: gold_block, offset: [-0.2987, 0.2938, 0.0], size: [0.0225, 0.1, 0.0938] }
-  - { id: guard_plate, block: gold_block, offset: [0.0, 0.285, 0.0], size: [0.2125, 0.0825, 0.1312] }
-  - { id: hilt_flare, block: gold_block, offset: [0.0, 0.3888, 0.0], size: [0.35, 0.0875, 0.0562] }
-  - { id: grip, block: black_wool, offset: [0.0, 0.0563, 0.0], size: [0.1, 0.2625, 0.1] }
-  - { id: grip_collar, block: gold_block, offset: [0.0, 0.2031, 0.0], size: [0.125, 0.0312, 0.125] }
-  - { id: pommel, block: polished_blackstone, offset: [0.0, -0.1625, 0.0], size: [0.1562, 0.125, 0.1437] }
+  - { id: ricasso, block: polished_blackstone, offset: [0.0, 0.40187, 0.0], size: [0.24, 0.07125, 0.065] }
+  - { id: collar, block: gold_block, offset: [0.0, 0.35562, 0.0], size: [0.26875, 0.02125, 0.0875] }
+  - { id: flares, block: gold_block, offset: [0.0, 0.40813, 0.0], size: [0.35, 0.08375, 0.04625] }
+  - { id: guard_1, block: polished_deepslate, offset: [0.0, 0.285, 0.0], size: [0.2875, 0.12, 0.11875] }
+  - { id: guard_2, block: polished_deepslate, offset: [0.0, 0.285, 0.0], size: [0.4625, 0.1, 0.1] }
+  - { id: guard_3, block: polished_deepslate, offset: [0.0, 0.285, 0.0], size: [0.575, 0.07625, 0.08125] }
+  - { id: guard_caps, block: gold_block, offset: [0.0, 0.29375, 0.0], size: [0.62, 0.1, 0.075] }
+  - { id: guard_plate, block: gold_block, offset: [0.0, 0.285, 0.0], size: [0.2125, 0.0825, 0.13125] }
+  - { id: guard_inset, block: polished_blackstone, offset: [0.0, 0.285, 0.0], size: [0.11875, 0.045, 0.14] }
+  - { id: guard_rivets, block: smooth_quartz, offset: [0.0, 0.27938, 0.0], size: [0.34, 0.0275, 0.1125] }
+  - { id: grip, block: dried_kelp_block, offset: [0.0, 0.05625, 0.0], size: [0.1125, 0.2625, 0.1125] }
+  - { id: grip_collar, block: gold_block, offset: [0.0, 0.20625, 0.0], size: [0.125, 0.0375, 0.125] }
+  - { id: pommel, block: polished_blackstone, offset: [0.0, -0.14687, 0.0], size: [0.15625, 0.09375, 0.14375] }
+  - { id: pommel_gold, block: gold_block, offset: [0.0, -0.15, 0.0], size: [0.125, 0.15, 0.125] }
   swing:
   - { t: 0, rotate: [-336.4, -47.8, -59.4] }
   - { t: 1, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 2, rotate: [-286.3, -21.0, -60.8] }
-  - { t: 3, rotate: [-233.6, -8.2, -69.0] }
-  - { t: 4, rotate: [-223.2, -8.8, -90.0] }
+  - { t: 2, rotate: [-285.2, -47.2, -68.5] }
+  - { t: 3, rotate: [-241.4, -18.8, -73.3] }
+  - { t: 4, rotate: [-227.0, -11.9, -90.7] }
   - { t: 5, rotate: [-261.9, 11.6, -117.6] }
   - { t: 6, rotate: [-306.4, -8.2, -123.7] }
   - { t: 7, rotate: [-345.0, -27.1, -128.1] }
