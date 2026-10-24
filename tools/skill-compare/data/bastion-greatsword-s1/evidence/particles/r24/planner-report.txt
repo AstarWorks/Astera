@@ -1,0 +1,26 @@
+bastion-s1-spark: 4 frames, 64px
+hit 1 display keep-out (id, min to caster eye, min to opponent eye, min y):
+   s1h1-p-streaks       caster 1.55  opponent 1.04  y_min 1.15
+   s1h1-p-slivers       caster 1.54  opponent 1.17  y_min 1.29
+hit 1 display display particles alive per fx tick 0-15  conservative: [0, 0, 0, 0, 4, 8, 11, 13, 11, 7, 4, 2, 0, 0, 0, 0]
+hit 1 display                                           expected:     [0, 0, 0, 0, 4, 8, 11, 11, 7, 4, 2, 0, 0, 0, 0, 0]  total emitted: 13
+s1h1 spark emitted  59   min caster-eye 1.57  min opponent-eye 1.04  spark y_min 0.74
+   spawned per fx tick: {3: 2, 4: 19, 5: 15, 6: 6, 7: 7, 8: 7, 9: 3}
+   alive per fx tick 0-24: [0, 0, 0, 2, 21, 36, 42, 49, 56, 59, 59, 59, 59, 59, 59, 59, 59, 59, 57, 38, 23, 17, 10, 3, 0]
+s1h1 ember emitted  33   min caster-eye 1.85  min opponent-eye 1.40  spark y_min 9.00
+   spawned per fx tick: {3: 1, 4: 8, 5: 4, 6: 4, 7: 4, 8: 3, 9: 6, 10: 3}
+   alive per fx tick 0-24: [0, 0, 0, 1, 9, 13, 17, 21, 24, 30, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33]
+hit 2 display keep-out (id, min to caster eye, min to opponent eye, min y):
+   s1h2-p-streaks-l     caster 1.59  opponent 0.98  y_min 0.62
+   s1h2-p-slivers-l     caster 1.61  opponent 0.87  y_min 0.75
+   s1h2-p-streaks-r     caster 1.57  opponent 0.97  y_min 0.62
+   s1h2-p-slivers-r     caster 1.60  opponent 0.85  y_min 0.75
+hit 2 display display particles alive per fx tick 0-15  conservative: [0, 0, 0, 0, 8, 10, 10, 10, 6, 2, 0, 0, 0, 0, 0, 0]
+hit 2 display                                           expected:     [0, 0, 0, 0, 8, 10, 10, 6, 2, 0, 0, 0, 0, 0, 0, 0]  total emitted: 10
+   !! s1h2-p-spray-r           caster 1.60  opponent 0.84  y_min 0.75
+s1h2 spark emitted  88   min caster-eye 1.60  min opponent-eye 0.84  spark y_min 0.29
+   spawned per fx tick: {1: 6, 2: 6, 4: 12, 5: 24, 6: 14, 7: 8, 8: 8, 9: 4, 10: 6}
+   alive per fx tick 0-24: [0, 6, 12, 12, 24, 48, 62, 70, 78, 82, 88, 88, 88, 88, 88, 88, 82, 76, 76, 64, 40, 26, 18, 10, 6]
+s1h2 ember emitted  43   min caster-eye 1.72  min opponent-eye 1.15  spark y_min 9.00
+   spawned per fx tick: {4: 4, 5: 5, 6: 7, 7: 12, 8: 11, 9: 3, 10: 1}
+   alive per fx tick 0-24: [0, 0, 0, 0, 4, 9, 16, 28, 39, 42, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43]
