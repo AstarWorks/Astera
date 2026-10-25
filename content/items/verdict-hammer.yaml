@@ -17,7 +17,7 @@ lore:
   - 'sneak_left: Guardian Reprisal'
   - 'drop: Covenant Toll'
 rarity: epic
-level_requirement: 5
+level_requirement: 4
 attributes:
   attack_damage: 9.0
   attack_speed: 0.8

@@ -17,7 +17,7 @@ lore:
   - 'sneak_left: Trimming Guard'
   - 'drop: Falling Cutout'
 rarity: epic
-level_requirement: 4
+level_requirement: 3
 attributes:
   attack_damage: 3.0
   attack_speed: 3.0
@@ -27,6 +27,7 @@ resource_cost_per_use: 8
 skills:
 - trigger: left_click
   skill_id: couture-rapier-s1
+  cooldown_override_ticks: 55   # MODE-09: s1 TTK into the flagship band (docs/game-design/weapons/ttk.md)
 - trigger: right_click
   skill_id: couture-rapier-s2
 - trigger: sneak_right
