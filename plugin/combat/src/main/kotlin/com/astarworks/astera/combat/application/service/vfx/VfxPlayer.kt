@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.service.vfx
 
+
+import com.astarworks.astera.core.application.service.observability.ExecutionCosts
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayHandle
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -130,15 +132,18 @@ public class VfxPlayer(
     /** Number of display entities currently reserved by live effects. */
     public val liveDisplays: Int get() = reserved
 
-    public fun play(request: VfxRequest): Result<Unit, VfxPlayError> {
+    public fun play(request: VfxRequest): Result<Unit, VfxPlayError> =
+        ExecutionCosts.measure("vfx.play", request.vfxId.value) { playEffect(request) }
+
+    private fun playEffect(request: VfxRequest): Result<Unit, VfxPlayError> {
         val def = registry.find(request.vfxId) ?: return Result.failure(VfxPlayError.UnknownVfx(request.vfxId))
         if ((request.target != null) != (def.targetReference != null) ||
             (request.target != null && ((request.follow ?: def.follow) || request.target.invoke() == null))) {
             return Result.failure(VfxPlayError.InvalidTargetTracking(request.vfxId))
         }
-        val effective = request.follow?.let { def.copy(follow = it) } ?: def
-        val frame = effective.orient.frame(request.origin, request.look, request.toTarget)
-        val plan = VfxTimeline.plan(effective, frame, request.seed, request.scale, sprites, request.freeze)
+        val frame = def.orient.frame(request.origin, request.look, request.toTarget)
+        val planned = VfxTimeline.plan(def, frame, request.seed, request.scale, sprites, request.freeze)
+        val plan = request.follow?.let { planned.copy(follow = it) } ?: planned
         val replaced = if (plan.follow && plan.replaceGroup != null && request.anchorEntityId != null) {
             instances.filter { it.plan.follow && it.plan.replaceGroup == plan.replaceGroup &&
                 it.request.anchorEntityId == request.anchorEntityId && it.request.world == request.world }
@@ -216,7 +221,10 @@ public class VfxPlayer(
     }
 
     /** Processes tick [Instance.age]; returns `true` once the effect is over. */
-    private fun advance(instance: Instance): Boolean {
+    private fun advance(instance: Instance): Boolean =
+        ExecutionCosts.measure("vfx.tick", instance.request.vfxId.value) { advanceEffect(instance) }
+
+    private fun advanceEffect(instance: Instance): Boolean {
         val age = instance.age
         val plan = instance.plan
         val targetCorrection = instance.request.target?.let { target ->

@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.core.application.service.observability.ExecutionCosts
 import com.astarworks.astera.combat.domain.projectile.HitProfile
 import com.astarworks.astera.combat.domain.projectile.LifetimePolicy
 import com.astarworks.astera.combat.domain.projectile.MotionProfile
@@ -103,12 +104,21 @@ public class ProjectileStepper(
         now: Long,
         probe: ProjectileWorldProbe,
         beforeResolve: (ProjectileStepOutcome) -> Unit = {},
+    ): ProjectileStepOutcome = ExecutionCosts.measure("projectile.step", flight.spec.skill?.skillId?.value ?: "unbound") {
+        stepFlight(flight, now, probe, beforeResolve)
+    }
+
+    private fun stepFlight(
+        flight: ProjectileFlight,
+        now: Long,
+        probe: ProjectileWorldProbe,
+        beforeResolve: (ProjectileStepOutcome) -> Unit,
     ): ProjectileStepOutcome {
         val age = now - flight.spawnTick
         steer(flight, probe)
         val from = flight.position
         val to = from + flight.velocity
-        val outcome: ProjectileStepOutcome = when (val contact = probe.firstContact(flight, from, to)) {
+        val outcome: ProjectileStepOutcome = when (val contact = ExecutionCosts.measure("target.projectile_contact", flight.spec.skill?.skillId?.value ?: "unbound") { probe.firstContact(flight, from, to) }) {
             is ProjectileContact.Entity -> {
                 flight.position = contact.at
                 flight.travelled += from.distance(contact.at)
@@ -147,7 +157,9 @@ public class ProjectileStepper(
     /** Homing: bend the velocity toward the nearest valid target in range. */
     private fun steer(flight: ProjectileFlight, probe: ProjectileWorldProbe) {
         val m = flight.spec.motion as? MotionProfile.Homing ?: return
-        val aim = probe.homingTarget(flight, m.acquisitionRadius) ?: return
+        val aim = ExecutionCosts.measure("target.homing", flight.spec.skill?.skillId?.value ?: "unbound") {
+            probe.homingTarget(flight, m.acquisitionRadius)
+        } ?: return
         val speed = flight.velocity.length()
         val turn = m.turnRatePerTick.coerceIn(0.0, 1.0)
         val want = (aim - flight.position).normalize()
@@ -191,7 +203,7 @@ public class ProjectileStepper(
         public fun radiusOf(hit: HitProfile): Double = when (hit) {
             is HitProfile.Sphere -> hit.radius
             is HitProfile.Sweep -> hit.radius
-            is HitProfile.Box -> max(hit.width, max(hit.height, hit.depth)) / 2.0
+            is HitProfile.Box -> hit.baked.enclosingRadius
         }
 
         /**

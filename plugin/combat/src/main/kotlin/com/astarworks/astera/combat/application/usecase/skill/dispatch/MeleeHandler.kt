@@ -82,6 +82,7 @@ public class MeleeHandler(
             direction = pose.direction,
             range = params.range,
             angleDegrees = params.arcDegrees,
+            minCos = params.hitShape.minCos,
             candidates = candidates,
             fallbackPosition = { poseLookup?.poseOf(it.id)?.position },
         ).map { it.id }

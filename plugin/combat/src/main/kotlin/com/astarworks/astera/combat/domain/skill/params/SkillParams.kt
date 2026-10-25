@@ -1,9 +1,9 @@
 package com.astarworks.astera.combat.domain.skill.params
 
-import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.damage.DamageProfile
-
+import com.astarworks.astera.core.domain.skill.targeter.BakedHitShape
+import com.astarworks.astera.core.domain.status.StatusEffectId
 /**
  * Typed parameters for a [com.astarworks.astera.combat.domain.skill.SkillSpec].
  *
@@ -28,6 +28,9 @@ public sealed class SkillParams {
             }
         }
 
+        public val hitShape: BakedHitShape.Cone =
+            BakedHitShape.Cone(range, arcDegrees)
+
         public companion object {
             public const val DEFAULT_ARC_DEGREES: Double = 120.0
         }
@@ -47,6 +50,8 @@ public sealed class SkillParams {
         /** What the projectile looks like in flight (particle trail ids + optional display entity). */
         val visual: ProjectileVisualParams = ProjectileVisualParams.NONE,
     ) : SkillParams() {
+        public val hitShape: BakedHitShape.Sphere =
+            BakedHitShape.Sphere(hitRadius)
         init {
             require(hitRadius > 0.0) { "ProjectileParams.hitRadius must be > 0: $hitRadius" }
             require(launchSpeed >= 0.0) { "ProjectileParams.launchSpeed must be >= 0: $launchSpeed" }
@@ -69,6 +74,8 @@ public sealed class SkillParams {
         val damage: DamageProfile,
         val falloff: Easing,
     ) : SkillParams() {
+        public val hitShape: BakedHitShape.Sphere =
+            BakedHitShape.Sphere(radius)
         init {
             require(radius >= 0.0) { "AoeParams.radius must be >= 0: $radius" }
         }

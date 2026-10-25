@@ -32,7 +32,17 @@ fun main(args: Array<String>) {
     val parsed = CliArgs.parse(args)
     val report = LintRunner(parsed).run()
     report.print(System.out)
-    exitProcess(if (report.failed == 0) 0 else 1)
+    val vfx = com.astarworks.astera.core.application.contents.VfxContents()
+    val vfxLoad = vfx.bootstrap(parsed.contentDir.resolve("vfx"))
+    val particles = com.astarworks.astera.core.application.contents.ParticleContents()
+    val particleLoad = particles.bootstrap(parsed.contentDir.resolve("particles"))
+    val skills = com.astarworks.astera.combat.application.contents.SkillContents(vfx = vfx, particles = particles)
+    val skillLoad = skills.bootstrap(parsed.contentDir.resolve("skills"))
+    println("Top 10 skill lifetime cost estimates (unbounded includes unconstrained candidate queries / dependent fan-out):")
+    println(com.astarworks.astera.combat.application.contents.SkillCostReport.format(
+        com.astarworks.astera.combat.application.contents.SkillCostReport.top(skills, vfx, particles),
+    ))
+    exitProcess(if (report.failed + vfxLoad.failed + particleLoad.failed + skillLoad.failed == 0) 0 else 1)
 }
 
 // -----------------------------------------------------------------------------
@@ -43,9 +53,8 @@ internal data class CliArgs(
     val contentDir: Path,
     val schemasDir: Path,
     /**
-     * Reserved. Currently every check is hard pass/fail so there is no
-     * warning vs error distinction to flip. Kept on the CLI so callers can
-     * wire it now and the invocation won't break when warnings are added.
+     * Reserved for future schema warnings. Skill cost estimates remain advisory,
+     * including with --strict (T8a does not enforce the cost cap yet).
      */
     @Suppress("unused") val strict: Boolean,
 ) {
@@ -66,9 +75,7 @@ internal data class CliArgs(
                         i += 2
                     }
                     "--strict" -> {
-                        // Reserved: currently no warnings exist (every check is
-                        // hard pass/fail). Kept on the CLI so callers can wire
-                        // it now and we won't break their invocation later.
+                        // Skill cost warnings remain advisory even in strict mode.
                         strict = true
                         i += 1
                     }

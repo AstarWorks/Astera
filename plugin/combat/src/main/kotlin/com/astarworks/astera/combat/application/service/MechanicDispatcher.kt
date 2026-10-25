@@ -1,20 +1,21 @@
 package com.astarworks.astera.combat.application.service
 
-import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
-import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
 import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
+import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
+import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
+import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
+import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
+import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
+import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
+import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
+import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
 import com.astarworks.astera.combat.application.port.outbound.ISummonGateway
 import com.astarworks.astera.combat.application.port.outbound.aoe.IExplosionGateway
 import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGateway
-import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
-import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
-import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
-import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
-import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
-import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
-import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.service.dash.DashStrikeRunner
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
@@ -22,22 +23,24 @@ import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.skill.expression.CelContext
 import com.astarworks.astera.combat.domain.skill.expression.CelSkillScript
+import com.astarworks.astera.combat.domain.skill.expression.CompiledCelScript
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IParticleRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
-import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
-import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
-import com.astarworks.astera.core.application.port.outbound.IParticleRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.effect.IParticleScheduler
-import com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler
 import com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler
 import com.astarworks.astera.core.application.port.outbound.ticks
+import com.astarworks.astera.core.application.service.observability.ExecutionCosts
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.attribute.AttributeKey
 import com.astarworks.astera.core.domain.attribute.AttributeModifier
@@ -70,9 +73,9 @@ import com.astarworks.astera.core.domain.skill.value.NumericValue
 import com.astarworks.astera.core.domain.skill.value.VectorValue
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.world.WorldId
+import java.util.concurrent.ConcurrentHashMap
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 /**
  * Wave _skills-2 (ADR-0077) central runtime: takes a `List<Mechanic>` plus a
  * [MechanicContext] and fires each mechanic against its resolved targets.
@@ -193,6 +196,7 @@ public class MechanicDispatcher(
     private val resourcePool: (() -> com.astarworks.astera.core.application.port.outbound.IResourcePoolService?)? = null,
     private val playerAnimation: com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway? = null,
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
+    private val bakedSkills: ISkillRegistry? = null,
 ) {
 
     /**
@@ -408,7 +412,12 @@ public class MechanicDispatcher(
     }
 
     /** Runs [mechanic] if its `condition` holds against [ctx] at THIS moment (cast time or fire time). */
-    private fun fireGated(mechanic: Mechanic, ctx: MechanicContext) {
+    private fun fireGated(mechanic: Mechanic, ctx: MechanicContext): Unit =
+        ExecutionCosts.measure(mechanicKinds.get(mechanic.javaClass), ctx.castedSkills.lastOrNull()?.value ?: "unbound") {
+            fireChecked(mechanic, ctx)
+        }
+
+    private fun fireChecked(mechanic: Mechanic, ctx: MechanicContext) {
         if (ctx.boundTargetState?.cancelled == true) return
         if (ctx.boundTargetWorld != null) {
             val target = ctx.targetId
@@ -1004,17 +1013,17 @@ public class MechanicDispatcher(
 
     internal fun resolveDouble(value: NumericValue, ctx: MechanicContext): Double = when (value) {
         is NumericValue.Literal -> value.value
-        is NumericValue.Cel -> evalCelScalar(value.script) { (it as? Number)?.toDouble() ?: 0.0 } ?: 0.0
+        is NumericValue.Cel -> evalCelScalar(value.script, ctx) { (it as? Number)?.toDouble() ?: 0.0 } ?: 0.0
     }
 
     internal fun resolveInt(value: IntValue, ctx: MechanicContext): Int = when (value) {
         is IntValue.Literal -> value.value
-        is IntValue.Cel -> evalCelScalar(value.script) { (it as? Number)?.toInt() ?: 0 } ?: 0
+        is IntValue.Cel -> evalCelScalar(value.script, ctx) { (it as? Number)?.toInt() ?: 0 } ?: 0
     }
 
     internal fun resolveBool(value: BoolValue, ctx: MechanicContext): Boolean = when (value) {
         is BoolValue.Literal -> value.value
-        is BoolValue.Cel -> evalCelScalar(value.script) { it as? Boolean ?: false } ?: false
+        is BoolValue.Cel -> evalCelScalar(value.script, ctx) { it as? Boolean ?: false } ?: false
     }
 
     internal fun resolveVec3(value: VectorValue, ctx: MechanicContext): Vec3 = when (value) {
@@ -1025,8 +1034,15 @@ public class MechanicDispatcher(
         }
     }
 
-    private fun <T> evalCelScalar(script: String, project: (Any) -> T): T? {
-        return when (val r = celEvaluator.evaluate(CelSkillScript(script), emptyCelContext())) {
+    private val mechanicKinds = object : ClassValue<String>() {
+        override fun computeValue(type: Class<*>): String = "mechanic.${type.simpleName}"
+    }
+
+    private val extraPrograms = ConcurrentHashMap<String, CompiledCelScript>()
+
+    private fun <T> evalCelScalar(script: String, ctx: MechanicContext, project: (Any) -> T): T? {
+        return when (val r = (ctx.castedSkills.lastOrNull()?.let { bakedSkills?.find(it)?.baked?.formulas?.get(script) }
+            ?: extraPrograms.computeIfAbsent(script) { celEvaluator.compile(CelSkillScript(it)) }).evaluate(emptyCelContext())) {
             is Result.Success -> project(r.value)
             is Result.Failure -> {
                 log.warn("CEL script '{}' failed ({}); defaulting", script, r.error)
@@ -1069,7 +1085,7 @@ public class MechanicDispatcher(
     }
 
     private fun resolveCondition(condition: Condition, ctx: MechanicContext): Boolean = when (condition) {
-        is Condition.Cel -> evalCelScalar(condition.script) { it as? Boolean ?: false } ?: false
+        is Condition.Cel -> evalCelScalar(condition.script, ctx) { it as? Boolean ?: false } ?: false
         is Condition.And -> resolveCondition(condition.left, ctx) && resolveCondition(condition.right, ctx)
         is Condition.Or -> resolveCondition(condition.left, ctx) || resolveCondition(condition.right, ctx)
         is Condition.Not -> !resolveCondition(condition.inner, ctx)

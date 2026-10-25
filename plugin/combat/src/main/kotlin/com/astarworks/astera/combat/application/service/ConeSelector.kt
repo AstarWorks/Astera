@@ -24,9 +24,9 @@ public object ConeSelector {
         angleDegrees: Double,
         candidates: List<NearbyTarget>,
         fallbackPosition: (NearbyTarget) -> Vec3? = { null },
+        minCos: Double = cos(Math.toRadians(angleDegrees / 2.0)),
     ): List<NearbyTarget> {
         val dir = direction.normalize().takeIf { it.lengthSquared() > 0.0 } ?: return emptyList()
-        val minCos = cos(Math.toRadians(angleDegrees / 2.0))
         return candidates
             .mapNotNull { c ->
                 val feet = c.position ?: fallbackPosition(c) ?: return@mapNotNull null
