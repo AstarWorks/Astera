@@ -117,6 +117,12 @@ internal class MatchWiringEnv(
     val worldGateway: IWorldGateway?,
     /** `default_config` of the game mode a match runs (Norma's when the mode is unknown); read live so reloads apply. */
     val modeConfigOf: (com.astarworks.astera.core.domain.match.MatchId) -> Map<String, String>,
+    /**
+     * Whether the Norma layer (stars, kill burst, Norma levels, time-limit ranking) runs in this match: the mode's
+     * `default_config` says `norma_layer: "true"`, or the match has no mode key (legacy default). The single switch a
+     * game mode flips to take part; the layer's tunables are the same mode config (`norma_*`, `time_limit_seconds`).
+     */
+    val normaLayerOf: (com.astarworks.astera.core.domain.match.MatchId) -> Boolean,
     val scheduledTasks: MutableList<IScheduler.TaskHandle>,
     val shutdownHooks: MutableList<() -> Unit>,
 ) {
@@ -636,6 +642,9 @@ public object MatchWiring {
             permService = permService, msgRenderer = msgRenderer, matchModeRegistry = matchModeRegistry,
             facade = facade, queueSettings = queueSettings, annihilationTracker = annihilationTracker, worldGateway = worldGateway,
             modeConfigOf = modeConfigOf,
+            normaLayerOf = { id ->
+                matchModeRegistry.modeKeyOf(id).isNullOrBlank() || modeConfigOf(id)["norma_layer"] == "true"
+            },
             scheduledTasks = scheduledTasks, shutdownHooks = shutdownHooks,
         )
         MatchWorldWiring.install(env)

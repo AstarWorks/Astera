@@ -427,10 +427,7 @@ internal object MatchGameplayWiring {
         val normaKills = com.astarworks.astera.match.application.eventbus.listeners.victory.NormaTimeLimitListener(
             matches = matches,
             lifecycle = env.facade,
-            isNorma = { id ->
-                val key = env.matchModeRegistry.modeKeyOf(id)
-                key.isNullOrBlank() || key == com.astarworks.astera.match.application.gamemode.NormaGameMode.ID.value
-            },
+            isNorma = env.normaLayerOf,
             timeLimitTicks = { id -> (env.modeConfigOf(id)["time_limit_seconds"]?.toLongOrNull()?.takeIf { it > 0 } ?: 600L) * 20L },
             now = { scheduler.currentTick() },
             levelOf = { match, team -> matchStars.norma.topLevel(match, team) },
