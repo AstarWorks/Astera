@@ -4,7 +4,6 @@ import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.combat.CombatContext
-import com.astarworks.astera.core.domain.event.PlayerMoved
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
@@ -28,9 +27,9 @@ import kotlin.random.Random
  * Stars lying on the map. A generator pop becomes a [StarDrop] at the generator (a generator holds at most its
  * `stockpile_cap` separate drops; further pops add to the newest one). When a player is killed in a match,
  * `floor(carried * death_drop_ratio)` of their stars burst into a few drops scattered around the death position.
- * The first alive participant (nearest wins) within a drop's pickup radius takes it. There are no item entities: a
- * drop is a record plus a particle marker, collected by a distance check on [PlayerMoved] and on a short poll
- * (command teleports raise no move event).
+ * A drop is a record plus an item entity ([IStarDropWorld]); it is collected only by the host's real item pickup
+ * ([onTouched]: vanilla pickup range, pickup delay, animation). There is no proximity crediting. The item never
+ * enters an inventory; the carried count lives only in [IMatchStarStore].
  */
 public class StarDropService(
     private val matches: IMatchRepository,
@@ -60,7 +59,6 @@ public class StarDropService(
             StarDrop(nextId.getAndIncrement(), event.matchId, world, generator.position, amount, generator.pickupRadius, generator.id)
                 .let { withEntity(it, null) }.also { drops[it.id] = it }
         }
-        tryCollect(drop)
     }
 
     /** A kill inside a match: the victim's stars burst out as drops around the death position. */
@@ -91,13 +89,7 @@ public class StarDropService(
         }
     }
 
-    public fun onMoved(event: PlayerMoved) {
-        if (drops.isEmpty()) return
-        val match = matches.findMatchOf(event.playerId) ?: return
-        collectAt(match.id)
-    }
-
-    /** Keep every drop's record on its thing (it may roll), respawn lost things, then re-check pickups. */
+    /** Keep every drop's record on its thing (it may roll) and respawn lost things. */
     public fun poll() {
         if (drops.isEmpty()) return
         val w = world
@@ -113,7 +105,6 @@ public class StarDropService(
                 }
             }
         }
-        drops.values.map { it.matchId }.distinct().forEach(::collectAt)
     }
 
     /** A player touched the thing [handle] (its vanilla pickup is already cancelled). */
@@ -123,7 +114,7 @@ public class StarDropService(
         if (match.teams.none { player in it.members }) return
         val loc = positions.positionOf(player) ?: return // dead / spectating
         if (loc.world != drop.world) return
-        if (isDenied(drop, player) || System.currentTimeMillis() < drop.readyAtMillis) return
+        if (isDenied(drop, player)) return
         take(drop, player)
     }
 
@@ -138,44 +129,25 @@ public class StarDropService(
     /** Stars lying on the map for [matchId] (diagnostics / tests). */
     public fun lying(matchId: MatchId): Int = drops.values.filter { it.matchId == matchId }.sumOf { it.amount }
 
-    private fun collectAt(matchId: MatchId) {
-        drops.values.filter { it.matchId == matchId }.forEach(::tryCollect)
-    }
-
     private fun withEntity(drop: StarDrop, velocity: Vec3?): StarDrop {
-        val handle = world?.spawn(drop.world, drop.position, drop.amount, velocity) ?: return drop
+        val delayTicks = ((drop.readyAtMillis - System.currentTimeMillis()) / MILLIS_PER_TICK).toInt().coerceAtLeast(0)
+        val handle = world?.spawn(drop.world, drop.position, drop.amount, velocity, delayTicks) ?: return drop
         return drop.copy(entity = handle)
     }
 
     private fun isDenied(drop: StarDrop, player: PlayerId): Boolean =
         player == drop.deniedTo && System.currentTimeMillis() < drop.deniedUntilMillis
 
-    private fun tryCollect(drop: StarDrop) {
-        if (!drops.containsKey(drop.id)) return
-        if (System.currentTimeMillis() < drop.readyAtMillis) return
-        val match = matches.findById(drop.matchId) ?: return
-        val radiusSq = drop.pickupRadius * drop.pickupRadius
-        val taker = match.teams.asSequence().flatMap { it.members.asSequence() }
-            .filterNot { isDenied(drop, it) }
-            .mapNotNull { player ->
-                val loc = positions.positionOf(player) ?: return@mapNotNull null
-                if (loc.world != drop.world) return@mapNotNull null
-                val d = (loc.position - drop.position).lengthSquared()
-                if (d <= radiusSq) player to d else null
-            }
-            .minByOrNull { it.second }?.first ?: return
-        take(drop, taker)
-    }
-
     private fun take(drop: StarDrop, taker: PlayerId) {
         val taken = drops.remove(drop.id) ?: return
-        taken.entity?.let { world?.remove(it) }
+        taken.entity?.let { world?.take(it, taker) }
         world?.playPickup(taken.world, taken.position)
         val total = store.add(drop.matchId, taker, taken.amount)
         eventBus.publish(StarsCollected(drop.matchId, taker, taken.amount, total))
     }
 
     private companion object {
+        const val MILLIS_PER_TICK = 50L
         const val MAX_BURST_DROPS = 6
         const val BURST_SCATTER = 2.5
         const val BURST_PICKUP_RADIUS = 1.5

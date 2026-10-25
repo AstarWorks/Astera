@@ -77,6 +77,12 @@ public class NormaLevelService(
         return NormaHud(carried, p.level, cfg.maxLevel, p.goal, progress.coerceAtMost(target), target)
     }
 
+    /** Kills [playerId] made since reaching the current level (0 outside a Norma match). */
+    public fun killsAtLevelOf(playerId: PlayerId): Int {
+        val match = matches.findMatchOf(playerId)?.takeIf { isNorma(it.id) } ?: return 0
+        return norma.get(match.id, playerId).killsAtLevel
+    }
+
     /** Highest Norma level held by a member of [team] (time-limit tie-break). */
     public fun topLevel(match: Match, team: TeamId): Int =
         match.teams.firstOrNull { it.id == team }?.members.orEmpty().maxOfOrNull { norma.get(match.id, it).level } ?: 1

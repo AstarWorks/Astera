@@ -5,7 +5,9 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.match.adapter.paper.PaperBarrierGateway
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.match.adapter.paper.PaperItemPickupAdapter
+import com.astarworks.astera.match.adapter.paper.PaperNormaPresentation
 import com.astarworks.astera.match.adapter.paper.PaperMatchPlayerPositions
 import com.astarworks.astera.match.adapter.paper.PaperStarDropWorld
 import com.astarworks.astera.match.adapter.paper.PaperMatchWorldInputAdapter
@@ -43,6 +45,7 @@ internal object MatchPaperBindings {
         spectator = { services -> PaperSpectator(plugin.server, services.getOrThrow<IScheduler>()) },
         playerPositions = { PaperMatchPlayerPositions(plugin.server) },
         starDropWorld = { PaperStarDropWorld(plugin) },
+        normaPresentation = { services -> PaperNormaPresentation(plugin.server, services.getOrThrow<IMessageRenderer>()) },
     )
 
     fun bind(plugin: JavaPlugin, ctx: WiringContext, wired: MatchWiringResult) {

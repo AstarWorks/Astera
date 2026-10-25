@@ -14,7 +14,7 @@ import kotlin.math.sin
 
 /**
  * In-match stars and Norma levels (docs/game-design/stars-and-norma.md): a generator pop lies on the map and the
- * participant standing there takes it; a kill bursts the victim's carried stars into drops anyone can pick up; the
+ * participant standing there takes it by item pickup (no proximity crediting); a kill bursts the victim's carried stars into drops anyone can pick up; the
  * Norma level goal (stars carried) levels the player up; nothing outlives the match.
  */
 class StarsNormaScenarioTest {
@@ -42,6 +42,7 @@ class StarsNormaScenarioTest {
             stars.add(matchId, blue.id, 6)
             sim.setMaxHealth(blue, 1.0)
             val deathSpot = blue.position
+            val deathWorld = blue.world
             red.moveTo(deathSpot + Vec3(0.0, 0.0, 6.0))
             red.holds("pistol")
             red.faces(blue)
@@ -54,8 +55,15 @@ class StarsNormaScenarioTest {
             assertThat(eventsOf<PlayerKilled>().any { it.victim == blue.id }).isTrue()
             assertThat(stars.get(matchId, blue.id)).`as`("the victim's carried stars burst out").isEqualTo(0)
 
-            // Red walks the death spot (centre + a ring) and picks the burst drops up.
+            // The burst lies on the map as items; being a few blocks away takes nothing (pickup is the item pickup only).
+            val lyingBurst = sim.starDrops.lying().filter { it.world == deathWorld }
+            assertThat(lyingBurst).`as`("the burst lies on the map as star items").isNotEmpty()
             val before = stars.get(matchId, red.id)
+            advance(40)
+            assertThat(stars.get(matchId, red.id)).`as`("red, 6 blocks away, takes nothing").isEqualTo(before)
+
+            // Red walks the death spot (centre + a ring) and picks the burst drops up.
+            val lyingBefore = sim.starDrops.lying().size
             red.moveTo(deathSpot)
             advance(10)
             for (i in 0 until 12) {
@@ -64,6 +72,7 @@ class StarsNormaScenarioTest {
                 advance(10)
             }
             assertThat(stars.get(matchId, red.id)).`as`("red picked up burst stars").isGreaterThan(before)
+            assertThat(sim.starDrops.lying().size).`as`("the picked-up items are gone from the map").isLessThan(lyingBefore)
 
             // (c) Red carries enough stars for the level-1 star goal (3 by default): the level goes 1 -> 2, stars are kept.
             stars.add(matchId, red.id, 20)
@@ -71,6 +80,9 @@ class StarsNormaScenarioTest {
             advance(2)
             assertThat(eventsOf<NormaLevelUp>().any { it.playerId == red.id && it.level == 2 }).isTrue()
             assertThat(norma.get(matchId, red.id).level).isEqualTo(2)
+            val shown = sim.normaPresentation.levelUps.filter { it.player == red.id && it.level == 2 }
+            assertThat(shown).`as`("the level-up is presented (title / sound / burst / broadcast) once").hasSize(1)
+            assertThat(shown.single().audience).`as`("the whole match sees the broadcast").contains(red.id, blue.id)
             assertThat(stars.get(matchId, red.id)).`as`("stars are not consumed by a level-up").isGreaterThanOrEqualTo(20)
         }
     }

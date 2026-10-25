@@ -784,7 +784,24 @@ astera:
       dispatch-failure: "<red>アリーナサーバーが応答しませんでした。キューに戻しました。</red>"
       wrong-server: "<gray>このサーバーはマッチ専用です。ロビーに戻します…</gray>"
       arrival-waiting: "<yellow>あと <gold>{remaining}</gold> 人を待っています… 試合開始まで無敵です。</yellow>"
+    norma-up:
+      title: "<gold><bold>ノルマ達成！</bold></gold>"
+      subtitle: "<yellow>Lv {level}/{max}</yellow>"
+      broadcast: "<gold>{player}</gold> <gray>がノルマを達成し</gray> <yellow>Lv {level}/{max}</yellow> <gray>になった！</gray>"
+      max:
+        title: "<gold><bold>ノルマ完全達成！</bold></gold>"
+        subtitle: "<yellow>最高レベル Lv {level} に到達</yellow>"
+        broadcast: "<gold><bold>{player}</bold></gold> <yellow>が最高ノルマレベル Lv {level}/{max} に到達！</yellow>"
     norma-choice:
+      open:
+        title: "<gold><bold>ノルマを選ぼう</bold></gold>"
+        subtitle: "<gray>スター目標かキル目標 - 10秒以内に選択</gray>"
+      picked:
+        star: "<green>ノルマ目標を設定：<gold>★ {goal}個持つ</gold></green>"
+        kill: "<green>ノルマ目標を設定：<red>⚔ {goal}キル</red></green>"
+      defaulted:
+        star: "<yellow>時間切れ - 初期目標：<gold>★ {goal}個持つ</gold></yellow>"
+        kill: "<yellow>時間切れ - 目標はそのまま：<red>⚔ {goal}キル</red></yellow>"
       chosen: "<green>ノルマ目標：<gold>{goal}</gold></green>"
       not-in-match: "<red>ノルマレベルはノルマ戦の中だけです。</red>"
       max-level: "<yellow>最高ノルマレベルです。</yellow>"
@@ -797,6 +814,7 @@ astera:
           name: "<red><bold>⚔ キル目標</bold></red>"
           lore: "<gray>このレベルで <red>{goal}</red> キルする。</gray>"
         level: "<gray>ノルマレベル <white>{level}/{max}</white></gray>"
+        progress: "<gray>現在：<white>{now}</white>/<white>{goal}</white></gray>"
         default: "<dark_gray>10秒選ばないとスター目標になります。</dark_gray>"
     star:
       collected: "<gold>+{amount} ★</gold> <gray>(所持 {total})</gray>"
