@@ -4,7 +4,7 @@ Owner track `wp/modes-combat`. Seed: audit 2026-10-26. Items: Board prefix `MODE
 
 ## 構想 (source)
 - Siege PvP with gun / sword / magic roles, 15-30 min matches (`docs/game-design/vision.md`, `pillars.md`).
-- **Norma is part of every mode** (founder 2026-10-26): stars pop from generators, a kill bursts carried stars, per-level STAR or KILL goal, 100% Orange Juice style; highest Norma level wins (ADR-0251, `docs/game-design/stars-and-norma.md`).
+- **Norma is part of every mode** (founder 2026-10-26): stars pop from generators, a kill bursts carried stars, per-level STAR or KILL goal, 100% Orange Juice style; highest Norma level wins (ADR-0257, `docs/game-design/stars-and-norma.md`).
 - Weapons RTM-style MAIN+SUB caps; the 2-weapon cap is kept; starter kit includes a gun.
 - Matches target siege-scale maps; keep a small debug arena for e2e.
 - Playable loop: queue, form, countdown, ACTIVE, fight, respawn, objective, end summary + rewards, lobby (`docs/game-design/playable-loop-checklist.md`).
@@ -31,4 +31,4 @@ Play shows Norma-based modes and PvE first; siege variants sit in an "advanced" 
 - Unverified from the old loop checklist: pistol bullets vs pillars, block-break speed on pillars/cores, the arena shared between lanes.
 
 ## Governing ADRs
-0032, 0036, 0063, 0073, 0174, 0237, 0247, 0248, 0249, 0251 (stars-are-match-scoped).
+0032, 0036, 0063, 0073, 0174, 0237, 0247, 0248, 0249, 0257 (stars-are-match-scoped).

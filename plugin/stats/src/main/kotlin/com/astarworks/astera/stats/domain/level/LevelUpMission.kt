@@ -6,7 +6,7 @@ package com.astarworks.astera.stats.domain.level
  *
  * Level advancement is gated on kill-count thresholds per the level
  * definition (see [ConfiguredNormaParameter]). Stars are an in-match item
- * and never persist (ADR-0251), so there is no star-collection variant.
+ * and never persist (ADR-0257), so there is no star-collection variant.
  */
 public enum class LevelUpMission {
     /** Advance when kill threshold is met. */

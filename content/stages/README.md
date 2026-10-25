@@ -1,7 +1,7 @@
 # content/stages/
 
 Stage (map) definitions. Schema: `plugin/match/.../application/config/StageYamlConfig.kt`
-(strict decode: unknown keys fail the file). Design: ADR-0246 and ADR-0252.
+(strict decode: unknown keys fail the file). Design: ADR-0246 and ADR-0259.
 
 Production stages are **floating siege-scale arenas** built by the server in the void `arenas` world.
 Procedural foundations carry [authored YAML structure parts](../structures/README.md). Debug stages use a separate

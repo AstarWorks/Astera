@@ -6,7 +6,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.inventory.ContainerActionTy
 import org.junit.jupiter.api.Test
 
 /**
- * In-match stars and Norma levels (docs/game-design/stars-and-norma.md, ADR-0251): a star is an item of the match,
+ * In-match stars and Norma levels (docs/game-design/stars-and-norma.md, ADR-0257): a star is an item of the match,
  * never carried out of it.
  *
  * Two bots play a Norma match with the e2e-tuned content (docker/e2e-tune-content.sh): generators pop every 3 s,

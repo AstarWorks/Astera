@@ -27,7 +27,7 @@ starter_items:
 # constants (GOLD / GEM); values are 64-bit non-negative integers.
 # Zero entries are dropped at apply-time so the audit log stays readable.
 # GOLD is the everyday currency, earned (matches / quests / advancements / login bonus);
-# GEM is premium. Stars are an in-match item and are never granted here (ADR-0251).
+# GEM is premium. Stars are an in-match item and are never granted here (ADR-0257).
 wallet_grants:
   GOLD: 0
   GEM: 0

@@ -35,7 +35,8 @@ The founder writes through the page: `rank` on items and the memo box; chat and 
 3. A rejection from the founder goes into the item's `why` (never silently overwritten) and the lane
    moves back (`in-progress` or `ready`).
 4. An item is `ready` only when `verification` is fixed; cross-cutting decisions also need an ADR number
-   reserved (take the next free number in `docs/adr/` and write it into `adr`).
+   reserved (the manager takes the next free number in `docs/adr/` and writes it into `adr`).
+   ADR numbers are allocated by the manager before work starts. Tracks never pick a number themselves.
 5. Never mark `verified` without evidence for every declared verification stage. `live` without evidence is
    reported as "unverified" in every batch report until fixed.
 6. After each integration batch, dump `ArtifactData list` to the scratchpad and let a Haiku scribe commit
