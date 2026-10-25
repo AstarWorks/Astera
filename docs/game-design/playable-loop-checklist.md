@@ -34,7 +34,7 @@ build if a patched key disappears from content.
 
 1. Norma had no end: queue-formed Norma matches never ended. Fix: a Norma match is won by reaching the top Norma level
    (`NormaLevelService`); `NormaTimeLimitListener` counts kills and ends it after `time_limit_seconds` (highest level, then
-   stars carried, then kills; ADR-0252). Keys in `content/game-modes/norma.yaml`.
+   stars carried, then kills; ADR-0252). Keys in `content/norma-layer/layer.yaml (mode overrides in game-modes/*.yaml; ADR-0257)`.
 2. Sudden death expiry only flipped the phase to ENDED and never published `MatchEnded` (no result, rewards, return).
    Fix: `PhaseTimerUseCase.onSuddenDeathExpired`, wired to `EndMatchUseCase(SuddenDeathResolved)`. Unit-tested.
 

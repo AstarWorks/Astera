@@ -17,7 +17,6 @@ import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.match.MatchId
-import com.astarworks.astera.match.application.gamemode.NormaGameMode
 import com.astarworks.astera.match.application.port.outbound.IGeneratorRegistry
 import com.astarworks.astera.match.application.port.outbound.IGeneratorRepository
 import com.astarworks.astera.match.application.port.outbound.IMatchNormaStore

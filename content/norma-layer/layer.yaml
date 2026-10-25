@@ -1,0 +1,39 @@
+# The Norma layer: a standard layer of EVERY game mode, not a mode of its own (founder 2026-10-26, MODE-15).
+#
+# What the layer is (docs/game-design/stars-and-norma.md): star generators pop stars on the stage, a kill bursts the
+# victim's carried stars, every player climbs Norma levels with ONE goal per level chosen in the picker (carry stars
+# or make kills), and the level-up is presented to the whole match. Everything is dropped at match end.
+#
+# These are the DEFAULTS. A game mode overrides any key in its own `default_config` (content/game-modes/<id>.yaml);
+# the common override is `norma_win: "false"` (levels still count and rank the time limit, but reaching the top does
+# not end the match) or `time_limit_seconds: "0"` (the mode has its own clock). `norma_layer: "false"` takes a mode
+# out of the layer altogether (PvE waves: co-op against mobs, no player-vs-player race).
+# Reload: `/astera reload norma-layer`.
+defaults:
+  # Whether the layer runs in the mode at all.
+  norma_layer: "true"
+
+  # Win rule: reaching norma_max_level wins the match (100% Orange Juice style), alongside the mode's own objective,
+  # whichever happens first. "false" = the mode's own objective is the only win path.
+  norma_win: "true"
+
+  # Time limit (seconds of ACTIVE time); 0 = no limit (the mode brings its own clock). When it runs out the teams
+  # are ranked by: the mode's own objective score (if the mode has one), then the highest Norma level, then the
+  # stars carried, then the kills. Still tied = draw.
+  time_limit_seconds: "600"
+
+  # Norma levels: every player starts at level 1 and clears each level with ONE goal of their choice
+  # (`/astera norma choose star|kill`, STAR by default): carry norma_stars_goal[level] stars (not consumed) or make
+  # norma_kills_goal[level] kills at that level. Lists are indexed by the level being cleared.
+  norma_max_level: "5"
+  norma_stars_goal: "3,5,8,12"
+  norma_kills_goal: "1,2,3,4"
+
+  # Share of a victim's carried stars that bursts out on death (floor(carried * ratio)); 0..1.
+  death_drop_ratio: "1.0"
+
+  # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability
+  # (ends on attack).
+  respawn_delay_seconds: "5"
+  death_cam_seconds: "2"
+  spawn_protection_seconds: "3"

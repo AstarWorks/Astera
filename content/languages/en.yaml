@@ -138,7 +138,7 @@ astera:
     confirm:
       required: "<yellow>This cannot be undone. <click:run_command:'{command}'><hover:show_text:'{command}'><green>[Click to confirm]</green></hover></click> <gray>or run {command}</gray></yellow>"
     example:
-      queue-join: "/astera queue join norma   (or just /play norma)"
+      queue-join: "/astera queue join skirmish   (or just /play skirmish)"
       lang: "/astera lang ja"
       volume: "/astera volume music 50"
       shop: "/astera shop"
@@ -180,7 +180,7 @@ astera:
       travel-survival: "Go to your survival island"
       travel-lobby: "Return to the lobby"
       queue: "Matchmaking queue"
-      queue-join: "Join a queue lane (norma, custom:<mode>)"
+      queue-join: "Join a queue lane (skirmish, annihilation, ... or custom:<mode>)"
       queue-leave: "Leave the queue"
       queue-status: "Show your queue position"
       norma: "Norma levels"
@@ -518,8 +518,8 @@ astera:
         tooltip: "<gray>Cycle the control scheme.</gray>"
     queue-mode-list:
       title: "<gold>Match Queue</gold>"
-      norma:
-        tooltip: "<gray>Click to join the Norma rotation queue.</gray>"
+      skirmish:
+        tooltip: "<gray>Click to join the Skirmish queue.</gray>"
 
 
   # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
@@ -796,7 +796,7 @@ astera:
         star: "<yellow>Time up - default goal: <gold>★ carry {goal}</gold></yellow>"
         kill: "<yellow>Time up - goal stays: <red>⚔ {goal} kills</red></yellow>"
       chosen: "<green>Norma goal: <gold>{goal}</gold>.</green>"
-      not-in-match: "<red>Norma levels exist only inside a Norma match.</red>"
+      not-in-match: "<red>Norma levels exist only inside a PvP match (not in PvE waves).</red>"
       max-level: "<yellow>You are at the top Norma level.</yellow>"
       gui:
         title: "<gold>Norma goal</gold> <gray>- pick one</gray>"
@@ -846,7 +846,7 @@ astera:
       "replay.not-found": "<red>No replay stored for match {match}.</red>"
       "replay.export-failed": "<red>Replay export failed for {match}: {reason}</red>"
       queue: "<gray>Join or leave the match queue.</gray>"
-      "queue.join": "<gray>Join the queue: norma | custom:MODE.</gray>"
+      "queue.join": "<gray>Join the queue: LANE (skirmish, annihilation, ...) | custom:MODE.</gray>"
       "queue.leave": "<gray>Leave the match queue.</gray>"
       "queue.status": "<gray>Show your queue position.</gray>"
       # Wave 5complete (ADR-0117 §Axis 3) — flat admin sub-commands.
@@ -886,7 +886,7 @@ astera:
         sudden-death: "<gray>Resolved in sudden death.</gray>"
         objective: "<gray>Ended by objective completion.</gray>"
         norma-time-limit: "<gray>Time limit reached:</gray> <{color}><bold>{team}</bold></{color}> <gray>was ahead.</gray>"
-        norma-time-draw: "<gray>Time limit reached with Norma level, stars and kills all tied.</gray>"
+        norma-time-draw: "<gray>Time limit reached with the objective, Norma level, stars and kills all tied.</gray>"
         norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>reached Norma level {level} and won.</gray>"
         cancelled: "<gray>Match was cancelled.</gray>"
         world-unloaded: "<gray>The match world was unloaded.</gray>"
@@ -1102,8 +1102,8 @@ astera:
       score: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
       battle-loyal:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>kills</gray>"
-      norma:
-        goal: "<gold>Norma:</gold> <gray>reach level</gray> <white>{max}</white> <gray>to win</gray>"
+      skirmish:
+        goal: "<gold>Skirmish:</gold> <gray>reach Norma level</gray> <white>{max}</white> <gray>to win</gray>"
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white> <gray>kills</gray>"
       annihilation:
         team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
@@ -1409,9 +1409,9 @@ astera:
   # tunables for the Wave 5c sealed `GameMode` carriers); these describe the
   # framework-level mode the entire match runs under.
   gamemode:
-    norma:
-      title: "<gold>Norma</gold>"
-      description: "<gray>Control objectives + Star Generator + Sudden Death.</gray>"
+    skirmish:
+      title: "<gold>Skirmish</gold>"
+      description: "<gray>Team deathmatch. Stars and Norma levels decide it: reach the top Norma level first.</gray>"
     # Wave 5annihilation (ADR-0108) — Astera Annihilation mode (3-pillar Nexus
     # hybrid). Astera's core-identity game mode: 銃/剣/魔法 hybrid combat +
     # graceful-degradation defensive Nexus.
@@ -2319,7 +2319,7 @@ astera:
   play.picker.leave.lane: "<gray>You are waiting for <white>{lane}</white></gray>"
   play.lane.generic.name: "<gold>{lane}</gold>"
   play.lane.generic.desc: "<gray>Team match on its own arena.</gray>"
-  play.lane.norma.desc: "<gray>Classic 2-team skirmish. Score the most kills.</gray>"
+  play.lane.skirmish.desc: "<gray>Classic 2-team skirmish. Collect stars, level up your Norma, reach the top first.</gray>"
   play.lane.annihilation.desc: "<gray>3 teams, 3 pillars each. Break the enemy Nexus.</gray>"
   play.lane.break-core.desc: "<gray>Destroy the enemy core, defend your own.</gray>"
   play.lane.carry-tnt.desc: "<gray>Carry TNT across the map to the enemy base.</gray>"

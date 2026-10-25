@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory
  *  - `lobby.queue.bots` - same, then asks the bot runner to fill the lane ([BotMatchRequester]).
  *  - `lobby.queue.leave` - takes the player out of their queue.
  *
- * `lobby.queue.join` still accepts the old `modeKey` payload (`norma` | `custom:<id>`).
+ * `lobby.queue.join` still accepts the old `modeKey` payload (`custom:<id>`).
  *
  * Per the longest-prefix-wins rule of [com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter]
  * the prefix `"lobby.queue."` is claimed by this handler; other plugins MUST NOT shadow it.

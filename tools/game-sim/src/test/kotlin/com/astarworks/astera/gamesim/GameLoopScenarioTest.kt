@@ -44,7 +44,7 @@ class GameLoopScenarioTest {
         scenario("game-loop-solo-queue") {
             val solo = player("solo")
             val matchmaker = sim.services.getOrThrow<IMatchmaker>()
-            matchmaker.enqueue(solo.id, MatchmakingMode.Norma)
+            matchmaker.enqueue(solo.id, MatchmakingMode.SKIRMISH)
 
             // Well past the queue countdown (10 s) and several scheduler passes.
             advance(20 * 30)
@@ -57,7 +57,7 @@ class GameLoopScenarioTest {
 
             // A second player on the other side starts it.
             val rival = player("rival")
-            matchmaker.enqueue(rival.id, MatchmakingMode.Norma)
+            matchmaker.enqueue(rival.id, MatchmakingMode.SKIRMISH)
             assertThat(advanceUntil(20 * 40) { eventsOf<MatchStarted>().isNotEmpty() }).isTrue()
             val match = sim.services.getOrThrow<IMatchRepository>().findActiveMatches().single()
             assertThat(match.teams.map { it.members.size }).`as`("one player per side").containsExactly(1, 1)
@@ -104,12 +104,12 @@ class GameLoopScenarioTest {
         try {
             val admin = lobby.spawnPlayer("admin")
             check(lobby.services.getOrThrow<IPermissionService>().assign(admin.id, RoleId("admin")) is Result.Success)
-            lobby.services.getOrThrow<IMatchmaker>().enqueue(admin.id, MatchmakingMode.Norma)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(admin.id, MatchmakingMode.SKIRMISH)
             network.step(40)
             assertThat(game.eventsOf<MatchStarted>()).`as`("queue alone does not start the PvP lane").isEmpty()
 
             val view = checkNotNull(lobby.server.view(admin.id))
-            lobby.services.getOrThrow<IGuiIntentRouter>().dispatch(view, GuiIntent("admin.match.lane-force", mapOf("lane" to "norma")))
+            lobby.services.getOrThrow<IGuiIntentRouter>().dispatch(view, GuiIntent("admin.match.lane-force", mapOf("lane" to "skirmish")))
 
             assertThat(arrived(network, game, admin.id, 400)).`as`("forced assignment reaches the game server").isTrue()
             network.step(5)
@@ -141,8 +141,8 @@ class GameLoopScenarioTest {
             val red = lobby.spawnPlayer("red")
             val blue = lobby.spawnPlayer("blue")
             val matchmaker = lobby.services.getOrThrow<IMatchmaker>()
-            matchmaker.enqueue(red.id, MatchmakingMode.Norma)
-            matchmaker.enqueue(blue.id, MatchmakingMode.Norma)
+            matchmaker.enqueue(red.id, MatchmakingMode.SKIRMISH)
+            matchmaker.enqueue(blue.id, MatchmakingMode.SKIRMISH)
             assertThat(arrived(network, game, red.id, 800)).isTrue()
             assertThat(arrived(network, game, blue.id, 200)).isTrue()
             network.step(5)
@@ -185,8 +185,8 @@ class GameLoopScenarioTest {
             val red = lobby.spawnPlayer("red")
             val blue = lobby.spawnPlayer("blue")
             val matchmaker = lobby.services.getOrThrow<IMatchmaker>()
-            matchmaker.enqueue(red.id, MatchmakingMode.Norma)
-            matchmaker.enqueue(blue.id, MatchmakingMode.Norma)
+            matchmaker.enqueue(red.id, MatchmakingMode.SKIRMISH)
+            matchmaker.enqueue(blue.id, MatchmakingMode.SKIRMISH)
             assertThat(arrived(network, game, red.id, 800)).isTrue()
             assertThat(arrived(network, game, blue.id, 200)).isTrue()
             network.step(5)

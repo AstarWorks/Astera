@@ -67,7 +67,7 @@ class ProgressionLoopScenarioTest {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
             advance(110)
-            val matchId = startMatch("norma", mapOf(red to "red", blue to "blue"))
+            val matchId = startMatch("skirmish", mapOf(red to "red", blue to "blue"))
             val bus = sim.services.getOrThrow<IDomainEventBus>()
 
             repeat(5) { bus.publish(PlayerKilled(blue.id, red.id, DamageSource.Environment.Fall(1.0), 1L)) }

@@ -50,6 +50,14 @@ layout:
     - { from: flank-blue-yellow, to: yellow, width: 3 }
     - { from: yellow, to: flank-yellow-red, width: 3 }
     - { from: flank-yellow-red, to: red, width: 3 }
+  # Star generator pedestals (MODE-15: the Norma layer runs in every mode, so every stage carries star generators;
+  # content/generators/annihilation-*.yaml stand on these).
+  landmarks:
+    - { kind: generator, x: 14, z: -300 }
+    - { kind: generator, x: -14, z: -300 }
+    - { kind: generator, x: 68, z: -335 }
+    - { kind: generator, x: -68, z: -335 }
+    - { kind: generator, x: 6, z: -222 }
 
 regions:
   - name: full-arena

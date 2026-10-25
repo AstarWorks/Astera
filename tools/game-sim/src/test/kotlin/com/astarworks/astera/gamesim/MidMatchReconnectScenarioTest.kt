@@ -70,8 +70,8 @@ class MidMatchReconnectScenarioTest {
     /** Queues two players on the lobby and plays until the hosted match is ACTIVE on the game server. */
     private fun activeMatch(split: Split, red: PlayerId, blue: PlayerId): MatchId {
         val matchmaker = split.lobby.services.getOrThrow<IMatchmaker>()
-        matchmaker.enqueue(red, MatchmakingMode.Norma)
-        matchmaker.enqueue(blue, MatchmakingMode.Norma)
+        matchmaker.enqueue(red, MatchmakingMode.SKIRMISH)
+        matchmaker.enqueue(blue, MatchmakingMode.SKIRMISH)
         assertThat(arrived(split.network, split.game, red, 800)).isTrue()
         assertThat(arrived(split.network, split.game, blue, 200)).isTrue()
         split.network.step(5)
@@ -173,7 +173,7 @@ class MidMatchReconnectScenarioTest {
         scenario("reconnect-single-server", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
-            val matchId = startMatch("norma", mapOf(red to "red", blue to "blue"))
+            val matchId = startMatch("skirmish", mapOf(red to "red", blue to "blue"))
             val sessions = sim.services.getOrThrow<IPlayerSessionRepository>()
             val protection = sim.services.getOrThrow<ISpawnProtectionGateway>()
 
@@ -200,7 +200,7 @@ class MidMatchReconnectScenarioTest {
         scenario("norma-goal-and-reason", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
-            val matchId = startMatch("norma", mapOf(red to "red", blue to "blue"))
+            val matchId = startMatch("skirmish", mapOf(red to "red", blue to "blue"))
             advance(25)
 
             val lines = sim.hud.sidebarText(red.id)
@@ -245,7 +245,7 @@ class MidMatchReconnectScenarioTest {
         scenario("spawn-protection-enforced", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
-            startMatch("norma", mapOf(red to "red", blue to "blue"))
+            startMatch("skirmish", mapOf(red to "red", blue to "blue"))
             val damage = checkNotNull(sim.combat.applyDamage)
             val protection = sim.services.getOrThrow<ISpawnProtectionGateway>()
             val before = hp(blue)
@@ -266,7 +266,7 @@ class MidMatchReconnectScenarioTest {
         scenario("spawn-protection-after-respawn", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
-            startMatch("norma", mapOf(red to "red", blue to "blue"))
+            startMatch("skirmish", mapOf(red to "red", blue to "blue"))
             val damage = checkNotNull(sim.combat.applyDamage)
 
             sim.services.getOrThrow<IDomainEventBus>()

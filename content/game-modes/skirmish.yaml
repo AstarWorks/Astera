@@ -1,0 +1,12 @@
+# Skirmish: plain team deathmatch on any stage. It has no objective of its own: the Norma layer (stars, kill bursts,
+# Norma levels; content/norma-layer/layer.yaml) is its only win path, so the first team with a member at
+# norma_max_level wins, and the time limit ranks by Norma level, stars carried, kills (MODE-15: Norma is a layer of
+# every game mode, not a mode; this one just has nothing else on top of it).
+id: skirmish
+title_key: astera.gamemode.skirmish.title
+impl_class: com.astarworks.astera.match.application.gamemode.SkirmishGameMode
+tick_period_ticks: 20
+default_config:
+  # Weapon restriction (RTM-style MAIN + SUB): at most 1 weapon per family (gun / sword / staff) and 2 weapons in
+  # total. Extra weapons are set aside on match entry (restored at match end) and further pickups are refused.
+  weapon_limits: "gun:1,sword:1,staff:1,total:2"

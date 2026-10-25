@@ -1,5 +1,5 @@
 # Norma arena (2 teams, red vs blue): a floating sky-island arena the server builds itself (ADR-0246; scaled up
-# per the founder's playtest). Used by the `norma` lane of content/matchmaking/queue.yaml and the star generators content/generators/arena-*.yaml.
+# per the founder's playtest). Used by the `skirmish` lane of content/matchmaking/queue.yaml and the star generators content/generators/arena-*.yaml.
 #
 #                       north island (0,-62)  [generator]
 #                      /          |          \

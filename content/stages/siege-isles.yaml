@@ -54,6 +54,13 @@ layout:
     - { from: north, to: blue, width: 3 }
     - { from: red, to: south, width: 3 }
     - { from: south, to: blue, width: 3 }
+  # Star generator pedestals (MODE-15: the Norma layer runs in every mode, so every stage carries star generators;
+  # content/generators/siege-*.yaml stand on these).
+  landmarks:
+    - { kind: generator, x: 12, z: 300 }
+    - { kind: generator, x: -12, z: 300 }
+    - { kind: generator, x: 8, z: 244 }
+    - { kind: generator, x: 8, z: 356 }
 
 regions:
   - name: full-arena

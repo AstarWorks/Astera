@@ -253,12 +253,11 @@ public class InMemoryMatchmaker(
     /**
      * Stable, hashable representation of [MatchmakingMode] so it can be a
      * map key. Mirrors the wire format event subscribers parse:
-     * `Norma | Custom(<id>) | Tournament(<id>)`.
+     * `Custom(<id>) | Tournament(<id>)`.
      */
     private data class ModeKey(val wire: String) {
         companion object {
             fun of(mode: MatchmakingMode): ModeKey = when (mode) {
-                is MatchmakingMode.Norma -> ModeKey("Norma")
                 is MatchmakingMode.Custom -> ModeKey("Custom(${mode.adminConfigured.value})")
                 is MatchmakingMode.Tournament -> ModeKey("Tournament(${mode.tournamentMatchId})")
             }

@@ -19,7 +19,7 @@ import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.event.PlayerReturnedToLobby
 import com.astarworks.astera.core.domain.match.MatchId
-import com.astarworks.astera.match.application.gamemode.NormaGameMode
+import com.astarworks.astera.match.application.gamemode.SkirmishGameMode
 import com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.application.service.hud.LobbySidebarService
@@ -58,7 +58,7 @@ internal object MatchHudWiring {
         val modeOf: (MatchId) -> IGameMode? = { id ->
             val key = env.matchModeRegistry.modeKeyOf(id)?.takeIf { it.isNotBlank() }
                 ?.let { runCatching { GameModeId(it) }.getOrNull() }
-            modes?.let { registry -> (key?.let(registry::get)) ?: registry.get(NormaGameMode.ID) }
+            modes?.let { registry -> (key?.let(registry::get)) ?: registry.get(SkirmishGameMode.ID) }
         }
 
         val matchSidebar = MatchSidebarService(

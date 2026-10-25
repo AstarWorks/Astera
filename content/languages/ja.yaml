@@ -146,7 +146,7 @@ astera:
     confirm:
       required: "<yellow>この操作は取り消せません。<click:run_command:'{command}'><hover:show_text:'{command}'><green>[クリックで実行]</green></hover></click> <gray>または {command} を実行</gray></yellow>"
     example:
-      queue-join: "/astera queue join norma （/play norma でも可）"
+      queue-join: "/astera queue join skirmish （/play skirmish でも可）"
       lang: "/astera lang ja"
       volume: "/astera volume music 50"
       shop: "/astera shop"
@@ -188,7 +188,7 @@ astera:
       travel-survival: "サバイバル島へ移動"
       travel-lobby: "ロビーへ戻る"
       queue: "マッチメイキングキュー"
-      queue-join: "キューのレーンに参加（norma / custom:<モード>）"
+      queue-join: "キューのレーンに参加（skirmish / annihilation など / custom:<モード>）"
       queue-leave: "キューから抜ける"
       queue-status: "キューの待ち順を表示"
       norma: "ノルマレベル"
@@ -526,8 +526,8 @@ astera:
         tooltip: "<gray>操作スキームを切り替え。</gray>"
     queue-mode-list:
       title: "<gold>マッチキュー</gold>"
-      norma:
-        tooltip: "<gray>クリックで Norma ローテーションキューに参加。</gray>"
+      skirmish:
+        tooltip: "<gray>クリックでスカーミッシュのキューに参加。</gray>"
 
 
   # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
@@ -803,7 +803,7 @@ astera:
         star: "<yellow>時間切れ - 初期目標：<gold>★ {goal}個持つ</gold></yellow>"
         kill: "<yellow>時間切れ - 目標はそのまま：<red>⚔ {goal}キル</red></yellow>"
       chosen: "<green>ノルマ目標：<gold>{goal}</gold></green>"
-      not-in-match: "<red>ノルマレベルはノルマ戦の中だけです。</red>"
+      not-in-match: "<red>ノルマレベルは対人戦の中だけです（PvE ウェーブでは使えません）。</red>"
       max-level: "<yellow>最高ノルマレベルです。</yellow>"
       gui:
         title: "<gold>ノルマ目標</gold> <gray>- どちらか選択</gray>"
@@ -853,7 +853,7 @@ astera:
       "replay.not-found": "<red>マッチ {match} の録画は保存されていません。</red>"
       "replay.export-failed": "<red>マッチ {match} の書き出しに失敗: {reason}</red>"
       queue: "<gray>マッチキューに参加／離脱します。</gray>"
-      "queue.join": "<gray>キュー参加: norma | custom:MODE。</gray>"
+      "queue.join": "<gray>キュー参加: レーン（skirmish, annihilation など） | custom:MODE。</gray>"
       "queue.leave": "<gray>マッチキューを離脱します。</gray>"
       "queue.status": "<gray>キューの順番を表示します。</gray>"
       # Wave 5complete (ADR-0117 §Axis 3) — フラット管理サブコマンド。
@@ -893,7 +893,7 @@ astera:
         sudden-death: "<gray>サドンデスで決着。</gray>"
         objective: "<gray>目標達成により終了。</gray>"
         norma-time-limit: "<gray>制限時間終了:</gray> <{color}><bold>{team}</bold></{color}> <gray>がリードしていました。</gray>"
-        norma-time-draw: "<gray>制限時間終了。ノルマレベル・スター・キルがすべて同点です。</gray>"
+        norma-time-draw: "<gray>制限時間終了。目標・ノルマレベル・スター・キルがすべて同点です。</gray>"
         norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>がノルマレベル{level}に到達して勝利しました。</gray>"
         cancelled: "<gray>マッチがキャンセルされました。</gray>"
         world-unloaded: "<gray>マッチのワールドがアンロードされました。</gray>"
@@ -1108,8 +1108,8 @@ astera:
       score: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
       battle-loyal:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>キル</gray>"
-      norma:
-        goal: "<gold>ノルマ:</gold> <gray>レベル</gray><white>{max}</white> <gray>到達で勝利</gray>"
+      skirmish:
+        goal: "<gold>スカーミッシュ:</gold> <gray>ノルマレベル</gray><white>{max}</white> <gray>到達で勝利</gray>"
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white> <gray>キル</gray>"
       annihilation:
         team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
@@ -1406,9 +1406,9 @@ astera:
   # `match.mode.*` (各モード設定の表示文字列) とは別系統で、マッチ全体が
   # どのフレームワークモードで走っているかを示す。
   gamemode:
-    norma:
-      title: "<gold>ノルマ</gold>"
-      description: "<gray>制圧目標 + スターゲネレーター + サドンデス。</gray>"
+    skirmish:
+      title: "<gold>スカーミッシュ</gold>"
+      description: "<gray>チーム戦。スターとノルマレベルで決まる: 先にノルマの最上位レベルへ。</gray>"
     # Wave 5annihilation (ADR-0108) — Astera Annihilation モード (3-pillar Nexus
     # ハイブリッド)。Astera のコアアイデンティティ: 銃/剣/魔法 ハイブリッド戦闘 +
     # 段階的防御 Nexus。
@@ -2307,7 +2307,7 @@ astera:
   play.picker.leave.lane: "<gray><white>{lane}</white> を待機中</gray>"
   play.lane.generic.name: "<gold>{lane}</gold>"
   play.lane.generic.desc: "<gray>専用アリーナのチーム戦。</gray>"
-  play.lane.norma.desc: "<gray>基本の2チーム戦。キル数で勝負。</gray>"
+  play.lane.skirmish.desc: "<gray>基本の2チーム戦。スターを集めてノルマを上げ、先に最上位へ。</gray>"
   play.lane.annihilation.desc: "<gray>3チーム・各3本の柱。敵のネクサスを破壊せよ。</gray>"
   play.lane.break-core.desc: "<gray>敵のコアを壊し、自陣のコアを守る。</gray>"
   play.lane.carry-tnt.desc: "<gray>TNTを運んで敵基地へ届ける。</gray>"

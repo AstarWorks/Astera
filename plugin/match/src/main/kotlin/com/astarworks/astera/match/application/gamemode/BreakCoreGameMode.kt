@@ -56,6 +56,9 @@ public class BreakCoreGameMode @JvmOverloads constructor(
         if (alive.size <= 1) win(run, alive.singleOrNull())
     }
 
+    /** Alive beats eliminated at the time limit. */
+    override fun standing(run: Run, match: Match, team: TeamId): Int = if (team in run.eliminated) 0 else 1
+
     override fun hudLines(run: Run, match: Match): List<HudLine> = match.teams.map { team ->
         HudLine(
             key = MessageKey(if (team.id in run.eliminated) "astera.hud.sidebar.break-core.destroyed" else "astera.hud.sidebar.break-core.intact"),

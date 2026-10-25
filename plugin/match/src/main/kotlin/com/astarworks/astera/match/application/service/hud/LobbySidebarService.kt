@@ -194,7 +194,6 @@ public class LobbySidebarService(
 
     private fun modeLabel(viewer: PlayerId, mode: MatchmakingMode): String {
         val id = when (mode) {
-            is MatchmakingMode.Norma -> "norma"
             is MatchmakingMode.Custom -> mode.adminConfigured.value
             is MatchmakingMode.Tournament -> return "Tournament"
         }

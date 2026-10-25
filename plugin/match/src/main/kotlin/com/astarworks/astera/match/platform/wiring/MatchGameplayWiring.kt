@@ -128,7 +128,7 @@ internal object MatchGameplayWiring {
         }
         val planFor: (com.astarworks.astera.match.domain.matchmaking.MatchmakingMode) -> com.astarworks.astera.match.application.usecase.matchmaking.MatchPlan = { mode ->
             val lane = env.queueSettings.current().laneFor(mode)
-                ?: com.astarworks.astera.match.domain.matchmaking.QueueSettings.DEFAULT.lanes.getValue("norma")
+                ?: com.astarworks.astera.match.domain.matchmaking.QueueSettings.DEFAULT.lanes.getValue(com.astarworks.astera.match.domain.matchmaking.QueueLane.DEFAULT_KEY)
             com.astarworks.astera.match.application.usecase.matchmaking.MatchPlan(lane.stage, lane.modeKey)
         }
         val crossServer = com.astarworks.astera.match.application.service.matchmaking.CrossServerSettings.from(System.getenv())
@@ -422,16 +422,24 @@ internal object MatchGameplayWiring {
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,
         ) { killfeedListener.handle(it) }
 
-        // A Norma match is won by reaching the top Norma level (NormaLevelService). This listener ends the match after `time_limit_seconds` of ACTIVE time
-        // (content/game-modes/norma.yaml): highest Norma level, then stars carried, then kills (counted by NormaLevelService); still tied is a draw.
+        // The Norma layer (every game mode, MODE-15): reaching the top Norma level wins when `norma_win` is on (NormaLevelService), next to
+        // the mode's own objective. This listener ends the match after `time_limit_seconds` of ACTIVE time (content/norma-layer/layer.yaml,
+        // 0 = none): the mode's own objective standing first, then highest Norma level, then stars carried, then kills; still tied is a draw.
+        val frameworkModes = services.get<com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry>()
         val normaKills = com.astarworks.astera.match.application.eventbus.listeners.victory.NormaTimeLimitListener(
             matches = matches,
             lifecycle = env.facade,
             isNorma = env.normaLayerOf,
-            timeLimitTicks = { id -> (env.modeConfigOf(id)["time_limit_seconds"]?.toLongOrNull()?.takeIf { it > 0 } ?: 600L) * 20L },
+            timeLimitTicks = { id -> (env.modeConfigOf(id)["time_limit_seconds"]?.toLongOrNull()?.takeIf { it >= 0 } ?: 600L) * 20L },
             now = { scheduler.currentTick() },
+            objectiveOf = { match, team ->
+                val key = env.matchModeRegistry.modeKeyOf(match.id)?.takeIf { it.isNotBlank() }
+                    ?.let { runCatching { com.astarworks.astera.match.domain.mode.GameModeId(it) }.getOrNull() }
+                key?.let { frameworkModes?.get(it) }?.objectiveStanding(match, team)
+            },
             levelOf = { match, team -> matchStars.norma.topLevel(match, team) },
             starsOf = { match, team -> matchStars.norma.carried(match, team) },
+            killsOf = { match, team -> matchStars.norma.kills(match, team) },
         )
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.match.domain.event.PhaseChanged::class,

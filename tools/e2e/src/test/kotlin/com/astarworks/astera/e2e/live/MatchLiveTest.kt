@@ -6,7 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * `make live-bots SCENARIO=match`: the whole loop on the live stack. Two forwarded bots queue `norma` on the lobby, the
+ * `make live-bots SCENARIO=match`: the whole loop on the live stack. Two forwarded bots queue `skirmish` on the lobby, the
  * queue hands them to the game backend (the bots emulate Velocity's `Connect` hop), a match runs, bot A kills bot B,
  * B respawns, an admin (RCON console) ends the match and both return to the lobby with the reward message.
  *
@@ -17,7 +17,7 @@ class MatchLiveTest : LiveBase() {
     private val suite = "Live match"
 
     @Test
-    fun `queue norma - play - kill - respawn - end - back to lobby`() {
+    fun `queue skirmish - play - kill - respawn - end - back to lobby`() {
         val gameMark = LogMark("game")
         val lobbyMark = LogMark("lobby")
         val before = matchLines()
