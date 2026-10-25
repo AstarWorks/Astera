@@ -107,9 +107,12 @@ internal class CorePaperBindings(
     private var lobbyLaneHolograms: com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyLaneHolograms? = null
     private var playGateHologram: com.astarworks.astera.core.adapter.paper.lobby.PaperPlayGateHologram? = null
 
+    /** Retained so players' action-bar messages are composed with the HP status line. */
+    private var paperHudGateway: com.astarworks.astera.core.application.port.outbound.IHudGateway? = null
+
     fun buildPorts(): CorePlatformPorts {
         // ---- Vendor-neutral abstraction over Paper -----------------------
-        val mcServer: IMcServer = PaperServer(server) { messageRenderer?.invoke() }
+        val mcServer: IMcServer = PaperServer(server, { messageRenderer?.invoke() }, { paperHudGateway })
         this.mcServer = mcServer
         val ps = PaperScheduler(plugin)
         ps.start()
@@ -170,7 +173,7 @@ internal class CorePaperBindings(
                     scheduler = scheduler,
                     scoreboardManager = services.getOrThrow<com.astarworks.astera.core.adapter.api.hud.IScoreboardManager>(),
                     eventBus = services.getOrThrow<IDomainEventBus>(),
-                )
+                ).also { paperHudGateway = it }
             },
             worldGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.world.PaperWorldGateway(
