@@ -41,7 +41,7 @@ rootProject.name = "astera"
 
 // Multi-plugin portable architecture (ADR-0022).
 // Only :plugin:* runtime modules produce Paper plugin jars via Shadow.
-// Kernel and core feature libraries are bundled into Astera-Core (ADR-0252).
+// Kernel and core feature libraries are bundled into Astera-Core (ADR-0265).
 // Plugin-to-plugin coordination happens through Core's ServiceRegistry +
 // the central IDomainEventBus. See docs/adr/0022-* for the rationale.
 include(

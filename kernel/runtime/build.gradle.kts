@@ -1,4 +1,4 @@
-// Bundled into Astera-Core; this library does not declare a Paper plugin (ADR-0252).
+// Bundled into Astera-Core; this library does not declare a Paper plugin (ADR-0265).
 plugins {
     id("astera.kotlin-common")
     alias(libs.plugins.kotlin.serialization)

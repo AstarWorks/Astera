@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0252: Split Core into kernel and feature libraries
+# ADR-0265: Split Core into kernel and feature libraries
 
 ## Status
 
@@ -18,6 +18,8 @@ Folia migration task T1 needs smaller compilation and ownership boundaries befor
 independent feature distribution. Core contains 1,422 main Kotlin files. This
 step must preserve packages, source bodies, the seven shipped plugin jars,
 plugin descriptors, ServiceRegistry wiring, and runtime behavior.
+
+Implements the first step of [[adr/0258-independent-jar-graph-and-skills-bundle]] (module carve, still shaded into the Astera-Core jar).
 
 ## Decision
 

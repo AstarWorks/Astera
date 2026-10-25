@@ -1,4 +1,4 @@
-// Astera-Core remains the single runtime owner of kernel and core feature libraries (ADR-0252).
+// Astera-Core remains the single runtime owner of kernel and core feature libraries (ADR-0265).
 plugins {
     id("astera.kotlin-paper")
     alias(libs.plugins.shadow)

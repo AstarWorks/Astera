@@ -121,4 +121,4 @@ identity, descriptor identity, and jar class ownership. Kotlin module metadata
 and internal method mangling can differ after separate compilation; byte-identical
 jars are not claimed. Independent feature distribution remains future work.
 
-See [ADR-0252](../adr/0252-core-kernel-and-feature-library-split.md).
+See [ADR-0265](../adr/0265-core-kernel-and-feature-library-split.md).
