@@ -1,5 +1,5 @@
 # S1 sword: ONE rig (one set of sword displays) for the whole skill: hold -> swing 1 -> hold -> swing 2 -> hold. No hand-over, no duplicate sword.
-# Play at skill tick 0 with follow: true (rides the caster through the dashes), duration 58 (rig visible through tick 57; hide_held_item 57 ticks with NO delay: the runtime stages the rig spawn (view_range 0 until age 1) and hides the held item in the same tick, 78dfd0f4),
+# Play at skill tick 0 with follow: true (rides the caster through the dashes), duration 58 (ADR-0254: the performance claims the hand lease itself; no hide_held_item step; the rig spawns staged, view_range 0 until age 1, and is revealed in the lease bundle),
 # play_vfx freeze: [{ at: 7, ticks: 2 }, { at: 31, ticks: 2 }]  (effect ticks; the hit_stop of both contacts; r23: hit 1 contact moved 8 -> 7 = the reference t7).
 # Rig key time l is displayed at effect tick l + 1 (+ frozen ticks before it); the real client shows it ~1-2 ticks later (r6/r8). Hit 1 contact = key 6, displayed at effect tick 7.
 # r23 (reviewer r22: wind-up coil missing, hit 1 late; director r22: opponent start pop): hit 1 re-keyed, keys 0-6 new, old keys 8-20 -> 7-19, key 20 = an extra REST hold
@@ -71,7 +71,7 @@
 # Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt (keys 0-6 and 40-52 changed in r8: evidence/animator/r8/per-key-r8.txt; keys 0-20 in r9: evidence/animator/r9/per-key-r9.txt). r10: keys 2-18 in evidence/animator/r10/per-key-r10.txt. r11: keys 39-52 + 3-axis check vs the held item in evidence/animator/r11/per-key-r11.txt.
 # Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
 # Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
-# Parts: verbatim deliver/rig-parts.yaml (22 parts; r11 regenerated from the held model: stepped guard, plate + inset, rivets, collar + flares, kelp grip, pommel gold; cast cap 60 = rig 22 + fx 9 + particles 29). Face normal = local Z, edges = +-X, blade = +Y. fx / sprites live in bastion-s1-fx-high/low.yaml.
+# Parts (RETIRED by ADR-0254, now one weapon display; history): verbatim deliver/rig-parts.yaml (22 parts; r11 regenerated from the held model: stepped guard, plate + inset, rivets, collar + flares, kelp grip, pommel gold; cast cap 60 = rig 22 + fx 9 + particles 29). Face normal = local Z, edges = +-X, blade = +Y. fx / sprites live in bastion-s1-fx-high/low.yaml.
 
 id: bastion-s1-rig
 duration_ticks: 58
@@ -87,29 +87,12 @@ rigs:
   rest: [0, 90, 0]
   tilt: [0, 0, -20]
   respect_hit_stop: true
-  parts:
-  - { id: blade_face, block: iron_block, offset: [0.0, 1.38125, 0.0], size: [0.16875, 1.8875, 0.05] }
-  - { id: edges, block: smooth_quartz, offset: [0.0, 1.31625, 0.0], size: [0.2125, 1.7575, 0.0425] }
-  - { id: rims, block: polished_blackstone, offset: [0.0, 1.31625, 0.0], size: [0.24, 1.7575, 0.03] }
-  - { id: fuller, block: polished_deepslate, offset: [0.0, 1.4375, 0.0], size: [0.0275, 1.425, 0.06625] }
-  - { id: tip_1, block: polished_blackstone, offset: [0.0, 1.38625, 0.0], size: [0.2, 1.8975, 0.03] }
-  - { id: tip_2, block: polished_blackstone, offset: [0.0, 1.49125, 0.0], size: [0.08, 2.1075, 0.0375] }
-  - { id: inlay, block: lime_concrete, offset: [0.0, 0.6, 0.0], size: [0.09, 0.2, 0.07] }
-  - { id: inlay_frame, block: gold_block, offset: [0.0, 0.6, 0.0], size: [0.1125, 0.225, 0.0625] }
-  - { id: ricasso, block: polished_blackstone, offset: [0.0, 0.40187, 0.0], size: [0.24, 0.07125, 0.065] }
-  - { id: collar, block: gold_block, offset: [0.0, 0.35562, 0.0], size: [0.26875, 0.02125, 0.0875] }
-  - { id: flares, block: gold_block, offset: [0.0, 0.40813, 0.0], size: [0.35, 0.08375, 0.04625] }
-  - { id: guard_1, block: polished_deepslate, offset: [0.0, 0.285, 0.0], size: [0.2875, 0.12, 0.11875] }
-  - { id: guard_2, block: polished_deepslate, offset: [0.0, 0.285, 0.0], size: [0.4625, 0.1, 0.1] }
-  - { id: guard_3, block: polished_deepslate, offset: [0.0, 0.285, 0.0], size: [0.575, 0.07625, 0.08125] }
-  - { id: guard_caps, block: gold_block, offset: [0.0, 0.29375, 0.0], size: [0.62, 0.1, 0.075] }
-  - { id: guard_plate, block: gold_block, offset: [0.0, 0.285, 0.0], size: [0.2125, 0.0825, 0.13125] }
-  - { id: guard_inset, block: polished_blackstone, offset: [0.0, 0.285, 0.0], size: [0.11875, 0.045, 0.14] }
-  - { id: guard_rivets, block: smooth_quartz, offset: [0.0, 0.27938, 0.0], size: [0.34, 0.0275, 0.1125] }
-  - { id: grip, block: dried_kelp_block, offset: [0.0, 0.05625, 0.0], size: [0.1125, 0.2625, 0.1125] }
-  - { id: grip_collar, block: gold_block, offset: [0.0, 0.20625, 0.0], size: [0.125, 0.0375, 0.125] }
-  - { id: pommel, block: polished_blackstone, offset: [0.0, -0.14687, 0.0], size: [0.15625, 0.09375, 0.14375] }
-  - { id: pommel_gold, block: gold_block, offset: [0.0, -0.15, 0.0], size: [0.125, 0.15, 0.125] }
+  # ADR-0254: ONE ItemDisplay of the caster's real main-hand stack replaces the 22-part block rig (parts deleted, no shim).
+  # Key 0 is the vanilla held pose; the swing keys below are rotations away from it about the fist pivot (unchanged numbers).
+  weapon: main_hand
+  weapon_tip: [0.0, 2.55, 0.0]   # blade tip, rig-local (plan dump / skill-lint only)
+  weapon_root: [0.0, 0.345, 0.0]  # top of the guard (fx path tooling)
+  weapon_edge: [1.0, 0.0, 0.0]   # cutting edge direction, rig-local (plan dump / skill-lint only)
   swing:
   - { t: 0, rotate: [-336.4, -47.8, -59.4] }
   - { t: 1, rotate: [-325.2, -42.5, -50.3] }

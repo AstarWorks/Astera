@@ -106,6 +106,22 @@ object SceneBuilder {
                     )
                 }
                 is VfxElementKind.Particle -> Unit
+                is VfxElementKind.SkinBone -> prims += Prim.Box(
+                    corners = boxCorners(t, shift),
+                    rgb = 0xC8A27A,
+                    translucent = false,
+                    glowArgb = null,
+                    emissive = true,
+                )
+                is VfxElementKind.MainHandWeapon -> prims += Prim.Item(
+                    center = t.translation + shift,
+                    rotation = t.rotation,
+                    size = t.scale,
+                    billboard = d.billboard,
+                    itemKey = "iron_sword",
+                    rgb = BlockColors.itemRgb("iron_sword"),
+                    glowArgb = null,
+                )
                 is VfxElementKind.Sprite -> error("sprite elements are resolved to text by VfxTimeline.plan")
             }
         }

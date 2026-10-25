@@ -44,6 +44,9 @@
             "items": {
                 "type": "number"
             }
+        },
+        "body": {
+            "type": "string"
         }
     },
     "required": [
@@ -933,6 +936,30 @@
                 },
                 "respect_hit_stop": {
                     "type": "boolean"
+                },
+                "parent": {
+                    "type": "string"
+                },
+                "weapon": {
+                    "type": "string"
+                },
+                "weapon_tip": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "weapon_edge": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "weapon_root": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
                 }
             },
             "required": [

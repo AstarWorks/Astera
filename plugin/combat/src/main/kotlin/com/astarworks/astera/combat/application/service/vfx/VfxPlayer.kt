@@ -2,11 +2,18 @@ package com.astarworks.astera.combat.application.service.vfx
 
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayHandle
-import com.astarworks.astera.combat.application.port.outbound.RigReveal
-import com.astarworks.astera.combat.application.service.HeldItemHider
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IVfxRegistry
+import com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation
 import com.astarworks.astera.core.application.port.outbound.ticks
+import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation
+import com.astarworks.astera.core.domain.effect.vfx.VfxBodyContext
+import com.astarworks.astera.core.domain.presentation.PresentationAudience
+import com.astarworks.astera.core.domain.presentation.PresentationDisplay
+import com.astarworks.astera.core.domain.presentation.PresentationKind
+import com.astarworks.astera.core.domain.presentation.PresentationLease
+import com.astarworks.astera.core.domain.presentation.PresentationMask
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayKind
@@ -36,6 +43,12 @@ import org.slf4j.Logger
 public sealed class VfxPlayError {
     public data class UnknownVfx(val id: VfxId) : VfxPlayError()
     public data class InvalidTargetTracking(val id: VfxId) : VfxPlayError()
+
+    /** The effect names a `body:` animation that is not loaded. */
+    public data class UnknownBody(val id: VfxId, val animation: CustomAnimationId) : VfxPlayError()
+
+    /** A performance could not take the caster's hand / ride the caster (offline, attachment refused). */
+    public data class PerformanceUnavailable(val id: VfxId) : VfxPlayError()
 
     /** Starting would exceed the server-wide live display cap. */
     public data class OverCapacity(val reserved: Int, val requested: Int, val cap: Int) : VfxPlayError()
@@ -97,8 +110,10 @@ public class VfxPlayer(
     private val maxLiveDisplays: Int = MAX_LIVE_DISPLAYS,
     /** Flipbook frame counts for `sprite` elements (ADR-0239); unknown sprites play as one frame. */
     private val sprites: SpriteFrames = SpriteFrames.NONE,
-    /** When set, an effect played while the anchor's `hide_held_item` is waiting is staged (see [HeldItemHider]). */
-    private val heldItems: HeldItemHider? = null,
+    /** ADR-0254: the one owner of held-item / armor / body hiding; a performance claims a lease from it. */
+    private val presentation: (() -> IPlayerPresentation?)? = null,
+    /** Resolves a `body:` animation id to the skin-rig animation it names. */
+    private val bodies: ((CustomAnimationId) -> SkinRigAnimation?)? = null,
 ) {
 
     private class ElementState(val plan: VfxElementPlan) {
@@ -106,6 +121,12 @@ public class VfxPlayer(
         var nextUpdate: Int = 0
         var nextParticle: Int = 0
         var attached: Boolean = false
+
+        /** Spawned with view range 0 in this instance: it is revealed by the lease bundle (reused passengers already are). */
+        var staged: Boolean = false
+
+        /** Bone / weapon display of a performance. */
+        val performer: Boolean = plan.kind is VfxElementKind.SkinBone || plan.kind is VfxElementKind.MainHandWeapon
 
         /** Entity position offset from the anchor (quads sit at their own point; `0` for ordinary displays). */
         var offset: Vec3 = plan.spawnOffset
@@ -126,17 +147,27 @@ public class VfxPlayer(
         var position: Vec3 = request.origin
         var age: Int = 0
 
-        /** Spawned hidden (view range 0) so it replaces the anchor's held weapon in the tick it is revealed. */
-        var staged: Boolean = false
+        /** The performance's presentation lease (hand / armor / body); `null` for ordinary effects. */
+        var lease: PresentationLease? = null
 
-        /** Set with [staged], kept after the restore for others: the owner's held item returns when the rig is removed. */
-        var holdsOwnerHide: Boolean = false
+        /** Elements were spawned hidden and wait for the reveal bundle. */
+        var awaitingReveal: Boolean = false
 
-        /** Displays whose transform updates wait in [revealUpdates] this tick (the hide took their reveal over). */
+        /** The owner leg of the release (hand back, displays scaled to zero) has not happened yet. */
+        var ownerLegOpen: Boolean = false
+
+        /**
+         * Transform updates that must reach clients inside a presentation bundle (the reveal tick, and every cut tick),
+         * not through the entity tracker, whose per-entity sends can straddle a client frame. The gateway applies them
+         * at server tick end, just before it takes the entity data.
+         */
+        val bundled: MutableMap<DisplayHandle, () -> Unit> = HashMap()
+
+        /** Handles whose update of this tick goes into the next bundle. */
         var deferUpdates: Set<DisplayHandle> = emptySet()
 
-        /** Transform updates of the reveal tick, applied by the gateway at tick end inside the reveal bundle. */
-        val revealUpdates: MutableMap<DisplayHandle, () -> Unit> = HashMap()
+        /** Age at which the reveal bundle was queued. */
+        var revealedAge: Int = -1
     }
 
     private val instances: MutableList<Instance> = ArrayList()
@@ -154,7 +185,14 @@ public class VfxPlayer(
         }
         val effective = request.follow?.let { def.copy(follow = it) } ?: def
         val frame = effective.orient.frame(request.origin, request.look, request.toTarget)
-        val plan = VfxTimeline.plan(effective, frame, request.seed, request.scale, sprites, request.freeze)
+        val body = effective.body?.let { id ->
+            val animation = bodies?.invoke(id) ?: return Result.failure(VfxPlayError.UnknownBody(request.vfxId, id))
+            VfxBodyContext(animation, request.anchorEntityId?.let { displays.isSlimSkin(it) } ?: false)
+        }
+        val plan = VfxTimeline.plan(effective, frame, request.seed, request.scale, sprites, request.freeze, body)
+        if (plan.performance && (request.anchorEntityId == null || !plan.attachToAnchor)) {
+            return Result.failure(VfxPlayError.PerformanceUnavailable(request.vfxId))
+        }
         val replaced = if (plan.follow && plan.replaceGroup != null && request.anchorEntityId != null) {
             instances.filter { it.plan.follow && it.plan.replaceGroup == plan.replaceGroup &&
                 it.request.anchorEntityId == request.anchorEntityId && it.request.world == request.world }
@@ -189,15 +227,34 @@ public class VfxPlayer(
                 reusable.remove(previous)
             }
         }
+        // Claim before the old performance is released: the union of both leases covers every slot, so a chained skill
+        // hands the hand over with no restore (and no frame with the real weapon) in between.
+        if (plan.performance) {
+            val port = presentation?.invoke()
+            if (port != null) {
+                val bodyDrawn = plan.elements.any { it.kind is VfxElementKind.SkinBone }
+                val mask = PresentationMask(hand = true, offhand = bodyDrawn, armor = bodyDrawn, body = bodyDrawn, pinPose = true)
+                val owner = request.anchorEntityId!!
+                val claimed = port.claim(owner, mask, PresentationKind.PERFORMANCE, onRevoked = { revoked(owner) })
+                if (claimed is Result.Failure) return Result.failure(VfxPlayError.PerformanceUnavailable(request.vfxId))
+                instance.lease = (claimed as Result.Success).value
+                instance.awaitingReveal = true
+                instance.ownerLegOpen = true
+            }
+        }
         replaced.forEach(::finish)
         reserved += plan.displayCount
-        // The client needs one tick to render a new display, the held-item hide needs none: spawn the displays
-        // invisible now, reveal them (and send the hide) at age REVEAL_AGE. A client ticks a new display only on its own 20 Hz
-        // clock, so a reveal one server tick after the spawn can beat that tick (rig drawn a frame late = a frame with no
-        // weapon). A rig's keys before REVEAL_AGE hold the held pose, so the rig starts from the held pose when it is revealed.
-        instance.staged = request.anchorEntityId?.let { heldItems?.stage(it) } == true
-        instance.holdsOwnerHide = instance.staged
-        if (advance(instance)) {
+        // The client needs one tick to render a new display, the hide needs none: spawn the displays invisible now and reveal
+        // them (together with the lease's hide) at age REVEAL_AGE. A client ticks a new display only on its own 20 Hz clock, so a
+        // reveal one server tick after the spawn can beat that tick (rig drawn a frame late = a frame with no weapon).
+        val done = try {
+            advance(instance)
+        } catch (ex: IllegalStateException) {
+            log.warn("VFX {} cannot start: {}", request.vfxId, ex.message)
+            finish(instance, immediate = true)
+            return Result.failure(VfxPlayError.PerformanceUnavailable(request.vfxId))
+        }
+        if (done) {
             finish(instance)
         } else {
             instances += instance
@@ -208,6 +265,19 @@ public class VfxPlayer(
             }
         }
         return Result.success(Unit)
+    }
+
+    /** Ends every performance of [caster] at once (death, quit, world change): displays go in this tick, the lease is given back. */
+    public fun endFor(caster: PlayerId) {
+        instances.filter { it.request.anchorEntityId == caster }.forEach { finish(it, immediate = true) }
+    }
+
+    /** The presentation took [caster]'s lease away (quit, world change, preempted): drop the displays, nothing to give back. */
+    private fun revoked(caster: PlayerId) {
+        instances.filter { it.request.anchorEntityId == caster && it.lease != null }.forEach {
+            it.lease = null
+            finish(it, immediate = true)
+        }
     }
 
     /** Removes every live display and stops ticking. */
@@ -241,14 +311,14 @@ public class VfxPlayer(
     private fun advance(instance: Instance): Boolean {
         val age = instance.age
         val plan = instance.plan
-        // Safety net: a reveal bundle that never ran (host without packets, rig ended first) must not drop the update.
-        if (instance.revealUpdates.isNotEmpty()) instance.revealUpdates.values.toList().forEach { it() }.also { instance.revealUpdates.clear() }
-        if (instance.staged && age == minOf(REVEAL_AGE, plan.durationTicks - 1).coerceAtLeast(1)) reveal(instance)
-        // The owner gets the held weapon back a tick before the rig's displays go (the rig is scaled to zero for the owner in the
-        // same client step); other viewers get it in the bundle that removes the displays (handOverHeldItem).
-        if (instance.staged && age >= plan.durationTicks - 1) releaseHeldItem(instance)
-        if (instance.holdsOwnerHide && age >= (instance.elements.filter { it.handle != null }.minOfOrNull { it.plan.despawnTick } ?: Int.MAX_VALUE)) {
-            handOverHeldItem(instance)
+        // Safety net: a bundle that never ran (host without packets, rig ended first) must not drop the update.
+        if (instance.bundled.isNotEmpty()) instance.bundled.values.toList().forEach { it() }.also { instance.bundled.clear() }
+        if (instance.awaitingReveal && age == minOf(REVEAL_AGE, plan.durationTicks - 1).coerceAtLeast(1)) reveal(instance)
+        // The owner gets the hand back a tick before the displays go (they are scaled to zero for the owner in the same client
+        // step); other viewers get it in the bundle that removes the displays (releaseOthersLeg).
+        if (instance.ownerLegOpen && age >= plan.durationTicks - 1) releaseOwnerLeg(instance)
+        if (instance.lease != null && age >= (instance.elements.filter { it.handle != null }.minOfOrNull { it.plan.despawnTick } ?: Int.MAX_VALUE)) {
+            releaseOthersLeg(instance)
         }
         val targetCorrection = instance.request.target?.let { target ->
             val live = target() ?: return true
@@ -286,10 +356,12 @@ public class VfxPlayer(
                     if (u.keepTransform) continue
                     state.authoredTransform = u.transform
                     if (state.lineCorrection == null) {
-                        // The reveal tick's update must not reach clients through the entity tracker: its 22 packets are
-                        // separate sends, a client tick can fall between them (some parts one step behind at the very frame the
-                        // rig appears). It joins the reveal bundle instead (RigReveal.beforeSend).
-                        if (handle in instance.deferUpdates) instance.revealUpdates[handle] = { displays.update(handle, u.transform, u.interpolationTicks) }
+                        // The reveal tick's and every cut tick's update must not reach clients through the entity tracker: its
+                        // per-entity sends are separate, a client tick can fall between them (hand one step ahead of the hilt).
+                        // They join one presentation bundle instead (PresentationDisplay.beforeSend, applied at tick end).
+                        val bundle = e.kind.let { it is VfxElementKind.SkinBone || it is VfxElementKind.MainHandWeapon } &&
+                            instance.lease != null && (age in plan.cutTicks || handle in instance.deferUpdates)
+                        if (bundle) instance.bundled[handle] = { displays.update(handle, u.transform, u.interpolationTicks) }
                         else displays.update(handle, u.transform, u.interpolationTicks)
                     }
                 }
@@ -313,19 +385,34 @@ public class VfxPlayer(
             }
         }
         instance.deferUpdates = emptySet()
+        val owner = instance.request.anchorEntityId
+        val port = presentation?.invoke()
+        if (instance.lease != null && owner != null && port != null && instance.bundled.isNotEmpty() && age in plan.cutTicks && instance.revealedAge != age) {
+            // A cut: every performer jumps in the same client step. The updates apply at tick end, inside one bundle per viewer.
+            val due = instance.bundled.toMap()
+            instance.bundled.clear()
+            port.flushBundled(owner, due.map { (handle, apply) -> PresentationDisplay(handle.id, null, apply) })
+        }
         return age >= plan.durationTicks
     }
 
-    /** Makes the staged displays visible; with a waiting hide both reach every client in one packet bundle. */
+    /** Makes the staged displays visible; the lease's hide and the reveal reach every client in one packet bundle. */
     private fun reveal(instance: Instance) {
-        val rig = instance.elements.mapNotNull { state ->
+        instance.awaitingReveal = false
+        instance.revealedAge = instance.age
+        val lease = instance.lease ?: return
+        val port = presentation?.invoke()
+        val staged = instance.elements.filter { it.staged }.mapNotNull { state ->
             state.handle?.let { handle ->
-                RigReveal(handle, state.plan.viewRange ?: DEFAULT_VIEW_RANGE) { instance.revealUpdates.remove(handle)?.invoke() }
+                PresentationDisplay(handle.id, state.plan.viewRange ?: DEFAULT_VIEW_RANGE) { instance.bundled.remove(handle)?.invoke() }
             }
         }
-        val handled = instance.request.anchorEntityId?.let { heldItems?.reveal(it, rig) } == true
-        instance.deferUpdates = if (handled) rig.mapTo(HashSet()) { it.handle } else emptySet()
-        if (!handled) rig.forEach { displays.setViewRange(it.handle, it.viewRange) }
+        if (port == null) {
+            staged.forEach { displays.setViewRange(DisplayHandle(it.id), it.viewRange!!) }
+            return
+        }
+        instance.deferUpdates = staged.mapTo(HashSet()) { DisplayHandle(it.id) }
+        port.reveal(lease, staged)
     }
 
     private fun emitParticleCalls(instance: Instance, kind: VfxElementKind.Particle, p: VfxParticleEmission) {
@@ -356,7 +443,7 @@ public class VfxPlayer(
             billboard = e.billboard,
             brightness = e.brightness,
             glowArgb = e.glowArgb,
-            viewRange = if (instance.staged && instance.age == 0) 0f else e.viewRange,
+            viewRange = if (instance.awaitingReveal && state.performer) 0f else e.viewRange,
             weaponRigShading = e.weaponRigShading,
         )
         val lines = when (val k = e.kind) {
@@ -373,7 +460,7 @@ public class VfxPlayer(
                     displays.setText(handle, lines)
                     displays.setTextStyle(handle, kind.backgroundArgb, kind.textOpacity, kind.textRgb)
                 }
-                is DisplayKind.Item -> Unit // Identical kind includes item and display mode.
+                is DisplayKind.Item, is DisplayKind.SkinBone, DisplayKind.AnchorMainHand -> Unit // Identical kind includes item and display mode.
             }
             displays.teleport(handle, instance.position + e.spawnOffset + state.targetOffset, 0f, 0f, 0)
             displays.update(handle, e.initial, 0)
@@ -385,8 +472,13 @@ public class VfxPlayer(
             state.attached = state.handle != null
             if (!state.attached) log.debug("VFX {}: native attachment unavailable for '{}'", instance.request.vfxId, e.elementId)
         }
+        if (state.performer && !state.attached) {
+            // One transport only (ADR-0254): a performer that cannot ride the caster would drift from the hand in a dash.
+            throw IllegalStateException("native attachment unavailable for performer '${e.elementId}'")
+        }
         if (state.handle == null) state.handle = displays.spawn(instance.request.world, instance.position + e.spawnOffset + state.targetOffset, spec, lines)
         if (state.handle == null) log.debug("VFX {}: display for element '{}' was not spawned", instance.request.vfxId, e.elementId)
+        state.staged = state.performer && spec.viewRange == 0f
     }
 
     /** Block transforms use corner origins. Reconstruct both centreline endpoints before stretching. */
@@ -424,39 +516,45 @@ public class VfxPlayer(
                 textRgb = style.textRgb,
             )
         }
+        is VfxElementKind.SkinBone -> DisplayKind.SkinBone(kind.bone, kind.slim)
+        is VfxElementKind.MainHandWeapon -> DisplayKind.AnchorMainHand
         is VfxElementKind.Particle -> null
         is VfxElementKind.Sprite -> error("sprite elements are resolved to text by VfxTimeline.plan")
     }
 
+    private fun performerIds(instance: Instance): List<java.util.UUID> =
+        instance.elements.filter { it.performer }.mapNotNull { it.handle?.id }
+
+    /** Owner leg: the hand comes back and the performers are scaled to zero in the same client step, a tick before removal. */
+    private fun releaseOwnerLeg(instance: Instance) {
+        if (!instance.ownerLegOpen) return
+        instance.ownerLegOpen = false
+        val lease = instance.lease ?: return
+        presentation?.invoke()?.release(lease, performerIds(instance), PresentationAudience.OWNER)
+    }
+
     /**
-     * The rig's displays are about to be removed (called before the first one is): the held item is given back to every
-     * viewer in the step that removes them (HeldItemHider / gateway bundle).
+     * Others leg (called BEFORE the displays are removed): hand, armor and body come back for every other viewer in the
+     * bundle that removes the performers, so no frame shows the real weapon next to a performer, or neither.
      */
-    private fun handOverHeldItem(instance: Instance) {
-        releaseHeldItem(instance)
-        if (!instance.holdsOwnerHide) return
-        instance.holdsOwnerHide = false
-        val handles = rigHandles(instance)
-        instance.request.anchorEntityId?.let { heldItems?.rigRemoved(it, handles) }
-    }
-
-    private fun rigHandles(instance: Instance): List<DisplayHandle> = instance.elements.mapNotNull { it.handle }
-
-    private fun releaseHeldItem(instance: Instance) {
-        if (!instance.staged) return
-        instance.staged = false
-        instance.request.anchorEntityId?.let { heldItems?.rigEnded(it, rigHandles(instance)) }
+    private fun releaseOthersLeg(instance: Instance) {
+        releaseOwnerLeg(instance)
+        val lease = instance.lease ?: return
+        instance.lease = null
+        presentation?.invoke()?.release(lease, performerIds(instance), PresentationAudience.OTHERS)
     }
 
     /**
-     * Ends [instance]. A normal end already gave the owner the held item back a tick earlier ([releaseHeldItem] at
-     * duration - 1); a cancel (replace, anchor gone) does it here, and then the displays stay one more tick so the owner's
-     * hand, which only updates on the client's tick, never meets a rig that is already gone.
+     * The single exit of every instance: normal end is already past the owner leg; a cancel (replace, anchor gone, death) gives
+     * both legs back here. Unless [immediate], an abrupt end keeps the displays one more tick so the owner's hand, which only
+     * updates on the client's tick, never meets a performer that is already gone.
      */
     private fun finish(instance: Instance, immediate: Boolean = false) {
-        val abrupt = instance.staged
-        val handles = rigHandles(instance)
-        handOverHeldItem(instance)
+        val abrupt = instance.ownerLegOpen
+        val handles = instance.elements.mapNotNull { it.handle }
+        releaseOthersLeg(instance)
+        instance.awaitingReveal = false
+        instance.bundled.clear()
         for (state in instance.elements) state.handle = null
         if (abrupt && !immediate && handles.isNotEmpty()) {
             scheduler.runLater(ticks(1)) { handles.forEach(displays::remove) }

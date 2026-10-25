@@ -155,10 +155,15 @@ class RigPath:
             self.keys.append((int(k["t"]), cur, _ease(k.get("ease"))))
         self.chunks = self._chunks()
         # blade segment in rig-local space: grip end -> farthest +Y extent of any part (the tip)
+        # ADR-0254: a `weapon: main_hand` rig has no parts; the blade ends are declared (weapon_tip / weapon_root).
         parts = self.rig.get("parts", [])
-        self.tip_local = max((p["offset"][1] + p["size"][1] / 2 for p in parts), default=1.0)
-        guard = [p for p in parts if "guard" in p["id"]]
-        self.root_local = max((p["offset"][1] + p["size"][1] / 2 for p in guard), default=0.0)
+        if self.rig.get("weapon") and "weapon_tip" in self.rig:
+            self.tip_local = float(self.rig["weapon_tip"][1])
+            self.root_local = float(self.rig.get("weapon_root", [0.0, 0.0, 0.0])[1])
+        else:
+            self.tip_local = max((p["offset"][1] + p["size"][1] / 2 for p in parts), default=1.0)
+            guard = [p for p in parts if "guard" in p["id"]]
+            self.root_local = max((p["offset"][1] + p["size"][1] / 2 for p in guard), default=0.0)
         # caster dashes (skill ticks): (start, ticks, distance capped by stop_before_target at `distance`)
         self.dashes, left = [], distance
         for s in sorted((s for s in steps if s.get("type") == "dash_strike"), key=lambda s: _literal(s.get("delay_ticks"))):

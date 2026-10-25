@@ -64,8 +64,9 @@ object VfxPreview {
         return SpriteFrames { id: SpriteId -> frames[id] }
     }
 
+    /** A `body:` animation is not resolved here (ADR-0254): the preview shows the performance with the body at rest. */
     fun plan(def: VfxDefinition, opts: PreviewOptions) =
-        VfxTimeline.plan(def, Frame.fromYawPitch(Vec3.ZERO, 0.0, opts.pitchDeg), opts.seed, 1.0, opts.sprites, opts.freezes)
+        VfxTimeline.plan(def.copy(body = null), Frame.fromYawPitch(Vec3.ZERO, 0.0, opts.pitchDeg), opts.seed, 1.0, opts.sprites, opts.freezes)
 
     fun render(def: VfxDefinition, opts: PreviewOptions): RenderedEffect {
         val plan = plan(def, opts)

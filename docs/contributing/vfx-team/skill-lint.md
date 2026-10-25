@@ -25,6 +25,8 @@ A missing plan dump fails checks 1 and 2 loudly. The runtime writes the dump (co
 
 Frame: caster-local, +x right, +y up, +z forward (toward the target), origin at the caster's feet. `tick` is the skill tick (= reference tick). Conventions the lint relies on: `weapon.pos` is the grip origin, the blade axis is `tip - pos`, `edgeNormal` is the direction the cutting edge points (local X), so the broad-face normal is `normalize(axis x edgeNormal)`. Bone `rot` rotates local vectors (forward +z, up +y) into caster-local space.
 
+Produced by `make skill-lint-plan SKILL=<skill-id>` (ADR-0254: a headless cast of the real skill; `visibleWeapons` is the worst viewer of the presentation-lease model, bone/weapon numbers are the planner's math). Bones emitted: `head`, `body`, `right_arm`, `left_arm`, `right_leg`, `left_leg` (box centres), plus `hips` (hip pivot, root rotation) and `right_hand` (grip point of the right arm). A skill without a performance rig (`weapon: main_hand`) has no dump.
+
 ## Targets file (`content/skill-lint/<skill>.targets.yaml`)
 
 Header: `skill`, `caster_height` (H), `capture_offset_ticks` (capture frame = tick + 6 for the compare camera), `bones` (`hips`, `torso`, `hand` bone names in the dump), `grip_tolerance`, `budget`. Every pose value is `[target, tolerance]`.

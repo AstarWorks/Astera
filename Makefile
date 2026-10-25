@@ -233,6 +233,11 @@ skill-pairs: ## Video vs MC frame pairs at video times -> build/pairs/<case>.png
 	@test -n "$(CASE)" -a -n "$(AT)" || { echo "usage: make skill-pairs CASE=<id> [SKILL=<skill>] AT=\"19.7:hit1 20.9:hit2\" (t = video seconds)"; exit 2; }
 	python3 -I tools/skill-compare/scripts/pairs.py --case "$(CASE)" $(if $(SKILL),--skill "$(SKILL)") --out "build/pairs/$(CASE).png" $(AT)
 
+.PHONY: skill-lint-plan
+skill-lint-plan: ## Writes build/skill-lint/<skill>/plan.json (headless cast: body bones, weapon, visibleWeapons per tick): make skill-lint-plan SKILL=<skill-id>
+	@test -n "$(SKILL)" || { echo "usage: make skill-lint-plan SKILL=<skill-id>"; exit 2; }
+	./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q
+
 .PHONY: skill-lint
 skill-lint: ## Machine-checkable facts of a VFX skill before any capture (exit 1 on FAIL): make skill-lint SKILL=<skill-id> [CAPTURE=<capture dir>] [PLAN=<plan.json>]
 	@test -n "$(SKILL)" || { echo "usage: make skill-lint SKILL=<skill-id> [CAPTURE=<dir>] [PLAN=<plan.json>]"; exit 2; }

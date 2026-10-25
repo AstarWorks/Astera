@@ -20,6 +20,10 @@ public data class VfxPlan(
     public val attachToAnchor: Boolean = false,
     /** Replace an earlier following effect in this group on the same entity and world. */
     public val replaceGroup: String? = null,
+    /** ADR-0254: the bone / weapon displays form one performance that owns the caster's hand (and body). */
+    public val performance: Boolean = false,
+    /** Effect ticks on which performance elements jump (interpolation 0); sent as one bundle per viewer. */
+    public val cutTicks: Set<Int> = emptySet(),
 ) {
     /** Number of display entities the plan spawns (particle slots spawn none). */
     public val displayCount: Int get() = elements.count { it.kind !is VfxElementKind.Particle }

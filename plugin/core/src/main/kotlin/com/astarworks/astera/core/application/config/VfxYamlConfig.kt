@@ -84,6 +84,8 @@ public data class VfxYamlConfig(
     /** Weapon rigs with 風切り trails (see [VfxRigYaml]). */
     public val rigs: List<VfxRigYaml> = emptyList(),
     @SerialName("target_reference") public val targetReference: List<Double>? = null,
+    /** ADR-0254: skin-rig animation id (`content/animations/<id>.yaml`) played as the performance body. */
+    public val body: String? = null,
 ) {
     /** Materializes the domain definition; every validation failure comes back as a [VfxConfigError]. */
     public fun toDefinition(): Result<VfxDefinition, VfxConfigError> = try {
@@ -100,6 +102,7 @@ public data class VfxYamlConfig(
                 elements = elements.map { it.toDomain() },
                 rigs = rigs.map { it.toDomain() },
                 targetReference = targetReference?.let { vec3(it, "target_reference") },
+                body = body?.let { com.astarworks.astera.core.domain.animation.player.CustomAnimationId(it) },
             ),
         )
     } catch (e: IllegalArgumentException) {
@@ -578,6 +581,16 @@ public data class VfxRigYaml(
     public val emitters: List<VfxRigEmitterYaml> = emptyList(),
     /** `true`: `play_vfx.freeze` windows stop this rig's swing and its trail fades. */
     @SerialName("respect_hit_stop") public val respectHitStop: Boolean = false,
+    /** `anchor` (default) or `right_hand` (the performance body's right arm, ADR-0254). */
+    public val parent: String = "anchor",
+    /** `main_hand`: the caster's real held stack as the rig's one weapon display (replaces `parts`). */
+    public val weapon: String? = null,
+    /** Blade tip, rig-local (plan dump only); defaults to the first trail's `to`. */
+    @SerialName("weapon_tip") public val weaponTip: List<Double>? = null,
+    /** Direction the cutting edge points, rig-local (plan dump only); default local X. */
+    @SerialName("weapon_edge") public val weaponEdge: List<Double>? = null,
+    /** Blade root (top of the guard), rig-local; fx path tooling only. */
+    @SerialName("weapon_root") public val weaponRoot: List<Double>? = null,
 ) {
     public fun toDomain(): VfxRig = VfxRig(
         id = id,
@@ -592,6 +605,15 @@ public data class VfxRigYaml(
         boards = boards.map { it.toDomain() },
         emitters = emitters.map { it.toDomain() },
         respectHitStop = respectHitStop,
+        parent = parseEnum<com.astarworks.astera.core.domain.effect.vfx.VfxRigParent>(parent, "rig.parent"),
+        weapon = weapon?.let {
+            require(it == "main_hand") { "rig.weapon must be 'main_hand': $it" }
+            com.astarworks.astera.core.domain.effect.vfx.VfxRigWeapon(
+                tip = weaponTip?.let { t -> vec3(t, "rig.weapon_tip") } ?: trails.firstOrNull()?.let { t -> vec3(t.to, "trail.to") },
+                root = weaponRoot?.let { r -> vec3(r, "rig.weapon_root") },
+                edgeNormal = weaponEdge?.let { e -> vec3(e, "rig.weapon_edge") } ?: Vec3(1.0, 0.0, 0.0),
+            )
+        },
     )
 }
 

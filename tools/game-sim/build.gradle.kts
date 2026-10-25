@@ -57,3 +57,19 @@ tasks.register<Test>("showcase") {
     useJUnitPlatform()
     filter { includeTestsMatching("*SkillShowcaseScenarioTest") }
 }
+
+// ADR-0254: writes build/skill-lint/<skill>/plan.json for tools/skill-lint (a headless cast of the real skill; not a test).
+//   ./gradlew :tools:game-sim:skillLintPlan -Pskill=bastion-greatsword-s1      (or: make skill-lint-plan SKILL=...)
+tasks.register<JavaExec>("skillLintPlan") {
+    group = "verification"
+    description = "Writes build/skill-lint/<skill>/plan.json (body bones, weapon, visibleWeapons per tick) for skill-lint"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.astarworks.astera.gamesim.SkillLintPlanDump")
+    systemProperty("astera.sim.contentDir", rootProject.file("content").absolutePath)
+    systemProperty("astera.sim.traceDir", layout.buildDirectory.dir("sim-traces").get().asFile.absolutePath)
+    val skill = providers.gradleProperty("skill")
+    doFirst {
+        require(skill.isPresent) { "pass -Pskill=<skill-id>" }
+        args(skill.get(), rootProject.layout.buildDirectory.dir("skill-lint").get().asFile.absolutePath)
+    }
+}
