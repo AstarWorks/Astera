@@ -81,11 +81,11 @@ For every new file under `docs/adr/`:
 - No edits to *existing* ADRs whose status is `Accepted` (per ADR discipline
   in `coding-posture.md`).
 
-### 8. Wave RTM update
+### 8. Area spec update
 
-If the wave is closing, `docs/RTM-PARITY-TRACKER.md` should have been updated
-by the `rtm-sync` subagent. If `git diff -- docs/RTM-PARITY-TRACKER.md` is
-empty for a closing wave, flag.
+If an item reached `verified`, the 現状 section of its `docs/vision/areas/*.md`
+should have been updated (`area-spec-sync`). If the diff of `docs/vision/areas`
+is empty for a closing batch that changed player-visible behaviour, flag.
 
 ## Output format
 

@@ -9,7 +9,7 @@
 
 ## なぜ書いたか
 
-Astera 現状の roadmap (Wave 1-77、`docs/IMPLEMENTATION-ROADMAP.md`) は前身 RTM
+Astera 現状の roadmap (Wave 1-77、退役した旧 IMPLEMENTATION-ROADMAP。git 履歴参照) は前身 RTM
 を ground truth として設計されているが、RTM 自体が **PvP arena match-only**
 の設計だったため:
 
@@ -140,7 +140,7 @@ flipping を成立させる)。
 | **_bet-1** | 1v1 Betting Match (RTM Writerside 由来、ADR-0029 backlog 具体化) | 0085 |
 | **_analytics-1** | Player Engagement Dashboard (per-player view) | 0086 |
 
-詳細な配置 / 依存 / scope は `IMPLEMENTATION-ROADMAP.md` + 各 ADR を参照。
+詳細な配置 / 依存 / scope は各 ADR と Board を参照 (旧 IMPLEMENTATION-ROADMAP は退役、git 履歴)。
 
 ---
 

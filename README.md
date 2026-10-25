@@ -21,7 +21,7 @@ Astera is an experiment in running an entire Minecraft server **— code, conten
 | **Community UGC** | Players submit weapons / skins / maps / sounds via YAML, Discord, or Web | Phase 4 |
 | **Metaverse Place** | Persistent worlds with plots, social layer, events | Phase 5 |
 
-Current focus is the **core vision** (2026-10): a game system (queue, match, modes), a lightweight weapon system, a skill system, and a tidy shop / vault / inventory. Phase 4+ (UGC, web admin, marketplace, gacha, cosmetics, metaverse, generative AI, ops automation) is **out of scope** for now; see [`docs/plans/2026-10-core-vision-backlog.md`](docs/plans/2026-10-core-vision-backlog.md).
+Current focus is the **core vision** (2026-10): a game system (queue, match, modes), a lightweight weapon system, a skill system, and a tidy shop / vault / inventory. Phase 4+ (UGC, web admin, marketplace, gacha, cosmetics, metaverse, generative AI, ops automation) is **out of scope** for now; see [`docs/vision/VISION.md`](docs/vision/VISION.md).
 
 ## What's playable
 
@@ -82,8 +82,7 @@ Everything lives in [`docs/`](docs/). Start from the index:
 - [docs/contributing/getting-started.md](docs/contributing/getting-started.md) — how to contribute
 - [docs/contributing/playtest.md](docs/contributing/playtest.md) — boot the server and play a match
 - [docs/contributing/add-an-item-yaml.md](docs/contributing/add-an-item-yaml.md) / [add-a-skill-yaml.md](docs/contributing/add-a-skill-yaml.md) — add a weapon or skill **without writing Kotlin**
-- [docs/plans/2026-10-core-vision-backlog.md](docs/plans/2026-10-core-vision-backlog.md) — current scope and work packages
-- [docs/roadmap.md](docs/roadmap.md) — Phase plan
+- [docs/vision/VISION.md](docs/vision/VISION.md) — vision, current scope, out-of-scope; per-area specs in [docs/vision/areas/](docs/vision/areas/)
 
 ## Contributing
 
