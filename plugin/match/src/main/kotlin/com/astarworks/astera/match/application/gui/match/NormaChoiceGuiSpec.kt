@@ -24,7 +24,7 @@ public object NormaChoiceGuiSpec {
     private val ICON_KILL = ItemId("gui-tile-norma-kill")
     private val ICON_PANE = ItemId("gui-pane-dark")
 
-    public fun build(level: Int, maxLevel: Int, starsGoal: Int, killsGoal: Int): GuiSpec =
+    public fun build(level: Int, maxLevel: Int, starsGoal: Int, killsGoal: Int, starsCarried: Int, kills: Int): GuiSpec =
         GuiSpec.build(id = ID, title = MessageKey("astera.match.norma-choice.gui.title"), size = GuiSize.CHEST_9) {
             for (i in 0 until 9) slot(SlotIndex(i), GuiSlot.Border(ICON_PANE))
             val levelArgs = mapOf("level" to level.toString(), "max" to maxLevel.toString())
@@ -36,6 +36,10 @@ public object NormaChoiceGuiSpec {
                     displayName = GuiText(MessageKey("astera.match.norma-choice.gui.star.name")),
                     lore = listOf(
                         GuiText(MessageKey("astera.match.norma-choice.gui.star.lore"), mapOf("goal" to starsGoal.toString())),
+                        GuiText(
+                            MessageKey("astera.match.norma-choice.gui.progress"),
+                            mapOf("now" to starsCarried.coerceAtMost(starsGoal).toString(), "goal" to starsGoal.toString()),
+                        ),
                         GuiText(MessageKey("astera.match.norma-choice.gui.level"), levelArgs),
                         GuiText(MessageKey("astera.match.norma-choice.gui.default")),
                     ),
@@ -49,6 +53,10 @@ public object NormaChoiceGuiSpec {
                     displayName = GuiText(MessageKey("astera.match.norma-choice.gui.kill.name")),
                     lore = listOf(
                         GuiText(MessageKey("astera.match.norma-choice.gui.kill.lore"), mapOf("goal" to killsGoal.toString())),
+                        GuiText(
+                            MessageKey("astera.match.norma-choice.gui.progress"),
+                            mapOf("now" to kills.coerceAtMost(killsGoal).toString(), "goal" to killsGoal.toString()),
+                        ),
                         GuiText(MessageKey("astera.match.norma-choice.gui.level"), levelArgs),
                     ),
                 ),

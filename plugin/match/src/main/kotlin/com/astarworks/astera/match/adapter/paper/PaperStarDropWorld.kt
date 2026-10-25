@@ -40,7 +40,7 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
         server.pluginManager.registerEvents(this, plugin)
     }
 
-    override fun spawn(world: WorldId, position: Vec3, amount: Int, velocity: Vec3?): String? {
+    override fun spawn(world: WorldId, position: Vec3, amount: Int, velocity: Vec3?, pickupDelayTicks: Int): String? {
         val w = server.getWorld(world.value) ?: return null
         val handle = UUID.randomUUID().toString()
         val stack = ItemStack(Material.NETHER_STAR, amount.coerceIn(1, MAX_STACK))
@@ -50,7 +50,7 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
             e.isInvulnerable = true
             e.setUnlimitedLifetime(true)
             e.setCanMobPickup(false)
-            e.pickupDelay = 0
+            e.pickupDelay = pickupDelayTicks.coerceAtLeast(0)
             e.customName(label(amount))
             e.isCustomNameVisible = true
             e.velocity = velocity?.let { Vector(it.x, it.y, it.z) } ?: Vector(0.0, 0.0, 0.0)
@@ -73,6 +73,12 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
 
     override fun remove(handle: String) {
         (server.getEntity(UUID.fromString(handle)) as? Item)?.remove()
+    }
+
+    override fun take(handle: String, player: PlayerId) {
+        val item = server.getEntity(UUID.fromString(handle)) as? Item ?: return
+        server.getPlayer(player.uuid)?.playPickupItemAnimation(item)
+        item.remove()
     }
 
     override fun playPickup(world: WorldId, position: Vec3) {

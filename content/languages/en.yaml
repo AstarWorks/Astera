@@ -777,7 +777,24 @@ astera:
       dispatch-failure: "<red>The arena server did not answer; you were put back in the queue.</red>"
       wrong-server: "<gray>This server only hosts matches. Sending you back to the lobby…</gray>"
       arrival-waiting: "<yellow>Waiting for <gold>{remaining}</gold> more player(s)… you are protected until the match starts.</yellow>"
+    norma-up:
+      title: "<gold><bold>Norma cleared!</bold></gold>"
+      subtitle: "<yellow>Level {level}/{max}</yellow>"
+      broadcast: "<gold>{player}</gold> <gray>cleared the Norma and reached</gray> <yellow>Lv {level}/{max}</yellow><gray>!</gray>"
+      max:
+        title: "<gold><bold>NORMA COMPLETE!</bold></gold>"
+        subtitle: "<yellow>Top level Lv {level} reached</yellow>"
+        broadcast: "<gold><bold>{player}</bold></gold> <yellow>reached the top Norma level Lv {level}/{max}!</yellow>"
     norma-choice:
+      open:
+        title: "<gold><bold>Choose your Norma</bold></gold>"
+        subtitle: "<gray>Star goal or Kill goal - pick within 10 s</gray>"
+      picked:
+        star: "<green>Norma goal set: <gold>★ carry {goal}</gold></green>"
+        kill: "<green>Norma goal set: <red>⚔ {goal} kills</red></green>"
+      defaulted:
+        star: "<yellow>Time up - default goal: <gold>★ carry {goal}</gold></yellow>"
+        kill: "<yellow>Time up - goal stays: <red>⚔ {goal} kills</red></yellow>"
       chosen: "<green>Norma goal: <gold>{goal}</gold>.</green>"
       not-in-match: "<red>Norma levels exist only inside a Norma match.</red>"
       max-level: "<yellow>You are at the top Norma level.</yellow>"
@@ -790,6 +807,7 @@ astera:
           name: "<red><bold>⚔ Kill goal</bold></red>"
           lore: "<gray>Make <red>{goal}</red> kills at this level.</gray>"
         level: "<gray>Norma level <white>{level}/{max}</white></gray>"
+        progress: "<gray>Now: <white>{now}</white>/<white>{goal}</white></gray>"
         default: "<dark_gray>No pick in 10 s = Star goal.</dark_gray>"
     star:
       collected: "<gold>+{amount} ★</gold> <gray>(carrying {total})</gray>"

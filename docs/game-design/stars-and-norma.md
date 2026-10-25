@@ -32,8 +32,10 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
 - Per-(match, player) integer counter held by the match plugin on the host server. 0 at match start; dropped at match end.
   Never in the wallet, Postgres, inventory snapshot or lobby HUD.
 - **Sources:** (1) Star Generators (`content/generators/`) pop stars on their period; stars lie on the map as pickable
-  star drops: a glowing, named `★ xN` NETHER_STAR item entity that never enters an inventory (pickup by touching it or
-  walking within the pickup radius, first come first served; "+N ★" action bar and a pickup sound). Output grows late in the match
+  star drops: a glowing, named `★ xN` NETHER_STAR item entity. Collecting is the ordinary item pickup (vanilla pickup
+  range and delay, pickup animation); there is no proximity crediting. The picked item is removed and counted: the
+  carried count lives only in the match-scoped store, so no item ever enters an inventory (nothing to drift, drop with
+  Q or move into an ender chest, and nothing to clear on leave); "+N ★" action bar and a pickup sound). Output grows late in the match
   (generator `late_game_multiplier`). (2) Kill burst (below). Nothing else: winning, quests, login, level rewards, dummy
   hits and lobby activity give no stars.
 - **Kill burst:** when a player dies in a match, `floor(carried * death_drop_ratio)` stars leave the victim's counter and
@@ -52,6 +54,10 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   the goal is reached.
 - Reaching the goal raises the Norma level at once (no home check in v1), resets the kill progress, re-opens the choice.
   Stars are kept.
+- **Presentation:** a level-up shows a title ("Norma cleared!" + Lv N/max), plays a level-up sound, bursts particles and
+  a firework at the player and tells the whole match in chat; the top level gets a bigger version. When the picker
+  opens: a title and chime; the tiles show the goal (need N ★ / N kills) and the current progress; a pick gives a
+  confirmation sound and action bar; the 10 s default is announced on the action bar.
 - Config: `content/game-modes/norma.yaml` (`norma_max_level`, `norma_stars_goal`, `norma_kills_goal` lists by level).
 - **Win:** the first team to have a member reach `max_level` wins the match. The existing per-team kill score
   (`score_threshold`) and the time limit still end the match too (time limit: more Norma levels, then more kills, wins).

@@ -126,6 +126,12 @@ public class GameSim private constructor(
         private set
     /** Spectator-mode recorder behind the `ISpectator` port (death cam / eliminated teams). */
     public val spectator: SimSpectator = SimSpectator()
+
+    /** Star drops lying in the simulated world; collected by [SimStarDropWorld.pickupSweep] like a vanilla item pickup. */
+    public val starDrops: SimStarDropWorld = SimStarDropWorld()
+
+    /** Everything the Norma level-up / goal-picker presentation would have shown. */
+    public val normaPresentation: SimNormaPresentation = SimNormaPresentation()
     public lateinit var stats: StatsWiringResult
         private set
     public lateinit var economy: EconomyWiringResult
@@ -394,6 +400,7 @@ public class GameSim private constructor(
         }
         repeat(ticks) {
             scheduler.advanceTicks(1)
+            starDrops.pickupSweep(scheduler.currentTick(), world.entities)
             recorder.snapshot(scheduler.currentTick(), world.entities, ::hpOf, projectiles.snapshots())
         }
     }
@@ -617,7 +624,7 @@ public class GameSim private constructor(
 
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
-            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }))
+            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, normaPresentation = { sim.normaPresentation }))
             sim.stats = StatsWiring.install(context(), StatsPlatformPorts())
             sim.economy = EconomyWiring.install(context(), EconomyPlatformPorts())
 
