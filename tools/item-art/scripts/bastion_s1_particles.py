@@ -126,7 +126,7 @@ import numpy as _np  # noqa: E402
 from rig_path import RigPath  # noqa: E402
 from bastion_s1_sprites import SWEEPS as _SWEEPS  # noqa: E402
 
-H1_LEAD = _SWEEPS["hring"].get("lead", 0)  # r26: same lead as the hit-1 ring tiles and the contact flash
+H1_CONTACT = (-0.439, 1.533, 1.583)  # r27: hit-1 contact point on the target side (bastion_s1_fx.H1_HIT)
 
 SKILL, RIG = "bastion-greatsword-s1", "bastion-s1-rig"
 RP1 = RigPath(SKILL, RIG, fx_vfx="bastion-s1-fx-high")
@@ -351,26 +351,47 @@ def rel(c, p, c0):
     return tuple(p[k] + c[k] - c0[k] for k in range(3))
 
 
+def blade_row(f, name, pid, rp, ft, radii, eyes, lift, spread_out=0.5, ymin=0.3, floor=0.6):
+    """Sparks shed ALONG the blade body on fx tick ft (one spray per radius): flung along the blade's own direction (the
+    pose is held, so the only motion the eye reads is the air dragging the sparks off it) plus a little outward / up. The
+    spray starts ON the blade (distance 0), so it never leads it."""
+    d = rp.blade_dir(ft)
+    for r in radii:
+        q = blade_safe(rp, ft, r, eyes, ymin)
+        out = (q[0], 0.0, q[2])
+        lo = math.hypot(out[0], out[2]) or 1.0
+        v = (d[0] + spread_out * out[0] / lo, d[1] + lift, d[2] + spread_out * out[2] / lo)
+        if spark_safe(q, v, pid, eyes, floor=floor):
+            spray(f, name, pid, ft, q, v)
+
+
+def blade_embers(f, name, pid, rp, ft, radii, eyes, ymin=0.14):
+    """Embers dropped ON the blade at fx tick ft (they drift up off it)."""
+    for r in radii:
+        q = blade_safe(rp, ft, r, eyes, ymin)
+        if ember_ok(q, eyes):
+            chan(f, name, pid, ft, [q, q], every=2)
+
+
 def hit1(rp=RP1):
-    """Contact = the rig's first hit-stop inside fx-high (r23: fx 4 = skill 7); c = the blade at radius 1.5 at contact (the
-    display flash, bastion_s1_fx.H1_HIT). Sparks fly to the caster's right (-x) and up, never across the +x gap between the
-    two eye columns; embers fill the right-hand contact zone and the blade arc's flanks. Every blade-riding element comes
-    from the rig path; the contact zones were authored around C0 and move with c."""
+    """r27 pose to pose. fx tick 0 = skill 6 = the CUT to the follow-through (the blade jumps behind the neck, held to 15; hit
+    stop 7-8; overshoot cut at 16, fx 10). Nothing starts before the cut (B0 coil is `fx: none`). The contact bursts (sprays,
+    fan, embers, streaks, slivers) fly off the target-side contact point H1_HIT on the cut tick (reference: the white streak
+    runs into the target with orange sparks at its tip, t6-11). While the pose is held the blade keeps shedding: a spark row
+    and a few embers ON the blade body every second tick (the air drags them off it), so every tick differs and the sparks
+    follow the sword instead of floating at the old swing. The overshoot cut (fx 10-11) throws one more row."""
     f = Fx("s1h1")
-    s0, k, res, e = rp.strike_windows()[0]
-    # r26 (reviewer r25 #2: no sparks on the compare contact / tint frames f13-14, first at f15): the contact-zone bursts
-    # (sprays, fan, embers, display streaks / slivers) go out `lead` ticks before the rig's reached-contact tick, with the
-    # display flash (bastion_s1_fx.H1_LEAD; the rig pose packet of the contact is sent one tick before it is reached).
-    # Blade-riding sheds / ring embers keep the rig path timing.
-    kc = k - H1_LEAD
-    c, C0 = rp.blade_point(k, radius=1.5), (-0.44, 1.54, 1.59)
-    # sheds: one spark per 0.4 blocks along the blade arc at r 2.3 while it sweeps fast (coil end -> contact, resume -> end)
-    ring_sheds(f, "shed", "shed", rp, s0, k, 2.3, H1_EYES, 0.4, 0.5)
-    # r25: the arc after the contact carries the volume (director r24: hit 1 measured 418-527 vs r23 620-750): two rows,
-    # 0.25 apart along the arc, the inner one lifted more so the rows separate as they fly
-    ring_sheds(f, "shed", "shed", rp, res, e, 2.3, H1_EYES, 0.25, 0.5)
-    ring_sheds(f, "shed", "shed", rp, res, e, 1.8, H1_EYES, 0.3, 0.7)
-    # contact sprays: three waves to the right, fanned forward / level / back, start on the cut line right of the flash
+    c = H1_CONTACT
+    kc = 0
+    for r_ft in (0, 1):  # the cut tick and the next one (frozen by the hit stop): full rows
+        blade_row(f, "shed", "shed", rp, r_ft, (1.0, 1.4, 1.8, 2.2), H1_EYES, 0.45)
+    for ft in (3, 5, 7, 9):  # held follow-through (skill 9, 11, 13, 15): thinner rows + embers
+        blade_row(f, "shed", "shed", rp, ft, (1.2, 1.8), H1_EYES, 0.55)
+        blade_embers(f, "ember-ring", "ember-deep" if ft % 4 == 3 else "ember", rp, ft, (1.0, 1.7, 2.2), H1_EYES)
+    blade_embers(f, "ember-ring", "ember-hot", rp, 0, (1.3, 2.0), H1_EYES)
+    for ft in (10, 11):  # overshoot cut (skill 16-17): the blade jumps up over the shoulder
+        blade_row(f, "shed", "shed", rp, ft, (0.9, 1.3, 1.7, 2.1), H1_EYES, 0.5)
+    blade_embers(f, "ember-ring", "ember-hot", rp, 10, (1.2, 1.9), H1_EYES)
     for i, (dt, p, d) in enumerate((
             (0, (-0.72, 1.62, 1.55), (-1.0, 0.18, 0.15)),
             (0, (-0.75, 1.55, 1.45), (-1.0, 0.25, -0.25)),
@@ -378,20 +399,11 @@ def hit1(rp=RP1):
             (1, (-0.78, 1.5, 1.55), (-1.0, 0.3, 0.3)),
             (2, (-0.85, 1.6, 1.4), (-1.0, 0.2, -0.1)),
             (3, (-0.9, 1.55, 1.45), (-1.0, 0.35, 0.1)))):
-        spray(f, "spray", "spray", kc + dt, rel(c, p, C0), d, ticks=2 if i < 2 else 1)
-    # upward fan out of the contact's right half (contact .. +2)
-    spray(f, "fan", "fan", kc, rel(c, (-1.05, 1.7, 1.35), C0), (-0.35, 1.0, -0.05), ticks=3)
-    # follow-through: the blade leaves the target and throws a last wave along its own tangent off the left flank
-    ft = res + 1.5
-    tg = rp.arc(ft - 0.1, ft + 0.1, radius=2.0, step=0.05)[1][2]
-    spray(f, "spray", "spray", res + 2, blade_safe(rp, ft, 2.0, H1_EYES), (tg[0], max(tg[1], 0.0) + 0.35, tg[2]), ticks=2)
-    # embers: right contact zone (contact .. +5, ~5 per tick), blade-arc flanks before the contact and on the follow-through
-    scatter(f, "ember", "ember", kc, rel_box(c, ((-2.0, -1.25), (1.2, 1.9), (1.15, 1.8)), C0), 8, 11, 0.22)
-    scatter(f, "ember-hot", "ember-hot", kc, rel_box(c, ((-1.6, -1.2), (1.4, 1.8), (1.3, 1.7)), C0), 5, 12)
-    scatter(f, "ember-deep", "ember-deep", kc + 2, rel_box(c, ((-2.2, -1.3), (1.0, 1.6), (1.1, 1.9)), C0), 7, 13)
-    ring_embers(f, "ember-ring", "ember", rp, s0, k, 2.2, H1_EYES, 0.35)
-    ring_embers(f, "ember-ring", "ember-deep", rp, res, e, 2.1, H1_EYES, 0.25)
-    # display sprites: orange streaks along the cut (5) and hot-headed char-tailed slivers (8, r21), the parts the channels cannot draw
+        spray(f, "spray", "spray", kc + dt, p, d, ticks=2 if i < 2 else 1)
+    spray(f, "fan", "fan", kc, (-1.05, 1.7, 1.35), (-0.35, 1.0, -0.05), ticks=3)
+    scatter(f, "ember", "ember", kc, ((-2.0, -1.25), (1.2, 1.9), (1.15, 1.8)), 8, 11, 0.22)
+    scatter(f, "ember-hot", "ember-hot", kc, ((-1.6, -1.2), (1.4, 1.8), (1.3, 1.7)), 5, 12)
+    scatter(f, "ember-deep", "ember-deep", kc + 2, ((-2.2, -1.3), (1.0, 1.6), (1.1, 1.9)), 7, 13)
     s = off(c, 0, 0.15, -0.1)
     f.els.append(emitter("s1h1-p-streaks", "bastion-s1-streak", STREAK_TINT, kc, off(c, 0, -0.1, -0.15), 5, 2, (0.35, 0.5),
                          "custom[-1, 0.2, 0.25]", 25, 0.0, 0.2, (3, 4), (0.07, 0.1), STREAK_SOL, 0))
@@ -401,17 +413,21 @@ def hit1(rp=RP1):
 
 
 def hit2(rp=RP2):
-    """Contact = the rig's hit-stop inside fx-low (fx 4 = skill 31); c = the low blade at radius 1.2 at contact, ~1.2 under
-    the opponent eye: sparks spray sideways (+-x) from 0.45-0.5 off the centre line with a little lift; embers fill both
-    side zones; the ring sweep sheds sparks ON the blade arc (r24: no longer lifted to y 0.8-1.0 off the low blade)."""
+    """r27 pose to pose. fx tick 0 = skill 30 (flash beat, no particles); fx 1 = skill 31 = the CUT to the extension (blade
+    forward at chest height, held to 37; hit stop 31-32); fx 8 = skill 38 the drop cut to the low back-left pose. Contact
+    bursts fly off the blade at radius 1.2 on the cut; the held extension sheds a spark row + embers every tick pair; the drop
+    cut throws a last row (fx 8-9, skill 38-39, the last emissions before the B8 rest, which is `fx: none`)."""
     f = Fx("s1h2")
-    s0, k, res, e = rp.strike_windows()[0]
+    k = 1
     c = rp.blade_point(k, radius=1.2)
-    ring_sheds(f, "shed", "shed", rp, s0, k, 2.3, H2_EYES, 0.4, 0.55)
-    # follow-through: the blade drags at floor pitch (tip y ~0.1, y ~0.25 at r 2.0): sheds start just above it (y >= 0.45)
-    # and rise off it (the scrape); late in their life they may sink to 0.25
-    ring_sheds(f, "shed", "shed", rp, res, e, 2.0, H2_EYES, 0.22, 0.75, ymin=0.45, floor=0.25)
-    ring_sheds(f, "shed", "shed", rp, res, e, 1.6, H2_EYES, 0.3, 0.9, ymin=0.45, floor=0.25)  # r25 inner row (density)
+    for ft in (1, 2):
+        blade_row(f, "shed", "shed", rp, ft, (0.9, 1.3, 1.7, 2.1), H2_EYES, 0.5, ymin=0.45, floor=0.25)
+    for ft in (3, 4, 5, 6, 7):
+        blade_row(f, "shed", "shed", rp, ft, (1.1, 1.8) if ft % 2 else (0.9, 1.5, 2.1), H2_EYES, 0.6, ymin=0.45, floor=0.25)
+        blade_embers(f, "ember-ring", "ember-deep" if ft % 2 else "ember", rp, ft, (1.0, 1.6), H2_EYES, ymin=0.3)
+    for ft in (8, 9):  # the drop cut
+        blade_row(f, "shed", "shed", rp, ft, (0.8, 1.2, 1.6, 2.0), H2_EYES, 0.6, ymin=0.45, floor=0.25)
+        blade_embers(f, "ember-ring", "ember-deep", rp, ft, (1.0, 1.7), H2_EYES, ymin=0.3)
     for sg, side in ((1, "l"), (-1, "r")):
         for dt, dx, dy, dz, d in ((0, 0.5, 0.55, -0.02, (1.0, 0.3, 0.05)), (0, 0.55, 0.55, 0.1, (1.0, 0.4, -0.2)),
                                   (1, 0.6, 0.6, -0.05, (1.0, 0.4, 0.15)), (2, 0.65, 0.5, 0.0, (1.0, 0.3, -0.05))):
@@ -429,7 +445,6 @@ def hit2(rp=RP2):
         f.els.append(emitter("s1h2-p-slivers-" + side, "bastion-s1-sliver", SLIVER_TINT, k, off(c, 0.45 * sg, 0.5, 0.0), 3, 2,
                              (0.2, 0.28), "custom[%.1f, 0.3, 0.1]" % (0.9 * sg), 20, 0.015, 0.08, (4, 5), (0.04, 0.06),
                              SLIVER_SOL, SLIVER_SPIN))
-    ring_embers(f, "ember-ring", "ember-deep", rp, res, e, 2.4, H2_EYES, 0.25, ymin=0.3)
     return f
 
 

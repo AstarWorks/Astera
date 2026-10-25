@@ -135,14 +135,14 @@ def at(p, off):
     return [round(p[i] + off[i], 3) for i in range(3)]
 
 
-def contact_anchor(fx_vfx, radius, offset=(0.0, 0.0, 0.0)):
+def contact_anchor(fx_vfx, radius, offset=(0.0, 0.0, 0.0), fixed=None):
     """r25: (contact fx tick, point) of a blade-following contact element: the blade point `radius` blocks from the rig
     pivot on the fx file's (only) contact tick, read from the rig (rig_path.RigPath), plus the element's authored offset
     (camera-tuned: kept relative to the blade so it moves when the animator moves the contact)."""
     rp = RigPath(SKILL_ID, RIG_VFX, fx_vfx=fx_vfx)
     c = rp.contact_fx_ticks()
     c = [t for t in c if 0 <= t < (rp.fx_duration or 999)][0]
-    p = rp.blade_point(c, radius=radius)
+    p = fixed if fixed is not None else rp.blade_point(c, radius=radius)  # r27: hit 1 lands on the target, the blade is behind
     return c, [round(p[i] + offset[i], 3) for i in range(3)]
 
 
@@ -172,12 +172,14 @@ def spark3(id_, start, p, d, roll, length, life=4, color=ORANGE):
 # r25: no hard-coded contact point any more: contact_anchor("bastion-s1-fx-high", 1.5) reads it from the rig
 # ((-0.439, 1.533, 1.583) on fx 4 for the r23 keys); the offsets below are the camera-tuned shifts from that blade point.
 H1_LEAD = SWEEPS["hring"].get("lead", 0)  # r26: hit-1 contact displays spawn this many ticks before the rig contact
+H1_HIT = (-0.439, 1.533, 1.583)  # hit-1 contact point on the target side (r10 camera-tuned, the old rig's blade at r 1.5)
 H1_R, H2_R = 1.5, 1.2  # blade radius (from the rig pivot) of the hit-1 / hit-2 contact anchors
 
 
 def high():
     els = []
-    c, hit = contact_anchor("bastion-s1-fx-high", H1_R)  # r25: contact tick + blade point from the rig
+    # r27: pose to pose (blade behind the neck at the cut), so the hit-1 contact point is the authored target-side point, not the blade
+    c, hit = contact_anchor("bastion-s1-fx-high", H1_R, fixed=H1_HIT)
     # r10: hit 1 is a tilted horizontal sweep (tip plane y = 1.15 + tan20 z). The smear is a gold RING in that plane around the
     # caster (bastion_s1_sprites.py SWEEPS["hring"]: chest height at the sides, head height in front, ~0.2 above the floor
     # behind), front + back pair. Spawn fx 0 (skill 4): frame 0 (seed at the wind-up extreme) on skill 4-5, frame k on skill

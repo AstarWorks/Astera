@@ -585,13 +585,13 @@ SWEEPS = {
                   # way) and ends where the follow-through stops advancing, not where the speed drops under 1 block/tick.
                   # If the blade does not sweep a full turn the ring is closed on the follow-through (`close_ticks`) by
                   # drawing the tail back to meet the head, while the head stays on the blade.
-                  fit_plane=True, track="reversal", close_ticks=2,
+                  cut=dict(tick=0, open=[250.0], closed=4),  # r27: pose-to-pose cut, see _cut_schedule
+                  lead=1,
                   # r26 (reviewer r25 #2: the compare close-up showed no ring on the contact frames f13-14, the band came
                   # one tick after the hurt tint): `lead` = ticks the tile frames run AHEAD of the tip state. The rig pose of
                   # tick l is SENT at l - 1 and interpolated over that client tick (rig_path "reached" = l), while a text
                   # swap / spawn sent at l only shows a client tick later, so a discrete frame scheduled on the reached tick
                   # lands one tick behind the blade. lead 1 = swap on the tick the pose packet goes out.
-                  lead=1,
                   # r26 (reviewer r25 #3: a 1 px dotted seam across the band at the tile join, compare f16 at 2x): two quads
                   # that only abut leave a sub-pixel crack; each tile now covers `tile_overlap` texels (of 256) past every
                   # edge (sprite scale grows by the same factor), so neighbours overlap by 2 x that across the join. The
@@ -626,7 +626,7 @@ SWEEPS = {
                  # r25: frames from the rig (`ring_schedule`, as hring): the trail of the tip from the start of its fast swing,
                  # thickening over the first two ticks (`grow`), then `fade` = the tail chasing the head (erase fraction of the
                  # span, thickness, opacity).
-                 fx="bastion-s1-fx-low", grow=[0.75, 0.9],
+                 fx="bastion-s1-fx-low", grow=[0.75, 0.9], cut=dict(tick=1, open=[200.0], closed=3),
                  fade=[(0.0, 0.85, 0.9), (0.25, 0.72, 0.8), (0.5, 0.58, 0.68), (0.7, 0.44, 0.54), (0.85, 0.3, 0.4),
                        (0.93, 0.18, 0.28)]),
 }
@@ -967,6 +967,41 @@ def _fit_plane(name, rp, t0, t1):
     return math.degrees(math.acos(min(1.0, nup[1]))), off
 
 
+def _cut_schedule(name, rp):
+    """r27: the S1 motion is pose to pose (ADR-0254: held poses, step cuts), so the blade never sweeps and there is no trail to
+    track. The smear is the REFERENCE's: it appears whole on the cut tick (one partial arc frame, then the closed ring), is held
+    while the pose is held, then fades by thinning. `cut` = dict(tick = fx tick of the cut (every tile spawns on it, no blank
+    lead frame: frame 0 shows on spawn and spawn + 1), open = in-plane spans (deg) of the partial arc frames, closed = frames of
+    the closed ring). The head sits on the blade tip of the new pose (plan dump via rig_path)."""
+    sw = SWEEPS[name]
+    cut = sw["cut"]
+    sgn = sw["sign"]
+    ring = "aniso" in sw
+    head = sweep_alpha(name, rp.blade_point(cut["tick"]))
+    fl = sw.get("track_floor")
+    st = (lambda tl, hd, ts, op, f=None: (tl, hd, ts, op, f if f is not None else fl)) if ring else (lambda tl, hd, ts, op, f=None: (tl, hd, ts, op))
+    states = []
+    grow = sw.get("grow", [])
+    for i, span in enumerate(cut["open"]):
+        states.append(st(head - sgn * span, head, grow[i] if i < len(grow) else 1.0, 1.0))
+    for i in range(cut["closed"]):
+        states.append(st(head - sgn * 360.0, head, 1.0, 1.0))
+    for f in sw.get("fade", []):
+        erase, ts, op = f[0], f[1], f[2]
+        states.append(st(head - sgn * 360.0 + sgn * erase * 360.0, head, ts, op, f[3] if ring else None))
+    n = len(states)
+    t0 = cut["tick"]
+    if t0 + n + 1 > (rp.fx_duration or 999):
+        raise SystemExit(f"ring_schedule({name}): {n} frames from fx {t0} do not fit the {rp.fx_duration}-tick fx file")
+    nt = sw["tiles"]
+    strips = {qi: list(states) for qi in range(len(TILES))}
+    out = {"states": {t0 + i: s_ for i, s_ in enumerate(states)}, "start": {qi: t0 for qi in strips}, "spawn": {qi: t0 for qi in strips},
+           "last": t0 + n - 1, "end": t0 + n + 1, "lead": 0, "window": (t0, t0, t0, t0 + n), "strips": strips, "frames": n,
+           "off_plane": 0.0, "tail": head, "closed_at": t0 + len(cut["open"]), "plane": None}
+    _SCHEDULES[name] = out
+    return out
+
+
 def ring_schedule(name, probe=48):
     """Rig-driven frames of a tiled plane ring: dict with 'states' {fx tick: frame args}, 'start' {tile q: first band fx tick},
     'spawn' {tile q: spawn fx tick}, 'last' (last fx tick with a frame), 'window' (s, c, r, e), 'strips' {q: [frame args or
@@ -976,6 +1011,8 @@ def ring_schedule(name, probe=48):
         return _SCHEDULES[name]
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from rig_path import RigPath
+    if "cut" in SWEEPS[name]:
+        return _cut_schedule(name, RigPath(SKILL_ID, RIG_VFX, fx_vfx=SWEEPS[name]["fx"]))
     sw = SWEEPS[name]
     rp = RigPath(SKILL_ID, RIG_VFX, fx_vfx=sw["fx"])
     sgn = sw["sign"]

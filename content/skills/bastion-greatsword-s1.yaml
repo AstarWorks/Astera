@@ -1,5 +1,5 @@
 # Zwei West Section 3 Ishmael, Knight's Greatsword Form (video 11.633-14.233): two waist-high sweeps. Director integration (pilot, ONE rig).
-# bastion-s1-rig plays at skill tick 0 for the whole skill (freeze 7/31 = the two hit_stops; r23 hit-1 contact tick 7 = reference t7, was 8); fx-high/low play at 3/27 (contact = effect tick 4).
+# bastion-s1-rig plays at skill tick 0 for the whole skill (freeze 7/31 = the two hit_stops; r23 hit-1 contact tick 7 = reference t7, was 8); fx-high/low play at 6/30 = the two cut ticks (contact = effect tick 1; hit-stops 7 / 31).
 # Motion follows the reference: no caster travel during the coil / hit 1 (the hit-1 dash_strike was removed); the only step-in is the lunge into hit 2 (dash_strike 28-31). Settle sound 19.
 # Sounds: deliver/sound-cues.yaml; vanilla particles ride the blade inside fx-high/low (deliver/particle-cues.yaml round 7b); no spawn_particle steps remain here (no electric_spark user since r9; ADR-0252 ember/spark channels). Caster movement: lunge into hit 2 only.
 id: bastion-greatsword-s1
@@ -22,7 +22,7 @@ phases:
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-s1-fx-high
-    delay_ticks: {type: literal, value: 3}
+    delay_ticks: {type: literal, value: 6}
   - type: play_sound
     targets: {type: caster}
     sound_id: 'astera:weapons/bastion-s1-blade-lift'
@@ -111,7 +111,7 @@ phases:
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-s1-fx-low
-    delay_ticks: {type: literal, value: 27}
+    delay_ticks: {type: literal, value: 30}
   - type: play_sound
     targets: {type: caster}
     sound_id: 'astera:weapons/bastion-s1-blade-lift'
