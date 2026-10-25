@@ -42,7 +42,7 @@ phases:
   cast:
     - type: play_sound
       targets: { type: caster }
-      sound_id: block.grass.break
+      sound_id: astera:skill/wand/cast
       volume: { type: literal, value: 0.9 }
       pitch: { type: literal, value: 1.4 }
     - type: play_sound
