@@ -51,6 +51,7 @@ public class StarDropService(
 ) {
     private val drops: MutableMap<Long, StarDrop> = ConcurrentHashMap()
     private val nextId = AtomicLong(1)
+    private val inFlight: MutableSet<Long> = ConcurrentHashMap.newKeySet()
 
     public fun onSpawned(event: ResourceSpawned) {
         val generator = generators.listForMatch(event.matchId).firstOrNull { it.id == event.generatorId } ?: return
@@ -136,7 +137,7 @@ public class StarDropService(
         val loc = positions.positionOf(player) ?: return // dead / spectating
         if (loc.world != drop.world) return
         if (isDenied(drop, player) || System.currentTimeMillis() < drop.readyAtMillis) return
-        take(drop, player)
+        scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { take(drop, player) }
     }
 
     /** Match ended: its drops vanish, things included. */
@@ -150,8 +151,9 @@ public class StarDropService(
     /** Stars lying on the map for [matchId] (diagnostics / tests). */
     public fun lying(matchId: MatchId): Int = drops.values.filter { it.matchId == matchId }.sumOf { it.amount }
 
+    /** Drops of [matchId] in stable id order, so concurrent pickups resolve the same way every time. */
     private fun collectAt(matchId: MatchId) {
-        drops.values.filter { it.matchId == matchId }.forEach(::tryCollect)
+        drops.values.filter { it.matchId == matchId }.sortedBy { it.id }.forEach(::tryCollect)
     }
 
     private fun withEntity(drop: StarDrop, velocity: Vec3?): StarDrop {
@@ -162,10 +164,16 @@ public class StarDropService(
     private fun isDenied(drop: StarDrop, player: PlayerId): Boolean =
         player == drop.deniedTo && System.currentTimeMillis() < drop.deniedUntilMillis
 
+    /**
+     * Positions are read on each candidate's own owner (Entity); the decision and [take] run on Global, which is
+     * the single owner of the star ledger. At most one lookup is in flight per drop, and [take] removes the drop
+     * atomically, so a star is picked up exactly once however many moves or polls ask for it.
+     */
     private fun tryCollect(drop: StarDrop) {
         if (!drops.containsKey(drop.id)) return
         if (System.currentTimeMillis() < drop.readyAtMillis) return
         val match = matches.findById(drop.matchId) ?: return
+        if (!inFlight.add(drop.id)) return
         val radiusSq = drop.pickupRadius * drop.pickupRadius
         val candidates = match.teams.flatMap { it.members }.sortedBy { it.uuid }.filterNot { isDenied(drop, it) }.map { player ->
             val result = CompletableFuture<Pair<PlayerId, Double>?>()
@@ -176,11 +184,15 @@ public class StarDropService(
             }.onRetired { result.complete(null) }
             result
         }
-        CompletableFuture.allOf(*candidates.toTypedArray()).thenRun {
+        CompletableFuture.allOf(*candidates.toTypedArray()).whenComplete { _, _ ->
             val taker = candidates.mapNotNull { it.getNow(null) }.minWithOrNull(
                 compareBy<Pair<PlayerId, Double>> { it.second }.thenBy { it.first.uuid },
             )?.first
-            if (taker != null) scheduler.run(ExecutionScope.Entity(taker.uuid), kotlin.time.Duration.ZERO) { take(drop, taker) }
+            val handle = scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) {
+                inFlight.remove(drop.id)
+                if (taker != null) take(drop, taker)
+            }
+            handle.onRetired { inFlight.remove(drop.id) }
         }
     }
 

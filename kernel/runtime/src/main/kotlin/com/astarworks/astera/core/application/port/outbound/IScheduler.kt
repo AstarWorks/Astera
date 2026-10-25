@@ -41,4 +41,7 @@ public fun IScheduler.runRepeatingTicks(
 
 /** Dispatch completion work to the declared owner, including already-completed futures. */
 public fun IScheduler.executor(scope: ExecutionScope): java.util.concurrent.Executor =
-    java.util.concurrent.Executor { command -> run(scope, Duration.ZERO) { command.run() } }
+    java.util.concurrent.Executor { command ->
+        // A retired owner (entity gone) must not strand the future: finish the continuation on the global thread.
+        run(scope, Duration.ZERO) { command.run() }.onRetired { run(ExecutionScope.Global, Duration.ZERO) { command.run() } }
+    }

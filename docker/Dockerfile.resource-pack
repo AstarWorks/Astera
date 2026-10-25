@@ -27,8 +27,6 @@ COPY tools /workspace/tools/
 COPY kernel /workspace/kernel/
 COPY core /workspace/core/
 COPY plugin /workspace/plugin/
-COPY kernel /workspace/kernel/
-COPY core /workspace/core/
 COPY content /workspace/content/
 
 RUN --mount=type=cache,id=astera-resource-pack-gradle,sharing=locked,target=/home/gradle/.gradle \

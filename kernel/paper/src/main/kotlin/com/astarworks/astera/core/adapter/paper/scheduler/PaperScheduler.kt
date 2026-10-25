@@ -68,7 +68,7 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
         val handle = Handle()
         handles.add(handle)
         val callback = Consumer<ScheduledTask> {
-            if (!handle.isCancelled) {
+            if (!handle.isTerminated()) {
                 try {
                     block()
                 } finally {
@@ -94,19 +94,24 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
                     )
                 }
                 is ExecutionScope.Entity -> {
-                    fun submit(entity: Entity?) {
-                        if (handle.isCancelled) return
-                        val task = if (entity == null) null else if (periodTicks == null) {
-                            entity.scheduler.runDelayed(plugin, callback, handle::retire, delayTicks)
+                    // A player's entity instance is replaced on respawn (and is briefly absent while it changes world):
+                    // a retired task for a player who is still online is re-submitted against the current instance,
+                    // never silently dropped. Other entities are gone for good, so the handle retires (callbacks run).
+                    fun submit(entity: Entity?, attempt: Int) {
+                        if (handle.isTerminated()) return
+                        if (entity == null) { retryOrRetire(handle, scope.id, attempt, ::submit); return }
+                        val retired = Runnable { retryOrRetire(handle, scope.id, attempt, ::submit) }
+                        val task = if (periodTicks == null) {
+                            entity.scheduler.runDelayed(plugin, callback, retired, delayTicks)
                         } else {
-                            entity.scheduler.runAtFixedRate(plugin, callback, handle::retire, delayTicks, periodTicks)
+                            entity.scheduler.runAtFixedRate(plugin, callback, retired, delayTicks, periodTicks)
                         }
-                        if (task == null) handle.retire() else handle.bind(task)
+                        if (task == null) retryOrRetire(handle, scope.id, attempt, ::submit) else handle.bind(task)
                     }
                     val reference = server.getPlayer(scope.id) ?: entities[scope.id]
-                    if (reference != null) submit(reference)
-                    else if (Bukkit.isGlobalTickThread()) submit(server.getEntity(scope.id))
-                    else handle.bind(server.globalRegionScheduler.run(plugin) { submit(server.getEntity(scope.id)) })
+                    if (reference != null) submit(reference, 0)
+                    else if (Bukkit.isGlobalTickThread()) submit(server.getEntity(scope.id), 0)
+                    else handle.bind(server.globalRegionScheduler.run(plugin) { submit(server.getEntity(scope.id), 0) })
                 }
                 ExecutionScope.Io -> handle.bind(
                     if (period == null && delay <= Duration.ZERO) server.asyncScheduler.runNow(plugin, callback)
@@ -121,6 +126,22 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
             throw t
         }
         return handle
+    }
+
+    /** An Entity task was retired (or its entity was absent): re-submit for an online player, else retire the handle. */
+    private fun retryOrRetire(handle: Handle, id: UUID, attempt: Int, resubmit: (Entity?, Int) -> Unit) {
+        if (handle.isTerminated()) return
+        if (attempt < ENTITY_RETRIES && plugin.server.getPlayer(id) != null) {
+            plugin.logger.fine("Entity task for $id retired; retrying (${attempt + 1}/$ENTITY_RETRIES).")
+            try {
+                plugin.server.globalRegionScheduler.runDelayed(plugin, { resubmit(plugin.server.getPlayer(id), attempt + 1) }, ENTITY_RETRY_TICKS)
+                return
+            } catch (_: Throwable) {
+                // plugin disabled: fall through to retire
+            }
+        }
+        plugin.logger.fine("Entity task for $id retired; no live entity.")
+        handle.retire()
     }
 
     override fun dispatcher(scope: ExecutionScope): CoroutineDispatcher = object : CoroutineDispatcher() {
@@ -140,11 +161,19 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
         }
     }
 
+    private companion object {
+        const val ENTITY_RETRIES = 10
+        const val ENTITY_RETRY_TICKS = 2L
+    }
+
     private inner class Handle : IScheduler.TaskHandle {
         private val tasks = mutableListOf<ScheduledTask>()
         private var cancelled = false
         private var retired = false
         private val callbacks = mutableListOf<() -> Unit>()
+
+        @Synchronized
+        fun isTerminated(): Boolean = cancelled
 
         @Synchronized
         fun bind(next: ScheduledTask) {

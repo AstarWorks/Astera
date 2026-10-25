@@ -144,8 +144,11 @@ internal object MatchStarWiring {
             }
             subs += eventBus.subscribe(NormaLevelUp::class) { e -> env.scheduler.runLaterTicks(ExecutionScope.Entity(e.playerId.uuid), PROMPT_DELAY_TICKS) { prompter.prompt(e.playerId) } }
             subs += eventBus.subscribe(MatchStarted::class) { e ->
-                env.matches.findById(e.matchId)?.teams?.flatMap { it.members }?.forEach { id ->
-                    env.scheduler.runLaterTicks(ExecutionScope.Entity(id.uuid), PROMPT_DELAY_TICKS) { prompter.prompt(id) }
+                // Teams fill in after MatchStarted publishes: read the roster after the settle delay, then fan out.
+                env.scheduler.runLaterTicks(ExecutionScope.Global, PROMPT_DELAY_TICKS) {
+                    env.matches.findById(e.matchId)?.teams?.flatMap { it.members }?.forEach { id ->
+                        env.scheduler.runLaterTicks(ExecutionScope.Entity(id.uuid), 0L) { prompter.prompt(id) }
+                    }
                 }
             }
         }

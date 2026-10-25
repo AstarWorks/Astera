@@ -208,10 +208,9 @@ public class PaperWorldGateway(
             val loc = toLocation(targetWorld, at)
             loc.yaw = yaw ?: player.location.yaw
             loc.pitch = pitch ?: player.location.pitch
+            // Completion is thread-safe and dependents choose their own owner, so no extra entity hop that could be retired.
             player.teleportAsync(loc).whenComplete { moved, failure ->
-                scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
-                    completed.complete(failure == null && moved == true)
-                }.onRetired { completed.complete(false) }
+                completed.complete(failure == null && moved == true)
             }
         }
         val reference = onlinePlayer(playerId)

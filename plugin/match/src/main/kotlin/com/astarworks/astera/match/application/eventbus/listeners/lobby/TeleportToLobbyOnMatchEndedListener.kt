@@ -1,6 +1,5 @@
 package com.astarworks.astera.match.application.eventbus.listeners.lobby
 
-import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -72,13 +71,14 @@ public class TeleportToLobbyOnMatchEndedListener(
             return
         }
 
+        // The gateway hops to each player's owner itself (inline when already on it) and always completes the
+        // future, so there is no outer entity task here that a respawning victim could retire unseen.
         for (playerId in participants) {
-            scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
-                worldGateway.lobbySpawn(playerId).thenAccept { outcome ->
-                    when (outcome) {
-                        is Result.Success -> eventBus.publish(PlayerReturnedToLobby(playerId, scheduler.currentTick()))
-                        is Result.Failure -> log.warn("Post-match lobby teleport for {} failed: {}", playerId, outcome.error::class.simpleName)
-                    }
+            worldGateway.lobbySpawn(playerId).whenComplete { outcome, failure ->
+                when {
+                    failure != null -> log.warn("Post-match lobby teleport for {} threw: {}", playerId, failure.toString())
+                    outcome is Result.Success -> eventBus.publish(PlayerReturnedToLobby(playerId, scheduler.currentTick()))
+                    outcome is Result.Failure -> log.warn("Post-match lobby teleport for {} failed: {}", playerId, outcome.error::class.simpleName)
                 }
             }
         }
