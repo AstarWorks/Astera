@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":plugin:core")) // Production anchoring / ordinary-text estimate.
+    implementation(project(":kernel:domain")) // Production anchoring / ordinary-text estimate.
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.adventure.minimessage)
 }

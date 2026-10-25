@@ -25,8 +25,8 @@ class TestPolicyTest {
         val allowlist = javaClass.getResourceAsStream("/konsist-allowlist/plugin-tests.txt")!!
             .bufferedReader().readLines().map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }.toSet()
 
-        val pluginTestFile = Regex("^plugin/[^/]+/src/test/")
-        val violations = Files.walk(root.resolve("plugin")).use { stream ->
+        val pluginTestFile = Regex("^(?:plugin|kernel|core)/[^/]+/src/test/")
+        val violations = java.util.stream.Stream.of("plugin", "kernel", "core").flatMap { Files.walk(root.resolve(it)) }.use { stream ->
             stream.filter { Files.isRegularFile(it) && it.toString().endsWith(".kt") }
                 .map { root.relativize(it).toString().replace('\\', '/') }
                 .filter { pluginTestFile.containsMatchIn(it) }
@@ -41,7 +41,7 @@ class TestPolicyTest {
         }.sorted()
 
         assertThat(violations)
-            .`as`("Unit tests are forbidden under plugin/*/src/test. Use tools/game-sim, tools/e2e or a *IT (see docs/contributing/testing-policy.md)")
+            .`as`("Unit tests are forbidden under plugin/*, kernel/* or core/*/src/test. Use tools/game-sim, tools/e2e or a *IT (see docs/contributing/testing-policy.md)")
             .isEmpty()
     }
 }

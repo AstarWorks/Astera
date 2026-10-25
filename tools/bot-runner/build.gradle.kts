@@ -14,7 +14,7 @@ plugins {
 
 dependencies {
     api(libs.mcprotocollib)
-    api(project(":plugin:core"))
+    api(project(":kernel:runtime"))
     api(libs.slf4j.api)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.lettuce.core)
