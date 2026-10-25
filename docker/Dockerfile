@@ -29,6 +29,8 @@ COPY tools /workspace/tools/
 
 # Now copy plugin sources. Anything not relevant (build/, .gradle/, IDE files)
 # is excluded via Dockerfile.dockerignore.
+COPY kernel /workspace/kernel/
+COPY core /workspace/core/
 COPY plugin /workspace/plugin/
 COPY kernel /workspace/kernel/
 COPY core /workspace/core/
