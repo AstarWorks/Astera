@@ -65,6 +65,17 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
     }
 
     private fun schedule(scope: ExecutionScope, delay: Duration, period: Duration?, block: () -> Unit): Handle {
+        // Zero delay on the owning thread runs now: same-tick ordering of a synchronous sequence is preserved
+        // (a queued task would land one tick later and could be overtaken by what follows it).
+        if (period == null && delay <= Duration.ZERO && ownedByCurrentThread(scope)) {
+            val inline = Handle()
+            try {
+                block()
+            } catch (t: Throwable) {
+                plugin.logger.log(java.util.logging.Level.WARNING, "Inline task for $scope threw", t)
+            }
+            return inline
+        }
         val handle = Handle()
         handles.add(handle)
         val callback = Consumer<ScheduledTask> {
@@ -126,6 +137,13 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
             throw t
         }
         return handle
+    }
+
+    private fun ownedByCurrentThread(scope: ExecutionScope): Boolean = when (scope) {
+        ExecutionScope.Global -> Bukkit.isGlobalTickThread()
+        ExecutionScope.Io -> false
+        is ExecutionScope.Entity -> (plugin.server.getPlayer(scope.id) ?: entities[scope.id])?.let { Bukkit.isOwnedByCurrentRegion(it) } ?: false
+        is ExecutionScope.Region -> plugin.server.getWorld(scope.world.value)?.let { Bukkit.isOwnedByCurrentRegion(it, scope.cx, scope.cz) } ?: false
     }
 
     /** An Entity task was retired (or its entity was absent): re-submit for an online player, else retire the handle. */
