@@ -180,13 +180,15 @@ public class VfxRigMotion(
     }
 
     /**
-     * Orientation of the weapon item display (anchor-local): the rig frame times the constant that turns the rig's key-0 pose
-     * into the vanilla held item (`rotX(72)`), so key 0 on a body at rest is exactly what the player holds.
+     * Orientation of the weapon item display (anchor-local): the rig frame times the constant grip pitch. The swing keys are
+     * ABSOLUTE wrist rotations in the arm frame: all-zero keys on a body at rest are exactly what the player holds, and key 0
+     * is free to be any pose (a coil from tick 0; the reference never starts from the held pose). `weapon_tip` / `weapon_edge`
+     * are therefore expressed after the grip pitch: the model blade axis turned by `rotX(72)`.
      */
     public fun weaponRotationAt(s: Double): Quaternion = frameRotationAt(s) * weaponOffset
 
     private val weaponOffset: Quaternion =
-        exact(0).conjugate() * Quaternion.axisAngle(Vec3(1.0, 0.0, 0.0), Math.toRadians(SkinRigTransforms.HELD_GRIP_PITCH))
+        Quaternion.axisAngle(Vec3(1.0, 0.0, 0.0), Math.toRadians(SkinRigTransforms.HELD_GRIP_PITCH))
 
     /** World-axes rotation (anchor applied) at rig tick [s]. */
     public fun worldRotationAt(s: Double): Quaternion = anchorRot * frameRotationAt(s)

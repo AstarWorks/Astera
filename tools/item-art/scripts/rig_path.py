@@ -95,6 +95,8 @@ def _ease(name):
     pw = {"quad": 2, "cubic": 3, "quart": 4, "quint": 5}
     if n == "linear":
         return lambda t: t
+    if n == "step":  # a cut: the previous key holds until the arrival tick (Easing.STEP)
+        return lambda t: 1.0 if t >= 1.0 else 0.0
     kind, _, fam = n.partition("_") if not n.startswith("in_out_") else ("in_out", None, n[len("in_out_"):])
     if fam in pw:
         p = pw[fam]

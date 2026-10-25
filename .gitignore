@@ -109,3 +109,7 @@ versions/
 .claude/state/*
 !.claude/state/.gitkeep
 .claude/scheduled_tasks.lock
+
+# Python bytecode
+__pycache__/
+*.pyc

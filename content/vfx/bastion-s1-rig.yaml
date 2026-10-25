@@ -1,149 +1,34 @@
-# S1 sword: ONE rig (one set of sword displays) for the whole skill: hold -> swing 1 -> hold -> swing 2 -> hold. No hand-over, no duplicate sword.
-# Play at skill tick 0 with follow: true (rides the caster through the dashes), duration 58 (ADR-0254: the performance claims the hand lease itself; no hide_held_item step; the rig spawns staged, view_range 0 until age 1, and is revealed in the lease bundle),
-# play_vfx freeze: [{ at: 7, ticks: 2 }, { at: 31, ticks: 2 }]  (effect ticks; the hit_stop of both contacts; r23: hit 1 contact moved 8 -> 7 = the reference t7).
-# Rig key time l is displayed at effect tick l + 1 (+ frozen ticks before it); the real client shows it ~1-2 ticks later (r6/r8). Hit 1 contact = key 6, displayed at effect tick 7.
-# r23 (reviewer r22: wind-up coil missing, hit 1 late; director r22: opponent start pop): hit 1 re-keyed, keys 0-6 new, old keys 8-20 -> 7-19, key 20 = an extra REST hold
-#   (hit 2 keeps key 28 = tick 31), keys 21-52 unchanged except a 180 deg turn about the blade from key 6 on (invisible on the symmetric sword; it keeps
-#   the over-the-top drop and the sweep short). Keys 0-1 = held (runtime REVEAL_AGE 2; r24: 1, only key 0). Keys 2-3 lift over the top slightly outward with the broad face kept
-#   on the caster's left/right axis (front view: edge-on, lean 6 -> 15 -> 30; compare view: broad silver face), keys 4-5 = low-back coil (tip phi 215
-#   pitch -15, tip y 0.11, face to the caster's right; key 5 creeps 21 deg into the sweep), key 6 = contact (the old key-7 pose), one 121 deg chunk 5 -> 6
-#   (cap exception: the reference completes the swing between two frames, the fx-high ring is the swing). Chunks 51/46/55/21/121.
-#   Comments below that name keys >= 8 refer to the pre-r23 numbering (subtract 1 up to key 20).
-#   Numbers: evidence/animator/r23/per-key-r23.txt.
-# r24 (director r23: the r23 keys 2-3 lifted the blade OVER THE TOP t3-5 = a raise, not a coil; reference holds it low behind t0-5): keys 0-5 re-keyed,
-#   runtime REVEAL_AGE 2 -> 1 (VfxPlayer): only key 0 = held, the rig moves from tick 2. The blade goes DOWN and back round the caster's right side,
-#   never above the held pitch (max 52): tip (phi, pitch) 0,52 -> 345,51 -> 315,51 -> 247,33 -> 215,-12 (keys 0-4, tip y 2.78/2.75/2.74/2.16/0.24),
-#   chunks 10/19/52/55; low-back coil at key 4 = tick 5, key 5 creeps 28 deg toward the sweep, contact key 6 = tick 7 unchanged, one 120 deg chunk 5 -> 6
-#   (approved swing exception). Keys 1-2 move little in the FRONT view (lean 5 -> 20 -> 39) because the client's first rig frame lands up to ~1.5 keys after
-#   the reveal under load (r24 60 fps: a 3-chunk path with key 1 at lean 34 popped 45 deg in one frame). FP 0 % from key 3 on. Keys 6-52 untouched.
-#   Numbers + captures: evidence/animator/r24/.
-# r26 (reviewer r25 #4: one-tick upright blade at t4; #5: recovery lifts ~4 ticks early): keys 2-3 and 40-50 re-keyed, keys 0-1, 4-39, 51-52 untouched.
-#   #4: the client shows the 2->3 CHUNK at t4 (compare f10 = mid-chunk tip ~(270,45), long and vertical). Key 2 = tip (315,48), key 3 = (250,20) at chest height
-#   (tip y 1.64, was (247,33) y 2.16): the vertical crossing now happens as a foreshortened stub pointing at the caster's right (wide-cam length 0.09 vs held 0.24),
-#   key 3 already reads back-horizontal in compare. Chunks 20/59/47; front lean 20 -> 42 -> 60 -> 75 (steps <= 22, was 28); FP mid-chunk <= 8.5 %.
-#   #5: low-back REST held through key 43 (tick 48); lift keys 44-51 (ticks 49-56) re-sample the accepted r21 path but go from its over-the-top key (r25 key 43,
-#   tip (254,62)) straight into the held pose (no wiper overshoot), ease-out by cost; held pose at keys 51-52. Front steps <= 20, face steps <= 24, max chunk 42,
-#   FP <= 7 %. Numbers: evidence/animator/r26/per-key-r26.txt.
-# Round 10 (reviewer r9: hit-1 PLANE wrong): hit 1 = big TILTED HORIZONTAL SWEEP. Tip plane y = 1.15 + tan(20) * z (anchor; forward end 20 deg higher, as the
-#   reference ring's right end on screen): tip y ~2.04 at the front (head), ~1.1-1.25 at the sides (chest), the plane passes the back at ~0.4. Travel: right -> front -> left -> back.
-# r12 (director r10: opponent saw a 45 deg lean jump t2->t3): keys 2-4 re-routed so the FRONT view leans 0 -> 25 -> 42 -> 38 deg (<= 20/tick):
-#   key 2 (tick 3) = tip phi 296 pitch 66 (high, slightly right; side view ~vertical), keys 3-4 = raised back-right extreme phi 236/222 pitch 36/26
-#   (chunks 58/54/26, then sweep 49; FP half-tick max 6.3%). Numbers: evidence/animator/r12/per-key-r12.txt.
-# r10 hit 1 (keys 2-4 superseded by r12): keys 0-1 (ticks 1-2) = held pose; key 2 (tick 3) up the caster's RIGHT side (phi 290, pitch 40: out of the first-person frustum);
-#   wind-up extreme keys 3-4 (ticks 4-5) tip back-right raised (phi 230/219, pitch 24/22, 11 deg creep); sweep keys 5-7 ON the plane (phi 262/310/356, chunks 52/49/42),
-#   contact key 7 = tick 8 held 8-10 (tip phi 356 pitch 30, tip y 2.04, edge leads 23 deg); follow-through ON the plane keys 8-9 (phi 50/100) then down round the left/back
-#   (keys 10-12), overshoot key 13 (phi 206 = 26 deg past REST), settle slerp keys 14-18, REST by key 18 (tick 21), REST hold keys 19-20. Hit 2 = low horizontal ring (unchanged):
-# pull-back keys 21-22, keys 23-28 ON the plane (r7, vfx ring), 220 deg in 5 ticks, contact key 28 = tick 31 (held 31-32; pitch clamped to -15 where the plane dips under the floor: phi 0-110), follow-through round the left/back with overshoot, REST by key 39.
-# Face ~28 deg off the plane normal in both sweeps (edge leads, face still visible from the side cameras), rolls back to the sideways REST face.
-# Round 7: pivot = the held item's fist [-0.348, 0.773, 0.293] (handover_s1.py), so REST / floor keys use pitch -15 (tip y 0.11; -20 would sink under the floor).
-# Keys 40-46 (r11: same path as r8's 40-50, re-timed 11 -> 7 chunks, max 48 deg) lift OUTSIDE the first-person frustum: REST -> up the caster's right side
-# (keys 40-43, tip phi 255 pitch 61 at key 43) -> horizontal wiper in to the held pose (keys 44-46, ticks 49-51); keys 46-52 (ticks 51-57) = held item exactly
-# (0.0 deg yaw/pitch/roll, grip offset 0), held 6 ticks: r8 opponent capture showed the rig at the wiper start (front lean -38 / -33 deg, keys 46-47) until f54 and the
-# held item at f55, so the old 2-tick hold never reached the screen in the front view (side/compare do not see the wiper's sideways lean). FP coverage <= 5.9%.
-# Key -> tick (r23): l+1 (l<=6), l+3 (7..28), l+5 (29+).
-# r13 (opponent view at rest showed only the gold hilt): both REST holds yawed 18 deg OUTWARD (world Y, tip phi 180 -> 198, toward the caster's right),
-#   ramped in through the settles so the overshoot stays (hit 1: 217 -> 198, hit 2: 207 -> 198) and out through keys 21 / 40-41. Keys 13-21 and 34-41 changed;
-#   keys 0-1 and 46-52 untouched; max chunk 52 deg. Numbers: evidence/animator/r13/per-key-r13.txt.
-# r14 (director r12 opponent: held edge-on t1 -> rig 25 deg lean + broad face t2): cause = key 2 (the client's FIRST visible rig frame in the front view; keys 0-1
-#   are never seen there), not the rest yaw (keys 0-1 are still the held pose to 0.00 deg / 0.0005 block). Keys 2-3 re-solved, key 4 (extreme) unchanged:
-#   front lean -5.8 -> -16.6 -> -28.4 -> -37.7 (11/12/9 per tick), face opening 35 -> 57 -> 76 -> 68 (turn spread over 2 ticks), chunks 52/58/35 (eases INTO the extreme),
-#   side -> 9.5 / -25 / -61.5. Keys 5+ untouched (contact key 7 = tick 8). Numbers: evidence/animator/r14/per-key-r14.txt.
-# r15 (director r13 caster FP: the r14 key 2 (phi 300 pitch 74, a raised blade 0.4 block right-front of the eye) filled ~17 % of the right half t2-3; the FOV-70 model said 1.4,
-#   at the capture FOV 90 it is 17.9 = measured). Keys 2-3 re-solved, key 4 (extreme) and keys 5+ unchanged: key 2 = tip phi 342 pitch 56 (stays near the held pose,
-#   FP 5.2 % of the right half), key 3 = phi 238 pitch 51 (behind the eye plane, FP 0). The pass in front of the eye happens inside the 2->3 chunk (mid-chunk <= 9 %, keys show).
-#   front lean -5.8 -> -20.0 -> -30.9 -> -37.7 (14/11/7 per tick), face opening 35 -> 56 -> 81 -> 68 (+21/+25: over 2 ticks), chunks 35/59/55. Numbers: evidence/animator/r15/per-key-r15.txt.
-# r16 (director r14 caster FP t3 = one broad blade ~20 %; front t3 -> t4 one ~35 deg lean + face step): the FP t3 frame is the HELD pose (key 1) drawn ~0.55 block
-#   behind the dashing camera (dash_strike from tick 2, 0.53/tick; the follow rig trails ~1 tick), not the 2->3 crossing (evidence/animator/r16/fp-lag-fit-r14.png).
-#   Only key 0 is held now; keys 1-3 re-solved, key 4 (extreme) and keys 5+ unchanged, contact key 7 = tick 8. Key 1 (tick 2) = tip phi 245 pitch 73 (nearly up,
-#   slightly back-right: behind the eye plane once the rig lags), key 2 = phi 226 pitch 60, key 3 = phi 228 pitch 48. FP full frame (vfov 90) keys 1-4 <= 0.6 % at
-#   every rig lag 0..1.06. Front lean -5.8 -> -15.4 -> -19.9 -> -28.3 -> -37.7 (10/5/8/9 per key; held -> key 2 = 14), face 35 -> 39 -> 58 -> 78 -> 68
-#   (+4/+19/+19/-10), chunks 52/22/53/33. Numbers: evidence/animator/r16/per-key-r16.txt.
-# r17 (director r15: side t3 two swords = held item + rig key 1 at another pose; front 22 / 44 deg steps). attach_to_anchor removed the dash lag, so keys 0-1 are the
-#   held pose again (exact). Keys 2-4 re-solved, keys 5+ unchanged (contact key 7 = tick 8): key 2 = tip phi 318 pitch 68 (lift up-right), key 3 = phi 254 pitch 40
-#   (already low on the right), key 4 = phi 237 pitch 18 (pull-back extreme, 25 deg behind the sweep start). Chunks 44/45/56 then sweep 36; front lean
-#   -5.8 -> -19.5 -> -46.7 -> -56.3 -> -79 (14/27/10/23). Real-client front views dropped key 4 in 2 of 3 captures, so key 3 -> key 5 is kept at 32 deg by itself.
-#   Numbers + observed frames: evidence/animator/r17/per-key-r17.txt.
-# r21 (director r20: opponent end t51 -> t52 ~35 deg lean + face-open -> edge-on in one frame): the end lift keeps the r11/r13 PATH (keys 39-46 slerped)
-#   but is re-timed over keys 39-50 with an ease-out: held pose reached at key 50 (tick 55, was key 46 / tick 51), keys 50-52 = held exactly.
-#   Front lean (opponent 3.2 blocks) keys 41-50: 10 / -9 / -27 / -41 / -37 / -31 / -23 / -15 / -10 / -8 (steps <= 19, last four 8/8/5/2),
-#   face opening 86 -> 34 spread over keys 44-50 (-6/-15/-12/-10/-6/-3/-1), max chunk 43. A client that lags 1-3 ticks at the atomic end hand-over
-#   now despawns on keys 47-50, <= 15 deg from the held pose. Numbers: evidence/animator/r21/per-key-r21.txt.
-# Per-key numbers: tools/skill-compare/data/bastion-greatsword-s1/evidence/animator/r7/per-key-tip-face.txt (keys 0-6 and 40-52 changed in r8: evidence/animator/r8/per-key-r8.txt; keys 0-20 in r9: evidence/animator/r9/per-key-r9.txt). r10: keys 2-18 in evidence/animator/r10/per-key-r10.txt. r11: keys 39-52 + 3-axis check vs the held item in evidence/animator/r11/per-key-r11.txt.
-# Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
-# Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
-# Parts (RETIRED by ADR-0254, now one weapon display; history): verbatim deliver/rig-parts.yaml (22 parts; r11 regenerated from the held model: stepped guard, plate + inset, rivets, collar + flares, kelp grip, pommel gold; cast cap 60 = rig 22 + fx 9 + particles 29). Face normal = local Z, edges = +-X, blade = +Y. fx / sprites live in bastion-s1-fx-high/low.yaml.
-
+# Bastion S1 (月輪の薙ぎ) weapon: ONE ItemDisplay of the real main-hand stack hanging from the right hand of the skin-rig body
+# `bastion-s1-body` (ADR-0254), pose to pose like the reference (series of held poses with CUTS; the swing is never drawn).
+# Swing keys are ABSOLUTE wrist rotations in the arm frame (all zero on a body at rest = the vanilla held item); every key after
+# t0 is `ease: step`, on the same ticks as the body keys. Beats (rig tick = skill tick):
+#   0 coil | 6 follow-through behind the shoulders | 16 overshoot | 19 turned-away rest | 28 coil 2 | 31 extension (contact 2)
+#   38 drop | 40 rest (= coil) | 52 hand-back (neutral, exact vanilla held pose).
+# Frame: weapon_tip / weapon_edge are the model blade axis (2.55 blocks) and cutting edge AFTER the grip pitch (rotX 72).
+# fx files (bastion-s1-fx-high/low) still carry the old absolute-swing choreography and are re-timed in a later pass.
 id: bastion-s1-rig
 duration_ticks: 58
 orient: yaw
 follow: true
-# attach_to_anchor: the displays ride the caster as native passengers (client-side vehicle interpolation), so the rig no longer trails the caster's own camera by ~1 tick
-# during dash_strike (r16 FP lag); keys 0-1 may hold the held pose again. VfxPlayer skips the per-tick follow teleport for attached displays.
 attach_to_anchor: true
 sample_ticks: 1
+body: bastion-s1-body
 rigs:
 - id: sword
-  pivot: [-0.348, 0.773, 0.293]
-  rest: [0, 90, 0]
-  tilt: [0, 0, -20]
+  pivot: [0, 0, 0]
+  parent: right_hand
   respect_hit_stop: true
-  # ADR-0254: ONE ItemDisplay of the caster's real main-hand stack replaces the 22-part block rig (parts deleted, no shim).
-  # Key 0 is the vanilla held pose; the swing keys below are rotations away from it about the fist pivot (unchanged numbers).
   weapon: main_hand
-  weapon_tip: [0.0, 2.55, 0.0]   # blade tip, rig-local (plan dump / skill-lint only)
-  weapon_root: [0.0, 0.345, 0.0]  # top of the guard (fx path tooling)
-  weapon_edge: [1.0, 0.0, 0.0]   # cutting edge direction, rig-local (plan dump / skill-lint only)
+  weapon_tip: [0.0, 2.0098, 1.5696]    # blade tip (2.55 blocks), rig-local
+  weapon_root: [0.0, 0.345, 0.0]
+  weapon_edge: [0.0, -0.6155, 0.7881]  # cutting edge direction, rig-local (broad-face normal = rig X)
   swing:
-  - { t: 0, rotate: [-336.4, -47.8, -59.4] }
-  - { t: 1, rotate: [-325.2, -42.5, -50.3] }
-  - { t: 2, rotate: [-304.1, -32.4, -35.8] }
-  - { t: 3, rotate: [-251.2, -1.1, -11.7] }
-  - { t: 4, rotate: [-209.6, 22.8, -14.4] }
-  - { t: 5, rotate: [-239.5, 29.3, 5.5] }
-  - { t: 6, rotate: [-345.0, -27.1, 51.9] }
-  - { t: 7, rotate: [-401.4, -38.5, 28.9] }
-  - { t: 8, rotate: [-461.2, -27.2, -15.9] }
-  - { t: 9, rotate: [-502.3, -3.7, -44.9] }
-  - { t: 10, rotate: [-530.3, 11.9, -64.1] }
-  - { t: 11, rotate: [-551.0, 19.5, -81.6] }
-  - { t: 12, rotate: [-571.5, 23.3, -106.7] }
-  - { t: 13, rotate: [-565.6, 22.7, -107.8] }
-  - { t: 14, rotate: [-560.1, 21.8, -108.9] }
-  - { t: 15, rotate: [-556.6, 21.3, -109.5] }
-  - { t: 16, rotate: [-553.4, 20.6, -110.1] }
-  - { t: 17, rotate: [-551.8, 20.2, -110.2] }
-  - { t: 18, rotate: [-551.8, 20.2, -110.2] }
-  - { t: 19, rotate: [-551.8, 20.2, -110.2] }
-  - { t: 20, rotate: [-551.8, 20.2, -110.2] }
-  - { t: 21, rotate: [-536.1, 13.4, -81.9] }
-  - { t: 22, rotate: [-512.5, -6.4, -40.7] }
-  - { t: 23, rotate: [-493.9, -2.7, 1.5] }
-  - { t: 24, rotate: [-522.4, -1.2, 20.3] }
-  - { t: 25, rotate: [-569.7, 5.9, 17.7] }
-  - { t: 26, rotate: [-624.8, 15.2, 20.3] }
-  - { t: 27, rotate: [-683.3, 18.1, 30.4] }
-  - { t: 28, rotate: [-741.9, 8.1, 37.4] }
-  - { t: 29, rotate: [-781.1, -2.5, 36.9] }
-  - { t: 30, rotate: [-821.6, -4.6, 27.7] }
-  - { t: 31, rotate: [-852.8, -2.2, 9.7] }
-  - { t: 32, rotate: [-877.4, 1.1, -16.5] }
-  - { t: 33, rotate: [-895.6, 6.2, -48.8] }
-  - { t: 34, rotate: [-911.7, 12.8, -76.2] }
-  - { t: 35, rotate: [-922.1, 18.2, -93.2] }
-  - { t: 36, rotate: [-921.0, 20.2, -103.5] }
-  - { t: 37, rotate: [-917.3, 20.7, -107.9] }
-  - { t: 38, rotate: [-913.9, 20.5, -109.5] }
-  - { t: 39, rotate: [-911.8, 20.2, -110.2] }
-  - { t: 40, rotate: [-911.8, 20.2, -110.2] }
-  - { t: 41, rotate: [-911.8, 20.2, -110.2] }
-  - { t: 42, rotate: [-911.8, 20.2, -110.2] }
-  - { t: 43, rotate: [-911.8, 20.2, -110.2] }
-  - { t: 44, rotate: [-902.9, -13.0, -134.8] }
-  - { t: 45, rotate: [-916.9, -41.8, -168.4] }
-  - { t: 46, rotate: [-958.4, -50.7, -225.2] }
-  - { t: 47, rotate: [-1002.0, -42.4, -248.9] }
-  - { t: 48, rotate: [-1024.5, -43.9, -244.1] }
-  - { t: 49, rotate: [-1040.7, -45.7, -241.3] }
-  - { t: 50, rotate: [-1051.5, -47.1, -239.9] }
-  - { t: 51, rotate: [-1056.4, -47.8, -239.4] }
-  - { t: 52, rotate: [-1056.4, -47.8, -239.4] }
+  - { t: 0, rotate: [175.7, -29.2, 102.5] }   # coil
+  - { t: 5, rotate: [-45.6, 6.1, -80.5], ease: step }   # follow
+  - { t: 13, rotate: [-118.4, 50.5, 1.6], ease: step }   # overshoot
+  - { t: 16, rotate: [-41.4, 22.7, 118.1], ease: step }   # turned
+  - { t: 25, rotate: [154.2, 77.7, -154.6], ease: step }   # coil2
+  - { t: 28, rotate: [-64.8, 56.3, 146.9], ease: step }   # extend
+  - { t: 33, rotate: [141, -73.8, 66.1], ease: step }   # drop
+  - { t: 35, rotate: [175.7, -29.2, 102.5], ease: step }   # rest
+  - { t: 47, rotate: [0, 0, 0], ease: step }   # hand-back: the vanilla held pose

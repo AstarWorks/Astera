@@ -1,0 +1,118 @@
+# Bastion S1 (月輪の薙ぎ) body, pose to pose (ADR-0254): every key after t0 is a CUT (`ease: step`), like the reference.
+# Keys are RIG ticks; the two hit-stops (freeze 7 and 31, 2 ticks each) shift them: skill tick = key+1 (<=6), key+3 (7..28), key+5 (29+).
+# Beats (skill tick): 0 coil | 6 follow-through | 16 overshoot | 19 turned-away rest | 28 coil 2 | 31 extension (contact 2) | 38 drop | 40 rest = coil | 52 hand-back (neutral).
+# Generated from per-beat targets by the animator solver (arm aimed at the grip, wrist solved in bastion-s1-rig.yaml); legs splay so the feet stay on the floor.
+id: bastion-s1-body
+length_ticks: 58
+loop: false
+lock_movement: false
+blend_in_ticks: 0
+blend_out_ticks: 0
+bones:
+  head:
+    rotation:
+      - { t: 0, v: [-7, -32, 0] }
+      - { t: 5, v: [-3, -60, 0], ease: step }
+      - { t: 13, v: [-2, -68, 0], ease: step }
+      - { t: 16, v: [5, 0, 0], ease: step }
+      - { t: 25, v: [-16, -8, 0], ease: step }
+      - { t: 28, v: [-7.5, -8, 0], ease: step }
+      - { t: 33, v: [-6, -24, 0], ease: step }
+      - { t: 35, v: [-7, -32, 0], ease: step }
+      - { t: 47, v: [0, 0, 0], ease: step }
+  body:
+    rotation:
+      - { t: 0, v: [0, 0, 0] }
+      - { t: 5, v: [0, 0, 0], ease: step }
+      - { t: 13, v: [0, 0, 0], ease: step }
+      - { t: 16, v: [0, 0, 0], ease: step }
+      - { t: 25, v: [0, 0, 0], ease: step }
+      - { t: 28, v: [0, 0, 0], ease: step }
+      - { t: 33, v: [0, 0, 0], ease: step }
+      - { t: 35, v: [0, 0, 0], ease: step }
+      - { t: 47, v: [0, 0, 0], ease: step }
+  right_arm:
+    rotation:
+      - { t: 0, v: [-52.7, 10, 0] }
+      - { t: 5, v: [163.4, 22.5, 0], ease: step }
+      - { t: 13, v: [145.8, 29.7, 0], ease: step }
+      - { t: 16, v: [-7.8, 15.8, 0], ease: step }
+      - { t: 25, v: [-17.4, 172.1, 0], ease: step }
+      - { t: 28, v: [-87, 12.2, 0], ease: step }
+      - { t: 33, v: [-98.4, 13.6, 0], ease: step }
+      - { t: 35, v: [-52.7, 10, 0], ease: step }
+      - { t: 47, v: [0, 0, 0], ease: step }
+  left_arm:
+    rotation:
+      - { t: 0, v: [-87, -42.8, 7.2] }
+      - { t: 5, v: [32, -39.4, -140.4], ease: step }
+      - { t: 13, v: [40.1, -46.9, -139.6], ease: step }
+      - { t: 16, v: [-144.6, -33.7, 111.1], ease: step }
+      - { t: 25, v: [36.5, -6.3, -51.2], ease: step }
+      - { t: 28, v: [-89.6, -46.1, -27.8], ease: step }
+      - { t: 33, v: [-110.5, -51.8, -8.6], ease: step }
+      - { t: 35, v: [-87, -42.8, 7.2], ease: step }
+      - { t: 47, v: [0, 0, 0], ease: step }
+  right_leg:
+    rotation:
+      - { t: 0, v: [15, 0, -6] }
+      - { t: 5, v: [23, 0, -6], ease: step }
+      - { t: 13, v: [25, 0, -6], ease: step }
+      - { t: 16, v: [10, 0, -6], ease: step }
+      - { t: 25, v: [12.9, 0, -6], ease: step }
+      - { t: 28, v: [-38.6, 0, -6], ease: step }
+      - { t: 33, v: [17, 0, -6], ease: step }
+      - { t: 35, v: [15, 0, -6], ease: step }
+      - { t: 47, v: [0, 0, 0], ease: step }
+    scale:
+      - { t: 0, v: [1, 1, 1] }
+      - { t: 5, v: [1, 1, 1], ease: step }
+      - { t: 13, v: [1, 1, 1], ease: step }
+      - { t: 16, v: [1, 1.2, 1], ease: step }
+      - { t: 25, v: [1, 1, 1], ease: step }
+      - { t: 28, v: [1, 1, 1], ease: step }
+      - { t: 33, v: [1, 1, 1], ease: step }
+      - { t: 35, v: [1, 1, 1], ease: step }
+      - { t: 47, v: [1, 1, 1], ease: step }
+  left_leg:
+    rotation:
+      - { t: 0, v: [-43, 0, 6] }
+      - { t: 5, v: [-35, 0, 6], ease: step }
+      - { t: 13, v: [-33, 0, 6], ease: step }
+      - { t: 16, v: [10, 0, 6], ease: step }
+      - { t: 25, v: [-76.9, 0, 6], ease: step }
+      - { t: 28, v: [8.6, 0, 6], ease: step }
+      - { t: 33, v: [-41, 0, 6], ease: step }
+      - { t: 35, v: [-43, 0, 6], ease: step }
+      - { t: 47, v: [0, 0, 0], ease: step }
+    scale:
+      - { t: 0, v: [1, 1, 1] }
+      - { t: 5, v: [1, 1, 1], ease: step }
+      - { t: 13, v: [1, 1, 1], ease: step }
+      - { t: 16, v: [1, 1.2, 1], ease: step }
+      - { t: 25, v: [1, 1, 1], ease: step }
+      - { t: 28, v: [1, 1, 1], ease: step }
+      - { t: 33, v: [1, 1, 1], ease: step }
+      - { t: 35, v: [1, 1, 1], ease: step }
+      - { t: 47, v: [1, 1, 1], ease: step }
+root:
+  rotation:
+    - { t: 0, v: [14, 40, 0] }
+    - { t: 5, v: [6, 75, 0], ease: step }
+    - { t: 13, v: [4, 85, 0], ease: step }
+    - { t: 16, v: [-10, 132, 0], ease: step }
+    - { t: 25, v: [32, 10, 0], ease: step }
+    - { t: 28, v: [15, 10, 0], ease: step }
+    - { t: 33, v: [12, 30, 0], ease: step }
+    - { t: 35, v: [14, 40, 0], ease: step }
+    - { t: 47, v: [0, 0, 0], ease: step }
+  position:
+    - { t: 0, v: [0, -1.5, 0] }
+    - { t: 5, v: [0, -1.5, 0], ease: step }
+    - { t: 13, v: [0, -1.5, 0], ease: step }
+    - { t: 16, v: [0, 2, 0], ease: step }
+    - { t: 25, v: [0, -3.5, 0], ease: step }
+    - { t: 28, v: [0, -1, 0], ease: step }
+    - { t: 33, v: [0, -1.5, 0], ease: step }
+    - { t: 35, v: [0, -1.5, 0], ease: step }
+    - { t: 47, v: [0, 0, 0], ease: step }

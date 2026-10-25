@@ -179,6 +179,8 @@ public class VfxPlayer(
 
     public fun play(request: VfxRequest): Result<Unit, VfxPlayError> {
         val def = registry.find(request.vfxId) ?: return Result.failure(VfxPlayError.UnknownVfx(request.vfxId))
+        // Capture-time switch (vfx-shot SHOT_NO_FX=1): motion-only footage plays the performance (body + weapon) and nothing else.
+        if (PERFORMANCE_ONLY && def.body == null && def.rigs.none { it.weapon != null }) return Result.success(Unit)
         if ((request.target != null) != (def.targetReference != null) ||
             (request.target != null && ((request.follow ?: def.follow) || request.target.invoke() == null))) {
             return Result.failure(VfxPlayError.InvalidTargetTracking(request.vfxId))
@@ -566,6 +568,9 @@ public class VfxPlayer(
     }
 
     public companion object {
+        /** `ASTERA_VFX_PERFORMANCE_ONLY=1`: skip every effect that is not a performance (set by `SHOT_NO_FX=1`; never in production). */
+        private val PERFORMANCE_ONLY: Boolean = System.getenv("ASTERA_VFX_PERFORMANCE_ONLY") == "1"
+
         /** Server-wide cap on display entities reserved by running effects. */
         public const val MAX_LIVE_DISPLAYS: Int = 600
 
