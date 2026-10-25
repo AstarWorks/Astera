@@ -2,4 +2,5 @@
 id: level-10
 name_key: astera.stats.achievement.level-10.name
 description_key: astera.stats.achievement.level-10.description
-icon_item_id: knight-sword
+icon_item_id: orrery-staff
+reward_gold: 150

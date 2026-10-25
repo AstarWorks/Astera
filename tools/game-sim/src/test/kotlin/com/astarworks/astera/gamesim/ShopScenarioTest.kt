@@ -69,7 +69,7 @@ class ShopScenarioTest {
             val ledger = sim.services.getOrThrow<ICurrencyLedger>()
             val buyer = player("buyer")
             advance(1)
-            ledger.credit(buyer.id, Currency.GOLD, 150L)
+            ledger.credit(buyer.id, Currency.GOLD, 200L)
 
             dispatch(buyer, "lobby.shop.open")
             val view = checkNotNull(sim.server.view(buyer.id))
@@ -77,28 +77,29 @@ class ShopScenarioTest {
             assertThat(spec.id.value).isEqualTo("shop-example-shop")
             val firstOffer = spec.slotAt(SlotIndex(0)) as GuiSlot.Static
             assertThat(firstOffer.lore.map { it.key.value }).contains("astera.economy.shop.gui.price")
+            val starterItems = view.givenItems.toList()
 
-            // knight-sword costs 100 GOLD: the first click only asks for confirmation.
-            buyClick(buyer, "knight-sword")
-            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(150L)
-            assertThat(view.givenItems).containsExactly("pistol", "knight-sword") // starter grant only
+            // dagger costs 150 GOLD: the first click only asks for confirmation.
+            buyClick(buyer, "dagger")
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(200L)
+            assertThat(view.givenItems).containsExactlyElementsOf(starterItems) // starter grant only
 
-            buyClick(buyer, "knight-sword")
+            buyClick(buyer, "dagger")
             assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(50L)
-            assertThat(view.givenItems).containsExactly("pistol", "knight-sword", "knight-sword")
+            assertThat(view.givenItems).containsExactlyElementsOf(starterItems + "dagger")
 
-            // 120 GOLD pistol with 50 GOLD left: refused, nothing charged, shortfall named.
-            buyClick(buyer, "pistol")
+            // 200 GOLD fire-staff with 50 GOLD left: refused, nothing charged, shortfall named.
+            buyClick(buyer, "fire-staff")
             assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(50L)
-            assertThat(view.messages.joinToString("\n")).contains("need 120").contains("you have 50").contains("70 short")
+            assertThat(view.messages.joinToString("\n")).contains("need 200").contains("you have 50").contains("150 short")
 
             // Transaction log: starter grant is not a CurrencyChanged, the purchase is.
             val movements = sim.services.getOrThrow<IAuditLogRepository>().recent(limit = 50)
                 .filterIsInstance<AuditEvent.CurrencyMovement>().filter { it.player == buyer.id }
             assertThat(movements).anySatisfy {
-                assertThat(it.delta).isEqualTo(-100L)
+                assertThat(it.delta).isEqualTo(-150L)
                 assertThat(it.newBalance).isEqualTo(50L)
-                assertThat(it.reason).isEqualTo("shop:example-shop/knight-sword")
+                assertThat(it.reason).isEqualTo("shop:example-shop/dagger")
             }
         }
     }
@@ -109,21 +110,21 @@ class ShopScenarioTest {
             val ledger = sim.services.getOrThrow<ICurrencyLedger>()
             val buyer = player("owner")
             advance(1)
-            ledger.credit(buyer.id, Currency.GOLD, 150L)
+            ledger.credit(buyer.id, Currency.GOLD, 200L)
             dispatch(buyer, "lobby.shop.open")
-            buyClick(buyer, "knight-sword")
-            buyClick(buyer, "knight-sword") // confirming click: bought for 100
+            buyClick(buyer, "dagger")
+            buyClick(buyer, "dagger") // confirming click: bought for 150
             assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(50L)
 
-            buyClick(buyer, "knight-sword") // owned: free replica or "already carrying", never a second charge
-            buyClick(buyer, "knight-sword")
+            buyClick(buyer, "dagger") // owned: free replica or "already carrying", never a second charge
+            buyClick(buyer, "dagger")
             assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(50L)
 
             dispatch(buyer, "shop.history", "shop_id" to "example-shop")
             val view = checkNotNull(sim.server.view(buyer.id))
             val spec = checkNotNull(sim.services.getOrThrow<IGuiAdapter>().currentSpec(view))
             assertThat(spec.id.value).isEqualTo("shop-history")
-            assertThat((spec.slotAt(SlotIndex(0)) as GuiSlot.Static).itemId.value).isEqualTo("knight-sword")
+            assertThat((spec.slotAt(SlotIndex(0)) as GuiSlot.Static).itemId.value).isEqualTo("dagger")
             assertThat(spec.slotAt(SlotIndex(1))).isNotInstanceOf(GuiSlot.Static::class.java)
 
             dispatch(buyer, "shop.open", "shop_id" to "example-shop")

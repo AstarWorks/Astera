@@ -9,7 +9,7 @@ source-code + issue-body re-audit on 2026-05-19). Empirical RTM data
 incl. `BattleRoyale`), 4 Writerside docs, 6-module Gradle layout, Paper
 1.20.4 baseline) is recorded in [[adr/0029-rtm-empirical-catalog]] and
 cross-indexed into the tables below. Wave assignments per feature live in
-[[../RTM-PARITY-TRACKER]].
+the parity catalog in [[adr/0029-rtm-empirical-catalog]] (the tracker file was retired, ADR-0255).
 
 Three rules of thumb:
 
@@ -145,7 +145,7 @@ Things RTM didn't have that Astera needs because of its OSS + GitOps + AI-delega
 | Battle Pass + seasonal event automation | RTM listed; Astera automates rather than hand-runs | Phase 7 | ❌ |
 | **`Paper-as-edge` re-affirmation** (Phase 3 domain ordering) | Wave 5 framing误り (Wave 5 = Paper) was caught at audit; correct order is domain/application/port first, Bukkit last | Wave 5a-5f sequencing | [[adr/0028-roadmap-realignment-paper-as-edge]] |
 | **RTM empirical catalog** (6 game modes + 22 issues + Writerside docs + 6-module gradle layout) | Original ADR-0013 was written assuming RTM was closed-source; WebFetch proved otherwise; empirical capture now documented | Wave 4.5 follow-on | [[adr/0029-rtm-empirical-catalog]] |
-| **Master parity tracker** ([[../RTM-PARITY-TRACKER]]) | Single-page board showing every RTM feature × Astera state × Wave × priority | Living doc updated per wave | (this doc) |
+| **Parity tracking** (tracker retired, [[adr/0255-board-and-area-specs-replace-trackers]]) | Facts stay in [[adr/0029-rtm-empirical-catalog]]; remaining work lives on the Board | - | (this doc) |
 | **PvE Mob/Boss Foundation** (RTM は PvP arena only。武器 PvP/PvE 共用基盤) | Content lifecycle 延長 + 武器 base の流用。HSB Slayer / 原神 World Boss 等の long-lived retention 軸 | Phase 8 Wave 12a | ❌ [[adr/0080]] |
 | **PvE Content** (encounter zones + drop tables + boss mechanic) | 1+ playable PvE zone (HSB Slayer Tier 風 + group raid 風) | Phase 8 Wave 12b | ❌ [[adr/0081]] |
 | **Item Refinement Layer** (gemstone slot / reforge / sub-stat roll / upgrade material) | HSB / 原神聖遺物 / Warframe Riven / MH charm レベルの厳選乗算を ADR-0073 item-centric model に乗せる。長期 retention の最重要軸 | Phase 8 Wave 12c | ❌ [[adr/0082]] |

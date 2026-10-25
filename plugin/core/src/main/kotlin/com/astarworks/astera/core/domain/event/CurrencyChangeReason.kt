@@ -28,6 +28,9 @@ public sealed interface CurrencyChangeReason {
      */
     public data object TutorialReward : CurrencyChangeReason
 
+    /** GOLD paid once when an achievement unlocks (`reward_gold` in content/achievements). */
+    public data object AchievementReward : CurrencyChangeReason
+
     /**
      * Wave 4.5 (R3.5, ADR-0027): a shop purchase debit. Carries the addressing
      * pair `(ShopId, ShopOfferId)` so analytics / audit can correlate the

@@ -2,4 +2,5 @@
 id: wins-1
 name_key: astera.stats.achievement.wins-1.name
 description_key: astera.stats.achievement.wins-1.description
-icon_item_id: knight-sword
+icon_item_id: pistol
+reward_gold: 100

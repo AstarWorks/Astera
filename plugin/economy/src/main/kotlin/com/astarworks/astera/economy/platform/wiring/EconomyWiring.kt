@@ -222,6 +222,15 @@ public object EconomyWiring {
         subscriptions += eventBus.subscribe(MissionCompleted::class) { event ->
             depositOnMissionCompletedListener.handle(event)
         }
+        val depositOnAchievementUnlocked = com.astarworks.astera.economy.application.eventbus.listeners.DepositOnAchievementUnlockedListener(
+            deposit = deposit,
+            achievements = { services.get<com.astarworks.astera.stats.application.port.outbound.IAchievementRepository>() },
+            messages = msgRenderer,
+            players = playerGateway,
+        )
+        subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.AchievementUnlocked::class) { event ->
+            depositOnAchievementUnlocked.handle(event)
+        }
 
         // ADR-0202: every wallet movement lands in the append-only audit log.
         val recordMovements = com.astarworks.astera.economy.application.eventbus.listeners.AuditCurrencyMovementListener {

@@ -9,8 +9,8 @@ Load this before generating code or making infrastructure changes inside
 - **`docs/INDEX.md`** — full documentation index.
 - **`docs/architecture/principles.md`** — design principles.
 - **`docs/adr/`** — recorded decisions, immutable once Accepted.
-- **`docs/IMPLEMENTATION-ROADMAP.md`** — 12-tier master roadmap (SSOT for ordering).
-- **`docs/RTM-PARITY-TRACKER.md`** — feature × state matrix (SSOT for "what's left").
+- **`docs/vision/VISION.md`** + **`docs/vision/areas/*.md`** — vision, per-area current state / ideal / open questions (SSOT for "how it is").
+- **The Board** (claude.ai Artifact, `.claude/rules/board.md`) — SSOT for "what is next and how far it got". ADR-0255.
 
 ## Pre-release posture (Phase 1 PoC closing)
 
@@ -54,24 +54,19 @@ implementer — in every session, not just one:
   launcher (`scripts/codex-task.sh`) and prompt preambles:
   `.claude/rules/manager-mode.md`.
 
-## Session bootstrap (Wave protocol)
+## Session bootstrap (track protocol)
 
-When the user triggers a `Wave Nx` prompt, read in this order **before**
-spawning any worker:
+Work is organised by **track** (one area of the game, one worktree, one session) and tracked on the
+**Board**. Before spawning any worker, read in this order:
 
-1. The wave-specific handoff plan if user provided its path (otherwise skip)
-   — note: previously hard-coded as `/home/node/.claude/plans/...-handoff.md`, but
-   those are session-scoped and not persistent across runs. The current wave's
-   handoff path should come from the user's prompt or be regenerated as needed.
-2. `docs/IMPLEMENTATION-ROADMAP.md` (this wave's row + cross-deps)
-3. `docs/RTM-PARITY-TRACKER.md` (this wave's row)
+1. `docs/vision/VISION.md` - pillars, scope, out-of-scope, the founder's yardstick.
+2. `docs/vision/areas/<area>.md` for the area you touch.
+3. The Board (https://claude.ai/artifact/2D2a8S41RpDwApdZFnPno3, via `ArtifactData`): items, lanes, founder memos.
+   Rules: `.claude/rules/board.md`. Ownership, hot files and integration windows: `.claude/rules/tracks.md`.
 
-Then run Phase A (orchestrator solo: dep prep, mkdir, TaskCreate) → spawn
-Phase B workers in parallel per the handoff's worker table → Phase C
-(orchestrator solo: wire `platform/Astera*Plugin.kt`, write ADR, run
-`./gradlew check`, sync RTM, single commit). **Claude pushes `main` itself**
-(founder authorization 2026-10-22, no per-push approval) once `./gradlew check`
-is green; never force-push. Full protocol in `.claude/rules/wave-execution.md`.
+Tracks compile and add their own e2e/sim tests; the manager merges at the 12:00 / 21:00 JST integration
+windows, runs ONE batched `make e2e`, and **pushes `main` itself** once it is green (founder authorization
+2026-10-22, no per-push approval; never force-push). Details: `.claude/rules/wave-execution.md`.
 
 ## Non-negotiable rules (CI-enforced via Konsist)
 
@@ -101,6 +96,8 @@ SSOT.
 
 ## Where to find the detail
 
+- `.claude/rules/board.md` — Board schema, lanes, single-writer, batch report.
+- `.claude/rules/tracks.md` — tracks, file-ownership table, hot files, integration windows.
 - `.claude/rules/wave-execution.md` — full Phase A/B/C protocol, Worker禁則,
   off-limits paths, ADR number allocation discipline.
 - `.claude/rules/module-layout.md` — 7-plugin layout, sibling-isolation matrix,
@@ -115,8 +112,8 @@ SSOT.
 ## Harness helpers
 
 - `.claude/agents/astera-reviewer` — Phase C close review (read-only, Haiku).
-- `.claude/agents/rtm-sync` — Phase C RTM updater (scoped to `docs/RTM-PARITY-TRACKER.md`).
-- `.claude/skills/wave-start` — primes context with the 4-doc read order.
+- `.claude/agents/area-spec-sync` — updates the 現状 section of `docs/vision/areas/*.md` (Haiku).
+- `.claude/skills/wave-start` — primes context with the VISION → area spec → Board read order.
 - `.claude/skills/adr-new` — scaffolds a new ADR from the template.
 - `.claude/hooks/konsist-watcher.sh` — PostToolUse, records dirty modules in
   `.claude/state/konsist-dirty.txt`, never blocks.
