@@ -12,7 +12,6 @@
 # red-north-blue and red-south-blue). Each team island has room for a base: spawn pad, stepped hills, boulders, trees.
 # The centre island is a stone-brick plaza with ruined walls and terraces to fight over.
 #
-# World `arenas` (void, created by Astera), top layer y=64, players stand at y=65. Everything is hand-placed
 # coordinates; the builder (ArenaIslandGenerator) decorates spawns, anchors and landmarks, so keep them on islands
 # (the build logs a warning for a spawn that is off an island, and ShippedArenaStagesBuildTest fails the build).
 # Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
@@ -21,7 +20,6 @@ id: example-arena
 
 display_name_key: astera.stage.example-arena.name
 
-world: arenas
 
 layout:
   marker_version: 2

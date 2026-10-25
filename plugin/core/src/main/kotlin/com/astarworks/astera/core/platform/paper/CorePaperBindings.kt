@@ -69,6 +69,13 @@ internal class CorePaperBindings(
     @Volatile private var messageRenderer: (() -> IMessageRenderer?)? = null
     /** ADR-0241: the Items plugin's materializer, looked up per render (set in [afterWiring]). */
     @Volatile private var itemMaterializer: (() -> com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer?)? = null
+    private val worldSlots by lazy {
+        fun value(name: String, default: Int): Int = System.getenv(name)?.toIntOrNull() ?: default
+        com.astarworks.astera.core.application.service.instance.SlotAllocator(
+            value("ASTERA_SLOT_MIN_X", 0), value("ASTERA_SLOT_MIN_Z", 0),
+            value("ASTERA_SLOT_COLUMNS", 32), value("ASTERA_SLOT_ROWS", 32),
+        )
+    }
     private lateinit var scheduler: IScheduler
 
     private var playerAnimationGateway: com.astarworks.astera.core.adapter.paper.animation.PaperPlayerAnimationGateway? = null
@@ -511,7 +518,12 @@ internal class CorePaperBindings(
                 plugin = plugin,
                 config = com.astarworks.astera.core.application.service.world.WorldBaselineContent.load(ctx.contentDir),
                 rules = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway>(),
-                time = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway>(),
+                scheduler = ctx.services.getOrThrow<IScheduler>(),
+                matchConfig = { id ->
+                    ctx.services.get<IMatchRepository>()?.findMatchOf(com.astarworks.astera.core.domain.player.PlayerId(id))?.let {
+                        ctx.services.get<com.astarworks.astera.core.application.port.outbound.IMatchConfigService>()?.configOf(it.id)
+                    }
+                },
             ).start()
         }.onFailure { logger.log(java.util.logging.Level.SEVERE, "World baseline setup failed.", it) }
         // Never let the lobby world fail Core's onEnable (it would disable every Astera plugin).
@@ -624,17 +636,16 @@ internal class CorePaperBindings(
         val lobby = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyWorld(
             plugin = plugin,
             messages = ctx.services.getOrThrow<IMessageRenderer>(),
-            rules = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway>(),
-            time = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway>(),
-            weather = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldWeatherGateway>(),
+            scheduler = ctx.services.getOrThrow<IScheduler>(),
+            slots = worldSlots,
         )
-        // Core enables at STARTUP, where Paper forbids createWorld (IllegalStateException). Only
+        // Core enables at STARTUP, where Paper forbids world provisioning (IllegalStateException). Only
         // register here; the world is created from ServerLoadEvent / the first tick. Until it exists
         // the spawn supplier is null: joins stay on the main world, lobbySpawn falls back to it.
         npcBodyService?.awaitedWorlds = setOf(config.id)
         server.pluginManager.registerEvents(
             com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(config.id, config.rules, plugin) {
-                server.getWorld(config.id)?.let {
+                server.getWorld(config.id)?.takeIf { lobby.ready }?.let {
                     org.bukkit.Location(it, config.spawn.x, config.spawn.y, config.spawn.z, config.spawn.yaw, config.spawn.pitch)
                 }
             },
@@ -667,8 +678,11 @@ internal class CorePaperBindings(
                 val lanes = ctx.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneCatalog>()
                     ?.laneIds().orEmpty()
                 val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(config, lanes)
-                lobby.install(config, plan)
-                installLobbyLaneHolograms(ctx, config.id, plan)
+                lobby.install(config, plan) {
+                    installLobbyLaneHolograms(ctx, config.id, plan)
+                    npcBodyService?.awaitedWorlds = emptySet()
+                    npcBodyService?.flush()
+                }
             } catch (t: Throwable) {
                 if (attempts.incrementAndGet() < MAX_LOBBY_WORLD_ATTEMPTS) {
                     // Paper may still consider the server "starting"; retry a bit later.
@@ -680,7 +694,7 @@ internal class CorePaperBindings(
                     logger.log(java.util.logging.Level.SEVERE, "Lobby world creation failed; lobby stays on the main world.", t)
                 }
             } finally {
-                if (done) {
+                if (done && lobby.ready) {
                     npcBodyService?.awaitedWorlds = emptySet()
                     npcBodyService?.flush()
                 }
@@ -707,7 +721,7 @@ internal class CorePaperBindings(
      * ADR-0246 — sky-island arenas. Only on backends that host matches (`serverRole.hostsMatches`): registers
      * the Paper [com.astarworks.astera.core.application.port.outbound.IArenaBuilder] and the void-fall kill plane,
      * and builds every layout stage into its void world once the server finished loading (Paper forbids
-     * `createWorld` at STARTUP, the same constraint as the lobby world).
+     * `world provisioning` at STARTUP, the same constraint as the lobby world).
      */
     private fun installArenaWorld(ctx: WiringContext) {
         if (!ctx.serverRole.hostsMatches) {
@@ -717,6 +731,8 @@ internal class CorePaperBindings(
         val arena = com.astarworks.astera.core.adapter.paper.arena.PaperArenaWorld(
             plugin = plugin,
             stages = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IStageRegistry>() },
+            scheduler = ctx.services.getOrThrow<IScheduler>(),
+            slots = worldSlots,
         )
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(
             arena,
@@ -729,6 +745,7 @@ internal class CorePaperBindings(
             ),
             plugin,
         )
+        server.pluginManager.registerEvents(com.astarworks.astera.core.adapter.paper.arena.PaperSlotJournalListener(arena), plugin)
         val built = java.util.concurrent.atomic.AtomicBoolean(false)
         val attempts = java.util.concurrent.atomic.AtomicInteger(0)
         lateinit var create: Runnable

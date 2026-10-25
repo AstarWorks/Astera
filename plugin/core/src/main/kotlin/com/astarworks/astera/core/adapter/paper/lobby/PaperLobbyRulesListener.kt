@@ -37,7 +37,8 @@ internal class PaperLobbyRulesListener(
     private val spawn: () -> Location?,
 ) : Listener {
 
-    private fun inLobby(world: World?): Boolean = world != null && world.name == worldName
+    private fun inLobby(at: Location): Boolean = at.world.name == worldName &&
+        kotlin.math.abs(at.x) < 768 && kotlin.math.abs(at.z) < 768
 
     private fun canBuild(player: Player): Boolean =
         rules.buildEnabled || player.isOp || player.hasPermission(BUILD_PERMISSION)
@@ -57,34 +58,34 @@ internal class PaperLobbyRulesListener(
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onBreak(event: BlockBreakEvent) {
-        if (inLobby(event.block.world)) deny(event, event.player)
+        if (inLobby(event.block.location)) deny(event, event.player)
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onPlace(event: BlockPlaceEvent) {
-        if (inLobby(event.block.world)) deny(event, event.player)
+        if (inLobby(event.block.location)) deny(event, event.player)
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onBucketEmpty(event: PlayerBucketEmptyEvent) {
-        if (inLobby(event.block.world)) deny(event, event.player)
+        if (inLobby(event.block.location)) deny(event, event.player)
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onBucketFill(event: PlayerBucketFillEvent) {
-        if (inLobby(event.block.world)) deny(event, event.player)
+        if (inLobby(event.block.location)) deny(event, event.player)
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onHangingBreak(event: HangingBreakByEntityEvent) {
         val remover = event.remover as? Player ?: return
-        if (inLobby(event.entity.world)) deny(event, remover)
+        if (inLobby(event.entity.location)) deny(event, remover)
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onInteractEntity(event: PlayerInteractEntityEvent) {
         // item frames / armor stands are decoration, not inventory
-        if (inLobby(event.rightClicked.world) && event.rightClicked.type.name.let { it == "ITEM_FRAME" || it == "GLOW_ITEM_FRAME" || it == "ARMOR_STAND" }) {
+        if (inLobby(event.rightClicked.location) && event.rightClicked.type.name.let { it == "ITEM_FRAME" || it == "GLOW_ITEM_FRAME" || it == "ARMOR_STAND" }) {
             deny(event, event.player)
         }
     }
@@ -92,14 +93,14 @@ internal class PaperLobbyRulesListener(
     @EventHandler(priority = EventPriority.LOWEST)
     fun onInteract(event: PlayerInteractEvent) {
         val block = event.clickedBlock ?: return
-        if (!inLobby(block.world)) return
+        if (!inLobby(block.location)) return
         if (event.action == Action.PHYSICAL && block.type == Material.FARMLAND) event.isCancelled = true
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     fun onDamage(event: EntityDamageEvent) {
         val player = event.entity as? Player ?: return
-        if (!inLobby(player.world)) return
+        if (!inLobby(player.location)) return
         // The lobby is a no-damage zone (pvp, mobs, fire, void...); admin /kill still works.
         val cause = event.cause
         if (cause == EntityDamageEvent.DamageCause.KILL || cause == EntityDamageEvent.DamageCause.SUICIDE) return
@@ -110,13 +111,13 @@ internal class PaperLobbyRulesListener(
     @EventHandler(priority = EventPriority.LOWEST)
     fun onHunger(event: FoodLevelChangeEvent) {
         val player = event.entity as? Player ?: return
-        if (inLobby(player.world) && !rules.hunger) event.isCancelled = true
+        if (inLobby(player.location) && !rules.hunger) event.isCancelled = true
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onMove(event: PlayerMoveEvent) {
         val to = event.to
-        if (to.blockY >= rules.voidRescueY || !inLobby(to.world)) return
+        if (to.blockY >= rules.voidRescueY || !inLobby(to)) return
         val target = spawn() ?: return
         val player = event.player
         player.fallDistance = 0f

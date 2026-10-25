@@ -21,7 +21,7 @@ class LobbyWorldContentTest {
 
     @Test
     fun `lobby yaml loads with its world rules`() {
-        assertThat(config.id).isEqualTo("lobby")
+        assertThat(config.id).isEqualTo("world")
         assertThat(config.markerVersion).isGreaterThanOrEqualTo(1)
         assertThat(config.rules.pvpEnabled).isFalse()
         assertThat(config.rules.buildEnabled).isFalse()

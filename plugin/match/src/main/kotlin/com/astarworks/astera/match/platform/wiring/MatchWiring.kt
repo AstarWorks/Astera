@@ -193,7 +193,7 @@ public object MatchWiring {
         // still wins for runtime IStageRegistry lookups, but operators can refresh
         // YAML state for development via /astera reload stages.
         val stagesContentDir = ctx.contentDir.resolve("stages")
-        val stageContents = StageContents()
+        val stageContents = StageContents { services.get<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>()?.resolve(it) }
         val stageReport = stageContents.bootstrap(stagesContentDir)
         logger.info("Loaded ${stageReport.loaded} stage(s) from $stagesContentDir (failed: ${stageReport.failed})")
         registrations += services.register<IStageRegistry>(stageContents, priority = 0)
@@ -257,7 +257,7 @@ public object MatchWiring {
 
         // 3. Construct use cases -----------------------------------------------
         val victoryEvaluator = VictoryConditionEvaluator()
-        val startMatch = StartMatchUseCase(stages, matches, eventBus, scheduler)
+        val startMatch = StartMatchUseCase(stages, matches, eventBus, scheduler, services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>())
         val endMatch = EndMatchUseCase(matches, eventBus, scheduler, victoryEvaluator)
         // IWorldGateway is registered by Astera-Core (gate on null for hosts without one).
         val worldGateway = services.get<IWorldGateway>()

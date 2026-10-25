@@ -20,6 +20,10 @@ public data class Stage(
     val pillars: List<StagePillar> = emptyList(),
     /** Sky-island block layout a Paper-side builder places into [world] (ADR-0246); `null` = hand-built stage. */
     val layout: ArenaLayout? = null,
+    /** Content identity stays stable while [id] identifies one placed instance. */
+    val templateId: StageId = id,
+    val origin: com.astarworks.astera.core.domain.geometry.Vec3 = com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0),
+    val warmSlots: Int? = null,
 ) {
     /** The region the stage YAML named [name], or `null`. */
     public fun region(name: String): Region? = regions.firstOrNull { it.name == name }

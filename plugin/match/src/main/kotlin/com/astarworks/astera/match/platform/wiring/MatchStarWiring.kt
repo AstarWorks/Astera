@@ -46,12 +46,13 @@ internal object MatchStarWiring {
     class Wired(
         val store: IMatchStarStore,
         private val generators: IGeneratorRegistry,
+        private val stages: com.astarworks.astera.core.application.port.outbound.IStageRegistry,
         val norma: NormaLevelService,
         val drops: StarDropService,
         val configOf: (MatchId) -> NormaConfig,
     ) {
         /** Whether the stage [stageId] has authored generators (decides if the match sidebar shows star lines). */
-        fun stageHasStars(stageId: String): Boolean = generators.all().any { it.matchStageId == stageId }
+        fun stageHasStars(stageId: String): Boolean = generators.all().any { it.matchStageId == (stages.find(com.astarworks.astera.core.domain.stage.StageId(stageId))?.templateId?.value ?: stageId) }
     }
 
     /** Let the arena settle (teleports, kit) before the picker opens. */
@@ -102,6 +103,7 @@ internal object MatchStarWiring {
             store = store,
             drops = drops,
             norma = norma,
+            stages = env.stages,
             onInvalid = { id, reason -> env.ctx.logger.warning("Generator $id not instantiated: $reason") },
         )
         val subs = env.ctx.subscriptions
@@ -149,6 +151,6 @@ internal object MatchStarWiring {
         }
         // Command teleports raise no move event: a short poll covers them and redraws the drop markers.
         env.scheduledTasks += env.scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 10L, periodTicks = 10L) { drops.poll() }
-        return Wired(store, registry, norma, drops, configOf)
+        return Wired(store, registry, env.stages, norma, drops, configOf)
     }
 }

@@ -18,11 +18,11 @@ import java.util.UUID
  * falling for seconds towards vanilla's void damage at the world floor.
  */
 internal class PaperArenaVoidListener(
-    private val killY: (worldName: String) -> Int?,
+    private val killY: (worldName: String, x: Double, z: Double) -> Int?,
     private val health: () -> IPlayerHealthGateway?,
 ) : Listener {
 
-    private val lastKill = HashMap<UUID, Long>()
+    private val lastKill = java.util.concurrent.ConcurrentHashMap<UUID, Long>()
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onMove(event: PlayerMoveEvent) = check(event.player, event.to)
@@ -32,7 +32,7 @@ internal class PaperArenaVoidListener(
     fun onTeleport(event: PlayerTeleportEvent) = check(event.player, event.to)
 
     private fun check(player: org.bukkit.entity.Player, to: org.bukkit.Location) {
-        val limit = killY(to.world.name) ?: return
+        val limit = killY(to.world.name, to.x, to.z) ?: return
         if (to.y >= limit) return
         if (player.gameMode == GameMode.SPECTATOR || player.gameMode == GameMode.CREATIVE || player.isDead) return
         // One kill per second: the player keeps falling through the plane while the death flow runs.

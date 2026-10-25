@@ -21,10 +21,12 @@ public class PaperWorldBaseline(
     private val plugin: JavaPlugin,
     private val config: WorldBaselineYamlConfig,
     private val rules: IWorldRulesGateway,
-    private val time: IWorldTimeGateway,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
+    private val matchConfig: (java.util.UUID) -> com.astarworks.astera.core.domain.match.MatchConfig? = { null },
 ) : Listener {
 
     private val log = LoggerFactory.getLogger(javaClass)
+    private val applied = java.util.concurrent.ConcurrentHashMap.newKeySet<WorldId>()
 
     public fun start() {
         plugin.server.pluginManager.registerEvents(this, plugin)
@@ -42,6 +44,28 @@ public class PaperWorldBaseline(
         applyAll()
     }
 
+    @EventHandler
+    public fun onJoin(event: org.bukkit.event.player.PlayerJoinEvent) = view(event.player)
+
+    @EventHandler
+    public fun onWorldChange(event: org.bukkit.event.player.PlayerChangedWorldEvent) = view(event.player)
+
+    @EventHandler(ignoreCancelled = true)
+    public fun onTeleport(event: org.bukkit.event.player.PlayerTeleportEvent) = view(event.player)
+
+    private fun view(player: org.bukkit.entity.Player) {
+        scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(player.uniqueId), kotlin.time.Duration.ZERO) {
+            val overlay = matchConfig(player.uniqueId)
+            val time = overlay?.timeMode ?: config.timeOfDay
+            if (overlay?.timeMode != null || config.timeFrozen) player.setPlayerTime(time, false) else player.resetPlayerTime()
+            player.setPlayerWeather(when (overlay?.weatherMode) {
+                is com.astarworks.astera.core.domain.world.WeatherState.Rain,
+                is com.astarworks.astera.core.domain.world.WeatherState.Thunder -> org.bukkit.WeatherType.DOWNFALL
+                else -> org.bukkit.WeatherType.CLEAR
+            })
+        }
+    }
+
     private fun applyAll() {
         for (world in plugin.server.worlds) safeApply(WorldId(world.name))
     }
@@ -52,17 +76,19 @@ public class PaperWorldBaseline(
             plugin.server.globalRegionScheduler.execute(plugin, Runnable { safeApply(world) })
             return
         }
+        if (!applied.add(world)) return
         try {
             apply(world)
         } catch (t: Exception) {
+            applied.remove(world)
             log.warn("World baseline failed for '{}'", world.value, t)
         }
     }
 
     private fun apply(world: WorldId) {
         rules.setDoMobSpawning(world, config.mobSpawning)
-        time.setTime(world, config.timeOfDay)
-        time.freezeTime(world, config.timeFrozen)
+        rules.setDoFireTick(world, false)
+        rules.setKeepInventoryOnDeath(world, true)
         log.info(
             "World baseline applied to '{}': spawn_mobs={} time={} frozen={}",
             world.value, config.mobSpawning, config.timeOfDay, config.timeFrozen,

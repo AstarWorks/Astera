@@ -34,23 +34,18 @@ class ShippedArenaStagesBuildTest {
             val plan = ArenaIslandGenerator.generate(stage)
             assertThat(plan.problems).describedAs("stage '${stage.id.value}'").isEmpty()
             assertThat(layout!!.killY).describedAs("kill plane below the build of '${stage.id.value}'").isLessThan(plan.minY)
-            assertThat(stage.world.value).describedAs("stage '${stage.id.value}' world").isEqualTo("arenas")
+            assertThat(stage.world.value).describedAs("stage '${stage.id.value}' world").isEqualTo("world")
         }
     }
 
     @Test
-    fun `stages sharing the arena world do not overlap`() {
-        val boxes = stages().associate { stage ->
+    fun `shipped plans fit the reserved slot footprint`() {
+        for (stage in stages()) {
             val plan = ArenaIslandGenerator.generate(stage)
-            stage.id.value to (plan.minX..plan.maxX to plan.minZ..plan.maxZ)
-        }
-        for ((a, boxA) in boxes) {
-            for ((b, boxB) in boxes) {
-                if (a >= b) continue
-                val overlapX = boxA.first.first <= boxB.first.last && boxB.first.first <= boxA.first.last
-                val overlapZ = boxA.second.first <= boxB.second.last && boxB.second.first <= boxA.second.last
-                assertThat(overlapX && overlapZ).describedAs("stages '$a' and '$b' overlap in the arena world").isFalse
-            }
+            assertThat(plan.minX).isGreaterThan(-768)
+            assertThat(plan.maxX).isLessThan(768)
+            assertThat(plan.minZ).isGreaterThan(-768)
+            assertThat(plan.maxZ).isLessThan(768)
         }
     }
 

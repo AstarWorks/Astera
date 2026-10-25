@@ -33,3 +33,6 @@ docs/
 deploy/
 private/
 tools/architecture-test/build/
+
+!docker/void-world
+!docker/void-world/**

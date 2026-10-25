@@ -8,7 +8,7 @@
 # NPC stands live in content/lobby-npcs/*.yaml and must match the generated plan
 # (LobbyWorldContentTest fails when an NPC is not on a walkable block).
 
-id: lobby
+id: world
 seed: 20261022
 
 # Y of the top grass/pavement layer; players stand at surface_y + 1.
