@@ -88,6 +88,8 @@ public class CorePlatformPorts(
     public val mobBodies: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.mob.IMobBodyGateway)? = null,
     // ---- Player / effects -----------------------------------------------
     public val playerSoundGateway: IPlayerSoundGateway? = null,
+    /** Plays BGM to a client (Paper: vanilla music discs on the MUSIC bus, ADR-0256); absent in headless hosts. */
+    public val musicGateway: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.music.IMusicGateway)? = null,
     public val playerHealthGateway: ((ServiceRegistry) -> IPlayerHealthGateway)? = null,
     public val playerSpeedGateway: ((ServiceRegistry) -> IPlayerSpeedGateway)? = null,
     public val playerFoodGateway: ((ServiceRegistry) -> IPlayerFoodGateway)? = null,

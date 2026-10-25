@@ -1,0 +1,6 @@
+# Sound cue (ADR-0256). Vanilla sound for now; point resource_key at an astera: OGG event later.
+id: "astera:combat/blocked"
+resource_key: "minecraft:item.shield.block"
+default_volume: 0.4
+default_pitch: 1.5
+category: combat

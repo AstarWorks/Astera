@@ -1,12 +1,14 @@
+# BGM track (ADR-0256): a vanilla sound event, no resource pack needed. Replace the source with
+# an astera: OGG event (CC0 or ffmpeg-synthesised) when real music exists.
 id: high-intensity-drums
 display_name: "High Intensity Drums"
 source:
-  kind: resource_pack
-  path: "astera:music/high-intensity-drums"
+  kind: vanilla
+  key: "minecraft:music_disc.pigstep"
 license:
   kind: royalty_free
-  attribution: "Astera Phase 1 placeholder (CC0)"
+  attribution: "Vanilla Minecraft sound event (client-provided, not redistributed by Astera)"
 mood: high_intensity
 default_volume: 0.85
 loop: true
-duration_ticks: 3600
+duration_ticks: 2960

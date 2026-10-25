@@ -45,8 +45,6 @@ public class SimStarDropWorld : IStarDropWorld {
         drops.remove(handle)
     }
 
-    override fun playPickup(world: WorldId, position: Vec3) {}
-
     override fun onPickupAttempt(listener: (handle: String, player: PlayerId) -> Unit) {
         this.listener = listener
     }

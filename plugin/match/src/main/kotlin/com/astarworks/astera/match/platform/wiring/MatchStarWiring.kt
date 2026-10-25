@@ -81,6 +81,7 @@ internal object MatchStarWiring {
             store = store,
             eventBus = eventBus,
             world = dropWorld,
+            cues = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer>(),
             deathDropRatio = { id -> configOf(id).deathDropRatio },
             log = { env.ctx.logger.fine(it) },
         )

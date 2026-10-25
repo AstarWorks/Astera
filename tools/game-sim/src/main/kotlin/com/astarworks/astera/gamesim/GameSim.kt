@@ -130,6 +130,10 @@ public class GameSim private constructor(
     /** Star drops lying in the simulated world; collected by [SimStarDropWorld.pickupSweep] like a vanilla item pickup. */
     public val starDrops: SimStarDropWorld = SimStarDropWorld()
 
+    /** Every per-viewer sound the game plays (ADR-0256 cues resolve to these), in order. */
+    public val playerSounds: com.astarworks.astera.testfixtures.effect.FakePlayerSoundGateway =
+        com.astarworks.astera.testfixtures.effect.FakePlayerSoundGateway()
+
     /** Everything the Norma level-up / goal-picker presentation would have shown. */
     public val normaPresentation: SimNormaPresentation = SimNormaPresentation()
     public lateinit var stats: StatsWiringResult
@@ -529,6 +533,7 @@ public class GameSim private constructor(
                 broadcaster = broadcaster,
                 guiAdapter = GuiAdapterFactory { _, _, _ -> FakeGuiAdapter() },
                 worldGateway = { worldGateway },
+                playerSoundGateway = sim.playerSounds,
                 proxyMessenger = proxy?.let { messenger -> { _ -> messenger } },
             )
             val coreCtx = context()

@@ -1,0 +1,6 @@
+# Sound cue (ADR-0256). Vanilla sound for now; point resource_key at an astera: OGG event later.
+id: "astera:match/countdown-tick"
+resource_key: "minecraft:block.note_block.bell"
+default_volume: 0.6
+default_pitch: 1.0
+category: match

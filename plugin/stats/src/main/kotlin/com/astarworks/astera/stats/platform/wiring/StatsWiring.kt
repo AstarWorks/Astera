@@ -225,7 +225,7 @@ public object StatsWiring {
         // cannot import it). The InMemory HUD gateway records the call only
         // until Wave 6b's Paper renderer lands.
         val hudGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
-        val playerSoundGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>()
+        val playerSoundGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer>()
         val hudLeveledUpListener = com.astarworks.astera.stats.application.eventbus.listeners.hud
             .HudUpdateOnLeveledUpListener(hudGateway, playerSoundGateway)
         subscriptions += eventBus.subscribe(LeveledUp::class) { hudLeveledUpListener.handle(it) }

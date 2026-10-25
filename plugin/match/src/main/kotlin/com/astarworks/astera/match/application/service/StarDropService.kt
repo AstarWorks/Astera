@@ -3,6 +3,8 @@ package com.astarworks.astera.match.application.service
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
+import com.astarworks.astera.core.domain.effect.SoundCues
 import com.astarworks.astera.core.domain.combat.CombatContext
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
@@ -39,6 +41,7 @@ public class StarDropService(
     private val store: IMatchStarStore,
     private val eventBus: IDomainEventBus,
     private val world: IStarDropWorld?,
+    private val cues: ISoundCuePlayer,
     private val deathDropRatio: (MatchId) -> Double,
     private val random: Random = Random.Default,
     private val log: (String) -> Unit = {},
@@ -69,7 +72,7 @@ public class StarDropService(
         val carried = store.get(match.id, event.victim)
         val burst = floor(carried * deathDropRatio(match.id)).toInt()
         log("star burst: victim=${event.victim} carried=$carried burst=$burst")
-        scatter(match.id, event.victim, burst)
+        scatter(match.id, event.victim, burst, event.killer)
     }
 
     /**
@@ -83,11 +86,13 @@ public class StarDropService(
     }
 
     /** Takes [burst] stars off [victim]'s counter and scatters them as drops around where they stand. */
-    private fun scatter(matchId: MatchId, victim: PlayerId, burst: Int) {
+    private fun scatter(matchId: MatchId, victim: PlayerId, burst: Int, killer: PlayerId? = null) {
         if (burst <= 0) return
         val at = positions.positionOf(victim, includeDead = true)
         if (at == null) { log("star burst: no position for $victim"); return }
         if (store.spend(matchId, victim, burst) is com.astarworks.astera.core.domain.Result.Failure) return
+        cues.play(victim, SoundCues.STAR_BURST, at.position, at.world)
+        killer?.takeIf { it != victim }?.let { cues.play(it, SoundCues.STAR_BURST, at.position, at.world) }
         val stacks = minOf(burst, MAX_BURST_DROPS)
         val base = burst / stacks
         var extra = burst % stacks
@@ -156,7 +161,7 @@ public class StarDropService(
     private fun take(drop: StarDrop, taker: PlayerId) {
         val taken = drops.remove(drop.id) ?: return
         taken.entity?.let { world?.take(it, taker) }
-        world?.playPickup(taken.world, taken.position)
+        cues.play(taker, SoundCues.STAR_PICKUP, taken.position, taken.world)
         val total = store.add(drop.matchId, taker, taken.amount)
         eventBus.publish(StarsCollected(drop.matchId, taker, taken.amount, total))
     }

@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.config.effect
 
 import com.astarworks.astera.core.domain.effect.SoundId
 import com.astarworks.astera.core.domain.effect.sound.SoundDefinition
+import com.astarworks.astera.core.domain.effect.sound.SoundLayer
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -37,6 +38,7 @@ public data class SoundDefinitionYamlConfig(
     @SerialName("default_pitch") public val defaultPitch: Double = 1.0,
     public val category: String = "master",
     @SerialName("display_name_key") public val displayNameKey: String? = null,
+    public val layers: List<SoundLayerYamlConfig> = emptyList(),
 ) {
     public fun toSpec(): SoundDefinition = SoundDefinition(
         id = SoundId(id),
@@ -45,5 +47,13 @@ public data class SoundDefinitionYamlConfig(
         defaultPitch = defaultPitch,
         category = category,
         displayNameKey = displayNameKey?.let(::MessageKey),
+        layers = layers.map { SoundLayer(it.resourceKey, it.volume, it.pitch) },
     )
 }
+
+@Serializable
+public data class SoundLayerYamlConfig(
+    @SerialName("resource_key") public val resourceKey: String,
+    public val volume: Double = 1.0,
+    public val pitch: Double = 1.0,
+)

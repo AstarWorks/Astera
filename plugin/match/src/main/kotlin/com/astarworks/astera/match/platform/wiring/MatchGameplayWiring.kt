@@ -515,6 +515,17 @@ internal object MatchGameplayWiring {
             matchCountdownListener.handle(it)
         }
 
+        // ADR-0256: countdown ticks + go, death cue, last-stretch BGM tension.
+        val matchCueListener = com.astarworks.astera.match.application.eventbus.listeners.match.MatchCueListener(
+            matches = matches,
+            cues = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer>(),
+            bgm = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.music.IPlayerBgm>(),
+            scheduler = scheduler,
+        )
+        subscriptions += eventBus.subscribe(MatchStarted::class) { matchCueListener.onStarted(it) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { matchCueListener.onKilled(it) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) { matchCueListener.onPhaseChanged(it) }
+
         // F3-4: per-match kills / deaths / assists / objectives behind the result screen.
         val matchTally = com.astarworks.astera.match.application.service.result.MatchTallyService(matches)
         subscriptions += eventBus.subscribe(MatchStarted::class) { matchTally.onMatchStarted(it.matchId, it.modeKey.orEmpty()) }
