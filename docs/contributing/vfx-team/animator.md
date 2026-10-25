@@ -31,7 +31,7 @@ rigs:
 ```
 Rigid per-part display = `pivot frame o tilt o swing o rest o part offset`; part boxes are specified by center `offset`, not corner. A rig effect must use `follow: false` (with `follow: true` the planes stick to the anchor and it no longer reads as a wind-cut). The sample is `content/vfx/demo-greatsword-swing.yaml`, played by `content/skills/vfx-demo-greatsword.yaml`.
 
-Preview: `./gradlew :tools:vfx-preview:run --args='demo-greatsword-swing --view side|top|eye [--freeze 7:3]'` (`eye` = caster first person from y 1.62 along +Z). Output `build/vfx-preview/<id>/frame_NNN.png` and `sheet.png`. The preview replays client interpolation. It is not the real client: see pitfalls.
+Preview: `make skill-preview SKILL=<skill-id>` (renders the skill from the compare camera in seconds, no client; see [skill-preview](skill-preview.md)). Output `build/skill-preview/<skill>/{frames,strip.png}`. It is not the real client: see pitfalls.
 
 ## Caster movement mechanics
 
