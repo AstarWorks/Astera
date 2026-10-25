@@ -4,6 +4,7 @@
 # on consecutive days grows the streak, missing a day restarts it at day 1. When the streak is
 # longer than the last day listed here the rotation wraps (day 8 pays day 1 again).
 # `items` is carried in the claim but nothing delivers it yet - ship currency-only rewards.
+# Rewards grow every day and day 7 is the peak (ShippedRewardTablesTest pins monotonic + day-7 highlight).
 # Edit and run `/astera admin reload login-bonus` to apply.
 
 days:
@@ -26,12 +27,12 @@ days:
   - day: 5
     reward:
       currency: GOLD
-      amount: 45
+      amount: 40
   - day: 6
     reward:
       currency: GOLD
-      amount: 65
+      amount: 55
   - day: 7
     reward:
       currency: GOLD
-      amount: 25
+      amount: 100

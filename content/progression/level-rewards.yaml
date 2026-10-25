@@ -1,4 +1,5 @@
 # Permanent, lifetime claims: changing an already claimed level never re-grants it.
+# Round GOLD amounts, extended past Lv10 (XP curve 100*(n-1)*n/2: Lv10 4,500 / Lv20 19,000 / Lv30 43,500 XP).
 levels:
   2:
     gold: 50
@@ -7,9 +8,22 @@ levels:
     gold: 75
     cosmetics: [rising-star]
   5:
-    gold: 102
+    gold: 100
     titles: [adventurer]
+  7:
+    gold: 125
   10:
-    gold: 205
+    gold: 200
     titles: [veteran]
+  12:
+    gold: 250
+  15:
+    gold: 300
+  20:
+    gold: 400
+    titles: [champion]
+  25:
+    gold: 500
+  30:
+    gold: 750
 # Optional items: [<item-id>] records entitlement, not a physical inventory grant.
