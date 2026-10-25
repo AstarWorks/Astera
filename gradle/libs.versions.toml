@@ -6,6 +6,11 @@ jdk = "25"
 
 # Paper (Minecraft Java Edition 26.x — requires JDK 25)
 paper = "26.3.build.211-stable"
+# Folia server (founder decision 2026-10-26: Folia migration). Only the 26.3 alpha
+# channel exists for this game version. Read by docker/Dockerfile (SERVER_TYPE=FOLIA)
+# to download the server jar from fill.papermc.io; also the folia-api version once
+# the plugins compile against it. Format: <mc>.build.<n>-<channel>.
+folia = "26.3.build.5-alpha"
 
 # JOML (pure-math library — Vector3f / Quaternionf / Matrix4f).
 # Paper API pulls 1.10.9 transitively; we declare it here so `:plugin:core`
