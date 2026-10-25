@@ -180,9 +180,17 @@ e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, v
 	bash scripts/e2e.sh down
 
 .PHONY: vfx-shot
-vfx-shot: ## Film a skill with a real headless MC client: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|all] [TICKS=60] [FOV=90]
-	@test -n "$(SKILL)" || { echo "usage: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|all] [TICKS=60]"; exit 2; }
-	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(or $(TICKS),60)" bash tools/vfx-shot/vfx-shot.sh
+vfx-shot: ## Film a skill with a real headless MC client on this checkout's warm stack: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60] [FOV=90] [BEAT_TICKS=case|0,8,16]
+	@test -n "$(SKILL)" || { echo "usage: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60]"; exit 2; }
+	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(TICKS)" bash tools/vfx-shot/vfx-shot.sh
+
+.PHONY: vfx-shot-up
+vfx-shot-up: ## Create/refresh this checkout's warm capture stack and park the clients (VIEW=compare CASE=<case> | side), no capture
+	VIEW="$(or $(VIEW),all)" bash tools/vfx-shot/vfx-shot.sh up
+
+.PHONY: vfx-shot-status
+vfx-shot-status: ## Warm capture stack state: server, deployed content/pack/code vs working tree, parked clients, locks
+	bash tools/vfx-shot/vfx-shot.sh status
 
 .PHONY: anim-shot
 anim-shot: ## Film a skin-rig animation for the skill-compare /anim review: make anim-shot ANIM=<animation-id | skill-id>
@@ -190,7 +198,7 @@ anim-shot: ## Film a skin-rig animation for the skill-compare /anim review: make
 	bash tools/vfx-shot/anim-shot.sh "$(ANIM)"
 
 .PHONY: vfx-shot-down
-vfx-shot-down: ## Stop + drop the vfx-shot server (this checkout + SKILL/CASE; only needed after SHOT_KEEP=1)
+vfx-shot-down: ## Stop the parked clients and drop this checkout's warm capture stack (server, pack host, volumes)
 	bash tools/vfx-shot/vfx-shot.sh down
 
 # ----------------------------------------------------------------------------

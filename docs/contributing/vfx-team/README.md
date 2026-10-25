@@ -83,10 +83,41 @@ Rules of the loop:
 
 Two roles never edit the same file in one round. Where one VFX YAML mixes pieces (rig swing vs trail style), the director splits the assignment by section in the brief.
 
+## Real-client capture (warm stack, 2026-10-26)
+
+`make vfx-shot` used to build an image with gradle inside docker, boot a server and join two clients on every run (3-10+ minutes, plus a 30-60
+minute queue behind e2e). It now keeps **one warm stack per checkout** (server + pack host + parked clients) and only syncs what changed.
+Reference: [tools/vfx-shot/README.md](../../../tools/vfx-shot/README.md) (sections "Warm stack", "Tick clapperboard").
+
+```
+make vfx-shot-up VIEW=compare CASE=<case>                 # optional: create the stack and park the clients (~2 min the first time)
+SKILL=<skill> ITEM=<item-id> VIEW=compare CASE=<case> make vfx-shot      # warm: ~30 s (1280x720, gif/mp4/sheet)
+SKILL=<skill> VIEW=side TICKS=40 BEAT_TICKS=0,8,20 make vfx-shot          # warm: ~12 s, 640x360, PNGs of the beat ticks only
+make vfx-shot-status                                       # fresh/STALE per layer, parked clients, locks, memory
+make vfx-shot-down                                         # when the track is done (frees ~7 GB and the parked clients)
+```
+
+- **Edit, then capture; nothing else.** Content (YAML, sprites, particles, animations) is pushed with `docker cp` and `/astera admin reload all` (seconds);
+  textures / models / sounds / sprites rebuild the pack on the host and the parked clients reload it (10-20 s); a Kotlin plugin change rebuilds the seven jars and
+  restarts the server (1-2 min, clients rejoin). The capture log prints `[+Ns]` per phase and `content: pushing` / `pack: pushing` /
+  `plugins: restarting` so you can see which layer moved. Do not restart containers or copy files into the stack by hand.
+- **Provenance is checked, not assumed.** `meta.json` `stack` carries the deployed content hash (verified inside the container), the pack sha1, the code hash and revision,
+  and `workingTreeInSync`; if the tree changed while the capture ran, `captureQuality.invalid` is set and the capture must be redone. `make vfx-shot-status` shows the same
+  comparison on demand.
+- **Frame <-> tick is measured.** `meta.json` `clapper` has the measured cast lag (`measuredCastLagMs`), tick rate, residual and `fitHolds` (a server tick boss bar is
+  filmed in the first and last 1.2 s with the HUD up; the saved frames never show it). Quote it instead of guessing "+1-2 ticks of client lag"; the jitter that remains
+  (+-1-2 ticks, bursty software client) is a property of the client, not of the offset. If `clapper.measured` is false the capture fell back to the assumed 60 ms.
+- **Lighter output.** caster / opponent / side views film at 640x360 (compare stays 1280x720; `RES=` overrides). `BEAT_TICKS=case` (the case's `beats[].tick`) or an explicit tick
+  list saves only those PNGs (no sheet / gif / mp4, `beatFramesOnly: true`, not publishable): use it for pose / VFX iteration, and a full capture for the round you publish.
+- **Lock discipline.** Do not use `/tmp/claude-1000/astera-e2e.lock` for captures. A second capture from the same worktree waits (`queued: another capture is using this checkout's stack`); the global
+  semaphore (`SHOT_SLOTS`, 2) and the memory guard (`SHOT_MIN_FREE_GB`, 8 GB) hold back captures from other worktrees. Never kill another worktree's stack or the `astera-dev-*` /
+  `astera-e2e-*` containers; `make vfx-shot-down` only removes this checkout's own.
+- Parked clients are frozen between captures (`parker.sh`), so an idle stack costs about one core and ~7 GB of RAM. `SHOT_EPHEMERAL=1` gives the old tear-down-at-the-end behaviour.
+
 ## Shared rules
 
 - No push (the manager pushes), no unit tests, no gradle `check`; commit trailer `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
-- Real-client capture: one at a time. Slots are shared (`tools/vfx-shot/README.md` "Parallel runs"); a compare capture and a 3-view capture of the same skill share a `SHOT_ID` and must not overlap.
+- Real-client capture: use the warm stack (section "Real-client capture" below), never wrap it in the e2e flock. Captures of one checkout queue behind each other on the stack lock (different skills, cases and views all share the stack); captures of different worktrees run side by side under the slot semaphore and the memory guard.
 - No paid services (founder). The `generate-sounds` skill uses paid fal.ai; see [sound.md](sound.md).
 - Only one weapon may be visible during a skill (mechanic `hide_held_item`; see [director.md](director.md) for where it lives).
 
