@@ -40,6 +40,9 @@ data class Objective(val name: String, val x: Double, val y: Double, val z: Doub
 fun interface ObjectiveSource {
     /** The objective for a bot that spawned at ([spawnX], [spawnZ]), or null for "just look for enemies". */
     fun objectiveFor(spawnX: Double, spawnZ: Double): Objective?
+
+    /** Star generator pedestals (x, z) of the stage, where stars wait to be picked up. */
+    fun starPoints(): List<Pair<Double, Double>> = emptyList()
 }
 
 /**
@@ -60,9 +63,15 @@ class BotBrain(
     private val bot: Bot,
     private val skill: BotSkill = BotSkill(),
     private val objectives: ObjectiveSource? = null,
+    /** Pick the Norma goal (`/astera norma choose star|kill`) from the situation. Off = keep whatever the server set. */
+    private val chooseNormaGoal: Boolean = true,
 ) : AutoCloseable {
 
     enum class Mode { IDLE, FIGHT }
+
+    private enum class Goal { STAR, KILL }
+
+    private class Dest(val x: Double, val z: Double, val y: Double?, val arrive: Double, val kind: String, val starId: Int = -1)
 
     @Volatile var mode: Mode = Mode.IDLE
 
@@ -72,6 +81,13 @@ class BotBrain(
     val reloads = AtomicInteger()
     val ticksWithEnemy = AtomicInteger()
     val blockedByEdge = AtomicInteger()
+    val starsCollected = AtomicInteger()
+    val edgeFalls = AtomicInteger()
+    val nav = Navigator(bot.terrain)
+
+    /** Milliseconds from entering the fight until the first enemy was seen / the first attack was sent (-1 = not yet). */
+    @Volatile var firstSightMs = -1L; private set
+    @Volatile var firstAttackMs = -1L; private set
 
     @Volatile var loadout: List<Weapon> = emptyList(); private set
 
@@ -107,6 +123,26 @@ class BotBrain(
     private var progressAt = 0L
     private var preferredSide = 1
     private var screensSeen = bot.screens.size
+    private var fightStartedAt = 0L
+    private var localBlockedAt = 0L
+    private var retreating = false
+    private var retreatSince = 0L
+    private var goal = if (chooseNormaGoal) Goal.STAR else Goal.KILL
+    private var sentGoal: Goal? = null
+    private var lastGoalChangeAt = 0L
+    private var lastGoalSentAt = 0L
+    private var engagedAt = 0L
+    private var patrolIndex = 0
+    private var patrolHeld = 0L
+    private var dwellUntil = 0L
+    private val starPoints: List<Pair<Double, Double>> = objectives?.starPoints().orEmpty()
+    private val visitedAt = HashMap<Int, Long>()
+    private val ignoredStars = HashMap<Int, Long>()
+    private val starsSeen = HashMap<Int, DoubleArray>()
+    private var starApproachId = -1
+    private var starApproachSince = 0L
+    private var highY = Double.NEGATIVE_INFINITY
+    private var fellRecently = false
 
     fun start(): BotBrain {
         exec.scheduleAtFixedRate({ runCatching { tick() }.onFailure { Bot.noteSink("bot ${bot.name}: brain error $it") } }, 500, 50, TimeUnit.MILLISECONDS)
@@ -118,7 +154,7 @@ class BotBrain(
         exec.shutdownNow()
     }
 
-    fun summary(): String = "swings=${swings.get()} shots=${shots.get()} reloads=${reloads.get()} enemyTicks=${ticksWithEnemy.get()} edgeBlocks=${blockedByEdge.get()} goal=${objective?.name} loadout=$loadout"
+    fun summary(): String = "swings=${swings.get()} shots=${shots.get()} reloads=${reloads.get()} enemyTicks=${ticksWithEnemy.get()} edgeBlocks=${blockedByEdge.get()} stars=${starsCollected.get()} falls=${edgeFalls.get()} sight=${firstSightMs}ms attack=${firstAttackMs}ms searches=${nav.searches.get()} stuckReplans=${nav.stuckReplans.get()} maxSearchUs=${nav.maxSearchMicros} avgNodes=${nav.expandedTotal.get() / nav.searches.get().coerceAtLeast(1)} goal=${objective?.name}/$goal loadout=$loadout"
 
     // --- the tick ------------------------------------------------------------------------------------------------
 
@@ -145,19 +181,32 @@ class BotBrain(
             wasFighting = true
             spawnX = bot.x; spawnZ = bot.z
             objective = objectives?.objectiveFor(spawnX, spawnZ)
+            fightStartedAt = now
+            nav.clear()
+            retreating = false
         }
+        trackFall()
         resolveLoadoutIfNeeded(now)
         tickReload(now)
 
         val enemy = nearestEnemy()
+        trackStars(now)
+        updateRetreat(enemy, now)
+        if (chooseNormaGoal) updateGoal(enemy, now)
         var yaw = bot.yawDeg
         var pitch = bot.pitchDeg
         var speed = skill.walkSpeed
         var heading: Double? = null // world-space direction of travel, radians in (x, z)
         var standStill = false
 
+        val starDest = starTarget(now)
+        val enemyFlat = if (enemy != null) hypot(enemy.x - bot.x, enemy.z - bot.z) else Double.MAX_VALUE
+        // Stars first while the goal is STAR and the enemy is not close; a close enemy always wins the attention.
+        val goForStar = starDest != null && enemyFlat > STAR_YIELD_RANGE && !retreating
+
         if (enemy != null) {
             ticksWithEnemy.incrementAndGet()
+            if (firstSightMs < 0) firstSightMs = now - fightStartedAt
             lastEnemyAt = now; lastEnemyX = enemy.x; lastEnemyZ = enemy.z
             val dx = enemy.x - bot.x
             val dz = enemy.z - bot.z
@@ -185,21 +234,39 @@ class BotBrain(
             }
             if (now > strafeUntil) { strafeSign = -strafeSign; strafeUntil = now + 1_000 + rnd.nextInt(1_600) }
             act(enemy, weapon, dist, now, yaw, pitch)
-        } else {
-            val goal = chooseGoal(now)
-            if (goal != null) {
-                val dx = goal.first - bot.x
-                val dz = goal.second - bot.z
-                val flat = hypot(dx, dz)
-                if (flat > goal.third) {
-                    heading = atan2(dz, dx)
-                    yaw = Math.toDegrees(atan2(-dx, dz)).toFloat()
-                    pitch = 0f
-                } else {
-                    standStill = true
-                    objective?.takeIf { it.breakable }?.let { digObjective(it, now) }
+
+            // Long way, a different height, a gap in the way, a star to fetch or a retreat: plan a route (A*) instead of steering.
+            val needRoute = retreating || goForStar || flat > LOCAL_STEER_RANGE || abs(enemy.y - bot.y) > 3.0 ||
+                (flat > 3.0 && now - localBlockedAt < 2_000)
+            if (needRoute) {
+                val d = when {
+                    retreating -> Dest(spawnX, spawnZ, null, 3.0, "retreat")
+                    goForStar -> starDest!!
+                    else -> Dest(enemy.x, enemy.z, enemy.y, if (weapon?.kind == WeaponKind.RANGED) skill.preferredRange - 1.0 else 1.8, "enemy")
                 }
+                // keep the enemy in the crosshair while walking the route
+                val st = nav.follow(bot, d.x, d.z, d.y, d.arrive, skill.walkSpeed, now, yaw, pitch)
+                if (st == Navigator.Status.MOVING) { dwellOn(d, now); return }
+                if (st == Navigator.Status.NO_PATH && d.kind == "star") ignoreStar(d.starId, now)
+                bot.moveTo(bot.x, bot.y, bot.z, yaw, pitch)
+                return
+            }
+        } else {
+            val dest = chooseDest(now, starDest)
+            if (dest == null) {
+                standStill = true
             } else {
+                val st = nav.follow(bot, dest.x, dest.z, dest.y, dest.arrive, skill.walkSpeed, now, null, 0f)
+                when (st) {
+                    Navigator.Status.MOVING -> { dwellOn(dest, now); return }
+                    Navigator.Status.ARRIVED -> {
+                        arrivedAt(dest, now)
+                        objective?.takeIf { it.breakable && dest.kind == "objective" }?.let { digObjective(it, now) }
+                    }
+                    Navigator.Status.NO_PATH -> {
+                        if (dest.kind == "star") ignoreStar(dest.starId, now) else if (dest.kind != "enemy-seen") arrivedAt(dest, now, unreachable = true)
+                    }
+                }
                 standStill = true
             }
         }
@@ -221,6 +288,7 @@ class BotBrain(
         if (seen == screensSeen) return
         val last = bot.screens.lastOrNull()
         screensSeen = seen
+        sentGoal = null // the picker resets the goal; say it again
         if (last != null) bot.closeWindow(last.containerId)
     }
 
@@ -247,15 +315,146 @@ class BotBrain(
         return best
     }
 
-    /** Where to walk with nobody in sight: a recent enemy sighting, the mode objective, else roam. Third = arrive radius. */
-    private fun chooseGoal(now: Long): Triple<Double, Double, Double>? {
-        if (now - lastEnemyAt < 8_000) return Triple(lastEnemyX, lastEnemyZ, 3.0)
-        objective?.let { return Triple(it.x + 0.5, it.z + 0.5, 3.5) }
+    /**
+     * Where to walk with nobody in sight: a star, a generator that may hold stars (STAR goal), a recent enemy
+     * sighting, then the mode objective and a patrol of the stage's points of interest, else roam.
+     */
+    private fun chooseDest(now: Long, starDest: Dest?): Dest? {
+        if (starDest != null) return starDest
+        if (goal == Goal.STAR && starPoints.isNotEmpty()) {
+            var bestI = -1
+            var bestD = Double.MAX_VALUE
+            for ((i, p) in starPoints.withIndex()) {
+                if (now - (visitedAt[i] ?: -GEN_COOLDOWN_MS) < GEN_COOLDOWN_MS) continue
+                val d = hypot(p.first - bot.x, p.second - bot.z)
+                if (d < bestD) { bestD = d; bestI = i }
+            }
+            if (bestI >= 0) return Dest(starPoints[bestI].first, starPoints[bestI].second, null, 2.0, "gen", bestI)
+        }
+        if (now - lastEnemyAt < 8_000) return Dest(lastEnemyX, lastEnemyZ, null, 3.0, "enemy-seen")
+        val patrol = patrolPoints()
+        if (patrol.isNotEmpty()) {
+            val i = patrolIndex % patrol.size
+            val p = patrol[i]
+            val isObjective = i == 0 && objective != null
+            return Dest(p.first, p.second, null, if (isObjective) 3.5 else 3.0, if (isObjective) "objective" else "patrol")
+        }
         if (now > wanderUntil) {
             wanderHeading = rnd.nextDouble() * 2 * PI
             wanderUntil = now + 2_500 + rnd.nextInt(3_000)
         }
-        return Triple(bot.x + cos(wanderHeading) * 20, bot.z + sin(wanderHeading) * 20, 1.0)
+        return Dest(bot.x + cos(wanderHeading) * 20, bot.z + sin(wanderHeading) * 20, null, 1.0, "roam")
+    }
+
+    /** Enemy objective first, then the generator pedestals, then home: a loop that crosses the whole stage. */
+    private fun patrolPoints(): List<Pair<Double, Double>> {
+        val out = ArrayList<Pair<Double, Double>>()
+        objective?.let { out += (it.x + 0.5) to (it.z + 0.5) }
+        out += starPoints
+        return out
+    }
+
+    private fun arrivedAt(d: Dest, now: Long, unreachable: Boolean = false) {
+        when (d.kind) {
+            "gen" -> {
+                if (unreachable) { visitedAt[d.starId] = now; return }
+                if (dwellUntil == 0L) dwellUntil = now + GEN_DWELL_MS
+                else if (now >= dwellUntil) { visitedAt[d.starId] = now; dwellUntil = 0L }
+            }
+            "star" -> {
+                if (starArrivedSince == 0L) starArrivedSince = now
+                else if (now - starArrivedSince > 1_500) ignoreStar(d.starId, now)
+            }
+            "patrol", "objective" -> {
+                if (d.kind == "objective" && objective?.breakable == true && !unreachable) return
+                if (dwellUntil == 0L) dwellUntil = now + (if (unreachable) 0 else 800)
+                if (now >= dwellUntil) { patrolIndex++; dwellUntil = 0L }
+            }
+            "roam" -> wanderUntil = 0L
+        }
+    }
+
+    private var starArrivedSince = 0L
+
+    /** Called every tick the bot is on its way somewhere: gives up on a star it has chased for too long. */
+    private fun dwellOn(d: Dest, now: Long) {
+        starArrivedSince = 0L
+        if (d.kind != "star") return
+        if (starApproachId != d.starId) { starApproachId = d.starId; starApproachSince = now }
+        else if (now - starApproachSince > STAR_CHASE_MS) ignoreStar(d.starId, now)
+    }
+
+    private fun ignoreStar(id: Int, now: Long) {
+        ignoredStars[id] = now + 30_000
+        starArrivedSince = 0L
+        nav.clear()
+    }
+
+    private fun isStarItem(e: EntityView): Boolean {
+        if (e.type != "ITEM") return false
+        val texts = bot.entityTextsById[e.id]
+        return texts == null || texts.isEmpty() || texts.any { it.contains('★') || it.contains("star", ignoreCase = true) }
+    }
+
+    /** The star pick-up to fetch: nearest dropped star item within reach (any distance with the STAR goal, a short detour with KILL). */
+    private fun starTarget(now: Long): Dest? {
+        val limit = if (goal == Goal.STAR) STAR_SIGHT_RANGE else 8.0
+        var best: EntityView? = null
+        var bestD = Double.MAX_VALUE
+        for (e in bot.entities.values) {
+            if (!isStarItem(e)) continue
+            val until = ignoredStars[e.id]
+            if (until != null && until > now) continue
+            val d = hypot(e.x - bot.x, e.z - bot.z) + abs(e.y - bot.y) * 0.5
+            if (d <= limit && d < bestD) { best = e; bestD = d }
+        }
+        return best?.let { Dest(it.x, it.z, null, 0.9, "star", it.id) }
+    }
+
+    /** Counts stars picked up: a star item that vanishes while the bot stands next to it. */
+    private fun trackStars(now: Long) {
+        for (e in bot.entities.values) if (isStarItem(e)) starsSeen[e.id] = doubleArrayOf(e.x, e.y, e.z)
+        val iter = starsSeen.entries.iterator()
+        while (iter.hasNext()) {
+            val (id, p) = iter.next()
+            if (bot.entities.containsKey(id)) continue
+            if (hypot(p[0] - bot.x, p[2] - bot.z) <= 3.5 && abs(p[1] - bot.y) <= 3.0) starsCollected.incrementAndGet()
+            iter.remove()
+        }
+        ignoredStars.entries.removeIf { it.value < now }
+    }
+
+    private fun trackFall() {
+        if (bot.y > highY) highY = bot.y
+        if (!fellRecently && bot.y < highY - FALL_DEPTH) { fellRecently = true; edgeFalls.incrementAndGet() }
+        else if (fellRecently && bot.y > highY - 4) fellRecently = false
+    }
+
+    private fun updateRetreat(enemy: EntityView?, now: Long) {
+        val hp = bot.health
+        val enemyNear = enemy != null && hypot(enemy.x - bot.x, enemy.z - bot.z) < 14.0
+        if (!retreating) {
+            if (hp > 0f && hp <= RETREAT_HP && enemyNear) { retreating = true; retreatSince = now; nav.clear() }
+        } else if (hp >= RECOVER_HP || now - retreatSince > 10_000 || (!enemyNear && now - lastEnemyAt > 3_000)) {
+            retreating = false; nav.clear()
+        }
+    }
+
+    /** STAR goal while the field is quiet, KILL while an enemy is on us; re-sent after the picker window resets it. */
+    private fun updateGoal(enemy: EntityView?, now: Long) {
+        if (starPoints.isEmpty()) return
+        if (enemy != null && hypot(enemy.x - bot.x, enemy.z - bot.z) < 25.0) engagedAt = now
+        val desired = if (now - engagedAt < 3_000) Goal.KILL else Goal.STAR
+        if (desired != goal && now - lastGoalChangeAt > 8_000) { goal = desired; lastGoalChangeAt = now }
+        if (sentGoal != goal && now - lastGoalSentAt > 3_000 && now - fightStartedAt > 3_000) {
+            lastGoalSentAt = now
+            sentGoal = goal
+            bot.command("astera norma choose ${goal.name.lowercase()}")
+        }
+    }
+
+    private fun noteAttack(now: Long) {
+        if (firstAttackMs < 0) firstAttackMs = now - fightStartedAt
     }
 
     private fun digObjective(o: Objective, now: Long) {
@@ -301,6 +500,7 @@ class BotBrain(
             return
         }
         if (edgeHit) blockedByEdge.incrementAndGet()
+        localBlockedAt = now
         bot.moveTo(bot.x, bot.y, bot.z, yaw, pitch)
     }
 
@@ -322,7 +522,7 @@ class BotBrain(
         val aimPitch = pitch + ((rnd.nextFloat() - 0.5f) * skill.aimErrorDeg)
         if (weapon == null) {
             // Bare hands: still a real attack.
-            if (dist <= 3.0 && now - lastSwingAt > skill.swingIntervalMs) { lastSwingAt = now; bot.punch(); bot.attack(enemy.id); swings.incrementAndGet() }
+            if (dist <= 3.0 && now - lastSwingAt > skill.swingIntervalMs) { lastSwingAt = now; bot.punch(); bot.attack(enemy.id); swings.incrementAndGet(); noteAttack(now) }
             return
         }
         if (bot.selectedSlot != weapon.slot) {
@@ -336,7 +536,7 @@ class BotBrain(
                     lastSwingAt = now
                     bot.punch()
                     bot.attack(enemy.id)
-                    swings.incrementAndGet()
+                    swings.incrementAndGet(); noteAttack(now)
                 }
             }
             WeaponKind.RANGED -> {
@@ -348,7 +548,7 @@ class BotBrain(
                 if (dist <= RANGED_REACH && energyOk && now - lastShotAt > skill.shotIntervalMs + rnd.nextInt(120)) {
                     lastShotAt = now
                     bot.useItem(aimYaw, aimPitch)
-                    shots.incrementAndGet()
+                    shots.incrementAndGet(); noteAttack(now)
                 }
             }
         }
@@ -437,6 +637,15 @@ class BotBrain(
         const val MIN_MELEE_FOOD = 4
         const val MIN_CAST_FOOD = 2
         const val PROBE_AHEAD = 0.8
+        const val STAR_YIELD_RANGE = 12.0
+        const val STAR_SIGHT_RANGE = 90.0
+        const val STAR_CHASE_MS = 20_000L
+        const val LOCAL_STEER_RANGE = 12.0
+        const val GEN_COOLDOWN_MS = 12_000L
+        const val GEN_DWELL_MS = 1_500L
+        const val FALL_DEPTH = 12.0
+        const val RETREAT_HP = 6f
+        const val RECOVER_HP = 12f
         val AMMO = Regex("Ammo\\D*(\\d+)\\s*/\\s*(\\d+)")
     }
 }

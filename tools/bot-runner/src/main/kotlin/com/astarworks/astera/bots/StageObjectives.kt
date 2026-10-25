@@ -12,7 +12,17 @@ import java.io.File
  *
  * The YAML subset used by those files is tiny and regular, so it is read with regexes instead of a YAML library.
  */
-class StageObjectives private constructor(private val spawns: List<Spawn>, private val regions: List<Region>) : ObjectiveSource {
+class StageObjectives private constructor(
+    private val spawns: List<Spawn>,
+    private val regions: List<Region>,
+    private val generators: List<Pair<Double, Double>> = emptyList(),
+) : ObjectiveSource {
+
+    /** Star generator pedestals of the stage (x, z): where stars wait for pickup. */
+    override fun starPoints(): List<Pair<Double, Double>> = generators
+
+    private fun withGenerators(g: List<Pair<Double, Double>>) = StageObjectives(spawns, regions, g)
+
 
     private data class Spawn(val team: String, val x: Double, val z: Double)
 
@@ -49,8 +59,23 @@ class StageObjectives private constructor(private val spawns: List<Spawn>, priva
         /** The objectives of [lane] under [contentDir], or null when the content is not readable here. */
         fun load(contentDir: File, lane: String): StageObjectives? = runCatching {
             val stage = stageOf(File(contentDir, "matchmaking/queue.yaml").readLines(), lane) ?: return null
-            parse(File(contentDir, "stages/$stage.yaml").readLines())
+            val base = parse(File(contentDir, "stages/$stage.yaml").readLines())
+            base.withGenerators(generatorsOf(File(contentDir, "generators"), stage))
         }.getOrNull()
+
+        private val MATCH_STAGE = Regex("^match_stage_id:\\s*(\\S+)")
+
+        /** Positions of the generator yaml files whose `match_stage_id` is [stage]. */
+        internal fun generatorsOf(dir: File, stage: String): List<Pair<Double, Double>> {
+            val files = dir.listFiles { f -> f.extension == "yaml" } ?: return emptyList()
+            return files.sortedBy { it.name }.mapNotNull { f ->
+                val lines = f.readLines()
+                val stageId = lines.firstNotNullOfOrNull { MATCH_STAGE.find(it)?.groupValues?.get(1) }
+                if (stageId?.trim('"', '\'') != stage) return@mapNotNull null
+                lines.firstNotNullOfOrNull { l -> if (l.trimStart().startsWith("position:")) XYZ.find(l) else null }
+                    ?.let { it.groupValues[1].toDouble() to it.groupValues[3].toDouble() }
+            }
+        }
 
         internal fun stageOf(lines: List<String>, lane: String): String? {
             var current: String? = null

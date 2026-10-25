@@ -37,7 +37,8 @@ class BotVsBotE2eTest : PlaythroughBase() {
         // Like the production bot-runner, the brains know the lane's objective (here: the enemy spawn) from the same content
         // the server runs; without it they roam at random, which on the 140-block sky-island arena rarely ends in a meeting.
         val objectives = com.astarworks.astera.bots.StageObjectives.load(java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content")), "norma")
-        bots.forEach { brains += BotBrain(it, objectives = objectives).start() }
+        // chooseNormaGoal = false: this loop sends `norma choose kill` itself so stars cannot end the match before a fight.
+        bots.forEach { brains += BotBrain(it, objectives = objectives, chooseNormaGoal = false).start() }
 
         // --- queue -> handoff -> ACTIVE -------------------------------------------------------------------------
         val tQueue = System.nanoTime()
