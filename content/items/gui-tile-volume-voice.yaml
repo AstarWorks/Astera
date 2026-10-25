@@ -1,0 +1,7 @@
+# UI-01..UI-05 (docs/game-design/access-map.md) - tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-volume-voice
+material: BELL
+name:
+  ja: "<gold>音量: ボイス</gold>"
+  en: "<gold>Volume: Voice</gold>"

@@ -1,13 +1,11 @@
 package com.astarworks.astera.core.platform.wiring
 
-import com.astarworks.astera.core.application.gui.lobby.MainMenuGuiSpec
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.gui.GuiId
 
 /**
  * `gui.open {gui: <id>}` opens a registered GUI spec (the lobby kit's "Game Menu" compass and
- * crafting-grid buttons use it; `main-menu` falls back to the built-in spec, same as
- * `/astera menu`), and the lobby menu kit layout is loaded on backends that host the lobby
+ * crafting-grid buttons use it), and the lobby menu kit layout is loaded on backends that host the lobby
  * (ADR-0185).
  */
 internal fun CoreWiringState.wireGuiOpenIntentAndMenuKit() {
@@ -15,7 +13,7 @@ internal fun CoreWiringState.wireGuiOpenIntentAndMenuKit() {
     ctx.registrations += guiIntentRouter.register("gui.open") { intent, player ->
         val id = intent.payload["gui"]
         val spec = id?.let { runCatching { GuiId(it) }.getOrNull() }?.let { gid ->
-            registry.find(gid) ?: MainMenuGuiSpec.SPEC.takeIf { it.id == gid }
+            registry.find(gid)
         }
         if (spec == null) {
             logger.warning("gui.open: no GUI spec for payload gui='$id'")

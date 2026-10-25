@@ -19,7 +19,7 @@ import kotlin.random.Random
  * Layout (offsets from the plaza/fountain centre, +x east, +z south):
  *  - main island r27 with the plaza (r10), fountain, benches, lamp posts, signposts,
  *    a stream that falls off the west rim, trees and flowers; spawn 6 blocks south of the fountain.
- *  - market island east (47, 0): shop and gear-keeper stalls.
+ *  - market island east (47, 0): shop (Market hub NPC) and vault stalls.
  *  - queue island south (0, 50): one pad + sign board per queue lane ([LobbyLanePadLayout]), queue master.
  *  - garden island west (-44, 0): pond and a waterfall over the rim.
  *  - pavilion island north (0, -42): gazebo viewpoint.
@@ -334,7 +334,7 @@ public object LobbyIslandGenerator {
         }
 
         private fun plazaNpcs() {
-            val cells = mapOf("travel-npc" to (-4 to -4), "party-npc" to (4 to -4), "profile-npc" to (-4 to 4), "settings-npc" to (4 to 4))
+            val cells = mapOf("travel-npc" to (-4 to -4), "social-npc" to (4 to -4))
             for ((id, cell) in cells) {
                 val (dx, dz) = cell
                 val yaw = Math.toDegrees(atan2(dx.toDouble(), -dz.toDouble())).toFloat()
@@ -402,12 +402,13 @@ public object LobbyIslandGenerator {
                 set(mx + px, s + 1, mz + pz, "minecraft:oak_leaves[persistent=true]")
                 set(mx + px, s, mz + pz, "minecraft:coarse_dirt")
             }
-            stall(mx, mz - 6, 0, 1, Stall.SHOP, "shop-npc")
-            stall(mx, mz + 6, 0, -1, Stall.GEAR, "gear-keeper-npc")
+            stall(mx, mz - 6, 0, 1, Stall.SHOP, "market-npc")
+            // The gear stall is the vault counter: scenery only (UI-01: four role hubs, no gear-keeper NPC).
+            stall(mx, mz + 6, 0, -1, Stall.GEAR, null)
         }
 
         /** Market stall: NPC at (nx, nz), customers approach from direction (dx, dz). */
-        private fun stall(nx: Int, nz: Int, dx: Int, dz: Int, kind: Stall, npcId: String) {
+        private fun stall(nx: Int, nz: Int, dx: Int, dz: Int, kind: Stall, npcId: String?) {
             val ax = -dz
             val az = dx
             fun w(u: Int, v: Int, y: Int, state: String) = set(nx + u * ax + v * dx, y, nz + u * az + v * dz, state)
@@ -441,10 +442,12 @@ public object LobbyIslandGenerator {
                     Stall.GEAR -> if (u == 0) w(u, -2, s + 1, "minecraft:cartography_table")
                 }
             }
-            npcSpots[npcId] = LobbyNpcSpot(
-                nx + 0.5, s + 1.0, nz + 0.5,
-                Math.toDegrees(atan2(-dx.toDouble(), dz.toDouble())).toFloat() + 0f,
-            )
+            if (npcId != null) {
+                npcSpots[npcId] = LobbyNpcSpot(
+                    nx + 0.5, s + 1.0, nz + 0.5,
+                    Math.toDegrees(atan2(-dx.toDouble(), dz.toDouble())).toFloat() + 0f,
+                )
+            }
         }
 
         private fun counterBlock(kind: Stall, u: Int, face: String): String = when (kind) {
@@ -468,7 +471,6 @@ public object LobbyIslandGenerator {
                     set(qx + dx, s, qz + dz, if (d >= 10.8) "minecraft:smooth_stone" else if ((dx + dz) and 1 == 0) "minecraft:stone_bricks" else "minecraft:polished_andesite")
                 }
             }
-            npcSpots["queue-npc"] = LobbyNpcSpot(qx + 2.5, s + 1.0, qz + 0.5, 180f)
             lampPost(qx - 3, qz - 3)
             lampPost(qx + 3, qz - 3)
             val colors = listOf("lime", "red", "light_blue", "orange", "magenta", "yellow", "cyan", "purple")

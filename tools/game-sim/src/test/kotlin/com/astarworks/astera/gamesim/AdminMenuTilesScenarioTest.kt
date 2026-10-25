@@ -106,7 +106,7 @@ class AdminMenuTilesScenarioTest {
 
             val rookieKit = contents.current().forViewer { visibility.hasPermission(rookie.id, it) }
             assertThat(rookieKit.at(KitArea.CRAFTING_GRID, 2)?.intent?.key).isEqualTo("lobby.shop.open")
-            assertThat(rookieKit.at(KitArea.CRAFTING_GRID, 3)?.intent?.key).isEqualTo("lobby.settings.show")
+            assertThat(rookieKit.at(KitArea.CRAFTING_GRID, 3)?.intent?.key).isEqualTo("gui.open")
             assertThat(rookieKit.at(KitArea.HOTBAR, 8)!!.extraLoreFor { visibility.hasPermission(rookie.id, it) }).isEmpty()
             assertThat(rookieKit.entries.map { it.intent.key }).doesNotContain("admin.hub.open", "admin.items.open")
         }

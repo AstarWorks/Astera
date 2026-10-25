@@ -1,4 +1,4 @@
-# Wave 5lobby-content (ADR-0119) — travel NPC. See queue-npc.yaml for schema.
+# UI-01 - Travel hub NPC (plaza). Opens the travel menu (PvE / Survival / Training / Lobby). Schema: see market-npc.yaml.
 
 id: travel-npc
 display_name: astera.lobby.npc.travel.name

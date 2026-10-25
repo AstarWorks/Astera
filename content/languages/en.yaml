@@ -162,6 +162,8 @@ astera:
       unknown-area: "<red>No command area <gold>{area}</gold> that you can use. Try /astera help.</red>"
       help: "Show the commands you can use"
       menu: "Open the main menu"
+      settings: "Open your settings (language, volume, controls, particles, privacy)"
+      social: "Open the social hub (party, friends, achievements)"
       vault: "Open your personal vault"
       lang: "Switch your language (ja / en)"
       volume: "Set a volume channel (music / sound / voice)"
@@ -452,8 +454,6 @@ astera:
         tooltip: "<gray>Click to pick a mode and start a game (queue or play vs bots).</gray>"
       shop:
         tooltip: "<gray>Click to browse the lobby shop.</gray>"
-      customize:
-        tooltip: "<gray>Click for your vault, profile and settings.</gray>"
       travel:
         tooltip: "<gray>Click to travel to PvE / Survival / Lobby.</gray>"
       profile:
@@ -472,14 +472,6 @@ astera:
         tooltip: "<gray>Travel to your party's survival island.</gray>"
       lobby:
         tooltip: "<gray>Return to the lobby.</gray>"
-    customize-menu:
-      title: "<gold>Customize</gold>"
-      vault:
-        tooltip: "<gray>Open your personal vault (ender chest storage).</gray>"
-      profile:
-        tooltip: "<gray>View your profile card.</gray>"
-      settings:
-        tooltip: "<gray>Open your settings.</gray>"
     profile-card:
       title: "<gold>Profile</gold>"
       level:
@@ -522,8 +514,6 @@ astera:
       title: "<gold>Settings</gold>"
       locale:
         tooltip: "<gray>Cycle your locale.</gray>"
-      volume:
-        tooltip: "<gray>Adjust audio volume.</gray>"
       controls:
         tooltip: "<gray>Cycle the control scheme.</gray>"
     queue-mode-list:
@@ -1620,22 +1610,10 @@ astera:
 
   lobby:
     npc:
-      queue:
-        name: "Queue Master"
-      shop:
-        name: "Lobby Merchant"
       travel:
         name: "Travel Guide"
       refinement:
         name: "Refiner"
-      gear-keeper:
-        name: "Gear Keeper"
-      profile:
-        name: "Profile Keeper"
-      settings:
-        name: "Settings Steward"
-      party:
-        name: "Party Coordinator"
 
     # ADR-0180 — signs on the procedural sky-island lobby (4 lines, <=15 chars each).
     sign:
@@ -2313,8 +2291,8 @@ astera:
   tutorial.guide.shop.subtitle: "Open the shop at the marked merchant"
   tutorial.guide.shop.hint: "Put your weapon away. Use F → Shop, or right-click the marked shopkeeper. No purchase needed."
   tutorial.guide.vault.title: "Your personal vault"
-  tutorial.guide.vault.subtitle: "Open your vault from Customize"
-  tutorial.guide.vault.hint: "Use sneak+F → Vault, or F → Customize → Vault. Stored items persist; no deposit needed."
+  tutorial.guide.vault.subtitle: "Open your personal vault"
+  tutorial.guide.vault.hint: "Use sneak+F, or F → Vault. Stored items persist; no deposit needed."
   tutorial.guide.queue.title: "Ready to play"
   tutorial.guide.queue.subtitle: "Go to the Play gate by the spawn"
   tutorial.guide.queue.hint: "Walk to the glowing Play gate next to the spawn and right-click the Play guide, then pick a mode. Q on the compass opens the same picker."
@@ -2374,3 +2352,41 @@ astera:
   hud.lobby.queue.actionbar.waiting: "<gold>{lane}</gold> <gray>|</gray> <white>{players}/{required}</white> <gray>|</gray> <white>{time}</white> <gray>|</gray> <yellow>Waiting for opponents</yellow>"
   hud.lobby.queue.actionbar.starting: "<gold>{lane}</gold> <gray>|</gray> <white>{players}/{required}</white> <gray>|</gray> <green>Starting in {seconds}s</green>"
   hud.lobby.queue.actionbar.busy: "<gold>{lane}</gold> <gray>|</gray> <white>{players}/{required}</white> <gray>|</gray> <red>Arena busy, hold on</red>"
+
+  # UI-01..UI-06 (docs/game-design/access-map.md): access map, main-menu tiles, settings screen, role-hub NPCs.
+  lobby.npc.market.name: "Market"
+  lobby.npc.social.name: "Social Hub"
+  gui.social-hub.title: "<gold>Social</gold>"
+  gui.button.back: "Back"
+  gui.main-menu.vault.tooltip: "<gray>Click to open your personal vault.</gray>"
+  gui.main-menu.settings.tooltip: "<gray>Click for language, volume, controls, particles and privacy.</gray>"
+  gui.main-menu.party.tooltip: "<gray>Click to manage your party.</gray>"
+  gui.main-menu.friends.tooltip: "<gray>Click to see your friends and requests.</gray>"
+  gui.main-menu.achievements.tooltip: "<gray>Click to see your achievements.</gray>"
+  gui.main-menu.quests.tooltip: "<gray>Click to see how to check daily bonus, missions and quests.</gray>"
+  gui.main-menu.help.tooltip: "<gray>Click for the command cheat sheet and the tutorial.</gray>"
+  gui.settings.volume.music.tooltip: "<gray>Click to step the music volume (100 / 75 / 50 / 25 / 0).</gray>"
+  gui.settings.volume.sound.tooltip: "<gray>Click to step the sound-effect volume (100 / 75 / 50 / 25 / 0).</gray>"
+  gui.settings.volume.voice.tooltip: "<gray>Click to step the voice volume (100 / 75 / 50 / 25 / 0).</gray>"
+  gui.settings.quickcast.tooltip: "<gray>Click to bind skills to hotbar slots (for the Button control scheme).</gray>"
+  gui.settings.particles.tooltip: "<gray>Click to cycle whose particles you see: everyone / own team / only yours.</gray>"
+  gui.settings.double-jump.tooltip: "<gray>Click to turn the double jump on or off.</gray>"
+  gui.settings.public-profile.tooltip: "<gray>Click to make your profile public or private (private by default).</gray>"
+  gui.quickcast-slots.title: "<gold>Quick-cast slots</gold>"
+  gui.quickcast-slots.slot.tooltip: "<gray>Click to choose the skill for this hotbar slot.</gray>"
+  settings.toggle.particles: "<green>Particles shown: <gold>{value}</gold></green>"
+  settings.toggle.double-jump: "<green>Double jump: <gold>{value}</gold></green>"
+  settings.toggle.public-profile: "<green>Public profile: <gold>{value}</gold></green>"
+  settings.value.on: "ON"
+  settings.value.off: "OFF"
+  settings.value.particles.all: "everyone"
+  settings.value.particles.team: "own team only"
+  settings.value.particles.own: "only yours"
+  hint.progress.header: "<gold>Daily bonus, missions and quests</gold>"
+  hint.progress.daily: "<gray>/astera daily</gray> - collect today's login bonus and see your streak"
+  hint.progress.missions: "<gray>/astera missions</gray> - daily / weekly missions"
+  hint.progress.quests: "<gray>/astera quests</gray> - quest chains"
+  hint.help.header: "<gold>Help</gold>"
+  hint.help.commands: "<gray>/astera help</gray> - every command; <gray>/astera menu</gray>, <gray>/astera settings</gray>, <gray>/astera social</gray> open the screens"
+  hint.help.tutorial: "<gray>/astera tutorial start</gray> - replay the tutorial"
+  hint.help.in-match: "<gray>In a match there are no menu items: use /astera queue leave, /astera travel lobby or /astera settings.</gray>"

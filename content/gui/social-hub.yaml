@@ -1,0 +1,35 @@
+# Social hub - the Social NPC and `/astera social` (docs/game-design/access-map.md, UI-01 / UI-04).
+# Party, Friends and Achievements; the main menu also links each of them directly.
+id: social-hub
+title_key: astera.gui.social-hub.title
+size: CHEST_9
+
+slots:
+  - type: static
+    index: 2
+    item: gui-tile-party
+    on_left:
+      key: lobby.party.show
+    tooltip:
+      - astera.gui.main-menu.party.tooltip
+  - type: static
+    index: 4
+    item: gui-tile-friends
+    on_left:
+      key: lobby.friends.show
+    tooltip:
+      - astera.gui.main-menu.friends.tooltip
+  - type: static
+    index: 6
+    item: gui-tile-achievements
+    on_left:
+      key: lobby.achievement.show
+    tooltip:
+      - astera.gui.main-menu.achievements.tooltip
+  - type: static
+    index: 8
+    item: gui-pane-red
+    on_left:
+      key: gui.close
+    tooltip:
+      - astera.gui.button.close

@@ -19,7 +19,7 @@
 #
 # Keybinds (weapons bind LC / RC / sneak+click / Q / shoot, never F):
 #   key_swap        F, not holding a weapon          -> main menu
-#   key_sneak_swap  Sneak+F, not holding a weapon    -> vault / loadout (customize)
+#   key_sneak_swap  Sneak+F, not holding a weapon    -> personal vault (UI-02: straight to the vault, no middle menu)
 #   key_drop        Q while the compass is selected  -> queue
 entries:
   - id: hotbar-compass
@@ -46,10 +46,10 @@ entries:
     item: menu-compass
     intent: gui.open
     payload: { gui: main-menu }
-  - id: key-customize
+  - id: key-vault
     area: key_sneak_swap
-    item: gui-tile-customize
-    intent: lobby.customize.open
+    item: gui-tile-vault
+    intent: lobby.vault.open
   - id: key-queue
     area: key_drop
     item: gui-tile-queue
@@ -95,7 +95,8 @@ entries:
     area: crafting_grid
     slot: 3
     item: gui-tile-settings
-    intent: lobby.settings.show
+    intent: gui.open
+    payload: { gui: settings }
     lore_key: astera.lobby-kit.hint.click
   - id: result-play
     area: crafting_result

@@ -9,8 +9,8 @@ import kotlinx.serialization.Serializable
  * spawns it and binds [LobbyNpcInteractionYaml.rightClickIntent] to a right click.
  *
  * ```yaml
- * id: shop-npc
- * display_name: astera.lobby.npc.shop.name   # i18n key
+ * id: market-npc
+ * display_name: astera.lobby.npc.market.name   # i18n key
  * type: display_entity                       # display_entity | armor_stand
  * spawn: { world: lobby, x: -2.5, y: 64.0, z: 0.5, yaw: 90.0, pitch: 0.0 }
  * interaction:
@@ -45,4 +45,7 @@ public data class LobbyNpcSpawnYaml(
 public data class LobbyNpcInteractionYaml(
     @SerialName("right_click_intent") val rightClickIntent: String? = null,
     @SerialName("left_click_intent") val leftClickIntent: String? = null,
+    /** Payload passed with [rightClickIntent] (e.g. `gui.open` + `{ gui: social-hub }`). */
+    @SerialName("right_click_payload") val rightClickPayload: Map<String, String> = emptyMap(),
+    @SerialName("left_click_payload") val leftClickPayload: Map<String, String> = emptyMap(),
 )

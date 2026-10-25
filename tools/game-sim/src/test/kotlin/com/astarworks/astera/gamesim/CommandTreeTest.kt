@@ -34,7 +34,7 @@ class CommandTreeTest {
         scenario("command-tree-areas") {
             val tree = areas(sim)
             assertThat(tree.keys).containsExactlyInAnyOrder(
-                "help", "menu", "travel", "vault", "lang", "volume", "friend", "party", "chat", "tutorial",
+                "help", "menu", "settings", "social", "travel", "vault", "lang", "volume", "friend", "party", "chat", "tutorial",
                 "news", "patch", "report", "queue", "match", "items", "shop", "economy", "stats", "mod", "admin", "skill",
                 "daily", "missions", "quests", "achievements",
             )
@@ -85,7 +85,7 @@ class CommandTreeTest {
         scenario("command-tree-access") {
             val byPath = leaves(sim).associate { (path, node) -> path.joinToString(" ") to node }
             for (open in listOf("queue join", "queue leave", "queue status", "shop", "vault",
-                "lang", "friend add", "party invite", "match list", "stats show", "economy balance", "help", "menu")) {
+                "lang", "friend add", "party invite", "match list", "stats show", "economy balance", "help", "menu", "settings", "social")) {
                 val node = byPath[open] ?: error("missing $open")
                 assertThat(node.access.name).`as`(open).isEqualTo("EVERYONE")
             }

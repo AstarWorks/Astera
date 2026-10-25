@@ -1,9 +1,8 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.application.contents.LobbyMenuKitContents
-import com.astarworks.astera.core.application.gui.lobby.CustomizeMenuGuiSpec
-import com.astarworks.astera.core.application.gui.lobby.MainMenuGuiSpec
 import com.astarworks.astera.core.application.gui.lobby.ProfileCardGuiSpec
+import com.astarworks.astera.core.application.gui.lobby.TravelMenuGuiSpec
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IGuiRegistry
@@ -35,8 +34,8 @@ class GuiIntentCoverageScenarioTest {
             val registry = sim.services.getOrThrow<IGuiRegistry>()
 
             val specs = registry.all().toList() +
-                listOf(MainMenuGuiSpec.SPEC, CustomizeMenuGuiSpec.SPEC, ProfileCardGuiSpec.build(emptySnapshot()))
-            assertThat(specs.map { it.id.value }).contains("main-menu", "settings", "friends-list", "party-manager")
+                listOf(TravelMenuGuiSpec.SPEC, ProfileCardGuiSpec.build(emptySnapshot()))
+            assertThat(specs.map { it.id.value }).contains("main-menu", "settings", "social-hub", "quickcast-slots", "friends-list", "party-manager")
 
             val kit = LobbyMenuKitContents()
             val report = kit.reload(GameSim.defaultContentDir())
@@ -60,15 +59,12 @@ class GuiIntentCoverageScenarioTest {
     }
 
     @Test
-    fun `profile and customize buttons open their targets and profile shows live data`() {
+    fun `the profile button opens its target and profile shows live data`() {
         scenario("gui-lobby-buttons") {
             val p = player("pilot")
             val router = sim.services.getOrThrow<IGuiIntentRouter>()
             val adapter = sim.services.getOrThrow<IGuiAdapter>()
             val view = checkNotNull(sim.server.view(p.id))
-
-            router.dispatch(view, GuiIntent("lobby.customize.open"))
-            assertThat(adapter.currentSpec(view)!!.id.value).isEqualTo("customize-menu")
 
             router.dispatch(view, GuiIntent("lobby.profile.show"))
             val profile = adapter.currentSpec(view)!!
@@ -84,7 +80,7 @@ class GuiIntentCoverageScenarioTest {
     }
 
     @Test
-    fun `ADR-0232 hotbar kit is one item and the F, sneak+F keybinds open the main menu and the vault`() {
+    fun `ADR-0232 hotbar kit is one item and the F keybind opens the main menu and sneak+F goes straight to the vault`() {
         scenario("gui-lobby-keybinds") {
             val p = player("keys")
             val router = sim.services.getOrThrow<IGuiIntentRouter>()
@@ -95,8 +91,8 @@ class GuiIntentCoverageScenarioTest {
             assertThat(kit.entries(KitArea.HOTBAR)).hasSize(1)
             router.dispatch(view, kit.at(KitArea.KEY_SWAP, 0)!!.intent)
             assertThat(adapter.currentSpec(view)!!.id.value).isEqualTo("main-menu")
-            router.dispatch(view, kit.at(KitArea.KEY_SNEAK_SWAP, 0)!!.intent)
-            assertThat(adapter.currentSpec(view)!!.id.value).isEqualTo("customize-menu")
+            // UI-02: no intermediate "customize" screen; the keybind's intent is the vault itself.
+            assertThat(kit.at(KitArea.KEY_SNEAK_SWAP, 0)!!.intent.key).isEqualTo("lobby.vault.open")
             assertThat(router.hasHandler(kit.at(KitArea.KEY_DROP, 0)!!.intent.key)).isTrue()
         }
     }

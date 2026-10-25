@@ -17,6 +17,8 @@ public object CommandShortcuts {
         "vault" to listOf("vault"),
         "shop" to listOf("shop"),
         "lang" to listOf("lang"),
+        "settings" to listOf("settings"),
+        "social" to listOf("social"),
     )
 
     /** Rewrite a leading shortcut token of [tokens] into its full path; other lines pass through unchanged. */

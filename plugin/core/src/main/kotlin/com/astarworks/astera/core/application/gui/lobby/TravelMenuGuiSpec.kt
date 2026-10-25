@@ -13,11 +13,12 @@ import com.astarworks.astera.core.domain.item.ItemId
  * Wave 5lobby-content (ADR-0119) — travel sub-menu.
  *
  * Opened by `lobby.travel.show` from the main-menu compass tile or the
- * `travel-npc` NPC right-click. Three tiles in a single 9-slot row:
+ * `travel-npc` NPC right-click. Four tiles in a single 9-slot row (UI-01: the Travel hub also owns Training):
  *
- *  - Slot 2: PvE → `lobby.travel.pve` → [com.astarworks.astera.core.application.usecase.travel.TravelToPveWorldUseCase]
- *  - Slot 4: Survival → `lobby.travel.survival` → [com.astarworks.astera.core.application.usecase.travel.TravelToSurvivalIslandUseCase]
- *  - Slot 6: Lobby → `lobby.travel.lobby` → [com.astarworks.astera.core.application.usecase.travel.ReturnToLobbyUseCase]
+ *  - Slot 1: PvE → `lobby.travel.pve` → [com.astarworks.astera.core.application.usecase.travel.TravelToPveWorldUseCase]
+ *  - Slot 3: Survival → `lobby.travel.survival` → [com.astarworks.astera.core.application.usecase.travel.TravelToSurvivalIslandUseCase]
+ *  - Slot 5: Training -> `lobby.training.travel`
+ *  - Slot 7: Lobby → `lobby.travel.lobby` → [com.astarworks.astera.core.application.usecase.travel.ReturnToLobbyUseCase]
  *
  * The tile items use placeholder ids (`gui-tile-travel-pve`, etc.); the
  * actual visuals come from the InMemoryItemRegistry default + a future
@@ -33,7 +34,7 @@ public object TravelMenuGuiSpec {
         size = GuiSize.CHEST_9,
     ) {
         slot(
-            SlotIndex(2),
+            SlotIndex(1),
             GuiSlot.Static(
                 itemId = ItemId("gui-tile-travel-pve"),
                 onLeftClick = GuiIntent("lobby.travel.pve"),
@@ -41,7 +42,7 @@ public object TravelMenuGuiSpec {
             ),
         )
         slot(
-            SlotIndex(4),
+            SlotIndex(3),
             GuiSlot.Static(
                 itemId = ItemId("gui-tile-travel-survival"),
                 onLeftClick = GuiIntent("lobby.travel.survival"),
@@ -49,7 +50,15 @@ public object TravelMenuGuiSpec {
             ),
         )
         slot(
-            SlotIndex(6),
+            SlotIndex(5),
+            GuiSlot.Static(
+                itemId = ItemId("gui-tile-training"),
+                onLeftClick = GuiIntent("lobby.training.travel"),
+                tooltip = listOf(MessageKey("astera.gui.main-menu.training.tooltip")),
+            ),
+        )
+        slot(
+            SlotIndex(7),
             GuiSlot.Static(
                 itemId = ItemId("gui-tile-travel-lobby"),
                 onLeftClick = GuiIntent("lobby.travel.lobby"),
