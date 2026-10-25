@@ -99,8 +99,9 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
         val duelNotes = mutableListOf<String>()
         script.forEachIndexed { i, (shooter, victim) ->
             val slot = equip(shooter, "pistol")
-            // Each level-up re-opens the goal at STAR; the red winner takes the KILL goal again before every duel.
-            if (shooter == red[0]) shooter.command("astera norma choose kill")
+            // Each level-up re-opens the goal at STAR and the e2e generators pay every 3 s, so a bot loitering near one could
+            // climb by stars. Everybody takes the KILL goal again before every duel, which keeps the climb on the kills.
+            bots.forEach { it.command("astera norma choose kill") }
             val last = i == script.lastIndex
             val shooterDeaths = shooter.deaths.size
             val fight = duel(shooter, victim, keepAlive = bots.filter { it != shooter && it != victim })
@@ -111,6 +112,7 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
                 assertThat(shooter.deaths.size).describedAs("the shooter died while shooting").isEqualTo(shooterDeaths)
                 "${duelNotes.last()}; victim death text=${victim.deaths.lastOrNull()}"
             }
+            bots.forEach { it.command("astera norma choose kill") }
             if (!fight.killed) {
                 // Fallback so the rest of the loop (win condition, ending) is still exercised.
                 rcon("damage ${victim.name} 1000 minecraft:magic by ${shooter.name}")
