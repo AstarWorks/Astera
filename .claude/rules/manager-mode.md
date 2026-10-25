@@ -34,7 +34,7 @@ Everything else (incl. `.claude/CLAUDE.md`, `.claude/settings.json`, hooks, rule
 | `make dev-content/dev-plugins/dev-pack/docker-up/dev-hotswap*/help/check` | other `make` targets |
 | `flock /tmp/claude-1000/astera-e2e.lock make e2e` (serialized) | |
 | `flock … -c '…'` / `bash -c` (inner command is analysed recursively) | |
-| `docker …`, `gh …`, `codex exec …`, `scripts/codex-task.sh` | |
+| `docker …`, `gh …`, read-only `codex exec …`, `scripts/codex-task.sh` (only with `run_in_background: true`) | |
 | read-only: grep, rg, ls, cat, head, tail, find, wc, jq, git read cmds | `sed -i`, `perl -i`, `tee`, `dd of=`, `cp/mv/rm/ln/touch/mkdir/chmod/patch/rsync/unzip/install`, `tar x`, `curl -o`, `find -delete`, `>`/`>>` to repo paths |
 | the above writing to the allowed targets above | `python3 -`/heredoc/`-c`/`node -e` code that opens files for writing (unless every absolute path literal is an allowed target) |
 
@@ -43,7 +43,10 @@ Known limit: `python3 script.py` / `bun x.ts` of an existing file is not inspect
 ## How to delegate
 
 - Claude subagent: Agent tool (`astera-worker`, `general-purpose`, `isolation: worktree`); start the prompt with the contents of `.claude/prompts/agent-preamble.md`.
-- Codex: write the task to a file under `/tmp/claude-1000/`, run `scripts/codex-task.sh <task-id> <prompt-file>`. Run it from the track worktree. It creates `.claude/worktrees/<task-id>` on `wp/<task-id>` from the invoking checkout's `HEAD` (optional 3rd arg = base ref), prepends `.claude/prompts/codex-preamble.md`, runs `codex exec -p astar-implement -s danger-full-access` in the background; progress in `/tmp/claude-1000/codex/<task-id>.log` (ends with `EXIT=<code>`), final message in `<task-id>-last.md`. Then merge `wp/<task-id>` into the track branch inside the track worktree (never in the primary checkout).
+- Codex: write the task to a file under `/tmp/claude-1000/`, then launch `scripts/codex-task.sh <task-id> <prompt-file>` (optional 3rd arg = base ref) as ONE Bash call with `run_in_background: true`. Run it from the track worktree. The script runs Codex in the foreground (no `nohup`/`&`/`setsid`/`disown`; `CODEX_TIMEOUT` seconds, default 5400): it creates `.claude/worktrees/<task-id>` on `wp/<task-id>` from the invoking checkout's `HEAD`, prepends `.claude/prompts/codex-preamble.md`, runs `codex exec -p astar-implement -s danger-full-access`, writes `/tmp/claude-1000/codex/<task-id>.log` (ends with `EXIT=<code>`) and `<task-id>-last.md`, and exits with Codex's exit code.
+  - Claude Code sends **one notification** when it exits. Then read the tail of `<task-id>.log` (`EXIT=`) and `<task-id>-last.md`, and merge `wp/<task-id>` into the track branch inside the track worktree (never in the primary checkout).
+  - Never poll, `tail -f` or `sleep` while it runs. Parallel tasks = separate background Bash calls.
+  - Gate: `.claude/hooks/gate-codex-lane.py` (PreToolUse/Bash, main session and subagents) denies the launcher without `run_in_background: true`, any detached codex/launcher, and raw write-capable `codex exec` (only `timeout N codex exec --sandbox read-only ...` is allowed directly). Fails open on errors. Ported from AstarHarness `gate-raw-codex-lane`; test: `bash .claude/hooks/gate-codex-lane.test.sh`.
 - Harness changes (`.claude/**`, this rule included) also go through an agent.
 
 ## E2E (founder decision 2026-10-23)

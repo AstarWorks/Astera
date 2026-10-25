@@ -51,7 +51,8 @@ implementer — in every session, not just one:
 - If the main session catches itself editing files, it stops and delegates.
 - **Enforced** by the `PreToolUse` hook `.claude/hooks/manager-guard.py`
   (main session only; subagents/Codex unaffected). Allow/deny tables, Codex
-  launcher (`scripts/codex-task.sh`) and prompt preambles:
+  launcher (`scripts/codex-task.sh`, always via Bash `run_in_background: true`;
+  gated by `.claude/hooks/gate-codex-lane.py`) and prompt preambles:
   `.claude/rules/manager-mode.md`.
 
 ## Session bootstrap (Wave protocol)

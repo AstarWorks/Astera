@@ -26,7 +26,8 @@ cd /IdeaProjects/Astera/.claude/worktrees/<slug>   # launch / work here
   `git fetch origin && git merge origin/main && git push origin HEAD:main`.
 - Never commit, merge, stash or check out in the primary checkout
   `/IdeaProjects/Astera`; treat its working tree as someone else's.
-- Codex (`scripts/codex-task.sh`, run from the track worktree) and
+- Codex (`scripts/codex-task.sh`, run from the track worktree via Bash
+  `run_in_background: true`) and
   `isolation: worktree` agents branch off the track's HEAD.
 - Baton: `/IdeaProjects/Astera/.claude/state/handoffs/<slug>.md`, one file per
   track, written only by that track (`.claude/CLAUDE.md` §"Session handoff").
