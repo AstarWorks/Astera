@@ -86,6 +86,32 @@ class LobbyWorldContentTest {
         assertThat(plan.training.region.contains(plan.spawn)).isFalse()
     }
 
+    @Test
+    fun `every NPC hub has a name board on its building within sight of the NPC (MAP-07)`() {
+        assertThat(config.markerVersion).describedAs("hub buildings need a repaste").isGreaterThanOrEqualTo(5)
+        val hubSigns = plan.signs.filter { sign -> sign.lines.firstOrNull()?.value?.startsWith("astera.lobby.sign.hub.") == true }
+        assertThat(hubSigns.map { it.lines.first()!!.value.removePrefix("astera.lobby.sign.hub.").removeSuffix(".title") })
+            .containsExactlyInAnyOrder("play", "travel", "social", "market")
+        val hubOfNpc = mapOf("play-npc" to "play", "travel-npc" to "travel", "social-npc" to "social", "market-npc" to "market")
+        hubOfNpc.forEach { (npc, hub) ->
+            val spot = plan.npcSpots.getValue(npc)
+            val sign = hubSigns.single { it.lines.first()!!.value == "astera.lobby.sign.hub.$hub.title" }
+            val dist = Math.hypot(sign.pos.x + 0.5 - spot.x, sign.pos.z + 0.5 - spot.z)
+            assertThat(dist).describedAs("$hub board is near $npc").isLessThanOrEqualTo(16.0)
+        }
+    }
+
+    @Test
+    fun `the practice ground has an obstacle course and a cover field with signs (MAP-07)`() {
+        val keys = plan.signs.mapNotNull { it.lines.firstOrNull()?.value }.toSet()
+        assertThat(keys).contains(
+            "astera.lobby.sign.training.course.title",
+            "astera.lobby.sign.training.cover.title",
+            "astera.lobby.sign.training.entry.title",
+        )
+        assertThat(plan.blocks.values.count { it == "minecraft:target" }).isGreaterThan(8)
+    }
+
     private fun locateContentRoot(): Path {
         var cur: Path? = Path.of("").toAbsolutePath()
         while (cur != null) {

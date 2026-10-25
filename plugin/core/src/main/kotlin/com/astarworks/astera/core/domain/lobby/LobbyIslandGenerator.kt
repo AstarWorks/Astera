@@ -24,8 +24,12 @@ import kotlin.random.Random
  *  - garden island west (-44, 0): pond and a waterfall over the rim.
  *  - pavilion island north (0, -42): gazebo viewpoint.
  *  - three small floating rocks with cherry trees.
- *  - training island east of the market (F3-11, [LobbyTrainingLayout]): firing lanes, melee pit,
- *    moving-target track and the weapon rack, joined to the main island by a bridge.
+ *  - training island east of the market (F3-11, [LobbyTrainingLayout]): firing lanes with backstops and cover,
+ *    melee pit, moving-target track, weapon rack, an obstacle course, a cover field and gravel roads,
+ *    joined to the main island by a bridge (MAP-07).
+ *  - the four NPC hubs each have a building (MAP-07): Play gate house (spawn front), Travel station and Social
+ *    pergola on the plaza, Market with a gate arch and three stalls; coloured ribbons in the plaza floor lead
+ *    from the spawn to each.
  * Bridges (3 wide, fenced, lantern posts) join the four satellites to the main island.
  */
 public object LobbyIslandGenerator {
@@ -50,7 +54,7 @@ public object LobbyIslandGenerator {
             r * (1.0 + 0.09 * sin(2 * theta + p1) + 0.06 * sin(3 * theta + p2) + 0.04 * sin(5 * theta + p3))
     }
 
-    private enum class Stall { SHOP, GEAR }
+    private enum class Stall { SHOP, GEAR, FRUIT }
 
     private class Builder(val seed: Long, val cx: Int, val cz: Int, val s: Int, val lanes: List<String>) {
         private val blocks = HashMap<LobbyBlockPos, String>(80_000)
@@ -111,9 +115,13 @@ public object LobbyIslandGenerator {
                 LobbyTrainingLayout.BRIDGE_FROM_X, LobbyTrainingLayout.ISLAND_Z,
                 LobbyTrainingLayout.BRIDGE_TO_X, LobbyTrainingLayout.ISLAND_Z,
             )
+            hubRibbons()
             playGate()
+            travelStation()
+            socialPlaza()
             signposts()
             trainingIsland()
+            trainingGround()
             marketIsland()
             queueIsland()
             gardenIsland(garden)
@@ -275,8 +283,11 @@ public object LobbyIslandGenerator {
             for (sx in listOf(-1, 1)) {
                 for (sz in listOf(-1, 1)) {
                     val facing = if (sz > 0) "south" else "north"
-                    for (k in -1..1) {
-                        set(cx + sx * 6 + k, s + 1, cz + sz * 6, "minecraft:spruce_stairs[facing=$facing,half=bottom,shape=straight]")
+                    // The north side is the Travel station and the Social pergola (MAP-07): benches only in the south.
+                    if (sz > 0) {
+                        for (k in -1..1) {
+                            set(cx + sx * 6 + k, s + 1, cz + sz * 6, "minecraft:spruce_stairs[facing=$facing,half=bottom,shape=straight]")
+                        }
                     }
                     lampPost(cx + sx * 9, cz + sz * 4)
                     lampPost(cx + sx * 4, cz + sz * 9)
@@ -298,7 +309,142 @@ public object LobbyIslandGenerator {
             for (dx in intArrayOf(-1, 1)) set(cx + dx, s + 4, gz, "minecraft:lantern[hanging=true]")
             // Glowing floor strip so the gate reads as a portal from the spawn tile.
             for (dx in -1..1) set(cx + dx, s, gz, "minecraft:smooth_quartz")
+            // MAP-07: wings and corner towers make it a gate house, not a doorframe. Walls stop at |x| 4 so the
+            // Travel / Social ribbons (x = +-5) walk around it.
+            for (side in intArrayOf(-1, 1)) {
+                for (h in 1..3) set(cx + side * 3, s + h, gz, "minecraft:quartz_bricks")
+                set(cx + side * 3, s + 4, gz, "minecraft:quartz_slab[type=bottom]")
+                for (h in 1..6) set(cx + side * 4, s + h, gz, "minecraft:quartz_pillar[axis=y]")
+                set(cx + side * 4, s + 7, gz, "minecraft:sea_lantern")
+                set(cx + side * 4, s + 8, gz, "minecraft:quartz_slab[type=bottom]")
+                set(cx + side * 2, s + 6, gz, "minecraft:quartz_slab[type=bottom]")
+            }
+            for (dx in -1..1) set(cx + dx, s + 6, gz, "minecraft:quartz_slab[type=bottom]")
+            // Gold band on the pillars: the "start here" colour of the plaza ribbons.
+            for (side in intArrayOf(-2, 2)) set(cx + side, s + 3, gz, "minecraft:yellow_concrete")
+            hubSign(cx - 2, s + 2, gz + 1, "south", "play")
             npcSpots["play-npc"] = LobbyNpcSpot(cx + 0.5, s + 1.0, gz + 0.5, 0f)
+        }
+
+        /** A wall sign naming a hub building; texts live under `astera.lobby.sign.hub.<hub>`. */
+        private fun hubSign(x: Int, y: Int, z: Int, facing: String, hub: String) {
+            val state = "minecraft:oak_wall_sign[facing=$facing]"
+            set(x, y, z, state)
+            signs += LobbySign(
+                LobbyBlockPos(x, y, z),
+                state,
+                listOf(MessageKey("astera.lobby.sign.hub.$hub.title"), MessageKey("astera.lobby.sign.hub.$hub.subtitle"), null, null),
+            )
+        }
+
+        private fun keySign(x: Int, y: Int, z: Int, state: String, base: String, second: String) {
+            set(x, y, z, state)
+            signs += LobbySign(
+                LobbyBlockPos(x, y, z),
+                state,
+                listOf(MessageKey("astera.lobby.sign.$base.title"), MessageKey("astera.lobby.sign.$base.$second"), null, null),
+            )
+        }
+
+        private fun box(x1: Int, y1: Int, z1: Int, x2: Int, y2: Int, z2: Int, state: String) {
+            for (x in minOf(x1, x2)..maxOf(x1, x2)) for (y in minOf(y1, y2)..maxOf(y1, y2)) for (z in minOf(z1, z2)..maxOf(z1, z2)) set(x, y, z, state)
+        }
+
+        /**
+         * Coloured ribbons inlaid in the plaza floor from the spawn tile to each hub (MAP-07): cyan to the Travel
+         * station, lime to the Social pergola, orange east towards the Market bridge. Gold is the Play gate, straight ahead.
+         */
+        private fun hubRibbons() {
+            fun tile(dx: Int, dz: Int, state: String) {
+                val x = cx + dx
+                val z = cz + dz
+                if (get(x, s, z) != null && hypot(dx.toDouble(), dz.toDouble()) >= 3.7) set(x, s, z, state)
+            }
+            for (k in 2..5) {
+                tile(-k, 5, "minecraft:cyan_concrete")
+                tile(k, 5, "minecraft:lime_concrete")
+            }
+            for (z in -2..4) {
+                tile(-5, z, "minecraft:cyan_concrete")
+                tile(5, z, "minecraft:lime_concrete")
+            }
+            for (k in 6..9) tile(k, 1, "minecraft:orange_concrete")
+        }
+
+        /** Travel hub (x -7..-3, z -7..-3 from the plaza centre): a small station with a canopy, rail and departure board. */
+        private fun travelStation() {
+            val x0 = cx - 7
+            val x1 = cx - 3
+            val z0 = cz - 7
+            val z1 = cz - 3
+            for (x in x0..x1) for (z in z0..z1) {
+                val edge = x == x0 || x == x1 || z == z0 || z == z1
+                set(x, s, z, if (edge) "minecraft:light_blue_concrete" else if ((x + z) and 1 == 0) "minecraft:smooth_stone" else "minecraft:polished_andesite")
+            }
+            for (x in intArrayOf(x0, x1)) for (z in intArrayOf(z0, z1)) {
+                for (h in 1..4) set(x, s + h, z, "minecraft:stripped_spruce_log[axis=y]")
+            }
+            for (x in x0 - 1..x1 + 1) for (z in z0 - 1..z1 + 1) {
+                val edge = x == x0 - 1 || x == x1 + 1 || z == z0 - 1 || z == z1 + 1
+                val glass = x in x0 + 1..x1 - 1 && z in z0 + 1..z1 - 1
+                set(x, s + 5, z, if (edge) "minecraft:dark_oak_slab[type=bottom]" else if (glass) "minecraft:light_blue_stained_glass" else "minecraft:spruce_planks")
+            }
+            box(x0 + 1, s + 1, z0, x1 - 1, s + 3, z0, "minecraft:dark_oak_planks")
+            hubSign(x0 + 2, s + 2, z0 + 1, "south", "travel")
+            for (x in intArrayOf(x0 + 1, x1 - 1)) set(x, s + 4, z0 + 1, "minecraft:lantern[hanging=true]")
+            // benches along the open south side, backs to the south
+            set(x0 + 1, s + 1, z1, "minecraft:spruce_stairs[facing=south,half=bottom,shape=straight]")
+            set(x1 - 1, s + 1, z1, "minecraft:spruce_stairs[facing=south,half=bottom,shape=straight]")
+            // luggage
+            set(x0, s + 1, z0 + 1, "minecraft:barrel[facing=up]")
+            set(x0, s + 1, z0 + 2, "minecraft:barrel[facing=up]")
+            set(x0, s + 2, z0 + 1, "minecraft:hay_block")
+            // rail yard west of the station: one track on a gravel bed with a buffer stop
+            for (z in z0 - 1..z1 + 1) {
+                set(x0 - 1, s, z, "minecraft:gravel")
+                set(x0 - 1, s + 1, z, "minecraft:rail[shape=north_south]")
+            }
+            set(x0 - 1, s + 1, z0 - 1, "minecraft:polished_blackstone_wall")
+        }
+
+        /** Social hub (x 3..7, z -7..-3): a flowering pergola with a table, seats and a planter wall. */
+        private fun socialPlaza() {
+            val x0 = cx + 3
+            val x1 = cx + 7
+            val z0 = cz - 7
+            val z1 = cz - 3
+            val mx = cx + 5
+            val mz = cz - 5
+            for (x in x0..x1) for (z in z0..z1) {
+                val edge = x == x0 || x == x1 || z == z0 || z == z1
+                val d = hypot((x - mx).toDouble(), (z - mz).toDouble())
+                set(x, s, z, if (edge) "minecraft:lime_concrete" else if (d <= 1.5) "minecraft:pink_terracotta" else "minecraft:white_terracotta")
+            }
+            for (x in intArrayOf(x0, x1)) for (z in intArrayOf(z0, z1)) {
+                for (h in 1..4) set(x, s + h, z, "minecraft:stripped_cherry_log[axis=y]")
+            }
+            for (x in x0..x1) for (z in z0..z1) {
+                val edge = x == x0 || x == x1 || z == z0 || z == z1
+                if (!edge) continue
+                set(x, s + 4, z, "minecraft:cherry_slab[type=bottom]")
+                if ((x + z) and 1 == 0) set(x, s + 5, z, "minecraft:flowering_azalea_leaves[persistent=true]")
+            }
+            for ((x, z) in listOf(x0 + 1 to z0 + 1, x1 - 1 to z0 + 1, x0 + 1 to z1 - 1, x1 - 1 to z1 - 1)) {
+                set(x, s + 3, z, "minecraft:lantern[hanging=true]")
+            }
+            // planter wall with the name board
+            box(x0 + 1, s + 1, z0, x1 - 1, s + 2, z0, "minecraft:cherry_planks")
+            hubSign(mx, s + 2, z0 + 1, "south", "social")
+            for (x in x0 + 1..x1 - 1) set(x, s + 3, z0, "minecraft:flowering_azalea_leaves[persistent=true]")
+            // table with four seats (stairs: facing = side of the back)
+            val tx = cx + 6
+            val tz = cz - 5
+            set(tx, s + 1, tz, "minecraft:cherry_fence")
+            set(tx, s + 2, tz, "minecraft:cherry_pressure_plate")
+            set(tx + 1, s + 1, tz, "minecraft:cherry_stairs[facing=east,half=bottom,shape=straight]")
+            set(tx - 1, s + 1, tz, "minecraft:cherry_stairs[facing=west,half=bottom,shape=straight]")
+            set(tx, s + 1, tz - 1, "minecraft:cherry_stairs[facing=north,half=bottom,shape=straight]")
+            set(tx, s + 1, tz + 1, "minecraft:cherry_stairs[facing=south,half=bottom,shape=straight]")
         }
 
         private fun lampPost(x: Int, z: Int) {
@@ -405,6 +551,27 @@ public object LobbyIslandGenerator {
             stall(mx, mz - 6, 0, 1, Stall.SHOP, "market-npc")
             // The gear stall is the vault counter: scenery only (UI-01: four role hubs, no gear-keeper NPC).
             stall(mx, mz + 6, 0, -1, Stall.GEAR, null)
+            // MAP-07: a produce stall on the east side, crates by the entrance and a gate arch at the bridge head.
+            stall(mx + 6, mz, -1, 0, Stall.FRUIT, null)
+            for (side in intArrayOf(-1, 1)) {
+                set(mx - 6, s + 1, mz + side * 4, "minecraft:barrel[facing=up]")
+                set(mx - 6, s + 2, mz + side * 4, "minecraft:hay_block")
+                set(mx - 7, s + 1, mz + side * 4, "minecraft:hay_block")
+            }
+            marketGate(mx - 9, mz)
+        }
+
+        /** Gate arch at the west (bridge) end of the market, facing the bridge, with the Market name board. */
+        private fun marketGate(gx: Int, gz: Int) {
+            for (side in intArrayOf(-2, 2)) {
+                if (get(gx, s, gz + side) == null) continue
+                for (h in 1..4) set(gx, s + h, gz + side, "minecraft:stripped_oak_log[axis=y]")
+                set(gx, s + 5, gz + side, "minecraft:red_wool")
+            }
+            for (dz in -2..2) set(gx, s + 5, gz + dz, if (dz and 1 == 0) "minecraft:red_wool" else "minecraft:white_wool")
+            for (dz in -1..1) set(gx, s + 6, gz + dz, "minecraft:oak_slab[type=bottom]")
+            for (dz in intArrayOf(-1, 1)) set(gx, s + 4, gz + dz, "minecraft:lantern[hanging=true]")
+            if (get(gx, s, gz + 2) != null) hubSign(gx - 1, s + 3, gz + 2, "west", "market")
         }
 
         /** Market stall: NPC at (nx, nz), customers approach from direction (dx, dz). */
@@ -421,6 +588,7 @@ public object LobbyIslandGenerator {
             val (roofA, roofB) = when (kind) {
                 Stall.SHOP -> "minecraft:red_wool" to "minecraft:white_wool"
                 Stall.GEAR -> "minecraft:blue_wool" to "minecraft:white_wool"
+                Stall.FRUIT -> "minecraft:green_wool" to "minecraft:white_wool"
             }
             for (u in -3..3) {
                 for (v in -2..2) w(u, v, s + 4, if (u and 1 == 0) roofA else roofB)
@@ -428,6 +596,7 @@ public object LobbyIslandGenerator {
                 val wall = when (kind) {
                     Stall.SHOP -> "minecraft:oak_planks"
                     Stall.GEAR -> "minecraft:spruce_planks"
+                    Stall.FRUIT -> "minecraft:birch_planks"
                 }
                 for (y in 1..3) w(u, -2, s + y, if (u == -3 || u == 3) "minecraft:stripped_oak_log[axis=y]" else wall)
             }
@@ -440,6 +609,7 @@ public object LobbyIslandGenerator {
                 when (kind) {
                     Stall.SHOP -> w(u, -2, s + 2, if (u and 1 == 0) "minecraft:bookshelf" else "minecraft:oak_planks")
                     Stall.GEAR -> if (u == 0) w(u, -2, s + 1, "minecraft:cartography_table")
+                    Stall.FRUIT -> w(u, -2, s + 2, if (u and 1 == 0) "minecraft:hay_block" else "minecraft:birch_planks")
                 }
             }
             if (npcId != null) {
@@ -456,6 +626,11 @@ public object LobbyIslandGenerator {
                 -1, 1 -> "minecraft:loom[facing=$face]"
                 0 -> "minecraft:spruce_planks"
                 else -> "minecraft:barrel[facing=up]"
+            }
+            Stall.FRUIT -> when (u) {
+                -2, 2 -> "minecraft:hay_block"
+                -1, 1 -> "minecraft:melon"
+                else -> "minecraft:pumpkin"
             }
         }
 
@@ -621,6 +796,161 @@ public object LobbyIslandGenerator {
             for (dz in listOf(-8, 8)) lampPost(wallX + 1, iz + dz)
         }
 
+        // ── training ground (MAP-07) ────────────────────────────────────
+
+        /**
+         * Dresses the training deck around the F3-11 stations: roads, target backstops, cover between the firing
+         * lanes, an obstacle course (north), a cover field (south-east), an entry gate and a ring of trees.
+         * Nothing here touches the dummy / rack / pit coordinates of [LobbyTrainingLayout]; every write is
+         * guarded by "is there deck here" so a thin island rim never grows floating blocks.
+         */
+        private fun trainingGround() {
+            val ix = cx + LobbyTrainingLayout.ISLAND_X
+            val iz = cz + LobbyTrainingLayout.ISLAND_Z
+            val tr = Random(seed xor TRAINING_SALT xor 0x6d617037L)
+            fun deck(x: Int, z: Int) = get(x, s, z) != null
+            fun put(x: Int, y: Int, z: Int, state: String) {
+                if (deck(x, z)) set(x, y, z, state)
+            }
+
+            // yard: patchy dirt and gravel instead of a flat lawn
+            for (dx in -30..30) for (dz in -30..30) {
+                val x = ix + dx
+                val z = iz + dz
+                if (get(x, s, z) != "minecraft:grass_block") continue
+                val r = rnd(x, z, 70)
+                if (r < 0.06) set(x, s, z, "minecraft:coarse_dirt") else if (r < 0.09) set(x, s, z, "minecraft:gravel")
+            }
+
+            // roads: bridge landing -> firing platform, the spine south of the lanes, branches to each station
+            fun road(x1: Int, z1: Int, x2: Int, z2: Int) {
+                for (x in ix + minOf(x1, x2)..ix + maxOf(x1, x2)) for (z in iz + minOf(z1, z2)..iz + maxOf(z1, z2)) {
+                    val cur = get(x, s, z)
+                    if (cur != "minecraft:grass_block" && cur != "minecraft:coarse_dirt" && cur != "minecraft:gravel") continue
+                    val r = rnd(x, z, 71)
+                    set(x, s, z, if (r < 0.55) "minecraft:gravel" else if (r < 0.8) "minecraft:dirt_path" else "minecraft:coarse_dirt")
+                }
+            }
+            road(-31, -1, -24, 1)
+            road(-22, 3, 22, 4)
+            road(-12, 5, -11, 8)
+            road(7, 5, 9, 5)
+            road(15, 5, 16, 6)
+            road(-21, -19, -20, -14)
+            road(-19, -19, -16, -19)
+            for (dx in intArrayOf(-14, -4, 4, 12, 20)) if (deck(ix + dx, iz + 5)) lampPost(ix + dx, iz + 5)
+
+            // target backstops: hay behind every dummy pad, a bullseye at the middle
+            LobbyTrainingLayout.RANGE_DISTANCES.forEachIndexed { i, d ->
+                val bx = ix + LobbyTrainingLayout.SHOOT_X + d + 2
+                val lz = iz + LobbyTrainingLayout.LANE_Z[i]
+                for (dz in -1..1) {
+                    put(bx, s + 1, lz + dz, "minecraft:hay_block")
+                    put(bx, s + 2, lz + dz, "minecraft:hay_block")
+                    put(bx, s + 3, lz + dz, "minecraft:dark_oak_slab[type=bottom]")
+                }
+                put(bx, s + 1, lz, "minecraft:target")
+                put(bx, s + 2, lz, "minecraft:target")
+            }
+
+            // cover between the firing lanes: low walls a shooter can duck behind (the lanes themselves stay clear)
+            for (dz in intArrayOf(-9, -5, -1)) {
+                for (dx in -16..-14) {
+                    put(ix + dx, s, iz + dz, "minecraft:polished_andesite")
+                    put(ix + dx, s + 1, iz + dz, "minecraft:stone_brick_wall")
+                }
+                put(ix - 17, s + 1, iz + dz, "minecraft:barrel[facing=up]")
+            }
+
+            // obstacle course: a 3-wide corridor, start (lime) in the west, finish (red) in the east
+            val cz0 = iz - 19
+            val xs = ix - 15
+            val xe = ix + 15
+            for (x in xs..xe) {
+                for (z in cz0 - 1..cz0 + 1) put(x, s, z, "minecraft:light_gray_concrete")
+                for (z in intArrayOf(cz0 - 2, cz0 + 2)) {
+                    put(x, s, z, "minecraft:smooth_stone")
+                    put(x, s + 1, z, "minecraft:oak_fence[east=true,west=true]")
+                }
+            }
+            for (z in cz0 - 1..cz0 + 1) {
+                put(xs, s, z, "minecraft:lime_concrete")
+                put(xe, s, z, "minecraft:red_concrete")
+            }
+            fun across(ox: Int, h: Int, state: String) {
+                for (z in cz0 - 1..cz0 + 1) for (y in 1..h) put(ix + ox, s + y, z, state)
+            }
+            across(-11, 1, "minecraft:stone_bricks") // hurdle
+            across(-8, 1, "minecraft:stone_bricks") // step up ...
+            across(-7, 2, "minecraft:stone_bricks") // ... onto a two-high wall
+            across(-6, 2, "minecraft:stone_bricks")
+            listOf(-3 to 1, -2 to 2, -1 to 3, 0 to 3, 1 to 3, 2 to 2, 3 to 1).forEach { (ox, h) -> across(ox, h, "minecraft:polished_andesite") } // ziggurat
+            for ((ox, openZ) in listOf(6 to cz0 - 1, 8 to cz0 + 1, 10 to cz0 - 1)) { // slalom walls with one gap each
+                for (z in cz0 - 1..cz0 + 1) if (z != openZ) for (y in 1..3) put(ix + ox, s + y, z, "minecraft:light_blue_concrete")
+            }
+            for (ox in 11..13) for (z in cz0 - 1..cz0 + 1) { // balance beam over a water trough
+                put(ix + ox, s, z, if (z == cz0) "minecraft:spruce_planks" else "minecraft:water")
+            }
+            for ((ox, post, lintel) in listOf(
+                Triple(xs - ix + 1, "minecraft:stripped_oak_log[axis=y]", "minecraft:lime_wool"),
+                Triple(xe - ix - 1, "minecraft:quartz_pillar[axis=y]", "minecraft:red_wool"),
+            )) {
+                for (z in intArrayOf(cz0 - 2, cz0 + 2)) for (h in 1..4) put(ix + ox, s + h, z, post)
+                for (z in cz0 - 2..cz0 + 2) put(ix + ox, s + 5, z, lintel)
+                put(ix + ox, s + 4, cz0, "minecraft:lantern[hanging=true]")
+            }
+            if (deck(xs - 2, cz0)) keySign(xs - 2, s + 1, cz0, "minecraft:oak_sign[rotation=4]", "training.course", "hint")
+
+            // cover field for ranged practice: walls, barriers and crate stacks facing a hay backstop to the south
+            for (ox in 12..14) put(ix + ox, s + 1, iz + 9, "minecraft:cobblestone_wall")
+            for (ox in 18..20) put(ix + ox, s + 1, iz + 9, "minecraft:cobblestone_wall")
+            for (oz in 10..11) for (y in 1..2) put(ix + 16, s + y, iz + oz, "minecraft:gray_concrete")
+            for (ox in intArrayOf(13, 14, 19, 20)) put(ix + ox, s + 1, iz + 11, "minecraft:barrel[facing=up]")
+            put(ix + 13, s + 2, iz + 11, "minecraft:hay_block")
+            put(ix + 20, s + 2, iz + 11, "minecraft:hay_block")
+            for (ox in 11..21) {
+                put(ix + ox, s + 1, iz + 13, if ((ox - 11) % 3 == 1) "minecraft:target" else "minecraft:hay_block")
+                put(ix + ox, s + 2, iz + 13, "minecraft:hay_block")
+            }
+            for (ox in intArrayOf(12, 16, 20)) put(ix + ox, s, iz + 7, "minecraft:yellow_concrete")
+            if (deck(ix + 11, iz + 6)) keySign(ix + 11, s + 1, iz + 6, "minecraft:oak_sign[rotation=8]", "training.cover", "hint")
+
+            // entry gate at the bridge landing, facing the bridge
+            val gx = ix - 26
+            for (z in intArrayOf(iz - 2, iz + 2)) {
+                for (h in 1..4) put(gx, s + h, z, "minecraft:dark_oak_log[axis=y]")
+                put(gx, s + 5, z, "minecraft:sea_lantern")
+            }
+            for (z in iz - 2..iz + 2) put(gx, s + 5, z, "minecraft:dark_oak_planks")
+            for (z in intArrayOf(iz - 1, iz + 1)) put(gx, s + 4, z, "minecraft:lantern[hanging=true]")
+            if (deck(gx - 1, iz + 2)) keySign(gx - 1, s + 3, iz + 2, "minecraft:oak_wall_sign[facing=west]", "training.entry", "hint")
+
+            // a loose ring of trees around the rim, never near the stations
+            val planted = ArrayList<Pair<Int, Int>>()
+            for (k in 0 until 40) {
+                val ang = k * 2 * PI / 40 + tr.nextDouble() * 0.15
+                val rad = 24.0 + tr.nextDouble() * 3.5
+                val x = ix + (cos(ang) * rad).roundToInt()
+                val z = iz + (sin(ang) * rad).roundToInt()
+                if (planted.any { hypot((it.first - x).toDouble(), (it.second - z).toDouble()) < 4.5 }) continue
+                if (!grassAround(x, s, z)) continue
+                oak(x, s, z, if (tr.nextInt(4) == 0) "birch" else "oak", tr)
+                planted += x to z
+            }
+
+            // ground cover last, only on bare grass
+            for (dx in -30..30) for (dz in -30..30) {
+                val x = ix + dx
+                val z = iz + dz
+                if (get(x, s, z) != "minecraft:grass_block" || get(x, s + 1, z) != null) continue
+                val r = rnd(x, z, 72)
+                when {
+                    r < 0.015 -> set(x, s + 1, z, "minecraft:" + FLOWERS[(rnd(x, z, 73) * FLOWERS.size).toInt()])
+                    r < 0.10 -> set(x, s + 1, z, "minecraft:short_grass")
+                }
+            }
+        }
+
         // ── garden, pavilion ────────────────────────────────────────────
 
         private fun gardenIsland(garden: Island) {
@@ -759,8 +1089,8 @@ public object LobbyIslandGenerator {
             if (get(x, y, z) == null) set(x, y, z, state)
         }
 
-        private fun oak(x: Int, y: Int, z: Int, wood: String) {
-            val h = 4 + rng.nextInt(3)
+        private fun oak(x: Int, y: Int, z: Int, wood: String, random: Random = rng) {
+            val h = 4 + random.nextInt(3)
             for (k in 1..h) set(x, y + k, z, "minecraft:${wood}_log[axis=y]")
             for (dy in (h - 2)..(h + 1)) {
                 val rad = if (dy >= h) 1 else 2

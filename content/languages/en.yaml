@@ -1633,6 +1633,20 @@ astera:
         training:
           title: "<aqua><bold>Training</bold></aqua>"
           subtitle: "<dark_gray>Range & Dummies</dark_gray>"
+      # MAP-07 — name boards on the four hub buildings.
+      hub:
+        play:
+          title: "<gold><bold>PLAY</bold></gold>"
+          subtitle: "<dark_gray>Start a match</dark_gray>"
+        travel:
+          title: "<aqua><bold>TRAVEL</bold></aqua>"
+          subtitle: "<dark_gray>Station</dark_gray>"
+        social:
+          title: "<green><bold>SOCIAL</bold></green>"
+          subtitle: "<dark_gray>Party & Friends</dark_gray>"
+        market:
+          title: "<gold><bold>MARKET</bold></gold>"
+          subtitle: "<dark_gray>Shop & Vault</dark_gray>"
       lane:
         hint: "<dark_gray>Step on the pad</dark_gray>"
         title: "<gold><bold>{lane}</bold></gold>"
@@ -1650,6 +1664,15 @@ astera:
         rack:
           title: "<green><bold>Weapon Rack</bold></green>"
           hint: "<dark_gray>Click a frame</dark_gray>"
+        course:
+          title: "<yellow><bold>Obstacle Course</bold></yellow>"
+          hint: "<dark_gray>Run it end to end</dark_gray>"
+        cover:
+          title: "<gray><bold>Cover Field</bold></gray>"
+          hint: "<dark_gray>Duck and shoot</dark_gray>"
+        entry:
+          title: "<aqua><bold>Practice Ground</bold></aqua>"
+          hint: "<dark_gray>Dummies never die</dark_gray>"
     # F3-1 — queue lane pads: holograms above the pads, join confirmation.
     lane:
       board:
