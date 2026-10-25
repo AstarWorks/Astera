@@ -1,0 +1,6 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.kill_effect.stardust. Granted only (level / achievement), never sold.
+id: stardust
+kind: kill_effect
+name_key: astera.cosmetic.kill_effect.stardust
+value: "end_rod"
+count: 16

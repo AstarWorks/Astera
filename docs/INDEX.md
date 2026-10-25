@@ -6,17 +6,14 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 
 - **新しく参加した人へ** → [contributing/getting-started.md](contributing/getting-started.md)
 - **アーキテクチャの全体像** → [architecture/overview.md](architecture/overview.md)
-- **今の到達点と範囲 (2026-10 core vision)** → [plans/2026-10-core-vision-backlog.md](plans/2026-10-core-vision-backlog.md) — 作業パッケージ一覧。Phase 4+ は範囲外
+- **構想と今の範囲 (2026-10)** → [vision/VISION.md](vision/VISION.md) — 柱・現スコープ・範囲外・施主の判断尺度。領域別の現状/理想/未決は [vision/areas/](vision/areas/)。次にやることは Board (`.claude/rules/board.md`)
 - **遊んでみる** → [contributing/playtest.md](contributing/playtest.md) — Docker 起動 → 武器 → マッチ
 - **Limbus スキル再現チーム (director + 専門役 + reviewer)** → [contributing/skill-team/README.md](contributing/skill-team/README.md)
 - **ヘッドレス・シミュレータ** → [`tools/game-sim/README.md`](../tools/game-sim/README.md) + [ADR-0174](adr/0174-host-neutral-wiring-and-headless-game-simulator.md)
 - **コマンド (`/astera <area> <action>` 単一ツリー)** → [ADR-0184](adr/0184-single-astera-command-tree.md) — 権限スキーム・補完・help・追加方法
-- **進行中の Phase** → [roadmap.md](roadmap.md)
-- **実装ロードマップ (SSOT)** → [IMPLEMENTATION-ROADMAP.md](IMPLEMENTATION-ROADMAP.md) — 12-tier、leverage-ordered
-- **RTM パリティ追跡** → [RTM-PARITY-TRACKER.md](RTM-PARITY-TRACKER.md) — feature × state × wave 配賦
+- **Board と領域仕様が tracker/roadmap を置き換えた経緯** → [adr/0266-board-and-area-specs-replace-trackers.md](adr/0266-board-and-area-specs-replace-trackers.md)
 - **RTM との設計差** → [architecture/rtm-divergence.md](architecture/rtm-divergence.md)
-- **Astera-original Content backlog (Phase 4+ speculative — 範囲外)** → [CONTENT-ROADMAP.md](CONTENT-ROADMAP.md) — RTM パリティ追跡と分離。Writerside `コンテンツ案一覧.md` の Astera 版相当
-- **Wave 実行プロトコル** → [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) + [`.claude/rules/wave-execution.md`](../.claude/rules/wave-execution.md)
+- **トラック運用 (Board / 所有表 / 統合窓)** → [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) + [`.claude/rules/board.md`](../.claude/rules/board.md) + [`.claude/rules/tracks.md`](../.claude/rules/tracks.md) + [`.claude/rules/wave-execution.md`](../.claude/rules/wave-execution.md)
 - **インフラ構成** → [infrastructure/overview.md](infrastructure/overview.md)
 - **用語が分からない** → [glossary.md](glossary.md)
 - **CAD × LLM サーベイ** → [research/model-gen-llm-survey.md](research/model-gen-llm-survey.md) — 3D 生成 SOTA + Astera 改善ロードマップ
@@ -25,7 +22,8 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 
 | ディレクトリ | 内容 |
 |---|---|
-| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0264 (欠番あり) |
+| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0273 (欠番あり) |
+| [`vision/`](vision/) | 構想 (VISION.md) と領域別仕様 (areas/): 現状・理想形・未決 |
 | [`plans/`](plans/) | 作業計画 / バックログ (現行: core vision backlog) |
 | [`architecture/`](architecture/) | 設計の現在地。コードと同期して育てる生きた仕様 |
 | [`infrastructure/`](infrastructure/) | k8s / GitOps / 監視 / スケーリング |

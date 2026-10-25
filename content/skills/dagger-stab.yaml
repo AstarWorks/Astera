@@ -30,7 +30,7 @@ phases:
   cast:
     - type: play_sound
       targets: { type: caster }
-      sound_id: entity.player.attack.sweep
+      sound_id: astera:weapons/sword-swing
       pitch: { type: literal, value: 1.6 }
     - type: spawn_particle
       targets: { type: caster_forward, distance: 1.4, height: -0.2 }

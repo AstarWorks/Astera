@@ -24,6 +24,9 @@ COPY kernel /workspace/kernel/
 COPY core /workspace/core/
 COPY plugin /workspace/plugin/
 COPY content /workspace/content/
+# Bot StageObjectives must see the same compact stages/generators as the E2E_FAST backend.
+COPY docker/e2e-tune-content.sh /tmp/e2e-tune-content.sh
+RUN sh /tmp/e2e-tune-content.sh /workspace/content && rm /tmp/e2e-tune-content.sh
 
 # The BuildKit cache keeps downloaded dependencies across rebuilds; the final image gets its own
 # copy (a cache mount is not part of the image) so the run itself can be --offline.

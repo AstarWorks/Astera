@@ -1,6 +1,6 @@
 # Stars and Norma (match-scoped)
 
-Status: spec, ADR-0251. Written 2026-10-24 from the founder's statements and the RTM README
+Status: spec, ADR-0271. Written 2026-10-24 from the founder's statements and the RTM README
 (https://github.com/Y-RyuZU/RyuZUTechnicalMagic, README.md, fetched 2026-10-24; Japanese quotes below are from it).
 
 ## Founder statements (authoritative)
@@ -32,8 +32,10 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
 - Per-(match, player) integer counter held by the match plugin on the host server. 0 at match start; dropped at match end.
   Never in the wallet, Postgres, inventory snapshot or lobby HUD.
 - **Sources:** (1) Star Generators (`content/generators/`) pop stars on their period; stars lie on the map as pickable
-  star drops: a glowing, named `★ xN` NETHER_STAR item entity that never enters an inventory (pickup by touching it or
-  walking within the pickup radius, first come first served; "+N ★" action bar and a pickup sound). Output grows late in the match
+  star drops: a glowing, named `★ xN` NETHER_STAR item entity. Collecting is the ordinary item pickup (vanilla pickup
+  range and delay, pickup animation); there is no proximity crediting. The picked item is removed and counted: the
+  carried count lives only in the match-scoped store, so no item ever enters an inventory (nothing to drift, drop with
+  Q or move into an ender chest, and nothing to clear on leave); "+N ★" action bar and a pickup sound). Output grows late in the match
   (generator `late_game_multiplier`). (2) Kill burst (below). Nothing else: winning, quests, login, level rewards, dummy
   hits and lobby activity give no stars.
 - **Kill burst:** when a player dies in a match, `floor(carried * death_drop_ratio)` stars leave the victim's counter and
@@ -52,10 +54,26 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   the goal is reached.
 - Reaching the goal raises the Norma level at once (no home check in v1), resets the kill progress, re-opens the choice.
   Stars are kept.
-- Config: `content/game-modes/norma.yaml` (`norma_max_level`, `norma_stars_goal`, `norma_kills_goal` lists by level).
-- **Win:** the first team to have a member reach `max_level` wins the match. The existing per-team kill score
-  (`score_threshold`) and the time limit still end the match too (time limit: more Norma levels, then more kills, wins).
-  Winning pays the normal reward table (GOLD / XP), never stars.
+- **Presentation:** a level-up shows a title ("Norma cleared!" + Lv N/max), plays a level-up sound, bursts particles and
+  a firework at the player and tells the whole match in chat; the top level gets a bigger version. When the picker
+  opens: a title and chime; the tiles show the goal (need N ★ / N kills) and the current progress; a pick gives a
+  confirmation sound and action bar; the 10 s default is announced on the action bar.
+- Config: `content/norma-layer/layer.yaml` (`norma_max_level`, `norma_stars_goal`, `norma_kills_goal` lists by level, `norma_win`,
+  `time_limit_seconds`, `death_drop_ratio`). Norma is a layer of every game mode, not a mode (ADR-0268, MODE-15): a mode overrides any
+  key in its `default_config`; `norma_layer: "false"` turns it off (PvE waves).
+- **Win:** the first team to have a member reach `max_level` wins the match (`norma_win`, default on; in a mode with its own objective
+  it wins next to that objective, whichever comes first, and `norma_win: "false"` leaves the objective as the only win path). In
+  skirmish it is the only win path. There is no kill-count victory (ADR-0272): kills count for a player's KILL goal and, per team, as the
+  last tie-break. **Time limit** (`time_limit_seconds`, 600 s of ACTIVE time by default, 1200 s in the siege objective modes, `0` = none): the mode's
+  own objective standing first (battle-loyal kills, break-core alive, deliveries, captured zones, banked jewels; skirmish and annihilation
+  have none), then the team with the highest member Norma level; tie: the most stars carried (sum over members); tie: the most kills;
+  still tied: draw. The result screen
+  names the reason ("reached Norma level N and won" / "was ahead" / tied). Winning pays the normal reward table
+  (GOLD / XP), never stars.
+- **Pace (balance, content defaults):** 5 levels, star goals 3,5,8,12 and kill goals 1,2,3,4. The four arena generators pop
+  1 star each per 30 s (8 stars/min in total); a 2-player match where both race for stars needs about 12 stars carried
+  for the last level, i.e. ~3 min of pops plus travel and burst losses, kills shorten it: expected 4-7 min, 10 min hard cap.
+  The e2e image shrinks it (3 levels, star goals 2,3, kill goals 1,2, generators every 3 s, 150 s cap).
 
 ### HUD (match sidebar)
 Stars carried, own Norma level / max, current goal and progress (`Stars 3/5` or `Kills 1/2`). The lobby shows none of it.
@@ -63,3 +81,14 @@ Stars carried, own Norma level / max, current goal and progress (`Stars 3/5` or 
 ### Rewards that are not stars
 Quests, login bonus, level rewards, daily/weekly missions (`content/norma/*.yaml`, the other, mission sense of "norma")
 and the match table pay GOLD, XP, items, titles. `Currency.STAR` no longer exists.
+
+### Leaving a running match (MODE-14)
+- **Leave = drop:** a connection drop and `/astera travel lobby` (travel menu) are the same. In COUNTDOWN the player is simply
+  removed. In ACTIVE: every star they carry bursts at the spot they stand on (all of it, whatever `death_drop_ratio` says; anyone
+  alive can pick them up), the seat is held for a **60 s** window (reconnect countdown on the action bar; the lobby routes the
+  login back to the game server).
+- **Back within 60 s:** same match, same team side, spawn protection, same Norma level and stats (the carried stars are gone).
+- **After 60 s (or in SUDDEN_DEATH at once):** forfeit. The player leaves the roster (no win reward, not in the result), a
+  loss and a played match are recorded, the pre-match inventory snapshot is restored (online at once, offline on next join).
+  The match goes on; if their team is empty the remaining team wins (`TeamVictory`), if nobody is left it is cancelled.
+- Tests: `MidMatchLeaveScenarioTest` (game-sim), `MidMatchLeaveE2eTest`, `ReconnectE2eTest`.

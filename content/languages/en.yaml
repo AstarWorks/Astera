@@ -57,6 +57,7 @@ astera:
   match.command.entry.player-not-found: "<red>Player <gold>{player}</gold> is offline or unknown.</red>"
   match.command.phase.invalid-id: "<red>Invalid match id <gold>{match}</gold>.</red>"
   match.command.phase.invalid-trigger: "<red>Unknown phase trigger <gold>{trigger}</gold>.</red>"
+  match.error.arena-not-ready: "<yellow>Arena is still being built. Please queue again shortly.</yellow>"
   match.error.already-active: "<red>That match is already active.</red>"
   match.error.already-ended: "<red>That match has already ended.</red>"
   match.error.already-registered: "<red>That match is already registered.</red>"
@@ -138,7 +139,7 @@ astera:
     confirm:
       required: "<yellow>This cannot be undone. <click:run_command:'{command}'><hover:show_text:'{command}'><green>[Click to confirm]</green></hover></click> <gray>or run {command}</gray></yellow>"
     example:
-      queue-join: "/astera queue join norma   (or just /play norma)"
+      queue-join: "/astera queue join skirmish   (or just /play skirmish)"
       lang: "/astera lang ja"
       volume: "/astera volume music 50"
       shop: "/astera shop"
@@ -162,6 +163,8 @@ astera:
       unknown-area: "<red>No command area <gold>{area}</gold> that you can use. Try /astera help.</red>"
       help: "Show the commands you can use"
       menu: "Open the main menu"
+      settings: "Open your settings (language, volume, controls, particles, privacy)"
+      social: "Open the social hub (party, friends, achievements)"
       vault: "Open your personal vault"
       lang: "Switch your language (ja / en)"
       volume: "Set a volume channel (music / sound / voice)"
@@ -178,7 +181,7 @@ astera:
       travel-survival: "Go to your survival island"
       travel-lobby: "Return to the lobby"
       queue: "Matchmaking queue"
-      queue-join: "Join a queue lane (norma, custom:<mode>)"
+      queue-join: "Join a queue lane (skirmish, annihilation, ... or custom:<mode>)"
       queue-leave: "Leave the queue"
       queue-status: "Show your queue position"
       norma: "Norma levels"
@@ -452,8 +455,6 @@ astera:
         tooltip: "<gray>Click to pick a mode and start a game (queue or play vs bots).</gray>"
       shop:
         tooltip: "<gray>Click to browse the lobby shop.</gray>"
-      customize:
-        tooltip: "<gray>Click for your vault, profile and settings.</gray>"
       travel:
         tooltip: "<gray>Click to travel to PvE / Survival / Lobby.</gray>"
       profile:
@@ -472,14 +473,6 @@ astera:
         tooltip: "<gray>Travel to your party's survival island.</gray>"
       lobby:
         tooltip: "<gray>Return to the lobby.</gray>"
-    customize-menu:
-      title: "<gold>Customize</gold>"
-      vault:
-        tooltip: "<gray>Open your personal vault (ender chest storage).</gray>"
-      profile:
-        tooltip: "<gray>View your profile card.</gray>"
-      settings:
-        tooltip: "<gray>Open your settings.</gray>"
     profile-card:
       title: "<gold>Profile</gold>"
       level:
@@ -522,18 +515,76 @@ astera:
       title: "<gold>Settings</gold>"
       locale:
         tooltip: "<gray>Cycle your locale.</gray>"
-      volume:
-        tooltip: "<gray>Adjust audio volume.</gray>"
       controls:
         tooltip: "<gray>Cycle the control scheme.</gray>"
     queue-mode-list:
       title: "<gold>Match Queue</gold>"
-      norma:
-        tooltip: "<gray>Click to join the Norma rotation queue.</gray>"
+      skirmish:
+        tooltip: "<gray>Click to join the Skirmish queue.</gray>"
 
 
   # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
+  cosmetic:
+    title:
+      newcomer: "Newcomer"
+      adventurer: "Adventurer"
+      veteran: "Veteran"
+      vanguard: "Vanguard"
+      champion: "Champion"
+      legend: "Legend"
+      slayer: "Slayer"
+      victor: "Victor"
+      graduate: "Graduate"
+      devoted: "Devoted"
+      wanderer: "Wanderer"
+      daredevil: "Daredevil"
+      maverick: "Maverick"
+    name_color:
+      rising-star: "Rising Star"
+      sunset: "Sunset"
+      sky: "Sky"
+      rose: "Rose"
+      crimson: "Crimson"
+      emerald: "Emerald"
+      violet: "Violet"
+    kill_effect:
+      stardust: "Stardust"
+      sparkle: "Sparkle"
+      notes: "Notes"
+      hearts: "Hearts"
+      flames: "Flames"
+      portal: "Portal"
+    kind:
+      title: "Title"
+      name_color: "Name colour"
+      kill_effect: "Kill effect"
+    gui:
+      title: "Cosmetics"
+      unequip: "Take off: {kind}"
+      wallet: "{amount} GOLD"
+      state:
+        equipped: "<green>Equipped - click to take off</green>"
+        owned: "<yellow>Owned - click to equip</yellow>"
+        reward-only: "<gray>Earned by levelling up or achievements</gray>"
+        short: "<red>{amount} GOLD (you have {have})</red>"
+        confirm: "<gold>Click again to buy for {amount} GOLD</gold>"
+        buy: "<green>{amount} GOLD - click to buy</green>"
+    msg:
+      error: "<red>That did not work.</red>"
+      bought: "<green>Bought {name} for {price} GOLD and put it on. Balance: {balance} GOLD.</green>"
+      equipped: "<green>Equipped {name}.</green>"
+      unequipped: "<gray>Took off your {kind}.</gray>"
+      confirm: "<gold>{name} costs {price} GOLD. Click again to buy.</gold>"
+      short: "<red>{name} costs {need} GOLD; you have {have} ({short} short).</red>"
+      reward-only: "<gray>{name} cannot be bought. Earn it by levelling up or with achievements.</gray>"
+    profile:
+      name: "Cosmetics"
+      none: "<gray>Nothing equipped</gray>"
+      hint: "<yellow>Click to change or buy</yellow>"
   economy:
+    achievement-reward:
+      chat: "<gold>Achievement reward: +{gold} GOLD</gold>"
+      title-chat: "<gold>New title unlocked: {title}</gold>"
     currency:
       gold: "<gold>GOLD</gold>"
       gem: "<light_purple>GEM</light_purple>"
@@ -560,6 +611,10 @@ astera:
           verdict-hammer: "Verdict Hammer"
           vendetta-rifle: "Vendetta Bayonet"
           ember-gauntlet: "Ember Gauntlet"
+          edict-blade: "Edict Shackles"
+          crimson-chain-axe: "Crimson Chain-Axe"
+          orrery-staff: "Orrery Staff"
+          sigil-rifle: "Sigil Rifle"
       gui:
         spacer: " "
         price: "<gray>Price: <green>{amount}</green> {currency}</gray>"
@@ -707,6 +762,10 @@ astera:
 
   match:
     loaner-kit: "<yellow>You came without a weapon - the starter weapons are on loan for this match.</yellow>"
+    weapon-limit:
+      trimmed: "<yellow>Weapon limit: {count} extra weapon(s) were set aside for this match (they come back afterwards).</yellow>"
+      blocked-total: "<red>Weapon limit: you can only carry {cap} weapons in this match.</red>"
+      blocked-category: "<red>Weapon limit: only {cap} {category} allowed in this match.</red>"
     phase:
       countdown_start: "<yellow>Match starting in {seconds}s…</yellow>"
       active_started: "<green>The match has started!</green>"
@@ -777,9 +836,26 @@ astera:
       dispatch-failure: "<red>The arena server did not answer; you were put back in the queue.</red>"
       wrong-server: "<gray>This server only hosts matches. Sending you back to the lobby…</gray>"
       arrival-waiting: "<yellow>Waiting for <gold>{remaining}</gold> more player(s)… you are protected until the match starts.</yellow>"
+    norma-up:
+      title: "<gold><bold>Norma cleared!</bold></gold>"
+      subtitle: "<yellow>Level {level}/{max}</yellow>"
+      broadcast: "<gold>{player}</gold> <gray>cleared the Norma and reached</gray> <yellow>Lv {level}/{max}</yellow><gray>!</gray>"
+      max:
+        title: "<gold><bold>NORMA COMPLETE!</bold></gold>"
+        subtitle: "<yellow>Top level Lv {level} reached</yellow>"
+        broadcast: "<gold><bold>{player}</bold></gold> <yellow>reached the top Norma level Lv {level}/{max}!</yellow>"
     norma-choice:
+      open:
+        title: "<gold><bold>Choose your Norma</bold></gold>"
+        subtitle: "<gray>Star goal or Kill goal - pick within 10 s</gray>"
+      picked:
+        star: "<green>Norma goal set: <gold>★ carry {goal}</gold></green>"
+        kill: "<green>Norma goal set: <red>⚔ {goal} kills</red></green>"
+      defaulted:
+        star: "<yellow>Time up - default goal: <gold>★ carry {goal}</gold></yellow>"
+        kill: "<yellow>Time up - goal stays: <red>⚔ {goal} kills</red></yellow>"
       chosen: "<green>Norma goal: <gold>{goal}</gold>.</green>"
-      not-in-match: "<red>Norma levels exist only inside a Norma match.</red>"
+      not-in-match: "<red>Norma levels exist only inside a PvP match (not in PvE waves).</red>"
       max-level: "<yellow>You are at the top Norma level.</yellow>"
       gui:
         title: "<gold>Norma goal</gold> <gray>- pick one</gray>"
@@ -790,6 +866,7 @@ astera:
           name: "<red><bold>⚔ Kill goal</bold></red>"
           lore: "<gray>Make <red>{goal}</red> kills at this level.</gray>"
         level: "<gray>Norma level <white>{level}/{max}</white></gray>"
+        progress: "<gray>Now: <white>{now}</white>/<white>{goal}</white></gray>"
         default: "<dark_gray>No pick in 10 s = Star goal.</dark_gray>"
     star:
       collected: "<gold>+{amount} ★</gold> <gray>(carrying {total})</gray>"
@@ -828,7 +905,7 @@ astera:
       "replay.not-found": "<red>No replay stored for match {match}.</red>"
       "replay.export-failed": "<red>Replay export failed for {match}: {reason}</red>"
       queue: "<gray>Join or leave the match queue.</gray>"
-      "queue.join": "<gray>Join the queue: norma | custom:MODE.</gray>"
+      "queue.join": "<gray>Join the queue: LANE (skirmish, annihilation, ...) | custom:MODE.</gray>"
       "queue.leave": "<gray>Leave the match queue.</gray>"
       "queue.status": "<gray>Show your queue position.</gray>"
       # Wave 5complete (ADR-0117 §Axis 3) — flat admin sub-commands.
@@ -867,10 +944,9 @@ astera:
         admin: "<gray>Ended by an administrator.</gray>"
         sudden-death: "<gray>Resolved in sudden death.</gray>"
         objective: "<gray>Ended by objective completion.</gray>"
-        norma-reached: "<{color}><bold>{team}</bold></{color}> <gray>reached the norma ({goal} kills).</gray>"
         norma-time-limit: "<gray>Time limit reached:</gray> <{color}><bold>{team}</bold></{color}> <gray>was ahead.</gray>"
-        norma-time-draw: "<gray>Time limit reached with the score tied.</gray>"
-        norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>reached Norma level {level}.</gray>"
+        norma-time-draw: "<gray>Time limit reached with the objective, Norma level, stars and kills all tied.</gray>"
+        norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>reached Norma level {level} and won.</gray>"
         cancelled: "<gray>Match was cancelled.</gray>"
         world-unloaded: "<gray>The match world was unloaded.</gray>"
         encounter-cleared: "<green>All {waves} waves of the encounter were cleared.</green>"
@@ -1085,9 +1161,9 @@ astera:
       score: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
       battle-loyal:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>kills</gray>"
-      norma:
-        goal: "<gold>Norma:</gold> <white>{goal}</white> <gray>kills to win</gray>"
-        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white>"
+      skirmish:
+        goal: "<gold>Skirmish:</gold> <gray>reach Norma level</gray> <white>{max}</white> <gray>to win</gray>"
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white> <gray>kills</gray>"
       annihilation:
         team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
         eliminated: "<dark_gray><st>{team}</st> out</dark_gray>"
@@ -1392,9 +1468,9 @@ astera:
   # tunables for the Wave 5c sealed `GameMode` carriers); these describe the
   # framework-level mode the entire match runs under.
   gamemode:
-    norma:
-      title: "<gold>Norma</gold>"
-      description: "<gray>Control objectives + Star Generator + Sudden Death.</gray>"
+    skirmish:
+      title: "<gold>Skirmish</gold>"
+      description: "<gray>Team deathmatch. Stars and Norma levels decide it: reach the top Norma level first.</gray>"
     # Wave 5annihilation (ADR-0108) — Astera Annihilation mode (3-pillar Nexus
     # hybrid). Astera's core-identity game mode: 銃/剣/魔法 hybrid combat +
     # graceful-degradation defensive Nexus.
@@ -1592,22 +1668,10 @@ astera:
 
   lobby:
     npc:
-      queue:
-        name: "Queue Master"
-      shop:
-        name: "Lobby Merchant"
       travel:
         name: "Travel Guide"
       refinement:
         name: "Refiner"
-      gear-keeper:
-        name: "Gear Keeper"
-      profile:
-        name: "Profile Keeper"
-      settings:
-        name: "Settings Steward"
-      party:
-        name: "Party Coordinator"
 
     # ADR-0180 — signs on the procedural sky-island lobby (4 lines, <=15 chars each).
     sign:
@@ -1627,6 +1691,20 @@ astera:
         training:
           title: "<aqua><bold>Training</bold></aqua>"
           subtitle: "<dark_gray>Range & Dummies</dark_gray>"
+      # MAP-07 — name boards on the four hub buildings.
+      hub:
+        play:
+          title: "<gold><bold>PLAY</bold></gold>"
+          subtitle: "<dark_gray>Start a match</dark_gray>"
+        travel:
+          title: "<aqua><bold>TRAVEL</bold></aqua>"
+          subtitle: "<dark_gray>Station</dark_gray>"
+        social:
+          title: "<green><bold>SOCIAL</bold></green>"
+          subtitle: "<dark_gray>Party & Friends</dark_gray>"
+        market:
+          title: "<gold><bold>MARKET</bold></gold>"
+          subtitle: "<dark_gray>Shop & Vault</dark_gray>"
       lane:
         hint: "<dark_gray>Step on the pad</dark_gray>"
         title: "<gold><bold>{lane}</bold></gold>"
@@ -1644,6 +1722,15 @@ astera:
         rack:
           title: "<green><bold>Weapon Rack</bold></green>"
           hint: "<dark_gray>Click a frame</dark_gray>"
+        course:
+          title: "<yellow><bold>Obstacle Course</bold></yellow>"
+          hint: "<dark_gray>Run it end to end</dark_gray>"
+        cover:
+          title: "<gray><bold>Cover Field</bold></gray>"
+          hint: "<dark_gray>Duck and shoot</dark_gray>"
+        entry:
+          title: "<aqua><bold>Practice Ground</bold></aqua>"
+          hint: "<dark_gray>Dummies never die</dark_gray>"
     # F3-1 — queue lane pads: holograms above the pads, join confirmation.
     lane:
       board:
@@ -1973,7 +2060,7 @@ astera:
         "1": "First playable PvP match loop (start, score, end, reward)."
         "2": "Crafting recipes + quest chains + advancements landed."
         "3": "Admin ops commands + scheduled announcements + maintenance mode."
-      full: "Phase 1 PoC release: see RTM-PARITY-TRACKER.md for the full feature × state matrix."
+      full: "Phase 1 PoC release: see docs/vision/VISION.md for scope and per-area status."
 
   board:
     leaderboard:
@@ -2285,8 +2372,8 @@ astera:
   tutorial.guide.shop.subtitle: "Open the shop at the marked merchant"
   tutorial.guide.shop.hint: "Put your weapon away. Use F → Shop, or right-click the marked shopkeeper. No purchase needed."
   tutorial.guide.vault.title: "Your personal vault"
-  tutorial.guide.vault.subtitle: "Open your vault from Customize"
-  tutorial.guide.vault.hint: "Use sneak+F → Vault, or F → Customize → Vault. Stored items persist; no deposit needed."
+  tutorial.guide.vault.subtitle: "Open your personal vault"
+  tutorial.guide.vault.hint: "Use sneak+F, or F → Vault. Stored items persist; no deposit needed."
   tutorial.guide.queue.title: "Ready to play"
   tutorial.guide.queue.subtitle: "Go to the Play gate by the spawn"
   tutorial.guide.queue.hint: "Walk to the glowing Play gate next to the spawn and right-click the Play guide, then pick a mode. Q on the compass opens the same picker."
@@ -2314,7 +2401,7 @@ astera:
   play.picker.leave.lane: "<gray>You are waiting for <white>{lane}</white></gray>"
   play.lane.generic.name: "<gold>{lane}</gold>"
   play.lane.generic.desc: "<gray>Team match on its own arena.</gray>"
-  play.lane.norma.desc: "<gray>Classic 2-team skirmish. Score the most kills.</gray>"
+  play.lane.skirmish.desc: "<gray>Classic 2-team skirmish. Collect stars, level up your Norma, reach the top first.</gray>"
   play.lane.annihilation.desc: "<gray>3 teams, 3 pillars each. Break the enemy Nexus.</gray>"
   play.lane.break-core.desc: "<gray>Destroy the enemy core, defend your own.</gray>"
   play.lane.carry-tnt.desc: "<gray>Carry TNT across the map to the enemy base.</gray>"
@@ -2346,3 +2433,43 @@ astera:
   hud.lobby.queue.actionbar.waiting: "<gold>{lane}</gold> <gray>|</gray> <white>{players}/{required}</white> <gray>|</gray> <white>{time}</white> <gray>|</gray> <yellow>Waiting for opponents</yellow>"
   hud.lobby.queue.actionbar.starting: "<gold>{lane}</gold> <gray>|</gray> <white>{players}/{required}</white> <gray>|</gray> <green>Starting in {seconds}s</green>"
   hud.lobby.queue.actionbar.busy: "<gold>{lane}</gold> <gray>|</gray> <white>{players}/{required}</white> <gray>|</gray> <red>Arena busy, hold on</red>"
+
+  # UI-01..UI-06 (docs/game-design/access-map.md): access map, main-menu tiles, settings screen, role-hub NPCs.
+  lobby.npc.market.name: "Market"
+  lobby.npc.social.name: "Social Hub"
+  gui.social-hub.title: "<gold>Social</gold>"
+  gui.button.back: "Back"
+  gui.main-menu.vault.tooltip: "<gray>Click to open your personal vault.</gray>"
+  gui.main-menu.settings.tooltip: "<gray>Click for language, volume, controls, particles and privacy.</gray>"
+  gui.main-menu.party.tooltip: "<gray>Click to manage your party.</gray>"
+  gui.main-menu.friends.tooltip: "<gray>Click to see your friends and requests.</gray>"
+  gui.main-menu.achievements.tooltip: "<gray>Click to see your achievements.</gray>"
+  gui.main-menu.quests.tooltip: "<gray>Click to see how to check daily bonus, missions and quests.</gray>"
+  gui.main-menu.help.tooltip: "<gray>Click for the command cheat sheet and the tutorial.</gray>"
+  gui.settings.volume.music.tooltip: "<gray>Click to step the music volume (100 / 75 / 50 / 25 / 0).</gray>"
+  gui.settings.volume.sound.tooltip: "<gray>Click to step the sound-effect volume (100 / 75 / 50 / 25 / 0).</gray>"
+  gui.settings.volume.voice.tooltip: "<gray>Click to step the voice volume (100 / 75 / 50 / 25 / 0).</gray>"
+  gui.settings.quickcast.tooltip: "<gray>Click to bind skills to hotbar slots (for the Button control scheme).</gray>"
+  gui.settings.particles.tooltip: "<gray>Click to cycle whose particles you see: everyone / own team / only yours.</gray>"
+  gui.settings.double-jump.tooltip: "<gray>Click to turn the double jump on or off.</gray>"
+  gui.settings.public-profile.tooltip: "<gray>Click to make your profile public or private (private by default).</gray>"
+  gui.quickcast-slots.title: "<gold>Quick-cast slots</gold>"
+  gui.quickcast-slots.slot.tooltip: "<gray>Click to choose the skill for this hotbar slot.</gray>"
+  settings.toggle.particles: "<green>Particles shown: <gold>{value}</gold></green>"
+  settings.toggle.double-jump: "<green>Double jump: <gold>{value}</gold></green>"
+  settings.toggle.public-profile: "<green>Public profile: <gold>{value}</gold></green>"
+  settings.value.on: "ON"
+  settings.value.off: "OFF"
+  settings.value.particles.all: "everyone"
+  settings.value.particles.team: "own team only"
+  settings.value.particles.own: "only yours"
+  hint.progress.header: "<gold>Daily bonus, missions and quests</gold>"
+  hint.progress.daily: "<gray>/astera daily</gray> - collect today's login bonus and see your streak"
+  hint.progress.missions: "<gray>/astera missions</gray> - daily / weekly missions"
+  hint.progress.quests: "<gray>/astera quests</gray> - quest chains"
+  hint.help.header: "<gold>Help</gold>"
+  hint.help.commands: "<gray>/astera help</gray> - every command; <gray>/astera menu</gray>, <gray>/astera settings</gray>, <gray>/astera social</gray> open the screens"
+  hint.help.tutorial: "<gray>/astera tutorial start</gray> - replay the tutorial"
+  hint.help.in-match: "<gray>In a match there are no menu items: use /astera queue leave, /astera travel lobby or /astera settings.</gray>"
+  presentation.star-burst.victim: "<red>-{amount} ★ burst out!</red>"
+  presentation.star-burst.killer: "<gold>+{amount} ★ burst out - grab them!</gold>"

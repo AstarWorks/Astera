@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.contents
 
+import com.astarworks.astera.core.application.service.arena.ArenaStructureContent
 import com.astarworks.astera.core.domain.stage.ArenaIslandGenerator
 import com.astarworks.astera.core.domain.stage.ArenaLandmarkKind
 import org.assertj.core.api.Assertions.assertThat
@@ -31,7 +32,7 @@ class ShippedArenaStagesBuildTest {
         for (stage in stages) {
             val layout = stage.layout
             assertThat(layout).describedAs("stage '${stage.id.value}' has no layout (a stage nobody can build is dead content)").isNotNull
-            val plan = ArenaIslandGenerator.generate(stage)
+            val plan = ArenaIslandGenerator.generate(stage, ArenaStructureContent.load(contentRoot))
             assertThat(plan.problems).describedAs("stage '${stage.id.value}'").isEmpty()
             assertThat(layout!!.killY).describedAs("kill plane below the build of '${stage.id.value}'").isLessThan(plan.minY)
             assertThat(stage.world.value).describedAs("stage '${stage.id.value}' world").isEqualTo("world")
@@ -40,12 +41,13 @@ class ShippedArenaStagesBuildTest {
 
     @Test
     fun `shipped plans fit the reserved slot footprint`() {
+        val parts = ArenaStructureContent.load(contentRoot)
         for (stage in stages()) {
-            val plan = ArenaIslandGenerator.generate(stage)
-            assertThat(plan.minX).isGreaterThan(-768)
-            assertThat(plan.maxX).isLessThan(768)
-            assertThat(plan.minZ).isGreaterThan(-768)
-            assertThat(plan.maxZ).isLessThan(768)
+            val plan = ArenaIslandGenerator.generate(stage, parts)
+            assertThat(plan.minX).describedAs("'${stage.id.value}'").isGreaterThan(-512)
+            assertThat(plan.maxX).describedAs("'${stage.id.value}'").isLessThan(512)
+            assertThat(plan.minZ).describedAs("'${stage.id.value}'").isGreaterThan(-512)
+            assertThat(plan.maxZ).describedAs("'${stage.id.value}'").isLessThan(512)
         }
     }
 

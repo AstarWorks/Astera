@@ -4,11 +4,15 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.nexus.NexusPillarTier
+import com.astarworks.astera.core.domain.stage.ArenaAtmosphere
 import com.astarworks.astera.core.domain.stage.ArenaBridge
 import com.astarworks.astera.core.domain.stage.ArenaIsland
 import com.astarworks.astera.core.domain.stage.ArenaIslandKind
 import com.astarworks.astera.core.domain.stage.ArenaLandmark
 import com.astarworks.astera.core.domain.stage.ArenaLandmarkKind
+import com.astarworks.astera.core.domain.stage.ArenaTheme
+import com.astarworks.astera.core.domain.stage.ArenaWeather
+import com.astarworks.astera.core.domain.stage.ArenaStructurePlacement
 import com.astarworks.astera.core.domain.stage.ArenaLayout
 import com.astarworks.astera.core.domain.stage.Region
 import com.astarworks.astera.core.domain.stage.StagePillar
@@ -88,26 +92,46 @@ public data class StageYamlConfig(
  *     - { from: red, to: center, width: 3 }
  *   landmarks:
  *     - { kind: generator, x: 0, z: -26 }
+ *   atmosphere: { time_of_day: 12000, weather: clear }   # optional; per-player sky for this arena (MAP-08)
  * ```
  */
 @Serializable
 public data class ArenaLayoutYamlConfig(
     @SerialName("marker_version") public val markerVersion: Int = 1,
+    public val theme: String = "temperate",
+    public val structures: List<ArenaStructureYamlConfig> = emptyList(),
     public val seed: Long,
     @SerialName("surface_y") public val surfaceY: Int = 64,
     @SerialName("kill_y") public val killY: Int? = null,
     public val islands: List<ArenaIslandYamlConfig>,
     public val bridges: List<ArenaBridgeYamlConfig> = emptyList(),
     public val landmarks: List<ArenaLandmarkYamlConfig> = emptyList(),
+    public val atmosphere: ArenaAtmosphereYamlConfig? = null,
 ) {
     public fun toDomain(): ArenaLayout = ArenaLayout(
         markerVersion = markerVersion,
+        theme = ArenaTheme.valueOf(theme.uppercase()),
+        structures = structures.map { ArenaStructurePlacement(it.part, it.x, it.y, it.z, it.rotation, it.palette) },
         seed = seed,
         surfaceY = surfaceY,
         killY = killY ?: (surfaceY - ArenaLayout.DEFAULT_KILL_DEPTH),
         islands = islands.map { it.toDomain() },
         bridges = bridges.map { ArenaBridge(it.from, it.to, it.width) },
         landmarks = landmarks.map { it.toDomain() },
+        atmosphere = atmosphere?.toDomain(),
+    )
+}
+
+/** `atmosphere: { time_of_day: 12000, weather: clear }`; weather is `clear` or `rain`. Applied per player inside the arena. */
+@Serializable
+public data class ArenaAtmosphereYamlConfig(
+    @SerialName("time_of_day") public val timeOfDay: Long,
+    public val weather: String = "clear",
+) {
+    public fun toDomain(): ArenaAtmosphere = ArenaAtmosphere(
+        timeOfDay,
+        ArenaWeather.entries.firstOrNull { it.name.equals(weather.trim(), ignoreCase = true) }
+            ?: throw IllegalArgumentException("Unknown weather '$weather'. Expected: ${ArenaWeather.entries.joinToString { it.name.lowercase() }}"),
     )
 }
 
@@ -216,3 +240,14 @@ public data class Vec3YamlConfig(
 ) {
     public fun toVec3(): Vec3 = Vec3(x = x, y = y, z = z)
 }
+
+/** Coordinates relative to surface_y; palette entries override the stage theme for this placement. */
+@Serializable
+public data class ArenaStructureYamlConfig(
+    public val part: String,
+    public val x: Int,
+    public val y: Int = 0,
+    public val z: Int,
+    public val rotation: Int = 0,
+    public val palette: Map<String, String> = emptyMap(),
+)

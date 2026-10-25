@@ -42,7 +42,7 @@ no AI tool called from Gradle build, no runtime dependency on Studio.
 ## What "Phase 1" means here
 
 - We're building the multi-plugin skeleton + first content waves
-  (ADR-0022 / IMPLEMENTATION-ROADMAP Phase 1).
+  (ADR-0022; current scope in `docs/vision/VISION.md`).
 - Texture pipelines stay intentionally minimal — enough to demo, not enough
   to ship — until ADR-0010 is revisited.
 

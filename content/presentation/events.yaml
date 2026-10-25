@@ -1,0 +1,107 @@
+# One table for every game moment (FX-05). Code names a moment (PresentationMoments), never a raw sound,
+# title or particle; this file decides what the player sees and hears.
+#
+#   cue           sound cue id played to the subject (content/sounds/**, ADR-0267)
+#   audience_cue  cue played to bystanders / the match (optional)
+#   title/subtitle  i18n keys shown as a title to the subject (optional)
+#   action_bar    i18n key shown on the action bar; {name} is filled from the play args (optional)
+#   particle      id of a preset below, shown per viewer and filtered by that viewer's particle-visibility setting
+#   chain_*       consecutive plays within chain_window_ms rise chain_pitch_semitones each (up to chain_max_steps)
+#
+# Not here: the countdown / death / result titles (HUD subtitle layouts, ADR-0206) and chat lines. Their sounds are.
+# Every moment in PresentationMoments.ALL must have a row (PresentationCueCoverageScenarioTest).
+
+particles:
+  star-pop:        { particle: END_ROD,           count: 16,  spread: [0.15, 0.5, 0.15],  speed: 0.06, y_offset: 0.6 }
+  star-pickup:     { particle: FIREWORK,          count: 14,  spread: [0.25, 0.4, 0.25],  speed: 0.08, y_offset: 1.0 }
+  star-burst:      { particle: END_ROD,           count: 70,  spread: [0.15, 0.15, 0.15], speed: 0.4,  y_offset: 1.0 }
+  star-burst-gain: { particle: FIREWORK,          count: 24,  spread: [0.5, 0.6, 0.5],    speed: 0.15, y_offset: 1.0 }
+  norma-level-up:  { particle: TOTEM_OF_UNDYING,  count: 40,  spread: [0.5, 0.8, 0.5],    speed: 0.3,  y_offset: 0.0 }
+  norma-level-max: { particle: TOTEM_OF_UNDYING,  count: 120, spread: [0.8, 1.0, 0.8],    speed: 0.5,  y_offset: 0.0 }
+
+moments:
+  countdown-tick:
+    cue: "astera:match/countdown-tick"
+  countdown-go:
+    cue: "astera:match/go"
+  kill:
+    cue: "astera:combat/kill"
+  death:
+    cue: "astera:match/death"
+  respawn:
+    cue: "astera:match/respawn"
+  hit:
+    cue: "astera:combat/hit"
+  crit:
+    cue: "astera:combat/crit"
+  blocked:
+    cue: "astera:combat/blocked"
+  skill-ready:
+    cue: "astera:combat/skill-ready"
+  ego-ready:
+    cue: "astera:combat/ego-ready"
+
+  # Stars (FX-04). pop = a star appears at a generator (heard and seen nearby); pickup = "+N" with a chime that
+  # climbs a semitone-and-a-half per consecutive pickup; burst = the victim's stars fly out (victim feels the loss,
+  # the killer sees the haul, bystanders hear it).
+  star-pop:
+    cue: "astera:star/pop"
+    particle: star-pop
+  star-pickup:
+    cue: "astera:star/pickup"
+    action_bar: "astera.match.star.collected"
+    particle: star-pickup
+    chain_window_ms: 2500
+    chain_pitch_semitones: 1.5
+    chain_max_steps: 8
+  star-burst:
+    cue: "astera:star/burst"
+    audience_cue: "astera:star/burst"
+    action_bar: "astera.presentation.star-burst.victim"
+    particle: star-burst
+  star-burst-killer:
+    cue: "astera:star/burst-gain"
+    action_bar: "astera.presentation.star-burst.killer"
+    particle: star-burst-gain
+
+  norma-level-up:
+    cue: "astera:norma/level-up"
+    audience_cue: "astera:norma/burst"
+    title: "astera.match.norma-up.title"
+    subtitle: "astera.match.norma-up.subtitle"
+    title_stay_ticks: 50
+    particle: norma-level-up
+  norma-level-max:
+    cue: "astera:norma/level-max"
+    audience_cue: "astera:norma/burst-max"
+    title: "astera.match.norma-up.max.title"
+    subtitle: "astera.match.norma-up.max.subtitle"
+    title_stay_ticks: 80
+    particle: norma-level-max
+  norma-choice-open:
+    cue: "astera:norma/choice-open"
+    title: "astera.match.norma-choice.open.title"
+    subtitle: "astera.match.norma-choice.open.subtitle"
+    title_stay_ticks: 40
+  norma-choice-picked:
+    cue: "astera:norma/choice-picked"
+    action_bar: "astera.match.norma-choice.picked.{kind}"
+  norma-choice-defaulted:
+    cue: "astera:norma/choice-defaulted"
+    action_bar: "astera.match.norma-choice.defaulted.{kind}"
+
+  match-win:
+    cue: "astera:match/win"
+  match-lose:
+    cue: "astera:match/lose"
+  match-draw:
+    cue: "astera:match/draw"
+
+  reward-login:
+    cue: "astera:ui/login-bonus"
+  purchase:
+    cue: "astera:ui/purchase"
+  quest-complete:
+    cue: "astera:ui/quest-complete"
+  player-level-up:
+    cue: "astera:ui/level-up"

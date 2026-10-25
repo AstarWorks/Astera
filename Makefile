@@ -202,7 +202,7 @@ live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=
 	bash scripts/live-bots.sh $(or $(SCENARIO),all)
 
 .PHONY: bots
-bots: ## Fill the live queue with AI bots (ADR-0247): make bots N=2 LANE=norma  (starts the bot-runner service if needed)
+bots: ## Fill the live queue with AI bots (ADR-0247): make bots N=2 LANE=skirmish  (starts the bot-runner service if needed)
 	bash scripts/bots.sh $(or $(N),2) $(or $(LANE),norma)
 
 .PHONY: skill-compare
@@ -232,3 +232,7 @@ skill-brief: ## Browser-free AI brief: reference|in-game contact sheets + manife
 skill-pairs: ## Video vs MC frame pairs at video times -> build/pairs/<case>.png: make skill-pairs CASE=<id> [SKILL=<skill>] AT="t1:label t2:label ..."
 	@test -n "$(CASE)" -a -n "$(AT)" || { echo "usage: make skill-pairs CASE=<id> [SKILL=<skill>] AT=\"19.7:hit1 20.9:hit2\" (t = video seconds)"; exit 2; }
 	python3 -I tools/skill-compare/scripts/pairs.py --case "$(CASE)" $(if $(SKILL),--skill "$(SKILL)") --out "build/pairs/$(CASE).png" $(AT)
+
+.PHONY: arena-preview
+arena-preview: ## Render every stage to build/arena-previews/ and measure generation/routing
+	$(GRADLEW) :tools:arena-preview:run

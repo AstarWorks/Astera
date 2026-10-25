@@ -215,6 +215,17 @@ public object EconomyWiring {
         subscriptions += eventBus.subscribe(MissionCompleted::class) { event ->
             depositOnMissionCompletedListener.handle(event)
         }
+        val depositOnAchievementUnlocked = com.astarworks.astera.economy.application.eventbus.listeners.DepositOnAchievementUnlockedListener(
+            deposit = deposit,
+            achievements = { services.get<com.astarworks.astera.stats.application.port.outbound.IAchievementRepository>() },
+            messages = msgRenderer,
+            players = playerGateway,
+            titles = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockStore>() },
+            onTitleGranted = { id -> services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()?.notifyChanged(id) },
+        )
+        subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.AchievementUnlocked::class) { event ->
+            depositOnAchievementUnlocked.handle(event)
+        }
 
         // ADR-0202: every wallet movement lands in the append-only audit log.
         val recordMovements = com.astarworks.astera.economy.application.eventbus.listeners.AuditCurrencyMovementListener {
@@ -314,6 +325,26 @@ public object EconomyWiring {
         )
         registrations += intentRouter.register(ShopIntentHandler.INTENT_PREFIX) { intent, player ->
             shopIntentHandler.handle(intent, player)
+        }
+
+        // ── ECO-02 / ECO-04 (ADR-0269) — cosmetics menu: GOLD sink + title / colour / kill-effect equip ──
+        // Opened from the profile card button (`cosmetic.open`); lobby-only like the shop.
+        if (ctx.serverRole.hostsLobby) {
+            services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()?.let { cosmeticService ->
+                val cosmeticMenu = com.astarworks.astera.economy.application.cosmetic.CosmeticMenu(
+                    cosmetics = cosmeticService,
+                    unlocks = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockStore>() },
+                    ledger = ledger,
+                    eventBus = eventBus,
+                    adapter = guiAdapter,
+                    server = mcServer,
+                    messages = msgRenderer,
+                    players = playerGateway,
+                )
+                registrations += intentRouter.register(
+                    com.astarworks.astera.economy.application.cosmetic.CosmeticMenu.INTENT_PREFIX,
+                ) { intent, player -> cosmeticMenu.handle(intent, player) }
+            }
         }
 
         // ── F1-D (ADR-0183) — `/astera admin panel` give-currency action ────────

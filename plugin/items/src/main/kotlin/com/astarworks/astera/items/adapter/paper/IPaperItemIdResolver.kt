@@ -23,4 +23,7 @@ public interface IPaperItemIdResolver {
 
     /** Item ids of every Astera stack in the player's inventory (hotbar, main, armor, off-hand), in slot order. */
     public fun inventoryItemIds(playerId: PlayerId): List<ItemId>
+
+    /** Removes one [itemId] stack unit from the first matching inventory slot; `false` when none is carried. */
+    public fun removeOne(playerId: PlayerId, itemId: ItemId): Boolean
 }

@@ -17,9 +17,7 @@ import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
-import com.astarworks.astera.core.domain.event.PlayerMoved
 import com.astarworks.astera.core.domain.match.MatchId
-import com.astarworks.astera.match.application.gamemode.NormaGameMode
 import com.astarworks.astera.match.application.port.outbound.IGeneratorRegistry
 import com.astarworks.astera.match.application.port.outbound.IGeneratorRepository
 import com.astarworks.astera.match.application.port.outbound.IMatchNormaStore
@@ -58,6 +56,9 @@ internal object MatchStarWiring {
     /** Let the arena settle (teleports, kit) before the picker opens. */
     private const val PROMPT_DELAY_TICKS = 40L
 
+    /** After a level-up the picker waits until the level-up title has been read. */
+    private const val LEVEL_UP_PROMPT_DELAY_TICKS = 70L
+
     fun install(env: MatchWiringEnv): Wired {
         val services = env.ctx.services
         val eventBus = env.eventBus
@@ -82,6 +83,7 @@ internal object MatchStarWiring {
             store = store,
             eventBus = eventBus,
             world = dropWorld,
+            presentation = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
             deathDropRatio = { id -> configOf(id).deathDropRatio },
             log = { env.ctx.logger.fine(it) },
         )
@@ -90,10 +92,7 @@ internal object MatchStarWiring {
             stars = store,
             norma = normaStore,
             configOf = configOf,
-            isNorma = { id ->
-                val key = env.matchModeRegistry.modeKeyOf(id)
-                key.isNullOrBlank() || key == NormaGameMode.ID.value
-            },
+            isNorma = env.normaLayerOf,
             eventBus = eventBus,
             lifecycle = env.facade,
         )
@@ -110,20 +109,19 @@ internal object MatchStarWiring {
         subs += eventBus.subscribe(MatchStarted::class) { lifecycle.onStarted(it) }
         subs += eventBus.subscribe(MatchEnded::class) { lifecycle.onEnded(it) }
         subs += eventBus.subscribe(ResourceSpawned::class) { drops.onSpawned(it) }
-        subs += eventBus.subscribe(PlayerMoved::class) { drops.onMoved(it) }
         subs += eventBus.subscribe(PlayerKilled::class) { drops.onKilled(it) }
         subs += eventBus.subscribe(PlayerKilled::class) { norma.onKilled(it) }
         subs += eventBus.subscribe(StarsCollected::class) { norma.onStarsCollected(it) }
-        // A touched star drop (its vanilla pickup is cancelled by the host) is credited here.
+        // A real item pickup of a star drop (the item itself never enters the inventory) is credited here.
         dropWorld?.onPickupAttempt { handle, player -> drops.onTouched(handle, player) }
-        // Pickup feedback: "+3 ★" on the action bar.
+        // Pickup feedback ("+3 ★" action bar, sparkle, rising chime) is the `star-pickup` row of content/presentation/events.yaml.
         val mcServer = services.get<IMcServer>()
-        if (mcServer != null) {
-            subs += eventBus.subscribe(StarsCollected::class) { e ->
-                mcServer.findPlayer(e.playerId)?.sendActionBar(
-                    MessageKey("astera.match.star.collected"),
-                    mapOf("amount" to e.amount.toString(), "total" to e.total.toString()),
-                )
+        // Norma level-up: title, sound, burst at the player, chat line to the match; the top level is bigger.
+        val presentation = env.ports.normaPresentation?.invoke(services)
+        if (presentation != null) {
+            subs += eventBus.subscribe(NormaLevelUp::class) { e ->
+                val audience = env.matches.findById(e.matchId)?.teams?.flatMap { it.members }.orEmpty()
+                presentation.levelUp(e.playerId, audience, e.level, configOf(e.matchId).maxLevel)
             }
         }
         // Norma goal picker (GUI) at match start and at each level-up; default STAR after 10 s.
@@ -138,11 +136,12 @@ internal object MatchStarWiring {
                 mcServer = mcServer,
                 scheduler = env.scheduler,
                 messages = { p, key, args -> p.sendMessage(renderer.render(p.id, key, args)) },
+                presentation = presentation,
             )
             env.ctx.registrations += services.getOrThrow<IGuiIntentRouter>().register(NormaChoicePrompter.INTENT_PREFIX) { intent, player ->
                 prompter.handle(intent, player)
             }
-            subs += eventBus.subscribe(NormaLevelUp::class) { e -> env.scheduler.runLaterTicks(ExecutionScope.Entity(e.playerId.uuid), PROMPT_DELAY_TICKS) { prompter.prompt(e.playerId) } }
+            subs += eventBus.subscribe(NormaLevelUp::class) { e -> env.scheduler.runLaterTicks(ExecutionScope.Entity(e.playerId.uuid), LEVEL_UP_PROMPT_DELAY_TICKS) { prompter.prompt(e.playerId) } }
             subs += eventBus.subscribe(MatchStarted::class) { e ->
                 // Teams fill in after MatchStarted publishes: read the roster after the settle delay, then fan out.
                 env.scheduler.runLaterTicks(ExecutionScope.Global, PROMPT_DELAY_TICKS) {

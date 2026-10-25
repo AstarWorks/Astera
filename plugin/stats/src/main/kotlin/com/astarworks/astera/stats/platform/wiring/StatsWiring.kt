@@ -38,6 +38,7 @@ import com.astarworks.astera.core.domain.event.SkillLevelUp
 import com.astarworks.astera.stats.application.eventbus.listeners.BroadcastOnLeveledUpListener
 import com.astarworks.astera.stats.application.eventbus.listeners.MissionProgressOnKillListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RecordAssistOnAssistCreditedListener
+import com.astarworks.astera.stats.application.eventbus.listeners.RecordForfeitLossListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RecordMatchPlayedOnMatchEndedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RecordMatchResultOnMatchEndedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnDamageListener
@@ -205,10 +206,17 @@ public object StatsWiring {
 
         subscriptions += eventBus.subscribe(PlayerKilled::class) { recordDeath.execute(it.victim) }
         subscriptions += eventBus.subscribe(PlayerKilled::class) { rewardOnKill.handle(it) }
+        val cosmeticKillEffect = com.astarworks.astera.stats.application.eventbus.listeners.PlayCosmeticKillEffectListener(
+            cosmetics = { services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
+            effects = { services.get<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticEffectPlayer>() },
+        )
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { cosmeticKillEffect.handle(it) }
         subscriptions += eventBus.subscribe(DamageDealt::class) { rewardOnDamage.handle(it) }
         subscriptions += eventBus.subscribe(PlayerKilled::class) { missionProgressOnKill.handle(it) }
         subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchPlayedListener.handle(it) }
         subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchResultListener.handle(it) }
+        val recordForfeitLossListener = RecordForfeitLossListener(recordMatchPlayed, recordMatchResult)
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PlayerForfeited::class) { recordForfeitLossListener.handle(it) }
         subscriptions += eventBus.subscribe(LeveledUp::class) { broadcastOnLeveledUpListener.handle(it) }
         subscriptions += eventBus.subscribe(AssistCredited::class) { recordAssistListener.handle(it) }
 
@@ -217,7 +225,7 @@ public object StatsWiring {
         // cannot import it). The InMemory HUD gateway records the call only
         // until Wave 6b's Paper renderer lands.
         val hudGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
-        val playerSoundGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>()
+        val playerSoundGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>()
         val hudLeveledUpListener = com.astarworks.astera.stats.application.eventbus.listeners.hud
             .HudUpdateOnLeveledUpListener(hudGateway, playerSoundGateway)
         subscriptions += eventBus.subscribe(LeveledUp::class) { hudLeveledUpListener.handle(it) }
@@ -234,6 +242,7 @@ public object StatsWiring {
                 services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>()
             }.also { registrations += services.register<ILevelRewardRepository>(it) }
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockView>(levelRewards)
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockStore>(levelRewards)
         val grantLevelRewards = GrantLevelRewardsUseCase(
             rewardConfig.levels.mapValues { it.value.toDomain() }, levelRewards, playerGateway, messages, hudGateway,
             onGranted = { id, level, reward ->

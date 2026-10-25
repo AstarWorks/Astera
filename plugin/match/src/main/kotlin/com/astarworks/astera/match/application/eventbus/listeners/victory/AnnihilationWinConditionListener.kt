@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory
  * port would force it to depend on the inbound facade and the
  * application would lose its compile-time ability to swap the lifecycle
  * impl. Keeping the "decide → act" split in this listener mirrors how
- * `NormaVictoryConditionEvaluatorListener` is structured.
+ * the other victory listeners are structured.
  */
 public class AnnihilationWinConditionListener(
     private val tracker: AnnihilationMatchTracker,

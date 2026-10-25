@@ -32,19 +32,12 @@ build if a patched key disappears from content.
 
 ## Problems found by reading the code, and fixes
 
-1. Norma had no score: nothing raised `Match.score`, so queue-formed Norma matches never ended. Fix:
-   `NormaKillScoringListener` (kill = 1 point, `score_threshold` kills or `time_limit_seconds` ends it via
-   `IMatchLifecycle.end`; keys in `content/game-modes/norma.yaml`, defaults 10 kills / 600 s). Unit-tested.
+1. Norma had no end: queue-formed Norma matches never ended. Fix: a Norma match is won by reaching the top Norma level
+   (`NormaLevelService`); `NormaTimeLimitListener` counts kills and ends it after `time_limit_seconds` (highest level, then
+   stars carried, then kills; ADR-0272). Keys in `content/norma-layer/layer.yaml (mode overrides in game-modes/*.yaml; ADR-0268)`.
 2. Sudden death expiry only flipped the phase to ENDED and never published `MatchEnded` (no result, rewards, return).
    Fix: `PhaseTimerUseCase.onSuddenDeathExpired`, wired to `EndMatchUseCase(SuddenDeathResolved)`. Unit-tested.
 
 ## Known gaps
 
-- Norma sidebar shows scores without the goal ("Red: 2" not "2/10"); end reason prints "objective completion" for
-  Norma wins (TeamVictory is mapped to that text).
-- Norma stars and levels are in (docs/game-design/stars-and-norma.md, ADR-0251): generators pop star drops, a kill bursts the victim's stars, norma levels (star or kill goal) are the match win path next to the kill score. Stars still do not add to the kill score; spending stars (items, ultimates) is not built yet.
-- A kill that ends the match may race the death/respawn coordinator for the last victim (victim is returned to the
-  lobby by match end; unverified).
-- Pistol bullets hitting pillars, survival block-break speed on pillars/cores, and the shared arena between lanes are
-  unverified until the first CI run.
-- Bots are positioned with RCON `tp` (flat arena, static targets); movement/pathing is not exercised.
+Moved to the open questions of `docs/vision/areas/modes-combat.md` (ADR-0266).

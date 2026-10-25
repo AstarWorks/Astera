@@ -356,17 +356,29 @@ internal fun CoreWiringState.wireGameplayLoop() {
             returnToLobby = returnToLobby,
         ),
     )
-    commands.register(
-        com.astarworks.astera.core.application.command.buildMainMenuCommandSpec(
-            guiAdapter = guiAdapter,
-            mcServer = mcServer,
-        ),
+    // Command shortcuts of GUI features open the GUI (access-map.md): menu, settings, social.
+    val openGuiCommands = listOf(
+        Triple("menu", "astera.menu.open", "main-menu"),
+        Triple("settings", "astera.settings.open", "settings"),
+        Triple("social", "astera.social.open", "social-hub"),
     )
+    for ((name, node, gui) in openGuiCommands) {
+        commands.register(
+            com.astarworks.astera.core.application.command.buildOpenGuiCommandSpec(
+                name = name,
+                permission = com.astarworks.astera.core.domain.permission.Permission(node),
+                guiId = com.astarworks.astera.core.domain.gui.GuiId(gui),
+                guiAdapter = guiAdapter,
+                mcServer = mcServer,
+                specProvider = { guiContents.find(it) },
+            ),
+        )
+    }
 
     logger.info(
         "Wave 5wireup wired: IPlayerProfileService + IDialogGateway + " +
             "IHudGateway registered; CreateFirstTimeProfile / StartTutorial / " +
             "ShowWelcomeDialog / HudUpdateOnCurrencyChanged subscribed; " +
-            "/astera travel + /astera menu commands mounted.",
+            "/astera travel + /astera menu|settings|social commands mounted.",
     )
 }

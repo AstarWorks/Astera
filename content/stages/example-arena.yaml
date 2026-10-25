@@ -1,87 +1,151 @@
-# Norma arena (2 teams, red vs blue): a floating sky-island arena the server builds itself (ADR-0246; scaled up
-# per the founder's playtest). Used by the `norma` lane of content/matchmaking/queue.yaml and the star generators content/generators/arena-*.yaml.
-#
-#                       north island (0,-62)  [generator]
-#                      /          |          \
-#   red island ---- centre island (r22) ---- blue island      (team islands 66 blocks from the centre)
-#   (-66,0) r20     (0,0) [2 generators]      (66,0) r20
-#                      \          |          /
-#                       south island (0,62)  [generator]
-#
-# Three ways between the teams: straight through the centre, or round the north / south island (long flank bridges
-# red-north-blue and red-south-blue). Each team island has room for a base: spawn pad, stepped hills, boulders, trees.
-# The centre island is a stone-brick plaza with ruined walls and terraces to fight over.
-#
-# coordinates; the builder (ArenaIslandGenerator) decorates spawns, anchors and landmarks, so keep them on islands
-# (the build logs a warning for a spawn that is off an island, and ShippedArenaStagesBuildTest fails the build).
-# Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
-
+# Authored siege-scale layout. See README.md and ADR-0273.
 id: example-arena
-
 display_name_key: astera.stage.example-arena.name
-
-
 layout:
-  marker_version: 2
+  marker_version: 4
   seed: 20261023
   surface_y: 64
-  kill_y: 30
+  kill_y: 16
   islands:
-    - { id: red, kind: base, team: red, center: { x: -66, z: 0 }, radius: 20.0 }
-    - { id: blue, kind: base, team: blue, center: { x: 66, z: 0 }, radius: 20.0 }
-    - { id: center, kind: center, center: { x: 0, z: 0 }, radius: 22.0 }
-    - { id: north, kind: outpost, center: { x: 0, z: -62 }, radius: 12.0 }
-    - { id: south, kind: outpost, center: { x: 0, z: 62 }, radius: 12.0 }
+  - id: red
+    kind: base
+    team: red
+    center: {x: -140, z: 0}
+    radius: 34.0
+  - id: blue
+    kind: base
+    team: blue
+    center: {x: 140, z: 0}
+    radius: 34.0
+  - id: center
+    kind: center
+    center: {x: 0, z: 0}
+    radius: 37.4
+  - id: north
+    kind: outpost
+    center: {x: 0, z: -132}
+    radius: 28
+  - id: south
+    kind: outpost
+    center: {x: 0, z: 132}
+    radius: 28
+  - id: west-route
+    kind: outpost
+    center: {x: -65, z: 0}
+    radius: 18
+  - id: east-route
+    kind: outpost
+    center: {x: 65, z: 0}
+    radius: 18
   bridges:
-    - { from: red, to: center, width: 3 }
-    - { from: blue, to: center, width: 3 }
-    - { from: center, to: north, width: 3 }
-    - { from: center, to: south, width: 3 }
-    - { from: red, to: north, width: 3 }
-    - { from: north, to: blue, width: 3 }
-    - { from: red, to: south, width: 3 }
-    - { from: south, to: blue, width: 3 }
+  - from: red
+    to: west-route
+    width: 7
+  - from: west-route
+    to: center
+    width: 7
+  - from: blue
+    to: east-route
+    width: 7
+  - from: east-route
+    to: center
+    width: 7
+  - from: center
+    to: north
+    width: 7
+  - from: center
+    to: south
+    width: 7
+  - from: red
+    to: north
+    width: 7
+  - from: north
+    to: blue
+    width: 7
+  - from: red
+    to: south
+    width: 7
+  - from: south
+    to: blue
+    width: 7
   landmarks:
-    - { kind: generator, x: 0, z: -62 }
-    - { kind: generator, x: 0, z: 62 }
-    - { kind: generator, x: 12, z: 0 }
-    - { kind: generator, x: -12, z: 0 }
-
+  - kind: generator
+    x: 0
+    z: -132
+  - kind: generator
+    x: 0
+    z: 132
+  - kind: generator
+    x: 65
+    z: 0
+  - kind: generator
+    x: -65
+    z: 0
+  structures:
+  - part: ruin
+    x: 0
+    z: -22
+    rotation: 0
+  - part: ruin
+    x: 0
+    z: 24
+    rotation: 180
+  - part: ruin
+    x: -65
+    z: 8
+    rotation: 90
+  - part: ruin
+    x: 65
+    z: -8
+    rotation: 270
+  - part: castle-tower
+    x: -140
+    z: 18
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: 140
+    z: 18
+    rotation: 0
+    palette:
+      team: minecraft:blue_concrete
+  theme: desert
+  atmosphere: {time_of_day: 5000, weather: clear}
 regions:
-  - name: full-arena
-    min: { x: -100.0, y: 20.0, z: -90.0 }
-    max: { x: 100.0, y: 140.0, z: 90.0 }
-  - name: center-platform
-    min: { x: -8.0, y: 64.0, z: -8.0 }
-    max: { x: 8.0, y: 66.0, z: 8.0 }
-
+- name: full-arena
+  min: {x: -212.12121212121212, y: 20.0, z: -190.9090909090909}
+  max: {x: 212.12121212121212, y: 140.0, z: 190.9090909090909}
+- name: center-platform
+  min: {x: -8.0, y: 64.0, z: -8.0}
+  max: {x: 8.0, y: 66.0, z: 8.0}
 spawn_points:
-  - team: red
-    position: { x: -69.5, y: 65.0, z: -2.5 }
-    yaw: 270.0
-  - team: red
-    position: { x: -69.5, y: 65.0, z: 3.5 }
-    yaw: 270.0
-  - team: red
-    position: { x: -67.5, y: 65.0, z: 0.5 }
-    yaw: 270.0
-  - team: red
-    position: { x: -71.5, y: 65.0, z: 0.5 }
-    yaw: 270.0
-  - team: blue
-    position: { x: 70.5, y: 65.0, z: -2.5 }
-    yaw: 90.0
-  - team: blue
-    position: { x: 70.5, y: 65.0, z: 3.5 }
-    yaw: 90.0
-  - team: blue
-    position: { x: 68.5, y: 65.0, z: 0.5 }
-    yaw: 90.0
-  - team: blue
-    position: { x: 72.5, y: 65.0, z: 0.5 }
-    yaw: 90.0
-  - role: lobby
-    position: { x: 0.5, y: 65.0, z: 0.5 }
-  - role: spectator
-    position: { x: 0.5, y: 100.0, z: 0.5 }
-    pitch: 60.0
+- team: red
+  position: {x: -119.5, y: 65.0, z: -2.5}
+  yaw: 270.0
+- team: red
+  position: {x: -119.5, y: 65.0, z: 3.5}
+  yaw: 270.0
+- team: red
+  position: {x: -117.5, y: 65.0, z: 0.5}
+  yaw: 270.0
+- team: red
+  position: {x: -121.5, y: 65.0, z: 0.5}
+  yaw: 270.0
+- team: blue
+  position: {x: 120.5, y: 65.0, z: -2.5}
+  yaw: 90.0
+- team: blue
+  position: {x: 120.5, y: 65.0, z: 3.5}
+  yaw: 90.0
+- team: blue
+  position: {x: 118.5, y: 65.0, z: 0.5}
+  yaw: 90.0
+- team: blue
+  position: {x: 122.5, y: 65.0, z: 0.5}
+  yaw: 90.0
+- role: lobby
+  position: {x: 0.5, y: 65.0, z: 0.5}
+- role: spectator
+  position: {x: 0.5, y: 100.0, z: 0.5}
+  pitch: 60.0

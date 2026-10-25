@@ -7,8 +7,9 @@ import org.junit.jupiter.api.Test
  * G1: a whole Norma 2v2 match, played by four bots, ending on its own win condition (no admin end).
  *
  * queue -> match found -> countdown -> ACTIVE -> pistol duels (aim, shoot, reload) -> deaths, respawns and score on the
- * sidebar -> the third kill of one team ends the match (content timers are shortened by docker/e2e-tune-content.sh:
- * 3 kills to win) -> summary, rewards, back in the lobby.
+ * sidebar -> one player takes the KILL goal at every level and reaches the top Norma level (content is shortened by
+ * docker/e2e-tune-content.sh: 3 levels, kill goals 1 then 2, so 3 kills) which ends the match; kills alone never do ->
+ * summary, rewards, back in the lobby.
  *
  * The arena is a floating sky-island stage in a world slot of `world` (content/stages/example-arena.yaml, ADR-0255; coordinates are stage-local): red
  * island at x=-66, blue at x=+66 (radius 20), centre island (radius 22), north/south flank islands at z=-/+62; the top layer is y=64, bots stand at y=65.
@@ -20,7 +21,7 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
     private fun side(b: Bot): String? = localPosOf(b)?.let { if (it.first < 0) "red" else "blue" }
 
     @Test
-    fun `norma 2v2 is played to the score threshold and ends by itself`() {
+    fun `norma 2v2 is played to the top norma level and ends by itself`() {
         val logFrom = logLineCount()
         val bots = (1..4).map { bot("Nm$it", PackPolicy.DECLINE) }
         bots.forEach { b -> b.waitUntil(15_000) { b.sidebarLines().isNotEmpty() && b.hotbar()[8] != -1 } }
@@ -30,7 +31,7 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
 
         // --- queue -> ACTIVE ------------------------------------------------------------------------------------
         val tQueue = System.nanoTime()
-        bots.forEach { it.command("astera queue join norma") }
+        bots.forEach { it.command("astera queue join skirmish") }
         val acks = bots.map { b -> b.chatSince(chatFrom.getValue(b)) }
         E2eReport.check(suite, "all four bots are acknowledged by the queue", "SystemChat") {
             acks.forEachIndexed { i, a -> assertThat(a).describedAs("no reply for bot ${i + 1}").isNotEmpty() }
@@ -78,35 +79,40 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             assertThat(rawKeys(lines)).isEmpty()
             quote(lines)
         }
-        E2eReport.check(suite, "the sidebar names the team goal and every team's progress towards it (Red 0/3)", "SetScore") {
+        E2eReport.check(suite, "the sidebar names the win condition (reach Norma level 3) and every team's kills", "SetScore") {
             val lines = sidebar(bots[0])
-            assertThat(lines.any { it.contains("3") && it.contains("kills", true) && !it.contains("Red", true) && !it.contains("Blue", true) })
-                .describedAs("no goal line (first to 3 kills): $lines").isTrue()
-            assertThat(lines.filter { it.contains("Red", true) || it.contains("Blue", true) }.filter { Regex("0\\s*/\\s*3").containsMatchIn(it) })
-                .describedAs("team lines without 0/3 progress: $lines").hasSizeGreaterThanOrEqualTo(2)
+            assertThat(lines.any { it.contains("level", true) && it.contains("3") && it.contains("win", true) && !it.contains("Red", true) && !it.contains("Blue", true) })
+                .describedAs("no win-condition line (reach level 3): $lines").isTrue()
+            assertThat(lines.filter { it.contains("Red", true) || it.contains("Blue", true) }.filter { it.contains("kills", true) })
+                .describedAs("team lines without a kill count: $lines").hasSizeGreaterThanOrEqualTo(2)
             quote(lines)
         }
         if (red.size != 2 || blue.size != 2) return
 
         // --- the fight ---------------------------------------------------------------------------------------------
-        // red kills: 3 (wins), blue kills: 2. Everyone is re-armed (full magazine) before each duel.
-        val script = listOf(red[0] to blue[0], blue[1] to red[0], red[1] to blue[1], blue[0] to red[1], red[0] to blue[0])
+        // red[0] makes 3 kills with the KILL goal (level 1 -> 2 after one, 2 -> 3 after two more = the top level, which wins), blue makes 2.
+        // Everyone is re-armed (full magazine) before each duel.
+        val script = listOf(red[0] to blue[0], blue[1] to red[1], red[0] to blue[1], blue[0] to red[1], red[0] to blue[0])
         val expectedRed = intArrayOf(1, 1, 2, 2, 3)
         val expectedBlue = intArrayOf(0, 1, 1, 2, 2)
         val respawnMs = mutableListOf<Long>()
         val duelNotes = mutableListOf<String>()
         script.forEachIndexed { i, (shooter, victim) ->
             val slot = equip(shooter, "pistol")
+            // Each level-up re-opens the goal at STAR and the e2e generators pay every 3 s, so a bot loitering near one could
+            // climb by stars. Everybody takes the KILL goal again before every duel, which keeps the climb on the kills.
+            bots.forEach { it.command("astera norma choose kill") }
             val last = i == script.lastIndex
             val shooterDeaths = shooter.deaths.size
             val fight = duel(shooter, victim, keepAlive = bots.filter { it != shooter && it != victim })
             duelNotes += "kill ${i + 1}: ${shooter.name} -> ${victim.name}: ${fight.shots} shots, ${fight.reloads} reload(s), ${fight.millis} ms, killed=${fight.killed}, slot=$slot"
             E2eReport.check(suite, "kill ${i + 1}/${script.size}: ${shooter.name} kills ${victim.name} with pistol shots", "PlayerCombatKill") {
                 assertThat(slot).describedAs("pistol never reached the hotbar").isNotNull()
-                assertThat(fight.killed).describedAs("no kill after ${fight.shots} shots (${fight.reloads} reloads). victim status='${status(victim)}' shooter status='${status(shooter)}' shooter pos=${posOf(shooter)} victim pos=${posOf(victim)}").isTrue()
+                assertThat(fight.killed || (last && matchLines().isEmpty())).describedAs("no kill after ${fight.shots} shots (${fight.reloads} reloads). victim status='${status(victim)}' shooter status='${status(shooter)}' shooter pos=${posOf(shooter)} victim pos=${posOf(victim)}").isTrue()
                 assertThat(shooter.deaths.size).describedAs("the shooter died while shooting").isEqualTo(shooterDeaths)
                 "${duelNotes.last()}; victim death text=${victim.deaths.lastOrNull()}"
             }
+            bots.forEach { it.command("astera norma choose kill") }
             if (!fight.killed) {
                 // Fallback so the rest of the loop (win condition, ending) is still exercised.
                 rcon("damage ${victim.name} 1000 minecraft:magic by ${shooter.name}")
@@ -132,9 +138,9 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
         }
         E2eReport.notes += "Norma playthrough: ${duelNotes.joinToString(" | ")}; respawn ms=$respawnMs"
 
-        // --- the end: no admin, the third red kill must end the match -------------------------------------------
+        // --- the end: no admin, red[0]'s third kill (Norma level 3) must end the match -------------------------------------------
         val ended = awaitNoMatch(40_000, keepAlive = bots)
-        E2eReport.check(suite, "the third kill ends the match by itself (no admin end)", "RCON astera match list") {
+        E2eReport.check(suite, "reaching the top Norma level ends the match by itself (no admin end)", "RCON astera match list") {
             assertThat(ended).describedAs("match still listed 40s after the winning kill: ${matchLines()}; sidebar=${sidebar(red[0])}").isTrue()
             "match gone"
         }
@@ -143,10 +149,11 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             val winnerChat = red[0].chat.drop(chatFrom.getValue(red[0])).map { clean(it.text) }
             val loserChat = blue[0].chat.drop(chatFrom.getValue(blue[0])).map { clean(it.text) }
             val scoreLine = winnerChat.firstOrNull { it.startsWith("Score") }.orEmpty()
+            assertThat(winnerChat.any { it.contains("Red") && it.contains("Norma level") }).describedAs("no 'Red reached Norma level' reason; result chat: ${quote(winnerChat, 40)}").isTrue()
             assertThat(Regex("Red\\D*3").containsMatchIn(scoreLine)).describedAs("score line should read Red 3: '$scoreLine'").isTrue()
-            val reasons = (winnerChat + loserChat).filter { it.contains("Red") && it.contains("norma", true) }
+            val reasons = (winnerChat + loserChat).filter { it.contains("Red") && it.contains("Norma level", true) }
             assertThat(winnerChat.none { it.contains("objective completion", true) }).describedAs("generic win reason: ${quote(winnerChat, 40)}").isTrue()
-            assertThat(reasons).describedAs("no 'Red reached the norma' reason in the result: ${quote(winnerChat, 40)}").isNotEmpty()
+            assertThat(reasons).describedAs("no 'Red reached Norma level 3' reason in the result: ${quote(winnerChat, 40)}").isNotEmpty()
             "winner score line='$scoreLine'; loser score line='${loserChat.firstOrNull { it.startsWith("Score") }}'; reason='${reasons.firstOrNull()}'"
         }
         E2eReport.check(suite, "server log stayed free of errors during the match", "server log") {

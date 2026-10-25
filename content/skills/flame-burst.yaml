@@ -41,7 +41,7 @@ phases:
   cast:
     - type: play_sound
       targets: { type: caster }
-      sound_id: entity.blaze.shoot
+      sound_id: astera:skill/wand/cast
       volume: { type: literal, value: 0.8 }
       pitch: { type: literal, value: 1.1 }
     - type: play_sound

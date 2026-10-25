@@ -1,14 +1,14 @@
 package com.astarworks.astera.match.application.service
 
-import java.util.concurrent.CompletableFuture
-
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.combat.CombatContext
-import com.astarworks.astera.core.domain.event.PlayerMoved
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
@@ -32,9 +32,9 @@ import kotlin.random.Random
  * Stars lying on the map. A generator pop becomes a [StarDrop] at the generator (a generator holds at most its
  * `stockpile_cap` separate drops; further pops add to the newest one). When a player is killed in a match,
  * `floor(carried * death_drop_ratio)` of their stars burst into a few drops scattered around the death position.
- * The first alive participant (nearest wins) within a drop's pickup radius takes it. There are no item entities: a
- * drop is a record plus a particle marker, collected by a distance check on [PlayerMoved] and on a short poll
- * (command teleports raise no move event).
+ * A drop is a record plus an item entity ([IStarDropWorld]); it is collected only by the host's real item pickup
+ * ([onTouched]: vanilla pickup range, pickup delay, animation). There is no proximity crediting. The item never
+ * enters an inventory; the carried count lives only in [IMatchStarStore].
  */
 public class StarDropService(
     private val matches: IMatchRepository,
@@ -45,13 +45,13 @@ public class StarDropService(
     private val eventBus: IDomainEventBus,
     private val world: IStarDropWorld?,
     private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
+    private val presentation: IPresentation,
     private val deathDropRatio: (MatchId) -> Double,
     private val random: Random = Random.Default,
     private val log: (String) -> Unit = {},
 ) {
     private val drops: MutableMap<Long, StarDrop> = ConcurrentHashMap()
     private val nextId = AtomicLong(1)
-    private val inFlight: MutableSet<Long> = ConcurrentHashMap.newKeySet()
 
     public fun onSpawned(event: ResourceSpawned) {
         val generator = generators.listForMatch(event.matchId).firstOrNull { it.id == event.generatorId } ?: return
@@ -66,7 +66,10 @@ public class StarDropService(
             StarDrop(nextId.getAndIncrement(), event.matchId, world, generator.position, amount, generator.pickupRadius, generator.id)
                 .let { withEntity(it, null) }.also { drops[it.id] = it }
         }
-        tryCollect(drop)
+        // FX-04: a new star lights up at the generator for everyone close enough to see it.
+        for (near in nearby(event.matchId, world, generator.position, POP_RADIUS)) {
+            presentation.play(PresentationMoments.STAR_POP, near, mapOf("amount" to amount.toString()), generator.position, world)
+        }
     }
 
     /** A kill inside a match: the victim's stars burst out as drops around the death position. */
@@ -77,10 +80,31 @@ public class StarDropService(
         val carried = store.get(match.id, event.victim)
         val burst = floor(carried * deathDropRatio(match.id)).toInt()
         log("star burst: victim=${event.victim} carried=$carried burst=$burst")
+        scatter(match.id, event.victim, burst, event.killer)
+    }
+
+    /**
+     * A participant leaves the running match (disconnect, lobby command, forfeit): every star they carry bursts at
+     * the position they stand on, whatever `death_drop_ratio` says (MODE-14). Call it before they are moved away.
+     */
+    public fun onLeft(matchId: MatchId, player: PlayerId) {
+        val carried = store.get(matchId, player)
+        log("star burst on leave: player=$player carried=$carried")
+        scatter(matchId, player, carried)
+    }
+
+    /** Takes [burst] stars off [victim]'s counter and scatters them as drops around where they stand. */
+    private fun scatter(matchId: MatchId, victim: PlayerId, burst: Int, killer: PlayerId? = null) {
         if (burst <= 0) return
-        val at = positions.positionOf(event.victim, includeDead = true)
-        if (at == null) { log("star burst: no position for ${event.victim}"); return }
-        if (store.spend(match.id, event.victim, burst) is com.astarworks.astera.core.domain.Result.Failure) return
+        val at = positions.positionOf(victim, includeDead = true)
+        if (at == null) { log("star burst: no position for $victim"); return }
+        if (store.spend(matchId, victim, burst) is com.astarworks.astera.core.domain.Result.Failure) return
+        // FX-04: radial pop at the death spot; the victim feels the loss, the killer sees the haul, bystanders hear it.
+        val credited = killer?.takeIf { it != victim }
+        val bystanders = nearby(matchId, at.world, at.position, BURST_HEAR_RADIUS).filter { it != victim && it != credited }
+        val args = mapOf("amount" to burst.toString())
+        presentation.play(PresentationMoments.STAR_BURST, victim, args, at.position, at.world, bystanders)
+        credited?.let { presentation.play(PresentationMoments.STAR_BURST_KILLER, it, args, at.position, at.world) }
         val stacks = minOf(burst, MAX_BURST_DROPS)
         val base = burst / stacks
         var extra = burst % stacks
@@ -91,19 +115,13 @@ public class StarDropService(
             val now = System.currentTimeMillis()
             val pos = Vec3(at.position.x, at.position.y + 0.5, at.position.z)
             val fling = Vec3(cos(angle) * dist * BURST_SPEED, BURST_LIFT, sin(angle) * dist * BURST_SPEED)
-            val drop = StarDrop(nextId.getAndIncrement(), match.id, at.world, pos, amount, BURST_PICKUP_RADIUS, null, event.victim, now + VICTIM_DENY_MILLIS, null, now + BURST_READY_MILLIS)
+            val drop = StarDrop(nextId.getAndIncrement(), matchId, at.world, pos, amount, BURST_PICKUP_RADIUS, null, victim, now + VICTIM_DENY_MILLIS, null, now + BURST_READY_MILLIS)
                 .let { withEntity(it, fling) }
             drops[drop.id] = drop
         }
     }
 
-    public fun onMoved(event: PlayerMoved) {
-        if (drops.isEmpty()) return
-        val match = matches.findMatchOf(event.playerId) ?: return
-        collectAt(match.id)
-    }
-
-    /** Keep every drop's record on its thing (it may roll), respawn lost things, then re-check pickups. */
+    /** Keep every drop's record on its thing (it may roll) and respawn lost things. */
     public fun poll() {
         if (drops.isEmpty()) return
         val w = world
@@ -126,7 +144,6 @@ public class StarDropService(
                 }
             }
         }
-        drops.values.map { it.matchId }.distinct().forEach(::collectAt)
     }
 
     /** A player touched the thing [handle] (its vanilla pickup is already cancelled). */
@@ -137,6 +154,7 @@ public class StarDropService(
         val loc = positions.positionOf(player) ?: return // dead / spectating
         if (loc.world != drop.world) return
         if (isDenied(drop, player) || System.currentTimeMillis() < drop.readyAtMillis) return
+        // The pickup event arrives on the player's thread; the star ledger is owned by Global.
         scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { take(drop, player) }
     }
 
@@ -151,60 +169,44 @@ public class StarDropService(
     /** Stars lying on the map for [matchId] (diagnostics / tests). */
     public fun lying(matchId: MatchId): Int = drops.values.filter { it.matchId == matchId }.sumOf { it.amount }
 
-    /** Drops of [matchId] in stable id order, so concurrent pickups resolve the same way every time. */
-    private fun collectAt(matchId: MatchId) {
-        drops.values.filter { it.matchId == matchId }.sortedBy { it.id }.forEach(::tryCollect)
+    /** Live match players within [radius] blocks of [at] in [world] (presentation audience only). */
+    private fun nearby(matchId: MatchId, world: WorldId, at: Vec3, radius: Double): List<PlayerId> {
+        val members = matches.findById(matchId)?.teams?.flatMap { it.members }.orEmpty()
+        return members.filter { m ->
+            val loc = positions.positionOf(m) ?: return@filter false
+            loc.world == world && distanceSq(loc.position, at) <= radius * radius
+        }
+    }
+
+    private fun distanceSq(a: Vec3, b: Vec3): Double {
+        val dx = a.x - b.x; val dy = a.y - b.y; val dz = a.z - b.z
+        return dx * dx + dy * dy + dz * dz
     }
 
     private fun withEntity(drop: StarDrop, velocity: Vec3?): StarDrop {
-        val handle = world?.spawn(drop.world, drop.position, drop.amount, velocity) ?: return drop
+        val delayTicks = ((drop.readyAtMillis - System.currentTimeMillis()) / MILLIS_PER_TICK).toInt().coerceAtLeast(0)
+        val handle = world?.spawn(drop.world, drop.position, drop.amount, velocity, delayTicks) ?: return drop
         return drop.copy(entity = handle)
     }
 
     private fun isDenied(drop: StarDrop, player: PlayerId): Boolean =
         player == drop.deniedTo && System.currentTimeMillis() < drop.deniedUntilMillis
 
-    /**
-     * Positions are read on each candidate's own owner (Entity); the decision and [take] run on Global, which is
-     * the single owner of the star ledger. At most one lookup is in flight per drop, and [take] removes the drop
-     * atomically, so a star is picked up exactly once however many moves or polls ask for it.
-     */
-    private fun tryCollect(drop: StarDrop) {
-        if (!drops.containsKey(drop.id)) return
-        if (System.currentTimeMillis() < drop.readyAtMillis) return
-        val match = matches.findById(drop.matchId) ?: return
-        if (!inFlight.add(drop.id)) return
-        val radiusSq = drop.pickupRadius * drop.pickupRadius
-        val candidates = match.teams.flatMap { it.members }.sortedBy { it.uuid }.filterNot { isDenied(drop, it) }.map { player ->
-            val result = CompletableFuture<Pair<PlayerId, Double>?>()
-            scheduler.run(ExecutionScope.Entity(player.uuid), kotlin.time.Duration.ZERO) {
-                val loc = positions.positionOf(player)
-                val distance = loc?.takeIf { it.world == drop.world }?.let { (it.position - drop.position).lengthSquared() }
-                result.complete(if (distance != null && distance <= radiusSq) player to distance else null)
-            }.onRetired { result.complete(null) }
-            result
-        }
-        CompletableFuture.allOf(*candidates.toTypedArray()).whenComplete { _, _ ->
-            val taker = candidates.mapNotNull { it.getNow(null) }.minWithOrNull(
-                compareBy<Pair<PlayerId, Double>> { it.second }.thenBy { it.first.uuid },
-            )?.first
-            val handle = scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) {
-                inFlight.remove(drop.id)
-                if (taker != null) take(drop, taker)
-            }
-            handle.onRetired { inFlight.remove(drop.id) }
-        }
-    }
-
     private fun take(drop: StarDrop, taker: PlayerId) {
         val taken = drops.remove(drop.id) ?: return
-        taken.entity?.let { world?.remove(it) }
-        scheduler.run(regionScope(taken.world, taken.position), kotlin.time.Duration.ZERO) { world?.playPickup(taken.world, taken.position) }
+        taken.entity?.let { world?.take(it, taker) }
         val total = store.add(drop.matchId, taker, taken.amount)
+        presentation.play(
+            PresentationMoments.STAR_PICKUP, taker,
+            mapOf("amount" to taken.amount.toString(), "total" to total.toString()), taken.position, taken.world,
+        )
         eventBus.publish(StarsCollected(drop.matchId, taker, taken.amount, total))
     }
 
     private companion object {
+        const val MILLIS_PER_TICK = 50L
+        const val POP_RADIUS = 40.0
+        const val BURST_HEAR_RADIUS = 32.0
         const val MAX_BURST_DROPS = 6
         const val BURST_SCATTER = 2.5
         const val BURST_PICKUP_RADIUS = 1.5

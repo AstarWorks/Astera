@@ -93,6 +93,7 @@ include(
     ":tools:skill-viewer",
     // Renders the procedural sky-island lobby plan to a PNG preview (ADR-0179). Not shipped.
     ":tools:lobby-gen",
+    ":tools:arena-preview", // Authored arena PNGs and routing measurements, no Minecraft server.
     // Black-box E2E: MCProtocolLib bots join a real Paper backend (docker, `make e2e`) and assert
     // on the packets a client receives (ADR-0222). Needs docker; NOT part of `check`. Not shipped.
     ":tools:e2e",

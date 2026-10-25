@@ -1,0 +1,5 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.title.wanderer. Sold in the cosmetics menu.
+id: wanderer
+kind: title
+name_key: astera.cosmetic.title.wanderer
+price_gold: 150

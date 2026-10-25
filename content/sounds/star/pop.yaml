@@ -1,0 +1,10 @@
+# Sound cue (ADR-0267), FX-04: a star appears at a generator. Volume > 1 carries it to players nearby.
+id: "astera:star/pop"
+resource_key: "minecraft:block.amethyst_block.chime"
+default_volume: 1.4
+default_pitch: 1.5
+category: star
+layers:
+  - resource_key: "minecraft:block.note_block.bell"
+    volume: 0.7
+    pitch: 1.9

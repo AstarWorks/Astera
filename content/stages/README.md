@@ -1,10 +1,11 @@
 # content/stages/
 
 Stage (map) definitions. Schema: `plugin/match/.../application/config/StageYamlConfig.kt`
-(strict decode: unknown keys fail the file). Design: ADR-0246.
+(strict decode: unknown keys fail the file). Design: ADR-0246 and ADR-0273.
 
-Every playable stage is a **floating sky-island arena the server builds itself** in the void `arenas` world
-(created by Astera on game-role backends). Nothing is hand-built and no schematic is needed.
+Production stages are **floating siege-scale arenas** built by the server in the void `arenas` world.
+Procedural foundations carry [authored YAML structure parts](../structures/README.md). Debug stages use a separate
+`debug-arenas` world, are absent from real queues, and retain the previous small layouts.
 
 ```yaml
 id: example-arena
@@ -12,6 +13,7 @@ display_name_key: astera.stage.example-arena.name
 world: arenas                # the void arena world (default: the main world "world")
 layout:                      # sky-island block layout; see below
   marker_version: 1
+  theme: desert             # temperate | frost | desert | volcanic
   seed: 20261023
   surface_y: 64              # top layer of every island; players stand at surface_y + 1
   kill_y: 30                 # void-fall kill plane (default surface_y - 34)
@@ -39,23 +41,25 @@ spawn_points:
 
 - `kind: base` (team island: grass, team-coloured rim, spawn pad and two banner posts), `center` (stone-brick
   plaza) or `outpost` (small grass satellite). A base island's `team` picks its colour (`accent` overrides it).
-- `radius` is nominal; the rim wobbles by up to ~19 percent. Keep every spawn / anchor within about 0.78 x radius of
-  its island centre so it is always on the island. Rough guide (founder playtest, ADR-0246 follow-up): team islands
-  55-75 blocks from the centre, radius 20-22; centre island radius 22-30; flank / outpost islands radius 8-14,
-  with a second route between the teams (bridges base - flank - base). Keep the spawn-to-centre walk under ~20 s.
+- `radius` is nominal (3..64); the rim wobbles by up to ~19 percent. Keep anchors within about 0.78 × radius.
+  Production bases are 280 blocks apart (Norma), 320 (Siege), and about 287 (three-team Annihilation).
+  Siege castles have four 25-block towers, walls, an open gate, keep, and climbable galleries. Front spawns sit
+  about 120–124 blocks from the contested centre (roughly 22 seconds at sprint speed). Wide roads and seven-block
+  bridges keep movement straightforward. PvE expands more conservatively to keep wave travel reasonable.
+- `theme` supplies a material palette for terrain, trees, roads, bridges, structure walls and lights. Optional
+  `structures` placements select a part, x/z, surface-relative y, rotation and palette overrides; see the part README.
 - Terrain the builder adds by itself, deterministic in `seed`: stepped hills, ruined walls (centre) / boulders and trees
-  (other islands) as cover, a wall arc behind every `core-*`. It stays clear of spawn pads, anchors, pillar footings
+  (other islands) as cover, a wall arc behind `core-*` only in stages without authored structures. It stays clear of spawn pads, anchors, pillar footings
   and the straight lane from each island centre to its bridges.
 - Bridges are drawn centre to centre; an island block always wins over a bridge block.
-- Stages share the `arenas` world, so each lives in its own area (`example-arena` at the origin, `siege-isles` at
-  z=300, `annihilation-arena` at z=-300, `pve-proving-grounds` at x=300); each spans under ~200 blocks, so the areas
-  stay disjoint (`ShippedArenaStagesBuildTest`).
-- The build is versioned: a marker per stage (in Astera-Core's data folder, `arena-worlds.marker`) stores
-  `marker_version` + a digest of the generated blocks. A changed layout, spawn, anchor or landmark rebuilds that
-  stage on the next boot (or the next match start); an unchanged one places nothing. Bump `marker_version` to force it.
-  A rebuild first clears the previous build's recorded bounds, so smaller old islands never stay floating. A build of
-  more than 50k blocks is placed in per-tick slices (about 20 ms per tick) and logs its duration; a match that starts
-  meanwhile finishes it on the spot.
+- Production stage areas are disjoint: Norma at the origin, Siege at z=700, Annihilation at z=-750,
+  PvE at x=800. Debug stages share `debug-arenas` at their original coordinates.
+- `arena-worlds.marker` stores each stage's marker version, plan digest and previous bounds. Changed content rebuilds
+  on restart; bump `marker_version` when editing a cached stage. The old bounds are cleared before placement.
+  Planning/digesting runs off thread. Chunk loading is asynchronous; clearing, placing and releasing chunk tickets
+  run in slices sharing a 4 ms tick budget, at most 1024 operations per job slice. Logs report actual maximum slice
+  duration, elapsed time and ticks. No match-start path drains a build synchronously: admission returns
+  `arena-not-ready` while a stage is pending, so players can queue again once construction completes.
 - After each match the builder re-places destroyed island blocks (objective marker cells excluded).
 - Players who fall below `kill_y` die.
 
@@ -92,3 +96,26 @@ Region `name`s are how a mode finds its objective zones (zones are plain AABBs; 
 `<team>` is the team id (`red` / `blue`). A stage that lacks the regions a mode
 needs lets the match run without an objective (warning in the log).
 `battle-loyal` needs no regions.
+
+## Preview and E2E fixtures
+
+`make arena-preview` renders top-down and isometric PNGs for every stage under `build/arena-previews/`, with
+`report.md` recording generation times, counts, content validation, and actual bot A* node counts. The coarse
+island/bridge graph chooses long-distance corridors; local A* remains capped at 5000 nodes and uses observed chunks.
+
+`debug-{example-arena,siege-isles,annihilation-arena,pve-proving-grounds}.yaml` are independent small stages. The
+`E2E_FAST=1` backend and E2E runner image preparation script substitutes these under the production IDs in the `arenas` world and restores
+compact generator coordinates. This preserves protocol suites' queue assignments, objective coordinates and RCON
+assertions. Normal images and real queues use the expanded maps. Do not move the fixtures when adjusting production
+maps. The manager runs E2E; this track runs compile-only validation and the offline preview.
+
+## Look and mood (MAP-04 / MAP-05 / MAP-08)
+
+- Outlines are noise-driven: lobes, one or two bays (never towards a bridge) and a peninsula; spawns, anchors and
+  authored parts are covered by a guaranteed disc so nothing moves. Flanks are terraced cliffs with overhangs, and
+  lower shelves hang around the shore.
+- Large islands (radius >= 30) get a themed spire (stone tower / ice spire / stepped obelisk / horned basalt) ending in a
+  beacon whose glass colours the beam in the team colour (white on the centre); large outposts get a lit cairn; bases
+  get eight team banner standards; objective pedestals get four glowing pylons. Small (debug) islands get none.
+- `layout.atmosphere: { time_of_day: 0..23999, weather: clear|rain }` sets the sky. Shared arena worlds make it per
+  player: anyone within 48 blocks of the stage footprint sees it, leaving resets it. Omitted = world baseline (noon).

@@ -51,7 +51,8 @@ class LobbyWorldContentTest {
         val report = ContentLoader(ContentLoader.DEFAULT_PARSERS, LobbyNpcYamlConfig.serializer())
             .loadFrom(content.resolve("lobby-npcs")) { npcs += it }
         assertThat(report.failures).isEmpty()
-        assertThat(npcs).hasSize(8)
+        // UI-01: four role hubs (docs/game-design/access-map.md).
+        assertThat(npcs.map { it.id }).containsExactlyInAnyOrder("play-npc", "market-npc", "travel-npc", "social-npc")
         npcs.forEach { npc ->
             assertThat(npc.spawn.world).describedAs(npc.id).isEqualTo(config.id)
             val at = Vec3(npc.spawn.x, npc.spawn.y, npc.spawn.z)
@@ -83,6 +84,32 @@ class LobbyWorldContentTest {
         )
         assertThat(plan.isWalkable(plan.training.spawn)).isTrue()
         assertThat(plan.training.region.contains(plan.spawn)).isFalse()
+    }
+
+    @Test
+    fun `every NPC hub has a name board on its building within sight of the NPC (MAP-07)`() {
+        assertThat(config.markerVersion).describedAs("hub buildings need a repaste").isGreaterThanOrEqualTo(5)
+        val hubSigns = plan.signs.filter { sign -> sign.lines.firstOrNull()?.value?.startsWith("astera.lobby.sign.hub.") == true }
+        assertThat(hubSigns.map { it.lines.first()!!.value.removePrefix("astera.lobby.sign.hub.").removeSuffix(".title") })
+            .containsExactlyInAnyOrder("play", "travel", "social", "market")
+        val hubOfNpc = mapOf("play-npc" to "play", "travel-npc" to "travel", "social-npc" to "social", "market-npc" to "market")
+        hubOfNpc.forEach { (npc, hub) ->
+            val spot = plan.npcSpots.getValue(npc)
+            val sign = hubSigns.single { it.lines.first()!!.value == "astera.lobby.sign.hub.$hub.title" }
+            val dist = Math.hypot(sign.pos.x + 0.5 - spot.x, sign.pos.z + 0.5 - spot.z)
+            assertThat(dist).describedAs("$hub board is near $npc").isLessThanOrEqualTo(16.0)
+        }
+    }
+
+    @Test
+    fun `the practice ground has an obstacle course and a cover field with signs (MAP-07)`() {
+        val keys = plan.signs.mapNotNull { it.lines.firstOrNull()?.value }.toSet()
+        assertThat(keys).contains(
+            "astera.lobby.sign.training.course.title",
+            "astera.lobby.sign.training.cover.title",
+            "astera.lobby.sign.training.entry.title",
+        )
+        assertThat(plan.blocks.values.count { it == "minecraft:target" }).isGreaterThan(8)
     }
 
     private fun locateContentRoot(): Path {

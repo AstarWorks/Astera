@@ -81,6 +81,9 @@ class I18nKeyCoverageTest {
             "astera.knockback_resistance", // attribute modifier id
             "astera.weapon", // prefix named in a KDoc example
             "astera.broadcast.events", // Redis pub/sub channel id (LettuceRedisBroadcaster)
+            "astera.menu.open", // permission node of the /menu GUI shortcut (CoreWiringGameplay)
+            "astera.settings.open", // permission node of the /settings GUI shortcut
+            "astera.social.open", // permission node of the /social GUI shortcut
         )
     }
 }

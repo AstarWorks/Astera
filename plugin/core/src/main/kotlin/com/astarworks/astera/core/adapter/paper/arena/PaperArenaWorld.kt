@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.arena
 
 import com.astarworks.astera.core.application.port.outbound.*
+import com.astarworks.astera.core.application.service.arena.ArenaStructureContent
 import com.astarworks.astera.core.application.service.instance.SlotAllocator
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -9,6 +10,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration
 
@@ -18,6 +20,7 @@ internal class PaperArenaWorld(
     private val stages: () -> IStageRegistry?,
     private val scheduler: IScheduler,
     private val slots: SlotAllocator,
+    private val contentDir: Path,
 ) : IArenaBuilder {
     private val log = LoggerFactory.getLogger(javaClass)
     private fun setting(name: String, default: Int): Int = System.getenv(name)?.toIntOrNull() ?: default
@@ -30,6 +33,14 @@ internal class PaperArenaWorld(
     fun killY(worldName: String, x: Double, z: Double): Int? = builds.values.firstOrNull {
         it.stage.world.value == worldName && kotlin.math.abs(x - it.slot.x) < 1024 && kotlin.math.abs(z - it.slot.z) < 1024
     }?.stage?.layout?.killY
+
+    /** Authored structure parts, read once (off the region threads: first use is inside an Io task). */
+    private val parts: Map<String, ArenaStructurePart> by lazy { ArenaStructureContent.load(contentDir) }
+
+    /** The sky of the stage whose slot contains this point (MAP-08), or `null` outside every built slot. */
+    fun atmosphereAt(worldName: String, x: Double, z: Double): ArenaAtmosphere? = builds.values.firstOrNull {
+        it.stage.world.value == worldName && kotlin.math.abs(x - it.slot.x) < 1024 && kotlin.math.abs(z - it.slot.z) < 1024
+    }?.stage?.layout?.atmosphere
 
     fun installAll(): Pair<Int, Int> {
         val templates = stages()?.all()?.filter { it.layout != null }.orEmpty()
@@ -58,24 +69,39 @@ internal class PaperArenaWorld(
         repeat(((template.warmSlots ?: warm) - waiting).coerceAtLeast(0)) {
             val slot = slots.allocate(template.id) ?: return
             val stage = placed(template, slot)
-            val plan = ArenaIslandGenerator.generate(stage)
-            if (plan.minX < slot.x - 512 || plan.maxX > slot.x + 512 || plan.minZ < slot.z - 512 || plan.maxZ > slot.z + 512) {
-                log.error("Stage '{}' exceeds its slot footprint", template.id)
-                slots.free(slot.index)
-                return
-            }
-            paster.paste(world, plan).thenAccept { result ->
+            // Planning is pure CPU (no world access): off the tick threads, then back on Global to commit.
+            scheduler.run(ExecutionScope.Io, Duration.ZERO) {
+                val started = System.nanoTime()
+                val plan = runCatching { ArenaIslandGenerator.generate(stage, parts) }
+                    .onFailure { log.error("Arena '{}' planning failed", template.id, it) }
+                    .getOrNull()
                 scheduler.run(ExecutionScope.Global, Duration.ZERO) {
-                    when (result) {
-                        is Result.Success -> {
-                            builds[stage.id] = Build(slot, stage, plan, result.value)
-                            slots.state(slot.index, SlotAllocator.State.Ready)
-                            log.info("Arena '{}' ready in slot {}: {} blocks", template.id, slot.index, plan.blocks.size)
-                        }
-                        is Result.Failure -> {
-                            // A partial paste remains quarantined; never reuse dirty terrain.
-                            log.error("Arena '{}' paste failed in slot {}: {}", template.id, slot.index, result.error)
-                            slots.state(slot.index, SlotAllocator.State.Resetting)
+                    if (plan == null || plan.problems.isNotEmpty()) {
+                        plan?.let { log.error("Arena '{}' has layout problems: {}", template.id, it.problems) }
+                        slots.free(slot.index)
+                        return@run
+                    }
+                    if (plan.minX < slot.x - 512 || plan.maxX > slot.x + 512 || plan.minZ < slot.z - 512 || plan.maxZ > slot.z + 512) {
+                        log.error("Stage '{}' exceeds its slot footprint", template.id)
+                        slots.free(slot.index)
+                        return@run
+                    }
+                    log.info("Arena '{}' plan: {} blocks in {} ms (off thread)", template.id, plan.blocks.size,
+                        (System.nanoTime() - started) / 1_000_000)
+                    paster.paste(world, plan).thenAccept { result ->
+                        scheduler.run(ExecutionScope.Global, Duration.ZERO) {
+                            when (result) {
+                                is Result.Success -> {
+                                    builds[stage.id] = Build(slot, stage, plan, result.value)
+                                    slots.state(slot.index, SlotAllocator.State.Ready)
+                                    log.info("Arena '{}' ready in slot {}: {} blocks", template.id, slot.index, plan.blocks.size)
+                                }
+                                is Result.Failure -> {
+                                    // A partial paste remains quarantined; never reuse dirty terrain.
+                                    log.error("Arena '{}' paste failed in slot {}: {}", template.id, slot.index, result.error)
+                                    slots.state(slot.index, SlotAllocator.State.Resetting)
+                                }
+                            }
                         }
                     }
                 }
@@ -131,6 +157,7 @@ internal class PaperArenaWorld(
             layout = template.layout?.let { layout -> layout.copy(
                 islands = layout.islands.map { it.copy(x = it.x + slot.x, z = it.z + slot.z) },
                 landmarks = layout.landmarks.map { it.copy(x = it.x + slot.x, z = it.z + slot.z) },
+                structures = layout.structures.map { it.copy(x = it.x + slot.x, z = it.z + slot.z) },
             ) },
         )
     }

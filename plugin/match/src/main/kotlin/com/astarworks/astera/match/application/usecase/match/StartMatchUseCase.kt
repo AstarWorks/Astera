@@ -146,7 +146,7 @@ public sealed class StartMatchError {
     }
 
     public data class ArenaUnavailable(val stageId: StageId, val reason: com.astarworks.astera.core.application.port.outbound.ArenaAllocationError) : StartMatchError() {
-        override val messageKey: MessageKey = MessageKey("astera.match.error.already-active")
+        override val messageKey: MessageKey = MessageKey("astera.match.error.arena-not-ready")
     }
 
     public data class TransitionFailed(val cause: MatchTransitionError) : StartMatchError() {

@@ -52,7 +52,7 @@ class LobbyMenuKitTest {
     fun `button to intent mapping resolves through the entry id carried by the item`() {
         assertThat(kit.find("grid-shop")?.intent?.key).isEqualTo("lobby.shop.open")
         assertThat(kit.find("grid-profile")?.intent?.key).isEqualTo("lobby.profile.show")
-        assertThat(kit.find("grid-settings")?.intent?.key).isEqualTo("lobby.settings.show")
+        assertThat(kit.find("grid-settings")?.intent?.key).isEqualTo("gui.open")
         assertThat(kit.find("grid-menu")?.intent?.payload).containsEntry("gui", "main-menu")
         assertThat(kit.find("nope")).isNull()
     }
@@ -82,9 +82,9 @@ class LobbyMenuKitTest {
     }
 
     @Test
-    fun `shipped keybinds - F menu, sneak+F customize, Q on compass queue`() {
+    fun `shipped keybinds - F menu, sneak+F vault, Q on compass queue`() {
         assertThat(kit.at(KitArea.KEY_SWAP, 0)?.intent?.payload).containsEntry("gui", "main-menu")
-        assertThat(kit.at(KitArea.KEY_SNEAK_SWAP, 0)?.intent?.key).isEqualTo("lobby.customize.open")
+        assertThat(kit.at(KitArea.KEY_SNEAK_SWAP, 0)?.intent?.key).isEqualTo("lobby.vault.open")
         assertThat(kit.at(KitArea.KEY_DROP, 0)?.intent?.key).isEqualTo("lobby.queue.show")
         assertThat(kit.entries(KitArea.HOTBAR).map { it.slot }.distinct().size + kit.entries.count { it.area.isKeybind }).isEqualTo(4)
     }

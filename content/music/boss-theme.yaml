@@ -1,12 +1,14 @@
+# BGM track (ADR-0267): a vanilla sound event, no resource pack needed. Replace the source with
+# an astera: OGG event (CC0 or ffmpeg-synthesised) when real music exists.
 id: boss-theme
 display_name: "Boss Theme"
 source:
-  kind: resource_pack
-  path: "astera:music/boss-theme"
+  kind: vanilla
+  key: "minecraft:music_disc.otherside"
 license:
   kind: royalty_free
-  attribution: "Astera Phase 1 placeholder (CC0)"
-mood: high_intensity
+  attribution: "Vanilla Minecraft sound event (client-provided, not redistributed by Astera)"
+mood: boss_reveal
 default_volume: 0.85
 loop: true
-duration_ticks: 3600
+duration_ticks: 3900

@@ -23,6 +23,8 @@ public class PaperWorldBaseline(
     private val rules: IWorldRulesGateway,
     private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
     private val matchConfig: (java.util.UUID) -> com.astarworks.astera.core.domain.match.MatchConfig? = { null },
+    /** The per-stage sky (MAP-08) at a point of the shared world: stages live in slots, so it is applied per player. */
+    private val stageAtmosphere: (worldName: String, x: Double, z: Double) -> com.astarworks.astera.core.domain.stage.ArenaAtmosphere? = { _, _, _ -> null },
 ) : Listener {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -46,24 +48,30 @@ public class PaperWorldBaseline(
     }
 
     @EventHandler
-    public fun onJoin(event: org.bukkit.event.player.PlayerJoinEvent) = view(event.player)
+    public fun onJoin(event: org.bukkit.event.player.PlayerJoinEvent) = view(event.player, null)
 
     @EventHandler
-    public fun onWorldChange(event: org.bukkit.event.player.PlayerChangedWorldEvent) = view(event.player)
+    public fun onWorldChange(event: org.bukkit.event.player.PlayerChangedWorldEvent) = view(event.player, null)
 
     @EventHandler(ignoreCancelled = true)
-    public fun onTeleport(event: org.bukkit.event.player.PlayerTeleportEvent) = view(event.player)
+    public fun onTeleport(event: org.bukkit.event.player.PlayerTeleportEvent) = view(event.player, event.to)
 
-    private fun view(player: org.bukkit.entity.Player) {
+    /** [at] is where the player is going (a teleport event fires before the move); `null` = where they stand. */
+    private fun view(player: org.bukkit.entity.Player, at: org.bukkit.Location?) {
+        val target = at?.let { Triple(it.world?.name, it.x, it.z) }
         scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(player.uniqueId), kotlin.time.Duration.ZERO) {
             val overlay = matchConfig(player.uniqueId)
-            val time = overlay?.timeMode ?: config.timeOfDay
-            if (overlay?.timeMode != null || config.timeFrozen) player.setPlayerTime(time, false) else player.resetPlayerTime()
-            player.setPlayerWeather(when (overlay?.weatherMode) {
+            val here = target ?: player.location.let { Triple(it.world?.name, it.x, it.z) }
+            val sky = here.first?.let { stageAtmosphere(it, here.second, here.third) }
+            val time = overlay?.timeMode ?: sky?.timeOfDay ?: config.timeOfDay
+            if (overlay?.timeMode != null || sky != null || config.timeFrozen) player.setPlayerTime(time, false) else player.resetPlayerTime()
+            val rain = when (overlay?.weatherMode) {
                 is com.astarworks.astera.core.domain.world.WeatherState.Rain,
-                is com.astarworks.astera.core.domain.world.WeatherState.Thunder -> org.bukkit.WeatherType.DOWNFALL
-                else -> org.bukkit.WeatherType.CLEAR
-            })
+                is com.astarworks.astera.core.domain.world.WeatherState.Thunder -> true
+                null -> sky?.weather == com.astarworks.astera.core.domain.stage.ArenaWeather.RAIN
+                else -> false
+            }
+            player.setPlayerWeather(if (rain) org.bukkit.WeatherType.DOWNFALL else org.bukkit.WeatherType.CLEAR)
         }
     }
 

@@ -8,6 +8,13 @@ import com.astarworks.astera.core.domain.stage.StageId
 public interface IArenaBuilder {
     public fun acquire(stage: Stage): Result<Stage, ArenaAllocationError>
     public fun resolve(stageId: StageId): Stage?
+
+    /**
+     * Makes sure [stageId]'s arena stands in its world: builds it when it was never built or its layout
+     * changed since (versioned marker), otherwise a no-op. Stages without a layout are always "built".
+     * Returns `false` while planning/placement/repair is pending or when the build failed.
+     * Callers must wait/retry before admitting players; this never forces a synchronous large build.
+     */
     public fun ensureBuilt(stageId: StageId): Boolean
     public fun repairLater(stageId: StageId)
 }

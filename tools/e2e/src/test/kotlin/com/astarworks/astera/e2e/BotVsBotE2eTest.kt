@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
  * ADR-0247: two AI bots (real protocol clients driven by [BotBrain], the same code the `bot-runner` service uses) play
  * a whole Norma 1v1 against each other. Nothing is forced over RCON: the AI has to find the enemy, walk to it, swing /
  * shoot, kill it, survive the death cam and respawn until the match ends on its own (content timers are shortened by
- * docker/e2e-tune-content.sh: 3 kills or 150 s). Then: a winner is declared, summary and rewards arrive, both bots are
+ * docker/e2e-tune-content.sh: top Norma level (3 levels) or 150 s). Then: a winner is declared, summary and rewards arrive, both bots are
  * back in the lobby.
  *
  * The only RCON use is read-only (`astera match list`, `data get entity`) plus handing out the starter weapons when a
@@ -36,15 +36,16 @@ class BotVsBotE2eTest : PlaythroughBase() {
         val chatFrom = bots.associateWith { it.chat.size }
         // Like the production bot-runner, the brains know the lane's objective (here: the enemy spawn) from the same content
         // the server runs; without it they roam at random, which on the 140-block sky-island arena rarely ends in a meeting.
-        val objectives = com.astarworks.astera.bots.StageObjectives.load(java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content")), "norma")
-        bots.forEach { brains += BotBrain(it, objectives = objectives).start() }
+        val objectives = com.astarworks.astera.bots.StageObjectives.load(java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content")), "skirmish")
+        // chooseNormaGoal = false: this loop sends `norma choose kill` itself so stars cannot end the match before a fight.
+        bots.forEach { brains += BotBrain(it, objectives = objectives, chooseNormaGoal = false).start() }
 
         // --- queue -> handoff -> ACTIVE -------------------------------------------------------------------------
         val tQueue = System.nanoTime()
-        bots.forEach { it.command("astera queue join norma") }
+        bots.forEach { it.command("astera queue join skirmish") }
         val acks = bots.map { b -> b.chatSince(chatFrom.getValue(b)) }
         val active = awaitMatch("ACTIVE", 70_000, keepAlive = bots)
-        E2eReport.check(suite, "two bots queue norma and the match goes ACTIVE", "RCON astera match list") {
+        E2eReport.check(suite, "two bots queue skirmish and the match goes ACTIVE", "RCON astera match list") {
             acks.forEachIndexed { i, a -> assertThat(a).describedAs("no queue reply for bot ${i + 1}").isNotEmpty() }
             assertThat(active).describedAs("never ACTIVE; chat=${bots[0].chatTexts().takeLast(6)}").isNotNull()
             "queue -> ACTIVE in ${(System.nanoTime() - tQueue) / 1_000_000_000}s; line='${active?.raw}'"
@@ -110,7 +111,7 @@ class BotVsBotE2eTest : PlaythroughBase() {
         brains.forEach { it.mode = BotBrain.Mode.IDLE }
         val kills = bots.sumOf { it.deaths.size } - deathsBefore
         val brainSummary = brains.mapIndexed { i, b -> "${bots[i].name}: ${b.summary()}" }
-        E2eReport.notes += "Bot vs bot: first kill after ${firstKillMs}ms, total deaths $kills, ${brainSummary.joinToString(" | ")}; track=${track.distinct().joinToString(" ")}"
+        E2eReport.notes += "Bot vs bot: first kill after ${firstKillMs}ms, total deaths $kills, ${brainSummary.joinToString(" | ")}; track=${track.distinct().joinToString(" ")}; trace0=${brains.firstOrNull()?.traceText()}"
         E2eReport.check(suite, "the AI produces at least one kill (no RCON damage)", "PlayerCombatKill / death cam") {
             assertThat(kills).describedAs("no bot ever died in ${(System.currentTimeMillis() - tPlay) / 1000}s. $brainSummary; positions=${bots.map { posOf(it) }}; sidebar=${sidebar(bots[0])}").isGreaterThanOrEqualTo(1)
             "deaths=$kills first at ${firstKillMs}ms; ${brainSummary.joinToString(" | ")}"
@@ -134,7 +135,7 @@ class BotVsBotE2eTest : PlaythroughBase() {
         val chats = bots.associateWith { b -> b.chat.drop(chatFrom.getValue(b)).map { clean(it.text) } }
         E2eReport.check(suite, "a winner is declared: the summary names a team and the scores differ", "SystemChat") {
             val summary = chats.getValue(bots[0])
-            val reason = summary.firstOrNull { it.contains("reached the norma") || it.contains("was ahead") || it.contains("reached Norma level") }
+            val reason = summary.firstOrNull { it.contains("was ahead") || it.contains("reached Norma level") }
             val score = summary.firstOrNull { it.startsWith("Score") }.orEmpty()
             assertThat(reason).describedAs("no winner reason (draw?):\n${quote(summary, 40)}").isNotNull()
             if (reason!!.contains("Norma level")) {

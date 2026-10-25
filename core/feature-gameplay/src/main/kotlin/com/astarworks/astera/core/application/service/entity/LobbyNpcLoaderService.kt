@@ -55,8 +55,8 @@ public class LobbyNpcLoaderService(
             is Result.Success -> r.value
             is Result.Failure -> error("lobby NPC '${cfg.id}': spawn failed (${r.error})")
         }
-        cfg.interaction.rightClickIntent?.let { interactions.bindRightClick(handle, GuiIntent(it)) }
-        cfg.interaction.leftClickIntent?.let { interactions.bindLeftClick(handle, GuiIntent(it)) }
+        cfg.interaction.rightClickIntent?.let { interactions.bindRightClick(handle, GuiIntent(it, cfg.interaction.rightClickPayload)) }
+        cfg.interaction.leftClickIntent?.let { interactions.bindLeftClick(handle, GuiIntent(it, cfg.interaction.leftClickPayload)) }
         bodies?.materialize(handle, world, position, cfg.spawn.yaw, cfg.spawn.pitch, nameKey)
         spawned[cfg.id] = handle
     }

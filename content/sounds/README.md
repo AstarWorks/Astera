@@ -1,7 +1,7 @@
 # content/sounds/
 
-Output sink for SFX produced by the [`/generate-sounds`](../../.claude/skills/generate-sounds/SKILL.md)
-skill (see also [`tools/sound-gen/`](../../tools/sound-gen/)). Files here are
+Output sink for SFX (ffmpeg-synthesised or CC0, see below) and the YAML sound cues the game plays
+(see also [`tools/sound-gen/`](../../tools/sound-gen/)). Files here are
 committed as the deliverable; they ship with Astera.
 
 ## Naming convention
@@ -80,32 +80,29 @@ something's wrong — re-encode via `tools/sound-gen/scripts/to_ogg.sh`.
 
 ## sounds.json registration
 
-**Not in scope here.** This directory is the raw-asset sink. Each feature
-plugin that wants to reference a specific sound event registers it in
-`assets/<namespace>/sounds.json` (resource-pack convention) when the
-plugin lands a runtime hook for it.
+Automatic. `:tools:resource-pack` (`ResourcePackBuilder.addSounds`) packs every `*.ogg` as
+`assets/astera/sounds/<path>.ogg` and writes `assets/astera/sounds.json`: a cue yaml with a sibling OGG of the same
+basename becomes the event named by its `id` (`astera:match/win` -> event `match/win`); a bare OGG is its own event.
+A cue yaml without an OGG is skipped.
 
-For now: drop OGGs here, document the new file in your commit message,
-and let the downstream feature plugin wave wire up `sounds.json` when it
-adds the listener / play call.
+## Sound cues (ADR-0267)
+
+Game code plays a **cue id**, never a raw sound key. Each `*.yaml` here defines one cue:
+`id` (`astera:<area>/<name>`), a primary `resource_key`, `default_volume` / `default_pitch`, and optional
+`layers` (more sounds that start together). A cue whose `resource_key` is its own `astera:` id plays the Astera OGG next to it
+(synthesized by `tools/sound-gen/scripts/synth.sh`); cues still on a `minecraft:` key are vanilla placeholders.
+Swapping one for the other is a yaml edit, no code. Cue ids are listed in `SoundCues.kt` (core); `MilestoneSoundScenarioTest` proves each one plays.
 
 ## License & attribution
 
-OGG files committed here are generated via **Stable Audio 2.5 on fal.ai**
-under the fal.ai commercial license — redistributable as part of Astera
-without per-file attribution. When Astera ships a resource pack to end
-users, the pack credits should include:
-
-```
-Sound effects: Stable Audio 2.5 (Stability AI / fal.ai)
-```
-
-See [[adr/0026-sound-generation-policy]] for the tool-choice rationale and
-[[adr/0018-ai-asset-creation-policy]] for the broader carve-out policy.
+Sourcing is **ffmpeg synthesis or CC0 only** ([[adr/0267-free-sound-sourcing-and-one-cue-path]]); no paid or
+credit-metered generator. Keep the synthesis script (or the CC0 source URL and licence) in the same commit as the
+OGG. All shipped OGGs are synthesized (`tools/sound-gen/scripts/synth.sh`, ffmpeg formulas, no samples) and
+owned by the project; no third-party (CC0) recordings ship today. Vanilla sound events used as placeholders are the client's own and are not redistributed.
 
 ## See also
 
 - `tools/sound-gen/README.md` — script-level docs
 - `.claude/skills/generate-sounds/SKILL.md` — skill driver
-- [[adr/0026-sound-generation-policy]] — tool decision
+- [[adr/0267-free-sound-sourcing-and-one-cue-path]] — sourcing + cue path (supersedes ADR-0026)
 - [[adr/0018-ai-asset-creation-policy]] — policy

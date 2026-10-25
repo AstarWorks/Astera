@@ -31,6 +31,8 @@ public data class SoundDefinition(
     public val defaultPitch: Double = 1.0,
     public val category: String = "master",
     public val displayNameKey: MessageKey? = null,
+    /** Extra sounds layered on top of the primary one when the cue plays (all start together). */
+    public val layers: List<SoundLayer> = emptyList(),
 ) {
     init {
         require(resourceKey.isNotBlank()) { "resourceKey must not be blank" }
@@ -41,5 +43,18 @@ public data class SoundDefinition(
             "defaultPitch must be in [0.5, 2.0], got $defaultPitch"
         }
         require(category.isNotBlank()) { "category must not be blank" }
+    }
+}
+
+/** One extra sound of a cue: another vanilla / pack sound key with its own volume and pitch. */
+public data class SoundLayer(
+    public val resourceKey: String,
+    public val volume: Double = 1.0,
+    public val pitch: Double = 1.0,
+) {
+    init {
+        require(resourceKey.isNotBlank()) { "layer resourceKey must not be blank" }
+        require(volume in 0.0..4.0) { "layer volume must be in [0.0, 4.0], got $volume" }
+        require(pitch in 0.5..2.0) { "layer pitch must be in [0.5, 2.0], got $pitch" }
     }
 }

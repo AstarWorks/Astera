@@ -78,6 +78,9 @@ internal class CorePaperBindings(
     }
     private lateinit var scheduler: IScheduler
 
+    /** Set once the arena world is installed; the world baseline reads the per-stage sky from it. */
+    @Volatile private var arenaWorld: com.astarworks.astera.core.adapter.paper.arena.PaperArenaWorld? = null
+
     private var playerAnimationGateway: com.astarworks.astera.core.adapter.paper.animation.PaperPlayerAnimationGateway? = null
     private var skinRigAnimator: com.astarworks.astera.core.adapter.paper.animation.PaperSkinRigAnimator? = null
 
@@ -115,9 +118,12 @@ internal class CorePaperBindings(
     private var lobbyLaneHolograms: com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyLaneHolograms? = null
     private var playGateHologram: com.astarworks.astera.core.adapter.paper.lobby.PaperPlayGateHologram? = null
 
+    /** Retained so players' action-bar messages are composed with the HP status line. */
+    private var paperHudGateway: com.astarworks.astera.core.application.port.outbound.IHudGateway? = null
+
     fun buildPorts(): CorePlatformPorts {
         // ---- Vendor-neutral abstraction over Paper -----------------------
-        val mcServer: IMcServer = PaperServer(server) { messageRenderer?.invoke() }
+        val mcServer: IMcServer = PaperServer(server, { messageRenderer?.invoke() }, { paperHudGateway })
         this.mcServer = mcServer
         val ps = PaperScheduler(plugin)
         ps.start()
@@ -178,7 +184,7 @@ internal class CorePaperBindings(
                     scheduler = scheduler,
                     scoreboardManager = services.getOrThrow<com.astarworks.astera.core.adapter.api.hud.IScoreboardManager>(),
                     eventBus = services.getOrThrow<IDomainEventBus>(),
-                )
+                ).also { paperHudGateway = it }
             },
             worldGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.world.PaperWorldGateway(
@@ -270,6 +276,19 @@ internal class CorePaperBindings(
                 gateway
             },
             playerSoundGateway = com.astarworks.astera.core.adapter.paper.effect.PaperPlayerSoundGateway(server),
+            presentationVisuals = { services ->
+                com.astarworks.astera.core.adapter.paper.presentation.PaperPresentationVisuals(
+                    server,
+                    services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
+                )
+            },
+            musicGateway = { services ->
+                com.astarworks.astera.core.adapter.paper.music.PaperMusicGateway(
+                    server,
+                    services.getOrThrow<com.astarworks.astera.core.application.port.outbound.music.IMusicTrackRegistry>(),
+                    scheduler,
+                )
+            },
             adminPlayerGateway = com.astarworks.astera.core.adapter.paper.admin.PaperAdminPlayerGateway(server, plugin),
             playerHealthGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.physiology.PaperPlayerHealthGateway(
@@ -354,6 +373,11 @@ internal class CorePaperBindings(
                             services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
                                 ?.isHeld(playerId) ?: false
                         },
+                    ).start(plugin)
+                com.astarworks.astera.core.adapter.paper.inventory
+                    .MatchWeaponLimitListener(
+                        plugin = plugin,
+                        service = { services.get<com.astarworks.astera.core.application.service.inventory.WeaponLimitService>() },
                     ).start(plugin)
                 logger.info("Wave 6b-3: Paper inventory lifecycle + action-lock listeners wired.")
             },
@@ -524,6 +548,7 @@ internal class CorePaperBindings(
                         ctx.services.get<com.astarworks.astera.core.application.port.outbound.IMatchConfigService>()?.configOf(it.id)
                     }
                 },
+                stageAtmosphere = { world, x, z -> arenaWorld?.atmosphereAt(world, x, z) },
             ).start()
         }.onFailure { logger.log(java.util.logging.Level.SEVERE, "World baseline setup failed.", it) }
         // Never let the lobby world fail Core's onEnable (it would disable every Astera plugin).
@@ -538,8 +563,22 @@ internal class CorePaperBindings(
             com.astarworks.astera.core.adapter.paper.chat.PaperChatFormatListener(
                 matches = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>() },
                 messages = { ctx.services.get<IMessageRenderer>() },
+                cosmetics = { ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
             ),
             plugin,
+        )
+        // ECO-02: equipped title + name colour in the tab list, and the kill-effect particle player.
+        val cosmeticDisplay = com.astarworks.astera.core.adapter.paper.cosmetic.PaperCosmeticDisplay(
+            server = server,
+            cosmetics = { ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
+            messages = { ctx.services.get<IMessageRenderer>() },
+        )
+        server.pluginManager.registerEvents(cosmeticDisplay, plugin)
+        ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()
+            ?.addChangeListener { cosmeticDisplay.refresh(it) }
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticEffectPlayer>(
+            com.astarworks.astera.core.adapter.paper.cosmetic.PaperCosmeticEffectPlayer(server),
+            priority = 100,
         )
         // ADR-0233: chat-backed text prompt for the admin panel + sneak+F quick access (no hotbar item).
         val adminPrompt = com.astarworks.astera.core.adapter.paper.admin.PaperAdminTextPrompt(plugin)
@@ -733,7 +772,9 @@ internal class CorePaperBindings(
             stages = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IStageRegistry>() },
             scheduler = ctx.services.getOrThrow<IScheduler>(),
             slots = worldSlots,
+            contentDir = ctx.contentDir,
         )
+        arenaWorld = arena
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(
             arena,
             priority = 100,
@@ -741,7 +782,10 @@ internal class CorePaperBindings(
         server.pluginManager.registerEvents(
             com.astarworks.astera.core.adapter.paper.arena.PaperArenaVoidListener(
                 killY = arena::killY,
-                health = { ctx.services.get<IPlayerHealthGateway>() },
+                killer = com.astarworks.astera.core.application.service.arena.VoidFallKiller(
+                    health = { ctx.services.get<IPlayerHealthGateway>() },
+                    currentTick = { scheduler.currentTick() },
+                ),
             ),
             plugin,
         )
@@ -754,7 +798,7 @@ internal class CorePaperBindings(
             try {
                 val (count, total) = arena.installAll()
                 check(count == total) { "only $count of $total arena stage(s) could be built" }
-                logger.info("Arena worlds ready: $count stage(s) built.")
+                logger.info("Arena builds accepted: $count stage(s); readiness follows in arena tick-pump logs.")
             } catch (t: Throwable) {
                 if (attempts.incrementAndGet() < MAX_LOBBY_WORLD_ATTEMPTS) {
                     logger.warning("Arena world creation failed (${t.message}); retrying in 1s.")

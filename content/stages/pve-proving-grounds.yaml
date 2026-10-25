@@ -1,88 +1,138 @@
-# Proving Grounds (ADR-0249): the sky-island arena of the `pve-waves` lane (ADR-0246 layout; scaled up after the
-# founder's playtest).
-#
-#            NW (256,-44) r8 ---- north outpost (300,-58) r12 ---- NE (344,-44) r8
-#                                          |
-#   west outpost (242,0) r12 ------ centre island (300,0) r30 ------ east outpost (358,0) r12
-#                                          |
-#            SW (256,44) r8 ----- south outpost (300,58) r12 ----- SE (344,44) r8
-#
-# World `arenas` (void), top layer y=64, players stand
-# siege-isles z=300, annihilation z=-300). Players start on the big centre island (stepped hills and ruins to fight
-# from); each wave appears on the four outposts (`mob-spawn-*`, y = 65), 58 blocks out, and walks across the bridges.
-# The four diagonal islands link neighbouring outposts into a ring, so a wave also reaches the centre round the edge.
-# PveWaveGameMode reads only the `mob-spawn-*` regions. Schema mirrors StageYamlConfig.kt.
-
+# Authored siege-scale layout. See README.md and ADR-0273.
 id: pve-proving-grounds
-
 display_name_key: astera.stage.pve-proving-grounds.name
-
-
 layout:
-  marker_version: 2
+  marker_version: 4
   seed: 20261025
   surface_y: 64
-  kill_y: 30
+  kill_y: 16
   islands:
-    - { id: center, kind: center, center: { x: 0, z: 0 }, radius: 30.0 }
-    - { id: north, kind: outpost, center: { x: 0, z: -58 }, radius: 12.0 }
-    - { id: south, kind: outpost, center: { x: 0, z: 58 }, radius: 12.0 }
-    - { id: west, kind: outpost, center: { x: -58, z: 0 }, radius: 12.0 }
-    - { id: east, kind: outpost, center: { x: 58, z: 0 }, radius: 12.0 }
-    - { id: north-east, kind: outpost, center: { x: 44, z: -44 }, radius: 8.0 }
-    - { id: south-east, kind: outpost, center: { x: 44, z: 44 }, radius: 8.0 }
-    - { id: south-west, kind: outpost, center: { x: -44, z: 44 }, radius: 8.0 }
-    - { id: north-west, kind: outpost, center: { x: -44, z: -44 }, radius: 8.0 }
+  - id: center
+    kind: center
+    center: {x: 0, z: 0}
+    radius: 48
+  - id: north
+    kind: outpost
+    center: {x: 0, z: -96}
+    radius: 20.4
+  - id: south
+    kind: outpost
+    center: {x: 0, z: 96}
+    radius: 20.4
+  - id: west
+    kind: outpost
+    center: {x: -96, z: 0}
+    radius: 20.4
+  - id: east
+    kind: outpost
+    center: {x: 96, z: 0}
+    radius: 20.4
+  - id: north-east
+    kind: outpost
+    center: {x: 73, z: -73}
+    radius: 13.6
+  - id: south-east
+    kind: outpost
+    center: {x: 73, z: 73}
+    radius: 13.6
+  - id: south-west
+    kind: outpost
+    center: {x: -73, z: 73}
+    radius: 13.6
+  - id: north-west
+    kind: outpost
+    center: {x: -73, z: -73}
+    radius: 13.6
   bridges:
-    - { from: center, to: north, width: 3 }
-    - { from: center, to: south, width: 3 }
-    - { from: center, to: west, width: 3 }
-    - { from: center, to: east, width: 3 }
-    - { from: north, to: north-east, width: 3 }
-    - { from: north-east, to: east, width: 3 }
-    - { from: east, to: south-east, width: 3 }
-    - { from: south-east, to: south, width: 3 }
-    - { from: south, to: south-west, width: 3 }
-    - { from: south-west, to: west, width: 3 }
-    - { from: west, to: north-west, width: 3 }
-    - { from: north-west, to: north, width: 3 }
-
+  - from: center
+    to: north
+    width: 7
+  - from: center
+    to: south
+    width: 7
+  - from: center
+    to: west
+    width: 7
+  - from: center
+    to: east
+    width: 7
+  - from: north
+    to: north-east
+    width: 7
+  - from: north-east
+    to: east
+    width: 7
+  - from: east
+    to: south-east
+    width: 7
+  - from: south-east
+    to: south
+    width: 7
+  - from: south
+    to: south-west
+    width: 7
+  - from: south-west
+    to: west
+    width: 7
+  - from: west
+    to: north-west
+    width: 7
+  - from: north-west
+    to: north
+    width: 7
+  structures:
+  - part: ruin
+    x: -22
+    z: -20
+    rotation: 0
+  - part: ruin
+    x: 22
+    z: 20
+    rotation: 180
+  - part: ruin
+    x: -20
+    z: 22
+    rotation: 90
+  - part: ruin
+    x: 20
+    z: -22
+    rotation: 270
+  theme: volcanic
+  atmosphere: {time_of_day: 13500, weather: rain}
 regions:
-  - name: full-arena
-    min: { x: -85.0, y: 20.0, z: -85.0 }
-    max: { x: 85.0, y: 140.0, z: 85.0 }
-
-  - name: mob-spawn-north
-    min: { x: -1.0, y: 65.0, z: -59.0 }
-    max: { x: 1.0, y: 65.0, z: -57.0 }
-  - name: mob-spawn-east
-    min: { x: 57.0, y: 65.0, z: -1.0 }
-    max: { x: 59.0, y: 65.0, z:  1.0 }
-  - name: mob-spawn-south
-    min: { x: -1.0, y: 65.0, z: 57.0 }
-    max: { x: 1.0, y: 65.0, z: 59.0 }
-  - name: mob-spawn-west
-    min: { x: -59.0, y: 65.0, z: -1.0 }
-    max: { x: -57.0, y: 65.0, z:  1.0 }
-
+- name: full-arena
+  min: {x: -140.25, y: 20.0, z: -140.25}
+  max: {x: 140.25, y: 140.0, z: 140.25}
+- name: mob-spawn-north
+  min: {x: -1.0, y: 65.0, z: -96.7}
+  max: {x: 1.0, y: 65.0, z: -94.7}
+- name: mob-spawn-east
+  min: {x: 94.7, y: 65.0, z: -1.0}
+  max: {x: 96.7, y: 65.0, z: 1.0}
+- name: mob-spawn-south
+  min: {x: -1.0, y: 65.0, z: 94.7}
+  max: {x: 1.0, y: 65.0, z: 96.7}
+- name: mob-spawn-west
+  min: {x: -96.7, y: 65.0, z: -1.0}
+  max: {x: -94.7, y: 65.0, z: 1.0}
 spawn_points:
-  - team: red
-    position: { x: 0.5, y: 65.0, z: -2.5 }
-    yaw: 0.0
-  - team: red
-    position: { x: -1.5, y: 65.0, z: 0.5 }
-    yaw: 0.0
-  - team: red
-    position: { x: 2.5, y: 65.0, z: 0.5 }
-    yaw: 0.0
-  - team: red
-    position: { x: 0.5, y: 65.0, z: 2.5 }
-    yaw: 0.0
-  - team: blue
-    position: { x: 0.5, y: 65.0, z: 0.5 }
-    yaw: 0.0
-  - role: lobby
-    position: { x: 0.5, y: 65.0, z: 0.5 }
-  - role: spectator
-    position: { x: 0.5, y: 100.0, z: 0.5 }
-    pitch: 60.0
+- team: red
+  position: {x: 0.5, y: 65.0, z: -2.5}
+  yaw: 0.0
+- team: red
+  position: {x: -1.5, y: 65.0, z: 0.5}
+  yaw: 0.0
+- team: red
+  position: {x: 2.5, y: 65.0, z: 0.5}
+  yaw: 0.0
+- team: red
+  position: {x: 0.5, y: 65.0, z: 2.5}
+  yaw: 0.0
+- team: blue
+  position: {x: 0.5, y: 65.0, z: 0.5}
+  yaw: 0.0
+- role: lobby
+  position: {x: 0.5, y: 65.0, z: 0.5}
+- role: spectator
+  position: {x: 0.5, y: 100.0, z: 0.5}
+  pitch: 60.0

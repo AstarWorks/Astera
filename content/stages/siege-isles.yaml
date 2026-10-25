@@ -1,119 +1,396 @@
-# Siege (objective) arena on sky islands (ADR-0246, replaces siege-flat; scaled up after the founder's playtest). One
-# stage serves every siege lane (break-core, carry-tnt, capture-wool, steal-jewelry, battle-loyal): each mode reads
-# only the regions it knows by name, so they never get in each other's way. The lanes share this stage, so one siege
-# match runs at a time.
-#
-#                       north island (0,244)  wool-a
-#                      /          |          \
-#   red island ------ centre island (r22) ------ blue island
-#   (-68,300) r22     tnt-spawn (0,292)          (68,300) r22
-#   core(-82,300)     wool-b (0,308)             core(82,300)
-#   jewelry(-78,310)                             jewelry(78,310)
-#                      \          |          /
-#                       south island (0,356)  wool-c
-#
-# Cores and jewelry sit at the back of each team island behind a wall arc (the builder raises it behind every core);
-# the spawn pad and the front lane to the centre stay open. Three routes between the bases: through the centre, or
-#
-#
-# Region vocabulary (name -> mode):
-#   core-<team>      1 block, the team's core, ONE ABOVE the floor (y=65)   (break-core)
-#   base-<team>      the team's base zone                (carry-tnt delivery, steal-jewelry deposit)
-#   jewelry-<team>   3x3 pedestal zone inside the base   (steal-jewelry)
-#   tnt-spawn        where the TNT waits                 (carry-tnt)
-#   wool-*           control points, any number          (capture-wool)
-# Zones span y 64 (the floor block, which the objective marker replaces) .. 70 so a standing/jumping player is inside.
-# The builder puts a pedestal under every anchor; the modes place their markers at match start and remove them at the end.
-# Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
-
+# Authored siege-scale layout. See README.md and ADR-0273.
 id: siege-isles
-
 display_name_key: astera.stage.siege-isles.name
-
-
 layout:
-  marker_version: 2
+  marker_version: 4
   seed: 20261024
   surface_y: 64
-  kill_y: 30
+  kill_y: 16
   islands:
-    - { id: red, kind: base, team: red, center: { x: -68, z: 0 }, radius: 22.0 }
-    - { id: blue, kind: base, team: blue, center: { x: 68, z: 0 }, radius: 22.0 }
-    - { id: center, kind: center, center: { x: 0, z: 0 }, radius: 22.0 }
-    - { id: north, kind: outpost, center: { x: 0, z: -56 }, radius: 14.0 }
-    - { id: south, kind: outpost, center: { x: 0, z: 56 }, radius: 14.0 }
+  - id: red
+    kind: base
+    team: red
+    center: {x: -160, z: 0}
+    radius: 56
+  - id: blue
+    kind: base
+    team: blue
+    center: {x: 160, z: 0}
+    radius: 56
+  - id: center
+    kind: center
+    center: {x: 0, z: 0}
+    radius: 46
+  - id: north
+    kind: outpost
+    center: {x: 0, z: -95}
+    radius: 32
+  - id: south
+    kind: outpost
+    center: {x: 0, z: 95}
+    radius: 32
   bridges:
-    - { from: red, to: center, width: 3 }
-    - { from: blue, to: center, width: 3 }
-    - { from: center, to: north, width: 3 }
-    - { from: center, to: south, width: 3 }
-    - { from: red, to: north, width: 3 }
-    - { from: north, to: blue, width: 3 }
-    - { from: red, to: south, width: 3 }
-    - { from: south, to: blue, width: 3 }
-
+  - from: red
+    to: center
+    width: 7
+  - from: blue
+    to: center
+    width: 7
+  - from: center
+    to: north
+    width: 7
+  - from: center
+    to: south
+    width: 7
+  - from: red
+    to: north
+    width: 7
+  - from: north
+    to: blue
+    width: 7
+  - from: red
+    to: south
+    width: 7
+  - from: south
+    to: blue
+    width: 7
+  landmarks:
+  - kind: generator
+    x: 14
+    z: 0
+  - kind: generator
+    x: -14
+    z: 0
+  - kind: generator
+    x: 10
+    z: -95
+  - kind: generator
+    x: 10
+    z: 95
+  structures:
+  - part: castle-gate
+    x: -130
+    z: 0
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -182
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -166
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -150
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -138
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -182
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -166
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -150
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -138
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -190
+    z: -16
+    rotation: 270
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -190
+    z: 16
+    rotation: 270
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -130
+    z: -16
+    rotation: 90
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -130
+    z: 16
+    rotation: 90
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -190
+    z: 0
+    rotation: 270
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: -190
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: -190
+    z: 24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: -130
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: -130
+    z: 24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-keep
+    x: -174
+    z: 0
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-gate
+    x: 130
+    z: 0
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 182
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 166
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 150
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 138
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 182
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 166
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 150
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 138
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 190
+    z: 16
+    rotation: 90
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 190
+    z: -16
+    rotation: 90
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 130
+    z: 16
+    rotation: 270
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 130
+    z: -16
+    rotation: 270
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 190
+    z: 0
+    rotation: 90
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-tower
+    x: 190
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-tower
+    x: 190
+    z: -24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-tower
+    x: 130
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-tower
+    x: 130
+    z: -24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-keep
+    x: 174
+    z: 0
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: ruin
+    x: -20
+    z: -22
+    rotation: 0
+  - part: ruin
+    x: 20
+    z: 22
+    rotation: 180
+  - part: ruin
+    x: -17
+    z: 24
+    rotation: 90
+  - part: ruin
+    x: 16
+    z: -25
+    rotation: 270
+  - part: ruin
+    x: 0
+    z: -95
+    rotation: 90
+  - part: ruin
+    x: 0
+    z: 95
+    rotation: 270
+  - part: bridge
+    x: -80
+    z: 0
+    rotation: 0
+  - part: bridge
+    x: 80
+    z: 0
+    rotation: 0
+  theme: temperate
+  atmosphere: {time_of_day: 12000, weather: clear}
 regions:
-  - name: full-arena
-    min: { x: -105.0, y: 20.0, z: -80.0 }
-    max: { x: 105.0, y: 140.0, z: 80.0 }
-  - name: base-red
-    min: { x: -92.0, y: 64.0, z: -16.0 }
-    max: { x: -50.0, y: 70.0, z: 16.0 }
-  - name: base-blue
-    min: { x: 50.0, y: 64.0, z: -16.0 }
-    max: { x: 92.0, y: 70.0, z: 16.0 }
-  - name: core-red
-    min: { x: -82.0, y: 65.0, z: 0.0 }
-    max: { x: -82.0, y: 65.0, z: 0.0 }
-  - name: core-blue
-    min: { x: 82.0, y: 65.0, z: 0.0 }
-    max: { x: 82.0, y: 65.0, z: 0.0 }
-  - name: jewelry-red
-    min: { x: -79.0, y: 64.0, z: 9.0 }
-    max: { x: -77.0, y: 70.0, z: 11.0 }
-  - name: jewelry-blue
-    min: { x: 77.0, y: 64.0, z: 9.0 }
-    max: { x: 79.0, y: 70.0, z: 11.0 }
-  - name: tnt-spawn
-    min: { x: -3.0, y: 64.0, z: -11.0 }
-    max: { x: 3.0, y: 70.0, z: -5.0 }
-  - name: wool-a
-    min: { x: -3.0, y: 64.0, z: -59.0 }
-    max: { x: 3.0, y: 70.0, z: -53.0 }
-  - name: wool-b
-    min: { x: -3.0, y: 64.0, z: 5.0 }
-    max: { x: 3.0, y: 70.0, z: 11.0 }
-  - name: wool-c
-    min: { x: -3.0, y: 64.0, z: 53.0 }
-    max: { x: 3.0, y: 70.0, z: 59.0 }
-
+- name: full-arena
+  min: {x: -235, y: 20.0, z: -140}
+  max: {x: 235, y: 140.0, z: 140}
+- name: base-red
+  min: {x: -184.0, y: 64.0, z: -16.0}
+  max: {x: -142.0, y: 70.0, z: 16.0}
+- name: base-blue
+  min: {x: 142.0, y: 64.0, z: -16.0}
+  max: {x: 184.0, y: 70.0, z: 16.0}
+- name: core-red
+  min: {x: -174.0, y: 65.0, z: 0.0}
+  max: {x: -174.0, y: 65.0, z: 0.0}
+- name: core-blue
+  min: {x: 174.0, y: 65.0, z: 0.0}
+  max: {x: 174.0, y: 65.0, z: 0.0}
+- name: jewelry-red
+  min: {x: -158.0, y: 64.0, z: 9.0}
+  max: {x: -156.0, y: 70.0, z: 11.0}
+- name: jewelry-blue
+  min: {x: 156.0, y: 64.0, z: 9.0}
+  max: {x: 158.0, y: 70.0, z: 11.0}
+- name: tnt-spawn
+  min: {x: -3.0, y: 64.0, z: -11.0}
+  max: {x: 3.0, y: 70.0, z: -5.0}
+- name: wool-a
+  min: {x: -3.0, y: 64.0, z: -98}
+  max: {x: 3.0, y: 70.0, z: -92}
+- name: wool-b
+  min: {x: -3.0, y: 64.0, z: 5.0}
+  max: {x: 3.0, y: 70.0, z: 11.0}
+- name: wool-c
+  min: {x: -3.0, y: 64.0, z: 92}
+  max: {x: 3.0, y: 70.0, z: 98}
 spawn_points:
-  - team: red
-    position: { x: -65.5, y: 65.0, z: -2.5 }
-    yaw: 270.0
-  - team: red
-    position: { x: -65.5, y: 65.0, z: 3.5 }
-    yaw: 270.0
-  - team: red
-    position: { x: -63.5, y: 65.0, z: 0.5 }
-    yaw: 270.0
-  - team: red
-    position: { x: -67.5, y: 65.0, z: 0.5 }
-    yaw: 270.0
-  - team: blue
-    position: { x: 66.5, y: 65.0, z: -2.5 }
-    yaw: 90.0
-  - team: blue
-    position: { x: 66.5, y: 65.0, z: 3.5 }
-    yaw: 90.0
-  - team: blue
-    position: { x: 64.5, y: 65.0, z: 0.5 }
-    yaw: 90.0
-  - team: blue
-    position: { x: 68.5, y: 65.0, z: 0.5 }
-    yaw: 90.0
-  - role: lobby
-    position: { x: 0.5, y: 65.0, z: 0.5 }
-  - role: spectator
-    position: { x: 0.5, y: 100.0, z: 0.5 }
-    pitch: 60.0
+- team: red
+  position: {x: -123.5, y: 65.0, z: -2.5}
+  yaw: 270.0
+- team: red
+  position: {x: -123.5, y: 65.0, z: 3.5}
+  yaw: 270.0
+- team: red
+  position: {x: -121.5, y: 65.0, z: 0.5}
+  yaw: 270.0
+- team: red
+  position: {x: -125.5, y: 65.0, z: 0.5}
+  yaw: 270.0
+- team: blue
+  position: {x: 124.5, y: 65.0, z: -2.5}
+  yaw: 90.0
+- team: blue
+  position: {x: 124.5, y: 65.0, z: 3.5}
+  yaw: 90.0
+- team: blue
+  position: {x: 122.5, y: 65.0, z: 0.5}
+  yaw: 90.0
+- team: blue
+  position: {x: 126.5, y: 65.0, z: 0.5}
+  yaw: 90.0
+- role: lobby
+  position: {x: 0.5, y: 65.0, z: 0.5}
+- role: spectator
+  position: {x: 0.5, y: 100.0, z: 0.5}
+  pitch: 60.0

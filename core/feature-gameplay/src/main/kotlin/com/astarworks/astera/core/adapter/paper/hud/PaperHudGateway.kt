@@ -422,11 +422,12 @@ public class PaperHudGateway(
         val readoutComponent = readout?.let { toComponent(playerId, it.component) }
         if (status == null) return readoutComponent ?: Component.empty()
         val block = status.component
-        if (block is HudComponent.FontText && status.anchorLeftPx != null) {
+        val anchorLeftPx = status.anchorLeftPx
+        if (block is HudComponent.FontText && anchorLeftPx != null) {
             val readoutWidth = readoutComponent
                 ?.let { MinecraftTextWidth.estimate(PlainTextComponentSerializer.plainText().serialize(it)) }
                 ?: 0
-            val gap = StatusLineAnchor.gapPx(status.anchorLeftPx, block.widthPx, readoutWidth)
+            val gap = StatusLineAnchor.gapPx(anchorLeftPx,block.widthPx, readoutWidth)
             var out: Component = Component.empty().append(readoutComponent ?: Component.empty())
             if (gap != 0) out = out.append(fontText(NegativeSpace.spacer(gap)))
             return out.append(fontText(block.text))

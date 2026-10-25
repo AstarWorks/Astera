@@ -1,0 +1,20 @@
+# UI-01 (docs/game-design/access-map.md) - Market hub NPC at the east market shop stall.
+# One of four role hubs (Play / Market / Travel / Social). Right-click opens the shop; the personal vault
+# is reached from the main menu (Vault tile), Sneak+F and /astera vault.
+# Schema: id, display_name (i18n key), type (display_entity | citizens), spawn, interaction.
+
+id: market-npc
+display_name: astera.lobby.npc.market.name
+
+type: display_entity
+
+spawn:
+  world: world
+  x: 47.5
+  y: 65.0
+  z: -5.5
+  yaw: 0.0
+  pitch: 0.0
+
+interaction:
+  right_click_intent: lobby.shop.open

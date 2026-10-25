@@ -14,6 +14,14 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
 
     private val suite = "Siege (break-core) playthrough"
 
+    /** `N Stars` on the match sidebar (the Norma layer's footer), or null. */
+    private fun starCount(b: Bot): Int? =
+        sidebar(b).firstNotNullOfOrNull { Regex("(\\d+)\\s*Stars\\b", RegexOption.IGNORE_CASE).find(it)?.groupValues?.get(1)?.toIntOrNull() }
+
+    /** `Lv 2/3` on the match sidebar as (level, max), or null. */
+    private fun levelOf(b: Bot): Pair<Int, Int>? =
+        sidebar(b).firstNotNullOfOrNull { Regex("Lv\\s*(\\d+)/(\\d+)").find(it)?.let { m -> m.groupValues[1].toInt() to m.groupValues[2].toInt() } }
+
     @Test
     fun `break-core is played until one core falls`() {
         val logFrom = logLineCount()
@@ -75,6 +83,33 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
             assertThat(arenaSolid(34, 64, 12) || arenaSolid(34, 50, 12)).describedAs("gap beside the bridge to the blue island at (34 64 12): the arena is islands, not a plane").isFalse()
             "jewelry pedestals, TNT pedestal, 3 wool points; void at (34, 64, 12)"
         }
+
+        // --- the Norma layer is on in a siege mode too (MODE-15) ----------------------------------------------------
+        // Stars, the Norma footer and the level-up are not a mode of their own: break-core has star generators on its
+        // stage (content/generators/siege-*.yaml, e2e period 3 s) and the footer shows the level next to the cores.
+        E2eReport.check(suite, "the break-core sidebar carries the Norma footer (stars, level) next to the core lines", "SetScore (sidebar)") {
+            val lines = sidebar(attacker)
+            assertThat(starCount(attacker)).describedAs("no stars line: $lines").isEqualTo(0)
+            assertThat(levelOf(attacker)).describedAs("no Norma level line: $lines").isEqualTo(1 to 3)
+            assertThat(lines.count { it.contains("intact", true) }).describedAs("core lines gone: $lines").isEqualTo(2)
+            quote(lines)
+        }
+        // Stand on the east centre generator (12.5, 65, 0.5), stage-local until a pickup shows; leave at once after the level-up so a
+        // second pop cannot carry the attacker to the top level (that would end the match before the core test).
+        tpArena(attacker.name, 12.5, 65.0, 0.5, 0f, 0f)
+        val gotStar = attacker.waitUntil(15_000) { (starCount(attacker) ?: 0) >= 1 }
+        val leveledUp = attacker.waitUntil(6_000) { (levelOf(attacker)?.first ?: 1) >= 2 }
+        tpArena(attacker.name, -79.5, 65.0, 0.5, 90f, 10f)
+        E2eReport.check(suite, "a star pickup on a break-core generator shows on the sidebar", "SetScore (sidebar) / item pickup") {
+            assertThat(gotStar).describedAs("no star pickup within 15s on the siege generator; sidebar=${sidebar(attacker)}").isTrue()
+            "stars=${starCount(attacker)}"
+        }
+        E2eReport.check(suite, "carrying the star goal levels the player up to Lv 2 in break-core", "SetScore (sidebar) / chat") {
+            assertThat(leveledUp).describedAs("no Norma level-up after the pickup; sidebar=${sidebar(attacker)} chat=${attacker.chatTexts().takeLast(5)}").isTrue()
+            assertThat(matchLines()).describedAs("match ended by the level-up (top level is 3)").isNotEmpty()
+            "level=${levelOf(attacker)}"
+        }
+        Thread.sleep(500)
 
         // --- a team cannot break its own core ------------------------------------------------------------------
         rcon("effect give ${attacker.name} minecraft:haste 600 100 true")

@@ -504,10 +504,13 @@ public class SimTrainingShells(
 public class SimItemIdResolver(
     private val world: SimWorld,
     private val inventory: (PlayerId) -> List<String> = { emptyList() },
+    private val remove: (PlayerId, String) -> Boolean = { _, _ -> false },
 ) : IPaperItemIdResolver {
     override fun heldItemId(playerId: PlayerId): ItemId? = world.find(playerId)?.heldItem
 
     override fun inventoryItemIds(playerId: PlayerId): List<ItemId> = inventory(playerId).map(::ItemId)
+
+    override fun removeOne(playerId: PlayerId, itemId: ItemId): Boolean = remove(playerId, itemId.value)
 }
 
 /** [IItemCooldownSweepGateway] that records the sweeps (`Player.setCooldown(group, ticks)` on Paper). */

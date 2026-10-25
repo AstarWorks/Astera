@@ -146,7 +146,7 @@ public class CommandTreeRunner(
         tokens = if (tokens.firstOrNull().equals(AsteraCommandRegistry.ROOT_NAME, ignoreCase = true)) {
             tokens.drop(1)
         } else {
-            CommandShortcuts.expand(tokens) // `/play norma` == `/astera queue join norma` (ADR-0234)
+            CommandShortcuts.expand(tokens) // `/play skirmish` == `/astera queue join skirmish` (ADR-0234)
         }
         return tokens
     }

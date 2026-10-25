@@ -36,6 +36,11 @@ public data class PendingVanillaAttribution(
 public class VanillaKillResolver(
     /** ADR-0237: stamps the kill's context; the default lookup-less resolver files everything under `Lobby`. */
     private val contexts: CombatContextResolver = CombatContextResolver { null },
+    /**
+     * Last player who damaged the victim within [VOID_ATTRIBUTION_TICKS] of `atTick` (damage history). A void fall
+     * credits that player so the KILL norma and star burst treat it as their kill.
+     */
+    private val recentAttacker: (victim: PlayerId, atTick: Long) -> PlayerId? = { _, _ -> null },
 ) {
 
     public fun resolve(event: PlayerHealthChanged, pending: PendingVanillaAttribution?): PlayerKilled? {
@@ -48,7 +53,12 @@ public class VanillaKillResolver(
         val dotOrigin = (healthSource as? HealthChangeSource.Status)?.originPlayerId
             ?.takeIf { it != event.playerId }
         val meleeKiller = attribution?.killer
-        val killer = meleeKiller ?: dotOrigin
+        val voidKiller = if (meleeKiller == null && dotOrigin == null && healthSource == VOID_SOURCE) {
+            recentAttacker(event.playerId, event.atTick)?.takeIf { it != event.playerId }
+        } else {
+            null
+        }
+        val killer = meleeKiller ?: dotOrigin ?: voidKiller
         val source: DamageSource = when {
             meleeKiller != null -> DamageSource.Item(ItemId(VANILLA_MELEE_ITEM), meleeKiller)
             healthSource is HealthChangeSource.Status -> statusSource(healthSource.statusId, dotOrigin)
@@ -79,6 +89,11 @@ public class VanillaKillResolver(
     public companion object {
         /** Attribution is only valid for the tick of the hit (plus one for scheduling skew). */
         public const val ATTRIBUTION_WINDOW_TICKS: Long = 1L
+
+        /** A void fall is credited to an attacker this recent (10 s). */
+        public const val VOID_ATTRIBUTION_TICKS: Long = 10L * 20L
+
+        private val VOID_SOURCE: HealthChangeSource = HealthChangeSource.Other("vanilla-void")
 
         public const val VANILLA_MELEE_ITEM: String = "vanilla-melee"
     }

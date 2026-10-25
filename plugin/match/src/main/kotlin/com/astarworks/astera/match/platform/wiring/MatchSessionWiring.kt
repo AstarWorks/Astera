@@ -69,7 +69,7 @@ internal object MatchSessionWiring {
                 )
             val applyForfeit =
                 com.astarworks.astera.match.application.usecase.match.ApplyForfeitUseCase(
-                    removeFromMatch, eventBus, scheduler,
+                    removeFromMatch, eventBus, scheduler, matches,
                 )
             // Mid-match reconnect: back on the player's own team spawn (not the lobby-side spectator stub),
             // with the same spawn protection a respawn gets, the loaner kit re-armed and the sidebar redrawn.
@@ -102,6 +102,13 @@ internal object MatchSessionWiring {
             val disconnectListener =
                 com.astarworks.astera.match.application.eventbus.listeners.DisconnectDuringMatchListener(
                     sessionRepo, matches, removeFromMatch, applyForfeit, eventBus, scheduler,
+                    // The stars wiring is installed later (MatchGameplayWiring); resolved when somebody leaves.
+                    onLeaving = { matchId, player -> env.stars?.drops?.onLeft(matchId, player) },
+                )
+            val forfeitSettler =
+                com.astarworks.astera.match.application.eventbus.listeners.ForfeitMatchSettler(
+                    matches = matches,
+                    end = { matchId, reason -> facade.end(matchId, reason) },
                 )
             val reconnectListener =
                 com.astarworks.astera.match.application.eventbus.listeners.ReconnectDuringMatchListener(
@@ -113,7 +120,13 @@ internal object MatchSessionWiring {
                 subscriptions += eventBus.subscribe(
                     com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
                 ) { disconnectListener.handle(it) }
+                subscriptions += eventBus.subscribe(
+                    com.astarworks.astera.core.domain.event.PlayerLeavingForLobby::class,
+                ) { disconnectListener.onLeavingForLobby(it) }
                 subscriptions += eventBus.subscribe(MatchEnded::class) { disconnectListener.onMatchEnded(it) }
+                subscriptions += eventBus.subscribe(
+                    com.astarworks.astera.match.domain.event.PlayerForfeited::class,
+                ) { forfeitSettler.onForfeited(it) }
             }
             // Only a backend that hosts matches resumes anyone: a lobby that merely shares the session store
             // must leave the claim alone (MatchReconnectRouter sends the player on to the game server).

@@ -6,7 +6,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.inventory.ContainerActionTy
 import org.junit.jupiter.api.Test
 
 /**
- * In-match stars and Norma levels (docs/game-design/stars-and-norma.md, ADR-0251): a star is an item of the match,
+ * In-match stars and Norma levels (docs/game-design/stars-and-norma.md, ADR-0271): a star is an item of the match,
  * never carried out of it.
  *
  * Two bots play a Norma match with the e2e-tuned content (docker/e2e-tune-content.sh): generators pop every 3 s,
@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test
  * the goal at the start; a bot standing on a generator picks the popped stars up and levels up through the STAR goal;
  * a bot far from every generator stays at 0; a hit changes nothing; a kill bursts the victim's stars (victim 0, the
  * other bot walks over the drops) and the KILL goal levels the killer up; reaching the top level ends the match; and
- * afterwards the lobby sidebar has no star line, the wallet lists no STAR and no chat line mentions stars.
+ * the level-up and the goal pick are presented (chat broadcast, action bar, sounds); stars are collected only by
+ * the real item pickup (the item is removed, never put in an inventory); afterwards the lobby sidebar has no star line, the wallet lists no STAR and no chat line mentions stars.
  */
 class StarsE2eTest : PlaythroughBase() {
 
@@ -44,7 +45,7 @@ class StarsE2eTest : PlaythroughBase() {
         Thread.sleep(1_500)
         val lobbyTitle = a.sidebarTitle()
         val chatFrom = both.associateWith { it.chat.size }
-        both.forEach { it.command("astera queue join norma") }
+        both.forEach { it.command("astera queue join skirmish") }
 
         val active = awaitMatch("ACTIVE", 60_000, keepAlive = both)
         E2eReport.check(suite, "a two-player Norma match goes ACTIVE", "RCON astera match list") {
@@ -79,9 +80,14 @@ class StarsE2eTest : PlaythroughBase() {
         E2eReport.check(suite, "clicking the KILL tile (slot 6) switches the goal to Kills 0/1; clicking STAR (slot 2) keeps Stars 0/2", "ServerboundContainerClick -> SetScore") {
             val sc = c.screens.last { it.title.contains("Norma goal") }
             val before = c.chat.size
+            val barsBefore = c.actionBars.size
+            val soundsBefore = c.sounds.size
             c.clickSlot(sc.containerId, 6, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
             assertThat(c.waitUntil(6_000) { sidebar(c).any { Regex("Goal:\\s*Kills\\s*0/1").containsMatchIn(it) } })
                 .describedAs("C goal did not become Kills 0/1: ${sidebar(c)}; chat=${c.chatSince(before).map { clean(it) }}").isTrue()
+            assertThat(c.waitUntil(3_000) { c.actionBars.drop(barsBefore).any { it.text.contains("Norma goal set") && it.text.contains("1") } })
+                .describedAs("no pick confirmation on the action bar: ${c.actionBars.drop(barsBefore).map { it.text }}").isTrue()
+            assertThat(c.sounds.size).describedAs("no confirmation sound").isGreaterThan(soundsBefore)
             val sa = a.screens.last { it.title.contains("Norma goal") }
             a.clickSlot(sa.containerId, 2, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
             Thread.sleep(800)
@@ -118,6 +124,13 @@ class StarsE2eTest : PlaythroughBase() {
             assertThat(starCount(a)).describedAs("stars are kept by a level-up: ${sidebar(a)}").isGreaterThanOrEqualTo(2)
             assertThat(a.actionBars.any { "★" in it.text && "+" in it.text }).describedAs("no '+N ★' action bar: ${a.actionBars.map { it.text }}").isTrue()
             "A sidebar: ${sidebar(a)}"
+        }
+        E2eReport.check(suite, "the level-up is announced to the whole match in chat (and with a sound for the player)", "SystemChat") {
+            for (b in both) {
+                assertThat(b.waitUntil(4_000) { b.chat.drop(chatFrom.getValue(b)).any { clean(it.text).contains("cleared the Norma", true) && clean(it.text).contains("Lv 2") } })
+                    .describedAs("${b.name}: no level-up broadcast; chat=${b.chatTexts().takeLast(6)}").isTrue()
+            }
+            "ok"
         }
         E2eReport.check(suite, "a bot far from every generator stays at 0 stars and Lv 1", "SetScore") {
             assertThat(starCount(c)).describedAs("far bot's sidebar ${sidebar(c)}; pos=${localPosOf(c)}").isEqualTo(0)

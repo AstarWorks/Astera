@@ -2,6 +2,8 @@ package com.astarworks.astera.core.adapter.paper.chat
 
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.service.cosmetic.CosmeticService
+import com.astarworks.astera.core.adapter.paper.cosmetic.PaperCosmeticDisplay
 import com.astarworks.astera.core.domain.player.PlayerId
 import io.papermc.paper.chat.ChatRenderer
 import io.papermc.paper.event.player.AsyncChatEvent
@@ -27,14 +29,18 @@ import org.bukkit.event.Listener
 public class PaperChatFormatListener(
     private val matches: () -> IMatchRepository?,
     private val messages: () -> IMessageRenderer?,
+    private val cosmetics: () -> CosmeticService? = { null },
 ) : Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public fun onChat(event: AsyncChatEvent) {
-        val nameColor = nameColorOf(PlayerId(event.player.uniqueId))
+        val id = PlayerId(event.player.uniqueId)
+        val nameColor = nameColorOf(id)
+        val title = PaperCosmeticDisplay.titleComponent(cosmetics(), messages(), id)
         event.renderer(
             ChatRenderer.viewerUnaware { _, sourceDisplayName, message ->
                 Component.text()
+                    .append(title)
                     .append(sourceDisplayName.colorIfAbsent(nameColor))
                     .append(Component.text(" » ", NamedTextColor.DARK_GRAY))
                     .append(message.colorIfAbsent(NamedTextColor.WHITE))
@@ -47,7 +53,9 @@ public class PaperChatFormatListener(
         val match = matches()?.findMatchOf(player)
         val team = match?.teams?.firstOrNull { player in it.members }
         val colorName = team?.let { messages()?.render(null, it.colorKey) }
-        colorName?.let { NamedTextColor.NAMES.value(it.lowercase()) } ?: LOBBY_COLOR
+        colorName?.let { NamedTextColor.NAMES.value(it.lowercase()) }
+            ?: PaperCosmeticDisplay.nameColorOf(cosmetics(), player)
+            ?: LOBBY_COLOR
     } catch (_: RuntimeException) {
         LOBBY_COLOR
     }

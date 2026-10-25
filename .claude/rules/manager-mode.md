@@ -49,6 +49,11 @@ Known limit: `python3 script.py` / `bun x.ts` of an existing file is not inspect
   - Gate: `.claude/hooks/gate-codex-lane.py` (PreToolUse/Bash, main session and subagents) denies the launcher without `run_in_background: true`, any detached codex/launcher, and raw write-capable `codex exec` (only `timeout N codex exec --sandbox read-only ...` is allowed directly). Fails open on errors. Ported from AstarHarness `gate-raw-codex-lane`; test: `bash .claude/hooks/gate-codex-lane.test.sh`.
 - Harness changes (`.claude/**`, this rule included) also go through an agent.
 
-## E2E (founder decision 2026-10-23)
+## E2E (batch rule, founder 2026-10-26; supersedes the 2026-10-23 per-agent rule)
 
-Manager and agents agents may run `flock /tmp/claude-1000/astera-e2e.lock make e2e` (serialized: one at a time on this host, ~12+ min, per-checkout isolated harness, report `build/e2e-report.md`) when the task needs player-visible verification; never in parallel; never touch the live `astera-dev-*` containers. Compile-only Gradle tasks are allowed; unit tests and `./gradlew check`/test tasks stay forbidden.
+Tracks, agents and Codex do NOT run e2e. They add or update the e2e / game-sim test that proves their item and
+name it in the report. The manager (or a QA subagent it launches) runs ONE `flock /tmp/claude-1000/astera-e2e.lock make e2e`
+(serialized, ~12+ min, report `build/e2e-report.md`) per integration window (12:00 / 21:00 JST) on the merged
+`wp/integrate` branch; see `.claude/rules/tracks.md`. An out-of-window single-track run needs the manager's OK
+and a Board `e2e-request`. Never touch the live `astera-dev-*` containers. Compile-only Gradle tasks are
+allowed; unit tests and `./gradlew check`/test tasks stay forbidden.

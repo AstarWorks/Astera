@@ -43,17 +43,17 @@ class LobbyNpcLoaderServiceTest {
     }
 
     @Test
-    fun `the shipped shop NPC spawns in the lobby and its right click opens the shop`() {
+    fun `the shipped market NPC spawns in the lobby and its right click opens the shop`() {
         val report = loader.loadFrom(locateContentRoot().resolve("lobby-npcs"))
 
         assertThat(report.failures).isEmpty()
-        val handle = loader.spawned.getValue("shop-npc")
+        val handle = loader.spawned.getValue("market-npc")
         val record = spawner.spawned.single { it.handle == handle }
         assertThat(record.world).isEqualTo(WorldId("lobby"))
         assertThat(record.spec).isInstanceOf(SpawnSpec.DisplayNpc::class.java)
         assertThat(router.resolve(handle, NpcInteractionClick.RIGHT)).isEqualTo(GuiIntent("lobby.shop.open"))
         assertThat(bodies.bodies.single { it.handle == handle }.name)
-            .isEqualTo(MessageKey("astera.lobby.npc.shop.name"))
+            .isEqualTo(MessageKey("astera.lobby.npc.market.name"))
     }
 
     @Test
@@ -74,7 +74,7 @@ class LobbyNpcLoaderServiceTest {
             dir.resolve("good.yaml"),
             """
             id: good-npc
-            display_name: astera.lobby.npc.shop.name
+            display_name: astera.lobby.npc.market.name
             spawn: { world: lobby, x: 1.0, y: 64.0, z: 2.0 }
             interaction: { right_click_intent: lobby.shop.open }
             """.trimIndent(),
@@ -83,7 +83,7 @@ class LobbyNpcLoaderServiceTest {
             dir.resolve("bad.yaml"),
             """
             id: bad-npc
-            display_name: astera.lobby.npc.shop.name
+            display_name: astera.lobby.npc.market.name
             type: citizens
             spawn: { world: lobby, x: 1.0, y: 64.0, z: 2.0 }
             """.trimIndent(),
@@ -102,7 +102,7 @@ class LobbyNpcLoaderServiceTest {
 
         headless.loadFrom(locateContentRoot().resolve("lobby-npcs"))
 
-        val handle = headless.spawned.getValue("shop-npc")
+        val handle = headless.spawned.getValue("market-npc")
         assertThat(router.resolve(handle, NpcInteractionClick.RIGHT)).isEqualTo(GuiIntent("lobby.shop.open"))
         assertThat(bodies.bodies).isEmpty()
     }

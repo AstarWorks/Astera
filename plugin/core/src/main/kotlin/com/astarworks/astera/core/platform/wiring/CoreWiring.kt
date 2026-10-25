@@ -81,6 +81,7 @@ public object CoreWiring {
         state.wireInfrastructure()
         state.wireGameplayLoop()
         state.wireCompletenessListeners()
+        state.wirePresentation()
         state.wireServerHardenAndLobby()
         state.wireTutorialGuide()
         state.wireCommandHelp()
