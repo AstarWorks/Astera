@@ -707,6 +707,10 @@ astera:
 
   match:
     loaner-kit: "<yellow>You came without a weapon - the starter weapons are on loan for this match.</yellow>"
+    weapon-limit:
+      trimmed: "<yellow>Weapon limit: {count} extra weapon(s) were set aside for this match (they come back afterwards).</yellow>"
+      blocked-total: "<red>Weapon limit: you can only carry {cap} weapons in this match.</red>"
+      blocked-category: "<red>Weapon limit: only {cap} {category} allowed in this match.</red>"
     phase:
       countdown_start: "<yellow>Match starting in {seconds}s…</yellow>"
       active_started: "<green>The match has started!</green>"

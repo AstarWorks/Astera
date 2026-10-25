@@ -557,7 +557,11 @@ public class GameSim private constructor(
                 context(),
                 ItemsPlatformPorts(
                     itemDelivery = { sim.itemDelivery },
-                    itemIdResolver = SimItemIdResolver(world) { id -> mcServer.view(id)?.givenItems.orEmpty() },
+                    itemIdResolver = SimItemIdResolver(
+                        world,
+                        inventory = { id -> mcServer.view(id)?.givenItems.orEmpty() },
+                        remove = { id, item -> mcServer.view(id)?.givenItems?.remove(item) == true },
+                    ),
                     trainingRack = { sim.trainingRack },
                     trainingInventory = { SimTrainingInventory(sim.itemDelivery) },
                     itemCooldownSweep = sim.sweeps,

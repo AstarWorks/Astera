@@ -440,6 +440,19 @@ public object MatchWiring {
                 ?: emptyMap()
         }
 
+        // Weapon restriction: the mode's `weapon_limits` applies to everyone inside a running match; Core enforces it
+        // (entry trim + pickup / inventory-move gate) through this port.
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.item.IWeaponLimitProvider>(
+            com.astarworks.astera.core.application.port.outbound.item.IWeaponLimitProvider { playerId ->
+                matches.findMatchOf(playerId)?.let { match ->
+                    com.astarworks.astera.core.domain.item.WeaponLimits.parse(
+                        modeConfigOf(match.id)[com.astarworks.astera.core.domain.item.WeaponLimits.CONFIG_KEY],
+                    )
+                }
+            },
+            priority = 0,
+        )
+
         // The Norma sidebar shows the kill goal of the match's own mode config.
         val normaGoal: (com.astarworks.astera.core.domain.match.MatchId) -> Int = { id ->
             modeConfigOf(id)["score_threshold"]?.toIntOrNull()?.takeIf { it > 0 } ?: NormaGameMode.DEFAULT_GOAL

@@ -714,6 +714,10 @@ astera:
 
   match:
     loaner-kit: "<yellow>武器を持っていないため、この試合の間だけ初期武器を貸し出します。</yellow>"
+    weapon-limit:
+      trimmed: "<yellow>武器制限: 上限を超えた武器 {count} 個をこの試合の間だけ預かりました（試合後に戻ります）。</yellow>"
+      blocked-total: "<red>武器制限: この試合で持てる武器は合計 {cap} 個までです。</red>"
+      blocked-category: "<red>武器制限: この試合で持てる {category} 系の武器は {cap} 個までです。</red>"
     phase:
       countdown_start: "<yellow>試合開始まで {seconds} 秒…</yellow>"
       active_started: "<green>試合が開始されました！</green>"
