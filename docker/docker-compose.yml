@@ -31,6 +31,10 @@ x-astera-backend: &astera-backend
   build:
     context: ..
     dockerfile: docker/Dockerfile
+    args:
+      # PAPER (default) or FOLIA (Folia migration; jar pinned in gradle/libs.versions.toml `folia`).
+      # The Dockerfile wrapper entrypoint overrides TYPE below when the image is FOLIA.
+      SERVER_TYPE: "${SERVER_TYPE:-PAPER}"
   image: astera/minecraft-server:dev
   restart: unless-stopped
   stdin_open: true

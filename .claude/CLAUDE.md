@@ -89,7 +89,7 @@ SSOT.
    `.claude/rules/module-layout.md`. Each feature plugin may reference Core +
    its softdepends only.
 4. **All external Paper plugins are soft-deps.** Astera must boot in vanilla
-   Paper without WeaponMechanics / Oraxen / MythicMobs / ProtocolLib.
+   Paper without ProtocolLib.
 5. **Versions live only in `gradle/libs.versions.toml`.** No hardcoded
    version strings in module `build.gradle.kts` files.
 6. **No `kotlinx.serialization` annotations in `*.domain.*`.** Use a DTO in

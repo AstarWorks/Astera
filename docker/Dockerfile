@@ -86,6 +86,37 @@ RUN if [ "$E2E_FAST" = "1" ]; then sh /tmp/e2e-tune-content.sh /content; fi && r
 # Paper trusts Velocity's modern forwarding (secret from CFG_VELOCITY_SECRET).
 COPY docker/paper-patches /patches/
 
+# Server flavour (Folia migration, 2026-10-26). PAPER = itzg downloads Paper at
+# start (TYPE/VERSION env). FOLIA = the Folia jar pinned by `folia` in
+# gradle/libs.versions.toml (single source) is downloaded here, sha256-checked
+# against the fill.papermc.io build record, and run as itzg TYPE=CUSTOM by the
+# wrapper entrypoint. FOLIA also adds the threaded-regions patch
+# (docker/folia-patches) to the itzg PATCH_DEFINITIONS dir.
+#   docker build -f docker/Dockerfile --build-arg SERVER_TYPE=FOLIA -t astera/minecraft-server:folia .
+ARG SERVER_TYPE=PAPER
+ENV SERVER_TYPE=${SERVER_TYPE}
+COPY gradle/libs.versions.toml /tmp/libs.versions.toml
+COPY docker/folia-patches /tmp/folia-patches/
+RUN set -eu; \
+    if [ "$SERVER_TYPE" = "FOLIA" ]; then \
+      v="$(sed -n 's/^folia = "\(.*\)".*/\1/p' /tmp/libs.versions.toml)"; \
+      mc="${v%%.build.*}"; rest="${v#*.build.}"; build="${rest%%-*}"; \
+      test -n "$mc" && test -n "$build"; \
+      meta="$(curl -fsSL "https://fill.papermc.io/v3/projects/folia/versions/$mc/builds/$build")"; \
+      url="$(printf '%s' "$meta" | jq -r '.downloads."server:default".url')"; \
+      sha="$(printf '%s' "$meta" | jq -r '.downloads."server:default".checksums.sha256')"; \
+      mkdir -p /opt/folia; \
+      curl -fsSL -o /opt/folia/folia.jar "$url"; \
+      echo "$sha  /opt/folia/folia.jar" | sha256sum -c -; \
+      echo "$v" > /opt/folia/VERSION; \
+      cp /tmp/folia-patches/*.json /patches/; \
+    elif [ "$SERVER_TYPE" != "PAPER" ]; then \
+      echo "unknown SERVER_TYPE=$SERVER_TYPE (PAPER|FOLIA)" >&2; exit 1; \
+    fi; \
+    rm -rf /tmp/libs.versions.toml /tmp/folia-patches
+COPY --chmod=0755 docker/server-type-start.sh /usr/local/bin/astera-start
+ENTRYPOINT ["/usr/local/bin/astera-start"]
+
 # 25565 = Minecraft Java, 25575 = RCON. World/config volume is /data.
 EXPOSE 25565 25575
 VOLUME ["/data"]

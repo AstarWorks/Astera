@@ -63,3 +63,7 @@ Capture: command, SHOT_ID, meta.json summary, captureQuality, published revision
 Open diffs by role: model / animation / texture / particles / sound / integration
 Not verified: ...
 ```
+
+## Every round ends on skill-compare
+
+The founder reviews only on skill-compare. Before reporting, publish: `make skill-preview SKILL=<s>` (publishes the preview), `make skill-lint SKILL=<s>` (publishes the lint report + overlays), the real capture via `publish-capture.mjs` when one was made, and the round notes via `make skill-round SKILL=<s>` (`tools/skill-compare/data/<case>/round.md`: what changed, open questions). Check the page shows no STALE chip. See `docs/contributing/vfx-team/skill-compare-views.md`.
