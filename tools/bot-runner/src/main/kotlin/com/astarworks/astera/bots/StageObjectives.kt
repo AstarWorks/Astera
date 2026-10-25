@@ -15,6 +15,12 @@ class StageObjectives private constructor(
     override fun starPoints(): List<Pair<Double, Double>> = generators
     override fun routeGraph(): ArenaRouteGraph? = graph
 
+    /** Centre (x, z) of the stage region [name] (e.g. `tnt-spawn`, `base-blue`, `wool-b`), or null when the stage has none. */
+    fun zoneCentre(name: String): Pair<Double, Double>? = regions.firstOrNull { it.name == name }?.let { it.cx to it.cz }
+
+    /** Names of the stage regions that start with [prefix] (e.g. every `wool-` control point), in stage order. */
+    fun zoneNames(prefix: String): List<String> = regions.map { it.name }.filter { it.startsWith(prefix) }
+
     private data class Spawn(val team: String, val x: Double, val z: Double)
     private data class Region(val name: String, val cx: Double, val cy: Double, val cz: Double)
 

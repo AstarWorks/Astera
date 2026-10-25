@@ -1,0 +1,47 @@
+package com.astarworks.astera.e2e
+
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+/**
+ * Steal Jewelry (gems_per_team 2): the red bot walks (A*) into the blue jewelry pedestal zone (steal 1), steps out to the middle
+ * of the blue base and back in (steal 2), then carries both into its own base zone: banked 2/2 wins the match.
+ */
+class StealJewelryPlaythroughE2eTest : ObjectivePlaythroughBase() {
+
+    private val suite = "Steal Jewelry playthrough"
+
+    @Test
+    fun `steal-jewelry is played until a team banks every enemy jewel`() {
+        val ctx = startMatch(suite, "steal-jewelry", "Sj") ?: return
+        val a = ctx.actor
+        val others = listOf(ctx.idle)
+        val (jx, jz) = ctx.zone("jewelry-blue")
+        val (ox, oz) = ctx.zone("base-blue")
+        val (hx, hz) = ctx.zone("base-red")
+
+        val toJewel = ctx.walker.walkTo(jx, jz, 0.8, 150_000, others)
+        walkCheck(ctx, "the blue jewelry pedestal", toJewel, jx, jz)
+        val first = a.waitUntil(6_000) { ctx.chatCount("stole a jewel") >= 1 }
+        E2eReport.check(suite, "entering the enemy pedestal zone steals a jewel (1)", "SystemChat / sidebar") {
+            assertThat(first).describedAs("no theft message; pos=${posOf(a)} chat=${ctx.chat().takeLast(5)} sidebar=${sidebar(a)}").isTrue()
+            "chat=${ctx.chat().filter { it.contains("jewel") }}; sidebar=${sidebar(a)}"
+        }
+
+        ctx.walker.walkTo(ox, oz, 1.5, 60_000, others)
+        ctx.walker.walkTo(jx, jz, 0.8, 60_000, others)
+        val second = a.waitUntil(6_000) { ctx.chatCount("stole a jewel") >= 2 }
+        E2eReport.check(suite, "re-entering the pedestal zone steals the second jewel (2)", "SystemChat / sidebar") {
+            assertThat(second).describedAs("no second theft; pos=${posOf(a)} chat=${ctx.chat().takeLast(5)} sidebar=${sidebar(a)}").isTrue()
+            "thefts=${ctx.chatCount("stole a jewel")}; sidebar=${sidebar(a)}"
+        }
+
+        ctx.walker.walkTo(hx, hz, 2.0, 150_000, others) { ctx.chatCount("banked") >= 1 || matchLines().isEmpty() }
+        val banked = a.waitUntil(8_000) { ctx.chatCount("banked") >= 1 || matchLines().isEmpty() }
+        E2eReport.check(suite, "carrying the jewels into the own base banks them (2/2) and wins", "SystemChat") {
+            assertThat(banked).describedAs("nothing banked; pos=${posOf(a)} chat=${ctx.chat().takeLast(6)} sidebar=${sidebar(a)}").isTrue()
+            "chat=${ctx.chat().filter { it.contains("banked") }}"
+        }
+        finishMatch(ctx)
+    }
+}
