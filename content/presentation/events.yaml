@@ -105,3 +105,12 @@ moments:
     cue: "astera:ui/quest-complete"
   player-level-up:
     cue: "astera:ui/level-up"
+
+  # FX-10: menu feedback. Click is played centrally by the GUI intent router for every button;
+  # settings buttons play confirm instead. Handlers play confirm (success) / deny (refusal).
+  ui-click:
+    cue: "astera:ui/click"
+  ui-confirm:
+    cue: "astera:ui/confirm"
+  ui-deny:
+    cue: "astera:ui/deny"

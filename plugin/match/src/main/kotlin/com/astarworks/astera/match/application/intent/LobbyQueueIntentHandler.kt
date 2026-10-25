@@ -5,10 +5,12 @@ import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
 import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.gui.GuiText
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.lobby.LobbyLanePadLayout
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.match.application.gui.lobby.QueueModeListGuiSpec
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.application.service.matchmaking.BotMatchRequester
@@ -47,6 +49,7 @@ public class LobbyQueueIntentHandler(
     private val messages: IMessageRenderer,
     private val playerGateway: IPlayerGateway,
     private val bots: BotMatchRequester?,
+    private val presentation: () -> IPresentation? = { null },
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -121,11 +124,13 @@ public class LobbyQueueIntentHandler(
                 if (!withBots) send(player, MSG_ALREADY_HERE, placeholders)
             }
             is LaneQueueJoiner.Outcome.InMatch -> {
+                presentation()?.play(PresentationMoments.UI_DENY, player.id)
                 send(player, MSG_IN_MATCH)
                 return
             }
             is LaneQueueJoiner.Outcome.Rejected -> {
                 log.info("{} could not join lane '{}': {}", player.name, lane.key, outcome.error)
+                presentation()?.play(PresentationMoments.UI_DENY, player.id)
                 send(player, mapQueueError(outcome.error), placeholders)
                 return
             }
@@ -139,6 +144,7 @@ public class LobbyQueueIntentHandler(
     }
 
     private fun announceJoined(player: IMcPlayer, placeholders: Map<String, String>) {
+        presentation()?.play(PresentationMoments.UI_CONFIRM, player.id)
         mcServer.findPlayer(player.id)?.sendTitle(MSG_JOINED_TITLE, MSG_JOINED_SUBTITLE)
         send(player, MSG_JOINED, placeholders)
     }

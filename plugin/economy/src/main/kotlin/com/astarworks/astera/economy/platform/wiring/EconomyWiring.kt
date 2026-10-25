@@ -329,6 +329,7 @@ public object EconomyWiring {
             registry = shopRegistry,
             ledger = ledger,
             browse = shopBrowse,
+            presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>() },
         )
         registrations += intentRouter.register(ShopIntentHandler.INTENT_PREFIX) { intent, player ->
             shopIntentHandler.handle(intent, player)
@@ -347,6 +348,7 @@ public object EconomyWiring {
                     server = mcServer,
                     messages = msgRenderer,
                     players = playerGateway,
+                    presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>() },
                 )
                 registrations += intentRouter.register(
                     com.astarworks.astera.economy.application.cosmetic.CosmeticMenu.INTENT_PREFIX,
