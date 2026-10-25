@@ -724,7 +724,10 @@ internal class CorePaperBindings(
         server.pluginManager.registerEvents(
             com.astarworks.astera.core.adapter.paper.arena.PaperArenaVoidListener(
                 killY = arena::killY,
-                health = { ctx.services.get<IPlayerHealthGateway>() },
+                killer = com.astarworks.astera.core.application.service.arena.VoidFallKiller(
+                    health = { ctx.services.get<IPlayerHealthGateway>() },
+                    currentTick = { server.currentTick.toLong() },
+                ),
             ),
             plugin,
         )
