@@ -1987,7 +1987,7 @@ astera:
         "1": "初の遊べる PvP マッチループ（開始・スコア・終了・報酬）。"
         "2": "クラフトレシピ + クエストチェーン + advancement 着地。"
         "3": "管理者コマンド + スケジュールアナウンス + メンテナンスモード。"
-      full: "Phase 1 PoC リリース: 全機能 × 状態マトリックスは RTM-PARITY-TRACKER.md を参照。"
+      full: "Phase 1 PoC リリース: 範囲と領域別の現状は docs/vision/VISION.md を参照。"
 
   board:
     leaderboard:

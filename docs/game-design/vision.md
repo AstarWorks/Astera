@@ -32,5 +32,5 @@ Minecraft Java Edition を base に、以下を実現する:
 ## 関連 doc
 
 - [[pillars]]
-- [[../roadmap]]
+- [[../vision/VISION]]
 - [[../INDEX]]

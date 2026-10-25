@@ -1995,7 +1995,7 @@ astera:
         "1": "First playable PvP match loop (start, score, end, reward)."
         "2": "Crafting recipes + quest chains + advancements landed."
         "3": "Admin ops commands + scheduled announcements + maintenance mode."
-      full: "Phase 1 PoC release: see RTM-PARITY-TRACKER.md for the full feature × state matrix."
+      full: "Phase 1 PoC release: see docs/vision/VISION.md for scope and per-area status."
 
   board:
     leaderboard:

@@ -37,27 +37,21 @@ and no merge tooling between them — so the cost of conflict is higher
 than the human-human parallel-edit case. Isolation by default at the
 filesystem layer is cheaper than reconciling at commit time.
 
-## Read order on a `Wave X` prompt
+## Read order at session start (any track)
 
-When the user says `Wave 5b を実装して` (or similar), read these in this order
-**before spawning any worker**:
+Wave-style prompts are retired; work is organised by track (`.claude/rules/tracks.md`) and tracked on the
+Board (`.claude/rules/board.md`). Read, in this order, before spawning any worker:
 
-1. **`/home/node/.claude/plans/home-node-claude-plans-radius-roadmap-handoff.md`**
-   — session entry point. Lists every wave's trigger phrase + per-wave handoff
-   doc.
-2. **`/home/node/.claude/plans/wave-{N}{x}-handoff.md`** — execution detail
-   for *this* wave: Phase A→B→C plan, worker territory, scope, completion
-   criteria, ADR number.
-3. **`docs/IMPLEMENTATION-ROADMAP.md`** — cross-reference the wave's row +
-   cross-wave dependencies. SSOT for ordering.
-4. **`docs/RTM-PARITY-TRACKER.md`** — feature × state × wave-assignment.
-   SSOT for "what's left".
+1. **`docs/vision/VISION.md`** - pillars, current scope, out-of-scope, the founder's yardstick.
+2. **`docs/vision/areas/<area>.md`** for the area(s) you touch - 構想 / 現状 / 理想形 / 未決 / governing ADRs.
+3. **The Board** (https://claude.ai/artifact/2D2a8S41RpDwApdZFnPno3, read via `ArtifactData`) - items,
+   lanes, memos. Ordering is the founder's `rank`.
 
-## Verification is CI, not local
+## Verification: compile in the track, e2e in the window
 
-Agents verify via CI on `wp/*` branches; never run tests (`./gradlew`, `make e2e`, docker) locally.
-Push the branch and fetch results with `gh run watch` / `gh run view --log-failed` / `gh run download`;
-details in `docs/contributing/ci.md`.
+Agents and Codex run compile-only Gradle tasks and never `make e2e`, `./gradlew check` or unit tests. They
+ADD the e2e / game-sim test that proves their item. The manager runs one batched e2e per integration window
+(`.claude/rules/tracks.md`). Details of the harness: `docs/contributing/ci.md`, `.claude/rules/manager-mode.md`.
 
 ## Phase A / B / C
 
@@ -71,8 +65,8 @@ details in `docs/contributing/ci.md`.
   wiring, ADR, check, commit) — do not implement Phase B territory on Opus.
 - **Phase C — orchestrator solo.** Wire plugins
   (`plugin/<module>/src/main/kotlin/.../platform/Astera*Plugin.kt`), write the
-  ADR, run `./gradlew check`, update `docs/RTM-PARITY-TRACKER.md` (use
-  `rtm-sync` subagent), single commit.
+  ADR, run `./gradlew check`, update the 現状 section of the touched
+  `docs/vision/areas/*.md` (use the `area-spec-sync` subagent) and the Board, single commit.
 
 ## Single-commit-per-wave + orchestrator pushes
 
@@ -96,13 +90,12 @@ details in `docs/contributing/ci.md`.
   only.
 - Write or edit ADRs — Phase C / orchestrator only (use the `adr-new` skill).
 - Run `git commit` / `git push` / `git branch` / `git checkout`.
-- Modify `docs/RTM-PARITY-TRACKER.md` — Phase C, via the `rtm-sync` subagent.
+- Modify the Board or `docs/vision/` outside their own track's area spec 現状 section (Board: manager only).
 
 ## ADR numbers are pre-allocated
 
-`docs/IMPLEMENTATION-ROADMAP.md §"ADR allocation per wave"` lists the ADR
-number reserved for each wave. **Use that number**; do not pick a fresh one.
-Use the `adr-new` skill to scaffold.
+The manager reserves each ADR number on the Board item (`adr` field, next free number in `docs/adr/`).
+**Use that number**; do not pick a fresh one. Use the `adr-new` skill to scaffold.
 
 ## Off-limits paths (do not touch in normal waves)
 

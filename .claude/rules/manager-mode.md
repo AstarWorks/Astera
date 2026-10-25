@@ -46,6 +46,11 @@ Known limit: `python3 script.py` / `bun x.ts` of an existing file is not inspect
 - Codex: write the task to a file under `/tmp/claude-1000/`, run `scripts/codex-task.sh <task-id> <prompt-file>`. Run it from the track worktree. It creates `.claude/worktrees/<task-id>` on `wp/<task-id>` from the invoking checkout's `HEAD` (optional 3rd arg = base ref), prepends `.claude/prompts/codex-preamble.md`, runs `codex exec -p astar-implement -s danger-full-access` in the background; progress in `/tmp/claude-1000/codex/<task-id>.log` (ends with `EXIT=<code>`), final message in `<task-id>-last.md`. Then merge `wp/<task-id>` into the track branch inside the track worktree (never in the primary checkout).
 - Harness changes (`.claude/**`, this rule included) also go through an agent.
 
-## E2E (founder decision 2026-10-23)
+## E2E (batch rule, founder 2026-10-26; supersedes the 2026-10-23 per-agent rule)
 
-Manager and agents agents may run `flock /tmp/claude-1000/astera-e2e.lock make e2e` (serialized: one at a time on this host, ~12+ min, per-checkout isolated harness, report `build/e2e-report.md`) when the task needs player-visible verification; never in parallel; never touch the live `astera-dev-*` containers. Compile-only Gradle tasks are allowed; unit tests and `./gradlew check`/test tasks stay forbidden.
+Tracks, agents and Codex do NOT run e2e. They add or update the e2e / game-sim test that proves their item and
+name it in the report. The manager (or a QA subagent it launches) runs ONE `flock /tmp/claude-1000/astera-e2e.lock make e2e`
+(serialized, ~12+ min, report `build/e2e-report.md`) per integration window (12:00 / 21:00 JST) on the merged
+`wp/integrate` branch; see `.claude/rules/tracks.md`. An out-of-window single-track run needs the manager's OK
+and a Board `e2e-request`. Never touch the live `astera-dev-*` containers. Compile-only Gradle tasks are
+allowed; unit tests and `./gradlew check`/test tasks stay forbidden.
