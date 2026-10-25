@@ -1628,6 +1628,20 @@ astera:
         training:
           title: "<aqua><bold>訓練場</bold></aqua>"
           subtitle: "<dark_gray>射撃・近接</dark_gray>"
+      # MAP-07 — 4 つの拠点の建物の看板。
+      hub:
+        play:
+          title: "<gold><bold>プレイ</bold></gold>"
+          subtitle: "<dark_gray>試合を始める</dark_gray>"
+        travel:
+          title: "<aqua><bold>トラベル</bold></aqua>"
+          subtitle: "<dark_gray>ステーション</dark_gray>"
+        social:
+          title: "<green><bold>ソーシャル</bold></green>"
+          subtitle: "<dark_gray>パーティ・フレンド</dark_gray>"
+        market:
+          title: "<gold><bold>マーケット</bold></gold>"
+          subtitle: "<dark_gray>ショップ・金庫</dark_gray>"
       lane:
         hint: "<dark_gray>床の上に立つ</dark_gray>"
         title: "<gold><bold>{lane}</bold></gold>"
@@ -1645,6 +1659,15 @@ astera:
         rack:
           title: "<green><bold>武器ラック</bold></green>"
           hint: "<dark_gray>額縁を右クリック</dark_gray>"
+        course:
+          title: "<yellow><bold>障害物コース</bold></yellow>"
+          hint: "<dark_gray>端まで駆け抜けよう</dark_gray>"
+        cover:
+          title: "<gray><bold>遮蔽エリア</bold></gray>"
+          hint: "<dark_gray>隠れて撃つ練習</dark_gray>"
+        entry:
+          title: "<aqua><bold>練習場</bold></aqua>"
+          hint: "<dark_gray>的は倒れません</dark_gray>"
     # F3-1 — キューのレーン床: 床の上のホログラムと参加の確認表示。
     lane:
       board:
