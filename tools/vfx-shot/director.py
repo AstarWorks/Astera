@@ -6,6 +6,7 @@ plan.tsv: `t_ms<TAB>command` lines, t relative to the cast. One RCON connection;
 before the cast is sent (same contract as rcon.py --stamp). Each plan command is sent when its time is due (hard
 cuts: the camera is teleported once per key).
 """
+import os
 import socket
 import struct
 import sys
@@ -58,14 +59,24 @@ def main():
         if recv(sock)[0] == -1:
             print("rcon: bad password", file=sys.stderr)
             return 2
+        # Clapperboard marks: the server game time right before and right after the cast, on this same connection.
+        # RCON commands queued back to back normally run in the same server tick, so before == after pins the cast
+        # tick exactly; a difference of one tick is recorded as the uncertainty.
+        mark = os.environ.get("DIRECTOR_MARK_CMD", "")
+        if mark:
+            print("MARK_BEFORE %.3f %s" % (time.time(), run(sock, mark).strip()), file=sys.stderr, flush=True)
         t0 = time.time()
         print("STAMP %.3f" % t0, file=sys.stderr, flush=True)
         print(run(sock, cast), flush=True)
         print("CAST_ACK %.3f" % time.time(), file=sys.stderr, flush=True)
+        if mark:
+            print("MARK_AFTER %.3f %s" % (time.time(), run(sock, mark).strip()), file=sys.stderr, flush=True)
         for t_ms, cmd in steps:
             wait = t0 + t_ms / 1000.0 - time.time()
             if wait > 0:
                 time.sleep(wait)
+            if mark:
+                print("CUT_MARK %d %.3f %s" % (t_ms, time.time(), run(sock, mark).strip()), file=sys.stderr, flush=True)
             sent = time.time()
             run(sock, cmd)
             print("CAMERA %d SENT %.3f ACK %.3f" % (t_ms, sent, time.time()), file=sys.stderr, flush=True)

@@ -7,6 +7,7 @@ Repeated frames request visual review; an idle scene alone is not proof of a sta
 import datetime
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 import subprocess
@@ -102,4 +103,42 @@ try:
     meta["branch"] = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=root, text=True).strip()
 except subprocess.CalledProcessError:
     pass
+# Warm-stack provenance: what the long-lived server actually served. The sync step in vfx-shot.sh verified the
+# deployed content hash inside the container before filming; here the working tree is fingerprinted again, so an edit
+# made while the capture was running (frames then show an older state than the tree) is flagged.
+state_dir = os.environ.get("VFX_SHOT_STATE")
+deployed_file = Path(state_dir) / "deployed.json" if state_dir else None
+if deployed_file and deployed_file.is_file():
+    sys.dont_write_bytecode = True  # a .pyc in the tree would make the next capture record codeDirty
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from shotstate import inputs
+    deployed = json.loads(deployed_file.read_text())
+    now = inputs(Path(__file__).resolve().parents[2])
+    in_sync = (now["contentSourceHash"] == deployed.get("contentSourceHash") and now["packHash"] == deployed.get("packHash")
+               and now["codeHash"] == deployed.get("codeHash"))
+    meta["stack"] = {
+        "mode": "cold" if os.environ.get("VFX_SHOT_STACK_COLD") == "1" else "warm",
+        "deployedContentHash": deployed.get("deployedContentHash"),
+        "contentSourceHash": deployed.get("contentSourceHash"),
+        "contentVerifiedInContainer": deployed.get("contentVerified") == "true",
+        "packHash": deployed.get("packHash"),
+        "packSha1": deployed.get("deployedPackSha1"),
+        "codeHash": deployed.get("codeHash"),
+        "deployedCodeRevision": deployed.get("codeRevision"),
+        "deployedCodeDirty": deployed.get("codeDirty") == "true",
+        "deployedAt": deployed.get("deployedAt"),
+        "workingTreeInSync": in_sync,
+    }
+    if not in_sync:
+        meta["captureQuality"].update(invalid=True, reviewRequired=True,
+            reason="content/, pack inputs or plugin code changed on disk while the capture ran; the frames show the previously "
+                   "deployed state, not the working tree. Recapture required.")
+clapper_file = directory / "clapper.json"
+if clapper_file.is_file():
+    meta["clapper"] = {"measured": True, **json.loads(clapper_file.read_text())}
+else:
+    meta["clapper"] = {"measured": False, "assumedCastLagMs": int(os.environ.get("VFX_SHOT_CAST_LAG_MS", "60"))}
+if os.environ.get("VFX_SHOT_BEAT_ONLY") == "1":
+    meta["beatFramesOnly"] = True
+    meta["beatFrames"] = [int(f.stem.split("_")[1]) for f in frames]
 path.write_text(json.dumps(meta, indent=2) + "\n")
