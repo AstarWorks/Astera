@@ -66,6 +66,7 @@ class PersonaWeaponsE2eTest : E2eBase() {
         val ay = a.y
         val az = a.z
         val rows = mutableListOf<Row>()
+        var deathsSeen = 0
 
         // Cone / narrow-arc skills (rifles, staff) test the target's body centre against the caster's eye:
         // a player aims at the target, so tilt the pitch down by atan(eye - centre / distance).
@@ -105,11 +106,13 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 // A target at Astera-HP 0 rejects damage and vanilla heal does not revive it: swap in a fresh one.
                 if (t.health == 0f || !t.joined) {
                     runCatching { rcon("kick ${t.name}") }
-                    t = bot("Tgt")
+                    t = bot("Tgt"); deathsSeen = 0
                     t.waitUntil(15_000) { t.joined && !t.health.isNaN() }
                     Thread.sleep(1_000)
                     rcon("gamemode survival ${t.name}")
                 }
+                // A target that died last trigger respawns with spawn protection (Norma layer): let it lapse so the next hit lands.
+                if (t.deaths.size > deathsSeen) { Thread.sleep(4_000); deathsSeen = t.deaths.size }
                 rcon("effect give ${t.name} minecraft:instant_health 1 4 true")
                 rcon("effect give ${a.name} minecraft:instant_health 1 4 true")
                 val aimed = w in aimedWeapons
