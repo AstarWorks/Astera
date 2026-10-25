@@ -31,12 +31,16 @@ patch generators/arena-south.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z
 patch matchmaking/queue.yaml 's/^queue_countdown_seconds:.*/queue_countdown_seconds: 3/' '^queue_countdown_seconds:'
 patch matchmaking/queue.yaml 's/^match_countdown_seconds:.*/match_countdown_seconds: 5/' '^match_countdown_seconds:'
 
-for mode in skirmish annihilation break-core; do
+# skirmish has no timers of its own: it inherits the Norma layer's (patched below).
+for mode in annihilation break-core; do
   patch "game-modes/$mode.yaml" 's/^(  respawn_delay_seconds:).*/\1 "2"/' '^  respawn_delay_seconds:'
   patch "game-modes/$mode.yaml" 's/^(  death_cam_seconds:).*/\1 "1"/' '^  death_cam_seconds:'
   patch "game-modes/$mode.yaml" 's/^(  spawn_protection_seconds:).*/\1 "1"/' '^  spawn_protection_seconds:'
 done
 
+for k in respawn_delay_seconds:2 death_cam_seconds:1 spawn_protection_seconds:1; do
+  patch norma-layer/layer.yaml "s/^(  ${k%%:*}:).*/\\1 \"${k##*:}\"/" "^  ${k%%:*}:"
+done
 # The Norma layer's time limit (shared default in norma-layer/layer.yaml; annihilation keeps its own clock = 0).
 patch norma-layer/layer.yaml 's/^(  time_limit_seconds:).*/\1 "150"/' '^  time_limit_seconds:'
 # Siege modes keep their own 20 minute limit (they override the layer): the break-core playthrough must not be cut short.
