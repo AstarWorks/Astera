@@ -1,0 +1,12 @@
+# Star generator of the siege-isles-loyal arena (MODE-15: the Norma layer is a standard layer of every game mode). Stands on a
+# generator landmark of content/stages/siege-isles-loyal.yaml at the same x/z; mirrors content/generators/arena-*.yaml.
+id: siege-loyal-south
+match_stage_id: siege-isles-loyal
+position: { x: 10.5, y: 65.0, z: 3995.5 }
+period_seconds: 30.0
+amount: 1
+tier: iron
+affiliation:
+  kind: neutral
+# Sudden death (late game) multiplies each pop.
+late_game_multiplier: 2.0
