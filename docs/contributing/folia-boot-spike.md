@@ -307,3 +307,50 @@ idle observation. The lobby world is created and all four arena plans build:
 53,093 / 81,278 / 58,542 / 63,005 blocks respectively. Restarting with the final
 jars also succeeds. This verifies boot compatibility and arena construction on
 Paper; it does not replace player E2E verification.
+
+## Round 3 — world slots, no runtime createWorld (2026-10-26)
+
+Code under test: `wp/folia-t6-world-slots` (SlotAllocator on a 2048-block grid,
+`ArenaPaster` pasting chunk by chunk through `ExecutionScope.Region`, main `world`
+is a void world from the `astera:void` datapack preset in `docker/void-world`,
+per-player time/weather). Throwaway compose projects `astera-t6r3-folia` and
+`astera-t6r3-paper` (`lobby` + `game`, own volumes, host ports remapped), removed with `down -v`.
+
+| | Folia 26.3.build.5 | Paper 26.3-223 |
+|---|---|---|
+| Past world setup (`Preparing level "world"`, `Done`) | yes, 20-21 s | yes, 33 s |
+| Game role: arenas | 4 stages pasted into slots 1-4 right after `Done` (53k-81k blocks each) | same |
+| Lobby role | `Lobby slot ready: 132554 blocks, 21 signs` | same |
+| ERROR / exception at boot and ~90 s idle | none | none |
+| Thread / ownership exceptions | none (no `isOwnedByCurrentRegion` or wrong-thread errors from the paste path) | none |
+
+Next failure layer: none at boot on either server. What remains is runtime
+behaviour that a boot cannot show (a real match start on the Global thread, player
+teleports into a slot, journal rollback after a match) and a pre-existing hazard
+seen on both servers: `StarGeneratorScheduler` (match) runs
+`PostgresMatchRepository.findActiveMatches` inside a Global-region task
+(`StarGeneratorScheduler.kt:68`), a blocking JDBC call on the global tick. Under
+host load it showed up as `FoliaWatchdogThread: Global region has not responded
+in 17 s` on Folia and `The server has not responded for 10 seconds` on Paper,
+with the thread parked in `PgConnection.commit` socket read. It needs an async
+hop or a cache; not part of T6.
+
+### Datapack dimensions on Folia 26.3
+
+They load. A throwaway pack `data/astera/dimension/probe.json` (flat, one air
+layer) dropped into `world/datapacks/` was discovered (`Found new data pack
+file/probe`), and Folia started it as an extra level: `Selecting spawn point for
+level 'astera:probe'`, `Loading 0 persistent chunks for level 'astera:probe'`,
+exposed to Bukkit as world `world_astera_probe` (Astera's `PaperWorldBaseline`
+applied its settings to it). Startup `Done` was reached with no errors. So a
+separate `siege` dimension is feasible as future work; T6 does not depend on it.
+The same mechanism carries the main world: `level-type=astera:void` resolves the
+`astera:void` world preset shipped in `docker/void-world`.
+
+### Fixes found while booting
+
+- `docker/server-type-start.sh` ran as root and created `/data/world` root-owned,
+  so a fresh volume failed with `AccessDeniedException: ./world/session.lock`.
+  It now `chown`s the world dir to the server uid.
+- `docker/Dockerfile.resource-pack` lacked `COPY kernel` / `COPY core`
+  (same fix as `wp/folia-dockerfix`; expect a trivial merge).

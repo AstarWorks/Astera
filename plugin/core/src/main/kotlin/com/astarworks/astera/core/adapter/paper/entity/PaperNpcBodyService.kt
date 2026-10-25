@@ -122,7 +122,7 @@ internal class PaperNpcBodyService(
         // "lobby" is the logical world name: the sky-island world (ADR-0180) when loaded,
         // else the server's main world (see PaperWorldGateway.lobbySpawn).
         val named = plugin.server.getWorld(req.world.value)
-        if (named == null && req.world.value in awaitedWorlds) return false
+        if (req.world.value in awaitedWorlds) return false
         val bukkitWorld = named ?: plugin.server.worlds.firstOrNull()
             ?: return false
         val location = Location(bukkitWorld, req.position.x, req.position.y, req.position.z, req.yaw, req.pitch)

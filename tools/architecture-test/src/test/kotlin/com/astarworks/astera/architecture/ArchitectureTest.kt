@@ -43,6 +43,14 @@ class ArchitectureTest {
         }
     }
 
+    @Test
+    fun `main sources must not create or unload worlds`() {
+        val forbidden = Regex("""\b(?:WorldCreator|createWorld|unloadWorld)\b""")
+        projectScope().files.filter { it.path.contains("/src/main/") }.assertFalse { file ->
+            forbidden.containsMatchIn(sourceWithoutComments(file.text))
+        }
+    }
+
     private fun sourceWithoutComments(text: String): String =
         text.replace(Regex("""/\*.*?\*/|//[^\n]*""", RegexOption.DOT_MATCHES_ALL), " ")
 

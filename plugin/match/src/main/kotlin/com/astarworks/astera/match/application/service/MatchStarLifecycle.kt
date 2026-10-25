@@ -18,11 +18,16 @@ public class MatchStarLifecycle(
     private val store: IMatchStarStore,
     private val drops: StarDropService,
     private val norma: NormaLevelService,
+    private val stages: com.astarworks.astera.core.application.port.outbound.IStageRegistry? = null,
     private val onInvalid: (generatorId: String, reason: String) -> Unit = { _, _ -> },
 ) {
     public fun onStarted(event: MatchStarted) {
-        for (config in registry.all().filter { it.matchStageId == event.stageId.value }) {
-            config.toDomain(event.matchId).fold(
+        val stage = stages?.find(event.stageId)
+        val source = stage?.templateId ?: event.stageId
+        val origin = stage?.origin ?: com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0)
+        for (config in registry.all().filter { it.matchStageId == source.value }) {
+            val placed = config.copy(position = config.position.copy(x = config.position.x + origin.x, z = config.position.z + origin.z))
+            placed.toDomain(event.matchId).fold(
                 onSuccess = { generators.save(it) },
                 onFailure = { onInvalid(config.id, it.toString()) },
             )

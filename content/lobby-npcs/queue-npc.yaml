@@ -17,7 +17,7 @@ display_name: astera.lobby.npc.queue.name
 type: display_entity
 
 spawn:
-  world: lobby
+  world: world
   x: 2.5
   y: 65.0
   z: 50.5

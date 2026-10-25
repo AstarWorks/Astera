@@ -112,6 +112,7 @@ public class PaperWorldGateway(
     private val scheduler: IScheduler,
     @Suppress("UnusedPrivateProperty")
     private val eventBus: IDomainEventBus,
+    private val lobbyPosition: () -> Vec3 = { Vec3(0.5, 65.0, 6.5) },
 ) : IWorldGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -242,8 +243,8 @@ public class PaperWorldGateway(
         val lobby = server.getWorld(com.astarworks.astera.core.application.config.LobbyWorldYamlConfig.DEFAULT_ID)
             ?: server.worlds.firstOrNull()
             ?: return CompletableFuture.completedFuture(Result.failure(WorldGatewayError.Storage("no worlds loaded")))
-        val target = lobby.spawnLocation
-        return teleportAsync(playerId, Vec3(target.x, target.y, target.z), WorldId(lobby.name), target.yaw, target.pitch).thenApply { moved ->
+        val target = lobbyPosition()
+        return teleportAsync(playerId, target, WorldId(lobby.name), 180f, 0f).thenApply { moved ->
             if (moved) Result.success(Unit) else Result.failure(WorldGatewayError.Storage("teleport rejected"))
         }
 

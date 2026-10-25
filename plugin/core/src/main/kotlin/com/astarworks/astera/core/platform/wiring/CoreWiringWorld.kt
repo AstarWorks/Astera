@@ -193,9 +193,6 @@ internal fun CoreWiringState.wireHudAndWorld() {
     // Per-match config service (Wave 5c bridge): apply/reset overlay at
     // match start/end. Uses the just-registered world gateways.
     val matchConfigService: IMatchConfigService = InMemoryMatchConfigService(
-        worldRules = services.getOrThrow<IWorldRulesGateway>(),
-        worldTime = services.getOrThrow<IWorldTimeGateway>(),
-        worldWeather = services.getOrThrow<IWorldWeatherGateway>(),
         eventBus = eventBus,
     )
     services.register<IMatchConfigService>(matchConfigService, priority = 0)

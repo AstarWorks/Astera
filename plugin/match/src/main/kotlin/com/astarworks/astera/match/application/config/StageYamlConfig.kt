@@ -43,11 +43,11 @@ import kotlinx.serialization.Serializable
 public data class StageYamlConfig(
     public val id: String,
     @SerialName("display_name_key") public val displayNameKey: String,
-    public val world: String = Stage.DEFAULT_WORLD,
     public val regions: List<RegionYamlConfig> = emptyList(),
     @SerialName("spawn_points") public val spawnPoints: List<SpawnPointYamlConfig> = emptyList(),
     public val pillars: List<PillarYamlConfig> = emptyList(),
     public val layout: ArenaLayoutYamlConfig? = null,
+    @SerialName("warm_slots") public val warmSlots: Int? = null,
 ) {
     /**
      * Convert the parsed DTO into a domain [Stage]. Any kebab-case / i18n key
@@ -56,7 +56,7 @@ public data class StageYamlConfig(
      * counts as a failure (the batch keeps going).
      */
     public fun toSpec(): Stage {
-        val worldId = WorldId(world)
+        val worldId = WorldId(Stage.DEFAULT_WORLD)
         return Stage(
             id = StageId(id),
             displayNameKey = MessageKey(displayNameKey),
@@ -65,6 +65,7 @@ public data class StageYamlConfig(
             world = worldId,
             pillars = pillars.map { it.toDomain() },
             layout = layout?.toDomain(),
+            warmSlots = warmSlots?.also { require(it in 1..16) },
         )
     }
 }

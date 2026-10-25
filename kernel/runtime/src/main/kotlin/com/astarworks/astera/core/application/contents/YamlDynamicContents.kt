@@ -49,7 +49,7 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
      */
     protected abstract fun toEntry(config: C): Pair<K, V>?
 
-    final override fun find(key: K): V? = store.get()[key]
+    override fun find(key: K): V? = store.get()[key]
 
     final override fun all(): Collection<V> = store.get().values
 

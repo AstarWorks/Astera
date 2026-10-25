@@ -6,7 +6,7 @@ display_name: astera.lobby.npc.settings.name
 type: display_entity
 
 spawn:
-  world: lobby
+  world: world
   x: 4.5
   y: 65.0
   z: 4.5
