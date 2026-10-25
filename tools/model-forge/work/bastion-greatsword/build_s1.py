@@ -13,6 +13,10 @@ ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT/'tools/model-forge'))
 from core import Project
 
+KY = 0.686           # length scale about the grip centre: 44.3 -> 30.4 units = 1.9 blocks pommel to tip
+KXB = 2.1            # blade/ricasso/shoulder width scale (broad greatsword); grip and guard keep their width
+KXG = 1.3            # guard width scale
+YBLADE = 5.86        # local y where the ricasso starts
 OFF = -10.0          # model y = local y + OFF
 MAT = {
  'steel':'metal.iron_block', 'edge':'stone.smooth_quartz', 'rim':'stone.polished_blackstone',
@@ -23,6 +27,8 @@ els = []
 
 def B(name, mat, x0, x1, y0, y1, z0, z1, rot=None):
     """box in local coords (x0..x1, y0..y1, z0..z1)"""
+    kx = KXB if y0 >= YBLADE - 1e-6 else (KXG if y0 >= 3.5 - 1e-6 else 1.0)
+    x0, x1, y0, y1 = x0*kx, x1*kx, y0*KY, y1*KY
     f = {k: {'texture': '#0', 'uv': [0, 0, 1, 1]} for k in ('north', 'south', 'east', 'west', 'up', 'down')}
     e = {'name': f'{mat}|{name}', 'from': [8+x0, OFF+y0, 8+z0], 'to': [8+x1, OFF+y1, 8+z1], 'faces': f}
     if rot:

@@ -38,10 +38,10 @@ BONE_NAMES = list(BONES)
 ARM_LEN_PX = 12.0   # box height; the hand end of an arm is pivot + R * (0, -(12 - 2), 0) for the classic arm (box top is 2 px above the joint)
 
 # weapon geometry of the shipped greatsword rig (content/vfx/bastion-s1-rig.yaml; rig-local, after the grip pitch)
-WEAPON_TIP_LOCAL = np.array([0.0, 2.0098, 1.5696])
+WEAPON_TIP_LOCAL = np.array([0.0, 1.3789, 1.0769])
 WEAPON_EDGE_LOCAL = np.array([0.0, -0.6155, 0.7881])
 WEAPON_PIVOT = np.zeros(3)
-POMMEL_BACK = 0.3   # blocks behind the grip along the blade axis: where the pommel sits (annotation landmark only)
+POMMEL_BACK = 0.15  # blocks behind the grip along the blade axis: where the pommel sits (annotation landmark only)
 
 MIRROR = np.diag([-1.0, 1.0, 1.0])
 
