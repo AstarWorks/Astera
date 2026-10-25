@@ -15,10 +15,9 @@ import com.astarworks.astera.core.domain.world.WorldId
  * [com.astarworks.astera.core.domain.event.MobSpawned] on success.
  *
  * Application code calls this port — never an adapter directly — so the
- * MythicMobs / Minimal selection stays opaque. The router treats each
- * adapter's `isAvailable()` as authoritative; a registered adapter that
- * reports unavailable is skipped (the MythicMobs skeleton in Phase 1 always
- * reports false, so the router cleanly falls through to Minimal).
+ * adapter selection stays opaque. The router treats each adapter's
+ * `isAvailable()` as authoritative; a registered adapter that reports
+ * unavailable is skipped.
  *
  * # Why a separate port from [IMobAdapter]
  *

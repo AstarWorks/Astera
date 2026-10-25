@@ -25,6 +25,8 @@
 docker/*
 !docker/paper-patches
 !docker/e2e-tune-content.sh
+!docker/folia-patches
+!docker/server-type-start.sh
 
 # Docs and deploy aren't needed for the jar build
 docs/

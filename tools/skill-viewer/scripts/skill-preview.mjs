@@ -13,6 +13,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, wri
 import { homedir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { stampTree } from '../../skill-compare/lib/revision.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repo = resolve(root, '../..');
@@ -23,6 +24,7 @@ const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) =>
 const skill = String(args.skill ?? '');
 if (!skill || skill === 'true') { console.error('usage: skill-preview.mjs --skill <skill id> [--case <id>] [--plan f] [--particles f] [--out dir] [--size WxH] [--ticks a-b] [--every n] [--no-ref] [--client dir]'); process.exit(2); }
 const T0 = performance.now();
+const provenance = stampTree(repo);   // the tree this render was made from; skill-compare shows it and flags STALE
 const timings = {};
 const mark = (name, since) => { timings[name] = +((performance.now() - since) / 1000).toFixed(2); };
 
@@ -239,7 +241,7 @@ await browser.close();
 
 const total = (performance.now() - T0) / 1000;
 const meta = {
-  skill, case: caseId, ticks: [tFrom, tTo], size: [W, H], weapon: weapon && { item: weapon.itemId, model: weapon.modelFile }, slim: plan.slim,
+  skill, case: caseId, provenance, ticks: [tFrom, tTo], size: [W, H], weapon: weapon && { item: weapon.itemId, model: weapon.modelFile }, slim: plan.slim,
   fxDisplays: setup.fx, particles: particles ? setup.particles : null, reference: refAvailable, client: clientAvailable ? clientDir : null,
   timings: { ...timings, total: +total.toFixed(2), perFrame: +(timings.frames / ticks.length).toFixed(3) }, warnings: [...warnings, ...setup.warnings, ...pageLog],
 };

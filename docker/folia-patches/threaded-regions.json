@@ -1,0 +1,7 @@
+{
+  "file": "/data/config/paper-global.yml",
+  "ops": [
+    { "$set": { "path": "$.threaded-regions.threads", "value": 4, "value-type": "int" } },
+    { "$set": { "path": "$.threaded-regions.grid-exponent", "value": 4, "value-type": "int" } }
+  ]
+}

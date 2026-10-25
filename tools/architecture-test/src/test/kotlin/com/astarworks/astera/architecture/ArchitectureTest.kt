@@ -1044,7 +1044,7 @@ class ArchitectureTest {
             ) { file -> hasBukkitFamilyImport(file) }
     }
 
-    // ─── Wave 5pve — IMobAdapter uniqueness + MythicMobs vendor isolation (ADR-0085) ───
+    // ─── Wave 5pve — IMobAdapter uniqueness (ADR-0085) ───
 
     /**
      * ADR-0085 (PvE mob foundation, two-tier `IMobAdapter`): every concrete
@@ -1083,7 +1083,7 @@ class ArchitectureTest {
             requireNotNull(backendIdLine) {
                 "ADR-0085: ${cls.fullyQualifiedName} implements IMobAdapter but " +
                     "declares no `BACKEND_ID` constant. Add one referencing " +
-                    "MobBackendId.MINIMAL / MobBackendId.MYTHICMOBS / a new constant."
+                    "MobBackendId.MINIMAL / a new constant."
             }
             cls.fullyQualifiedName!! to backendIdLine
         }
@@ -1103,31 +1103,6 @@ class ArchitectureTest {
                     "Each IMobAdapter implementation must own a distinct MobBackendId."
             }
             .isEmpty()
-    }
-
-    /**
-     * ADR-0085: MythicMobs is a soft-dep. Core's mob domain must never
-     * import the MythicMobs API (`io.lumine.mythic.*`) — that lives only
-     * in the future Wave 6b Paper adapter under
-     * `plugin/.../adapter/paper/mob/`.
-     *
-     * If a MythicMobs import appears in `core.domain.mob.*`, the
-     * "MythicMobs-not-installed" smoke environment (CI, headless tests)
-     * will fail to load Core. This test catches the regression at
-     * compile-test time instead of at server boot.
-     */
-    @Test
-    fun `core domain mob must not import MythicMobs API (ADR-0085)`() {
-        moduleScope("plugin/core")
-            .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.mob") == true }
-            .assertFalse(
-                additionalMessage = "ADR-0085 vendor isolation: core.domain.mob.* must not " +
-                    "import io.lumine.mythic.*. MythicMobs API wrap lives only in " +
-                    "the Wave 6b Paper adapter (plugin/.../adapter/paper/mob/).",
-            ) { file ->
-                file.imports.any { imp -> imp.name.startsWith("io.lumine.mythic") }
-            }
     }
 
     // ─── Wave 5pve-boss — Boss + Encounter + Loot subdomain purity (ADR-0098) ───

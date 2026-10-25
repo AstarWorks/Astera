@@ -15,9 +15,6 @@ package com.astarworks.astera.core.domain.mob
  *  - [MINIMAL] — Core's always-available adapter. Backed by ArmorStand /
  *    Display entity bookkeeping in Phase 1; Wave 6b's Paper subclass spawns
  *    real entities.
- *  - [MYTHICMOBS] — Wave 6b skeleton, full impl in Phase 4. Only active
- *    when the MythicMobs plugin is installed; reports `isAvailable() = false`
- *    in vanilla deployments so the router cleanly falls through to Minimal.
  */
 @JvmInline
 public value class MobBackendId(public val value: String) {
@@ -33,8 +30,5 @@ public value class MobBackendId(public val value: String) {
     public companion object {
         /** Built-in minimal adapter. Always available. */
         public val MINIMAL: MobBackendId = MobBackendId("minimal")
-
-        /** MythicMobs-plugin-backed adapter. Available only when MythicMobs is loaded. */
-        public val MYTHICMOBS: MobBackendId = MobBackendId("mythicmobs")
     }
 }

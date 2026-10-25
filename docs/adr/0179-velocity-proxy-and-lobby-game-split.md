@@ -1,16 +1,18 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-10-22
 deciders: founder + Claude (orchestrator)
 supersedes: null
-superseded_by: null
+superseded_by: 0263
 ---
 
 # ADR-0179: Velocity proxy, lobby/game server roles, cross-server queue hand-off
 
 ## Status
 
-Accepted. Realises the adapters ADR-0084 deferred (`IProxyMessenger`,
+**Superseded by [[adr/0263-homogeneous-backends-and-optional-proxy-scale-out]]** (2026-10-26, Folia migration). Body below preserved per ADR convention; do not act on the design described here.
+
+Originally: Accepted. Realises the adapters ADR-0084 deferred (`IProxyMessenger`,
 `IServerTransferGateway`) and extends ADR-0174's wiring seam with a server role.
 
 ## Context

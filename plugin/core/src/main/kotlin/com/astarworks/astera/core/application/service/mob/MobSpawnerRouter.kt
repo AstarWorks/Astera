@@ -21,8 +21,7 @@ import com.astarworks.astera.core.domain.world.WorldId
  * the [adapters] list. Selection rule:
  *
  *  1. Iterate [adapters] in registration-priority order (the constructor
- *     caller decides ordering — `AsteraCorePlugin` lists MythicMobs first,
- *     Minimal last).
+ *     caller decides ordering — `CoreWiringPlayer` lists the adapters).
  *  2. Pick the first adapter whose [IMobAdapter.isAvailable] returns true.
  *  3. If none available, return [MobError.NoAdapterAvailable].
  *

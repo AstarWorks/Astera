@@ -31,7 +31,6 @@ import com.astarworks.astera.core.application.service.entity.MinimalNpcAdapter
 import com.astarworks.astera.core.application.service.entity.RouterEntitySpawner
 import com.astarworks.astera.core.application.service.mob.MinimalMobAdapter
 import com.astarworks.astera.core.application.service.mob.MobSpawnerRouter
-import com.astarworks.astera.core.application.service.mob.MythicMobsMobAdapter
 import com.astarworks.astera.core.application.service.mob.NoopPveLootDistributor
 import com.astarworks.astera.core.application.service.mob.NoopPveXpDistributor
 import com.astarworks.astera.core.application.service.mob.StaticMobSpawnLadder
@@ -198,11 +197,8 @@ internal fun CoreWiringState.wirePlayerSystems() {
     services.register<IEntitySpawner>(entitySpawner, priority = 0)
 
     // ---- PvE mob foundation (Wave 5pve, ADR-0085) --------------------
-    // Two-tier strategy: MinimalMobAdapter (always available) +
-    // MythicMobsMobAdapter (Phase 1 skeleton, Wave 6b activates with
-    // MythicMobs plugin detection). MobSpawnerRouter picks the
-    // highest-priority *available* adapter; MythicMobs listed first so
-    // Wave 6b's enabled subclass takes precedence without re-ordering.
+    // MinimalMobAdapter is the only IMobAdapter (in-house, vanilla entities);
+    // MobSpawnerRouter picks the first *available* adapter from its list.
     //
     // Pve loot + xp distributors are Noop in Phase 1 — Phase 4 supersedes
     // via priority-100 service registration once content/loot/ + the XP
@@ -219,11 +215,9 @@ internal fun CoreWiringState.wirePlayerSystems() {
         services.register<com.astarworks.astera.core.application.port.outbound.mob.IMobBodyGateway>(mobBodies, priority = 0)
     }
     val minimalMobAdapter = MinimalMobAdapter(eventBus, scheduler, mobBodies)
-    val mythicMobsMobAdapter = MythicMobsMobAdapter()
-    services.register<IMobAdapter>(mythicMobsMobAdapter, priority = 10)
     services.register<IMobAdapter>(minimalMobAdapter, priority = 0)
     mobSpawner = MobSpawnerRouter(
-        adapters = listOf(mythicMobsMobAdapter, minimalMobAdapter),
+        adapters = listOf(minimalMobAdapter),
         registry = mobContents,
         eventBus = eventBus,
         scheduler = scheduler,

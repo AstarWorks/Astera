@@ -207,7 +207,7 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IEntitySpawner",
             // Wave 5pve (ADR-0085)
             "IMobRegistry",
-            "IMobAdapter (minimal+mythicmobs skeleton)",
+            "IMobAdapter (minimal)",
             "IMobSpawner",
             "IMobSpawnLadder",
             "IPveLootDistributor (noop)",
