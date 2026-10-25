@@ -9,6 +9,15 @@ import com.astarworks.astera.core.domain.effect.vfx.VfxFreeze
 import com.astarworks.astera.core.domain.effect.vfx.VfxPerformanceSampler
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.longOrNull
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -26,6 +35,12 @@ import kotlin.math.abs
  * The skill is cast for real in the headless sim (real content, real wiring). Per skill tick: the body bones and the weapon
  * come from the planner math ([VfxPerformanceSampler], caster-local space, +x right), and `visibleWeapons` is the worst count
  * over every viewer of the lease model ([PerformanceProbe]) -- the number that must be 1 on every tick.
+ *
+ * `make skill-preview` (tools/skill-viewer, docs/contributing/vfx-team/skill-preview.md) reads the same file and needs three
+ * additive things beside `ticks`: `bones.*.scale` (the box size multiplier), `caster` (the caster's feet per skill tick, relative
+ * to where it stood at the cast) and `displays` (the fx Display entities as `astera-sim-trace/1` display events, ticks relative to
+ * the cast, positions relative to the caster's feet at the cast; the performers -- skin bones and the main-hand weapon -- are left
+ * out, `ticks` carries them).
  */
 public object SkillLintPlanDump {
 
@@ -49,8 +64,12 @@ public object SkillLintPlanDump {
     public fun render(skill: String): String {
         val skillText = Files.readString(contentDir().resolve("skills/$skill.yaml"))
         val counts = HashMap<Int, Int>()
+        val feet = HashMap<Int, Vec3>()
+        var origin = Vec3.ZERO
+        var fx: List<JsonElement> = emptyList()
         var start = 0
         var sampled: List<VfxPerformanceSampler.Tick> = emptyList()
+        var slim = false
         scenario("skill-lint-$skill") {
             val caster = player("caster", team = "red")
             player("observer", at = Vec3(4.0, groundY, 0.0), team = "blue")
@@ -61,20 +80,57 @@ public object SkillLintPlanDump {
             val def = registry.find(VfxId(vfxId))!!
             val probe = PerformanceProbe(sim, caster)
             val castTick = sim.tick
+            origin = caster.position
             caster.cast(skill)
             val last = def.durationTicks + 10
             for (t in 0..last) {
                 counts[t] = probe.worstCount()
+                feet[t] = caster.position
                 if (t < last) advance(1)
             }
+            fx = fxDisplayEvents(sim.recorder.toJson(), castTick, origin)
             start = sim.displays.spawned.firstOrNull { it.spec.kind == DisplayKind.AnchorMainHand }
                 ?.let { (it.tick - castTick).toInt() } ?: 0
             val body = def.body?.let { id ->
                 VfxBodyContext(checkNotNull(sim.services.getOrThrow<ISkinRigRegistry>().find(id)) { "body animation '$id' not loaded" })
             }
+            slim = body?.slim ?: false
             sampled = VfxPerformanceSampler.sample(def, body, freezesAfter(skillText, vfxId), startTick = start.coerceAtLeast(0))
         }
-        return json(skill, sampled, counts)
+        return json(skill, slim, sampled, counts, feet.mapValues { it.value - origin }, fx)
+    }
+
+    /**
+     * The `displays` events of [trace] from [castTick] on without the performers, ticks relative to the cast, `x/y/z` of spawns
+     * and teleports relative to [origin] (the caster's feet at the cast).
+     */
+    private fun fxDisplayEvents(trace: JsonElement, castTick: Long, origin: Vec3): List<JsonElement> {
+        val performers = HashSet<String>()
+        val out = ArrayList<JsonElement>()
+        for (tk in trace.jsonObject.getValue("ticks").jsonArray) {
+            val tick = tk.jsonObject.getValue("tick").jsonPrimitive.longOrNull ?: continue
+            if (tick < castTick) continue
+            for (ev in tk.jsonObject.getValue("displays").jsonArray) {
+                val o = ev.jsonObject
+                val id = o.getValue("id").jsonPrimitive.content
+                val op = o.getValue("op").jsonPrimitive.content
+                if (op == "spawn" && o.getValue("kind").jsonPrimitive.content.let { it == "skin_bone" || it == "main_hand_weapon" }) performers += id
+                if (id in performers) continue
+                val place = op == "spawn" || op == "teleport"
+                val shifted = LinkedHashMap<String, JsonElement>()
+                shifted["tick"] = JsonPrimitive(tick - castTick)
+                for ((k, v) in o) {
+                    shifted[k] = when {
+                        place && k == "x" -> JsonPrimitive(v.jsonPrimitive.doubleOrNull!! - origin.x)
+                        place && k == "y" -> JsonPrimitive(v.jsonPrimitive.doubleOrNull!! - origin.y)
+                        place && k == "z" -> JsonPrimitive(v.jsonPrimitive.doubleOrNull!! - origin.z)
+                        else -> v
+                    }
+                }
+                out += JsonObject(shifted)
+            }
+        }
+        return out
     }
 
     /** The `freeze: [{at, ticks}]` windows of the play_vfx step that plays [vfxId]. */
@@ -87,15 +143,22 @@ public object SkillLintPlanDump {
             .map { VfxFreeze(it.groupValues[1].toInt(), it.groupValues[2].toInt()) }.toList()
     }
 
-    private fun json(skill: String, ticks: List<VfxPerformanceSampler.Tick>, counts: Map<Int, Int>): String {
+    private fun json(
+        skill: String,
+        slim: Boolean,
+        ticks: List<VfxPerformanceSampler.Tick>,
+        counts: Map<Int, Int>,
+        feet: Map<Int, Vec3>,
+        fx: List<JsonElement>,
+    ): String {
         fun n(v: Double): String = String.format(Locale.ROOT, "%.6f", if (abs(v) < 5e-7) 0.0 else v)
         fun v3(v: Vec3) = "[${n(v.x)}, ${n(v.y)}, ${n(v.z)}]"
         fun q(q: com.astarworks.astera.core.domain.geometry.math.Quaternion) = "[${n(q.x)}, ${n(q.y)}, ${n(q.z)}, ${n(q.w)}]"
         val sb = StringBuilder()
-        sb.append("{\n  \"skill\": \"").append(skill).append("\",\n  \"ticks\": [\n")
+        sb.append("{\n  \"skill\": \"").append(skill).append("\",\n  \"slim\": ").append(slim).append(",\n  \"weaponScale\": ").append(n(SkinRigTransforms.PLAYER_SCALE)).append(",\n  \"ticks\": [\n")
         ticks.forEachIndexed { i, t ->
             sb.append("    {\"tick\": ").append(t.tick).append(", \"bones\": {")
-            sb.append(t.bones.entries.joinToString(", ") { (name, p) -> "\"$name\": {\"pos\": ${v3(p.pos)}, \"rot\": ${q(p.rot)}}" })
+            sb.append(t.bones.entries.joinToString(", ") { (name, p) -> "\"$name\": {\"pos\": ${v3(p.pos)}, \"rot\": ${q(p.rot)}, \"scale\": ${v3(p.scale)}}" })
             sb.append("}")
             t.weapon?.let { w ->
                 sb.append(", \"weapon\": {\"pos\": ${v3(w.pos)}, \"rot\": ${q(w.rot)}, \"tip\": ${v3(w.tip)}, \"edgeNormal\": ${v3(w.edgeNormal)}}")
@@ -103,7 +166,11 @@ public object SkillLintPlanDump {
             sb.append(", \"visibleWeapons\": ").append(counts[t.tick] ?: 0).append("}")
             sb.append(if (i < ticks.size - 1) ",\n" else "\n")
         }
-        sb.append("  ]\n}\n")
+        sb.append("  ],\n  \"caster\": [")
+        sb.append(feet.entries.sortedBy { it.key }.joinToString(", ") { (t, p) -> "{\"tick\": $t, \"pos\": ${v3(p)}}" })
+        sb.append("],\n  \"displays\": [\n")
+        sb.append(fx.joinToString(",\n") { "    $it" })
+        sb.append("\n  ]\n}\n")
         return sb.toString()
     }
 

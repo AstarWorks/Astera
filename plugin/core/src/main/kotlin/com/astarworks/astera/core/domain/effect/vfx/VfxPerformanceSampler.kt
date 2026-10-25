@@ -16,7 +16,7 @@ import com.astarworks.astera.core.domain.geometry.math.Quaternion
  */
 public object VfxPerformanceSampler {
 
-    public class PoseOut(public val pos: Vec3, public val rot: Quaternion)
+    public class PoseOut(public val pos: Vec3, public val rot: Quaternion, public val scale: Vec3 = Vec3(1.0, 1.0, 1.0))
 
     public class WeaponOut(public val pos: Vec3, public val rot: Quaternion, public val tip: Vec3, public val edgeNormal: Vec3)
 
@@ -47,7 +47,7 @@ public object VfxPerformanceSampler {
             val bones = LinkedHashMap<String, PoseOut>()
             for (bone in SkinRigBone.entries) {
                 val t = transforms.bones.getValue(bone)
-                bones[bone.yamlName] = out(Vec3(t.translation.x, t.translation.y, t.translation.z) * scale, VfxBodyTrack.quat(t.rotation))
+                bones[bone.yamlName] = out(Vec3(t.translation.x, t.translation.y, t.translation.z) * scale, VfxBodyTrack.quat(t.rotation), Vec3(t.scale.x, t.scale.y, t.scale.z) * scale)
             }
             val hips = SkinRigTransforms.hips(frame)
             bones["hips"] = out(hips.joint * scale, VfxBodyTrack.quat(hips.rotation))
@@ -64,7 +64,7 @@ public object VfxPerformanceSampler {
         }
     }
 
-    private fun out(pos: Vec3, rot: Quaternion): PoseOut = PoseOut(mirror(pos), mirror(rot))
+    private fun out(pos: Vec3, rot: Quaternion, size: Vec3 = Vec3(1.0, 1.0, 1.0)): PoseOut = PoseOut(mirror(pos), mirror(rot), size)
 
     private fun mirror(v: Vec3): Vec3 = Vec3(-v.x, v.y, v.z)
 

@@ -87,5 +87,4 @@ include(
     // AI protocol bots + the `bot-runner` compose service (play-vs-bot, bot-vs-bot E2E; ADR-0247). Not shipped.
     ":tools:bot-runner",
     // Software-rendered contact sheets of content/vfx choreographies (ADR-0220). No Minecraft. Not shipped.
-    ":tools:vfx-preview",
 )

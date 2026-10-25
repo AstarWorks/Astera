@@ -11,7 +11,7 @@ ID: **G-** = ゲーム一般 (CEDEC / Capcom / ブログ等)、**M-** = Minecraf
 |---|---|
 | `make vfx-shot SKILL=<id> [VIEW=…] [TICKS=…]` | 実クライアントの `frame_NNN.png` (1 フレーム = 1 tick)・`sheet.png` (contact sheet)・gif/mp4。出力 `build/vfx-shot/<skill>/<view>/` (`tools/vfx-shot/README.md`) |
 | `tools/skill-compare` (`make skill-compare`) | 参照動画・意図 3D・Minecraft フレームを同一 ms 時計で並べ、コマ送り (Shift+←/→ = 1 tick)、focus slow-mo (F)、ヒット位置の記録 |
-| `tools/vfx-preview` (`--view side / top / eye`、`--freeze 7:3`) | rig / 風切りの形を視点別に |
+| `make skill-preview SKILL=<id>` (compare camera, reference | preview | client strip) | rig / 風切りの形を視点別に |
 | `/astera skill preview <id> view=… speed=0.25` | ダミーを相手に実機再生。`freeze` / `step` でコマ送り |
 | E2E / game-sim | Display 数・damage tick など数値側 |
 | 自前の補助 | `frame_NNN.png` を `ffmpeg -vf format=gray` で白黒にして value contrast を見る / 面積を目測する / 音は録画を別途聞く |

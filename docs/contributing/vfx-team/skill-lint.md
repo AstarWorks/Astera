@@ -47,3 +47,7 @@ Per `beats[]` entry:
 | `regen` | `script`, `inputs` (files + skill step types), `outputs` (globs) for check 6 |
 
 Rules: targets describe the reference, never the current content. Do not retune a target to make a check pass: fix the content, or widen the tolerance and say why in `note`. Camera-only beats (cuts, ink fills) carry no pose target, only `sound`/`fx`. Add a targets file when a skill gets a reference breakdown; without one the lint fails.
+
+## Plan dump extensions (skill-preview)
+
+Additive, ignored by the lint: `slim`, `weaponScale`, `bones.<bone>.scale` (box size multiplier, `size_in_blocks = scale * 0.5`), `caster` (`[{tick, pos}]`, the caster's feet per skill tick relative to the cast position, so dashes are in it) and `displays` (the fx Display entities as `astera-sim-trace/1` display events with an added `tick` = skill tick; the performers are not in it; positions relative to the caster's feet at the cast, in the sim frame: `+z` forward, `+x` the caster's LEFT). Used by [skill-preview](skill-preview.md).
