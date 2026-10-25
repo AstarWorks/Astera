@@ -23,10 +23,6 @@ import com.astarworks.astera.core.domain.world.WorldId
  *    `MobSkillRouter` for skill binding routing. AI hint support is limited
  *    to [MobAiHint.Default] / [MobAiHint.Stationary]; richer hints fall back
  *    to Default.
- *  - `MythicMobsMobAdapter` (Wave 6b skeleton → Phase 4 full impl,
- *    `backendId = "mythicmobs"`) — bridges to the MythicMobs plugin when
- *    installed. `isAvailable()` returns `false` in vanilla deployments so
- *    the router cleanly falls through to Minimal.
  *
  * # Backend uniqueness
  *
@@ -35,12 +31,6 @@ import com.astarworks.astera.core.domain.world.WorldId
  * backendId() uniquely` (ADR-0085 §"Konsist rules"). The id is used in
  * [EntityHandle.backendId] so `despawn` / `applySkill` can route the handle
  * back to its owning adapter without keeping a parallel handle → adapter map.
- *
- * # Vendor isolation
- *
- * Konsist enforces `core.domain.mob.* must not import io.lumine.mythic.*`
- * — MythicMobs API references live only in the Wave 6b Paper adapter's
- * `adapter/paper/` package, never in domain or in this port.
  */
 public interface IMobAdapter {
 

@@ -70,11 +70,6 @@ minecraft = "26.3"
 # tools:e2e - protocol bots that speak Minecraft Java 26.3 (ADR-0185). Release tag == game version.
 mcprotocollib = "26.3"
 
-# External Paper plugins (compileOnly, soft-dep) — sentinel until Phase 2 mid
-weaponmechanics = "999.999.999"
-oraxen = "999.999.999"
-mythic-dist = "999.999.999"
-
 # PacketEvents (Wave 6c-stub-packetevents, ADR-0170) — softdepend.
 # 2.14.x supports Minecraft 26.3; CodeMC repo (declared in settings.gradle.kts).
 # Astera boots in vanilla Paper without it (CLAUDE.md §4 invariant); the

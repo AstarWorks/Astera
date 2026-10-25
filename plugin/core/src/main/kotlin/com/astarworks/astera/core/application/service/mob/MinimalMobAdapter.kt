@@ -40,8 +40,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * [supportsAi] honours [MobAiHint.Default] and [MobAiHint.Stationary] only.
  * Richer hints (Pathfind / Flee / Aggressive) silently fall back to Default
- * at spawn time — this adapter doesn't pretend to do path-finding. Callers
- * that need rich AI route through the MythicMobs adapter (Phase 4).
+ * at spawn time — this adapter doesn't pretend to do path-finding.
  *
  * # Threading
  *

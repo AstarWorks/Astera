@@ -33,8 +33,6 @@ dependencyResolutionManagement {
         }
         // External Paper plugins
         maven("https://repo.dmulloy2.net/repository/public/") { name = "protocollib" }
-        maven("https://repo.oraxen.com/releases/") { name = "oraxen" }
-        maven("https://mvn.lumine.io/repository/maven-public/") { name = "mythic-lumine" }
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/") { name = "placeholderapi" }
     }
 }
