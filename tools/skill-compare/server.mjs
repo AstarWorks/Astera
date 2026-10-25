@@ -11,6 +11,7 @@ import { makeSources } from "./lib/sources.mjs";
 import { buildIndex } from "./lib/weapons.mjs";
 import { makeAnim, ANIM_ID_RE } from "./lib/anim.mjs";
 import { spawnSync } from "node:child_process";
+import { contentRevision, publishedRoot } from "./lib/revision.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MAX_BODY = 1_000_000;
@@ -23,7 +24,7 @@ export function makeHandler(opts = {}) {
   const S = makeSources({ root, repo, vfxShotDir, mediaDirs: opts.mediaDirs, worktrees: opts.worktrees ?? true });
   const vfxFind = S.vfxFind;
   const A = makeAnim({ repo, root, S });
-  const publishedDir = opts.publishedDir ?? process.env.SKILL_COMPARE_PUBLISHED ?? join(repo, "build", "skill-compare-published");
+  const publishedDir = opts.publishedDir ?? publishedRoot(repo);
   const viewerDir = opts.viewerDir ?? join(repo, "tools", "skill-viewer", "build", "skill-frames");
   const tracesDir = opts.tracesDir ?? join(repo, "tools", "game-sim", "build", "sim-traces");
 
@@ -42,9 +43,42 @@ export function makeHandler(opts = {}) {
   }
 
   /** Capture provenance shown as a badge on the page (and written to the brief manifest by scripts/brief.py). */
-  const provOf = (m) => ({ branch: m.branch ?? null, commit: m.implementationCommit ?? null, capturedAt: m.capturedAt ?? null,
-    fov: m.fov ?? null, fovMode: m.fovMode ?? null, resolution: m.resolution ?? null, view: m.view ?? null,
-    repeated: m.captureQuality?.maxRepeatedFrames ?? null, reviewRequired: !!m.captureQuality?.reviewRequired });
+  let treeCache = { at: 0, v: null };
+  /** content revision of the tree this server runs from (3 s cache); views made from another content revision are STALE. */
+  const currentTree = () => {
+    if (Date.now() - treeCache.at < 3000) return treeCache.v;
+    let v = null; try { v = contentRevision(repo); } catch { /* not a checkout: staleness unknown */ }
+    treeCache = { at: Date.now(), v }; return v;
+  };
+  const provOf = (m) => {
+    const cur = currentTree();
+    return { branch: m.branch ?? null, commit: m.implementationCommit ?? m.gitRevision ?? null, capturedAt: m.capturedAt ?? null,
+      fov: m.fov ?? null, fovMode: m.fovMode ?? null, resolution: m.resolution ?? null, view: m.view ?? null,
+      repeated: m.captureQuality?.maxRepeatedFrames ?? null, reviewRequired: !!m.captureQuality?.reviewRequired,
+      contentRevision: m.contentRevision ?? null, contentDirty: m.contentDirty ?? null, codeDirty: m.codeDirty ?? null,
+      stale: cur && m.contentRevision ? m.contentRevision !== cur.contentRevision : null, currentContent: cur?.contentRevision ?? null };
+  };
+
+  /** Preview / lint / round notes published for a skill (build/skill-compare-published/<skill>/{preview,lint,round}/current.json). */
+  function reviewViews(skill, referenceRevision) {
+    const out = { tree: currentTree(), preview: null, lint: null, round: null };
+    if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return out;
+    const cur = (kind) => { const f = join(publishedDir, skill, kind, "current.json"); if (!existsSync(f)) return null; try { return readJson(f); } catch { return null; } };
+    const pv = cur("preview");
+    if (pv && /^[a-f0-9]{64}$/.test(pv.revision || "")) {
+      out.preview = { base: `/mc/vfx/${skill}/preview/`, count: pv.meta.frames, castFrame: pv.meta.castFrame ?? 0, extension: pv.extension || "png", revision: pv.revision,
+        prov: { ...provOf(pv.meta), published: true, kind: "preview" }, warnings: pv.meta.warnings ?? [], particles: !!pv.meta.particles,
+        referenceStale: !!(referenceRevision && pv.meta.referenceRevision && pv.meta.referenceRevision !== referenceRevision) };
+    }
+    const ln = cur("lint");
+    if (ln && /^[a-f0-9]{64}$/.test(ln.revision || "")) {
+      out.lint = { revision: ln.revision, report: ln.report ?? null, overlays: ln.overlays ?? [], base: `/lint/${skill}/${ln.revision}/overlay/`,
+        prov: ln.report ? { ...provOf(ln.report.provenance ?? {}), published: true, kind: "lint" } : null };
+    }
+    const rd = cur("round");
+    if (rd && typeof rd.text === "string") out.round = { text: rd.text, revision: rd.revision, prov: { ...provOf(rd), published: true, kind: "round" } };
+    return out;
+  }
 
   function mcInfo(skill, referenceRevision, contentRevision) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
@@ -110,6 +144,7 @@ export function makeHandler(opts = {}) {
       media: cdir ? { ready: true, ...readJson(join(cdir, "meta.json")), revision: c.referenceRevision || String(c.rev ?? 0), base: `/media/${id}/frames/` } : { ready: false },
       analysis: ap && existsSync(ap) ? readJson(ap) : { waveform: [], waveformStepMs: 10, onsets: [], cuts: [] },
       mc: mcInfo(c.skill?.asteraSkillId, c.referenceRevision, c.contentRevision),
+      views: reviewViews(c.skill?.asteraSkillId, c.referenceRevision),
     };
   }
 
@@ -247,7 +282,7 @@ export function makeHandler(opts = {}) {
       const f = join(cdir, "frames", m[2]);
       return inside(cdir, f) ? file(f, "image/jpeg") : err(400, "bad path");
     }
-    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|input|caster|opponent|side)\/(frame_\d{3,4}\.(?:png|webp))$/.exec(p))) {
+    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|input|caster|opponent|side|preview)\/(frame_\d{3,4}\.(?:png|webp))$/.exec(p))) {
       const revision = new URL(req.url).searchParams.get("v");
       if (/^[a-f0-9]{64}$/.test(revision || "")) {
         const f = join(publishedDir, m[1], m[2], revision, m[3]);
@@ -257,6 +292,7 @@ export function makeHandler(opts = {}) {
       const f = join(base, m[1], m[2], m[3]);
       return inside(base, f) ? file(f, f.endsWith("webp") ? "image/webp" : "image/png") : err(400, "bad path");
     }
+    if ((m = /^\/lint\/([a-z0-9-]+)\/([a-f0-9]{64})\/overlay\/([A-Za-z0-9_-]+\.png)$/.exec(p))) return file(join(publishedDir, m[1], "lint", m[2], "overlay", m[3]), "image/png");
     if ((m = /^\/mc\/viewer\/([a-z0-9-]+)\/(key-\d+\.png)$/.exec(p))) {
       const f = join(viewerDir, m[1], "frames", m[2]);
       return inside(viewerDir, f) ? file(f, "image/png") : err(400, "bad path");

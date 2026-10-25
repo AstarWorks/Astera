@@ -17,6 +17,7 @@ Checks (each prints PASS/FAIL with the tick and the number; exit 1 on any FAIL):
 Plan dump (written by the runtime, build/skill-lint/<skill>/plan.json): see docs/contributing/vfx-team/skill-lint.md.
 """
 import argparse
+import datetime
 import glob
 import hashlib
 import json
@@ -31,10 +32,12 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools/item-art/scripts"))
 
 RESULTS = []  # (check, status, text)
+DETAILS = []  # per RESULTS entry: {beat, ticks, tick, numbers, overlay} for report.json (skill-compare lint panel)
 
 
-def emit(check, ok, text):
+def emit(check, ok, text, **detail):
     RESULTS.append((check, ok, text))
+    DETAILS.append(detail)
     print("[%s] %s  %s" % ("PASS" if ok else "FAIL", check, text))
 
 
@@ -186,7 +189,7 @@ def check1b(skill, plan):
     for bid, tick, ok, m in res:
         name = "1b %s t%s" % (bid, tick)
         if "error" in m:
-            emit(name, False, m["error"])
+            emit(name, False, m["error"], beat=bid, tick=int(tick))
             continue
         why = []
         if m["rms_frac"] > tol["rms_frac"]:
@@ -198,7 +201,10 @@ def check1b(skill, plan):
         worst = max(m["per_point"].items(), key=lambda kv: kv[1])
         emit(name, ok, "skeleton RMS %.1f px (%.1f%% of the %d px figure), blade %.1f deg off on screen, tip %.1f px off the blade line, worst point %s %.0f px%s%s" % (
             m["rms_px"], 100 * m["rms_frac"], m["fig_h"], m.get("blade_deg", float("nan")), m.get("tip_off_px", float("nan")), worst[0], worst[1],
-            ("; " + ", ".join(why)) if why else "", "; overlay %s" % (out / (bid + ".png")).relative_to(ROOT) if (out / (bid + ".png")).is_file() else ""))
+            ("; " + ", ".join(why)) if why else "", "; overlay %s" % (out / (bid + ".png")).relative_to(ROOT) if (out / (bid + ".png")).is_file() else ""),
+             beat=bid, tick=int(tick), overlay=(bid + ".png") if (out / (bid + ".png")).is_file() else None,
+             numbers={"rms_px": m["rms_px"], "rms_frac": m["rms_frac"], "fig_h": m["fig_h"], "blade_deg": m.get("blade_deg"), "tip_off_px": m.get("tip_off_px"),
+                      "worst_point": worst[0], "worst_px": worst[1]})
 
 
 # ---- check 1 -------------------------------------------------------------------------------------------------------
@@ -215,7 +221,7 @@ def check1(targets, plan):
         conf = beat.get("confidence", "?")
         blade_t, body_t = beat.get("blade"), beat.get("body")
         if not blade_t and not body_t:
-            emit(bid, True, "no pose target (camera-only beat), confidence %s" % conf)
+            emit(bid, True, "no pose target (camera-only beat), confidence %s" % conf, beat=beat["id"], ticks=list(r))
             continue
         bad, worst, n = [], {}, 0
         for t in range(r[0], r[1] + 1):
@@ -263,11 +269,12 @@ def check1(targets, plan):
         ok = not bad
         summ = "; ".join("%s worst t%d %.2f (target %s +-%s)" % (k, v[1], v[3], v[4] if not isinstance(v[4], str) else v[4], v[2])
                          for k, v in sorted(worst.items()))
+        nums = {k: {"worst_tick": v[1], "value": v[3], "target": v[4], "tolerance": v[2]} for k, v in sorted(worst.items())}
         if ok:
-            emit(bid, True, "%d ticks in tolerance, confidence %s; %s" % (n, conf, summ))
+            emit(bid, True, "%d ticks in tolerance, confidence %s; %s" % (n, conf, summ), beat=beat["id"], ticks=list(r), numbers=nums)
         else:
             shown = bad[:4] + (["... %d more" % (len(bad) - 4)] if len(bad) > 4 else [])
-            emit(bid, False, "%d out-of-tolerance readings over %d ticks, confidence %s: %s" % (len(bad), max(n, 1), conf, " | ".join(shown)))
+            emit(bid, False, "%d out-of-tolerance readings over %d ticks, confidence %s: %s" % (len(bad), max(n, 1), conf, " | ".join(shown)), beat=beat["id"], ticks=list(r), numbers=nums)
 
 
 # ---- check 2 -------------------------------------------------------------------------------------------------------
@@ -462,13 +469,13 @@ def check5(skill, targets):
         hits = [(t, s) for t, s in skill.sounds if w[0] <= t <= w[1]]
         bid = "5 %s %s" % (beat["id"], ticks_str(w))
         if not hits:
-            emit(bid, False, "needs sound in t%d-%d, skill has none (sounds at %s)" % (w[0], w[1], sorted({t for t, _ in skill.sounds})))
+            emit(bid, False, "needs sound in t%d-%d, skill has none (sounds at %s)" % (w[0], w[1], sorted({t for t, _ in skill.sounds})), beat=beat["id"], ticks=list(w))
             continue
         gone = [s for t, s in hits if not sound_file(s).is_file()]
         if gone:
-            emit(bid, False, "sound events at %s but file missing: %s" % ([t for t, _ in hits], ", ".join(str(sound_file(s).relative_to(ROOT)) for s in gone)))
+            emit(bid, False, "sound events at %s but file missing: %s" % ([t for t, _ in hits], ", ".join(str(sound_file(s).relative_to(ROOT)) for s in gone)), beat=beat["id"], ticks=list(w))
         else:
-            emit(bid, True, "%d sound events (t%s), all files exist" % (len(hits), ",".join(str(t) for t, _ in hits)))
+            emit(bid, True, "%d sound events (t%s), all files exist" % (len(hits), ",".join(str(t) for t, _ in hits)), beat=beat["id"], ticks=list(w))
     gone = sorted({s for _, s in skill.sounds if not sound_file(s).is_file()})
     emit(c + " files", not gone, "all %d referenced sound files exist" % len({s for _, s in skill.sounds}) if not gone else "missing: %s" % ", ".join(gone))
 
@@ -545,6 +552,40 @@ def check7(skill, capdir):
     print("[TODO] %s weapon-count  not implemented: per-frame weapon-count heuristic for FPS=60 captures; judge duplicate swords by eye until it exists" % c)
 
 
+# ---- report.json (published to skill-compare by tools/skill-compare/scripts/publish-lint.mjs) ----------------------------
+def write_report(skill_id, plan_path, targets_path):
+    """build/skill-lint/<skill>/report.json: every check with PASS/FAIL/SKIP, its beat + ticks, per-beat numbers, and the tree it ran on."""
+    names = sorted({n for n in git("ls-files", "-m", "-d", "-o", "--exclude-standard", "-z", "--", "content").split("\0") if n})
+    try:
+        code_dirty = git("status", "--porcelain", "--untracked-files=no", "--", ".", ":(exclude)content") != ""
+    except subprocess.CalledProcessError:
+        code_dirty = False
+    checks = []
+    for (name, ok, text), d in zip(RESULTS, DETAILS):
+        status = "FAIL" if not ok else ("SKIP" if text.startswith("skipped") else "PASS")
+        e = {"check": name, "group": name.split(" ")[0], "status": status, "text": text}
+        e.update({k: v for k, v in d.items() if v is not None})
+        checks.append(e)
+    fails = sum(1 for c in checks if c["status"] == "FAIL")
+    plan_time = None
+    if plan_path and Path(plan_path).is_file():
+        plan_time = datetime.datetime.fromtimestamp(Path(plan_path).stat().st_mtime, datetime.timezone.utc).isoformat()
+    report = {
+        "version": 1, "kind": "lint", "skill": skill_id, "ok": fails == 0,
+        "summary": {"checks": len(checks), "fail": fails, "pass": sum(1 for c in checks if c["status"] == "PASS"), "skip": sum(1 for c in checks if c["status"] == "SKIP")},
+        "provenance": {
+            "branch": git("rev-parse", "--abbrev-ref", "HEAD"), "gitRevision": git("rev-parse", "HEAD"), "contentRevision": content_revision(),
+            "contentDirty": bool(names), "codeDirty": code_dirty, "capturedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(), "planTime": plan_time,
+            "targets": str(Path(targets_path).relative_to(ROOT)) if Path(targets_path).is_relative_to(ROOT) else str(targets_path),
+        },
+        "checks": checks,
+    }
+    out = ROOT / "build/skill-lint" / skill_id / "report.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(report, indent=1) + "\n")
+    print("report    %s" % out.relative_to(ROOT))
+
+
 # ---- main ----------------------------------------------------------------------------------------------------------
 def main():
     ap = argparse.ArgumentParser()
@@ -575,6 +616,7 @@ def main():
     check5(skill, targets)
     check6(skill, targets)
     check7(skill, a.capture)
+    write_report(a.skill, a.plan if a.plan else ROOT / "build/skill-lint" / a.skill / "plan.json", tpath)
     fails = [r for r in RESULTS if not r[1]]
     print("\n%d checks, %d FAIL. %s" % (len(RESULTS), len(fails), "Do not capture." if fails else "OK to capture."))
     return 1 if fails else 0

@@ -239,9 +239,10 @@ skill-lint-plan: ## Writes build/skill-lint/<skill>/plan.json (headless cast: bo
 	./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q
 
 .PHONY: skill-lint
-skill-lint: ## Machine-checkable facts of a VFX skill before any capture (exit 1 on FAIL): make skill-lint SKILL=<skill-id> [CAPTURE=<capture dir>] [PLAN=<plan.json>]
+skill-lint: ## Machine-checkable facts of a VFX skill before any capture (exit 1 on FAIL); writes build/skill-lint/<skill>/report.json and publishes it to skill-compare (PUBLISH=0 skips): make skill-lint SKILL=<skill-id> [CAPTURE=<capture dir>] [PLAN=<plan.json>]
 	@test -n "$(SKILL)" || { echo "usage: make skill-lint SKILL=<skill-id> [CAPTURE=<dir>] [PLAN=<plan.json>]"; exit 2; }
-	python3 tools/skill-lint/skill_lint.py "$(SKILL)" $(if $(CAPTURE),--capture "$(CAPTURE)") $(if $(PLAN),--plan "$(PLAN)")
+	@python3 tools/skill-lint/skill_lint.py "$(SKILL)" $(if $(CAPTURE),--capture "$(CAPTURE)") $(if $(PLAN),--plan "$(PLAN)"); rc=$$?; \
+	  if [ "$(PUBLISH)" != "0" ]; then node tools/skill-compare/scripts/publish-lint.mjs "$(SKILL)" || echo "warn: lint publish to skill-compare failed"; fi; exit $$rc
 
 .PHONY: particle-sim
 particle-sim: ## Run the real vanilla particle classes (local 26.3 client jar) for a skill's emissions -> build/skill-preview/<skill>/particles.json: make particle-sim SKILL=<skill-id> [REUSE=1 keeps plan.json] [SEED=<n>]
@@ -250,10 +251,11 @@ particle-sim: ## Run the real vanilla particle classes (local 26.3 client jar) f
 	./gradlew :tools:particle-sim:run --args="$(SKILL) $(if $(SEED),--seed $(SEED))" -q 2>&1 | grep -v '^WARNING'
 
 .PHONY: skill-preview
-skill-preview: ## Render a skill from the skill-compare camera without the client (body, weapon, fx, particles.json): make skill-preview SKILL=<skill-id> [CASE=<case id>] [TICKS=0-53] [EVERY=4] [FOV=<deg>] [REUSE=1 keeps plan.json]
+skill-preview: ## Render a skill from the skill-compare camera without the client and publish it as the PREVIEW view of skill-compare (PUBLISH=0 skips): make skill-preview SKILL=<skill-id> [CASE=<case id>] [TICKS=0-53] [EVERY=4] [FOV=<deg>] [REUSE=1 keeps plan.json]
 	@test -n "$(SKILL)" || { echo "usage: make skill-preview SKILL=<skill-id> [CASE=..] [TICKS=a-b] [EVERY=n] [FOV=deg] [REUSE=1]"; exit 2; }
 	$(if $(REUSE),,./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q --offline 2>&1 | grep -v ' INFO \| DEBUG \| WARN ' || true)
 	cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null && bun run build >/dev/null && bun scripts/skill-preview.mjs --skill "$(SKILL)" $(if $(CASE),--case "$(CASE)") $(if $(TICKS),--ticks "$(TICKS)") $(if $(EVERY),--every "$(EVERY)") $(if $(FOV),--fov "$(FOV)")
+	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)")
 
 .PHONY: pose-solve
 pose-solve: ## Reference keypoints -> skin-rig body keys + wrist keys + lint targets in content/skill-lint/solved/ (never overwrites shipped keys): make pose-solve SKILL=<skill-id>
@@ -264,3 +266,9 @@ pose-solve: ## Reference keypoints -> skin-rig body keys + wrist keys + lint tar
 skill-overlay: ## Project a plan dump (or a numpy simulation of content/) onto the annotated reference frames, PNG per beat: make skill-overlay SKILL=<skill-id> [PLAN=<plan.json>]
 	@test -n "$(SKILL)" || { echo "usage: make skill-overlay SKILL=<skill-id> [PLAN=<plan.json>]"; exit 2; }
 	python3 tools/pose-solve/overlay.py "$(SKILL)" $(if $(PLAN),--plan "$(PLAN)",--simulate)
+	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-lint.mjs "$(SKILL)")
+
+.PHONY: skill-round
+skill-round: ## Publish the director's round notes (tools/skill-compare/data/<case>/round.md) to skill-compare: make skill-round SKILL=<skill-id> [FILE=<round.md>]
+	@test -n "$(SKILL)" || { echo "usage: make skill-round SKILL=<skill-id> [FILE=<round.md>]"; exit 2; }
+	node tools/skill-compare/scripts/publish-round.mjs "$(SKILL)" $(FILE)
