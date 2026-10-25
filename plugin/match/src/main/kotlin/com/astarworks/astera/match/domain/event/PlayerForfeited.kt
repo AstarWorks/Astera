@@ -2,6 +2,7 @@ package com.astarworks.astera.match.domain.event
 
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
 import java.time.Instant
 
@@ -20,6 +21,8 @@ import java.time.Instant
 public data class PlayerForfeited(
     val playerId: PlayerId,
     val matchId: MatchId,
+    /** The team they belonged to when they left (null when the roster did not list them). */
+    val teamId: TeamId?,
     val atTick: Long,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,

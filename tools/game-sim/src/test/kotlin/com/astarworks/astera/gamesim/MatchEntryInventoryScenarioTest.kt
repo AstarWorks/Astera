@@ -54,7 +54,7 @@ class MatchEntryInventoryScenarioTest {
             sim.step(5)
             val armedItems = checkNotNull(sim.server.view(armed.id)).givenItems
             val unarmedItems = checkNotNull(sim.server.view(unarmed.id)).givenItems
-            assertThat(armedItems).containsExactly("knight-sword", "frost-staff") // starter grant
+            assertThat(armedItems).containsExactly("pistol", "knight-sword") // starter grant
             unarmedItems.clear() // sold everything
             unarmedItems += "gui-pane-dark" // a non-weapon item does not count as a kit
 
@@ -63,8 +63,8 @@ class MatchEntryInventoryScenarioTest {
             matchmaker.enqueue(unarmed.id, MatchmakingMode.Norma)
             assertThat(sim.stepUntil(600) { sim.eventsOf<PlayerEnteredMatch>().size == 2 }).isTrue()
 
-            assertThat(armedItems).containsExactly("knight-sword", "frost-staff")
-            assertThat(unarmedItems).containsExactly("gui-pane-dark", "knight-sword", "frost-staff")
+            assertThat(armedItems).containsExactly("pistol", "knight-sword")
+            assertThat(unarmedItems).containsExactly("gui-pane-dark", "pistol", "knight-sword")
             assertThat(checkNotNull(sim.server.view(unarmed.id)).messages).anyMatch { "on loan" in it }
         } finally {
             sim.shutdown()

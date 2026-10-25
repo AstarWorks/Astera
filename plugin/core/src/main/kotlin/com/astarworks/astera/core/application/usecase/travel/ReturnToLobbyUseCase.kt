@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.WorldGatewayError
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.event.PlayerLeavingForLobby
 import com.astarworks.astera.core.domain.event.PlayerReturnedToLobby
 import com.astarworks.astera.core.domain.player.PlayerId
 
@@ -23,6 +24,7 @@ public class ReturnToLobbyUseCase(
 ) {
 
     public fun returnToLobby(playerId: PlayerId): Result<Unit, TravelError> {
+        eventBus.publish(PlayerLeavingForLobby(playerId))
         return when (val outcome = worldGateway.lobbySpawn(playerId)) {
             is Result.Success -> {
                 eventBus.publish(

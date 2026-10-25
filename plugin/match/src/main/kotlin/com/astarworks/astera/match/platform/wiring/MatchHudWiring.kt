@@ -109,6 +109,8 @@ internal object MatchHudWiring {
             lobbySidebar.refresh(it.playerId)
         }
         subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class) { lobbySidebar.refresh(it.playerId) }
+        // A forfeiter (left the match for good) is a lobby player again.
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerLeftMatch::class) { lobbySidebar.refresh(it.playerId) }
         subscriptions += eventBus.subscribe(MatchQueueJoined::class) { lobbySidebar.refresh(it.playerId) }
         subscriptions += eventBus.subscribe(MatchQueueLeft::class) { lobbySidebar.refresh(it.playerId) }
         subscriptions += eventBus.subscribe(MatchFormed::class) { event -> event.players.forEach(lobbySidebar::refresh) }

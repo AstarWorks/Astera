@@ -81,11 +81,11 @@ class ShopScenarioTest {
             // knight-sword costs 100 GOLD: the first click only asks for confirmation.
             buyClick(buyer, "knight-sword")
             assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(150L)
-            assertThat(view.givenItems).containsExactly("knight-sword", "frost-staff") // starter grant only
+            assertThat(view.givenItems).containsExactly("pistol", "knight-sword") // starter grant only
 
             buyClick(buyer, "knight-sword")
             assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(50L)
-            assertThat(view.givenItems).containsExactly("knight-sword", "frost-staff", "knight-sword")
+            assertThat(view.givenItems).containsExactly("pistol", "knight-sword", "knight-sword")
 
             // 120 GOLD pistol with 50 GOLD left: refused, nothing charged, shortfall named.
             buyClick(buyer, "pistol")

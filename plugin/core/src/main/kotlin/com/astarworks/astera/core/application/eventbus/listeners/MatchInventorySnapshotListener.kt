@@ -6,6 +6,7 @@ import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySna
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.event.PlayerEnteredMatch
+import com.astarworks.astera.core.domain.event.PlayerLeftMatch
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
@@ -71,6 +72,15 @@ public class MatchInventorySnapshotListener(
         saveSnapshot.save(snapshot)
         perMatch[playerId] = snapshot
         afterEntryCapture(playerId)
+    }
+
+    /**
+     * A participant left the running match for good (forfeit, kick): their pre-match inventory goes back now if
+     * they are online; offline, the persisted entry snapshot restores on their next join. Not held any more.
+     */
+    public fun handleLeft(event: PlayerLeftMatch) {
+        val snapshot = held[event.matchId]?.remove(event.playerId) ?: return
+        if (gateway()?.apply(snapshot) == true) saveSnapshot.save(snapshot)
     }
 
     public fun handleEnded(event: MatchEnded) {
