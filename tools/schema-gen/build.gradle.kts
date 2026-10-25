@@ -8,7 +8,10 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":plugin:core"))
+    implementation(project(":core:feature-animation"))
+    implementation(project(":core:feature-effects"))
+    implementation(project(":core:feature-gameplay"))
+    implementation(project(":kernel:runtime"))
     implementation(project(":plugin:items"))
     implementation(project(":plugin:combat"))
     implementation(project(":plugin:match"))

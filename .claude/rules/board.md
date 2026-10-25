@@ -1,6 +1,6 @@
 # Board (single source of truth for "what is next / what is live")
 
-Founder-approved 2026-10-26 (ADR-0255). The Board replaces the RTM tracker, the
+Founder-approved 2026-10-26 (ADR-0266). The Board replaces the RTM tracker, the
 roadmaps and the core-vision backlog. Three layers, one job each:
 
 | Layer | Where | Answers | Mutability |

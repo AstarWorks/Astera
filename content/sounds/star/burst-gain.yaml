@@ -1,4 +1,4 @@
-# Sound cue (ADR-0256), FX-04: the killer sees the victim's stars fly out.
+# Sound cue (ADR-0267), FX-04: the killer sees the victim's stars fly out.
 id: "astera:star/burst-gain"
 resource_key: "minecraft:entity.experience_orb.pickup"
 default_volume: 1.0

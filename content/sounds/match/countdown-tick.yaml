@@ -1,4 +1,4 @@
-# Sound cue (ADR-0256). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
+# Sound cue (ADR-0267). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
 # the event is generated into assets/astera/sounds.json by :tools:resource-pack from this id + match/countdown-tick.ogg.
 id: "astera:match/countdown-tick"
 resource_key: "astera:match/countdown-tick"

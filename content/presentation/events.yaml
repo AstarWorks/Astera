@@ -1,7 +1,7 @@
 # One table for every game moment (FX-05). Code names a moment (PresentationMoments), never a raw sound,
 # title or particle; this file decides what the player sees and hears.
 #
-#   cue           sound cue id played to the subject (content/sounds/**, ADR-0256)
+#   cue           sound cue id played to the subject (content/sounds/**, ADR-0267)
 #   audience_cue  cue played to bystanders / the match (optional)
 #   title/subtitle  i18n keys shown as a title to the subject (optional)
 #   action_bar    i18n key shown on the action bar; {name} is filled from the play args (optional)

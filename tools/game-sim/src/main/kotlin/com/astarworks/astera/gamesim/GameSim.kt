@@ -130,7 +130,7 @@ public class GameSim private constructor(
     /** Star drops lying in the simulated world; collected by [SimStarDropWorld.pickupSweep] like a vanilla item pickup. */
     public val starDrops: SimStarDropWorld = SimStarDropWorld()
 
-    /** Every per-viewer sound the game plays (ADR-0256 cues resolve to these), in order. */
+    /** Every per-viewer sound the game plays (ADR-0267 cues resolve to these), in order. */
     public val playerSounds: com.astarworks.astera.testfixtures.effect.FakePlayerSoundGateway =
         com.astarworks.astera.testfixtures.effect.FakePlayerSoundGateway()
 

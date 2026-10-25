@@ -106,8 +106,7 @@ atomic swap。spawn 済み mob は livel 上で更新されない (再 spawn で
 ## Spawn pipeline
 
 `Wave 5c Star Generator` が `Stage` の `spawn_points` ＋ `MobSpec.spawn_conditions`
-から確率的に spawn 候補を作る。`IMobAdapter` (`MinimalMobAdapter` /
-`MythicMobsMobAdapter`) が `MobSpec` を Bukkit Entity に翻訳。
+から確率的に spawn 候補を作る。`IMobAdapter` (`MinimalMobAdapter`) が `MobSpec` を Bukkit Entity に翻訳。
 
 ```
 content/mobs/forest-wolf.yaml         # Spec

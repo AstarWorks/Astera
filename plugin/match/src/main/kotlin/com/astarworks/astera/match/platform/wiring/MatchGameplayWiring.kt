@@ -496,7 +496,7 @@ internal object MatchGameplayWiring {
             matchCountdownListener.handle(it)
         }
 
-        // ADR-0256: countdown ticks + go, death cue, last-stretch BGM tension.
+        // ADR-0267: countdown ticks + go, death cue, last-stretch BGM tension.
         val matchCueListener = com.astarworks.astera.match.application.eventbus.listeners.match.MatchCueListener(
             matches = matches,
             presentation = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),

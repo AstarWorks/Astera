@@ -71,7 +71,7 @@ public object AdminItemCatalog {
         AdminItemCategory.OTHER to ItemId("gui-admin-cat-other"),
     )
 
-    /** `pdc_tags` key that marks a dev / demo item (ADR-0261): usable by id, never listed or kitted. */
+    /** `pdc_tags` key that marks a dev / demo item (ADR-0270): usable by id, never listed or kitted. */
     public const val DEMO_TAG: String = "astera:demo"
 
     /** Whether [spec] belongs in the catalog at all (not GUI furniture, not a dev / demo item). */

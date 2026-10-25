@@ -69,7 +69,7 @@ XP 曲線 `100 * (n-1) * n / 2` (Lv2=100, Lv3=300, Lv4=600, Lv5=1000) と試合�
 - Lv5 要件の武器は無くなった。初日の GOLD は約 200-350 (試合 4-6 回 + レベル報酬 125) なので、
   最安の看板 bastion-greatsword (400G) が初日の終わりに届く水準。価格の見直しは economy 側。
 
-## dev / demo content の分離 (MODE-08, ADR-0261)
+## dev / demo content の分離 (MODE-08, ADR-0270)
 
 - アイテム: `pdc_tags: astera:demo: "true"` (`rtm-blaster`, `skill-tester`)。ID 指定の付与(`/astera items give`)・テスト・e2e は従来通り動く。
   管理パネルのカタログ、フルキット、トレーニングラックには出ない。

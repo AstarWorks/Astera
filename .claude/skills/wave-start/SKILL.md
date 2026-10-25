@@ -6,7 +6,7 @@ allowed-tools: Read, Bash, Glob, Grep
 
 # wave-start - track session priming
 
-Wave vocabulary is retired (ADR-0255). Work is organised by track; this skill
+Wave vocabulary is retired (ADR-0266). Work is organised by track; this skill
 primes a session for one track.
 
 ## Step 0 - Be in the track's worktree

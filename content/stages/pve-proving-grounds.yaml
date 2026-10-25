@@ -1,4 +1,4 @@
-# Authored siege-scale layout. See README.md and ADR-0264.
+# Authored siege-scale layout. See README.md and ADR-0273.
 id: pve-proving-grounds
 display_name_key: astera.stage.pve-proving-grounds.name
 world: arenas

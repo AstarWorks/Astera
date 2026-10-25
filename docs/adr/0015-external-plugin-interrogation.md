@@ -1,16 +1,18 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-05-17
 deciders: ryuzu
 supersedes: null
-superseded_by: 0090 (packet section only)
+superseded_by: 0090 (packet section only), 0264
 ---
 
 # ADR-0015: External plugin interrogation — vanilla + self-build by default
 
 ## Status
 
-Accepted. Supplements [[adr/0009-soft-dep-only-paper-plugin-yml]] (which made
+**Superseded by [[adr/0264-external-plugin-removal-and-single-npc-backend]]** (2026-10-26, Folia migration). Body below preserved per ADR convention; do not act on the design described here.
+
+Originally: Accepted. Supplements [[adr/0009-soft-dep-only-paper-plugin-yml]] (which made
 all external plugins soft-dep). ADR-0015 goes further: it asks whether each
 plugin should be a dependency at all.
 

@@ -1,4 +1,4 @@
-# Sound cue (ADR-0256). Vanilla sound for now; point resource_key at an astera: OGG event later.
+# Sound cue (ADR-0267). Vanilla sound for now; point resource_key at an astera: OGG event later.
 id: "astera:norma/burst-max"
 resource_key: "minecraft:entity.firework_rocket.large_blast"
 default_volume: 1.0

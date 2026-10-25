@@ -178,7 +178,7 @@ internal fun CoreWiringState.wireInfrastructure() {
         com.astarworks.astera.core.application.service.music.InMemoryMusicGateway(musicContents),
         priority = 0,
     )
-    // ADR-0256: Paper overlay plays the track's vanilla sound event on the client's MUSIC bus.
+    // ADR-0267: Paper overlay plays the track's vanilla sound event on the client's MUSIC bus.
     ports.musicGateway?.let {
         services.register<com.astarworks.astera.core.application.port.outbound.music.IMusicGateway>(
             it(services),

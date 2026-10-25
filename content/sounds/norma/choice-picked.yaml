@@ -1,4 +1,4 @@
-# Sound cue (ADR-0256). Vanilla sound for now; point resource_key at an astera: OGG event later.
+# Sound cue (ADR-0267). Vanilla sound for now; point resource_key at an astera: OGG event later.
 id: "astera:norma/choice-picked"
 resource_key: "minecraft:entity.experience_orb.pickup"
 default_volume: 1.0

@@ -46,7 +46,7 @@ id: lightning-blade
 # Vendor template
 material: IRON_SWORD                    # Bukkit Material 名 (xor external_key)
 custom_model_data: 1001                 # 任意 (resource pack 対応)
-# external_key: oraxen:my_blade         # Oraxen / ItemAdder / MythicItems の場合
+# external_key: ns:my_blade             # 外部プラグイン提供アイテムの場合
 
 # Inline i18n (1 ファイル完結。content/languages/ は触らない)
 name:
@@ -150,7 +150,7 @@ BukkitEventAdapter に listener が追加される。
 - `material:` (vanilla) - Bukkit Material 名 (`IRON_SWORD`, `BLAZE_ROD`,
   `CROSSBOW` 等)。`Material.matchMaterial` で解決、miss 時は `STONE`
   fallback + warning。
-- `external_key:` (Oraxen / ItemAdder / MythicItems) - `oraxen:my_blade` 等。
+- `external_key:` (外部プラグイン提供アイテム) - `ns:my_blade` 等。
   Adapter modules が解決。
 
 **両方指定 / 両方未指定は parse error**。

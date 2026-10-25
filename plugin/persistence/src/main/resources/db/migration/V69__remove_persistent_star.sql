@@ -1,4 +1,4 @@
--- ADR-0262: stars are an in-match item and never persist. Currency.STAR is gone from the
+-- ADR-0271: stars are an in-match item and never persist. Currency.STAR is gone from the
 -- enum, so every persisted STAR value is removed here (up-only; nothing parses it any more).
 
 -- Wallet balances (attribute-container store + legacy wallets table).

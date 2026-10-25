@@ -10,7 +10,7 @@ Load this before generating code or making infrastructure changes inside
 - **`docs/architecture/principles.md`** — design principles.
 - **`docs/adr/`** — recorded decisions, immutable once Accepted.
 - **`docs/vision/VISION.md`** + **`docs/vision/areas/*.md`** — vision, per-area current state / ideal / open questions (SSOT for "how it is").
-- **The Board** (claude.ai Artifact, `.claude/rules/board.md`) — SSOT for "what is next and how far it got". ADR-0255.
+- **The Board** (claude.ai Artifact, `.claude/rules/board.md`) — SSOT for "what is next and how far it got". ADR-0266.
 
 ## Pre-release posture (Phase 1 PoC closing)
 
@@ -51,7 +51,8 @@ implementer — in every session, not just one:
 - If the main session catches itself editing files, it stops and delegates.
 - **Enforced** by the `PreToolUse` hook `.claude/hooks/manager-guard.py`
   (main session only; subagents/Codex unaffected). Allow/deny tables, Codex
-  launcher (`scripts/codex-task.sh`) and prompt preambles:
+  launcher (`scripts/codex-task.sh`, always via Bash `run_in_background: true`;
+  gated by `.claude/hooks/gate-codex-lane.py`) and prompt preambles:
   `.claude/rules/manager-mode.md`.
 
 ## Session bootstrap (track protocol)
@@ -84,7 +85,7 @@ SSOT.
    `.claude/rules/module-layout.md`. Each feature plugin may reference Core +
    its softdepends only.
 4. **All external Paper plugins are soft-deps.** Astera must boot in vanilla
-   Paper without WeaponMechanics / Oraxen / MythicMobs / ProtocolLib.
+   Paper without ProtocolLib.
 5. **Versions live only in `gradle/libs.versions.toml`.** No hardcoded
    version strings in module `build.gradle.kts` files.
 6. **No `kotlinx.serialization` annotations in `*.domain.*`.** Use a DTO in

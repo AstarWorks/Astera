@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# synth.sh — synthesize every Astera SFX from scratch with ffmpeg (ADR-0256: ffmpeg synthesis + CC0 only).
+# synth.sh — synthesize every Astera SFX from scratch with ffmpeg (ADR-0267: ffmpeg synthesis + CC0 only).
 #
 # No samples, no network, no paid service: each sound is a formula (sine / bell partials / saw-ish brass /
 # filtered noise, envelopes, sweeps) mixed and then loudness-normalized (EBU R128, two-pass linear) and

@@ -85,7 +85,7 @@ Automatic. `:tools:resource-pack` (`ResourcePackBuilder.addSounds`) packs every 
 basename becomes the event named by its `id` (`astera:match/win` -> event `match/win`); a bare OGG is its own event.
 A cue yaml without an OGG is skipped.
 
-## Sound cues (ADR-0256)
+## Sound cues (ADR-0267)
 
 Game code plays a **cue id**, never a raw sound key. Each `*.yaml` here defines one cue:
 `id` (`astera:<area>/<name>`), a primary `resource_key`, `default_volume` / `default_pitch`, and optional
@@ -95,7 +95,7 @@ Swapping one for the other is a yaml edit, no code. Cue ids are listed in `Sound
 
 ## License & attribution
 
-Sourcing is **ffmpeg synthesis or CC0 only** ([[adr/0256-free-sound-sourcing-and-one-cue-path]]); no paid or
+Sourcing is **ffmpeg synthesis or CC0 only** ([[adr/0267-free-sound-sourcing-and-one-cue-path]]); no paid or
 credit-metered generator. Keep the synthesis script (or the CC0 source URL and licence) in the same commit as the
 OGG. All shipped OGGs are synthesized (`tools/sound-gen/scripts/synth.sh`, ffmpeg formulas, no samples) and
 owned by the project; no third-party (CC0) recordings ship today. Vanilla sound events used as placeholders are the client's own and are not redistributed.
@@ -104,5 +104,5 @@ owned by the project; no third-party (CC0) recordings ship today. Vanilla sound 
 
 - `tools/sound-gen/README.md` — script-level docs
 - `.claude/skills/generate-sounds/SKILL.md` — skill driver
-- [[adr/0256-free-sound-sourcing-and-one-cue-path]] — sourcing + cue path (supersedes ADR-0026)
+- [[adr/0267-free-sound-sourcing-and-one-cue-path]] — sourcing + cue path (supersedes ADR-0026)
 - [[adr/0018-ai-asset-creation-policy]] — policy

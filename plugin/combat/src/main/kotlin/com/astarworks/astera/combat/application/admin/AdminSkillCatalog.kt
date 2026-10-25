@@ -49,7 +49,7 @@ public object AdminSkillCatalog {
 
     public fun parse(key: String?): SkillArchetype? = SkillArchetype.entries.firstOrNull { it.name.equals(key, ignoreCase = true) }
 
-    /** Skill tag that marks a dev / demo skill (ADR-0261): castable by id, not listed on the Skills page. */
+    /** Skill tag that marks a dev / demo skill (ADR-0270): castable by id, not listed on the Skills page. */
     public val DEMO_TAG: SkillTag = SkillTag("demo")
 
     /** Skills of [filter] (`null` = all) without demo skills, ordered by archetype then id. */

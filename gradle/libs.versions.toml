@@ -6,6 +6,11 @@ jdk = "25"
 
 # Paper (Minecraft Java Edition 26.x — requires JDK 25)
 paper = "26.3.build.211-stable"
+# Folia server (founder decision 2026-10-26: Folia migration). Only the 26.3 alpha
+# channel exists for this game version. Read by docker/Dockerfile (SERVER_TYPE=FOLIA)
+# to download the server jar from fill.papermc.io; also the folia-api version once
+# the plugins compile against it. Format: <mc>.build.<n>-<channel>.
+folia = "26.3.build.5-alpha"
 
 # JOML (pure-math library — Vector3f / Quaternionf / Matrix4f).
 # Paper API pulls 1.10.9 transitively; we declare it here so `:plugin:core`
@@ -69,11 +74,6 @@ minecraft = "26.3"
 
 # tools:e2e - protocol bots that speak Minecraft Java 26.3 (ADR-0185). Release tag == game version.
 mcprotocollib = "26.3"
-
-# External Paper plugins (compileOnly, soft-dep) — sentinel until Phase 2 mid
-weaponmechanics = "999.999.999"
-oraxen = "999.999.999"
-mythic-dist = "999.999.999"
 
 # PacketEvents (Wave 6c-stub-packetevents, ADR-0170) — softdepend.
 # 2.14.x supports Minecraft 26.3; CodeMC repo (declared in settings.gradle.kts).

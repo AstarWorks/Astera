@@ -1,16 +1,18 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-05-17
 deciders: ryuzu
 supersedes: null
-superseded_by: null
+superseded_by: 0258
 ---
 
 # ADR-0022: Multi-plugin Portable Architecture
 
 ## Status
 
-Accepted
+**Superseded by [[adr/0258-independent-jar-graph-and-skills-bundle]]** (2026-10-26, Folia migration). Body below preserved per ADR convention; do not act on the design described here.
+
+Originally: Accepted
 
 ## Context
 

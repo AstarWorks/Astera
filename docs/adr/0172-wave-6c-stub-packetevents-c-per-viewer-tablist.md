@@ -1,16 +1,18 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-06-08
 deciders: Astera core
 supersedes: null
-superseded_by: null
+superseded_by: 0260
 ---
 
 # ADR-0172: Wave 6c-stub-packetevents-C — Per-viewer tab-list display name + latency via PlayerInfoUpdate fan-out
 
 ## Status
 
-Accepted. Closes the Phase 1 PoC PacketEvents adoption arc opened by
+**Superseded by [[adr/0260-packet-only-hud-and-packetevents-hard-dependency]]** (2026-10-26, Folia migration). Body below preserved per ADR convention; do not act on the design described here.
+
+Originally: Accepted. Closes the Phase 1 PoC PacketEvents adoption arc opened by
 ADR-0170 (foundation) and continued by ADR-0171 (scoreboard per-viewer).
 Tab-list per-viewer rendering — display name and ping badge — now works
 the same way: shared Player List packet carries the default-locale

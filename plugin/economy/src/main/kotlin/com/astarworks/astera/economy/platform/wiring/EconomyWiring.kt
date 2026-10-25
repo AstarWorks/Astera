@@ -334,7 +334,7 @@ public object EconomyWiring {
             shopIntentHandler.handle(intent, player)
         }
 
-        // ── ECO-02 / ECO-04 (ADR-0260) — cosmetics menu: GOLD sink + title / colour / kill-effect equip ──
+        // ── ECO-02 / ECO-04 (ADR-0269) — cosmetics menu: GOLD sink + title / colour / kill-effect equip ──
         // Opened from the profile card button (`cosmetic.open`); lobby-only like the shop.
         if (ctx.serverRole.hostsLobby) {
             services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()?.let { cosmeticService ->

@@ -30,7 +30,7 @@ import com.astarworks.astera.core.domain.event.PlayerReturnedToLobby
 import com.astarworks.astera.core.domain.event.QuestChainCompleted
 
 /**
- * ADR-0256: the one sound path (`ISoundCuePlayer`), the BGM selector (`IPlayerBgm`) and the
+ * ADR-0267: the one sound path (`ISoundCuePlayer`), the BGM selector (`IPlayerBgm`) and the
  * milestone listeners whose events live in Core. Runs after every gateway has been registered.
  */
 internal fun CoreWiringState.wirePresentation() {
@@ -74,5 +74,5 @@ internal fun CoreWiringState.wirePresentation() {
     subs += eventBus.subscribe(PlayerReturnedToLobby::class) { l.onReturnedToLobby(it) }
     subs += eventBus.subscribe(PlayerEnteredMatch::class) { l.onEnteredMatch(it) }
     subs += eventBus.subscribe(PlayerQuitServer::class) { l.onQuit(it) }
-    logger.info("ADR-0256 presentation wired: ISoundCuePlayer / IPlayerBgm / milestone listeners")
+    logger.info("ADR-0267 presentation wired: ISoundCuePlayer / IPlayerBgm / milestone listeners")
 }

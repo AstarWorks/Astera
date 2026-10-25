@@ -34,7 +34,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0256: every game milestone plays a sound cue defined in `content/sounds/`, through the one
+ * ADR-0267: every game milestone plays a sound cue defined in `content/sounds/`, through the one
  * `ISoundCuePlayer` -> `IPlayerSoundGateway` path, and BGM follows lobby / match / tension / result.
  * The simulator records every per-viewer sound in `sim.playerSounds`.
  */

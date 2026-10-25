@@ -11,7 +11,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 - **Limbus スキル再現チーム (director + 専門役 + reviewer)** → [contributing/skill-team/README.md](contributing/skill-team/README.md)
 - **ヘッドレス・シミュレータ** → [`tools/game-sim/README.md`](../tools/game-sim/README.md) + [ADR-0174](adr/0174-host-neutral-wiring-and-headless-game-simulator.md)
 - **コマンド (`/astera <area> <action>` 単一ツリー)** → [ADR-0184](adr/0184-single-astera-command-tree.md) — 権限スキーム・補完・help・追加方法
-- **Board と領域仕様が tracker/roadmap を置き換えた経緯** → [adr/0255-board-and-area-specs-replace-trackers.md](adr/0255-board-and-area-specs-replace-trackers.md)
+- **Board と領域仕様が tracker/roadmap を置き換えた経緯** → [adr/0266-board-and-area-specs-replace-trackers.md](adr/0266-board-and-area-specs-replace-trackers.md)
 - **RTM との設計差** → [architecture/rtm-divergence.md](architecture/rtm-divergence.md)
 - **トラック運用 (Board / 所有表 / 統合窓)** → [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) + [`.claude/rules/board.md`](../.claude/rules/board.md) + [`.claude/rules/tracks.md`](../.claude/rules/tracks.md) + [`.claude/rules/wave-execution.md`](../.claude/rules/wave-execution.md)
 - **インフラ構成** → [infrastructure/overview.md](infrastructure/overview.md)
@@ -22,8 +22,9 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 
 | ディレクトリ | 内容 |
 |---|---|
-| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0255 (欠番あり) |
+| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0273 (欠番あり) |
 | [`vision/`](vision/) | 構想 (VISION.md) と領域別仕様 (areas/): 現状・理想形・未決 |
+| [`plans/`](plans/) | 作業計画 / バックログ (現行: core vision backlog) |
 | [`architecture/`](architecture/) | 設計の現在地。コードと同期して育てる生きた仕様 |
 | [`infrastructure/`](infrastructure/) | k8s / GitOps / 監視 / スケーリング |
 | [`operations/`](operations/) | 運用 runbook |

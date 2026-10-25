@@ -1,16 +1,18 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-06-07
 deciders: Astera core
 supersedes: null
-superseded_by: null
+superseded_by: 0260
 ---
 
 # ADR-0171: Wave 6c-stub-packetevents (B) — per-viewer scoreboard locale via team-packet fan-out
 
 ## Status
 
-Accepted. Second-stage PacketEvents consumer on the ADR-0170 foundation:
+**Superseded by [[adr/0260-packet-only-hud-and-packetevents-hard-dependency]]** (2026-10-26, Folia migration). Body below preserved per ADR convention; do not act on the design described here.
+
+Originally: Accepted. Second-stage PacketEvents consumer on the ADR-0170 foundation:
 both Paper scoreboard adapters ([`PaperScoreboard`][line],
 [`PaperTeamScoreboard`][team]) move to the opaque-entry/team-prefix sidebar
 model and, when PacketEvents is installed, fan a per-viewer

@@ -20,6 +20,8 @@ COPY gradle /workspace/gradle/
 COPY buildSrc /workspace/buildSrc/
 COPY config /workspace/config/
 COPY tools /workspace/tools/
+COPY kernel /workspace/kernel/
+COPY core /workspace/core/
 COPY plugin /workspace/plugin/
 COPY content /workspace/content/
 # Bot StageObjectives must see the same compact stages/generators as the E2E_FAST backend.

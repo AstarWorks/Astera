@@ -1,6 +1,6 @@
 # Tracks, file ownership and integration windows
 
-Founder-approved 2026-10-26 (ADR-0255). Track = one area of the game, worktree = track, one session per
+Founder-approved 2026-10-26 (ADR-0266). Track = one area of the game, worktree = track, one session per
 track (`/IdeaProjects/Astera/.claude/worktrees/<slug>`, branch `wp/<slug>`; see `.claude/CLAUDE.md`).
 Wave vocabulary is retired; say "track" and "integration window".
 

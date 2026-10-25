@@ -12,7 +12,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":plugin:core"))
+    implementation(project(":core:feature-effects"))
+    implementation(project(":kernel:domain"))
+    implementation(project(":kernel:runtime"))
     implementation(libs.kaml)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.slf4j.api)

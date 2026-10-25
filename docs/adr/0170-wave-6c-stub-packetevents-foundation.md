@@ -1,16 +1,18 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-06-05
 deciders: Astera core
 supersedes: null
-superseded_by: null
+superseded_by: 0260
 ---
 
 # ADR-0170: Wave 6c-stub-packetevents (A) — PacketEvents 2.x adoption + PaperPacketInterceptor foundation
 
 ## Status
 
-Accepted. First-stage adoption of [PacketEvents 2.x][packetevents] as a
+**Superseded by [[adr/0260-packet-only-hud-and-packetevents-hard-dependency]]** (2026-10-26, Folia migration). Body below preserved per ADR convention; do not act on the design described here.
+
+Originally: Accepted. First-stage adoption of [PacketEvents 2.x][packetevents] as a
 `compileOnly` softdepend, plus a Paper-side [`IPacketInterceptor`][port]
 implementation that runs the existing `MovementValidatorPacketBridge`
 (Wave 5q anti-cheat) against real Netty-intercepted client packets.

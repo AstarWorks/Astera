@@ -1,16 +1,18 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-10-23
 deciders: ryuzu
 supersedes: null
-superseded_by: null
+superseded_by: 0255
 ---
 
 # ADR-0246: Server-built sky-island arenas in a void `arenas` world
 
 ## Status
 
-Accepted
+**Superseded by [[adr/0255-world-slots-and-arenapaster]]** (2026-10-26, Folia migration). Body below preserved per ADR convention; do not act on the design described here.
+
+Originally: Accepted
 
 ## Context
 

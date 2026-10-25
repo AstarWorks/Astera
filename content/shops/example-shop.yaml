@@ -1,6 +1,6 @@
 # Lobby shop (default target of the lobby shop NPC, the main-menu tile and
 # `/astera shop`). Every `item` must exist in content/items/ (ShopShippedContentTest).
-# Currency design (docs/game-design/economy/README.md, ADR-0262):
+# Currency design (docs/game-design/economy/README.md, ADR-0271):
 #   GOLD  = the one persistent currency, earned from matches (content/balance/match-rewards.yaml),
 #           quests, achievements, level rewards and the login bonus. Stars are a match item, never a price.
 # Pricing is ordered by item rarity (ShippedWeaponAcquisitionTest pins it, every tier strictly above the one below):

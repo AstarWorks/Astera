@@ -3,7 +3,7 @@
 Designer-side scripts that produce Astera's sound effects. **Not part of the Astera runtime or `./gradlew build`.**
 Outputs are committed OGG Vorbis files under `content/sounds/`; the scripts are what make them reproducible.
 
-Policy ([[adr/0256-free-sound-sourcing-and-one-cue-path]], supersedes ADR-0026): **ffmpeg synthesis and CC0 only.**
+Policy ([[adr/0267-free-sound-sourcing-and-one-cue-path]], supersedes ADR-0026): **ffmpeg synthesis and CC0 only.**
 No paid or credit-metered generator (fal.ai, ElevenLabs, ...), no API keys, no network.
 
 ## Scripts
@@ -45,6 +45,6 @@ Allowed only if CC0 / public domain. Convert with `to_ogg.sh`, and list file, so
 
 ## See also
 
-- [[adr/0256-free-sound-sourcing-and-one-cue-path]] - policy and cue path
+- [[adr/0267-free-sound-sourcing-and-one-cue-path]] - policy and cue path
 - `content/sounds/README.md` - output-side conventions
 - `.claude/skills/generate-sounds/SKILL.md` - the skill driver

@@ -6,7 +6,7 @@ description: Make Minecraft Java SFX for Astera with the free route only (ffmpeg
 
 # /generate-sounds
 
-Policy: [[adr/0256-free-sound-sourcing-and-one-cue-path]] (supersedes ADR-0026). Sounds come from exactly two
+Policy: [[adr/0267-free-sound-sourcing-and-one-cue-path]] (supersedes ADR-0026). Sounds come from exactly two
 sources:
 
 1. **Synthesis** with ffmpeg (`aevalsrc`, `anoisesrc`, filters, mixing). Preferred.

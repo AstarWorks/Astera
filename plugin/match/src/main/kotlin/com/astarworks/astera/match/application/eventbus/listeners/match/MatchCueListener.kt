@@ -13,7 +13,7 @@ import com.astarworks.astera.core.domain.music.MusicMood
 import com.astarworks.astera.match.domain.event.PhaseChanged
 
 /**
- * Sound cues and BGM tension for the match milestones owned by the match plugin (ADR-0256):
+ * Sound cues and BGM tension for the match milestones owned by the match plugin (ADR-0267):
  * the 5-4-3-2-1 countdown ticks and the "go" cue, the victim's death cue, and the switch to the
  * high-intensity track when the match enters its last stretch (sudden death).
  *

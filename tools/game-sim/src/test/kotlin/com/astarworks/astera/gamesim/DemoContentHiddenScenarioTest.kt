@@ -4,7 +4,7 @@ import com.astarworks.astera.items.application.admin.AdminItemCatalog
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** MODE-08 (ADR-0261): dev / demo items stay usable by id but are not listed, kitted or racked. */
+/** MODE-08 (ADR-0270): dev / demo items stay usable by id but are not listed, kitted or racked. */
 class DemoContentHiddenScenarioTest {
 
     @Test

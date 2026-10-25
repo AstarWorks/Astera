@@ -1,4 +1,4 @@
-# BGM track (ADR-0256): a vanilla sound event, no resource pack needed. Replace the source with
+# BGM track (ADR-0267): a vanilla sound event, no resource pack needed. Replace the source with
 # an astera: OGG event (CC0 or ffmpeg-synthesised) when real music exists.
 id: lobby-loop
 display_name: "Lobby Loop"

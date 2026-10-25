@@ -1,4 +1,4 @@
-# Sound cue (ADR-0256). Vanilla sound for now; point resource_key at an astera: OGG event later.
+# Sound cue (ADR-0267). Vanilla sound for now; point resource_key at an astera: OGG event later.
 id: "astera:ui/quest-complete"
 resource_key: "minecraft:ui.toast.challenge_complete"
 default_volume: 0.9

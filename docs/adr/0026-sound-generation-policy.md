@@ -10,7 +10,7 @@ superseded_by: 0256
 
 ## Status
 
-Superseded by [[adr/0256-free-sound-sourcing-and-one-cue-path]] (2026-10-26): sourcing is ffmpeg synthesis and CC0 only; no paid generation.
+Superseded by [[adr/0267-free-sound-sourcing-and-one-cue-path]] (2026-10-26): sourcing is ffmpeg synthesis and CC0 only; no paid generation.
 
 ## Context
 
