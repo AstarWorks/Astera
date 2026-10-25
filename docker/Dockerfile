@@ -32,8 +32,6 @@ COPY tools /workspace/tools/
 COPY kernel /workspace/kernel/
 COPY core /workspace/core/
 COPY plugin /workspace/plugin/
-COPY kernel /workspace/kernel/
-COPY core /workspace/core/
 # schema-gen / content-lint reference content/ from the root project.
 COPY content /workspace/content/
 
