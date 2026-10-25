@@ -9,6 +9,15 @@ import com.astarworks.astera.core.domain.effect.vfx.VfxFreeze
 import com.astarworks.astera.core.domain.effect.vfx.VfxPerformanceSampler
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.effect.ParticleData
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -51,6 +60,7 @@ public object SkillLintPlanDump {
         val counts = HashMap<Int, Int>()
         var start = 0
         var sampled: List<VfxPerformanceSampler.Tick> = emptyList()
+        var emissions: List<JsonObject> = emptyList()
         scenario("skill-lint-$skill") {
             val caster = player("caster", team = "red")
             player("observer", at = Vec3(4.0, groundY, 0.0), team = "blue")
@@ -61,6 +71,8 @@ public object SkillLintPlanDump {
             val def = registry.find(VfxId(vfxId))!!
             val probe = PerformanceProbe(sim, caster)
             val castTick = sim.tick
+            val casterFeet = caster.position
+            val casterLook = caster.direction
             caster.cast(skill)
             val last = def.durationTicks + 10
             for (t in 0..last) {
@@ -72,9 +84,11 @@ public object SkillLintPlanDump {
             val body = def.body?.let { id ->
                 VfxBodyContext(checkNotNull(sim.services.getOrThrow<ISkinRigRegistry>().find(id)) { "body animation '$id' not loaded" })
             }
+            emissions = sim.recorder.particleCalls().filter { it.tick >= castTick }
+                .map { emissionJson(it, castTick, casterFeet, casterLook, sim.recorder) }
             sampled = VfxPerformanceSampler.sample(def, body, freezesAfter(skillText, vfxId), startTick = start.coerceAtLeast(0))
         }
-        return json(skill, sampled, counts)
+        return json(skill, sampled, counts, emissions)
     }
 
     /** The `freeze: [{at, ticks}]` windows of the play_vfx step that plays [vfxId]. */
@@ -87,7 +101,7 @@ public object SkillLintPlanDump {
             .map { VfxFreeze(it.groupValues[1].toInt(), it.groupValues[2].toInt()) }.toList()
     }
 
-    private fun json(skill: String, ticks: List<VfxPerformanceSampler.Tick>, counts: Map<Int, Int>): String {
+    private fun json(skill: String, ticks: List<VfxPerformanceSampler.Tick>, counts: Map<Int, Int>, emissions: List<JsonObject>): String {
         fun n(v: Double): String = String.format(Locale.ROOT, "%.6f", if (abs(v) < 5e-7) 0.0 else v)
         fun v3(v: Vec3) = "[${n(v.x)}, ${n(v.y)}, ${n(v.z)}]"
         fun q(q: com.astarworks.astera.core.domain.geometry.math.Quaternion) = "[${n(q.x)}, ${n(q.y)}, ${n(q.z)}, ${n(q.w)}]"
@@ -103,8 +117,51 @@ public object SkillLintPlanDump {
             sb.append(", \"visibleWeapons\": ").append(counts[t.tick] ?: 0).append("}")
             sb.append(if (i < ticks.size - 1) ",\n" else "\n")
         }
-        sb.append("  ]\n}\n")
+        sb.append("  ],\n  \"particles\": [")
+        sb.append(emissions.joinToString(",\n    ", prefix = if (emissions.isEmpty()) "" else "\n    ", postfix = if (emissions.isEmpty()) "" else "\n  ") { it.toString() })
+        sb.append("]\n}\n")
         return sb.toString()
+    }
+
+    /**
+     * One particle call of the real runtime, in caster-local space (feet at the cast position, `+x` right, `+y` up, `+z`
+     * forward along the cast-time look; same frame as the bones). `tick` = skill tick. `type` = vanilla particle key,
+     * `count`/`delta`/`speed` = the packet fields as the client reads them: `count > 0` -> `delta` is the gaussian spread
+     * per axis and `speed` the random-velocity scale; `count == 0` -> `delta` is the unit direction and `speed` the
+     * velocity scale (vx = delta.x * speed). `data` = typed particle data (dust colour, item, trail ...), see
+     * [TraceRecorder.particleDataJson], absolute positions inside it are caster-local too.
+     */
+    private fun emissionJson(c: TraceRecorder.ParticleCall, castTick: Long, feet: Vec3, look: Vec3, rec: TraceRecorder): JsonObject {
+        val flat = Vec3(look.x, 0.0, look.z).let { if (it.lengthSquared() < 1e-9) Vec3(0.0, 0.0, 1.0) else it.normalize() }
+        val right = Vec3(-flat.z, 0.0, flat.x)
+        fun point(w: Vec3): Vec3 = (w - feet).let { Vec3(it.x * right.x + it.z * right.z, it.y, it.x * flat.x + it.z * flat.z) }
+        fun dir(w: Vec3): Vec3 = Vec3(w.x * right.x + w.z * right.z, w.y, w.x * flat.x + w.z * flat.z)
+        fun arr(v: Vec3): JsonArray = JsonArray(listOf(v.x, v.y, v.z).map { JsonPrimitive(it) })
+        val spec = c.spec
+        val data = spec.data ?: spec.color?.takeIf { spec.key == "dust" }?.let { ParticleData.Dust(it, spec.scale) }
+        return buildJsonObject {
+            put("tick", c.tick - castTick)
+            put("type", spec.key.removePrefix("minecraft:"))
+            put("count", spec.count)
+            put("pos", arr(point(c.at)))
+            put("delta", arr(if (spec.count == 0) dir(spec.offset) else spec.offset))
+            put("speed", spec.extra)
+            if (data != null) put("data", localData(rec.particleDataJson(data), ::point, ::arr))
+            if (data == null && spec.color != null) put("color", buildJsonObject { put("r", spec.color!!.r); put("g", spec.color!!.g); put("b", spec.color!!.b) })
+            put("force", spec.force)
+        }
+    }
+
+    /** [data] with every `{x, y, z}` target converted by [point] into a `[x, y, z]` array. */
+    private fun localData(data: JsonElement, point: (Vec3) -> Vec3, arr: (Vec3) -> JsonArray): JsonElement {
+        val o = data as? JsonObject ?: return data
+        return buildJsonObject {
+            for ((k, v) in o) {
+                val xyz = (v as? JsonObject)?.takeIf { "x" in it && "y" in it && "z" in it && "r" !in it }
+                if (xyz != null) put(k, arr(point(Vec3(xyz["x"]!!.jsonPrimitive.double, xyz["y"]!!.jsonPrimitive.double, xyz["z"]!!.jsonPrimitive.double))))
+                else put(k, v)
+            }
+        }
     }
 
     private fun contentDir(): Path =

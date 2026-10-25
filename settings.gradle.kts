@@ -88,4 +88,6 @@ include(
     ":tools:bot-runner",
     // Software-rendered contact sheets of content/vfx choreographies (ADR-0220). No Minecraft. Not shipped.
     ":tools:vfx-preview",
+    // Runs the real vanilla particle classes from the local client jar for a skill's emissions (particles.json for the preview). Not shipped.
+    ":tools:particle-sim",
 )
