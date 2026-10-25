@@ -352,6 +352,20 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             .LobbyTravelShowIntentHandler.INTENT_PREFIX,
     ) { intent, player -> travelShowHandler.handle(intent, player) }
 
+    // UI-06: in-match mini menu (F) - leave confirm / help intents + the "F: menu" hint on match entry.
+    val matchMenuHandler = com.astarworks.astera.core.application.gui.match.MatchMenuIntentHandler(
+        returnToLobby = returnToLobby,
+        guiAdapter = guiAdapter,
+        messages = messages,
+        playerGateway = playerGateway,
+    )
+    waveGRegistrations += waveGRouter.register(
+        com.astarworks.astera.core.application.gui.match.MatchMenuIntentHandler.INTENT_PREFIX,
+    ) { intent, player -> matchMenuHandler.handle(intent, player) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class) {
+        matchMenuHandler.sendEntryHint(it.playerId)
+    }
+
     // F3-11 (ADR-0200): lobby training range + the kit's "Training" button.
     registerLobbyTrainingRange()
     val trainingTravelHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyTrainingTravelIntentHandler(

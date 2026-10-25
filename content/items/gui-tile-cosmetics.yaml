@@ -1,0 +1,7 @@
+# UI-08 (docs/game-design/access-map.md) - main-menu Cosmetics tile. Vanilla look until item-art draws a glyph.
+
+id: gui-tile-cosmetics
+material: LEATHER_CHESTPLATE
+name:
+  ja: "<light_purple>見た目</light_purple>"
+  en: "<light_purple>Cosmetics</light_purple>"

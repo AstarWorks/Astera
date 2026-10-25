@@ -13,7 +13,7 @@
 3. **コマンド** — 同じ intent を呼ぶ**ショートカット**。GUI を持つ機能のコマンドは必ずその GUI を開く。
 
 禁止: 同じ GUI を開く NPC の重複、中継だけのメニュー (旧「Customize」)、コマンドを知らないと届かない機能。
-試合中はメニュー 0 個 (ADR-0232)。コマンドだけが入口 (下表「試合中」)。
+試合中のメニューは `F` で開く 3 ボタンの小メニュー 1 つだけ (下表「試合中メニュー」)。それ以外の入口はコマンド。
 
 ## 機能 → 正規の入口
 
@@ -53,7 +53,7 @@
 | 行 | スロット | タイル → 行き先 |
 |---|---|---|
 | 0 | 0 / 4 / 8 | Admin hub (管理者) / Leave queue (キュー中のみ) / Item catalog (管理者) |
-| 1 | 10..16 | Play → `lobby.queue.show` / Shop → `lobby.shop.open` / Vault → `lobby.vault.open` / Travel → `lobby.travel.show` / Training → `lobby.training.travel` / Profile → `lobby.profile.show` / Settings → `gui.open settings` |
+| 1 | 10..17 | Play → `lobby.queue.show` / Shop → `lobby.shop.open` / Vault → `lobby.vault.open` / Travel → `lobby.travel.show` / Training → `lobby.training.travel` / Profile → `lobby.profile.show` / Settings → `gui.open settings` / Cosmetics (見た目) → `cosmetic.open` |
 | 2 | 19..23 | Party → `lobby.party.show` / Friends → `lobby.friends.show` / Achievements → `lobby.achievement.show` / Daily & Quests → `lobby.hint.show progress` / Help → `lobby.hint.show help` |
 
 ## キー / ホットバー (`content/gui/kit/lobby-kit.yaml`)
@@ -61,7 +61,7 @@
 | 入力 | 動作 |
 |---|---|
 | コンパス (スロット8) | メインメニュー。キュー中は「Leave queue」 |
-| `F` (武器を持っていない時) | メインメニュー |
+| `F` (武器を持っていない時) | メインメニュー (ロビー)。試合中は `F` が試合メニュー (下記) |
 | `Shift+F` (武器を持っていない時) | 個人金庫 (管理者もここは金庫。管理パネルは Menu のタイル) |
 | `Q` (コンパス選択中) | Play のモード選択 |
 | クラフトグリッド | メニュー / プロフィール / ショップ / 設定 (管理者はショップ・設定がアイテムカタログ・管理パネルに差し替わる) と結果枠 = Play。ADR-0185 の決定のまま残してある (Menu のショートカット) |
@@ -83,11 +83,19 @@
 未実装 (モデルに無い): HUD 表示切替 (サイドバー / ネームプレート / ダメージ数字)、チャット設定 (チャンネル / ミュート)、通知。
 追加するときは `PlayerSettings` にフィールドを足し、この表と `settings.yaml` に 1 行ずつ足す。
 
-## 試合中
+## 試合中メニュー (`content/gui/match-menu.yaml`, 9 スロット, UI-06)
 
-メニューアイテムは 0 個 (ADR-0232)。入口はコマンドのみ:
-`/astera queue leave` (退出) / `/astera travel lobby` / `/astera settings` / `/astera help`。
-Help タイルと `/astera help` がこの一覧を案内する。試合中に F で最小メニューを出す案 (UI-06) は ADR-0232 の変更になるので、創業者判断待ち。
+試合中はホットバーにメニューアイテムを持たない (ADR-0232)。代わりに **`F` (手の入れ替え) で小メニューを開く**。
+試合中だけバニラの入れ替えをキャンセルする (武器を持っていても同じ)。ロビーの `F` = メインメニューは変わらない。
+試合に入った時にチャットで「F: 試合メニュー」を 1 行案内する。
+
+| スロット | ボタン | 動作 |
+|---|---|---|
+| 2 | Settings | `gui.open settings` (設定画面) |
+| 4 | Leave | 確認画面 (`match-menu-confirm`) → 確定で既存の離脱フロー (`ReturnToLobbyUseCase`: `PlayerLeavingForLobby` → スター放出・離脱ルール)。ロジックは複製しない |
+| 6 | Help | チャットにノルマ / スター / 武器制限の説明 |
+
+コマンド (`/astera queue leave` / `/astera travel lobby` / `/astera settings` / `/astera help`) は引き続きショートカット。
 
 ## 変更の手順
 

@@ -6,7 +6,8 @@
 #
 # Row 0 (slots 0..8): ops-only Admin (0) and Item catalog (8) via `visible_if: permission:astera.admin.panel`
 #   (ADR-0240), and "Leave queue" (4), shown only while the viewer waits in a queue (`visible_if: state:queued`, ADR-0248).
-# Row 1 (slots 10..16): Play (ADR-0248, the first and most prominent tile), Shop, Vault, Travel, Training, Profile, Settings.
+# Row 1 (slots 10..17): Play (ADR-0248, the first and most prominent tile), Shop, Vault, Travel, Training, Profile, Settings,
+#   Cosmetics (UI-08; the same screen the profile card's button opens).
 # Row 2 (slots 19..23): Party, Friends, Achievements, Daily/Quests, Help.
 #
 # Item ids are `gui-tile-*` (content/items/); the texture pack supplies the visuals.
@@ -91,6 +92,13 @@ slots:
       payload: { gui: settings }
     tooltip:
       - astera.gui.main-menu.settings.tooltip
+  - type: static
+    index: 17
+    item: gui-tile-cosmetics
+    on_left:
+      key: cosmetic.open
+    tooltip:
+      - astera.menu.cosmetics.tooltip
 
   - type: static
     index: 19
