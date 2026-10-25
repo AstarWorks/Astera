@@ -532,9 +532,67 @@ astera:
 
 
   # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
+  cosmetic:
+    title:
+      newcomer: "新人"
+      adventurer: "冒険者"
+      veteran: "古参"
+      vanguard: "先陣"
+      champion: "覇者"
+      legend: "伝説"
+      slayer: "討伐者"
+      victor: "勝者"
+      graduate: "修了者"
+      devoted: "皆勤"
+      wanderer: "放浪者"
+      daredevil: "命知らず"
+      maverick: "異端児"
+    name_color:
+      rising-star: "新星"
+      sunset: "夕焼け"
+      sky: "空色"
+      rose: "薔薇"
+      crimson: "深紅"
+      emerald: "翠"
+      violet: "菫"
+    kill_effect:
+      stardust: "星屑"
+      sparkle: "きらめき"
+      notes: "音符"
+      hearts: "ハート"
+      flames: "炎"
+      portal: "異界"
+    kind:
+      title: "称号"
+      name_color: "名前の色"
+      kill_effect: "キルエフェクト"
+    gui:
+      title: "コスメティック"
+      unequip: "外す: {kind}"
+      wallet: "{amount} GOLD"
+      state:
+        equipped: "<green>装備中 - クリックで外す</green>"
+        owned: "<yellow>所持 - クリックで装備</yellow>"
+        reward-only: "<gray>レベルアップや実績で入手</gray>"
+        short: "<red>{amount} GOLD (所持 {have})</red>"
+        confirm: "<gold>もう一度クリックで {amount} GOLD で購入</gold>"
+        buy: "<green>{amount} GOLD - クリックで購入</green>"
+    msg:
+      error: "<red>失敗しました。</red>"
+      bought: "<green>{name} を {price} GOLD で購入して装備しました。残高: {balance} GOLD</green>"
+      equipped: "<green>{name} を装備しました。</green>"
+      unequipped: "<gray>{kind}を外しました。</gray>"
+      confirm: "<gold>{name} は {price} GOLD です。もう一度クリックで購入。</gold>"
+      short: "<red>{name} は {need} GOLD、所持 {have} ({short} 不足)。</red>"
+      reward-only: "<gray>{name} は購入できません。レベルアップや実績で入手します。</gray>"
+    profile:
+      name: "コスメティック"
+      none: "<gray>装備なし</gray>"
+      hint: "<yellow>クリックで変更・購入</yellow>"
   economy:
     achievement-reward:
       chat: "<gold>実績報酬: +{gold} GOLD</gold>"
+      title-chat: "<gold>称号を獲得しました: {title}</gold>"
     currency:
       gold: "<gold>GOLD</gold>"
       gem: "<light_purple>GEM</light_purple>"

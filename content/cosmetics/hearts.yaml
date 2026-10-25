@@ -1,0 +1,7 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.kill_effect.hearts. Sold in the cosmetics menu.
+id: hearts
+kind: kill_effect
+name_key: astera.cosmetic.kill_effect.hearts
+price_gold: 400
+value: "heart"
+count: 10

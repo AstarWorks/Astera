@@ -2,6 +2,8 @@ package com.astarworks.astera.economy.application.eventbus.listeners
 
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerUnlockStore
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.event.CurrencyChangeReason
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -22,11 +24,20 @@ public class DepositOnAchievementUnlockedListener(
     private val achievements: () -> IAchievementRepository?,
     private val messages: IMessageRenderer,
     private val players: IPlayerGateway,
+    private val titles: () -> IPlayerUnlockStore? = { null },
+    private val onTitleGranted: (PlayerId) -> Unit = {},
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     public fun handle(event: AchievementUnlocked) {
-        val gold = achievements()?.find(event.achievementId)?.rewardGold ?: return
+        val achievement = achievements()?.find(event.achievementId) ?: return
+        achievement.rewardTitle?.let { title ->
+            if (titles()?.grant(event.playerId, "title:$title") == true) {
+                onTitleGranted(event.playerId)
+                players.sendMessage(event.playerId, messages.render(event.playerId, TITLE_CHAT, mapOf("title" to title)))
+            }
+        }
+        val gold = achievement.rewardGold
         if (gold <= 0L) return
         deposit.execute(event.playerId, Currency.GOLD, gold, CurrencyChangeReason.AchievementReward)
             .onSuccess {
@@ -40,5 +51,6 @@ public class DepositOnAchievementUnlockedListener(
 
     public companion object {
         public val CHAT: MessageKey = MessageKey("astera.economy.achievement-reward.chat")
+        public val TITLE_CHAT: MessageKey = MessageKey("astera.economy.achievement-reward.title-chat")
     }
 }

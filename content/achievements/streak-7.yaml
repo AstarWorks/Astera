@@ -4,3 +4,4 @@ name_key: astera.stats.achievement.streak-7.name
 description_key: astera.stats.achievement.streak-7.description
 icon_item_id: fire-staff
 reward_gold: 150
+reward_title: devoted

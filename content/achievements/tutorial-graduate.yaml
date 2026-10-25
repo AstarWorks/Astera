@@ -4,3 +4,4 @@ name_key: astera.stats.achievement.tutorial-graduate.name
 description_key: astera.stats.achievement.tutorial-graduate.description
 icon_item_id: frost-staff
 reward_gold: 25
+reward_title: graduate

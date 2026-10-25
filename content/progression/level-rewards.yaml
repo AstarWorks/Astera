@@ -5,10 +5,12 @@ levels:
     gold: 50
     titles: [newcomer]
   3:
-    gold: 75
-    cosmetics: [rising-star]
-  5:
     gold: 100
+    cosmetics: [rising-star]
+  4:
+    gold: 125
+  5:
+    gold: 125
     titles: [adventurer]
   7:
     gold: 125
@@ -17,13 +19,17 @@ levels:
     titles: [veteran]
   12:
     gold: 250
+    cosmetics: [sunset]
   15:
     gold: 300
+    titles: [vanguard]
   20:
     gold: 400
     titles: [champion]
   25:
     gold: 500
+    cosmetics: [stardust]
   30:
     gold: 750
+    titles: [legend]
 # Optional items: [<item-id>] records entitlement, not a physical inventory grant.
