@@ -1,0 +1,7 @@
+# UI-01..UI-05 (docs/game-design/access-map.md) - tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-particles
+material: BLAZE_POWDER
+name:
+  ja: "<gold>パーティクル表示</gold>"
+  en: "<gold>Particle visibility</gold>"

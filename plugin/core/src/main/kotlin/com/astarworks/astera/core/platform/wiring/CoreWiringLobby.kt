@@ -148,13 +148,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     val waveGRegistrations = mutableListOf<com.astarworks.astera.core.application.services.ServiceRegistry.Registration>()
     val waveGRouter = services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>()
 
-    // Settings — show + 3 application handlers
-    val settingsShowHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsShowIntentHandler(
-        guiAdapter = guiAdapter,
-        mcServer = mcServer,
-        messages = messages,
-        playerGateway = playerGateway,
-    )
+    // Settings — 3 cycle handlers + the toggle handler (the screen itself opens via gui.open {gui: settings})
     val settingsLocaleHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsLocaleIntentHandler(
         setLocale = setLocale,
         settings = settingsRepo,
@@ -174,9 +168,25 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         messages = messages,
         playerGateway = playerGateway,
     )
+    val settingsToggleHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsToggleIntentHandler(
+        settings = settingsRepo,
+        guiAdapter = guiAdapter,
+        mcServer = mcServer,
+        settingsSpec = { guiContents.find(com.astarworks.astera.core.domain.gui.GuiId("settings")) },
+        messages = messages,
+        playerGateway = playerGateway,
+    )
     waveGRegistrations += waveGRouter.register(
-        com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsShowIntentHandler.INTENT_SHOW,
-    ) { intent, player -> settingsShowHandler.handle(intent, player) }
+        com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsToggleIntentHandler.INTENT_TOGGLE,
+    ) { intent, player -> settingsToggleHandler.handle(intent, player) }
+    val hintHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyHintIntentHandler(
+        guiAdapter = guiAdapter,
+        messages = messages,
+        playerGateway = playerGateway,
+    )
+    waveGRegistrations += waveGRouter.register(
+        com.astarworks.astera.core.application.gui.lobby.intent.LobbyHintIntentHandler.INTENT_SHOW,
+    ) { intent, player -> hintHandler.handle(intent, player) }
     waveGRegistrations += waveGRouter.register(
         com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsLocaleIntentHandler.INTENT_CYCLE,
     ) { intent, player -> settingsLocaleHandler.handle(intent, player) }
@@ -278,20 +288,8 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyLeaveIntentHandler.INTENT_LEAVE,
     ) { intent, player -> partyLeaveHandler.handle(intent, player) }
 
-    // F3-3: customize sub-menu, profile card and personal vault buttons. The profile
+    // F3-3: profile card and personal vault buttons. The profile
     // card pulls level / stats / wallet lazily from the plugins that publish them.
-    val customizeShowHandler = com.astarworks.astera.core.application.gui.lobby.intent
-        .LobbyCustomizeShowIntentHandler(
-            guiAdapter = guiAdapter,
-            mcServer = mcServer,
-            messages = messages,
-            playerGateway = playerGateway,
-        )
-    waveGRegistrations += waveGRouter.register(
-        com.astarworks.astera.core.application.gui.lobby.intent
-            .LobbyCustomizeShowIntentHandler.INTENT_PREFIX,
-    ) { intent, player -> customizeShowHandler.handle(intent, player) }
-
     val profileShowHandler = com.astarworks.astera.core.application.gui.lobby.intent
         .LobbyProfileShowIntentHandler(
             guiAdapter = guiAdapter,

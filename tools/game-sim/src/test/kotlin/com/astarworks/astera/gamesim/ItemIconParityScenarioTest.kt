@@ -27,6 +27,11 @@ class ItemIconParityScenarioTest {
     private val vanillaLook = setOf(
         "gui-pane-dark", "gui-pane-red", "gui-admin-empty",
         "gui-admin-player-head", "gui-admin-players", "gui-tile-profile", "gui-tile-training",
+    ) + setOf(
+        // UI-01..05 tiles (docs/game-design/access-map.md): vanilla look until item-art draws their glyphs.
+        "gui-tile-achievements", "gui-tile-quests", "gui-tile-help", "gui-tile-language", "gui-tile-volume-music",
+        "gui-tile-volume-sound", "gui-tile-volume-voice", "gui-tile-controls", "gui-tile-quickcast",
+        "gui-tile-particles", "gui-tile-double-jump", "gui-tile-privacy", "gui-tile-back",
     )
 
     @Test

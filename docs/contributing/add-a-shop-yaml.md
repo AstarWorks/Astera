@@ -85,7 +85,7 @@ plugin 有効時)、reload では維持される (offer 定義のみ swap)。
 
 ショップの入口は 2 つ (WP13 で整理):
 
-- **ロビー NPC**: `content/lobby-npcs/shop-npc.yaml` の右クリックが
+- **ロビー NPC**: `content/lobby-npcs/market-npc.yaml` の右クリックが
   `lobby.shop.open` を発火 → `LobbyShopOpenIntentHandler` → `ShopBrowseUseCase`
   (`payload.shop_id` 省略時は `example-shop`)。メインメニューのショップタイルも同じ intent。
 - **コマンド**: `/astera shop` (既定ショップ) / `/astera shop <shop-id>`。

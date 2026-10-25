@@ -1,0 +1,7 @@
+# UI-01..UI-05 (docs/game-design/access-map.md) - tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-language
+material: BOOK
+name:
+  ja: "<gold>言語</gold>"
+  en: "<gold>Language</gold>"

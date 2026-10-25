@@ -1,30 +1,33 @@
 package com.astarworks.astera.core.application.command
 
 import com.astarworks.astera.core.adapter.api.server.IMcServer
-import com.astarworks.astera.core.application.gui.lobby.MainMenuGuiSpec
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
+import com.astarworks.astera.core.domain.gui.GuiId
+import com.astarworks.astera.core.domain.gui.GuiSpec
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
 
 /**
- * `/astera menu` Brigadier command spec (Wave 5wireup, ADR-0116 §G11).
- *
- * Opens [MainMenuGuiSpec.SPEC] for the executing player via [IGuiAdapter].
+ * A `/astera <name>` command that opens the content GUI [guiId] (docs/game-design/access-map.md: every
+ * command shortcut of a feature that has a GUI opens that GUI). `/astera menu`, `/astera settings` and
+ * `/astera social` are built from this.
  *
  * # Failure modes
  *
- *  - Console executor → `astera.command.player-only`.
- *  - Player not resolvable through [IMcServer] (race: disconnected between
- *    command parse + executor invocation) → `astera.command.player-offline`.
- *  - [IGuiAdapter.open] returns `false` (item registry miss, spec rejected)
- *    → `astera.gui.error.open-rejected`.
+ *  - Console executor -> `astera.command.player-only`.
+ *  - Player not resolvable through [IMcServer] -> `astera.command.player-offline`.
+ *  - [specProvider] has no spec for [guiId], or [IGuiAdapter.open] returns `false` -> `astera.gui.error.open-rejected`.
  */
-public fun buildMainMenuCommandSpec(
+public fun buildOpenGuiCommandSpec(
+    name: String,
+    permission: Permission,
+    guiId: GuiId,
     guiAdapter: IGuiAdapter,
     mcServer: IMcServer,
+    specProvider: (GuiId) -> GuiSpec?,
 ): CommandSpec.Literal =
     CommandSpec.Literal(
-        name = "menu",
+        name = name,
         executor = lambda@ { ctx ->
             val playerId = ctx.sender ?: return@lambda CommandResult.Failure(
                 MessageKey("astera.command.player-only"),
@@ -33,10 +36,11 @@ public fun buildMainMenuCommandSpec(
                 ?: return@lambda CommandResult.Failure(
                     MessageKey("astera.command.player-offline"),
                 )
-            if (guiAdapter.open(mcPlayer, MainMenuGuiSpec.SPEC)) {
+            val spec = specProvider(guiId)
+            if (spec != null && guiAdapter.open(mcPlayer, spec)) {
                 CommandResult.Success
             } else {
                 CommandResult.Failure(MessageKey("astera.gui.error.open-rejected"))
             }
         },
-    ).forEveryone(Permission("astera.menu.open"))
+    ).forEveryone(permission)

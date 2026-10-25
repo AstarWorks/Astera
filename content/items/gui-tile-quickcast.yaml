@@ -1,0 +1,7 @@
+# UI-01..UI-05 (docs/game-design/access-map.md) - tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-quickcast
+material: CROSSBOW
+name:
+  ja: "<gold>クイックキャスト割当</gold>"
+  en: "<gold>Quick-cast slots</gold>"

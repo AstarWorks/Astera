@@ -170,6 +170,8 @@ astera:
       unknown-area: "<red>使えるコマンドカテゴリ <gold>{area}</gold> はありません。/astera help を試してください。</red>"
       help: "使えるコマンドを表示"
       menu: "メインメニューを開く"
+      settings: "設定を開く (言語・音量・操作・パーティクル・公開設定)"
+      social: "ソーシャル (パーティ・フレンド・実績) を開く"
       vault: "個人ヴォルトを開く"
       lang: "表示言語を切り替える（ja / en）"
       volume: "音量チャンネルを設定（music / sound / voice）"
@@ -460,8 +462,6 @@ astera:
         tooltip: "<gray>クリックでモードを選んでゲーム開始（キュー / ボット戦）。</gray>"
       shop:
         tooltip: "<gray>クリックでロビーショップを開く。</gray>"
-      customize:
-        tooltip: "<gray>クリックで金庫・プロフィール・設定を開く。</gray>"
       travel:
         tooltip: "<gray>クリックで PvE / サバイバル / ロビーへ移動。</gray>"
       profile:
@@ -480,14 +480,6 @@ astera:
         tooltip: "<gray>パーティのサバイバルアイランドへ。</gray>"
       lobby:
         tooltip: "<gray>ロビーに戻る。</gray>"
-    customize-menu:
-      title: "<gold>カスタマイズ</gold>"
-      vault:
-        tooltip: "<gray>個人金庫（エンダーチェスト）を開く。</gray>"
-      profile:
-        tooltip: "<gray>プロフィールカードを表示。</gray>"
-      settings:
-        tooltip: "<gray>設定を開く。</gray>"
     profile-card:
       title: "<gold>プロフィール</gold>"
       level:
@@ -530,8 +522,6 @@ astera:
       title: "<gold>設定</gold>"
       locale:
         tooltip: "<gray>表示言語を切り替え。</gray>"
-      volume:
-        tooltip: "<gray>音量を調整。</gray>"
       controls:
         tooltip: "<gray>操作スキームを切り替え。</gray>"
     queue-mode-list:
@@ -1609,22 +1599,10 @@ astera:
 
   lobby:
     npc:
-      queue:
-        name: "キューマスター"
-      shop:
-        name: "ロビー商人"
       travel:
         name: "旅の案内人"
       refinement:
         name: "強化師"
-      gear-keeper:
-        name: "装備キーパー"
-      profile:
-        name: "プロフィールキーパー"
-      settings:
-        name: "設定スチュワード"
-      party:
-        name: "パーティコーディネーター"
 
     # ADR-0180 — 空島ロビーの看板 (4 行、1 行 15 文字以内)。
     sign:
@@ -2295,8 +2273,8 @@ astera:
   tutorial.guide.shop.subtitle: "マーカーの商人からショップを開こう"
   tutorial.guide.shop.hint: "武器をしまい、F → ショップ、または商人を右クリック。購入は不要。"
   tutorial.guide.vault.title: "個人倉庫"
-  tutorial.guide.vault.subtitle: "カスタマイズから倉庫を開こう"
-  tutorial.guide.vault.hint: "スニーク＋F → 倉庫、またはF → カスタマイズ → 倉庫。保管物は保存される。預け入れは不要。"
+  tutorial.guide.vault.subtitle: "個人倉庫を開こう"
+  tutorial.guide.vault.hint: "スニーク＋F、または F → 金庫。保管物は保存される。預け入れは不要。"
   tutorial.guide.queue.title: "対戦の準備完了"
   tutorial.guide.queue.subtitle: "スポーン横のプレイゲートへ"
   tutorial.guide.queue.hint: "スポーンの隣で光るプレイゲートへ歩き、案内人を右クリックしてモードを選ぶ。コンパスでQを押しても同じ選択画面が開く。"
@@ -2356,3 +2334,41 @@ astera:
   hud.lobby.queue.actionbar.waiting: "<gold>{lane}</gold> <gray>|</gray> <white>{players}/{required}</white> <gray>|</gray> <white>{time}</white> <gray>|</gray> <yellow>対戦相手を待っています</yellow>"
   hud.lobby.queue.actionbar.starting: "<gold>{lane}</gold> <gray>|</gray> <white>{players}/{required}</white> <gray>|</gray> <green>{seconds}秒後に開始</green>"
   hud.lobby.queue.actionbar.busy: "<gold>{lane}</gold> <gray>|</gray> <white>{players}/{required}</white> <gray>|</gray> <red>アリーナ使用中、少々お待ちを</red>"
+
+  # UI-01..UI-06 (docs/game-design/access-map.md): アクセスマップ、メインメニューのタイル、設定画面、役割別ハブ NPC。
+  lobby.npc.market.name: "マーケット"
+  lobby.npc.social.name: "ソーシャル"
+  gui.social-hub.title: "<gold>ソーシャル</gold>"
+  gui.button.back: "戻る"
+  gui.main-menu.vault.tooltip: "<gray>クリックで個人金庫を開く。</gray>"
+  gui.main-menu.settings.tooltip: "<gray>クリックで言語・音量・操作・パーティクル・公開設定。</gray>"
+  gui.main-menu.party.tooltip: "<gray>クリックでパーティを管理。</gray>"
+  gui.main-menu.friends.tooltip: "<gray>クリックでフレンドと申請を見る。</gray>"
+  gui.main-menu.achievements.tooltip: "<gray>クリックで実績を見る。</gray>"
+  gui.main-menu.quests.tooltip: "<gray>クリックでデイリー・ミッション・クエストの確認方法を表示。</gray>"
+  gui.main-menu.help.tooltip: "<gray>クリックでコマンド早見表とチュートリアルを表示。</gray>"
+  gui.settings.volume.music.tooltip: "<gray>クリックで音楽の音量を段階的に変更 (100 / 75 / 50 / 25 / 0)。</gray>"
+  gui.settings.volume.sound.tooltip: "<gray>クリックで効果音の音量を段階的に変更 (100 / 75 / 50 / 25 / 0)。</gray>"
+  gui.settings.volume.voice.tooltip: "<gray>クリックでボイスの音量を段階的に変更 (100 / 75 / 50 / 25 / 0)。</gray>"
+  gui.settings.quickcast.tooltip: "<gray>クリックでホットバーのスロットにスキルを割り当て (操作方式「ボタン」用)。</gray>"
+  gui.settings.particles.tooltip: "<gray>クリックで見えるパーティクルを切替: 全員 / 自チーム / 自分のみ。</gray>"
+  gui.settings.double-jump.tooltip: "<gray>クリックで二段ジャンプの ON / OFF を切替。</gray>"
+  gui.settings.public-profile.tooltip: "<gray>クリックでプロフィールの公開 / 非公開を切替 (既定は非公開)。</gray>"
+  gui.quickcast-slots.title: "<gold>クイックキャスト割当</gold>"
+  gui.quickcast-slots.slot.tooltip: "<gray>クリックでこのホットバースロットのスキルを選ぶ。</gray>"
+  settings.toggle.particles: "<green>表示するパーティクル: <gold>{value}</gold></green>"
+  settings.toggle.double-jump: "<green>二段ジャンプ: <gold>{value}</gold></green>"
+  settings.toggle.public-profile: "<green>公開プロフィール: <gold>{value}</gold></green>"
+  settings.value.on: "ON"
+  settings.value.off: "OFF"
+  settings.value.particles.all: "全員"
+  settings.value.particles.team: "自チームのみ"
+  settings.value.particles.own: "自分のみ"
+  hint.progress.header: "<gold>デイリー・ミッション・クエスト</gold>"
+  hint.progress.daily: "<gray>/astera daily</gray> - 今日のログインボーナスを受け取り、連続日数を確認"
+  hint.progress.missions: "<gray>/astera missions</gray> - デイリー / ウィークリーミッション"
+  hint.progress.quests: "<gray>/astera quests</gray> - クエストチェーン"
+  hint.help.header: "<gold>ヘルプ</gold>"
+  hint.help.commands: "<gray>/astera help</gray> - コマンド一覧。<gray>/astera menu</gray>・<gray>/astera settings</gray>・<gray>/astera social</gray> で各画面を開く"
+  hint.help.tutorial: "<gray>/astera tutorial start</gray> - チュートリアルをやり直す"
+  hint.help.in-match: "<gray>試合中はメニューアイテムはありません。/astera queue leave・/astera travel lobby・/astera settings を使ってください。</gray>"

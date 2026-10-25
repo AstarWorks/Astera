@@ -1,0 +1,7 @@
+# UI-01..UI-05 (docs/game-design/access-map.md) - tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-volume-music
+material: NOTE_BLOCK
+name:
+  ja: "<gold>音量: 音楽</gold>"
+  en: "<gold>Volume: Music</gold>"

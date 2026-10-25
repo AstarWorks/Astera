@@ -30,7 +30,8 @@ internal fun CoreWiringState.wireTutorialGuide() {
         landmark = { action -> when (action) {
             "menu" -> Vec3(lobby.spawn.x, lobby.spawn.y, lobby.spawn.z)
             "shop" -> npc("lobby.shop.open")
-            "vault" -> npc("lobby.customize.show")
+            // The vault counter is scenery opposite the Market hub; the marker points at the Market NPC.
+            "vault" -> npc("lobby.shop.open")
             // ADR-0248: the marker points at the Play gate in front of the spawn, not at a far lane pad.
             "queue" -> npcById("play-npc") ?: services.get<LobbyLanePadService>()?.pads()?.values?.firstOrNull()
             else -> null

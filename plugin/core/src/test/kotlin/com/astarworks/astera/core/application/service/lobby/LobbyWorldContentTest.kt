@@ -51,7 +51,8 @@ class LobbyWorldContentTest {
         val report = ContentLoader(ContentLoader.DEFAULT_PARSERS, LobbyNpcYamlConfig.serializer())
             .loadFrom(content.resolve("lobby-npcs")) { npcs += it }
         assertThat(report.failures).isEmpty()
-        assertThat(npcs).hasSize(8)
+        // UI-01: four role hubs (docs/game-design/access-map.md).
+        assertThat(npcs.map { it.id }).containsExactlyInAnyOrder("play-npc", "market-npc", "travel-npc", "social-npc")
         npcs.forEach { npc ->
             assertThat(npc.spawn.world).describedAs(npc.id).isEqualTo(config.id)
             val at = Vec3(npc.spawn.x, npc.spawn.y, npc.spawn.z)
