@@ -6,6 +6,7 @@
 
 Checks (each prints PASS/FAIL with the tick and the number; exit 1 on any FAIL):
   1 reference beat match   plan dump vs content/skill-lint/<skill>.targets.yaml (blade direction, roll, body)
+  1b overlay               plan dump projected onto the annotated reference frames (content/skill-lint/<skill>.keypoints.yaml): pixel error per beat + PNG
   2 one weapon + grip      visibleWeapons == 1 every tick; grip on the right-hand bone
   3 fx follow the blade    particle / display emission vs the blade path; nothing fires in hold / coil beats
   4 budget + visual traps  simultaneous Displays, particles per tick, haze sprites
@@ -157,6 +158,49 @@ def face_normal(w):
     return norm(cross(blade_axis(w), tuple(w["edgeNormal"])))
 
 
+def torso_lean_twist(rot):
+    """(lean, twist) of the torso in degrees. Twist = |heading| of the torso's own forward axis from the caster facing (+z).
+    Lean = forward pitch of the torso's up axis measured in the torso's OWN heading frame, so a forward bend is positive whichever way
+    the caster is turned (measured along the caster's +z it flipped sign past 90 degrees of twist: the B3 'twist 132' workaround)."""
+    up, fw = qrot(rot, (0, 1, 0)), qrot(rot, (0, 0, 1))
+    psi = math.atan2(fw[0], fw[2])
+    up_fwd = up[0] * math.sin(psi) + up[2] * math.cos(psi)   # up rotated by -psi about y, z component
+    return math.degrees(math.atan2(up_fwd, up[1])), abs(math.degrees(psi))
+
+
+# ---- check 1b ------------------------------------------------------------------------------------------------------
+def check1b(skill, plan):
+    """Project the plan dump onto each annotated reference frame (tools/pose-solve/overlay.py) and report the pixel error per beat."""
+    c = "1b overlay"
+    kp = ROOT / "content/skill-lint" / (skill.id + ".keypoints.yaml")
+    if not kp.is_file():
+        emit(c, True, "skipped: no %s (annotate the reference beats to enable the pixel check)" % kp.relative_to(ROOT))
+        return
+    if plan is None:
+        emit(c, False, "no plan dump: cannot project it onto the reference frames")
+        return
+    sys.path.append(str(ROOT / "tools/pose-solve"))
+    import overlay
+    out = ROOT / "build/skill-lint" / skill.id / "overlay"
+    res, tol = overlay.run(skill.id, plan, out)
+    for bid, tick, ok, m in res:
+        name = "1b %s t%s" % (bid, tick)
+        if "error" in m:
+            emit(name, False, m["error"])
+            continue
+        why = []
+        if m["rms_frac"] > tol["rms_frac"]:
+            why.append("skeleton RMS over the limit %.0f%%" % (100 * tol["rms_frac"]))
+        if m.get("blade_deg", 0) > tol["blade_deg"]:
+            why.append("blade angle over %.0f deg" % tol["blade_deg"])
+        if m.get("tip_off_frac", 0) > tol["tip_off_frac"]:
+            why.append("annotated tip off the blade line by more than %.0f%% of the figure" % (100 * tol["tip_off_frac"]))
+        worst = max(m["per_point"].items(), key=lambda kv: kv[1])
+        emit(name, ok, "skeleton RMS %.1f px (%.1f%% of the %d px figure), blade %.1f deg off on screen, tip %.1f px off the blade line, worst point %s %.0f px%s%s" % (
+            m["rms_px"], 100 * m["rms_frac"], m["fig_h"], m.get("blade_deg", float("nan")), m.get("tip_off_px", float("nan")), worst[0], worst[1],
+            ("; " + ", ".join(why)) if why else "", "; overlay %s" % (out / (bid + ".png")).relative_to(ROOT) if (out / (bid + ".png")).is_file() else ""))
+
+
 # ---- check 1 -------------------------------------------------------------------------------------------------------
 def check1(targets, plan):
     c = "1 beats"
@@ -199,9 +243,9 @@ def check1(targets, plan):
                     bad.append("t%d bone %s/%s missing" % (t, bones["hips"], bones["torso"]))
                 else:
                     vals["hips_h"] = (hb["pos"][1] / H, "hips_h", lambda a, b: abs(a - b))
-                    up, fw = qrot(tb["rot"], (0, 1, 0)), qrot(tb["rot"], (0, 0, 1))
-                    vals["lean_deg"] = (math.degrees(math.atan2(up[2], up[1])), "lean_deg", lambda a, b: abs(a - b))
-                    vals["twist_deg"] = (abs(math.degrees(math.atan2(fw[0], fw[2]))), "twist_deg", lambda a, b: abs(a - b))
+                    lean, twist = torso_lean_twist(tb["rot"])
+                    vals["lean_deg"] = (lean, "lean_deg", lambda a, b: abs(a - b))
+                    vals["twist_deg"] = (twist, "twist_deg", lambda a, b: abs(a - b))
             for key, (val, tkey, fn) in vals.items():
                 if key == "face_deg":
                     tgt_tol = blade_t.get("face_tol", 35)
@@ -524,6 +568,7 @@ def main():
     plan = load_plan(Path(a.plan) if a.plan else ROOT / "build/skill-lint" / a.skill / "plan.json")
     print("skill-lint %s  (targets %s, plan dump %s)\n" % (a.skill, tpath.relative_to(ROOT) if tpath.is_relative_to(ROOT) else tpath, "present" if plan else "MISSING"))
     check1(targets, plan)
+    check1b(skill, plan)
     check2(targets, plan)
     check3(skill, targets, plan)
     check4(skill, targets)

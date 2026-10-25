@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Keypoint annotation</title>
+<link rel="stylesheet" href="/style.css">
+<style>
+[hidden]{display:none!important}
+.ann{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:12px;align-items:start}
+@media (max-width:1000px){.ann{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;background:var(--stage,#000);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.stage canvas{display:block;width:100%;aspect-ratio:16/9;touch-action:none;cursor:crosshair}
+#mag{position:absolute;right:8px;top:8px;width:160px;height:160px;border:1px solid var(--line);border-radius:6px;background:#000;pointer-events:none}
+.side{display:flex;flex-direction:column;gap:8px;font-size:13px}
+.beats{display:flex;flex-wrap:wrap;gap:4px}
+.beats button.on{outline:2px solid var(--hit,#6cf)}
+.prow{display:grid;grid-template-columns:18px 92px 1fr 78px;gap:4px;align-items:center;padding:2px 0;border-top:1px solid var(--line)}
+.prow.sel{background:var(--head)}
+.prow .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow .missing{color:var(--mute)}
+.prow select{font-size:12px}
+.form{display:grid;grid-template-columns:90px 1fr;gap:4px 8px;align-items:center}
+.msg{min-height:1.4em;color:var(--mute)}
+.msg.err{color:var(--onset,#f66)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <span class="crumb"><a href="/">&larr; 武器一覧</a></span>
+    <h1 id="title">loading&hellip;</h1>
+    <span class="sub" id="sub"></span>
+  </div>
+  <p class="note">基準フレーム上の点をドラッグして直す。点を選んで空きをクリックすると置ける。矢印キー: 1px、Shift+矢印: 5px、0: 見えない (c=0)。Ctrl+S: 保存。保存後は <code>make pose-solve SKILL=…</code> と <code>make skill-lint SKILL=…</code>。</p>
+  <div class="ann">
+    <div>
+      <div class="beats" id="beats"></div>
+      <div class="stage"><canvas id="cv" width="1280" height="720"></canvas><canvas id="mag" width="160" height="160"></canvas></div>
+      <div class="msg" id="msg"></div>
+      <label class="chk"><input type="checkbox" id="showOv"> 直近の skill-lint overlay を見る (build/skill-lint/&lt;skill&gt;/overlay)</label>
+      <img id="ov" alt="overlay" hidden style="width:100%;margin-top:6px;border:1px solid var(--line)">
+    </div>
+    <div class="side">
+      <div class="form">
+        <span>tick</span><span id="fTick"></span>
+        <span>facing (deg)</span><input id="fFacing" type="number" step="5" title="0 = torso faces the camera, 90 = screen right, 180 = away, -90 = screen left">
+        <span>confidence</span><select id="fConf"><option>high</option><option>medium</option><option>low</option></select>
+        <span>blade depth</span><select id="fBD"><option>toward</option><option>away</option><option>inplane</option></select>
+        <span>blade face</span><select id="fBF"><option>up</option><option>camera</option><option>edge</option><option>unknown</option></select>
+        <span>blade on floor</span><input id="fFloor" type="checkbox">
+      </div>
+      <div id="plist"></div>
+      <div><button id="bSave" class="primary">Save (Ctrl+S)</button></div>
+    </div>
+  </div>
+</div>
+<script src="/annotate.js" type="module"></script>
+</body>
+</html>

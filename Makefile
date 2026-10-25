@@ -242,3 +242,13 @@ skill-lint-plan: ## Writes build/skill-lint/<skill>/plan.json (headless cast: bo
 skill-lint: ## Machine-checkable facts of a VFX skill before any capture (exit 1 on FAIL): make skill-lint SKILL=<skill-id> [CAPTURE=<capture dir>] [PLAN=<plan.json>]
 	@test -n "$(SKILL)" || { echo "usage: make skill-lint SKILL=<skill-id> [CAPTURE=<dir>] [PLAN=<plan.json>]"; exit 2; }
 	python3 tools/skill-lint/skill_lint.py "$(SKILL)" $(if $(CAPTURE),--capture "$(CAPTURE)") $(if $(PLAN),--plan "$(PLAN)")
+
+.PHONY: pose-solve
+pose-solve: ## Reference keypoints -> skin-rig body keys + wrist keys + lint targets in content/skill-lint/solved/ (never overwrites shipped keys): make pose-solve SKILL=<skill-id>
+	@test -n "$(SKILL)" || { echo "usage: make pose-solve SKILL=<skill-id>"; exit 2; }
+	python3 tools/pose-solve/solve.py "$(SKILL)"
+
+.PHONY: skill-overlay
+skill-overlay: ## Project a plan dump (or a numpy simulation of content/) onto the annotated reference frames, PNG per beat: make skill-overlay SKILL=<skill-id> [PLAN=<plan.json>]
+	@test -n "$(SKILL)" || { echo "usage: make skill-overlay SKILL=<skill-id> [PLAN=<plan.json>]"; exit 2; }
+	python3 tools/pose-solve/overlay.py "$(SKILL)" $(if $(PLAN),--plan "$(PLAN)",--simulate)
