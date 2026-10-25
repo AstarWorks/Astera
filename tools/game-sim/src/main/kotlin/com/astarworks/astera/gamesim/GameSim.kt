@@ -223,8 +223,9 @@ public class GameSim private constructor(
      */
     public fun detachPlayer(id: PlayerId): SimEntity? {
         val entity = world.find(id) ?: return null
-        world.remove(id)
+        // Like Bukkit's PlayerQuitEvent, the quit is announced while the player is still in the world.
         eventBus.publish(com.astarworks.astera.core.domain.event.PlayerQuitServer(playerId = id))
+        world.remove(id)
         handoff?.onQuit(id)
         inventory?.clear(id)
         return entity

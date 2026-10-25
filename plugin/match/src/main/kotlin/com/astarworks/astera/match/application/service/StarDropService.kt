@@ -69,10 +69,25 @@ public class StarDropService(
         val carried = store.get(match.id, event.victim)
         val burst = floor(carried * deathDropRatio(match.id)).toInt()
         log("star burst: victim=${event.victim} carried=$carried burst=$burst")
+        scatter(match.id, event.victim, burst)
+    }
+
+    /**
+     * A participant leaves the running match (disconnect, lobby command, forfeit): every star they carry bursts at
+     * the position they stand on, whatever `death_drop_ratio` says (MODE-14). Call it before they are moved away.
+     */
+    public fun onLeft(matchId: MatchId, player: PlayerId) {
+        val carried = store.get(matchId, player)
+        log("star burst on leave: player=$player carried=$carried")
+        scatter(matchId, player, carried)
+    }
+
+    /** Takes [burst] stars off [victim]'s counter and scatters them as drops around where they stand. */
+    private fun scatter(matchId: MatchId, victim: PlayerId, burst: Int) {
         if (burst <= 0) return
-        val at = positions.positionOf(event.victim, includeDead = true)
-        if (at == null) { log("star burst: no position for ${event.victim}"); return }
-        if (store.spend(match.id, event.victim, burst) is com.astarworks.astera.core.domain.Result.Failure) return
+        val at = positions.positionOf(victim, includeDead = true)
+        if (at == null) { log("star burst: no position for $victim"); return }
+        if (store.spend(matchId, victim, burst) is com.astarworks.astera.core.domain.Result.Failure) return
         val stacks = minOf(burst, MAX_BURST_DROPS)
         val base = burst / stacks
         var extra = burst % stacks
@@ -83,7 +98,7 @@ public class StarDropService(
             val now = System.currentTimeMillis()
             val pos = Vec3(at.position.x, at.position.y + 0.5, at.position.z)
             val fling = Vec3(cos(angle) * dist * BURST_SPEED, BURST_LIFT, sin(angle) * dist * BURST_SPEED)
-            val drop = StarDrop(nextId.getAndIncrement(), match.id, at.world, pos, amount, BURST_PICKUP_RADIUS, null, event.victim, now + VICTIM_DENY_MILLIS, null, now + BURST_READY_MILLIS)
+            val drop = StarDrop(nextId.getAndIncrement(), matchId, at.world, pos, amount, BURST_PICKUP_RADIUS, null, victim, now + VICTIM_DENY_MILLIS, null, now + BURST_READY_MILLIS)
                 .let { withEntity(it, fling) }
             drops[drop.id] = drop
         }

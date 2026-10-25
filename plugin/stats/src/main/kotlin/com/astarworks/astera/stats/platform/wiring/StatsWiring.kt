@@ -43,6 +43,7 @@ import com.astarworks.astera.core.domain.event.SkillLevelUp
 import com.astarworks.astera.stats.application.eventbus.listeners.BroadcastOnLeveledUpListener
 import com.astarworks.astera.stats.application.eventbus.listeners.MissionProgressOnKillListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RecordAssistOnAssistCreditedListener
+import com.astarworks.astera.stats.application.eventbus.listeners.RecordForfeitLossListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RecordMatchPlayedOnMatchEndedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RecordMatchResultOnMatchEndedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnDamageListener
@@ -214,6 +215,8 @@ public object StatsWiring {
         subscriptions += eventBus.subscribe(PlayerKilled::class) { missionProgressOnKill.handle(it) }
         subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchPlayedListener.handle(it) }
         subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchResultListener.handle(it) }
+        val recordForfeitLossListener = RecordForfeitLossListener(recordMatchPlayed, recordMatchResult)
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PlayerForfeited::class) { recordForfeitLossListener.handle(it) }
         subscriptions += eventBus.subscribe(LeveledUp::class) { broadcastOnLeveledUpListener.handle(it) }
         subscriptions += eventBus.subscribe(AssistCredited::class) { recordAssistListener.handle(it) }
 

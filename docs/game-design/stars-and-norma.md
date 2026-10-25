@@ -69,3 +69,14 @@ Stars carried, own Norma level / max, current goal and progress (`Stars 3/5` or 
 ### Rewards that are not stars
 Quests, login bonus, level rewards, daily/weekly missions (`content/norma/*.yaml`, the other, mission sense of "norma")
 and the match table pay GOLD, XP, items, titles. `Currency.STAR` no longer exists.
+
+### Leaving a running match (MODE-14)
+- **Leave = drop:** a connection drop and `/astera travel lobby` (travel menu) are the same. In COUNTDOWN the player is simply
+  removed. In ACTIVE: every star they carry bursts at the spot they stand on (all of it, whatever `death_drop_ratio` says; anyone
+  alive can pick them up), the seat is held for a **60 s** window (reconnect countdown on the action bar; the lobby routes the
+  login back to the game server).
+- **Back within 60 s:** same match, same team side, spawn protection, same Norma level and stats (the carried stars are gone).
+- **After 60 s (or in SUDDEN_DEATH at once):** forfeit. The player leaves the roster (no win reward, not in the result), a
+  loss and a played match are recorded, the pre-match inventory snapshot is restored (online at once, offline on next join).
+  The match goes on; if their team is empty the remaining team wins (`TeamVictory`), if nobody is left it is cancelled.
+- Tests: `MidMatchLeaveScenarioTest` (game-sim), `MidMatchLeaveE2eTest`, `ReconnectE2eTest`.

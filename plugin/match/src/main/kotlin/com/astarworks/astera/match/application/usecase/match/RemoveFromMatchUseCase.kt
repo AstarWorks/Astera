@@ -6,6 +6,7 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.event.PlayerLeftMatch
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
@@ -83,6 +84,14 @@ public class RemoveFromMatchUseCase(
         // the disconnect-timeout listener uses, so any persistent failure here
         // would surface there too.
         worldGateway.lobbySpawn(playerId)
+
+        // A running match loses the seat for good: the roster no longer lists the player, so the result,
+        // win rewards and win/loss records only concern those who stayed (a forfeit is recorded as a loss
+        // by its own event), and the inventory snapshot hands their pre-match items back.
+        if (match.phase == MatchPhase.ACTIVE || match.phase == MatchPhase.SUDDEN_DEATH) {
+            matches.save(match.copy(teams = match.teams.map { it.copy(members = it.members - playerId) }))
+            eventBus.publish(PlayerLeftMatch(matchId = matchId, playerId = playerId))
+        }
 
         val tick = scheduler.currentTick()
         eventBus.publish(
