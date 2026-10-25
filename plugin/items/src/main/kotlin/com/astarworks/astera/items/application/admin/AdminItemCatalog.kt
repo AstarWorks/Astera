@@ -71,9 +71,12 @@ public object AdminItemCatalog {
         AdminItemCategory.OTHER to ItemId("gui-admin-cat-other"),
     )
 
-    /** Whether [spec] belongs in the catalog at all. */
+    /** `pdc_tags` key that marks a dev / demo item (ADR-0261): usable by id, never listed or kitted. */
+    public const val DEMO_TAG: String = "astera:demo"
+
+    /** Whether [spec] belongs in the catalog at all (not GUI furniture, not a dev / demo item). */
     public fun isCatalogItem(spec: ItemSpec): Boolean =
-        HIDDEN_PREFIXES.none { spec.id.value.startsWith(it) }
+        HIDDEN_PREFIXES.none { spec.id.value.startsWith(it) } && spec.pdcTags[DEMO_TAG] != "true"
 
     /**
      * Group [spec] by its resource pool / equip slot: ammo = gun, energy = sword or staff (told apart

@@ -2,6 +2,7 @@ package com.astarworks.astera.combat.application.admin
 
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillSpec
+import com.astarworks.astera.combat.domain.skill.SkillTag
 import com.astarworks.astera.core.application.admin.panel.AdminPanelUi
 import com.astarworks.astera.core.application.admin.panel.AdminPanelUi.pager
 import com.astarworks.astera.core.domain.gui.GuiId
@@ -48,9 +49,13 @@ public object AdminSkillCatalog {
 
     public fun parse(key: String?): SkillArchetype? = SkillArchetype.entries.firstOrNull { it.name.equals(key, ignoreCase = true) }
 
-    /** Skills of [filter] (`null` = all), ordered by archetype then id. */
+    /** Skill tag that marks a dev / demo skill (ADR-0261): castable by id, not listed on the Skills page. */
+    public val DEMO_TAG: SkillTag = SkillTag("demo")
+
+    /** Skills of [filter] (`null` = all) without demo skills, ordered by archetype then id. */
     public fun entries(skills: Collection<SkillSpec>, filter: SkillArchetype?): List<SkillSpec> =
-        skills.filter { filter == null || it.archetype == filter }
+        skills.filter { DEMO_TAG !in it.tags }
+            .filter { filter == null || it.archetype == filter }
             .sortedWith(compareBy({ it.archetype.ordinal }, { it.id.value }))
 
     public fun pageCount(entryCount: Int): Int = AdminPanelUi.pageCount(entryCount, PAGE_SIZE)

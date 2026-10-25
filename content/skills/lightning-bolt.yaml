@@ -46,7 +46,7 @@ phases:
   cast:
     - type: play_sound
       targets: { type: caster }
-      sound_id: entity.lightning_bolt.impact
+      sound_id: astera:skill/wand/cast
       volume: { type: literal, value: 0.45 }
       pitch: { type: literal, value: 1.8 }
     - type: spawn_particle
