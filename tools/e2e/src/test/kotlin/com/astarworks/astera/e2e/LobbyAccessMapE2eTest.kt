@@ -15,6 +15,8 @@ class LobbyAccessMapE2eTest : E2eBase() {
 
     /** Opens `/astera <command>` and returns the screen that appeared (waits for its contents). */
     private fun open(b: Bot, command: String): ScreenView {
+        // Vanilla kicks a client for chat/command spam (+20 per message, decays 1/tick): pace the commands.
+        Thread.sleep(1_100)
         val before = b.screens.size
         b.command("astera $command")
         check(b.waitUntil(5_000) { b.screens.size > before }) { "/astera $command opened nothing; chat=${b.chatTexts().takeLast(3)}" }
