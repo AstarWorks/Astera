@@ -108,3 +108,14 @@ island/bridge graph chooses long-distance corridors; local A* remains capped at 
 compact generator coordinates. This preserves protocol suites' queue assignments, objective coordinates and RCON
 assertions. Normal images and real queues use the expanded maps. Do not move the fixtures when adjusting production
 maps. The manager runs E2E; this track runs compile-only validation and the offline preview.
+
+## Look and mood (MAP-04 / MAP-05 / MAP-08)
+
+- Outlines are noise-driven: lobes, one or two bays (never towards a bridge) and a peninsula; spawns, anchors and
+  authored parts are covered by a guaranteed disc so nothing moves. Flanks are terraced cliffs with overhangs, and
+  lower shelves hang around the shore.
+- Large islands (radius >= 30) get a themed spire (stone tower / ice spire / stepped obelisk / horned basalt) ending in a
+  beacon whose glass colours the beam in the team colour (white on the centre); large outposts get a lit cairn; bases
+  get eight team banner standards; objective pedestals get four glowing pylons. Small (debug) islands get none.
+- `layout.atmosphere: { time_of_day: 0..23999, weather: clear|rain }` sets the sky. Shared arena worlds make it per
+  player: anyone within 48 blocks of the stage footprint sees it, leaving resets it. Omitted = world baseline (noon).

@@ -3,7 +3,7 @@ id: example-arena
 display_name_key: astera.stage.example-arena.name
 world: arenas
 layout:
-  marker_version: 3
+  marker_version: 4
   seed: 20261023
   surface_y: 64
   kill_y: 16
@@ -112,6 +112,7 @@ layout:
     palette:
       team: minecraft:blue_concrete
   theme: desert
+  atmosphere: {time_of_day: 5000, weather: clear}
 regions:
 - name: full-arena
   min: {x: -212.12121212121212, y: 20.0, z: -190.9090909090909}

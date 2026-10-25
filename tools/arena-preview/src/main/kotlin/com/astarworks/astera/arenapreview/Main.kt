@@ -94,6 +94,7 @@ fun main(args: Array<String>) {
         }
         ImageIO.write(ArenaRenderer.top(stage, plan), "png", out.resolve("${stage.id.value}-top.png").toFile())
         ImageIO.write(ArenaRenderer.iso(stage, plan), "png", out.resolve("${stage.id.value}-iso.png").toFile())
+        ImageIO.write(ArenaRenderer.section(stage, plan), "png", out.resolve("${stage.id.value}-section.png").toFile())
         println("${stage.id.value}: ${plan.blocks.size} blocks, %.1f ms".format(ms))
     }
     report.append(routes)

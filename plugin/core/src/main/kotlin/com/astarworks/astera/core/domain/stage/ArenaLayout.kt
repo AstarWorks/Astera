@@ -73,6 +73,21 @@ public enum class ArenaLandmarkKind {
 /** A decorated spot on an island that the stage's regions and spawns do not already describe. */
 public data class ArenaLandmark(val kind: ArenaLandmarkKind, val x: Int, val z: Int)
 
+/** Client-side weather an arena can show. Only these two exist per player in Paper. */
+public enum class ArenaWeather { CLEAR, RAIN }
+
+/**
+ * Time of day and weather the players of one arena see (MAP-08). The arena world is shared by several stages, so the
+ * Paper adapter applies it per player (fixed player time and player weather) instead of changing the world.
+ *
+ * @property timeOfDay `0..23999` ticks (0 sunrise, 6000 noon, 12000 sunset, 18000 midnight)
+ */
+public data class ArenaAtmosphere(val timeOfDay: Long, val weather: ArenaWeather = ArenaWeather.CLEAR) {
+    init {
+        require(timeOfDay in 0L..23_999L) { "time_of_day $timeOfDay must be in 0..23999" }
+    }
+}
+
 /**
  * The block layout of a sky-island arena (ADR-0246): a pure description a builder turns into blocks.
  * Spawns, objective regions and pillars stay on the owning [Stage]; the builder decorates them
@@ -82,6 +97,7 @@ public data class ArenaLandmark(val kind: ArenaLandmarkKind, val x: Int, val z: 
  * @property seed drives rim wobble and decoration; same seed + same layout = same blocks
  * @property surfaceY Y of the topmost solid layer of every island (players stand at `surfaceY + 1`)
  * @property killY players below this Y are killed (void fall plane)
+ * @property atmosphere time of day / weather shown to players inside the arena; `null` keeps the world baseline (noon)
  */
 public data class ArenaLayout(
     val markerVersion: Int = 1,
@@ -93,6 +109,7 @@ public data class ArenaLayout(
     val islands: List<ArenaIsland>,
     val bridges: List<ArenaBridge> = emptyList(),
     val landmarks: List<ArenaLandmark> = emptyList(),
+    val atmosphere: ArenaAtmosphere? = null,
 ) {
     init {
         require(islands.isNotEmpty()) { "an arena layout needs at least one island" }

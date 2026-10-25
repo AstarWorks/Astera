@@ -7,6 +7,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.cos
+import kotlin.math.exp
 import kotlin.math.floor
 import kotlin.math.hypot
 import kotlin.math.max
@@ -14,6 +15,7 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 /** Integer block coordinate inside an arena world. */
@@ -74,7 +76,8 @@ public class ArenaBuildPlan(
  * stalactites) driven by a [Stage]'s [ArenaLayout], spawns, objective regions, pillars and landmarks.
  * Deterministic in `(layout.seed, stage)`; no Bukkit, no I/O.
  *
- * Per island: terrain, then bridges between islands (an island block always wins over a bridge block), a
+ * Per island: an irregular noise-driven outline (bays, a peninsula, terraced cliff flanks, overhangs and shoreline
+ * shelves), terrain, then bridges between islands (an island block always wins over a bridge block), a
  * team-coloured rim and spawn pad with two banner posts on base islands, a pedestal under every objective
  * anchor (`core-*`, `jewelry-*`, `wool-*`, `tnt-spawn`, pillar footings, generator landmarks), a defended wall arc
  * behind each core, terrain features (stepped mounds, plaza ruins / boulders as cover, trees) kept clear of spawn pads,
@@ -139,6 +142,7 @@ public object ArenaIslandGenerator {
         fun build(): ArenaBuildPlan {
             layout.islands.forEach { island(it) }
             layout.bridges.forEach { bridge(it) }
+            shelves()
             rimTrim()
             layout.islands.filter { it.kind == ArenaIslandKind.BASE && it.team != null }.forEach { teamPad(it) }
             anchors()
@@ -146,6 +150,7 @@ public object ArenaIslandGenerator {
             checkSpawns()
             lanes()
             structures()
+            silhouettes()
             features()
             settleGrass()
             deco()
@@ -154,14 +159,150 @@ public object ArenaIslandGenerator {
 
         // ── terrain ──────────────────────────────────────────────────────
 
+        /** Per-island outline tables (radius per 0.5 degree) so shelves and silhouettes can follow the rim. */
+        private val rims = HashMap<String, DoubleArray>()
+
+        /** Columns painted as a straight lane towards a bridge; spires and posts stay off them. */
+        private val laneCells = HashSet<Long>()
+
+        /** A disc of [margin] blocks around a point that must stay on its island. */
+        private class Cover(val dist: Double, val angle: Double, val margin: Double)
+
+        private fun angleDiff(a: Double, b: Double): Double {
+            var d = (a - b) % (2 * PI)
+            if (d > PI) d -= 2 * PI
+            if (d < -PI) d += 2 * PI
+            return d
+        }
+
+        private fun noise2(x: Double, z: Double, salt: Int): Double {
+            val x0 = floor(x).toInt()
+            val z0 = floor(z).toInt()
+            val fx = x - x0
+            val fz = z - z0
+            val u = fx * fx * (3 - 2 * fx)
+            val v = fz * fz * (3 - 2 * fz)
+            fun h(i: Int, j: Int) = rnd(x0 + i, z0 + j, salt) * 2 - 1
+            val a = h(0, 0) + (h(1, 0) - h(0, 0)) * u
+            val b = h(0, 1) + (h(1, 1) - h(0, 1)) * u
+            return a + (b - a) * v
+        }
+
+        private fun fbm(x: Double, z: Double, salt: Int): Double =
+            noise2(x, z, salt) * 0.62 + noise2(x * 2.1 + 17.3, z * 2.1 - 9.1, salt + 1) * 0.38
+
+        /** Stage points (spawns, anchors, authored parts) that must not be cut off by a bay or a lobe. */
+        private fun coversFor(isl: ArenaIsland): List<Cover> {
+            val out = ArrayList<Cover>()
+            fun add(x: Double, z: Double, margin: Double) {
+                val owner = layout.islands.minBy { hypot(x - it.x, z - it.z) / it.radius }
+                if (owner.id != isl.id) return
+                val dist = hypot(x - isl.x, z - isl.z)
+                if (dist > isl.radius * 0.85 || dist < 0.5) return
+                out += Cover(dist, atan2(z - isl.z, x - isl.x), margin)
+            }
+            for (spawn in stage.spawnPoints) if (spawn.role != SpawnRole.SPECTATOR) add(spawn.position.x, spawn.position.z, 7.0)
+            for (region in stage.regions) {
+                val name = region.name ?: continue
+                if (name.startsWith("core-") || name.startsWith("jewelry-") || name.startsWith("wool-") || name == "tnt-spawn") {
+                    add((region.min.x + region.max.x) / 2, (region.min.z + region.max.z) / 2, 6.0)
+                }
+            }
+            for (mark in layout.landmarks) add(mark.x + 0.5, mark.z + 0.5, 5.0)
+            for (pillar in stage.pillars) add(pillar.position.x, pillar.position.z, 5.0)
+            for (placement in layout.structures) {
+                val part = parts[placement.part] ?: continue
+                val x0 = part.boxes.minOf { it.min.x }
+                val x1 = part.boxes.maxOf { it.max.x }
+                val z0 = part.boxes.minOf { it.min.z }
+                val z1 = part.boxes.maxOf { it.max.z }
+                // Sample the footprint outline every 4 blocks; interior points cannot be cut off before the outline is.
+                for (lx in x0..x1 step 4) {
+                    for (lz in z0..z1 step 4) {
+                        val edge = lx - x0 < 4 || x1 - lx < 4 || lz - z0 < 4 || z1 - lz < 4
+                        if (!edge) continue
+                        val p = placement.transform(ArenaBlockPos(lx, 0, lz), s)
+                        add(p.x.toDouble(), p.z.toDouble(), 3.0)
+                    }
+                }
+                for ((lx, lz) in listOf(x1 to z1, x1 to z0, x0 to z1, x0 to z0)) {
+                    val p = placement.transform(ArenaBlockPos(lx, 0, lz), s)
+                    add(p.x.toDouble(), p.z.toDouble(), 3.0)
+                }
+            }
+            return out
+        }
+
+        /**
+         * Irregular outline (MAP-04): two octaves of noise around the circle make broad lobes, one or two narrow bays
+         * (never towards a bridge) and a peninsula break the "squashed circle". Stage points keep their disc on land.
+         */
+        private fun rimTable(isl: ArenaIsland, random: Random): DoubleArray {
+            val covers = coversFor(isl)
+            val ox = random.nextDouble() * 200
+            val oz = random.nextDouble() * 200
+            val salt = isl.id.hashCode() and 0xffff
+            val bridgeAngles = layout.bridges.filter { it.from == isl.id || it.to == isl.id }.map {
+                val other = layout.islands.first { o -> o.id == (if (it.from == isl.id) it.to else it.from) }
+                atan2((other.z - isl.z).toDouble(), (other.x - isl.x).toDouble())
+            }
+            fun free(a: Double) = bridgeAngles.all { abs(angleDiff(a, it)) > 0.6 }
+            class Feature(val angle: Double, val width: Double, val amount: Double)
+            val features = ArrayList<Feature>()
+            val bays = if (isl.radius >= 24) 2 else 1
+            var tries = 0
+            while (features.size < bays && tries++ < 40) {
+                val a = random.nextDouble() * 2 * PI
+                if (!free(a) || features.any { abs(angleDiff(a, it.angle)) < 0.9 }) continue
+                features += Feature(a, 0.16 + random.nextDouble() * 0.14, -(0.13 + random.nextDouble() * 0.09))
+            }
+            tries = 0
+            while (isl.radius >= 14 && tries++ < 40) {
+                val a = random.nextDouble() * 2 * PI
+                if (!free(a) || features.any { abs(angleDiff(a, it.angle)) < 0.9 }) continue
+                features += Feature(a, 0.12 + random.nextDouble() * 0.08, 0.12 + random.nextDouble() * 0.06)
+                break
+            }
+            val table = DoubleArray(RIM_STEPS)
+            for (i in 0 until RIM_STEPS) {
+                val theta = i * 2 * PI / RIM_STEPS - PI
+                val cx = cos(theta)
+                val sz = sin(theta)
+                var f = 1.0 + 0.16 * fbm(cx * 1.7 + ox, sz * 1.7 + oz, salt) + 0.06 * noise2(cx * 6.0 + oz, sz * 6.0 + ox, salt + 5)
+                for (ft in features) {
+                    val dt = angleDiff(theta, ft.angle) / ft.width
+                    f += ft.amount * exp(-dt * dt)
+                }
+                var rr = isl.radius * f.coerceIn(0.8, 1.24)
+                for (c in covers) {
+                    val dTheta = angleDiff(theta, c.angle)
+                    if (abs(dTheta) >= PI / 2) continue
+                    val perp = c.dist * sin(dTheta)
+                    if (abs(perp) >= c.margin) continue
+                    val need = c.dist * cos(dTheta) + sqrt(c.margin * c.margin - perp * perp)
+                    if (need > rr) rr = need
+                }
+                table[i] = min(rr, isl.radius * 1.24)
+            }
+            return table
+        }
+
+        private fun rimAt(table: DoubleArray, theta: Double): Double {
+            val pos = (theta + PI) / (2 * PI) * RIM_STEPS
+            val i = floor(pos).toInt()
+            val f = pos - i
+            return table[Math.floorMod(i, RIM_STEPS)] * (1 - f) + table[Math.floorMod(i + 1, RIM_STEPS)] * f
+        }
+
         private fun island(isl: ArenaIsland) {
             val random = Random(layout.seed xor (isl.id.hashCode().toLong() shl 20))
-            val p1 = random.nextDouble() * 2 * PI
-            val p2 = random.nextDouble() * 2 * PI
-            val p3 = random.nextDouble() * 2 * PI
+            val table = rimTable(isl, random)
+            rims[isl.id] = table
             val r = isl.radius
-            fun rimAt(theta: Double): Double =
-                r * (1.0 + 0.09 * sin(2 * theta + p1) + 0.06 * sin(3 * theta + p2) + 0.04 * sin(5 * theta + p3))
+            fun rimAt(theta: Double): Double = rimAt(table, theta)
+            val salt = isl.id.hashCode() and 0xffff
+            val ox = random.nextDouble() * 300
+            val oz = random.nextDouble() * 300
 
             // The underside tapers to 0.8 x radius for small islands; big ones grow thinner relative to their width
             // (a 30-block island is ~15 deep, not 24), which keeps the build and the kill plane in reach.
@@ -169,6 +310,7 @@ public object ArenaIslandGenerator {
             val maxDepth = if (fullDepth <= 10.0) fullDepth else 10.0 + (fullDepth - 10.0) * 0.35
             val stalacticeMax = min(r * 0.4, 7.0)
             val ext = ceil(r * 1.25).toInt()
+            val step = if (r >= 20) 3 else 2
             for (dx in -ext..ext) {
                 for (dz in -ext..ext) {
                     val d = hypot(dx.toDouble(), dz.toDouble())
@@ -181,8 +323,18 @@ public object ArenaIslandGenerator {
                         problems += "islands '${previous.id}' and '${isl.id}' overlap at ($x, $z)"
                     }
                     val t = d / rim
-                    val depth = (maxDepth * (1 - t * t).pow(0.85)).roundToInt() + 2 + (rnd(x, z, 1) * 2.5).toInt()
+                    // Cliff-and-taper profile: a steepness that changes across the island (sheer faces here, a gentle
+                    // slope there), quantised into terraces so the flank reads as ledges rather than a smooth cone.
+                    val steep = 2.0 + 1.4 * (noise2(x * 0.045 + ox, z * 0.045 + oz, salt + 11) * 0.5 + 0.5)
+                    var raw = maxDepth * (1 - t.pow(steep)).coerceAtLeast(0.0).pow(0.7)
+                    raw *= 1.0 + 0.2 * noise2(x * 0.11 + oz, z * 0.11 + ox, salt + 13)
+                    val terraced = (raw / step).roundToInt() * step
+                    val depth = min(terraced + 2 + (rnd(x, z, 1) * 2.0).toInt(), maxDepth.toInt() + 4)
                     for (dy in 0..depth) {
+                        // Hollows eat into the outer flank below the lip so it overhangs.
+                        if (dy >= 4 && dy < depth && t > 0.5 &&
+                            noise2(x * 0.17 + dy * 0.31 + ox, z * 0.17 - dy * 0.27 + oz, salt + 17) > 0.5
+                        ) continue
                         val state = when {
                             dy == 0 -> topBlock(isl, x, z, d, rim)
                             dy <= 2 -> shallow(isl)
@@ -199,7 +351,7 @@ public object ArenaIslandGenerator {
                 val x = isl.x + (cos(ang) * rimAt(ang) * t).roundToInt()
                 val z = isl.z + (sin(ang) * rimAt(ang) * t).roundToInt()
                 var bottom = s
-                while (get(x, bottom - 1, z) != null) bottom--
+                for (y in s downTo s - 80) if (get(x, y, z) != null) bottom = y
                 val len = 3 + (random.nextDouble() * stalacticeMax).toInt()
                 for (k in 1..len) {
                     val spread = (len - k).toDouble() / len
@@ -207,6 +359,40 @@ public object ArenaIslandGenerator {
                     set(x, y, z, underside(x, y, z, 6, 12))
                     if (spread > 0.55) {
                         for ((ax, az) in ARROWS) set(x + ax, y, z + az, underside(x + ax, y, z + az, 6, 12))
+                    }
+                }
+            }
+        }
+
+        /**
+         * Lower ledges just outside the rim (MAP-04): in the stretches where the shore noise is high a 2-4 block wide
+         * shelf of grass, soil and rock hangs three blocks under the top layer, giving the island a terraced shoreline.
+         */
+        private fun shelves() {
+            for (isl in layout.islands) {
+                if (isl.radius < 14) continue
+                val table = rims[isl.id] ?: continue
+                val salt = (isl.id.hashCode() and 0xffff) + 41
+                val ext = ceil(isl.radius * 1.24).toInt() + 5
+                for (dx in -ext..ext) {
+                    for (dz in -ext..ext) {
+                        val d = hypot(dx.toDouble(), dz.toDouble())
+                        val theta = atan2(dz.toDouble(), dx.toDouble())
+                        val rim = rimAt(table, theta)
+                        if (d <= rim) continue
+                        val sector = noise2(cos(theta) * 2.4 + salt, sin(theta) * 2.4 - salt, salt)
+                        if (sector < 0.1) continue
+                        val width = 1.5 + 2.5 * sector.coerceIn(0.0, 1.0)
+                        if (d > rim + width) continue
+                        val x = isl.x + dx
+                        val z = isl.z + dz
+                        if (topCells.containsKey(key(x, z))) continue
+                        if ((s - 2..s + 3).any { get(x, it, z) != null }) continue
+                        val outward = (d - rim) / width
+                        set(x, s - 3, z, material("ground"))
+                        set(x, s - 4, z, material("soil"))
+                        if (outward < 0.7) set(x, s - 5, z, material("rock"))
+                        if (outward < 0.35) set(x, s - 6, z, material("rock"))
                     }
                 }
             }
@@ -267,10 +453,12 @@ public object ArenaIslandGenerator {
                     val dist = hypot(x - (ax + t * dx), z - (az + t * dz))
                     if (dist <= half || dist > half + 1.0) continue
                     val along = (t * len).roundToInt()
-                    if (along in 4..(len.roundToInt() - 4) && along.mod(8) == 4) {
+                    if (along in 4..(len.roundToInt() - 4) && along.mod(6) == 3) {
                         set(x, s, z, material("deck"))
                         set(x, s + 1, z, "minecraft:stone_brick_wall")
                         set(x, s + 2, z, material("light"))
+                        // A lantern under the ledge lights the span from below, where the other base looks up at it.
+                        set(x, s - 1, z, "minecraft:lantern[hanging=true]")
                     }
                 }
             }
@@ -535,7 +723,162 @@ public object ArenaIslandGenerator {
                     val z = (from.z + uz * t + ux * w).roundToInt()
                     val k = key(x, z)
                     clear += k
+                    laneCells += k
                     if (abs(w) <= width / 2 && k !in reserved) paintTop(x, z, material("wall"))
+                }
+            }
+        }
+
+        // ── silhouettes (MAP-05) ─────────────────────────────────────────
+
+        /**
+         * Landmarks that read from the other base: a tall themed spire with a team-coloured beacon beam on every large
+         * base and on the centre, a lit cairn on large outposts, team banner standards around base rims, and glowing
+         * pylons around objective pedestals. All are placed on free ground, so spawns, lanes, anchors and authored
+         * parts never move.
+         */
+        private fun silhouettes() {
+            val hub = layout.islands.firstOrNull { it.kind == ArenaIslandKind.CENTER }
+            val hx = hub?.x?.toDouble() ?: (layout.islands.sumOf { it.x }.toDouble() / layout.islands.size)
+            val hz = hub?.z?.toDouble() ?: (layout.islands.sumOf { it.z }.toDouble() / layout.islands.size)
+            for (isl in layout.islands) {
+                if (isl.radius < 18) continue
+                when (isl.kind) {
+                    ArenaIslandKind.BASE -> if (isl.radius >= 30) {
+                        findSpot(isl, hx, hz, 3)?.let { (x, z) -> spire(x, z, 34, isl.colour) }
+                        standards(isl)
+                    }
+                    ArenaIslandKind.CENTER -> if (isl.radius >= 30) findSpot(isl, hx, hz, 3)?.let { (x, z) -> spire(x, z, 42, "white") }
+                    ArenaIslandKind.OUTPOST -> findSpot(isl, hx, hz, 2)?.let { (x, z) -> cairn(x, z) }
+                }
+            }
+            pylons()
+        }
+
+        private fun footprintFree(isl: ArenaIsland, cx: Int, cz: Int, half: Int): Boolean {
+            for (dx in -half..half) {
+                for (dz in -half..half) {
+                    val k = key(cx + dx, cz + dz)
+                    if (topCells[k]?.id != isl.id || k in clear || k in occupied || k in reserved || k in laneCells) return false
+                    if (get(cx + dx, s + 1, cz + dz) != null) return false
+                }
+            }
+            return true
+        }
+
+        /** The free square of half-width [half] nearest to "behind the island, away from the arena hub"; `null` when none. */
+        private fun findSpot(isl: ArenaIsland, hx: Double, hz: Double, half: Int): Pair<Int, Int>? {
+            val base = if (isl.kind == ArenaIslandKind.CENTER) rnd(isl.x, isl.z, 90) * 2 * PI else atan2(isl.z - hz, isl.x - hx)
+            for (f in SPOT_FRACTIONS) {
+                for (off in SPOT_OFFSETS) {
+                    val a = base + off
+                    val cx = isl.x + (cos(a) * isl.radius * f).roundToInt()
+                    val cz = isl.z + (sin(a) * isl.radius * f).roundToInt()
+                    if (!footprintFree(isl, cx, cz, half)) continue
+                    reserve(cx, cz, half + 1)
+                    keepClear(cx, cz, half + 1)
+                    take(cx, cz, half + 1)
+                    return cx to cz
+                }
+            }
+            return null
+        }
+
+        private fun fill(cx: Int, cz: Int, half: Int, y: Int, block: String) {
+            for (dx in -half..half) for (dz in -half..half) set(cx + dx, y, cz + dz, block)
+        }
+
+        /** Half-width of the spire at height [rel] above the surface; the profile is what differs per theme. */
+        private fun spireHalf(rel: Int, height: Int): Int = when (layout.theme) {
+            ArenaTheme.TEMPERATE -> if (rel < 8) 2 else 1
+            ArenaTheme.FROST -> if (rel < height * 0.22) 3 else if (rel < height * 0.5) 2 else 1
+            ArenaTheme.DESERT -> if (rel < 6) 4 else if (rel < 12) 3 else if (rel < 18) 2 else 1
+            ArenaTheme.VOLCANIC -> if (rel < 10) 2 else 1
+        }
+
+        /** A themed tower topped by a beacon: the stained glass above it colours the beam in [colour]. */
+        private fun spire(cx: Int, cz: Int, height: Int, colour: String) {
+            val band = "minecraft:${colour}_concrete"
+            val wall = material("wall")
+            val light = material("light")
+            val top = s + height
+            fill(cx, cz, 3, s + 1, material("rock"))
+            fill(cx, cz, 2, s + 2, wall)
+            for ((ax, az) in CORNERS) set(cx + 3 * ax, s + 1, cz + 3 * az, band)
+            for (y in s + 3 until top) {
+                val rel = y - s
+                val half = spireHalf(rel, height)
+                fill(cx, cz, half, y, if (rel % 9 == 0) band else wall)
+                if (half == 1 && rel % 9 == 4) for ((ax, az) in ARROWS) set(cx + ax, y, cz + az, light)
+            }
+            if (layout.theme == ArenaTheme.VOLCANIC) {
+                // Jagged horns rise at the corners of the flared foot.
+                for ((i, c) in CORNERS.withIndex()) {
+                    val horn = 7 + (i * 5 + rnd(cx, cz, 91 + i) * 6).toInt()
+                    for (k in 3..horn) set(cx + 2 * c.first, s + k, cz + 2 * c.second, material("rock"))
+                    set(cx + 2 * c.first, s + horn + 1, cz + 2 * c.second, light)
+                }
+            }
+            fill(cx, cz, 2, top - 1, material("deck"))
+            fill(cx, cz, 1, top, "minecraft:iron_block")
+            set(cx, top + 1, cz, "minecraft:beacon")
+            set(cx, top + 2, cz, "minecraft:${colour}_stained_glass")
+            for (y in top - 4..top - 2) {
+                set(cx + 2, y, cz, "minecraft:${colour}_wall_banner[facing=east]")
+                set(cx - 2, y, cz, "minecraft:${colour}_wall_banner[facing=west]")
+                set(cx, y, cz + 2, "minecraft:${colour}_wall_banner[facing=south]")
+                set(cx, y, cz - 2, "minecraft:${colour}_wall_banner[facing=north]")
+            }
+        }
+
+        /** A small lit marker column for outposts: visible across the gap, but not a beam. */
+        private fun cairn(cx: Int, cz: Int) {
+            fill(cx, cz, 1, s + 1, material("rock"))
+            for (y in s + 2..s + 8) set(cx, y, cz, if (y % 3 == 0) material("wall") else material("deck"))
+            set(cx, s + 9, cz, material("light"))
+            for ((ax, az) in ARROWS) set(cx + ax, s + 9, cz + az, material("light"))
+            set(cx, s + 10, cz, material("light"))
+        }
+
+        /** Tall team-banner standards spaced around the rim of a base island, far enough in not to hang over the edge. */
+        private fun standards(isl: ArenaIsland) {
+            val table = rims[isl.id] ?: return
+            val colour = isl.colour
+            val count = 8
+            val phase = rnd(isl.x, isl.z, 92) * 2 * PI
+            for (i in 0 until count) {
+                val a = phase + i * 2 * PI / count
+                val rr = rimAt(table, atan2(sin(a), cos(a))) - 4.0
+                val x = isl.x + (cos(a) * rr).roundToInt()
+                val z = isl.z + (sin(a) * rr).roundToInt()
+                val k = key(x, z)
+                if (topCells[k]?.id != isl.id || k in clear || k in occupied || k in reserved || k in laneCells) continue
+                if (get(x, s + 1, z) != null) continue
+                set(x, s, z, "minecraft:${colour}_concrete")
+                for (y in s + 1..s + 6) set(x, y, z, "minecraft:polished_blackstone_bricks")
+                set(x, s + 7, z, "minecraft:${colour}_banner[rotation=${(rnd(x, z, 93) * 16).toInt().coerceIn(0, 15)}]")
+                take(x, z, 1)
+                reserve(x, z, 1)
+            }
+        }
+
+        /** Four glowing pylons around every objective pedestal so the spot reads as a destination, day or night. */
+        private fun pylons() {
+            for (region in stage.regions) {
+                val name = region.name ?: continue
+                if (!(name.startsWith("core-") || name.startsWith("jewelry-") || name.startsWith("wool-") || name == "tnt-spawn")) continue
+                val cx = floor((region.min.x + region.max.x) / 2).toInt()
+                val cz = floor((region.min.z + region.max.z) / 2).toInt()
+                for ((ax, az) in CORNERS) {
+                    val x = cx + 3 * ax
+                    val z = cz + 3 * az
+                    val k = key(x, z)
+                    if (!topCells.containsKey(k) || k in occupied || k in reserved || k in laneCells) continue
+                    if (get(x, s + 1, z) != null) continue
+                    set(x, s + 1, z, "minecraft:polished_blackstone_bricks")
+                    set(x, s + 2, z, "minecraft:polished_blackstone_bricks")
+                    set(x, s + 3, z, material("light"))
+                    occupied += k
                 }
             }
         }
@@ -690,6 +1033,9 @@ public object ArenaIslandGenerator {
         }
     }
 
+    private const val RIM_STEPS: Int = 720
+    private val SPOT_FRACTIONS: List<Double> = listOf(0.55, 0.45, 0.65, 0.35, 0.72, 0.25)
+    private val SPOT_OFFSETS: List<Double> = listOf(0.0, 0.3, -0.3, 0.6, -0.6, 0.9, -0.9, 1.3, -1.3, 1.8, -1.8, 2.4, -2.4, 3.1)
     private val ARROWS: List<Pair<Int, Int>> = listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1)
     private val CORNERS: List<Pair<Int, Int>> = listOf(1 to 1, 1 to -1, -1 to 1, -1 to -1)
     private val FLOWERS: List<String> = listOf(
