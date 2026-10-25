@@ -603,6 +603,12 @@ public class GameSim private constructor(
             if (statusContainer.isInitialized()) statusContainer.value.start()
             val killResolver = VanillaKillResolver(
                 com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() },
+                recentAttacker = { victim, atTick ->
+                    services.get<com.astarworks.astera.combat.application.port.outbound.IDamageHistoryService>()
+                        ?.entries(victim)
+                        ?.lastOrNull { it.at >= atTick - VanillaKillResolver.VOID_ATTRIBUTION_TICKS }
+                        ?.attackerId
+                },
             )
             val bus = services.getOrThrow<IDomainEventBus>()
             contexts.last().subscriptions += bus.subscribe(PlayerHealthChanged::class) { change ->

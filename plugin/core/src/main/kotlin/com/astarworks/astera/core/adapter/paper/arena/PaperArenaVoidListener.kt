@@ -1,9 +1,10 @@
 package com.astarworks.astera.core.adapter.paper.arena
 
-import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
+import com.astarworks.astera.core.application.service.arena.VoidFallKiller
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import org.bukkit.GameMode
+import org.bukkit.Location
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -14,15 +15,16 @@ import java.util.UUID
 
 /**
  * Void-fall kill plane of the sky-island arenas (ADR-0246). A survival / adventure player who drops below the
- * world's `kill_y` dies through the Astera health container (the same path as every other death), instead of
- * falling for seconds towards vanilla's void damage at the world floor.
+ * world's `kill_y` dies through [VoidFallKiller] (the Astera health container, like every other death), instead of
+ * falling for seconds towards vanilla's void damage at the world floor. The player is first put back on the last
+ * solid ground they stood on, so the death burst (stars) lands on the island edge they fell from, not in the void.
  */
 internal class PaperArenaVoidListener(
     private val killY: (worldName: String) -> Int?,
-    private val health: () -> IPlayerHealthGateway?,
+    private val killer: VoidFallKiller,
 ) : Listener {
 
-    private val lastKill = HashMap<UUID, Long>()
+    private val lastGround = HashMap<UUID, Location>()
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onMove(event: PlayerMoveEvent) = check(event.player, event.to)
@@ -31,28 +33,23 @@ internal class PaperArenaVoidListener(
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onTeleport(event: PlayerTeleportEvent) = check(event.player, event.to)
 
-    private fun check(player: org.bukkit.entity.Player, to: org.bukkit.Location) {
+    private fun check(player: Player, to: Location) {
         val limit = killY(to.world.name) ?: return
-        if (to.y >= limit) return
         if (player.gameMode == GameMode.SPECTATOR || player.gameMode == GameMode.CREATIVE || player.isDead) return
-        // One kill per second: the player keeps falling through the plane while the death flow runs.
-        val now = player.world.gameTime
-        val previous = lastKill[player.uniqueId]
-        if (previous != null && now - previous < KILL_COOLDOWN_TICKS) return
-        lastKill[player.uniqueId] = now
-        val gateway = health() ?: return
-        val id = PlayerId(player.uniqueId)
-        if ((gateway.getCurrentHealth(id) ?: return) <= 0.0) return
-        gateway.damage(id, VOID_DAMAGE, HealthChangeSource.Other("vanilla-void"))
+        if (to.y >= limit) {
+            if (player.isOnGround) lastGround[player.uniqueId] = to.clone()
+            return
+        }
+        val ground = lastGround[player.uniqueId]
+        // The death is read at the victim's position (star burst): bring the body back to the edge it fell from first.
+        killer.kill(PlayerId(player.uniqueId)) {
+            if (ground != null && ground.world == to.world) player.teleport(ground)
+        }
     }
 
     @EventHandler
     fun onQuit(event: PlayerQuitEvent) {
-        lastKill.remove(event.player.uniqueId)
-    }
-
-    private companion object {
-        const val VOID_DAMAGE: Double = 1_000_000.0
-        const val KILL_COOLDOWN_TICKS: Long = 20L
+        lastGround.remove(event.player.uniqueId)
+        killer.forget(PlayerId(event.player.uniqueId))
     }
 }
