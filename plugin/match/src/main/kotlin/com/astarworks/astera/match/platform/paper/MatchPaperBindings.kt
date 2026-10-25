@@ -48,7 +48,7 @@ internal object MatchPaperBindings {
         normaPresentation = { services -> PaperNormaPresentation(
                 plugin.server,
                 services.getOrThrow<IMessageRenderer>(),
-                services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer>(),
+                services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
             ) },
     )
 

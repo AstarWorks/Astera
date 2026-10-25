@@ -81,7 +81,7 @@ internal object MatchStarWiring {
             store = store,
             eventBus = eventBus,
             world = dropWorld,
-            cues = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer>(),
+            presentation = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
             deathDropRatio = { id -> configOf(id).deathDropRatio },
             log = { env.ctx.logger.fine(it) },
         )
@@ -111,16 +111,8 @@ internal object MatchStarWiring {
         subs += eventBus.subscribe(StarsCollected::class) { norma.onStarsCollected(it) }
         // A real item pickup of a star drop (the item itself never enters the inventory) is credited here.
         dropWorld?.onPickupAttempt { handle, player -> drops.onTouched(handle, player) }
-        // Pickup feedback: "+3 ★" on the action bar.
+        // Pickup feedback ("+3 ★" action bar, sparkle, rising chime) is the `star-pickup` row of content/presentation/events.yaml.
         val mcServer = services.get<IMcServer>()
-        if (mcServer != null) {
-            subs += eventBus.subscribe(StarsCollected::class) { e ->
-                mcServer.findPlayer(e.playerId)?.sendActionBar(
-                    MessageKey("astera.match.star.collected"),
-                    mapOf("amount" to e.amount.toString(), "total" to e.total.toString()),
-                )
-            }
-        }
         // Norma level-up: title, sound, burst at the player, chat line to the match; the top level is bigger.
         val presentation = env.ports.normaPresentation?.invoke(services)
         if (presentation != null) {

@@ -2390,3 +2390,5 @@ astera:
   hint.help.commands: "<gray>/astera help</gray> - every command; <gray>/astera menu</gray>, <gray>/astera settings</gray>, <gray>/astera social</gray> open the screens"
   hint.help.tutorial: "<gray>/astera tutorial start</gray> - replay the tutorial"
   hint.help.in-match: "<gray>In a match there are no menu items: use /astera queue leave, /astera travel lobby or /astera settings.</gray>"
+  presentation.star-burst.victim: "<red>-{amount} ★ burst out!</red>"
+  presentation.star-burst.killer: "<gold>+{amount} ★ burst out - grab them!</gold>"

@@ -93,7 +93,7 @@ internal object CombatHudWiring {
                     "IItemRegistry=${itemRegistry != null}, IResourcePoolService=${resourcePool != null}.",
             )
         }
-        val soundGateway = services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer>()
+        val soundGateway = services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>()
         val skillRegistry = services.get<com.astarworks.astera.combat.application.port.outbound.ISkillRegistry>()
         if (soundGateway != null && skillRegistry != null) {
             val readyCue = SkillReadyCueListener(soundGateway, skillRegistry)

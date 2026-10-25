@@ -26,7 +26,7 @@ public class SoundCuePlayer(
     private val log = LoggerFactory.getLogger(javaClass)
     private val warned: MutableSet<SoundId> = ConcurrentHashMap.newKeySet()
 
-    override fun play(playerId: PlayerId, cue: SoundId, position: Vec3?, world: WorldId?): Boolean {
+    override fun play(playerId: PlayerId, cue: SoundId, position: Vec3?, world: WorldId?, pitchScale: Double): Boolean {
         val def = registry.find(cue)
         if (def == null) {
             if (warned.add(cue)) log.warn("Sound cue '{}' is not defined under content/sounds/; nothing played.", cue)
@@ -36,9 +36,9 @@ public class SoundCuePlayer(
         if (percent == 0) return false
         val scale = percent / 100.0
         val out = gateway()
-        out.playForViewer(playerId, spec(def.resourceKey, def.defaultVolume * scale, def.defaultPitch), position, world)
+        out.playForViewer(playerId, spec(def.resourceKey, def.defaultVolume * scale, def.defaultPitch * pitchScale), position, world)
         for (layer in def.layers) {
-            out.playForViewer(playerId, spec(layer.resourceKey, layer.volume * scale, layer.pitch), position, world)
+            out.playForViewer(playerId, spec(layer.resourceKey, layer.volume * scale, layer.pitch * pitchScale), position, world)
         }
         return true
     }
@@ -48,5 +48,5 @@ public class SoundCuePlayer(
     }
 
     private fun spec(key: String, volume: Double, pitch: Double): SoundSpec =
-        SoundSpec(key = key, volume = volume.coerceIn(0.0, SoundSpec.PRACTICAL_MAX_VOLUME), pitch = pitch)
+        SoundSpec(key = key, volume = volume.coerceIn(0.0, SoundSpec.PRACTICAL_MAX_VOLUME), pitch = pitch.coerceIn(0.5, 2.0))
 }

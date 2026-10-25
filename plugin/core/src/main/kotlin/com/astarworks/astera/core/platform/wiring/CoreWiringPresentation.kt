@@ -9,6 +9,14 @@ import com.astarworks.astera.core.application.port.outbound.music.IMusicTrackReg
 import com.astarworks.astera.core.application.port.outbound.music.IPlayerBgm
 import com.astarworks.astera.core.application.service.effect.SoundCuePlayer
 import com.astarworks.astera.core.application.service.music.PlayerBgmController
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentationTable
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentationVisuals
+import com.astarworks.astera.core.application.service.presentation.LoggingPresentationVisuals
+import com.astarworks.astera.core.application.service.presentation.PresentationPlayer
+import com.astarworks.astera.core.application.service.presentation.PresentationTable
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.event.CurrencyChanged
@@ -32,6 +40,22 @@ internal fun CoreWiringState.wirePresentation() {
         soundVolumePercent = { settingsRepo.findOrDefault(it).soundVolume },
     )
     ctx.registrations += services.register<ISoundCuePlayer>(cues, priority = 0)
+    // FX-05: one table (content/presentation/events.yaml) decides every moment's cue / title / particles.
+    val table = PresentationTable.load(contentDir.resolve("presentation").resolve("events.yaml"))
+    ctx.registrations += services.register<IPresentationTable>(table, priority = 0)
+    ctx.registrations += services.register<IPresentationVisuals>(LoggingPresentationVisuals(), priority = 0)
+    ports.presentationVisuals?.let { ctx.registrations += services.register<IPresentationVisuals>(it(services), priority = 100) }
+    val presentation = PresentationPlayer(
+        table = table,
+        cues = cues,
+        visuals = { services.getOrThrow<IPresentationVisuals>() },
+        visibilityOf = { settingsRepo.findOrDefault(it).particleVisibility },
+        sameTeam = { a, b ->
+            services.get<IMatchRepository>()?.findMatchOf(a)?.teams?.any { a in it.members && b in it.members } == true
+        },
+    )
+    ctx.registrations += services.register<IPresentation>(presentation, priority = 0)
+    logger.info("Presentation table: ${table.moments().size} moments, ${table.presets().size} particle presets")
     val bgm = PlayerBgmController(
         tracks = services.getOrThrow<IMusicTrackRegistry>(),
         gateway = { services.getOrThrow<IMusicGateway>() },
@@ -39,7 +63,7 @@ internal fun CoreWiringState.wirePresentation() {
     )
     ctx.registrations += services.register<IPlayerBgm>(bgm, priority = 0)
 
-    val l = MilestonePresentationListener(cues, bgm)
+    val l = MilestonePresentationListener(presentation, bgm)
     val subs = ctx.subscriptions
     subs += eventBus.subscribe(PlayerRespawned::class) { l.onRespawned(it) }
     subs += eventBus.subscribe(MatchSummaryReady::class) { l.onSummary(it) }

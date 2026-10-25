@@ -491,7 +491,7 @@ internal object MatchGameplayWiring {
         // ADR-0256: countdown ticks + go, death cue, last-stretch BGM tension.
         val matchCueListener = com.astarworks.astera.match.application.eventbus.listeners.match.MatchCueListener(
             matches = matches,
-            cues = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer>(),
+            presentation = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
             bgm = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.music.IPlayerBgm>(),
             scheduler = scheduler,
         )

@@ -2,9 +2,9 @@ package com.astarworks.astera.combat.application.eventbus.listeners.hud
 
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.domain.event.CooldownExpired
-import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
 import com.astarworks.astera.core.domain.cooldown.CooldownKey
-import com.astarworks.astera.core.domain.effect.SoundCues
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.event.SkillCooldownStarted
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
@@ -17,7 +17,7 @@ import com.astarworks.astera.core.domain.skill.SkillId
  * would chime constantly, hence the threshold.
  */
 public class SkillReadyCueListener(
-    private val sounds: ISoundCuePlayer,
+    private val sounds: IPresentation,
     private val skills: ISkillRegistry,
 ) {
 
@@ -33,7 +33,7 @@ public class SkillReadyCueListener(
         val skillId = SkillId(key.skillId)
         val duration = running.remove(event.playerId to skillId) ?: return
         val wanted = skills.find(skillId)?.readyCue ?: (duration >= AUTO_THRESHOLD_TICKS)
-        if (wanted) sounds.play(event.playerId, SoundCues.COMBAT_SKILL_READY)
+        if (wanted) sounds.play(PresentationMoments.SKILL_READY, event.playerId)
     }
 
     public companion object {

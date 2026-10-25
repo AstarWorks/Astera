@@ -2378,3 +2378,5 @@ astera:
   hint.help.commands: "<gray>/astera help</gray> - コマンド一覧。<gray>/astera menu</gray>・<gray>/astera settings</gray>・<gray>/astera social</gray> で各画面を開く"
   hint.help.tutorial: "<gray>/astera tutorial start</gray> - チュートリアルをやり直す"
   hint.help.in-match: "<gray>試合中はメニューアイテムはありません。/astera queue leave・/astera travel lobby・/astera settings を使ってください。</gray>"
+  presentation.star-burst.victim: "<red>★ -{amount} が弾け飛んだ！</red>"
+  presentation.star-burst.killer: "<gold>★ {amount} が弾け飛んだ - 拾え！</gold>"
