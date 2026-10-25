@@ -262,7 +262,9 @@ public object MatchWiring {
 
         // 3. Construct use cases -----------------------------------------------
         val victoryEvaluator = VictoryConditionEvaluator()
-        val startMatch = StartMatchUseCase(stages, matches, eventBus, scheduler)
+        val startMatch = StartMatchUseCase(stages, matches, eventBus, scheduler, arenaReady = { stageId ->
+            services.get<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>()?.ensureBuilt(stageId) ?: true
+        })
         val endMatch = EndMatchUseCase(matches, eventBus, scheduler, victoryEvaluator)
         // IWorldGateway is registered by Astera-Core (gate on null for hosts without one).
         val worldGateway = services.get<IWorldGateway>()

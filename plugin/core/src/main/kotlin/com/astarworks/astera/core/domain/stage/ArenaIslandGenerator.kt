@@ -83,12 +83,14 @@ public class ArenaBuildPlan(
 public object ArenaIslandGenerator {
 
     /** Builds the plan for a stage that has a [Stage.layout]. */
-    public fun generate(stage: Stage): ArenaBuildPlan {
+    public fun generate(stage: Stage, parts: Map<String, ArenaStructurePart> = emptyMap()): ArenaBuildPlan {
         val layout = requireNotNull(stage.layout) { "stage '${stage.id.value}' has no arena layout" }
-        return Builder(stage, layout).build()
+        return Builder(stage, layout, parts).build()
     }
 
-    private class Builder(val stage: Stage, val layout: ArenaLayout) {
+    private class Builder(val stage: Stage, val layout: ArenaLayout, val parts: Map<String, ArenaStructurePart>) {
+        private val palette = layout.theme.palette
+        private fun material(slot: String): String = palette.getValue(slot)
         private val s = layout.surfaceY
         private val blocks = HashMap<ArenaBlockPos, String>(160_000)
         private val volatile = HashSet<ArenaBlockPos>()
@@ -143,6 +145,7 @@ public object ArenaIslandGenerator {
             landmarks()
             checkSpawns()
             lanes()
+            structures()
             features()
             settleGrass()
             deco()
@@ -182,7 +185,7 @@ public object ArenaIslandGenerator {
                     for (dy in 0..depth) {
                         val state = when {
                             dy == 0 -> topBlock(isl, x, z, d, rim)
-                            dy <= 2 -> shallow(isl, x, z, dy)
+                            dy <= 2 -> shallow(isl)
                             else -> underside(x, s - dy, z, dy, depth)
                         }
                         set(x, s - dy, z, state)
@@ -212,34 +215,22 @@ public object ArenaIslandGenerator {
         private fun topBlock(isl: ArenaIsland, x: Int, z: Int, d: Double, rim: Double): String = when (isl.kind) {
             ArenaIslandKind.CENTER -> when {
                 d <= max(2.2, isl.radius * 0.14) -> "minecraft:smooth_quartz"
-                d <= max(3.4, isl.radius * 0.14 + 1.2) -> "minecraft:polished_andesite"
-                d >= rim - 1.0 -> "minecraft:polished_deepslate"
-                else -> {
-                    val r = rnd(x, z, 3)
-                    when {
-                        r < 0.15 -> "minecraft:mossy_stone_bricks"
-                        r < 0.30 -> "minecraft:cracked_stone_bricks"
-                        else -> "minecraft:stone_bricks"
-                    }
-                }
+                d <= max(3.4, isl.radius * 0.14 + 1.2) -> material("deck")
+                d >= rim - 1.0 -> material("rock")
+                else -> if (rnd(x, z, 3) < 0.15) material("rock") else material("wall")
             }
-            else -> if (rnd(x, z, 3) < 0.08) "minecraft:moss_block" else "minecraft:grass_block"
+            else -> material("ground")
         }
 
-        private fun shallow(isl: ArenaIsland, x: Int, z: Int, dy: Int): String = when (isl.kind) {
-            ArenaIslandKind.CENTER -> if (rnd(x, z + dy, 2) < 0.2) "minecraft:mossy_stone_bricks" else "minecraft:stone_bricks"
-            else -> if (rnd(x, z + dy, 2) < 0.15) "minecraft:coarse_dirt" else "minecraft:dirt"
-        }
+        private fun shallow(isl: ArenaIsland): String = material(if (isl.kind == ArenaIslandKind.CENTER) "wall" else "soil")
 
         private fun underside(x: Int, y: Int, z: Int, dy: Int, depth: Int): String {
             val r = rnd(x, y, z + 7)
             return when {
                 r < 0.02 -> "minecraft:amethyst_block"
-                dy in 3..5 && r < 0.10 -> "minecraft:moss_block"
-                r < 0.25 -> "minecraft:tuff"
-                r < 0.45 -> "minecraft:andesite"
-                r < 0.47 && dy > depth / 2 -> "minecraft:calcite"
-                else -> "minecraft:stone"
+                dy in 3..5 && r < 0.10 -> material("ground")
+                r in 0.45..<0.47 && dy > depth / 2 -> "minecraft:calcite"
+                else -> material("rock")
             }
         }
 
@@ -263,8 +254,8 @@ public object ArenaIslandGenerator {
                     val dist = hypot(x - (ax + t * dx), z - (az + t * dz))
                     if (dist > half) continue
                     val spine = dist < 0.5
-                    set(x, s, z, if (spine) "minecraft:stone_bricks" else "minecraft:polished_andesite")
-                    if (spine) set(x, s - 1, z, "minecraft:stone_bricks")
+                    set(x, s, z, if (spine) material("wall") else material("deck"))
+                    if (spine) set(x, s - 1, z, material("wall"))
                 }
             }
             // Lantern posts every 8 blocks stand on small ledges just outside the deck, so the whole width stays
@@ -277,9 +268,9 @@ public object ArenaIslandGenerator {
                     if (dist <= half || dist > half + 1.0) continue
                     val along = (t * len).roundToInt()
                     if (along in 4..(len.roundToInt() - 4) && along.mod(8) == 4) {
-                        set(x, s, z, "minecraft:polished_andesite")
+                        set(x, s, z, material("deck"))
                         set(x, s + 1, z, "minecraft:stone_brick_wall")
-                        set(x, s + 2, z, "minecraft:lantern[hanging=false]")
+                        set(x, s + 2, z, material("light"))
                     }
                 }
             }
@@ -364,7 +355,7 @@ public object ArenaIslandGenerator {
                         val colour = colourOfTeam(name.removePrefix("core-"))
                         pedestal(name, cx, cz, "minecraft:polished_blackstone", "minecraft:polished_blackstone_bricks", false)
                         for ((ax, az) in CORNERS) paintTop(cx + ax, cz + az, "minecraft:${colour}_concrete")
-                        keep(cx, cz, colour)
+                        if (layout.structures.isEmpty()) keep(cx, cz, colour)
                     }
                     name.startsWith("jewelry-") -> {
                         expectY(name, y, s)
@@ -429,6 +420,25 @@ public object ArenaIslandGenerator {
                         set(mark.x, s, mark.z, "minecraft:iron_block")
                         reserve(mark.x, mark.z, 2)
                         keepClear(mark.x, mark.z, 4)
+                    }
+                }
+            }
+        }
+
+        /** Authored full-cube parts, before random features, which must leave their footprint alone. */
+        private fun structures() {
+            for (placement in layout.structures) {
+                val part = requireNotNull(parts[placement.part]) { "missing structure '${placement.part}'" }
+                val colours = palette + placement.palette
+                for (box in part.boxes) {
+                    val state = if (box.block.startsWith("@")) colours.getValue(box.block.drop(1)) else box.block
+                    for (x in box.min.x..box.max.x) for (z in box.min.z..box.max.z) {
+                        for (y in box.min.y..box.max.y) {
+                            val pos = placement.transform(ArenaBlockPos(x, y, z), s)
+                            if (state == "minecraft:air") blocks.remove(pos) else set(pos.x, pos.y, pos.z, state)
+                            occupied += key(pos.x, pos.z)
+                            reserved += key(pos.x, pos.z)
+                        }
                     }
                 }
             }
@@ -521,7 +531,11 @@ public object ArenaIslandGenerator {
             val reach = (from.radius * 1.3).toInt()
             for (t in 0..reach) {
                 for (w in -half..half) {
-                    clear += key((from.x + ux * t - uz * w).roundToInt(), (from.z + uz * t + ux * w).roundToInt())
+                    val x = (from.x + ux * t - uz * w).roundToInt()
+                    val z = (from.z + uz * t + ux * w).roundToInt()
+                    val k = key(x, z)
+                    clear += k
+                    if (abs(w) <= width / 2 && k !in reserved) paintTop(x, z, material("wall"))
                 }
             }
         }
@@ -591,8 +605,8 @@ public object ArenaIslandGenerator {
                         val top = k == level
                         set(
                             x, s + k, z,
-                            if (center) CENTER_BRICKS[(rnd(x, z + k, 21) * CENTER_BRICKS.size).toInt()]
-                            else if (top) "minecraft:grass_block" else "minecraft:dirt",
+                            if (center) material("wall")
+                            else if (top) material("ground") else material("soil"),
                         )
                     }
                 }
@@ -605,8 +619,8 @@ public object ArenaIslandGenerator {
             if (center) {
                 if (rng.nextDouble() < 0.3) {
                     val (cx, cz) = pick(isl, rng, 0.2, 0.75, 2) ?: return
-                    for (k in 1..3) set(cx, s + k, cz, CENTER_BRICKS[(rnd(cx, cz + k, 22) * CENTER_BRICKS.size).toInt()])
-                    set(cx, s + 4, cz, "minecraft:chiseled_stone_bricks")
+                    for (k in 1..3) set(cx, s + k, cz, material("wall"))
+                    set(cx, s + 4, cz, material("wall"))
                     take(cx, cz, 1)
                     return
                 }
@@ -618,7 +632,7 @@ public object ArenaIslandGenerator {
                     val x = if (alongX) cx + i else cx
                     val z = if (alongX) cz else cz + i
                     val high = if (rng.nextDouble() < 0.3) 3 else 2
-                    for (k in 1..high) set(x, s + k, z, CENTER_BRICKS[(rnd(x, z + k, 23) * CENTER_BRICKS.size).toInt()])
+                    for (k in 1..high) set(x, s + k, z, material("wall"))
                 }
                 take(cx, cz, length / 2 + 1)
             } else {
@@ -629,7 +643,7 @@ public object ArenaIslandGenerator {
                     for (dz in 0 until d) {
                         val high = if (rng.nextDouble() < 0.4) 2 else 1
                         for (k in 1..high) {
-                            set(cx + dx, s + k, cz + dz, BOULDERS[(rnd(cx + dx, cz + dz + k, 24) * BOULDERS.size).toInt()])
+                            set(cx + dx, s + k, cz + dz, material("rock"))
                         }
                     }
                 }
@@ -639,9 +653,9 @@ public object ArenaIslandGenerator {
 
         private fun tree(isl: ArenaIsland, rng: Random) {
             val (cx, cz) = pick(isl, rng, 0.2, 0.68, 3) ?: return
-            val birch = rng.nextDouble() < 0.4
-            val log = if (birch) "minecraft:birch_log" else "minecraft:oak_log"
-            val leaves = if (birch) "minecraft:birch_leaves[persistent=true]" else "minecraft:oak_leaves[persistent=true]"
+            val log = material("log")
+            val foliage = material("leaves")
+            val leaves = if (foliage.endsWith("_leaves")) "$foliage[persistent=true]" else foliage
             val trunk = 4 + rng.nextInt(3)
             for (k in 1..trunk) set(cx, s + k, cz, log)
             for (layer in 0..3) {
@@ -663,11 +677,12 @@ public object ArenaIslandGenerator {
         // ── decoration ───────────────────────────────────────────────────
 
         private fun deco() {
+            if (layout.theme != ArenaTheme.TEMPERATE) return
             for ((k, isl) in topCells) {
                 if (isl.kind == ArenaIslandKind.CENTER || k in reserved) continue
                 val x = (k shr 32).toInt()
                 val z = k.toInt()
-                if (get(x, s, z) != "minecraft:grass_block" || get(x, s + 1, z) != null) continue
+                if (get(x, s, z) != material("ground") || get(x, s + 1, z) != null) continue
                 val r = rnd(x, z, 5)
                 if (r >= 0.09) continue
                 set(x, s + 1, z, FLOWERS[(r / 0.09 * FLOWERS.size).toInt().coerceAtMost(FLOWERS.size - 1)])
@@ -675,12 +690,6 @@ public object ArenaIslandGenerator {
         }
     }
 
-    private val CENTER_BRICKS: List<String> = listOf(
-        "minecraft:stone_bricks", "minecraft:stone_bricks", "minecraft:mossy_stone_bricks", "minecraft:cracked_stone_bricks",
-    )
-    private val BOULDERS: List<String> = listOf(
-        "minecraft:cobblestone", "minecraft:mossy_cobblestone", "minecraft:andesite", "minecraft:stone",
-    )
     private val ARROWS: List<Pair<Int, Int>> = listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1)
     private val CORNERS: List<Pair<Int, Int>> = listOf(1 to 1, 1 to -1, -1 to 1, -1 to -1)
     private val FLOWERS: List<String> = listOf(
