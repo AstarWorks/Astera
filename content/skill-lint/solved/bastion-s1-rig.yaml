@@ -1,0 +1,35 @@
+# SOLVED wrist keys (tools/pose-solve/solve.py from content/skill-lint/bastion-greatsword-s1.keypoints.yaml); everything outside `swing:` is the shipped rig.
+# Bastion S1 (月輪の薙ぎ) weapon: ONE ItemDisplay of the real main-hand stack hanging from the right hand of the skin-rig body
+# `bastion-s1-body` (ADR-0254), pose to pose like the reference (series of held poses with CUTS; the swing is never drawn).
+# Swing keys are ABSOLUTE wrist rotations in the arm frame (all zero on a body at rest = the vanilla held item); every key after
+# t0 is `ease: step`, on the same ticks as the body keys. Beats (rig tick = skill tick):
+#   0 coil | 6 follow-through behind the shoulders | 16 overshoot | 19 turned-away rest | 28 coil 2 | 31 extension (contact 2)
+#   38 drop | 40 rest (= coil) | 52 hand-back (neutral, exact vanilla held pose).
+# Frame: weapon_tip / weapon_edge are the model blade axis (2.55 blocks) and cutting edge AFTER the grip pitch (rotX 72).
+# fx files (bastion-s1-fx-high/low) still carry the old absolute-swing choreography and are re-timed in a later pass.
+id: bastion-s1-rig
+duration_ticks: 58
+orient: yaw
+follow: true
+attach_to_anchor: true
+sample_ticks: 1
+body: bastion-s1-body
+rigs:
+- id: sword
+  pivot: [0, 0, 0]
+  parent: right_hand
+  respect_hit_stop: true
+  weapon: main_hand
+  weapon_tip: [0.0, 2.0098, 1.5696]    # blade tip (2.55 blocks), rig-local
+  weapon_root: [0.0, 0.345, 0.0]
+  weapon_edge: [0.0, -0.6155, 0.7881]  # cutting edge direction, rig-local (broad-face normal = rig X)
+  swing:
+  - { t: 0, rotate: [125.8, 9.1, 168] }   # B0-coil
+  - { t: 5, rotate: [66.7, -39.1, -120.8], ease: step }   # B1-snap-follow-through
+  - { t: 13, rotate: [160.5, -19.5, 179.9], ease: step }   # B2-overshoot
+  - { t: 16, rotate: [-14.7, 47.9, 63], ease: step }   # B3-turned-away-rest
+  - { t: 25, rotate: [41.4, 69, -79.7], ease: step }   # B4-coil-2
+  - { t: 28, rotate: [20.2, 18.4, 11.3], ease: step }   # B6-extended
+  - { t: 33, rotate: [121.1, -22.9, 173.4], ease: step }   # B7-drop
+  - { t: 35, rotate: [123.8, 12.5, 173.2], ease: step }   # B8-rest
+  - { t: 47, rotate: [0, 0, 0], ease: step }   # hand-back

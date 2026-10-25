@@ -254,3 +254,13 @@ skill-preview: ## Render a skill from the skill-compare camera without the clien
 	@test -n "$(SKILL)" || { echo "usage: make skill-preview SKILL=<skill-id> [CASE=..] [TICKS=a-b] [EVERY=n] [FOV=deg] [REUSE=1]"; exit 2; }
 	$(if $(REUSE),,./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q --offline 2>&1 | grep -v ' INFO \| DEBUG \| WARN ' || true)
 	cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null && bun run build >/dev/null && bun scripts/skill-preview.mjs --skill "$(SKILL)" $(if $(CASE),--case "$(CASE)") $(if $(TICKS),--ticks "$(TICKS)") $(if $(EVERY),--every "$(EVERY)") $(if $(FOV),--fov "$(FOV)")
+
+.PHONY: pose-solve
+pose-solve: ## Reference keypoints -> skin-rig body keys + wrist keys + lint targets in content/skill-lint/solved/ (never overwrites shipped keys): make pose-solve SKILL=<skill-id>
+	@test -n "$(SKILL)" || { echo "usage: make pose-solve SKILL=<skill-id>"; exit 2; }
+	python3 tools/pose-solve/solve.py "$(SKILL)"
+
+.PHONY: skill-overlay
+skill-overlay: ## Project a plan dump (or a numpy simulation of content/) onto the annotated reference frames, PNG per beat: make skill-overlay SKILL=<skill-id> [PLAN=<plan.json>]
+	@test -n "$(SKILL)" || { echo "usage: make skill-overlay SKILL=<skill-id> [PLAN=<plan.json>]"; exit 2; }
+	python3 tools/pose-solve/overlay.py "$(SKILL)" $(if $(PLAN),--plan "$(PLAN)",--simulate)

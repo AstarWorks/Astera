@@ -10,6 +10,7 @@ import { CASE_ID_RE, validateCase, diffSummary } from "./src/timeline.js";
 import { makeSources } from "./lib/sources.mjs";
 import { buildIndex } from "./lib/weapons.mjs";
 import { makeAnim, ANIM_ID_RE } from "./lib/anim.mjs";
+import { spawnSync } from "node:child_process";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MAX_BODY = 1_000_000;
@@ -174,10 +175,39 @@ export function makeHandler(opts = {}) {
     return json(r.body);
   }
 
+  // Keypoints for the pose solver (tools/pose-solve): content/skill-lint/<skill>.keypoints.yaml, read / written through kp.py (the one validator).
+  const SKILL_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
+  const kpScript = join(repo, "tools", "pose-solve", "kp.py");
+  const kpRun = (args, input) => spawnSync("python3", [kpScript, ...args], { cwd: repo, input, encoding: "utf8", timeout: 60_000 });
+
+  async function keypoints(skill, req) {
+    if (req.method === "GET") {
+      const r = kpRun(["read", skill]);
+      return r.status === 0 ? new Response(r.stdout, { headers: { "content-type": "application/json", "cache-control": "no-store" } }) : err(404, (r.stderr || "no keypoints file").trim().split("\n").pop());
+    }
+    if (req.method !== "POST" && req.method !== "PUT") return err(405, "method not allowed");
+    const text = await req.text();
+    if (text.length > MAX_BODY) return err(413, "body too large");
+    try { JSON.parse(text); } catch { return err(400, "invalid JSON"); }
+    const r = kpRun(["write", skill], text);
+    return r.status === 0 ? json({ ok: true }) : json({ error: (r.stderr || "write failed").trim().split("\n").slice(-4).join(" ") }, 422);
+  }
+
   return async function handle(req) {
     const url = new URL(req.url);
     const p = url.pathname;
     let m;
+    if (p === "/annotate.html") return file(join(publicDir, "annotate.html"), "text/html; charset=utf-8");
+    if (p === "/annotate.js") return appJs("annotate");
+    if ((m = /^\/api\/keypoints\/([a-z0-9-]+)$/.exec(p))) return SKILL_RE.test(m[1]) ? keypoints(m[1], req) : err(400, "bad skill id");
+    if ((m = /^\/api\/keypoints\/([a-z0-9-]+)\/frame\/(\d{1,4})\.png$/.exec(p))) {
+      const r = kpRun(["frame", m[1], m[2]]);
+      return r.status === 0 ? file(r.stdout.trim(), "image/png") : err(404, (r.stderr || "no frame").trim().split("\n").pop());
+    }
+    if ((m = /^\/api\/keypoints\/([a-z0-9-]+)\/overlay\/([A-Za-z0-9-]+)\.png$/.exec(p))) {
+      const f = join(repo, "build", "skill-lint", m[1], "overlay", m[2] + ".png");
+      return inside(join(repo, "build"), f) ? file(f, "image/png") : err(400, "bad path");
+    }
     if (p === "/" || p === "/index.html") return file(join(publicDir, "index.html"), "text/html; charset=utf-8");
     if (p === "/case.html" || /^\/case\/[a-z0-9-]+$/.test(p)) return file(join(publicDir, "case.html"), "text/html; charset=utf-8");
     if ((m = /^\/evidence\/([a-z0-9-]+)\.png$/.exec(p))) return file(join(repo, "build", "limbus-review", "pairs-round2", m[1] + ".png"), "image/png");
