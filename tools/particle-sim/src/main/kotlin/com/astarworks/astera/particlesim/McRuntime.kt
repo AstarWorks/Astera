@@ -170,6 +170,7 @@ class McRuntime(private val dist: McDistribution, val seed: Long) {
             Triple("getFluidState", 1, emptyList()),
             Triple("getBlockState", 1, emptyList()),
             Triple("getRandom", 0, emptyList()),
+            Triple("getChunkForCollisions", 2, emptyList()),
             Triple("playLocalSound", 8, emptyList()),
             Triple("hasChunkAt", 1, listOf("BlockPos")),
             Triple("getNearestPlayer", 5, emptyList()),
@@ -370,6 +371,9 @@ object StubHooks {
     @JvmStatic fun getBlockState(pos: Any?): Any? = rt.air
 
     @JvmStatic fun getRandom(): Any = rt.random
+
+    /** No terrain: collisions find no chunk, so particles fly through an empty world. */
+    @JvmStatic fun getChunkForCollisions(x: Int, z: Int): Any? = null
 
     @JvmStatic fun playLocalSound(x: Double, y: Double, z: Double, sound: Any?, source: Any?, volume: Float, pitch: Float, distanceDelay: Boolean) {}
 

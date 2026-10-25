@@ -243,6 +243,12 @@ skill-lint: ## Machine-checkable facts of a VFX skill before any capture (exit 1
 	@test -n "$(SKILL)" || { echo "usage: make skill-lint SKILL=<skill-id> [CAPTURE=<dir>] [PLAN=<plan.json>]"; exit 2; }
 	python3 tools/skill-lint/skill_lint.py "$(SKILL)" $(if $(CAPTURE),--capture "$(CAPTURE)") $(if $(PLAN),--plan "$(PLAN)")
 
+.PHONY: particle-sim
+particle-sim: ## Run the real vanilla particle classes (local 26.3 client jar) for a skill's emissions -> build/skill-preview/<skill>/particles.json: make particle-sim SKILL=<skill-id> [REUSE=1 keeps plan.json] [SEED=<n>]
+	@test -n "$(SKILL)" || { echo "usage: make particle-sim SKILL=<skill-id> [REUSE=1] [SEED=n]"; exit 2; }
+	$(if $(REUSE),,./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q --offline 2>&1 | grep -v ' INFO \| DEBUG \| WARN ' || true)
+	./gradlew :tools:particle-sim:run --args="$(SKILL) $(if $(SEED),--seed $(SEED))" -q 2>&1 | grep -v '^WARNING'
+
 .PHONY: skill-preview
 skill-preview: ## Render a skill from the skill-compare camera without the client (body, weapon, fx, particles.json): make skill-preview SKILL=<skill-id> [CASE=<case id>] [TICKS=0-53] [EVERY=4] [FOV=<deg>] [REUSE=1 keeps plan.json]
 	@test -n "$(SKILL)" || { echo "usage: make skill-preview SKILL=<skill-id> [CASE=..] [TICKS=a-b] [EVERY=n] [FOV=deg] [REUSE=1]"; exit 2; }
