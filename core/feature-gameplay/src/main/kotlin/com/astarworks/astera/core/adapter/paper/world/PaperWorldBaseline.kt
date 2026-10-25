@@ -26,6 +26,7 @@ public class PaperWorldBaseline(
 ) : Listener {
 
     private val log = LoggerFactory.getLogger(javaClass)
+    private val time = PaperWorldTimeGateway(plugin.server)
     private val applied = java.util.concurrent.ConcurrentHashMap.newKeySet<WorldId>()
 
     public fun start() {
@@ -87,6 +88,9 @@ public class PaperWorldBaseline(
 
     private fun apply(world: WorldId) {
         rules.setDoMobSpawning(world, config.mobSpawning)
+        // The world clock itself stays fixed too (ADR-0245); the per-player view in [view] only adds match overlays.
+        time.setTime(world, config.timeOfDay)
+        time.freezeTime(world, config.timeFrozen)
         rules.setDoFireTick(world, false)
         rules.setKeepInventoryOnDeath(world, true)
         log.info(
