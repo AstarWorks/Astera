@@ -1,4 +1,4 @@
-# Authored siege-scale layout. See README.md and ADR-0252.
+# Authored siege-scale layout. See README.md and ADR-0264.
 id: siege-isles
 display_name_key: astera.stage.siege-isles.name
 world: arenas

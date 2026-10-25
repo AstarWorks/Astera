@@ -3,7 +3,7 @@
 Owner track `wp/economy-life`. Seed: audit 2026-10-26. Items: Board prefix `ECO-`.
 
 ## 構想 (source)
-- Core loop (ADR-0251, ADR-0201/0202): match -> GOLD -> shop unlocks weapons -> loadout/vault -> next match. Stars are in-match only, never a currency.
+- Core loop (ADR-0262, ADR-0201/0202): match -> GOLD -> shop unlocks weapons -> loadout/vault -> next match. Stars are in-match only, never a currency.
 - Inventory: loadout / snapshot / personal vault (ADR-0211). Quests and login bonus pay non-star rewards.
 - Scope (founder 2026-10-22): shop + vault + inventory tidy, then stop. Gacha, marketplace, cosmetics, guild/trade are out of scope.
 - **Gathering, crafting and fishing are frozen for now** (founder 2026-10-26).
@@ -28,4 +28,4 @@ One path: a match gives GOLD/XP, the player chooses a weapon or skill to unlock,
 - Fate of GEM (hide until real money exists) and of gathering/recipes (park vs remove).
 
 ## Governing ADRs
-0034, 0035, 0091, 0101, 0102, 0107, 0124, 0201, 0202, 0210, 0211, 0235, 0251 (stars-are-match-scoped).
+0034, 0035, 0091, 0101, 0102, 0107, 0124, 0201, 0202, 0210, 0211, 0235, 0262 (stars-are-match-scoped).

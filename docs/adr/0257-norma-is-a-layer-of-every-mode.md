@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Accepted. Builds on ADR-0251 (stars and Norma levels) and ADR-0252 (the top Norma level wins). Where ADR-0252 says "a
+Accepted. Builds on ADR-0262 (stars and Norma levels) and ADR-0263 (the top Norma level wins). Where ADR-0263 says "a
 Norma match" read "a match with the Norma layer on", which is every mode except PvE waves.
 
 ## Context
