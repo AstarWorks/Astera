@@ -40,10 +40,24 @@ dependencyResolutionManagement {
 rootProject.name = "astera"
 
 // Multi-plugin portable architecture (ADR-0022).
-// Each module produces one independent Paper plugin jar via Shadow.
+// Only :plugin:* runtime modules produce Paper plugin jars via Shadow.
+// Kernel and core feature libraries are bundled into Astera-Core (ADR-0252).
 // Plugin-to-plugin coordination happens through Core's ServiceRegistry +
 // the central IDomainEventBus. See docs/adr/0022-* for the rationale.
 include(
+    ":core:feature-admin",
+    ":core:feature-animation",
+    ":core:feature-effects",
+    ":core:feature-gameplay",
+    ":core:feature-progression",
+    ":core:feature-pve",
+    ":core:feature-social",
+    ":core:feature-tutorial",
+    ":kernel:domain",
+    ":kernel:mc-api",
+    ":kernel:paper",
+    ":kernel:runtime",
+
     // Mandatory base plugin: shared domain, ServiceRegistry, IDomainEventBus,
     // Paper adapter scaffolding.
     ":plugin:core",

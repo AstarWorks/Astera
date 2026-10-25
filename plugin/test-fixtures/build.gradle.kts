@@ -13,12 +13,11 @@ plugins {
 }
 
 dependencies {
-    // ADR-0022 Phase 2: test-fixtures now depends on :plugin:core only.
-    // Legacy fakes that needed Weapons / Economy types (FakeCurrencyLedger,
-    // FakeWeaponRegistry, Specs.weaponSpec) were removed; each feature plugin
-    // (Weapons / Economy) reintroduces its own fakes inside its own
-    // test-fixtures source set in Phase 3-4.
-    api(project(":plugin:core"))
+    // Shared ports and in-memory implementations, without the plugin host.
+    api(project(":core:feature-gameplay"))
+    api(project(":kernel:domain"))
+    api(project(":kernel:mc-api"))
+    api(project(":kernel:runtime"))
     // JUnit api is exposed so callers can write @Test directly against fixtures
     api(libs.junit.jupiter.api)
     // AssertJ api is exposed so cross-module assertion helpers (e.g. helper/BroadcasterHelper)

@@ -26,7 +26,7 @@ import com.lemonappdev.konsist.api.verify.assertFalse as konsistAssertFalse
 internal object KonsistScopes {
 
     /** Top-level directories that hold Kotlin sources of the project (what `scopeFromProject()` covers). */
-    private val PROJECT_ROOTS = listOf("plugin", "tools")
+    private val PROJECT_ROOTS = listOf("plugin", "kernel", "core", "tools")
 
     /** Parsed once; every module scope is a slice of it so the PSI trees are shared (heap). */
     private val projectScope: KoScope by lazy {
@@ -39,6 +39,17 @@ internal object KonsistScopes {
         val prefix = "$module/src/"
         val scope = projectScope.slice { relativePath(it.path).startsWith(prefix) }
         checkScope(scope, "module '$module'")
+        return scope
+    }
+
+    /** All sources still owned at runtime by Astera-Core, across its library modules. */
+    fun core(): KoScope {
+        val scope = projectScope.slice {
+            it.packagee?.name?.let { name ->
+                name == "com.astarworks.astera.core" || name.startsWith("com.astarworks.astera.core.")
+            } == true
+        }
+        checkScope(scope, "Astera-Core")
         return scope
     }
 
@@ -63,6 +74,8 @@ internal object KonsistScopes {
 }
 
 internal fun moduleScope(module: String): KoScope = KonsistScopes.module(module)
+
+internal fun coreScope(): KoScope = KonsistScopes.core()
 
 internal fun projectScope(): KoScope = KonsistScopes.project()
 

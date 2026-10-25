@@ -39,7 +39,7 @@ class I18nKeyCoverageTest {
             "Permission\\(|PERM_|_PERMISSION|ProxyChannel\\(|forEveryone\\(|requirePermission\\(|allow:|perm =",
         )
 
-        val missing = Files.walk(root.resolve("plugin")).use { paths ->
+        val missing = java.util.stream.Stream.of("plugin", "kernel", "core").flatMap { Files.walk(root.resolve(it)) }.use { paths ->
             paths.filter { it.extension == "kt" && it.toString().contains("/src/main/") }
                 .toList()
                 .flatMap { file ->
