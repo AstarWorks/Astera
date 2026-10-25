@@ -3,14 +3,12 @@
 Stage (map) definitions. Schema: `plugin/match/.../application/config/StageYamlConfig.kt`
 (strict decode: unknown keys fail the file). Design: ADR-0246 and ADR-0273.
 
-Production stages are **floating siege-scale arenas** built by the server in the void `arenas` world.
-Procedural foundations carry [authored YAML structure parts](../structures/README.md). Debug stages use a separate
-`debug-arenas` world, are absent from real queues, and retain the previous small layouts.
+Production stages are **floating siege-scale arenas** built by the server into world slots of the one void `world` (ADR-0255); stage YAML coordinates are stage-local.
+Procedural foundations carry [authored YAML structure parts](../structures/README.md). Debug stages are absent from real queues, and retain the previous small layouts.
 
 ```yaml
 id: example-arena
 display_name_key: astera.stage.example-arena.name
-world: arenas                # the void arena world (default: the main world "world")
 layout:                      # sky-island block layout; see below
   marker_version: 1
   theme: desert             # temperate | frost | desert | volcanic
@@ -52,8 +50,7 @@ spawn_points:
   (other islands) as cover, a wall arc behind `core-*` only in stages without authored structures. It stays clear of spawn pads, anchors, pillar footings
   and the straight lane from each island centre to its bridges.
 - Bridges are drawn centre to centre; an island block always wins over a bridge block.
-- Production stage areas are disjoint: Norma at the origin, Siege at z=700, Annihilation at z=-750,
-  PvE at x=800. Debug stages share `debug-arenas` at their original coordinates.
+- Every stage is authored around its own origin (0,0); the server pastes a copy into a free world slot and shifts spawns, regions, pillars, layout and generators by the slot origin at claim time.
 - `arena-worlds.marker` stores each stage's marker version, plan digest and previous bounds. Changed content rebuilds
   on restart; bump `marker_version` when editing a cached stage. The old bounds are cleared before placement.
   Planning/digesting runs off thread. Chunk loading is asynchronous; clearing, placing and releasing chunk tickets
@@ -104,7 +101,7 @@ needs lets the match run without an objective (warning in the log).
 island/bridge graph chooses long-distance corridors; local A* remains capped at 5000 nodes and uses observed chunks.
 
 `debug-{example-arena,siege-isles,annihilation-arena,pve-proving-grounds}.yaml` are independent small stages. The
-`E2E_FAST=1` backend and E2E runner image preparation script substitutes these under the production IDs in the `arenas` world and restores
+`E2E_FAST=1` backend and E2E runner image preparation script substitutes these under the production IDs and restores
 compact generator coordinates. This preserves protocol suites' queue assignments, objective coordinates and RCON
 assertions. Normal images and real queues use the expanded maps. Do not move the fixtures when adjusting production
 maps. The manager runs E2E; this track runs compile-only validation and the offline preview.
@@ -117,5 +114,5 @@ maps. The manager runs E2E; this track runs compile-only validation and the offl
 - Large islands (radius >= 30) get a themed spire (stone tower / ice spire / stepped obelisk / horned basalt) ending in a
   beacon whose glass colours the beam in the team colour (white on the centre); large outposts get a lit cairn; bases
   get eight team banner standards; objective pedestals get four glowing pylons. Small (debug) islands get none.
-- `layout.atmosphere: { time_of_day: 0..23999, weather: clear|rain }` sets the sky. Shared arena worlds make it per
-  player: anyone within 48 blocks of the stage footprint sees it, leaving resets it. Omitted = world baseline (noon).
+- `layout.atmosphere: { time_of_day: 0..23999, weather: clear|rain }` sets the sky. Slots share one world, so it is applied per
+  player (fixed player time and weather while inside a slot of that stage, reset on leaving). Omitted = world baseline (noon).
