@@ -54,7 +54,7 @@ class LobbyAccessMapE2eTest : E2eBase() {
         // Tiles by menu slot (content/gui/main-menu.yaml). Training (14) teleports the player, so it is not clicked here.
         val tiles = linkedMapOf(
             10 to "Play", 11 to "Shop", 12 to "Vault", 13 to "Travel", 15 to "Profile",
-            16 to "Settings", 19 to "Party", 20 to "Friends", 21 to "Achievements",
+            16 to "Settings", 17 to "Cosmetics", 19 to "Party", 20 to "Friends", 21 to "Achievements",
         )
         E2eReport.check(suite, "/astera menu is a 27-slot menu whose tiles each open a window", "ClientboundOpenScreen") {
             val menu = open(b, "menu")
