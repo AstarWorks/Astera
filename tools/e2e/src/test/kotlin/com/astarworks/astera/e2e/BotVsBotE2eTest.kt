@@ -37,7 +37,8 @@ class BotVsBotE2eTest : PlaythroughBase() {
         // Like the production bot-runner, the brains know the lane's objective (here: the enemy spawn) from the same content
         // the server runs; without it they roam at random, which on the 140-block sky-island arena rarely ends in a meeting.
         val objectives = com.astarworks.astera.bots.StageObjectives.load(java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content")), "norma")
-        bots.forEach { brains += BotBrain(it, objectives = objectives).start() }
+        // chooseNormaGoal = false: this loop sends `norma choose kill` itself so stars cannot end the match before a fight.
+        bots.forEach { brains += BotBrain(it, objectives = objectives, chooseNormaGoal = false).start() }
 
         // --- queue -> handoff -> ACTIVE -------------------------------------------------------------------------
         val tQueue = System.nanoTime()
@@ -110,7 +111,7 @@ class BotVsBotE2eTest : PlaythroughBase() {
         brains.forEach { it.mode = BotBrain.Mode.IDLE }
         val kills = bots.sumOf { it.deaths.size } - deathsBefore
         val brainSummary = brains.mapIndexed { i, b -> "${bots[i].name}: ${b.summary()}" }
-        E2eReport.notes += "Bot vs bot: first kill after ${firstKillMs}ms, total deaths $kills, ${brainSummary.joinToString(" | ")}; track=${track.distinct().joinToString(" ")}"
+        E2eReport.notes += "Bot vs bot: first kill after ${firstKillMs}ms, total deaths $kills, ${brainSummary.joinToString(" | ")}; track=${track.distinct().joinToString(" ")}; trace0=${brains.firstOrNull()?.traceText()}"
         E2eReport.check(suite, "the AI produces at least one kill (no RCON damage)", "PlayerCombatKill / death cam") {
             assertThat(kills).describedAs("no bot ever died in ${(System.currentTimeMillis() - tPlay) / 1000}s. $brainSummary; positions=${bots.map { posOf(it) }}; sidebar=${sidebar(bots[0])}").isGreaterThanOrEqualTo(1)
             "deaths=$kills first at ${firstKillMs}ms; ${brainSummary.joinToString(" | ")}"
