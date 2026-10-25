@@ -10,14 +10,14 @@ import org.junit.jupiter.api.Test
  * sidebar -> the third kill of one team ends the match (content timers are shortened by docker/e2e-tune-content.sh:
  * 3 kills to win) -> summary, rewards, back in the lobby.
  *
- * The arena is a floating sky-island stage in the void `arenas` world (content/stages/example-arena.yaml, ADR-0246): red
+ * The arena is a floating sky-island stage in a world slot of `world` (content/stages/example-arena.yaml, ADR-0255; coordinates are stage-local): red
  * island at x=-66, blue at x=+66 (radius 20), centre island (radius 22), north/south flank islands at z=-/+62; the top layer is y=64, bots stand at y=65.
  */
 class NormaPlaythroughE2eTest : PlaythroughBase() {
 
     private val suite = "Norma playthrough"
 
-    private fun side(b: Bot): String? = posOf(b)?.let { if (it.first < 0) "red" else "blue" }
+    private fun side(b: Bot): String? = localPosOf(b)?.let { if (it.first < 0) "red" else "blue" }
 
     @Test
     fun `norma 2v2 is played to the score threshold and ends by itself`() {
@@ -56,10 +56,10 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             assertThat(blue).hasSize(2)
             "red=${red.map { it.name }} blue=${blue.map { it.name }} positions=${bots.map { posOf(it) }}"
         }
-        E2eReport.check(suite, "every bot spawns standing on a solid island block in the arenas world (not the flat world)", "RCON data get Dimension/Pos + execute unless block") {
+        E2eReport.check(suite, "every bot spawns standing on a solid island block inside its slot (not the lobby)", "RCON data get Dimension/Pos + execute unless block") {
             val problems = bots.mapNotNull { islandStanceProblem(it) }
             assertThat(problems).describedAs("bots not on an arena island: $problems").isEmpty()
-            "dimension minecraft:arenas, solid block under every bot: ${bots.map { it.name to posOf(it) }}"
+            "slot ($originX, $originZ), solid block under every bot: ${bots.map { it.name to posOf(it) }}"
         }
         E2eReport.check(suite, "the arena is built: generator pedestals, team-coloured spawn pads, and void between the islands", "RCON execute if block") {
             val pedestals = listOf(Triple(0, 64, -62), Triple(0, 64, 62), Triple(12, 64, 0), Triple(-12, 64, 0))

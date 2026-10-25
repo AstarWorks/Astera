@@ -64,7 +64,7 @@ class LobbyKitE2eTest : E2eBase() {
             assertThat(invAfter).describedAs("server-side inventory changed after drop + click attempts").isEqualTo(invBefore)
             assertThat(b.hotbar()).describedAs("client hotbar changed").isEqualTo(hotbarBefore)
             assertThat(b.craftingArea()).describedAs("client crafting area changed").isEqualTo(craftBefore)
-            val dropped = rcon("execute in minecraft:lobby if entity @e[type=item,x=${b.x},y=${b.y},z=${b.z},distance=..8]")
+            val dropped = rcon("execute in minecraft:overworld if entity @e[type=item,x=${b.x},y=${b.y},z=${b.z},distance=..8]")
             assertThat(dropped).describedAs("an item entity was spawned near the player").contains("failed")
             "inventory identical; hotbar=${b.hotbar()}; nearby item entities: ${dropped.take(120)}"
         }
