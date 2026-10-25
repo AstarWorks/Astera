@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0257: Stars are match-scoped, not a currency
+# ADR-0262: Stars are match-scoped, not a currency
 
 ## Status
 

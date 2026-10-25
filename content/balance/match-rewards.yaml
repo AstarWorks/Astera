@@ -16,7 +16,7 @@
 # deaths, then more kills. Nobody with a score of 0 is MVP.
 #
 # Each row has gold / xp (all default 0, all >= 0). GOLD goes to the wallet,
-# xp to the level. (Stars are an in-match item, never paid out here: ADR-0257.)
+# xp to the level. (Stars are an in-match item, never paid out here: ADR-0262.)
 # `default` must list every row; `modes.<game-mode-id>` may override any subset.
 # A missing or invalid file falls back to "100 GOLD to winners", nothing else.
 

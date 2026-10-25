@@ -1,6 +1,6 @@
 # MAP-01 / MAP-06 / MAP-09 implementation report
 
-2026-10-26, branch `wp/map-siege-scale`. ADR: [0259](adr/0259-authored-siege-arenas.md) (Proposed).
+2026-10-26, branch `wp/map-siege-scale`. ADR: [0264](adr/0264-authored-siege-arenas.md) (Proposed).
 
 Two siege castles now stand 320 blocks apart, each with four 25-block towers, walls, an open gate, objective keep
 and accessible upper positions. Roads lead from forward spawns through the contested ruins or north/south flanks.

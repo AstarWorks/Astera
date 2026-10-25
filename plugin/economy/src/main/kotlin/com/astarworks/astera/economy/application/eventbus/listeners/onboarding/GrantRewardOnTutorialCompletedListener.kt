@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
  *
  * # Why GOLD
  *
- * GOLD is the only everyday persistent currency (ADR-0257: stars are an
+ * GOLD is the only everyday persistent currency (ADR-0262: stars are an
  * in-match item and never persist). 50 GOLD buys the graduate's first step
  * toward the lobby shop.
  *

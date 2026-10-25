@@ -1,6 +1,6 @@
 # Stars and Norma (match-scoped)
 
-Status: spec, ADR-0257. Written 2026-10-24 from the founder's statements and the RTM README
+Status: spec, ADR-0262. Written 2026-10-24 from the founder's statements and the RTM README
 (https://github.com/Y-RyuZU/RyuZUTechnicalMagic, README.md, fetched 2026-10-24; Japanese quotes below are from it).
 
 ## Founder statements (authoritative)
@@ -60,7 +60,7 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   confirmation sound and action bar; the 10 s default is announced on the action bar.
 - Config: `content/game-modes/norma.yaml` (`norma_max_level`, `norma_stars_goal`, `norma_kills_goal` lists by level).
 - **Win:** the first team to have a member reach `max_level` wins the match, and this is the **only** way to win before
-  the clock runs out. There is no kill-count victory (ADR-0258): kills count for a player's KILL goal and, per team, as the
+  the clock runs out. There is no kill-count victory (ADR-0263): kills count for a player's KILL goal and, per team, as the
   last tie-break. **Time limit** (`time_limit_seconds`, 600 s of ACTIVE time): the team with the highest member Norma
   level wins; tie: the most stars carried (sum over members); tie: the most kills; still tied: draw. The result screen
   names the reason ("reached Norma level N and won" / "was ahead" / tied). Winning pays the normal reward table

@@ -27,4 +27,4 @@ One data table `content/presentation/events.yaml` maps each moment (queue, count
 - Do the unused sound/music sample YAMLs become real or get deleted?
 
 ## Governing ADRs
-0026 (to be superseded), 0109, 0110, 0177, 0206, 0257 (stars-are-match-scoped), 0252/0253 (particle reskin and sword shading: founder confirmation pending).
+0026 (to be superseded), 0109, 0110, 0177, 0206, 0262 (stars-are-match-scoped), 0252/0253 (particle reskin and sword shading: founder confirmation pending).

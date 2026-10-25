@@ -25,7 +25,7 @@ Every item is judged against this. "Boot is green" is never done; a bot or the f
 
 - **Norma is a standard element of EVERY game mode, not a mode of its own.** Stars pop from map generators,
   a kill bursts the stars the victim carries, each Norma level has a STAR or KILL goal, 100% Orange Juice
-  style (ADR-0257 stars match-scoped; `docs/game-design/stars-and-norma.md`). Stars are never a currency,
+  style (ADR-0262 stars match-scoped; `docs/game-design/stars-and-norma.md`). Stars are never a currency,
   never persistent, never a win reward.
 - **Matches target siege-scale maps** (castles, towers, gates, height). Keep one small debug arena for e2e.
 - **Gathering, crafting and fishing are frozen** (no new work, no deletion decision yet).
