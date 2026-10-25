@@ -1,6 +1,5 @@
 package com.astarworks.astera.match.application.eventbus.listeners.victory
 
-import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.EndReason
@@ -14,25 +13,23 @@ import java.util.concurrent.ConcurrentHashMap
 import org.slf4j.LoggerFactory
 
 /**
- * G1: gives a Norma match a score and a real end.
+ * Norma time limit.
  *
- * The Wave 5c Norma pipeline only knew a score threshold that nothing ever raised (stars are picked up
- * but never counted), so a queue-formed Norma match was an endless free-for-all that only an admin could
- * close. Now every kill of an enemy raises the killer team's score by one; the first team to
- * [threshold] kills wins ([EndReason.NormaReached]), and a match that runs [timeLimitTicks] of ACTIVE time ends for the team in
- * front (a tie is a draw). Both end through [IMatchLifecycle.end], i.e. the same path as every other
- * mode: result screen, rewards, return to the lobby.
+ * A Norma match is won by reaching the top Norma level (`NormaLevelService`, [EndReason.NormaLevelReached]); there is
+ * no kill-count victory (`NormaLevelService` also counts the kills into [Match.score]). This listener ends a match that ran [timeLimitTicks] of ACTIVE time
+ * through [IMatchLifecycle.end], like every other mode (result screen, rewards, return to the lobby). The winner on
+ * time is the team with the highest Norma level, then the most stars carried, then the most kills; a full tie is a draw.
  *
  * Only matches for which [isNorma] holds are touched (other modes score for themselves).
  */
-public class NormaKillScoringListener(
+public class NormaTimeLimitListener(
     private val matches: IMatchRepository,
     private val lifecycle: IMatchLifecycle,
     private val isNorma: (MatchId) -> Boolean,
-    private val threshold: (MatchId) -> Int,
     private val timeLimitTicks: (MatchId) -> Long,
     private val now: () -> Long,
     private val levelOf: (Match, TeamId) -> Int = { _, _ -> 1 },
+    private val starsOf: (Match, TeamId) -> Int = { _, _ -> 0 },
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -47,21 +44,6 @@ public class NormaKillScoringListener(
         }
     }
 
-    public fun onKilled(event: PlayerKilled) {
-        val killer = event.killer ?: return
-        val match = matches.findMatchOf(event.victim) ?: return
-        if (!live(match) || !isNorma(match.id)) return
-        val killerTeam = match.teams.firstOrNull { killer in it.members }?.id ?: return
-        val victimTeam = match.teams.firstOrNull { event.victim in it.members }?.id ?: return
-        if (killerTeam == victimTeam) return
-
-        val scored = match.copy(score = match.score.withIncrement(killerTeam, 1))
-        matches.save(scored)
-        val points = scored.score.valueFor(killerTeam)
-        val goal = threshold(match.id)
-        if (points >= goal) end(match.id, EndReason.NormaReached(killerTeam, goal), "score $points")
-    }
-
     /** Called about once a second: ends matches whose time limit ran out. */
     public fun tick() {
         val current = now()
@@ -73,11 +55,12 @@ public class NormaKillScoringListener(
         }
     }
 
-    /** The team strictly ahead on points, or `null` (draw). */
-    /** Time-limit winner: the team with the highest Norma level, then the most kills; `null` when both tie. */
+    /** Time-limit winner: highest Norma level, then most stars carried, then most kills; `null` when all tie. */
     internal fun leader(match: Match): TeamId? {
-        fun rank(team: TeamId): Pair<Int, Int> = levelOf(match, team) to match.score.valueFor(team)
-        val best = match.teams.map { rank(it.id) }.maxWithOrNull(compareBy({ it.first }, { it.second })) ?: return null
+        fun rank(team: TeamId): Triple<Int, Int, Int> =
+            Triple(levelOf(match, team), starsOf(match, team), match.score.valueFor(team))
+        val best = match.teams.map { rank(it.id) }
+            .maxWithOrNull(compareBy({ it.first }, { it.second }, { it.third })) ?: return null
         return match.teams.filter { rank(it.id) == best }.singleOrNull()?.id
     }
 

@@ -28,6 +28,8 @@ import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.domain.event.PlayerReconnectedToMatch
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
+import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
+import com.astarworks.astera.match.domain.event.StarsCollected
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -194,7 +196,7 @@ class MidMatchReconnectScenarioTest {
     // ---- 2. Norma sidebar and result -----------------------------------------------------------------------------
 
     @Test
-    fun `norma sidebar shows the kill goal and progress and the result names the real reason`() {
+    fun `norma sidebar shows the top level and kills, and only the top Norma level wins`() {
         scenario("norma-goal-and-reason", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
@@ -202,19 +204,30 @@ class MidMatchReconnectScenarioTest {
             advance(25)
 
             val lines = sim.hud.sidebarText(red.id)
-            assertThat(lines).`as`("goal line").anyMatch { it.startsWith("astera.hud.sidebar.norma.goal") && "goal=10" in it }
+            assertThat(lines).`as`("goal line").anyMatch { it.startsWith("astera.hud.sidebar.norma.goal") && "max=5" in it }
             assertThat(lines.filter { it.startsWith("astera.hud.sidebar.norma.team") })
-                .`as`("one progress line per team").hasSize(2).allMatch { "score=0" in it && "goal=10" in it }
+                .`as`("one kill line per team").hasSize(2).allMatch { "score=0" in it }
 
-            // Ten kills by red end the match with the Norma reason (not the generic objective one).
+            // Kills alone never end the match: twenty kills by red leave it running (no kill-count victory).
             val bus = sim.services.getOrThrow<IDomainEventBus>()
-            repeat(10) { bus.publish(PlayerKilled(blue.id, red.id, DamageSource.Environment.Fall(1.0), sim.tick)) }
+            repeat(20) { bus.publish(PlayerKilled(blue.id, red.id, DamageSource.Environment.Fall(1.0), sim.tick)) }
+            advance(20)
+            assertThat(eventsOf<MatchEnded>().none { it.matchId == matchId }).`as`("20 kills ended the match").isTrue()
+            assertThat(sim.match.matches.findById(matchId)?.score?.valueFor(TeamId("red"))).`as`("kills still counted").isEqualTo(20)
+
+            // Reaching the top Norma level ends it with the Norma level reason.
+            val stars = sim.services.getOrThrow<IMatchStarStore>()
+            stars.add(matchId, red.id, 100)
+            repeat(4) {
+                bus.publish(StarsCollected(matchId, red.id, 1, stars.get(matchId, red.id)))
+                advance(2)
+            }
             advance(20)
             val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
-            assertThat(ended.reason).isEqualTo(EndReason.NormaReached(TeamId("red"), 10))
+            assertThat(ended.reason).isEqualTo(EndReason.NormaLevelReached(TeamId("red"), 5))
             assertThat(ended.winningTeam).isEqualTo(TeamId("red"))
             val chat = checkNotNull(sim.server.view(red.id)).messages
-            assertThat(chat).anyMatch { "reached the norma" in it }
+            assertThat(chat).anyMatch { "reached Norma level 5" in it }
             assertThat(chat).noneMatch { "objective completion" in it }
         }
     }

@@ -29,7 +29,6 @@ import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.application.service.matchmaking.InMemoryMatchmaker
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase
-import com.astarworks.astera.match.application.usecase.match.VictoryConditionEvaluator
 import com.astarworks.astera.core.domain.event.MatchStarted
 
 /** Queue, rating, respawn, HUD, win-condition, lobby intent, admin commands (original Wave 5wireup .. 5admin-ops). */
@@ -400,12 +399,6 @@ internal object MatchGameplayWiring {
         //   KillfeedOnPlayerKilledListener       — match chat kill feed (ADR-0206) +
         //                                          killer subtitle; victim screen is
         //                                          DeathRespawnCoordinator
-        //   NormaVictoryConditionEvaluatorListener — auto-fires
-        //                                          ScoreThresholdReached when
-        //                                          VictoryConditionEvaluator finds
-        //                                          a unique winner; eliminates the
-        //                                          admin-manual /astera match phase
-        //                                          step from the Norma win path.
         //
         // Sidebar + killfeed talk to the Core IHudGateway (Phase 1 in-memory
         // by default; Wave 6b PaperHudGateway overlays at priority 100).
@@ -429,36 +422,17 @@ internal object MatchGameplayWiring {
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,
         ) { killfeedListener.handle(it) }
 
-        val normaVictoryListener = com.astarworks.astera.match.application.eventbus.listeners.victory
-            .NormaVictoryConditionEvaluatorListener(
-                matches = matches,
-                switchPhase = com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase(
-                    matches = matches,
-                    eventBus = eventBus,
-                    scheduler = scheduler,
-                ),
-            )
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.match.domain.event.EntityPickedUpItem::class,
-        ) { normaVictoryListener.handle(it) }
-
-        // G1: a Norma match scores one point per enemy kill and ends at `score_threshold` kills or after
-        // `time_limit_seconds` of ACTIVE time (content/game-modes/norma.yaml), through the normal end path.
-        val normaKills = com.astarworks.astera.match.application.eventbus.listeners.victory.NormaKillScoringListener(
+        // A Norma match is won by reaching the top Norma level (NormaLevelService). This listener ends the match after `time_limit_seconds` of ACTIVE time
+        // (content/game-modes/norma.yaml): highest Norma level, then stars carried, then kills (counted by NormaLevelService); still tied is a draw.
+        val normaKills = com.astarworks.astera.match.application.eventbus.listeners.victory.NormaTimeLimitListener(
             matches = matches,
             lifecycle = env.facade,
-            isNorma = { id ->
-                val key = env.matchModeRegistry.modeKeyOf(id)
-                key.isNullOrBlank() || key == com.astarworks.astera.match.application.gamemode.NormaGameMode.ID.value
-            },
-            threshold = { id -> env.modeConfigOf(id)["score_threshold"]?.toIntOrNull()?.takeIf { it > 0 } ?: 10 },
+            isNorma = env.normaLayerOf,
             timeLimitTicks = { id -> (env.modeConfigOf(id)["time_limit_seconds"]?.toLongOrNull()?.takeIf { it > 0 } ?: 600L) * 20L },
             now = { scheduler.currentTick() },
             levelOf = { match, team -> matchStars.norma.topLevel(match, team) },
+            starsOf = { match, team -> matchStars.norma.carried(match, team) },
         )
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
-        ) { normaKills.onKilled(it) }
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.match.domain.event.PhaseChanged::class,
         ) { normaKills.onPhaseChanged(it) }
@@ -469,7 +443,6 @@ internal object MatchGameplayWiring {
 
         logger.info(
             "Wave 5complete wired: KillfeedOnPlayerKilled + " +
-                "NormaVictoryConditionEvaluator subscribed; " +
                 "/astera match {abort,cancel,restart} sub-commands registered.",
         )
 

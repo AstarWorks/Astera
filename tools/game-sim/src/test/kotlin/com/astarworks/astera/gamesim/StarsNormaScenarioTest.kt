@@ -2,7 +2,10 @@ package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.services.getOrThrow
+import com.astarworks.astera.core.domain.event.EndReason
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.match.application.port.outbound.IMatchNormaStore
 import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
 import com.astarworks.astera.match.domain.event.NormaLevelUp
@@ -84,6 +87,48 @@ class StarsNormaScenarioTest {
             assertThat(shown).`as`("the level-up is presented (title / sound / burst / broadcast) once").hasSize(1)
             assertThat(shown.single().audience).`as`("the whole match sees the broadcast").contains(red.id, blue.id)
             assertThat(stars.get(matchId, red.id)).`as`("stars are not consumed by a level-up").isGreaterThanOrEqualTo(20)
+        }
+    }
+
+    @Test
+    fun `at the time limit the higher norma level wins, then stars carried`() {
+        scenario("norma-time-limit-level") {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            val matchId = startMatch("norma", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val stars = sim.services.getOrThrow<IMatchStarStore>()
+
+            // Red clears level 1 (3 stars); blue carries 2 stars at level 1. Level beats stars.
+            stars.add(matchId, red.id, 3)
+            sim.eventBus.publish(StarsCollected(matchId, red.id, 3, 3))
+            stars.add(matchId, blue.id, 2)
+            advance(12_100)
+            val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
+            assertThat(ended.reason).isEqualTo(EndReason.NormaTimeLimit(TeamId("red")))
+            assertThat(ended.winningTeam).isEqualTo(TeamId("red"))
+        }
+    }
+
+    @Test
+    fun `at the time limit equal levels fall back to stars carried, and a full tie is a draw`() {
+        scenario("norma-time-limit-stars") {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            val matchId = startMatch("norma", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val stars = sim.services.getOrThrow<IMatchStarStore>()
+            stars.add(matchId, blue.id, 2)
+            advance(12_100)
+            val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
+            assertThat(ended.reason).isEqualTo(EndReason.NormaTimeLimit(TeamId("blue")))
+        }
+        scenario("norma-time-limit-draw") {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            val matchId = startMatch("norma", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            advance(12_100)
+            val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
+            assertThat(ended.reason).isEqualTo(EndReason.NormaTimeLimit(null))
+            assertThat(ended.winningTeam).isNull()
         }
     }
 }

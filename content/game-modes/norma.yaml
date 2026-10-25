@@ -15,13 +15,14 @@ title_key: astera.gamemode.norma.title
 impl_class: com.astarworks.astera.match.application.gamemode.NormaGameMode
 tick_period_ticks: 20
 default_config:
+  # Opts this mode into the Norma layer (stars, kill burst, Norma levels, time-limit ranking). Any mode can set it.
+  norma_layer: "true"
   # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability (ends on attack).
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
-  # G1 win condition: every enemy kill scores 1 for the killer's team. The first team to score_threshold kills
-  # wins; after time_limit_seconds of ACTIVE time the team in front wins (tie = draw).
-  score_threshold: "10"
+  # Time limit (seconds of ACTIVE time). The match is WON by reaching norma_max_level (below); when the clock runs out
+  # the highest Norma level wins, then the most stars carried, then the most kills; still tied = draw.
   time_limit_seconds: "600"
   # Norma levels (docs/game-design/stars-and-norma.md, 100% Orange Juice style): every player starts at level 1 and
   # clears each level with ONE goal of their choice, `/astera norma choose star|kill` (STAR by default): carry

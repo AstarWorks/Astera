@@ -43,9 +43,13 @@ public class NormaLevelService(
         val killerTeam = match.teams.firstOrNull { killer in it.members }?.id ?: return
         val victimTeam = match.teams.firstOrNull { event.victim in it.members }?.id ?: return
         if (killerTeam == victimTeam) return
+        // The kill counts for the team (result screen, last time-limit tie-break) before it can level the killer up
+        // and end the match, so the winning kill is on the score too.
+        val scored = match.copy(score = match.score.withIncrement(killerTeam, 1))
+        matches.save(scored)
         val p = norma.get(match.id, killer)
         norma.put(match.id, killer, p.copy(killsAtLevel = p.killsAtLevel + 1))
-        evaluate(match, killer)
+        evaluate(scored, killer)
     }
 
     public fun onStarsCollected(event: StarsCollected) {
@@ -86,6 +90,10 @@ public class NormaLevelService(
     /** Highest Norma level held by a member of [team] (time-limit tie-break). */
     public fun topLevel(match: Match, team: TeamId): Int =
         match.teams.firstOrNull { it.id == team }?.members.orEmpty().maxOfOrNull { norma.get(match.id, it).level } ?: 1
+
+    /** Stars carried by the members of [team] together (time-limit tie-break after the Norma level). */
+    public fun carried(match: Match, team: TeamId): Int =
+        match.teams.firstOrNull { it.id == team }?.members.orEmpty().sumOf { stars.get(match.id, it) }
 
     public fun clear(matchId: MatchId) {
         norma.clear(matchId)

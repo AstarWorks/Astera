@@ -885,10 +885,9 @@ astera:
         admin: "<gray>Ended by an administrator.</gray>"
         sudden-death: "<gray>Resolved in sudden death.</gray>"
         objective: "<gray>Ended by objective completion.</gray>"
-        norma-reached: "<{color}><bold>{team}</bold></{color}> <gray>reached the norma ({goal} kills).</gray>"
         norma-time-limit: "<gray>Time limit reached:</gray> <{color}><bold>{team}</bold></{color}> <gray>was ahead.</gray>"
-        norma-time-draw: "<gray>Time limit reached with the score tied.</gray>"
-        norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>reached Norma level {level}.</gray>"
+        norma-time-draw: "<gray>Time limit reached with Norma level, stars and kills all tied.</gray>"
+        norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>reached Norma level {level} and won.</gray>"
         cancelled: "<gray>Match was cancelled.</gray>"
         world-unloaded: "<gray>The match world was unloaded.</gray>"
         encounter-cleared: "<green>All {waves} waves of the encounter were cleared.</green>"
@@ -1104,8 +1103,8 @@ astera:
       battle-loyal:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>kills</gray>"
       norma:
-        goal: "<gold>Norma:</gold> <white>{goal}</white> <gray>kills to win</gray>"
-        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white>"
+        goal: "<gold>Norma:</gold> <gray>reach level</gray> <white>{max}</white> <gray>to win</gray>"
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white> <gray>kills</gray>"
       annihilation:
         team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
         eliminated: "<dark_gray><st>{team}</st> out</dark_gray>"

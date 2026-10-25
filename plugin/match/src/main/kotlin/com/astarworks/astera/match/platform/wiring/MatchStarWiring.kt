@@ -90,10 +90,7 @@ internal object MatchStarWiring {
             stars = store,
             norma = normaStore,
             configOf = configOf,
-            isNorma = { id ->
-                val key = env.matchModeRegistry.modeKeyOf(id)
-                key.isNullOrBlank() || key == NormaGameMode.ID.value
-            },
+            isNorma = env.normaLayerOf,
             eventBus = eventBus,
             lifecycle = env.facade,
         )

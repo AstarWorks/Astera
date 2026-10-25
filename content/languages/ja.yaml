@@ -892,10 +892,9 @@ astera:
         admin: "<gray>管理者により終了。</gray>"
         sudden-death: "<gray>サドンデスで決着。</gray>"
         objective: "<gray>目標達成により終了。</gray>"
-        norma-reached: "<{color}><bold>{team}</bold></{color}> <gray>がノルマを達成しました（{goal}キル）。</gray>"
         norma-time-limit: "<gray>制限時間終了:</gray> <{color}><bold>{team}</bold></{color}> <gray>がリードしていました。</gray>"
-        norma-time-draw: "<gray>制限時間終了。スコアは同点です。</gray>"
-        norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>がノルマレベル{level}に到達しました。</gray>"
+        norma-time-draw: "<gray>制限時間終了。ノルマレベル・スター・キルがすべて同点です。</gray>"
+        norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>がノルマレベル{level}に到達して勝利しました。</gray>"
         cancelled: "<gray>マッチがキャンセルされました。</gray>"
         world-unloaded: "<gray>マッチのワールドがアンロードされました。</gray>"
         encounter-cleared: "<green>エンカウンターの全 {waves} ウェーブを突破しました。</green>"
@@ -1110,8 +1109,8 @@ astera:
       battle-loyal:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>キル</gray>"
       norma:
-        goal: "<gold>ノルマ:</gold> <white>{goal}</white> <gray>キルで勝利</gray>"
-        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white>"
+        goal: "<gold>ノルマ:</gold> <gray>レベル</gray><white>{max}</white> <gray>到達で勝利</gray>"
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white> <gray>キル</gray>"
       annihilation:
         team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
         eliminated: "<dark_gray><st>{team}</st> 全滅</dark_gray>"
