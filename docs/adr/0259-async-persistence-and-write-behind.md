@@ -23,7 +23,7 @@ main thread. On Folia a blocking JDBC call on a region thread stalls every entit
 
 1. **Async ports**: repository ports return `suspend` / `CompletableFuture`-style results typed `Result<T, E>` (no raw
    throwables in application APIs) and declare `ExecutionScope.Io` for their work.
-2. **Preload on `AsyncPlayerPreLogin`**: the player's profile, wallet, progression and loadout are loaded off-thread before
+2. **Preload on `AsyncPlayerPreLogin`**: the player's profile, wallet, stats and loadout are loaded off-thread before
    join completes and held in an in-memory entity-owned cache. Game code reads the cache synchronously.
 3. **Write-behind**: mutations update the cache immediately and enqueue a write to a per-aggregate coalescing queue flushed
    by the IO pool (interval + on quit + on shutdown, with a bounded retry). Hot paths never wait for the DB.

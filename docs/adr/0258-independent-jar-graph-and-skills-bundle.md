@@ -38,14 +38,14 @@ abstractions), `paper-adapter`, `content` (loaders, bake), `vocab` (ItemSpec/Ski
 | items | item content, materializer, skill-trigger listener | core | - |
 | combat | damage/skill/status ([[adr/0256-same-tick-region-thread-combat]]) | core | items |
 | match | match lifecycle on the strand | core, instances | combat, items |
-| pve | mobs, waves, `MinimalMobAdapter` | core, instances | combat |
+| pve | mobs, waves, `MinimalMobAdapter`; works in open-world survival with no instance | core | instances, combat |
 | lobby | sharded lobby, queue UI | core, instances | match |
-| progression | XP/levels/norma/missions (successor of stats) | core | match, combat, items |
+| progression | quest, advancement, login bonus, engagement and news content (carved out of core) | core | stats, match |
 | social | friends/party | core | instances |
 | admin | ops commands, metrics | core | all |
 | proxy | Velocity bridge, transfer ([[adr/0263-homogeneous-backends-and-optional-proxy-scale-out]]) | core | instances |
-| stats | statistics | core | match, combat |
-| economy | currency/wallet/ledger | core | progression, match |
+| stats | XP, levels, norma, missions (today's plugin:stats) | core | items, combat, match |
+| economy | currency/wallet/ledger | core | stats, match |
 | persistence | Postgres impls, priority-override of in-memory ([[adr/0259-async-persistence-and-write-behind]]) | core | all |
 
 Hard `depend` is only core and instances. Everything else is `softdepend`, resolved at runtime via `ServiceRegistry`
