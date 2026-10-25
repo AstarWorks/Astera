@@ -28,6 +28,11 @@ patch generators/arena-west.yaml 's/^position:.*/position: { x: -11.5, y: 65.0, 
 patch generators/arena-north.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: -61.5 }/' '^position:'
 patch generators/arena-south.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: 62.5 }/' '^position:'
 
+# Same for the siege-isles star generators: the compact debug stage has a centre island at (0,300) and outposts at z 244/356.
+patch generators/siege-center-east.yaml 's/^position:.*/position: { x: 12.5, y: 65.0, z: 300.5 }/' '^position:'
+patch generators/siege-center-west.yaml 's/^position:.*/position: { x: -11.5, y: 65.0, z: 300.5 }/' '^position:'
+patch generators/siege-north.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: 244.5 }/' '^position:'
+patch generators/siege-south.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: 356.5 }/' '^position:'
 patch matchmaking/queue.yaml 's/^queue_countdown_seconds:.*/queue_countdown_seconds: 3/' '^queue_countdown_seconds:'
 patch matchmaking/queue.yaml 's/^match_countdown_seconds:.*/match_countdown_seconds: 5/' '^match_countdown_seconds:'
 

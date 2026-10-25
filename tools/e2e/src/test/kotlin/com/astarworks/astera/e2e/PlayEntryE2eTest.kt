@@ -113,7 +113,7 @@ class PlayEntryE2eTest : E2eBase() {
                 val json = payload!!
                 requestId = Regex("\"requestId\":\"([^\"]+)\"").find(json)?.groupValues?.get(1).orEmpty()
                 assertThat(requestId).describedAs("requestId in $json").isNotBlank()
-                assertThat(json).contains("\"lane\":\"norma\"", "\"count\":1", "\"requestedBy\":\"${b.name}\"")
+                assertThat(json).contains("\"lane\":\"skirmish\"", "\"count\":1", "\"requestedBy\":\"${b.name}\"")
                 assertThat(b.waitUntil(4_000) { b.sidebarLines().any { "1/2" in it } }).describedAs("player not queued: ${b.sidebarLines()}").isTrue()
                 "published: $json"
             }
