@@ -32,3 +32,6 @@ default_config:
   norma_kills_goal: "1,2,3,4"
   # Share of a victim's carried stars that bursts out on death (floor(carried * ratio)); 0..1.
   death_drop_ratio: "1.0"
+  # Weapon restriction (RTM-style MAIN + SUB): at most 1 weapon per family (gun / sword / staff) and 2 weapons in
+  # total. Extra weapons are set aside on match entry (restored at match end) and further pickups are refused.
+  weapon_limits: "gun:1,sword:1,staff:1,total:2"

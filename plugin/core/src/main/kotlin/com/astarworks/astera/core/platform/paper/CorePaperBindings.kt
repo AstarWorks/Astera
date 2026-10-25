@@ -350,6 +350,11 @@ internal class CorePaperBindings(
                                 ?.isHeld(playerId) ?: false
                         },
                     ).start(plugin)
+                com.astarworks.astera.core.adapter.paper.inventory
+                    .MatchWeaponLimitListener(
+                        plugin = plugin,
+                        service = { services.get<com.astarworks.astera.core.application.service.inventory.WeaponLimitService>() },
+                    ).start(plugin)
                 logger.info("Wave 6b-3: Paper inventory lifecycle + action-lock listeners wired.")
             },
             packetInterceptor = if (packetEventsInstalled) {

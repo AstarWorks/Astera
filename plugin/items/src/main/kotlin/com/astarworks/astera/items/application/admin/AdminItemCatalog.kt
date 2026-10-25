@@ -13,8 +13,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.EquipSlot
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.ItemSpec
-import com.astarworks.astera.core.domain.item.ItemTemplate
-import com.astarworks.astera.core.domain.resource.ResourceType
+import com.astarworks.astera.core.domain.item.WeaponCategory
 
 /** Admin-catalog grouping of an item (F1-D, ADR-0183). Derived from item data, never from a hard-coded id list. */
 public enum class AdminItemCategory(public val key: String) {
@@ -81,16 +80,11 @@ public object AdminItemCatalog {
      * by the vanilla material: `*_SWORD` / `*_AXE` blades, anything else is a rod / staff),
      * non-mainhand gear = support.
      */
-    public fun categorize(spec: ItemSpec): AdminItemCategory = when {
-        spec.resourceType == ResourceType.Ammo -> AdminItemCategory.GUN
-        spec.resourceType == ResourceType.Energy -> if (isBlade(spec)) AdminItemCategory.SWORD else AdminItemCategory.STAFF
-        spec.equipSlot != EquipSlot.MAINHAND -> AdminItemCategory.SUPPORT
-        else -> AdminItemCategory.OTHER
-    }
-
-    private fun isBlade(spec: ItemSpec): Boolean {
-        val material = (spec.template as? ItemTemplate.Vanilla)?.material ?: return false
-        return material.endsWith("_SWORD") || material.endsWith("_AXE")
+    public fun categorize(spec: ItemSpec): AdminItemCategory = when (WeaponCategory.of(spec)) {
+        WeaponCategory.GUN -> AdminItemCategory.GUN
+        WeaponCategory.SWORD -> AdminItemCategory.SWORD
+        WeaponCategory.STAFF -> AdminItemCategory.STAFF
+        null -> if (spec.equipSlot != EquipSlot.MAINHAND) AdminItemCategory.SUPPORT else AdminItemCategory.OTHER
     }
 
     /** Catalog items of [filter] (`null` = all), ordered by category then id. */

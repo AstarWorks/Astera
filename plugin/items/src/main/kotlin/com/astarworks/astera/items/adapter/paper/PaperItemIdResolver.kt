@@ -44,6 +44,19 @@ public class PaperItemIdResolver(
             .mapNotNull(::itemIdOf)
     }
 
+    override fun removeOne(playerId: PlayerId, itemId: ItemId): Boolean {
+        val player = server.getPlayer(playerId.uuid) ?: return false
+        val inv = player.inventory
+        val contents = inv.contents
+        val index = contents.indices.firstOrNull { i ->
+            val stack = contents[i]
+            stack != null && !TrainingItemTag.isTraining(stack) && !MenuKitTag.isKit(stack) && itemIdOf(stack) == itemId
+        } ?: return false
+        val stack = contents[index]!!
+        if (stack.amount > 1) stack.amount -= 1 else inv.setItem(index, null)
+        return true
+    }
+
     /** The `astera:item_id` of [stack], or `null` for air / non-Astera stacks. */
     public fun itemIdOf(stack: ItemStack?): ItemId? {
         val meta = stack?.itemMeta ?: return null
