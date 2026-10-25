@@ -29,12 +29,13 @@ Make one skill or effect (for example a Limbus weapon skill reproduced from a re
 2. Write `briefs/{model,animation,texture,particles,sound,integration}.md`: each brief is self-contained (reference frames by path and time, target numbers, files to touch, acceptance rows, applicable Rejected looks, what NOT to do).
 3. Spawn the specialists in parallel. They do not talk to each other, only through you.
 4. Integrate: skill YAML + composite VFX; hit VFX peaks on the damage tick; only one weapon visible during the skill.
-5. Capture (`tools/vfx-shot`), check `meta.json` / `captureQuality`, recapture on lag, publish (`tools/skill-compare/scripts/publish-capture.mjs`).
+5. Run `make skill-lint SKILL=<skill>` and fix every FAIL first (`docs/contributing/vfx-team/skill-lint.md`; targets in `content/skill-lint/<skill>.targets.yaml`); never capture while it fails. Then capture (`tools/vfx-shot`; add `CAPTURE=<dir>` to lint the capture afterwards), check `meta.json` / `captureQuality`, recapture on lag, publish (`tools/skill-compare/scripts/publish-capture.mjs`).
 6. Hand to `vfx-reviewer`. Route each diff to its owning role; loop until the reviewer passes every row. An iteration count is never a stop condition.
 7. Reviewer PASS is not final. Report to the manager so the founder can review the published capture on skill-compare (https://skill-compare.astarworks.com). Founder approval = done: record the date and published revision in the weapon REPORT. Founder rejection: turn the comments into diffs, route them by role (back to step 3), and republish.
 
 ## Self-check before handing back
 
+- `make skill-lint SKILL=<skill>` exits 0 before this capture.
 - Every beat has an owner and a brief line; nothing relies on a specialist guessing.
 - Damage tick equals hit VFX peak tick in the capture, not only in YAML.
 - Display budget computed (rig trails, delayed instances, freeze extension included).

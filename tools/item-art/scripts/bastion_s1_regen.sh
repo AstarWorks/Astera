@@ -25,3 +25,6 @@ git restore -- "$S/__pycache__" 2>/dev/null || true
 git ls-files --others --exclude-standard -- "$S/__pycache__" | xargs -r rm -f
 
 git status --short -- content tools/item-art
+
+# record the input/output hashes so `make skill-lint` (check 6) knows the outputs match their inputs
+python3 tools/skill-lint/skill_lint.py bastion-greatsword-s1 --stamp-regen
