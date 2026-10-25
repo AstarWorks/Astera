@@ -14,6 +14,24 @@ patch() { # <file under root> <sed -E expression> <grep -E pattern that must mat
   sed -i -E "$2" "$f"
 }
 
+# MODE-05/06: every siege lane has its own full-size stage (siege-isles-<v>, +800 z each). The e2e image must not build five
+# production-size arenas, so each variant id becomes a copy of the compact debug siege stage shifted along z (offsets keep the
+# copies apart, same world), with its star generators moved onto the compact landmarks of the shifted copy.
+for variant in tnt:800 wool:1600 jewelry:2400 loyal:3200 mini-tnt:4000; do
+  v="${variant%%:*}"
+  off="${variant##*:}"
+  test -f "$root/stages/siege-isles-$v.yaml"
+  awk -v off="$off" '{ out = ""; line = $0
+    while (match(line, /z: -?[0-9.]+/)) { out = out substr(line, 1, RSTART + 2) (substr(line, RSTART + 3, RLENGTH - 3) + off); line = substr(line, RSTART + RLENGTH) }
+    print out line }' "$root/stages/debug-siege-isles.yaml" \
+    | sed -e "s/^id: debug-siege-isles$/id: siege-isles-$v/" -e 's/^world: debug-arenas$/world: arenas/' > "$root/stages/siege-isles-$v.yaml"
+  grep -q "^id: siege-isles-$v$" "$root/stages/siege-isles-$v.yaml" || { echo "e2e-tune: siege-isles-$v was not generated" >&2; exit 1; }
+  patch "generators/siege-$v-center-east.yaml" "s/^position:.*/position: { x: 12.5, y: 65.0, z: $((300 + off)).5 }/" '^position:'
+  patch "generators/siege-$v-center-west.yaml" "s/^position:.*/position: { x: -11.5, y: 65.0, z: $((300 + off)).5 }/" '^position:'
+  patch "generators/siege-$v-north.yaml" "s/^position:.*/position: { x: 0.5, y: 65.0, z: $((244 + off)).5 }/" '^position:'
+  patch "generators/siege-$v-south.yaml" "s/^position:.*/position: { x: 0.5, y: 65.0, z: $((356 + off)).5 }/" '^position:'
+done
+
 # Use the preserved compact fixtures only in the E2E image. Keep production IDs and world
 # so queue assignments, mode references, generator IDs and existing protocol assertions agree.
 for stage in example-arena siege-isles annihilation-arena pve-proving-grounds; do
@@ -68,3 +86,10 @@ done
 patch norma-layer/layer.yaml 's/^(  norma_max_level:).*/\1 "3"/' '^  norma_max_level:'
 patch norma-layer/layer.yaml 's/^(  norma_stars_goal:).*/\1 "2,3"/' '^  norma_stars_goal:'
 patch norma-layer/layer.yaml 's/^(  norma_kills_goal:).*/\1 "1,2"/' '^  norma_kills_goal:'
+
+# Battle Loyal inherits the Norma layer's 150 s limit; the siege-scale fight gets 300 s so bots can cross the islands and meet.
+if grep -Eq '^  time_limit_seconds:' "$root/game-modes/battle-loyal.yaml"; then
+  patch game-modes/battle-loyal.yaml 's/^(  time_limit_seconds:).*/\1 "300"/' '^  time_limit_seconds:'
+else
+  patch game-modes/battle-loyal.yaml 's/^default_config:.*/&\n  time_limit_seconds: "300"/' '^default_config:'
+fi
