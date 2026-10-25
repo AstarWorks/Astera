@@ -360,6 +360,23 @@ film() { # viewer view_dir
   rm -f "$rec" "$rec.log"
 }
 
+write_meta() { # dir view n  (fps = $FPS; FPS=60 frames are 3 per tick)
+  local dir="$1" view="$2" n="$3"
+  local fov_mode=fixed
+  if [ "$view" = compare ]; then
+    if [ "$FOV_FROM_ENV" != 1 ]; then fov_mode=intent-first-key
+    elif [ "$FOV_DOLLY" = 0 ]; then fov_mode=override-nodolly
+    else fov_mode=override-dolly; fi
+    printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":%d,"cast_tick_ms":%d,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
+      "$CASE" "$CAMERA" "$SKILL" "$FPS" "$((PRE_TICKS * 50))" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
+    python3 -I "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT"
+  else
+    printf '{"view":"%s","skill":"%s","fps":%d,"cast_tick_ms":0,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
+      "$view" "$SKILL" "$FPS" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
+    python3 -I "$HERE/capture_meta.py" - "$dir"
+  fi
+}
+
 make_outputs() { # dir view
   local dir="$1" view="$2" n
   n="$(ls "$dir"/frame_*.png 2>/dev/null | wc -l)"
@@ -377,19 +394,7 @@ make_outputs() { # dir view
     -pix_fmt yuv420p "$dir/$SKILL-$view.mp4" || log "WARN: mp4 failed"
   ffmpeg -nostdin -loglevel error -y -i "$dir/frame_%03d.png" -c:v libwebp -quality 85 \
     -compression_level 4 -threads 2 -start_number 0 "$dir/frame_%03d.webp" || log "WARN: web preview failed; serving PNG"
-  local fov_mode=fixed
-  if [ "$view" = compare ]; then
-    if [ "$FOV_FROM_ENV" != 1 ]; then fov_mode=intent-first-key
-    elif [ "$FOV_DOLLY" = 0 ]; then fov_mode=override-nodolly
-    else fov_mode=override-dolly; fi
-    printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":20,"cast_tick_ms":%d,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
-      "$CASE" "$CAMERA" "$SKILL" "$((PRE_TICKS * 50))" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
-    python3 -I "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT"
-  else
-    printf '{"view":"%s","skill":"%s","fps":20,"cast_tick_ms":0,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
-      "$view" "$SKILL" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
-    python3 -I "$HERE/capture_meta.py" - "$dir"
-  fi
+  write_meta "$dir" "$view" "$n"
   log "$view: $n frames -> $dir (sheet.png, $SKILL-$view.gif, $SKILL-$view.mp4)"
 }
 
@@ -484,7 +489,10 @@ run_view() { # view
   DISPLAY=":${DISP[$viewer]}" xdotool mousemove 640 360 2>/dev/null || true
   sleep 1
   film "$viewer" "$OUT_ROOT/$SKILL/$view"
-  if [ "$FPS" = 20 ]; then make_outputs "$OUT_ROOT/$SKILL/$view" "$view"; else log "FPS=$FPS: raw frames only in $OUT_ROOT/$SKILL/$view"; fi
+  if [ "$FPS" = 20 ]; then make_outputs "$OUT_ROOT/$SKILL/$view" "$view"; else
+    write_meta "$OUT_ROOT/$SKILL/$view" "$view" "$(ls "$OUT_ROOT/$SKILL/$view"/frame_*.png | wc -l)"
+    log "FPS=$FPS: raw frames + meta.json (fps=$FPS, 3 frames per tick) in $OUT_ROOT/$SKILL/$view"
+  fi
   stop_client "$viewer"
   [ "$dummy_caster" = 1 ] && stop_client "Caster"
   rcon "kill @e[type=minecraft:husk]" >/dev/null
