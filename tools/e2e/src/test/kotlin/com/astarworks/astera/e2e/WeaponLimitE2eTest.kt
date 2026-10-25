@@ -18,10 +18,15 @@ class WeaponLimitE2eTest : E2eBase() {
         "fire-staff", "frost-staff", "thunder-staff", "verdant-staff", "orrery-staff",
     )
 
-    /** Astera weapon ids the server reports in the bot's inventory (PDC `item_id`). */
-    private fun carried(b: Bot): List<String> {
-        val raw = rcon("data get entity ${b.name} Inventory")
-        return Regex("item_id\"?: ?\"([a-z0-9-]+)\"").findAll(raw).map { it.groupValues[1] }.filter { it in weaponIds }.toList()
+    /**
+     * Astera weapon ids in the bot's inventory, read slot by slot from the `item_model` component (a whole-inventory
+     * `data get` is cut off by the RCON payload limit).
+     */
+    private fun carried(b: Bot): List<String> = Rcon(E2eEnv.host, E2eEnv.rconPort, E2eEnv.rconPassword).use { r ->
+        (0..40).mapNotNull { slot ->
+            val reply = r.command("data get entity ${b.name} Inventory[{Slot:${slot}b}].components.\"minecraft:item_model\"")
+            Regex("\"astera:([a-z0-9-]+)\"").find(reply)?.groupValues?.get(1)
+        }.filter { it in weaponIds }
     }
 
     @Test
