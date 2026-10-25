@@ -3,10 +3,10 @@ package com.astarworks.astera.match.application.eventbus.listeners.match
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
-import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
 import com.astarworks.astera.core.application.port.outbound.music.IPlayerBgm
 import com.astarworks.astera.core.application.port.outbound.ticks
-import com.astarworks.astera.core.domain.effect.SoundCues
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.music.MusicMood
@@ -22,7 +22,7 @@ import com.astarworks.astera.match.domain.event.PhaseChanged
  */
 public class MatchCueListener(
     private val matches: IMatchRepository,
-    private val cues: ISoundCuePlayer,
+    private val presentation: IPresentation,
     private val bgm: IPlayerBgm,
     private val scheduler: IScheduler,
 ) {
@@ -33,14 +33,14 @@ public class MatchCueListener(
         if (recipients.isEmpty()) return
         for (n in MatchCountdownListener.COUNTDOWN_FROM downTo 1) {
             val offset = (MatchCountdownListener.COUNTDOWN_FROM - n).toLong() * MatchCountdownListener.TICKS_PER_SECOND
-            scheduler.runLater(ticks(offset)) { cues.playAll(recipients, SoundCues.MATCH_COUNTDOWN_TICK) }
+            scheduler.runLater(ticks(offset)) { recipients.forEach { presentation.play(PresentationMoments.COUNTDOWN_TICK, it) } }
         }
         val goAt = MatchCountdownListener.COUNTDOWN_FROM.toLong() * MatchCountdownListener.TICKS_PER_SECOND
-        scheduler.runLater(ticks(goAt)) { cues.playAll(recipients, SoundCues.MATCH_GO) }
+        scheduler.runLater(ticks(goAt)) { recipients.forEach { presentation.play(PresentationMoments.COUNTDOWN_GO, it) } }
     }
 
     public fun onKilled(event: PlayerKilled) {
-        cues.play(event.victim, SoundCues.MATCH_DEATH)
+        presentation.play(PresentationMoments.DEATH, event.victim)
     }
 
     public fun onPhaseChanged(event: PhaseChanged) {

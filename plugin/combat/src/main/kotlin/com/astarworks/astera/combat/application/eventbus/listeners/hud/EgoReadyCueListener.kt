@@ -1,8 +1,8 @@
 package com.astarworks.astera.combat.application.eventbus.listeners.hud
 
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
-import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
-import com.astarworks.astera.core.domain.effect.SoundCues
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.event.EgoGaugeChanged
 import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
@@ -17,12 +17,12 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
  */
 public class EgoReadyCueListener(
     private val hud: IHudGateway,
-    private val sounds: ISoundCuePlayer,
+    private val sounds: IPresentation,
 ) {
 
     public fun onChanged(event: EgoGaugeChanged) {
         if (!event.becameFull) return
-        sounds.play(event.playerId, SoundCues.COMBAT_EGO_READY)
+        sounds.play(PresentationMoments.EGO_READY, event.playerId)
         hud.showFor(
             event.playerId,
             HudLayout.Subtitle(

@@ -3,8 +3,9 @@ package com.astarworks.astera.match.application.service
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
-import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
-import com.astarworks.astera.core.domain.effect.SoundCues
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.combat.CombatContext
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
@@ -41,7 +42,7 @@ public class StarDropService(
     private val store: IMatchStarStore,
     private val eventBus: IDomainEventBus,
     private val world: IStarDropWorld?,
-    private val cues: ISoundCuePlayer,
+    private val presentation: IPresentation,
     private val deathDropRatio: (MatchId) -> Double,
     private val random: Random = Random.Default,
     private val log: (String) -> Unit = {},
@@ -61,6 +62,10 @@ public class StarDropService(
         } else {
             StarDrop(nextId.getAndIncrement(), event.matchId, world, generator.position, amount, generator.pickupRadius, generator.id)
                 .let { withEntity(it, null) }.also { drops[it.id] = it }
+        }
+        // FX-04: a new star lights up at the generator for everyone close enough to see it.
+        for (near in nearby(event.matchId, world, generator.position, POP_RADIUS)) {
+            presentation.play(PresentationMoments.STAR_POP, near, mapOf("amount" to amount.toString()), generator.position, world)
         }
     }
 
@@ -91,8 +96,12 @@ public class StarDropService(
         val at = positions.positionOf(victim, includeDead = true)
         if (at == null) { log("star burst: no position for $victim"); return }
         if (store.spend(matchId, victim, burst) is com.astarworks.astera.core.domain.Result.Failure) return
-        cues.play(victim, SoundCues.STAR_BURST, at.position, at.world)
-        killer?.takeIf { it != victim }?.let { cues.play(it, SoundCues.STAR_BURST, at.position, at.world) }
+        // FX-04: radial pop at the death spot; the victim feels the loss, the killer sees the haul, bystanders hear it.
+        val credited = killer?.takeIf { it != victim }
+        val bystanders = nearby(matchId, at.world, at.position, BURST_HEAR_RADIUS).filter { it != victim && it != credited }
+        val args = mapOf("amount" to burst.toString())
+        presentation.play(PresentationMoments.STAR_BURST, victim, args, at.position, at.world, bystanders)
+        credited?.let { presentation.play(PresentationMoments.STAR_BURST_KILLER, it, args, at.position, at.world) }
         val stacks = minOf(burst, MAX_BURST_DROPS)
         val base = burst / stacks
         var extra = burst % stacks
@@ -149,6 +158,20 @@ public class StarDropService(
     /** Stars lying on the map for [matchId] (diagnostics / tests). */
     public fun lying(matchId: MatchId): Int = drops.values.filter { it.matchId == matchId }.sumOf { it.amount }
 
+    /** Live match players within [radius] blocks of [at] in [world] (presentation audience only). */
+    private fun nearby(matchId: MatchId, world: WorldId, at: Vec3, radius: Double): List<PlayerId> {
+        val members = matches.findById(matchId)?.teams?.flatMap { it.members }.orEmpty()
+        return members.filter { m ->
+            val loc = positions.positionOf(m) ?: return@filter false
+            loc.world == world && distanceSq(loc.position, at) <= radius * radius
+        }
+    }
+
+    private fun distanceSq(a: Vec3, b: Vec3): Double {
+        val dx = a.x - b.x; val dy = a.y - b.y; val dz = a.z - b.z
+        return dx * dx + dy * dy + dz * dz
+    }
+
     private fun withEntity(drop: StarDrop, velocity: Vec3?): StarDrop {
         val delayTicks = ((drop.readyAtMillis - System.currentTimeMillis()) / MILLIS_PER_TICK).toInt().coerceAtLeast(0)
         val handle = world?.spawn(drop.world, drop.position, drop.amount, velocity, delayTicks) ?: return drop
@@ -161,13 +184,18 @@ public class StarDropService(
     private fun take(drop: StarDrop, taker: PlayerId) {
         val taken = drops.remove(drop.id) ?: return
         taken.entity?.let { world?.take(it, taker) }
-        cues.play(taker, SoundCues.STAR_PICKUP, taken.position, taken.world)
         val total = store.add(drop.matchId, taker, taken.amount)
+        presentation.play(
+            PresentationMoments.STAR_PICKUP, taker,
+            mapOf("amount" to taken.amount.toString(), "total" to total.toString()), taken.position, taken.world,
+        )
         eventBus.publish(StarsCollected(drop.matchId, taker, taken.amount, total))
     }
 
     private companion object {
         const val MILLIS_PER_TICK = 50L
+        const val POP_RADIUS = 40.0
+        const val BURST_HEAR_RADIUS = 32.0
         const val MAX_BURST_DROPS = 6
         const val BURST_SCATTER = 2.5
         const val BURST_PICKUP_RADIUS = 1.5

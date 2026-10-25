@@ -3,8 +3,8 @@ package com.astarworks.astera.combat.application.eventbus.listeners.hud
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDamageIndicatorGateway
-import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
-import com.astarworks.astera.core.domain.effect.SoundCues
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.hud.DamageIndicatorStyle
 import kotlin.math.ceil
 
@@ -18,7 +18,7 @@ import kotlin.math.ceil
  */
 public class HitFeedbackListener(
     private val indicators: IDamageIndicatorGateway,
-    private val sounds: ISoundCuePlayer,
+    private val sounds: IPresentation,
 ) {
 
     public fun onDamage(event: DamageDealt) {
@@ -33,19 +33,19 @@ public class HitFeedbackListener(
         val amount = if (style == DamageIndicatorStyle.BLOCKED) 0 else ceil(resolved.finalAmount).toInt()
         indicators.show(attacker, event.target, amount, style)
         sounds.play(
-            attacker,
             when (style) {
-                DamageIndicatorStyle.CRITICAL -> SoundCues.COMBAT_CRIT
-                DamageIndicatorStyle.BLOCKED -> SoundCues.COMBAT_BLOCKED
-                DamageIndicatorStyle.NORMAL -> SoundCues.COMBAT_HIT
+                DamageIndicatorStyle.CRITICAL -> PresentationMoments.CRIT
+                DamageIndicatorStyle.BLOCKED -> PresentationMoments.BLOCKED
+                DamageIndicatorStyle.NORMAL -> PresentationMoments.HIT
             },
+            attacker,
         )
     }
 
     public fun onKilled(event: PlayerKilled) {
         val killer = event.killer ?: return
         if (killer == event.victim) return
-        sounds.play(killer, SoundCues.COMBAT_KILL)
+        sounds.play(PresentationMoments.KILL, killer)
     }
 
 }

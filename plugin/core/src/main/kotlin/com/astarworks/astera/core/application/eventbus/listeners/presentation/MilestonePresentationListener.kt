@@ -1,8 +1,8 @@
 package com.astarworks.astera.core.application.eventbus.listeners.presentation
 
-import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
 import com.astarworks.astera.core.application.port.outbound.music.IPlayerBgm
-import com.astarworks.astera.core.domain.effect.SoundCues
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.event.CurrencyChangeReason
 import com.astarworks.astera.core.domain.event.CurrencyChanged
 import com.astarworks.astera.core.domain.event.LoginBonusClaimed
@@ -23,24 +23,24 @@ import com.astarworks.astera.core.domain.music.MusicMood
  * `MatchCueListener`.
  */
 public class MilestonePresentationListener(
-    private val cues: ISoundCuePlayer,
+    private val presentation: IPresentation,
     private val bgm: IPlayerBgm,
 ) {
     public fun onRespawned(event: PlayerRespawned) {
-        cues.play(event.playerId, SoundCues.MATCH_RESPAWN)
+        presentation.play(PresentationMoments.RESPAWN, event.playerId)
     }
 
     public fun onSummary(event: MatchSummaryReady) {
         val summary = event.summary
         for (line in summary.players) {
             val outcome = summary.outcomeOf(line.playerId)
-            cues.play(
-                line.playerId,
+            presentation.play(
                 when (outcome) {
-                    MatchOutcome.WIN -> SoundCues.MATCH_WIN
-                    MatchOutcome.LOSE -> SoundCues.MATCH_LOSE
-                    MatchOutcome.DRAW -> SoundCues.MATCH_DRAW
+                    MatchOutcome.WIN -> PresentationMoments.MATCH_WIN
+                    MatchOutcome.LOSE -> PresentationMoments.MATCH_LOSE
+                    MatchOutcome.DRAW -> PresentationMoments.MATCH_DRAW
                 },
+                line.playerId,
             )
             when (outcome) {
                 MatchOutcome.WIN -> bgm.switchTo(line.playerId, MusicMood.VICTORY)
@@ -51,15 +51,15 @@ public class MilestonePresentationListener(
     }
 
     public fun onLoginBonus(event: LoginBonusClaimed) {
-        cues.play(event.playerId, SoundCues.UI_LOGIN_BONUS)
+        presentation.play(PresentationMoments.REWARD_LOGIN, event.playerId)
     }
 
     public fun onQuestChainCompleted(event: QuestChainCompleted) {
-        cues.play(event.playerId, SoundCues.UI_QUEST_COMPLETE)
+        presentation.play(PresentationMoments.QUEST_COMPLETE, event.playerId)
     }
 
     public fun onCurrencyChanged(event: CurrencyChanged) {
-        if (event.reason is CurrencyChangeReason.ShopPurchase) cues.play(event.playerId, SoundCues.UI_PURCHASE)
+        if (event.reason is CurrencyChangeReason.ShopPurchase) presentation.play(PresentationMoments.PURCHASE, event.playerId)
     }
 
     public fun onJoined(event: PlayerJoinedServer) {

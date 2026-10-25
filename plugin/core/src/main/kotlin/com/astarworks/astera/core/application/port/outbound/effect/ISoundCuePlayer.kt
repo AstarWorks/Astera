@@ -12,8 +12,8 @@ import com.astarworks.astera.core.domain.world.WorldId
  * gateway adapter should build a raw sound key.
  */
 public interface ISoundCuePlayer {
-    /** Plays [cue] for [playerId] only. Returns `false` when the cue is unknown or muted for that player. */
-    public fun play(playerId: PlayerId, cue: SoundId, position: Vec3? = null, world: WorldId? = null): Boolean
+    /** Plays [cue] for [playerId] only ([pitchScale] multiplies every layer's pitch, clamped to the valid range). Returns `false` when the cue is unknown or muted for that player. */
+    public fun play(playerId: PlayerId, cue: SoundId, position: Vec3? = null, world: WorldId? = null, pitchScale: Double = 1.0): Boolean
 
     /** Plays [cue] for each of [players] (each applies their own volume setting). */
     public fun playAll(players: Iterable<PlayerId>, cue: SoundId, position: Vec3? = null, world: WorldId? = null)
