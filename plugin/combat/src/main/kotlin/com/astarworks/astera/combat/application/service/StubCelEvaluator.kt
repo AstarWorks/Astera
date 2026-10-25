@@ -1,9 +1,9 @@
 package com.astarworks.astera.combat.application.service
 
 import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
-import com.astarworks.astera.combat.domain.skill.expression.CelContext
 import com.astarworks.astera.combat.domain.skill.expression.CelError
 import com.astarworks.astera.combat.domain.skill.expression.CelSkillScript
+import com.astarworks.astera.combat.domain.skill.expression.CompiledCelScript
 import com.astarworks.astera.core.domain.Result
 
 /**
@@ -14,7 +14,7 @@ import com.astarworks.astera.core.domain.Result
  * `services.register<ICelEvaluator>(...)`.
  */
 public class StubCelEvaluator : ICelEvaluator {
-    override fun evaluate(script: CelSkillScript, context: CelContext): Result<Any, CelError> {
-        return Result.Failure(CelError.NotYetImplemented)
-    }
+    // The current language has one terminal: unsupported. Do not turn it into a working expression here.
+    override fun compile(script: CelSkillScript): CompiledCelScript =
+        CompiledCelScript { Result.Failure(CelError.NotYetImplemented) }
 }

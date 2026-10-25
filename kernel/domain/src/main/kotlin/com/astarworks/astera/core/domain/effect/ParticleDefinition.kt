@@ -76,6 +76,8 @@ public data class ParticleDefinition(
         require(size > 0.0) { "size must be > 0: $size" }
     }
 
+    public val bakedShape: ParticleEmitter.BakedShape = ParticleEmitter.bake(shape)
+
     /**
      * The emission descriptor for this definition. [countOverride] (a mechanic's explicit `count`)
      * replaces [count] when given. Definitions without a [vanillaParticle] keep the legacy mapping

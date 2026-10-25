@@ -38,26 +38,16 @@ public class VfxRigMotion(
     /** Effect tick at which rig tick 0 lives (the keyframe clock starts one tick after the spawn). */
     public val base: Int = rig.startTick + VfxTimeline.ANIMATION_DELAY_TICKS
 
-    private val tilt = Quaternion.fromEulerDegrees(rig.tiltYawPitchRoll.x, rig.tiltYawPitchRoll.y, rig.tiltYawPitchRoll.z)
-    private val rest = Quaternion.fromEulerDegrees(rig.restYawPitchRoll.x, rig.restYawPitchRoll.y, rig.restYawPitchRoll.z)
-
     private val windows: List<VfxFreeze> = if (rig.respectHitStop) merge(freezes) else emptyList()
 
     /** (rig tick the clock stops at, frozen ticks). */
     private val stops: List<Pair<Int, Int>>
 
-    private class Resolved(val t: Int, val euler: Vec3, val ease: com.astarworks.astera.core.domain.animation.Easing)
-
-    private val keys: List<Resolved>
+    private val keys = rig.baked.keys
 
     public val chunks: List<Chunk>
 
     init {
-        var cur = Vec3.ZERO
-        keys = rig.swing.map { k ->
-            cur = k.rotateEuler ?: cur
-            Resolved(k.t, cur, k.ease)
-        }
         val stopList = ArrayList<Pair<Int, Int>>()
         var acc = 0
         for (w in windows) {
@@ -117,24 +107,10 @@ public class VfxRigMotion(
         }
     }
 
-    private fun eulerAt(u: Int): Vec3 {
-        if (keys.isEmpty()) return Vec3.ZERO
-        val first = keys.first()
-        if (u <= first.t) return first.euler
-        val last = keys.last()
-        if (u >= last.t) return last.euler
-        val k = keys.indexOfFirst { it.t >= u }
-        val a = keys[k - 1]
-        val b = keys[k]
-        val f = b.ease.apply((u - a.t).toDouble() / (b.t - a.t))
-        return a.euler + (b.euler - a.euler) * f
-    }
+    private fun eulerAt(u: Int): Vec3 = rig.baked.eulerAt(u)
 
-    /** Exact (eased) rig rotation, anchor-local, at integer rig tick [u]. */
-    private fun exact(u: Int): Quaternion {
-        val e = eulerAt(u)
-        return tilt * Quaternion.fromEulerDegrees(e.x, e.y, e.z) * rest
-    }
+    /** Exact anchor-local rotations were sampled once at content load. */
+    private fun exact(u: Int): Quaternion = rig.baked.rotationAt(u)
 
     /** Euler delta (max component) or quaternion angle, whichever is larger (multi-turn aware). */
     private fun turnDegrees(start: Int, end: Int): Double {
@@ -223,7 +199,7 @@ public object VfxRigPlanner {
     private fun partPlan(def: VfxDefinition, rig: VfxRig, part: VfxRigPart, m: VfxRigMotion): VfxElementPlan {
         val spawn = rig.startTick
         val despawn = minOf(def.durationTicks, rig.endTick ?: def.durationTicks)
-        val partRot = Quaternion.fromEulerDegrees(part.rotateEuler.x, part.rotateEuler.y, part.rotateEuler.z)
+        val partRot = part.rotation
         val size = part.size * m.scale
         fun at(r: Quaternion): DisplayTransform {
             val rw = m.anchorRot * r

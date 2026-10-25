@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.core.application.service.observability.ExecutionCosts
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.port.outbound.NearbyTarget
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
@@ -37,40 +38,47 @@ internal class TargeterResolver(
     /** Evaluates a [Condition] against a context; wired by `MechanicDispatcher` (cycle-free). */
     var conditionGate: ((Condition, MechanicContext) -> Boolean)? = null
 
-    fun resolvePlayers(targeter: Targeter, ctx: MechanicContext): List<PlayerId> = when (targeter) {
-        Targeter.Caster -> listOf(ctx.actorId)
-        Targeter.Target -> ctx.targetId?.let { listOf(it) } ?: emptyList()
-        Targeter.Origin, Targeter.HitLocation, Targeter.ProjectilePosition ->
-            emptyList() // Location-only targeters; no player resolution.
-        is Targeter.CasterOffset, is Targeter.CasterForward, is Targeter.TargetOffset,
-        is Targeter.ProjectileOffset, is Targeter.HitOffset ->
-            emptyList()
-        is Targeter.NearbyEntities -> {
-            val center = resolveLocationOnly(targeter.center, ctx) ?: return emptyList()
-            val radius = literal(targeter.radius)
-            val found = nearbyQuery.findInRadius(center, radius, ctx.worldId)
-            val limit = when (val count = targeter.maxCount) {
-                is IntValue.Literal -> count.value.coerceAtLeast(0)
-                is IntValue.Cel -> 0
-            }
-            found.asSequence()
-                .filter { !targeter.excludeCaster || it != ctx.actorId }
-                .distinct()
-                .take(limit)
-                .toList()
+    fun resolvePlayers(targeter: Targeter, ctx: MechanicContext): List<PlayerId> =
+        ExecutionCosts.measure("target.query", ctx.castedSkills.lastOrNull()?.value ?: "unbound") {
+            selectPlayers(targeter, ctx)
         }
-        is Targeter.ForwardRay -> resolveForwardRay(targeter, ctx)
-        is Targeter.Cone -> resolveCone(targeter, ctx)
-        is Targeter.Enemies -> resolveEnemies(targeter, ctx)
-        is Targeter.Allies -> resolveAllies(targeter, ctx)
-        is Targeter.Filter -> resolveFilter(targeter, ctx)
-        is Targeter.Random -> {
-            val base = resolvePlayers(targeter.from, ctx)
-            val n = when (val c = targeter.count) {
-                is IntValue.Literal -> c.value
-                is IntValue.Cel -> 0
+
+    private fun selectPlayers(targeter: Targeter, ctx: MechanicContext): List<PlayerId> {
+        return when (targeter) {
+            Targeter.Caster -> listOf(ctx.actorId)
+            Targeter.Target -> ctx.targetId?.let { listOf(it) } ?: emptyList()
+            Targeter.Origin, Targeter.HitLocation, Targeter.ProjectilePosition ->
+                emptyList() // Location-only targeters; no player resolution.
+            is Targeter.CasterOffset, is Targeter.CasterForward, is Targeter.TargetOffset,
+            is Targeter.ProjectileOffset, is Targeter.HitOffset ->
+                emptyList()
+            is Targeter.NearbyEntities -> {
+                val center = resolveLocationOnly(targeter.center, ctx) ?: return emptyList()
+                val radius = literal(targeter.radius)
+                val found = nearbyQuery.findInRadius(center, radius, ctx.worldId)
+                val limit = when (val count = targeter.maxCount) {
+                    is IntValue.Literal -> count.value.coerceAtLeast(0)
+                    is IntValue.Cel -> 0
+                }
+                found.asSequence()
+                    .filter { !targeter.excludeCaster || it != ctx.actorId }
+                    .distinct()
+                    .take(limit)
+                    .toList()
             }
-            base.shuffled().take(n)
+            is Targeter.ForwardRay -> resolveForwardRay(targeter, ctx)
+            is Targeter.Cone -> resolveCone(targeter, ctx)
+            is Targeter.Enemies -> resolveEnemies(targeter, ctx)
+            is Targeter.Allies -> resolveAllies(targeter, ctx)
+            is Targeter.Filter -> resolveFilter(targeter, ctx)
+            is Targeter.Random -> {
+                val base = resolvePlayers(targeter.from, ctx)
+                val n = when (val c = targeter.count) {
+                    is IntValue.Literal -> c.value
+                    is IntValue.Cel -> 0
+                }
+                base.shuffled().take(n)
+            }
         }
     }
 
@@ -201,12 +209,13 @@ internal class TargeterResolver(
             return emptyList()
         }
         val origin = rayOrigin(t.from, ctx) ?: return emptyList()
-        val distance = literal(t.distance)
+        val distance = t.baked.range
         return ConeSelector.select(
             origin = origin,
             direction = dir,
             range = distance,
             angleDegrees = literal(t.angleDegrees),
+            minCos = t.baked.minCos,
             candidates = nearbyTargets(origin, distance, ctx),
         ).map { it.id }.let { ids -> t.maxCount?.let { ids.take(it.coerceAtLeast(0)) } ?: ids }
     }

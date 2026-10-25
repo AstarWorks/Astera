@@ -106,6 +106,8 @@ public data class VfxDefinition(
         }
     }
 
+    public val baked: VfxTimeline.BakedVfx = VfxTimeline.bake(this)
+
     public companion object {
         public const val MAX_DURATION_TICKS: Int = 200
         public const val MAX_SLOTS: Int = 256

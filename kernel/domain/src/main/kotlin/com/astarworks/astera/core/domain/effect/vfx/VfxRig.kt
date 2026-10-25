@@ -3,7 +3,7 @@ package com.astarworks.astera.core.domain.effect.vfx
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.geometry.Vec3
-
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
 /**
  * Weapon rig + 風切り (wind-cut) trail: a group of block displays that swings rigidly about a pivot
  * (the hand), and a fan of translucent surfaces generated from the swept blade line. Pure data;
@@ -34,6 +34,8 @@ public data class VfxRig(
     /** `true`: the freeze windows handed to [VfxTimeline.plan] (hit-stop) stop the swing and the fades. */
     public val respectHitStop: Boolean = false,
 ) {
+    internal val baked: BakedRig = BakedRig(this)
+
     init {
         require(id.isNotBlank()) { "VfxRig.id must not be blank" }
         require(startTick >= 0) { "rig '$id' start_tick must be >= 0: $startTick" }
@@ -64,6 +66,9 @@ public data class VfxRigPart(
     public val brightness: Int? = null,
     public val glowArgb: Int? = null,
 ) {
+    public val rotation: Quaternion =
+        Quaternion.fromEulerDegrees(rotateEuler.x, rotateEuler.y, rotateEuler.z)
+
     init {
         require(id.isNotBlank()) { "VfxRigPart.id must not be blank" }
         require(block.isNotBlank()) { "rig part '$id' block must not be blank" }

@@ -46,12 +46,7 @@ public data class DamageProfile(
      * warn-log when this happens; the damage pipeline never sees a CEL
      * value directly).
      */
-    public val base: Double
-        get() = components.sumOf { component ->
-            val baseValue = (component.base as? NumericValue.Literal)?.value ?: 0.0
-            val mult = (component.multiplier as? NumericValue.Literal)?.value ?: 1.0
-            baseValue * mult
-        }
+    public val base: Double = components.sumOf { it.constantValue }
 
     public companion object {
         /** Single-component convenience for the common case. */
@@ -83,7 +78,11 @@ public data class DamageComponent(
     public val attribute: DamageAttribute,
     public val multiplier: NumericValue = NumericValue.Literal(1.0),
     public val perStack: PerStackBonus? = null,
-)
+) {
+    /** Fold the literal evaluator branch once; preserve the current CEL stub's 0/1 defaults. */
+    public val constantValue: Double = ((base as? NumericValue.Literal)?.value ?: 0.0) *
+        ((multiplier as? NumericValue.Literal)?.value ?: 1.0)
+}
 
 /** Whose status stacks a [PerStackBonus] reads. */
 public enum class StackHolder { TARGET, CASTER }
