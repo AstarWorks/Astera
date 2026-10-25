@@ -80,7 +80,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         displayEntityGateway = { PaperDisplayEntityGateway(plugin.server) },
         summonGateway = { PaperSummonGateway(plugin.server) },
         trainingDummyShells = { PaperTrainingDummyShells(plugin) },
-        entityCasterBody = { PaperEntityCasterBody(plugin.server) },
+        entityCasterBody = { PaperEntityCasterBody(plugin.server, plugin) },
         skillPreviewStage = { PaperSkillPreviewStage(plugin) },
         tickRateControl = { PaperTickRateControl(plugin.server) },
         playerFeedbackGateway = { PaperPlayerFeedbackGateway(plugin.server) },

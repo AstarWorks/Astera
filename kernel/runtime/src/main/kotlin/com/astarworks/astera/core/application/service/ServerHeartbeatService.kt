@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IProxyMessenger
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -45,7 +46,7 @@ public class ServerHeartbeatService(
                 }
             }
         }
-        task = scheduler.runRepeatingTicks(initialDelayTicks = 0, periodTicks = beatEveryTicks) { beat() }
+        task = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 0, periodTicks = beatEveryTicks) { beat() }
     }
 
     public fun stop() {

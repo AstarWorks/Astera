@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service.admin
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -20,10 +21,10 @@ import kotlin.time.toKotlinDuration
 /**
  * Default [IScheduledAnnouncementSystem] implementation.
  *
- *   - [AnnouncementTrigger.Once]    → [IScheduler.runLater] with the delay
+ *   - [AnnouncementTrigger.Once]    → [IScheduler.run] with the delay
  *     between `Instant.now()` and the trigger instant (negative delays fire
  *     immediately).
- *   - [AnnouncementTrigger.Interval] → [IScheduler.runRepeating] with
+ *   - [AnnouncementTrigger.Interval] → [IScheduler.repeat] with
  *     `initialDelay = period`.
  *   - [AnnouncementTrigger.OnEvent]  → [IDomainEventBus.subscribe] filtered
  *     by `event::class.simpleName == eventClassName`.
@@ -55,7 +56,7 @@ public class InMemoryScheduledAnnouncementSystem(
             is AnnouncementTrigger.Once -> {
                 val nowMs = Instant.now().toEpochMilli()
                 val deltaMs = (trigger.at.toEpochMilli() - nowMs).coerceAtLeast(0L)
-                val handle = scheduler.runLater(Duration.ofMillis(deltaMs).toKotlinDuration()) {
+                val handle = scheduler.run(ExecutionScope.Global, Duration.ofMillis(deltaMs).toKotlinDuration()) {
                     fire(spec)
                     active.remove(spec.id)
                 }
@@ -63,7 +64,7 @@ public class InMemoryScheduledAnnouncementSystem(
             }
             is AnnouncementTrigger.Interval -> {
                 val period = trigger.period.toKotlinDuration()
-                val handle = scheduler.runRepeating(period, period) { fire(spec) }
+                val handle = scheduler.repeat(ExecutionScope.Global, period, period) { fire(spec) }
                 ({ handle.cancel() })
             }
             is AnnouncementTrigger.OnEvent -> {

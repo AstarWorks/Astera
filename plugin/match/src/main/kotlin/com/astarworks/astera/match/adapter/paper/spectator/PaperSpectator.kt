@@ -22,13 +22,13 @@ import kotlin.time.Duration
  * Bukkit `Player.setGameMode` and `Player.setSpectatorTarget` must run on
  * the main thread (Folia regional contract; matches the constraint
  * documented on `PaperBlockStateGateway`, `PaperBarrierGateway`). The
- * adapter checks [Server.isPrimaryThread] on every entrypoint:
+ * adapter checks region ownership on every entrypoint:
  *  - On-main: applies the mutation synchronously and returns the result.
  *  - Off-main: returns `Result.failure(SpectatorError.Unsupported("off-main"))`.
  *    The contract is the same as the other Paper adapters — defensive
  *    re-dispatch is intentionally avoided so threading bugs surface in
  *    development. Callers that genuinely need off-main entry can wrap the
- *    call in `IScheduler.runLater(Duration.ZERO, ...)` themselves.
+ *    call in `IScheduler.run(Duration.ZERO, ...)` themselves.
  *
  * # Idempotency
  *
@@ -52,7 +52,7 @@ public class PaperSpectator(
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun startSpectating(viewer: PlayerId): Result<Unit, SpectatorError> {
-        if (!server.isPrimaryThread) return Result.failure(SpectatorError.Unsupported("off-main"))
+        if (server.getPlayer(viewer.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return Result.failure(SpectatorError.Unsupported("off-main"))
         val player = resolvePlayer(viewer)
             ?: return Result.failure(SpectatorError.ViewerNotOnline(viewer))
         if (player.gameMode == GameMode.SPECTATOR) return Result.success(Unit)
@@ -64,7 +64,7 @@ public class PaperSpectator(
     }
 
     override fun stopSpectating(viewer: PlayerId): Result<Unit, SpectatorError> {
-        if (!server.isPrimaryThread) return Result.failure(SpectatorError.Unsupported("off-main"))
+        if (server.getPlayer(viewer.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return Result.failure(SpectatorError.Unsupported("off-main"))
         val player = resolvePlayer(viewer)
             ?: return Result.failure(SpectatorError.ViewerNotOnline(viewer))
         if (player.gameMode != GameMode.SPECTATOR) return Result.success(Unit)
@@ -82,7 +82,7 @@ public class PaperSpectator(
         viewer: PlayerId,
         target: PlayerId,
     ): Result<Unit, SpectatorError> {
-        if (!server.isPrimaryThread) return Result.failure(SpectatorError.Unsupported("off-main"))
+        if (server.getPlayer(viewer.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return Result.failure(SpectatorError.Unsupported("off-main"))
         val viewerPlayer = resolvePlayer(viewer)
             ?: return Result.failure(SpectatorError.ViewerNotOnline(viewer))
         if (viewerPlayer.gameMode != GameMode.SPECTATOR) {
@@ -104,7 +104,7 @@ public class PaperSpectator(
     }
 
     override fun releaseCameraTarget(viewer: PlayerId): Result<Unit, SpectatorError> {
-        if (!server.isPrimaryThread) return Result.failure(SpectatorError.Unsupported("off-main"))
+        if (server.getPlayer(viewer.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return Result.failure(SpectatorError.Unsupported("off-main"))
         val player = resolvePlayer(viewer)
             ?: return Result.failure(SpectatorError.ViewerNotOnline(viewer))
         // Bukkit accepts setSpectatorTarget(null) when not in SPECTATOR; treat

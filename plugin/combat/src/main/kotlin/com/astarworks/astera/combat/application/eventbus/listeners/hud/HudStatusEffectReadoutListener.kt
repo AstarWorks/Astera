@@ -1,5 +1,8 @@
 package com.astarworks.astera.combat.application.eventbus.listeners.hud
 
+import java.util.concurrent.ConcurrentHashMap
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.core.application.port.outbound.IEgoGauge
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
@@ -51,7 +54,7 @@ public class HudStatusEffectReadoutListener(
     /** ADR-0231: when set, the E.G.O gauge is the first segment of the readout while it holds anything. */
     private val egoGauge: IEgoGauge? = null,
 ) : IStatusEffectIconSource {
-    private val packLoaded: MutableSet<PlayerId> = mutableSetOf()
+    private val packLoaded: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
 
     public fun onPackStatus(event: ResourcePackStatusChanged) {
         if (event.status.isLoaded) packLoaded += event.playerId else packLoaded -= event.playerId
@@ -71,9 +74,9 @@ public class HudStatusEffectReadoutListener(
 
     private data class Sent(val layout: HudLayout.ActionBar, val atTick: Long)
 
-    private val lastSent: MutableMap<PlayerId, Sent> = mutableMapOf()
+    private val lastSent: MutableMap<PlayerId, Sent> = ConcurrentHashMap()
 
-    private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(
+    private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(ExecutionScope.Global,
         initialDelayTicks = pollPeriodTicks,
         periodTicks = pollPeriodTicks,
     ) {
@@ -90,18 +93,21 @@ public class HudStatusEffectReadoutListener(
         val online = sessions.all().map { it.playerId }.toSet()
         lastSent.keys.retainAll(online)
         for (playerId in online) {
-            val layout = render(playerId)
-            if (layout == null) {
-                lastSent.remove(playerId)
-                continue
-            }
-            val previous = lastSent[playerId]
-            if (previous != null && previous.layout == layout && now - previous.atTick < REFRESH_TICKS) continue
-            lastSent[playerId] = Sent(layout, now)
-            when (val outcome = hudGateway.showFor(playerId, layout)) {
-                is Result.Success -> Unit
-                is Result.Failure -> log.debug("Combat readout show failed for {}: {}", playerId, outcome.error)
-            }
+            scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
+
+                val layout = render(playerId)
+                if (layout == null) {
+                    lastSent.remove(playerId)
+                    return@run
+                }
+                val previous = lastSent[playerId]
+                if (previous != null && previous.layout == layout && now - previous.atTick < REFRESH_TICKS) return@run
+                lastSent[playerId] = Sent(layout, now)
+                when (val outcome = hudGateway.showFor(playerId, layout)) {
+                    is Result.Success -> Unit
+                    is Result.Failure -> log.debug("Combat readout show failed for {}: {}", playerId, outcome.error)
+                }
+                        }
         }
     }
 

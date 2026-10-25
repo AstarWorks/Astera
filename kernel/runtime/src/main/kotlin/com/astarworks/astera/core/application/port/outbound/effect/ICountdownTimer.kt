@@ -19,7 +19,7 @@ import com.astarworks.astera.core.domain.effect.timer.TimerHandle
  *  3. pause/resume (match host pauses for disconnect, skill cooldown
  *     pauses during cinematic, ...).
  *
- * The raw `IScheduler.runRepeating(period = 1.tick)` primitive supports
+ * The raw `IScheduler.repeat(period = 1.tick)` primitive supports
  * all three but each subscriber would derive `remainingTicks` itself; this
  * port consolidates that math behind one [TimerHandle].
  */

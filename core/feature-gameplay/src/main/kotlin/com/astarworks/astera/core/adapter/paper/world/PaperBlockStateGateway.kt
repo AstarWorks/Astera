@@ -89,7 +89,7 @@ import kotlin.random.Random
  * Bukkit `world.getBlockAt(...)`, `Block.type =`, and `Block.blockData =`
  * are main-thread only (per Folia regional contract documented in
  * ADR-0144 / ADR-0145 / ADR-0146). Off-main callers MUST round-trip via
- * `IScheduler.runLater(Duration.ZERO, ...)` — the gateway does not
+ * `IScheduler.run(Duration.ZERO, ...)` — the gateway does not
  * defensively re-dispatch (would mask threading bugs). [tracker] mutations
  * are thread-safe via [ConcurrentHashMap] purely to survive accidental
  * cross-thread reads (e.g. a metrics scraper iterating [tracked]); the

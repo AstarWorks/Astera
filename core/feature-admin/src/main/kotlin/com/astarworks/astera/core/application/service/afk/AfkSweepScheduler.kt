@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service.afk
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.afk.IAfkDetector
@@ -40,7 +41,7 @@ public class AfkSweepScheduler(
      * Wire the scheduler. Returns the task handle so callers can cancel
      * during shutdown.
      */
-    public fun start(): IScheduler.TaskHandle = scheduler.runRepeatingTicks(
+    public fun start(): IScheduler.TaskHandle = scheduler.runRepeatingTicks(ExecutionScope.Global,
         initialDelayTicks = sweepPeriodTicks.toLong(),
         periodTicks = sweepPeriodTicks.toLong(),
     ) { sweepOnce() }
@@ -52,10 +53,11 @@ public class AfkSweepScheduler(
     public fun sweepOnce() {
         val now = tickProvider()
         for (playerId in playerSnapshot()) {
+            scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
             val current = detector.status(playerId)
             val bucket = StatusBucket.of(current)
             val previous = lastStatus[playerId]
-            if (previous == bucket) continue
+            if (previous == bucket) return@run
             lastStatus[playerId] = bucket
             when (current) {
                 AfkStatus.Active -> {
@@ -74,6 +76,7 @@ public class AfkSweepScheduler(
                         lastStatus.remove(playerId)
                     }
                 }
+            }
             }
         }
     }

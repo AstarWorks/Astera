@@ -1,5 +1,9 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import java.util.concurrent.CopyOnWriteArrayList
+
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IProjectileHandle
 import com.astarworks.astera.combat.application.port.outbound.IProjectileService
 import com.astarworks.astera.combat.application.service.ProjectileFlight
@@ -72,7 +76,7 @@ public class PaperProjectileService(
     /** One live projectile: the simulated flight plus its optional display entity. */
     private class Live(val flight: ProjectileFlight, val world: World, var displayUuid: UUID?)
 
-    private val live: MutableList<Live> = mutableListOf()
+    private val live: MutableList<Live> = CopyOnWriteArrayList()
 
     private var tickHandle: IScheduler.TaskHandle? = null
 
@@ -100,7 +104,7 @@ public class PaperProjectileService(
      */
     public fun start(): IScheduler.TaskHandle {
         tickHandle?.cancel()
-        val handle = scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) { tickAll() }
+        val handle = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 1L, periodTicks = 1L) { tickAll() }
         tickHandle = handle
         return handle
     }
@@ -144,15 +148,18 @@ public class PaperProjectileService(
     private fun tickAll() {
         val now = scheduler.currentTick()
         for (entry in live.toList()) {
-            if (live.none { it === entry }) continue // cancelled meanwhile
-            try {
-                val outcome = stepper.step(entry.flight, now, probe) { live.remove(entry); removeDisplay(entry) }
-                if (!outcome.isTerminal) moveDisplay(entry)
-            } catch (t: Throwable) {
-                log.warn("PaperProjectileService: step failed for projectile={}; dropping it", entry.flight.id, t)
-                live.remove(entry)
-                removeDisplay(entry)
-            }
+            scheduler.run(regionScope(com.astarworks.astera.core.domain.world.WorldId(entry.world.name), entry.flight.position), kotlin.time.Duration.ZERO) {
+
+                if (live.none { it === entry }) return@run // cancelled meanwhile
+                try {
+                    val outcome = stepper.step(entry.flight, now, probe) { live.remove(entry); removeDisplay(entry) }
+                    if (!outcome.isTerminal) moveDisplay(entry)
+                } catch (t: Throwable) {
+                    log.warn("PaperProjectileService: step failed for projectile={}; dropping it", entry.flight.id, t)
+                    live.remove(entry)
+                    removeDisplay(entry)
+                }
+                        }
         }
     }
 
@@ -198,7 +205,7 @@ public class PaperProjectileService(
         }
         val p = entry.flight.position
         val loc = Location(entry.world, p.x, p.y, p.z).apply { setDirection(entry.flight.velocity.toBukkit()) }
-        entity.teleport(loc)
+        entity.teleportAsync(loc)
     }
 
     private fun removeDisplay(entry: Live) {

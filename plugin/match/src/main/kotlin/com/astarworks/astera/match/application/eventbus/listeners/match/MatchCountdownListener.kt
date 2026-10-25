@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.eventbus.listeners.match
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -42,7 +43,7 @@ import org.slf4j.LoggerFactory
  *
  * # Scheduling
  *
- * The listener uses [IScheduler.runLater] to offset each push by
+ * The listener uses [IScheduler.run] to offset each push by
  * `(5 - n) * 20` ticks. If the listener disables (plugin onDisable)
  * during a countdown, the in-flight `TaskHandle`s are dropped silently
  * — vanilla cancellation flow.
@@ -68,8 +69,8 @@ public class MatchCountdownListener(
 
         for (n in COUNTDOWN_FROM downTo 1) {
             val offset = (COUNTDOWN_FROM - n).toLong() * TICKS_PER_SECOND
-            scheduler.runLater(ticks(offset)) {
-                pushCount(recipients, n, event.matchId.value)
+            for (recipient in recipients) scheduler.run(ExecutionScope.Entity(recipient.uuid), ticks(offset)) {
+                pushCount(listOf(recipient), n, event.matchId.value)
             }
         }
     }

@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.service
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.match.TeamId
@@ -33,7 +35,7 @@ import com.astarworks.astera.match.domain.zone.CaptureZone
  *
  * # Lifecycle
  *
- * [start] arms `IScheduler.runRepeating` and returns its [IScheduler.TaskHandle].
+ * [start] arms `IScheduler.repeat` and returns its [IScheduler.TaskHandle].
  * Callers (Phase C orchestrator / tests) cancel via the handle when shutting
  * down. The implementation reads [zones] fresh on every tick so concurrent
  * edits (add / remove during a match) are observed without a restart.
@@ -48,6 +50,7 @@ public class CaptureZoneScheduler(
     private val occupancyLookup: (CaptureZone) -> Map<TeamId, Int>,
     private val onAdvance: (CaptureZone) -> Unit,
     private val scheduler: IScheduler,
+    private val worldOf: (CaptureZone) -> com.astarworks.astera.core.domain.world.WorldId,
     private val tickUseCase: CaptureZoneTickUseCase = CaptureZoneTickUseCase(),
     private val periodTicks: Long = DEFAULT_PERIOD_TICKS,
 ) {
@@ -67,13 +70,15 @@ public class CaptureZoneScheduler(
      * cancellation.
      */
     public fun start(): IScheduler.TaskHandle =
-        scheduler.runRepeating(
+        scheduler.repeat(ExecutionScope.Global,
             initialDelay = ticks(periodTicks),
             period = ticks(periodTicks),
         ) {
             for (zone in zones()) {
-                val next = tickUseCase.tick(zone, occupancyLookup(zone))
-                if (next != zone) onAdvance(next)
+                scheduler.run(regionScope(worldOf(zone), zone.region.min), kotlin.time.Duration.ZERO) {
+                    val next = tickUseCase.tick(zone, occupancyLookup(zone))
+                    if (next != zone) onAdvance(next)
+                }
             }
         }
 

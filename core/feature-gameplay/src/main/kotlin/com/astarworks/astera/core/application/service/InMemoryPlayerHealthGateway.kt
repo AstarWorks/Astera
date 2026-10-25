@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.HealthMutationError
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
@@ -187,14 +188,14 @@ public class InMemoryPlayerHealthGateway(
             return Result.success(Unit)
         }
         val perTick = hpPerSecond / 20.0
-        val tickHandle = scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) {
+        val tickHandle = scheduler.runRepeatingTicks(ExecutionScope.Entity(playerId.uuid), initialDelayTicks = 1L, periodTicks = 1L) {
             heal(playerId, perTick, HealthChangeSource.Regen)
         }
         val expiryHandle: IScheduler.TaskHandle? =
             if (ttlTicks == Int.MAX_VALUE) {
                 null
             } else {
-                scheduler.runLaterTicks(ttlTicks.toLong()) {
+                scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), ttlTicks.toLong()) {
                     clearRegen(playerId)
                 }
             }

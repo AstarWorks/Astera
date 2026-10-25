@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.config.LobbyNpcYamlConfig
 import com.astarworks.astera.core.application.port.outbound.*
 import com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange
@@ -67,7 +68,7 @@ internal fun CoreWiringState.wireTutorialGuide() {
     ctx.subscriptions += eventBus.subscribe(MatchQueueJoined::class) {
         tutorialSequencer.recordAction(it.playerId, "queue")
     }
-    val task = scheduler.runRepeatingTicks(10, 10) { guide.tick() }
+    val task = scheduler.runRepeatingTicks(ExecutionScope.Global, 10, 10) { guide.tick() }
     shutdownHooks += { task.cancel(); guide.close() }
 }
 

@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.command.CommandMount
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -272,6 +273,7 @@ public object MatchWiring {
         // queue-formed (or admin `entry`) player lands in the arena immediately.
         val matchSpawn = worldGateway?.let {
             MatchSpawnUseCase(
+            scheduler = scheduler,
                 matchRepository = matches,
                 stageRegistry = stages,
                 worldGateway = it,
@@ -327,7 +329,7 @@ public object MatchWiring {
                 endMatch.execute(id, com.astarworks.astera.core.domain.event.EndReason.Cancelled("insufficient-players"))
             },
         )
-        scheduledTasks += scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
+        scheduledTasks += scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 20L, periodTicks = 20L) {
             phaseTimer.tickAll()
         }
 
@@ -363,7 +365,7 @@ public object MatchWiring {
 
         // Star Generator pipeline (ADR-0032 + ADR-0058 §5 — per-instance modifier-aware)
         val spawnResource = SpawnResourceUseCase(eventBus, scheduler)
-        val advanceCharge = AdvanceGeneratorChargeUseCase(generators, eventBus, scheduler, spawnResource)
+        val advanceCharge = AdvanceGeneratorChargeUseCase(generators, eventBus, scheduler, spawnResource, { services.get<com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository>() })
         val starGenScheduler = StarGeneratorScheduler(
             generators = generators,
             advance = advanceCharge,

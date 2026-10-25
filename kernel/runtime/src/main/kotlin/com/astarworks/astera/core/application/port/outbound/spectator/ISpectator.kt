@@ -63,7 +63,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
  *
  * Bukkit gamemode + spectator-target mutations require the server main
  * thread. The Paper adapter round-trips off-main calls through
- * [IScheduler.runLater] with [kotlin.time.Duration.ZERO]; the InMemory
+ * [IScheduler.run] with [kotlin.time.Duration.ZERO]; the InMemory
  * Fake has no threading constraint and accepts any thread.
  *
  * # Wire-up

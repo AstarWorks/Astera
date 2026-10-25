@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.port.outbound
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
@@ -13,6 +15,9 @@ import com.astarworks.astera.core.domain.world.WorldId
 public interface IStarDropWorld {
     /** Spawns a drop worth [amount] stars; [velocity] (blocks/tick) scatters it. Returns its handle, or `null` if it could not be placed. */
     public fun spawn(world: WorldId, position: Vec3, amount: Int, velocity: Vec3?): String?
+
+    /** Ownership of the live object addressed by this opaque handle. */
+    public fun executionScope(handle: String): ExecutionScope
 
     /** Where the drop lies now, or `null` when it no longer exists (chunk unloaded, killed by a command...). */
     public fun locate(handle: String): Vec3?

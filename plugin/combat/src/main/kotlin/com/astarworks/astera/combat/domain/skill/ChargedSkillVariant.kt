@@ -10,7 +10,7 @@ package com.astarworks.astera.combat.domain.skill
  *  - [Instant] — fire immediately on trigger (default for legacy skills).
  *  - [Charged] — accumulate for [Charged.chargeTicks] before firing. The
  *    application-layer `ChargedSkillCastUseCase` orchestrates the charge
- *    phase via `IScheduler.runLaterTicks`.
+ *    phase via `IScheduler.runTicks`.
  */
 public sealed class ChargedSkillVariant {
     public data object Instant : ChargedSkillVariant()

@@ -137,7 +137,7 @@ public class PaperWorldRulesGateway(
         value: Any?,
         block: (org.bukkit.World) -> Unit,
     ) {
-        if (!server.isPrimaryThread) {
+        if (!org.bukkit.Bukkit.isGlobalTickThread()) {
             log.warn(
                 "PaperWorldRulesGateway.{} called off main-thread (world={}, value={}); ignored",
                 name,

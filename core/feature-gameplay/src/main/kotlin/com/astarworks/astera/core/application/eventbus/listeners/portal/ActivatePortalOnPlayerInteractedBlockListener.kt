@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.eventbus.listeners.portal
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.executor
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.portal.IPortalGateway
@@ -32,6 +34,7 @@ public class ActivatePortalOnPlayerInteractedBlockListener(
     private val portalGateway: IPortalGateway,
     private val worldGateway: IWorldGateway,
     private val eventBus: IDomainEventBus,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -42,11 +45,12 @@ public class ActivatePortalOnPlayerInteractedBlockListener(
         if (!portal.activationRule.acceptsRightClick()) return
         if (event.world == portal.targetWorld && event.position == portal.targetPosition) return
 
-        val ok = worldGateway.teleport(
+        val ok = worldGateway.teleportAsync(
             playerId = event.playerId,
             at = portal.targetPosition,
             world = portal.targetWorld,
         )
+        ok.thenAcceptAsync({ ok ->
         if (!ok) {
             log.debug(
                 "Portal {} right-click teleport failed for {} → ({}, {})",
@@ -55,7 +59,7 @@ public class ActivatePortalOnPlayerInteractedBlockListener(
                 portal.targetWorld,
                 portal.targetPosition,
             )
-            return
+            return@thenAcceptAsync
         }
         eventBus.publish(
             PortalActivated(
@@ -64,5 +68,6 @@ public class ActivatePortalOnPlayerInteractedBlockListener(
                 atTick = event.atTick,
             ),
         )
+        }, scheduler.executor(ExecutionScope.Entity(event.playerId.uuid)))
     }
 }

@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.DamageApplicationError
 import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
@@ -83,7 +84,7 @@ import java.util.concurrent.ConcurrentHashMap
  * Bukkit `player.health` / `player.playHurtAnimation` MUST run on main.
  * `ApplyDamageUseCase` is invoked from event handlers + combat use cases
  * that already run on main. Off-main callers MUST route through
- * `scheduler.runLater(Duration.ZERO, ...)`.
+ * `scheduler.run(ExecutionScope.Global, Duration.ZERO, ...)`.
  *
  * # Registration
  *
@@ -116,7 +117,7 @@ public class PaperDamageGateway(
      * cancel on `onDisable`.
      */
     public fun start(): IScheduler.TaskHandle =
-        scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) {
+        scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 1L, periodTicks = 1L) {
             appliedThisTick.clear()
         }
 

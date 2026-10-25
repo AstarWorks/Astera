@@ -29,7 +29,7 @@ public class TeleportHandler(
         dispatcher.dispatch(phases.preTeleport, ctx)
 
         val destination = event.at + (DEFAULT_DIRECTION * params.maxDistance)
-        worldGateway.teleport(playerId = event.caster, at = destination, world = null)
+        worldGateway.teleportAsync(playerId = event.caster, at = destination, world = null)
 
         dispatcher.dispatch(phases.postTeleport, ctx.copy(origin = destination))
     }

@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.usecase.travel
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
@@ -22,8 +24,8 @@ public class ReturnToLobbyUseCase(
     private val scheduler: IScheduler,
 ) {
 
-    public fun returnToLobby(playerId: PlayerId): Result<Unit, TravelError> {
-        return when (val outcome = worldGateway.lobbySpawn(playerId)) {
+    public fun returnToLobby(playerId: PlayerId): CompletableFuture<Result<Unit, TravelError>> {
+        return worldGateway.lobbySpawn(playerId).thenApply { outcome -> when (outcome) {
             is Result.Success -> {
                 eventBus.publish(
                     PlayerReturnedToLobby(
@@ -39,6 +41,6 @@ public class ReturnToLobbyUseCase(
                 is WorldGatewayError.Storage,
                 -> Result.failure(TravelError.TeleportFailed)
             }
-        }
+        } }
     }
 }

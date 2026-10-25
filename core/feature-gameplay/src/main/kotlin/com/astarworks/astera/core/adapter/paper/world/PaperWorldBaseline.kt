@@ -29,7 +29,7 @@ public class PaperWorldBaseline(
     public fun start() {
         plugin.server.pluginManager.registerEvents(this, plugin)
         applyAll()
-        plugin.server.scheduler.runTask(plugin, Runnable { applyAll() })
+        plugin.server.globalRegionScheduler.execute(plugin, Runnable { applyAll() })
     }
 
     @EventHandler
@@ -48,6 +48,10 @@ public class PaperWorldBaseline(
 
     /** One world failing must not stop the baseline reaching the others. */
     private fun safeApply(world: WorldId) {
+        if (!org.bukkit.Bukkit.isGlobalTickThread()) {
+            plugin.server.globalRegionScheduler.execute(plugin, Runnable { safeApply(world) })
+            return
+        }
         try {
             apply(world)
         } catch (t: Exception) {

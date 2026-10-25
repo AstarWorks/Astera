@@ -266,6 +266,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
 
     val activatePortalOnMoved = com.astarworks.astera.core.application.eventbus.listeners.portal
         .ActivatePortalOnPlayerMovedListener(
+            scheduler = scheduler,
             portalGateway = portalGateway,
             worldGateway = worldGatewayForBlockRoute,
             eventBus = eventBus,
@@ -276,6 +277,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
 
     val activatePortalOnInteract = com.astarworks.astera.core.application.eventbus.listeners.portal
         .ActivatePortalOnPlayerInteractedBlockListener(
+            scheduler = scheduler,
             portalGateway = portalGateway,
             worldGateway = worldGatewayForBlockRoute,
             eventBus = eventBus,

@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.command
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandActor
@@ -15,7 +16,6 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import io.papermc.paper.command.brigadier.CommandSourceStack
-import io.papermc.paper.command.brigadier.Commands
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
@@ -51,7 +51,7 @@ public class PaperCommandBridge(
     private val renderer: () -> IMessageRenderer,
 ) : BrigadierTreeBuilder.Env<CommandSourceStack> {
 
-    private val scope = CoroutineScope(SupervisorJob() + scheduler.mainDispatcher)
+    private val scope = CoroutineScope(SupervisorJob() + scheduler.dispatcher(ExecutionScope.Global))
     private val builder = BrigadierTreeBuilder(this)
 
     @Volatile
@@ -76,7 +76,7 @@ public class PaperCommandBridge(
                 registrar.register(plugin.pluginMeta, shortcut, "Shortcut for /astera ${target.joinToString(" ")}", emptyList())
             }
         }
-        registry.addListener { scheduler.runLater(50.milliseconds) { republish() } }
+        registry.addListener { scheduler.run(ExecutionScope.Global, 50.milliseconds) { republish() } }
     }
 
     /** Merge the current tree into the live dispatcher root (late registration path). */
@@ -86,7 +86,7 @@ public class PaperCommandBridge(
         runCatching {
             val fresh = builder.build(registry.snapshot()).build()
             fresh.children.toList().forEach { live.addChild(it) }
-            plugin.server.onlinePlayers.forEach { it.updateCommands() }
+            plugin.server.onlinePlayers.forEach { player -> scheduler.run(ExecutionScope.Entity(player.uniqueId), kotlin.time.Duration.ZERO) { player.updateCommands() } }
         }.onFailure { plugin.logger.warning("Could not republish /astera command tree: ${it.message}") }
     }
 
@@ -124,7 +124,7 @@ public class PaperCommandBridge(
 
     override fun execute(path: List<String>, node: CommandSpec.Literal, source: CommandSourceStack, args: Map<String, Any>) {
         val actor = actor(source)
-        scope.launch { invoker.invoke(node, actor, args, replier(source, actor)) }
+        scope.launch(scheduler.dispatcher(actor.playerId?.let { ExecutionScope.Entity(it.uuid) } ?: ExecutionScope.Global)) { invoker.invoke(node, actor, args, replier(source, actor)) }
     }
 
     override fun usage(source: CommandSourceStack, path: List<String>, node: CommandSpec.Literal) {

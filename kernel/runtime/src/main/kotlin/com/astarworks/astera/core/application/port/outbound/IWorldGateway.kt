@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.port.outbound
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.ParticleSpec
 import com.astarworks.astera.core.domain.effect.SoundSpec
@@ -17,10 +19,8 @@ import com.astarworks.astera.core.domain.world.WorldId
  * [ParticleSpec], [SoundSpec], [PlayerId]. The Paper adapter resolves these
  * to Bukkit `Location` / `Material` / `Particle` / `Sound` / `Player`.
  *
- * Phase 2 mid lands block/effect implementations; Wave 5 (Paper runtime)
- * lands [teleport]. Ports are declared now so use cases written against
- * them can be unit-tested with `FakeWorldGateway` (test-fixtures) ahead of
- * the Paper plumbing.
+ * Teleport futures complete only after the move succeeds or fails. Runtime bindings dispatch
+ * completion on the entity owner so dependent world/player operations can safely continue.
  */
 public interface IWorldGateway {
 
@@ -34,20 +34,17 @@ public interface IWorldGateway {
     /**
      * Teleport [playerId] to [at] in [world] (or the player's current world
      * if [world] is null). [yaw]/[pitch] set the facing; null keeps the
-     * player's current value. Returns true on success, false if the player is
-     * offline or the target world is unknown.
+     * player's current value. Completes with true on success, false for an offline
+     * player, unknown target world, cancellation or failed teleport.
      *
-     * Wave 4.5 (R3.5, ADR-0027): ports + Fake impl land here; Paper-side
-     * impl lands in Wave 5 (R4 Paper runtime). Until then, MatchSpawnUseCase
-     * exercises the port through FakeWorldGateway only.
      */
-    public fun teleport(
+    public fun teleportAsync(
         playerId: PlayerId,
         at: Vec3,
         world: WorldId? = null,
         yaw: Float? = null,
         pitch: Float? = null,
-    ): Boolean
+    ): CompletableFuture<Boolean>
 
     /**
      * Teleport [playerId] to the spectator spawn for [matchId] (Wave 5h,
@@ -58,7 +55,7 @@ public interface IWorldGateway {
      * registered for [matchId], [WorldGatewayError.UnknownPlayer] if the
      * target is offline, or [WorldGatewayError.Storage] on backend failure.
      */
-    public fun spectatorSpawn(matchId: MatchId, playerId: PlayerId): Result<Unit, WorldGatewayError>
+    public fun spectatorSpawn(matchId: MatchId, playerId: PlayerId): CompletableFuture<Result<Unit, WorldGatewayError>>
 
     /**
      * Teleport [playerId] to the lobby spawn (Wave 5h, ADR-0079 §6). Used by
@@ -68,7 +65,7 @@ public interface IWorldGateway {
      * The lobby spawn is server-global; Paper impl (Wave 6b) reads it from
      * `world.spawnLocation` or a configured lobby world.
      */
-    public fun lobbySpawn(playerId: PlayerId): Result<Unit, WorldGatewayError>
+    public fun lobbySpawn(playerId: PlayerId): CompletableFuture<Result<Unit, WorldGatewayError>>
 }
 
 /** Sealed failure surface for the spawn / teleport methods added in Wave 5h. */

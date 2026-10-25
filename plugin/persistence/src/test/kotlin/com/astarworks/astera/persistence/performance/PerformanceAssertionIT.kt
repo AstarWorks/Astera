@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.performance
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -47,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger
  *
  * # Three scenarios
  *
- *  1. **Tick budget** — `IScheduler.runRepeatingTicks` × 100 tasks
+ *  1. **Tick budget** — `IScheduler.repeatTicks` × 100 tasks
  *     dispatched on a `FakeScheduler.advanceTicks(1)` step completes well
  *     below the 50 ms tick budget. Pure-JVM via [FakeScheduler], no
  *     Postgres-tier dependency (the test does not need Hikari; it's here
@@ -80,7 +81,7 @@ public class PerformanceAssertionIT : PostgresIntegrationTestBase() {
         val scheduler = FakeScheduler(startTick = 0L)
         val fires = AtomicInteger(0)
         val handles = (0 until TICK_BUDGET_TASK_COUNT).map {
-            (scheduler as IScheduler).runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) {
+            (scheduler as IScheduler).runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 1L, periodTicks = 1L) {
                 fires.incrementAndGet()
             }
         }

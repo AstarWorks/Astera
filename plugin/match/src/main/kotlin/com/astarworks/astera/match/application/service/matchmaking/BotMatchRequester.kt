@@ -1,10 +1,10 @@
 package com.astarworks.astera.match.application.service.matchmaking
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.bots.BotRequest
 import com.astarworks.astera.core.application.bots.BotState
 import com.astarworks.astera.core.application.bots.BotStatus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
-import com.astarworks.astera.core.application.port.outbound.bots.BotRequestError
 import com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
@@ -79,7 +79,7 @@ public class BotMatchRequester(
             is Result.Success -> Unit
         }
         val entry = Pending(player, lane, timeout = null)
-        entry.timeout = scheduler.runLater(ticks(statusTimeoutSeconds * TICKS_PER_SECOND)) { onTimeout(request.requestId) }
+        entry.timeout = scheduler.run(ExecutionScope.Global, ticks(statusTimeoutSeconds * TICKS_PER_SECOND)) { onTimeout(request.requestId) }
         pending[request.requestId] = entry
         tell(player, "requested", mapOf("count" to count.toString(), "lane" to lane.key))
         return request.requestId
@@ -103,7 +103,7 @@ public class BotMatchRequester(
             BotState.SPAWNING -> {
                 tell(entry.player, "spawning", mapOf("bots" to bots))
                 // The runner answered, so it exists; give it longer to finish before giving up.
-                entry.timeout = scheduler.runLater(ticks(SPAWN_TIMEOUT_SECONDS * TICKS_PER_SECOND)) { onTimeout(status.requestId) }
+                entry.timeout = scheduler.run(ExecutionScope.Global, ticks(SPAWN_TIMEOUT_SECONDS * TICKS_PER_SECOND)) { onTimeout(status.requestId) }
             }
             BotState.QUEUED -> {
                 pending.remove(status.requestId)

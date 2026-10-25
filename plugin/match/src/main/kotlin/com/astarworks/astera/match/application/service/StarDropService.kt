@@ -1,5 +1,9 @@
 package com.astarworks.astera.match.application.service
 
+import java.util.concurrent.CompletableFuture
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -40,6 +44,7 @@ public class StarDropService(
     private val store: IMatchStarStore,
     private val eventBus: IDomainEventBus,
     private val world: IStarDropWorld?,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
     private val deathDropRatio: (MatchId) -> Double,
     private val random: Random = Random.Default,
     private val log: (String) -> Unit = {},
@@ -103,6 +108,8 @@ public class StarDropService(
         val w = world
         if (w != null) {
             for (drop in drops.values.toList()) {
+                val scope = drop.entity?.let(w::executionScope) ?: regionScope(drop.world, drop.position)
+                scheduler.run(scope, kotlin.time.Duration.ZERO) {
                 val handle = drop.entity
                 val here = handle?.let { w.locate(it) }
                 if (here != null) {
@@ -110,6 +117,11 @@ public class StarDropService(
                 } else {
                     // Never spawned (chunk not loaded yet) or destroyed: put it back where it lay.
                     drops.computeIfPresent(drop.id) { _, cur -> withEntity(cur.copy(entity = null), null) }
+                }
+                }.onRetired {
+                    scheduler.run(regionScope(drop.world, drop.position), kotlin.time.Duration.ZERO) {
+                        drops.computeIfPresent(drop.id) { _, cur -> withEntity(cur.copy(entity = null), null) }
+                    }
                 }
             }
         }
@@ -155,22 +167,27 @@ public class StarDropService(
         if (System.currentTimeMillis() < drop.readyAtMillis) return
         val match = matches.findById(drop.matchId) ?: return
         val radiusSq = drop.pickupRadius * drop.pickupRadius
-        val taker = match.teams.asSequence().flatMap { it.members.asSequence() }
-            .filterNot { isDenied(drop, it) }
-            .mapNotNull { player ->
-                val loc = positions.positionOf(player) ?: return@mapNotNull null
-                if (loc.world != drop.world) return@mapNotNull null
-                val d = (loc.position - drop.position).lengthSquared()
-                if (d <= radiusSq) player to d else null
-            }
-            .minByOrNull { it.second }?.first ?: return
-        take(drop, taker)
+        val candidates = match.teams.flatMap { it.members }.sortedBy { it.uuid }.filterNot { isDenied(drop, it) }.map { player ->
+            val result = CompletableFuture<Pair<PlayerId, Double>?>()
+            scheduler.run(ExecutionScope.Entity(player.uuid), kotlin.time.Duration.ZERO) {
+                val loc = positions.positionOf(player)
+                val distance = loc?.takeIf { it.world == drop.world }?.let { (it.position - drop.position).lengthSquared() }
+                result.complete(if (distance != null && distance <= radiusSq) player to distance else null)
+            }.onRetired { result.complete(null) }
+            result
+        }
+        CompletableFuture.allOf(*candidates.toTypedArray()).thenRun {
+            val taker = candidates.mapNotNull { it.getNow(null) }.minWithOrNull(
+                compareBy<Pair<PlayerId, Double>> { it.second }.thenBy { it.first.uuid },
+            )?.first
+            if (taker != null) scheduler.run(ExecutionScope.Entity(taker.uuid), kotlin.time.Duration.ZERO) { take(drop, taker) }
+        }
     }
 
     private fun take(drop: StarDrop, taker: PlayerId) {
         val taken = drops.remove(drop.id) ?: return
         taken.entity?.let { world?.remove(it) }
-        world?.playPickup(taken.world, taken.position)
+        scheduler.run(regionScope(taken.world, taken.position), kotlin.time.Duration.ZERO) { world?.playPickup(taken.world, taken.position) }
         val total = store.add(drop.matchId, taker, taken.amount)
         eventBus.publish(StarsCollected(drop.matchId, taker, taken.amount, total))
     }

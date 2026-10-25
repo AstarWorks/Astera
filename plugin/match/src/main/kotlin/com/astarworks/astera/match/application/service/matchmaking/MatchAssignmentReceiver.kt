@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service.matchmaking
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -111,7 +112,7 @@ public class MatchAssignmentReceiver(
             return
         }
         val created = Session(assignment, from)
-        created.arrivalTimeout = scheduler.runLater(ticks(settings.arrivalTimeoutSeconds * TICKS_PER_SECOND)) { onArrivalTimeout(created) }
+        created.arrivalTimeout = scheduler.run(ExecutionScope.Global, ticks(settings.arrivalTimeoutSeconds * TICKS_PER_SECOND)) { onArrivalTimeout(created) }
         session = created
         reply(from, AssignmentStatus.Accepted(assignment.id))
         log.info("Accepted assignment {} ({} players, stage {})", assignment.id, assignment.players.size, assignment.stageId)
@@ -160,9 +161,9 @@ public class MatchAssignmentReceiver(
     private fun placeOnArena(current: Session, playerId: PlayerId) {
         val gateway = worlds ?: return
         val spawn = spawnFor(playerId) ?: return
-        if (!gateway.teleport(playerId, spawn.pos, spawn.world, spawn.yaw, spawn.pitch)) {
+        gateway.teleportAsync(playerId, spawn.pos, spawn.world, spawn.yaw, spawn.pitch).thenAccept { moved -> if (!moved) {
             log.warn("Arrival teleport of {} to {} failed (assignment {}).", playerId, spawn.world, current.assignment.id)
-        }
+        } }
     }
 
     private fun showWaiting(current: Session) {
@@ -199,9 +200,9 @@ public class MatchAssignmentReceiver(
         if (playerId !in current.arrived) return
         current.arrived -= playerId
         if (current.arrived.isNotEmpty()) return
-        scheduler.runLater(ticks(ABANDON_GRACE_SECONDS * TICKS_PER_SECOND)) {
-            if (session !== current || current.arrived.isNotEmpty()) return@runLater
-            val live = matches.findById(matchId)?.takeIf { it.phase != MatchPhase.ENDED } ?: return@runLater
+        scheduler.run(ExecutionScope.Global, ticks(ABANDON_GRACE_SECONDS * TICKS_PER_SECOND)) {
+            if (session !== current || current.arrived.isNotEmpty()) return@run
+            val live = matches.findById(matchId)?.takeIf { it.phase != MatchPhase.ENDED } ?: return@run
             log.warn("Match {} abandoned by all players; cancelling it.", live.id)
             lifecycle.end(live.id, EndReason.Cancelled("abandoned"))
         }
@@ -246,7 +247,7 @@ public class MatchAssignmentReceiver(
 
     private fun onMatchEnded(matchId: MatchId) {
         val current = session?.takeIf { it.matchId == matchId } ?: return
-        scheduler.runLater(ticks(settings.returnDelaySeconds * TICKS_PER_SECOND)) {
+        scheduler.run(ExecutionScope.Global, ticks(settings.returnDelaySeconds * TICKS_PER_SECOND)) {
             val participants = matches.findById(matchId)?.teams?.flatMap { it.members }.orEmpty()
             participants.forEach { returnToLobby(it) }
             finish(current)
@@ -262,7 +263,7 @@ public class MatchAssignmentReceiver(
     private fun bounceIfStray(playerId: PlayerId) {
         if (inActiveMatch(playerId)) return // reconnecting into their match
         notifier.notify(playerId, MessageKey("astera.match.matchmaking.wrong-server"), emptyMap())
-        scheduler.runLater(ticks(BOUNCE_DELAY_SECONDS * TICKS_PER_SECOND)) {
+        scheduler.run(ExecutionScope.Global, ticks(BOUNCE_DELAY_SECONDS * TICKS_PER_SECOND)) {
             if (!inActiveMatch(playerId)) returnToLobby(playerId)
         }
     }

@@ -32,7 +32,7 @@ public class PaperAdminTextPrompt(private val plugin: Plugin) : IAdminTextPrompt
         val callback = pending.remove(id) ?: return
         event.isCancelled = true
         val text = PlainTextComponentSerializer.plainText().serialize(event.message())
-        plugin.server.scheduler.runTask(plugin, Runnable { callback(text) })
+        event.player.scheduler.execute(plugin, Runnable { callback(text) }, null, 1L)
     }
 
     @EventHandler

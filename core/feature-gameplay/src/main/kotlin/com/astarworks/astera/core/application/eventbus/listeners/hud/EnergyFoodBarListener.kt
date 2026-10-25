@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.application.eventbus.listeners.hud
 
+import java.util.concurrent.ConcurrentHashMap
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.FoodMutationError
 import com.astarworks.astera.core.application.port.outbound.IPlayerFoodGateway
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
@@ -32,14 +35,14 @@ import com.astarworks.astera.core.domain.resource.ResourceType
 public class EnergyFoodBarListener(
     private val pools: IResourcePoolService,
     private val food: IPlayerFoodGateway,
-    scheduler: IScheduler,
+    private val scheduler: IScheduler,
     resyncPeriodTicks: Long = RESYNC_PERIOD_TICKS,
 ) {
-    private val joined: MutableSet<PlayerId> = linkedSetOf()
-    private val lastLevel: MutableMap<PlayerId, Int> = mutableMapOf()
+    private val joined: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
+    private val lastLevel: MutableMap<PlayerId, Int> = ConcurrentHashMap()
 
     private val task: IScheduler.TaskHandle =
-        scheduler.runRepeatingTicks(resyncPeriodTicks, resyncPeriodTicks) { resyncAll() }
+        scheduler.runRepeatingTicks(ExecutionScope.Global, resyncPeriodTicks, resyncPeriodTicks) { resyncAll() }
 
     public fun stop() {
         task.cancel()
@@ -72,7 +75,7 @@ public class EnergyFoodBarListener(
     }
 
     private fun resyncAll() {
-        for (playerId in joined.toList()) sync(playerId, force = true)
+        for (playerId in joined.toList()) scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) { sync(playerId, force = true) }
     }
 
     private fun sync(playerId: PlayerId, force: Boolean) {

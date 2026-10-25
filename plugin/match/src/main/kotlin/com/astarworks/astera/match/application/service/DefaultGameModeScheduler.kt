@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.match.MatchId
@@ -40,7 +41,7 @@ public class DefaultGameModeScheduler(
         active[matchId]?.handle?.cancel()
 
         val handle: IScheduler.TaskHandle? = if (mode.tickPeriodTicks() > 0L) {
-            scheduler.runRepeatingTicks(
+            scheduler.runRepeatingTicks(ExecutionScope.Global,
                 initialDelayTicks = mode.tickPeriodTicks(),
                 periodTicks = mode.tickPeriodTicks(),
             ) {

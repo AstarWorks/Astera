@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.service.effect
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.WorldGatewayError
 import com.astarworks.astera.core.domain.Result
@@ -48,18 +50,18 @@ internal class NoopWorldGatewayForEffects(
         log.debug("noop playSound({}, {}, key={})", world, at, sound.key)
     }
 
-    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean {
+    override fun teleportAsync(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): CompletableFuture<Boolean> {
         log.debug("noop teleport({}, {}, {})", playerId, at, world)
-        return false
+        return CompletableFuture.completedFuture(false)
     }
 
-    override fun spectatorSpawn(matchId: MatchId, playerId: PlayerId): Result<Unit, WorldGatewayError> {
+    override fun spectatorSpawn(matchId: MatchId, playerId: PlayerId): CompletableFuture<Result<Unit, WorldGatewayError>> {
         log.debug("noop spectatorSpawn({}, {})", matchId, playerId)
-        return Result.Failure(WorldGatewayError.UnknownMatch(matchId))
+        return CompletableFuture.completedFuture(Result.Failure(WorldGatewayError.UnknownMatch(matchId)))
     }
 
-    override fun lobbySpawn(playerId: PlayerId): Result<Unit, WorldGatewayError> {
+    override fun lobbySpawn(playerId: PlayerId): CompletableFuture<Result<Unit, WorldGatewayError>> {
         log.debug("noop lobbySpawn({})", playerId)
-        return Result.Failure(WorldGatewayError.UnknownPlayer(playerId))
+        return CompletableFuture.completedFuture(Result.Failure(WorldGatewayError.UnknownPlayer(playerId)))
     }
 }

@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.admin.panel
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.admin.panel.AdminPanelUi.pager
 import com.astarworks.astera.core.application.command.ArgumentType
@@ -66,12 +67,12 @@ public class AdminCommandConsole(
     private val root: () -> CommandSpec.Literal,
     private val invoker: () -> CommandInvoker,
     private val authorizer: () -> CommandAuthorizer,
-    scheduler: IScheduler,
+    private val scheduler: IScheduler,
     private val transfers: () -> IServerTransferGateway?,
     private val lobbyRepaster: () -> ILobbyRepaster?,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private val scope = CoroutineScope(SupervisorJob() + scheduler.mainDispatcher)
+    private val scope = CoroutineScope(SupervisorJob() + scheduler.dispatcher(ExecutionScope.Global))
 
     private class Form(val action: AdminPanelAction) {
         val values: MutableMap<String, String> = LinkedHashMap()
@@ -671,7 +672,7 @@ public class AdminCommandConsole(
         }
         val targetId = action.playerArg?.let { form.values[it] }
         val summary = preview(form)
-        scope.launch {
+        scope.launch(scheduler.dispatcher(ExecutionScope.Entity(viewer.id.uuid))) {
             val ok = try {
                 runAction(actor, action, typed, reply)
             } catch (e: CancellationException) {

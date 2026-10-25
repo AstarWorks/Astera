@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * Outbound port: drives per-tick regen of Stamina / Mana / (rare-case Ammo)
  * resource pools (Wave 5k, ADR-0080).
  *
- * Wired to [IScheduler.runRepeating] at period = 1 tick. Each [tick] call:
+ * Wired to [IScheduler.repeat] at period = 1 tick. Each [tick] call:
  *
  *   1. Walks every initialised player's [com.astarworks.astera.core.domain.resource.PlayerResourcePool].
  *   2. For each [com.astarworks.astera.core.domain.resource.ResourceType]

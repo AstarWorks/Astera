@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service.replay
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.combat.domain.event.SkillCast
@@ -104,7 +105,7 @@ public class ReplayCaptureEngine(
         // Key-frame tick at the default cadence; per-recording cadence
         // override is honoured inside the tick by skipping frames whose
         // tick-count modulo the recording's own keyFramePer isn't zero.
-        scheduledTasks += scheduler.runRepeatingTicks(
+        scheduledTasks += scheduler.runRepeatingTicks(ExecutionScope.Global,
             initialDelayTicks = KEYFRAME_TICKER_PERIOD,
             periodTicks = KEYFRAME_TICKER_PERIOD,
         ) { tickKeyFrames() }

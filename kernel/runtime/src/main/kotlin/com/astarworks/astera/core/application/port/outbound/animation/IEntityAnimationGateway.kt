@@ -38,7 +38,7 @@ public interface IEntityAnimationGateway {
     /**
      * Trigger the vanilla mob death wobble animation. The despawn itself
      * is **not** scheduled here — callers compose
-     * `IScheduler.runLater(20.ticks) { mobSpawner.despawn(handle) }`
+     * `IScheduler.run(20.ticks) { mobSpawner.despawn(handle) }`
      * to delay despawn so the animation completes.
      */
     public fun playMobDeathAnimation(

@@ -1,5 +1,6 @@
 package com.astarworks.astera.items.application.service.training
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -60,6 +61,7 @@ public class TrainingRackService(
     private val players: IPlayerGateway,
     private val messages: IMessageRenderer,
     private val matches: () -> IMatchRepository?,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
     private val onClaimed: (PlayerId, ItemId) -> Unit = { _, _ -> },
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -110,7 +112,9 @@ public class TrainingRackService(
     /** Players who are in a match must not carry training weapons, whatever order the match events came in. */
     public fun sweep(): Int {
         val repo = matches() ?: return 0
-        return inventory.holders().filter { repo.findMatchOf(it) != null }.sumOf { strip(it) }
+        val holders = inventory.holders().filter { repo.findMatchOf(it) != null }
+        holders.forEach { id -> scheduler.run(ExecutionScope.Entity(id.uuid), kotlin.time.Duration.ZERO) { strip(id) } }
+        return holders.size
     }
 
     /** A formed match takes [players] out of the lobby. */

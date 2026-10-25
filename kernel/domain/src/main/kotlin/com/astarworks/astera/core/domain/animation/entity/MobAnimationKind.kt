@@ -31,7 +31,7 @@ public sealed interface MobAnimationKind {
     /**
      * Death wobble animation. Optionally followed by a delayed despawn —
      * the despawn schedule is the caller's responsibility (canonical:
-     * `IScheduler.runLater(20.ticks) { mobSpawner.despawn(handle) }`).
+     * `IScheduler.run(20.ticks) { mobSpawner.despawn(handle) }`).
      */
     public data object Death : MobAnimationKind
 

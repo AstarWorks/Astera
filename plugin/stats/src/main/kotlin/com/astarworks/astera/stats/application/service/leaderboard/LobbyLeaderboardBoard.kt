@@ -1,5 +1,7 @@
 package com.astarworks.astera.stats.application.service.leaderboard
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDynamicMessages
 import com.astarworks.astera.core.application.port.outbound.IHologramGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository
@@ -41,7 +43,7 @@ public class LobbyLeaderboardBoard(
     private var handle: HologramHandle? = null
 
     private val task: IScheduler.TaskHandle =
-        scheduler.runRepeatingTicks(initialDelayTicks = FIRST_REFRESH_TICKS, periodTicks = refreshTicks) { refresh() }
+        scheduler.runRepeatingTicks(ExecutionScope.Io, initialDelayTicks = FIRST_REFRESH_TICKS, periodTicks = refreshTicks) { refresh() }
 
     public fun stop() {
         task.cancel()
@@ -53,8 +55,10 @@ public class LobbyLeaderboardBoard(
     public fun refresh() {
         val keys = publishRows()
         // Re-render even when the keys are unchanged: the text under them is what moved.
-        handle?.let { current -> holograms.updateTextContent(current, keys).onFailure { handle = null } }
-        if (handle == null) spawn(keys)
+        scheduler.run(regionScope(world, position), kotlin.time.Duration.ZERO) {
+            handle?.let { current -> holograms.updateTextContent(current, keys).onFailure { handle = null } }
+            if (handle == null) spawn(keys)
+        }
     }
 
     private fun spawn(keys: List<MessageKey>) {

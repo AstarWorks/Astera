@@ -71,7 +71,7 @@ internal class PaperLobbyLaneHolograms(
             }
         }
         subscription = board.onChanged { lane ->
-            if (plugin.server.isPrimaryThread) refresh(lane) else plugin.server.scheduler.runTask(plugin, Runnable { refresh(lane) })
+            displays[lane]?.scheduler?.execute(plugin, Runnable { refresh(lane) }, null, 1L)
         }
     }
 

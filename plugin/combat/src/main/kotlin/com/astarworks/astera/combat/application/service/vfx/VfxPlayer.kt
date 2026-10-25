@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.service.vfx
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayHandle
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -179,10 +181,10 @@ public class VfxPlayer(
             finish(instance)
         } else {
             instances += instance
-            if (ticker == null) ticker = scheduler.runRepeating(ticks(1), ticks(1)) {
+            if (ticker == null) ticker = scheduler.repeat(ExecutionScope.Global, ticks(1), ticks(1)) {
                 // Equal-tick FIFO dispatch puts this after already queued dash steps.
                 // Sample the anchor after movement, not halfway through the mechanic queue.
-                scheduler.runLater(ticks(0)) { tickAll() }
+                scheduler.run(ExecutionScope.Global, ticks(0)) { tickAll() }
             }
         }
         return Result.success(Unit)
@@ -198,16 +200,19 @@ public class VfxPlayer(
 
     private fun tickAll() {
         for (instance in instances.toList()) {
-            // play() already processed age 0. A delayed cast can precede our shared ticker
-            // in this same server tick; it must not immediately consume age 1 as well.
-            if (instance.startedAt == scheduler.currentTick()) continue
-            instance.age++
-            try {
-                if (advance(instance)) finish(instance)
-            } catch (ex: Exception) {
-                log.warn("VFX {} failed at age {}; stopping it", instance.request.vfxId, instance.age, ex)
-                finish(instance)
-            }
+            scheduler.run(instance.request.anchorEntityId?.let { ExecutionScope.Entity(it.uuid) } ?: regionScope(instance.request.world, instance.position), kotlin.time.Duration.ZERO) {
+
+                // play() already processed age 0. A delayed cast can precede our shared ticker
+                // in this same server tick; it must not immediately consume age 1 as well.
+                if (instance.startedAt == scheduler.currentTick()) return@run
+                instance.age++
+                try {
+                    if (advance(instance)) finish(instance)
+                } catch (ex: Exception) {
+                    log.warn("VFX {} failed at age {}; stopping it", instance.request.vfxId, instance.age, ex)
+                    finish(instance)
+                }
+                        }
         }
         if (instances.isEmpty()) {
             ticker?.cancel()

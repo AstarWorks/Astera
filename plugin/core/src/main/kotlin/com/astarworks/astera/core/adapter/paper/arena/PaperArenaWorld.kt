@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.arena
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.core.application.port.outbound.IArenaBuilder
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.domain.stage.ArenaBlockPos
@@ -17,7 +19,7 @@ import org.bukkit.generator.BiomeProvider
 import org.bukkit.generator.ChunkGenerator
 import org.bukkit.generator.WorldInfo
 import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.scheduler.BukkitTask
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask
 import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Path
@@ -52,7 +54,7 @@ internal class PaperArenaWorld(
 
     /** Builds spread over ticks, in submission order; at most one per stage. */
     private val jobs = LinkedHashMap<StageId, Job>()
-    private var pump: BukkitTask? = null
+    private var pump: ScheduledTask? = null
 
     /** Y below which a player is killed in [worldName], or `null` when no layout stage lives there. */
     fun killY(worldName: String): Int? =
@@ -67,8 +69,8 @@ internal class PaperArenaWorld(
     override fun ensureBuilt(stageId: StageId): Boolean {
         val stage = stages()?.find(stageId) ?: return true
         if (stage.layout == null) return true
-        if (!server.isPrimaryThread) {
-            server.scheduler.runTask(plugin, Runnable { build(stage, urgent = true) })
+        if (!org.bukkit.Bukkit.isGlobalTickThread()) {
+            server.globalRegionScheduler.execute(plugin, Runnable { build(stage, urgent = true) })
             return true
         }
         return build(stage, urgent = true)
@@ -76,9 +78,9 @@ internal class PaperArenaWorld(
 
     override fun repairLater(stageId: StageId) {
         if (!repairs.add(stageId)) return
-        server.scheduler.runTaskLater(
+        server.globalRegionScheduler.runDelayed(
             plugin,
-            Runnable {
+            {
                 repairs.remove(stageId)
                 runCatching { repair(stageId) }.onFailure { log.warn("Arena repair of '{}' failed: {}", stageId.value, it.message) }
             },
@@ -114,7 +116,7 @@ internal class PaperArenaWorld(
             val markers = readMarkers()
             val expected = Marker(layout.markerVersion, plan.digest(), plan.minX, plan.maxX, plan.minY, plan.maxY, plan.minZ, plan.maxZ)
             val previous = markers[stage.id.value]?.let(Marker::parse)
-            if (previous == expected && sampleIntact(world, plan)) {
+            if (previous == expected && org.bukkit.Bukkit.isOwnedByCurrentRegion(world, plan.minX shr 4, plan.minZ shr 4, plan.maxX shr 4, plan.maxZ shr 4) && sampleIntact(world, plan)) {
                 log.info("Arena '{}' already built (marker {})", stage.id.value, layout.markerVersion)
                 return true
             }
@@ -122,7 +124,7 @@ internal class PaperArenaWorld(
             // marker, clear the new bounds only when something is standing there.
             val clearBox = when {
                 previous != null -> Box(previous.minX, previous.maxX, previous.minY, previous.maxY, previous.minZ, previous.maxZ)
-                !sampleEmpty(world, plan) -> Box(plan.minX, plan.maxX, plan.minY, plan.maxY, plan.minZ, plan.maxZ)
+                !org.bukkit.Bukkit.isOwnedByCurrentRegion(world, plan.minX shr 4, plan.minZ shr 4, plan.maxX shr 4, plan.maxZ shr 4) || !sampleEmpty(world, plan) -> Box(plan.minX, plan.maxX, plan.minY, plan.maxY, plan.minZ, plan.maxZ)
                 else -> null
             }
             val steps = sequence {
@@ -178,11 +180,12 @@ internal class PaperArenaWorld(
     // ── tick pump ─────────────────────────────────────────────────────────
 
     /** One build: [steps] does the work a slice at a time, [onDone] runs once everything was placed. */
-    private class Job(
+    private inner class Job(
         val stageId: StageId,
-        private val steps: Iterator<Unit>,
+        private val steps: Iterator<CompletableFuture<Void>>,
         private val onDone: (elapsedMs: Long, ticks: Int) -> Unit,
     ) {
+        private val submitted = mutableListOf<CompletableFuture<Void>>()
         private val startNs = System.nanoTime()
         private var ticks = 0
 
@@ -191,13 +194,20 @@ internal class PaperArenaWorld(
             ticks++
             var n = 0
             while (steps.hasNext()) {
-                steps.next()
+                submitted += steps.next()
                 if ((++n and 63) == 0 && System.nanoTime() >= deadlineNs) return !steps.hasNext()
             }
             return true
         }
 
-        fun complete() = onDone((System.nanoTime() - startNs) / 1_000_000, ticks)
+        fun complete() {
+            CompletableFuture.allOf(*submitted.toTypedArray()).whenComplete { _, failure ->
+                server.globalRegionScheduler.execute(plugin, Runnable {
+                    if (failure == null) onDone((System.nanoTime() - startNs) / 1_000_000, ticks)
+                    else log.error("Arena build of '{}' failed", stageId.value, failure)
+                })
+            }
+        }
     }
 
     private fun finishNow(job: Job) {
@@ -208,7 +218,7 @@ internal class PaperArenaWorld(
 
     private fun startPump() {
         if (pump != null) return
-        pump = server.scheduler.runTaskTimer(plugin, Runnable { tickPump() }, 1L, 1L)
+        pump = server.globalRegionScheduler.runAtFixedRate(plugin, { tickPump() }, 1L, 1L)
     }
 
     private fun tickPump() {
@@ -249,7 +259,7 @@ internal class PaperArenaWorld(
     }
 
     /** Places the plan one block per step; with [onlyMissing] only blocks that differ and are not objective cells. */
-    private fun pasteSteps(world: World, plan: ArenaBuildPlan, onlyMissing: Boolean, counter: IntArray?): Sequence<Unit> = sequence {
+    private fun pasteSteps(world: World, plan: ArenaBuildPlan, onlyMissing: Boolean, counter: IntArray?): Sequence<CompletableFuture<Void>> = sequence {
         val cache = HashMap<String, BlockData?>()
         fun data(state: String): BlockData? = cache.getOrPut(state) {
             runCatching { server.createBlockData(state) }
@@ -259,28 +269,41 @@ internal class PaperArenaWorld(
         for ((pos, state) in plan.blocks) {
             if (onlyMissing && pos in plan.volatileCells) continue
             val wanted = data(state) ?: continue
-            val block = world.getBlockAt(pos.x, pos.y, pos.z)
-            if (onlyMissing && block.blockData == wanted) continue
-            block.setBlockData(wanted, false)
-            if (counter != null) counter[0]++
-            yield(Unit)
+            yield(atChunk(world, pos.x, pos.z) {
+                val block = world.getBlockAt(pos.x, pos.y, pos.z)
+                if (!onlyMissing || block.blockData != wanted) {
+                    block.setBlockData(wanted, false)
+                    if (counter != null) synchronized(counter) { counter[0]++ }
+                }
+            })
         }
+    }
+
+    private fun atChunk(world: World, x: Int, z: Int, block: () -> Unit): CompletableFuture<Void> {
+        val done = CompletableFuture<Void>()
+        val action = Runnable {
+            try { block(); done.complete(null) } catch (t: Throwable) { done.completeExceptionally(t) }
+        }
+        if (org.bukkit.Bukkit.isOwnedByCurrentRegion(world, x shr 4, z shr 4)) action.run()
+        else server.regionScheduler.execute(plugin, world, x shr 4, z shr 4, action)
+        return done
     }
 
     private data class Box(val minX: Int, val maxX: Int, val minY: Int, val maxY: Int, val minZ: Int, val maxZ: Int)
 
     /** Wipes [box] (plus a small margin) one column per step: the previous build may have been larger or elsewhere. */
-    private fun clearSteps(world: World, box: Box): Sequence<Unit> = sequence {
+    private fun clearSteps(world: World, box: Box): Sequence<CompletableFuture<Void>> = sequence {
         val air = server.createBlockData(Material.AIR)
         val minY = box.minY - 2
         val maxY = box.maxY + 12
         for (x in box.minX - 4..box.maxX + 4) {
             for (z in box.minZ - 4..box.maxZ + 4) {
-                for (y in minY..maxY) {
-                    val block = world.getBlockAt(x, y, z)
-                    if (!block.type.isAir) block.setBlockData(air, false)
-                }
-                yield(Unit)
+                yield(atChunk(world, x, z) {
+                    for (y in minY..maxY) {
+                        val block = world.getBlockAt(x, y, z)
+                        if (!block.type.isAir) block.setBlockData(air, false)
+                    }
+                })
             }
         }
     }

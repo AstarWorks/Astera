@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.adapter.paper.animation
 
+import java.util.concurrent.ConcurrentHashMap
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry
@@ -86,7 +89,7 @@ public class PaperSkinRigAnimator(
         var lastZ: Double = player.location.z
     }
 
-    private val rigs = LinkedHashMap<PlayerId, Rig>()
+    private val rigs = ConcurrentHashMap<PlayerId, Rig>()
     private var task: IScheduler.TaskHandle? = null
 
     /** Registers the quit listener; call once from the plugin's `onEnable`. */
@@ -107,7 +110,7 @@ public class PaperSkinRigAnimator(
     }
 
     override fun play(playerId: PlayerId, animation: CustomAnimationId): Result<Unit, SkinRigError> {
-        if (!server.isPrimaryThread) return Result.failure(SkinRigError.Platform("off-main"))
+        if (server.getPlayer(playerId.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return Result.failure(SkinRigError.Platform("off-main"))
         val definition = registry()?.find(animation) ?: return Result.failure(SkinRigError.UnknownAnimation(animation))
         val player = server.getPlayer(playerId.uuid) ?: return Result.failure(SkinRigError.UnknownPlayer(playerId))
         if (player.isDead) return Result.failure(SkinRigError.Platform("player-dead"))
@@ -163,18 +166,21 @@ public class PaperSkinRigAnimator(
     // ---- tick -----------------------------------------------------------------
 
     private fun ensureTask() {
-        if (task?.isActive == true) return
-        task = scheduler.runRepeating(ticks(1), ticks(1)) { tick() }
+        if (task?.isCancelled == false) return
+        task = scheduler.repeat(ExecutionScope.Global, ticks(1), ticks(1)) { tick() }
     }
 
     private fun tick() {
         for (rig in rigs.values.toList()) {
-            try {
-                step(rig)
-            } catch (e: Exception) {
-                log.warn("Skin rig tick failed for {}; tearing it down", rig.player.name, e)
-                teardown(rig)
-            }
+            scheduler.run(ExecutionScope.Entity(rig.player.uniqueId), kotlin.time.Duration.ZERO) {
+
+                try {
+                    step(rig)
+                } catch (e: Exception) {
+                    log.warn("Skin rig tick failed for {}; tearing it down", rig.player.name, e)
+                    teardown(rig)
+                }
+                        }
         }
         if (rigs.isEmpty()) {
             task?.cancel()
@@ -197,8 +203,11 @@ public class PaperSkinRigAnimator(
         val transforms = SkinRigTransforms.compute(rig.playback.frame(), rig.slim, headLook(rig))
         val at = anchor(rig)
         for ((bone, display) in rig.displays) {
-            display.teleport(at)
-            display.transformation = transformation(transforms.bones.getValue(bone), cancelItemFlip = true)
+            display.teleportAsync(at).thenAccept { moved ->
+                if (moved) scheduler.run(ExecutionScope.Entity(display.uniqueId), kotlin.time.Duration.ZERO) {
+                    display.transformation = transformation(transforms.bones.getValue(bone), cancelItemFlip = true)
+                }
+            }
         }
         updateHeld(rig, at, transforms.heldItem)
         if (!player.isInvisible) player.isInvisible = true
@@ -230,8 +239,9 @@ public class PaperSkinRigAnimator(
             rig.heldStack = current.clone()
             return
         }
-        display.teleport(at)
-        display.transformation = transformation(part)
+        display.teleportAsync(at).thenAccept { moved ->
+            if (moved) scheduler.run(ExecutionScope.Entity(display.uniqueId), kotlin.time.Duration.ZERO) { display.transformation = transformation(part) }
+        }
     }
 
     // ---- teardown -------------------------------------------------------------

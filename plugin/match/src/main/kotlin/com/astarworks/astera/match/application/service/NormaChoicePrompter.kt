@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
@@ -38,7 +39,7 @@ public class NormaChoicePrompter(
         val cfg = configOf(match.id)
         val spec = NormaChoiceGuiSpec.build(hud.level, hud.maxLevel, cfg.starsGoalAt(hud.level), cfg.killsGoalAt(hud.level))
         if (!guiAdapter.open(player, spec)) return
-        scheduler.runLaterTicks(WINDOW_TICKS) {
+        scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), WINDOW_TICKS) {
             val p = mcServer.findPlayer(playerId) ?: return@runLaterTicks
             if (guiAdapter.currentSpec(p)?.id == NormaChoiceGuiSpec.ID) guiAdapter.close(p)
         }

@@ -185,7 +185,7 @@ public class PaperDisplayEntityGateway(
             return
         }
         display.teleportDuration = teleportTicks.coerceIn(0, 59)
-        display.teleport(Location(display.world, at.x, at.y, at.z, yaw, pitch))
+        display.teleportAsync(Location(display.world, at.x, at.y, at.z, yaw, pitch))
     }
 
     private fun transformation(t: DisplayTransform): Transformation = Transformation(

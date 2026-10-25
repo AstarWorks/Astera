@@ -33,6 +33,7 @@ import org.bukkit.event.player.PlayerMoveEvent
 internal class PaperLobbyRulesListener(
     private val worldName: String,
     private val rules: LobbyRulesYaml,
+    private val plugin: org.bukkit.plugin.Plugin,
     private val spawn: () -> Location?,
 ) : Listener {
 
@@ -48,8 +49,10 @@ internal class PaperLobbyRulesListener(
     @EventHandler(priority = EventPriority.LOWEST)
     fun onJoin(event: PlayerJoinEvent) {
         val target = spawn() ?: return
-        event.player.teleport(target)
-        event.player.foodLevel = 20
+        val player = event.player
+        player.teleportAsync(target).thenAccept { moved ->
+            if (moved) player.scheduler.execute(plugin, Runnable { player.foodLevel = 20 }, null, 1L)
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -118,7 +121,7 @@ internal class PaperLobbyRulesListener(
         val player = event.player
         player.fallDistance = 0f
         player.velocity = player.velocity.zero()
-        player.teleport(target)
+        player.teleportAsync(target)
     }
 
     companion object {

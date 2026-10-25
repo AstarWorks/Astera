@@ -46,10 +46,10 @@ public class InMemoryAdminPlayerGateway : IAdminPlayerGateway {
     override fun onlinePlayers(): List<AdminOnlinePlayer> =
         roster.map { (id, name) -> AdminOnlinePlayer(id, name) }.sortedBy { it.name.lowercase() }
 
-    override fun teleportToPlayer(who: PlayerId, destination: PlayerId): Boolean {
-        if (who !in roster || destination !in roster) return false
+    override fun teleportToPlayer(who: PlayerId, destination: PlayerId): java.util.concurrent.CompletableFuture<Boolean> {
+        if (who !in roster || destination !in roster) return java.util.concurrent.CompletableFuture.completedFuture(false)
         teleports += who to destination
-        return true
+        return java.util.concurrent.CompletableFuture.completedFuture(true)
     }
 
     override fun toggleGameMode(player: PlayerId): AdminGameMode? {

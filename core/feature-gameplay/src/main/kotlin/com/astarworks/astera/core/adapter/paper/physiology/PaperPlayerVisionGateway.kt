@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.physiology
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IPlayerVisionGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory
  * expiry to Bukkit native — no `IScheduler` task tracking the BLINDNESS
  * lifetime. This is the deliberate divergence from
  * [PaperPlayerSpeedGateway] / [PaperPlayerMovementGateway] (which both
- * schedule expiry via `IScheduler.runLaterTicks`): doubling up Bukkit's
+ * schedule expiry via `IScheduler.runTicks`): doubling up Bukkit's
  * potion-tick + an Astera-side scheduler would create the classic
  * "two timers, one truth" bug where overlap windows desync. The
  * trade-off: a query of `currentFogRadius` after expiry returns the
@@ -54,7 +55,7 @@ import org.slf4j.LoggerFactory
  *
  * Bukkit `Player.addPotionEffect` requires the main thread. Same
  * contract as ADR-0144 / 0145 / 0146 / 0147 / 0148 — off-main callers
- * must round-trip through `scheduler.runLater(Duration.ZERO, ...)`.
+ * must round-trip through `scheduler.run(ExecutionScope.Global, Duration.ZERO, ...)`.
  *
  * # Phase 1 PoC limitations
  *

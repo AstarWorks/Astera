@@ -104,15 +104,15 @@ public class RouteBlockInteractionListener(
             }
 
             is BlockInteractionAction.TeleportTo -> {
-                val ok = worldGateway.teleport(event.playerId, action.position, action.world)
-                if (!ok) {
+                val ok = worldGateway.teleportAsync(event.playerId, action.position, action.world)
+                ok.thenAccept { moved -> if (!moved) {
                     log.debug(
                         "Block interaction TeleportTo failed for {} → {} ({})",
                         event.playerId,
                         action.position,
                         action.world,
                     )
-                }
+                } }
             }
 
             is BlockInteractionAction.Custom -> {

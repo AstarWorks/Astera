@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.hologram
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.HologramError
 import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities
 import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntityJanitor
@@ -104,10 +105,10 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * The Bukkit Display entity API (spawn / remove / setters on `Display`,
  * `TextDisplay`, `ItemDisplay`, `BlockDisplay`) is **main-thread only** per
- * Bukkit docs. Every write method checks [Server.isPrimaryThread] up front:
+ * Bukkit docs. Every write method checks region ownership up front:
  *
  *  - Off-main writes return [HologramError.Storage] with `"off-main: <op>"`.
- *    Callers should defer via `scheduler.runLater(Duration.ZERO, ...)` and
+ *    Callers should defer via `scheduler.run(ExecutionScope.Global, Duration.ZERO, ...)` and
  *    retry. We deliberately do **not** auto-defer (unlike Camera) — hologram
  *    mutations are typically tick-scheduled by the transition controller
  *    which already runs main-thread, so an off-main call here signals a
@@ -224,6 +225,13 @@ public class PaperHologramGateway(
     /** ownerKey → handle of the live hologram of that owner. */
     private val owners: MutableMap<String, HologramHandle> = HashMap()
 
+    private fun owns(hologram: Hologram): Boolean {
+        val world = server.getWorld(hologram.worldId.value) ?: return false
+        return org.bukkit.Bukkit.isOwnedByCurrentRegion(
+            Location(world, hologram.position.x, hologram.position.y, hologram.position.z),
+        )
+    }
+
     private companion object {
         /** Blocks around an owned hologram within which untagged legacy text displays are removed. */
         const val LEGACY_SWEEP_RADIUS: Double = 2.0
@@ -232,7 +240,7 @@ public class PaperHologramGateway(
     // ─── Lifecycle ────────────────────────────────────────────────────────
 
     override fun spawn(hologram: Hologram): Result<HologramHandle, HologramError> {
-        if (!server.isPrimaryThread) {
+        if (!owns(hologram)) {
             return Result.failure(HologramError.Storage("off-main: spawn"))
         }
         val world = server.getWorld(hologram.worldId.value)
@@ -296,7 +304,7 @@ public class PaperHologramGateway(
         managed?.release(claimKey)
         removed?.ownerKey?.let { owners.remove(it) }
         val entityId = entities.remove(handle) ?: return Result.success(Unit)
-        if (!server.isPrimaryThread) {
+        if (removed != null && !owns(removed)) {
             return Result.failure(HologramError.Storage("off-main: despawn"))
         }
         server.getEntity(entityId)?.remove()
@@ -360,7 +368,7 @@ public class PaperHologramGateway(
             ?: return Result.failure(HologramError.UnknownWorld(targetWorldId))
         return mutate(handle, "teleport") { entity, _ ->
             live[handle] = current.copy(position = newPosition, worldId = targetWorldId)
-            entity.teleport(Location(world, newPosition.x, newPosition.y, newPosition.z))
+            entity.teleportAsync(Location(world, newPosition.x, newPosition.y, newPosition.z))
         }
     }
 
@@ -370,7 +378,7 @@ public class PaperHologramGateway(
     ): Result<Unit, HologramError> {
         val current = live[handle]
             ?: return Result.failure(HologramError.UnknownHandle(handle))
-        if (!server.isPrimaryThread) {
+        if (!owns(current)) {
             // Visibility re-apply touches Bukkit Entity + Player APIs
             // (`isVisibleByDefault`, `showEntity`, `hideEntity`) which are
             // main-thread only. Same posture as the other mutators here:
@@ -588,7 +596,7 @@ public class PaperHologramGateway(
     ): Result<Unit, HologramError> {
         val current = live[handle]
             ?: return Result.failure(HologramError.UnknownHandle(handle))
-        if (!server.isPrimaryThread) {
+        if (!owns(current)) {
             return Result.failure(HologramError.Storage("off-main: $op"))
         }
         val entity = entities[handle]?.let(server::getEntity) as? Display
@@ -619,7 +627,7 @@ public class PaperHologramGateway(
                 ),
             )
         }
-        if (!server.isPrimaryThread) {
+        if (!owns(current)) {
             return Result.failure(HologramError.Storage("off-main: $op"))
         }
         val entity = entities[handle]?.let(server::getEntity) as? TextDisplay
@@ -644,7 +652,7 @@ public class PaperHologramGateway(
                 ),
             )
         }
-        if (!server.isPrimaryThread) {
+        if (!owns(current)) {
             return Result.failure(HologramError.Storage("off-main: $op"))
         }
         val entity = entities[handle]?.let(server::getEntity) as? ItemDisplay
@@ -669,7 +677,7 @@ public class PaperHologramGateway(
                 ),
             )
         }
-        if (!server.isPrimaryThread) {
+        if (!owns(current)) {
             return Result.failure(HologramError.Storage("off-main: $op"))
         }
         val entity = entities[handle]?.let(server::getEntity) as? BlockDisplay

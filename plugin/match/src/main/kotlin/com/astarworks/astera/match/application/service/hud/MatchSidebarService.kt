@@ -1,5 +1,8 @@
 package com.astarworks.astera.match.application.service.hud
 
+import java.util.concurrent.ConcurrentHashMap
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -45,10 +48,10 @@ public class MatchSidebarService(
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
-    private val failureLogged: MutableSet<PlayerId> = mutableSetOf()
-    private val lastSent: MutableMap<PlayerId, HudLayout.Sidebar> = mutableMapOf()
+    private val failureLogged: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
+    private val lastSent: MutableMap<PlayerId, HudLayout.Sidebar> = ConcurrentHashMap()
 
-    private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(
+    private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(ExecutionScope.Global,
         initialDelayTicks = pollPeriodTicks,
         periodTicks = pollPeriodTicks,
     ) {
@@ -97,7 +100,7 @@ public class MatchSidebarService(
         val mode = modeOf(match.id) ?: return
         val model = MatchSidebarModel.build(mode, match, scheduler.currentTick())
         for (team in match.teams) {
-            for (member in team.members) push(match, model, member)
+            for (member in team.members) scheduler.run(ExecutionScope.Entity(member.uuid), kotlin.time.Duration.ZERO) { push(match, model, member) }
         }
     }
 

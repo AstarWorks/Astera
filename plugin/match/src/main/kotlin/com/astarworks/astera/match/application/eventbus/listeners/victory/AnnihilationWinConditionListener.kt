@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.eventbus.listeners.victory
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ticks
@@ -87,7 +88,7 @@ public class AnnihilationWinConditionListener(
         if (event.newPhase != NexusPhase.Phase4SuddenDeath) return
         // One-shot timer: at sudden-death expiry, ask the tracker for the
         // final outcome and end the match regardless of who wins / draw.
-        scheduler.runLater(ticks(suddenDeathTicks)) {
+        scheduler.run(ExecutionScope.Global, ticks(suddenDeathTicks)) {
             val outcome = tracker.evaluateWinCondition(event.matchId, scheduler.currentTick())
             // InProgress at SD timer expiry is unexpected (the rules say SD must
             // resolve at elapsed >= suddenDeathTicks; a single-team playtest is the
