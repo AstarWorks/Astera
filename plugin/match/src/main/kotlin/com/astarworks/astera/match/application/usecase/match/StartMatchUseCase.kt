@@ -51,6 +51,7 @@ public class StartMatchUseCase(
     private val matches: IMatchRepository,
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
+    private val arenaReady: (StageId) -> Boolean = { true },
 ) {
 
     public fun execute(
@@ -66,6 +67,8 @@ public class StartMatchUseCase(
         if (activeForStage) {
             return Result.failure(StartMatchError.AlreadyActive(stageId))
         }
+
+        if (!arenaReady(stageId)) return Result.failure(StartMatchError.ArenaNotReady(stageId))
 
         val resolvedTeamIds: List<TeamId> = teamIds
             ?: defaultTeamIdsFor(modeKey)
@@ -139,6 +142,10 @@ public sealed class StartMatchError {
 
     public data class StageNotFound(val stageId: StageId) : StartMatchError() {
         override val messageKey: MessageKey = MessageKey("astera.match.error.stage-not-found")
+    }
+
+    public data class ArenaNotReady(val stageId: StageId) : StartMatchError() {
+        override val messageKey: MessageKey = MessageKey("astera.match.error.arena-not-ready")
     }
 
     public data class AlreadyActive(val stageId: StageId) : StartMatchError() {

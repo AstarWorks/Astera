@@ -9,6 +9,8 @@ import com.astarworks.astera.core.domain.stage.ArenaIsland
 import com.astarworks.astera.core.domain.stage.ArenaIslandKind
 import com.astarworks.astera.core.domain.stage.ArenaLandmark
 import com.astarworks.astera.core.domain.stage.ArenaLandmarkKind
+import com.astarworks.astera.core.domain.stage.ArenaTheme
+import com.astarworks.astera.core.domain.stage.ArenaStructurePlacement
 import com.astarworks.astera.core.domain.stage.ArenaLayout
 import com.astarworks.astera.core.domain.stage.Region
 import com.astarworks.astera.core.domain.stage.StagePillar
@@ -92,6 +94,8 @@ public data class StageYamlConfig(
 @Serializable
 public data class ArenaLayoutYamlConfig(
     @SerialName("marker_version") public val markerVersion: Int = 1,
+    public val theme: String = "temperate",
+    public val structures: List<ArenaStructureYamlConfig> = emptyList(),
     public val seed: Long,
     @SerialName("surface_y") public val surfaceY: Int = 64,
     @SerialName("kill_y") public val killY: Int? = null,
@@ -101,6 +105,8 @@ public data class ArenaLayoutYamlConfig(
 ) {
     public fun toDomain(): ArenaLayout = ArenaLayout(
         markerVersion = markerVersion,
+        theme = ArenaTheme.valueOf(theme.uppercase()),
+        structures = structures.map { ArenaStructurePlacement(it.part, it.x, it.y, it.z, it.rotation, it.palette) },
         seed = seed,
         surfaceY = surfaceY,
         killY = killY ?: (surfaceY - ArenaLayout.DEFAULT_KILL_DEPTH),
@@ -215,3 +221,14 @@ public data class Vec3YamlConfig(
 ) {
     public fun toVec3(): Vec3 = Vec3(x = x, y = y, z = z)
 }
+
+/** Coordinates relative to surface_y; palette entries override the stage theme for this placement. */
+@Serializable
+public data class ArenaStructureYamlConfig(
+    public val part: String,
+    public val x: Int,
+    public val y: Int = 0,
+    public val z: Int,
+    public val rotation: Int = 0,
+    public val palette: Map<String, String> = emptyMap(),
+)

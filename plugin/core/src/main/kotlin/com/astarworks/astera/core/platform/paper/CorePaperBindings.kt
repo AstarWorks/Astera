@@ -724,6 +724,7 @@ internal class CorePaperBindings(
         val arena = com.astarworks.astera.core.adapter.paper.arena.PaperArenaWorld(
             plugin = plugin,
             stages = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IStageRegistry>() },
+            contentDir = ctx.contentDir,
         )
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(
             arena,
@@ -747,7 +748,7 @@ internal class CorePaperBindings(
             try {
                 val (count, total) = arena.installAll()
                 check(count == total) { "only $count of $total arena stage(s) could be built" }
-                logger.info("Arena worlds ready: $count stage(s) built.")
+                logger.info("Arena builds accepted: $count stage(s); readiness follows in arena tick-pump logs.")
             } catch (t: Throwable) {
                 if (attempts.incrementAndGet() < MAX_LOBBY_WORLD_ATTEMPTS) {
                     logger.warning("Arena world creation failed (${t.message}); retrying in 1s.")

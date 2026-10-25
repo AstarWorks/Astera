@@ -57,6 +57,7 @@ astera:
   match.command.entry.player-not-found: "<red>Player <gold>{player}</gold> is offline or unknown.</red>"
   match.command.phase.invalid-id: "<red>Invalid match id <gold>{match}</gold>.</red>"
   match.command.phase.invalid-trigger: "<red>Unknown phase trigger <gold>{trigger}</gold>.</red>"
+  match.error.arena-not-ready: "<yellow>Arena is still being built. Please queue again shortly.</yellow>"
   match.error.already-active: "<red>That match is already active.</red>"
   match.error.already-ended: "<red>That match has already ended.</red>"
   match.error.already-registered: "<red>That match is already registered.</red>"

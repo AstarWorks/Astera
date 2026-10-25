@@ -13,7 +13,10 @@ import kotlin.math.min
  * progress for 1.5 s (the cell in front is then blocked for a while), the next cell is no longer walkable, or the bot
  * was pushed/teleported away from the path. Searches are throttled so a chasing bot costs one search per ~0.6 s.
  */
-class Navigator(private val terrain: Terrain) {
+class Navigator(private val terrain: Terrain, private val graph: ArenaRouteGraph? = null) {
+    private val waypoints = ArrayDeque<ArenaRouteGraph.Point>()
+    private var routeGx = Double.NaN
+    private var routeGz = Double.NaN
 
     enum class Status { ARRIVED, MOVING, NO_PATH }
 
@@ -35,10 +38,31 @@ class Navigator(private val terrain: Terrain) {
     val expandedTotal = AtomicInteger()
     @Volatile var maxSearchMicros = 0L; private set
 
-    fun clear() { cells = emptyList(); idx = 0; planGx = Double.NaN; noPathUntil = 0L }
+    private fun clearLocal() { cells = emptyList(); idx = 0; planGx = Double.NaN; noPathUntil = 0L }
+
+    fun clear() { clearLocal(); waypoints.clear(); routeGx = Double.NaN }
 
     /** Moves one tick towards ([gx], [gz]) until within [arrive] blocks horizontally. [yaw] null = face the movement. */
     fun follow(bot: Bot, gx: Double, gz: Double, gy: Double?, arrive: Double, speed: Double, now: Long, yaw: Float?, pitch: Float): Status {
+        if (hypot(gx - bot.x, gz - bot.z) <= arrive && (gy == null || abs(gy - bot.y) <= 2.5)) { clear(); return Status.ARRIVED }
+        if (routeGx.isNaN() || hypot(gx - routeGx, gz - routeGz) > 3.0) {
+            waypoints.clear()
+            if (hypot(gx - bot.x, gz - bot.z) > 48.0) waypoints.addAll(graph?.route(bot.x, bot.z, gx, gz).orEmpty())
+            routeGx = gx; routeGz = gz
+            clearLocal()
+        }
+        while (waypoints.isNotEmpty()) {
+            val next = waypoints.first()
+            if (hypot(next.x - bot.x, next.z - bot.z) > 3.0) break
+            waypoints.removeFirst()
+            clearLocal()
+        }
+        val next = waypoints.firstOrNull()
+        return if (next == null) followLocal(bot, gx, gz, gy, arrive, speed, now, yaw, pitch)
+        else followLocal(bot, next.x, next.z, next.y, 2.0, speed, now, yaw, pitch)
+    }
+
+    private fun followLocal(bot: Bot, gx: Double, gz: Double, gy: Double?, arrive: Double, speed: Double, now: Long, yaw: Float?, pitch: Float): Status {
         if (hypot(gx - bot.x, gz - bot.z) <= arrive && (gy == null || abs(gy - bot.y) <= 2.5)) { clear(); return Status.ARRIVED }
 
         if (stuckAt == 0L) { stuckX = bot.x; stuckZ = bot.z; stuckAt = now }

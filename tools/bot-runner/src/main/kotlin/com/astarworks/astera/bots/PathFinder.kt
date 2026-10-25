@@ -19,7 +19,8 @@ import kotlin.math.min
  * the path to the closest expanded node is returned with `complete = false`, and the caller re-plans from there.
  * Unknown chunks are never walkable.
  */
-class PathFinder(private val terrain: Terrain) {
+class PathFinder(private val solidAt: (Int, Int, Int) -> Boolean?) {
+    constructor(terrain: Terrain) : this(terrain::isSolid)
 
     data class Cell(val x: Int, val y: Int, val z: Int, val jump: Boolean)
 
@@ -34,7 +35,7 @@ class PathFinder(private val terrain: Terrain) {
 
     fun clearCache() = standCache.clear()
 
-    private fun solid(x: Int, y: Int, z: Int): Boolean? = terrain.isSolid(x, y, z)
+    private fun solid(x: Int, y: Int, z: Int): Boolean? = solidAt(x, y, z)
     private fun air(x: Int, y: Int, z: Int): Boolean = solid(x, y, z) == false
 
     /** Feet cell with solid ground below and head room. Public: the follower re-validates the next cell each tick. */
@@ -60,19 +61,24 @@ class PathFinder(private val terrain: Terrain) {
         val open = PriorityQueue<Node>(256) { a, b -> a.f.compareTo(b.f) }
         val best = HashMap<Long, Node>(1024)
 
-        fun h(x: Int, z: Int): Double {
+        fun h(x: Int, y: Int, z: Int): Double {
             val dx = abs(x + 0.5 - gx)
             val dz = abs(z + 0.5 - gz)
             val d = max(dx, dz) + (SQRT2 - 1.0) * min(dx, dz)
-            return max(0.0, d - arrive)
+            val horizontal = max(0.0, d - arrive)
+            val vertical = gy?.let { max(0.0, abs(y - it) - 2.5) } ?: 0.0
+            val climbing = gy != null && gy > y
+            // A climb needs one step per block; a descent may drop MAX_DROP blocks per step.
+            val steps = if (climbing) vertical else vertical / MAX_DROP
+            return max(horizontal, steps) + vertical * if (climbing) 0.6 else 0.4
         }
         fun isGoal(n: Node): Boolean =
             hypot(n.x + 0.5 - gx, n.z + 0.5 - gz) <= arrive && (gy == null || abs(n.y - gy) <= 2.5)
 
-        val start = Node(sx, sy, sz, 0.0, h(sx, sz) * WEIGHT, null, false)
+        val start = Node(sx, sy, sz, 0.0, h(sx, sy, sz) * WEIGHT, null, false)
         open.add(start)
         best[key(sx, sy, sz)] = start
-        val startH = h(sx, sz)
+        val startH = h(sx, sy, sz)
         var bestNode = start
         var bestH = startH
         var expanded = 0
@@ -84,7 +90,7 @@ class PathFinder(private val terrain: Terrain) {
             val old = best[k]
             if (old != null && old.g <= g) return
             old?.dead = true
-            val n = Node(x, y, z, g, g + h(x, z) * WEIGHT, from, jump)
+            val n = Node(x, y, z, g, g + h(x, y, z) * WEIGHT, from, jump)
             best[k] = n
             open.add(n)
         }
@@ -95,7 +101,7 @@ class PathFinder(private val terrain: Terrain) {
             n.closed = true
             expanded++
             if (isGoal(n)) return build(n, true, expanded)
-            val hh = h(n.x, n.z)
+            val hh = h(n.x, n.y, n.z)
             if (hh < bestH - 1e-9) { bestH = hh; bestNode = n }
             expand(n, ::relax)
         }

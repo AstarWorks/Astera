@@ -15,6 +15,7 @@ plugins {
 dependencies {
     api(libs.mcprotocollib)
     api(project(":plugin:core"))
+    implementation(project(":plugin:match")) // Reuse the server stage loader for routing topology.
     api(libs.slf4j.api)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.lettuce.core)

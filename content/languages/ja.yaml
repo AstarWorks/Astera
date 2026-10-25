@@ -65,6 +65,7 @@ astera:
   match.command.entry.player-not-found: "<red>プレイヤー <gold>{player}</gold> はオフラインか存在しません。</red>"
   match.command.phase.invalid-id: "<red>無効なマッチ ID <gold>{match}</gold> です。</red>"
   match.command.phase.invalid-trigger: "<red>未知のフェーズトリガー <gold>{trigger}</gold> です。</red>"
+  match.error.arena-not-ready: "<yellow>マップを構築中です。少し待ってから再度参加してください。</yellow>"
   match.error.already-active: "<red>そのマッチは既に進行中です。</red>"
   match.error.already-ended: "<red>そのマッチは既に終了しています。</red>"
   match.error.already-registered: "<red>そのマッチは既に登録されています。</red>"

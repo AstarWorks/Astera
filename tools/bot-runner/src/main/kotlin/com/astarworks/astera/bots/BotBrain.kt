@@ -43,6 +43,8 @@ fun interface ObjectiveSource {
 
     /** Star generator pedestals (x, z) of the stage, where stars wait to be picked up. */
     fun starPoints(): List<Pair<Double, Double>> = emptyList()
+
+    fun routeGraph(): ArenaRouteGraph? = null
 }
 
 /**
@@ -83,7 +85,7 @@ class BotBrain(
     val blockedByEdge = AtomicInteger()
     val starsCollected = AtomicInteger()
     val edgeFalls = AtomicInteger()
-    val nav = Navigator(bot.terrain)
+    val nav = Navigator(bot.terrain, objectives?.routeGraph())
 
     /** Milliseconds from entering the fight until the first enemy was seen / the first attack was sent (-1 = not yet). */
     @Volatile var firstSightMs = -1L; private set

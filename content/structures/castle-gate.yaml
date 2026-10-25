@@ -1,0 +1,10 @@
+id: castle-gate
+boxes:
+  - { min: [-2, 1, -8], max: [2, 12, -5], block: "@wall" }
+  - { min: [-2, 1, 5], max: [2, 12, 8], block: "@wall" }
+  - { min: [-2, 7, -4], max: [2, 12, 4], block: "@wall" }
+  - { min: [-2, 13, -8], max: [2, 13, -7], block: "@wall" }
+  - { min: [-2, 13, 7], max: [2, 13, 8], block: "@wall" }
+  - { min: [-1, 11, -3], max: [1, 11, 3], block: "@team" }
+  - { min: [3, 5, -6], max: [3, 5, -6], block: "@light" }
+  - { min: [3, 5, 6], max: [3, 5, 6], block: "@light" }

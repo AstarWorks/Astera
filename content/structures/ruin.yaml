@@ -1,0 +1,12 @@
+id: ruin
+boxes:
+  - { min: [-8, 1, -6], max: [8, 6, -6], block: "@wall" }
+  - { min: [-8, 1, -6], max: [-8, 8, 6], block: "@wall" }
+  - { min: [8, 1, -6], max: [8, 4, 2], block: "@wall" }
+  - { min: [-5, 1, -6], max: [-2, 3, -6], block: "minecraft:air" }
+  - { min: [-7, 5, -5], max: [0, 5, 3], block: "@deck" }
+  - { min: [1, 1, 0], max: [1, 1, 2], block: "@deck" }
+  - { min: [2, 1, 0], max: [2, 2, 2], block: "@deck" }
+  - { min: [3, 1, 0], max: [3, 3, 2], block: "@deck" }
+  - { min: [4, 1, 0], max: [4, 4, 2], block: "@deck" }
+  - { min: [5, 1, 0], max: [5, 5, 2], block: "@deck" }

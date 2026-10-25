@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.match.TeamId
 
 /** Which terrain style an [ArenaIsland] is built in. */
 public enum class ArenaIslandKind {
-    /** A team's home island: grass top, team-coloured rim and spawn pad, banners. */
+    /** A team's home island: themed ground, team-coloured rim and spawn pad, banners. */
     BASE,
 
     /** The contested middle: stone-brick plaza. */
@@ -45,7 +45,7 @@ public data class ArenaIsland(
 
     public companion object {
         public const val MIN_RADIUS: Double = 3.0
-        public const val MAX_RADIUS: Double = 40.0
+        public const val MAX_RADIUS: Double = 64.0
         private val ID_REGEX: Regex = Regex("^[a-z][a-z0-9-]*$")
 
         /** Vanilla dye colours, usable as `<colour>_concrete` / `<colour>_terracotta` / `<colour>_banner`. */
@@ -85,6 +85,8 @@ public data class ArenaLandmark(val kind: ArenaLandmarkKind, val x: Int, val z: 
  */
 public data class ArenaLayout(
     val markerVersion: Int = 1,
+    val theme: ArenaTheme = ArenaTheme.TEMPERATE,
+    val structures: List<ArenaStructurePlacement> = emptyList(),
     val seed: Long,
     val surfaceY: Int = 64,
     val killY: Int = surfaceY - DEFAULT_KILL_DEPTH,
@@ -103,7 +105,7 @@ public data class ArenaLayout(
     }
 
     public companion object {
-        /** How far below the islands the void kill plane sits by default (the deepest underside is ~15 blocks). */
+        /** How far below the islands the void kill plane sits by default (large layouts explicitly lower killY for their deeper foundations). */
         public const val DEFAULT_KILL_DEPTH: Int = 34
     }
 }

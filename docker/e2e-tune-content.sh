@@ -14,6 +14,20 @@ patch() { # <file under root> <sed -E expression> <grep -E pattern that must mat
   sed -i -E "$2" "$f"
 }
 
+# Use the preserved compact fixtures only in the E2E image. Keep production IDs and world
+# so queue assignments, mode references, generator IDs and existing protocol assertions agree.
+for stage in example-arena siege-isles annihilation-arena pve-proving-grounds; do
+  source="$root/stages/debug-$stage.yaml"
+  test -f "$source"
+  sed -e "s/^id: debug-$stage$/id: $stage/" -e 's/^world: debug-arenas$/world: arenas/' "$source" > "$root/stages/$stage.yaml"
+  rm "$source"
+done
+# Compact Norma fixture generator coordinates (the production positions are route outposts).
+patch generators/arena-east.yaml 's/^position:.*/position: { x: 12.5, y: 65.0, z: 0.5 }/' '^position:'
+patch generators/arena-west.yaml 's/^position:.*/position: { x: -11.5, y: 65.0, z: 0.5 }/' '^position:'
+patch generators/arena-north.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: -61.5 }/' '^position:'
+patch generators/arena-south.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: 62.5 }/' '^position:'
+
 patch matchmaking/queue.yaml 's/^queue_countdown_seconds:.*/queue_countdown_seconds: 3/' '^queue_countdown_seconds:'
 patch matchmaking/queue.yaml 's/^match_countdown_seconds:.*/match_countdown_seconds: 5/' '^match_countdown_seconds:'
 

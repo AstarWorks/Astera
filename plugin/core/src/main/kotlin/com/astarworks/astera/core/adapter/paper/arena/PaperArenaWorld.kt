@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.arena
 
+import com.astarworks.astera.core.application.service.arena.ArenaStructureContent
 import com.astarworks.astera.core.application.port.outbound.IArenaBuilder
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.domain.stage.ArenaBlockPos
@@ -25,24 +26,14 @@ import java.util.Properties
 import java.util.Random
 
 /**
- * Builds the sky-island arenas (ADR-0246) of every stage that declares a layout into its void world
- * (`arenas`), the same way [com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyWorld] builds the lobby:
- *
- *  - the world is created on demand with an empty-chunk generator;
- *  - each stage's [ArenaBuildPlan] is pasted once. A marker file in the plugin data folder records, per stage,
- *    `(layout marker version, plan digest, bounds)`; when it matches (and a sample of the build is still
- *    there) nothing is placed, otherwise the old bounds are cleared and the new plan is pasted;
- *  - [repairLater] re-places blocks players destroyed during a match, leaving objective marker cells alone;
- *  - a build of more than [SYNC_BLOCK_LIMIT] blocks (the arenas are big islands) is spread over server ticks:
- *    clearing the old build and pasting the new one run in slices of at most [TICK_BUDGET_NS] per tick, so a boot
- *    never stalls. [ensureBuilt] (a match is about to start) finishes a pending build on the spot. The marker is
- *    only written once the paste is complete, so an interrupted build is redone on the next boot.
- *
- * Main thread only: calls from another thread are re-queued onto the main thread.
+ * Asynchronously plans authored arenas, then loads chunks and places/repairs blocks in bounded tick slices.
+ * Match admission checks [ensureBuilt]; no caller can force a synchronous drain of a pending build.
+ * Marker files are committed only after placement finishes. Runtime logs include measured maximum slice duration.
  */
 internal class PaperArenaWorld(
     private val plugin: JavaPlugin,
     private val stages: () -> IStageRegistry?,
+    private val contentDir: Path,
 ) : IArenaBuilder {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -50,28 +41,65 @@ internal class PaperArenaWorld(
     private val plans = HashMap<StageId, Pair<Stage, ArenaBuildPlan>>()
     private val repairs = HashSet<StageId>()
 
-    /** Builds spread over ticks, in submission order; at most one per stage. */
+    private data class Prepared(val stage: Stage, val plan: ArenaBuildPlan, val digest: Int, val samples: List<Pair<ArenaBlockPos, String>>)
+    private val ready = HashMap<StageId, Stage>()
+    private val preparing = LinkedHashMap<StageId, Stage>()
+    private var planning = false
     private val jobs = LinkedHashMap<StageId, Job>()
     private var pump: BukkitTask? = null
 
-    /** Y below which a player is killed in [worldName], or `null` when no layout stage lives there. */
     fun killY(worldName: String): Int? =
         stages()?.all()?.mapNotNull { stage -> stage.layout?.takeIf { stage.world.value == worldName }?.killY }?.minOrNull()
 
-    /** Builds every layout stage. Returns `(built or already built, stages with a layout)`. */
+    /** Accept builds at boot. Ready means both planning and all placement slices have finished. */
     fun installAll(): Pair<Int, Int> {
         val withLayout = stages()?.all()?.filter { it.layout != null }.orEmpty()
-        return withLayout.count { build(it, urgent = false) } to withLayout.size
+        withLayout.forEach { request(it) }
+        return withLayout.size to withLayout.size
     }
 
     override fun ensureBuilt(stageId: StageId): Boolean {
         val stage = stages()?.find(stageId) ?: return true
         if (stage.layout == null) return true
         if (!server.isPrimaryThread) {
-            server.scheduler.runTask(plugin, Runnable { build(stage, urgent = true) })
-            return true
+            server.scheduler.runTask(plugin, Runnable { request(stage) })
+            return false
         }
-        return build(stage, urgent = true)
+        if (ready[stageId] == stage && stageId !in jobs) return true
+        request(stage)
+        return false
+    }
+
+    private fun request(stage: Stage) {
+        if (ready[stage.id] == stage || stage.id in jobs || stage.id in preparing) return
+        preparing[stage.id] = stage
+        prepareNext()
+    }
+
+    /** One planner at a time bounds temporary memory. Pure generation, parsing and digesting never run on a tick. */
+    private fun prepareNext() {
+        if (planning) return
+        val stage = preparing.values.firstOrNull() ?: return
+        planning = true
+        server.scheduler.runTaskAsynchronously(plugin, Runnable {
+            val start = System.nanoTime()
+            val result = runCatching {
+                val plan = ArenaIslandGenerator.generate(stage, ArenaStructureContent.load(contentDir))
+                require(plan.problems.isEmpty()) { plan.problems.joinToString() }
+                Prepared(stage, plan, plan.digest(), sample(plan))
+            }
+            val ms = (System.nanoTime() - start) / 1_000_000
+            server.scheduler.runTask(plugin, Runnable {
+                preparing.remove(stage.id)
+                planning = false
+                result.onSuccess { prepared ->
+                    plans[stage.id] = stage to prepared.plan
+                    log.info("Arena '{}' plan: {} blocks in {} ms (off thread)", stage.id.value, prepared.plan.blocks.size, ms)
+                    runCatching { enqueue(prepared) }.onFailure { log.error("Arena '{}' enqueue failed", stage.id.value, it) }
+                }.onFailure { log.error("Arena '{}' planning failed", stage.id.value, it) }
+                prepareNext()
+            })
+        })
     }
 
     override fun repairLater(stageId: StageId) {
@@ -88,91 +116,60 @@ internal class PaperArenaWorld(
 
     // ── build ─────────────────────────────────────────────────────────────
 
-    private fun planFor(stage: Stage): ArenaBuildPlan {
-        plans[stage.id]?.let { (cachedStage, plan) -> if (cachedStage == stage) return plan }
-        val plan = ArenaIslandGenerator.generate(stage)
-        plan.problems.forEach { log.warn("Arena '{}': {}", stage.id.value, it) }
-        plans[stage.id] = stage to plan
-        return plan
-    }
-
-    /**
-     * Builds [stage] unless it stands already. Small builds run now; a big one is queued onto the tick pump and this
-     * returns `true` ("accepted") unless [urgent], in which case it is finished before returning.
-     */
-    private fun build(stage: Stage, urgent: Boolean): Boolean {
-        val layout = stage.layout ?: return true
-        return try {
-            jobs[stage.id]?.let { pending ->
-                if (urgent) finishNow(pending)
-                return true
+    private fun enqueue(prepared: Prepared) {
+        val (stage, plan, digest, samples) = prepared
+        val layout = requireNotNull(stage.layout)
+        val world = worldOf(stage) ?: return
+        val tickets = linkedSetOf<Pair<Int, Int>>()
+        val expected = Marker(layout.markerVersion, digest, plan.minX, plan.maxX, plan.minY, plan.maxY, plan.minZ, plan.maxZ)
+        val steps = sequence {
+            // Load sample chunks asynchronously too: even a marker check must not load chunks on a tick.
+            for ((pos, _) in samples) yieldAll(loadChunk(world, pos.x, pos.z, tickets))
+            val previous = readMarkers()[stage.id.value]?.let(Marker::parse)
+            fun intact() = samples.all { (pos, state) ->
+                world.getBlockAt(pos.x, pos.y, pos.z).type == Material.matchMaterial(state.substringBefore('['))
             }
-            val world = worldOf(stage) ?: return false
-            val t0 = System.nanoTime()
-            val plan = planFor(stage)
-            val planMs = (System.nanoTime() - t0) / 1_000_000
-            val markers = readMarkers()
-            val expected = Marker(layout.markerVersion, plan.digest(), plan.minX, plan.maxX, plan.minY, plan.maxY, plan.minZ, plan.maxZ)
-            val previous = markers[stage.id.value]?.let(Marker::parse)
-            if (previous == expected && sampleIntact(world, plan)) {
-                log.info("Arena '{}' already built (marker {})", stage.id.value, layout.markerVersion)
-                return true
+            if (previous != expected || !intact()) {
+                val clearBox = when {
+                    previous != null -> Box(previous.minX, previous.maxX, previous.minY, previous.maxY, previous.minZ, previous.maxZ)
+                    samples.any { (pos, _) -> !world.getBlockAt(pos.x, pos.y, pos.z).type.isAir } ->
+                        Box(plan.minX, plan.maxX, plan.minY, plan.maxY, plan.minZ, plan.maxZ)
+                    else -> null
+                }
+                if (clearBox != null) yieldAll(clearSteps(world, clearBox, tickets))
+                yieldAll(pasteSteps(world, plan, false, null, tickets))
             }
-            // Only the previous build can have left blocks behind (a new one is pasted over its own area); without a
-            // marker, clear the new bounds only when something is standing there.
-            val clearBox = when {
-                previous != null -> Box(previous.minX, previous.maxX, previous.minY, previous.maxY, previous.minZ, previous.maxZ)
-                !sampleEmpty(world, plan) -> Box(plan.minX, plan.maxX, plan.minY, plan.maxY, plan.minZ, plan.maxZ)
-                else -> null
-            }
-            val steps = sequence {
-                if (clearBox != null) yieldAll(clearSteps(world, clearBox))
-                yieldAll(pasteSteps(world, plan, onlyMissing = false, counter = null))
-            }.iterator()
-            val big = plan.blocks.size > SYNC_BLOCK_LIMIT
-            val job = Job(stage.id, steps) { elapsedMs, ticks ->
-                // Re-read: other stages' builds finish in between and each writes its own entry.
-                val latest = readMarkers()
-                latest[stage.id.value] = expected.toString()
-                writeMarkers(latest)
-                log.info(
-                    "Arena '{}' built: {} blocks, {} islands in {} ms ({} ms generating the plan, {} tick(s){})",
-                    stage.id.value, plan.blocks.size, layout.islands.size, elapsedMs + planMs, planMs, ticks,
-                    if (clearBox != null) ", old build cleared" else "",
-                )
-            }
-            if (big && !urgent) {
-                log.info("Arena '{}': {} blocks, spreading the build over ticks", stage.id.value, plan.blocks.size)
-                jobs[stage.id] = job
-                startPump()
-            } else {
-                job.run(Long.MAX_VALUE)
-                job.complete()
-            }
-            true
-        } catch (t: Throwable) {
-            jobs.remove(stage.id)
-            log.error("Arena '{}' could not be built: {}", stage.id.value, t.message, t)
-            false
+            yieldAll(releaseSteps(world, tickets))
+        }.iterator()
+        jobs[stage.id] = Job(stage.id, steps, cleanup = { release(world, tickets) }) { elapsedMs, ticks, maxSliceNs, operations ->
+            val latest = readMarkers()
+            latest[stage.id.value] = expected.toString()
+            writeMarkers(latest)
+            ready[stage.id] = stage
+            log.info("Arena '{}' ready: {} blocks, {} ms, {} ticks, max slice {} us, {} operations",
+                stage.id.value, plan.blocks.size, elapsedMs, ticks, maxSliceNs / 1_000, operations)
         }
+        startPump()
     }
 
     private fun repair(stageId: StageId) {
         val stage = stages()?.find(stageId) ?: return
         if (stage.layout == null || stageId in jobs) return
         val world = server.getWorld(stage.world.value) ?: return
-        val plan = planFor(stage)
+        val (cached, plan) = plans[stageId] ?: return
+        if (cached != stage) { request(stage); return }
         val fixed = intArrayOf(0)
-        val job = Job(stageId, pasteSteps(world, plan, onlyMissing = true, counter = fixed).iterator()) { ms, ticks ->
-            if (fixed[0] > 0) log.info("Arena '{}' repaired: {} block(s) re-placed in {} ms ({} tick(s))", stageId.value, fixed[0], ms, ticks)
+        val tickets = linkedSetOf<Pair<Int, Int>>()
+        val steps = sequence {
+            yieldAll(pasteSteps(world, plan, true, fixed, tickets))
+            yieldAll(releaseSteps(world, tickets))
         }
-        if (plan.blocks.size > SYNC_BLOCK_LIMIT) {
-            jobs[stageId] = job
-            startPump()
-        } else {
-            job.run(Long.MAX_VALUE)
-            job.complete()
+        jobs[stageId] = Job(stageId, steps.iterator(),
+            cleanup = { release(world, tickets) }) { ms, ticks, maxNs, operations ->
+            log.info("Arena '{}' repaired: {} blocks in {} ms, {} ticks, max slice {} us, {} operations",
+                stageId.value, fixed[0], ms, ticks, maxNs / 1_000, operations)
         }
+        startPump()
     }
 
     // ── tick pump ─────────────────────────────────────────────────────────
@@ -181,29 +178,33 @@ internal class PaperArenaWorld(
     private class Job(
         val stageId: StageId,
         private val steps: Iterator<Unit>,
-        private val onDone: (elapsedMs: Long, ticks: Int) -> Unit,
+        val cleanup: () -> Unit,
+        private val onDone: (Long, Int, Long, Long) -> Unit,
     ) {
         private val startNs = System.nanoTime()
         private var ticks = 0
+        private var operations = 0L
+        private var maxSliceNs = 0L
 
-        /** Runs steps until [deadlineNs]; `true` once none are left. */
         fun run(deadlineNs: Long): Boolean {
+            val start = System.nanoTime()
             ticks++
             var n = 0
-            while (steps.hasNext()) {
+            while (n < MAX_OPERATIONS_PER_TICK && System.nanoTime() < deadlineNs && steps.hasNext()) {
                 steps.next()
-                if ((++n and 63) == 0 && System.nanoTime() >= deadlineNs) return !steps.hasNext()
+                n++
             }
-            return true
+            operations += n
+            // Do not advance the coroutine again outside the deadline just to test hasNext().
+            val done = n < MAX_OPERATIONS_PER_TICK && System.nanoTime() < deadlineNs && !steps.hasNext()
+            maxSliceNs = maxOf(maxSliceNs, System.nanoTime() - start)
+            return done
         }
 
-        fun complete() = onDone((System.nanoTime() - startNs) / 1_000_000, ticks)
-    }
-
-    private fun finishNow(job: Job) {
-        jobs.remove(job.stageId)
-        job.run(Long.MAX_VALUE)
-        job.complete()
+        fun complete() {
+            cleanup()
+            onDone((System.nanoTime() - startNs) / 1_000_000, ticks, maxSliceNs, operations)
+        }
     }
 
     private fun startPump() {
@@ -223,6 +224,8 @@ internal class PaperArenaWorld(
                 }
             } catch (t: Throwable) {
                 it.remove()
+                job.cleanup()
+                ready.remove(job.stageId)
                 log.error("Arena build of '{}' failed: {}", job.stageId.value, t.message, t)
             }
         }
@@ -249,48 +252,65 @@ internal class PaperArenaWorld(
     }
 
     /** Places the plan one block per step; with [onlyMissing] only blocks that differ and are not objective cells. */
-    private fun pasteSteps(world: World, plan: ArenaBuildPlan, onlyMissing: Boolean, counter: IntArray?): Sequence<Unit> = sequence {
-        val cache = HashMap<String, BlockData?>()
-        fun data(state: String): BlockData? = cache.getOrPut(state) {
-            runCatching { server.createBlockData(state) }
-                .onFailure { log.warn("Arena build: invalid block data '{}': {}", state, it.message) }
-                .getOrNull()
-        }
+    private fun pasteSteps(world: World, plan: ArenaBuildPlan, onlyMissing: Boolean, counter: IntArray?, tickets: MutableSet<Pair<Int, Int>>): Sequence<Unit> = sequence {
+        val cache = HashMap<String, BlockData>()
+        fun data(state: String): BlockData = cache.getOrPut(state) { server.createBlockData(state) }
         for ((pos, state) in plan.blocks) {
+            yield(Unit)
             if (onlyMissing && pos in plan.volatileCells) continue
-            val wanted = data(state) ?: continue
+            yieldAll(loadChunk(world, pos.x, pos.z, tickets))
+            val wanted = data(state)
             val block = world.getBlockAt(pos.x, pos.y, pos.z)
             if (onlyMissing && block.blockData == wanted) continue
             block.setBlockData(wanted, false)
             if (counter != null) counter[0]++
-            yield(Unit)
         }
     }
 
     private data class Box(val minX: Int, val maxX: Int, val minY: Int, val maxY: Int, val minZ: Int, val maxZ: Int)
 
-    /** Wipes [box] (plus a small margin) one column per step: the previous build may have been larger or elsewhere. */
-    private fun clearSteps(world: World, box: Box): Sequence<Unit> = sequence {
+    /** Wipes [box] (plus a small margin) one inspected block per step: the previous build may have been larger or elsewhere. */
+    private fun clearSteps(world: World, box: Box, tickets: MutableSet<Pair<Int, Int>>): Sequence<Unit> = sequence {
         val air = server.createBlockData(Material.AIR)
         val minY = box.minY - 2
         val maxY = box.maxY + 12
         for (x in box.minX - 4..box.maxX + 4) {
             for (z in box.minZ - 4..box.maxZ + 4) {
+                yieldAll(loadChunk(world, x, z, tickets))
                 for (y in minY..maxY) {
                     val block = world.getBlockAt(x, y, z)
                     if (!block.type.isAir) block.setBlockData(air, false)
+                    yield(Unit)
                 }
-                yield(Unit)
             }
         }
     }
 
-    /** A few plan blocks are really there (guards against a wiped world with a surviving marker). */
-    private fun sampleIntact(world: World, plan: ArenaBuildPlan): Boolean =
-        sample(plan).all { (pos, state) -> world.getBlockAt(pos.x, pos.y, pos.z).type == Material.matchMaterial(state.substringBefore('[')) }
+    /** Never synchronously acquire a chunk from a placement/clear/marker operation. Tickets prevent unload during a job. */
+    private fun loadChunk(world: World, x: Int, z: Int, tickets: MutableSet<Pair<Int, Int>>): Sequence<Unit> = sequence {
+        val chunk = (x shr 4) to (z shr 4)
+        if (chunk in tickets) return@sequence
+        val future = world.getChunkAtAsync(chunk.first, chunk.second, true)
+        while (!future.isDone) yield(Unit)
+        future.join()
+        world.addPluginChunkTicket(chunk.first, chunk.second, plugin)
+        tickets += chunk
+        yield(Unit)
+    }
 
-    private fun sampleEmpty(world: World, plan: ArenaBuildPlan): Boolean =
-        sample(plan).all { (pos, _) -> world.getBlockAt(pos.x, pos.y, pos.z).type.isAir }
+    private fun releaseSteps(world: World, tickets: MutableSet<Pair<Int, Int>>): Sequence<Unit> = sequence {
+        val it = tickets.iterator()
+        while (it.hasNext()) {
+            val (x, z) = it.next()
+            world.removePluginChunkTicket(x, z, plugin)
+            it.remove()
+            yield(Unit)
+        }
+    }
+
+    private fun release(world: World, tickets: Set<Pair<Int, Int>>) {
+        tickets.forEach { (x, z) -> world.removePluginChunkTicket(x, z, plugin) }
+    }
 
     private fun sample(plan: ArenaBuildPlan): List<Pair<ArenaBlockPos, String>> {
         val tops = plan.blocks.entries.filter { it.key.y == plan.surfaceY && it.key !in plan.volatileCells }
@@ -352,10 +372,8 @@ internal class PaperArenaWorld(
         const val REPAIR_DELAY_TICKS: Long = 60L
         const val SAMPLES: Int = 8
 
-        /** Builds above this many blocks are spread over ticks instead of placed in one go. */
-        const val SYNC_BLOCK_LIMIT: Int = 50_000
-
         /** Wall-clock budget of the build pump per server tick (a tick is 50 ms). */
-        const val TICK_BUDGET_NS: Long = 20_000_000L
+        const val TICK_BUDGET_NS: Long = 4_000_000L
+        const val MAX_OPERATIONS_PER_TICK: Int = 1024
     }
 }
