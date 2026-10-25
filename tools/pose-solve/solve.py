@@ -80,11 +80,14 @@ def facing_of(pose: RM.Pose, cam: KP.Camera) -> float:
 
 
 class BeatProblem:
-    def __init__(self, beat: dict, cam: KP.Camera):
-        self.beat, self.cam = beat, cam
+    def __init__(self, beat: dict, cam: KP.Camera, height: float = 1.8):
+        self.beat, self.cam, self.height = beat, cam, height
         self.pts = {n: p for n, p in beat["points"].items() if n in POINT_MAP and p.get("c", 1.0) > 0}
         self.view0 = np.array(beat.get("view") or (0, 0, 1), float)
         self.facing = beat.get("facing")
+        # optional hip-height hint (rig units, hips / H) for a beat whose legs are hidden: without it the weak "standing" prior
+        # on the root height decides, which is a guess, not a reading
+        self.hips_h = beat.get("hips_h")
 
     def project(self, lm: dict, name: str, view) -> np.ndarray:
         cam = KP.Camera(self.cam.pos, self.cam.target, self.cam.fov, view)
@@ -116,6 +119,8 @@ class BeatProblem:
         res += [3.0 * max(0.0, -a) / 0.05 for a in ay]
         if self.facing is not None:
             res.append(0.6 * wrap(facing_of(pose, cam) - self.facing) / 30.0)
+        if self.hips_h is not None:
+            res.append(1.0 * (lm["hips"][1] / self.height - float(self.hips_h)) / 0.03)
         # priors (weak: they only break ties between equally good fits)
         res += [x[2] / 12.0, (x[4] + 0.5 * x[0]) / 25.0, x[5] / 45.0, x[7] / 50.0, x[10] / 45.0, x[8] / 120.0, x[11] / 120.0,
                 x[13] / 30.0, x[15] / 30.0, x[3] / 4.5]
@@ -233,6 +238,25 @@ def fmt(v):
     return "[" + ", ".join(("%g" % round(float(x), 1)) for x in v) + "]"
 
 
+def small_euler(v, to_rot) -> list[float]:
+    """The equivalent euler triple with the smallest angles: each component wrapped to (-180, 180], or the twin
+    (a + 180, 180 - b, c + 180) of the same rotation when its largest angle is smaller. Lossless: the candidate is only taken when it
+    reproduces the rotation (`to_rot` = RM.euler_body or RM.euler_wrist; the twin identity holds for both orders). The
+    keys are pose-to-pose cuts (`ease: step`), so no interpolation runs through the representation."""
+    def wrap(a):
+        return float((a + 180.0) % 360.0 - 180.0) if (a + 180.0) % 360.0 != 0 else 180.0
+    w = [wrap(x) for x in v]
+    twin = [wrap(w[0] + 180.0), wrap(180.0 - w[1]), wrap(w[2] + 180.0)]
+    ref = to_rot(v)
+    best = w
+    for c in (twin,):
+        size = lambda e: (round(max(abs(x) for x in e), 3), sum(abs(x) for x in e))   # largest single angle first
+        if size(c) < size(best) and (to_rot(c) * ref.inv()).magnitude() < 1e-6:
+            best = c
+    assert (to_rot(best) * ref.inv()).magnitude() < 1e-6, (v, best)
+    return best
+
+
 def load_content(skill: str):
     sk = yaml.safe_load((ROOT / "content/skills" / f"{skill}.yaml").read_text())
     rig_id = body_id = None
@@ -305,7 +329,7 @@ def main():
         if a.only and not beat["id"].startswith(a.only):
             continue
         cam = KP.camera_for(kpd, beat, intent)
-        bp = BeatProblem(beat, cam)
+        bp = BeatProblem(beat, cam, height)
         s = solve_pose(bp)
         x = s.x
         pose = unpack(x[:16])
@@ -373,13 +397,13 @@ def write_body(path: Path, body0: dict, body_id: str, solved, freezes, skill, kp
 
     for bone in RM.BONE_NAMES:
         lines.append(f"  {bone}:")
-        chan(bone, "rotation", lambda p, b=bone: p.bones[b]["rotation"], 0)
+        chan(bone, "rotation", lambda p, b=bone: small_euler(p.bones[b]["rotation"], RM.euler_body), 0)
         if bone.endswith("_leg"):
             chan(bone, "scale", lambda p: [1, 1, 1], 1)
     lines.append("root:")
     lines.append("  rotation:")
     for i, (t, p) in enumerate(rows):
-        lines.append(f"    - {{ t: {t}, v: {fmt(p.root_rot)}{'' if i == 0 else ', ease: step'} }}")
+        lines.append(f"    - {{ t: {t}, v: {fmt(small_euler(p.root_rot, RM.euler_body))}{'' if i == 0 else ', ease: step'} }}")
     lines.append("  position:")
     for i, (t, p) in enumerate(rows):
         lines.append(f"    - {{ t: {t}, v: {fmt(p.root_pos)}{'' if i == 0 else ', ease: step'} }}")
@@ -396,7 +420,7 @@ def write_rig(path: Path, text: str, solved, freezes, skill):
     sw = ["  swing:"]
     for i, ((t, w), item) in enumerate(zip(rows, list(solved) + [None])):
         label = solved[i][0]["id"] if i < len(solved) else "hand-back"
-        sw.append(f"  - {{ t: {t}, rotate: {fmt(w)}{'' if i == 0 else ', ease: step'} }}   # {label}")
+        sw.append(f"  - {{ t: {t}, rotate: {fmt(small_euler(w, RM.euler_wrist))}{'' if i == 0 else ', ease: step'} }}   # {label}")
     new = re.sub(r"  swing:\n(?:  - .*\n?)+", "\n".join(sw) + "\n", text)
     if new == text:
         raise SystemExit("could not find the swing: block of the rig file")

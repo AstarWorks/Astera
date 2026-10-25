@@ -27,20 +27,20 @@ beats:
       head_top: {xy: [565, 277], c: 0.9}
       neck: {xy: [600, 337], c: 0.8}
       r_shoulder: {xy: [578, 348], c: 0.7, depth: near}
-      l_shoulder: {xy: [650, 338], c: 0.6, depth: far}
+      l_shoulder: {xy: [603, 345], c: 0.4, depth: far}
       r_elbow: {xy: [560, 378], c: 0.4}
-      l_elbow: {xy: [640, 372], c: 0.3}
+      l_elbow: {xy: [603, 382], c: 0.3}
       r_wrist: {xy: [560, 398], c: 0.5}
       l_wrist: {xy: [575, 392], c: 0.4}
-      pelvis: {xy: [612, 395], c: 0.6}
-      r_knee: {xy: [525, 425], c: 0.3}
+      pelvis: {xy: [590, 397], c: 0.6}
+      r_knee: {xy: [550, 428], c: 0.3}
       l_knee: {xy: [622, 425], c: 0.3}
-      r_ankle: {xy: [495, 447], c: 0.8}
+      r_ankle: {xy: [535, 446], c: 0.7}
       l_ankle: {xy: [645, 443], c: 0.8}
       grip: {xy: [558, 400], c: 0.6}
       pommel: {xy: [582, 392], c: 0.4}
       blade_tip: {xy: [384, 452], c: 1}
-    view: [201.1, 11, 1.115]
+    view: [174, 5.7, 1.02]
   - id: B1-snap-follow-through
     tick: 10
     key_tick: 6
@@ -102,22 +102,23 @@ beats:
       l_elbow: {xy: [538, 368], c: 0.3}
       r_wrist: {xy: [522, 392], c: 0.4}
       l_wrist: {xy: [525, 390], c: 0.5}
-      pelvis: {xy: [580, 428], c: 0.4}
+      pelvis: {xy: [545, 410], c: 0.4}
       r_ankle: {xy: [545, 492], c: 0.3}
       l_ankle: {xy: [505, 470], c: 0.3}
       grip: {xy: [515, 393], c: 0.6}
       pommel: {xy: [545, 380], c: 0.3}
       blade_tip: {xy: [310, 483], c: 1}
-    view: [239.3, 25, 1.015]
+    view: [207.4, 22.7, 0.991]
   - id: B4-coil-2
     tick: 29
     key_tick: 28
     ticks: [28, 29]
     confidence: low
     facing: 130
+    hips_h: 0.3
     camera: {bearing: 135, elevation: 14, distance: 6.3}
-    blade: {depth: away, face: edge}
-    notes: "Deepest crouch seen from behind-right, torso pitched forward, blade hidden behind the cloak (thin dark line, edge-on)."
+    blade: {depth: toward, face: up}
+    notes: "Deepest crouch seen from behind-right, torso pitched forward. Blade = the dark diagonal band with a light bevel stripe leaving the cloak at (446,412) and running down toward the camera to about (416,562) (t28-29; absent at t27). The horizontal dark line at y~400 is a floor crack (visible at t27 while the blade lies elsewhere), not the blade. Hilt hidden in the cloak."
     points:
       head_top: {xy: [569, 265], c: 0.8}
       neck: {xy: [585, 327], c: 0.6}
@@ -125,9 +126,9 @@ beats:
       l_shoulder: {xy: [560, 332], c: 0.3, depth: far}
       pelvis: {xy: [540, 430], c: 0.4}
       r_ankle: {xy: [570, 512], c: 0.5}
-      grip: {xy: [505, 364], c: 0.35}
-      blade_tip: {xy: [319, 406], c: 0.9}
-    view: [166.7, -30.3, 0.755]
+      grip: {xy: [456, 392], c: 0.25}
+      blade_tip: {xy: [416, 562], c: 0.6}
+    view: [166.3, -47.4, 0.736]
   - id: B6-extended
     tick: 35
     key_tick: 31

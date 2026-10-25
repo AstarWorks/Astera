@@ -20,17 +20,26 @@ beats:
 - id: B0-coil
   ticks: [0, 5]
   confidence: high
-  note: Dead-still low coil from tick 0. Blade lies behind on the floor, flat up. No step.
+  note: >-
+    Dead-still low coil from tick 0. Blade lies behind on the floor, flat up. No step.
+    hips_h re-read 2026-10-26 in RIG units (vanilla skin: standing hips = 0.75/1.8 = 0.42 H, so the old 0.40 meant almost standing):
+    t3 pelvis 57 px above the soles against 119 px head-top to pelvis, knees deeply bent, feet ~110 px apart -> about 0.30 H.
+    twist re-read: the compare camera sits ahead of the caster, so a torso facing the target already shows some chest; the visible
+    chest (collar V, both lapels) reads facing ~60-70 on screen = twist ~5-20 from the target, not 45.
   blade: {tip_side_deg: [-162, 25], tip_y: [0.1, 0.3], face_normal: [0, 1, 0], face_tol: 35}
-  body: {hips_h: [0.40, 0.07], lean_deg: [10, 15], twist_deg: [45, 40]}
+  body: {hips_h: [0.31, 0.07], lean_deg: [10, 15], twist_deg: [10, 25]}
   fx: none
   sound: {window: [0, 5]}
 - id: B1-snap-follow-through
   ticks: [7, 15]
   confidence: medium
-  note: Snap (no drawn swing) to a follow-through held 9 ticks. Blade behind the neck at head height. Ring and streak carry the swing; contact tick 7. Twist is low confidence (seen from behind).
+  note: >-
+    Snap (no drawn swing) to a follow-through held 9 ticks. Blade behind the neck at head height. Ring and streak carry the swing; contact tick 7.
+    Twist re-read 2026-10-26: t13/t16/t18 show the back square to the behind-right camera with the RIGHT flank (white striped jacket edge)
+    visible at screen right; a 60 deg left twist would turn the right flank away and show the left one. "Twisted round toward the target"
+    = chest toward the target (the camera is behind), i.e. a small twist. hips_h in rig units (wide stance, as B0).
   blade: {tip_side_deg: [180, 25], tip_y: [1.5, 0.35]}
-  body: {hips_h: [0.40, 0.08], lean_deg: [0, 20], twist_deg: [60, 45]}
+  body: {hips_h: [0.33, 0.10], lean_deg: [0, 20], twist_deg: [10, 35]}
   sound: {window: [5, 8]}
 - id: B2-overshoot
   ticks: [16, 18]
@@ -39,15 +48,29 @@ beats:
 - id: B3-turned-away-rest
   ticks: [20, 27]
   confidence: medium
-  note: Caster spun 150-180 deg, faces away from the target. Tip rests on the floor in front of her (= away from the target), flat up.
+  note: >-
+    Caster spun 150-180 deg, faces away from the target. Tip rests on the floor in front of her (= away from the target), flat up.
+    hips_h re-read 2026-10-26 in RIG units: 0.50 is above the vanilla rig's standing hips (0.42 H); "fairly tall with a slight bend"
+    = 0.36-0.42 (t23: hands hang at y~392, hip joint just above them, soles ~500, head top 258).
+    lean re-read: she faces screen-left, the neck (x~555) sits ~10 px BEHIND the hips (x~545) over a ~90 px torso at t23 (t20 the
+    same): upright to slightly back, not a forward bend (old target 10).
   blade: {tip_side_deg: [-153, 25], tip_y: [0.1, 0.3], face_normal: [0, 1, 0], face_tol: 35}
-  body: {hips_h: [0.50, 0.07], lean_deg: [10, 20], twist_deg: [165, 35]}
+  body: {hips_h: [0.39, 0.06], lean_deg: [-8, 15], twist_deg: [165, 35]}
   fx: none
 - id: B4-coil-2
   ticks: [28, 29]
   confidence: low
-  note: Deepest crouch, torso pitched about 30 deg. Blade behind at hip height, thin dark line from the side; the text says the flat is vertical with the edge leading, which is encoded here (face normal horizontal, across the body).
-  blade: {tip_side_deg: [180, 25], tip_y: [0.9, 0.3], face_normal: [1, 0, 0], face_tol: 40}
+  note: >-
+    Deepest crouch, torso pitched about 30 deg. Blade behind at hip height. Re-checked 2026-10-26: the "thin dark line" at y~400
+    of t29 that the first reading took for an edge-on blade is a floor crack (the same line is there at t27 while the blade lies
+    elsewhere). The blade is the dark diagonal band leaving the cloak at (446,412) and running down toward the behind-right camera
+    to (416,562) (t28-29, absent at t27). Solved from that it is near horizontal at hip height pointing back (tip_side -173,
+    tip_y 0.84): the direction and height of the first reading stand. The roll does not: the band is steep on screen and ~25 px
+    wide against ~30 px for the full face of the same blade at t23 (same scale). A vertical flat (old target normal [1, 0, 0])
+    would put the blade width along the steep band and read as a thin line; a wide band means the width runs across it, i.e.
+    the flat faces up as in the B3 rest. The legs are under the cloak (one ankle visible), so the keypoints carry a hips_h
+    hint of 0.30 for the solver.
+  blade: {tip_side_deg: [180, 25], tip_y: [0.9, 0.3], face_normal: [0, 1, 0], face_tol: 40}
   body: {hips_h: [0.30, 0.08], lean_deg: [30, 15], twist_deg: [0, 40]}
   fx: none
 - id: B5-flash-contact-2
@@ -68,9 +91,12 @@ beats:
 - id: B8-rest
   ticks: [40, 51]
   confidence: high
-  note: Same silhouette as B0, held to the end of the segment; the reference never lifts the blade inside it.
+  note: >-
+    Same silhouette as B0, held to the end of the segment; the reference never lifts the blade inside it.
+    hips_h / twist re-read 2026-10-26 as in B0: at t46 the caster stands at x~340 of 1280, so the side camera looks at her from about
+    19 deg ahead; the 3/4 chest is that camera angle (solved screen facing 71 = twist ~1), not a 45 deg torso twist.
   blade: {tip_side_deg: [-162, 25], tip_y: [0.1, 0.3], face_normal: [0, 1, 0], face_tol: 35}
-  body: {hips_h: [0.40, 0.07], lean_deg: [10, 15], twist_deg: [45, 40]}
+  body: {hips_h: [0.34, 0.07], lean_deg: [10, 15], twist_deg: [5, 25]}
   fx: none
 
 regen:

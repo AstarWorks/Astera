@@ -12,6 +12,7 @@ File shape (human + agent edited; `view` is written by the solver):
       key_tick: 0                        # skill tick at which the solved pose becomes visible
       ticks: [0, 5]                      # hold range written into targets.yaml
       facing: -60                        # optional: 0 = torso faces the camera, 90 = screen right, 180 = away, -90 = screen left
+      hips_h: 0.3                        # optional: hips / H (rig units) hint for a beat whose legs are hidden
       camera: {}                         # overrides on top of the intent camera: bearing, elevation, distance, fov, target
       view: [0, 0, 1]                    # [dx px, dy px, zoom] image-space fit of the camera estimate (solver output)
       blade: {depth: away, face: up}     # depth: toward | away | inplane (tip vs the grip, along the view ray); face: up | camera | edge | unknown; floor: true when the blade lies on the floor (picks the depth solution whose tip is at floor level)

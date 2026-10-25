@@ -20,16 +20,16 @@ rigs:
   parent: right_hand
   respect_hit_stop: true
   weapon: main_hand
-  weapon_tip: [0.0, 1.3789, 1.0769]    # blade tip (1.75 blocks), rig-local
+  weapon_tip: [0.0, 1.3789, 1.0769]    # blade tip (1.75 blocks from the grip centre; 1.9 pommel to tip), rig-local
   weapon_root: [0.0, 0.2367, 0.0]
   weapon_edge: [0.0, -0.6155, 0.7881]  # cutting edge direction, rig-local (broad-face normal = rig X)
   swing:
-  - { t: 0, rotate: [125.8, 9.1, 168] }   # B0-coil
-  - { t: 5, rotate: [66.7, -39.1, -120.8], ease: step }   # B1-snap-follow-through
-  - { t: 13, rotate: [160.5, -19.5, 179.9], ease: step }   # B2-overshoot
-  - { t: 16, rotate: [-14.7, 47.9, 63], ease: step }   # B3-turned-away-rest
-  - { t: 25, rotate: [41.4, 69, -79.7], ease: step }   # B4-coil-2
-  - { t: 28, rotate: [20.2, 18.4, 11.3], ease: step }   # B6-extended
-  - { t: 33, rotate: [121.1, -22.9, 173.4], ease: step }   # B7-drop
-  - { t: 35, rotate: [123.8, 12.5, 173.2], ease: step }   # B8-rest
+  - { t: 0, rotate: [125.9, 3.9, 161] }   # B0-coil
+  - { t: 5, rotate: [64.9, -41.2, -124], ease: step }   # B1-snap-follow-through
+  - { t: 13, rotate: [-22, -160.5, -2.9], ease: step }   # B2-overshoot
+  - { t: 16, rotate: [-10.4, 41.3, 74], ease: step }   # B3-turned-away-rest
+  - { t: 25, rotate: [-51.7, -146.5, 15.2], ease: step }   # B4-coil-2
+  - { t: 28, rotate: [5.8, 13.6, 26.9], ease: step }   # B6-extended
+  - { t: 33, rotate: [-65.3, -158.1, -13.8], ease: step }   # B7-drop
+  - { t: 35, rotate: [-56.2, 167.5, -6.8], ease: step }   # B8-rest
   - { t: 47, rotate: [0, 0, 0], ease: step }   # hand-back
