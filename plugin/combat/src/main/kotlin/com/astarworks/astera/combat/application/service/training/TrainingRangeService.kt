@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.service.training
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
 import com.astarworks.astera.combat.application.port.outbound.ITrainingDummyShells
 import com.astarworks.astera.combat.domain.damage.DamageSource
@@ -44,7 +46,7 @@ public class TrainingRangeService(
     /** Starts the maintenance loop (every [PERIOD_TICKS] ticks). */
     public fun start() {
         loop?.cancel()
-        loop = scheduler.runRepeatingTicks(initialDelayTicks = PERIOD_TICKS, periodTicks = PERIOD_TICKS) { tick(scheduler.currentTick()) }
+        loop = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = PERIOD_TICKS, periodTicks = PERIOD_TICKS) { tick(scheduler.currentTick()) }
     }
 
     public fun stop() {
@@ -62,22 +64,25 @@ public class TrainingRangeService(
             registered = true
         }
         for (dummy in dummies.all()) {
-            val id = dummy.bodyId
-            if (id == null || !shells.isAlive(id)) {
-                dummies.unbind(dummy)
-                if (now < spawnBlockedUntil) continue
-                val spawned = shells.spawn(training.world, dummy.spot, homeOf(dummy.spot, now))
-                if (spawned == null) {
-                    // World (or chunk) not ready: retry in a second instead of every pass.
-                    spawnBlockedUntil = now + RESPAWN_PERIOD_TICKS
-                    continue
+            scheduler.run(dummy.bodyId?.let { ExecutionScope.Entity(it.uuid) } ?: regionScope(training.world, dummy.spot.position), kotlin.time.Duration.ZERO) {
+                val id = dummy.bodyId
+                if (id == null || !shells.isAlive(id)) {
+                    dummies.unbind(dummy)
+                    if (now < spawnBlockedUntil) return@run
+                    val spawned = shells.spawn(training.world, dummy.spot, homeOf(dummy.spot, now))
+                    if (spawned == null) {
+                        // World (or chunk) not ready: retry in a second instead of every pass.
+                        spawnBlockedUntil = now + RESPAWN_PERIOD_TICKS
+                        return@run
+                    }
+                    dummies.bind(dummy, spawned)
+                } else {
+                    keepInPlace(dummy, id, now)
                 }
-                dummies.bind(dummy, spawned)
-            } else {
-                keepInPlace(dummy, id, now)
+                if (dummy.regenerate(now)) dummy.shownLabel = null
+                refreshLabel(dummy, now)
+
             }
-            if (dummy.regenerate(now)) dummy.shownLabel = null
-            refreshLabel(dummy, now)
         }
     }
 
@@ -135,7 +140,7 @@ public class TrainingRangeService(
             billboard = DisplayBillboard.CENTER,
         )
         val handle = gateway.spawn(training.world, at, spec, listOf(text)) ?: return
-        scheduler.runLaterTicks(NUMBER_LIFETIME_TICKS) { gateway.remove(handle) }
+        scheduler.runLaterTicks(regionScope(training.world, at), NUMBER_LIFETIME_TICKS) { gateway.remove(handle) }
     }
 
     private fun nameKey(spot: TrainingDummySpot): MessageKey = when (spot.kind) {

@@ -1,5 +1,9 @@
 package com.astarworks.astera.core.application.usecase.travel
 
+import java.util.concurrent.CompletableFuture
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.executor
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
@@ -40,26 +44,24 @@ public class TravelToPveWorldUseCase(
     private val pveWorldIdProvider: () -> WorldId = { WorldId(DEFAULT_PVE_WORLD_ID) },
 ) {
 
-    public fun travel(playerId: PlayerId): Result<Unit, TravelError> {
+    public fun travel(playerId: PlayerId): CompletableFuture<Result<Unit, TravelError>> {
         val worldId = pveWorldIdProvider()
 
-        val teleported = worldGateway.teleport(
+        return worldGateway.teleportAsync(
             playerId = playerId,
             at = DEFAULT_PVE_SPAWN,
             world = worldId,
-        )
-        if (!teleported) {
-            return Result.failure(TravelError.TeleportFailed)
-        }
-
-        eventBus.publish(
-            PlayerTraveledToPveWorld(
-                playerId = playerId,
-                worldId = worldId,
-                atTick = scheduler.currentTick(),
-            ),
-        )
-        return Result.success(Unit)
+        ).thenApplyAsync({ moved ->
+            if (!moved) return@thenApplyAsync Result.failure(TravelError.TeleportFailed)
+            eventBus.publish(
+                PlayerTraveledToPveWorld(
+                    playerId = playerId,
+                    worldId = worldId,
+                    atTick = scheduler.currentTick(),
+                ),
+            )
+            return@thenApplyAsync Result.success(Unit)
+        }, scheduler.executor(ExecutionScope.Entity(playerId.uuid)))
     }
 
     public companion object {

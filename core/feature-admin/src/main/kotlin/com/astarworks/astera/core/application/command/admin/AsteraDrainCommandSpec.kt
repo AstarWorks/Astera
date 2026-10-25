@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.command.admin
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandContext
 import com.astarworks.astera.core.application.command.CommandResult
@@ -64,7 +65,7 @@ public fun buildAsteraDrainCommandSpec(
                 gateway.transfer(player.id, target, TransferReason.AdminMove)
             }
         }
-        if (abort) scheduler.runLater(SETTLE_SECONDS.seconds) { move() } else move()
+        if (abort) scheduler.run(ExecutionScope.Global, SETTLE_SECONDS.seconds) { move() } else move()
         ctx.reply(
             MessageKey("astera.command.reply.admin-drain"),
             mapOf("target" to target.value, "count" to onlinePlayers().size.toString()),

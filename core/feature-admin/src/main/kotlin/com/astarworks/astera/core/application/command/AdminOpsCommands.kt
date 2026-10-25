@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.command
 
+import kotlinx.coroutines.future.await
 import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
@@ -158,7 +159,7 @@ public class AdminOpsCommands(
             val x = ctx.optional<Double>("x") ?: 0.0
             val y = ctx.optional<Double>("y") ?: 64.0
             val z = ctx.optional<Double>("z") ?: 0.0
-            val ok = worldGateway.teleport(playerId, Vec3(x, y, z), WorldId(worldName))
+            val ok = worldGateway.teleportAsync(playerId, Vec3(x, y, z), WorldId(worldName)).await()
             if (ok) {
                 ctx.reply(
                     MessageKey("astera.command.reply.admin-teleport"),

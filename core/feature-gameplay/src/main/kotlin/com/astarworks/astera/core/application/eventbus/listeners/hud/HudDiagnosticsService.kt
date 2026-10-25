@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.eventbus.listeners.hud
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ticks
@@ -48,7 +49,7 @@ public class HudDiagnosticsService(
 
     public fun onJoined(event: PlayerJoinedServer) {
         val playerId = event.playerId
-        scheduler.runLater(ticks(logDelayTicks)) {
+        scheduler.run(ExecutionScope.Entity(event.playerId.uuid), ticks(logDelayTicks)) {
             if (hud.layoutsFor(playerId).isEmpty()) {
                 log.warn("{} (nothing owns any channel)", describe(playerId).line())
             } else {

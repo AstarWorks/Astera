@@ -1,9 +1,6 @@
 package com.astarworks.astera.stats.platform.wiring
 
-import com.astarworks.astera.core.application.command.ArgumentType
-import com.astarworks.astera.core.application.command.CommandResult
-import com.astarworks.astera.core.application.command.CommandSpec
-import com.astarworks.astera.core.application.command.requirePermission
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -26,9 +23,7 @@ import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
-import com.astarworks.astera.core.domain.event.XpSource
 import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IQuestChainRegistry
 import com.astarworks.astera.core.application.profile.RecomputeProfileCardUseCase
@@ -529,7 +524,7 @@ public object StatsWiring {
                 }
             }
             registrations += services.register(checkSeason)
-            val seasonTask = scheduler.runRepeatingTicks(1L, 1200L) {
+            val seasonTask = scheduler.runRepeatingTicks(ExecutionScope.Io, 1L, 1200L) {
                 checkSeason.execute(java.time.Instant.now()).onFailure { logger.warning("Season check failed: $it") }
             }
             shutdownHooks += { seasonTask.cancel() }

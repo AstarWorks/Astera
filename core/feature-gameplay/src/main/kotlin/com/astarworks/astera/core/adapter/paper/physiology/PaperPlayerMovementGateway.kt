@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.physiology
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IPlayerMovementGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory
  *    `player.getAttribute(Attribute.GRAVITY)` (Paper 1.21+ exposes a
  *    GRAVITY attribute with vanilla baseline `0.08`) and writes
  *    `attr.baseValue = GRAVITY_BASELINE * m`. The TTL is enforced by an
- *    `IScheduler.runLaterTicks` one-shot that calls [resetGravity].
+ *    `IScheduler.runTicks` one-shot that calls [resetGravity].
  *  - `resetGravity(playerId)` → `attr.baseValue = GRAVITY_BASELINE` and
  *    drops the entry from the internal state map.
  *
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory
  *
  * # TTL semantics
  *
- * Matches [PaperPlayerSpeedGateway] exactly — `IScheduler.runLaterTicks`
+ * Matches [PaperPlayerSpeedGateway] exactly — `IScheduler.runTicks`
  * one-shot expiry per player, cancelled on overwrite or explicit
  * [resetGravity]. The port returns `Unit` (no `Result`) so input
  * validation is best-effort: non-finite multipliers are clamped to
@@ -50,7 +51,7 @@ import org.slf4j.LoggerFactory
  *
  * Bukkit `AttributeInstance.setBaseValue` requires the main thread.
  * Same contract as ADR-0144 / 0145 / 0146 / 0147 / 0148 — off-main
- * callers must round-trip through `scheduler.runLater(Duration.ZERO,
+ * callers must round-trip through `scheduler.run(ExecutionScope.Entity(playerId.uuid), Duration.ZERO,
  * ...)`.
  *
  * # Phase 1 PoC limitations
@@ -105,7 +106,7 @@ public class PaperPlayerMovementGateway(
         // when ttlTicks elapses, but a non-positive TTL is treated as "until
         // reset()" to mirror PaperPlayerSpeedGateway's MAX_VALUE convention.
         if (ttlTicks > 0) {
-            expiry[playerId] = scheduler.runLaterTicks(ttlTicks.toLong()) {
+            expiry[playerId] = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), ttlTicks.toLong()) {
                 resetGravity(playerId)
             }
         }

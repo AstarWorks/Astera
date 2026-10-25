@@ -1,24 +1,18 @@
 package com.astarworks.astera.economy.platform.wiring
 
-import com.astarworks.astera.core.application.command.ArgumentType
-import com.astarworks.astera.core.application.command.CommandResult
-import com.astarworks.astera.core.application.command.CommandSpec
-import com.astarworks.astera.core.application.command.requirePermission
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
-import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IShopRegistry
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
-import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnMissionCompletedListener
 import com.astarworks.astera.economy.application.config.MatchRewardsLoader
 import com.astarworks.astera.economy.application.eventbus.listeners.GrantMatchRewardsOnSummaryListener
@@ -77,7 +71,6 @@ import com.astarworks.astera.economy.application.usecase.shop.ShopBrowseUseCase
 import com.astarworks.astera.economy.application.usecase.shop.ShopPurchaseUseCase
 import com.astarworks.astera.economy.command.buildShopCommandSpec
 import com.astarworks.astera.economy.domain.policy.CurrencyPolicies
-import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.TutorialCompleted
@@ -172,7 +165,7 @@ public object EconomyWiring {
 
         // Daily expiry sweep — 20 ticks/s × 60 s × 60 m × 24 h = 1,728,000 ticks.
         // Initial delay 20 ticks so onEnable can finish first.
-        scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(
+        scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(ExecutionScope.Io,
             initialDelayTicks = 20L,
             periodTicks = 1_728_000L,
         ) { expireCurrency.sweep() }
@@ -470,7 +463,7 @@ public object EconomyWiring {
 
         // Per-minute expiry sweep for pending challenges past their deadline
         // (acceptanceTimeout in BettingPolicy). 20 ticks/s × 60 s = 1,200 ticks.
-        scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(
+        scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(ExecutionScope.Io,
             initialDelayTicks = 60L,
             periodTicks = 1_200L,
         ) { expireBetting.execute() }

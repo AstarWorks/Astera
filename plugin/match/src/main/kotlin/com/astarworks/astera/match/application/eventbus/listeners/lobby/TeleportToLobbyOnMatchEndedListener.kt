@@ -1,10 +1,10 @@
 package com.astarworks.astera.match.application.eventbus.listeners.lobby
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
-import com.astarworks.astera.core.application.port.outbound.WorldGatewayError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.PlayerReturnedToLobby
@@ -72,22 +72,14 @@ public class TeleportToLobbyOnMatchEndedListener(
             return
         }
 
-        val currentTick = scheduler.currentTick()
         for (playerId in participants) {
-            when (val outcome = worldGateway.lobbySpawn(playerId)) {
-                is Result.Success -> {
-                    eventBus.publish(
-                        PlayerReturnedToLobby(
-                            playerId = playerId,
-                            atTick = currentTick,
-                        ),
-                    )
+            scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
+                worldGateway.lobbySpawn(playerId).thenAccept { outcome ->
+                    when (outcome) {
+                        is Result.Success -> eventBus.publish(PlayerReturnedToLobby(playerId, scheduler.currentTick()))
+                        is Result.Failure -> log.warn("Post-match lobby teleport for {} failed: {}", playerId, outcome.error::class.simpleName)
+                    }
                 }
-                is Result.Failure -> log.warn(
-                    "Post-match lobby teleport for {} failed: {}",
-                    playerId,
-                    outcome.error::class.simpleName,
-                )
             }
         }
     }

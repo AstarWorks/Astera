@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.packetevents
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.packet.IPacketInterceptor
 import com.astarworks.astera.core.domain.packet.InterceptorSubscription
 import com.astarworks.astera.core.domain.packet.PacketDecision
@@ -61,7 +62,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * through [register] therefore run off-main. Per the existing
  * [IPacketInterceptor] contract (Wave 5y, ADR-0095): listeners MUST be
  * thread-safe and MUST NOT touch Bukkit APIs that require the main thread
- * (use `scheduler.runLater(Duration.ZERO)` to marshal back).
+ * (use `scheduler.run(ExecutionScope.Global, Duration.ZERO)` to marshal back).
  *
  * The [entries] list is a [CopyOnWriteArrayList] so [register] / [unregister]
  * from any thread don't tear the iteration in [dispatch].

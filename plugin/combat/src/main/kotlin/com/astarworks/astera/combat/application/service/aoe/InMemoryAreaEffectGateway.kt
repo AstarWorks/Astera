@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.service.aoe
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.combat.application.port.outbound.aoe.IAreaEffectGateway
 import com.astarworks.astera.combat.domain.aoe.AreaEffectError
 import com.astarworks.astera.combat.domain.aoe.AreaEffectHandle
@@ -16,7 +17,7 @@ import java.util.UUID
  * Default in-memory binding for [IAreaEffectGateway] (Wave 5m / ADR-0088).
  *
  * Owns no Bukkit handles — schedules the per-tick callback through
- * [IScheduler.runRepeating], publishes spawn / despawn domain events,
+ * [IScheduler.repeat], publishes spawn / despawn domain events,
  * and tracks live handles in a [linkedMapOf] keyed by [AreaEffectHandle]
  * for deterministic [all] iteration.
  *
@@ -49,7 +50,7 @@ public class InMemoryAreaEffectGateway(
     override fun spawn(spec: AreaEffectSpec): Result<AreaEffectHandle, AreaEffectError> {
         val handle = AreaEffectHandle(id = UUID.randomUUID(), backendId = BACKEND_ID)
 
-        val tickTask = scheduler.runRepeating(
+        val tickTask = scheduler.repeat(regionScope(spec.world, spec.center),
             initialDelay = ticks(spec.tickIntervalTicks.toLong()),
             period = ticks(spec.tickIntervalTicks.toLong()),
         ) {
@@ -57,7 +58,7 @@ public class InMemoryAreaEffectGateway(
         }
 
         val despawnTask: IScheduler.TaskHandle? = if (spec.durationTicks > 0) {
-            scheduler.runLater(ticks(spec.durationTicks.toLong())) {
+            scheduler.run(regionScope(spec.world, spec.center), ticks(spec.durationTicks.toLong())) {
                 despawnInternal(handle, AreaEffectDespawned.DespawnReason.ExpiredNaturally)
             }
         } else {

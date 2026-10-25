@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.application.eventbus.listeners.hud
 
+import java.util.concurrent.ConcurrentHashMap
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.HudError
 import com.astarworks.astera.core.application.port.outbound.ICooldownIconSource
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
@@ -66,19 +69,19 @@ public class HpStatusHudService(
     private val hudGateway: IHudGateway,
     private val pools: IResourcePoolService,
     private val items: IItemRegistry,
-    scheduler: IScheduler,
+    private val scheduler: IScheduler,
     flushPeriodTicks: Long = FLUSH_PERIOD_TICKS,
     private val cooldownIcons: () -> ICooldownIconSource? = { null },
     private val statusEffectIcons: () -> IStatusEffectIconSource? = { null },
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val packLoaded: MutableSet<PlayerId> = mutableSetOf()
-    private val joined: MutableSet<PlayerId> = linkedSetOf()
-    private val failureLogged: MutableSet<PlayerId> = mutableSetOf()
-    private val lastSent: MutableMap<PlayerId, HudLayout.StatusLine> = mutableMapOf()
+    private val packLoaded: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
+    private val joined: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
+    private val failureLogged: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
+    private val lastSent: MutableMap<PlayerId, HudLayout.StatusLine> = ConcurrentHashMap()
 
-    private val task: IScheduler.TaskHandle = scheduler.runRepeatingTicks(flushPeriodTicks, flushPeriodTicks) { flush() }
+    private val task: IScheduler.TaskHandle = scheduler.runRepeatingTicks(ExecutionScope.Global, flushPeriodTicks, flushPeriodTicks) { flush() }
 
     public fun stop() {
         task.cancel()
@@ -100,18 +103,21 @@ public class HpStatusHudService(
     public fun flush() {
         if (joined.isEmpty()) return
         for (playerId in joined.toList()) {
-            val layout = render(playerId)
-            if (lastSent[playerId] == layout) continue
-            when (val outcome = hudGateway.showFor(playerId, layout)) {
-                is Result.Success -> lastSent[playerId] = layout
-                is Result.Failure -> {
-                    if (outcome.error is HudError.UnknownPlayer) {
-                        forget(playerId)
-                    } else if (failureLogged.add(playerId)) {
-                        log.warn("HP status HUD show failed for {}: {}", playerId, outcome.error)
+            scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
+
+                val layout = render(playerId)
+                if (lastSent[playerId] == layout) return@run
+                when (val outcome = hudGateway.showFor(playerId, layout)) {
+                    is Result.Success -> lastSent[playerId] = layout
+                    is Result.Failure -> {
+                        if (outcome.error is HudError.UnknownPlayer) {
+                            forget(playerId)
+                        } else if (failureLogged.add(playerId)) {
+                            log.warn("HP status HUD show failed for {}: {}", playerId, outcome.error)
+                        }
                     }
                 }
-            }
+                        }
         }
     }
 

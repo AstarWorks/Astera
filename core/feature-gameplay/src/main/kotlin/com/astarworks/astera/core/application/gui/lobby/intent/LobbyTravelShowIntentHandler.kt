@@ -85,9 +85,11 @@ public class LobbyTravelShowIntentHandler(
             TravelKind.SURVIVAL -> travelToSurvival.travel(player.id)
             TravelKind.LOBBY -> returnToLobby.returnToLobby(player.id)
         }
-        when (outcome) {
-            is Result.Success -> send(player, kind.successKey)
-            is Result.Failure -> send(player, outcome.error.messageKey)
+        outcome.thenAccept { result ->
+            when (result) {
+                is Result.Success -> send(player, kind.successKey)
+                is Result.Failure -> send(player, result.error.messageKey)
+            }
         }
     }
 

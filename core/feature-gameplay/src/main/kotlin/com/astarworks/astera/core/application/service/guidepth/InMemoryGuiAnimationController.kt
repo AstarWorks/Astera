@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap
  * `InMemoryCameraGateway.freeze` decision to avoid task leaks on gateway
  * replace). Tests that need to assert completion call
  * [simulateComplete] to fire [SlotAnimationCompleted] manually. The Paper
- * adapter (Wave 6) wires `IScheduler.runLater(durationTicks) {
+ * adapter (Wave 6) wires `IScheduler.run(durationTicks) {
  * fireCompleted(handle) }`.
  */
 public class InMemoryGuiAnimationController(

@@ -22,6 +22,30 @@ import java.io.File
  */
 class ArchitectureTest {
 
+    /** ADR-0262: every runtime module uses Folia-family schedulers; no compatibility allowlist. */
+    @Test
+    fun `main sources must not use the legacy Bukkit scheduler or primary thread flag`() {
+        val forbidden = Regex(
+            """\b(?:getScheduler\s*\(|BukkitRunnable\b|BukkitScheduler\b|isPrimaryThread\b|runTask(?:Later|Timer|Asynchronously|LaterAsynchronously|TimerAsynchronously)?\s*\()|(?:\bserver|\.server|getServer\(\))\s*\.\s*scheduler\b""",
+        )
+        projectScope().files.filter { it.path.contains("/src/main/") }.assertFalse { file ->
+            file.imports.any { it.name.startsWith("org.bukkit.scheduler.") } ||
+                forbidden.containsMatchIn(sourceWithoutComments(file.text))
+        }
+    }
+
+    @Test
+    fun `Paper adapters must use asynchronous entity teleportation`() {
+        projectScope().files.filter {
+            it.path.contains("/src/main/") && (it.path.contains("/adapter/paper/") || it.path.contains("/platform/"))
+        }.assertFalse { file ->
+            Regex("""\.\s*teleport\s*\(""").containsMatchIn(sourceWithoutComments(file.text))
+        }
+    }
+
+    private fun sourceWithoutComments(text: String): String =
+        text.replace(Regex("""/\*.*?\*/|//[^\n]*""", RegexOption.DOT_MATCHES_ALL), " ")
+
     private val bukkitFamily = listOf(
         "org.bukkit",
         "io.papermc",

@@ -19,7 +19,7 @@ import com.astarworks.astera.core.domain.gui.GuiSpec
  * All four methods MUST be called on the server's main thread. The Paper impl
  * mutates `org.bukkit.inventory.Inventory` instances which is main-thread-only
  * per Paper API contract. Callers driven by coroutines must funnel through
- * `IScheduler.mainDispatcher`.
+ * `IScheduler.dispatcher(scope)`.
  *
  * ### Cross-plugin classloader rule
  *

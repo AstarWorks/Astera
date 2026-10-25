@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service.effect
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.effect.ICountdownTimer
 import com.astarworks.astera.core.application.port.outbound.ticks
@@ -9,7 +10,7 @@ import com.astarworks.astera.core.domain.effect.timer.TimerHandle
 /**
  * Default in-memory [ICountdownTimer]. Wave 5effects (ADR-0109).
  *
- * Runs each timer on a 1-tick `IScheduler.runRepeating` loop, decrementing
+ * Runs each timer on a 1-tick `IScheduler.repeat` loop, decrementing
  * a per-handle counter and firing `onTick` / `onComplete` as appropriate.
  * Pause/resume cancel the underlying scheduler task and re-arm it when
  * resume is called — `remainingTicks` is preserved.
@@ -73,11 +74,11 @@ public class InMemoryCountdownTimer(
 
         private fun arm() {
             if (cancelled || paused || remaining <= 0L) return
-            task = scheduler.runRepeating(ticks(1), ticks(1)) {
-                if (cancelled || paused) return@runRepeating
+            task = scheduler.repeat(ExecutionScope.Global, ticks(1), ticks(1)) {
+                if (cancelled || paused) return@repeat
                 if (remaining <= 0L) {
                     completeAndTerminate()
-                    return@runRepeating
+                    return@repeat
                 }
                 remaining -= 1L
                 onTick(remaining)

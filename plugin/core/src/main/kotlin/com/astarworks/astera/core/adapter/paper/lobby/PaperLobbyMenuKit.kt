@@ -148,7 +148,7 @@ internal class PaperLobbyMenuKit(
     }
 
     private fun later(player: Player) {
-        plugin.server.scheduler.runTask(plugin, Runnable { refresh(player) })
+        player.scheduler.execute(plugin, Runnable { refresh(player) }, null, 1L)
     }
 
     private fun strip(player: Player) {
@@ -227,14 +227,14 @@ internal class PaperLobbyMenuKit(
 
     /** Once per join: tell the player about the keybinds (ADR-0232). Silent where the kit does not apply. */
     private fun hintKeys(player: Player) {
-        plugin.server.scheduler.runTaskLater(
+        player.scheduler.execute(
             plugin,
             Runnable {
                 if (!player.isOnline || !active(player)) return@Runnable
                 val text = messages.render(PlayerId(player.uniqueId), com.astarworks.astera.core.domain.i18n.MessageKey(KEYS_HINT))
                 player.sendActionBar(AsteraTextDeserializer.deserialize(text))
             },
-            HINT_DELAY_TICKS,
+            null, HINT_DELAY_TICKS,
         )
     }
 
@@ -344,12 +344,12 @@ internal class PaperLobbyMenuKit(
         if (allowPress && LobbyKitLockRules.pressesButton(facts, e.isLeftClick || e.isRightClick)) {
             val id = MenuKitTag.entryId(e.currentItem) ?: return
             // Closing from inside the click handler is unsafe; do it next tick, then open the target.
-            plugin.server.scheduler.runTask(
+            player.scheduler.execute(
                 plugin,
                 Runnable {
                     player.closeInventory()
                     press(player, id)
-                },
+                }, null, 1L,
             )
         }
     }

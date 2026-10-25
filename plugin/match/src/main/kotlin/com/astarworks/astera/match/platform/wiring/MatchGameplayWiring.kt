@@ -1,5 +1,8 @@
 package com.astarworks.astera.match.platform.wiring
 
+import java.util.concurrent.ConcurrentHashMap
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
@@ -296,7 +299,7 @@ internal object MatchGameplayWiring {
         subscriptions += eventBus.subscribe(MatchEnded::class) { eliminatedTeams.onMatchEnded(it) }
 
         // F3-5: death screen -> death cam -> countdown -> respawn at a team spawn -> spawn protection.
-        val deathConfigLogged = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+        val deathConfigLogged = ConcurrentHashMap.newKeySet<String>()
         val matchStars = MatchStarWiring.install(env)
         env.stars = matchStars
         commands.register(MatchCommandSpecs.buildNormaCommandSpec(matchStars.norma))
@@ -462,7 +465,7 @@ internal object MatchGameplayWiring {
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.match.domain.event.PhaseChanged::class,
         ) { normaKills.onPhaseChanged(it) }
-        scheduledTasks += scheduler.runRepeating(
+        scheduledTasks += scheduler.repeat(ExecutionScope.Global,
             com.astarworks.astera.core.application.port.outbound.ticks(20),
             com.astarworks.astera.core.application.port.outbound.ticks(20),
         ) { normaKills.tick() }
@@ -679,7 +682,7 @@ internal object MatchGameplayWiring {
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) { lanePadJoin.refreshBoard() }
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { lanePadJoin.refreshBoard() }
             // Safety net for paths that drain a queue without an event (admin force start, reload).
-            scheduledTasks += scheduler.runRepeating(
+            scheduledTasks += scheduler.repeat(ExecutionScope.Global,
                 com.astarworks.astera.core.application.port.outbound.ticks(40),
                 com.astarworks.astera.core.application.port.outbound.ticks(40),
             ) { lanePadJoin.refreshBoard() }

@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IProjectileHandle
 import com.astarworks.astera.combat.application.port.outbound.IProjectileService
 import com.astarworks.astera.combat.application.service.ProjectileContact
@@ -53,7 +54,7 @@ public class SimProjectileService(
     /** Starts the per-tick stepper. Idempotent. */
     public fun start(): IScheduler.TaskHandle {
         stepTask?.cancel()
-        return scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) { step() }.also { stepTask = it }
+        return scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 1L, periodTicks = 1L) { step() }.also { stepTask = it }
     }
 
     public fun stop() {

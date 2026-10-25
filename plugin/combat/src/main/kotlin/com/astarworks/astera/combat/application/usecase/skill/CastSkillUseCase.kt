@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.usecase.skill
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.usecase.skill.dispatch.SkillCastDispatcher
@@ -206,7 +207,7 @@ public class CastSkillUseCase(
                     atTick = now,
                 ),
             )
-            scheduler.runLaterTicks(ticks) {
+            scheduler.runLaterTicks(ExecutionScope.Entity(casterId.uuid), ticks) {
                 reloadingUntil.remove(casterId)
                 pool.reload(casterId, weapon)
             }

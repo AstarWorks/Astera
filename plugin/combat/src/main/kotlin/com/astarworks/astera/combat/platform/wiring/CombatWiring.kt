@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.damage.attackerIdOrNull
 import com.astarworks.astera.combat.application.config.StatusEffectInteractionLoader
 import com.astarworks.astera.combat.application.contents.ArmorContents
@@ -651,7 +652,7 @@ public object CombatWiring {
                 scheduler = scheduler,
                 eventBus = eventBus,
             )
-            val tickCooldownHandle = scheduler.runRepeatingTicks(
+            val tickCooldownHandle = scheduler.runRepeatingTicks(ExecutionScope.Global,
                 initialDelayTicks = 1L,
                 periodTicks = 1L,
             ) { tickCooldown.execute() }

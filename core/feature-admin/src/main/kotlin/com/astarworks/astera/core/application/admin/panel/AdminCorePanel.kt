@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.admin.panel
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.executor
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.admin.panel.AdminPanelUi.pager
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
@@ -45,6 +47,7 @@ public class AdminCorePanel(
     private val maintenance: IMaintenanceModeService,
     private val health: IServerHealthCheck,
     private val reloadAll: ReloadAllContentUseCase,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
     private val clock: Clock = Clock.systemUTC(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -96,14 +99,16 @@ public class AdminCorePanel(
             PLAYERS_PICK -> targetOf(intent)?.let { showPlayerActions(player, it) }
                 ?: guard.tell(player, K_PLAYER_GONE)
             PLAYERS_TP -> withOnlineTarget(player, intent) { target ->
-                val ok = players.teleportToPlayer(player.id, target.id)
-                guard.tell(player, if (ok) K_TP_DONE else K_PLAYER_GONE, mapOf("player" to target.name))
-                if (ok) guard.record(player, PLAYERS_TP, target.id.toString())
+                players.teleportToPlayer(player.id, target.id).thenAcceptAsync({ ok ->
+                    guard.tell(player, if (ok) K_TP_DONE else K_PLAYER_GONE, mapOf("player" to target.name))
+                    if (ok) guard.record(player, PLAYERS_TP, target.id.toString())
+                }, scheduler.executor(ExecutionScope.Entity(player.id.uuid)))
             }
             PLAYERS_BRING -> withOnlineTarget(player, intent) { target ->
-                val ok = players.teleportToPlayer(target.id, player.id)
-                guard.tell(player, if (ok) K_BRING_DONE else K_PLAYER_GONE, mapOf("player" to target.name))
-                if (ok) guard.record(player, PLAYERS_BRING, target.id.toString())
+                players.teleportToPlayer(target.id, player.id).thenAcceptAsync({ ok ->
+                    guard.tell(player, if (ok) K_BRING_DONE else K_PLAYER_GONE, mapOf("player" to target.name))
+                    if (ok) guard.record(player, PLAYERS_BRING, target.id.toString())
+                }, scheduler.executor(ExecutionScope.Entity(player.id.uuid)))
             }
             PLAYERS_GAMEMODE -> withOnlineTarget(player, intent) { target ->
                 val mode = players.toggleGameMode(target.id)

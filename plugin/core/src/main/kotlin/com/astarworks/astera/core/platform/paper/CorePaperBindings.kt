@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.platform.paper
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.event.BukkitEventAdapter
 import com.astarworks.astera.core.adapter.paper.event.PaperBroadcaster
@@ -262,7 +263,7 @@ internal class CorePaperBindings(
                 gateway
             },
             playerSoundGateway = com.astarworks.astera.core.adapter.paper.effect.PaperPlayerSoundGateway(server),
-            adminPlayerGateway = com.astarworks.astera.core.adapter.paper.admin.PaperAdminPlayerGateway(server),
+            adminPlayerGateway = com.astarworks.astera.core.adapter.paper.admin.PaperAdminPlayerGateway(server, plugin),
             playerHealthGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.physiology.PaperPlayerHealthGateway(
                     services.getOrThrow<IPlayerAttributeContainerStore>(),
@@ -388,7 +389,7 @@ internal class CorePaperBindings(
             localServer = serverEnvironment.name,
             redisUri = io.lettuce.core.RedisURI.create(uri),
             playerConnector = connector::connect,
-            dispatch = { block -> scheduler.runLater(com.astarworks.astera.core.application.port.outbound.TICK) { block() } },
+            dispatch = { block -> scheduler.run(ExecutionScope.Global, com.astarworks.astera.core.application.port.outbound.TICK) { block() } },
         )
         return try {
             messenger.start()
@@ -415,7 +416,7 @@ internal class CorePaperBindings(
         }
         val gateway = com.astarworks.astera.core.adapter.paper.bots.LettuceBotRequestGateway(
             redisUri = io.lettuce.core.RedisURI.create(uri),
-            dispatch = { block -> plugin.server.scheduler.runTask(plugin, Runnable { block() }) },
+            dispatch = { block -> plugin.server.globalRegionScheduler.execute(plugin, Runnable { block() }) },
         )
         try {
             gateway.start()
@@ -632,7 +633,7 @@ internal class CorePaperBindings(
         // the spawn supplier is null: joins stay on the main world, lobbySpawn falls back to it.
         npcBodyService?.awaitedWorlds = setOf(config.id)
         server.pluginManager.registerEvents(
-            com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(config.id, config.rules) {
+            com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(config.id, config.rules, plugin) {
                 server.getWorld(config.id)?.let {
                     org.bukkit.Location(it, config.spawn.x, config.spawn.y, config.spawn.z, config.spawn.yaw, config.spawn.pitch)
                 }
@@ -673,7 +674,7 @@ internal class CorePaperBindings(
                     // Paper may still consider the server "starting"; retry a bit later.
                     logger.warning("Lobby world creation failed (${t.message}); retrying in 1s.")
                     created.set(false)
-                    server.scheduler.runTaskLater(plugin, create, 20L)
+                    server.globalRegionScheduler.runDelayed(plugin, { create.run() }, 20L)
                     done = false
                 } else {
                     logger.log(java.util.logging.Level.SEVERE, "Lobby world creation failed; lobby stays on the main world.", t)
@@ -699,7 +700,7 @@ internal class CorePaperBindings(
             plugin,
         )
         // /reload: ServerLoadEvent never fires again, so also try on the next tick.
-        server.scheduler.runTask(plugin, create)
+        server.globalRegionScheduler.execute(plugin, create)
     }
 
     /**
@@ -741,7 +742,7 @@ internal class CorePaperBindings(
                 if (attempts.incrementAndGet() < MAX_LOBBY_WORLD_ATTEMPTS) {
                     logger.warning("Arena world creation failed (${t.message}); retrying in 1s.")
                     built.set(false)
-                    server.scheduler.runTaskLater(plugin, create, 20L)
+                    server.globalRegionScheduler.runDelayed(plugin, { create.run() }, 20L)
                 } else {
                     logger.log(java.util.logging.Level.SEVERE, "Arena world creation failed; matches run on a bare world.", t)
                 }
@@ -755,7 +756,7 @@ internal class CorePaperBindings(
             plugin,
         )
         // /reload: ServerLoadEvent never fires again, so also try on the next tick.
-        server.scheduler.runTask(plugin, create)
+        server.globalRegionScheduler.execute(plugin, create)
     }
 
     /** F3-1 — one live "lane name + queued" text display above each lane pad. */

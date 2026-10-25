@@ -52,6 +52,7 @@ internal fun CoreWiringState.wireAdminPanel() {
     )
 
     val panel = AdminCorePanel(
+        scheduler = scheduler,
         guard = guard,
         registry = registry,
         guiAdapter = guiAdapter,

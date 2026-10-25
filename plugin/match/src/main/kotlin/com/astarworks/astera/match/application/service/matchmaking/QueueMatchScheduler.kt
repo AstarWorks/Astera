@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service.matchmaking
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
@@ -68,7 +69,7 @@ public class QueueMatchScheduler(
     /** Arm the repeating check. The caller owns the handle and cancels it on disable. */
     public fun start(): IScheduler.TaskHandle {
         val period = ticks(settings().checkIntervalSeconds * TICKS_PER_SECOND)
-        return scheduler.runRepeating(initialDelay = period, period = period) { tick() }
+        return scheduler.repeat(ExecutionScope.Global, initialDelay = period, period = period) { tick() }
     }
 
     public fun tick() {

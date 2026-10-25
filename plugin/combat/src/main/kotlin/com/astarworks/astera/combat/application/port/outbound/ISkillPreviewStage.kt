@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.port.outbound
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.combat.application.preview.ViewPoint
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -61,5 +63,5 @@ public interface ITickRateControl {
  */
 public interface IEntityCasterBody {
     public fun poseOf(id: PlayerId): PlayerPose?
-    public fun teleport(id: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean
+    public fun teleportAsync(id: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): CompletableFuture<Boolean>
 }

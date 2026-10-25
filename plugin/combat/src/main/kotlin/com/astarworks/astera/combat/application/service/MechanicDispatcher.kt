@@ -1,9 +1,10 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
 import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
-import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
 import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
@@ -89,8 +90,8 @@ import org.slf4j.LoggerFactory
  * Dispatch loop (per mechanic):
  *
  *  1. Resolve the gating [Condition] — if false (or CEL failure), skip.
- *  2. Resolve timing: `delayTicks > 0` → [IScheduler.runLater]; `periodTicks > 0`
- *     → [IScheduler.runRepeating] (terminated by `durationTicks` or by phase
+ *  2. Resolve timing: `delayTicks > 0` → [IScheduler.run]; `periodTicks > 0`
+ *     → [IScheduler.repeat] (terminated by `durationTicks` or by phase
  *     end, whichever comes first); else execute now.
  *  3. Resolve targets via [TargeterResolver] and dispatch the gameplay /
  *     visual side-effect to the right outbound port.
@@ -392,18 +393,18 @@ public class MechanicDispatcher(
                 // is expected to cancel handles when its phase ends). Phase 1:
                 // we self-terminate after duration ticks; Phase 6 will let the
                 // archetype handler hold the handle and cancel on phase end.
-                val handle = scheduler.runRepeating(
+                val handle = scheduler.repeat(ExecutionScope.Entity(ctx.actorId.uuid),
                     initialDelay = ticks(delay.toLong()),
                     period = ticks(period.toLong()),
                 ) {
                     fireGated(mechanic, livePose(mechanic, ctx))
                 }
                 if (duration > 0) {
-                    scheduler.runLater(ticks((delay + duration).toLong())) { handle.cancel() }
+                    scheduler.run(ExecutionScope.Entity(ctx.actorId.uuid), ticks((delay + duration).toLong())) { handle.cancel() }
                 }
             }
             delay > 0 -> {
-                scheduler.runLater(ticks(delay.toLong())) { fireGated(mechanic, livePose(mechanic, ctx)) }
+                scheduler.run(ExecutionScope.Entity(ctx.actorId.uuid), ticks(delay.toLong())) { fireGated(mechanic, livePose(mechanic, ctx)) }
             }
             else -> {
                 fireGated(mechanic, ctx)
@@ -466,7 +467,7 @@ public class MechanicDispatcher(
         if (sameTick.isNotEmpty()) deferredMovement.getOrPut(id) { ArrayList() } += sameTick
         val release = now + ticks
         heldUntil[id] = maxOf(heldUntil[id] ?: 0L, release)
-        scheduler.runLater(ticks(ticks.toLong())) {
+        scheduler.run(ExecutionScope.Entity(id.uuid), ticks(ticks.toLong())) {
             if ((heldUntil[id] ?: Long.MAX_VALUE) <= scheduler.currentTick()) {
                 heldUntil.remove(id)
                 deferredMovement.remove(id)?.forEach { it() }
@@ -660,7 +661,7 @@ public class MechanicDispatcher(
                 val targets = targeterResolver.resolvePlayers(mechanic.targets, ctx)
                 val dest = resolveLocation(mechanic.destination, ctx) ?: return
                 for (target in targets) {
-                    worldGateway.teleport(target, dest.position, dest.world)
+                    worldGateway.teleportAsync(target, dest.position, dest.world)
                 }
             }
 
@@ -733,7 +734,7 @@ public class MechanicDispatcher(
                     container.addModifier(AttributeModifier(key, AttributeModifier.Operation.ADD, delta, source))
                     // ticks = 0 keeps the modifier for good (until the container is rebuilt).
                     if (lifetime > 0) {
-                        scheduler.runLater(ticks(lifetime.toLong())) { container.removeModifiersBySource(source) }
+                        scheduler.run(ExecutionScope.Entity(target.uuid), ticks(lifetime.toLong())) { container.removeModifiersBySource(source) }
                     }
                 }
             }
@@ -934,7 +935,7 @@ public class MechanicDispatcher(
                     val iterCtx = ctx.copy(tickIndex = ctx.tickIndex + i)
                     // Iteration i runs i * stride ticks after the loop fires (stride 0 = all at once).
                     if (stride > 0 && i > 0) {
-                        scheduler.runLater(ticks((i.toLong() * stride))) { dispatch(mechanic.mechanics, iterCtx) }
+                        scheduler.run(ExecutionScope.Entity(ctx.actorId.uuid), ticks((i.toLong() * stride))) { dispatch(mechanic.mechanics, iterCtx) }
                     } else {
                         dispatch(mechanic.mechanics, iterCtx)
                     }

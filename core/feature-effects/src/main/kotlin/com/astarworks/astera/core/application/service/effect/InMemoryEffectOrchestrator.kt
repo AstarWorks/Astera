@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.service.effect
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.effect.IDamageApplier
@@ -22,7 +24,7 @@ import org.slf4j.LoggerFactory
  *  - `SoundStep`    → [IWorldGateway.playSound]
  *  - `StatusEffectStep` → [IStatusEffectApplier] (combat-side bridge)
  *  - `DamageStep`   → [IDamageApplier] (combat-side bridge)
- *  - `DelayStep`    → [IScheduler.runLater] (gap inside a Sequence)
+ *  - `DelayStep`    → [IScheduler.run] (gap inside a Sequence)
  *
  * # Composition
  *
@@ -51,7 +53,7 @@ public class InMemoryEffectOrchestrator(
     override fun play(chain: EffectChain): EffectHandle {
         val composite = CompositeHandle()
         val endTick = execute(chain, composite, delayTicks = 0L)
-        composite.add(scheduler.runLater(ticks(endTick)) { composite.markComplete() })
+        composite.add(scheduler.run(ExecutionScope.Global, ticks(endTick)) { composite.markComplete() })
         return composite
     }
 
@@ -88,8 +90,15 @@ public class InMemoryEffectOrchestrator(
         }
 
     private fun dispatchStep(step: EffectStep, composite: CompositeHandle, delayTicks: Long) {
-        val task = scheduler.runLater(ticks(delayTicks)) {
-            if (composite.isCancelled) return@runLater
+        val scope = when (step) {
+            is EffectStep.ParticleStep -> step.world?.let { regionScope(it, step.position) }
+            is EffectStep.SoundStep -> step.world?.let { regionScope(it, step.position) }
+            is EffectStep.StatusEffectStep -> step.target?.let { ExecutionScope.Entity(it.uuid) }
+            is EffectStep.DamageStep -> step.target?.let { ExecutionScope.Entity(it.uuid) }
+            is EffectStep.DelayStep -> ExecutionScope.Global
+        } ?: return
+        val task = scheduler.run(scope, ticks(delayTicks)) {
+            if (composite.isCancelled) return@run
             executeOne(step)
         }
         composite.add(task)

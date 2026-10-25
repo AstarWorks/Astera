@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.broadcast
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.event.DomainEvent
@@ -118,7 +119,7 @@ public class LettuceRedisBroadcaster(
         if (disabled.get()) return
         val conn = connection ?: return
         val payload = serialize(event)
-        scheduler.runAsync {
+        scheduler.run(ExecutionScope.Io, kotlin.time.Duration.ZERO) {
             try {
                 conn.sync().publish(channel, payload)
             } catch (ex: RuntimeException) {

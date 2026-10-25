@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.adapter.paper
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
@@ -59,6 +61,9 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
         return item.uniqueId.toString()
     }
 
+    override fun executionScope(handle: String): ExecutionScope =
+        ExecutionScope.Entity(UUID.fromString(handle))
+
     override fun locate(handle: String): Vec3? {
         val e = server.getEntity(UUID.fromString(handle)) as? Item ?: return null
         if (!e.isValid) return null
@@ -67,12 +72,14 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
 
     override fun relabel(handle: String, amount: Int) {
         val e = server.getEntity(UUID.fromString(handle)) as? Item ?: return
-        e.customName(label(amount))
-        e.itemStack = e.itemStack.also { it.amount = amount.coerceIn(1, MAX_STACK) }
+        e.scheduler.execute(plugin, Runnable {
+            e.customName(label(amount))
+            e.itemStack = e.itemStack.also { it.amount = amount.coerceIn(1, MAX_STACK) }
+        }, null, 1L)
     }
 
     override fun remove(handle: String) {
-        (server.getEntity(UUID.fromString(handle)) as? Item)?.remove()
+        (server.getEntity(UUID.fromString(handle)) as? Item)?.let { item -> item.scheduler.execute(plugin, Runnable { item.remove() }, null, 1L) }
     }
 
     override fun playPickup(world: WorldId, position: Vec3) {

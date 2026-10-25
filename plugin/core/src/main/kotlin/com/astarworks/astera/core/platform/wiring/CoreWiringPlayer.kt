@@ -1,9 +1,6 @@
 package com.astarworks.astera.core.platform.wiring
 
-import com.astarworks.astera.core.application.command.ArgumentType
-import com.astarworks.astera.core.application.command.CommandResult
-import com.astarworks.astera.core.application.command.CommandSpec
-import com.astarworks.astera.core.application.command.requirePermission
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.contents.MobContents
 import com.astarworks.astera.core.application.port.outbound.entity.IEntityRegistry
 import com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner
@@ -22,7 +19,6 @@ import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IResourceRegenScheduler
 import com.astarworks.astera.core.application.port.outbound.IPlayerPvpStateService
 import com.astarworks.astera.core.application.port.outbound.ISpawnProtectionGateway
-import com.astarworks.astera.core.application.port.outbound.ReloadError
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.service.entity.CitizensNpcAdapter
 import com.astarworks.astera.core.application.service.entity.InMemoryEntityRegistry
@@ -48,9 +44,6 @@ import com.astarworks.astera.core.domain.event.PlayerEnteredMatch
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.application.services.register
-import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.core.domain.permission.Permission
 
 /** Player physiology, resource pools, spawn protection / PvP, /astera reload, entity and mob foundation. */
 internal fun CoreWiringState.wirePlayerSystems() {
@@ -121,8 +114,8 @@ internal fun CoreWiringState.wirePlayerSystems() {
     services.register<IResourceRegenScheduler>(resourceRegen, priority = 0)
     // Drive the regen pool at server-tick cadence. Per-tick visit walks the
     // tracked player set only — empty cost when no Annihilation match is live.
-    val resourceRegenTask = scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) {
-        resourceRegen.tick(scheduler.currentTick())
+    val resourceRegenTask = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 1L, periodTicks = 1L) {
+        resourceRegen.trackedPlayers().forEach { id -> scheduler.run(ExecutionScope.Entity(id.uuid), kotlin.time.Duration.ZERO) { resourceRegen.tickPlayer(id, scheduler.currentTick()) } }
     }
     shutdownHooks += { resourceRegenTask.cancel() }
     // Initialise the resource pool whenever a player joins, mirroring the
@@ -140,7 +133,7 @@ internal fun CoreWiringState.wirePlayerSystems() {
     val egoGauge: IEgoGauge =
         InMemoryEgoGauge(scheduler, eventBus, EgoConfigLoader().load(contentDir.resolve("balance/ego.yaml")))
     services.register<IEgoGauge>(egoGauge, priority = 0)
-    scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
+    scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 20L, periodTicks = 20L) {
         egoGauge.decay(scheduler.currentTick())
     }
     wave5completeSubs += eventBus.subscribe(PlayerEnteredMatch::class) { egoGauge.reset(it.playerId) }

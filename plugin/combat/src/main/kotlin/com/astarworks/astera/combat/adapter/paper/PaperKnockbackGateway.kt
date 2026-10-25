@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory
  * combat pipeline runs `ApplyDamageUseCase` synchronously from event
  * handlers that already execute on main, so direct invocation is safe.
  * Callers from off-main paths (e.g. async tasks) MUST round-trip through
- * `IScheduler.runLater(Duration.ZERO, ...)` before invoking this gateway.
+ * `IScheduler.run(Duration.ZERO, ...)` before invoking this gateway.
  *
  * # Failure modes
  *

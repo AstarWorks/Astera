@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.event.StatusExpired
 import com.astarworks.astera.combat.domain.event.StatusRemoved
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
@@ -101,7 +102,7 @@ public class StatusEffectTickListener(
      */
     public fun start(plugin: JavaPlugin): IScheduler.TaskHandle {
         plugin.server.pluginManager.registerEvents(this, plugin)
-        return scheduler.runRepeatingTicks(
+        return scheduler.runRepeatingTicks(ExecutionScope.Global,
             initialDelayTicks = TICK_PERIOD_TICKS,
             periodTicks = TICK_PERIOD_TICKS,
         ) {
@@ -123,24 +124,27 @@ public class StatusEffectTickListener(
         val now = scheduler.currentTick()
         val playerIds = container.activeEffects.keys.toList()
         for (playerId in playerIds) {
-            val effectIds = container.activeEffects[playerId]?.keys?.toList() ?: continue
-            for (effectId in effectIds) {
-                // Re-resolve each iteration: a DoT tick can kill the player, and the
-                // death listener clears every status (the map is replaced/removed).
-                val perPlayer = container.activeEffects[playerId] ?: break
-                val instance = perPlayer[effectId] ?: continue
-                applyTickEffect(playerId, instance)
-                val current = container.activeEffects[playerId]?.get(effectId) ?: continue
-                val nextTicks = current.remainingTicks - TICK_PERIOD_TICKS.toInt()
-                if (nextTicks <= 0) {
-                    expire(playerId, current, now)
-                } else {
-                    container.activeEffects[playerId]?.put(effectId, current.copy(remainingTicks = nextTicks))
+            scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
+
+                val effectIds = container.activeEffects[playerId]?.keys?.toList() ?: return@run
+                for (effectId in effectIds) {
+                    // Re-resolve each iteration: a DoT tick can kill the player, and the
+                    // death listener clears every status (the map is replaced/removed).
+                    val perPlayer = container.activeEffects[playerId] ?: break
+                    val instance = perPlayer[effectId] ?: continue
+                    applyTickEffect(playerId, instance)
+                    val current = container.activeEffects[playerId]?.get(effectId) ?: continue
+                    val nextTicks = current.remainingTicks - TICK_PERIOD_TICKS.toInt()
+                    if (nextTicks <= 0) {
+                        expire(playerId, current, now)
+                    } else {
+                        container.activeEffects[playerId]?.put(effectId, current.copy(remainingTicks = nextTicks))
+                    }
                 }
-            }
-            if (container.activeEffects[playerId]?.isEmpty() == true) {
-                container.activeEffects.remove(playerId)
-            }
+                if (container.activeEffects[playerId]?.isEmpty() == true) {
+                    container.activeEffects.remove(playerId)
+                }
+                        }
         }
     }
 

@@ -162,3 +162,148 @@ Stay on **26.3 alpha, pinned to build 5 with its sha256**:
 3. Replace runtime `createWorld` with pre-provisioned worlds, sync `teleport`
    with `teleportAsync`, and the Bukkit scoreboard HUD with a packet or
    per-player approach.
+
+## Round 2 — ExecutionScope scheduler v2 (2026-10-26)
+
+The scheduler boot blocker is removed. **All 7 plugins enable on both Folia
+26.3 build 5 alpha and Paper 26.3 build 211**, on both lobby and game roles.
+The final idle smoke checks have no BukkitScheduler, primary-thread, sync
+teleport, or plugin-enable exceptions. No players connected in these checks.
+
+### Implementation and compile verification
+
+- `kernel:runtime`: `ExecutionScope.Global / Entity(UUID) / Region(WorldId,
+  cx, cz) / Io`; mandatory scope on `run`, `repeat`, `dispatcher` and the tick
+  helpers. Removed `SchedulerRegion`, region-less methods, absolute scheduling,
+  `mainDispatcher`, `asyncDispatcher`, and `awaitTicks`. No compatibility aliases.
+- `kernel:paper`: each scope delegates to its corresponding Folia-family API.
+  The only common ticker counts global ticks with an `AtomicLong`; it executes
+  no application work. Entity references are captured by lifecycle events, with
+  global UUID resolution for references not yet seen. Cancellation handles both
+  the resolution task and the entity task, including retirement before binding.
+- Player HUD/status/regen/AFK, animation, preview, projectile, generator, block
+  recovery, star-drop and hologram drivers distribute work to their owners.
+  Arena paste/clear steps dispatch to the owning chunk and await completion
+  before recording the build marker.
+- Native teleports use `teleportAsync`. World, match spawn/respawn, travel,
+  spectator and admin teleport APIs expose completion futures; dependent health,
+  protection, inventory/presentation and success events wait for completion.
+  Handoff polling reads snapshots on Io and restores inventories on Entity.
+- The fake scheduler executes every scope through one heap ordered by tick and
+  insertion sequence, including coroutine dispatch, cancellation and explicit
+  owner retirement.
+- ADR-0262 architecture rules reject legacy scheduler imports/calls,
+  `BukkitRunnable`, `isPrimaryThread`, and synchronous teleports in Paper
+  adapters/platform code. No allowlist was added or existing rule relaxed.
+- `docker/Dockerfile` now copies `kernel/` and `core/` into its builder, matching
+  the T1 module split.
+
+Passed (no test tasks executed):
+
+```text
+./gradlew compileKotlin compileTestKotlin \
+  :plugin:core:shadowJar :plugin:items:shadowJar :plugin:combat:shadowJar \
+  :plugin:match:shadowJar :plugin:stats:shadowJar :plugin:economy:shadowJar \
+  :plugin:persistence:shadowJar
+```
+
+This compiles the game-sim scenarios and Konsist rules; it does not execute them.
+A main-source scan finds zero legacy scheduler imports/calls, primary-thread
+checks, or synchronous Bukkit teleports. `git diff --check` passes.
+
+### Scope classification
+
+Consumer main-source scheduling/dispatcher/executor expressions, excluding the
+scheduler implementations, fixture implementations and test sources:
+
+| Scope | Static sites |
+|---|---:|
+| Global | 63 |
+| Entity | 82 |
+| Region | 37 |
+| Io | 7 |
+| Explicit runtime selection | 5 |
+| Total | 194 |
+
+The five runtime selections are effect-step kind (Entity/Region/Global), command
+actor (Entity/Global), star-drop handle versus spawn location (Entity/Region), VFX
+anchor versus position (Entity/Region), and training body versus spawn location
+(Entity/Region). None defaults to Global for an unidentified world/entity owner.
+Native scheduler consumers outside `PaperScheduler` add 14 Global, 18 Entity and
+2 Region call sites. Local inventory: `build/t4-scope-sites.tsv`.
+
+Scope choices that still require player/multiple-region verification:
+
+- `VfxPlayer`: use the anchor's Entity scope when an id exists, otherwise the
+  effect position's Region. A raw anchor callback cannot declare the owner of
+  every object it reads; arbitrary remote anchors and wide effects need the T12
+  ownership review.
+- `CaptureZoneScheduler`: callers supply the world; use the zone's minimum
+  corner's Region. A zone spanning independent regions needs occupancy snapshots
+  or partitioned queries rather than assuming that one region owns its extent.
+- `SkillPreviewService`: caster Entity, target-position Region, viewer Entity
+  for cleanup. Dummies/viewer spanning independent regions and the server-wide
+  tick-rate control were not exercised by this no-player smoke check.
+
+These choices do not establish complete Folia gameplay safety. Instance strands,
+async persistence beyond the migrated callbacks, cross-region combat and the
+remaining ownership sweep are separate migration tracks.
+
+### Isolated boot procedure
+
+Built `docker/Dockerfile` with `SERVER_TYPE=FOLIA`, tagged
+`astera/t4-scheduler-v2:folia`. Used throwaway compose projects
+`astera-t4-r2-baa1c50c` and `astera-t4-r2-baa1c50c-paper`: independent networks and
+volumes, PostgreSQL/Redis plus lobby/game backends, **no published ports**.
+Final locally compiled shadow jars were copied to each stopped backend's
+`/plugins` before starting; the exact seven hashes are saved in
+`build/t4-boot-jars.sha256`. No `astera-dev-*` container was operated on.
+
+The Folia restart also confirms the existing patch caveat: its generated
+`paper-global.yml` is patched to four region threads on the second boot. Paper
+uses the same jars and runtime image with `SERVER_TYPE=PAPER`, `PAPER_BUILD=211`,
+and only `docker/paper-patches` (the Folia-only threaded-regions patch cannot be
+applied to a Paper configuration). Both projects are removed with `down -v`.
+
+Local evidence: `build/t4-folia-{lobby,game}.log`,
+`build/t4-paper-{lobby,game}.log`, and the generated compose files under `build/`.
+The final backends were each observed for 232–233 seconds from startup (more
+than three idle minutes after `Done`); all seven `/data/plugins` jar hashes
+matched the local artifacts. Summary: `build/t4-boot-summary.json`. These are
+smoke checks, not E2E or game-sim execution.
+
+### Folia result and next blocker
+
+| Plugin | Lobby enable | Game enable |
+|---|---|---|
+| Astera-Core | ok | ok |
+| Astera-Persistence | ok | ok |
+| Astera-Items | ok | ok |
+| Astera-Combat | ok | ok |
+| Astera-Match | ok | ok |
+| Astera-Stats | ok | ok |
+| Astera-Economy | ok | ok |
+
+Folia reaches `Done` on both roles. The remaining errors are world provisioning:
+
+- Lobby: `UnsupportedOperationException` in `CraftServer.createWorld`, called by
+  `PaperLobbyWorld.install`; after the bounded retries, the lobby falls back to
+  the main world. One final ERROR entry.
+- Game: the same exception from `PaperArenaWorld.worldOf` for `example-arena`,
+  `annihilation-arena`, `pve-proving-grounds`, and `siege-isles`. Five attempts
+  produce 20 arena ERROR entries, then one final "only 0 of 4" provisioning
+  failure. The plugins remain enabled.
+- No scheduler exception or additional idle failure was observed. Scoreboard,
+  teleport-follow-up and player interaction paths are not verified by an empty
+  server. PacketEvents is still absent, as in Round 1.
+
+World-slot provisioning (ADR-0255) is now the next boot/gameplay blocker. This
+track deliberately does not implement it or the packet-only scoreboard track.
+
+### Paper result
+
+Both roles enable all 7 plugins and reach `Done`, with zero ERROR entries during
+idle observation. The lobby world is created and all four arena plans build:
+53,093 / 81,278 / 58,542 / 63,005 blocks respectively. Restarting with the final
+jars also succeeds. This verifies boot compatibility and arena construction on
+Paper; it does not replace player E2E verification.

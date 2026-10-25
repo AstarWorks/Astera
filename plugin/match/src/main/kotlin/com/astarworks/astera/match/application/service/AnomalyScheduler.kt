@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ticks
@@ -23,7 +24,7 @@ import kotlin.time.Duration
  *   2. Calls [ResolveAnomalyEffectUseCase.apply] to install the
  *      [com.astarworks.astera.core.domain.attribute.AttributeModifier] on the
  *      affected subjects (today: every generator in the match).
- *   3. Schedules a one-shot expiration via [IScheduler.runLater] for
+ *   3. Schedules a one-shot expiration via [IScheduler.run] for
  *      `descriptor.durationTicks` later, which calls
  *      [ResolveAnomalyEffectUseCase.expire] to peel the modifier back off.
  *
@@ -36,7 +37,7 @@ import kotlin.time.Duration
  *
  * ## Why not coroutines
  *
- * `IScheduler.runRepeating` already gives us tick-driven cadence without
+ * `IScheduler.repeat` already gives us tick-driven cadence without
  * needing a coroutine context. The whole pipeline stays callback-based and
  * synchronous so `FakeScheduler.advanceTicks(...)` works as a single-call
  * test driver.
@@ -58,11 +59,11 @@ public class AnomalyScheduler(
      * wiring may override.
      */
     public fun start(period: Duration = ticks(DEFAULT_PERIOD_TICKS)): IScheduler.TaskHandle =
-        scheduler.runRepeating(period, period) { tickOnce() }
+        scheduler.repeat(ExecutionScope.Global, period, period) { tickOnce() }
 
     /**
      * Single tick body — exposed so tests that want to bypass
-     * [IScheduler.runRepeating] can advance the simulation directly.
+     * [IScheduler.repeat] can advance the simulation directly.
      */
     public fun tickOnce() {
         for (match in matches.findActiveMatches()) {
@@ -76,7 +77,7 @@ public class AnomalyScheduler(
     private fun fire(matchId: MatchId, descriptor: AnomalyDescriptor) {
         val anomalyId = trigger.trigger(matchId, descriptor)
         resolve.apply(anomalyId, matchId, descriptor)
-        scheduler.runLater(ticks(descriptor.durationTicks)) {
+        scheduler.run(ExecutionScope.Global, ticks(descriptor.durationTicks)) {
             resolve.expire(anomalyId, matchId)
         }
     }
