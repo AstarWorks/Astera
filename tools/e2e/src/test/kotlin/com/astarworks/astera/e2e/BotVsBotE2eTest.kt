@@ -111,7 +111,7 @@ class BotVsBotE2eTest : PlaythroughBase() {
         brains.forEach { it.mode = BotBrain.Mode.IDLE }
         val kills = bots.sumOf { it.deaths.size } - deathsBefore
         val brainSummary = brains.mapIndexed { i, b -> "${bots[i].name}: ${b.summary()}" }
-        E2eReport.notes += "Bot vs bot: first kill after ${firstKillMs}ms, total deaths $kills, ${brainSummary.joinToString(" | ")}; track=${track.distinct().joinToString(" ")}"
+        E2eReport.notes += "Bot vs bot: first kill after ${firstKillMs}ms, total deaths $kills, ${brainSummary.joinToString(" | ")}; track=${track.distinct().joinToString(" ")}; trace0=${brains.firstOrNull()?.traceText()}"
         E2eReport.check(suite, "the AI produces at least one kill (no RCON damage)", "PlayerCombatKill / death cam") {
             assertThat(kills).describedAs("no bot ever died in ${(System.currentTimeMillis() - tPlay) / 1000}s. $brainSummary; positions=${bots.map { posOf(it) }}; sidebar=${sidebar(bots[0])}").isGreaterThanOrEqualTo(1)
             "deaths=$kills first at ${firstKillMs}ms; ${brainSummary.joinToString(" | ")}"

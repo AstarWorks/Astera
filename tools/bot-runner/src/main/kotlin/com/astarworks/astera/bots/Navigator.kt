@@ -86,8 +86,8 @@ class Navigator(private val terrain: Terrain) {
             else -> if (frac >= 0.5) c.y.toDouble() else py
         }
         val faceYaw = yaw ?: Math.toDegrees(atan2(-dx, dz)).toFloat()
-        bot.moveTo(nx, ny, nz, faceYaw, pitch)
         if (d <= speed + 0.02) idx++
+        bot.moveTo(nx, ny, nz, faceYaw, pitch)
         return Status.MOVING
     }
 

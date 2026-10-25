@@ -124,6 +124,9 @@ class BotBrain(
     private var preferredSide = 1
     private var screensSeen = bot.screens.size
     private var fightStartedAt = 0L
+    private var lastKind = "-"
+    private var lastTraceAt = 0L
+    private val trace = java.util.concurrent.CopyOnWriteArrayList<String>()
     private var localBlockedAt = 0L
     private var retreating = false
     private var retreatSince = 0L
@@ -153,6 +156,9 @@ class BotBrain(
         mode = Mode.IDLE
         exec.shutdownNow()
     }
+
+    /** What the brain was doing every ~2.5 s of the fight (decision kind, status, position): for stall diagnosis in reports. */
+    fun traceText(): String = trace.joinToString(" ; ")
 
     fun summary(): String = "swings=${swings.get()} shots=${shots.get()} reloads=${reloads.get()} enemyTicks=${ticksWithEnemy.get()} edgeBlocks=${blockedByEdge.get()} stars=${starsCollected.get()} falls=${edgeFalls.get()} sight=${firstSightMs}ms attack=${firstAttackMs}ms searches=${nav.searches.get()} stuckReplans=${nav.stuckReplans.get()} maxSearchUs=${nav.maxSearchMicros} avgNodes=${nav.expandedTotal.get() / nav.searches.get().coerceAtLeast(1)} goal=${objective?.name}/$goal loadout=$loadout"
 
@@ -186,6 +192,10 @@ class BotBrain(
             retreating = false
         }
         trackFall()
+        if (now - lastTraceAt >= 2_500) {
+            lastTraceAt = now
+            if (trace.size < 60) trace += "${(now - fightStartedAt) / 1000}s %s (%.0f,%.0f)".format(lastKind, bot.x, bot.z)
+        }
         resolveLoadoutIfNeeded(now)
         tickReload(now)
 
@@ -234,6 +244,7 @@ class BotBrain(
             }
             if (now > strafeUntil) { strafeSign = -strafeSign; strafeUntil = now + 1_000 + rnd.nextInt(1_600) }
             act(enemy, weapon, dist, now, yaw, pitch)
+            lastKind = "fight>local flat=%.0f".format(flat)
 
             // Long way, a different height, a gap in the way, a star to fetch or a retreat: plan a route (A*) instead of steering.
             val needRoute = retreating || goForStar || flat > LOCAL_STEER_RANGE || abs(enemy.y - bot.y) > 3.0 ||
@@ -246,6 +257,7 @@ class BotBrain(
                 }
                 // keep the enemy in the crosshair while walking the route
                 val st = nav.follow(bot, d.x, d.z, d.y, d.arrive, skill.walkSpeed, now, yaw, pitch)
+                lastKind = "fight>${d.kind}:$st"
                 if (st == Navigator.Status.MOVING) { dwellOn(d, now); return }
                 if (st == Navigator.Status.NO_PATH && d.kind == "star") ignoreStar(d.starId, now)
                 bot.moveTo(bot.x, bot.y, bot.z, yaw, pitch)
@@ -257,6 +269,7 @@ class BotBrain(
                 standStill = true
             } else {
                 val st = nav.follow(bot, dest.x, dest.z, dest.y, dest.arrive, skill.walkSpeed, now, null, 0f)
+                lastKind = "go>${dest.kind}:$st"
                 when (st) {
                     Navigator.Status.MOVING -> { dwellOn(dest, now); return }
                     Navigator.Status.ARRIVED -> {
@@ -398,7 +411,7 @@ class BotBrain(
 
     /** The star pick-up to fetch: nearest dropped star item within reach (any distance with the STAR goal, a short detour with KILL). */
     private fun starTarget(now: Long): Dest? {
-        val limit = if (goal == Goal.STAR) STAR_SIGHT_RANGE else 8.0
+        val limit = if (goal == Goal.STAR) STAR_SIGHT_RANGE else KILL_DETOUR_RANGE
         var best: EntityView? = null
         var bestD = Double.MAX_VALUE
         for (e in bot.entities.values) {
@@ -638,6 +651,7 @@ class BotBrain(
         const val MIN_CAST_FOOD = 2
         const val PROBE_AHEAD = 0.8
         const val STAR_YIELD_RANGE = 12.0
+        const val KILL_DETOUR_RANGE = 4.0
         const val STAR_SIGHT_RANGE = 90.0
         const val STAR_CHASE_MS = 20_000L
         const val LOCAL_STEER_RANGE = 12.0
