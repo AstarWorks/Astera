@@ -1,232 +1,231 @@
+# Zwei West Section 3 Ishmael, Can't Let You Through (video 14.633-18.4): sweep, sweep, overhead slam. Rebuilt from fresh observation
+# (tools/skill-compare/data/bastion-greatsword-s2/notes.md). Caster movement: step-in, two crouched lunges.
 id: bastion-greatsword-s2
-name:
-  ja: 審判の突進
-  en: Judgement Rush
-description:
-  ja: 二度薙ぎ払い、頭上から斬り下ろす。最後の一撃で溜めを消費する。
-  en: Two sweeping cuts followed by an overhead cleave. The final blow spends charge.
+name: {ja: 審判の突進, en: Judgement Rush}
+description: {ja: 踏み込んで二度薙ぎ払い、頭上から斬り下ろす。最後の一撃で溜めを消費する。, en: 'Step in, sweep twice, then cleave overhead. The final blow spends charge.'}
 archetype: sequence
 cooldown_ticks: 100
 resource_cost: 30
-tags:
-- melee
-- physical
-- charge
-params:
-  type: sequence
+tags: [melee, physical, charge]
+params: {type: sequence}
 phases:
   type: sequence
   cast:
+  - type: hide_held_item
+    targets: {type: caster}
+    ticks: {type: literal, value: 66}
+  - type: dash_strike
+    distance: 1.6
+    ticks: 3
+    radius: 0.3
+    hit_once: true
+    stop_on_block: true
+    follow_pitch: false
+    on_hit: []
+    stop_before_target: 2.4
+    delay_ticks: {type: literal, value: 6}
   - type: play_vfx
-    vfx_id: bastion-s2-rush
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 5
+    targets: {type: caster}
+    vfx_id: bastion-sweep-low
+    delay_ticks: {type: literal, value: 7}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.player.attack.sweep
+    pitch: {type: literal, value: 0.8}
+    delay_ticks: {type: literal, value: 9}
   - type: damage
     targets:
       type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 3.4
-      angle_degrees:
-        type: literal
-        value: 110
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
       max_count: 1
     components:
-    - base:
-        type: literal
-        value: 7
+    - base: {type: literal, value: 7}
       attribute: physical
-      per_stack:
-        status_id: charge
-        amount: 0.5
-        'on': caster
-        consume: false
-    ignore_invulnerability:
-      type: literal
-      value: true
-    delay_ticks:
-      type: literal
-      value: 13
+      per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: false}
+    ignore_invulnerability: {type: literal, value: true}
+    delay_ticks: {type: literal, value: 13}
   - type: spawn_particle
     targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
     particle_id: bastion-s3-hit-crit
-    delay_ticks:
-      type: literal
-      value: 13
+    delay_ticks: {type: literal, value: 13}
   - type: hit_stop
     targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
     ticks: 2
     include_caster: true
-    delay_ticks:
-      type: literal
-      value: 13
+    delay_ticks: {type: literal, value: 13}
   - type: play_sound
-    targets:
-      type: caster
+    targets: {type: caster}
     sound_id: entity.player.attack.strong
-    delay_ticks:
-      type: literal
-      value: 13
+    delay_ticks: {type: literal, value: 13}
+  - type: dash_strike
+    distance: 0.7
+    ticks: 3
+    radius: 0.3
+    hit_once: true
+    stop_on_block: true
+    follow_pitch: false
+    on_hit: []
+    stop_before_target: 1.7
+    delay_ticks: {type: literal, value: 26}
   - type: play_vfx
-    vfx_id: bastion-s1-sweep
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 28
+    targets: {type: caster}
+    vfx_id: bastion-sweep-high
+    delay_ticks: {type: literal, value: 26}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.player.attack.sweep
+    pitch: {type: literal, value: 0.7}
+    delay_ticks: {type: literal, value: 28}
   - type: damage
     targets:
       type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 3.4
-      angle_degrees:
-        type: literal
-        value: 110
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
       max_count: 1
     components:
-    - base:
-        type: literal
-        value: 7
+    - base: {type: literal, value: 7}
       attribute: physical
-      per_stack:
-        status_id: charge
-        amount: 0.5
-        'on': caster
-        consume: false
-    ignore_invulnerability:
-      type: literal
-      value: true
-    delay_ticks:
-      type: literal
-      value: 32
+      per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: false}
+    ignore_invulnerability: {type: literal, value: true}
+    delay_ticks: {type: literal, value: 32}
   - type: spawn_particle
     targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
     particle_id: bastion-s3-hit-crit
-    delay_ticks:
-      type: literal
-      value: 32
+    delay_ticks: {type: literal, value: 32}
   - type: hit_stop
     targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
     ticks: 2
     include_caster: true
-    delay_ticks:
-      type: literal
-      value: 32
+    delay_ticks: {type: literal, value: 32}
   - type: play_sound
-    targets:
-      type: caster
+    targets: {type: caster}
     sound_id: entity.player.attack.strong
-    delay_ticks:
-      type: literal
-      value: 32
+    delay_ticks: {type: literal, value: 32}
+  - type: dash_strike
+    distance: 0.8
+    ticks: 3
+    radius: 0.3
+    hit_once: true
+    stop_on_block: true
+    follow_pitch: false
+    on_hit: []
+    stop_before_target: 1.6
+    delay_ticks: {type: literal, value: 46}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: item.armor.equip_netherite
+    pitch: {type: literal, value: 0.6}
+    delay_ticks: {type: literal, value: 46}
   - type: play_vfx
-    vfx_id: bastion-s2-plunge
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 46
+    targets: {type: caster}
+    vfx_id: bastion-overhead
+    delay_ticks: {type: literal, value: 47}
   - type: damage
     targets:
       type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 3.4
-      angle_degrees:
-        type: literal
-        value: 110
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
       max_count: 1
     components:
-    - base:
-        type: literal
-        value: 10
+    - base: {type: literal, value: 10}
       attribute: physical
-      per_stack:
-        status_id: charge
-        amount: 0.5
-        'on': caster
-        consume: true
-    ignore_invulnerability:
-      type: literal
-      value: true
-    delay_ticks:
-      type: literal
-      value: 53
+      per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: true}
+    ignore_invulnerability: {type: literal, value: true}
+    delay_ticks: {type: literal, value: 53}
   - type: spawn_particle
     targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
     particle_id: bastion-s3-hit-crit
-    delay_ticks:
-      type: literal
-      value: 53
+    delay_ticks: {type: literal, value: 53}
   - type: hit_stop
     targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
-    ticks: 2
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
+    ticks: 4
     include_caster: true
-    delay_ticks:
-      type: literal
-      value: 53
+    delay_ticks: {type: literal, value: 53}
   - type: play_sound
+    targets: {type: caster}
+    sound_id: block.anvil.land
+    pitch: {type: literal, value: 0.7}
+    delay_ticks: {type: literal, value: 53}
+  - type: knockback
     targets:
-      type: caster
-    sound_id: entity.player.attack.strong
-    delay_ticks:
-      type: literal
-      value: 53
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
+    direction: {type: away_from_caster, vertical: 0.2}
+    strength: {type: literal, value: 0.9}
+    delay_ticks: {type: literal, value: 53}
+  - type: camera_shake
+    targets:
+      type: nearby_entities
+      center: {type: caster}
+      radius: {type: literal, value: 9.0}
+      exclude_caster: true
+    intensity: {type: literal, value: 0.6}
+    ticks: {type: literal, value: 6}
+    delay_ticks: {type: literal, value: 53}
+  - type: screen_flash
+    targets: {type: caster}
+    overlay: gold_burst
+    color: '#FFC84A'
+    fade_in: {type: literal, value: 0}
+    stay: {type: literal, value: 1}
+    fade_out: {type: literal, value: 2}
+    delay_ticks: {type: literal, value: 53}
+  - type: screen_flash
+    targets:
+      type: nearby_entities
+      center: {type: caster}
+      radius: {type: literal, value: 5.0}
+      exclude_caster: true
+    overlay: gold_burst
+    color: '#FFC84A'
+    fade_in: {type: literal, value: 0}
+    stay: {type: literal, value: 1}
+    fade_out: {type: literal, value: 2}
+    delay_ticks: {type: literal, value: 53}

@@ -1,0 +1,33 @@
+# Astera weapon shading (ADR-0253, r25 rule in docs/contributing/vfx-team/modeler.md): our own additions to Mojang's
+# core/item.vsh, applied at pack build time to the vanilla shader taken from the client jar (never committed).
+# Format: `@@ before|after|replace: <anchor>`, anchor = one whole vanilla line (trimmed), must match exactly once or the
+# pack build fails. The body runs to the next `@@` line (or the end of file).
+# Block displays and held items both draw through this shader (item_cutout / item_translucent pipelines) with the
+# same fixed-world diffuse light: vanilla brightness runs 0.40 (face down) .. 1.0 (face up), so a swing that turns the
+# blade face to the sky goes near-white and one that turns it to the floor goes dark, from any camera.
+# Two markers select one shared, compressed rule (vanilla direction kept, range squeezed toward 0.65):
+#   shade = 0.65 + 0.35 * (vanilla - 0.65)   -> 0.57 (down) .. 0.77 (up); a side face 0.40-0.75 -> 0.56-0.68.
+#   - weapon-rig part (block display): brightness override (block 15, sky 14) = light UV (240, 224); lit with sky 15;
+#   - held weapon model: constant tint (254, 254, 254) on every face; the colour goes back to white, world light kept.
+# Rig and held item therefore shade identically in every pose: the hand-over cannot pop. GUI (orthographic
+# projection) keeps vanilla lighting. item.fsh.patch lifts the darkest texels of marked faces (edge-on rims).
+@@ after: layout(location = 5) out vec2 texCoord0;
+layout(location = 7) out float asteraWeaponTone;
+
+@@ replace: vertexColor = minecraft_mix_light(Light0_Direction, Light1_Direction, Normal, Color);
+    bool asteraWeaponRig = UV2.x == 240 && UV2.y == 224;
+    bool asteraWeaponHeld = all(lessThan(abs(Color.rgb - vec3(254.0 / 255.0)), vec3(0.5 / 255.0)));
+    bool asteraWeapon = (asteraWeaponRig || asteraWeaponHeld) && ProjMat[3][3] < 0.5;
+    vec4 asteraBase = asteraWeaponHeld ? vec4(1.0, 1.0, 1.0, Color.a) : Color;
+    vertexColor = minecraft_mix_light(Light0_Direction, Light1_Direction, Normal, asteraBase);
+    asteraWeaponTone = 0.0;
+    if (asteraWeapon) {
+        vec3 asteraN = normalize(Normal);
+        vec2 asteraL = max(vec2(0.0), vec2(dot(Light0_Direction, asteraN), dot(Light1_Direction, asteraN)));
+        float asteraVanilla = min(1.0, (asteraL.x + asteraL.y) * 0.6 + 0.4);
+        vertexColor.rgb = asteraBase.rgb * (0.65 + 0.35 * (asteraVanilla - 0.65));
+        asteraWeaponTone = 1.0;
+    }
+
+@@ replace: lightMapColor = sample_lightmap(Sampler2, UV2);
+    lightMapColor = sample_lightmap(Sampler2, asteraWeaponRig ? ivec2(0, 240) : UV2);

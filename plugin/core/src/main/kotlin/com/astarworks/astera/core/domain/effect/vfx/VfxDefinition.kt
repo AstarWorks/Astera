@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.domain.effect.vfx
 
 import com.astarworks.astera.core.domain.animation.Easing
+import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.ParticleId
@@ -84,8 +85,26 @@ public data class VfxDefinition(
     public val replaceGroup: String? = null,
     /** Authored target feet position in anchor-local coordinates; tracked slots translate by the live correction. */
     public val targetReference: Vec3? = null,
+    /**
+     * ADR-0254: the caster's skin-rig body animation (`content/animations/<id>.yaml`), sampled on the weapon rig's clock.
+     * With a body, the rig's `weapon` is parented to the right hand and the whole effect is ONE performance.
+     */
+    public val body: CustomAnimationId? = null,
 ) {
+    /** A performance owns the caster's hand, and with a body the whole body, for its duration. */
+    public val isPerformance: Boolean get() = body != null || rigs.any { it.weapon != null }
+
     init {
+        require(body == null || (follow && attachToAnchor && sampleTicks == 1)) {
+            "body requires follow: true, attach_to_anchor: true and sample_ticks: 1 (the performance rides the caster)"
+        }
+        require(body == null || rigs.any { it.weapon != null && it.parent == VfxRigParent.RIGHT_HAND }) {
+            "body needs a rig with weapon: main_hand and parent: right_hand"
+        }
+        require(rigs.none { it.weapon != null } || (follow && attachToAnchor)) {
+            "a rig with weapon: main_hand needs follow: true and attach_to_anchor: true"
+        }
+        require(rigs.count { it.weapon != null } <= 1) { "at most one weapon rig per effect (one sword, ADR-0254)" }
         require(durationTicks in 1..MAX_DURATION_TICKS) { "VfxDefinition.durationTicks must be 1..$MAX_DURATION_TICKS: $durationTicks" }
         require(followTeleportTicks == null || followTeleportTicks in 0..59) { "followTeleportTicks must be 0..59" }
         require(replaceGroup == null || replaceGroup.matches(Regex("[a-z][a-z0-9-]{0,63}"))) { "replaceGroup must be lower-kebab, at most 64 characters" }
@@ -141,7 +160,7 @@ public data class VfxElement(
     public val groupKeyframes: List<VfxGroupKeyframe> = emptyList(),
     /**
      * Particle emitter (display particles): spawns up to [VfxEmitter.count] quads whose trajectories the
-     * planner precomputes. Needs kind `quad`; [keyframes] are then optional (the first keyframe's `translate`
+     * planner precomputes. Needs kind `quad` or `sprite` (sprite: per-particle flipbook); [keyframes] are then optional (the first keyframe's `translate`
      * is the emitter origin) and [count] / [formation] / [oscillate] are unused.
      */
     public val emit: VfxEmitter? = null,
@@ -162,7 +181,8 @@ public data class VfxElement(
         require(count in 1..MAX_COUNT) { "element '$id' count must be 1..$MAX_COUNT: $count" }
         require(keyframes.isNotEmpty() || emit != null) { "element '$id' needs at least one keyframe" }
         require(keyframes.isEmpty() || keyframes.first().t >= 0) { "element '$id' keyframe t must be >= 0" }
-        require(emit == null || kind is VfxElementKind.Quad) { "element '$id': emit needs kind quad" }
+        require(emit == null || kind is VfxElementKind.Quad || kind is VfxElementKind.Sprite) { "element '$id': emit needs kind quad or sprite" }
+        require(emit?.colorOverLife == null || kind is VfxElementKind.Quad) { "element '$id': emit.color_over_life needs kind quad" }
         require(targetTrack.isEmpty() || (emit == null && kind !is VfxElementKind.Particle)) { "target tracking supports non-emitting displays only" }
         require(!targetLine || (kind is VfxElementKind.Block && billboard == DisplayBillboard.FIXED && count == 1 && formation == null && emit == null && targetTrack.isEmpty())) { "target_line requires one fixed block without target_track or formation" }
         targetTrack.zipWithNext().forEach { (a, b) -> require(b.t > a.t) { "target track times must increase" } }
@@ -267,6 +287,12 @@ public sealed interface VfxElementKind {
             require(glyph == null || glyph.isNotBlank()) { "VfxElementKind.Quad.glyph must not be blank" }
         }
     }
+
+    /** One bone of the caster's skin rig (ADR-0254); planned by [VfxBodyPlanner], never authored in `elements`. */
+    public data class SkinBone(public val bone: com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone, public val slim: Boolean = false) : VfxElementKind
+
+    /** The caster's real main-hand stack as the performance's one weapon display (ADR-0254). */
+    public data object MainHandWeapon : VfxElementKind
 
     /**
      * No entity: emits a `content/particles` id at the element position every [everyTicks].

@@ -183,6 +183,10 @@ public class MechanicDispatcher(
     /** ADR-0220: catalog for `play_vfx`; needs [displayGateway] too, otherwise the mechanic warns and drops. */
     private val vfxRegistry: com.astarworks.astera.core.application.port.outbound.IVfxRegistry? = null,
     private val spriteFrames: com.astarworks.astera.core.domain.effect.vfx.SpriteFrames = com.astarworks.astera.core.domain.effect.vfx.SpriteFrames.NONE,
+    /** ADR-0254: lease service for held-item / armor / body hiding (performances, `hide_held_item`). */
+    private val presentation: (() -> com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation?)? = null,
+    /** ADR-0254: resolves a vfx `body:` id to its skin-rig animation. */
+    private val skinBodies: ((com.astarworks.astera.core.domain.animation.player.CustomAnimationId) -> com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation?)? = null,
     /** WP5: Summon. */
     private val summonGateway: ISummonGateway? = null,
     /** WP5: summon ownership / allegiance bookkeeping, shared with the host's targeting guard. */
@@ -236,6 +240,9 @@ public class MechanicDispatcher(
         resolveDouble = { value, c -> resolveDouble(value, c) },
     )
 
+    /** `hide_held_item` (rig-less skills): a timed lease; a performance claims its own lease in [VfxPlayer]. */
+    private val heldItemHider: HeldItemHider? = presentation?.let { HeldItemHider(it, scheduler) }
+
     /** WP5 mechanics batch B (explode, lightning, blocks, display, summon, heal, glow, shake). */
     private val worldMechanics = WorldMechanics(
         host = this,
@@ -249,6 +256,7 @@ public class MechanicDispatcher(
         summons = summonGateway,
         summonRegistry = summonRegistry,
         effects = entityEffects,
+        heldItems = heldItemHider,
         feedback = feedback,
         messageRenderer = messageRenderer,
         teamLookup = teamLookup,
@@ -269,6 +277,8 @@ public class MechanicDispatcher(
                     sprites = spriteFrames,
                     emitParticle = ::emitVfxParticle,
                     log = log,
+                    presentation = presentation,
+                    bodies = skinBodies,
                 ),
                 targeters = targeterResolver,
                 isLiving = { living(listOf(it)).isNotEmpty() },
@@ -326,6 +336,11 @@ public class MechanicDispatcher(
         run = { mechanics, context -> dispatch(mechanics, context) })
 
     /** Undoes every temporary world change batch B made (blocks, displays, summons, glow) and ends running dashes. */
+    /** Ends every skill performance of [caster] in this tick (death, quit, world change; ADR-0254). */
+    public fun endPerformances(caster: PlayerId) {
+        vfxMechanics?.endFor(caster)
+    }
+
     public fun shutdown() {
         counters.shutdown()
         dashRunner.shutdown()
@@ -822,6 +837,7 @@ public class MechanicDispatcher(
                 vfx.play(mechanic, ctx, resolveDouble(mechanic.scale, ctx), mechanic.follow?.let { resolveBool(it, ctx) }, mechanic.freeze)
             }
             is Mechanic.Glow -> worldMechanics.glow(mechanic, ctx)
+            is Mechanic.HideHeldItem -> worldMechanics.hideHeldItem(mechanic, ctx)
             is Mechanic.CameraShake -> worldMechanics.cameraShake(mechanic, ctx)
 
             is Mechanic.ScheduleParticleAnimation -> {

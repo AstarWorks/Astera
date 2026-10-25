@@ -1,0 +1,17 @@
+# limbus-sound deliverable for bastion-greatsword-s1. Director turns each row into play_sound (delay_ticks).
+# pitch = play_sound pitch (playback-rate multiplier: peak_ms and length scale by 1/pitch).
+# volume = LINEAR play_sound volume, <1 on purpose: at 1.0 the per-file peaks of the stacked contact cues
+# sum above 0 dBFS (measured +5.6 dBFS on hit 2). See evidence/sound/timeline-report.txt.
+# r23: hit-1 ticks = the shipped skill YAML (rig r23: hit-1 contact skill tick 7 = reference t7, fx-high at 3): step-scuff 1, blade-lift 3,
+# whoosh 4, contact cues (impact / cut-thud / armor-ring) 7, ring-whirl 8, sword-settle 19. Hit 2 unchanged (contact 31).
+cues:
+  - {file: bastion-s1-step-scuff,    layer: foley,  peak_ms: 40,  hit1: {tick: 1,  volume: 0.56, pitch: 1.0},  hit2: {tick: 24, volume: 0.4,  pitch: 0.85}}
+  - {file: bastion-s1-blade-lift,    layer: foley,  peak_ms: 60,  hit1: {tick: 3,  volume: 0.56, pitch: 1.0},  hit2: {tick: 27, volume: 0.4,  pitch: 0.9}}
+  - {file: bastion-s1-flash-sting,   layer: sting,  peak_ms: 10,  hit2: {tick: 30, volume: 0.4,  pitch: 1.0}}
+  - {file: bastion-s1-whoosh-heavy,  layer: whoosh, peak_ms: 120, hit1: {tick: 4,  volume: 0.65, pitch: 1.0},  hit2: {tick: 27, volume: 0.5,  pitch: 0.8}}
+  - {file: bastion-s1-impact-steel,  layer: impact, peak_ms: 0,   hit1: {tick: 7,  volume: 0.56, pitch: 1.0},  hit2: {tick: 31, volume: 0.46, pitch: 0.85}}
+  - {file: bastion-s1-cut-thud,      layer: impact, peak_ms: 5,   hit1: {tick: 7,  volume: 0.56, pitch: 1.0},  hit2: {tick: 31, volume: 0.46, pitch: 0.9}}
+  - {file: bastion-s1-armor-ring,    layer: armour, peak_ms: 15,  hit1: {tick: 7,  volume: 0.56, pitch: 1.1},  hit2: {tick: 31, volume: 0.46, pitch: 0.8}}
+  - {file: bastion-s1-ground-slam,   layer: ground, peak_ms: 10,  hit2: {tick: 31, volume: 0.46, pitch: 1.0}}
+  - {file: bastion-s1-ring-whirl,    layer: armour, peak_ms: 250, hit1: {tick: 8,  volume: 0.51, pitch: 1.2},  hit2: {tick: 32, volume: 0.46, pitch: 1.0}}
+  - {file: bastion-s1-sword-settle,  layer: foley,  peak_ms: 30,  hit1: {tick: 19, volume: 0.62, pitch: 1.0},  hit2: {tick: 40, volume: 0.4,  pitch: 0.9}}

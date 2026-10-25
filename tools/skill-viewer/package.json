@@ -6,8 +6,9 @@
   "description": "Static three.js replay viewer + headless frame renderer for :tools:game-sim traces (ADR-0225)",
   "scripts": {
     "embed": "bun scripts/embed-sprites.mjs",
-    "build": "bun scripts/embed-sprites.mjs && bun build src/main.js --outfile dist/viewer.js --target browser --minify && cp src/index.html dist/index.html",
+    "build": "bun scripts/embed-sprites.mjs && bun build src/main.js --outfile dist/viewer.js --target browser --minify && cp src/index.html dist/index.html && bun build src/preview.js --outfile dist/preview.js --target browser --minify && cp src/preview.html dist/preview.html",
     "render": "bun scripts/render.mjs",
+    "preview": "bun scripts/skill-preview.mjs",
     "calibrate": "bun scripts/calibrate.mjs"
   },
   "dependencies": {

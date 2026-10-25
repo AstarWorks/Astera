@@ -1,0 +1,9 @@
+# ADR-0252 demo: 40 retextured firework sparks thrown in every direction (baked gold glints).
+id: skin-demo-spark
+shape: { kind: point }
+color: { r: 255, g: 255, b: 255 }
+count: 40
+lifetime_ticks: 14
+vanilla_particle: firework
+velocity: { direction: up, speed: 0.45, spread_degrees: 180, speed_jitter: 0.6 }
+force: true

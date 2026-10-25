@@ -8,6 +8,26 @@
 
 sources:
   vfx-v1: { file: sheets/vfx-v1.png, grid: [6, 6] }
+  bastion-s1-crescent: { file: images/bastion-s1-crescent.png }
+  bastion-s1-ink: { file: images/bastion-s1-ink.png }
+  bastion-s1-streak: { file: images/bastion-s1-streak.png }
+  bastion-s1-smoke: { file: images/bastion-s1-smoke.png }
+  bastion-s1-glint: { file: images/bastion-s1-glint.png }
+  bastion-s1-flare: { file: images/bastion-s1-flare.png }
+  bastion-s1-sliver: { file: images/bastion-s1-sliver.png }
+  bastion-s1-ring-q0: { file: images/bastion-s1-ring-q0.png }
+  bastion-s1-ring-q1: { file: images/bastion-s1-ring-q1.png }
+  bastion-s1-ring-q2: { file: images/bastion-s1-ring-q2.png }
+  bastion-s1-ring-q3: { file: images/bastion-s1-ring-q3.png }
+  bastion-s1-hring-q0: { file: images/bastion-s1-hring-q0.png }
+  bastion-s1-hring-q1: { file: images/bastion-s1-hring-q1.png }
+  bastion-s1-hring-q2: { file: images/bastion-s1-hring-q2.png }
+  bastion-s1-hring-q3: { file: images/bastion-s1-hring-q3.png }
+  bastion-s1-hring-bq0: { file: images/bastion-s1-hring-bq0.png }
+  bastion-s1-hring-bq1: { file: images/bastion-s1-hring-bq1.png }
+  bastion-s1-hring-bq2: { file: images/bastion-s1-hring-bq2.png }
+  bastion-s1-hring-bq3: { file: images/bastion-s1-hring-bq3.png }
+  bastion-s1-spark: { file: images/bastion-s1-spark.png }
 
 sprites:
   gossamer-ribbon: { draw: gossamer_ribbon, frames: 4, size: 128, color: "#DDE5F5" }
@@ -30,6 +50,11 @@ sprites:
   slash: { draw: slash, frames: 6, color: "#d8e4ff" }
   couture-orbit: { draw: orbit, frames: 1, size: 128, color: "#fff4ee" }
   couture-cut: { draw: slice, frames: 6, size: 128, color: "#fff4ee" }
+  bastion-arc: { draw: arc, frames: 6, size: 256, color: "#ffcf3a" }
+  bastion-smoke: { draw: arc, frames: 6, size: 256, color: "#8d939e" }
+  bastion-ink: { draw: ink, frames: 6, size: 256, color: "#ffe36a" }
+  bastion-crest: { draw: crest, frames: 1, size: 256, color: "#ffd25a" }
+  bastion-rim: { draw: rim, frames: 1, size: 256, color: "#ffcf3a" }
 
   fire-burst: { from: vfx-v1, row: 0, frames: 6 }
   frost-shatter: { from: vfx-v1, row: 1, frames: 6 }
@@ -37,3 +62,23 @@ sprites:
   holy-glint: { from: vfx-v1, row: 3, frames: 6 }
   thunder-spark: { from: vfx-v1, row: 4, frames: 6 }
   blood-splash: { from: vfx-v1, row: 5, frames: 6 }
+  bastion-s1-crescent: { from: bastion-s1-crescent, raw: true, frames: 6, size: 256 }
+  bastion-s1-ink: { from: bastion-s1-ink, raw: true, frames: 2, size: 256 }
+  bastion-s1-streak: { from: bastion-s1-streak, raw: true, frames: 1, size: 256 }
+  bastion-s1-smoke: { from: bastion-s1-smoke, raw: true, frames: 4, size: 256 }
+  bastion-s1-glint: { from: bastion-s1-glint, raw: true, frames: 2, size: 128 }
+  bastion-s1-flare: { from: bastion-s1-flare, raw: true, frames: 2, size: 256 }
+  bastion-s1-sliver: { from: bastion-s1-sliver, raw: true, frames: 3, size: 128 }
+  bastion-s1-ring-q0: { from: bastion-s1-ring-q0, raw: true, frames: 16, size: 256 }
+  bastion-s1-ring-q1: { from: bastion-s1-ring-q1, raw: true, frames: 16, size: 256 }
+  bastion-s1-ring-q2: { from: bastion-s1-ring-q2, raw: true, frames: 16, size: 256 }
+  bastion-s1-ring-q3: { from: bastion-s1-ring-q3, raw: true, frames: 16, size: 256 }
+  bastion-s1-hring-q0: { from: bastion-s1-hring-q0, raw: true, frames: 16, size: 256 }
+  bastion-s1-hring-q1: { from: bastion-s1-hring-q1, raw: true, frames: 16, size: 256 }
+  bastion-s1-hring-q2: { from: bastion-s1-hring-q2, raw: true, frames: 16, size: 256 }
+  bastion-s1-hring-q3: { from: bastion-s1-hring-q3, raw: true, frames: 16, size: 256 }
+  bastion-s1-hring-bq0: { from: bastion-s1-hring-bq0, raw: true, frames: 16, size: 256 }
+  bastion-s1-hring-bq1: { from: bastion-s1-hring-bq1, raw: true, frames: 16, size: 256 }
+  bastion-s1-hring-bq2: { from: bastion-s1-hring-bq2, raw: true, frames: 16, size: 256 }
+  bastion-s1-hring-bq3: { from: bastion-s1-hring-bq3, raw: true, frames: 16, size: 256 }
+  bastion-s1-spark: { from: bastion-s1-spark, raw: true, frames: 4, size: 64 }

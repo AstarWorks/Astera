@@ -585,8 +585,17 @@ public object CombatWiring {
                 summonGateway = ports.summonGateway?.invoke(services),
                 summonRegistry = summonRegistry,
                 randomizer = damageRandomizer,
+                presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() },
+                skinBodies = { id -> services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>()?.find(id) },
             )
             registrations += services.register<MechanicDispatcher>(mechanicDispatcher)
+            // ADR-0254: every way a performance can end goes through VfxPlayer.finish in the tick it happens.
+            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { event ->
+                mechanicDispatcher.endPerformances(event.victim)
+            }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { event ->
+                mechanicDispatcher.endPerformances(event.playerId)
+            }
             // Temporary blocks, displays and summons must not outlive the plugin.
             shutdownHooks += { mechanicDispatcher.shutdown() }
 

@@ -97,6 +97,8 @@ public class CorePlatformPorts(
     public val playerAnimationGateway: ((ServiceRegistry) -> IPlayerAnimationGateway)? = null,
     /** Skin-rig animations (ADR-0250). Null = the headless in-memory animator. */
     public val skinRigAnimator: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator)? = null,
+    /** ADR-0254 player presentation lease (held item / armor / body hiding). Null = the headless in-memory impl. */
+    public val playerPresentation: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation)? = null,
     public val cameraGateway: ((ServiceRegistry) -> ICameraGateway)? = null,
     /**
      * Inventory snapshot save/restore + action-lock listeners. A hook rather

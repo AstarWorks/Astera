@@ -32,6 +32,7 @@ fi
 VIEW="${VIEW:-all}"
 TICKS_SET="${TICKS:-}"
 TICKS="${TICKS:-60}"                 # ticks filmed after the cast (compare: the case duration_ticks)
+FPS="${FPS:-20}"                     # recording rate; FPS=60 keeps 3 frames per tick (frame_NNN = NNN/3 ticks), no sheet/gif/meta
 RES="${RES:-1280x720}"               # viewer resolution
 HIDE_HUD="${HIDE_HUD:-1}"            # 1 = F1 (hand + world only), 0 = keep the HUD
 GUI_SCALE="${GUI_SCALE:-2}"
@@ -316,18 +317,20 @@ give_item() { # player
 # ---------------------------------------------------------------- capture
 film() { # viewer view_dir
   local viewer="$1" dir="$2" rec="$OUT_ROOT/.rec-$$.mkv" d="${DISP[$1]}"
-  local dur t_total cast_stamp first_pts offset
+  local dur t_total cast_stamp first_pts offset clog="$CLIENTS/$1/client.log" log_off pos_start pos_end
+  log_off="$(stat -c %s "$clog" 2>/dev/null || echo 0)"
   dur="$(awk -v t="$TICKS" -v p="$PRE_ROLL" 'BEGIN{printf "%.2f", p + t/20 + 2.0}')"
   local cast_cmd="astera skill cast $SKILL Caster --force"
   t_total="$(awk -v d="$dur" 'BEGIN{printf "%.2f", d + 1.5}')"
   rm -f "$rec"
   # showinfo (before the rebase) logs each frame's wall-clock pts -> epoch time of the first frame
-  ffmpeg -nostdin -loglevel info -y -copyts -use_wallclock_as_timestamps 1 -f x11grab -framerate 20 \
+  ffmpeg -nostdin -loglevel info -y -copyts -use_wallclock_as_timestamps 1 -f x11grab -framerate "$FPS" \
     -video_size "$RES_FILM" -i ":$d" -t "$t_total" -vf "showinfo,setpts=PTS-STARTPTS" \
     -c:v libx264 -preset ultrafast -crf 10 -pix_fmt yuv444p -f matroska "$rec" 2>"$rec.log" &
   local fpid=$!
   for i in $(seq 1 100); do grep -q ' pts:' "$rec.log" 2>/dev/null && break; sleep 0.1; done
   sleep "$PRE_ROLL"
+  pos_start="$(rcon "data get entity $viewer Pos" | sed 's/.*data: //') in $(rcon "data get entity $viewer Dimension" | sed 's/.*data: //')"
   log "caster before cast: $(rcon "data get entity Caster Pos" | sed 's/.*data: //') in $(rcon "data get entity Caster Dimension" | sed 's/.*data: //')"
   if [ "$VIEW" = compare ]; then
     # one RCON connection: cast, then the camera cuts of the plan on the wall clock
@@ -338,6 +341,7 @@ film() { # viewer view_dir
   fi
   [ -n "$cast_stamp" ] || { kill "$fpid" 2>/dev/null; die "cast command failed"; }
   wait "$fpid"
+  pos_end="$(rcon "data get entity $viewer Pos" | sed 's/.*data: //') in $(rcon "data get entity $viewer Dimension" | sed 's/.*data: //')"
   [ -s "$rec" ] || die "recording failed"
   # showinfo's `pts:` is in microseconds (wall-clock timebase 1/1e6)
   first_pts="$(grep -m1 -o ' pts:[0-9]*' "$rec.log" | tr -dc '0-9' | awk '{printf "%.6f", $1/1000000}')"
@@ -347,10 +351,30 @@ film() { # viewer view_dir
   log "cast at +${offset}s into the recording (cast $cast_stamp, first frame $first_pts, last frame $last_pts)"
   rm -rf "$dir"; mkdir -p "$dir"
   if [ "$VIEW" = compare ]; then cp "$STATE/director.stderr" "$dir/director-timing.log"; fi
+  # viewer session evidence for capture_meta.py: client log written during the recording + position before/after
+  tail -c +"$((log_off + 1))" "$clog" > "$dir/viewer-client.log" 2>/dev/null || : > "$dir/viewer-client.log"
+  printf '%s\n%s\n' "$pos_start" "$pos_end" > "$dir/viewer-pos.txt"
   ffmpeg -nostdin -loglevel error -y -i "$rec" \
-    -vf "fps=20:start_time=$offset,setpts=N/20/TB" -frames:v "$((TICKS + PRE_TICKS + 1))" -start_number 0 "$dir/frame_%03d.png" \
+    -vf "fps=$FPS:start_time=$offset,setpts=N/$FPS/TB" -frames:v "$(((TICKS + PRE_TICKS + 1) * FPS / 20))" -start_number 0 "$dir/frame_%03d.png" \
     || die "frame extraction failed"
   rm -f "$rec" "$rec.log"
+}
+
+write_meta() { # dir view n  (fps = $FPS; FPS=60 frames are 3 per tick)
+  local dir="$1" view="$2" n="$3"
+  local fov_mode=fixed
+  if [ "$view" = compare ]; then
+    if [ "$FOV_FROM_ENV" != 1 ]; then fov_mode=intent-first-key
+    elif [ "$FOV_DOLLY" = 0 ]; then fov_mode=override-nodolly
+    else fov_mode=override-dolly; fi
+    printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":%d,"cast_tick_ms":%d,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
+      "$CASE" "$CAMERA" "$SKILL" "$FPS" "$((PRE_TICKS * 50))" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
+    python3 -I "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT"
+  else
+    printf '{"view":"%s","skill":"%s","fps":%d,"cast_tick_ms":0,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
+      "$view" "$SKILL" "$FPS" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
+    python3 -I "$HERE/capture_meta.py" - "$dir"
+  fi
 }
 
 make_outputs() { # dir view
@@ -370,19 +394,7 @@ make_outputs() { # dir view
     -pix_fmt yuv420p "$dir/$SKILL-$view.mp4" || log "WARN: mp4 failed"
   ffmpeg -nostdin -loglevel error -y -i "$dir/frame_%03d.png" -c:v libwebp -quality 85 \
     -compression_level 4 -threads 2 -start_number 0 "$dir/frame_%03d.webp" || log "WARN: web preview failed; serving PNG"
-  local fov_mode=fixed
-  if [ "$view" = compare ]; then
-    if [ "$FOV_FROM_ENV" != 1 ]; then fov_mode=intent-first-key
-    elif [ "$FOV_DOLLY" = 0 ]; then fov_mode=override-nodolly
-    else fov_mode=override-dolly; fi
-    printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":20,"cast_tick_ms":%d,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
-      "$CASE" "$CAMERA" "$SKILL" "$((PRE_TICKS * 50))" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
-    python3 -I "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT"
-  else
-    printf '{"view":"%s","skill":"%s","fps":20,"cast_tick_ms":0,"frames":%d,"fov":%s,"fovMode":"%s","resolution":"%s"}\n' \
-      "$view" "$SKILL" "$n" "${FOV:-70}" "$fov_mode" "$RES_FILM" > "$dir/meta.json"
-    python3 -I "$HERE/capture_meta.py" - "$dir"
-  fi
+  write_meta "$dir" "$view" "$n"
   log "$view: $n frames -> $dir (sheet.png, $SKILL-$view.gif, $SKILL-$view.mp4)"
 }
 
@@ -406,6 +418,9 @@ place_scene() { # view target_z
       summon_target ;;
     opponent)
       rcon "gamemode survival Target" >/dev/null
+      # the target is a real survival player: without this a multi-hit skill kills it mid-capture (lobby return)
+      rcon "attribute Target minecraft:max_health base set 200" >/dev/null
+      rcon "effect give Target minecraft:instant_health 1 30 true" >/dev/null
       tp Target "$CX" "$Y" "$tz" 180 0 ;;
     compare)
       # caster faces +x (yaw -90); enemy ENEMY_X ahead looking back; spectator camera from the plan
@@ -474,7 +489,10 @@ run_view() { # view
   DISPLAY=":${DISP[$viewer]}" xdotool mousemove 640 360 2>/dev/null || true
   sleep 1
   film "$viewer" "$OUT_ROOT/$SKILL/$view"
-  make_outputs "$OUT_ROOT/$SKILL/$view" "$view"
+  if [ "$FPS" = 20 ]; then make_outputs "$OUT_ROOT/$SKILL/$view" "$view"; else
+    write_meta "$OUT_ROOT/$SKILL/$view" "$view" "$(ls "$OUT_ROOT/$SKILL/$view"/frame_*.png | wc -l)"
+    log "FPS=$FPS: raw frames + meta.json (fps=$FPS, 3 frames per tick) in $OUT_ROOT/$SKILL/$view"
+  fi
   stop_client "$viewer"
   [ "$dummy_caster" = 1 ] && stop_client "Caster"
   rcon "kill @e[type=minecraft:husk]" >/dev/null

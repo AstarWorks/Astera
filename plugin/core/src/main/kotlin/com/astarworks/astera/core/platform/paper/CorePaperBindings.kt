@@ -72,6 +72,7 @@ internal class CorePaperBindings(
 
     private var playerAnimationGateway: com.astarworks.astera.core.adapter.paper.animation.PaperPlayerAnimationGateway? = null
     private var skinRigAnimator: com.astarworks.astera.core.adapter.paper.animation.PaperSkinRigAnimator? = null
+    private var playerPresentation: com.astarworks.astera.core.adapter.paper.presentation.PaperPlayerPresentation? = null
 
     /** Retained so [shutdown] can call [PaperScheduler.stop]. */
     private var paperScheduler: PaperScheduler? = null
@@ -299,13 +300,19 @@ internal class CorePaperBindings(
                     skinRig = { services.get<com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator>() },
                 ).also { playerAnimationGateway = it }
             },
+            playerPresentation = { _ ->
+                com.astarworks.astera.core.adapter.paper.presentation.PaperPlayerPresentation(server, plugin).also {
+                    it.start()
+                    playerPresentation = it
+                }
+            },
             skinRigAnimator = { services ->
                 com.astarworks.astera.core.adapter.paper.animation.PaperSkinRigAnimator(
                     server = server,
                     scheduler = scheduler,
                     registry = { services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>() },
+                    presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() },
                 ).also {
-                    it.start(plugin)
                     skinRigAnimator = it
                 }
             },
@@ -789,6 +796,8 @@ internal class CorePaperBindings(
     fun shutdown() {
         skinRigAnimator?.shutdown()
         skinRigAnimator = null
+        playerPresentation?.shutdown()
+        playerPresentation = null
         playerAnimationGateway?.shutdown()
         playerAnimationGateway = null
         paperHologramGateway?.despawnAll()

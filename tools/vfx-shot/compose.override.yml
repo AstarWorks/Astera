@@ -4,6 +4,8 @@
 services:
   e2e:
     environment:
+      # SHOT_NO_FX=1: motion-only capture, only the performance (body + weapon) plays, no fx / particle effects.
+      ASTERA_VFX_PERFORMANCE_ONLY: "${SHOT_NO_FX:-0}"
       ASTERA_RESOURCE_PACK_URL: "http://${SHOT_SUBNET_PREFIX:-10.211.77}.3/astera.zip"
       ASTERA_RESOURCE_PACK_SHA1_URL: "http://${SHOT_SUBNET_PREFIX:-10.211.77}.3/astera.zip.sha1"
     networks:

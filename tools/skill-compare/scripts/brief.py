@@ -135,9 +135,9 @@ def main():
         warnings.append("no %s capture for %s (looked in %s)" % (a.view, skill, mcdir))
     cast_frame = round(meta.get("cast_tick_ms", 0) / 50)
     frames_total = meta.get("frames")
-    for key in ("referenceRevision", "contentRevision"):
-        if case.get(key) and meta.get(key) != case.get(key):
-            warnings.append("%s of the capture (%s) does not match the case (%s): recapture before judging" % (key, (meta.get(key) or "none")[:8], case[key][:8]))
+    for key, meta_key in (("referenceRevision", "referenceRevision"), ("contentRevision", "caseContentRevision")):
+        if case.get(key) and meta.get(meta_key) != case.get(key):
+            warnings.append("%s of the capture (%s) does not match the case (%s): recapture before judging" % (key, (meta.get(meta_key) or "none")[:8], case[key][:8]))
     if meta and not meta.get("fov"):
         warnings.append("capture has no FOV recorded (taken before FOV tracking; vanillaFOV unknown)")
     if meta.get("captureQuality", {}).get("invalid"):

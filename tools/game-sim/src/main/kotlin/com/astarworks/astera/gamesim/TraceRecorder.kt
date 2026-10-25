@@ -52,6 +52,14 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
 
     private val effectLog: MutableList<Effect> = mutableListOf()
 
+    /** One particle call exactly as the gateway received it (the spec is the planned, fully resolved one). */
+    public data class ParticleCall(val tick: Long, val world: String, val at: Vec3, val spec: ParticleSpec)
+
+    private val particleLog: MutableList<ParticleCall> = mutableListOf()
+
+    /** Every particle call recorded so far that carried a spec (the real runtime emissions of a cast). */
+    public fun particleCalls(): List<ParticleCall> = particleLog.toList()
+
     /** Effects recorded so far, optionally only those of [kind]. */
     public fun effects(kind: String? = null): List<Effect> = effectLog.filter { kind == null || it.kind == kind }
 
@@ -71,6 +79,7 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
     }
 
     public fun recordParticle(tick: Long, world: String, at: Vec3, key: String, count: Int, spec: ParticleSpec? = null) {
+        if (spec != null) particleLog += ParticleCall(tick, world, at, spec)
         bucket(tick).particles += buildJsonObject {
             put("key", key)
             put("count", count)
@@ -302,6 +311,9 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         // Planned specs carry absolute targets; an unresolved one (should not reach a gateway) is recorded by kind.
         if (t is ParticleTarget.Absolute) put(key, buildJsonObject { vec(t.position) }) else put(key, t::class.simpleName!!.lowercase())
     }
+
+    /** The trace JSON of typed particle [d] (`kind` + its fields); absolute targets as `{x, y, z}`. */
+    public fun particleDataJson(d: ParticleData): JsonElement = particleData(d)
 
     private fun particleData(d: ParticleData): JsonElement = buildJsonObject {
         when (d) {

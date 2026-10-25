@@ -1,0 +1,44 @@
+# r24 @c6e6ccdf (wp/integrate-limbus 2219c988 + director regen of rig-derived content).
+#   Content: animator r24 down-and-back coil (no overhead lift, coil low-back at server t5, REVEAL_AGE 1), particle r24 + vfx r24
+#   rig-path generators, ADR-0253 rig/held shading marker. Regenerated with tools/item-art/scripts/bastion_s1_regen.sh
+#   (hring + ring sprites -> fx -> particles -> :tools:item-art:run). Ticks = cast tick (compare frame = tick + 6).
+# Every capture: codeRevision c6e6ccdf (codeDirty false), contentRevision 2eab3dc2 (contentDirty false). TICKS=72.
+# Published (/IdeaProjects/Astera/build/skill-compare-published/bastion-greatsword-s1/<view>/):
+#   compare cfddae34c3a3 (79 f)  side 742978b51ff9 (73 f)  opponent ca0e6594a553 (73 f)  caster 1e10619a5128 (73 f, HIDE_HUD=0)
+# Quality: maxRepeatedFrames 1/1/1/1, compare cameraMaxLatenessMs 69, zero early duplicates, no stutter.
+#   Tries at load 4-13: compare 1, side 1, opponent 3 (#1, #2 'You were defeated' -> invalid), caster 1.
+# Display peak (RCON poll, all display types, minus 10 text_display baseline): compare 42, side 41, opponent 43, caster 42 (<= 60).
+#   Rig = 22 block_display.
+
+## Regen (rig -> derived content)
+hring: swing window fx (0, 4, 6, 10) = skill 3..13, tail 123.5, first band per tile {q0: fx4, q1: fx7, q3: fx8}, NO band in q2
+  (tiles s1h1-ring-q2 / -bq2 dropped from fx-high), tip off-plane max 1.20 (vfx.md threshold ~0.5).
+ring (hit 2): window (0, 4, 6, 10) of fx-low, tiles {q0 1, q1 4, q2 1, q3 3}, off-plane 0.22.
+Particles: hit 1 sparks 63 (r24 particle round 59), embers 40 (33); hit 2 sparks 88, embers 43; display particles 13 / 10.
+  hit-1 shed elements now start at fx 0 = skill 3 (tip y 2.55, coil entry) because swing_windows(min_speed 1.0) treats the
+  descent into the coil (tip speed 1.34 / 2.33 / 1.06 / 3.16 at skill 3-6) as part of the swing.
+
+## Acceptance checks
+Coil (compare, cmp-start-zoom.jpg): t0-3 held/rig diagonal (one sword), t4 blade horizontal low behind at hip height, t5 blade
+  down-back toward the floor, t6 cut to the close-up with the blade at the target. Reads as a low-back coil, 2 frames, no overhead
+  path (r23 went over the top t3-5). Reference (r23d ref-t0-11) holds the same horizontal low-back pose t0-5: shorter hold
+  is the accepted compromise.
+Front start step (opp-t0-11.jpg): lean from vertical t1 0, t2 ~16, t3 ~33, t4 ~53, t5-6 horizontal low left. Per tick 16-20 deg,
+  no face-open pop. Within the accepted ~30 deg step.
+One weapon: every frame t0-8 and t48-63 in compare, side, opponent; caster FP held t0-1, none t2-56 (rig is world space), held
+  back t57 in its final pose (cas-t0-11, cas-t48-59). No doubled blade at 2-3x (side-start-3x, side-end-2x, cmp-end-zoom).
+  End hand-over: compare t56->t57, side t57->t58, opponent smooth lean to vertical by t53.
+Ring vs blade, hit 1 (side-h1-2x, cmp-h1-full): no ring piece before the contact; ring first at side t11 / compare t11, head on
+  the tip t11-13. BUT the ring is a 3/4 crescent that dives to the floor behind the caster (side t12-18) and from the front is a
+  thin line at head height on one side (opp-t12-19); the closed ellipse around the body (r9-r23, ref t6-11) is gone.
+Ring vs blade, hit 2 (side-h2-2x, cmp-t26-37): t29 piece behind the caster = trail of the blade that just passed; head at the
+  target t30-32; closes on the follow-through t34-37 with the blade at the back. Never ahead of the blade.
+Hit sync: tint compare t8 / t31, side t8 / t31, caster t8 / t31 (server contacts 7 / 31; hit 1 +1 client lag).
+Rig luminance (lum.py = median luma along the blade, 5 px band):
+  start side: held t0 108 -> rig t2 205 -> rig vertical t4 231 (near white).  start compare: held t0 168 -> coil t4 36, t5 58
+  (near black).  end: compare rig t56 167 / held t57 172, side t57 205 / t58 205 (match).  contact from below (opponent t8,
+  opp-contact-below.jpg): light-mid grey 134 with dark rails, no longer near-black (r23 dark grey).
+Particles (compare warm-speck cells, baseline ~50): coil t4-5 52-58 (6-8 sparks above/behind the head while the blade is at hip
+  height, visible in cmp-start-zoom t4-5, side-start-3x t4-7, opp-t0-11 t4-6), hit 1 t8-10 418-527, hit 2 t30-33 463-594
+  (r23: 620-750 / 500-724). All moving; no lavender, square or grey-halo looks.
+Caster FP: no blade or particle obstruction; no wind-up cue t2-7 (unchanged playability note).

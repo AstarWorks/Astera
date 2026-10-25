@@ -1,0 +1,28 @@
+# r17 (director r15: side t3 two swords = held item + rig key 1 at a different pose; front steps ~22 (t1->t2) and ~44 (t3->t4)).
+# Rig has attach_to_anchor: true now (no dash lag), so keys 0-1 hold the held pose again (exact: [-336.4, -47.8, -59.4]); keys 2-4 re-solved, keys 5+ unchanged,
+# contact key 7 = tick 8, sweep / ring / follow-through untouched.
+# Model: front = pinhole opponent camera (target eye closing with the dash), lean = screen angle grip->tip; side = watcher at the caster's right;
+# FP = eye (0,1.62,0) vfov 90 full frame %, per-part lerp+slerp client state. Script: session scratchpad r17/solve17.py (--scan 216 251 --v3).
+#
+# BEFORE (r16 = director r15 capture): keys 0..5 front lean -5.8 / -15.4 / -19.9 / -28.3 / -37.7 / -79.0, chunks 52.5 / 21.5 / 53.2 / 32.8 / 49.4.
+# r17a (first try, kept for the record): keys 2-4 = (354,48) / (276,64) / (246,33), front steps 9.6 / 13.0 / 20.3 / 30.3.
+#   Real client: front t3..t6 = 3 / 15 / 28 / 75 deg -> key 4 was NEVER drawn (t5 = key 3, t6 = key 5): the 3->5 step showed as ~47 deg, the same jump as r15.
+#   (r15 also dropped key 4: t2 22 = key 2, t3 28 = key 3, t4 72 = key 5.) So key 3 -> key 5 must be acceptable by itself.
+# r17 (committed): key 3 already low on the right so a dropped key 4 costs <= 32 deg, key 4 = the pull-back extreme behind the sweep start (phi 237 vs 262).
+#
+# Observed r17 (opponent-start.jpg, lag 2: frame t shows key t-2): t0-3 0 deg (held; t2-3 the held item is still drawn next to the rig, see opp-handover-zoom.jpg),
+#   t4 ~20 (key 2), t5 ~50 (key 3), t6 ~58 (key 4, drawn this time), t7 ~80 (key 5 sweep). Steps 20 / 30 / 8 / 22; no 44-deg jump.
+# Side (side-start.jpg): t0-3 held diagonal (one sword), t4 ~15 deg off vertical (key 2), t5-6 near vertical, foreshortened (keys 3-4 point back-right toward the camera), t7+ sweep.
+# Caster HUD on (caster-start.jpg): t0-1 vanilla FP item, t2 FP item + rig at the held pose (overlap tick, runtime), t3 0.7 %, t4-5 no weapon, t6 blade corner bottom-right,
+#   t7 sweep enters, t8 contact (sky-band weapon pixels 3.4 / 3.4 / 4.2 / 0.7 / 0 / 0.1 / 0.2 / 0.5 % for t0..t7).
+key tick  tip(phi,pitch)  chunk  front  dFront  face  dFace   side  dSide | FPkey lag0/-.27 | FP mid-chunk u.25/.5/.75 lag0  rotate
+  0    1  (    0, 52.0)    0.0   -5.8    0.0  35.1    0.0   38.4    0.0 |  4.2  7.6 |  0.0  0.0  0.0  [-336.4, -47.8, -59.4]
+  1    2  (    0, 52.0)    0.0   -5.8    0.0  35.1    0.0   38.4    0.0 |  4.2  7.6 |  4.2  4.2  4.2  [-336.4, -47.8, -59.4]
+  2    3  (  318, 68.0)   44.3  -19.5  -13.7  54.7   19.6   18.5  -19.9 |  5.5  3.1 |  4.2  4.4  4.7  [-296.7, -51.8, -65.0]
+  3    4  (  254, 40.0)   44.6  -46.7  -27.2  74.0   19.3  -17.9  -36.4 |  0.0  0.0 |  8.8  0.0  0.0  [-257.0, -20.6, -48.7]
+  4    5  (  237, 18.0)   55.5  -56.3   -9.6  70.0   -3.9  -68.5  -50.6 |  0.0  0.0 |  0.0  0.0  0.0  [-238.8, -1.0, -94.5]
+  5    6  (  262,  8.2)   36.2  -79.0  -22.8  53.9  -16.2  -92.7  -24.2 |  0.0  0.0 |  0.0  0.0  0.0  [-261.9, 11.6, -117.6]
+  6    7  (  310, 24.0)   49.0  -78.7    0.3  33.3  -20.6   64.4  157.1 |  5.7  4.5 |  0.0  0.0  5.1  [-306.4, -8.2, -123.7]
+  7    8  (  356, 30.5)   41.8  126.1  204.8  75.5   42.3   60.3   -4.1 |  3.4  3.5 |  4.7  4.0  3.5  [-345.0, -27.1, -128.1]
+  8   11  (   50, 24.1)   48.9   74.8  -51.3  26.6  -48.9   47.4  -12.9 |  4.6  6.4 |  3.2  3.3  3.8  [-401.4, -38.5, -151.1]
+skip check key 3 -> key 5 (if the client drops key 4): rotation 75.0 over two ticks, front lean step -32.3

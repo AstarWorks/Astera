@@ -87,7 +87,7 @@ public class SimDisplayGateway(
     private val recorder: TraceRecorder,
 ) : IDisplayEntityGateway {
 
-    public data class Spawned(val handle: IDisplayEntityGateway.DisplayHandle, val world: WorldId, val at: Vec3, val spec: DisplaySpec, val lines: List<String>)
+    public data class Spawned(val handle: IDisplayEntityGateway.DisplayHandle, val world: WorldId, val at: Vec3, val spec: DisplaySpec, val lines: List<String>, val tick: Long = 0L)
 
     /** Displays currently alive. */
     public val active: MutableMap<IDisplayEntityGateway.DisplayHandle, Spawned> = linkedMapOf()
@@ -127,7 +127,8 @@ public class SimDisplayGateway(
 
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): IDisplayEntityGateway.DisplayHandle {
         val handle = IDisplayEntityGateway.DisplayHandle(UUID.randomUUID())
-        val record = Spawned(handle, world, at, spec, renderedLines)
+        spec.viewRange?.let { viewRanges[handle] = it }
+        val record = Spawned(handle, world, at, spec, renderedLines, scheduler.currentTick())
         active[handle] = record
         peakActive = maxOf(peakActive, active.size)
         spawned += record
@@ -135,6 +136,8 @@ public class SimDisplayGateway(
             is DisplayKind.Block -> "block ${kind.blockKey}"
             is DisplayKind.Item -> "item ${kind.itemId.value}"
             is DisplayKind.Text -> "text ${renderedLines.joinToString(" / ")}"
+            is DisplayKind.SkinBone -> "skin_bone ${kind.bone.yamlName}"
+            DisplayKind.AnchorMainHand -> "main_hand_weapon"
         }
         recorder.recordEffect(scheduler.currentTick(), "display_spawn", at, "$what lifetime=${spec.lifetimeTicks}")
         recorder.recordDisplay(
@@ -145,6 +148,8 @@ public class SimDisplayGateway(
                 when (val kind = spec.kind) {
                     is DisplayKind.Block -> { put("kind", "block"); put("block", kind.blockKey) }
                     is DisplayKind.Item -> { put("kind", "item"); put("item", kind.itemId.value); put("mode", kind.displayMode.name.lowercase()) }
+                    is DisplayKind.SkinBone -> { put("kind", "skin_bone"); put("bone", kind.bone.yamlName) }
+                    DisplayKind.AnchorMainHand -> { put("kind", "main_hand_weapon") }
                     is DisplayKind.Text -> {
                         put("kind", "text")
                         put("lines", buildJsonArray { renderedLines.forEach { add(JsonPrimitive(it)) } })
@@ -164,6 +169,31 @@ public class SimDisplayGateway(
             },
         )
         return handle
+    }
+
+    /** Displays riding a player (ADR-0254): handle -> the anchor. */
+    public val attached: MutableMap<IDisplayEntityGateway.DisplayHandle, com.astarworks.astera.core.domain.player.PlayerId> = linkedMapOf()
+
+    /** The last `view_range` set per display (staged displays start at 0). */
+    public val viewRanges: MutableMap<IDisplayEntityGateway.DisplayHandle, Float> = linkedMapOf()
+
+    override fun spawnAttached(
+        world: WorldId,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        anchor: com.astarworks.astera.core.domain.player.PlayerId,
+        offset: Vec3,
+    ): IDisplayEntityGateway.DisplayHandle {
+        val handle = spawn(world, offset, spec, renderedLines)
+        attached[handle] = anchor
+        return handle
+    }
+
+    override fun isAttached(handle: IDisplayEntityGateway.DisplayHandle, anchor: com.astarworks.astera.core.domain.player.PlayerId, world: WorldId): Boolean =
+        attached[handle] == anchor && handle in active
+
+    override fun setViewRange(handle: IDisplayEntityGateway.DisplayHandle, viewRange: Float) {
+        viewRanges[handle] = viewRange
     }
 
     override fun update(handle: IDisplayEntityGateway.DisplayHandle, transform: DisplayTransform, interpolationTicks: Int) {
@@ -221,6 +251,7 @@ public class SimDisplayGateway(
 
     override fun remove(handle: IDisplayEntityGateway.DisplayHandle) {
         val record = active.remove(handle) ?: return
+        attached.remove(handle)
         recorder.recordEffect(scheduler.currentTick(), "display_remove", record.at, record.handle.id.toString())
         recorder.recordDisplay(scheduler.currentTick(), buildJsonObject { put("op", "remove"); put("id", handle.id.toString()) })
     }

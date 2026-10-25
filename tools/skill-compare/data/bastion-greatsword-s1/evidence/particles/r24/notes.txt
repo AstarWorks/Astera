@@ -1,0 +1,14 @@
+# r24 particle-artist: particle layer computed from the rig (tools/item-art/scripts/rig_path.py), director r23 diff "detached orange streak in the coil".
+# Captures: worktree build on a458cdb8 + this round's content (staged, so meta.json shows contentRevision e1381dc0 without +dirty; the image
+#   was built from the working tree). One at a time, TICKS 24. compare maxRep 1, camera lateness 81 ms; side maxRep 1. Labels = cast tick.
+#   Rejected takes (not kept): compare x2 (camera lateness 189 ms; frozen t7-18), side x3 (frozen from t1 / t7, load ~10).
+# rig-path-fx-high.txt / rig-path-fx-low.txt: blade tip per fx tick read from the rig + skill YAML (matches animator r23 per-key).
+# planner-report.txt: keep-out / counts (hit 1 sparks 59, embers 33; hit 2 sparks 88, embers 43; display particles 13 / 10, unchanged).
+cmp-t3-7.jpg  t3-4 blade raised, no particle anywhere; t5 the orange sliver left of the tip = display ring tile s1h1-ring-q2 frame 0
+              (ring-q2-frames0-3.jpg: frame 0 is exactly that sliver; static over frames, present before the first particle element at
+              fx 3 = skill 6) -> vfx-artist; t6 ring arc along the coiled blade; t7 sweep through the close camera.
+cmp-t8-12.jpg t8-10 sparks and embers at the contact on the blade and along the cut; t11-12 sheds and embers along the ring on the
+              follow-through side, embers on the caster's right. No spark off the blade path.
+side-t3-7.jpg t3-6 no particles while the blade lifts and coils; t7 thin orange line from the blade tip = ring tile seen edge-on (core).
+side-t8-12.jpg t8-9 the same edge-on ring line (core, not particles: no spark/ember present); t10-12 sparks rise from the contact on the
+              blade between the bodies, embers follow.

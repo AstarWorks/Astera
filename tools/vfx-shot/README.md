@@ -21,6 +21,8 @@ Output: `build/vfx-shot/<skill>/<view>/`
 
 比較撮影の`meta.json`は参照・contentの版、撮影日時、実装コミット、カメラ内容のハッシュを保持する。
 `captureQuality.maxRepeatedFrames`が15以上なら停止映像の疑いを目視確認する。静止した場面もあるため、自動で不合格にはしない。
+視聴側クライアントのログ(`viewer-client.log`)に`You were defeated`・ロビー復帰・ワールド変更があるか、視聴者が撮影前位置から40ブロック超動いた(`viewer-pos.txt`)場合は、`captureQuality.invalid: true`と`reason`が自動で付く。再撮影が必要。
+opponent視点のTargetは最大HP200で全回復してから撮影する(多段ヒットでの死亡を防ぐ)。
 実際に描画停止を確認した撮影には`captureQuality.invalid: true`を付けると比較画面から除外できる。
 ソフトウェア描画は既定で`LP_NUM_THREADS=4`。共有環境では撮影と重いビルドを重ねない。
 
@@ -52,7 +54,17 @@ clock). The client FOV option is the first key's fov; other keys' fov is emulate
 which skill-compare reads (source `vfx-compare`, the default) to align the frames with the case's skill start.
 
 Every view writes `meta.json` (`view`, `skill`, `frames`, `fov`, `fovMode` = `fixed` | `intent-first-key` | `override-dolly` | `override-nodolly`, `resolution`,
-`capturedAt`, `branch`, `implementationCommit`); skill-compare shows it as the provenance badge and `make skill-brief` copies it into its manifest.
+`capturedAt`, `branch`, `implementationCommit`, plus the revision fields below); skill-compare shows it as the provenance badge and `make skill-brief` copies it into its manifest.
+
+| revision field | meaning |
+|---|---|
+| `contentRevision` | fingerprint of what was filmed: `git rev-parse HEAD:content` (tree hash of `content/`), plus `+dirty-<12 hex>` (sha256 over every modified / deleted / untracked file under `content/`) when the tree is not clean |
+| `contentDirty` | `content/` had uncommitted changes at capture time (the fingerprint then only reproduces from that working tree) |
+| `codeRevision` | `git rev-parse HEAD` of the checkout that built the server (same value as `implementationCommit`) |
+| `codeDirty` | uncommitted changes outside `content/` at capture time |
+| `referenceRevision`, `caseContentRevision` | copied from the skill-compare `case.json` (compare view only); skill-compare matches captures to cases on these, never on `contentRevision` |
+
+Equal `contentRevision` + `codeRevision` (neither dirty) means identical content and code were filmed.
 
 ## How it works
 
@@ -63,6 +75,13 @@ Every view writes `meta.json` (`view`, `skill`, `frames`, `fov`, `fovMode` = `fi
 3. Clients: `portablemc` (offline name) with `--join-server`. Options are written per client
    (render distance 6, FOV 90 (compare: the intent's), no view bob, particles all, GUI scale 2, sound off, no pause on focus loss).
    F1 hides the HUD (`HIDE_HUD=0` keeps it; note F1 also hides the first-person hand).
+   **Caster view caveat:** with the default `HIDE_HUD=1` the caster's own held item is NEVER drawn in first person, before,
+   during or after the skill (f0-2 are empty-handed too). Only world entities show, so a `hide_held_item` rig appears and
+   then the hand looks empty to the last frame. That is the capture, not a missing restore. To judge the held-item
+   hand-over in first person, run `HIDE_HUD=0 make vfx-shot ... VIEW=caster`. Bastion S1 at 5dbac89d with the HUD on: held sword f0-2,
+   held sword + rig overlap f2-4, bare hand + rig f48-58, held sword back at f59 (vanilla re-equip raise from the bottom-right,
+   settled by ~f72). `PaperEntityEffectsGateway.sendHeldItem` sends both hide and restore to every player in the
+   world, the caster included.
 4. `ffmpeg -f x11grab` records with wall-clock timestamps; `rcon.py --stamp` prints the epoch time just before
    the cast, so frame 0 is the cast tick (plus `CAST_LAG_MS`, default 60, for render/network lag).
 5. Everything (clients, Xvfb, server) is torn down on exit (trap), unless `SHOT_KEEP=1`.

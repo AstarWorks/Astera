@@ -1,0 +1,16 @@
+bob z 0.000 x -0.050: angle  3.6 deg  tip off 0.136  guard off 0.028 block
+bob z 0.000 x +0.000: angle  2.3 deg  tip off 0.075  guard off 0.015 block
+bob z 0.000 x +0.050: angle  3.7 deg  tip off 0.144  guard off 0.035 block
+bob z 0.025 x -0.050: angle  3.1 deg  tip off 0.122  guard off 0.027 block
+bob z 0.025 x +0.000: angle  1.1 deg  tip off 0.037  guard off 0.008 block
+bob z 0.025 x +0.050: angle  3.1 deg  tip off 0.127  guard off 0.031 block
+bob z 0.050 x -0.050: angle  2.9 deg  tip off 0.119  guard off 0.027 block
+bob z 0.050 x +0.000: angle  0.0 deg  tip off 0.001  guard off 0.001 block
+bob z 0.050 x +0.050: angle  2.9 deg  tip off 0.119  guard off 0.028 block
+bob z 0.075 x -0.050: angle  3.1 deg  tip off 0.128  guard off 0.029 block
+bob z 0.075 x +0.000: angle  1.1 deg  tip off 0.037  guard off 0.008 block
+bob z 0.075 x +0.050: angle  3.0 deg  tip off 0.121  guard off 0.028 block
+bob z 0.100 x -0.050: angle  3.7 deg  tip off 0.146  guard off 0.033 block
+bob z 0.100 x +0.000: angle  2.3 deg  tip off 0.074  guard off 0.015 block
+bob z 0.100 x +0.050: angle  3.6 deg  tip off 0.134  guard off 0.030 block
+worst 3.7

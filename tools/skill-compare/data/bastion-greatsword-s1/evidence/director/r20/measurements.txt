@@ -1,0 +1,60 @@
+# r20 @4e97e4ca (wp/integrate-limbus ff: e93b73b2 rig rides the caster as passengers, e9d1e6a1 animator r17 keys 0-1 = held pose,
+#   581f3c7d / 4e97e4ca runtime r18/r19 atomic start/end hand-over via packet bundles). No director content change. TICKS=72.
+# Ticks = cast tick (compare frame = tick + 6). Every capture: implementationCommit 4e97e4ca.
+# Published (shared root /IdeaProjects/Astera/build/skill-compare-published/bastion-greatsword-s1/<view>/):
+#   compare  09a35eddfa4a (79 f)   side abe508937dcd (73 f)   opponent 4cee964ef856 (73 f)   caster 6b98d7a164b8 (73 f, HIDE_HUD=0)
+# Quality: maxRepeatedFrames 1 in all four; compare cameraMaxLatenessMs 56. Tries (load 5-17): compare 3 (#1 frozen t7-10,
+#   #2 maxRep 15 frozen t1-14), side 8 (frozen early frames or every-other-frame duplicates in 7 takes), opponent 2 (#1 frozen t10-18),
+#   caster 1. meta contentRevision 065058aa6fee (same hash as r15).
+# Display peak (RCON poll, all display types, minus 10 text_display baseline): compare 41, side 41, opponent 42, caster 41 (rig 22 block_display).
+
+## 1. Exactly one weapon every tick
+compare  start t0-3 held, t4 rig (vertical, broad face), t5-6 over the shoulder: ONE weapon each frame (cmp-start-zoom.jpg, 2.5x).
+         end   t50-58 rig, t59 held item back (guard ~25 px lower at 1.6x, arm drops to the vanilla pose): one weapon (cmp-end-zoom.jpg).
+side     start t0-2 held diagonal, t3 TWO BLADES: a plain light-grey untextured bar along the old held diagonal from the guard
+         PLUS the textured rig blade near vertical (side-start-4x.jpg). t4+ one rig blade.  -> FAIL (1 frame).
+         end   t57 rig -> t58 held item, ~5 deg change, guard same place: one weapon (side-end-3x.jpg). PASS.
+opponent start t0-3 held edge-on vertical, t4 rig; at t4 a light-grey block sticks out sideways near the upper blade (opp-start-zoom.jpg):
+         the same untextured grey part as side t3, drawn off the blade line. One blade, but a detached part. t5 face opens.
+         end   t52-59 vertical edge-on, hand-over invisible (opp-end.jpg). PASS.
+caster   FP: t0-2 held (FP hand model), t3-56 no weapon in frame, t57 held item back already in final pose, no raise (cas-start/cas-end).
+Reading: the grey bar is not the held item (no texture, no guard); it is one rig part whose transform lags its siblings by a tick
+  (drawn at the key-0/1 held angle while the other parts are at key 2). Mechanism suspect: reveal/interpolation start of one part
+  outside the hand-over bundle. Same part shows in two player clients (side t3, opponent t4).
+
+## 2. Big weighty arcs
+compare t4 vertical -> t5-6 blade behind the shoulder (2 frames) -> t7-8 sweep to the target; arc apex -> contact ~140 deg (cmp-start.jpg, cmp-h1.jpg).
+side t4-6 near vertical / tipping back, t7 sweep. opponent t4 ~10 deg, t5 ~45 deg face open, t6-7 low sweep (no 44-deg single jump; steps ~10/35/20).
+Hit 2: low horizontal cut t28-32 (cmp-h2.jpg). PASS (founder judgement on weight still pending).
+
+## 3. Contact t8 / t31 (hurt tint px, red mask)
+compare tint t10 (+2) / t33 (+2); side t9 (+1) / t31 (+0); caster FP t9 (+1) / t31 (+0); opponent camera shake peak t10 / t33-34.
+Blade reaches the target compare t8 and t31-32. Within the 0-3 tick client lag. PASS.
+
+## 4. Rings
+hit 1: full ellipse around the caster compare t10-13, opponent t10-15 (centred on the body), side t10-14 (opp-hits.jpg, cmp-h1.jpg).
+hit 2: ground crescent ring compare t31-37, opponent t32-36, side t30-36. PASS.
+
+## 5. Particles: plentiful, animated (8x8 cells containing a small warm speck; baseline = scene + gold guard)
+compare base ~80 -> hit 1 441/555/611 (t10-12), 365 t13-15, back to ~100 by t19; hit 2 233-686 (t31-34), 369-415 t35-37, ~200 t38-41.
+opponent base ~25 -> 763 (t11), 450-540 t12-14; hit 2 655-735 (t33-36). caster FP base ~40 -> 512 (t10), 955 (t33).
+side base ~17 -> ~120 (t9-14), ~120 (t31-34). Specks move frame to frame (cmp-particles.jpg t38 vs t40). PASS.
+
+## 6. No black "+"
+No black/lavender "+" in any view at 2x. Thin dark grey horizontal dashes (dark streak sprites) around the hit-1 spark burst:
+caster FP t12 upper right, compare t11-12 near the ring (cas-particles.jpg, cmp-particles.jpg). Not "+", noted for the vfx-artist. PASS.
+
+## 7. First-person blade coverage
+No rig blade in the FP frame t3-56 (wind-up and both sweeps are off-screen, only the trail/ring reads). r15: t2 0.16 %, none t3-6. PASS
+(warm-mask peak caster t32 7.4 %, r15 7.8 %).
+
+## 8. Display budget <= 60
+Peak 41-42 in all views. PASS.
+
+## Diffs by role
+runtime:  side t3 doubled blade / opponent t4 detached grey block = one rig block_display lagging one tick at rig start (part transform
+          or reveal not in the same bundle as its siblings). Check which rig part is the plain grey bar (blade core?) and whether its
+          first transform/interpolation start is sent with the reveal.
+animator: opponent end t51 -> t52 ~35 deg lean + face turn (face-open -> edge-on vertical) in one frame; ease keys before the held pose.
+vfx-artist: dark dashes near the hit-1 spark burst read as grey smudges in FP t12 (minor).
+particle-artist / sound: none.

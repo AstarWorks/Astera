@@ -1,0 +1,33 @@
+# r10 @adad60c4 (runtime b3bc1876 + vfx 4ab88176), TICKS=72. Ticks = cast tick (compare frame = tick + 6).
+# Published: compare 8970b03d8040 (79 f), side ed414db6529d, opponent 1fed3dfbe79e, caster 59c530081ac8 (73 f each), all maxRepeatedFrames 1.
+# Tries: compare 3 (122 ms lateness invalid; maxRep 9), side 1, caster 3 (maxRep 11/12), opponent 8 (maxRep 9/8/14/43/16 = frozen t0-15, 2x 'You were defeated').
+
+## (1) weapon t0-5 / t50-61
+compare: weapon every frame. Overlap t2-3 one sword with a doubled blade outline (3x zoom); end overlap t58-59 reads as TWO swords at 3x: two crossguards and two parallel blade edges ~5 px apart (rig guard is a plain yellow bar + dark grip, held item a studded guard). cmp-*-overlap-3x.jpg
+side: weapon every frame; t2-3 one sword; t57 doubled tip (two tips ~3 deg apart) for 1 frame.
+opponent: weapon every frame (r9 t1 gap gone). t2 rig edge-on vertical -> t3 rig 45 deg face-on: ~45 deg pose jump in one tick. t57 two parallel blades/tips (~6 px) for 1 frame.
+caster (F1, no hand): rig only; not judgeable for hand-over.
+
+## (2) black "+": none found in any view (visual check at 2.5-3x, cas-sparks-3x.jpg). Dark accents left: thin brown lens slivers ("-" dashes) near the caster camera t10-13; grey smoke curl near the target t38-44 (compare/side). Orange 4-point stars still large within ~2 blocks of the caster camera (t11-13, t36).
+
+## (3) hit-2 ring tiles, compare close-up
+t32 (first ring frame): both tiles show a hard straight cut end and a translucent khaki wash with a straight top edge (bottom-left and bottom-right) = tile boundary visible for 1 frame. t33-34: arcs continuous, no straight seam inside the visible part; inner soft wash follows the curve. Outer edge at 2x: dark rim with a fine 1-2 px comb (sawtooth) along the curve; better than r9 step but not fully smooth. The front between the two crescents is below the frame edge in compare; opponent/side show only the back/left arc.
+
+## (4) ink (#FFE35B flat, % of frame on 2 px grid)
+compare t32:3.8 t33:0.4 t34:0.4 (1 tick of ink; after the case cut)
+side    t31:0.8 t32:0.7 (2 ticks) upright camera-facing slab, knee-to-waist height, spans both bodies' legs
+opponent t30:21.2 t31:26.6 t32:26.3 (3 ticks)   r9 peak 13.3
+caster  t31:17.5 t32:16.9 (2 ticks)             r9 peak 9.4
+Not a floor puddle in any view. Raising it to y 0.95 doubled the screen share in the two player views (a quarter of the opponent's screen for 3 ticks).
+
+## (5) hit-2 arc from opponent: thin gold back arc visible t29, t30, t31, t32 (partly behind ink), t33 left edge = 5 ticks.
+## (6) hit-1 ring: closed ellipse at t10 in side and t9-10 in opponent; compare close-up t10 only the near arc (camera), full loop t11 (wide t13).
+
+## (7) gold/orange small blobs (6-600 px), moved = no blob within 2 px in previous frame (hit_stop 8-10 / 31-33 freeze)
+### compare hit1 t8-16: 12 6 15 30 39 34 36 81 13   (moved 0 2 11 22 26 34 15 77 10)
+### compare hit2 t30-39: 9 13 16 57 51 56 54 52 8 13 (moved 0 8 16 55 5 56 24 3 7 13)
+### side hit1 t8-16: 6 9 6 7 13 10 8 8 5 ; hit2 t30-39: 5 4 7 12 25 12 9 7 5 4
+### opponent hit1 t8-16: 17 18 18 24 26 34 17 8 2 ; hit2 t30-39: 5 7 13 33 46 37 48 0 1 1
+### caster hit1 t8-16: 0 15 28 29 31 19 15 30 4 ; hit2 t30-39: 0 2 33 25 34 45 34 34 4 5
+Ring phases: hit-1 ring t12-16 = compare 39/34/36/81/13, opponent 26/34/17/8/2; hit-2 ring t35-39 = compare 56/54/52/8/13, opponent 37/48/0/1/1, caster 45/34/34/4/5.
+Side counts are low and partly static (gold guard of the sword counts as blobs; side camera is far).
