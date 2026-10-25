@@ -1,16 +1,18 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-10-22
 deciders: founder + Claude
 supersedes: null
-superseded_by: null
+superseded_by: 0255
 ---
 
 # ADR-0180: Procedural sky-island lobby world
 
 ## Status
 
-Accepted. Realises the lobby intent of ADR-0119 (clear sky, frozen noon, no PvP, no build)
+**Superseded by [[adr/0255-world-slots-and-arenapaster]]** (2026-10-26, Folia migration). Body below preserved per ADR convention; do not act on the design described here.
+
+Originally: Accepted. Realises the lobby intent of ADR-0119 (clear sky, frozen noon, no PvP, no build)
 that only ever existed as a never-loaded `content/worlds/lobby.yaml` draft, and gives the
 `ServerRole.hostsLobby` backends (ADR-0174 contract) a world of their own.
 

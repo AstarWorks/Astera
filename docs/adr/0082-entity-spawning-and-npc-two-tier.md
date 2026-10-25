@@ -1,16 +1,18 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-05-21
 deciders: Astera maintainers (Wave 5l)
 supersedes: null
-superseded_by: null
+superseded_by: 0264
 ---
 
 # ADR-0082: Entity spawning + NPC two-tier strategy (Minimal core / Citizens edge)
 
 ## Status
 
-Accepted
+**Superseded by [[adr/0264-external-plugin-removal-and-single-npc-backend]]** (2026-10-26, Folia migration). Body below preserved per ADR convention; do not act on the design described here.
+
+Originally: Accepted
 
 ## Context
 

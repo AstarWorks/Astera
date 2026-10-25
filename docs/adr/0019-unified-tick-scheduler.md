@@ -1,16 +1,18 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-05-17
 deciders: ryuzu
 supersedes: null
-superseded_by: null
+superseded_by: 0252
 ---
 
 # ADR-0019: Unified Tick Scheduler + SchedulerRegion
 
 ## Status
 
-Accepted
+**Superseded by [[adr/0252-folia-runtime-and-executionscope-threading-model]]** (2026-10-26, Folia migration). Body below preserved per ADR convention; do not act on the design described here.
+
+Originally: Accepted
 
 ## Context
 

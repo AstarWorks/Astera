@@ -1,16 +1,18 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-05-21
 deciders: orchestrator (Wave 5pve)
 supersedes: null
-superseded_by: null
+superseded_by: 0264
 ---
 
 # ADR-0085: PvE mob foundation — MobSpec + IMobAdapter two-tier
 
 ## Status
 
-Accepted
+**Superseded by [[adr/0264-external-plugin-removal-and-single-npc-backend]]** (2026-10-26, Folia migration). Body below preserved per ADR convention; do not act on the design described here.
+
+Originally: Accepted
 
 ## Context
 
