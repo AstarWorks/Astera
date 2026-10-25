@@ -81,6 +81,10 @@ public class NormaLevelService(
     public fun topLevel(match: Match, team: TeamId): Int =
         match.teams.firstOrNull { it.id == team }?.members.orEmpty().maxOfOrNull { norma.get(match.id, it).level } ?: 1
 
+    /** Stars carried by the members of [team] together (time-limit tie-break after the Norma level). */
+    public fun carried(match: Match, team: TeamId): Int =
+        match.teams.firstOrNull { it.id == team }?.members.orEmpty().sumOf { stars.get(match.id, it) }
+
     public fun clear(matchId: MatchId) {
         norma.clear(matchId)
     }

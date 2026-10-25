@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
  * ADR-0247: two AI bots (real protocol clients driven by [BotBrain], the same code the `bot-runner` service uses) play
  * a whole Norma 1v1 against each other. Nothing is forced over RCON: the AI has to find the enemy, walk to it, swing /
  * shoot, kill it, survive the death cam and respawn until the match ends on its own (content timers are shortened by
- * docker/e2e-tune-content.sh: 3 kills or 150 s). Then: a winner is declared, summary and rewards arrive, both bots are
+ * docker/e2e-tune-content.sh: top Norma level (3 levels) or 150 s). Then: a winner is declared, summary and rewards arrive, both bots are
  * back in the lobby.
  *
  * The only RCON use is read-only (`astera match list`, `data get entity`) plus handing out the starter weapons when a
@@ -134,7 +134,7 @@ class BotVsBotE2eTest : PlaythroughBase() {
         val chats = bots.associateWith { b -> b.chat.drop(chatFrom.getValue(b)).map { clean(it.text) } }
         E2eReport.check(suite, "a winner is declared: the summary names a team and the scores differ", "SystemChat") {
             val summary = chats.getValue(bots[0])
-            val reason = summary.firstOrNull { it.contains("reached the norma") || it.contains("was ahead") || it.contains("reached Norma level") }
+            val reason = summary.firstOrNull { it.contains("was ahead") || it.contains("reached Norma level") }
             val score = summary.firstOrNull { it.startsWith("Score") }.orEmpty()
             assertThat(reason).describedAs("no winner reason (draw?):\n${quote(summary, 40)}").isNotNull()
             if (reason!!.contains("Norma level")) {

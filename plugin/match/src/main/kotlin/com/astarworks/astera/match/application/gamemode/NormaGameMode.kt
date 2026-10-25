@@ -69,8 +69,8 @@ import com.astarworks.astera.match.domain.mode.GameModeId
  */
 public class NormaGameMode @JvmOverloads constructor(
     private val eventBus: IDomainEventBus? = null,
-    /** The kill goal of a match (`score_threshold` of the mode config); the sidebar shows progress towards it. */
-    private val goal: (MatchId) -> Int = { DEFAULT_GOAL },
+    /** The top Norma level of a match (`norma_max_level` of the mode config): reaching it wins the match. */
+    private val maxLevel: (MatchId) -> Int = { DEFAULT_MAX_LEVEL },
 ) : IGameMode {
 
     override fun id(): GameModeId = ID
@@ -104,17 +104,17 @@ public class NormaGameMode @JvmOverloads constructor(
         )
     }
 
-    /** The norma: the team goal on top, then every team's kills towards it (`Red: 3/10`). */
+    /** The win condition (the top Norma level) on top, then every team's kills (`Red: 3`, the tie-break after level and stars). */
     override fun hudStatus(match: Match, nowTick: Long): MatchHudStatus {
-        val target = goal(match.id).toString()
+        val target = maxLevel(match.id).toString()
         return MatchHudStatus(
             lines = buildList {
-                add(HudLine(GOAL_LINE, mapOf("goal" to target)))
+                add(HudLine(GOAL_LINE, mapOf("max" to target)))
                 match.teams.forEach { team ->
                     add(
                         HudLine(
                             key = TEAM_LINE,
-                            placeholders = mapOf("score" to match.score.valueFor(team.id).toString(), "goal" to target),
+                            placeholders = mapOf("score" to match.score.valueFor(team.id).toString()),
                             team = team.id,
                         ),
                     )
@@ -145,8 +145,8 @@ public class NormaGameMode @JvmOverloads constructor(
         private val GOAL_LINE: MessageKey = MessageKey("astera.hud.sidebar.norma.goal")
         private val TEAM_LINE: MessageKey = MessageKey("astera.hud.sidebar.norma.team")
 
-        /** Mirrors the `score_threshold` default of `content/game-modes/norma.yaml`. */
-        public const val DEFAULT_GOAL: Int = 10
+        /** Mirrors the `norma_max_level` default of `content/game-modes/norma.yaml`. */
+        public const val DEFAULT_MAX_LEVEL: Int = 5
 
         private val DEFAULT_PHASES: List<IGameModePhase> = listOf(
             IGameModePhase.Lobby,
