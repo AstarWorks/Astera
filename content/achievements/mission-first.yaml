@@ -3,3 +3,4 @@ id: mission-first
 name_key: astera.stats.achievement.mission-first.name
 description_key: astera.stats.achievement.mission-first.description
 icon_item_id: knight-sword
+reward_gold: 50

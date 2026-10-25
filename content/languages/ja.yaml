@@ -542,6 +542,8 @@ astera:
 
   # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
   economy:
+    achievement-reward:
+      chat: "<gold>実績報酬: +{gold} GOLD</gold>"
     currency:
       gold: "<gold>GOLD</gold>"
       gem: "<light_purple>GEM</light_purple>"
@@ -568,6 +570,10 @@ astera:
           verdict-hammer: "審判の杭槌"
           vendetta-rifle: "報復の銃剣"
           ember-gauntlet: "灼拳の手甲"
+          edict-blade: "勅令の手枷"
+          crimson-chain-axe: "緋の鎖斧"
+          orrery-staff: "天球儀の杖"
+          sigil-rifle: "刻印の狙撃銃"
       gui:
         spacer: " "
         price: "<gray>価格: <green>{amount}</green> {currency}</gray>"

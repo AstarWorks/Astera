@@ -2,8 +2,13 @@
 # `/astera shop`). Every `item` must exist in content/items/ (ShopShippedContentTest).
 # Currency design (docs/game-design/economy/README.md, ADR-0251):
 #   GOLD  = the one persistent currency, earned from matches (content/balance/match-rewards.yaml),
-#           quests, advancements and the login bonus.
-#           -> standard weapons 100-320 GOLD, the top-tier greatsword / thunder staff 120-150 GOLD.
+#           quests, achievements, level rewards and the login bonus. Stars are a match item, never a price.
+# Pricing is ordered by item rarity (ShippedWeaponAcquisitionTest pins it, every tier strictly above the one below):
+#   common    - starter weapons (content/balance/starter-grant.yaml): never sold here
+#   uncommon  150-250
+#   rare      350-400
+#   epic      500-600
+# Not sold, on purpose: the starter weapons (pistol, knight-sword) and the dev/demo items rtm-blaster / skill-tester.
 # A new player starts with no GOLD: every offer has to be earned.
 # Offers priced at >= 100 need a confirming second click in the GUI (ShopIntentHandler.CONFIRM_AT).
 # Offers iterate in YAML order, 9 per GUI row, 45 per page; the footer row holds paging, the category
@@ -14,30 +19,12 @@ id: example-shop
 display_key: astera.economy.shop.example-shop.title
 
 offers:
-  - id: pistol
-    item: pistol
-    category: gun
-    price:
-      currency: GOLD
-      amount: 120
-    stock:
-      type: unlimited
-    display_key: astera.economy.shop.example-shop.offer.pistol-basic
-  - id: knight-sword
-    item: knight-sword
-    category: sword
-    price:
-      currency: GOLD
-      amount: 100
-    stock:
-      type: unlimited
-    display_key: astera.economy.shop.example-shop.offer.knight-sword
   - id: dagger
     item: dagger
     category: sword
     price:
       currency: GOLD
-      amount: 140
+      amount: 150
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.dagger
@@ -64,7 +51,7 @@ offers:
     category: gun
     price:
       currency: GOLD
-      amount: 260
+      amount: 250
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.shotgun
@@ -73,25 +60,16 @@ offers:
     category: gun
     price:
       currency: GOLD
-      amount: 300
+      amount: 250
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.rifle
-  - id: verdant-staff
-    item: verdant-staff
-    category: staff
-    price:
-      currency: GOLD
-      amount: 320
-    stock:
-      type: unlimited
-    display_key: astera.economy.shop.example-shop.offer.verdant-staff
   - id: greatsword
     item: greatsword
     category: sword
     price:
       currency: GOLD
-      amount: 120
+      amount: 350
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.greatsword
@@ -100,15 +78,32 @@ offers:
     category: staff
     price:
       currency: GOLD
-      amount: 150
+      amount: 350
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.thunder-staff
+  - id: verdant-staff
+    item: verdant-staff
+    category: staff
+    price:
+      currency: GOLD
+      amount: 400
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.verdant-staff
+  - id: bastion-greatsword
+    item: bastion-greatsword
+    price:
+      currency: GOLD
+      amount: 400
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.bastion-greatsword
   - id: couture-rapier
     item: couture-rapier
     price:
       currency: GOLD
-      amount: 160
+      amount: 500
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.couture-rapier
@@ -116,39 +111,63 @@ offers:
     item: gossamer-katana
     price:
       currency: GOLD
-      amount: 160
+      amount: 500
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.gossamer-katana
-  - id: bastion-greatsword
-    item: bastion-greatsword
-    price:
-      currency: GOLD
-      amount: 160
-    stock:
-      type: unlimited
-    display_key: astera.economy.shop.example-shop.offer.bastion-greatsword
-  - id: verdict-hammer
-    item: verdict-hammer
-    price:
-      currency: GOLD
-      amount: 180
-    stock:
-      type: unlimited
-    display_key: astera.economy.shop.example-shop.offer.verdict-hammer
-  - id: vendetta-rifle
-    item: vendetta-rifle
-    price:
-      currency: GOLD
-      amount: 160
-    stock:
-      type: unlimited
-    display_key: astera.economy.shop.example-shop.offer.vendetta-rifle
   - id: ember-gauntlet
     item: ember-gauntlet
     price:
       currency: GOLD
-      amount: 160
+      amount: 500
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.ember-gauntlet
+  - id: vendetta-rifle
+    item: vendetta-rifle
+    price:
+      currency: GOLD
+      amount: 550
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.vendetta-rifle
+  - id: verdict-hammer
+    item: verdict-hammer
+    price:
+      currency: GOLD
+      amount: 550
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.verdict-hammer
+  - id: edict-blade
+    item: edict-blade
+    price:
+      currency: GOLD
+      amount: 550
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.edict-blade
+  - id: crimson-chain-axe
+    item: crimson-chain-axe
+    price:
+      currency: GOLD
+      amount: 600
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.crimson-chain-axe
+  - id: orrery-staff
+    item: orrery-staff
+    price:
+      currency: GOLD
+      amount: 600
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.orrery-staff
+  - id: sigil-rifle
+    item: sigil-rifle
+    price:
+      currency: GOLD
+      amount: 600
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.sigil-rifle

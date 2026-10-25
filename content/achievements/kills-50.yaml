@@ -2,4 +2,5 @@
 id: kills-50
 name_key: astera.stats.achievement.kills-50.name
 description_key: astera.stats.achievement.kills-50.description
-icon_item_id: knight-sword
+icon_item_id: shotgun
+reward_gold: 150

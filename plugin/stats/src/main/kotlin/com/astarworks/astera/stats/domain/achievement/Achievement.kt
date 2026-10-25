@@ -22,4 +22,5 @@ public data class Achievement(
     val nameKey: MessageKey,
     val descriptionKey: MessageKey,
     val iconItemId: String,
+    val rewardGold: Long = 0,
 )
