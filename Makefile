@@ -202,7 +202,7 @@ live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=
 	bash scripts/live-bots.sh $(or $(SCENARIO),all)
 
 .PHONY: bots
-bots: ## Fill the live queue with AI bots (ADR-0247): make bots N=2 LANE=norma  (starts the bot-runner service if needed)
+bots: ## Fill the live queue with AI bots (ADR-0247): make bots N=2 LANE=skirmish  (starts the bot-runner service if needed)
 	bash scripts/bots.sh $(or $(N),2) $(or $(LANE),norma)
 
 .PHONY: skill-compare

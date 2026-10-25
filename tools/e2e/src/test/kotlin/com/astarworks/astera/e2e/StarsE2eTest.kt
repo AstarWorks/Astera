@@ -45,7 +45,7 @@ class StarsE2eTest : PlaythroughBase() {
         Thread.sleep(1_500)
         val lobbyTitle = a.sidebarTitle()
         val chatFrom = both.associateWith { it.chat.size }
-        both.forEach { it.command("astera queue join norma") }
+        both.forEach { it.command("astera queue join skirmish") }
 
         val active = awaitMatch("ACTIVE", 60_000, keepAlive = both)
         E2eReport.check(suite, "a two-player Norma match goes ACTIVE", "RCON astera match list") {

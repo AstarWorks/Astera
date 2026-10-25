@@ -119,7 +119,7 @@ class MilestoneSoundScenarioTest {
         scenario("milestone-sounds-stars") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val matchId = startMatch("norma", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val matchId = startMatch("skirmish", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             val stars = sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.IMatchStarStore>()
 
             stars.add(matchId, blue.id, 6)

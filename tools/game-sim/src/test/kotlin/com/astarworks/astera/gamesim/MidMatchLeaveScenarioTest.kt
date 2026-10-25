@@ -34,7 +34,7 @@ class MidMatchLeaveScenarioTest {
         scenario("leave-rejoin-in-window", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
-            val matchId = startMatch("norma", mapOf(red to "red", blue to "blue"))
+            val matchId = startMatch("skirmish", mapOf(red to "red", blue to "blue"))
             val stars = sim.services.getOrThrow<IMatchStarStore>()
             val norma = sim.services.getOrThrow<IMatchNormaStore>()
             val sessions = sim.services.getOrThrow<IPlayerSessionRepository>()
@@ -85,7 +85,7 @@ class MidMatchLeaveScenarioTest {
         scenario("leave-forfeit-1v1", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
-            val matchId = startMatch("norma", mapOf(red to "red", blue to "blue"))
+            val matchId = startMatch("skirmish", mapOf(red to "red", blue to "blue"))
             val sessions = sim.services.getOrThrow<IPlayerSessionRepository>()
             val stats = sim.services.getOrThrow<IPlayerStatsRepository>()
 
@@ -113,7 +113,7 @@ class MidMatchLeaveScenarioTest {
             val r2 = player("red-2", team = "red")
             val b1 = player("blue-1", team = "blue")
             val b2 = player("blue-2", team = "blue")
-            val matchId = startMatch("norma", mapOf(r1 to "red", r2 to "red", b1 to "blue", b2 to "blue"))
+            val matchId = startMatch("skirmish", mapOf(r1 to "red", r2 to "red", b1 to "blue", b2 to "blue"))
             val matches = sim.services.getOrThrow<IMatchRepository>()
 
             sim.detachPlayer(r1.id)
@@ -137,7 +137,7 @@ class MidMatchLeaveScenarioTest {
         scenario("leave-by-command", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
-            val matchId = startMatch("norma", mapOf(red to "red", blue to "blue"))
+            val matchId = startMatch("skirmish", mapOf(red to "red", blue to "blue"))
             val stars = sim.services.getOrThrow<IMatchStarStore>()
             val sessions = sim.services.getOrThrow<IPlayerSessionRepository>()
 

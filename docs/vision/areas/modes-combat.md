@@ -4,17 +4,17 @@ Owner track `wp/modes-combat`. Seed: audit 2026-10-26. Items: Board prefix `MODE
 
 ## 構想 (source)
 - Siege PvP with gun / sword / magic roles, 15-30 min matches (`docs/game-design/vision.md`, `pillars.md`).
-- **Norma is part of every mode** (founder 2026-10-26): stars pop from generators, a kill bursts carried stars, per-level STAR or KILL goal, 100% Orange Juice style; highest Norma level wins (ADR-0251, `docs/game-design/stars-and-norma.md`).
+- **Norma is part of every mode** (founder 2026-10-26, ADR-0257: shared layer `content/norma-layer/layer.yaml`, `norma_win` per mode, the old `norma` mode is now `skirmish`): stars pop from generators, a kill bursts carried stars, per-level STAR or KILL goal, 100% Orange Juice style; highest Norma level wins (ADR-0251, `docs/game-design/stars-and-norma.md`).
 - Weapons RTM-style MAIN+SUB caps; the 2-weapon cap is kept; starter kit includes a gun.
 - Matches target siege-scale maps; keep a small debug arena for e2e.
 - Playable loop: queue, form, countdown, ACTIVE, fight, respawn, objective, end summary + rewards, lobby (`docs/game-design/playable-loop-checklist.md`).
 
 ## 現状
-- 9 mode files in `content/game-modes/` (norma, annihilation, break-core, carry-tnt, carry-mini-tnt, capture-wool, steal-jewelry, battle-loyal, pve-waves); 8 queue lanes in `content/matchmaking/queue.yaml`. `carry-mini-tnt` has no lane (unreachable).
+- 9 mode files in `content/game-modes/` (skirmish, annihilation, break-core, carry-tnt, carry-mini-tnt, capture-wool, steal-jewelry, battle-loyal, pve-waves); 8 queue lanes in `content/matchmaking/queue.yaml`. `carry-mini-tnt` has no lane (unreachable).
 - Play gate mode picker with "vs bots" tile per lane (ADR-0248). Bots: A* pathing, star/generator objectives, retreat, Norma goal choice (`tools/bot-runner`).
 - Real-server playthrough e2e only for norma, annihilation, break-core, pve-waves (`*PlaythroughE2eTest`); the other siege modes only in game-sim `SiegeModesScenarioTest`.
 - ~90 items, 85 skills, ~30 real weapons (guns: pistol, rifle, shotgun, sigil-rifle, vendetta-rifle; swords; 5 staves); demo items (`rtm-blaster`, `simple-shoot`, `vfx-demo-*`, `anim-demo-*`) live in production content.
-- `weapon_limits: "gun:1,sword:1,staff:1,total:2"` enforced by `MatchWeaponLimitListener`, set only in `norma.yaml`.
+- `weapon_limits: "gun:1,sword:1,staff:1,total:2"` enforced by `MatchWeaponLimitListener`, set only in `skirmish.yaml`.
 - Norma/stars: generators pop stars, kill bursts stars, level via STAR or KILL goal, `PaperNormaPresentation`; stars cannot yet be spent (items/ultimates not built).
 - Combat: resource pools, melee, mob damage, 15 statuses, element matrix.
 - Siege modes share the `siege-isles` stage, one match at a time.

@@ -14,7 +14,7 @@ import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** Match weapon restriction: norma.yaml `weapon_limits` = at most 1 per family, 2 in total (RTM MAIN + SUB assumption). */
+/** Match weapon restriction: skirmish.yaml `weapon_limits` = at most 1 per family, 2 in total (RTM MAIN + SUB assumption). */
 class WeaponLimitScenarioTest {
 
     @Test
@@ -34,8 +34,8 @@ class WeaponLimitScenarioTest {
             assertThat(service.verdictFor(lobbyOnly.id, ItemId("pistol"))).isEqualTo(WeaponLimitService.Verdict.Allowed)
 
             val matchmaker = sim.services.getOrThrow<IMatchmaker>()
-            matchmaker.enqueue(loaded.id, MatchmakingMode.Norma)
-            matchmaker.enqueue(rival.id, MatchmakingMode.Norma)
+            matchmaker.enqueue(loaded.id, MatchmakingMode.SKIRMISH)
+            matchmaker.enqueue(rival.id, MatchmakingMode.SKIRMISH)
             assertThat(sim.stepUntil(600) { sim.eventsOf<PlayerEnteredMatch>().size == 2 }).isTrue()
 
             // 5 slots in, the first MAIN + SUB stay; the same-family and over-total weapons are set aside. Non-weapons stay.

@@ -3,6 +3,7 @@ package com.astarworks.astera.match.domain.gamemode
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.match.domain.mode.GameModeId
 
 /**
@@ -146,6 +147,13 @@ public interface IGameMode {
      */
     public fun hudStatus(match: Match, nowTick: Long): MatchHudStatus =
         MatchHudStatus(lines = MatchHudStatus.scoreLines(match))
+
+    /**
+     * How far [team] is along this mode's own objective (captures, deliveries, banked jewels, kills...), or `null`
+     * when the mode has no per-team objective score. The Norma layer's time limit ranks teams by this first, then by
+     * Norma level, stars carried and kills (MODE-15).
+     */
+    public fun objectiveStanding(match: Match, team: TeamId): Int? = null
 }
 
 /**

@@ -48,7 +48,7 @@ class HudScenarioTest {
             assertThat(idle.keys()).contains("astera.hud.lobby.queue.idle")
             assertThat(idle.keys()).doesNotContain("astera.hud.sidebar.stars")
 
-            val queued = sim.services.getOrThrow<IMatchmaker>().enqueue(alice.id, MatchmakingMode.Norma)
+            val queued = sim.services.getOrThrow<IMatchmaker>().enqueue(alice.id, MatchmakingMode.SKIRMISH)
             assertThat(queued).isInstanceOf(Result.Success::class.java)
             advance(2)
 

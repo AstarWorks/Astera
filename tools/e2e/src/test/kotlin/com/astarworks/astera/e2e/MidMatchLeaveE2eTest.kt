@@ -18,8 +18,8 @@ class MidMatchLeaveE2eTest : PlaythroughBase() {
         val a = bot("Lv1", PackPolicy.DECLINE)
         val b = bot("Lv2", PackPolicy.DECLINE)
         listOf(a, b).forEach { bot -> bot.waitUntil(15_000) { bot.sidebarLines().isNotEmpty() && bot.hotbar()[8] != -1 } }
-        a.command("astera queue join norma")
-        b.command("astera queue join norma")
+        a.command("astera queue join skirmish")
+        b.command("astera queue join skirmish")
         val active = awaitMatch("ACTIVE", 60_000, keepAlive = listOf(a, b))
         E2eReport.check(suite, "two queued players get an ACTIVE match", "RCON astera match list") {
             assertThat(active).describedAs("no ACTIVE match; list=${matchLines()}").isNotNull()
