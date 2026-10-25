@@ -53,7 +53,11 @@ spawn_points:
   and the straight lane from each island centre to its bridges.
 - Bridges are drawn centre to centre; an island block always wins over a bridge block.
 - Production stage areas are disjoint: Norma at the origin, Siege at z=700, Annihilation at z=-750,
-  PvE at x=800. Debug stages share `debug-arenas` at their original coordinates.
+  PvE at x=800.
+- Per-lane siege-isles variants (MODE-06, ADR-0273) copy `siege-isles` shifted on z so the siege lanes can run
+  concurrently (one match per stage id, no world instancing): `siege-isles` (break-core) at z=700,
+  `siege-isles-tnt` at z=1500, `-wool` at z=2300, `-jewelry` at z=3100, `-loyal` at z=3900, `-mini-tnt` at z=4700.
+  They are temporary until the ADR-0255 world slots ship; keep each variant in sync with `siege-isles.yaml`. Debug stages share `debug-arenas` at their original coordinates.
 - `arena-worlds.marker` stores each stage's marker version, plan digest and previous bounds. Changed content rebuilds
   on restart; bump `marker_version` when editing a cached stage. The old bounds are cleared before placement.
   Planning/digesting runs off thread. Chunk loading is asynchronous; clearing, placing and releasing chunk tickets

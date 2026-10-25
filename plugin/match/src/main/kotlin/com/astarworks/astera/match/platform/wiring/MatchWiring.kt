@@ -521,10 +521,9 @@ public object MatchWiring {
         )
 
         // WP11: the objective modes (break-core / carry-tnt / capture-wool /
-        // steal-jewelry / battle-loyal) own their per-match state and react to
+        // steal-jewelry / battle-loyal / carry-mini-tnt) own their per-match state and react to
         // region / block / kill events of their own matches; the config comes
-        // from content/game-modes/<id>.yaml `default_config`. carry-mini-tnt is
-        // still an event-less façade (not wired to an objective yet).
+        // from content/game-modes/<id>.yaml `default_config`.
         val siegeEnv = { id: com.astarworks.astera.match.domain.mode.GameModeId ->
             SiegeEnv(
                 eventBus = eventBus,
@@ -543,6 +542,7 @@ public object MatchWiring {
             BattleLoyalGameMode(siegeEnv(BattleLoyalGameMode.ID)),
             BreakCoreGameMode(siegeEnv(BreakCoreGameMode.ID)),
             CarryTntGameMode(siegeEnv(CarryTntGameMode.ID)),
+            CarryMiniTntGameMode(siegeEnv(CarryMiniTntGameMode.ID)),
             CaptureWoolGameMode(siegeEnv(CaptureWoolGameMode.ID)),
             StealJewelryGameMode(siegeEnv(StealJewelryGameMode.ID)),
         )
@@ -560,8 +560,7 @@ public object MatchWiring {
         )
         gameModeFrameworkRegistry.register(pveMode)
         subscriptions += pveMode.subscribeAll()
-        gameModeFrameworkRegistry.register(CarryMiniTntGameMode(eventBus = eventBus))
-        logger.info("WP11 wiring: ${siegeModes.size} objective game modes + carry-mini-tnt registered into IGameModeFrameworkRegistry.")
+        logger.info("WP11 wiring: ${siegeModes.size} objective game modes registered into IGameModeFrameworkRegistry.")
 
         reloadRegistry.register(gameModeContents, gameModeContentDir)
         logger.info(

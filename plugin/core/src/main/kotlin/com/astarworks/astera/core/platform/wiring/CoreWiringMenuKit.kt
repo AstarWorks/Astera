@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.gui.GuiId
 
@@ -21,6 +22,21 @@ internal fun CoreWiringState.wireGuiOpenIntentAndMenuKit() {
             logger.fine("gui.open: adapter rejected '${spec.id.value}' for ${player.id}")
         }
     }
+    val back = com.astarworks.astera.core.application.gui.GuiBackIntentHandler(
+        registry = registry,
+        guiAdapter = guiAdapter,
+        inMatch = { playerId ->
+            com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy.inMatch(
+                snapshotHeld = services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
+                    ?.isHeld(playerId) ?: false,
+                membershipPhase = services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>()
+                    ?.findMatchOf(playerId)?.phase,
+            )
+        },
+    )
+    ctx.registrations += guiIntentRouter.register(
+        com.astarworks.astera.core.application.gui.GuiBackIntentHandler.INTENT,
+    ) { intent, player -> back.handle(intent, player) }
     if (!ctx.serverRole.hostsLobby) return
     val kitContents = com.astarworks.astera.core.application.contents.LobbyMenuKitContents()
     lobbyMenuKitContents = kitContents

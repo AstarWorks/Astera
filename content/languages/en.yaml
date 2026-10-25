@@ -1174,6 +1174,9 @@ astera:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>delivered</gray>"
         carried: "<gray>TNT carried by</gray> <{color}>{team}</{color}>"
         loose: "<gray>TNT is up for grabs</gray>"
+      carry-mini-tnt:
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>mini-TNT delivered</gray>"
+        loose: "<gray>Mini-TNT on the map:</gray> <white>{count}</white>"
       pve-waves:
         ready: "<gray>Get ready: <white>{waves}</white> waves incoming</gray>"
         wave: "<gold>Wave {wave}/{waves}</gold> <gray>-</gray> <white>{left}</white> <gray>enemies left</gray>"
@@ -1507,6 +1510,9 @@ astera:
       dropped: "<gray>The TNT carrier fell. The TNT is back at its spawn.</gray>"
     carry-mini-tnt:
       title: "<gold>Carry Mini TNT</gold>"
+      picked-up: "<gold>Mini-TNT picked up ({count}/{limit}). Deliver it to the enemy base!</gold>"
+      delivered: "<green>Team {team} delivered {count} mini-TNT! ({score}/{goal})</green>"
+      dropped: "<gray>You fell and lost your mini-TNT.</gray>"
     pve-waves:
       title: "<gold>PvE Waves</gold>"
       wave-start: "<gold>Wave {wave}/{waves}!</gold> <gray>{count} enemies are coming.</gray>"
@@ -2405,6 +2411,7 @@ astera:
   play.lane.annihilation.desc: "<gray>3 teams, 3 pillars each. Break the enemy Nexus.</gray>"
   play.lane.break-core.desc: "<gray>Destroy the enemy core, defend your own.</gray>"
   play.lane.carry-tnt.desc: "<gray>Carry TNT across the map to the enemy base.</gray>"
+  play.lane.carry-mini-tnt.desc: "<gray>Gather small TNT from around the map and deliver it to the enemy base. First to the goal wins.</gray>"
   play.lane.capture-wool.desc: "<gray>Capture the wool zones before the other team.</gray>"
   play.lane.steal-jewelry.desc: "<gray>Steal jewels from rival pedestals and bank them.</gray>"
   play.lane.battle-loyal.desc: "<gray>Team deathmatch. First to the kill goal wins.</gray>"
@@ -2470,7 +2477,7 @@ astera:
   hint.help.header: "<gold>Help</gold>"
   hint.help.commands: "<gray>/astera help</gray> - every command; <gray>/astera menu</gray>, <gray>/astera settings</gray>, <gray>/astera social</gray> open the screens"
   hint.help.tutorial: "<gray>/astera tutorial start</gray> - replay the tutorial"
-  hint.help.in-match: "<gray>In a match there are no menu items: use /astera queue leave, /astera travel lobby or /astera settings.</gray>"
+  hint.help.in-match: "<gray>In a match press F for the menu (settings, leave, help), or use /astera queue leave, /astera travel lobby or /astera settings.</gray>"
   presentation.star-burst.victim: "<red>-{amount} ★ burst out!</red>"
   presentation.star-burst.killer: "<gold>+{amount} ★ burst out - grab them!</gold>"
   menu.cosmetics.tooltip: "<gray>Click to buy and equip titles, name colours and kill effects.</gray>"
