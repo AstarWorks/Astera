@@ -105,6 +105,8 @@ public class MatchSidebarService(
     }
 
     private fun push(match: Match, model: SidebarModel, playerId: PlayerId) {
+        // The push may run a tick after the poll; a match that ended meanwhile hands the sidebar to the lobby service.
+        if (matches.findById(match.id)?.isLive() != true) return
         val layout = MatchSidebarModel.layoutFor(model, match, playerId, messages, norma(playerId))
         if (lastSent[playerId] == layout) return
         lastSent[playerId] = layout
