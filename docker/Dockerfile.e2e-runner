@@ -20,6 +20,8 @@ COPY gradle /workspace/gradle/
 COPY buildSrc /workspace/buildSrc/
 COPY config /workspace/config/
 COPY tools /workspace/tools/
+COPY kernel /workspace/kernel/
+COPY core /workspace/core/
 COPY plugin /workspace/plugin/
 COPY content /workspace/content/
 

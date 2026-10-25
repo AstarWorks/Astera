@@ -29,6 +29,8 @@ COPY tools /workspace/tools/
 
 # Now copy plugin sources. Anything not relevant (build/, .gradle/, IDE files)
 # is excluded via Dockerfile.dockerignore.
+COPY kernel /workspace/kernel/
+COPY core /workspace/core/
 COPY plugin /workspace/plugin/
 # schema-gen / content-lint reference content/ from the root project.
 COPY content /workspace/content/
