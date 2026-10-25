@@ -48,4 +48,14 @@ public class PostgresLevelRewardRepository(private val db: Database) : ILevelRew
             st.executeQuery().use { rs -> buildSet { while (rs.next()) add(rs.getString(1)) } }
         }
     }
+
+    override fun grant(playerId: PlayerId, unlockId: String): Boolean = transaction(db) {
+        (connection.connection as Connection).prepareStatement(
+            "INSERT INTO player_unlocks (player_id, unlock_id) VALUES (?, ?) ON CONFLICT DO NOTHING",
+        ).use { st ->
+            st.setObject(1, playerId.uuid)
+            st.setString(2, unlockId)
+            st.executeUpdate() > 0
+        }
+    }
 }

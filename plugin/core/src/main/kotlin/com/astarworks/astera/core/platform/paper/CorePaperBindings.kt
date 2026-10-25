@@ -546,8 +546,22 @@ internal class CorePaperBindings(
             com.astarworks.astera.core.adapter.paper.chat.PaperChatFormatListener(
                 matches = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>() },
                 messages = { ctx.services.get<IMessageRenderer>() },
+                cosmetics = { ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
             ),
             plugin,
+        )
+        // ECO-02: equipped title + name colour in the tab list, and the kill-effect particle player.
+        val cosmeticDisplay = com.astarworks.astera.core.adapter.paper.cosmetic.PaperCosmeticDisplay(
+            server = server,
+            cosmetics = { ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
+            messages = { ctx.services.get<IMessageRenderer>() },
+        )
+        server.pluginManager.registerEvents(cosmeticDisplay, plugin)
+        ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()
+            ?.addChangeListener { cosmeticDisplay.refresh(it) }
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticEffectPlayer>(
+            com.astarworks.astera.core.adapter.paper.cosmetic.PaperCosmeticEffectPlayer(server),
+            priority = 100,
         )
         // ADR-0233: chat-backed text prompt for the admin panel + sneak+F quick access (no hotbar item).
         val adminPrompt = com.astarworks.astera.core.adapter.paper.admin.PaperAdminTextPrompt(plugin)

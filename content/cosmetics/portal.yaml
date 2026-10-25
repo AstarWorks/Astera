@@ -1,0 +1,7 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.kill_effect.portal. Sold in the cosmetics menu.
+id: portal
+kind: kill_effect
+name_key: astera.cosmetic.kill_effect.portal
+price_gold: 600
+value: "portal"
+count: 30

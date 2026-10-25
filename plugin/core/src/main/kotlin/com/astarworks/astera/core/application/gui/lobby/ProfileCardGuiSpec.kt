@@ -34,6 +34,8 @@ public object ProfileCardGuiSpec {
         val gold: Long,
         val gem: Long,
         val unlocks: List<String> = emptyList(),
+        /** Name keys of the equipped title / name colour / kill effect, in that order. */
+        val equippedCosmetics: List<MessageKey> = emptyList(),
     ) {
         /** Win rate in percent, one decimal; 0.0 before the first match. */
         val winRatePercent: String
@@ -106,6 +108,17 @@ public object ProfileCardGuiSpec {
                 lore = snapshot.unlocks.map {
                     GuiText(MessageKey("astera.progression.unlocks.entry"), mapOf("id" to it))
                 }.ifEmpty { listOf(GuiText(MessageKey("astera.progression.unlocks.empty"))) },
+            ),
+        )
+        slot(
+            SlotIndex(21),
+            GuiSlot.Static(
+                itemId = ItemId("gui-tile-customize"),
+                displayName = GuiText(MessageKey("astera.cosmetic.profile.name")),
+                lore = snapshot.equippedCosmetics.map { GuiText(it) }
+                    .ifEmpty { listOf(GuiText(MessageKey("astera.cosmetic.profile.none"))) } +
+                    GuiText(MessageKey("astera.cosmetic.profile.hint")),
+                onLeftClick = GuiIntent("cosmetic.open"),
             ),
         )
         slot(

@@ -33,6 +33,7 @@ public class LobbyProfileShowIntentHandler(
     private val stats: () -> IPlayerStatsRepository? = { null },
     private val unlocks: () -> com.astarworks.astera.core.application.port.outbound.IPlayerUnlockView? = { null },
     private val wallet: () -> ICurrencyLedger? = { null },
+    private val cosmetics: () -> com.astarworks.astera.core.application.service.cosmetic.CosmeticService? = { null },
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -63,6 +64,9 @@ public class LobbyProfileShowIntentHandler(
         val level = levels()
         return ProfileCardGuiSpec.Snapshot(
             unlocks = unlocks()?.unlocks(id)?.sorted() ?: emptyList(),
+            equippedCosmetics = cosmetics()?.let { svc ->
+                com.astarworks.astera.core.domain.cosmetic.CosmeticKind.entries.mapNotNull { svc.equipped(id, it)?.nameKey }
+            } ?: emptyList(),
             level = level?.levelOf(id) ?: 1,
             totalXp = level?.totalXpOf(id) ?: 0L,
             kills = s?.kills ?: 0L,

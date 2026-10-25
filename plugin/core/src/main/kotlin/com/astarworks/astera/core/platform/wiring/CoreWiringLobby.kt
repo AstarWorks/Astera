@@ -299,6 +299,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             levels = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerLevelView>() },
             stats = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository>() },
             unlocks = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockView>() },
+            cosmetics = { services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
             wallet = { services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>() },
         )
     waveGRegistrations += waveGRouter.register(

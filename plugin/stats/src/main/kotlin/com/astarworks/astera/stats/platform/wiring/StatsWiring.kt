@@ -211,6 +211,11 @@ public object StatsWiring {
 
         subscriptions += eventBus.subscribe(PlayerKilled::class) { recordDeath.execute(it.victim) }
         subscriptions += eventBus.subscribe(PlayerKilled::class) { rewardOnKill.handle(it) }
+        val cosmeticKillEffect = com.astarworks.astera.stats.application.eventbus.listeners.PlayCosmeticKillEffectListener(
+            cosmetics = { services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
+            effects = { services.get<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticEffectPlayer>() },
+        )
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { cosmeticKillEffect.handle(it) }
         subscriptions += eventBus.subscribe(DamageDealt::class) { rewardOnDamage.handle(it) }
         subscriptions += eventBus.subscribe(PlayerKilled::class) { missionProgressOnKill.handle(it) }
         subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchPlayedListener.handle(it) }
@@ -242,6 +247,7 @@ public object StatsWiring {
                 services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>()
             }.also { registrations += services.register<ILevelRewardRepository>(it) }
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockView>(levelRewards)
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockStore>(levelRewards)
         val grantLevelRewards = GrantLevelRewardsUseCase(
             rewardConfig.levels.mapValues { it.value.toDomain() }, levelRewards, playerGateway, messages, hudGateway,
             onGranted = { id, level, reward ->

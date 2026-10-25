@@ -4,3 +4,4 @@ name_key: astera.stats.achievement.kills-100.name
 description_key: astera.stats.achievement.kills-100.description
 icon_item_id: crimson-chain-axe
 reward_gold: 300
+reward_title: slayer

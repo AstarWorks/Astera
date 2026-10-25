@@ -215,6 +215,10 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             com.astarworks.astera.persistence.repository.PostgresLevelRewardRepository(ctx.database),
             priority = 100,
         )
+        stage<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticLoadoutRepository>(
+            com.astarworks.astera.persistence.repository.PostgresCosmeticLoadoutRepository(ctx.database),
+            priority = 100,
+        )
         attributeStore = attributeContainerStore
         stage<IPlayerStatsRepository>(
             PostgresPlayerStatsRepository(attributeContainerStore),

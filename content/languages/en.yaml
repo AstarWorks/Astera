@@ -524,9 +524,67 @@ astera:
 
 
   # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
+  cosmetic:
+    title:
+      newcomer: "Newcomer"
+      adventurer: "Adventurer"
+      veteran: "Veteran"
+      vanguard: "Vanguard"
+      champion: "Champion"
+      legend: "Legend"
+      slayer: "Slayer"
+      victor: "Victor"
+      graduate: "Graduate"
+      devoted: "Devoted"
+      wanderer: "Wanderer"
+      daredevil: "Daredevil"
+      maverick: "Maverick"
+    name_color:
+      rising-star: "Rising Star"
+      sunset: "Sunset"
+      sky: "Sky"
+      rose: "Rose"
+      crimson: "Crimson"
+      emerald: "Emerald"
+      violet: "Violet"
+    kill_effect:
+      stardust: "Stardust"
+      sparkle: "Sparkle"
+      notes: "Notes"
+      hearts: "Hearts"
+      flames: "Flames"
+      portal: "Portal"
+    kind:
+      title: "Title"
+      name_color: "Name colour"
+      kill_effect: "Kill effect"
+    gui:
+      title: "Cosmetics"
+      unequip: "Take off: {kind}"
+      wallet: "{amount} GOLD"
+      state:
+        equipped: "<green>Equipped - click to take off</green>"
+        owned: "<yellow>Owned - click to equip</yellow>"
+        reward-only: "<gray>Earned by levelling up or achievements</gray>"
+        short: "<red>{amount} GOLD (you have {have})</red>"
+        confirm: "<gold>Click again to buy for {amount} GOLD</gold>"
+        buy: "<green>{amount} GOLD - click to buy</green>"
+    msg:
+      error: "<red>That did not work.</red>"
+      bought: "<green>Bought {name} for {price} GOLD and put it on. Balance: {balance} GOLD.</green>"
+      equipped: "<green>Equipped {name}.</green>"
+      unequipped: "<gray>Took off your {kind}.</gray>"
+      confirm: "<gold>{name} costs {price} GOLD. Click again to buy.</gold>"
+      short: "<red>{name} costs {need} GOLD; you have {have} ({short} short).</red>"
+      reward-only: "<gray>{name} cannot be bought. Earn it by levelling up or with achievements.</gray>"
+    profile:
+      name: "Cosmetics"
+      none: "<gray>Nothing equipped</gray>"
+      hint: "<yellow>Click to change or buy</yellow>"
   economy:
     achievement-reward:
       chat: "<gold>Achievement reward: +{gold} GOLD</gold>"
+      title-chat: "<gold>New title unlocked: {title}</gold>"
     currency:
       gold: "<gold>GOLD</gold>"
       gem: "<light_purple>GEM</light_purple>"

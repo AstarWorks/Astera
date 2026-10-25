@@ -4,3 +4,4 @@ name_key: astera.stats.achievement.wins-50.name
 description_key: astera.stats.achievement.wins-50.description
 icon_item_id: verdict-hammer
 reward_gold: 500
+reward_title: victor

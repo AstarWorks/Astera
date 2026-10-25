@@ -107,10 +107,32 @@ internal fun CoreWiringState.wireInfrastructure() {
             ?.find(pid)
             ?.displayName
     }
+    // ECO-02 / ECO-04: cosmetics (titles, name colours, kill effects). Catalog from content/cosmetics, owned
+    // via the shared unlock store, equipped choice persisted by the Postgres overlay (V70) when loaded.
+    val cosmeticsDir: Path = contentDir.resolve("cosmetics")
+    val cosmeticContents = com.astarworks.astera.core.application.contents.CosmeticContents()
+    val cosmeticReport = cosmeticContents.bootstrap(cosmeticsDir)
+    logger.info("Cosmetics loaded: ${cosmeticReport.loaded} ok, ${cosmeticReport.failed} failed")
+    services.register<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticCatalog>(cosmeticContents, priority = 0)
+    reloadRegistry.register(cosmeticContents, cosmeticsDir)
+    val cosmeticLoadouts: com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticLoadoutRepository =
+        services.get<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticLoadoutRepository>()
+            ?: com.astarworks.astera.core.application.service.cosmetic.InMemoryCosmeticLoadoutRepository().also {
+                services.register<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticLoadoutRepository>(it, priority = 0)
+            }
+    val cosmeticService = com.astarworks.astera.core.application.service.cosmetic.CosmeticService(
+        catalog = cosmeticContents,
+        unlocks = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockView>() },
+        loadouts = cosmeticLoadouts,
+    )
+    services.register<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>(cosmeticService, priority = 0)
     val recomputeProfileCard = com.astarworks.astera.core.application.profile.RecomputeProfileCardUseCase(
         cards = profileCardService,
         displayNameProvider = profileNameProvider,
+        titlesProvider = cosmeticService::titleSummary,
+        cosmeticsProvider = cosmeticService::cosmeticSummary,
     )
+    cosmeticService.addChangeListener { recomputeProfileCard.recompute(it) }
     services.register<com.astarworks.astera.core.application.profile.RecomputeProfileCardUseCase>(recomputeProfileCard, priority = 0)
     logger.info("Wave 5flex profile card service wired (impl=${profileCardService::class.simpleName}).")
 
