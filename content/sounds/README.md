@@ -80,28 +80,25 @@ something's wrong — re-encode via `tools/sound-gen/scripts/to_ogg.sh`.
 
 ## sounds.json registration
 
-**Not in scope here.** This directory is the raw-asset sink. Each feature
-plugin that wants to reference a specific sound event registers it in
-`assets/<namespace>/sounds.json` (resource-pack convention) when the
-plugin lands a runtime hook for it.
-
-For now: drop OGGs here, document the new file in your commit message,
-and let the downstream feature plugin wave wire up `sounds.json` when it
-adds the listener / play call.
+Automatic. `:tools:resource-pack` (`ResourcePackBuilder.addSounds`) packs every `*.ogg` as
+`assets/astera/sounds/<path>.ogg` and writes `assets/astera/sounds.json`: a cue yaml with a sibling OGG of the same
+basename becomes the event named by its `id` (`astera:match/win` -> event `match/win`); a bare OGG is its own event.
+A cue yaml without an OGG is skipped.
 
 ## Sound cues (ADR-0256)
 
 Game code plays a **cue id**, never a raw sound key. Each `*.yaml` here defines one cue:
 `id` (`astera:<area>/<name>`), a primary `resource_key`, `default_volume` / `default_pitch`, and optional
-`layers` (more sounds that start together). Today every cue points at a vanilla sound event; replace
-`resource_key` with an `astera:` event (OGG + `sounds.json`) to give a milestone its own sound without
-touching code. Cue ids are listed in `SoundCues.kt` (core); `MilestoneSoundScenarioTest` proves each one plays.
+`layers` (more sounds that start together). A cue whose `resource_key` is its own `astera:` id plays the Astera OGG next to it
+(synthesized by `tools/sound-gen/scripts/synth.sh`); cues still on a `minecraft:` key are vanilla placeholders.
+Swapping one for the other is a yaml edit, no code. Cue ids are listed in `SoundCues.kt` (core); `MilestoneSoundScenarioTest` proves each one plays.
 
 ## License & attribution
 
 Sourcing is **ffmpeg synthesis or CC0 only** ([[adr/0256-free-sound-sourcing-and-one-cue-path]]); no paid or
 credit-metered generator. Keep the synthesis script (or the CC0 source URL and licence) in the same commit as the
-OGG. Vanilla sound events used as placeholders are the client's own and are not redistributed.
+OGG. All shipped OGGs are synthesized (`tools/sound-gen/scripts/synth.sh`, ffmpeg formulas, no samples) and
+owned by the project; no third-party (CC0) recordings ship today. Vanilla sound events used as placeholders are the client's own and are not redistributed.
 
 ## See also
 
