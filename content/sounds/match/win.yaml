@@ -1,13 +1,7 @@
-# Sound cue (ADR-0256). Vanilla sound for now; point resource_key at an astera: OGG event later.
+# Sound cue (ADR-0256). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
+# the event is generated into assets/astera/sounds.json by :tools:resource-pack from this id + match/win.ogg.
 id: "astera:match/win"
-resource_key: "minecraft:ui.toast.challenge_complete"
+resource_key: "astera:match/win"
 default_volume: 1.0
 default_pitch: 1.0
 category: match
-layers:
-  - resource_key: "minecraft:entity.firework_rocket.twinkle"
-    volume: 0.8
-    pitch: 1.0
-  - resource_key: "minecraft:entity.player.levelup"
-    volume: 0.6
-    pitch: 1.0
