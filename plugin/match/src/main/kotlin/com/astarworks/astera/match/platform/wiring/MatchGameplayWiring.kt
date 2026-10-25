@@ -618,6 +618,7 @@ internal object MatchGameplayWiring {
                     messages = services.getOrThrow<IMessageRenderer>(),
                     playerGateway = playerGateway,
                     bots = botRequester,
+                    presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>() },
                 )
             // Kit / menu tiles swap Play for "Leave queue" (visible_if state:queued) and are rebuilt on every change.
             registrations += services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyQueueState>(
