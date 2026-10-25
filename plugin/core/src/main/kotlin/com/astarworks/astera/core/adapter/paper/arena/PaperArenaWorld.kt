@@ -11,7 +11,11 @@ import com.astarworks.astera.core.domain.stage.StageId
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
+import org.bukkit.WeatherType
 import org.bukkit.WorldCreator
+import com.astarworks.astera.core.domain.stage.ArenaAtmosphere
+import com.astarworks.astera.core.domain.stage.ArenaWeather
+import java.util.UUID
 import org.bukkit.block.Biome
 import org.bukkit.block.data.BlockData
 import org.bukkit.generator.BiomeProvider
@@ -48,6 +52,41 @@ internal class PaperArenaWorld(
     private val jobs = LinkedHashMap<StageId, Job>()
     private var pump: BukkitTask? = null
 
+    private var atmosphereTask: BukkitTask? = null
+    private val shownAtmosphere = HashMap<UUID, ArenaAtmosphere>()
+
+    /**
+     * Per-stage sky (MAP-08). Several stages share one arena world, so the world clock stays on the baseline and each
+     * player inside a stage's footprint gets that stage's fixed player time and player weather; leaving resets both.
+     */
+    private fun tickAtmosphere() {
+        val staged = plans.values.mapNotNull { (stage, plan) ->
+            stage.layout?.atmosphere?.let { Triple(stage.world.value, plan, it) }
+        }
+        val online = server.onlinePlayers
+        for (player in online) {
+            val loc = player.location
+            val worldName = loc.world?.name
+            val hit = staged.firstOrNull { (world, plan, _) ->
+                world == worldName && loc.blockX in plan.minX - ATMOSPHERE_MARGIN..plan.maxX + ATMOSPHERE_MARGIN &&
+                    loc.blockZ in plan.minZ - ATMOSPHERE_MARGIN..plan.maxZ + ATMOSPHERE_MARGIN
+            }?.third
+            val shown = shownAtmosphere[player.uniqueId]
+            if (hit == null) {
+                if (shown != null) {
+                    player.resetPlayerTime()
+                    player.resetPlayerWeather()
+                    shownAtmosphere.remove(player.uniqueId)
+                }
+            } else if (hit != shown) {
+                player.setPlayerTime(hit.timeOfDay, false)
+                player.setPlayerWeather(if (hit.weather == ArenaWeather.RAIN) WeatherType.DOWNFALL else WeatherType.CLEAR)
+                shownAtmosphere[player.uniqueId] = hit
+            }
+        }
+        shownAtmosphere.keys.retainAll(online.map { it.uniqueId }.toSet())
+    }
+
     fun killY(worldName: String): Int? =
         stages()?.all()?.mapNotNull { stage -> stage.layout?.takeIf { stage.world.value == worldName }?.killY }?.minOrNull()
 
@@ -55,6 +94,8 @@ internal class PaperArenaWorld(
     fun installAll(): Pair<Int, Int> {
         val withLayout = stages()?.all()?.filter { it.layout != null }.orEmpty()
         withLayout.forEach { request(it) }
+        atmosphereTask?.cancel()
+        atmosphereTask = server.scheduler.runTaskTimer(plugin, Runnable { tickAtmosphere() }, 20L, ATMOSPHERE_PERIOD_TICKS)
         return withLayout.size to withLayout.size
     }
 
@@ -371,6 +412,8 @@ internal class PaperArenaWorld(
     private companion object {
         const val REPAIR_DELAY_TICKS: Long = 60L
         const val SAMPLES: Int = 8
+        const val ATMOSPHERE_PERIOD_TICKS: Long = 10L
+        const val ATMOSPHERE_MARGIN: Int = 48
 
         /** Wall-clock budget of the build pump per server tick (a tick is 50 ms). */
         const val TICK_BUDGET_NS: Long = 4_000_000L

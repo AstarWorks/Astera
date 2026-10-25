@@ -4,12 +4,14 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.nexus.NexusPillarTier
+import com.astarworks.astera.core.domain.stage.ArenaAtmosphere
 import com.astarworks.astera.core.domain.stage.ArenaBridge
 import com.astarworks.astera.core.domain.stage.ArenaIsland
 import com.astarworks.astera.core.domain.stage.ArenaIslandKind
 import com.astarworks.astera.core.domain.stage.ArenaLandmark
 import com.astarworks.astera.core.domain.stage.ArenaLandmarkKind
 import com.astarworks.astera.core.domain.stage.ArenaTheme
+import com.astarworks.astera.core.domain.stage.ArenaWeather
 import com.astarworks.astera.core.domain.stage.ArenaStructurePlacement
 import com.astarworks.astera.core.domain.stage.ArenaLayout
 import com.astarworks.astera.core.domain.stage.Region
@@ -89,6 +91,7 @@ public data class StageYamlConfig(
  *     - { from: red, to: center, width: 3 }
  *   landmarks:
  *     - { kind: generator, x: 0, z: -26 }
+ *   atmosphere: { time_of_day: 12000, weather: clear }   # optional; per-player sky for this arena (MAP-08)
  * ```
  */
 @Serializable
@@ -102,6 +105,7 @@ public data class ArenaLayoutYamlConfig(
     public val islands: List<ArenaIslandYamlConfig>,
     public val bridges: List<ArenaBridgeYamlConfig> = emptyList(),
     public val landmarks: List<ArenaLandmarkYamlConfig> = emptyList(),
+    public val atmosphere: ArenaAtmosphereYamlConfig? = null,
 ) {
     public fun toDomain(): ArenaLayout = ArenaLayout(
         markerVersion = markerVersion,
@@ -113,6 +117,20 @@ public data class ArenaLayoutYamlConfig(
         islands = islands.map { it.toDomain() },
         bridges = bridges.map { ArenaBridge(it.from, it.to, it.width) },
         landmarks = landmarks.map { it.toDomain() },
+        atmosphere = atmosphere?.toDomain(),
+    )
+}
+
+/** `atmosphere: { time_of_day: 12000, weather: clear }`; weather is `clear` or `rain`. Applied per player inside the arena. */
+@Serializable
+public data class ArenaAtmosphereYamlConfig(
+    @SerialName("time_of_day") public val timeOfDay: Long,
+    public val weather: String = "clear",
+) {
+    public fun toDomain(): ArenaAtmosphere = ArenaAtmosphere(
+        timeOfDay,
+        ArenaWeather.entries.firstOrNull { it.name.equals(weather.trim(), ignoreCase = true) }
+            ?: throw IllegalArgumentException("Unknown weather '$weather'. Expected: ${ArenaWeather.entries.joinToString { it.name.lowercase() }}"),
     )
 }
 

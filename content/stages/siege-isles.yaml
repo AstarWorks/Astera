@@ -3,7 +3,7 @@ id: siege-isles
 display_name_key: astera.stage.siege-isles.name
 world: arenas
 layout:
-  marker_version: 3
+  marker_version: 4
   seed: 20261024
   surface_y: 64
   kill_y: 16
@@ -330,6 +330,7 @@ layout:
     z: 700
     rotation: 0
   theme: temperate
+  atmosphere: {time_of_day: 12000, weather: clear}
 regions:
 - name: full-arena
   min: {x: -235, y: 20.0, z: 560}

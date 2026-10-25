@@ -3,7 +3,7 @@ id: annihilation-arena
 display_name_key: astera.stage.annihilation-arena.name
 world: arenas
 layout:
-  marker_version: 3
+  marker_version: 4
   seed: 20261025
   surface_y: 64
   kill_y: 16
@@ -111,6 +111,7 @@ layout:
     z: -730
     rotation: 180
   theme: frost
+  atmosphere: {time_of_day: 22800, weather: clear}
 regions:
 - name: full-arena
   min: {x: -273.0, y: 20.0, z: -997.0}
