@@ -34,6 +34,8 @@ public class BattleLoyalGameMode @JvmOverloads constructor(
         if (points >= threshold()) win(run, killerTeam)
     }
 
+    override fun standing(run: SiegeRun, match: Match, team: TeamId): Int = match.score.valueFor(team)
+
     override fun hudLines(run: SiegeRun, match: Match): List<HudLine> = match.teams.map { team ->
         HudLine(
             key = MessageKey("astera.hud.sidebar.battle-loyal.team"),

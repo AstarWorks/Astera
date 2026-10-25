@@ -1,6 +1,7 @@
-# Sound cue (ADR-0256). Vanilla sound for now; point resource_key at an astera: OGG event later.
+# Sound cue (ADR-0256). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
+# the event is generated into assets/astera/sounds.json by :tools:resource-pack from this id + match/countdown-tick.ogg.
 id: "astera:match/countdown-tick"
-resource_key: "minecraft:block.note_block.bell"
-default_volume: 0.6
+resource_key: "astera:match/countdown-tick"
+default_volume: 0.7
 default_pitch: 1.0
 category: match

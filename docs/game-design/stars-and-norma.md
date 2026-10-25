@@ -1,6 +1,6 @@
 # Stars and Norma (match-scoped)
 
-Status: spec, ADR-0251. Written 2026-10-24 from the founder's statements and the RTM README
+Status: spec, ADR-0262. Written 2026-10-24 from the founder's statements and the RTM README
 (https://github.com/Y-RyuZU/RyuZUTechnicalMagic, README.md, fetched 2026-10-24; Japanese quotes below are from it).
 
 ## Founder statements (authoritative)
@@ -58,11 +58,16 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   a firework at the player and tells the whole match in chat; the top level gets a bigger version. When the picker
   opens: a title and chime; the tiles show the goal (need N ★ / N kills) and the current progress; a pick gives a
   confirmation sound and action bar; the 10 s default is announced on the action bar.
-- Config: `content/game-modes/norma.yaml` (`norma_max_level`, `norma_stars_goal`, `norma_kills_goal` lists by level).
-- **Win:** the first team to have a member reach `max_level` wins the match, and this is the **only** way to win before
-  the clock runs out. There is no kill-count victory (ADR-0252): kills count for a player's KILL goal and, per team, as the
-  last tie-break. **Time limit** (`time_limit_seconds`, 600 s of ACTIVE time): the team with the highest member Norma
-  level wins; tie: the most stars carried (sum over members); tie: the most kills; still tied: draw. The result screen
+- Config: `content/norma-layer/layer.yaml` (`norma_max_level`, `norma_stars_goal`, `norma_kills_goal` lists by level, `norma_win`,
+  `time_limit_seconds`, `death_drop_ratio`). Norma is a layer of every game mode, not a mode (ADR-0257, MODE-15): a mode overrides any
+  key in its `default_config`; `norma_layer: "false"` turns it off (PvE waves).
+- **Win:** the first team to have a member reach `max_level` wins the match (`norma_win`, default on; in a mode with its own objective
+  it wins next to that objective, whichever comes first, and `norma_win: "false"` leaves the objective as the only win path). In
+  skirmish it is the only win path. There is no kill-count victory (ADR-0263): kills count for a player's KILL goal and, per team, as the
+  last tie-break. **Time limit** (`time_limit_seconds`, 600 s of ACTIVE time by default, 1200 s in the siege objective modes, `0` = none): the mode's
+  own objective standing first (battle-loyal kills, break-core alive, deliveries, captured zones, banked jewels; skirmish and annihilation
+  have none), then the team with the highest member Norma level; tie: the most stars carried (sum over members); tie: the most kills;
+  still tied: draw. The result screen
   names the reason ("reached Norma level N and won" / "was ahead" / tied). Winning pays the normal reward table
   (GOLD / XP), never stars.
 - **Pace (balance, content defaults):** 5 levels, star goals 3,5,8,12 and kill goals 1,2,3,4. The four arena generators pop

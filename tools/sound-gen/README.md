@@ -1,126 +1,50 @@
 # tools/sound-gen/
 
-Designer-side scaffolding for producing Minecraft sound effects. **Not part
-of the Astera runtime or `./gradlew build`.** Outputs are committed OGG
-Vorbis files under `content/sounds/`.
+Designer-side scripts that produce Astera's sound effects. **Not part of the Astera runtime or `./gradlew build`.**
+Outputs are committed OGG Vorbis files under `content/sounds/`; the scripts are what make them reproducible.
 
-See [[adr/0018-ai-asset-creation-policy]] for the policy that authorizes
-this directory and [[adr/0026-sound-generation-policy]] for the tool choice
-rationale.
+Policy ([[adr/0256-free-sound-sourcing-and-one-cue-path]], supersedes ADR-0026): **ffmpeg synthesis and CC0 only.**
+No paid or credit-metered generator (fal.ai, ElevenLabs, ...), no API keys, no network.
 
-## Tool roles
+## Scripts
 
-| Tool | Used for | Authorization |
-|---|---|---|
-| **Stable Audio 2.5 (fal.ai)** | Weapon shots, skill cast cues, status blips, match phase stings — anything Stable Audio 2.5 excels at | ADR-0026 |
-| **ffmpeg / ffprobe** | Resample to 44.1kHz, force mono, EBU R128 loudness normalize, OGG Vorbis encode, format assertion | ADR-0018 rule 4 (post-process) |
-| **sox** (optional) | Sine-wave test signal for `dry_run.sh` | dev-only convenience |
-| **Claude (vision)** | Waveform PNG + metadata audit before commit | not a tool, an operator |
+| Script | Use |
+|---|---|
+| `scripts/synth.sh [name...]` | Synthesizes every shipped SFX from formulas (sine / bell partials / brass-ish / filtered noise, envelopes, sweeps, echo), normalizes loudness and writes `content/sounds/<name>.ogg`. No args = all. `ASTERA_SOUNDS_DIR=/tmp/x` writes elsewhere to audition. |
+| `scripts/to_ogg.sh IN OUT.ogg` | Converts a CC0 recording (any format) to the required OGG: mono, 44.1 kHz, loudnorm, Vorbis `-q:a 5`, with a format assertion. |
+| `scripts/dry_run.sh DUR OUT.wav` | Sine test tone, for smoke-testing the ffmpeg install. |
 
-## Environment
+Requirements: ffmpeg >= 4.2 with `libvorbis` and `loudnorm`, `jq` (`ffmpeg -filters | grep loudnorm`).
 
-Set these in your shell rc (`~/.bashrc` / `~/.zshrc`); none of them are
-required by the Astera build, only by the `scripts/` here.
+## Loudness
 
-```bash
-# fal.ai API key — get from https://fal.ai/dashboard/keys
-# (NOT committed to repo; lives in your shell only)
-export FAL_KEY="..."
-```
+`synth.sh` normalizes with EBU R128 two-pass linear loudnorm to -18 LUFS integrated, true peak -1.5 dBTP. Clips under
+0.6 s (clicks, ticks) cannot be gated by BS.1770, so they are peak-normalized to -3 dBFS. The relative level of each
+cue is set by `default_volume` in its yaml, not by the file.
 
-ffmpeg version requirements:
+## Adding a synthesized sound
 
-```bash
-# Minimum: 4.2 (for the loudnorm filter EBU R128 mode)
-# Recommended: 6.x
+1. Add a function to `synth.sh` named after the path (`weapons/gun-shot` -> `weapons_gun_shot`) and add the path to
+   `ALL`. Use `gen` (aevalsrc formula; helpers `bell`, `pluck`, `brass`, `sq`, `sweep`) and `noise` (seeded) for layers,
+   `mix out dur file:delay_ms:gain ...` to stack them, `post` for echo / filters, then `finish <path> <leaf>`.
+2. `scripts/synth.sh <path>`.
+3. Add `content/sounds/<path>.yaml` (cue: `id: "astera:<path>"`, `resource_key` = id). `:tools:resource-pack` generates
+   the `sounds.json` event from the cue yaml + the sibling OGG.
 
-# Debian/Ubuntu:
-sudo apt install -y ffmpeg
-# macOS (Homebrew):
-brew install ffmpeg
-# Verify:
-ffmpeg -version | head -1
-ffmpeg -filters 2>/dev/null | grep loudnorm   # must be present
-```
+## Third-party (CC0) sounds
 
-Verify:
+Allowed only if CC0 / public domain. Convert with `to_ogg.sh`, and list file, source URL, author and licence in
+`content/sounds/README.md` (no such sound ships today; everything is synthesized).
 
-```bash
-./scripts/dry_run.sh 0.5 /tmp/sine.wav     # produces a 0.5s sine wave WAV
-./scripts/to_ogg.sh /tmp/sine.wav /tmp/sine.ogg   # transcodes to OGG mono
-ffprobe -v error -show_streams /tmp/sine.ogg | grep -E 'channels|sample_rate|codec_name'
-# expected: codec_name=vorbis, sample_rate=44100, channels=1
-```
+## Boundaries
 
-## Typical flow (AI generation path)
-
-1. Decide what SFX you need (e.g. pistol gunshot, magic wand cast, burning
-   status blip). Write a short, evocative prompt for each.
-2. Invoke `/generate-sounds` skill via Claude Code, or run scripts manually:
-   ```bash
-   bash scripts/fal_generate.sh "pistol gunshot, short, punchy" 0.5 /tmp/raw.wav
-   bash scripts/to_ogg.sh /tmp/raw.wav content/sounds/weapons/pistol-fire.ogg
-   ```
-3. The skill (or you) inspects the resulting OGG via `ffprobe` (metadata)
-   and `ffmpeg showwavespic` (waveform PNG) — see [`generate-sounds/SKILL.md`](../../.claude/skills/generate-sounds/SKILL.md).
-4. Approved OGGs commit under `content/sounds/<category>/`. PR diff is
-   inspected via `ffprobe` (binary diff is not human-readable; rely on the
-   filename + commit message).
-
-## Typical flow (batch from spec yaml)
-
-For waves that need many SFX at once (e.g. 20-40 for Wave _assets-sfx):
-
-1. Write a spec yaml listing each entry (`specs/example.yaml` for shape).
-2. Run the skill against the spec:
-   ```
-   /generate-sounds --spec tools/sound-gen/specs/wave-N-sounds.yaml
-   ```
-3. Skill loops sequentially, prints running cost.
-
-## Cost reference
-
-fal.ai Stable Audio 2.5 charges **$0.20 per generation flat**, regardless of
-clip duration (1s and 190s cost the same). 100 SFX ≈ $20. Verified
-2026-05-19 at https://fal.ai/models/fal-ai/stable-audio-25/text-to-audio.
-
-## Output size reference
-
-Mono 44.1 kHz OGG Vorbis at `-q:a 5` (~96 kbps):
-
-- 0.5s → ~8–10 KB
-- 1.0s → ~15–20 KB
-- 3.0s → ~40–55 KB
-
-## Boundary reminders (from ADR-0018 + ADR-0026)
-
-- ❌ Do NOT add any script here to `plugin/**` build dependencies.
-- ❌ Do NOT have CI invoke anything here. CI runs `./gradlew check` only.
-- ❌ Do NOT commit `FAL_KEY` or any other API credentials. `.gitignore`
-  excludes `out/` and `*.tmp.wav`; secrets stay in your shell.
-- ✅ DO commit OGG files under `content/sounds/` — they're the deliverable.
-- ✅ DO commit spec yamls under `specs/` so batch runs are reproducible.
-- ✅ DO commit script changes here so the next contributor reproduces.
-
-## Layout
-
-```
-tools/sound-gen/
-├── README.md            (this file)
-├── .gitignore
-├── scripts/
-│   ├── fal_generate.sh      fal.ai Stable Audio 2.5 wrapper (curl + jq)
-│   ├── to_ogg.sh            ffmpeg pipeline → mono 44.1kHz OGG Vorbis
-│   └── dry_run.sh           sine-wave test WAV generator (offline smoke)
-└── specs/
-    └── example.yaml         template for batch generation specs
-```
+- Do NOT add anything here to `plugin/**` build dependencies, and do not have CI invoke it. CI builds the pack from
+  the committed OGGs.
+- Do commit OGGs together with the `synth.sh` change that produces them.
+- No binary without a generator or a recorded CC0 source.
 
 ## See also
 
-- [[adr/0026-sound-generation-policy]] — tool choice rationale (Stable Audio
-  2.5 accepted, ElevenLabs declined per ToS, LLM-style audio LMs deferred)
-- [[adr/0018-ai-asset-creation-policy]] — the policy
-- [[adr/0010-postpone-generative-ai-to-phase-6]] — original deferral
-- `content/sounds/README.md` — output-side conventions
-- `.claude/skills/generate-sounds/SKILL.md` — skill driver
+- [[adr/0256-free-sound-sourcing-and-one-cue-path]] - policy and cue path
+- `content/sounds/README.md` - output-side conventions
+- `.claude/skills/generate-sounds/SKILL.md` - the skill driver

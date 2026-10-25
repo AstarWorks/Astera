@@ -1,4 +1,4 @@
-# Authored siege-scale layout. See README.md and ADR-0252.
+# Authored siege-scale layout. See README.md and ADR-0264.
 id: annihilation-arena
 display_name_key: astera.stage.annihilation-arena.name
 world: arenas
@@ -67,6 +67,22 @@ layout:
   - from: flank-yellow-red
     to: red
     width: 7
+  landmarks:
+  - kind: generator
+    x: 14
+    z: -750
+  - kind: generator
+    x: -14
+    z: -750
+  - kind: generator
+    x: 177
+    z: -851
+  - kind: generator
+    x: -177
+    z: -851
+  - kind: generator
+    x: 0
+    z: -547
   structures:
   - part: castle-tower
     x: 18

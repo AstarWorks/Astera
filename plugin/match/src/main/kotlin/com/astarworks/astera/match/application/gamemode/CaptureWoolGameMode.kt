@@ -78,6 +78,8 @@ public class CaptureWoolGameMode @JvmOverloads constructor(
         }
     }
 
+    override fun standing(run: Run, match: Match, team: TeamId): Int = run.captured[team] ?: 0
+
     override fun hudLines(run: Run, match: Match): List<HudLine> {
         val goal = capturesToWin(run)
         val teamLines = match.teams.map { team ->

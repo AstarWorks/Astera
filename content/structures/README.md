@@ -1,6 +1,6 @@
 # Authored arena structure parts
 
-ADR-0252. These are original, repository-authored full-cube builds; no external schematics, paid services or AI assets.
+ADR-0264. These are original, repository-authored full-cube builds; no external schematics, paid services or AI assets.
 The server and `tools:arena-preview` load the same strict YAML through `ArenaStructureContent`.
 
 ```yaml

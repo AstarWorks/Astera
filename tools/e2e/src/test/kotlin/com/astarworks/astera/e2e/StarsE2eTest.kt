@@ -6,7 +6,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.inventory.ContainerActionTy
 import org.junit.jupiter.api.Test
 
 /**
- * In-match stars and Norma levels (docs/game-design/stars-and-norma.md, ADR-0251): a star is an item of the match,
+ * In-match stars and Norma levels (docs/game-design/stars-and-norma.md, ADR-0262): a star is an item of the match,
  * never carried out of it.
  *
  * Two bots play a Norma match with the e2e-tuned content (docker/e2e-tune-content.sh): generators pop every 3 s,
@@ -45,7 +45,7 @@ class StarsE2eTest : PlaythroughBase() {
         Thread.sleep(1_500)
         val lobbyTitle = a.sidebarTitle()
         val chatFrom = both.associateWith { it.chat.size }
-        both.forEach { it.command("astera queue join norma") }
+        both.forEach { it.command("astera queue join skirmish") }
 
         val active = awaitMatch("ACTIVE", 60_000, keepAlive = both)
         E2eReport.check(suite, "a two-player Norma match goes ACTIVE", "RCON astera match list") {

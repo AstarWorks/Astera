@@ -1,4 +1,4 @@
-# Authored siege-scale layout. See README.md and ADR-0252.
+# Authored siege-scale layout. See README.md and ADR-0264.
 id: siege-isles
 display_name_key: astera.stage.siege-isles.name
 world: arenas
@@ -55,6 +55,19 @@ layout:
   - from: south
     to: blue
     width: 7
+  landmarks:
+  - kind: generator
+    x: 14
+    z: 700
+  - kind: generator
+    x: -14
+    z: 700
+  - kind: generator
+    x: 10
+    z: 605
+  - kind: generator
+    x: 10
+    z: 795
   structures:
   - part: castle-gate
     x: -130

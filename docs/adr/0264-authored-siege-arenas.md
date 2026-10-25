@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0252: Authored structure parts on siege-scale arenas
+# ADR-0264: Authored structure parts on siege-scale arenas
 
 ## Status
 
