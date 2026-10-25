@@ -77,6 +77,7 @@ public data class SourceDto(
     public val kind: String,
     public val path: String? = null,
     public val url: String? = null,
+    public val key: String? = null,
 ) {
     public fun toDomain(): MusicSource = when (kind.lowercase().replace('-', '_')) {
         "resource_pack" -> MusicSource.ResourcePack(
@@ -85,9 +86,12 @@ public data class SourceDto(
         "external_url" -> MusicSource.ExternalUrl(
             url = requireNotNull(url) { "source.kind=external_url requires 'url'" },
         )
+        "vanilla" -> MusicSource.Vanilla(
+            soundKey = requireNotNull(key) { "source.kind=vanilla requires 'key'" },
+        )
         "in_game_note" -> MusicSource.InGameNote
         else -> throw IllegalArgumentException(
-            "Unknown source.kind '$kind' (expected: resource_pack/external_url/in_game_note)",
+            "Unknown source.kind '$kind' (expected: resource_pack/external_url/vanilla/in_game_note)",
         )
     }
 }

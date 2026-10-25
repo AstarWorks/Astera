@@ -29,9 +29,6 @@ public interface IStarDropWorld {
     /** [player] collects the drop [handle]: pickup animation toward them, then the thing is removed. */
     public fun take(handle: String, player: PlayerId)
 
-    /** Pickup sound at [position] (heard by those nearby). */
-    public fun playPickup(world: WorldId, position: Vec3)
-
     /** Registers the callback for "[player] tried to pick up the drop [handle]"; the item never enters the inventory either way. */
     public fun onPickupAttempt(listener: (handle: String, player: PlayerId) -> Unit)
 }

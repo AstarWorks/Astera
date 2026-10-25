@@ -3,6 +3,8 @@ package com.astarworks.astera.match.application.service
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
+import com.astarworks.astera.core.domain.effect.SoundCues
 import com.astarworks.astera.core.domain.combat.CombatContext
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
@@ -39,6 +41,7 @@ public class StarDropService(
     private val store: IMatchStarStore,
     private val eventBus: IDomainEventBus,
     private val world: IStarDropWorld?,
+    private val cues: ISoundCuePlayer,
     private val deathDropRatio: (MatchId) -> Double,
     private val random: Random = Random.Default,
     private val log: (String) -> Unit = {},
@@ -73,6 +76,8 @@ public class StarDropService(
         val at = positions.positionOf(event.victim, includeDead = true)
         if (at == null) { log("star burst: no position for ${event.victim}"); return }
         if (store.spend(match.id, event.victim, burst) is com.astarworks.astera.core.domain.Result.Failure) return
+        cues.play(event.victim, SoundCues.STAR_BURST, at.position, at.world)
+        event.killer?.takeIf { it != event.victim }?.let { cues.play(it, SoundCues.STAR_BURST, at.position, at.world) }
         val stacks = minOf(burst, MAX_BURST_DROPS)
         val base = burst / stacks
         var extra = burst % stacks
@@ -141,7 +146,7 @@ public class StarDropService(
     private fun take(drop: StarDrop, taker: PlayerId) {
         val taken = drops.remove(drop.id) ?: return
         taken.entity?.let { world?.take(it, taker) }
-        world?.playPickup(taken.world, taken.position)
+        cues.play(taker, SoundCues.STAR_PICKUP, taken.position, taken.world)
         val total = store.add(drop.matchId, taker, taken.amount)
         eventBus.publish(StarsCollected(drop.matchId, taker, taken.amount, total))
     }

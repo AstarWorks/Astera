@@ -45,7 +45,11 @@ internal object MatchPaperBindings {
         spectator = { services -> PaperSpectator(plugin.server, services.getOrThrow<IScheduler>()) },
         playerPositions = { PaperMatchPlayerPositions(plugin.server) },
         starDropWorld = { PaperStarDropWorld(plugin) },
-        normaPresentation = { services -> PaperNormaPresentation(plugin.server, services.getOrThrow<IMessageRenderer>()) },
+        normaPresentation = { services -> PaperNormaPresentation(
+                plugin.server,
+                services.getOrThrow<IMessageRenderer>(),
+                services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer>(),
+            ) },
     )
 
     fun bind(plugin: JavaPlugin, ctx: WiringContext, wired: MatchWiringResult) {

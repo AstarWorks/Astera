@@ -265,6 +265,13 @@ internal class CorePaperBindings(
                 gateway
             },
             playerSoundGateway = com.astarworks.astera.core.adapter.paper.effect.PaperPlayerSoundGateway(server),
+            musicGateway = { services ->
+                com.astarworks.astera.core.adapter.paper.music.PaperMusicGateway(
+                    server,
+                    services.getOrThrow<com.astarworks.astera.core.application.port.outbound.music.IMusicTrackRegistry>(),
+                    scheduler,
+                )
+            },
             adminPlayerGateway = com.astarworks.astera.core.adapter.paper.admin.PaperAdminPlayerGateway(server),
             playerHealthGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.physiology.PaperPlayerHealthGateway(

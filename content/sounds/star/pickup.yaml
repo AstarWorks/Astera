@@ -1,0 +1,6 @@
+# Sound cue (ADR-0256). Vanilla sound for now; point resource_key at an astera: OGG event later.
+id: "astera:star/pickup"
+resource_key: "minecraft:entity.experience_orb.pickup"
+default_volume: 0.8
+default_pitch: 1.7
+category: star

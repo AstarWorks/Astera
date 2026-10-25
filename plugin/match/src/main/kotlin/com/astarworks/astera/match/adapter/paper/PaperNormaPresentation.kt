@@ -2,6 +2,9 @@ package com.astarworks.astera.match.adapter.paper
 
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
+import com.astarworks.astera.core.domain.effect.SoundCues
+import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.application.port.outbound.INormaPresentation
@@ -12,16 +15,15 @@ import org.bukkit.FireworkEffect
 import org.bukkit.Location
 import org.bukkit.Particle
 import org.bukkit.Server
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
 import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
 import java.time.Duration
 
-/** Paper [INormaPresentation]: Adventure titles / action bar, sounds, particles and a detonated firework. */
+/** Paper [INormaPresentation]: Adventure titles / action bar, sound cues (ADR-0256), particles and a detonated firework. */
 public class PaperNormaPresentation(
     private val server: Server,
     private val renderer: IMessageRenderer,
+    private val cues: ISoundCuePlayer,
 ) : INormaPresentation {
 
     override fun levelUp(player: PlayerId, audience: List<PlayerId>, level: Int, maxLevel: Int) {
@@ -33,14 +35,14 @@ public class PaperNormaPresentation(
         val at = p.location.clone().add(0.0, 1.0, 0.0)
         val w = p.world
         if (top) {
-            p.playSound(at, Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 1.0f, 1.0f)
-            w.playSound(at, Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.MASTER, 1.0f, 1.0f)
+            cues.play(player, SoundCues.NORMA_LEVEL_MAX, Vec3(at.x, at.y, at.z))
+            cues.playAll(audience, SoundCues.NORMA_BURST_MAX, Vec3(at.x, at.y, at.z))
             w.spawnParticle(Particle.TOTEM_OF_UNDYING, at, 120, 0.8, 1.0, 0.8, 0.5)
             w.spawnParticle(Particle.END_ROD, at, 60, 0.6, 1.2, 0.6, 0.15)
             firework(at, big = true)
         } else {
-            p.playSound(at, Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.0f)
-            w.playSound(at, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, SoundCategory.MASTER, 0.8f, 1.2f)
+            cues.play(player, SoundCues.NORMA_LEVEL_UP, Vec3(at.x, at.y, at.z))
+            cues.playAll(audience, SoundCues.NORMA_BURST, Vec3(at.x, at.y, at.z))
             w.spawnParticle(Particle.TOTEM_OF_UNDYING, at, 40, 0.5, 0.8, 0.5, 0.3)
             firework(at, big = false)
         }
@@ -54,19 +56,19 @@ public class PaperNormaPresentation(
     override fun choiceOpened(player: PlayerId) {
         val p = server.getPlayer(player.uuid) ?: return
         title(p, MessageKey("astera.match.norma-choice.open.title"), MessageKey("astera.match.norma-choice.open.subtitle"), emptyMap(), 40)
-        p.playSound(p.location, Sound.BLOCK_NOTE_BLOCK_CHIME, SoundCategory.MASTER, 1.0f, 1.4f)
+        cues.play(player, SoundCues.NORMA_CHOICE_OPEN)
     }
 
     override fun choicePicked(player: PlayerId, goal: NormaGoal, target: Int) {
         val p = server.getPlayer(player.uuid) ?: return
         actionBar(p, MessageKey("astera.match.norma-choice.picked.${goal.name.lowercase()}"), mapOf("goal" to target.toString()))
-        p.playSound(p.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0f, 1.2f)
+        cues.play(player, SoundCues.NORMA_CHOICE_PICKED)
     }
 
     override fun choiceDefaulted(player: PlayerId, goal: NormaGoal, target: Int) {
         val p = server.getPlayer(player.uuid) ?: return
         actionBar(p, MessageKey("astera.match.norma-choice.defaulted.${goal.name.lowercase()}"), mapOf("goal" to target.toString()))
-        p.playSound(p.location, Sound.BLOCK_NOTE_BLOCK_BASS, SoundCategory.MASTER, 1.0f, 0.8f)
+        cues.play(player, SoundCues.NORMA_CHOICE_DEFAULTED)
     }
 
     private fun title(p: Player, title: MessageKey, subtitle: MessageKey, args: Map<String, String>, stayTicks: Int) {

@@ -1,8 +1,8 @@
 package com.astarworks.astera.combat.application.eventbus.listeners.hud
 
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
-import com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway
-import com.astarworks.astera.core.domain.effect.SoundSpec
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
+import com.astarworks.astera.core.domain.effect.SoundCues
 import com.astarworks.astera.core.domain.event.EgoGaugeChanged
 import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
@@ -17,12 +17,12 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
  */
 public class EgoReadyCueListener(
     private val hud: IHudGateway,
-    private val sounds: IPlayerSoundGateway,
+    private val sounds: ISoundCuePlayer,
 ) {
 
     public fun onChanged(event: EgoGaugeChanged) {
         if (!event.becameFull) return
-        sounds.playForViewer(event.playerId, READY_SOUND)
+        sounds.play(event.playerId, SoundCues.COMBAT_EGO_READY)
         hud.showFor(
             event.playerId,
             HudLayout.Subtitle(
@@ -36,8 +36,5 @@ public class EgoReadyCueListener(
 
     public companion object {
         public val FLASH_KEY: MessageKey = MessageKey("astera.hud.ego.flash")
-
-        public val READY_SOUND: SoundSpec =
-            SoundSpec(key = "minecraft:block.beacon.activate", volume = 0.5, pitch = 1.8)
     }
 }

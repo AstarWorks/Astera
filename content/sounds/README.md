@@ -1,7 +1,7 @@
 # content/sounds/
 
-Output sink for SFX produced by the [`/generate-sounds`](../../.claude/skills/generate-sounds/SKILL.md)
-skill (see also [`tools/sound-gen/`](../../tools/sound-gen/)). Files here are
+Output sink for SFX (ffmpeg-synthesised or CC0, see below) and the YAML sound cues the game plays
+(see also [`tools/sound-gen/`](../../tools/sound-gen/)). Files here are
 committed as the deliverable; they ship with Astera.
 
 ## Naming convention
@@ -89,23 +89,23 @@ For now: drop OGGs here, document the new file in your commit message,
 and let the downstream feature plugin wave wire up `sounds.json` when it
 adds the listener / play call.
 
+## Sound cues (ADR-0256)
+
+Game code plays a **cue id**, never a raw sound key. Each `*.yaml` here defines one cue:
+`id` (`astera:<area>/<name>`), a primary `resource_key`, `default_volume` / `default_pitch`, and optional
+`layers` (more sounds that start together). Today every cue points at a vanilla sound event; replace
+`resource_key` with an `astera:` event (OGG + `sounds.json`) to give a milestone its own sound without
+touching code. Cue ids are listed in `SoundCues.kt` (core); `MilestoneSoundScenarioTest` proves each one plays.
+
 ## License & attribution
 
-OGG files committed here are generated via **Stable Audio 2.5 on fal.ai**
-under the fal.ai commercial license — redistributable as part of Astera
-without per-file attribution. When Astera ships a resource pack to end
-users, the pack credits should include:
-
-```
-Sound effects: Stable Audio 2.5 (Stability AI / fal.ai)
-```
-
-See [[adr/0026-sound-generation-policy]] for the tool-choice rationale and
-[[adr/0018-ai-asset-creation-policy]] for the broader carve-out policy.
+Sourcing is **ffmpeg synthesis or CC0 only** ([[adr/0256-free-sound-sourcing-and-one-cue-path]]); no paid or
+credit-metered generator. Keep the synthesis script (or the CC0 source URL and licence) in the same commit as the
+OGG. Vanilla sound events used as placeholders are the client's own and are not redistributed.
 
 ## See also
 
 - `tools/sound-gen/README.md` — script-level docs
 - `.claude/skills/generate-sounds/SKILL.md` — skill driver
-- [[adr/0026-sound-generation-policy]] — tool decision
+- [[adr/0256-free-sound-sourcing-and-one-cue-path]] — sourcing + cue path (supersedes ADR-0026)
 - [[adr/0018-ai-asset-creation-policy]] — policy

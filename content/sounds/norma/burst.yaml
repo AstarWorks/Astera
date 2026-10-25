@@ -1,0 +1,6 @@
+# Sound cue (ADR-0256). Vanilla sound for now; point resource_key at an astera: OGG event later.
+id: "astera:norma/burst"
+resource_key: "minecraft:entity.firework_rocket.twinkle"
+default_volume: 0.8
+default_pitch: 1.2
+category: norma

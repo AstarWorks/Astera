@@ -11,7 +11,6 @@ import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
-import org.bukkit.Sound
 import org.bukkit.entity.Item
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -79,11 +78,6 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
         val item = server.getEntity(UUID.fromString(handle)) as? Item ?: return
         server.getPlayer(player.uuid)?.playPickupItemAnimation(item)
         item.remove()
-    }
-
-    override fun playPickup(world: WorldId, position: Vec3) {
-        val w = server.getWorld(world.value) ?: return
-        w.playSound(Location(w, position.x, position.y, position.z), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.7f)
     }
 
     override fun onPickupAttempt(listener: (handle: String, player: PlayerId) -> Unit) {

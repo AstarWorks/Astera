@@ -33,5 +33,18 @@ public sealed class MusicSource {
         }
     }
 
+    /**
+     * A sound event the client already has (`minecraft:music_disc.cat`). Needs no resource pack,
+     * which is how Phase 1 plays BGM without shipping audio (ADR-0256). [soundKey] is a
+     * `namespace:name` sound event id.
+     */
+    public data class Vanilla(public val soundKey: String) : MusicSource() {
+        init {
+            require(soundKey.isNotBlank()) {
+                "MusicSource.Vanilla.soundKey must not be blank"
+            }
+        }
+    }
+
     public data object InGameNote : MusicSource()
 }

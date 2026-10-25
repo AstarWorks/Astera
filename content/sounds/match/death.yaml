@@ -1,0 +1,10 @@
+# Sound cue (ADR-0256). Vanilla sound for now; point resource_key at an astera: OGG event later.
+id: "astera:match/death"
+resource_key: "minecraft:entity.player.death"
+default_volume: 0.7
+default_pitch: 0.8
+category: match
+layers:
+  - resource_key: "minecraft:block.respawn_anchor.deplete"
+    volume: 0.6
+    pitch: 0.7
