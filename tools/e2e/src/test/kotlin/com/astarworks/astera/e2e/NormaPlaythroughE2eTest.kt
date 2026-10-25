@@ -149,6 +149,7 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             val winnerChat = red[0].chat.drop(chatFrom.getValue(red[0])).map { clean(it.text) }
             val loserChat = blue[0].chat.drop(chatFrom.getValue(blue[0])).map { clean(it.text) }
             val scoreLine = winnerChat.firstOrNull { it.startsWith("Score") }.orEmpty()
+            assertThat(winnerChat.any { it.contains("Red") && it.contains("Norma level") }).describedAs("no 'Red reached Norma level' reason; result chat: ${quote(winnerChat, 40)}").isTrue()
             assertThat(Regex("Red\\D*3").containsMatchIn(scoreLine)).describedAs("score line should read Red 3: '$scoreLine'").isTrue()
             val reasons = (winnerChat + loserChat).filter { it.contains("Red") && it.contains("Norma level", true) }
             assertThat(winnerChat.none { it.contains("objective completion", true) }).describedAs("generic win reason: ${quote(winnerChat, 40)}").isTrue()

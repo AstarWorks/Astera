@@ -62,7 +62,7 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
 - **Pace (balance, content defaults):** 5 levels, star goals 3,5,8,12 and kill goals 1,2,3,4. The four arena generators pop
   1 star each per 30 s (8 stars/min in total); a 2-player match where both race for stars needs about 12 stars carried
   for the last level, i.e. ~3 min of pops plus travel and burst losses, kills shorten it: expected 4-7 min, 10 min hard cap.
-  The e2e image shrinks it (3 levels, star goals 2,3, kill goals 1,2, generators every 3 s, 150 s cap).
+  The e2e image shrinks it (3 levels, star goals 2,3, kill goals 1,2, generators every 3 s, 240 s cap).
 
 ### HUD (match sidebar)
 Stars carried, own Norma level / max, current goal and progress (`Stars 3/5` or `Kills 1/2`). The lobby shows none of it.
