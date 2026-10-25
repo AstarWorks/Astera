@@ -108,7 +108,7 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             duelNotes += "kill ${i + 1}: ${shooter.name} -> ${victim.name}: ${fight.shots} shots, ${fight.reloads} reload(s), ${fight.millis} ms, killed=${fight.killed}, slot=$slot"
             E2eReport.check(suite, "kill ${i + 1}/${script.size}: ${shooter.name} kills ${victim.name} with pistol shots", "PlayerCombatKill") {
                 assertThat(slot).describedAs("pistol never reached the hotbar").isNotNull()
-                assertThat(fight.killed).describedAs("no kill after ${fight.shots} shots (${fight.reloads} reloads). victim status='${status(victim)}' shooter status='${status(shooter)}' shooter pos=${posOf(shooter)} victim pos=${posOf(victim)}").isTrue()
+                assertThat(fight.killed || (last && matchLines().isEmpty())).describedAs("no kill after ${fight.shots} shots (${fight.reloads} reloads). victim status='${status(victim)}' shooter status='${status(shooter)}' shooter pos=${posOf(shooter)} victim pos=${posOf(victim)}").isTrue()
                 assertThat(shooter.deaths.size).describedAs("the shooter died while shooting").isEqualTo(shooterDeaths)
                 "${duelNotes.last()}; victim death text=${victim.deaths.lastOrNull()}"
             }

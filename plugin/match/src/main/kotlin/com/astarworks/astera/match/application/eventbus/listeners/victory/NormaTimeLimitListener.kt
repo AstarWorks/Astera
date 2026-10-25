@@ -1,6 +1,5 @@
 package com.astarworks.astera.match.application.eventbus.listeners.victory
 
-import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.EndReason
@@ -14,11 +13,10 @@ import java.util.concurrent.ConcurrentHashMap
 import org.slf4j.LoggerFactory
 
 /**
- * Norma time limit and kill count.
+ * Norma time limit.
  *
  * A Norma match is won by reaching the top Norma level (`NormaLevelService`, [EndReason.NormaLevelReached]); there is
- * no kill-count victory. This listener (1) counts every kill of an enemy as one point of the killer team's
- * [Match.score] (result screen and the last tie-break) and (2) ends a match that ran [timeLimitTicks] of ACTIVE time
+ * no kill-count victory (`NormaLevelService` also counts the kills into [Match.score]). This listener ends a match that ran [timeLimitTicks] of ACTIVE time
  * through [IMatchLifecycle.end], like every other mode (result screen, rewards, return to the lobby). The winner on
  * time is the team with the highest Norma level, then the most stars carried, then the most kills; a full tie is a draw.
  *
@@ -44,17 +42,6 @@ public class NormaTimeLimitListener(
             MatchPhase.ENDED -> activeSince.remove(event.matchId)
             else -> Unit
         }
-    }
-
-    public fun onKilled(event: PlayerKilled) {
-        val killer = event.killer ?: return
-        val match = matches.findMatchOf(event.victim) ?: return
-        if (!live(match) || !isNorma(match.id)) return
-        val killerTeam = match.teams.firstOrNull { killer in it.members }?.id ?: return
-        val victimTeam = match.teams.firstOrNull { event.victim in it.members }?.id ?: return
-        if (killerTeam == victimTeam) return
-
-        matches.save(match.copy(score = match.score.withIncrement(killerTeam, 1)))
     }
 
     /** Called about once a second: ends matches whose time limit ran out. */

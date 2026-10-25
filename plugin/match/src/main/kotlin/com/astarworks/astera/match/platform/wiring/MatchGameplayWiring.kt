@@ -422,9 +422,8 @@ internal object MatchGameplayWiring {
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,
         ) { killfeedListener.handle(it) }
 
-        // A Norma match is won by reaching the top Norma level (NormaLevelService). This listener only counts enemy
-        // kills (tie-break, result screen) and ends the match after `time_limit_seconds` of ACTIVE time
-        // (content/game-modes/norma.yaml): highest Norma level, then stars carried, then kills; still tied is a draw.
+        // A Norma match is won by reaching the top Norma level (NormaLevelService). This listener ends the match after `time_limit_seconds` of ACTIVE time
+        // (content/game-modes/norma.yaml): highest Norma level, then stars carried, then kills (counted by NormaLevelService); still tied is a draw.
         val normaKills = com.astarworks.astera.match.application.eventbus.listeners.victory.NormaTimeLimitListener(
             matches = matches,
             lifecycle = env.facade,
@@ -437,9 +436,6 @@ internal object MatchGameplayWiring {
             levelOf = { match, team -> matchStars.norma.topLevel(match, team) },
             starsOf = { match, team -> matchStars.norma.carried(match, team) },
         )
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
-        ) { normaKills.onKilled(it) }
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.match.domain.event.PhaseChanged::class,
         ) { normaKills.onPhaseChanged(it) }

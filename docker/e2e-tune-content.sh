@@ -1,7 +1,7 @@
 #!/bin/sh
 # G1: shortens the timers of the baked content so the e2e playthrough suites finish in CI minutes
 # (queue 10s -> 3s, match countdown 10s -> 5s, respawn 5s -> 2s, annihilation build/engage 60s/10min -> 5s/10s,
-# pillar HP 500/800 -> 60, norma 10 min -> 240s, 3 levels, star generator period 30s -> 3s). Run by docker/Dockerfile only for
+# pillar HP 500/800 -> 60, norma 10 min -> 150s, 3 levels, star generator period 30s -> 3s). Run by docker/Dockerfile only for
 # `--build-arg E2E_FAST=1` (docker-compose.e2e.yml); the dev and live images keep the real values.
 # Every edit asserts that its pattern is present, so content drift fails the image build instead of
 # silently running the suites with production timers.
@@ -23,7 +23,7 @@ for mode in norma annihilation break-core; do
   patch "game-modes/$mode.yaml" 's/^(  spawn_protection_seconds:).*/\1 "1"/' '^  spawn_protection_seconds:'
 done
 
-patch game-modes/norma.yaml 's/^(  time_limit_seconds:).*/\1 "240"/' '^  time_limit_seconds:'
+patch game-modes/norma.yaml 's/^(  time_limit_seconds:).*/\1 "150"/' '^  time_limit_seconds:'
 
 patch game-modes/annihilation.yaml 's/^(  pillar_hp:).*/\1 "60"/' '^  pillar_hp:'
 patch game-modes/annihilation.yaml 's/^(  build_phase_ticks:).*/\1 "100"/' '^  build_phase_ticks:'

@@ -43,9 +43,13 @@ public class NormaLevelService(
         val killerTeam = match.teams.firstOrNull { killer in it.members }?.id ?: return
         val victimTeam = match.teams.firstOrNull { event.victim in it.members }?.id ?: return
         if (killerTeam == victimTeam) return
+        // The kill counts for the team (result screen, last time-limit tie-break) before it can level the killer up
+        // and end the match, so the winning kill is on the score too.
+        val scored = match.copy(score = match.score.withIncrement(killerTeam, 1))
+        matches.save(scored)
         val p = norma.get(match.id, killer)
         norma.put(match.id, killer, p.copy(killsAtLevel = p.killsAtLevel + 1))
-        evaluate(match, killer)
+        evaluate(scored, killer)
     }
 
     public fun onStarsCollected(event: StarsCollected) {
