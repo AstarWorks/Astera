@@ -40,6 +40,19 @@ class ShippedArenaStagesBuildTest {
     }
 
     @Test
+    fun `no shipped stage sits in the darkest part of the night or pairs night with rain`() {
+        for (stage in stages()) {
+            val sky = stage.layout!!.atmosphere ?: continue
+            // Vanilla sky light is symmetric around 18000; 12500 (dusk) / 23500 (dawn) stay readable, the span between is pitch dark.
+            assertThat(sky.timeOfDay).describedAs("'${stage.id.value}' time_of_day is too dark (BUG #14)")
+                .matches { it < 12_600L || it > 23_400L }
+            if (sky.timeOfDay > 12_000L) {
+                assertThat(sky.weather).describedAs("'${stage.id.value}' night + rain is too dark").isEqualTo(com.astarworks.astera.core.domain.stage.ArenaWeather.CLEAR)
+            }
+        }
+    }
+
+    @Test
     fun `shipped plans fit the reserved slot footprint`() {
         val parts = ArenaStructureContent.load(contentRoot)
         for (stage in stages()) {

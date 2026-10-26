@@ -218,7 +218,7 @@ layout:
     z: 20
     rotation: 180
   theme: frost
-  atmosphere: {time_of_day: 22800, weather: clear}
+  atmosphere: {time_of_day: 23500, weather: clear}
 regions:
 - name: full-arena
   min: {x: -273.0, y: 20.0, z: -247.0}

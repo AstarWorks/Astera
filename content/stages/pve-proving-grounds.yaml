@@ -98,7 +98,7 @@ layout:
     z: -22
     rotation: 270
   theme: volcanic
-  atmosphere: {time_of_day: 13500, weather: rain}
+  atmosphere: {time_of_day: 12500, weather: clear}
 regions:
 - name: full-arena
   min: {x: -140.25, y: 20.0, z: -140.25}
