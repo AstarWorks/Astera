@@ -955,7 +955,9 @@ in_arena() { # player -> 0 when in the overworld, x/z in the 300s
   local dim pos
   dim="$(rcon "data get entity $1 Dimension")"
   pos="$(rcon "data get entity $1 Pos")"
-  [[ "$dim" == *overworld* ]] && [[ "$pos" == *"["[0-9]*3[0-9][0-9]* ]]
+  # the arena is centred on CX/CZ (300.5): x/z anywhere in 250..350 counts (a camera behind the caster is at x ~ 296)
+  [[ "$dim" == *overworld* ]] && [[ "$pos" =~ \[(-?[0-9]+)\.[0-9]*d,\ [^,]*,\ (-?[0-9]+)\. ]] \
+    && (( BASH_REMATCH[1] >= 250 && BASH_REMATCH[1] <= 350 && BASH_REMATCH[2] >= 250 && BASH_REMATCH[2] <= 350 ))
 }
 
 place_scene() { # view target_z

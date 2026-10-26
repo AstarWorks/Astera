@@ -327,18 +327,13 @@ class Layer:
             self._runs("sheath-%d" % si, "sheath", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
         for si, fr in enumerate((0.8,)):
             self._runs("hot-%d" % si, "sheath-hot", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
-        for si, fr in enumerate((0.75,)):
-            self._runs("fleck-%d" % si, "fleck", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
         # envelope: the sheath is thickest mid-blade (extra stations), plus a rare slash detail (~1 tick in 7)
         for si, fr in enumerate((0.5,)):
             self._runs("mid-%d" % si, "sheath", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
         for ft in ticks:
             if (ft * 7 + 3) % 7 == 0 and ft % 2 == 1:
                 self.once("detail", "slash", ft, on_blade(*pose(self.rp, ft), 0.8), big=True)
-        # one flame per tick, hopping root -> tip (a different station every tick: the lick moves along the blade)
-        for ft in ticks:
-            fr = (0.3, 0.85, 0.55, 1.0, 0.7, 0.4)[ft % 6]
-            self.once("lick", "lick", ft, on_blade(*pose(self.rp, ft), fr))
+        # r3: no flame / ember on held poses (rest beats stay a faint sheath only)
 
     def _runs(self, name, pid, ticks, at):
         run = []
@@ -384,18 +379,17 @@ class Layer:
         a = unit((d[2], 0.0, -d[0])) if abs(d[1]) < 0.95 else (1.0, 0.0, 0.0)
         b = (d[1] * a[2] - d[2] * a[1], d[2] * a[0] - d[0] * a[2], d[0] * a[1] - d[1] * a[0])
         for r, (rad, dt) in enumerate(((0.25, 0), (0.5, 1), (0.8, 2))):
-            for k in range(6):
-                th = math.radians(60 * k + sense * 20 * r)
+            n = 10 if self.tag == "s1h2" else 6  # the emphasised hit (cut 2) scales the same ring up
+            for k in range(n):
+                th = math.radians(360.0 / n * k + sense * 20 * r)
                 q = tuple(p[i] + rad * (math.cos(th) * a[i] + math.sin(th) * b[i]) for i in range(3))
                 self.once("ring", "ring-crit", ft + dt, q)
-        for dt in (3, 4):
-            self.once("afterglow", "afterglow", ft + dt, p)
 
     def impact(self, ft, sw, hit_half, heavy):
         """Damage tick: burst at the swept blade point nearest the target bearing (phi 0), outer quarter of the blade."""
         g, d, L, _ = min(sw, key=lambda s: abs(((s[3] + 180) % 360) - 180))
         p = on_blade(g, d, L, 1.05)  # just past the tip: where the edge meets the target
-        k = 2 if heavy else 1
+        k = 3 if self.tag == "s1h2" else (2 if heavy else 1)
         for j in range(k):
             q = (p[0] + 0.25 * j, p[1], p[2] - 0.15 * j)
             self.once("impact-crit", "impact-crit", ft, q)

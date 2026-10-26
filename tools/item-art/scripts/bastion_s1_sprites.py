@@ -599,8 +599,7 @@ SWEEPS = {
                   # edge (sprite scale grows by the same factor), so neighbours overlap by 2 x that across the join. The
                   # band core is opaque, so the double-drawn strip does not show.
                   tile_overlap=2,
-                  fade=[(0.0, 0.9, 1.0, 0.4), (0.0, 0.7, 0.95, 0.35), (0.0, 0.55, 0.9, 0.3), (0.0, 0.4, 0.85, 0.3),
-                        (0.0, 0.3, 0.8, 0.3)]),
+                  fade=[(0.0, 0.6, 0.9, 0.35), (0.0, 0.3, 0.8, 0.3)]),  # r3: gone by skill ~16 (reference), was 5 fade frames
     # hit 2 low ring: plane tilted RING_TILT (lowest toward phi 60 = left-front), centre on the pivot axis at the
     # cone-centre height (tip pitch RING_CENTRE_PITCH). alpha 0 ~ forward, +90 ~ left; the blade turns +alpha
     # (left-back -> back -> right -> front). Tip alpha per skill tick (r7, in this plane): 134 (26), 163 (27),
