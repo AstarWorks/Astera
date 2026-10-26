@@ -881,7 +881,9 @@ astera:
         star: "<yellow>時間切れ - 初期目標：<gold>★ {goal}個持つ</gold></yellow>"
         kill: "<yellow>時間切れ - 目標はそのまま：<red>⚔ {goal}キル</red></yellow>"
       chosen: "<green>ノルマ目標：<gold>{goal}</gold></green>"
-      not-in-match: "<red>ノルマレベルは対人戦の中だけです（PvE ウェーブでは使えません）。</red>"
+      not-in-match: "<red>ノルマレベルは対人戦の試合中だけ使えます。</red>"
+      no-norma-mode: "<red>このモードにはノルマレベルがありません。</red>"
+      match-not-running: "<yellow>試合が始まっていないか、すでに終了しています。</yellow>"
       max-level: "<yellow>最高ノルマレベルです。</yellow>"
       gui:
         title: "<gold>ノルマ目標</gold> <gray>- どちらか選択</gray>"

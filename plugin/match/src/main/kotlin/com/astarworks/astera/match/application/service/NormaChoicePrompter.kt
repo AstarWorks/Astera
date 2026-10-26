@@ -15,6 +15,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.application.gui.match.NormaChoiceGuiSpec
 import com.astarworks.astera.match.application.port.outbound.INormaPresentation
 import com.astarworks.astera.match.domain.norma.NormaConfig
+import com.astarworks.astera.match.domain.norma.NormaError
 import com.astarworks.astera.match.domain.norma.NormaGoal
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
@@ -70,17 +71,27 @@ public class NormaChoicePrompter(
         if (intent.key != NormaChoiceGuiSpec.INTENT_CHOOSE) return
         val goal = if (intent.payload[NormaChoiceGuiSpec.PAYLOAD_GOAL].equals("kill", ignoreCase = true)) NormaGoal.KILL else NormaGoal.STAR
         pending.remove(player.id)
-        when (norma.choose(player.id, goal)) {
+        when (val res = norma.choose(player.id, goal)) {
             is Result.Success -> {
                 norma.hudOf(player.id)?.let { presentation?.choicePicked(player.id, goal, it.target) }
                 messages(player, MessageKey("astera.match.norma-choice.chosen"), mapOf("goal" to goal.name.lowercase()))
             }
-            is Result.Failure -> messages(player, MessageKey("astera.match.norma-choice.not-in-match"), emptyMap())
+            is Result.Failure -> messages(player, errorKey(res.error), emptyMap())
         }
         guiAdapter.close(player)
     }
 
     public companion object {
+        /** The message that explains [error] accurately. */
+        public fun errorKey(error: NormaError): MessageKey = MessageKey(
+            when (error) {
+                NormaError.NotInMatch -> "astera.match.norma-choice.not-in-match"
+                NormaError.ModeHasNoNorma -> "astera.match.norma-choice.no-norma-mode"
+                NormaError.MatchNotRunning -> "astera.match.norma-choice.match-not-running"
+                NormaError.AtMaxLevel -> "astera.match.norma-choice.max-level"
+            },
+        )
+
         public const val INTENT_PREFIX: String = "match.norma."
         public const val WINDOW_TICKS: Long = 200L
     }
