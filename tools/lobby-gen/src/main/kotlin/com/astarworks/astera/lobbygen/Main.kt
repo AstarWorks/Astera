@@ -41,6 +41,11 @@ fun main(args: Array<String>) {
         emptyList()
     }
     val plan = LobbyWorldContent.plan(config, lanes)
+    val invalid = BlockStateValidator.check("lobby", plan.blocks.map { (p, state) -> BlockUse(p.x, p.y, p.z, state) })
+    if (invalid.isNotEmpty()) {
+        invalid.forEach { System.err.println(it) }
+        exitProcess(4)
+    }
     println("blocks=${plan.blocks.size} bounds=x[${plan.minX},${plan.maxX}] y[${plan.minY},${plan.maxY}] z[${plan.minZ},${plan.maxZ}]")
     println("spawn=${plan.spawn} yaw=${plan.spawnYaw}")
     plan.npcSpots.toSortedMap().forEach { (id, s) -> println("npc $id: x=${s.x} y=${s.y} z=${s.z} yaw=${s.yaw} walkable=${plan.isWalkable(com.astarworks.astera.core.domain.geometry.Vec3(s.x, s.y, s.z))}") }

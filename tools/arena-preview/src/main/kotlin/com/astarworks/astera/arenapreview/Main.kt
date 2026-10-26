@@ -6,6 +6,8 @@ import com.astarworks.astera.core.application.service.arena.ArenaStructureConten
 import com.astarworks.astera.core.domain.stage.ArenaIslandGenerator
 import com.astarworks.astera.core.domain.stage.ArenaIslandKind
 import com.astarworks.astera.core.domain.stage.SpawnRole
+import com.astarworks.astera.lobbygen.BlockStateValidator
+import com.astarworks.astera.lobbygen.BlockUse
 import com.astarworks.astera.match.application.contents.GeneratorContents
 import com.astarworks.astera.match.application.contents.StageContents
 import java.nio.file.Files
@@ -36,6 +38,7 @@ fun main(args: Array<String>) {
         val digestMs = measureNanoTime { plan.digest() } / 1_000_000.0
         val layout = stage.layout!!
         report.append("| ${stage.id.value} | ${layout.theme} | ${plan.blocks.size} | %.1f | %.1f | x=%d..%d z=%d..%d y=%d..%d |\n".format(ms, digestMs, plan.minX, plan.maxX, plan.minZ, plan.maxZ, plan.minY, plan.maxY))
+        problems += BlockStateValidator.check(stage.id.value, plan.blocks.map { (p, state) -> BlockUse(p.x, p.y, p.z, state) })
         problems += plan.problems.map { "${stage.id.value}: $it" }
         if (layout.killY >= plan.minY) problems += "${stage.id.value}: kill plane intersects terrain"
         for (spawn in stage.spawnPoints.filter { it.role != SpawnRole.SPECTATOR }) {
