@@ -54,10 +54,10 @@ phases:
       sound_id: astera:skills/fire-impact
     - type: summon_lightning
       targets: { type: target }
+      visual_only: { type: literal, value: true }
     - type: play_sound
       targets: { type: target }
       sound_id: astera:skills/lightning-impact
-      visual_only: { type: literal, value: true }
     - type: set_block
       targets: { type: target }
       block_key: minecraft:ice
