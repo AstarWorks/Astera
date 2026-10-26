@@ -2172,6 +2172,8 @@ astera:
       name: "リロード中"
     dash:
       name: "ダッシュ"
+    swift:
+      name: "疾風"
     shock:
       name: "感電"
     wet:
@@ -2465,6 +2467,7 @@ astera:
   lobby.npc.social.name: "ソーシャル"
   gui.social-hub.title: "<gold>ソーシャル</gold>"
   gui.button.back: "戻る"
+  gui.button.close: "閉じる"
   gui.main-menu.vault.tooltip: "<gray>クリックで個人金庫を開く。</gray>"
   gui.main-menu.settings.tooltip: "<gray>クリックで言語・音量・操作・パーティクル・公開設定。</gray>"
   gui.main-menu.party.tooltip: "<gray>クリックでパーティを管理。</gray>"

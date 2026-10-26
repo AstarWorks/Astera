@@ -2184,6 +2184,8 @@ astera:
       name: "Reloading"
     dash:
       name: "Dashing"
+    swift:
+      name: "Hasted"
     shock:
       name: "Shocked"
     wet:
@@ -2477,6 +2479,7 @@ astera:
   lobby.npc.social.name: "Social Hub"
   gui.social-hub.title: "<gold>Social</gold>"
   gui.button.back: "Back"
+  gui.button.close: "Close"
   gui.main-menu.vault.tooltip: "<gray>Click to open your personal vault.</gray>"
   gui.main-menu.settings.tooltip: "<gray>Click for language, volume, controls, particles and privacy.</gray>"
   gui.main-menu.party.tooltip: "<gray>Click to manage your party.</gray>"
