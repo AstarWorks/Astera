@@ -1,0 +1,92 @@
+package com.astarworks.astera.e2e
+
+import org.assertj.core.api.Assertions.assertThat
+import org.geysermc.mcprotocollib.protocol.data.game.inventory.ClickItemAction
+import org.geysermc.mcprotocollib.protocol.data.game.inventory.ContainerActionType
+import org.junit.jupiter.api.Test
+
+/**
+ * The GOLD sink of the core loop (docs/vision/areas/economy-life.md), seen from a client: a player with enough GOLD
+ * opens the shop, the first click asks for confirmation (price >= 100), the second pays, the wallet drops by exactly
+ * the price and the weapon is in the real inventory; a player without GOLD is refused with a readable shortfall.
+ */
+class ShopPurchaseE2eTest : E2eBase() {
+
+    private val suite = "Shop purchase"
+
+    private fun openShop(b: Bot): ScreenView {
+        Thread.sleep(1_100) // vanilla chat spam kick pacing
+        val before = b.screens.size
+        b.command("astera shop")
+        check(b.waitUntil(5_000) { b.screens.size > before }) { "/astera shop opened nothing; chat=${b.chatTexts().takeLast(3)}" }
+        val s = b.screens.last()
+        b.waitUntil(3_000) { b.contents[s.containerId]?.any { it.amount > 0 } == true }
+        return s
+    }
+
+    private fun click(b: Bot, s: ScreenView, slot: Int) {
+        b.clickSlot(s.containerId, slot, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
+    }
+
+    private fun plain(lines: List<String>): List<String> = lines.map { it.replace(Regex("§."), "") }
+
+    private fun gold(b: Bot): Long =
+        Regex("GOLD:\\s*(\\d+)").find(plain(listOf(rcon("astera economy balance ${b.name} GOLD"))).first())?.groupValues?.get(1)?.toLong() ?: -1L
+
+    private fun hasDagger(b: Bot): Boolean =
+        listOf("container.*", "hotbar.*").any { rcon("execute if items entity ${b.name} $it minecraft:stone_sword").contains("passed") }
+
+    @Test
+    fun `buying a shop weapon asks to confirm, charges the price and delivers the item`() {
+        val b = bot("Shopper")
+        Thread.sleep(2_500)
+        rcon("astera economy grant ${b.name} GOLD 150")
+        Thread.sleep(500)
+
+        var shop: ScreenView? = null
+        E2eReport.check(suite, "the shop lists the weapons (dagger first, 150 GOLD) and shows no raw keys", "ClientboundOpenScreen + SetContainerContent") {
+            val s = openShop(b)
+            shop = s
+            val items = b.contents[s.containerId].orEmpty()
+            assertThat(rawKeys(listOf(s.title))).describedAs("raw key as title").isEmpty()
+            assertThat(items.getOrNull(0)?.amount ?: 0).describedAs("no offer in slot 0").isGreaterThan(0)
+            assertThat(items.getOrNull(0)?.lore.orEmpty()).describedAs("slot 0 lore shows the price").contains("150")
+            "title='${s.title}' slot0 lore=${items.getOrNull(0)?.lore}"
+        }
+        val s = checkNotNull(shop)
+
+        E2eReport.check(suite, "first click asks for confirmation and charges nothing", "SystemChat + RCON balance") {
+            val chatFrom = b.chat.size
+            click(b, s, 0)
+            val lines = plain(b.chatSince(chatFrom))
+            assertThat(lines.any { it.contains("click the item again") }).describedAs("no confirm prompt; chat=$lines").isTrue()
+            assertThat(gold(b)).describedAs("GOLD changed on the first click").isEqualTo(150L)
+            "chat=$lines"
+        }
+
+        E2eReport.check(suite, "second click pays 150 GOLD and the dagger arrives in the real inventory", "SystemChat + RCON balance + inventory") {
+            val chatFrom = b.chat.size
+            Thread.sleep(600)
+            click(b, s, 0)
+            val lines = plain(b.chatSince(chatFrom))
+            assertThat(lines.any { it.contains("Purchased") }).describedAs("no purchase confirmation; chat=$lines").isTrue()
+            assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
+            b.waitUntil(3_000) { hasDagger(b) }
+            assertThat(gold(b)).describedAs("GOLD after paying 150").isEqualTo(0L)
+            assertThat(hasDagger(b)).describedAs("no stone sword (dagger) in the server inventory").isTrue()
+            "chat=$lines"
+        }
+
+        E2eReport.check(suite, "with 0 GOLD another offer is refused with the shortfall and nothing is charged", "SystemChat + RCON balance") {
+            val chatFrom = b.chat.size
+            Thread.sleep(600)
+            click(b, s, 1) // frost-staff, 150 GOLD, wallet is empty
+            Thread.sleep(600)
+            click(b, s, 1)
+            val lines = plain(b.chatSince(chatFrom))
+            assertThat(lines.any { it.contains("Not enough GOLD") }).describedAs("no shortfall message; chat=$lines").isTrue()
+            assertThat(gold(b)).describedAs("balance must stay 0").isEqualTo(0L)
+            "chat=$lines"
+        }
+    }
+}
