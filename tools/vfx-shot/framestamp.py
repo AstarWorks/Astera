@@ -1,6 +1,10 @@
 """Frame <-> server tick mapping of one recording, read from the tick stamp the client itself rendered into every frame.
 
-usage: python3 -I framestamp.py <rec.mkv> <showinfo.log> <director.stderr> <cast_stamp> <pre_ticks> <ticks> <fps> <gui_scale> <survival 0|1> <out_dir> <out.json>
+usage: python3 -I framestamp.py <rec.mkv> <showinfo.log> <director.stderr> <cast_stamp> <pre_ticks> <ticks> <fps> <gui_scale> <survival 0|1> <out_dir> <out.json> [stepped 0|1]
+
+stepped=1 (director.py DIRECTOR_STEP_TICKS: the server was frozen and stepped one tick at a time, every tick was held on screen
+until the client had drawn it): ticks are unwrapped against the cast tick (no wall-clock), and the LAST recorded frame of a tick
+is taken (the settled one). skippedTicks is then expected to be 0 whatever the render rate.
 
 The server's stamp datapack (tools/vfx-shot/stamp-pack) renders the game time into a boss bar title on every tick: 12 block
 glyphs, cell 0 magenta + cell 1 cyan (start marker, calibrates the cell pitch), cells 2..11 = game time mod 1024, LSB
@@ -17,6 +21,7 @@ is overwritten by a mirror of the rows next to it in the saved PNGs.
 Writes frame_%03d.png into <out_dir> and <out.json>; prints one summary line. Exit 1 when the stamp cannot be read.
 """
 import json
+import os
 import re
 import subprocess
 import sys
@@ -24,14 +29,8 @@ import sys
 import numpy as np
 from PIL import Image
 
-MOD = 1024
-CELLS = 12
-TOL = 40            # per-channel distance to the stamp colours (x264 4:4:4 round trip is within ~5)
-STAMP_HALF_W = 100  # gui px around the screen centre that the title + bar can occupy
-STAMP_H = 34        # gui px from the top that contain title + bar
-MASK_HALF_W = 100
-MASK_TOP_H = 26     # rows blanked in the saved PNGs (title text 3..12, bar 12..17, lerp slack)
-MASK_BOTTOM_H = 26  # hotbar (22) + 1 px offset + slack, survival viewers only
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # python -I does not add the script dir
+from stampcodec import MOD, CELLS, STAMP_HALF_W, STAMP_H, MASK_HALF_W, MASK_TOP_H, MASK_BOTTOM_H, decode_stamp
 
 
 def parse_marks(path):
@@ -47,42 +46,6 @@ def parse_marks(path):
 def first_frame_epoch(log_path):
     m = re.search(r" pts:\s*(\d+)", open(log_path, errors="replace").read())
     return int(m.group(1)) / 1e6
-
-
-def decode_stamp(img):
-    """img: HxWx3 uint8 crop of the stamp region -> game time mod 1024, or None when no valid stamp is on screen."""
-    r, g, b = (img[..., i].astype(np.int16) for i in range(3))
-    magenta = (r >= 255 - TOL) & (g <= TOL) & (b >= 255 - TOL)
-    cyan = (r <= TOL) & (g >= 255 - TOL) & (b >= 255 - TOL)
-    col_m, col_c = magenta.sum(axis=0), cyan.sum(axis=0)
-    xm = np.nonzero(col_m >= 3)[0]
-    if len(xm) == 0:
-        return None
-    x0 = int(xm[0])
-    xc = np.nonzero(col_c[x0 + 1:] >= 3)[0]
-    if len(xc) == 0:
-        return None
-    pitch = int(xc[0]) + 1
-    if pitch < 4 or x0 + pitch * CELLS > img.shape[1] + pitch // 2:
-        return None
-    union = (magenta | cyan)[:, x0:x0 + pitch * CELLS]
-    rows = np.nonzero(union.sum(axis=1) >= pitch * 4)[0]
-    if len(rows) == 0:
-        return None
-    ys = slice(int(rows[0]) + (len(rows) // 3), int(rows[-1]) + 1 - (len(rows) // 3))
-    bits = []
-    for i in range(CELLS):
-        cx = x0 + int((i + 0.5) * pitch)
-        half = max(1, pitch // 4)
-        xs = slice(max(0, cx - half), min(img.shape[1], cx + half + 1))
-        m, c = int(magenta[ys, xs].sum()), int(cyan[ys, xs].sum())
-        area = magenta[ys, xs].size
-        if max(m, c) < area * 0.6:
-            return None
-        bits.append(1 if c > m else 0)
-    if bits[0] != 0 or bits[1] != 1:
-        return None
-    return sum(bit << i for i, bit in enumerate(bits[2:]))
 
 
 def stream_frames(rec, w, h, vf=None):
@@ -124,6 +87,7 @@ def mirror_fill(img, y0, y1):
 
 def main():
     rec, log_path, dstderr, cast_stamp, pre_ticks, ticks, fps, gs, survival, out_dir, out_path = sys.argv[1:12]
+    stepped = len(sys.argv) > 12 and sys.argv[12] == "1"
     cast_stamp, pre_ticks, ticks, fps, gs, survival = float(cast_stamp), int(pre_ticks), int(ticks), int(fps), int(gs), survival == "1"
     (t_b, g_b), (t_a, g_a), cut_marks = parse_marks(dstderr)
     first = first_frame_epoch(log_path)
@@ -148,7 +112,7 @@ def main():
 
     # absolute game time: the multiple of 1024 nearest to the wall-clock prediction from the RCON marks (good to a few
     # ticks over the whole recording, 512 ticks away from any ambiguity)
-    pred = lambda t: g_b + (t - t_b) * 20.0
+    pred = (lambda t: g_b) if stepped else (lambda t: g_b + (t - t_b) * 20.0)
     stamp = [None if v is None else int(v + MOD * round((pred(wall[i]) - v) / MOD)) for i, v in enumerate(raw)]
     undecoded = sum(v is None for v in stamp)
     known = [i for i, v in enumerate(stamp) if v is not None]
@@ -166,7 +130,7 @@ def main():
     # packets are processed in order: a stamp can never go back
     regressions = sum(1 for a, b in zip(known, known[1:]) if stamp[b] < stamp[a])
     kt = np.array([wall[i] for i in known]); kg = np.array([stamp[i] for i in known], float)
-    rate = float(np.polyfit(kt - kt[0], kg, 1)[0])
+    rate = None if stepped else float(np.polyfit(kt - kt[0], kg, 1)[0])
 
     g_cast = g_b if g_b == g_a else (g_b + g_a) / 2.0
     t0 = g_cast - pre_ticks
@@ -187,7 +151,7 @@ def main():
             group = by_tick[k]
             skipped += 1
         frac = t - np.floor(t + 1e-9) if exact else 0.0
-        src = group[min(int(frac * len(group)), len(group) - 1)]
+        src = group[-1] if stepped else group[min(int(frac * len(group)), len(group) - 1)]
         mapping.append({"n": n, "tick": round(t - g_cast, 3), "src": src, "stamp": stamp[src], "exact": exact})
     skipped_ticks = len({int(np.floor(t0 + n * 20.0 / fps + 1e-9)) for n, m in enumerate(mapping) if not m["exact"]})
 
@@ -249,8 +213,10 @@ def main():
         "castTick": g_cast, "castTickSpan": [g_b, g_a], "castTickExact": g_b == g_a,
         "firstFrameTick": t0, "frames": frames_total, "fps": fps,
         "recordedFrames": n_frames, "undecodedFrames": undecoded, "glitchFrames": glitches, "regressions": regressions,
-        "skippedTicks": skipped_ticks, "stampRateHz": round(rate, 3),
-        "castStampToStampedFrameMs": None if t_stamp_cast is None else round((t_stamp_cast - cast_stamp) * 1000.0, 1),
+        "skippedTicks": skipped_ticks, "stampRateHz": None if rate is None else round(rate, 3),
+        "mode": "stepped" if stepped else "realtime",
+        "minFramesPerTick": min(len(by_tick[k]) for k in range(int(t0), int(g_cast) + ticks + 1) if k in by_tick) if stepped else None,
+        "castStampToStampedFrameMs": None if (t_stamp_cast is None or stepped) else round((t_stamp_cast - cast_stamp) * 1000.0, 1),
         "changeNoise": round(noise, 4), "changeThreshold": round(thr, 4),
         "firstChangeTickAfterCast": events[0]["tick"] if events else None,
         "firstFxTickAfterCast": fx[0]["tick"] if fx else None,

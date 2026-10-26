@@ -1,0 +1,8 @@
+# Breakable wooden cover (content/blocks/barricade.yaml): a low planked barrier with two firing gaps on top.
+# mangrove_planks is the block's identity (its base material) - the axe is the right tool.
+id: cover-barricade
+boxes:
+  - { min: [-3, 1, 0], max: [3, 1, 0], block: "minecraft:mangrove_planks" }
+  - { min: [-3, 2, 0], max: [-2, 2, 0], block: "minecraft:mangrove_planks" }
+  - { min: [0, 2, 0], max: [0, 2, 0], block: "minecraft:mangrove_planks" }
+  - { min: [2, 2, 0], max: [3, 2, 0], block: "minecraft:mangrove_planks" }

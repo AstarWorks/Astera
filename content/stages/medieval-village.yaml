@@ -1,0 +1,54 @@
+# Imported world (ADR-0281): "Medieval Village" by StanleyTheCow, mariogoat, FbprZ7, CC BY-SA 4.0, modified.
+# The blocks live in content/arenas/medieval-village.yaml (credits there and in content/stages/NOTICE.md).
+# Stage x/z equal the map's own x/z; the map is moved up so its spawn floor is y=64. Each core stands on the plinth
+# between the four pillars under the obsidian roof (the roof and lava above are scenery).
+id: medieval-village
+display_name_key: astera.stage.medieval-village.name
+layout:
+  marker_version: 1
+  seed: 20261027
+  surface_y: 64
+  kill_y: 40
+  import: {map: medieval-village}
+  landmarks:
+  - {kind: generator, x: 4, z: 10}
+  - {kind: generator, x: 5, z: 24}
+  - {kind: generator, x: 2, z: -4}
+  - {kind: generator, x: 2, z: 38}
+  atmosphere: {time_of_day: 6000, weather: clear}
+regions:
+- name: full-arena
+  min: {x: -20.0, y: 40.0, z: -50.0}
+  max: {x: 28.0, y: 110.0, z: 84.0}
+- name: core-blue
+  min: {x: 18.0, y: 65.0, z: -40.0}
+  max: {x: 18.0, y: 65.0, z: -40.0}
+- name: core-red
+  min: {x: 18.0, y: 65.0, z: 74.0}
+  max: {x: 18.0, y: 65.0, z: 74.0}
+spawn_points:
+- team: blue
+  position: {x: -8.5, y: 65.5, z: -36.5}
+- team: blue
+  position: {x: -9.5, y: 65.5, z: -34.5}
+- team: blue
+  position: {x: -7.5, y: 65.5, z: -34.5}
+- team: blue
+  position: {x: -8.5, y: 65.5, z: -32.5}
+- team: red
+  position: {x: -8.5, y: 65.5, z: 71.5}
+  yaw: 180.0
+- team: red
+  position: {x: -9.5, y: 65.5, z: 69.5}
+  yaw: 180.0
+- team: red
+  position: {x: -7.5, y: 65.5, z: 69.5}
+  yaw: 180.0
+- team: red
+  position: {x: -8.5, y: 65.5, z: 67.5}
+  yaw: 180.0
+- role: lobby
+  position: {x: -8.5, y: 65.5, z: -38.5}
+- role: spectator
+  position: {x: 4.5, y: 100.0, z: 17.5}
+  pitch: 60.0

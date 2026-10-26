@@ -77,6 +77,26 @@ KDoc を参照。
 `damage.attribute` は `Element` enum: `physical` / `fire` / `electric` /
 `wind` / `water` / `earth` (Wave 5a / ADR-0030)。
 
+## Cover damage (`block_damage` / `block_place`, ADR-0280)
+
+A skill never touches cover blocks unless it opts in.
+
+```yaml
+block_damage:          # optional
+  amount: 20           # flat HP chip; with `tool`, the matrix base (100 = one swing of that tool)
+  radius: 0            # blocks around the impact / cast point; 0 = the one cover block struck (max 6)
+  tool: PICKAXE/IRON   # optional; count as this tool (right tool 100, wrong 25 or 0)
+  reach: 4             # cast-time skills (melee, sequence, ...): look-ray length (max 16)
+  shape: ball          # ball | line (line cuts a tube of `reach` blocks)
+block_place:           # optional; a temporary cover wall in front of the caster, removed at match end
+  block: "astera:sandbags"
+  distance: 2          # 1..6
+  width: 3             # 1..7
+  height: 2            # 1..4
+```
+
+Projectile skills strike where the projectile lands, AOE around the cast point, the rest along the look ray. Guns and spells use small flat chips (cover has 200 to 500 HP); large breaking is for the field tool skills. Cover is not regenerated during a match and is rebuilt when it ends.
+
 ## Phase mechanic effects
 
 `phases.<phase>` は `EffectStep` のリスト (Wave 5effects / ADR-0109)。

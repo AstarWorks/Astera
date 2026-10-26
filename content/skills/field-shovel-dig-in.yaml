@@ -1,0 +1,33 @@
+# ADR-0280: field tool skill. Tools do the large-scale cover breaking; weapons only chip.
+
+id: field-shovel-dig-in
+
+name:
+  ja: "塹壕構築"
+  en: "Dig In"
+description:
+  ja: "目の前に土のう壁(3x2)を築く。試合が終わると消える。"
+  en: "Piles up a 3x2 sandbag wall in front of you. It is removed when the match ends."
+
+archetype: sequence
+cooldown_ticks: 400
+resource_cost: 0
+tags: [ tool, cover ]
+
+block_place:
+  block: "astera:sandbags"
+  distance: 2
+  width: 3
+  height: 2
+
+params:
+  type: sequence
+
+phases:
+  type: sequence
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: astera:weapons/gun-impact-block
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 0.7 }

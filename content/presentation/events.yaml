@@ -14,8 +14,11 @@
 particles:
   star-pop:        { particle: END_ROD,           count: 16,  spread: [0.15, 0.5, 0.15],  speed: 0.06, y_offset: 0.6 }
   star-pickup:     { particle: FIREWORK,          count: 14,  spread: [0.25, 0.4, 0.25],  speed: 0.08, y_offset: 1.0 }
-  star-burst:      { particle: END_ROD,           count: 70,  spread: [0.15, 0.15, 0.15], speed: 0.4,  y_offset: 1.0 }
-  star-burst-gain: { particle: FIREWORK,          count: 24,  spread: [0.5, 0.6, 0.5],    speed: 0.15, y_offset: 1.0 }
+  star-burst:      { particle: END_ROD,           count: 160, spread: [0.2, 0.2, 0.2],    speed: 0.55, y_offset: 1.0 }
+  star-burst-gain: { particle: FIREWORK,          count: 40,  spread: [0.6, 0.7, 0.6],    speed: 0.2,  y_offset: 1.0 }
+  # Fountain layers (the kill scatter): gold dust and firework sparks over the END_ROD flash.
+  star-burst-gold: { particle: WAX_ON,            count: 120, spread: [0.9, 0.5, 0.9],    speed: 1.2,  y_offset: 0.8 }
+  star-burst-spark: { particle: FIREWORK,         count: 90,  spread: [0.3, 0.9, 0.3],    speed: 0.45, y_offset: 1.2 }
   norma-level-up:  { particle: TOTEM_OF_UNDYING,  count: 40,  spread: [0.5, 0.8, 0.5],    speed: 0.3,  y_offset: 0.0 }
   norma-level-max: { particle: TOTEM_OF_UNDYING,  count: 120, spread: [0.8, 1.0, 0.8],    speed: 0.5,  y_offset: 0.0 }
   death-soul:      { particle: SOUL,              count: 28,  spread: [0.3, 0.6, 0.3],    speed: 0.06, y_offset: 0.9 }
@@ -71,6 +74,14 @@ moments:
     cue: "astera:star/burst-gain"
     action_bar: "astera.presentation.star-burst.killer"
     particle: star-burst-gain
+  # The fountain's extra layers (played with the same audience as star-burst): a launch thump + sparkle cascade under
+  # the burst cue, gold dust, firework sparks. No action bar here (star-burst owns it).
+  star-burst-gold:
+    cue: "astera:star/burst-boom"
+    audience_cue: "astera:star/burst-boom"
+    particle: star-burst-gold
+  star-burst-spark:
+    particle: star-burst-spark
 
   norma-level-up:
     cue: "astera:norma/level-up"

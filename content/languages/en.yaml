@@ -411,6 +411,7 @@ astera:
         sneak_right: "<gray>Sneak + right-click: <white>{name}</white></gray>"
         sneak_left: "<gray>Sneak + left-click: <white>{name}</white></gray>"
         drop: "<gray>Drop (Q): <white>{name}</white></gray>"
+        sneak_drop: "<gray>Sneak + drop (Q): <white>{name}</white></gray>"
       stat:
         attack_damage: "<gray>Damage: <white>{value}</white></gray>"
         attack_speed: "<gray>Attack speed: <white>{value}</white></gray>"
@@ -887,7 +888,7 @@ astera:
         progress: "<gray>Now: <white>{now}</white>/<white>{goal}</white></gray>"
         default: "<dark_gray>No pick in 10 s = Star goal.</dark_gray>"
     star:
-      collected: "<gold>+{amount} ★</gold> <gray>(carrying {total})</gray>"
+      collected: "<gold><bold>+{amount} ★</bold></gold> <gray>(carrying {total})</gray>"
     # Wave 5lobby-content (ADR-0119) — lobby `lobby.queue.*` GuiIntent surface.
     queue:
       unknown-mode: "<red>Unknown queue mode.</red>"
@@ -2542,8 +2543,8 @@ astera:
   hint.help.commands: "<gray>/astera help</gray> - every command; <gray>/astera menu</gray>, <gray>/astera settings</gray>, <gray>/astera social</gray> open the screens"
   hint.help.tutorial: "<gray>/astera tutorial start</gray> - replay the tutorial"
   hint.help.in-match: "<gray>In a match press F for the menu (settings, leave, help), or use /astera queue leave, /astera travel lobby or /astera settings.</gray>"
-  presentation.star-burst.victim: "<red>-{amount} ★ burst out!</red>"
-  presentation.star-burst.killer: "<gold>+{amount} ★ burst out - grab them!</gold>"
+  presentation.star-burst.victim: "<red><bold>-{amount} ★</bold></red>"
+  presentation.star-burst.killer: "<gold><bold>+{amount} ★</bold></gold> <gray>burst out - grab them!</gray>"
   presentation.respawn: "<aqua>Back in the fight!</aqua>"
   menu.cosmetics.tooltip: "<gray>Click to buy and equip titles, name colours and kill effects.</gray>"
   match_menu.title: "Match menu"
@@ -2585,3 +2586,4 @@ astera:
   progress.gui.quests.none: "<gray>No quests yet. They start when you join</gray>"
   progress.gui.quest.progress: "<yellow>{current}/{required}</yellow>"
   progress.gui.quest.complete: "<green>Complete</green>"
+  cover.wrong-tool: "<gray>That tool does not work on this block - try another one.</gray>"

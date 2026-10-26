@@ -15,6 +15,9 @@ archetype: projectile
 cooldown_ticks: 14
 resource_cost: 1               # one round; resource type comes from the rifle (ammo)
 tags: [ ranged, gun, sustain ]
+# ADR-0280: flat chip per bullet (opt-in; cover has 200-500 HP, weapons only chip).
+block_damage:
+  amount: 20
 
 params:
   type: projectile

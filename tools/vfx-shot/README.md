@@ -117,7 +117,9 @@ not ease and colour changes are instant, so the stamp is exactly what the client
 marks `director.py` reads on the same RCON connection right before and after the cast (equal = the cast tick is exact, one apart =
 +-0.5 tick), drops glitch frames, and picks for output frame n the recorded frame stamped with tick `cast - PRE_TICKS + n*20/fps`
 (at 60 fps: the 3 frames of that tick, in order). The mapping needs no wall-clock fit, so it does not depend on render load. A tick the
-client never drew is reported in `skippedTicks` (nearest frame used). The saved PNGs have the stamp rectangle (and, for the
+client never drew is reported in `skippedTicks` (nearest frame used) and listed in `meta.json` `tickStamp.gaps`/`skippedFrames`; any skip marks the capture invalid and `publish-capture.mjs` refuses it, so no stand-in frame is ever shown as exact.
+
+**Stepped capture (default at 20 fps, `STEPPED=1`).** The software client draws ~10 fps, which skips 20-50 ticks per realtime take. `director.py` therefore runs `/tick freeze`, then per tick `/tick step 1`, waits until the stamp on screen shows that tick, dwells (`DIRECTOR_STEP_DWELL`, 0.35 s) and records at 30 fps; `framestamp.py` takes the last settled frame of each tick. Result: exactly 1 frame per tick, `skippedTicks` 0 under any host load; `tick unfreeze` always runs afterwards. `FPS=60` or `STEPPED=0` keeps realtime (video). The saved PNGs have the stamp rectangle (and, for the
 caster/opponent views, the hotbar) overwritten with a mirror of the adjacent rows. Any failure to read the stamp fails the capture.
 
 `framestamp.json` / `meta.json` `tickStamp`: `castTick`, `castTickSpan`, `castTickExact`, `recordedFrames`, `undecodedFrames`,

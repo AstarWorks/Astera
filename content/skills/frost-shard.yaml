@@ -17,6 +17,9 @@ archetype: projectile
 cooldown_ticks: 30
 resource_cost: 8               # energy
 tags: [ ranged, ice-family, slow ]
+# ADR-0280: flat chip where the shard lands (opt-in; cover has 200-500 HP, weapons only chip).
+block_damage:
+  amount: 10
 
 params:
   type: projectile

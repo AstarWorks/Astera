@@ -6,6 +6,10 @@ Stage (map) definitions. Schema: `plugin/match/.../application/config/StageYamlC
 Production stages are **floating siege-scale arenas** built by the server into world slots of the one void `world` (ADR-0255); stage YAML coordinates are stage-local.
 Procedural foundations carry [authored YAML structure parts](../structures/README.md). Debug stages are absent from real queues, and retain the previous small layouts.
 
+**Imported worlds (ADR-0281).** `layout.import: {map: <id>, x: 0, z: 0}` (instead of `islands`) pastes the pre-built
+world in `content/arenas/<id>.yaml`; objectives, spawns, regions and generator landmarks stay on the stage and use the
+map's own x/z with `surface_y` as the spawn floor. Attribution and licence (CC BY-SA 4.0) are in [NOTICE.md](NOTICE.md).
+
 ```yaml
 id: example-arena
 display_name_key: astera.stage.example-arena.name
@@ -15,6 +19,7 @@ layout:                      # sky-island block layout; see below
   seed: 20261023
   surface_y: 64              # top layer of every island; players stand at surface_y + 1
   kill_y: 30                 # void-fall kill plane (default surface_y - 34)
+  relief: 1.0                # terrain relief strength 0..1.5 (hills, channels, cover); 0 = flat (debug stages)
   islands:
     - { id: red, kind: base, team: red, center: { x: -66, z: 0 }, radius: 20 }
     - { id: center, kind: center, center: { x: 0, z: 0 }, radius: 22 }

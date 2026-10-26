@@ -1,0 +1,230 @@
+# Bastion S2 vertical chop (video 17.9-18.4 s): gold crescent in the forward/up plane (front + back copy), dark ink under it, afterimage streak (no hit), flare + floor ink at contact, vanilla particles on the blade path and at the impact.
+# Played at skill tick 49: contact = effect tick 4 = skill tick 53 (hit-stop 3). Caster-relative (orient: yaw, follow: true). Reuses the S1 sprites and particles.
+id: bastion-s2-fx-chop
+duration_ticks: 16
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: s2c-cres-a
+  kind: {type: sprite, sprite: bastion-s1-crescent, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.5, 1.55]
+    rotate: [0, 90, -90]
+    scale: [0.3, 0.3, 1.0]
+  - t: 1
+    translate: [0.0, 1.5, 1.6]
+    rotate: [0, 90, -90]
+    scale: [0.5, 0.5, 1.0]
+    ease: out_expo
+  - t: 7
+    translate: [0.0, 1.2, 1.7]
+    rotate: [0, 90, -90]
+    scale: [0.46, 0.2, 1.0]
+    ease: in_quad
+- id: s2c-ink-a
+  kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 4
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.1, 1.7]
+    rotate: [0, 90, 0]
+    scale: [0.45, 0.45, 1.0]
+- id: s2c-streak-a
+  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 2
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.0, 2.6, 0.3]
+    rotate: [0, 90, 90]
+    scale: [0.05, 0.2, 1.0]
+  - t: 2
+    translate: [0.0, 1.6, 1.3]
+    rotate: [0, 90, 90]
+    scale: [0.8, 0.3, 1.0]
+    ease: out_expo
+  - t: 7
+    translate: [0.0, 1.2, 1.6]
+    rotate: [0, 90, 90]
+    scale: [0.6, 0.03, 1.0]
+    ease: in_quad
+- id: s2c-cres-b
+  kind: {type: sprite, sprite: bastion-s1-crescent, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 3
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.5, 1.55]
+    rotate: [0, -90, -90]
+    scale: [0.3, 0.3, 1.0]
+  - t: 1
+    translate: [0.0, 1.5, 1.6]
+    rotate: [0, -90, -90]
+    scale: [0.5, 0.5, 1.0]
+    ease: out_expo
+  - t: 7
+    translate: [0.0, 1.2, 1.7]
+    rotate: [0, -90, -90]
+    scale: [0.46, 0.2, 1.0]
+    ease: in_quad
+- id: s2c-ink-b
+  kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 4
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.1, 1.7]
+    rotate: [0, -90, 0]
+    scale: [0.45, 0.45, 1.0]
+- id: s2c-streak-b
+  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 2
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.0, 2.6, 0.3]
+    rotate: [0, -90, 90]
+    scale: [0.05, 0.2, 1.0]
+  - t: 2
+    translate: [0.0, 1.6, 1.3]
+    rotate: [0, -90, 90]
+    scale: [0.8, 0.3, 1.0]
+    ease: out_expo
+  - t: 7
+    translate: [0.0, 1.2, 1.6]
+    rotate: [0, -90, 90]
+    scale: [0.6, 0.03, 1.0]
+    ease: in_quad
+- id: s2c-flash
+  kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 4
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.5, 2.3]
+    rotate: [0, 0, 0]
+    scale: [0.2, 0.2, 1.0]
+  - t: 1
+    translate: [0.0, 0.5, 2.3]
+    rotate: [0, 0, 0]
+    scale: [0.5, 0.5, 1.0]
+    ease: out_back
+  - t: 3
+    translate: [0.0, 0.5, 2.3]
+    rotate: [0, 0, 0]
+    scale: [0.14, 0.14, 1.0]
+    ease: out_quad
+- id: s2c-floor
+  kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: false}
+  billboard: fixed
+  brightness: 15
+  start_tick: 4
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.03, 2.2]
+    rotate: [-90, 0, 0]
+    scale: [0.6, 0.6, 1.0]
+- id: s2c-p-gather
+  kind: {type: particle, particle_id: bastion-s1-p-gather-1, every_ticks: 1}
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0.0, 2.5, 0.2]
+- id: s2c-p-steel-top
+  kind: {type: particle, particle_id: bastion-s1-p-steel, every_ticks: 1}
+  start_tick: 1
+  end_tick: 2
+  keyframes:
+  - t: 0
+    translate: [0.0, 2.9, 0.5]
+- id: s2c-p-steel-mid
+  kind: {type: particle, particle_id: bastion-s1-p-steel, every_ticks: 1}
+  start_tick: 2
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0.0, 2.1, 1.1]
+- id: s2c-p-steel-low
+  kind: {type: particle, particle_id: bastion-s1-p-steel, every_ticks: 1}
+  start_tick: 3
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.1, 1.9]
+- id: s2c-p-trail-crit
+  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
+  start_tick: 2
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.6, 1.4]
+- id: s2c-p-crit
+  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.4, 2.4]
+- id: s2c-p-flame
+  kind: {type: particle, particle_id: bastion-s1-p-impact-flame, every_ticks: 1}
+  start_tick: 4
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.3, 2.4]
+- id: s2c-p-enchant
+  kind: {type: particle, particle_id: bastion-s1-p-impact-enchant, every_ticks: 1}
+  start_tick: 4
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.6, 2.3]
+- id: s2c-p-dust
+  kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
+  start_tick: 4
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.1, 2.4]
+- id: s2c-p-smoke
+  kind: {type: particle, particle_id: bastion-s1-p-impact-smoke, every_ticks: 2}
+  start_tick: 5
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.2, 2.3]
+- id: s2c-p-ash
+  kind: {type: particle, particle_id: bastion-s1-p-ash, every_ticks: 2}
+  start_tick: 5
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.4, 2.3]
+- id: s2c-p-after
+  kind: {type: particle, particle_id: bastion-s1-p-afterglow, every_ticks: 2}
+  start_tick: 5
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.3, 2.4]
