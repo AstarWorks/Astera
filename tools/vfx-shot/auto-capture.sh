@@ -113,7 +113,7 @@ latest_deployed() { grep -E ' deployed [0-9a-f]{7,40}( |$)' "$DEPLOY_LOG" 2>/dev
 
 run_loop() {
   echo $$ > "$FSTATE/daemon.pid"
-  trap 'rm -f "$FSTATE/daemon.pid"; exit 0' TERM INT
+  trap '[ "$(cat "$FSTATE/daemon.pid" 2>/dev/null)" = "$$" ] && rm -f "$FSTATE/daemon.pid"; exit 0' TERM INT
   local sha
   # first start: do not replay history, start from what is deployed now
   [ -f "$FSTATE/done-sha" ] || latest_deployed > "$FSTATE/done-sha"
