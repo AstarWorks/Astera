@@ -65,6 +65,7 @@ import com.astarworks.astera.core.domain.skill.SkillTrigger
  */
 public class CastSkillUseCase(
     private val skillRegistry: ISkillRegistry,
+    private val ownership: com.astarworks.astera.combat.application.port.outbound.ICombatOwnership? = null,
     private val statusContainer: IStatusEffectContainer,
     private val eventBus: IDomainEventBus,
     private val cooldownTracker: ICooldownTracker,
@@ -95,7 +96,7 @@ public class CastSkillUseCase(
 ) {
 
     /** Tick at which each reloading player's reload completes. */
-    private val reloadingUntil: MutableMap<PlayerId, Long> = HashMap()
+    private val reloadingUntil: MutableMap<PlayerId, Long> = java.util.concurrent.ConcurrentHashMap()
 
     public fun bindSkillCastDispatcher(dispatcher: SkillCastDispatcher) {
         this.skillCastDispatcher = dispatcher
@@ -112,6 +113,10 @@ public class CastSkillUseCase(
         ignoreResource: Boolean = false,
         trigger: SkillTrigger? = null,
     ): Result<SkillSpec, CastSkillError> {
+        ownership?.assertOwned(casterId)
+        val castPose = poseLookup?.poseOf(casterId)
+        if (castPose != null) com.astarworks.astera.core.application.service.observability.CombatTickBudget.enter(
+            scheduler.currentTick(), com.astarworks.astera.core.application.port.outbound.regionScope(castPose.world, castPose.position))
         // 1. Look up spec
         val spec = skillRegistry.find(skillId)
             ?: return Result.failure(CastSkillError.SkillNotFound(skillId))
@@ -237,13 +242,14 @@ public class CastSkillUseCase(
 
         // 7. Publish event
         val atTick = scheduler.currentTick()
-        val pose = poseLookup?.poseOf(casterId)
+        val pose = castPose
         // Callers without a position (charged casts) pass Vec3.ZERO — use the live feet position.
         val origin = if (at == Vec3.ZERO && pose != null) pose.position else at
         eventBus.publish(
             SkillCast(caster = casterId, skillId = skillId, at = origin, atTick = atTick, pose = pose),
         )
 
+        com.astarworks.astera.core.application.service.observability.CombatTickBudget.overrun(scheduler.currentTick())
         return Result.success(spec)
     }
 

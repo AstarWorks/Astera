@@ -37,12 +37,13 @@ import org.slf4j.LoggerFactory
  */
 public class PaperDisplayEntityGateway(
     private val server: Server,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
 ) : IDisplayEntityGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
     private class Attachment(val anchor: PlayerId, val world: org.bukkit.World,
         var offset: Vec3, var transform: DisplayTransform)
-    private val attachments = mutableMapOf<DisplayHandle, Attachment>()
+    private val attachments = java.util.concurrent.ConcurrentHashMap<DisplayHandle, Attachment>()
 
     override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3): DisplayHandle? {
         val player = server.getPlayer(anchor.uuid) ?: return null
@@ -139,6 +140,7 @@ public class PaperDisplayEntityGateway(
     }
 
     override fun update(handle: DisplayHandle, transform: DisplayTransform, interpolationTicks: Int) {
+        if (deferDisplay(handle) { update(handle, transform, interpolationTicks) }) return
         val display = server.getEntity(handle.id) as? Display ?: return
         val attachment = attachments[handle]
         val effective = if (attachment != null) {
@@ -157,17 +159,20 @@ public class PaperDisplayEntityGateway(
     }
 
     override fun setBlock(handle: DisplayHandle, blockKey: String) {
+        if (deferDisplay(handle) { setBlock(handle, blockKey) }) return
         val display = server.getEntity(handle.id) as? BlockDisplay ?: return
         runCatching { server.createBlockData(blockKey(blockKey)) }.onSuccess { display.block = it }
     }
 
     override fun setText(handle: DisplayHandle, renderedLines: List<String>) {
+        if (deferDisplay(handle) { setText(handle, renderedLines) }) return
         val display = server.getEntity(handle.id) as? TextDisplay ?: return
         val lines = renderedLines.map { AsteraTextDeserializer.deserialize(it) }
         display.text(Component.join(net.kyori.adventure.text.JoinConfiguration.newlines(), lines))
     }
 
     override fun setTextStyle(handle: DisplayHandle, backgroundArgb: Int, textOpacity: Int, textRgb: Int?) {
+        if (deferDisplay(handle) { setTextStyle(handle, backgroundArgb, textOpacity, textRgb) }) return
         val display = server.getEntity(handle.id) as? TextDisplay ?: return
         display.backgroundColor = Color.fromARGB(backgroundArgb)
         display.textOpacity = textOpacity.coerceIn(0, 255).toByte()
@@ -175,6 +180,7 @@ public class PaperDisplayEntityGateway(
     }
 
     override fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
+        if (deferDisplay(handle) { teleport(handle, at, yaw, pitch, teleportTicks) }) return
         val display = server.getEntity(handle.id) as? Display ?: return
         val attachment = attachments[handle]
         if (attachment != null) {
@@ -188,6 +194,15 @@ public class PaperDisplayEntityGateway(
         display.teleportAsync(Location(display.world, at.x, at.y, at.z, yaw, pitch))
     }
 
+    private fun deferDisplay(handle: DisplayHandle, action: () -> Unit): Boolean {
+        val entity = server.getEntity(handle.id) ?: return false
+        if (server.isOwnedByCurrentRegion(entity)) return false
+        com.astarworks.astera.core.application.service.observability.ExecutionCosts.increment("combat_vfx_owner_hops")
+        scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(handle.id), kotlin.time.Duration.ZERO, action)
+            .onRetired { attachments.remove(handle) }
+        return true
+    }
+
     private fun transformation(t: DisplayTransform): Transformation = Transformation(
         Vector3f(t.translation.x.toFloat(), t.translation.y.toFloat(), t.translation.z.toFloat()),
         Quaternionf(t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w),
@@ -199,6 +214,7 @@ public class PaperDisplayEntityGateway(
         ItemDisplay.ItemDisplayTransform.valueOf(mode.name)
 
     override fun remove(handle: DisplayHandle) {
+        if (deferDisplay(handle) { remove(handle) }) return
         attachments.remove(handle)
         server.getEntity(handle.id)?.remove()
     }

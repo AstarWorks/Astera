@@ -112,9 +112,11 @@ public class PaperWorldGateway(
     private val scheduler: IScheduler,
     @Suppress("UnusedPrivateProperty")
     private val eventBus: IDomainEventBus,
+    encodeParticles: Boolean = false,
     private val lobbyPosition: () -> Vec3 = { Vec3(0.5, 65.0, 6.5) },
 ) : IWorldGateway {
 
+    private val particleFanout = if (encodeParticles) PacketParticleFanout() else null
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun placeBlock(world: WorldId, at: Vec3, type: BlockType) {
@@ -160,9 +162,11 @@ public class PaperWorldGateway(
             log.debug("PaperWorldGateway.spawnParticle: {} needs data this spec cannot supply", particle.key)
             return
         }
+        val receivers = receiversFor(w, particle, at)
+        if (particleFanout?.send(w, at, bukkitParticle, particle, data.value, receivers) == true) return
         w.spawnParticle(
             bukkitParticle,
-            receiversFor(w, particle),
+            receivers,
             null,
             at.x,
             at.y,
@@ -180,12 +184,22 @@ public class PaperWorldGateway(
     private fun blockData(key: String): BlockData? = runCatching { server.createBlockData(key) }.getOrNull()
 
     /** `null` = everyone in range; otherwise the explicit viewer list. */
-    private fun receiversFor(w: World, spec: ParticleSpec): List<Player>? {
-        val source = spec.source ?: return null
-        return when (spec.viewers) {
+    private fun receiversFor(w: World, spec: ParticleSpec, at: Vec3): List<Player>? {
+        val source = spec.source
+        val selected = if (source == null) null else when (spec.viewers) {
             ParticleViewers.ALL -> null
             ParticleViewers.CASTER -> listOfNotNull(onlinePlayer(source))
             ParticleViewers.OTHERS -> w.players.filter { it.uniqueId != source.uuid }
+        }
+        if (!com.astarworks.astera.core.application.service.observability.CombatTickBudget.overrun(scheduler.currentTick())) return selected
+        val emission = com.astarworks.astera.core.application.service.observability.CombatTickBudget.emission()
+        return (selected ?: w.players).filter { viewer ->
+            val location = viewer.location
+            val squared = Vec3(location.x, location.y, location.z).distanceSquared(at)
+            val stride = if (squared <= 16.0 * 16.0) 1 else if (squared <= 32.0 * 32.0) 2 else 4
+            val keep = emission % stride == 0L
+            if (!keep) com.astarworks.astera.core.application.service.observability.ExecutionCosts.increment("combat_vfx_lod_dropped")
+            keep
         }
     }
 

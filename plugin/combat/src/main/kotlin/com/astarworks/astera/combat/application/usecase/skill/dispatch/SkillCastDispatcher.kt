@@ -69,7 +69,7 @@ public class SkillCastDispatcher(
      * Phase 6 cleanup: replace with a richer `SkillCast` event variant or a
      * pre-publish enrich step.
      */
-    private val pendingOverrides: MutableMap<OverrideKey, PhaseOverrides> = HashMap()
+    private val pendingOverrides: MutableMap<OverrideKey, PhaseOverrides> = java.util.concurrent.ConcurrentHashMap()
 
     /** Caster + skill key for the [pendingOverrides] map. */
     public data class OverrideKey(val casterId: com.astarworks.astera.core.domain.player.PlayerId, val skillId: com.astarworks.astera.core.domain.skill.SkillId)
@@ -102,7 +102,7 @@ public class SkillCastDispatcher(
         val composedPhases = overrides.applyTo(spec.phases)
 
         try {
-            dispatch(spec, composedPhases, event)
+            dispatch(spec, composedPhases, event.copy(maxTargets = spec.maxTargets))
         } catch (ex: Exception) {
             log.warn(
                 "SkillCastDispatcher: handler for {} (archetype={}) threw; cast dropped",

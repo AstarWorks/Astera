@@ -105,9 +105,14 @@ public class ApplyDamageUseCase(
      * Defaults to the (possibly late-registered, hence possibly null) [teamLookup]; wiring passes a
      * per-call lookup because the match plugin registers its lookup after combat enables.
      */
+    private val ownership: com.astarworks.astera.combat.application.port.outbound.ICombatOwnership? = null,
     private val contexts: CombatContextResolver = CombatContextResolver { teamLookup },
 ) {
     public fun execute(attempt: DamageAttempt): Result<DamageOutcome, ApplyDamageError> {
+        if (ownership?.deferIfForeign(attempt.targetId) { execute(attempt) } == true) {
+            return Result.success(DamageOutcome.Scheduled)
+        }
+        ownership?.assertOwned(attempt.targetId)
         if (entityDamageGateway?.isEntityTarget(attempt.targetId) == true) {
             return executeOnEntity(entityDamageGateway, attempt)
         }

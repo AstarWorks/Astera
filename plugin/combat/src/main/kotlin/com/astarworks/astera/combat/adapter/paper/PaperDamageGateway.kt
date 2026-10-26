@@ -129,6 +129,7 @@ public class PaperDamageGateway(
     ): Result<DamageOutcome, DamageApplicationError> {
         val player = server.getPlayer(target.uuid)
             ?: return Result.failure(DamageApplicationError.TargetOffline(target))
+        check(org.bukkit.Bukkit.isOwnedByCurrentRegion(player)) { "Damage outside target region" }
         if (player.isDead) {
             return Result.failure(DamageApplicationError.TargetAlreadyDead(target))
         }

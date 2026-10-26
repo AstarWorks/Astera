@@ -22,4 +22,5 @@ public data class ProjectileSkillBinding(
     val castOrigin: Vec3,
     val worldId: WorldId?,
     val pose: PlayerPose? = null,
+    val maxTargets: Int? = null,
 )

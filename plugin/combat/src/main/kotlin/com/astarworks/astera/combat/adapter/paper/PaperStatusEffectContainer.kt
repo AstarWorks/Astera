@@ -97,9 +97,11 @@ import java.util.concurrent.ConcurrentHashMap
 public class PaperStatusEffectContainer(
     private val server: Server,
     private val scheduler: IScheduler,
+    private val ownership: PaperCombatOwnership,
     private val eventBus: IDomainEventBus,
     @Suppress("UnusedPrivateProperty")
     private val statusEffectRegistry: IStatusEffectRegistry? = null,
+    private val onTrack: (PlayerId) -> Unit = {},
 ) : IStatusEffectContainer {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -128,6 +130,8 @@ public class PaperStatusEffectContainer(
 
     override fun apply(instance: StatusEffectInstance) {
         val targetId = instance.targetPlayerId
+        if (ownership.deferIfForeign(targetId) { apply(instance) }) return
+        ownership.assertOwned(targetId)
         val spec = instance.spec
         val effectId = spec.id
 
@@ -143,6 +147,7 @@ public class PaperStatusEffectContainer(
             }
         }.let { it.copy(currentStacks = if (it.spec.stackable) it.currentStacks.coerceAtMost(it.spec.maxStacks) else 1) }
         perPlayer[effectId] = merged
+        onTrack(targetId)
 
         // 2) Mirror to Bukkit (best-effort). Offline player → log + degrade.
         val player = server.getPlayer(targetId.uuid)
@@ -166,6 +171,8 @@ public class PaperStatusEffectContainer(
     }
 
     override fun remove(playerId: PlayerId, effectId: StatusEffectId) {
+        if (ownership.deferIfForeign(playerId) { remove(playerId, effectId) }) return
+        ownership.assertOwned(playerId)
         val perPlayer = activeEffects[playerId] ?: return
         val removed = perPlayer.remove(effectId) ?: return
         if (perPlayer.isEmpty()) activeEffects.remove(playerId)
@@ -191,6 +198,8 @@ public class PaperStatusEffectContainer(
     }
 
     override fun removeStacks(playerId: PlayerId, effectId: StatusEffectId, count: Int) {
+        if (ownership.deferIfForeign(playerId) { removeStacks(playerId, effectId, count) }) return
+        ownership.assertOwned(playerId)
         val existing = activeEffects[playerId]?.get(effectId) ?: return
         if (count >= existing.currentStacks) {
             remove(playerId, effectId)
@@ -204,6 +213,8 @@ public class PaperStatusEffectContainer(
     }
 
     override fun clear(playerId: PlayerId) {
+        if (ownership.deferIfForeign(playerId) { clear(playerId) }) return
+        ownership.assertOwned(playerId)
         val perPlayer = activeEffects.remove(playerId) ?: return
         val player = server.getPlayer(playerId.uuid)
         val tick = scheduler.currentTick()

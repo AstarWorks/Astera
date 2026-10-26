@@ -90,6 +90,7 @@ public data class SkillYamlConfig(
     @SerialName("charge_ticks") public val chargeTicks: Long? = null,
     @SerialName("ready_cue") public val readyCue: Boolean? = null,
     @SerialName("ego_cost") public val egoCost: Int? = null,
+    @SerialName("max_targets") public val maxTargets: Int? = null,
     public val tags: List<String> = emptyList(),
 ) {
     /**
@@ -132,6 +133,7 @@ public data class SkillYamlConfig(
             chargeVariant = variant,
             readyCue = readyCue,
             egoCost = egoCost,
+            maxTargets = maxTargets,
         )
     }
 

@@ -8,20 +8,14 @@ import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.FluidCollisionMode
-import org.bukkit.GameMode
 import org.bukkit.Location
-import org.bukkit.Server
 import org.bukkit.World
-import org.bukkit.entity.ArmorStand
-import org.bukkit.entity.Entity
-import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
 import org.bukkit.util.Vector
 
 /**
  * Paper's [ProjectileWorldProbe]: ray-traces the segment a projectile sweeps in
  * one tick against solid blocks (`World#rayTraceBlocks`, passable blocks such as
- * grass/water ignored) and against entity hitboxes (`World#rayTraceEntities`,
+ * grass/water ignored) and against spatial-grid entity hitboxes (Bukkit box ray tests,
  * inflated by the projectile's hit radius). The nearer hit wins.
  *
  * Valid targets match the old vanilla-carrier listener: players (not the owner,
@@ -33,7 +27,7 @@ import org.bukkit.util.Vector
  * players and mobs through `ApplyDamageUseCase` / `IEntityDamageGateway`.
  */
 internal class PaperProjectileProbe(
-    private val server: Server,
+    private val grid: CombatSpatialGrid,
     private val teamLookup: () -> IMatchTeamLookup?,
     private val worldOf: (ProjectileFlight) -> World?,
 ) : ProjectileWorldProbe {
@@ -57,15 +51,22 @@ internal class PaperProjectileProbe(
         val ownerTeam = teamLookup()?.teamOf(owner)
         val radius = ProjectileStepper.radiusOf(flight.spec.hit)
         val maxEntityDistance = blockDistance ?: distance
-        val entity = world.rayTraceEntities(start, dir, maxEntityDistance, radius) { candidate ->
-            isValidTarget(candidate, owner, ownerTeam)
-        }
-        val entityHit = entity?.hitEntity
-        val entityPos = entity?.hitPosition
+        val end = from + Vec3(dir.x, dir.y, dir.z) * maxEntityDistance
+        val min = Vec3(minOf(from.x, end.x) - radius, minOf(from.y, end.y) - radius, minOf(from.z, end.z) - radius)
+        val max = Vec3(maxOf(from.x, end.x) + radius, maxOf(from.y, end.y) + radius, maxOf(from.z, end.z) + radius)
+        val entityHit = grid.candidates(com.astarworks.astera.core.domain.world.WorldId(world.name), min, max)
+            .asSequence().map(grid::refreshLocal)
+            .filter { it.damageable && it.id != owner && (ownerTeam == null || teamLookup()?.teamOf(it.id) != ownerTeam) }
+            .mapNotNull { s ->
+                org.bukkit.util.BoundingBox(s.min.x, s.min.y, s.min.z, s.max.x, s.max.y, s.max.z)
+                    .expand(radius).rayTrace(start.toVector(), dir, maxEntityDistance)?.hitPosition?.let { s.id to it }
+            }
+            .minByOrNull { (_, hit) -> hit.distanceSquared(start.toVector()) }
+        val entityPos = entityHit?.second
 
         return when {
             entityHit != null && entityPos != null ->
-                ProjectileContact.Entity(PlayerId(entityHit.uniqueId), Vec3(entityPos.x, entityPos.y, entityPos.z))
+                ProjectileContact.Entity(entityHit.first, Vec3(entityPos.x, entityPos.y, entityPos.z))
             block != null -> block.hitPosition.let { ProjectileContact.Block(Vec3(it.x, it.y, it.z)) }
             else -> null
         }
@@ -73,32 +74,13 @@ internal class PaperProjectileProbe(
 
     override fun homingTarget(flight: ProjectileFlight, radius: Double): Vec3? {
         val world = worldOf(flight) ?: return null
-        val center = Location(world, flight.position.x, flight.position.y, flight.position.z)
         val ownerTeam = teamLookup()?.teamOf(flight.owner)
-        return world.getNearbyEntities(center, radius, radius, radius) { isValidTarget(it, flight.owner, ownerTeam) }
-            .minByOrNull { it.location.distanceSquared(center) }
-            ?.let { e ->
-                val chest = e.location.add(0.0, e.height / 2.0, 0.0)
-                Vec3(chest.x, chest.y, chest.z)
-            }
-    }
-
-    private fun isValidTarget(
-        entity: Entity,
-        owner: PlayerId,
-        ownerTeam: com.astarworks.astera.core.domain.match.TeamId?,
-    ): Boolean {
-        if (entity.uniqueId == owner.uuid || entity.isDead) return false
-        return when (entity) {
-            is Player -> {
-                if (entity.gameMode == GameMode.SPECTATOR) return false
-                val team = teamLookup()?.teamOf(PlayerId(entity.uniqueId))
-                !(ownerTeam != null && team == ownerTeam)
-            }
-            is ArmorStand -> false
-            is LivingEntity -> !entity.isInvulnerable
-            else -> false
-        }
+        val extent = Vec3(radius, radius, radius)
+        return grid.candidates(com.astarworks.astera.core.domain.world.WorldId(world.name), flight.position - extent, flight.position + extent)
+            .map(grid::refreshLocal)
+            .filter { it.damageable && it.id != flight.owner && (ownerTeam == null || teamLookup()?.teamOf(it.id) != ownerTeam) }
+            .minByOrNull { it.feet.distanceSquared(flight.position) }
+            ?.let { it.feet + Vec3(0.0, it.height / 2.0, 0.0) }
     }
 
     private fun floorDiv16(v: Double): Int = Math.floorDiv(Math.floor(v).toInt(), 16)

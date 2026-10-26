@@ -125,14 +125,15 @@ public class VfxPlayer(
         val elements: List<ElementState> = plan.elements.map(::ElementState)
         var position: Vec3 = request.origin
         var age: Int = 0
+        var finished = false
+        var ticker: IScheduler.TaskHandle? = null
     }
 
-    private val instances: MutableList<Instance> = ArrayList()
-    private var reserved: Int = 0
-    private var ticker: IScheduler.TaskHandle? = null
+    private val instances = java.util.concurrent.CopyOnWriteArrayList<Instance>()
+    private val reserved = java.util.concurrent.atomic.AtomicInteger()
 
     /** Number of display entities currently reserved by live effects. */
-    public val liveDisplays: Int get() = reserved
+    public val liveDisplays: Int get() = reserved.get()
 
     public fun play(request: VfxRequest): Result<Unit, VfxPlayError> =
         ExecutionCosts.measure("vfx.play", request.vfxId.value) { playEffect(request) }
@@ -150,10 +151,15 @@ public class VfxPlayer(
             instances.filter { it.plan.follow && it.plan.replaceGroup == plan.replaceGroup &&
                 it.request.anchorEntityId == request.anchorEntityId && it.request.world == request.world }
         } else emptyList()
-        val remaining = reserved - replaced.sumOf { it.plan.displayCount }
-        if (remaining + plan.displayCount > maxLiveDisplays) {
-            log.debug("VFX {} dropped: {} after replacement + {} displays exceed cap {}", request.vfxId, remaining, plan.displayCount, maxLiveDisplays)
-            return Result.failure(VfxPlayError.OverCapacity(remaining, plan.displayCount, maxLiveDisplays))
+        val released = replaced.sumOf { it.plan.displayCount }
+        while (true) {
+            val current = reserved.get()
+            val remaining = current - released
+            if (remaining + plan.displayCount > maxLiveDisplays) {
+                log.debug("VFX {} dropped: {} after replacement + {} displays exceed cap {}", request.vfxId, remaining, plan.displayCount, maxLiveDisplays)
+                return Result.failure(VfxPlayError.OverCapacity(remaining, plan.displayCount, maxLiveDisplays))
+            }
+            if (reserved.compareAndSet(current, current + plan.displayCount)) break
         }
         // Keep the current effect if the new plan cannot fit; only replace after admission.
         val instance = Instance(request, plan, scheduler.currentTick(),
@@ -181,47 +187,37 @@ public class VfxPlayer(
             }
         }
         replaced.forEach(::finish)
-        reserved += plan.displayCount
         if (advance(instance)) {
             finish(instance)
         } else {
             instances += instance
-            if (ticker == null) ticker = scheduler.repeat(ExecutionScope.Global, ticks(1), ticks(1)) {
-                // Equal-tick FIFO dispatch puts this after already queued dash steps.
-                // Sample the anchor after movement, not halfway through the mechanic queue.
-                scheduler.run(ExecutionScope.Global, ticks(0)) { tickAll() }
+            val scope = ownerOf(instance)
+            instance.ticker = scheduler.repeat(scope, ticks(1), ticks(1)) { tick(instance) }
+            instance.ticker?.onRetired {
+                scheduler.run(regionScope(instance.request.world, instance.position), kotlin.time.Duration.ZERO) { finish(instance) }
             }
         }
+
         return Result.success(Unit)
     }
 
     /** Removes every live display and stops ticking. */
     public fun shutdown() {
-        instances.toList().forEach(::finish)
-        instances.clear()
-        ticker?.cancel()
-        ticker = null
+        for (instance in instances.toList()) scheduler.run(ownerOf(instance), kotlin.time.Duration.ZERO) { finish(instance) }
     }
 
-    private fun tickAll() {
-        for (instance in instances.toList()) {
-            scheduler.run(instance.request.anchorEntityId?.let { ExecutionScope.Entity(it.uuid) } ?: regionScope(instance.request.world, instance.position), kotlin.time.Duration.ZERO) {
+    private fun ownerOf(instance: Instance): ExecutionScope =
+        instance.request.anchorEntityId?.let { ExecutionScope.Entity(it.uuid) }
+            ?: regionScope(instance.request.world, instance.position)
 
-                // play() already processed age 0. A delayed cast can precede our shared ticker
-                // in this same server tick; it must not immediately consume age 1 as well.
-                if (instance.startedAt == scheduler.currentTick()) return@run
-                instance.age++
-                try {
-                    if (advance(instance)) finish(instance)
-                } catch (ex: Exception) {
-                    log.warn("VFX {} failed at age {}; stopping it", instance.request.vfxId, instance.age, ex)
-                    finish(instance)
-                }
-                        }
-        }
-        if (instances.isEmpty()) {
-            ticker?.cancel()
-            ticker = null
+    private fun tick(instance: Instance) {
+        if (instance.finished || instance.startedAt == scheduler.currentTick()) return
+        instance.age++
+        try {
+            if (advance(instance)) finish(instance)
+        } catch (ex: Exception) {
+            log.warn("VFX {} failed at age {}; stopping it", instance.request.vfxId, instance.age, ex)
+            finish(instance)
         }
     }
 
@@ -388,12 +384,15 @@ public class VfxPlayer(
     }
 
     private fun finish(instance: Instance) {
+        if (instance.finished) return
+        instance.finished = true
+        instance.ticker?.cancel()
         for (state in instance.elements) {
             state.handle?.let(displays::remove)
             state.handle = null
         }
         instances.remove(instance)
-        reserved = (reserved - instance.plan.displayCount).coerceAtLeast(0)
+        reserved.addAndGet(-instance.plan.displayCount)
     }
 
     public companion object {

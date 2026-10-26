@@ -40,7 +40,7 @@ internal class TargeterResolver(
 
     fun resolvePlayers(targeter: Targeter, ctx: MechanicContext): List<PlayerId> =
         ExecutionCosts.measure("target.query", ctx.castedSkills.lastOrNull()?.value ?: "unbound") {
-            selectPlayers(targeter, ctx)
+            selectPlayers(targeter, ctx).let { ids -> ctx.maxTargets?.let { ids.take(it) } ?: ids }
         }
 
     private fun selectPlayers(targeter: Targeter, ctx: MechanicContext): List<PlayerId> {

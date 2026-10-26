@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.skill.targeter.Targeter
 import com.astarworks.astera.core.domain.skill.value.IntValue
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
 
-/** Saturating structural lifetime operation estimate. Unknown population/work is unbounded, never guessed. */
+/** Saturating structural lifetime operation estimate. Population uses an explicit cap or the configured crowd assumption. */
 public object SkillCost {
     public fun add(a: Long, b: Long): Long = if (Long.MAX_VALUE - a < b) Long.MAX_VALUE else a + b
     public fun multiply(a: Long, b: Long): Long = when {
@@ -20,15 +20,27 @@ public object SkillCost {
     public fun estimate(
         phases: PhaseMechanics,
         params: SkillParams,
+        maxTargets: Int? = null,
+        assumedCrowdSize: Int = 16,
         skill: (SkillId) -> Long = { Long.MAX_VALUE },
         vfx: (VfxId) -> Long = { Long.MAX_VALUE },
         particle: (com.astarworks.astera.core.domain.effect.ParticleId, Long) -> Long = { _, _ -> Long.MAX_VALUE },
     ): Long {
+        require(assumedCrowdSize > 0)
+        val population = (maxTargets ?: assumedCrowdSize).toLong()
         fun count(value: IntValue): Long = (value as? IntValue.Literal)?.value?.coerceAtLeast(0)?.toLong() ?: Long.MAX_VALUE
         fun targets(t: Targeter): Long = when (t) {
             is Targeter.ForwardRay, is Targeter.NearbyEntities, is Targeter.Cone, is Targeter.Enemies, is Targeter.Allies,
-            is Targeter.Filter, is Targeter.Random -> Long.MAX_VALUE // query cost includes all candidates, even with maxCount
+            is Targeter.Filter, is Targeter.Random -> population
             else -> 1
+        }
+        fun condition(c: com.astarworks.astera.core.domain.skill.condition.Condition?): Long = when (c) {
+            null -> 0
+            is com.astarworks.astera.core.domain.skill.condition.Condition.Cel -> Long.MAX_VALUE
+            is com.astarworks.astera.core.domain.skill.condition.Condition.And -> add(condition(c.left), condition(c.right))
+            is com.astarworks.astera.core.domain.skill.condition.Condition.Or -> add(condition(c.left), condition(c.right))
+            is com.astarworks.astera.core.domain.skill.condition.Condition.Not -> condition(c.inner)
+            else -> multiply(32, multiply(population, population))
         }
         fun list(mechanics: List<Mechanic>): Long {
             var total = 0L
@@ -46,7 +58,7 @@ public object SkillCost {
                     is Mechanic.Choose -> m.weighted.maxOf { list(it.mechanics) }
                     is Mechanic.ForEachTarget -> list(m.mechanics)
                     is Mechanic.Counter -> list(m.onHit)
-                    is Mechanic.DashStrike -> Long.MAX_VALUE // per-tick unbounded swept candidates
+                    is Mechanic.DashStrike -> multiply(count(m.ticks), multiply(population, add(16, list(m.onHit))))
                     is Mechanic.CastSkill -> skill(m.skillId)
                     is Mechanic.PlayVfx -> vfx(m.vfxId)
                     is Mechanic.SpawnParticle -> particle(m.particleId, count(m.count).coerceAtLeast(1))
@@ -63,7 +75,7 @@ public object SkillCost {
                     is Mechanic.Explode, is Mechanic.Summon, is Mechanic.SummonLightning -> Long.MAX_VALUE // dependent fan-out
                     else -> 1L
                 }
-                total = add(total, if (m.condition != null) Long.MAX_VALUE else multiply(firings, multiply(targets(m.targets), add(1, work))))
+                total = add(total, multiply(firings, add(condition(m.condition), multiply(targets(m.targets), add(1, work)))))
             }
             return total
         }
@@ -76,9 +88,13 @@ public object SkillCost {
             is PhaseMechanics.Summon -> listOf(phases.cast, phases.spawn, phases.summonDeath)
             is PhaseMechanics.Sequence -> listOf(phases.cast)
         }
-        val mechanics = groups.fold(0L) { sum, group -> add(sum, list(group)) }
+        val mechanics = when (phases) {
+            is PhaseMechanics.Melee -> add(list(phases.cast), add(multiply(population, list(phases.hitEntity)), list(phases.miss)))
+            is PhaseMechanics.Aoe -> add(list(phases.cast), add(multiply(population, list(phases.hitEntity)), list(phases.expire)))
+            else -> groups.fold(0L) { sum, group -> add(sum, list(group)) }
+        }
         val baseline = when (params) {
-            is SkillParams.MeleeParams, is SkillParams.AoeParams -> Long.MAX_VALUE
+            is SkillParams.MeleeParams, is SkillParams.AoeParams -> multiply(16, population)
             is SkillParams.ProjectileParams -> multiply(params.maxLifetimeTicks.toLong(), 16)
             else -> 1L
         }

@@ -48,6 +48,11 @@
         "ego_cost": {
             "type": "integer"
         },
+        "max_targets": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Optional target limit; omitted means unlimited."
+        },
         "tags": {
             "type": "array",
             "items": {

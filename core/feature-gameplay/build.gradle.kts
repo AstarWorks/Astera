@@ -12,6 +12,7 @@ dependencies {
     api(project(":kernel:mc-api"))
     api(project(":kernel:paper"))
     api(project(":kernel:runtime"))
+    compileOnly(libs.packetevents.spigot)
     implementation(libs.slf4j.api)
     implementation(libs.kaml)
     testImplementation(project(":plugin:test-fixtures"))

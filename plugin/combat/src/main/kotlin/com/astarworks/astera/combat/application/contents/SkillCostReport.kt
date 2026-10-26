@@ -7,6 +7,8 @@ import com.astarworks.astera.core.domain.skill.SkillId
 
 /** Shared by runtime load logging and content-lint. Unknown/cyclic dependencies saturate. */
 public object SkillCostReport {
+    public val assumedCrowdSize: Int
+        get() = System.getProperty("astera.skills.assumedCrowdSize", "16").toInt().also { require(it > 0) }
     public fun particleCost(registry: com.astarworks.astera.core.application.port.outbound.IParticleRegistry?, id: com.astarworks.astera.core.domain.effect.ParticleId, count: Long): Long {
         val def = registry?.find(id) ?: return Long.MAX_VALUE
         val points = maxOf(def.bakedShape.pointCount?.toLong() ?: 1, if (count > 1) count else def.count.toLong())
@@ -30,6 +32,7 @@ public object SkillCostReport {
             if (id in stack) return Long.MAX_VALUE
             val spec = skills.find(id) ?: return Long.MAX_VALUE
             return SkillCost.estimate(spec.phases, spec.params,
+                maxTargets = spec.maxTargets, assumedCrowdSize = assumedCrowdSize,
                 skill = { estimate(it, stack + id) },
                 vfx = { vfxCost(vfx, it) },
                 particle = { id, count -> particleCost(particles, id, count) },

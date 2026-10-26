@@ -1,7 +1,5 @@
 package com.astarworks.astera.combat.adapter.paper
 
-import java.util.concurrent.CopyOnWriteArrayList
-
 import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IProjectileHandle
@@ -15,7 +13,6 @@ import com.astarworks.astera.combat.domain.projectile.ProjectileId
 import com.astarworks.astera.combat.domain.projectile.ProjectileSpec
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IScheduler
-import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -61,22 +58,26 @@ import java.util.UUID
  *
  * # Threading
  *
- * Everything runs on the Paper main thread (the `IScheduler` contract); the
- * flight list is a plain list.
+ * Chunk-anchored phases read and mutate the world on its owning region.
+ * Only immutable motion arithmetic is forked; contacts/impacts merge in UUID order.
  */
 public class PaperProjectileService(
     private val server: Server,
+    private val grid: CombatSpatialGrid,
+    private val phase: PaperCombatPhase,
+    private val compute: com.astarworks.astera.combat.application.service.CombatComputePool,
     private val scheduler: IScheduler,
-    worldGateway: IWorldGateway,
     teamLookup: () -> IMatchTeamLookup?,
 ) : IProjectileService {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
     /** One live projectile: the simulated flight plus its optional display entity. */
-    private class Live(val flight: ProjectileFlight, val world: World, var displayUuid: UUID?)
+    private class Live(val flight: ProjectileFlight, val world: World, var displayUuid: UUID?) {
+        var lastStepTick: Long = Long.MIN_VALUE
+    }
 
-    private val live: MutableList<Live> = CopyOnWriteArrayList()
+    private val live = java.util.concurrent.ConcurrentHashMap<UUID, Live>()
 
     private var tickHandle: IScheduler.TaskHandle? = null
 
@@ -89,8 +90,8 @@ public class PaperProjectileService(
 
     private val stepper = ProjectileStepper({ impactResolver })
 
-    private val probe = PaperProjectileProbe(server, teamLookup) { flight ->
-        live.firstOrNull { it.flight === flight }?.world
+    private val probe = PaperProjectileProbe(grid, teamLookup) { flight ->
+        live[flight.id.uuid]?.world
     }
 
     /** Bind the resolver that runs the impact / expire phases. */
@@ -104,7 +105,13 @@ public class PaperProjectileService(
      */
     public fun start(): IScheduler.TaskHandle {
         tickHandle?.cancel()
-        val handle = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 1L, periodTicks = 1L) { tickAll() }
+        phase.tickProjectiles = ::tickBatch
+        val handle = object : IScheduler.TaskHandle {
+            private var cancelled = false
+            override fun cancel() { cancelled = true; phase.tickProjectiles = {} }
+            override val isCancelled: Boolean get() = cancelled
+            override fun onRetired(cb: () -> Unit) = Unit
+        }
         tickHandle = handle
         return handle
     }
@@ -113,7 +120,10 @@ public class PaperProjectileService(
     public fun stop() {
         tickHandle?.cancel()
         tickHandle = null
-        for (entry in live.toList()) removeDisplay(entry)
+        for (entry in live.values.toList()) {
+            phase.removeProjectile(entry.flight.id.uuid)
+            scheduler.run(regionScope(com.astarworks.astera.core.domain.world.WorldId(entry.world.name), entry.flight.position), kotlin.time.Duration.ZERO) { removeDisplay(entry) }
+        }
         live.clear()
     }
 
@@ -141,26 +151,40 @@ public class PaperProjectileService(
         )
         val entry = Live(flight, world, displayUuid = null)
         spec.visual.display?.let { entry.displayUuid = spawnDisplay(world, it, origin, flight.velocity) }
-        live += entry
+        live[flight.id.uuid] = entry
+        phase.projectile(flight.id.uuid, com.astarworks.astera.core.domain.world.WorldId(world.name), origin)
         return LiveHandle(flight.id, entry)
     }
 
-    private fun tickAll() {
+    private fun tickBatch(ids: List<UUID>) {
         val now = scheduler.currentTick()
-        for (entry in live.toList()) {
-            scheduler.run(regionScope(com.astarworks.astera.core.domain.world.WorldId(entry.world.name), entry.flight.position), kotlin.time.Duration.ZERO) {
-
-                if (live.none { it === entry }) return@run // cancelled meanwhile
-                try {
-                    val outcome = stepper.step(entry.flight, now, probe) { live.remove(entry); removeDisplay(entry) }
-                    if (!outcome.isTerminal) moveDisplay(entry)
-                } catch (t: Throwable) {
-                    log.warn("PaperProjectileService: step failed for projectile={}; dropping it", entry.flight.id, t)
-                    live.remove(entry)
-                    removeDisplay(entry)
+        val entries = ids.mapNotNull { live[it] }.filter { it.lastStepTick != now }
+        val plans = compute.map(entries.map { entry ->
+            val f = entry.flight
+            com.astarworks.astera.combat.domain.compute.ProjectileMotionInput(f.position, f.velocity, f.spec.motion)
+        }, com.astarworks.astera.combat.domain.compute.ProjectileMotion::compute)
+        for ((index, entry) in entries.withIndex()) {
+            if (live[entry.flight.id.uuid] !== entry) continue
+            entry.lastStepTick = now
+            val p = entry.flight.position
+            check(server.isOwnedByCurrentRegion(entry.world, kotlin.math.floor(p.x).toInt() shr 4, kotlin.math.floor(p.z).toInt() shr 4))
+            try {
+                val outcome = stepper.step(entry.flight, now, probe, motion = plans[index]) { remove(entry) }
+                if (!outcome.isTerminal) {
+                    moveDisplay(entry)
+                    phase.projectile(entry.flight.id.uuid, com.astarworks.astera.core.domain.world.WorldId(entry.world.name), entry.flight.position)
                 }
-                        }
+            } catch (ex: Exception) {
+                log.warn("Projectile step failed for {}; dropping it", entry.flight.id, ex)
+                remove(entry)
+            }
         }
+    }
+
+    private fun remove(entry: Live) {
+        live.remove(entry.flight.id.uuid, entry)
+        phase.removeProjectile(entry.flight.id.uuid)
+        removeDisplay(entry)
     }
 
     // ---- display entity -------------------------------------------------
@@ -199,20 +223,26 @@ public class PaperProjectileService(
     private fun moveDisplay(entry: Live) {
         val uuid = entry.displayUuid ?: return
         val entity = server.getEntity(uuid)
-        if (entity == null || entity.isDead) {
+        if (entity == null) {
             entry.displayUuid = null
             return
         }
         val p = entry.flight.position
         val loc = Location(entry.world, p.x, p.y, p.z).apply { setDirection(entry.flight.velocity.toBukkit()) }
-        entity.teleportAsync(loc)
+        scheduler.run(ExecutionScope.Entity(uuid), kotlin.time.Duration.ZERO) {
+            check(server.isOwnedByCurrentRegion(entity))
+            if (!entity.isDead) entity.teleportAsync(loc)
+        }
     }
 
     private fun removeDisplay(entry: Live) {
         val uuid = entry.displayUuid ?: return
         entry.displayUuid = null
         val entity = server.getEntity(uuid)
-        if (entity != null && !entity.isDead) entity.remove()
+        if (entity != null) scheduler.run(ExecutionScope.Entity(uuid), kotlin.time.Duration.ZERO) {
+            check(server.isOwnedByCurrentRegion(entity))
+            if (!entity.isDead) entity.remove()
+        }
     }
 
     private fun materialOf(key: String): Material =
@@ -224,10 +254,12 @@ public class PaperProjectileService(
         if (lengthSquared() == 0.0) org.bukkit.util.Vector(0.0, 0.0, 1.0) else org.bukkit.util.Vector(x, y, z)
 
     private inner class LiveHandle(override val id: ProjectileId, private val entry: Live) : IProjectileHandle {
-        override val isAlive: Boolean get() = live.any { it === entry }
+        override val isAlive: Boolean get() = live[id.uuid] === entry
         override val position: Vec3? get() = entry.flight.position
         override fun cancel() {
-            if (live.remove(entry)) removeDisplay(entry)
+            scheduler.run(regionScope(com.astarworks.astera.core.domain.world.WorldId(entry.world.name), entry.flight.position), kotlin.time.Duration.ZERO) {
+                if (live[id.uuid] === entry) remove(entry)
+            }
         }
     }
 
