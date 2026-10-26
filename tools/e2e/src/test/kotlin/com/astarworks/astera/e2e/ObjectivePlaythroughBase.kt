@@ -21,6 +21,7 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         val bots: List<Bot>,
         val lobbyTitle: String?,
         val chatFrom: Map<Bot, Int>,
+        val titlesFrom: Map<Bot, Int>,
         val logFrom: Int,
         val objectives: StageObjectives,
         val actor: Bot,
@@ -33,6 +34,8 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         fun zone(name: String): Pair<Double, Double> =
             (objectives.zoneCentre(name) ?: error("stage has no region '$name'")).let { (zx, zz) -> zx + originX to zz + originZ }
         fun chat(b: Bot = actor): List<String> = b.chat.drop(chatFrom.getValue(b)).map { it.text.replace(Regex("§.|\u001B\\[[0-9;]*m"), "") }
+        /** Big-screen titles and subtitles received since the match was queued (the VICTORY / DEFEAT verdict is a subtitle). */
+        fun titles(b: Bot = actor): List<String> = b.titles.drop(titlesFrom.getValue(b)).map { it.text.replace(Regex("§.|\u001B\\[[0-9;]*m"), "") }
         fun chatCount(needle: String, b: Bot = actor): Int = chat(b).count { it.contains(needle, ignoreCase = true) }
     }
 
@@ -46,6 +49,7 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         Thread.sleep(1_500)
         val lobbyTitle = bots[0].sidebarTitle()
         val chatFrom = bots.associateWith { it.chat.size }
+        val titlesFrom = bots.associateWith { it.titles.size }
 
         val tQueue = System.nanoTime()
         bots.forEach { it.command("astera queue join $lane") }
@@ -77,7 +81,7 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         }
         // Stars are picked up on the way; the Norma goal KILL keeps them from levelling the actor up to a Norma win before the objective.
         val walker = ObjectiveWalker(actor, objectives, originX = originX.toDouble(), originZ = originZ.toDouble(), periodic = { bots.forEach { it.command("astera norma choose kill") } })
-        return Ctx(suite, lane, bots, lobbyTitle, chatFrom, logFrom, objectives, actor, idle, walker, originX.toDouble(), originZ.toDouble())
+        return Ctx(suite, lane, bots, lobbyTitle, chatFrom, titlesFrom, logFrom, objectives, actor, idle, walker, originX.toDouble(), originZ.toDouble())
     }
 
     /** The match must end on its own (winner / time-limit tie-break), then summary, rewards, lobby and a clean log. */
@@ -99,11 +103,12 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             "verdict lines: ${chat.filter { it.contains("VICTORY") || it.contains("DEFEAT") || it.contains("Victory") || it.contains("Ended by") || it.contains("reached Norma") || it.contains("was ahead") }.take(6)}"
         }
         E2eReport.check(ctx.suite, "each player is told their verdict (the winner VICTORY, the other DEFEAT)", "SystemChat") {
-            val mine = ctx.chat(ctx.actor).joinToString("\n")
-            val theirs = ctx.chat(ctx.idle).joinToString("\n")
+            // The verdict is the match-end subtitle (MatchEndSummaryListener.pushTitle), not a chat line.
+            val mine = (ctx.chat(ctx.actor) + ctx.titles(ctx.actor)).joinToString("\n")
+            val theirs = (ctx.chat(ctx.idle) + ctx.titles(ctx.idle)).joinToString("\n")
             if (actorWins) {
-                assertThat(mine).describedAs("objective actor was not told VICTORY:\n${quote(ctx.chat(ctx.actor), 30)}").containsIgnoringCase("VICTORY")
-                assertThat(theirs).describedAs("idle bot was not told DEFEAT:\n${quote(ctx.chat(ctx.idle), 30)}").containsIgnoringCase("DEFEAT")
+                assertThat(mine).describedAs("objective actor was not told VICTORY:\n${quote(ctx.chat(ctx.actor) + ctx.titles(ctx.actor), 30)}").containsIgnoringCase("VICTORY")
+                assertThat(theirs).describedAs("idle bot was not told DEFEAT:\n${quote(ctx.chat(ctx.idle) + ctx.titles(ctx.idle), 30)}").containsIgnoringCase("DEFEAT")
             } else {
                 // Bot-vs-bot fight: either side may win, a draw is possible; each must still be shown a verdict.
                 listOf(mine, theirs).forEach { assertThat(it).containsPattern("(?i)VICTORY|DEFEAT|DRAW") }
