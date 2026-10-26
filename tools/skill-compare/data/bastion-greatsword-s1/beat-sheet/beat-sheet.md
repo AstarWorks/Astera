@@ -165,6 +165,30 @@ FRONT = seen from the enemy (caster's right = screen left)
 |    f..g...h        C..a .  . .. ..      |
 ```
 
+## Reference check: where the sheet's reading of Limbus is certain and where it is not
+
+Under each stick diagram below, the red-labelled strip shows the reference video frames of that beat (skill ticks, 20 TPS from `start_s` 11.633), so you can compare our numbers with Limbus directly.
+
+**Certain (read from successive frames)**
+- t0-5: the coil is still. The blade lies on the floor behind the caster, and the caster is three-quarters to the camera.
+- t6-8: cut 1 appears as a gold ring that sweeps CCW. The first big frame is t7 (close-up with sparks), the hit.
+- t9-17: the follow-through. The ring closes by about t16 and the blade ends behind.
+- t19-27: the blade rests on the floor ahead of the caster's left (screen-left), and the caster faces away.
+- t30-33: the close-ups of cut 2.
+- t33-38: the thrust with a ring around it, held.
+- t39-41: the blade comes back to the coil.
+
+**AMBIGUOUS (flagged for the founder at gate 1)**
+
+| beat | what is unclear in the reference | what we assumed |
+|---|---|---|
+| B1-B2 (t4-5) | The reference is still. It shows no lift or wind-back, so our wind-back at t3-4 and the early travel at t4-5 are a deliberate deviation. | The wind-back gives cut 1 an anticipation. Lint is expected to FAIL at t4-5. |
+| B3 and B4 (cut 1's far half) | The blade leaves the camera plane toward the far side, so the 2D picture does not show how high it is or how deep. | Height 1.2-1.6 from the raised-camera overlap, and a continuous CCW arc from the top view. |
+| B6 settle (t16-19) | The smear is gone and the blade is seen only from the side, so the path down to the floor is unclear. | A straight drop to the floor behind, while the body keeps turning CCW. |
+| B8 turn (t27-29) | The cape hides the back, and the blade barely moves. The body reversal is seen only in the shoulders. | A 60 degrees CW body turn at t27-29, with the dash starting at t28. |
+| B9 (t29-31) | The close-up frames crop the blade, so the low sweep's depth is a guess. | A shin-height sweep around the far side, ending in the thrust. |
+| B11 (t38-40) | The near arc is mostly depth. | The sweep passes the near (right) side along the floor. |
+
 ## Stick diagrams per beat (top / side = compare camera / front = from the enemy)
 
 These are drawn from the shipped keys.
