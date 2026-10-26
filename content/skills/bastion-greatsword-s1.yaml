@@ -1,6 +1,6 @@
 # Zwei West Section 3 Ishmael, Knight's Greatsword Form (video 11.633-14.233): two waist-high sweeps. Director integration (pilot, ONE rig).
 # bastion-s1-rig plays at skill tick 0 for the whole skill (freeze 7/31 = the two hit_stops; r23 hit-1 contact tick 7 = reference t7, was 8); fx-high/low play at 3/27 (contact = effect tick 4; hit-stops 7 / 31): the rings track the per-tick swing from its start (ADR-0278).
-# Motion follows the reference: no caster travel during the coil / hit 1 (the hit-1 dash_strike was removed); the only step-in is the lunge into hit 2 (dash_strike 28-31). Settle sound 19.
+# Caster travel (founder 2026-10-27): step-in 1.0 over t4-6 into hit 1 and lunge 1.2 over t28-30 into hit 2; both stop dead at the contact tick (hit-stop 7 / 31). Settle sound 19.
 # Sounds: deliver/sound-cues.yaml; vanilla particles ride the blade inside fx-high/low (deliver/particle-cues.yaml round 7b); no spawn_particle steps remain here (no electric_spark user since r9; ADR-0274 ember/spark channels). Caster movement: lunge into hit 2 only.
 id: bastion-greatsword-s1
 name: {ja: 月輪の薙ぎ, en: Moon Sweep}
@@ -147,7 +147,17 @@ phases:
       distance: {type: literal, value: 3.6}
     delay_ticks: {type: literal, value: 7}
   - type: dash_strike
-    distance: 0.7
+    distance: 1.0
+    ticks: 3
+    radius: 0.3
+    hit_once: true
+    stop_on_block: true
+    follow_pitch: false
+    on_hit: []
+    stop_before_target: 1.7
+    delay_ticks: {type: literal, value: 4}
+  - type: dash_strike
+    distance: 1.2
     ticks: 3
     radius: 0.3
     hit_once: true
