@@ -54,7 +54,7 @@ signatures; no feature library depends on the plugin host. External libraries re
   These are merged in `feature-gameplay`. Existing cross-module smart casts require
   `BlockDrop`, `CustomBlockSpec`, `ItemSpec`, `Portal` and `RegionRule`
   to share that compilation boundary with their consumers. Their dependent ports move with them.
-- Amended by [ADR-0274](../adr/0274-hud-and-weapon-limit-placement-after-core-split.md): `HudLayout` and
+- Amended by [ADR-0277](../adr/0277-hud-and-weapon-limit-placement-after-core-split.md): `HudLayout` and
   `HudChannels` live in `:kernel:domain` and `IHudGateway` in `:kernel:runtime`, because `kernel:paper`'s
   `PaperPlayer.sendActionBar` routes through the HUD gateway and the kernel cannot depend on gameplay.
   `WeaponCategory`, `WeaponLimits` and `IWeaponLimitProvider` sit in `:core:feature-gameplay` (they need `ItemSpec`).

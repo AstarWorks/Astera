@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0274: HUD, weapon-limit and cosmetics placement after the core split
+# ADR-0277: HUD, weapon-limit and cosmetics placement after the core split
 
 ## Status
 
