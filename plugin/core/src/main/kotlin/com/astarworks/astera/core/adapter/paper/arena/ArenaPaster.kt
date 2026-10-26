@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 import org.bukkit.World
 import org.bukkit.block.data.BlockData
 import org.bukkit.plugin.java.JavaPlugin
+import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
@@ -21,6 +22,8 @@ internal class ArenaPaster(
     private val scheduler: IScheduler,
     private val blocksPerTick: Int,
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     sealed interface Error {
         data class WriteFailed(val detail: String) : Error
         data object Retired : Error
@@ -59,7 +62,7 @@ internal class ArenaPaster(
         val pending = AtomicInteger(chunks.size)
         for ((chunk, entries) in chunks) {
             val scope = ExecutionScope.Region(WorldId(world.name), chunk.first, chunk.second)
-            val cache = HashMap<String, BlockData>()
+            val cache = HashMap<String, BlockData?>()
             var cursor = 0
             fun schedule(delay: Duration) {
                 if (result.isDone) return
@@ -70,7 +73,13 @@ internal class ArenaPaster(
                             val end = minOf(entries.size, cursor + allowance())
                             while (cursor < end) {
                                 val (pos, state) = entries[cursor++]
-                                val wanted = cache.getOrPut(state) { plugin.server.createBlockData(state) }
+                                // An unparseable block-data string must not abort the whole paste (it once left the lobby
+                                // without NPCs/holograms): skip just that block and say so loudly.
+                                val wanted = if (state in cache) cache[state] else runCatching { plugin.server.createBlockData(state) }
+                                    .onFailure { log.error("Invalid block data '{}' at ({}, {}, {}) in world '{}': {}; block skipped",
+                                        state, pos.x, pos.y, pos.z, world.name, it.message) }
+                                    .getOrNull().also { cache[state] = it }
+                                if (wanted == null) continue
                                 val block = world.getBlockAt(pos.x, pos.y, pos.z)
                                 if (capture) journal.before.putIfAbsent(pos, block.blockData.clone())
                                 block.setBlockData(wanted, false)
