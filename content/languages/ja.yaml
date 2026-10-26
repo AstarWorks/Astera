@@ -635,6 +635,7 @@ astera:
           sold_out: "<dark_red>売り切れ</dark_red>"
           carrying: "<green>所持中です</green>"
           take_copy: "<yellow>クリックでもう1本受け取る（無料）</yellow>"
+        recommended: "<light_purple>最初のおすすめ</light_purple> <gray>- 銃と剣に杖を加えよう</gray>"
         owned: "<green>購入済み <dark_gray>(一度買えば永久にあなたのもの)</dark_gray></green>"
         page:
           prev: "<yellow>前のページ <gray>({page}/{pages})</gray></yellow>"

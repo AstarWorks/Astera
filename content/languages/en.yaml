@@ -628,6 +628,7 @@ astera:
           carrying: "<green>You are carrying it</green>"
           take_copy: "<yellow>Click to take another copy (free)</yellow>"
         owned: "<green>Owned <dark_gray>(bought once, yours for good)</dark_gray></green>"
+        recommended: "<light_purple>Recommended first buy</light_purple> <gray>- a staff to go with your gun and sword</gray>"
         page:
           prev: "<yellow>Previous page <gray>({page}/{pages})</gray></yellow>"
           next: "<yellow>Next page <gray>({page}/{pages})</gray></yellow>"

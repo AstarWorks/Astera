@@ -33,8 +33,8 @@ class ShopPurchaseE2eTest : E2eBase() {
     private fun gold(b: Bot): Long =
         Regex("GOLD:\\s*(\\d+)").find(plain(listOf(rcon("astera economy balance ${b.name} GOLD"))).first())?.groupValues?.get(1)?.toLong() ?: -1L
 
-    private fun hasDagger(b: Bot): Boolean =
-        listOf("container.*", "hotbar.*").any { rcon("execute if items entity ${b.name} $it minecraft:stone_sword").contains("passed") }
+    private fun hasStaff(b: Bot): Boolean =
+        listOf("container.*", "hotbar.*").any { rcon("execute if items entity ${b.name} $it minecraft:blaze_rod").contains("passed") }
 
     @Test
     fun `buying a shop weapon asks to confirm, charges the price and delivers the item`() {
@@ -44,7 +44,7 @@ class ShopPurchaseE2eTest : E2eBase() {
         Thread.sleep(500)
 
         var shop: ScreenView? = null
-        E2eReport.check(suite, "the shop lists the weapons (dagger first, 150 GOLD) and shows no raw keys", "ClientboundOpenScreen + SetContainerContent") {
+        E2eReport.check(suite, "a newcomer sees the recommended staff first (150 GOLD), no GEM in the wallet, no raw keys", "ClientboundOpenScreen + SetContainerContent") {
             val s = openShop(b)
             shop = s
             val items = b.contents[s.containerId].orEmpty()
@@ -64,23 +64,23 @@ class ShopPurchaseE2eTest : E2eBase() {
             "chat=$lines"
         }
 
-        E2eReport.check(suite, "second click pays 150 GOLD and the dagger arrives in the real inventory", "SystemChat + RCON balance + inventory") {
+        E2eReport.check(suite, "second click pays 150 GOLD and the staff arrives in the real inventory", "SystemChat + RCON balance + inventory") {
             val chatFrom = b.chat.size
             Thread.sleep(600)
             click(b, s, 0)
             val lines = plain(b.chatSince(chatFrom))
             assertThat(lines.any { it.contains("Purchased") }).describedAs("no purchase confirmation; chat=$lines").isTrue()
             assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
-            b.waitUntil(3_000) { hasDagger(b) }
+            b.waitUntil(3_000) { hasStaff(b) }
             assertThat(gold(b)).describedAs("GOLD after paying 150").isEqualTo(0L)
-            assertThat(hasDagger(b)).describedAs("no stone sword (dagger) in the server inventory").isTrue()
+            assertThat(hasStaff(b)).describedAs("no blaze rod (frost-staff) in the server inventory").isTrue()
             "chat=$lines"
         }
 
         E2eReport.check(suite, "with 0 GOLD another offer is refused with the shortfall and nothing is charged", "SystemChat + RCON balance") {
             val chatFrom = b.chat.size
             Thread.sleep(600)
-            click(b, s, 1) // frost-staff, 150 GOLD, wallet is empty
+            click(b, s, 1) // dagger, 150 GOLD, wallet is empty
             Thread.sleep(600)
             click(b, s, 1)
             val lines = plain(b.chatSince(chatFrom))

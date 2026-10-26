@@ -10,10 +10,11 @@ Owner track `wp/economy-life`. Seed: audit 2026-10-26. Items: Board prefix `ECO-
 - `docs/game-design/{meta,progression,place,ugc}/README.md` are 1-2 line stubs; there is no progression design.
 
 ## 現状
-- GOLD only; GEM defined but has no source or sink. Match rewards in `content/balance/match-rewards.yaml` (join 10 / win 120 / loss 35 / kill 5 / MVP 35; annihilation win 180; pve win 70).
+- GOLD only; GEM defined but has no source or sink (hidden from the wallet tile). Match rewards in `content/balance/match-rewards.yaml` (join 10 / win 120 / loss 35 / kill 5 / MVP 35; annihilation win 180; pve win 70).
 - Shop `content/shops/example-shop.yaml`: 18 offers priced by rarity (uncommon 150-250, rare 350-400, epic 500-600), `limit: once`, 2-click confirm >=100 G. Starter weapons and dev items are not sold. Every previously unobtainable weapon is now a shop offer or an achievement/level reward.
 - Starter grant (`starter-grant.yaml`): pistol + knight-sword (fills the norma weapon cap); a staff is bought.
 - Post-match reward block ends with one line naming the cheapest unowned shop unlock and the GOLD gap (or "you can afford"), so the loop match -> GOLD -> shop is spelled out (`NextUnlockFinder`; e2e: playthrough "reward block points at the next shop unlock").
+- A player who has bought nothing yet sees the `recommended: true` offer (frost-staff, completing gun/sword/staff) pinned first in the shop with a badge. The wallet tile lists GEM only once a balance exists (GEM has no source).
 - Purchase flow pinned from a client by `ShopPurchaseE2eTest` (confirm click, exact charge, delivery, shortfall refusal).
 - Level rewards Lv2-30 with round GOLD, titles and cosmetics (`content/progression/level-rewards.yaml`); cosmetics layer (titles, name colours, kill effects) is the second GOLD sink; 14 achievements all pay GOLD.
 - Daily/weekly missions, 7-day login bonus (monotonic, day7 peak), quests; `/astera daily|missions|quests|achievements`.
