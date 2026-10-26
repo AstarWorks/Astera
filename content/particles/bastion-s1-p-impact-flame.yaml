@@ -1,0 +1,9 @@
+# r28 impact: flames flung out.
+id: bastion-s1-p-impact-flame
+shape: { kind: burst, spread_blocks: 0.1 }
+color: { r: 255, g: 255, b: 255 }
+count: 6
+lifetime_ticks: 12
+vanilla_particle: flame
+velocity: { direction: outward, speed: 0.12, spread_degrees: 0, speed_jitter: 0.5 }
+force: true

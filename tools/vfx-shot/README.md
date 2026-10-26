@@ -111,7 +111,16 @@ opponent視点のTargetは最大HP200で全回復してから撮影する(多段
 |---|---|---|
 | `caster` | the caster, first person (`Caster`) | husk (AI off) 4 blocks ahead |
 | `opponent` | the target (`Target`) looking at the caster | caster is a second real client (small, 480x270) |
-| `side` | `Watcher` in spectator, 6 blocks to the side, looking at the midpoint | caster client + husk target |
+| `side` | `Watcher` in spectator, 6 blocks off the caster's left, looking at the midpoint | caster client + husk target |
+| `right` | as `side`, from the caster's right | caster client + husk target |
+| `front` | `Watcher` ahead of the caster, 2 blocks beside the target line (+1.7 up), looking back at the caster's chest | caster client + husk target |
+| `back` | `Watcher` 5 blocks behind the caster (+2.0 up), looking at its chest | caster client + husk target |
+| `high` | `Watcher` back-left, 5.8 up, looking ~45 deg down at the swing | caster client + husk target |
+| `near` | `Watcher` at eye height ~2.4 blocks off the caster's left (a bystander) | caster client + husk target |
+
+The orbit views (`side`, `right`, `front`, `back`, `high`, `near`) are placed by `orbit_cam` in `vfx-shot.sh`; use them to check
+that an effect reads from every angle (founder 2026-10-26), not only from the compare camera. Publish each with
+`publish-capture.mjs <dir> <root> <skill> <view>`; skill-compare lists them in the in-game source menu.
 | `compare` | `Watcher` in spectator, camera from a skill-compare case | caster client (facing +x, nametag hidden) + husk (200 HP, speed 0 + follow range 0 instead of NoAI, which ignores knockback) `ENEMY_X` ahead, on a 61x61 light-grey concrete floor |
 
 The cast is `/astera skill cast <skill> Caster --force` (existing operator command, ADR-0196: the regular

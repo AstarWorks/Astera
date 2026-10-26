@@ -136,7 +136,7 @@ def emission_ticks(el, duration):
     s, e = element_span(el, duration)
     if kind.get("type") == "particle":
         every = max(1, int(kind.get("every_ticks", 1)))
-        return [t for t in range(s, e + 1, every)]
+        return [t for t in range(s, e, every)]  # end exclusive, as VfxTimeline (`0 until life step everyTicks`, life = end - start)
     if "emit" in el:
         em = el["emit"]
         n = max(1, math.ceil(float(em.get("count", 1)) / max(float(em.get("rate_per_tick", 1)), 1e-6)))
