@@ -112,10 +112,8 @@ export function makeHandler(opts = {}) {
           const { revision, extension, meta } = readJson(pointer);
           // A capture is never hidden for its revisions (only for being invalid): null = "unknown", different = "stale", both get a badge.
           if (!/^[a-f0-9]{64}$/.test(revision) || (meta.captureQuality?.invalid && meta.auto?.kind !== "preview")) continue;
-          const known = meta.referenceRevision && meta.caseContentRevision;
-          const caseRev = !referenceRevision && !contentRevision ? "match"
-            : !known ? "unknown"
-            : (!referenceRevision || meta.referenceRevision === referenceRevision) && (!contentRevision || meta.caseContentRevision === contentRevision) ? "match" : "stale";
+          // STALE = the reference (video/trim) changed after this capture; the skill content version is the capture's own sha (auto/implementationCommit), never compared to case.json.
+          const caseRev = !referenceRevision ? "match" : !meta.referenceRevision ? "unknown" : meta.referenceRevision === referenceRevision ? "match" : "stale";
           info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`,
             count: meta.frames, fps: meta.fps || 20, castFrame: Math.round(((meta.cast_tick_ms ?? 0) * (meta.fps || 20)) / 1000), extension, revision, prov: { ...provOf(meta), published: true, caseRev } };
         } catch { /* Never fall back to a partially overwritten source after publication. */ }

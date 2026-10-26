@@ -946,7 +946,7 @@ orbit_cam() {
 import math, sys
 v, cx, y, cz, d = sys.argv[1], *map(float, sys.argv[2:])
 cams = {  # (camera offset, look-at offset) from the caster feet; x = +east = the caster left, z = forward
-    "side": ((-6.0, 1.0, d / 2), None),  # the caster's RIGHT: screen-right = forward, same orientation as the skill-compare reference
+    "side": ((-6.0, 1.0, d / 2), None),  # the caster RIGHT side: screen-right = forward, same orientation as the skill-compare reference
     "right": ((6.0, 1.0, d / 2), None),
     "front": ((2.0, 1.7, d + 3.0), (0.0, 1.2, 0.6)),
     "back": ((-1.0, 2.0, -5.0), (0.0, 1.2, 0.8)),
