@@ -5,7 +5,6 @@ id: bastion-s3-rig
 duration_ticks: 96
 orient: yaw
 follow: true
-follow_pitch: true
 attach_to_anchor: true
 sample_ticks: 1
 body: bastion-s3-body
