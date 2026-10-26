@@ -85,10 +85,11 @@ public class RemoveFromMatchUseCase(
         // would surface there too.
         worldGateway.lobbySpawn(playerId)
 
-        // A running match loses the seat for good: the roster no longer lists the player, so the result,
-        // win rewards and win/loss records only concern those who stayed (a forfeit is recorded as a loss
-        // by its own event), and the inventory snapshot hands their pre-match items back.
-        if (match.phase == MatchPhase.ACTIVE || match.phase == MatchPhase.SUDDEN_DEATH) {
+        // A match in COUNTDOWN or running loses the seat for good: the roster no longer lists the player, so the
+        // result, win rewards and win/loss records only concern those who stayed (a forfeit is recorded as a loss
+        // by its own event), the match does not start with a ghost, and the inventory snapshot (taken at entry)
+        // hands their pre-match items back.
+        if (match.phase == MatchPhase.COUNTDOWN || match.phase == MatchPhase.ACTIVE || match.phase == MatchPhase.SUDDEN_DEATH) {
             matches.save(match.copy(teams = match.teams.map { it.copy(members = it.members - playerId) }))
             eventBus.publish(PlayerLeftMatch(matchId = matchId, playerId = playerId))
         }

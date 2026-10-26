@@ -493,6 +493,8 @@ public class GameSim private constructor(
             standaloneTeams: Boolean = true,
             /** Overrides the default no-op arena builder (every arena "built") so a scenario can drive arena readiness. */
             arenas: com.astarworks.astera.core.application.port.outbound.IArenaBuilder? = null,
+            /** Stand-in for the Redis link to the bot runner (ADR-0248); `null` = "bots unavailable", like a server without Redis. */
+            botGateway: com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway? = null,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
@@ -504,6 +506,9 @@ public class GameSim private constructor(
             services.register<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(
                 com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer(seed),
             )
+            if (botGateway != null) {
+                services.register<com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway>(botGateway, priority = 100)
+            }
             val recorder = TraceRecorder(scenarioName, groundY)
             val mcServer = SimMcServer(world)
             val broadcaster = FakeBroadcaster()

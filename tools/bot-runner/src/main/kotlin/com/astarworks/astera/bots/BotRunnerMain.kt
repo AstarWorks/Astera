@@ -82,6 +82,7 @@ class BotRunner(private val config: RunnerConfig) : AutoCloseable {
     private val log = LoggerFactory.getLogger(javaClass)
     private val names = BotNames()
     private val active = ConcurrentHashMap<String, BotSession>()
+    private val groups = ConcurrentHashMap<String, List<BotSession>>()
     private val pool = Executors.newCachedThreadPool { r -> Thread(r, "bot-session").also { it.isDaemon = true } }
     private val client = RedisClient.create(config.redisUri)
     private val publisher = client.connect().sync()
@@ -90,10 +91,13 @@ class BotRunner(private val config: RunnerConfig) : AutoCloseable {
     fun start() {
         subscriber.addListener(object : RedisPubSubAdapter<String, String>() {
             override fun message(channel: String, message: String) {
-                if (channel == BotMatchWire.REQUEST_CHANNEL) pool.execute { handle(message) }
+                when (channel) {
+                    BotMatchWire.REQUEST_CHANNEL -> pool.execute { handle(message) }
+                    BotMatchWire.RELEASE_CHANNEL -> release(message)
+                }
             }
         })
-        subscriber.sync().subscribe(BotMatchWire.REQUEST_CHANNEL)
+        subscriber.sync().subscribe(BotMatchWire.REQUEST_CHANNEL, BotMatchWire.RELEASE_CHANNEL)
         log.info("bot-runner ready: listening on {}, cap {} bots, lobby={} game={}", BotMatchWire.REQUEST_CHANNEL, config.maxBots, config.lobbyHost, config.gameHost)
     }
 
@@ -129,8 +133,12 @@ class BotRunner(private val config: RunnerConfig) : AutoCloseable {
                 val chosen = names.take(request.count)
                 group.names = chosen
                 chosen.map { name ->
-                    BotSession(name, lane, config, objectives, group, onEnd = { active.remove(name); names.release(name) }).also { active[name] = it }
-                }
+                    BotSession(name, lane, config, objectives, group, onEnd = {
+                        active.remove(name)
+                        names.release(name)
+                        groups.computeIfPresent(id) { _, rest -> rest.filter { it.name != name }.ifEmpty { null } }
+                    }).also { active[name] = it }
+                }.also { groups[id] = it }
             }
         }
         if (sessions.isEmpty()) {
@@ -139,6 +147,21 @@ class BotRunner(private val config: RunnerConfig) : AutoCloseable {
         }
         status(id, BotState.SPAWNING, group.names)
         sessions.forEach { s -> pool.execute { s.run() } }
+    }
+
+    /**
+     * The player the bots of a request came for left the queue (lobby `BotRelease`): log those bots out, otherwise they
+     * sit queued until [RunnerConfig.queueTimeoutMinutes] and pile up with the next request. A bot already in its
+     * match is not affected: the lobby only releases bots that have not been drawn into a match.
+     */
+    private fun release(message: String) {
+        val release = BotMatchWire.decodeRelease(message) ?: run {
+            log.warn("ignoring malformed bot release '{}'", message.take(200))
+            return
+        }
+        val sessions = groups[release.requestId].orEmpty()
+        log.info("release {}: stopping {} bot(s) ({})", release.requestId, sessions.size, release.reason)
+        sessions.forEach { it.stop("released: ${release.reason}") }
     }
 
     override fun close() {

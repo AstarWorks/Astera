@@ -99,16 +99,31 @@ internal object MatchSessionWiring {
                         services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()?.rearm(player)
                     },
                 )
+            val forfeitSettler =
+                com.astarworks.astera.match.application.eventbus.listeners.ForfeitMatchSettler(
+                    matches = matches,
+                    end = { matchId, reason -> facade.end(matchId, reason) },
+                    cancelCountdown = { matchId ->
+                        // Same notice as a countdown that ran out of players; the lobby return follows MatchEnded.
+                        matches.findById(matchId)?.teams?.flatMap { it.members }.orEmpty().forEach { member ->
+                            playerGateway.sendMessage(
+                                member,
+                                env.msgRenderer.render(
+                                    member,
+                                    com.astarworks.astera.core.domain.i18n.MessageKey("astera.match.matchmaking.insufficient-cancelled"),
+                                    emptyMap(),
+                                ),
+                            )
+                        }
+                        facade.end(matchId, com.astarworks.astera.core.domain.event.EndReason.Cancelled("opponents-left"))
+                    },
+                )
             val disconnectListener =
                 com.astarworks.astera.match.application.eventbus.listeners.DisconnectDuringMatchListener(
                     sessionRepo, matches, removeFromMatch, applyForfeit, eventBus, scheduler,
                     // The stars wiring is installed later (MatchGameplayWiring); resolved when somebody leaves.
                     onLeaving = { matchId, player -> env.stars?.drops?.onLeft(matchId, player) },
-                )
-            val forfeitSettler =
-                com.astarworks.astera.match.application.eventbus.listeners.ForfeitMatchSettler(
-                    matches = matches,
-                    end = { matchId, reason -> facade.end(matchId, reason) },
+                    onCountdownLeft = { matchId, team -> forfeitSettler.onLeftCountdown(matchId, team) },
                 )
             val reconnectListener =
                 com.astarworks.astera.match.application.eventbus.listeners.ReconnectDuringMatchListener(

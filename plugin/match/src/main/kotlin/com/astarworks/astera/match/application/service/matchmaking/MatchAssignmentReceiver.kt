@@ -318,8 +318,10 @@ public class MatchAssignmentReceiver(
     private fun onMatchEnded(matchId: MatchId) {
         val current = session?.takeIf { it.matchId == matchId } ?: return
         scheduler.run(ExecutionScope.Global, ticks(settings.returnDelaySeconds * TICKS_PER_SECOND)) {
-            val participants = matches.findById(matchId)?.teams?.flatMap { it.members }.orEmpty()
-            participants.forEach { returnToLobby(it) }
+            // The roster plus everyone still connected here: a player who left the roster (or never made it onto
+            // it) but is standing on this server must not be stranded when the match is aborted or cancelled.
+            val participants = matches.findById(matchId)?.teams?.flatMap { it.members }.orEmpty() + current.arrived
+            participants.toSet().forEach { returnToLobby(it) }
             finish(current)
         }
     }
