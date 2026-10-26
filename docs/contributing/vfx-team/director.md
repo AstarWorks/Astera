@@ -4,6 +4,8 @@ Reference knowledge (2026-10-27): the skill has ONE author who builds every piec
 
 Skill author agent: `.claude/agents/limbus-director.md` (single end-to-end author). Team overview: [README.md](README.md).
 
+> Reference frames are native resolution (<= 1080p, jpg q2). Judge rotation, contact and blade detail from full-resolution single frames or zoomed crops, never from downscaled contact sheets or strips alone (see [beat-sheet.md](beat-sheet.md) "Reference frame quality").
+
 ## What the director produces
 
 the beat sheet `tools/skill-compare/data/<case>/beat-sheet.md` ([beat-sheet.md](beat-sheet.md): mandatory template, swings counted, rotation direction from the camera and from above) with its reverse-check record, `beats` (tick mirror) in `case.json`, six briefs in `.../briefs/`, the skill YAML, the composite VFX, the capture and its publication. Then it routes reviewer diffs.
