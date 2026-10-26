@@ -4,14 +4,15 @@ Agent: `.claude/agents/vfx-director.md`. Team overview: [README.md](README.md).
 
 ## What the director produces
 
-`beats` in `tools/skill-compare/data/<case>/case.json`, six briefs in `.../briefs/`, the skill YAML, the composite VFX, the capture and its publication. Then it routes reviewer diffs.
+the beat sheet `tools/skill-compare/data/<case>/beat-sheet.md` ([beat-sheet.md](beat-sheet.md): mandatory template, swings counted, rotation direction from the camera and from above) with its reverse-check record, `beats` (tick mirror) in `case.json`, six briefs in `.../briefs/`, the skill YAML, the composite VFX, the capture and its publication. Then it routes reviewer diffs.
 
 ## Verified facts and where they live
 
 ### Procedure and acceptance
-- Procedure, acceptance table, status vocabulary (未分析 / 実装済・未検証 / 検証不合格 / 再現合格 / 独自設計・動作確認済): [limbus-skill-reproduction.md](../limbus-skill-reproduction.md) sections 1-7. The 2026-10-23 founder instruction removed the "max 4 iterations" stop: iterate until the match is shown with evidence. A skill is done only when the reviewer passes every row AND the founder approves the published capture on skill-compare; the director records the approval (date, published revision) in the weapon REPORT.
+- Procedure, acceptance table, status vocabulary (未分析 / 実装済・未検証 / 検証不合格 / 再現合格 / 独自設計・動作確認済): [limbus-skill-reproduction.md](../limbus-skill-reproduction.md) sections 1-7. The 2026-10-23 founder instruction removed the "max 4 iterations" stop: iterate until the match is shown with evidence. Workflow v3 (README "The loop"): beat sheet -> reverse check by a different AI that sees only the sheet -> founder gate 1 (the sheet, with top-down / side / front stick diagram, on skill-compare) -> build -> capture (side, front, back, top-down, 45 deg high, eye height) -> fresh reviewer marks every sheet row ○/× -> founder gate 2 in game. Never build before the reverse check passes and gate 1 is approved. A skill is done only when the reviewer marks every row ○ AND the founder approves in game; the director records the approval (date, published revision) in the weapon REPORT.
 - Do not change the target to fit the implementation; `intent` is an interpretation of the video, not proof.
-- Observation: measure sizes against character height; separate camera change from object scaling.
+- Observation: read the reference as motion, not as a pose list. Count the swings first, write the direction of every smear from successive frames, and put the rotation direction in both the camera and the top-down column. Measure sizes against character height; separate camera change from object scaling.
+- Lint is a preflight only (one sword, both hands on the grip, feet on the floor, display budget); a lint pass proves nothing about the motion.
 
 ### Tools
 - `make skill-compare-case CASE=<id> VIDEO=<youtubeId> START=<s> END=<s> SKILL=<skill> [WEAPON=<item-id>]` creates `case.json`, an `intent.json` template and native-fps frames. Schema example: `tools/skill-compare/data/zwei-s3/intent.json`.

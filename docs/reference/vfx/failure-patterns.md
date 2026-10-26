@@ -16,6 +16,8 @@ ID: **G-** = ゲーム一般 (CEDEC / Capcom / ブログ等)、**M-** = Minecraf
 | E2E / game-sim | Display 数・damage tick など数値側 |
 | 自前の補助 | `frame_NNN.png` を `ffmpeg -vf format=gray` で白黒にして value contrast を見る / 面積を目測する / 音は録画を別途聞く |
 
+「ポーズの列挙」で止まり動き (軌道・回転方向・振り数) を書かない失敗は [contributing/vfx-team/beat-sheet.md](../../contributing/vfx-team/beat-sheet.md) (beat sheet + reverse check + top-down 確認) で防ぐ。
+
 ---
 
 ## A. ゲーム一般 (G)

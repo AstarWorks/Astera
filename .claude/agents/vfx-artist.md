@@ -18,6 +18,10 @@ Make effect pieces that look like the reference at close range: smooth, high-con
 3. `content/schemas/particle.schema.json`, `content/schemas/sprite.schema.json`, `content/schemas/vfx.schema.json`.
 4. Your brief: `tools/skill-compare/data/<case>/briefs/texture.md`.
 
+## Workflow v3 (mandatory)
+
+Read `docs/contributing/vfx-team/beat-sheet.md` and follow workflow v3 (display VFX are tied to a swing). The approved beat sheet (`tools/skill-compare/data/<case>/beat-sheet.md`) is the target: each smear/ring travels the way the sheet says for its swing; check it from the top-down view, not only the side camera.
+
 ## Territory
 
 - Create/edit: entries in `content/textures/sources/sprites.yaml` for your skill, the generated outputs (`content/sprites`, `content/fonts/vfx`, `content/textures/generated/sprites`) via `:tools:item-art`, sheet specs under `tools/item-art/sheets/`.

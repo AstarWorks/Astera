@@ -23,31 +23,34 @@ This page defines who does what and how work moves.
 
 All are `model: sonnet` agents defined in `.claude/agents/{vfx-director,model-artist,animator,vfx-artist,particle-artist,sound-designer,vfx-reviewer}.md`. The main session stays a manager (`.claude/rules/manager-mode.md`): it launches the director (or the specialists for the director) and merges branches.
 
-## The loop
+## The loop (workflow v3, founder 2026-10-26)
+
+Details of steps 1-3 and the template: [beat-sheet.md](beat-sheet.md). Every role reads it.
 
 ```
-1. Director   observes reference frame by frame
-              -> beats in tools/skill-compare/data/<case>/case.json
-              -> briefs/{model,animation,texture,particles,sound,integration}.md
-2. Specialists (parallel, each in its own worktree/branch, own files only)
-              model-artist | animator | vfx-artist (texture / display core) | particle-artist | sound-designer
-              each returns files + a report + Learnings log entry
-3. Director   merges specialist branches, writes skill YAML + composite VFX,
-              captures in the real client, publishes to skill-compare
-4. Reviewer   compares reference | intent | in-game, judges every acceptance row,
-              outputs diffs each labelled with its owning role
-5. Director   routes each diff to its role as a new brief section -> back to 2
-              (only the affected roles run again)
-6. Founder    after reviewer PASS the director reports to the manager, who asks the
-              founder to review the published capture on skill-compare
-              (https://skill-compare.astarworks.com)
-              approve -> done | reject -> comments become diffs routed by role -> back to 2
-Stop when the reviewer passes every row with evidence AND the founder approves on skill-compare. Reviewer PASS alone is not done. An iteration count is never a stop condition.
+1. Observe        author writes the beat sheet from the reference (one row per beat, no blank cell,
+                  swings counted first, rotation direction from the camera AND from above)
+2. Reverse check  a different AI sees only the sheet (not the reference) and re-describes the motion;
+                  diff it with the author's reading; a gap = re-observe. No build before this passes.
+3. Founder gate 1 the beat sheet (text + top-down / side / front stick diagram) published on skill-compare
+4. Build          ONE author end to end, composing from the pose library (tools/pose-solve, keypoints) and
+                  the specialists' parts; the sword is judged on matching the sheet's trajectory,
+                  not on "moves big". Priority: sword > VFX > particles > posture.
+                  Preflight: make skill-lint (one sword, both hands on the grip, feet on the floor, display budget)
+5. Capture        real player path, views side, front, back, `top` (TOP-DOWN, mandatory: the only view that shows
+                  rotation direction), `high` (45 deg), `caster` (player eye height)
+6. Visual review  a fresh AI reviewer marks every beat-sheet row ○ or × with a reason on paired
+                  ref|ours images. No free-form "looks good", no numbers. Each × becomes a diff [owner: role].
+                  × -> back to 4 (only the affected roles run again)
+7. Founder gate 2 in game. Approve -> done | reject -> comments become sheet-row diffs -> back to 4
+                  (if the comment shows the sheet was wrong, back to 1)
+Stop when every row is ○ with evidence AND the founder approves in game. Reviewer ○ alone is not done. An iteration count is never a stop condition.
 ```
 
 Rules of the loop:
 
-- Specialists never talk to each other; every cross-role need goes through the director.
+- Specialists never talk to each other; every cross-role need goes through the director (the author in step 4).
+- The sheet is the contract: the author builds to it, the reviewer judges against it, the founder approved it. A change to the motion is a change to the sheet and repeats steps 2-3.
 - The reviewer never edits content and never sees "work done" as evidence; it judges the published capture against the reference.
 - A common-runtime fix (planner, mechanic) is not specialist work. The director raises it separately and, once fixed, every affected weapon is re-checked equipped.
 - Each role appends to its own Learnings log after every skill. The next skill's brief links the relevant entries.
@@ -56,18 +59,19 @@ Rules of the loop:
 
 | Artifact | Path | Written by | Read by |
 |---|---|---|---|
-| Beat sheet | `tools/skill-compare/data/<case>/case.json` field `beats` | director | everyone, reviewer |
+| Beat sheet | `tools/skill-compare/data/<case>/beat-sheet.md` (template: [beat-sheet.md](beat-sheet.md)); `case.json` `beats` mirrors its ticks | director (author) | everyone, reviewer, founder (gate 1) |
+| Reverse-check record | `tools/skill-compare/data/<case>/beat-sheet-check.md` (checker output + verdict) | director | founder (gate 1) |
 | Briefs | `tools/skill-compare/data/<case>/briefs/{model,animation,texture,particles,sound,integration}.md` | director | matching specialist |
 | Particle cues | `tools/skill-compare/data/<case>/deliver/particle-cues.yaml` | particle-artist | director |
 | Specialist delivery | files in its territory + report (format in the agent file) | specialist | director |
 | Brief sheet / pairs | `build/brief/<case>/`, `build/pairs/<case>.png` (`make skill-brief`, `make skill-pairs`) | any | reviewer, director |
-| Capture | `build/vfx-shot/<skill>/<view>/` (`meta.json` provenance) | director | reviewer |
+| Capture | `build/vfx-shot/<skill>/<view>/` (`meta.json` provenance); views side, front, back, top-down, 45 deg high, eye | director | reviewer |
 | Published capture | `build/skill-compare-published/<skill>/<view>/current.json` | director | reviewer, founder (approval review on skill-compare) |
-| Review diffs | reviewer report, each diff `[owner: role]` | reviewer | director |
+| Review marks | reviewer report: every sheet row ○/× with reason, each × `[owner: role]` | reviewer | director |
 | Founder approval | weapon REPORT: date + published revision; rejection comments become review diffs | director (records, via manager) | manager, reviewer |
 | Learnings | `## Learnings log` of each knowledge doc | each role | next skill's roles |
 
-`beats` is a new field in `case.json`; the page preserves unknown fields on save only if documented in `tools/skill-compare/README.md`, so the first director to use it checks that a Save in the page does not drop it.
+`beats` in `case.json` only mirrors the sheet's tick ranges and hit ticks (for `BEAT_TICKS=case`); the page preserves unknown fields on save only if documented in `tools/skill-compare/README.md`, so the first director to use it checks that a Save in the page does not drop it.
 
 ## File territories
 
@@ -84,6 +88,8 @@ Rules of the loop:
 Two roles never edit the same file in one round. Where one VFX YAML mixes pieces (rig swing vs trail style), the director splits the assignment by section in the brief.
 
 ## Real-client capture (2026-10-26)
+
+Workflow v3 step 5 needs the views `side`, `front`, `back`, `top`, `high`, `caster`. `top` (camera straight above the caster, forward at the top of the image) is mandatory because it is the only view that shows rotation direction; a review without it is invalid. Skill captures do not have a `top` view in `tools/vfx-shot` yet (only the animation mode does): until it exists the director raises it as a runtime request to the manager and does not substitute another view.
 
 `make vfx-shot` boots an `astera-shot-<id>` stack (server + pack host) and headless clients (~2.5 GB each, server ~2.5 GB), films, and
 **tears everything down when it exits** (success, error, Ctrl-C, TERM/HUP, its caller dying). Runs are serialized host-wide; with `SHOT_KEEP=1`

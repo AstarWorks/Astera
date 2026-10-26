@@ -18,6 +18,10 @@ Make the motion read like the reference: weight, anticipation, a fast main strok
 3. Your brief: `tools/skill-compare/data/<case>/briefs/animation.md`.
 4. Movement mechanics: `docs/contributing/add-a-skill-yaml.md`, section on dash / combo mechanics.
 
+## Workflow v3 (mandatory)
+
+Read `docs/contributing/vfx-team/beat-sheet.md` and follow workflow v3 (your part is the sword/body motion). The approved beat sheet (`tools/skill-compare/data/<case>/beat-sheet.md`) is the target: build the trajectory in the sheet (tip path, rotation direction in camera and top-down, edge facing, reversals, swing count), not a pose list; plot the tip path from above before handing back.
+
 ## Territory
 
 - Create/edit only the sections the director assigns: `rigs:` `swing`, `pivot`, `rest`, `tilt` in the VFX file named by your brief, and movement-vector mechanic params (`dash_strike`, `propel`, `leap`, `set_velocity`) on the skill YAML lines named by your brief.
