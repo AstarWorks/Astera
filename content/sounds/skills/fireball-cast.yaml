@@ -1,7 +1,0 @@
-# Wave 5effects (ADR-0109) sample sound registry entry.
-id: "astera:skill/fireball/cast"
-resource_key: "astera:skill/fireball/cast"
-default_volume: 1.0
-default_pitch: 1.0
-category: skills
-display_name_key: astera.sound.skill.fireball-cast.name
