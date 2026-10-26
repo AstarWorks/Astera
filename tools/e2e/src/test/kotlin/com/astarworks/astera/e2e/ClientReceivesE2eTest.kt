@@ -61,6 +61,17 @@ class ClientReceivesE2eTest : E2eBase() {
     }
 
     @Test
+    fun `joining the lobby starts the astera lobby BGM track as a sound packet`() {
+        val a = bot("BgmListener")
+        a.waitUntil(15_000) { a.sounds.any { soundKey("astera:music/lobby-loop") in soundKey(it) } }
+        E2eReport.check(suite, "joining the lobby sends the astera:music/lobby-loop BGM event to the player", "ClientboundSound") {
+            assertThat(a.sounds.map(::soundKey).any { soundKey("astera:music/lobby-loop") in it })
+                .describedAs("MISSING astera:music/lobby-loop after joining; sound packets=${a.sounds.take(10)}").isTrue()
+            "heard ${a.sounds.take(6)}"
+        }
+    }
+
+    @Test
     fun `basic gun sword and wand skills send their astera sound packets to the caster`() {
         val a = bot("SoundCaster")
         op(a)
