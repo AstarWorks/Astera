@@ -411,6 +411,7 @@ astera:
         sneak_right: "<gray>Sneak + right-click: <white>{name}</white></gray>"
         sneak_left: "<gray>Sneak + left-click: <white>{name}</white></gray>"
         drop: "<gray>Drop (Q): <white>{name}</white></gray>"
+        sneak_drop: "<gray>Sneak + drop (Q): <white>{name}</white></gray>"
       stat:
         attack_damage: "<gray>Damage: <white>{value}</white></gray>"
         attack_speed: "<gray>Attack speed: <white>{value}</white></gray>"

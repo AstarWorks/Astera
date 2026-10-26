@@ -419,6 +419,7 @@ astera:
         sneak_right: "<gray>スニーク + 右クリック: <white>{name}</white></gray>"
         sneak_left: "<gray>スニーク + 左クリック: <white>{name}</white></gray>"
         drop: "<gray>ドロップ (Q): <white>{name}</white></gray>"
+        sneak_drop: "<gray>Shift + ドロップ (Q): <white>{name}</white></gray>"
       stat:
         attack_damage: "<gray>ダメージ: <white>{value}</white></gray>"
         attack_speed: "<gray>攻撃速度: <white>{value}</white></gray>"
