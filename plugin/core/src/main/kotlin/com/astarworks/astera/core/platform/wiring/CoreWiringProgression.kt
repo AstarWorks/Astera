@@ -358,6 +358,15 @@ internal fun CoreWiringState.wireProgression() {
     // (non-ALL role) has peers; a single server restores on join directly.
     val networked = ctx.serverRole != com.astarworks.astera.core.domain.proxy.ServerRole.ALL
     val proxyMessenger = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IProxyMessenger>()
+    if (networked && snapshotRepo is com.astarworks.astera.core.application.service.InMemoryPlayerInventorySnapshotRepository) {
+        // Lobby and game are separate JVMs: an in-memory snapshot store is private to each, so the hand-off token
+        // arrives but the snapshot never does and players silently lose their inventory (founder bug #9).
+        org.slf4j.LoggerFactory.getLogger("AsteraHandoff").error(
+            "Networked server '{}' (role {}) has NO shared inventory snapshot store: Astera-Persistence overlay is missing " +
+                "(check ASTERA_PG_URL/USER/PASSWORD and the Persistence plugin log). Inventories will NOT carry across servers.",
+            ctx.serverName, ctx.serverRole,
+        )
+    }
     val handoff = com.astarworks.astera.core.application.service.handoff.PlayerHandoffService(
         localServer = ctx.serverName,
         awaitToken = networked,
