@@ -73,6 +73,8 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.scoreboard.
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.scoreboard.ClientboundSetPlayerTeamPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.scoreboard.ClientboundSetScorePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.title.ClientboundSetActionBarTextPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.title.ClientboundSetSubtitleTextPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.title.ClientboundSetTitleTextPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundCommandSuggestionPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundPlayerLoadedPacket
@@ -171,6 +173,8 @@ class Bot private constructor(
     val packStatusesSent = CopyOnWriteArrayList<ResourcePackStatus>()
     val chat = CopyOnWriteArrayList<ChatLine>()
     val actionBars = CopyOnWriteArrayList<ChatLine>()
+    /** Big-screen titles and subtitles (match start, Norma cleared, ...) in arrival order, as plain text. */
+    val titles = CopyOnWriteArrayList<ChatLine>()
     val bossBars = ConcurrentHashMap<UUID, BossBarView>()
     val bossBarEvents = CopyOnWriteArrayList<String>()
     val objectives = ConcurrentHashMap<String, String>()
@@ -326,6 +330,8 @@ class Bot private constructor(
                 if (packet.isOverlay) actionBars += line else chat += line
             }
             is ClientboundSetActionBarTextPacket -> actionBars += ChatLine(plain(packet.text), true)
+            is ClientboundSetTitleTextPacket -> titles += ChatLine(plain(packet.text), false)
+            is ClientboundSetSubtitleTextPacket -> titles += ChatLine(plain(packet.text), false)
             is ClientboundPlayerChatPacket -> chat += ChatLine((packet.unsignedContent?.let(::plain) ?: packet.content), false)
             is ClientboundSetHealthPacket -> {
                 health = packet.health
