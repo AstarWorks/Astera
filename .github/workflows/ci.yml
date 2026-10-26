@@ -56,14 +56,14 @@ jobs:
           if-no-files-found: ignore
 
   e2e:
-    name: E2E (make e2e)
+    name: E2E (make e2e-full)
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
       - name: Run the e2e suite
-        run: make e2e
+        run: make e2e-full
 
       - name: Summary
         if: always()

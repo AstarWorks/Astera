@@ -370,7 +370,7 @@ make bots N=3 LANE=annihilation
 - Logs: `docker compose -f docker/docker-compose.yml logs -f bot-runner`. After changing the AI:
   `docker compose -f docker/docker-compose.yml up -d --build bot-runner` (`make dev-plugins` does not rebuild it).
 - Bots that are still waiting leave after 10 minutes; `docker compose ... restart bot-runner` drops all of them.
-- E2E: `make e2e` runs `BotVsBotE2eTest` (two AI bots, a whole Norma match, no RCON kills).
+- E2E: `make e2e` (and `e2e-full`) runs `BotVsBotE2eTest` (two AI bots, a whole Norma match, no RCON kills).
 
 ## Resource pack (custom HP bar, ADR-0182)
 

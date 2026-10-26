@@ -154,6 +154,7 @@ services:
     environment:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
       E2E_ONLY: "${E2E_ONLY:-}"
+      E2E_SKIP: "${E2E_SKIP:-}"
       E2E_WEAPONS: "${E2E_WEAPONS:-}"
       E2E_VIA: "${E2E_VIA:-velocity}"
     command:

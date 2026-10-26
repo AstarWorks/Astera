@@ -12,13 +12,13 @@ Owner track `wp/bots-qa`. Items: Board prefix `BOT-`. Sources: ADR-0247, ADR-017
 - `tools/e2e`: ~25 classes incl. playthroughs for norma, annihilation, siege (break-core), pve-waves; `BotVsBotE2eTest`, `StarsE2eTest` (bot picks the KILL goal so stars cannot end the match early), `WeaponLimitE2eTest`, GUI/HUD/commands/join/reconnect tests. Report: `build/e2e-report.md`.
 - `tools/game-sim`: headless scenarios over real wiring (ADR-0174), e.g. `StarsNormaScenarioTest`, `VoidFallScenarioTest`, `WeaponLimitScenarioTest`.
 - No real-server playthrough for carry-tnt, capture-wool, steal-jewelry, battle-loyal.
-- One e2e lock (`/tmp/claude-1000/astera-e2e.lock`), ~12+ min per run; deploy lock `/tmp/claude-1000/astera-dev-deploy.lock`.
+- One e2e lock (`/tmp/claude-1000/astera-e2e.lock`). `make e2e` = `window` profile (skips PersonaWeapons + Weapons, ~10 of ~34 bot-minutes; est. ~25 min incl. boot), `make e2e-full` = everything; `E2E_SKIP` / `E2E_ONLY` per class (`docs/contributing/ci.md` §E2E profiles). Runner image builds in parallel with the backend. Biggest remaining costs: CarryMiniTnt ~5 min, PersonaWeapons ~6 min, Norma/BotVsBot ~1.5-2 min each; deploy lock `/tmp/claude-1000/astera-dev-deploy.lock`.
 
 ## 理想形
 A single batched e2e per window is green on every mode that ships in the picker; each mode has a bot playthrough, and per-area tests live with their area. Bots can pathfind on the new siege-scale maps and use the 2-weapon kit. Failures name the owning track so the manager can drop it from the batch.
 
 ## 未決
-- Which e2e cases are mandatory per window vs nightly.
+- Which e2e cases are mandatory per window vs nightly (window profile currently skips only PersonaWeapons + Weapons; halving needs a call on mode-playthrough rotation).
 - Bot behaviour on large maps (navigation cost, structures from builds-maps).
 
 ## Governing ADRs

@@ -48,6 +48,8 @@ val e2e by tasks.registering(Test::class) {
         excludeTestsMatching("*.live.*")
         // E2E_ONLY=PersonaWeaponsE2eTest (comma separated simple class names) narrows the run.
         System.getenv("E2E_ONLY")?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.forEach { includeTestsMatching("*.$it") }
+        // E2E_SKIP=PersonaWeaponsE2eTest,WeaponsE2eTest (same format) drops classes from the run; scripts/e2e.sh sets it for the `window` profile.
+        System.getenv("E2E_SKIP")?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.forEach { excludeTestsMatching("*.$it") }
     }
     // Bot sessions are stateful against one server: run strictly serially.
     maxParallelForks = 1
