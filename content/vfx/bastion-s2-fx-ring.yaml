@@ -1691,3 +1691,4 @@ elements:
   keyframes:
   - t: 0
     translate: [-1.041, 0.101, -1.556]
+follow_pitch: true

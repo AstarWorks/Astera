@@ -34,6 +34,8 @@ fetch("/api/cases/" + encodeURIComponent(caseId)).then((r) => { if (!r.ok) throw
 function init(d) {
   if (d.case.kind === "pose-review") { location.replace("/stills.html?id=" + encodeURIComponent(d.case.id)); return; }
   S.data = d; S.c = d.case;
+  const ps = d.views?.previewSide; // published by skill-preview --camera side; exposed to the side slot as the source "vfx-preview-side"
+  if (ps) d.mc.sources["vfx-preview-side"] = { kind: "frames", base: ps.base, count: ps.count, fps: 20, castFrame: ps.castFrame ?? 0, extension: ps.extension, revision: ps.revision, prov: ps.prov };
   S.c.mc ??= { source: "vfx-caster", offset_ms: 0, castTickInTrace: 5 };
   S.dur = Math.round((S.c.end_s - S.c.start_s) * 1000);
   S.fps = d.media.ready ? d.media.fps : 30;
@@ -133,7 +135,11 @@ function buildPanes() {
 }
 function buildSideToggle(p, srcs) {
   const avail = Object.keys(SIDE_SOURCES).filter((n) => srcs[n]);
-  if (!avail.length) return;
+  if (!avail.length) { // nothing to show: reference at full width instead of an empty panel
+    S.panes.splice(S.panes.indexOf(p), 1); p.fig.remove(); p.fig.closest(".panes")?.classList.add("solo");
+    $("panes").classList.add("solo"); $("panes").before(el("p", "status sidenote", "横からの映像はまだ作られていません（プレビュー・実機とも未公開）"));
+    return;
+  }
   const at = (n) => srcs[n].prov?.capturedAt || "";
   p.name = avail.reduce((a, b) => (at(b) > at(a) ? b : a)); // default: the newest capture
   p.slot = true;

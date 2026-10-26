@@ -160,7 +160,7 @@ framed with `/tp x y z yaw pitch`. Arena: overworld flat world at (300.5, -60, 3
 ### `SHOT_CASTER_TURN=<tick>:<yaw>[,<tick>:<yaw>...]` (any view)
 
 Turns the caster (`/rotate Caster <yaw> ~`, no teleport so the rig passengers stay mounted; absolute yaw in degrees) that many ticks after the cast, through the same RCON plan as the camera
-cuts. Use it to check that the skin body, the weapon rig and the follow VFX rotate with the live yaw (`SHOT_CASTER_TURN=14:90,28:180`).
+cuts. Use it to check that the skin body, the weapon rig and the follow VFX rotate with the live yaw (`SHOT_CASTER_TURN=14:90:30,28:180` (`tick:yaw[:pitch]`, pitch in degrees, down is positive)).
 
 ### `VIEW=compare CASE=<case-id>`
 

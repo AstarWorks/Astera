@@ -228,3 +228,4 @@ elements:
   keyframes:
   - t: 0
     translate: [0.0, 0.3, 2.4]
+follow_pitch: true

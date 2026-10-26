@@ -597,6 +597,8 @@ public data class VfxRigYaml(
     @SerialName("weapon_edge") public val weaponEdge: List<Double>? = null,
     /** Blade root (top of the guard), rig-local; fx path tooling only. */
     @SerialName("weapon_root") public val weaponRoot: List<Double>? = null,
+    /** Keyframed `item_model` override of the weapon display (step keys, hold until the next); needs `weapon: main_hand`. */
+    @SerialName("weapon_model") public val weaponModel: List<VfxWeaponModelKeyYaml> = emptyList(),
 ) {
     public fun toDomain(): VfxRig = VfxRig(
         id = id,
@@ -618,9 +620,24 @@ public data class VfxRigYaml(
                 tip = weaponTip?.let { t -> vec3(t, "rig.weapon_tip") } ?: trails.firstOrNull()?.let { t -> vec3(t.to, "trail.to") },
                 root = weaponRoot?.let { r -> vec3(r, "rig.weapon_root") },
                 edgeNormal = weaponEdge?.let { e -> vec3(e, "rig.weapon_edge") } ?: Vec3(1.0, 0.0, 0.0),
+                models = weaponModel.map { k -> k.toDomain() },
             )
+        } ?: run {
+            require(weaponModel.isEmpty()) { "rig '$id': weapon_model needs weapon: main_hand" }
+            null
         },
     )
+}
+
+/** One step key of `weapon_model` (ADR-0282). */
+@Serializable
+public data class VfxWeaponModelKeyYaml(
+    public val t: Int,
+    /** Namespaced item model id, e.g. `astera:items/couture-rapier-open-30`. */
+    public val model: String,
+) {
+    public fun toDomain(): com.astarworks.astera.core.domain.effect.vfx.VfxWeaponModelKey =
+        com.astarworks.astera.core.domain.effect.vfx.VfxWeaponModelKey(t, model)
 }
 
 @Serializable
