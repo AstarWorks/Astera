@@ -1,0 +1,15 @@
+# ECO-04: 8s of faster movement from the swift-powder consumable (gentler than the sword dash's x2.2 burst).
+
+id: swift
+
+display_name_key: astera.status.swift.name
+
+kind: speed_up
+default_duration_ticks: 160   # 8s @ 20 TPS
+
+stackable: false
+max_stacks: 1
+
+params:
+  type: speed
+  multiplier: 1.4

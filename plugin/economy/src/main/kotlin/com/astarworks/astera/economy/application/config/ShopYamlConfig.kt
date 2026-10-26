@@ -62,6 +62,7 @@ public data class ShopOfferYamlConfig(
     /** `once` (default: an unlock, paid once) or `unlimited` (consumable). */
     val limit: String = "once",
     val category: String? = null,
+    val recommended: Boolean = false,
 ) {
     public fun toDomain(): ShopOffer = ShopOffer(
         id = ShopOfferId(id),
@@ -71,6 +72,7 @@ public data class ShopOfferYamlConfig(
         displayKey = displayKey?.let { MessageKey(it) },
         limit = PurchaseLimit.valueOf(limit.uppercase()),
         category = category,
+        recommended = recommended,
     )
 }
 

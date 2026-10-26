@@ -236,6 +236,12 @@ abstract class PlaythroughBase : E2eBase() {
                 assertThat(chat.filter { STAR_WORD.containsMatchIn(it) }).describedAs("star amounts in the post-match chat:\n${quote(chat, 40)}").isEmpty()
                 quote(chat.filter { it.contains("Reward") || it.contains("Level") || it.contains("Total") }, 12)
             }
+            E2eReport.check(suite, "${b.name}: reward block points at the next shop unlock (GOLD goal)", "SystemChat") {
+                val hint = chat.filter { it.startsWith("Next unlock:") || it.startsWith("You can afford") }
+                assertThat(hint).describedAs("no next-unlock line after the rewards:\n${quote(chat, 40)}").hasSize(1)
+                assertThat(rawKeys(hint)).describedAs("raw i18n keys").isEmpty()
+                hint.single()
+            }
             E2eReport.check(suite, "${b.name}: back in the lobby with kit, lobby sidebar and playable game mode", "inventory + sidebar + RCON") {
                 assertThat(b.hotbar()[8] != -1).describedAs("lobby kit missing in slot 8: ${b.hotbar()}").isTrue()
                 assertThat(b.sidebarTitle()).describedAs("still on the match sidebar: ${sidebar(b)}").isEqualTo(lobbySidebarTitle)

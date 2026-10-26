@@ -10,14 +10,16 @@ Owner track `wp/economy-life`. Seed: audit 2026-10-26. Items: Board prefix `ECO-
 - `docs/game-design/{meta,progression,place,ugc}/README.md` are 1-2 line stubs; there is no progression design.
 
 ## 現状
-- GOLD only; GEM defined but has no source or sink. Match rewards in `content/balance/match-rewards.yaml` (join 10 / win 120 / loss 35 / kill 5 / MVP 35; annihilation win 180; pve win 70).
-- Shop `content/shops/example-shop.yaml`: 16 weapons 100-320 G, `limit: once`, 2-click confirm >=100 G. It also sells the starter weapons.
-- Starter grant (`starter-grant.yaml`): knight-sword + frost-staff, no gun.
-- XP curve `100*(n-1)*n/2`; level rewards only Lv2/3/5/10 (`content/progression/level-rewards.yaml`), odd amounts (102, 205); season ends 2027-01-01.
-- Daily/weekly missions (6), 7-day login bonus (day7 25 < day6 65), 14 achievements (no rewards, all `knight-sword` icon), 3 quests; `/astera daily|missions|quests|achievements`.
-- Not obtainable: crimson-chain-axe, edict-blade, orrery-staff, sigil-rifle, rtm-blaster (no shop/reward path).
-- PvE drop tables reference undefined items (`dust-of-ember`, `imp-claw`, `wolf-tooth`); quest `item-collection` unreachable.
-- Frozen/orphan: `content/gathering`, `recipes`, no survival world. Cosmetics: `CosmeticSummary.EMPTY`; titles granted but not equippable. Gacha, guild, trade: no code.
+- GOLD only; GEM defined but has no source or sink (hidden from the wallet tile). Match rewards in `content/balance/match-rewards.yaml` (join 10 / win 120 / loss 35 / kill 5 / MVP 35; annihilation win 180; pve win 70).
+- Shop `content/shops/example-shop.yaml`: 18 offers priced by rarity (uncommon 150-250, rare 350-400, epic 500-600), `limit: once`, 2-click confirm >=100 G. Starter weapons and dev items are not sold. Every previously unobtainable weapon is now a shop offer or an achievement/level reward.
+- Consumables (ECO-04): `heal-potion` (40 G, +8 HP) and `swift-powder` (30 G, 8s speed x1.4) in the shop with `limit: unlimited`; right-click runs `consume_item` (now implemented via `IOwnedItemRemoval`), and `IItemConsumptionRecorder` keeps a match-used copy gone after the match-end snapshot restore.
+- Starter grant (`starter-grant.yaml`): pistol + knight-sword (fills the norma weapon cap); a staff is bought.
+- Post-match reward block ends with one line naming the cheapest unowned shop unlock and the GOLD gap (or "you can afford"), so the loop match -> GOLD -> shop is spelled out (`NextUnlockFinder`; e2e: playthrough "reward block points at the next shop unlock").
+- A player who has bought nothing yet sees the `recommended: true` offer (frost-staff, completing gun/sword/staff) pinned first in the shop with a badge. The wallet tile lists GEM only once a balance exists (GEM has no source).
+- Purchase flow pinned from a client by `ShopPurchaseE2eTest` (confirm click, exact charge, delivery, shortfall refusal).
+- Level rewards Lv2-30 with round GOLD, titles and cosmetics (`content/progression/level-rewards.yaml`); cosmetics layer (titles, name colours, kill effects) is the second GOLD sink; 14 achievements all pay GOLD.
+- Daily/weekly missions, 7-day login bonus (monotonic, day7 peak), quests; `/astera daily|missions|quests|achievements`.
+- Frozen: PvE drop tables and the `item-collection` quest are parked under `_frozen/`; `content/gathering`, `recipes`, no survival world. Gacha, guild, trade: no code.
 
 ## 理想形
 One path: a match gives GOLD/XP, the player chooses a weapon or skill to unlock, tries it next match. GOLD has two sinks beyond weapons (cosmetic titles/tags, consumables). Weapons come from three routes: shop (standard), level rewards (mid), achievements/PvE drops (top/persona); prices follow rarity. Reward tables are one coherent sheet (levels to 20-30, achievement rewards, weekly > daily). Frozen life content is parked, not extended.

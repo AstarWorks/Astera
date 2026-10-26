@@ -142,6 +142,31 @@ class LobbyTrainingScenarioTest {
     }
 
     @Test
+    fun `the staff bay has three RANGE dummies at 5, 8 and 11 blocks and a frost shard lowers their HP`() {
+        scenario("lobby-training-staff-bay") {
+            val plan = range().plan
+            val staff = plan.dummies.filter { it.id.startsWith("staff-") }
+            assertThat(staff.map { it.id }).containsExactlyInAnyOrder("staff-5", "staff-8", "staff-11")
+            assertThat(staff.map { it.kind }.toSet()).containsExactly(com.astarworks.astera.core.domain.lobby.TrainingDummyKind.RANGE)
+            advance(45) // the dummies stand up
+            val caster = player("caster", at = plan.spawn)
+            caster.world = lobby
+            caster.holds("frost-staff")
+            for (spot in staff) {
+                assertThat(dummyHp(spot.id)).describedAs("${spot.id} stands at full HP").isEqualTo(TrainingDummy.MAX_HP)
+                // the caster stands on the bay's own stand: `distance` blocks west of the target, same lane
+                caster.moveTo(Vec3(spot.x - spot.distance!!, spot.y, spot.z))
+                caster.faces(checkNotNull(sim.trainingShells.bodyOf(spot.id)))
+                repeat(6) {
+                    caster.rightClick()
+                    advance(20)
+                }
+                assertThat(dummyHp(spot.id)).describedAs("${spot.id} lost HP to the frost shard").isLessThan(TrainingDummy.MAX_HP)
+            }
+        }
+    }
+
+    @Test
     fun `rack weapons are lobby-only - starting a match takes them away`() {
         scenario("lobby-training-lobby-only") {
             val plan = range().plan

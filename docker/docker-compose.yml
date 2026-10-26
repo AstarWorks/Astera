@@ -44,6 +44,9 @@ x-astera-backend: &astera-backend
     # The user must accept the Minecraft EULA to run a server.
     # https://www.minecraft.net/en-us/eula
     EULA: "TRUE"
+    # mc-image-helper (runs at every start; only the helper JVM, not the server) intermittently produced corrupt
+    # Paper/Velocity downloads over TLS with netty's OpenSSL (tcnative) provider on some hosts; use the JDK provider.
+    MC_IMAGE_HELPER_OPTS: "-Dio.netty.handler.ssl.noOpenSsl=true"
     TYPE: "PAPER"
     VERSION: "26.3"
     USE_AIKAR_FLAGS: "true"
@@ -105,6 +108,9 @@ services:
       - "${ASTERA_PORT:-25565}:25565"   # Minecraft Java client: the ONLY published game port
     environment:
       TYPE: "VELOCITY"
+      # mc-image-helper (runs at every start; only the helper JVM, not the server) intermittently produced corrupt
+      # Paper/Velocity downloads over TLS with netty's OpenSSL (tcnative) provider on some hosts; use the JDK provider.
+      MC_IMAGE_HELPER_OPTS: "-Dio.netty.handler.ssl.noOpenSsl=true"
       MEMORY: "512M"
       # Debug switch, e.g. VELOCITY_JVM_OPTS=-Dvelocity.packet-decode-logging=true
       JVM_OPTS: "${VELOCITY_JVM_OPTS:-}"

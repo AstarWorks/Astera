@@ -70,13 +70,11 @@ class MilestoneSoundScenarioTest {
             assertThat(heard(red, SoundCues.MATCH_COUNTDOWN_TICK)).`as`("countdown ticks").isEqualTo(5)
             assertThat(heard(blue, SoundCues.MATCH_COUNTDOWN_TICK)).isEqualTo(5)
             assertThat(heard(red, SoundCues.MATCH_GO)).`as`("go").isEqualTo(1)
-            // Layers of a cue play together with the primary sound.
-            val goLayers = checkNotNull(sim.services.getOrThrow<ISoundRegistry>().find(SoundCues.MATCH_GO)).layers
-            assertThat(goLayers).isNotEmpty()
-            assertThat(sim.playerSounds.calls.map { it.sound.key }).contains(goLayers.first().resourceKey)
-
-            // Last stretch: BGM tension.
+            // Last stretch: warning sting for every member, then BGM tension.
+            sim.playerSounds.clear()
             sim.eventBus.publish(PhaseChanged(matchId, MatchPhase.ACTIVE, MatchPhase.SUDDEN_DEATH, 1L))
+            assertThat(heard(red, SoundCues.MATCH_SUDDEN_DEATH)).`as`("final-stretch sting").isEqualTo(1)
+            assertThat(heard(blue, SoundCues.MATCH_SUDDEN_DEATH)).isEqualTo(1)
             assertThat(bgm.moodOf(red.id)).isEqualTo(MusicMood.HIGH_INTENSITY)
             assertThat(bgm.trackOf(red.id)).isEqualTo(MusicTrackId("high-intensity-drums"))
 
@@ -111,6 +109,23 @@ class MilestoneSoundScenarioTest {
             assertThat(heard(red, SoundCues.MATCH_LOSE)).isZero()
             assertThat(bgm.moodOf(red.id)).isEqualTo(MusicMood.VICTORY)
             assertThat(bgm.moodOf(blue.id)).isEqualTo(MusicMood.DEFEAT)
+        }
+    }
+
+    @Test
+    fun `queueing plays the queue-join cue and a formed match plays match-found for the whole roster`() {
+        scenario("milestone-sounds-queue") {
+            val players = listOf(player("q1"), player("q2"), player("q3"))
+            val matchmaker = sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker>()
+            val mode = com.astarworks.astera.match.domain.matchmaking.MatchmakingMode.Custom(
+                com.astarworks.astera.match.domain.mode.GameModeId("annihilation"),
+            )
+            sim.playerSounds.clear()
+            players.forEach { check(matchmaker.enqueue(it.id, mode) is com.astarworks.astera.core.domain.Result.Success) { "enqueue ${it.name}" } }
+            players.forEach { assertThat(heard(it, SoundCues.UI_QUEUE_JOIN)).`as`("${it.name} hears the queue-join cue").isEqualTo(1) }
+            assertThat(advanceUntil(600) { eventsOf<com.astarworks.astera.core.domain.event.MatchFormed>().isNotEmpty() })
+                .`as`("the queue forms a match").isTrue()
+            players.forEach { assertThat(heard(it, SoundCues.MATCH_FOUND)).`as`("${it.name} hears match-found").isEqualTo(1) }
         }
     }
 

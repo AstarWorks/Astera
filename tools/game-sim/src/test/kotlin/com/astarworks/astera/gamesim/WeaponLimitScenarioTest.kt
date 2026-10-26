@@ -14,7 +14,7 @@ import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** Match weapon restriction: skirmish.yaml `weapon_limits` = at most 1 per family, 2 in total (RTM MAIN + SUB assumption). */
+/** Match weapon restriction: the Norma layer default `weapon_limits` (content/norma-layer/layer.yaml, every mode) = at most 1 per family, 2 in total (RTM MAIN + SUB assumption). */
 class WeaponLimitScenarioTest {
 
     @Test
@@ -55,6 +55,30 @@ class WeaponLimitScenarioTest {
             sim.services.getOrThrow<IMatchLifecycle>().end(matchId, EndReason.AdminEnded)
             sim.step(10)
             assertThat(service.verdictFor(loaded.id, ItemId("pistol"))).isEqualTo(WeaponLimitService.Verdict.Allowed)
+        } finally {
+            sim.shutdown()
+        }
+    }
+
+    @Test
+    fun `a siege mode carries the same cap through the layer default`() {
+        val sim = GameSim.boot("weapon-limit-siege", snapshots = InMemoryPlayerInventorySnapshotRepository())
+        try {
+            val a = sim.spawnPlayer("sa")
+            val b = sim.spawnPlayer("sb")
+            sim.step(5)
+            val items = checkNotNull(sim.server.view(a.id)).givenItems
+            items.clear()
+            items += listOf("rifle", "pistol", "knight-sword", "frost-staff")
+
+            val matchmaker = sim.services.getOrThrow<IMatchmaker>()
+            val mode = MatchmakingMode.Custom(com.astarworks.astera.match.domain.mode.GameModeId("carry-tnt"))
+            matchmaker.enqueue(a.id, mode)
+            matchmaker.enqueue(b.id, mode)
+            assertThat(sim.stepUntil(600) { sim.eventsOf<PlayerEnteredMatch>().size == 2 }).isTrue()
+
+            // gun:1 drops the pistol, total:2 drops the staff; the sword keeps the second slot.
+            assertThat(items).containsExactly("rifle", "knight-sword")
         } finally {
             sim.shutdown()
         }

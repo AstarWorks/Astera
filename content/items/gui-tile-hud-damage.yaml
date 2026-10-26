@@ -1,0 +1,7 @@
+# UI-03 (docs/vision/areas/ui-access.md) - settings tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-hud-damage
+material: IRON_SWORD
+name:
+  ja: "<gold>ダメージ数字</gold>"
+  en: "<gold>Damage numbers</gold>"
