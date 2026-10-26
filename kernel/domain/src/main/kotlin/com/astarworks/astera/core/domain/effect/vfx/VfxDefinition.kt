@@ -100,7 +100,7 @@ public data class VfxDefinition(
     public val followBodyYaw: Boolean = false,
     /**
      * The caster's look pitch (clamped to +-45 degrees) tilts the effect's frame about the caster's feet: a `yaw`-oriented effect
-     * spawns tilted by the pitch at spawn, and a performance (body / rig) tilts with the live pitch while it plays.
+     * spawns tilted by the pitch at spawn. A performance (body / weapon rig) never pitches: it ignores this flag and stays upright.
      */
     public val followPitch: Boolean = false,
 ) {
