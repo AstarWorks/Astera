@@ -25,24 +25,24 @@ rigs:
   swing:
   - { t: 0, rotate: [37.8, 8.0, 138.9] }   # skill 0 coil
   - { t: 2, rotate: [37.8, 8.0, 138.9] }   # skill 3 coil-hold
-  - { t: 3, rotate: [54.2, -9.5, 173.6] }   # skill 4 wind-back
-  - { t: 4, rotate: [63.4, -40.5, 132.2] }   # skill 5 cut1-a
-  - { t: 5, rotate: [30.2, -5.1, 123.4] }   # skill 6 cut1-b
-  - { t: 6, rotate: [-42.1, 43.8, -4.3] }   # skill 7 cut1-hit
-  - { t: 7, rotate: [-19.3, 64.8, -24.8] }   # skill 10 follow-a
-  - { t: 8, rotate: [0.9, 67.8, -48.6] }   # skill 11 follow-b
-  - { t: 9, rotate: [15.7, 64.6, -67.4] }   # skill 12 over
-  - { t: 13, rotate: [22.5, 55.0, -78.1] }   # skill 16 over-hold
+  - { t: 3, rotate: [57.3, -8.6, 170.3] }   # skill 4 wind-back
+  - { t: 4, rotate: [65.3, -42.1, 130.7] }   # skill 5 cut1-a
+  - { t: 5, rotate: [28.5, -2.7, 127.1] }   # skill 6 cut1-b
+  - { t: 6, rotate: [-44.1, 43.9, -4.8] }   # skill 7 cut1-hit
+  - { t: 7, rotate: [-12.4, 63.3, -26.7] }   # skill 10 follow-a
+  - { t: 8, rotate: [13.7, 64.5, -53.0] }   # skill 11 follow-b
+  - { t: 9, rotate: [29.2, 60.1, -71.6] }   # skill 12 over
+  - { t: 13, rotate: [31.6, 51.4, -80.2] }   # skill 16 over-hold
   - { t: 14, rotate: [-16.6, 58.7, -22.9] }   # skill 17 settle-a
   - { t: 15, rotate: [9.0, 61.8, -21.3] }   # skill 18 settle-b
   - { t: 16, rotate: [14.4, 64.3, -11.2] }   # skill 19 rest-away
   - { t: 24, rotate: [14.4, 64.3, -11.2] }   # skill 27 rest-hold
-  - { t: 25, rotate: [40.2, 57.9, -69.1] }   # skill 28 crouch2
-  - { t: 26, rotate: [37.3, 68.1, -61.5] }   # skill 29 crouch2-hold
-  - { t: 27, rotate: [-6.5, 74.5, -16.3] }   # skill 30 sweep2
-  - { t: 28, rotate: [11.5, 84.2, -33.1] }   # skill 31 thrust2
-  - { t: 33, rotate: [-20.1, 84.5, 3.2] }   # skill 38 thrust2-hold
-  - { t: 34, rotate: [9.3, -21.4, 112.7] }   # skill 39 drop2
-  - { t: 35, rotate: [39.6, -11.9, 141.2] }   # skill 40 drop2-b
+  - { t: 25, rotate: [23.2, 65.8, -66.6] }   # skill 28 crouch2
+  - { t: 26, rotate: [18.5, 77.6, -57.5] }   # skill 29 crouch2-hold
+  - { t: 27, rotate: [-57.2, 74.6, 15.8] }   # skill 30 sweep2
+  - { t: 28, rotate: [-71.5, 83.6, 39.3] }   # skill 31 thrust2
+  - { t: 33, rotate: [-77.5, 80.4, 49.8] }   # skill 38 thrust2-hold
+  - { t: 34, rotate: [12.6, -31.3, 100.9] }   # skill 39 drop2
+  - { t: 35, rotate: [44.3, -13.3, 136.1] }   # skill 40 drop2-b
   - { t: 36, rotate: [37.8, 8.0, 138.9] }   # skill 41 coil-end
   - { t: 47, rotate: [0.0, 0.0, 0.0], ease: step }   # skill 52 hand-back

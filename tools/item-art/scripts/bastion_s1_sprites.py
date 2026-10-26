@@ -510,9 +510,13 @@ _t1 = math.radians(22.0)
 # r7 blade keys 24-30 (phi 163 .. 102) with the lowest point held at the floor pitch -15 (tip y 0.11): max off-plane
 # 0.12 blocks over the whole arc. The r6 plane (-8 / 14) dipped to y -0.19 at phi 60 (under the floor) while the blade
 # stayed at -15; a -1 / 14 plane fixes the floor but sits 0.31 above the r7 wind-up keys 23-27.
-RING_CENTRE_PITCH = -5.0
-RING_TILT = 10.0
-_h60 = np.array([math.sin(math.radians(60)), 0.0, math.cos(math.radians(60))])
+# r29 (round r4, ring/sword mesh): re-FIT to the r4 cut-2 keys (tools/pose-solve/author_bastion_s1.py: crouch 0.6 .. thrust 1.0, a flat
+# ring around the hips as in the reference, measured tilt ~3 deg, camera pitch 19-21 deg vs ellipse minor/major 0.30-0.40): least squares
+# y = y0 + gx x + gz z over the sweep + thrust tip path (fx-low ticks 1-11): y0 0.77, gx 0.066, gz 0.069 = 5.5 deg, lowest toward
+# phi 224 (behind-right), rms 0.017 / max 0.05. Same fit as `_fit_plane` (rig_path.RigPath.arc + lstsq).
+RING_CENTRE_PITCH = 0.0
+RING_TILT = 5.5
+_h60 = np.array([math.sin(math.radians(224)), 0.0, math.cos(math.radians(224))])
 _n2 = math.cos(math.radians(RING_TILT)) * np.array([0.0, 1.0, 0.0]) + math.sin(math.radians(RING_TILT)) * _h60
 _f2 = np.array([0.0, 0.0, 1.0]) - _n2[2] * _n2
 _f2 = _f2 / np.linalg.norm(_f2)
@@ -523,7 +527,7 @@ _f2 = _f2 / np.linalg.norm(_f2)
 # height all round): plane tilt 20 -> 14 deg about the x axis through the tip-circle centre. The sides (z 0) are unchanged
 # (y 1.15 = the blade tip there); the back (z -1.9) rises from y 0.46 to 0.68 (above the knee), the front (z 1.6) drops
 # from 1.73 to 1.55, i.e. the band sits <= 0.2 off the r10 tip plane at the very front / back.
-HRING_TILT = 14.0
+HRING_TILT = 5.0  # seed only: `fit_plane` re-derives the plane from the blade path (r4 fit: 4.9 deg rising toward the front)
 
 SWEEPS = {
     # hit 1 (r10 rig): tilted horizontal sweep. The tip stays on the plane y = 1.15 + tan(20 deg) z (animator Round 10), so

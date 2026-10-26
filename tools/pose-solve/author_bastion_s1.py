@@ -227,25 +227,25 @@ AWAY = np.array([0.8, 0.6, -3.5])
 BEATS = [  # skill tick, chest yaw, tip azimuth, tip height, face; ticks 1, 8-9 and 32-33 have no rig tick (cast tick / hit-stop)
     Beat(0, -35, -62, 0.05, "cam", lean=24, name="coil"),
     Beat(3, -35, -62, 0.05, "cam", lean=24, name="coil-hold"),
-    Beat(4, -45, -75, 1.0, ("cam", "ccw", 0.6), lean=28, drop=0.24, grip_y=1.15, name="wind-back"),  # anticipation: lift behind the shoulder, against the cut
-    Beat(5, 5, 5, 1.3, "ccw", lean=24, drop=0.2, name="cut1-a"),                          # behind -> the near side
-    Beat(6, 50, 85, 1.85, "ccw", lean=18, drop=0.17, grip_y=1.15, reach=0.55, name="cut1-b"),  # across the enemy (ring snap)
-    Beat(7, 95, 165, 1.35, "ccw", lean=30, drop=0.24, grip_y=1.15, name="cut1-hit"),       # contact, hit-stop t7-9
-    Beat(10, 108, 212, 1.5, "ccw", lean=26, drop=0.22, grip_y=1.2, look=ENEMY, name="follow-a"),
-    Beat(11, 113, 232, 1.6, ("ccw", "cam", 0.4), lean=24, drop=0.2, grip_y=1.2, look=ENEMY, name="follow-b"),
-    Beat(12, 115, 240, 1.62, ("ccw", "cam", 0.7), lean=22, drop=0.2, grip_y=1.2, look=ENEMY, name="over"),
-    Beat(16, 120, 243, 1.55, "cam", lean=22, drop=0.2, grip_y=1.2, look=ENEMY, name="over-hold"),
+    Beat(4, -45, -75, 1.15, ("cam", "ccw", 0.6), lean=28, drop=0.24, grip_y=1.15, name="wind-back"),  # anticipation: lift behind the shoulder, against the cut
+    Beat(5, 5, 5, 1.40, "ccw", lean=24, drop=0.2, name="cut1-a"),                          # behind -> the near side
+    Beat(6, 50, 85, 1.72, "ccw", lean=18, drop=0.17, grip_y=1.15, reach=0.55, name="cut1-b"),  # across the enemy (ring snap)
+    Beat(7, 95, 165, 1.42, "ccw", lean=30, drop=0.24, grip_y=1.15, name="cut1-hit"),       # contact, hit-stop t7-9
+    Beat(10, 108, 212, 1.34, "ccw", lean=26, drop=0.22, grip_y=1.2, look=ENEMY, name="follow-a"),
+    Beat(11, 113, 232, 1.32, ("ccw", "cam", 0.4), lean=24, drop=0.2, grip_y=1.2, look=ENEMY, name="follow-b"),
+    Beat(12, 115, 240, 1.30, ("ccw", "cam", 0.7), lean=22, drop=0.2, grip_y=1.2, look=ENEMY, name="over"),
+    Beat(16, 120, 243, 1.30, "cam", lean=22, drop=0.2, grip_y=1.2, look=ENEMY, name="over-hold"),
     Beat(17, 140, 250, 1.0, "cam", lean=20, drop=0.2, look=AWAY, name="settle-a"),
     Beat(18, 160, 256, 0.35, "cam", lean=18, drop=0.2, look=AWAY, name="settle-b"),
     Beat(19, 172, 258, 0.05, "cam", lean=17, drop=0.2, look=AWAY, name="rest-away"),
     Beat(27, 172, 258, 0.05, "cam", lean=17, drop=0.2, look=AWAY, name="rest-hold"),
-    Beat(28, 120, 266, 0.1, ("cam", "cw", 0.6), lean=36, drop=0.3, grip_y=1.0, look=np.array([1.0, 0.0, 0.5]), name="crouch2"),
-    Beat(29, 112, 268, 0.12, "cw", lean=38, drop=0.32, grip_y=1.0, look=np.array([1.0, 0.0, 0.8]), name="crouch2-hold"),
-    Beat(30, 60, 182, 0.25, "cw", lean=34, drop=0.3, grip_y=0.95, reach=0.55, look=ENEMY, name="sweep2"),
-    Beat(31, 0, 92, 0.6, "cw", lean=24, drop=0.24, grip_y=1.05, reach=0.7, look=ENEMY, name="thrust2"),
-    Beat(38, -5, 80, 0.58, "cw", lean=22, drop=0.22, grip_y=1.05, reach=0.68, look=ENEMY, name="thrust2-hold"),
-    Beat(39, -20, 10, 0.2, "cw", lean=22, drop=0.2, look=ENEMY, name="drop2"),
-    Beat(40, -30, -40, 0.06, ("cw", "cam", 0.6), lean=23, drop=0.2, look=ENEMY, name="drop2-b"),
+    Beat(28, 120, 266, 0.6, ("cam", "cw", 0.6), lean=36, drop=0.3, grip_y=1.0, look=np.array([1.0, 0.0, 0.5]), name="crouch2"),
+    Beat(29, 112, 268, 0.65, "cw", lean=38, drop=0.32, grip_y=1.0, look=np.array([1.0, 0.0, 0.8]), name="crouch2-hold"),
+    Beat(30, 60, 182, 0.9, "cw", lean=34, drop=0.3, grip_y=0.95, reach=0.55, look=ENEMY, name="sweep2"),
+    Beat(31, 0, 92, 1.0, "cw", lean=24, drop=0.24, grip_y=1.05, reach=0.7, look=ENEMY, name="thrust2"),
+    Beat(38, -5, 80, 0.98, "cw", lean=22, drop=0.22, grip_y=1.05, reach=0.68, look=ENEMY, name="thrust2-hold"),
+    Beat(39, -20, 10, 0.8, "cw", lean=22, drop=0.2, look=ENEMY, name="drop2"),
+    Beat(40, -30, -40, 0.45, ("cw", "cam", 0.6), lean=23, drop=0.2, look=ENEMY, name="drop2-b"),
     Beat(41, -35, -62, 0.05, "cam", lean=24, name="coil-end"),
 ]
 
