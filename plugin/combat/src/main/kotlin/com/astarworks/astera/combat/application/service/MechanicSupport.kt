@@ -72,7 +72,7 @@ public object MechanicSupport {
 
     /** Mechanics whose [MechanicDispatcher] branch only logs. */
     internal fun isNoOp(mechanic: Mechanic): Boolean = when (mechanic) {
-        is Mechanic.Resurrect, is Mechanic.GiveItem, is Mechanic.ConsumeItem -> true
+        is Mechanic.Resurrect, is Mechanic.GiveItem -> true
         // WP5 batch B: implemented in WorldMechanics.
         is Mechanic.Heal, is Mechanic.SummonLightning, is Mechanic.Summon, is Mechanic.SetBlock,
         is Mechanic.RemoveBlock, is Mechanic.Explode, is Mechanic.SpawnDisplay, is Mechanic.PlayVfx, is Mechanic.Glow, is Mechanic.HideHeldItem,
@@ -80,7 +80,7 @@ public object MechanicSupport {
         is Mechanic.Damage, is Mechanic.ApplyStatus, is Mechanic.Knockback, is Mechanic.Knockup,
         is Mechanic.RemoveStatus, is Mechanic.Cleanse, is Mechanic.Ignite, is Mechanic.Freeze,
         is Mechanic.Silence, is Mechanic.SetVelocity, is Mechanic.Propel, is Mechanic.Leap,
-        is Mechanic.ModifyAttribute, is Mechanic.SetCooldown,
+        is Mechanic.ModifyAttribute, is Mechanic.SetCooldown, is Mechanic.ConsumeItem,
         is Mechanic.SendMessage, is Mechanic.SendActionBar, is Mechanic.SendTitle,
         is Mechanic.DashStrike, is Mechanic.HitStop, is Mechanic.RestoreResource,
         is Mechanic.Teleport, is Mechanic.SpawnParticle, is Mechanic.ScheduleParticleAnimation, is Mechanic.PlaySound, is Mechanic.PlayAnimation, is Mechanic.Counter,

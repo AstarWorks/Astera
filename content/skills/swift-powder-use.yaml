@@ -25,5 +25,3 @@ phases:
   - type: spawn_particle
     targets: {type: caster_offset, offset: {type: literal, value: {x: 0.0, y: 0.2, z: 0.0}}}
     particle_id: dash-cloud
-  expire: []
-  removed: []
