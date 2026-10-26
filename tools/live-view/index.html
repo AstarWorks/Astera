@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Astera live view</title>
+<style>
+body{font:16px system-ui;background:#15191f;color:#eee;max-width:1320px;margin:20px auto;padding:0 16px}video{width:100%;aspect-ratio:16/9;background:#000}button,select,input{font:inherit;padding:7px;margin:4px}button{cursor:pointer}label{display:inline-block}#state{font-variant-numeric:tabular-nums}#message{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#9dd3ff}.row{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+</style>
+<h1>Astera live view</h1>
+<p id="state" role="status">Connecting…</p>
+<video id="video" autoplay muted playsinline aria-label="Real Minecraft client live video"></video>
+<div class="row"><label>Skill <select id="skill"></select></label><button id="cast">Cast</button><button id="recast">Recast</button><button id="reload">Reload content</button></div>
+<div class="row"><label>View <select id="view"><option>caster</option><option>side</option><option>compare</option></select></label><label>Case <select id="case"></select></label><label>Camera <select id="camera"></select></label><button id="apply">Apply view</button><label><input id="hud" type="checkbox"> HUD</label><button id="audio">Unmute</button><button id="reconnect">Reconnect</button></div>
+<div class="row"><button id="snapshot">Snapshot PNG</button><label>Last <input id="seconds" type="number" min="1" max="120" value="10" style="width:60px"> seconds</label><button id="clip">Record clip MP4</button></div>
+<p>Recast repeats the last cast. Reload copies this worktree’s content and runs <code>/astera admin reload all</code>. View changes may restart a client to apply its resolution/FOV.</p>
+<p id="message" role="status"></p>
+<script type="module" src="/player.js"></script></html>
