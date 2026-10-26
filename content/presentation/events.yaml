@@ -90,6 +90,15 @@ moments:
     cue: "astera:norma/choice-defaulted"
     action_bar: "astera.match.norma-choice.defaulted.{kind}"
 
+  # carry-mini-tnt: a team's pool reached the combine size and the pieces fused into one real TNT (title for the team, cue for all).
+  mini-tnt-combined:
+    cue: "astera:norma/level-up"
+    audience_cue: "astera:norma/burst"
+    title: "astera.gamemode.carry-mini-tnt.combined.title"
+    subtitle: "astera.gamemode.carry-mini-tnt.combined.subtitle"
+    title_stay_ticks: 60
+    particle: norma-level-up
+
   match-win:
     cue: "astera:match/win"
   match-lose:
