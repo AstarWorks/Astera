@@ -20,6 +20,19 @@ class JoinE2eTest : E2eBase() {
             "joined as ${b.name}; world=${b.worldName}; pos=(${b.x.toInt()},${b.y.toInt()},${b.z.toInt()}); packets=${b.packetCounts.keys.size} kinds"
         }
 
+        E2eReport.check(suite, "fresh join lands on solid ground inside the lobby town over a void world", "login position + RCON block probe") {
+            b.waitUntil(8_000) { b.y > 0.0 }
+            val bx = Math.floor(b.x).toInt(); val by = Math.floor(b.y).toInt(); val bz = Math.floor(b.z).toInt()
+            assertThat(Math.abs(b.x)).describedAs("x inside lobby bounds (pos=${b.x},${b.y},${b.z})").isLessThan(768.0)
+            assertThat(Math.abs(b.z)).describedAs("z inside lobby bounds").isLessThan(768.0)
+            assertThat(b.y).describedAs("y at town height, not on flat ground").isGreaterThan(50.0)
+            val under = rcon("execute if block $bx ${by - 1} $bz minecraft:air")
+            assertThat(under).describedAs("block under feet must not be air").doesNotContain("Test passed")
+            val base = rcon("execute if block $bx -60 $bz minecraft:air")
+            assertThat(base).describedAs("world must be void: flat terrain found at y=-60 below the town").contains("Test passed")
+            "pos=($bx,$by,$bz); under feet solid; y=-60 is air (void)"
+        }
+
         E2eReport.check(suite, "resource pack push carries URL + SHA-1", "ClientboundResourcePackPush") {
             assertThat(b.packPushes).describedAs("resource pack pushes").isNotEmpty()
             val p = b.packPushes.first()
