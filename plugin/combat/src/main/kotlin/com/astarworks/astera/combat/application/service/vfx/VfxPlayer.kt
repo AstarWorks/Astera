@@ -12,6 +12,7 @@ import com.astarworks.astera.core.application.port.outbound.presentation.IPlayer
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
 import com.astarworks.astera.core.domain.effect.vfx.VfxBodyContext
 import com.astarworks.astera.core.domain.presentation.PresentationAudience
 import com.astarworks.astera.core.domain.presentation.PresentationDisplay
@@ -406,7 +407,7 @@ public class VfxPlayer(
             // A cut: every performer jumps in the same client step. The updates apply at tick end, inside one bundle per viewer.
             val due = instance.bundled.toMap()
             instance.bundled.clear()
-            port.flushBundled(owner, due.map { (handle, apply) -> PresentationDisplay(handle.id, null, apply) })
+            port.flushBundled(owner, due.map { (handle, apply) -> PresentationDisplay(handle.id, null, beforeSend = apply) })
         }
         return age >= plan.durationTicks
     }
@@ -419,7 +420,9 @@ public class VfxPlayer(
         val port = presentation?.invoke()
         val staged = instance.elements.filter { it.staged }.mapNotNull { state ->
             state.handle?.let { handle ->
-                PresentationDisplay(handle.id, state.plan.viewRange ?: DEFAULT_VIEW_RANGE) { instance.bundled.remove(handle)?.invoke() }
+                // The head bone encloses the owner's first-person camera: the owner never gets it (third person: headless rig).
+                val ownHead = (state.plan.kind as? VfxElementKind.SkinBone)?.bone == SkinRigBone.HEAD
+                PresentationDisplay(handle.id, state.plan.viewRange ?: DEFAULT_VIEW_RANGE, ownHead) { instance.bundled.remove(handle)?.invoke() }
             }
         }
         if (port == null) {

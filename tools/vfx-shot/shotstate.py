@@ -21,7 +21,8 @@ PACK_CONTENT_DIRS = ("textures", "models", "sounds", "hud", "fonts", "pack-asset
                      "particle-skins", "items", "sprites")
 PACK_CODE_DIRS = ("tools/resource-pack",)
 # Everything that ends up inside the 7 plugin jars.
-CODE_PATHS = ("plugin", "buildSrc", "gradle", "build.gradle.kts", "settings.gradle.kts", "gradle.properties", "config")
+# kernel/ and core/ (feature-*) are shaded into astera-core: a change there must rebuild and restart too.
+CODE_PATHS = ("plugin", "kernel", "core", "buildSrc", "gradle", "build.gradle.kts", "settings.gradle.kts", "gradle.properties", "config")
 
 
 def files(root, *paths):
