@@ -2,12 +2,12 @@
 id: couture-s2-p-ring-yellow
 shape: {kind: circle, radius_blocks: 1.1}
 color: {r: 232, g: 221, b: 73}
-count: 18
+count: 30
 lifetime_ticks: 6
 vanilla_particle: dust
 data:
   kind: dust
   color: {r: 232, g: 221, b: 73}
-  scale: 1.0
+  scale: 1.2
 speed: 0.0
 force: true

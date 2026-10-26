@@ -1,0 +1,15 @@
+# small purple dust motes
+id: couture-s2-p-purple
+shape: {kind: burst, spread_blocks: 0.45}
+color: {r: 170, g: 110, b: 240}
+count: 8
+lifetime_ticks: 12
+vanilla_particle: dust_color_transition
+data:
+  kind: dust_color_transition
+  from: {r: 190, g: 130, b: 255}
+  to: {r: 90, g: 50, b: 160}
+  scale: 0.8
+speed: 0.0
+velocity: {direction: up, speed: 0.05, spread_degrees: 90, speed_jitter: 0.6}
+force: true

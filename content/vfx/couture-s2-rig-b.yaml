@@ -62,3 +62,180 @@ elements:
     ease: in_quad
     color: '#7A4FC2'
     alpha: 0.0
+# --- dense particle layer (couture-s2 particle pass) ---
+- id: hz-b-0
+  kind: {type: particle, particle_id: couture-s2-p-haze, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 0.15, -0.3]
+- id: hz-dark-0
+  kind: {type: particle, particle_id: couture-s2-p-smoke, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 0.6, -0.3]
+- id: hz-purple-0
+  kind: {type: particle, particle_id: couture-s2-p-purple, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.0, -0.3]
+- id: hz-b-1
+  kind: {type: particle, particle_id: couture-s2-p-haze, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.5, 0.15, 0.4]
+- id: hz-dark-1
+  kind: {type: particle, particle_id: couture-s2-p-smoke, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.5, 0.6, 0.4]
+- id: hz-purple-1
+  kind: {type: particle, particle_id: couture-s2-p-purple, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.5, 1.0, 0.4]
+- id: hz-b-2
+  kind: {type: particle, particle_id: couture-s2-p-haze, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [-0.5, 0.15, 0.4]
+- id: hz-dark-2
+  kind: {type: particle, particle_id: couture-s2-p-smoke, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [-0.5, 0.6, 0.4]
+- id: hz-purple-2
+  kind: {type: particle, particle_id: couture-s2-p-purple, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [-0.5, 1.0, 0.4]
+- id: hz-b-3
+  kind: {type: particle, particle_id: couture-s2-p-haze, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 0.15, 1.0]
+- id: hz-dark-3
+  kind: {type: particle, particle_id: couture-s2-p-smoke, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 0.6, 1.0]
+- id: hz-purple-3
+  kind: {type: particle, particle_id: couture-s2-p-purple, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.0, 1.0]
+- id: hz-glint
+  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.4, 1.2]
+- id: hz-spark
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 3
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.0, 1.4]
+- id: hold-petal-0
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 2}
+  brightness: 15
+  start_tick: 14
+  end_tick: 33
+  keyframes:
+  - t: 0
+    translate: [0, 1.8, -0.4]
+- id: hold-drift-0
+  kind: {type: particle, particle_id: couture-s2-p-pink-drift, every_ticks: 1}
+  brightness: 15
+  start_tick: 14
+  end_tick: 33
+  keyframes:
+  - t: 0
+    translate: [0, 1.2, -0.4]
+- id: hold-petal-1
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 2}
+  brightness: 15
+  start_tick: 14
+  end_tick: 33
+  keyframes:
+  - t: 0
+    translate: [0.7, 1.8, 0.5]
+- id: hold-drift-1
+  kind: {type: particle, particle_id: couture-s2-p-pink-drift, every_ticks: 1}
+  brightness: 15
+  start_tick: 14
+  end_tick: 33
+  keyframes:
+  - t: 0
+    translate: [0.7, 1.2, 0.5]
+- id: hold-petal-2
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 2}
+  brightness: 15
+  start_tick: 14
+  end_tick: 33
+  keyframes:
+  - t: 0
+    translate: [-0.7, 1.8, 0.5]
+- id: hold-drift-2
+  kind: {type: particle, particle_id: couture-s2-p-pink-drift, every_ticks: 1}
+  brightness: 15
+  start_tick: 14
+  end_tick: 33
+  keyframes:
+  - t: 0
+    translate: [-0.7, 1.2, 0.5]
+- id: hold-glint
+  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 2}
+  brightness: 15
+  start_tick: 14
+  end_tick: 33
+  keyframes:
+  - t: 0
+    translate: [0, 1.5, 0.6]
+- id: hold-smoke
+  kind: {type: particle, particle_id: couture-s2-p-purple, every_ticks: 2}
+  brightness: 15
+  start_tick: 14
+  end_tick: 26
+  keyframes:
+  - t: 0
+    translate: [0, 0.4, 0.4]
