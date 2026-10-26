@@ -50,6 +50,9 @@
         },
         "follow_body_yaw": {
             "type": "boolean"
+        },
+        "follow_pitch": {
+            "type": "boolean"
         }
     },
     "required": [

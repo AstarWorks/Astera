@@ -88,6 +88,8 @@ public data class VfxYamlConfig(
     public val body: String? = null,
     /** The effect's frame also turns with the caster's performance spine yaw (needs `follow: true`). */
     @SerialName("follow_body_yaw") public val followBodyYaw: Boolean = false,
+    /** The caster's look pitch (clamped to +-45 degrees) tilts the effect / performance frame about the caster's feet. */
+    @SerialName("follow_pitch") public val followPitch: Boolean = false,
 ) {
     /** Materializes the domain definition; every validation failure comes back as a [VfxConfigError]. */
     public fun toDefinition(): Result<VfxDefinition, VfxConfigError> = try {
@@ -106,6 +108,7 @@ public data class VfxYamlConfig(
                 targetReference = targetReference?.let { vec3(it, "target_reference") },
                 body = body?.let { com.astarworks.astera.core.domain.animation.player.CustomAnimationId(it) },
                 followBodyYaw = followBodyYaw,
+                followPitch = followPitch,
             ),
         )
     } catch (e: IllegalArgumentException) {

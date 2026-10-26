@@ -43,7 +43,12 @@ import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.world.WorldId
 import org.slf4j.Logger
+import com.astarworks.astera.core.domain.effect.vfx.VfxOrient
+import com.astarworks.astera.core.domain.geometry.SLASH_PITCH_LIMIT_DEGREES
+import com.astarworks.astera.core.domain.geometry.pitchRadians
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.atan2
 
 /** Why [VfxPlayer.play] did not start an effect. */
@@ -148,6 +153,7 @@ public class VfxPlayer(
 
         /** Last transform sent to clients: the yaw it carried, the tick, and its interpolation (to re-send the rest of a move). */
         var sentYaw: Double = 0.0
+        var sentPitch: Double = 0.0
         var sentTick: Int = -1
         var sentInterpolation: Int = 0
     }
@@ -192,6 +198,11 @@ public class VfxPlayer(
         /** Rotation about the caster's feet applied to every element this tick (live yaw + body yaw), as angle and quaternion. */
         var yawTheta: Double = 0.0
         var liveTheta: Double = 0.0
+
+        /** `follow_pitch` performance: clamped pitch at cast, and how far the live pitch has tilted it since (radians). */
+        var followPitch: Boolean = false
+        var castPitch: Double = 0.0
+        var pitchTheta: Double = 0.0
         var yaw: Quaternion = Quaternion.IDENTITY
 
         val turns: Boolean get() = castHeading != null || followBodyYaw
@@ -218,7 +229,12 @@ public class VfxPlayer(
             (request.target != null && ((request.follow ?: def.follow) || request.target.invoke() == null))) {
             return Result.failure(VfxPlayError.InvalidTargetTracking(request.vfxId))
         }
-        val frame = def.orient.frame(request.origin, request.look, request.toTarget)
+        var frame = def.orient.frame(request.origin, request.look, request.toTarget)
+        // A new beat takes the caster's CURRENT look: yaw always (orient), pitch too when the effect follows it (clamped).
+        if (def.followPitch && def.orient == VfxOrient.YAW) {
+            val pitch = request.look?.pitchRadians()?.coerceIn(-SLASH_PITCH_LIMIT, SLASH_PITCH_LIMIT)
+            if (pitch != null && pitch != 0.0) frame = frame.copy(rotation = frame.rotation * Quaternion.axisAngle(Vec3(1.0, 0.0, 0.0), -pitch))
+        }
         val body = def.body?.let { id ->
             val animation = bodies?.invoke(id) ?: return Result.failure(VfxPlayError.UnknownBody(request.vfxId, id))
             VfxBodyContext(animation, request.anchorEntityId?.let { displays.isSlimSkin(it) } ?: false)
@@ -279,8 +295,12 @@ public class VfxPlayer(
         }
         val owner = request.anchorEntityId
         if (owner != null && plan.follow && !plan.performance && def.followBodyYaw) instance.followBodyYaw = true
-        if (owner != null && plan.follow && liveLook != null && def.orient.turnsWithYaw) {
+        // Only the performance (skin body + weapon rig) keeps turning with the live look; a slash that has spawned keeps flying the
+        // way it was cast, the next beat reads the new look.
+        if (owner != null && plan.follow && plan.performance && liveLook != null) {
             instance.castHeading = heading(request.look)
+            if (def.followPitch) instance.castPitch = request.look?.pitchRadians()?.coerceIn(-SLASH_PITCH_LIMIT, SLASH_PITCH_LIMIT) ?: 0.0
+            instance.followPitch = def.followPitch
         }
         replaced.forEach(::finish)
         reserved += plan.displayCount
@@ -413,6 +433,7 @@ public class VfxPlayer(
                         if (bundle) instance.bundled[handle] = { displays.update(handle, turned, u.interpolationTicks) }
                         else displays.update(handle, turned, u.interpolationTicks)
                         state.sentYaw = instance.yawTheta
+                        state.sentPitch = instance.pitchTheta
                         state.sentTick = age
                         state.sentInterpolation = u.interpolationTicks
                         sentNow = true
@@ -421,10 +442,11 @@ public class VfxPlayer(
                 // The frame turned since this element was last sent (caster yaw / body twist): re-send its authored pose in the
                 // new frame, keeping what is left of the move in flight.
                 if (!sentNow && instance.turns && state.lineCorrection == null && age > e.spawnTick && age < e.despawnTick &&
-                    abs(instance.yawTheta - state.sentYaw) > YAW_EPSILON) {
+                    (abs(instance.yawTheta - state.sentYaw) > YAW_EPSILON || abs(instance.pitchTheta - state.sentPitch) > YAW_EPSILON)) {
                     val remaining = (state.sentTick + state.sentInterpolation - age).coerceAtLeast(1)
                     displays.update(handle, instance.yawed(state.authoredTransform), remaining)
                     state.sentYaw = instance.yawTheta
+                    state.sentPitch = instance.pitchTheta
                     state.sentTick = age
                     state.sentInterpolation = remaining
                 }
@@ -477,7 +499,17 @@ public class VfxPlayer(
         }
         if (instance.followBodyYaw) theta += bodyYaw(instance)
         instance.yawTheta = theta
-        instance.yaw = if (theta == 0.0) Quaternion.IDENTITY else Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), theta)
+        var turn = if (theta == 0.0) Quaternion.IDENTITY else Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), theta)
+        if (instance.followPitch && cast != null) {
+            val live = liveLook?.invoke(owner)?.pitchRadians()?.coerceIn(-SLASH_PITCH_LIMIT, SLASH_PITCH_LIMIT)
+            instance.pitchTheta = if (live != null) live - instance.castPitch else instance.pitchTheta
+            if (instance.pitchTheta != 0.0) {
+                // Tilt about the horizontal axis across the (live) heading, through the caster's feet: looking up leans the plane up.
+                val h = cast + instance.liveTheta
+                turn = Quaternion.axisAngle(Vec3(cos(h), 0.0, -sin(h)), -instance.pitchTheta) * turn
+            }
+        }
+        instance.yaw = turn
     }
 
     /** Spine yaw (radians, relative to the caster's facing at cast) of the caster's live body performance; `0` without one. */
@@ -705,5 +737,7 @@ public class VfxPlayer(
 
         /** Smallest change of the effect frame's yaw (radians) that is re-sent to clients. */
         private const val YAW_EPSILON: Double = 0.0035
+
+        private val SLASH_PITCH_LIMIT: Double = Math.toRadians(SLASH_PITCH_LIMIT_DEGREES)
     }
 }
