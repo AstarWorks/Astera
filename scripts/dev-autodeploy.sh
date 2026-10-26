@@ -151,7 +151,7 @@ rollback() {
       [ "$SECONDS" -lt "$deadline" ] || return 1
       sleep 2
     done
-    confirm "$svc" "astera admin reload all" "Reloaded all." || return
+    confirm "$svc" "astera admin reload all" "Reloaded all.|再読み込みしました" || return
   done
   make dev-pack || return
 }
@@ -163,7 +163,9 @@ confirm() {
     # rcon-cli colors its replies (ESC[32mReloaded ESC[33mall...): strip SGR codes and CRs before matching.
     out=$(docker exec "astera-dev-$svc-1" rcon-cli "$command" | sed 's/\x1b\[[0-9;]*m//g; s/\r//g') || return 1
     printf '%s\n' "$out"
-    [[ "$out" == *"$expected"* ]] && return 0
+    # expected = alternatives separated by '|' (English and localized replies).
+    local alt; local IFS='|'
+    for alt in $expected; do [[ "$out" == *"$alt"* ]] && return 0; done
     [ -z "$out" ] || return 1
     sleep 1
   done
@@ -277,7 +279,7 @@ deploy() (
       for svc in lobby game; do
         case "$step" in
           stack) ;;
-          content) confirm "$svc" "astera admin reload all" "Reloaded all." || exit 1 ;;
+          content) confirm "$svc" "astera admin reload all" "Reloaded all.|再読み込みしました" || exit 1 ;;
           pack)
             hash=$(docker exec astera-dev-resource-pack-1 cat /usr/share/nginx/html/astera.zip.sha1) || exit 1
             hash=${hash:0:8}
