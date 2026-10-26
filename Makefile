@@ -61,7 +61,10 @@ DEV_STACK_TARGETS := docker-up dev-hotswap-up dev-hotswap dev-plugins dev-deploy
 $(DEV_STACK_TARGETS): export DOCKER_HOST := ssh://$(ASTERA_DEV_HOST)
 $(DEV_STACK_TARGETS): export POSTGRES_BIND := $(or $(POSTGRES_BIND),127.0.0.1)
 $(DEV_STACK_TARGETS): export REDIS_BIND := $(or $(REDIS_BIND),127.0.0.1)
-$(DEV_STACK_TARGETS): export ASTERA_PUBLIC_HOST := $(or $(ASTERA_PUBLIC_HOST),$(lastword $(subst @, ,$(ASTERA_DEV_HOST))))
+# Always derived from ASTERA_DEV_HOST (a stale external ASTERA_PUBLIC_HOST / ASTERA_RESOURCE_PACK_URL must not win).
+$(DEV_STACK_TARGETS): export ASTERA_PUBLIC_HOST := $(lastword $(subst @, ,$(ASTERA_DEV_HOST)))
+DOCKER_COMPOSE += -f docker/docker-compose.remote.yml
+DOCKER_COMPOSE_HOTSWAP += -f docker/docker-compose.remote.yml
 endif
 
 .PHONY: docker-env
@@ -91,7 +94,7 @@ dev-plugins: ## Fast loop: build jars, push changed ones into the running backen
 	./scripts/dev-deploy.sh plugins
 
 .PHONY: dev-deploy
-dev-deploy: ## Fast loop: build jars + push content/ into the running backends, restart each ONCE (matching jar+content, arenas built in that boot; players are moved, not kicked)
+dev-deploy: ## Fast loop: rebuild+push the resource pack, build jars + push content/ into the running backends, restart each ONCE (matching jar+content, arenas built in that boot; players are moved, not kicked)
 	./scripts/dev-deploy.sh deploy
 
 .PHONY: dev-content

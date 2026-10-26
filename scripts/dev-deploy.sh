@@ -5,7 +5,7 @@
 #   scripts/dev-deploy.sh hotswap   build the 7 shadow jars and apply the changed classes to the RUNNING
 #                                   backends (JBR + agent image, `make dev-hotswap-up`); a backend restarts
 #                                   only when the JVM refuses the change
-#   scripts/dev-deploy.sh deploy    build jars AND push content/ into each backend while it still runs, then restart
+#   scripts/dev-deploy.sh deploy    rebuild+restart the resource pack server (docker-cached), build jars AND push content/ into each backend while it still runs, then restart
 #                                   that backend ONCE (players moved, not kicked): it boots with matching jar+content
 #                                   and builds every arena in that single boot. Jars byte-identical and no FORCE:
 #                                   content-only, reloaded in place like `content`.
@@ -28,12 +28,17 @@ cd "$(dirname "$0")/.."
 
 if [ -n "${ASTERA_DEV_HOST:-}" ]; then
   export DOCKER_HOST="ssh://$ASTERA_DEV_HOST"
-  export ASTERA_PUBLIC_HOST="${ASTERA_PUBLIC_HOST:-${ASTERA_DEV_HOST##*@}}"
+  # Always derived from the dev host: a stale external ASTERA_PUBLIC_HOST / ASTERA_RESOURCE_PACK_URL must not win.
+  export ASTERA_PUBLIC_HOST="${ASTERA_DEV_HOST##*@}"
+  unset ASTERA_RESOURCE_PACK_URL
   export POSTGRES_BIND="${POSTGRES_BIND:-127.0.0.1}" REDIS_BIND="${REDIS_BIND:-127.0.0.1}"
 fi
 
 COMPOSE=(docker compose)
-for f in ${COMPOSE_FILES:-docker/docker-compose.yml}; do COMPOSE+=(-f "$f"); done
+COMPOSE_FILES=${COMPOSE_FILES:-docker/docker-compose.yml}
+# Remote VM: JAVA_TOOL_OPTIONS + the pack URL pinned to the dev host (docker/docker-compose.remote.yml).
+if [ -n "${ASTERA_DEV_HOST:-}" ]; then COMPOSE_FILES="$COMPOSE_FILES docker/docker-compose.remote.yml"; fi
+for f in $COMPOSE_FILES; do COMPOSE+=(-f "$f"); done
 BACKENDS=${BACKENDS:-"lobby game"}
 BOOT_TIMEOUT=${BOOT_TIMEOUT:-240}
 PLUGINS=(core items combat match stats economy persistence)
@@ -260,12 +265,37 @@ content() {
   log "total: $(elapsed "$t0")"
 }
 
+# Rebuild the pack image (layer-cached when content/ and the pack tool are unchanged) and recreate only the
+# pack server, so astera.zip + .sha1 are current before the backends boot and read the hash.
+rebuild_pack() {
+  local t
+  t=$(now)
+  quiet "${COMPOSE[@]}" up -d --build --no-deps resource-pack
+  log "resource-pack: rebuilt ($(elapsed "$t"))"
+}
+
+# Print the pack URL the backends really run with and fail unless it answers 200.
+verify_pack_url() {
+  local svc url code
+  for svc in $BACKENDS; do
+    url=$(dexec "$svc" printenv ASTERA_RESOURCE_PACK_URL | tr -d '\r')
+    log "$svc: effective pack URL: $url"
+    code=$(curl -sfI -o /dev/null -w '%{http_code}' --max-time 20 "$url" || true)
+    if [ "$code" != 200 ]; then
+      log "ERROR: pack URL $url did not return 200 (got '${code:-no response}'); clients cannot download the pack"
+      exit 1
+    fi
+  done
+  log "pack URL OK (200)"
+}
+
 # Jars + content in one restart. Content is swapped in while the old JVM runs (it only reads /content on
 # boot or on `reload all`, neither happens before the stop), so the one boot sees matching jar and content.
 deploy() {
   local t0 svc t out
   t0=$(now)
   build_jars
+  rebuild_pack
   for svc in $BACKENDS; do
     if ! is_running "$svc"; then log "$svc is not running: start the stack with 'make docker-up' first"; exit 1; fi
     local changed=()
@@ -284,6 +314,8 @@ deploy() {
     restart_backend "$svc" "${changed[@]}"
     refresh_items "$svc"
   done
+  pack
+  verify_pack_url
   log "total: $(elapsed "$t0")"
 }
 

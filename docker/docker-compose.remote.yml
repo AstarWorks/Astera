@@ -1,0 +1,19 @@
+# Overlay for the remote dev VM (ASTERA_DEV_HOST set). Applied automatically by the Makefile and
+# scripts/dev-deploy.sh; never used for the local stack or e2e.
+#
+# - JAVA_TOOL_OPTIONS: netty's OpenSSL (tcnative) provider is broken on the VM; use the JDK provider.
+# - ASTERA_RESOURCE_PACK_URL is pinned HERE to the host derived from ASTERA_DEV_HOST (exported as
+#   ASTERA_PUBLIC_HOST by the Makefile / dev-deploy.sh). It deliberately does not read
+#   ${ASTERA_RESOURCE_PACK_URL}, so a stale value from the shell or docker/.env cannot win.
+services:
+  velocity:
+    environment:
+      JAVA_TOOL_OPTIONS: "-Dio.netty.handler.ssl.noOpenSsl=true"
+  lobby:
+    environment:
+      JAVA_TOOL_OPTIONS: "-Dio.netty.handler.ssl.noOpenSsl=true"
+      ASTERA_RESOURCE_PACK_URL: "http://${ASTERA_PUBLIC_HOST:?set by ASTERA_DEV_HOST}:${RESOURCE_PACK_PORT:-8099}/astera.zip"
+  game:
+    environment:
+      JAVA_TOOL_OPTIONS: "-Dio.netty.handler.ssl.noOpenSsl=true"
+      ASTERA_RESOURCE_PACK_URL: "http://${ASTERA_PUBLIC_HOST:?set by ASTERA_DEV_HOST}:${RESOURCE_PACK_PORT:-8099}/astera.zip"
