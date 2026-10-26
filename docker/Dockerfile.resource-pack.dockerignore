@@ -29,3 +29,7 @@ docs/
 deploy/
 private/
 tools/architecture-test/build/
+
+# Only tools/resource-pack is built here (it needs kernel:domain, not the other tools).
+tools/*/src
+!tools/resource-pack/src

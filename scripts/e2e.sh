@@ -159,6 +159,14 @@ if [ "${1:-}" = "down" ]; then
   exit 0
 fi
 
+# `scripts/e2e.sh build`: build every image of this checkout WITHOUT the host-wide e2e lock, so the (cacheable but
+# minutes-long on a cold change) image builds overlap with whoever holds the lock. `make e2e-smoke` does this first.
+if [ "${1:-}" = "build" ]; then
+  echo "[e2e] pre-building images for project $PROJECT (no lock needed)"
+  "${C[@]}" build e2e e2e-resource-pack e2e-velocity e2e-runner
+  exit $?
+fi
+
 mkdir -p build "$STAMP_DIR"
 rm -f "$REPORT"   # never append load data to a previous run's report
 printf '%s %s %s\n' "$$" "$HOST" "$(date +%s)" > "$STAMP"
