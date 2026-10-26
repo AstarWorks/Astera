@@ -187,9 +187,94 @@ skills_wand_cast() {   # rising shimmer and a bell crown
     mix wand 0.8 a:0:0.7 s0:150:0.6 s1:220:0.6 s2:290:0.6 s3:360:0.6; finish skills/wand-cast wand
 }
 
+combat_hit() {    # short dry tick: low body knock + a bright click (heard on every landed hit, so it stays tiny)
+    gen a 0.1 "$(sweep 420 160 0.05 40)"
+    noise b 0.06 "highpass=f=3500,volume='exp(-t*110)':eval=frame" 91
+    mix hit 0.1 a:0:1 b:0:0.35; finish combat/hit hit
+}
+combat_crit() {   # hit plus a rising metallic ping, clearly brighter than hit
+    gen a 0.1 "$(sweep 520 180 0.05 38)"
+    gen b 0.4 "$(bell 2349 14)"; gen c 0.4 "$(bell 3520 18)"
+    noise d 0.08 "highpass=f=4500,volume='exp(-t*80)':eval=frame" 92
+    mix crit 0.4 a:0:0.9 b:10:0.8 c:25:0.5 d:0:0.35; finish combat/crit crit
+}
+combat_blocked() {  # dull metallic clank: low inharmonic thud, no sparkle
+    gen a 0.3 "$(bell 310 22)"; gen b 0.3 "$(bell 190 30)"
+    noise c 0.12 "bandpass=f=1200:w=2,volume='exp(-t*50)':eval=frame" 93
+    mix blocked 0.3 a:0:0.9 b:0:0.8 c:0:0.4; finish combat/blocked blocked
+}
+combat_skill_ready() {  # two soft rising pings
+    gen a 0.35 "$(bell 1319 11)"; gen b 0.35 "$(bell 1760 10)"
+    mix ready 0.4 a:0:0.8 b:90:0.9; finish combat/skill-ready ready
+}
+combat_ego_ready() {  # charged swell into a bright hit: the ultimate is available
+    gen a 0.5 "sin(2*PI*(220*t+(880-220)*t*t/(2*0.5)))*min(t/0.05,1)*0.4"
+    noise b 0.5 "bandpass=f=3000:w=2,volume='min(t/0.45,1)*0.5':eval=frame" 94
+    gen c 0.9 "$(bell 1760 5)"; gen d 0.9 "$(bell 2637 5.5)"; gen e 0.9 "$(bell 3520 6)"
+    mix ego 1.2 a:0:0.7 b:0:0.35 c:450:1 d:450:0.7 e:480:0.5; finish combat/ego-ready ego
+}
+match_respawn() {  # rising whoosh into a soft landing chime
+    gen a 0.5 "sin(2*PI*(260*t+(900-260)*t*t/(2*0.5)))*min(t/0.04,1)*exp(-2*max(t-0.3,0))*0.4"
+    noise b 0.5 "bandpass=f=1500:w=1.5,volume='pow(sin(PI*min(t/0.5,1)),2)*0.6':eval=frame" 95
+    gen c 0.7 "$(bell 1175 7)"; gen d 0.7 "$(bell 1760 8)"
+    mix respawn 1.0 a:0:0.8 b:0:0.4 c:320:1 d:380:0.6; finish match/respawn respawn
+}
+match_draw() {    # neutral two-note: a fifth that neither rises nor falls to rest
+    gen a 0.9 "$(pluck 523 3.5)"; gen b 0.9 "$(pluck 392 3.2)"; gen c 1.2 "$(bell 784 3)"
+    mix draw 1.3 a:0:0.8 b:260:0.8 c:520:0.6; finish match/draw draw
+}
+star_pop() {      # tiny glassy bubble: a high bell with an upward blip, quiet and short
+    gen a 0.25 "$(sweep 2200 3300 0.04 24)"; gen b 0.35 "$(bell 3136 18)"
+    mix pop 0.35 a:0:0.5 b:0:1; finish star/pop pop
+}
+norma_burst() {   # bystander level-up: soft distant arpeggio shimmer
+    local i=0 f; for f in 784 988 1175 1568; do gen "n$i" 0.5 "$(bell $f 9)"; i=$((i + 1)); done
+    mix burst 0.7 n0:0:0.8 n1:70:0.8 n2:140:0.8 n3:210:0.9; finish norma/burst burst
+}
+norma_burst_max() {  # bystander max level: shimmer plus a swelling low chord
+    local i=0 f; for f in 784 988 1175 1568 1976; do gen "n$i" 0.7 "$(bell $f 7)"; i=$((i + 1)); done
+    gen pad 1.4 "$(brass 392 0.12 2.2)"
+    noise sp 0.4 "highpass=f=5000,volume='exp(-t*9)':eval=frame" 96
+    mix bmax 1.5 n0:0:0.7 n1:60:0.7 n2:120:0.7 n3:180:0.7 n4:240:0.8 pad:0:0.6 sp:200:0.3; finish norma/burst-max bmax
+}
+norma_choice_open() {  # soft attention chime: two bells
+    gen a 0.5 "$(bell 988 8)"; gen b 0.5 "$(bell 1319 8)"
+    mix open 0.55 a:0:0.9 b:110:1; finish norma/choice-open open
+}
+norma_choice_picked() {  # short confirming pluck pair, upward
+    gen a 0.3 "$(pluck 784 12)"; gen b 0.3 "$(pluck 1175 10)"
+    mix picked 0.35 a:0:0.8 b:70:1; finish norma/choice-picked picked
+}
+norma_choice_defaulted() {  # neutral low double tap: chosen for you
+    gen a 0.25 "$(pluck 330 14)"; gen b 0.25 "$(pluck 330 14)"
+    mix defaulted 0.35 a:0:0.9 b:110:0.7; finish norma/choice-defaulted defaulted
+}
+
+ui_level_up() {   # player level: bright two-step run up into a held bell
+    gen a 0.4 "$(pluck 659 9)"; gen b 0.4 "$(pluck 880 9)"; gen c 0.9 "$(bell 1760 5)"; gen d 0.9 "$(bell 2637 6)"
+    mix lvl 1.0 a:0:0.8 b:90:0.9 c:180:1 d:180:0.5; finish ui/level-up lvl
+}
+ui_login_bonus() {  # warm gift: three-note rising pluck with a sparkle tail
+    local i=0 f; for f in 523 659 784; do gen "n$i" 0.5 "$(pluck $f 8)"; i=$((i + 1)); done
+    gen s 0.6 "$(bell 2093 8)"
+    mix login 0.9 n0:0:0.8 n1:110:0.85 n2:220:0.9 s:220:0.5; finish ui/login-bonus login
+}
+ui_quest_complete() {  # short fanfare: two brass stabs and a bell
+    gen a 0.25 "$(brass 392 0.01 7)"; gen b 0.7 "$(brass 587 0.015 3)"; gen c 0.7 "$(bell 2349 5)"
+    mix quest 0.95 a:0:0.8 b:150:0.9 c:150:0.4; finish ui/quest-complete quest
+}
+star_burst_gain() {  # the killer's haul: dense rising sparkle, brighter and shorter than the victim's burst
+    local i=0 f; for f in 2637 3136 3951 4699 5274; do gen "s$i" 0.5 "$(bell $f 10)"; i=$((i + 1)); done
+    gen lo 0.3 "$(sweep 400 900 0.1 14)"
+    mix gain 0.65 lo:0:0.6 s0:0:0.7 s1:30:0.7 s2:60:0.7 s3:90:0.7 s4:120:0.7; finish star/burst-gain gain
+}
+
 ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-up norma/level-max
      match/countdown-tick match/go combat/kill match/death match/win match/lose
-     weapons/gun-shot weapons/sword-swing skills/wand-cast)
+     weapons/gun-shot weapons/sword-swing skills/wand-cast
+     combat/hit combat/crit combat/blocked combat/skill-ready combat/ego-ready match/respawn match/draw star/pop
+     norma/burst norma/burst-max norma/choice-open norma/choice-picked norma/choice-defaulted
+     ui/level-up ui/login-bonus ui/quest-complete star/burst-gain)
 
 targets=("$@"); [[ ${#targets[@]} -gt 0 ]] || targets=("${ALL[@]}")
 for name in "${targets[@]}"; do

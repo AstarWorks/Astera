@@ -1,10 +1,7 @@
-# Sound cue (ADR-0267). Vanilla sound for now; point resource_key at an astera: OGG event later.
+# Sound cue (ADR-0267). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
+# the event is generated into assets/astera/sounds.json by :tools:resource-pack from this id + ui/login-bonus.ogg.
 id: "astera:ui/login-bonus"
-resource_key: "minecraft:entity.item.pickup"
+resource_key: "astera:ui/login-bonus"
 default_volume: 0.8
-default_pitch: 1.1
+default_pitch: 1.0
 category: ui
-layers:
-  - resource_key: "minecraft:block.note_block.chime"
-    volume: 0.6
-    pitch: 1.3
