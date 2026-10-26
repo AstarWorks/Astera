@@ -1,4 +1,5 @@
 # S2 coin 1 hit (skill tick 9): orange streak + white star + petals; peaks on effect tick 1 = damage tick (played at delay 9).
+# --- dense particle layer (couture-s2 particle pass) ---
 id: couture-s2-hit1
 duration_ticks: 12
 orient: world
@@ -46,7 +47,7 @@ elements:
     scale: [0.0, 3.6, 1]
     ease: in_quad
 - id: p-crit
-  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 2
@@ -62,7 +63,7 @@ elements:
   - t: 0
     translate: [0, 1.2, 0]
 - id: p-petal
-  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 2}
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 4}
   brightness: 15
   start_tick: 1
   end_tick: 8
@@ -70,24 +71,15 @@ elements:
   - t: 0
     translate: [0, 1.8, 0]
 - id: p-spark
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 4
   keyframes:
   - t: 0
     translate: [0, 1.2, 0]
-# --- dense particle layer (couture-s2 particle pass) ---
 - id: ps-orange-0
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
-  brightness: 15
-  start_tick: 0
-  end_tick: 3
-  keyframes:
-  - t: 0
-    translate: [0.0, 1.2, 0.0]
-- id: ps-flame-0
-  kind: {type: particle, particle_id: couture-s2-p-flame, every_ticks: 1}
   brightness: 15
   start_tick: 0
   end_tick: 3
@@ -102,24 +94,8 @@ elements:
   keyframes:
   - t: 0
     translate: [0.36, 1.46, 0.0]
-- id: ps-flame-1
-  kind: {type: particle, particle_id: couture-s2-p-flame, every_ticks: 1}
-  brightness: 15
-  start_tick: 0
-  end_tick: 3
-  keyframes:
-  - t: 0
-    translate: [0.36, 1.46, 0.0]
 - id: ps-orange-2
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
-  brightness: 15
-  start_tick: 0
-  end_tick: 3
-  keyframes:
-  - t: 0
-    translate: [-0.36, 0.94, 0.0]
-- id: ps-flame-2
-  kind: {type: particle, particle_id: couture-s2-p-flame, every_ticks: 1}
   brightness: 15
   start_tick: 0
   end_tick: 3
@@ -134,14 +110,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.68, 1.68, 0.0]
-- id: ps-flame-3
-  kind: {type: particle, particle_id: couture-s2-p-flame, every_ticks: 1}
-  brightness: 15
-  start_tick: 0
-  end_tick: 3
-  keyframes:
-  - t: 0
-    translate: [0.68, 1.68, 0.0]
 - id: ps-orange-4
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
   brightness: 15
@@ -150,16 +118,8 @@ elements:
   keyframes:
   - t: 0
     translate: [-0.68, 0.72, 0.0]
-- id: ps-flame-4
-  kind: {type: particle, particle_id: couture-s2-p-flame, every_ticks: 1}
-  brightness: 15
-  start_tick: 0
-  end_tick: 3
-  keyframes:
-  - t: 0
-    translate: [-0.68, 0.72, 0.0]
 - id: p-crit2
-  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 3
@@ -167,7 +127,7 @@ elements:
   - t: 0
     translate: [0.3, 1.4, 0.0]
 - id: p-spark2
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
   brightness: 15
   start_tick: 1
   end_tick: 6
@@ -175,7 +135,7 @@ elements:
   - t: 0
     translate: [0, 1.2, 0]
 - id: p-smoke
-  kind: {type: particle, particle_id: couture-s2-p-smoke, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-smoke, every_ticks: 3}
   brightness: 15
   start_tick: 1
   end_tick: 7
@@ -183,7 +143,7 @@ elements:
   - t: 0
     translate: [0, 1.0, 0]
 - id: p-glint
-  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 3}
   brightness: 15
   start_tick: 2
   end_tick: 9
@@ -191,7 +151,7 @@ elements:
   - t: 0
     translate: [0, 1.5, 0]
 - id: p-petal2
-  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 3}
   brightness: 15
   start_tick: 1
   end_tick: 9

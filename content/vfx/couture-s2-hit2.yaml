@@ -1,4 +1,5 @@
 # S2 coin 2 hit (skill tick 41): three white streak bundles converge, star shrinks to a thin X, black shadow; contact = effect tick 2 (played at delay 39).
+# --- dense particle layer (couture-s2 particle pass) ---
 id: couture-s2-hit2
 duration_ticks: 22
 orient: world
@@ -123,7 +124,7 @@ elements:
     scale: [0.0, 1.7, 1]
     ease: in_quad
 - id: p-crit
-  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 3}
   brightness: 15
   start_tick: 2
   end_tick: 4
@@ -139,7 +140,7 @@ elements:
   - t: 0
     translate: [0, 1.2, 0]
 - id: p-spark
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
   brightness: 15
   start_tick: 2
   end_tick: 6
@@ -147,7 +148,7 @@ elements:
   - t: 0
     translate: [0, 1.2, 0]
 - id: p-petal
-  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 2}
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 4}
   brightness: 15
   start_tick: 3
   end_tick: 12
@@ -181,9 +182,8 @@ elements:
     ease: in_quad
     color: '#0B0714'
     alpha: 0.0
-# --- dense particle layer (couture-s2 particle pass) ---
 - id: pc-spark-0
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 2
@@ -193,7 +193,7 @@ elements:
   - t: 2
     translate: [0.0, 1.2, 0.0]
 - id: pc-crit-0
-  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 2
@@ -203,7 +203,7 @@ elements:
   - t: 2
     translate: [0.0, 1.2, 0.0]
 - id: pc-glint-0
-  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 3
@@ -213,7 +213,7 @@ elements:
   - t: 2
     translate: [0.0, 1.4, 0.0]
 - id: pc-spark-1
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 2
@@ -223,7 +223,7 @@ elements:
   - t: 2
     translate: [0.0, 1.2, 0.0]
 - id: pc-crit-1
-  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 2
@@ -233,7 +233,7 @@ elements:
   - t: 2
     translate: [0.0, 1.2, 0.0]
 - id: pc-glint-1
-  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 3
@@ -243,7 +243,7 @@ elements:
   - t: 2
     translate: [0.0, 1.4, 0.0]
 - id: pc-spark-2
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 2
@@ -253,7 +253,7 @@ elements:
   - t: 2
     translate: [0.0, 1.2, 0.0]
 - id: pc-crit-2
-  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 2
@@ -263,7 +263,7 @@ elements:
   - t: 2
     translate: [0.0, 1.2, 0.0]
 - id: pc-glint-2
-  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 3}
   brightness: 15
   start_tick: 0
   end_tick: 3
@@ -280,24 +280,8 @@ elements:
   keyframes:
   - t: 0
     translate: [0.0, 1.2, 0]
-- id: px-flame-0
-  kind: {type: particle, particle_id: couture-s2-p-flame, every_ticks: 1}
-  brightness: 15
-  start_tick: 2
-  end_tick: 4
-  keyframes:
-  - t: 0
-    translate: [0.0, 1.2, 0]
 - id: px-orange-1
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
-  brightness: 15
-  start_tick: 2
-  end_tick: 4
-  keyframes:
-  - t: 0
-    translate: [0.4, 1.6, 0]
-- id: px-flame-1
-  kind: {type: particle, particle_id: couture-s2-p-flame, every_ticks: 1}
   brightness: 15
   start_tick: 2
   end_tick: 4
@@ -312,24 +296,8 @@ elements:
   keyframes:
   - t: 0
     translate: [-0.4, 0.8, 0]
-- id: px-flame-2
-  kind: {type: particle, particle_id: couture-s2-p-flame, every_ticks: 1}
-  brightness: 15
-  start_tick: 2
-  end_tick: 4
-  keyframes:
-  - t: 0
-    translate: [-0.4, 0.8, 0]
 - id: px-orange-3
   kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
-  brightness: 15
-  start_tick: 2
-  end_tick: 4
-  keyframes:
-  - t: 0
-    translate: [0.4, 0.8, 0]
-- id: px-flame-3
-  kind: {type: particle, particle_id: couture-s2-p-flame, every_ticks: 1}
   brightness: 15
   start_tick: 2
   end_tick: 4
@@ -344,16 +312,8 @@ elements:
   keyframes:
   - t: 0
     translate: [-0.4, 1.6, 0]
-- id: px-flame-4
-  kind: {type: particle, particle_id: couture-s2-p-flame, every_ticks: 1}
-  brightness: 15
-  start_tick: 2
-  end_tick: 4
-  keyframes:
-  - t: 0
-    translate: [-0.4, 1.6, 0]
 - id: p-crit2
-  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 3}
   brightness: 15
   start_tick: 2
   end_tick: 5
@@ -361,7 +321,7 @@ elements:
   - t: 0
     translate: [0.3, 1.3, 0]
 - id: p-spark2
-  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
   brightness: 15
   start_tick: 2
   end_tick: 10
@@ -369,7 +329,7 @@ elements:
   - t: 0
     translate: [0, 1.2, 0]
 - id: p-smoke
-  kind: {type: particle, particle_id: couture-s2-p-smoke, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-smoke, every_ticks: 3}
   brightness: 15
   start_tick: 2
   end_tick: 12
@@ -377,7 +337,7 @@ elements:
   - t: 0
     translate: [0, 1.0, 0]
 - id: p-smoke2
-  kind: {type: particle, particle_id: couture-s2-p-smoke, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-smoke, every_ticks: 3}
   brightness: 15
   start_tick: 3
   end_tick: 10
@@ -385,7 +345,7 @@ elements:
   - t: 0
     translate: [0.4, 0.6, 0.3]
 - id: p-petal2
-  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 3}
   brightness: 15
   start_tick: 3
   end_tick: 14
@@ -393,10 +353,186 @@ elements:
   - t: 0
     translate: [-0.4, 1.4, 0.3]
 - id: p-glint
-  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 1}
+  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 3}
   brightness: 15
   start_tick: 4
   end_tick: 14
   keyframes:
   - t: 0
     translate: [0, 1.6, 0]
+- id: fan-0
+  kind: {type: quad, color: '#FFFFFF', alpha: 1.0, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, -145]
+    scale: [0.0, 0.3, 1]
+  - t: 1
+    translate: [0.0, -0.9297953151513789, 1.49129873451272]
+    rotate: [0, 0, -145]
+    scale: [0.16, 5.0, 1]
+    ease: out_expo
+  - t: 4
+    translate: [0.0, -0.9297953151513789, 1.49129873451272]
+    rotate: [0, 0, -145]
+    scale: [0.0, 6.0, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: fan-1
+  kind: {type: quad, color: '#FFFFFF', alpha: 1.0, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, -128]
+    scale: [0.0, 0.3, 1]
+  - t: 1
+    translate: [0.0, -0.40071983584671167, 2.048827959377477]
+    rotate: [0, 0, -128]
+    scale: [0.16, 6.0, 1]
+    ease: out_expo
+  - t: 4
+    translate: [0.0, -0.40071983584671167, 2.048827959377477]
+    rotate: [0, 0, -128]
+    scale: [0.0, 6.0, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: fan-2
+  kind: {type: quad, color: '#FFFFFF', alpha: 1.0, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, -112]
+    scale: [0.0, 0.3, 1]
+  - t: 1
+    translate: [0.0, 0.22602285711862868, 2.410678021873647]
+    rotate: [0, 0, -112]
+    scale: [0.16, 7.0, 1]
+    ease: out_expo
+  - t: 4
+    translate: [0.0, 0.22602285711862868, 2.410678021873647]
+    rotate: [0, 0, -112]
+    scale: [0.0, 6.0, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: fan-3
+  kind: {type: quad, color: '#FFFFFF', alpha: 1.0, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, -98]
+    scale: [0.0, 0.3, 1]
+  - t: 1
+    translate: [0.0, 0.8381499375038298, 2.574696978728083]
+    rotate: [0, 0, -98]
+    scale: [0.16, 5.0, 1]
+    ease: out_expo
+  - t: 4
+    translate: [0.0, 0.8381499375038298, 2.574696978728083]
+    rotate: [0, 0, -98]
+    scale: [0.0, 6.0, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: fan-4
+  kind: {type: quad, color: '#FFFFFF', alpha: 1.0, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, -82]
+    scale: [0.0, 0.3, 1]
+  - t: 1
+    translate: [0.0, 1.5618500624961702, 2.574696978728083]
+    rotate: [0, 0, -82]
+    scale: [0.16, 6.0, 1]
+    ease: out_expo
+  - t: 4
+    translate: [0.0, 1.5618500624961702, 2.574696978728083]
+    rotate: [0, 0, -82]
+    scale: [0.0, 6.0, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: fan-5
+  kind: {type: quad, color: '#FFFFFF', alpha: 1.0, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, -68]
+    scale: [0.0, 0.3, 1]
+  - t: 1
+    translate: [0.0, 2.1739771428813714, 2.410678021873647]
+    rotate: [0, 0, -68]
+    scale: [0.16, 7.0, 1]
+    ease: out_expo
+  - t: 4
+    translate: [0.0, 2.1739771428813714, 2.410678021873647]
+    rotate: [0, 0, -68]
+    scale: [0.0, 6.0, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: fan-6
+  kind: {type: quad, color: '#FFFFFF', alpha: 1.0, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, -52]
+    scale: [0.0, 0.3, 1]
+  - t: 1
+    translate: [0.0, 2.800719835846712, 2.048827959377477]
+    rotate: [0, 0, -52]
+    scale: [0.16, 5.0, 1]
+    ease: out_expo
+  - t: 4
+    translate: [0.0, 2.800719835846712, 2.048827959377477]
+    rotate: [0, 0, -52]
+    scale: [0.0, 6.0, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: fan-7
+  kind: {type: quad, color: '#FFFFFF', alpha: 1.0, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 0.0]
+    rotate: [0, 0, -35]
+    scale: [0.0, 0.3, 1]
+  - t: 1
+    translate: [0.0, 3.3297953151513786, 1.49129873451272]
+    rotate: [0, 0, -35]
+    scale: [0.16, 6.0, 1]
+    ease: out_expo
+  - t: 4
+    translate: [0.0, 3.3297953151513786, 1.49129873451272]
+    rotate: [0, 0, -35]
+    scale: [0.0, 6.0, 1]
+    ease: in_quad
+    alpha: 0.0
