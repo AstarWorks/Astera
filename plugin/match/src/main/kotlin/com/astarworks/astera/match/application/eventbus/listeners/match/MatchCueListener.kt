@@ -49,7 +49,7 @@ public class MatchCueListener(
     }
 
     public fun onKilled(event: PlayerKilled) {
-        presentation.play(PresentationMoments.DEATH, event.victim)
+        presentation.play(PresentationMoments.DEATH, event.victim, audience = listOfNotNull(event.killer))
     }
 
     public fun onPhaseChanged(event: PhaseChanged) {

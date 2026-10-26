@@ -2518,6 +2518,7 @@ astera:
   hint.help.in-match: "<gray>In a match press F for the menu (settings, leave, help), or use /astera queue leave, /astera travel lobby or /astera settings.</gray>"
   presentation.star-burst.victim: "<red>-{amount} ★ burst out!</red>"
   presentation.star-burst.killer: "<gold>+{amount} ★ burst out - grab them!</gold>"
+  presentation.respawn: "<aqua>Back in the fight!</aqua>"
   menu.cosmetics.tooltip: "<gray>Click to buy and equip titles, name colours and kill effects.</gray>"
   match_menu.title: "Match menu"
   match_menu.hint: "<gray>Press <yellow>F</yellow> for the match menu (settings, leave, help).</gray>"
