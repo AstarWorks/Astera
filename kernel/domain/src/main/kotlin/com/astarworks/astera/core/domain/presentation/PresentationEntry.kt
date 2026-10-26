@@ -65,6 +65,8 @@ public object PresentationMoments {
     public const val STAR_PICKUP: String = "star-pickup"
     public const val STAR_BURST: String = "star-burst"
     public const val STAR_BURST_KILLER: String = "star-burst-killer"
+    public const val STAR_BURST_GOLD: String = "star-burst-gold"
+    public const val STAR_BURST_SPARK: String = "star-burst-spark"
     public const val NORMA_LEVEL_UP: String = "norma-level-up"
     public const val NORMA_LEVEL_MAX: String = "norma-level-max"
     public const val NORMA_CHOICE_OPEN: String = "norma-choice-open"
@@ -87,7 +89,7 @@ public object PresentationMoments {
 
     public val ALL: List<String> = listOf(
         COUNTDOWN_TICK, COUNTDOWN_GO, KILL, DEATH, RESPAWN, HIT, CRIT, BLOCKED, SKILL_READY, EGO_READY,
-        STAR_POP, STAR_PICKUP, STAR_BURST, STAR_BURST_KILLER,
+        STAR_POP, STAR_PICKUP, STAR_BURST, STAR_BURST_KILLER, STAR_BURST_GOLD, STAR_BURST_SPARK,
         NORMA_LEVEL_UP, NORMA_LEVEL_MAX, NORMA_CHOICE_OPEN, NORMA_CHOICE_PICKED, NORMA_CHOICE_DEFAULTED,
         MINI_TNT_COMBINED, QUEUE_JOIN, MATCH_FOUND, SUDDEN_DEATH, MATCH_WIN, MATCH_LOSE, MATCH_DRAW, REWARD_LOGIN, PURCHASE, QUEST_COMPLETE, PLAYER_LEVEL_UP,
         UI_CLICK, UI_CONFIRM, UI_DENY,

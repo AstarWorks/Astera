@@ -32,9 +32,9 @@ public data class NormaConfig(
 
     public companion object {
         public const val DEFAULT_MAX_LEVEL: Int = 5
-        public val DEFAULT_STARS_GOAL: List<Int> = listOf(3, 5, 8, 12)
+        public val DEFAULT_STARS_GOAL: List<Int> = listOf(10, 30, 60, 100)
         public val DEFAULT_KILLS_GOAL: List<Int> = listOf(1, 2, 3, 4)
-        public const val DEFAULT_DEATH_DROP_RATIO: Double = 1.0
+        public const val DEFAULT_DEATH_DROP_RATIO: Double = 0.5
 
         public fun parse(raw: Map<String, String>): NormaConfig {
             fun list(key: String, fallback: List<Int>): List<Int> =

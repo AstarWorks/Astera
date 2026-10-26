@@ -26,6 +26,7 @@ public object SoundCues {
     public val STAR_BURST: SoundId = SoundId("astera:star/burst")
     public val STAR_POP: SoundId = SoundId("astera:star/pop")
     public val STAR_BURST_GAIN: SoundId = SoundId("astera:star/burst-gain")
+    public val STAR_BURST_BOOM: SoundId = SoundId("astera:star/burst-boom")
 
     public val NORMA_LEVEL_UP: SoundId = SoundId("astera:norma/level-up")
     public val NORMA_LEVEL_MAX: SoundId = SoundId("astera:norma/level-max")

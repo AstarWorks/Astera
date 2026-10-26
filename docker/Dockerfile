@@ -32,8 +32,8 @@ COPY tools /workspace/tools/
 COPY kernel /workspace/kernel/
 COPY core /workspace/core/
 COPY plugin /workspace/plugin/
-# schema-gen / content-lint reference content/ from the root project.
-COPY content /workspace/content/
+# content/ is deliberately NOT copied here (speed): the shaded jars do not read it, so a content-only change must not
+# invalidate this layer. It is copied into the runtime stage below.
 
 # Build the 7 shaded plugin jars (ADR-0022). Tests are skipped here because CI
 # runs `./gradlew check` separately. plugin:test-fixtures is NOT shipped.

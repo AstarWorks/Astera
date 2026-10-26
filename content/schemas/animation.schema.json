@@ -21,9 +21,6 @@
         "blend_out_ticks": {
             "type": "integer"
         },
-        "two_hand_grip": {
-            "type": "boolean"
-        },
         "bones": {
             "type": "object",
             "additionalProperties": {
@@ -32,6 +29,9 @@
         },
         "root": {
             "$ref": "#/definitions/com.astarworks.astera.core.application.config.RigBoneTrackYaml"
+        },
+        "two_hand_grip": {
+            "type": "boolean"
         }
     },
     "required": [

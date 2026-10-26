@@ -1,0 +1,7 @@
+# Breakable stone cover (content/blocks/reinforced-wall.yaml): a two-high wall with end posts, 7 wide.
+# deepslate_tiles is the block's identity (its base material) - the pickaxe is the right tool.
+id: cover-reinforced-wall
+boxes:
+  - { min: [-3, 1, 0], max: [3, 2, 0], block: "minecraft:deepslate_tiles" }
+  - { min: [-3, 3, 0], max: [-3, 3, 0], block: "minecraft:deepslate_tiles" }
+  - { min: [3, 3, 0], max: [3, 3, 0], block: "minecraft:deepslate_tiles" }

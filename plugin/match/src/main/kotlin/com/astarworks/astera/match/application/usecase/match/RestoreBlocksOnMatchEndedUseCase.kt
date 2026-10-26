@@ -1,6 +1,8 @@
 package com.astarworks.astera.match.application.usecase.match
 
+import com.astarworks.astera.core.application.port.outbound.IArenaBuilder
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
+import com.astarworks.astera.core.application.service.CoverBlockService
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
 import com.astarworks.astera.match.application.service.BlockChangeJournal
@@ -25,6 +27,12 @@ import org.slf4j.LoggerFactory
  * track-aware restoration (re-tracking `prevBlockType` per Broken entry)
  * will require.
  *
+ * ## Cover rebuild (ADR-0280)
+ *
+ * Cover blocks are never regenerated while a match runs. When it ends, [CoverBlockService.rebuild] puts every
+ * cover block of the stage slot back at full HP and removes the temporary blocks tool skills placed; the arena
+ * repair ([IArenaBuilder.repairLater]) re-places the world blocks. The next match on the stage starts intact.
+ *
  * ## No MatchWorld → soft-fail
  *
  * If [IMatchWorldRepository.findByMatch] returns `null` the use case logs
@@ -42,6 +50,8 @@ public class RestoreBlocksOnMatchEndedUseCase(
     private val gateway: IBlockStateGateway,
     private val journal: BlockChangeJournal,
     private val matchWorlds: IMatchWorldRepository,
+    private val cover: () -> CoverBlockService? = { null },
+    private val arenas: IArenaBuilder? = null,
 ) {
 
     private val logger = LoggerFactory.getLogger(RestoreBlocksOnMatchEndedUseCase::class.java)
@@ -62,16 +72,27 @@ public class RestoreBlocksOnMatchEndedUseCase(
             return
         }
 
+        // The stage slot is +-SLOT_HALF_EXTENT around the stage origin; an arena the host cannot resolve (no
+        // slots: the simulator) means the whole world is this match's.
+        val origin = arenas?.resolve(matchWorld.stageId)?.origin
+        val rebuilt = cover()?.rebuild(matchWorld.worldId, origin, SLOT_HALF_EXTENT) ?: 0
+
         val changes = journal.snapshot(event.matchId)
         for (change in changes.asReversed()) {
             gateway.restore(matchWorld.worldId, change.position)
         }
         logger.info(
-            "RestoreBlocksOnMatchEnded: restored {} block change(s) for match {} in world {}",
+            "RestoreBlocksOnMatchEnded: restored {} block change(s) and rebuilt {} cover block(s) for match {} in world {}",
             changes.size,
+            rebuilt,
             event.matchId,
             matchWorld.worldId,
         )
         journal.clear(event.matchId)
+    }
+
+    private companion object {
+        /** A stage slot spans +-512 blocks around its origin (PaperArenaWorld). */
+        const val SLOT_HALF_EXTENT: Double = 512.0
     }
 }

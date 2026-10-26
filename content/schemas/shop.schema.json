@@ -59,6 +59,9 @@
                 },
                 "category": {
                     "type": "string"
+                },
+                "recommended": {
+                    "type": "boolean"
                 }
             },
             "required": [

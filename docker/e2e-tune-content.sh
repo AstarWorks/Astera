@@ -77,6 +77,7 @@ patch game-modes/carry-mini-tnt.yaml 's/^(  respawn_seconds:).*/\1 "3"/' '^  res
 for gf in "$root"/generators/*.yaml; do
   g=$(basename "$gf" .yaml)
   patch "generators/$g.yaml" 's/^period_seconds:.*/period_seconds: 3.0/' '^period_seconds:'
+  patch "generators/$g.yaml" 's/^amount:.*/amount: 1/' '^amount:'
 done
 
 # Norma levels (layer.yaml, every mode): 3 levels, small goals so a suite reaches them (star goal 2 then 3, kill goal 1 then 2), and the whole
@@ -84,6 +85,7 @@ done
 patch norma-layer/layer.yaml 's/^(  norma_max_level:).*/\1 "3"/' '^  norma_max_level:'
 patch norma-layer/layer.yaml 's/^(  norma_stars_goal:).*/\1 "2,3"/' '^  norma_stars_goal:'
 patch norma-layer/layer.yaml 's/^(  norma_kills_goal:).*/\1 "1,2"/' '^  norma_kills_goal:'
+patch norma-layer/layer.yaml 's/^(  death_drop_ratio:).*/\1 "1.0"/' '^  death_drop_ratio:'
 
 # Battle Loyal inherits the Norma layer's 150 s limit; the siege-scale fight gets 300 s so bots can cross the islands and meet.
 if grep -Eq '^  time_limit_seconds:' "$root/game-modes/battle-loyal.yaml"; then

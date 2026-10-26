@@ -8,6 +8,7 @@ class ArenaRouteGraph(private val layout: ArenaLayout) {
     data class Point(val x: Double, val y: Double, val z: Double)
 
     fun route(sx: Double, sz: Double, gx: Double, gz: Double): List<Point> {
+        if (layout.islands.isEmpty()) return emptyList()
         val islands = layout.islands.associateBy { it.id }
         fun nearest(x: Double, z: Double) = layout.islands.minBy { hypot(it.x + .5 - x, it.z + .5 - z) }.id
         val start = nearest(sx, sz); val goal = nearest(gx, gz)

@@ -7,9 +7,9 @@
 
 id: arena-east
 match_stage_id: example-arena
-position: { x: 65.5, y: 65.0, z: 0.5 }
-period_seconds: 30.0
-amount: 1
+position: { x: 54.5, y: 65.0, z: 0.5 }
+period_seconds: 20.0
+amount: 5
 tier: iron
 affiliation:
   kind: neutral

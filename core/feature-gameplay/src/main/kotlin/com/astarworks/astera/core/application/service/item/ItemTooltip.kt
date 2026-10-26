@@ -107,7 +107,7 @@ public class ItemTooltip(private val messages: IMessageRenderer) {
     private companion object {
         const val BASE = "astera.item.tooltip"
         const val STAT = "astera.item.tooltip.stat"
-        val RAW_TRIGGER = Regex("^(left_click|right_click|sneak_right|sneak_left|drop):\\s*(.+)$")
+        val RAW_TRIGGER = Regex("^(left_click|right_click|sneak_right|sneak_left|sneak_drop|drop):\\s*(.+)$")
         const val PERCENT = 100.0
         val HEADER = MessageKey("astera.item.tooltip.header")
     }

@@ -4,7 +4,9 @@
 #          python3 tools/sound-gen/scripts/bastion_s1_timeline.py <dir>   (placed-cue timeline, per-tick peaks)
 # Encode:  libvorbis -q:a 5, mono, 44.1 kHz. NOT to_ogg.sh (its per-file loudnorm flattens layer levels);
 #          peak-normalised to the target below, re-trimmed so the DECODED peak is within 0.1 dB.
-# Sources: all synth. No CC0 sample, no ripped audio, no vanilla audio used inside the files.
+# Sources: synth, plus CC0 layers inside the impact-steel / cut-thud / ground-slam composites only: Kenney "Impact Sounds" 1.0
+# (CC0, kenney.nl; impactPlate_heavy_000/001, impactMetal_heavy_001, impactMetal_medium_000, impactSoft_heavy_001), pitched down,
+# filtered and saturated. The zip is fetched to /tmp, never committed. No game audio, no vanilla audio.
 sounds:
   - {file: bastion-s1-step-scuff,   seed: 11,  peak_dbfs: -14.0, recipe: "band-passed noise 0.5-3 kHz, 40 ms swell + 9 metal ticks 2.2-5.2 kHz + cloth tail"}
   - {file: bastion-s1-blade-lift,   seed: 21,  peak_dbfs: -16.0, recipe: "swept SVF band-pass noise 150->800 Hz, 95->60 Hz hum, 3.9/4.85 kHz tink at 55 ms"}
