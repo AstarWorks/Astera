@@ -25,6 +25,7 @@ HERE="$(cd "$(dirname "$0")" && pwd -P)"
 ROOT="$(cd "$HERE/../.." && pwd -P)"
 # shellcheck source=lib.sh
 . "$HERE/lib.sh"
+drop_inherited_locks
 
 SOURCED="${VFX_SHOT_SOURCED:-0}"     # anim-shot.sh sources this file for the functions only
 CMD="${1:-capture}"                  # capture | up | down | status

@@ -7,6 +7,17 @@
 STACK_LOCK_FD=99
 SLOT_FD=99
 
+# A caller may wrap us in `flock /tmp/claude-1000/astera-e2e.lock ...` (or any astera-*.lock): the fd is inherited by this shell
+# and so by every kept client / Xvfb / parker, which would hold that lock long after the shot ends. The wrapper process itself keeps
+# the lock for the shot's duration, so this shell closes its copies. Called once at startup, before our own locks are opened.
+drop_inherited_locks() {
+  local l fd t
+  for l in /proc/$$/fd/*; do
+    fd="${l##*/}"; t="$(readlink "$l" 2>/dev/null)" || continue
+    case "$t" in /tmp/claude-1000/astera-*.lock*) [ "$fd" -gt 2 ] && eval "exec ${fd}>&-" ;; esac
+  done
+}
+
 log() { printf '[vfx-shot] %s\n' "$*" >&2; }
 die() { log "ERROR: $*"; exit 1; }
 
