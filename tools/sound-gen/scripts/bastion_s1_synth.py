@@ -109,163 +109,154 @@ def fade(x, fin=0.001, fout=0.010):
 
 
 # ---------------------------------------------------------------- cues ----
+# r2 (reference-matched): every cue is designed from the numbers in docs/contributing/vfx-team/sound.md
+# "Reference profile" (events E1..E11), measured on the case video with bastion_s1_features.py.
+# Nothing here is derived from game audio: all layers are synthesised from noise / sines / modal sums.
+from scipy.signal import istft, stft  # noqa: E402
+
+
+def spec_noise(dur, fc_fn, bw_oct, r, lo=0.0, hi=SR / 2):
+    """White noise shaped by a time-varying log-Gaussian band (STFT mask). Works above SR/6, unlike swept_bp.
+    fc_fn(t_seconds_array) -> centre Hz per frame; bw_oct = Gaussian sigma in octaves."""
+    n = int(round(dur * SR))
+    x = r.standard_normal(n)
+    f, tf, Z = stft(x, SR, nperseg=512, noverlap=512 - 64)
+    fc = np.asarray(fc_fn(tf))[None, :]
+    ff = np.maximum(f, 1.0)[:, None]
+    g = np.exp(-0.5 * (np.log2(ff / fc) / bw_oct) ** 2)
+    g = g * ((f >= lo) & (f <= hi))[:, None]
+    _, y = istft(Z * g, SR, nperseg=512, noverlap=512 - 64)
+    y = y[:n]
+    return np.pad(y, (0, n - len(y)))
+
+
+def rise_decay(t, t_pk, rise, tau, shape=1.0):
+    """Raised-cosine rise ending at t_pk (length `rise`), exponential decay (tau) after it."""
+    t0 = t_pk - rise
+    up = np.where(t < t0, 0.0, 0.5 - 0.5 * np.cos(np.pi * np.clip((t - t0) / rise, 0, 1))) ** shape
+    return np.where(t <= t_pk, up, np.exp(-(t - t_pk) / tau))
+
+
+def lead(x, ms):
+    return np.concatenate([np.zeros(int(ms / 1000 * SR)), x])
+
+
 def step_scuff(seed):
+    # E1: bright 6-12 kHz noise flick. 50% rise at ~5 ms, peak 45 ms, -12 dB by ~85 ms, centroid ~8-9 kHz drifting down.
     r = rng(seed)
-    t = T(0.35)
-    n = r.standard_normal(len(t))
-    # boot scrape: bandpassed noise with a rough amplitude texture, swells to 40 ms then dies
-    scrape = bp(n, 500, 3000) * env_ar(0.35, 0.040, 0.075, t) * (0.6 + 0.4 * lp(r.standard_normal(len(t)), 90) * 6).clip(0.2, 1.4)
-    # chest-plate / mail rattle: dense tiny metal ticks
-    y = scrape * 0.8
-    for k in range(9):
-        t0 = 0.040 + abs(r.normal(0.07, 0.07)) if k else 0.040
-        t0 = min(t0, 0.28)
-        f = r.uniform(2200, 5200)
-        tt = np.clip(t - t0, 0, None)
-        tick = np.exp(-tt / r.uniform(0.006, 0.02)) * np.sin(2 * np.pi * f * tt) * (t >= t0)
-        y += tick * (0.55 if k == 0 else r.uniform(0.12, 0.35))
-    # cloth swish tail
-    y += 0.25 * bp(n, 800, 2500) * env_ar(0.35, 0.10, 0.10, t)
-    return y
+    t = T(0.16)
+    y = spec_noise(0.16, lambda tf: 6500 + 3500 * np.exp(-tf / 0.05), 0.55, r, lo=4500)
+    env = np.minimum(1, t / 0.006) * (0.55 + 0.45 * np.clip(t / 0.045, 0, 1)) * np.where(t < 0.045, 1.0, np.exp(-(t - 0.045) / 0.030))
+    return y * env
 
 
 def blade_lift(seed):
+    # E2: low thunk (150-500 Hz body) then a second bright flick (rising 4.6k -> 8.4k, peak 66 ms after the thunk, dur ~55 ms)
     r = rng(seed)
-    t = T(0.30)
-    n = r.standard_normal(len(t))
-    fc = 150 + 650 * np.clip(t / 0.25, 0, 1) ** 1.5
-    scrape = swept_bp(n, fc, q=1.6) * env_ar(0.30, 0.060, 0.075, t)
-    low = 0.5 * np.sin(2 * np.pi * (95 - 35 * t / 0.3) * t) * env_ar(0.30, 0.05, 0.09, t)
-    tink = 0.35 * (np.exp(-np.clip(t - 0.055, 0, None) / 0.035) * (t >= 0.055)
-                   * (np.sin(2 * np.pi * 3900 * t) + 0.6 * np.sin(2 * np.pi * 4850 * t)))
-    return scrape * 1.0 + low + tink
-
-
-def flash_sting(seed):
-    r = rng(seed)
-    t = T(0.12)
-    n = r.standard_normal(len(t))
-    # air tear: 3-9 kHz noise, 8 ms attack (peak at ~10 ms), fast decay, falling band edge
-    s = bp(n, 3000, 9000, 3) * env_ar(0.12, 0.008, 0.022, t)
-    s += 0.25 * hp(n, 6000) * np.exp(-t / 0.012)
-    s[t > 0.095] *= np.linspace(1, 0, (t > 0.095).sum())  # near-silence at the end
-    return s
+    t = T(0.24)
+    f0 = 190 + 150 * np.exp(-t / 0.02)
+    ph = 2 * np.pi * np.cumsum(f0) / SR
+    thunk = (np.sin(ph) + 0.35 * lp(r.standard_normal(len(t)), 900)) * np.minimum(1, t / 0.003) * np.exp(-t / 0.016)
+    fl = spec_noise(0.24, lambda tf: 4600 + 3800 * np.clip((tf - 0.045) / 0.03, 0, 1) - 1400 * np.clip((tf - 0.075) / 0.1, 0, 1), 0.5, r, lo=4000)
+    flick = fl * rise_decay(t, 0.066, 0.030, 0.045, shape=0.8)
+    return thunk * 0.9 + flick * 1.0 / max(np.abs(fl).max(), 1e-9) * np.abs(thunk).max() * 1.1
 
 
 def whoosh_heavy(seed):
+    # E3 (swing 1): mid whoosh, noise swept 900 -> 3500 Hz (rise 95 ms to the peak), centroid ~2.6 kHz, dur6 ~75 ms, decay12 ~50 ms.
     r = rng(seed)
-    t = T(0.60)
-    n = r.standard_normal(len(t))
-    # centre frequency 400 -> 2500 (0-120 ms) -> 700 (600 ms)
-    up = 400 * (2500 / 400) ** np.clip(t / 0.12, 0, 1)
-    down = 2500 * (700 / 2500) ** np.clip((t - 0.12) / 0.48, 0, 1)
-    fc = np.where(t < 0.12, up, down)
-    amp = np.where(t < 0.12, 0.5 - 0.5 * np.cos(np.pi * t / 0.12), np.exp(-(t - 0.12) / 0.17))
-    air = swept_bp(n, fc, q=1.4) * amp
-    # body 90-200 Hz, Doppler-like pitch fall 200 -> 90 Hz
-    f0 = 90 + 110 * np.exp(-t / 0.22)
+    t = T(0.30)
+    fc_fn = lambda tf: np.where(tf < 0.095, 700 * (2900 / 700) ** np.clip(tf / 0.095, 0, 1), 2900 * (1800 / 2900) ** np.clip((tf - 0.095) / 0.12, 0, 1))
+    y = spec_noise(0.30, fc_fn, 0.45, r)
+    return y * rise_decay(t, 0.095, 0.095, 0.046, shape=0.9)
+
+
+def whoosh_sweep(seed):
+    # E7 (swing 2): bright falling sweep, 12.5 kHz -> 3.3 kHz in ~100 ms, loudest SFX in the reference. 24 ms of silence first
+    # so the 50% rise lands at +0.48 tick and the peak at +0.88 tick when played on a tick boundary.
+    r = rng(seed)
+    t = T(0.22)
+    y = spec_noise(0.22, lambda tf: 11000 * (2800 / 11000) ** np.clip(tf / 0.15, 0, 1), 0.5, r, lo=2000)
+    env = rise_decay(t, 0.020, 0.020, 0.062) * np.where(t > 0.15, np.clip(1 - (t - 0.15) / 0.06, 0, 1), 1.0)
+    return lead(y * env, 24)
+
+
+def _body(r, dur, f_hi, f_lo, tone_tau, hold, tau, noise_cut=1100):
+    t = T(dur)
+    f0 = f_lo + (f_hi - f_lo) * np.exp(-t / 0.02)
     ph = 2 * np.pi * np.cumsum(f0) / SR
-    body = (np.sin(ph) + 0.4 * np.sin(2 * ph)) * amp * 0.9
-    body += lp(n, 220) * amp * 1.2
-    return air / (np.abs(air).max()) * 0.8 + body / (np.abs(body).max()) * 0.55
+    tone = np.sin(ph)
+    nz = lp(r.standard_normal(len(t)), noise_cut, 2)
+    env = np.minimum(1, t / 0.004) * np.where(t < 0.004 + hold, 1.0, np.exp(-(t - 0.004 - hold) / tau))
+    return t, (tone * 1.0 + nz * 0.9) * env
 
 
 def impact_steel(seed):
+    # E4/E8 body: dull 150-500 Hz thud (centre ~300 Hz), a touch of 500-2k, tiny click; dur6 ~75 ms.
     r = rng(seed)
-    t = T(0.45)
-    n = r.standard_normal(len(t))
-    thump_f = 60 + 60 * np.exp(-t / 0.012)
-    thump = np.sin(2 * np.pi * np.cumsum(thump_f) / SR) * np.exp(-t / 0.030) * 1.0
-    clang = modal(t, 520, [1, 2.76, 5.40, 8.93], [0.25, 0.20, 0.12, 0.08], [0.55, 0.45, 0.30, 0.18], detune=0.003, r=r)
-    click = hp(n, 1500) * np.exp(-t / 0.0015) * 0.9
-    ping = 0.12 * np.sin(2 * np.pi * 2400 * t) * np.exp(-t / 0.05)
-    y = thump + clang + click + ping
-    return y * np.minimum(1, t / 0.0004 + 0.001)  # attack < 3 ms
+    t, y = _body(r, 0.35, 560, 340, 0.02, 0.045, 0.050, noise_cut=1400)
+    click = hp(r.standard_normal(len(t)), 2000) * np.exp(-t / 0.0015) * 0.12
+    return y + click
 
 
 def cut_thud(seed):
+    # 500-1800 Hz edge-on-armour scrape layer: ~20% of the contact body energy sits in 500-2k.
     r = rng(seed)
-    t = T(0.25)
-    n = r.standard_normal(len(t))
-    burst = lp(n, 900, 3) * np.exp(-t / 0.045)
-    thud = np.sin(2 * np.pi * (150 - 50 * np.clip(t / 0.08, 0, 1)) * t) * np.exp(-t / 0.060)
-    y = burst * 0.8 + thud
-    return y * np.minimum(1, t / 0.002)
-
-
-def n_(r, t):
-    return r.standard_normal(len(t))
+    t = T(0.18)
+    y = bp(r.standard_normal(len(t)), 500, 1800, 2) * np.exp(-t / 0.028) * np.minimum(1, t / 0.003)
+    return y + 0.4 * np.sin(2 * np.pi * 620 * t) * np.exp(-t / 0.02)
 
 
 def armor_ring(seed):
+    # E5 plateau: soft 2-8 kHz metallic hiss, onset after a 32 ms lead, slow rise (80 ms), hold, 65 ms decay; light inharmonic partials.
     r = rng(seed)
-    t = T(0.90)
-    ratios = [1.0, 2.32, 3.87, 5.61]
-    taus = [0.40, 0.30, 0.20, 0.12]  # ~T60 0.8 s for the fundamental
-    amps = [0.8, 0.5, 0.32, 0.18]
-    y = modal(t, 1100, ratios, taus, amps, detune=0.0025, r=r)
-    y += 0.4 * modal(t, 1100 * 0.5, [1, 1.0], [0.25, 0.25], [0.5, 0.0])  # body hum
-    y = 0.45 * y * (1 - np.exp(-t / 0.004))
-    y += 2.2 * hp(n_(r, t), 2500) * np.exp(-t / 0.006) * np.minimum(1, t / 0.003)  # strike tick so the transient leads
-    wet = allpass(allpass(y, 0.0071, 0.55), 0.0113, 0.5)
-    return 0.7 * y + 0.5 * wet
+    t = T(0.36)
+    y = spec_noise(0.36, lambda tf: 4300 + 800 * np.sin(2 * np.pi * 4 * tf), 0.55, r, lo=2000, hi=9000)
+    env = np.where(t < 0.085, np.clip(t / 0.085, 0, 1) ** 1.5, np.where(t < 0.15, 1.0, np.exp(-(t - 0.15) / 0.05)))
+    partials = sum(a * np.sin(2 * np.pi * f * t + r.uniform(0, 6)) * np.exp(-t / tau) for f, a, tau in
+                   [(2480, 0.10, 0.07), (3790, 0.08, 0.06), (5370, 0.06, 0.05)])
+    return lead((y / max(np.abs(y).max(), 1e-9)) * env + partials * env, 8)
 
 
 def ground_slam(seed):
     r = rng(seed)
-    t = T(0.60)
-    n = r.standard_normal(len(t))
-    f = 38 + 32 * np.exp(-t / 0.09)  # 70 -> 38 Hz over ~250 ms
-    sub = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.17)
-    # gravel: crackly grains in 200-1200 Hz low-passed noise over 0.4 s
-    grains = (r.random(len(t)) < (900 * np.exp(-t / 0.15)) / SR).astype(float)
-    grit = lp(bp(n, 200, 1200), 1200) * (0.35 + 0.65 * lp(grains * 40 + 0.0, 800)) * np.exp(-t / 0.14)
-    grit *= (t < 0.4)
-    crack = hp(n, 800) * np.exp(-t / 0.006) * 0.6
-    y = sub * 1.0 + grit * 1.1 + crack
-    return y * np.minimum(1, t / 0.001)
+    t = T(0.45)
+    f = 45 + 30 * np.exp(-t / 0.08)
+    sub = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.10)
+    grit = bp(r.standard_normal(len(t)), 200, 900, 2) * np.exp(-t / 0.06) * 0.5
+    return (sub + grit) * np.minimum(1, t / 0.002)
 
 
 def ring_whirl(seed):
+    # E5/E9 shimmer: noisy (flatness ~0.6) 3-11 kHz sheen, centroid ~6.7 kHz, 32 ms lead, peak ~1.1 tick after onset, 12 dB down in ~140 ms.
     r = rng(seed)
-    t = T(0.90)
-    n = r.standard_normal(len(t))
-    env = np.where(t < 0.25, np.sin(0.5 * np.pi * t / 0.25) ** 2, np.exp(-(t - 0.25) / 0.22))
-    # comb-filtered noise = metallic shimmer
-    sh = bp(n, 2000, 6000, 3)
-    sh = comb(sh, 1 / 2700.0, 0.7) + comb(sh, 1 / 4100.0, 0.6)
-    # rising partials 2 -> 6 kHz
-    y = np.zeros_like(t)
-    for k, (f0, f1) in enumerate([(2000, 3100), (2900, 4400), (3800, 5600), (4700, 6000)]):
-        f = f0 + (f1 - f0) * np.clip(t / 0.45, 0, 1)
-        y += np.sin(2 * np.pi * np.cumsum(f) / SR + r.uniform(0, 6)) * (0.35 / (1 + 0.3 * k)) * (1 + 0.3 * np.sin(2 * np.pi * (11 + 3 * k) * t))
-    return (sh / np.abs(sh).max() * 0.7 + y) * env
+    t = T(0.40)
+    y = spec_noise(0.40, lambda tf: 6200 + 1200 * np.clip(tf / 0.15, 0, 1), 0.60, r, lo=2500, hi=12000)
+    y = y + 0.45 * comb(y, 1 / 3300.0, 0.5)
+    return lead(y * rise_decay(t, 0.050, 0.045, 0.085), 8)
 
 
 def sword_settle(seed):
+    # E10/E11 settle: quiet 500-1.5 kHz rattle plateau (centroid ~650 Hz), dur6 ~70 ms, decay12 ~45 ms.
     r = rng(seed)
-    t = T(0.25)
-    n = r.standard_normal(len(t))
-    tink = np.exp(-np.clip(t - 0.030, 0, None) / 0.045) * (t >= 0.03) * (np.sin(2 * np.pi * 3300 * t) + 0.5 * np.sin(2 * np.pi * 4510 * t) + 0.3 * np.sin(2 * np.pi * 6100 * t))
-    y = tink
-    for k in range(4):  # leather / cloth rattle
-        t0 = 0.045 + abs(r.normal(0.05, 0.05))
-        y = y + 0.28 * bp(n, 900, 3200) * np.exp(-np.clip(t - t0, 0, None) / 0.018) * (t >= t0) * r.uniform(0.5, 1)
-    return y + 0.15 * lp(n, 400) * env_ar(0.25, 0.03, 0.05, t)
+    t = T(0.20)
+    y = spec_noise(0.20, lambda tf: 750 + 0 * tf, 0.50, r, lo=450, hi=2500) * np.where(t < 0.04, rise_decay(t, 0.04, 0.025, 0.03), np.where(t < 0.075, 1.0, np.exp(-(t - 0.075) / 0.028)))
+    tink = 0.06 * np.exp(-np.clip(t - 0.02, 0, None) / 0.03) * (t >= 0.02) * (np.sin(2 * np.pi * 3300 * t) + 0.5 * np.sin(2 * np.pi * 4510 * t))
+    return y / max(np.abs(y).max(), 1e-9) + tink
 
 
-# file, fn, seed, peak_dBFS
+# file, fn, seed, peak_dBFS (all -1.5: relative levels live in sound-cues.yaml volumes)
 CUES = [
-    ("bastion-s1-step-scuff", step_scuff, 11, -14.0),
-    ("bastion-s1-blade-lift", blade_lift, 21, -16.0),
-    ("bastion-s1-flash-sting", flash_sting, 31, -8.0),
-    ("bastion-s1-whoosh-heavy", whoosh_heavy, 41, -9.0),
+    ("bastion-s1-step-scuff", step_scuff, 11, -1.5),
+    ("bastion-s1-blade-lift", blade_lift, 21, -1.5),
+    ("bastion-s1-whoosh-heavy", whoosh_heavy, 41, -1.5),
+    ("bastion-s1-whoosh-sweep", whoosh_sweep, 45, -1.5),
     ("bastion-s1-impact-steel", impact_steel, 51, -1.5),
-    ("bastion-s1-cut-thud", cut_thud, 61, -6.0),
-    ("bastion-s1-armor-ring", armor_ring, 71, -12.0),
-    ("bastion-s1-ground-slam", ground_slam, 81, -2.0),
-    ("bastion-s1-ring-whirl", ring_whirl, 91, -12.0),
-    ("bastion-s1-sword-settle", sword_settle, 101, -16.0),
+    ("bastion-s1-cut-thud", cut_thud, 61, -1.5),
+    ("bastion-s1-armor-ring", armor_ring, 71, -1.5),
+    ("bastion-s1-ground-slam", ground_slam, 81, -1.5),
+    ("bastion-s1-ring-whirl", ring_whirl, 91, -1.5),
+    ("bastion-s1-sword-settle", sword_settle, 101, -1.5),
 ]
 
 
@@ -294,7 +285,7 @@ def main():
         target = 10 ** (peak_db / 20)
         x = x / np.abs(x).max() * target
         path = os.path.join(OUT, name + ".ogg")
-        for _ in range(3):  # re-trim so the decoded peak hits the target
+        for _ in range(6):  # re-trim so the decoded peak hits the target
             encode(x, path)
             got = np.abs(decode(path)).max()
             err = 20 * np.log10(got / target)
