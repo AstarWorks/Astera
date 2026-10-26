@@ -288,6 +288,7 @@ public class MechanicDispatcher(
                     log = log,
                     presentation = presentation,
                     bodies = skinBodies,
+                    liveLook = { poseLookup?.poseOf(it)?.direction },
                 ),
                 targeters = targeterResolver,
                 isLiving = { living(listOf(it)).isNotEmpty() },

@@ -156,7 +156,6 @@ public class PaperPlayerPresentation(
             d.beforeSend()
             (server.getEntity(d.id) as? Display)?.also { e -> d.viewRange?.let { e.viewRange = it } }
         }
-        val ownerHidden = displays.filter { it.hiddenFromOwner }.map { it.id }.toSet()
         if (mask.body && !o.bodyApplied) {
             o.wasInvisible = owner.isInvisible
             owner.isInvisible = true
@@ -179,7 +178,7 @@ public class PaperPlayerPresentation(
             val shown = hiddenStacks(owner, mask, isOwner)
             if (isOwner && entities.isNotEmpty()) {
                 entities.forEach { viewer.hideEntity(plugin, it) }
-                entities.filter { it.uniqueId !in ownerHidden }.forEach { viewer.showEntity(plugin, it) }
+                entities.forEach { viewer.showEntity(plugin, it) }
             }
             if (packets != null) {
                 val list = ArrayList<Any>()

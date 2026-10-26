@@ -8,6 +8,7 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.condition.Condition
+import com.astarworks.astera.core.domain.geometry.withPitchClamped
 import com.astarworks.astera.core.domain.skill.targeter.DirectionRef
 import com.astarworks.astera.core.domain.skill.targeter.Targeter
 import com.astarworks.astera.core.domain.skill.value.IntValue
@@ -198,11 +199,11 @@ internal class TargeterResolver(
             return emptyList()
         }
         val dir = when (val d = t.direction) {
-            DirectionRef.FromCaster, DirectionRef.FromHitNormal -> ctx.pose?.direction
+            DirectionRef.FromCaster, DirectionRef.FromHitNormal -> ctx.pose?.direction?.withPitchClamped()
             DirectionRef.Up -> Vec3(0.0, 1.0, 0.0)
             is DirectionRef.Custom -> literalVec(d.vector)
             // Radial refs have no single cone axis; the caster's look is the sensible axis.
-            is DirectionRef.AwayFromCaster, is DirectionRef.TowardCaster -> ctx.pose?.direction
+            is DirectionRef.AwayFromCaster, is DirectionRef.TowardCaster -> ctx.pose?.direction?.withPitchClamped()
         }?.normalize()?.takeIf { it.lengthSquared() > 0.0 }
         if (dir == null) {
             log.debug("Cone has no resolvable direction; returning empty")

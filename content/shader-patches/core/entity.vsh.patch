@@ -6,7 +6,7 @@
 // Astera skin rig (ADR-0250). A player_head ItemDisplay with brightness override (block 15, sky = payload)
 // is one bone of an animated player body. The server writes payload = bone id (0 head, 1 body, 2 right arm,
 // 3 left arm, 4 right leg, 5 left leg) + 8 for a slim arm. -1 = an ordinary entity. entity.fsh remaps the
-// head-cube UVs of such a display onto that bone's part of the skin.
+// head-cube UVs of such a display onto that bone's part of the skin. -2 = a head bone enclosing the camera (dropped).
 layout(location = 8) flat out int rigPart;
 
 @@ after: void main() {
@@ -16,6 +16,12 @@ layout(location = 8) flat out int rigPart;
         if ((sky & 7) <= 5) {
             rigPart = sky;
         }
+    }
+    // The head bone encloses the camera in the owner's first person view (the owner sees their own head cube from inside).
+    // Drop it when the camera is inside the head: every vertex of an enclosing head is within ~0.55 block of the eye, while a
+    // third-person camera is 1.5+ blocks away, so the owner sees the head in third person and never in first person.
+    if (rigPart == 0 && length(Position) < 0.7) {
+        rigPart = -2;
     }
 
 @@ replace: lightMapColor = sample_lightmap(Sampler2, UV2);

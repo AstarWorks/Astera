@@ -43,6 +43,9 @@ public enum class VfxOrient {
     TO_TARGET,
     ;
 
+    /** The frame is built from the caster's yaw, so an effect that rides the caster turns with it ([LOOK], [YAW]). */
+    public val turnsWithYaw: Boolean get() = this == LOOK || this == YAW
+
     /**
      * Builds the anchor [Frame] at [origin]. [look] is the caster's look direction,
      * [toTarget] the caster -> anchor direction; a missing or degenerate vector
@@ -90,11 +93,22 @@ public data class VfxDefinition(
      * With a body, the rig's `weapon` is parented to the right hand and the whole effect is ONE performance.
      */
     public val body: CustomAnimationId? = null,
+    /**
+     * The effect's frame also turns with the caster's spine (body yaw of the caster's performance) while the performance plays:
+     * for effects that belong to the torso / blade frame, e.g. a ring cast out of a back-turn twist. Needs `follow: true`.
+     */
+    public val followBodyYaw: Boolean = false,
+    /**
+     * The caster's look pitch (clamped to +-45 degrees) tilts the effect's frame about the caster's feet: a `yaw`-oriented effect
+     * spawns tilted by the pitch at spawn, and a performance (body / rig) tilts with the live pitch while it plays.
+     */
+    public val followPitch: Boolean = false,
 ) {
     /** A performance owns the caster's hand, and with a body the whole body, for its duration. */
     public val isPerformance: Boolean get() = body != null || rigs.any { it.weapon != null }
 
     init {
+        require(!followBodyYaw || (follow && body == null)) { "follow_body_yaw needs follow: true and no body of its own" }
         require(body == null || (follow && attachToAnchor && sampleTicks == 1)) {
             "body requires follow: true, attach_to_anchor: true and sample_ticks: 1 (the performance rides the caster)"
         }
