@@ -34,19 +34,21 @@ class RegionCombatE2eTest : E2eBase() {
             // Keep the old snapshot near the caster if teleport maintenance breaks.
             rcon("tp @e[tag=$tag,limit=1] ${x + 48.0} $y ${z + 2.0}")
             Thread.sleep(1_100) // i-frames must not hide a stale-grid hit
+            // Same-tick follow-up damage of the first slash can land after the first poll; settle before comparing.
+            val beforeFar = health()
             cast()
             Thread.sleep(500)
             E2eReport.check("Region combat", "teleported target leaves the nearby buckets", "entity health") {
-                assertThat(health()).isEqualTo(afterFirst)
-                "far target HP remains $afterFirst"
+                assertThat(health()).isEqualTo(beforeFar)
+                "far target HP remains $beforeFar (first poll saw $afterFirst)"
             }
 
             rcon("tp @e[tag=$tag,limit=1] $x $y ${z + 2.0}")
             Thread.sleep(1_100)
             cast()
-            caster.waitUntil(4_000) { health() < afterFirst }
+            caster.waitUntil(4_000) { health() < beforeFar }
             E2eReport.check("Region combat", "returning target is found", "entity health") {
-                assertThat(health()).isLessThan(afterFirst)
+                assertThat(health()).isLessThan(beforeFar)
                 "returning golem took the next slash"
             }
             rcon("kill @e[tag=$tag]")
