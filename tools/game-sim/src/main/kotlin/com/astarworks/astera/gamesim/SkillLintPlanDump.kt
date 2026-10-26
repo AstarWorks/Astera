@@ -48,6 +48,7 @@ import kotlin.math.abs
  * out, `ticks` carries them).
  */
 public object SkillLintPlanDump {
+    private const val NO_PERFORMANCE_TICKS = 60
 
     @JvmStatic
     public fun main(args: Array<String>) {
@@ -76,14 +77,17 @@ public object SkillLintPlanDump {
         var start = 0
         var sampled: List<VfxPerformanceSampler.Tick> = emptyList()
         var slim = false
+        val notes = ArrayList<String>()
         scenario("skill-lint-$skill") {
             val caster = player("caster", team = "red")
             player("observer", at = Vec3(4.0, groundY, 0.0), team = "blue")
             val registry = sim.services.getOrThrow<IVfxRegistry>()
-            val vfxId = Regex("""vfx_id:\s*([a-z0-9-]+)""").findAll(skillText).map { it.groupValues[1] }
+            val vfxId: String? = Regex("""vfx_id:\s*([a-z0-9-]+)""").findAll(skillText).map { it.groupValues[1] }
                 .firstOrNull { registry.find(VfxId(it))?.isPerformance == true }
-                ?: error("skill '$skill' plays no performance vfx (a rig with weapon: main_hand)")
-            val def = registry.find(VfxId(vfxId))!!
+            // No weapon-rig performance (a pure fx skill): still cast it for the displays + particles; no sampled body / weapon.
+            val def = vfxId?.let { registry.find(VfxId(it)) }
+            if (def == null) notes += "no performance vfx (a rig with weapon: main_hand): caster drawn in a neutral idle pose, no weapon"
+
             val probe = PerformanceProbe(sim, caster)
             val castTick = sim.tick
             origin = caster.position
@@ -94,7 +98,7 @@ public object SkillLintPlanDump {
             val item = skill.replace(Regex("-(s[0-9]+|def|ego)$"), "")
             if (sim.give(caster, item)) sim.hold(caster, item)
             caster.cast(skill)
-            val last = def.durationTicks + 10
+            val last = (def?.durationTicks ?: NO_PERFORMANCE_TICKS) + 10
             for (t in 0..last) {
                 counts[t] = probe.worstCount()
                 feet[t] = caster.position
@@ -105,13 +109,13 @@ public object SkillLintPlanDump {
             fx = fxDisplayEvents(sim.recorder.toJson(), castTick, origin)
             start = sim.displays.spawned.firstOrNull { it.spec.kind == DisplayKind.AnchorMainHand }
                 ?.let { (it.tick - castTick).toInt() } ?: 0
-            val body = def.body?.let { id ->
+            val body = def?.body?.let { id ->
                 VfxBodyContext(checkNotNull(sim.services.getOrThrow<ISkinRigRegistry>().find(id)) { "body animation '$id' not loaded" })
             }
             slim = body?.slim ?: false
-            sampled = VfxPerformanceSampler.sample(def, body, freezesAfter(skillText, vfxId), startTick = start.coerceAtLeast(0))
+            sampled = if (def != null && vfxId != null) VfxPerformanceSampler.sample(def, body, freezesAfter(skillText, vfxId), startTick = start.coerceAtLeast(0)) else emptyList()
         }
-        return json(skill, slim, sampled, counts, feet.mapValues { it.value - origin }, fx, emissions)
+        return json(skill, slim, sampled, counts, feet.mapValues { it.value - origin }, fx, emissions, notes)
     }
 
     /**
@@ -165,12 +169,13 @@ public object SkillLintPlanDump {
         feet: Map<Int, Vec3>,
         fx: List<JsonElement>,
         emissions: List<JsonObject>,
+        notes: List<String>,
     ): String {
         fun n(v: Double): String = String.format(Locale.ROOT, "%.6f", if (abs(v) < 5e-7) 0.0 else v)
         fun v3(v: Vec3) = "[${n(v.x)}, ${n(v.y)}, ${n(v.z)}]"
         fun q(q: com.astarworks.astera.core.domain.geometry.math.Quaternion) = "[${n(q.x)}, ${n(q.y)}, ${n(q.z)}, ${n(q.w)}]"
         val sb = StringBuilder()
-        sb.append("{\n  \"skill\": \"").append(skill).append("\",\n  \"slim\": ").append(slim).append(",\n  \"weaponScale\": ").append(n(SkinRigTransforms.PLAYER_SCALE)).append(",\n  \"ticks\": [\n")
+        sb.append("{\n  \"skill\": \"").append(skill).append("\",\n  \"notes\": ").append(JsonArray(notes.map { JsonPrimitive(it) })).append(",\n  \"slim\": ").append(slim).append(",\n  \"weaponScale\": ").append(n(SkinRigTransforms.PLAYER_SCALE)).append(",\n  \"ticks\": [\n")
         ticks.forEachIndexed { i, t ->
             sb.append("    {\"tick\": ").append(t.tick).append(", \"bones\": {")
             sb.append(t.bones.entries.joinToString(", ") { (name, p) -> "\"$name\": {\"pos\": ${v3(p.pos)}, \"rot\": ${q(p.rot)}, \"scale\": ${v3(p.scale)}}" })

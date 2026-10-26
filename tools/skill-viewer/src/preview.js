@@ -107,8 +107,18 @@ class Preview {
     this.yawInv = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -yaw);
 
     this.plan = cfg.plan;
-    this.byTick = new Map(cfg.plan.ticks.map((t) => [t.tick, t]));
-    this.firstTick = cfg.plan.ticks[0].tick; this.lastTick = cfg.plan.ticks.at(-1).tick;
+    // A skill without a weapon-rig performance (pure fx) has no sampled body: stand the caster in a neutral idle pose.
+    const idle = { tick: 0, bones: {
+      head: { pos: [0, 1.63, 0], rot: [0, 0, 0, 1], scale: [0.9375, 0.9375, 0.9375] },
+      body: { pos: [0, 1.05, 0], rot: [0, 0, 0, 1], scale: [0.9375, 1.40625, 0.46875] },
+      right_arm: { pos: [-0.35, 1.05, 0], rot: [0, 0, 0, 1], scale: [0.46875, 1.40625, 0.46875] },
+      left_arm: { pos: [0.35, 1.05, 0], rot: [0, 0, 0, 1], scale: [0.46875, 1.40625, 0.46875] },
+      right_leg: { pos: [-0.12, 0.35, 0], rot: [0, 0, 0, 1], scale: [0.46875, 1.40625, 0.46875] },
+      left_leg: { pos: [0.12, 0.35, 0], rot: [0, 0, 0, 1], scale: [0.46875, 1.40625, 0.46875] } } };
+    const planTicks = cfg.plan.ticks.length ? cfg.plan.ticks : [idle];
+    this.byTick = new Map(planTicks.map((t) => [t.tick, t]));
+    this.idleTick = cfg.plan.ticks.length ? null : idle;
+    this.firstTick = planTicks[0].tick; this.lastTick = cfg.plan.ticks.length ? planTicks.at(-1).tick : 100000;
     this.feet = new Map((cfg.plan.caster ?? []).map((c) => [c.tick, c.pos]));
     this.lastFeetTick = Math.max(0, ...this.feet.keys());
 
@@ -222,7 +232,7 @@ class Preview {
     this.camera.updateMatrixWorld();
 
     const pt = Math.max(this.firstTick, Math.min(this.lastTick, t));
-    const tick = this.byTick.get(pt);
+    const tick = this.idleTick ?? this.byTick.get(pt);
     const feet = this.feet.get(Math.min(t, this.lastFeetTick)) ?? [0, 0, 0];
     const feetV = new THREE.Vector3(...feet);
     for (const name of BONES) {

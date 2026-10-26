@@ -22,6 +22,13 @@ application {
     applicationDefaultJvmArgs = listOf("-Djava.awt.headless=true")
 }
 
+// Warm path of scripts/skill-preview-auto.sh: prints the runtime classpath so particle-sim runs as a bare `java -cp`.
+tasks.register("previewClasspath") {
+    val cp = sourceSets.main.get().runtimeClasspath
+    dependsOn(cp)
+    doLast { println(cp.files.joinToString(":") { it.absolutePath }) }
+}
+
 tasks.named<JavaExec>("run") {
     workingDir = rootDir
 }
