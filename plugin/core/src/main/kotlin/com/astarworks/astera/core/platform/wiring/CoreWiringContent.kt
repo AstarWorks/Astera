@@ -166,7 +166,7 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     // recursively because authors drop one YAML per sound entry.
     val soundsContentDir = contentDir.resolve("sounds")
     val soundContents = com.astarworks.astera.core.application.contents.effect.SoundContents()
-    val soundReport = soundContents.bootstrapRecursive(soundsContentDir)
+    val soundReport = soundContents.bootstrap(soundsContentDir)
     logger.info("Sounds loaded: ${soundReport.loaded} ok, ${soundReport.failed} failed")
     services.register<com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry>(soundContents, priority = 0)
     reloadRegistry.register(soundContents, soundsContentDir)

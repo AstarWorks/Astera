@@ -3,8 +3,10 @@ package com.astarworks.astera.core.application.contents
 import com.astarworks.astera.core.application.port.outbound.IContentParser
 import com.astarworks.astera.core.application.service.ContentLoader
 import kotlinx.serialization.DeserializationStrategy
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.io.path.isDirectory
 
 /**
  * Abstract base for every YAML-backed content registry in Astera.
@@ -79,7 +81,7 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
      */
     public fun bootstrap(dir: Path): ContentLoader.LoadReport {
         val incoming = LinkedHashMap<K, V>()
-        val report = loader.loadFrom(dir) { cfg ->
+        val report = loadAll(dir) { cfg ->
             toEntry(cfg)?.let { (k, v) -> incoming[k] = v }
         }
         while (true) {
@@ -98,12 +100,37 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
      */
     final override fun reload(dir: Path): ContentLoader.LoadReport {
         val next = LinkedHashMap<K, V>()
-        val report = loader.loadFrom(dir) { cfg ->
+        val report = loadAll(dir) { cfg ->
             toEntry(cfg)?.let { (k, v) -> next[k] = v }
         }
         if (report.failed == 0) {
             store.set(next.toMap())
         }
         return report
+    }
+
+    /**
+     * `true` when the category keeps one YAML per entry in per-category subdirectories (`sounds/ui/click.yaml`):
+     * [bootstrap] and [reload] then read [dir] and each direct subdirectory alike, so a reload sees what the
+     * bootstrap saw instead of replacing the registry with the root files only.
+     */
+    protected open val readsSubdirectories: Boolean = false
+
+    private fun loadAll(dir: Path, onLoaded: (C) -> Unit): ContentLoader.LoadReport {
+        val dirs = if (readsSubdirectories && dir.isDirectory()) {
+            listOf(dir) + Files.list(dir).use { stream -> stream.filter { it.isDirectory() }.sorted().toList() }
+        } else {
+            listOf(dir)
+        }
+        var loaded = 0
+        var failed = 0
+        val failures = mutableListOf<ContentLoader.LoadFailure>()
+        for (d in dirs) {
+            val r = loader.loadFrom(d, onLoaded)
+            loaded += r.loaded
+            failed += r.failed
+            failures += r.failures
+        }
+        return ContentLoader.LoadReport(loaded = loaded, failed = failed, failures = failures)
     }
 }

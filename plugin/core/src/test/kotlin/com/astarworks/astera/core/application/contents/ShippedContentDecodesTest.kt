@@ -66,7 +66,7 @@ class ShippedContentDecodesTest {
             "news" to { d -> NewsContents().bootstrap(d) },
             "changelog" to { d -> ChangelogContents().bootstrap(d) },
             "login-bonus" to { d -> LoginBonusContents().bootstrap(d) },
-            "sounds" to { d -> SoundContents().bootstrapRecursive(d) },
+            "sounds" to { d -> SoundContents().bootstrap(d) },
         )
         return cases.map { (category, load) ->
             DynamicTest.dynamicTest(category) {
