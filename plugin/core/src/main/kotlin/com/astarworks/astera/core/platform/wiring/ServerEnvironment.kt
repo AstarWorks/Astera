@@ -14,7 +14,7 @@ import java.util.logging.Logger
  * `[servers]` table; default `astera-local`). Core builds one and every
  * plugin's [WiringContext] carries the same role and name.
  *
- * [defaultLocale] is the server-wide UI language (ADR-0282), read from
+ * [defaultLocale] is the server-wide UI language (ADR-0283), read from
  * `ASTERA_DEFAULT_LOCALE` (`en` | `ja`, default `ja`; anything else logs a
  * warning and falls back to `ja`). A player's explicit `/astera lang` choice
  * overrides it; the client's Minecraft language is never consulted.

@@ -241,7 +241,7 @@ internal class CoreWiringState(
 internal fun CoreWiringState.wireBase() {
     // ---- i18n --------------------------------------------------------
     val languages = LanguageLoader.loadFrom(contentDir.resolve("languages"))
-    // ADR-0282: explicit player choice > server default. The client's Minecraft language is not consulted.
+    // ADR-0283: explicit player choice > server default. The client's Minecraft language is not consulted.
     logger.info("Default locale: ${ports.defaultLocale.code}")
     simpleMessages = SimpleMessageRenderer(
         languages = languages,

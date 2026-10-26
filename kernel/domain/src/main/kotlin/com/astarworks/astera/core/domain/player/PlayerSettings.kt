@@ -79,7 +79,7 @@ public enum class VolumeChannel {
  *
  * ### Locale (Wave G)
  *
- * `null` = follow the server default (ADR-0282); a value is the player's explicit
+ * `null` = follow the server default (ADR-0283); a value is the player's explicit
  * choice. [SetLocaleUseCase] only accepts locales the
  * server can render (currently `en` / `ja` — gated by [SUPPORTED_LOCALES]).
  * Adding a new locale means adding the YAML file under `content/languages/`
@@ -100,7 +100,7 @@ public data class PlayerSettings(
     val publicProfileEnabled: Boolean = false,
     /**
      * Wave G ADR-0124 — preferred UI language for chat / GUI / commands.
-     * `null` (default) follows the server default locale (ADR-0282); non-null is
+     * `null` (default) follows the server default locale (ADR-0283); non-null is
      * the player's explicit choice and wins over it. Persisted as the raw `code`
      * string in JSONB, absent when `null`.
      */

@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0282: Japanese default locale; explicit choice beats server default, client locale ignored
+# ADR-0283: Japanese default locale; explicit choice beats server default, client locale ignored
 
 ## Status
 

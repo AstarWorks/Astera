@@ -55,7 +55,7 @@ public class CorePlatformPorts(
     public val mcServer: IMcServer,
     public val scheduler: IScheduler,
     public val broadcaster: IBroadcaster,
-    /** Server-wide UI language (ADR-0282): what a viewer without an explicit choice, and every player-less render, sees. */
+    /** Server-wide UI language (ADR-0283): what a viewer without an explicit choice, and every player-less render, sees. */
     public val defaultLocale: com.astarworks.astera.core.domain.i18n.LocaleCode,
     /** Required: GUI rendering has no in-memory default. Built before the wiring registers [IGuiBindingResolver]. */
     public val guiAdapter: GuiAdapterFactory,

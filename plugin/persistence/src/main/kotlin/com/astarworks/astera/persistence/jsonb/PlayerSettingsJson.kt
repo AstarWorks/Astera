@@ -27,7 +27,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  * # Wave G 5player-prefs-social (ADR-0124)
  *
  * Three new fields landed: [locale] (raw string for `en` / `ja`, null = server
- * default per ADR-0282), and the three per-channel volumes
+ * default per ADR-0283), and the three per-channel volumes
  * ([musicVolume] / [soundVolume] / [voiceVolume]). Defaults match the domain.
  */
 @Serializable
@@ -42,7 +42,7 @@ public data class PlayerSettingsJson(
     val publicProfileEnabled: Boolean = false,
     // Wave G ADR-0124: explicit UI locale. Stored as raw string (`"en"` /
     // `"ja"`); the domain wraps with LocaleCode. Absent / null = follow the
-    // server default (ADR-0282).
+    // server default (ADR-0283).
     val locale: String? = null,
     // Wave G ADR-0124: per-channel volume in 0..100 (percent). Defaults to
     // 100 (unattenuated) on missing-key rows.

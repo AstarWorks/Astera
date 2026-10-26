@@ -28,7 +28,7 @@ class LocalePreferenceScenarioTest {
     @Test
     fun `client language is ignored and an explicit choice beats the server default`() {
         scenario("client-locale-ignored", persistenceOverlay = true) {
-            // The sim's server default is en (ADR-0282); a ja client must not change it.
+            // The sim's server default is en (ADR-0283); a ja client must not change it.
             val viewer = player("viewer", clientLocale = "ja_jp")
             val settings = sim.services.getOrThrow<IPlayerSettingsRepository>()
             val messages = sim.services.getOrThrow<IMessageRenderer>()

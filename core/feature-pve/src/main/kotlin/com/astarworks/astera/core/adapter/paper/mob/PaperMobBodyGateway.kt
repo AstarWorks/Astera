@@ -53,7 +53,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 public class PaperMobBodyGateway(
     private val plugin: JavaPlugin,
-    /** Server default language (ADR-0282); a vanilla custom name is world-shared, so there is no per-viewer variant. */
+    /** Server default language (ADR-0283); a vanilla custom name is world-shared, so there is no per-viewer variant. */
     private val defaultLocale: LocaleCode,
 ) : IMobBodyGateway, Listener {
 

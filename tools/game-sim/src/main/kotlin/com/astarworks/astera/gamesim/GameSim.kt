@@ -546,7 +546,7 @@ public class GameSim private constructor(
                 mcServer = mcServer,
                 scheduler = scheduler,
                 broadcaster = broadcaster,
-                // Scenarios assert English text; the sim pins en like the e2e server (ADR-0282).
+                // Scenarios assert English text; the sim pins en like the e2e server (ADR-0283).
                 defaultLocale = com.astarworks.astera.core.domain.i18n.LocaleCode.EN,
                 guiAdapter = GuiAdapterFactory { _, _, _ -> FakeGuiAdapter() },
                 // ADR-0276: the headless lease service with a per-viewer model of what each client was sent.

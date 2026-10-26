@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
  *
  * Triggered by the `settings.locale.cycle` intent emitted from the Settings
  * GUI's locale tile. A player without an explicit choice cycles from the
- * server default (ADR-0282). The cycle order today is `en ↔ ja` (the two locales in
+ * server default (ADR-0283). The cycle order today is `en ↔ ja` (the two locales in
  * [com.astarworks.astera.core.domain.player.PlayerSettings.SUPPORTED_LOCALES]).
  * Adding a third locale means extending the constant set — the cycle picks
  * the next element after the current locale by iterating the supported set
@@ -35,7 +35,7 @@ public class LobbySettingsLocaleIntentHandler(
     private val guiAdapter: IGuiAdapter,
     private val messages: IMessageRenderer,
     private val playerGateway: IPlayerGateway,
-    /** Server default (ADR-0282): the effective locale of a player who never chose one, where the cycle starts. */
+    /** Server default (ADR-0283): the effective locale of a player who never chose one, where the cycle starts. */
     private val defaultLocale: LocaleCode,
 ) {
 
