@@ -34,8 +34,9 @@ class VelocityE2eTest : E2eBase() {
             assertThat(file).describedAs("Velocity log $path").exists()
             val lines = file.readLines()
             // A client socket that vanished mid-write (backend kicked the bot) logs "decode frame" + "Broken pipe": a peer
-            // disconnect race, not a protocol decode failure. Everything else still fails the check.
-            val peerGone = Regex("Broken pipe|Connection reset")
+            // disconnect race, not a protocol decode failure. The same goes for a command the bot sent while the harness
+            // kicked it in cleanUp (Velocity: "Not connected to server!"). Everything else still fails the check.
+            val peerGone = Regex("Broken pipe|Connection reset|Not connected to server")
             val bad = lines.filterIndexed { i, l ->
                 Regex("Exception|did not decode|Failed to decode|decode.*(error|fail)|\\bERROR\\b").containsMatchIn(l) &&
                     !peerGone.containsMatchIn(l) && !(i + 1 < lines.size && peerGone.containsMatchIn(lines[i + 1]))
