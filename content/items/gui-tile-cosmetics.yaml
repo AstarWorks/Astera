@@ -1,4 +1,4 @@
-# UI-08 (docs/game-design/access-map.md) - main-menu Cosmetics tile. Vanilla look until item-art draws a glyph.
+# UI-08 (docs/game-design/access-map.md) - main-menu Cosmetics tile. Mirror glyph drawn by item-art (Icons.kt).
 
 id: gui-tile-cosmetics
 material: LEATHER_CHESTPLATE
