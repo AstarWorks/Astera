@@ -606,7 +606,7 @@ public class GameSim private constructor(
                 CombatPlatformPorts(
                     projectileService = { projectiles },
                     damageGateway = { svc ->
-                        SimDamageGateway(world, svc.getOrThrow<IPlayerAttributeContainerStore>(), scheduler)
+                        SimDamageGateway(world, svc.getOrThrow<IPlayerAttributeContainerStore>(), scheduler, svc.getOrThrow<IDomainEventBus>())
                     },
                     statusEffectContainer = { statusContainer.value },
                     entityEffectsGateway = { SimEntityEffectsGateway(world, recorder) { scheduler.currentTick() } },

@@ -42,6 +42,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerPose
+import com.astarworks.astera.core.domain.event.PlayerHealthChanged
 import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.world.BlockType
@@ -167,6 +168,7 @@ public class SimDamageGateway(
     private val world: SimWorld,
     private val containerStore: IPlayerAttributeContainerStore,
     private val scheduler: IScheduler,
+    private val eventBus: IDomainEventBus,
     private val invulnerabilityTicks: Long = DEFAULT_INVULNERABILITY_TICKS,
 ) : IDamageGateway {
 
@@ -191,6 +193,16 @@ public class SimDamageGateway(
 
         val newHp = (currentHp - resolved.finalAmount).coerceAtLeast(0.0)
         container.set(Attributes.CURRENT_HP, AttributeValue.NumberValue(newHp))
+        // Same as PaperDamageGateway: HUDs refresh on the event, and the non-damage source keeps the kill single.
+        eventBus.publish(
+            PlayerHealthChanged(
+                playerId = target,
+                oldHp = currentHp,
+                newHp = newHp,
+                source = HealthChangeSource.Other("combat"),
+                atTick = scheduler.currentTick(),
+            ),
+        )
 
         return if (newHp <= 0.0) {
             Result.success(DamageOutcome.Killed)

@@ -27,11 +27,12 @@ public data class PendingVanillaAttribution(
  * `ApplyDamageUseCase` did not already announce.
  *
  * `ApplyDamageUseCase` / `PaperDamageGateway` write the HP container directly
- * and publish `PlayerKilled` themselves, so they never raise
- * `PlayerHealthChanged`. Everything that does (vanilla melee, mob arrows,
- * fall / lava / void, status DoT, admin) reaches 0 HP through the health
- * gateway; this resolver turns that transition into exactly one
- * `PlayerKilled` (only the `oldHp > 0 -> newHp <= 0` edge qualifies).
+ * and publish `PlayerKilled` themselves; their `PlayerHealthChanged` (for the
+ * HUDs) carries the non-damage source `Other("combat")`, which this resolver
+ * ignores. Everything else (vanilla melee, mob arrows, fall / lava / void,
+ * status DoT, admin) reaches 0 HP through the health gateway; this resolver
+ * turns that transition into exactly one `PlayerKilled` (only the
+ * `oldHp > 0 -> newHp <= 0` edge qualifies).
  */
 public class VanillaKillResolver(
     /** ADR-0237: stamps the kill's context; the default lookup-less resolver files everything under `Lobby`. */
@@ -78,6 +79,7 @@ public class VanillaKillResolver(
         HealthChangeSource.Respawn,
         HealthChangeSource.Item,
         -> false
+        // Combat hits announce their own death (`ApplyDamageUseCase`); only `vanilla-*` labels are raw damage.
         is HealthChangeSource.Other -> source.label.startsWith("vanilla-")
         else -> true
     }

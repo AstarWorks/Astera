@@ -1,6 +1,14 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
+import com.astarworks.astera.combat.domain.damage.DamageSource
+import com.astarworks.astera.combat.domain.damage.ResolvedDamage
+import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IPlayerLabelGateway
+import com.astarworks.astera.core.application.service.InMemoryPlayerLabelGateway
+import com.astarworks.astera.core.domain.damage.DamageAttribute
+import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.event.ResourcePackStatusChanged
@@ -81,6 +89,39 @@ class HpStatusHudScenarioTest {
             health.setHealth(alice.id, 20.0, HealthChangeSource.Respawn)
             advance(4)
             assertThat(sim.hud.statusLineText(alice.id)).isEqualTo("hp-bar:20/20")
+        }
+    }
+
+    @Test
+    fun `a combat hit shows on the status line and the nameplate within a tick, not at the next poll`() {
+        scenario("hud-hp-combat-hit") {
+            val attacker = player("attacker", team = "red", at = Vec3(0.0, groundY, 0.0))
+            val victim = player("victim", team = "blue", at = Vec3(0.0, groundY, 10.0))
+            startMatch("battle-loyal", mapOf(attacker to "red", victim to "blue"))
+            advance(40)
+            val labels = sim.services.getOrThrow<IPlayerLabelGateway>() as InMemoryPlayerLabelGateway
+            val maxHp = 40.0
+            sim.setMaxHealth(victim, maxHp)
+            advance(4)
+            assertThat(sim.hud.statusLineText(victim.id)).isEqualTo("astera.hud.status.hp{current=${maxHp.toInt()},max=${maxHp.toInt()}}")
+            assertThat(labels.labelsOf(attacker.id)[victim.id]?.hp).isEqualTo(maxHp.toInt())
+
+            // Sit away from both polls (status line every 2 ticks, nameplates every 20) so only the event can explain the update.
+            while (sim.scheduler.currentTick() % 20L !in 5L..10L) advance(1)
+            val outcome = sim.services.getOrThrow<IDamageGateway>().apply(
+                victim.id,
+                ResolvedDamage(finalAmount = 7.5, attribute = DamageAttribute.PHYSICAL, wasBlocked = false, wasCritical = false),
+                DamageSource.Environment.Generic,
+                ignoreInvulnerability = true,
+            )
+            assertThat(outcome.isSuccess).isTrue()
+            advance(1)
+
+            val expected = kotlin.math.ceil(maxHp - 7.5).toInt()
+            assertThat(sim.hud.statusLineText(victim.id)).isEqualTo("astera.hud.status.hp{current=$expected,max=${maxHp.toInt()}}")
+            assertThat(labels.labelsOf(attacker.id)[victim.id]?.hp).isEqualTo(expected)
+            // The HP event is not a second death announcement.
+            assertThat(eventsOf<PlayerKilled>()).isEmpty()
         }
     }
 

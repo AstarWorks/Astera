@@ -13,7 +13,9 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IStatusEffectIconSource
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.event.PlayerHealthChanged
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
+import com.astarworks.astera.core.domain.event.PlayerMaxHealthChanged
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.event.ResourcePackStatusChanged
 import com.astarworks.astera.core.domain.hud.HudColor
@@ -50,12 +52,11 @@ import org.slf4j.LoggerFactory
  *
  * # Throttling
  *
- * A task every [FLUSH_PERIOD_TICKS] ticks re-renders every joined player and
- * sends the ones whose rendered line actually changed, so a burst of damage
- * ticks costs one update, and an unchanged line costs nothing. There is no
- * per-event trigger on purpose: the poll also catches writers that touch the
- * container without raising `PlayerHealthChanged` (the combat damage gateway
- * does exactly that), so one path covers every writer.
+ * A health event ([onHealthChanged] / [onMaxHealthChanged]) pushes that player's
+ * line at once, so a hit shows on the tick it lands. A task every
+ * [FLUSH_PERIOD_TICKS] ticks still re-renders every joined player as the
+ * backstop (ammo, cooldown and status icons have no health event). Either way
+ * only a line that actually changed is sent, so an unchanged line costs nothing.
  *
  * # Unset HP
  *
@@ -105,25 +106,41 @@ public class HpStatusHudService(
         if (event.status.isLoaded) packLoaded.add(event.playerId) else packLoaded.remove(event.playerId)
     }
 
+    /** HP changed through any writer: show it now rather than at the next flush. */
+    public fun onHealthChanged(event: PlayerHealthChanged) {
+        pushIfJoined(event.playerId)
+    }
+
+    /** Max HP changed: the bar's scale moved with it. */
+    public fun onMaxHealthChanged(event: PlayerMaxHealthChanged) {
+        pushIfJoined(event.playerId)
+    }
+
+    private fun pushIfJoined(playerId: PlayerId) {
+        if (playerId in joined) push(playerId)
+    }
+
     /** Sends every pending update now (also called by the task). */
     public fun flush() {
         val targets = LinkedHashSet<PlayerId>(joined)
         targets += onlinePlayers()
-        for (playerId in targets) {
-            scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
-                val layout = render(playerId)
-                if (lastSent[playerId] == layout) return@run
-                when (val outcome = hudGateway.showFor(playerId, layout)) {
-                    is Result.Success -> lastSent[playerId] = layout
-                    is Result.Failure -> {
-                        if (outcome.error is HudError.UnknownPlayer) {
-                            // Gone (or not resolvable yet): drop the cached line only. The pack status survives, and
-                            // an online player is picked up again by the next flush.
-                            joined -= playerId
-                            lastSent -= playerId
-                        } else if (failureLogged.add(playerId)) {
-                            log.warn("HP status HUD show failed for {}: {}", playerId, outcome.error)
-                        }
+        for (playerId in targets) push(playerId)
+    }
+
+    private fun push(playerId: PlayerId) {
+        scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
+            val layout = render(playerId)
+            if (lastSent[playerId] == layout) return@run
+            when (val outcome = hudGateway.showFor(playerId, layout)) {
+                is Result.Success -> lastSent[playerId] = layout
+                is Result.Failure -> {
+                    if (outcome.error is HudError.UnknownPlayer) {
+                        // Gone (or not resolvable yet): drop the cached line only. The pack status survives, and
+                        // an online player is picked up again by the next flush.
+                        joined -= playerId
+                        lastSent -= playerId
+                    } else if (failureLogged.add(playerId)) {
+                        log.warn("HP status HUD show failed for {}: {}", playerId, outcome.error)
                     }
                 }
             }

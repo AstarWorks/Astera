@@ -145,6 +145,7 @@ internal object MatchHudWiring {
             subscriptions += eventBus.subscribe(MatchStarted::class) { nameplates.refresh(it.matchId) }
             subscriptions += eventBus.subscribe(PhaseChanged::class) { nameplates.refresh(it.matchId) }
             subscriptions += eventBus.subscribe(PlayerHealthChanged::class) { nameplates.refreshMatchOf(it.playerId) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerMaxHealthChanged::class) { nameplates.refreshMatchOf(it.playerId) }
             subscriptions += eventBus.subscribe(MatchEnded::class) { nameplates.release(it.matchId) }
             subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class) { nameplates.onLeft(it.playerId) }
             subscriptions += eventBus.subscribe(PlayerQuitServer::class) { nameplates.onLeft(it.playerId) }

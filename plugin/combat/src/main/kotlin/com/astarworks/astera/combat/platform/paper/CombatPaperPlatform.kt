@@ -121,6 +121,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
                 plugin.server,
                 services.getOrThrow<IScheduler>(),
                 attributeContainerStore,
+                services.getOrThrow<IDomainEventBus>(),
             )
             paperDamageGateway.start()
             paperDamageGateway

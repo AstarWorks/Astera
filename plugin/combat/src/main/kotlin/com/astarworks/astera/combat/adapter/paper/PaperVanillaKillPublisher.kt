@@ -24,9 +24,9 @@ import java.util.concurrent.ConcurrentHashMap
  * Core's `BukkitEventAdapter` re-routes that damage into
  * `IPlayerHealthGateway`, which raises `PlayerHealthChanged`; this class
  * turns the `>0 -> <=0` edge into one `PlayerKilled` via
- * [VanillaKillResolver]. Combat damage (`PaperDamageGateway`) writes the
- * container directly and never raises `PlayerHealthChanged`, so there is no
- * double publish.
+ * [VanillaKillResolver]. Combat damage (`PaperDamageGateway`) raises
+ * `PlayerHealthChanged` too (for the HUDs) but with a non-damage source the
+ * resolver ignores, so there is no double publish.
  *
  * Attribution: a LOWEST `EntityDamageEvent` handler (runs before core's LOW
  * re-route, synchronously in the same dispatch) records the attacking player
