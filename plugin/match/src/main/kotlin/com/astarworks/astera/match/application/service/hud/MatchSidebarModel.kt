@@ -33,8 +33,11 @@ public data class SidebarModel(
 
 public object MatchSidebarModel {
 
-    /** Lines left for the mode after header (2), spacers (2) and the viewer footer (2). */
-    public const val MAX_MODE_LINES: Int = 15 - 6
+    /** Sidebar rows the client shows. */
+    private const val MAX_LINES: Int = 15
+
+    /** Lines left for the mode after header (2) and the viewer footer (spacer, team, stars, level, goal = 5). */
+    public const val MAX_MODE_LINES: Int = MAX_LINES - 2 - 5
 
     private val SPACER: MessageKey = MessageKey("astera.hud.sidebar.spacer")
 
@@ -73,7 +76,6 @@ public object MatchSidebarModel {
         norma: NormaHud?,
     ): HudLayout.Sidebar {
         val teams = match.teams.associateBy { it.id }
-        val body = model.lines.map { line -> toText(line, teams[line.team], viewer, messages) }
         val footer = buildList {
             add(HudComponent.Text(SPACER))
             match.teams.firstOrNull { viewer in it.members }?.let { own ->
@@ -90,7 +92,9 @@ public object MatchSidebarModel {
                 }
             }
         }
-        return HudLayout.Sidebar(titleKey = model.titleKey, lines = (body + footer).take(15))
+        // The footer carries the viewer's Norma goal, so it is never the part that gets cut: the mode body shrinks instead.
+        val body = model.lines.take(MAX_LINES - footer.size).map { line -> toText(line, teams[line.team], viewer, messages) }
+        return HudLayout.Sidebar(titleKey = model.titleKey, lines = body + footer)
     }
 
     private fun toText(line: HudLine, team: Team?, viewer: PlayerId, messages: IMessageRenderer): HudComponent.Text {

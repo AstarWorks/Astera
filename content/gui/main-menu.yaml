@@ -125,8 +125,7 @@ slots:
     index: 22
     item: gui-tile-quests
     on_left:
-      key: lobby.hint.show
-      payload: { topic: progress }
+      key: progress.open
     tooltip:
       - astera.gui.main-menu.quests.tooltip
   - type: static

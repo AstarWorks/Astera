@@ -81,7 +81,7 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
     }
 
     /** The match must end on its own (winner / time-limit tie-break), then summary, rewards, lobby and a clean log. */
-    protected fun finishMatch(ctx: Ctx, endTimeoutMs: Long = 60_000) {
+    protected fun finishMatch(ctx: Ctx, endTimeoutMs: Long = 60_000, actorWins: Boolean = true) {
         val ended = awaitNoMatch(endTimeoutMs, keepAlive = ctx.bots)
         E2eReport.check(ctx.suite, "the match ends by itself (no admin end)", "RCON astera match list") {
             assertThat(ended).describedAs("match still listed: ${matchLines()}; sidebar=${sidebar(ctx.actor)}").isTrue()
@@ -97,6 +97,22 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             assertThat(chat.any { it.contains("Match Summary") }).describedAs("no summary:\n${quote(chat, 40)}").isTrue()
             if (chat.any { it.contains("ended in a draw") }) E2eReport.notes += "${ctx.suite}: the match ended in a draw (time-limit tie)"
             "verdict lines: ${chat.filter { it.contains("VICTORY") || it.contains("DEFEAT") || it.contains("Victory") || it.contains("Ended by") || it.contains("reached Norma") || it.contains("was ahead") }.take(6)}"
+        }
+        E2eReport.check(ctx.suite, "each player is told their verdict (the winner VICTORY, the other DEFEAT)", "SystemChat") {
+            val mine = ctx.chat(ctx.actor).joinToString("\n")
+            val theirs = ctx.chat(ctx.idle).joinToString("\n")
+            if (actorWins) {
+                assertThat(mine).describedAs("objective actor was not told VICTORY:\n${quote(ctx.chat(ctx.actor), 30)}").containsIgnoringCase("VICTORY")
+                assertThat(theirs).describedAs("idle bot was not told DEFEAT:\n${quote(ctx.chat(ctx.idle), 30)}").containsIgnoringCase("DEFEAT")
+            } else {
+                // Bot-vs-bot fight: either side may win, a draw is possible; each must still be shown a verdict.
+                listOf(mine, theirs).forEach { assertThat(it).containsPattern("(?i)VICTORY|DEFEAT|DRAW") }
+            }
+            "actor verdict=${Regex("(?i)VICTORY|DEFEAT|DRAW").find(mine)?.value}; idle verdict=${Regex("(?i)VICTORY|DEFEAT|DRAW").find(theirs)?.value}"
+        }
+        E2eReport.check(ctx.suite, "the client received sound packets during the match (objective / combat cues are not dropped)", "ClientboundSound") {
+            assertThat(ctx.actor.sounds).describedAs("the actor received no sound packet at all in the whole match").isNotEmpty()
+            "actor sounds=${ctx.actor.sounds.size}, last=${ctx.actor.sounds.takeLast(4)}"
         }
         E2eReport.check(ctx.suite, "server log stayed free of errors during the match", "server log") {
             val errs = serverErrorsSince(ctx.logFrom)

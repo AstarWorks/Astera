@@ -11,6 +11,8 @@
 # Not sold, on purpose: the starter weapons (pistol, knight-sword) and the dev/demo items rtm-blaster / skill-tester.
 # A new player starts with no GOLD: every offer has to be earned.
 # Offers priced at >= 100 need a confirming second click in the GUI (ShopIntentHandler.CONFIRM_AT).
+# `recommended: true` pins the offer first (with a badge) for a player who has bought nothing here yet: the starter kit is
+# gun + sword, so the newcomer is steered to a staff to meet all three archetypes.
 # Offers iterate in YAML order, 9 per GUI row, 45 per page; the footer row holds paging, the category
 # cycle (when offers declare `category:`), the wallet and the purchase history (ADR-0211).
 # `limit: once` (default) = an unlock paid once, re-claimable for free if the item is lost;
@@ -31,6 +33,7 @@ offers:
   - id: frost-staff
     item: frost-staff
     category: staff
+    recommended: true
     price:
       currency: GOLD
       amount: 150
@@ -171,3 +174,26 @@ offers:
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.sigil-rifle
+  # Consumables (ECO-04): `limit: unlimited` = paid on every purchase, used up on use (consume_item) and gone for
+  # good even when used in a match (the match-end restore removes consumed copies). Priced below one match's
+  # GOLD (35 for a loss, 120 for a win): a heal costs about a loss's pay, so carrying one is a real choice.
+  - id: heal-potion
+    item: heal-potion
+    category: consumable
+    limit: unlimited
+    price:
+      currency: GOLD
+      amount: 40
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.heal-potion
+  - id: swift-powder
+    item: swift-powder
+    category: consumable
+    limit: unlimited
+    price:
+      currency: GOLD
+      amount: 30
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.swift-powder

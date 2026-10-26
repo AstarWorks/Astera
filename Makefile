@@ -187,8 +187,12 @@ private-update: ## Pull the latest commit from the private/ submodule
 # ----------------------------------------------------------------------------
 
 .PHONY: e2e
-e2e: ## Boot the offline e2e backend, run the MCProtocolLib bot suite, write build/e2e-report.md (exit code = result)
+e2e: ## Integration-window e2e: skips the slowest low-churn suites (E2E_PROFILE=window), writes build/e2e-report.md (exit code = result)
 	bash scripts/e2e.sh
+
+.PHONY: e2e-full
+e2e-full: ## Full e2e: every suite incl. PersonaWeapons / Weapons (same as `make e2e E2E_PROFILE=full`)
+	E2E_PROFILE=full bash scripts/e2e.sh
 
 .PHONY: e2e-down
 e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, volumes, images)

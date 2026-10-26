@@ -99,6 +99,22 @@ moments:
     title_stay_ticks: 60
     particle: norma-level-up
 
+  # Queue: a short confirmation when queued; "match found" (title + sting) for everyone in the formed roster.
+  queue-join:
+    cue: "astera:ui/queue-join"
+  match-found:
+    cue: "astera:match/found"
+    title: "astera.presentation.match-found.title"
+    subtitle: "astera.presentation.match-found.subtitle"
+    title_stay_ticks: 40
+
+  # The match enters its final stretch (a team reached the score threshold): warning sting + title for everyone.
+  sudden-death:
+    cue: "astera:match/sudden-death"
+    title: "astera.presentation.sudden-death.title"
+    subtitle: "astera.presentation.sudden-death.subtitle"
+    title_stay_ticks: 50
+
   match-win:
     cue: "astera:match/win"
   match-lose:

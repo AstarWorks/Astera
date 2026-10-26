@@ -109,6 +109,12 @@ public data class PlayerSettings(
     val soundVolume: Int = DEFAULT_VOLUME,
     /** Wave G ADR-0124 — voice bus volume, percent in `0..100`. */
     val voiceVolume: Int = DEFAULT_VOLUME,
+    /** UI-03 — show the HP / ammo / cooldown status line. Off hides the whole line (the pack blanks the vanilla hearts). */
+    val hpLineVisible: Boolean = true,
+    /** UI-03 — show the floating damage number over a target you hit (the hit sound stays). */
+    val damageNumbersVisible: Boolean = true,
+    /** UI-03 — show the first-time guide's title / action-bar hints and world marker. Off pauses the guide. */
+    val tutorialHintsEnabled: Boolean = true,
 ) {
     init {
         quickCastSlots.keys.forEach { slot ->

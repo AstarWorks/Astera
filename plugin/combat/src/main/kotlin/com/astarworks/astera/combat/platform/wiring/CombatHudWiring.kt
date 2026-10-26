@@ -112,7 +112,10 @@ internal object CombatHudWiring {
         val indicators = services.get<com.astarworks.astera.core.application.port.outbound.IDamageIndicatorGateway>()
         if (soundGateway != null && indicators != null) {
             val hitFeedback = com.astarworks.astera.combat.application.eventbus.listeners.hud
-                .HitFeedbackListener(indicators, soundGateway)
+                .HitFeedbackListener(
+                    indicators, soundGateway,
+                    numbersVisible = { services.get<com.astarworks.astera.core.application.service.hud.HudPreferences>()?.damageNumbersVisible(it) ?: true },
+                )
             subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.DamageDealt::class) { hitFeedback.onDamage(it) }
             subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { hitFeedback.onKilled(it) }
         }

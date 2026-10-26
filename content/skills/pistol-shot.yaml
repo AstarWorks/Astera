@@ -40,6 +40,9 @@ phases:
       targets: { type: caster_forward, distance: 0.9, height: -0.25 }
       particle_id: gun-muzzle-smoke
   hit_entity:
+    - type: play_sound
+      targets: { type: target }
+      sound_id: astera:weapons/gun-impact
     - type: damage
       targets: { type: target }
       components:
@@ -48,15 +51,10 @@ phases:
     - type: spawn_particle
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
       particle_id: gun-impact
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.arrow.hit_player
-      volume: { type: literal, value: 0.5 }
-      pitch: { type: literal, value: 1.2 }
   hit_block:
     - type: play_sound
       targets: { type: hit_location }
-      sound_id: block.stone.hit
+      sound_id: astera:weapons/gun-impact-block
       volume: { type: literal, value: 0.6 }
       pitch: { type: literal, value: 1.6 }
     - type: spawn_particle

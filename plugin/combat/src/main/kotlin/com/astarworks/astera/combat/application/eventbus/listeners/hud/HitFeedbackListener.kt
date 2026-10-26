@@ -19,6 +19,8 @@ import kotlin.math.ceil
 public class HitFeedbackListener(
     private val indicators: IDamageIndicatorGateway,
     private val sounds: IPresentation,
+    /** UI-03: false when the attacker turned damage numbers off in Settings (the hit sound stays). */
+    private val numbersVisible: (com.astarworks.astera.core.domain.player.PlayerId) -> Boolean = { true },
 ) {
 
     public fun onDamage(event: DamageDealt) {
@@ -31,7 +33,7 @@ public class HitFeedbackListener(
             else -> DamageIndicatorStyle.NORMAL
         }
         val amount = if (style == DamageIndicatorStyle.BLOCKED) 0 else ceil(resolved.finalAmount).toInt()
-        indicators.show(attacker, event.target, amount, style)
+        if (numbersVisible(attacker)) indicators.show(attacker, event.target, amount, style)
         sounds.play(
             when (style) {
                 DamageIndicatorStyle.CRITICAL -> PresentationMoments.CRIT

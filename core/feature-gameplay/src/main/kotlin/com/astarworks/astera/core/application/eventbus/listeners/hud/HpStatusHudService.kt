@@ -21,6 +21,7 @@ import com.astarworks.astera.core.domain.event.ResourcePackStatusChanged
 import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
+import com.astarworks.astera.core.domain.hud.HudRegion
 import com.astarworks.astera.core.domain.hud.status.AmmoReadoutLayout
 import com.astarworks.astera.core.domain.hud.status.CooldownHudLayout
 import com.astarworks.astera.core.domain.hud.status.HpBarLayout
@@ -80,6 +81,8 @@ public class HpStatusHudService(
      * readout there is) never came back until they re-logged.
      */
     private val onlinePlayers: () -> Collection<PlayerId> = { emptyList() },
+    /** UI-03: a player who switched the HP line off in Settings gets no status line at all. */
+    private val lineVisible: (PlayerId) -> Boolean = { true },
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -87,6 +90,7 @@ public class HpStatusHudService(
     private val joined: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
     private val failureLogged: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
     private val lastSent: MutableMap<PlayerId, HudLayout.StatusLine> = ConcurrentHashMap()
+    private val hidden: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
 
     private val task: IScheduler.TaskHandle = scheduler.runRepeatingTicks(ExecutionScope.Global, flushPeriodTicks, flushPeriodTicks) { flush() }
 
@@ -129,6 +133,14 @@ public class HpStatusHudService(
 
     private fun push(playerId: PlayerId) {
         scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
+            if (!lineVisible(playerId)) {
+                if (hidden.add(playerId)) {
+                    lastSent -= playerId
+                    hudGateway.clearFor(playerId, HudRegion.STATUS_LINE)
+                }
+                return@run
+            }
+            hidden -= playerId
             val layout = render(playerId)
             if (lastSent[playerId] == layout) return@run
             when (val outcome = hudGateway.showFor(playerId, layout)) {
@@ -152,6 +164,7 @@ public class HpStatusHudService(
         joined -= playerId
         failureLogged -= playerId
         lastSent -= playerId
+        hidden -= playerId
     }
 
     /** `current to max` ammo of the gun in hand, or `null` when the held item uses no ammo. */

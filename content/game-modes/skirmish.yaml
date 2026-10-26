@@ -6,7 +6,4 @@ id: skirmish
 title_key: astera.gamemode.skirmish.title
 impl_class: com.astarworks.astera.match.application.gamemode.SkirmishGameMode
 tick_period_ticks: 20
-default_config:
-  # Weapon restriction (RTM-style MAIN + SUB): at most 1 weapon per family (gun / sword / staff) and 2 weapons in
-  # total. Extra weapons are set aside on match entry (restored at match end) and further pickups are refused.
-  weapon_limits: "gun:1,sword:1,staff:1,total:2"
+default_config: {}
