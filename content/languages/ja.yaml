@@ -824,7 +824,7 @@ astera:
     mode:
       carry-mini-tnt:
         name: "<gold>ミニTNTキャリー</gold>"
-        description: "<gray>ミニTNTを {count} 個自拠点に集めて1つのTNTに合体させ、敵拠点へ届ける。</gray>"
+        description: "<gray>ミニTNTを集めて敵拠点へ運び、{count} 個設置して拠点を爆破する。</gray>"
     # Wave 5d — バリアドメイン (ADR-0033, RTM issue #8)
     barrier:
       created: "<aqua>{position} に {player} がバリアを設置しました。</aqua>"
@@ -982,7 +982,7 @@ astera:
           break-core: "<{color}><bold>{team}</bold></{color}> <gray>が最後の敵コアを破壊しました。</gray>"
           annihilation: "<{color}><bold>{team}</bold></{color}> <gray>が最後までネクサスを守り抜きました。</gray>"
           carry-tnt: "<{color}><bold>{team}</bold></{color}> <gray>が敵基地へTNTを届けました。</gray>"
-          carry-mini-tnt: "<{color}><bold>{team}</bold></{color}> <gray>が合体TNTを敵基地へ届けました。</gray>"
+          carry-mini-tnt: "<{color}><bold>{team}</bold></{color}> <gray>がミニTNTで敵基地を爆破しました。</gray>"
           capture-wool: "<{color}><bold>{team}</bold></{color}> <gray>が必要数のウールゾーンを制圧しました。</gray>"
           steal-jewelry: "<{color}><bold>{team}</bold></{color}> <gray>が必要数の宝石を持ち帰りました。</gray>"
           battle-loyal: "<{color}><bold>{team}</bold></{color}> <gray>が先にキル目標へ到達しました。</gray>"
@@ -994,7 +994,7 @@ astera:
         break-core: "<gray>コア破壊:</gray> <white>敵のコアを壊し、自陣のコアを守る。最後までコアが残ったチームの勝ち。</white>"
         annihilation: "<gray>殲滅戦:</gray> <white>敵のネクサスの柱を壊す。最後までネクサスが残ったチームの勝ち。</white>"
         carry-tnt: "<gray>TNT運搬:</gray> <white>TNTを拾って敵基地へ運ぶ。先に届けたチームの勝ち。</white>"
-        carry-mini-tnt: "<gray>ミニTNT運搬:</gray> <white>ミニTNTを集めて自陣に納めると、規定数で大きなTNTに合体。それを敵基地へ届ければ勝ち。</white>"
+        carry-mini-tnt: "<gray>ミニTNT運搬:</gray> <white>マップ中のミニTNTを拾い、敵基地へ運んで設置しよう。規定数を設置すると敵基地が爆破されて勝ち。倒されると持っている分は失う。</white>"
         capture-wool: "<gray>ウール制圧:</gray> <white>ウールのゾーンに立って制圧。先に必要数を制圧したチームの勝ち。</white>"
         steal-jewelry: "<gray>宝石強奪:</gray> <white>敵の台座から宝石を奪い、自陣へ持ち帰る。必要数を持ち帰れば勝ち。</white>"
         battle-loyal: "<gray>バトルロイヤル:</gray> <white>チームデスマッチ。先にキル目標に届いたチームの勝ち。</white>"
@@ -1002,6 +1002,41 @@ astera:
       norma-win: "<gray>ノルマ:</gray> <white>ジェネレーターのスターとキルでレベルアップ(現在の目標はサイドバー)。先に</white> <gold>Lv {max}</gold> <white>へ到達した人のチームが勝利します。</white>"
       norma-rank: "<gray>ノルマ:</gray> <white>ジェネレーターのスターとキルでレベルアップ(目標はサイドバー)。時間切れの際はレベルが順位を決めます。</white>"
       time: "<gray>制限時間 {minutes} 分: 目標の達成度、次にノルマレベル・スター・キルで上回ったチームの勝ち。</gray>"
+      reminder: "<gold>おさらい - 勝ち方:</gold>"
+      first-time:
+        header: "<aqua>== 初めての試合？ かんたんガイド ==</aqua>"
+        sidebar: "<gray>右のサイドバーにチームのスコア、目標、ノルマの目標が出ています。</gray>"
+        stars: "<gray>ジェネレーターのスターを拾い、敵を倒してノルマレベルを上げよう。先に最上位へ到達した人のチームの勝ちです。</gray>"
+        respawn: "<gray>倒されても数秒でリスポーンし、短い間は無敵です。仲間と固まって動き、F キーでメインメニューを開けます。</gray>"
+    # 試合開始(ACTIVE)時に出す目標タイトル (MatchBriefingListener)。
+    objective:
+      skirmish:
+        title: "<gold><bold>チームデスマッチ</bold></gold>"
+        subtitle: "<yellow>先にノルマ最上位へ</yellow>"
+      break-core:
+        title: "<gold><bold>コア破壊</bold></gold>"
+        subtitle: "<yellow>敵のコアを壊し、自陣のコアを守れ</yellow>"
+      annihilation:
+        title: "<gold><bold>殲滅戦</bold></gold>"
+        subtitle: "<yellow>敵のネクサスの柱を壊せ</yellow>"
+      carry-tnt:
+        title: "<gold><bold>TNT運搬</bold></gold>"
+        subtitle: "<yellow>TNTを敵基地へ運べ</yellow>"
+      carry-mini-tnt:
+        title: "<gold><bold>ミニTNT運搬</bold></gold>"
+        subtitle: "<yellow>ミニTNTを敵基地に設置せよ</yellow>"
+      capture-wool:
+        title: "<gold><bold>ウール制圧</bold></gold>"
+        subtitle: "<yellow>ウールのゾーンを制圧せよ</yellow>"
+      steal-jewelry:
+        title: "<gold><bold>宝石強奪</bold></gold>"
+        subtitle: "<yellow>敵の宝石を奪って自陣へ持ち帰れ</yellow>"
+      battle-loyal:
+        title: "<gold><bold>バトルロイヤル</bold></gold>"
+        subtitle: "<yellow>先にキル目標に届いたチームの勝ち</yellow>"
+      pve-waves:
+        title: "<gold><bold>ウェーブ</bold></gold>"
+        subtitle: "<yellow>全ウェーブを突破せよ</yellow>"
     # F3-4 — 試合終了時のリザルト画面（チャット部分）。ロビーへ戻る前に表示。
     result:
       hint: "<yellow>勝つには:</yellow> <white>先にノルマ Lv {max} へ到達する(キルとスターでレベルが上がる)か、相手より先にモードの目標を達成する。</white>"
@@ -1234,10 +1269,8 @@ astera:
         carried: "<gray>TNT 所持:</gray> <{color}>{team}</{color}>"
         loose: "<gray>TNT は誰でも取れる</gray>"
       carry-mini-tnt:
-        team: "<{color}>{team}</{color}><gray>:</gray> <white>{pool}/{size}</white> <gray>ミニ TNT</gray> <white>{score}/{goal}</white> <gray>TNT</gray>"
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{planted}/{goal}</white> <gray>ミニ TNT 設置</gray>"
         loose: "<gray>マップ上のミニ TNT:</gray> <white>{count}</white>"
-        tnt-ready: "<{color}>{team}</{color}> <gray>の TNT がスポーンで待機中</gray>"
-        tnt-carried: "<gray>TNT 所持:</gray> <{color}>{team}</{color}>"
       pve-waves:
         ready: "<gray>準備しよう: <white>{waves}</white> ウェーブが来る</gray>"
         wave: "<gold>ウェーブ {wave}/{waves}</gold> <gray>-</gray> <white>{left}</white> <gray>体残り</gray>"
@@ -1550,15 +1583,12 @@ astera:
       dropped: "<gray>TNT の運び手が倒れた。TNT は元の場所に戻った。</gray>"
     carry-mini-tnt:
       title: "<gold>ミニ TNT 収集</gold>"
-      picked-up: "<gold>ミニ TNT を拾った ({count}/{limit})。自分の基地へ持ち帰ろう！</gold>"
-      pooled: "<yellow>{team} チームがミニ TNT を {count} 個プールに加えた ({pool}/{size})。</yellow>"
+      picked-up: "<gold>ミニ TNT を拾った ({count}/{limit})。敵基地へ運ぼう！</gold>"
+      planted: "<yellow>{team} チームがミニ TNT を {count} 個 {enemy} 基地に設置した ({planted}/{goal})。</yellow>"
+      blown-up: "<gold><bold>{team} チームが {enemy} 基地を爆破した！</bold></gold>"
       combined:
-        title: "<gold><bold>TNT 合体！</bold></gold>"
-        subtitle: "<yellow>敵基地へ運べ</yellow>"
-        broadcast: "<gold>{team} チームがミニ TNT {size} 個を 1 つの TNT に合体させた！</gold>"
-      tnt-picked-up: "<gold>{team} チームが合体 TNT を拾った！</gold>"
-      tnt-dropped: "<gray>TNT の運び手が倒れた。TNT は元の場所に戻った。</gray>"
-      delivered: "<green>{team} チームが合体 TNT を届けた！ ({score}/{goal})</green>"
+        title: "<gold><bold>ミニ TNT 設置！</bold></gold>"
+        subtitle: "<yellow>敵基地へ運び続けろ</yellow>"
       dropped: "<gray>倒れてミニ TNT を失った。</gray>"
     pve-waves:
       title: "<gold>PvE ウェーブ</gold>"
@@ -2467,7 +2497,7 @@ astera:
   play.lane.annihilation.desc: "<gray>3チーム・各3本の柱。敵のネクサスを破壊せよ。</gray>"
   play.lane.break-core.desc: "<gray>敵のコアを壊し、自陣のコアを守る。</gray>"
   play.lane.carry-tnt.desc: "<gray>TNTを運んで敵基地へ届ける。</gray>"
-  play.lane.carry-mini-tnt.desc: "<gray>マップ中の小さなTNTを自拠点へ持ち帰って1つの大きなTNTに合体させ、敵基地へ届けたチームの勝利。</gray>"
+  play.lane.carry-mini-tnt.desc: "<gray>マップ中の小さなTNTを敵基地へ運んで設置し、規定数で基地を爆破したチームの勝利。</gray>"
   play.lane.capture-wool.desc: "<gray>相手より先にウールのゾーンを制圧。</gray>"
   play.lane.steal-jewelry.desc: "<gray>敵の台座から宝石を奪って持ち帰る。</gray>"
   play.lane.battle-loyal.desc: "<gray>チームデスマッチ。先にキル目標に届いた側の勝ち。</gray>"
