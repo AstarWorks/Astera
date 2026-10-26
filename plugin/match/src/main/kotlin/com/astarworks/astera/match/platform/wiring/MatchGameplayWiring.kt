@@ -511,6 +511,13 @@ internal object MatchGameplayWiring {
         // Astera HP outlives matches (in-memory container, mirrored to a 1.0-floored Bukkit health).
         // A player left at 0 HP by an earlier match would reject every hit (TargetAlreadyDead) and look
         // invincible, so every participant starts a match at full HP with no leftover status effects.
+        // Mid-match join / reconnect: a player entering a server while registered in a match starts at full HP too.
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { joined ->
+            if (matches.findMatchOf(joined.playerId) != null) {
+                val max = health.getMaxHealth(joined.playerId) ?: 20.0
+                health.setHealth(joined.playerId, max, com.astarworks.astera.core.domain.player.physiology.HealthChangeSource.Respawn)
+            }
+        }
         subscriptions += eventBus.subscribe(MatchStarted::class) { started ->
             matches.findById(started.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { pid ->
                 val max = health.getMaxHealth(pid) ?: 20.0
