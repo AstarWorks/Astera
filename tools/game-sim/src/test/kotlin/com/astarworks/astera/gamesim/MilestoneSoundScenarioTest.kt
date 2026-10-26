@@ -5,6 +5,7 @@ import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
 import com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry
 import com.astarworks.astera.core.application.port.outbound.music.IPlayerBgm
 import com.astarworks.astera.core.application.services.getOrThrow
@@ -109,6 +110,32 @@ class MilestoneSoundScenarioTest {
             assertThat(heard(red, SoundCues.MATCH_LOSE)).isZero()
             assertThat(bgm.moodOf(red.id)).isEqualTo(MusicMood.VICTORY)
             assertThat(bgm.moodOf(blue.id)).isEqualTo(MusicMood.DEFEAT)
+        }
+    }
+
+    @Test
+    fun `hit, crit, blocked and kill cues layer vanilla sounds for the listener only`() {
+        scenario("milestone-sounds-combat-layers") {
+            val red = player("red-1")
+            val blue = player("blue-1")
+            val cues = sim.services.getOrThrow<ISoundCuePlayer>()
+            // Founder feedback 2026-10-27: the combat cues are layered with vanilla sounds for punch (content/sounds/combat/*.yaml).
+            val expected = mapOf(
+                SoundCues.COMBAT_HIT to listOf("minecraft:entity.player.attack.strong", "minecraft:entity.experience_orb.pickup"),
+                SoundCues.COMBAT_CRIT to listOf("minecraft:entity.player.attack.crit", "minecraft:block.note_block.bell"),
+                SoundCues.COMBAT_BLOCKED to listOf("minecraft:item.shield.block"),
+                SoundCues.COMBAT_KILL to listOf(
+                    "minecraft:entity.player.levelup", "minecraft:entity.experience_orb.pickup", "minecraft:entity.player.attack.strong",
+                ),
+            )
+            for ((cue, layerKeys) in expected) {
+                sim.playerSounds.clear()
+                assertThat(cues.play(red.id, cue)).`as`("$cue plays").isTrue()
+                val primary = spec(cue)
+                val heardKeys = sim.playerSounds.calls.filter { it.playerId == red.id }.map { it.sound.key }
+                assertThat(heardKeys).`as`("$cue: Astera primary first, then the vanilla layers").containsExactly(primary.key, *layerKeys.toTypedArray())
+                assertThat(sim.playerSounds.calls.none { it.playerId == blue.id }).`as`("$cue is heard by the listener only").isTrue()
+            }
         }
     }
 
