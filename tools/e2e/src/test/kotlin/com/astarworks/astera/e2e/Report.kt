@@ -16,6 +16,30 @@ data class CheckResult(
     val evidence: String,
 )
 
+/**
+ * Which track (`.claude/rules/tracks.md`) to drop from the integration batch when a suite fails. A suite not listed here
+ * shows as `unmapped` in the report: add it when a new `*E2eTest` is written.
+ */
+object SuiteOwners {
+    private val owners: Map<String, String> = buildMap {
+        fun own(track: String, vararg suites: String) = suites.forEach { put(it, track) }
+        own("ui-access", "Access map", "GUI", "Lobby kit & HUD", "Play entry", "Match menu", "First 10 minutes")
+        own(
+            "modes-combat",
+            "Annihilation playthrough", "Battle Loyal playthrough", "Capture Wool playthrough", "Carry TNT playthrough",
+            "Carry Mini TNT playthrough", "Steal Jewelry playthrough", "Siege (break-core) playthrough", "Siege crossing playthrough",
+            "Norma playthrough", "PvE waves playthrough", "Match", "Game loop", "Combat", "Stars", "WeaponLimit",
+            "Mid-match leave", "Mid-match reconnect",
+        )
+        own("economy-life", "Shop purchase")
+        own("presentation", "ClientReceives", "HUD")
+        own("skills-vfx", "Weapons", "PersonaWeapons", "SkinRig")
+        own("bots-qa", "BootHealth", "Bot vs bot", "Commands", "Join", "Velocity", "CueGuard", "Live match", "Live smoke", "Live weapons")
+    }
+
+    fun of(suite: String): String = owners[suite] ?: "unmapped"
+}
+
 object E2eReport {
     val results = CopyOnWriteArrayList<CheckResult>()
     val notes = CopyOnWriteArrayList<String>()
@@ -57,9 +81,17 @@ class ReportWriter : LauncherSessionListener {
         sb.append("- generated: ${Instant.now()}\n")
         sb.append("- backend: ${System.getProperty("astera.e2e.backendDesc") ?: "${E2eEnv.host}:${E2eEnv.port} (docker compose profile `e2e`, ASTERA_SERVER_ROLE=all, offline mode)"}\n")
         sb.append("- result: **$passed / ${results.size} checks passed**, ${results.size - passed} failed\n\n")
-        sb.append("| Suite | Check | Channel | Result |\n|---|---|---|---|\n")
+        val failedByTrack = results.filterNot { it.passed }.groupBy { SuiteOwners.of(it.suite) }.toSortedMap()
+        if (failedByTrack.isNotEmpty()) {
+            sb.append("Failures by owning track (drop the track from the batch, do not revert):\n\n")
+            failedByTrack.forEach { (track, fails) ->
+                sb.append("- **$track**: ${fails.size} (${fails.map { it.suite }.distinct().joinToString(", ")})\n")
+            }
+            sb.append("\n")
+        }
+        sb.append("| Suite | Owner | Check | Channel | Result |\n|---|---|---|---|---|\n")
         for (r in results) {
-            sb.append("| ${r.suite} | ${r.name} | ${r.channel} | ${if (r.passed) "PASS" else "**FAIL**"} |\n")
+            sb.append("| ${r.suite} | ${SuiteOwners.of(r.suite)} | ${r.name} | ${r.channel} | ${if (r.passed) "PASS" else "**FAIL**"} |\n")
         }
         sb.append("\n## Evidence\n")
         var lastSuite = ""
