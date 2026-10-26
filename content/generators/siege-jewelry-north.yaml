@@ -2,7 +2,7 @@
 # generator landmark of content/stages/siege-isles-jewelry.yaml at the same x/z; mirrors content/generators/arena-*.yaml.
 id: siege-jewelry-north
 match_stage_id: siege-isles-jewelry
-position: { x: 10.5, y: 65.0, z: -94.5 }
+position: { x: 10.5, y: 65.0, z: -81.5 }
 period_seconds: 30.0
 amount: 1
 tier: iron

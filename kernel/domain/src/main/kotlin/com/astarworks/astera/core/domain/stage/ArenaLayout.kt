@@ -97,6 +97,8 @@ public data class ArenaAtmosphere(val timeOfDay: Long, val weather: ArenaWeather
  * @property seed drives rim wobble and decoration; same seed + same layout = same blocks
  * @property surfaceY Y of the topmost solid layer of every island (players stand at `surfaceY + 1`)
  * @property killY players below this Y are killed (void fall plane)
+ * @property relief strength of the terrain relief the builder adds on top of the flat island plateau (0 = flat, 1 = full:
+ *   noise hills up to 8 blocks, sunken paths up to 3 deep, outcrops, ruins, overlook platforms)
  * @property atmosphere time of day / weather shown to players inside the arena; `null` keeps the world baseline (noon)
  */
 public data class ArenaLayout(
@@ -110,8 +112,10 @@ public data class ArenaLayout(
     val bridges: List<ArenaBridge> = emptyList(),
     val landmarks: List<ArenaLandmark> = emptyList(),
     val atmosphere: ArenaAtmosphere? = null,
+    val relief: Double = 1.0,
 ) {
     init {
+        require(relief in 0.0..1.5) { "relief $relief must be in 0..1.5" }
         require(islands.isNotEmpty()) { "an arena layout needs at least one island" }
         require(islands.map { it.id }.toSet().size == islands.size) { "arena layout declares an island id twice" }
         require(killY < surfaceY) { "kill_y ($killY) must be below surface_y ($surfaceY)" }
