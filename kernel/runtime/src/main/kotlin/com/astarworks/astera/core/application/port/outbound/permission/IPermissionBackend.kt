@@ -18,8 +18,7 @@ import java.time.Duration
  *      returns `false` until the LuckPerms plugin is installed); the
  *      LuckPermsProvider wrap lands in Wave 6b. `backendId = "luckperms"`.
  *
- * Same shape as the NPC two-tier (Citizens / Minimal) and the Notification
- * two-tier (Discord / log-only) — pluggable adapter pattern per
+ * Uses the pluggable adapter pattern per
  * `.claude/rules/coding-posture.md` §"Application APIs".
  *
  * The composing

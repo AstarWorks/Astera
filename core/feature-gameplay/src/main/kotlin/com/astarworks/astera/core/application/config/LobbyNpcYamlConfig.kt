@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
  * ```yaml
  * id: market-npc
  * display_name: astera.lobby.npc.market.name   # i18n key
- * type: display_entity                       # display_entity | armor_stand
+ * type: display_entity                       # display_entity | armor_stand | player
  * spawn: { world: lobby, x: -2.5, y: 64.0, z: 0.5, yaw: 90.0, pitch: 0.0 }
  * interaction:
  *   right_click_intent: lobby.shop.open
@@ -21,13 +21,18 @@ import kotlinx.serialization.Serializable
 public data class LobbyNpcYamlConfig(
     val id: String,
     @SerialName("display_name") val displayName: String,
+    // armor_stand is an existing content body label; the runtime renders it with Display entities.
     val type: String = TYPE_DISPLAY_ENTITY,
+    @SerialName("profile_name") val profileName: String? = null,
+    @SerialName("texture_value") val textureValue: String? = null,
+    val signature: String? = null,
     val spawn: LobbyNpcSpawnYaml,
     val interaction: LobbyNpcInteractionYaml = LobbyNpcInteractionYaml(),
 ) {
     public companion object {
         public const val TYPE_DISPLAY_ENTITY: String = "display_entity"
         public const val TYPE_ARMOR_STAND: String = "armor_stand"
+        public const val TYPE_PLAYER: String = "player"
     }
 }
 

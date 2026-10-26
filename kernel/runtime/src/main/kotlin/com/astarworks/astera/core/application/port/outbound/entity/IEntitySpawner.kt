@@ -7,39 +7,7 @@ import com.astarworks.astera.core.domain.entity.SpawnSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
 
-/**
- * Outbound port: vendor-neutral entity spawner (mobs / NPCs / displays /
- * projectiles).
- *
- * Per ADR-0082 (Entity spawning + NPC two-tier), the spawner is the **front
- * door** for all entity creation. Internally it routes a [SpawnSpec] to one
- * of the registered [INpcAdapter]s (for NPC variants) or to a mob/projectile
- * sub-router (Wave 6a `PaperProjectileService` etc.). Application code never
- * touches a Bukkit `World.spawn(...)` call directly — that lives only in
- * `core.adapter.paper.*`.
- *
- * # Adapter selection
- *
- * For NPC spec variants, the spawner picks the **highest-priority**
- * available adapter that [INpcAdapter.supports] the spec. Concretely:
- *  - [SpawnSpec.CitizensNpc] → `CitizensNpcAdapter` if available, otherwise
- *    [SpawnError.NoSpawnableBackend] (Citizens-specific traits cannot be
- *    served by the minimal backend).
- *  - [SpawnSpec.ArmorStandNpc] / [SpawnSpec.DisplayNpc] → Citizens adapter
- *    if available (richer features), otherwise `MinimalNpcAdapter` fallback.
- *
- * # Lifecycle
- *
- * Successful [spawn] publishes [com.astarworks.astera.core.domain.event.EntitySpawned];
- * successful [despawn] publishes [com.astarworks.astera.core.domain.event.EntityDespawned].
- * [teleport] does NOT publish a domain event (too noisy — subscribers wanting
- * teleport notifications use a separate gateway).
- *
- * # Thread safety
- *
- * Called only from the Paper main thread. Implementations may use unlocked
- * mutable state.
- */
+/** Entity lifecycle port; NPC requests route to the single NpcAdapter (ADR-0264). */
 public interface IEntitySpawner {
 
     /**

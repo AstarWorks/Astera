@@ -64,7 +64,7 @@ public class AsteraItemsPlugin : JavaPlugin() {
                 materializer = built
                 // ADR-0241: Core's GUI renderer builds every icon through this same materializer.
                 services.register<PaperItemMaterializer>(built)
-                PaperItemDelivery(built, server, PaperItemIdResolver(this, server))
+                PaperItemDelivery(built, server, PaperItemIdResolver(this, server), services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IScheduler>())
             },
             itemIdResolver = PaperItemIdResolver(this, server),
             trainingRack = { services ->

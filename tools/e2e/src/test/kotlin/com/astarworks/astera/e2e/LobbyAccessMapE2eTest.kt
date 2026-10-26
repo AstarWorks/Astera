@@ -40,15 +40,15 @@ class LobbyAccessMapE2eTest : E2eBase() {
         val b = bot("Access")
         Thread.sleep(2_500)
 
-        E2eReport.check(suite, "the spawn plaza shows the Play, Travel and Social hubs and none of the retired NPCs", "ClientboundSetEntityData (villager names)") {
-            val names = b.entityEvents.filter { it.added && it.type == "VILLAGER" }
+        E2eReport.check(suite, "the spawn plaza shows the Play, Travel and Social hubs and none of the retired NPCs", "ClientboundSetEntityData (interaction names)") {
+            val names = b.entityEvents.filter { it.added && it.type == "INTERACTION" }
                 .flatMap { e -> b.entityTextsById[e.id].orEmpty() }
-            assertThat(names.any { "Play" in it }).describedAs("Play hub; villagers=$names").isTrue()
-            assertThat(names.any { "Social Hub" in it || "ソーシャル" in it }).describedAs("Social hub; villagers=$names").isTrue()
-            assertThat(names.any { "Travel Guide" in it || "旅の案内人" in it }).describedAs("Travel hub; villagers=$names").isTrue()
+            assertThat(names.any { "Play" in it }).describedAs("Play hub; interactions=$names").isTrue()
+            assertThat(names.any { "Social Hub" in it || "ソーシャル" in it }).describedAs("Social hub; interactions=$names").isTrue()
+            assertThat(names.any { "Travel Guide" in it || "旅の案内人" in it }).describedAs("Travel hub; interactions=$names").isTrue()
             val retired = listOf("Queue Master", "Profile Keeper", "Settings Steward", "Party Coordinator", "Gear Keeper")
             assertThat(names.filter { n -> retired.any { it in n } }).describedAs("retired NPCs still spawned").isEmpty()
-            "villager names near spawn=$names"
+            "interaction names near spawn=$names"
         }
 
         // Tiles by menu slot (content/gui/main-menu.yaml). Training (14) teleports the player, so it is not clicked here.

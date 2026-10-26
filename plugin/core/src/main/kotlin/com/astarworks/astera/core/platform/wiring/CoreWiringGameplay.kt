@@ -273,6 +273,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
     // F3-9 (ADR-0224): the pack spec is re-readable (`/astera admin pack reload`), so the
     // join listener and the diagnostics always go through the service.
     val resourcePackService = com.astarworks.astera.core.application.service.hud.ResourcePackService(
+        scheduler = scheduler,
         initial = ports.resourcePack,
         loader = { com.astarworks.astera.core.platform.wiring.ResourcePackEnv.load(logger = logger) },
         hud = hudGateway,

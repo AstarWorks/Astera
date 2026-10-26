@@ -10,8 +10,7 @@ import org.bukkit.Server
 import org.bukkit.entity.Player
 
 /**
- * Paper implementation of [IAdminPlayerGateway] (F1-D, ADR-0183). Main-thread
- * only — invoked from GUI click handlers.
+ * Paper implementation of [IAdminPlayerGateway] (F1-D, ADR-0183). Mutators run on the target player's Entity scope.
  */
 public class PaperAdminPlayerGateway(private val server: Server, private val plugin: org.bukkit.plugin.Plugin) : IAdminPlayerGateway {
 
@@ -28,11 +27,11 @@ public class PaperAdminPlayerGateway(private val server: Server, private val plu
         val b = find(destination) ?: return completed.also { it.complete(false) }
         val accepted = b.scheduler.execute(plugin, Runnable {
             val target = b.location.clone()
-            a.teleportAsync(target).whenComplete { moved, failure ->
-                if (!a.scheduler.execute(plugin, Runnable { completed.complete(failure == null && moved == true) }, { completed.complete(false) }, 1L)) {
-                    completed.complete(false)
+            if (!a.scheduler.execute(plugin, Runnable {
+                a.teleportAsync(target).whenComplete { moved, failure ->
+                    completed.complete(failure == null && moved == true)
                 }
-            }
+            }, { completed.complete(false) }, 1L)) completed.complete(false)
         }, { completed.complete(false) }, 1L)
         if (!accepted) completed.complete(false)
         return completed

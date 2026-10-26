@@ -14,15 +14,8 @@ import com.astarworks.astera.core.domain.world.WorldId
  * Backend that materialises [MobSpec] instances into running entities
  * (Wave 5pve, ADR-0085).
  *
- * Same two-tier philosophy as Wave 5l's [com.astarworks.astera.core.application.port.outbound.entity.INpcAdapter]
- * — Astera ships **two** adapters and the [IMobSpawner] router picks the
- * highest-priority available one at spawn time:
- *
- *  - `MinimalMobAdapter` (Core, always available, `backendId = "minimal"`)
- *    — backs every [MobSpec] using ArmorStand + Display entities + the
- *    `MobSkillRouter` for skill binding routing. AI hint support is limited
- *    to [MobAiHint.Default] / [MobAiHint.Stationary]; richer hints fall back
- *    to Default.
+ * MinimalMobAdapter is the single mob backend (ADR-0264).
+ * The entity spawner delegates NPCs separately to INpcAdapter.
  *
  * # Backend uniqueness
  *

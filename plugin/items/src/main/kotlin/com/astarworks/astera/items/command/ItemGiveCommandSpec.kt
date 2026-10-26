@@ -1,5 +1,11 @@
 package com.astarworks.astera.items.command
 
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withContext
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
@@ -24,6 +30,8 @@ import com.astarworks.astera.items.application.usecase.GiveItemUseCase
 internal fun giveItemSubcommand(
     giveItem: GiveItemUseCase,
     items: IItemRegistry,
+    scheduler: IScheduler,
+    players: IPlayerGateway,
 ): CommandSpec.Literal = CommandSpec.Literal(
     name = "give",
     subcommands = listOf(
@@ -39,15 +47,17 @@ internal fun giveItemSubcommand(
             optional = true,
         ),
     ),
-    executor = { ctx ->
+    executor = lambda@{ ctx ->
         val target = ctx.required<String>("target")
         val item = ctx.required<String>("item")
         val amount = ctx.optional<Int>("amount") ?: 1
         val placeholders = mapOf("player" to target, "item" to item, "amount" to amount.toString())
+        val owner = players.findByName(target)
+            ?: return@lambda CommandResult.Failure(MessageKey("astera.items.command.give.player_not_found"), placeholders)
         when (
-            val outcome = giveItem.execute(
+            val outcome = withContext(scheduler.dispatcher(ExecutionScope.Entity(owner.uuid))) { giveItem.execute(
                 GiveItemUseCase.Request(invokerId = null, targetName = target, itemIdStr = item, amount = amount),
-            )
+            ) }
         ) {
             is Result.Success -> {
                 ctx.reply(GiveItemUseCase.K_SUCCESS, placeholders)
@@ -69,7 +79,7 @@ internal fun refreshItemsSubcommand(
 ): CommandSpec.Literal = CommandSpec.Literal(
     name = "refresh",
     executor = { ctx ->
-        ctx.reply(MessageKey("astera.items.command.refresh.success"), mapOf("count" to delivery.refreshHeld(items).toString()))
+        ctx.reply(MessageKey("astera.items.command.refresh.success"), mapOf("count" to delivery.refreshHeld(items).await().toString()))
         CommandResult.Success
     },
 ).requirePermission(Permission("astera.items.refresh"))

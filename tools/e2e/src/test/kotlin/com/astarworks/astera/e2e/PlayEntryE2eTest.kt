@@ -19,14 +19,14 @@ class PlayEntryE2eTest : E2eBase() {
 
     private val suite = "Play entry"
 
-    /** The Play guide: a villager whose name tag reads "Play" (the hologram above it is a text display). */
-    private fun playNpcId(b: Bot): Int? = b.entityEvents.filter { it.added && it.type == "VILLAGER" }
+    /** The Play guide: an interaction entity whose name tag reads "Play" (the hologram above it is a text display). */
+    private fun playNpcId(b: Bot): Int? = b.entityEvents.filter { it.added && it.type == "INTERACTION" }
         .map { it.id }
         .firstOrNull { id -> b.entityTextsById[id]?.any { "Play" in it } == true }
 
     private fun openPicker(b: Bot): ScreenView {
         val before = b.screens.size
-        val npc = checkNotNull(playNpcId(b)) { "Play NPC not seen by the client; villagers=${b.entityEvents.filter { it.type == "VILLAGER" }.map { it.id }}" }
+        val npc = checkNotNull(playNpcId(b)) { "Play NPC not seen by the client; interactions=${b.entityEvents.filter { it.type == "INTERACTION" }.map { it.id }}" }
         b.interact(npc)
         check(b.waitUntil(5_000) { b.screens.size > before }) { "right-clicking the Play NPC opened nothing; chat=${b.chatTexts().takeLast(3)}" }
         val s = b.screens.last()
@@ -39,13 +39,23 @@ class PlayEntryE2eTest : E2eBase() {
         val b = bot("Play")
         Thread.sleep(2_500)
 
-        E2eReport.check(suite, "the spawn shows the '▶ Play / プレイ' hologram and a Play guide", "ClientboundSetEntityData (text display + villager name)") {
+        E2eReport.check(suite, "the spawn shows the '▶ Play / プレイ' hologram and a Play guide", "ClientboundSetEntityData (text display + interaction name)") {
             val holo = b.entityTexts.firstOrNull { "Play" in it && "プレイ" in it }
             assertThat(holo).describedAs("no hologram text with both Play and プレイ; texts=${b.entityTexts.takeLast(12)}").isNotNull()
             val npc = playNpcId(b)
-            assertThat(npc).describedAs("no villager named Play").isNotNull()
-            assertThat(b.spawnedEntityTypes.keys).describedAs("entity types seen").contains("TEXT_DISPLAY", "VILLAGER")
+            assertThat(npc).describedAs("no interaction named Play").isNotNull()
+            assertThat(b.spawnedEntityTypes.keys).describedAs("entity types seen").contains("TEXT_DISPLAY", "INTERACTION")
             "hologram='${holo!!.replace("\n", " | ")}' npcEntity=$npc spawn=(${b.x},${b.y},${b.z})"
+        }
+
+        E2eReport.check(suite, "left-clicking the Display guide opens the same picker", "ServerboundAttack -> Entity scope -> ClientboundOpenScreen") {
+            val before = b.screens.size
+            b.attack(checkNotNull(playNpcId(b)))
+            assertThat(b.waitUntil(5_000) { b.screens.size > before }).describedAs("left click opened no picker").isTrue()
+            val screen = b.screens.last()
+            assertThat(screen.title).contains("Play")
+            b.closeWindow(screen.containerId)
+            "left click opened '${screen.title}'"
         }
 
         var picker: ScreenView? = null

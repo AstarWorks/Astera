@@ -86,7 +86,7 @@ public class PaperGuiListener(
         if (guiSlot is GuiSlot.Static) {
             val clickType = mapClickType(e.click) ?: return  // unsupported click variant → no dispatch
             val intent = guiSlot.intentFor(clickType) ?: return
-            router.dispatch(player, intent)
+            adapter.afterClick(player) { router.dispatch(player, intent) }
         }
     }
 

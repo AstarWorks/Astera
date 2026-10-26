@@ -62,7 +62,9 @@ public fun buildAsteraDrainCommandSpec(
             for (player in onlinePlayers()) {
                 val inMatch = repo?.findMatchOf(player.id)?.let { it.phase != MatchPhase.ENDED } == true
                 if (inMatch && !abort) continue
-                gateway.transfer(player.id, target, TransferReason.AdminMove)
+                scheduler.run(ExecutionScope.Entity(player.id.uuid), kotlin.time.Duration.ZERO) {
+                    gateway.transfer(player.id, target, TransferReason.AdminMove)
+                }
             }
         }
         if (abort) scheduler.run(ExecutionScope.Global, SETTLE_SECONDS.seconds) { move() } else move()

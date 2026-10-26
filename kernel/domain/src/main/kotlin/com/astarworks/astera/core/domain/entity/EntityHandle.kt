@@ -6,7 +6,6 @@ import java.util.UUID
  * Vendor-neutral handle to a spawned entity (mob / NPC / display / projectile).
  *
  * The handle is opaque: it carries a stable [id] (typically the Bukkit entity
- * UUID for vanilla mobs, or a synthesised UUID for Citizens NPCs / display
  * entities owned by a non-Bukkit backend) plus a backend tag so the
  * [com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner]
  * router knows which adapter owns the handle on despawn / teleport.

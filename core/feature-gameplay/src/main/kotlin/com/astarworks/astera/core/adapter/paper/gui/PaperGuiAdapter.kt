@@ -30,10 +30,10 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * ### Threading
  *
- * Every public method MUST be called from the Paper main thread; the adapter
- * mutates Bukkit `Inventory` instances which is main-thread-only. Sessions
+ * Mutations dispatch to the viewer's Entity scope; the adapter
+ * mutates Bukkit `Inventory` instances owned by that player. Sessions
  * are stored in a [ConcurrentHashMap] only so the [PaperGuiListener]'s
- * `onQuit` handler (also main-thread, but in a different event-handler
+ * `onQuit` handler (also on the player's Entity scope, but in a different event-handler
  * frame) can safely `forgetSession` without locking.
  *
  * ### Reopen suppression
@@ -46,10 +46,18 @@ import java.util.concurrent.ConcurrentHashMap
  */
 public class PaperGuiAdapter(
     @Suppress("unused") private val server: IMcServer,
-    @Suppress("unused") private val scheduler: IScheduler,
+    private val scheduler: IScheduler,
     private val renderer: PaperItemTemplateRenderer,
     private val messages: IMessageRenderer,
 ) : IGuiAdapter {
+
+    internal fun afterClick(player: IMcPlayer, action: () -> Unit) {
+        scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(player.id.uuid), com.astarworks.astera.core.application.port.outbound.TICK, action)
+    }
+
+    internal fun onOwner(player: IMcPlayer, action: () -> Unit) {
+        scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(player.id.uuid), kotlin.time.Duration.ZERO, action)
+    }
 
     /** Per-player open-GUI state. Main-thread-only; ConcurrentHashMap is a defence-in-depth choice. */
     private val sessions: ConcurrentHashMap<UUID, OpenSession> = ConcurrentHashMap()
@@ -61,9 +69,14 @@ public class PaperGuiAdapter(
      * close events. Visibility is `internal` so the listener (same package)
      * can read directly without a getter.
      */
-    internal val reopening: MutableSet<UUID> = mutableSetOf()
+    internal val reopening: MutableSet<UUID> = ConcurrentHashMap.newKeySet()
 
     override fun open(player: IMcPlayer, spec: GuiSpec): Boolean {
+        val target = Bukkit.getPlayer(player.id.uuid) ?: return false
+        if (!Bukkit.isOwnedByCurrentRegion(target)) {
+            onOwner(player) { open(player, spec) }
+            return true
+        }
         val uuid = player.id.uuid
         val bukkit = Bukkit.getPlayer(uuid) ?: run {
             log.warn("open() skipped: Bukkit player not online uuid={}", uuid)
@@ -91,6 +104,11 @@ public class PaperGuiAdapter(
     }
 
     override fun update(player: IMcPlayer, next: GuiSpec) {
+        val target = Bukkit.getPlayer(player.id.uuid) ?: return
+        if (!Bukkit.isOwnedByCurrentRegion(target)) {
+            onOwner(player) { update(player, next) }
+            return
+        }
         val uuid = player.id.uuid
         val session = sessions[uuid] ?: run {
             log.warn("update() called but no open session for uuid={} (spec={})", uuid, next.id)
@@ -142,6 +160,11 @@ public class PaperGuiAdapter(
     }
 
     override fun close(player: IMcPlayer) {
+        val target = Bukkit.getPlayer(player.id.uuid) ?: return
+        if (!Bukkit.isOwnedByCurrentRegion(target)) {
+            onOwner(player) { close(player) }
+            return
+        }
         val uuid = player.id.uuid
         if (sessions[uuid] == null) return
         // Drop session bookkeeping first; the subsequent CLOSE event handler

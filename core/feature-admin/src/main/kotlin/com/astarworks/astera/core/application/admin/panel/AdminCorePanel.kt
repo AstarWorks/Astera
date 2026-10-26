@@ -111,22 +111,29 @@ public class AdminCorePanel(
                 }, scheduler.executor(ExecutionScope.Entity(player.id.uuid)))
             }
             PLAYERS_GAMEMODE -> withOnlineTarget(player, intent) { target ->
-                val mode = players.toggleGameMode(target.id)
-                if (mode == null) {
-                    guard.tell(player, K_PLAYER_GONE, mapOf("player" to target.name))
-                } else {
-                    guard.tell(player, K_GAMEMODE_DONE, mapOf("player" to target.name, "mode" to mode.name.lowercase()))
-                    guard.record(player, PLAYERS_GAMEMODE, target.id.toString(), "mode=${mode.name.lowercase()}")
+                scheduler.run(ExecutionScope.Entity(target.id.uuid), kotlin.time.Duration.ZERO) {
+                    val mode = players.toggleGameMode(target.id)
+                    scheduler.run(ExecutionScope.Entity(player.id.uuid), kotlin.time.Duration.ZERO) {
+                        if (mode == null) guard.tell(player, K_PLAYER_GONE, mapOf("player" to target.name))
+                        else {
+                            guard.tell(player, K_GAMEMODE_DONE, mapOf("player" to target.name, "mode" to mode.name.lowercase()))
+                            guard.record(player, PLAYERS_GAMEMODE, target.id.toString(), "mode=${mode.name.lowercase()}")
+                        }
+                    }
                 }
             }
             PLAYERS_KICK -> withOnlineTarget(player, intent) { target ->
                 if (target.id == player.id) {
                     guard.tell(player, K_KICK_SELF)
                 } else {
-                    val ok = players.kick(target.id, KICK_REASON)
-                    guard.tell(player, if (ok) K_KICK_DONE else K_PLAYER_GONE, mapOf("player" to target.name))
-                    if (ok) guard.record(player, PLAYERS_KICK, target.id.toString())
-                    show(player, buildPlayerList(0))
+                    scheduler.run(ExecutionScope.Entity(target.id.uuid), kotlin.time.Duration.ZERO) {
+                        val ok = players.kick(target.id, KICK_REASON)
+                        scheduler.run(ExecutionScope.Entity(player.id.uuid), kotlin.time.Duration.ZERO) {
+                            guard.tell(player, if (ok) K_KICK_DONE else K_PLAYER_GONE, mapOf("player" to target.name))
+                            if (ok) guard.record(player, PLAYERS_KICK, target.id.toString())
+                            show(player, buildPlayerList(0))
+                        }
+                    }
                 }
             }
             else -> log.warn("Unknown admin.players intent '{}' from {}", intent.key, player.name)

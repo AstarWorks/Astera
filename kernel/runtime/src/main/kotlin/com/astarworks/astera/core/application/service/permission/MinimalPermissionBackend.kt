@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
  * in via the [assignments] constructor parameter without changing the
  * resolution logic.
  *
- * Resolution rule (matches Citizens / LuckPerms baseline):
+ * Resolution rule:
  *
  *   1. Resolve the player's currently-assigned roles (filter out expired).
  *   2. Sort by descending [RoleRecord.priority].

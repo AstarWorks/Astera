@@ -126,7 +126,9 @@ public class PaperWorldGateway(
             log.debug("PaperWorldGateway.placeBlock: unknown material {}", type.key)
             return
         }
-        w.getBlockAt(at.x.toInt(), at.y.toInt(), at.z.toInt()).type = material
+        scheduler.run(com.astarworks.astera.core.application.port.outbound.regionScope(world, at), kotlin.time.Duration.ZERO) {
+            w.getBlockAt(kotlin.math.floor(at.x).toInt(), kotlin.math.floor(at.y).toInt(), kotlin.math.floor(at.z).toInt()).type = material
+        }
     }
 
     override fun removeBlock(world: WorldId, at: Vec3) {
@@ -134,7 +136,9 @@ public class PaperWorldGateway(
             log.debug("PaperWorldGateway.removeBlock: world {} not loaded", world)
             return
         }
-        w.getBlockAt(at.x.toInt(), at.y.toInt(), at.z.toInt()).type = Material.AIR
+        scheduler.run(com.astarworks.astera.core.application.port.outbound.regionScope(world, at), kotlin.time.Duration.ZERO) {
+            w.getBlockAt(kotlin.math.floor(at.x).toInt(), kotlin.math.floor(at.y).toInt(), kotlin.math.floor(at.z).toInt()).type = Material.AIR
+        }
     }
 
     override fun blockAt(world: WorldId, at: Vec3): BlockType? {

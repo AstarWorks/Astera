@@ -18,7 +18,7 @@ public class FakeItemDelivery(
 
     public val delivered: MutableList<Call> = mutableListOf()
 
-    override fun refreshHeld(items: IItemRegistry): Int = 0
+    override fun refreshHeld(items: IItemRegistry): java.util.concurrent.CompletableFuture<Int> = java.util.concurrent.CompletableFuture.completedFuture(0)
 
     override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int, origin: ItemOrigin): DeliveryResult {
         if (result is DeliveryResult.Delivered || result is DeliveryResult.InventoryFull) {

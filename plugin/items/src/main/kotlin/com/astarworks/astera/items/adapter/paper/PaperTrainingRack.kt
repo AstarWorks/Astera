@@ -38,7 +38,7 @@ import org.bukkit.plugin.java.JavaPlugin
  * [ensure]). Main thread only.
  */
 internal class PaperTrainingRackGateway(
-    plugin: JavaPlugin,
+    private val plugin: JavaPlugin,
     private val itemIcon: (ItemId) -> ItemStack?,
 ) : ITrainingRackGateway {
 
@@ -79,7 +79,11 @@ internal class PaperTrainingRackGateway(
 
     override fun removeAll() {
         for (w in server.worlds) {
-            w.entities.filterIsInstance<ItemFrame>().filter { TAG in it.scoreboardTags }.forEach { it.remove() }
+            w.entities.filterIsInstance<ItemFrame>().forEach { entity ->
+                if (org.bukkit.Bukkit.isOwnedByCurrentRegion(entity)) {
+                    if (TAG in entity.scoreboardTags) entity.remove()
+                } else entity.scheduler.execute(plugin, Runnable { if (TAG in entity.scoreboardTags) entity.remove() }, null, 1L)
+            }
         }
     }
 
@@ -107,9 +111,8 @@ internal class PaperTrainingInventory(private val server: Server) : ITrainingInv
         return stripPlayer(player)
     }
 
-    override fun holders(): Set<PlayerId> =
+    override fun candidates(): Set<PlayerId> =
         server.onlinePlayers
-            .filter { p -> p.inventory.contents.any(TrainingItemTag::isTraining) || TrainingItemTag.isTraining(p.itemOnCursor) }
             .map { PlayerId(it.uniqueId) }
             .toSet()
 

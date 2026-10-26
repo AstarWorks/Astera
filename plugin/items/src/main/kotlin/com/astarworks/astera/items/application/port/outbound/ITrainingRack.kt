@@ -31,6 +31,6 @@ public interface ITrainingInventory {
     /** Removes every training stack from [playerId]'s inventory; returns how many stacks were removed. */
     public fun strip(playerId: PlayerId): Int
 
-    /** Online players that currently carry at least one training stack. */
-    public fun holders(): Set<PlayerId>
+    /** Online candidates for a sweep. Inspect and strip inventories only on each candidate's Entity scope. */
+    public fun candidates(): Set<PlayerId>
 }

@@ -19,8 +19,7 @@ public enum class EntityCategory {
 
 /**
  * Catalog entry describing one entity type known to the platform. The [key]
- * matches the keys used in [SpawnSpec.Mob.typeKey], [SpawnSpec.Projectile.typeKey],
- * and [SpawnSpec.CitizensNpc.typeKey].
+ * matches the keys used in [SpawnSpec.Mob.typeKey] and [SpawnSpec.Projectile.typeKey].
  */
 public data class EntityTypeSpec(
     public val key: String,

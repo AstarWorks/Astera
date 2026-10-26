@@ -1,46 +1,23 @@
 package com.astarworks.astera.core.application.service.entity
 
-import com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer
-import com.astarworks.astera.core.domain.entity.EntityHandle
 import com.astarworks.astera.core.domain.entity.NpcInteractionClick
-import com.astarworks.astera.core.domain.entity.SpawnSpec
-import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.gui.GuiIntent
-import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.core.domain.world.WorldId
-import com.astarworks.astera.testfixtures.FakeEntitySpawner
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
 
-class LobbyNpcLoaderServiceTest {
+class ShippedLobbyNpcTest {
 
-    private class RecordingBodies : INpcBodyMaterializer {
-        data class Body(val handle: EntityHandle, val world: WorldId, val position: Vec3, val yaw: Float, val name: MessageKey)
-
-        val bodies = mutableListOf<Body>()
-        override fun materialize(handle: EntityHandle, world: WorldId, position: Vec3, yaw: Float, pitch: Float, displayName: MessageKey) {
-            bodies += Body(handle, world, position, yaw, displayName)
-        }
-
-        override fun removeAll() = bodies.clear()
-    }
-
-    private lateinit var spawner: FakeEntitySpawner
-    private lateinit var router: InMemoryNpcInteractionRouter
-    private lateinit var bodies: RecordingBodies
-    private lateinit var loader: LobbyNpcLoaderService
-
-    @BeforeEach
-    fun setUp() {
-        spawner = FakeEntitySpawner()
-        router = InMemoryNpcInteractionRouter()
-        bodies = RecordingBodies()
-        loader = LobbyNpcLoaderService(spawner, router, bodies)
-    }
+    private val npcAdapter = NpcAdapter()
+    private val router = InMemoryNpcInteractionRouter()
+    private val scheduler = com.astarworks.astera.testfixtures.FakeScheduler()
+    private val spawner = RouterEntitySpawner(npcAdapter,
+        com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus(
+            scheduler, com.astarworks.astera.core.application.service.InstanceDirectory(scheduler)),
+        scheduler, InMemoryEntityRegistry(), router)
+    private val loader = LobbyNpcLoaderService(spawner, router)
 
     @Test
     fun `the shipped market NPC spawns in the lobby and its right click opens the shop`() {
@@ -48,16 +25,12 @@ class LobbyNpcLoaderServiceTest {
 
         assertThat(report.failures).isEmpty()
         val handle = loader.spawned.getValue("market-npc")
-        val record = spawner.spawned.single { it.handle == handle }
-        assertThat(record.world).isEqualTo(WorldId("lobby"))
-        assertThat(record.spec).isInstanceOf(SpawnSpec.DisplayNpc::class.java)
+        assertThat(npcAdapter.all()).contains(handle)
         assertThat(router.resolve(handle, NpcInteractionClick.RIGHT)).isEqualTo(GuiIntent("lobby.shop.open"))
-        assertThat(bodies.bodies.single { it.handle == handle }.name)
-            .isEqualTo(MessageKey("astera.lobby.npc.market.name"))
     }
 
     @Test
-    fun `every shipped lobby NPC loads and gets a body`() {
+    fun `every shipped lobby NPC loads uses the single NPC backend`() {
         val dir = locateContentRoot().resolve("lobby-npcs")
         val fileCount = Files.list(dir).use { s -> s.filter { it.toString().endsWith(".yaml") }.count().toInt() }
 
@@ -65,7 +38,7 @@ class LobbyNpcLoaderServiceTest {
 
         assertThat(report.failed).isZero
         assertThat(report.loaded).isEqualTo(fileCount)
-        assertThat(bodies.bodies).hasSize(fileCount)
+        assertThat(npcAdapter.all()).hasSize(fileCount)
     }
 
     @Test
@@ -97,14 +70,14 @@ class LobbyNpcLoaderServiceTest {
     }
 
     @Test
-    fun `no body materializer still spawns the logical NPC and binds the intent`() {
-        val headless = LobbyNpcLoaderService(spawner, router, bodies = null)
+    fun `headless runtime spawns the logical NPC and binds the intent`() {
+        val headless = LobbyNpcLoaderService(spawner, router)
 
         headless.loadFrom(locateContentRoot().resolve("lobby-npcs"))
 
         val handle = headless.spawned.getValue("market-npc")
         assertThat(router.resolve(handle, NpcInteractionClick.RIGHT)).isEqualTo(GuiIntent("lobby.shop.open"))
-        assertThat(bodies.bodies).isEmpty()
+        assertThat(npcAdapter.all()).contains(handle)
     }
 
     private fun locateContentRoot(): Path {
