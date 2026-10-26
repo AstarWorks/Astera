@@ -92,6 +92,9 @@ vec2 rigRemap(vec2 uv, int part) {
 
 @@ replace: vec4 color = texture(Sampler0, texCoord0);
     vec2 skinUV = texCoord0;
+    if (rigPart == -2) {
+        discard;
+    }
     if (rigPart >= 0) {
         skinUV = rigRemap(texCoord0, rigPart);
         if (skinUV.x < 0.0) {

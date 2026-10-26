@@ -47,6 +47,9 @@
         },
         "body": {
             "type": "string"
+        },
+        "follow_body_yaw": {
+            "type": "boolean"
         }
     },
     "required": [

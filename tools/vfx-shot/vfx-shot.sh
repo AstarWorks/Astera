@@ -801,6 +801,15 @@ film() { # viewer view_dir
   pos_start="$(rcon "data get entity $viewer Pos" | sed 's/.*data: //') in $(rcon "data get entity $viewer Dimension" | sed 's/.*data: //')"
   log "caster before cast: $(rcon "data get entity Caster Pos" | sed 's/.*data: //') in $(rcon "data get entity Caster Dimension" | sed 's/.*data: //')"
   [ -s "$STATE/camera-plan.tsv" ] && [ "$VIEW_NOW" = compare ] || : > "$STATE/camera-plan.tsv"
+  # SHOT_CASTER_TURN="<tick>:<yaw>[,<tick>:<yaw>...]": turns the caster (server-side /rotate, pitch kept (a /tp would eject the rig passengers)) that many ticks after the cast,
+  # to check that the skin / rig / VFX follow the live yaw. Works in every view (the plan is just rcon commands by time).
+  if [ -n "${SHOT_CASTER_TURN:-}" ]; then
+    [[ "$SHOT_CASTER_TURN" =~ ^[0-9]+:-?[0-9.]+(,[0-9]+:-?[0-9.]+)*$ ]] || die "SHOT_CASTER_TURN must look like 20:90,40:180 (tick:yaw)"
+    local turn
+    for turn in ${SHOT_CASTER_TURN//,/ }; do
+      printf '%s\trotate Caster %s ~\n' "$(( ${turn%%:*} * 50 ))" "${turn#*:}" >> "$STATE/camera-plan.tsv"
+    done
+  fi
   # one RCON connection: game time, cast, game time, then (compare) the camera cuts of the plan. Stepped: the server is frozen and
   # advanced one tick at a time until the viewer's screen shows each new tick; realtime: the plan runs on the wall clock.
   local dstep=()

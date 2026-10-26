@@ -86,6 +86,8 @@ public data class VfxYamlConfig(
     @SerialName("target_reference") public val targetReference: List<Double>? = null,
     /** ADR-0276: skin-rig animation id (`content/animations/<id>.yaml`) played as the performance body. */
     public val body: String? = null,
+    /** The effect's frame also turns with the caster's performance spine yaw (needs `follow: true`). */
+    @SerialName("follow_body_yaw") public val followBodyYaw: Boolean = false,
 ) {
     /** Materializes the domain definition; every validation failure comes back as a [VfxConfigError]. */
     public fun toDefinition(): Result<VfxDefinition, VfxConfigError> = try {
@@ -103,6 +105,7 @@ public data class VfxYamlConfig(
                 rigs = rigs.map { it.toDomain() },
                 targetReference = targetReference?.let { vec3(it, "target_reference") },
                 body = body?.let { com.astarworks.astera.core.domain.animation.player.CustomAnimationId(it) },
+                followBodyYaw = followBodyYaw,
             ),
         )
     } catch (e: IllegalArgumentException) {

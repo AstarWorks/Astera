@@ -43,6 +43,8 @@ import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.world.WorldId
 import org.slf4j.Logger
+import kotlin.math.abs
+import kotlin.math.atan2
 
 /** Why [VfxPlayer.play] did not start an effect. */
 public sealed class VfxPlayError {
@@ -119,6 +121,8 @@ public class VfxPlayer(
     private val presentation: (() -> IPlayerPresentation?)? = null,
     /** Resolves a `body:` animation id to the skin-rig animation it names. */
     private val bodies: ((CustomAnimationId) -> SkinRigAnimation?)? = null,
+    /** Live look direction of a player (`null` = unknown); an effect that rides its caster turns with the caster's yaw. */
+    private val liveLook: ((PlayerId) -> Vec3?)? = null,
 ) {
 
     private class ElementState(val plan: VfxElementPlan) {
@@ -141,6 +145,11 @@ public class VfxPlayer(
 
         /** Quad updates move the entity themselves, so the per-tick follow teleport would fight them. */
         val selfMoving: Boolean = plan.updates.any { it.position != null }
+
+        /** Last transform sent to clients: the yaw it carried, the tick, and its interpolation (to re-send the rest of a move). */
+        var sentYaw: Double = 0.0
+        var sentTick: Int = -1
+        var sentInterpolation: Int = 0
     }
 
     private class Instance(
@@ -173,6 +182,22 @@ public class VfxPlayer(
 
         /** Age at which the reveal bundle was queued. */
         var revealedAge: Int = -1
+
+        /** Heading (`atan2(x, z)`, radians) of the caster's look at start; `null` = the effect does not turn with the caster's yaw. */
+        var castHeading: Double? = null
+
+        /** The effect's frame also turns with the caster's spine (`follow_body_yaw`). */
+        var followBodyYaw: Boolean = false
+
+        /** Rotation about the caster's feet applied to every element this tick (live yaw + body yaw), as angle and quaternion. */
+        var yawTheta: Double = 0.0
+        var liveTheta: Double = 0.0
+        var yaw: Quaternion = Quaternion.IDENTITY
+
+        val turns: Boolean get() = castHeading != null || followBodyYaw
+
+        /** The BODY bone of a performance: its planned rotation is the spine frame `follow_body_yaw` effects read. */
+        val spine: VfxElementPlan? = plan.elements.firstOrNull { (it.kind as? VfxElementKind.SkinBone)?.bone == SkinRigBone.BODY }
     }
 
     private val instances: MutableList<Instance> = ArrayList()
@@ -251,6 +276,11 @@ public class VfxPlayer(
                 instance.awaitingReveal = true
                 instance.ownerLegOpen = true
             }
+        }
+        val owner = request.anchorEntityId
+        if (owner != null && plan.follow && !plan.performance && def.followBodyYaw) instance.followBodyYaw = true
+        if (owner != null && plan.follow && liveLook != null && def.orient.turnsWithYaw) {
+            instance.castHeading = heading(request.look)
         }
         replaced.forEach(::finish)
         reserved += plan.displayCount
@@ -341,12 +371,13 @@ public class VfxPlayer(
             live - (instance.position + (instance.targetReference ?: return true))
         }
         val anchor = instance.request.anchor
+        updateYaw(instance)
         if (plan.follow && anchor != null) {
             anchor()?.let { instance.position = it }
             for (state in instance.elements) {
                 // A native passenger already rides the anchor in every client (the caster's own included); a server
                 // teleport here would only re-send a pose-cache-noise offset and make it lag the camera.
-                if (!state.selfMoving && !state.attached) state.handle?.let { displays.teleport(it, instance.position + state.offset, 0f, 0f, plan.followTeleportTicks ?: FOLLOW_TELEPORT_TICKS) }
+                if (!state.selfMoving && !state.attached) state.handle?.let { displays.teleport(it, instance.position + instance.yaw.rotate(state.offset), 0f, 0f, plan.followTeleportTicks ?: FOLLOW_TELEPORT_TICKS) }
             }
         }
         for (state in instance.elements) {
@@ -358,6 +389,7 @@ public class VfxPlayer(
             if (e.elementId in instance.targetLines) state.lineCorrection = targetCorrection
             if (e.kind !is VfxElementKind.Particle && age == e.spawnTick) spawn(instance, state)
             val handle = state.handle
+            var sentNow = false
             if (handle != null) {
                 while (state.nextUpdate < e.updates.size && e.updates[state.nextUpdate].tick <= age) {
                     val u = e.updates[state.nextUpdate++]
@@ -367,7 +399,7 @@ public class VfxPlayer(
                     u.style?.let { displays.setTextStyle(handle, it.backgroundArgb, it.textOpacity, it.textRgb) }
                     u.position?.let {
                         state.offset = it
-                        displays.teleport(handle, instance.position + it + state.targetOffset, 0f, 0f, (if (plan.follow && !state.attached) plan.followTeleportTicks else null) ?: (u.positionTicks ?: u.interpolationTicks).coerceIn(0, MAX_TELEPORT_TICKS))
+                        displays.teleport(handle, instance.position + instance.yaw.rotate(it) + state.targetOffset, 0f, 0f, (if (plan.follow && !state.attached) plan.followTeleportTicks else null) ?: (u.positionTicks ?: u.interpolationTicks).coerceIn(0, MAX_TELEPORT_TICKS))
                     }
                     if (u.keepTransform) continue
                     state.authoredTransform = u.transform
@@ -377,16 +409,31 @@ public class VfxPlayer(
                         // They join one presentation bundle instead (PresentationDisplay.beforeSend, applied at tick end).
                         val bundle = e.kind.let { it is VfxElementKind.SkinBone || it is VfxElementKind.MainHandWeapon } &&
                             instance.lease != null && (age in plan.cutTicks || handle in instance.deferUpdates)
-                        if (bundle) instance.bundled[handle] = { displays.update(handle, u.transform, u.interpolationTicks) }
-                        else displays.update(handle, u.transform, u.interpolationTicks)
+                        val turned = instance.yawed(u.transform)
+                        if (bundle) instance.bundled[handle] = { displays.update(handle, turned, u.interpolationTicks) }
+                        else displays.update(handle, turned, u.interpolationTicks)
+                        state.sentYaw = instance.yawTheta
+                        state.sentTick = age
+                        state.sentInterpolation = u.interpolationTicks
+                        sentNow = true
                     }
+                }
+                // The frame turned since this element was last sent (caster yaw / body twist): re-send its authored pose in the
+                // new frame, keeping what is left of the move in flight.
+                if (!sentNow && instance.turns && state.lineCorrection == null && age > e.spawnTick && age < e.despawnTick &&
+                    abs(instance.yawTheta - state.sentYaw) > YAW_EPSILON) {
+                    val remaining = (state.sentTick + state.sentInterpolation - age).coerceAtLeast(1)
+                    displays.update(handle, instance.yawed(state.authoredTransform), remaining)
+                    state.sentYaw = instance.yawTheta
+                    state.sentTick = age
+                    state.sentInterpolation = remaining
                 }
             }
             if (handle != null && state.lineCorrection != null) {
                 displays.update(handle, lineTransform(state.authoredTransform, state.lineCorrection!!), 0)
             }
             if (handle != null && track != null && targetCorrection != null) {
-                displays.teleport(handle, instance.position + state.offset + state.targetOffset, 0f, 0f, 0)
+                displays.teleport(handle, instance.position + instance.yaw.rotate(state.offset) + state.targetOffset, 0f, 0f, 0)
             }
             val kind = e.kind
             if (kind is VfxElementKind.Particle) {
@@ -412,6 +459,53 @@ public class VfxPlayer(
         return age >= plan.durationTicks
     }
 
+    /**
+     * Sets [Instance.yawTheta]: how far the effect's frame has turned about the caster's feet since it was planned, from the
+     * caster's live yaw (the plan is baked in the cast-time frame) and, for `follow_body_yaw`, the spine yaw of the caster's
+     * performance. Hit areas need nothing here: delayed mechanics already re-read the live pose.
+     */
+    private fun updateYaw(instance: Instance) {
+        if (!instance.turns) return
+        val owner = instance.request.anchorEntityId ?: return
+        var theta = 0.0
+        val cast = instance.castHeading
+        if (cast != null) {
+            // Looking straight up / down has no heading: keep the last live yaw.
+            val now = liveLook?.invoke(owner)?.let(::heading)
+            theta = if (now != null) normalizeRadians(now - cast) else instance.liveTheta
+            instance.liveTheta = theta
+        }
+        if (instance.followBodyYaw) theta += bodyYaw(instance)
+        instance.yawTheta = theta
+        instance.yaw = if (theta == 0.0) Quaternion.IDENTITY else Quaternion.axisAngle(Vec3(0.0, 1.0, 0.0), theta)
+    }
+
+    /** Spine yaw (radians, relative to the caster's facing at cast) of the caster's live body performance; `0` without one. */
+    private fun bodyYaw(instance: Instance): Double {
+        val owner = instance.request.anchorEntityId
+        val performance = instances.firstOrNull {
+            it !== instance && it.spine != null && it.request.anchorEntityId == owner && it.request.world == instance.request.world
+        } ?: return 0.0
+        val spine = performance.spine ?: return 0.0
+        val base = heading(performance.request.look) ?: 0.0
+        var rotation = spine.initial.rotation
+        for (u in spine.updates) if (u.tick <= performance.age) rotation = u.transform.rotation else break
+        val forward = rotation.rotate(Vec3(0.0, 0.0, 1.0))
+        return normalizeRadians(atan2(forward.x, forward.z) - base)
+    }
+
+    private fun heading(look: Vec3?): Double? =
+        look?.takeIf { it.x * it.x + it.z * it.z > 1e-6 }?.let { atan2(it.x, it.z) }
+
+    private fun normalizeRadians(a: Double): Double {
+        var r = a % (2 * Math.PI)
+        if (r > Math.PI) r -= 2 * Math.PI else if (r < -Math.PI) r += 2 * Math.PI
+        return r
+    }
+
+    private fun Instance.yawed(t: DisplayTransform): DisplayTransform =
+        if (yawTheta == 0.0) t else DisplayTransform(yaw.rotate(t.translation), yaw * t.rotation, t.scale)
+
     /** Makes the staged displays visible; the lease's hide and the reveal reach every client in one packet bundle. */
     private fun reveal(instance: Instance) {
         instance.awaitingReveal = false
@@ -420,9 +514,9 @@ public class VfxPlayer(
         val port = presentation?.invoke()
         val staged = instance.elements.filter { it.staged }.mapNotNull { state ->
             state.handle?.let { handle ->
-                // The head bone encloses the owner's first-person camera: the owner never gets it (third person: headless rig).
-                val ownHead = (state.plan.kind as? VfxElementKind.SkinBone)?.bone == SkinRigBone.HEAD
-                PresentationDisplay(handle.id, state.plan.viewRange ?: DEFAULT_VIEW_RANGE, ownHead) { instance.bundled.remove(handle)?.invoke() }
+                // The owner gets every bone, the head included: the core shader drops a head bone that encloses the camera
+                // (first person) and draws it in third person (entity.vsh.patch, rigPart -2).
+                PresentationDisplay(handle.id, state.plan.viewRange ?: DEFAULT_VIEW_RANGE) { instance.bundled.remove(handle)?.invoke() }
             }
         }
         if (port == null) {
@@ -435,17 +529,18 @@ public class VfxPlayer(
 
     private fun emitParticleCalls(instance: Instance, kind: VfxElementKind.Particle, p: VfxParticleEmission) {
         val origin = instance.position
+        val turn = instance.yaw
         val points = p.pathOffsets.ifEmpty { listOf(p.offset) }
         for (offset in points) {
             emitParticle(
                 VfxParticleCall(
                     world = instance.request.world,
-                    at = origin + offset,
+                    at = origin + turn.rotate(offset),
                     particleId = kind.particleId,
-                    look = instance.request.look,
-                    tangent = p.tangent,
-                    center = p.center?.let { origin + it },
-                    toward = p.trailTarget?.let { origin + it },
+                    look = instance.request.look?.let { turn.rotate(it) },
+                    tangent = p.tangent?.let { turn.rotate(it) },
+                    center = p.center?.let { origin + turn.rotate(it) },
+                    toward = p.trailTarget?.let { origin + turn.rotate(it) },
                     source = instance.request.caster,
                 ),
             )
@@ -607,5 +702,8 @@ public class VfxPlayer(
          * display spawned one server tick earlier may not have had a client tick yet; r24 re-measured 1 at 60 fps (2 side + 2 opponent): one weapon in every frame, no empty or doubled reveal frame.
          */
         public const val REVEAL_AGE: Int = 1
+
+        /** Smallest change of the effect frame's yaw (radians) that is re-sent to clients. */
+        private const val YAW_EPSILON: Double = 0.0035
     }
 }
