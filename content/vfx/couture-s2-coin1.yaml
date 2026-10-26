@@ -1,0 +1,80 @@
+# S2 coin 1 caster side (played at skill tick 9): white crescent ring round the lower body + thin white line through the enemy.
+id: couture-s2-coin1
+duration_ticks: 14
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: ring
+  kind: {type: sprite, sprite: couture-orbit, frame_ticks: 1, loop: false, see_through: true, color: '#FFFDF9'}
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.5, 0.3]
+    rotate: [-90, 0, 0]
+    scale: [2.0, 2.0, 1]
+  - t: 2
+    translate: [0.0, 0.5, 0.3]
+    rotate: [-90, 0, 30]
+    scale: [2.0, 2.0, 1]
+    ease: out_quad
+  - t: 7
+    translate: [0.0, 0.5, 0.3]
+    rotate: [-90, 0, 90]
+    scale: [2.0, 0.05, 1]
+    ease: in_quad
+- id: line
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 2
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.8, 0.0]
+    rotate: [0, 0, 0]
+    scale: [0.02, 0.02, 0.02]
+  - t: 1
+    translate: [0.0, 1.3, 4.2]
+    rotate: [-14, 0, 0]
+    scale: [0.05, 0.05, 9.0]
+    ease: out_expo
+  - t: 9
+    translate: [0.0, 1.3, 4.2]
+    rotate: [-14, 0, 0]
+    scale: [0.0, 0.0, 9.0]
+    ease: in_quad
+- id: p-line
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.3, 2.4]
+- id: p-line2
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.6, 4.4]
+- id: p-ring
+  kind: {type: particle, particle_id: couture-s2-p-ring-white, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.5, 0.3]
+- id: p-petal
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 2}
+  brightness: 15
+  start_tick: 0
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.0, 0.3]

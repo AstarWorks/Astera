@@ -1,0 +1,87 @@
+# S2 dash smear + pale pink crescent behind (played at skill tick 70, contact ~72).
+id: couture-s2-dash
+duration_ticks: 28
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: smear
+  kind: {type: sprite, sprite: couture-cut, frame_ticks: 1, loop: false, see_through: true, color: '#FFE9F0'}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.0, 1.2]
+    rotate: [0, 90, 0]
+    scale: [3.2, 3.2, 1]
+  - t: 5
+    translate: [0.0, 1.0, 3.5]
+    rotate: [0, 90, 0]
+    scale: [3.4, 1.4, 1]
+    ease: out_quad
+- id: smear-bar
+  kind: {type: quad, color: '#FFFFFF', alpha: 0.85, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.1, 2.2]
+    rotate: [0, 0, 90]
+    scale: [0.5, 8.0, 1]
+  - t: 4
+    translate: [0.0, 1.1, 4.5]
+    rotate: [0, 0, 90]
+    scale: [0.0, 8.0, 1]
+    ease: in_quad
+- id: p-trail
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.0, 0.5]
+- id: p-orange
+  kind: {type: particle, particle_id: couture-s2-p-orange, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.0, 1.5]
+- id: pink-crescent
+  kind: {type: sprite, sprite: couture-orbit, frame_ticks: 1, loop: false, see_through: true, color: '#FFC8DC'}
+  billboard: fixed
+  brightness: 15
+  start_tick: 6
+  end_tick: 26
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.1, -1.6]
+    rotate: [0, 90, 0]
+    scale: [1.8, 1.8, 1]
+  - t: 18
+    translate: [0.0, 1.1, -2.2]
+    rotate: [0, 90, 0]
+    scale: [2.0, 2.0, 1]
+    ease: out_quad
+- id: p-lines
+  kind: {type: particle, particle_id: couture-s2-p-speed, every_ticks: 1}
+  brightness: 15
+  start_tick: 3
+  end_tick: 24
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, -1.2]
+- id: p-petal
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 2}
+  brightness: 15
+  start_tick: 5
+  end_tick: 24
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.4, -0.6]

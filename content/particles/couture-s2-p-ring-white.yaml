@@ -1,0 +1,9 @@
+# white ring on the floor round the caster
+id: couture-s2-p-ring-white
+shape: {kind: circle, radius_blocks: 3.3}
+color: {r: 255, g: 253, b: 249}
+count: 26
+lifetime_ticks: 5
+vanilla_particle: end_rod
+speed: 0.0
+force: true
