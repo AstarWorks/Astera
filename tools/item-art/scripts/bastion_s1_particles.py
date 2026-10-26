@@ -384,9 +384,7 @@ class Layer:
         k = 3 if self.tag == "s1h2" else (2 if heavy else 1)
         for j in range(k):
             q = (p[0] + 0.25 * j, p[1], p[2] - 0.15 * j)
-            self.once("impact-crit", "impact-crit", ft, q)
-            self.once("impact-dust", "impact-dust", ft, q)
-            self.once("impact-crit", "impact-crit", ft + 1, q)
+            self.once("impact-dust", "impact-dust", ft, q)  # r5: no vanilla `crit` (an X-shaped sprite) at the impact either
         return p
 
     def build(self):

@@ -687,13 +687,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.09, 0.995, 3.145]
-- id: s1h2-p-impact-crit
-  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
-  start_tick: 4
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0.093, 1.004, 3.232]
 - id: s1h2-p-impact-dust
   kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
   start_tick: 4
@@ -701,20 +694,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.093, 1.004, 3.232]
-- id: s1h2-p-impact-crit-2
-  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
-  start_tick: 5
-  end_tick: 6
-  keyframes:
-  - t: 0
-    translate: [0.093, 1.004, 3.232]
-- id: s1h2-p-impact-crit-3
-  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
-  start_tick: 4
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0.343, 1.004, 3.082]
 - id: s1h2-p-impact-dust-2
   kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
   start_tick: 4
@@ -722,31 +701,10 @@ elements:
   keyframes:
   - t: 0
     translate: [0.343, 1.004, 3.082]
-- id: s1h2-p-impact-crit-4
-  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
-  start_tick: 5
-  end_tick: 6
-  keyframes:
-  - t: 0
-    translate: [0.343, 1.004, 3.082]
-- id: s1h2-p-impact-crit-5
-  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
-  start_tick: 4
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0.593, 1.004, 2.932]
 - id: s1h2-p-impact-dust-3
   kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
   start_tick: 4
   end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0.593, 1.004, 2.932]
-- id: s1h2-p-impact-crit-6
-  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
-  start_tick: 5
-  end_tick: 6
   keyframes:
   - t: 0
     translate: [0.593, 1.004, 2.932]
