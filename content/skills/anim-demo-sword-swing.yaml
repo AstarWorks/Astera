@@ -21,3 +21,7 @@ phases:
     targets:
       type: caster
     animation: sword-swing
+  - type: play_sound
+    targets:
+      type: caster
+    sound_id: astera:weapons/sword-swing
