@@ -48,10 +48,18 @@ if (!caseId) { console.error(`no skill-compare case plays skill '${skill}' (tool
 const caseDir = join(casesDir, caseId);
 const kase = readJson(join(caseDir, 'case.json'));
 const intent = readJson(join(caseDir, kase.intent?.file ?? 'intent.json'));
-// --camera <name>: an entry of the intent's camera_presets (vfx-shot CAMERA=<name> films the same camera); default = intent.camera
-const cameraPreset = args.camera && args.camera !== true ? String(args.camera) : null;
-if (cameraPreset && !intent.camera_presets?.[cameraPreset]) { console.error(`case ${caseId}: no camera_presets.${cameraPreset} in the intent (${Object.keys(intent.camera_presets ?? {}).join(', ') || 'none'})`); process.exit(2); }
-const keys = (cameraPreset ? intent.camera_presets[cameraPreset] : intent.camera) ?? [];
+// --camera <name>: an entry of the intent's camera_presets, else a fixed review camera from tools/vfx-shot/camera-presets.json
+// (front | back | opposite | high45 | back45 | eye | top); vfx-shot CAMERA=<name> films the same camera. Default = intent.camera.
+const cameraPreset = [args.camera, args.view].find((v) => v && v !== true && v !== 'compare') ?? null;
+let keys = intent.camera ?? [];
+if (cameraPreset) {
+  if (intent.camera_presets?.[cameraPreset]) keys = intent.camera_presets[cameraPreset];
+  else {
+    const pr = cameraPreset.startsWith('_') ? null : readJson(join(repo, 'tools/vfx-shot/camera-presets.json'))[cameraPreset];
+    if (!pr) { console.error(`case ${caseId}: no camera preset ${cameraPreset} (intent: ${Object.keys(intent.camera_presets ?? {}).join(', ') || 'none'}; tools/vfx-shot/camera-presets.json)`); process.exit(2); }
+    keys = [{ t: 0, pos: pr.pos, target: pr.target, fov: pr.fov }];
+  }
+}
 if (!keys.length) { console.error(`case ${caseId}: intent has no camera keys`); process.exit(2); }
 const actor = (id) => (intent.actors ?? []).find((a) => a.id === id)?.keys?.[0]?.pos;
 const casterOrigin = actor('caster') ?? [0, 0, 0];
@@ -175,7 +183,7 @@ const clientFrame = (t) => { // the capture film starts `clientPre` ticks before
   const p = join(clientDir, `frame_${String(f).padStart(3, '0')}.png`);
   return existsSync(p) ? p : null;
 };
-const clientAvailable = !!clientDir && existsSync(clientDir) && clientFrame(tFrom) !== null;
+const clientAvailable = !cameraPreset && !!clientDir && existsSync(clientDir) && clientFrame(tFrom) !== null; // the published capture is the compare camera only
 if (!clientAvailable) warnings.push('no published real-client compare capture for this case: no client row');
 
 // ---------------------------------------------------------------- render
@@ -219,7 +227,7 @@ const cells = picked.map((t) => {
   const rows = [];
   if (refAvailable) rows.push(['reference', `ref/tick_${frameName(t)}.png`]);
   rows.push(['preview', `frames/tick_${frameName(t)}.png`]);
-  if (clientAvailable) rows.push(['client', clientFrame(t)]);
+  if (clientAvailable && clientFrame(t)) rows.push(['client', clientFrame(t)]);
   return `<section><h3>tick ${t}</h3>${rows.map(([label, src]) => `<figure><img src="file://${src.startsWith('/') ? src : join(out, src)}"><figcaption>${label}</figcaption></figure>`).join('')}</section>`;
 }).join('');
 const stripHtml = join(out, 'strip.html');

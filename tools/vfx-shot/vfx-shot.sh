@@ -253,7 +253,7 @@ CMP_FOV_DEG=""
 CAM0_CMD=""
 ENEMY_X=4.2
 case "$VIEW" in caster|opponent|side|front|back|right|high|near|compare|all) ;; *) die "VIEW must be caster|opponent|side|front|back|right|high|near|compare|all";; esac
-[[ "$CAMERA" =~ ^[a-z0-9][a-z0-9_-]{0,31}$ ]] || die "CAMERA must be case|side|<intent camera_presets name>"
+[[ "$CAMERA" =~ ^[a-z0-9][a-z0-9_-]{0,31}$ ]] || die "CAMERA must be case|side|<intent camera_presets name>|<tools/vfx-shot/camera-presets.json name>"
 if [ "$VIEW" = compare ]; then
   [ -n "$CASE" ] || die "VIEW=compare needs CASE=<case-id> (e.g. CASE=zwei-s3)"
   INTENT="$(python3 -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); c=json.loads((d/"case.json").read_text()); p=(d/c.get("intent",{}).get("file","intent.json")).resolve(); p.relative_to(d.resolve()); print(p)' "$ROOT/tools/skill-compare/data/$CASE")"
@@ -955,7 +955,9 @@ in_arena() { # player -> 0 when in the overworld, x/z in the 300s
   local dim pos
   dim="$(rcon "data get entity $1 Dimension")"
   pos="$(rcon "data get entity $1 Pos")"
-  [[ "$dim" == *overworld* ]] && [[ "$pos" == *"["[0-9]*3[0-9][0-9]* ]]
+  # the arena is centred on CX/CZ (300.5): x/z anywhere in 250..350 counts (a camera behind the caster is at x ~ 296)
+  [[ "$dim" == *overworld* ]] && [[ "$pos" =~ \[(-?[0-9]+)\.[0-9]*d,\ [^,]*,\ (-?[0-9]+)\. ]] \
+    && (( BASH_REMATCH[1] >= 250 && BASH_REMATCH[1] <= 350 && BASH_REMATCH[2] >= 250 && BASH_REMATCH[2] <= 350 ))
 }
 
 place_scene() { # view target_z
