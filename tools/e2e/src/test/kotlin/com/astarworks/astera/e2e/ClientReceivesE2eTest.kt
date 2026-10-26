@@ -136,10 +136,10 @@ class ClientReceivesE2eTest : E2eBase() {
             assertThat(behind).describedAs("HP line is $behind ms behind the hearts (budget $hudLagBudgetMs ms = 3 ticks + jitter); vanilla ${lag.vanillaMs} ms, line ${lag.hudMs} ms").isLessThanOrEqualTo(hudLagBudgetMs)
             "hearts at ${lag.vanillaMs} ms, line at ${lag.hudMs} ms ($behind ms behind); ${lag.hudBefore} -> ${lag.hudAfter}; glyph bar=${lag.hudAfter?.glyphs}"
         }
-        E2eReport.check(suite, "$label: the shooter hears the hit marker", "ClientboundSound") {
+        E2eReport.check(suite, "$label: the shooter hears exactly one hit marker (no vanilla double)", "ClientboundSound") {
             val heard = a.sounds.drop(soundsBefore)
-            assertThat(heard.map(::soundKey).any { soundKey("entity.arrow.hit_player") in it })
-                .describedAs("MISSING sound entity.arrow.hit_player for the shooter after a hit; heard=${heard.take(10)}").isTrue()
+            assertThat(heard.map(::soundKey).none { soundKey("entity.arrow.hit_player") in it })
+                .describedAs("vanilla entity.arrow.hit_player still plays on a hit (double marker); heard=${heard.take(10)}").isTrue()
             "heard ${heard.take(6)}"
         }
         E2eReport.check(suite, "$label: the shooter hears Astera's own hit-marker cue (astera:combat/hit, not a vanilla stand-in)", "ClientboundSound") {
