@@ -142,6 +142,12 @@ class ClientReceivesE2eTest : E2eBase() {
                 .describedAs("MISSING sound entity.arrow.hit_player for the shooter after a hit; heard=${heard.take(10)}").isTrue()
             "heard ${heard.take(6)}"
         }
+        E2eReport.check(suite, "$label: the shooter hears Astera's own hit-marker cue (astera:combat/hit, not a vanilla stand-in)", "ClientboundSound") {
+            val heard = a.sounds.drop(soundsBefore)
+            assertThat(heard.map(::soundKey).any { soundKey("astera:combat/hit") in it || soundKey("astera:combat/crit") in it })
+                .describedAs("MISSING astera:combat/hit (or crit) for the shooter after a hit; heard=${heard.take(10)}").isTrue()
+            "heard ${heard.take(6)}"
+        }
     }
 
     @Test
