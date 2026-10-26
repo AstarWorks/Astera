@@ -333,17 +333,17 @@ class BotBrain(
 
     private fun nearestEnemy(): EntityView? {
         val myTeam = bot.teamOf(bot.name)?.first
-        var best: EntityView? = null
-        var bestD = Double.MAX_VALUE
+        val candidates = ArrayList<TargetPolicy.Candidate>()
         for (e in bot.entities.values) {
             if (e.type != "PLAYER" || e.id == bot.selfEntityId) continue
             val name = bot.playerNames[e.uuid] ?: continue
-            if (name == bot.name) continue
-            if (myTeam != null && bot.teamOf(name)?.first == myTeam) continue
-            val d = hypot(e.x - bot.x, e.z - bot.z) + abs(e.y - bot.y) * 0.5
-            if (d < bestD && d <= SIGHT_RANGE) { best = e; bestD = d }
+            candidates += TargetPolicy.Candidate(
+                id = e.id, name = name, team = bot.teamOf(name)?.first, spectating = bot.playerGameModes[e.uuid] == GameMode.SPECTATOR,
+                x = e.x, y = e.y, z = e.z,
+            )
         }
-        return best
+        val pick = TargetPolicy.nearest(bot.name, myTeam, bot.x, bot.y, bot.z, candidates, SIGHT_RANGE) ?: return null
+        return bot.entities[pick.id]
     }
 
     /**
@@ -609,7 +609,7 @@ class BotBrain(
     private fun tickReload(now: Long) {
         if (reloadStartedAt == 0L) return
         val t = now - reloadStartedAt
-        if (t in 150..199 && reloadDropSent != reloadStartedAt) { reloadDropSent = reloadStartedAt; bot.dropSelected() }
+        if (t >= 150 && reloadDropSent != reloadStartedAt) { reloadDropSent = reloadStartedAt; bot.dropSelected() }
         if (t >= 400) { bot.sneak(false); reloadStartedAt = 0L }
     }
     private var reloadDropSent = 0L

@@ -30,6 +30,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.entity.player.Hand
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.GameMode
 import org.geysermc.mcprotocollib.protocol.data.game.item.ItemStack
 import org.geysermc.mcprotocollib.protocol.data.game.item.component.DataComponentTypes
+import org.geysermc.mcprotocollib.protocol.data.game.PlayerListEntryAction
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundPlayerInfoUpdatePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundEntityPositionSyncPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundMoveEntityPosPacket
@@ -216,6 +217,8 @@ class Bot private constructor(
     val entities = ConcurrentHashMap<Int, EntityView>()
     /** Account name by profile UUID, from the tab list (player entities carry only the UUID). */
     val playerNames = ConcurrentHashMap<UUID, String>()
+    /** Last game mode the tab list announced for each player (SPECTATOR = in the death cam). */
+    val playerGameModes = ConcurrentHashMap<UUID, GameMode>()
     /** Own game mode as the server last set it (spectator = death cam). */
     @Volatile var gameMode: GameMode = GameMode.SURVIVAL; private set
     /** Blocks around the bot, from chunk and block-update packets (edge probing for the combat AI). */
@@ -394,7 +397,13 @@ class Bot private constructor(
                 val end = packet.endPosition ?: packet.steps?.lastOrNull()?.position
                 if (end != null) e.moveTo(end.x, end.y, end.z)
             }
-            is ClientboundPlayerInfoUpdatePacket -> packet.entries.forEach { en -> en.profile?.name?.let { playerNames[en.profileId] = it } }
+            is ClientboundPlayerInfoUpdatePacket -> packet.entries.forEach { en ->
+                en.profile?.name?.let { playerNames[en.profileId] = it }
+                // Dead players sit in the death cam (spectator): untouchable, so the combat AI must not pick them.
+                if (PlayerListEntryAction.ADD_PLAYER in packet.actions || PlayerListEntryAction.UPDATE_GAME_MODE in packet.actions) {
+                    en.gameMode?.let { playerGameModes[en.profileId] = it }
+                }
+            }
             is ClientboundLevelChunkWithLightPacket -> terrain.load(packet.x, packet.z, packet.chunkData)
             is ClientboundForgetLevelChunkPacket -> terrain.forget(packet.x, packet.z)
             is ClientboundBlockUpdatePacket -> terrain.set(packet.entry.position.x, packet.entry.position.y, packet.entry.position.z, packet.entry.block)
@@ -496,7 +505,7 @@ class Bot private constructor(
     private fun hopTo0(old: ClientSession, ep: Endpoint) {
         joined = false; loggedIn = false; disconnectReason = null
         runCatching { old.disconnect("hop") }
-        entities.clear(); terrain.clear()
+        entities.clear(); terrain.clear(); playerGameModes.clear()
         objectives.clear(); displaySlots.clear(); scores.clear(); teams.clear(); bossBars.clear()
         contents.clear(); screens.clear(); stateIds.clear()
         endpoint = ep
