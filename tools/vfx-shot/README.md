@@ -277,6 +277,23 @@ Read the result in the browser: `make skill-compare` -> `/anim` (see `tools/skil
 `PRE_ROLL`, `SHEET_STEP` (2), `SHOT_CACHE` (portablemc venv + game files,
 default `~/.cache/astera-vfx-shot`; first run downloads the client ~ 1 GB).
 
+## Capture farm (auto-capture.sh) and the fast stepped path
+
+`auto-capture.sh run|once|up|down|status` (`make vfx-auto-*`): tails the dev autodeploy log, maps the commit to skills (`changed-skills.py`), films
+them and publishes with `publish-capture.mjs --auto <sha>` (first a `--preview` realtime pass, then the stepped one). It runs vfx-shot with
+`SHOT_KEEP=1 SHOT_PIN=1 SHOT_OUTPUTS=lean SHOT_STEP_DWELL=0.15 SHOT_REAP_SCOPE=self` and its own `SHOT_LOCK`; see docs/contributing/vfx-team/README.md.
+
+Speed knobs that apply to every stepped capture:
+
+- `director.py` reads the stamp through one long-lived ffmpeg x11grab pipe (`DIRECTOR_STEP_POLL_FPS`, default 60) instead of spawning ffmpeg per poll, and no longer asks the
+  server for the game time after each step. It prints `STEP_STATS n= mean_wait_ms= max_wait_ms= dwell_ms=` (also in the `phases.log`).
+- `SHOT_STEP_DWELL` (default 0.35 s): how long a tick stays on screen once its stamp was seen. The recorder runs at 30 fps, so >= 0.07 s keeps two frames; the farm uses 0.15.
+  `framestamp` refuses a capture that lost a tick, so lowering it is safe: too low shows up as skipped ticks, not as wrong frames.
+- `SHOT_OUTPUTS=lean`: only the WebP frames + `meta.json` (what skill-compare shows). `full` (default) also builds sheet.png / gif / mp4, now in parallel.
+- `VIEW=top,side` films several orbit views in one run (one scene setup, one stack sync). Not for `compare` / `all`.
+- `SHOT_PIN=1`: marks the kept stack `pinned`; other checkouts' runs never evict it to make room (its TTL still applies).
+- `build/vfx-shot/<skill>/phases.log` (also `<state>/phases.log`): `<epoch> +<s> <phase>` per phase, for profiling.
+
 ## Troubleshooting
 
 - **`Pool overlaps`** creating the network: the script probes for a free `10.N.77.0/24`; if all of N=211..250
