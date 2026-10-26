@@ -213,6 +213,8 @@ public object EconomyWiring {
             playerGateway = playerGateway,
             lastMatches = { services.get<ILastMatchStore>() },
             nextUnlock = nextUnlockFinder::find,
+            nextLevelReward = { lv -> services.get<com.astarworks.astera.stats.application.usecase.level.GrantLevelRewardsUseCase>()?.nextAfter(lv) },
+            unlockName = { id -> services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()?.find(id)?.nameKey },
         )
         val depositOnMissionCompletedListener = DepositOnMissionCompletedListener(deposit)
 

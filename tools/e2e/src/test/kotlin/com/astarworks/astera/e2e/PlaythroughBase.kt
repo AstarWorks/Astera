@@ -232,6 +232,10 @@ abstract class PlaythroughBase : E2eBase() {
             E2eReport.check(suite, "${b.name}: rewards were paid and announced", "SystemChat") {
                 assertThat(chat.any { it.contains("Rewards") || it.contains("Reward:") })
                     .describedAs("no reward block/line after the match:\n${quote(chat, 40)}").isTrue()
+                // The block ends with the level goal: what the next level pays (every e2e player is far below the last reward level).
+                val levelGoal = chat.filter { it.startsWith("Next level reward:") }
+                assertThat(levelGoal).describedAs("no next-level-reward preview in the reward block:\n${quote(chat, 40)}").hasSize(1)
+                assertThat(levelGoal.single()).describedAs("preview names no reward").containsPattern("Lv \\d+ - .+")
                 // Stars are an in-match item: no reward line may grant or mention them.
                 assertThat(chat.filter { STAR_WORD.containsMatchIn(it) }).describedAs("star amounts in the post-match chat:\n${quote(chat, 40)}").isEmpty()
                 quote(chat.filter { it.contains("Reward") || it.contains("Level") || it.contains("Total") }, 12)
