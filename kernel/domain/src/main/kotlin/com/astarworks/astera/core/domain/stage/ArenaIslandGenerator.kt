@@ -1061,22 +1061,23 @@ public object ArenaIslandGenerator {
                 val z = k.toInt()
                 if (get(x, s, z) != material("ground") || get(x, s + 1, z) != null) continue
                 val r = rnd(x, z, 5)
-                val patch = noise2(x * 0.11, z * 0.11, 13) > 0.3
+                val blob = noise2(x * 0.06, z * 0.06, 13)
+                val patch = blob > 0.42
                 when (layout.theme) {
                     ArenaTheme.TEMPERATE -> if (r < 0.06) set(x, s + 1, z, FLOWERS[(r / 0.06 * FLOWERS.size).toInt().coerceAtMost(FLOWERS.size - 1)])
                     ArenaTheme.FROST -> when {
-                        patch && r < 0.5 -> set(x, s, z, "minecraft:packed_ice")
-                        r < 0.14 -> set(x, s + 1, z, "minecraft:snow")
+                        patch -> set(x, s, z, "minecraft:packed_ice")
+                        r < 0.05 -> set(x, s + 1, z, "minecraft:snow")
                         r > 0.9985 && k !in laneCells -> for (dy in 1..2 + (r * 4000).toInt() % 3) set(x, s + dy, z, "minecraft:packed_ice")
                     }
                     ArenaTheme.DESERT -> when {
-                        patch && r < 0.6 -> set(x, s, z, if (r < 0.3) "minecraft:cut_sandstone" else "minecraft:red_sandstone")
-                        r < 0.05 -> set(x, s + 1, z, if (r < 0.03) "minecraft:dead_bush" else "minecraft:short_dry_grass")
+                        patch -> set(x, s, z, if (blob > 0.55) "minecraft:red_sandstone" else "minecraft:cut_sandstone")
+                        r < 0.02 -> set(x, s + 1, z, if (r < 0.012) "minecraft:dead_bush" else "minecraft:short_dry_grass")
                     }
                     ArenaTheme.VOLCANIC -> when {
-                        patch && r < 0.55 -> set(x, s, z, if (r < 0.2) "minecraft:blackstone" else "minecraft:smooth_basalt")
-                        r < 0.012 -> set(x, s, z, "minecraft:shroomlight")
-                        r < 0.05 -> set(x, s + 1, z, "minecraft:crimson_roots")
+                        patch -> set(x, s, z, if (blob > 0.55) "minecraft:blackstone" else "minecraft:smooth_basalt")
+                        r < 0.008 -> set(x, s, z, "minecraft:shroomlight")
+                        r < 0.025 -> set(x, s + 1, z, "minecraft:crimson_roots")
                     }
                 }
             }
