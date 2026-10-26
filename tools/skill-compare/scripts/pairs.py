@@ -15,6 +15,7 @@ from PIL import Image, ImageDraw
 HERE = os.path.dirname(os.path.abspath(__file__))
 SC = os.path.dirname(HERE)                       # tools/skill-compare
 REPO = os.path.dirname(os.path.dirname(SC))
+MC_FPS = 20                                      # capture fps; parse_case reads meta.json fps (FPS=60 = 3 frames per tick)
 
 
 def video_dir():
@@ -35,7 +36,10 @@ def parse_case(argv):
     shot = os.environ.get("SKILL_COMPARE_VFX_SHOT") or os.path.join(REPO, "build", "vfx-shot")
     mc = opts.get("mc") or os.path.join(shot, skill, "compare")
     meta = os.path.join(mc, "meta.json")
-    pre = round(json.load(open(meta)).get("cast_tick_ms", 0) / 50) if os.path.exists(meta) else 0
+    m = json.load(open(meta)) if os.path.exists(meta) else {}
+    global MC_FPS
+    MC_FPS = m.get("fps") or 20  # FPS=60 captures hold 3 frames per tick
+    pre = round(m.get("cast_tick_ms", 0) * MC_FPS / 1000)
     out = opts.get("out") or os.path.join(REPO, "build", "pairs", opts["case"] + ".png")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     return os.path.join(video_dir(), case["videoId"] + ".mp4"), mc, float(case["start_s"]), pre, out, rest
@@ -56,7 +60,7 @@ for t, label in moments:
     vp = os.path.join(tmp, 'v.png')
     subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-ss', str(t), '-i', video, '-frames:v', '1', '-vf', 'scale=640:-2', vp], check=True)
     tick = round((t - t0) * 20)
-    mp = os.path.join(mc, f'frame_{tick + pre:03d}.png')
+    mp = os.path.join(mc, f'frame_{round((t - t0) * MC_FPS) + pre:03d}.png')
     v = Image.open(vp).convert('RGB').resize((640, 360))
     m = Image.open(mp).convert('RGB').resize((640, 360)) if os.path.exists(mp) else Image.new('RGB', (640, 360), (60, 0, 60))
     row = Image.new('RGB', (1290, 380), (20, 20, 24))

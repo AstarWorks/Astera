@@ -102,15 +102,17 @@ export function createViews(ctx) {
     if (!hits.length) now.append(el("span", "lc", "この tick に該当するビートなし"));
     for (const c of hits) now.append(el("span", "lc " + (c.status === "FAIL" ? "bad" : c.status === "PASS" ? "ok" : ""), `${c.status} ${c.beat ? c.beat : c.check}`));
   }
+  // The overlay is a differently framed, annotated crop that replaces the reference picture. During playback it
+  // covered the reference for one 50 ms tick per beat (8 flashes in S1) = flicker, so it is shown only while paused.
   function showOverlay(ms) {
     const img = $("vov");
-    const o = state.overlayOn ? state.overlayAt.get(msToTick(ms, castOf())) : null;
+    const o = state.overlayOn && !S.playing ? state.overlayAt.get(msToTick(ms, castOf())) : null;
     if (!o) { img.hidden = true; $("ovlabel").hidden = true; return; }
     const entry = S.frameCache.get(o.url);
     if (entry?.state === "ready") { img.src = entry.img.src; img.hidden = false; }
     $("ovlabel").hidden = false; $("ovlabel").textContent = `注釈オーバーレイ: ${o.beat}`;
   }
-  const overlayUrl = (ms) => (state.overlayOn ? state.overlayAt.get(msToTick(ms, castOf()))?.url : null);
+  const overlayUrl = (ms) => (state.overlayOn && !S.playing ?state.overlayAt.get(msToTick(ms, castOf()))?.url : null);
 
   function setupControls() {
     $("ovOn").onchange = (e) => { state.overlayOn = e.target.checked; showOverlay(S.ms); };

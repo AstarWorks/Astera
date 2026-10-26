@@ -133,7 +133,8 @@ function mcFrame(ms) {
   if (!src) return null;
   const tick = msToTick(ms, castOf());
   if (src.kind === "frames") {
-    const f = tick + (src.castFrame ?? 0), n = clamp(f, 0, src.count - 1);
+    // Frame on the capture's own clock: 20 fps = 1 frame per tick, FPS=60 captures = 3 frames per tick.
+    const f = Math.floor(((ms - castOf()) * (src.fps || 20)) / 1000 + 1e-6) + (src.castFrame ?? 0), n = clamp(f, 0, src.count - 1);
     return { url: `${src.base}frame_${String(n).padStart(3, "0")}.${src.extension || "png"}?v=${encodeURIComponent(src.revision || "0")}`,
       dim: f < 0 || f >= src.count, label: `t+${tick} (frame ${n})`, tick };
   }
@@ -376,7 +377,7 @@ function jumpHit(dir) {
 }
 function seek(ms) { S.ms = clamp(ms, 0, S.dur); update(); }
 function play() { if (S.ms >= S.dur) S.ms = S.loop?.from ?? 0; S.playing = true; S.lastTs = 0; $("bPlay").textContent = "Pause"; }
-function pause() { S.playing = false; $("bPlay").textContent = "Play"; }
+function pause() { S.playing = false; $("bPlay").textContent = "Play"; S.needsRedraw = true; }
 function stepFrame(d) { pause(); const i = msToVideoFrame(S.ms, S.fps) + d; S.ms = clamp(videoFrameToMs(i, S.fps) + 0.01, 0, S.dur); update(); }
 function stepTick(d) { pause(); const t = msToTick(S.ms, castOf()) + d; S.ms = clamp(tickToMs(t, castOf()) + 0.01, 0, S.dur); update(); }
 function setSpeed(v) { S.speed = v; $("speed").value = String(v); }
