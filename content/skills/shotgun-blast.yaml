@@ -15,6 +15,10 @@ archetype: melee
 cooldown_ticks: 26
 resource_cost: 1               # one shell; the shotgun's magazine is 6
 tags: [ ranged, gun, burst ]
+# ADR-0280: flat chip along the look ray (opt-in; cover has 200-500 HP, weapons only chip).
+block_damage:
+  amount: 30
+  reach: 4.0
 
 params:
   type: melee

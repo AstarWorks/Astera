@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.arena
 
 import com.astarworks.astera.core.application.port.outbound.*
+import com.astarworks.astera.core.application.service.arena.ArenaImportContent
 import com.astarworks.astera.core.application.service.arena.ArenaStructureContent
 import com.astarworks.astera.core.application.service.instance.SlotAllocator
 import com.astarworks.astera.core.domain.Result
@@ -36,6 +37,9 @@ internal class PaperArenaWorld(
 
     /** Authored structure parts, read once (off the region threads: first use is inside an Io task). */
     private val parts: Map<String, ArenaStructurePart> by lazy { ArenaStructureContent.load(contentDir) }
+
+    /** Pre-built worlds of `content/arenas/` (ADR-0281), read once with the structure parts. */
+    private val imports: Map<String, com.astarworks.astera.core.domain.stage.ArenaImport> by lazy { ArenaImportContent.load(contentDir) }
 
     /** The sky of the stage whose slot contains this point (MAP-08), or `null` outside every built slot. */
     fun atmosphereAt(worldName: String, x: Double, z: Double): ArenaAtmosphere? = builds.values.firstOrNull {
@@ -80,7 +84,7 @@ internal class PaperArenaWorld(
             // Planning is pure CPU (no world access): off the tick threads, then back on Global to commit.
             scheduler.run(ExecutionScope.Io, Duration.ZERO) {
                 val started = System.nanoTime()
-                val plan = runCatching { ArenaIslandGenerator.generate(stage, parts) }
+                val plan = runCatching { ArenaIslandGenerator.generate(stage, parts, imports) }
                     .onFailure { log.error("Arena '{}' planning failed", template.id, it) }
                     .getOrNull()
                 scheduler.run(ExecutionScope.Global, Duration.ZERO) {
@@ -166,6 +170,7 @@ internal class PaperArenaWorld(
                 islands = layout.islands.map { it.copy(x = it.x + slot.x, z = it.z + slot.z) },
                 landmarks = layout.landmarks.map { it.copy(x = it.x + slot.x, z = it.z + slot.z) },
                 structures = layout.structures.map { it.copy(x = it.x + slot.x, z = it.z + slot.z) },
+                imported = layout.imported?.let { it.copy(x = it.x + slot.x, z = it.z + slot.z) },
             ) },
         )
     }

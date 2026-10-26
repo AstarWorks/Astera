@@ -42,7 +42,10 @@ fun main(args: Array<String>) {
     println(com.astarworks.astera.combat.application.contents.SkillCostReport.format(
         com.astarworks.astera.combat.application.contents.SkillCostReport.top(skills, vfx, particles),
     ))
-    exitProcess(if (report.failed + vfxLoad.failed + particleLoad.failed + skillLoad.failed == 0) 0 else 1)
+    val runtime = RuntimeDecode.run(parsed.contentDir, listOf(
+        "vfx" to vfxLoad, "particles" to particleLoad, "skills" to skillLoad,
+    ))
+    exitProcess(if (report.failed == 0 && runtime == 0) 0 else 1)
 }
 
 // -----------------------------------------------------------------------------

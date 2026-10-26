@@ -86,9 +86,34 @@ public class ArenaBuildPlan(
 public object ArenaIslandGenerator {
 
     /** Builds the plan for a stage that has a [Stage.layout]. */
-    public fun generate(stage: Stage, parts: Map<String, ArenaStructurePart> = emptyMap()): ArenaBuildPlan {
+    public fun generate(
+        stage: Stage,
+        parts: Map<String, ArenaStructurePart> = emptyMap(),
+        imports: Map<String, ArenaImport> = emptyMap(),
+    ): ArenaBuildPlan {
         val layout = requireNotNull(stage.layout) { "stage '${stage.id.value}' has no arena layout" }
+        layout.imported?.let { return importedPlan(stage, layout, it, imports) }
         return Builder(stage, layout, parts).build()
+    }
+
+    /** A pre-built world is pasted as is: shifted blocks, star pedestals at the landmarks, spawn height checked. */
+    private fun importedPlan(stage: Stage, layout: ArenaLayout, placement: ArenaImportPlacement, imports: Map<String, ArenaImport>): ArenaBuildPlan {
+        val world = requireNotNull(imports[placement.map]) { "stage '${stage.id.value}' imports unknown arena '${placement.map}'" }
+        val blocks = HashMap<ArenaBlockPos, String>(world.blocks.size * 2)
+        for ((p, state) in world.blocks) blocks[ArenaBlockPos(p.x + placement.x, p.y, p.z + placement.z)] = state
+        val problems = ArrayList<String>()
+        val s = layout.surfaceY
+        for (mark in layout.landmarks) {
+            val top = blocks[ArenaBlockPos(mark.x, s, mark.z)]
+            if (top == null || ArenaBuildPlan.isPassable(top)) problems += "generator landmark (${mark.x}, ${mark.z}) has no ground at y=$s"
+            else blocks[ArenaBlockPos(mark.x, s, mark.z)] = "minecraft:iron_block"
+        }
+        for (spawn in stage.spawnPoints) {
+            if (spawn.role == SpawnRole.SPECTATOR) continue
+            val y = floor(spawn.position.y).toInt()
+            if (y != s + 1) problems += "spawn ${spawn.team?.value ?: spawn.role.name.lowercase()} stands at y=$y, expected y=${s + 1}"
+        }
+        return ArenaBuildPlan(blocks, emptySet(), s, problems)
     }
 
     private class Builder(val stage: Stage, val layout: ArenaLayout, val parts: Map<String, ArenaStructurePart>) {
@@ -154,6 +179,7 @@ public object ArenaIslandGenerator {
             features()
             settleGrass()
             deco()
+            relief()
             return ArenaBuildPlan(blocks, volatile, s, problems)
         }
 
@@ -1052,6 +1078,376 @@ public object ArenaIslandGenerator {
             take(cx, cz, 3)
         }
 
+        // ── relief ───────────────────────────────────────────────────────
+
+        /**
+         * Island-local noise frame. Team bases sample in a frame pointing at the hub, so every team gets the same
+         * terrain rotated onto its side; the hub folds into four identical quadrants; satellites pair up by a 180 degree
+         * turn. The result is mirror-fair relief without touching the (asymmetric) rim outlines.
+         */
+        private class Frame(val ex: Double, val ez: Double, val salt: Int, val fold: Boolean, val amp: Double)
+
+        private val frames = HashMap<String, Frame>()
+
+        private fun frameOf(isl: ArenaIsland): Frame = frames.getOrPut(isl.id) {
+            val cx = layout.islands.sumOf { it.x.toDouble() } / layout.islands.size
+            val cz = layout.islands.sumOf { it.z.toDouble() } / layout.islands.size
+            val hub = layout.islands.firstOrNull { it.kind == ArenaIslandKind.CENTER }
+            when (isl.kind) {
+                ArenaIslandKind.CENTER -> Frame(1.0, 0.0, 0x51, true, 0.7)
+                ArenaIslandKind.BASE -> {
+                    val tx = (hub?.x ?: cx.roundToInt()) - isl.x.toDouble()
+                    val tz = (hub?.z ?: cz.roundToInt()) - isl.z.toDouble()
+                    val n = hypot(tx, tz)
+                    if (n < 1.0) Frame(1.0, 0.0, 0x1b, false, 1.0) else Frame(tx / n, tz / n, 0x1b, false, 1.0)
+                }
+                ArenaIslandKind.OUTPOST -> {
+                    val flip = isl.z < 0 || (isl.z == 0 && isl.x < 0)
+                    Frame(if (flip) -1.0 else 1.0, 0.0, 0x77 + abs(isl.x) * 31 + abs(isl.z) * 17 + isl.radius.toInt(), false, 1.0)
+                }
+            }
+        }
+
+        /** Chebyshev distance (in cells) to the nearest `true` cell of [src]; two chamfer sweeps are exact for 8-neighbour steps. */
+        private fun distance(src: BooleanArray, w: Int, h: Int): IntArray {
+            val inf = 1_000_000
+            val d = IntArray(w * h) { if (src[it]) 0 else inf }
+            val fwd = arrayOf(-1 to -1, 0 to -1, 1 to -1, -1 to 0)
+            val bwd = arrayOf(1 to 1, 0 to 1, -1 to 1, 1 to 0)
+            for (zi in 0 until h) for (xi in 0 until w) {
+                var v = d[xi + zi * w]
+                if (v == 0) continue
+                for ((dx, dz) in fwd) {
+                    val nx = xi + dx
+                    val nz = zi + dz
+                    if (nx in 0 until w && nz in 0 until h) v = min(v, d[nx + nz * w] + 1)
+                }
+                d[xi + zi * w] = v
+            }
+            for (zi in h - 1 downTo 0) for (xi in w - 1 downTo 0) {
+                var v = d[xi + zi * w]
+                if (v == 0) continue
+                for ((dx, dz) in bwd) {
+                    val nx = xi + dx
+                    val nz = zi + dz
+                    if (nx in 0 until w && nz in 0 until h) v = min(v, d[nx + nz * w] + 1)
+                }
+                d[xi + zi * w] = v
+            }
+            return d
+        }
+
+        private fun smooth(t: Double): Double {
+            val c = t.coerceIn(0.0, 1.0)
+            return c * c * (3 - 2 * c)
+        }
+
+        /**
+         * Terrain relief on top of the flat plateau: noise hills and valleys, meandering sunken channels, raised berms
+         * around every objective, overlook platforms and then cover (outcrops, ruined walls, colonnades, spires).
+         * The height field is projected to Lipschitz-1 (no step above one block in any of the 8 directions, so every
+         * slope is walkable without jumping) with every protected column (spawn pads, anchors, lanes, structures,
+         * features, the rim) pinned to the original surface.
+         */
+        private fun relief() {
+            val amp = layout.relief
+            if (amp <= 0.0 || topCells.isEmpty()) return
+            var minX = Int.MAX_VALUE
+            var maxX = Int.MIN_VALUE
+            var minZ = Int.MAX_VALUE
+            var maxZ = Int.MIN_VALUE
+            for (k in topCells.keys) {
+                val x = (k shr 32).toInt()
+                val z = k.toInt()
+                minX = min(minX, x); maxX = max(maxX, x); minZ = min(minZ, z); maxZ = max(maxZ, z)
+            }
+            minX -= 2; minZ -= 2; maxX += 2; maxZ += 2
+            val w = maxX - minX + 1
+            val gh = maxZ - minZ + 1
+            val n = w * gh
+            fun at(x: Int, z: Int) = (x - minX) + (z - minZ) * w
+            val active = BooleanArray(n)
+            for (k in topCells.keys) {
+                val x = (k shr 32).toInt()
+                val z = k.toInt()
+                if (get(x, s, z) != null) active[at(x, z)] = true
+            }
+            val od = distance(BooleanArray(n) { !active[it] }, w, gh)
+
+            val above = HashSet<Long>()
+            for ((pos, state) in blocks) if (pos.y > s && !ArenaBuildPlan.isPassable(state)) above += key(pos.x, pos.z)
+            val extra = HashSet<Long>()
+            fun pinAround(cx: Int, cz: Int, r: Int) {
+                for (dx in -r..r) for (dz in -r..r) extra += key(cx + dx, cz + dz)
+            }
+            val objectives = ArrayList<Pair<Int, Int>>()
+            for (region in stage.regions) {
+                val name = region.name ?: continue
+                if (!(name.startsWith("core-") || name.startsWith("jewelry-") || name.startsWith("wool-") || name == "tnt-spawn")) continue
+                val cx = floor((region.min.x + region.max.x) / 2).toInt()
+                val cz = floor((region.min.z + region.max.z) / 2).toInt()
+                objectives += cx to cz
+                pinAround(cx, cz, 5)
+            }
+            for (pillar in stage.pillars) {
+                val px = floor(pillar.position.x).toInt()
+                val pz = floor(pillar.position.z).toInt()
+                objectives += px to pz
+                pinAround(px, pz, 5)
+            }
+            for (spawn in stage.spawnPoints) pinAround(floor(spawn.position.x).toInt(), floor(spawn.position.z).toInt(), 4)
+
+            val pinned = BooleanArray(n)
+            for (k in topCells.keys) {
+                val x = (k shr 32).toInt()
+                val z = k.toInt()
+                val i = at(x, z)
+                if (!active[i]) continue
+                pinned[i] = od[i] <= 2 || k in clear || k in reserved || k in occupied || k in laneCells || k in above || k in extra
+            }
+            val pd = distance(pinned, w, gh)
+
+            // Target heights ------------------------------------------------------------------
+            val hArr = IntArray(n)
+            val channelArr = FloatArray(n)
+            val flatTop = BooleanArray(n)
+            val ceilH = (8 * amp).roundToInt().coerceAtLeast(1)
+            val overlookH = max(2, (3 * amp).roundToInt())
+            for ((k, isl) in topCells) {
+                val x = (k shr 32).toInt()
+                val z = k.toInt()
+                val i = at(x, z)
+                if (!active[i] || pinned[i]) continue
+                val fr = frameOf(isl)
+                val dx = (x - isl.x).toDouble()
+                val dz = (z - isl.z).toDouble()
+                var u = dx * fr.ex + dz * fr.ez
+                var v = -dx * fr.ez + dz * fr.ex
+                if (fr.fold) { u = abs(u); v = abs(v) }
+                val r = isl.radius
+                val a = amp * fr.amp
+                val off = (fr.salt % 97) * 3.7
+                var t = fbm(u * 0.058 + off, v * 0.058 - off, fr.salt + 31) * 8.8 * a
+                if (t < 0) t *= 0.55
+                val ridge = abs(noise2(u * 0.034 + off, v * 0.034 + 40.0, fr.salt + 37))
+                val channel = 1 - smooth(ridge / 0.085)
+                channelArr[i] = channel.toFloat()
+                t -= channel * 3.2 * a
+                // berm around every objective: defenders get a ring of high ground to hold, attackers a slope to climb.
+                for ((ox, oz) in objectives) {
+                    if (topCells[key(ox, oz)]?.id != isl.id) continue
+                    val d = hypot((x - ox).toDouble(), (z - oz).toDouble())
+                    t += 2.6 * a * sin(PI * ((d - 7.0) / 6.0).coerceIn(0.0, 1.0))
+                }
+                if (isl.radius >= 18) {
+                    for ((pu, pv) in OVERLOOKS) {
+                        val d = hypot(u - pu * r, v - pv * r)
+                        val bump = overlookH - max(0.0, d - 3.0)
+                        if (bump > 0) {
+                            t = max(t, bump)
+                            if (d <= 3.0) flatTop[i] = true
+                        }
+                    }
+                }
+                val floorLim = -min(4, od[i] - 3)
+                hArr[i] = t.roundToInt().coerceIn(max(-pd[i], floorLim), min(pd[i], ceilH + 1))
+            }
+            // Lipschitz-1 projection (also against flat tops: they are re-validated afterwards).
+            val nbr = arrayOf(-1 to -1, 0 to -1, 1 to -1, -1 to 0, 1 to 0, -1 to 1, 0 to 1, 1 to 1)
+            for (pass in 0 until 400) {
+                var changed = false
+                val zr = if (pass % 2 == 0) 0 until gh else gh - 1 downTo 0
+                val xr = if (pass % 2 == 0) 0 until w else w - 1 downTo 0
+                for (zi in zr) for (xi in xr) {
+                    val i = xi + zi * w
+                    if (!active[i] || pinned[i]) continue
+                    var lo = Int.MIN_VALUE
+                    var hi = Int.MAX_VALUE
+                    for ((dx, dz) in nbr) {
+                        val nx = xi + dx
+                        val nz = zi + dz
+                        if (nx !in 0 until w || nz !in 0 until gh) continue
+                        val j = nx + nz * w
+                        if (!active[j]) continue
+                        lo = max(lo, hArr[j] - 1)
+                        hi = min(hi, hArr[j] + 1)
+                    }
+                    if (lo > hi) continue
+                    val nv = hArr[i].coerceIn(lo, hi)
+                    if (nv != hArr[i]) { hArr[i] = nv; changed = true }
+                }
+                if (!changed) break
+            }
+
+            // Build the columns ------------------------------------------------------------------
+            for ((k, isl) in topCells) {
+                val x = (k shr 32).toInt()
+                val z = k.toInt()
+                val i = at(x, z)
+                if (!active[i] || pinned[i] || hArr[i] == 0) continue
+                applyColumn(isl, x, z, hArr[i], channelArr[i].toDouble(), flatTop[i] && hArr[i] == overlookH)
+            }
+
+            // Cover ------------------------------------------------------------------------------
+            val halo = HashSet<Long>()
+            val taken = HashSet<Long>()
+            fun ok(x: Int, z: Int): Boolean {
+                if (x < minX || x > maxX || z < minZ || z > maxZ) return false
+                val i = at(x, z)
+                val k = key(x, z)
+                return active[i] && !pinned[i] && od[i] >= 4 && pd[i] >= 2 && k !in taken && k !in halo
+            }
+            fun groundOf(x: Int, z: Int) = s + hArr[at(x, z)]
+            fun markTaken(x: Int, z: Int) {
+                taken += key(x, z)
+                for (dx in -2..2) for (dz in -2..2) halo += key(x + dx, z + dz)
+            }
+            for (isl in layout.islands) {
+                val fr = frameOf(isl)
+                val r = isl.radius
+                val attempts = ceil(PI * r * r * 0.012 * amp * fr.amp).toInt()
+                val copies = if (fr.fold) listOf(1 to 1, 1 to -1, -1 to 1, -1 to -1) else listOf(1 to 1)
+                for (j in 0 until attempts) {
+                    val pu = (rnd(fr.salt, j, 101) * 2 - 1) * r * 0.85
+                    val pv = (rnd(fr.salt, j, 102) * 2 - 1) * r * 0.85
+                    val pick = rnd(fr.salt, j, 103)
+                    val variant = hash(fr.salt, j, 104)
+                    for ((su, sv) in copies) {
+                        fun world(u: Double, v: Double): Pair<Int, Int> {
+                            val uu = u * su
+                            val vv = v * sv
+                            return (isl.x + (uu * fr.ex - vv * fr.ez).roundToInt()) to (isl.z + (uu * fr.ez + vv * fr.ex).roundToInt())
+                        }
+                        val cells = ArrayList<Triple<Int, Int, Int>>() // x, z, height
+                        when {
+                            pick < 0.38 -> { // outcrop: a lumpy cluster 2-5 high
+                                val peak = 2 + (variant ushr 3) % 4
+                                for (a in -2..2) for (b in -2..2) {
+                                    val d = hypot(a.toDouble(), b.toDouble())
+                                    val height = peak - (d * 1.1).roundToInt() + (if (rnd(fr.salt, j * 31 + a, 105 + b) < 0.35) 1 else 0)
+                                    if (height < 1 || d > 2.3) continue
+                                    val (wx, wz) = world(pu + a, pv + b)
+                                    cells += Triple(wx, wz, height)
+                                }
+                            }
+                            pick < 0.62 -> { // ruined wall: 5-9 long, gaps and broken crown
+                                val len = 5 + (variant ushr 5) % 5
+                                val alongU = (variant ushr 9) % 2 == 0
+                                for (a in 0 until len) {
+                                    val roll = rnd(fr.salt, j * 17 + a, 106)
+                                    val height = when { roll < 0.14 -> 0; roll < 0.38 -> 1; roll < 0.7 -> 2; else -> 3 }
+                                    if (height == 0) continue
+                                    val (wx, wz) = if (alongU) world(pu + a, pv) else world(pu, pv + a)
+                                    cells += Triple(wx, wz, height)
+                                }
+                            }
+                            pick < 0.8 -> { // colonnade: 3-4 pillars every third block
+                                val count = 3 + (variant ushr 4) % 2
+                                val alongU = (variant ushr 8) % 2 == 0
+                                for (a in 0 until count) {
+                                    val height = 3 + (hash(fr.salt, j * 13 + a, 107) ushr 6) % 3
+                                    val (wx, wz) = if (alongU) world(pu + a * 3, pv) else world(pu, pv + a * 3)
+                                    cells += Triple(wx, wz, height)
+                                }
+                            }
+                            else -> { // spire: one tall thin column with a stub beside it
+                                val height = 5 + (variant ushr 4) % 4
+                                val (wx, wz) = world(pu, pv)
+                                cells += Triple(wx, wz, height)
+                                val (sx, sz) = world(pu + 1, pv)
+                                cells += Triple(sx, sz, 2)
+                            }
+                        }
+                        if (cells.isEmpty() || cells.any { !ok(it.first, it.second) || topCells[key(it.first, it.second)]?.id != isl.id }) continue
+                        for ((wx, wz, height) in cells) {
+                            val base = groundOf(wx, wz)
+                            for (kk in 1..height) set(wx, base + kk, wz, coverBlock(pick, wx, base + kk, wz, kk, height))
+                        }
+                        for ((wx, wz, _) in cells) markTaken(wx, wz)
+                    }
+                }
+            }
+        }
+
+        private fun coverBlock(pick: Double, x: Int, y: Int, z: Int, k: Int, height: Int): String {
+            val r = rnd(x, y, z + 91)
+            return when (layout.theme) {
+                ArenaTheme.TEMPERATE -> when {
+                    pick < 0.38 -> if (r < 0.3) "minecraft:andesite" else if (r < 0.45) "minecraft:mossy_cobblestone" else "minecraft:stone"
+                    pick < 0.8 -> if (r < 0.3) "minecraft:mossy_stone_bricks" else if (r < 0.5) "minecraft:cracked_stone_bricks" else "minecraft:stone_bricks"
+                    else -> if (r < 0.5) "minecraft:andesite" else "minecraft:stone"
+                }
+                ArenaTheme.FROST -> when {
+                    pick >= 0.8 -> if (k == height || r < 0.35) "minecraft:blue_ice" else "minecraft:packed_ice"
+                    pick < 0.38 -> if (r < 0.25) "minecraft:tuff" else if (r < 0.4) "minecraft:snow_block" else "minecraft:deepslate"
+                    else -> if (r < 0.4) "minecraft:cracked_deepslate_bricks" else "minecraft:deepslate_bricks"
+                }
+                ArenaTheme.DESERT -> when {
+                    pick < 0.38 -> if (r < 0.3) "minecraft:red_sandstone" else if (r < 0.5) "minecraft:terracotta" else "minecraft:sandstone"
+                    pick < 0.8 -> if (k == height && r < 0.5) "minecraft:chiseled_sandstone" else if (r < 0.4) "minecraft:cut_sandstone" else "minecraft:smooth_sandstone"
+                    else -> if (r < 0.5) "minecraft:cut_sandstone" else "minecraft:sandstone"
+                }
+                ArenaTheme.VOLCANIC -> when {
+                    pick < 0.38 -> if (r < 0.3) "minecraft:blackstone" else if (r < 0.5) "minecraft:smooth_basalt" else "minecraft:basalt"
+                    pick < 0.8 -> if (r < 0.3) "minecraft:cracked_polished_blackstone_bricks" else "minecraft:polished_blackstone_bricks"
+                    else -> if (k == height && r < 0.5) "minecraft:shroomlight" else if (r < 0.5) "minecraft:basalt" else "minecraft:blackstone"
+                }
+            }
+        }
+
+        /** Raises ([h] > 0) or sinks ([h] < 0) one island column; the top block follows the theme, channels get their own floor. */
+        private fun applyColumn(isl: ArenaIsland, x: Int, z: Int, h: Int, channel: Double, deck: Boolean) {
+            val orig = get(x, s, z) ?: return
+            val plant = get(x, s + 1, z)?.takeIf { ArenaBuildPlan.isPassable(it) }
+            if (plant != null) blocks.remove(ArenaBlockPos(x, s + 1, z))
+            val r = rnd(x, z, 77)
+            val top = when {
+                deck -> material("wall")
+                else -> when (layout.theme) {
+                    ArenaTheme.TEMPERATE -> when {
+                        h >= 5 && r < 0.6 -> "minecraft:stone"
+                        h >= 4 && r < 0.2 -> "minecraft:andesite"
+                        h <= -1 && channel > 0.45 -> if (r < 0.5) "minecraft:coarse_dirt" else "minecraft:gravel"
+                        else -> orig
+                    }
+                    ArenaTheme.FROST -> when {
+                        h >= 7 && r < 0.5 -> "minecraft:packed_ice"
+                        h <= -1 && channel > 0.45 -> "minecraft:packed_ice"
+                        else -> orig
+                    }
+                    ArenaTheme.DESERT -> when {
+                        h >= 5 -> "minecraft:red_sandstone"
+                        h >= 1 && r < 0.18 -> "minecraft:cut_sandstone"
+                        h <= -1 && channel > 0.45 -> "minecraft:terracotta"
+                        else -> orig
+                    }
+                    ArenaTheme.VOLCANIC -> when {
+                        h >= 5 -> if (r < 0.5) "minecraft:blackstone" else "minecraft:smooth_basalt"
+                        h <= -1 && channel > 0.45 -> if (r < 0.1) "minecraft:shroomlight" else "minecraft:blackstone"
+                        else -> orig
+                    }
+                }
+            }
+            if (h > 0) {
+                set(x, s, z, bodyBlock(isl, x, z, 0, h))
+                for (k in 1 until h) set(x, s + k, z, bodyBlock(isl, x, z, k, h))
+                set(x, s + h, z, top)
+            } else {
+                for (y in s + h + 1..s) blocks.remove(ArenaBlockPos(x, y, z))
+                set(x, s + h, z, top)
+                for (d in 1..2) if (get(x, s + h - d, z) == null) set(x, s + h - d, z, shallow(isl))
+            }
+            if (plant != null && !deck) set(x, s + h + 1, z, plant)
+            if (deck) {
+                // keep the deck readable: the plant is not restored
+                blocks.remove(ArenaBlockPos(x, s + h + 1, z))
+            }
+        }
+
+        private fun bodyBlock(isl: ArenaIsland, x: Int, z: Int, k: Int, h: Int): String =
+            if (layout.theme == ArenaTheme.DESERT) STRATA[(s + k + (noise2(x * 0.08, z * 0.08, 41) * 2).roundToInt() + 64) % STRATA.size]
+            else if (h - k <= 2) shallow(isl) else material("rock")
+
         // ── decoration ───────────────────────────────────────────────────
 
         private fun deco() {
@@ -1085,6 +1481,15 @@ public object ArenaIslandGenerator {
     }
 
     private const val RIM_STEPS: Int = 720
+
+    /** Overlook platform centres as fractions of the island radius, in the island-local (toward-hub, sideways) frame. */
+    private val OVERLOOKS: List<Pair<Double, Double>> = listOf(0.42 to 0.45, 0.42 to -0.45)
+
+    /** Sandstone mesa banding, cycled by absolute height. */
+    private val STRATA: List<String> = listOf(
+        "minecraft:terracotta", "minecraft:orange_terracotta", "minecraft:terracotta", "minecraft:yellow_terracotta",
+        "minecraft:red_sandstone", "minecraft:brown_terracotta", "minecraft:terracotta", "minecraft:red_terracotta",
+    )
     private val SPOT_FRACTIONS: List<Double> = listOf(0.55, 0.45, 0.65, 0.35, 0.72, 0.25)
     private val SPOT_OFFSETS: List<Double> = listOf(0.0, 0.3, -0.3, 0.6, -0.6, 0.9, -0.9, 1.3, -1.3, 1.8, -1.8, 2.4, -2.4, 3.1)
     private val ARROWS: List<Pair<Int, Int>> = listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1)

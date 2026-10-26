@@ -73,6 +73,8 @@ public class ProjectileImpactResolver(
     private val soundScheduler: ISoundScheduler,
     /** WP10: world structures (pillars); a projectile that lands on one hits it like an entity. Lazy: Match registers it later. */
     private val structures: () -> IStructureTargets? = { null },
+    /** ADR-0280: a landing projectile of a skill with `block_damage` chips cover. */
+    private val coverEffects: SkillCoverEffects? = null,
     private val log: Logger = LoggerFactory.getLogger(ProjectileImpactResolver::class.java),
 ) : ProjectileImpactHandler {
 
@@ -91,12 +93,14 @@ public class ProjectileImpactResolver(
     override fun onHitEntity(flight: Flight, target: PlayerId?, at: Vec3) {
         runOnHitEffects(flight, target, at)
         runPhase(flight, at, target) { it.hitEntity }
+        chipCover(flight, at)
     }
 
     /** The projectile struck a block at [at]. */
     override fun onHitBlock(flight: Flight, at: Vec3) {
         // WP10: landing on (or touching) a damageable structure block is an entity hit on it.
         structureNear(flight, at)?.let { return onHitEntity(flight, it, at) }
+        chipCover(flight, at)
         runOnHitEffects(flight, null, at)
         runPhase(flight, at, null) { it.hitBlock }
         runPhase(flight, at, null) { it.miss }
@@ -106,6 +110,11 @@ public class ProjectileImpactResolver(
     override fun onExpire(flight: Flight, at: Vec3) {
         runPhase(flight, at, null) { it.expire }
         runPhase(flight, at, null) { it.miss }
+    }
+
+    private fun chipCover(flight: Flight, at: Vec3) {
+        val binding = flight.spec.skill ?: return
+        coverEffects?.onImpact(binding.skillId, flight.owner, binding.worldId, at, binding.blockDamage)
     }
 
     private fun structureNear(flight: Flight, at: Vec3): PlayerId? =

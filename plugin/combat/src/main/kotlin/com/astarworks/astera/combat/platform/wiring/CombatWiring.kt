@@ -613,6 +613,10 @@ public object CombatWiring {
 
             // Shared by every host: Paper's ProjectileHitListener and the
             // headless simulator's projectile stepper both resolve impacts here.
+            // ADR-0280: opt-in cover damage / placement for skills (the CoverBlockService is Core's, resolved lazily).
+            val coverEffects = com.astarworks.astera.combat.application.service.SkillCoverEffects(
+                cover = { services.get<com.astarworks.astera.core.application.service.CoverBlockService>() },
+            )
             val particleSchedulerForImpacts = particleScheduler
             val soundSchedulerForImpacts =
                 services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>()
@@ -626,6 +630,7 @@ public object CombatWiring {
                         particleScheduler = particleSchedulerForImpacts,
                         soundScheduler = soundSchedulerForImpacts,
                         structures = { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() },
+                        coverEffects = coverEffects,
                     ),
                 )
             }
@@ -700,6 +705,7 @@ public object CombatWiring {
                 sequenceHandler = sequenceHandler,
                 summonHandler = summonHandler,
                 eventBus = eventBus,
+                coverEffects = coverEffects,
             )
             subscriptions += dispatcher.start()
 

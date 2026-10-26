@@ -46,4 +46,7 @@ public class CustomBlockContents(
 
     override fun resolveByItem(itemId: ItemId): CustomBlockSpec? =
         all().firstOrNull { it.placedFrom == itemId }
+
+    override fun resolveByBaseMaterial(bukkitMaterial: String): CustomBlockSpec? =
+        all().firstOrNull { it.baseBukkitMaterial.equals(bukkitMaterial, ignoreCase = true) }
 }

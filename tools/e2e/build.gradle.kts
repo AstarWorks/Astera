@@ -62,6 +62,16 @@ val e2e by tasks.registering(Test::class) {
         (project.findProperty("e2e.$k") as String?)?.let { systemProperty("astera.e2e.$k", it) }
     }
     testLogging.showStandardStreams = false
+
+    // Per-test wall time: `[e2e-time] <ms> <class> > <test>` on the console and build/e2e-timings.tsv (copied out by
+    // scripts/e2e.sh, which turns it into the per-suite table of the report). Measure before tuning the suite.
+    val timings = layout.buildDirectory.file("e2e-timings.tsv").get().asFile
+    doFirst { timings.parentFile.mkdirs(); timings.writeText("") }
+    afterTest(KotlinClosure2<TestDescriptor, TestResult, Unit>({ d, r ->
+        val ms = r.endTime - r.startTime
+        timings.appendText("${d.className?.substringAfterLast('.')}\t${d.displayName}\t$ms\t${r.resultType}\n")
+        println("[e2e-time] $ms ms ${d.className?.substringAfterLast('.')} > ${d.displayName}")
+    }))
 }
 
 // QA-2 (ADR-0221): the same bots, but against the LIVE docker stack (lobby + game behind Velocity) via

@@ -207,6 +207,9 @@ public class InMemoryPlayerProfileService(
     /** Item ids of the starter grant (`starter_items`), also lent to unarmed players for a match. */
     public fun starterItemIds(): List<com.astarworks.astera.core.domain.item.ItemId> = starterGrant.starterItems
 
+    /** Field tools lent to every match participant (pickaxe / axe / shovel). */
+    public fun matchToolIds(): List<com.astarworks.astera.core.domain.item.ItemId> = starterGrant.matchTools
+
     /** Test / adapter helper: items resolved for a created profile. Empty list when nothing was granted. */
     public fun starterItemsFor(playerId: PlayerId): List<com.astarworks.astera.core.domain.item.ItemSpec> =
         grantedLoadout[playerId].orEmpty()

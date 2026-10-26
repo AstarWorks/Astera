@@ -41,15 +41,25 @@ class ShopPurchaseE2eTest : E2eBase() {
     private fun gold(b: Bot): Long =
         Regex("GOLD:\\s*(\\d+)").find(plain(listOf(rcon("astera economy balance gold ${b.name}"))).first())?.groupValues?.get(1)?.toLong() ?: -1L
 
+    /**
+     * The daily login bonus (10 GOLD, ClaimLoginBonusOnJoinListener) lands ~5 s after the join. Wait for it, then grant [amount]
+     * and return the wallet the player held before the grant, so the checks do not race the bonus.
+     */
+    private fun fund(b: Bot, amount: Long): Long {
+        check(b.waitUntil(15_000) { gold(b) >= 10L }) { "the daily login bonus never reached ${b.name}'s wallet" }
+        val base = gold(b)
+        rcon("astera economy grant ${b.name} GOLD $amount")
+        b.waitUntil(3_000) { gold(b) == base + amount }
+        return base
+    }
+
     private fun hasStaff(b: Bot): Boolean =
         listOf("container.*", "hotbar.*").any { rcon("execute if items entity ${b.name} $it minecraft:blaze_rod").contains("passed") }
 
     @Test
     fun `buying a shop weapon asks to confirm, charges the price and delivers the item`() {
         val b = bot("Shopper")
-        Thread.sleep(2_500)
-        rcon("astera economy grant ${b.name} GOLD 150")
-        Thread.sleep(500)
+        val base = fund(b, 150L)
 
         var shop: ScreenView? = null
         E2eReport.check(suite, "a newcomer sees the recommended staff first (150 GOLD), no GEM in the wallet, no raw keys", "ClientboundOpenScreen + SetContainerContent") {
@@ -60,7 +70,7 @@ class ShopPurchaseE2eTest : E2eBase() {
             val staffSlot = slotWithLore(b, s, "Recommended first buy")
             assertThat(staffSlot).describedAs("the recommended offer is pinned first").isEqualTo(0)
             assertThat(items[staffSlot].lore).describedAs("recommended lore shows the price").contains("Price: 150 GOLD")
-            val rawTriggers = Regex("(left_click|right_click|sneak_right|sneak_left|drop):")
+            val rawTriggers = Regex("(left_click|right_click|sneak_right|sneak_left|sneak_drop|drop):")
             assertThat(items.filter { it.amount > 0 && rawTriggers.containsMatchIn(it.lore) }.map { it.lore.take(80) })
                 .describedAs("weapon lore shows labelled inputs (Left-click: ...), never raw trigger ids").isEmpty()
             "title='${s.title}' recommended slot=$staffSlot lore=${items[staffSlot].lore}"
@@ -73,7 +83,7 @@ class ShopPurchaseE2eTest : E2eBase() {
             click(b, s, staffSlot)
             val lines = plain(b.chatSince(chatFrom))
             assertThat(lines.any { it.contains("click the item again") }).describedAs("no confirm prompt; chat=$lines").isTrue()
-            assertThat(gold(b)).describedAs("GOLD changed on the first click").isEqualTo(150L)
+            assertThat(gold(b)).describedAs("GOLD changed on the first click").isEqualTo(base + 150L)
             "chat=$lines"
         }
 
@@ -85,21 +95,21 @@ class ShopPurchaseE2eTest : E2eBase() {
             assertThat(lines.any { it.contains("Purchased") }).describedAs("no purchase confirmation; chat=$lines").isTrue()
             assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
             b.waitUntil(3_000) { hasStaff(b) }
-            assertThat(gold(b)).describedAs("GOLD after paying 150").isEqualTo(0L)
+            assertThat(gold(b)).describedAs("GOLD after paying 150").isEqualTo(base)
             assertThat(hasStaff(b)).describedAs("no blaze rod (frost-staff) in the server inventory").isTrue()
             "chat=$lines"
         }
 
-        E2eReport.check(suite, "with 0 GOLD another offer is refused with the shortfall and nothing is charged", "SystemChat + RCON balance") {
+        E2eReport.check(suite, "with no spare GOLD another offer is refused with the shortfall and nothing is charged", "SystemChat + RCON balance") {
             val chatFrom = b.chat.size
             Thread.sleep(600)
-            val other = slotWithLore(b, s, "Price: 250 GOLD") // a gun nobody carries, wallet is empty
+            val other = slotWithLore(b, s, "Price: 250 GOLD") // a gun nobody carries, the wallet holds only the login bonus
             click(b, s, other)
             Thread.sleep(600)
             click(b, s, other)
             val lines = plain(b.chatSince(chatFrom))
             assertThat(lines.any { it.contains("Not enough GOLD") }).describedAs("no shortfall message; chat=$lines").isTrue()
-            assertThat(gold(b)).describedAs("balance must stay 0").isEqualTo(0L)
+            assertThat(gold(b)).describedAs("balance must stay unchanged").isEqualTo(base)
             "chat=$lines"
         }
     }
@@ -110,9 +120,7 @@ class ShopPurchaseE2eTest : E2eBase() {
     @Test
     fun `a consumable costs GOLD on every purchase, arrives in the inventory and is used up by right-click`() {
         val b = bot("Drinker")
-        Thread.sleep(2_500)
-        rcon("astera economy grant ${b.name} GOLD 100")
-        Thread.sleep(500)
+        val base = fund(b, 100L)
         val s = openShop(b)
         var draughtSlot = -1
 
@@ -123,7 +131,7 @@ class ShopPurchaseE2eTest : E2eBase() {
             click(b, s, draughtSlot)
             b.waitUntil(3_000) { hotbarSlotOf(b, "glistering_melon_slice") != null }
             val lines = plain(b.chatSince(chatFrom))
-            assertThat(gold(b)).describedAs("GOLD after paying 40; chat=$lines").isEqualTo(60L)
+            assertThat(gold(b)).describedAs("GOLD after paying 40; chat=$lines").isEqualTo(base + 60L)
             assertThat(hotbarSlotOf(b, "glistering_melon_slice")).describedAs("healing draught missing from the hotbar").isNotNull()
             "chat=$lines"
         }
@@ -131,8 +139,8 @@ class ShopPurchaseE2eTest : E2eBase() {
         E2eReport.check(suite, "the same offer can be bought again (unlimited) and charges again", "RCON balance") {
             Thread.sleep(600)
             click(b, s, draughtSlot)
-            b.waitUntil(3_000) { gold(b) == 20L }
-            assertThat(gold(b)).describedAs("second purchase must charge again").isEqualTo(20L)
+            b.waitUntil(3_000) { gold(b) == base + 20L }
+            assertThat(gold(b)).describedAs("second purchase must charge again").isEqualTo(base + 20L)
             "gold=${gold(b)}"
         }
 
@@ -155,9 +163,7 @@ class ShopPurchaseE2eTest : E2eBase() {
     @Test
     fun `the shop leads to the cosmetics menu where a cheap colour is bought with one click and worn`() {
         val b = bot("Dresser")
-        Thread.sleep(2_500)
-        rcon("astera economy grant ${b.name} GOLD 60")
-        Thread.sleep(500)
+        fund(b, 60L)
         val shop = openShop(b)
 
         var menu: ScreenView? = null

@@ -5,85 +5,95 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Skill compare case</title>
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/case.css">
 </head>
 <body>
-<div id="app">
-  <div class="top">
-    <span class="crumb" id="crumb"><a href="/">&larr; 武器一覧</a></span>
-    <h1 id="title">loading&hellip;</h1>
-    <span class="sub" id="sub"></span>
-    <span>focus column:
-      <button data-focus="">all</button><button data-focus="video">video</button><button data-focus="pv" hidden>preview</button><button data-focus="mc">minecraft</button>
-    </span>
-  </div>
-  <nav id="skillnav" aria-label="この武器のスキル"></nav>
-  <section id="round" class="round" aria-label="round notes" hidden></section>
-  <div class="cols" id="cols">
-    <section class="col" data-col="video"><h2>参照映像 <span class="tag">Reference</span> <small id="vinfo"></small></h2>
-      <div class="view"><canvas id="vcv"></canvas><div class="ph on" id="vph">frames not cached: make skill-compare-fetch</div>
-      <img id="vov" alt="annotation overlay" hidden><div class="ovlabel" id="ovlabel" hidden></div></div>
-      <div class="mcctl" id="ovctl" hidden><label class="chk"><input type="checkbox" id="ovOn" checked> 注釈オーバーレイ（一時停止中、ビートの tick で表示）<span id="ovn"></span></label></div></section>
-    <section class="col" data-col="pv" id="pvcol" hidden><h2>プレビュー <span class="tag pvtag">Preview・実機ではない</span> <small id="pinfo"></small></h2>
-      <div class="view"><img id="pimg" alt="preview frame" style="visibility:hidden"><div class="ph on" id="pph">no preview frames</div><div class="badge" id="pbadge" hidden></div><div class="pvbanner">PREVIEW — not the real client</div></div>
-      <div class="pvwarn" id="pvwarn" hidden></div>
-      <div class="lintnow" id="lintnow" hidden></div>
-      <div class="prov" id="pvprov" aria-label="preview provenance"></div></section>
-    <section class="col" data-col="mc"><h2>実機 <span class="tag">In-game</span> <small id="minfo"></small></h2>
-      <div class="view"><img id="mimg" alt="minecraft frame"><div class="ph on" id="mph">no Minecraft frames</div><div class="badge" id="mbadge" hidden></div></div>
-      <div class="mcctl">
-        <select id="msrc" aria-label="minecraft source"></select>
-        <label>cast offset <input id="moff" type="range" min="-2000" max="2000" step="10" value="0"> <input id="moffn" type="number" step="10" value="0"> ms</label>
-      </div>
-      <div class="prov" id="prov" aria-label="capture provenance"></div></section>
-  </div>
-  <section class="lintpanel" id="lintpanel" aria-label="skill lint" hidden>
-    <div class="lhead"><span id="lintsum"></span><label class="chk"><input type="checkbox" id="failOnly"> FAIL のみ</label></div>
-    <div class="lbody"><table class="lintt"><thead><tr><th>結果</th><th>チェック</th><th>tick</th><th>内容・数値</th></tr></thead><tbody id="lintbody"></tbody></table></div>
-  </section>
-  <section class="beats" id="beats" aria-label="beat sheet">
-    <div class="bcol"><h3>セグメント（時系列）</h3><div class="blist" id="seglist"></div></div>
-    <div class="bcol"><h3>ケースメモ</h3><div class="cnote" id="cnoteView"></div></div>
-    <div class="bcol wide" id="beatwrap" hidden><h3>ビート表（フレーム単位の読み）</h3><div class="blist"><table class="beatt"><thead><tr><th>t</th><th>内容</th><th>武器</th><th>術者の動き</th><th>演出</th><th>メモ</th></tr></thead><tbody id="beatbody"></tbody></table></div></div>
-  </section>
-  <div id="buffer" role="status" hidden><span id="bufferText"></span> <button id="bRetry" hidden>再読み込み</button></div>
-  <div class="ctl">
-    <button id="bFm" title="back 1 video frame (Left)">&#9664; frame</button>
-    <button id="bTm" title="back 1 tick (Shift+Left)">&#9664; tick</button>
-    <button id="bPlay" class="primary" title="Space">Play</button>
-    <button id="bTp" title="forward 1 tick (Shift+Right)">tick &#9654;</button>
-    <button id="bFp" title="forward 1 video frame (Right)">frame &#9654;</button>
-    <button id="bHp" title="previous contact ([)">&#9664;&#9664; 接触</button>
-    <button id="bHn" title="next contact (])">接触 &#9654;&#9654;</button>
-    <span class="sep"></span>
-    <select id="speed" aria-label="speed"><option value="1">1x</option><option value="0.5">0.5x</option><option value="0.25">0.25x</option><option value="0.1">0.1x</option></select>
-    <label class="chk"><input type="checkbox" id="fzOn"> 命中付近を自動スロー</label>
-    <label class="chk">&times;<input type="number" id="fzF" min="0.02" max="1" step="0.05" style="width:68px"></label>
-    <button id="bLoop" title="clear loop (Esc)">clear loop</button>
-    <span class="read" id="read"></span>
-  </div>
-  <div class="tlwrap">
-    <div class="tlhead">
-      <span><i style="background:var(--onset)"></i>onsets (&gt;1.5 kHz)</span><span><i style="background:var(--cut)"></i>scene cuts</span>
-      <span><i style="background:var(--zone)"></i>focus zones</span><span><i style="background:var(--hit)"></i>hit (drag)</span>
-      <span><i style="background:var(--mc)"></i>Minecraft hits</span><span><i style="background:var(--loop)"></i>loop (shift-drag)</span>
+<div id="app" class="cp">
+  <header class="hd">
+    <div class="hd-nav"><span class="crumb" id="crumb"><a href="/">&larr; 武器一覧</a></span><nav id="skillnav" aria-label="この武器のスキル"></nav></div>
+    <div class="hd-title">
+      <h1 id="title">読み込み中&hellip;</h1>
+      <span class="chip strong" id="roundChip" hidden></span>
+      <span class="chip" id="gateChip" hidden></span>
     </div>
-    <div class="tl" id="tl"><canvas id="tlc"></canvas><div class="head" id="head"></div></div>
-  </div>
-  <div class="panel">
-    <h3>Selected segment</h3>
-    <div class="ed" id="ed"><span class="status">click a segment or hit marker</span></div>
-  </div>
-  <div class="panel">
-    <button id="bAddHit" title="H">+ hit @ playhead</button>
-    <button id="bAddSeg">+ segment @ playhead</button>
-    <label class="chk">name <input type="text" id="who" size="10" placeholder="who"></label>
-    <button id="bSave" class="primary" title="Ctrl+S">Save</button>
-    <span class="status" id="status"></span>
-    <label class="ed wide" style="width:100%;display:flex;flex-direction:column"><span style="color:var(--mute);font-size:11.5px">case notes</span><textarea id="cnotes"></textarea></label>
-    <div class="log" id="log"></div>
-  </div>
-  <div class="note">Space play/pause &middot; &larr;/&rarr; 1 video frame &middot; Shift+&larr;/&rarr; 1 tick (50 ms) &middot; 1-4 speed 1/.5/.25/.1 &middot; F 命中付近を自動スロー &middot; H add hit &middot; Del remove &middot; [ / ] 前/次の接触 &middot; Esc clear loop &middot; Ctrl+S save &middot; shift-drag timeline = loop &middot; drag hits/segments (snaps to video frames)</div>
+    <div class="hd-sha" id="shaRow"></div>
+    <p class="hd-focus" id="focusLine" hidden><b>今回見てほしい1点</b><span id="focusText"></span></p>
+    <p class="hd-fire" id="fireLine" hidden><b>ゲーム内で出す</b><span id="fireText"></span></p>
+  </header>
+
+  <main>
+    <section class="stage" aria-label="参照と実機の同時刻比較">
+      <div class="panes" id="panes">
+        <figure class="pane ref">
+          <figcaption><b>参照（原作）</b><small id="vinfo"></small></figcaption>
+          <div class="view"><canvas id="vcv"></canvas><div class="ph on" id="vph">参照映像を準備中</div></div>
+        </figure>
+      </div>
+      <div class="more"><button id="bMore" aria-expanded="false">その他の視点を表示 &#9662;</button><span class="status" id="moreInfo"></span></div>
+      <div class="panes extra" id="panesExtra" hidden></div>
+      <div id="buffer" role="status" hidden><span id="bufferText"></span> <button id="bRetry" hidden>再読み込み</button></div>
+      <div class="ctl" id="ctl">
+        <button id="bBeatP" title="前のビート ([)">&#9664;&#9664; 前の拍</button>
+        <button id="bTm" title="1 tick 戻る (Shift+&larr;)">&#9664; 1tick</button>
+        <button id="bPlay" class="primary" title="Space">&#9654; 再生</button>
+        <button id="bTp" title="1 tick 進む (Shift+&rarr;)">1tick &#9654;</button>
+        <button id="bBeatN" title="次のビート (])">次の拍 &#9654;&#9654;</button>
+        <button id="bSlow" class="tog" aria-pressed="false" title="0.5倍 (S)">0.5x スロー</button>
+        <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="時刻">
+        <span class="read" id="read"></span>
+      </div>
+    </section>
+
+    <section class="beats-sec" aria-label="ビート表">
+      <div class="beats-head"><h2>ビート表</h2><div class="beats-sum" id="beatSum"></div></div>
+      <div class="beats-wrap"><table class="beatt" id="beatTable"><thead><tr>
+        <th>ビート</th><th>読み</th><th>向き</th><th>図</th><th>レビュアー</th><th>施主</th>
+      </tr></thead><tbody id="beatBody"></tbody></table></div>
+      <div class="founder-save"><span class="status" id="fstatus">○ = 合っている / × = 違う（理由は任意）。押した時点で保存され、次のラウンドの入力になります。</span></div>
+    </section>
+
+    <section class="sound-sec" aria-label="音">
+      <h2>音</h2>
+      <div class="sound-btns" id="soundBtns"></div>
+      <p class="status" id="soundNote"></p>
+    </section>
+
+    <details class="author" id="author">
+      <summary>作者向け <small>preview / 注釈オーバーレイ / lint / 数値 / ラウンドメモ / 証跡 / 役割別レポート</small></summary>
+      <div class="author-body">
+        <section class="a-sec" id="aPreview" hidden>
+          <h3>プレビュー・注釈オーバーレイ</h3>
+          <div class="panes small">
+            <figure class="pane pv" id="pvPane"><figcaption><b>プレビュー（実機ではない）</b><small id="pinfo"></small></figcaption>
+              <div class="view"><img id="pimg" alt="preview frame" style="visibility:hidden"><div class="ph on" id="pph">no preview frames</div><div class="badge" id="pbadge" hidden></div></div>
+              <div class="pvwarn" id="pvwarn" hidden></div><div class="prov" id="pvprov"></div></figure>
+            <figure class="pane ov" id="ovPane" hidden><figcaption><b>注釈オーバーレイ</b><small id="ovlabel"></small></figcaption>
+              <div class="view"><img id="vov" alt="annotation overlay"></div></figure>
+          </div>
+        </section>
+        <section class="a-sec"><h3>数値・同期</h3>
+          <div class="mcctl"><label>cast offset <input id="moff" type="range" min="-2000" max="2000" step="10" value="0"> <input id="moffn" type="number" step="10" value="0"> ms</label><span class="status">このページ内だけの微調整（保存されません）</span></div>
+          <div class="read" id="numbers"></div>
+          <div class="prov-list" id="provList"></div>
+        </section>
+        <section class="a-sec" id="aLint" hidden><h3>Lint</h3>
+          <div class="lhead"><span id="lintsum"></span><span id="lintnow" class="lintnow"></span><label class="chk"><input type="checkbox" id="failOnly"> FAIL のみ</label></div>
+          <div class="lbody"><table class="lintt"><thead><tr><th>結果</th><th>チェック</th><th>tick</th><th>内容・数値</th></tr></thead><tbody id="lintbody"></tbody></table></div>
+        </section>
+        <section class="a-sec" id="aRound" hidden><h3>ラウンドメモ（director → founder）</h3><div class="rhead"><span class="prov inline" id="roundProv"></span></div><div class="rtext" id="roundText"></div></section>
+        <section class="a-sec"><h3>ケースメモ・セグメント・編集履歴</h3>
+          <div class="cnote" id="cnoteView"></div>
+          <div class="seglist" id="seglist"></div>
+          <div class="log" id="log"></div>
+        </section>
+        <section class="a-sec" id="aSheet" hidden><h3>ビート表 全文（beat-sheet.md）</h3><div class="rtext" id="sheetText"></div></section>
+        <section class="a-sec"><h3>証跡・役割別レポート</h3><div id="aFiles" class="files">読み込み中…</div></section>
+      </div>
+    </details>
+  </main>
+  <p class="note">Space 再生/停止 &middot; Shift+&larr;/&rarr; 1tick &middot; [ / ] 前/次の拍 &middot; S 0.5x</p>
 </div>
+<div class="zoom" id="zoom" hidden><img alt=""></div>
 <script src="/app.js"></script>
 </body>
 </html>
