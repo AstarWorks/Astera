@@ -12,7 +12,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
  *
  * - [BattleLoyal] — small-scale arena, first to score threshold wins (this file's worker α).
  * - [BreakCore]  — destroy the enemy core block (this file's worker α).
- * - `CarryTNT`, `CarryMiniTNT`, `CaptureWool`, `StealJewelry` — added by
+ * - `CarryTNT`, `CaptureWool`, `StealJewelry` — added by
  *   workers β / γ / δ as separate files.
  *
  * A mode value is **configuration**, not behaviour. Per-mode runtime

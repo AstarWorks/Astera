@@ -8,12 +8,11 @@ import java.time.Instant
 /**
  * Domain-level "player picked up an item" placeholder event (Wave 5c).
  *
- * Subscribed by CarryTNT / CarryMiniTNT listeners to track TNT-style
- * objectives. Real producer (Bukkit `EntityPickupItemEvent` → adapter)
- * lands in Wave 6.
+ * Subscribed by the match sidebar to redraw on pickups (MatchHudWiring).
+ * Real producer: `PaperItemPickupAdapter` (Bukkit `EntityPickupItemEvent`).
  *
- * `itemId` is the Astera namespaced item id (e.g. `astera:tnt_carry`,
- * `astera:mini_tnt`). Domain layer never sees Bukkit `ItemStack`.
+ * `itemId` is the Astera namespaced item id (e.g. `astera:tnt_carry`).
+ * Domain layer never sees Bukkit `ItemStack`.
  */
 public data class EntityPickedUpItem(
     val matchId: MatchId,
