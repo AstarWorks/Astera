@@ -35,14 +35,18 @@ abstract class E2eBase {
 
     protected fun rcon(cmd: String): String = Rcon(E2eEnv.host, E2eEnv.rconPort, E2eEnv.rconPassword).use { it.command(cmd) }
 
+    protected fun probe(query: String): String = Rcon(E2eEnv.host, E2eEnv.rconPort, E2eEnv.rconPassword).use { it.probe(query) }
+
+    protected fun entityData(name: String, field: String): String = probe("entity $name $field")
+
+    protected fun nearbyCount(name: String, type: String, tag: String = "*", radius: String): Int =
+        probe("count at $name $type $tag $radius").toInt()
+
+    protected fun nearestData(name: String, tag: String, field: String): String =
+        probe("nearest at $name * $tag * $field")
+
     /** Server-side truth: `hotbar.N` / `crafting.N` occupancy and the compass count, as one compact string. */
-    protected fun serverSlots(b: Bot): String = Rcon(E2eEnv.host, E2eEnv.rconPort, E2eEnv.rconPassword).use { r ->
-        fun full(slot: String) = if (r.command("execute if items entity ${b.name} $slot *").startsWith("Test passed")) "X" else "."
-        val hot = (0..8).joinToString("") { full("hotbar.$it") }
-        val craft = (0..3).joinToString("") { full("player.crafting.$it") }
-        val compass = r.command("execute if items entity ${b.name} container.* minecraft:compass").let { if (it.startsWith("Test passed")) "compass-in-inventory" else "no-compass" }
-        "hotbar[$hot] crafting[$craft] $compass"
-    }
+    protected fun serverSlots(b: Bot): String = entityData(b.name, "slots")
 
     protected fun op(bot: Bot) {
         rcon("op ${bot.name}")

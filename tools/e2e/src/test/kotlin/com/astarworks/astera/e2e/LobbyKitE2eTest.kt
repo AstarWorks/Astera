@@ -64,9 +64,9 @@ class LobbyKitE2eTest : E2eBase() {
             assertThat(invAfter).describedAs("server-side inventory changed after drop + click attempts").isEqualTo(invBefore)
             assertThat(b.hotbar()).describedAs("client hotbar changed").isEqualTo(hotbarBefore)
             assertThat(b.craftingArea()).describedAs("client crafting area changed").isEqualTo(craftBefore)
-            val dropped = rcon("execute in minecraft:overworld if entity @e[type=item,x=${b.x},y=${b.y},z=${b.z},distance=..8]")
-            assertThat(dropped).describedAs("an item entity was spawned near the player").contains("failed")
-            "inventory identical; hotbar=${b.hotbar()}; nearby item entities: ${dropped.take(120)}"
+            val dropped = probe("count world ${b.x} ${b.y} ${b.z} minecraft:item * 8").toInt()
+            assertThat(dropped).describedAs("an item entity was spawned near the player").isZero()
+            "inventory identical; hotbar=${b.hotbar()}; nearby item entities: ${dropped}"
         }
 
         E2eReport.check(suite, "clicking a crafting-grid button acts as a button (window opens) and the grid is restored", "ServerboundContainerClick -> OpenScreen / SetContainerContent") {

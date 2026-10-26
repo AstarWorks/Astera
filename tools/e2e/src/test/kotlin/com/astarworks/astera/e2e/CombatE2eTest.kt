@@ -48,7 +48,7 @@ class CombatE2eTest : E2eBase() {
 
         E2eReport.check(suite, "right-click with pistol damages the target (HP line drops)", "target action bar / SetHealth") {
             val hpAfter = b.actionBars.lastOrNull()?.text
-            val sv = rcon("data get entity ${b.name} Health")
+            val sv = entityData(b.name, "Health")
             assertThat(hpAfter != hpBefore || b.healthHistory.any { it < healthBefore })
                 .describedAs(
                     "target HP unchanged after 4 shots. actionbar before='${visible(hpBefore.orEmpty())}' after='${visible(hpAfter.orEmpty())}' " +

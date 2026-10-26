@@ -12,12 +12,12 @@ class WeaponsE2eTest : E2eBase() {
     private val suite = "Weapons"
 
     private fun hp(b: Bot): Double? =
-        Regex("(-?[0-9.]+)f?$").find(rcon("data get entity ${b.name} Health").trim())?.groupValues?.get(1)?.toDoubleOrNull()
+        Regex("(-?[0-9.]+)f?$").find(entityData(b.name, "Health").trim())?.groupValues?.get(1)?.toDoubleOrNull()
 
     private fun status(b: Bot): String = b.actionBars.lastOrNull()?.text.orEmpty().filter { it.code < 0xE000 }.take(80)
 
     private fun food(b: Bot): Int? =
-        rcon("data get entity ${b.name} foodLevel").trim().substringAfterLast(" ").toIntOrNull()
+        entityData(b.name, "foodLevel").trim().substringAfterLast(" ").toIntOrNull()
 
     /** One retry: the give command is a chat packet and can be dropped under host load. */
     private fun give(a: Bot, item: String): Int? = giveOnce(a, item) ?: giveOnce(a, item)
@@ -37,7 +37,7 @@ class WeaponsE2eTest : E2eBase() {
             a.selectHotbar(slot)
             Thread.sleep(400)
         }
-        lastSelected = rcon("data get entity ${a.name} SelectedItem").trim()
+        lastSelected = entityData(a.name, "SelectedItem").trim()
         return slot
     }
 
@@ -52,7 +52,7 @@ class WeaponsE2eTest : E2eBase() {
         Thread.sleep(800)
     }
 
-    private fun inOverworld(b: Bot): Boolean = "overworld" in rcon("data get entity ${b.name} Dimension")
+    private fun inOverworld(b: Bot): Boolean = "overworld" in entityData(b.name, "Dimension")
 
     /**
      * Puts both bots in the overworld, alive and settled. Out-of-match Astera deaths (lingering status damage
@@ -77,17 +77,17 @@ class WeaponsE2eTest : E2eBase() {
                 Thread.sleep(700)
                 if (ready(a, 0.5, 0.5) && ready(b, 0.5, 0.5 + distance)) return
             }
-            if (attempt == 2) E2eReport.notes += "Weapons stage attempt ${attempt + 1} failed: a=${rcon("data get entity ${a.name} Dimension").trim().substringAfter("data: ")} hp=${hp(a)} pos=${pos(a)} gm=${rcon("data get entity ${a.name} playerGameType").trim().substringAfter("data: ")}; b=${rcon("data get entity ${b.name} Dimension").trim().substringAfter("data: ")} hp=${hp(b)} pos=${pos(b)}; chat a=${a.chatTexts().takeLast(3)} b=${b.chatTexts().takeLast(3)}"
+            if (attempt == 2) E2eReport.notes += "Weapons stage attempt ${attempt + 1} failed: a=${entityData(a.name, "Dimension").trim().substringAfter("data: ")} hp=${hp(a)} pos=${pos(a)} gm=${entityData(a.name, "playerGameType").trim().substringAfter("data: ")}; b=${entityData(b.name, "Dimension").trim().substringAfter("data: ")} hp=${hp(b)} pos=${pos(b)}; chat a=${a.chatTexts().takeLast(3)} b=${b.chatTexts().takeLast(3)}"
         }
         E2eReport.notes += "Weapons stage gave up after 12 attempts: hp a=${hp(a)} b=${hp(b)} pos a=${pos(a)} b=${pos(b)}"
     }
 
     private fun pos(b: Bot): Triple<Double, Double, Double>? {
-        val nums = Regex("(-?[0-9.]+)d").findAll(rcon("data get entity ${b.name} Pos")).map { it.groupValues[1].toDouble() }.toList()
+        val nums = Regex("(-?[0-9.]+)d").findAll(entityData(b.name, "Pos")).map { it.groupValues[1].toDouble() }.toList()
         return if (nums.size == 3) Triple(nums[0], nums[1], nums[2]) else null
     }
 
-    private fun survival(b: Bot): Boolean = rcon("data get entity ${b.name} playerGameType").trim().endsWith(" 0")
+    private fun survival(b: Bot): Boolean = entityData(b.name, "playerGameType").trim() == "0"
 
     /** Alive in the overworld, at full HP, in survival and standing within a block of the staged spot. */
     private fun ready(b: Bot, x: Double, z: Double): Boolean {
@@ -133,7 +133,7 @@ class WeaponsE2eTest : E2eBase() {
                     stage(a, b, 2.2, 1_500)
                     val before = food(a)
                     // A real client sends the swing plus the attack on the entity in its crosshair.
-                    E2eReport.notes += "Weapons $item click #$n sent, victimId=${a.entityIdByUuid[b.uuid]} a.gm=${rcon("data get entity ${a.name} playerGameType").trim().substringAfter("data: ")}"
+                    E2eReport.notes += "Weapons $item click #$n sent, victimId=${a.entityIdByUuid[b.uuid]} a.gm=${entityData(a.name, "playerGameType").trim().substringAfter("data: ")}"
                     a.punch()
                     a.entityIdByUuid[b.uuid]?.let(a::attack)
                     // Sample through the swing: the cost is charged on cast, and energy regenerates right after.
@@ -143,7 +143,7 @@ class WeaponsE2eTest : E2eBase() {
                     val after = samples.minOrNull()
                     E2eReport.check(suite, "$item left click #$n spends energy (food bar)", "server foodLevel") {
                         assertThat(after != null && before != null && after < before)
-                            .describedAs("food $before -> $samples; hp target=${hp(b)}; pos a=${rcon("data get entity ${a.name} Pos").trim()} b=${rcon("data get entity ${b.name} Pos").trim()}; dim=${rcon("data get entity ${a.name} Dimension").trim()}; selected=$lastSelected; server=${ServerLog.lines("weapons-debug").filter { a.name in it || a.uuid.toString() in it }.takeLast(6).map { it.substringAfter("[weapons-debug]") }}").isTrue()
+                            .describedAs("food $before -> $samples; hp target=${hp(b)}; pos a=${entityData(a.name, "Pos").trim()} b=${entityData(b.name, "Pos").trim()}; dim=${entityData(a.name, "Dimension").trim()}; selected=$lastSelected; server=${ServerLog.lines("weapons-debug").filter { a.name in it || a.uuid.toString() in it }.takeLast(6).map { it.substringAfter("[weapons-debug]") }}").isTrue()
                         "food $before -> min $after"
                     }
                 }

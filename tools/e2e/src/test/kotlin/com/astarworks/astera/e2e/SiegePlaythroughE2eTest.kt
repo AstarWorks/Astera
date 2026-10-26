@@ -44,7 +44,7 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
         val sideOf = bots.associateWith { b -> localPosOf(b)?.let { if (it.first < 0) "red" else "blue" } }
         val attacker = bots.firstOrNull { sideOf[it] == "red" }
         val defender = bots.firstOrNull { sideOf[it] == "blue" }
-        E2eReport.check(suite, "the two bots start on opposite sides", "RCON data get Pos") {
+        E2eReport.check(suite, "the two bots start on opposite sides", "owning-scheduler position probe") {
             assertThat(listOfNotNull(attacker, defender)).describedAs("sides: ${sideOf.mapKeys { it.key.name }}").hasSize(2)
             "red=${attacker?.name} blue=${defender?.name}"
         }
@@ -57,14 +57,14 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
             quote(lines)
         }
 
-        E2eReport.check(suite, "both bots spawn standing on a solid island block inside its slot (not the lobby)", "RCON data get Dimension/Pos + execute unless block") {
+        E2eReport.check(suite, "both bots spawn standing on a solid island block inside its slot (not the lobby)", "owning-scheduler entity/block probes") {
             val problems = listOf(attacker, defender).mapNotNull { islandStanceProblem(it) }
             assertThat(problems).describedAs("bots not on an arena island: $problems").isEmpty()
             "slot ($originX, $originZ), solid block under both bots: ${listOf(attacker, defender).map { it.name to posOf(it) }}"
         }
 
         // The core blocks must really stand in the world, on a pedestal of the built island.
-        E2eReport.check(suite, "both core blocks exist in the slot at match start, on built pedestals", "RCON execute if block") {
+        E2eReport.check(suite, "both core blocks exist in the slot at match start, on built pedestals", "owning-scheduler block probe") {
             val blueCore = arenaBlockIs(82, 65, 0, "minecraft:emerald_block")
             val redCore = arenaBlockIs(-82, 65, 0, "minecraft:emerald_block")
             assertThat(blueCore).describedAs("no emerald block at the blue core cell (82 65 0)").isTrue()
@@ -73,7 +73,7 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
             assertThat(arenaBlockIs(-82, 64, 0, "minecraft:polished_blackstone_bricks")).describedAs("red core pedestal").isTrue()
             "emerald cores at (+-82, 65, 0) on blackstone-brick pedestals"
         }
-        E2eReport.check(suite, "the objective anchors are built: jewelry and wool pedestals, TNT pedestal, void between the islands", "RCON execute if block") {
+        E2eReport.check(suite, "the objective anchors are built: jewelry and wool pedestals, TNT pedestal, void between the islands", "owning-scheduler block probe") {
             assertThat(arenaBlockIs(78, 64, 10, "minecraft:chiseled_quartz_block")).describedAs("blue jewelry pedestal (78 64 10)").isTrue()
             assertThat(arenaBlockIs(-78, 64, 10, "minecraft:chiseled_quartz_block")).describedAs("red jewelry pedestal (-78 64 10)").isTrue()
             assertThat(arenaBlockIs(0, 64, -8, "minecraft:tnt") || arenaBlockIs(0, 64, -8, "minecraft:obsidian")).describedAs("TNT spawn pedestal (0 64 -8)").isTrue()
@@ -138,7 +138,7 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
             "death screen after the void drop; text=${defender.deaths.lastOrNull()}"
         }
         val back = awaitRespawn(defender)
-        E2eReport.check(suite, "the player who fell respawns on the island and can play again", "RCON data get Pos") {
+        E2eReport.check(suite, "the player who fell respawns on the island and can play again", "owning-scheduler position probe") {
             assertThat(back).describedAs("void victim never respawned").isNotNull()
             assertThat(islandStanceProblem(defender)).describedAs("respawned off an island").isNull()
             "respawned ${back} ms after the death; pos=${posOf(defender)}"

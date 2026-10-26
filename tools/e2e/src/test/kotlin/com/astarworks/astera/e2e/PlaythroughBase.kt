@@ -49,15 +49,15 @@ abstract class PlaythroughBase : E2eBase() {
 
     /** True when the block at the stage-local cell is [block] (e.g. `minecraft:emerald_block`). */
     protected fun arenaBlockIs(x: Int, y: Int, z: Int, block: String): Boolean =
-        clean(inArena("if block ${x + originX} $y ${z + originZ} $block")).startsWith("Test passed")
+        probe("block world ${x + originX} $y ${z + originZ} $block").toBooleanStrict()
 
     /** True when the stage-local cell holds anything but air. */
     protected fun arenaSolid(x: Int, y: Int, z: Int): Boolean =
-        clean(inArena("unless block ${x + originX} $y ${z + originZ} minecraft:air")).startsWith("Test passed")
+        probe("block world ${x + originX} $y ${z + originZ} nonair").toBooleanStrict()
 
     /** The dimension id the server says [b] is in (`minecraft:overworld`), or null. */
     protected fun dimensionOf(b: Bot): String? =
-        Regex("\"(minecraft:[a-z_]+)\"").find(rcon("data get entity ${b.name} Dimension"))?.groupValues?.get(1)
+        Regex("\"(minecraft:[a-z_]+)\"").find(entityData(b.name, "Dimension"))?.groupValues?.get(1)
 
     /**
      * Null when [b] stands on a solid block inside the current slot (feet above a non-air block, within the slot's
@@ -105,7 +105,7 @@ abstract class PlaythroughBase : E2eBase() {
     }
 
     protected fun posOf(b: Bot): Triple<Double, Double, Double>? =
-        Regex("\\[(-?[0-9.]+)d, (-?[0-9.]+)d, (-?[0-9.]+)d]").find(rcon("data get entity ${b.name} Pos"))?.let {
+        Regex("\\[(-?[0-9.]+)d, (-?[0-9.]+)d, (-?[0-9.]+)d]").find(entityData(b.name, "Pos"))?.let {
             Triple(it.groupValues[1].toDouble(), it.groupValues[2].toDouble(), it.groupValues[3].toDouble())
         }
 
@@ -115,7 +115,7 @@ abstract class PlaythroughBase : E2eBase() {
 
     /** Server-side game mode id (0 survival, 1 creative, 2 adventure, 3 spectator), or null. */
     protected fun gameTypeOf(b: Bot): Int? =
-        Regex("(-?\\d+)\\s*$").find(clean(rcon("data get entity ${b.name} playerGameType")).trim())?.groupValues?.get(1)?.toIntOrNull()
+        Regex("(-?\\d+)\\s*$").find(clean(entityData(b.name, "playerGameType")).trim())?.groupValues?.get(1)?.toIntOrNull()
 
     /** Gives [item] to the bot over the console, selects it and returns the hotbar index (null if it never arrived). */
     protected fun equip(b: Bot, item: String): Int? {

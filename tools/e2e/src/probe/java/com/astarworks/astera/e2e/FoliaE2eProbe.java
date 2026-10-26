@@ -14,9 +14,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /** Test-only observation: player positions and ownership checks run on each player's owner. */
 public final class FoliaE2eProbe extends JavaPlugin {
+    private final E2eStateProbe state = new E2eStateProbe(this);
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender) || args.length != 1) return false;
+        if (!(sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender)) return false;
+        if (command.getName().equals("e2eprobe")) return state.command(sender, args);
+        if (args.length != 1) return false;
         String token = args[0];
         Bukkit.getGlobalRegionScheduler().execute(this, () -> {
             var players = Bukkit.getOnlinePlayers().toArray(Player[]::new);

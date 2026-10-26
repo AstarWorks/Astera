@@ -8,7 +8,7 @@ import java.net.Socket
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-/** Minimal Source-RCON client: server-side ground truth (op, tp, `data get`, `list`) next to what bots see. */
+/** Minimal Source-RCON client: server-side ground truth (op, tp, `e2eprobe`, `list`) next to what bots see. */
 class Rcon(host: String, port: Int, password: String) : Closeable {
     private val socket = Socket().apply {
         connect(InetSocketAddress(host, port), 5_000)

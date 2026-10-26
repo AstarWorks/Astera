@@ -62,7 +62,7 @@ class ReconnectE2eTest : PlaythroughBase() {
             assertThat(rawKeys(lines)).isEmpty()
             quote(lines)
         }
-        E2eReport.check(suite, "the returning player is on their own side of the arena, in the same team", "RCON data get Pos") {
+        E2eReport.check(suite, "the returning player is on their own side of the arena, in the same team", "owning-scheduler position probe") {
             val pos = localPosOf(back)
             assertThat(sideBefore).describedAs("could not read the position before the drop: $posBefore").isNotNull()
             assertThat(side(back)).describedAs("came back on the other side / the lobby: before=$posBefore after=$pos").isEqualTo(sideBefore)
