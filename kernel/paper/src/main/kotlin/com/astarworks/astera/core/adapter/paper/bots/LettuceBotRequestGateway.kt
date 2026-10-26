@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.bots
 
 import com.astarworks.astera.core.application.bots.BotMatchWire
+import com.astarworks.astera.core.application.bots.BotRelease
 import com.astarworks.astera.core.application.bots.BotRequest
 import com.astarworks.astera.core.application.bots.BotStatus
 import com.astarworks.astera.core.application.port.outbound.bots.BotRequestError
@@ -78,6 +79,18 @@ public class LettuceBotRequestGateway(
                     "Bot request {} published on {} ({} runner(s) listening): {}",
                     request.requestId, BotMatchWire.REQUEST_CHANNEL, receivers, payload,
                 )
+            }
+        }
+        return Result.Success(Unit)
+    }
+
+    override fun release(release: BotRelease): Result<Unit, BotRequestError> {
+        val conn = publishConnection ?: return Result.Failure(BotRequestError.Unavailable)
+        conn.async().publish(BotMatchWire.RELEASE_CHANNEL, BotMatchWire.encode(release)).whenComplete { receivers, error ->
+            if (error != null) {
+                log.warn("Bot release {} publish failed", release.requestId, error)
+            } else {
+                log.info("Bot release {} published ({} runner(s) listening): {}", release.requestId, receivers, release.reason)
             }
         }
         return Result.Success(Unit)

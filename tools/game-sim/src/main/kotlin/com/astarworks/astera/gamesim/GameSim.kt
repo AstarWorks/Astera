@@ -491,6 +491,8 @@ public class GameSim private constructor(
             persistenceOverlay: Boolean = false,
             /** Use entity-declared teams outside matches; false exercises Paper's late Match-owned team lookup. */
             standaloneTeams: Boolean = true,
+            /** Stand-in for the Redis link to the bot runner (ADR-0248); `null` = "bots unavailable", like a server without Redis. */
+            botGateway: com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway? = null,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
@@ -501,6 +503,9 @@ public class GameSim private constructor(
             services.register<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(
                 com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer(seed),
             )
+            if (botGateway != null) {
+                services.register<com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway>(botGateway, priority = 100)
+            }
             val recorder = TraceRecorder(scenarioName, groundY)
             val mcServer = SimMcServer(world)
             val broadcaster = FakeBroadcaster()
