@@ -21,7 +21,7 @@ class RegionCombatE2eTest : E2eBase() {
         fun cast() { caster.command("astera skill cast sword-slash --force") }
         try {
             rcon("tp ${caster.name} $x $y $z 0 0")
-            rcon("summon minecraft:iron_golem $x $y ${z + 2.0} {NoAI:1b,Silent:1b,Tags:[\"$tag\"]}")
+            rcon("summon minecraft:iron_golem $x $y ${z + 2.0} {NoAI:1b,NoGravity:1b,Silent:1b,Tags:[\"$tag\"]}")
             caster.waitUntil(4_000) { runCatching { health() == 100.0 }.getOrDefault(false) }
             cast()
             caster.waitUntil(4_000) { health() < 100.0 }
