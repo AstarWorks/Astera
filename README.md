@@ -100,6 +100,10 @@ Astera reuses architectural patterns from the closed [`Y-RyuZU/RyuZUTechnicalMag
 
 MIT. See [LICENSE](LICENSE).
 
+## Third-party maps
+
+Two stages (`medieval-village`, `temple-trouble`) are adaptations of CC BY-SA 4.0 maps from the PGM community; the world data in `content/arenas/` stays CC BY-SA 4.0. Authors, sources and changes: [content/stages/NOTICE.md](content/stages/NOTICE.md).
+
 ## Status
 
 **Core vision playable (2026-10).** Landed: host-neutral wiring and the headless `:tools:game-sim` simulator (ADR-0174), input triggers and the weapon roster, resource pools, melee / projectile / area skills with mechanics batches A and B, Annihilation pillars (ADR-0175) and the siege objective modes (ADR-0176), queue-to-match flow, per-team spawns and stage-to-world binding, the personal vault, the lobby shop, and Postgres persistence. Content is validated by `contentLint` and schemas are generated from the Kotlin DTOs (`:tools:schema-gen`). Phase 4+ is out of scope until the core vision is stable.
