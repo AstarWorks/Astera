@@ -86,9 +86,34 @@ public class ArenaBuildPlan(
 public object ArenaIslandGenerator {
 
     /** Builds the plan for a stage that has a [Stage.layout]. */
-    public fun generate(stage: Stage, parts: Map<String, ArenaStructurePart> = emptyMap()): ArenaBuildPlan {
+    public fun generate(
+        stage: Stage,
+        parts: Map<String, ArenaStructurePart> = emptyMap(),
+        imports: Map<String, ArenaImport> = emptyMap(),
+    ): ArenaBuildPlan {
         val layout = requireNotNull(stage.layout) { "stage '${stage.id.value}' has no arena layout" }
+        layout.imported?.let { return importedPlan(stage, layout, it, imports) }
         return Builder(stage, layout, parts).build()
+    }
+
+    /** A pre-built world is pasted as is: shifted blocks, star pedestals at the landmarks, spawn height checked. */
+    private fun importedPlan(stage: Stage, layout: ArenaLayout, placement: ArenaImportPlacement, imports: Map<String, ArenaImport>): ArenaBuildPlan {
+        val world = requireNotNull(imports[placement.map]) { "stage '${stage.id.value}' imports unknown arena '${placement.map}'" }
+        val blocks = HashMap<ArenaBlockPos, String>(world.blocks.size * 2)
+        for ((p, state) in world.blocks) blocks[ArenaBlockPos(p.x + placement.x, p.y, p.z + placement.z)] = state
+        val problems = ArrayList<String>()
+        val s = layout.surfaceY
+        for (mark in layout.landmarks) {
+            val top = blocks[ArenaBlockPos(mark.x, s, mark.z)]
+            if (top == null || ArenaBuildPlan.isPassable(top)) problems += "generator landmark (${mark.x}, ${mark.z}) has no ground at y=$s"
+            else blocks[ArenaBlockPos(mark.x, s, mark.z)] = "minecraft:iron_block"
+        }
+        for (spawn in stage.spawnPoints) {
+            if (spawn.role == SpawnRole.SPECTATOR) continue
+            val y = floor(spawn.position.y).toInt()
+            if (y != s + 1) problems += "spawn ${spawn.team?.value ?: spawn.role.name.lowercase()} stands at y=$y, expected y=${s + 1}"
+        }
+        return ArenaBuildPlan(blocks, emptySet(), s, problems)
     }
 
     private class Builder(val stage: Stage, val layout: ArenaLayout, val parts: Map<String, ArenaStructurePart>) {

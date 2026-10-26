@@ -99,6 +99,7 @@ public data class ArenaAtmosphere(val timeOfDay: Long, val weather: ArenaWeather
  * @property killY players below this Y are killed (void fall plane)
  * @property relief strength of the terrain relief the builder adds on top of the flat island plateau (0 = flat, 1 = full:
  *   noise hills up to 8 blocks, sunken paths up to 3 deep, outcrops, ruins, overlook platforms)
+ * @property imported a pre-built world pasted as is (ADR-0281) instead of generated islands
  * @property atmosphere time of day / weather shown to players inside the arena; `null` keeps the world baseline (noon)
  */
 public data class ArenaLayout(
@@ -108,7 +109,8 @@ public data class ArenaLayout(
     val seed: Long,
     val surfaceY: Int = 64,
     val killY: Int = surfaceY - DEFAULT_KILL_DEPTH,
-    val islands: List<ArenaIsland>,
+    val islands: List<ArenaIsland> = emptyList(),
+    val imported: ArenaImportPlacement? = null,
     val bridges: List<ArenaBridge> = emptyList(),
     val landmarks: List<ArenaLandmark> = emptyList(),
     val atmosphere: ArenaAtmosphere? = null,
@@ -116,7 +118,8 @@ public data class ArenaLayout(
 ) {
     init {
         require(relief in 0.0..1.5) { "relief $relief must be in 0..1.5" }
-        require(islands.isNotEmpty()) { "an arena layout needs at least one island" }
+        require(islands.isNotEmpty() || imported != null) { "an arena layout needs at least one island or an imported world" }
+        require(imported == null || (islands.isEmpty() && bridges.isEmpty() && structures.isEmpty())) { "an imported world replaces islands, bridges and structures" }
         require(islands.map { it.id }.toSet().size == islands.size) { "arena layout declares an island id twice" }
         require(killY < surfaceY) { "kill_y ($killY) must be below surface_y ($surfaceY)" }
         val ids = islands.map { it.id }.toSet()

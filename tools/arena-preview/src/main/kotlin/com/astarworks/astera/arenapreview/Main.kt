@@ -2,6 +2,7 @@ package com.astarworks.astera.arenapreview
 
 import com.astarworks.astera.bots.ArenaRouteGraph
 import com.astarworks.astera.bots.PathFinder
+import com.astarworks.astera.core.application.service.arena.ArenaImportContent
 import com.astarworks.astera.core.application.service.arena.ArenaStructureContent
 import com.astarworks.astera.core.domain.stage.ArenaIslandGenerator
 import com.astarworks.astera.core.domain.stage.ArenaIslandKind
@@ -26,6 +27,7 @@ fun main(args: Array<String>) {
     val generators = GeneratorContents()
     check(generators.bootstrap(content.resolve("generators")).failed == 0)
     val parts = ArenaStructureContent.load(content)
+    val imports = ArenaImportContent.load(content)
     val report = StringBuilder("# Arena previews and measurements\n\nGenerated from shipped content and the production generator/PathFinder. Planning times are single-pass wall times on this host, excluding rendering; the first stage includes JVM warm-up. Paper placement/chunk timings require the manager's server run; inspect `Arena ... ready` maximum-slice logs (4 ms target, 1024-operation cap).\n\n")
     report.append("| Stage | Theme | Blocks | Generation ms | Digest ms | Bounds |\n|---|---|---:|---:|---:|---|\n")
     val routes = StringBuilder("\n## Routing (5000 nodes per A* search)\n\nTerrain treats every non-air block as solid, exactly as packet Terrain does; this is conservative for plants and banners. All chunks are known in this offline measurement. Live bots must progressively discover chunks.\n\n| Stage | Route | Direct complete | Direct nodes | Routed complete | Total local nodes | Max local nodes | Cells |\n|---|---|---|---:|---|---:|---:|---:|\n")
@@ -34,7 +36,7 @@ fun main(args: Array<String>) {
     val metrics = StringBuilder("\n## Relief metrics\n\nGround = highest solid non-tree block below surface_y + 12. Flat ground = 5x5 equal height with 3 blocks of headroom. Free run = mean 16-ray distance at eye height on land (void ends the run). Cover clusters = 4-connected groups of >= 3 columns standing 2+ above local ground or carrying a full block.\n\n" + ArenaMetrics.HEADER)
     for (stage in stages.all().sortedBy { it.id.value }) {
         val start = System.nanoTime()
-        val plan = ArenaIslandGenerator.generate(stage, parts)
+        val plan = ArenaIslandGenerator.generate(stage, parts, imports)
         val ms = (System.nanoTime() - start) / 1_000_000.0
         val digestMs = measureNanoTime { plan.digest() } / 1_000_000.0
         val layout = stage.layout!!
@@ -81,8 +83,12 @@ fun main(args: Array<String>) {
             for (base in bases.filter { it.team != spawn.team }) route("spawn ${spawn.team!!.value} -> ${base.id}", floor(spawn.position.x).toInt(), floor(spawn.position.z).toInt(), base.x, base.z)
         }
         for (region in stage.regions.filter { region -> listOf("core-", "jewelry-", "wool-", "tnt-spawn").any { region.name?.startsWith(it) == true } }) {
-            val a = bases.firstOrNull { it.team?.value != region.name!!.removePrefix("core-") } ?: layout.islands.first()
-            route(region.name!!, a.x, a.z, floor((region.min.x + region.max.x) / 2).toInt(), floor((region.min.z + region.max.z) / 2).toInt())
+            val gx = floor((region.min.x + region.max.x) / 2).toInt(); val gz = floor((region.min.z + region.max.z) / 2).toInt()
+            val a = bases.firstOrNull { it.team?.value != region.name!!.removePrefix("core-") } ?: layout.islands.firstOrNull()
+            if (a != null) route(region.name!!, a.x, a.z, gx, gz)
+            else stage.spawnPoints.firstOrNull { it.team != null }?.let { sp ->
+                route(region.name!!, floor(sp.position.x).toInt(), floor(sp.position.z).toInt(), gx, gz, gy = floor(region.min.y).toInt())
+            }
         }
         for ((index, placement) in layout.structures.withIndex()) {
             if (placement.part !in listOf("castle-tower", "castle-keep")) continue
