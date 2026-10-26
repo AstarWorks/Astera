@@ -8,7 +8,9 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.ParticleVisibility
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.application.service.GuiRefusalProbe
 import com.astarworks.astera.core.domain.presentation.PresentationEntry
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.world.WorldId
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
@@ -41,6 +43,7 @@ public class PresentationPlayer(
         world: WorldId?,
         audience: Collection<PlayerId>,
     ): Boolean {
+        if (moment == PresentationMoments.UI_DENY) GuiRefusalProbe.denyPlayed()
         val e = table.entry(moment)
         if (e == null) {
             if (warned.add(moment)) log.warn("Presentation moment '{}' has no row in content/presentation/events.yaml", moment)

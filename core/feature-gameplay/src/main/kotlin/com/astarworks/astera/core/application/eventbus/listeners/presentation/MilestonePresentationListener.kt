@@ -13,6 +13,8 @@ import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.event.PlayerRespawned
 import com.astarworks.astera.core.domain.event.PlayerReturnedToLobby
 import com.astarworks.astera.core.domain.event.QuestChainCompleted
+import com.astarworks.astera.core.domain.event.ResourcePackStatusChanged
+import com.astarworks.astera.core.domain.hud.ResourcePackStatus
 import com.astarworks.astera.core.domain.match.result.MatchOutcome
 import com.astarworks.astera.core.domain.music.MusicMood
 
@@ -27,7 +29,7 @@ public class MilestonePresentationListener(
     private val bgm: IPlayerBgm,
 ) {
     public fun onRespawned(event: PlayerRespawned) {
-        presentation.play(PresentationMoments.RESPAWN, event.playerId)
+        presentation.play(PresentationMoments.RESPAWN, event.playerId, at = event.spawnPoint.position, world = event.spawnPoint.world)
     }
 
     public fun onSummary(event: MatchSummaryReady) {
@@ -64,6 +66,11 @@ public class MilestonePresentationListener(
 
     public fun onJoined(event: PlayerJoinedServer) {
         bgm.switchTo(event.playerId, MusicMood.LOBBY)
+    }
+
+    /** The pack is what carries the music sound events; once it is loaded the BGM (re)starts so the player really hears it. */
+    public fun onPackStatus(event: ResourcePackStatusChanged) {
+        if (event.status == ResourcePackStatus.LOADED) bgm.replay(event.playerId)
     }
 
     public fun onReturnedToLobby(event: PlayerReturnedToLobby) {

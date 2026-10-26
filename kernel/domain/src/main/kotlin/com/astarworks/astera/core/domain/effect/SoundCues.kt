@@ -13,6 +13,7 @@ public object SoundCues {
     public val MATCH_WIN: SoundId = SoundId("astera:match/win")
     public val MATCH_LOSE: SoundId = SoundId("astera:match/lose")
     public val MATCH_DRAW: SoundId = SoundId("astera:match/draw")
+    public val MATCH_SUDDEN_DEATH: SoundId = SoundId("astera:match/sudden-death")
 
     public val COMBAT_HIT: SoundId = SoundId("astera:combat/hit")
     public val COMBAT_CRIT: SoundId = SoundId("astera:combat/crit")
@@ -25,6 +26,7 @@ public object SoundCues {
     public val STAR_BURST: SoundId = SoundId("astera:star/burst")
     public val STAR_POP: SoundId = SoundId("astera:star/pop")
     public val STAR_BURST_GAIN: SoundId = SoundId("astera:star/burst-gain")
+    public val STAR_BURST_BOOM: SoundId = SoundId("astera:star/burst-boom")
 
     public val NORMA_LEVEL_UP: SoundId = SoundId("astera:norma/level-up")
     public val NORMA_LEVEL_MAX: SoundId = SoundId("astera:norma/level-max")
@@ -37,5 +39,7 @@ public object SoundCues {
     public val UI_LEVEL_UP: SoundId = SoundId("astera:ui/level-up")
     public val UI_LOGIN_BONUS: SoundId = SoundId("astera:ui/login-bonus")
     public val UI_QUEST_COMPLETE: SoundId = SoundId("astera:ui/quest-complete")
+    public val UI_QUEUE_JOIN: SoundId = SoundId("astera:ui/queue-join")
+    public val MATCH_FOUND: SoundId = SoundId("astera:match/found")
     public val UI_PURCHASE: SoundId = SoundId("astera:ui/purchase")
 }

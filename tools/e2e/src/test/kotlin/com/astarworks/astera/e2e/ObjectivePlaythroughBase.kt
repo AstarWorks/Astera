@@ -21,6 +21,7 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         val bots: List<Bot>,
         val lobbyTitle: String?,
         val chatFrom: Map<Bot, Int>,
+        val titlesFrom: Map<Bot, Int>,
         val logFrom: Int,
         val objectives: StageObjectives,
         val actor: Bot,
@@ -33,6 +34,8 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         fun zone(name: String): Pair<Double, Double> =
             (objectives.zoneCentre(name) ?: error("stage has no region '$name'")).let { (zx, zz) -> zx + originX to zz + originZ }
         fun chat(b: Bot = actor): List<String> = b.chat.drop(chatFrom.getValue(b)).map { it.text.replace(Regex("§.|\u001B\\[[0-9;]*m"), "") }
+        /** Big-screen titles and subtitles received since the match was queued (the VICTORY / DEFEAT verdict is a subtitle). */
+        fun titles(b: Bot = actor): List<String> = b.titles.drop(titlesFrom.getValue(b)).map { it.text.replace(Regex("§.|\u001B\\[[0-9;]*m"), "") }
         fun chatCount(needle: String, b: Bot = actor): Int = chat(b).count { it.contains(needle, ignoreCase = true) }
     }
 
@@ -46,6 +49,7 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         Thread.sleep(1_500)
         val lobbyTitle = bots[0].sidebarTitle()
         val chatFrom = bots.associateWith { it.chat.size }
+        val titlesFrom = bots.associateWith { it.titles.size }
 
         val tQueue = System.nanoTime()
         bots.forEach { it.command("astera queue join $lane") }
@@ -64,6 +68,17 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             assertThat(listOfNotNull(actor, idle)).describedAs("sides: ${sideOf.mapKeys { it.key.name }}").hasSize(2)
             "red=${actor?.name} blue=${idle?.name}"
         }
+        E2eReport.check(suite, "the client got the how-to-win briefing in chat and the sidebar shows the clock limit and the rival Norma level", "SystemChat + scoreboard packets") {
+            val ansi = Regex("§.|\u001B\\[[0-9;]*m")
+            val briefing = bots.associateWith { b -> b.chat.drop(chatFrom.getValue(b)).map { it.text.replace(ansi, "") } }
+            bots.forEach { b -> assertThat(briefing.getValue(b).any { it.contains("How to win") }).describedAs("${b.name} got no briefing; chat=${briefing.getValue(b).takeLast(8)}").isTrue() }
+            assertThat(briefing.getValue(bots[0]).any { it.contains("Lv $E2E_NORMA_MAX_LEVEL") }).describedAs("the briefing does not name the top Norma level").isTrue()
+            val side = bots.associateWith { it.sidebarLines().joinToString("\n") { l -> l.replace(ansi, "") } }
+            bots.forEach { b ->
+                assertThat(side.getValue(b)).describedAs("${b.name} sidebar:\n${side.getValue(b)}").containsPattern("\\d+:\\d{2} ?/ ?\\d+:\\d{2}").contains("rival")
+            }
+            "briefing + sidebar ok: ${side.getValue(bots[0]).lines().take(3)}"
+        }
         val objectives = StageObjectives.load(contentDir(), lane)
         E2eReport.check(suite, "the lane's stage and regions load from the shipped content (bot navigation data)", "content/stages") {
             assertThat(objectives).describedAs("StageObjectives.load(${contentDir()}, $lane) failed").isNotNull()
@@ -77,11 +92,11 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         }
         // Stars are picked up on the way; the Norma goal KILL keeps them from levelling the actor up to a Norma win before the objective.
         val walker = ObjectiveWalker(actor, objectives, originX = originX.toDouble(), originZ = originZ.toDouble(), periodic = { bots.forEach { it.command("astera norma choose kill") } })
-        return Ctx(suite, lane, bots, lobbyTitle, chatFrom, logFrom, objectives, actor, idle, walker, originX.toDouble(), originZ.toDouble())
+        return Ctx(suite, lane, bots, lobbyTitle, chatFrom, titlesFrom, logFrom, objectives, actor, idle, walker, originX.toDouble(), originZ.toDouble())
     }
 
     /** The match must end on its own (winner / time-limit tie-break), then summary, rewards, lobby and a clean log. */
-    protected fun finishMatch(ctx: Ctx, endTimeoutMs: Long = 60_000) {
+    protected fun finishMatch(ctx: Ctx, endTimeoutMs: Long = 60_000, actorWins: Boolean = true) {
         val ended = awaitNoMatch(endTimeoutMs, keepAlive = ctx.bots)
         E2eReport.check(ctx.suite, "the match ends by itself (no admin end)", "RCON astera match list") {
             assertThat(ended).describedAs("match still listed: ${matchLines()}; sidebar=${sidebar(ctx.actor)}").isTrue()
@@ -97,6 +112,29 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             assertThat(chat.any { it.contains("Match Summary") }).describedAs("no summary:\n${quote(chat, 40)}").isTrue()
             if (chat.any { it.contains("ended in a draw") }) E2eReport.notes += "${ctx.suite}: the match ended in a draw (time-limit tie)"
             "verdict lines: ${chat.filter { it.contains("VICTORY") || it.contains("DEFEAT") || it.contains("Victory") || it.contains("Ended by") || it.contains("reached Norma") || it.contains("was ahead") }.take(6)}"
+        }
+        E2eReport.check(ctx.suite, "the result screen shows each team's final Norma standing and the loser's what-would-have-won hint", "SystemChat") {
+            val chat = ctx.chat(ctx.idle)
+            assertThat(chat.any { it.contains("Norma") && it.contains("Lv ") && it.contains("/$E2E_NORMA_MAX_LEVEL") }).describedAs("no Norma standing line:\n${quote(chat, 30)}").isTrue()
+            if (actorWins) assertThat(chat.any { it.contains("To win:") }).describedAs("the loser got no what-would-have-won hint:\n${quote(chat, 30)}").isTrue()
+            "norma lines: ${chat.filter { it.contains("Lv ") }.take(2)}"
+        }
+        E2eReport.check(ctx.suite, "each player is told their verdict (the winner VICTORY, the other DEFEAT)", "SystemChat") {
+            // The verdict is the match-end subtitle (MatchEndSummaryListener.pushTitle), not a chat line.
+            val mine = (ctx.chat(ctx.actor) + ctx.titles(ctx.actor)).joinToString("\n")
+            val theirs = (ctx.chat(ctx.idle) + ctx.titles(ctx.idle)).joinToString("\n")
+            if (actorWins) {
+                assertThat(mine).describedAs("objective actor was not told VICTORY:\n${quote(ctx.chat(ctx.actor) + ctx.titles(ctx.actor), 30)}").containsIgnoringCase("VICTORY")
+                assertThat(theirs).describedAs("idle bot was not told DEFEAT:\n${quote(ctx.chat(ctx.idle) + ctx.titles(ctx.idle), 30)}").containsIgnoringCase("DEFEAT")
+            } else {
+                // Bot-vs-bot fight: either side may win, a draw is possible; each must still be shown a verdict.
+                listOf(mine, theirs).forEach { assertThat(it).containsPattern("(?i)VICTORY|DEFEAT|DRAW") }
+            }
+            "actor verdict=${Regex("(?i)VICTORY|DEFEAT|DRAW").find(mine)?.value}; idle verdict=${Regex("(?i)VICTORY|DEFEAT|DRAW").find(theirs)?.value}"
+        }
+        E2eReport.check(ctx.suite, "the client received sound packets during the match (objective / combat cues are not dropped)", "ClientboundSound") {
+            assertThat(ctx.actor.sounds).describedAs("the actor received no sound packet at all in the whole match").isNotEmpty()
+            "actor sounds=${ctx.actor.sounds.size}, last=${ctx.actor.sounds.takeLast(4)}"
         }
         E2eReport.check(ctx.suite, "server log stayed free of errors during the match", "server log") {
             val errs = serverErrorsSince(ctx.logFrom)

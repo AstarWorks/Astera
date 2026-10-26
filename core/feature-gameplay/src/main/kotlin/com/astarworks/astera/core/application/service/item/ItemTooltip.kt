@@ -44,7 +44,7 @@ public class ItemTooltip(private val messages: IMessageRenderer) {
                 ),
             ),
         )
-        if (spec.lore != LocalizedLore.EMPTY) addAll(messages.renderLocalizedLore(viewer, spec.lore))
+        if (spec.lore != LocalizedLore.EMPTY) addAll(messages.renderLocalizedLore(viewer, spec.lore).map { usageLine(it, viewer) })
         addAll(statLines(spec, viewer))
     }
 
@@ -83,6 +83,22 @@ public class ItemTooltip(private val messages: IMessageRenderer) {
         }
     }
 
+    /**
+     * Raw `left_click: Name` lore (generated weapon content) becomes a labelled, grey usage line so a
+     * first-time player reads which input fires which skill; hand-styled lines pass through.
+     */
+    private fun usageLine(line: String, viewer: PlayerId?): String {
+        val m = RAW_TRIGGER.matchEntire(line.trim())
+        if (m != null) {
+            return messages.render(
+                viewer,
+                MessageKey("$BASE.trigger.${m.groupValues[1]}"),
+                mapOf("name" to m.groupValues[2]),
+            )
+        }
+        return if (line.startsWith("<")) line else "<gray>$line</gray>"
+    }
+
     private fun rarityKey(rarity: Rarity): MessageKey = MessageKey("$BASE.rarity.${rarity.name.lowercase()}")
 
     private fun number(value: Double): String =
@@ -91,6 +107,7 @@ public class ItemTooltip(private val messages: IMessageRenderer) {
     private companion object {
         const val BASE = "astera.item.tooltip"
         const val STAT = "astera.item.tooltip.stat"
+        val RAW_TRIGGER = Regex("^(left_click|right_click|sneak_right|sneak_left|sneak_drop|drop):\\s*(.+)$")
         const val PERCENT = 100.0
         val HEADER = MessageKey("astera.item.tooltip.header")
     }

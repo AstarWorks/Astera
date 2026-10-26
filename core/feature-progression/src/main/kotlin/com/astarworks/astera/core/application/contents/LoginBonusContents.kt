@@ -78,9 +78,9 @@ public class LoginBonusContents(
                 next[spec.day] = spec
             }
         }
-        if (report.failed == 0) {
-            store.set(next.toMap())
-        }
+        if (report.failed != 0) return report
+        EmptyReloadGuard.check(categoryName, dir, next.size, store.get().size)?.let { return it }
+        store.set(next.toMap())
         return report
     }
 }

@@ -138,6 +138,7 @@ public class SimHudRecorder(
                 put("text", messages.render(player, value.messageKey, value.placeholders))
                 value.color?.let { put("color", (it.redInt shl 16) or (it.greenInt shl 8) or it.blueInt) }
             }
+            is HudComponent.Rendered -> put("text", value.miniMessage)
             is HudComponent.FontText -> {
                 put("text", value.text)
                 put("font", "astera:default")
@@ -175,6 +176,7 @@ public class SimHudRecorder(
             is HudComponent.Glyph -> "glyph:${component.textureRef.value}"
             is HudComponent.ProgressBar -> "bar:${component.percent}"
             is HudComponent.Spacer -> "spacer"
+            is HudComponent.Rendered -> "rendered:${component.miniMessage}"
             is HudComponent.FontText ->
                 "hp-bar:" + hpNumbers(component) + (ammoNumbers(component)?.let { " ammo:$it" } ?: "") +
                     effectReadouts(component).joinToString("") { " effect:${it.id}{seconds=${it.seconds},stacks=${it.stacks}}" }

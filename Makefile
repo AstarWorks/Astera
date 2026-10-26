@@ -61,7 +61,10 @@ DEV_STACK_TARGETS := docker-up dev-hotswap-up dev-hotswap dev-plugins dev-deploy
 $(DEV_STACK_TARGETS): export DOCKER_HOST := ssh://$(ASTERA_DEV_HOST)
 $(DEV_STACK_TARGETS): export POSTGRES_BIND := $(or $(POSTGRES_BIND),127.0.0.1)
 $(DEV_STACK_TARGETS): export REDIS_BIND := $(or $(REDIS_BIND),127.0.0.1)
-$(DEV_STACK_TARGETS): export ASTERA_PUBLIC_HOST := $(or $(ASTERA_PUBLIC_HOST),$(lastword $(subst @, ,$(ASTERA_DEV_HOST))))
+# Always derived from ASTERA_DEV_HOST (a stale external ASTERA_PUBLIC_HOST / ASTERA_RESOURCE_PACK_URL must not win).
+$(DEV_STACK_TARGETS): export ASTERA_PUBLIC_HOST := $(lastword $(subst @, ,$(ASTERA_DEV_HOST)))
+DOCKER_COMPOSE += -f docker/docker-compose.remote.yml
+DOCKER_COMPOSE_HOTSWAP += -f docker/docker-compose.remote.yml
 endif
 
 .PHONY: docker-env
@@ -91,7 +94,7 @@ dev-plugins: ## Fast loop: build jars, push changed ones into the running backen
 	./scripts/dev-deploy.sh plugins
 
 .PHONY: dev-deploy
-dev-deploy: ## Fast loop: build jars + push content/ into the running backends, restart each ONCE (matching jar+content, arenas built in that boot; players are moved, not kicked)
+dev-deploy: ## Fast loop: rebuild+push the resource pack, build jars + push content/ into the running backends, restart each ONCE (matching jar+content, arenas built in that boot; players are moved, not kicked)
 	./scripts/dev-deploy.sh deploy
 
 .PHONY: dev-content
@@ -187,12 +190,23 @@ private-update: ## Pull the latest commit from the private/ submodule
 # ----------------------------------------------------------------------------
 
 .PHONY: e2e
-e2e: ## Boot the offline e2e backend, run the MCProtocolLib bot suite, write build/e2e-report.md (exit code = result)
+e2e: ## Integration-window e2e: skips the slowest low-churn suites (E2E_PROFILE=window), writes build/e2e-report.md (exit code = result)
 	bash scripts/e2e.sh
+
+.PHONY: e2e-full
+e2e-full: ## Full e2e: every suite incl. PersonaWeapons / Weapons (same as `make e2e E2E_PROFILE=full`)
+	E2E_PROFILE=full bash scripts/e2e.sh
 
 .PHONY: e2e-down
 e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, volumes, images)
 	bash scripts/e2e.sh down
+
+.PHONY: live-view live-view-down
+live-view: ## Live real Minecraft video + audio on 0.0.0.0:8098: make live-view SKILL=<id> [VIEW=caster|side|compare] [CASE=<id>] [PORT=8098]
+	SKILL="$(SKILL)" VIEW="$(or $(VIEW),caster)" CASE="$(CASE)" PORT="$(or $(PORT),8098)" bash tools/live-view/live-view.sh
+
+live-view-down: ## Stop this checkout's live viewer, clients, private audio daemon and capture stack
+	bash tools/live-view/live-view.sh down
 
 .PHONY: vfx-shot
 vfx-shot: ## Film a skill with a real headless MC client (serialized host-wide, torn down on exit; SHOT_KEEP=1 keeps it warm for SHOT_KEEP_TTL): make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60] [FOV=90] [BEAT_TICKS=case|0,8,16]

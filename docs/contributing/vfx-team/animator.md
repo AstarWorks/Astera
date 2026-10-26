@@ -1,6 +1,8 @@
 # Animator knowledge base
 
-Agent: `.claude/agents/animator.md`. Team overview: [README.md](README.md).
+Reference knowledge (2026-10-27): the skill has ONE author who builds every piece; this page is an accumulated knowledge base the author consults, not a role with a territory. Process: [README.md](README.md). Historical Learnings entries may name old roles and numeric targets; numbers are never acceptance evidence.
+
+Optional helper agent: `.claude/agents/limbus-animator.md` (advice only, not an owner). Team overview: [README.md](README.md).
 
 ## What the animator produces
 

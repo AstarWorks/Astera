@@ -263,6 +263,19 @@ internal fun CoreWiringState.wireProgression() {
     // WP12: per-match snapshot — save on entry (MatchStarted), restore on exit
     // (MatchEnded). Host-neutral: the IPlayerInventoryGateway is resolved lazily
     // (Paper registers it; headless hosts without one simply skip the capture).
+    // ADR-0090: a field tool swung at a stage's cover block (listener: PaperCoverToolListener).
+    services.register<com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase>(
+        com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase(
+            blocks = { services.get<com.astarworks.astera.core.application.port.outbound.IBlockStateGateway>() },
+            items = itemContents,
+            animation = { services.get<com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway>() },
+            worldGateway = { services.get<com.astarworks.astera.core.application.port.outbound.IWorldGateway>() },
+            scheduler = scheduler,
+            players = playerGateway,
+            messages = messages,
+        ),
+        priority = 0,
+    )
     val loanerKit = com.astarworks.astera.core.application.service.inventory.MatchLoanerKit(
         owned = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>() },
         items = itemContents,
@@ -271,6 +284,7 @@ internal fun CoreWiringState.wireProgression() {
         players = playerGateway,
         messages = messages,
         kitItems = { profileService.starterItemIds() },
+        toolItems = { profileService.matchToolIds() },
     )
     // Match weapon restriction: trims an over-full inventory right after the entry snapshot (and gates pickups/moves
     // through the Paper listener). The limit comes from Match (IWeaponLimitProvider), removal from Items.
@@ -287,12 +301,14 @@ internal fun CoreWiringState.wireProgression() {
         gateway = { services.get<IPlayerInventoryGateway>() },
         saveSnapshot = saveSnapshotUseCase,
         matches = { services.get<IMatchRepository>() },
+        removal = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>() },
         afterEntryCapture = {
             weaponLimits.enforceOnEntry(it)
             loanerKit.ensureArmed(it)
         },
     )
     services.register<MatchInventorySnapshotListener>(matchSnapshots, priority = 0)
+    services.register<com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder>(matchSnapshots, priority = 0)
     wave5completeSubs += eventBus.subscribe(MatchStarted::class) { matchSnapshots.handleStarted(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class) { matchSnapshots.handleEntered(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerLeftMatch::class) { matchSnapshots.handleLeft(it) }
@@ -308,7 +324,6 @@ internal fun CoreWiringState.wireProgression() {
         openVault = openVaultUseCase,
         window = { services.get<IVaultWindow>() },
         matches = { services.get<IMatchRepository>() },
-        onOpened = { tutorialSequencer.recordAction(it, "vault") },
     )
     services.register<AccessPersonalVaultUseCase>(accessVault, priority = 0)
     commands.register(com.astarworks.astera.core.application.command.buildVaultCommandSpec(accessVault))

@@ -10,9 +10,5 @@ criteria:
   children:
     - { type: kill_count, target: 50 }
     - { type: matches_won, count: 5 }
-rewards:
-  - type: grant_currency
-    currency: GOLD
-    amount: 1000
-  - type: grant_title
-    title_id: blade-master
+# Payout lives in content/achievements (kills-100 etc.); one reward stream, not two.
+rewards: []

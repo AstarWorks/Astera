@@ -507,6 +507,23 @@ internal object MatchGameplayWiring {
             scheduler = scheduler,
         )
         subscriptions += eventBus.subscribe(MatchStarted::class) { matchCueListener.onStarted(it) }
+
+        // Astera HP outlives matches (in-memory container, mirrored to a 1.0-floored Bukkit health).
+        // A player left at 0 HP by an earlier match would reject every hit (TargetAlreadyDead) and look
+        // invincible, so every participant starts a match at full HP with no leftover status effects.
+        // Mid-match join / reconnect: a player entering a server while registered in a match starts at full HP too.
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { joined ->
+            if (matches.findMatchOf(joined.playerId) != null) {
+                val max = health.getMaxHealth(joined.playerId) ?: 20.0
+                health.setHealth(joined.playerId, max, com.astarworks.astera.core.domain.player.physiology.HealthChangeSource.Respawn)
+            }
+        }
+        subscriptions += eventBus.subscribe(MatchStarted::class) { started ->
+            matches.findById(started.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { pid ->
+                val max = health.getMaxHealth(pid) ?: 20.0
+                health.setHealth(pid, max, com.astarworks.astera.core.domain.player.physiology.HealthChangeSource.Respawn)
+            }
+        }
         subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { matchCueListener.onKilled(it) }
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) { matchCueListener.onPhaseChanged(it) }
 
@@ -536,9 +553,23 @@ internal object MatchGameplayWiring {
                     tally = matchTally,
                     eventBus = eventBus,
                     nameOf = { id -> env.ctx.services.get<IMcServer>()?.findPlayer(id)?.name },
+                    normaStandings = { id -> matchStars.norma.takeFinalStandings(id) },
                 )
         subscriptions += eventBus.subscribe(MatchEnded::class) {
             matchEndSummaryListener.handle(it)
+        }
+
+        // "How to win" chat briefing when a match turns ACTIVE: the mode's objective + how Norma levels win it.
+        val matchBriefingListener = com.astarworks.astera.match.application.eventbus.listeners.match.MatchBriefingListener(
+            matches = matches,
+            playerGateway = playerGateway,
+            messages = msgRenderer,
+            modeKeyOf = { id -> env.matchModeRegistry.modeKeyOf(id) },
+            configOf = env.modeConfigOf,
+            isNorma = env.normaLayerOf,
+        )
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) {
+            matchBriefingListener.onPhaseChanged(it)
         }
 
         val applyPvpDeathPolicyListener =
@@ -638,6 +669,11 @@ internal object MatchGameplayWiring {
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class) { queueLog.onJoined(it) }
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) { queueLog.onLeft(it) }
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { queueLog.onFormed(it) }
+            val queuePresentation = com.astarworks.astera.match.application.eventbus.listeners.match.QueuePresentationListener(
+                services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
+            )
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class) { queuePresentation.onJoined(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { queuePresentation.onFormed(it) }
             val lobbyQueueIntentRouter =
                 services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>()
             registrations += lobbyQueueIntentRouter.register(

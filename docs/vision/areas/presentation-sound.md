@@ -10,13 +10,10 @@ Owner track `wp/presentation` (skill-level VFX/sound belongs to `skills-vfx`). I
 - `content/sounds/README.md`: weapons / skills / status / match / ui OGG, mono 44.1 kHz.
 
 ## 現状
-- Zero OGG files in the repo. `content/sounds/` has 2 sample YAMLs (unused); `content/music/` has 6 YAMLs pointing at non-existent files. Everything audible is vanilla sound.
-- `IMusicGateway` has only `InMemoryMusicGateway`; no Paper implementation, so no BGM and no ambience.
-- Silent moments (no sound call in code): countdown, match start/phase change, death, respawn, victory/defeat (titles only), level-up/achievement, quest, login bonus, purchase, UI clicks, lobby join/queue join.
-- Best-done moment: Norma level-up (`PaperNormaPresentation`: title, level-up sound, totem + end-rod + firework). Star pop has a name tag only; pickup plays an orb sound; burst is the drop only.
-- 59 of 84 skills have `play_sound` (all vanilla); 25 are silent.
-- Three sound routes coexist: raw `Sound` enum, `IPlayerSoundGateway`, skill YAML `play_sound`.
-- VFX: 211 vfx YAMLs in 10 weapon families; their quality is judged in the skills-vfx area.
+- `content/presentation/events.yaml` is the one moment table (ADR-0267 cue path): 34 moments (countdown, kill/death/respawn, hit/crit/blocked, star pop/pickup/burst, Norma level/choice, queue/found, sudden death, win/lose/draw, reward, purchase, quest, player level-up, UI click/confirm/deny) with cue, audience cue, title, action bar and particle presets. All cues are own synthesized OGGs (`tools/sound-gen`, ffmpeg only) under `content/sounds/`, 6 BGM tracks play through the Paper music gateway.
+- Death, respawn and player level-up are now visible as well as audible (soul / glint / spark presets; respawn action-bar line); `PresentationCueCoverageScenarioTest` covers them.
+- UI: click is central in the GUI intent router; confirm/deny are played only by the queue, shop and cosmetic handlers.
+- Gaps: the party / friends / vault / travel intent handlers refuse silently (no deny cue); 25 of 84 skills have no `play_sound` (skills-vfx area); star pop/burst strength is still a founder taste call.
 
 ## 理想形
 One data table `content/presentation/events.yaml` maps each moment (queue, countdown, kill, death, respawn, star pop/pickup/burst, Norma level, win/lose, reward, purchase, UI) to title / sound / particle / music cues, all played through `IPlayerSoundGateway`. Own OGGs under `content/sounds/` plus a generated `sounds.json` in the resource pack. A Paper `IMusicGateway` switches BGM by mood. Norma level-up is the reference "feel".

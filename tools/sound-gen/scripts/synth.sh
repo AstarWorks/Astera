@@ -187,9 +187,212 @@ skills_wand_cast() {   # rising shimmer and a bell crown
     mix wand 0.8 a:0:0.7 s0:150:0.6 s1:220:0.6 s2:290:0.6 s3:360:0.6; finish skills/wand-cast wand
 }
 
+# ---- weapon-family cue sets (2026-10-27): gun / blade / elemental staff; reused across the basic skills ----
+weapons_rifle_crack() {   # sharper, longer-ranged than the pistol: bright crack + low thump + a distant slap tail
+    noise a 0.4 "highpass=f=1800,volume='exp(-t*22)':eval=frame" 91
+    gen b 0.3 "$(sweep 150 40 0.12 14)"
+    noise c 0.6 "bandpass=f=700:w=2,aecho=0.6:0.5:120:0.35,volume='exp(-t*5)':eval=frame" 92
+    mix shot 0.6 a:0:0.9 b:0:1 c:20:0.35; finish weapons/rifle-crack shot
+}
+weapons_shotgun_blast() {   # wide, heavy: broadband burst, deep boom, slow rumble tail
+    noise a 0.5 "volume='exp(-t*14)':eval=frame" 93
+    gen b 0.5 "$(sweep 120 30 0.18 10)"
+    noise c 0.7 "lowpass=f=900,volume='exp(-t*5)':eval=frame" 94
+    mix shot 0.7 a:0:0.8 b:0:1.2 c:15:0.5; finish weapons/shotgun-blast shot
+}
+weapons_gun_impact() {   # bullet strike on a body: dull thud + tiny high tick
+    gen a 0.18 "$(sweep 260 90 0.06 30)"
+    noise b 0.12 "bandpass=f=3200:w=1.5,volume='exp(-t*60)':eval=frame" 95
+    mix hit 0.18 a:0:1 b:0:0.5; finish weapons/gun-impact hit
+}
+weapons_gun_impact_block() {   # bullet strike on stone: ricochet whine + gritty spall
+    gen a 0.3 "$(sweep 3200 1400 0.25 12)"
+    noise b 0.15 "highpass=f=2500,volume='exp(-t*40)':eval=frame" 96
+    mix hit 0.3 a:0:0.35 b:0:0.8; finish weapons/gun-impact-block hit
+}
+weapons_gun_reload_start() {   # mag out: two dry clicks and a slide scrape
+    gen a 0.08 "$(sq 1500 90)"; gen b 0.08 "$(sq 1100 90)"
+    noise c 0.2 "bandpass=f=2200:w=1.2,volume='sin(PI*min(t/0.2,1))':eval=frame" 97
+    mix rl 0.4 a:0:0.8 b:90:0.8 c:150:0.4; finish weapons/gun-reload-start rl
+}
+weapons_gun_reload_end() {   # chamber closes: heavy clack and a lighter latch
+    gen a 0.15 "$(sq 520 40)"; gen b 0.1 "$(sq 1800 80)"
+    noise c 0.1 "highpass=f=3000,volume='exp(-t*70)':eval=frame" 98
+    mix rl 0.35 a:0:1 b:80:0.6 c:0:0.4; finish weapons/gun-reload-end rl
+}
+weapons_blade_hit() {   # steel meets flesh: dull slap plus a short metallic ring
+    noise a 0.2 "bandpass=f=900:w=1.5,volume='exp(-t*35)':eval=frame" 101
+    gen b 0.4 "$(bell 1750 18)"
+    mix hit 0.4 a:0:1 b:0:0.25; finish weapons/blade-hit hit
+}
+weapons_blade_crit() {   # heavy hit: low thud, ringing steel, bright accent
+    gen a 0.3 "$(sweep 200 60 0.12 16)"
+    noise b 0.2 "bandpass=f=1200:w=1.5,volume='exp(-t*30)':eval=frame" 102
+    gen c 0.7 "$(bell 1320 9)"; gen d 0.7 "$(bell 2640 11)"
+    mix hit 0.7 a:0:1 b:0:0.8 c:0:0.45 d:20:0.3; finish weapons/blade-crit hit
+}
+weapons_blade_miss() {   # airy low-key whiff, quieter and shorter than the swing
+    noise a 0.3 "bandpass=f=1100:w=1.2,volume='pow(sin(PI*min(t/0.28,1)),2)':eval=frame" 103
+    mix miss 0.3 a:0:1; finish weapons/blade-miss miss
+}
+weapons_blade_heavy_swing() {   # greatsword: slower, lower, weightier whoosh with a rising moan
+    noise a 0.7 "bandpass=f=700:w=1.4,volume='pow(sin(PI*min(t/0.65,1)),2)':eval=frame" 104
+    gen b 0.7 "sin(2*PI*(150*t+(520-150)*t*t/(2*0.65)))*sin(PI*min(t/0.65,1))*0.2"
+    mix swing 0.7 a:0:1 b:0:0.6; finish weapons/blade-heavy-swing swing
+}
+weapons_dash_whoosh() {   # quick burst of air with a falling tone: dash / backstep
+    noise a 0.35 "bandpass=f=2400:w=1.8,volume='exp(-t*9)*min(t/0.02,1)':eval=frame" 105
+    gen b 0.35 "$(sweep 900 200 0.3 6)"
+    mix dash 0.35 a:0:1 b:0:0.25; finish weapons/dash-whoosh dash
+}
+skills_fire_impact() {   # fire burst: boom, crackling noise, warm tail
+    gen a 0.5 "$(sweep 200 50 0.2 9)"
+    noise b 0.6 "lowpass=f=2500,volume='exp(-t*6)':eval=frame" 111
+    noise c 0.5 "highpass=f=4000,volume='exp(-t*10)*(0.5+0.5*sin(2*PI*40*t))':eval=frame" 112
+    mix fire 0.7 a:0:1 b:0:0.7 c:30:0.3; finish skills/fire-impact fire
+}
+skills_frost_cast() {   # cold: glassy upward chime cluster with an icy hiss
+    local i=0 f; for f in 2349 3136 3951 4699; do gen "s$i" 0.7 "$(bell $f 8)"; i=$((i + 1)); done
+    noise a 0.5 "highpass=f=6000,volume='sin(PI*min(t/0.5,1))':eval=frame" 113
+    mix frost 0.8 s0:0:0.6 s1:60:0.6 s2:120:0.6 s3:180:0.5 a:0:0.3; finish skills/frost-cast frost
+}
+skills_frost_impact() {   # ice shatter: bright noise crack plus falling glass bells
+    noise a 0.4 "highpass=f=3500,volume='exp(-t*14)':eval=frame" 114
+    gen b 0.6 "$(bell 3520 12)"; gen c 0.6 "$(bell 2637 14)"
+    gen d 0.25 "$(sweep 400 120 0.1 20)"
+    mix ice 0.6 a:0:0.8 b:0:0.5 c:30:0.5 d:0:0.5; finish skills/frost-impact ice
+}
+skills_lightning_impact() {   # electric crack: sharp noise burst, buzz, rolling thunder
+    noise a 0.2 "highpass=f=1500,volume='exp(-t*30)':eval=frame" 115
+    gen b 0.5 "$(sq 110 8)"
+    noise c 0.9 "lowpass=f=500,volume='exp(-t*3.5)':eval=frame" 116
+    mix zap 0.9 a:0:1 b:0:0.5 c:60:0.7; finish skills/lightning-impact zap
+}
+skills_nature_impact() {   # thorn/vine strike: woody pluck, leafy rustle
+    gen a 0.25 "$(pluck 330 22)"
+    noise b 0.3 "bandpass=f=3000:w=2,volume='exp(-t*14)':eval=frame" 117
+    mix nat 0.3 a:0:0.9 b:0:0.5; finish skills/nature-impact nat
+}
+skills_heal_chime() {   # soft rising triad of bells
+    local i=0 f; for f in 784 988 1175 1568; do gen "h$i" 0.9 "$(bell $f 5)"; i=$((i + 1)); done
+    mix heal 1.0 h0:0:0.7 h1:110:0.7 h2:220:0.7 h3:330:0.8; finish skills/heal-chime heal
+}
+combat_hit() {    # short dry tick: low body knock + a bright click (heard on every landed hit, so it stays tiny)
+    gen a 0.1 "$(sweep 420 160 0.05 40)"
+    noise b 0.06 "highpass=f=3500,volume='exp(-t*110)':eval=frame" 91
+    mix hit 0.1 a:0:1 b:0:0.35; finish combat/hit hit
+}
+combat_crit() {   # hit plus a rising metallic ping, clearly brighter than hit
+    gen a 0.1 "$(sweep 520 180 0.05 38)"
+    gen b 0.4 "$(bell 2349 14)"; gen c 0.4 "$(bell 3520 18)"
+    noise d 0.08 "highpass=f=4500,volume='exp(-t*80)':eval=frame" 92
+    mix crit 0.4 a:0:0.9 b:10:0.8 c:25:0.5 d:0:0.35; finish combat/crit crit
+}
+combat_blocked() {  # dull metallic clank: low inharmonic thud, no sparkle
+    gen a 0.3 "$(bell 310 22)"; gen b 0.3 "$(bell 190 30)"
+    noise c 0.12 "bandpass=f=1200:w=2,volume='exp(-t*50)':eval=frame" 93
+    mix blocked 0.3 a:0:0.9 b:0:0.8 c:0:0.4; finish combat/blocked blocked
+}
+combat_skill_ready() {  # two soft rising pings
+    gen a 0.35 "$(bell 1319 11)"; gen b 0.35 "$(bell 1760 10)"
+    mix ready 0.4 a:0:0.8 b:90:0.9; finish combat/skill-ready ready
+}
+combat_ego_ready() {  # charged swell into a bright hit: the ultimate is available
+    gen a 0.5 "sin(2*PI*(220*t+(880-220)*t*t/(2*0.5)))*min(t/0.05,1)*0.4"
+    noise b 0.5 "bandpass=f=3000:w=2,volume='min(t/0.45,1)*0.5':eval=frame" 94
+    gen c 0.9 "$(bell 1760 5)"; gen d 0.9 "$(bell 2637 5.5)"; gen e 0.9 "$(bell 3520 6)"
+    mix ego 1.2 a:0:0.7 b:0:0.35 c:450:1 d:450:0.7 e:480:0.5; finish combat/ego-ready ego
+}
+match_respawn() {  # rising whoosh into a soft landing chime
+    gen a 0.5 "sin(2*PI*(260*t+(900-260)*t*t/(2*0.5)))*min(t/0.04,1)*exp(-2*max(t-0.3,0))*0.4"
+    noise b 0.5 "bandpass=f=1500:w=1.5,volume='pow(sin(PI*min(t/0.5,1)),2)*0.6':eval=frame" 95
+    gen c 0.7 "$(bell 1175 7)"; gen d 0.7 "$(bell 1760 8)"
+    mix respawn 1.0 a:0:0.8 b:0:0.4 c:320:1 d:380:0.6; finish match/respawn respawn
+}
+match_draw() {    # neutral two-note: a fifth that neither rises nor falls to rest
+    gen a 0.9 "$(pluck 523 3.5)"; gen b 0.9 "$(pluck 392 3.2)"; gen c 1.2 "$(bell 784 3)"
+    mix draw 1.3 a:0:0.8 b:260:0.8 c:520:0.6; finish match/draw draw
+}
+star_pop() {      # tiny glassy bubble: a high bell with an upward blip, quiet and short
+    gen a 0.25 "$(sweep 2200 3300 0.04 24)"; gen b 0.35 "$(bell 3136 18)"
+    mix pop 0.35 a:0:0.5 b:0:1; finish star/pop pop
+}
+norma_burst() {   # bystander level-up: soft distant arpeggio shimmer
+    local i=0 f; for f in 784 988 1175 1568; do gen "n$i" 0.5 "$(bell $f 9)"; i=$((i + 1)); done
+    mix burst 0.7 n0:0:0.8 n1:70:0.8 n2:140:0.8 n3:210:0.9; finish norma/burst burst
+}
+norma_burst_max() {  # bystander max level: shimmer plus a swelling low chord
+    local i=0 f; for f in 784 988 1175 1568 1976; do gen "n$i" 0.7 "$(bell $f 7)"; i=$((i + 1)); done
+    gen pad 1.4 "$(brass 392 0.12 2.2)"
+    noise sp 0.4 "highpass=f=5000,volume='exp(-t*9)':eval=frame" 96
+    mix bmax 1.5 n0:0:0.7 n1:60:0.7 n2:120:0.7 n3:180:0.7 n4:240:0.8 pad:0:0.6 sp:200:0.3; finish norma/burst-max bmax
+}
+norma_choice_open() {  # soft attention chime: two bells
+    gen a 0.5 "$(bell 988 8)"; gen b 0.5 "$(bell 1319 8)"
+    mix open 0.55 a:0:0.9 b:110:1; finish norma/choice-open open
+}
+norma_choice_picked() {  # short confirming pluck pair, upward
+    gen a 0.3 "$(pluck 784 12)"; gen b 0.3 "$(pluck 1175 10)"
+    mix picked 0.35 a:0:0.8 b:70:1; finish norma/choice-picked picked
+}
+norma_choice_defaulted() {  # neutral low double tap: chosen for you
+    gen a 0.25 "$(pluck 330 14)"; gen b 0.25 "$(pluck 330 14)"
+    mix defaulted 0.35 a:0:0.9 b:110:0.7; finish norma/choice-defaulted defaulted
+}
+
+ui_level_up() {   # player level: bright two-step run up into a held bell
+    gen a 0.4 "$(pluck 659 9)"; gen b 0.4 "$(pluck 880 9)"; gen c 0.9 "$(bell 1760 5)"; gen d 0.9 "$(bell 2637 6)"
+    mix lvl 1.0 a:0:0.8 b:90:0.9 c:180:1 d:180:0.5; finish ui/level-up lvl
+}
+ui_login_bonus() {  # warm gift: three-note rising pluck with a sparkle tail
+    local i=0 f; for f in 523 659 784; do gen "n$i" 0.5 "$(pluck $f 8)"; i=$((i + 1)); done
+    gen s 0.6 "$(bell 2093 8)"
+    mix login 0.9 n0:0:0.8 n1:110:0.85 n2:220:0.9 s:220:0.5; finish ui/login-bonus login
+}
+ui_quest_complete() {  # short fanfare: two brass stabs and a bell
+    gen a 0.25 "$(brass 392 0.01 7)"; gen b 0.7 "$(brass 587 0.015 3)"; gen c 0.7 "$(bell 2349 5)"
+    mix quest 0.95 a:0:0.8 b:150:0.9 c:150:0.4; finish ui/quest-complete quest
+}
+star_burst_gain() {  # the killer's haul: dense rising sparkle, brighter and shorter than the victim's burst
+    local i=0 f; for f in 2637 3136 3951 4699 5274; do gen "s$i" 0.5 "$(bell $f 10)"; i=$((i + 1)); done
+    gen lo 0.3 "$(sweep 400 900 0.1 14)"
+    mix gain 0.65 lo:0:0.6 s0:0:0.7 s1:30:0.7 s2:60:0.7 s3:90:0.7 s4:120:0.7; finish star/burst-gain gain
+}
+
+star_burst_boom() {  # the fountain launch: a low thump, a glassy crack and a wide rising sparkle cascade (layered under star/burst)
+    gen lo 0.5 "sin(2*PI*(160*t+(55-160)*t*t/(2*0.25)))*exp(-9*t)*min(t/0.003,1)*0.9"
+    noise crack 0.3 "highpass=f=1800,volume='exp(-t*18)':eval=frame" 41
+    local i=0 f; for f in 1568 2093 2637 3136 3951 4699 5588 6272; do gen "c$i" 0.8 "$(bell $f 6)"; i=$((i + 1)); done
+    mix boom 1.0 lo:0:0.9 crack:0:0.5 c0:30:0.5 c1:70:0.5 c2:110:0.5 c3:150:0.5 c4:190:0.45 c5:230:0.45 c6:270:0.4 c7:310:0.4; finish star/burst-boom boom
+}
+
+match_sudden_death() {  # warning: two low alarm pulses over a rising tension swell, then a hard bell strike
+    gen a 0.25 "$(sq 220 9)"; gen b 0.25 "$(sq 220 9)"
+    gen c 1.0 "sin(2*PI*(110*t+(440-110)*t*t/(2*1.0)))*min(t/0.1,1)*0.35"
+    noise d 1.0 "bandpass=f=900:w=2,volume='min(t/0.9,1)*0.5':eval=frame" 97
+    gen e 0.9 "$(bell 880 4)"; gen f 0.9 "$(bell 1318 4.5)"
+    mix sd 1.7 a:0:0.9 b:260:0.9 c:0:0.7 d:0:0.3 e:700:1 f:700:0.6; finish match/sudden-death sd
+}
+
+ui_queue_join() {  # soft two-tick confirmation
+    gen a 0.2 "$(pluck 988 16)"; gen b 0.25 "$(pluck 1319 14)"
+    mix qj 0.3 a:0:0.8 b:70:1; finish ui/queue-join qj
+}
+match_found() {   # attention: three rising bell strikes, last one rings
+    gen a 0.4 "$(bell 784 9)"; gen b 0.4 "$(bell 988 9)"; gen c 1.0 "$(bell 1319 5)"; gen d 1.0 "$(bell 1976 6)"
+    mix mf 1.3 a:0:0.8 b:140:0.85 c:280:1 d:280:0.5; finish match/found mf
+}
+
 ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-up norma/level-max
      match/countdown-tick match/go combat/kill match/death match/win match/lose
-     weapons/gun-shot weapons/sword-swing skills/wand-cast)
+     weapons/gun-shot weapons/sword-swing skills/wand-cast
+     weapons/rifle-crack weapons/shotgun-blast weapons/gun-impact weapons/gun-impact-block weapons/gun-reload-start
+     weapons/gun-reload-end weapons/blade-hit weapons/blade-crit weapons/blade-miss weapons/blade-heavy-swing
+     weapons/dash-whoosh skills/fire-impact skills/frost-cast skills/frost-impact skills/lightning-impact
+     skills/nature-impact skills/heal-chime
+     combat/hit combat/crit combat/blocked combat/skill-ready combat/ego-ready match/respawn match/draw star/pop
+     norma/burst norma/burst-max norma/choice-open norma/choice-picked norma/choice-defaulted
+     ui/level-up ui/login-bonus ui/quest-complete star/burst-gain star/burst-boom match/sudden-death ui/queue-join match/found)
 
 targets=("$@"); [[ ${#targets[@]} -gt 0 ]] || targets=("${ALL[@]}")
 for name in "${targets[@]}"; do

@@ -70,10 +70,27 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   still tied: draw. The result screen
   names the reason ("reached Norma level N and won" / "was ahead" / tied). Winning pays the normal reward table
   (GOLD / XP), never stars.
-- **Pace (balance, content defaults):** 5 levels, star goals 3,5,8,12 and kill goals 1,2,3,4. The four arena generators pop
-  1 star each per 30 s (8 stars/min in total); a 2-player match where both race for stars needs about 12 stars carried
-  for the last level, i.e. ~3 min of pops plus travel and burst losses, kills shorten it: expected 4-7 min, 10 min hard cap.
-  The e2e image shrinks it (3 levels, star goals 2,3, kill goals 1,2, generators every 3 s, 150 s cap).
+- **Pace (balance, content defaults, 2026-10-27):** 5 levels, star goals **10, 30, 60, 100** (cumulative "carry at least"; the
+  last clear is 100) and kill goals 1,2,3,4. Every generator pops **5 stars per 20 s** (15/min; the 4 arena generators = 60/min
+  on the stage; sudden death doubles each pop). A death bursts **half** of the carried stack (`death_drop_ratio` 0.5) as up to
+  16 items in a fountain; leaving the match still drops everything. Old values: goals 3,5,8,12; 1 star per 30 s per generator
+  (8/min); ratio 1.0; at most 6 items per burst.
+  Math (10 min limit = 600 s; "final third" = after 400 s): the stage income R = 4 generators x 15/min = 60 stars/min, shared by
+  a lane of up to 4v4. A good team takes ~60% of R; its best collector takes ~40% of that, so ~0.24 R = 14.4 stars/min. Time to
+  reach 10 / 30 / 60 / 100 = 0.7 / 2.1 / 4.2 / **6.9 min (~415 s, final third)**. A 2v2 lane has the best collector at ~0.30 R =
+  18/min: 100 in ~5.6 min. The average collector of a 4v4 lane nets R/8 = 7.5/min (100 in ~13 min, i.e. only the leaders reach
+  the top before the limit; the rest are ranked by Norma level, then stars). Deaths at 0.5 ratio cost a leader ~half the stack
+  but hand the killer's side a pile to grab, so the race stays live; stars are never created by kills. The kill goals (1+2+3+4 =
+  10 kills) are an alternate route, untuned here.
+  The e2e image shrinks it (3 levels, star goals 2,3, kill goals 1,2, generators 1 star every 3 s, ratio 1.0, 150 s cap).
+
+### Kill fountain (presentation)
+A kill with carried stars throws up to 16 star items from the victim: an evenly spaced, jittered ring of directions, each with its
+own outward speed (0.14-0.32 blocks/tick) and upward pop (0.35-0.62), so they arc out and land 2-4.5 blocks away; they cannot be
+picked up for 0.9 s so the spray is seen (the victim cannot re-take them for 8 s). Every item is a glowing, named `★ xN` entity.
+Layers: END_ROD flash (160), gold dust (WAX_ON, 120) and firework sparks (90) at the death spot, the `star/burst` cue plus the new
+free-synth `star/burst-boom` (thump + sparkle cascade, ffmpeg), the killer's `star/burst-gain`. Text on the action bar
+(`IActionBarChannel`): victim `-N ★`, killer `+N ★ burst out - grab them!`, each picker `+N ★ (carrying total)`.
 
 ### HUD (match sidebar)
 Stars carried, own Norma level / max, current goal and progress (`Stars 3/5` or `Kills 1/2`). The lobby shows none of it.

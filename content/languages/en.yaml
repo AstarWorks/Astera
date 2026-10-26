@@ -405,6 +405,13 @@ astera:
         rare: "<aqua>Rare</aqua>"
         epic: "<light_purple>Epic</light_purple>"
         legendary: "<gold>Legendary</gold>"
+      trigger:
+        left_click: "<gray>Left-click: <white>{name}</white></gray>"
+        right_click: "<gray>Right-click: <white>{name}</white></gray>"
+        sneak_right: "<gray>Sneak + right-click: <white>{name}</white></gray>"
+        sneak_left: "<gray>Sneak + left-click: <white>{name}</white></gray>"
+        drop: "<gray>Drop (Q): <white>{name}</white></gray>"
+        sneak_drop: "<gray>Sneak + drop (Q): <white>{name}</white></gray>"
       stat:
         attack_damage: "<gray>Damage: <white>{value}</white></gray>"
         attack_speed: "<gray>Attack speed: <white>{value}</white></gray>"
@@ -539,6 +546,8 @@ astera:
       wanderer: "Wanderer"
       daredevil: "Daredevil"
       maverick: "Maverick"
+      rookie: "Rookie"
+      ranger: "Ranger"
     name_color:
       rising-star: "Rising Star"
       sunset: "Sunset"
@@ -547,6 +556,8 @@ astera:
       crimson: "Crimson"
       emerald: "Emerald"
       violet: "Violet"
+      mint: "Mint"
+      amber: "Amber"
     kill_effect:
       stardust: "Stardust"
       sparkle: "Sparkle"
@@ -554,6 +565,8 @@ astera:
       hearts: "Hearts"
       flames: "Flames"
       portal: "Portal"
+      puff: "Puff"
+      first-spark: "First Spark"
     kind:
       title: "Title"
       name_color: "Name colour"
@@ -615,6 +628,8 @@ astera:
           crimson-chain-axe: "Crimson Chain-Axe"
           orrery-staff: "Orrery Staff"
           sigil-rifle: "Sigil Rifle"
+          heal-potion: "Healing Draught"
+          swift-powder: "Swift Powder"
       gui:
         spacer: " "
         price: "<gray>Price: <green>{amount}</green> {currency}</gray>"
@@ -628,6 +643,7 @@ astera:
           carrying: "<green>You are carrying it</green>"
           take_copy: "<yellow>Click to take another copy (free)</yellow>"
         owned: "<green>Owned <dark_gray>(bought once, yours for good)</dark_gray></green>"
+        recommended: "<light_purple>Recommended first buy</light_purple> <gray>- a staff to go with your gun and sword</gray>"
         page:
           prev: "<yellow>Previous page <gray>({page}/{pages})</gray></yellow>"
           next: "<yellow>Next page <gray>({page}/{pages})</gray></yellow>"
@@ -640,6 +656,9 @@ astera:
           gui_title: "Your purchases"
           line: "<gray>{when} - paid <white>{amount}</white> {currency}</gray>"
           back: "<yellow>Back to the shop</yellow>"
+        cosmetics:
+          title: "<light_purple>Cosmetics</light_purple>"
+          hint: "<gray>Name colours, titles and kill effects from 60 GOLD. Click to browse.</gray>"
         wallet:
           title: "<gold>Your wallet</gold>"
           line: "<gray>{currency}: <white>{amount}</white></gray>"
@@ -869,7 +888,7 @@ astera:
         progress: "<gray>Now: <white>{now}</white>/<white>{goal}</white></gray>"
         default: "<dark_gray>No pick in 10 s = Star goal.</dark_gray>"
     star:
-      collected: "<gold>+{amount} ★</gold> <gray>(carrying {total})</gray>"
+      collected: "<gold><bold>+{amount} ★</bold></gold> <gray>(carrying {total})</gray>"
     # Wave 5lobby-content (ADR-0119) — lobby `lobby.queue.*` GuiIntent surface.
     queue:
       unknown-mode: "<red>Unknown queue mode.</red>"
@@ -952,8 +971,36 @@ astera:
         encounter-cleared: "<green>All {waves} waves of the encounter were cleared.</green>"
         encounter-failed: "<red>The party fell on wave {wave}/{waves}.</red>"
         encounter-time-up: "<red>Time ran out on wave {wave}/{waves}.</red>"
+        objective-by:
+          break-core: "<{color}><bold>{team}</bold></{color}> <gray>destroyed the last enemy core.</gray>"
+          annihilation: "<{color}><bold>{team}</bold></{color}> <gray>was the last team with a Nexus standing.</gray>"
+          carry-tnt: "<{color}><bold>{team}</bold></{color}> <gray>delivered the TNT to the enemy base.</gray>"
+          carry-mini-tnt: "<{color}><bold>{team}</bold></{color}> <gray>delivered the combined TNT to the enemy base.</gray>"
+          capture-wool: "<{color}><bold>{team}</bold></{color}> <gray>captured enough wool zones.</gray>"
+          steal-jewelry: "<{color}><bold>{team}</bold></{color}> <gray>banked enough jewels.</gray>"
+          battle-loyal: "<{color}><bold>{team}</bold></{color}> <gray>reached the kill goal first.</gray>"
+    # "How to win" chat block when a match turns ACTIVE (MatchBriefingListener).
+    briefing:
+      header: "<gold>== How to win ==</gold>"
+      mode:
+        skirmish: "<gray>Team deathmatch:</gray> <white>beat the other team to the top Norma level.</white>"
+        break-core: "<gray>Break Core:</gray> <white>destroy the enemy core and defend your own. The last team with a core wins.</white>"
+        annihilation: "<gray>Annihilation:</gray> <white>break the enemy Nexus pillars. The last team with a Nexus standing wins.</white>"
+        carry-tnt: "<gray>Carry TNT:</gray> <white>pick up the TNT and carry it into the enemy base. Deliver it first to win.</white>"
+        carry-mini-tnt: "<gray>Carry Mini-TNT:</gray> <white>collect mini-TNTs and bank them at your own base; enough of them combine into one big TNT. Deliver that to the enemy base to win.</white>"
+        capture-wool: "<gray>Capture Wool:</gray> <white>stand in the wool zones to capture them. Capture enough zones first to win.</white>"
+        steal-jewelry: "<gray>Steal Jewelry:</gray> <white>take jewels from the enemy pedestals and bank them at home. Bank enough to win.</white>"
+        battle-loyal: "<gray>Battle Royal:</gray> <white>team deathmatch. The first team to the kill goal wins.</white>"
+        pve-waves: "<gray>Waves:</gray> <white>team up against the monsters and clear every wave without running out of lives.</white>"
+      norma-win: "<gray>Norma:</gray> <white>stars from generators and kills level you up (your current goal is on the sidebar). The first player to reach</white> <gold>Lv {max}</gold> <white>wins the match for their team.</white>"
+      norma-rank: "<gray>Norma:</gray> <white>stars from generators and kills level you up (your goal is on the sidebar). Levels rank the teams if time runs out.</white>"
+      time: "<gray>Time limit {minutes} min: the team ahead on the objective, then Norma level, stars and kills wins.</gray>"
     # F3-4 — result screen (chat part) shown at match end, before the transfer back.
     result:
+      hint: "<yellow>To win:</yellow> <white>reach Norma Lv {max} first (kills and stars raise it), or finish the mode objective before the other team.</white>"
+      norma:
+        label: "<gray>Norma</gray>  {standings}"
+        team: "<{color}>{team}</{color}> <white><bold>Lv {level}/{max}</bold></white> <gray>★{stars} ⚔{kills}</gray>"
       score:
         label: "<gray>Score</gray>  {scores}"
         team: "<{color}>{team}</{color}> <white><bold>{score}</bold></white>"
@@ -981,6 +1028,11 @@ astera:
         assists: "Assists x{count}"
         objectives: "Objectives x{count}"
         mvp: "MVP bonus"
+      next-level: "<gray>Next level reward:</gray> <white>Lv {level}</white> <gray>-</gray> <gold>{reward}</gold>"
+      next:
+        affordable: "<green>You can afford</green> <white>{name}</white> <gray>({price} GOLD, you have {balance}).</gray> <gray>Buy it in the shop, then bring it to your next match.</gray>"
+        short: "<gray>Next unlock:</gray> <white>{name}</white> <gold>{price} GOLD</gold> <gray>({short} more; you have {balance}).</gray>"
+        cosmetic-affordable: "<green>You can afford</green> <white>{name}</white> <gray>({price} GOLD, you have {balance}).</gray> <gray>Buy and wear it from the Cosmetics button in the shop.</gray>"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — reconnect-window countdown
     # ActionBar shown while a disconnected participant is held in the seat.
     reconnect:
@@ -1151,6 +1203,7 @@ astera:
         waiting: "<gray>Waiting for players</gray>"
         countdown: "<yellow>Starting...</yellow>"
         active: "<green>Live</green> <white>{time}</white>"
+        active-limited: "<green>Live</green> <white>{time}</white> <gray>/ {limit}</gray>"
         sudden-death: "<red>Sudden death</red> <white>{time}</white>"
         ended: "<dark_gray>Ended</dark_gray>"
       nexus:
@@ -1193,6 +1246,7 @@ astera:
       you: "<gray>You:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>Stars</gray>"
       level: "<gray>Norma</gray> <white>Lv {level}/{max}</white>"
+      level-vs: "<gray>Norma</gray> <white>Lv {level}/{max}</white> <gray>(rival {rival})</gray>"
       objective-star: "<gray>Goal:</gray> <yellow>Stars</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>Goal:</gray> <red>Kills</red> <white>{progress}/{target}</white>"
       objective-max: "<gold>Top Norma level</gold>"
@@ -1278,9 +1332,6 @@ astera:
       tutorial-graduate:
         name: "<gold>Tutorial Graduate</gold>"
         description: "<gray>Finish the tutorial.</gray>"
-      explorer:
-        name: "<gold>Explorer</gold>"
-        description: "<gray>Finish the forest exploration quest.</gray>"
       streak-7:
         name: "<gold>Regular</gold>"
         description: "<gray>Log in 7 days in a row.</gray>"
@@ -1350,23 +1401,13 @@ astera:
       title: "<gold><bold>Master of Blades</bold></gold>"
       description: "<gray>50 kills + 5 match wins.</gray>"
     # Wave H 5content-depth (ADR-0125) — content-baseline expansion.
-    first_mob_kill:
-      title: "<gold>First Mob Kill</gold>"
-      description: "<gray>Defeat your first PvE mob.</gray>"
     kills_100:
       title: "<gold>Centurion</gold>"
       description: "<gray>Defeat 100 opponents.</gray>"
-    boss_defeat:
-      title: "<gold><bold>Boss Slayer</bold></gold>"
-      description: "<gray>Defeat the boss after 100 kills + 3 match wins.</gray>"
     # Wave K 5integration-wire (ADR-0128) — onboarding loop closer.
     tutorial_graduate:
       title: "<aqua>Tutorial Graduate</aqua>"
       description: "<gray>Walk every tutorial step at least once.</gray>"
-    # Wave K 5integration-wire (ADR-0128) — forest-exploration quest link.
-    explorer:
-      title: "<green>Explorer</green>"
-      description: "<gray>Finish the forest-exploration quest chain.</gray>"
 
   # Wave H 5content-depth (ADR-0125) — NotifyOnAchievementUnlockedListener keys.
   # Distinct from `astera.advancement.*` (display catalog) and
@@ -1415,8 +1456,8 @@ astera:
     tutorial-chain:
       title: "<gold>Tutorial Quest</gold>"
       kill-monsters:
-        title: "<yellow>Kill 5 Monsters</yellow>"
-        description: "<gray>Defeat 5 monsters to earn gold.</gray>"
+        title: "<yellow>Defeat 5 Opponents</yellow>"
+        description: "<gray>Defeat 5 opponents in matches to earn gold.</gray>"
       win-match:
         title: "<yellow>Win a Match</yellow>"
         description: "<gray>Win a single match to earn a title.</gray>"
@@ -1432,13 +1473,13 @@ astera:
         desc: "<gray>Single stage.</gray>"
     # Wave H 5content-depth (ADR-0125) — new quest chains.
     forest-exploration:
-      title: "<gold>Forest Exploration</gold>"
+      title: "<gold>Arena Trials</gold>"
       hunt-forest-mobs:
-        title: "<yellow>Hunt 10 Forest Mobs</yellow>"
-        description: "<gray>Defeat 10 mobs in the forest biome to earn gold.</gray>"
+        title: "<yellow>Defeat 10 Opponents</yellow>"
+        description: "<gray>Defeat 10 opponents in matches to earn gold.</gray>"
       prove-prowess:
         title: "<yellow>Prove Your Prowess</yellow>"
-        description: "<gray>Win a single match to earn the Forest Ranger title.</gray>"
+        description: "<gray>Win a single match to earn the Ranger title.</gray>"
     item-collection:
       title: "<gold>Item Collection</gold>"
       gather-iron:
@@ -1720,6 +1761,9 @@ astera:
         market:
           title: "<gold><bold>MARKET</bold></gold>"
           subtitle: "<dark_gray>Shop & Vault</dark_gray>"
+        guild:
+          title: "<gold><bold>GUILD HALL</bold></gold>"
+          subtitle: "<dark_gray>Your base</dark_gray>"
       lane:
         hint: "<dark_gray>Step on the pad</dark_gray>"
         title: "<gold><bold>{lane}</bold></gold>"
@@ -1746,6 +1790,19 @@ astera:
         entry:
           title: "<aqua><bold>Practice Ground</bold></aqua>"
           hint: "<dark_gray>Dummies never die</dark_gray>"
+        guide:
+          title: "<gold><bold>Try all three</bold></gold>"
+          hint: "<dark_gray>Yellow gun, red sword, purple staff</dark_gray>"
+        bay:
+          gun:
+            title: "<yellow><bold>GUN</bold></yellow>"
+            hint: "<dark_gray>Shoot the lanes</dark_gray>"
+          sword:
+            title: "<red><bold>SWORD</bold></red>"
+            hint: "<dark_gray>Hit the dummies</dark_gray>"
+          staff:
+            title: "<light_purple><bold>STAFF</bold></light_purple>"
+            hint: "<dark_gray>Cast at the targets</dark_gray>"
     # F3-1 — queue lane pads: holograms above the pads, join confirmation.
     lane:
       board:
@@ -2162,6 +2219,8 @@ astera:
       name: "Reloading"
     dash:
       name: "Dashing"
+    swift:
+      name: "Hasted"
     shock:
       name: "Shocked"
     wet:
@@ -2378,17 +2437,17 @@ astera:
   tutorial.guide.secondary.subtitle: "Sneak + right-click with the sword"
   tutorial.guide.secondary.hint: "Face safe ground. Hold sneak and right-click to dash; skills spend energy."
   tutorial.guide.reload.title: "Reload a gun"
-  tutorial.guide.reload.subtitle: "Take a pistol, fire with RC, then press Q"
-  tutorial.guide.reload.hint: "Right-click the Pistol rack frame, select it, fire a shot with RC, then Q. Wait for reload to finish."
+  tutorial.guide.reload.subtitle: "Take a pistol, right-click to fire, then press Q to reload"
+  tutorial.guide.reload.hint: "Right-click the Pistol rack frame, select it, right-click to fire a shot, then press Q to reload. Wait for the reload to finish."
   tutorial.guide.hud.title: "Read your HUD"
   tutorial.guide.hud.subtitle: "Watch the food bar and skill icons for four seconds"
   tutorial.guide.hud.hint: "Food bar = energy, not hunger. Ammo icon = rounds; cooldown icons and the hotbar sweep show when skills are ready."
-  tutorial.guide.shop.title: "Visit the shop"
-  tutorial.guide.shop.subtitle: "Open the shop at the marked merchant"
-  tutorial.guide.shop.hint: "Put your weapon away. Use F → Shop, or right-click the marked shopkeeper. No purchase needed."
-  tutorial.guide.vault.title: "Your personal vault"
-  tutorial.guide.vault.subtitle: "Open your personal vault"
-  tutorial.guide.vault.hint: "Use sneak+F, or F → Vault. Stored items persist; no deposit needed."
+  tutorial.guide.staff.title: "Cast a spell"
+  tutorial.guide.staff.subtitle: "Take the Fire Staff and right-click"
+  tutorial.guide.staff.hint: "Right-click the Fire Staff frame on the rack, select it, then right-click to cast. Spells spend energy (the food bar)."
+  tutorial.guide.norma.title: "How to win"
+  tutorial.guide.norma.subtitle: "Clear Norma levels before the other team"
+  tutorial.guide.norma.hint: "Grab stars from generators and kills, hit each level's goal (shown on the sidebar), and reach the top Norma level first."
   tutorial.guide.queue.title: "Ready to play"
   tutorial.guide.queue.subtitle: "Go to the Play gate by the spawn"
   tutorial.guide.queue.hint: "Walk to the glowing Play gate next to the spawn and right-click the Play guide, then pick a mode. Q on the compass opens the same picker."
@@ -2455,12 +2514,13 @@ astera:
   lobby.npc.social.name: "Social Hub"
   gui.social-hub.title: "<gold>Social</gold>"
   gui.button.back: "Back"
+  gui.button.close: "Close"
   gui.main-menu.vault.tooltip: "<gray>Click to open your personal vault.</gray>"
   gui.main-menu.settings.tooltip: "<gray>Click for language, volume, controls, particles and privacy.</gray>"
   gui.main-menu.party.tooltip: "<gray>Click to manage your party.</gray>"
   gui.main-menu.friends.tooltip: "<gray>Click to see your friends and requests.</gray>"
   gui.main-menu.achievements.tooltip: "<gray>Click to see your achievements.</gray>"
-  gui.main-menu.quests.tooltip: "<gray>Click to see how to check daily bonus, missions and quests.</gray>"
+  gui.main-menu.quests.tooltip: "<gray>Click to open the daily bonus, missions and quests screen.</gray>"
   gui.main-menu.help.tooltip: "<gray>Click for the command cheat sheet and the tutorial.</gray>"
   gui.settings.volume.music.tooltip: "<gray>Click to step the music volume (100 / 75 / 50 / 25 / 0).</gray>"
   gui.settings.volume.sound.tooltip: "<gray>Click to step the sound-effect volume (100 / 75 / 50 / 25 / 0).</gray>"
@@ -2479,16 +2539,13 @@ astera:
   settings.value.particles.all: "everyone"
   settings.value.particles.team: "own team only"
   settings.value.particles.own: "only yours"
-  hint.progress.header: "<gold>Daily bonus, missions and quests</gold>"
-  hint.progress.daily: "<gray>/astera daily</gray> - collect today's login bonus and see your streak"
-  hint.progress.missions: "<gray>/astera missions</gray> - daily / weekly missions"
-  hint.progress.quests: "<gray>/astera quests</gray> - quest chains"
   hint.help.header: "<gold>Help</gold>"
   hint.help.commands: "<gray>/astera help</gray> - every command; <gray>/astera menu</gray>, <gray>/astera settings</gray>, <gray>/astera social</gray> open the screens"
   hint.help.tutorial: "<gray>/astera tutorial start</gray> - replay the tutorial"
   hint.help.in-match: "<gray>In a match press F for the menu (settings, leave, help), or use /astera queue leave, /astera travel lobby or /astera settings.</gray>"
-  presentation.star-burst.victim: "<red>-{amount} ★ burst out!</red>"
-  presentation.star-burst.killer: "<gold>+{amount} ★ burst out - grab them!</gold>"
+  presentation.star-burst.victim: "<red><bold>-{amount} ★</bold></red>"
+  presentation.star-burst.killer: "<gold><bold>+{amount} ★</bold></gold> <gray>burst out - grab them!</gray>"
+  presentation.respawn: "<aqua>Back in the fight!</aqua>"
   menu.cosmetics.tooltip: "<gray>Click to buy and equip titles, name colours and kill effects.</gray>"
   match_menu.title: "Match menu"
   match_menu.hint: "<gray>Press <yellow>F</yellow> for the match menu (settings, leave, help).</gray>"
@@ -2502,3 +2559,31 @@ astera:
   match_menu.help.norma: "<gray>Norma:</gray> your team clears Norma levels by reaching a star or kill goal; the first team to the top level wins."
   match_menu.help.stars: "<gray>Stars:</gray> a star is an item you carry inside the match. Bring them to your goal; if you are defeated or leave, they burst out for others to grab."
   match_menu.help.weapon-limit: "<gray>Weapon limit:</gray> you can only carry a limited number of weapons in a match; extras are set aside and returned afterwards."
+  presentation.sudden-death.title: "<red><bold>Final stretch!</bold></red>"
+  presentation.sudden-death.subtitle: "<yellow>The match ends soon - go for the win</yellow>"
+  presentation.match-found.title: "<green><bold>Match found!</bold></green>"
+  presentation.match-found.subtitle: "<gray>Get ready - the match is being prepared</gray>"
+  gui.settings.hp-line.tooltip: "<gray>Click to show or hide the HP / ammo status line. Off hides the whole line.</gray>"
+  gui.settings.damage-numbers.tooltip: "<gray>Click to show or hide the floating damage numbers when you hit someone.</gray>"
+  gui.settings.tutorial-hints.tooltip: "<gray>Click to show or hide the first-time guide's hints (the guide pauses while off).</gray>"
+  settings.toggle.hp-line: "<green>HP line: <gold>{value}</gold></green>"
+  settings.toggle.damage-numbers: "<green>Damage numbers: <gold>{value}</gold></green>"
+  settings.toggle.tutorial-hints: "<green>Tutorial hints: <gold>{value}</gold></green>"
+  progress.gui.title: "<gold>Daily and Quests</gold>"
+  progress.gui.daily.name: "<gold>Daily login bonus</gold>"
+  progress.gui.daily.status: "<gray>Streak:</gray> <white>{streak}</white> <gray>day(s), today pays day</gray> <white>{day}</white>"
+  progress.gui.daily.reward: "<gray>Today:</gray> <yellow>{amount} {currency}</yellow>"
+  progress.gui.daily.claim: "<green>Click to collect today's bonus</green>"
+  progress.gui.daily.claimed: "<green>Today's bonus is collected</green>"
+  progress.gui.daily.none: "<yellow>No bonus is configured for today</yellow>"
+  progress.gui.daily.tomorrow: "<gray>Tomorrow:</gray> <yellow>{amount} {currency}</yellow>"
+  progress.gui.missions.header: "<gold><bold>Missions</bold></gold>"
+  progress.gui.missions.none: "<gray>No missions are available</gray>"
+  progress.gui.mission.period: "<gray>[{period}]</gray>"
+  progress.gui.mission.progress: "<yellow>{current}/{required}</yellow>"
+  progress.gui.mission.done: "<green>Done</green>"
+  progress.gui.quests.header: "<gold><bold>Quests</bold></gold>"
+  progress.gui.quests.none: "<gray>No quests yet. They start when you join</gray>"
+  progress.gui.quest.progress: "<yellow>{current}/{required}</yellow>"
+  progress.gui.quest.complete: "<green>Complete</green>"
+  cover.wrong-tool: "<gray>That tool does not work on this block - try another one.</gray>"

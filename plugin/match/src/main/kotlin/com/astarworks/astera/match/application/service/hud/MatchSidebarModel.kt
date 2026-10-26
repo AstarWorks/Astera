@@ -33,15 +33,18 @@ public data class SidebarModel(
 
 public object MatchSidebarModel {
 
-    /** Lines left for the mode after header (2), spacers (2) and the viewer footer (2). */
-    public const val MAX_MODE_LINES: Int = 15 - 6
+    /** Sidebar rows the client shows. */
+    private const val MAX_LINES: Int = 15
+
+    /** Lines left for the mode after header (2) and the viewer footer (spacer, team, stars, level, goal = 5). */
+    public const val MAX_MODE_LINES: Int = MAX_LINES - 2 - 5
 
     private val SPACER: MessageKey = MessageKey("astera.hud.sidebar.spacer")
 
     /** The viewer-independent part, built from the mode's own [IGameMode.hudStatus]. */
-    public fun build(mode: IGameMode, match: Match, nowTick: Long): SidebarModel {
+    public fun build(mode: IGameMode, match: Match, nowTick: Long, timeLimitTicks: Long = 0L): SidebarModel {
         val status = mode.hudStatus(match, nowTick)
-        val header = status.phaseLine ?: genericPhaseLine(match, nowTick)
+        val header = status.phaseLine ?: genericPhaseLine(match, nowTick, timeLimitTicks)
         val lines = buildList {
             add(header)
             add(HudLine(SPACER))
@@ -50,13 +53,19 @@ public object MatchSidebarModel {
         return SidebarModel(titleKey = mode.titleKey(), lines = lines)
     }
 
-    private fun genericPhaseLine(match: Match, nowTick: Long): HudLine {
-        val key = MessageKey("astera.hud.sidebar.phase.${match.phase.name.lowercase().replace('_', '-')}")
+    private fun genericPhaseLine(match: Match, nowTick: Long, timeLimitTicks: Long): HudLine {
+        val name = match.phase.name.lowercase().replace('_', '-')
         val ticking = match.phase == MatchPhase.ACTIVE || match.phase == MatchPhase.SUDDEN_DEATH
         return if (ticking) {
-            HudLine(key, mapOf("time" to AnnihilationHudStatus.clock((nowTick - match.startedAtTick).coerceAtLeast(0))))
+            val time = AnnihilationHudStatus.clock((nowTick - match.startedAtTick).coerceAtLeast(0))
+            // A mode with a time limit shows "3:12 / 20:00" so nobody is surprised by the limit ranking.
+            if (match.phase == MatchPhase.ACTIVE && timeLimitTicks > 0) {
+                HudLine(MessageKey("astera.hud.sidebar.phase.active-limited"), mapOf("time" to time, "limit" to AnnihilationHudStatus.clock(timeLimitTicks)))
+            } else {
+                HudLine(MessageKey("astera.hud.sidebar.phase.$name"), mapOf("time" to time))
+            }
         } else {
-            HudLine(key)
+            HudLine(MessageKey("astera.hud.sidebar.phase.$name"))
         }
     }
 
@@ -73,7 +82,6 @@ public object MatchSidebarModel {
         norma: NormaHud?,
     ): HudLayout.Sidebar {
         val teams = match.teams.associateBy { it.id }
-        val body = model.lines.map { line -> toText(line, teams[line.team], viewer, messages) }
         val footer = buildList {
             add(HudComponent.Text(SPACER))
             match.teams.firstOrNull { viewer in it.members }?.let { own ->
@@ -81,7 +89,15 @@ public object MatchSidebarModel {
             }
             if (norma != null) {
                 add(HudComponent.Text(MessageKey("astera.hud.sidebar.stars"), placeholders = mapOf("stars" to norma.stars.toString())))
-                add(HudComponent.Text(MessageKey("astera.hud.sidebar.level"), placeholders = mapOf("level" to norma.level.toString(), "max" to norma.maxLevel.toString())))
+                val levelParams = mapOf("level" to norma.level.toString(), "max" to norma.maxLevel.toString())
+                // The race that wins the match: show the best rival level next to your own.
+                add(
+                    if (norma.rivalLevel != null) {
+                        HudComponent.Text(MessageKey("astera.hud.sidebar.level-vs"), placeholders = levelParams + ("rival" to norma.rivalLevel.toString()))
+                    } else {
+                        HudComponent.Text(MessageKey("astera.hud.sidebar.level"), placeholders = levelParams)
+                    },
+                )
                 if (norma.level >= norma.maxLevel) {
                     add(HudComponent.Text(MessageKey("astera.hud.sidebar.objective-max")))
                 } else {
@@ -90,7 +106,9 @@ public object MatchSidebarModel {
                 }
             }
         }
-        return HudLayout.Sidebar(titleKey = model.titleKey, lines = (body + footer).take(15))
+        // The footer carries the viewer's Norma goal, so it is never the part that gets cut: the mode body shrinks instead.
+        val body = model.lines.take(MAX_LINES - footer.size).map { line -> toText(line, teams[line.team], viewer, messages) }
+        return HudLayout.Sidebar(titleKey = model.titleKey, lines = body + footer)
     }
 
     private fun toText(line: HudLine, team: Team?, viewer: PlayerId, messages: IMessageRenderer): HudComponent.Text {

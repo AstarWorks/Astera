@@ -15,6 +15,7 @@ layout:                      # sky-island block layout; see below
   seed: 20261023
   surface_y: 64              # top layer of every island; players stand at surface_y + 1
   kill_y: 30                 # void-fall kill plane (default surface_y - 34)
+  relief: 1.0                # terrain relief strength 0..1.5 (hills, channels, cover); 0 = flat (debug stages)
   islands:
     - { id: red, kind: base, team: red, center: { x: -66, z: 0 }, radius: 20 }
     - { id: center, kind: center, center: { x: 0, z: 0 }, radius: 22 }

@@ -61,6 +61,17 @@ class ClientReceivesE2eTest : E2eBase() {
     }
 
     @Test
+    fun `joining the lobby starts the astera lobby BGM track as a sound packet`() {
+        val a = bot("BgmListener")
+        a.waitUntil(15_000) { a.sounds.any { soundKey("astera:music/lobby-loop") in soundKey(it) } }
+        E2eReport.check(suite, "joining the lobby sends the astera:music/lobby-loop BGM event to the player", "ClientboundSound") {
+            assertThat(a.sounds.map(::soundKey).any { soundKey("astera:music/lobby-loop") in it })
+                .describedAs("MISSING astera:music/lobby-loop after joining; sound packets=${a.sounds.take(10)}").isTrue()
+            "heard ${a.sounds.take(6)}"
+        }
+    }
+
+    @Test
     fun `basic gun sword and wand skills send their astera sound packets to the caster`() {
         val a = bot("SoundCaster")
         op(a)
@@ -73,6 +84,12 @@ class ClientReceivesE2eTest : E2eBase() {
             Triple("pistol", "right", "astera:weapons/gun-shot"),
             Triple("knight-sword", "left", "astera:weapons/sword-swing"),
             Triple("fire-staff", "right", "astera:skill/wand/cast"),
+            // one cast cue per remaining weapon family member (gun / blade / elemental staff)
+            Triple("rifle", "right", "astera:weapons/rifle-crack"),
+            Triple("shotgun", "right", "astera:weapons/shotgun-blast"),
+            Triple("dagger", "left", "astera:weapons/sword-swing"),
+            Triple("greatsword", "left", "astera:weapons/blade-heavy-swing"),
+            Triple("frost-staff", "right", "astera:skills/frost-cast"),
         )
         for ((item, click, soundId) in cases) {
             val slot = give(a, item)
@@ -136,10 +153,16 @@ class ClientReceivesE2eTest : E2eBase() {
             assertThat(behind).describedAs("HP line is $behind ms behind the hearts (budget $hudLagBudgetMs ms = 3 ticks + jitter); vanilla ${lag.vanillaMs} ms, line ${lag.hudMs} ms").isLessThanOrEqualTo(hudLagBudgetMs)
             "hearts at ${lag.vanillaMs} ms, line at ${lag.hudMs} ms ($behind ms behind); ${lag.hudBefore} -> ${lag.hudAfter}; glyph bar=${lag.hudAfter?.glyphs}"
         }
-        E2eReport.check(suite, "$label: the shooter hears the hit marker", "ClientboundSound") {
+        E2eReport.check(suite, "$label: the shooter hears exactly one hit marker (no vanilla double)", "ClientboundSound") {
             val heard = a.sounds.drop(soundsBefore)
-            assertThat(heard.map(::soundKey).any { soundKey("entity.arrow.hit_player") in it })
-                .describedAs("MISSING sound entity.arrow.hit_player for the shooter after a hit; heard=${heard.take(10)}").isTrue()
+            assertThat(heard.map(::soundKey).none { soundKey("entity.arrow.hit_player") in it })
+                .describedAs("vanilla entity.arrow.hit_player still plays on a hit (double marker); heard=${heard.take(10)}").isTrue()
+            "heard ${heard.take(6)}"
+        }
+        E2eReport.check(suite, "$label: the shooter hears Astera's own hit-marker cue (astera:combat/hit, not a vanilla stand-in)", "ClientboundSound") {
+            val heard = a.sounds.drop(soundsBefore)
+            assertThat(heard.map(::soundKey).any { soundKey("astera:combat/hit") in it || soundKey("astera:combat/crit") in it })
+                .describedAs("MISSING astera:combat/hit (or crit) for the shooter after a hit; heard=${heard.take(10)}").isTrue()
             "heard ${heard.take(6)}"
         }
     }
@@ -235,6 +258,18 @@ class ClientReceivesE2eTest : E2eBase() {
             assertThat(heard.map(::soundKey).any { soundKey("astera:weapons/gun-shot") in it })
                 .describedAs("MISSING astera:weapons/gun-shot after reload; sound packets=${heard.take(10)}; reload='${reload.trim()}'").isTrue()
             "heard gun-shot after reload; all=${heard.take(6)}"
+        }
+
+        // Hand-written reloads (not YamlDynamicContents) share EmptyReloadGuard: re-reading the real shipped content must
+        // succeed, and a layout mismatch that yields 0 entries would be answered with "Reload aborted" instead.
+        E2eReport.check(suite, "per-category reload of the hand-written stores succeeds on shipped content", "rcon reload replies") {
+            val replies = listOf("login-bonus", "cosmetics", "armor", "balance-combat", "lobby-kit", "achievements")
+                .associateWith { rcon("astera admin reload $it").trim() }
+            replies.forEach { (cat, reply) ->
+                assertThat(reply).describedAs("reload $cat refused or unknown (reply='$reply')")
+                    .doesNotContain("aborted").doesNotContain("Unknown").contains("Reloaded")
+            }
+            "replies=$replies"
         }
     }
 }

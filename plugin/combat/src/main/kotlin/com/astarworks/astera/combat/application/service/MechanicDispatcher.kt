@@ -200,6 +200,10 @@ public class MechanicDispatcher(
     /** `restore_resource`: lazily resolved held-item resource pool. */
     private val resourcePool: (() -> com.astarworks.astera.core.application.port.outbound.IResourcePoolService?)? = null,
     private val playerAnimation: com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway? = null,
+    /** `consume_item`: lazily resolved inventory removal (Items registers it). */
+    private val itemRemoval: (() -> com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval?)? = null,
+    /** `consume_item`: lets Core keep the item gone across the match-end inventory restore. */
+    private val consumptionRecorder: (() -> com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder?)? = null,
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
     private val bakedSkills: ISkillRegistry? = null,
 ) {
@@ -726,12 +730,18 @@ public class MechanicDispatcher(
             is Mechanic.Explode -> worldMechanics.explode(mechanic, ctx)
 
             // ===== Item / inventory ===================================
-            is Mechanic.GiveItem,
+            is Mechanic.GiveItem -> {
+                log.info("GiveItem mechanic dispatched (inventory port deferred to Phase 6)")
+            }
+
             is Mechanic.ConsumeItem -> {
-                log.info(
-                    "{} mechanic dispatched (inventory port deferred to Phase 6)",
-                    mechanic::class.simpleName,
-                )
+                val removal = itemRemoval?.invoke() ?: return warnMissing("ConsumeItem", "IOwnedItemRemoval")
+                val count = resolveInt(mechanic.count, ctx).coerceAtLeast(0)
+                for (target in living(targeterResolver.resolvePlayers(mechanic.targets, ctx))) {
+                    repeat(count) {
+                        if (removal.removeOne(target, mechanic.itemId)) consumptionRecorder?.invoke()?.record(target, mechanic.itemId)
+                    }
+                }
             }
 
             is Mechanic.ModifyAttribute -> {
@@ -875,7 +885,7 @@ public class MechanicDispatcher(
                 val renderer = messageRenderer ?: return warnMissing("SendActionBar", "IMessageRenderer")
                 val out = feedback ?: return warnMissing("SendActionBar", "IPlayerFeedbackGateway")
                 for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
-                    out.sendActionBar(target, renderer.renderText(target, mechanic.message))
+                    out.postActionBar(target, renderer.renderText(target, mechanic.message))
                 }
             }
 

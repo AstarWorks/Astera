@@ -100,7 +100,13 @@ public class DefaultGuiIntentRouter(
         }
         val moment = if (intent.key.startsWith("settings.")) PresentationMoments.UI_CONFIRM else PresentationMoments.UI_CLICK
         presentation()?.play(moment, player.id)
-        match.handler(intent, player)
+        val watch = GuiRefusalProbe.begin()
+        try {
+            match.handler(intent, player)
+        } finally {
+            // A handler that refused (red message) without playing deny itself gets the one central deny cue.
+            if (GuiRefusalProbe.finish(watch)) presentation()?.play(PresentationMoments.UI_DENY, player.id)
+        }
     }
 
     override fun hasHandler(key: String): Boolean = entries.any { key.startsWith(it.prefix) }

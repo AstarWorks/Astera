@@ -126,7 +126,10 @@ public class ShopBrowseUseCase(
     private fun buildShopGui(playerId: PlayerId, shopSpec: ShopSpec, pendingOffer: ShopOfferId?, view: View): GuiSpec {
         val categories = shopSpec.offers.mapNotNull { it.category }.distinct()
         val category = view.category?.takeIf { it in categories }
+        val newcomer = shopSpec.offers.none { it.limit == PurchaseLimit.ONCE && purchases.count(playerId, shopSpec.id, it.id) > 0 }
+        // A newcomer sees the recommended first buy at the top (stable sort keeps the authored order otherwise).
         val filtered = shopSpec.offers.filter { category == null || it.category == category }
+            .let { list -> if (newcomer) list.sortedByDescending { it.recommended } else list }
         val pages = ((filtered.size + MAX_OFFERS - 1) / MAX_OFFERS).coerceAtLeast(1)
         val page = view.page.coerceIn(0, pages - 1)
         val visibleOffers = filtered.drop(page * MAX_OFFERS).take(MAX_OFFERS)
@@ -142,13 +145,14 @@ public class ShopBrowseUseCase(
             size = size,
         ) {
             visibleOffers.forEachIndexed { index, offer ->
-                slot(SlotIndex(index), offerSlot(playerId, shopSpec, offer, pendingOffer == offer.id))
+                slot(SlotIndex(index), offerSlot(playerId, shopSpec, offer, pendingOffer == offer.id, newcomer && offer.recommended))
             }
             for (col in 0 until 9) slot(SlotIndex(footer + col), GuiSlot.Border(FOOTER_PANE))
             if (page > 0) slot(SlotIndex(footer), pageSlot(shopSpec, PREV_ICON, PAGE_PREV, page - 1, category, page, pages))
             if (categories.isNotEmpty()) {
                 slot(SlotIndex(footer + 2), categorySlot(playerId, shopSpec, category, nextCategory))
             }
+            slot(SlotIndex(footer + 1), cosmeticsSlot())
             slot(SlotIndex(footer + 4), walletSlot(playerId))
             slot(SlotIndex(footer + 6), historySlot(shopSpec))
             if (page < pages - 1) {
@@ -192,6 +196,14 @@ public class ShopBrowseUseCase(
                 },
             ),
         )
+
+    /** The way into the cosmetics menu (ADR-0269): the GOLD sink beyond weapons is reachable from the shop itself. */
+    private fun cosmeticsSlot(): GuiSlot.Static = GuiSlot.Static(
+        itemId = COSMETICS_ICON,
+        displayName = GuiText(COSMETICS_TITLE),
+        lore = listOf(GuiText(COSMETICS_HINT)),
+        onLeftClick = GuiIntent(key = INTENT_COSMETICS),
+    )
 
     private fun historySlot(shopSpec: ShopSpec): GuiSlot.Static = GuiSlot.Static(
         itemId = HISTORY_ICON,
@@ -252,7 +264,7 @@ public class ShopBrowseUseCase(
         }
     }
 
-    private fun offerSlot(playerId: PlayerId, shopSpec: ShopSpec, offer: ShopOffer, pending: Boolean): GuiSlot.Static {
+    private fun offerSlot(playerId: PlayerId, shopSpec: ShopSpec, offer: ShopOffer, pending: Boolean, recommended: Boolean): GuiSlot.Static {
         val have = ledger.balance(playerId, offer.price.currency)
         val affordable = have >= offer.price.amount
         val remaining = when (val live = stock.currentStock(shopSpec.id, offer.id) ?: offer.stock) {
@@ -270,6 +282,7 @@ public class ShopBrowseUseCase(
         )
         val lore = buildList {
             add(GuiText(SPACER))
+            if (recommended) add(GuiText(RECOMMENDED_BADGE))
             if (owned) add(GuiText(OWNED_BADGE)) else add(GuiText(if (affordable) PRICE_OK else PRICE_SHORT, priceArgs))
             if (!owned && remaining != null && !soldOut) add(GuiText(STOCK_LIMITED, mapOf("remaining" to remaining.toString())))
             add(
@@ -300,7 +313,8 @@ public class ShopBrowseUseCase(
     private fun walletSlot(playerId: PlayerId): GuiSlot.Static = GuiSlot.Static(
         itemId = WALLET_ICON,
         displayName = GuiText(WALLET_TITLE),
-        lore = Currency.entries.map { c ->
+        // GEM has no source yet: it stays out of the wallet until a balance exists.
+        lore = Currency.entries.filter { it == Currency.GOLD || ledger.balance(playerId, it) > 0L }.map { c ->
             GuiText(
                 WALLET_LINE,
                 mapOf("currency" to currencyName(playerId, c), "amount" to ledger.balance(playerId, c).toString()),
@@ -327,6 +341,7 @@ public class ShopBrowseUseCase(
         private val ACTION_SOLD_OUT = MessageKey("astera.economy.shop.gui.action.sold_out")
         private val ACTION_CARRYING = MessageKey("astera.economy.shop.gui.action.carrying")
         private val ACTION_TAKE_COPY = MessageKey("astera.economy.shop.gui.action.take_copy")
+        private val RECOMMENDED_BADGE = MessageKey("astera.economy.shop.gui.recommended")
         private val OWNED_BADGE = MessageKey("astera.economy.shop.gui.owned")
         private val PAGE_PREV = MessageKey("astera.economy.shop.gui.page.prev")
         private val PAGE_NEXT = MessageKey("astera.economy.shop.gui.page.next")
@@ -342,6 +357,12 @@ public class ShopBrowseUseCase(
         private val CATEGORY_ICON = ItemId("gui-admin-cat-all")
         private val HISTORY_ICON = ItemId("gui-admin-page")
         private val BACK_ICON = ItemId("gui-admin-back")
+        private val COSMETICS_ICON = ItemId("gui-tile-customize")
+        private val COSMETICS_TITLE = MessageKey("astera.economy.shop.gui.cosmetics.title")
+        private val COSMETICS_HINT = MessageKey("astera.economy.shop.gui.cosmetics.hint")
+
+        /** Handled by the cosmetics menu (`cosmetic.` prefix), not by the shop handler. */
+        public const val INTENT_COSMETICS: String = "cosmetic.open"
 
         public const val INTENT_PAGE: String = "shop.page"
         public const val INTENT_HISTORY: String = "shop.history"

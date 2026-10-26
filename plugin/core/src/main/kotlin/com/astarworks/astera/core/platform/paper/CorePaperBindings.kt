@@ -122,9 +122,13 @@ internal class CorePaperBindings(
     /** Retained so players' action-bar messages are composed with the HP status line. */
     private var paperHudGateway: com.astarworks.astera.core.application.port.outbound.IHudGateway? = null
 
+    /** The one door to the action bar (ADR-0279); resolves the Paper compositor lazily. */
+    private val actionBarChannel: com.astarworks.astera.core.application.port.outbound.IActionBarChannel =
+        com.astarworks.astera.core.application.service.HudActionBarChannel { paperHudGateway }
+
     fun buildPorts(): CorePlatformPorts {
         // ---- Vendor-neutral abstraction over Paper -----------------------
-        val mcServer: IMcServer = PaperServer(server, { messageRenderer?.invoke() }, { paperHudGateway })
+        val mcServer: IMcServer = PaperServer(server, { messageRenderer?.invoke() }, { actionBarChannel })
         this.mcServer = mcServer
         val ps = PaperScheduler(plugin)
         ps.start()
@@ -203,6 +207,8 @@ internal class CorePaperBindings(
                     durabilityRule = deps.durabilityRule,
                     // ADR-0195: the final journal (Postgres overlay when present), not the constructor default.
                     journal = deps.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository>(),
+                    // Cover blocks a stage placed must come back at the next match in the slot.
+                    beforeWorldEdit = { block -> arenaWorld?.remember(block) },
                 )
                 // Wave 6c §B (ADR-0160) introduced PaperBlockStateGateway.warmUp(WorldId)
                 // to rehydrate the in-memory tracker from the persistent
@@ -281,6 +287,7 @@ internal class CorePaperBindings(
                 com.astarworks.astera.core.adapter.paper.presentation.PaperPresentationVisuals(
                     server,
                     services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
+                    actionBarChannel,
                 )
             },
             musicGateway = { services ->
@@ -518,6 +525,18 @@ internal class CorePaperBindings(
         installLobbyMenuKit(ctx, result)
         installMatchMenu(ctx, result)
 
+        // ADR-0090: field tools chip the stage's cover blocks; the crack overlay is the vanilla break-stage packet.
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway>(
+            com.astarworks.astera.core.adapter.paper.world.PaperBlockBreakAnimationGateway(server),
+            priority = 100,
+        )
+        com.astarworks.astera.core.adapter.paper.world.PaperCoverToolListener(
+            plugin = plugin,
+            registry = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>(),
+            matches = { ctx.services.get<IMatchRepository>() },
+            useCase = { ctx.services.get<com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase>() },
+        ).start(plugin)
+
         // ── Wave 6a-6 (ADR-0153) — Bukkit → DomainEvent adapter ────────────
         // Single Bukkit Listener that:
         //   Role 1 — translates 9 Bukkit events into Core DomainEvents
@@ -651,6 +670,7 @@ internal class CorePaperBindings(
             role = ctx.serverRole,
             renderer = renderer,
             messages = ctx.services.getOrThrow<IMessageRenderer>(),
+            actionBar = actionBarChannel,
             intents = result.guiIntentRouter,
             mcServer = mcServer,
             visibility = { ctx.services.get<com.astarworks.astera.core.application.gui.ViewerVisibility>() },

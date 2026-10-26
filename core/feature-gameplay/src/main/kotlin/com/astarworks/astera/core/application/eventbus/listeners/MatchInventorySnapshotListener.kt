@@ -2,11 +2,14 @@ package com.astarworks.astera.core.application.eventbus.listeners
 
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventoryGateway
+import com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder
+import com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval
 import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.event.PlayerEnteredMatch
 import com.astarworks.astera.core.domain.event.PlayerLeftMatch
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
@@ -37,11 +40,38 @@ public class MatchInventorySnapshotListener(
     /** Runs once per player right after the entry snapshot was taken (so anything it adds is not snapshotted). */
     private val afterEntryCapture: (PlayerId) -> Unit = {},
     private val matches: () -> IMatchRepository?,
-) {
+    /** Takes a consumed item out again after the restore (see [IItemConsumptionRecorder]). */
+    private val removal: () -> IOwnedItemRemoval? = { null },
+) : IItemConsumptionRecorder {
 
     private val log = LoggerFactory.getLogger(MatchInventorySnapshotListener::class.java)
 
     private val held: ConcurrentHashMap<MatchId, MutableMap<PlayerId, PlayerInventorySnapshot>> = ConcurrentHashMap()
+
+    /** Consumables used up during the match, per player; taken out again after the restore. */
+    private val consumed: ConcurrentHashMap<PlayerId, MutableList<ItemId>> = ConcurrentHashMap()
+
+    override fun record(playerId: PlayerId, itemId: ItemId) {
+        if (!isHeld(playerId)) return
+        consumed.computeIfAbsent(playerId) { java.util.Collections.synchronizedList(mutableListOf()) }.add(itemId)
+    }
+
+    /** Applies [snapshot], then removes what was consumed meanwhile; @return whether the player was online. */
+    private fun restore(snapshot: PlayerInventorySnapshot): Boolean {
+        if (gateway()?.apply(snapshot) != true) {
+            consumed.remove(snapshot.playerId)
+            return false
+        }
+        val spent = consumed.remove(snapshot.playerId).orEmpty()
+        if (spent.isNotEmpty()) {
+            val take = removal()
+            spent.forEach { take?.removeOne(snapshot.playerId, it) }
+            gateway()?.capture(snapshot.playerId)?.let(saveSnapshot::save) ?: saveSnapshot.save(snapshot)
+        } else {
+            saveSnapshot.save(snapshot)
+        }
+        return true
+    }
 
     /** `true` while [playerId] has an entry snapshot of a running match outstanding. */
     public fun isHeld(playerId: PlayerId): Boolean = held.values.any { playerId in it }
@@ -80,18 +110,16 @@ public class MatchInventorySnapshotListener(
      */
     public fun handleLeft(event: PlayerLeftMatch) {
         val snapshot = held[event.matchId]?.remove(event.playerId) ?: return
-        if (gateway()?.apply(snapshot) == true) saveSnapshot.save(snapshot)
+        restore(snapshot)
     }
 
     public fun handleEnded(event: MatchEnded) {
         val captured = held.remove(event.matchId) ?: return
         for ((playerId, snapshot) in captured) {
-            if (gateway()?.apply(snapshot) != true) {
+            // Re-persists so the stored row reflects the restored (pre-match) inventory.
+            if (!restore(snapshot)) {
                 log.debug("Player {} offline at match end; persisted entry snapshot restores on next join", playerId)
-                continue
             }
-            // Re-persist so the stored row reflects the restored (pre-match) inventory.
-            saveSnapshot.save(snapshot)
         }
     }
 }

@@ -29,7 +29,7 @@
 | Party | NPC **Social** (Social ハブ画面内) | Menu「Party」 / `/astera party ...` | |
 | Friends | NPC **Social** (Social ハブ画面内) | Menu「Friends」 / `/astera friend ...` | |
 | Achievements | NPC **Social** (Social ハブ画面内) | Menu「Achievements」 / `/astera achievements` (チャット) | GUI 版コマンド化は stats 側の依頼 |
-| Daily / Missions / Quests | Menu「Daily & Quests」 | `/astera daily` `/astera missions` `/astera quests` | GUI 未実装。タイルはコマンドの案内をチャットに出す。GUI 化したらタイルの intent を `gui.open` に差し替える |
+| Daily / Missions / Quests | Menu「Daily & Quests」 | `/astera daily` `/astera missions` `/astera quests` | 専用 GUI (`progress.open`, ProgressMenu)。コマンドはチャットのショートカット |
 | Settings | Menu「Settings」 | グリッド / `/astera settings` | 専用 NPC は廃止 |
 | Help / チュートリアル | Menu「Help」 | `/astera help` / `/astera tutorial start\|skip\|status` | |
 | Social ハブ画面 | NPC **Social** | `/astera social` | Party / Friends / Achievements の 3 タイル |
@@ -54,7 +54,7 @@
 |---|---|---|
 | 0 | 0 / 4 / 8 | Admin hub (管理者) / Leave queue (キュー中のみ) / Item catalog (管理者) |
 | 1 | 10..17 | Play → `lobby.queue.show` / Shop → `lobby.shop.open` / Vault → `lobby.vault.open` / Travel → `lobby.travel.show` / Training → `lobby.training.travel` / Profile → `lobby.profile.show` / Settings → `gui.open settings` / Cosmetics (見た目) → `cosmetic.open` |
-| 2 | 19..23 | Party → `lobby.party.show` / Friends → `lobby.friends.show` / Achievements → `lobby.achievement.show` / Daily & Quests → `lobby.hint.show progress` / Help → `lobby.hint.show help` |
+| 2 | 19..23 | Party → `lobby.party.show` / Friends → `lobby.friends.show` / Achievements → `lobby.achievement.show` / Daily & Quests → `progress.open` / Help → `lobby.hint.show help` |
 
 ## キー / ホットバー (`content/gui/kit/lobby-kit.yaml`)
 
@@ -80,7 +80,7 @@
 | 二段ジャンプ | ON / OFF | `doubleJumpEnabled` | — |
 | 公開プロフィール | ON / OFF (既定 OFF = プライバシー) | `publicProfileEnabled` | — |
 
-未実装 (モデルに無い): HUD 表示切替 (サイドバー / ネームプレート / ダメージ数字)、チャット設定 (チャンネル / ミュート)、通知。
+HUD 表示切替 3 種 (HPバー / ダメージ数字 / チュートリアルのヒント) は実装済み。未実装: チャット設定 (チャンネル / ミュート)、通知。
 追加するときは `PlayerSettings` にフィールドを足し、この表と `settings.yaml` に 1 行ずつ足す。
 
 ## 試合中メニュー (`content/gui/match-menu.yaml`, 9 スロット, UI-06)

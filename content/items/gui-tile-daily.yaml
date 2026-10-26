@@ -1,0 +1,7 @@
+# UI-04 (docs/vision/areas/ui-access.md) - Daily / Quests screen icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-daily
+material: CLOCK
+name:
+  ja: "<gold>デイリーボーナス</gold>"
+  en: "<gold>Daily login bonus</gold>"

@@ -1,0 +1,27 @@
+# ECO-04: swift-powder right-click. Consumes one pinch, then 8s of speed (status swift, x1.4).
+id: swift-powder-use
+name: {ja: 疾風の粉, en: Swift Powder}
+description: {ja: 使い切りで 8 秒間、移動速度が上がる。, en: Single use; faster movement for 8s.}
+archetype: sequence
+cooldown_ticks: 200
+resource_cost: 0
+tags: [support, movement, consumable]
+params: {type: sequence}
+phases:
+  type: sequence
+  cast:
+  - type: consume_item
+    targets: {type: caster}
+    item_id: swift-powder
+  - type: apply_status
+    targets: {type: caster}
+    status_id: swift
+    effect_duration_ticks: {type: literal, value: 160}
+    stack_count: {type: literal, value: 1}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.player.attack.knockback
+    pitch: {type: literal, value: 1.4}
+  - type: spawn_particle
+    targets: {type: caster_offset, offset: {type: literal, value: {x: 0.0, y: 0.2, z: 0.0}}}
+    particle_id: dash-cloud

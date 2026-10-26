@@ -14,10 +14,16 @@
 particles:
   star-pop:        { particle: END_ROD,           count: 16,  spread: [0.15, 0.5, 0.15],  speed: 0.06, y_offset: 0.6 }
   star-pickup:     { particle: FIREWORK,          count: 14,  spread: [0.25, 0.4, 0.25],  speed: 0.08, y_offset: 1.0 }
-  star-burst:      { particle: END_ROD,           count: 70,  spread: [0.15, 0.15, 0.15], speed: 0.4,  y_offset: 1.0 }
-  star-burst-gain: { particle: FIREWORK,          count: 24,  spread: [0.5, 0.6, 0.5],    speed: 0.15, y_offset: 1.0 }
+  star-burst:      { particle: END_ROD,           count: 160, spread: [0.2, 0.2, 0.2],    speed: 0.55, y_offset: 1.0 }
+  star-burst-gain: { particle: FIREWORK,          count: 40,  spread: [0.6, 0.7, 0.6],    speed: 0.2,  y_offset: 1.0 }
+  # Fountain layers (the kill scatter): gold dust and firework sparks over the END_ROD flash.
+  star-burst-gold: { particle: WAX_ON,            count: 120, spread: [0.9, 0.5, 0.9],    speed: 1.2,  y_offset: 0.8 }
+  star-burst-spark: { particle: FIREWORK,         count: 90,  spread: [0.3, 0.9, 0.3],    speed: 0.45, y_offset: 1.2 }
   norma-level-up:  { particle: TOTEM_OF_UNDYING,  count: 40,  spread: [0.5, 0.8, 0.5],    speed: 0.3,  y_offset: 0.0 }
   norma-level-max: { particle: TOTEM_OF_UNDYING,  count: 120, spread: [0.8, 1.0, 0.8],    speed: 0.5,  y_offset: 0.0 }
+  death-soul:      { particle: SOUL,              count: 28,  spread: [0.3, 0.6, 0.3],    speed: 0.06, y_offset: 0.9 }
+  respawn-glint:   { particle: END_ROD,           count: 36,  spread: [0.35, 0.9, 0.35],  speed: 0.1,  y_offset: 0.1 }
+  player-level-up: { particle: FIREWORK,          count: 30,  spread: [0.5, 0.7, 0.5],    speed: 0.2,  y_offset: 0.5 }
 
 moments:
   countdown-tick:
@@ -26,10 +32,15 @@ moments:
     cue: "astera:match/go"
   kill:
     cue: "astera:combat/kill"
+  # death: souls rise from the victim's spot (the killer and nearby viewers see them too); respawn: a rising glint at the
+  # spawn point plus a short "back in" line, so the player notices the moment control returns.
   death:
     cue: "astera:match/death"
+    particle: death-soul
   respawn:
     cue: "astera:match/respawn"
+    action_bar: "astera.presentation.respawn"
+    particle: respawn-glint
   hit:
     cue: "astera:combat/hit"
   crit:
@@ -63,6 +74,14 @@ moments:
     cue: "astera:star/burst-gain"
     action_bar: "astera.presentation.star-burst.killer"
     particle: star-burst-gain
+  # The fountain's extra layers (played with the same audience as star-burst): a launch thump + sparkle cascade under
+  # the burst cue, gold dust, firework sparks. No action bar here (star-burst owns it).
+  star-burst-gold:
+    cue: "astera:star/burst-boom"
+    audience_cue: "astera:star/burst-boom"
+    particle: star-burst-gold
+  star-burst-spark:
+    particle: star-burst-spark
 
   norma-level-up:
     cue: "astera:norma/level-up"
@@ -79,10 +98,8 @@ moments:
     title_stay_ticks: 80
     particle: norma-level-max
   norma-choice-open:
+    # Sound only: the picker GUI opens in the same tick and covers any title (the GUI's own title and lore say what to do).
     cue: "astera:norma/choice-open"
-    title: "astera.match.norma-choice.open.title"
-    subtitle: "astera.match.norma-choice.open.subtitle"
-    title_stay_ticks: 40
   norma-choice-picked:
     cue: "astera:norma/choice-picked"
     action_bar: "astera.match.norma-choice.picked.{kind}"
@@ -99,6 +116,22 @@ moments:
     title_stay_ticks: 60
     particle: norma-level-up
 
+  # Queue: a short confirmation when queued; "match found" (title + sting) for everyone in the formed roster.
+  queue-join:
+    cue: "astera:ui/queue-join"
+  match-found:
+    cue: "astera:match/found"
+    title: "astera.presentation.match-found.title"
+    subtitle: "astera.presentation.match-found.subtitle"
+    title_stay_ticks: 40
+
+  # The match enters its final stretch (a team reached the score threshold): warning sting + title for everyone.
+  sudden-death:
+    cue: "astera:match/sudden-death"
+    title: "astera.presentation.sudden-death.title"
+    subtitle: "astera.presentation.sudden-death.subtitle"
+    title_stay_ticks: 50
+
   match-win:
     cue: "astera:match/win"
   match-lose:
@@ -114,6 +147,7 @@ moments:
     cue: "astera:ui/quest-complete"
   player-level-up:
     cue: "astera:ui/level-up"
+    particle: player-level-up
 
   # FX-10: menu feedback. Click is played centrally by the GUI intent router for every button;
   # settings buttons play confirm instead. Handlers play confirm (success) / deny (refusal).

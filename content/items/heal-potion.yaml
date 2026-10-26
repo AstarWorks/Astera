@@ -1,0 +1,26 @@
+# Consumable (ECO-04): right-click = instant heal, uses the item up. Bought for GOLD with `limit: unlimited`
+# (content/shops/example-shop.yaml), carried into a match like any other item (the loadout is the inventory at
+# entry, ADR-0203). Used up for good: the match-end restore takes consumed copies out again.
+# Not a weapon: no equip_slot / resource_type, so weapon limits and the loaner kit ignore the category.
+
+id: heal-potion
+
+material: GLISTERING_MELON_SLICE
+
+name:
+  ja: "<red>回復薬</red>"
+  en: "<red>Healing Draught</red>"
+lore:
+  ja:
+    - "<gray>右クリック: 体力を 8 回復（使い切り）</gray>"
+  en:
+    - "<gray>Right-click: restore 8 HP (single use)</gray>"
+
+rarity: common
+
+skills:
+  - trigger: right_click
+    skill_id: heal-potion-use
+
+pdc_tags:
+  astera:rarity: common

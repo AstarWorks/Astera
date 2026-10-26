@@ -1,7 +1,9 @@
 package com.astarworks.astera.core.adapter.paper.presentation
 
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
+import com.astarworks.astera.core.application.port.outbound.IActionBarChannel
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.post
 import com.astarworks.astera.core.application.port.outbound.presentation.IPresentationVisuals
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -20,6 +22,7 @@ import java.time.Duration
 public class PaperPresentationVisuals(
     private val server: Server,
     private val renderer: IMessageRenderer,
+    private val actionBar: IActionBarChannel,
 ) : IPresentationVisuals {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -36,7 +39,7 @@ public class PaperPresentationVisuals(
     }
 
     override fun actionBar(player: PlayerId, key: MessageKey, args: Map<String, String>) {
-        server.getPlayer(player.uuid)?.sendActionBar(render(player, key, args))
+        actionBar.post(player, key, args)
     }
 
     override fun particles(preset: ParticlePreset, viewers: Collection<PlayerId>, anchor: PlayerId, at: Vec3?, world: WorldId?) {

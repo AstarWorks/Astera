@@ -21,7 +21,7 @@
 # See tools/vfx-shot/README.md for the knobs and troubleshooting.
 set -uo pipefail
 
-HERE="$(cd "$(dirname "$0")" && pwd -P)"
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 ROOT="$(cd "$HERE/../.." && pwd -P)"
 # shellcheck source=lib.sh
 . "$HERE/lib.sh"
@@ -574,9 +574,9 @@ particles:0
 guiScale:$GUI_SCALE
 chatVisibility:2
 pauseOnLostFocus:false
-maxFps:60
+maxFps:${SHOT_MAX_FPS:-60}
 enableVsync:false
-soundCategory_master:0.0
+soundCategory_master:${SHOT_SOUND_VOLUME:-0.0}
 tutorialStep:none
 onboardAccessibility:false
 skipMultiplayerWarning:true
@@ -584,6 +584,10 @@ joinedFirstServer:true
 renderClouds:"false"
 resourcePacks:["vanilla","file/astera-shot-fix.zip"]
 EOF
+  if [ -n "${SHOT_PULSE_PREFIX:-}" ]; then
+    # OpenAL enumerates devices by description; identical "Null Output" names can select the first sink despite PULSE_SINK.
+    printf 'soundDevice:"%s_%s"\n' "$SHOT_PULSE_PREFIX" "$name" >> "$wd/options.txt"
+  fi
   # pre-accept the server resource pack (Quick Play looks the address up in servers.dat)
   python3 -I "$HERE/servers_dat.py" "$wd/servers.dat" "$SERVER_IP:25565"
   # Astera's pack stores item textures under textures/generated/items + textures/items, which no vanilla
@@ -591,7 +595,7 @@ EOF
   python3 -I "$HERE/mkzip.py" "$HERE/overlay-pack" "$wd/resourcepacks/astera-shot-fix.zip"
 }
 
-client_sig() { echo "$1x$2 fov=${FOV_OPT:-0.0} rd=$RENDER_DISTANCE gui=$GUI_SCALE ip=$SERVER_IP"; }
+client_sig() { echo "$1x$2 fov=${FOV_OPT:-0.0} rd=$RENDER_DISTANCE gui=$GUI_SCALE ip=$SERVER_IP sound=${SHOT_SOUND_VOLUME:-0.0} fps=${SHOT_MAX_FPS:-60} pulse=${SHOT_PULSE_PREFIX:-}"; }
 
 save_client() { # name sig
   printf 'CPID=%s\nXPID=%s\nDISPLAY_NUM=%s\nSIG=%s\n' "${CPID[$1]}" "${XPID[$1]}" "${DISP[$1]}" "$2" > "$STATE/clients/$1.env"
@@ -606,6 +610,10 @@ load_client() { # name -> 0 when a recorded client process is alive (arrays fill
 
 start_client() { # name width height
   local name="$1" w="$2" h="$3" d wd="$CLIENTS/$1" i
+  local audio_env=()
+  if [ -n "${SHOT_PULSE_PREFIX:-}" ]; then
+    audio_env=("PULSE_SERVER=$SHOT_PULSE_SERVER" "PULSE_SINK=${SHOT_PULSE_PREFIX}_$name")
+  fi
   memory_guard "starting client $name"
   write_client_files "$name" "$w" "$h"
   # -displayfd: the X server picks a free display number itself and writes it to stdout (no race between runs)
@@ -623,7 +631,7 @@ start_client() { # name width height
   # SHOT_CLIENT_XMX: without -Xmx the JVM may grow to 1/4 of host RAM (2.5-3 GB RSS seen per client).
   VFX_SHOT_STATE="$STATE" DBUS_SESSION_BUS_ADDRESS="disabled:" NO_AT_BRIDGE=1 \
   DISPLAY=":$d" LIBGL_ALWAYS_SOFTWARE=1 LP_NUM_THREADS="${LP_NUM_THREADS:-4}" XDG_RUNTIME_DIR="$wd" \
-    setsid "$VENV/bin/portablemc" --main-dir "$MCDIR" start "$MC_VERSION" --mc-dir "$wd" -u "$name" \
+    setsid env "${audio_env[@]}" "$VENV/bin/portablemc" --main-dir "$MCDIR" start "$MC_VERSION" --mc-dir "$wd" -u "$name" \
     "--jvm-arg=-Xmx${SHOT_CLIENT_XMX:-1536m}" "--jvm-arg=-Xms256m" \
     --join-server "$SERVER_IP" --join-server-port 25565 --resolution "${w}x${h}" \
     >"$wd/client.log" 2>&1 {STACK_LOCK_FD}>&- {SLOT_FD}>&- &

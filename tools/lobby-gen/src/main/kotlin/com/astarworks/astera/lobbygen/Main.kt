@@ -41,10 +41,21 @@ fun main(args: Array<String>) {
         emptyList()
     }
     val plan = LobbyWorldContent.plan(config, lanes)
+    val invalid = BlockStateValidator.check("lobby", plan.blocks.map { (p, state) -> BlockUse(p.x, p.y, p.z, state) })
+    if (invalid.isNotEmpty()) {
+        invalid.forEach { System.err.println(it) }
+        exitProcess(4)
+    }
     println("blocks=${plan.blocks.size} bounds=x[${plan.minX},${plan.maxX}] y[${plan.minY},${plan.maxY}] z[${plan.minZ},${plan.maxZ}]")
     println("spawn=${plan.spawn} yaw=${plan.spawnYaw}")
     plan.npcSpots.toSortedMap().forEach { (id, s) -> println("npc $id: x=${s.x} y=${s.y} z=${s.z} yaw=${s.yaw} walkable=${plan.isWalkable(com.astarworks.astera.core.domain.geometry.Vec3(s.x, s.y, s.z))}") }
+    val unsupported = plan.training.dummies.filter { !plan.isWalkable(com.astarworks.astera.core.domain.geometry.Vec3(it.x, it.y, it.z)) }
+    plan.training.dummies.forEach { println("dummy ${it.id}: x=${it.x} y=${it.y} z=${it.z} deck=${it !in unsupported}") }
     plan.lanePads.forEach { (lane, p) -> println("lane $lane: $p") }
+    if (unsupported.isNotEmpty()) {
+        System.err.println("training dummies without deck under them: ${unsupported.map { it.id }}")
+        exitProcess(3)
+    }
     Files.createDirectories(out.toAbsolutePath().parent)
     ImageIO.write(LobbyRenderer.render(plan), "png", out.toFile())
     println("wrote $out")

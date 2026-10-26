@@ -25,15 +25,24 @@ defaults:
   # Norma levels: every player starts at level 1 and clears each level with ONE goal of their choice
   # (`/astera norma choose star|kill`, STAR by default): carry norma_stars_goal[level] stars (not consumed) or make
   # norma_kills_goal[level] kills at that level. Lists are indexed by the level being cleared.
+  # Pace (docs/game-design/stars-and-norma.md "Pace"): every generator pops 5 stars per 20 s (15/min; 4 generators = 60/min
+  # on the stage). The best collector of a 4v4 lane nets ~14/min, so 100 stars lands ~7 min into the 10 min limit;
+  # a 2v2 lane is faster (~5.5 min).
   norma_max_level: "5"
-  norma_stars_goal: "3,5,8,12"
+  norma_stars_goal: "10,30,60,100"
   norma_kills_goal: "1,2,3,4"
 
-  # Share of a victim's carried stars that bursts out on death (floor(carried * ratio)); 0..1.
-  death_drop_ratio: "1.0"
+  # Share of a victim's carried stars that bursts out on death (floor(carried * ratio)); 0..1. Half: with a 100 goal a
+  # full drop would reset a nearly-won run; the fountain is still ~30-50 stars at the late-game peak.
+  death_drop_ratio: "0.5"
 
   # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability
   # (ends on attack).
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
+
+  # Weapon restriction (RTM-style MAIN + SUB), a layer default so EVERY mode keeps the 2-weapon cap (MODE-15 follow-up):
+  # at most 1 weapon per family (gun / sword / staff) and 2 in total. Extra weapons are set aside on match entry
+  # (restored at match end) and further pickups are refused. A mode overrides it, or sets "" to lift the cap.
+  weapon_limits: "gun:1,sword:1,staff:1,total:2"

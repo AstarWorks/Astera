@@ -1,10 +1,9 @@
 package com.astarworks.astera.core.adapter.paper.entity
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
-import com.astarworks.astera.core.application.port.outbound.IHudGateway
+import com.astarworks.astera.core.application.port.outbound.IActionBarChannel
+import com.astarworks.astera.core.application.port.outbound.post
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
-import com.astarworks.astera.core.domain.hud.HudComponent
-import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -28,7 +27,7 @@ import org.slf4j.LoggerFactory
 class PaperPlayer(
     private val bukkit: Player,
     private val renderer: IMessageRenderer? = null,
-    private val hud: IHudGateway? = null,
+    private val actionBar: IActionBarChannel? = null,
 ) : IMcPlayer {
 
     override val id: PlayerId = PlayerId(bukkit.uniqueId)
@@ -45,14 +44,10 @@ class PaperPlayer(
         return if (item.type.isAir) null else item.type.name
     }
 
-    override fun sendActionBar(messageKey: MessageKey, placeholders: Map<String, String>) {
-        // Through the HUD gateway, which composes the readout with the always-on HP status line
-        // (ADR-0182). A raw Player.sendActionBar would replace the HP bar until the next refresh.
-        if (hud != null) {
-            val layout = HudLayout.ActionBar(HudComponent.Text(messageKey, placeholders = placeholders), ttlTicks = ACTION_BAR_TTL_TICKS)
-            if (hud.showFor(id, layout) is com.astarworks.astera.core.domain.Result.Success) return
-        }
-        bukkit.sendActionBar(AsteraTextDeserializer.deserialize(render(messageKey, placeholders)))
+    override fun postActionBar(messageKey: MessageKey, placeholders: Map<String, String>) {
+        // Only through the channel, which composes the message with the always-on HP status line
+        // (ADR-0182 / ADR-0279). A raw Player.sendActionBar would erase the HP bar until the next refresh.
+        actionBar?.post(id, messageKey, placeholders, ttlTicks = ACTION_BAR_TTL_TICKS)
     }
 
     override fun sendTitle(

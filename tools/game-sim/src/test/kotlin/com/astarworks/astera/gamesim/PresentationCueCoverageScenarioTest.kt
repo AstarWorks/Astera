@@ -127,4 +127,28 @@ class PresentationCueCoverageScenarioTest {
             assertThat(particles.viewers).`as`("blue hides other players' effects").containsExactly(red.id)
         }
     }
+
+    @Test
+    fun `death, respawn and player level-up are seen as well as heard`() {
+        scenario("presentation-death-respawn") {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            startMatch("norma", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val log = visuals()
+            val presentation = sim.services.getOrThrow<IPresentation>()
+            log.calls.clear()
+
+            presentation.play(PresentationMoments.DEATH, blue.id, audience = listOf(red.id))
+            presentation.play(PresentationMoments.RESPAWN, blue.id, at = Vec3(0.0, 65.0, 0.0))
+            presentation.play(PresentationMoments.PLAYER_LEVEL_UP, red.id)
+
+            val particles = log.calls.filterIsInstance<LoggingPresentationVisuals.Call.Particles>()
+            assertThat(particles.any { it.preset.id == "death-soul" && blue.id in it.viewers && red.id in it.viewers }).`as`("souls rise for victim and killer").isTrue()
+            assertThat(particles.any { it.preset.id == "respawn-glint" && blue.id in it.viewers }).isTrue()
+            assertThat(particles.any { it.preset.id == "player-level-up" && red.id in it.viewers }).isTrue()
+            assertThat(log.calls.filterIsInstance<LoggingPresentationVisuals.Call.ActionBar>().any {
+                it.player == blue.id && it.key.value == "astera.presentation.respawn"
+            }).`as`("respawn line").isTrue()
+        }
+    }
 }

@@ -10,7 +10,7 @@ import com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay
  */
 public interface IPlayerFeedbackGateway {
 
-    public fun sendActionBar(target: PlayerId, rendered: String)
+    public fun postActionBar(target: PlayerId, rendered: String)
 
     public fun sendTitle(
         target: PlayerId,

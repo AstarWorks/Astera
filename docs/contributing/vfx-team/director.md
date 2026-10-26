@@ -1,6 +1,8 @@
 # Director knowledge base
 
-Agent: `.claude/agents/vfx-director.md`. Team overview: [README.md](README.md).
+Reference knowledge (2026-10-27): the skill has ONE author who builds every piece; this page is an accumulated knowledge base the author consults, not a role with a territory. Process: [README.md](README.md). Historical Learnings entries may name old roles and numeric targets; numbers are never acceptance evidence.
+
+Skill author agent: `.claude/agents/limbus-director.md` (single end-to-end author). Team overview: [README.md](README.md).
 
 ## What the director produces
 

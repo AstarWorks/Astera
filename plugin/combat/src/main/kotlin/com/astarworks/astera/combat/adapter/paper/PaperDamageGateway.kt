@@ -17,6 +17,7 @@ import com.astarworks.astera.core.domain.attribute.Attributes
 import com.astarworks.astera.core.domain.event.PlayerHealthChanged
 import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.core.domain.player.PlayerId
+import org.bukkit.GameMode
 import org.bukkit.Server
 import org.bukkit.attribute.Attribute
 import org.slf4j.LoggerFactory
@@ -109,6 +110,19 @@ public class PaperDamageGateway(
 
     private val frames = InvulnerabilityFrames()
 
+    /** Players already WARNed about a stale container this match. */
+    private val warnedStale: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
+
+    @Volatile
+    private var currentMatch: Any? = null
+
+    init {
+        eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) {
+            currentMatch = it.matchId
+            warnedStale.clear()
+        }
+    }
+
     /**
      * Per-tick marker: players whose damage was applied via Path 1
      * (this gateway). Read by Wave 6a-6 BukkitEventAdapter.onPlayerDeath
@@ -140,15 +154,27 @@ public class PaperDamageGateway(
         }
 
         val container = containerStore.containerFor(target)
-        val currentHp = (container.get(Attributes.CURRENT_HP) as? AttributeValue.NumberValue)?.value
+        val currentHpRaw = (container.get(Attributes.CURRENT_HP) as? AttributeValue.NumberValue)?.value
             ?: ((container.get(Attributes.MAX_HP) as? AttributeValue.NumberValue)?.value
                 ?: VANILLA_DEFAULT_MAX_HP)
         val asteraMax = (container.get(Attributes.MAX_HP) as? AttributeValue.NumberValue)?.value
             ?: VANILLA_DEFAULT_MAX_HP
         // Astera-dead (HP 0, mirror held at 1.0 so Bukkit isDead is false):
         // reject so ApplyDamageUseCase does not re-publish PlayerKilled per hit.
+        // A living, non-spectating player must never be unhittable because of a stale container: self-heal.
+        var currentHp = currentHpRaw
         if (currentHp <= 0.0) {
-            return Result.failure(DamageApplicationError.TargetAlreadyDead(target))
+            if (player.gameMode == GameMode.SPECTATOR) {
+                return Result.failure(DamageApplicationError.TargetAlreadyDead(target))
+            }
+            if (warnedStale.add(target)) {
+                log.warn(
+                    "PaperDamageGateway: stale container HP for living {} (container={} bukkit={} match={}); resetting to max {}",
+                    target, currentHp, player.health, currentMatch, asteraMax,
+                )
+            }
+            currentHp = asteraMax
+            container.set(Attributes.CURRENT_HP, AttributeValue.NumberValue(asteraMax))
         }
 
         if (!frames.tryEnter(target, scheduler.currentTick(), ignoreInvulnerability)) {

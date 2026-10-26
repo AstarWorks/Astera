@@ -1,0 +1,23 @@
+# Consumable (ECO-04): right-click = 8s speed buff, uses the item up. See heal-potion.yaml for the delivery rules.
+
+id: swift-powder
+
+material: SUGAR
+
+name:
+  ja: "<yellow>疾風の粉</yellow>"
+  en: "<yellow>Swift Powder</yellow>"
+lore:
+  ja:
+    - "<gray>右クリック: 8 秒間、移動速度アップ（使い切り）</gray>"
+  en:
+    - "<gray>Right-click: move faster for 8s (single use)</gray>"
+
+rarity: common
+
+skills:
+  - trigger: right_click
+    skill_id: swift-powder-use
+
+pdc_tags:
+  astera:rarity: common

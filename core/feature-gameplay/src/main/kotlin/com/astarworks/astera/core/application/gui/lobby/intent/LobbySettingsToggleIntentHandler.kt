@@ -28,6 +28,8 @@ public class LobbySettingsToggleIntentHandler(
     private val settingsSpec: () -> GuiSpec?,
     private val messages: IMessageRenderer,
     private val playerGateway: IPlayerGateway,
+    /** Called after a write so hot-path readers (HUD toggles) drop their cached copy. */
+    private val onChanged: (com.astarworks.astera.core.domain.player.PlayerId) -> Unit = {},
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -51,12 +53,25 @@ public class LobbySettingsToggleIntentHandler(
                 val next = !current.publicProfileEnabled
                 Triple(current.copy(publicProfileEnabled = next), "public-profile", if (next) "on" else "off")
             }
+            KEY_HP_LINE -> {
+                val next = !current.hpLineVisible
+                Triple(current.copy(hpLineVisible = next), "hp-line", if (next) "on" else "off")
+            }
+            KEY_DAMAGE_NUMBERS -> {
+                val next = !current.damageNumbersVisible
+                Triple(current.copy(damageNumbersVisible = next), "damage-numbers", if (next) "on" else "off")
+            }
+            KEY_TUTORIAL_HINTS -> {
+                val next = !current.tutorialHintsEnabled
+                Triple(current.copy(tutorialHintsEnabled = next), "tutorial-hints", if (next) "on" else "off")
+            }
             else -> {
                 log.warn("settings.toggle: unknown key '{}' from {}", key, player.id)
                 return
             }
         }
         settings.upsert(updated)
+        onChanged(player.id)
         playerGateway.sendMessage(
             player.id,
             messages.render(
@@ -87,5 +102,8 @@ public class LobbySettingsToggleIntentHandler(
         public const val KEY_PARTICLES: String = "particles"
         public const val KEY_DOUBLE_JUMP: String = "double-jump"
         public const val KEY_PUBLIC_PROFILE: String = "public-profile"
+        public const val KEY_HP_LINE: String = "hp-line"
+        public const val KEY_DAMAGE_NUMBERS: String = "damage-numbers"
+        public const val KEY_TUTORIAL_HINTS: String = "tutorial-hints"
     }
 }

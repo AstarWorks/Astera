@@ -10,14 +10,13 @@ Owner track `wp/ui-access`. Seed: audit 2026-10-26. Items: Board prefix `UI-`.
 - No document lists all access surfaces or the settings set; that gap is the root of "not tidy".
 
 ## 現状
-- 8 lobby NPCs (`content/lobby-npcs/*.yaml`): play, queue (duplicate of play), shop, gear-keeper, travel, party, profile, settings.
-- GUIs in `content/gui/`: main-menu (9 slots: Play, Shop, Training, Customize, Leave queue, Travel, Profile, admin tiles). No Settings/Party/Friends/Achievements tile.
-- `friends-list` and `achievement-viewer` GUIs have no entrance; `/astera achievements|friend list|daily|missions|quests` print chat only.
-- Queue has 8 entrances (Play NPC, queue NPC, lane pads, menu, compass, grid result slot, Q, command).
-- "Customize" opens a middle menu with 3 links (vault, profile, settings); it is not a loadout editor.
-- Settings GUI = language (cycle), volume, control scheme only. `PlayerSettings` also has particleVisibility, doubleJumpEnabled, publicProfileEnabled, quickCastSlots with no UI. `lobby.hotbar.bind.<N>` has no entrance.
-- Stale "Wave G / no-op" comments remain in `settings.yaml`, `SettingsGuiSpec`, `queue-npc.yaml`.
-- In a match there is no menu path (by design); only commands.
+- 2026-10-27 時点 (正本は `docs/game-design/access-map.md`): 入口は 3 層に整理済み。メインメニュー 27 スロット (Play/Shop/Vault/Travel/Training/Profile/Settings/Cosmetics/Party/Friends/Achievements/Daily/Help + 管理者タイル)、NPC は 4 体 (Play/Market/Travel/Social)、試合中は `F` の 3 ボタンメニュー。
+- Settings = 言語・音量 3 種・操作方式・クイックキャスト・パーティクル・二段ジャンプ・公開プロフィール・HUD 表示切替 3 種 (HPバー / ダメージ数字 / チュートリアルのヒント、JSONB 保存でマイグレーション不要、`HudPreferences` が 2 秒キャッシュ)。未実装: チャット設定、通知。
+- メインメニューの Daily/Quests タイルは専用 GUI (`progress.open`, 54 スロット: ログインボーナス (クリックで受け取り)・ミッション一覧と進捗・クエスト現在ステージ)。`/astera daily|missions|quests` はチャットのショートカットとして残る。
+- 初回ガイド (ADR-0242, `content/tutorials/getting-started.yaml`): menu → range → rack → primary (剣) → secondary → reload (銃) → staff (杖: ファイアスタッフを右クリック) → hud → norma (勝ち方を 7 秒表示) → queue。ショップ/金庫は必須経路から外した (メニューから到達可)。
+- 試合中サイドバーのフッターは「自チーム / Stars / Norma Lv / 現在のゴール」。モード本体が長くてもフッターは切れない (`MatchSidebarModel`)。e2e `NormaPlaythroughE2eTest` が確認する。
+- 試合中のメニュー経路は `F` のみ。コマンドはショートカット。
+- 武器ツールチップ (`ItemTooltip`, 唯一の組み立て箇所): 生成武器の生の `left_click: 技名` 行は「Left-click: 技名」(ja: 左クリック) のラベル付き灰色行に整形して表示する。ショップ/金庫/インベントリ共通。e2e `ShopPurchaseE2eTest` が生トリガー ID の混入を見る。
 
 ## 理想形
 Three layers. (1) Menu (compass / F / craft grid) = the one general menu: Play, Shop, Loadout (vault), Profile+Achievements, Party+Friends, Quests+Daily, Settings, Travel+Training, Help; admin tiles in the same screen. (2) Four NPCs where place matters: Play gate (all queue entrances), Market (shop + vault), Concierge/Travel (travel, training, tutorial), Social (party, friends, leaderboard). (3) Commands are shortcuts to the same intents and open the GUI when one exists. One access map document is the source of truth.

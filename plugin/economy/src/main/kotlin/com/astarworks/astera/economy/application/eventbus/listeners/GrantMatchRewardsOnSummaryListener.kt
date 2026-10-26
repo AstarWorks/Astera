@@ -17,10 +17,12 @@ import com.astarworks.astera.core.domain.match.result.MatchRewardResult
 import com.astarworks.astera.core.domain.match.result.PlayerMatchLine
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
+import com.astarworks.astera.economy.application.service.NextUnlock
 import com.astarworks.astera.economy.domain.reward.MatchRewardCalculator
 import com.astarworks.astera.economy.domain.reward.MatchRewardTable
 import com.astarworks.astera.stats.application.port.outbound.ILevelService
 import com.astarworks.astera.stats.application.usecase.level.GrantXpUseCase
+import com.astarworks.astera.stats.domain.level.LevelReward
 import com.astarworks.astera.stats.domain.level.XpCurve
 import org.slf4j.LoggerFactory
 import java.time.Clock
@@ -51,6 +53,11 @@ public class GrantMatchRewardsOnSummaryListener(
     private val messages: IMessageRenderer,
     private val playerGateway: IPlayerGateway,
     private val lastMatches: () -> ILastMatchStore?,
+    private val nextUnlock: (PlayerId) -> NextUnlock? = { null },
+    /** First level reward above the given level (level, reward), or null. */
+    private val nextLevelReward: (Int) -> Pair<Int, LevelReward>? = { null },
+    /** Display-name key of a title / cosmetic id, when the catalog knows it. */
+    private val unlockName: (String) -> MessageKey? = { null },
     private val clock: Clock = Clock.systemUTC(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -141,7 +148,44 @@ public class GrantMatchRewardsOnSummaryListener(
                 "into" to result.xpIntoLevel.toString(),
                 "next" to result.xpForNextLevel.toString(),
             )
+            sendNextLevelReward(playerId, result.levelAfter)
         }
+        sendNextUnlock(playerId)
+    }
+
+    /** What the next level pays (GOLD plus titles / cosmetics / items), so XP has a visible goal. */
+    private fun sendNextLevelReward(playerId: PlayerId, level: Int) {
+        val (target, reward) = nextLevelReward(level) ?: return
+        val parts = buildList {
+            if (reward.gold > 0) add("${reward.gold} GOLD")
+            for (id in reward.titles + reward.cosmetics + reward.items) {
+                add(unlockName(id)?.let { messages.render(playerId, it) } ?: id)
+            }
+        }
+        if (parts.isEmpty()) return
+        playerGateway.sendMessage(
+            playerId,
+            messages.render(playerId, MessageKey("astera.match.reward.next-level"), mapOf("level" to target.toString(), "reward" to parts.joinToString(", "))),
+        )
+    }
+
+    /** One closing line: the cheapest unowned shop unlock and whether the new balance already covers it. */
+    private fun sendNextUnlock(playerId: PlayerId) {
+        val next = nextUnlock(playerId) ?: return
+        val name = next.nameKey?.let { messages.render(playerId, it) } ?: next.itemId
+        val key = when {
+            next.cosmetic -> "astera.match.reward.next.cosmetic-affordable"
+            next.affordable -> "astera.match.reward.next.affordable"
+            else -> "astera.match.reward.next.short"
+        }
+        playerGateway.sendMessage(
+            playerId,
+            messages.render(
+                playerId,
+                MessageKey(key),
+                mapOf("name" to name, "price" to next.price.toString(), "balance" to next.balance.toString(), "short" to next.shortBy.toString()),
+            ),
+        )
     }
 
     private fun record(

@@ -1,0 +1,6 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.kill_effect.first-spark. Granted only (Lv4 level reward), never sold.
+id: first-spark
+kind: kill_effect
+name_key: astera.cosmetic.kill_effect.first-spark
+value: "crit"
+count: 10

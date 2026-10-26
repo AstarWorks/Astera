@@ -13,9 +13,5 @@ parent: first-kill
 criteria:
   type: kill_count
   target: 100
-rewards:
-  - type: grant_currency
-    currency: GOLD
-    amount: 500
-  - type: grant_title
-    title_id: centurion
+# Payout lives in content/achievements (kills-100 etc.); one reward stream, not two.
+rewards: []

@@ -160,6 +160,13 @@ internal fun CoreWiringState.wireGameplayLoop() {
     }
     hudGateway =
         services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+    // ADR-0279: the one door to the action bar for combat / match / presentation callers.
+    services.register<com.astarworks.astera.core.application.port.outbound.IActionBarChannel>(
+        com.astarworks.astera.core.application.service.HudActionBarChannel {
+            services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+        },
+        priority = 0,
+    )
 
     // 2. Player profile service. The starter grant is read from
     //    `content/balance/starter-grant.yaml` if present; otherwise the
@@ -263,8 +270,14 @@ internal fun CoreWiringState.wireGameplayLoop() {
     //      HpStatusHudService owns the status-line channel: glyph bar once the
     //      client reports the pack LOADED, `HP cur/max` text before that.
     //      The pack is pushed on join only when the host configured one.
+    // UI-03: cached view of the per-player HUD toggles (HP line / damage numbers / tutorial hints).
+    val hudPreferences = com.astarworks.astera.core.application.service.hud.HudPreferences(
+        repository = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository>() },
+    )
+    services.register<com.astarworks.astera.core.application.service.hud.HudPreferences>(hudPreferences, priority = 0)
     val hpStatusHud = com.astarworks.astera.core.application.eventbus.listeners.hud
         .HpStatusHudService(
+            lineVisible = hudPreferences::hpLineVisible,
             health = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>(),
             hudGateway = hudGateway,
             pools = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>(),
@@ -281,6 +294,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
         )
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hpStatusHud.onJoined(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hpStatusHud.onQuit(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hudPreferences.invalidate(it.playerId) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { hpStatusHud.onPackStatus(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerHealthChanged::class) { hpStatusHud.onHealthChanged(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerMaxHealthChanged::class) { hpStatusHud.onMaxHealthChanged(it) }

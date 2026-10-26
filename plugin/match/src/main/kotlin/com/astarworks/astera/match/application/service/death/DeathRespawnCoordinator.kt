@@ -160,6 +160,8 @@ public class DeathRespawnCoordinator(
             protection.revokeProtection(player)
             spectator?.stopSpectating(player)
             cycler?.clear(player)
+            // The last victim died on the tick the match ended: nobody is left to respawn them, so they must not carry 0 HP into the lobby.
+            reviveInPlace(player)
         }
     }
 

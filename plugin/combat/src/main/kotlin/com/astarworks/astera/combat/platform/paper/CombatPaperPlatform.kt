@@ -83,7 +83,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         entityCasterBody = { PaperEntityCasterBody(plugin.server, plugin) },
         skillPreviewStage = { PaperSkillPreviewStage(plugin) },
         tickRateControl = { PaperTickRateControl(plugin.server) },
-        playerFeedbackGateway = { PaperPlayerFeedbackGateway(plugin.server) },
+        playerFeedbackGateway = { services -> PaperPlayerFeedbackGateway(plugin.server, services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IActionBarChannel>()) },
         projectileService = { services ->
             // F2-4 — server-simulated projectiles (no vanilla projectile entity).
             val paperProjectile = PaperProjectileService(

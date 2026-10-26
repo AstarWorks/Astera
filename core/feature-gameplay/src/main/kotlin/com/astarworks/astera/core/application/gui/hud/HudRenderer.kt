@@ -61,6 +61,7 @@ public class HudRenderer(
             is HudComponent.Composite -> renderComposite(component, viewer)
             is HudComponent.Spacer -> renderSpacer(component)
             is HudComponent.FontText -> Component.text(component.text).font(ASTERA_FONT_KEY)
+            is HudComponent.Rendered -> net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(component.miniMessage)
         }
 
     /**

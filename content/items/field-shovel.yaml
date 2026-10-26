@@ -1,0 +1,30 @@
+# Field tool (ADR-0090): SHOVEL/IRON. Lent to every match participant (content/balance/starter-grant.yaml
+# match_tools); left-click a cover block (content/blocks/) to chip it. Not a weapon (no resource_type).
+
+id: field-shovel
+
+material: IRON_SHOVEL
+
+name:
+  ja: "<yellow>野戦シャベル</yellow>"
+  en: "<yellow>Field Shovel</yellow>"
+lore:
+  ja:
+    - "<gray>左クリック: 土嚢と土を崩す</gray>"
+    - "<dark_gray>道具の種類が合わないと壊せない</dark_gray>"
+  en:
+    - "<gray>Left-click: dig through sandbags and soil</gray>"
+    - "<dark_gray>The wrong tool cannot break it</dark_gray>"
+
+rarity: common
+level_requirement: 1
+
+equip_slot: mainhand
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: true
+
+pdc_tags:
+  astera:rarity: common
+  astera:tool: "SHOVEL/IRON"
