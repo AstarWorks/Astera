@@ -52,17 +52,17 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
         val teams = bots.associateWith { side(it) }
         val red = bots.filter { teams[it] == "red" }
         val blue = bots.filter { teams[it] == "blue" }
-        E2eReport.check(suite, "teams are 2 vs 2 and each side spawns at its own end of the arena", "RCON data get Pos") {
+        E2eReport.check(suite, "teams are 2 vs 2 and each side spawns at its own end of the arena", "owning-scheduler position probe") {
             assertThat(red).describedAs("teams by spawn side: ${teams.mapKeys { it.key.name }}").hasSize(2)
             assertThat(blue).hasSize(2)
             "red=${red.map { it.name }} blue=${blue.map { it.name }} positions=${bots.map { posOf(it) }}"
         }
-        E2eReport.check(suite, "every bot spawns standing on a solid island block inside its slot (not the lobby)", "RCON data get Dimension/Pos + execute unless block") {
+        E2eReport.check(suite, "every bot spawns standing on a solid island block inside its slot (not the lobby)", "owning-scheduler entity/block probes") {
             val problems = bots.mapNotNull { islandStanceProblem(it) }
             assertThat(problems).describedAs("bots not on an arena island: $problems").isEmpty()
             "slot ($originX, $originZ), solid block under every bot: ${bots.map { it.name to posOf(it) }}"
         }
-        E2eReport.check(suite, "the arena is built: generator pedestals, team-coloured spawn pads, and void between the islands", "RCON execute if block") {
+        E2eReport.check(suite, "the arena is built: generator pedestals, team-coloured spawn pads, and void between the islands", "owning-scheduler block probe") {
             val pedestals = listOf(Triple(0, 64, -62), Triple(0, 64, 62), Triple(12, 64, 0), Triple(-12, 64, 0))
             val missing = pedestals.filterNot { (x, y, z) -> arenaBlockIs(x, y, z, "minecraft:iron_block") }
             assertThat(missing).describedAs("generator pedestal (iron_block) missing at $missing").isEmpty()

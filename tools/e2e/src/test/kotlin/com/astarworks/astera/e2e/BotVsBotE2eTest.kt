@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
  * docker/e2e-tune-content.sh: top Norma level (3 levels) or 150 s). Then: a winner is declared, summary and rewards arrive, both bots are
  * back in the lobby.
  *
- * The only RCON use is read-only (`astera match list`, `data get entity`) plus handing out the starter weapons when a
+ * The only RCON use is read-only (`astera match list`, `e2eprobe`) plus handing out the starter weapons when a
  * bot arrived unarmed (a real account gets them with its first-join grant).
  */
 class BotVsBotE2eTest : PlaythroughBase() {
@@ -67,7 +67,7 @@ class BotVsBotE2eTest : PlaythroughBase() {
             bots.forEach { assertThat(it.hotbar().take(8).any { id -> id != -1 }).describedAs("${it.name} has no weapon: ${it.hotbar()}").isTrue() }
             "armed by: $armedBy; hotbars=${bots.map { it.hotbar() }}"
         }
-        E2eReport.check(suite, "bots start on opposite spawns with the match sidebar", "RCON data get Pos + SetObjective") {
+        E2eReport.check(suite, "bots start on opposite spawns with the match sidebar", "owning-scheduler position probe + SetObjective") {
             val positions = bots.map { posOf(it) }
             assertThat(positions.all { it != null }).describedAs("positions $positions").isTrue()
             assertThat(bots[0].sidebarTitle()).describedAs("still the lobby sidebar").isNotEqualTo(lobbyTitle)

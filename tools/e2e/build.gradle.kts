@@ -92,7 +92,7 @@ tasks.register("resolveE2eClasspath") {
     doLast { configurations.testRuntimeClasspath.get().resolve() }
 }
 
-// Test-only server probe; shipped only into the Folia E2E backend.
+// Test-only server probe; shipped only into the Paper/Folia E2E backends.
 val probe by sourceSets.creating
 dependencies { add(probe.compileOnlyConfigurationName, libs.paper.api) }
 tasks.register<Jar>("foliaProbeJar") {

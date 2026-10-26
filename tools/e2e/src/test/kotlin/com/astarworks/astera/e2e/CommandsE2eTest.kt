@@ -180,11 +180,11 @@ class CommandsE2eTest : E2eBase() {
             val slotsBefore = admin.slotUpdates.size
             val lines = run("astera items give ${admin.name} pistol")
             admin.waitUntil(4_000) { admin.slotUpdates.size > slotsBefore }
-            val inv = rcon("data get entity ${admin.name} Inventory[].id")
-            val hasPistol = rcon("execute if items entity ${admin.name} container.* minecraft:iron_horse_armor")
+            val inv = entityData(admin.name, "Inventory[].id")
+            val hasPistol = entityData(admin.name, "contains:minecraft:iron_horse_armor").toBooleanStrict()
             assertThat(lines).describedAs("no chat reply").isNotEmpty()
             assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
-            assertThat(hasPistol).describedAs("server-side inventory has no pistol (IRON_HORSE_ARMOR): $inv").contains("passed")
+            assertThat(hasPistol).describedAs("server-side inventory has no pistol (IRON_HORSE_ARMOR): $inv").isTrue()
             assertThat(admin.slotUpdates.drop(slotsBefore).any { it.containerId == 0 && it.amount > 0 })
                 .describedAs("no SetContainerSlot packet for the player inventory").isTrue()
             "reply:\n${quote(lines)}\nclient slot updates: ${admin.slotUpdates.drop(slotsBefore)}\nserver item ids: ${inv.take(400)} / pistol test: $hasPistol"
@@ -195,8 +195,8 @@ class CommandsE2eTest : E2eBase() {
             plain.command("astera items give ${plain.name} greatsword") // starter kit already holds a pistol
             val lines = plain.chatSince(before)
             assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
-            val hasPistol = rcon("execute if items entity ${plain.name} container.* minecraft:netherite_sword")
-            assertThat(hasPistol).describedAs("non-op obtained an item through a denied command").contains("failed")
+            val hasPistol = entityData(plain.name, "contains:minecraft:netherite_sword").toBooleanStrict()
+            assertThat(hasPistol).describedAs("non-op obtained an item through a denied command").isFalse()
             "non-op reply:\n${quote(lines)}"
         }
     }

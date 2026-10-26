@@ -60,6 +60,67 @@ Both the concurrency test and the final whole-server-log gate reject
 ownership/thread/region `IllegalStateException` messages. A missing probe
 sample fails the region assertion; it cannot silently pass as isolation.
 
+## Owning-scheduler state probes (T14b)
+
+Both E2E backends install the same test-only probe plugin. It is absent from
+ordinary runtime startup. Entity fields are read on the entity scheduler;
+block cells and chunk entity lists are read on their region scheduler. Counts
+fan out across loaded chunks, apply type/tag and spherical distance filters,
+and deduplicate by UUID. World-wide counts and nearest-mob reads cover every
+loaded chunk, preserving the previous unbounded selectors.
+
+The console-only protocol submits `e2eprobe <request-uuid> <query>`, then polls
+`e2eprobe <request-uuid>`. Every reply is one machine-readable line:
+`E2E_PROBE <request-uuid> PENDING`, or `OK <base64-utf8-value>` / `ERROR
+<base64-utf8-error>` after the same prefix. The harness polls for at most eight
+seconds; abandoned server results expire after 30 seconds. No server thread
+blocks waiting for another scheduler. Probe errors and timeouts fail the
+check; they never become zero entities or a successful absence assertion.
+
+Queries used by the harness:
+
+- `entity <player-name-or-entity-uuid> <field>`: `Pos`, `Dimension`, `Health`,
+  `playerGameType`, `Rotation`, `foodLevel`, inventory ids / item model and
+  diagnostic item fields.
+- `block <world-name> <x> <y> <z> <material-key|nonair>`: exact material match,
+  or the same non-air predicate used by the original arena checks.
+- `count <world-name> <x> <y> <z> <entity-type|*> <tag|*> <radius|*>`.
+- `count at <player-name-or-uuid> <entity-type|*> <tag|*> <radius|*>`.
+- `nearest at <player-name-or-uuid> <entity-type|*> <tag|*> <radius|*> <field>`.
+
+`StateProbeE2eTest` checks name/UUID identity, position/dimension/health,
+negative-coordinate block cells, counts spanning a chunk boundary, type/tag
+filters, and explicit error responses on both lanes. Existing gameplay
+assertions retain their thresholds and packet observations. Live-stack tools
+remain separate because this plugin is installed only by the E2E startup.
+
+## T14b verification status — 2026-10-26
+
+Compile-only verification passed:
+`./gradlew :tools:e2e:compileTestKotlin :tools:e2e:foliaProbeJar`.
+
+The requested full Folia invocation acquired the shared lock after waiting
+behind two other Paper runs (including an overloaded-host preflight). It is
+running project `astera-e2e-folia1483845c`; the backend is healthy and the
+runner image has built and the full suite is starting. No suite report is available yet.
+A Paper wrapper waits for that Folia process to exit, then acquires the same
+lock for its one `make e2e` invocation (`astera-e2e-1483845c`).
+
+Read-only smoke queries against that Folia backend passed: air at
+`(-17,319,0)` matched, `nonair` at that cell was false, world-wide player
+count was zero before the runner joined, and the nearest-villager query
+returned `null` without a scheduler exception. Console evidence is
+`build/t14b-probe-smoke.log`. These are smoke observations, not a full-suite
+pass count; entity-health and the new integration checks still need the run.
+
+**Both lane verdicts remain unverified**; the 198/229 result below is the
+historical T14 baseline, not a T14b result. New pass totals and newly exposed
+product failures must be filled in from `build/e2e-folia-report.md` and
+`build/e2e-report.md` after these runs. The worker launcher has a 90-minute
+limit, and the queue consumed most of it. Verification needs a manager
+continuation; process IDs and console logs are recorded in the worktree's
+`build/t14b-verification-status.md`. Check those before launching duplicates.
+
 ## First complete run — 2026-10-26
 
 Command: `flock /tmp/claude-1000/astera-e2e.lock make e2e-folia` (N=4 matches, 4 region threads,

@@ -6,3 +6,5 @@ folia-supported: true
 commands:
   e2eregions:
     description: Test-only region ownership snapshot
+  e2eprobe:
+    description: Test-only owning-scheduler state query (submit and poll by UUID)

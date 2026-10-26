@@ -88,19 +88,19 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
         val a = bots.firstOrNull { teams[it] == "Red" }
         val blue = bots.firstOrNull { teams[it] == "Blue" }
         val yellow = bots.firstOrNull { teams[it] == "Yellow" }
-        E2eReport.check(suite, "three bots land on three different team spawns", "RCON data get Pos") {
+        E2eReport.check(suite, "three bots land on three different team spawns", "owning-scheduler position probe") {
             assertThat(listOfNotNull(a, blue, yellow)).describedAs("spawn sides: ${teams.mapKeys { it.key.name }} positions=${bots.map { posOf(it) }}").hasSize(3)
             "teams=${teams.mapKeys { it.key.name }}"
         }
         if (a == null || blue == null || yellow == null) return
         val idle = listOf(blue, yellow)
 
-        E2eReport.check(suite, "every team spawns standing on a solid island block inside its slot (not the lobby)", "RCON data get Dimension/Pos + execute unless block") {
+        E2eReport.check(suite, "every team spawns standing on a solid island block inside its slot (not the lobby)", "owning-scheduler entity/block probes") {
             val problems = bots.mapNotNull { islandStanceProblem(it) }
             assertThat(problems).describedAs("bots not on an arena island: $problems").isEmpty()
             "slot ($originX, $originZ), solid block under every bot: ${bots.map { it.name to posOf(it) }}"
         }
-        E2eReport.check(suite, "all nine pillar blocks stand in the arena world on team-coloured footings, with void between the islands", "RCON execute if block") {
+        E2eReport.check(suite, "all nine pillar blocks stand in the arena world on team-coloured footings, with void between the islands", "owning-scheduler block probe") {
             val wrong = mutableListOf<String>()
             for ((team, cells) in pillars) {
                 cells.forEachIndexed { i, (x, y, z) ->

@@ -13,13 +13,9 @@ class SkinRigEmoteE2eTest : E2eBase() {
     private val suite = "SkinRig"
     private val invisibleBit = 0x20
 
-    private fun rigDisplays(actor: Bot): Int {
-        val reply = rcon("execute as ${actor.name} at @s if entity @e[type=minecraft:item_display,distance=..3]").trim()
-        return Regex("(?i)count: (\\d+)").find(reply)?.groupValues?.get(1)?.toInt() ?: if (reply.startsWith("Test passed")) 1 else 0
-    }
+    private fun rigDisplays(actor: Bot): Int = nearbyCount(actor.name, "minecraft:item_display", radius = "3")
 
-    private fun speed(actor: Bot): Double =
-        Regex("(-?[0-9.]+)\\s*$").find(rcon("attribute ${actor.name} minecraft:movement_speed get").trim())?.groupValues?.get(1)?.toDouble() ?: Double.NaN
+    private fun speed(actor: Bot): Double = entityData(actor.name, "movement_speed").toDouble()
 
     @Test
     fun `emote wave spawns a rig, hides the body, and stop restores everything`() {

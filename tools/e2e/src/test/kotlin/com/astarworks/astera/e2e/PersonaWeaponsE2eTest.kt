@@ -50,7 +50,7 @@ class PersonaWeaponsE2eTest : E2eBase() {
     )
 
     private fun hp(b: Bot): Double? =
-        Regex("(-?[0-9.]+)f?$").find(rcon("data get entity ${b.name} Health").trim())?.groupValues?.get(1)?.toDoubleOrNull()
+        Regex("(-?[0-9.]+)f?$").find(entityData(b.name, "Health").trim())?.groupValues?.get(1)?.toDoubleOrNull()
 
     @Test
     fun `persona weapons spawn and clean up displays and deal damage`() {
@@ -79,7 +79,7 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 rcon("tp ${a.name} $ax $ay $az 0 $pitch")
                 rcon("tp ${t.name} $ax $ay ${az + dist} 180 0")
                 Thread.sleep(if (attempt == 0) 600 else 1_500)
-                val z = Regex("\\[([-0-9.]+)d, ([-0-9.]+)d, ([-0-9.]+)d\\]").find(rcon("data get entity ${t.name} Pos"))?.groupValues?.get(3)?.toDoubleOrNull()
+                val z = Regex("\\[([-0-9.]+)d, ([-0-9.]+)d, ([-0-9.]+)d\\]").find(entityData(t.name, "Pos"))?.groupValues?.get(3)?.toDoubleOrNull()
                 if (z != null && Math.abs(z - (az + dist)) < 0.3) return
             }
             E2eReport.notes += "place(): target never reached its mark (az+dist=${az + dist})"
@@ -121,7 +121,7 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 a.sneak(false)
                 Thread.sleep(200)
 
-                val rotAtCast = rcon("data get entity ${a.name} Rotation").substringAfter("data: ").trim()
+                val rotAtCast = entityData(a.name, "Rotation").substringAfter("data: ").trim()
                 val evBefore = a.entityEvents.size
                 val hpBefore = hp(t)
                 val healthHistBefore = t.healthHistory.size
@@ -145,7 +145,7 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 val deadline = castAt + 12_000
                 while (System.currentTimeMillis() < deadline) {
                     Thread.sleep(250)
-                    if (offensive && trace.size < 60) trace += "${System.currentTimeMillis() - castAt}ms hp=${hp(t)} aPos=${rcon("data get entity ${a.name} Pos").substringAfter("data: ").trim()} tPos=${rcon("data get entity ${t.name} Pos").substringAfter("data: ").trim()}"
+                    if (offensive && trace.size < 60) trace += "${System.currentTimeMillis() - castAt}ms hp=${hp(t)} aPos=${entityData(a.name, "Pos").substringAfter("data: ").trim()} tPos=${entityData(t.name, "Pos").substringAfter("data: ").trim()}"
                     if (System.currentTimeMillis() - castAt < 6_000) continue
                     val ev = a.entityEvents.drop(evBefore)
                     val spawned = ev.filter { it.added && it.type in displayTypes }.map { it.id }.toSet()
@@ -188,7 +188,7 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 val hitEvents = numbers.size
                 val died = t.deaths.size > deathsBefore || t.health == 0f || (hpAfter ?: 20.0) <= 1.0
 
-                if (offensive && !damaged) E2eReport.notes += "$label NO DAMAGE: trace=${trace.takeLast(12)} rotationAtCast=$rotAtCast chat=${a.chatTexts().takeLast(4)} actionbars=${a.actionBars.takeLast(2).map { visible(it.text) }} food=${a.food} target ${rcon("data get entity ${t.name} Pos").substringAfter("data: ").trim()} attacker ${rcon("data get entity ${a.name} Pos").substringAfter("data: ").trim()} attackerFoodLevel=${rcon("data get entity ${a.name} foodLevel").substringAfter("data: ").trim()}"
+                if (offensive && !damaged) E2eReport.notes += "$label NO DAMAGE: trace=${trace.takeLast(12)} rotationAtCast=$rotAtCast chat=${a.chatTexts().takeLast(4)} actionbars=${a.actionBars.takeLast(2).map { visible(it.text) }} food=${a.food} target ${entityData(t.name, "Pos").substringAfter("data: ").trim()} attacker ${entityData(a.name, "Pos").substringAfter("data: ").trim()} attackerFoodLevel=${entityData(a.name, "foodLevel").substringAfter("data: ").trim()}"
                 val simRange = simHits[w]?.getOrNull(triggers.indexOfFirst { it.first == trigger })
                 val simExp = simRange?.let { if (it.first == it.last) "${it.first}" else "${it.first}-${it.last}" } ?: "-"
                 if (simRange != null && offensive && hitEvents !in simRange) {

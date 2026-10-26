@@ -60,7 +60,7 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         val sideOf = bots.associateWith { b -> localPosOf(b)?.let { if (it.first < 0) "red" else "blue" } }
         val actor = bots.firstOrNull { sideOf[it] == "red" }
         val idle = bots.firstOrNull { sideOf[it] == "blue" }
-        E2eReport.check(suite, "the two bots start on opposite sides", "RCON data get Pos") {
+        E2eReport.check(suite, "the two bots start on opposite sides", "owning-scheduler position probe") {
             assertThat(listOfNotNull(actor, idle)).describedAs("sides: ${sideOf.mapKeys { it.key.name }}").hasSize(2)
             "red=${actor?.name} blue=${idle?.name}"
         }
@@ -70,7 +70,7 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             "stage regions loaded for $lane"
         }
         if (actor == null || idle == null || objectives == null) return null
-        E2eReport.check(suite, "both bots spawn standing on a solid island block in the arenas world", "RCON data get Dimension/Pos + execute unless block") {
+        E2eReport.check(suite, "both bots spawn standing on a solid island block in the arenas world", "owning-scheduler entity/block probes") {
             val problems = bots.mapNotNull { islandStanceProblem(it) }
             assertThat(problems).describedAs("bots not on an arena island: $problems").isEmpty()
             "on island: ${bots.map { it.name to posOf(it) }}"
@@ -106,7 +106,7 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
     }
 
     protected fun walkCheck(ctx: Ctx, what: String, result: ObjectiveWalker.Result, x: Double, z: Double) {
-        E2eReport.check(ctx.suite, "the bot walked to $what (A* navigation)", "RCON data get Pos") {
+        E2eReport.check(ctx.suite, "the bot walked to $what (A* navigation)", "owning-scheduler position probe") {
             assertThat(result).describedAs("walk to $what ($x, $z) ended $result; pos=${posOf(ctx.actor)}; chat=${ctx.chat().takeLast(4)}").isNotEqualTo(ObjectiveWalker.Result.TIMEOUT)
             "result=$result pos=${posOf(ctx.actor)}"
         }
