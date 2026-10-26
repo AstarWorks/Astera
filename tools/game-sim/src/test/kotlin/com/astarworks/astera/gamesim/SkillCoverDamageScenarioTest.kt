@@ -12,6 +12,7 @@ import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
+import com.astarworks.astera.match.application.usecase.block.BlockStateAutoRecoveryUseCase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -48,6 +49,29 @@ class SkillCoverDamageScenarioTest {
             advance(20)
 
             // pistol-shot: block_damage amount 12 (flat, tool-independent) on a 400 HP wall.
+            assertThat(hp(wall)).isEqualTo(388)
+        }
+    }
+
+    @Test
+    fun `damaged cover does not regenerate during the match`() {
+        scenario("skill-cover-no-regen") {
+            val shooter = player("shooter", at = Vec3(0.5, groundY, 0.0), team = "red")
+            shooter.world = world
+            val wall = Vec3(0.0, groundY + 1, 6.0)
+            cover("astera:reinforced_wall", wall, shooter = shooter)
+
+            shooter.holds("pistol")
+            shooter.rightClick()
+            advance(20)
+            assertThat(hp(wall)).isEqualTo(388)
+
+            val recovery = BlockStateAutoRecoveryUseCase(
+                sim.services.getOrThrow<IBlockStateGateway>(),
+                sim.scheduler,
+                coolOffTicks = 0L,
+            )
+            assertThat(recovery.tick(world, currentTick = 100_000L)).isEqualTo(0)
             assertThat(hp(wall)).isEqualTo(388)
         }
     }
