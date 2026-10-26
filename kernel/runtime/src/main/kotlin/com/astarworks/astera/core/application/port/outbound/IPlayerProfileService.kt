@@ -71,6 +71,12 @@ public interface IPlayerProfileService {
         displayName: String,
         locale: String?,
     ): Result<PlayerProfile, ProfileError>
+
+    /**
+     * Persist [displayName] as the player's last-known Minecraft name (called on every join, so
+     * renames and placeholder rows self-heal). Blank names and unknown players are ignored.
+     */
+    public fun recordDisplayName(playerId: PlayerId, displayName: String)
 }
 
 /**

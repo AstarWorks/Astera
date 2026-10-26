@@ -1,6 +1,7 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
+import com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.event.FirstTimeProfileCreated
@@ -31,6 +32,22 @@ class FirstJoinScenarioTest {
             assertThat(eventsOf<FirstTimeProfileCreated>()).hasSize(1)
             assertThat(ledger.balance(newcomer.id, Currency.GOLD)).isZero()
             assertThat(checkNotNull(sim.server.view(newcomer.id)).givenItems).hasSize(2)
+        }
+    }
+
+    @Test
+    fun `join stores the real Minecraft name, not a Player-uuid placeholder, and follows renames`() {
+        scenario("profile-real-name") {
+            val repo = sim.services.getOrThrow<IPlayerProfileRepository>()
+            val hero = player("HeroSteve")
+            advance(1)
+            assertThat(repo.find(hero.id)?.displayName).isEqualTo("HeroSteve")
+
+            // Same account reconnects under a new name: the last-known name follows.
+            sim.detachPlayer(hero.id)
+            sim.attachPlayer(hero.id, "HeroAlex")
+            advance(1)
+            assertThat(repo.find(hero.id)?.displayName).isEqualTo("HeroAlex")
         }
     }
 }

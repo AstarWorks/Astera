@@ -125,6 +125,19 @@
 }
 .cp [hidden]{display:none!important}
 .panes{align-items:start}
-.srctog { display: inline-flex; gap: 2px; margin-left: auto; margin-right: 8px; }
+.srctog { display: inline-flex; flex-wrap: wrap; gap: 2px; margin-left: auto; margin-right: 8px; }
 .srctog button { padding: 0 8px; font-size: .78rem; }
 .srctog button[aria-pressed="true"] { background: var(--accent, #2563eb); color: #fff; }
+.panes.solo { grid-template-columns: minmax(0, 1fr); }
+.panes.solo .pane { max-width: calc((100vh - 360px) * 16 / 9); width: 100%; justify-self: center; }
+.sidenote { margin: 4px 2px 0; }
+
+/* freshness overlay on a video (src/prov.js renderFresh) + live connection dot */
+.pane .fresh { position: absolute; left: 0; right: 0; top: 0; padding: 6px 10px; display: flex; flex-direction: column; gap: 2px; background: rgba(230,161,0,.94); color: #1a1200; pointer-events: none; }
+.pane .fresh[hidden] { display: none; }
+.pane .fresh b { font-size: 1rem; }
+.pane .fresh small { font-size: .78rem; opacity: .85; }
+.pane .fresh.failed { background: rgba(198,40,40,.95); color: #fff; }
+.pane .view img.dim { transition: opacity .2s; }
+.live { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #2e9d4f; margin-right: 8px; vertical-align: middle; }
+.live.off { background: #d32f2f; }

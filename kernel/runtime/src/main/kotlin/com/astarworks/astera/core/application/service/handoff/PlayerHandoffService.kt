@@ -75,7 +75,16 @@ public class PlayerHandoffService(
     private val tokens: MutableMap<PlayerId, Stored> = ConcurrentHashMap()
     private val waiting: MutableMap<PlayerId, Waiting> = ConcurrentHashMap()
     private val dropped: MutableMap<PlayerId, PlayerSession> = ConcurrentHashMap()
+
+    /** Arrived without a confirmed restore (timeout, stale/null snapshot, load or apply failure): the live inventory is not theirs. */
+    private val unrestored: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
     private var subscription: IProxyMessenger.Subscription? = null
+
+    /**
+     * `true` while [playerId] is waiting for the restore or arrived without a successful one. Nothing may capture or
+     * save their live inventory then: it would overwrite the last good snapshot with an empty / default inventory.
+     */
+    public fun isRestorePending(playerId: PlayerId): Boolean = playerId in waiting || playerId in unrestored
 
     /** Starts listening for tokens (only a networked server needs it). */
     public fun start() {
@@ -98,7 +107,7 @@ public class PlayerHandoffService(
     public fun onTransferRequested(playerId: PlayerId, target: ServerName): Long? {
         if (playerId in waiting) return null // never restored here; the stored snapshot is still the truth
         val version = try {
-            if (isHeld(playerId)) {
+            if (isHeld(playerId) || playerId in unrestored) {
                 snapshots.findLatest(playerId)?.savedAt?.toEpochMilli() // the pre-match entry snapshot stays authoritative
             } else {
                 val captured = inventory()?.capture(playerId) ?: return null
@@ -125,6 +134,7 @@ public class PlayerHandoffService(
 
     public fun onJoin(playerId: PlayerId) {
         handedOff -= playerId
+        unrestored -= playerId
         markLoading(playerId)
         if (!awaitToken || inventory() == null) { // single server, or a host without an inventory: nothing to order
             finish(playerId, applySnapshot(playerId, loadLatest(playerId)), null)
@@ -145,6 +155,7 @@ public class PlayerHandoffService(
 
     public fun onQuit(playerId: PlayerId) {
         val wait = waiting.remove(playerId)
+        val skipSave = unrestored.remove(playerId)
         if (wait != null) {
             wait.poll?.cancel()
             dropped.remove(playerId)?.let { sessions.upsert(it) } // still dropped from the match: the window keeps running
@@ -152,6 +163,10 @@ public class PlayerHandoffService(
             return
         }
         if (handedOff.remove(playerId)) return
+        if (skipSave) {
+            log.warn("{} left without a confirmed restore; keeping the last saved snapshot.", playerId)
+            return
+        }
         if (isHeld(playerId)) {
             log.debug("onQuit: {} is inside a match; keeping the pre-match entry snapshot", playerId)
             return
@@ -209,7 +224,8 @@ public class PlayerHandoffService(
                     log.warn("No hand-off token for {} within {} ticks; restoring the latest snapshot.", playerId, settings.maxWaitTicks)
                 }
                 waiting.remove(playerId, entry)
-                finish(playerId, applySnapshot(playerId, snapshot), token?.fromServer)
+                val applied = applySnapshot(playerId, snapshot)
+                finish(playerId, applied && (fresh || token == null), token?.fromServer)
             }.onRetired { waiting.remove(playerId, entry) }
         }
     }
@@ -240,6 +256,10 @@ public class PlayerHandoffService(
     }
 
     private fun finish(playerId: PlayerId, restored: Boolean, from: ServerName?) {
+        if (!restored) {
+            unrestored += playerId
+            log.warn("{} arrived without a confirmed inventory restore; captures are suspended so the saved snapshot stays intact.", playerId)
+        }
         markLobby(playerId)
         eventBus.publish(PlayerArrivedOnServer(playerId, from ?: UNKNOWN_SERVER, localServer))
         if (!restored) log.debug("Arrival of {} completed without a restore.", playerId)

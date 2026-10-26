@@ -31,6 +31,12 @@ public interface IDisplayEntityGateway {
     /** Swaps the shown block of a block display. */
     public fun setBlock(handle: DisplayHandle, blockKey: String)
 
+    /**
+     * Overrides the `item_model` of an item display's stack with [itemModel] (`namespace:path`); `null` restores the stack the
+     * display was spawned with. The same entity, via entity metadata (late-tracking viewers get the current stack).
+     */
+    public fun setItemModel(handle: DisplayHandle, itemModel: String?)
+
     /** Swaps the (already localized / MiniMessage) lines of a text display. */
     public fun setText(handle: DisplayHandle, renderedLines: List<String>)
 

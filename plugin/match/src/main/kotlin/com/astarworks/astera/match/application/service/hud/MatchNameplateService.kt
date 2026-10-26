@@ -15,8 +15,9 @@ import kotlin.math.ceil
 
 /**
  * Who is on whose side, readable at a glance (ADR-0206): every participant of a live
- * match sees every other participant with the team colour on the nameplate and in the
- * tab list (grouped by team) and the exact HP under the nameplate.
+ * match sees every teammate with the team colour on the nameplate and in the
+ * tab list (grouped by team) and the exact HP under the nameplate. The opposing team is
+ * concealed: no nameplate (also not through walls) and no tab-list row.
  *
  * The only owner of [IPlayerLabelGateway] for matches. Event triggers (match start /
  * end, health changes, leaving the match) plus a 1 Hz poll that also repairs a
@@ -66,15 +67,30 @@ public class MatchNameplateService(
 
     private fun refresh(match: Match) {
         if (match.phase == MatchPhase.ENDED) return
-        val styled = buildMap {
-            for (team in match.teams) {
-                val color = TeamColors.nameOf(team, null, messages)
-                for (member in team.members) {
-                    put(member, PlayerLabel(group = team.id.value, colorName = color, hp = hpOf(member)?.let(::wholeHp)))
+        // Per viewer: teammates are labelled, the opposing team is concealed (no nameplate, no
+        // tab row), so neither the tab list nor a nameplate through a wall reveals the enemy.
+        for (viewerTeam in match.teams) {
+            val styled = buildMap {
+                for (team in match.teams) {
+                    val color = TeamColors.nameOf(team, null, messages)
+                    val concealed = team.id != viewerTeam.id
+                    for (member in team.members) {
+                        put(
+                            member,
+                            PlayerLabel(
+                                group = team.id.value,
+                                colorName = color,
+                                hp = hpOf(member)?.let(::wholeHp),
+                                concealed = concealed,
+                            ),
+                        )
+                    }
                 }
             }
+            for (viewer in viewerTeam.members) {
+                scheduler.run(ExecutionScope.Entity(viewer.uuid), kotlin.time.Duration.ZERO) { labels.apply(viewer, styled) }
+            }
         }
-        for (viewer in styled.keys) scheduler.run(ExecutionScope.Entity(viewer.uuid), kotlin.time.Duration.ZERO) { labels.apply(viewer, styled) }
     }
 
     /** A living player never reads 0 (rounded up), mirroring the status line. */

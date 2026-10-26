@@ -10,9 +10,11 @@ import { CASE_ID_RE, validateCase, diffSummary } from "./src/timeline.js";
 import { makeSources } from "./lib/sources.mjs";
 import { buildIndex } from "./lib/weapons.mjs";
 import { makeAnim, ANIM_ID_RE } from "./lib/anim.mjs";
-import { spawnSync } from "node:child_process";
-import { contentRevision, publishedRoot } from "./lib/revision.mjs";
+import { spawnSync, execFileSync } from "node:child_process";
+import { contentRevision, publishedRoot, primaryRepo } from "./lib/revision.mjs";
 import { parseBeatSheet } from "./lib/beatsheet.mjs";
+import { makeFreshness } from "./lib/freshness.mjs";
+import { makeEvents } from "./lib/events.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MAX_BODY = 1_000_000;
@@ -30,6 +32,11 @@ export function makeHandler(opts = {}) {
   const publishedDir = opts.publishedDir ?? publishedRoot(repo);
   const viewerDir = opts.viewerDir ?? join(repo, "tools", "skill-viewer", "build", "skill-frames");
   const tracesDir = opts.tracesDir ?? join(repo, "tools", "game-sim", "build", "sim-traces");
+
+  const primary = primaryRepo(repo);
+  const devDir = opts.devDir ?? process.env.SKILL_COMPARE_STATE_DIR ?? join(primary, ".claude", "state", "dev-deploy");
+  const farmDir = opts.farmDir ?? process.env.SKILL_COMPARE_FARM_STATE ?? join(primary, ".claude", "state", "capture-farm");
+  const F = makeFreshness({ repo, devDir, farmDir });
 
   const json = (o, status = 200) =>
     new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
@@ -59,6 +66,7 @@ export function makeHandler(opts = {}) {
       fov: m.fov ?? null, fovMode: m.fovMode ?? null, resolution: m.resolution ?? null, view: m.view ?? null,
       skippedTicks: m.skippedTicks ?? m.captureQuality?.skippedTicks ?? null, deployedSha: m.stack?.deployedCodeRevision ?? null,
       repeated: m.captureQuality?.maxRepeatedFrames ?? null, reviewRequired: !!m.captureQuality?.reviewRequired,
+      auto: m.auto ?? null,
       contentRevision: m.contentRevision ?? null, contentDirty: m.contentDirty ?? null, codeDirty: m.codeDirty ?? null,
       stale: cur && m.contentRevision ? m.contentRevision !== cur.contentRevision : null, currentContent: cur?.contentRevision ?? null };
   };
@@ -109,11 +117,12 @@ export function makeHandler(opts = {}) {
       if (existsSync(pointer)) {
         try {
           const { revision, extension, meta } = readJson(pointer);
-          if (!/^[a-f0-9]{64}$/.test(revision) || meta.captureQuality?.invalid ||
-              (referenceRevision && meta.referenceRevision !== referenceRevision) ||
-              (contentRevision && meta.caseContentRevision !== contentRevision)) continue;
+          // A capture is never hidden for its revisions (only for being invalid): null = "unknown", different = "stale", both get a badge.
+          if (!/^[a-f0-9]{64}$/.test(revision) || (meta.captureQuality?.invalid && meta.auto?.kind !== "preview")) continue;
+          // STALE = the reference (video/trim) changed after this capture; the skill content version is the capture's own sha (auto/implementationCommit), never compared to case.json.
+          const caseRev = !referenceRevision ? "match" : !meta.referenceRevision ? "unknown" : meta.referenceRevision === referenceRevision ? "match" : "stale";
           info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`,
-            count: meta.frames, fps: meta.fps || 20, castFrame: Math.round(((meta.cast_tick_ms ?? 0) * (meta.fps || 20)) / 1000), extension, revision, prov: { ...provOf(meta), published: true } };
+            count: meta.frames, fps: meta.fps || 20, castFrame: Math.round(((meta.cast_tick_ms ?? 0) * (meta.fps || 20)) / 1000), extension, revision, prov: { ...provOf(meta), published: true, caseRev } };
         } catch { /* Never fall back to a partially overwritten source after publication. */ }
         continue;
       }
@@ -154,19 +163,32 @@ export function makeHandler(opts = {}) {
     return info;
   }
 
+  /** Per displayed video: is it still what dev produces for this skill (lib/freshness.mjs)? Keyed by the page's source names. */
+  function freshnessOf(skill, mc, views) {
+    const out = { dev: F.dev(), views: {} };
+    const one = (key, prov, kind) => {
+      if (!prov) return;
+      out.views[key] = { ...F.judge(skill, { sha: prov.auto?.sha ?? prov.commit ?? null, capturedAt: prov.capturedAt ?? null, kind }, out.dev), published: prov.published !== false };
+    };
+    for (const [name, src] of Object.entries(mc.sources)) if (src.kind === "frames") one(name, src.prov, name.replace("vfx-", ""));
+    one("preview", views.preview?.prov, "preview");
+    one("preview-side", views.previewSide?.prov, "preview-side");
+    return out;
+  }
+
   function getCase(id) {
     const rec = S.allCases().get(id);
     if (!rec) return null;
     const { c, src } = rec, dir = join(src.dataDir, id);
     const cdir = S.cacheFor(id, src);
     const ap = cdir && join(cdir, "analysis.json");
+    const skill = c.skill?.asteraSkillId, mc = mcInfo(skill, c.referenceRevision, c.contentRevision), views = reviewViews(skill, c.referenceRevision);
     return {
       case: c, from: { worktree: src.name, branch: src.branch },
       weapon: weaponOf(c.skill?.asteraSkillId, c.weapon),
       media: cdir ? { ready: true, ...readJson(join(cdir, "meta.json")), revision: c.referenceRevision || String(c.rev ?? 0), base: `/media/${id}/frames/` } : { ready: false },
       analysis: ap && existsSync(ap) ? readJson(ap) : { waveform: [], waveformStepMs: 10, onsets: [], cuts: [] },
-      mc: mcInfo(c.skill?.asteraSkillId, c.referenceRevision, c.contentRevision),
-      views: reviewViews(c.skill?.asteraSkillId, c.referenceRevision),
+      mc, views, freshness: SKILL_RE.test(skill || "") ? freshnessOf(skill, mc, views) : null,
       stills: stillsOf(c.skill?.asteraSkillId),
       review: readReview(rec), beatSheet: parseBeatSheet(join(dir, "beat-sheet")), dev: devDeployed(),
       sound: soundOf(id, c, rec),
@@ -327,10 +349,41 @@ export function makeHandler(opts = {}) {
     return r.status === 0 ? json({ ok: true }) : json({ error: (r.stderr || "write failed").trim().split("\n").slice(-4).join(" ") }, 422);
   }
 
+  // ---- live updates (GET /api/events, lib/events.mjs) ---------------------------------------------------------------
+  const mt = (f) => { try { return statSync(f).mtimeMs; } catch { return 0; } };
+  const PUBLISHED_KINDS = ["compare", "input", "caster", "opponent", "side", "preview-side", "front", "back", "right", "top", "high", "near", "preview", "lint", "round", "stills"];
+  function caseSignature(rec) {
+    const dir = dirname(rec.file), skill = rec.c.skill?.asteraSkillId, parts = [rec.src.name, mt(rec.file), mt(join(dir, "review.json")), mt(join(dir, "notes.md"))];
+    const bs = join(dir, "beat-sheet");
+    try { for (const f of readdirSync(bs)) parts.push(f, mt(join(bs, f))); } catch { /* no beat sheet */ }
+    if (SKILL_RE.test(skill || "")) {
+      for (const k of PUBLISHED_KINDS) parts.push(mt(join(publishedDir, skill, k, "current.json")));
+      for (const w of ["current", "previous"]) parts.push(soundFile(skill, w)?.f ? mt(soundFile(skill, w).f) : 0);
+      for (const v of ["compare", "side", "top"]) parts.push(mt(join(vfxShotDir, skill, v, "meta.json")));
+      parts.push(F.signature(skill));
+    }
+    return parts.join("|");
+  }
+  const treeHead = () => { try { return execFileSync("git", ["-C", repo, "rev-parse", "HEAD"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim(); } catch { return ""; } };
+  const codeRev = () => {
+    const stamps = [];
+    for (const d of ["src", "public", "lib"]) { try { for (const f of readdirSync(join(root, d))) stamps.push(mt(join(root, d, f))); } catch { /* absent */ } }
+    stamps.push(mt(join(root, "server.mjs")));
+    return String(Math.max(...stamps));
+  };
+  const events = makeEvents({
+    codeRev, devSha: () => F.dev(),
+    signatures: () => ({
+      global: [F.dev()?.sha ?? "", treeHead(), mt(join(devDir, "deploy.log"))].join("|"),
+      cases: new Map([...S.allCases()].map(([id, rec]) => [id, caseSignature(rec)])),
+    }),
+  });
+
   return async function handle(req) {
     const url = new URL(req.url);
     const p = url.pathname;
     let m;
+    if (p === "/api/events" && req.method === "GET") return events.response();
     if (p === "/annotate.html") return file(join(publicDir, "annotate.html"), "text/html; charset=utf-8");
     if (p === "/annotate.js") return appJs("annotate");
     if ((m = /^\/api\/keypoints\/([a-z0-9-]+)$/.exec(p))) return SKILL_RE.test(m[1]) ? keypoints(m[1], req) : err(400, "bad skill id");
@@ -443,7 +496,7 @@ if (import.meta.main) {
   const port = Number(process.env.PORT || 8097);
   const hostname = process.env.HOST || "0.0.0.0";
   const handle = makeHandler({ repo: process.env.SKILL_COMPARE_REPO || undefined });
-  Bun.serve({ port, hostname, fetch: handle });
+  Bun.serve({ port, hostname, fetch: handle, idleTimeout: 0 }); // idleTimeout 0: /api/events streams stay open
   const lan = Object.values(networkInterfaces()).flat().filter((i) => i && i.family === "IPv4" && !i.internal).map((i) => i.address);
   console.log(`skill-compare on http://${hostname}:${port}  (LAN: ${lan.map((a) => `http://${a}:${port}`).join(" ") || "-"})`);
 }

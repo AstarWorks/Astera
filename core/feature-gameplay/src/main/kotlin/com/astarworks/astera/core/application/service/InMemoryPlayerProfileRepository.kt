@@ -13,4 +13,7 @@ public class InMemoryPlayerProfileRepository : IPlayerProfileRepository {
 
     override fun insertIfAbsent(profile: PlayerProfile): Boolean =
         profiles.putIfAbsent(profile.id, profile) == null
+
+    override fun updateDisplayName(playerId: PlayerId, displayName: String): Boolean =
+        profiles.computeIfPresent(playerId) { _, p -> p.copy(displayName = displayName) } != null
 }

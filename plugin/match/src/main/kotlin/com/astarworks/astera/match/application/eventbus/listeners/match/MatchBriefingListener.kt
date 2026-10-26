@@ -16,7 +16,10 @@ import com.astarworks.astera.match.domain.norma.NormaConfig
  * top level wins outright, and what decides the match if the time limit runs out. The first-time-player yardstick is
  * "understands how Norma wins the match in ten minutes"; before this the only teaching was the optional tutorial.
  *
- * The mode line is `astera.match.briefing.mode.<modeKey>`; a mode without one just gets the Norma lines.
+ * The mode line is `astera.match.briefing.mode.<modeKey>`; a mode without one just gets the Norma lines. The same
+ * moment also flashes the objective as a title (`astera.match.objective.<modeKey>.title|subtitle`), and a player whose
+ * first match this is gets the short beginner guide (`astera.match.briefing.first-time.*`) once, because it is keyed on
+ * their stats' matches-played counter.
  */
 public class MatchBriefingListener(
     private val matches: IMatchRepository,
@@ -25,6 +28,10 @@ public class MatchBriefingListener(
     private val modeKeyOf: (MatchId) -> String?,
     private val configOf: (MatchId) -> Map<String, String>,
     private val isNorma: (MatchId) -> Boolean,
+    /** Shows a title + subtitle (already resolved against the viewer's language by the Paper layer). */
+    private val showTitle: (PlayerId, MessageKey, MessageKey) -> Unit = { _, _, _ -> },
+    /** True while the player has never finished a match: they also get the beginner guide. */
+    private val isFirstMatch: (PlayerId) -> Boolean = { false },
 ) {
 
     public fun onPhaseChanged(event: PhaseChanged) {
@@ -43,11 +50,24 @@ public class MatchBriefingListener(
         fun send(key: String, vararg params: Pair<String, String>) =
             playerGateway.sendMessage(viewer, messages.render(viewer, MessageKey(key), params.toMap()))
 
+        if (modeKey != null) {
+            val titleKey = MessageKey("astera.match.objective.$modeKey.title")
+            val rendered = messages.render(viewer, titleKey)
+            if (rendered.isNotBlank() && !rendered.startsWith("astera.")) {
+                showTitle(viewer, titleKey, MessageKey("astera.match.objective.$modeKey.subtitle"))
+            }
+        }
         send("astera.match.briefing.header")
         if (modeKey != null) {
             val key = "astera.match.briefing.mode.$modeKey"
             val text = messages.render(viewer, MessageKey(key))
             if (text.isNotBlank() && text != key && !text.startsWith("astera.")) playerGateway.sendMessage(viewer, text)
+        }
+        if (isFirstMatch(viewer)) {
+            send("astera.match.briefing.first-time.header")
+            send("astera.match.briefing.first-time.sidebar")
+            send("astera.match.briefing.first-time.stars")
+            send("astera.match.briefing.first-time.respawn")
         }
         if (norma == null) return
         send(

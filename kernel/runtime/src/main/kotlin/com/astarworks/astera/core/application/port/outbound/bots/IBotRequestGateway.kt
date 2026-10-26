@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.port.outbound.bots
 
+import com.astarworks.astera.core.application.bots.BotRelease
 import com.astarworks.astera.core.application.bots.BotRequest
 import com.astarworks.astera.core.application.bots.BotStatus
 import com.astarworks.astera.core.domain.Result
@@ -17,6 +18,9 @@ public interface IBotRequestGateway {
 
     /** Publishes [request] on `astera:bots:request`. Success means "published", not "served". */
     public fun publish(request: BotRequest): Result<Unit, BotRequestError>
+
+    /** Publishes [release] on `astera:bots:release`: the bots of that request are no longer wanted. */
+    public fun release(release: BotRelease): Result<Unit, BotRequestError>
 
     /** Registers [handler] for every [BotStatus] seen on `astera:bots:status`. */
     public fun subscribe(handler: (BotStatus) -> Unit): Subscription
@@ -37,6 +41,9 @@ public sealed class BotRequestError {
 /** Default when Redis is not configured. */
 public class UnavailableBotRequestGateway : IBotRequestGateway {
     override fun publish(request: BotRequest): Result<Unit, BotRequestError> =
+        Result.Failure(BotRequestError.Unavailable)
+
+    override fun release(release: BotRelease): Result<Unit, BotRequestError> =
         Result.Failure(BotRequestError.Unavailable)
 
     override fun subscribe(handler: (BotStatus) -> Unit): IBotRequestGateway.Subscription =

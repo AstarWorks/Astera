@@ -107,4 +107,9 @@ tree_hash() { # <dir>
 
 # Elapsed-seconds trace, one line per phase, so the next speed decision is measured.
 PHASE_T0=$SECONDS
-phase() { log "[+$((SECONDS - PHASE_T0))s] $*"; }
+# PHASE_LOG (set by vfx-shot.sh to <state>/phases.log, copied next to the frames): "<epoch> +<s> <what>" per phase, for profiling.
+phase() {
+  log "[+$((SECONDS - PHASE_T0))s] $*"
+  [ -n "${PHASE_LOG:-}" ] && printf '%s +%s %s\n' "$(date +%s.%N | cut -c1-14)" "$((SECONDS - PHASE_T0))" "$*" >> "$PHASE_LOG"
+  return 0
+}

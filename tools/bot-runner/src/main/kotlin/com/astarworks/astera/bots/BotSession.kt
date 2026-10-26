@@ -63,9 +63,11 @@ class BotSession(
                 group.failed("$name could not join the lobby: ${bot.disconnectReason ?: "no answer"}")
                 return
             }
+            if (stopReason != null) return // released while logging in: never queue
             // The lobby kit and sidebar arrive a moment after the first position packet.
             bot.waitUntil(15_000) { bot.sidebarLines().isNotEmpty() && bot.hotbar().any { it != -1 } }
             Thread.sleep(1_500)
+            if (stopReason != null) return
             val chatBefore = bot.chat.size
             bot.command("astera queue join $lane")
             bot.waitUntil(6_000) { bot.chat.size > chatBefore }
@@ -73,7 +75,7 @@ class BotSession(
             queued = true
             group.queued()
 
-            brain = BotBrain(bot, config.skill, objectives).start()
+            brain = BotBrain(bot, config.skill, objectives, modeId = lane).start()
             playUntilBackInLobby(bot, brain)
         } catch (t: Throwable) {
             log.warn("{} crashed: {}", name, t.toString())

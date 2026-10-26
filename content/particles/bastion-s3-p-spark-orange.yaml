@@ -1,0 +1,10 @@
+# S3 (Bastion greatsword) orange scrape/thrust spark: orange -> dark ember dust thrown outward, few and short-lived (dark mixed with bright).
+id: bastion-s3-p-spark-orange
+shape: { kind: burst, spread_blocks: 0.05 }
+color: { r: 255, g: 150, b: 40 }
+count: 2
+lifetime_ticks: 8
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 255, g: 170, b: 50 }, to: { r: 90, g: 36, b: 14 }, scale: 0.3 }
+velocity: { direction: outward, speed: 0.28, spread_degrees: 0, speed_jitter: 0.5 }
+force: true

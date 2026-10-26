@@ -1,0 +1,8 @@
+{
+  "round": 1,
+  "gate": 2,
+  "focus": "ゲート 1 通過 (Q1=A Q2=A Q3=A)。ゲート 2 に向けて構築中: 背向け突進、t13 接触フラッシュ、時計回りの振り向き、開閉するハサミ",
+  "fireHint": "/astera items give で couture-rapier を持ち、左クリックで S1 を発動",
+  "soundKind": "vanilla tuned",
+  "reviewer": {}
+}

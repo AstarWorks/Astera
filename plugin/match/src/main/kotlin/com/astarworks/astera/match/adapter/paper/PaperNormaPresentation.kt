@@ -15,17 +15,44 @@ import org.bukkit.FireworkEffect
 import org.bukkit.Location
 import org.bukkit.Server
 import org.bukkit.entity.Firework
+import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
+import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.plugin.java.JavaPlugin
+import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Paper [INormaPresentation]: every title, sound cue, action bar and particle comes from the `norma-*` rows of
  * `content/presentation/events.yaml` through [IPresentation] (FX-05); this class only adds the chat line to the match
- * and the detonated firework.
+ * and the detonated firework. A vanilla firework explosion hurts everything within a few blocks, the level-up
+ * player included, so damage dealt by these fireworks is cancelled (LOWEST, before any damage reroute sees it).
  */
 public class PaperNormaPresentation(
-    private val server: Server,
+    private val plugin: JavaPlugin,
     private val renderer: IMessageRenderer,
     private val presentation: IPresentation,
-) : INormaPresentation {
+) : INormaPresentation, Listener {
+    private val server: Server = plugin.server
+
+    /** Our own fireworks in flight; an entry leaves the set when the firework leaves the world (after its blast). */
+    private val ours: MutableSet<UUID> = ConcurrentHashMap.newKeySet()
+
+    init {
+        server.pluginManager.registerEvents(this, plugin)
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public fun onFireworkDamage(event: EntityDamageByEntityEvent) {
+        if (event.damager.uniqueId in ours) event.isCancelled = true
+    }
+
+    @EventHandler
+    public fun onFireworkGone(event: EntityRemoveFromWorldEvent) {
+        if (event.entity is Firework) ours.remove(event.entity.uniqueId)
+    }
 
     override fun levelUp(player: PlayerId, audience: List<PlayerId>, level: Int, maxLevel: Int) {
         val p = server.getPlayer(player.uuid) ?: return
@@ -58,6 +85,7 @@ public class PaperNormaPresentation(
 
     private fun firework(at: Location, big: Boolean) {
         at.world.spawn(at, Firework::class.java) { fw ->
+            ours += fw.uniqueId
             val meta = fw.fireworkMeta
             meta.addEffect(
                 FireworkEffect.builder()

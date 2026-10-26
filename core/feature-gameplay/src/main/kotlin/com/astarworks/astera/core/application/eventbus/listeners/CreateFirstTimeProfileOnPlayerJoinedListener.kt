@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.port.outbound.ProfileError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.FirstTimeProfileCreated
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
+import com.astarworks.astera.core.domain.player.PlayerId
 import org.slf4j.LoggerFactory
 
 /**
@@ -49,6 +50,8 @@ public class CreateFirstTimeProfileOnPlayerJoinedListener(
     private val profileService: IPlayerProfileService,
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
+    /** Current Minecraft name of an online player (the domain event carries only the id). */
+    private val nameOf: (PlayerId) -> String? = { null },
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -56,12 +59,12 @@ public class CreateFirstTimeProfileOnPlayerJoinedListener(
     public fun handle(event: PlayerJoinedServer) {
         val playerId = event.playerId
 
-        // The domain event is deliberately lean (id + timestamp; see its
-        // KDoc). Display-name extraction is the Bukkit adapter's job; here
-        // we pass the empty string so the service falls back to its
-        // "Player-${shortUuid}" placeholder, which Wave 6b can refresh.
+        // The domain event is deliberately lean (id + timestamp), so the name comes from the
+        // player gateway. Blank only when the player is already gone; the service then falls
+        // back to a placeholder that the next join's refreshName overwrites.
+        val name = nameOf(playerId).orEmpty()
         val outcome = try {
-            profileService.createFirstTime(playerId, displayName = "", locale = null)
+            profileService.createFirstTime(playerId, displayName = name, locale = null)
         } catch (t: RuntimeException) {
             // Defensive — port contract says no throws. Log and swallow so
             // the inventory listener still gets to run.
@@ -89,6 +92,7 @@ public class CreateFirstTimeProfileOnPlayerJoinedListener(
             is Result.Failure -> when (val err = outcome.error) {
                 is ProfileError.AlreadyExists -> {
                     log.debug("Profile already exists for {}; treating as returning player.", playerId)
+                    refreshName(playerId)
                 }
                 is ProfileError.PartialGrant -> {
                     log.warn(
@@ -99,6 +103,18 @@ public class CreateFirstTimeProfileOnPlayerJoinedListener(
                     )
                 }
             }
+        }
+    }
+
+    /** Keeps the persisted last-known name current on every join (rankings read it for offline players). */
+    public fun refreshName(event: PlayerJoinedServer): Unit = refreshName(event.playerId)
+
+    private fun refreshName(playerId: PlayerId) {
+        val name = nameOf(playerId) ?: return
+        try {
+            profileService.recordDisplayName(playerId, name)
+        } catch (t: RuntimeException) {
+            log.warn("recordDisplayName threw for {}: {}", playerId, t.message)
         }
     }
 }

@@ -155,6 +155,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         guiAdapter = guiAdapter,
         messages = messages,
         playerGateway = playerGateway,
+        defaultLocale = ports.defaultLocale,
     )
     val settingsVolumeHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsVolumeIntentHandler(
         setVolume = setVolume,
