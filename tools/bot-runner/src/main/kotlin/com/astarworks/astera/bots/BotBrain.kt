@@ -157,6 +157,8 @@ class BotBrain(
     private var starApproachSince = 0L
     private var highY = Double.NEGATIVE_INFINITY
     private var fellRecently = false
+    /** Tick of the running travel jump (-1 = on the ground). */
+    private var jumpStep = -1
 
     fun start(): BotBrain {
         exec.scheduleAtFixedRate({ runCatching { tick() }.onFailure { Bot.noteSink("bot ${bot.name}: brain error $it") } }, 500, 50, TimeUnit.MILLISECONDS)
@@ -181,16 +183,19 @@ class BotBrain(
         dismissScreens()
         if (mode != Mode.FIGHT) {
             wasFighting = false
+            endTravel()
             idleNudge(now)
             return
         }
         if (bot.health == 0f) {
+            endTravel()
             if (now - lastRespawnAt > 1_000) { lastRespawnAt = now; bot.respawn() }
             return
         }
         val gm = bot.gameMode
         if (gm == GameMode.SPECTATOR) {
             // Death cam: the server owns us until it respawns us. Stay quiet.
+            endTravel()
             idleNudge(now)
             return
         }
@@ -233,6 +238,7 @@ class BotBrain(
         val goForStar = starDest != null && enemyFlat > STAR_YIELD_RANGE && !retreating
 
         if (enemy != null) {
+            endTravel() // combat movement is never sprint-jumped
             ticksWithEnemy.incrementAndGet()
             if (firstSightMs < 0) firstSightMs = now - fightStartedAt
             lastEnemyAt = now; lastEnemyX = enemy.x; lastEnemyZ = enemy.z
@@ -284,9 +290,12 @@ class BotBrain(
         } else {
             val dest = chooseDest(now, starDest)
             if (dest == null) {
+                endTravel()
                 standStill = true
             } else {
+                travel(dest)
                 val st = nav.follow(bot, dest.x, dest.z, dest.y, dest.arrive, skill.walkSpeed, now, null, 0f)
+                if (st != Navigator.Status.MOVING) endTravel()
                 lastKind = "go>${dest.kind}:$st"
                 when (st) {
                     Navigator.Status.MOVING -> { dwellOn(dest, now); return }
@@ -513,6 +522,46 @@ class BotBrain(
     // --- movement ------------------------------------------------------------------------------------------------
 
     /**
+     * Non-combat travel (objective, stars, waypoints, roaming) sprint-jumps per [SprintJumpPolicy]: sets the sprint state
+     * and the jump-arc [Bot.lift] that the next position packet (sent by [Navigator.follow]) carries. The floor pose
+     * the navigator works on is not changed, so path and edge checks stay on the ground.
+     */
+    private fun travel(dest: Dest) {
+        val dx = dest.x - bot.x
+        val dz = dest.z - bot.z
+        val dist = hypot(dx, dz)
+        val moving = dist > dest.arrive
+        val dirX = if (dist > 1e-6) dx / dist else 0.0
+        val dirZ = if (dist > 1e-6) dz / dist else 0.0
+        val aheadX = bot.x + dirX * JUMP_LOOKAHEAD
+        val aheadZ = bot.z + dirZ * JUMP_LOOKAHEAD
+        val groundAhead = bot.terrain.knows(aheadX, aheadZ) && bot.terrain.floorAt(aheadX, aheadZ, bot.y, 0, 1) != null
+        val by = Math.floor(bot.y + 0.05).toInt()
+        val headroom = listOf(bot.x to bot.z, aheadX to aheadZ).all { (cx, cz) ->
+            (2..3).all { dy -> bot.terrain.isSolid(Math.floor(cx).toInt(), by + dy, Math.floor(cz).toInt()) == false }
+        }
+        val airborne = jumpStep >= 0
+        val decision = SprintJumpPolicy.decide(inCombat = false, moving = moving, airborne = airborne, groundAhead = groundAhead, headroom = headroom)
+        if (!decision.sprint) { endTravel(); return }
+        bot.setSprinting(true)
+        if (airborne || decision.jump) {
+            val step = if (airborne) jumpStep else 0
+            val lift = SprintJumpPolicy.lift(step)
+            bot.lift = lift
+            jumpStep = if (lift == 0.0) -1 else step + 1
+        } else {
+            bot.lift = 0.0
+        }
+    }
+
+    /** Back on the ground, not sprinting. Idempotent; called whenever the bot stops travelling (combat, arrival, death, lobby). */
+    private fun endTravel() {
+        jumpStep = -1
+        bot.lift = 0.0
+        bot.setSprinting(false)
+    }
+
+    /**
      * Sends one position for this tick: [heading] bent around obstacles and island edges. A step is only taken when
      * the block under the landing point AND under a point a little further ahead is solid ("probe ahead"), so the
      * bot stops at the rim instead of walking off it.
@@ -681,6 +730,8 @@ class BotBrain(
         const val MIN_MELEE_FOOD = 4
         const val MIN_CAST_FOOD = 2
         const val PROBE_AHEAD = 0.8
+        /** How far ahead of a travelling bot the floor must exist for it to jump. */
+        const val JUMP_LOOKAHEAD = 2.5
         const val STAR_YIELD_RANGE = 12.0
         const val KILL_DETOUR_RANGE = 4.0
         const val STAR_SIGHT_RANGE = 90.0

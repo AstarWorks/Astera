@@ -31,6 +31,8 @@ import org.geysermc.mcprotocollib.protocol.data.game.entity.player.GameMode
 import org.geysermc.mcprotocollib.protocol.data.game.item.ItemStack
 import org.geysermc.mcprotocollib.protocol.data.game.item.component.DataComponentTypes
 import org.geysermc.mcprotocollib.protocol.data.game.PlayerListEntryAction
+import org.geysermc.mcprotocollib.protocol.data.game.entity.player.PlayerState
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundPlayerCommandPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundPlayerInfoUpdatePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundEntityPositionSyncPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundMoveEntityPosPacket
@@ -505,7 +507,7 @@ class Bot private constructor(
     private fun hopTo0(old: ClientSession, ep: Endpoint) {
         joined = false; loggedIn = false; disconnectReason = null
         runCatching { old.disconnect("hop") }
-        entities.clear(); terrain.clear(); playerGameModes.clear()
+        entities.clear(); terrain.clear(); playerGameModes.clear(); lift = 0.0; sprinting = false
         objectives.clear(); displaySlots.clear(); scores.clear(); teams.clear(); bossBars.clear()
         contents.clear(); screens.clear(); stateIds.clear()
         endpoint = ep
@@ -589,6 +591,22 @@ class Bot private constructor(
     /** Holds/releases sneak (shift) - `sneak_right` bindings need it held while right-clicking. */
     fun sneak(on: Boolean) = session.send(ServerboundPlayerInputPacket(false, false, false, false, false, on, false))
 
+    /**
+     * Height above the walking floor reported in the next position packets (a jump arc); [x]/[y]/[z] stay the floor
+     * pose so path and edge logic keep working on the ground. 0 = on the ground (packets are sent with onGround).
+     */
+    @Volatile var lift = 0.0
+
+    @Volatile var sprinting = false; private set
+
+    /** Starts / stops sprinting the way a client does (sprint input flag + START/STOP_SPRINTING). Sent only on a change. */
+    fun setSprinting(on: Boolean) {
+        if (sprinting == on) return
+        sprinting = on
+        session.send(ServerboundPlayerInputPacket(on, false, false, false, false, false, on))
+        session.send(ServerboundPlayerCommandPacket(selfEntityId, if (on) PlayerState.START_SPRINTING else PlayerState.STOP_SPRINTING))
+    }
+
     /** The "Respawn" button of the death screen. */
     fun respawn() = session.send(ServerboundClientCommandPacket(ClientCommand.PERFORM_RESPAWN))
 
@@ -630,7 +648,7 @@ class Bot private constructor(
      */
     fun nudge() {
         session.send(ServerboundClientTickEndPacket.INSTANCE)
-        session.send(ServerboundMovePlayerPosRotPacket(true, false, x, y, z, yawDeg, pitchDeg))
+        session.send(ServerboundMovePlayerPosRotPacket(lift == 0.0, false, x, y + lift, z, yawDeg, pitchDeg))
         session.send(ServerboundClientTickEndPacket.INSTANCE)
     }
 
