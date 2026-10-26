@@ -18,4 +18,10 @@ Every view shows branch, git revision, content revision, dirty flag (content/cod
 
 ## Round notes
 
-`round.md`: short, written by the director each round: what changed, open questions for the founder. Plain text (shown verbatim, max 20 kB). Skipped silently when absent.
+`round.md`: short, written by the director each round: what changed, open questions for the founder. Markdown, rendered on the page: headings, paragraphs, lists, GFM tables, quotes, code, **bold** / *italic*, `http(s)` links. Raw HTML is never interpreted (shown as text). Max 20,000 characters. Skipped silently when absent.
+
+Images: `![top-down](beat-top.png)` with a path relative to the notes file, e.g. `make skill-round SKILL=<s> FILE=notes/beat-sheet.md` next to `notes/beat-top.png`, `beat-side.png`, `beat-front.png`. Rules (the publisher fails the whole publish on a violation):
+
+- `.png` / `.jpg` / `.jpeg` / `.webp` only (content is checked, no SVG), at most 2 MB per image and 12 images per round.
+- The file must live inside the notes file's directory (or below it): no `..`, absolute paths, URLs or symlinks leaving it.
+- Images are copied into the immutable published revision and served from `/round/<skill>/<revision>/img/<name>`; the page only shows images the publisher listed. Rendering happens once when the case loads, so playback never repaints the notes.
