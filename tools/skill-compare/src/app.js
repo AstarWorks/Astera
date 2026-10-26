@@ -15,7 +15,11 @@ const store = { get: (k) => { try { return localStorage.getItem(k); } catch { re
 
 const PRIMARY = ["side"]; // main player = reference + this one slot; top / front sit in the collapsed extra views
 // The side slot has two interchangeable sources: the three.js preview (same orientation as the reference) and the real-client capture.
-const SIDE_SOURCES = { "vfx-preview-side": "プレビュー", "vfx-side": "実機" };
+// Slot default = best available Minecraft source in this order, then any other view; the selector lists every source.
+const SLOT_PRIORITY = ["vfx-compare", "vfx-side", "vfx-preview-side", "vfx-input"];
+const slotSources = (srcs) => Object.keys(srcs).filter((n) => n !== "vfx-viewer" && VIEW_LABEL[n.replace("vfx-", "")])
+  .sort((a, b) => { const r = (n) => { const i = SLOT_PRIORITY.indexOf(n); return i < 0 ? 99 : i; }; return r(a) - r(b); });
+const srcLabel = (n) => n === "vfx-preview-side" ? "プレビュー横" : "実機 " + (n === "vfx-compare" ? "compare" : VIEW_LABEL[n.replace("vfx-", "")]);
 // STOPGAP: real-client `side` captures taken before the vfx-shot side camera moved to the caster's right are mirrored
 // (screen-left = forward). Flip them at display time; captures at/after this instant are already correct. Remove with the old captures.
 const SIDE_MIRRORED_BEFORE = "2026-10-26T23:00:00Z";
@@ -119,9 +123,9 @@ function mkPane(host, name, label) {
 function buildPanes() {
   const srcs = S.data.mc.sources, host = $("panes");
   $("vph").textContent = S.c.status === "from-wiki" ? "原動画に該当技なし・wiki由来の設計" : S.data.media.ready ? "読み込み中…" : "参照区間の映像を準備中";
-  for (const v of PRIMARY) mkPane(host, "vfx-" + v, VIEW_LABEL[v]);
-  buildSideToggle(S.panes[0], srcs);
-  const extras = Object.keys(srcs).map((n) => n.replace("vfx-", "")).filter((v) => !PRIMARY.includes(v) && v !== "preview-side" && VIEW_LABEL[v] && v !== "viewer")
+  for (const v of PRIMARY) mkPane(host, "vfx-" + v, "Minecraft");
+  const slotDefault = buildSideToggle(S.panes[0], srcs);
+  const extras = Object.keys(srcs).filter((n) => n !== slotDefault && n !== "vfx-preview-side").map((n) => n.replace("vfx-", "")).filter((v) => VIEW_LABEL[v] && v !== "viewer")
     .sort((a, b) => (EXTRA_ORDER.indexOf(a) + 99) % 99 - (EXTRA_ORDER.indexOf(b) + 99) % 99);
   for (const v of extras) mkPane($("panesExtra"), "vfx-" + v, VIEW_LABEL[v]);
   $("bMore").hidden = !extras.length;
@@ -134,23 +138,23 @@ function buildPanes() {
   $("moreInfo").textContent = extras.length ? extras.map((v) => VIEW_LABEL[v]).join("・") : "";
 }
 function buildSideToggle(p, srcs) {
-  const avail = Object.keys(SIDE_SOURCES).filter((n) => srcs[n]);
+  const avail = slotSources(srcs);
   if (!avail.length) { // nothing to show: reference at full width instead of an empty panel
     S.panes.splice(S.panes.indexOf(p), 1); p.fig.remove(); p.fig.closest(".panes")?.classList.add("solo");
-    $("panes").classList.add("solo"); $("panes").before(el("p", "status sidenote", "横からの映像はまだ作られていません（プレビュー・実機とも未公開）"));
-    return;
+    $("panes").classList.add("solo"); $("panes").before(el("p", "status sidenote", "Minecraft の映像はまだありません（実機・プレビューとも未公開）"));
+    return null;
   }
-  const at = (n) => srcs[n].prov?.capturedAt || "";
-  p.name = avail.reduce((a, b) => (at(b) > at(a) ? b : a)); // default: the newest capture
+  p.name = avail[0];
   p.slot = true;
-  if (avail.length < 2) return;
+  if (avail.length < 2) return p.name;
   const box = el("span", "srctog");
   for (const n of avail) {
-    const b = el("button", "", SIDE_SOURCES[n]); b.type = "button";
+    const b = el("button", "", srcLabel(n)); b.type = "button";
     b.onclick = () => { p.name = n; box.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); update(true); };
     b.setAttribute("aria-pressed", String(n === p.name)); box.append(b);
   }
   p.fig.querySelector("figcaption").insertBefore(box, p.info);
+  return p.name;
 }
 const visiblePanes = () => S.panes.filter((p) => !p.fig.closest("[hidden]"));
 
@@ -183,7 +187,7 @@ function showPane(p, ms) {
   p.miss.hidden = !((src?.prov?.skippedTicks ?? 0) > 0);
   if (!f) { p.ph.classList.add("on"); p.img.style.visibility = "hidden"; p.info.textContent = ""; p.badge.hidden = true; return; }
   const mirrored = p.slot && sideMirrored(p.name);
-  p.info.textContent = `t+${f.tick}` + (p.slot ? ` · ${SIDE_SOURCES[p.name]} ${(src?.prov?.commit || "sha不明").slice(0, 7)}${mirrored ? " · 表示反転(旧撮影)" : ""}` : "");
+  p.info.textContent = `t+${f.tick}` + (p.slot ? ` · ${srcLabel(p.name)} ${(src?.prov?.commit || "sha不明").slice(0, 7)}${mirrored ? " · 表示反転(旧撮影)" : ""}` : "");
   p.img.style.transform = mirrored ? "scaleX(-1)" : "";
   p.badge.hidden = !f.dim; p.badge.textContent = f.tick < 0 ? "発動前" : "撮影範囲の終端";
   const entry = S.frameCache.get(f.url);
