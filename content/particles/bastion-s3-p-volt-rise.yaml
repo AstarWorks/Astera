@@ -1,0 +1,9 @@
+# S3 pillar column: electric sparks lifting along the light pillar.
+id: bastion-s3-p-volt-rise
+shape: { kind: burst, spread_blocks: 0.25 }
+color: { r: 255, g: 255, b: 255 }
+count: 2
+lifetime_ticks: 10
+vanilla_particle: electric_spark
+velocity: { direction: up, speed: 0.28, spread_degrees: 25, speed_jitter: 0.4 }
+force: true
