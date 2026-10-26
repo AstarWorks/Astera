@@ -2,7 +2,7 @@
 id: pve-proving-grounds
 display_name_key: astera.stage.pve-proving-grounds.name
 layout:
-  marker_version: 4
+  marker_version: 5
   seed: 20261025
   surface_y: 64
   kill_y: 16
@@ -10,111 +10,75 @@ layout:
   - id: center
     kind: center
     center: {x: 0, z: 0}
-    radius: 48
+    radius: 42
   - id: north
     kind: outpost
-    center: {x: 0, z: -96}
-    radius: 20.4
+    center: {x: 0, z: -80}
+    radius: 18
   - id: south
     kind: outpost
-    center: {x: 0, z: 96}
-    radius: 20.4
+    center: {x: 0, z: 80}
+    radius: 18
   - id: west
     kind: outpost
-    center: {x: -96, z: 0}
-    radius: 20.4
+    center: {x: -80, z: 0}
+    radius: 18
   - id: east
     kind: outpost
-    center: {x: 96, z: 0}
-    radius: 20.4
+    center: {x: 80, z: 0}
+    radius: 18
   - id: north-east
     kind: outpost
-    center: {x: 73, z: -73}
-    radius: 13.6
+    center: {x: 61, z: -61}
+    radius: 12
   - id: south-east
     kind: outpost
-    center: {x: 73, z: 73}
-    radius: 13.6
+    center: {x: 61, z: 61}
+    radius: 12
   - id: south-west
     kind: outpost
-    center: {x: -73, z: 73}
-    radius: 13.6
+    center: {x: -61, z: 61}
+    radius: 12
   - id: north-west
     kind: outpost
-    center: {x: -73, z: -73}
-    radius: 13.6
+    center: {x: -61, z: -61}
+    radius: 12
   bridges:
-  - from: center
-    to: north
-    width: 7
-  - from: center
-    to: south
-    width: 7
-  - from: center
-    to: west
-    width: 7
-  - from: center
-    to: east
-    width: 7
-  - from: north
-    to: north-east
-    width: 7
-  - from: north-east
-    to: east
-    width: 7
-  - from: east
-    to: south-east
-    width: 7
-  - from: south-east
-    to: south
-    width: 7
-  - from: south
-    to: south-west
-    width: 7
-  - from: south-west
-    to: west
-    width: 7
-  - from: west
-    to: north-west
-    width: 7
-  - from: north-west
-    to: north
-    width: 7
+  - {from: center, to: north, width: 7}
+  - {from: center, to: south, width: 7}
+  - {from: center, to: west, width: 7}
+  - {from: center, to: east, width: 7}
+  - {from: north, to: north-east, width: 7}
+  - {from: north-east, to: east, width: 7}
+  - {from: east, to: south-east, width: 7}
+  - {from: south-east, to: south, width: 7}
+  - {from: south, to: south-west, width: 7}
+  - {from: south-west, to: west, width: 7}
+  - {from: west, to: north-west, width: 7}
+  - {from: north-west, to: north, width: 7}
   structures:
-  - part: ruin
-    x: -22
-    z: -20
-    rotation: 0
-  - part: ruin
-    x: 22
-    z: 20
-    rotation: 180
-  - part: ruin
-    x: -20
-    z: 22
-    rotation: 90
-  - part: ruin
-    x: 20
-    z: -22
-    rotation: 270
+  - {part: ruin, x: -22, z: -20, rotation: 0}
+  - {part: ruin, x: 22, z: 20, rotation: 180}
+  - {part: ruin, x: -20, z: 22, rotation: 90}
+  - {part: ruin, x: 20, z: -22, rotation: 270}
   theme: volcanic
   atmosphere: {time_of_day: 12500, weather: clear}
 regions:
 - name: full-arena
-  min: {x: -140.25, y: 20.0, z: -140.25}
-  max: {x: 140.25, y: 140.0, z: 140.25}
+  min: {x: -114.0, y: 20.0, z: -114.0}
+  max: {x: 114.0, y: 140.0, z: 114.0}
 - name: mob-spawn-north
-  min: {x: -1.0, y: 65.0, z: -96.7}
-  max: {x: 1.0, y: 65.0, z: -94.7}
+  min: {x: -1.0, y: 65.0, z: -80.7}
+  max: {x: 1.0, y: 65.0, z: -78.7}
 - name: mob-spawn-east
-  min: {x: 94.7, y: 65.0, z: -1.0}
-  max: {x: 96.7, y: 65.0, z: 1.0}
+  min: {x: 78.7, y: 65.0, z: -1.0}
+  max: {x: 80.7, y: 65.0, z: 1.0}
 - name: mob-spawn-south
-  min: {x: -1.0, y: 65.0, z: 94.7}
-  max: {x: 1.0, y: 65.0, z: 96.7}
+  min: {x: -1.0, y: 65.0, z: 78.7}
+  max: {x: 1.0, y: 65.0, z: 80.7}
 - name: mob-spawn-west
-  min: {x: -96.7, y: 65.0, z: -1.0}
-  max: {x: -94.7, y: 65.0, z: 1.0}
+  min: {x: -80.7, y: 65.0, z: -1.0}
+  max: {x: -78.7, y: 65.0, z: 1.0}
 spawn_points:
 - team: red
   position: {x: 0.5, y: 65.0, z: -2.5}

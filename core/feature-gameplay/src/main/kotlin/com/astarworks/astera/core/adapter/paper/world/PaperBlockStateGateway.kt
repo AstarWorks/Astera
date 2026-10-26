@@ -124,6 +124,8 @@ public class PaperBlockStateGateway(
     private val durabilityRule: BlockDurabilityRule = BlockDurabilityRule.defaultMatrix(),
     private val random: Random = Random.Default,
     private val journal: IBlockChangeJournalRepository = InMemoryBlockChangeJournalRepository(),
+    /** Called just before this gateway edits the world (break), so an arena slot journal can remember the block. */
+    private val beforeWorldEdit: (Block) -> Unit = {},
 ) : IBlockStateGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -135,6 +137,9 @@ public class PaperBlockStateGateway(
      * are normalized out (Bukkit blocks are integer-coord cells).
      */
     private val tracker: MutableMap<BlockKey, BlockState> = ConcurrentHashMap()
+
+    /** Temporary blocks placed during a match (ADR-0280); [resetCover] clears them. */
+    private val temporaryKeys: MutableSet<BlockKey> = ConcurrentHashMap.newKeySet()
 
     /**
      * Hydrate [tracker] from the persistent [journal] for [world] (Wave 6c,
@@ -229,9 +234,13 @@ public class PaperBlockStateGateway(
                 BlockGatewayError.Storage("world or chunk unavailable for ($world, $pos)"),
             )
         val key = BlockKey.of(world, pos)
-        val existing = tracker[key]
-        val blockType = existing?.blockType ?: bukkitBlockTypeOf(block)
-        val customSpec = customBlockRegistry?.resolve(blockType)
+        // A tracked entry whose custom block is no longer what stands in the world (an arena slot rebuilt
+        // over it) is stale: re-identify the block from what is there now.
+        val existing = tracker[key]?.takeIf { stillStands(it, block) }
+        // An untracked block that a stage placed is identified by its (unique) base material.
+        val baseSpec = if (existing == null) customBlockRegistry?.resolveByBaseMaterial(block.type.name) else null
+        val blockType = existing?.blockType ?: baseSpec?.id ?: bukkitBlockTypeOf(block)
+        val customSpec = baseSpec ?: customBlockRegistry?.resolve(blockType)
         val effectiveMaterial = profile.materialOverride
             ?: customSpec?.material
             ?: durabilityRule.materialOf(blockType)
@@ -242,19 +251,23 @@ public class PaperBlockStateGateway(
             )
         }
 
-        val cellDamage = resolveCellDamage(profile.effectiveTool, effectiveMaterial, customSpec)
-        if (cellDamage == 0) {
-            val reason = if (profile.effectiveTool.kind == ToolKind.NONE) {
-                IneffectiveReason.WrongTool
-            } else {
-                IneffectiveReason.ZeroDamageCell
+        val scaled: Int
+        if (profile.flat) {
+            scaled = profile.baseAmount
+        } else {
+            val cellDamage = resolveCellDamage(profile.effectiveTool, effectiveMaterial, customSpec)
+            if (cellDamage == 0) {
+                val reason = if (profile.effectiveTool.kind == ToolKind.NONE) {
+                    IneffectiveReason.WrongTool
+                } else {
+                    IneffectiveReason.ZeroDamageCell
+                }
+                return Result.success(BlockDamageOutcome.Ineffective(reason))
             }
-            return Result.success(BlockDamageOutcome.Ineffective(reason))
+            scaled = (cellDamage.toLong() * profile.baseAmount / BlockDamageProfile.DEFAULT_BASE)
+                .toInt()
+                .coerceAtLeast(0)
         }
-
-        val scaled = (cellDamage.toLong() * profile.baseAmount / BlockDamageProfile.DEFAULT_BASE)
-            .toInt()
-            .coerceAtLeast(0)
         if (scaled == 0) {
             return Result.success(BlockDamageOutcome.Ineffective(IneffectiveReason.ZeroDamageCell))
         }
@@ -280,6 +293,7 @@ public class PaperBlockStateGateway(
             // World-side break: clear to AIR so the player sees the block
             // disappear. The in-memory impl skips this; only the Paper
             // adapter knows about the actual Bukkit world.
+            beforeWorldEdit(block)
             block.type = Material.AIR
             // Drop the tracker entry — restoring a broken position later
             // would resurrect it at full HP without a placement event,
@@ -321,6 +335,11 @@ public class PaperBlockStateGateway(
         }
     }
 
+    private fun stillStands(state: BlockState, block: org.bukkit.block.Block): Boolean {
+        val spec = customBlockRegistry?.resolve(state.blockType) ?: return true
+        return spec.baseBukkitMaterial == block.type.name
+    }
+
     override fun restore(world: WorldId, pos: Vec3) {
         val key = BlockKey.of(world, pos)
         val existing = tracker[key] ?: return
@@ -340,6 +359,21 @@ public class PaperBlockStateGateway(
         pos: Vec3,
         spec: CustomBlockSpec,
         placedBy: PlayerId,
+    ): Result<BlockState, BlockGatewayError> = place(world, pos, spec, placedBy, temporaryBlock = false)
+
+    override fun placeTemporaryBlock(
+        world: WorldId,
+        pos: Vec3,
+        spec: CustomBlockSpec,
+        placedBy: PlayerId,
+    ): Result<BlockState, BlockGatewayError> = place(world, pos, spec, placedBy, temporaryBlock = true)
+
+    private fun place(
+        world: WorldId,
+        pos: Vec3,
+        spec: CustomBlockSpec,
+        placedBy: PlayerId,
+        temporaryBlock: Boolean,
     ): Result<BlockState, BlockGatewayError> {
         val block = resolveBlock(world, pos)
             ?: return Result.failure(
@@ -353,8 +387,11 @@ public class PaperBlockStateGateway(
                 ),
             )
         // World-side swap first — if Bukkit rejects the placement we don't
-        // want the tracker to claim the block is placed.
+        // want the tracker to claim the block is placed. The arena slot journal remembers what stood here first,
+        // so the arena repair after the match brings it back.
+        beforeWorldEdit(block)
         block.type = material
+        if (temporaryBlock) temporaryKeys += BlockKey.of(world, pos)
 
         val state = BlockState(
             blockType = spec.id,
@@ -376,6 +413,39 @@ public class PaperBlockStateGateway(
             ),
         )
         return Result.success(state)
+    }
+
+    override fun isCover(world: WorldId, pos: Vec3): Boolean {
+        val block = resolveBlock(world, pos) ?: return false
+        val existing = tracker[BlockKey.of(world, pos)]?.takeIf { stillStands(it, block) }
+        if (existing != null) return existing.durability > 0 && customBlockRegistry?.resolve(existing.blockType) != null
+        return customBlockRegistry?.resolveByBaseMaterial(block.type.name) != null
+    }
+
+    override fun canPlaceAt(world: WorldId, pos: Vec3): Boolean =
+        resolveBlock(world, pos)?.type?.isAir == true
+
+    override fun resetCover(world: WorldId, centre: Vec3?, halfExtent: Double): List<Vec3> {
+        val changed = mutableListOf<Vec3>()
+        for ((key, _) in tracker.entries.toList()) {
+            if (key.worldId != world.value) continue
+            if (centre != null && (kotlin.math.abs(key.x - centre.x) > halfExtent || kotlin.math.abs(key.z - centre.z) > halfExtent)) continue
+            tracker.remove(key)
+            journalDelete(key)
+            changed += Vec3(key.x.toDouble(), key.y.toDouble(), key.z.toDouble())
+        }
+        // Temporary blocks go now; every other broken block is re-placed by the arena repair.
+        for (key in temporaryKeys.toList()) {
+            if (key.worldId != world.value) continue
+            if (centre != null && (kotlin.math.abs(key.x - centre.x) > halfExtent || kotlin.math.abs(key.z - centre.z) > halfExtent)) continue
+            temporaryKeys.remove(key)
+            val bukkitWorld = server.getWorld(world.value) ?: continue
+            val block = bukkitWorld.getBlockAt(key.x, key.y, key.z)
+            if (!block.type.isAir) block.type = Material.AIR
+            val at = Vec3(key.x.toDouble(), key.y.toDouble(), key.z.toDouble())
+            if (at !in changed) changed += at
+        }
+        return changed
     }
 
     override fun tracked(world: WorldId): Map<Vec3, BlockState> {

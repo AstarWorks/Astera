@@ -2,7 +2,7 @@
 id: annihilation-arena
 display_name_key: astera.stage.annihilation-arena.name
 layout:
-  marker_version: 5
+  marker_version: 6
   seed: 20261025
   surface_y: 64
   kill_y: 16
@@ -10,298 +10,243 @@ layout:
   - id: red
     kind: base
     team: red
-    center: {x: 0, z: -166}
+    center: {x: 0, z: -106}
     radius: 37.4
   - id: blue
     kind: base
     team: blue
-    center: {x: 143, z: 83}
+    center: {x: 92, z: 53}
     radius: 37.4
   - id: yellow
     kind: base
     team: yellow
-    center: {x: -143, z: 83}
+    center: {x: -92, z: 53}
     radius: 37.4
   - id: center
     kind: center
     center: {x: 0, z: 0}
-    radius: 40.8
+    radius: 38
   - id: flank-red-blue
     kind: outpost
-    center: {x: 177, z: -101}
-    radius: 25
+    center: {x: 113, z: -65}
+    radius: 22
   - id: flank-blue-yellow
     kind: outpost
-    center: {x: 0, z: 203}
-    radius: 25
+    center: {x: 0, z: 130}
+    radius: 22
   - id: flank-yellow-red
     kind: outpost
-    center: {x: -177, z: -101}
-    radius: 25
+    center: {x: -113, z: -65}
+    radius: 22
   bridges:
-  - from: red
-    to: center
-    width: 7
-  - from: blue
-    to: center
-    width: 7
-  - from: yellow
-    to: center
-    width: 7
-  - from: red
-    to: flank-red-blue
-    width: 7
-  - from: flank-red-blue
-    to: blue
-    width: 7
-  - from: blue
-    to: flank-blue-yellow
-    width: 7
-  - from: flank-blue-yellow
-    to: yellow
-    width: 7
-  - from: yellow
-    to: flank-yellow-red
-    width: 7
-  - from: flank-yellow-red
-    to: red
-    width: 7
+  - {from: red, to: center, width: 7}
+  - {from: blue, to: center, width: 7}
+  - {from: yellow, to: center, width: 7}
+  - {from: red, to: flank-red-blue, width: 7}
+  - {from: flank-red-blue, to: blue, width: 7}
+  - {from: blue, to: flank-blue-yellow, width: 7}
+  - {from: flank-blue-yellow, to: yellow, width: 7}
+  - {from: yellow, to: flank-yellow-red, width: 7}
+  - {from: flank-yellow-red, to: red, width: 7}
   landmarks:
-  - kind: generator
-    x: 14
-    z: 0
-  - kind: generator
-    x: -14
-    z: 0
-  - kind: generator
-    x: 177
-    z: -101
-  - kind: generator
-    x: -177
-    z: -101
-  - kind: generator
-    x: 0
-    z: 203
+  - {kind: generator, x: 14, z: 0}
+  - {kind: generator, x: -14, z: 0}
+  - {kind: generator, x: 113, z: -65}
+  - {kind: generator, x: -113, z: -65}
+  - {kind: generator, x: 0, z: 130}
   structures:
   - part: castle-gate
     x: 0
-    z: -144
+    z: -84
     rotation: 90
-    palette:
-      team: minecraft:red_concrete
+    palette: {team: 'minecraft:red_concrete'}
   - part: castle-wall
     x: 14
-    z: -144
+    z: -84
     rotation: 180
-    palette:
-      team: minecraft:red_concrete
+    palette: {team: 'minecraft:red_concrete'}
   - part: castle-wall
     x: -14
-    z: -144
+    z: -84
     rotation: 180
-    palette:
-      team: minecraft:red_concrete
+    palette: {team: 'minecraft:red_concrete'}
   - part: castle-tower
     x: 20
-    z: -144
+    z: -84
     rotation: 90
-    palette:
-      team: minecraft:red_concrete
+    palette: {team: 'minecraft:red_concrete'}
   - part: castle-tower
     x: -20
-    z: -144
+    z: -84
     rotation: 90
-    palette:
-      team: minecraft:red_concrete
+    palette: {team: 'minecraft:red_concrete'}
   - part: castle-tower
     x: 12
-    z: -186
+    z: -126
     rotation: 90
-    palette:
-      team: minecraft:red_concrete
+    palette: {team: 'minecraft:red_concrete'}
   - part: castle-tower
     x: -12
-    z: -186
+    z: -126
     rotation: 90
-    palette:
-      team: minecraft:red_concrete
+    palette: {team: 'minecraft:red_concrete'}
   - part: castle-gate
-    x: 121
-    z: 83
+    x: 70
+    z: 53
     rotation: 180
-    palette:
-      team: minecraft:blue_concrete
+    palette: {team: 'minecraft:blue_concrete'}
   - part: castle-wall
-    x: 121
-    z: 97
+    x: 70
+    z: 67
     rotation: 270
-    palette:
-      team: minecraft:blue_concrete
+    palette: {team: 'minecraft:blue_concrete'}
   - part: castle-wall
-    x: 121
-    z: 69
+    x: 70
+    z: 39
     rotation: 270
-    palette:
-      team: minecraft:blue_concrete
+    palette: {team: 'minecraft:blue_concrete'}
   - part: castle-tower
-    x: 121
-    z: 103
+    x: 70
+    z: 73
     rotation: 180
-    palette:
-      team: minecraft:blue_concrete
+    palette: {team: 'minecraft:blue_concrete'}
   - part: castle-tower
-    x: 121
-    z: 63
+    x: 70
+    z: 33
     rotation: 180
-    palette:
-      team: minecraft:blue_concrete
+    palette: {team: 'minecraft:blue_concrete'}
   - part: castle-tower
-    x: 163
-    z: 95
+    x: 112
+    z: 65
     rotation: 180
-    palette:
-      team: minecraft:blue_concrete
+    palette: {team: 'minecraft:blue_concrete'}
   - part: castle-tower
-    x: 163
-    z: 71
+    x: 112
+    z: 41
     rotation: 180
-    palette:
-      team: minecraft:blue_concrete
+    palette: {team: 'minecraft:blue_concrete'}
   - part: castle-gate
-    x: -121
-    z: 83
+    x: -70
+    z: 53
     rotation: 0
-    palette:
-      team: minecraft:yellow_concrete
+    palette: {team: 'minecraft:yellow_concrete'}
   - part: castle-wall
-    x: -121
-    z: 69
+    x: -70
+    z: 39
     rotation: 90
-    palette:
-      team: minecraft:yellow_concrete
+    palette: {team: 'minecraft:yellow_concrete'}
   - part: castle-wall
-    x: -121
-    z: 97
+    x: -70
+    z: 67
     rotation: 90
-    palette:
-      team: minecraft:yellow_concrete
+    palette: {team: 'minecraft:yellow_concrete'}
   - part: castle-tower
-    x: -121
-    z: 63
+    x: -70
+    z: 33
     rotation: 0
-    palette:
-      team: minecraft:yellow_concrete
+    palette: {team: 'minecraft:yellow_concrete'}
   - part: castle-tower
-    x: -121
-    z: 103
+    x: -70
+    z: 73
     rotation: 0
-    palette:
-      team: minecraft:yellow_concrete
+    palette: {team: 'minecraft:yellow_concrete'}
   - part: castle-tower
-    x: -163
-    z: 71
+    x: -112
+    z: 41
     rotation: 0
-    palette:
-      team: minecraft:yellow_concrete
+    palette: {team: 'minecraft:yellow_concrete'}
   - part: castle-tower
-    x: -163
-    z: 95
+    x: -112
+    z: 65
     rotation: 0
-    palette:
-      team: minecraft:yellow_concrete
-  - part: ruin
-    x: -18
-    z: -20
-    rotation: 0
-  - part: ruin
-    x: 18
-    z: 20
-    rotation: 180
+    palette: {team: 'minecraft:yellow_concrete'}
+  - {part: ruin, x: -18, z: -20, rotation: 0}
+  - {part: ruin, x: 18, z: 20, rotation: 180}
   theme: frost
   atmosphere: {time_of_day: 23500, weather: clear}
 regions:
 - name: full-arena
-  min: {x: -273.0, y: 20.0, z: -247.0}
-  max: {x: 273.0, y: 140.0, z: 247.0}
+  min: {x: -151.0, y: 20.0, z: -168.0}
+  max: {x: 151.0, y: 140.0, z: 168.0}
 - name: center
   min: {x: -10.0, y: 64.0, z: -10.0}
   max: {x: 10.0, y: 67.0, z: 10.0}
 pillars:
 - team: red
   tier: 1
-  position: {x: -9.0, y: 65.0, z: -157.4}
+  position: {x: -9.0, y: 65.0, z: -97.4}
   block: minecraft:obsidian
 - team: red
   tier: 2
-  position: {x: 9.0, y: 65.0, z: -157.4}
+  position: {x: 9.0, y: 65.0, z: -97.4}
   block: minecraft:crying_obsidian
 - team: red
   tier: 3
-  position: {x: 0.0, y: 65.0, z: -168.4}
+  position: {x: 0.0, y: 65.0, z: -108.4}
   block: minecraft:beacon
   hp: 800
 - team: blue
   tier: 1
-  position: {x: 140.0, y: 65.0, z: 71.2}
+  position: {x: 89.0, y: 65.0, z: 41.2}
   block: minecraft:obsidian
 - team: blue
   tier: 2
-  position: {x: 131.0, y: 65.0, z: 86.2}
+  position: {x: 80.0, y: 65.0, z: 56.2}
   block: minecraft:crying_obsidian
 - team: blue
   tier: 3
-  position: {x: 145.0, y: 65.0, z: 84.2}
+  position: {x: 94.0, y: 65.0, z: 54.2}
   block: minecraft:beacon
   hp: 800
 - team: yellow
   tier: 1
-  position: {x: -131.0, y: 65.0, z: 86.2}
+  position: {x: -80.0, y: 65.0, z: 56.2}
   block: minecraft:obsidian
 - team: yellow
   tier: 2
-  position: {x: -140.0, y: 65.0, z: 71.2}
+  position: {x: -89.0, y: 65.0, z: 41.2}
   block: minecraft:crying_obsidian
 - team: yellow
   tier: 3
-  position: {x: -145.0, y: 65.0, z: 84.2}
+  position: {x: -94.0, y: 65.0, z: 54.2}
   block: minecraft:beacon
   hp: 800
 spawn_points:
 - team: red
-  position: {x: -2.5, y: 65.0, z: -149.5}
+  position: {x: -2.5, y: 65.0, z: -89.5}
   yaw: 0.0
 - team: red
-  position: {x: 3.5, y: 65.0, z: -149.5}
+  position: {x: 3.5, y: 65.0, z: -89.5}
   yaw: 0.0
 - team: red
-  position: {x: 0.5, y: 65.0, z: -151.5}
+  position: {x: 0.5, y: 65.0, z: -91.5}
   yaw: 0.0
 - team: red
-  position: {x: 0.5, y: 65.0, z: -147.5}
+  position: {x: 0.5, y: 65.0, z: -87.5}
   yaw: 0.0
 - team: blue
-  position: {x: 126.5, y: 65.0, z: 75.5}
+  position: {x: 75.5, y: 65.0, z: 45.5}
   yaw: 120.2
 - team: blue
-  position: {x: 132.5, y: 65.0, z: 75.5}
+  position: {x: 81.5, y: 65.0, z: 45.5}
   yaw: 120.2
 - team: blue
-  position: {x: 129.5, y: 65.0, z: 73.5}
+  position: {x: 78.5, y: 65.0, z: 43.5}
   yaw: 120.2
 - team: blue
-  position: {x: 129.5, y: 65.0, z: 77.5}
+  position: {x: 78.5, y: 65.0, z: 47.5}
   yaw: 120.2
 - team: yellow
-  position: {x: -131.5, y: 65.0, z: 75.5}
+  position: {x: -80.5, y: 65.0, z: 45.5}
   yaw: 239.8
 - team: yellow
-  position: {x: -125.5, y: 65.0, z: 75.5}
+  position: {x: -74.5, y: 65.0, z: 45.5}
   yaw: 239.8
 - team: yellow
-  position: {x: -128.5, y: 65.0, z: 73.5}
+  position: {x: -77.5, y: 65.0, z: 43.5}
   yaw: 239.8
 - team: yellow
-  position: {x: -128.5, y: 65.0, z: 77.5}
+  position: {x: -77.5, y: 65.0, z: 47.5}
   yaw: 239.8
 - role: lobby
   position: {x: 0.5, y: 65.0, z: 0.5}

@@ -71,6 +71,9 @@ public class InMemoryBlockStateGateway(
 
     private val worlds: MutableMap<WorldId, MutableMap<Vec3, BlockState>> = mutableMapOf()
 
+    /** Positions of the temporary blocks placed during a match (ADR-0280); [resetCover] removes them. */
+    private val temporary: MutableMap<WorldId, MutableSet<Vec3>> = mutableMapOf()
+
     override fun getDurability(world: WorldId, pos: Vec3): Int =
         worlds[world]?.get(pos)?.durability ?: BlockState.DEFAULT_MAX_DURABILITY
 
@@ -122,21 +125,25 @@ public class InMemoryBlockStateGateway(
             )
         }
 
-        val cellDamage = resolveCellDamage(profile.effectiveTool, effectiveMaterial, customSpec)
-        if (cellDamage == 0) {
-            val reason = if (profile.effectiveTool.kind == ToolKind.NONE) {
-                IneffectiveReason.WrongTool
-            } else {
-                IneffectiveReason.ZeroDamageCell
+        val scaled: Int
+        if (profile.flat) {
+            scaled = profile.baseAmount
+        } else {
+            val cellDamage = resolveCellDamage(profile.effectiveTool, effectiveMaterial, customSpec)
+            if (cellDamage == 0) {
+                val reason = if (profile.effectiveTool.kind == ToolKind.NONE) {
+                    IneffectiveReason.WrongTool
+                } else {
+                    IneffectiveReason.ZeroDamageCell
+                }
+                return Result.success(BlockDamageOutcome.Ineffective(reason))
             }
-            return Result.success(BlockDamageOutcome.Ineffective(reason))
+            // Scale by the skill's baseAmount so authors can balance per-cell
+            // values around DEFAULT_BASE (= 100).
+            scaled = (cellDamage.toLong() * profile.baseAmount / BlockDamageProfile.DEFAULT_BASE)
+                .toInt()
+                .coerceAtLeast(0)
         }
-
-        // Scale by the skill's baseAmount so authors can balance per-cell
-        // values around DEFAULT_BASE (= 100).
-        val scaled = (cellDamage.toLong() * profile.baseAmount / BlockDamageProfile.DEFAULT_BASE)
-            .toInt()
-            .coerceAtLeast(0)
         if (scaled == 0) {
             return Result.success(BlockDamageOutcome.Ineffective(IneffectiveReason.ZeroDamageCell))
         }
@@ -236,6 +243,50 @@ public class InMemoryBlockStateGateway(
 
     override fun tracked(world: WorldId): Map<Vec3, BlockState> =
         worlds[world]?.toMap() ?: emptyMap()
+
+    override fun isCover(world: WorldId, pos: Vec3): Boolean {
+        val state = worlds[world]?.get(cellOf(pos)) ?: return false
+        return state.durability > 0 && customBlockRegistry?.resolve(state.blockType) != null
+    }
+
+    override fun canPlaceAt(world: WorldId, pos: Vec3): Boolean {
+        val state = worlds[world]?.get(cellOf(pos)) ?: return true
+        return state.durability <= 0
+    }
+
+    override fun placeTemporaryBlock(
+        world: WorldId,
+        pos: Vec3,
+        spec: CustomBlockSpec,
+        placedBy: PlayerId,
+    ): Result<BlockState, BlockGatewayError> {
+        val cell = cellOf(pos)
+        val placed = placeCustomBlock(world, cell, spec, placedBy)
+        if (placed is Result.Success) temporary.getOrPut(world) { mutableSetOf() }.add(cell)
+        return placed
+    }
+
+    override fun resetCover(world: WorldId, centre: Vec3?, halfExtent: Double): List<Vec3> {
+        val store = worlds[world] ?: return emptyList()
+        val temp = temporary[world]
+        val changed = mutableListOf<Vec3>()
+        for (pos in store.keys.toList()) {
+            if (centre != null && (kotlin.math.abs(pos.x - centre.x) > halfExtent || kotlin.math.abs(pos.z - centre.z) > halfExtent)) continue
+            val state = store.getValue(pos)
+            if (temp != null && pos in temp) {
+                store.remove(pos)
+                temp.remove(pos)
+                changed += pos
+            } else if (state.durability != state.maxHp) {
+                store[pos] = state.copy(durability = state.maxHp)
+                changed += pos
+            }
+        }
+        return changed
+    }
+
+    private fun cellOf(pos: Vec3): Vec3 =
+        Vec3(kotlin.math.floor(pos.x), kotlin.math.floor(pos.y), kotlin.math.floor(pos.z))
 
     /**
      * Resolve the cell damage from (tool, material), consulting the per-block

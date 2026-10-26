@@ -1,95 +1,72 @@
-# VFX team (director + specialists + reviewer)
+# Skill team (one author + fresh reviewer + manager)
 
-Generic roles for any Astera skill, weapon effect or ambient VFX (founder 2026-10-24: not Limbus-specific). Limbus skill reproduction from reference videos is one use case; its procedure stays in [limbus-skill-reproduction.md](../limbus-skill-reproduction.md).
+Process for any Astera skill, weapon effect or ambient VFX (founder 2026-10-24: not Limbus-specific). Limbus skill reproduction from reference videos is one use case; its procedure stays in [limbus-skill-reproduction.md](../limbus-skill-reproduction.md). Process revised 2026-10-27 after two independent retrospectives of bastion-greatsword S1 (about 30 rounds, founder: "if anything worse"). The directory keeps the name `vfx-team` for link stability.
 
-Origin, founder decision 2026-10-23. A previous pass gave each of the 10 persona weapons (ADR-0230) to one generalist agent. The result was cheap-looking:
-blocky single-colour low-poly models, a slightly wrong sword orientation in hand, weak swing animation, effects made only of block displays with almost no particles,
-low-res pixel-jagged sprites, and agents grading their own work. The fix is a **team per skill or effect**: one director and specialists, each with an accumulating knowledge base, and an independent reviewer.
+Why the old 7-role split is gone: sword, VFX, particles, sound and body were owned by different agents, so a rig change left stale rings and particles behind, sound was never in sync with the blade, regen scripts went stale and nobody owned the whole skill. Specialist **knowledge** stays as reference docs; ownership does not.
 
-The procedure and acceptance rows stay in [limbus-skill-reproduction.md](../limbus-skill-reproduction.md); art rules in [vfx-art-direction.md](../vfx-art-direction.md).
-This page defines who does what and how work moves.
+Art rules: [vfx-art-direction.md](../vfx-art-direction.md). Acceptance rows: [limbus-skill-reproduction.md](../limbus-skill-reproduction.md).
 
 ## Roles
 
-| Role | Agent | Knowledge doc | Owns |
-|---|---|---|---|
-| Director | `vfx-director` | [director.md](director.md) | beat sheet, briefs, skill YAML, composite VFX, integration, capture, publish, routing diffs |
-| Modeler | `model-artist` | [modeler.md](modeler.md) | weapon 3D models (`tools/model-forge`, `content/models/`) |
-| Animator | `animator` | [animator.md](animator.md) | rig swing keyframes, caster movement vectors |
-| VFX | `vfx-artist` | [vfx.md](vfx.md) | display core: 2D sprites, display elements, layering of the core |
-| Particles | `particle-artist` | [particles.md](particles.md) | particle layer: vanilla particles, particle retextures, custom-particle foundation |
-| Sound | `sound-designer` | [sound.md](sound.md) | per-beat SFX (free route only) |
-| Reviewer | `vfx-reviewer` | [reviewer.md](reviewer.md) | independent judgement and diffs; read-only on content |
+| Role | Agent | What it does |
+|---|---|---|
+| Skill author | `limbus-director` | The single end-to-end author of one skill in its own worktree: beat sheet from the reference, sword rig and body motion, composite VFX, particles, sound, skill YAML, capture, publish. Builds every piece itself. Puts every commit live on dev and verifies the reload. |
+| Reviewer | `limbus-reviewer` | A **fresh** agent every round (never reused, never given the author's reasoning). Reverse read, fact check and per-row ○/× with evidence. Read-only on content. |
+| Manager | main session | Starts and merges work, deploys, inspects the page with its own eyes, reports to the founder in Japanese (10 lines, one question, page link). Does not implement. |
+| Infra / runtime workers | ordinary worker agents, one per task | Fix `tools/vfx-shot`, skill-compare, dev deploy, skill-lint and runtime plugins. Separate from the author; never mixed into a content round. |
 
-All are `model: sonnet` agents defined in `.claude/agents/{vfx-director,model-artist,animator,vfx-artist,particle-artist,sound-designer,vfx-reviewer}.md`. The main session stays a manager (`.claude/rules/manager-mode.md`): it launches the director (or the specialists for the director) and merges branches.
+Optional knowledge helpers: `limbus-animator`, `limbus-vfx` (display core and particles), `limbus-modeler`, `limbus-sound`. The author may consult one for advice or a draft; a helper is not an owner, has no territory, and the author integrates and answers for the result. Their knowledge docs are reference, not roles: [director.md](director.md), [animator.md](animator.md), [vfx.md](vfx.md), [particles.md](particles.md), [modeler.md](modeler.md), [sound.md](sound.md), [reviewer.md](reviewer.md).
 
-## The loop (workflow v3, founder 2026-10-26)
+The main session stays a manager (`.claude/rules/manager-mode.md`). There is no territory table: the author edits every file of its skill (case data, skill YAML, `content/vfx`, particles, sprites, its weapon's models, sounds, animations) inside its own worktree.
 
-Details of steps 1-3 and the template: [beat-sheet.md](beat-sheet.md). Every role reads it.
+## The process for S2 and later (founder-approved 2026-10-27)
 
-```
-1. Observe        author writes the beat sheet from the reference (one row per beat, no blank cell,
-                  swings counted first, rotation direction from the camera AND from above)
-2. Reverse check  a different AI sees only the sheet (not the reference) and re-describes the motion;
-                  diff it with the author's reading; a gap = re-observe. No build before this passes.
-3. Founder gate 1 the beat sheet (text + top-down / side / front stick diagram) published on skill-compare
-4. Build          ONE author end to end, composing from the pose library (tools/pose-solve, keypoints) and
-                  the specialists' parts; the sword is judged on matching the sheet's trajectory,
-                  not on "moves big". Priority: sword > VFX > particles > posture.
-                  Preflight: make skill-lint (one sword, both hands on the grip, feet on the floor, display budget)
-5. Capture        real player path, views side, front, back, `top` (TOP-DOWN, mandatory: the only view that shows
-                  rotation direction), `high` (45 deg), `caster` (player eye height)
-6. Visual review  a fresh AI reviewer marks every beat-sheet row ○ or × with a reason on paired
-                  ref|ours images. No free-form "looks good", no numbers. Each × becomes a diff [owner: role].
-                  × -> back to 4 (only the affected roles run again)
-7. Founder gate 2 in game. Approve -> done | reject -> comments become sheet-row diffs -> back to 4
-                  (if the comment shows the sheet was wrong, back to 1)
-Stop when every row is ○ with evidence AND the founder approves in game. Reviewer ○ alone is not done. An iteration count is never a stop condition.
-```
+A round means "through dev": a change that is not live on dev does not count as a round and is not reported. One skill = one worktree = one author. The reviewer is fresh each time.
 
-Rules of the loop:
+| # | Step | Owner | Input -> output | Done when | Founder sees |
+|---|---|---|---|---|---|
+| 0 | Intake | manager | skill + persona + video section -> case skeleton, reference frames at native fps (no flicker), worktree, dev slot | reference GIF on the page; tick-to-video-time formula written | page (reference only) |
+| 1 | Observe | author | reference frames only -> [beat sheet](beat-sheet.md) (all required columns, O/I/U marks), top / side / front stick figures, sound events | no blank cell; swing count, direction (camera and top), reversals, contact ticks, travel and sound in every beat; **no skill keys exist yet** | - |
+| 2 | Two checks | fresh reviewers | (a) sheet only -> reverse read; (b) reference + sheet -> fact check | counts, directions, reversals and contact ticks agree; disputes settled from the reference or marked unknown; max 2 rounds | - |
+| 3 | **Gate 1** | founder | sheet + figures + reference GIF on the page | approved; the approved version is frozen; an x is recorded in sheet vocabulary and returns to 1 (max 2 rounds, then one question) | page |
+| 4 | Build | author | sheet -> sword keys -> VFX -> particles -> sound -> body. After every commit: `make skill-lint` (preflight), then `make dev-content` (or dev-pack / dev-plugins) | lint green; the dev command printed reload success and the skill id is live; the author self-checks sheet rows (self-scores are not submitted) | dev (shootable at any time) |
+| 5 | Capture | author (tools) | same sha as dev; side, top, front, back (+ eye), tick-stepped | `skippedTicks = 0`, every frame stamp read, opponent alive, sha equals dev; otherwise invalid and not published | - |
+| 6 | Judge | fresh reviewer | reference vs capture + sheet -> ○/× per row with evidence and a top-down arrow figure; sound is "not listened" | all rows ○, or 2 rounds elapsed | - |
+| 7 | Inspect | manager | opens the page, looks at side and top -> 10-line Japanese report, A/B sound files | can name the one point to look at | - |
+| 8 | **Gate 2** | founder | shoots it on dev in game, listens to the sound | approved; an x becomes a sheet-vocabulary row and returns to 4; after 2 rounds one question. **In game is final** | in game (+ the page) |
 
-- Specialists never talk to each other; every cross-role need goes through the director (the author in step 4).
-- The sheet is the contract: the author builds to it, the reviewer judges against it, the founder approved it. A change to the motion is a change to the sheet and repeats steps 2-3.
-- The reviewer never edits content and never sees "work done" as evidence; it judges the published capture against the reference.
-- A common-runtime fix (planner, mechanic) is not specialist work. The director raises it separately and, once fixed, every affected weapon is re-checked equipped.
-- Each role appends to its own Learnings log after every skill. The next skill's brief links the relevant entries.
+Rules of the process:
+
+- **Gate 1 on the page, gate 2 in game.** The skill-compare page is the only place a table, arrow figure, capture or A/B exists; if it is not on the page, it does not exist. A reviewer all-○ is never done; the founder in game decides.
+- **Every fix is live on dev with the reload verified** in the same round. A fix on an unmerged branch is not reported. A failing `make dev-content` stops all other work until fixed. An aborted reload (for example a negative particle speed) is an error reported to the manager at once. The manager notes when the dev sha and the page sha differ ("not applied").
+- **Lint is a preflight of 4 invariants only** (one sword, both hands on the grip, feet on the floor, display budget). The author never defines or scores quality targets; luma, ink %, coverage and particle counts are not acceptance evidence. Quality is the sheet's ○/× only.
+- **Sound passes only by a listener**, never by feature numbers: in-client recording plus A/B listening ([sound.md](sound.md)). Sound events are sheet columns from step 1 and go on dev in the same round as the sword.
+- **A capture with skipped ticks is invalid.** It is not judged and not published; it is an infra issue for the runtime worker, not a content round. A 60 fps container full of duplicated frames is not coverage. Preview renderers are for work in progress only; pass/fail is the real client.
+- **One sword per cast**, continuous keys from spawn to despawn. Rings, trails and tangent particles derive from the blade-tip plane; a mismatch is fixed by fixing the sword, never by offsetting the VFX.
+- **Priority:** sword > VFX > particles > posture. Display is the core, particles polish it; zero particles or a flat single-colour block-only effect fails.
+- **Max 2 rounds per gate**, then ONE question to the founder with evidence and a recommendation. Escalate at once (without waiting for round 2) when: a cell cannot be decided from the reference, Sakurai principles conflict with Limbus fidelity, capture infra has been broken over 30 minutes, a reload failure is not fixed within one round, or the sword and VFX planes cannot be made to agree.
+- A founder x becomes sheet vocabulary or a reviewer row the same day, not a "be careful" note.
+- Reports to the founder: Japanese, 10 lines, one decision, page link.
 
 ## Hand-off artifacts
 
 | Artifact | Path | Written by | Read by |
 |---|---|---|---|
-| Beat sheet | `tools/skill-compare/data/<case>/beat-sheet.md` (template: [beat-sheet.md](beat-sheet.md)); `case.json` `beats` mirrors its ticks | director (author) | everyone, reviewer, founder (gate 1) |
-| Reverse-check record | `tools/skill-compare/data/<case>/beat-sheet-check.md` (checker output + verdict) | director | founder (gate 1) |
-| Briefs | `tools/skill-compare/data/<case>/briefs/{model,animation,texture,particles,sound,integration}.md` | director | matching specialist |
-| Particle cues | `tools/skill-compare/data/<case>/deliver/particle-cues.yaml` | particle-artist | director |
-| Specialist delivery | files in its territory + report (format in the agent file) | specialist | director |
-| Brief sheet / pairs | `build/brief/<case>/`, `build/pairs/<case>.png` (`make skill-brief`, `make skill-pairs`) | any | reviewer, director |
-| Capture | `build/vfx-shot/<skill>/<view>/` (`meta.json` provenance); views side, front, back, top-down, 45 deg high, eye | director | reviewer |
-| Published capture | `build/skill-compare-published/<skill>/<view>/current.json` | director | reviewer, founder (approval review on skill-compare) |
-| Review marks | reviewer report: every sheet row ○/× with reason, each × `[owner: role]` | reviewer | director |
-| Founder approval | weapon REPORT: date + published revision; rejection comments become review diffs | director (records, via manager) | manager, reviewer |
-| Learnings | `## Learnings log` of each knowledge doc | each role | next skill's roles |
+| Beat sheet (frozen after gate 1) | `tools/skill-compare/data/<case>/beat-sheet.md` (template: [beat-sheet.md](beat-sheet.md)); `case.json` `beats` mirrors its ticks | author | reviewers, founder |
+| Reverse-read record | `tools/skill-compare/data/<case>/beat-sheet-check.md` | fresh reviewer (a) | founder (gate 1) |
+| Fact-check record | `tools/skill-compare/data/<case>/beat-sheet-factcheck.md` | fresh reviewer (b) | founder (gate 1) |
+| Brief sheet / pairs | `build/brief/<case>/`, `build/pairs/<case>.png` (`make skill-brief`, `make skill-pairs`) | any | reviewer, author |
+| Capture | `build/vfx-shot/<skill>/<view>/` (`meta.json` provenance, `skippedTicks`) | author | reviewer |
+| Published capture | `build/skill-compare-published/<skill>/<view>/current.json` | author | reviewer, founder |
+| Review marks | reviewer report: every sheet row ○/× with evidence | fresh reviewer | author, manager |
+| Founder approval | weapon REPORT: date + dev sha; rejection comments become sheet rows | manager | author, reviewer |
+| Learnings | `## Learnings log` of each knowledge doc | author | next skill |
 
-`beats` in `case.json` only mirrors the sheet's tick ranges and hit ticks (for `BEAT_TICKS=case`); the page preserves unknown fields on save only if documented in `tools/skill-compare/README.md`, so the first director to use it checks that a Save in the page does not drop it.
-
-## File territories
-
-| Role | May create/edit | Must not touch |
-|---|---|---|
-| Director | `tools/skill-compare/data/<case>/**`, `content/skills/<skill>.yaml`, composite `content/vfx/<id>.yaml`, weapon REPORT | model, sprite, particle, sound source files |
-| Modeler | `content/models/**` for its weapon, its model-forge project, named item model/texture files | skill YAML, `content/vfx`, sprites, particles, sounds, case data |
-| Animator | `rigs:` swing/pivot/rest/tilt in the VFX file the brief names; movement params on the skill YAML lines the brief names | models, sprites, particles, sounds, trail styling, other skills |
-| VFX | `content/textures/sources/sprites.yaml` entries, generated sprite outputs (`content/sprites`, `content/fonts/vfx`, `content/textures/generated/sprites`), `tools/item-art/sheets/` | skill YAML, models, sounds, rig swing keys, particles |
-| Particles | `content/particles/<skill>-*.yaml`, particle (`emit`) elements inside fx files the brief names, particle texture sources/outputs for retextures, `deliver/particle-cues.yaml` | display-core sprites, rig, skill YAML, models, sounds |
-| Sound | `content/sounds/**` for its skill, scripts/specs it adds under `tools/sound-gen/` | skill YAML, VFX, models, sprites |
-| Reviewer | throw-away images under `build/` only | everything else (read-only) |
-
-Two roles never edit the same file in one round. Where one VFX YAML mixes pieces (rig swing vs trail style), the director splits the assignment by section in the brief.
+`beats` in `case.json` only mirrors the sheet's tick ranges and hit ticks (for `BEAT_TICKS=case`); the page preserves unknown fields on save only if documented in `tools/skill-compare/README.md`, so the first author to use it checks that a Save in the page does not drop it.
 
 ## Real-client capture (2026-10-26)
 
-Workflow v3 step 5 needs the views `side`, `front`, `back`, `top`, `high`, `caster`. `top` (camera straight above the caster, forward at the top of the image) is mandatory because it is the only view that shows rotation direction; a review without it is invalid. Skill captures do not have a `top` view in `tools/vfx-shot` yet (only the animation mode does): until it exists the director raises it as a runtime request to the manager and does not substitute another view.
+Process step 5 needs the views `side`, `front`, `back`, `top`, `high`, `caster`. `top` (camera straight above the caster, forward at the top of the image) is mandatory because it is the only view that shows rotation direction; a review without it is invalid. Skill captures may not have a `top` view in `tools/vfx-shot` yet (the animation mode `anim-shot.sh` does): until it exists the author raises it to the manager as an infra request for the runtime worker and does not substitute another view.
 
 `make vfx-shot` boots an `astera-shot-<id>` stack (server + pack host) and headless clients (~2.5 GB each, server ~2.5 GB), films, and
 **tears everything down when it exits** (success, error, Ctrl-C, TERM/HUP, its caller dying). Runs are serialized host-wide; with `SHOT_KEEP=1`
@@ -113,7 +90,7 @@ make vfx-shot-reap                                         # kill stragglers of 
 - **Provenance is checked, not assumed.** `meta.json` `stack` carries the deployed content hash (verified inside the container), the pack sha1, the code hash and revision,
   and `workingTreeInSync`; if the tree changed while the capture ran, `captureQuality.invalid` is set and the capture must be redone. `make vfx-shot-status` shows the same
   comparison on demand.
-- **Frame <-> tick is read from every frame.** A server-tick stamp is rendered into each recorded frame (masked out of the saved PNGs), so frame n is exactly tick n of the window on every view; `meta.json` `tickStamp` has `firstFxTickAfterCast` (real client display lag of the first effect) and `skippedTicks`. Quote it instead of guessing "client lag".
+- **Frame <-> tick is read from every frame.** A server-tick stamp is rendered into each recorded frame (masked out of the saved PNGs), so each frame's tick is read, not assumed. The default (STEPPED=1, 20 fps) freezes the server and `/tick step`s one tick at a time, waiting until the client drew it, so every tick has a frame and `skippedTicks` is 0 whatever the load. `FPS=60` stays realtime and may skip ticks (listed in `tickStamp.gaps`; any skip invalidates the capture, publish refuses it); `meta.json` `tickStamp` has `firstFxTickAfterCast` (real client display lag of the first effect) and `skippedTicks`. Quote it instead of guessing "client lag". A publishable capture needs `skippedTicks = 0`, all stamps read, opponent alive, content sha equal to dev. Anything else is invalid (infra work, not a content round). Never count interpolated or duplicated frames as observation.
 - **Lighter output.** caster / opponent / side views film at 640x360 (compare stays 1280x720; `RES=` overrides). `BEAT_TICKS=case` (the case's `beats[].tick`) or an explicit tick
   list saves only those PNGs (no sheet / gif / mp4, `beatFramesOnly: true`, not publishable): use it for pose / VFX iteration, and a full capture for the round you publish.
 - **Lock and memory discipline.** One capture at a time on the whole host: the slot lock `/tmp/claude-1000/astera-vfx-shot.lock` (`SHOT_SLOTS`, default 1) queues every other
@@ -126,7 +103,7 @@ make vfx-shot-reap                                         # kill stragglers of 
 
 - No push (the manager pushes), no unit tests, no gradle `check`; commit trailer `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
 - Real-client capture: see "Real-client capture" above; never wrap it in the e2e flock. All captures on the host queue on the vfx-shot slot lock; each run tears its stack down on exit unless `SHOT_KEEP=1` (bounded by `SHOT_KEEP_TTL`).
-- No paid services (founder). The `generate-sounds` skill uses paid fal.ai; see [sound.md](sound.md).
+- No paid services (founder). The `generate-sounds` skill uses paid fal.ai and is not used here; CC0 recorded sources with provenance are allowed, game audio is never shipped or derived; see [sound.md](sound.md).
 - Only one weapon may be visible during a skill (mechanic `hide_held_item`; see [director.md](director.md) for where it lives).
 
 ## Confirmed runtime facts and rejected looks
@@ -152,4 +129,4 @@ Rejected looks (founder / reviewer rejected these):
 
 ## First use
 
-The bastion-greatsword S1 pilot (branch `wp/pilot-bastion-s1`) is the first run of this team. Its director writes the briefs on that branch.
+The bastion-greatsword S1 pilot (branch `wp/pilot-bastion-s1`) was the first run and the source of the 2026-10-27 retrospectives. Its sheet predates this process (it was derived from shipped keys) and is rewritten from the reference first; S1 is not complete until the founder approves it in game.

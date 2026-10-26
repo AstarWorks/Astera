@@ -11,6 +11,10 @@
 #                                   content-only, reloaded in place like `content`.
 #   scripts/dev-deploy.sh content   push content/ into the backends and reload it in place (no restart)
 #   scripts/dev-deploy.sh pack      re-read the resource pack hash on the backends and re-push the pack
+#   scripts/dev-deploy.sh selftest  offline check of the reload-failure detection (no docker)
+#
+# Every path exits non-zero, with the server log excerpt naming the failing file, when a reload/boot rejects
+# content ("Reload aborted"), and ends by printing the deployed sha and the effective content revision.
 #
 # Env: BACKENDS="lobby game" (which backends to touch, in this order), FORCE=1 (redeploy even when the
 # jars are byte-identical), BOOT_TIMEOUT (seconds to wait for a backend to answer RCON, default 240),
@@ -52,6 +56,95 @@ dexec_root() { local svc=$1; shift; docker exec -u root "$(cid "$svc")" "$@"; }
 log() { printf '[dev-deploy %s] %s\n' "$(date +%H:%M:%S)" "$*" >&2; }
 now() { date +%s.%N; }
 elapsed() { awk -v a="$1" -v b="$(now)" 'BEGIN { printf "%.1fs", b - a }'; }
+
+# ---- reload verification ---------------------------------------------------------------------------------
+# A rejected reload ("Reload aborted: one or more files failed to parse") keeps the OLD content running, and
+# rcon-cli still exits 0. Every path that reloads or boots content checks the reply / server log and fails loudly.
+FAIL_PATTERN='Reload aborted|aborted|failed|error|exception|unknown|cannot|could not|not found'
+LOG_EXCERPT_PATTERN='Failed to load content from|Reload aborted|Content validation failed|[0-9]+ failed \(dir=|ERROR|Exception'
+
+# reply_ok <ok-substring> <reply>: success only when the reply holds the expected text and no failure marker.
+reply_ok() {
+  local expected=$1 reply=$2
+  [ -n "$reply" ] || return 1
+  [[ "$reply" == *"$expected"* ]] || return 1
+  if grep -Eiq "$FAIL_PATTERN" <<<"${reply//$expected/}"; then return 1; fi
+  return 0
+}
+
+# The server log lines naming the failing file(s); reload failures log "Failed to load content from <file>: <cause>".
+log_excerpt() {
+  local svc=$1 since=${2:-10m}
+  docker logs --since "$since" "$(cid "$svc")" 2>&1 | tr -d '\r' | sed 's/\x1b\[[0-9;]*m//g' \
+    | grep -E "$LOG_EXCERPT_PATTERN" | tail -n 25 || true
+}
+
+die_loud() {
+  local svc=$1 what=$2 reply=$3 excerpt=$4
+  {
+    echo
+    echo "################################################################"
+    echo "# DEPLOY FAILED on $svc: $what"
+    echo "# server reply: ${reply:-<no output>}"
+    echo "# the server is STILL RUNNING THE PREVIOUS STATE (stale content)"
+    echo "# server log excerpt (failing file/field):"
+    if [ -n "$excerpt" ]; then sed 's/^/#   /' <<<"$excerpt"; else echo "#   <none found; run: docker logs <$svc container> | grep -i 'failed to load'>"; fi
+    echo "################################################################"
+  } >&2
+  exit 1
+}
+
+# Reload content on $1 and require "Reloaded all."; otherwise exit non-zero with the log excerpt.
+reload_checked() {
+  local svc=$1 out
+  out=$(rcon "$svc" "astera admin reload all")
+  log "$svc: reload: ${out:-<no output>}"
+  reply_ok "Reloaded all." "$out" || die_loud "$svc" "content reload was not a success" "$out" "$(log_excerpt "$svc")"
+}
+
+# Boot-time content failures (plugins/hotswap/deploy restarts) show only in the log: scan it since $2.
+verify_boot_content() {
+  local svc=$1 since=$2 bad
+  bad=$(docker logs --since "$since" "$(cid "$svc")" 2>&1 | tr -d '\r' | sed 's/\x1b\[[0-9;]*m//g' \
+    | grep -E 'Failed to load content from|Reload aborted|Content validation failed|Content load complete: [0-9]+ ok, [1-9][0-9]* failed' | tail -n 25 || true)
+  [ -z "$bad" ] || die_loud "$svc" "content failed to load after restart" "<boot log>" "$bad"
+}
+
+# Deployed sha + the effective content revision (hash over every file under content/), repo vs backend.
+content_rev_local() { (cd content && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -c1-12); }
+content_rev_remote() {
+  dexec "$1" sh -c 'cd /content && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -c1-12' 2>/dev/null | tr -d '\r'
+}
+deploy_summary() {
+  local svc local_rev remote_rev dirty=""
+  [ -z "$(git status --porcelain --untracked-files=no 2>/dev/null)" ] || dirty="+dirty"
+  local_rev=$(content_rev_local)
+  log "deployed sha: $(git rev-parse --short=12 HEAD)$dirty ($(git log -1 --format=%s | cut -c1-70))"
+  for svc in $BACKENDS; do
+    remote_rev=$(content_rev_remote "$svc" || true)
+    if [ "$remote_rev" = "$local_rev" ]; then
+      log "$svc: effective content revision $remote_rev (matches repo)"
+    else
+      log "WARN: $svc: effective content revision ${remote_rev:-?} differs from repo $local_rev"
+    fi
+  done
+}
+
+# Offline fixtures for the detection above: `scripts/dev-deploy.sh selftest`.
+selftest() {
+  local n=0 bad=0 r
+  t() { n=$((n+1)); if reply_ok "$1" "$2"; then r=ok; else r=fail; fi; [ "$r" = "$3" ] || { echo "selftest #$n FAILED: expected $3 got $r for: $2" >&2; bad=$((bad+1)); }; }
+  t "Reloaded all." "Reloaded all." ok
+  t "Reloaded all." "Reloaded all. (28 categories)" ok
+  t "Reloaded all." "Reload aborted: one or more files failed to parse. Previous state preserved; check server log." fail
+  t "Reloaded all." "Reload of category 'particles' aborted; previous state preserved." fail
+  t "Reloaded all." "" fail
+  t "Reloaded all." "Unknown command" fail
+  t "Resource pack 1a2b3c4d" "Resource pack 1a2b3c4d re-pushed to 2 players" ok
+  t "Resource pack 1a2b3c4d" "Resource pack hash unchanged" fail
+  echo "selftest: $n cases, $bad failed"
+  [ "$bad" = 0 ]
+}
 
 other_backend() { if [ "$1" = lobby ]; then echo game; else echo lobby; fi; }
 
@@ -128,8 +221,9 @@ changed_jars() {
 # Drain, stop, copy the given jars, start, wait for RCON, bring the parked players back.
 restart_backend() {
   local svc=$1; shift
-  local changed=("$@") t t_svc parked jar other
+  local changed=("$@") t t_svc parked jar other boot_since
   t_svc=$(now)
+  boot_since=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   parked=$(drain "$svc")
   t=$(now)
   quiet "${COMPOSE[@]}" stop -t 60 "$svc"
@@ -145,6 +239,7 @@ restart_backend() {
   quiet "${COMPOSE[@]}" start "$svc"
   wait_ready "$svc"
   log "$svc: booted ($(elapsed "$t"))"
+  verify_boot_content "$svc" "$boot_since"
   if [ "$parked" -gt 0 ]; then
     other=$(other_backend "$svc")
     log "$svc: bringing $parked player(s) back from $other"
@@ -165,6 +260,7 @@ plugins() {
     log "$svc: changed: $(printf '%s ' "${changed[@]##*/}")"
     restart_backend "$svc" "${changed[@]}"
   done
+  deploy_summary
   log "total: $(elapsed "$t0")"
 }
 
@@ -231,6 +327,7 @@ hotswap() {
         ;;
     esac
   done
+  deploy_summary
   log "total: $(elapsed "$t0")"
 }
 
@@ -258,10 +355,11 @@ content() {
     stage_content "$svc"
     log "$svc: content copied ($(elapsed "$t"))"
     t=$(now)
-    out=$(rcon "$svc" "astera admin reload all")
-    log "$svc: reload: ${out:-<no output>} ($(elapsed "$t"))"
+    reload_checked "$svc"
+    log "$svc: reload took $(elapsed "$t")"
     refresh_items "$svc"
   done
+  deploy_summary
   log "total: $(elapsed "$t0")"
 }
 
@@ -270,7 +368,10 @@ content() {
 rebuild_pack() {
   local t
   t=$(now)
-  quiet "${COMPOSE[@]}" up -d --build --no-deps resource-pack
+  # ASTERA_PREBUILT_IMAGES=1 (dev-autodeploy): the image was built locally and shipped; never build on the VM.
+  local build=--build
+  [ "${ASTERA_PREBUILT_IMAGES:-0}" != 1 ] || build=--no-build
+  quiet "${COMPOSE[@]}" up -d "$build" --no-deps resource-pack
   log "resource-pack: rebuilt ($(elapsed "$t"))"
 }
 
@@ -305,8 +406,7 @@ deploy() {
     log "$svc: content staged ($(elapsed "$t"))"
     if [ "${#changed[@]}" = 0 ]; then
       log "$svc: jars unchanged, reloading content in place (FORCE=1 restarts to rebuild arenas)"
-      out=$(rcon "$svc" "astera admin reload all")
-      log "$svc: reload: ${out:-<no output>}"
+      reload_checked "$svc"
       refresh_items "$svc"
       continue
     fi
@@ -316,6 +416,7 @@ deploy() {
   done
   pack
   verify_pack_url
+  deploy_summary
   log "total: $(elapsed "$t0")"
 }
 
@@ -327,7 +428,11 @@ pack() {
     if ! is_running "$svc"; then log "$svc is not running: start the stack with 'make docker-up' first"; exit 1; fi
     out=$(rcon "$svc" "astera admin pack reload${PACK_FORCE:+ force}")
     log "$svc: ${out:-<no output>}"
+    if [ -z "$out" ] || grep -Eiq "$FAIL_PATTERN" <<<"$out"; then
+      die_loud "$svc" "resource pack reload was not a success" "$out" "$(log_excerpt "$svc")"
+    fi
   done
+  deploy_summary
   log "total: $(elapsed "$t0")"
 }
 
@@ -337,5 +442,6 @@ case "${1:-}" in
   deploy) deploy ;;
   content) content ;;
   pack) pack ;;
-  *) echo "usage: $0 plugins|hotswap|deploy|content|pack" >&2; exit 2 ;;
+  selftest) selftest ;;
+  *) echo "usage: $0 plugins|hotswap|deploy|content|pack|selftest" >&2; exit 2 ;;
 esac

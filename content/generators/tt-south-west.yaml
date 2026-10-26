@@ -1,0 +1,11 @@
+# Star generator of the imported temple-trouble arena (ADR-0281). Stands on a generator landmark of content/stages/temple-trouble.yaml at the
+# same x/z (a stone-brick plinth added to the imported world at y=64).
+id: tt-south-west
+match_stage_id: temple-trouble
+position: { x: -9.5, y: 65.0, z: 45.5 }
+period_seconds: 20.0
+amount: 5
+tier: iron
+affiliation:
+  kind: neutral
+late_game_multiplier: 2.0

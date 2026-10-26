@@ -26,11 +26,14 @@ import com.astarworks.astera.core.domain.world.ToolType
  *   matrix lookup instead of the block's own classification. Lets a "shatter
  *   stone" skill bypass an exotic custom block's `material = OTHER` slot
  *   and treat it as STONE.
+ * - [flat] — when true, [baseAmount] is a flat HP amount that ignores the tool matrix: the
+ *   chip a gun or spell deals to cover (ADR-0280). Immunity still applies; [effectiveTool] is unused.
  */
 public data class BlockDamageProfile(
     val baseAmount: Int,
     val effectiveTool: ToolType,
     val materialOverride: BlockMaterial? = null,
+    val flat: Boolean = false,
 ) {
     init {
         require(baseAmount >= 0) {
@@ -39,6 +42,10 @@ public data class BlockDamageProfile(
     }
 
     public companion object {
+        /** A flat [amount] HP chip that ignores the tool matrix (skills without a tool, ADR-0280). */
+        public fun flat(amount: Int): BlockDamageProfile =
+            BlockDamageProfile(amount, ToolType.NONE, flat = true)
+
         /**
          * Reference base for the per-cell matrix. `BlockDurabilityRule` cells
          * are authored as "damage to a 100-HP block on one hit assuming a

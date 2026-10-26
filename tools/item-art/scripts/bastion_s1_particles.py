@@ -134,7 +134,8 @@ from rig_path import RigPath  # noqa: E402
 
 SKILL, RIG = "bastion-greatsword-s1", "bastion-s1-rig"
 FX = {"s1h1": "bastion-s1-fx-high", "s1h2": "bastion-s1-fx-low"}
-TARGETS = ROOT / "content/skill-lint" / (SKILL + ".targets.yaml")
+# hold / coil beats (beat-sheet.md): nothing is emitted in these skill ticks [first, last]
+HOLD_BEATS = [(0, 5), (20, 27), (28, 29), (40, 51)]
 
 # near-field: no particle spawns closer than this to the caster's eye (a dust/crit there fills the first-person view);
 # the big sprites (sweep_attack, poof, smoke) keep BIG_NEAR. Distances are to the spawn point; the scatter adds <= 0.2.
@@ -181,7 +182,7 @@ def defs():
          "flame", 1, 14, burst(0.03), speed=0.012)
     # cut trail (the swept volume between two held poses, emitted on the cut tick)
     vdef("trail", "r28 cut trail: big gold -> ember dust along the swept arc.",
-         "dust_color_transition", 1, 8, burst(0.04), GOLD, dct(GOLD_HOT, EMBER_RED, 0.3), speed=0.0)
+         "dust_color_transition", 1, 8, burst(0.04), GOLD, dct(GOLD, EMBER_RED, 0.17), speed=0.0)
     vdef("trail-crit", "r28 cut trail: crit sparks sprayed off the swept tip arc in every direction.",
          "crit", 2, 8, burst(0.06), velocity="{ direction: along_tangent, speed: 0.32, spread_degrees: 12, speed_jitter: 0.5 }")
     vdef("slash", "r28 vanilla sweep_attack slash on the swept arc (camera-facing, so it reads from every side).",
@@ -192,16 +193,24 @@ def defs():
     vdef("impact-crit", "r28 impact: crit burst, all directions.",
          "crit", 6, 5, burst(0.12), velocity="{ direction: outward, speed: 0.55, spread_degrees: 0, speed_jitter: 0.45 }")
     vdef("impact-dust", "r3b impact: small short gold dust (no big puffs).",
-         "dust_color_transition", 5, 4, burst(0.12), GOLD, dct(WHITE_HOT, ORANGE, 0.4), speed=0.0)
+         "dust_color_transition", 5, 4, burst(0.12), GOLD, dct(GOLD_HOT, ORANGE, 0.2), speed=0.0)
+    vdef("impact-enchant", "restored: enchanted_hit glyphs bursting off the contact.",
+         "enchanted_hit", 5, 6, burst(0.18), velocity="{ direction: outward, speed: 0.4, spread_degrees: 0, speed_jitter: 0.5 }")
+    vdef("steel", "restored: dark steel dust along the blade, re-rolled every tick.",
+         "dust_color_transition", 1, 8, burst(0.05), (70, 76, 86), dct((120, 128, 140), (38, 42, 50), 0.32), speed=0.0)
+    vdef("puff", "restored: ground puff at the finisher contact.", "white_smoke", 4, 8, burst(0.3),
+         velocity="{ direction: outward, speed: 0.12, spread_degrees: 0, speed_jitter: 0.5 }")
+    vdef("poof", "restored: poof burst at the finisher contact.", "poof", 5, 6, burst(0.25),
+         velocity="{ direction: outward, speed: 0.25, spread_degrees: 0, speed_jitter: 0.5 }")
     vdef("impact-smoke", "r3b impact: unused (puffs removed).",
          "smoke", 1, 2, burst(0.05), speed=0.0)
     # staged tiers (principles: convergence = charge / spread = release; phase-shifted rings; rare detail; afterglow)
     # velocity speed must be >= 0 (ParticleVelocity), so convergence = the scatter radius shrinking tick by tick (3 -> 1)
     for k, rad in ((3, 0.4), (2, 0.26), (1, 0.12)):
         vdef("gather-%d" % k, "gather: dust spawned on a shrinking sphere round the blade tip, %d tick(s) before a cut." % k,
-             "dust_color_transition", 1, 5, burst(rad), GOLD, dct(WHITE_HOT, GOLD, 0.22), speed=0.0)
+             "dust_color_transition", 1, 5, burst(rad), GOLD, dct(GOLD_HOT, GOLD, 0.14), speed=0.0)
     vdef("ring-crit", "release ring: crit sparks thrown radially from points on a ring round the impact (ring-by-ring phase shift).",
-         "dust_color_transition", 1, 6, burst(0.02), GOLD, dct(WHITE_HOT, GOLD, 0.25),
+         "dust_color_transition", 1, 6, burst(0.02), GOLD, dct(GOLD_HOT, GOLD, 0.14),
          velocity="{ direction: outward, speed: 0.3, spread_degrees: 0, speed_jitter: 0.3 }")
     vdef("afterglow", "afterglow: embers rising off the impact point after the release.",
          "flame", 2, 12, burst(0.15), velocity="{ direction: up, speed: 0.04, spread_degrees: 25, speed_jitter: 0.5 }")
@@ -250,12 +259,10 @@ def skill_hits():
 
 
 def none_ticks():
-    """Skill ticks of the `fx: none` beats (hold / coil): nothing may be emitted there (skill-lint check 3)."""
-    t = yaml.safe_load(TARGETS.read_text())
+    """Skill ticks of the hold / coil beats: nothing may be emitted there."""
     out = set()
-    for b in t.get("beats", []):
-        if b.get("fx") == "none":
-            out.update(range(b["ticks"][0], b["ticks"][1] + 1))
+    for a, b in HOLD_BEATS:
+        out.update(range(a, b + 1))
     return out
 
 
@@ -332,6 +339,10 @@ class Layer:
         # envelope: the sheath is thickest mid-blade (extra stations), plus a rare slash detail (~1 tick in 7)
         for si, fr in enumerate((0.5,)):
             self._runs("mid-%d" % si, "sheath", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
+        for si, fr in enumerate((0.4, 0.8)):
+            self._runs("steel-%d" % si, "steel", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
+        for si, fr in enumerate((0.6,)):
+            self._runs("fleck-%d" % si, "fleck", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
         # r3: no flame / ember on held poses (rest beats stay a faint sheath only)
 
     def _runs(self, name, pid, ticks, at):
@@ -354,8 +365,13 @@ class Layer:
             if not heavy and i % 2:
                 continue  # ~50% of the steps; the emphasised cut keeps them all
             # r4: only small bright dust along the edge; no crit (X sprites), no slash, no ash (all read as chunky puffs close up)
-            for fr in ((0.85, 1.0) if i % 2 else (1.0,)):
+            for fr in ((0.75, 1.0) if i % 2 else (0.9,)):
                 self.once("trail", "trail", ft, on_blade(g, d, L, fr))
+            if i % 2 == 0:
+                self.once("csteel", "steel", ft, on_blade(g, d, L, 0.7))
+                self.once("tcrit", "trail-crit", ft, on_blade(g, d, L, 1.0))
+            if i % 3 == 0:
+                self.once("slash", "slash", ft, on_blade(g, d, L, 0.85), big=True)
         return sw
 
     def gather(self, c):
@@ -386,9 +402,14 @@ class Layer:
         k = 3 if self.tag == "s1h2" else (2 if heavy else 1)
         for j in range(k):
             q = (p[0] + 0.25 * j, p[1], p[2] - 0.15 * j)
-            self.once("impact-crit", "impact-crit", ft, q)
             self.once("impact-dust", "impact-dust", ft, q)
-            self.once("impact-crit", "impact-crit", ft + 1, q)
+            self.once("impact-crit", "impact-crit", ft, q)
+            if j == 0:
+                self.once("impact-ench", "impact-enchant", ft, q)  # r5: no vanilla `crit` (an X-shaped sprite) at the impact either
+        if self.tag == "s1h2":  # finisher: ground puff + poof where the blade meets the floor
+            gq = (p[0], max(0.12, min(p[1], 0.4)), p[2])
+            self.once("puff", "puff", ft, gq, big=True)
+            self.once("poof", "poof", ft, gq, big=True)
         return p
 
     def build(self):

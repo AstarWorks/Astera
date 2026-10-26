@@ -107,6 +107,33 @@ public interface IBlockStateGateway {
     ): Result<BlockState, BlockGatewayError>
 
     /**
+     * Whether a standing cover block (a block the registry knows, still holding HP) occupies the cell of [pos].
+     * Area and ray skills (ADR-0280) test cells with this so they never hurt terrain or air.
+     */
+    public fun isCover(world: WorldId, pos: Vec3): Boolean
+
+    /** Whether the cell of [pos] is empty, so a tool skill may place a temporary block there (ADR-0280). */
+    public fun canPlaceAt(world: WorldId, pos: Vec3): Boolean
+
+    /**
+     * Places [spec] at [pos] like [placeCustomBlock], but as a temporary block of the running match: it is
+     * removed again by [resetCover], and on Paper journaled so the arena repair restores what stood there.
+     */
+    public fun placeTemporaryBlock(
+        world: WorldId,
+        pos: Vec3,
+        spec: CustomBlockSpec,
+        placedBy: PlayerId,
+    ): Result<BlockState, BlockGatewayError>
+
+    /**
+     * Rebuilds the cover of a finished match (ADR-0280): every cover block in the square of half-width
+     * [halfExtent] around [centre] (the whole [world] when [centre] is `null`) is back at full HP and the
+     * temporary blocks placed during the match are gone. Returns the positions that changed.
+     */
+    public fun resetCover(world: WorldId, centre: Vec3?, halfExtent: Double): List<Vec3>
+
+    /**
      * Snapshot of every tracked position in [world] (used by
      * `BlockRecoveryScheduler` to iterate damaged blocks for periodic regen).
      */

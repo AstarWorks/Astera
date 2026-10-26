@@ -1,6 +1,8 @@
 # Particles knowledge base
 
-Agent: `.claude/agents/particle-artist.md`. Team overview: [README.md](README.md). Display core (sprites, display elements): [vfx.md](vfx.md). Applies to any Astera VFX; Limbus skill reproductions are one source of reference targets and Learnings.
+Reference knowledge (2026-10-27): the skill has ONE author who builds every piece; this page is an accumulated knowledge base the author consults, not a role with a territory. Process: [README.md](README.md). Historical Learnings entries may name old roles and numeric targets; numbers are never acceptance evidence.
+
+Optional helper agent: `.claude/agents/limbus-vfx.md` (advice only, not an owner; covers particles). Team overview: [README.md](README.md). Display core (sprites, display elements): [vfx.md](vfx.md). Applies to any Astera VFX; Limbus skill reproductions are one source of reference targets and Learnings.
 
 ## Founder bar
 

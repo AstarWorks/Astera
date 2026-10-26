@@ -36,3 +36,7 @@ tools/architecture-test/build/
 
 !docker/void-world
 !docker/void-world/**
+
+# Tool sources the plugin jars never depend on: editing e2e/vfx/etc. code must not rebuild the jars (settings.gradle.kts only
+# needs each tool's build.gradle.kts to configure).
+tools/*/src

@@ -1,0 +1,10 @@
+# restored: dark steel dust along the blade, re-rolled every tick.
+id: bastion-s1-p-steel
+shape: { kind: burst, spread_blocks: 0.05 }
+color: { r: 70, g: 76, b: 86 }
+count: 1
+lifetime_ticks: 8
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 120, g: 128, b: 140 }, to: { r: 38, g: 42, b: 50 }, scale: 0.32 }
+speed: 0.0
+force: true
