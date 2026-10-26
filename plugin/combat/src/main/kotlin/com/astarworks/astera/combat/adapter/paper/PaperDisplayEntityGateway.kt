@@ -54,6 +54,7 @@ public class PaperDisplayEntityGateway(
     private class Attachment(val anchor: PlayerId, val world: org.bukkit.World,
         var offset: Vec3, var transform: DisplayTransform, val height: Double, val flip: Boolean)
     private val attachments = mutableMapOf<DisplayHandle, Attachment>()
+    private val weaponStacks = mutableMapOf<DisplayHandle, ItemStack>()
 
     override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3): DisplayHandle? {
         val player = server.getPlayer(anchor.uuid) ?: return null
@@ -213,6 +214,18 @@ public class PaperDisplayEntityGateway(
         (server.getEntity(handle.id) as? Display)?.viewRange = viewRange
     }
 
+    override fun setItemModel(handle: DisplayHandle, itemModel: String?) {
+        val display = server.getEntity(handle.id) as? ItemDisplay ?: return
+        // The stack the display was spawned with (the real main-hand clone), remembered on the first override.
+        val base = if (itemModel == null) weaponStacks[handle] ?: return else weaponStacks.getOrPut(handle) { display.itemStack.clone() }
+        val stack = base.clone()
+        if (itemModel != null) {
+            val key = NamespacedKey.fromString(itemModel) ?: return
+            stack.editMeta { it.itemModel = key }
+        }
+        display.setItemStack(stack)
+    }
+
     override fun setBlock(handle: DisplayHandle, blockKey: String) {
         val display = server.getEntity(handle.id) as? BlockDisplay ?: return
         runCatching { server.createBlockData(blockKey(blockKey)) }.onSuccess { display.block = it }
@@ -258,6 +271,7 @@ public class PaperDisplayEntityGateway(
 
     override fun remove(handle: DisplayHandle) {
         attachments.remove(handle)
+        weaponStacks.remove(handle)
         ConcealedDisplays.remove(handle.id)
         server.getEntity(handle.id)?.remove()
     }

@@ -415,6 +415,7 @@ public class VfxPlayer(
                     val u = e.updates[state.nextUpdate++]
                     if (u.tick < age) continue
                     u.block?.let { displays.setBlock(handle, it) }
+                    u.itemModel?.let { displays.setItemModel(handle, it) }
                     u.text?.let { displays.setText(handle, listOf(it)) }
                     u.style?.let { displays.setTextStyle(handle, it.backgroundArgb, it.textOpacity, it.textRgb) }
                     u.position?.let {
@@ -605,7 +606,8 @@ public class VfxPlayer(
                     displays.setText(handle, lines)
                     displays.setTextStyle(handle, kind.backgroundArgb, kind.textOpacity, kind.textRgb)
                 }
-                is DisplayKind.Item, is DisplayKind.SkinBone, DisplayKind.AnchorMainHand -> Unit // Identical kind includes item and display mode.
+                DisplayKind.AnchorMainHand -> displays.setItemModel(handle, null) // a model-swapped weapon starts from the real stack again
+                is DisplayKind.Item, is DisplayKind.SkinBone -> Unit // Identical kind includes item and display mode.
             }
             displays.teleport(handle, instance.position + e.spawnOffset + state.targetOffset, 0f, 0f, 0)
             displays.update(handle, e.initial, 0)

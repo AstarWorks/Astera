@@ -78,6 +78,8 @@ public data class VfxUpdate(
      * text-swap-only updates of emitter particles.
      */
     public val keepTransform: Boolean = false,
+    /** Swap the `item_model` of an item display (the performance weapon, ADR-0282). */
+    public val itemModel: String? = null,
 )
 
 /**
