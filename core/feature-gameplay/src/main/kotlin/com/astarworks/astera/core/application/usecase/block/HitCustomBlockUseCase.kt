@@ -1,0 +1,157 @@
+package com.astarworks.astera.core.application.usecase.block
+
+import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.IWorldGateway
+import com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.animation.block.BlockBreakStage
+import com.astarworks.astera.core.domain.block.BlockDamageOutcome
+import com.astarworks.astera.core.domain.block.BlockDamageProfile
+import com.astarworks.astera.core.domain.block.BlockGatewayError
+import com.astarworks.astera.core.domain.effect.SoundSpec
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.core.domain.world.ToolKind
+import com.astarworks.astera.core.domain.world.ToolType
+import com.astarworks.astera.core.domain.world.WorldId
+import java.util.concurrent.ConcurrentHashMap
+
+/**
+ * A player swings a field tool (pickaxe / axe / shovel, ADR-0090) at a custom cover block.
+ *
+ * The held item names its [ToolType] through the `astera:tool` pdc tag (`"PICKAXE/IRON"`). The hit goes through
+ * [IBlockStateGateway.applyDamageFromSkill], so the (tool, block material) damage matrix and the block's own HP
+ * decide how many swings it takes. The crack stage shown on the block follows the HP that is left, the swing and the
+ * break play a per-tool sound, and the wrong tool plays a dull clang plus a (rate limited) hint.
+ *
+ * Swings closer than [HIT_COOLDOWN_TICKS] apart are ignored so a click macro cannot chew through cover.
+ */
+public class HitCustomBlockUseCase(
+    private val blocks: () -> IBlockStateGateway?,
+    private val items: IItemRegistry,
+    private val animation: () -> IBlockBreakAnimationGateway?,
+    private val worldGateway: () -> IWorldGateway?,
+    private val scheduler: IScheduler,
+    private val players: IPlayerGateway,
+    private val messages: IMessageRenderer,
+) {
+    private val lastHitTick = ConcurrentHashMap<PlayerId, Long>()
+    private val lastHintTick = ConcurrentHashMap<PlayerId, Long>()
+
+    /** What one swing did. */
+    public sealed interface Outcome {
+        /** The held item is not a field tool; nothing happened. */
+        public data object NotATool : Outcome
+
+        /** Swung again before [HIT_COOLDOWN_TICKS] passed; nothing happened. */
+        public data object TooFast : Outcome
+
+        /** The tool cannot hurt this block. */
+        public data object WrongTool : Outcome
+
+        /** Hurt, still standing with [hp] of [maxHp] left, showing crack [stage]. */
+        public data class Chipped(val hp: Int, val maxHp: Int, val stage: BlockBreakStage) : Outcome
+
+        /** The block is gone. */
+        public data class Broken(val drops: List<ItemId>) : Outcome
+    }
+
+    public fun hit(
+        playerId: PlayerId,
+        world: WorldId,
+        pos: Vec3,
+        heldItem: ItemId,
+    ): Result<Outcome, BlockGatewayError> {
+        val tool = toolOf(heldItem) ?: return Result.success(Outcome.NotATool)
+        val now = scheduler.currentTick()
+        val previous = lastHitTick[playerId]
+        if (previous != null && now - previous < HIT_COOLDOWN_TICKS) return Result.success(Outcome.TooFast)
+        val gateway = blocks() ?: return Result.success(Outcome.NotATool)
+
+        lastHitTick[playerId] = now
+        val result = gateway.applyDamageFromSkill(
+            world,
+            pos,
+            TOOL_HIT,
+            playerId,
+            BlockDamageProfile(BlockDamageProfile.DEFAULT_BASE, tool),
+        )
+        val outcome = when (result) {
+            is Result.Failure -> return result
+            is Result.Success -> result.value
+        }
+        return Result.success(
+            when (outcome) {
+                is BlockDamageOutcome.Ineffective -> {
+                    sound(world, pos, WRONG_TOOL_SOUND)
+                    hint(playerId, now)
+                    Outcome.WrongTool
+                }
+                is BlockDamageOutcome.Damaged -> {
+                    val stage = stageFor(outcome.newState.durability, outcome.newState.maxHp)
+                    animation()?.setBreakStage(world, pos, stage)
+                    sound(world, pos, hitSound(tool.kind))
+                    Outcome.Chipped(outcome.newState.durability, outcome.newState.maxHp, stage)
+                }
+                is BlockDamageOutcome.Broken -> {
+                    animation()?.cancelBreakAnimation(world, pos)
+                    sound(world, pos, breakSound(tool.kind))
+                    Outcome.Broken(outcome.drops)
+                }
+            },
+        )
+    }
+
+    private fun toolOf(item: ItemId): ToolType? =
+        items.find(item)?.pdcTags?.get(TOOL_TAG)?.let { ToolType.fromSerialKey(it) }?.takeIf { it.kind != ToolKind.NONE }
+
+    private fun sound(world: WorldId, pos: Vec3, spec: SoundSpec) {
+        worldGateway()?.playSound(world, pos, spec)
+    }
+
+    private fun hint(playerId: PlayerId, now: Long) {
+        val last = lastHintTick[playerId]
+        if (last != null && now - last < HINT_INTERVAL_TICKS) return
+        lastHintTick[playerId] = now
+        players.sendMessage(playerId, messages.render(playerId, WRONG_TOOL_HINT))
+    }
+
+    public companion object {
+        /** `pdc_tags` key on a tool item: the [ToolType] serial key, e.g. `PICKAXE/IRON`. */
+        public const val TOOL_TAG: String = "astera:tool"
+
+        public const val HIT_COOLDOWN_TICKS: Long = 6L
+        private const val HINT_INTERVAL_TICKS: Long = 60L
+
+        private val TOOL_HIT = SkillId("tool-hit")
+        private val WRONG_TOOL_HINT = MessageKey("astera.cover.wrong-tool")
+        private val WRONG_TOOL_SOUND = SoundSpec("minecraft:item.shield.block", 0.6, 0.7)
+
+        /** Crack stage for the HP that is left: STAGE_0 right after the first scratch, STAGE_9 on the last sliver. */
+        public fun stageFor(hp: Int, maxHp: Int): BlockBreakStage {
+            if (maxHp <= 0) return BlockBreakStage.STAGE_9
+            val lost = (maxHp - hp).coerceIn(0, maxHp).toDouble() / maxHp
+            val index = (lost * 9.0).toInt().coerceIn(0, 9)
+            return BlockBreakStage.entries[index]
+        }
+
+        private fun hitSound(kind: ToolKind): SoundSpec = when (kind) {
+            ToolKind.PICKAXE -> SoundSpec("minecraft:block.stone.hit", 1.0, 0.8)
+            ToolKind.AXE -> SoundSpec("minecraft:block.wood.hit", 1.0, 0.9)
+            else -> SoundSpec("minecraft:block.gravel.hit", 1.0, 0.9)
+        }
+
+        private fun breakSound(kind: ToolKind): SoundSpec = when (kind) {
+            ToolKind.PICKAXE -> SoundSpec("minecraft:block.deepslate_tiles.break", 1.2, 0.8)
+            ToolKind.AXE -> SoundSpec("minecraft:block.wood.break", 1.2, 0.8)
+            else -> SoundSpec("minecraft:block.gravel.break", 1.2, 0.8)
+        }
+    }
+}

@@ -2573,3 +2573,4 @@ astera:
   progress.gui.quests.none: "<gray>クエストはまだありません (参加時に開始されます)</gray>"
   progress.gui.quest.progress: "<yellow>{current}/{required}</yellow>"
   progress.gui.quest.complete: "<green>クリア</green>"
+  cover.wrong-tool: "<gray>この道具ではこのブロックを壊せない。別の道具を試そう。</gray>"

@@ -124,6 +124,8 @@ public class PaperBlockStateGateway(
     private val durabilityRule: BlockDurabilityRule = BlockDurabilityRule.defaultMatrix(),
     private val random: Random = Random.Default,
     private val journal: IBlockChangeJournalRepository = InMemoryBlockChangeJournalRepository(),
+    /** Called just before this gateway edits the world (break), so an arena slot journal can remember the block. */
+    private val beforeWorldEdit: (Block) -> Unit = {},
 ) : IBlockStateGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -229,9 +231,13 @@ public class PaperBlockStateGateway(
                 BlockGatewayError.Storage("world or chunk unavailable for ($world, $pos)"),
             )
         val key = BlockKey.of(world, pos)
-        val existing = tracker[key]
-        val blockType = existing?.blockType ?: bukkitBlockTypeOf(block)
-        val customSpec = customBlockRegistry?.resolve(blockType)
+        // A tracked entry whose custom block is no longer what stands in the world (an arena slot rebuilt
+        // over it) is stale: re-identify the block from what is there now.
+        val existing = tracker[key]?.takeIf { stillStands(it, block) }
+        // An untracked block that a stage placed is identified by its (unique) base material.
+        val baseSpec = if (existing == null) customBlockRegistry?.resolveByBaseMaterial(block.type.name) else null
+        val blockType = existing?.blockType ?: baseSpec?.id ?: bukkitBlockTypeOf(block)
+        val customSpec = baseSpec ?: customBlockRegistry?.resolve(blockType)
         val effectiveMaterial = profile.materialOverride
             ?: customSpec?.material
             ?: durabilityRule.materialOf(blockType)
@@ -280,6 +286,7 @@ public class PaperBlockStateGateway(
             // World-side break: clear to AIR so the player sees the block
             // disappear. The in-memory impl skips this; only the Paper
             // adapter knows about the actual Bukkit world.
+            beforeWorldEdit(block)
             block.type = Material.AIR
             // Drop the tracker entry — restoring a broken position later
             // would resurrect it at full HP without a placement event,
@@ -319,6 +326,11 @@ public class PaperBlockStateGateway(
             )
             Result.success(BlockDamageOutcome.Damaged(nextState, scaled))
         }
+    }
+
+    private fun stillStands(state: BlockState, block: org.bukkit.block.Block): Boolean {
+        val spec = customBlockRegistry?.resolve(state.blockType) ?: return true
+        return spec.baseBukkitMaterial == block.type.name
     }
 
     override fun restore(world: WorldId, pos: Vec3) {

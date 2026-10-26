@@ -2,7 +2,7 @@
 id: siege-isles-mini-tnt
 display_name_key: astera.stage.siege-isles.name
 layout:
-  marker_version: 8
+  marker_version: 9
   seed: 20261024
   surface_y: 64
   kill_y: 16
@@ -322,6 +322,38 @@ layout:
     x: 0
     z: 95
     rotation: 270
+  - part: cover-reinforced-wall
+    x: -32
+    z: 12
+    rotation: 90
+  - part: cover-reinforced-wall
+    x: 32
+    z: -12
+    rotation: 90
+  - part: cover-barricade
+    x: -32
+    z: -12
+    rotation: 90
+  - part: cover-barricade
+    x: 32
+    z: 12
+    rotation: 90
+  - part: cover-sandbags
+    x: -12
+    z: 10
+    rotation: 0
+  - part: cover-sandbags
+    x: 12
+    z: -10
+    rotation: 180
+  - part: cover-hardened-bank
+    x: 8
+    z: -14
+    rotation: 0
+  - part: cover-hardened-bank
+    x: -8
+    z: 14
+    rotation: 180
   - part: castle-tower
     x: -18
     z: -95

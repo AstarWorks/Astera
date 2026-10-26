@@ -1,38 +1,16 @@
-# Wave 5x (ADR-0090) — sample custom block: obsidian-grade hardened soil.
-#
-# Demonstrates the per-block-type maxHp + tool effectiveness override:
-#   - 5000 HP (50× a vanilla block's default 100)
-#   - Only pickaxes do meaningful damage (matches the in-game "you need
-#     iron+ to mine this" intuition)
-#   - Drops the block-item only with an iron-or-better pickaxe
-#
-# Place into a world by giving the player `hardened-soil-block` (the
-# placement item) — Wave 6b's place handler resolves the item's
-# `placeable_as` field to this block.
+# Wave 5x (ADR-0090) — hardened soil: a packed earth bank that resists the shovel and wants a pickaxe.
+# Per-block tool overrides (HP removed per hit): the pickaxe is the right tool, the shovel only scratches it,
+# the axe does nothing. 500 HP -> 5 iron-pickaxe hits.
 
 id: "astera:hardened_soil"
 display_name:
   en: "Hardened Soil"
   ja: "硬化土"
-base_bukkit_material: "DIRT"
+base_bukkit_material: "ROOTED_DIRT"
 material: "SOIL"
-base_durability: 5000
+base_durability: 500
 
 tool_effectiveness:
-  "PICKAXE/WOOD": 1
-  "PICKAXE/STONE": 10
-  "PICKAXE/IRON": 50
-  "PICKAXE/DIAMOND": 200
-  "PICKAXE/NETHERITE": 400
-  # AXE / SHOVEL omitted — fall through to the global durability rule,
-  # which says shovel-on-soil hits hard but axes do nothing on soil.
-
-drops:
-  - item_id: "hardened-soil-block"
-    count_range: "1..1"
-    drop_chance: 1.0
-    requires_tool: "PICKAXE/IRON"
-
-placed_from: "hardened-soil-block"
-immune_to: []
-texture: "hardened-soil"
+  "PICKAXE/IRON": 100
+  "SHOVEL/IRON": 25
+  "AXE/IRON": 0

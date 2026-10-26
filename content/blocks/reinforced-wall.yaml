@@ -1,0 +1,10 @@
+# Reinforced wall: stone cover. The pickaxe is the right tool (global matrix: iron pickaxe 100 HP/hit on stone),
+# the axe chips it slowly (25/hit), the shovel cannot. 400 HP -> 4 pickaxe hits vs 16 axe hits.
+
+id: "astera:reinforced_wall"
+display_name:
+  en: "Reinforced Wall"
+  ja: "補強壁"
+base_bukkit_material: "DEEPSLATE_TILES"
+material: "STONE"
+base_durability: 400
