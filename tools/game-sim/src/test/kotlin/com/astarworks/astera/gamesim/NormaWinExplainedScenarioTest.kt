@@ -41,6 +41,10 @@ class NormaWinExplainedScenarioTest {
             assertThat(briefing).contains("How to win").contains("destroy the enemy core").contains("Lv 5").contains("Time limit 20 min")
             assertThat(chat(blue)).`as`("everybody is briefed").contains("How to win")
 
+            val sidebar = sim.hud.sidebarText(red.id).joinToString("\n")
+            assertThat(sidebar).`as`("the clock shows the limit").contains("/ 20:00")
+            assertThat(sidebar).`as`("the Norma race against the rival is on the sidebar").contains("Lv 1/5").contains("rival 1")
+
             red.breaks(Vec3(41.0, 65.0, 300.0))
             advance(60)
 

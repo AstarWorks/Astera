@@ -78,7 +78,8 @@ public class NormaLevelService(
         val carried = stars.get(match.id, playerId)
         val target = cfg.targetFor(p.level, p.goal)
         val progress = if (p.goal == NormaGoal.STAR) carried else p.killsAtLevel
-        return NormaHud(carried, p.level, cfg.maxLevel, p.goal, progress.coerceAtMost(target), target)
+        val rival = match.teams.filter { playerId !in it.members }.maxOfOrNull { topLevel(match, it.id) }
+        return NormaHud(carried, p.level, cfg.maxLevel, p.goal, progress.coerceAtMost(target), target, rival)
     }
 
     /** Kills [playerId] made since reaching the current level (0 outside a Norma match). */

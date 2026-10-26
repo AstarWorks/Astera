@@ -1192,6 +1192,7 @@ astera:
         waiting: "<gray>Waiting for players</gray>"
         countdown: "<yellow>Starting...</yellow>"
         active: "<green>Live</green> <white>{time}</white>"
+        active-limited: "<green>Live</green> <white>{time}</white> <gray>/ {limit}</gray>"
         sudden-death: "<red>Sudden death</red> <white>{time}</white>"
         ended: "<dark_gray>Ended</dark_gray>"
       nexus:
@@ -1234,6 +1235,7 @@ astera:
       you: "<gray>You:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>Stars</gray>"
       level: "<gray>Norma</gray> <white>Lv {level}/{max}</white>"
+      level-vs: "<gray>Norma</gray> <white>Lv {level}/{max}</white> <gray>(rival {rival})</gray>"
       objective-star: "<gray>Goal:</gray> <yellow>Stars</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>Goal:</gray> <red>Kills</red> <white>{progress}/{target}</white>"
       objective-max: "<gold>Top Norma level</gold>"
