@@ -2,7 +2,7 @@
 id: couture-s2-p-haze
 shape: {kind: burst, spread_blocks: 0.5}
 color: {r: 138, g: 91, b: 214}
-count: 9
+count: 5
 lifetime_ticks: 14
 vanilla_particle: dust_color_transition
 data:

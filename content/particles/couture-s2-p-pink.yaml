@@ -2,7 +2,7 @@
 id: couture-s2-p-pink
 shape: {kind: burst, spread_blocks: 0.3}
 color: {r: 255, g: 190, b: 215}
-count: 10
+count: 4
 lifetime_ticks: 10
 vanilla_particle: dust_color_transition
 data:

@@ -2,7 +2,7 @@
 id: couture-s2-p-speed
 shape: {kind: burst, spread_blocks: 0.6}
 color: {r: 255, g: 255, b: 255}
-count: 7
+count: 4
 lifetime_ticks: 6
 vanilla_particle: end_rod
 speed: 0.0

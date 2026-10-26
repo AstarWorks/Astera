@@ -2,7 +2,7 @@
 id: couture-s2-p-orange
 shape: {kind: burst, spread_blocks: 0.2}
 color: {r: 255, g: 155, b: 58}
-count: 14
+count: 6
 lifetime_ticks: 8
 vanilla_particle: dust
 data:
