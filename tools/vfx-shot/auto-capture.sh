@@ -14,7 +14,7 @@
 # queued behind it; its stack is pinned (reap.py never evicts it to make room). Idle JVMs are parked (SIGSTOP) by parker.sh.
 set -uo pipefail
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+HERE="${FARM_HERE:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)}"   # FARM_HERE: set by the daemon snapshot (see run_loop)
 TOOLS_ROOT="$(cd "$HERE/../.." && pwd -P)"          # where this script (and publish-capture.mjs) live
 PRIMARY="${FARM_PRIMARY:-/IdeaProjects/Astera}"
 FARM_ROOT="${FARM_ROOT:-$PRIMARY/.claude/worktrees/capture-farm}"
@@ -75,6 +75,8 @@ process() { # sha [base]
   deploy_ts="$(grep " deployed ${sha}" "$DEPLOY_LOG" 2>/dev/null | tail -1 | cut -d' ' -f1)"
   if [ "$FARM_CHECKOUT" = 1 ]; then
     git -C "$FARM_ROOT" cat-file -e "$sha^{commit}" 2>/dev/null || git -C "$FARM_ROOT" fetch -q origin 2>/dev/null
+    # FARM_ROOT holds the farm's own tools: never check out a sha that predates them (it would delete the running scripts)
+    git -C "$FARM_ROOT" cat-file -e "$sha:tools/vfx-shot/auto-capture.sh" 2>/dev/null || { flog "skip ${sha:0:8}: predates the capture farm tooling"; return 0; }
     git -C "$FARM_ROOT" checkout -q --detach "$sha" 2>>"$FSTATE/farm.log" || { flog "checkout $sha failed"; return 1; }
   fi
   [ -n "$base" ] || base="$(cat "$FSTATE/done-sha" 2>/dev/null)"
@@ -112,6 +114,10 @@ process() { # sha [base]
 latest_deployed() { grep -E ' deployed [0-9a-f]{7,40}( |$)' "$DEPLOY_LOG" 2>/dev/null | tail -1 | awk '{print $3}'; }
 
 run_loop() {
+  # bash reads a script lazily and the checkouts below rewrite this very file: run from a private copy
+  if [ -z "${FARM_HERE:-}" ]; then
+    cp "$0" "$FSTATE/auto-capture.run.sh" && FARM_HERE="$HERE" exec bash "$FSTATE/auto-capture.run.sh" run
+  fi
   echo $$ > "$FSTATE/daemon.pid"
   trap '[ "$(cat "$FSTATE/daemon.pid" 2>/dev/null)" = "$$" ] && rm -f "$FSTATE/daemon.pid"; exit 0' TERM INT
   local sha
@@ -119,7 +125,8 @@ run_loop() {
   [ -f "$FSTATE/done-sha" ] || latest_deployed > "$FSTATE/done-sha"
   flog "farm up: root=$FARM_ROOT log=$DEPLOY_LOG published=$PUBLISHED views=$VIEWS from $(cut -c1-8 "$FSTATE/done-sha")"
   if [ "${FARM_WARM:-1}" = 1 ] && [ "$FARM_CHECKOUT" = 1 ]; then
-    git -C "$FARM_ROOT" checkout -q --detach "$(cat "$FSTATE/done-sha")" 2>/dev/null
+    git -C "$FARM_ROOT" cat-file -e "$(cat "$FSTATE/done-sha"):tools/vfx-shot/auto-capture.sh" 2>/dev/null \
+      && git -C "$FARM_ROOT" checkout -q --detach "$(cat "$FSTATE/done-sha")" 2>/dev/null
     ( cd "$FARM_ROOT" && env VIEW=side OUT_ROOT="$OUT_ROOT" SHOT_PIN=1 SHOT_KEEP_TTL="${FARM_TTL:-86400}" SHOT_OUTPUTS=lean \
         SHOT_LOCK="${SHOT_LOCK:-/tmp/claude-1000/astera-vfx-shot-farm.lock}" SHOT_REAP_SCOPE=self SHOT_DETACHED=1 \
         bash "$FARM_ROOT/tools/vfx-shot/vfx-shot.sh" up ) >> "$FSTATE/shot.log" 2>&1 && flog "warm stack up"

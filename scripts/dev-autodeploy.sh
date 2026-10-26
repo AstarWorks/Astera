@@ -25,7 +25,8 @@ log() { printf '%s %s\n' "$(date -Is)" "$*" | tee -a "$STATE/deploy.log"; }
 # manager sees why without opening it. `grep FAILED deploy.log` shows the reasons.
 fail_reason() {
   local r
-  r=$(tr -d '\r' < "$STATE/build.log" 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g' \
+  # Only this deploy's output: build.log is append-only, older failures must not be reported as this one's reason.
+  r=$(tail -c +"$((${BUILD_LOG_START:-0} + 1))" "$STATE/build.log" 2>/dev/null | tr -d '\r' | sed 's/\x1b\[[0-9;]*m//g' \
     | grep -E 'RUNTIME-DECODE FAIL|Failed to load content from|Reload aborted|DEPLOY FAILED|FAIL ' | tail -n 3 | tr '\n' '|' | cut -c1-500) || true
   printf '%s\n' "${r:-no reason found; see $STATE/build.log}"
 }
@@ -237,6 +238,7 @@ deploy() (
   [ "$pack" = 0 ] || steps+=(pack)
   [ "$content" = 0 ] || steps+=(content)
   log "deploying $sha [${steps[*]:-none}]"
+  BUILD_LOG_START=$(stat -c %s "$STATE/build.log" 2>/dev/null || echo 0)
   old_pack=$(docker inspect astera-dev-resource-pack-1 --format '{{.Image}}')
   running_before=$(docker ps --format '{{.Names}}' --filter name=astera-dev- | tr '\n' ' ')
   if [ "$plugins" = 1 ]; then
@@ -280,7 +282,7 @@ deploy() (
             hash=$(docker exec astera-dev-resource-pack-1 cat /usr/share/nginx/html/astera.zip.sha1) || exit 1
             hash=${hash:0:8}
             [ "${#hash}" = 8 ] || exit 1
-            confirm "$svc" "astera admin pack reload" "Resource pack $hash" || exit 1
+            confirm "$svc" "astera admin pack reload" "$hash" || exit 1
             ;;
         esac
       done

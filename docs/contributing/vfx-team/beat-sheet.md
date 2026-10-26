@@ -24,6 +24,10 @@ Do not start step 4 until step 2 passes and gate 1 is approved. Lint (`make skil
 
 **Limit: at most 2 rounds per gate.** If a gate is not passed after 2 rounds, stop and escalate to the founder with ONE question (what must be decided, the evidence for each candidate, the recommendation). Never invent a new answer and start round 3.
 
+## Reference frame quality (founder 2026-10-27)
+
+`tools/skill-compare/scripts/prepare.mjs` now extracts the reference at the source's native resolution (capped at 1080p, jpg q2) from a yt-dlp download of up to 1080p. Rotation direction, contact timing and blade detail must be judged from **full-resolution single frames or zoomed crops** of those frames (`tools/skill-compare/cache/<case>/frames/frame_NNNNN.jpg`). Never judge them from downscaled contact sheets or strips alone: a 6-up sheet is about 480 px per frame and hides exactly the detail (blade edge, hand grip, foot contact) the beat sheet is supposed to record. Sheets are fine to find the frame; the cell evidence cites the full-resolution frame number.
+
 ## Template
 
 One row per beat. A beat is one continuous motion segment (wind-up, cut 1, turn, cut 2, recovery, ...), not one frame. **No blank cell.** If a cell cannot be filled, look at the reference again (frame by frame, successive frames, not stills). "n/a" is allowed only with a reason ("n/a: blade not moving, held"). **Every cell ends with one status mark:** `[O]` observed (visible in the reference frames; cite the frame or time), `[I]` inferred (3D filled in from cues such as body twist or overlap; name the cue), `[U]` unknown (not decidable from the reference; write what was tried and the candidates). `[U]` is the only allowed hole and is decided by the founder at gate 1. A top-down view is a hypothesis drawn from the reference, never extra evidence from it.
