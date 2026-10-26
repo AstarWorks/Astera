@@ -762,7 +762,7 @@ public object ArenaIslandGenerator {
                         standards(isl)
                     }
                     ArenaIslandKind.CENTER -> if (isl.radius >= 30) findSpot(isl, hx, hz, 3)?.let { (x, z) -> spire(x, z, 56, "white", crown = true) }
-                    ArenaIslandKind.OUTPOST -> findSpot(isl, hx, hz, 2)?.let { (x, z) -> cairn(x, z) }
+                    ArenaIslandKind.OUTPOST -> findSpot(isl, hx, hz, 2)?.let { (x, z) -> if (isl.accent != null) totem(x, z, isl.accent) else cairn(x, z) }
                 }
             }
             pylons()
@@ -860,6 +860,19 @@ public object ArenaIslandGenerator {
             set(cx, s + 9, cz, material("light"))
             for ((ax, az) in ARROWS) set(cx + ax, s + 9, cz + az, material("light"))
             set(cx, s + 10, cz, material("light"))
+        }
+
+        /** A lane-identity totem for an outpost whose accent names the lane colour: a taller striped pillar with a crown and banners. */
+        private fun totem(cx: Int, cz: Int, colour: String) {
+            val band = "minecraft:${colour}_concrete"
+            fill(cx, cz, 2, s + 1, material("rock"))
+            for ((ax, az) in CORNERS) set(cx + 2 * ax, s + 2, cz + 2 * az, band)
+            for (y in s + 2..s + 15) set(cx, y, cz, if (y % 4 == 0) band else material("wall"))
+            for (y in s + 2..s + 15) if (y % 4 == 0) for ((ax, az) in ARROWS) set(cx + ax, y, cz + az, band)
+            fill(cx, cz, 1, s + 16, band)
+            for ((ax, az) in ARROWS) set(cx + 2 * ax, s + 16, cz + 2 * az, material("light"))
+            set(cx, s + 17, cz, material("light"))
+            for ((ax, az) in ARROWS) set(cx + ax, s + 17, cz + az, "minecraft:${colour}_banner[rotation=${((ax * 4 + az * 8) + 16) % 16}]")
         }
 
         /** Tall team-banner standards spaced around the rim of a base island, far enough in not to hang over the edge. */
