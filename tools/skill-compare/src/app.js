@@ -117,7 +117,7 @@ function setupMc() {
   sel.textContent = "";
   const names = Object.keys(srcs);
   if (!names.length) sel.appendChild(Object.assign(el("option", "", "(no frames)"), { value: "" }));
-  const labels = { "vfx-compare": "比較用カメラ（強制発動）", "vfx-input": "通常操作で発動", "vfx-caster": "術者視点", "vfx-opponent": "相手視点", "vfx-side": "側面" };
+  const labels = { "vfx-compare": "比較用カメラ（強制発動）", "vfx-input": "通常操作で発動", "vfx-caster": "術者視点", "vfx-opponent": "相手視点", "vfx-side": "側面（左）", "vfx-right": "側面（右）", "vfx-front": "正面", "vfx-back": "背面", "vfx-high": "俯瞰45°", "vfx-near": "近くのプレイヤー目線" };
   for (const n of names) sel.appendChild(Object.assign(el("option", "", labels[n] || n), { value: n }));
   if (names.includes("vfx-compare") && !S.srcPicked) { sel.value = S.c.mc.source = "vfx-compare"; }
   else if (names.includes(S.c.mc.source)) sel.value = S.c.mc.source;

@@ -2,7 +2,10 @@
 # vfx-shot: cast one skill on an Astera server and film it with a REAL Minecraft client (headless: Xvfb + llvmpipe).
 # Output: build/vfx-shot/<skill>/<view>/{frame_NNN.png,sheet.png,<skill>-<view>.gif,.mp4,meta.json}
 #
-#   make vfx-shot SKILL=couture-rapier-s2 [VIEW=caster|opponent|side|compare|all] [TICKS=60]
+#   make vfx-shot SKILL=couture-rapier-s2 [VIEW=caster|opponent|side|front|back|right|high|near|compare|all] [TICKS=60]
+#   orbit views (spectator Watcher): side = 6 blocks off the caster's left, right = the opposite side, front = ahead beside
+#   the target looking back, back = behind the caster, high = 45 deg down from the back-left, near = a bystander at eye
+#   height ~2.4 blocks away (orbit_cam)
 #   make vfx-shot SKILL=bastion-greatsword-s3 VIEW=compare CASE=zwei-s3     # camera from the skill-compare intent
 #   make vfx-shot-up | vfx-shot-status | vfx-shot-down                      # the warm stack, explicitly
 #
@@ -170,7 +173,7 @@ CMP_FOV_OPT=""
 CMP_FOV_DEG=""
 CAM0_CMD=""
 ENEMY_X=4.2
-case "$VIEW" in caster|opponent|side|compare|all) ;; *) die "VIEW must be caster|opponent|side|compare|all";; esac
+case "$VIEW" in caster|opponent|side|front|back|right|high|near|compare|all) ;; *) die "VIEW must be caster|opponent|side|front|back|right|high|near|compare|all";; esac
 case "$CAMERA" in case|side) ;; *) die "CAMERA must be case|side";; esac
 if [ "$VIEW" = compare ]; then
   [ -n "$CASE" ] || die "VIEW=compare needs CASE=<case-id> (e.g. CASE=zwei-s3)"
@@ -815,7 +818,34 @@ make_outputs() { # dir view
 }
 
 # ---------------------------------------------------------------- views
-players_of() { case "$1" in caster) echo Caster ;; opponent) echo "Caster Target" ;; side|compare) echo "Caster Watcher" ;; esac; }
+players_of() { case "$1" in caster) echo Caster ;; opponent) echo "Caster Target" ;; side|front|back|right|high|near|compare) echo "Caster Watcher" ;; esac; }
+
+# orbit_cam <view>: "x y z yaw pitch" of the spectator camera for the orbit views, relative to the caster (CX, Y, CZ) facing
+# +z with the target DISTANCE ahead. Each camera looks at the caster's chest / swing so the whole blade is in frame; front sits
+# 2 blocks beside the target line so the target does not hide the caster; near = a bystander at eye height ~2.4 blocks away.
+orbit_cam() {
+  python3 -I -c '
+import math, sys
+v, cx, y, cz, d = sys.argv[1], *map(float, sys.argv[2:])
+cams = {  # (camera offset, look-at offset) from the caster feet; x = +east = the caster left, z = forward
+    "side": ((6.0, 1.0, d / 2), None),
+    "right": ((-6.0, 1.0, d / 2), None),
+    "front": ((2.0, 1.7, d + 3.0), (0.0, 1.2, 0.6)),
+    "back": ((-1.0, 2.0, -5.0), (0.0, 1.2, 0.8)),
+    "high": ((4.0, 5.8, -1.5), (0.0, 0.9, 1.0)),
+    "near": ((2.2, 1.62, 1.2), (0.0, 1.2, 0.3)),
+}
+c, look = cams[v]
+if look is None:
+    yaw, pitch = (90.0 if c[0] > 0 else -90.0), 8.0
+else:
+    dx, dy, dz = (look[i] - c[i] for i in range(3))
+    yaw = math.degrees(math.atan2(-dx, dz))
+    pitch = -math.degrees(math.atan2(dy, math.hypot(dx, dz)))
+print("%.2f %.2f %.2f %.1f %.1f" % (cx + c[0], y + c[1], cz + c[2], yaw, pitch))
+' "$1" "$CX" "$Y" "$CZ" "$DISTANCE"
+}
+
 
 in_arena() { # player -> 0 when in the overworld, x/z in the 300s
   local dim pos
@@ -847,11 +877,11 @@ place_scene() { # view target_z
       rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" -v d="$ENEMY_X" 'BEGIN{printf "%.2f", x+d}') $Y $CZ $(dummy_nbt 90)" >/dev/null
       rcon "gamemode spectator Watcher" >/dev/null
       rcon "$CAM0_CMD" >/dev/null ;;
-    side)
+    side|front|back|right|high|near)
       summon_target
       rcon "gamemode spectator Watcher" >/dev/null
-      tp Watcher "$(awk -v x="$CX" 'BEGIN{printf "%.1f", x+6}')" "$(awk -v y="$Y" 'BEGIN{printf "%.1f", y+1.0}')" \
-        "$(awk -v z="$CZ" -v d="$DISTANCE" 'BEGIN{printf "%.1f", z+d/2}')" 90 8 ;;
+      # shellcheck disable=SC2046
+      tp Watcher $(orbit_cam "$view") ;;
   esac
 }
 
@@ -864,7 +894,7 @@ prepare_view() {
   case "$view" in
     caster)   VIEWER="Caster" ;;
     opponent) VIEWER="Target"; DUMMY_CASTER=1 ;;
-    side)     VIEWER="Watcher"; DUMMY_CASTER=1 ;;
+    side|front|back|right|high|near) VIEWER="Watcher"; DUMMY_CASTER=1 ;;
     compare)  VIEWER="Watcher"; DUMMY_CASTER=1 ;;
   esac
   res="${RES:-}"

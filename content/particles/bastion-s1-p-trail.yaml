@@ -1,0 +1,10 @@
+# r28 cut trail: big gold -> ember dust along the swept arc.
+id: bastion-s1-p-trail
+shape: { kind: burst, spread_blocks: 0.07 }
+color: { r: 255, g: 200, b: 70 }
+count: 2
+lifetime_ticks: 14
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 255, g: 238, b: 150 }, to: { r: 196, g: 52, b: 12 }, scale: 0.6 }
+speed: 0.0
+force: true
