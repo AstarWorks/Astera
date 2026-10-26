@@ -14,7 +14,8 @@ Owner track `wp/builds-maps`. Seed: audit 2026-10-26. Items: Board prefix `MAP-`
 - Stages: siege-isles (5 islands), annihilation-arena (7, 3 teams), pve-proving-grounds, example-arena. All use one generator and one palette (grass top, stone-brick centre), disc + cone shape, 3-wide bridges.
 - Keep = low wall arc + 2 pillars; max height +3-4 blocks; one tree type; team colour only on rim trim and banners.
 - Schematic loader is a dead stub (`InMemorySchematicLoader`). Several stages share one world at +-300 offsets, one match at a time.
-- Lobby buildings are tiny (stalls, one pavilion); the training island is a flat strip with targets.
+- Lobby is a town (MAP-07): hub buildings (Play gate house, Travel station, Social pergola, Market arch + stalls), a Guild Hall (17x8 through-hall, gabled roof, pennant mast) north of the fountain, and a practice ground. First "structure parts" layer: `LobbyStructurePart` (palette + layers text format, 4-way rotation) used by the Guild Hall and the weapon stands.
+- Weapon test range on the training island: gun lanes (yellow), melee pit (red) and a new staff bay (purple, 3 target lanes `staff-5/8/11`), each with a roofed stand, name board and a floor ribbon from the entry gate; a "try all three" board at the gate. Lobby marker_version 6.
 
 ## 理想形
 Two layers: keep the procedural base (island, bridge, marker management) and add a "structure parts" layer in a light own format (YAML/JSON palette + layers) that hand-built, exported (`/astera build export`) or AI-written parts can use. Each stage picks a `theme` (palette bundle for top, underside, trees, cover, bridges, light). Siege stages get keep, towers, walls, gates; team colour and landmarks readable from afar (10+ block towers, beacons). An arena version of lobby-gen renders top-down and section PNGs for visual review without CI.
