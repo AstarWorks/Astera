@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.eventbus.listeners.hud
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
@@ -79,7 +80,7 @@ public class ReconnectCountdownHudListener(
     public fun onDisconnected(event: PlayerDisconnectedFromMatch) {
         val deadline = event.willTimeoutAtTick ?: return
         cancel(event.playerId)
-        val handle = scheduler.runRepeatingTicks(
+        val handle = scheduler.runRepeatingTicks(ExecutionScope.Entity(event.playerId.uuid),
             initialDelayTicks = 0L,
             periodTicks = TICKS_PER_SECOND,
         ) { pushTick(event.playerId, deadline) }

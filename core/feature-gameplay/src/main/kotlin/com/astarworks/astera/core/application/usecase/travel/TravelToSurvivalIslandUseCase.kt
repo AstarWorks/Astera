@@ -1,5 +1,9 @@
 package com.astarworks.astera.core.application.usecase.travel
 
+import java.util.concurrent.CompletableFuture
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.executor
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPartyRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -51,9 +55,9 @@ public class TravelToSurvivalIslandUseCase(
     private val defaultVisibility: IslandVisibility = IslandVisibility.PartyOnly,
 ) {
 
-    public fun travel(playerId: PlayerId): Result<Unit, TravelError> {
+    public fun travel(playerId: PlayerId): CompletableFuture<Result<Unit, TravelError>> {
         val party = parties.forPlayer(playerId)
-            ?: return Result.failure(TravelError.NoParty)
+            ?: return CompletableFuture.completedFuture(Result.failure(TravelError.NoParty))
 
         val existing = islands.forParty(party.id)
         val island = if (existing != null) {
@@ -67,9 +71,9 @@ public class TravelToSurvivalIslandUseCase(
                 visibility = defaultVisibility,
             )) {
                 is Result.Success -> created.value
-                is Result.Failure -> return Result.failure(
+                is Result.Failure -> return CompletableFuture.completedFuture(Result.failure(
                     TravelError.IslandLoadFailed(created.error::class.simpleName ?: "Unknown"),
-                )
+                ))
             }
         }
 
@@ -80,25 +84,25 @@ public class TravelToSurvivalIslandUseCase(
                 // the cached island.world in case the manager re-mapped on
                 // load.
                 val worldId = loaded.value
-                val teleported = worldGateway.teleport(
+                return worldGateway.teleportAsync(
                     playerId = playerId,
                     at = DEFAULT_ISLAND_SPAWN,
                     world = worldId,
-                )
-                if (!teleported) return Result.failure(TravelError.TeleportFailed)
-
-                eventBus.publish(
-                    PlayerArrivedAtIsland(
-                        playerId = playerId,
-                        islandId = island.id,
-                        atTick = scheduler.currentTick(),
-                    ),
-                )
-                return Result.success(Unit)
+                ).thenApplyAsync({ moved ->
+                    if (!moved) return@thenApplyAsync Result.failure(TravelError.TeleportFailed)
+                    eventBus.publish(
+                        PlayerArrivedAtIsland(
+                            playerId = playerId,
+                            islandId = island.id,
+                            atTick = scheduler.currentTick(),
+                        ),
+                    )
+                    return@thenApplyAsync Result.success(Unit)
+                }, scheduler.executor(ExecutionScope.Entity(playerId.uuid)))
             }
-            is Result.Failure -> return Result.failure(
+            is Result.Failure -> return CompletableFuture.completedFuture(Result.failure(
                 TravelError.IslandLoadFailed(loaded.error::class.simpleName ?: "Unknown"),
-            )
+            ))
         }
     }
 

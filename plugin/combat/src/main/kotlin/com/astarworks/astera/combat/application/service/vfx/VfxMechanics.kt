@@ -26,6 +26,9 @@ internal class VfxMechanics(
 
     fun shutdown() = player.shutdown()
 
+    /** Ends every performance of [caster] now (death, quit, world change). */
+    fun endFor(caster: com.astarworks.astera.core.domain.player.PlayerId) = player.endFor(caster)
+
     fun play(m: Mechanic.PlayVfx, ctx: MechanicContext, scale: Double, follow: Boolean?, freeze: List<VfxFreeze> = emptyList()) {
         val world = ctx.worldId ?: return log.debug("PlayVfx {} dropped: ctx.worldId is null", m.vfxId)
         val trackedTarget = if (m.trackBoundTarget) {

@@ -1,6 +1,6 @@
 package com.astarworks.astera.match.application.service.death
 
-import com.astarworks.astera.combat.domain.damage.DamageSource
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.domain.event.PlayerKilled
@@ -118,16 +118,16 @@ public class DeathRespawnCoordinator(
         val camTicks = config.effectiveDeathCamSeconds * TICKS_PER_SECOND
         if (killer != null && camTicks > 0 && spectator != null) {
             spectator.setCameraTarget(victim, killer)
-            state.tasks += scheduler.runLaterTicks(camTicks.toLong()) { spectator.releaseCameraTarget(victim) }
+            state.tasks += scheduler.runLaterTicks(ExecutionScope.Entity(victim.uuid), camTicks.toLong()) { spectator.releaseCameraTarget(victim) }
         } else {
             spectator?.releaseCameraTarget(victim)
         }
 
         for (second in 0 until config.respawnDelaySeconds) {
             val remaining = config.respawnDelaySeconds - second
-            state.tasks += scheduler.runLaterTicks(second * TICKS_PER_SECOND.toLong()) { showCountdown(victim, remaining) }
+            state.tasks += scheduler.runLaterTicks(ExecutionScope.Entity(victim.uuid), second * TICKS_PER_SECOND.toLong()) { showCountdown(victim, remaining) }
         }
-        state.tasks += scheduler.runLaterTicks(config.respawnDelaySeconds * TICKS_PER_SECOND.toLong()) {
+        state.tasks += scheduler.runLaterTicks(ExecutionScope.Entity(victim.uuid), config.respawnDelaySeconds * TICKS_PER_SECOND.toLong()) {
             pending.remove(victim)
             respawn(victim, match.id, config)
         }
@@ -191,13 +191,13 @@ public class DeathRespawnCoordinator(
             protectionSeconds = config.spawnProtectionSeconds,
             initialHealth = healthGateway.getMaxHealth(victim) ?: DEFAULT_MAX_HP,
         )
-        when (val outcome = respawnUseCase.respawn(spec)) {
+        respawnUseCase.respawn(spec).thenAccept { outcome -> when (outcome) {
             is Result.Success -> log.debug("Respawned {} in match {}.", victim, match.id)
             is Result.Failure -> {
                 log.warn("Respawn for {} in match {} failed: {}", victim, match.id, outcome.error)
                 reviveInPlace(victim)
             }
-        }
+        } }
     }
 
     /** A respawn that cannot place the player must still leave them alive (never stuck at 0 HP in the arena). */

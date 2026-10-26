@@ -1,27 +1,38 @@
-# Zwei West Section 3 Ishmael / EGO
+# Zwei West Section 3 Ishmael / E.G.O 城塞の暁 (独自設計)
 
-状態: wiki由来・原動画発動未確認
+**参照映像なし・独自設計**。動画 `Svaaq9F7Ty8` に E.G.O の発動は見当たらない (31.767 以降は紹介の長いイラスト = outro)。case の start/end (0–3.8 s) は比較アプリの枠を満たすためだけの仮置きで、原動画との一致は主張しない。
+bind: Q `bastion-greatsword-ego`。
 
-原資料: [フレーム解析](/reference/bastion-greatsword/ego.json) / [kit](/reference/bastion-greatsword/kit.md)
+## 設計 (動画からではなく skill 名 / wiki kit の説明から)
 
-| source seconds | source frame | game tick | range |
-|---:|---:|---:|---|
+| tick | 内容 | 実装 |
+|---|---|---|
+| t0–30 | 大盾 (半透明障壁) を掲げる | `bastion-ego-guard` (shield 30 tick) |
+| t14 | 大剣を構える音 | play_sound |
+| t20–26 | 前へ跳ぶ (キャスター移動) | `propel` up 0.3 (t20) + `dash_strike` 2.8 block / 6 tick (stop 1.6) |
+| t27–31 | 大剣を高く掲げ床へ突き立てる | `bastion-ego-slam` の rig (掲げ → 叩きつけ) |
+| t31 | 黄金の光柱 (高さ 10) + 水平の円盤 + 四方へ走る稲妻 | VFX + damage 28 (charge 消費) + knockback 1.6 + camera shake |
 
-1 tick = 50 ms。量子化は最近傍、半tickは切り上げ。原資料記載の接触遮蔽・コイン対応の不確実性は保持。旧intentは履歴資料であり、新しい再現結果ではない。
+### キャスター移動 (設計値)
+- 前方へ 2.8 block (t20–26)、頂点で高さ約 0.9 block。VFX はウォークを終えた t27 の位置に置く (`follow:false`)。
 
-## round 2 実装と検証
+## 状態
+独自設計・動作確認中 (反復 2)。操作 (Q + E.G.O ゲージ) と拒否条件の通常入力確認は未実施。原作再現とは呼ばない。
 
-S1/S2/S3の接触時刻を再解析に合わせ、薙ぎの幅・薄さを修正。DEFは観測された防御区間に合わせた。
+## 反復ログ
+- 反復1: 障壁→跳躍→光柱+稲妻は動作。稲妻の本数・色は仮。
+- 反復2: 星グリフ小型化、粒子クリット系化。
 
-比較用接触tick: 原動画の攻撃接触なし。源のコイン対応にある不確実性は保持する。
+- 反復1〜6: 障壁→跳躍 (propel up 0.3 + dash 2.8 block)→大剣を突き立て→黄金の柱 + 稲妻 + ノックバックを実機で確認。
 
-状態: 現版撮影あり。原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。
+### 最終判定
+**独自設計・動作確認済 (`--force` 撮影)**。通常入力 (Q + E.G.O ゲージ満タン、拒否条件) は未確認。原作再現とは呼ばない。
 
-- 内容SHA-256: `e346c27b6bcf401c685f323dd47e744b85c0e21e92ea23e575e6bd5606273836`
-- 参照SHA-256: `a40478a425ea3fcf5bbad88a61b0bc624b7e2e17e746b01723ac5a046b6ce99a`
-- 修正反復: 1 / 最大4（同版の撮影停止による再撮影は別記）
-- 撮影: `build/vfx-shot/bastion-greatsword-ego/compare/`、標的HP: 172.448f
-- [共通起点の比較画像](/evidence/bastion-greatsword-ego.png)
-- [全操作の記録](/report/bastion-greatsword)
-
-強制発動の撮影は資源・クールダウン・入力の証明ではない。HP減少は10%・2倍のランダムクリティカルの影響を受け、実ヒット数と読み替えない。
+## 反復7-9 (管理者レビュー対応)
+| 指摘 | 対応 |
+|---|---|
+| 剣が2本見える | 新 mechanic `hide_held_item` (他視点の手持ちを非表示、ランタイム変更) を各 skill に追加。リグの大剣のみが見える |
+| 接触 tick に斬撃が無い | リグを接触の 6tick 前から開始、三日月スプライトを接触の 3tick 前から出し接触 tick でピーク。撮影の tick 同期ずれは約 2tick |
+| 三日月が太い多角形の円盤 | 風切りは外縁のみの細帯、主体は先端が針状の三日月スプライト (bastion-arc、金 + 白縁)、roll で傾ける |
+| hit2 の黄色い水平帯が小さい | 不定形ベタ塗りスプライト (bastion-ink) を close-up の占有率に合わせて追加 |
+| S3 の円盤が無い | 原因: text display (fixed) の水平配置が実機で描画されない (preview では出る)。ブロックの放射スラブに置換して表示を確認 |

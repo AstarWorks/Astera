@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.entity
 
+import java.util.concurrent.CopyOnWriteArrayList
+
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -57,7 +59,7 @@ internal class PaperNpcBodyService(
     private val log = LoggerFactory.getLogger(javaClass)
     private val tagKey = NamespacedKey(plugin, TAG)
     private val bodies = ConcurrentHashMap<EntityHandle, UUID>()
-    private val pending = java.util.concurrent.CopyOnWriteArrayList<PendingBody>()
+    private val pending = CopyOnWriteArrayList<PendingBody>()
 
     /**
      * Worlds that are being created after startup (the lobby world, ADR-0180). A body for one of
@@ -68,12 +70,12 @@ internal class PaperNpcBodyService(
     var awaitedWorlds: Set<String> = emptySet()
 
     fun flush() {
-        if (plugin.server.isPrimaryThread) flushPending() else plugin.server.scheduler.runTask(plugin, Runnable { flushPending() })
+        plugin.server.globalRegionScheduler.execute(plugin, Runnable { flushPending() })
     }
 
     fun start() {
         plugin.server.pluginManager.registerEvents(this, plugin)
-        plugin.server.scheduler.runTask(plugin, Runnable { flushPending() })
+        plugin.server.globalRegionScheduler.execute(plugin, Runnable { flushPending() })
     }
 
     override fun materialize(
@@ -86,17 +88,17 @@ internal class PaperNpcBodyService(
     ) {
         val request = PendingBody(handle, world, position, yaw, pitch, displayName)
         val run = Runnable { if (!trySpawn(request)) pending += request }
-        if (plugin.server.isPrimaryThread) run.run() else plugin.server.scheduler.runTask(plugin, run)
+        schedule(request, run)
     }
 
     override fun removeAll() {
         val remove = Runnable {
             pending.clear()
-            bodies.values.forEach { id -> plugin.server.getEntity(id)?.remove() }
+            bodies.values.forEach { id -> plugin.server.getEntity(id)?.let { entity -> entity.scheduler.execute(plugin, Runnable { entity.remove() }, null, 1L) } }
             bodies.keys.forEach { handle -> registry?.release("npc:${handle.id}") }
             bodies.clear()
         }
-        if (plugin.server.isPrimaryThread) remove.run() else plugin.server.scheduler.runTask(plugin, remove)
+        remove.run()
     }
 
     /**
@@ -112,7 +114,7 @@ internal class PaperNpcBodyService(
         if (pending.isEmpty()) return
         val batch = pending.toList()
         pending.clear()
-        batch.forEach { if (!trySpawn(it)) pending += it }
+        batch.forEach { req -> schedule(req, Runnable { if (!trySpawn(req)) pending += req }) }
     }
 
     /** `false` when no world is loaded yet (caller keeps the request pending). */
@@ -120,7 +122,7 @@ internal class PaperNpcBodyService(
         // "lobby" is the logical world name: the sky-island world (ADR-0180) when loaded,
         // else the server's main world (see PaperWorldGateway.lobbySpawn).
         val named = plugin.server.getWorld(req.world.value)
-        if (named == null && req.world.value in awaitedWorlds) return false
+        if (req.world.value in awaitedWorlds) return false
         val bukkitWorld = named ?: plugin.server.worlds.firstOrNull()
             ?: return false
         val location = Location(bukkitWorld, req.position.x, req.position.y, req.position.z, req.yaw, req.pitch)
@@ -138,6 +140,13 @@ internal class PaperNpcBodyService(
         bodies[req.handle] = villager.uniqueId
         registry?.claim("npc:${req.handle.id}", villager.uniqueId)
         return true
+    }
+
+    private fun schedule(req: PendingBody, action: Runnable) {
+        val world = plugin.server.getWorld(req.world.value) ?: run { pending += req; return }
+        plugin.server.regionScheduler.execute(plugin, world,
+            kotlin.math.floor(req.position.x).toInt() shr 4,
+            kotlin.math.floor(req.position.z).toInt() shr 4, action)
     }
 
     private data class PendingBody(

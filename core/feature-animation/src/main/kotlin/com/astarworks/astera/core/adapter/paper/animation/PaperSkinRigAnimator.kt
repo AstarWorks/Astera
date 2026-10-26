@@ -1,11 +1,19 @@
 package com.astarworks.astera.core.adapter.paper.animation
 
+import java.util.concurrent.ConcurrentHashMap
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry
 import com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator
 import com.astarworks.astera.core.application.port.outbound.ticks
+import com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.presentation.PresentationDisplay
+import com.astarworks.astera.core.domain.presentation.PresentationKind
+import com.astarworks.astera.core.domain.presentation.PresentationLease
+import com.astarworks.astera.core.domain.presentation.PresentationMask
 import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
 import com.astarworks.astera.core.domain.animation.skinrig.RigPartTransform
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
@@ -24,14 +32,8 @@ import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Display
 import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.SkullMeta
-import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.potion.PotionEffectType
 import org.bukkit.profile.PlayerTextures
 import org.bukkit.util.Transformation
 import org.joml.Quaternionf
@@ -53,11 +55,13 @@ import org.slf4j.LoggerFactory
  *    perfectly smoothly, but the vanilla attachment height changes with pose and passengers do not follow
  *    body yaw, so the explicit teleport was chosen; the cost is up to one tick of lag while moving, which
  *    `lock_movement` keeps small.)
- *  - **Hiding the real player.** `isInvisible = true` hides the body; armor and held items are blanked with
- *    equipment packets to tracking viewers (re-sent every two ticks) and restored at the end. The player's
- *    own first-person view is unchanged and the vanilla hitbox stays.
+ *  - **Hiding the real player (ADR-0276).** The emote claims an EMOTE lease of [IPlayerPresentation]: the real body, armor and
+ *    held item are hidden by the lease service in one bundle with the reveal of the (staged) rig, and given back by its release.
+ *    This class sends no equipment or invisibility packets itself. A skill performance preempts an emote, and an emote is
+ *    refused ([SkinRigError.Busy]) while a performance runs. The player's own first-person view and the hitbox are unchanged.
  *  - **Held item.** The main-hand item is shown by an extra ItemDisplay riding the right-arm transform
- *    (`THIRDPERSON_RIGHTHAND` context).
+ *    (`THIRDPERSON_RIGHTHAND` context), only while the lease is held. Skill performances do not use this transport: they ride
+ *    the caster as passengers (see the VFX player).
  *
  * Main-thread only. A rig is torn down on finish, death, quit, world change failure or [shutdown].
  */
@@ -65,7 +69,8 @@ public class PaperSkinRigAnimator(
     private val server: Server,
     private val scheduler: IScheduler,
     private val registry: () -> ISkinRigRegistry?,
-) : ISkinRigAnimator, Listener {
+    private val presentation: () -> IPlayerPresentation?,
+) : ISkinRigAnimator {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -74,10 +79,9 @@ public class PaperSkinRigAnimator(
         val playback: SkinRigPlayback,
         val slim: Boolean,
         val displays: Map<SkinRigBone, ItemDisplay>,
-        val wasInvisible: Boolean,
     ) {
         var held: ItemDisplay? = null
-        var heldStack: ItemStack? = null
+        var lease: PresentationLease? = null
         var lockedMovement: Boolean = false
 
         /** Estimated client-side body yaw (see [PaperSkinRigAnimator.advanceBodyYaw]); seeded with the head yaw. */
@@ -86,18 +90,8 @@ public class PaperSkinRigAnimator(
         var lastZ: Double = player.location.z
     }
 
-    private val rigs = LinkedHashMap<PlayerId, Rig>()
+    private val rigs = ConcurrentHashMap<PlayerId, Rig>()
     private var task: IScheduler.TaskHandle? = null
-
-    /** Registers the quit listener; call once from the plugin's `onEnable`. */
-    public fun start(plugin: JavaPlugin) {
-        server.pluginManager.registerEvents(this, plugin)
-    }
-
-    @EventHandler
-    public fun onQuit(event: PlayerQuitEvent) {
-        rigs[PlayerId(event.player.uniqueId)]?.let { teardown(it) }
-    }
 
     /** Removes every rig and restores every player; call from `onDisable`. */
     public fun shutdown() {
@@ -107,11 +101,18 @@ public class PaperSkinRigAnimator(
     }
 
     override fun play(playerId: PlayerId, animation: CustomAnimationId): Result<Unit, SkinRigError> {
-        if (!server.isPrimaryThread) return Result.failure(SkinRigError.Platform("off-main"))
+        if (server.getPlayer(playerId.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return Result.failure(SkinRigError.Platform("off-main"))
         val definition = registry()?.find(animation) ?: return Result.failure(SkinRigError.UnknownAnimation(animation))
         val player = server.getPlayer(playerId.uuid) ?: return Result.failure(SkinRigError.UnknownPlayer(playerId))
         if (player.isDead) return Result.failure(SkinRigError.Platform("player-dead"))
         rigs[playerId]?.let { teardown(it) }
+        val lease = when (val claimed = presentation()?.claim(
+            playerId, EMOTE_MASK, PresentationKind.EMOTE, onRevoked = { rigs[playerId]?.let { teardown(it, revoked = true) } },
+        )) {
+            null -> null
+            is Result.Success -> claimed.value
+            is Result.Failure -> return Result.failure(SkinRigError.Busy(playerId))
+        }
 
         val profile = player.playerProfile
         val slim = profile.textures.skinModel == PlayerTextures.SkinModel.SLIM
@@ -137,17 +138,20 @@ public class PaperSkinRigAnimator(
                 d.shadowStrength = if (bone == SkinRigBone.BODY) SHADOW_STRENGTH else 0f
                 d.interpolationDuration = 1
                 d.teleportDuration = 1
+                // Staged: invisible until the lease reveals them in the bundle that also hides the real body (ADR-0276).
+                d.viewRange = if (lease != null) 0f else 1f
                 d.transformation = transformation(rest.bones.getValue(bone), cancelItemFlip = true)
             }
         }
-        val rig = Rig(player, playback, slim, displays, player.isInvisible)
+        val rig = Rig(player, playback, slim, displays)
+        rig.lease = lease
         rigs[playerId] = rig
-        // Spawn the held-item display in the same tick the equipment packet blanks the real one, or the sword
-        // vanishes until the first tick() (handoff gap).
-        updateHeld(rig, origin, rest.heldItem)
-        player.isInvisible = true
+        spawnHeld(rig, origin, rest.heldItem, staged = lease != null)
         if (definition.lockMovement) lockMovement(player, true).also { rig.lockedMovement = true }
-        hideEquipment(rig)
+        if (lease != null) {
+            val shown = (displays.values + listOfNotNull(rig.held)).map { PresentationDisplay(it.uniqueId, 1f) }
+            presentation()?.reveal(lease, shown)
+        }
         ensureTask()
         return Result.success(Unit)
     }
@@ -163,17 +167,20 @@ public class PaperSkinRigAnimator(
     // ---- tick -----------------------------------------------------------------
 
     private fun ensureTask() {
-        if (task?.isActive == true) return
-        task = scheduler.runRepeating(ticks(1), ticks(1)) { tick() }
+        if (task?.isCancelled == false) return
+        task = scheduler.repeat(ExecutionScope.Global, ticks(1), ticks(1)) { tick() }
     }
 
     private fun tick() {
         for (rig in rigs.values.toList()) {
-            try {
-                step(rig)
-            } catch (e: Exception) {
-                log.warn("Skin rig tick failed for {}; tearing it down", rig.player.name, e)
-                teardown(rig)
+            scheduler.run(ExecutionScope.Entity(rig.player.uniqueId), kotlin.time.Duration.ZERO) {
+
+                try {
+                    step(rig)
+                } catch (e: Exception) {
+                    log.warn("Skin rig tick failed for {}; tearing it down", rig.player.name, e)
+                    teardown(rig)
+                }
             }
         }
         if (rigs.isEmpty()) {
@@ -197,73 +204,59 @@ public class PaperSkinRigAnimator(
         val transforms = SkinRigTransforms.compute(rig.playback.frame(), rig.slim, headLook(rig))
         val at = anchor(rig)
         for ((bone, display) in rig.displays) {
-            display.teleport(at)
-            display.transformation = transformation(transforms.bones.getValue(bone), cancelItemFlip = true)
+            display.teleportAsync(at).thenAccept { moved ->
+                if (moved) scheduler.run(ExecutionScope.Entity(display.uniqueId), kotlin.time.Duration.ZERO) {
+                    display.transformation = transformation(transforms.bones.getValue(bone), cancelItemFlip = true)
+                }
+            }
         }
-        updateHeld(rig, at, transforms.heldItem)
-        if (!player.isInvisible) player.isInvisible = true
-        if (rig.playback.tick % 2 == 0) hideEquipment(rig)
+        rig.held?.let { held ->
+            held.teleportAsync(at).thenAccept { moved ->
+                if (moved) scheduler.run(ExecutionScope.Entity(held.uniqueId), kotlin.time.Duration.ZERO) {
+                    held.transformation = transformation(transforms.heldItem)
+                }
+            }
+        }
     }
 
-    private fun updateHeld(rig: Rig, at: Location, part: RigPartTransform) {
+    /**
+     * The 7th display shows the main-hand stack, only because this emote holds the hand lease (a performance would draw its own
+     * single weapon and refuses the emote). The hotbar is frozen while the lease is held, so the stack cannot change.
+     */
+    private fun spawnHeld(rig: Rig, at: Location, part: RigPartTransform, staged: Boolean) {
         val current = rig.player.inventory.itemInMainHand
-        if (current.type.isAir) {
-            rig.held?.remove()
-            rig.held = null
-            rig.heldStack = null
-            return
+        if (current.type.isAir || !staged) return
+        rig.held = at.world.spawn(at, ItemDisplay::class.java) { d ->
+            PaperManagedEntities.mark(d, "skinrig:${rig.player.uniqueId}")
+            d.setItemStack(current.clone())
+            d.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.THIRDPERSON_RIGHTHAND
+            d.billboard = Display.Billboard.FIXED
+            d.shadowRadius = 0f
+            d.interpolationDuration = 1
+            d.teleportDuration = 1
+            d.viewRange = 0f
+            d.transformation = transformation(part)
         }
-        var display = rig.held
-        if (display == null || rig.heldStack?.isSimilar(current) != true) {
-            display?.remove()
-            display = at.world.spawn(at, ItemDisplay::class.java) { d ->
-                PaperManagedEntities.mark(d, "skinrig:${rig.player.uniqueId}")
-                d.setItemStack(current.clone())
-                d.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.THIRDPERSON_RIGHTHAND
-                d.billboard = Display.Billboard.FIXED
-                d.shadowRadius = 0f
-                d.interpolationDuration = 1
-                d.teleportDuration = 1
-                d.transformation = transformation(part)
-            }
-            rig.held = display
-            rig.heldStack = current.clone()
-            return
-        }
-        display.teleport(at)
-        display.transformation = transformation(part)
     }
 
     // ---- teardown -------------------------------------------------------------
 
-    private fun teardown(rig: Rig) {
+    /** [revoked]: the lease was taken away (quit, world change, a performance): nothing to give back, only to remove. */
+    private fun teardown(rig: Rig, revoked: Boolean = false) {
         val player = rig.player
         val id = PlayerId(player.uniqueId)
         if (rigs[id] === rig) rigs.remove(id)
-        rig.displays.values.forEach { it.remove() }
-        rig.held?.remove()
         if (rig.lockedMovement) lockMovement(player, false)
-        player.isInvisible = rig.wasInvisible || player.hasPotionEffect(PotionEffectType.INVISIBILITY)
-        showEquipment(rig)
-    }
-
-    // ---- player body hiding ----------------------------------------------------
-
-    private fun hideEquipment(rig: Rig) {
-        val viewers = rig.player.trackedBy
-        if (viewers.isEmpty()) return
-        val blank = ItemStack(Material.AIR)
-        val packet = HIDDEN_SLOTS.associateWith { blank }
-        viewers.forEach { it.sendEquipmentChange(rig.player, packet) }
-    }
-
-    private fun showEquipment(rig: Rig) {
-        val player = rig.player
-        if (!player.isOnline) return
-        val viewers = player.trackedBy
-        if (viewers.isEmpty()) return
-        val packet = HIDDEN_SLOTS.associateWith { player.inventory.getItem(it) ?: ItemStack(Material.AIR) }
-        viewers.forEach { it.sendEquipmentChange(player, packet) }
+        val all = rig.displays.values + listOfNotNull(rig.held)
+        val lease = rig.lease
+        rig.lease = null
+        if (lease != null && !revoked) {
+            // Owner leg first (hand back + displays scaled to zero), others in one bundle with the removal; the entities go a tick later.
+            presentation()?.release(lease, all.map { it.uniqueId })
+            all.forEach { d -> scheduler.run(ExecutionScope.Entity(d.uniqueId), ticks(1)) { d.remove() } }
+        } else {
+            all.forEach { it.remove() }
+        }
     }
 
     private fun lockMovement(player: Player, locked: Boolean) {
@@ -340,13 +333,7 @@ public class PaperSkinRigAnimator(
         const val MOVED_SQ = 0.0025
         const val MAX_HEAD_OFFSET = 50f
 
-        val HIDDEN_SLOTS = listOf(
-            EquipmentSlot.HAND,
-            EquipmentSlot.OFF_HAND,
-            EquipmentSlot.HEAD,
-            EquipmentSlot.CHEST,
-            EquipmentSlot.LEGS,
-            EquipmentSlot.FEET,
-        )
+        /** An emote replaces the whole body and the held item; it does not pin the pose (the player walks). */
+        val EMOTE_MASK = PresentationMask(hand = true, offhand = true, armor = true, body = true)
     }
 }

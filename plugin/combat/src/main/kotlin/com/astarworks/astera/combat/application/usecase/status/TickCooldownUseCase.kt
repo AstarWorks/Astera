@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.usecase.status
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.event.CooldownExpired
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -16,7 +17,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * wiring (AsteraCombatPlugin) may run additional ad-hoc follow-up logic
  * without re-subscribing.
  *
- * Wired by `scheduler.runRepeatingTicks(1L, 1L) { execute() }` in
+ * Wired by `scheduler.runRepeatingTicks(ExecutionScope.Global, 1L, 1L) { execute() }` in
  * `AsteraCombatPlugin.onEnable`. ADR-0155 (Wave 6a-N2) records the wiring +
  * event publish; ADR-0134 (publisher-must-exist) is satisfied because the
  * publisher and the event ship together in this wave.

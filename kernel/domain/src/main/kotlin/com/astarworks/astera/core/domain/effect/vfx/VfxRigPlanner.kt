@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.effect.vfx
 
+import com.astarworks.astera.core.domain.animation.skinrig.RigFrame
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigTransforms
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -31,6 +33,8 @@ public class VfxRigMotion(
     public val scale: Double,
     freezes: List<VfxFreeze> = emptyList(),
     public val sampleTicks: Int = 2,
+    /** The performance body the rig hangs from (`parent: right_hand`); `null` = the arm stays at rest. */
+    public val body: VfxBodyTrack? = null,
 ) {
     /** One client interpolation: rotation (anchor-local) from [from] at rig tick [start] to [to] at [end]. */
     public class Chunk(public val start: Int, public val end: Int, public val from: Quaternion, public val to: Quaternion)
@@ -38,26 +42,16 @@ public class VfxRigMotion(
     /** Effect tick at which rig tick 0 lives (the keyframe clock starts one tick after the spawn). */
     public val base: Int = rig.startTick + VfxTimeline.ANIMATION_DELAY_TICKS
 
-    private val tilt = Quaternion.fromEulerDegrees(rig.tiltYawPitchRoll.x, rig.tiltYawPitchRoll.y, rig.tiltYawPitchRoll.z)
-    private val rest = Quaternion.fromEulerDegrees(rig.restYawPitchRoll.x, rig.restYawPitchRoll.y, rig.restYawPitchRoll.z)
-
     private val windows: List<VfxFreeze> = if (rig.respectHitStop) merge(freezes) else emptyList()
 
     /** (rig tick the clock stops at, frozen ticks). */
     private val stops: List<Pair<Int, Int>>
 
-    private class Resolved(val t: Int, val euler: Vec3, val ease: com.astarworks.astera.core.domain.animation.Easing)
-
-    private val keys: List<Resolved>
+    private val keys = rig.baked.keys
 
     public val chunks: List<Chunk>
 
     init {
-        var cur = Vec3.ZERO
-        keys = rig.swing.map { k ->
-            cur = k.rotateEuler ?: cur
-            Resolved(k.t, cur, k.ease)
-        }
         val stopList = ArrayList<Pair<Int, Int>>()
         var acc = 0
         for (w in windows) {
@@ -87,12 +81,15 @@ public class VfxRigMotion(
         chunks = out
         chunks.forEach {
             val turn = turnDegrees(it.start, it.end)
-            require(turn <= HARD_STEP_DEG) {
+            require(turn <= HARD_STEP_DEG || isSwingStep(it.end)) {
                 "rig '${rig.id}' swing turns ${turn.roundToInt()} degrees in ${it.end - it.start} tick(s) at t=${it.start}: " +
                     "the client would slerp the short way. Lengthen the swing or use a softer ease (max $HARD_STEP_DEG degrees per tick)"
             }
         }
     }
+
+    /** `true` when the swing key at rig tick [t] is a cut (`ease: step`): no slerp, no chunking, the client jumps. */
+    public fun isSwingStep(t: Int): Boolean = keys.any { it.t == t && it.ease == com.astarworks.astera.core.domain.animation.Easing.STEP }
 
     private fun merge(freezes: List<VfxFreeze>): List<VfxFreeze> {
         val out = ArrayList<VfxFreeze>()
@@ -117,24 +114,10 @@ public class VfxRigMotion(
         }
     }
 
-    private fun eulerAt(u: Int): Vec3 {
-        if (keys.isEmpty()) return Vec3.ZERO
-        val first = keys.first()
-        if (u <= first.t) return first.euler
-        val last = keys.last()
-        if (u >= last.t) return last.euler
-        val k = keys.indexOfFirst { it.t >= u }
-        val a = keys[k - 1]
-        val b = keys[k]
-        val f = b.ease.apply((u - a.t).toDouble() / (b.t - a.t))
-        return a.euler + (b.euler - a.euler) * f
-    }
+    private fun eulerAt(u: Int): Vec3 = rig.baked.eulerAt(u)
 
-    /** Exact (eased) rig rotation, anchor-local, at integer rig tick [u]. */
-    private fun exact(u: Int): Quaternion {
-        val e = eulerAt(u)
-        return tilt * Quaternion.fromEulerDegrees(e.x, e.y, e.z) * rest
-    }
+    /** Exact anchor-local rotations were sampled once at content load. */
+    private fun exact(u: Int): Quaternion = rig.baked.rotationAt(u)
 
     /** Euler delta (max component) or quaternion angle, whichever is larger (multi-turn aware). */
     private fun turnDegrees(start: Int, end: Int): Double {
@@ -153,14 +136,46 @@ public class VfxRigMotion(
         return Quaternion.slerp(c.from, c.to, (s - c.start) / (c.end - c.start))
     }
 
+    private val isHand: Boolean = rig.parent == VfxRigParent.RIGHT_HAND
+
+    private val restArm: Landmark = SkinRigTransforms.rightArm(RigFrame.REST, body?.body?.slim ?: false)
+        .let { Landmark(it.joint, VfxBodyTrack.quat(it.rotation)) }
+
+    /** Anchor-local right-arm frame at rig tick [s] (identity for an anchor-parented rig). */
+    public fun armAt(s: Double): Landmark =
+        if (!isHand) Landmark(Vec3.ZERO, Quaternion.IDENTITY) else body?.armAt(s) ?: restArm
+
+    /** Rig-frame orientation (anchor-local): the arm carries the wrist swing. */
+    public fun frameRotationAt(s: Double): Quaternion = armAt(s).rotation * rotationAt(s)
+
+    /** Anchor-local, scaled origin of the rig frame (the grip) at rig tick [s]. */
+    public fun originAt(s: Double): Vec3 {
+        if (!isHand) return rig.pivot * scale
+        val arm = armAt(s)
+        return (arm.position + arm.rotation.rotate(SkinRigTransforms.HELD_GRIP_OFFSET + rig.pivot)) * scale
+    }
+
+    /**
+     * Orientation of the weapon item display (anchor-local): the rig frame times the constant grip pitch. The swing keys are
+     * ABSOLUTE wrist rotations in the arm frame: all-zero keys on a body at rest are exactly what the player holds, and key 0
+     * is free to be any pose (a coil from tick 0; the reference never starts from the held pose). `weapon_tip` / `weapon_edge`
+     * are therefore expressed after the grip pitch: the model blade axis turned by `rotX(72)`.
+     */
+    public fun weaponRotationAt(s: Double): Quaternion = frameRotationAt(s) * weaponOffset
+
+    private val weaponOffset: Quaternion =
+        Quaternion.axisAngle(Vec3(1.0, 0.0, 0.0), Math.toRadians(SkinRigTransforms.HELD_GRIP_PITCH))
+
     /** World-axes rotation (anchor applied) at rig tick [s]. */
-    public fun worldRotationAt(s: Double): Quaternion = anchorRot * rotationAt(s)
+    public fun worldRotationAt(s: Double): Quaternion = anchorRot * frameRotationAt(s)
+
+    /** Anchor-origin-relative world position of the rig origin at rig tick [s]. */
+    public fun originWorldAt(s: Double): Vec3 = anchorRot.rotate(originAt(s))
 
     /** Anchor-origin-relative position of the rig-local point [p] at rig tick [s]. */
-    public fun pointAt(p: Vec3, s: Double): Vec3 =
-        anchorRot.rotate(rig.pivot * scale) + worldRotationAt(s).rotate(p * scale)
+    public fun pointAt(p: Vec3, s: Double): Vec3 = originWorldAt(s) + worldRotationAt(s).rotate(p * scale)
 
-    /** Anchor-origin-relative position of the pivot. */
+    /** Anchor-origin-relative position of the pivot (anchor-parented rigs; constant). */
     public val pivotWorld: Vec3 = anchorRot.rotate(rig.pivot * scale)
 
     private fun shiftStart(l: Int): Int = stops.filter { it.first <= l }.sumOf { it.second }
@@ -207,9 +222,17 @@ public object VfxRigPlanner {
 
     private const val QUAD_BRIGHTNESS: Int = 15
 
-    public fun plan(def: VfxDefinition, rig: VfxRig, anchorRot: Quaternion, scale: Double, freezes: List<VfxFreeze>): List<VfxElementPlan> {
-        val motion = VfxRigMotion(rig, anchorRot, scale, freezes, def.sampleTicks)
+    public fun plan(
+        def: VfxDefinition,
+        rig: VfxRig,
+        anchorRot: Quaternion,
+        scale: Double,
+        freezes: List<VfxFreeze>,
+        body: VfxBodyTrack? = null,
+    ): List<VfxElementPlan> {
+        val motion = VfxRigMotion(rig, anchorRot, scale, freezes, def.sampleTicks, body)
         val out = ArrayList<VfxElementPlan>()
+        if (rig.weapon != null) out += VfxBodyPlanner.plan(def, rig, motion, body)
         rig.parts.forEach { out += partPlan(def, rig, it, motion) }
         rig.trails.forEach { out += trailPlans(def, it, motion) }
         rig.boards.forEach { out += boardPlans(def, it, motion) }
@@ -223,7 +246,7 @@ public object VfxRigPlanner {
     private fun partPlan(def: VfxDefinition, rig: VfxRig, part: VfxRigPart, m: VfxRigMotion): VfxElementPlan {
         val spawn = rig.startTick
         val despawn = minOf(def.durationTicks, rig.endTick ?: def.durationTicks)
-        val partRot = Quaternion.fromEulerDegrees(part.rotateEuler.x, part.rotateEuler.y, part.rotateEuler.z)
+        val partRot = part.rotation
         val size = part.size * m.scale
         fun at(r: Quaternion): DisplayTransform {
             val rw = m.anchorRot * r
@@ -248,6 +271,8 @@ public object VfxRigPlanner {
             initial = at(m.rotationAt(0.0)),
             updates = updates,
             particles = emptyList(),
+            // A part with its own brightness is an effect prop; every other part is the held weapon (ADR-0275).
+            weaponRigShading = part.brightness == null,
         )
     }
 
@@ -332,7 +357,7 @@ public object VfxRigPlanner {
     public fun sampleIntervals(m: VfxRigMotion, startT: Int, endT: Int, stepDeg: Double): List<Pair<Double, Double>> {
         val out = ArrayList<Pair<Double, Double>>()
         for (k in startT until endT) {
-            val angle = Math.toDegrees(m.rotationAt(k.toDouble()).angleTo(m.rotationAt(k + 1.0)))
+            val angle = Math.toDegrees(m.frameRotationAt(k.toDouble()).angleTo(m.frameRotationAt(k + 1.0)))
             val n = ceil(angle / stepDeg - 1e-9).toInt().coerceIn(1, MAX_SUBSAMPLES)
             for (j in 0 until n) out += (k + j.toDouble() / n) to (k + (j + 1.0) / n)
         }
@@ -352,7 +377,7 @@ public object VfxRigPlanner {
         val back = travel.normalize() * -1.0
         val a0 = m.pointAt(board.from, board.at.toDouble())
         val a1 = m.pointAt(board.to, board.at.toDouble())
-        val radius = (mid(board.at.toDouble()) - m.pivotWorld).length()
+        val radius = (mid(board.at.toDouble()) - m.originWorldAt(board.at.toDouble())).length()
         val width = radius * Math.toRadians(board.arcDeg)
         val surf = surface(a0 + back * width, a1 + back * width, a0, a1) ?: return emptyList()
         val clock = fadeClock(def, m, spawn, board.ticks)
@@ -369,7 +394,7 @@ public object VfxRigPlanner {
             val here = m.pointAt(emitter.point, k.toDouble())
             val prev = if (k > emitter.startT) m.pointAt(emitter.point, k - 1.0) else here
             val path = if (k > emitter.startT) {
-                val angle = Math.toDegrees(m.rotationAt(k - 1.0).angleTo(m.rotationAt(k.toDouble())))
+                val angle = Math.toDegrees(m.frameRotationAt(k - 1.0).angleTo(m.frameRotationAt(k.toDouble())))
                 val n = maxOf(
                     ceil(angle / 12.0).toInt(),
                     ceil(prev.distance(here) / emitter.stepBlocks).toInt(),

@@ -4,7 +4,6 @@ import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
-import com.astarworks.astera.core.application.port.outbound.WorldGatewayError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.PlayerReturnedToLobby
@@ -72,22 +71,15 @@ public class TeleportToLobbyOnMatchEndedListener(
             return
         }
 
-        val currentTick = scheduler.currentTick()
+        // The gateway hops to each player's owner itself (inline when already on it) and always completes the
+        // future, so there is no outer entity task here that a respawning victim could retire unseen.
         for (playerId in participants) {
-            when (val outcome = worldGateway.lobbySpawn(playerId)) {
-                is Result.Success -> {
-                    eventBus.publish(
-                        PlayerReturnedToLobby(
-                            playerId = playerId,
-                            atTick = currentTick,
-                        ),
-                    )
+            worldGateway.lobbySpawn(playerId).whenComplete { outcome, failure ->
+                when {
+                    failure != null -> log.warn("Post-match lobby teleport for {} threw: {}", playerId, failure.toString())
+                    outcome is Result.Success -> eventBus.publish(PlayerReturnedToLobby(playerId, scheduler.currentTick()))
+                    outcome is Result.Failure -> log.warn("Post-match lobby teleport for {} failed: {}", playerId, outcome.error::class.simpleName)
                 }
-                is Result.Failure -> log.warn(
-                    "Post-match lobby teleport for {} failed: {}",
-                    playerId,
-                    outcome.error::class.simpleName,
-                )
             }
         }
     }

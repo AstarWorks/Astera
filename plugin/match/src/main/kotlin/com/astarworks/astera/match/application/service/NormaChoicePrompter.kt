@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
@@ -52,7 +53,7 @@ public class NormaChoicePrompter(
         val token = tokens.incrementAndGet()
         pending[playerId] = token
         presentation?.choiceOpened(playerId)
-        scheduler.runLaterTicks(WINDOW_TICKS) {
+        scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), WINDOW_TICKS) {
             val p = mcServer.findPlayer(playerId) ?: return@runLaterTicks
             if (guiAdapter.currentSpec(p)?.id == NormaChoiceGuiSpec.ID) guiAdapter.close(p)
             if (pending.remove(playerId, token)) announceDefault(playerId)

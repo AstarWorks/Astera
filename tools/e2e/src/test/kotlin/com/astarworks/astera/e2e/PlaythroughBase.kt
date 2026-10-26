@@ -11,48 +11,69 @@ import org.assertj.core.api.Assertions.assertThat
  * Server truth (positions, game mode) is read over RCON; everything a player *sees* (sidebar, chat, action bar) is read
  * from the bot's own packets.
  *
- * Matches are played on sky islands in the void `arenas` world (ADR-0246, top layer y=64, players stand at y=65). A console
- * command without `execute in` runs in the overworld, so every arena coordinate below goes through [inArena].
+ * Matches are played on sky islands pasted into a world slot of the one void `world` (ADR-0255): the stage YAML is
+ * stage-local (centre near 0,0) and the match lives at slot origin + local offset. The slot index is in the match's
+ * stage id (`example-arena-slot-1`); [awaitMatch] derives the origin from it, and every helper below that takes
+ * "local" coordinates adds it. [posOf] stays absolute (server truth), [localPosOf] subtracts the origin.
  */
 abstract class PlaythroughBase : E2eBase() {
 
     protected data class MatchLine(val id: String, val phase: String, val raw: String)
 
-    protected fun clean(s: String): String = s.replace(Regex("§.|\u001B\\[[0-9;]*m"), "")
+    /** Origin (x, z) of the slot of the match under test; set by [awaitMatch] / [matchLines] consumers via [originOf]. */
+    protected var originX: Int = 0
+    protected var originZ: Int = 0
 
-    /** [command] executed in the `arenas` world (console commands default to the overworld). */
-    protected fun inArena(command: String): String = rcon("execute in minecraft:arenas $command")
+    /** Slot grid constants, same as `SlotAllocator` defaults (ASTERA_SLOT_COLUMNS=32, min 0,0, pitch 2048). */
+    private val slotPitch = 2048
+    private val slotColumns = 32
 
-    /** Teleports [name] inside the arena world (a bare `tp x y z` from the console would pull the bot into the overworld). */
-    protected fun tpArena(name: String, x: Double, y: Double, z: Double, yaw: Float, pitch: Float) {
-        inArena("run tp $name $x $y $z $yaw $pitch")
+    /** Slot origin encoded in a match list line (`stage=<id>-slot-<n>`), or null when the line names no slot. */
+    protected fun originOf(line: MatchLine): Pair<Int, Int>? =
+        Regex("-slot-(\\d+)").find(line.raw)?.groupValues?.get(1)?.toIntOrNull()?.let { (it % slotColumns) * slotPitch to (it / slotColumns) * slotPitch }
+
+    /** Adopts the slot origin of [line] as the origin the local-coordinate helpers use. */
+    protected fun adoptOrigin(line: MatchLine?) {
+        originOf(line ?: return)?.let { (x, z) -> originX = x; originZ = z }
     }
 
-    /** True when the arena-world block at the cell is [block] (e.g. `minecraft:emerald_block`). */
+    protected fun clean(s: String): String = s.replace(Regex("§.|\u001B\\[[0-9;]*m"), "")
+
+    /** [command] executed in the `world` dimension (the overworld; every slot, lobby included, lives there). */
+    protected fun inArena(command: String): String = rcon("execute in minecraft:overworld $command")
+
+    /** Teleports [name] to a stage-local position of the current slot. */
+    protected fun tpArena(name: String, x: Double, y: Double, z: Double, yaw: Float, pitch: Float) {
+        inArena("run tp $name ${x + originX} $y ${z + originZ} $yaw $pitch")
+    }
+
+    /** True when the block at the stage-local cell is [block] (e.g. `minecraft:emerald_block`). */
     protected fun arenaBlockIs(x: Int, y: Int, z: Int, block: String): Boolean =
-        clean(inArena("if block $x $y $z $block")).startsWith("Test passed")
+        clean(inArena("if block ${x + originX} $y ${z + originZ} $block")).startsWith("Test passed")
 
-    /** True when the arena-world cell holds anything but air. */
+    /** True when the stage-local cell holds anything but air. */
     protected fun arenaSolid(x: Int, y: Int, z: Int): Boolean =
-        clean(inArena("unless block $x $y $z minecraft:air")).startsWith("Test passed")
+        clean(inArena("unless block ${x + originX} $y ${z + originZ} minecraft:air")).startsWith("Test passed")
 
-    /** The dimension id the server says [b] is in (`minecraft:arenas`), or null. */
+    /** The dimension id the server says [b] is in (`minecraft:overworld`), or null. */
     protected fun dimensionOf(b: Bot): String? =
         Regex("\"(minecraft:[a-z_]+)\"").find(rcon("data get entity ${b.name} Dimension"))?.groupValues?.get(1)
 
     /**
-     * Null when [b] stands on a solid block of the arena world (feet above a non-air block, in `minecraft:arenas`),
-     * otherwise a description of what is wrong. This is the "spawns on an island, not in the flat world / the void" proof.
+     * Null when [b] stands on a solid block inside the current slot (feet above a non-air block, within the slot's
+     * 1024-block half extent), otherwise a description of what is wrong. This is the "spawns on an island of its own
+     * slot, not in the lobby / the void" proof.
      */
     protected fun islandStanceProblem(b: Bot): String? {
         val dim = dimensionOf(b)
-        if (dim != "minecraft:arenas") return "${b.name} is in dimension $dim, not minecraft:arenas"
-        val (x, y, z) = posOf(b) ?: return "${b.name} has no position"
+        if (dim != "minecraft:overworld") return "${b.name} is in dimension $dim, not minecraft:overworld"
+        val (x, y, z) = localPosOf(b) ?: return "${b.name} has no position"
+        if (kotlin.math.abs(x) > 512 || kotlin.math.abs(z) > 512) return "${b.name} at local ($x, $y, $z) is outside the slot at ($originX, $originZ)"
         val bx = kotlin.math.floor(x).toInt()
         val bz = kotlin.math.floor(z).toInt()
         val below = kotlin.math.floor(y - 0.001).toInt()
-        if (!arenaSolid(bx, below, bz)) return "${b.name} at ($x, $y, $z) has no block under its feet (cell $bx $below $bz is air)"
-        if (y - (below + 1) > 0.6) return "${b.name} at ($x, $y, $z) is ${y - (below + 1)} blocks above the block under it (falling?)"
+        if (!arenaSolid(bx, below, bz)) return "${b.name} at local ($x, $y, $z) has no block under its feet (cell $bx $below $bz is air)"
+        if (y - (below + 1) > 0.6) return "${b.name} at local ($x, $y, $z) is ${y - (below + 1)} blocks above the block under it (falling?)"
         return null
     }
 
@@ -65,7 +86,7 @@ abstract class PlaythroughBase : E2eBase() {
     protected fun awaitMatch(phase: String, timeoutMs: Long, keepAlive: List<Bot> = emptyList()): MatchLine? {
         val end = System.currentTimeMillis() + timeoutMs
         while (System.currentTimeMillis() < end) {
-            matchLines().firstOrNull { it.phase.equals(phase, ignoreCase = true) }?.let { return it }
+            matchLines().firstOrNull { it.phase.equals(phase, ignoreCase = true) }?.let { adoptOrigin(it); return it }
             keepAlive.forEach { it.nudge() }
             Thread.sleep(500)
         }
@@ -87,6 +108,10 @@ abstract class PlaythroughBase : E2eBase() {
         Regex("\\[(-?[0-9.]+)d, (-?[0-9.]+)d, (-?[0-9.]+)d]").find(rcon("data get entity ${b.name} Pos"))?.let {
             Triple(it.groupValues[1].toDouble(), it.groupValues[2].toDouble(), it.groupValues[3].toDouble())
         }
+
+    /** [posOf] relative to the current slot origin (the coordinates the stage YAML uses). */
+    protected fun localPosOf(b: Bot): Triple<Double, Double, Double>? =
+        posOf(b)?.let { Triple(it.first - originX, it.second, it.third - originZ) }
 
     /** Server-side game mode id (0 survival, 1 creative, 2 adventure, 3 spectator), or null. */
     protected fun gameTypeOf(b: Bot): Int? =

@@ -1,0 +1,64 @@
+# r22 @f3fa0ce9 (wp/integrate-limbus: runtime r21 reveal-tick transform bundled with the hide, animator r21 eased end lift,
+#   vfx r21 opaque sliver shards, particles r21/r22 ember + spark skins without halos, modeler r22 rig tip = held tip profile,
+#   tip parts rooted near the pivot). No director content change. TICKS=72.
+# Ticks = cast tick (compare frame = tick + 6). Every capture: codeRevision f3fa0ce9 (codeDirty false),
+#   contentRevision 4bbf369f29ec (contentDirty false).
+# Published (shared root /IdeaProjects/Astera/build/skill-compare-published/bastion-greatsword-s1/<view>/):
+#   compare  48ef1e10fcd1 (79 f)   side 39e8038ab1a4 (73 f)   opponent b40d32102ce0 (73 f)   caster c5126bfb9373 (73 f, HIDE_HUD=0)
+# Quality: maxRepeatedFrames 1/1/1/2, compare cameraMaxLatenessMs 44. Tries at load 10-17: compare 3 (#1 maxRep 9, #2 frozen t0-15),
+#   side 7 (#1-6 frozen early frames or every-other-frame stutter), opponent 4 (#1 'You were defeated', #2-3 frozen t0-15), caster 1.
+# Display peak (RCON poll, all display types, minus 10 text_display baseline): compare 41, side 41, opponent 42, caster 41.
+
+## 1. Exactly one weapon every tick
+compare  start t0-4 held diagonal, t5 rig in the held angle (dark rig tip), t6 rig near vertical, t7 behind the shoulder: one weapon
+         each frame (cmp-start-zoom, cmp-start-4x). t6 the near-vertical rig shows dark rim | iron core | dark rim with the two rim
+         tips at slightly different heights (oblique view of the beveled tip), not a second blade.
+         end   t50-58 rig, t59 held (arm drops to the vanilla pose, guard shifts ~20 px at 1.6x): one weapon (cmp-end-zoom). PASS.
+side     start t0-4 held, t5 rig, t6+ rig: one blade per frame; the r20 grey untextured bar at t3 is gone (side-start-4x). PASS.
+         end   t52-59 rig, t60 held, ~5 deg change, guard in place (side-end-3x). PASS.
+opponent start t0-1 held edge-on vertical, t2 rig ~40 deg from vertical with the face open, t3-5 the same lean, t6 sweep: one weapon,
+         no detached grey block (r20 t4 gone) (opp-start). But t1 -> t2 is a ~40 deg lean + face turn in one frame (pose pop).
+         end   t48-59 eased lean to vertical, held item back t58 identical: invisible (opp-end). PASS.
+caster   FP t0-4 held (FP hand), t5-57 no weapon in frame, t58 held back already in final pose, no raise (cas-start, cas-end). PASS.
+FPS=60 side start probes (TICKS=10, 33 raw frames; the client renders ~12 distinct frames per 33 under load):
+  p60-1: distinct frames f0,5,7,9,13,16,20,23,25,26,29,31: f0-7 held, f9 rig in the held pose, f13 rig vertical -> 1 blade in all 12.
+  p60-2, p60-3: client frozen f0-17 / f0-13 (no hand-over visible) -> rejected.
+  p60-4: frozen f7-16 across the hand-over; f0,7 held, f17+ rig -> 1 blade in all 8 distinct frames (hand-over tick not seen).
+  p60-5: distinct f0,1,4,5,7,9,11,14,17,20,22,26,31: f0-9 held, f11 rig in the held pose, f14 vertical -> 1 blade in all 13.
+  => 0 double-blade frames in 3 usable probes + the 20 fps side take. Not proven absent (intermittent), but not reproduced.
+
+## 2. Big weighty arcs
+compare t5 held angle -> t6 vertical -> t7 behind the shoulder -> t8-9 sweep through the target; hit 2 low cut t28-32 (cmp-h1, cmp-h2).
+opponent t2-5 raised lean, t6-8 the blade sweeps past the camera, ring t9-15. PASS (weight is founder judgement).
+
+## 3. Contact t8 / t31 (hurt tint, red mask px)
+compare blade at the target t9, tint t10 (+2) / blade t32, tint t33 (+2); side tint t10 / t33; caster FP tint t9 (+1) / t33 (+2);
+opponent warm peak t10 / t32. Within the 0-3 tick client lag. PASS.
+
+## 4. Rings
+hit 1 full ellipse compare t10-14, side t11-14, opponent t9-15 centred; hit 2 ground crescent compare t32-36, side t32-36,
+opponent t31-34. PASS. Minor: opponent t9-10 the ring's outer rim has a ~8 px dark grey band against the sky (opp-h1-tip): reads as
+a dirty edge at close range; compare close-up t10-12 band edge still pixel-stepped at 2x (cmp-slivers).
+
+## 5. Particles: plentiful, animated (8x8 cells with a warm speck)
+compare base ~70-80 -> hit 1 423/537/661 (t10-12), ~400 t13-16, ~220 t20; hit 2 299-729 (t32-35), 260-440 t36-41.
+opponent base ~75 -> 663 (t10), 490-560 t11-14; hit 2 686-851 (t32-35). caster FP 595-603 (t10-11), 837-972 (t33-35).
+side ~15-20 base -> 103-115 (t11-15), 118-122 (t33-36). Specks move frame to frame (cmp-particles t17/19, t38/40). PASS.
+
+## 6. No grey smudges / halos / black "+"
+Sparks = white-gold glints with short rays, embers = solid orange dots with soft edge, no grey ring or halo at 2x (cmp-particles,
+cas-particles). Slivers = orange-hot shards with dark char tails, no grey dashes (cas-particles t11-13, cmp-slivers). No "+". PASS
+(see ring rim note in 4).
+
+## 7. First-person blade coverage
+No rig blade in the FP frame t5-57. PASS.
+
+## 8. Display budget <= 60
+Peak 41-42. PASS.
+
+## Diffs by role
+animator/runtime: opponent (front) start t1 -> t2: held edge-on vertical -> rig ~40 deg lean with the face open in one frame.
+          Side/compare show the rig's first frame in the held angle, so keys 0-1 match the held pose from the side but not the
+          front roll/yaw (cf. r12/r13 learnings). Ease the lean over 2-3 keys or match the held roll at key 0-1.
+vfx-artist: hit-1 ring outer rim dark grey band reads as a dirty edge against the sky at close range (opponent t9-10). Minor.
+modeler / particle-artist / sound: none.

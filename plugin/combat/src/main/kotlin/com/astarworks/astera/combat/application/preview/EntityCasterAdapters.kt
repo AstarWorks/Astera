@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.preview
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.combat.application.port.outbound.IEntityCasterBody
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
@@ -27,6 +29,9 @@ public class EntityTeleportingWorldGateway(
     private val delegate: IWorldGateway,
     private val entities: IEntityCasterBody,
 ) : IWorldGateway by delegate {
-    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean =
-        delegate.teleport(playerId, at, world, yaw, pitch) || entities.teleport(playerId, at, world, yaw, pitch)
+    override fun teleportAsync(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): CompletableFuture<Boolean> =
+        delegate.teleportAsync(playerId, at, world, yaw, pitch).thenCompose { moved ->
+            if (moved) CompletableFuture.completedFuture(true)
+            else entities.teleportAsync(playerId, at, world, yaw, pitch)
+        }
 }

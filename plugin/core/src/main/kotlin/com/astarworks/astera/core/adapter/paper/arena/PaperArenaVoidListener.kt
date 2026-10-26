@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerTeleportEvent
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Void-fall kill plane of the sky-island arenas (ADR-0246). A survival / adventure player who drops below the
@@ -20,11 +21,12 @@ import java.util.UUID
  * solid ground they stood on, so the death burst (stars) lands on the island edge they fell from, not in the void.
  */
 internal class PaperArenaVoidListener(
-    private val killY: (worldName: String) -> Int?,
+    private val killY: (worldName: String, x: Double, z: Double) -> Int?,
     private val killer: VoidFallKiller,
 ) : Listener {
 
-    private val lastGround = HashMap<UUID, Location>()
+    private val lastGround = ConcurrentHashMap<UUID, Location>()
+    private val returning: MutableSet<UUID> = ConcurrentHashMap.newKeySet()
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onMove(event: PlayerMoveEvent) = check(event.player, event.to)
@@ -34,22 +36,30 @@ internal class PaperArenaVoidListener(
     fun onTeleport(event: PlayerTeleportEvent) = check(event.player, event.to)
 
     private fun check(player: Player, to: Location) {
-        val limit = killY(to.world.name) ?: return
+        val limit = killY(to.world.name, to.x, to.z) ?: return
         if (player.gameMode == GameMode.SPECTATOR || player.gameMode == GameMode.CREATIVE || player.isDead) return
         if (to.y >= limit) {
             if (player.isOnGround) lastGround[player.uniqueId] = to.clone()
             return
         }
+        val id = PlayerId(player.uniqueId)
         val ground = lastGround[player.uniqueId]
         // The death is read at the victim's position (star burst): bring the body back to the edge it fell from first.
-        killer.kill(PlayerId(player.uniqueId)) {
-            if (ground != null && ground.world == to.world) player.teleport(ground)
+        if (ground == null || ground.world != to.world) {
+            killer.kill(id)
+            return
+        }
+        if (!returning.add(player.uniqueId)) return
+        player.teleportAsync(ground).whenComplete { _, _ ->
+            returning.remove(player.uniqueId)
+            killer.kill(id)
         }
     }
 
     @EventHandler
     fun onQuit(event: PlayerQuitEvent) {
         lastGround.remove(event.player.uniqueId)
+        returning.remove(event.player.uniqueId)
         killer.forget(PlayerId(event.player.uniqueId))
     }
 }

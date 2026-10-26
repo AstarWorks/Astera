@@ -151,7 +151,7 @@ public class PaperVaultWindow(
 
     private fun goToPage(player: Player, page: Int) {
         val playerId = PlayerId(player.uniqueId)
-        plugin.server.scheduler.runTask(
+        player.scheduler.execute(
             plugin,
             Runnable {
                 if (!player.isOnline) return@Runnable
@@ -162,7 +162,7 @@ public class PaperVaultWindow(
                         AsteraTextDeserializer.deserialize(messages.render(playerId, vaultErrorKey(result.error))),
                     )
                 }
-            },
+            }, null, 1L,
         )
     }
 

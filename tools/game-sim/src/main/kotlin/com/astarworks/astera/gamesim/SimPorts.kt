@@ -1,5 +1,10 @@
 package com.astarworks.astera.gamesim
 
+import java.util.concurrent.CopyOnWriteArrayList
+
+import java.util.concurrent.CompletableFuture
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.DamageApplicationError
 import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
@@ -16,7 +21,6 @@ import com.astarworks.astera.combat.domain.event.StatusApplied
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.combat.domain.status.StatusKind
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
-import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
@@ -95,8 +99,8 @@ public class RecordingWorldGateway(
         recorder.recordSound(scheduler.currentTick(), world.value, at, sound.key, sound.volume, sound.pitch)
     }
 
-    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean {
-        val entity = this.world.find(playerId) ?: return false
+    override fun teleportAsync(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): CompletableFuture<Boolean> {
+        val entity = this.world.find(playerId) ?: return CompletableFuture.completedFuture(false)
         entity.position = at
         if (yaw != null || pitch != null) {
             // Minecraft convention: yaw 0 faces +Z, 90 faces -X; positive pitch looks down.
@@ -109,16 +113,14 @@ public class RecordingWorldGateway(
         }
         if (world != null) entity.world = world
         recorder.recordTeleport(scheduler.currentTick(), playerId, at, entity.world.value)
-        return true
+        return CompletableFuture.completedFuture(true)
     }
 
-    override fun spectatorSpawn(matchId: MatchId, playerId: PlayerId): Result<Unit, WorldGatewayError> =
-        if (teleport(playerId, spectatorSpawn, null)) Result.success(Unit)
-        else Result.failure(WorldGatewayError.UnknownPlayer(playerId))
+    override fun spectatorSpawn(matchId: MatchId, playerId: PlayerId): CompletableFuture<Result<Unit, WorldGatewayError>> =
+        teleportAsync(playerId, spectatorSpawn, null).thenApply { moved -> if (moved) Result.success(Unit) else Result.failure(WorldGatewayError.UnknownPlayer(playerId)) }
 
-    override fun lobbySpawn(playerId: PlayerId): Result<Unit, WorldGatewayError> =
-        if (teleport(playerId, lobbySpawn, null)) Result.success(Unit)
-        else Result.failure(WorldGatewayError.UnknownPlayer(playerId))
+    override fun lobbySpawn(playerId: PlayerId): CompletableFuture<Result<Unit, WorldGatewayError>> =
+        teleportAsync(playerId, lobbySpawn, null).thenApply { moved -> if (moved) Result.success(Unit) else Result.failure(WorldGatewayError.UnknownPlayer(playerId)) }
 }
 
 /** [INearbyTargetQuery] over live [SimEntity] positions (players and mobs, living only). */
@@ -220,7 +222,7 @@ public class SimStatusEffectContainer(
 
     /** Starts the periodic tick. Returns the handle (cancel on shutdown). */
     public fun start(): IScheduler.TaskHandle =
-        scheduler.runRepeatingTicks(initialDelayTicks = TICK_PERIOD, periodTicks = TICK_PERIOD) { tickAll() }
+        scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = TICK_PERIOD, periodTicks = TICK_PERIOD) { tickAll() }
 
     override fun active(playerId: PlayerId): Collection<StatusEffectInstance> =
         active[playerId]?.values?.toList().orEmpty()
@@ -536,7 +538,7 @@ public class SimSpectator : ISpectator {
     private val targets: MutableMap<PlayerId, PlayerId> = ConcurrentHashMap()
 
     /** `"start:<id>"`, `"stop:<id>"`, `"watch:<viewer>-><target>"`, `"release:<id>"` in order. */
-    public val log: MutableList<String> = java.util.concurrent.CopyOnWriteArrayList()
+    public val log: MutableList<String> = CopyOnWriteArrayList()
 
     override fun startSpectating(viewer: PlayerId): Result<Unit, SpectatorError> {
         if (spectating.add(viewer)) log += "start:$viewer"

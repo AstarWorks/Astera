@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import java.util.concurrent.ConcurrentHashMap
+
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -30,7 +32,7 @@ public class PaperEntityEffectsGateway(
 ) : IEntityEffectsGateway {
 
     /** Server tick at which the no-jump modifier of each rooted entity expires. */
-    private val noJumpUntil: MutableMap<java.util.UUID, Int> = java.util.concurrent.ConcurrentHashMap()
+    private val noJumpUntil: MutableMap<java.util.UUID, Int> = ConcurrentHashMap()
     private val noJumpKey: NamespacedKey = NamespacedKey("astera", "root_no_jump")
 
     override fun setVelocity(target: PlayerId, velocity: Vec3) {
@@ -84,13 +86,13 @@ public class PaperEntityEffectsGateway(
         noJumpUntil.merge(living.uniqueId, until) { a, b -> maxOf(a, b) }
         val owner = plugin
         if (owner == null) return
-        server.scheduler.runTaskLater(
+        living.scheduler.execute(
             owner,
             Runnable {
                 val deadline = noJumpUntil[living.uniqueId] ?: return@Runnable
                 if (server.currentTick >= deadline) enableJump(living)
             },
-            ticks.coerceAtLeast(1).toLong() + 1L,
+            null, ticks.coerceAtLeast(1).toLong() + 1L,
         )
     }
 

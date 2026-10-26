@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap
  * "what if the gateway is replaced before the scheduled task fires?"). Tests
  * that want to assert the auto-release behaviour call `releaseCamera`
  * explicitly after the freeze window. The Paper adapter wires
- * `IScheduler.runLater(durationTicks) { releaseCamera(playerId) }`.
+ * `IScheduler.run(durationTicks) { releaseCamera(playerId) }`.
  */
 public class InMemoryCameraGateway(
     private val eventBus: IDomainEventBus,

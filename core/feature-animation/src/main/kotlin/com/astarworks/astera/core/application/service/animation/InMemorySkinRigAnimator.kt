@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service.animation
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry
 import com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator
@@ -30,7 +31,7 @@ public class InMemorySkinRigAnimator(
         runs.remove(playerId)?.task?.cancel()
         val run = Run(SkinRigPlayback(definition))
         runs[playerId] = run
-        run.task = scheduler.runRepeating(ticks(1), ticks(1)) {
+        run.task = scheduler.repeat(ExecutionScope.Entity(playerId.uuid), ticks(1), ticks(1)) {
             run.playback.advance()
             if (run.playback.isFinished) {
                 run.task?.cancel()

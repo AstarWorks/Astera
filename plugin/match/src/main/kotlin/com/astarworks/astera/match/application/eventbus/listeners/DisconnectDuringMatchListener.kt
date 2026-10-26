@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.eventbus.listeners
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
@@ -118,7 +119,7 @@ public class DisconnectDuringMatchListener(
                 // Schedule the forfeit. The re-check is essential: a player who rejoins within the
                 // window will have their state upgraded back to InMatch by ReconnectDuringMatchListener,
                 // and the timeout closure must respect that.
-                scheduler.runLaterTicks(reconnectWindowTicks) {
+                scheduler.runLaterTicks(ExecutionScope.Global, reconnectWindowTicks) {
                     val current = sessions.find(playerId) ?: return@runLaterTicks
                     if (current.state == SessionState.Disconnected && current.currentMatch == matchId) {
                         applyForfeit.apply(playerId, matchId).onFailure { err ->

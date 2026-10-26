@@ -1,0 +1,142 @@
+# SOLVED targets for bastion-greatsword-s1: numbers measured from the solved pose (tools/pose-solve/solve.py), tolerances from the annotation confidence.
+# Same format as bastion-greatsword-s1.targets.yaml (docs/contributing/vfx-team/skill-lint.md). Copy over it once the solved keys replace the shipped ones.
+skill: bastion-greatsword-s1
+caster_height: 1.8
+capture_offset_ticks: 6
+bones: {hips: hips, torso: body, hand: right_hand}
+grip_tolerance: 0.3
+budget: {displays: 60, particles: 300}
+beats:
+- id: B0-coil
+  ticks: [0, 5]
+  confidence: high
+  note: 'Dead-still low coil from tick 0. Blade lies behind on the floor, flat up. No step. hips_h re-read 2026-10-26 in RIG units (vanilla skin:
+    standing hips = 0.75/1.8 = 0.42 H, so the old 0.40 meant almost standing): t3 pelvis 57 px above the soles against 119 px head-top to pelvis,
+    knees deeply bent, feet ~110 px apart -> about 0.30 H. twist re-read: the compare camera sits ahead of the caster, so a torso facing the target
+    already shows some chest; the visible chest (collar V, both lapels) reads facing ~60-70 on screen = twist ~5-20 from the target, not 45.'
+  blade:
+    tip_side_deg: [-163, 15]
+    tip_y: [0.12, 0.2]
+    face_normal: [0.03, 0.96, -0.29]
+    face_tol: 30
+  body:
+    hips_h: [0.3, 0.06]
+    lean_deg: [4, 10]
+    twist_deg: [5, 20]
+  fx: none
+  sound:
+    window: [0, 5]
+- id: B1-snap-follow-through
+  ticks: [7, 15]
+  confidence: low
+  note: 'Snap (no drawn swing) to a follow-through held 9 ticks. Blade behind the neck at head height. Ring and streak carry the swing; contact
+    tick 7. Twist re-read 2026-10-26: t13/t16/t18 show the back square to the behind-right camera with the RIGHT flank (white striped jacket edge)
+    visible at screen right; a 60 deg left twist would turn the right flank away and show the left one. "Twisted round toward the target" = chest
+    toward the target (the camera is behind), i.e. a small twist. hips_h in rig units (wide stance, as B0).'
+  blade:
+    tip_side_deg: [172, 35]
+    tip_y: [1.66, 0.5]
+  body:
+    hips_h: [0.31, 0.14]
+    lean_deg: [4, 22]
+    twist_deg: [11, 45]
+  sound:
+    window: [5, 8]
+- id: B2-overshoot
+  ticks: [16, 18]
+  confidence: low
+  blade:
+    tip_side_deg: [149, 35]
+    tip_y: [1.72, 0.5]
+  body:
+    hips_h: [0.33, 0.14]
+    lean_deg: [7, 22]
+    twist_deg: [1, 45]
+- id: B3-turned-away-rest
+  ticks: [20, 27]
+  confidence: medium
+  note: 'Caster spun 150-180 deg, faces away from the target. Tip rests on the floor in front of her (= away from the target), flat up. hips_h
+    re-read 2026-10-26 in RIG units: 0.50 is above the vanilla rig''s standing hips (0.42 H); "fairly tall with a slight bend" = 0.36-0.42 (t23:
+    hands hang at y~392, hip joint just above them, soles ~500, head top 258). lean re-read: she faces screen-left, the neck (x~555) sits ~10
+    px BEHIND the hips (x~545) over a ~90 px torso at t23 (t20 the same): upright to slightly back, not a forward bend (old target 10).'
+  blade:
+    tip_side_deg: [-155, 22]
+    tip_y: [0.15, 0.3]
+    face_normal: [0.02, 0.91, -0.42]
+    face_tol: 40
+  body:
+    hips_h: [0.39, 0.09]
+    lean_deg: [-18, 15]
+    twist_deg: [162, 30]
+  fx: none
+- id: B4-coil-2
+  ticks: [28, 29]
+  confidence: low
+  note: 'Deepest crouch, torso pitched about 30 deg. Blade behind at hip height. Re-checked 2026-10-26: the "thin dark line" at y~400 of t29 that
+    the first reading took for an edge-on blade is a floor crack (the same line is there at t27 while the blade lies elsewhere). The blade is
+    the dark diagonal band leaving the cloak at (446,412) and running down toward the behind-right camera to (416,562) (t28-29, absent at t27).
+    Solved from that it is near horizontal at hip height pointing back (tip_side -173, tip_y 0.84): the direction and height of the first reading
+    stand. The roll does not: the band is steep on screen and ~25 px wide against ~30 px for the full face of the same blade at t23 (same scale).
+    A vertical flat (old target normal [1, 0, 0]) would put the blade width along the steep band and read as a thin line; a wide band means the
+    width runs across it, i.e. the flat faces up as in the B3 rest. The legs are under the cloak (one ankle visible), so the keypoints carry a
+    hips_h hint of 0.30 for the solver.'
+  blade:
+    tip_side_deg: [-173, 35]
+    tip_y: [0.84, 0.5]
+    face_normal: [0.05, 1.0, -0.03]
+    face_tol: 55
+  body:
+    hips_h: [0.31, 0.14]
+    lean_deg: [23, 22]
+    twist_deg: [5, 45]
+  fx: none
+- id: B5-flash-contact-2
+  ticks: [30, 31]
+  confidence: high
+  note: Body and blade hidden by the flash / close-up (camera trick); only the sound is checked. Contact is t31.
+  sound:
+    window: [30, 31]
+- id: B6-extended
+  ticks: [32, 37]
+  confidence: medium
+  note: Arms reach toward the target at chest height; blade is light, roll unreadable. Held 6 ticks.
+  blade:
+    tip_side_deg: [3, 22]
+    tip_y: [1.16, 0.3]
+  body:
+    hips_h: [0.38, 0.09]
+    lean_deg: [8, 15]
+    twist_deg: [34, 30]
+- id: B7-drop
+  ticks: [38, 39]
+  confidence: low
+  blade:
+    tip_side_deg: [-173, 35]
+    tip_y: [0.67, 0.5]
+  body:
+    hips_h: [0.38, 0.14]
+    lean_deg: [24, 22]
+    twist_deg: [4, 45]
+- id: B8-rest
+  ticks: [40, 51]
+  confidence: high
+  note: 'Same silhouette as B0, held to the end of the segment; the reference never lifts the blade inside it. hips_h / twist re-read 2026-10-26
+    as in B0: at t46 the caster stands at x~340 of 1280, so the side camera looks at her from about 19 deg ahead; the 3/4 chest is that camera
+    angle (solved screen facing 71 = twist ~1), not a 45 deg torso twist.'
+  blade:
+    tip_side_deg: [-165, 15]
+    tip_y: [0.33, 0.2]
+    face_normal: [0.01, 0.96, -0.27]
+    face_tol: 30
+  body:
+    hips_h: [0.36, 0.06]
+    lean_deg: [13, 10]
+    twist_deg: [1, 20]
+  fx: none
+regen:
+  script: tools/item-art/scripts/bastion_s1_regen.sh
+  inputs:
+    files: [content/vfx/bastion-s1-rig.yaml, tools/item-art/scripts/bastion_s1_fx.py, tools/item-art/scripts/bastion_s1_particles.py, tools/item-art/scripts/bastion_s1_sprites.py,
+      tools/item-art/scripts/rig_path.py]
+    skill_step_types: [play_vfx, dash_strike]
+  outputs: [content/vfx/bastion-s1-fx-high.yaml, content/vfx/bastion-s1-fx-low.yaml, content/textures/sources/images/bastion-s1-*.png, content/textures/generated/sprites/bastion-s1-*.png]

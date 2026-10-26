@@ -1,7 +1,6 @@
 # Authored siege-scale layout. See README.md and ADR-0273.
 id: pve-proving-grounds
 display_name_key: astera.stage.pve-proving-grounds.name
-world: arenas
 layout:
   marker_version: 4
   seed: 20261025
@@ -10,39 +9,39 @@ layout:
   islands:
   - id: center
     kind: center
-    center: {x: 800, z: 0}
+    center: {x: 0, z: 0}
     radius: 48
   - id: north
     kind: outpost
-    center: {x: 800, z: -96}
+    center: {x: 0, z: -96}
     radius: 20.4
   - id: south
     kind: outpost
-    center: {x: 800, z: 96}
+    center: {x: 0, z: 96}
     radius: 20.4
   - id: west
     kind: outpost
-    center: {x: 704, z: 0}
+    center: {x: -96, z: 0}
     radius: 20.4
   - id: east
     kind: outpost
-    center: {x: 896, z: 0}
+    center: {x: 96, z: 0}
     radius: 20.4
   - id: north-east
     kind: outpost
-    center: {x: 873, z: -73}
+    center: {x: 73, z: -73}
     radius: 13.6
   - id: south-east
     kind: outpost
-    center: {x: 873, z: 73}
+    center: {x: 73, z: 73}
     radius: 13.6
   - id: south-west
     kind: outpost
-    center: {x: 727, z: 73}
+    center: {x: -73, z: 73}
     radius: 13.6
   - id: north-west
     kind: outpost
-    center: {x: 727, z: -73}
+    center: {x: -73, z: -73}
     radius: 13.6
   bridges:
   - from: center
@@ -83,57 +82,57 @@ layout:
     width: 7
   structures:
   - part: ruin
-    x: 778
+    x: -22
     z: -20
     rotation: 0
   - part: ruin
-    x: 822
+    x: 22
     z: 20
     rotation: 180
   - part: ruin
-    x: 780
+    x: -20
     z: 22
     rotation: 90
   - part: ruin
-    x: 820
+    x: 20
     z: -22
     rotation: 270
   theme: volcanic
   atmosphere: {time_of_day: 13500, weather: rain}
 regions:
 - name: full-arena
-  min: {x: 659.75, y: 20.0, z: -140.25}
-  max: {x: 940.25, y: 140.0, z: 140.25}
+  min: {x: -140.25, y: 20.0, z: -140.25}
+  max: {x: 140.25, y: 140.0, z: 140.25}
 - name: mob-spawn-north
-  min: {x: 799.0, y: 65.0, z: -96.7}
-  max: {x: 801.0, y: 65.0, z: -94.7}
+  min: {x: -1.0, y: 65.0, z: -96.7}
+  max: {x: 1.0, y: 65.0, z: -94.7}
 - name: mob-spawn-east
-  min: {x: 894.7, y: 65.0, z: -1.0}
-  max: {x: 896.7, y: 65.0, z: 1.0}
+  min: {x: 94.7, y: 65.0, z: -1.0}
+  max: {x: 96.7, y: 65.0, z: 1.0}
 - name: mob-spawn-south
-  min: {x: 799.0, y: 65.0, z: 94.7}
-  max: {x: 801.0, y: 65.0, z: 96.7}
+  min: {x: -1.0, y: 65.0, z: 94.7}
+  max: {x: 1.0, y: 65.0, z: 96.7}
 - name: mob-spawn-west
-  min: {x: 703.3, y: 65.0, z: -1.0}
-  max: {x: 705.3, y: 65.0, z: 1.0}
+  min: {x: -96.7, y: 65.0, z: -1.0}
+  max: {x: -94.7, y: 65.0, z: 1.0}
 spawn_points:
 - team: red
-  position: {x: 800.5, y: 65.0, z: -2.5}
+  position: {x: 0.5, y: 65.0, z: -2.5}
   yaw: 0.0
 - team: red
-  position: {x: 798.5, y: 65.0, z: 0.5}
+  position: {x: -1.5, y: 65.0, z: 0.5}
   yaw: 0.0
 - team: red
-  position: {x: 802.5, y: 65.0, z: 0.5}
+  position: {x: 2.5, y: 65.0, z: 0.5}
   yaw: 0.0
 - team: red
-  position: {x: 800.5, y: 65.0, z: 2.5}
+  position: {x: 0.5, y: 65.0, z: 2.5}
   yaw: 0.0
 - team: blue
-  position: {x: 800.5, y: 65.0, z: 0.5}
+  position: {x: 0.5, y: 65.0, z: 0.5}
   yaw: 0.0
 - role: lobby
-  position: {x: 800.5, y: 65.0, z: 0.5}
+  position: {x: 0.5, y: 65.0, z: 0.5}
 - role: spectator
-  position: {x: 800.5, y: 100.0, z: 0.5}
+  position: {x: 0.5, y: 100.0, z: 0.5}
   pitch: 60.0

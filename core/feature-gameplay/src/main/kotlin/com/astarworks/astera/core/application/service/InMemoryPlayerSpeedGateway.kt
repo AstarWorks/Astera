@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerSpeedGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -57,7 +58,7 @@ public class InMemoryPlayerSpeedGateway(
         storage[playerId] = multiplier
         expiry.remove(playerId)?.cancel()
         if (ttlTicks != Int.MAX_VALUE) {
-            expiry[playerId] = scheduler.runLaterTicks(ttlTicks.toLong()) {
+            expiry[playerId] = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), ttlTicks.toLong()) {
                 resetMultiplier(playerId, axis)
             }
         }
@@ -100,7 +101,7 @@ public class InMemoryPlayerSpeedGateway(
         if (allow) flightAllowed += playerId else flightAllowed -= playerId
         flightExpiry.remove(playerId)?.cancel()
         if (allow && ttlTicks != Int.MAX_VALUE) {
-            flightExpiry[playerId] = scheduler.runLaterTicks(ttlTicks.toLong()) {
+            flightExpiry[playerId] = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), ttlTicks.toLong()) {
                 if (playerId in flightAllowed) {
                     flightAllowed -= playerId
                     eventBus.publish(
@@ -132,7 +133,7 @@ public class InMemoryPlayerSpeedGateway(
         if (sprinting) this.sprinting += playerId else this.sprinting -= playerId
         sprintingExpiry.remove(playerId)?.cancel()
         if (sprinting && ttlTicks != Int.MAX_VALUE) {
-            sprintingExpiry[playerId] = scheduler.runLaterTicks(ttlTicks.toLong()) {
+            sprintingExpiry[playerId] = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), ttlTicks.toLong()) {
                 if (playerId in this.sprinting) {
                     this.sprinting -= playerId
                     eventBus.publish(
@@ -164,7 +165,7 @@ public class InMemoryPlayerSpeedGateway(
         if (noClip) this.noClip += playerId else this.noClip -= playerId
         noClipExpiry.remove(playerId)?.cancel()
         if (noClip && ttlTicks != Int.MAX_VALUE) {
-            noClipExpiry[playerId] = scheduler.runLaterTicks(ttlTicks.toLong()) {
+            noClipExpiry[playerId] = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), ttlTicks.toLong()) {
                 if (playerId in this.noClip) {
                     this.noClip -= playerId
                     eventBus.publish(

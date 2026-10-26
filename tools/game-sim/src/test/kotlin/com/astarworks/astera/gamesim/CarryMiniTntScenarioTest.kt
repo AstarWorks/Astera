@@ -8,19 +8,19 @@ import org.junit.jupiter.api.Test
 
 /**
  * MODE-05: carry-mini-tnt is played on the real `siege-isles-mini-tnt` stage and `content/game-modes/carry-mini-tnt.yaml`
- * (10 pieces to win, carry up to 4, pieces regrow after 15 s). Pickup spots are the stage's wool-a/b/c and tnt-spawn zones.
+ * (10 pieces to win, carry up to 4, pieces regrow after 15 s). Pickup spots are the stage's wool-a/b/c and tnt-spawn zones (stage-local coordinates).
  */
 class CarryMiniTntScenarioTest {
 
     private val spots = listOf(
-        Vec3(0.0, 65.0, 4605.0), // wool-a
-        Vec3(0.0, 65.0, 4708.0), // wool-b
-        Vec3(0.0, 65.0, 4795.0), // wool-c
-        Vec3(0.0, 65.0, 4692.0), // tnt-spawn
+        Vec3(0.0, 65.0, -95.0), // wool-a
+        Vec3(0.0, 65.0, 8.0), // wool-b
+        Vec3(0.0, 65.0, 95.0), // wool-c
+        Vec3(0.0, 65.0, -8.0), // tnt-spawn
     )
-    private val blueBase = Vec3(163.0, 65.0, 4700.0)
-    private val redBase = Vec3(-163.0, 65.0, 4700.0)
-    private val nowhere = Vec3(0.0, 65.0, 4650.0)
+    private val blueBase = Vec3(163.0, 65.0, 0.0)
+    private val redBase = Vec3(-163.0, 65.0, 0.0)
+    private val nowhere = Vec3(0.0, 65.0, -50.0)
 
     private fun ScenarioScope.markers(): List<String?> = spots.map { blockAt(it.copy(y = 64.0)) }
 

@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service.effect
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator
@@ -42,14 +43,14 @@ public class SchedulerParticleAnimator(
                 if (tick <= 0) {
                     emit(emissions)
                 } else {
-                    val task = scheduler.runLater(ticks(tick.toLong())) {
+                    val task = scheduler.run(regionScope(world, origin), ticks(tick.toLong())) {
                         if (group.isActive && !cancelled) emit(emissions)
                     }
                     group.tasks += task
                     pending += task
                 }
             }
-            pending.removeAll { !it.isActive }
+            pending.removeAll { it.isCancelled }
             return group
         }
 
@@ -74,6 +75,6 @@ public class SchedulerParticleAnimator(
         }
 
         override val isActive: Boolean
-            get() = !cancelled && tasks.any { it.isActive }
+            get() = !cancelled && tasks.any { !it.isCancelled }
     }
 }

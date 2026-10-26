@@ -22,6 +22,9 @@ import kotlin.math.sqrt
 enum class Easing(private val fn: (Double) -> Double) {
     LINEAR({ t -> t }),
 
+    /** Holds the previous value until the end of the segment, then jumps (a pose-to-pose cut, ADR-0276). */
+    STEP({ t -> if (t >= 1.0) 1.0 else 0.0 }),
+
     EASE_IN_SINE({ t -> 1.0 - cos(t * PI / 2.0) }),
     EASE_OUT_SINE({ t -> sin(t * PI / 2.0) }),
     EASE_IN_OUT_SINE({ t -> -(cos(PI * t) - 1.0) / 2.0 }),

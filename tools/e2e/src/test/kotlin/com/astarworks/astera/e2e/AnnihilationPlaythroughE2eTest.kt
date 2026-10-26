@@ -9,25 +9,25 @@ import org.junit.jupiter.api.Test
  * and then yellow, winner declared, summary/rewards, everyone (spectators included) back in the lobby.
  * Timers and HP come from docker/e2e-tune-content.sh (build 5s, engage 10s, every pillar 60 HP).
  *
- * The arena is a three-island sky stage in the void `arenas` world (content/stages/annihilation-arena.yaml, ADR-0246):
- * red island at (0, -364), blue at (55, -268), yellow at (-55, -268) (radius 22), centre island at (0, -300) (radius 24), three
+ * The arena is a three-island sky stage in a world slot (content/stages/annihilation-arena.yaml, ADR-0255; all coordinates here are stage-local):
+ * red island at (0, -64), blue at (55, 32), yellow at (-55, 32) (radius 22), centre island at (0, 0) (radius 24), three
  * flank islands between the bases; top layer y=64, bots stand at y=65.
  */
 class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
 
     private val suite = "Annihilation playthrough"
 
-    /** Pillar block cells per tier (1..3) from content/stages/annihilation-arena.yaml. */
+    /** Pillar block cells per tier (1..3), stage-local (slot origin is added by the helpers), from content/stages/annihilation-arena.yaml. */
     private val pillars = mapOf(
-        "Blue" to listOf(Triple(52, 65, -280), Triple(43, 65, -265), Triple(57, 65, -267)),
-        "Yellow" to listOf(Triple(-43, 65, -265), Triple(-52, 65, -280), Triple(-57, 65, -267)),
-        "Red" to listOf(Triple(-9, 65, -355), Triple(9, 65, -355), Triple(0, 65, -366)),
+        "Blue" to listOf(Triple(52, 65, 20), Triple(43, 65, 35), Triple(57, 65, 33)),
+        "Yellow" to listOf(Triple(-43, 65, 35), Triple(-52, 65, 20), Triple(-57, 65, 33)),
+        "Red" to listOf(Triple(-9, 65, -55), Triple(9, 65, -55), Triple(0, 65, -66)),
     )
     private val pillarBlocks = listOf("minecraft:obsidian", "minecraft:crying_obsidian", "minecraft:beacon")
 
-    private fun teamOfBot(b: Bot): String? = posOf(b)?.let { (x, _, z) ->
+    private fun teamOfBot(b: Bot): String? = localPosOf(b)?.let { (x, _, z) ->
         when {
-            z < -320 -> "Red"
+            z < -30 -> "Red"
             x > 0 -> "Blue"
             else -> "Yellow"
         }
@@ -51,6 +51,9 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
         tpArena(a.name, p.first + 0.5, p.second.toDouble(), p.third - 3.5, 0f, 16f)
         Thread.sleep(400)
     }
+
+    /** Digs the stage-local cell [p] (dig packets carry absolute positions). */
+    private fun dig(a: Bot, p: Triple<Int, Int, Int>) = a.dig(p.first + originX, p.second, p.third + originZ)
 
     private fun shoot(a: Bot, times: Int) {
         repeat(times) {
@@ -92,10 +95,10 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
         if (a == null || blue == null || yellow == null) return
         val idle = listOf(blue, yellow)
 
-        E2eReport.check(suite, "every team spawns standing on a solid island block in the arenas world (not the flat world)", "RCON data get Dimension/Pos + execute unless block") {
+        E2eReport.check(suite, "every team spawns standing on a solid island block inside its slot (not the lobby)", "RCON data get Dimension/Pos + execute unless block") {
             val problems = bots.mapNotNull { islandStanceProblem(it) }
             assertThat(problems).describedAs("bots not on an arena island: $problems").isEmpty()
-            "dimension minecraft:arenas, solid block under every bot: ${bots.map { it.name to posOf(it) }}"
+            "slot ($originX, $originZ), solid block under every bot: ${bots.map { it.name to posOf(it) }}"
         }
         E2eReport.check(suite, "all nine pillar blocks stand in the arena world on team-coloured footings, with void between the islands", "RCON execute if block") {
             val wrong = mutableListOf<String>()
@@ -106,8 +109,8 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
                 }
             }
             assertThat(wrong).describedAs("pillar anchors: $wrong").isEmpty()
-            assertThat(arenaSolid(40, 64, -310) || arenaSolid(40, 50, -310)).describedAs("gap between the islands at (40 64 -310): the arena is islands, not a plane").isFalse()
-            "9 pillar blocks + 9 coloured footings; void at (40, 64, -310)"
+            assertThat(arenaSolid(40, 64, -10) || arenaSolid(40, 50, -10)).describedAs("gap between the islands at (40 64 -10): the arena is islands, not a plane").isFalse()
+            "9 pillar blocks + 9 coloured footings; void at (40, 64, -10)"
         }
 
         E2eReport.check(suite, "sidebar shows the Build phase and three intact 60 HP pillar sets", "SetObjective/SetScore") {
@@ -126,7 +129,7 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
         if (inBuild) {
             stand(a, pillars.getValue("Blue")[0])
             shoot(a, 4)
-            a.dig(pillars.getValue("Blue")[0].first, pillars.getValue("Blue")[0].second, pillars.getValue("Blue")[0].third)
+            dig(a, pillars.getValue("Blue")[0])
             Thread.sleep(1_800)
             E2eReport.check(suite, "Build phase: pillars take no damage from shots or block breaking", "SetScore (sidebar HP)") {
                 assertThat(teamLine(a, "Blue")).describedAs("blue pillars changed during Build: ${sidebar(a)}").isEqualTo("●●●" to 180)
@@ -163,7 +166,7 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
         a.selectHotbar(7)
         Thread.sleep(300)
         val hpBeforeDig = teamLine(a, "Blue")?.second ?: -1
-        repeat(2) { a.dig(blueT1.first, blueT1.second, blueT1.third); Thread.sleep(400) }
+        repeat(2) { dig(a, blueT1); Thread.sleep(400) }
         Thread.sleep(1_800)
         var hpAfterDig = teamLine(a, "Blue")?.second ?: -1
         var creativeFallback = false
@@ -172,7 +175,7 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
             creativeFallback = true
             rcon("gamemode creative ${a.name}")
             Thread.sleep(300)
-            repeat(2) { a.dig(blueT1.first, blueT1.second, blueT1.third); Thread.sleep(400) }
+            repeat(2) { dig(a, blueT1); Thread.sleep(400) }
             Thread.sleep(1_800)
             hpAfterDig = teamLine(a, "Blue")?.second ?: -1
         }
@@ -199,7 +202,7 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
                     // Tier 1: mix shots and block breaks; both must work.
                     shoot(a, 3)
                     rcon("gamemode creative ${a.name}")
-                    a.dig(cell.first, cell.second, cell.third)
+                    dig(a, cell)
                     rcon("gamemode survival ${a.name}")
                 } else {
                     shoot(a, 4)

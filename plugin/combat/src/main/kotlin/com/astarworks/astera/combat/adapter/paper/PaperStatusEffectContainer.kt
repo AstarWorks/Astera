@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
 import com.astarworks.astera.combat.domain.event.StatusApplied
@@ -76,7 +77,7 @@ import java.util.concurrent.ConcurrentHashMap
  * All Bukkit `Player.addPotionEffect` / `removePotionEffect` calls require
  * the main thread. The use cases that invoke this container
  * (ApplyStatusUseCase, mechanic dispatch) all run on main; off-main
- * callers must round-trip through `scheduler.runLater(Duration.ZERO, ...)`.
+ * callers must round-trip through `scheduler.run(ExecutionScope.Global, Duration.ZERO, ...)`.
  *
  * # Registration
  *

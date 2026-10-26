@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.analytics.NoopAnalyticsExporter
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
@@ -85,7 +86,7 @@ internal fun CoreWiringState.wireInfrastructure() {
         eventBus = eventBus,
     )
     services.register<com.astarworks.astera.core.application.service.engagement.EngagementDashboardService>(engagementService, priority = 0)
-    engagementDashboardHandle = scheduler.runRepeatingTicks(
+    engagementDashboardHandle = scheduler.runRepeatingTicks(ExecutionScope.Global,
         initialDelayTicks = 1200L, // 1 min warmup
         periodTicks = 6000L, // 5 min cadence
     ) { engagementService.compute() }

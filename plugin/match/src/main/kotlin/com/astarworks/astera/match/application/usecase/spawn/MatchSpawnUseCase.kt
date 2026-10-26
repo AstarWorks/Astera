@@ -1,5 +1,9 @@
 package com.astarworks.astera.match.application.usecase.spawn
 
+import java.util.concurrent.CompletableFuture
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.executor
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
@@ -32,32 +36,31 @@ public class MatchSpawnUseCase(
     private val worldGateway: IWorldGateway,
     private val eventBus: IDomainEventBus,
     private val spawnSelector: ISpawnSelector,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
 ) {
 
     public fun spawnPlayer(
         matchId: MatchId,
         playerId: PlayerId,
-    ): Result<Unit, SpawnError> {
+    ): CompletableFuture<Result<Unit, SpawnError>> {
         val match = matchRepository.findById(matchId)
-            ?: return Result.failure(SpawnError.MatchNotFound(matchId))
+            ?: return CompletableFuture.completedFuture(Result.failure(SpawnError.MatchNotFound(matchId)))
 
         val stage = stageRegistry.find(match.stageId)
-            ?: return Result.failure(SpawnError.StageNotFound(match.stageId))
+            ?: return CompletableFuture.completedFuture(Result.failure(SpawnError.StageNotFound(match.stageId)))
 
         val spawnPoint = spawnSelector.selectFor(playerId, matchId, stage, SpawnStrategy.Spread)
-            ?: return Result.failure(SpawnError.NoSpawnPoint(playerId, stage.id))
+            ?: return CompletableFuture.completedFuture(Result.failure(SpawnError.NoSpawnPoint(playerId, stage.id)))
 
-        val ok = worldGateway.teleport(playerId, spawnPoint.pos, spawnPoint.world, spawnPoint.yaw, spawnPoint.pitch)
-        if (!ok) {
-            return Result.failure(SpawnError.TeleportFailed(playerId))
-        }
+        return worldGateway.teleportAsync(playerId, spawnPoint.pos, spawnPoint.world, spawnPoint.yaw, spawnPoint.pitch).thenApplyAsync({ moved ->
+            if (!moved) return@thenApplyAsync Result.failure(SpawnError.TeleportFailed(playerId))
+            // Wave 5e: signal cross-server portal-ready on the game-server entry side.
+            // Reward bridge / audit listeners on the lobby side consume this when the
+            // player reconnects after match rotation.
+            eventBus.publish(PlayerPortalReady.EntryReady(playerId = playerId, matchId = matchId))
 
-        // Wave 5e: signal cross-server portal-ready on the game-server entry side.
-        // Reward bridge / audit listeners on the lobby side consume this when the
-        // player reconnects after match rotation.
-        eventBus.publish(PlayerPortalReady.EntryReady(playerId = playerId, matchId = matchId))
-
-        return Result.success(Unit)
+            return@thenApplyAsync Result.success(Unit)
+        }, scheduler.executor(ExecutionScope.Entity(playerId.uuid)))
     }
 }
 

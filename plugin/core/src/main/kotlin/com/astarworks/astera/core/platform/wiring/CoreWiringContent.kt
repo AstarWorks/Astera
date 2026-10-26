@@ -125,6 +125,14 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     services.register<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>(particleContents, priority = 0)
     reloadRegistry.register(particleContents, particlesContentDir)
 
+    // ---- Particle skins (ADR-0274) ----------------------------------
+    // Retextured vanilla particle types at content/particle-skins/; the pack ships the art, boot only validates the files.
+    val particleSkinsContentDir = contentDir.resolve("particle-skins")
+    val particleSkinContents = com.astarworks.astera.core.application.contents.ParticleSkinContents()
+    val particleSkinReport = particleSkinContents.bootstrap(particleSkinsContentDir)
+    logger.info("Particle skins loaded: ${particleSkinReport.loaded} ok, ${particleSkinReport.failed} failed")
+    reloadRegistry.register(particleSkinContents, particleSkinsContentDir)
+
     // ---- Sprite contents (ADR-0239) ---------------------------------
     // Generated particle sprite metadata at content/sprites/; loaded before VFX so flipbooks know their length.
     val spritesContentDir = contentDir.resolve("sprites")

@@ -95,6 +95,12 @@ public class GameSim private constructor(
     /** Native hotbar cooldown sweeps the item side asked for (ADR-0197). */
     public val sweeps: SimItemCooldownSweep = SimItemCooldownSweep { scheduler.currentTick() }
 
+    /** The presentation lease service (ADR-0276) and its per-viewer client model. */
+    public val presentation: com.astarworks.astera.core.application.service.presentation.InMemoryPlayerPresentation by lazy {
+        services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>()
+            as com.astarworks.astera.core.application.service.presentation.InMemoryPlayerPresentation
+    }
+
     /** Displays spawned by SpawnDisplay (WP5). */
     public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder)
 
@@ -532,6 +538,12 @@ public class GameSim private constructor(
                 scheduler = scheduler,
                 broadcaster = broadcaster,
                 guiAdapter = GuiAdapterFactory { _, _, _ -> FakeGuiAdapter() },
+                // ADR-0276: the headless lease service with a per-viewer model of what each client was sent.
+                playerPresentation = {
+                    com.astarworks.astera.core.application.service.presentation.InMemoryPlayerPresentation(
+                        viewers = { world.entities.filter { it.kind == SimEntityKind.PLAYER }.map { it.id } },
+                    )
+                },
                 worldGateway = { worldGateway },
                 playerSoundGateway = sim.playerSounds,
                 proxyMessenger = proxy?.let { messenger -> { _ -> messenger } },

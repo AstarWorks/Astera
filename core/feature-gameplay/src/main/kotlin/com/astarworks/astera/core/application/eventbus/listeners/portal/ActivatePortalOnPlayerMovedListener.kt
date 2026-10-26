@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.eventbus.listeners.portal
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.executor
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.portal.IPortalGateway
@@ -35,6 +37,7 @@ public class ActivatePortalOnPlayerMovedListener(
     private val portalGateway: IPortalGateway,
     private val worldGateway: IWorldGateway,
     private val eventBus: IDomainEventBus,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -45,11 +48,12 @@ public class ActivatePortalOnPlayerMovedListener(
         // Loop guard: don't fire if the player is already at the target.
         if (event.world == portal.targetWorld && event.to == portal.targetPosition) return
 
-        val ok = worldGateway.teleport(
+        val ok = worldGateway.teleportAsync(
             playerId = event.playerId,
             at = portal.targetPosition,
             world = portal.targetWorld,
         )
+        ok.thenAcceptAsync({ ok ->
         if (!ok) {
             log.debug(
                 "Portal {} walk-on teleport failed for {} → ({}, {})",
@@ -58,7 +62,7 @@ public class ActivatePortalOnPlayerMovedListener(
                 portal.targetWorld,
                 portal.targetPosition,
             )
-            return
+            return@thenAcceptAsync
         }
         eventBus.publish(
             PortalActivated(
@@ -67,5 +71,6 @@ public class ActivatePortalOnPlayerMovedListener(
                 atTick = event.atTick,
             ),
         )
+        }, scheduler.executor(ExecutionScope.Entity(event.playerId.uuid)))
     }
 }

@@ -1,15 +1,29 @@
 # vfx-shot: pin the compose network + container IPs so the client (running in the dev container, attached
 # to this network) can reach both the server and the resource-pack host by a stable address.
 # The subnet comes from SHOT_SUBNET_PREFIX (default 10.211.77) -- override if it collides.
+#
+# No image is built: the server runs the stock itzg image and the resource pack is served by stock nginx. Plugin
+# jars, content/ and the pack zip are `docker cp`ed into named volumes (/plugins, /content) and the nginx html dir
+# by vfx-shot.sh, so a content / pack / jar change is a copy + reload instead of an image rebuild.
 services:
   e2e:
+    build: !reset null
+    image: itzg/minecraft-server:java25
     environment:
+      # SHOT_NO_FX=1: motion-only capture, only the performance (body + weapon) plays, no fx / particle effects.
+      ASTERA_VFX_PERFORMANCE_ONLY: "${SHOT_NO_FX:-0}"
       ASTERA_RESOURCE_PACK_URL: "http://${SHOT_SUBNET_PREFIX:-10.211.77}.3/astera.zip"
       ASTERA_RESOURCE_PACK_SHA1_URL: "http://${SHOT_SUBNET_PREFIX:-10.211.77}.3/astera.zip.sha1"
+    volumes:
+      - e2e-data:/data
+      - shot-plugins:/plugins
+      - shot-content:/content
     networks:
       default:
         ipv4_address: "${SHOT_SUBNET_PREFIX:-10.211.77}.2"
   e2e-resource-pack:
+    build: !reset null
+    image: nginx:1.27-alpine
     networks:
       default:
         ipv4_address: "${SHOT_SUBNET_PREFIX:-10.211.77}.3"
@@ -23,3 +37,6 @@ networks:
     ipam:
       config:
         - subnet: "${SHOT_SUBNET_PREFIX:-10.211.77}.0/24"
+volumes:
+  shot-plugins:
+  shot-content:

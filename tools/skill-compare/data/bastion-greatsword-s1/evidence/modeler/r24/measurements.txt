@@ -1,0 +1,32 @@
+# r24 modeler: rig blade darker than the held item from below (vfx-reviewer r22 #5, animator r23 opponent t10-11). ADR-0275.
+# Luminance = Rec.709 Y of 1280x720 real-client PNGs (worktree build, one capture at a time, maxRepeatedFrames 1 in all takes).
+
+Cause (26.3 client jar, javap):
+  block displays and held items use the same item_cutout pipeline / core/item.vsh; the vertex normal is the quad's face
+  direction through the pose normal matrix; brightness = min(1, 0.6*(max(0,n.L0)+max(0,n.L1)) + 0.4),
+  L0/L1 = normalize(0.2,1,-0.7) / normalize(-0.2,1,0.7) fixed in the world. Down face 0.40, side faces 0.40-0.75
+  (azimuth mean 0.62), up 1.0. `shade: false` only feeds BlockModelLighter (chunk meshing). Light level not involved
+  (rig rides the caster, sky 15 in daylight). So the rig was lit exactly like a held item would be in that pose; a
+  swing just shows faces the held item never shows.
+  Contact pose (key 6, opponent t8-10): the broad face seen from below has n = (0.46, -0.75, 0.48) -> 0.40.
+  Held pose (key 0, caster yaw 0): broad faces n = (+-1, 0, 0) -> 0.50; the edge facing the opponent n.y = -0.62 -> 0.40.
+  face_normals.py prints all faces per key with vanilla and the final lift.
+
+Opponent view, contact, iron_block blade face (texture mean 220):
+  BEFORE (r23 sheet t10-11, jpg)          ~ 87-100 (grid overlay in the jpg)
+  v1 rule (rig only, lift 0.7 from 37 deg) 86-88  (= 220 x 0.40: lift 0.22 < 0.40, rule too narrow, rejected)
+  AFTER  (final rule)                     133-136 (= 220 x 0.61; 4 patches) -> +55 %
+  opp-contact-before-after.png (v1 f9 vs final f7, same composition).
+
+Hand-over (compare view, caster facing +x, held f0 vs rig f9, brightest 15 % of the blade/hilt box 480-530 x 250-300):
+  held 165.8, rig 162.1 (-2 %). cmp-handover-held-vs-rig.png: held | rig f9 | rig f10. Held and rig use the same rule, so
+  they match in every pose by construction (the held model carries the colour marker).
+
+Rig underside vs the held item's broad face (both now under the same rule):
+  rig underside after 0.61-0.62 x texture. Held broad face (vertical) is 0.40-0.75 by azimuth: 0.50 at the opponent take's
+  yaw (rig/held 1.22), 0.75 at the compare take's yaw (0.81 measured 134 vs 166), 0.62 on average (1.0).
+  The old ratio was 0.53-1.0. Remaining spread comes from vanilla's azimuth dependence on SIDE faces, which the held item has too.
+
+Rejected: brightness override 15/15 (light is already 15; the 0.40 is the normal term), ItemDisplay parts with shade:false
+  (same shader, shade unused there), brighter rig textures (top faces clip, hand-over pop), flat unlit rig, angle-only
+  rule on the rig alone (v1: hand-over pose has faces 38-52 deg below horizontal, the contact face 49 deg: no threshold separates them).

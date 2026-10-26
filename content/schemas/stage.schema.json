@@ -9,9 +9,6 @@
         "display_name_key": {
             "type": "string"
         },
-        "world": {
-            "type": "string"
-        },
         "regions": {
             "type": "array",
             "items": {
@@ -29,6 +26,12 @@
             "items": {
                 "$ref": "#/definitions/com.astarworks.astera.match.application.config.PillarYamlConfig"
             }
+        },
+        "layout": {
+            "$ref": "#/definitions/com.astarworks.astera.match.application.config.ArenaLayoutYamlConfig"
+        },
+        "warm_slots": {
+            "type": "integer"
         }
     },
     "required": [
@@ -36,6 +39,126 @@
         "display_name_key"
     ],
     "definitions": {
+        "com.astarworks.astera.match.application.config.ArenaBridgeYamlConfig": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "from",
+                "to"
+            ]
+        },
+        "com.astarworks.astera.match.application.config.ArenaIslandYamlConfig": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "center": {
+                    "$ref": "#/definitions/com.astarworks.astera.match.application.config.ArenaXzYamlConfig"
+                },
+                "radius": {
+                    "type": "number"
+                },
+                "team": {
+                    "type": "string"
+                },
+                "accent": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "kind",
+                "center",
+                "radius"
+            ]
+        },
+        "com.astarworks.astera.match.application.config.ArenaLandmarkYamlConfig": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string"
+                },
+                "x": {
+                    "type": "integer"
+                },
+                "z": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "kind",
+                "x",
+                "z"
+            ]
+        },
+        "com.astarworks.astera.match.application.config.ArenaLayoutYamlConfig": {
+            "type": "object",
+            "properties": {
+                "marker_version": {
+                    "type": "integer"
+                },
+                "seed": {
+                    "type": "integer"
+                },
+                "surface_y": {
+                    "type": "integer"
+                },
+                "kill_y": {
+                    "type": "integer"
+                },
+                "islands": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.match.application.config.ArenaIslandYamlConfig"
+                    }
+                },
+                "bridges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.match.application.config.ArenaBridgeYamlConfig"
+                    }
+                },
+                "landmarks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.match.application.config.ArenaLandmarkYamlConfig"
+                    }
+                }
+            },
+            "required": [
+                "seed",
+                "islands"
+            ]
+        },
+        "com.astarworks.astera.match.application.config.ArenaXzYamlConfig": {
+            "type": "object",
+            "properties": {
+                "x": {
+                    "type": "integer"
+                },
+                "z": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "x",
+                "z"
+            ]
+        },
         "com.astarworks.astera.match.application.config.PillarYamlConfig": {
             "type": "object",
             "properties": {

@@ -90,9 +90,12 @@ class MatchMenuE2eTest : PlaythroughBase() {
             // A deliberate leave forfeits at once (MODE-14): seat released, match inventory swapped for the lobby kit.
             assertThat(a.waitUntil(30_000) { a.hotbar()[8] != -1 })
                 .describedAs("no lobby kit after Leave; hotbar=${a.hotbar()} chat=${a.chatTexts().takeLast(4)}").isTrue()
-            val dim = dimensionOf(a)
-            assertThat(dim).describedAs("still in the arena world").isNotEqualTo("minecraft:arenas")
-            "hotbar=${a.hotbar()} dimension=$dim"
+            // Every slot (lobby included) lives in the one overworld; "back in the lobby" = left the match slot.
+            val local = localPosOf(a)
+            assertThat(local).describedAs("no position").isNotNull()
+            assertThat(kotlin.math.abs(local!!.first) > 512 || kotlin.math.abs(local.third) > 512)
+                .describedAs("still inside the match slot at local $local").isTrue()
+            "hotbar=${a.hotbar()} local=$local"
         }
     }
 }

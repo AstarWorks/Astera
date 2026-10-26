@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.physiology
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerSpeedGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory
  *
  * # TTL semantics
  *
- * Matches `InMemoryPlayerSpeedGateway` exactly — `IScheduler.runLaterTicks`
+ * Matches `InMemoryPlayerSpeedGateway` exactly — `IScheduler.runTicks`
  * one-shot expiry per axis / flag, cancelled on overwrite or explicit
  * reset. Event publishing identical so HUD / analytics subscribers are
  * impl-agnostic.
@@ -59,7 +60,7 @@ import org.slf4j.LoggerFactory
  *
  * Bukkit setters require main thread. Same contract as ADR-0144 /
  * ADR-0145 / ADR-0146 — callers from off-main paths round-trip through
- * `scheduler.runLater(Duration.ZERO, ...)`.
+ * `scheduler.run(ExecutionScope.Entity(playerId.uuid), Duration.ZERO, ...)`.
  *
  * # Registration
  *
@@ -120,7 +121,7 @@ public class PaperPlayerSpeedGateway(
         } ?: log.debug("PaperPlayerSpeedGateway.setMultiplier: target {} offline", playerId)
 
         if (ttlTicks != Int.MAX_VALUE) {
-            expiry[playerId] = scheduler.runLaterTicks(ttlTicks.toLong()) {
+            expiry[playerId] = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), ttlTicks.toLong()) {
                 resetMultiplier(playerId, axis)
             }
         }
@@ -174,7 +175,7 @@ public class PaperPlayerSpeedGateway(
         flightExpiry.remove(playerId)?.cancel()
         onlinePlayer(playerId)?.let { it.allowFlight = allow }
         if (allow && ttlTicks != Int.MAX_VALUE) {
-            flightExpiry[playerId] = scheduler.runLaterTicks(ttlTicks.toLong()) {
+            flightExpiry[playerId] = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), ttlTicks.toLong()) {
                 if (playerId in flightAllowed) {
                     flightAllowed -= playerId
                     onlinePlayer(playerId)?.let { it.allowFlight = false }
@@ -212,7 +213,7 @@ public class PaperPlayerSpeedGateway(
         sprintingExpiry.remove(playerId)?.cancel()
         onlinePlayer(playerId)?.let { it.isSprinting = sprinting }
         if (sprinting && ttlTicks != Int.MAX_VALUE) {
-            sprintingExpiry[playerId] = scheduler.runLaterTicks(ttlTicks.toLong()) {
+            sprintingExpiry[playerId] = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), ttlTicks.toLong()) {
                 if (playerId in this.sprinting) {
                     this.sprinting -= playerId
                     onlinePlayer(playerId)?.let { it.isSprinting = false }
@@ -254,7 +255,7 @@ public class PaperPlayerSpeedGateway(
         // GameMode.SPECTATOR which is ISpectatorGateway scope).
         onlinePlayer(playerId)?.let { it.isCollidable = !noClip }
         if (noClip && ttlTicks != Int.MAX_VALUE) {
-            noClipExpiry[playerId] = scheduler.runLaterTicks(ttlTicks.toLong()) {
+            noClipExpiry[playerId] = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), ttlTicks.toLong()) {
                 if (playerId in this.noClip) {
                     this.noClip -= playerId
                     onlinePlayer(playerId)?.let { it.isCollidable = true }

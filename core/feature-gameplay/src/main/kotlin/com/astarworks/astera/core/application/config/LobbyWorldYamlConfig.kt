@@ -27,7 +27,7 @@ public data class LobbyWorldYamlConfig(
     val rules: LobbyRulesYaml = LobbyRulesYaml(),
 ) {
     public companion object {
-        public const val DEFAULT_ID: String = "lobby"
+        public const val DEFAULT_ID: String = "world"
     }
 }
 

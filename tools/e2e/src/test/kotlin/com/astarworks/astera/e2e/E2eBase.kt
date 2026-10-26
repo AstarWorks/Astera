@@ -52,6 +52,7 @@ abstract class E2eBase {
     fun cleanUp() {
         // A bot still in the norma queue would be formed into a match after this test, and hold the arena for the next suite.
         bots.forEach { b -> runCatching { b.command("astera queue leave") } }
+        if (bots.isNotEmpty()) Thread.sleep(300) // let the command reach the backend before the kick drops the connection
         bots.forEach { b ->
             // Take anyone out of a running match so the next test starts from a clean lobby.
             runCatching { rcon("kick ${b.name}") }

@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
@@ -67,7 +68,7 @@ public class BlockRecoveryScheduler(
      * restart.
      */
     public fun start(): IScheduler.TaskHandle =
-        scheduler.runRepeating(
+        scheduler.repeat(ExecutionScope.Global,
             initialDelay = ticks(cyclePeriodTicks),
             period = ticks(cyclePeriodTicks),
         ) {

@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.service.effect
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler
@@ -38,14 +40,14 @@ public class InMemorySoundScheduler(
     }
 
     private fun scheduleOnce(spec: ScheduledSoundSpec.EmitOnce, world: WorldId): EffectHandle {
-        val task = scheduler.scheduleAt(spec.atTick) {
+        val task = scheduler.run(regionScope(world, spec.position), ticks((spec.atTick - scheduler.currentTick()).coerceAtLeast(0))) {
             worldGateway.playSound(world, spec.position, spec.sound)
         }
         return TaskBackedHandle(task)
     }
 
     private fun scheduleDelayed(spec: ScheduledSoundSpec.Delayed, world: WorldId): EffectHandle {
-        val task = scheduler.runLater(ticks(spec.delayTicks)) {
+        val task = scheduler.run(regionScope(world, spec.position), ticks(spec.delayTicks)) {
             worldGateway.playSound(world, spec.position, spec.sound)
         }
         return TaskBackedHandle(task)
@@ -53,7 +55,7 @@ public class InMemorySoundScheduler(
 
     private fun scheduleLoop(spec: ScheduledSoundSpec.Loop, world: WorldId): EffectHandle {
         val composite = CompositeHandle()
-        val period = scheduler.runRepeating(
+        val period = scheduler.repeat(regionScope(world, spec.position),
             initialDelay = ticks(spec.initialDelayTicks),
             period = ticks(spec.intervalTicks),
         ) {
@@ -64,7 +66,7 @@ public class InMemorySoundScheduler(
         composite.add(period)
         if (spec.durationTicks > 0) {
             val total = spec.initialDelayTicks + spec.durationTicks
-            val cancel = scheduler.runLater(ticks(total)) { composite.cancel() }
+            val cancel = scheduler.run(regionScope(world, spec.position), ticks(total)) { composite.cancel() }
             composite.add(cancel)
         }
         return composite
@@ -73,7 +75,7 @@ public class InMemorySoundScheduler(
     private fun scheduleSequence(spec: ScheduledSoundSpec.Sequence, world: WorldId): EffectHandle {
         val composite = CompositeHandle()
         for (step in spec.steps) {
-            val task = scheduler.runLater(ticks(step.atTick)) {
+            val task = scheduler.run(regionScope(world, step.position), ticks(step.atTick)) {
                 if (composite.isActive) {
                     worldGateway.playSound(world, step.position, step.sound)
                 }
@@ -81,7 +83,7 @@ public class InMemorySoundScheduler(
             composite.add(task)
         }
         val lastTick = spec.steps.maxOf { it.atTick }
-        val complete = scheduler.runLater(ticks(lastTick + 1)) { composite.markComplete() }
+        val complete = scheduler.run(ExecutionScope.Global, ticks(lastTick + 1)) { composite.markComplete() }
         composite.add(complete)
         return composite
     }
@@ -93,7 +95,7 @@ public class InMemorySoundScheduler(
             task.cancel()
         }
         override val isActive: Boolean
-            get() = task.isActive
+            get() = !task.isCancelled
     }
 
     private class CompositeHandle : EffectHandle {

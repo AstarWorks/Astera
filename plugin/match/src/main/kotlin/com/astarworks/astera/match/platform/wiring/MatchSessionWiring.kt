@@ -75,6 +75,7 @@ internal object MatchSessionWiring {
             // with the same spawn protection a respawn gets, the loaner kit re-armed and the sidebar redrawn.
             val resumeSpawn = services.get<com.astarworks.astera.match.application.service.ISpawnSelector>()?.let { selector ->
                 com.astarworks.astera.match.application.usecase.spawn.MatchSpawnUseCase(
+            scheduler = scheduler,
                     matchRepository = matches,
                     stageRegistry = env.stages,
                     worldGateway = worldGateway,

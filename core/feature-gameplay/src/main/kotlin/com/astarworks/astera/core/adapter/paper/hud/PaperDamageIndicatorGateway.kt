@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.hud
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDamageIndicatorGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
@@ -54,14 +55,14 @@ public class PaperDamageIndicatorGateway(
         viewerPlayer.showEntity(plugin, display)
 
         // Next tick: the new transformation interpolates from the spawn pose, i.e. the number floats up.
-        scheduler.runLaterTicks(1) {
+        scheduler.runLaterTicks(ExecutionScope.Entity(display.uniqueId), 1) {
             if (display.isValid) {
                 display.interpolationDelay = 0
                 display.transformation =
                     Transformation(Vector3f(0f, RISE_BLOCKS, 0f), Quaternionf(), Vector3f(scale), Quaternionf())
             }
         }
-        scheduler.runLaterTicks(LIFETIME_TICKS) { if (display.isValid) display.remove() }
+        scheduler.runLaterTicks(ExecutionScope.Entity(display.uniqueId), LIFETIME_TICKS) { if (display.isValid) display.remove() }
     }
 
     private fun label(amount: Int, style: DamageIndicatorStyle): Component {

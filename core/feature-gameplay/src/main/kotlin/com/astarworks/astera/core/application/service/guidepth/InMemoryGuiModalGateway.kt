@@ -29,7 +29,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * `Notification.dismissAfterTicks` auto-dismiss is **not** scheduled here
  * (no `IScheduler` dependency — mirrors the Wave 5cinematic
  * `InMemoryCameraGateway.freeze` decision). Tests dismiss explicitly; the
- * Paper adapter (Wave 6) wires `IScheduler.runLater(dismissAfterTicks) {
+ * Paper adapter (Wave 6) wires `IScheduler.run(dismissAfterTicks) {
  * dismissModal(handle) }`.
  */
 public class InMemoryGuiModalGateway(

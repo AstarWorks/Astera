@@ -50,7 +50,12 @@ public sealed class Targeter {
         public val distance: NumericValue,
         /** Nearest targets first; null preserves the full cone. */
         public val maxCount: Int? = null,
-    ) : Targeter()
+    ) : Targeter() {
+        public val baked: BakedHitShape.Cone = BakedHitShape.Cone(
+            (distance as? NumericValue.Literal)?.value ?: 0.0,
+            (angleDegrees as? NumericValue.Literal)?.value ?: 0.0,
+        )
+    }
 
     /** Non-teammates within [radius] of [center] (`null` = the 10-block default). */
     public data class Enemies(

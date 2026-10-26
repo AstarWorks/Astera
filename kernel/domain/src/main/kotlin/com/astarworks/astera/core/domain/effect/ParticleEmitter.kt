@@ -39,7 +39,36 @@ public data class PlannedParticle(val at: Vec3, val spec: ParticleSpec)
  */
 public object ParticleEmitter {
 
-    private class Sample(val position: Vec3, val tangent: Vec3, val outward: Vec3)
+    internal class Sample(val position: Vec3, val tangent: Vec3, val outward: Vec3)
+
+    /** Points and directions in caster space; null samples retain the vanilla scatter policy. */
+    public class BakedShape internal constructor(internal val samples: List<Sample>?, internal val full: Boolean) {
+        public val pointCount: Int? get() = samples?.size
+    }
+
+    public fun bake(shape: ParticleShape): BakedShape {
+        // Store raw curve results: rotating by identity here would change signed-zero/rounding behaviour.
+        fun local(c: Curve, points: Int, planar: Boolean = true, spherical: Boolean = false): List<Sample> =
+            c.distribute(points).map { t ->
+                val position = c.point(t)
+                val outward = when {
+                    spherical -> position
+                    planar -> Vec3(position.x, 0.0, position.z)
+                    else -> UP
+                }
+                Sample(position, c.tangent(t), outward.takeIf { it.lengthSquared() > EPS } ?: UP)
+            }
+        val samples = when (shape) {
+            ParticleShape.Point, is ParticleShape.Burst -> null
+            is ParticleShape.Line -> shape.points?.let { local(Curve.Line(Vec3.ZERO, Vec3(0.0, 0.0, shape.lengthBlocks)), it, planar = false) }
+            is ParticleShape.Circle -> shape.points?.let { local(Curve.Arc(shape.radiusBlocks, 0.0, 360.0), it) }
+            is ParticleShape.Ring -> local(Curve.Arc(shape.radiusBlocks, 0.0, 360.0), shape.points)
+            is ParticleShape.Arc -> local(Curve.Arc(shape.radiusBlocks, shape.fromDeg, shape.toDeg), shape.points)
+            is ParticleShape.Helix -> local(Curve.Helix(shape.radiusBlocks, shape.turns, shape.heightBlocks), shape.points)
+            is ParticleShape.Sphere -> shape.points?.let { local(Curve.FibonacciSphere(shape.radiusBlocks, it), it, spherical = true) }
+        }
+        return BakedShape(samples, shape is ParticleShape.Line || shape is ParticleShape.Sphere)
+    }
 
     public fun plan(
         def: ParticleDefinition,
@@ -49,7 +78,7 @@ public object ParticleEmitter {
     ): List<PlannedParticle> {
         val base = def.toParticleSpec(countOverride).copy(source = ctx.source)
         val velocity = def.velocity
-        val samples = sample(def.shape, at, ctx.look)
+        val samples = sample(def.bakedShape, at, ctx.look)
 
         if (samples == null) {
             if (velocity == null) return listOf(PlannedParticle(at, resolveTargets(base, at, ctx)))
@@ -76,7 +105,8 @@ public object ParticleEmitter {
         }
         val dir = (raw?.takeIf { it.lengthSquared() > EPS } ?: UP).normalize()
         val jittered = if (v.spreadDegrees > 0.0) coneJitter(dir, v.spreadDegrees, ctx.random) else dir
-        return base.copy(count = 0, offset = jittered, extra = v.speed)
+        val speed = if (v.speedJitter > 0.0) v.speed * (1.0 + v.speedJitter * ctx.random.nextDouble(-1.0, 1.0)) else v.speed
+        return base.copy(count = 0, offset = jittered, extra = speed)
     }
 
     private fun resolveTargets(spec: ParticleSpec, at: Vec3, ctx: ParticleEmitContext): ParticleSpec {
@@ -93,39 +123,18 @@ public object ParticleEmitter {
         }
     }
 
-    private fun sample(shape: ParticleShape, at: Vec3, look: Vec3?): List<Sample>? {
+    private fun sample(shape: BakedShape, at: Vec3, look: Vec3?): List<Sample>? {
+        val samples = shape.samples ?: return null
         val forward = look?.takeIf { it.lengthSquared() > EPS }
         val yawOnly = forward?.let { Vec3(it.x, 0.0, it.z) }?.takeIf { it.lengthSquared() > EPS } ?: forward
-        val flat = Frame(at, yawOnly?.let { Quaternion.lookRotation(it) } ?: Quaternion.IDENTITY)
-        val full = Frame(at, forward?.let { Quaternion.lookRotation(it) } ?: Quaternion.IDENTITY)
-        return when (shape) {
-            ParticleShape.Point, is ParticleShape.Burst -> null
-            is ParticleShape.Line ->
-                shape.points?.let { curve(Curve.Line(Vec3.ZERO, Vec3(0.0, 0.0, shape.lengthBlocks)), it, full, planar = false) }
-            is ParticleShape.Circle -> shape.points?.let { curve(Curve.Arc(shape.radiusBlocks, 0.0, 360.0), it, flat) }
-            is ParticleShape.Ring -> curve(Curve.Arc(shape.radiusBlocks, 0.0, 360.0), shape.points, flat)
-            is ParticleShape.Arc -> curve(Curve.Arc(shape.radiusBlocks, shape.fromDeg, shape.toDeg), shape.points, flat)
-            is ParticleShape.Helix ->
-                curve(Curve.Helix(shape.radiusBlocks, shape.turns, shape.heightBlocks), shape.points, flat)
-            is ParticleShape.Sphere ->
-                shape.points?.let { curve(Curve.FibonacciSphere(shape.radiusBlocks, it), it, full, spherical = true) }
-        }
+        val direction = if (shape.full) forward else yawOnly
+        val frame = Frame(at, direction?.let { Quaternion.lookRotation(it) } ?: Quaternion.IDENTITY)
+        return samples.map { local -> Sample(
+            position = frame.toWorld(local.position),
+            tangent = frame.directionToWorld(local.tangent),
+            outward = frame.directionToWorld(local.outward),
+        ) }
     }
-
-    private fun curve(c: Curve, points: Int, frame: Frame, planar: Boolean = true, spherical: Boolean = false): List<Sample> =
-        c.distribute(points).map { t ->
-            val local = c.point(t)
-            val outwardLocal = when {
-                spherical -> local
-                planar -> Vec3(local.x, 0.0, local.z)
-                else -> UP
-            }
-            Sample(
-                position = frame.toWorld(local),
-                tangent = frame.directionToWorld(c.tangent(t)),
-                outward = frame.directionToWorld(outwardLocal.takeIf { it.lengthSquared() > EPS } ?: UP),
-            )
-        }
 
     private fun randomUnit(r: Random): Vec3 {
         val y = r.nextDouble(-1.0, 1.0)

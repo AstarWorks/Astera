@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory
  * regional contract per ADR-0144 / ADR-0145 / ADR-0146). The port has no
  * `Result` return, so off-main calls log WARN and drop — matching the
  * InMemory SSOT's "unknown world → no-op" semantics. Callers from off-main
- * paths MUST round-trip via `IScheduler.runLater(Duration.ZERO, ...)`.
+ * paths MUST round-trip via `IScheduler.run(Duration.ZERO, ...)`.
  *
  * # Offline / unloaded world semantics
  *
@@ -55,7 +55,7 @@ public class PaperWorldTimeGateway(
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun setTime(world: WorldId, timeOfDay: Long) {
-        if (!server.isPrimaryThread) {
+        if (!org.bukkit.Bukkit.isGlobalTickThread()) {
             log.warn(
                 "PaperWorldTimeGateway.setTime called off main-thread (world={}, time={}); ignored",
                 world,
@@ -79,7 +79,7 @@ public class PaperWorldTimeGateway(
     }
 
     override fun freezeTime(world: WorldId, frozen: Boolean) {
-        if (!server.isPrimaryThread) {
+        if (!org.bukkit.Bukkit.isGlobalTickThread()) {
             log.warn(
                 "PaperWorldTimeGateway.freezeTime called off main-thread (world={}, frozen={}); ignored",
                 world,

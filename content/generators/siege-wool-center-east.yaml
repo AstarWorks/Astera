@@ -2,7 +2,7 @@
 # generator landmark of content/stages/siege-isles-wool.yaml at the same x/z; mirrors content/generators/arena-*.yaml.
 id: siege-wool-center-east
 match_stage_id: siege-isles-wool
-position: { x: 14.5, y: 65.0, z: 2300.5 }
+position: { x: 14.5, y: 65.0, z: 0.5 }
 period_seconds: 30.0
 amount: 1
 tier: iron

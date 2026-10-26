@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.command.admin
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandContext
 import com.astarworks.astera.core.application.command.CommandResult
@@ -33,7 +34,7 @@ import kotlin.time.Duration.Companion.seconds
  *     restart via [IScheduledAnnouncementSystem]'s `Once` trigger.
  *  3. Schedules four [AnnouncementBroadcastKind.Title] notices at N-30s,
  *     N-10s, N-3s, and N-1s before the restart instant.
- *  4. At N-1s schedules an [IScheduler.runLater] hook that calls
+ *  4. At N-1s schedules an [IScheduler.run] hook that calls
  *     [IServerBootstrapper.shutdown] with [ShutdownReason.Restart] so every
  *     `IServerLifecycleListener` runs its 5-phase shutdown sequence.
  *
@@ -109,7 +110,7 @@ public fun buildAsteraRestartCommandSpec(
         // → ... → "close database"); the player experience is "countdown ends
         // at the same beat as the server going down".
         val delaySec = (minutes * 60L - 1L).coerceAtLeast(0L)
-        scheduler.runLater(delaySec.seconds) {
+        scheduler.run(ExecutionScope.Global, delaySec.seconds) {
             bootstrapper.shutdown(ShutdownReason.Restart)
         }
 

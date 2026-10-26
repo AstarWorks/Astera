@@ -1,0 +1,22 @@
+# vfx-artist r24/r25: ring tiles, flares, ink driven by the rig path (rig_path.RigPath), director r23 + particle-artist r24
+# "hring-q2 frame 0 = orange sliver at the right-back on skill 3, before the blade". Content at commit 530f6fcb
+# (contentRevision f258c4d5, clean). Real client, one capture at a time, TICKS 24: compare maxRep 1 (camera lateness 91 ms),
+# side maxRep 1. Compare frame index = cast tick + 6 (PRE_TICKS_CMP); labels below = cast tick.
+#
+# Schedule (python3 tools/item-art/scripts/bastion_s1_sprites.py hring ring prints it):
+#   hring (fx-high, skill = fx + 3): swing window (3, 4, 6, 10); tail = tip angle at fx 3 (214 deg, right-back);
+#     first band per tile q0 4 / q1 7 / q2 4 / q3 8 (fx) -> spawn 2 / 5 / 2 / 6 with a blank frame 0; last frame fx 15.
+#     Tip off the ring plane: max 0.46 blocks (follow-through drops to the floor at the back).
+#   ring (fx-low, skill = fx + 27): window (0, 4, 6, 10); tail 163 deg; first band 1 / 4 / 1 / 3 -> spawn 0 / 2 / 0 / 1;
+#     last frame fx 16; off-plane max 0.22.
+# hring-schedule-fx2-11.png / ring-schedule-fx0-10.png: the 2x2 tiles composited per fx tick exactly as the flipbooks show
+#   them (montage.py), magenta circle = blade tip from the rig. The band ends at the tip on every tick; nothing before.
+# cmp-t3-8.jpg: t3-6 blade raised / coiled / low back: no ring piece anywhere (r24 had the q2 sliver at t5). t7-8 sweep + dolly.
+# cmp-t9-14.jpg: t9 contact (blade into the target, tint) without ring; t10-11 the ring arc swept so far (right side ->
+#   contact point), behind the blade; t12-14 the head runs on with the blade to the caster's left / back, head at the tip
+#   at t14 (blade low at the back).
+# side-t3-8 / side-t9-14 / side-zoom-t8-13: t3-9 no orange line at head height (r23 t5-6, r24 t7-9 had the edge-on ring);
+#   t10-12 the edge-on arc appears from the contact back over the caster's right shoulder (the part already swept);
+#   t13 the ring sweeps behind the caster with the blade at its head.
+# Ring first shows 1 tick after the blade's contact frame in both views (band at skill 7 + the client's display lag):
+#   behind the tip, never ahead. Display budget unchanged in count (fx-high sprite peak 10, fx-low 10).

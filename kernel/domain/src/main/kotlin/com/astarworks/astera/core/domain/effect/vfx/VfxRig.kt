@@ -3,7 +3,7 @@ package com.astarworks.astera.core.domain.effect.vfx
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.geometry.Vec3
-
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
 /**
  * Weapon rig + 風切り (wind-cut) trail: a group of block displays that swings rigidly about a pivot
  * (the hand), and a fan of translucent surfaces generated from the swept blade line. Pure data;
@@ -16,7 +16,10 @@ import com.astarworks.astera.core.domain.geometry.Vec3
  */
 public data class VfxRig(
     public val id: String,
-    /** Hand position relative to the anchor; the rig turns about it. */
+    /**
+     * Anchor mode: the hand position relative to the anchor; the rig turns about it. With [parent] = [VfxRigParent.RIGHT_HAND]
+     * it is an extra grip offset in the right-arm frame (default zero: the vanilla held grip).
+     */
     public val pivot: Vec3,
     /** `(yaw, pitch, roll)` degrees applied OUTSIDE the swing: tilts the whole swing plane. */
     public val tiltYawPitchRoll: Vec3 = Vec3.ZERO,
@@ -33,13 +36,24 @@ public data class VfxRig(
     public val emitters: List<VfxRigEmitter> = emptyList(),
     /** `true`: the freeze windows handed to [VfxTimeline.plan] (hit-stop) stop the swing and the fades. */
     public val respectHitStop: Boolean = false,
+    /** What the rig frame is attached to (ADR-0276). */
+    public val parent: VfxRigParent = VfxRigParent.ANCHOR,
+    /**
+     * The caster's real main-hand stack as ONE item display: `weapon(t) = hand(t) . grip . wrist(t)`. The `swing` keys are the
+     * wrist, authored in the body-rest frame: key 0 is the vanilla held pose, later keys are rotations away from it.
+     */
+    public val weapon: VfxRigWeapon? = null,
 ) {
+    internal val baked: BakedRig = BakedRig(this)
+
     init {
         require(id.isNotBlank()) { "VfxRig.id must not be blank" }
+        require(parent == VfxRigParent.ANCHOR || parts.isEmpty()) { "rig '$id': parts cannot ride the right hand (use weapon: main_hand)" }
+        require(weapon == null || parts.isEmpty()) { "rig '$id': weapon: main_hand replaces parts (one sword, ADR-0276)" }
         require(startTick >= 0) { "rig '$id' start_tick must be >= 0: $startTick" }
         require(endTick == null || endTick > startTick) { "rig '$id' end_tick ($endTick) must be > start_tick ($startTick)" }
-        require(parts.isNotEmpty() || trails.isNotEmpty() || boards.isNotEmpty() || emitters.isNotEmpty()) {
-            "rig '$id' needs parts, trails, boards or emitters"
+        require(weapon != null || parts.isNotEmpty() || trails.isNotEmpty() || boards.isNotEmpty() || emitters.isNotEmpty()) {
+            "rig '$id' needs a weapon, parts, trails, boards or emitters"
         }
         val ids = parts.map { it.id } + trails.map { it.id } + boards.map { it.id } + emitters.map { it.id }
         require(ids.toSet().size == ids.size) { "rig '$id' part / trail / board / emitter ids must be unique: $ids" }
@@ -49,6 +63,26 @@ public data class VfxRig(
         }
     }
 }
+
+/** What a [VfxRig] frame hangs from. */
+public enum class VfxRigParent {
+    /** The anchor (caster feet, cast-time yaw); the rig turns about [VfxRig.pivot]. */
+    ANCHOR,
+
+    /** The right arm of the performance body (needs `VfxDefinition.body`; without it the arm is at rest). */
+    RIGHT_HAND,
+}
+
+/**
+ * The weapon element of a rig. [tip], [root] and [edgeNormal] (rig-local, blocks) do not move the display; they describe the
+ * blade for the plan dump (`skill-lint`) and the fx path tooling: [tip] defaults to the first trail's `to`, [root] is the end of
+ * the blade (top of the guard).
+ */
+public data class VfxRigWeapon(
+    public val tip: Vec3? = null,
+    public val root: Vec3? = null,
+    public val edgeNormal: Vec3 = Vec3(1.0, 0.0, 0.0),
+)
 
 /**
  * One rigid block-display part. [offset] is the CENTRE of the part's box and [size] its box, both in the
@@ -64,6 +98,9 @@ public data class VfxRigPart(
     public val brightness: Int? = null,
     public val glowArgb: Int? = null,
 ) {
+    public val rotation: Quaternion =
+        Quaternion.fromEulerDegrees(rotateEuler.x, rotateEuler.y, rotateEuler.z)
+
     init {
         require(id.isNotBlank()) { "VfxRigPart.id must not be blank" }
         require(block.isNotBlank()) { "rig part '$id' block must not be blank" }

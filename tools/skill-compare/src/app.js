@@ -1,6 +1,7 @@
 // skill-compare case page. Master clock = ms since case.start_s; see timeline.js for the mappings.
 import { createFrameCache } from "./frame-cache.js";
 import { renderProv } from "./prov.js";
+import { createViews } from "./views.js";
 import {
   TICK_MS, clamp, msToVideoFrame, videoFrameToMs, msToTick, tickToMs, sToMs, msToS, castMs, focusZones, effectiveSpeed,
 } from "./timeline.js";
@@ -40,16 +41,18 @@ function init(d) {
   $("who").value = store.get("skill-compare.who") || "";
   $("cnotes").value = S.c.notes || "";
   S.frameCache = createFrameCache(() => { S.needsRedraw = true; });
+  S.views = createViews({ S, $, clamp, msToTick, tickToMs, castOf, seek });
   setupVideo();
   setupSkillNav();
   setupMc();
+  S.views.setup();
   setupControls();
   recomputeZones();
   buildTimeline();
   syncFocusUi();
   const m = /[#&?]t=(\d+)/.exec(location.hash + location.search);
   if (m) S.ms = clamp(+m[1], 0, S.dur);
-  const fm = /[#&?]focus=(video|mc)/.exec(location.hash + location.search);
+  const fm = /[#&?]focus=(video|pv|mc)/.exec(location.hash + location.search);
   if (fm) setFocusCol(fm[1]);
   update(true);
   requestAnimationFrame(tickLoop);
@@ -164,10 +167,10 @@ function prepareFrames(ms) {
   const urls = [];
   for (let i = 0; i <= 12; i++) {
     const t = clamp(ms + i * 1000 / Math.max(S.fps, 20), 0, S.dur);
-    urls.push(videoUrl(t), mcFrame(t)?.url);
+    urls.push(videoUrl(t), mcFrame(t)?.url, ...S.views.urls(t));
   }
   S.frameCache.want(urls);
-  const current = [videoUrl(ms), mcFrame(ms)?.url].filter(Boolean);
+  const current = [videoUrl(ms), mcFrame(ms)?.url, S.views.previewUrl(ms)].filter(Boolean);
   const failed = current.some((url) => S.frameCache.get(url)?.state === "error");
   const ready = current.every((url) => S.frameCache.get(url)?.state === "ready");
   $("buffer").hidden = ready;
@@ -401,6 +404,7 @@ function update(force) {
   if (force || vf !== S.lastVideo) { S.lastVideo = vf; drawVideo(S.ms); }
   $("vinfo").textContent = `frame ${vf} / ${Math.max(0, S.frameCount - 1)} @ ${S.fps} fps`;
   showMc(S.ms);
+  S.views.show(S.ms);
   const tick = msToTick(S.ms, castOf());
   const inZ = S.c.focus.enabled && S.zones.some((z) => S.ms >= z.from && S.ms <= z.to);
   $("read").innerHTML = `<b>${S.ms.toFixed(0)}</b> ms &middot; video <b>${(S.c.start_s + S.ms / 1000).toFixed(3)}s</b> f<b>${vf}</b> &middot; MC tick <b>${tick}</b>${inZ ? " &middot; <b style='color:var(--accent)'>focus</b>" : ""}`;
@@ -409,6 +413,7 @@ function update(force) {
 }
 
 function setFocusCol(name) {
+  if (name === "pv" && !S.data.views?.preview) name = "";
   $("cols").classList.toggle("f", !!name);
   document.querySelectorAll(".col").forEach((c) => c.classList.toggle("focus", c.dataset.col === name));
   document.querySelectorAll("[data-focus]").forEach((b) => b.classList.toggle("on", b.dataset.focus === (name || "")));

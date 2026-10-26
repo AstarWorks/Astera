@@ -1,0 +1,139 @@
+# limbus-vfx round 5 (particle layer) -> director.
+# The whole new layer lives INSIDE content/vfx/bastion-s1-fx-high.yaml / -fx-low.yaml as `kind: particle` elements (ids s1h1-p-* / s1h2-p-*),
+# so it is tick-exact on the fx clock (fx-high delay 3, fx-low delay 27; contact = effect tick 4) and costs ZERO displays.
+# Particle definitions: content/particles/bastion-s1-p-*.yaml (22 files). Generator: tools/item-art/scripts/bastion_s1_particles.py
+# (run it AFTER tools/item-art/scripts/bastion_s1_fx.py: that script rewrites the fx files and drops the marked particle block).
+#
+# Skill YAML: NO step has to be added. The old caster-feet spawn_particle steps become redundant noise (they spawn flat at the feet,
+# 3-5 particles) and should be REMOVED from content/skills/bastion-greatsword-s1.yaml; keep the two bastion-s1-hit-crit steps (target chest burst).
+remove_steps:            # type: spawn_particle, targets: caster, delay_ticks as listed
+  - {particle_id: bastion-s1-ember,       delay_ticks: [5, 6, 7, 8, 29, 30, 31]}
+  - {particle_id: bastion-s1-dust-gold,   delay_ticks: [6, 30, 31]}
+  - {particle_id: bastion-s1-dust-black,  delay_ticks: [6, 30, 31]}
+  - {particle_id: bastion-s1-hit-spark,   delay_ticks: [7, 31]}
+  - {particle_id: bastion-s1-smoke-dark,  delay_ticks: [8, 32]}
+keep_steps:
+  - {particle_id: bastion-s1-hit-crit, delay_ticks: [7, 31], targets: cone target}
+cues: []
+# Round 7b (particle-artist): emitters re-ridden on the r7 rig (pivot [-0.348, 0.773, 0.293], tip table evidence/animator/r7/per-key-tip-face.txt):
+#   hit 1: blade path fx 1-9 = skill 4-12 (chop plane tilted 22 deg -> contact phi 6 / pitch -15 at fx 4 -> floor drag to phi 106);
+#          gold r 2.15, dark r 2.45 (smear's dark rim), half-tick lagging gold r 2.0, inner gold/dark r 1.5 for the last 50 deg into the contact.
+#          Contact cluster on the contact blade at r 1.85 = (-0.16, 0.29, 2.06); ground grain below it (y 0.1).
+#   hit 2: blade path fx 1-8 = skill 28-35 on the low ring (phi 210 -> contact phi 18 at fx 4 -> follow phi 102), + a 0.3-higher line;
+#          contact cluster on the contact blade at r 1.2 = (0.02, 0.46, 1.40) (in front of the target body, dash stop 1.7);
+#          shockwave rings centred under the ring smear's pivot (-0.348, 0.08, 0.293).
+#   Chords that would cut a camera keep-out (caster eye < 1.55, opponent eye < 0.85) are dropped by splitting the along_path element.
+#   Particle defs changed: crit speed 1.0 -> 0.7, spark-up 1.6 -> 1.0, nugget 0.28 -> 0.22, coal 0.22 -> 0.18 (contact sits 1.2-1.4 under
+#   the opponent eye), converge arc = FRONT half r 0.55 (the back half reached 1.0 from the caster eye in hit 2).
+# Per-tick vanilla particle totals (computed by script from the shipped YAML, along_path points included):
+#   hit 1 (skill tick = e + 3): e1 2, e2 19, e3 38, e4 58, e5 52, e6 43, e7 16, e8 19, e9 20, e10 5   (total 272, peak 58; r5 276 / 58)
+#   hit 2 (skill tick = e + 27): e1 2, e2 27, e3 59, e4 114, e5 104, e6 74, e7 42, e8 31, e9 22, e10 10, e11 10, e12 3   (total 498, peak 114; r5 515 / 111)
+# Clearance (emission points): caster eye min >= 1.5 (0 points inside; r5 had 54 / 112 inside), opponent eye min 0.85 (both hits).
+# Round 8 (particle-artist, real-client r5 diffs): lingering types removed. bastion-s1-p-glow + -p-trail-glint (wax_on, hung 30-40 ticks)
+#   and -p-firework (white flecks, hung 15-20+ ticks) are DELETED; replaced by `trail` glints that travel and die on arrival:
+#   bastion-s1-p-glint (gold, 6 ticks), -p-glint-hot (white-gold, 4 ticks), -p-glint-rise (orange, 9 ticks); one element per glint
+#   (ids s1h1-p-glint*, s1h2-p-glint*), count 1, trail_to = its own target in the fx frame.
+#   hit 1: blade shed fx 1-8 (gold r 2.15 -> r 2.55, 0.7 tick ahead) + fx 2-7 (hot r 1.85 -> r 2.2); contact glints fx 4-7 (8): 20 kept.
+#   hit 2: blade shed fx 1-8 + fx 2-7 + high line fx 2-8 (y +0.35); contact glints fx 4-8 (10): 28 kept.
+#   Travel 0.4-1.7 blocks; every start->target chord clears caster eye >= 1.55 and opponent eye >= 1.03.
+#   Net per-tick count change vs r7b: wax_on glint path points (1 per 0.45-0.6 block) out, 1 trail per element in; peaks drop slightly.
+# Round 9 (particle-artist, real-client r6 diffs): nothing may rest on the floor. `item` chips (gold_nugget: yellow square still t13-26;
+#   charcoal) and `block_crumble` debris (stone/deepslate/gravel: dark squares on the floor t44-66+) landed and stayed. DELETED
+#   bastion-s1-p-nugget / -p-coal / -p-debris / -p-debris-dark; -p-wave-chip is now dust. New: -p-fleck-gold (dust_color_transition
+#   gold->orange 0.35, burst 0.14), -p-fleck-dark (dust #1A140E 0.3), -p-grit (dust_color_transition grey->dark 0.35, 0.15-0.3 above
+#   the floor), -p-chip-grey / -p-chip-dark (`trail` 5 / 6 ticks, flung up/out from the floor contact, removed on arrival in mid-air;
+#   hit 1: 5 chips fx 4-6, hit 2: 7 chips fx 4-7, keep-out checked).
+#   Glyph look at the hit-2 close-up: crit count 5 -> 3 per call, hit 2 crit calls 6 -> 4; -p-trail-spark crit -> electric_spark
+#   (speed 1.6 along_tangent); bastion-s1-hit-crit (skill YAML cone target) 8 -> 5 per call. Dust scales down: trail-dark 0.55 -> 0.32
+#   (hit 2 steps 0.32/0.4 -> 0.42/0.52), trail-gold 0.5 -> 0.4, dust-dark 0.7 -> 0.35, dust-ground 0.7 -> 0.45, waves 0.6 -> 0.45.
+#   Emission per fx tick (count x shape points x along_path points): hit 1 e2 11, e3 25, e4 65, e5 51, e6 38, e7 16, e8 15, e9 15, e10 3
+#   (total 239, r8 246); hit 2 e1 3, e2 26, e3 50, e4 98, e5 93, e6 66, e7 39, e8 24, e9 15, e10-11 6, e12 3 (total 429, r8 453).
+#   Fx-relative timing unchanged (the director shifts fx-high's play delay +1 for the tick-8 contact).
+# Round 10 (particle-artist, reviewer FAIL on real client r7: dust / dust_color_transition render as pixel `#` splats and sit
+#   still; `trail` dots are flat squares that do not move; orange-brown ember cluster hung at waist height t41-52).
+#   REBUILT. Deleted: every dust / dust_color_transition / trail / crit def of this layer (bastion-s1-p-chip-*, -converge, -crit,
+#   -dust-*, -ember, -fleck-*, -glint*, -grit, -trail-gold, -trail-dark, -wave-*) and the unreferenced round-1 defs
+#   (bastion-s1-ember, -dust-gold, -dust-black, -ground-poof, -hit-spark, -smoke-dark). Rewritten to electric_spark (2-3 ticks):
+#   bastion-s1-tip-ember / -tip-glint (rig emitters, ids unchanged) and bastion-s1-hit-crit (skill YAML, id unchanged, count 6).
+#   Layer now = vanilla electric_spark only (-p-spark, -p-spark-up, -p-spark-burst (new, replaces crit), -p-trail-spark on the
+#   blade path) + SPRITE display particles (emit on sprite elements, one display each):
+#     s1h1-p-glints-l / -r   bastion-s1-glint '#FFC850'  4+4  rate 2 (fx 4-5)  speed 0.24-0.34  custom[+-1, 1.1, -0.3] spread 30  drag 0.12
+#                            gravity 0.03  life 3-5  size 0.09-0.13 (0.29-0.42 blocks)  grow 0.5 -> 1 at 25% -> 0  spin 25 deg/tick
+#     s1h1-p-slivers         bastion-s1-sliver '#FF2A2218'  5  rate 3 (fx 4-5)  speed 0.2-0.28  custom[0, 1, -0.8] spread 50  life 4-6
+#     s1h2-p-glints-l / -r   as hit 1, 5+5 rate 3, size 0.1-0.14, custom[+-1, 1, 0.1] (sideways only: caster eye 1.8 behind)
+#     s1h2-p-slivers-l / -r  3+3 rate 2, custom[+-0.9, 1, -0.1] spread 35
+#   All sprite particles spawn 0.25 above the contact (hit 1 y 0.54, hit 2 y 0.71), fly up/out ~0.6-1.2 blocks, shrink to 0.
+#   Knee rule (nothing below y 0.5 after contact + 3): blade-path spark points below the knee only up to fx 5; contact spark calls
+#   after fx 5 start 0.35 higher. Every particle dies <= 6 ticks after spawn (electric_spark 2-3).
+#   Hit-1 timing: H1_DELAY 4 + r9 keys (contact skill 8 = fx 4), fx-relative timing unchanged.
+# Round 11 (particle-artist, rig r10: hit 1 = tilted horizontal sweep, tip on y = 1.15 + tan20 z; display core = gold ring smear
+#   s1h1-ring / -ring-b in that plane). Hit-1 layer re-ridden; hit 2 unchanged. Tip path = circle about (-0.35, 1.15, 0) at
+#   horizontal angle alpha (0 left, 90 forward, 180 right): skill 6 181.2, 7 134.8, 8 93.5 (contact, frozen 8-10), 11 45.2, 12 -3.3.
+#   s1h1-p-trail-spark*  electric_spark along_tangent on the blade path, 3 lines (tip r 2.45, lagging inner r 2.05 -0.5 tick,
+#                        leading r 2.6 +0.4 tick), fx 2-4 (skill 6-8, right side into the front) and fx 6-8 (skill 10-12,
+#                        follow-through round the left); front points/chords inside a camera keep-out are dropped.
+#   s1h1-p-cut-spark*    electric_spark flicks thrown ALONG the cut (+x, the sweep direction) from just under the contact blade,
+#                        fx 4 / 5 / 6, 0.4-block 2-key paths (y 1.25-1.37, z 1.47-1.61).
+#   s1h1-p-spark-burst*  outward burst behind the contact at (-0.75, 1.4, 1.45), fx 4 / 5 / 6.
+#   s1h1-p-spark-up*     up-flicks at the contact (-0.44, 1.54, 1.59) +-, fx 4 / 5.
+#   s1h1-p-glints-l / -r / -slivers  unchanged emitters, spawned at (-0.44, 1.69, 1.49) (contact + 0.15 up): 4 + 4 + 5 displays.
+#   s1h1-p-shed-r / -l   NEW sprite glint emitters on the blade tip where the smear head passes: front-right fx 3 (skill 7),
+#                        front-left fx 7 (skill 11), 3 each (rate 2), flung outward + up, life 3-5.
+#   (the old forward-cone `bastion-s1-p-spark` call is gone from hit 1: at eye height it would fly into the opponent camera)
+#   Clearance (emission points + chords): caster eye >= 1.50, opponent eye >= 0.84 (hit 2 unchanged: 1.39 / 0.71).
+#   Emission per fx tick (def count x path points), hit 1: e2 3, e3 13, e4 12, e5 12, e6 9, e7 6, e8 10 (total 65; r10 39).
+#   Expected visible at once (electric_spark ~2-3 tick life + sprite particles alive):
+#     hit 1: contact skill 8-10 ~26-30 sparks + 10-16 sprite glints/slivers (~40-46 moving particles), follow-through skill 11-12
+#            ~20 sparks + 9-16 sprites; hit 2 (unchanged): contact skill 31-33 ~34-41 sparks + 10-16 sprites (~50-57).
+display_particles:
+  fx-high: {added_displays: 19}   # glints 8 + slivers 5 + shed 6 (shed-r alive fx 3-8, shed-l fx 7-12)
+  fx-low:  {added_displays: 16}   # glints 10 + slivers 6
+display_budget_peak: {fx-high: 34, fx-low: 34}   # conservative: fx-high sprites 15 + 19 particles (all lives max) at fx 7-8; + rig 22 = 56 <= 60
+# Round 12 (particle-artist, real-client r8: electric_spark lavender-white and blocky "+" within ~3 blocks of a camera).
+#   REMOVED from the fx layer: every electric_spark element (s1h1/s1h2 -p-trail-spark*, -p-cut-spark*, -p-spark-burst*, -p-spark-up*,
+#   -p-spark*) and the four generated defs bastion-s1-p-spark / -p-spark-up / -p-spark-burst / -p-trail-spark (files deleted).
+#   Also removed (vfx role, same commit): the static orange spark sprites s1h1-spark-1..6 / s1h2-spark-1..6.
+#   NEW sprite: bastion-s1-spark (64 px, 4 frames, smooth gold streak-glint; size 1 = 1.6 blocks).
+#   Hit 1 (fx-high, contact fx 4), sprite display particles (one display each), all spin 0 except the stars:
+#     s1h1-p-shed-r / -r2 / -l / -l2  spark   3/2/3/2  fx 2/3/7/8   on the tip where the ring head passes, outward + up, life 3-4
+#     s1h1-p-sparks-r     spark   7 rate 3 fx 4-6  custom[-1, 0.45, 0.15] spread 35 speed 0.3-0.45 drag 0.15 life 3-4 size 0.14-0.2
+#     s1h1-p-sparks-up    spark   5 rate 2 fx 4-6  custom[-0.35, 1, 0.15] spread 25 speed 0.2-0.3
+#     s1h1-p-streaks      streak '#FF8A1E' 5 rate 2 fx 4-6  custom[-1, 0.2, 0.25] speed 0.35-0.5 drag 0.2 size 0.07-0.1
+#     s1h1-p-glints-up/-r glint '#FFC850' 2+2 fx 4 / 5
+#     s1h1-p-slivers      sliver (untinted brown) 5 rate 2 fx 4-6 custom[-1, 0.8, 0.1] size 0.04-0.06 spin 0
+#     alive per fx tick (conservative): 2, 5, 16, 27, 29, 28, 22, 11, 6, 3 (fx 2-11); core 6 -> peak 35 + rig 22 = 57 <= 60
+#   Hit 2 (fx-low, contact fx 4): s1h2-p-shed / -2 spark 3/2 fx 2/3 on the blade; per side l/r: sparks 6 rate 3 custom[+-1, 0.15, 0]
+#     spread 20, streaks 2, glints 2 (fx 5), slivers 2 custom[+-0.9, 0.3, 0.1]; spawn (0.01, 0.84, 1.4)
+#     alive (conservative): 2, 5, 19, 29, 27, 24, 14 (fx 2-8); core 8-10 -> peak 59 incl. rig 22
+#   Keep-out (planner maths): hit 1 caster eye >= 1.30, opponent eye >= 0.89; hit 2 caster >= 1.44, opponent >= 0.68.
+#   DIRECTOR (files outside this role): electric_spark is still emitted by
+#     content/vfx/bastion-s1-rig.yaml emitters tip_ember_1/2 (bastion-s1-tip-ember) and tip_glint_1/2 (bastion-s1-tip-glint): on the
+#       blade tip, 1-2.5 blocks from the caster eye in every tick -> remove those four emitter lines (the ring + sheds carry the tip);
+#     content/skills/bastion-greatsword-s1.yaml spawn_particle bastion-s1-hit-crit (lines ~104 and ~199, target chest = right under
+#       the opponent camera) -> remove both steps (the fx contact clusters carry the hit).
+# Round 14 (particle-artist, director r10 cas-sparks-3x: orange glint stars large in the caster FP t11-13 / t36).
+#   Counts, ticks and the rest of the layer unchanged; only the four glint emitters moved out of the caster near field:
+#     s1h1-p-glints-up  glint '#FFC850' 2 fx 4  spawn (-1.25, 1.75, 1.75) custom[-0.5, 1.1, 0.25]  size 0.07-0.1 (was 0.09-0.13)
+#     s1h1-p-glints-r   glint '#FFC850' 2 fx 5  spawn (-1.25, 1.75, 1.75) custom[-1, 1.1, 0.15]     size 0.07-0.1
+#     s1h2-p-glints-l/r glint '#FFC850' 2+2 fx 5 spawn (+-0.9, 0.84, 1.75) custom[+-1, 0.2, 0.15]  size 0.08-0.11 (was 0.1-0.14)
+#   Keep-out (planner maths): glints caster eye >= 2.17 (was 1.39-1.49), opponent eye >= 1.41 (hit 1) / 1.29 (hit 2).
+#   Display peaks unchanged: fx-high 29 / fx-low 29 conservative particles (+ core 5 / 9 + rig 22).
+#   DIRECTOR: hit-2 peak fx 5 = rig 22 + core 9 + particles 27 expected (29 conservative) = 58-60; a +4 rig part round exceeds 60.
+# Round 15 (particle-artist, reviewer r11: flat orange 4-point stars under the target in caster f11-14; grey smoke curl at chest
+#   height between the players compare t37-39 / side t38). No 4-point star sprite left in the particle layer:
+#     s1h1-p-motes-up / -r   spark (untinted, spin 0)  2+2 fx 4 / 5  spawn (-1.25, 1.75, 1.75)  size 0.1-0.13  (were glints-up / -r)
+#     s1h2-p-motes-l / -r    spark (untinted, spin 0)  2+2 fx 5      spawn (+-0.9, 0.96, 1.75) custom[+-1, 0.3, 0.15] gravity 0.02
+#   Hit-2 contact sprays raised: spawn y 0.84 -> 0.96 (streaks 0.76 -> 0.91), cones custom[+-1, 0.3, 0] gravity 0.01;
+#     shed-2 floor 0.6 -> 0.9. y_min over every flight (planner maths): hit 1 >= 0.89, hit 2 >= 0.62 (was 0.32-0.47).
+#   Keep-out: hit 1 unchanged (caster >= 1.30, opponent >= 0.95); hit 2 caster >= 1.38, opponent >= 0.59 at the nominal eye
+#     z 1.7 (r11 calibration puts the opponent eye at z ~2.0-2.2, i.e. >= ~0.8).
+#   Smoke: s1h2-smoke-up (sprite, display core file, assigned to this role) y 0.85 -> 0.4 (rises to 0.75), width 1.0 -> 1.5,
+#     tint '#A0A8A8B0' -> '#80B4B4BC' (fainter, lighter). Display counts and peaks unchanged (fx-high 29 / fx-low 29 conservative).
+# Round 24 (particle-artist, director r23: detached orange streak in the coil): the generator no longer carries any rig keys or
+#   delays. tools/item-art/scripts/rig_path.py reads content/vfx/bastion-s1-rig.yaml + content/skills/bastion-greatsword-s1.yaml
+#   (rig / fx play delays, freezes, dashes) and gives the blade path in each fx frame; bastion_s1_particles.py derives from it:
+#   contacts (fx-high 4, fx-low 4), shed windows by blade speed >= 1 block/tick (fx-high 3-4 and 6-10, fx-low 0-4 and 6-10),
+#   sheds every 0.4 block on the true arc (r 2.3; hit-2 follow-through r 2.0), ring embers on the arc, contact anchors = blade
+#   r 1.5 / 1.2 at contact, follow-through spray on the blade tangent. Same element ids / particle files; display counts unchanged.
+#   After any animator re-key: run bastion_s1_fx.py, then bastion_s1_particles.py. Nothing to change in the skill YAML.
+#   For the director/vfx-artist: the compare coil flick is the ring tile s1h1-ring-q2 frame 0 (fx 0), not a particle.

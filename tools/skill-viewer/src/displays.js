@@ -38,14 +38,14 @@ export function lightFactor(b) {
   return 0.04 + 0.96 * (v / (4 - 3 * v));
 }
 
-function entityMaterial(map, { alpha = 1, light = 1, diffuse = true, cutoff = 0.01, transparent = false, depthTest = true, side = THREE.FrontSide } = {}) {
+export function entityMaterial(map, { alpha = 1, light = 1, diffuse = true, cutoff = 0.01, transparent = false, depthTest = true, side = THREE.FrontSide } = {}) {
   return new THREE.ShaderMaterial({
     vertexShader: VERT, fragmentShader: FRAG, transparent, depthWrite: !transparent, depthTest, side,
     uniforms: { map: { value: map }, tint: { value: new THREE.Vector3(1, 1, 1) }, alpha: { value: alpha }, light: { value: light }, diffuse: { value: diffuse ? 1 : 0 }, cutoff: { value: cutoff } },
   });
 }
 
-function spriteTexture(s) {
+export function spriteTexture(s) {
   const t = new THREE.DataTexture(new Uint8Array(s.data.buffer.slice(s.data.byteOffset, s.data.byteOffset + s.data.byteLength)), s.w, s.h, THREE.RGBAFormat);
   t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; t.needsUpdate = true;
   return t;

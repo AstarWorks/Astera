@@ -45,6 +45,50 @@ import kotlin.math.roundToInt
  */
 public object VfxTimeline {
 
+    /** Content-owned caster-space tables. Seeded jitter, cast scale and anchor rotation remain runtime inputs. */
+    public class BakedVfx internal constructor(internal val elements: List<BakedElement>)
+
+    internal class BakedElement(val element: VfxElement, duration: Int) {
+        val frames = resolveKeyframes(element.keyframes)
+        val group = resolveGroup(element.groupKeyframes)
+        val breakpoints = (frames.map { it.t } + group.map { it.t }).distinct().sorted()
+        val locals = if (frames.isEmpty()) emptyList() else (0..duration).map {
+            oscillated(stateAt(frames, it), element.oscillate, it)
+        }
+        val localRotations = locals.map { Quaternion.fromEulerDegrees(it.euler.x, it.euler.y, it.euler.z) }
+        val groups = (0..duration).map { groupAt(group, it) }
+        val groupRotations = groups.map { Quaternion.fromEulerDegrees(it.euler.x, it.euler.y, it.euler.z) }
+        val positions: List<Vec3>
+        val rotations: List<Quaternion>
+        init {
+            val formation = element.formation
+            val params = formation?.curve?.distribute(element.count, formation.closed) ?: List(element.count) { 0.0 }
+            val tilt = formation?.tiltYawPitchRoll?.let { Quaternion.fromEulerDegrees(it.x, it.y, it.z) } ?: Quaternion.IDENTITY
+            positions = params.map { t ->
+                if (formation == null) Vec3.ZERO else formation.offset + tilt.rotate(formation.curve.point(t))
+            }
+            rotations = params.map { t ->
+                if (formation == null) Quaternion.IDENTITY else when (formation.align) {
+                    VfxAlign.TANGENT -> tilt * Quaternion.lookRotation(formation.curve.tangent(t))
+                    VfxAlign.OUTWARD -> tilt * Quaternion.lookRotation(outward(formation.curve, formation.curve.point(t)))
+                    VfxAlign.ANCHOR -> tilt
+                    VfxAlign.NONE -> Quaternion.IDENTITY
+                }
+            }
+        }
+        fun localAt(u: Int): Local = locals.getOrNull(u) ?: oscillated(stateAt(frames, u), element.oscillate, u)
+        fun localRotation(u: Int): Quaternion = localRotations.getOrNull(u) ?: localAt(u).euler.let {
+            Quaternion.fromEulerDegrees(it.x, it.y, it.z)
+        }
+        fun groupAtTick(u: Int): GroupLocal = groups.getOrNull(u) ?: groupAt(group, u)
+        fun groupRotation(u: Int): Quaternion = groupRotations.getOrNull(u) ?: groupAtTick(u).euler.let {
+            Quaternion.fromEulerDegrees(it.x, it.y, it.z)
+        }
+    }
+
+    public fun bake(def: VfxDefinition): BakedVfx = BakedVfx(def.elements.map { BakedElement(it, def.durationTicks) })
+
+
     /** A chunk turning more than this would be cut short by the client's shortest-path slerp. */
     public const val MAX_STEP_ROTATION_DEG: Double = 170.0
 
@@ -67,11 +111,20 @@ public object VfxTimeline {
         scale: Double = 1.0,
         sprites: SpriteFrames = SpriteFrames.NONE,
         freezes: List<VfxFreeze> = emptyList(),
+        /** The resolved `body:` animation of a performance (ADR-0276); required when [VfxDefinition.body] is set. */
+        body: VfxBodyContext? = null,
     ): VfxPlan {
+        require((def.body == null) == (body == null)) {
+            if (body == null) "effect '${def.id}' has body '${def.body}' but no body animation was resolved" else "effect '${def.id}' has no body but one was supplied"
+        }
+        val track = body?.let { VfxBodyTrack(it) }
         val slots = def.elements.flatMapIndexed { index, element ->
             planElement(def, element, index, anchor.rotation, seed, scale, sprites)
-        } + def.rigs.flatMap { VfxRigPlanner.plan(def, it, anchor.rotation, scale, freezes) }
-        return VfxPlan(anchor.origin, def.durationTicks, def.follow, slots.sortedBy { it.spawnTick }, def.followTeleportTicks, def.attachToAnchor, def.replaceGroup)
+        } + def.rigs.flatMap { VfxRigPlanner.plan(def, it, anchor.rotation, scale, freezes, if (it.weapon != null) track else null) }
+        return VfxPlan(
+            anchor.origin, def.durationTicks, def.follow, slots.sortedBy { it.spawnTick }, def.followTeleportTicks, def.attachToAnchor, def.replaceGroup,
+            performance = def.isPerformance, cutTicks = VfxBodyPlanner.cutTicks(slots),
+        )
     }
 
     // ---- element ---------------------------------------------------------------
@@ -85,12 +138,9 @@ public object VfxTimeline {
         scale: Double,
         sprites: SpriteFrames,
     ): List<VfxElementPlan> {
-        if (el.emit != null) return VfxEmitterPlanner.plan(def, el, elementIndex, anchorRot, seed, scale)
+        if (el.emit != null) return VfxEmitterPlanner.plan(def, el, elementIndex, anchorRot, seed, scale, sprites)
         val formation = el.formation
-        val curveParams = formation?.curve?.distribute(el.count, formation.closed) ?: List(el.count) { 0.0 }
-        val tilt = formation?.tiltYawPitchRoll?.let { Quaternion.fromEulerDegrees(it.x, it.y, it.z) } ?: Quaternion.IDENTITY
-        val keyframes = resolveKeyframes(el.keyframes)
-        val group = resolveGroup(el.groupKeyframes)
+        val baked = def.baked.elements[elementIndex]
         val absoluteEnd = el.endTick ?: def.durationTicks
         val out = ArrayList<VfxElementPlan>(el.count)
 
@@ -102,8 +152,8 @@ public object VfxTimeline {
             val life = despawn - spawn
             if (life <= 0) continue
 
-            val geometry = slotGeometry(el, formation, curveParams[slot], tilt, anchorRot, scale, slotRandom(seed, elementIndex, slot))
-            val ctx = SlotContext(el, keyframes, group, anchorRot, geometry, scale, life, def.sampleTicks)
+            val geometry = slotGeometry(el, baked.positions[slot], baked.rotations[slot], anchorRot, scale, slotRandom(seed, elementIndex, slot))
+            val ctx = SlotContext(el, baked, anchorRot, geometry, scale, life, def.sampleTicks)
 
             out += if (el.kind is VfxElementKind.Particle) {
                 particleSlot(el, el.kind, formation, slot, spawn, despawn, ctx)
@@ -126,25 +176,12 @@ public object VfxTimeline {
 
     private fun slotGeometry(
         el: VfxElement,
-        formation: VfxFormation?,
-        t: Double,
-        tilt: Quaternion,
+        localPos: Vec3,
+        slotRot: Quaternion,
         anchorRot: Quaternion,
         scale: Double,
         rng: SeededRandom,
     ): SlotGeometry {
-        var localPos = Vec3.ZERO
-        var slotRot = Quaternion.IDENTITY
-        if (formation != null) {
-            val point = formation.curve.point(t)
-            localPos = formation.offset + tilt.rotate(point)
-            slotRot = when (formation.align) {
-                VfxAlign.TANGENT -> tilt * Quaternion.lookRotation(formation.curve.tangent(t))
-                VfxAlign.OUTWARD -> tilt * Quaternion.lookRotation(outward(formation.curve, point))
-                VfxAlign.ANCHOR -> tilt
-                VfxAlign.NONE -> Quaternion.IDENTITY
-            }
-        }
         var jitterPos = Vec3.ZERO
         var jitterRot = Quaternion.IDENTITY
         var scaleFactor = 1.0
@@ -183,15 +220,15 @@ public object VfxTimeline {
 
     // ---- keyframe state --------------------------------------------------------
 
-    private data class Local(val translate: Vec3, val euler: Vec3, val scale: Vec3)
+    internal data class Local(val translate: Vec3, val euler: Vec3, val scale: Vec3)
 
-    private class Resolved(val t: Int, val local: Local, val ease: Easing, val block: String?, val text: String?)
+    internal class Resolved(val t: Int, val local: Local, val ease: Easing, val block: String?, val text: String?)
 
     private val UNIT_SCALE = Vec3(1.0, 1.0, 1.0)
 
-    private data class GroupLocal(val translate: Vec3, val euler: Vec3, val scale: Double)
+    internal data class GroupLocal(val translate: Vec3, val euler: Vec3, val scale: Double)
 
-    private class GroupResolved(val t: Int, val local: GroupLocal, val ease: Easing)
+    internal class GroupResolved(val t: Int, val local: GroupLocal, val ease: Easing)
 
     private val GROUP_IDENTITY = GroupLocal(Vec3.ZERO, Vec3.ZERO, 1.0)
 
@@ -266,18 +303,19 @@ public object VfxTimeline {
 
     private class SlotContext(
         val el: VfxElement,
-        val frames: List<Resolved>,
-        val group: List<GroupResolved>,
+        val baked: BakedElement,
         val anchorRot: Quaternion,
         val geometry: SlotGeometry,
         val scale: Double,
         val life: Int,
         val sampleTicks: Int,
     ) {
-        fun localAt(u: Int): Local = oscillated(stateAt(frames, u), el.oscillate, u)
+        val frames = baked.frames
+        val group = baked.group
+        fun localAt(u: Int): Local = baked.localAt(u)
 
         /** Sorted distinct element-relative ticks where the element or group track changes slope. */
-        val breakpoints: List<Int> = (frames.map { it.t } + group.map { it.t }).distinct().sorted()
+        val breakpoints: List<Int> = baked.breakpoints
 
         /**
          * Group transform at [u]: (world rotation, extra world translation, uniform scale). The rotation
@@ -285,8 +323,8 @@ public object VfxTimeline {
          */
         private fun groupWorldAt(u: Int): Triple<Quaternion, Vec3, Double> {
             if (group.isEmpty()) return Triple(Quaternion.IDENTITY, Vec3.ZERO, 1.0)
-            val g = groupAt(group, u)
-            val rg = Quaternion.fromEulerDegrees(g.euler.x, g.euler.y, g.euler.z)
+            val g = baked.groupAtTick(u)
+            val rg = baked.groupRotation(u)
             return Triple(anchorRot * rg * anchorRot.conjugate(), anchorRot.rotate(g.translate * scale), g.scale)
         }
 
@@ -299,8 +337,8 @@ public object VfxTimeline {
         /** Rotation delta (degrees) of the group track alone between two ticks (multi-turn aware). */
         fun groupTurnDegrees(start: Int, end: Int): Double {
             if (group.isEmpty()) return 0.0
-            val a = groupAt(group, start).euler
-            val b = groupAt(group, end).euler
+            val a = baked.groupAtTick(start).euler
+            val b = baked.groupAtTick(end).euler
             return maxOf(abs(b.x - a.x), abs(b.y - a.y), abs(b.z - a.z))
         }
 
@@ -314,7 +352,7 @@ public object VfxTimeline {
             // rotation again turns flashes edge-on when the caster faces east/west. Placement stays world-relative.
             val anchoredText = el.kind is VfxElementKind.Quad || el.kind is VfxElementKind.Sprite
             val facing = if (anchoredText && el.billboard == DisplayBillboard.CENTER) Quaternion.IDENTITY else slotRotation
-            val rotation = facing * Quaternion.fromEulerDegrees(local.euler.x, local.euler.y, local.euler.z)
+            val rotation = facing * baked.localRotation(u)
             if (el.kind is VfxElementKind.Quad) return VfxQuad.transform(el.kind, rotation, sc)
             if (el.kind is VfxElementKind.Sprite) return DisplayTransform(Vec3.ZERO, rotation, sc)
             var translation = position + slotRotation.rotate(local.translate * scale * groupScale)

@@ -28,10 +28,9 @@ public class LobbyTrainingTravelIntentHandler(
             return
         }
         val plan = training.plan
-        if (worlds()?.teleport(player.id, plan.spawn, training.world, plan.spawnYaw, 0f) == true) {
-            send(player, MSG_ARRIVED)
-        } else {
-            send(player, MSG_UNAVAILABLE)
+        val gateway = worlds() ?: run { send(player, MSG_UNAVAILABLE); return }
+        gateway.teleportAsync(player.id, plan.spawn, training.world, plan.spawnYaw, 0f).thenAccept { moved ->
+            send(player, if (moved) MSG_ARRIVED else MSG_UNAVAILABLE)
         }
     }
 

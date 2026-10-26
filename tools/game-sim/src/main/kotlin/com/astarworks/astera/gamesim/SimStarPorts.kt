@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
@@ -30,6 +31,8 @@ public class SimStarDropWorld : IStarDropWorld {
         drops[handle] = Drop(handle, world, position, amount, tick + pickupDelayTicks)
         return handle
     }
+
+    override fun executionScope(handle: String): ExecutionScope = ExecutionScope.Global
 
     override fun locate(handle: String): Vec3? = drops[handle]?.position
 

@@ -63,7 +63,7 @@ public class PaperMobBodyGateway(
     /** Registers the death listener and the targeting sweep. */
     public fun start() {
         server.pluginManager.registerEvents(this, plugin)
-        server.scheduler.runTaskTimer(plugin, Runnable { sweep() }, SWEEP_TICKS, SWEEP_TICKS)
+        server.globalRegionScheduler.runAtFixedRate(plugin, { sweep() }, SWEEP_TICKS, SWEEP_TICKS)
     }
 
     /** Removes every body that is still around (plugin disable). */
@@ -154,24 +154,22 @@ public class PaperMobBodyGateway(
 
     /** Once a second: forget dead bodies and hand every idle body the nearest live player as target. */
     private fun sweep() {
-        val it = bodies.iterator()
-        while (it.hasNext()) {
-            val id = it.next()
+        for (id in bodies.toList()) {
             val mob = server.getEntity(id) as? Mob
-            if (mob == null || !mob.isValid || mob.isDead) {
-                it.remove()
-                continue
-            }
-            if (!mob.isAware) continue
-            val current = mob.target
-            if (current is Player && current.isValid && !current.isDead && current.gameMode.isHuntable()) continue
-            nearestPlayer(mob)?.let { player -> mob.target = player }
+            if (mob == null) { bodies.remove(id); continue }
+            mob.scheduler.execute(plugin, Runnable {
+                if (!mob.isValid || mob.isDead) { bodies.remove(id); return@Runnable }
+                if (!mob.isAware) return@Runnable
+                val current = mob.target
+                if (current is Player && current.isValid && !current.isDead && current.gameMode.isHuntable()) return@Runnable
+                nearestPlayer(mob)?.let { mob.target = it }
+            }, { bodies.remove(id) }, 1L)
         }
     }
 
     private fun nearestPlayer(mob: Mob): Player? =
         mob.world.players
-            .filter { it.isValid && !it.isDead && it.gameMode.isHuntable() }
+            .filter { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) && it.isValid && !it.isDead && it.gameMode.isHuntable() }
             .minByOrNull { it.location.distanceSquared(mob.location) }
             ?.takeIf { it.location.distanceSquared(mob.location) <= HUNT_RANGE * HUNT_RANGE }
 

@@ -1,0 +1,6 @@
+# Ember: vanilla entity_effect (potion swirl) retextured as a flickering, shrinking ember. Grey: the particle's server colour (data: {kind: tint}) tints it. ADR-0274.
+type: entity_effect
+channel: ember
+source: ember
+frames: 8
+tint: grey

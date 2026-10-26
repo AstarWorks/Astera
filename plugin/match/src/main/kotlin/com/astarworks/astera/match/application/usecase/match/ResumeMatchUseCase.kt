@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.usecase.match
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -49,23 +51,23 @@ public class ResumeMatchUseCase(
     private val afterResume: (PlayerId) -> Unit = {},
 ) {
 
-    public fun resume(playerId: PlayerId, matchId: MatchId): Result<Unit, ResumeError> {
+    public fun resume(playerId: PlayerId, matchId: MatchId): CompletableFuture<Result<Unit, ResumeError>> {
         val session = sessions.find(playerId)
-            ?: return Result.failure(ResumeError.SessionNotFound(playerId))
+            ?: return CompletableFuture.completedFuture(Result.failure(ResumeError.SessionNotFound(playerId)))
 
         if (session.state !is SessionState.Disconnected) {
-            return Result.failure(ResumeError.NotDisconnected(playerId))
+            return CompletableFuture.completedFuture(Result.failure(ResumeError.NotDisconnected(playerId)))
         }
 
         if (session.currentMatch != matchId) {
-            return Result.failure(ResumeError.MatchMismatch(playerId, matchId))
+            return CompletableFuture.completedFuture(Result.failure(ResumeError.MatchMismatch(playerId, matchId)))
         }
 
         val match = matches.findById(matchId)
-            ?: return Result.failure(ResumeError.MatchNotFound(matchId))
+            ?: return CompletableFuture.completedFuture(Result.failure(ResumeError.MatchNotFound(matchId)))
 
         if (match.phase != MatchPhase.ACTIVE && match.phase != MatchPhase.SUDDEN_DEATH) {
-            return Result.failure(ResumeError.PhaseNotResumable(match.phase))
+            return CompletableFuture.completedFuture(Result.failure(ResumeError.PhaseNotResumable(match.phase)))
         }
 
         // Transition first, then teleport. If the teleport fails the player is
@@ -75,28 +77,31 @@ public class ResumeMatchUseCase(
             session.copy(state = SessionState.InMatch, currentMatch = matchId),
         )
 
-        if (spawn != null) {
-            // Back on their own team's side of the arena, as on entry.
-            spawn.spawnPlayer(matchId, playerId).onFailure { spawnErr ->
-                return Result.failure(ResumeError.TeleportFailed(spawnErr.toString()))
+        val placed = if (spawn != null) {
+            spawn.spawnPlayer(matchId, playerId).thenApply { result ->
+                when (result) {
+                    is Result.Success -> Result.success(Unit)
+                    is Result.Failure -> Result.failure(ResumeError.TeleportFailed(result.error.toString()))
+                }
             }
         } else {
-            worldGateway.spectatorSpawn(matchId, playerId).onFailure { gatewayErr ->
-                return Result.failure(ResumeError.TeleportFailed(gatewayErr.toString()))
-            }
+            worldGateway.spectatorSpawn(matchId, playerId).thenApply { outcome -> outcome.mapError { ResumeError.TeleportFailed(it.toString()) } }
         }
-        protection?.grantProtection(playerId, protectionSeconds(matchId))
-        afterResume(playerId)
+        return placed.thenApply { outcome ->
+            if (outcome is Result.Failure) return@thenApply outcome
+            protection?.grantProtection(playerId, protectionSeconds(matchId))
+            afterResume(playerId)
 
-        eventBus.publish(
-            PlayerReconnectedToMatch(
-                playerId = playerId,
-                matchId = matchId,
-                atTick = scheduler.currentTick(),
-            ),
-        )
+            eventBus.publish(
+                PlayerReconnectedToMatch(
+                    playerId = playerId,
+                    matchId = matchId,
+                    atTick = scheduler.currentTick(),
+                ),
+            )
 
-        return Result.success(Unit)
+            return@thenApply Result.success(Unit)
+        }
     }
 }
 

@@ -56,6 +56,12 @@ public data class SkillSpec(
     val chargeVariant: ChargedSkillVariant = ChargedSkillVariant.Instant,
     val readyCue: Boolean? = null,
     val egoCost: Int? = null,
+    val baked: BakedSkill = BakedSkill(hitShape = when (params) {
+        is SkillParams.MeleeParams -> params.hitShape
+        is SkillParams.AoeParams -> params.hitShape
+        is SkillParams.ProjectileParams -> params.hitShape
+        else -> null
+    }),
 ) {
     init {
         require(cooldownTicks >= 0) { "cooldownTicks must be >= 0: $cooldownTicks" }

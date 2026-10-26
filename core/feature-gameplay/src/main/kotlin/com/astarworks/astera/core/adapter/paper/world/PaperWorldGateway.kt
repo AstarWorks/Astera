@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.adapter.paper.world
 
+import java.util.concurrent.CompletableFuture
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
@@ -54,7 +57,7 @@ import org.slf4j.LoggerFactory
  *    because `Sound` migrated to the Bukkit Registry pattern in 1.21.
  *    Falls back to silent no-op (DEBUG-logged) when the sound key is
  *    unknown so authoring typos do not crash the call site.
- *  - [teleport] → uses Bukkit `Player.teleport(Location)` directly; this is
+ *  - [teleportAsync] → uses Paper `Player.teleportAsync(Location)`; this is
  *    the boolean-returning Wave 4.5 variant. The Wave 5h Result-returning
  *    variants ([spectatorSpawn] / [lobbySpawn]) below wrap the same call.
  *  - [spectatorSpawn] → Phase 1 stub. No `IMatchSpawnRegistry` port exists
@@ -80,7 +83,7 @@ import org.slf4j.LoggerFactory
  *
  * Every Bukkit setter touched here (block edits, particle spawn, sound
  * play, teleport) requires the main thread. Callers from off-main paths
- * round-trip through [IScheduler.runLater] with `Duration.ZERO` — same
+ * round-trip through [IScheduler.run] with `Duration.ZERO` — same
  * contract as ADR-0144 through ADR-0147. This gateway does not internally
  * dispatch to main because the in-memory sibling (`NoopWorldGatewayForEffects`)
  * is synchronous and the application layer treats both impls identically;
@@ -109,6 +112,7 @@ public class PaperWorldGateway(
     private val scheduler: IScheduler,
     @Suppress("UnusedPrivateProperty")
     private val eventBus: IDomainEventBus,
+    private val lobbyPosition: () -> Vec3 = { Vec3(0.5, 65.0, 6.5) },
 ) : IWorldGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -194,19 +198,31 @@ public class PaperWorldGateway(
         w.playSound(loc, bukkitSound, sound.volume.toFloat(), sound.pitch.toFloat())
     }
 
-    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean {
-        val player = onlinePlayer(playerId) ?: return false
-        val targetWorld = world?.let { resolveWorld(it) } ?: player.world
-        val loc = toLocation(targetWorld, at)
-        loc.yaw = yaw ?: player.location.yaw
-        loc.pitch = pitch ?: player.location.pitch
-        return player.teleport(loc)
+    override fun teleportAsync(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): CompletableFuture<Boolean> {
+        val completed = CompletableFuture<Boolean>()
+        val action = action@ {
+            val player = onlinePlayer(playerId)
+            if (player == null) { completed.complete(false); return@action }
+            val targetWorld = if (world == null) player.world else resolveWorld(world)
+            if (targetWorld == null) { completed.complete(false); return@action }
+            val loc = toLocation(targetWorld, at)
+            loc.yaw = yaw ?: player.location.yaw
+            loc.pitch = pitch ?: player.location.pitch
+            // Completion is thread-safe and dependents choose their own owner, so no extra entity hop that could be retired.
+            player.teleportAsync(loc).whenComplete { moved, failure ->
+                completed.complete(failure == null && moved == true)
+            }
+        }
+        val reference = onlinePlayer(playerId)
+        if (reference != null && org.bukkit.Bukkit.isOwnedByCurrentRegion(reference)) action()
+        else scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO, action).onRetired { completed.complete(false) }
+        return completed
     }
 
     override fun spectatorSpawn(
         matchId: MatchId,
         playerId: PlayerId,
-    ): Result<Unit, WorldGatewayError> {
+    ): CompletableFuture<Result<Unit, WorldGatewayError>> {
         // Phase 1 stub — no per-match spawn registry yet. Fall back to
         // lobby spawn so the player lands somewhere safe; follow-up wave
         // introduces IMatchSpawnRegistry and rewires this to read the
@@ -219,19 +235,18 @@ public class PaperWorldGateway(
         return lobbySpawn(playerId)
     }
 
-    override fun lobbySpawn(playerId: PlayerId): Result<Unit, WorldGatewayError> {
+    override fun lobbySpawn(playerId: PlayerId): CompletableFuture<Result<Unit, WorldGatewayError>> {
         val player = onlinePlayer(playerId)
-            ?: return Result.failure(WorldGatewayError.UnknownPlayer(playerId))
+            ?: return CompletableFuture.completedFuture(Result.failure(WorldGatewayError.UnknownPlayer(playerId)))
         // The procedural sky-island world (ADR-0180) when this backend hosts it, else the main world.
         val lobby = server.getWorld(com.astarworks.astera.core.application.config.LobbyWorldYamlConfig.DEFAULT_ID)
             ?: server.worlds.firstOrNull()
-            ?: return Result.failure(WorldGatewayError.Storage("no worlds loaded"))
-        val ok = player.teleport(lobby.spawnLocation)
-        return if (ok) {
-            Result.success(Unit)
-        } else {
-            Result.failure(WorldGatewayError.Storage("teleport rejected by paper"))
+            ?: return CompletableFuture.completedFuture(Result.failure(WorldGatewayError.Storage("no worlds loaded")))
+        val target = lobbyPosition()
+        return teleportAsync(playerId, target, WorldId(lobby.name), 180f, 0f).thenApply { moved ->
+            if (moved) Result.success(Unit) else Result.failure(WorldGatewayError.Storage("teleport rejected"))
         }
+
     }
 
     // ---- helpers --------------------------------------------------------

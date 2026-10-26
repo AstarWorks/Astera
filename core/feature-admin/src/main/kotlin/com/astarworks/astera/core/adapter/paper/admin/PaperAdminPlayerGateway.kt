@@ -13,7 +13,7 @@ import org.bukkit.entity.Player
  * Paper implementation of [IAdminPlayerGateway] (F1-D, ADR-0183). Main-thread
  * only — invoked from GUI click handlers.
  */
-public class PaperAdminPlayerGateway(private val server: Server) : IAdminPlayerGateway {
+public class PaperAdminPlayerGateway(private val server: Server, private val plugin: org.bukkit.plugin.Plugin) : IAdminPlayerGateway {
 
     override fun isOperator(player: PlayerId): Boolean = find(player)?.isOp == true
 
@@ -22,10 +22,20 @@ public class PaperAdminPlayerGateway(private val server: Server) : IAdminPlayerG
             .map { AdminOnlinePlayer(PlayerId(it.uniqueId), it.name) }
             .sortedBy { it.name.lowercase() }
 
-    override fun teleportToPlayer(who: PlayerId, destination: PlayerId): Boolean {
-        val a = find(who) ?: return false
-        val b = find(destination) ?: return false
-        return a.teleport(b.location)
+    override fun teleportToPlayer(who: PlayerId, destination: PlayerId): java.util.concurrent.CompletableFuture<Boolean> {
+        val completed = java.util.concurrent.CompletableFuture<Boolean>()
+        val a = find(who) ?: return completed.also { it.complete(false) }
+        val b = find(destination) ?: return completed.also { it.complete(false) }
+        val accepted = b.scheduler.execute(plugin, Runnable {
+            val target = b.location.clone()
+            a.teleportAsync(target).whenComplete { moved, failure ->
+                if (!a.scheduler.execute(plugin, Runnable { completed.complete(failure == null && moved == true) }, { completed.complete(false) }, 1L)) {
+                    completed.complete(false)
+                }
+            }
+        }, { completed.complete(false) }, 1L)
+        if (!accepted) completed.complete(false)
+        return completed
     }
 
     override fun toggleGameMode(player: PlayerId): AdminGameMode? {

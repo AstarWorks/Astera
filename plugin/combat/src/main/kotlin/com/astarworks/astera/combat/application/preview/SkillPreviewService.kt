@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.preview
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.admin.AdminSkillCaster
 import com.astarworks.astera.combat.application.port.outbound.ISkillPreviewStage
 import com.astarworks.astera.combat.application.port.outbound.ITickRateControl
@@ -86,7 +88,7 @@ public class SkillPreviewService(
         session = current
 
         // Let the camera / chunks settle, then slow time and cast.
-        val cast = scheduler.runLaterTicks(LEAD_TICKS) {
+        val cast = scheduler.runLaterTicks(ExecutionScope.Entity(built.caster.uuid), LEAD_TICKS) {
             if (session !== current) return@runLaterTicks
             if (options.speed < 1.0) tick.setRate((20.0 * options.speed).toFloat())
             val result = caster.cast(built.caster, skill, force = true)
@@ -95,10 +97,10 @@ public class SkillPreviewService(
                 onCastFailed(viewer, PreviewError.CastFailed(skill, result.error))
             }
         }
-        val heal = scheduler.runRepeatingTicks(LEAD_TICKS, HEAL_PERIOD_TICKS) {
+        val heal = scheduler.runRepeatingTicks(regionScope(pose.world, layout.target), LEAD_TICKS, HEAL_PERIOD_TICKS) {
             if (session === current) stage.healTarget(built)
         }
-        val cleanup = scheduler.runLaterTicks(LEAD_TICKS + PLAYBACK_TICKS + CLEANUP_TICKS) {
+        val cleanup = scheduler.runLaterTicks(ExecutionScope.Entity(viewer.uuid), LEAD_TICKS + PLAYBACK_TICKS + CLEANUP_TICKS) {
             if (session === current) end()
         }
         current.tasks = listOf(cast, heal, cleanup)

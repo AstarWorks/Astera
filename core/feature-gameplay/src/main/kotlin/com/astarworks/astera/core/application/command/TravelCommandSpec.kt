@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.command
 
+import kotlinx.coroutines.future.await
 import com.astarworks.astera.core.application.usecase.travel.ReturnToLobbyUseCase
 import com.astarworks.astera.core.application.usecase.travel.TravelToPveWorldUseCase
 import com.astarworks.astera.core.application.usecase.travel.TravelToSurvivalIslandUseCase
@@ -32,7 +33,7 @@ public fun buildTravelCommandSpec(
             val playerId = ctx.sender ?: return@lambda CommandResult.Failure(
                 MessageKey("astera.command.player-only"),
             )
-            when (val r = travelToPve.travel(playerId)) {
+            when (val r = travelToPve.travel(playerId).await()) {
                 is Result.Success -> CommandResult.Success
                 is Result.Failure -> CommandResult.Failure(r.error.messageKey)
             }
@@ -45,7 +46,7 @@ public fun buildTravelCommandSpec(
             val playerId = ctx.sender ?: return@lambda CommandResult.Failure(
                 MessageKey("astera.command.player-only"),
             )
-            when (val r = travelToSurvival.travel(playerId)) {
+            when (val r = travelToSurvival.travel(playerId).await()) {
                 is Result.Success -> CommandResult.Success
                 is Result.Failure -> CommandResult.Failure(r.error.messageKey)
             }
@@ -58,7 +59,7 @@ public fun buildTravelCommandSpec(
             val playerId = ctx.sender ?: return@lambda CommandResult.Failure(
                 MessageKey("astera.command.player-only"),
             )
-            when (val r = returnToLobby.returnToLobby(playerId)) {
+            when (val r = returnToLobby.returnToLobby(playerId).await()) {
                 is Result.Success -> CommandResult.Success
                 is Result.Failure -> CommandResult.Failure(r.error.messageKey)
             }

@@ -33,6 +33,15 @@ internal fun CoreWiringState.wireGameplayLoop() {
     }
     logger.info("Wave 5animation (ADR-0113) PlayerAnimation port wired (InMemory @ p=0, Paper @ p=100 via ADR-0161).")
 
+    // ── ADR-0276 — the one owner of held-item / armor / body hiding (leases) ──
+    services.register<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>(
+        com.astarworks.astera.core.application.service.presentation.InMemoryPlayerPresentation(),
+        priority = 0,
+    )
+    ports.playerPresentation?.let {
+        services.register<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>(it(services), priority = 100)
+    }
+
     // ── ADR-0250 — keyframed skin-rig animations (`play_animation` + `/astera emote`) ──
     //
     // The headless animator runs the same playback timeline without rendering; the Paper overlay
