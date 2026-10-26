@@ -15,6 +15,9 @@ rigs:
   parent: right_hand
   weapon: main_hand
   weapon_tip: [0.0, 1.2, 0.0]
+  weapon_model:            # ADR-0282: step keys on the SAME display (demo models: any two vanilla swords)
+  - { t: 2, model: minecraft:diamond_sword }
+  - { t: 10, model: minecraft:golden_sword }
   respect_hit_stop: true
   swing:
   - { t: 0, rotate: [0, 0, 0] }

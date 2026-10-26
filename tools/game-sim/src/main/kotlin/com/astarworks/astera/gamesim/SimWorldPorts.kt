@@ -206,6 +206,12 @@ public class SimDisplayGateway(
         )
     }
 
+    override fun setItemModel(handle: IDisplayEntityGateway.DisplayHandle, itemModel: String?) {
+        val record = active[handle] ?: return
+        swaps += Swap(handle, scheduler.currentTick(), "item_model", itemModel ?: "")
+        recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} item_model ${itemModel ?: "<held>"}")
+    }
+
     override fun setBlock(handle: IDisplayEntityGateway.DisplayHandle, blockKey: String) {
         val record = active[handle] ?: return
         swaps += Swap(handle, scheduler.currentTick(), "block", blockKey)

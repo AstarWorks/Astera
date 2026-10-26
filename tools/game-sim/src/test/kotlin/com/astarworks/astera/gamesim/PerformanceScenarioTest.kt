@@ -67,6 +67,10 @@ class PerformanceScenarioTest {
             }
             assertOneWeapon(probe, "after the end")
             assertRestored(caster, probe)
+            // ADR-0282: the weapon_model keys swapped the model of the SAME display (the count stayed 1 on every tick above)
+            val weapon = sim.displays.spawned.single { it.spec.kind == DisplayKind.AnchorMainHand }.handle
+            assertThat(sim.displays.swaps.filter { it.handle == weapon && it.kind == "item_model" }.map { it.value })
+                .containsExactly("minecraft:diamond_sword", "minecraft:golden_sword")
             // the cut at rig tick 6 was flushed as one bundle (hand and hilt jump in the same client step)
             assertThat(sim.presentation.log.filter { it.startsWith("flush") }).isNotEmpty()
         }

@@ -82,7 +82,33 @@ public data class VfxRigWeapon(
     public val tip: Vec3? = null,
     public val root: Vec3? = null,
     public val edgeNormal: Vec3 = Vec3(1.0, 0.0, 0.0),
-)
+    /**
+     * Keyframed `item_model` override of the SAME display (ADR-0282): a step key holds until the next one, so a weapon can open
+     * and close during a skill without a second weapon. Empty = the real stack's own model throughout.
+     */
+    public val models: List<VfxWeaponModelKey> = emptyList(),
+) {
+    init {
+        models.zipWithNext().forEach { (a, b) ->
+            require(b.t > a.t) { "weapon_model t must be strictly increasing (${a.t} then ${b.t})" }
+        }
+    }
+}
+
+/** Step key of [VfxRigWeapon.models]: from rig tick [t] the weapon display shows the item model [model] (`namespace:path`). */
+public data class VfxWeaponModelKey(
+    public val t: Int,
+    public val model: String,
+) {
+    init {
+        require(t >= 0) { "weapon_model t must be >= 0: $t" }
+        require(MODEL_ID.matches(model)) { "weapon_model model must be a namespaced id (namespace:path): '$model'" }
+    }
+
+    private companion object {
+        val MODEL_ID: Regex = Regex("[a-z0-9_.-]+:[a-z0-9_./-]+")
+    }
+}
 
 /**
  * One rigid block-display part. [offset] is the CENTRE of the part's box and [size] its box, both in the

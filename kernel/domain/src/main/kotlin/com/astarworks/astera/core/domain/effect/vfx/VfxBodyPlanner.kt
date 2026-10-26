@@ -69,7 +69,7 @@ public object VfxBodyPlanner {
             ) { l ->
                 val s = l.toDouble()
                 Pose(motion.originWorldAt(s), motion.anchorRot * motion.weaponRotationAt(s), Vec3(size, size, size))
-            }
+            }.withModelSwaps(rig.weapon.models, motion, last, despawn)
         }
         return out
     }
@@ -128,9 +128,23 @@ public object VfxBodyPlanner {
         )
     }
 
+    /**
+     * Adds the weapon's `item_model` step keys (ADR-0282) as transform-free updates on the arrival tick of the key's rig tick
+     * (key 0 lands on the spawn tick). Same display, same plan: never a second weapon.
+     */
+    private fun VfxElementPlan.withModelSwaps(models: List<VfxWeaponModelKey>, motion: VfxRigMotion, last: Int, despawn: Int): VfxElementPlan {
+        if (models.isEmpty()) return this
+        val swaps = models.filter { it.t <= last }.mapNotNull { key ->
+            val tick = if (key.t == 0) spawnTick else motion.effectTickEnd(key.t)
+            if (tick >= despawn) null
+            else VfxUpdate(tick, initial, 1, keepTransform = true, itemModel = key.model)
+        }
+        return copy(updates = (updates + swaps).sortedBy { it.tick })
+    }
+
     /** Ticks on which at least one performance element jumps (interpolation 0): the runtime sends them as one bundle. */
     public fun cutTicks(elements: List<VfxElementPlan>): Set<Int> = elements
         .filter { it.kind is VfxElementKind.SkinBone || it.kind is VfxElementKind.MainHandWeapon }
-        .flatMap { e -> e.updates.filter { it.interpolationTicks == 0 }.map { it.tick } }
+        .flatMap { e -> e.updates.filter { it.interpolationTicks == 0 && !it.keepTransform }.map { it.tick } }
         .toSet()
 }
