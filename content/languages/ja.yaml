@@ -547,6 +547,8 @@ astera:
       wanderer: "放浪者"
       daredevil: "命知らず"
       maverick: "異端児"
+      rookie: "ルーキー"
+      ranger: "レンジャー"
     name_color:
       rising-star: "新星"
       sunset: "夕焼け"
@@ -1365,15 +1367,9 @@ astera:
       title: "<gold><bold>剣の達人</bold></gold>"
       description: "<gray>50 キル + 5 勝利。</gray>"
     # Wave H 5content-depth (ADR-0125) — content-baseline expansion。
-    first_mob_kill:
-      title: "<gold>初のモブ撃破</gold>"
-      description: "<gray>最初の PvE モブを倒しましょう。</gray>"
     kills_100:
       title: "<gold>百人斬り</gold>"
       description: "<gray>100 人の敵を倒しましょう。</gray>"
-    boss_defeat:
-      title: "<gold><bold>ボススレイヤー</bold></gold>"
-      description: "<gray>100 キル + 3 勝利の後にボスを討伐しましょう。</gray>"
     # Wave K 5integration-wire (ADR-0128) — オンボーディングループ閉鎖。
     tutorial_graduate:
       title: "<aqua>チュートリアル修了</aqua>"
@@ -1427,8 +1423,8 @@ astera:
     tutorial-chain:
       title: "<gold>チュートリアルクエスト</gold>"
       kill-monsters:
-        title: "<yellow>モンスターを5体倒す</yellow>"
-        description: "<gray>モンスターを5体倒してゴールドを獲得しよう。</gray>"
+        title: "<yellow>対戦相手を5人倒す</yellow>"
+        description: "<gray>マッチで対戦相手を5人倒してゴールドを獲得しよう。</gray>"
       win-match:
         title: "<yellow>マッチに勝利する</yellow>"
         description: "<gray>1回マッチに勝利して称号を獲得しよう。</gray>"
@@ -1444,13 +1440,13 @@ astera:
         desc: "<gray>単一段階のみ。</gray>"
     # Wave H 5content-depth (ADR-0125) — 新クエストチェーン。
     forest-exploration:
-      title: "<gold>森の探索</gold>"
+      title: "<gold>アリーナの試練</gold>"
       hunt-forest-mobs:
-        title: "<yellow>森のモブを10体倒す</yellow>"
-        description: "<gray>森林バイオームでモブを10体倒してゴールドを獲得しましょう。</gray>"
+        title: "<yellow>対戦相手を10人倒す</yellow>"
+        description: "<gray>マッチで対戦相手を10人倒してゴールドを獲得しましょう。</gray>"
       prove-prowess:
         title: "<yellow>実力を示せ</yellow>"
-        description: "<gray>マッチに1回勝利してフォレストレンジャー称号を獲得しましょう。</gray>"
+        description: "<gray>マッチに1回勝利してレンジャー称号を獲得しましょう。</gray>"
     item-collection:
       title: "<gold>アイテム収集</gold>"
       gather-iron:
