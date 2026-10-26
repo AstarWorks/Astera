@@ -18,6 +18,7 @@ Writes <plan_out> as `t_ms<TAB>command` lines (t relative to the cast) and print
 """
 import json
 import math
+import os
 import sys
 
 
@@ -41,10 +42,14 @@ def main() -> int:
     duration = int(intent.get("duration_ticks", 100))
     keys = intent.get("camera", [])
     presets = intent.get("camera_presets", {})
-    if mode in presets:  # an intent preset wins over the built-in mode of the same name
+    shared = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "camera-presets.json")))
+    if mode in presets:  # an intent preset wins over the shared preset / built-in mode of the same name
         keys, mode = presets[mode], "case"
+    elif mode in shared and not mode.startswith("_"):
+        pr = shared[mode]
+        keys, mode = [{"t": 0, "pos": pr["pos"], "target": pr["target"], "fov": pr["fov"]}], "case"
     elif mode not in ("case", "side"):
-        raise SystemExit("compare_plan: CAMERA=%s is not in the intent's camera_presets (%s)" % (mode, ", ".join(presets) or "none"))
+        raise SystemExit("compare_plan: CAMERA=%s is not in the intent's camera_presets (%s) nor camera-presets.json" % (mode, ", ".join(presets) or "none"))
     if mode == "side" or not keys:
         mid = enemy_x / 2
         keys = [{"t": 0, "pos": [mid, 1.6, 6.0], "target": [mid, 1.0, 0.0], "fov": 55}]
