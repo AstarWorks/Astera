@@ -148,3 +148,12 @@ The server uses `build/skill-compare-published` under its repository by default;
 Each publication has an immutable SHA-256 revision directory. An atomic `current.json` pointer selects the revision for newly opened pages. Frame requests include that revision, so an already open page keeps its images while the next capture overwrites the working directory. Failed publication retains the previous pointer. Reference/content revision gates still apply; older captures are not relabeled as matching new content. Keep old revision directories while pages may still be using them.
 
 Legacy unpublished captures remain readable. Publish every accepted new capture; once a skill/view has a publication pointer, the server never falls back to its mutable working directory. Reload an existing page once when adopting this publication mechanism.
+
+## Case page (founder view)
+
+`/case.html?id=<case>`: header (round / gate / dev sha vs capture sha with STALE badge / focus / fire hint), reference and ours (side, top, front; others behind a toggle) on one clock, beat table (from `data/<case>/beat-sheet/beat-sheet.md`), sound buttons, collapsed 作者向け section. The timeline/segment editor and Save were removed.
+
+- `data/<case>/review.json`: `{round, gate (1|2), focus, fireHint, soundKind, reviewer:{<beat>:{v:"ok"|"ng", reason}}, founder:{...}}`. The founder column is written by `POST /api/cases/<id>/founder` (only the `founder` key).
+- dev sha: env `SKILL_COMPARE_DEV_SHA` or `<published>/dev-deployed.json` `{sha, at}`.
+- Sound: reference from `cache/videos/<videoId>.mp4`; current/previous from `<published>/<skill>/sound/{current,previous}.{ogg,mp3,wav}`.
+- A capture whose meta has `skippedTicks > 0` is labelled 未確認 (欠落あり).

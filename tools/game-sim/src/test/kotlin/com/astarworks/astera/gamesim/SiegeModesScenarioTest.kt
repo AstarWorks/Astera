@@ -27,13 +27,13 @@ import org.junit.jupiter.params.provider.ValueSource
  */
 class SiegeModesScenarioTest {
 
-    // The sky-island siege stage (content/stages/siege-isles.yaml): top layer y=64, players stand at y=65, z=300.
-    private val redCore = Vec3(-41.0, 65.0, 300.0)
-    private val blueCore = Vec3(41.0, 65.0, 300.0)
-    private val tntSpawn = Vec3(0.0, 65.0, 294.0)
-    private val redBase = Vec3(-30.0, 65.0, 300.0)
-    private val blueBase = Vec3(30.0, 65.0, 300.0)
-    private val nowhere = Vec3(0.0, 65.0, 340.0)
+    // The sky-island siege stage (content/stages/siege-isles.yaml): top layer y=64, players stand at y=65. Stage-local coordinates.
+    private val redCore = Vec3(-118.0, 65.0, 0.0)
+    private val blueCore = Vec3(118.0, 65.0, 0.0)
+    private val tntSpawn = Vec3(0.0, 65.0, -8.0)
+    private val redBase = Vec3(-107.0, 65.0, 0.0)
+    private val blueBase = Vec3(107.0, 65.0, 0.0)
+    private val nowhere = Vec3(0.0, 65.0, -50.0)
 
     // ---- helpers ----------------------------------------------------------
 
@@ -82,7 +82,7 @@ class SiegeModesScenarioTest {
             assertThat(blockAt(redCore)).isEqualTo("minecraft:emerald_block")
             assertThat(blockAt(blueCore)).isEqualTo("minecraft:emerald_block")
             assertThat(attacker.position).`as`("spawned on a red spawn").isIn(
-                Vec3(-29.5, 65.0, 297.5), Vec3(-29.5, 65.0, 303.5), Vec3(-27.5, 65.0, 300.5), Vec3(-31.5, 65.0, 300.5),
+                Vec3(-67.5, 65.0, -2.5), Vec3(-67.5, 65.0, 3.5), Vec3(-65.5, 65.0, 0.5), Vec3(-69.5, 65.0, 0.5),
             )
 
             // Own core: block comes back, match goes on.
@@ -91,7 +91,7 @@ class SiegeModesScenarioTest {
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             // A plain block next to the enemy core does not count.
-            attacker.breaks(Vec3(41.0, 64.0, 300.0))
+            attacker.breaks(Vec3(118.0, 64.0, 0.0))
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             attacker.breaks(blueCore)
@@ -122,7 +122,7 @@ class SiegeModesScenarioTest {
             // Runner grabs the TNT and is shot down: the TNT is back, so the guard can take it.
             guard.holds("pistol")
             runner.moveTo(tntSpawn)
-            guard.moveTo(Vec3(0.0, 65.0, 288.0))
+            guard.moveTo(Vec3(0.0, 65.0, -14.0))
             kill(guard, runner)
             respawnAt(runner, nowhere)
             guard.moveTo(tntSpawn)
@@ -153,13 +153,13 @@ class SiegeModesScenarioTest {
             val holder = player("holder", at = nowhere)
             val rival = player("rival", at = nowhere)
             val matchId = startMatch("capture-wool", mapOf(holder to "red", rival to "blue"))
-            val woolA = Vec3(0.0, 64.0, 274.0)
-            val woolB = Vec3(0.0, 64.0, 306.0)
+            val woolA = Vec3(0.0, 64.0, -82.0)
+            val woolB = Vec3(0.0, 64.0, 82.0)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
 
             // Both stand in wool-a for longer than the capture time: nobody captures.
-            holder.moveTo(Vec3(0.0, 65.0, 274.0))
-            rival.moveTo(Vec3(1.0, 65.0, 275.0))
+            holder.moveTo(Vec3(0.0, 65.0, -82.0))
+            rival.moveTo(Vec3(1.0, 65.0, -81.0))
             advance(20 * 14)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
 
@@ -168,7 +168,7 @@ class SiegeModesScenarioTest {
             assertThat(advanceUntil(20 * 12) { blockAt(woolA) == "minecraft:red_wool" }).isTrue()
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
-            holder.moveTo(Vec3(0.0, 65.0, 306.0))
+            holder.moveTo(Vec3(0.0, 65.0, 82.0))
             assertThat(advanceUntil(20 * 12) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
 
             val end = ended()
@@ -186,14 +186,14 @@ class SiegeModesScenarioTest {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
             val matchId = startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"))
-            val bluePedestal = Vec3(37.0, 65.0, 307.0)
-            val pedestalMarker = Vec3(37.0, 64.0, 307.0)
+            val bluePedestal = Vec3(101.0, 65.0, 10.0)
+            val pedestalMarker = Vec3(101.0, 64.0, 10.0)
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:diamond_block")
 
             // Thief steals one jewel, the keeper shoots them down before banking.
             keeper.holds("pistol")
             thief.moveTo(bluePedestal)
-            keeper.moveTo(Vec3(37.0, 65.0, 317.0))
+            keeper.moveTo(Vec3(101.0, 65.0, 20.0))
             kill(keeper, thief)
             respawnAt(thief, nowhere)
             thief.moveTo(redBase)

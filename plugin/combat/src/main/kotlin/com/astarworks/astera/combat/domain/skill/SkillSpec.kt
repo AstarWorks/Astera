@@ -32,6 +32,8 @@ import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
  *    "the item's `resource_cost_per_use`"; an explicit `0` is free.
  *  - [egoCost] — E.G.O gauge points (`0..100`) the cast consumes (ADR-0231); the
  *    cast is refused when the gauge holds less. `null` / `0` = free.
+ *  - [blockDamage] / [blockPlace] — opt-in cover damage and temporary cover placement (ADR-0280);
+ *    `null` = the skill never touches cover.
  *  - [reloadTicks] — non-null marks a reload skill: [reloadTicks] after the cast
  *    the source item's ammo is refilled, and ammo casts are rejected meanwhile.
  *  - [chargeVariant] — hold-to-cast behaviour.
@@ -56,6 +58,8 @@ public data class SkillSpec(
     val chargeVariant: ChargedSkillVariant = ChargedSkillVariant.Instant,
     val readyCue: Boolean? = null,
     val egoCost: Int? = null,
+    val blockDamage: BlockDamageSpec? = null,
+    val blockPlace: BlockPlaceSpec? = null,
     val baked: BakedSkill = BakedSkill(hitShape = when (params) {
         is SkillParams.MeleeParams -> params.hitShape
         is SkillParams.AoeParams -> params.hitShape

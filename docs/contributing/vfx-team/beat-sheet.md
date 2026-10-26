@@ -1,6 +1,6 @@
 # Beat sheet (workflow v3, step 1-3)
 
-Team overview: [README.md](README.md). Every author (director, animator, vfx, particles) and the reviewer reads this before touching a skill. Founder decision 2026-10-26.
+Team overview: [README.md](README.md). The skill author and every reviewer read this before touching a skill. Founder decision 2026-10-26; process re-confirmed 2026-10-27 after the S1 retrospectives (two independent ones, merged here).
 
 ## Why it exists
 
@@ -9,20 +9,24 @@ About 30 rounds of bastion-greatsword S1 failed for the same reason: the referen
 ## Workflow v3 in one screen
 
 ```
-1. Observe       author writes the beat sheet from the reference (this template, no blank cells)
-2. Reverse check a different AI sees ONLY the sheet and re-describes the motion; diff it; a gap = re-observe
-3. Founder gate 1  the beat sheet: text + top-down / side / front stick diagram on skill-compare
-4. Build         one author end to end, composing from the pose library; judged against the sheet's trajectory
-5. Capture       side, front, back, TOP-DOWN (mandatory), 45 deg high, player eye height via the real player path
-6. Visual review a fresh AI reviewer marks every sheet row ○ / × with a reason on paired ref|ours images
-7. Founder gate 2  in game
+1. Observe        the author writes the sheet from the REFERENCE ONLY (this template, no blank cell, every cell
+                  marked observed / inferred / unknown). No skill key exists yet.
+2. Two checks     (a) reverse read: a fresh reviewer sees ONLY the sheet and re-describes the motion
+                  (b) fact check: a second fresh reviewer sees reference + sheet and lists every disagreement
+3. Founder gate 1 the sheet + top-down / side / front stick figures on the skill-compare page; approval FREEZES this version
+4. Build          one author end to end; each commit goes live on dev (make dev-content / dev-pack / dev-plugins) with the reload verified
+5. Capture        side, front, back, TOP-DOWN (mandatory), 45 deg high, eye height, via the real player path; skippedTicks = 0
+6. Visual review  a fresh reviewer (new every round) marks every sheet row ○ / × with evidence
+7. Founder gate 2 in game, on dev. Final.
 ```
 
-Do not start step 4 until step 2 passes. Lint (`make skill-lint`) is only a preflight: one sword, both hands on the grip, feet on the floor, display budget. Priority when things conflict: sword > VFX > particles > posture. The pose library (keypoints, `tools/pose-solve/`) is a tool the author composes from; it is no longer a founder gate.
+Do not start step 4 until step 2 passes and gate 1 is approved. Lint (`make skill-lint`) is only a preflight of 4 invariants (one sword, both hands on the grip, feet on the floor, display budget); it says nothing about whether the skill matches the reference. Priority when things conflict: sword > VFX > particles > posture. The pose library (keypoints, `tools/pose-solve/`) is a tool the author composes from; it is no longer a founder gate.
+
+**Limit: at most 2 rounds per gate.** If a gate is not passed after 2 rounds, stop and escalate to the founder with ONE question (what must be decided, the evidence for each candidate, the recommendation). Never invent a new answer and start round 3.
 
 ## Template
 
-One row per beat. A beat is one continuous motion segment (wind-up, cut 1, turn, cut 2, recovery, ...), not one frame. **No blank cell.** If a cell cannot be filled, look at the reference again (frame by frame, successive frames, not stills). "n/a" is allowed only with a reason ("n/a: blade not moving, held").
+One row per beat. A beat is one continuous motion segment (wind-up, cut 1, turn, cut 2, recovery, ...), not one frame. **No blank cell.** If a cell cannot be filled, look at the reference again (frame by frame, successive frames, not stills). "n/a" is allowed only with a reason ("n/a: blade not moving, held"). **Every cell ends with one status mark:** `[O]` observed (visible in the reference frames; cite the frame or time), `[I]` inferred (3D filled in from cues such as body twist or overlap; name the cue), `[U]` unknown (not decidable from the reference; write what was tried and the candidates). `[U]` is the only allowed hole and is decided by the founder at gate 1. A top-down view is a hypothesis drawn from the reference, never extra evidence from it.
 
 | Column | What goes in it |
 |---|---|
@@ -36,8 +40,10 @@ One row per beat. A beat is one continuous motion segment (wind-up, cut 1, turn,
 | reverses previous beat? | `yes` / `no`. `yes` means the rotation direction (either view) or the body turn is opposite to the previous beat; say which |
 | body facing and twist | torso yaw from the caster's forward at the beat start and end (degrees, + = toward caster's left), hip/shoulder twist, lean |
 | foot positions | each foot relative to the caster origin `(forward, right)`, planted / lifted / sliding; step or pivot |
-| hit tick | the tick the blade contacts (`t=7`), or `-` |
-| VFX & particles | what the beat shows: smear/ring shape and which way it travels, particle emitters with their direction of travel, flash, sound cue. Each effect is tied to the swing it follows |
+| hit (contact) tick | the tick the blade contacts (`t=7`), or `-` |
+| travel | how far and in which direction the caster moves in this beat (dash, step, lunge): distance in blocks and caster-local direction, or `none` |
+| VFX & particles | what the beat shows: smear/ring shape and which way it travels, particle emitters with their direction of travel, flash. Each effect is tied to the swing it follows |
+| sound events | every sound of the beat with its tick and character (`t=6 low whoosh, rising`; `t=7 heavy metal impact + low thump`), or `none` |
 
 ## Vocabulary (reference frames)
 
@@ -64,29 +70,35 @@ All positions are **caster-local**: `forward` = where the caster faces at cast t
 
 ## Rules
 
-1. **No blank cells.** Look again instead of guessing; if the reference truly does not show it, write `unknown: <what was tried>` and flag it for the founder at gate 1. That is the only allowed hole.
+1. **No blank cells, every cell marked.** Look again instead of guessing; if the reference truly does not show it, mark it `[U]` with what was tried and flag it for the founder at gate 1. That is the only allowed hole.
 2. **Count the swings first.** Before any row, step the whole reference and write `Swings: N` at the top with the tick where each one starts. A sheet whose swing count is not stated is rejected. A missing cut is a gate-1 defect, not a polish issue.
 3. **Direction from successive frames.** For every smear frame infer the direction from the frames before and after it, never from one still. Write the evidence (`head at frame 41 is ahead of head at frame 40`).
 4. **Both views, every beat.** Camera CW/CCW and top CW/CCW are separate cells because the side camera alone cannot tell them apart.
 5. **Reversals are explicit.** Whenever the body turns back or the rotation sense flips between swings, `reverses previous beat?` says `yes` and the body column says by how many degrees.
 6. **Trajectory, not poses.** The tip start -> mid -> end and the rotation cells describe the *travel*. A row that only restates the end pose is incomplete.
 7. **Particles and VFX belong to a swing.** Write which way each one travels; judging particles from the side camera alone is forbidden (see the review rules in [reviewer.md](reviewer.md)).
-8. The sheet is the build target and the review checklist: authors implement it, the reviewer marks its rows. If the build disagrees with the sheet, fix the build; if the sheet was wrong, fix the sheet and repeat the reverse check.
+8. The sheet is the build target and the review checklist: the author implements it, the reviewer marks its rows. If the build disagrees with the sheet, fix the build.
+9. **Observation comes from the reference only.** Write the sheet before any key for the skill exists. Never derive a cell from shipped keys, and never write numbers back into the sheet after a build (that turns the sheet into a description of what was built, and a reverse read of it only proves it is self-consistent). The S1 r3 sheet was derived from shipped keys and was wrong for exactly this reason.
+10. **Gate 1 freezes the approved version.** After approval the observation cells are read-only. If the founder, a reviewer or the author finds the sheet wrong, make a new version with a diff that states which reference frame was read again and what changed, repeat both checks and gate 1. Never edit the approved version to match the build; never reuse approval of an old version for a new one.
+11. **At most 2 rounds per gate**, then escalate with one question (see the workflow section).
+
+The required columns are: rotation direction from the camera and from above, swing count, edge facing, reversals, contact tick, travel, sound events (plus tip path, angle, body and feet). All of them in every row.
 
 Sheet header (above the table):
 
 ```
 Case: <id>   Reference: <video id> t=<a>..<b>   Mirrored: yes|no
 Swings: N (starts at ticks ...)
+Priority: sword > VFX > particles > posture
 Notes: cues used for depth, conversions, unknowns
 Diagrams: top-down / side / front stick figures (below or attached)
 ```
 
-Stick diagrams (gate 1): one per swing, three views (top-down, side, front), body as a stick figure, tip path as an arrow with its start/end ticks and the CW/CCW mark. ASCII in the sheet is enough for the reverse check; the founder sees the same on skill-compare. Round notes are plain text today (max 20 kB, no images, see [skill-compare-views.md](skill-compare-views.md)), so a skill's sheet is published with `make skill-round SKILL=<s> FILE=<beat-sheet.md>` and the diagrams stay ASCII until image support lands.
+Stick diagrams (gate 1): one per swing, three views (top-down, side, front), body as a stick figure, tip path as an arrow with its start/end ticks and the CW/CCW mark. ASCII in the sheet is enough for the reverse check; the founder sees the same on skill-compare. Round notes hold text (max 20 kB) and up to 12 images (see [skill-compare-views.md](skill-compare-views.md)), so a skill's sheet is published with `make skill-round SKILL=<s> FILE=<beat-sheet.md>` and the stick figures can be attached as images.
 
-## Reverse-check protocol (step 2)
+## Check A: reverse read (step 2a)
 
-Purpose: prove the sheet carries the motion without the author's private context. The checker is a **different AI** (fresh subagent) that never sees the reference video, frames, case data, the author's notes or briefs. It receives only the sheet text (header, table, diagrams).
+Purpose: prove the sheet carries the motion without the author's private context. It does not prove the sheet is true to the reference (Check B does). The checker is a **different AI** (fresh reviewer) that never sees the reference video, frames, case data, the author's notes or briefs. It receives only the sheet text (header, table, diagrams).
 
 Prompt to give the checker, verbatim:
 
@@ -107,7 +119,7 @@ Do not invent anything the sheet does not say. If the sheet does not let you dec
 say "cannot tell".
 ```
 
-Diff procedure (the author does it, or the director does it for a specialist's sheet):
+Diff procedure (the author does it):
 
 | Compare | Mismatch means |
 |---|---|
@@ -119,11 +131,19 @@ Diff procedure (the author does it, or the director does it for a specialist's s
 | edge-leading / flat, visible face | the face convention is not clear |
 | the checker's prose vs the author's intent | any difference in meaning (not wording) is a gap |
 
-Pass: swing count, every direction cell (both views), every reversal and every hit tick agree, and the ambiguity list is empty or contains only items the author re-checked in the reference and resolved in the sheet. Otherwise re-observe, edit the sheet, and run a new checker (a fresh agent each time, never the same one with memory). Record the checker's output and the verdict in the case directory (`beat-sheet-check.md`) so the founder sees it at gate 1. Do not start building before this passes.
+Pass: swing count, every direction cell (both views), every reversal and every hit tick agree, and the ambiguity list is empty or contains only items the author re-checked in the reference and resolved in the sheet. Otherwise re-observe, edit the sheet, and run a new checker (a fresh agent each time, never the same one with memory). Record the checker's output and the verdict in the case directory (`beat-sheet-check.md`) so the founder sees it at gate 1.
+
+## Check B: independent reference-vs-sheet fact check (step 2b)
+
+Purpose: prove the sheet is **true**. A second fresh reviewer (not the Check A reader, not the author) receives the reference frames at native fps and the sheet. It first counts the swings and reads each beat's direction from the reference itself, writes that down, and only then compares with the sheet. Output `beat-sheet-factcheck.md`: one line per row and column, agree / disagree with the reference frame or time as evidence, and a status check (is every `[I]` justified, is every `[U]` really undecidable). It also flags any cell that looks derived from implementation rather than from the reference.
+
+Pass: swing count, every direction cell (both views), every reversal, every contact tick, travel and sound event agree, and every disagreement is resolved by re-reading the reference (not by the checker's say-so). Anything that stays disputed becomes `[U]` and goes to the founder.
+
+Both checks must pass before gate 1. Show both records on the page. Each check counts as one of the 2 rounds of that gate when it sends the sheet back.
 
 ## Worked example: bastion-greatsword S1
 
-The sheet for this skill is at `tools/skill-compare/data/<bastion-s1-case>/beat-sheet.md`; below is only the skeleton that shows the shape of a correct reading. Cells marked TBD are filled from the approved S1 beat sheet.
+The sheet for this skill is at `tools/skill-compare/data/<bastion-s1-case>/beat-sheet.md`; below is only the skeleton that shows the shape of a correct reading. Cells marked TBD are filled from the approved S1 beat sheet. The skeleton omits the travel, sound and status columns for width; the real sheet has all of them.
 
 **Wrong reading (what 30 rounds were built on).** A pose list, no travel, no direction:
 
@@ -152,6 +172,9 @@ TBD — filled from the approved S1 beat sheet. The two bold cells are the found
 
 ## Learnings log
 
-(The director appends dated bullets after each skill: `- YYYY-MM-DD <case>: <fact>`.)
+(The author appends dated bullets after each skill: `- YYYY-MM-DD <case>: <fact>`.)
 
 - 2026-10-26 seed: created with workflow v3 after the bastion-greatsword S1 failures.
+- 2026-10-27 S1 retrospectives: sheet from the reference only; O/I/U marks; travel and sound columns; two checks (reverse read + fact check); gate 1 freezes; 2 rounds per gate; round notes hold up to 12 images.
+- 2026-10-27 bastion-greatsword-s2 r2: a rotation direction that looks undecidable on one frame is usually decided by the erosion order of the effect tail across the whole sequence (compare the same effect in an earlier swing) plus which side the effect rises from; write the frame numbers and a confidence in an evidence block. Contact-sheet labels drift when batches are concatenated: re-derive n = base + index per batch before quoting frame numbers.
+- 2026-10-27 bastion-greatsword-s2: a second skill of the same weapon reuses the first skill's blade path (re-timed via `tools/pose-solve/author_bastion_s2.py`, imports `author_bastion_s1`) and its ring fx (copied, ids renamed) instead of regenerating sprites; the skill-lint left-hand/feet checks fail on long linear gaps between two very different poses (coil -> crouch), so add the crouch beat 1 tick earlier.

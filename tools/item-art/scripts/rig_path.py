@@ -123,6 +123,10 @@ def _literal(v, default=0):
     return v
 
 
+# The S1 fx files follow the caster (follow: true): every keyframe is caster-relative, so the dash travel is NOT baked in.
+FX_FOLLOW = True
+
+
 class RigPath:
     def __init__(self, skill_id, rig_vfx, rig_id=None, fx_vfx=None, distance=CAPTURE_DISTANCE):
         self.skill = yaml.safe_load((ROOT / "content/skills" / (skill_id + ".yaml")).read_text())
@@ -306,7 +310,7 @@ class RigPath:
     def _plan_seg_whole(self, T):
         T = max(min(T, max(self.plan)), min(self.plan))
         w = self.plan[T]
-        dz = self.dash_offset(T) - self.dash_offset(self.fx_delay)
+        dz = 0.0 if FX_FOLLOW else self.dash_offset(T) - self.dash_offset(self.fx_delay)
         g = (-w["pos"][0], w["pos"][1], w["pos"][2] + dz)
         t = (-w["tip"][0], w["tip"][1], w["tip"][2] + dz)
         d = [t[k] - g[k] for k in range(3)]
@@ -428,7 +432,7 @@ class RigPath:
 
     def caster_eye(self, fx_tick, eye_y=1.62):
         s = self.skill_tick(fx_tick)
-        return (0.0, eye_y, self.dash_offset(s) - self.dash_offset(self.fx_delay))
+        return (0.0, eye_y, 0.0 if FX_FOLLOW else self.dash_offset(s) - self.dash_offset(self.fx_delay))
 
 
 def _phi_pitch(d):

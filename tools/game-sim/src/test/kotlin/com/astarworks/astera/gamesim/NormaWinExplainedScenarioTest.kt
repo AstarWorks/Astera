@@ -23,8 +23,8 @@ class NormaWinExplainedScenarioTest {
     private fun ScenarioScope.climb(matchId: MatchId, who: SimEntity, levels: Int) {
         val stars = sim.services.getOrThrow<IMatchStarStore>()
         repeat(levels) {
-            stars.add(matchId, who.id, 12)
-            sim.eventBus.publish(StarsCollected(matchId, who.id, 12, stars.get(matchId, who.id)))
+            stars.add(matchId, who.id, 25)
+            sim.eventBus.publish(StarsCollected(matchId, who.id, 25, stars.get(matchId, who.id)))
             advance(2)
         }
     }

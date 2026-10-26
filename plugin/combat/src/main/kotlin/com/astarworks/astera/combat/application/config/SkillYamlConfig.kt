@@ -1,7 +1,11 @@
 package com.astarworks.astera.combat.application.config
 
 import com.astarworks.astera.core.application.config.skill.toAnimation
+import com.astarworks.astera.combat.domain.skill.BlockDamageSpec
+import com.astarworks.astera.combat.domain.skill.BlockPlaceSpec
 import com.astarworks.astera.combat.domain.skill.ChargedSkillVariant
+import com.astarworks.astera.core.domain.world.ToolKind
+import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.combat.domain.skill.SkillTag
@@ -42,6 +46,17 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  * resource_cost: 2      # optional; default = the item's resource_cost_per_use; 0 = free
  * ego_cost: 100      # optional; E.G.O gauge points the cast consumes (refused when short)
  * reload_ticks: 30      # optional; marks a reload skill (refills the item's ammo after N ticks)
+ * block_damage:       # optional; opt in to damaging cover (ADR-0280)
+ *   amount: 20         # flat HP chip; with `tool` the matrix base (100 = one swing)
+ *   radius: 0          # blocks around the impact; 0 = the one block struck
+ *   tool: PICKAXE/IRON # optional; count as this tool (tool skills)
+ *   reach: 4           # cast-time skills: look-ray length
+ *   shape: ball        # ball | line
+ * block_place:         # optional; raise a temporary cover wall
+ *   block: astera:sandbags
+ *   distance: 2
+ *   width: 3
+ *   height: 2
  * ready_cue: true       # optional; sound when the cooldown ends (default: on for cooldowns >= 3 s)
  * name: { ja: "プラズマ", en: "Plasma" }
  * description: { ja: "…", en: "…" }
@@ -90,6 +105,8 @@ public data class SkillYamlConfig(
     @SerialName("charge_ticks") public val chargeTicks: Long? = null,
     @SerialName("ready_cue") public val readyCue: Boolean? = null,
     @SerialName("ego_cost") public val egoCost: Int? = null,
+    @SerialName("block_damage") public val blockDamage: BlockDamageYaml? = null,
+    @SerialName("block_place") public val blockPlace: BlockPlaceYaml? = null,
     public val tags: List<String> = emptyList(),
 ) {
     /**
@@ -132,6 +149,8 @@ public data class SkillYamlConfig(
             chargeVariant = variant,
             readyCue = readyCue,
             egoCost = egoCost,
+            blockDamage = blockDamage?.toDomain(id),
+            blockPlace = blockPlace?.toDomain(),
         )
     }
 
@@ -305,4 +324,38 @@ public sealed class SkillParamsYaml {
             return DamageProfile(map { it.toDomain() })
         }
     }
+}
+
+
+/** YAML shape of a skill's `block_damage` (ADR-0280). */
+@Serializable
+public data class BlockDamageYaml(
+    public val amount: Int,
+    public val radius: Double = 0.0,
+    public val tool: String? = null,
+    public val reach: Double = 0.0,
+    public val shape: String = "ball",
+) {
+    internal fun toDomain(skillId: String): BlockDamageSpec = BlockDamageSpec(
+        amount = amount,
+        radius = radius,
+        tool = tool?.let {
+            ToolType.fromSerialKey(it)?.takeIf { t -> t.kind != ToolKind.NONE }
+                ?: throw IllegalArgumentException("Skill '$skillId': unknown block_damage.tool '$it' (e.g. PICKAXE/IRON)")
+        },
+        reach = reach,
+        shape = BlockDamageSpec.Shape.entries.firstOrNull { it.name.equals(shape.trim(), ignoreCase = true) }
+            ?: throw IllegalArgumentException("Skill '$skillId': unknown block_damage.shape '$shape' (ball / line)"),
+    )
+}
+
+/** YAML shape of a skill's `block_place` (ADR-0280). */
+@Serializable
+public data class BlockPlaceYaml(
+    public val block: String,
+    public val distance: Int = 2,
+    public val width: Int = 3,
+    public val height: Int = 2,
+) {
+    internal fun toDomain(): BlockPlaceSpec = BlockPlaceSpec(block, distance, width, height)
 }

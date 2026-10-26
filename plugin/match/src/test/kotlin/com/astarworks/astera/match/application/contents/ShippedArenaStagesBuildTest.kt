@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.contents
 
+import com.astarworks.astera.core.application.service.arena.ArenaImportContent
 import com.astarworks.astera.core.application.service.arena.ArenaStructureContent
 import com.astarworks.astera.core.domain.stage.ArenaIslandGenerator
 import com.astarworks.astera.core.domain.stage.ArenaLandmarkKind
@@ -29,10 +30,12 @@ class ShippedArenaStagesBuildTest {
     fun `every shipped stage has a sky-island layout that builds without problems`() {
         val stages = stages()
         assertThat(stages).isNotEmpty
+        val parts = ArenaStructureContent.load(contentRoot)
+        val imports = ArenaImportContent.load(contentRoot)
         for (stage in stages) {
             val layout = stage.layout
             assertThat(layout).describedAs("stage '${stage.id.value}' has no layout (a stage nobody can build is dead content)").isNotNull
-            val plan = ArenaIslandGenerator.generate(stage, ArenaStructureContent.load(contentRoot))
+            val plan = ArenaIslandGenerator.generate(stage, parts, imports)
             assertThat(plan.problems).describedAs("stage '${stage.id.value}'").isEmpty()
             assertThat(layout!!.killY).describedAs("kill plane below the build of '${stage.id.value}'").isLessThan(plan.minY)
             assertThat(stage.world.value).describedAs("stage '${stage.id.value}' world").isEqualTo("world")
@@ -42,8 +45,9 @@ class ShippedArenaStagesBuildTest {
     @Test
     fun `shipped plans fit the reserved slot footprint`() {
         val parts = ArenaStructureContent.load(contentRoot)
+        val imports = ArenaImportContent.load(contentRoot)
         for (stage in stages()) {
-            val plan = ArenaIslandGenerator.generate(stage, parts)
+            val plan = ArenaIslandGenerator.generate(stage, parts, imports)
             assertThat(plan.minX).describedAs("'${stage.id.value}'").isGreaterThan(-512)
             assertThat(plan.maxX).describedAs("'${stage.id.value}'").isLessThan(512)
             assertThat(plan.minZ).describedAs("'${stage.id.value}'").isGreaterThan(-512)

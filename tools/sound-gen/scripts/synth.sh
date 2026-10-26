@@ -359,6 +359,13 @@ star_burst_gain() {  # the killer's haul: dense rising sparkle, brighter and sho
     mix gain 0.65 lo:0:0.6 s0:0:0.7 s1:30:0.7 s2:60:0.7 s3:90:0.7 s4:120:0.7; finish star/burst-gain gain
 }
 
+star_burst_boom() {  # the fountain launch: a low thump, a glassy crack and a wide rising sparkle cascade (layered under star/burst)
+    gen lo 0.5 "sin(2*PI*(160*t+(55-160)*t*t/(2*0.25)))*exp(-9*t)*min(t/0.003,1)*0.9"
+    noise crack 0.3 "highpass=f=1800,volume='exp(-t*18)':eval=frame" 41
+    local i=0 f; for f in 1568 2093 2637 3136 3951 4699 5588 6272; do gen "c$i" 0.8 "$(bell $f 6)"; i=$((i + 1)); done
+    mix boom 1.0 lo:0:0.9 crack:0:0.5 c0:30:0.5 c1:70:0.5 c2:110:0.5 c3:150:0.5 c4:190:0.45 c5:230:0.45 c6:270:0.4 c7:310:0.4; finish star/burst-boom boom
+}
+
 match_sudden_death() {  # warning: two low alarm pulses over a rising tension swell, then a hard bell strike
     gen a 0.25 "$(sq 220 9)"; gen b 0.25 "$(sq 220 9)"
     gen c 1.0 "sin(2*PI*(110*t+(440-110)*t*t/(2*1.0)))*min(t/0.1,1)*0.35"
@@ -385,7 +392,7 @@ ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-
      skills/nature-impact skills/heal-chime
      combat/hit combat/crit combat/blocked combat/skill-ready combat/ego-ready match/respawn match/draw star/pop
      norma/burst norma/burst-max norma/choice-open norma/choice-picked norma/choice-defaulted
-     ui/level-up ui/login-bonus ui/quest-complete star/burst-gain match/sudden-death ui/queue-join match/found)
+     ui/level-up ui/login-bonus ui/quest-complete star/burst-gain star/burst-boom match/sudden-death ui/queue-join match/found)
 
 targets=("$@"); [[ ${#targets[@]} -gt 0 ]] || targets=("${ALL[@]}")
 for name in "${targets[@]}"; do
