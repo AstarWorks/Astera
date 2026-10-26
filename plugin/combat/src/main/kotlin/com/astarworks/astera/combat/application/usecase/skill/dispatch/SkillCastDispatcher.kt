@@ -84,7 +84,7 @@ public class SkillCastDispatcher(
     }
 
     public fun start(): IDomainEventBus.Subscription =
-        eventBus.subscribe(SkillCast::class, EventDelivery.Global) { event -> handle(event) }
+        eventBus.subscribe(SkillCast::class, EventDelivery.Entity) { event -> handle(event) }
 
     public fun handle(event: SkillCast): Unit = ExecutionCosts.measure("skill", event.skillId.value) {
         handleCast(event)

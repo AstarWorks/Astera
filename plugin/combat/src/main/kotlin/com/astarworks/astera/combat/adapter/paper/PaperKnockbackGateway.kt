@@ -62,7 +62,7 @@ public class PaperKnockbackGateway(
 
     override fun applyImpulse(target: PlayerId, impulse: Vec3) {
         if (ownership.deferIfForeign(target) { applyImpulse(target, impulse) }) return
-        ownership.assertOwned(target)
+        if (!ownership.checkOwned(target)) return
         // Players and non-player living entities (mobs travel as PlayerId(entityUuid), WP3).
         val player = server.getEntity(target.uuid) as? LivingEntity
         if (player == null) {

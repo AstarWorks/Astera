@@ -18,7 +18,12 @@ public class SlotAllocator(
         require(columns > 0 && rows > 0 && columns.toLong() * rows <= 100_000)
         require(minX.toLong() * PITCH > -29_000_000 && (minX.toLong() + columns) * PITCH < 29_000_000)
         require(minZ.toLong() * PITCH > -29_000_000 && (minZ.toLong() + rows) * PITCH < 29_000_000)
-        instances.allocate(com.astarworks.astera.core.domain.game.InstanceId("lobby"), -1, 0L)
+    }
+
+    /** Explicit Global bootstrap: construction itself never writes the instance registry. */
+    public fun initializeLobby() {
+        val id = com.astarworks.astera.core.domain.game.InstanceId("lobby")
+        if (instances.find(id) == null) instances.allocate(id, -1, 0L)
     }
 
     public fun snapshot(): List<Slot> = slots.values.toList()

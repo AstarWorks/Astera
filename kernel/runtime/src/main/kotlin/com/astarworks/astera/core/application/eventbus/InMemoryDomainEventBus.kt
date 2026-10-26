@@ -43,6 +43,9 @@ public class InMemoryDomainEventBus(
         for (entry in matching) {
             val target = when (entry.delivery) {
                 EventDelivery.SameStrand -> localScope
+                EventDelivery.Entity -> ExecutionScope.Entity(
+                    requireNotNull(event.route as? EventRoute.Player) { "Entity delivery requires a Player route" }.id,
+                )
                 EventDelivery.Global -> ExecutionScope.Global
                 EventDelivery.Io -> ExecutionScope.Io
             }
@@ -53,7 +56,7 @@ public class InMemoryDomainEventBus(
                 }
             }
             if (target == null || scheduler.isOnScope(target)) invoke.run()
-            else if (target is ExecutionScope.Instance) scheduler.run(target, Duration.ZERO) { invoke.run() }
+            else if (target is ExecutionScope.Instance || target is ExecutionScope.Entity) scheduler.run(target, Duration.ZERO) { invoke.run() }
             else deliveries.computeIfAbsent(target) {
                 SerialExecutor(Executor { task -> scheduler.run(target, Duration.ZERO) { task.run() } })
             }.execute(invoke)

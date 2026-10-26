@@ -112,7 +112,7 @@ public class ApplyDamageUseCase(
         if (ownership?.deferIfForeign(attempt.targetId) { execute(attempt) } == true) {
             return Result.success(DamageOutcome.Scheduled)
         }
-        ownership?.assertOwned(attempt.targetId)
+        if (ownership?.checkOwned(attempt.targetId) == false) return Result.failure(ApplyDamageError.WrongScope(attempt.targetId))
         if (entityDamageGateway?.isEntityTarget(attempt.targetId) == true) {
             return executeOnEntity(entityDamageGateway, attempt)
         }
@@ -304,6 +304,7 @@ public class ApplyDamageUseCase(
 
 /** Expected failure modes of [ApplyDamageUseCase.execute]. */
 public sealed class ApplyDamageError {
+    public data class WrongScope(val targetId: PlayerId) : ApplyDamageError()
     public data class TargetImmune(val targetId: PlayerId) : ApplyDamageError()
     public data class FriendlyFireBlocked(val targetId: PlayerId) : ApplyDamageError()
     public data class GatewayFailed(val cause: DamageApplicationError) : ApplyDamageError()

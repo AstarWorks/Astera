@@ -106,7 +106,10 @@ class InstanceRoutingScenarioTest {
             val resolver = sim.services.getOrThrow<IGameScopeResolver>()
             val entity = EntityRef(player.id.uuid, WorldId("survival"))
             assertThat(resolver.resolve(entity)).isEqualTo(GameScope.OpenWorld(entity.world))
+            val beforeBootstrap = instances.snapshot().size
             val slots = SlotAllocator(instances, columns = 2, rows = 1)
+            assertThat(instances.snapshot()).hasSize(beforeBootstrap)
+            slots.initializeLobby()
             val slot = checkNotNull(slots.allocate(StageId("example-arena")))
             val instance = checkNotNull(instances.find(slot.instanceId))
             assertThat(instance.state).isEqualTo(GameInstance.State.Allocating)

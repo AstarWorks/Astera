@@ -13,6 +13,42 @@ import java.nio.file.Files
 /** Real content + production combat wiring; no clock advance is allowed between input and assertions. */
 class RegionCombatScenarioTest {
     @Test
+    fun `item cast request resolves on the caster owner in the input tick`() {
+        scenario("region-combat-routed-item-input") {
+            val caster = player("input-caster", team = "red")
+            val victim = player("input-target", Vec3(0.0, groundY, 2.0), team = "blue")
+            val before = hp(victim)
+            val scope = com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(caster.id.uuid)
+            var resolved = false
+            val subscription = sim.eventBus.subscribe(
+                com.astarworks.astera.combat.domain.event.SkillCast::class,
+                com.astarworks.astera.core.application.port.outbound.EventDelivery.Entity,
+            ) {
+                assertThat(sim.scheduler.isOnScope(scope)).isTrue()
+                assertThat(it.atTick).isEqualTo(sim.tick)
+                resolved = true
+            }
+            try {
+                sim.scheduler.run(scope, kotlin.time.Duration.ZERO) {
+                    val tick = sim.tick
+                    sim.eventBus.publish(com.astarworks.astera.core.domain.event.SkillCastRequested(
+                        actorId = caster.id,
+                        skillId = SkillId("sword-slash"),
+                        origin = Vec3(0.0, groundY, 0.0),
+                        sourceItemId = com.astarworks.astera.core.domain.item.ItemId("sword"),
+                        cooldownOverrideTicks = 0,
+                    ))
+                    assertThat(resolved).isTrue()
+                    assertThat(hp(victim)).isLessThan(before)
+                    assertThat(sim.tick).isEqualTo(tick)
+                }
+                sim.scheduler.advanceTicks(0)
+                assertThat(resolved).isTrue()
+            } finally { subscription.cancel() }
+        }
+    }
+
+    @Test
     fun `uncapped shipped melee damages the whole crowd in the input tick`() {
         scenario("region-combat-unlimited-inline") {
             val caster = player("caster", team = "red")

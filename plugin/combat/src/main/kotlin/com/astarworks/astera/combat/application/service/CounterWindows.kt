@@ -23,15 +23,15 @@ internal class CounterWindows(
     private val run: (List<Mechanic>, MechanicContext) -> Unit,
 ) {
     private data class Window(val context: MechanicContext, val end: Long, val range: Double, val mechanics: List<Mechanic>)
-    private val windows = mutableMapOf<PlayerId, Window>()
-    private var closed = false
-    private val combat = events.subscribe(DamageDealt::class, EventDelivery.Global) { event ->
+    private val windows = java.util.concurrent.ConcurrentHashMap<PlayerId, Window>()
+    @Volatile private var closed = false
+    private val combat = events.subscribe(DamageDealt::class, EventDelivery.Entity) { event ->
         if (event.resolved.finalAmount > 0 && (event.source is DamageSource.Item ||
                 event.source is DamageSource.Skill || event.source is DamageSource.Projectile)) {
             event.attacker?.let { hit(event.target, it) }
         }
     }
-    private val vanilla = events.subscribe(PlayerHealthChanged::class, EventDelivery.Global) { event ->
+    private val vanilla = events.subscribe(PlayerHealthChanged::class, EventDelivery.Entity) { event ->
         val source = event.source as? HealthChangeSource.Attack
         if (source != null && event.newHp < event.oldHp) hit(event.playerId, PlayerId(source.attackerId))
     }

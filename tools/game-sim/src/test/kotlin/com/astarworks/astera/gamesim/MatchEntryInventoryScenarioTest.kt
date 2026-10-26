@@ -16,6 +16,26 @@ import org.junit.jupiter.api.Test
 class MatchEntryInventoryScenarioTest {
 
     @Test
+    fun `immediate match end restores an entry capture still queued on the entity owner`() {
+        val sim = GameSim.boot("match-entry-immediate-end", snapshots = InMemoryPlayerInventorySnapshotRepository())
+        try {
+            val player = sim.spawnPlayer("immediate-exit")
+            sim.step(5)
+            val inventory = checkNotNull(sim.inventory)
+            inventory.put(player.id, "sword")
+            val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
+            val matchId = (lifecycle.start(com.astarworks.astera.core.domain.stage.StageId("example-arena")) as
+                com.astarworks.astera.core.domain.Result.Success).value
+            sim.eventBus.publish(PlayerEnteredMatch(matchId, player.id))
+            sim.scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(player.id.uuid),
+                kotlin.time.Duration.ZERO) { inventory.put(player.id, "match-kit") }
+            lifecycle.end(matchId, EndReason.AdminEnded)
+            sim.scheduler.advanceTicks(1)
+            assertThat(inventory.items(player.id)).containsExactly("sword")
+        } finally { sim.shutdown() }
+    }
+
+    @Test
     fun `queue entry snapshots the inventory and match end restores it`() {
         val repo = InMemoryPlayerInventorySnapshotRepository()
         val sim = GameSim.boot("match-entry-inventory", snapshots = repo)

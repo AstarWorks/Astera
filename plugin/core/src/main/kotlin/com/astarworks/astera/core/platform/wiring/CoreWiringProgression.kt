@@ -286,6 +286,7 @@ internal fun CoreWiringState.wireProgression() {
     )
     services.register<com.astarworks.astera.core.application.service.inventory.WeaponLimitService>(weaponLimits, priority = 0)
     val matchSnapshots = MatchInventorySnapshotListener(
+        scheduler = scheduler,
         gateway = { services.get<IPlayerInventoryGateway>() },
         saveSnapshot = saveSnapshotUseCase,
         matches = { services.get<IMatchRepository>() },

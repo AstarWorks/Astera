@@ -131,7 +131,7 @@ public class PaperStatusEffectContainer(
     override fun apply(instance: StatusEffectInstance) {
         val targetId = instance.targetPlayerId
         if (ownership.deferIfForeign(targetId) { apply(instance) }) return
-        ownership.assertOwned(targetId)
+        if (!ownership.checkOwned(targetId)) return
         val spec = instance.spec
         val effectId = spec.id
 
@@ -172,7 +172,7 @@ public class PaperStatusEffectContainer(
 
     override fun remove(playerId: PlayerId, effectId: StatusEffectId) {
         if (ownership.deferIfForeign(playerId) { remove(playerId, effectId) }) return
-        ownership.assertOwned(playerId)
+        if (!ownership.checkOwned(playerId)) return
         val perPlayer = activeEffects[playerId] ?: return
         val removed = perPlayer.remove(effectId) ?: return
         if (perPlayer.isEmpty()) activeEffects.remove(playerId)
@@ -199,7 +199,7 @@ public class PaperStatusEffectContainer(
 
     override fun removeStacks(playerId: PlayerId, effectId: StatusEffectId, count: Int) {
         if (ownership.deferIfForeign(playerId) { removeStacks(playerId, effectId, count) }) return
-        ownership.assertOwned(playerId)
+        if (!ownership.checkOwned(playerId)) return
         val existing = activeEffects[playerId]?.get(effectId) ?: return
         if (count >= existing.currentStacks) {
             remove(playerId, effectId)
@@ -214,7 +214,7 @@ public class PaperStatusEffectContainer(
 
     override fun clear(playerId: PlayerId) {
         if (ownership.deferIfForeign(playerId) { clear(playerId) }) return
-        ownership.assertOwned(playerId)
+        if (!ownership.checkOwned(playerId)) return
         val perPlayer = activeEffects.remove(playerId) ?: return
         val player = server.getPlayer(playerId.uuid)
         val tick = scheduler.currentTick()

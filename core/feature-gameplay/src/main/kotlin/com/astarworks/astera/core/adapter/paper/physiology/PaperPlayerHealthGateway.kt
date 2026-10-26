@@ -72,9 +72,8 @@ import org.slf4j.LoggerFactory
  * # Threading
  *
  * Bukkit `player.health` setter requires main thread. The wrapped
- * in-memory gateway has no threading requirement. Callers MUST be on
- * main thread for the Bukkit-mirror write to succeed; the IScheduler
- * regen task runs on main per its contract.
+ * in-memory gateway has no threading requirement. Bukkit mirror reads/writes run
+ * inline on the player's owner, or hop to its Entity scheduler for system callers.
  *
  * # Registration
  *
@@ -86,7 +85,7 @@ import org.slf4j.LoggerFactory
 public class PaperPlayerHealthGateway(
     private val containerStore: IPlayerAttributeContainerStore,
     private val server: Server,
-    scheduler: IScheduler,
+    private val scheduler: IScheduler,
     eventBus: IDomainEventBus,
     defaultMaxHp: Double = 20.0,
 ) : IPlayerHealthGateway {
@@ -154,6 +153,11 @@ public class PaperPlayerHealthGateway(
      * `PlayerDeathEvent` from firing.
      */
     private fun mirrorToBukkit(playerId: PlayerId) {
+        val scope = com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(playerId.uuid)
+        if (!scheduler.isOnScope(scope)) {
+            scheduler.run(scope, kotlin.time.Duration.ZERO) { mirrorToBukkit(playerId) }
+            return
+        }
         val player = server.getPlayer(playerId.uuid) ?: run {
             if (log.isDebugEnabled) {
                 log.debug("PaperPlayerHealthGateway.mirrorToBukkit: target {} offline; skipped", playerId)

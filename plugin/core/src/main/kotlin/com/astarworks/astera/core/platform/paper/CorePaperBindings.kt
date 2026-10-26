@@ -73,6 +73,8 @@ internal class CorePaperBindings(
             value("ASTERA_SLOT_COLUMNS", 32), value("ASTERA_SLOT_ROWS", 32),
         )
     }
+    @Volatile private var lobbyBootReady = false
+    @Volatile private var arenaBootReady = false
     private lateinit var scheduler: IScheduler
 
     /** Set once the arena world is installed; the world baseline reads the per-stage sky from it. */
@@ -541,12 +543,26 @@ internal class CorePaperBindings(
                 stageAtmosphere = { world, x, z -> arenaWorld?.atmosphereAt(world, x, z) },
             ).start()
         }.onFailure { logger.log(java.util.logging.Level.SEVERE, "World baseline setup failed.", it) }
-        // Never let the lobby world fail Core's onEnable (it would disable every Astera plugin).
+        lobbyBootReady = !ctx.serverRole.hostsLobby
+        arenaBootReady = !ctx.serverRole.hostsMatches
+        if (!org.bukkit.Bukkit.isGlobalTickThread()) {
+            // Folia enable is not Global. Keep registry writes on their actual owner, and fail closed on login.
+            server.pluginManager.registerEvents(object : org.bukkit.event.Listener {
+                @org.bukkit.event.EventHandler
+                fun onLogin(event: org.bukkit.event.player.AsyncPlayerPreLoginEvent) {
+                    if (!lobbyBootReady || !arenaBootReady) event.disallow(
+                        org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
+                        net.kyori.adventure.text.Component.text("Server is preparing worlds. Please reconnect shortly."),
+                    )
+                }
+            }, plugin)
+        }
+        scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { worldSlots.initializeLobby() }
+        // Register services during enable: dependent plugins must capture the real arena builder.
         runCatching { installLobbyWorld(ctx) }
-            .onFailure { logger.log(java.util.logging.Level.SEVERE, "Lobby world setup failed; lobby stays on the main world.", it) }
-        // ADR-0246: sky-island arenas in the void `arenas` world, on backends that host matches.
+            .onFailure { logger.log(java.util.logging.Level.SEVERE, "Lobby world setup failed.", it) }
         runCatching { installArenaWorld(ctx) }
-            .onFailure { logger.log(java.util.logging.Level.SEVERE, "Arena world setup failed; stages stay hand-built.", it) }
+            .onFailure { logger.log(java.util.logging.Level.SEVERE, "Arena world setup failed.", it) }
         bukkitEventAdapterTimeTaskHandle = bukkitEventAdapter.start(plugin)
         val chatCosmeticCache = com.astarworks.astera.core.adapter.paper.cosmetic.ChatCosmeticCache()
         // ADR-0206: chat lines read `Name » message`, the name in the sender's team colour.
@@ -729,6 +745,7 @@ internal class CorePaperBindings(
         val attempts = java.util.concurrent.atomic.AtomicInteger(0)
         lateinit var create: Runnable
         create = Runnable {
+            worldSlots.initializeLobby()
             if (!created.compareAndSet(false, true)) return@Runnable
             var done = true
             try {
@@ -738,6 +755,7 @@ internal class CorePaperBindings(
                     ?.laneIds().orEmpty()
                 val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(config, lanes)
                 lobby.install(config, plan) {
+                    lobbyBootReady = true
                     installLobbyLaneHolograms(ctx, config.id, plan)
                     npcBodyService?.awaitedWorlds = emptySet()
                     npcBodyService?.flush()
@@ -768,7 +786,9 @@ internal class CorePaperBindings(
         server.pluginManager.registerEvents(
             object : org.bukkit.event.Listener {
                 @org.bukkit.event.EventHandler
-                fun onServerLoad(event: org.bukkit.event.server.ServerLoadEvent) = create.run()
+                fun onServerLoad(event: org.bukkit.event.server.ServerLoadEvent) {
+                    scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { create.run() }
+                }
             },
             plugin,
         )
@@ -814,11 +834,18 @@ internal class CorePaperBindings(
         val attempts = java.util.concurrent.atomic.AtomicInteger(0)
         lateinit var create: Runnable
         create = Runnable {
+            worldSlots.initializeLobby()
             if (!built.compareAndSet(false, true)) return@Runnable
             try {
                 val (count, total) = arena.installAll()
                 check(count == total) { "only $count of $total arena stage(s) could be built" }
                 logger.info("Arena builds accepted: $count stage(s); readiness follows in arena tick-pump logs.")
+                server.globalRegionScheduler.runAtFixedRate(plugin, { task ->
+                    if (arena.bootReady()) {
+                        arenaBootReady = true
+                        task.cancel()
+                    }
+                }, 1L, 1L)
             } catch (t: Throwable) {
                 if (attempts.incrementAndGet() < MAX_LOBBY_WORLD_ATTEMPTS) {
                     logger.warning("Arena world creation failed (${t.message}); retrying in 1s.")
@@ -832,7 +859,9 @@ internal class CorePaperBindings(
         server.pluginManager.registerEvents(
             object : org.bukkit.event.Listener {
                 @org.bukkit.event.EventHandler
-                fun onServerLoad(event: org.bukkit.event.server.ServerLoadEvent) = create.run()
+                fun onServerLoad(event: org.bukkit.event.server.ServerLoadEvent) {
+                    scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { create.run() }
+                }
             },
             plugin,
         )
