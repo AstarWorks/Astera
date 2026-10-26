@@ -1,14 +1,15 @@
-# BGM track (ADR-0267): a vanilla sound event, no resource pack needed. Replace the source with
-# an astera: OGG event (CC0 or ffmpeg-synthesised) when real music exists.
+# BGM track (ADR-0267): synthesized by tools/sound-gen/scripts/music_synth.py (numpy + ffmpeg, no samples, no network).
+# The OGG next to this file ships in the resource pack as the sound event astera:music/victory-fanfare.
+# duration_ticks is the exact length of the file; looping tracks are restarted every duration_ticks.
 id: victory-fanfare
 display_name: "Victory Fanfare"
 source:
-  kind: vanilla
-  key: "minecraft:music_disc.ward"
+  kind: resource_pack
+  path: "astera:music/victory-fanfare"
 license:
   kind: royalty_free
-  attribution: "Vanilla Minecraft sound event (client-provided, not redistributed by Astera)"
+  attribution: "Astera original, procedurally synthesized (CC0)"
 mood: victory
 default_volume: 0.9
 loop: false
-duration_ticks: 5020
+duration_ticks: 180

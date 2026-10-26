@@ -102,11 +102,6 @@ phases:
           end_radius: 2.5
           particles:
             - { id: electric_spark, count: 0, extra: 0.1 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.arrow.hit_player
-      volume: { type: literal, value: 0.5 }
-      pitch: { type: literal, value: 1.2 }
   hit_block:
     - type: play_sound
       targets: { type: hit_location }
