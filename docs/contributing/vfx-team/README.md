@@ -94,7 +94,7 @@ Workflow v3 step 5 needs the views `side`, `front`, `back`, `top`, `high`, `cast
 `make vfx-shot` boots an `astera-shot-<id>` stack (server + pack host) and headless clients (~2.5 GB each, server ~2.5 GB), films, and
 **tears everything down when it exits** (success, error, Ctrl-C, TERM/HUP, its caller dying). Runs are serialized host-wide; with `SHOT_KEEP=1`
 the stack and parked clients stay warm for the next capture from the same checkout and only what changed is synced.
-Reference: [tools/vfx-shot/README.md](../../../tools/vfx-shot/README.md) (sections "Lifecycle", "Tick clapperboard").
+Reference: [tools/vfx-shot/README.md](../../../tools/vfx-shot/README.md) (sections "Lifecycle", "Tick stamp").
 
 ```
 SKILL=<skill> ITEM=<item-id> VIEW=compare CASE=<case> make vfx-shot      # one-shot: boot, film (1280x720, gif/mp4/sheet), tear down
@@ -113,9 +113,7 @@ make vfx-shot-reap                                         # kill stragglers of 
 - **Provenance is checked, not assumed.** `meta.json` `stack` carries the deployed content hash (verified inside the container), the pack sha1, the code hash and revision,
   and `workingTreeInSync`; if the tree changed while the capture ran, `captureQuality.invalid` is set and the capture must be redone. `make vfx-shot-status` shows the same
   comparison on demand.
-- **Frame <-> tick is measured.** `meta.json` `clapper` has the measured cast lag (`measuredCastLagMs`), tick rate, residual and `fitHolds` (a server tick boss bar is
-  filmed in the first and last 1.2 s with the HUD up; the saved frames never show it). Quote it instead of guessing "+1-2 ticks of client lag"; the jitter that remains
-  (+-1-2 ticks, bursty software client) is a property of the client, not of the offset. If `clapper.measured` is false the capture fell back to the assumed 60 ms.
+- **Frame <-> tick is read from every frame.** A server-tick stamp is rendered into each recorded frame (masked out of the saved PNGs), so frame n is exactly tick n of the window on every view; `meta.json` `tickStamp` has `firstFxTickAfterCast` (real client display lag of the first effect) and `skippedTicks`. Quote it instead of guessing "client lag".
 - **Lighter output.** caster / opponent / side views film at 640x360 (compare stays 1280x720; `RES=` overrides). `BEAT_TICKS=case` (the case's `beats[].tick`) or an explicit tick
   list saves only those PNGs (no sheet / gif / mp4, `beatFramesOnly: true`, not publishable): use it for pose / VFX iteration, and a full capture for the round you publish.
 - **Lock and memory discipline.** One capture at a time on the whole host: the slot lock `/tmp/claude-1000/astera-vfx-shot.lock` (`SHOT_SLOTS`, default 1) queues every other

@@ -312,7 +312,7 @@ class Stack:
             remove_project(self.project, why)
         if A.dry:
             return
-        for pat in ("clients/*.env", "clients/*.hud"):
+        for pat in ("clients/*.env",):
             for f in glob.glob(f"{self.state}/{pat}"):
                 os.unlink(f)
         for n in ("parker.on", "parker.pid", "capture.active", "keep-until", "subnet", "deployed.json", "owner"):

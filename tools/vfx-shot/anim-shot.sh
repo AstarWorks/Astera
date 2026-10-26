@@ -132,6 +132,7 @@ done
 in_arena Caster && in_arena Watcher || die "could not keep the players in the overworld arena"
 rcon "kill @e[type=minecraft:item]" >/dev/null
 key Watcher 1
+HIDE_HUD="${HIDE_HUD:-1}"; CAST_LAG_MS="${CAST_LAG_MS:-60}"   # anim-shot has no tick stamp: F1 hides the HUD, fixed client lag
 [ "$HIDE_HUD" = 1 ] && key Watcher F1
 DISPLAY=":${DISP[Watcher]}" xdotool mousemove 640 360 2>/dev/null || true
 

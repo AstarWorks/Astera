@@ -59,7 +59,7 @@ def main():
         if recv(sock)[0] == -1:
             print("rcon: bad password", file=sys.stderr)
             return 2
-        # Clapperboard marks: the server game time right before and right after the cast, on this same connection.
+        # Tick marks: the server game time right before and right after the cast, on this same connection.
         # RCON commands queued back to back normally run in the same server tick, so before == after pins the cast
         # tick exactly; a difference of one tick is recorded as the uncertainty.
         mark = os.environ.get("DIRECTOR_MARK_CMD", "")

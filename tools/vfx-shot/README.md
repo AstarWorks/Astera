@@ -97,32 +97,34 @@ Output: `build/vfx-shot/<skill>/<view>/`
 | `frame_NNN.webp` | 転送用の軽量プレビュー。原寸PNGは比較・計測用に保持する |
 | `sheet.png` | contact sheet, 6 columns, every `SHEET_STEP`-th tick labelled `t+N` |
 | `<skill>-<view>.gif` / `.mp4` | the same frames as a loop (gif 640 px wide); not written with `BEAT_TICKS` |
-| `clapper.json` | tick clapperboard measurement (below), also copied into `meta.json` `clapper` |
-| `recording.mkv`, `recording.showinfo.log` | only with `SHOT_KEEP_REC=1` (debugging the clapperboard) |
+| `framestamp.json` | frame <-> tick map and stamp statistics (below); a summary (no per-frame lists) is in `meta.json` `tickStamp` |
+| `recording.mkv`, `recording.showinfo.log` | only with `SHOT_KEEP_REC=1` (debugging the tick stamp) |
 
 `BEAT_TICKS=case` keeps the PNGs of the `beats[].tick` of `tools/skill-compare/data/<CASE>/case.json`; `BEAT_TICKS=0,8,20` an explicit list
 (ticks after the cast). A beat-only capture has `meta.json` `beatFramesOnly: true` and is **not publishable** (`publish-capture.mjs` wants a
 contiguous PNG sequence); it is for fast pose / VFX iteration.
 
-## Tick clapperboard (frame <-> server tick, measured)
+## Tick stamp (frame <-> server tick, read from every frame)
 
-A capture used to assume `frame 0 = RCON stamp + CAST_LAG_MS (60 ms)`. Now (`CLAPPER=1`, default) the stack carries a tiny datapack
-(`tools/vfx-shot/clapper-pack`, installed by the sync step, hash-checked) whose per-tick function writes `game time mod 40` into the fill
-of a red boss bar. The recording starts and ends with the HUD visible (`CLAP_HEAD` / `CLAP_TAIL`, 1.2 s each; F1 hides it for the cast
-and the motion, so **the saved frames never contain the bar**). `clapper.py` reads the bar in those head/tail windows, unwraps it
-against the game-time marks that `director.py` reads on the same RCON connection right before and after the cast (`MARK_BEFORE` /
-`MARK_AFTER`: equal = the cast tick is exact, one tick apart = +-0.5 tick), fits `game time(t)` over both windows with outlier trimming
-(frames the bursty software client drew late), and extracts frame 0 at the video time at which the cast tick was on screen.
-`meta.json` / `clapper.json` `clapper`: `castTick`, `castTickSpan`, `castTickExact`, `measuredCastLagMs` (cast stamp -> frame showing the cast tick),
-`tickRateHz` (must be 20 +-1 or the fit is rejected), `maxResidualTicks`, `droppedSamples`, `barSamples`, `fitHolds`, and for compare
-`cutCheck`.
+The old clapperboard fitted wall-clock time against a boss bar seen only at the head and tail of the recording; the bursty software
+client (frames drawn 100-300 ms late) made that fit fail on some views. Now every frame carries the server tick itself.
+The datapack `tools/vfx-shot/stamp-pack` (installed by the sync step, hash-checked) writes `game time mod 1024` every tick into the
+**title of a boss bar** as 12 coloured `█` cells (2 fixed start cells magenta/cyan + 10 bits, magenta = 0, cyan = 1). Boss bar titles do
+not ease and colour changes are instant, so the stamp is exactly what the client drew in that frame. The viewer's resource pack
+(`overlay-pack`) blanks all `hud/*` sprites, so only the stamp, the hand and the world are on screen (chat is hidden).
 
-The vanilla boss bar eases toward each new value over 100 ms, so the bar reads 100 ms later than the world. Camera hard cuts are real
-world changes with a known server tick (`CUT_MARK` = game time right before each `tp`); the median of (frame in which the cut appears) -
-(bar prediction for its tick) is the correction (measured -100 ms, `barLerpCorrectionMs`); captures without cuts apply -100 ms.
-Measured on this host for bastion-greatsword-s1: lag 53-130 ms (not a constant 60 ms), with +-1-2 ticks of frame-to-frame jitter that no
-amount of calibration removes (the client draws in bursts). If the bar cannot be read or the fit does not hold, the capture falls back to
-`CAST_LAG_MS` and `meta.json` says `clapper.measured: false`. `CLAPPER=0` skips the bookends (about 2.5 s faster).
+`framestamp.py` decodes the stamp in every recorded frame (self-calibrating from the start cells), unwraps it against the game-time
+marks `director.py` reads on the same RCON connection right before and after the cast (equal = the cast tick is exact, one apart =
++-0.5 tick), drops glitch frames, and picks for output frame n the recorded frame stamped with tick `cast - PRE_TICKS + n*20/fps`
+(at 60 fps: the 3 frames of that tick, in order). The mapping needs no wall-clock fit, so it does not depend on render load. A tick the
+client never drew is reported in `skippedTicks` (nearest frame used). The saved PNGs have the stamp rectangle (and, for the
+caster/opponent views, the hotbar) overwritten with a mirror of the adjacent rows. Any failure to read the stamp fails the capture.
+
+`framestamp.json` / `meta.json` `tickStamp`: `castTick`, `castTickSpan`, `castTickExact`, `recordedFrames`, `undecodedFrames`,
+`glitchFrames`, `regressions`, `skippedTicks`, `stampRateHz`, and two separate latencies:
+- `castStampToStampedFrameMs`: RCON cast time -> video time of the frame stamped with the cast tick (capture offset, not a game property);
+- `firstFxTickAfterCast` / `firstChangeTickAfterCast`: ticks from the cast tick until the first visible change in the picture (the real
+  client display lag of the skill's first effect); camera cuts are excluded from `firstFx` and listed in `cutCheck`.
 
 比較撮影の`meta.json`は参照・contentの版、撮影日時、実装コミット、カメラ内容のハッシュを保持する。
 `captureQuality.maxRepeatedFrames`が15以上なら停止映像の疑いを目視確認する。静止した場面もあるため、自動で不合格にはしない。
@@ -168,7 +170,7 @@ clock). The client FOV option is the first key's fov; other keys' fov is emulate
 which skill-compare reads (source `vfx-compare`, the default) to align the frames with the case's skill start.
 
 Every view writes `meta.json` (`view`, `skill`, `fps`, `frames`, `fov`, `fovMode` = `fixed` | `intent-first-key` | `override-dolly` | `override-nodolly`, `resolution`,
-`capturedAt`, `branch`, `implementationCommit`, plus the revision fields below, the `stack` block and the `clapper` block); skill-compare shows it as the provenance badge and `make skill-brief` copies it into its manifest.
+`capturedAt`, `branch`, `implementationCommit`, plus the revision fields below, the `stack` block and the `tickStamp` block); skill-compare shows it as the provenance badge and `make skill-brief` copies it into its manifest.
 
 | revision field | meaning |
 |---|---|
@@ -200,17 +202,14 @@ guards the end, they equal what was served.
    The dev container is attached to that network (`docker network connect`) so clients reach the server.
 2. `rcon.py` talks RCON straight to the server IP; readiness is polled (RCON / client log), never slept on.
 3. Clients: `portablemc` (offline name) with `--join-server`. Options are written per client
-   (render distance 6, FOV 90 (compare: the intent's), no view bob, particles all, GUI scale 2, sound off, no pause on focus loss).
-   F1 hides the HUD (`HIDE_HUD=0` keeps it; note F1 also hides the first-person hand).
-   **Caster view caveat:** with the default `HIDE_HUD=1` the caster's own held item is NEVER drawn in first person, before,
-   during or after the skill (f0-2 are empty-handed too). Only world entities show, so a `hide_held_item` rig appears and
-   then the hand looks empty to the last frame. That is the capture, not a missing restore. To judge the held-item
-   hand-over in first person, run `HIDE_HUD=0 make vfx-shot ... VIEW=caster`. Bastion S1 at 5dbac89d with the HUD on: held sword f0-2,
-   held sword + rig overlap f2-4, bare hand + rig f48-58, held sword back at f59 (vanilla re-equip raise from the bottom-right,
-   settled by ~f72). `PaperEntityEffectsGateway.sendHeldItem` sends both hide and restore to every player in the
-   world, the caster included.
+   (render distance 6, FOV 90 (compare: the intent's), no view bob, particles all, GUI scale 1, sound off, no pause on focus loss).
+   The HUD stays on (the tick stamp is in it); the pack makes every HUD sprite transparent, so the first-person hand is drawn.
+   (`anim-shot` still uses F1 / `HIDE_HUD`.)
+   **Caster view:** the hand is visible (no F1). The hotbar is still drawn by the game (items cannot be blanked by a resource pack),
+   so it is masked out of the saved caster/opponent frames. `PaperEntityEffectsGateway.sendHeldItem` sends both hide and restore to
+   every player in the world, the caster included.
 4. `ffmpeg -f x11grab` records with wall-clock timestamps; `director.py` stamps the epoch time just before the cast and reads the
-   server game time around it, and `clapper.py` turns that into the frame offset (see "Tick clapperboard"; `CAST_LAG_MS` is only the fallback).
+   server game time around it, and `framestamp.py` maps frames to ticks from the stamp inside each frame (see "Tick stamp").
 5. Clients and the stack are removed when the run exits; with `SHOT_KEEP=1` they stay parked for `SHOT_KEEP_TTL` (see "Lifecycle").
 
 ### Resource pack
@@ -260,7 +259,7 @@ the caster's face), `side` (90 degrees), `top` (3 blocks above, looking down). O
 | `blend-in/{front,side}/`, `blend-out/{front,side}/` | slices of `play/` around the blends (a looping motion films its blend-out separately, relative to `emote stop`); first tick in `meta.json` |
 | `meta.json` | provenance: `branch`, `implementationCommit`, `capturedAt`, `anim`, `trigger`, `lengthTicks`, `loop`, blend lengths, `playPreTicks`, `resolution`, `fov` |
 
-Knobs: `ITEM` (held item, default `bastion-greatsword`), `D` (camera distance), `REST_TICK`, plus `RES`, `FOV`, `SETTLE`, `CAST_LAG_MS`, `SHOT_TIMEOUT`. `anim-shot` is always a one-shot
+Knobs: `ITEM` (held item, default `bastion-greatsword`), `D` (camera distance), `REST_TICK`, plus `RES`, `FOV`, `SETTLE`, `HIDE_HUD`, `CAST_LAG_MS`, `SHOT_TIMEOUT`. `anim-shot` is always a one-shot
 flow (own throwaway stack per animation, torn down at the end, never kept). It goes through the same lifecycle (stack lock, host-wide slot, watchdog, reaper); do not wrap it in the e2e lock. Frames are not "published" (no
 `publish-capture.mjs` step: that tool wants a contiguous `frame_NNN` set per skill/view); pages cache-bust on the capture's mtime.
 Read the result in the browser: `make skill-compare` -> `/anim` (see `tools/skill-compare/README.md`).
@@ -268,12 +267,12 @@ Read the result in the browser: `make skill-compare` -> `/anim` (see `tools/skil
 ## Knobs (env)
 
 `VIEW`, `TICKS`, `ITEM` (default: skill id minus `-sN`/`-def`), `TIME_OF_DAY` (6000), `DISTANCE` (4),
-`RES` (default 1280x720 for compare, 640x360 for the other views), `HIDE_HUD`, `GUI_SCALE`, `BEAT_TICKS`, `CLAPPER` (1), `CLAP_HEAD` / `CLAP_TAIL` (1.2 s),
+`RES` (default 1280x720 for compare, 640x360 for the other views), `GUI_SCALE` (1), `BEAT_TICKS`,
 `SETTLE_WARM` (2 s, scene settle when both clients were already parked), `SHOT_KEEP` (0), `SHOT_KEEP_TTL` (= `SHOT_TIMEOUT`), `SHOT_TIMEOUT` (2700 s),
 `SHOT_SLOTS` (1), `SHOT_LOCK` (`/tmp/claude-1000/astera-vfx-shot.lock`), `SHOT_REAP_SCOPE` (host | self | off), `SHOT_REAP_DRY`, `SHOT_DETACHED`,
 `SHOT_CLIENT_XMX` (client heap, 1536m), `SHOT_MIN_FREE_GB` (8), `SHOT_MEM_WAIT` (900 s),
 `SHOT_KEEP_REC`, `PARK_RUN` / `PARK_STOP` (2 / 8 s parker cycle), `CPU=1 make vfx-shot-status` (samples the parked cost over 10 s), `FOV` (degrees, 30-110; default 90 for caster/opponent/side, compare: the intent's first camera key unless set), `FOV_DOLLY` (compare: 1 = keep the reference framing, 0 = keep camera positions and widen), `FOV_OPT` (raw normalised value, 0.0 = 70), `RENDER_DISTANCE`, `SETTLE` (6 s),
-`PRE_ROLL`, `SHEET_STEP` (2), `CAST_LAG_MS` (fallback only), `SHOT_CACHE` (portablemc venv + game files,
+`PRE_ROLL`, `SHEET_STEP` (2), `SHOT_CACHE` (portablemc venv + game files,
 default `~/.cache/astera-vfx-shot`; first run downloads the client ~ 1 GB).
 
 ## Troubleshooting
@@ -283,8 +282,8 @@ default `~/.cache/astera-vfx-shot`; first run downloads the client ~ 1 GB).
 - **Client exits / never joins**: `build/vfx-shot/.clients/<name>/client.log`; GL problems -> make sure
   `LIBGL_ALWAYS_SOFTWARE=1` works (`glxinfo` under Xvfb). Needs ~2 GB RAM per client.
 - **Magenta items**: `client.log` lists `Missing textures in model astera:...`; check the overlay pack got zipped.
-- **Frames look early/late**: read `meta.json` `clapper` (measured lag, residual, `fitHolds`); software GL renders in bursts, so +-1-2 ticks of jitter is normal. `CAST_LAG_MS` only matters when `clapper.measured` is false.
-- **`clapperboard could not be read`**: re-run with `SHOT_KEEP_REC=1` and look at `build/vfx-shot/<skill>/<view>/clapper.json` / `recording.mkv`; usual causes are a host so loaded that the client barely draws, or a missing datapack (`datapack list` over RCON must show `file/vfxclap`).
+- **Frames look early/late**: read `meta.json` `tickStamp` (`skippedTicks`, `regressions`, `undecodedFrames`); the mapping is by stamp, so an offset means the skill itself starts late (see `firstFxTickAfterCast`).
+- **`tick stamp could not be read`**: re-run with `SHOT_KEEP_REC=1` and inspect `build/vfx-shot/<skill>/<view>/recording.mkv`; usual causes are a missing datapack (`datapack list` over RCON must show `file/vfxstamp`) or a host so loaded that the client barely draws.
 - **Stack looks wrong / half-created**: `make vfx-shot-down`, then run again. `make vfx-shot-status` shows what is stale.
 - **Skill does nothing**: cast needs the skill registered (`astera skill list`) and the caster able to cast in
   the overworld; check `docker logs astera-shot-e2e-1`.
