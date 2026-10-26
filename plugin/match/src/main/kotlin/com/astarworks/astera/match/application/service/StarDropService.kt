@@ -104,17 +104,25 @@ public class StarDropService(
         val bystanders = nearby(matchId, at.world, at.position, BURST_HEAR_RADIUS).filter { it != victim && it != credited }
         val args = mapOf("amount" to burst.toString())
         presentation.play(PresentationMoments.STAR_BURST, victim, args, at.position, at.world, bystanders)
+        // Fountain layers: launch thump + gold dust, then firework sparks (same audience; the killer and the victim see them too).
+        val audience = (bystanders + listOfNotNull(credited)).distinct()
+        presentation.play(PresentationMoments.STAR_BURST_GOLD, victim, args, at.position, at.world, audience)
+        presentation.play(PresentationMoments.STAR_BURST_SPARK, victim, args, at.position, at.world, audience)
         credited?.let { presentation.play(PresentationMoments.STAR_BURST_KILLER, it, args, at.position, at.world) }
         val stacks = minOf(burst, MAX_BURST_DROPS)
         val base = burst / stacks
         var extra = burst % stacks
-        repeat(stacks) {
+        // Fountain: the stacks leave on an evenly spaced ring (jittered), each with its own outward speed and upward pop,
+        // so they spray out in all directions and land at different distances instead of in one clump.
+        val ringStart = random.nextDouble(0.0, 2 * Math.PI)
+        repeat(stacks) { index ->
             val amount = base + if (extra-- > 0) 1 else 0
-            val angle = random.nextDouble(0.0, 2 * Math.PI)
-            val dist = random.nextDouble(0.5, BURST_SCATTER)
+            val angle = ringStart + (index + random.nextDouble(-0.35, 0.35)) * 2 * Math.PI / stacks
+            val outward = random.nextDouble(BURST_SPEED_MIN, BURST_SPEED_MAX)
+            val lift = random.nextDouble(BURST_LIFT_MIN, BURST_LIFT_MAX)
             val now = System.currentTimeMillis()
-            val pos = Vec3(at.position.x, at.position.y + 0.5, at.position.z)
-            val fling = Vec3(cos(angle) * dist * BURST_SPEED, BURST_LIFT, sin(angle) * dist * BURST_SPEED)
+            val pos = Vec3(at.position.x, at.position.y + 0.8, at.position.z)
+            val fling = Vec3(cos(angle) * outward, lift, sin(angle) * outward)
             val drop = StarDrop(nextId.getAndIncrement(), matchId, at.world, pos, amount, BURST_PICKUP_RADIUS, null, victim, now + VICTIM_DENY_MILLIS, null, now + BURST_READY_MILLIS)
                 .let { withEntity(it, fling) }
             drops[drop.id] = drop
@@ -207,14 +215,17 @@ public class StarDropService(
         const val MILLIS_PER_TICK = 50L
         const val POP_RADIUS = 40.0
         const val BURST_HEAR_RADIUS = 32.0
-        const val MAX_BURST_DROPS = 6
-        const val BURST_SCATTER = 2.5
+        /** Most separate star items one burst throws (a 100-star economy drops tens of stars at once). */
+        const val MAX_BURST_DROPS = 16
         const val BURST_PICKUP_RADIUS = 1.5
         const val VICTIM_DENY_MILLIS = 8_000L
-        /** Outward fling of a burst drop: blocks/tick = scatter distance * this. */
-        const val BURST_SPEED = 0.1
-        const val BURST_LIFT = 0.25
-        /** A burst drop cannot be taken for this long, so the scatter is seen. */
-        const val BURST_READY_MILLIS = 600L
+        /** Outward fling of a burst drop (blocks/tick, randomized per drop): lands roughly 2 to 4.5 blocks away. */
+        const val BURST_SPEED_MIN = 0.14
+        const val BURST_SPEED_MAX = 0.32
+        /** Upward pop (blocks/tick, randomized per drop): the fountain's height. */
+        const val BURST_LIFT_MIN = 0.35
+        const val BURST_LIFT_MAX = 0.62
+        /** A burst drop cannot be taken for this long, so the fountain is seen. */
+        const val BURST_READY_MILLIS = 900L
     }
 }

@@ -894,7 +894,7 @@ astera:
         progress: "<gray>現在：<white>{now}</white>/<white>{goal}</white></gray>"
         default: "<dark_gray>10秒選ばないとスター目標になります。</dark_gray>"
     star:
-      collected: "<gold>+{amount} ★</gold> <gray>(所持 {total})</gray>"
+      collected: "<gold><bold>+{amount} ★</bold></gold> <gray>(所持 {total})</gray>"
     # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
     queue:
       unknown-mode: "<red>未知のキューモードです。</red>"
@@ -2530,8 +2530,8 @@ astera:
   hint.help.commands: "<gray>/astera help</gray> - コマンド一覧。<gray>/astera menu</gray>・<gray>/astera settings</gray>・<gray>/astera social</gray> で各画面を開く"
   hint.help.tutorial: "<gray>/astera tutorial start</gray> - チュートリアルをやり直す"
   hint.help.in-match: "<gray>試合中は F キーでメニュー（設定・退出・ヘルプ）を開けます。/astera queue leave・/astera travel lobby・/astera settings も使えます。</gray>"
-  presentation.star-burst.victim: "<red>★ -{amount} が弾け飛んだ！</red>"
-  presentation.star-burst.killer: "<gold>★ {amount} が弾け飛んだ - 拾え！</gold>"
+  presentation.star-burst.victim: "<red><bold>-{amount} ★</bold></red>"
+  presentation.star-burst.killer: "<gold><bold>+{amount} ★</bold></gold> <gray>が弾け飛んだ - 拾え！</gray>"
   presentation.respawn: "<aqua>復活！戦線に復帰</aqua>"
   menu.cosmetics.tooltip: "<gray>クリックで称号・名前の色・キルエフェクトの購入と装備。</gray>"
   match_menu.title: "試合メニュー"

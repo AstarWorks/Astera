@@ -3,8 +3,8 @@
 id: siege-mini-tnt-south
 match_stage_id: siege-isles-mini-tnt
 position: { x: 10.5, y: 65.0, z: 95.5 }
-period_seconds: 30.0
-amount: 1
+period_seconds: 20.0
+amount: 5
 tier: iron
 affiliation:
   kind: neutral

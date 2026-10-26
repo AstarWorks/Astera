@@ -34,8 +34,8 @@ class NormaLayerScenarioTest {
     /** Clears every level for [who]: carries enough stars and signals the pickup, once per level up to [levels]. */
     private fun ScenarioScope.climb(matchId: MatchId, who: SimEntity, levels: Int) {
         repeat(levels) {
-            stars().add(matchId, who.id, 12)
-            sim.eventBus.publish(StarsCollected(matchId, who.id, 12, stars().get(matchId, who.id)))
+            stars().add(matchId, who.id, 25)
+            sim.eventBus.publish(StarsCollected(matchId, who.id, 25, stars().get(matchId, who.id)))
             advance(2)
         }
     }
@@ -126,9 +126,9 @@ class NormaLayerScenarioTest {
             val blue = player("blue-1", team = "blue")
             val matchId = startMatch("battle-loyal", mapOf(red to "red", blue to "blue"))
 
-            // Blue clears Norma level 1 (3 stars, then bursts them on death), red scores the only battle-loyal point.
-            stars().add(matchId, blue.id, 3)
-            sim.eventBus.publish(StarsCollected(matchId, blue.id, 3, 3))
+            // Blue clears Norma level 1 (10 stars, then bursts half of them on death), red scores the only battle-loyal point.
+            stars().add(matchId, blue.id, 10)
+            sim.eventBus.publish(StarsCollected(matchId, blue.id, 10, 10))
             advance(2)
             assertThat(eventsOf<NormaLevelUp>().any { it.playerId == blue.id && it.level == 2 }).isTrue()
 

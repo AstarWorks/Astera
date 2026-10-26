@@ -170,8 +170,8 @@ class StarsE2eTest : PlaythroughBase() {
             assertThat(victimCleared).describedAs("victim still carries ${starCount(a)} stars: ${sidebar(a)} (carried before: $carried); server log: ${ServerLog.read().lineSequence().drop(logFromKill).filter { it.contains("star", true) || it.contains("ERROR") || it.contains("threw") }.take(12).toList()}").isTrue()
             "victim stars $carried -> ${starCount(a)} ${System.currentTimeMillis() - tKill} ms after the kill"
         }
-        val expectedBurst = minOf(carried ?: 0, 6)
-        E2eReport.check(suite, "the burst creates N star item entities around the death spot (N = min(stars carried, 6))", "ClientboundAddEntity(ITEM)") {
+        val expectedBurst = minOf(carried ?: 0, 16)
+        E2eReport.check(suite, "the burst creates N star item entities around the death spot (N = min(stars carried, 16))", "ClientboundAddEntity(ITEM)") {
             val spawned = c.entityEvents.drop(burstEventsFrom).count { it.added && it.type.equals("ITEM", ignoreCase = true) }
             assertThat(expectedBurst).describedAs("victim carried nothing").isGreaterThan(0)
             assertThat(spawned).describedAs("ITEM entities that appeared after the kill").isGreaterThanOrEqualTo(expectedBurst)
@@ -181,8 +181,8 @@ class StarsE2eTest : PlaythroughBase() {
             assertThat(c.waitUntil(6_000) { levelOf(c)?.first == 2 }).describedAs("killer sidebar ${sidebar(c)}").isTrue()
             "C sidebar: ${sidebar(c)}"
         }
-        // Another player walks over the burst: the death spot and a ring around it (the drops lie within ~2.5 blocks).
-        val sweep = listOf(0.0 to 0.0, 1.5 to 0.0, -1.5 to 0.0, 0.0 to 1.5, 0.0 to -1.5, 1.1 to 1.1, -1.1 to -1.1, 1.1 to -1.1, -1.1 to 1.1, 2.2 to 0.0, -2.2 to 0.0, 0.0 to 2.2, 0.0 to -2.2)
+        // Another player walks over the burst: the death spot and a ring around it (the fountain lands drops within ~4.5 blocks).
+        val sweep = listOf(0.0 to 0.0, 1.5 to 0.0, -1.5 to 0.0, 0.0 to 1.5, 0.0 to -1.5, 1.1 to 1.1, -1.1 to -1.1, 1.1 to -1.1, -1.1 to 1.1, 2.2 to 0.0, -2.2 to 0.0, 0.0 to 2.2, 0.0 to -2.2, 3.2 to 0.0, -3.2 to 0.0, 0.0 to 3.2, 0.0 to -3.2, 2.4 to 2.4, -2.4 to -2.4, 2.4 to -2.4, -2.4 to 2.4)
         var picked = false
         if (deathSpot != null) {
             for ((dx, dz) in sweep) {

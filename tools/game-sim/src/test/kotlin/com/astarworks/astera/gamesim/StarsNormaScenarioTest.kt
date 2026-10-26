@@ -41,8 +41,8 @@ class StarsNormaScenarioTest {
             assertThat(stars.get(matchId, red.id)).isGreaterThanOrEqualTo(1)
             assertThat(stars.get(matchId, blue.id)).`as`("blue is far from every generator").isEqualTo(0)
 
-            // (b) Carrying 6 stars, blue is killed by red: the whole stack bursts out of blue, blue keeps 0.
-            stars.add(matchId, blue.id, 6)
+            // (b) Carrying 40 stars, blue is killed by red: half the stack (death_drop_ratio 0.5) fountains out as 16 items, blue keeps 20.
+            stars.add(matchId, blue.id, 40)
             sim.setMaxHealth(blue, 1.0)
             val deathSpot = blue.position
             val deathWorld = blue.world
@@ -56,11 +56,12 @@ class StarsNormaScenarioTest {
                 }
             }
             assertThat(eventsOf<PlayerKilled>().any { it.victim == blue.id }).isTrue()
-            assertThat(stars.get(matchId, blue.id)).`as`("the victim's carried stars burst out").isEqualTo(0)
+            assertThat(stars.get(matchId, blue.id)).`as`("half of the victim's carried stars burst out").isEqualTo(20)
 
             // The burst lies on the map as items; being a few blocks away takes nothing (pickup is the item pickup only).
             val lyingBurst = sim.starDrops.lying().filter { it.world == deathWorld }
-            assertThat(lyingBurst).`as`("the burst lies on the map as star items").isNotEmpty()
+            assertThat(lyingBurst.filter { it.amount <= 2 }.sumOf { it.amount }).`as`("20 stars lie on the map as burst items").isEqualTo(20)
+            assertThat(lyingBurst.count { it.amount <= 2 }).`as`("the fountain throws 16 separate star items").isEqualTo(16)
             val before = stars.get(matchId, red.id)
             advance(40)
             assertThat(stars.get(matchId, red.id)).`as`("red, 6 blocks away, takes nothing").isEqualTo(before)
@@ -77,7 +78,7 @@ class StarsNormaScenarioTest {
             assertThat(stars.get(matchId, red.id)).`as`("red picked up burst stars").isGreaterThan(before)
             assertThat(sim.starDrops.lying().size).`as`("the picked-up items are gone from the map").isLessThan(lyingBefore)
 
-            // (c) Red carries enough stars for the level-1 star goal (3 by default): the level goes 1 -> 2, stars are kept.
+            // (c) Red carries enough stars for the level-1 star goal (10 by default): the level goes 1 -> 2, stars are kept.
             stars.add(matchId, red.id, 20)
             sim.eventBus.publish(StarsCollected(matchId, red.id, 20, stars.get(matchId, red.id)))
             advance(2)
@@ -98,10 +99,10 @@ class StarsNormaScenarioTest {
             val matchId = startMatch("skirmish", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             val stars = sim.services.getOrThrow<IMatchStarStore>()
 
-            // Red clears level 1 (3 stars); blue carries 2 stars at level 1. Level beats stars.
-            stars.add(matchId, red.id, 3)
-            sim.eventBus.publish(StarsCollected(matchId, red.id, 3, 3))
-            stars.add(matchId, blue.id, 2)
+            // Red clears level 1 (10 stars); blue carries 9 stars at level 1. Level beats stars.
+            stars.add(matchId, red.id, 10)
+            sim.eventBus.publish(StarsCollected(matchId, red.id, 10, 10))
+            stars.add(matchId, blue.id, 9)
             advance(12_100)
             val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
             assertThat(ended.reason).isEqualTo(EndReason.NormaTimeLimit(TeamId("red")))
