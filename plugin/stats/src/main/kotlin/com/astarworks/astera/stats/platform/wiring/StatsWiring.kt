@@ -621,6 +621,21 @@ public object StatsWiring {
             messages = messages,
         ).build().forEach { commands.register(it) }
 
+        // UI-04: the Daily / Quests screen behind the main-menu tile (`progress.open`); the commands above stay as shortcuts.
+        val progressMenu = com.astarworks.astera.stats.application.progress.ProgressMenu(
+            loginBonus = loginBonusService,
+            claimDaily = claimLoginBonus::claim,
+            normas = normaService,
+            quests = questService,
+            questChains = questChainRegistry,
+            adapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
+            server = services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
+            messages = messages,
+        )
+        registrations += services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>().register(
+            com.astarworks.astera.stats.application.progress.ProgressMenu.INTENT_PREFIX,
+        ) { intent, player -> progressMenu.handle(intent, player) }
+
         // 7. `/astera stats show|leaderboard|xp grant` (ADR-0184).
         com.astarworks.astera.stats.command.StatsCommands(
             grantXp = grantXp,

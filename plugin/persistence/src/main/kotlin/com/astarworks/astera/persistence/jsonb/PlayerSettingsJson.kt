@@ -50,6 +50,10 @@ public data class PlayerSettingsJson(
     val musicVolume: Int = PlayerSettings.DEFAULT_VOLUME,
     val soundVolume: Int = PlayerSettings.DEFAULT_VOLUME,
     val voiceVolume: Int = PlayerSettings.DEFAULT_VOLUME,
+    // UI-03 HUD / notification toggles; missing keys on older rows default to shown.
+    val hpLineVisible: Boolean = true,
+    val damageNumbersVisible: Boolean = true,
+    val tutorialHintsEnabled: Boolean = true,
 ) {
 
     public fun toDomain(playerId: PlayerId): PlayerSettings = PlayerSettings(
@@ -71,6 +75,9 @@ public data class PlayerSettingsJson(
         musicVolume = musicVolume.coerceIn(PlayerSettings.VOLUME_RANGE),
         soundVolume = soundVolume.coerceIn(PlayerSettings.VOLUME_RANGE),
         voiceVolume = voiceVolume.coerceIn(PlayerSettings.VOLUME_RANGE),
+        hpLineVisible = hpLineVisible,
+        damageNumbersVisible = damageNumbersVisible,
+        tutorialHintsEnabled = tutorialHintsEnabled,
     )
 
     public companion object {
@@ -84,6 +91,9 @@ public data class PlayerSettingsJson(
             musicVolume = settings.musicVolume,
             soundVolume = settings.soundVolume,
             voiceVolume = settings.voiceVolume,
+            hpLineVisible = settings.hpLineVisible,
+            damageNumbersVisible = settings.damageNumbersVisible,
+            tutorialHintsEnabled = settings.tutorialHintsEnabled,
         )
     }
 }

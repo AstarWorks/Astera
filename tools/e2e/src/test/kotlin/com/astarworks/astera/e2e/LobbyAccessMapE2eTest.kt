@@ -54,7 +54,7 @@ class LobbyAccessMapE2eTest : E2eBase() {
         // Tiles by menu slot (content/gui/main-menu.yaml). Training (14) teleports the player, so it is not clicked here.
         val tiles = linkedMapOf(
             10 to "Play", 11 to "Shop", 12 to "Vault", 13 to "Travel", 15 to "Profile",
-            16 to "Settings", 17 to "Cosmetics", 19 to "Party", 20 to "Friends", 21 to "Achievements",
+            16 to "Settings", 17 to "Cosmetics", 19 to "Party", 20 to "Friends", 21 to "Achievements", 22 to "Daily and Quests",
         )
         E2eReport.check(suite, "/astera menu is a 27-slot menu whose tiles each open a window", "ClientboundOpenScreen") {
             val menu = open(b, "menu")
@@ -74,7 +74,7 @@ class LobbyAccessMapE2eTest : E2eBase() {
                 "slot $slot -> title='${opened.title}'"
             }
         }
-        for ((slot, expect) in mapOf(22 to "/astera daily", 23 to "/astera help")) {
+        for ((slot, expect) in mapOf(23 to "/astera help")) {
             E2eReport.check(suite, "menu tile at slot $slot prints its command hint ('$expect')", "ClientboundSystemChat") {
                 val menu = open(b, "menu")
                 val chatBefore = b.chat.size
@@ -84,6 +84,40 @@ class LobbyAccessMapE2eTest : E2eBase() {
                 assertThat(rawKeys(lines)).describedAs("raw i18n keys in chat").isEmpty()
                 "chat=${lines.take(4)}"
             }
+        }
+
+        E2eReport.check(suite, "the Daily / Quests tile opens a 54-slot screen with the login bonus tile and the mission and quest headers", "ServerboundContainerClick -> OpenScreen + ContainerSetContent") {
+            val menu = open(b, "menu")
+            val progress = clickOpens(b, menu, 22)
+            assertThat(progress).describedAs("Daily/Quests tile opened nothing; chat=${b.chatTexts().takeLast(3)}").isNotNull()
+            assertThat(rawKeys(listOf(progress!!.title))).describedAs("raw key as title").isEmpty()
+            val items = b.contents[progress.containerId].orEmpty()
+            val filled = (0..53).filter { items.getOrNull(it)?.amount?.let { n -> n > 0 } == true }
+            // 4 login bonus, 9 missions header, 27 quests header, 45 back, 53 close (ProgressMenu layout).
+            assertThat(filled).describedAs("progress tiles").containsAll(listOf(4, 9, 27, 45, 53))
+            b.closeWindow(progress.containerId)
+            "title='${progress.title}' filled=$filled"
+        }
+
+        E2eReport.check(suite, "turning the HP line off in /astera settings stops the status line reaching the client, and on resumes it", "ClientboundSetActionBarText") {
+            val settings = open(b, "settings")
+            val toggle = { b.clickSlot(settings.containerId, 22, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK) }
+            val mark = b.actionBars.size
+            toggle() // off; the settings screen reopens, so close the new one and let the line settle
+            b.waitUntil(4_000) { b.screens.last().containerId != settings.containerId }
+            b.closeWindow(b.screens.last().containerId)
+            Thread.sleep(1_500)
+            val quietFrom = b.actionBars.size
+            Thread.sleep(3_000)
+            val whileOff = b.hpReadings(quietFrom)
+            assertThat(whileOff).describedAs("HP readings after turning the line off (mark=$mark)").isEmpty()
+            val settings2 = open(b, "settings")
+            b.clickSlot(settings2.containerId, 22, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK) // on again
+            b.waitUntil(4_000) { b.screens.last().containerId != settings2.containerId }
+            b.closeWindow(b.screens.last().containerId)
+            val resumeFrom = b.actionBars.size
+            assertThat(b.waitUntil(6_000) { b.hpReadings(resumeFrom).isNotEmpty() }).describedAs("status line did not resume").isTrue()
+            "readings while off=${whileOff.size}"
         }
 
         E2eReport.check(suite, "/astera settings opens the settings screen and the particle toggle answers and reopens it", "ClientboundOpenScreen + chat") {
