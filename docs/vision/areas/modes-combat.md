@@ -31,7 +31,7 @@ Play shows Norma-based modes and PvE first; siege variants sit in an "advanced" 
 - Exact 2-weapon rule for the kit (which two by default). Other modes adopt `weapon_limits` via the layer default (founder-check: PvE included).
 - Kill-score 10 / 600 s alongside Norma levels: keep as extra win paths or drop to one rule?
 - Limbus weapons require level 4-5: right gate given real XP speed?
-- Last-victim race at match end (death/respawn coordinator vs match end) unverified.
+- Last-victim race at match end: fixed (a victim stranded mid-countdown is revived when the match ends) and covered by MatchEndKillRaceScenarioTest; not yet run by the manager batch.
 - Unverified from the old loop checklist: pistol bullets vs pillars, block-break speed on pillars/cores, the arena shared between lanes.
 
 ## Governing ADRs

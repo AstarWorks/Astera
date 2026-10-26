@@ -995,6 +995,7 @@ astera:
       time: "<gray>制限時間 {minutes} 分: 目標の達成度、次にノルマレベル・スター・キルで上回ったチームの勝ち。</gray>"
     # F3-4 — 試合終了時のリザルト画面（チャット部分）。ロビーへ戻る前に表示。
     result:
+      hint: "<yellow>勝つには:</yellow> <white>先にノルマ Lv {max} へ到達する(キルとスターでレベルが上がる)か、相手より先にモードの目標を達成する。</white>"
       norma:
         label: "<gray>ノルマ</gray>  {standings}"
         team: "<{color}>{team}</{color}> <white><bold>Lv {level}/{max}</bold></white> <gray>★{stars} ⚔{kills}</gray>"

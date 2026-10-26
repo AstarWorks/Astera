@@ -225,6 +225,11 @@ public class MatchEndSummaryListener(
                 "objective" to me.objective.toString(),
             )
         }
+
+        // A loser is told what would have won (the Norma race is the one rule every mode shares).
+        if (standings.isNotEmpty() && summary.outcomeOf(viewer) == MatchOutcome.LOSE) {
+            send("astera.match.result.hint", "max" to standings.first().maxLevel.toString())
+        }
     }
 
     private fun teamParams(viewer: PlayerId, team: com.astarworks.astera.core.domain.match.Team?, fallbackName: String): Array<Pair<String, String>> =

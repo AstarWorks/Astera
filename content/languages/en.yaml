@@ -988,6 +988,7 @@ astera:
       time: "<gray>Time limit {minutes} min: the team ahead on the objective, then Norma level, stars and kills wins.</gray>"
     # F3-4 — result screen (chat part) shown at match end, before the transfer back.
     result:
+      hint: "<yellow>To win:</yellow> <white>reach Norma Lv {max} first (kills and stars raise it), or finish the mode objective before the other team.</white>"
       norma:
         label: "<gray>Norma</gray>  {standings}"
         team: "<{color}>{team}</{color}> <white><bold>Lv {level}/{max}</bold></white> <gray>★{stars} ⚔{kills}</gray>"

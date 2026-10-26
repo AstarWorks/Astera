@@ -53,6 +53,8 @@ class NormaWinExplainedScenarioTest {
             val loserChat = chat(blue)
             assertThat(loserChat).`as`("the verdict says what decided it, not 'objective completion'").contains("destroyed the last enemy core")
             assertThat(loserChat).`as`("both teams' final Norma level is on the result screen").contains("Norma").contains("Lv 1/5")
+            assertThat(loserChat).`as`("the loser is told what would have won").contains("To win:").contains("Norma Lv 5")
+            assertThat(chat(red)).`as`("the winner gets no hint").doesNotContain("To win:")
         }
     }
 
