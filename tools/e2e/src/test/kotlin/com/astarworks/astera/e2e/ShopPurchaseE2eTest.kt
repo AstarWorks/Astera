@@ -60,6 +60,9 @@ class ShopPurchaseE2eTest : E2eBase() {
             val staffSlot = slotWithLore(b, s, "Recommended first buy")
             assertThat(staffSlot).describedAs("the recommended offer is pinned first").isEqualTo(0)
             assertThat(items[staffSlot].lore).describedAs("recommended lore shows the price").contains("Price: 150 GOLD")
+            val rawTriggers = Regex("(left_click|right_click|sneak_right|sneak_left|drop):")
+            assertThat(items.filter { it.amount > 0 && rawTriggers.containsMatchIn(it.lore) }.map { it.lore.take(80) })
+                .describedAs("weapon lore shows labelled inputs (Left-click: ...), never raw trigger ids").isEmpty()
             "title='${s.title}' recommended slot=$staffSlot lore=${items[staffSlot].lore}"
         }
         val s = checkNotNull(shop)

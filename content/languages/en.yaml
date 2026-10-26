@@ -405,6 +405,12 @@ astera:
         rare: "<aqua>Rare</aqua>"
         epic: "<light_purple>Epic</light_purple>"
         legendary: "<gold>Legendary</gold>"
+      trigger:
+        left_click: "<gray>Left-click: <white>{name}</white></gray>"
+        right_click: "<gray>Right-click: <white>{name}</white></gray>"
+        sneak_right: "<gray>Sneak + right-click: <white>{name}</white></gray>"
+        sneak_left: "<gray>Sneak + left-click: <white>{name}</white></gray>"
+        drop: "<gray>Drop (Q): <white>{name}</white></gray>"
       stat:
         attack_damage: "<gray>Damage: <white>{value}</white></gray>"
         attack_speed: "<gray>Attack speed: <white>{value}</white></gray>"
