@@ -411,7 +411,7 @@ class Bot private constructor(
             is ClientboundPlayerInfoUpdatePacket -> packet.entries.forEach { en ->
                 en.profile?.name?.let { playerNames[en.profileId] = it }
                 if (PlayerListEntryAction.UPDATE_DISPLAY_NAME in packet.actions) {
-                    val displayName = en.displayName
+                    val displayName: Component? = en.displayName
                     if (displayName == null) tabDisplayNames.remove(en.profileId)
                     else tabDisplayNames[en.profileId] = plain(displayName)
                 }
