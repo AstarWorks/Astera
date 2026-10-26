@@ -46,7 +46,7 @@ internal object MatchPaperBindings {
         playerPositions = { PaperMatchPlayerPositions(plugin.server) },
         starDropWorld = { PaperStarDropWorld(plugin) },
         normaPresentation = { services -> PaperNormaPresentation(
-                plugin.server,
+                plugin,
                 services.getOrThrow<IMessageRenderer>(),
                 services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
             ) },
