@@ -277,12 +277,21 @@ match_sudden_death() {  # warning: two low alarm pulses over a rising tension sw
     mix sd 1.7 a:0:0.9 b:260:0.9 c:0:0.7 d:0:0.3 e:700:1 f:700:0.6; finish match/sudden-death sd
 }
 
+ui_queue_join() {  # soft two-tick confirmation
+    gen a 0.2 "$(pluck 988 16)"; gen b 0.25 "$(pluck 1319 14)"
+    mix qj 0.3 a:0:0.8 b:70:1; finish ui/queue-join qj
+}
+match_found() {   # attention: three rising bell strikes, last one rings
+    gen a 0.4 "$(bell 784 9)"; gen b 0.4 "$(bell 988 9)"; gen c 1.0 "$(bell 1319 5)"; gen d 1.0 "$(bell 1976 6)"
+    mix mf 1.3 a:0:0.8 b:140:0.85 c:280:1 d:280:0.5; finish match/found mf
+}
+
 ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-up norma/level-max
      match/countdown-tick match/go combat/kill match/death match/win match/lose
      weapons/gun-shot weapons/sword-swing skills/wand-cast
      combat/hit combat/crit combat/blocked combat/skill-ready combat/ego-ready match/respawn match/draw star/pop
      norma/burst norma/burst-max norma/choice-open norma/choice-picked norma/choice-defaulted
-     ui/level-up ui/login-bonus ui/quest-complete star/burst-gain match/sudden-death)
+     ui/level-up ui/login-bonus ui/quest-complete star/burst-gain match/sudden-death ui/queue-join match/found)
 
 targets=("$@"); [[ ${#targets[@]} -gt 0 ]] || targets=("${ALL[@]}")
 for name in "${targets[@]}"; do

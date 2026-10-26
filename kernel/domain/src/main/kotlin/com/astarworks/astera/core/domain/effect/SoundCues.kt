@@ -38,5 +38,7 @@ public object SoundCues {
     public val UI_LEVEL_UP: SoundId = SoundId("astera:ui/level-up")
     public val UI_LOGIN_BONUS: SoundId = SoundId("astera:ui/login-bonus")
     public val UI_QUEST_COMPLETE: SoundId = SoundId("astera:ui/quest-complete")
+    public val UI_QUEUE_JOIN: SoundId = SoundId("astera:ui/queue-join")
+    public val MATCH_FOUND: SoundId = SoundId("astera:match/found")
     public val UI_PURCHASE: SoundId = SoundId("astera:ui/purchase")
 }

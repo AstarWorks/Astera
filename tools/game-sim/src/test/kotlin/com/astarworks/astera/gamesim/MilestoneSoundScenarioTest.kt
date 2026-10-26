@@ -113,6 +113,23 @@ class MilestoneSoundScenarioTest {
     }
 
     @Test
+    fun `queueing plays the queue-join cue and a formed match plays match-found for the whole roster`() {
+        scenario("milestone-sounds-queue") {
+            val players = listOf(player("q1"), player("q2"), player("q3"))
+            val matchmaker = sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker>()
+            val mode = com.astarworks.astera.match.domain.matchmaking.MatchmakingMode.Custom(
+                com.astarworks.astera.match.domain.mode.GameModeId("annihilation"),
+            )
+            sim.playerSounds.clear()
+            players.forEach { check(matchmaker.enqueue(it.id, mode) is com.astarworks.astera.core.domain.Result.Success) { "enqueue ${it.name}" } }
+            players.forEach { assertThat(heard(it, SoundCues.UI_QUEUE_JOIN)).`as`("${it.name} hears the queue-join cue").isEqualTo(1) }
+            assertThat(advanceUntil(600) { eventsOf<com.astarworks.astera.core.domain.event.MatchFormed>().isNotEmpty() })
+                .`as`("the queue forms a match").isTrue()
+            players.forEach { assertThat(heard(it, SoundCues.MATCH_FOUND)).`as`("${it.name} hears match-found").isEqualTo(1) }
+        }
+    }
+
+    @Test
     fun `star burst and star pickup play their cues`() {
         scenario("milestone-sounds-stars") {
             val red = player("red-1", team = "red")

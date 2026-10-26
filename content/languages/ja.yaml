@@ -2492,3 +2492,5 @@ astera:
   match_menu.help.weapon-limit: "<gray>武器制限:</gray> 試合中に持てる武器の数には上限があり、超えた分は預かられて試合後に戻る。"
   presentation.sudden-death.title: "<red><bold>ラストスパート！</bold></red>"
   presentation.sudden-death.subtitle: "<yellow>まもなく決着 - 勝ちに行け</yellow>"
+  presentation.match-found.title: "<green><bold>マッチ成立！</bold></green>"
+  presentation.match-found.subtitle: "<gray>まもなく試合が始まります</gray>"

@@ -13,9 +13,9 @@ Owner track `wp/presentation` (skill-level VFX/sound belongs to `skills-vfx`). I
 - Presentation table exists: `content/presentation/events.yaml` maps 31 moments (countdown, kill/death/respawn, hit/crit/blocked, skill/ego ready, star pop/pickup/burst, Norma level/choice, sudden death, win/lose/draw, login/purchase/quest/level, UI) to cue / title / action bar / particle; all played through `IPresentation` (`PresentationMoments.ALL` has a coverage scenario).
 - Sound: every cue under `content/sounds/` is now an own ffmpeg-synthesized OGG (`tools/sound-gen/scripts/synth.sh`, 2026-10-27 added hit/crit/blocked, skill/ego-ready, respawn, draw, star pop/gain, Norma burst/choice, level-up/login/quest, sudden-death). No vanilla stand-ins left in cue yamls except the skill YAML `play_sound` routes.
 - Sudden death (final stretch): warning sting + "Final stretch!" title for every member, then high-intensity BGM.
-- BGM: `PaperMusicGateway` + mood switching work, but the 6 `content/music/` tracks still point at vanilla music discs. Own tracks need a founder taste check.
-- Skill YAML `play_sound`: 59 of 84 skills have one (vanilla ids, e.g. `entity.arrow.hit_player` on gun hits, which doubles the central `astera:combat/hit` marker); 25 are silent. Owned by skills-vfx.
-- Still silent: queue join / match found, lobby join.
+- BGM: all 6 `content/music/` tracks are own procedural OGGs (`tools/sound-gen/scripts/music_synth.py`: lobby calm, match tense, high-intensity drums, boss, reveal, victory), shipped in the pack as streamed events `astera:music/<id>` and played by `PaperMusicGateway` via mood switching. Tone is unjudged: founder taste check pending.
+- Hit marker: the central `astera:combat/hit|crit|blocked` is the only one; the vanilla `hit_player` play_sound was removed from the 7 gun/magic skills. Other skill YAML `play_sound`s (59 of 84 skills, vanilla ids; 25 silent) are owned by skills-vfx.
+- Queue: `queue-join` cue when queued, `match-found` sting + title for the formed roster. Lobby join has no extra cue (the lobby BGM starting is its sound).
 - VFX quality of the 211 vfx YAMLs is judged in skills-vfx.
 
 ## 理想形

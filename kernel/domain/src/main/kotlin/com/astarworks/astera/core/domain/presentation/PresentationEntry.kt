@@ -71,6 +71,8 @@ public object PresentationMoments {
     public const val NORMA_CHOICE_PICKED: String = "norma-choice-picked"
     public const val NORMA_CHOICE_DEFAULTED: String = "norma-choice-defaulted"
     public const val MINI_TNT_COMBINED: String = "mini-tnt-combined"
+    public const val QUEUE_JOIN: String = "queue-join"
+    public const val MATCH_FOUND: String = "match-found"
     public const val SUDDEN_DEATH: String = "sudden-death"
     public const val MATCH_WIN: String = "match-win"
     public const val MATCH_LOSE: String = "match-lose"
@@ -87,7 +89,7 @@ public object PresentationMoments {
         COUNTDOWN_TICK, COUNTDOWN_GO, KILL, DEATH, RESPAWN, HIT, CRIT, BLOCKED, SKILL_READY, EGO_READY,
         STAR_POP, STAR_PICKUP, STAR_BURST, STAR_BURST_KILLER,
         NORMA_LEVEL_UP, NORMA_LEVEL_MAX, NORMA_CHOICE_OPEN, NORMA_CHOICE_PICKED, NORMA_CHOICE_DEFAULTED,
-        MINI_TNT_COMBINED, SUDDEN_DEATH, MATCH_WIN, MATCH_LOSE, MATCH_DRAW, REWARD_LOGIN, PURCHASE, QUEST_COMPLETE, PLAYER_LEVEL_UP,
+        MINI_TNT_COMBINED, QUEUE_JOIN, MATCH_FOUND, SUDDEN_DEATH, MATCH_WIN, MATCH_LOSE, MATCH_DRAW, REWARD_LOGIN, PURCHASE, QUEST_COMPLETE, PLAYER_LEVEL_UP,
         UI_CLICK, UI_CONFIRM, UI_DENY,
     )
 }
