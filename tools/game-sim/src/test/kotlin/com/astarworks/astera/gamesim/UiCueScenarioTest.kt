@@ -17,6 +17,24 @@ class UiCueScenarioTest {
     }
 
     @Test
+    fun `a refused social action plays deny once and a normal click does not`() {
+        scenario("ui-deny") {
+            val p = player("refused")
+            val router = sim.services.getOrThrow<IGuiIntentRouter>()
+            val view = checkNotNull(sim.server.view(p.id))
+
+            router.dispatch(view, GuiIntent("gui.open", mapOf("gui" to "main-menu")))
+            assertThat(heard(p, "astera:ui/deny")).`as`("plain click is not a refusal").isEqualTo(0)
+
+            // Party invite without a party, friend request to an unknown name: both answer in red.
+            router.dispatch(view, GuiIntent("lobby.party.invite", mapOf("target" to "nobody-here")))
+            assertThat(heard(p, "astera:ui/deny")).isEqualTo(1)
+            router.dispatch(view, GuiIntent("lobby.friends.add", mapOf("target" to "nobody-here")))
+            assertThat(heard(p, "astera:ui/deny")).isEqualTo(2)
+        }
+    }
+
+    @Test
     fun `a menu click plays the click cue and a settings click plays confirm`() {
         scenario("ui-cues") {
             val p = player("clicker")

@@ -29,7 +29,7 @@ public class MilestonePresentationListener(
     private val bgm: IPlayerBgm,
 ) {
     public fun onRespawned(event: PlayerRespawned) {
-        presentation.play(PresentationMoments.RESPAWN, event.playerId)
+        presentation.play(PresentationMoments.RESPAWN, event.playerId, at = event.spawnPoint.position, world = event.spawnPoint.world)
     }
 
     public fun onSummary(event: MatchSummaryReady) {

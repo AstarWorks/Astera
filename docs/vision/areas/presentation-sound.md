@@ -10,13 +10,10 @@ Owner track `wp/presentation` (skill-level VFX/sound belongs to `skills-vfx`). I
 - `content/sounds/README.md`: weapons / skills / status / match / ui OGG, mono 44.1 kHz.
 
 ## 現状
-- Presentation table exists: `content/presentation/events.yaml` maps 31 moments (countdown, kill/death/respawn, hit/crit/blocked, skill/ego ready, star pop/pickup/burst, Norma level/choice, sudden death, win/lose/draw, login/purchase/quest/level, UI) to cue / title / action bar / particle; all played through `IPresentation` (`PresentationMoments.ALL` has a coverage scenario).
-- Sound: every cue under `content/sounds/` is now an own ffmpeg-synthesized OGG (`tools/sound-gen/scripts/synth.sh`, 2026-10-27 added hit/crit/blocked, skill/ego-ready, respawn, draw, star pop/gain, Norma burst/choice, level-up/login/quest, sudden-death). No vanilla stand-ins left in cue yamls except the skill YAML `play_sound` routes.
-- Sudden death (final stretch): warning sting + "Final stretch!" title for every member, then high-intensity BGM.
-- BGM: all 6 `content/music/` tracks are own procedural OGGs (`tools/sound-gen/scripts/music_synth.py`: lobby calm, match tense, high-intensity drums, boss, reveal, victory), shipped in the pack as streamed events `astera:music/<id>` and played by `PaperMusicGateway` via mood switching. Tone is unjudged: founder taste check pending.
-- Hit marker: the central `astera:combat/hit|crit|blocked` is the only one; the vanilla `hit_player` play_sound was removed from the 7 gun/magic skills. Other skill YAML `play_sound`s (59 of 84 skills, vanilla ids; 25 silent) are owned by skills-vfx.
-- Queue: `queue-join` cue when queued, `match-found` sting + title for the formed roster. Lobby join has no extra cue (the lobby BGM starting is its sound).
-- VFX quality of the 211 vfx YAMLs is judged in skills-vfx.
+- `content/presentation/events.yaml` is the one moment table (ADR-0267 cue path): 34 moments (countdown, kill/death/respawn, hit/crit/blocked, star pop/pickup/burst, Norma level/choice, queue/found, sudden death, win/lose/draw, reward, purchase, quest, player level-up, UI click/confirm/deny) with cue, audience cue, title, action bar and particle presets. All cues are own synthesized OGGs (`tools/sound-gen`, ffmpeg only) under `content/sounds/`, 6 BGM tracks play through the Paper music gateway.
+- Death, respawn and player level-up are now visible as well as audible (soul / glint / spark presets; respawn action-bar line); `PresentationCueCoverageScenarioTest` covers them.
+- UI: click is central in the GUI intent router; confirm/deny are played only by the queue, shop and cosmetic handlers.
+- Gaps: the party / friends / vault / travel intent handlers refuse silently (no deny cue); 25 of 84 skills have no `play_sound` (skills-vfx area); star pop/burst strength is still a founder taste call.
 
 ## 理想形
 One data table `content/presentation/events.yaml` maps each moment (queue, countdown, kill, death, respawn, star pop/pickup/burst, Norma level, win/lose, reward, purchase, UI) to title / sound / particle / music cues, all played through `IPlayerSoundGateway`. Own OGGs under `content/sounds/` plus a generated `sounds.json` in the resource pack. A Paper `IMusicGateway` switches BGM by mood. Norma level-up is the reference "feel".

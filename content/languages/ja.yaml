@@ -2512,6 +2512,7 @@ astera:
   hint.help.in-match: "<gray>試合中は F キーでメニュー（設定・退出・ヘルプ）を開けます。/astera queue leave・/astera travel lobby・/astera settings も使えます。</gray>"
   presentation.star-burst.victim: "<red>★ -{amount} が弾け飛んだ！</red>"
   presentation.star-burst.killer: "<gold>★ {amount} が弾け飛んだ - 拾え！</gold>"
+  presentation.respawn: "<aqua>復活！戦線に復帰</aqua>"
   menu.cosmetics.tooltip: "<gray>クリックで称号・名前の色・キルエフェクトの購入と装備。</gray>"
   match_menu.title: "試合メニュー"
   match_menu.hint: "<gray><yellow>F</yellow> キーで試合メニュー (設定・退出・ヘルプ)。</gray>"

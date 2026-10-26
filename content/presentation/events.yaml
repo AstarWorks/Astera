@@ -18,6 +18,9 @@ particles:
   star-burst-gain: { particle: FIREWORK,          count: 24,  spread: [0.5, 0.6, 0.5],    speed: 0.15, y_offset: 1.0 }
   norma-level-up:  { particle: TOTEM_OF_UNDYING,  count: 40,  spread: [0.5, 0.8, 0.5],    speed: 0.3,  y_offset: 0.0 }
   norma-level-max: { particle: TOTEM_OF_UNDYING,  count: 120, spread: [0.8, 1.0, 0.8],    speed: 0.5,  y_offset: 0.0 }
+  death-soul:      { particle: SOUL,              count: 28,  spread: [0.3, 0.6, 0.3],    speed: 0.06, y_offset: 0.9 }
+  respawn-glint:   { particle: END_ROD,           count: 36,  spread: [0.35, 0.9, 0.35],  speed: 0.1,  y_offset: 0.1 }
+  player-level-up: { particle: FIREWORK,          count: 30,  spread: [0.5, 0.7, 0.5],    speed: 0.2,  y_offset: 0.5 }
 
 moments:
   countdown-tick:
@@ -26,10 +29,15 @@ moments:
     cue: "astera:match/go"
   kill:
     cue: "astera:combat/kill"
+  # death: souls rise from the victim's spot (the killer and nearby viewers see them too); respawn: a rising glint at the
+  # spawn point plus a short "back in" line, so the player notices the moment control returns.
   death:
     cue: "astera:match/death"
+    particle: death-soul
   respawn:
     cue: "astera:match/respawn"
+    action_bar: "astera.presentation.respawn"
+    particle: respawn-glint
   hit:
     cue: "astera:combat/hit"
   crit:
@@ -130,6 +138,7 @@ moments:
     cue: "astera:ui/quest-complete"
   player-level-up:
     cue: "astera:ui/level-up"
+    particle: player-level-up
 
   # FX-10: menu feedback. Click is played centrally by the GUI intent router for every button;
   # settings buttons play confirm instead. Handlers play confirm (success) / deny (refusal).

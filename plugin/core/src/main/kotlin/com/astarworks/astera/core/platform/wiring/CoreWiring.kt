@@ -250,7 +250,7 @@ internal fun CoreWiringState.wireBase() {
             }
         },
     )
-    messages = simpleMessages
+    messages = com.astarworks.astera.core.application.service.RefusalAwareMessageRenderer(simpleMessages)
 
     // ---- Item contents (Wave _items-1, ADR-0073) ---------------------
     // ItemSpec is the canonical materialized form (replaces the legacy
