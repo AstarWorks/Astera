@@ -14,7 +14,7 @@ public interface INormaPresentation {
      */
     public fun levelUp(player: PlayerId, audience: List<PlayerId>, level: Int, maxLevel: Int)
 
-    /** The goal picker just opened for [player]: title and sound cue. */
+    /** The goal picker just opened for [player]: sound cue only (the GUI covers any title). */
     public fun choiceOpened(player: PlayerId)
 
     /** [player] picked [goal] (needing [target] stars or kills): confirmation sound and action bar. */

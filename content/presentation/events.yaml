@@ -87,10 +87,8 @@ moments:
     title_stay_ticks: 80
     particle: norma-level-max
   norma-choice-open:
+    # Sound only: the picker GUI opens in the same tick and covers any title (the GUI's own title and lore say what to do).
     cue: "astera:norma/choice-open"
-    title: "astera.match.norma-choice.open.title"
-    subtitle: "astera.match.norma-choice.open.subtitle"
-    title_stay_ticks: 40
   norma-choice-picked:
     cue: "astera:norma/choice-picked"
     action_bar: "astera.match.norma-choice.picked.{kind}"
