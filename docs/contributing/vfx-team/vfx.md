@@ -1,6 +1,8 @@
 # VFX knowledge base
 
-Agent: `.claude/agents/vfx-artist.md`. Team overview: [README.md](README.md).
+Reference knowledge (2026-10-27): the skill has ONE author who builds every piece; this page is an accumulated knowledge base the author consults, not a role with a territory. Process: [README.md](README.md). Historical Learnings entries may name old roles and numeric targets; numbers are never acceptance evidence.
+
+Optional helper agent: `.claude/agents/limbus-vfx.md` (advice only, not an owner; also covers particles). Team overview: [README.md](README.md).
 
 **Scope (2026-10-24 split)**: this role owns the **display core**: sprites, display elements and the layering of the core (crisp core, flash, smoke mass, ground read). Particles (vanilla, retextures, custom-particle foundation) belong to `particle-artist`; knowledge base: [particles.md](particles.md). Particle-specific Learnings below were copied there with dates.
 
@@ -31,7 +33,7 @@ Selection table (video vocabulary -> Display / particle): [vfx-art-direction sec
 - Black `#`-like smoke glyphs are rejected: smoke sprite must be a soft painted puff, not a glyph block.
 - A TextDisplay with `fixed` billboard laid horizontal does not render in the real client (it does in vfx-preview). Ground flashes/rings: use block/quads (the pilot's "flat ground flash" approach) or a billboard-center sprite; verify in the real client.
 
-### Particles (owned by `particle-artist`; reference copy, SSoT is [particles.md](particles.md))
+### Particles (knowledge in particles.md; reference copy, SSoT is [particles.md](particles.md))
 - Vanilla particle definitions: `content/particles/<id>.yaml` (`id`, `shape {kind: burst|..., spread_blocks}`, `color`, `count`, `lifetime_ticks`, `vanilla_particle`, `speed`, `size`, `data`, `velocity {direction, speed, spread_degrees}`, `force`, `viewers`); schema `content/schemas/particle.schema.json`; examples `content/particles/bastion-s3-*.yaml`. dust size max 4.
 - Display particles: element `kind: { type: quad, color, alpha }` or `glyph: "✦"` with `emit` (count <= 40, gravity, `color_over_life`, `alpha_over_life`, `size_over_life`; each is a multi-key curve `[{ t, v, ease? }, ...]`). Quad calibration: 1 text px = 0.025 block; a one-space background box = 0.125 x 0.25 block; sizes in blocks. Colour/alpha are sent once per curve key and interpolate with the transform window (see vfx-art-direction section 5); eased segments are subdivided by `sample_ticks`. Emit RNG uses the cast seed (same seed -> same trajectory). Details: [vfx-art-direction section 5 "Display particles"](../vfx-art-direction.md).
 - Over-life curves (`size_over_life`, `alpha_over_life`, `color_over_life`, `spin_over_life`) take any number of keys `{ t: 0..1 ascending, v, ease? }`; a bare list like `[1, 0]` no longer decodes. `emit` also works on `sprite` elements (`start_frame`, `frame_ticks`).
