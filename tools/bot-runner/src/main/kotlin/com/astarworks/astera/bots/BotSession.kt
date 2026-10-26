@@ -73,7 +73,7 @@ class BotSession(
             queued = true
             group.queued()
 
-            brain = BotBrain(bot, config.skill, objectives).start()
+            brain = BotBrain(bot, config.skill, objectives, modeId = lane).start()
             playUntilBackInLobby(bot, brain)
         } catch (t: Throwable) {
             log.warn("{} crashed: {}", name, t.toString())
