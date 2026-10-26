@@ -1,0 +1,9 @@
+# afterglow: embers rising off the impact point after the release.
+id: bastion-s1-p-afterglow
+shape: { kind: burst, spread_blocks: 0.15 }
+color: { r: 255, g: 255, b: 255 }
+count: 2
+lifetime_ticks: 12
+vanilla_particle: flame
+velocity: { direction: up, speed: 0.04, spread_degrees: 25, speed_jitter: 0.5 }
+force: true

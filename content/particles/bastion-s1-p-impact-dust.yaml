@@ -1,10 +1,10 @@
-# r28 impact: hot gold dust cloud.
+# r3b impact: small short gold dust (no big puffs).
 id: bastion-s1-p-impact-dust
-shape: { kind: burst, spread_blocks: 0.22 }
+shape: { kind: burst, spread_blocks: 0.12 }
 color: { r: 255, g: 200, b: 70 }
-count: 10
-lifetime_ticks: 14
+count: 5
+lifetime_ticks: 4
 vanilla_particle: dust_color_transition
-data: { kind: dust_color_transition, from: { r: 255, g: 252, b: 230 }, to: { r: 255, g: 120, b: 24 }, scale: 0.85 }
+data: { kind: dust_color_transition, from: { r: 255, g: 252, b: 230 }, to: { r: 255, g: 120, b: 24 }, scale: 0.4 }
 speed: 0.0
 force: true

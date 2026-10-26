@@ -3,7 +3,7 @@ id: bastion-s1-p-impact-crit
 shape: { kind: burst, spread_blocks: 0.15 }
 color: { r: 255, g: 255, b: 255 }
 count: 14
-lifetime_ticks: 8
+lifetime_ticks: 6
 vanilla_particle: crit
 velocity: { direction: outward, speed: 0.55, spread_degrees: 0, speed_jitter: 0.45 }
 force: true

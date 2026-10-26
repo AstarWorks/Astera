@@ -272,7 +272,7 @@ def low():
     # 720 across the caster's hands/hilt, caster ~580-720, partly under the hotbar). A 2.4 x 1.92 quad (5.1 / 5.7%)
     # left only a ~90 px sliver at the bottom edge.
     els.append(sprite("s1h2-ink", "bastion-s1-ink", c, c + 2, [
-        kf(0, at(hit, (0.139, 0.287, -0.345)), [0, 0, 0], [s256(2.4), s256(2.4), 1.0])], see_through=False))
+        kf(0, at(hit, (0.139, 0.287, -0.345)), [0, 0, 0], [s256(3.4), s256(3.4), 1.0])], see_through=False))
     # r23 (reviewer r22: reference t30 = 13.133 s, one frame BEFORE the hit-2 contact, is an irregular flat yellow fill on
     # the floor around the caster, streaking along the cut; nothing at t30-31 in any view): the ink brush mass laid FLAT on
     # the floor (fixed, rotate [0, -90, 90] = front up, long axis along fx z), 4.4 blocks long (bands ~4.2 x 1.4), y 0.03,
@@ -306,13 +306,28 @@ def low():
     els.append(sprite("s1h2-flash", "bastion-s1-flare", c, c + 4, [
         # r14 director: lowered 1.05 -> 0.8 onto the r17 ink band (centre y 0.75, the blade line) so the flare core sits on
         # the contact inside the ink instead of ~0.3 above it.
-        kf(0, at(hit, (0.039, 0.337, -0.395)), [0, 0, 0], [s256(0.15), s256(0.15), 1.0]),
-        kf(1, scale=[s256(1.0), s256(1.0), 1.0], ease="out_back"),
-        kf(3, scale=[s256(0.45), s256(0.45), 1.0], ease="out_quad")]))
+        kf(0, at(hit, (0.039, 0.337, -0.395)), [0, 0, 0], [s256(1.2), s256(1.2), 1.0]),
+        kf(1, scale=[s256(2.3), s256(2.3), 1.0], ease="out_back"),
+        kf(3, scale=[s256(0.9), s256(0.9), 1.0], ease="out_quad")]))
     # r12 (particle-artist): static orange spark sprites removed (see high()); moving streak particles s1h2-p-streaks-*
     # r12: static chips removed (see high()); dark debris = sliver display particles of the particle layer
     # r16: s1h2-smoke-up dropped (hard grey "C" crescent between the bodies, compare t36-40; see high()).
     # r13: the flattened floor smoke (s1h2-smoke, y 0.18) is dropped: it read as a low grey smear on t35-39 (reviewer r9).
+    # r3b (back view): the camera-facing planes above vanish from behind; crossed fixed planes (yaw 90, and a flat one) give
+    # the flash and the streak a volume that reads from any side. Same shapes, same scale curves.
+    for tag, yaw, pitch in (("x", 90, 0), ("f", 0, 90)):
+        cf, m = sprite(f"s1h2-flash-{tag}", "bastion-s1-flare", c, c + 4, [
+            kf(0, at(hit, (0.039, 0.337, -0.395)), [pitch, yaw, 0], [s256(1.2), s256(1.2), 1.0]),
+            kf(1, scale=[s256(2.3), s256(2.3), 1.0], ease="out_back"),
+            kf(3, scale=[s256(0.9), s256(0.9), 1.0], ease="out_quad")])
+        cf["billboard"] = "fixed"
+        els.append((cf, m))
+    cs, m = sprite("s1h2-streak-x", "bastion-s1-streak", c, c + 6, [
+        kf(0, at(hit, (-0.011, 0.837, -0.295)), [0, 90, -4], [s256(0.6), 0.32, 1.0]),
+        kf(1, scale=[s256(5.6), 0.32, 1.0], ease="out_expo"),
+        kf(6, scale=[s256(3.6), 0.04, 1.0], ease="in_quad")])
+    cs["billboard"] = "fixed"
+    els.append((cs, m))
     return {"id": "bastion-s1-fx-low", "duration_ticks": 18, "orient": "yaw", "follow": False, "sample_ticks": 1,
             "elements": [e for e, _ in els]}, [m for _, m in els]
 
