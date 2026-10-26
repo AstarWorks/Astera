@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.contents
 
+import com.astarworks.astera.core.application.service.arena.ArenaStructureContent
 import com.astarworks.astera.core.domain.stage.ArenaIslandGenerator
 import com.astarworks.astera.core.domain.stage.ArenaLandmarkKind
 import org.assertj.core.api.Assertions.assertThat
@@ -31,26 +32,22 @@ class ShippedArenaStagesBuildTest {
         for (stage in stages) {
             val layout = stage.layout
             assertThat(layout).describedAs("stage '${stage.id.value}' has no layout (a stage nobody can build is dead content)").isNotNull
-            val plan = ArenaIslandGenerator.generate(stage)
+            val plan = ArenaIslandGenerator.generate(stage, ArenaStructureContent.load(contentRoot))
             assertThat(plan.problems).describedAs("stage '${stage.id.value}'").isEmpty()
             assertThat(layout!!.killY).describedAs("kill plane below the build of '${stage.id.value}'").isLessThan(plan.minY)
-            assertThat(stage.world.value).describedAs("stage '${stage.id.value}' world").isEqualTo("arenas")
+            assertThat(stage.world.value).describedAs("stage '${stage.id.value}' world").isEqualTo("world")
         }
     }
 
     @Test
-    fun `stages sharing the arena world do not overlap`() {
-        val boxes = stages().associate { stage ->
-            val plan = ArenaIslandGenerator.generate(stage)
-            stage.id.value to (plan.minX..plan.maxX to plan.minZ..plan.maxZ)
-        }
-        for ((a, boxA) in boxes) {
-            for ((b, boxB) in boxes) {
-                if (a >= b) continue
-                val overlapX = boxA.first.first <= boxB.first.last && boxB.first.first <= boxA.first.last
-                val overlapZ = boxA.second.first <= boxB.second.last && boxB.second.first <= boxA.second.last
-                assertThat(overlapX && overlapZ).describedAs("stages '$a' and '$b' overlap in the arena world").isFalse
-            }
+    fun `shipped plans fit the reserved slot footprint`() {
+        val parts = ArenaStructureContent.load(contentRoot)
+        for (stage in stages()) {
+            val plan = ArenaIslandGenerator.generate(stage, parts)
+            assertThat(plan.minX).describedAs("'${stage.id.value}'").isGreaterThan(-512)
+            assertThat(plan.maxX).describedAs("'${stage.id.value}'").isLessThan(512)
+            assertThat(plan.minZ).describedAs("'${stage.id.value}'").isGreaterThan(-512)
+            assertThat(plan.maxZ).describedAs("'${stage.id.value}'").isLessThan(512)
         }
     }
 

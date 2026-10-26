@@ -1,5 +1,5 @@
 # bastion-s1-body: SOLVED from content/skill-lint/bastion-greatsword-s1.keypoints.yaml by tools/pose-solve/solve.py. Do not hand-edit: edit the keypoints and rerun.
-# Pose to pose (ADR-0254): every key after the first is a CUT (`ease: step`). Keys are RIG ticks; the hit-stop freezes shift them to skill ticks.
+# Pose to pose (ADR-0276): every key after the first is a CUT (`ease: step`). Keys are RIG ticks; the hit-stop freezes shift them to skill ticks.
 # beats (skill tick -> rig tick): B0-coil 0->0, B1-snap-follow-through 6->5, B2-overshoot 16->13, B3-turned-away-rest 19->16, B4-coil-2 28->25, B6-extended 31->28, B7-drop 38->33, B8-rest 40->35, hand-back 52->47
 id: bastion-s1-body
 length_ticks: 58

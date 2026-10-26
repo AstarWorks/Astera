@@ -81,6 +81,7 @@ public object CoreWiring {
         state.wireInfrastructure()
         state.wireGameplayLoop()
         state.wireCompletenessListeners()
+        state.wirePresentation()
         state.wireServerHardenAndLobby()
         state.wireTutorialGuide()
         state.wireCommandHelp()
@@ -336,7 +337,10 @@ internal fun CoreWiringState.wireGui() {
         delegate = ports.guiAdapter.create(itemContents, messages, guiBindingResolver),
         visibility = { services.get<com.astarworks.astera.core.application.gui.ViewerVisibility>() },
     )
-    guiIntentRouter = DefaultGuiIntentRouter(adapterProvider = { guiAdapter })
+    guiIntentRouter = DefaultGuiIntentRouter(
+        adapterProvider = { guiAdapter },
+        presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>() },
+    )
 
     services.register<IGuiRegistry>(guiContents)
     services.register<IGuiIntentRouter>(guiIntentRouter)

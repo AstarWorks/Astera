@@ -64,6 +64,8 @@ public class CarryTntGameMode @JvmOverloads constructor(
         tellMatch(match, KEY_DROPPED, mapOf("team" to (victimTeam?.value ?: "")))
     }
 
+    override fun standing(run: Run, match: Match, team: TeamId): Int = run.deliveries[team] ?: 0
+
     override fun hudLines(run: Run, match: Match): List<HudLine> {
         val carrierTeam = run.carrier?.let { c -> match.teams.firstOrNull { c in it.members }?.id }
         val teamLines = match.teams.map { team ->

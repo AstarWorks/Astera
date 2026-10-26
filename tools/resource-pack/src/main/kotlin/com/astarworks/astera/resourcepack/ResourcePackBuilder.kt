@@ -37,7 +37,7 @@ public data class BuiltPack(val zip: Path, val sha1: String, val entryCount: Int
  * | `content/hud/top-level .json`                     | providers merged into `assets/astera/font/default.json` |
  * | `content/fonts/<tree>.json`                  | `assets/astera/font/<tree>.json` (`fonts/vfx/spark.json` = font `astera:vfx/spark`, ADR-0239) |
  * | `content/pack-assets/assets/<path>`          | `assets/<path>` unchanged (skin-rig item definition, ADR-0250) |
- * | `content/particle-skins/generated/<frame>.png` | `assets/minecraft/textures/particle/` (retextured vanilla particle frames, ADR-0252) |
+ * | `content/particle-skins/generated/<frame>.png` | `assets/minecraft/textures/particle/` (retextured vanilla particle frames, ADR-0274) |
  * | `content/particle-skins/generated/<type>.json` | `assets/minecraft/particles/<type>.json` (sprite list; a missing PNG fails the build) |
  * | `content/shader-patches/core/<file>.patch`   | `assets/minecraft/shaders/core/<file>`: vanilla shader from the client jar + our patch (ADR-0250) |
  * | `content/textures/sources/` (all of it)     | not shipped (raster sources for `:tools:item-art`, ADR-0238) |
@@ -268,7 +268,7 @@ public class ResourcePackBuilder(
     }
 
     /**
-     * Retextured vanilla particle types (ADR-0252): `:tools:item-art` writes `content/particle-skins/generated/`
+     * Retextured vanilla particle types (ADR-0274): `:tools:item-art` writes `content/particle-skins/generated/`
      * with `astera_<channel>_<i>.png` frames and a vanilla-format `<type>.json` sprite list per skinned type.
      * The PNGs ship as `assets/minecraft/textures/particle/` (the particle atlas reads that directory), the lists as
      * `assets/minecraft/particles/<type>.json`. A list that names a PNG that is not there fails the build (the client
@@ -364,7 +364,7 @@ public class ResourcePackBuilder(
         /** Directory of files copied into the zip unchanged (shader overrides, special item definitions). */
         public const val VERBATIM_DIR: String = "pack-assets"
 
-        /** Retextured vanilla particle types: generated frames + sprite lists live in `<dir>/generated/` (ADR-0252). */
+        /** Retextured vanilla particle types: generated frames + sprite lists live in `<dir>/generated/` (ADR-0274). */
         public const val PARTICLE_SKINS_DIR: String = "particle-skins"
 
         /** Shader patches applied to the vanilla client's shaders at build time (ADR-0250). */

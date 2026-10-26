@@ -1,6 +1,6 @@
 # r24 @c6e6ccdf (wp/integrate-limbus 2219c988 + director regen of rig-derived content).
 #   Content: animator r24 down-and-back coil (no overhead lift, coil low-back at server t5, REVEAL_AGE 1), particle r24 + vfx r24
-#   rig-path generators, ADR-0253 rig/held shading marker. Regenerated with tools/item-art/scripts/bastion_s1_regen.sh
+#   rig-path generators, ADR-0275 rig/held shading marker. Regenerated with tools/item-art/scripts/bastion_s1_regen.sh
 #   (hring + ring sprites -> fx -> particles -> :tools:item-art:run). Ticks = cast tick (compare frame = tick + 6).
 # Every capture: codeRevision c6e6ccdf (codeDirty false), contentRevision 2eab3dc2 (contentDirty false). TICKS=72.
 # Published (/IdeaProjects/Astera/build/skill-compare-published/bastion-greatsword-s1/<view>/):

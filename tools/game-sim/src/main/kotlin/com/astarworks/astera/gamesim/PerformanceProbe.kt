@@ -3,7 +3,7 @@ package com.astarworks.astera.gamesim
 import com.astarworks.astera.core.domain.effect.DisplayKind
 
 /**
- * What the viewers of a skill performance would see (ADR-0254), per tick. A viewer's weapon count is the real held item
+ * What the viewers of a skill performance would see (ADR-0276), per tick. A viewer's weapon count is the real held item
  * (visible unless the presentation lease masked it for that viewer's client) plus the revealed main-hand weapon displays that
  * still exist. The founder's rule is that this is exactly 1 for every viewer on every tick; the owner counts too (the owner's
  * hand shows an empty-model stand-in while a performance draws the weapon).

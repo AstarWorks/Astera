@@ -30,7 +30,7 @@ import java.util.Locale
 import kotlin.math.abs
 
 /**
- * Writes `build/skill-lint/<skill>/plan.json` for `skill-lint` (ADR-0254, docs/contributing/vfx-team/skill-lint.md).
+ * Writes `build/skill-lint/<skill>/plan.json` for `skill-lint` (ADR-0276, docs/contributing/vfx-team/skill-lint.md).
  *
  * ```
  * make skill-lint-plan SKILL=bastion-greatsword-s1        # = ./gradlew :tools:game-sim:skillLintPlan -Pskill=...

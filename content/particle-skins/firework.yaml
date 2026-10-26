@@ -1,4 +1,4 @@
-# Spark: vanilla firework spark retextured as a hot gold glint; frames after the first 8 are clear so it vanishes ~12-15 ticks after spawning. Baked colour. ADR-0252.
+# Spark: vanilla firework spark retextured as a hot gold glint; frames after the first 8 are clear so it vanishes ~12-15 ticks after spawning. Baked colour. ADR-0274.
 type: firework
 channel: spark
 source: spark

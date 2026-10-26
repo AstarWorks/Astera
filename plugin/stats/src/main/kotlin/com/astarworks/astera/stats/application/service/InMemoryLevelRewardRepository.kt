@@ -24,4 +24,8 @@ public class InMemoryLevelRewardRepository(private val ledger: () -> ICurrencyLe
 
     @Synchronized
     override fun unlocks(playerId: PlayerId): Set<String> = owned[playerId]?.toSet() ?: emptySet()
+
+    @Synchronized
+    override fun grant(playerId: PlayerId, unlockId: String): Boolean =
+        owned.getOrPut(playerId) { mutableSetOf() }.add(unlockId)
 }

@@ -54,14 +54,12 @@ x-astera-backend: &astera-backend
     # `make dev-plugins` updates both copies; a rebuilt image (make docker-up) must win (ADR-0186).
     SYNC_SKIP_NEWER_IN_DESTINATION: "false"
     CFG_VELOCITY_SECRET: "${VELOCITY_FORWARDING_SECRET:?VELOCITY_FORWARDING_SECRET is empty: run `make docker-up` (it generates one in docker/.env)}"
-    # Main world: superflat (surface block y=-61, stand at y=-60). Matches are not played here: the
-    # stages in content/stages/ are sky islands Astera builds into the void `arenas` world (ADR-0246).
+    # Main world: void (datapack preset astera:void from docker/void-world, installed by server-type-start.sh).
+    # Lobby, arenas and PvE are slots on a 2048-block grid inside it (ADR-0255); no world is created at runtime.
     # Only applies when the world is first created (see playtest.md "reset").
-    LEVEL_TYPE: "minecraft:flat"
-    # 26.3 rejects empty flat settings ("No key layers in MapLike[{}]"), so spell the vanilla
-    # default out: bedrock y=-64, dirt -63..-62, grass -61 (stand at y=-60). Lobby backend: the
-    # main world is idle, the lobby lives in the generated `lobby` world (ADR-0180).
-    GENERATOR_SETTINGS: '{"biome":"minecraft:plains","features":false,"lakes":false,"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"structure_overrides":[]}'
+    LEVEL_TYPE: "astera:void"
+    # 26.3 rejects empty flat settings ("No key layers in MapLike[{}]"), so spell out one air layer.
+    GENERATOR_SETTINGS: '{"biome":"minecraft:plains","features":false,"lakes":false,"layers":[{"block":"minecraft:air","height":1}],"structure_overrides":[]}'
     MODE: "survival"
     DIFFICULTY: "normal"
     PVP: "true"
@@ -170,7 +168,7 @@ services:
       retries: 10
 
   # AI bots (ADR-0247): listens on Redis `astera:bots:request` and spawns protocol bots that queue and play like
-  # players ("play vs bots" in the lobby, `make bots N=2 LANE=norma`). The bots log in to the backends directly and
+  # players ("play vs bots" in the lobby, `make bots N=2 LANE=skirmish`). The bots log in to the backends directly and
   # answer Paper's Velocity modern-forwarding query with the shared secret (online-mode Velocity would refuse them).
   # A plain service: `make dev-plugins` / `make dev-content` never touch it; rebuild with
   #   docker compose -f docker/docker-compose.yml up -d --build bot-runner

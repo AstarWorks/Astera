@@ -1,9 +1,10 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.combat.application.port.outbound.IProjectileHandle
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator
-import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
+import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.domain.effect.animation.ParticleAnimation
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
@@ -37,25 +38,27 @@ public class ProjectileTrailFollower(
         var last = origin
         // The muzzle itself is the first trail sample; ProjectileEnd/ProjectileStart live in phases.
         player.play(origin, direction)
-        var task: IScheduler.TaskHandle? = null
-        task = scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) {
-            val now = handle.position
-            if (!handle.isAlive || now == null) {
-                task?.cancel()
-                player.cancel()
-                return@runRepeatingTicks
-            }
-            val distance = last.distance(now)
-            if (spacing > 0.0 && distance > spacing) {
-                val steps = ceil(distance / spacing).toInt()
-                for (i in 1..steps) {
-                    val t = i.toDouble() / steps
-                    player.play(last + (now - last) * t, direction)
+        fun scheduleNext(at: Vec3) {
+            scheduler.runLaterTicks(regionScope(world, at), 1L) {
+                val now = handle.position
+                if (!handle.isAlive || now == null) {
+                    player.cancel()
+                    return@runLaterTicks
                 }
-            } else {
-                player.play(now, direction)
+                val distance = last.distance(now)
+                if (spacing > 0.0 && distance > spacing) {
+                    val steps = ceil(distance / spacing).toInt()
+                    for (i in 1..steps) {
+                        val t = i.toDouble() / steps
+                        player.play(last + (now - last) * t, direction)
+                    }
+                } else {
+                    player.play(now, direction)
+                }
+                last = now
+                scheduleNext(now)
             }
-            last = now
         }
+        scheduleNext(origin)
     }
 }

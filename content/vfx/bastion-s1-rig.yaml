@@ -1,5 +1,5 @@
 # Bastion S1 (月輪の薙ぎ) weapon: ONE ItemDisplay of the real main-hand stack hanging from the right hand of the skin-rig body
-# `bastion-s1-body` (ADR-0254), pose to pose like the reference (series of held poses with CUTS; the swing is never drawn).
+# `bastion-s1-body` (ADR-0276), pose to pose like the reference (series of held poses with CUTS; the swing is never drawn).
 # Swing keys are ABSOLUTE wrist rotations in the arm frame (all zero on a body at rest = the vanilla held item); every key after
 # t0 is `ease: step`, on the same ticks as the body keys. Beats (rig tick = skill tick):
 #   0 coil | 6 follow-through behind the shoulders | 16 overshoot | 19 turned-away rest | 28 coil 2 | 31 extension (contact 2)

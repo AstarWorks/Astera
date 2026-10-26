@@ -87,7 +87,7 @@ public class PaperFireSpreadController(
     }
 
     override fun spreadFire(world: WorldId, source: Vec3, radius: Int): Int {
-        if (!server.isPrimaryThread) {
+        if (server.getWorld(world.value)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(org.bukkit.Location(it, source.x, source.y, source.z)) } != true) {
             log.warn(
                 "PaperFireSpreadController.spreadFire invoked off-main (world={}, source={}); " +
                     "Block.setType requires main thread — returning 0.",

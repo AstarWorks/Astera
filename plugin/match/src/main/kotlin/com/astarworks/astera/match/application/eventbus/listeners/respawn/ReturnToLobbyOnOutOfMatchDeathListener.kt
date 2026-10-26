@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.eventbus.listeners.respawn
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -50,13 +52,10 @@ public class ReturnToLobbyOnOutOfMatchDeathListener(
 
         statusEffects?.clear(victim)
 
-        if (!gameServer) {
-            when (val tp = worldGateway.lobbySpawn(victim)) {
-                is Result.Success -> Unit
-                is Result.Failure -> log.warn("Out-of-match death: lobby spawn for {} failed: {}", victim, tp.error)
-            }
-        }
-
+        val placed = if (gameServer) CompletableFuture.completedFuture(Result.success(Unit))
+            else worldGateway.lobbySpawn(victim)
+        placed.thenAccept { tp ->
+            if (tp is Result.Failure) log.warn("Out-of-match death: lobby spawn for {} failed: {}", victim, tp.error)
         val max = healthGateway.getMaxHealth(victim) ?: DEFAULT_MAX_HP
         when (val hp = healthGateway.setHealth(victim, max, HealthChangeSource.Respawn)) {
             is Result.Success -> Unit
@@ -64,6 +63,7 @@ public class ReturnToLobbyOnOutOfMatchDeathListener(
         }
 
         playerGateway.sendMessage(victim, messages.render(victim, if (gameServer) MSG_HERE else MSG, emptyMap()))
+        }
     }
 
     private companion object {

@@ -23,10 +23,12 @@ import com.astarworks.astera.match.application.config.StageYamlConfig
  * consumer through `find()` (so concurrent readers always see a
  * self-consistent snapshot, never a torn map).
  */
-public class StageContents : YamlDynamicContents<StageId, Stage, StageYamlConfig>(
+public class StageContents(private val instances: (StageId) -> Stage? = { null }) : YamlDynamicContents<StageId, Stage, StageYamlConfig>(
     categoryName = "stages",
     deserializer = StageYamlConfig.serializer(),
 ), IStageRegistry {
+
+    override fun find(key: StageId): Stage? = instances(key) ?: super.find(key)
 
     /**
      * Convert each YAML DTO to its `(StageId, Stage)` entry. Delegates to

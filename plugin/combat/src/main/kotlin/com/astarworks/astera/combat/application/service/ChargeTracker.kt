@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -62,7 +63,7 @@ public class ChargeTracker(
         val startedAtTick = scheduler.currentTick()
         // Pre-insert a placeholder so the callback can observe the entry it
         // belongs to and remove it on natural completion.
-        val handle = scheduler.runLaterTicks(chargeTicks) {
+        val handle = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), chargeTicks) {
             // Only fire if this charge wasn't displaced / cancelled / released
             // in the meantime. The stored handle identity is the discriminator.
             val current = states[playerId]

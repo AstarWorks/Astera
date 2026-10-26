@@ -24,6 +24,8 @@ COPY buildSrc /workspace/buildSrc/
 COPY config /workspace/config/
 COPY tools /workspace/tools/
 # :tools:resource-pack reads the glyph table from :plugin:core.
+COPY kernel /workspace/kernel/
+COPY core /workspace/core/
 COPY plugin /workspace/plugin/
 COPY content /workspace/content/
 

@@ -1,5 +1,9 @@
 package com.astarworks.astera.combat.application.service.vfx
 
+
+import com.astarworks.astera.core.application.service.observability.ExecutionCosts
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayHandle
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -110,7 +114,7 @@ public class VfxPlayer(
     private val maxLiveDisplays: Int = MAX_LIVE_DISPLAYS,
     /** Flipbook frame counts for `sprite` elements (ADR-0239); unknown sprites play as one frame. */
     private val sprites: SpriteFrames = SpriteFrames.NONE,
-    /** ADR-0254: the one owner of held-item / armor / body hiding; a performance claims a lease from it. */
+    /** ADR-0276: the one owner of held-item / armor / body hiding; a performance claims a lease from it. */
     private val presentation: (() -> IPlayerPresentation?)? = null,
     /** Resolves a `body:` animation id to the skin-rig animation it names. */
     private val bodies: ((CustomAnimationId) -> SkinRigAnimation?)? = null,
@@ -177,7 +181,10 @@ public class VfxPlayer(
     /** Number of display entities currently reserved by live effects. */
     public val liveDisplays: Int get() = reserved
 
-    public fun play(request: VfxRequest): Result<Unit, VfxPlayError> {
+    public fun play(request: VfxRequest): Result<Unit, VfxPlayError> =
+        ExecutionCosts.measure("vfx.play", request.vfxId.value) { playEffect(request) }
+
+    private fun playEffect(request: VfxRequest): Result<Unit, VfxPlayError> {
         val def = registry.find(request.vfxId) ?: return Result.failure(VfxPlayError.UnknownVfx(request.vfxId))
         // Capture-time switch (vfx-shot SHOT_NO_FX=1): motion-only footage plays the performance (body + weapon) and nothing else.
         if (PERFORMANCE_ONLY && def.body == null && def.rigs.none { it.weapon != null }) return Result.success(Unit)
@@ -185,13 +192,13 @@ public class VfxPlayer(
             (request.target != null && ((request.follow ?: def.follow) || request.target.invoke() == null))) {
             return Result.failure(VfxPlayError.InvalidTargetTracking(request.vfxId))
         }
-        val effective = request.follow?.let { def.copy(follow = it) } ?: def
-        val frame = effective.orient.frame(request.origin, request.look, request.toTarget)
-        val body = effective.body?.let { id ->
+        val frame = def.orient.frame(request.origin, request.look, request.toTarget)
+        val body = def.body?.let { id ->
             val animation = bodies?.invoke(id) ?: return Result.failure(VfxPlayError.UnknownBody(request.vfxId, id))
             VfxBodyContext(animation, request.anchorEntityId?.let { displays.isSlimSkin(it) } ?: false)
         }
-        val plan = VfxTimeline.plan(effective, frame, request.seed, request.scale, sprites, request.freeze, body)
+        val planned = VfxTimeline.plan(def, frame, request.seed, request.scale, sprites, request.freeze, body)
+        val plan = request.follow?.let { planned.copy(follow = it) } ?: planned
         if (plan.performance && (request.anchorEntityId == null || !plan.attachToAnchor)) {
             return Result.failure(VfxPlayError.PerformanceUnavailable(request.vfxId))
         }
@@ -260,10 +267,10 @@ public class VfxPlayer(
             finish(instance)
         } else {
             instances += instance
-            if (ticker == null) ticker = scheduler.runRepeating(ticks(1), ticks(1)) {
+            if (ticker == null) ticker = scheduler.repeat(ExecutionScope.Global, ticks(1), ticks(1)) {
                 // Equal-tick FIFO dispatch puts this after already queued dash steps.
                 // Sample the anchor after movement, not halfway through the mechanic queue.
-                scheduler.runLater(ticks(0)) { tickAll() }
+                scheduler.run(ExecutionScope.Global, ticks(0)) { tickAll() }
             }
         }
         return Result.success(Unit)
@@ -292,15 +299,18 @@ public class VfxPlayer(
 
     private fun tickAll() {
         for (instance in instances.toList()) {
-            // play() already processed age 0. A delayed cast can precede our shared ticker
-            // in this same server tick; it must not immediately consume age 1 as well.
-            if (instance.startedAt == scheduler.currentTick()) continue
-            instance.age++
-            try {
-                if (advance(instance)) finish(instance)
-            } catch (ex: Exception) {
-                log.warn("VFX {} failed at age {}; stopping it", instance.request.vfxId, instance.age, ex)
-                finish(instance)
+            scheduler.run(instance.request.anchorEntityId?.let { ExecutionScope.Entity(it.uuid) } ?: regionScope(instance.request.world, instance.position), kotlin.time.Duration.ZERO) {
+
+                // play() already processed age 0. A delayed cast can precede our shared ticker
+                // in this same server tick; it must not immediately consume age 1 as well.
+                if (instance.startedAt == scheduler.currentTick()) return@run
+                instance.age++
+                try {
+                    if (advance(instance)) finish(instance)
+                } catch (ex: Exception) {
+                    log.warn("VFX {} failed at age {}; stopping it", instance.request.vfxId, instance.age, ex)
+                    finish(instance)
+                }
             }
         }
         if (instances.isEmpty()) {
@@ -310,7 +320,10 @@ public class VfxPlayer(
     }
 
     /** Processes tick [Instance.age]; returns `true` once the effect is over. */
-    private fun advance(instance: Instance): Boolean {
+    private fun advance(instance: Instance): Boolean =
+        ExecutionCosts.measure("vfx.tick", instance.request.vfxId.value) { advanceEffect(instance) }
+
+    private fun advanceEffect(instance: Instance): Boolean {
         val age = instance.age
         val plan = instance.plan
         // Safety net: a bundle that never ran (host without packets, rig ended first) must not drop the update.
@@ -475,7 +488,7 @@ public class VfxPlayer(
             if (!state.attached) log.debug("VFX {}: native attachment unavailable for '{}'", instance.request.vfxId, e.elementId)
         }
         if (state.performer && !state.attached) {
-            // One transport only (ADR-0254): a performer that cannot ride the caster would drift from the hand in a dash.
+            // One transport only (ADR-0276): a performer that cannot ride the caster would drift from the hand in a dash.
             throw IllegalStateException("native attachment unavailable for performer '${e.elementId}'")
         }
         if (state.handle == null) state.handle = displays.spawn(instance.request.world, instance.position + e.spawnOffset + state.targetOffset, spec, lines)
@@ -559,7 +572,9 @@ public class VfxPlayer(
         instance.bundled.clear()
         for (state in instance.elements) state.handle = null
         if (abrupt && !immediate && handles.isNotEmpty()) {
-            scheduler.runLater(ticks(1)) { handles.forEach(displays::remove) }
+            scheduler.run(instance.request.anchorEntityId?.let { ExecutionScope.Entity(it.uuid) } ?: regionScope(instance.request.world, instance.position), ticks(1)) {
+                handles.forEach(displays::remove)
+            }
         } else {
             handles.forEach(displays::remove)
         }

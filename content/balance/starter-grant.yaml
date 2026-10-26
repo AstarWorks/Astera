@@ -15,15 +15,19 @@
 # that aren't registered are skipped (the profile is still created). Order
 # matters when the Wave 6b inventory adapter consumes the grant — slot 0
 # wins the player's hand.
+#
+# MODE-01: a gun (ranged) plus a sword (melee), so a new player meets two of the three archetypes in the
+# first match. This agrees with the norma `weapon_limits` (gun:1,sword:1,staff:1,total:2): the kit fills
+# the two-weapon cap exactly, nothing is set aside on match entry. A staff is bought in the shop.
 starter_items:
+  - pistol
   - knight-sword
-  - frost-staff
 
 # Per-currency initial balance. Currency keys must match `Currency` enum
 # constants (GOLD / GEM); values are 64-bit non-negative integers.
 # Zero entries are dropped at apply-time so the audit log stays readable.
 # GOLD is the everyday currency, earned (matches / quests / advancements / login bonus);
-# GEM is premium. Stars are an in-match item and are never granted here (ADR-0251).
+# GEM is premium. Stars are an in-match item and are never granted here (ADR-0271).
 wallet_grants:
   GOLD: 0
   GEM: 0

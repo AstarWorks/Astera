@@ -157,6 +157,11 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         return MatchHudStatus(lines = hudLines(run, match))
     }
 
+    final override fun objectiveStanding(match: Match, team: TeamId): Int? {
+        val run = runs[match.id] ?: return null
+        return standing(run, match, team)
+    }
+
     final override fun onMatchEnded(context: GameModeContext) {
         val e = env ?: return
         val run = runs.remove(context.matchId) ?: return
@@ -181,6 +186,9 @@ public abstract class SiegeGameMode<R : SiegeRun>(
 
     /** Objective state for the match sidebar (WP14); defaults to the plain team score. */
     protected open fun hudLines(run: R, match: Match): List<HudLine> = MatchHudStatus.scoreLines(match)
+
+    /** How far [team] is along this mode's objective, for the Norma layer's time-limit ranking; `null` = no objective score. */
+    protected open fun standing(run: R, match: Match, team: TeamId): Int? = null
 
     /** Once per [tickPeriodTicks] while the match is ACTIVE / SUDDEN_DEATH. */
     protected open fun tickRun(run: R, match: Match, tick: Long) {}

@@ -88,6 +88,10 @@ public class CorePlatformPorts(
     public val mobBodies: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.mob.IMobBodyGateway)? = null,
     // ---- Player / effects -----------------------------------------------
     public val playerSoundGateway: IPlayerSoundGateway? = null,
+    /** Titles, action bar and per-viewer particles for `IPresentation` (FX-05); absent in headless hosts. */
+    public val presentationVisuals: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.presentation.IPresentationVisuals)? = null,
+    /** Plays BGM to a client (Paper: vanilla music discs on the MUSIC bus, ADR-0267); absent in headless hosts. */
+    public val musicGateway: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.music.IMusicGateway)? = null,
     public val playerHealthGateway: ((ServiceRegistry) -> IPlayerHealthGateway)? = null,
     public val playerSpeedGateway: ((ServiceRegistry) -> IPlayerSpeedGateway)? = null,
     public val playerFoodGateway: ((ServiceRegistry) -> IPlayerFoodGateway)? = null,
@@ -97,7 +101,7 @@ public class CorePlatformPorts(
     public val playerAnimationGateway: ((ServiceRegistry) -> IPlayerAnimationGateway)? = null,
     /** Skin-rig animations (ADR-0250). Null = the headless in-memory animator. */
     public val skinRigAnimator: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.animation.ISkinRigAnimator)? = null,
-    /** ADR-0254 player presentation lease (held item / armor / body hiding). Null = the headless in-memory impl. */
+    /** ADR-0276 player presentation lease (held item / armor / body hiding). Null = the headless in-memory impl. */
     public val playerPresentation: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation)? = null,
     public val cameraGateway: ((ServiceRegistry) -> ICameraGateway)? = null,
     /**

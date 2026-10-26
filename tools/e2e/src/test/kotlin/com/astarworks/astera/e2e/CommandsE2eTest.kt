@@ -78,13 +78,13 @@ class CommandsE2eTest : E2eBase() {
         E2eReport.check(suite, "tab-complete `/astera queue join ` suggests lanes", "ServerboundCommandSuggestion") {
             val r = admin.complete("/astera queue join ")
             assertThat(r).describedAs("no reply").isNotNull()
-            assertThat(r!!.matches.toList()).contains("norma")
+            assertThat(r!!.matches.toList()).contains("skirmish")
             "matches=${r.matches.toList()}"
         }
         E2eReport.check(suite, "tab-complete `/play ` (shortcut redirect) suggests the same lanes", "ServerboundCommandSuggestion (ADR-0234)") {
             val r = admin.complete("/play ")
             assertThat(r).describedAs("no reply").isNotNull()
-            assertThat(r!!.matches.toList()).contains("norma")
+            assertThat(r!!.matches.toList()).contains("skirmish")
             "matches=${r.matches.toList()}"
         }
     }
@@ -155,10 +155,10 @@ class CommandsE2eTest : E2eBase() {
         E2eReport.check(suite, "denied command gives readable error and no item", "SystemChat") {
             val plain = bot("CmdNoOp")
             val before = plain.chat.size
-            plain.command("astera items give ${plain.name} pistol")
+            plain.command("astera items give ${plain.name} greatsword") // starter kit already holds a pistol
             val lines = plain.chatSince(before)
             assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
-            val hasPistol = rcon("execute if items entity ${plain.name} container.* minecraft:iron_horse_armor")
+            val hasPistol = rcon("execute if items entity ${plain.name} container.* minecraft:netherite_sword")
             assertThat(hasPistol).describedAs("non-op obtained an item through a denied command").contains("failed")
             "non-op reply:\n${quote(lines)}"
         }

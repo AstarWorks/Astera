@@ -25,7 +25,8 @@ import com.astarworks.astera.match.domain.norma.NormaProgress
  * Orange-Juice-style Norma levels, per (match, player). Everyone starts at level 1 with the STAR goal. At each level
  * the player holds one goal: carry `norma_stars_goal` stars (not consumed) or make `norma_kills_goal` kills at this
  * level. Reaching it levels the player up at once (kills reset, stars kept, the choice re-opens at STAR). The first
- * team with a member at `norma_max_level` wins the match. Everything is dropped at match end.
+ * team with a member at `norma_max_level` wins the match when `norma_win` is on (the default), alongside the mode's
+ * own objective, whichever happens first. Everything is dropped at match end.
  */
 public class NormaLevelService(
     private val matches: IMatchRepository,
@@ -43,8 +44,10 @@ public class NormaLevelService(
         val killerTeam = match.teams.firstOrNull { killer in it.members }?.id ?: return
         val victimTeam = match.teams.firstOrNull { event.victim in it.members }?.id ?: return
         if (killerTeam == victimTeam) return
+        // The kill is tallied (last time-limit tie-break) before it can level the killer up and end the match.
+        // `Match.score` is left to the mode's own objective (battle-loyal, skirmish display).
         val p = norma.get(match.id, killer)
-        norma.put(match.id, killer, p.copy(killsAtLevel = p.killsAtLevel + 1))
+        norma.put(match.id, killer, p.copy(killsAtLevel = p.killsAtLevel + 1, totalKills = p.totalKills + 1))
         evaluate(match, killer)
     }
 
@@ -77,9 +80,23 @@ public class NormaLevelService(
         return NormaHud(carried, p.level, cfg.maxLevel, p.goal, progress.coerceAtMost(target), target)
     }
 
+    /** Kills [playerId] made since reaching the current level (0 outside a Norma match). */
+    public fun killsAtLevelOf(playerId: PlayerId): Int {
+        val match = matches.findMatchOf(playerId)?.takeIf { isNorma(it.id) } ?: return 0
+        return norma.get(match.id, playerId).killsAtLevel
+    }
+
     /** Highest Norma level held by a member of [team] (time-limit tie-break). */
     public fun topLevel(match: Match, team: TeamId): Int =
         match.teams.firstOrNull { it.id == team }?.members.orEmpty().maxOfOrNull { norma.get(match.id, it).level } ?: 1
+
+    /** Stars carried by the members of [team] together (time-limit tie-break after the Norma level). */
+    public fun carried(match: Match, team: TeamId): Int =
+        match.teams.firstOrNull { it.id == team }?.members.orEmpty().sumOf { stars.get(match.id, it) }
+
+    /** Kills made by the members of [team] together (last time-limit tie-break). */
+    public fun kills(match: Match, team: TeamId): Int =
+        match.teams.firstOrNull { it.id == team }?.members.orEmpty().sumOf { norma.get(match.id, it).totalKills }
 
     public fun clear(matchId: MatchId) {
         norma.clear(matchId)
@@ -94,10 +111,10 @@ public class NormaLevelService(
             NormaGoal.KILL -> p.killsAtLevel >= cfg.killsGoalAt(p.level)
         }
         if (!reached) return
-        val up = NormaProgress(level = p.level + 1, goal = NormaGoal.STAR, killsAtLevel = 0)
+        val up = NormaProgress(level = p.level + 1, goal = NormaGoal.STAR, killsAtLevel = 0, totalKills = p.totalKills)
         norma.put(match.id, playerId, up)
         eventBus.publish(NormaLevelUp(match.id, playerId, up.level))
-        if (up.level >= cfg.maxLevel) {
+        if (up.level >= cfg.maxLevel && cfg.win) {
             val team = match.teams.firstOrNull { playerId in it.members }?.id ?: return
             lifecycle.end(match.id, EndReason.NormaLevelReached(team, up.level))
         }

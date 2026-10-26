@@ -1,5 +1,8 @@
 package com.astarworks.astera.match.platform.wiring
 
+import java.util.concurrent.ConcurrentHashMap
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
@@ -29,7 +32,6 @@ import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.application.service.matchmaking.InMemoryMatchmaker
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase
-import com.astarworks.astera.match.application.usecase.match.VictoryConditionEvaluator
 import com.astarworks.astera.core.domain.event.MatchStarted
 
 /** Queue, rating, respawn, HUD, win-condition, lobby intent, admin commands (original Wave 5wireup .. 5admin-ops). */
@@ -129,7 +131,7 @@ internal object MatchGameplayWiring {
         }
         val planFor: (com.astarworks.astera.match.domain.matchmaking.MatchmakingMode) -> com.astarworks.astera.match.application.usecase.matchmaking.MatchPlan = { mode ->
             val lane = env.queueSettings.current().laneFor(mode)
-                ?: com.astarworks.astera.match.domain.matchmaking.QueueSettings.DEFAULT.lanes.getValue("norma")
+                ?: com.astarworks.astera.match.domain.matchmaking.QueueSettings.DEFAULT.lanes.getValue(com.astarworks.astera.match.domain.matchmaking.QueueLane.DEFAULT_KEY)
             com.astarworks.astera.match.application.usecase.matchmaking.MatchPlan(lane.stage, lane.modeKey)
         }
         val crossServer = com.astarworks.astera.match.application.service.matchmaking.CrossServerSettings.from(System.getenv())
@@ -296,7 +298,7 @@ internal object MatchGameplayWiring {
         subscriptions += eventBus.subscribe(MatchEnded::class) { eliminatedTeams.onMatchEnded(it) }
 
         // F3-5: death screen -> death cam -> countdown -> respawn at a team spawn -> spawn protection.
-        val deathConfigLogged = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+        val deathConfigLogged = ConcurrentHashMap.newKeySet<String>()
         val matchStars = MatchStarWiring.install(env)
         env.stars = matchStars
         commands.register(MatchCommandSpecs.buildNormaCommandSpec(matchStars.norma))
@@ -400,12 +402,6 @@ internal object MatchGameplayWiring {
         //   KillfeedOnPlayerKilledListener       — match chat kill feed (ADR-0206) +
         //                                          killer subtitle; victim screen is
         //                                          DeathRespawnCoordinator
-        //   NormaVictoryConditionEvaluatorListener — auto-fires
-        //                                          ScoreThresholdReached when
-        //                                          VictoryConditionEvaluator finds
-        //                                          a unique winner; eliminates the
-        //                                          admin-manual /astera match phase
-        //                                          step from the Norma win path.
         //
         // Sidebar + killfeed talk to the Core IHudGateway (Phase 1 in-memory
         // by default; Wave 6b PaperHudGateway overlays at priority 100).
@@ -429,47 +425,35 @@ internal object MatchGameplayWiring {
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,
         ) { killfeedListener.handle(it) }
 
-        val normaVictoryListener = com.astarworks.astera.match.application.eventbus.listeners.victory
-            .NormaVictoryConditionEvaluatorListener(
-                matches = matches,
-                switchPhase = com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase(
-                    matches = matches,
-                    eventBus = eventBus,
-                    scheduler = scheduler,
-                ),
-            )
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.match.domain.event.EntityPickedUpItem::class,
-        ) { normaVictoryListener.handle(it) }
-
-        // G1: a Norma match scores one point per enemy kill and ends at `score_threshold` kills or after
-        // `time_limit_seconds` of ACTIVE time (content/game-modes/norma.yaml), through the normal end path.
-        val normaKills = com.astarworks.astera.match.application.eventbus.listeners.victory.NormaKillScoringListener(
+        // The Norma layer (every game mode, MODE-15): reaching the top Norma level wins when `norma_win` is on (NormaLevelService), next to
+        // the mode's own objective. This listener ends the match after `time_limit_seconds` of ACTIVE time (content/norma-layer/layer.yaml,
+        // 0 = none): the mode's own objective standing first, then highest Norma level, then stars carried, then kills; still tied is a draw.
+        val frameworkModes = services.get<com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry>()
+        val normaKills = com.astarworks.astera.match.application.eventbus.listeners.victory.NormaTimeLimitListener(
             matches = matches,
             lifecycle = env.facade,
-            isNorma = { id ->
-                val key = env.matchModeRegistry.modeKeyOf(id)
-                key.isNullOrBlank() || key == com.astarworks.astera.match.application.gamemode.NormaGameMode.ID.value
-            },
-            threshold = { id -> env.modeConfigOf(id)["score_threshold"]?.toIntOrNull()?.takeIf { it > 0 } ?: 10 },
-            timeLimitTicks = { id -> (env.modeConfigOf(id)["time_limit_seconds"]?.toLongOrNull()?.takeIf { it > 0 } ?: 600L) * 20L },
+            isNorma = env.normaLayerOf,
+            timeLimitTicks = { id -> (env.modeConfigOf(id)["time_limit_seconds"]?.toLongOrNull()?.takeIf { it >= 0 } ?: 600L) * 20L },
             now = { scheduler.currentTick() },
+            objectiveOf = { match, team ->
+                val key = env.matchModeRegistry.modeKeyOf(match.id)?.takeIf { it.isNotBlank() }
+                    ?.let { runCatching { com.astarworks.astera.match.domain.mode.GameModeId(it) }.getOrNull() }
+                key?.let { frameworkModes?.get(it) }?.objectiveStanding(match, team)
+            },
             levelOf = { match, team -> matchStars.norma.topLevel(match, team) },
+            starsOf = { match, team -> matchStars.norma.carried(match, team) },
+            killsOf = { match, team -> matchStars.norma.kills(match, team) },
         )
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
-        ) { normaKills.onKilled(it) }
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.match.domain.event.PhaseChanged::class,
         ) { normaKills.onPhaseChanged(it) }
-        scheduledTasks += scheduler.runRepeating(
+        scheduledTasks += scheduler.repeat(ExecutionScope.Global,
             com.astarworks.astera.core.application.port.outbound.ticks(20),
             com.astarworks.astera.core.application.port.outbound.ticks(20),
         ) { normaKills.tick() }
 
         logger.info(
             "Wave 5complete wired: KillfeedOnPlayerKilled + " +
-                "NormaVictoryConditionEvaluator subscribed; " +
                 "/astera match {abort,cancel,restart} sub-commands registered.",
         )
 
@@ -514,6 +498,17 @@ internal object MatchGameplayWiring {
         subscriptions += eventBus.subscribe(MatchStarted::class) {
             matchCountdownListener.handle(it)
         }
+
+        // ADR-0267: countdown ticks + go, death cue, last-stretch BGM tension.
+        val matchCueListener = com.astarworks.astera.match.application.eventbus.listeners.match.MatchCueListener(
+            matches = matches,
+            presentation = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
+            bgm = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.music.IPlayerBgm>(),
+            scheduler = scheduler,
+        )
+        subscriptions += eventBus.subscribe(MatchStarted::class) { matchCueListener.onStarted(it) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { matchCueListener.onKilled(it) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) { matchCueListener.onPhaseChanged(it) }
 
         // F3-4: per-match kills / deaths / assists / objectives behind the result screen.
         val matchTally = com.astarworks.astera.match.application.service.result.MatchTallyService(matches)
@@ -626,6 +621,7 @@ internal object MatchGameplayWiring {
                     messages = services.getOrThrow<IMessageRenderer>(),
                     playerGateway = playerGateway,
                     bots = botRequester,
+                    presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>() },
                 )
             // Kit / menu tiles swap Play for "Leave queue" (visible_if state:queued) and are rebuilt on every change.
             registrations += services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyQueueState>(
@@ -679,7 +675,7 @@ internal object MatchGameplayWiring {
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) { lanePadJoin.refreshBoard() }
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { lanePadJoin.refreshBoard() }
             // Safety net for paths that drain a queue without an event (admin force start, reload).
-            scheduledTasks += scheduler.runRepeating(
+            scheduledTasks += scheduler.repeat(ExecutionScope.Global,
                 com.astarworks.astera.core.application.port.outbound.ticks(40),
                 com.astarworks.astera.core.application.port.outbound.ticks(40),
             ) { lanePadJoin.refreshBoard() }

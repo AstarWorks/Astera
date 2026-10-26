@@ -141,7 +141,7 @@ def main():
     used = {f['texture'][1:] for e in model['elements'] for f in e['faces'].values()}
     model['textures'] = {k: v for k, v in model['textures'].items() if k in used}
     model['textures']['particle'] = 'minecraft:block/iron_block'
-    weapon_shading.mark(model)  # ADR-0253: same shading rule as the rig parts
+    weapon_shading.mark(model)  # ADR-0275: same shading rule as the rig parts
     a.out.write_text(json.dumps(model, indent=2)+'\n')
     print(len(model['elements']), 'elements', sorted(model['textures']))
 

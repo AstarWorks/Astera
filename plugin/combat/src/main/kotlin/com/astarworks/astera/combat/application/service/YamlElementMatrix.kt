@@ -24,11 +24,16 @@ import kotlin.io.path.isRegularFile
  * concern stays out of this class.
  */
 public class YamlElementMatrix(
-    private val table: Map<DamageAttribute, Map<DamageAttribute, Double>>,
+    table: Map<DamageAttribute, Map<DamageAttribute, Double>>,
 ) : IElementMatrix {
 
+    private val width = DamageAttribute.entries.size
+    private val cells = DoubleArray(width * width) { index ->
+        table[DamageAttribute.entries[index / width]]?.get(DamageAttribute.entries[index % width]) ?: 1.0
+    }
+
     override fun multiplier(attacker: DamageAttribute, defender: DamageAttribute): Double =
-        table[attacker]?.get(defender) ?: 1.0
+        cells[attacker.ordinal * width + defender.ordinal]
 
     public companion object {
         private val log = LoggerFactory.getLogger(YamlElementMatrix::class.java)

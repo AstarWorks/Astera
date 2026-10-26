@@ -85,8 +85,8 @@ internal object MatchCommandSpecs {
     /**
      * `/astera queue join <lane>` / `leave` / `status` (Wave 5w ADR-0089 delta, WP8).
      *
-     * The lane argument is a lane key of `queue.yaml` (`norma`, `annihilation`, ...) or the
-     * [MatchmakingMode.parse] wire form: `norma`, `custom:<game-mode-id>` or `tournament:<id>`. Players already in a running match cannot queue.
+     * The lane argument is a lane key of `queue.yaml` (`skirmish`, `annihilation`, ...) or the
+     * [MatchmakingMode.parse] wire form: `custom:<game-mode-id>` or `tournament:<id>`. Players already in a running match cannot queue.
      * Replies use the `astera.match.queue.*` keys shared with the lobby GUI.
      */
     fun buildQueueCommandSpec(
@@ -199,11 +199,11 @@ internal object MatchCommandSpecs {
         )
     }
 
-    /** The lane keys of `content/matchmaking/queue.yaml` (`norma`, `annihilation`, ...): what `queue join` suggests. */
+    /** The lane keys of `content/matchmaking/queue.yaml` (`skirmish`, `annihilation`, ...): what `queue join` suggests. */
     private fun laneTokens(settings: QueueSettings): List<String> = settings.lanes.keys.toList()
 
     /**
-     * A lane key (`annihilation`) or the wire form (`norma`, `custom:<id>`, `tournament:<id>`) the lobby GUI
+     * A lane key (`annihilation`) or the wire form (`custom:<id>`, `tournament:<id>`) the lobby GUI
      * uses. The bare key is what the playtest guide and tab completion show.
      */
     private fun parseLane(raw: String, settings: QueueSettings): MatchmakingMode? =

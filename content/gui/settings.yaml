@@ -1,37 +1,95 @@
-# Wave 5lobby-content (ADR-0119) — settings (Phase 1 skeleton).
+# Settings - the one settings screen (docs/game-design/access-map.md, UI-03; ADR-0124).
 #
-# Reload-aware via Wave 5h `/astera reload gui`. Settings application
-# handlers (`settings.locale.cycle` / `settings.volume.adjust` /
-# `settings.controls.cycle`) land in Wave G; tiles no-op until then.
-
+# Opened by Menu > Settings, `/astera settings`, the crafting-grid Settings button. Reload-aware via `/astera reload gui`.
+# Every tile writes PlayerSettings (persisted per player) and answers in chat; toggles reopen this screen.
+#
+#   Row 1: Language | Music | Sound | Voice | Controls | Quick-cast slots
+#   Row 2: Particle visibility | Double jump | Public profile            ... Back (18) / Close (26)
 id: settings
 title_key: astera.gui.settings.title
-size: CHEST_9
+size: CHEST_27
 
 slots:
   - type: static
-    index: 2
-    item: gui-tile-settings
+    index: 10
+    item: gui-tile-language
     on_left:
       key: settings.locale.cycle
     tooltip:
       - astera.gui.settings.locale.tooltip
   - type: static
-    index: 4
-    item: gui-tile-settings
+    index: 11
+    item: gui-tile-volume-music
     on_left:
       key: settings.volume.adjust
+      payload: { channel: music }
     tooltip:
-      - astera.gui.settings.volume.tooltip
+      - astera.gui.settings.volume.music.tooltip
   - type: static
-    index: 6
-    item: gui-tile-settings
+    index: 12
+    item: gui-tile-volume-sound
+    on_left:
+      key: settings.volume.adjust
+      payload: { channel: sound }
+    tooltip:
+      - astera.gui.settings.volume.sound.tooltip
+  - type: static
+    index: 13
+    item: gui-tile-volume-voice
+    on_left:
+      key: settings.volume.adjust
+      payload: { channel: voice }
+    tooltip:
+      - astera.gui.settings.volume.voice.tooltip
+  - type: static
+    index: 14
+    item: gui-tile-controls
     on_left:
       key: settings.controls.cycle
     tooltip:
       - astera.gui.settings.controls.tooltip
   - type: static
-    index: 8
+    index: 15
+    item: gui-tile-quickcast
+    on_left:
+      key: gui.open
+      payload: { gui: quickcast-slots }
+    tooltip:
+      - astera.gui.settings.quickcast.tooltip
+  - type: static
+    index: 19
+    item: gui-tile-particles
+    on_left:
+      key: settings.toggle
+      payload: { key: particles }
+    tooltip:
+      - astera.gui.settings.particles.tooltip
+  - type: static
+    index: 20
+    item: gui-tile-double-jump
+    on_left:
+      key: settings.toggle
+      payload: { key: double-jump }
+    tooltip:
+      - astera.gui.settings.double-jump.tooltip
+  - type: static
+    index: 21
+    item: gui-tile-privacy
+    on_left:
+      key: settings.toggle
+      payload: { key: public-profile }
+    tooltip:
+      - astera.gui.settings.public-profile.tooltip
+  - type: static
+    index: 18
+    item: gui-tile-back
+    on_left:
+      key: gui.back
+      payload: { gui: main-menu, in_match: match-menu }
+    tooltip:
+      - astera.gui.button.back
+  - type: static
+    index: 26
     item: gui-pane-red
     on_left:
       key: gui.close

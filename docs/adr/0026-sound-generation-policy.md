@@ -1,16 +1,16 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-05-19
 deciders: ryuzu
 supersedes: null
-superseded_by: null
+superseded_by: 0256
 ---
 
 # ADR-0026: Sound generation — Stable Audio 2.5 (fal.ai) for the Wave _assets sound track
 
 ## Status
 
-Accepted
+Superseded by [[adr/0267-free-sound-sourcing-and-one-cue-path]] (2026-10-26): sourcing is ffmpeg synthesis and CC0 only; no paid generation.
 
 ## Context
 

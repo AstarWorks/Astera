@@ -1,18 +1,27 @@
 package com.astarworks.astera.match.application.port.outbound
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
 
 /**
- * The visible half of a star drop: a pickable thing lying in the world (Paper: a glowing, named, unmergeable
- * NETHER_STAR item entity that can never enter an inventory). A drop is addressed by an opaque handle.
- * The host cancels its vanilla pickup and reports the attempt through [onPickupAttempt]; crediting stars and
- * [remove]-ing the thing is the caller's job.
+ * A star drop lying in the world: a pickable item (Paper: a glowing, named, unmergeable NETHER_STAR item entity).
+ * A drop is addressed by an opaque handle. Collecting is the host's ordinary item pickup (the player's pickup
+ * range, the pickup delay, the pickup animation): the host reports the attempt through [onPickupAttempt] and keeps
+ * the item out of every inventory (the star count is the in-memory match store, not an item stack, so nothing can
+ * drift, be dropped with Q, or be moved to an ender chest). Crediting stars and [take]-ing the thing is the caller's job.
  */
 public interface IStarDropWorld {
-    /** Spawns a drop worth [amount] stars; [velocity] (blocks/tick) scatters it. Returns its handle, or `null` if it could not be placed. */
-    public fun spawn(world: WorldId, position: Vec3, amount: Int, velocity: Vec3?): String?
+    /**
+     * Spawns a drop worth [amount] stars; [velocity] (blocks/tick) scatters it; nobody can pick it up for
+     * [pickupDelayTicks]. Returns its handle, or `null` if it could not be placed.
+     */
+    public fun spawn(world: WorldId, position: Vec3, amount: Int, velocity: Vec3?, pickupDelayTicks: Int): String?
+
+    /** Ownership of the live object addressed by this opaque handle. */
+    public fun executionScope(handle: String): ExecutionScope
 
     /** Where the drop lies now, or `null` when it no longer exists (chunk unloaded, killed by a command...). */
     public fun locate(handle: String): Vec3?
@@ -22,9 +31,9 @@ public interface IStarDropWorld {
 
     public fun remove(handle: String)
 
-    /** Pickup sound at [position] (heard by those nearby). */
-    public fun playPickup(world: WorldId, position: Vec3)
+    /** [player] collects the drop [handle]: pickup animation toward them, then the thing is removed. */
+    public fun take(handle: String, player: PlayerId)
 
-    /** Registers the callback for "[player] touched the drop [handle]"; the vanilla pickup is cancelled either way. */
+    /** Registers the callback for "[player] tried to pick up the drop [handle]"; the item never enters the inventory either way. */
     public fun onPickupAttempt(listener: (handle: String, player: PlayerId) -> Unit)
 }

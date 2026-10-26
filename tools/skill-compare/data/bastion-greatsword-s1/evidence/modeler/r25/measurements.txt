@@ -1,4 +1,4 @@
-# r25 modeler: rig blade brightness swings with pose/camera despite ADR-0253 (director r24: side held 108 -> rig 231 near-white
+# r25 modeler: rig blade brightness swings with pose/camera despite ADR-0275 (director r24: side held 108 -> rig 231 near-white
 # at t4, compare coil 36-58 near-black). Base wp/integrate-limbus 201fc6ca + this round's shader change (content dirty at capture).
 # Real-client captures, one at a time: side 17 f, compare 23 f, maxRepeatedFrames 1 both, compare cameraMaxLatenessMs 96.
 # Luma = Rec.709 Y (lum.py): pixels within 3 px of the hand-picked hilt->tip segment, 15-100 % of its length (blade only),
@@ -16,7 +16,7 @@
   50) and tip parts; 50 x 0.65 = 33 = measured. Texture, not light: no lighting rule can lift it above ~50.
 - Same rule for the held item: its own spread across azimuth/pose is the same 0.40-1.0, just not exercised by a static hold.
 
-## Fix (content/shader-patches/core/item.{vsh,fsh}.patch, same two markers as ADR-0253)
+## Fix (content/shader-patches/core/item.{vsh,fsh}.patch, same two markers as ADR-0275)
 - vsh: shade = 0.65 + 0.35 * (vanilla - 0.65): 0.57 (down) .. 0.77 (up); side faces 0.56-0.68. Replaces the r24 underside lift.
 - fsh: marked faces lift dark texels on luma, hue kept: y' = y + 0.3 (1 - y)^2 (blackstone 50 -> 100, deepslate 73 -> 112,
   iron/gold/quartz +1-3). A per-channel first try greyed the gold guard and gem (rejected; capture 1).

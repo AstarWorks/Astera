@@ -28,7 +28,7 @@ Before editing, read `.claude/CLAUDE.md` (non-negotiable rules) and
 
 - Run `./gradlew` (daemon contention — the orchestrator compiles).
 - Edit `platform/Astera*Plugin.kt` — report the exact wiring lines instead.
-- Write/edit ADRs or `docs/RTM-PARITY-TRACKER.md`.
+- Write/edit ADRs or the Board (only the 現状 section of your own area spec `docs/vision/areas/*.md`, when the brief says so).
 - Run `git commit` / `push` / `branch` / `checkout`.
 - Touch `private/`, `.playwright-mcp/`, `content/models/`, `content/textures/`.
 

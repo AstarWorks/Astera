@@ -1,21 +1,30 @@
 # Carry Mini TNT — Wave 5c original 6 modes (ADR-0167 Wave 7a-N1).
 #
-# Collect 10 mini-TNT drops scattered on the map, converge them into one
-# full-size TNT, deliver to the enemy delivery region. `CarryMiniTNTListener`
-# (wired globally in AsteraMatchPlugin.onEnable) keeps the 10-mini collection
-# counter via `EntityPickedUpItem` (ADR-0159 §B) and routes the final
-# converged TNT through the same `EntityEnteredRegion` delivery path as
-# `carry-tnt.yaml`.
+# Small TNT pieces sit on the stage's pickup spots (`pickup_regions`). Walk into a spot to pick one up (up to
+# `carry_limit` at a time), carry them into an enemy `base-<team>` zone to deliver them (1 point each). A taken
+# piece regrows after `respawn_seconds`; a carrier who dies loses what they carried. First team to `minis_to_win`
+# delivered pieces wins. Implementation: CarryMiniTntGameMode (SiegeGameMode, like carry-tnt).
 #
-# `impl_class` resolves to a Wave 5c-N1 façade (ADR-0165) — same façade
-# contract (`onTick` no-op, framework events only).
+# default_config
+#   minis_to_win     delivered pieces needed to win
+#   carry_limit      pieces one player can carry
+#   respawn_seconds  seconds until a taken piece regrows
+#   pickup_regions   comma-separated stage regions that hold a piece
 
 id: carry-mini-tnt
 title_key: astera.gamemode.carry-mini-tnt.title
 impl_class: com.astarworks.astera.match.application.gamemode.CarryMiniTntGameMode
 tick_period_ticks: 20
 default_config:
+  # Norma layer (content/norma-layer/layer.yaml) overrides: objective rounds on the big islands take longer than a
+  # skirmish, so the time limit is 20 minutes. At the limit the teams are ranked by this mode's objective first, then
+  # Norma level, stars, kills. norma_win (default true) lets the top Norma level end the match too.
+  time_limit_seconds: "1200"
   # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability (ends on attack).
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
+  minis_to_win: "10"
+  carry_limit: "4"
+  respawn_seconds: "15"
+  pickup_regions: "wool-a,wool-b,wool-c,tnt-spawn"

@@ -20,7 +20,7 @@ description:
 
 archetype: projectile
 cooldown_ticks: 4
-tags: [ ranged, fire-family, rtm ]
+tags: [ demo, ranged, fire-family, rtm ]
 
 params:
   type: projectile

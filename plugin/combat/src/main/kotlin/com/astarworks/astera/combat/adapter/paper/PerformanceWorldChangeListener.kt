@@ -7,7 +7,7 @@ import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
- * ADR-0254: a cross-world teleport ejects the passengers of the caster, so a skill performance riding it would be left behind
+ * ADR-0276: a cross-world teleport ejects the passengers of the caster, so a skill performance riding it would be left behind
  * as orphans. The performance ends in the same tick (death and quit arrive as domain events).
  */
 public class PerformanceWorldChangeListener(

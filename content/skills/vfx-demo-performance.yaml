@@ -1,4 +1,4 @@
-# ADR-0254 performance demo: plays content/vfx/demo-performance.yaml (skin-rig body + one hand-parented weapon). No hide_held_item
+# ADR-0276 performance demo: plays content/vfx/demo-performance.yaml (skin-rig body + one hand-parented weapon). No hide_held_item
 # step: the performance claims the hand/body lease itself. Not bound to any item; cast it with `caster.cast(...)` in the simulator.
 
 id: vfx-demo-performance

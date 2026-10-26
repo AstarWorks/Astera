@@ -8,14 +8,14 @@ import org.junit.jupiter.api.Test
  * Velocity, like every real client) is back in that match on their own team - not in the lobby.
  *
  * On this single `all` backend the lobby and the match share a server, so the check is that the returning login is
- * resumed (team side of the arena, match sidebar, match still listed) instead of staying a lobby login. The
+ * resumed (team side of the arena, slot-local, match sidebar, match still listed) instead of staying a lobby login. The
  * lobby -> game hop for the split topology is covered by `MidMatchReconnectScenarioTest` (two simulated servers).
  */
 class ReconnectE2eTest : PlaythroughBase() {
 
     private val suite = "Mid-match reconnect"
 
-    private fun side(b: Bot): String? = posOf(b)?.let { if (it.first < 0) "red" else "blue" }
+    private fun side(b: Bot): String? = localPosOf(b)?.let { if (it.first < 0) "red" else "blue" }
 
     @Test
     fun `a player who drops out of a running match comes back onto their team`() {
@@ -26,8 +26,8 @@ class ReconnectE2eTest : PlaythroughBase() {
         Thread.sleep(1_500)
         val lobbyTitle = a.sidebarTitle()
 
-        a.command("astera queue join norma")
-        b.command("astera queue join norma")
+        a.command("astera queue join skirmish")
+        b.command("astera queue join skirmish")
         val active = awaitMatch("ACTIVE", 60_000, keepAlive = listOf(a, b))
         E2eReport.check(suite, "two queued players get an ACTIVE match", "RCON astera match list") {
             assertThat(active).describedAs("no ACTIVE match; list=${matchLines()}").isNotNull()
@@ -36,7 +36,7 @@ class ReconnectE2eTest : PlaythroughBase() {
         if (active == null) return
         Thread.sleep(2_000)
         val sideBefore = side(b)
-        val posBefore = posOf(b)
+        val posBefore = localPosOf(b)
 
         // --- the drop ---------------------------------------------------------------------------------------------
         val name = b.name
@@ -63,11 +63,11 @@ class ReconnectE2eTest : PlaythroughBase() {
             quote(lines)
         }
         E2eReport.check(suite, "the returning player is on their own side of the arena, in the same team", "RCON data get Pos") {
-            val pos = posOf(back)
+            val pos = localPosOf(back)
             assertThat(sideBefore).describedAs("could not read the position before the drop: $posBefore").isNotNull()
             assertThat(side(back)).describedAs("came back on the other side / the lobby: before=$posBefore after=$pos").isEqualTo(sideBefore)
-            assertThat(Math.abs(pos!!.first)).describedAs("still at the lobby spawn (arena spawns are at |x| ~ 32-37, the lobby at x ~ 0): $pos").isGreaterThan(25.0)
-            assertThat(islandStanceProblem(back)).describedAs("the returning player is not standing on an arena island").isNull()
+            assertThat(Math.abs(pos!!.first)).describedAs("still at the lobby spawn (arena spawns are at |local x| ~ 70, the lobby is another slot): $pos").isGreaterThan(25.0)
+            assertThat(islandStanceProblem(back)).describedAs("the returning player is not standing on an arena island of the match slot").isNull()
             "before=$posBefore after=$pos"
         }
         E2eReport.check(suite, "the returning player plays again and the match still lists it as the same single match", "RCON playerGameType + astera match list") {

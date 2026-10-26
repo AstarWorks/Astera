@@ -86,6 +86,32 @@ class PackValidationTest {
     }
 
     @Test
+    fun `every sound event in sounds json points at a packed Vorbis file and every astera cue resolves to an event`() {
+        val events = json("assets/astera/sounds.json")
+        assertThat(events.size()).`as`("sound events").isGreaterThanOrEqualTo(17)
+        for ((event, def) in events.properties()) {
+            assertThat(def.path("sounds")).`as`("sounds of $event").isNotEmpty()
+            for (ref in def.path("sounds").map { it.asText() }) {
+                assertThat(ref).startsWith("astera:")
+                val bytes = files["assets/astera/sounds/${ref.removePrefix("astera:")}.ogg"]
+                assertThat(bytes).`as`("file of $event ($ref)").isNotNull()
+                assertThat(String(bytes!!.copyOf(4), Charsets.ISO_8859_1)).`as`("$ref is an Ogg stream").isEqualTo("OggS")
+            }
+        }
+        // A cue with its own OGG that names an astera: resource_key is only audible if sounds.json has that event
+        // (the two yaml-only registry samples have no OGG and are skipped by the pack builder).
+        val yaml = org.yaml.snakeyaml.Yaml()
+        java.nio.file.Files.walk(contentDir.resolve("sounds")).use { stream ->
+            stream.filter { it.toString().endsWith(".yaml") && java.nio.file.Files.exists(it.resolveSibling(it.fileName.toString().removeSuffix(".yaml") + ".ogg")) }.forEach { file ->
+                val key = (yaml.load<Map<String, Any?>>(java.nio.file.Files.readString(file)).orEmpty()["resource_key"] as? String)
+                if (key != null && key.startsWith("astera:")) {
+                    assertThat(events.has(key.removePrefix("astera:"))).`as`("$file: no sound event for $key").isTrue()
+                }
+            }
+        }
+    }
+
+    @Test
     fun `no file in the pack is oversized`() {
         for ((path, bytes) in files) {
             val limit = when {

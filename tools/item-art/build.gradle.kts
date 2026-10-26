@@ -12,7 +12,7 @@
  * Custom particle sprites (ADR-0239) come from content/textures/sources/sprites.yaml: code painters, AI sheet rows
  * or hand-drawn strips become content/textures/generated/sprites/<id>.png (frame strip), content/fonts/vfx/<id>.json
  * (bitmap font, frame i = U+E000 + i), content/sprites/<id>.yaml and the contact sheet docs/assets/sprite-preview.png.
- * Retextured vanilla particle types (ADR-0252) come from content/particle-skins/<type>.yaml: smooth painters become
+ * Retextured vanilla particle types (ADR-0274) come from content/particle-skins/<type>.yaml: smooth painters become
  * content/particle-skins/generated/astera_<channel>_<i>.png + <type>.json and docs/assets/particle-skin-preview.png.
  * Studio-authored assets under content/models/items (Studio) override a generated icon of the same item id.
  *

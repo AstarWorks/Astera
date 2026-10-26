@@ -1,11 +1,13 @@
+# BGM track (ADR-0267): a vanilla sound event, no resource pack needed. Replace the source with
+# an astera: OGG event (CC0 or ffmpeg-synthesised) when real music exists.
 id: boss-reveal-strings
 display_name: "Boss Reveal Strings"
 source:
-  kind: resource_pack
-  path: "astera:music/boss-reveal-strings"
+  kind: vanilla
+  key: "minecraft:entity.wither.spawn"
 license:
   kind: royalty_free
-  attribution: "Astera Phase 1 placeholder (CC0)"
+  attribution: "Vanilla Minecraft sound event (client-provided, not redistributed by Astera)"
 mood: boss_reveal
 default_volume: 0.8
 loop: false

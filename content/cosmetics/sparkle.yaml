@@ -1,0 +1,7 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.kill_effect.sparkle. Sold in the cosmetics menu.
+id: sparkle
+kind: kill_effect
+name_key: astera.cosmetic.kill_effect.sparkle
+price_gold: 300
+value: "happy_villager"
+count: 12

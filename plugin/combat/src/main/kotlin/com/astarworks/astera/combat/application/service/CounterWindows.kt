@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -37,7 +38,7 @@ internal class CounterWindows(
         if (closed || duration <= 0 || !range.isFinite() || range <= 0) return
         val window = Window(context, scheduler.currentTick() + duration, range, mechanics)
         windows[context.actorId] = window
-        scheduler.runLater(ticks(duration.toLong())) {
+        scheduler.run(ExecutionScope.Entity(context.actorId.uuid), ticks(duration.toLong())) {
             if (windows[context.actorId] === window) windows.remove(context.actorId)
         }
     }
@@ -51,12 +52,12 @@ internal class CounterWindows(
             (guardPose.position - attackerPose.position).lengthSquared() > window.range * window.range) return
         windows.remove(defender)
         // Let the incoming damage finish before the counter modifies health or publishes more damage.
-        scheduler.runLater(ticks(1)) {
-            if (closed || !isAlive(defender) || !isAlive(attacker)) return@runLater
-            val live = poses.poseOf(defender) ?: return@runLater
-            val target = poses.poseOf(attacker) ?: return@runLater
+        scheduler.run(ExecutionScope.Entity(defender.uuid), ticks(1)) {
+            if (closed || !isAlive(defender) || !isAlive(attacker)) return@run
+            val live = poses.poseOf(defender) ?: return@run
+            val target = poses.poseOf(attacker) ?: return@run
             if (live.world != target.world ||
-                (live.position - target.position).lengthSquared() > window.range * window.range) return@runLater
+                (live.position - target.position).lengthSquared() > window.range * window.range) return@run
             run(window.mechanics, window.context.copy(origin = live.position, worldId = live.world,
                 pose = live, targetId = attacker, hitLocation = target.position))
         }

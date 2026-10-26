@@ -22,7 +22,7 @@ class FirstJoinScenarioTest {
             assertThat(ledger.balance(newcomer.id, Currency.GOLD)).isZero()
             // The starter weapons (content/balance/starter-grant.yaml) are in the inventory, delivered once.
             assertThat(checkNotNull(sim.server.view(newcomer.id)).givenItems)
-                .containsExactly("knight-sword", "frost-staff")
+                .containsExactly("pistol", "knight-sword")
 
             // Second join of the same player (reconnect): no second grant, no second event.
             sim.eventBus.publish(PlayerJoinedServer(playerId = newcomer.id))

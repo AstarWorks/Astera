@@ -19,7 +19,10 @@ class WeaponsE2eTest : E2eBase() {
     private fun food(b: Bot): Int? =
         rcon("data get entity ${b.name} foodLevel").trim().substringAfterLast(" ").toIntOrNull()
 
-    private fun give(a: Bot, item: String): Int? {
+    /** One retry: the give command is a chat packet and can be dropped under host load. */
+    private fun give(a: Bot, item: String): Int? = giveOnce(a, item) ?: giveOnce(a, item)
+
+    private fun giveOnce(a: Bot, item: String): Int? {
         // One weapon at a time: the lobby kit leaves only a few free hotbar slots, so a second give would
         // land in the main inventory and never be selectable.
         rcon("clear ${a.name}")

@@ -28,3 +28,4 @@ glint: true
 
 pdc_tags:
   astera:rarity: epic
+  astera:demo: "true"

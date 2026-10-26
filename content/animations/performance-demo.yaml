@@ -1,4 +1,4 @@
-# ADR-0254 demo body for the skill performance (content/vfx/demo-performance.yaml): crouch coil, a CUT at t6 (ease: step) into a
+# ADR-0276 demo body for the skill performance (content/vfx/demo-performance.yaml): crouch coil, a CUT at t6 (ease: step) into a
 # raised right arm, hold, then back to rest. length_ticks must equal the vfx duration_ticks. blend_in / blend_out are ignored by a
 # performance (the swap with the real player is atomic).
 id: performance-demo

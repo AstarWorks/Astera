@@ -58,8 +58,8 @@ class HudE2eTest : E2eBase() {
         op(b)
         val posA = a.positionPackets.get()
         val posB = b.positionPackets.get()
-        a.command("astera queue join norma")
-        b.command("astera queue join norma")
+        a.command("astera queue join skirmish")
+        b.command("astera queue join skirmish")
         a.waitUntil(60_000) { a.positionPackets.get() > posA }
         b.waitUntil(30_000) { b.positionPackets.get() > posB }
         Thread.sleep(3_000)
@@ -67,9 +67,9 @@ class HudE2eTest : E2eBase() {
         a.command("astera items give ${a.name} pistol")
         a.waitUntil(4_000) { a.slotUpdates.size > slotsBefore }
         val hotbarIndex = a.slotUpdates.drop(slotsBefore).lastOrNull { it.containerId == 0 && it.amount > 0 && it.slot in 36..44 }?.let { it.slot - 36 } ?: 0
-        // Face each other on a line at A's position, whatever the arena (it is the void `arenas` world: a bare console tp would pull them into the overworld).
-        rcon("execute in minecraft:arenas run tp ${a.name} ${a.x} ${a.y} ${a.z} 0 0")
-        rcon("execute in minecraft:arenas run tp ${b.name} ${a.x} ${a.y} ${a.z + 4} 180 0")
+        // Face each other on a line at A's position, whatever the arena (the slots live in the one void overworld, ADR-0255).
+        rcon("execute in minecraft:overworld run tp ${a.name} ${a.x} ${a.y} ${a.z} 0 0")
+        rcon("execute in minecraft:overworld run tp ${b.name} ${a.x} ${a.y} ${a.z + 4} 180 0")
         Thread.sleep(1_000)
         a.selectHotbar(hotbarIndex)
         Thread.sleep(500)
@@ -118,8 +118,8 @@ class HudE2eTest : E2eBase() {
         // A PvP lane never starts with one player (game-loop queue floor): bring an opponent.
         val partner = bot("HudTab2")
         partner.waitUntil(15_000) { partner.sidebarLines().isNotEmpty() }
-        partner.command("astera queue join norma")
-        b.command("astera queue join norma")
+        partner.command("astera queue join skirmish")
+        b.command("astera queue join skirmish")
         b.waitUntil(45_000) { b.positionPackets.get() > posBefore || b.worldHistory.size > worldsBefore }
         b.waitUntil(15_000) { b.teamOf(b.name)?.first?.startsWith("ast_np_") == true }
         b.waitUntil(5_000) { b.belowNameScores().isNotEmpty() }

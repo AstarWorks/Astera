@@ -10,7 +10,7 @@ import java.util.jar.JarFile
 
 /**
  * Which texture each frame of a particle type's sprite set is, as the resource pack the player gets resolves it: the
- * vanilla list is `assets/minecraft/particles/<type>.json` in the client jar, and our ADR-0252 particle skins replace it
+ * vanilla list is `assets/minecraft/particles/<type>.json` in the client jar, and our ADR-0274 particle skins replace it
  * with `content/particle-skins/generated/<type>.json` (textures `astera_<channel>_<i>` in the same directory).
  */
 class SpriteCatalog(private val contentDir: Path, private val clientJar: Path) {

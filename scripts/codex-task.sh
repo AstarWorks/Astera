@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-# Launch a Codex implementation task in its own worktree, in the background.
+# Launch a Codex implementation task in its own worktree and run it in the FOREGROUND.
 # Usage: scripts/codex-task.sh <task-id> <prompt-file> [base-ref]
+# Meant to be launched via Bash `run_in_background: true` (the gate .claude/hooks/gate-codex-lane.py
+# denies any other launch). Claude Code then delivers ONE notification when this script exits, with
+# Codex's exit code. Never detach it (nohup/setsid/disown/&) and never poll/tail/sleep.
 # Run from the track worktree. Creates .claude/worktrees/<task-id> on branch wp/<task-id>
 # from base-ref (default: HEAD of the checkout it is invoked from, i.e. the track branch),
 # prepends .claude/prompts/codex-preamble.md, runs `codex exec -p astar-implement`.
+# Env: CODEX_TIMEOUT (seconds, default 5400).
 # Logs: $SCRATCH/<task-id>.log (ends with an EXIT=<code> line), last message: $SCRATCH/<task-id>-last.md
 set -euo pipefail
 
@@ -38,10 +42,9 @@ git -C "$ROOT" worktree add "$WT" -b "$BRANCH" "$BASE"
 FULL="$SCRATCH/$TASK_ID-prompt.md"
 { cat "$PREAMBLE"; printf '\n\n---\n\n# TASK (%s)\n\n' "$TASK_ID"; cat "$PROMPT_FILE"; } > "$FULL"
 
-nohup bash -c '
-  codex exec -p astar-implement -s danger-full-access -C "$1" -o "$2" - < "$3" > "$4" 2>&1
-  echo "EXIT=$?" >> "$4"
-' _ "$WT" "$LAST" "$FULL" "$LOG" > /dev/null 2>&1 &
+echo "started $TASK_ID worktree=$WT branch=$BRANCH log=$LOG last=$LAST"
 
-echo "started $TASK_ID pid=$! worktree=$WT branch=$BRANCH"
-echo "log=$LOG (EXIT= line when done)  last=$LAST"
+rc=0
+timeout "${CODEX_TIMEOUT:-5400}" codex exec -p astar-implement -s danger-full-access -C "$WT" -o "$LAST" - < "$FULL" > "$LOG" 2>&1 || rc=$?
+echo "EXIT=$rc" >> "$LOG"
+exit "$rc"

@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper.aoe
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.port.outbound.aoe.IAreaEffectGateway
 import com.astarworks.astera.combat.domain.aoe.AreaEffectAction
@@ -71,7 +72,7 @@ import kotlin.time.Duration
  * MUST run on the main thread. [IScheduler]'s `runLater` / `runRepeating`
  * callbacks fire on main per the [IScheduler] contract, so the per-tick
  * action is safe by construction. Off-main callers of [spawn] route
- * through `scheduler.runLater(Duration.ZERO)` to bounce to main — the
+ * through `scheduler.run(regionScope(spec.world, spec.center), Duration.ZERO)` to bounce to main — the
  * synchronous handle is generated eagerly so callers get a handle they
  * can [despawn] before the setup callback runs.
  *
@@ -118,13 +119,13 @@ public class PaperAreaEffectGateway(
 
         val handle = AreaEffectHandle(id = UUID.randomUUID(), backendId = BACKEND_ID)
 
-        if (!server.isPrimaryThread) {
+        if (server.getWorld(spec.world.value)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(org.bukkit.Location(it, spec.center.x, spec.center.y, spec.center.z)) } != true) {
             // Off-main: defer registration to main. The handle is returned
             // eagerly so callers can [despawn] before the setup runs (the
             // [despawn] code path looks up [live] which is empty until the
             // bounce completes — returns UnknownHandle as the InMemory
             // gateway would for any pre-registration despawn).
-            scheduler.runLater(Duration.ZERO) {
+            scheduler.run(regionScope(spec.world, spec.center), Duration.ZERO) {
                 completeSpawnOnMain(handle, spec)
             }
             return Result.success(handle)
@@ -135,7 +136,7 @@ public class PaperAreaEffectGateway(
     }
 
     private fun completeSpawnOnMain(handle: AreaEffectHandle, spec: AreaEffectSpec) {
-        val tickTask = scheduler.runRepeating(
+        val tickTask = scheduler.repeat(regionScope(spec.world, spec.center),
             initialDelay = ticks(spec.tickIntervalTicks.toLong()),
             period = ticks(spec.tickIntervalTicks.toLong()),
         ) {
@@ -143,7 +144,7 @@ public class PaperAreaEffectGateway(
         }
 
         val despawnTask: IScheduler.TaskHandle? = if (spec.durationTicks > 0) {
-            scheduler.runLater(ticks(spec.durationTicks.toLong())) {
+            scheduler.run(regionScope(spec.world, spec.center), ticks(spec.durationTicks.toLong())) {
                 despawnInternal(handle, AreaEffectDespawned.DespawnReason.ExpiredNaturally)
             }
         } else {

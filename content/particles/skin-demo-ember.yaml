@@ -1,4 +1,4 @@
-# ADR-0252 demo: 40 retextured entity_effect embers flung up and out; speed_jitter gives a depth of speeds.
+# ADR-0274 demo: 40 retextured entity_effect embers flung up and out; speed_jitter gives a depth of speeds.
 id: skin-demo-ember
 shape: { kind: point }
 color: { r: 255, g: 140, b: 40 }

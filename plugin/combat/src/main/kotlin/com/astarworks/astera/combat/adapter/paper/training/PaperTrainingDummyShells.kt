@@ -60,7 +60,7 @@ internal class PaperTrainingDummyShells(plugin: JavaPlugin) : ITrainingDummyShel
     override fun moveTo(id: PlayerId, at: Vec3) {
         val body = entity(id) ?: return
         body.velocity = Vector(0.0, 0.0, 0.0)
-        body.teleport(Location(body.world, at.x, at.y, at.z, body.location.yaw, 0f))
+        body.teleportAsync(Location(body.world, at.x, at.y, at.z, body.location.yaw, 0f))
     }
 
     override fun setLabel(id: PlayerId, lines: List<String>) {

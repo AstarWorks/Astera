@@ -11,7 +11,7 @@
  * generator produces (ResourcePackTest).
  *
  * Pure-JVM CLI, not a Minecraft plugin; it reads the glyph table from
- * :plugin:core so the atlas and the runtime renderer cannot drift apart.
+ * :kernel:domain so the atlas and the runtime renderer cannot drift apart.
  */
 
 plugins {
@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":plugin:core"))
+    implementation(project(":kernel:domain"))
     implementation(libs.kotlin.stdlib)
     implementation(libs.jackson.databind)
     implementation(libs.snakeyaml)

@@ -1,4 +1,4 @@
-# Smoke: vanilla cloud retextured as a puff that swells, curls and frays away. Baked grey; vanilla multiplies it by a random 0.7-1.0 grey per particle. ADR-0252.
+# Smoke: vanilla cloud retextured as a puff that swells, curls and frays away. Baked grey; vanilla multiplies it by a random 0.7-1.0 grey per particle. ADR-0274.
 type: cloud
 channel: smoke
 source: smoke

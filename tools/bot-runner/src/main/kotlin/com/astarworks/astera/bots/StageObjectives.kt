@@ -1,27 +1,32 @@
 package com.astarworks.astera.bots
 
+import com.astarworks.astera.core.domain.stage.StageId
+import com.astarworks.astera.match.application.contents.GeneratorContents
+import com.astarworks.astera.match.application.contents.StageContents
 import java.io.File
 
-/**
- * Objective knowledge read from the same `content/` the servers run: `matchmaking/queue.yaml` maps a lane to a stage,
- * `stages/<stage>.yaml` lists per-team spawns and named regions. The brain uses it when no enemy is in sight:
- *
- *  - regions named `core-<team>` are breakable cores (break-core): walk there and dig;
- *  - other `<thing>-<team>` regions (jewelry-blue, base-blue) and shared ones (tnt-spawn, wool-a) are walk-to points;
- *  - otherwise the nearest enemy team spawn.
- *
- * The YAML subset used by those files is tiny and regular, so it is read with regexes instead of a YAML library.
- */
-class StageObjectives private constructor(private val spawns: List<Spawn>, private val regions: List<Region>) : ObjectiveSource {
+/** Mode objectives and navigation share the server's actual stage/generator loaders (including YAML validation). */
+class StageObjectives private constructor(
+    private val spawns: List<Spawn>,
+    private val regions: List<Region>,
+    private val generators: List<Pair<Double, Double>>,
+    private val graph: ArenaRouteGraph?,
+) : ObjectiveSource {
+    override fun starPoints(): List<Pair<Double, Double>> = generators
+    override fun routeGraph(): ArenaRouteGraph? = graph
+
+    /** Centre (x, z) of the stage region [name] (e.g. `tnt-spawn`, `base-blue`, `wool-b`), or null when the stage has none. */
+    fun zoneCentre(name: String): Pair<Double, Double>? = regions.firstOrNull { it.name == name }?.let { it.cx to it.cz }
+
+    /** Names of the stage regions that start with [prefix] (e.g. every `wool-` control point), in stage order. */
+    fun zoneNames(prefix: String): List<String> = regions.map { it.name }.filter { it.startsWith(prefix) }
 
     private data class Spawn(val team: String, val x: Double, val z: Double)
-
     private data class Region(val name: String, val cx: Double, val cy: Double, val cz: Double)
 
     override fun objectiveFor(spawnX: Double, spawnZ: Double): Objective? {
         val own = spawns.minByOrNull { (it.x - spawnX) * (it.x - spawnX) + (it.z - spawnZ) * (it.z - spawnZ) }?.team ?: return null
         val enemyTeams = spawns.map { it.team }.distinct().filter { it != own }
-        // 1. enemy cores, 2. other enemy-owned regions, 3. shared objective regions
         val cores = regions.filter { r -> enemyTeams.any { r.name == "core-$it" } }
         pick(cores, spawnX, spawnZ)?.let { return Objective(it.name, it.cx, it.cy, it.cz, breakable = true) }
         val theirs = regions.filter { r -> enemyTeams.any { r.name.endsWith("-$it") } && !r.name.startsWith("base") }
@@ -39,53 +44,29 @@ class StageObjectives private constructor(private val spawns: List<Spawn>, priva
     companion object {
         private val LANE = Regex("^\\s*-\\s*id:\\s*(\\S+)")
         private val STAGE = Regex("^\\s*stage:\\s*(\\S+)")
-        private val NAME = Regex("^\\s*-\\s*name:\\s*(\\S+)")
-        private val TEAM = Regex("^\\s*-\\s*team:\\s*(\\S+)")
-        private val XYZ = Regex("x:\\s*(-?[0-9.]+)\\s*,\\s*y:\\s*(-?[0-9.]+)\\s*,\\s*z:\\s*(-?[0-9.]+)")
-        private val POSITION = Regex("^\\s*position:")
-        private val MIN = Regex("^\\s*min:")
-        private val MAX = Regex("^\\s*max:")
 
-        /** The objectives of [lane] under [contentDir], or null when the content is not readable here. */
         fun load(contentDir: File, lane: String): StageObjectives? = runCatching {
-            val stage = stageOf(File(contentDir, "matchmaking/queue.yaml").readLines(), lane) ?: return null
-            parse(File(contentDir, "stages/$stage.yaml").readLines())
-        }.getOrNull()
+            val stageId = stageOf(File(contentDir, "matchmaking/queue.yaml").readLines(), lane) ?: return null
+            val contents = StageContents()
+            check(contents.bootstrap(contentDir.toPath().resolve("stages")).failed == 0)
+            val stage = contents.find(StageId(stageId)) ?: return null
+            val generators = GeneratorContents()
+            check(generators.bootstrap(contentDir.toPath().resolve("generators")).failed == 0)
+            StageObjectives(
+                stage.spawnPoints.mapNotNull { point -> point.team?.let { Spawn(it.value, point.position.x, point.position.z) } },
+                stage.regions.mapNotNull { region -> region.name?.let { Region(it, (region.min.x + region.max.x) / 2, region.min.y, (region.min.z + region.max.z) / 2) } },
+                generators.all().filter { it.matchStageId == stageId }.map { it.position.x to it.position.z },
+                stage.layout?.let(::ArenaRouteGraph),
+            )
+        }.onFailure { System.err.println("Bot stage '$lane' could not load: ${it.message}") }.getOrNull()
 
-        internal fun stageOf(lines: List<String>, lane: String): String? {
+        private fun stageOf(lines: List<String>, lane: String): String? {
             var current: String? = null
             for (line in lines) {
                 LANE.find(line)?.let { current = it.groupValues[1].trim('"', '\'') }
                 if (current == lane) STAGE.find(line)?.let { return it.groupValues[1].trim('"', '\'') }
             }
             return null
-        }
-
-        internal fun parse(lines: List<String>): StageObjectives {
-            val spawns = ArrayList<Spawn>()
-            val regions = ArrayList<Region>()
-            var regionName: String? = null
-            var min: Triple<Double, Double, Double>? = null
-            var spawnTeam: String? = null
-            for (line in lines) {
-                NAME.find(line)?.let { regionName = it.groupValues[1]; min = null }
-                TEAM.find(line)?.let { spawnTeam = it.groupValues[1]; regionName = null }
-                if (line.trimStart().startsWith("- role:")) spawnTeam = null
-                val xyz = XYZ.find(line)?.let { Triple(it.groupValues[1].toDouble(), it.groupValues[2].toDouble(), it.groupValues[3].toDouble()) }
-                if (xyz == null) continue
-                when {
-                    MIN.containsMatchIn(line) -> min = xyz
-                    MAX.containsMatchIn(line) -> {
-                        val n = regionName
-                        val lo = min
-                        if (n != null && lo != null) {
-                            regions += Region(n, (lo.first + xyz.first) / 2, lo.second, (lo.third + xyz.third) / 2)
-                        }
-                    }
-                    POSITION.containsMatchIn(line) -> spawnTeam?.let { spawns += Spawn(it, xyz.first, xyz.third) }
-                }
-            }
-            return StageObjectives(spawns, regions)
         }
     }
 }

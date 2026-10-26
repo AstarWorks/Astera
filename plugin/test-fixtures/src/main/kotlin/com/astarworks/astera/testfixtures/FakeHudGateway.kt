@@ -1,5 +1,6 @@
 package com.astarworks.astera.testfixtures
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.HudError
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
@@ -217,10 +218,10 @@ public class FakeHudGateway(
         if (layout !is HudLayout.ActionBar) return
         val ttl = layout.ttlTicks
         if (ttl <= 0) return
-        sched.runLater(ticks(ttl.toLong())) {
+        sched.run(ExecutionScope.Entity(playerId.uuid), ticks(ttl.toLong())) {
             // Only the latest show / update of the handle may expire it.
-            val current = active[handle] ?: return@runLater
-            if (current.playerId != playerId || current.gen != gen) return@runLater
+            val current = active[handle] ?: return@run
+            if (current.playerId != playerId || current.gen != gen) return@run
             clearFor(playerId, HudRegion.ACTION_BAR)
         }
     }

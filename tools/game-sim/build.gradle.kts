@@ -58,7 +58,7 @@ tasks.register<Test>("showcase") {
     filter { includeTestsMatching("*SkillShowcaseScenarioTest") }
 }
 
-// ADR-0254: writes build/skill-lint/<skill>/plan.json for tools/skill-lint (a headless cast of the real skill; not a test).
+// ADR-0276: writes build/skill-lint/<skill>/plan.json for tools/skill-lint (a headless cast of the real skill; not a test).
 //   ./gradlew :tools:game-sim:skillLintPlan -Pskill=bastion-greatsword-s1      (or: make skill-lint-plan SKILL=...)
 tasks.register<JavaExec>("skillLintPlan") {
     group = "verification"

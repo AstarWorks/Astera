@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service.hud
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -48,7 +49,7 @@ public class LobbySidebarService(
     private val matchmaker: IMatchmaker,
     private val hud: IHudGateway,
     private val messages: IMessageRenderer,
-    scheduler: IScheduler,
+    private val scheduler: IScheduler,
     private val gold: (PlayerId) -> Long? = { null },
     pollPeriodTicks: Long = DEFAULT_POLL_PERIOD_TICKS,
     private val settings: () -> QueueSettings = { QueueSettings.DEFAULT },
@@ -57,11 +58,11 @@ public class LobbySidebarService(
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
-    private val failureLogged: MutableSet<PlayerId> = mutableSetOf()
-    private val lastSent: MutableMap<PlayerId, HudLayout.Sidebar> = mutableMapOf()
+    private val failureLogged: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
+    private val lastSent: MutableMap<PlayerId, HudLayout.Sidebar> = ConcurrentHashMap()
     private val online: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
 
-    private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(
+    private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(ExecutionScope.Global,
         initialDelayTicks = pollPeriodTicks,
         periodTicks = pollPeriodTicks,
     ) {
@@ -91,7 +92,7 @@ public class LobbySidebarService(
     public fun refreshAll() {
         val now = online.toList()
         lastSent.keys.retainAll(now.toSet())
-        for (playerId in now) refresh(playerId, now.size)
+        for (playerId in now) scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) { refresh(playerId, now.size) }
     }
 
     /** Re-draw one player (queue or wallet change). */
@@ -194,7 +195,6 @@ public class LobbySidebarService(
 
     private fun modeLabel(viewer: PlayerId, mode: MatchmakingMode): String {
         val id = when (mode) {
-            is MatchmakingMode.Norma -> "norma"
             is MatchmakingMode.Custom -> mode.adminConfigured.value
             is MatchmakingMode.Tournament -> return "Tournament"
         }

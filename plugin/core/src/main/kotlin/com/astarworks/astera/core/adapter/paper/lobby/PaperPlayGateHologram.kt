@@ -32,9 +32,12 @@ internal class PaperPlayGateHologram(
 
     /** [npcFeet] is where the Play NPC stands; the hologram floats just above its head. */
     fun install(worldName: String, npcFeet: Vec3) {
-        remove()
         val world = plugin.server.getWorld(worldName) ?: return
         val loc = Location(world, npcFeet.x, npcFeet.y + HEIGHT_ABOVE_FEET, npcFeet.z)
+        if (!org.bukkit.Bukkit.isOwnedByCurrentRegion(loc)) {
+            plugin.server.regionScheduler.execute(plugin, world, loc.blockX shr 4, loc.blockZ shr 4, Runnable { install(worldName, npcFeet) })
+            return
+        }
         world.getChunkAt(loc).load()
         registry?.entityOf(OWNER_KEY)?.let { stale -> plugin.server.getEntity(stale)?.remove() }
         val text = MiniMessage.miniMessage().deserialize(messages.render(null, KEY))
@@ -54,7 +57,7 @@ internal class PaperPlayGateHologram(
     }
 
     fun remove() {
-        display?.takeIf { it.isValid }?.remove()
+        display?.let { entity -> entity.scheduler.execute(plugin, Runnable { entity.remove() }, null, 1L) }
         display = null
         registry?.release(OWNER_KEY)
     }

@@ -1,5 +1,6 @@
 package com.astarworks.astera.stats.application.eventbus.listeners
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.ILastMatchStore
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
@@ -24,12 +25,12 @@ public class ShowLastMatchRecapOnJoinListener(
     private val clock: Clock = Clock.systemUTC(),
 ) {
     public fun handle(event: PlayerJoinedServer) {
-        scheduler.runLater(ticks(RECAP_DELAY_TICKS)) {
-            val store = lastMatches() ?: return@runLater
-            val record = store.find(event.playerId) ?: return@runLater
-            if (store.recapShown(event.playerId)) return@runLater
+        scheduler.run(ExecutionScope.Entity(event.playerId.uuid), ticks(RECAP_DELAY_TICKS)) {
+            val store = lastMatches() ?: return@run
+            val record = store.find(event.playerId) ?: return@run
+            if (store.recapShown(event.playerId)) return@run
             val now = clock.instant().epochSecond
-            if (now - record.endedAtEpochSec > MAX_AGE_SECONDS) return@runLater
+            if (now - record.endedAtEpochSec > MAX_AGE_SECONDS) return@run
             store.markRecapShown(event.playerId)
             playerGateway.sendMessage(event.playerId, messages.render(event.playerId, RECAP_HEADER))
             for (line in LastMatchView.lines(record, now)) {

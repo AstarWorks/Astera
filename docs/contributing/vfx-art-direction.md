@@ -106,7 +106,7 @@ ItemDisplay はほぼ使わない。
 | コスト | 1 体ずつエンティティ (1 キャスト ≤ 60) | 送信量のみ。数百粒でも軽い |
 | 視点 | 面は板。真横から見ると消える → 板は 2 枚交差か billboard | 全方向から同じ見え方 |
 
-### 1.5 粒子の本体 = リテクスチャした vanilla 粒子 (ADR-0252)
+### 1.5 粒子の本体 = リテクスチャした vanilla 粒子 (ADR-0274)
 
 粒子の見た目を自作したいときは、Display の疑似粒子 (予算 60) ではなく **vanilla 粒子の絵だけを差し替える** (`content/particle-skins/`)。動き・寿命・毎 tick の変化は vanilla のまま、数十〜百粒を Display 予算ゼロで出せる。第一弾は `ember` (entity_effect, 色はサーバ指定) / `spark` (firework, 金) / `smoke` (cloud)。型ごとの挙動・選び方・追加手順は [vfx-team/particles.md](vfx-team/particles.md)。差し替えは **その型の全粒子に効く** (サーバ全体)。核の形は引き続き Display、粒子は核に重ねる。
 

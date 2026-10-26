@@ -1,6 +1,7 @@
 package com.astarworks.astera.match.application.usecase.match
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -26,9 +27,12 @@ public class ApplyForfeitUseCase(
     private val removeFromMatch: RemoveFromMatchUseCase,
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
+    private val matches: IMatchRepository,
 ) {
 
     public fun apply(playerId: PlayerId, matchId: MatchId): Result<Unit, ForfeitError> {
+        // The roster loses the player on removal; their team is part of the forfeit record.
+        val teamId = matches.findById(matchId)?.teams?.firstOrNull { playerId in it.members }?.id
         val removeResult = removeFromMatch.remove(
             playerId = playerId,
             matchId = matchId,
@@ -41,6 +45,7 @@ public class ApplyForfeitUseCase(
                     PlayerForfeited(
                         playerId = playerId,
                         matchId = matchId,
+                        teamId = teamId,
                         atTick = scheduler.currentTick(),
                     ),
                 )

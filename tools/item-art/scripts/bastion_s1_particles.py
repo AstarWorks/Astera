@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bastion S1 particle layer (r16: retextured vanilla particle channels, ADR-0252): particle files + particle and
+"""Bastion S1 particle layer (r16: retextured vanilla particle channels, ADR-0274): particle files + particle and
 sprite-emitter elements appended to the fx files.
 
 Run AFTER tools/item-art/scripts/bastion_s1_fx.py (that script rewrites the fx files from scratch and drops the
@@ -202,7 +202,7 @@ def make_spark():
 
 
 # ---------------------------------------------------------------------------------------------------------
-# r16: the channel layer (ADR-0252). Particle files are generated per (channel, count, speed, spread, jitter); elements
+# r16: the channel layer (ADR-0274). Particle files are generated per (channel, count, speed, spread, jitter); elements
 # carry position and direction. CHAN_EMITS records every planned emission for the report (client maths per type).
 # ---------------------------------------------------------------------------------------------------------
 CH = {"spark": "firework", "ember": "entity_effect"}
@@ -229,7 +229,7 @@ def channel_defs():
     for old in PART.glob("bastion-s1-p-*.yaml"):
         old.unlink()
     S, E = "spark", "ember"
-    chdef("spray", S, 4, 0.3, 16, 0.45, comment="r16 hit spray: retextured firework sparks (ADR-0252) thrown along the element's creep direction.")
+    chdef("spray", S, 4, 0.3, 16, 0.45, comment="r16 hit spray: retextured firework sparks (ADR-0274) thrown along the element's creep direction.")
     chdef("fan", S, 4, 0.22, 28, 0.4, comment="r16 upward fan: firework sparks rising out of the contact.")
     chdef("shed", S, 3, 0.17, 25, 0.4, comment="r16 ring shed: one firework spark per path point, flung along the sweep tangent.")
     chdef("ember", E, 1, 0.05, 0, 0.5, "up", EMBER, "r16 ember: retextured entity_effect, orange; `up` with spread 0 (x = z = 0 exactly) makes the client scale its random sideways drift x0.1, then it rises.")

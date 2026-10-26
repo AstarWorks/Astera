@@ -91,14 +91,14 @@ internal class PaperSkillPreviewStage(plugin: JavaPlugin) : ISkillPreviewStage, 
         saved.getOrPut(viewer.uuid) { Saved(player.gameMode, player.location.clone()) }
         player.gameMode = GameMode.SPECTATOR
         val at = point.position
-        player.teleport(Location(player.world, at.x, at.y, at.z, point.yaw, point.pitch))
+        player.teleportAsync(Location(player.world, at.x, at.y, at.z, point.yaw, point.pitch))
     }
 
     override fun restoreViewer(viewer: PlayerId) {
         val state = saved.remove(viewer.uuid) ?: return
         val player = server.getPlayer(viewer.uuid) ?: return
         player.gameMode = state.mode
-        player.teleport(state.location)
+        player.teleportAsync(state.location)
     }
 
     override fun onViewerQuit(handler: (PlayerId) -> Unit) {

@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.command.CommandMount
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -28,7 +29,8 @@ import com.astarworks.astera.match.application.gamemode.PveEnv
 import com.astarworks.astera.match.application.gamemode.PveWaveGameMode
 import com.astarworks.astera.match.application.gamemode.CarryMiniTntGameMode
 import com.astarworks.astera.match.application.gamemode.CarryTntGameMode
-import com.astarworks.astera.match.application.gamemode.NormaGameMode
+import com.astarworks.astera.match.application.gamemode.SkirmishGameMode
+import com.astarworks.astera.match.application.contents.NormaLayerContents
 import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
 import com.astarworks.astera.match.application.gamemode.StealJewelryGameMode
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationGameMode
@@ -115,8 +117,17 @@ internal class MatchWiringEnv(
     val queueSettings: QueueSettingsContents,
     val annihilationTracker: AnnihilationMatchTracker,
     val worldGateway: IWorldGateway?,
-    /** `default_config` of the game mode a match runs (Norma's when the mode is unknown); read live so reloads apply. */
+    /**
+     * The Norma layer's config for a match: `content/norma-layer/layer.yaml` defaults overlaid with the `default_config`
+     * of the game mode the match runs (the layer defaults alone when the mode is unknown); read live so reloads apply.
+     */
     val modeConfigOf: (com.astarworks.astera.core.domain.match.MatchId) -> Map<String, String>,
+    /**
+     * Whether the Norma layer (stars, kill burst, Norma levels, time-limit ranking) runs in this match. It is a
+     * standard layer of every game mode: on unless the mode's `default_config` says `norma_layer: "false"`. The
+     * layer's tunables are the same merged config (`norma_*`, `time_limit_seconds`, `death_drop_ratio`).
+     */
+    val normaLayerOf: (com.astarworks.astera.core.domain.match.MatchId) -> Boolean,
     val scheduledTasks: MutableList<IScheduler.TaskHandle>,
     val shutdownHooks: MutableList<() -> Unit>,
 ) {
@@ -192,7 +203,7 @@ public object MatchWiring {
         // still wins for runtime IStageRegistry lookups, but operators can refresh
         // YAML state for development via /astera reload stages.
         val stagesContentDir = ctx.contentDir.resolve("stages")
-        val stageContents = StageContents()
+        val stageContents = StageContents { services.get<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>()?.resolve(it) }
         val stageReport = stageContents.bootstrap(stagesContentDir)
         logger.info("Loaded ${stageReport.loaded} stage(s) from $stagesContentDir (failed: ${stageReport.failed})")
         registrations += services.register<IStageRegistry>(stageContents, priority = 0)
@@ -256,7 +267,7 @@ public object MatchWiring {
 
         // 3. Construct use cases -----------------------------------------------
         val victoryEvaluator = VictoryConditionEvaluator()
-        val startMatch = StartMatchUseCase(stages, matches, eventBus, scheduler)
+        val startMatch = StartMatchUseCase(stages, matches, eventBus, scheduler, services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>())
         val endMatch = EndMatchUseCase(matches, eventBus, scheduler, victoryEvaluator)
         // IWorldGateway is registered by Astera-Core (gate on null for hosts without one).
         val worldGateway = services.get<IWorldGateway>()
@@ -272,6 +283,7 @@ public object MatchWiring {
         // queue-formed (or admin `entry`) player lands in the arena immediately.
         val matchSpawn = worldGateway?.let {
             MatchSpawnUseCase(
+            scheduler = scheduler,
                 matchRepository = matches,
                 stageRegistry = stages,
                 worldGateway = it,
@@ -327,7 +339,7 @@ public object MatchWiring {
                 endMatch.execute(id, com.astarworks.astera.core.domain.event.EndReason.Cancelled("insufficient-players"))
             },
         )
-        scheduledTasks += scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
+        scheduledTasks += scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 20L, periodTicks = 20L) {
             phaseTimer.tickAll()
         }
 
@@ -363,7 +375,7 @@ public object MatchWiring {
 
         // Star Generator pipeline (ADR-0032 + ADR-0058 §5 — per-instance modifier-aware)
         val spawnResource = SpawnResourceUseCase(eventBus, scheduler)
-        val advanceCharge = AdvanceGeneratorChargeUseCase(generators, eventBus, scheduler, spawnResource)
+        val advanceCharge = AdvanceGeneratorChargeUseCase(generators, eventBus, scheduler, spawnResource, { services.get<com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository>() })
         val starGenScheduler = StarGeneratorScheduler(
             generators = generators,
             advance = advanceCharge,
@@ -433,39 +445,41 @@ public object MatchWiring {
             "Loaded ${gameModeReport.loaded} game-mode spec(s) from $gameModeContentDir " +
                 "(failed: ${gameModeReport.failed})",
         )
+        // MODE-15: the Norma layer is not a mode. Its defaults live in content/norma-layer/layer.yaml and every mode
+        // overrides them key by key in its own default_config.
+        val normaLayerDir = ctx.contentDir.resolve("norma-layer")
+        val normaLayer = NormaLayerContents()
+        val normaLayerReport = normaLayer.bootstrap(normaLayerDir)
+        logger.info("Loaded ${normaLayerReport.loaded} Norma layer config(s) from $normaLayerDir (failed: ${normaLayerReport.failed})")
+        reloadRegistry.register(normaLayer, normaLayerDir)
         val modeConfigOf: (com.astarworks.astera.core.domain.match.MatchId) -> Map<String, String> = { id ->
             val key = matchModeRegistry.modeKeyOf(id)?.takeIf { it.isNotBlank() }
                 ?.let { runCatching { GameModeId(it) }.getOrNull() }
-            (key?.let { gameModeContents.find(it) } ?: gameModeContents.find(NormaGameMode.ID))?.defaultConfig
-                ?: emptyMap()
+            normaLayer.configFor(key?.let { gameModeContents.find(it) }?.defaultConfig.orEmpty())
         }
 
-        // The Norma sidebar shows the kill goal of the match's own mode config.
-        val normaGoal: (com.astarworks.astera.core.domain.match.MatchId) -> Int = { id ->
-            modeConfigOf(id)["score_threshold"]?.toIntOrNull()?.takeIf { it > 0 } ?: NormaGameMode.DEFAULT_GOAL
-        }
+        // Weapon restriction: the mode's `weapon_limits` applies to everyone inside a running match; Core enforces it
+        // (entry trim + pickup / inventory-move gate) through this port.
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.item.IWeaponLimitProvider>(
+            com.astarworks.astera.core.application.port.outbound.item.IWeaponLimitProvider { playerId ->
+                matches.findMatchOf(playerId)?.let { match ->
+                    com.astarworks.astera.core.domain.item.WeaponLimits.parse(
+                        modeConfigOf(match.id)[com.astarworks.astera.core.domain.item.WeaponLimits.CONFIG_KEY],
+                    )
+                }
+            },
+            priority = 0,
+        )
+
         // Reflective impl resolution (Phase 1 PoC; Koin replaces this in
         // Phase 3 per ADR-0106). Each spec whose impl_class resolves to a
         // concrete IGameMode singleton becomes available via the registry.
         val registered = gameModeContents.registerInto(gameModeFrameworkRegistry) { msg: String ->
             logger.warning(msg)
         }
-        // Fallback: if YAML bootstrap missed Norma (file deleted, bad YAML,
-        // etc.) register it programmatically so Phase 1 PoC still ships a
-        // working "norma" mode. The eventBus binding is wired in here so
-        // lifecycle hooks publish framework events.
-        if (gameModeFrameworkRegistry.get(NormaGameMode.ID) == null) {
-            gameModeFrameworkRegistry.register(NormaGameMode(eventBus = eventBus, goal = normaGoal))
-            logger.info("game-modes: NormaGameMode programmatically registered (YAML fallback).")
-        } else {
-            // Replace the reflection-built (eventBus-less) instance with the
-            // bus-wired one so framework events actually publish in prod.
-            gameModeFrameworkRegistry.register(NormaGameMode(eventBus = eventBus, goal = normaGoal))
-        }
-
         // Wave 5annihilation (ADR-0108) — Astera Annihilation mode foundation.
         // AnnihilationGameMode owns its own AnnihilationMatchTracker; unlike
-        // NormaGameMode (a façade over the Wave 5c global pipeline), the
+        // the skirmish mode, the
         // tracker is the only writer of Annihilation match state and the
         // mode's onTick drives phase advances + sudden-death DoT.
         //
@@ -507,10 +521,9 @@ public object MatchWiring {
         )
 
         // WP11: the objective modes (break-core / carry-tnt / capture-wool /
-        // steal-jewelry / battle-loyal) own their per-match state and react to
+        // steal-jewelry / battle-loyal / carry-mini-tnt) own their per-match state and react to
         // region / block / kill events of their own matches; the config comes
-        // from content/game-modes/<id>.yaml `default_config`. carry-mini-tnt is
-        // still an event-less façade (not wired to an objective yet).
+        // from content/game-modes/<id>.yaml `default_config`.
         val siegeEnv = { id: com.astarworks.astera.match.domain.mode.GameModeId ->
             SiegeEnv(
                 eventBus = eventBus,
@@ -520,14 +533,16 @@ public object MatchWiring {
                 world = worldGateway,
                 messages = msgRenderer,
                 players = playerGateway,
-                config = gameModeContents.find(id)?.defaultConfig ?: emptyMap(),
+                config = normaLayer.configFor(gameModeContents.find(id)?.defaultConfig.orEmpty()),
                 now = { scheduler.currentTick() },
             )
         }
         val siegeModes = listOf(
+            SkirmishGameMode(siegeEnv(SkirmishGameMode.ID)),
             BattleLoyalGameMode(siegeEnv(BattleLoyalGameMode.ID)),
             BreakCoreGameMode(siegeEnv(BreakCoreGameMode.ID)),
             CarryTntGameMode(siegeEnv(CarryTntGameMode.ID)),
+            CarryMiniTntGameMode(siegeEnv(CarryMiniTntGameMode.ID)),
             CaptureWoolGameMode(siegeEnv(CaptureWoolGameMode.ID)),
             StealJewelryGameMode(siegeEnv(StealJewelryGameMode.ID)),
         )
@@ -545,8 +560,7 @@ public object MatchWiring {
         )
         gameModeFrameworkRegistry.register(pveMode)
         subscriptions += pveMode.subscribeAll()
-        gameModeFrameworkRegistry.register(CarryMiniTntGameMode(eventBus = eventBus))
-        logger.info("WP11 wiring: ${siegeModes.size} objective game modes + carry-mini-tnt registered into IGameModeFrameworkRegistry.")
+        logger.info("WP11 wiring: ${siegeModes.size} objective game modes registered into IGameModeFrameworkRegistry.")
 
         reloadRegistry.register(gameModeContents, gameModeContentDir)
         logger.info(
@@ -636,6 +650,7 @@ public object MatchWiring {
             permService = permService, msgRenderer = msgRenderer, matchModeRegistry = matchModeRegistry,
             facade = facade, queueSettings = queueSettings, annihilationTracker = annihilationTracker, worldGateway = worldGateway,
             modeConfigOf = modeConfigOf,
+            normaLayerOf = { id -> modeConfigOf(id)["norma_layer"] != "false" },
             scheduledTasks = scheduledTasks, shutdownHooks = shutdownHooks,
         )
         MatchWorldWiring.install(env)
@@ -657,9 +672,8 @@ public object MatchWiring {
      * [com.astarworks.astera.match.domain.mode.GameModeId] used by
      * [gameModeFrameworkRegistry] (Wave 5wireup §G16).
      *
-     * `null` / empty / unregistered keys fall back to [NormaGameMode.ID] so any
-     * call site that ships without a mode key keeps the Phase 1 PoC Norma
-     * behaviour.
+     * `null` / empty / unregistered keys fall back to [SkirmishGameMode.ID] so any
+     * call site that ships without a mode key plays the plain team skirmish.
      */
     private fun resolveModeId(
         modeKey: String?,
@@ -667,7 +681,7 @@ public object MatchWiring {
     ): com.astarworks.astera.match.domain.mode.GameModeId {
         val id = modeKey?.takeIf { it.isNotBlank() }
             ?.let { runCatching { GameModeId(it) }.getOrNull() }
-        return if (id != null && registry.get(id) != null) id else NormaGameMode.ID
+        return if (id != null && registry.get(id) != null) id else SkirmishGameMode.ID
     }
 
 }

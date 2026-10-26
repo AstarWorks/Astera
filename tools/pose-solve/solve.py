@@ -14,7 +14,7 @@ the camera estimate (pan + zoom, written back to the keypoints file as `view`). 
 annotated joints (weighted by confidence), depth-order hinges from the near/far flags, feet on the floor, the left hand on the
 grip (two-handed), and weak priors. Then the blade is solved analytically: the tip pixel + the reference blade length give the
 blade direction up to the depth sign (the `blade.depth` flag), the `blade.face` flag fixes the roll, and the wrist key is the
-rotation that takes the arm frame to that blade frame (euler order Ry(-a) Rx(b) Rz(c), ADR-0254).
+rotation that takes the arm frame to that blade frame (euler order Ry(-a) Rx(b) Rz(c), ADR-0276).
 """
 from __future__ import annotations
 
@@ -383,7 +383,7 @@ def write_body(path: Path, body0: dict, body_id: str, solved, freezes, skill, kp
     length = int(body0["length_ticks"])
     lines = [
         f"# {body_id}: SOLVED from content/skill-lint/{skill}.keypoints.yaml by tools/pose-solve/solve.py. Do not hand-edit: edit the keypoints and rerun.",
-        "# Pose to pose (ADR-0254): every key after the first is a CUT (`ease: step`). Keys are RIG ticks; the hit-stop freezes shift them to skill ticks.",
+        "# Pose to pose (ADR-0276): every key after the first is a CUT (`ease: step`). Keys are RIG ticks; the hit-stop freezes shift them to skill ticks.",
         "# beats (skill tick -> rig tick): " + ", ".join(f"{b['id']} {b['key_tick']}->{t}" for (b, _, _), t in zip(solved, ticks))
         + (f", hand-back {hand}->{rows[-1][0]}" if hand is not None else ""),
         f"id: {body_id}", f"length_ticks: {length}", f"loop: {str(body0.get('loop', False)).lower()}",

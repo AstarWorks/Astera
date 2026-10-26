@@ -247,8 +247,8 @@ class SiegeModesScenarioTest {
 
     // ---- queue lanes ------------------------------------------------------
 
-    @ParameterizedTest(name = "lane {0} forms a siege-isles match for two queued players")
-    @ValueSource(strings = ["break-core", "carry-tnt", "capture-wool", "steal-jewelry", "battle-loyal"])
+    @ParameterizedTest(name = "lane {0} forms a match on its own siege-isles stage for two queued players")
+    @ValueSource(strings = ["break-core", "carry-tnt", "capture-wool", "steal-jewelry", "battle-loyal", "carry-mini-tnt"])
     fun `each siege lane forms a match once both sides have a player`(lane: String) {
         scenario("siege-lane-$lane") {
             val solo = player("solo")
@@ -260,7 +260,8 @@ class SiegeModesScenarioTest {
             assertThat(advanceUntil(600) { eventsOf<MatchStarted>().isNotEmpty() }).isTrue()
             val started = eventsOf<MatchStarted>().single()
             assertThat(started.modeKey).isEqualTo(lane)
-            assertThat(started.stageId).isEqualTo(StageId("siege-isles"))
+            // MODE-06: every siege lane has its own stage copy (siege-isles, siege-isles-tnt, ...).
+            assertThat(started.stageId).isEqualTo(StageId(if (lane == "break-core") "siege-isles" else "siege-isles-${lane.removePrefix("carry-").removePrefix("capture-").removePrefix("steal-").removePrefix("battle-")}"))
             // The 10 s in-arena countdown ends and the match is live.
             assertThat(advanceUntil(20 * 15) { phaseOf(started.matchId) == MatchPhase.ACTIVE }).isTrue()
         }

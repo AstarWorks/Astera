@@ -13,11 +13,17 @@ public data class AchievementYamlConfig(
     @SerialName("name_key") val nameKey: String,
     @SerialName("description_key") val descriptionKey: String,
     @SerialName("icon_item_id") val iconItemId: String,
+    /** GOLD paid once when the achievement unlocks (economy plugin deposits it). */
+    @SerialName("reward_gold") val rewardGold: Long = 0,
+    /** Cosmetic title id (content/cosmetics) granted once when the achievement unlocks. */
+    @SerialName("reward_title") val rewardTitle: String? = null,
 ) {
     public fun toDomain(): Achievement = Achievement(
         id = AchievementId(id),
         nameKey = MessageKey(nameKey),
         descriptionKey = MessageKey(descriptionKey),
         iconItemId = iconItemId,
+        rewardGold = rewardGold,
+        rewardTitle = rewardTitle,
     )
 }
