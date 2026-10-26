@@ -157,3 +157,18 @@ Legacy unpublished captures remain readable. Publish every accepted new capture;
 - dev sha: env `SKILL_COMPARE_DEV_SHA` or `<published>/dev-deployed.json` `{sha, at}`.
 - Sound: reference from `cache/videos/<videoId>.mp4`; current/previous from `<published>/<skill>/sound/{current,previous}.{ogg,mp3,wav}`.
 - A capture whose meta has `skippedTicks > 0` is labelled 未確認 (欠落あり).
+
+## Always in sync with dev (`make skill-compare-up`)
+
+`scripts/skill-compare-follow.sh` (`make skill-compare-up|down|status`) serves the page from its own detached worktree
+(`.claude/worktrees/skill-compare-serve`) and follows `.claude/state/dev-deploy/deploy.log`: on every `deployed <sha>` it runs
+`git checkout -f --detach <sha>` there, restarts the server only if `tools/skill-compare` changed, and restarts it if it dies.
+Nothing is done by hand; start it once (the old hand-started server on :8097 must be stopped first).
+
+- **Live page**: `/api/events` (SSE) fires when a view is republished, the dev sha moves, or a skill's render state changes. The open case
+  page refreshes data, swaps videos to the new revision (`?v=<revision>`) and keeps the current tick; the index re-lists. The green dot
+  in the header is the live connection. A new server code revision reloads the page once (keeping `#t=`).
+- **Honest freshness** (`lib/freshness.mjs`): the header shows `dev <sha7>`; every video shows its own content sha and age. A video is
+  outdated only when *that skill's* content changed between the video's sha and dev (`tools/vfx-shot/changed-skills.py`, plus
+  models/particles/items for the preview kinds), not on every push. Then: `生成中… (旧版を表示中)` while a render is queued/running
+  (queued longer than 30 min is flagged stalled), `失敗` + reason when preview.log / farm.log record a failure after the deploy.

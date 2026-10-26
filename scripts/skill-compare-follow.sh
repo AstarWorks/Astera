@@ -59,9 +59,10 @@ start_server() {
   [ -d "$dir" ] || { slog "server dir missing: $dir"; return 1; }
   [ -d "$dir/node_modules" ] || (cd "$dir" && bun install >> "$STATE/server.log" 2>&1)
   # setsid + nohup: the server outlives this shell; fds 8/9 closed like the other detached helpers
+  # the inner bash records its own pid and execs bun, so server.pid is the real server even though setsid may fork
   ( cd "$dir" && PORT="$PORT" HOST="$HOST" SKILL_COMPARE_PUBLISHED="$PUBLISHED" SKILL_COMPARE_CANONICAL=1 SKILL_COMPARE_VFX_SHOT="$VFX" \
-      SKILL_COMPARE_DEPLOY_LOG="$DEPLOY_LOG" setsid nohup bun server.mjs >> "$STATE/server.log" 2>&1 9>&- 8>&- < /dev/null &
-    echo $! > "$STATE/server.pid" )
+      SKILL_COMPARE_DEPLOY_LOG="$DEPLOY_LOG" setsid nohup bash -c 'echo $$ > "$1"; exec bun server.mjs' _ "$STATE/server.pid" >> "$STATE/server.log" 2>&1 9>&- 8>&- < /dev/null & )
+  sleep 0.5
   date +%s > "$STATE/server.started"
   slog "server started pid=$(cat "$STATE/server.pid") port=$PORT root=$ROOT head=$(head_of | cut -c1-9)"
 }
