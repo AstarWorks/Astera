@@ -2,7 +2,7 @@
 id: example-arena
 display_name_key: astera.stage.example-arena.name
 layout:
-  marker_version: 5
+  marker_version: 6
   seed: 20261023
   surface_y: 64
   kill_y: 16
@@ -10,33 +10,33 @@ layout:
   - id: red
     kind: base
     team: red
-    center: {x: -102, z: 0}
-    radius: 32
+    center: {x: -76, z: 0}
+    radius: 24
   - id: blue
     kind: base
     team: blue
-    center: {x: 102, z: 0}
-    radius: 32
+    center: {x: 76, z: 0}
+    radius: 24
   - id: center
     kind: center
     center: {x: 0, z: 0}
-    radius: 37
+    radius: 28
   - id: north
     kind: outpost
-    center: {x: 0, z: -100}
-    radius: 26
+    center: {x: 0, z: -75}
+    radius: 20
   - id: south
     kind: outpost
-    center: {x: 0, z: 100}
-    radius: 26
+    center: {x: 0, z: 75}
+    radius: 20
   - id: west-route
     kind: outpost
-    center: {x: -54, z: 0}
-    radius: 11
+    center: {x: -40, z: 0}
+    radius: 9
   - id: east-route
     kind: outpost
-    center: {x: 54, z: 0}
-    radius: 11
+    center: {x: 40, z: 0}
+    radius: 9
   bridges:
   - {from: red, to: west-route, width: 7}
   - {from: west-route, to: center, width: 7}
@@ -49,58 +49,58 @@ layout:
   - {from: red, to: south, width: 7}
   - {from: south, to: blue, width: 7}
   landmarks:
-  - {kind: generator, x: 0, z: -100}
-  - {kind: generator, x: 0, z: 100}
-  - {kind: generator, x: 54, z: 0}
-  - {kind: generator, x: -54, z: 0}
+  - {kind: generator, x: 0, z: -75}
+  - {kind: generator, x: 0, z: 75}
+  - {kind: generator, x: 40, z: 0}
+  - {kind: generator, x: -40, z: 0}
   structures:
-  - {part: ruin, x: 0, z: -22, rotation: 0}
-  - {part: ruin, x: 0, z: 24, rotation: 180}
-  - {part: ruin, x: -54, z: 8, rotation: 90}
-  - {part: ruin, x: 54, z: -8, rotation: 270}
+  - {part: ruin, x: 0, z: -16, rotation: 0}
+  - {part: ruin, x: 0, z: 18, rotation: 180}
+  - {part: ruin, x: -40, z: 6, rotation: 90}
+  - {part: ruin, x: 40, z: -6, rotation: 270}
   - part: castle-tower
-    x: -102
-    z: 18
+    x: -76
+    z: 16
     rotation: 0
     palette: {team: 'minecraft:red_concrete'}
   - part: castle-tower
-    x: 102
-    z: 18
+    x: 76
+    z: 16
     rotation: 0
     palette: {team: 'minecraft:blue_concrete'}
   theme: desert
   atmosphere: {time_of_day: 5000, weather: clear}
 regions:
 - name: full-arena
-  min: {x: -150.0, y: 20.0, z: -142.0}
-  max: {x: 150.0, y: 140.0, z: 142.0}
+  min: {x: -115.0, y: 20.0, z: -110.0}
+  max: {x: 115.0, y: 140.0, z: 110.0}
 - name: center-platform
-  min: {x: -8.0, y: 64.0, z: -8.0}
-  max: {x: 8.0, y: 66.0, z: 8.0}
+  min: {x: -6.0, y: 64.0, z: -6.0}
+  max: {x: 6.0, y: 66.0, z: 6.0}
 spawn_points:
 - team: red
-  position: {x: -81.5, y: 65.0, z: -2.5}
+  position: {x: -61.5, y: 65.0, z: -2.5}
   yaw: 270.0
 - team: red
-  position: {x: -81.5, y: 65.0, z: 3.5}
+  position: {x: -61.5, y: 65.0, z: 3.5}
   yaw: 270.0
 - team: red
-  position: {x: -79.5, y: 65.0, z: 0.5}
+  position: {x: -59.5, y: 65.0, z: 0.5}
   yaw: 270.0
 - team: red
-  position: {x: -83.5, y: 65.0, z: 0.5}
+  position: {x: -63.5, y: 65.0, z: 0.5}
   yaw: 270.0
 - team: blue
-  position: {x: 82.5, y: 65.0, z: -2.5}
+  position: {x: 62.5, y: 65.0, z: -2.5}
   yaw: 90.0
 - team: blue
-  position: {x: 82.5, y: 65.0, z: 3.5}
+  position: {x: 62.5, y: 65.0, z: 3.5}
   yaw: 90.0
 - team: blue
-  position: {x: 80.5, y: 65.0, z: 0.5}
+  position: {x: 60.5, y: 65.0, z: 0.5}
   yaw: 90.0
 - team: blue
-  position: {x: 84.5, y: 65.0, z: 0.5}
+  position: {x: 64.5, y: 65.0, z: 0.5}
   yaw: 90.0
 - role: lobby
   position: {x: 0.5, y: 65.0, z: 0.5}

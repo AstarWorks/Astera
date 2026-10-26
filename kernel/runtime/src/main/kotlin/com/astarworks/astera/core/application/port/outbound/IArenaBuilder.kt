@@ -10,6 +10,14 @@ public interface IArenaBuilder {
     public fun resolve(stageId: StageId): Stage?
 
     /**
+     * The placed stage (slot-shifted spawns) that the next [acquire] of [stage] will claim, or `null` while no
+     * completed build of it exists. Read-only and thread safe: callers use it to learn WHERE the arena stands and
+     * WHETHER it is ready before putting players on it (a template's own coordinates hold no blocks).
+     * Stages without a layout need no build and are returned as they are.
+     */
+    public fun peekReady(stage: Stage): Stage?
+
+    /**
      * Makes sure [stageId]'s arena stands in its world: builds it when it was never built or its layout
      * changed since (versioned marker), otherwise a no-op. Stages without a layout are always "built".
      * Returns `false` while planning/placement/repair is pending or when the build failed.

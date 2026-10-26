@@ -197,6 +197,7 @@ internal object MatchGameplayWiring {
                 notifier = queueNotifier,
                 settings = crossServer,
                 waivers = services.get<com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers>(),
+                arenas = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(),
                 stages = stages,
                 worlds = worldGateway,
                 hud = queueHud,
