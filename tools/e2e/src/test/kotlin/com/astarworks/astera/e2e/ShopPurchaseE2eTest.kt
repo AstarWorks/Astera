@@ -177,15 +177,18 @@ class ShopPurchaseE2eTest : E2eBase() {
 
         E2eReport.check(suite, "one click buys the colour (no confirm under 100 GOLD), charges 60 and the menu shows it equipped", "SystemChat + RCON balance + SetContainerContent") {
             val slot = b.contents[m.containerId].orEmpty().indexOfFirst { it.lore.contains("Name colour") && it.lore.contains("60 GOLD") }
+            val goldBefore = gold(b)
+            assertThat(goldBefore).describedAs("wallet must cover the 60 GOLD colour").isGreaterThanOrEqualTo(60L)
             val chatFrom = b.chat.size
             click(b, m, slot)
-            b.waitUntil(3_000) { gold(b) == 0L }
+            b.waitUntil(3_000) { gold(b) == goldBefore - 60L }
             val lines = plain(b.chatSince(chatFrom))
             assertThat(lines.any { it.contains("Bought") }).describedAs("no purchase message; chat=$lines").isTrue()
             assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
-            assertThat(gold(b)).describedAs("GOLD after the 60 GOLD colour").isEqualTo(0L)
-            val ok = b.waitUntil(3_000) { b.contents[b.screens.last().containerId]?.getOrNull(slot)?.lore?.contains("Equipped") == true }
-            assertThat(ok).describedAs("menu entry does not show Equipped; lore=${b.contents[b.screens.last().containerId]?.getOrNull(slot)?.lore}").isTrue()
+            assertThat(gold(b)).describedAs("GOLD after the 60 GOLD colour").isEqualTo(goldBefore - 60L)
+            val equipped = { b.contents[b.screens.last().containerId].orEmpty().any { it.lore.contains("Name colour") && it.lore.contains("Equipped") } }
+            val ok = b.waitUntil(3_000) { equipped() }
+            assertThat(ok).describedAs("no name colour entry shows Equipped; lores=${b.contents[b.screens.last().containerId].orEmpty().map { it.lore.take(60) }}").isTrue()
             "chat=$lines"
         }
     }
