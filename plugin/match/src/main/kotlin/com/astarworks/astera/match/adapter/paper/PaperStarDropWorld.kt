@@ -1,6 +1,11 @@
 package com.astarworks.astera.match.adapter.paper
 
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.adapter.paper.world.assertWorldOwnership
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration
 
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -32,10 +37,16 @@ import java.util.UUID
  * vanilla pickup (player, mob, hopper) is always cancelled; a player touching it is reported to the listener, which
  * credits the in-match star count and removes the entity. The drop never reaches an inventory.
  */
-public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld, Listener {
+public class PaperStarDropWorld(private val plugin: JavaPlugin, private val scheduler: IScheduler) : IStarDropWorld, Listener {
     private val server = plugin.server
     private val key = NamespacedKey(plugin, "star_drop")
     private var listener: ((String, PlayerId) -> Unit)? = null
+
+    private class Drop(val world: WorldId, val position: Vec3, @Volatile var amount: Int) {
+        @Volatile var item: Item? = null
+        @Volatile var removed: Boolean = false
+    }
+    private val drops = ConcurrentHashMap<String, Drop>()
 
     init {
         server.pluginManager.registerEvents(this, plugin)
@@ -44,49 +55,82 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
     override fun spawn(world: WorldId, position: Vec3, amount: Int, velocity: Vec3?, pickupDelayTicks: Int): String? {
         val w = server.getWorld(world.value) ?: return null
         val handle = UUID.randomUUID().toString()
-        val stack = ItemStack(Material.NETHER_STAR, amount.coerceIn(1, MAX_STACK))
-        stack.editMeta { it.persistentDataContainer.set(key, PersistentDataType.STRING, handle) }
-        val item = w.dropItem(Location(w, position.x, position.y, position.z), stack) { e ->
-            e.isGlowing = true
-            e.isInvulnerable = true
-            e.setUnlimitedLifetime(true)
-            e.setCanMobPickup(false)
-            e.pickupDelay = pickupDelayTicks.coerceAtLeast(0)
-            e.customName(label(amount))
-            e.isCustomNameVisible = true
-            e.velocity = velocity?.let { Vector(it.x, it.y, it.z) } ?: Vector(0.0, 0.0, 0.0)
+        val drop = Drop(world, position, amount)
+        drops[handle] = drop
+        val scope = regionScope(world, position)
+        scheduler.run(scope, Duration.ZERO) {
+            assertWorldOwnership(scheduler, scope)
+            if (!drop.removed) {
+                val stack = ItemStack(Material.NETHER_STAR, drop.amount.coerceIn(1, MAX_STACK))
+                stack.editMeta { it.persistentDataContainer.set(key, PersistentDataType.STRING, handle) }
+                val item = w.dropItem(Location(w, position.x, position.y, position.z), stack) { e ->
+                    e.isGlowing = true
+                    e.isInvulnerable = true
+                    e.setUnlimitedLifetime(true)
+                    e.setCanMobPickup(false)
+                    e.pickupDelay = pickupDelayTicks.coerceAtLeast(0)
+                    e.customName(label(drop.amount))
+                    e.isCustomNameVisible = true
+                    e.velocity = velocity?.let { Vector(it.x, it.y, it.z) } ?: Vector(0.0, 0.0, 0.0)
+                }
+                drop.item = item
+                if (drop.removed) item.remove()
+                else {
+                    item.customName(label(drop.amount))
+                    item.itemStack = item.itemStack.also { it.amount = drop.amount.coerceIn(1, MAX_STACK) }
+                }
+            }
         }
-        // The entity UUID is the lookup key, so it can be located again without a side table.
-        return item.uniqueId.toString()
+        return handle
     }
 
-    override fun executionScope(handle: String): ExecutionScope =
-        ExecutionScope.Entity(UUID.fromString(handle))
+    override fun executionScope(handle: String): ExecutionScope {
+        // A removed handle has no live world access left; the service's Global poll clears it.
+        val drop = drops[handle] ?: return ExecutionScope.Global
+        return drop.item?.let { ExecutionScope.Entity(it.uniqueId) } ?: regionScope(drop.world, drop.position)
+    }
 
     override fun locate(handle: String): Vec3? {
-        val e = server.getEntity(UUID.fromString(handle)) as? Item ?: return null
+        val drop = drops[handle] ?: return null
+        val e = drop.item ?: return drop.position // pending region spawn, not a lost item
+        // A poll can have selected the pending Region just before the entity was installed.
+        if (!scheduler.isOnScope(ExecutionScope.Entity(e.uniqueId))) return drop.position
         if (!e.isValid) return null
-        return Vec3(e.location.x, e.location.y, e.location.z)
+        val at = e.location
+        return Vec3(at.x, at.y, at.z)
     }
 
     override fun relabel(handle: String, amount: Int) {
-        val e = server.getEntity(UUID.fromString(handle)) as? Item ?: return
-        e.scheduler.execute(plugin, Runnable {
-            e.customName(label(amount))
-            e.itemStack = e.itemStack.also { it.amount = amount.coerceIn(1, MAX_STACK) }
-        }, null, 1L)
+        val drop = drops[handle] ?: return
+        drop.amount = amount
+        val item = drop.item ?: return
+        scheduler.run(ExecutionScope.Entity(item.uniqueId), Duration.ZERO) {
+            assertWorldOwnership(scheduler, ExecutionScope.Entity(item.uniqueId))
+            item.customName(label(drop.amount))
+            item.itemStack = item.itemStack.also { it.amount = drop.amount.coerceIn(1, MAX_STACK) }
+        }
     }
 
     override fun remove(handle: String) {
-        (server.getEntity(UUID.fromString(handle)) as? Item)?.let { item -> item.scheduler.execute(plugin, Runnable { item.remove() }, null, 1L) }
+        val drop = drops.remove(handle) ?: return
+        drop.removed = true
+        val item = drop.item ?: return
+        scheduler.run(ExecutionScope.Entity(item.uniqueId), Duration.ZERO) {
+            assertWorldOwnership(scheduler, ExecutionScope.Entity(item.uniqueId))
+            item.remove()
+        }
     }
 
     override fun take(handle: String, player: PlayerId) {
-        val item = server.getEntity(UUID.fromString(handle)) as? Item ?: return
-        item.scheduler.execute(plugin, Runnable {
-            server.getPlayer(player.uuid)?.playPickupItemAnimation(item)
+        val drop = drops.remove(handle) ?: return
+        drop.removed = true
+        val item = drop.item ?: return
+        scheduler.run(ExecutionScope.Entity(item.uniqueId), Duration.ZERO) {
+            assertWorldOwnership(scheduler, ExecutionScope.Entity(item.uniqueId))
+            val viewer = server.getPlayer(player.uuid)
+            if (viewer != null && org.bukkit.Bukkit.isOwnedByCurrentRegion(viewer)) viewer.playPickupItemAnimation(item)
             item.remove()
-        }, null, 1L)
+        }
     }
 
     override fun onPickupAttempt(listener: (handle: String, player: PlayerId) -> Unit) {
@@ -103,7 +147,9 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
     public fun onPlayerAttempt(event: PlayerAttemptPickupItemEvent) {
         if (!isStar(event.item)) return
         event.isCancelled = true
-        listener?.invoke(event.item.uniqueId.toString(), PlayerId(event.player.uniqueId))
+        event.item.itemStack.itemMeta.persistentDataContainer.get(key, PersistentDataType.STRING)?.let {
+            listener?.invoke(it, PlayerId(event.player.uniqueId))
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

@@ -1,6 +1,9 @@
 package com.astarworks.astera.core.adapter.paper.world
 
 import java.util.concurrent.CompletableFuture
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import kotlin.time.Duration
+import kotlin.math.floor
 
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -81,13 +84,9 @@ import org.slf4j.LoggerFactory
  *
  * # Threading
  *
- * Every Bukkit setter touched here (block edits, particle spawn, sound
- * play, teleport) requires the main thread. Callers from off-main paths
- * round-trip through [IScheduler.run] with `Duration.ZERO` — same
- * contract as ADR-0144 through ADR-0147. This gateway does not internally
- * dispatch to main because the in-memory sibling (`NoopWorldGatewayForEffects`)
- * is synchronous and the application layer treats both impls identically;
- * adding a hidden dispatch here would diverge the contracts.
+ * Block writes and sounds dispatch to the affected chunk. Particle delivery reads each
+ * viewer on its Entity scope. Zero-delay work runs inline on the current owner.
+ * Synchronous block reads require the caller to own the chunk.
  *
  * # Offline / unloaded world semantics
  *
@@ -108,7 +107,6 @@ import org.slf4j.LoggerFactory
  */
 public class PaperWorldGateway(
     private val server: Server,
-    @Suppress("UnusedPrivateProperty")
     private val scheduler: IScheduler,
     @Suppress("UnusedPrivateProperty")
     private val eventBus: IDomainEventBus,
@@ -128,7 +126,8 @@ public class PaperWorldGateway(
             log.debug("PaperWorldGateway.placeBlock: unknown material {}", type.key)
             return
         }
-        scheduler.run(com.astarworks.astera.core.application.port.outbound.regionScope(world, at), kotlin.time.Duration.ZERO) {
+        scheduler.run(regionScope(world, at), Duration.ZERO) {
+            assertWorldOwnership(scheduler, regionScope(world, at))
             w.getBlockAt(kotlin.math.floor(at.x).toInt(), kotlin.math.floor(at.y).toInt(), kotlin.math.floor(at.z).toInt()).type = material
         }
     }
@@ -138,14 +137,16 @@ public class PaperWorldGateway(
             log.debug("PaperWorldGateway.removeBlock: world {} not loaded", world)
             return
         }
-        scheduler.run(com.astarworks.astera.core.application.port.outbound.regionScope(world, at), kotlin.time.Duration.ZERO) {
+        scheduler.run(regionScope(world, at), Duration.ZERO) {
+            assertWorldOwnership(scheduler, regionScope(world, at))
             w.getBlockAt(kotlin.math.floor(at.x).toInt(), kotlin.math.floor(at.y).toInt(), kotlin.math.floor(at.z).toInt()).type = Material.AIR
         }
     }
 
     override fun blockAt(world: WorldId, at: Vec3): BlockType? {
         val w = resolveWorld(world) ?: return null
-        val mat = w.getBlockAt(at.x.toInt(), at.y.toInt(), at.z.toInt()).type
+        assertWorldOwnership(scheduler, regionScope(world, at))
+        val mat = w.getBlockAt(floor(at.x).toInt(), floor(at.y).toInt(), floor(at.z).toInt()).type
         return BlockType(mat.key.asString())
     }
 
@@ -162,46 +163,34 @@ public class PaperWorldGateway(
             log.debug("PaperWorldGateway.spawnParticle: {} needs data this spec cannot supply", particle.key)
             return
         }
-        val receivers = receiversFor(w, particle, at)
-        if (particleFanout?.send(w, at, bukkitParticle, particle, data.value, receivers) == true) return
-        w.spawnParticle(
-            bukkitParticle,
-            receivers,
-            null,
-            at.x,
-            at.y,
-            at.z,
-            particle.count,
-            particle.offset.x,
-            particle.offset.y,
-            particle.offset.z,
-            particle.extra,
-            data.value,
-            particle.force,
-        )
+        // The online-player collection supplies identities only; all live reads happen on Entity.
+        val source = particle.source
+        val candidates = if (source != null && particle.viewers == ParticleViewers.CASTER) {
+            listOfNotNull(onlinePlayer(source))
+        } else server.onlinePlayers.toList()
+        for (viewer in candidates) {
+            if (source != null && particle.viewers == ParticleViewers.OTHERS && viewer.uniqueId == source.uuid) continue
+            scheduler.run(ExecutionScope.Entity(viewer.uniqueId), Duration.ZERO) delivery@ {
+                if (viewer.world != w) return@delivery
+                val location = viewer.location
+                val squared = Vec3(location.x, location.y, location.z).distanceSquared(at)
+                val distance = if (particle.force) 512.0 else 32.0
+                if (squared > distance * distance) return@delivery
+                if (com.astarworks.astera.core.application.service.observability.CombatTickBudget.overrun(scheduler.currentTick())) {
+                    val stride = if (squared <= 16.0 * 16.0) 1 else if (squared <= 32.0 * 32.0) 2 else 4
+                    if (com.astarworks.astera.core.application.service.observability.CombatTickBudget.emission() % stride != 0L) {
+                        com.astarworks.astera.core.application.service.observability.ExecutionCosts.increment("combat_vfx_lod_dropped")
+                        return@delivery
+                    }
+                }
+                if (particleFanout?.send(w, at, bukkitParticle, particle, data.value, listOf(viewer)) == true) return@delivery
+                viewer.spawnParticle(bukkitParticle, at.x, at.y, at.z, particle.count,
+                    particle.offset.x, particle.offset.y, particle.offset.z, particle.extra, data.value)
+            }
+        }
     }
 
     private fun blockData(key: String): BlockData? = runCatching { server.createBlockData(key) }.getOrNull()
-
-    /** `null` = everyone in range; otherwise the explicit viewer list. */
-    private fun receiversFor(w: World, spec: ParticleSpec, at: Vec3): List<Player>? {
-        val source = spec.source
-        val selected = if (source == null) null else when (spec.viewers) {
-            ParticleViewers.ALL -> null
-            ParticleViewers.CASTER -> listOfNotNull(onlinePlayer(source))
-            ParticleViewers.OTHERS -> w.players.filter { it.uniqueId != source.uuid }
-        }
-        if (!com.astarworks.astera.core.application.service.observability.CombatTickBudget.overrun(scheduler.currentTick())) return selected
-        val emission = com.astarworks.astera.core.application.service.observability.CombatTickBudget.emission()
-        return (selected ?: w.players).filter { viewer ->
-            val location = viewer.location
-            val squared = Vec3(location.x, location.y, location.z).distanceSquared(at)
-            val stride = if (squared <= 16.0 * 16.0) 1 else if (squared <= 32.0 * 32.0) 2 else 4
-            val keep = emission % stride == 0L
-            if (!keep) com.astarworks.astera.core.application.service.observability.ExecutionCosts.increment("combat_vfx_lod_dropped")
-            keep
-        }
-    }
 
     override fun playSound(world: WorldId, at: Vec3, sound: SoundSpec) {
         val w = resolveWorld(world) ?: run {
@@ -213,7 +202,10 @@ public class PaperWorldGateway(
             return
         }
         val loc = toLocation(w, at)
-        w.playSound(loc, bukkitSound, sound.volume.toFloat(), sound.pitch.toFloat())
+        scheduler.run(regionScope(world, at), Duration.ZERO) {
+            assertWorldOwnership(scheduler, regionScope(world, at))
+            w.playSound(loc, bukkitSound, sound.volume.toFloat(), sound.pitch.toFloat())
+        }
     }
 
     override fun teleportAsync(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): CompletableFuture<Boolean> {

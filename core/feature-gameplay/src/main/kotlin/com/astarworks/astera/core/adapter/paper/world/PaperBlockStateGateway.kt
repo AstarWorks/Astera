@@ -28,6 +28,8 @@ import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.domain.world.WorldId
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import kotlin.time.Duration
 import org.bukkit.Material
 import org.bukkit.Server
 import org.bukkit.block.Block
@@ -84,16 +86,11 @@ import kotlin.random.Random
  * listeners interpret) and the world swap to AIR on break. Player-damage
  * is owned by the Combat plugin and stays decoupled per ADR-0149 §C.
  *
- * # Main-thread requirement
+ * # Ownership
  *
- * Bukkit `world.getBlockAt(...)`, `Block.type =`, and `Block.blockData =`
- * are main-thread only (per Folia regional contract documented in
- * ADR-0144 / ADR-0145 / ADR-0146). Off-main callers MUST round-trip via
- * `IScheduler.run(Duration.ZERO, ...)` — the gateway does not
- * defensively re-dispatch (would mask threading bugs). [tracker] mutations
- * are thread-safe via [ConcurrentHashMap] purely to survive accidental
- * cross-thread reads (e.g. a metrics scraper iterating [tracked]); the
- * invariant is "all callers main-thread" regardless.
+ * Custom placement dispatches its world write to Region; tracker/journal updates and
+ * events remain on the caller's owner. Synchronous damage/material reads must already
+ * own the affected chunk and assert ownership before accessing Bukkit.
  *
  * # Offline / unloaded world handling
  *
@@ -341,10 +338,7 @@ public class PaperBlockStateGateway(
         spec: CustomBlockSpec,
         placedBy: PlayerId,
     ): Result<BlockState, BlockGatewayError> {
-        val block = resolveBlock(world, pos)
-            ?: return Result.failure(
-                BlockGatewayError.Storage("world or chunk unavailable for ($world, $pos)"),
-            )
+        if (server.getWorld(world.value) == null) return Result.failure(BlockGatewayError.Storage("world not loaded: $world"))
         val material = Material.matchMaterial(spec.baseBukkitMaterial)
             ?: return Result.failure(
                 BlockGatewayError.Storage(
@@ -352,9 +346,9 @@ public class PaperBlockStateGateway(
                         "(spec ${spec.id})",
                 ),
             )
-        // World-side swap first — if Bukkit rejects the placement we don't
-        // want the tracker to claim the block is placed.
-        block.type = material
+        scheduler.run(regionScope(world, pos), Duration.ZERO) {
+            resolveBlock(world, pos)?.type = material
+        }
 
         val state = BlockState(
             blockType = spec.id,
@@ -399,6 +393,7 @@ public class PaperBlockStateGateway(
             log.debug("PaperBlockStateGateway: world {} not loaded", world)
             return null
         }
+        assertWorldOwnership(scheduler, regionScope(world, pos))
         return bukkitWorld.getBlockAt(
             floor(pos.x).toInt(),
             floor(pos.y).toInt(),

@@ -24,10 +24,10 @@ import org.bukkit.inventory.ItemStack
 
 /** Encode a native server-protocol packet once. Netty owns one retained view per recipient. */
 internal class PacketParticleFanout {
-    fun send(world: World, at: Vec3, particle: Particle, spec: ParticleSpec, data: Any?, receivers: List<Player>?): Boolean {
+    fun send(world: World, at: Vec3, particle: Particle, spec: ParticleSpec, data: Any?, receivers: List<Player>): Boolean {
         val packetParticle = convert(particle, data) ?: return false
         val distance = if (spec.force) 512.0 else 32.0
-        val users = (receivers ?: world.players).mapNotNull { viewer ->
+        val users = receivers.mapNotNull { viewer ->
             if (viewer.world != world) return@mapNotNull null
             val p = viewer.location
             val squared = Vec3(p.x, p.y, p.z).distanceSquared(at)

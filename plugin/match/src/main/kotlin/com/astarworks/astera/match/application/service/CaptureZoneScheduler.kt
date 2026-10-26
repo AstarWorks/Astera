@@ -42,8 +42,9 @@ import com.astarworks.astera.match.domain.zone.CaptureZone
  *
  * # Threading
  *
- * Production: Paper main thread. Tests: synchronous from `FakeScheduler.advanceTicks`.
- * Both run on a single thread; the scheduler holds no mutable state itself.
+ * Zone state and advancement stay on Global. Occupancy is sampled on the zone's
+ * Region and returned to Global before computing/persisting its next state.
+ * Occupancy providers must use snapshots for zones spanning independent regions.
  */
 public class CaptureZoneScheduler(
     private val zones: () -> List<CaptureZone>,
@@ -76,8 +77,13 @@ public class CaptureZoneScheduler(
         ) {
             for (zone in zones()) {
                 scheduler.run(regionScope(worldOf(zone), zone.region.min), kotlin.time.Duration.ZERO) {
-                    val next = tickUseCase.tick(zone, occupancyLookup(zone))
-                    if (next != zone) onAdvance(next)
+                    val occupancy = occupancyLookup(zone)
+                    scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) advance@ {
+                        // Skip a zone replaced while its occupancy read was in flight.
+                        if (zones().none { it == zone }) return@advance
+                        val next = tickUseCase.tick(zone, occupancy)
+                        if (next != zone) onAdvance(next)
+                    }
                 }
             }
         }
