@@ -9,6 +9,9 @@
 sources:
   vfx-v1: { file: sheets/vfx-v1.png, grid: [6, 6] }
   bastion-s1-crescent: { file: images/bastion-s1-crescent.png }
+  couture-s2-crescent: { file: images/couture-s2-crescent.png }
+  couture-s2-feather: { file: images/couture-s2-feather.png }
+  couture-s2-smear: { file: images/couture-s2-smear.png }
   bastion-s1-ink: { file: images/bastion-s1-ink.png }
   bastion-s1-streak: { file: images/bastion-s1-streak.png }
   bastion-s1-smoke: { file: images/bastion-s1-smoke.png }
@@ -48,6 +51,9 @@ sprites:
   flame: { draw: flame, frames: 6, color: "#ff7a1f" }
   glint: { draw: glint, frames: 6, color: "#e8f6ff" }
   slash: { draw: slash, frames: 6, color: "#d8e4ff" }
+  couture-s2-crescent: { from: couture-s2-crescent, raw: true, frames: 1, size: 256 }
+  couture-s2-feather: { from: couture-s2-feather, raw: true, frames: 1, size: 256 }
+  couture-s2-smear: { from: couture-s2-smear, raw: true, frames: 1, size: 256 }
   couture-orbit: { draw: orbit, frames: 1, size: 128, color: "#fff4ee" }
   couture-cut: { draw: slice, frames: 6, size: 128, color: "#fff4ee" }
   bastion-arc: { draw: arc, frames: 6, size: 256, color: "#ffcf3a" }
