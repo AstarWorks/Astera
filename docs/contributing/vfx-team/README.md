@@ -83,21 +83,24 @@ Rules of the loop:
 
 Two roles never edit the same file in one round. Where one VFX YAML mixes pieces (rig swing vs trail style), the director splits the assignment by section in the brief.
 
-## Real-client capture (warm stack, 2026-10-26)
+## Real-client capture (2026-10-26)
 
-`make vfx-shot` used to build an image with gradle inside docker, boot a server and join two clients on every run (3-10+ minutes, plus a 30-60
-minute queue behind e2e). It now keeps **one warm stack per checkout** (server + pack host + parked clients) and only syncs what changed.
-Reference: [tools/vfx-shot/README.md](../../../tools/vfx-shot/README.md) (sections "Warm stack", "Tick clapperboard").
+`make vfx-shot` boots an `astera-shot-<id>` stack (server + pack host) and headless clients (~2.5 GB each, server ~2.5 GB), films, and
+**tears everything down when it exits** (success, error, Ctrl-C, TERM/HUP, its caller dying). Runs are serialized host-wide; with `SHOT_KEEP=1`
+the stack and parked clients stay warm for the next capture from the same checkout and only what changed is synced.
+Reference: [tools/vfx-shot/README.md](../../../tools/vfx-shot/README.md) (sections "Lifecycle", "Tick clapperboard").
 
 ```
-make vfx-shot-up VIEW=compare CASE=<case>                 # optional: create the stack and park the clients (~2 min the first time)
-SKILL=<skill> ITEM=<item-id> VIEW=compare CASE=<case> make vfx-shot      # warm: ~30 s (1280x720, gif/mp4/sheet)
-SKILL=<skill> VIEW=side TICKS=40 BEAT_TICKS=0,8,20 make vfx-shot          # warm: ~12 s, 640x360, PNGs of the beat ticks only
-make vfx-shot-status                                       # fresh/STALE per layer, parked clients, locks, memory
-make vfx-shot-down                                         # when the track is done (frees ~7 GB and the parked clients)
+SKILL=<skill> ITEM=<item-id> VIEW=compare CASE=<case> make vfx-shot      # one-shot: boot, film (1280x720, gif/mp4/sheet), tear down
+SHOT_KEEP=1 SKILL=<skill> ITEM=<item-id> VIEW=compare CASE=<case> make vfx-shot   # keep it warm: the next capture takes ~30 s
+SHOT_KEEP=1 SKILL=<skill> VIEW=side TICKS=40 BEAT_TICKS=0,8,20 make vfx-shot      # warm: ~12 s, 640x360, PNGs of the beat ticks only
+make vfx-shot-up VIEW=compare CASE=<case>                 # create a kept stack and park the clients (~2 min the first time)
+make vfx-shot-status                                       # fresh/STALE per layer, parked clients, kept-until, slots, memory
+make vfx-shot-down                                         # drop this checkout's kept stack as soon as the round is done
+make vfx-shot-reap                                         # kill stragglers of dead runs host-wide (SHOT_REAP_DRY=1 lists only)
 ```
 
-- **Edit, then capture; nothing else.** Content (YAML, sprites, particles, animations) is pushed with `docker cp` and `/astera admin reload all` (seconds);
+- **Edit, then capture; nothing else.** On a kept stack, content (YAML, sprites, particles, animations) is pushed with `docker cp` and `/astera admin reload all` (seconds);
   textures / models / sounds / sprites rebuild the pack on the host and the parked clients reload it (10-20 s); a Kotlin plugin change rebuilds the seven jars and
   restarts the server (1-2 min, clients rejoin). The capture log prints `[+Ns]` per phase and `content: pushing` / `pack: pushing` /
   `plugins: restarting` so you can see which layer moved. Do not restart containers or copy files into the stack by hand.
@@ -109,15 +112,16 @@ make vfx-shot-down                                         # when the track is d
   (+-1-2 ticks, bursty software client) is a property of the client, not of the offset. If `clapper.measured` is false the capture fell back to the assumed 60 ms.
 - **Lighter output.** caster / opponent / side views film at 640x360 (compare stays 1280x720; `RES=` overrides). `BEAT_TICKS=case` (the case's `beats[].tick`) or an explicit tick
   list saves only those PNGs (no sheet / gif / mp4, `beatFramesOnly: true`, not publishable): use it for pose / VFX iteration, and a full capture for the round you publish.
-- **Lock discipline.** Do not use `/tmp/claude-1000/astera-e2e.lock` for captures. A second capture from the same worktree waits (`queued: another capture is using this checkout's stack`); the global
-  semaphore (`SHOT_SLOTS`, 2) and the memory guard (`SHOT_MIN_FREE_GB`, 8 GB) hold back captures from other worktrees. Never kill another worktree's stack or the `astera-dev-*` /
-  `astera-e2e-*` containers; `make vfx-shot-down` only removes this checkout's own.
-- Parked clients are frozen between captures (`parker.sh`), so an idle stack costs about one core and ~7 GB of RAM. `SHOT_EPHEMERAL=1` gives the old tear-down-at-the-end behaviour.
+- **Lock and memory discipline.** One capture at a time on the whole host: the slot lock `/tmp/claude-1000/astera-vfx-shot.lock` (`SHOT_SLOTS`, default 1) queues every other
+  run (`queued: all 1 vfx-shot slot(s) busy`). Do not use `/tmp/claude-1000/astera-e2e.lock` for captures. A kept stack (`SHOT_KEEP=1`) is bounded: it is removed
+  `SHOT_KEEP_TTL` seconds (default = `SHOT_TIMEOUT`, 45 min) after its last run, or earlier when a run from another checkout needs the slot. Each run has a hard
+  `SHOT_TIMEOUT` (45 min). Run captures in the foreground or with `run_in_background`; never `nohup ... &` and walk away (a run whose caller is gone is stopped, unless
+  `SHOT_DETACHED=1`). Never kill another worktree's processes by hand or the `astera-dev-*` / `astera-e2e-*` containers; `make vfx-shot-reap` only removes stacks whose run is dead.
 
 ## Shared rules
 
 - No push (the manager pushes), no unit tests, no gradle `check`; commit trailer `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
-- Real-client capture: use the warm stack (section "Real-client capture" below), never wrap it in the e2e flock. Captures of one checkout queue behind each other on the stack lock (different skills, cases and views all share the stack); captures of different worktrees run side by side under the slot semaphore and the memory guard.
+- Real-client capture: see "Real-client capture" above; never wrap it in the e2e flock. All captures on the host queue on the vfx-shot slot lock; each run tears its stack down on exit unless `SHOT_KEEP=1` (bounded by `SHOT_KEEP_TTL`).
 - No paid services (founder). The `generate-sounds` skill uses paid fal.ai; see [sound.md](sound.md).
 - Only one weapon may be visible during a skill (mechanic `hide_held_item`; see [director.md](director.md) for where it lives).
 

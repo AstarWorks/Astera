@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # vfx-shot shared helpers (sourced by vfx-shot.sh). No side effects on source.
 
-# fds of the held capture locks. Long-lived children (parked Xvfb / clients) must not inherit them (a flock lives as long as
-# any process holds the open file description), so they are started with `{STACK_LOCK_FD}>&- {SLOT_FD}>&-`. 99 = unused.
+# fds of the held capture locks. Long-lived children (parked Xvfb / clients / parker) must not inherit them (a flock lives as
+# long as any process holds the open file description), so they are started with `{STACK_LOCK_FD}>&- {SLOT_FD}>&-`. The one
+# exception is watchdog.sh, which inherits both on purpose (the stack stays owned until its teardown is done). 99 = unused.
 STACK_LOCK_FD=99
 SLOT_FD=99
 
@@ -22,25 +23,28 @@ pick_subnet_prefix() {
   return 1
 }
 
-# Global concurrency limit across worktrees/agents: SHOT_SLOTS (default 2) flock slots, held on a file descriptor
-# for the life of the process (the kernel releases them when the run ends, however it ends). The slots are
-# vfx-shot's own semaphore: they never touch the host-wide e2e lock (/tmp/claude-1000/astera-e2e.lock).
-# A capture (clients rendering with llvmpipe + ffmpeg) runs inside a slot; the warm stack itself sits outside it.
+# Host-wide concurrency limit across worktrees/agents: at most SHOT_SLOTS (default 1) shot runs (= live stacks with clients)
+# at once. Slot 1 is the flock on SHOT_LOCK (default /tmp/claude-1000/astera-vfx-shot.lock), slot N > 1 is "$SHOT_LOCK.N".
+# The slot is taken before the stack is booted and held on a file descriptor for the whole run (the run's watchdog inherits
+# it, so it stays taken until the teardown after the run is finished); others queue. It is vfx-shot's own lock: never the
+# e2e flock (/tmp/claude-1000/astera-e2e.lock). Kept stacks (SHOT_KEEP=1) sit outside the slot; a run that needs room
+# evicts idle kept stacks of other checkouts (reap.py --make-room), so at most SHOT_SLOTS stacks exist host-wide.
 acquire_slot() {
-  local dir="${SHOT_SLOT_DIR:-/tmp/claude-1000/vfx-shot-slots}" n i fd announced=0
-  n="${SHOT_SLOTS:-2}"
-  mkdir -p "$dir" || die "cannot create $dir"
+  local lock="${SHOT_LOCK:-/tmp/claude-1000/astera-vfx-shot.lock}" n i fd f announced=0
+  n="${SHOT_SLOTS:-1}"
+  mkdir -p "$(dirname "$lock")" || die "cannot create $(dirname "$lock")"
   while :; do
     for i in $(seq 1 "$n"); do
-      exec {fd}>"$dir/slot-$i.lock" || die "cannot open $dir/slot-$i.lock"
+      f="$lock"; [ "$i" = 1 ] || f="$lock.$i"
+      exec {fd}>"$f" || die "cannot open $f"
       if flock -n "$fd"; then
         SLOT_FD="$fd"
-        log "slot $i/$n acquired"
+        log "slot $i/$n acquired ($f)"
         return 0
       fi
       exec {fd}>&-
     done
-    [ "$announced" = 1 ] || { log "queued: all $n slots busy ($dir), waiting"; announced=1; }
+    [ "$announced" = 1 ] || { log "queued: all $n vfx-shot slot(s) busy ($lock), waiting"; announced=1; }
     sleep 3
   done
 }
