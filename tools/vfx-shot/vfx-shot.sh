@@ -3,7 +3,7 @@
 # Output: build/vfx-shot/<skill>/<view>/{frame_NNN.png,sheet.png,<skill>-<view>.gif,.mp4,meta.json}
 #
 #   make vfx-shot SKILL=couture-rapier-s2 [VIEW=caster|opponent|side|front|back|right|high|near|top|compare|all] [TICKS=60]
-#   orbit views (spectator Watcher): side = 6 blocks off the caster's left, right = the opposite side, front = ahead beside
+#   orbit views (spectator Watcher): side = 6 blocks off the caster's right (screen-right = forward), right = the opposite side, front = ahead beside
 #   the target looking back, back = behind the caster, high = 45 deg down from the back-left, near = a bystander at eye
 #   height ~2.4 blocks away (orbit_cam)
 #   make vfx-shot SKILL=bastion-greatsword-s3 VIEW=compare CASE=zwei-s3     # camera from the skill-compare intent
@@ -928,8 +928,8 @@ orbit_cam() {
 import math, sys
 v, cx, y, cz, d = sys.argv[1], *map(float, sys.argv[2:])
 cams = {  # (camera offset, look-at offset) from the caster feet; x = +east = the caster left, z = forward
-    "side": ((6.0, 1.0, d / 2), None),
-    "right": ((-6.0, 1.0, d / 2), None),
+    "side": ((-6.0, 1.0, d / 2), None),  # the caster's RIGHT: screen-right = forward, same orientation as the skill-compare reference
+    "right": ((6.0, 1.0, d / 2), None),
     "front": ((2.0, 1.7, d + 3.0), (0.0, 1.2, 0.6)),
     "back": ((-1.0, 2.0, -5.0), (0.0, 1.2, 0.8)),
     "high": ((4.0, 5.8, -1.5), (0.0, 0.9, 1.0)),
