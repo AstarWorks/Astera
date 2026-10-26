@@ -87,6 +87,12 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
                 .describedAs("team lines without a kill count: $lines").hasSizeGreaterThanOrEqualTo(2)
             quote(lines)
         }
+        E2eReport.check(suite, "the sidebar footer shows the player's own Norma level and current goal (never cut off)", "SetScore") {
+            val lines = sidebar(bots[0])
+            assertThat(lines.any { it.contains("Norma", true) && it.contains("Lv", true) }).describedAs("no Norma level line: $lines").isTrue()
+            assertThat(lines.any { it.contains("Goal", true) && it.contains("/") }).describedAs("no current-goal line (Goal: Stars|Kills n/m): $lines").isTrue()
+            quote(lines)
+        }
         if (red.size != 2 || blue.size != 2) return
 
         // --- the fight ---------------------------------------------------------------------------------------------
