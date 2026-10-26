@@ -87,7 +87,7 @@ const fov0 = fovOverride ?? keys[0].fov ?? 70;
 const jar = process.env.ASTERA_MC_JAR || join(homedir(), '.cache/astera-vfx-shot/mcdir/versions/26.3/26.3.jar');
 const jarFile = (entry) => { try { return execFileSync('unzip', ['-p', jar, entry], { maxBuffer: 1 << 24 }); } catch { return null; } };
 const bytesUrl = (b) => 'data:image/png;base64,' + b.toString('base64');
-const warnings = [];
+const warnings = [...(plan.notes ?? []), ...(args.warn && args.warn !== true ? String(args.warn).split("||") : [])];
 
 let skin;
 // --skin alex|steve|<png>; the compare client's Caster is the offline-UUID default skin, Alex
