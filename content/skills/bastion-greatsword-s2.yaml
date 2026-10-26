@@ -292,7 +292,7 @@ phases:
     stop_on_block: true
     follow_pitch: false
     on_hit: []
-    stop_before_target: 1.7
+    stop_before_target: 0.9
     delay_ticks: {type: literal, value: 10}
   - type: dash_strike
     distance: 1.6
@@ -302,7 +302,7 @@ phases:
     stop_on_block: true
     follow_pitch: false
     on_hit: []
-    stop_before_target: 1.7
+    stop_before_target: 0.9
     delay_ticks: {type: literal, value: 29}
   - type: damage
     targets: {type: enemies, center: {type: caster}, radius: {type: literal, value: 3.0}}
@@ -381,7 +381,7 @@ phases:
     stop_on_block: true
     follow_pitch: false
     on_hit: []
-    stop_before_target: 1.0
+    stop_before_target: 0.6
     delay_ticks: {type: literal, value: 54}
   - type: camera_shake
     targets:

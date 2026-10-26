@@ -47,7 +47,7 @@ class DashTravelScenarioTest {
     }
 
     @Test
-    fun `S2 open field travels 1_2 then 0_8 then 2_0 in three-tick bursts with hard stops`() {
+    fun `S2 open field travels 2_4 then 1_6 then 4_0 in three-tick bursts with hard stops`() {
         scenario("dash-travel-s2-open") {
             val caster = player("caster", team = "red")
             val zs = casterTrace("bastion-greatsword-s2", 90, caster)
@@ -55,13 +55,13 @@ class DashTravelScenarioTest {
 
             assertThat(b).hasSize(3)
             assertThat(b.map { it.ticks }).containsExactly(3, 3, 3)
-            assertThat(b[0].distance).isCloseTo(1.2, TOLERANCE)
-            assertThat(b[1].distance).isCloseTo(0.8, TOLERANCE)
-            assertThat(b[2].distance).isCloseTo(2.0, TOLERANCE)
+            assertThat(b[0].distance).isCloseTo(2.4, TOLERANCE)
+            assertThat(b[1].distance).isCloseTo(1.6, TOLERANCE)
+            assertThat(b[2].distance).isCloseTo(4.0, TOLERANCE)
             // delay_ticks 10 / 29 / 54: the rings are 19 and 25 ticks apart, and the caster is still in between.
             assertThat(b[1].firstTick - b[0].firstTick).isEqualTo(19)
             assertThat(b[2].firstTick - b[1].firstTick).isEqualTo(25)
-            assertThat(zs.last() - zs.first()).isCloseTo(4.0, TOLERANCE)
+            assertThat(zs.last() - zs.first()).isCloseTo(8.0, TOLERANCE)
         }
     }
 
@@ -96,10 +96,10 @@ class DashTravelScenarioTest {
             }
             val b = bursts(zs)
 
-            // The first ring still fits (4.0 - 1.7 = 2.3 >= 1.2), later bursts are shortened by the contact stop.
+            // The first ring still fits (4.0 - 0.9 = 3.1 >= 2.4), later bursts are shortened by the contact stop.
             assertThat(b).isNotEmpty()
-            assertThat(b[0].distance).isCloseTo(1.2, TOLERANCE)
-            val gaps = listOf(1.7, 1.7, 1.0)
+            assertThat(b[0].distance).isCloseTo(2.4, TOLERANCE)
+            val gaps = listOf(0.9, 0.9, 0.6)
             b.forEachIndexed { index, burst ->
                 val remaining = targetZ[burst.endTick] - zs[burst.endTick]
                 assertThat(remaining).isGreaterThanOrEqualTo(gaps[index] - 0.05)
