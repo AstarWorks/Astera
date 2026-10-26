@@ -237,7 +237,7 @@ abstract class PlaythroughBase : E2eBase() {
                 assertThat(levelGoal).describedAs("no next-level-reward preview in the reward block:\n${quote(chat, 40)}").hasSize(1)
                 assertThat(levelGoal.single()).describedAs("preview names no reward").containsPattern("Lv \\d+ - .+")
                 // Stars are an in-match item: no reward line may grant or mention them.
-                assertThat(chat.filter { STAR_WORD.containsMatchIn(it) }).describedAs("star amounts in the post-match chat:\n${quote(chat, 40)}").isEmpty()
+                assertThat(chat.filter { grantsStars(it) }).describedAs("star amounts in the post-match chat:\n${quote(chat, 40)}").isEmpty()
                 quote(chat.filter { it.contains("Reward") || it.contains("Level") || it.contains("Total") }, 12)
             }
             E2eReport.check(suite, "${b.name}: reward block points at the next shop unlock (GOLD goal)", "SystemChat") {

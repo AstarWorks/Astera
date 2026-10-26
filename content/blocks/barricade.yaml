@@ -1,0 +1,10 @@
+# Barricade: wooden cover. The axe is the right tool (iron axe 100 HP/hit on wood), the pickaxe is slow (25/hit),
+# the shovel cannot. 300 HP -> 3 axe hits vs 12 pickaxe hits.
+
+id: "astera:barricade"
+display_name:
+  en: "Barricade"
+  ja: "バリケード"
+base_bukkit_material: "MANGROVE_PLANKS"
+material: "WOOD"
+base_durability: 300

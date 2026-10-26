@@ -13,6 +13,10 @@ archetype: aoe
 cooldown_ticks: 160
 resource_cost: 25              # energy (type from the frost staff); frost-shard uses the staff default
 tags: [ magic, ice-family, aoe ]
+# ADR-0280: flat chip around the burst (opt-in; cover has 200-500 HP, weapons only chip).
+block_damage:
+  amount: 20
+  radius: 2.5
 
 params:
   type: aoe

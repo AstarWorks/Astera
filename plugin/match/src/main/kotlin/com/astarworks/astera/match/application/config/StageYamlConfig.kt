@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.nexus.NexusPillarTier
 import com.astarworks.astera.core.domain.stage.ArenaAtmosphere
 import com.astarworks.astera.core.domain.stage.ArenaBridge
 import com.astarworks.astera.core.domain.stage.ArenaIsland
+import com.astarworks.astera.core.domain.stage.ArenaImportPlacement
 import com.astarworks.astera.core.domain.stage.ArenaIslandKind
 import com.astarworks.astera.core.domain.stage.ArenaLandmark
 import com.astarworks.astera.core.domain.stage.ArenaLandmarkKind
@@ -93,6 +94,7 @@ public data class StageYamlConfig(
  *   landmarks:
  *     - { kind: generator, x: 0, z: -26 }
  *   atmosphere: { time_of_day: 12000, weather: clear }   # optional; per-player sky for this arena (MAP-08)
+ *   relief: 1.0              # optional terrain relief strength (0 = flat plateau, default 1)
  * ```
  */
 @Serializable
@@ -103,10 +105,12 @@ public data class ArenaLayoutYamlConfig(
     public val seed: Long,
     @SerialName("surface_y") public val surfaceY: Int = 64,
     @SerialName("kill_y") public val killY: Int? = null,
-    public val islands: List<ArenaIslandYamlConfig>,
+    public val islands: List<ArenaIslandYamlConfig> = emptyList(),
+    public val import: ArenaImportPlacementYamlConfig? = null,
     public val bridges: List<ArenaBridgeYamlConfig> = emptyList(),
     public val landmarks: List<ArenaLandmarkYamlConfig> = emptyList(),
     public val atmosphere: ArenaAtmosphereYamlConfig? = null,
+    public val relief: Double = 1.0,
 ) {
     public fun toDomain(): ArenaLayout = ArenaLayout(
         markerVersion = markerVersion,
@@ -116,11 +120,17 @@ public data class ArenaLayoutYamlConfig(
         surfaceY = surfaceY,
         killY = killY ?: (surfaceY - ArenaLayout.DEFAULT_KILL_DEPTH),
         islands = islands.map { it.toDomain() },
+        imported = import?.let { ArenaImportPlacement(it.map, it.x, it.z) },
         bridges = bridges.map { ArenaBridge(it.from, it.to, it.width) },
         landmarks = landmarks.map { it.toDomain() },
         atmosphere = atmosphere?.toDomain(),
+        relief = relief,
     )
 }
+
+/** `import: { map: medieval-village, x: 0, z: 0 }`: a pre-built world of `content/arenas/` replaces the generated islands (ADR-0281). */
+@Serializable
+public data class ArenaImportPlacementYamlConfig(public val map: String, public val x: Int = 0, public val z: Int = 0)
 
 /** `atmosphere: { time_of_day: 12000, weather: clear }`; weather is `clear` or `rain`. Applied per player inside the arena. */
 @Serializable

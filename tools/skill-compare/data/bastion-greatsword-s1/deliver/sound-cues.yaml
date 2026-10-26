@@ -6,13 +6,13 @@
 # Several files carry internal lead silence on purpose (whoosh-sweep 24 ms, armor-ring / ring-whirl 8 ms) so the onsets land
 # between tick boundaries like the reference (shimmer +1.65 tick after contact).
 cues:
-  - {file: bastion-s1-step-scuff, layer: foley, peak_ms: 44, hit1: {tick: 0, volume: 0.53, pitch: 1.0}}
-  - {file: bastion-s1-blade-lift, layer: foley, peak_ms: 5, hit1: {tick: 2, volume: 0.56, pitch: 1.0}, hit2: {tick: 22, volume: 0.90, pitch: 0.85}}
-  - {file: bastion-s1-whoosh-heavy, layer: whoosh, peak_ms: 92, hit1: {tick: 4, volume: 0.22, pitch: 1.0}}
-  - {file: bastion-s1-whoosh-sweep, layer: whoosh, peak_ms: 45, hit2: {tick: 26, volume: 0.75, pitch: 1.0}}
-  - {file: bastion-s1-impact-steel, layer: impact, peak_ms: 6, hit1: {tick: 7, volume: 0.59, pitch: 1.0}, hit2: {tick: 31, volume: 0.31, pitch: 0.75}}
-  - {file: bastion-s1-cut-thud, layer: impact, peak_ms: 9, hit1: {tick: 7, volume: 0.59, pitch: 1.0}, hit2: {tick: 31, volume: 0.31, pitch: 0.75}}
-  - {file: bastion-s1-armor-ring, layer: shimmer, peak_ms: 90, hit1: {tick: 8, volume: 0.15, pitch: 1.0}, hit2: {tick: 32, volume: 0.28, pitch: 1.0}}
-  - {file: bastion-s1-ring-whirl, layer: shimmer, peak_ms: 56, hit1: {tick: 8, volume: 0.15, pitch: 1.0}, hit2: {tick: 32, volume: 0.28, pitch: 1.0}}
-  - {file: bastion-s1-ground-slam, layer: ground, peak_ms: 4, hit2: {tick: 31, volume: 0.19, pitch: 1.0}}
-  - {file: bastion-s1-sword-settle, layer: foley, peak_ms: 64, hit1: {tick: 18, volume: 0.28, pitch: 1.0}, hit2: {tick: 40, volume: 0.18, pitch: 1.0}}
+  - {file: bastion-s1-step-scuff, layer: foley, peak_ms: 44, hit1: {tick: 0, volume: 0.63, pitch: 1.0}}
+  - {file: bastion-s1-blade-lift, layer: foley, peak_ms: 5, hit1: {tick: 2, volume: 0.66, pitch: 1.0}, hit2: {tick: 22, volume: 1.00, pitch: 0.85}}
+  - {file: bastion-s1-whoosh-heavy, layer: whoosh, peak_ms: 92, hit1: {tick: 4, volume: 0.26, pitch: 1.0}}
+  - {file: bastion-s1-whoosh-sweep, layer: whoosh, peak_ms: 45, hit2: {tick: 26, volume: 0.89, pitch: 1.0}}
+  - {file: bastion-s1-impact-steel, layer: impact, peak_ms: 6, hit1: {tick: 7, volume: 0.78, pitch: 1.0}, hit2: {tick: 31, volume: 0.51, pitch: 0.75}}
+  - {file: bastion-s1-cut-thud, layer: impact, peak_ms: 9, hit1: {tick: 7, volume: 0.27, pitch: 1.0}, hit2: {tick: 31, volume: 0.18, pitch: 0.75}}
+  - {file: bastion-s1-armor-ring, layer: shimmer, peak_ms: 90, hit1: {tick: 8, volume: 0.18, pitch: 1.0}, hit2: {tick: 32, volume: 0.32, pitch: 1.0}}
+  - {file: bastion-s1-ring-whirl, layer: shimmer, peak_ms: 56, hit1: {tick: 8, volume: 0.18, pitch: 1.0}, hit2: {tick: 32, volume: 0.32, pitch: 1.0}}
+  - {file: bastion-s1-ground-slam, layer: ground, peak_ms: 4, hit2: {tick: 31, volume: 0.20, pitch: 1.0}}
+  - {file: bastion-s1-sword-settle, layer: foley, peak_ms: 64, hit1: {tick: 18, volume: 0.33, pitch: 1.0}, hit2: {tick: 40, volume: 0.22, pitch: 1.0}}

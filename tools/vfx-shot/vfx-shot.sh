@@ -2,7 +2,7 @@
 # vfx-shot: cast one skill on an Astera server and film it with a REAL Minecraft client (headless: Xvfb + llvmpipe).
 # Output: build/vfx-shot/<skill>/<view>/{frame_NNN.png,sheet.png,<skill>-<view>.gif,.mp4,meta.json}
 #
-#   make vfx-shot SKILL=couture-rapier-s2 [VIEW=caster|opponent|side|front|back|right|high|near|compare|all] [TICKS=60]
+#   make vfx-shot SKILL=couture-rapier-s2 [VIEW=caster|opponent|side|front|back|right|high|near|top|compare|all] [TICKS=60]
 #   orbit views (spectator Watcher): side = 6 blocks off the caster's left, right = the opposite side, front = ahead beside
 #   the target looking back, back = behind the caster, high = 45 deg down from the back-left, near = a bystander at eye
 #   height ~2.4 blocks away (orbit_cam)
@@ -211,7 +211,8 @@ esac
 if [ "$CMD" = up ] && [ "$VIEW" = all ]; then VIEW=$([ -n "$CASE" ] && echo compare || echo side); fi
 TICKS_SET="${TICKS:-}"
 TICKS="${TICKS:-60}"                 # ticks filmed after the cast (compare: the case duration_ticks)
-FPS="${FPS:-20}"                     # recording rate; FPS=60 keeps 3 frames per tick (frame_NNN = NNN/3 ticks), no sheet/gif
+STEPPED="${STEPPED:-$([ "${FPS:-20}" = 20 ] && echo 1 || echo 0)}"   # 1 = freeze + /tick step: exactly one settled frame per tick, whatever the render rate (default for 20 fps review sheets); 0 = realtime
+FPS="${FPS:-20}"                     # output rate; FPS=60 keeps 3 frames per tick (frame_NNN = NNN/3 ticks), no sheet/gif
 RES="${RES:-}"                       # viewer resolution; default 1280x720 for compare, 640x360 for every other view
 [ "$SOURCED" = 1 ] && RES="${RES:-1280x720}"   # anim-shot keeps the old default
 GUI_SCALE="${GUI_SCALE:-1}"          # 1 = the smallest stamp rectangle to mask out of the saved frames
@@ -248,7 +249,7 @@ CMP_FOV_OPT=""
 CMP_FOV_DEG=""
 CAM0_CMD=""
 ENEMY_X=4.2
-case "$VIEW" in caster|opponent|side|front|back|right|high|near|compare|all) ;; *) die "VIEW must be caster|opponent|side|front|back|right|high|near|compare|all";; esac
+case "$VIEW" in caster|opponent|side|front|back|right|high|near|top|compare|all) ;; *) die "VIEW must be caster|opponent|side|front|back|right|high|near|top|compare|all";; esac
 [[ "$CAMERA" =~ ^[a-z0-9][a-z0-9_-]{0,31}$ ]] || die "CAMERA must be case|side|<intent camera_presets name>|<tools/vfx-shot/camera-presets.json name>"
 if [ "$VIEW" = compare ]; then
   [ -n "$CASE" ] || die "VIEW=compare needs CASE=<case-id> (e.g. CASE=zwei-s3)"
@@ -790,7 +791,7 @@ film() { # viewer view_dir
   rm -f "$rec"
   DISPLAY=":$d" xdotool mousemove 320 180 2>/dev/null || true
   # showinfo (before the rebase) logs each frame's wall-clock pts -> epoch time of the first frame
-  ffmpeg -nostdin -loglevel info -y -copyts -use_wallclock_as_timestamps 1 -f x11grab -framerate "$FPS" \
+  ffmpeg -nostdin -loglevel info -y -copyts -use_wallclock_as_timestamps 1 -f x11grab -framerate "$([ "$STEPPED" = 1 ] && echo 30 || echo "$FPS")" \
     -video_size "$RES_FILM" -i ":$d" -vf "showinfo,setpts=PTS-STARTPTS" \
     -c:v libx264 -preset ultrafast -crf 10 -pix_fmt yuv444p -f matroska "$rec" 2>"$rec.log" &
   fpid=$!
@@ -800,13 +801,19 @@ film() { # viewer view_dir
   pos_start="$(rcon "data get entity $viewer Pos" | sed 's/.*data: //') in $(rcon "data get entity $viewer Dimension" | sed 's/.*data: //')"
   log "caster before cast: $(rcon "data get entity Caster Pos" | sed 's/.*data: //') in $(rcon "data get entity Caster Dimension" | sed 's/.*data: //')"
   [ -s "$STATE/camera-plan.tsv" ] && [ "$VIEW_NOW" = compare ] || : > "$STATE/camera-plan.tsv"
-  # one RCON connection: game time, cast, game time, then (compare) the camera cuts of the plan on the wall clock
-  DIRECTOR_MARK_CMD="time query gametime" python3 -I "$HERE/director.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$STATE/camera-plan.tsv" "astera skill cast $SKILL Caster --force" \
-    >"$STATE/director.stdout" 2>"$STATE/director.stderr" || { kill "$fpid" 2>/dev/null; cat "$STATE/director.stderr" >&2; die "director failed"; }
+  # one RCON connection: game time, cast, game time, then (compare) the camera cuts of the plan. Stepped: the server is frozen and
+  # advanced one tick at a time until the viewer's screen shows each new tick; realtime: the plan runs on the wall clock.
+  local dstep=()
+  if [ "$STEPPED" = 1 ]; then
+    dstep=(DIRECTOR_STEP_TICKS="$TICKS" DIRECTOR_STEP_PRE="$PRE_TICKS" DIRECTOR_STEP_DISPLAY=":$d" DIRECTOR_STEP_SCREEN="$RES_FILM" DIRECTOR_STEP_GUI="$GUI_SCALE")
+  fi
+  env DIRECTOR_MARK_CMD="time query gametime" "${dstep[@]}" python3 -I "$HERE/director.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$STATE/camera-plan.tsv" "astera skill cast $SKILL Caster --force" \
+    >"$STATE/director.stdout" 2>"$STATE/director.stderr" || { rcon "tick unfreeze" >/dev/null 2>&1; kill "$fpid" 2>/dev/null; cat "$STATE/director.stderr" >&2; die "director failed"; }
+  rcon "tick unfreeze" >/dev/null 2>&1 || true
   cast_stamp="$(awk '/^STAMP/{print $2}' "$STATE/director.stderr")"
   [ -n "$cast_stamp" ] || { kill "$fpid" 2>/dev/null; die "cast command failed"; }
   # film until the motion (plus the pre-ticks of the window) is over
-  end_wait="$(awk -v c="$cast_stamp" -v t="$TICKS" -v n="$(date +%s.%N)" 'BEGIN{w = c + t/20 + 0.8 - n; printf "%.2f", (w > 0 ? w : 0)}')"
+  end_wait="$(awk -v c="$cast_stamp" -v t="$TICKS" -v n="$(date +%s.%N)" -v st="$STEPPED" 'BEGIN{w = (st == 1 ? 0.5 : c + t/20 + 0.8 - n); printf "%.2f", (w > 0 ? w : 0)}')"
   sleep "$end_wait"
   kill -TERM "$fpid" 2>/dev/null
   wait "$fpid" 2>/dev/null
@@ -822,7 +829,7 @@ film() { # viewer view_dir
   if [ -n "$BEAT_TICKS" ]; then all="$dir/.all"; mkdir -p "$all"; fi
   case "$VIEW_NOW" in caster|opponent) survival=1 ;; esac    # survival viewers have a hotbar (its items cannot be blanked by the pack)
   if ! python3 -I "$HERE/framestamp.py" "$rec" "$rec.log" "$STATE/director.stderr" "$cast_stamp" "$PRE_TICKS" "$TICKS" "$FPS" "$GUI_SCALE" "$survival" \
-      "$all" "$dir/framestamp.json" > "$STATE/framestamp.out" 2>"$STATE/framestamp.err"; then
+      "$all" "$dir/framestamp.json" "$STEPPED" > "$STATE/framestamp.out" 2>"$STATE/framestamp.err"; then
     if [ "${SHOT_KEEP_REC:-0}" = 1 ]; then mv "$rec" "$dir/recording.mkv"; mv "$rec.log" "$dir/recording.showinfo.log"; fi
     die "tick stamp could not be read ($(tail -1 "$STATE/framestamp.err")); SHOT_KEEP_REC=1 keeps the recording"
   fi
@@ -902,7 +909,7 @@ make_outputs() { # dir view
 }
 
 # ---------------------------------------------------------------- views
-players_of() { case "$1" in caster) echo Caster ;; opponent) echo "Caster Target" ;; side|front|back|right|high|near|compare) echo "Caster Watcher" ;; esac; }
+players_of() { case "$1" in caster) echo Caster ;; opponent) echo "Caster Target" ;; side|front|back|right|high|near|top|compare) echo "Caster Watcher" ;; esac; }
 
 # orbit_cam <view>: "x y z yaw pitch" of the spectator camera for the orbit views, relative to the caster (CX, Y, CZ) facing
 # +z with the target DISTANCE ahead. Each camera looks at the caster's chest / swing so the whole blade is in frame; front sits
@@ -919,6 +926,9 @@ cams = {  # (camera offset, look-at offset) from the caster feet; x = +east = th
     "high": ((4.0, 5.8, -1.5), (0.0, 0.9, 1.0)),
     "near": ((2.2, 1.62, 1.2), (0.0, 1.2, 0.3)),
 }
+if v == "top":  # straight down, yaw 0: caster-forward = image top, caster right = image right (CW/CCW unambiguous)
+    print("%.2f %.2f %.2f 0.0 90.0" % (cx, y + 8.0, cz + 1.0))
+    raise SystemExit
 c, look = cams[v]
 if look is None:
     yaw, pitch = (90.0 if c[0] > 0 else -90.0), 8.0
@@ -963,7 +973,7 @@ place_scene() { # view target_z
       rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" -v d="$ENEMY_X" 'BEGIN{printf "%.2f", x+d}') $Y $CZ $(dummy_nbt 90)" >/dev/null
       rcon "gamemode spectator Watcher" >/dev/null
       rcon "$CAM0_CMD" >/dev/null ;;
-    side|front|back|right|high|near)
+    side|front|back|right|high|near|top)
       summon_target
       rcon "gamemode spectator Watcher" >/dev/null
       # shellcheck disable=SC2046
@@ -980,7 +990,7 @@ prepare_view() {
   case "$view" in
     caster)   VIEWER="Caster" ;;
     opponent) VIEWER="Target"; DUMMY_CASTER=1 ;;
-    side|front|back|right|high|near) VIEWER="Watcher"; DUMMY_CASTER=1 ;;
+    side|front|back|right|high|near|top) VIEWER="Watcher"; DUMMY_CASTER=1 ;;
     compare)  VIEWER="Watcher"; DUMMY_CASTER=1 ;;
   esac
   res="${RES:-}"

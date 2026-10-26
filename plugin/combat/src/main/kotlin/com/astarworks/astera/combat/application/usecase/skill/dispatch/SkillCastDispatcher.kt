@@ -2,6 +2,7 @@ package com.astarworks.astera.combat.application.usecase.skill.dispatch
 
 import com.astarworks.astera.core.application.service.observability.ExecutionCosts
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
+import com.astarworks.astera.combat.application.service.SkillCoverEffects
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillSpec
@@ -55,6 +56,8 @@ public class SkillCastDispatcher(
     private val sequenceHandler: SequenceHandler,
     private val summonHandler: SummonHandler,
     private val eventBus: IDomainEventBus,
+    /** ADR-0280: opt-in cover damage / placement at cast time; `null` on hosts without blocks. */
+    private val coverEffects: SkillCoverEffects? = null,
     private val log: Logger = LoggerFactory.getLogger(SkillCastDispatcher::class.java),
 ) {
 
@@ -101,6 +104,7 @@ public class SkillCastDispatcher(
 
         try {
             dispatch(spec, composedPhases, event)
+            coverEffects?.onCast(spec, event.caster, event.at, event.pose)
         } catch (ex: Exception) {
             log.warn(
                 "SkillCastDispatcher: handler for {} (archetype={}) threw; cast dropped",
@@ -114,7 +118,7 @@ public class SkillCastDispatcher(
             SkillArchetype.PROJECTILE -> {
                 val p = requireParams<SkillParams.ProjectileParams>(spec) ?: return
                 val ph = requirePhases<PhaseMechanics.Projectile>(spec, phases) ?: return
-                projectileHandler.handle(event, p, ph)
+                projectileHandler.handle(event, p, ph, spec.blockDamage)
             }
             SkillArchetype.MELEE -> {
                 val p = requireParams<SkillParams.MeleeParams>(spec) ?: return

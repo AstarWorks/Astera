@@ -23,6 +23,15 @@ starter_items:
   - pistol
   - knight-sword
 
+# Field tools (pickaxe / axe / shovel) lent to EVERY match participant on entry, in addition to the
+# weapon kit above. They are not weapons (no resource_type), so they never count against the weapon cap,
+# and they are lent after the entry snapshot, so the match-end restore removes them again.
+# They break the custom cover blocks (content/blocks/) of a stage; see ADR-0090.
+match_tools:
+  - field-pickaxe
+  - field-axe
+  - field-shovel
+
 # Per-currency initial balance. Currency keys must match `Currency` enum
 # constants (GOLD / GEM); values are 64-bit non-negative integers.
 # Zero entries are dropped at apply-time so the audit log stays readable.

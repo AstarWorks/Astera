@@ -6,6 +6,17 @@ private val RAW_KEY = Regex("[<\\[]astera\\.[a-z0-9_-]+(\\.[a-z0-9_-]+)+[>\\]]|^
 /** The word "star(s)" (not "start", "starting"): how the star line / currency shows up in sidebars and chat. */
 val STAR_WORD = Regex("(?<![\\w-])stars?(?![\\w-])", RegexOption.IGNORE_CASE)
 
+/** The top Norma level in the e2e world: the e2e tune script pins `norma_max_level` to 3 (the shipped layer has 5). */
+const val E2E_NORMA_MAX_LEVEL = 3
+
+/**
+ * A chat line that grants or counts stars. The Norma explainers (the how-to-win briefing, the result screen's "To win:" hint,
+ * the time-limit rule and the goal reply) legitimately say "stars": they teach the in-match mechanic and grant nothing.
+ */
+fun grantsStars(line: String): Boolean =
+    // "Rising Star" is the Lv 3 name-colour cosmetic that the reward preview names ("Next level reward: Lv 3 - 100 GOLD, Rising Star").
+    STAR_WORD.containsMatchIn(line.replace("Rising Star", "")) && listOf("Norma:", "To win:", "Time limit", "Norma goal:").none { line.trimStart().startsWith(it) }
+
 fun rawKeys(lines: Collection<String>): List<String> = lines.filter { RAW_KEY.containsMatchIn(it.trim()) }
 
 /** Waits until [Bot] has at least [minNew] more chat lines than [before] and returns the new ones (or whatever arrived). */

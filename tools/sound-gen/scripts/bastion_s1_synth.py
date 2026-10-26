@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """bastion-greatsword S1 SFX: free procedural synthesis (numpy + scipy + ffmpeg).
 
-No API key, no network, no paid service (fal.ai route is forbidden by founder
-policy). Deterministic: every cue has a fixed seed list in
+No API key, no paid service (fal.ai route is forbidden by founder
+policy). Impact layers also mix CC0 Kenney Impact Sounds stems (see cc0()). Deterministic: every cue has a fixed seed list in
 tools/sound-gen/specs/bastion-s1.yaml; re-running reproduces the OGGs bit-for-bit
 up to the Vorbis encoder version.
 
@@ -220,21 +220,65 @@ def _body(r, dur, f_hi, f_lo, tone_tau, hold, tau, noise_cut=1100):
     return t, (tone * 1.0 + nz * 0.9) * env
 
 
+CC0_DIR = os.environ.get("BASTION_CC0_DIR", "/tmp/claude-1000/cc0/kimp/Audio")
+
+
+def cc0(name, pitch=1.0, gain=1.0, n=None):
+    """Kenney 'Impact Sounds' 1.0 (CC0, https://kenney.nl/assets/impact-sounds). Fetch the zip into CC0_DIR; it is never committed.
+    Resampled by `pitch` (<1 = lower and longer), then used only as a layer inside a processed composite."""
+    p = os.path.join(CC0_DIR, name + ".ogg")
+    if not os.path.exists(p):
+        sys.exit(f"missing CC0 stem {p}: download kenney_impact-sounds.zip (see tools/sound-gen/specs/bastion-s1.yaml)")
+    x = decode(p)
+    m = int(len(x) / pitch)
+    y = np.interp(np.arange(m) * pitch, np.arange(len(x)), x) * gain
+    if n is not None:
+        y = np.pad(y, (0, max(0, n - len(y))))[:n]
+    return y
+
+
+def sat(x, drive):
+    return np.tanh(drive * x) / np.tanh(drive)
+
+
+def room(x, r, ms=110, wet=0.14):
+    """Short synthetic room tail: exponentially decaying band-limited noise IR (our own noise, no recorded reverb)."""
+    n = int(ms / 1000 * SR)
+    tt = np.arange(n) / SR
+    ir = lp(r.standard_normal(n), 5000, 2) * np.exp(-tt / 0.03)
+    ir[0] = 0
+    tail = np.convolve(x, ir / np.abs(ir).sum() * 3.0)[: len(x)]
+    return x + wet * tail
+
+
 def impact_steel(seed):
-    # E4/E8 body: dull 150-500 Hz thud (centre ~300 Hz), a touch of 500-2k, tiny click; dur6 ~75 ms.
+    # E4/E8 heavy metallic crunch with low-end body: sub thump + CC0 plate/metal body (pitched down) + transient crack
+    # + inharmonic ring tail, driven through tanh saturation and a short synthetic room. dur6 ~75 ms, centroid ~500 Hz.
     r = rng(seed)
-    t, y = _body(r, 0.16, 640, 400, 0.02, 0.022, 0.030, noise_cut=1500)
-    click = hp(r.standard_normal(len(t)), 2000) * np.exp(-t / 0.0015) * 0.12
-    return y + click
+    n = int(0.40 * SR)
+    t = T(0.40)
+    f0 = (48 + 70 * np.exp(-t / 0.03)) * wander(t, r, 0.03, 9.0)
+    sub = np.sin(2 * np.pi * np.cumsum(f0) / SR) * np.minimum(1, t / 0.003) * np.exp(-t / 0.075)
+    plate = lp(cc0("impactPlate_heavy_001", 0.85, n=n), 380, 2)
+    body = cc0("impactMetal_heavy_001", 0.9, n=n)
+    crack = hp(cc0("impactMetal_medium_000", 0.95, n=n), 700, 2) * np.exp(-t / 0.05)
+    ring = steel_partials(t, r, 1650, [1.0, 1.83, 2.61, 3.47], [0.13, 0.095, 0.07, 0.05], [0.10, 0.08, 0.06, 0.04]) * np.minimum(1, t / 0.004)
+    y = 1.0 * sub + 0.9 * plate + 0.8 * body + 0.55 * crack + ring
+    y = y * np.where(t < 0.12, 1.0, np.exp(-(t - 0.12) / 0.05))
+    y = sat(y / max(np.abs(y).max(), 1e-9), 2.4)
+    return room(y, r)
 
 
 def cut_thud(seed):
-    # 500-1800 Hz edge-on-armour scrape layer: ~20% of the contact body energy sits in 500-2k.
+    # 500-1800 Hz edge-on-armour scrape layer (~20% of the contact energy sits in 500-2k) + CC0 heavy plate crunch.
     r = rng(seed)
     t = T(0.18)
     y = bp(r.standard_normal(len(t)), 500, 1800, 2) * np.exp(-t / 0.028) * np.minimum(1, t / 0.003)
     f = (520 + 260 * np.exp(-t / 0.025)) * wander(t, r, 0.05, 10.0)
-    return y + 0.4 * np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.018)
+    y = y + 0.4 * np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.018)
+    crunch = hp(cc0("impactPlate_heavy_000", 1.0, n=len(t)), 250, 2) * np.exp(-t / 0.06)
+    y = y / max(np.abs(y).max(), 1e-9) + 0.9 * crunch / max(np.abs(crunch).max(), 1e-9)
+    return sat(y / max(np.abs(y).max(), 1e-9), 1.8)
 
 
 def armor_ring(seed):
@@ -255,7 +299,8 @@ def ground_slam(seed):
     f = (45 + 30 * np.exp(-t / 0.08)) * wander(t, r, 0.04, 8.0)
     sub = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.07)
     grit = bp(r.standard_normal(len(t)), 200, 900, 2) * np.exp(-t / 0.04) * 0.5
-    return (sub + grit) * np.minimum(1, t / 0.002)
+    thump = lp(cc0("impactSoft_heavy_001", 0.8, n=len(t)), 260, 2) * np.exp(-t / 0.09) * 1.2
+    return sat((sub + grit + thump) / 2.2, 2.0) * np.minimum(1, t / 0.002)
 
 
 def ring_whirl(seed):

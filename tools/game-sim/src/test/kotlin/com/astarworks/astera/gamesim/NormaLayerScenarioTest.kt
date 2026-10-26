@@ -73,8 +73,8 @@ class NormaLayerScenarioTest {
 
             // annihilation-center-east stands at 14.5, 65, 0.5 (stage-local) on the centre island.
             red.moveTo(Vec3(14.5, 65.0, 0.5))
-            blue.moveTo(Vec3(143.0, 65.0, 83.0))
-            yellow.moveTo(Vec3(-143.0, 65.0, 83.0))
+            blue.moveTo(Vec3(92.0, 65.0, 53.0))
+            yellow.moveTo(Vec3(-92.0, 65.0, 53.0))
             advance(650)
             assertThat(eventsOf<StarsCollected>().filter { it.playerId == red.id }).`as`("red collected a pop in annihilation").isNotEmpty()
 

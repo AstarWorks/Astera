@@ -1,0 +1,10 @@
+# Packed sandbags: soil cover. The shovel is the right tool (iron shovel 100 HP/hit on soil); pickaxe and axe do
+# nothing. 200 HP -> 2 shovel hits.
+
+id: "astera:sandbags"
+display_name:
+  en: "Sandbags"
+  ja: "土嚢"
+base_bukkit_material: "PACKED_MUD"
+material: "SOIL"
+base_durability: 200

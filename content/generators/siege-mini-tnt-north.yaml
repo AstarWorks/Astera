@@ -2,7 +2,7 @@
 # generator landmark of content/stages/siege-isles-mini-tnt.yaml at the same x/z; mirrors content/generators/arena-*.yaml.
 id: siege-mini-tnt-north
 match_stage_id: siege-isles-mini-tnt
-position: { x: 10.5, y: 65.0, z: -94.5 }
+position: { x: 10.5, y: 65.0, z: -81.5 }
 period_seconds: 20.0
 amount: 5
 tier: iron
