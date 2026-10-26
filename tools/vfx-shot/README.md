@@ -119,7 +119,7 @@ marks `director.py` reads on the same RCON connection right before and after the
 (at 60 fps: the 3 frames of that tick, in order). The mapping needs no wall-clock fit, so it does not depend on render load. A tick the
 client never drew is reported in `skippedTicks` (nearest frame used) and listed in `meta.json` `tickStamp.gaps`/`skippedFrames`; any skip marks the capture invalid and `publish-capture.mjs` refuses it, so no stand-in frame is ever shown as exact.
 
-**Stepped capture (default at 20 fps, `STEPPED=1`).** The software client draws ~10 fps, which skips 20-50 ticks per realtime take. `director.py` therefore runs `/tick freeze`, then per tick `/tick step 1`, waits until the stamp on screen shows that tick, dwells (`DIRECTOR_STEP_DWELL`, 0.35 s) and records at 30 fps; `framestamp.py` takes the last settled frame of each tick. Result: exactly 1 frame per tick, `skippedTicks` 0 under any host load; `tick unfreeze` always runs afterwards. `FPS=60` or `STEPPED=0` keeps realtime (video). The saved PNGs have the stamp rectangle (and, for the
+**Stepped capture (default at 20 fps, `STEPPED=1`) = slow motion.** The software client draws ~10 fps, which skips 20-50 ticks per realtime take. `director.py` therefore runs `/tick rate SHOT_SLOW_RATE` (default 5) for the whole take: world, plugin scheduler (delay_ticks, rig keys, dashes) and client share ONE clock, just slower, so every tick stays on screen several frames; the recorder runs at 30 fps and `framestamp.py` takes the last settled frame of each tick. `skippedTicks` 0 under any host load. (`/tick freeze` + `/tick step` was dropped: it froze the world but not the Bukkit scheduler, so scheduled skill events ran ahead of the frozen world.) `tick rate 20` is always restored. `FPS=60` or `STEPPED=0` keeps realtime (video). The saved PNGs have the stamp rectangle (and, for the
 caster/opponent views, the hotbar) overwritten with a mirror of the adjacent rows. Any failure to read the stamp fails the capture.
 
 `framestamp.json` / `meta.json` `tickStamp`: `castTick`, `castTickSpan`, `castTickExact`, `recordedFrames`, `undecodedFrames`,
@@ -281,14 +281,11 @@ default `~/.cache/astera-vfx-shot`; first run downloads the client ~ 1 GB).
 
 `auto-capture.sh run|once|up|down|status` (`make vfx-auto-*`): tails the dev autodeploy log, maps the commit to skills (`changed-skills.py`), films
 them and publishes with `publish-capture.mjs --auto <sha>` (first a `--preview` realtime pass, then the stepped one). It runs vfx-shot with
-`SHOT_KEEP=1 SHOT_PIN=1 SHOT_OUTPUTS=lean SHOT_STEP_DWELL=0.15 SHOT_REAP_SCOPE=self` and its own `SHOT_LOCK`; see docs/contributing/vfx-team/README.md.
+`SHOT_KEEP=1 SHOT_PIN=1 SHOT_OUTPUTS=lean SHOT_SLOW_RATE=5 SHOT_REAP_SCOPE=self` and its own `SHOT_LOCK`; see docs/contributing/vfx-team/README.md.
 
 Speed knobs that apply to every stepped capture:
 
-- `director.py` reads the stamp through one long-lived ffmpeg x11grab pipe (`DIRECTOR_STEP_POLL_FPS`, default 60) instead of spawning ffmpeg per poll, and no longer asks the
-  server for the game time after each step. It prints `STEP_STATS n= mean_wait_ms= max_wait_ms= dwell_ms=` (also in the `phases.log`).
-- `SHOT_STEP_DWELL` (default 0.35 s): how long a tick stays on screen once its stamp was seen. The recorder runs at 30 fps, so >= 0.07 s keeps two frames; the farm uses 0.15.
-  `framestamp` refuses a capture that lost a tick, so lowering it is safe: too low shows up as skipped ticks, not as wrong frames.
+- `SHOT_SLOW_RATE` (default 5 ticks/s, 1-20): a take of N ticks lasts N/rate s plus 2 s. Higher is faster; too high shows up as skipped ticks (refused), never as wrong frames.
 - `SHOT_OUTPUTS=lean`: only the WebP frames + `meta.json` (what skill-compare shows). `full` (default) also builds sheet.png / gif / mp4, now in parallel.
 - `VIEW=top,side` films several orbit views in one run (one scene setup, one stack sync). Not for `compare` / `all`.
 - `SHOT_PIN=1`: marks the kept stack `pinned`; other checkouts' runs never evict it to make room (its TTL still applies).

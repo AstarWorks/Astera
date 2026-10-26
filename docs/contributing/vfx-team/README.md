@@ -106,7 +106,7 @@ autodeploy log (`.claude/state/dev-deploy/deploy.log`). For every `deployed <sha
 against the previous sha, maps the changed files to skill ids (`tools/vfx-shot/changed-skills.py`: a changed vfx/animation/sound file
 re-films every skill that references it), films each skill from `top` and `side` on a warm pinned stack and publishes it. On the page the chips read
 `auto <sha7>`; a first realtime pass shows `PREVIEW (realtime)` within about a minute and is replaced by the exact stepped capture
-(one frame per tick). A stepped capture with skipped ticks is retried once, never published, and the preview stays.
+(slow-motion take, one frame per tick). A stepped capture with skipped ticks is retried once, never published, and the preview stays.
 
 ```
 make vfx-auto-status                       # daemon, last run (sha, seconds, per-skill ok/FAILED), warm stack, log tail
@@ -119,7 +119,7 @@ The farm uses its own worktree (`.claude/worktrees/capture-farm`, detached on th
 (`/tmp/claude-1000/astera-vfx-shot-farm.lock`) and a pinned stack that `reap.py` never evicts, so your `make vfx-shot` runs are not queued behind it.
 Compare views (reference video next to the capture) still need `VIEW=compare CASE=<case>` from the author; the farm only does `top` + `side`.
 Knobs: `FARM_VIEWS` (`top,side`), `FARM_TICKS` (80, or the frame count already published for the skill), `FARM_MAX_SKILLS` (8),
-`FARM_PREVIEW=0` (skip the realtime pass), `FARM_DWELL` (stepped dwell s, 0.15), `FARM_TTL` (idle stack lifetime, 24 h).
+`FARM_PREVIEW=0` (skip the realtime pass), `FARM_RATE` (slow-motion tick rate, 5), `FARM_TTL` (idle stack lifetime, 24 h).
 
 ## Shared rules
 

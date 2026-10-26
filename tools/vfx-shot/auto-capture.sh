@@ -4,10 +4,11 @@
 #
 #   make vfx-auto-up | vfx-auto-down | vfx-auto-status | vfx-auto-once SHA=<sha> [BASE=<sha>]
 #
+# Stepped = slow motion (/tick rate 5): world, plugin scheduler and client share one clock; frames are mapped by the tick stamp.
 # Flow per deployed sha (coalesced: if several land while one is filming, only the newest is processed, diffed from the last done sha):
 #   1. changed-skills.py maps the changed content/{skills,vfx,animations,sounds,poses} files to skill ids
 #   2. PREVIEW pass: realtime recording (STEPPED=0), published with --preview ("PREVIEW (realtime)" chip; skipped ticks tolerated)
-#   3. STEPPED pass: freeze + /tick step, exact one frame per tick, published with --auto <sha>; replaces the preview. A stepped capture
+#   3. STEPPED pass: slow motion (/tick rate 5), the last frame of every tick, published with --auto <sha>; replaces the preview. A stepped capture
 #      with skipped ticks is retried once and then NOT published (publish-capture refuses it; the preview stays and says so in status).
 # The farm owns a worktree (FARM_ROOT) = its own compose project + own slot lock (SHOT_LOCK), so authors' `make vfx-shot` runs are not
 # queued behind it; its stack is pinned (reap.py never evicts it to make room). Idle JVMs are parked (SIGSTOP) by parker.sh.
@@ -39,7 +40,7 @@ shot() { # mode(stepped|realtime) skill ticks
   local mode="$1" skill="$2" ticks="$3" stepped=1
   [ "$mode" = realtime ] && stepped=0
   ( cd "$FARM_ROOT" && env SKILL="$skill" VIEW="$VIEWS" TICKS="$ticks" STEPPED="$stepped" FPS=20 OUT_ROOT="$OUT_ROOT" \
-      SHOT_KEEP=1 SHOT_PIN=1 SHOT_KEEP_TTL="${FARM_TTL:-86400}" SHOT_OUTPUTS=lean SHOT_STEP_DWELL="${FARM_DWELL:-0.15}" \
+      SHOT_KEEP=1 SHOT_PIN=1 SHOT_KEEP_TTL="${FARM_TTL:-86400}" SHOT_OUTPUTS=lean SHOT_SLOW_RATE="${FARM_RATE:-5}" \
       SHOT_LOCK="${SHOT_LOCK:-/tmp/claude-1000/astera-vfx-shot-farm.lock}" SHOT_REAP_SCOPE=self SHOT_DETACHED=1 \
       bash "$FARM_ROOT/tools/vfx-shot/vfx-shot.sh" capture ) >> "$FSTATE/shot.log" 2>&1
 }

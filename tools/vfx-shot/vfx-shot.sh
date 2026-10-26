@@ -213,8 +213,8 @@ esac
 if [ "$CMD" = up ] && [ "$VIEW" = all ]; then VIEW=$([ -n "$CASE" ] && echo compare || echo side); fi
 TICKS_SET="${TICKS:-}"
 TICKS="${TICKS:-60}"                 # ticks filmed after the cast (compare: the case duration_ticks)
-STEP_DWELL="${SHOT_STEP_DWELL:-0.35}"   # stepped: seconds a tick stays on screen after its stamp was seen (the recorder, 30 fps, needs >= 1-2 frames of it)
-STEPPED="${STEPPED:-$([ "${FPS:-20}" = 20 ] && echo 1 || echo 0)}"   # 1 = freeze + /tick step: exactly one settled frame per tick, whatever the render rate (default for 20 fps review sheets); 0 = realtime
+SLOW_RATE="${SHOT_SLOW_RATE:-5}"      # STEPPED=1: server tick rate while filming (ticks/s, 1-20); every tick then stays on screen 1/rate s
+STEPPED="${STEPPED:-$([ "${FPS:-20}" = 20 ] && echo 1 || echo 0)}"   # 1 = slow motion (/tick rate SHOT_SLOW_RATE): world, plugin scheduler and client on one clock, several frames per tick, the last is kept (default for 20 fps sheets); 0 = realtime
 FPS="${FPS:-20}"                     # output rate; FPS=60 keeps 3 frames per tick (frame_NNN = NNN/3 ticks), no sheet/gif
 RES="${RES:-}"                       # viewer resolution; default 1280x720 for compare, 640x360 for every other view
 [ "$SOURCED" = 1 ] && RES="${RES:-1280x720}"   # anim-shot keeps the old default
@@ -795,6 +795,7 @@ film() { # viewer view_dir
   local cast_stamp clog="$CLIENTS/$1/client.log" log_off pos_start pos_end fpid i end_wait survival=0
   log_off="$(stat -c %s "$clog" 2>/dev/null || echo 0)"
   rm -f "$rec"
+  rcon "tick rate 20" >/dev/null 2>&1 || true; rcon "tick unfreeze" >/dev/null 2>&1 || true   # a killed earlier run may have left the server slow
   DISPLAY=":$d" xdotool mousemove 320 180 2>/dev/null || true
   # showinfo (before the rebase) logs each frame's wall-clock pts -> epoch time of the first frame
   ffmpeg -nostdin -loglevel info -y -copyts -use_wallclock_as_timestamps 1 -f x11grab -framerate "$([ "$STEPPED" = 1 ] && echo 30 || echo "$FPS")" \
@@ -810,21 +811,19 @@ film() { # viewer view_dir
   # one RCON connection: game time, cast, game time, then (compare) the camera cuts of the plan. Stepped: the server is frozen and
   # advanced one tick at a time until the viewer's screen shows each new tick; realtime: the plan runs on the wall clock.
   local dstep=()
-  if [ "$STEPPED" = 1 ]; then
-    dstep=(DIRECTOR_STEP_DWELL="$STEP_DWELL" DIRECTOR_STEP_TICKS="$TICKS" DIRECTOR_STEP_PRE="$PRE_TICKS" DIRECTOR_STEP_DISPLAY=":$d" DIRECTOR_STEP_SCREEN="$RES_FILM" DIRECTOR_STEP_GUI="$GUI_SCALE")
-  fi
+  [ "$STEPPED" = 1 ] && dstep=(DIRECTOR_SLOW_RATE="$SLOW_RATE" DIRECTOR_STEP_PRE="$PRE_TICKS")
   env DIRECTOR_MARK_CMD="time query gametime" "${dstep[@]}" python3 -I "$HERE/director.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$STATE/camera-plan.tsv" "astera skill cast $SKILL Caster --force" \
-    >"$STATE/director.stdout" 2>"$STATE/director.stderr" || { rcon "tick unfreeze" >/dev/null 2>&1; kill "$fpid" 2>/dev/null; cat "$STATE/director.stderr" >&2; die "director failed"; }
-  rcon "tick unfreeze" >/dev/null 2>&1 || true
-  phase "stepping/cast done ($(grep -h STEP_STATS "$STATE/director.stderr" | tail -1))"
+    >"$STATE/director.stdout" 2>"$STATE/director.stderr" || { rcon "tick rate 20" >/dev/null 2>&1; kill "$fpid" 2>/dev/null; cat "$STATE/director.stderr" >&2; die "director failed"; }
+  phase "cast + camera plan done"
   cast_stamp="$(awk '/^STAMP/{print $2}' "$STATE/director.stderr")"
   [ -n "$cast_stamp" ] || { kill "$fpid" 2>/dev/null; die "cast command failed"; }
   # film until the motion (plus the pre-ticks of the window) is over
-  end_wait="$(awk -v c="$cast_stamp" -v t="$TICKS" -v n="$(date +%s.%N)" -v st="$STEPPED" 'BEGIN{w = (st == 1 ? 0.5 : c + t/20 + 0.8 - n); printf "%.2f", (w > 0 ? w : 0)}')"
+  end_wait="$(awk -v c="$cast_stamp" -v t="$TICKS" -v n="$(date +%s.%N)" -v st="$STEPPED" -v r="$SLOW_RATE" 'BEGIN{w = (st == 1 ? c + t/r + 1.0 - n : c + t/20 + 0.8 - n); printf "%.2f", (w > 0 ? w : 0)}')"
   sleep "$end_wait"
   kill -TERM "$fpid" 2>/dev/null
   wait "$fpid" 2>/dev/null
   FILM_PID=""
+  rcon "tick rate 20" >/dev/null 2>&1 || true        # slow-motion filming over: back to the normal tick loop
   pos_end="$(rcon "data get entity $viewer Pos" | sed 's/.*data: //') in $(rcon "data get entity $viewer Dimension" | sed 's/.*data: //')"
   [ -s "$rec" ] || die "recording failed"
   rm -rf "$dir"; mkdir -p "$dir"
@@ -901,6 +900,7 @@ make_outputs() { # dir view
   fi
   # lean (capture farm): only what skill-compare shows (webp frames + meta); full: sheet, gif and mp4 too. The encoders are independent
   # and CPU-bound, so they run side by side.
+  local encoders=()
   if [ "${SHOT_OUTPUTS:-full}" != lean ]; then
     local args=() i
     for ((i = 0; i < n; i += SHEET_STEP)); do
@@ -908,15 +908,18 @@ make_outputs() { # dir view
     done
     ( montage "${args[@]}" -tile "${SHEET_COLS}x" -geometry 320x180+3+3 -background '#151515' -fill white \
         -pointsize 16 "$dir/sheet.png" 2>/dev/null || log "WARN: montage failed" ) &
+    encoders+=($!)
     ( ffmpeg -nostdin -loglevel error -y -framerate 20 -i "$dir/frame_%03d.png" \
         -vf "scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=200[p];[b][p]paletteuse" \
         "$dir/$SKILL-$view.gif" || log "WARN: gif failed" ) &
+    encoders+=($!)
     ( ffmpeg -nostdin -loglevel error -y -framerate 20 -i "$dir/frame_%03d.png" -c:v libx264 -preset veryfast -crf 16 \
         -pix_fmt yuv420p "$dir/$SKILL-$view.mp4" || log "WARN: mp4 failed" ) &
+    encoders+=($!)
   fi
   ffmpeg -nostdin -loglevel error -y -i "$dir/frame_%03d.png" -c:v libwebp -quality 85 \
     -compression_level 4 -threads 4 -start_number 0 "$dir/frame_%03d.webp" || log "WARN: web preview failed; serving PNG"
-  wait
+  [ "${#encoders[@]}" -eq 0 ] || wait "${encoders[@]}"   # not a bare `wait`: the watchdog / parker are our children too
   write_meta "$dir" "$view" "$n"
   phase "outputs done ($view, ${SHOT_OUTPUTS:-full})"
   log "$view: $n frames -> $dir"
