@@ -51,13 +51,21 @@ internal class PaperArenaWorld(
     override fun resolve(stageId: StageId): Stage? = builds[stageId]?.stage
     override fun ensureBuilt(stageId: StageId): Boolean = builds.containsKey(stageId)
 
+    /** The completed build of a Ready slot of [stage]'s template; the single source for both [peekReady] and [acquire]. */
+    private fun readyBuild(stage: Stage): Pair<SlotAllocator.Slot, Build>? {
+        val ready = slots.snapshot().firstOrNull { it.stage == stage.id && it.state == SlotAllocator.State.Ready } ?: return null
+        val built = builds.values.firstOrNull { it.slot.index == ready.index } ?: return null
+        return ready to built
+    }
+
+    override fun peekReady(stage: Stage): Stage? =
+        if (stage.layout == null) stage else readyBuild(stage)?.second?.stage
+
     override fun acquire(stage: Stage): Result<Stage, ArenaAllocationError> {
         if (!Bukkit.isGlobalTickThread()) return Result.failure(ArenaAllocationError.WrongScope)
         if (stage.layout == null) return Result.failure(ArenaAllocationError.NotReady)
-        val ready = slots.snapshot().firstOrNull { it.stage == stage.id && it.state == SlotAllocator.State.Ready }
+        val (ready, built) = readyBuild(stage)
             ?: run { replenish(stage); return Result.failure(ArenaAllocationError.NotReady) }
-        val built = builds.values.firstOrNull { it.slot.index == ready.index }
-            ?: return Result.failure(ArenaAllocationError.NotReady)
         slots.state(ready.index, SlotAllocator.State.Running)
         replenish(stage)
         return Result.success(built.stage)
