@@ -112,18 +112,20 @@ public class StarDropService(
         val stacks = minOf(burst, MAX_BURST_DROPS)
         val base = burst / stacks
         var extra = burst % stacks
-        // Fountain: the stacks leave on an evenly spaced ring (jittered), each with its own outward speed and upward pop,
-        // so they spray out in all directions and land at different distances instead of in one clump.
+        // Fountain: every stack leaves in its own random direction around the full circle with its own elevation
+        // (a little below the horizon up to nearly straight up) and speed, so the burst sprays up, out and low at
+        // different distances instead of one ring. The azimuths are stratified (evenly spaced, jittered) so two stacks
+        // rarely share a direction. Downward flings are clamped so a drop is not shoved into the floor or off an edge.
         val ringStart = random.nextDouble(0.0, 2 * Math.PI)
         repeat(stacks) { index ->
             val amount = base + if (extra-- > 0) 1 else 0
-            val angle = ringStart + (index + random.nextDouble(-0.35, 0.35)) * 2 * Math.PI / stacks
-            val outward = random.nextDouble(BURST_SPEED_MIN, BURST_SPEED_MAX)
-            val lift = random.nextDouble(BURST_LIFT_MIN, BURST_LIFT_MAX)
-            val now = System.currentTimeMillis()
-            val pos = Vec3(at.position.x, at.position.y + 0.8, at.position.z)
-            val fling = Vec3(cos(angle) * outward, lift, sin(angle) * outward)
-            val drop = StarDrop(nextId.getAndIncrement(), matchId, at.world, pos, amount, BURST_PICKUP_RADIUS, null, victim, now + VICTIM_DENY_MILLIS, null, now + BURST_READY_MILLIS)
+            val azimuth = ringStart + (index + random.nextDouble(-0.45, 0.45)) * 2 * Math.PI / stacks
+            val elevation = Math.toRadians(random.nextDouble(BURST_ELEVATION_MIN_DEG, BURST_ELEVATION_MAX_DEG))
+            val speed = random.nextDouble(BURST_SPEED_MIN, BURST_SPEED_MAX)
+            val now = scheduler.currentTick()
+            val pos = Vec3(at.position.x, at.position.y + BURST_SPAWN_LIFT, at.position.z)
+            val fling = Vec3(cos(elevation) * cos(azimuth) * speed, (sin(elevation) * speed).coerceAtLeast(BURST_MIN_VERTICAL), cos(elevation) * sin(azimuth) * speed)
+            val drop = StarDrop(nextId.getAndIncrement(), matchId, at.world, pos, amount, BURST_PICKUP_RADIUS, null, victim, now + VICTIM_DENY_TICKS, null, now + BURST_READY_TICKS)
                 .let { withEntity(it, fling) }
             drops[drop.id] = drop
         }
@@ -135,6 +137,13 @@ public class StarDropService(
         val w = world
         if (w != null) {
             for (drop in drops.values.toList()) {
+                // A match that ended (or vanished) without its end event reaching us leaves lookalike stars nobody can take.
+                val live = matches.findById(drop.matchId)?.let { it.phase != MatchPhase.ENDED } == true
+                if (!live) {
+                    drops.remove(drop.id)
+                    drop.entity?.let(w::remove)
+                    continue
+                }
                 val scope = drop.entity?.let(w::executionScope) ?: regionScope(drop.world, drop.position)
                 scheduler.run(scope, kotlin.time.Duration.ZERO) {
                 val handle = drop.entity
@@ -156,12 +165,18 @@ public class StarDropService(
 
     /** A player touched the thing [handle] (its vanilla pickup is already cancelled). */
     public fun onTouched(handle: String, player: PlayerId) {
-        val drop = drops.values.firstOrNull { it.entity == handle } ?: return
+        val drop = drops.values.firstOrNull { it.entity == handle }
+        if (drop == null) {
+            // A star item nobody tracks (a duplicate left by a respawn, a leftover of an earlier match): it can never be
+            // taken, so it must not keep lying around looking like a star.
+            world?.remove(handle)
+            return
+        }
         val match = matches.findById(drop.matchId) ?: return
         if (match.teams.none { player in it.members }) return
         val loc = positions.positionOf(player) ?: return // dead / spectating
         if (loc.world != drop.world) return
-        if (isDenied(drop, player) || System.currentTimeMillis() < drop.readyAtMillis) return
+        if (isDenied(drop, player) || scheduler.currentTick() < drop.readyAtTick) return
         // The pickup event arrives on the player's thread; the star ledger is owned by Global.
         scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { take(drop, player) }
     }
@@ -192,13 +207,13 @@ public class StarDropService(
     }
 
     private fun withEntity(drop: StarDrop, velocity: Vec3?): StarDrop {
-        val delayTicks = ((drop.readyAtMillis - System.currentTimeMillis()) / MILLIS_PER_TICK).toInt().coerceAtLeast(0)
+        val delayTicks = (drop.readyAtTick - scheduler.currentTick()).toInt().coerceAtLeast(0)
         val handle = world?.spawn(drop.world, drop.position, drop.amount, velocity, delayTicks) ?: return drop
         return drop.copy(entity = handle)
     }
 
     private fun isDenied(drop: StarDrop, player: PlayerId): Boolean =
-        player == drop.deniedTo && System.currentTimeMillis() < drop.deniedUntilMillis
+        player == drop.deniedTo && scheduler.currentTick() < drop.deniedUntilTick
 
     private fun take(drop: StarDrop, taker: PlayerId) {
         val taken = drops.remove(drop.id) ?: return
@@ -212,20 +227,23 @@ public class StarDropService(
     }
 
     private companion object {
-        const val MILLIS_PER_TICK = 50L
         const val POP_RADIUS = 40.0
         const val BURST_HEAR_RADIUS = 32.0
         /** Most separate star items one burst throws (a 100-star economy drops tens of stars at once). */
         const val MAX_BURST_DROPS = 16
         const val BURST_PICKUP_RADIUS = 1.5
-        const val VICTIM_DENY_MILLIS = 8_000L
-        /** Outward fling of a burst drop (blocks/tick, randomized per drop): lands roughly 2 to 4.5 blocks away. */
-        const val BURST_SPEED_MIN = 0.14
-        const val BURST_SPEED_MAX = 0.32
-        /** Upward pop (blocks/tick, randomized per drop): the fountain's height. */
-        const val BURST_LIFT_MIN = 0.35
-        const val BURST_LIFT_MAX = 0.62
+        const val VICTIM_DENY_TICKS = 160L
+        /** Launch speed of a burst drop (blocks/tick, randomized per drop). */
+        const val BURST_SPEED_MIN = 0.12
+        const val BURST_SPEED_MAX = 0.62
+        /** Launch elevation range in degrees, random per drop: slightly below the horizon up to nearly vertical. */
+        const val BURST_ELEVATION_MIN_DEG = -15.0
+        const val BURST_ELEVATION_MAX_DEG = 80.0
+        /** Never launch faster downward than this (blocks/tick): keeps drops out of the floor and off the edge. */
+        const val BURST_MIN_VERTICAL = -0.05
+        /** Drops spawn this far above the victim's feet. */
+        const val BURST_SPAWN_LIFT = 0.8
         /** A burst drop cannot be taken for this long, so the fountain is seen. */
-        const val BURST_READY_MILLIS = 900L
+        const val BURST_READY_TICKS = 18L
     }
 }
