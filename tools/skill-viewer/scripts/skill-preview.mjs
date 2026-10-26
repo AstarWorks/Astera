@@ -183,7 +183,7 @@ const clientFrame = (t) => { // the capture film starts `clientPre` ticks before
   const p = join(clientDir, `frame_${String(f).padStart(3, '0')}.png`);
   return existsSync(p) ? p : null;
 };
-const clientAvailable = !viewPreset && !!clientDir && existsSync(clientDir) && clientFrame(tFrom) !== null; // the published capture is the compare camera only
+const clientAvailable = !cameraPreset && !!clientDir && existsSync(clientDir) && clientFrame(tFrom) !== null; // the published capture is the compare camera only
 if (!clientAvailable) warnings.push('no published real-client compare capture for this case: no client row');
 
 // ---------------------------------------------------------------- render
