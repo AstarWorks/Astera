@@ -2,7 +2,7 @@
 id: annihilation-arena
 display_name_key: astera.stage.annihilation-arena.name
 layout:
-  marker_version: 4
+  marker_version: 5
   seed: 20261025
   surface_y: 64
   kill_y: 16
@@ -83,21 +83,129 @@ layout:
     x: 0
     z: 203
   structures:
-  - part: castle-tower
-    x: 18
-    z: -151
-    rotation: 0
+  - part: castle-gate
+    x: 0
+    z: -144
+    rotation: 90
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: 14
+    z: -144
+    rotation: 180
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -14
+    z: -144
+    rotation: 180
     palette:
       team: minecraft:red_concrete
   - part: castle-tower
-    x: 161
-    z: 98
-    rotation: 0
+    x: 20
+    z: -144
+    rotation: 90
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: -20
+    z: -144
+    rotation: 90
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: 12
+    z: -186
+    rotation: 90
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: -12
+    z: -186
+    rotation: 90
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-gate
+    x: 121
+    z: 83
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 121
+    z: 97
+    rotation: 270
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 121
+    z: 69
+    rotation: 270
     palette:
       team: minecraft:blue_concrete
   - part: castle-tower
-    x: -125
-    z: 98
+    x: 121
+    z: 103
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-tower
+    x: 121
+    z: 63
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-tower
+    x: 163
+    z: 95
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-tower
+    x: 163
+    z: 71
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-gate
+    x: -121
+    z: 83
+    rotation: 0
+    palette:
+      team: minecraft:yellow_concrete
+  - part: castle-wall
+    x: -121
+    z: 69
+    rotation: 90
+    palette:
+      team: minecraft:yellow_concrete
+  - part: castle-wall
+    x: -121
+    z: 97
+    rotation: 90
+    palette:
+      team: minecraft:yellow_concrete
+  - part: castle-tower
+    x: -121
+    z: 63
+    rotation: 0
+    palette:
+      team: minecraft:yellow_concrete
+  - part: castle-tower
+    x: -121
+    z: 103
+    rotation: 0
+    palette:
+      team: minecraft:yellow_concrete
+  - part: castle-tower
+    x: -163
+    z: 71
+    rotation: 0
+    palette:
+      team: minecraft:yellow_concrete
+  - part: castle-tower
+    x: -163
+    z: 95
     rotation: 0
     palette:
       team: minecraft:yellow_concrete

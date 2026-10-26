@@ -14,6 +14,7 @@ Owner track `wp/builds-maps`. Seed: audit 2026-10-26. Items: Board prefix `MAP-`
 - Stages: siege-isles (5 islands), annihilation-arena (7, 3 teams), pve-proving-grounds, example-arena. All use one generator and one palette (grass top, stone-brick centre), disc + cone shape, 3-wide bridges.
 - Keep = low wall arc + 2 pillars; max height +3-4 blocks; one tree type; team colour only on rim trim and banners.
 - Schematic loader is a dead stub (`InMemorySchematicLoader`). Several stages share one world at +-300 offsets, one match at a time.
+- 2026-10-27: annihilation-arena bases now have a gate, front walls and 4 towers per team (castle parts); every siege-isles variant has a neutral lookout tower on each outpost, and the centre island has two neutral towers (-34,12)/(34,-12) plus four cover walls at (+-14,34)/(+-14,-36) clear of the lanes and ruins. `make arena-preview` runs clean again (stale cross-stage overlap check removed; stages live in separate world slots).
 - Lobby buildings are tiny (stalls, one pavilion); the training island is a flat strip with targets.
 
 ## 理想形

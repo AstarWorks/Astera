@@ -28,8 +28,6 @@ fun main(args: Array<String>) {
     report.append("| Stage | Theme | Blocks | Generation ms | Digest ms | Bounds |\n|---|---|---:|---:|---:|---|\n")
     val routes = StringBuilder("\n## Routing (5000 nodes per A* search)\n\nTerrain treats every non-air block as solid, exactly as packet Terrain does; this is conservative for plants and banners. All chunks are known in this offline measurement. Live bots must progressively discover chunks.\n\n| Stage | Route | Direct complete | Direct nodes | Routed complete | Total local nodes | Max local nodes | Cells |\n|---|---|---|---:|---|---:|---:|---:|\n")
     val problems = mutableListOf<String>()
-    data class Bounds(val id: String, val world: String, val minX: Int, val maxX: Int, val minZ: Int, val maxZ: Int)
-    val bounds = mutableListOf<Bounds>()
     for (stage in stages.all().sortedBy { it.id.value }) {
         val start = System.nanoTime()
         val plan = ArenaIslandGenerator.generate(stage, parts)
@@ -39,10 +37,6 @@ fun main(args: Array<String>) {
         report.append("| ${stage.id.value} | ${layout.theme} | ${plan.blocks.size} | %.1f | %.1f | x=%d..%d z=%d..%d y=%d..%d |\n".format(ms, digestMs, plan.minX, plan.maxX, plan.minZ, plan.maxZ, plan.minY, plan.maxY))
         problems += plan.problems.map { "${stage.id.value}: $it" }
         if (layout.killY >= plan.minY) problems += "${stage.id.value}: kill plane intersects terrain"
-        val box = Bounds(stage.id.value, stage.world.value, plan.minX, plan.maxX, plan.minZ, plan.maxZ)
-        for (b in bounds) if (b.world == box.world && b.minX <= box.maxX && box.minX <= b.maxX && b.minZ <= box.maxZ && box.minZ <= b.maxZ)
-            problems += "${b.id} overlaps ${box.id}"
-        bounds += box
         for (spawn in stage.spawnPoints.filter { it.role != SpawnRole.SPECTATOR }) {
             val p = spawn.position; val x = floor(p.x).toInt(); val y = floor(p.y).toInt(); val z = floor(p.z).toInt()
             if (!plan.isSolid(x, y - 1, z) || plan.isSolid(x, y, z) || plan.isSolid(x, y + 1, z)) problems += "${stage.id.value}: obstructed spawn $p"

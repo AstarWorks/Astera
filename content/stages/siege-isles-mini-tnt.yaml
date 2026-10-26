@@ -2,7 +2,7 @@
 id: siege-isles-mini-tnt
 display_name_key: astera.stage.siege-isles.name
 layout:
-  marker_version: 4
+  marker_version: 6
   seed: 20261024
   surface_y: 64
   kill_y: 16
@@ -320,6 +320,54 @@ layout:
     x: 0
     z: 95
     rotation: 270
+  - part: castle-tower
+    x: -18
+    z: -95
+    rotation: 0
+    palette:
+      team: minecraft:white_concrete
+  - part: castle-tower
+    x: 20
+    z: 95
+    rotation: 0
+    palette:
+      team: minecraft:white_concrete
+  - part: castle-tower
+    x: -34
+    z: 12
+    rotation: 0
+    palette:
+      team: minecraft:white_concrete
+  - part: castle-tower
+    x: 34
+    z: -12
+    rotation: 0
+    palette:
+      team: minecraft:white_concrete
+  - part: castle-wall
+    x: -14
+    z: 34
+    rotation: 180
+    palette:
+      team: minecraft:white_concrete
+  - part: castle-wall
+    x: 14
+    z: 34
+    rotation: 180
+    palette:
+      team: minecraft:white_concrete
+  - part: castle-wall
+    x: -14
+    z: -36
+    rotation: 0
+    palette:
+      team: minecraft:white_concrete
+  - part: castle-wall
+    x: 14
+    z: -36
+    rotation: 0
+    palette:
+      team: minecraft:white_concrete
   - part: bridge
     x: -80
     z: 0
