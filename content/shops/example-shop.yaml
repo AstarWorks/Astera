@@ -174,3 +174,26 @@ offers:
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.sigil-rifle
+  # Consumables (ECO-04): `limit: unlimited` = paid on every purchase, used up on use (consume_item) and gone for
+  # good even when used in a match (the match-end restore removes consumed copies). Priced below one match's
+  # GOLD (35 for a loss, 120 for a win): a heal costs about a loss's pay, so carrying one is a real choice.
+  - id: heal-potion
+    item: heal-potion
+    category: consumable
+    limit: unlimited
+    price:
+      currency: GOLD
+      amount: 40
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.heal-potion
+  - id: swift-powder
+    item: swift-powder
+    category: consumable
+    limit: unlimited
+    price:
+      currency: GOLD
+      amount: 30
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.swift-powder

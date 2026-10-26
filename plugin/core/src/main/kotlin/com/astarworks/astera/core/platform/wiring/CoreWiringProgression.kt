@@ -287,12 +287,14 @@ internal fun CoreWiringState.wireProgression() {
         gateway = { services.get<IPlayerInventoryGateway>() },
         saveSnapshot = saveSnapshotUseCase,
         matches = { services.get<IMatchRepository>() },
+        removal = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>() },
         afterEntryCapture = {
             weaponLimits.enforceOnEntry(it)
             loanerKit.ensureArmed(it)
         },
     )
     services.register<MatchInventorySnapshotListener>(matchSnapshots, priority = 0)
+    services.register<com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder>(matchSnapshots, priority = 0)
     wave5completeSubs += eventBus.subscribe(MatchStarted::class) { matchSnapshots.handleStarted(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class) { matchSnapshots.handleEntered(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerLeftMatch::class) { matchSnapshots.handleLeft(it) }

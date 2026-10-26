@@ -615,6 +615,8 @@ astera:
           crimson-chain-axe: "Crimson Chain-Axe"
           orrery-staff: "Orrery Staff"
           sigil-rifle: "Sigil Rifle"
+          heal-potion: "Healing Draught"
+          swift-powder: "Swift Powder"
       gui:
         spacer: " "
         price: "<gray>Price: <green>{amount}</green> {currency}</gray>"
