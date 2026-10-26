@@ -21,7 +21,8 @@
 # (rebuilds the image); `make dev-plugins` / `make dev-content` push just the changed
 # jars / content into the running backends instead. See docs/contributing/playtest.md.
 #
-# Host ports are overridable (ASTERA_PORT, POSTGRES_PORT, REDIS_PORT) and there
+# Host ports are overridable (ASTERA_PORT, POSTGRES_PORT, REDIS_PORT; POSTGRES_BIND / REDIS_BIND pick the
+# bind address, loopback on a remote host) and there
 # are no pinned container names, so a second stack can run with
 # `docker compose -p <other-name>`.
 
@@ -82,9 +83,9 @@ x-astera-backend: &astera-backend
     ASTERA_METRICS_ENABLED: "true"
     ASTERA_METRICS_PORT: "9092"
     # Resource pack (ADR-0182): clients download from the host address; the
-    # server reads the hash inside the network. Off this machine, set
-    # ASTERA_RESOURCE_PACK_URL in docker/.env to the host's LAN/public address.
-    ASTERA_RESOURCE_PACK_URL: "${ASTERA_RESOURCE_PACK_URL:-http://localhost:8099/astera.zip}"
+    # server reads the hash inside the network. Off this machine the URL follows ASTERA_PUBLIC_HOST
+    # (derived from ASTERA_DEV_HOST by the Makefile / scripts); ASTERA_RESOURCE_PACK_URL overrides it.
+    ASTERA_RESOURCE_PACK_URL: "${ASTERA_RESOURCE_PACK_URL:-http://${ASTERA_PUBLIC_HOST:-localhost}:${RESOURCE_PACK_PORT:-8099}/astera.zip}"
     ASTERA_RESOURCE_PACK_SHA1_URL: "http://resource-pack/astera.zip.sha1"
   depends_on:
     postgres:
@@ -141,7 +142,7 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_BIND:-0.0.0.0}:${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: "astera"
       POSTGRES_DB: "astera"
@@ -158,7 +159,7 @@ services:
     image: redis:7-alpine
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_BIND:-0.0.0.0}:${REDIS_PORT:-6379}:6379"
     volumes:
       - redis-data:/data
     healthcheck:
