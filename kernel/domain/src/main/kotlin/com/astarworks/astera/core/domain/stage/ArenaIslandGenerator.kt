@@ -1027,8 +1027,8 @@ public object ArenaIslandGenerator {
                 val z = k.toInt()
                 if (get(x, s, z) != material("ground") || get(x, s + 1, z) != null) continue
                 val r = rnd(x, z, 5)
-                if (r >= 0.09) continue
-                set(x, s + 1, z, FLOWERS[(r / 0.09 * FLOWERS.size).toInt().coerceAtMost(FLOWERS.size - 1)])
+                if (r >= 0.06) continue
+                set(x, s + 1, z, FLOWERS[(r / 0.06 * FLOWERS.size).toInt().coerceAtMost(FLOWERS.size - 1)])
             }
         }
     }
@@ -1038,8 +1038,9 @@ public object ArenaIslandGenerator {
     private val SPOT_OFFSETS: List<Double> = listOf(0.0, 0.3, -0.3, 0.6, -0.6, 0.9, -0.9, 1.3, -1.3, 1.8, -1.8, 2.4, -2.4, 3.1)
     private val ARROWS: List<Pair<Int, Int>> = listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1)
     private val CORNERS: List<Pair<Int, Int>> = listOf(1 to 1, 1 to -1, -1 to 1, -1 to -1)
+    /** No red or blue blooms: those are the team colours and must stay unambiguous on the ground. */
     private val FLOWERS: List<String> = listOf(
         "minecraft:short_grass", "minecraft:short_grass", "minecraft:short_grass", "minecraft:dandelion",
-        "minecraft:poppy", "minecraft:cornflower", "minecraft:azure_bluet", "minecraft:oxeye_daisy",
+        "minecraft:allium", "minecraft:azure_bluet", "minecraft:oxeye_daisy", "minecraft:short_grass",
     )
 }

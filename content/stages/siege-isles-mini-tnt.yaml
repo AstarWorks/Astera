@@ -2,7 +2,7 @@
 id: siege-isles-mini-tnt
 display_name_key: astera.stage.siege-isles.name
 layout:
-  marker_version: 6
+  marker_version: 7
   seed: 20261024
   surface_y: 64
   kill_y: 16
@@ -376,7 +376,7 @@ layout:
     x: 80
     z: 0
     rotation: 0
-  theme: temperate
+  theme: volcanic
   atmosphere: {time_of_day: 12000, weather: clear}
 regions:
 - name: full-arena
