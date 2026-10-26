@@ -269,12 +269,20 @@ star_burst_gain() {  # the killer's haul: dense rising sparkle, brighter and sho
     mix gain 0.65 lo:0:0.6 s0:0:0.7 s1:30:0.7 s2:60:0.7 s3:90:0.7 s4:120:0.7; finish star/burst-gain gain
 }
 
+match_sudden_death() {  # warning: two low alarm pulses over a rising tension swell, then a hard bell strike
+    gen a 0.25 "$(sq 220 9)"; gen b 0.25 "$(sq 220 9)"
+    gen c 1.0 "sin(2*PI*(110*t+(440-110)*t*t/(2*1.0)))*min(t/0.1,1)*0.35"
+    noise d 1.0 "bandpass=f=900:w=2,volume='min(t/0.9,1)*0.5':eval=frame" 97
+    gen e 0.9 "$(bell 880 4)"; gen f 0.9 "$(bell 1318 4.5)"
+    mix sd 1.7 a:0:0.9 b:260:0.9 c:0:0.7 d:0:0.3 e:700:1 f:700:0.6; finish match/sudden-death sd
+}
+
 ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-up norma/level-max
      match/countdown-tick match/go combat/kill match/death match/win match/lose
      weapons/gun-shot weapons/sword-swing skills/wand-cast
      combat/hit combat/crit combat/blocked combat/skill-ready combat/ego-ready match/respawn match/draw star/pop
      norma/burst norma/burst-max norma/choice-open norma/choice-picked norma/choice-defaulted
-     ui/level-up ui/login-bonus ui/quest-complete star/burst-gain)
+     ui/level-up ui/login-bonus ui/quest-complete star/burst-gain match/sudden-death)
 
 targets=("$@"); [[ ${#targets[@]} -gt 0 ]] || targets=("${ALL[@]}")
 for name in "${targets[@]}"; do

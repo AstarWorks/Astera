@@ -2502,3 +2502,5 @@ astera:
   match_menu.help.norma: "<gray>Norma:</gray> your team clears Norma levels by reaching a star or kill goal; the first team to the top level wins."
   match_menu.help.stars: "<gray>Stars:</gray> a star is an item you carry inside the match. Bring them to your goal; if you are defeated or leave, they burst out for others to grab."
   match_menu.help.weapon-limit: "<gray>Weapon limit:</gray> you can only carry a limited number of weapons in a match; extras are set aside and returned afterwards."
+  presentation.sudden-death.title: "<red><bold>Final stretch!</bold></red>"
+  presentation.sudden-death.subtitle: "<yellow>The match ends soon - go for the win</yellow>"

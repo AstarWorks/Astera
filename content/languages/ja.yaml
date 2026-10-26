@@ -2490,3 +2490,5 @@ astera:
   match_menu.help.norma: "<gray>ノルマ:</gray> チームでスター目標かキル目標を達成してノルマレベルを上げ、先に最上位に届いたチームの勝ち。"
   match_menu.help.stars: "<gray>スター:</gray> 試合中だけ持てるアイテム。目標まで運ぶ。倒されたり抜けたりすると弾け飛び、他のプレイヤーが拾える。"
   match_menu.help.weapon-limit: "<gray>武器制限:</gray> 試合中に持てる武器の数には上限があり、超えた分は預かられて試合後に戻る。"
+  presentation.sudden-death.title: "<red><bold>ラストスパート！</bold></red>"
+  presentation.sudden-death.subtitle: "<yellow>まもなく決着 - 勝ちに行け</yellow>"

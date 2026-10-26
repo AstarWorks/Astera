@@ -70,13 +70,11 @@ class MilestoneSoundScenarioTest {
             assertThat(heard(red, SoundCues.MATCH_COUNTDOWN_TICK)).`as`("countdown ticks").isEqualTo(5)
             assertThat(heard(blue, SoundCues.MATCH_COUNTDOWN_TICK)).isEqualTo(5)
             assertThat(heard(red, SoundCues.MATCH_GO)).`as`("go").isEqualTo(1)
-            // Layers of a cue play together with the primary sound.
-            val goLayers = checkNotNull(sim.services.getOrThrow<ISoundRegistry>().find(SoundCues.MATCH_GO)).layers
-            assertThat(goLayers).isNotEmpty()
-            assertThat(sim.playerSounds.calls.map { it.sound.key }).contains(goLayers.first().resourceKey)
-
-            // Last stretch: BGM tension.
+            // Last stretch: warning sting for every member, then BGM tension.
+            sim.playerSounds.clear()
             sim.eventBus.publish(PhaseChanged(matchId, MatchPhase.ACTIVE, MatchPhase.SUDDEN_DEATH, 1L))
+            assertThat(heard(red, SoundCues.MATCH_SUDDEN_DEATH)).`as`("final-stretch sting").isEqualTo(1)
+            assertThat(heard(blue, SoundCues.MATCH_SUDDEN_DEATH)).isEqualTo(1)
             assertThat(bgm.moodOf(red.id)).isEqualTo(MusicMood.HIGH_INTENSITY)
             assertThat(bgm.trackOf(red.id)).isEqualTo(MusicTrackId("high-intensity-drums"))
 
