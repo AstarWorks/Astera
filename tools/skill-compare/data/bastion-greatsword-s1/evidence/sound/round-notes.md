@@ -24,3 +24,6 @@ Onsets are within 1 tick for all 11 events (worst: impact 2 body +0.8, settle 2 
 
 ## Changes (see 依頼 in the report)
 flash-sting removed; whoosh-sweep added; ticks, pitches and volumes in deliver/sound-cues.yaml.
+
+## r2b: timbre pass (after review of the spectrogram)
+Review: numbers matched, the picture did not. Fixed: soft band edges plus time-frequency texture instead of brick-wall slabs; impact bodies are sub-80 ms thumps with a pitch drop and wander (no held 150-300 Hz hum); every cue ends in a long cosine fade (no vertical walls); steel (ring, settle tink) is inharmonic partials with different decays, wander and beating. The feature table now has flatness and a timbre metric: log band-energy correlation ref vs ours per event window (4.5-16 kHz and own band). The reference is music-contaminated, so low-band correlations (E4/E8 own band about -0.1) are not meaningful. HF correlation is 0.6-0.8 for E1, E2, E7, E8, E9, E11 and weakest for E6 (0.12) and E10 (0.19). spec-hit1.png / spec-hit2.png are now side by side (reference left, ours right).

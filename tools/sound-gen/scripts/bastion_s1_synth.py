@@ -97,14 +97,14 @@ def comb(x, delay_s, g):
     return y
 
 
-def fade(x, fin=0.001, fout=0.010):
+def fade(x, fin=0.001, fout=0.0):
     n = len(x)
     a = int(fin * SR)
-    b = int(fout * SR)
+    b = int(max(fout, min(0.12, 0.4 * n / SR)) * SR)  # every tail gets a long cosine fade (>= 40% of the file, max 120 ms)
     if a:
         x[:a] *= np.linspace(0, 1, a)
     if b:
-        x[-b:] *= np.linspace(1, 0, b)
+        x[-b:] *= 0.5 + 0.5 * np.cos(np.linspace(0, np.pi, b))
     return x
 
 
@@ -112,7 +112,24 @@ def fade(x, fin=0.001, fout=0.010):
 # r2 (reference-matched): every cue is designed from the numbers in docs/contributing/vfx-team/sound.md
 # "Reference profile" (events E1..E11), measured on the case video with bastion_s1_features.py.
 # Nothing here is derived from game audio: all layers are synthesised from noise / sines / modal sums.
+from scipy.ndimage import gaussian_filter  # noqa: E402
 from scipy.signal import istft, stft  # noqa: E402
+
+
+def wander(t, r, depth=0.04, rate=9.0):
+    """Slow random pitch wander multiplier (1 +- depth) so tails do not hold a dead-flat frequency."""
+    k = r.standard_normal(int(t[-1] * rate) + 4)
+    return 1 + depth * np.interp(t, np.arange(len(k)) / rate, k / max(np.abs(k).max(), 1e-9))
+
+
+def steel_partials(t, r, base, ratios, taus, amps, depth=0.012):
+    """Inharmonic ringing partials: each with its own decay, slow detune wander and tiny beating partner."""
+    y = np.zeros_like(t)
+    for ra, ta, am in zip(ratios, taus, amps):
+        f = base * ra * wander(t, r, depth, 7.0)
+        ph = 2 * np.pi * np.cumsum(f) / SR + r.uniform(0, 6.28)
+        y += am * np.exp(-t / ta) * (np.sin(ph) + 0.5 * np.sin(1.0037 * ph + r.uniform(0, 6.28)))
+    return y
 
 
 def spec_noise(dur, fc_fn, bw_oct, r, lo=0.0, hi=SR / 2):
@@ -124,7 +141,14 @@ def spec_noise(dur, fc_fn, bw_oct, r, lo=0.0, hi=SR / 2):
     fc = np.asarray(fc_fn(tf))[None, :]
     ff = np.maximum(f, 1.0)[:, None]
     g = np.exp(-0.5 * (np.log2(ff / fc) / bw_oct) ** 2)
-    g = g * ((f >= lo) & (f <= hi))[:, None]
+    # soft first-order roll-offs instead of a brick wall at lo / hi
+    if lo > 0:
+        g = g / np.sqrt(1 + (lo / ff) ** 3)
+    if hi < SR / 2:
+        g = g * 1 / np.sqrt(1 + (ff / hi) ** 3)
+    # smooth random time-frequency texture (+-3 dB blobs) so the band edges and body are not a flat slab
+    blob = gaussian_filter(r.standard_normal(g.shape), (3.0, 6.0))
+    g = g * np.exp(0.9 * blob / max(blob.std(), 1e-9) * 0.35)
     _, y = istft(Z * g, SR, nperseg=512, noverlap=512 - 64)
     y = y[:n]
     return np.pad(y, (0, n - len(y)))
@@ -182,11 +206,16 @@ def whoosh_sweep(seed):
 
 
 def _body(r, dur, f_hi, f_lo, tone_tau, hold, tau, noise_cut=1100):
+    # short thump: pitch drops f_hi -> ~0.55 f_lo within ~50 ms and wanders; noise cutoff falls with the envelope.
+    dur = min(dur, 0.16)
     t = T(dur)
-    f0 = f_lo + (f_hi - f_lo) * np.exp(-t / 0.02)
+    f0 = (0.55 * f_lo + (f_hi - 0.55 * f_lo) * np.exp(-t / 0.022)) * wander(t, r, 0.05, 11.0)
     ph = 2 * np.pi * np.cumsum(f0) / SR
     tone = np.sin(ph)
     nz = lp(r.standard_normal(len(t)), noise_cut, 2)
+    nz2 = lp(r.standard_normal(len(t)), noise_cut * 0.45, 2)
+    mixn = np.exp(-t / 0.03)
+    nz = nz * mixn + nz2 * (1 - mixn)
     env = np.minimum(1, t / 0.004) * np.where(t < 0.004 + hold, 1.0, np.exp(-(t - 0.004 - hold) / tau))
     return t, (tone * 1.0 + nz * 0.9) * env
 
@@ -194,7 +223,7 @@ def _body(r, dur, f_hi, f_lo, tone_tau, hold, tau, noise_cut=1100):
 def impact_steel(seed):
     # E4/E8 body: dull 150-500 Hz thud (centre ~300 Hz), a touch of 500-2k, tiny click; dur6 ~75 ms.
     r = rng(seed)
-    t, y = _body(r, 0.35, 560, 340, 0.02, 0.045, 0.050, noise_cut=1400)
+    t, y = _body(r, 0.16, 640, 400, 0.02, 0.022, 0.030, noise_cut=1500)
     click = hp(r.standard_normal(len(t)), 2000) * np.exp(-t / 0.0015) * 0.12
     return y + click
 
@@ -204,7 +233,8 @@ def cut_thud(seed):
     r = rng(seed)
     t = T(0.18)
     y = bp(r.standard_normal(len(t)), 500, 1800, 2) * np.exp(-t / 0.028) * np.minimum(1, t / 0.003)
-    return y + 0.4 * np.sin(2 * np.pi * 620 * t) * np.exp(-t / 0.02)
+    f = (520 + 260 * np.exp(-t / 0.025)) * wander(t, r, 0.05, 10.0)
+    return y + 0.4 * np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.018)
 
 
 def armor_ring(seed):
@@ -213,17 +243,18 @@ def armor_ring(seed):
     t = T(0.36)
     y = spec_noise(0.36, lambda tf: 4300 + 800 * np.sin(2 * np.pi * 4 * tf), 0.55, r, lo=2000, hi=9000)
     env = np.where(t < 0.085, np.clip(t / 0.085, 0, 1) ** 1.5, np.where(t < 0.15, 1.0, np.exp(-(t - 0.15) / 0.05)))
-    partials = sum(a * np.sin(2 * np.pi * f * t + r.uniform(0, 6)) * np.exp(-t / tau) for f, a, tau in
-                   [(2480, 0.10, 0.07), (3790, 0.08, 0.06), (5370, 0.06, 0.05)])
+    # steel: inharmonic bar-like ratios, each partial with its own decay, wandering and beating
+    partials = steel_partials(t, r, 2150, [1.0, 1.83, 2.61, 3.47, 4.52], [0.085, 0.060, 0.045, 0.034, 0.024],
+                              [0.07, 0.06, 0.05, 0.035, 0.025])
     return lead((y / max(np.abs(y).max(), 1e-9)) * env + partials * env, 8)
 
 
 def ground_slam(seed):
     r = rng(seed)
-    t = T(0.45)
-    f = 45 + 30 * np.exp(-t / 0.08)
-    sub = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.10)
-    grit = bp(r.standard_normal(len(t)), 200, 900, 2) * np.exp(-t / 0.06) * 0.5
+    t = T(0.30)
+    f = (45 + 30 * np.exp(-t / 0.08)) * wander(t, r, 0.04, 8.0)
+    sub = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.07)
+    grit = bp(r.standard_normal(len(t)), 200, 900, 2) * np.exp(-t / 0.04) * 0.5
     return (sub + grit) * np.minimum(1, t / 0.002)
 
 
@@ -241,7 +272,9 @@ def sword_settle(seed):
     r = rng(seed)
     t = T(0.20)
     y = spec_noise(0.20, lambda tf: 750 + 0 * tf, 0.50, r, lo=450, hi=2500) * np.where(t < 0.04, rise_decay(t, 0.04, 0.025, 0.03), np.where(t < 0.075, 1.0, np.exp(-(t - 0.075) / 0.028)))
-    tink = 0.06 * np.exp(-np.clip(t - 0.02, 0, None) / 0.03) * (t >= 0.02) * (np.sin(2 * np.pi * 3300 * t) + 0.5 * np.sin(2 * np.pi * 4510 * t))
+    tt = np.clip(t - 0.02, 0, None)
+    tink = (t >= 0.02) * 0.9 * steel_partials(tt, r, 2900, [1.0, 1.47, 2.09, 2.83], [0.022, 0.016, 0.011, 0.008],
+                                              [0.05, 0.04, 0.03, 0.02], depth=0.02)
     return y / max(np.abs(y).max(), 1e-9) + tink
 
 

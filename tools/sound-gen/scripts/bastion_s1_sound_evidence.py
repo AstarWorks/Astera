@@ -15,6 +15,8 @@ import numpy as np
 from scipy.io import wavfile
 from scipy.signal import stft
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
@@ -53,7 +55,8 @@ sr1, r = mono(ref_wav)
 sr2, o = mono(our_wav)
 r = r / np.abs(r).max()
 for name, t0, t1 in (("full", -1, 52), ("hit1", -1, 13), ("hit2", 21, 44)):
-    fig, ax = plt.subplots(2, 1, figsize=(11, 6), sharex=True)
+    side = name != "full"
+    fig, ax = plt.subplots(1 if side else 2, 2 if side else 1, figsize=(14, 5) if side else (11, 6), sharex=not side, sharey=True)
     spec(ax[0], sr1, r, ref_off, t0, t1, "reference (music + voice underneath; HF events are reliable)")
     spec(ax[1], sr2, o, our_off, t0, t1, "ours")
     for a in ax:
@@ -71,6 +74,30 @@ for name, t0, t1 in (("hit1", -1, 13), ("hit2", 21, 44)):
     plt.savefig(os.path.join(out, f"wave-{name}.png"), dpi=70)
     plt.close()
 
+EV = {e[0]: e for e in __import__("bastion_s1_features").EVENTS}
+OWN = {n: (v[1], v[2]) for n, v in EV.items()}
+
+
+def tmat(sr, x, off, name, lo, hi):
+    """log band-energy matrix: 10 log-spaced bands in [lo,hi] x 5 ms frames over the event window (+-1 tick margin)."""
+    _, a, b = EV[name][0], EV[name][3], EV[name][4]
+    f, t, Z = stft(x, sr, nperseg=1024, noverlap=1024 - 220)
+    P = np.abs(Z) ** 2
+    ts = t - off
+    m = (ts >= (a - 1) * 0.05) & (ts <= (b + 1) * 0.05)
+    edges = np.geomspace(lo, min(hi, 20000), 11)
+    rows_ = [P[(f >= edges[i]) & (f < edges[i + 1])][:, m].sum(0) for i in range(10)]
+    return 10 * np.log10(np.array(rows_) + 1e-14)
+
+
+def tcorr(name, lo, hi):
+    A = tmat(sr1, r, ref_off, name, lo, hi)
+    B = tmat(sr2, o, our_off, name, lo, hi)
+    n = min(A.shape[1], B.shape[1])
+    A, B = A[:, :n].ravel(), B[:, :n].ravel()
+    return float(np.corrcoef(A, B)[0, 1])
+
+
 R = {e["name"]: e for e in json.load(open(ref_js))}
 O = {e["name"]: e for e in json.load(open(our_js))}
 b = R["E4 impact-1 body"]["level_db"] - 0, O["E4 impact-1 body"]["level_db"]
@@ -85,5 +112,8 @@ for n in R:
     lr = r_["level_db"] - R["E4 impact-1 body"]["level_db"]
     lo = o_["level_db"] - O["E4 impact-1 body"]["level_db"]
     rows.append(f"| {n} | level vs E4 dB | {lr:+.1f} | {lo:+.1f} | {lo - lr:+.1f} |")
+    rows.append(f"| {n} | flatness 1k-12k | {r_['flatness']:.2f} | {o_['flatness']:.2f} | {o_['flatness'] - r_['flatness']:+.2f} |")
+    rows.append(f"| {n} | timbre corr 4.5-16k (ref vs ours) | | {tcorr(n, 4500, 16000):+.2f} | |")
+    rows.append(f"| {n} | timbre corr own band | | {tcorr(n, *OWN[n]):+.2f} | |")
 open(os.path.join(out, "feature-table.md"), "w").write("\n".join(rows) + "\n")
 print("\n".join(rows[:2] + rows[2:8]))
