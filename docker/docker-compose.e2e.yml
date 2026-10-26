@@ -42,6 +42,7 @@ services:
       - "127.0.0.1::25575"
     environment:
       EULA: "TRUE"
+      MC_IMAGE_HELPER_OPTS: "-Dio.netty.handler.ssl.noOpenSsl=true"
       TYPE: "PAPER"
       VERSION: "26.3"
       MEMORY: "2G"
@@ -115,6 +116,7 @@ services:
       - "127.0.0.1::25565"
     environment:
       TYPE: "VELOCITY"
+      MC_IMAGE_HELPER_OPTS: "-Dio.netty.handler.ssl.noOpenSsl=true"
       MEMORY: "512M"
       JVM_OPTS: "-Dvelocity.packet-decode-logging=true"
       VELOCITY_FORWARDING_SECRET: "${E2E_FORWARDING_SECRET:-astera-e2e-forwarding-secret}"
