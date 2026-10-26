@@ -194,6 +194,14 @@ def defs():
          "crit", 6, 5, burst(0.12), velocity="{ direction: outward, speed: 0.55, spread_degrees: 0, speed_jitter: 0.45 }")
     vdef("impact-dust", "r3b impact: small short gold dust (no big puffs).",
          "dust_color_transition", 5, 4, burst(0.12), GOLD, dct(GOLD_HOT, ORANGE, 0.2), speed=0.0)
+    vdef("impact-enchant", "restored: enchanted_hit glyphs bursting off the contact.",
+         "enchanted_hit", 5, 6, burst(0.18), velocity="{ direction: outward, speed: 0.4, spread_degrees: 0, speed_jitter: 0.5 }")
+    vdef("steel", "restored: dark steel dust along the blade, re-rolled every tick.",
+         "dust_color_transition", 1, 8, burst(0.05), (70, 76, 86), dct((120, 128, 140), (38, 42, 50), 0.32), speed=0.0)
+    vdef("puff", "restored: ground puff at the finisher contact.", "white_smoke", 4, 8, burst(0.3),
+         velocity="{ direction: outward, speed: 0.12, spread_degrees: 0, speed_jitter: 0.5 }")
+    vdef("poof", "restored: poof burst at the finisher contact.", "poof", 5, 6, burst(0.25),
+         velocity="{ direction: outward, speed: 0.25, spread_degrees: 0, speed_jitter: 0.5 }")
     vdef("impact-smoke", "r3b impact: unused (puffs removed).",
          "smoke", 1, 2, burst(0.05), speed=0.0)
     # staged tiers (principles: convergence = charge / spread = release; phase-shifted rings; rare detail; afterglow)
@@ -331,6 +339,10 @@ class Layer:
         # envelope: the sheath is thickest mid-blade (extra stations), plus a rare slash detail (~1 tick in 7)
         for si, fr in enumerate((0.5,)):
             self._runs("mid-%d" % si, "sheath", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
+        for si, fr in enumerate((0.4, 0.8)):
+            self._runs("steel-%d" % si, "steel", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
+        for si, fr in enumerate((0.6,)):
+            self._runs("fleck-%d" % si, "fleck", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
         # r3: no flame / ember on held poses (rest beats stay a faint sheath only)
 
     def _runs(self, name, pid, ticks, at):
@@ -353,8 +365,13 @@ class Layer:
             if not heavy and i % 2:
                 continue  # ~50% of the steps; the emphasised cut keeps them all
             # r4: only small bright dust along the edge; no crit (X sprites), no slash, no ash (all read as chunky puffs close up)
-            for fr in ((0.85, 1.0) if i % 2 else (1.0,)):
+            for fr in ((0.75, 1.0) if i % 2 else (0.9,)):
                 self.once("trail", "trail", ft, on_blade(g, d, L, fr))
+            if i % 2 == 0:
+                self.once("csteel", "steel", ft, on_blade(g, d, L, 0.7))
+                self.once("tcrit", "trail-crit", ft, on_blade(g, d, L, 1.0))
+            if i % 3 == 0:
+                self.once("slash", "slash", ft, on_blade(g, d, L, 0.85), big=True)
         return sw
 
     def gather(self, c):
@@ -385,7 +402,14 @@ class Layer:
         k = 3 if self.tag == "s1h2" else (2 if heavy else 1)
         for j in range(k):
             q = (p[0] + 0.25 * j, p[1], p[2] - 0.15 * j)
-            self.once("impact-dust", "impact-dust", ft, q)  # r5: no vanilla `crit` (an X-shaped sprite) at the impact either
+            self.once("impact-dust", "impact-dust", ft, q)
+            self.once("impact-crit", "impact-crit", ft, q)
+            if j == 0:
+                self.once("impact-ench", "impact-enchant", ft, q)  # r5: no vanilla `crit` (an X-shaped sprite) at the impact either
+        if self.tag == "s1h2":  # finisher: ground puff + poof where the blade meets the floor
+            gq = (p[0], max(0.12, min(p[1], 0.4)), p[2])
+            self.once("puff", "puff", ft, gq, big=True)
+            self.once("poof", "poof", ft, gq, big=True)
         return p
 
     def build(self):
