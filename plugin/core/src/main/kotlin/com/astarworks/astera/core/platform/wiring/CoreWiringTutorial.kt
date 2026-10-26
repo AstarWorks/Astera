@@ -26,6 +26,7 @@ internal fun CoreWiringState.wireTutorialGuide() {
     val guide = TutorialGuide(
         tutorialSequencer, mcServer, scheduler, services.getOrThrow<IHologramGateway>(),
         range = { services.get<ILobbyTrainingRange>() }, eligible = { tutorialEligible(it) },
+        hintsEnabled = { services.get<com.astarworks.astera.core.application.service.hud.HudPreferences>()?.tutorialHintsEnabled(it) ?: true },
         landmark = { action -> when (action) {
             "menu" -> Vec3(lobby.spawn.x, lobby.spawn.y, lobby.spawn.z)
             // ADR-0248: the marker points at the Play gate in front of the spawn, not at a far lane pad.

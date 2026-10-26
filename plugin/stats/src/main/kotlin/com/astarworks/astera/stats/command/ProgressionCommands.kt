@@ -7,13 +7,13 @@ import com.astarworks.astera.core.application.port.inbound.IQuestService
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IQuestChainRegistry
 import com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginBonusService
-import com.astarworks.astera.core.domain.advancement.AdvancementCriteria
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.norma.PeriodKind
 import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.stats.application.port.outbound.IAchievementRepository
 import com.astarworks.astera.stats.application.port.outbound.INormaService
+import com.astarworks.astera.stats.application.progress.questStageTarget
 import java.time.Clock
 import java.time.LocalDate
 
@@ -112,7 +112,7 @@ internal class ProgressionCommands(
                         "quest" to quest,
                         "stage" to messages.render(me, stage.titleKey, emptyMap()),
                         "current" to row.stageProgress.toString(),
-                        "required" to targetOf(stage.criteria).toString(),
+                        "required" to questStageTarget(stage.criteria).toString(),
                     ),
                 )
             }
@@ -144,14 +144,4 @@ internal class ProgressionCommands(
     ).forEveryone(Permission("astera.progress.achievements"))
 
     private fun periodToken(period: PeriodKind): String = period.name.lowercase()
-
-    /** The scalar a stage counts towards; mirrors the quest service (least-progressed leaf of AllOf, most-progressed of AnyOf). */
-    private fun targetOf(criteria: AdvancementCriteria): Int = when (criteria) {
-        is AdvancementCriteria.KillCount -> criteria.target
-        is AdvancementCriteria.CurrencyEarned -> criteria.amount.toInt().coerceAtLeast(1)
-        is AdvancementCriteria.MatchesWon -> criteria.count
-        is AdvancementCriteria.ItemAcquired -> 1
-        is AdvancementCriteria.AllOf -> criteria.children.maxOf { targetOf(it) }
-        is AdvancementCriteria.AnyOf -> criteria.children.minOf { targetOf(it) }
-    }
 }

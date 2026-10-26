@@ -21,6 +21,8 @@ public class TutorialGuide(
     private val range: () -> ILobbyTrainingRange?,
     private val eligible: (PlayerId) -> Boolean,
     private val landmark: (String) -> Vec3?,
+    /** UI-03: false when the player switched tutorial hints off; the guide hides and waits (the step is kept). */
+    private val hintsEnabled: (PlayerId) -> Boolean = { true },
 ) {
     private data class Showing(val action: String, val since: Long, val marker: HologramHandle?)
     private val players = mutableSetOf<PlayerId>()
@@ -50,7 +52,7 @@ public class TutorialGuide(
             players -= id
             return
         }
-        if (!eligible(id)) {
+        if (!eligible(id) || !hintsEnabled(id)) {
             hide(id)
             return
         }
