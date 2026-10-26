@@ -1,0 +1,133 @@
+{
+  "id": "bastion-greatsword-s3",
+  "rev": 0,
+  "videoId": "Svaaq9F7Ty8",
+  "start_s": 18.9,
+  "end_s": 23.7,
+  "identity": "Zwei West Section 3 Ishmael",
+  "weapon": "bastion-greatsword",
+  "videoTitle": "",
+  "status": "analysed",
+  "iterations": 0,
+  "report": "",
+  "skill": {
+    "name": "巨剣墜つ",
+    "coins": 3,
+    "asteraSkillId": "bastion-greatsword-s3"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "S3 巨剣墜つ",
+      "start_s": 18.9,
+      "end_s": 23.7,
+      "notes": ""
+    },
+    {
+      "id": "stance",
+      "kind": "range",
+      "label": "構え (大剣を後ろ低く寝かせる)",
+      "start_s": 18.9,
+      "end_s": 19.367,
+      "notes": "t0-9。刃は床と平行、画面左。"
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "接触1 輪斬り",
+      "t_s": 19.4,
+      "notes": "n15/t10。金色の三日月 + 敵方向のオレンジ火花。輪は top CW (E1)。始点はカットで [U]。"
+    },
+    {
+      "id": "ring1",
+      "kind": "range",
+      "label": "輪1 (肩上保持・尾が消える)",
+      "start_s": 19.4,
+      "end_s": 20.0,
+      "notes": "t10-22。前から先に消える。"
+    },
+    {
+      "id": "lower",
+      "kind": "range",
+      "label": "剣を下ろす〜低く保持",
+      "start_s": 20.033,
+      "end_s": 20.233,
+      "notes": "t23-27。"
+    },
+    {
+      "id": "scrape",
+      "kind": "range",
+      "label": "引きずり・火花",
+      "start_s": 20.267,
+      "end_s": 20.767,
+      "notes": "t27-37。刃先の床でオレンジ火花。移動なし。"
+    },
+    {
+      "id": "dash",
+      "kind": "range",
+      "label": "ダッシュ",
+      "start_s": 20.8,
+      "end_s": 20.867,
+      "notes": "t38-39。約 5.4 ブロック前進 (約 3.0H)。"
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "接触2 突き",
+      "t_s": 20.9,
+      "notes": "n60/t40。全面フラッシュ、音 t41。"
+    },
+    {
+      "id": "thrust",
+      "kind": "range",
+      "label": "突き保持",
+      "start_s": 20.933,
+      "end_s": 21.4,
+      "notes": "t40-50。"
+    },
+    {
+      "id": "raise",
+      "kind": "range",
+      "label": "掲げ・頭上保持",
+      "start_s": 21.433,
+      "end_s": 22.0,
+      "notes": "t51-62。1 フレームで掲げる。"
+    },
+    {
+      "id": "hit3",
+      "kind": "hit",
+      "label": "接触3 叩きつけ",
+      "t_s": 22.033,
+      "notes": "n94/t63。音 t64、光柱 t66。"
+    },
+    {
+      "id": "pillar",
+      "kind": "range",
+      "label": "光柱",
+      "start_s": 22.2,
+      "end_s": 22.633,
+      "notes": "t66-75。"
+    },
+    {
+      "id": "planted",
+      "kind": "range",
+      "label": "突き立て保持",
+      "start_s": 22.667,
+      "end_s": 23.667,
+      "notes": "t75-95。"
+    }
+  ],
+  "notes": "ビートシート r1 (ゲート1)。skill YAML / content は未作成。",
+  "editLog": []
+}
