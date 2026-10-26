@@ -1,6 +1,9 @@
 package com.astarworks.astera.core.adapter.paper.cosmetic
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.application.service.cosmetic.CosmeticService
 import com.astarworks.astera.core.domain.cosmetic.CosmeticKind
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -19,13 +22,15 @@ import org.bukkit.event.player.PlayerJoinEvent
  */
 public class PaperCosmeticDisplay(
     private val server: Server,
+    private val scheduler: IScheduler,
     private val cosmetics: () -> CosmeticService?,
     private val messages: () -> IMessageRenderer?,
 ) : Listener {
 
     @EventHandler
-    public suspend fun onJoin(event: PlayerJoinEvent) {
-        refresh(PlayerId(event.player.uniqueId))
+    public fun onJoin(event: PlayerJoinEvent) {
+        val id = event.player.uniqueId
+        scheduler.launch(ExecutionScope.Entity(id)) { refresh(PlayerId(id)) }
     }
 
     public suspend fun refresh(playerId: PlayerId) {

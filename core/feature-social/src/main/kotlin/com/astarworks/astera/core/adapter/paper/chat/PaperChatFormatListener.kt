@@ -33,10 +33,13 @@ public class PaperChatFormatListener(
 ) : Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public suspend fun onChat(event: AsyncChatEvent) {
+    public fun onChat(event: AsyncChatEvent) {
         val id = PlayerId(event.player.uniqueId)
-        val nameColor = nameColorOf(id)
-        val title = PaperCosmeticDisplay.titleComponent(cosmetics(), messages(), id)
+        // AsyncChatEvent fires off every game thread, and the renderer must be set before the handler returns,
+        // so blocking here stalls no region. Equipped cosmetics are preloaded at login: normally no I/O waits.
+        val (nameColor, title) = kotlinx.coroutines.runBlocking {
+            nameColorOf(id) to PaperCosmeticDisplay.titleComponent(cosmetics(), messages(), id)
+        }
         event.renderer(
             ChatRenderer.viewerUnaware { _, sourceDisplayName, message ->
                 Component.text()

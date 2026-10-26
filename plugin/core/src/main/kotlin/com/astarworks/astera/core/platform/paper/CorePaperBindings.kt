@@ -581,6 +581,7 @@ internal class CorePaperBindings(
         // ECO-02: equipped title + name colour in the tab list, and the kill-effect particle player.
         val cosmeticDisplay = com.astarworks.astera.core.adapter.paper.cosmetic.PaperCosmeticDisplay(
             server = server,
+            scheduler = scheduler,
             cosmetics = { ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
             messages = { ctx.services.get<IMessageRenderer>() },
         )
