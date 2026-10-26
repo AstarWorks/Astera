@@ -1,0 +1,64 @@
+# Bastion S3 (巨剣墜つ) weapon: ONE ItemDisplay of the real main-hand stack hanging from the right hand of the skin-rig body `bastion-s3-body`.
+# Swing keys are ABSOLUTE wrist rotations in the arm frame (zero on a body at rest = the vanilla held item), written by tools/pose-solve/author_bastion_s3.py.
+# Rig ticks = skill ticks minus the hit-stop freezes (10 x2, 40 x2, 63 x3); the rig plays at skill tick 0 with `freeze` (see the skill).
+id: bastion-s3-rig
+duration_ticks: 96
+orient: yaw
+follow: true
+follow_pitch: true
+attach_to_anchor: true
+sample_ticks: 1
+body: bastion-s3-body
+rigs:
+- id: sword
+  pivot: [0, 0, 0]
+  parent: right_hand
+  respect_hit_stop: true
+  weapon: main_hand
+  weapon_tip: [0.0, 1.3789, 1.0769]    # blade tip (1.75 blocks from the grip centre; 1.9 pommel to tip), rig-local
+  weapon_root: [0.0, 0.2367, 0.0]
+  weapon_edge: [0.0, -0.6155, 0.7881]  # cutting edge direction, rig-local (broad-face normal = rig X)
+  swing:
+  - { t: 0, rotate: [82.0, 17.2, 157.6] }   # skill 0 s3-coil
+  - { t: 4, rotate: [77.0, 29.4, 173.7] }   # skill 5 s3-coil-b
+  - { t: 6, rotate: [71.7, 40.6, 186.8] }   # skill 7 s3-coil-c
+  - { t: 7, rotate: [106.9, 161.0, 216.3] }   # skill 8 s3-ring-left
+  - { t: 8, rotate: [122.5, 297.7, 202.7] }   # skill 9 s3-ring-front
+  - { t: 9, rotate: [214.7, 322.1, 156.8] }   # skill 10 ring1-hit
+  - { t: 10, rotate: [182.0, 351.9, 120.8] }   # skill 13 hold-a
+  - { t: 14, rotate: [172.3, 363.5, 121.4] }   # skill 17 hold-b
+  - { t: 19, rotate: [151.8, 387.1, 125.8] }   # skill 22 hold-c
+  - { t: 20, rotate: [95.4, 373.9, 144.2] }   # skill 23 lower
+  - { t: 21, rotate: [75.8, 380.4, 166.9] }   # skill 24 low
+  - { t: 27, rotate: [75.7, 378.4, 166.6] }   # skill 30 low-drag
+  - { t: 30, rotate: [75.9, 381.3, 167.2] }   # skill 33 low-drag2
+  - { t: 33, rotate: [80.1, 376.8, 167.1] }   # skill 36 dash-wind
+  - { t: 34, rotate: [78.6, 315.8, 149.5] }   # skill 37 dash-sweep-a
+  - { t: 35, rotate: [149.8, 417.6, 115.3] }   # skill 38 dash-sweep
+  - { t: 36, rotate: [17.2, 400.1, 156.1] }   # skill 39 dash-rise
+  - { t: 37, rotate: [-1.0, 410.8, 158.1] }   # skill 40 thrust
+  - { t: 39, rotate: [-1.9, 411.9, 157.6] }   # skill 44 thrust-b
+  - { t: 41, rotate: [-1.3, 412.2, 156.6] }   # skill 46 thrust-hold
+  - { t: 42, rotate: [-3.6, 409.7, 164.2] }   # skill 47 raise-a
+  - { t: 43, rotate: [-2.5, 406.6, 181.9] }   # skill 48 raise-b
+  - { t: 44, rotate: [-138.3, 394.0, 206.2] }   # skill 49 raise-c
+  - { t: 45, rotate: [-68.1, 311.7, 211.7] }   # skill 50 raise-d
+  - { t: 46, rotate: [-22.1, 276.8, 281.1] }   # skill 51 raise-hold
+  - { t: 49, rotate: [-24.4, 278.6, 277.7] }   # skill 54 raise-breath
+  - { t: 52, rotate: [-30.9, 276.7, 272.3] }   # skill 57 raise-hold2
+  - { t: 53, rotate: [56.0, 224.7, 320.0] }   # skill 58 chop-lift
+  - { t: 55, rotate: [89.5, 195.4, 386.2] }   # skill 60 chop-wind
+  - { t: 56, rotate: [79.5, 178.0, 374.2] }   # skill 61 chop-wind2
+  - { t: 57, rotate: [50.7, 163.6, 326.9] }   # skill 62 chop-top
+  - { t: 58, rotate: [-91.1, 163.6, 354.8] }   # skill 63 chop-hit
+  - { t: 59, rotate: [-98.4, 145.3, 337.8] }   # skill 67 chop-plant
+  - { t: 60, rotate: [-224.6, 142.0, 242.1] }   # skill 68 plant-b
+  - { t: 61, rotate: [-207.1, 148.5, 219.0] }   # skill 69 plant-c
+  - { t: 62, rotate: [-197.2, 156.8, 206.5] }   # skill 70 stand-a
+  - { t: 64, rotate: [-184.6, 192.2, 201.6] }   # skill 72 stand-a2
+  - { t: 65, rotate: [-182.6, 198.0, 202.7] }   # skill 73 stand-b
+  - { t: 66, rotate: [-180.6, 200.9, 203.0] }   # skill 74 stand-c
+  - { t: 67, rotate: [-177.0, 209.8, 204.6] }   # skill 75 stand-d
+  - { t: 68, rotate: [-176.2, 210.0, 204.5] }   # skill 76 kneel
+  - { t: 86, rotate: [-177.1, 206.4, 204.4] }   # skill 94 kneel-hold
+  - { t: 87, rotate: [0.0, 0.0, 0.0], ease: step }   # skill 95 hand-back
