@@ -1,0 +1,15 @@
+# pale pink drift for the hold crescent
+id: couture-s2-p-pink-drift
+shape: {kind: burst, spread_blocks: 0.6}
+color: {r: 255, g: 200, b: 220}
+count: 5
+lifetime_ticks: 20
+vanilla_particle: dust_color_transition
+data:
+  kind: dust_color_transition
+  from: {r: 255, g: 215, b: 230}
+  to: {r: 255, g: 170, b: 200}
+  scale: 0.9
+speed: 0.0
+velocity: {direction: up, speed: 0.025, spread_degrees: 90, speed_jitter: 0.6}
+force: true

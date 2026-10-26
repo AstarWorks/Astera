@@ -1,0 +1,209 @@
+# S2 coin 1 caster side (played at skill tick 9): white crescent ring round the lower body + thin white line through the enemy.
+id: couture-s2-coin1
+duration_ticks: 14
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: ring
+  kind: {type: sprite, sprite: couture-orbit, frame_ticks: 1, loop: false, see_through: true, color: '#FFFDF9'}
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.5, 0.3]
+    rotate: [-90, 0, 0]
+    scale: [2.0, 2.0, 1]
+  - t: 2
+    translate: [0.0, 0.5, 0.3]
+    rotate: [-90, 0, 30]
+    scale: [2.0, 2.0, 1]
+    ease: out_quad
+  - t: 7
+    translate: [0.0, 0.5, 0.3]
+    rotate: [-90, 0, 90]
+    scale: [2.0, 0.05, 1]
+    ease: in_quad
+- id: line
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 2
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.8, 0.0]
+    rotate: [0, 0, 0]
+    scale: [0.02, 0.02, 0.02]
+  - t: 1
+    translate: [0.0, 1.3, 4.2]
+    rotate: [-14, 0, 0]
+    scale: [0.05, 0.05, 9.0]
+    ease: out_expo
+  - t: 9
+    translate: [0.0, 1.3, 4.2]
+    rotate: [-14, 0, 0]
+    scale: [0.0, 0.0, 9.0]
+    ease: in_quad
+- id: p-line
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.3, 2.4]
+- id: p-line2
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.6, 4.4]
+- id: p-ring
+  kind: {type: particle, particle_id: couture-s2-p-ring-white, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.5, 0.3]
+- id: p-petal
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 2}
+  brightness: 15
+  start_tick: 0
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.0, 0.3]
+# --- dense particle layer (couture-s2 particle pass) ---
+- id: p-ring2
+  kind: {type: particle, particle_id: couture-s2-p-ring-white, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.1, 0.5]
+- id: p-ring3
+  kind: {type: particle, particle_id: couture-s2-p-ring-white, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.2, 0.2]
+- id: pl-spark-0
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.2, 1.0]
+- id: pl-crit-0
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.3, 1.0]
+- id: pl-spark-1
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.23, 1.8]
+- id: pl-crit-1
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  brightness: 15
+  start_tick: 1
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.3, 1.8]
+- id: pl-spark-2
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.26, 2.6]
+- id: pl-crit-2
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.3, 2.6]
+- id: pl-spark-3
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.29, 3.4]
+- id: pl-crit-3
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.3, 3.4]
+- id: pl-spark-4
+  kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 1}
+  brightness: 15
+  start_tick: 3
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.32, 4.2]
+- id: pl-crit-4
+  kind: {type: particle, particle_id: couture-s2-p-crit, every_ticks: 1}
+  brightness: 15
+  start_tick: 3
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.3, 4.2]
+- id: p-smoke
+  kind: {type: particle, particle_id: couture-s2-p-smoke, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.6, -0.2]
+- id: p-haze
+  kind: {type: particle, particle_id: couture-s2-p-haze, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.3, 0.3]
+- id: p-glint
+  kind: {type: particle, particle_id: couture-s2-p-glint, every_ticks: 1}
+  brightness: 15
+  start_tick: 2
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0.0, 1.3, 1.5]
+- id: p-petal2
+  kind: {type: particle, particle_id: couture-s2-p-petal, every_ticks: 1}
+  brightness: 15
+  start_tick: 0
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.6, 0.5]

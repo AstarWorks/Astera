@@ -1,0 +1,10 @@
+# slow drifting white glints
+id: couture-s2-p-glint
+shape: {kind: burst, spread_blocks: 0.5}
+color: {r: 255, g: 255, b: 255}
+count: 3
+lifetime_ticks: 16
+vanilla_particle: end_rod
+speed: 0.0
+velocity: {direction: up, speed: 0.03, spread_degrees: 90, speed_jitter: 0.6}
+force: true

@@ -1,0 +1,9 @@
+# white ring tight crescent ring near the caster body
+id: couture-s2-p-ring-white
+shape: {kind: circle, radius_blocks: 1.6}
+color: {r: 255, g: 253, b: 249}
+count: 40
+lifetime_ticks: 7
+vanilla_particle: end_rod
+speed: 0.0
+force: true

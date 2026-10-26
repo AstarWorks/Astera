@@ -1,0 +1,10 @@
+# white petals
+id: couture-s2-p-petal
+shape: {kind: burst, spread_blocks: 0.5}
+color: {r: 255, g: 245, b: 248}
+count: 5
+lifetime_ticks: 20
+vanilla_particle: cherry_leaves
+speed: 0.02
+velocity: {direction: up, speed: 0.05, spread_degrees: 70, speed_jitter: 0.5}
+force: true

@@ -1,0 +1,10 @@
+# white sparkle line
+id: couture-s2-p-spark
+shape: {kind: burst, spread_blocks: 0.12}
+color: {r: 255, g: 255, b: 255}
+count: 6
+lifetime_ticks: 10
+vanilla_particle: end_rod
+speed: 0.0
+velocity: {direction: outward, speed: 0.18, spread_degrees: 0, speed_jitter: 0.5}
+force: true
