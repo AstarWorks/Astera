@@ -18,17 +18,20 @@ class ObjectiveWalker(
     private val bot: Bot,
     objectives: ObjectiveSource?,
     private val speed: Double = 0.23,
+    originX: Double = 0.0,
+    originZ: Double = 0.0,
     private val periodic: (() -> Unit)? = null,
 ) {
     enum class Result { ARRIVED, TIMEOUT, STOPPED }
 
-    private val nav = Navigator(bot.terrain, objectives?.routeGraph())
+    /** The route graph is stage-local; [originX]/[originZ] is the world position of the slot the stage is pasted at (ADR-0255). */
+    private val nav = Navigator(bot.terrain, objectives?.routeGraph()).also { it.originX = originX; it.originZ = originZ }
     private var screensSeen = bot.screens.size
     private var lastRespawnAt = 0L
     private var lastPeriodicAt = 0L
     private val lastKeepAlive = HashMap<Bot, Long>()
 
-    /** Walks to ([x], [z]) until within [arrive] blocks, [timeoutMs] passes or [stop] turns true. */
+    /** Walks to world position ([x], [z]) until within [arrive] blocks, [timeoutMs] passes or [stop] turns true. */
     fun walkTo(
         x: Double,
         z: Double,
