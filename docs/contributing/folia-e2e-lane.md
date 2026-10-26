@@ -174,3 +174,28 @@ did not run.
 2. T9: scoreboard sidebar/teams on Folia (unblocks 7 checks).
 3. Harness: replace RCON `data get` / `execute if block|entity` reads with a probe-plugin command run on the owning
    scheduler (unblocks 19 checks and reveals which of them are real product failures); then re-run.
+
+## Status (integration run, 2026-10-26)
+
+Paper baseline: 472/473 on the full suite; the one failure (Region combat
+"teleported target leaves the nearby buckets") was a harness defect (the probe
+golem was damaged by terrain suffocation at the teleport target, not by a
+stale grid hit) and passes after the fix (`RegionCombatE2eTest`, 3/3).
+
+Folia lane (`make e2e-folia`): **4/7 recorded checks, then the server crashed**; every
+later suite failed with "e2e backend is not reachable". Causes:
+
+1. `GameInstanceRegistry.kt:23` `check(scheduler.isOnScope(ExecutionScope.Global))` fails
+   from `SlotAllocator.<init>` during Core `onEnable` (`CorePaperBindings.kt:68-70`, via
+   `installLobbyWorld` / `installArenaWorld`, `CorePaperBindings.kt:692,787`). Lobby and arena
+   world setup are skipped, so bots spawn over air (`no block under its feet`, pillar footings
+   missing) in the Annihilation checks.
+2. Server crash: `IllegalStateException: Combat accessed foreign target` thrown by
+   `PaperCombatOwnership.kt:30` from `CastSkillUseCase.kt:116`, because the `SkillCastRequested`
+   subscription (`CombatWiring.kt:721`, `EventDelivery.Global`) runs the cast on the global
+   region thread instead of the caster's Entity scope. The uncaught exception stops the server.
+3. Follow-on noise at shutdown (`getCurrentWorldData()` NPEs, `Plugin attempted to register
+   task while disabled`) is a consequence of 2, not a separate defect.
+
+Not chased: both need a scope-hop design (global enable-time hop for slot allocation, an entity
+or region delivery mode for combat events), not a quick win.
