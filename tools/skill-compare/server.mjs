@@ -214,6 +214,12 @@ export function makeHandler(opts = {}) {
   /** Which dev build the founder would test in game: env SKILL_COMPARE_DEV_SHA or <published>/dev-deployed.json {sha, at} (written by the deploy step). */
   function devDeployed() {
     if (process.env.SKILL_COMPARE_DEV_SHA) return { sha: process.env.SKILL_COMPARE_DEV_SHA.trim(), at: null };
+    try { // the dev autodeploy watcher's log: last "deployed <sha>" line (primary checkout state dir; also env override)
+      const log = [process.env.SKILL_COMPARE_DEPLOY_LOG, join(import.meta.dir, "../../.claude/state/dev-deploy/deploy.log"), join(import.meta.dir, "../../../../state/dev-deploy/deploy.log")].find((f) => f && existsSync(f));
+      const last = readFileSync(log, "utf8").split("\n").filter((l) => / deployed [0-9a-f]{7,40}\b/.test(l)).pop();
+      const m = last && /^(\S+) deployed ([0-9a-f]{7,40})/.exec(last);
+      if (m) return { sha: m[2], at: m[1] };
+    } catch { /* log unreachable: fall through to dev-deployed.json */ }
     try { const d = readJson(join(publishedDir, "dev-deployed.json")); return /^[0-9a-f]{7,40}$/.test(d.sha || "") ? { sha: d.sha, at: d.at ?? null } : null; } catch { return null; }
   }
 
