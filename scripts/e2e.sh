@@ -6,6 +6,7 @@
 #   scripts/e2e.sh down         # stop + remove THIS checkout's e2e project (containers, volumes, images)
 #   E2E_KEEP=1 scripts/e2e.sh   # leave the backend running afterwards (faster re-runs, debugging)
 #   E2E_REUSE=1 scripts/e2e.sh  # do not wipe the e2e volume before starting
+#   E2E_PROFILE=full scripts/e2e.sh  # everything (`make e2e-full`); default `window` skips E2E_WINDOW_SKIP (see below)
 #   E2E_ID=mytag scripts/e2e.sh # override the per-checkout id (default: sha256 of the checkout path)
 #
 # QA-3 isolation: every checkout gets its own id ASTERA_E2E_ID (8 hex chars). It names the compose
@@ -25,8 +26,23 @@
 #     E2E_REAP=0 disables the reaper.
 #   - load pre-flight: wait while load1 > E2E_LOAD_FACTOR (default 2) x nproc, up to E2E_LOAD_WAIT_SECS (default
 #     900); then boot anyway with a warning. Load at start/end is appended to build/e2e-report.md.
+#
+# Profiles (QA-8): `window` (default, `make e2e`) is for integration windows: it skips the slowest low-churn
+# suites (measured on the 2026-10-26 run, ~34 min of bots: PersonaWeaponsE2eTest ~6.3 min, WeaponsE2eTest ~3.8 min);
+# every mode playthrough, Join, Norma, ClientReceives, CueGuard, FirstTenMinutes-style checks still run. `full`
+# (`make e2e-full`) runs everything. An explicit E2E_SKIP or E2E_ONLY always wins over the profile default.
+# Per-class skip: E2E_SKIP=ClassA,ClassB. Per-class run: E2E_ONLY=ClassA.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+
+E2E_PROFILE="${E2E_PROFILE:-window}"
+E2E_WINDOW_SKIP="PersonaWeaponsE2eTest,WeaponsE2eTest"
+case "$E2E_PROFILE" in
+  window) [ -n "${E2E_ONLY:-}" ] || E2E_SKIP="${E2E_SKIP-$E2E_WINDOW_SKIP}" ;;
+  full)   E2E_SKIP="${E2E_SKIP:-}" ;;
+  *) echo "[e2e] unknown E2E_PROFILE '$E2E_PROFILE' (window|full)"; exit 2 ;;
+esac
+export E2E_SKIP E2E_PROFILE
 
 E2E_VIA="${E2E_VIA:-velocity}"
 export E2E_VIA
@@ -163,15 +179,20 @@ reap_stale
 wait_for_load
 LOAD_START="$(load_triple)"; T_START="$(date -u +%FT%TZ)"
 echo "[e2e] load avg at start: $LOAD_START ($NPROC cores)"
-echo "[e2e] checkout id $ASTERA_E2E_ID (project $PROJECT)"
+echo "[e2e] checkout id $ASTERA_E2E_ID (project $PROJECT); profile $E2E_PROFILE, skipping: ${E2E_SKIP:-nothing}"
 
 [ -n "${E2E_REUSE:-}" ] || "${C[@]}" down -v --remove-orphans >/dev/null 2>&1 || true
 
-echo "[e2e] building + starting the backend (first run builds the Paper image: several minutes)"
-"${C[@]}" up -d --build --wait "${SERVICES[@]}" || { echo "[e2e] backend failed to start"; "${C[@]}" logs --tail 80 "${SERVICES[@]}"; exit 2; }
+# The runner image build (gradle compile of tools/e2e) is independent of the backend: build it in the
+# background while the backend images build and boot, instead of after the backend is healthy.
+RUNNER_BUILD_LOG="$(mktemp "${TMPDIR:-/tmp}/e2e-runner-build.XXXXXX")"
+echo "[e2e] building the runner in the background; building + starting the backend (first run builds the Paper image: several minutes)"
+"${C[@]}" build e2e-runner >"$RUNNER_BUILD_LOG" 2>&1 &
+RUNNER_BUILD_PID=$!
+"${C[@]}" up -d --build --wait "${SERVICES[@]}" || { echo "[e2e] backend failed to start"; "${C[@]}" logs --tail 80 "${SERVICES[@]}"; kill "$RUNNER_BUILD_PID" 2>/dev/null; exit 2; }
 
-echo "[e2e] building the runner"
-"${C[@]}" build e2e-runner || { echo "[e2e] runner build failed"; exit 2; }
+wait "$RUNNER_BUILD_PID" || { echo "[e2e] runner build failed"; tail -60 "$RUNNER_BUILD_LOG"; exit 2; }
+rm -f "$RUNNER_BUILD_LOG"
 
 docker rm -f "$RUNNER" >/dev/null 2>&1 || true
 "${C[@]}" run --name "$RUNNER" --no-deps e2e-runner
@@ -185,6 +206,7 @@ LOAD_END="$(load_triple)"
 [ -f "$REPORT" ] || printf '# E2E report\n\n(no suite report produced)\n' > "$REPORT"
 {
   printf '\n## Host load\n\n'
+  printf -- '- profile: %s (skipped classes: %s)\n' "$E2E_PROFILE" "${E2E_SKIP:-none}"
   printf -- '- cores: %s\n- load avg (1/5/15m) at start: %s (%s)\n- load avg (1/5/15m) at end: %s (%s)\n' \
     "$NPROC" "$LOAD_START" "$T_START" "$LOAD_END" "$(date -u +%FT%TZ)"
   if [ "$LOAD_WAIT_TIMED_OUT" = 1 ]; then printf -- '- **OVERLOADED at start** (load1 stayed above %sx cores for the whole wait): discard timing results\n' "${E2E_LOAD_FACTOR:-2}"; fi

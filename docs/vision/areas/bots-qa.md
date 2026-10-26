@@ -13,14 +13,13 @@ Owner track `wp/bots-qa`. Items: Board prefix `BOT-`. Sources: ADR-0247, ADR-017
 - `tools/game-sim`: headless scenarios over real wiring (ADR-0174), e.g. `StarsNormaScenarioTest`, `VoidFallScenarioTest`, `WeaponLimitScenarioTest`.
 - Playthroughs exist for carry-tnt, carry-mini-tnt, capture-wool, steal-jewelry and battle-loyal as well (`*PlaythroughE2eTest`).
 - `FirstTenMinutesE2eTest` (2026-10-27) is the founder yardstick as a test: four fresh bots join (starter kit + lore, first-steps hint), open the Play picker, queue, and the learner clears the shortened Norma ladder with pistol, knight-sword and fire-staff in turn; every step asserts what the client received (cast sound, damage numbers, victim HP line, Norma level-up title/broadcast, win reason, result screen). `Bot.titles` now records title/subtitle packets. Not yet run on a real server.
-- `E2E_SKIP=PersonaWeaponsE2eTest,...` drops suites from a full run (`E2E_ONLY` selects); the persona sweep is the biggest wall-clock block.
-- One e2e lock (`/tmp/claude-1000/astera-e2e.lock`), ~12+ min per run; deploy lock `/tmp/claude-1000/astera-dev-deploy.lock`.
+- One e2e lock (`/tmp/claude-1000/astera-e2e.lock`). `make e2e` = `window` profile (skips PersonaWeapons + Weapons; FirstTenMinutes, Join, Norma, ClientReceives, CueGuard and all mode playthroughs stay; ~10 of ~34 bot-minutes; est. ~25 min incl. boot), `make e2e-full` = everything; `E2E_SKIP` / `E2E_ONLY` per class (`docs/contributing/ci.md` §E2E profiles). Runner image builds in parallel with the backend. Biggest remaining costs: CarryMiniTnt ~5 min, PersonaWeapons ~6 min, Norma/BotVsBot ~1.5-2 min each; deploy lock `/tmp/claude-1000/astera-dev-deploy.lock`.
 
 ## 理想形
 A single batched e2e per window is green on every mode that ships in the picker; each mode has a bot playthrough, and per-area tests live with their area. Bots can pathfind on the new siege-scale maps and use the 2-weapon kit. Failures name the owning track so the manager can drop it from the batch.
 
 ## 未決
-- Which e2e cases are mandatory per window vs nightly (proposal: window = everything but `PersonaWeaponsE2eTest` via `E2E_SKIP`; nightly = full).
+- Which e2e cases are mandatory per window vs nightly (window profile currently skips only PersonaWeapons + Weapons; halving needs a call on mode-playthrough rotation).
 - Real-client HUD capture (needs a real Minecraft client in the harness; bots only decode glyph code points).
 - Bot behaviour on large maps (navigation cost, structures from builds-maps).
 
