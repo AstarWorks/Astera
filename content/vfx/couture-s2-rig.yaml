@@ -1,4 +1,5 @@
 # Couturier S2 body + weapon: hand shears (rig) t0-21 and t63+, ONE flying shears model t22-58 (founder Q2=B), white single blades / linked shears are flat VFX, never models.
+# --- dense particle layer (couture-s2 particle pass) ---
 id: couture-s2-rig
 duration_ticks: 63
 orient: yaw
@@ -29,41 +30,41 @@ elements:
   end_tick: 58
   keyframes:
   - t: 0
-    translate: [0.45, 1.5, 0.15]
+    translate: [0.0, 1.5, 0.6]
     rotate: [0, 0, 0]
     scale: [1, 1, 1]
   - t: 3
-    translate: [0.25, 3.3, 0.1]
+    translate: [0.0, 3.3, 0.35]
     rotate: [0, 0, 0]
     scale: [1, 1, 1]
     ease: out_cubic
   - t: 6
-    translate: [0.2, 3.6, 0.0]
+    translate: [0.0, 3.6, 0.2]
     rotate: [0, 0, 0]
     scale: [1, 1, 1]
     ease: out_back
   - t: 10
-    translate: [0.2, 3.7, 0.0]
+    translate: [0.0, 3.7, 0.2]
     rotate: [0, 30, 0]
     scale: [1, 1, 1]
     ease: in_out_sine
   - t: 14
-    translate: [0.2, 3.65, 0.0]
+    translate: [0.0, 3.65, 0.2]
     rotate: [0, 0, 0]
     scale: [1, 1, 1]
     ease: in_out_sine
   - t: 18
-    translate: [0.4, 3.6, 0.0]
+    translate: [0.0, 3.6, 0.4]
     rotate: [90, 0, 0]
     scale: [1, 1, 1]
     ease: in_out_cubic
   - t: 29
-    translate: [4.8, 1.2, 0.0]
+    translate: [0.0, 1.2, 4.8]
     rotate: [90, 0, 0]
     scale: [1, 1, 1]
     ease: in_out_cubic
   - t: 36
-    translate: [4.8, 1.2, 0.0]
+    translate: [0.0, 1.2, 4.8]
     rotate: [90, 0, 0]
     scale: [1, 1, 1]
 - id: white-blade-0
@@ -245,7 +246,6 @@ elements:
   keyframes:
   - t: 0
     translate: [5.4, 1.4, 0.0]
-# --- dense particle layer (couture-s2 particle pass) ---
 - id: hz-lunge-0
   kind: {type: particle, particle_id: couture-s2-p-haze, every_ticks: 3}
   brightness: 15

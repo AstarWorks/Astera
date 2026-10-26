@@ -2,7 +2,7 @@
 id: couture-s2-p-crit
 shape: {kind: burst, spread_blocks: 0.12}
 color: {r: 255, g: 255, b: 255}
-count: 4
+count: 2
 lifetime_ticks: 8
 vanilla_particle: crit
 speed: 0.0
