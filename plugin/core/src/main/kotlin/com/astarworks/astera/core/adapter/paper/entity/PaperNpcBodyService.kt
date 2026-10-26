@@ -2,7 +2,6 @@ package com.astarworks.astera.core.adapter.paper.entity
 
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsNpcPlayers
-import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsBootstrap
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -59,17 +58,14 @@ internal class PaperNpcBodyService(
     private val requests = ConcurrentHashMap<EntityHandle, Request>()
     private val bodies = ConcurrentHashMap<EntityHandle, List<Entity>>()
     private val hitboxes = ConcurrentHashMap<UUID, EntityHandle>()
-    // PacketEvents is a soft-dependency: the class (a PacketListener) must not even be constructed
-    // when the plugin is absent, or loading it throws NoClassDefFoundError and Core fails to enable.
-    // Without PacketEvents, PlayerNpc fake players are simply not materialised; Display bodies work.
-    private val packets: PacketEventsNpcPlayers? =
-        if (PacketEventsBootstrap.isInstalled(plugin)) PacketEventsNpcPlayers(plugin, scheduler, ::dispatch) else null
+    // PacketEvents is a required bundled library (ADR-0260).
+    private val packets = PacketEventsNpcPlayers(plugin, scheduler, ::dispatch)
 
     @Volatile var awaitedWorlds: Set<String> = emptySet()
 
     fun start() {
         plugin.server.pluginManager.registerEvents(this, plugin)
-        packets?.start()
+        packets.start()
     }
 
     fun flush() {
@@ -87,7 +83,7 @@ internal class PaperNpcBodyService(
                 if (!bodies.remove(handle, entities)) return@forEach
                 entities.forEach { entity ->
                     hitboxes.remove(entity.uniqueId)
-                    packets?.unbindInteraction(entity.entityId)
+                    packets.unbindInteraction(entity.entityId)
                     registry?.release("npc:${handle.id}:${entity.uniqueId}")
                 }
             }
@@ -113,7 +109,7 @@ internal class PaperNpcBodyService(
         if (request.spec is SpawnSpec.PlayerNpc) {
             synchronized(request) {
                 if (requests[request.handle] !== request) return
-                packets?.put(request.handle, request.world, request.position, request.spec)
+                packets.put(request.handle, request.world, request.position, request.spec)
             }
             return
         }
@@ -150,7 +146,7 @@ internal class PaperNpcBodyService(
                     registry?.claim(owner, entity.uniqueId)
                 }
                 hitboxes[hitbox.uniqueId] = request.handle
-                packets?.bindInteraction(hitbox.entityId, request.handle, request.world, request.position)
+                packets.bindInteraction(hitbox.entityId, request.handle, request.world, request.position)
                 bodies[request.handle] = entities
             }
         }
@@ -160,10 +156,10 @@ internal class PaperNpcBodyService(
         val request = requests[handle] ?: return
         synchronized(request) {
             if (!requests.remove(handle, request)) return
-            packets?.remove(handle)
+            packets.remove(handle)
             bodies.remove(handle)?.forEach { entity ->
                 hitboxes.remove(entity.uniqueId)
-                packets?.unbindInteraction(entity.entityId)
+                packets.unbindInteraction(entity.entityId)
                 scheduler.run(ExecutionScope.Entity(entity.uniqueId), Duration.ZERO) { entity.remove() }
                 registry?.release("npc:${handle.id}:${entity.uniqueId}")
             }
@@ -178,7 +174,7 @@ internal class PaperNpcBodyService(
 
     override fun removeAll() {
         requests.keys.toList().forEach(::remove)
-        packets?.stop()
+        packets.stop()
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
