@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.core.domain.combat.CombatContext
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.damage.ResolvedDamage
@@ -17,4 +19,6 @@ public data class DamageDealt(
     override val version: Int = 1,
     /** Where it happened (ADR-0237); default `Match` is for tests - every production source sets it. */
     val context: CombatContext = CombatContext.Match(),
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(target.uuid)
+}

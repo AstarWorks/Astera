@@ -18,6 +18,7 @@ public data class EntityDespawned(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
 
     /**
      * Why the entity was removed. Distinguishing these matters for

@@ -50,6 +50,8 @@ public data class BossDefeated(
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+
     init {
         require(fightDurationTicks >= 0L) {
             "BossDefeated.fightDurationTicks must be >= 0: $fightDurationTicks"

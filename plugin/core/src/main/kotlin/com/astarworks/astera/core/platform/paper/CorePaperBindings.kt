@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.platform.paper
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.event.BukkitEventAdapter
@@ -69,9 +71,11 @@ internal class CorePaperBindings(
     @Volatile private var messageRenderer: (() -> IMessageRenderer?)? = null
     /** ADR-0241: the Items plugin's materializer, looked up per render (set in [afterWiring]). */
     @Volatile private var itemMaterializer: (() -> com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer?)? = null
+    private lateinit var gameInstances: com.astarworks.astera.core.application.service.instance.GameInstanceRegistry
     private val worldSlots by lazy {
         fun value(name: String, default: Int): Int = System.getenv(name)?.toIntOrNull() ?: default
         com.astarworks.astera.core.application.service.instance.SlotAllocator(
+            gameInstances,
             value("ASTERA_SLOT_MIN_X", 0), value("ASTERA_SLOT_MIN_Z", 0),
             value("ASTERA_SLOT_COLUMNS", 32), value("ASTERA_SLOT_ROWS", 32),
         )
@@ -139,6 +143,7 @@ internal class CorePaperBindings(
             ),
             mcServer = mcServer,
             scheduler = scheduler,
+            computePool = ps.computePool,
             broadcaster = broadcaster,
             guiAdapter = GuiAdapterFactory { items, messages, bindingResolver ->
                 val guiRenderer = PaperItemTemplateRenderer(items, messages, bindingResolver) { itemMaterializer?.invoke() }
@@ -467,6 +472,7 @@ internal class CorePaperBindings(
      * starts the Paper services that need the [JavaPlugin].
      */
     fun afterWiring(ctx: WiringContext, result: CoreWiringResult) {
+        gameInstances = ctx.services.getOrThrow<com.astarworks.astera.core.application.service.instance.GameInstanceRegistry>()
         messageRenderer = { ctx.services.get<IMessageRenderer>() }
         registerBotRequestGateway(ctx)
         itemMaterializer = { ctx.services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>() }
@@ -669,8 +675,8 @@ internal class CorePaperBindings(
             priority = 100,
         )
         val bus = ctx.services.getOrThrow<IDomainEventBus>()
-        ctx.subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { menuKit.refreshAll() }
-        ctx.subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) { menuKit.refreshAll() }
+        ctx.subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class, EventDelivery.Global) { menuKit.refreshAll() }
+        ctx.subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class, EventDelivery.Global) { menuKit.refreshAll() }
         // `reload all` / `reload lobby-kit` swaps the layout: re-apply to everyone online (main thread via later()).
         kitContents.onChanged { menuKit.refreshAll() }
         menuKit.refreshAll()

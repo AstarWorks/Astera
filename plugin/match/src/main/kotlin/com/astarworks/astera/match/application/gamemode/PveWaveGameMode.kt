@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.gamemode
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.mob.IEncounterZoneRegistry
 import com.astarworks.astera.core.application.port.outbound.mob.IMobSpawner
@@ -79,7 +81,7 @@ public class PveWaveGameMode @JvmOverloads constructor(
     public fun subscribeAll(): List<IDomainEventBus.Subscription> {
         val e = env ?: return emptyList()
         val matches = e.matches
-        return subscribe() + e.eventBus.subscribe(MobKilled::class) { ev ->
+        return subscribe() + e.eventBus.subscribe(MobKilled::class, EventDelivery.Global) { ev ->
             val killer = ev.killerId ?: return@subscribe
             val match = matches.findMatchOf(killer) ?: return@subscribe
             dispatch(match.id) { run, _ -> mobKilled(run, ev.handle.id) }

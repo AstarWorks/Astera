@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.service.mob.pve
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.mob.IBossSpecRegistry
 import com.astarworks.astera.core.application.port.outbound.mob.ILootRollService
@@ -68,7 +70,7 @@ public class BossDefeatedLootRoller(
      * caller can cancel on plugin disable.
      */
     public fun wire(eventBus: IDomainEventBus): IDomainEventBus.Subscription {
-        return eventBus.subscribe(BossDefeated::class) { event ->
+        return eventBus.subscribe(BossDefeated::class, EventDelivery.Global) { event ->
             onBossDefeated(event)
         }
     }

@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.eventbus.listeners.victory
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -70,8 +72,8 @@ public class AnnihilationWinConditionListener(
 
     /** Subscribe both event paths. Returns the two subscription handles. */
     public fun subscribe(): List<IDomainEventBus.Subscription> = listOf(
-        eventBus.subscribe(TeamEliminated::class) { handleTeamEliminated(it) },
-        eventBus.subscribe(AnnihilationPhaseTransitioned::class) { handlePhaseTransition(it) },
+        eventBus.subscribe(TeamEliminated::class, EventDelivery.Global) { handleTeamEliminated(it) },
+        eventBus.subscribe(AnnihilationPhaseTransitioned::class, EventDelivery.Global) { handlePhaseTransition(it) },
     )
 
     public fun handleTeamEliminated(event: TeamEliminated) {

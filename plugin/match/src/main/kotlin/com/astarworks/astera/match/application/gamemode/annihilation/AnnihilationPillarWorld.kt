@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.gamemode.annihilation
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -44,10 +46,10 @@ public class AnnihilationPillarWorld(
 
     /** Subscribe to the pillar and match events. Returns the handles for the wiring's cancel list. */
     public fun subscribe(eventBus: IDomainEventBus): List<IDomainEventBus.Subscription> = listOf(
-        eventBus.subscribe(NexusDamaged::class) { onDamaged(it) },
-        eventBus.subscribe(NexusDestroyed::class) { onDestroyed(it) },
-        eventBus.subscribe(TeamEliminated::class) { onTeamEliminated(it) },
-        eventBus.subscribe(MatchEnded::class) { clear(it.matchId) },
+        eventBus.subscribe(NexusDamaged::class, EventDelivery.Global) { onDamaged(it) },
+        eventBus.subscribe(NexusDestroyed::class, EventDelivery.Global) { onDestroyed(it) },
+        eventBus.subscribe(TeamEliminated::class, EventDelivery.Global) { onTeamEliminated(it) },
+        eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { clear(it.matchId) },
     )
 
     /** Places every pillar block of [matchId] (idempotent). No-op when the stage declared no pillars. */

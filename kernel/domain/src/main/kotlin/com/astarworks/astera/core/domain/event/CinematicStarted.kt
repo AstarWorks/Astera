@@ -26,6 +26,8 @@ public data class CinematicStarted(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+
     init {
         require(totalDurationTicks >= 0L) {
             "CinematicStarted.totalDurationTicks must be >= 0 (got $totalDurationTicks)"

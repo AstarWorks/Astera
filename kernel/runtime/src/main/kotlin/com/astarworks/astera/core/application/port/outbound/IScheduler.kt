@@ -11,6 +11,7 @@ public interface IScheduler {
      * This measures global ticks since scheduler startup, not any entity/region's local tick.
      * Io delays use wall time; entity and region delays use their owner's local ticks.
      */
+    public fun isOnScope(scope: ExecutionScope): Boolean
     public fun currentTick(): Long
     public fun run(scope: ExecutionScope, delay: Duration, block: () -> Unit): TaskHandle
     public fun repeat(scope: ExecutionScope, initialDelay: Duration, period: Duration, block: () -> Unit): TaskHandle

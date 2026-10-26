@@ -20,6 +20,8 @@ public data class MatchFormed(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+
     init {
         val flattened = teams.flatten()
         require(flattened.toSet() == players.toSet()) {

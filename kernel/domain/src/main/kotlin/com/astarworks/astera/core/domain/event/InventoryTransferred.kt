@@ -32,6 +32,8 @@ public data class InventoryTransferred(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+
     init {
         require(items.isNotEmpty()) { "InventoryTransferred must carry at least one item" }
         require(items.values.all { it > 0 }) { "All item counts must be > 0: ${'$'}items" }

@@ -34,6 +34,7 @@ public interface IRegionEventFilter {
     public fun <E : DomainEvent> subscribe(
         regionId: RegionId,
         type: KClass<E>,
+        delivery: com.astarworks.astera.core.application.port.outbound.EventDelivery,
         handler: (E) -> Unit,
     ): Subscription
 

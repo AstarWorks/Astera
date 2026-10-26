@@ -1,5 +1,8 @@
 package com.astarworks.astera.match.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+import com.astarworks.astera.core.domain.game.InstanceId
+
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -30,4 +33,6 @@ public data class PlayerEnteredSpectator(
     public val atTick: Long,
     public override val version: Int = 1,
     public override val occurredAt: Instant = Instant.now(),
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Instance(InstanceId(matchId.value))
+}

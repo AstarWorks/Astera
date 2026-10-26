@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
 import com.astarworks.astera.core.adapter.api.binding.McPlayerGateway
 import com.astarworks.astera.core.adapter.api.hud.ITabList
 import com.astarworks.astera.core.adapter.api.server.IMcServer
@@ -265,7 +266,49 @@ internal fun CoreWiringState.wireBase() {
 
     // ---- Player gateway, event bus -----------------------------------
     playerGateway = McPlayerGateway(mcServer)
-    eventBus = InMemoryDomainEventBus()
+    val directory = com.astarworks.astera.core.application.service.InstanceDirectory(scheduler)
+    val instances = com.astarworks.astera.core.application.service.instance.GameInstanceRegistry(scheduler, directory)
+    services.register<com.astarworks.astera.core.application.port.outbound.IGameScopeResolver>(
+        com.astarworks.astera.core.application.port.outbound.IGameScopeResolver { entity ->
+            com.astarworks.astera.core.domain.game.GameScope.OpenWorld(entity.world)
+        },
+    )
+    services.register<com.astarworks.astera.core.application.port.outbound.IGameScopeResolver>(instances, priority = 100)
+    services.register(directory)
+    services.register(instances)
+    services.register<com.astarworks.astera.core.application.port.outbound.IComputePool>(ports.computePool)
+    eventBus = InMemoryDomainEventBus(scheduler, directory)
+    // Infrastructure only: the existing match handlers remain Global-owned until T7.
+    ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class, EventDelivery.Global) { event ->
+        val id = com.astarworks.astera.core.domain.game.InstanceId(event.matchId.value)
+        if (instances.find(id) == null) {
+            instances.allocate(id, null, 0L)
+            instances.ready(id)
+            instances.running(id)
+        }
+    }
+    ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class, EventDelivery.Global) { event ->
+        instances.draining(com.astarworks.astera.core.domain.game.InstanceId(event.matchId.value))
+    }
+    ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerPortalReady.EntryReady::class, EventDelivery.Global) { event ->
+        directory.admit(event.playerId.uuid, com.astarworks.astera.core.domain.game.InstanceId(event.matchId.value))
+    }
+    ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerLeftMatch::class, EventDelivery.Global) { event ->
+        if (directory.find(event.playerId.uuid)?.value == event.matchId.value) directory.remove(event.playerId.uuid)
+    }
+    fun admitLobby(player: com.astarworks.astera.core.domain.player.PlayerId) {
+        val lobby = com.astarworks.astera.core.domain.game.InstanceId("lobby")
+        if (instances.find(lobby) != null) directory.admit(player.uuid, lobby) else directory.remove(player.uuid)
+    }
+    ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerReturnedToLobby::class, EventDelivery.Global) { event ->
+        admitLobby(event.playerId)
+    }
+    ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class, EventDelivery.Global) { event ->
+        admitLobby(event.playerId)
+    }
+    ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class, EventDelivery.Global) { event ->
+        directory.remove(event.playerId.uuid)
+    }
 
     // ---- Publish ports onto the registry -----------------------------
     // Feature plugins call services.getOrThrow<X>() in their own onEnable.

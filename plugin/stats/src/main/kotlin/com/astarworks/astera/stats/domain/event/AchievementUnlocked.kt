@@ -1,5 +1,7 @@
 package com.astarworks.astera.stats.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.achievement.AchievementId
@@ -25,4 +27,6 @@ public data class AchievementUnlocked(
     val unlockedAt: Instant,
     override val occurredAt: Instant = unlockedAt,
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+}

@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.service.admin
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -68,7 +70,7 @@ public class InMemoryScheduledAnnouncementSystem(
                 ({ handle.cancel() })
             }
             is AnnouncementTrigger.OnEvent -> {
-                val sub = eventBus.subscribe(DomainEvent::class) { ev ->
+                val sub = eventBus.subscribe(DomainEvent::class, EventDelivery.Global) { ev ->
                     if (ev::class.simpleName == trigger.eventClassName) {
                         fire(spec)
                     }

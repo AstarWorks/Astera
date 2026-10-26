@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import java.util.concurrent.ConcurrentHashMap
 
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
@@ -225,7 +227,7 @@ internal object MatchGameplayWiring {
         // A queued player who disconnects leaves the queue (so they are never
         // pulled into a match while offline).
         subscriptions += eventBus.subscribe(
-            com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
+            com.astarworks.astera.core.domain.event.PlayerQuitServer::class, EventDelivery.Global,
         ) { matchmaker.dequeue(it.playerId) }
 
         // ── Wave 7b (ADR-0037): ranked rating update + tournament use cases ──
@@ -238,7 +240,7 @@ internal object MatchGameplayWiring {
             eventBus = eventBus,
         )
         val updateRatingListener = com.astarworks.astera.match.application.eventbus.listeners.UpdateRatingOnMatchEndedListener(updateRatingOnMatchEnded)
-        subscriptions += eventBus.subscribe(MatchEnded::class) { updateRatingListener.handle(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { updateRatingListener.handle(it) }
 
         // Tournament bracket use cases registered for cross-plugin / web / admin
         // command use. In-game admin command surface lands in Wave 7c content
@@ -294,8 +296,8 @@ internal object MatchGameplayWiring {
             hud = deathHud,
         )
         eliminatedRef = eliminatedTeams
-        subscriptions += eventBus.subscribe(TeamEliminated::class) { eliminatedTeams.onTeamEliminated(it) }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { eliminatedTeams.onMatchEnded(it) }
+        subscriptions += eventBus.subscribe(TeamEliminated::class, EventDelivery.Global) { eliminatedTeams.onTeamEliminated(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { eliminatedTeams.onMatchEnded(it) }
 
         // F3-5: death screen -> death cam -> countdown -> respawn at a team spawn -> spawn protection.
         val deathConfigLogged = ConcurrentHashMap.newKeySet<String>()
@@ -324,10 +326,10 @@ internal object MatchGameplayWiring {
                 parsed.config
             },
         )
-        subscriptions += eventBus.subscribe(PlayerKilled::class) { deathRespawn.onKilled(it) }
-        subscriptions += eventBus.subscribe(DamageDealt::class) { deathRespawn.onDamageDealt(it) }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { deathRespawn.onMatchEnded(it) }
-        subscriptions += eventBus.subscribe(TeamEliminated::class) { deathRespawn.onTeamEliminated(it) }
+        subscriptions += eventBus.subscribe(PlayerKilled::class, EventDelivery.Global) { deathRespawn.onKilled(it) }
+        subscriptions += eventBus.subscribe(DamageDealt::class, EventDelivery.Global) { deathRespawn.onDamageDealt(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { deathRespawn.onMatchEnded(it) }
+        subscriptions += eventBus.subscribe(TeamEliminated::class, EventDelivery.Global) { deathRespawn.onTeamEliminated(it) }
         // Out-of-match deaths (lobby PvP / fall / mob) restore HP and return
         // the player to lobby spawn; in-match deaths stay with respawnOnKilled.
         val returnToLobbyOnDeath = com.astarworks.astera.match.application.eventbus.listeners.respawn
@@ -341,7 +343,7 @@ internal object MatchGameplayWiring {
                 gameServer = role == com.astarworks.astera.core.domain.proxy.ServerRole.GAME,
             )
         subscriptions += eventBus.subscribe(
-            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
+            com.astarworks.astera.combat.domain.event.PlayerKilled::class, EventDelivery.Global,
         ) { event -> returnToLobbyOnDeath.handle(event) }
 
         val teleportLobbyListener = com.astarworks.astera.match.application.eventbus.listeners.lobby
@@ -353,14 +355,14 @@ internal object MatchGameplayWiring {
             )
         // Game-only backends send players back through the proxy instead (MatchAssignmentReceiver).
         if (role != com.astarworks.astera.core.domain.proxy.ServerRole.GAME) {
-            subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+            subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { event ->
                 teleportLobbyListener.handle(event)
             }
         }
 
         // F1-I (ADR-0186): `/astera admin drain` cancels running matches so their players can be moved.
         subscriptions += eventBus.subscribe(
-            com.astarworks.astera.core.domain.event.lifecycle.ServerDrainStarted::class,
+            com.astarworks.astera.core.domain.event.lifecycle.ServerDrainStarted::class, EventDelivery.Global,
         ) { event ->
             if (!event.abortMatches) return@subscribe
             for (active in matches.findActiveMatches().toList()) {
@@ -388,7 +390,7 @@ internal object MatchGameplayWiring {
                     matchRepository = matches,
                     engagement = engagementService,
                 )
-        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { event ->
             recomputeEngagementOnMatchEnded.handle(event)
         }
         logger.info(
@@ -422,7 +424,7 @@ internal object MatchGameplayWiring {
                 skills = services.get<com.astarworks.astera.combat.application.port.outbound.ISkillRegistry>(),
             )
         subscriptions += eventBus.subscribe(
-            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
+            com.astarworks.astera.combat.domain.event.PlayerKilled::class, EventDelivery.Global,
         ) { killfeedListener.handle(it) }
 
         // The Norma layer (every game mode, MODE-15): reaching the top Norma level wins when `norma_win` is on (NormaLevelService), next to
@@ -445,7 +447,7 @@ internal object MatchGameplayWiring {
             killsOf = { match, team -> matchStars.norma.kills(match, team) },
         )
         subscriptions += eventBus.subscribe(
-            com.astarworks.astera.match.domain.event.PhaseChanged::class,
+            com.astarworks.astera.match.domain.event.PhaseChanged::class, EventDelivery.Global,
         ) { normaKills.onPhaseChanged(it) }
         scheduledTasks += scheduler.repeat(ExecutionScope.Global,
             com.astarworks.astera.core.application.port.outbound.ticks(20),
@@ -495,7 +497,7 @@ internal object MatchGameplayWiring {
                     hudGateway = hudGateway,
                     scheduler = scheduler,
                 )
-        subscriptions += eventBus.subscribe(MatchStarted::class) {
+        subscriptions += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) {
             matchCountdownListener.handle(it)
         }
 
@@ -506,23 +508,23 @@ internal object MatchGameplayWiring {
             bgm = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.music.IPlayerBgm>(),
             scheduler = scheduler,
         )
-        subscriptions += eventBus.subscribe(MatchStarted::class) { matchCueListener.onStarted(it) }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { matchCueListener.onKilled(it) }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) { matchCueListener.onPhaseChanged(it) }
+        subscriptions += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { matchCueListener.onStarted(it) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class, EventDelivery.Global) { matchCueListener.onKilled(it) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class, EventDelivery.Global) { matchCueListener.onPhaseChanged(it) }
 
         // F3-4: per-match kills / deaths / assists / objectives behind the result screen.
         val matchTally = com.astarworks.astera.match.application.service.result.MatchTallyService(matches)
-        subscriptions += eventBus.subscribe(MatchStarted::class) { matchTally.onMatchStarted(it.matchId, it.modeKey.orEmpty()) }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) {
+        subscriptions += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { matchTally.onMatchStarted(it.matchId, it.modeKey.orEmpty()) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class, EventDelivery.Global) {
             matchTally.onKill(it.victim, it.killer)
         }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MobKilled::class) {
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MobKilled::class, EventDelivery.Global) {
             matchTally.onMobKill(it.killerId)
         }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.AssistCredited::class) {
+        subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.AssistCredited::class, EventDelivery.Global) {
             matchTally.onAssist(it.player, it.victim)
         }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.NexusDestroyed::class) {
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.NexusDestroyed::class, EventDelivery.Global) {
             matchTally.onObjective(it.matchId, it.attackerId)
         }
 
@@ -537,7 +539,7 @@ internal object MatchGameplayWiring {
                     eventBus = eventBus,
                     nameOf = { id -> env.ctx.services.get<IMcServer>()?.findPlayer(id)?.name },
                 )
-        subscriptions += eventBus.subscribe(MatchEnded::class) {
+        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) {
             matchEndSummaryListener.handle(it)
         }
 
@@ -549,7 +551,7 @@ internal object MatchGameplayWiring {
                     inventoryMutator = inventoryMutator,
                 )
         subscriptions += eventBus.subscribe(
-            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
+            com.astarworks.astera.combat.domain.event.PlayerKilled::class, EventDelivery.Global,
         ) { applyPvpDeathPolicyListener.handle(it) }
 
         val annihilationWinConditionListener =
@@ -577,10 +579,10 @@ internal object MatchGameplayWiring {
                     scheduler = scheduler,
                 )
         subscriptions += eventBus.subscribe(
-            com.astarworks.astera.match.domain.event.PlayerDisconnectedFromMatch::class,
+            com.astarworks.astera.match.domain.event.PlayerDisconnectedFromMatch::class, EventDelivery.Global,
         ) { reconnectCountdownHudListener.onDisconnected(it) }
         subscriptions += eventBus.subscribe(
-            com.astarworks.astera.match.domain.event.PlayerReconnectedToMatch::class,
+            com.astarworks.astera.match.domain.event.PlayerReconnectedToMatch::class, EventDelivery.Global,
         ) { reconnectCountdownHudListener.onReconnected(it) }
 
         logger.info(
@@ -628,16 +630,16 @@ internal object MatchGameplayWiring {
                 com.astarworks.astera.core.application.port.outbound.lobby.ILobbyQueueState { player -> matchmaker.queueStatus(player) != null },
                 priority = 0,
             )
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class) {
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class, EventDelivery.Global) {
                 services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyKitRefresher>()?.refresh(it.playerId)
             }
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) {
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class, EventDelivery.Global) {
                 services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyKitRefresher>()?.refresh(it.playerId)
             }
             val queueLog = com.astarworks.astera.match.application.service.matchmaking.QueueActivityLogger { playerGateway.nameOf(it) }
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class) { queueLog.onJoined(it) }
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) { queueLog.onLeft(it) }
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { queueLog.onFormed(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class, EventDelivery.Global) { queueLog.onJoined(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class, EventDelivery.Global) { queueLog.onLeft(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class, EventDelivery.Global) { queueLog.onFormed(it) }
             val lobbyQueueIntentRouter =
                 services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>()
             registrations += lobbyQueueIntentRouter.register(
@@ -668,12 +670,12 @@ internal object MatchGameplayWiring {
                 settings = { env.queueSettings.current() },
                 board = services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneBoard>(),
             )
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.LobbyLanePadEntered::class) {
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.LobbyLanePadEntered::class, EventDelivery.Global) {
                 lanePadJoin.onPadEntered(it)
             }
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class) { lanePadJoin.refreshBoard() }
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) { lanePadJoin.refreshBoard() }
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { lanePadJoin.refreshBoard() }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class, EventDelivery.Global) { lanePadJoin.refreshBoard() }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class, EventDelivery.Global) { lanePadJoin.refreshBoard() }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class, EventDelivery.Global) { lanePadJoin.refreshBoard() }
             // Safety net for paths that drain a queue without an event (admin force start, reload).
             scheduledTasks += scheduler.repeat(ExecutionScope.Global,
                 com.astarworks.astera.core.application.port.outbound.ticks(40),

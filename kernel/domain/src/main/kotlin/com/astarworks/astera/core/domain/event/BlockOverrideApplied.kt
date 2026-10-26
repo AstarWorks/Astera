@@ -43,6 +43,8 @@ public data class BlockOverrideApplied(
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(viewer.uuid)
+
     init {
         val nonDefault = listOf(
             overrideType != null,

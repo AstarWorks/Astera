@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.usecase.world
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IArenaBuilder
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.event.MatchEnded
@@ -21,7 +23,7 @@ public class DestroyMatchWorldUseCase(
 
     /** Subscribe to [MatchEnded] events. Returns the subscription so the caller can cancel it. */
     public fun subscribe(bus: IDomainEventBus): IDomainEventBus.Subscription =
-        bus.subscribe(MatchEnded::class) { event -> handle(event) }
+        bus.subscribe(MatchEnded::class, EventDelivery.Global) { event -> handle(event) }
 
     /** Visible for tests; exercised through [subscribe] in production. */
     public fun handle(event: MatchEnded) {

@@ -6,6 +6,7 @@ import com.astarworks.astera.core.domain.stage.StageId
 
 /** Slot-backed geometry. Claims run on Global; reads are thread safe. */
 public interface IArenaBuilder {
+    public fun instanceId(stageId: StageId): com.astarworks.astera.core.domain.game.InstanceId?
     public fun acquire(stage: Stage): Result<Stage, ArenaAllocationError>
     public fun resolve(stageId: StageId): Stage?
 

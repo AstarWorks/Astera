@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.event.lifecycle
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.lifecycle.ShutdownReason
 import java.time.Instant
@@ -15,4 +17,6 @@ public data class ServerShutdownStarted(
     val reason: ShutdownReason,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+}

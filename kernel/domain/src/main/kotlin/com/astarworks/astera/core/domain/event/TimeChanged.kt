@@ -31,6 +31,8 @@ public data class TimeChanged(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+
     init {
         require(oldTime in 0..23999) { "oldTime must be in 0..23999 (Minecraft day): $oldTime" }
         require(newTime in 0..23999) { "newTime must be in 0..23999 (Minecraft day): $newTime" }

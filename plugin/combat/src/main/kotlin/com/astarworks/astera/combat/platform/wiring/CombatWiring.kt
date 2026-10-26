@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.damage.attackerIdOrNull
 import com.astarworks.astera.combat.application.config.StatusEffectInteractionLoader
@@ -710,7 +712,7 @@ public object CombatWiring {
             // CastSkillUseCase.execute(...) call so combat continues to own
             // the silence / cooldown / resource pipeline. Wave _skills-2 carries
             // phase_overrides through.
-            subscriptions += eventBus.subscribe(SkillCastRequested::class) { event ->
+            subscriptions += eventBus.subscribe(SkillCastRequested::class, EventDelivery.Global) { event ->
                 val dbg = castSkill.execute(
                     casterId = event.actorId,
                     skillId = event.skillId,
@@ -729,27 +731,27 @@ public object CombatWiring {
                 val feedback = com.astarworks.astera.combat.application.eventbus.listeners.hud
                     .CastRejectedFeedbackListener(hud)
                 subscriptions += eventBus.subscribe(
-                    com.astarworks.astera.combat.domain.event.SkillCastRejected::class,
+                    com.astarworks.astera.combat.domain.event.SkillCastRejected::class, EventDelivery.Global,
                 ) { event -> feedback.handle(event) }
             }
 
             // Wave 5a-fix2 — assist attribution pipeline (ADR-0063)
             val damageHistoryListener = RecordDamageHistoryOnDamageDealtListener(damageHistory)
             val assistAttribution = AssistAttributionUseCase(damageHistory, eventBus)
-            subscriptions += eventBus.subscribe(DamageDealt::class) { damageHistoryListener.handle(it) }
-            subscriptions += eventBus.subscribe(PlayerKilled::class) { assistAttribution.handle(it) }
+            subscriptions += eventBus.subscribe(DamageDealt::class, EventDelivery.Global) { damageHistoryListener.handle(it) }
+            subscriptions += eventBus.subscribe(PlayerKilled::class, EventDelivery.Global) { assistAttribution.handle(it) }
 
             // ADR-0231 — E.G.O gauge: fills on hits dealt / taken, empties on death.
             services.get<com.astarworks.astera.core.application.port.outbound.IEgoGauge>()?.let { gauge ->
                 val egoListener = com.astarworks.astera.combat.application.eventbus.listeners.ego
                     .EgoGaugeCombatListener(gauge)
-                subscriptions += eventBus.subscribe(DamageDealt::class) { egoListener.onDamage(it) }
-                subscriptions += eventBus.subscribe(PlayerKilled::class) { egoListener.onKilled(it) }
+                subscriptions += eventBus.subscribe(DamageDealt::class, EventDelivery.Global) { egoListener.onDamage(it) }
+                subscriptions += eventBus.subscribe(PlayerKilled::class, EventDelivery.Global) { egoListener.onKilled(it) }
             }
             if (statusContainer != null) {
                 val clearStatuses = com.astarworks.astera.combat.application.eventbus.listeners.status
                     .ClearStatusesOnPlayerKilledListener(statusContainer)
-                subscriptions += eventBus.subscribe(PlayerKilled::class) { clearStatuses.handle(it) }
+                subscriptions += eventBus.subscribe(PlayerKilled::class, EventDelivery.Global) { clearStatuses.handle(it) }
             }
 
             // Wave 5e: ApplyArmorModifiersUseCase + JumpCountTracker.

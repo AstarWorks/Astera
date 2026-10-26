@@ -15,4 +15,6 @@ public data class PlayerAfkWarned(
     val atTick: Long,
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+}

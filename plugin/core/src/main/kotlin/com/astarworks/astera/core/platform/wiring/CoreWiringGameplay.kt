@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPartyRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
@@ -190,7 +192,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
     // memory per backend, so a game-only server would treat every arrival from
     // the lobby as a new player and re-run the starter grant.
     if (ctx.serverRole.hostsLobby) {
-        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { event ->
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class, EventDelivery.Global) { event ->
             createFirstTimeListener.handle(event)
         }
     }
@@ -201,10 +203,10 @@ internal fun CoreWiringState.wireGameplayLoop() {
             server = mcServer,
             sessions = sessionRepo,
         )
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class) { event ->
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class, EventDelivery.Global) { event ->
         starterItemsListener.handle(event)
     }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class) { event ->
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class, EventDelivery.Global) { event ->
         starterItemsListener.handle(event)
     }
     val startTutorialListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
@@ -212,7 +214,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
             profileService = profileService,
             sequencer = tutorialSequencer,
         )
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class) { event ->
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class, EventDelivery.Global) { event ->
         startTutorialListener.handle(event)
     }
     val welcomeDialogListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
@@ -220,7 +222,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
             profileService = profileService,
             dialogGateway = dialogGateway,
         )
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class) { event ->
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class, EventDelivery.Global) { event ->
         welcomeDialogListener.handle(event)
     }
 
@@ -229,7 +231,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
     //    sibling isolation).
     val hudCurrencyListener = com.astarworks.astera.core.application.eventbus.listeners.hud
         .HudUpdateOnCurrencyChangedListener(hudGateway)
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.CurrencyChanged::class) { event ->
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.CurrencyChanged::class, EventDelivery.Global) { event ->
         hudCurrencyListener.handle(event)
     }
 
@@ -240,13 +242,13 @@ internal fun CoreWiringState.wireGameplayLoop() {
     if (resourcePoolForHud != null && foodGatewayForHud != null) {
         val energyFoodBar = com.astarworks.astera.core.application.eventbus.listeners.hud
             .EnergyFoodBarListener(resourcePoolForHud, foodGatewayForHud, scheduler)
-        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { energyFoodBar.onJoined(it) }
-        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { energyFoodBar.onQuit(it) }
-        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerRespawned::class) { energyFoodBar.onRespawned(it) }
-        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceSpent::class) { energyFoodBar.onSpent(it) }
-        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceRegenned::class) { energyFoodBar.onRegenned(it) }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class, EventDelivery.Global) { energyFoodBar.onJoined(it) }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class, EventDelivery.Global) { energyFoodBar.onQuit(it) }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerRespawned::class, EventDelivery.Global) { energyFoodBar.onRespawned(it) }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceSpent::class, EventDelivery.Global) { energyFoodBar.onSpent(it) }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceRegenned::class, EventDelivery.Global) { energyFoodBar.onRegenned(it) }
         wave5completeSubs += eventBus.subscribe(
-            com.astarworks.astera.core.domain.event.PlayerActiveWeaponChanged::class,
+            com.astarworks.astera.core.domain.event.PlayerActiveWeaponChanged::class, EventDelivery.Global,
         ) { energyFoodBar.onActiveWeaponChanged(it) }
     }
 
@@ -265,9 +267,9 @@ internal fun CoreWiringState.wireGameplayLoop() {
             cooldownIcons = { services.get<com.astarworks.astera.core.application.port.outbound.ICooldownIconSource>() },
             statusEffectIcons = { services.get<com.astarworks.astera.core.application.port.outbound.IStatusEffectIconSource>() },
         )
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hpStatusHud.onJoined(it) }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hpStatusHud.onQuit(it) }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { hpStatusHud.onPackStatus(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class, EventDelivery.Global) { hpStatusHud.onJoined(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class, EventDelivery.Global) { hpStatusHud.onQuit(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class, EventDelivery.Global) { hpStatusHud.onPackStatus(it) }
     // F3-9 (ADR-0224): the pack spec is re-readable (`/astera admin pack reload`), so the
     // join listener and the diagnostics always go through the service.
     val resourcePackService = com.astarworks.astera.core.application.service.hud.ResourcePackService(
@@ -282,17 +284,17 @@ internal fun CoreWiringState.wireGameplayLoop() {
     services.register<com.astarworks.astera.core.application.service.hud.ResourcePackService>(resourcePackService, priority = 0)
     val hudDiagnostics = com.astarworks.astera.core.application.eventbus.listeners.hud
         .HudDiagnosticsService(hudGateway, scheduler, packConfigured = { resourcePackService.current() != null })
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hudDiagnostics.onJoined(it) }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hudDiagnostics.onQuit(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class, EventDelivery.Global) { hudDiagnostics.onJoined(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class, EventDelivery.Global) { hudDiagnostics.onQuit(it) }
     // A client that quit loses its sidebar. Without this the HUD gateway and the scoreboard manager keep believing the
     // old board is on screen, and the same player logging in again (a mid-match reconnect) is never shown one.
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) {
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class, EventDelivery.Global) {
         hudGateway.clearFor(it.playerId, com.astarworks.astera.core.domain.hud.HudRegion.SIDEBAR)
     }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { hudDiagnostics.onPackStatus(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class, EventDelivery.Global) { hudDiagnostics.onPackStatus(it) }
     val pushOnJoin = com.astarworks.astera.core.application.eventbus.listeners.hud
         .ResourcePackPushOnJoinListener(hudGateway) { resourcePackService.current() }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { pushOnJoin.handle(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class, EventDelivery.Global) { pushOnJoin.handle(it) }
     ports.resourcePack?.let { logger.info("ADR-0182: resource pack push on join enabled (${it.url}).") }
         ?: logger.info("ADR-0182: no resource pack configured (ASTERA_RESOURCE_PACK_URL unset); status HUD uses its text form.")
 
@@ -307,7 +309,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
     val questProgressListener = com.astarworks.astera.core.application.eventbus.listeners.quest
         .UpdateQuestProgressOnQuestStageCompletedListener(hudGateway)
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.QuestStageCompleted::class,
+        com.astarworks.astera.core.domain.event.QuestStageCompleted::class, EventDelivery.Global,
     ) { event -> questProgressListener.handle(event) }
 
     val recipeNotifyListener = com.astarworks.astera.core.application.eventbus.listeners.recipe
@@ -317,7 +319,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
             hudGateway = hudGateway,
         )
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.RecipeCrafted::class,
+        com.astarworks.astera.core.domain.event.RecipeCrafted::class, EventDelivery.Global,
     ) { event -> recipeNotifyListener.handle(event) }
 
     // 5. Travel use cases (G13/G14/G15).

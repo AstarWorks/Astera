@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IArenaBuilder
 import com.astarworks.astera.core.application.services.get
@@ -120,7 +122,7 @@ internal object MatchWorldWiring {
             matchWorlds = matchWorlds,
             matchLifecycle = facade,
         )
-        subscriptions += eventBus.subscribe(WorldUnloading::class) { endMatchOnWorldUnload.handle(it) }
+        subscriptions += eventBus.subscribe(WorldUnloading::class, EventDelivery.Global) { endMatchOnWorldUnload.handle(it) }
 
         logger.info(
             "Wave 5d wiring complete: BlockRecoveryScheduler + BarrierStatusScheduler " +

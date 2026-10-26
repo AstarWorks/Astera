@@ -39,6 +39,8 @@ public data class ItemAcquired(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+
     init {
         require(count > 0) { "ItemAcquired.count must be > 0, got $count" }
     }

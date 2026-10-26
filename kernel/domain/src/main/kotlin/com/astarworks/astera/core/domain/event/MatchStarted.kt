@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.event
 
+import com.astarworks.astera.core.domain.game.InstanceId
+
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.stage.StageId
@@ -28,4 +30,6 @@ public data class MatchStarted(
     val modeKey: String? = null,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Instance(InstanceId(matchId.value))
+}

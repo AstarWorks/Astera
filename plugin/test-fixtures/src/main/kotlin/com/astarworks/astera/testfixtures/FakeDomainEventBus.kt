@@ -1,52 +1,31 @@
 package com.astarworks.astera.testfixtures
 
+import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.service.InstanceDirectory
 import com.astarworks.astera.core.domain.event.DomainEvent
 import kotlin.reflect.KClass
 
-/**
- * In-memory [IDomainEventBus] for tests. Every published event is appended to
- * [published] so assertions can inspect type, count, and payload; subscribers
- * still dispatch synchronously so listeners can be exercised end-to-end.
- */
-public class FakeDomainEventBus : IDomainEventBus {
-
+/** Recording wrapper over the real routed bus. The scheduler remains single-threaded. */
+public class FakeDomainEventBus(
+    scheduler: IScheduler = FakeScheduler(),
+    directory: InstanceDirectory = InstanceDirectory(scheduler),
+) : IDomainEventBus {
+    private val bus = InMemoryDomainEventBus(scheduler, directory)
     public val published: MutableList<DomainEvent> = mutableListOf()
-
-    private data class Entry<E : DomainEvent>(
-        val type: KClass<E>,
-        val handler: (E) -> Unit,
-        var active: Boolean = true,
-    )
-
-    private val entries: MutableList<Entry<out DomainEvent>> = mutableListOf()
-
-    override fun publish(event: DomainEvent) {
-        published += event
-        for (entry in entries.toList()) {
-            if (!entry.active) continue
-            if (entry.type.isInstance(event)) {
-                @Suppress("UNCHECKED_CAST")
-                (entry.handler as (DomainEvent) -> Unit)(event)
-            }
+    override fun local(id: com.astarworks.astera.core.domain.game.InstanceId): IDomainEventBus {
+        val local = bus.local(id)
+        return object : IDomainEventBus {
+            override fun local(id: com.astarworks.astera.core.domain.game.InstanceId): IDomainEventBus = this@FakeDomainEventBus.local(id)
+            override fun publish(event: DomainEvent) { published += event; local.publish(event) }
+            override fun <E : DomainEvent> subscribe(type: KClass<E>, delivery: EventDelivery, handler: (E) -> Unit): IDomainEventBus.Subscription =
+                local.subscribe(type, delivery, handler)
         }
     }
-
-    override fun <E : DomainEvent> subscribe(
-        type: KClass<E>,
-        handler: (E) -> Unit,
-    ): IDomainEventBus.Subscription {
-        val entry = Entry(type, handler)
-        entries += entry
-        return object : IDomainEventBus.Subscription {
-            override fun cancel() {
-                entry.active = false
-                entries.remove(entry)
-            }
-            override val isActive: Boolean get() = entry.active
-        }
-    }
-
-    public inline fun <reified E : DomainEvent> publishedOfType(): List<E> =
-        published.filterIsInstance<E>()
+    override fun publish(event: DomainEvent) { published += event; bus.publish(event) }
+    override fun <E : DomainEvent> subscribe(type: KClass<E>, delivery: EventDelivery, handler: (E) -> Unit): IDomainEventBus.Subscription =
+        bus.subscribe(type, delivery, handler)
+    public inline fun <reified E : DomainEvent> publishedOfType(): List<E> = published.filterIsInstance<E>()
 }

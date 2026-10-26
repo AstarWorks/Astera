@@ -33,6 +33,8 @@ public data class ItemInstanceRerolled(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(owner.uuid)
+
     init {
         require(rerollIndex >= 0) {
             "ItemInstanceRerolled.rerollIndex must be >= 0, got $rerollIndex"

@@ -34,6 +34,8 @@ public data class BlockDamagedBySkill(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(attackerId.uuid)
+
     init {
         require(amount >= 0) {
             "BlockDamagedBySkill.amount must be >= 0, got $amount"

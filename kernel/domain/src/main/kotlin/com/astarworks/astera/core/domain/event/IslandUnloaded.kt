@@ -41,6 +41,8 @@ public data class IslandUnloaded(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+
     init {
         require(reasonKind.isNotBlank()) {
             "IslandUnloaded.reasonKind must not be blank"

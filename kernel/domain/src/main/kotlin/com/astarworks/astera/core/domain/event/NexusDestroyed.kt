@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.event
 
+import com.astarworks.astera.core.domain.game.InstanceId
+
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.nexus.NexusId
@@ -45,6 +47,8 @@ public data class NexusDestroyed(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Instance(InstanceId(matchId.value))
+
     init {
         require(previousHp > 0) {
             "NexusDestroyed.previousHp must be > 0 (lethal hit); got=$previousHp"

@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.domain.event.aoe
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.combat.domain.aoe.AreaEffectAction
 import com.astarworks.astera.combat.domain.aoe.AreaEffectHandle
 import com.astarworks.astera.combat.domain.aoe.AreaEffectShape
@@ -23,8 +25,9 @@ public data class AreaEffectSpawned(
     public val atTick: Long,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
-
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+}
 /**
  * Domain event published when an area effect is despawned — either via
  * explicit [com.astarworks.astera.combat.application.port.outbound.aoe.IAreaEffectGateway.despawn]
@@ -37,6 +40,8 @@ public data class AreaEffectDespawned(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+
 
     /** Why an area effect was despawned. */
     public enum class DespawnReason {

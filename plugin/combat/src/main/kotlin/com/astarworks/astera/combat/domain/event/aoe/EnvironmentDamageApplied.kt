@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.domain.event.aoe
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -29,6 +31,8 @@ public data class EnvironmentDamageApplied(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(target.uuid)
+
     init {
         require(finalDamage >= 0.0) {
             "EnvironmentDamageApplied.finalDamage must be >= 0: $finalDamage"

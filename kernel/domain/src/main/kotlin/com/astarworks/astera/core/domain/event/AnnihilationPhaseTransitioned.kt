@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.event
 
+import com.astarworks.astera.core.domain.game.InstanceId
+
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.nexus.NexusPhase
 import java.time.Instant
@@ -48,6 +50,8 @@ public data class AnnihilationPhaseTransitioned(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Instance(InstanceId(matchId.value))
+
     init {
         require(oldPhase != newPhase) {
             "AnnihilationPhaseTransitioned requires distinct phases (got both=${newPhase.id})"

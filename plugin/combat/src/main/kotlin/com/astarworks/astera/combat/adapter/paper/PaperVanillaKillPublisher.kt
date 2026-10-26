@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.adapter.paper
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.combat.application.service.PendingVanillaAttribution
 import com.astarworks.astera.combat.application.service.VanillaKillResolver
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -44,7 +46,7 @@ public class PaperVanillaKillPublisher(
     /** Registers the Bukkit listener and the bus subscription; caller keeps the subscription for onDisable. */
     public fun start(plugin: JavaPlugin): IDomainEventBus.Subscription {
         plugin.server.pluginManager.registerEvents(this, plugin)
-        return eventBus.subscribe(PlayerHealthChanged::class) { onHealthChanged(it) }
+        return eventBus.subscribe(PlayerHealthChanged::class, EventDelivery.Global) { onHealthChanged(it) }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

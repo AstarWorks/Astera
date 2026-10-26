@@ -15,4 +15,6 @@ public data class TournamentConcluded(
     val winnerPlayerId: PlayerId?,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+}

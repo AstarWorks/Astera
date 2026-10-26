@@ -10,6 +10,8 @@ public sealed interface ExecutionScope {
     public data object Global : ExecutionScope
     public data class Entity(public val id: UUID) : ExecutionScope
     public data class Region(public val world: WorldId, public val cx: Int, public val cz: Int) : ExecutionScope
+    /** Serial worker strand: world/entity access requires an explicit hop. */
+    public data class Instance(public val id: com.astarworks.astera.core.domain.game.InstanceId) : ExecutionScope
     public data object Io : ExecutionScope
 }
 

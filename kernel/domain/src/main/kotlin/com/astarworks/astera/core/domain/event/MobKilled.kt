@@ -40,4 +40,6 @@ public data class MobKilled(
     override val occurredAt: Instant = Instant.now(),
     /** Where it happened (ADR-0237): `Match` only when the killer is a match participant; default is for tests. */
     public val context: CombatContext = CombatContext.Match(),
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+}

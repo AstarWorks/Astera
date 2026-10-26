@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -17,4 +19,6 @@ public data class CriticalHit(
     val source: DamageSource,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(target.uuid)
+}

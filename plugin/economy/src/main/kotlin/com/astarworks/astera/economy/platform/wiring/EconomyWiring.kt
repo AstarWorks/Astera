@@ -1,5 +1,7 @@
 package com.astarworks.astera.economy.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
@@ -209,10 +211,10 @@ public object EconomyWiring {
         )
         val depositOnMissionCompletedListener = DepositOnMissionCompletedListener(deposit)
 
-        subscriptions += eventBus.subscribe(MatchSummaryReady::class) { event ->
+        subscriptions += eventBus.subscribe(MatchSummaryReady::class, EventDelivery.Global) { event ->
             grantMatchRewards.handle(event)
         }
-        subscriptions += eventBus.subscribe(MissionCompleted::class) { event ->
+        subscriptions += eventBus.subscribe(MissionCompleted::class, EventDelivery.Global) { event ->
             depositOnMissionCompletedListener.handle(event)
         }
         val depositOnAchievementUnlocked = com.astarworks.astera.economy.application.eventbus.listeners.DepositOnAchievementUnlockedListener(
@@ -223,7 +225,7 @@ public object EconomyWiring {
             titles = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockStore>() },
             onTitleGranted = { id -> services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()?.notifyChanged(id) },
         )
-        subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.AchievementUnlocked::class) { event ->
+        subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.AchievementUnlocked::class, EventDelivery.Global) { event ->
             depositOnAchievementUnlocked.handle(event)
         }
 
@@ -231,7 +233,7 @@ public object EconomyWiring {
         val recordMovements = com.astarworks.astera.economy.application.eventbus.listeners.AuditCurrencyMovementListener {
             services.get<com.astarworks.astera.core.application.port.outbound.IAuditLogRepository>()
         }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.CurrencyChanged::class) { event ->
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.CurrencyChanged::class, EventDelivery.Global) { event ->
             recordMovements.handle(event)
         }
 
@@ -243,7 +245,7 @@ public object EconomyWiring {
         //   are independent — either firing without the other is still a
         //   valid (partial) close.
         val grantRewardOnTutorial = GrantRewardOnTutorialCompletedListener(deposit)
-        subscriptions += eventBus.subscribe(TutorialCompleted::class) { event ->
+        subscriptions += eventBus.subscribe(TutorialCompleted::class, EventDelivery.Global) { event ->
             grantRewardOnTutorial.handle(event)
         }
         logger.info(
@@ -487,10 +489,10 @@ public object EconomyWiring {
             ledger = ledger,
             eventBus = eventBus,
         )
-        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { event ->
             resolveBettingOnMatchEnded.handle(event)
         }
-        subscriptions += eventBus.subscribe(BettingMatchResolved::class) { event ->
+        subscriptions += eventBus.subscribe(BettingMatchResolved::class, EventDelivery.Global) { event ->
             distributePayoutOnResolved.handle(event)
         }
 

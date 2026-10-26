@@ -48,6 +48,9 @@ internal class PaperArenaWorld(
         return templates.size to templates.size
     }
 
+    override fun instanceId(stageId: StageId): com.astarworks.astera.core.domain.game.InstanceId? =
+        builds[stageId]?.slot?.instanceId
+
     override fun resolve(stageId: StageId): Stage? = builds[stageId]?.stage
     override fun ensureBuilt(stageId: StageId): Boolean = builds.containsKey(stageId)
 
@@ -126,7 +129,8 @@ internal class PaperArenaWorld(
                         paster.paste(world, build.plan).thenAccept { pasted ->
                             scheduler.run(ExecutionScope.Global, Duration.ZERO) {
                                 if (pasted is Result.Success) {
-                                    builds[stageId] = build.copy(journal = pasted.value)
+                                    val nextSlot = slots.reallocate(build.slot.index)
+                                    builds[stageId] = build.copy(slot = nextSlot, journal = pasted.value)
                                     slots.state(build.slot.index, SlotAllocator.State.Ready)
                                 } else log.error("Slot {} reset failed: {}", build.slot.index, pasted)
                             }

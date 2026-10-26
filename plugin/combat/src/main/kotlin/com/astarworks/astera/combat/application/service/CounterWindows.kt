@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.DamageDealt
@@ -23,13 +25,13 @@ internal class CounterWindows(
     private data class Window(val context: MechanicContext, val end: Long, val range: Double, val mechanics: List<Mechanic>)
     private val windows = mutableMapOf<PlayerId, Window>()
     private var closed = false
-    private val combat = events.subscribe(DamageDealt::class) { event ->
+    private val combat = events.subscribe(DamageDealt::class, EventDelivery.Global) { event ->
         if (event.resolved.finalAmount > 0 && (event.source is DamageSource.Item ||
                 event.source is DamageSource.Skill || event.source is DamageSource.Projectile)) {
             event.attacker?.let { hit(event.target, it) }
         }
     }
-    private val vanilla = events.subscribe(PlayerHealthChanged::class) { event ->
+    private val vanilla = events.subscribe(PlayerHealthChanged::class, EventDelivery.Global) { event ->
         val source = event.source as? HealthChangeSource.Attack
         if (source != null && event.newHp < event.oldHp) hit(event.playerId, PlayerId(source.attackerId))
     }

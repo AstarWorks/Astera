@@ -1,5 +1,7 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import kotlinx.serialization.json.*
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -86,9 +88,9 @@ public class SimHudRecorder(
         sidebar(player)?.lines?.map { describe(it) }.orEmpty()
 
     internal fun attach(bus: IDomainEventBus) {
-        bus.subscribe(HudShown::class) { record(it.playerId, it.layout.region(), Op.SHOW, it.layout) }
-        bus.subscribe(HudUpdated::class) { record(it.playerId, it.layout.region(), Op.UPDATE, it.layout) }
-        bus.subscribe(HudCleared::class) { record(it.playerId, it.region, Op.CLEAR, null) }
+        bus.subscribe(HudShown::class, EventDelivery.Global) { record(it.playerId, it.layout.region(), Op.SHOW, it.layout) }
+        bus.subscribe(HudUpdated::class, EventDelivery.Global) { record(it.playerId, it.layout.region(), Op.UPDATE, it.layout) }
+        bus.subscribe(HudCleared::class, EventDelivery.Global) { record(it.playerId, it.region, Op.CLEAR, null) }
     }
 
     private fun record(player: PlayerId, region: HudRegion, op: Op, layout: HudLayout?) {

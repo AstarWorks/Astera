@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.event
 
+import com.astarworks.astera.core.domain.game.InstanceId
+
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.music.MusicMood
 import com.astarworks.astera.core.domain.music.MusicTrackId
@@ -38,6 +40,8 @@ public data class AdaptiveMusicTriggered(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Instance(InstanceId(matchId.value))
+
     init {
         require(reasonKind.isNotBlank()) {
             "AdaptiveMusicTriggered.reasonKind must not be blank"

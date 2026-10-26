@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.gamemode.siege
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.match.domain.gamemode.MatchHudStatus
 import com.astarworks.astera.match.domain.gamemode.HudLine
 import com.astarworks.astera.combat.domain.event.PlayerKilled
@@ -96,20 +98,20 @@ public abstract class SiegeGameMode<R : SiegeRun>(
     public fun subscribe(): List<IDomainEventBus.Subscription> {
         val e = env ?: return emptyList()
         return listOf(
-            e.eventBus.subscribe(EntityEnteredRegion::class) { ev ->
+            e.eventBus.subscribe(EntityEnteredRegion::class, EventDelivery.Global) { ev ->
                 dispatch(ev.matchId) { run, match ->
                     teamOf(match, ev.playerId)?.let { entered(run, match, ev.playerId, it, ev.regionId) }
                 }
             },
-            e.eventBus.subscribe(EntityLeftRegion::class) { ev ->
+            e.eventBus.subscribe(EntityLeftRegion::class, EventDelivery.Global) { ev ->
                 dispatch(ev.matchId) { run, _ -> left(run, ev.playerId, ev.regionId) }
             },
-            e.eventBus.subscribe(BlockBroken::class) { ev ->
+            e.eventBus.subscribe(BlockBroken::class, EventDelivery.Global) { ev ->
                 dispatch(ev.matchId) { run, match ->
                     if (live(match)) broken(run, match, ev.playerId, teamOf(match, ev.playerId), ev.position)
                 }
             },
-            e.eventBus.subscribe(PlayerKilled::class) { ev ->
+            e.eventBus.subscribe(PlayerKilled::class, EventDelivery.Global) { ev ->
                 val match = e.matches.findMatchOf(ev.victim) ?: return@subscribe
                 dispatch(match.id) { run, m ->
                     if (live(m)) killed(run, m, ev.victim, teamOf(m, ev.victim), ev.killer, ev.killer?.let { k -> teamOf(m, k) })

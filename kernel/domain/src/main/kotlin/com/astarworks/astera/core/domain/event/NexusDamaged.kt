@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.event
 
+import com.astarworks.astera.core.domain.game.InstanceId
+
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.nexus.NexusId
@@ -53,6 +55,8 @@ public data class NexusDamaged(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Instance(InstanceId(matchId.value))
+
     init {
         require(damageAmount > 0) {
             "NexusDamaged.damageAmount must be > 0 (got=$damageAmount, id=${nexusId.value})"

@@ -54,4 +54,6 @@ public data class SkillCastRequested(
     public val trigger: SkillTrigger? = null,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(actorId.uuid)
+}

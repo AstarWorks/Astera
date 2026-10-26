@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.service.matchmaking
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IProxyMessenger
@@ -86,13 +88,13 @@ public class MatchReconnectAnnouncer(
     private val handles = mutableListOf<() -> Unit>()
 
     public fun start() {
-        val dropped = eventBus.subscribe(PlayerDisconnectedFromMatch::class) { event ->
+        val dropped = eventBus.subscribe(PlayerDisconnectedFromMatch::class, EventDelivery.Global) { event ->
             val timeoutAt = event.willTimeoutAtTick ?: return@subscribe // removed outright: nothing to come back to
             val seconds = ((timeoutAt - scheduler.currentTick()) / TICKS_PER_SECOND).toInt()
             if (seconds > 0) send(ReconnectNotice.Hold(event.playerId, seconds))
         }
-        val back = eventBus.subscribe(PlayerReconnectedToMatch::class) { send(ReconnectNotice.Release(it.playerId)) }
-        val ended = eventBus.subscribe(MatchEnded::class) { event ->
+        val back = eventBus.subscribe(PlayerReconnectedToMatch::class, EventDelivery.Global) { send(ReconnectNotice.Release(it.playerId)) }
+        val ended = eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { event ->
             matches.findById(event.matchId)?.teams?.flatMap { it.members }?.forEach { send(ReconnectNotice.Release(it)) }
         }
         handles += { dropped.cancel() }
@@ -141,7 +143,7 @@ public class MatchReconnectRouter(
                 is ReconnectNotice.Release -> holds.remove(notice.playerId)
             }
         }
-        val arrived = eventBus.subscribe(PlayerArrivedOnServer::class) { route(it.playerId) }
+        val arrived = eventBus.subscribe(PlayerArrivedOnServer::class, EventDelivery.Global) { route(it.playerId) }
         handles += { notices.cancel() }
         handles += { arrived.cancel() }
     }

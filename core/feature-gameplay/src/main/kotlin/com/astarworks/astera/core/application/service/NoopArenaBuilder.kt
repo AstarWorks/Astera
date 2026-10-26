@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.stage.StageId
 
 /** Default [IArenaBuilder] for hosts without blocks (simulator, tests): every arena counts as built. */
 public class NoopArenaBuilder : IArenaBuilder {
+    override fun instanceId(stageId: StageId): com.astarworks.astera.core.domain.game.InstanceId? = null
     override fun acquire(stage: com.astarworks.astera.core.domain.stage.Stage): com.astarworks.astera.core.domain.Result<com.astarworks.astera.core.domain.stage.Stage, com.astarworks.astera.core.application.port.outbound.ArenaAllocationError> = com.astarworks.astera.core.domain.Result.success(stage)
 
     override fun resolve(stageId: StageId): com.astarworks.astera.core.domain.stage.Stage? = null

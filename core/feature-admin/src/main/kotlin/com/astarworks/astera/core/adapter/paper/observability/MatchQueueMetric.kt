@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.observability
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.observability.IMetricsRegistry
 import com.astarworks.astera.core.domain.event.MatchEnded
@@ -42,11 +44,11 @@ public class MatchQueueMetric(
             "MatchQueueMetric.start() called twice without intervening stop()"
         }
 
-        startedSubscription = eventBus.subscribe(MatchStarted::class) {
+        startedSubscription = eventBus.subscribe(MatchStarted::class, EventDelivery.Global) {
             val now = activeMatches.incrementAndGet()
             log.debug("MatchStarted received — active={}", now)
         }
-        endedSubscription = eventBus.subscribe(MatchEnded::class) {
+        endedSubscription = eventBus.subscribe(MatchEnded::class, EventDelivery.Global) {
             val now = activeMatches.updateAndGet { previous -> (previous - 1).coerceAtLeast(0) }
             log.debug("MatchEnded received — active={}", now)
         }

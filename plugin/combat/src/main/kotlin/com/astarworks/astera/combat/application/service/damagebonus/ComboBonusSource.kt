@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.service.damagebonus
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.combat.application.port.outbound.IDamageBonusSource
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
@@ -58,7 +60,7 @@ public class ComboBonusSource(
      * can cancel it during `onDisable` along with the rest of its subscriptions.
      */
     public val subscription: IDomainEventBus.Subscription =
-        eventBus.subscribe(ComboRouteCompleted::class) { event -> arm(event) }
+        eventBus.subscribe(ComboRouteCompleted::class, EventDelivery.Global) { event -> arm(event) }
 
     override fun bonusFor(attempt: DamageAttempt, nowTick: Long): Double {
         val attackerId = attackerOf(attempt) ?: return 1.0

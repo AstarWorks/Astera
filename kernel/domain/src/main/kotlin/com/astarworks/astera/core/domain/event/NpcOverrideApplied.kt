@@ -29,4 +29,6 @@ public data class NpcOverrideApplied(
     val snapshot: NpcViewerOverride,
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(viewer.uuid)
+}

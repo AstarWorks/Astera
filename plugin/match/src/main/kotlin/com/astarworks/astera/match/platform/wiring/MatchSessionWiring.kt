@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
@@ -118,20 +120,20 @@ internal object MatchSessionWiring {
             // neither flip a dropped player's claim again nor start its own removal timer for it.
             if (env.ctx.serverRole.hostsMatches) {
                 subscriptions += eventBus.subscribe(
-                    com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
+                    com.astarworks.astera.core.domain.event.PlayerQuitServer::class, EventDelivery.Global,
                 ) { disconnectListener.handle(it) }
                 subscriptions += eventBus.subscribe(
-                    com.astarworks.astera.core.domain.event.PlayerLeavingForLobby::class,
+                    com.astarworks.astera.core.domain.event.PlayerLeavingForLobby::class, EventDelivery.Global,
                 ) { disconnectListener.onLeavingForLobby(it) }
-                subscriptions += eventBus.subscribe(MatchEnded::class) { disconnectListener.onMatchEnded(it) }
+                subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { disconnectListener.onMatchEnded(it) }
                 subscriptions += eventBus.subscribe(
-                    com.astarworks.astera.match.domain.event.PlayerForfeited::class,
+                    com.astarworks.astera.match.domain.event.PlayerForfeited::class, EventDelivery.Global,
                 ) { forfeitSettler.onForfeited(it) }
             }
             // Only a backend that hosts matches resumes anyone: a lobby that merely shares the session store
             // must leave the claim alone (MatchReconnectRouter sends the player on to the game server).
             if (env.ctx.serverRole.hostsMatches) {
-                subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class) {
+                subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class, EventDelivery.Global) {
                     reconnectListener.handle(it)
                 }
             }
@@ -145,9 +147,9 @@ internal object MatchSessionWiring {
         // Audit log: AuditLogListener handles each event variant via a method per type.
         val auditRepo = services.getOrThrow<IAuditLogRepository>()
         val auditListener = AuditLogListener(auditRepo)
-        subscriptions += eventBus.subscribe(ChatMessageSent::class) { auditListener.handleChatMessageSent(it) }
-        subscriptions += eventBus.subscribe(MatchStarted::class) { auditListener.handleMatchStarted(it) }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { auditListener.handleMatchEnded(it) }
+        subscriptions += eventBus.subscribe(ChatMessageSent::class, EventDelivery.Global) { auditListener.handleChatMessageSent(it) }
+        subscriptions += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { auditListener.handleMatchStarted(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { auditListener.handleMatchEnded(it) }
 
         logger.info("Wave 5e wiring complete: Spectator + PlayerPin + AuditLog listeners.")
 

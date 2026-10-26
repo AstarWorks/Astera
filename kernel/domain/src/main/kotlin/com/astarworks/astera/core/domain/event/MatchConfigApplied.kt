@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.event
 
+import com.astarworks.astera.core.domain.game.InstanceId
+
 import com.astarworks.astera.core.domain.match.MatchConfig
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.world.WorldId
@@ -25,6 +27,8 @@ public data class MatchConfigApplied(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Instance(InstanceId(matchId.value))
+
     init {
         require(atTick >= 0) { "atTick must be >= 0 (got $atTick)" }
     }

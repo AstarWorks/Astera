@@ -29,6 +29,8 @@ public data class MiningCompleted(
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+
     init {
         require(elapsedTicks >= 0L) {
             "MiningCompleted.elapsedTicks must be >= 0, was $elapsedTicks"

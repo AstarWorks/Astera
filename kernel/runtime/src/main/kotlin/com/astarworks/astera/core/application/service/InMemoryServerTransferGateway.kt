@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IProxyMessenger
@@ -66,8 +68,8 @@ public class InMemoryServerTransferGateway(
     init {
         // Wire the two passive triggers. Subscriptions live for the lifetime
         // of the gateway (Phase 1 has no disable hook for non-plugin services).
-        eventBus.subscribe(PlayerJoinedServer::class) { event -> fireOnLogin(event.playerId) }
-        eventBus.subscribe(MatchEnded::class) { event -> fireOnMatchEnd(event.matchId) }
+        eventBus.subscribe(PlayerJoinedServer::class, EventDelivery.Global) { event -> fireOnLogin(event.playerId) }
+        eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { event -> fireOnMatchEnd(event.matchId) }
     }
 
     // ─── IServerTransferGateway ────────────────────────────────────────────

@@ -63,6 +63,7 @@ internal class PaperLobbyWorld(
                 scheduler.run(ExecutionScope.Global, Duration.ZERO) {
                     if (failure == null) {
                         slots.state(-1, com.astarworks.astera.core.application.service.instance.SlotAllocator.State.Ready)
+                        slots.state(-1, com.astarworks.astera.core.application.service.instance.SlotAllocator.State.Running)
                         ready = true
                         log.info("Lobby slot ready: {} blocks, {} signs", blocks.size, signs.size)
                         onReady()

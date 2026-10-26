@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.analytics
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.analytics.IAnalyticsExporter
 import com.astarworks.astera.core.domain.event.MatchEnded
@@ -54,11 +56,11 @@ public class AnalyticsEventListener(
             "AnalyticsEventListener.start() called twice without intervening stop()"
         }
 
-        subscriptions += eventBus.subscribe(MatchStarted::class) { event ->
+        subscriptions += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { event ->
             matchStartTimes[event.matchId.value] = event.occurredAt
         }
 
-        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { event ->
             val matchKey = event.matchId.value
             val startedAt = matchStartTimes.remove(matchKey)
             val durationSeconds = if (startedAt != null) {
@@ -77,11 +79,11 @@ public class AnalyticsEventListener(
             )
         }
 
-        subscriptions += eventBus.subscribe(PlayerJoinedServer::class) { event ->
+        subscriptions += eventBus.subscribe(PlayerJoinedServer::class, EventDelivery.Global) { event ->
             playerJoinTimes[event.playerId.uuid.toString()] = event.occurredAt
         }
 
-        subscriptions += eventBus.subscribe(SkillCastRequested::class) { event ->
+        subscriptions += eventBus.subscribe(SkillCastRequested::class, EventDelivery.Global) { event ->
             exporter.recordSkillCast(
                 skillId = event.skillId.value,
                 casterId = event.actorId.uuid.toString(),

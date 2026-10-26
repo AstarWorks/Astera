@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.usecase.skill.dispatch
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.service.observability.ExecutionCosts
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.domain.event.SkillCast
@@ -82,7 +84,7 @@ public class SkillCastDispatcher(
     }
 
     public fun start(): IDomainEventBus.Subscription =
-        eventBus.subscribe(SkillCast::class) { event -> handle(event) }
+        eventBus.subscribe(SkillCast::class, EventDelivery.Global) { event -> handle(event) }
 
     public fun handle(event: SkillCast): Unit = ExecutionCosts.measure("skill", event.skillId.value) {
         handleCast(event)

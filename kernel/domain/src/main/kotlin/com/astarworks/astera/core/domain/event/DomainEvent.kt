@@ -30,6 +30,7 @@ import java.time.Instant
  *   Distinct from server-tick fields (`atTick`) which measure in-game time.
  */
 public interface DomainEvent {
+    public val route: EventRoute
     public val version: Int
     public val occurredAt: Instant
 }

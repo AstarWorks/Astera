@@ -22,6 +22,15 @@ import java.io.File
  */
 class ArchitectureTest {
 
+    @Test
+    fun `main sources must not use unstructured global coroutines or blocking coroutine bridges`() {
+        projectScope().files.filter { it.path.contains("/src/main/") }.assertFalse { file ->
+            file.imports.any { it.name in setOf("kotlinx.coroutines.GlobalScope", "kotlinx.coroutines.runBlocking") } ||
+                Regex("""\b(?:GlobalScope|runBlocking)\b""").containsMatchIn(sourceWithoutComments(file.text))
+        }
+    }
+
+
     /** ADR-0262: every runtime module uses Folia-family schedulers; no compatibility allowlist. */
     @Test
     fun `main sources must not use the legacy Bukkit scheduler or primary thread flag`() {

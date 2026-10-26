@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
@@ -88,7 +90,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         com.astarworks.astera.core.application.eventbus.listeners.lifecycle
             .SuppressVanillaFeaturesOnServerBootListener(vanillaSuppressor)
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.lifecycle.ServerReady::class,
+        com.astarworks.astera.core.domain.event.lifecycle.ServerReady::class, EventDelivery.Global,
     ) { suppressVanillaListener.handle(it) }
 
     // (2) Broadcast Critical errors via the announcement system to admin
@@ -362,7 +364,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     waveGRegistrations += waveGRouter.register(
         com.astarworks.astera.core.application.gui.match.MatchMenuIntentHandler.INTENT_PREFIX,
     ) { intent, player -> matchMenuHandler.handle(intent, player) }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class) {
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class, EventDelivery.Global) {
         matchMenuHandler.sendEntryHint(it.playerId)
     }
 

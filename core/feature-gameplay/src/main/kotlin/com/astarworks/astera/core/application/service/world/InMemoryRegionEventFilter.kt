@@ -49,9 +49,10 @@ public class InMemoryRegionEventFilter(
     override fun <E : DomainEvent> subscribe(
         regionId: RegionId,
         type: KClass<E>,
+        delivery: com.astarworks.astera.core.application.port.outbound.EventDelivery,
         handler: (E) -> Unit,
     ): IRegionEventFilter.Subscription {
-        val inner = eventBus.subscribe(type) { event ->
+        val inner = eventBus.subscribe(type, delivery) { event ->
             val pos = positionExtractor(event) ?: return@subscribe
             if (regionMembership(regionId, pos.first, pos.second)) {
                 handler(event)

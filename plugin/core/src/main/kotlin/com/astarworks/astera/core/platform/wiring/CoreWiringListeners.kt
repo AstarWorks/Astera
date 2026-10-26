@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.adapter.api.hud.ITabList
 import com.astarworks.astera.core.application.port.outbound.IPartyRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
@@ -59,7 +61,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
             locationLookup = locationTrackerImpl,
         )
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.LootDropped::class,
+        com.astarworks.astera.core.domain.event.LootDropped::class, EventDelivery.Global,
     ) { spawnOnLoot.handle(it) }
 
     val autoPickup = com.astarworks.astera.core.application.eventbus.listeners.item
@@ -69,13 +71,13 @@ internal fun CoreWiringState.wireCompletenessListeners() {
             eventBus = eventBus,
         )
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerMoved::class,
+        com.astarworks.astera.core.domain.event.PlayerMoved::class, EventDelivery.Global,
     ) { autoPickup.handle(it) }
 
     val kickOnAfk = com.astarworks.astera.core.application.eventbus.listeners.afk
         .KickPlayerOnAfkKickedListener(moderationService)
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerAfkKicked::class,
+        com.astarworks.astera.core.domain.event.PlayerAfkKicked::class, EventDelivery.Global,
     ) { kickOnAfk.handle(it) }
 
     // ── Wave I 5match-wireup-fix (ADR-0126 §D + §E) ──────────────────
@@ -88,22 +90,22 @@ internal fun CoreWiringState.wireCompletenessListeners() {
     val afkWarningHud = com.astarworks.astera.core.application.eventbus.listeners.afk
         .AfkWarningHudListener(hudGateway)
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerAfkWarned::class,
+        com.astarworks.astera.core.domain.event.PlayerAfkWarned::class, EventDelivery.Global,
     ) { afkWarningHud.onWarned(it) }
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerAfkKicked::class,
+        com.astarworks.astera.core.domain.event.PlayerAfkKicked::class, EventDelivery.Global,
     ) { afkWarningHud.onKicked(it) }
 
     val loadingProgress = com.astarworks.astera.core.application.eventbus.listeners.loading
         .LoadingProgressListener(hudGateway)
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerTraveledToPveWorld::class,
+        com.astarworks.astera.core.domain.event.PlayerTraveledToPveWorld::class, EventDelivery.Global,
     ) { loadingProgress.onTraveledToPve(it) }
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerArrivedAtIsland::class,
+        com.astarworks.astera.core.domain.event.PlayerArrivedAtIsland::class, EventDelivery.Global,
     ) { loadingProgress.onArrivedAtIsland(it) }
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerReturnedToLobby::class,
+        com.astarworks.astera.core.domain.event.PlayerReturnedToLobby::class, EventDelivery.Global,
     ) { loadingProgress.onReturnedToLobby(it) }
 
     // Server-population / queue / wallet sidebar: owned by the match plugin's
@@ -115,7 +117,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
     // listener fires on every PlayerJoinedServer for ongoing discovery.
     val hintListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
         .HintOnPlayerJoinedListener(playerGateway, messages)
-    wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { event ->
+    wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class, EventDelivery.Global) { event ->
         hintListener.handle(event)
     }
 
@@ -123,7 +125,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
     // session's playerdata health (1-3 hearts) next to a full HP line.
     val healthMirrorOnJoin = com.astarworks.astera.core.application.eventbus.listeners.physiology
         .SyncHealthMirrorOnJoinListener({ services.get<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>() })
-    wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { event ->
+    wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class, EventDelivery.Global) { event ->
         healthMirrorOnJoin.handle(event)
     }
 
@@ -136,7 +138,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
     val chatDisplayListener = com.astarworks.astera.core.application.eventbus.listeners.chat
         .ChatDisplayListener(playerGateway, sessionRepo, profileService)
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.ChatMessageSent::class,
+        com.astarworks.astera.core.domain.event.ChatMessageSent::class, EventDelivery.Global,
     ) { event ->
         chatDisplayListener.handle(event)
     }
@@ -261,7 +263,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
             eventBus = eventBus,
         )
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerInteractedBlock::class,
+        com.astarworks.astera.core.domain.event.PlayerInteractedBlock::class, EventDelivery.Global,
     ) { routeBlockInteraction.handle(it) }
 
     val activatePortalOnMoved = com.astarworks.astera.core.application.eventbus.listeners.portal
@@ -272,7 +274,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
             eventBus = eventBus,
         )
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerMoved::class,
+        com.astarworks.astera.core.domain.event.PlayerMoved::class, EventDelivery.Global,
     ) { activatePortalOnMoved.handle(it) }
 
     val activatePortalOnInteract = com.astarworks.astera.core.application.eventbus.listeners.portal
@@ -283,7 +285,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
             eventBus = eventBus,
         )
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerInteractedBlock::class,
+        com.astarworks.astera.core.domain.event.PlayerInteractedBlock::class, EventDelivery.Global,
     ) { activatePortalOnInteract.handle(it) }
 
     val regionTransitionDetector = com.astarworks.astera.core.application.eventbus.listeners.region
@@ -292,7 +294,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
             eventBus = eventBus,
         )
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerMoved::class,
+        com.astarworks.astera.core.domain.event.PlayerMoved::class, EventDelivery.Global,
     ) { regionTransitionDetector.handle(it) }
 
     // ParseAndBindSignOnSignChangedListener is constructed but not yet

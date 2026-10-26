@@ -38,4 +38,6 @@ public data class BlockBreakStageChanged(
     public val atTick: Long,
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+}

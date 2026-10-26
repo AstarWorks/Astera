@@ -1,5 +1,8 @@
 package com.astarworks.astera.match.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+import com.astarworks.astera.core.domain.game.InstanceId
+
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -22,8 +25,9 @@ public data class EntityEnteredRegion(
     val atTick: Long,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
-
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Instance(InstanceId(matchId.value))
+}
 /**
  * Companion event published when an entity leaves a previously-entered region.
  *
@@ -38,4 +42,6 @@ public data class EntityLeftRegion(
     val atTick: Long,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Instance(InstanceId(matchId.value))
+}

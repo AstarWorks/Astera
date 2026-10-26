@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup
 import com.astarworks.astera.core.application.port.outbound.PlayerLocation
@@ -35,7 +37,7 @@ public class PlayerMovedLocationTracker(
     private var subscription: IDomainEventBus.Subscription? = null
 
     public fun start(): IDomainEventBus.Subscription {
-        val sub = eventBus.subscribe(PlayerMoved::class) { event ->
+        val sub = eventBus.subscribe(PlayerMoved::class, EventDelivery.Global) { event ->
             locations[event.playerId] = PlayerLocation(world = event.world, position = event.to)
         }
         subscription = sub

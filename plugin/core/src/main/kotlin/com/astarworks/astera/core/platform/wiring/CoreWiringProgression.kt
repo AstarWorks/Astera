@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.contents.AdvancementContents
 import com.astarworks.astera.core.application.contents.TutorialContents
 import com.astarworks.astera.core.application.port.inbound.IAdvancementService
@@ -293,10 +295,10 @@ internal fun CoreWiringState.wireProgression() {
         },
     )
     services.register<MatchInventorySnapshotListener>(matchSnapshots, priority = 0)
-    wave5completeSubs += eventBus.subscribe(MatchStarted::class) { matchSnapshots.handleStarted(it) }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class) { matchSnapshots.handleEntered(it) }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerLeftMatch::class) { matchSnapshots.handleLeft(it) }
-    wave5completeSubs += eventBus.subscribe(MatchEnded::class) { matchSnapshots.handleEnded(it) }
+    wave5completeSubs += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { matchSnapshots.handleStarted(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class, EventDelivery.Global) { matchSnapshots.handleEntered(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerLeftMatch::class, EventDelivery.Global) { matchSnapshots.handleLeft(it) }
+    wave5completeSubs += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { matchSnapshots.handleEnded(it) }
 
     // WP12: personal vault (= ender chest) — `/astera vault` and the ender chest block
     // share AccessPersonalVaultUseCase; the IVaultWindow is registered by the host.
@@ -351,7 +353,7 @@ internal fun CoreWiringState.wireProgression() {
     ctx.registrations += services.register<com.astarworks.astera.core.application.service.handoff.PlayerHandoffService>(handoff, priority = 0)
     val transferNotice = com.astarworks.astera.core.application.eventbus.listeners.proxy.TransferNoticeListener(mcServer)
     wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerTransferRequested::class,
+        com.astarworks.astera.core.domain.event.PlayerTransferRequested::class, EventDelivery.Global,
     ) { event ->
         transferNotice.handle(event)
         handoff.onTransferRequested(event.playerId, event.targetServer)

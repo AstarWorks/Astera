@@ -33,6 +33,8 @@ public data class PveXpGranted(
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+
     init {
         require(xpAmount >= 0) {
             "PveXpGranted.xpAmount must be non-negative: $xpAmount"

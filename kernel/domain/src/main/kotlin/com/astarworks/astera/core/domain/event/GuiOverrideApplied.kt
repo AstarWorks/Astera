@@ -32,6 +32,8 @@ public data class GuiOverrideApplied(
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+
     init {
         val isSlotOverride = slotOverride != null
         val isTitleOverride = titleOverride != null

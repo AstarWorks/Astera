@@ -38,6 +38,8 @@ public data class PartyIslandCreated(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(createdBy.uuid)
+
     init {
         require(islandId.value.isNotBlank()) { "PartyIslandCreated.islandId must not be blank" }
     }

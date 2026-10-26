@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.player.PlayerId
 import java.time.Instant
@@ -30,6 +32,8 @@ public data class FocusFireActivated(
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(victim.uuid)
+
     init {
         require(attackers.size >= 2) {
             "FocusFireActivated.attackers must have >= 2 entries: $attackers"

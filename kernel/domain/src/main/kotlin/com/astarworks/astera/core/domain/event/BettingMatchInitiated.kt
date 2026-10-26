@@ -39,6 +39,8 @@ public data class BettingMatchInitiated(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(challengerId.uuid)
+
     init {
         require(stakeAmount > 0L) { "BettingMatchInitiated.stakeAmount must be > 0" }
         require(policyIdString.isNotBlank()) { "BettingMatchInitiated.policyIdString must not be blank" }

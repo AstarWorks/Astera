@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.usecase.match
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
@@ -48,7 +50,7 @@ public class RestoreBlocksOnMatchEndedUseCase(
 
     /** Subscribe to [MatchEnded]. Returns the subscription for Phase C teardown. */
     public fun subscribe(bus: IDomainEventBus): IDomainEventBus.Subscription =
-        bus.subscribe(MatchEnded::class) { event -> handle(event) }
+        bus.subscribe(MatchEnded::class, EventDelivery.Global) { event -> handle(event) }
 
     /** Visible for tests; exercised through [subscribe] in production. */
     public fun handle(event: MatchEnded) {

@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.usecase.match
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.attribute.AttributeModifier
 import com.astarworks.astera.core.domain.match.MatchId
@@ -41,7 +43,7 @@ public class SuddenDeathAcceleratorUseCase(
      * caller (Phase C `AsteraMatchPlugin.onDisable`) can cancel it.
      */
     public fun subscribe(): IDomainEventBus.Subscription =
-        eventBus.subscribe(PhaseChanged::class) { event -> onPhaseChanged(event) }
+        eventBus.subscribe(PhaseChanged::class, EventDelivery.Global) { event -> onPhaseChanged(event) }
 
     /** Visible for tests; exercised through `subscribe` in production. */
     public fun onPhaseChanged(event: PhaseChanged) {

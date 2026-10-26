@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.domain.gamemode
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.match.domain.mode.GameModeId
@@ -26,6 +28,8 @@ import java.time.Instant
  * can dispatch them like any other domain event.
  */
 public sealed interface GameModeEvent : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Instance(com.astarworks.astera.core.domain.game.InstanceId(matchId.value))
+
 
     /** The match this event is bound to. Mirrors the canonical `matchId` shape. */
     public val matchId: MatchId

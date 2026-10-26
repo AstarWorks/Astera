@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.eventbus.listeners.region
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
@@ -33,7 +35,7 @@ public class MatchRegionTransitionListener(
 
     /** Registers the handler on [eventBus]; cancel the returned subscription to detach. */
     public fun subscribe(): IDomainEventBus.Subscription =
-        eventBus.subscribe(PlayerMoved::class) { handle(it) }
+        eventBus.subscribe(PlayerMoved::class, EventDelivery.Global) { handle(it) }
 
     private fun handle(event: PlayerMoved) {
         val match = matches.findMatchOf(event.playerId) ?: return

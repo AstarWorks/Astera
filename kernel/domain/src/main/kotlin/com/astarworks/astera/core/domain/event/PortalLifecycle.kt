@@ -15,8 +15,9 @@ public data class PortalRegistered(
     public val atTick: Long,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
-
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+}
 /**
  * Domain-level "a portal was removed from the registry" event
  * (Wave 5block-embed, ADR-0120). Pair of [PortalRegistered].
@@ -26,4 +27,6 @@ public data class PortalUnregistered(
     public val atTick: Long,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+}

@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.combat.application.contents.SkillContents
 import com.astarworks.astera.combat.application.eventbus.listeners.hud.HudStatusEffectReadoutListener
 import com.astarworks.astera.combat.application.eventbus.listeners.hud.SkillReadyCueListener
@@ -43,7 +45,7 @@ internal object CombatHudWiring {
             val hudComboListener = com.astarworks.astera.combat.application.eventbus.listeners.hud
                 .HudUpdateOnComboStepRecordedListener(hudGatewayOrNull)
             subscriptions += eventBus.subscribe(
-                com.astarworks.astera.combat.domain.event.ComboStepRecorded::class,
+                com.astarworks.astera.combat.domain.event.ComboStepRecorded::class, EventDelivery.Global,
             ) { event -> hudComboListener.handle(event) }
             logger.info("Wave 5wireup §G8 wired: HudUpdateOnComboStepRecorded subscribed.")
 
@@ -61,8 +63,8 @@ internal object CombatHudWiring {
                     egoGauge = services.get<com.astarworks.astera.core.application.port.outbound.IEgoGauge>(),
                 )
                 registrations += services.register<IStatusEffectIconSource>(effectsReadout)
-                subscriptions += eventBus.subscribe(ResourcePackStatusChanged::class, effectsReadout::onPackStatus)
-                subscriptions += eventBus.subscribe(PlayerQuitServer::class, effectsReadout::onQuit)
+                subscriptions += eventBus.subscribe(ResourcePackStatusChanged::class, EventDelivery.Global, effectsReadout::onPackStatus)
+                subscriptions += eventBus.subscribe(PlayerQuitServer::class, EventDelivery.Global, effectsReadout::onQuit)
                 shutdownHooks += { effectsReadout.stop() }
                 logger.info("ADR-0177 wired: HudStatusEffectReadoutListener polling started.")
             } else {
@@ -97,15 +99,15 @@ internal object CombatHudWiring {
         val skillRegistry = services.get<com.astarworks.astera.combat.application.port.outbound.ISkillRegistry>()
         if (soundGateway != null && skillRegistry != null) {
             val readyCue = SkillReadyCueListener(soundGateway, skillRegistry)
-            subscriptions += eventBus.subscribe(SkillCooldownStarted::class) { readyCue.onStarted(it) }
-            subscriptions += eventBus.subscribe(CooldownExpired::class) { readyCue.onExpired(it) }
+            subscriptions += eventBus.subscribe(SkillCooldownStarted::class, EventDelivery.Global) { readyCue.onStarted(it) }
+            subscriptions += eventBus.subscribe(CooldownExpired::class, EventDelivery.Global) { readyCue.onExpired(it) }
         }
 
         // ADR-0231 — "E.G.O READY" chime + subtitle flash when the gauge fills.
         if (soundGateway != null && hudGatewayOrNull != null) {
             val egoCue = com.astarworks.astera.combat.application.eventbus.listeners.hud
                 .EgoReadyCueListener(hudGatewayOrNull, soundGateway)
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.EgoGaugeChanged::class) { egoCue.onChanged(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.EgoGaugeChanged::class, EventDelivery.Global) { egoCue.onChanged(it) }
         }
 
         // ADR-0206 — hit marker sound + floating damage number for the attacker.
@@ -113,8 +115,8 @@ internal object CombatHudWiring {
         if (soundGateway != null && indicators != null) {
             val hitFeedback = com.astarworks.astera.combat.application.eventbus.listeners.hud
                 .HitFeedbackListener(indicators, soundGateway)
-            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.DamageDealt::class) { hitFeedback.onDamage(it) }
-            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { hitFeedback.onKilled(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.DamageDealt::class, EventDelivery.Global) { hitFeedback.onDamage(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class, EventDelivery.Global) { hitFeedback.onKilled(it) }
         }
 
         // ── Wave M 5polish-quickwin (ADR-0130 §C) — quickbar bind UI ─────

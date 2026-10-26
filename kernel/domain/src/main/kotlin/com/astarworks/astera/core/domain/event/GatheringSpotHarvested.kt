@@ -45,6 +45,8 @@ public data class GatheringSpotHarvested(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+
     init {
         require(rolledYields.isNotEmpty()) {
             "GatheringSpotHarvested.rolledYields must not be empty (cooldown-gated successful harvest produces ≥1 entry)"

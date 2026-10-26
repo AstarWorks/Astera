@@ -36,6 +36,8 @@ public data class PartyMemberInvited(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(inviter.uuid)
+
     init {
         require(inviter != invitee) {
             "PartyMemberInvited.inviter ($inviter) must differ from invitee"

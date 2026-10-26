@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.adapter.api.server.IMcServer
@@ -106,12 +108,12 @@ internal object MatchStarWiring {
             onInvalid = { id, reason -> env.ctx.logger.warning("Generator $id not instantiated: $reason") },
         )
         val subs = env.ctx.subscriptions
-        subs += eventBus.subscribe(MatchStarted::class) { lifecycle.onStarted(it) }
-        subs += eventBus.subscribe(MatchEnded::class) { lifecycle.onEnded(it) }
-        subs += eventBus.subscribe(ResourceSpawned::class) { drops.onSpawned(it) }
-        subs += eventBus.subscribe(PlayerKilled::class) { drops.onKilled(it) }
-        subs += eventBus.subscribe(PlayerKilled::class) { norma.onKilled(it) }
-        subs += eventBus.subscribe(StarsCollected::class) { norma.onStarsCollected(it) }
+        subs += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { lifecycle.onStarted(it) }
+        subs += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { lifecycle.onEnded(it) }
+        subs += eventBus.subscribe(ResourceSpawned::class, EventDelivery.Global) { drops.onSpawned(it) }
+        subs += eventBus.subscribe(PlayerKilled::class, EventDelivery.Global) { drops.onKilled(it) }
+        subs += eventBus.subscribe(PlayerKilled::class, EventDelivery.Global) { norma.onKilled(it) }
+        subs += eventBus.subscribe(StarsCollected::class, EventDelivery.Global) { norma.onStarsCollected(it) }
         // A real item pickup of a star drop (the item itself never enters the inventory) is credited here.
         dropWorld?.onPickupAttempt { handle, player -> drops.onTouched(handle, player) }
         // Pickup feedback ("+3 ★" action bar, sparkle, rising chime) is the `star-pickup` row of content/presentation/events.yaml.
@@ -119,7 +121,7 @@ internal object MatchStarWiring {
         // Norma level-up: title, sound, burst at the player, chat line to the match; the top level is bigger.
         val presentation = env.ports.normaPresentation?.invoke(services)
         if (presentation != null) {
-            subs += eventBus.subscribe(NormaLevelUp::class) { e ->
+            subs += eventBus.subscribe(NormaLevelUp::class, EventDelivery.Global) { e ->
                 val audience = env.matches.findById(e.matchId)?.teams?.flatMap { it.members }.orEmpty()
                 presentation.levelUp(e.playerId, audience, e.level, configOf(e.matchId).maxLevel)
             }
@@ -141,8 +143,8 @@ internal object MatchStarWiring {
             env.ctx.registrations += services.getOrThrow<IGuiIntentRouter>().register(NormaChoicePrompter.INTENT_PREFIX) { intent, player ->
                 prompter.handle(intent, player)
             }
-            subs += eventBus.subscribe(NormaLevelUp::class) { e -> env.scheduler.runLaterTicks(ExecutionScope.Entity(e.playerId.uuid), LEVEL_UP_PROMPT_DELAY_TICKS) { prompter.prompt(e.playerId) } }
-            subs += eventBus.subscribe(MatchStarted::class) { e ->
+            subs += eventBus.subscribe(NormaLevelUp::class, EventDelivery.Global) { e -> env.scheduler.runLaterTicks(ExecutionScope.Entity(e.playerId.uuid), LEVEL_UP_PROMPT_DELAY_TICKS) { prompter.prompt(e.playerId) } }
+            subs += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { e ->
                 // Teams fill in after MatchStarted publishes: read the roster after the settle delay, then fan out.
                 env.scheduler.runLaterTicks(ExecutionScope.Global, PROMPT_DELAY_TICKS) {
                     env.matches.findById(e.matchId)?.teams?.flatMap { it.members }?.forEach { id ->

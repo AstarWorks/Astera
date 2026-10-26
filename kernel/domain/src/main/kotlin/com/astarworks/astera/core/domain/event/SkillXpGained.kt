@@ -38,6 +38,8 @@ public data class SkillXpGained(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+
     init {
         require(amount > 0L) { "SkillXpGained.amount must be > 0, got $amount" }
         require(newTotal >= amount) { "newTotal=$newTotal must be >= amount=$amount" }

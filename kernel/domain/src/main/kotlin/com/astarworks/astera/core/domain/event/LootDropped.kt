@@ -47,6 +47,8 @@ public data class LootDropped(
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(killerId.uuid)
+
     init {
         drops.forEach { (id, count) ->
             require(count > 0) {

@@ -26,6 +26,9 @@ import kotlin.time.Duration
 public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
     // References are captured by region-owned lifecycle events; UUID lookup never reads live entity state.
     private val entities = ConcurrentHashMap<UUID, Entity>()
+    public val computePool: PaperComputePool = PaperComputePool()
+    private val strands = ConcurrentHashMap<com.astarworks.astera.core.domain.game.InstanceId, com.astarworks.astera.core.application.service.SerialExecutor>()
+    private val currentInstance = ThreadLocal<com.astarworks.astera.core.domain.game.InstanceId>()
     private val tick = AtomicLong()
     private var ticker: ScheduledTask? = null
     private val handles = ConcurrentHashMap.newKeySet<Handle>()
@@ -42,6 +45,8 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
         handles.toList().forEach { it.cancel() }
         HandlerList.unregisterAll(this)
         entities.clear()
+        computePool.close()
+        strands.clear()
     }
 
     @EventHandler
@@ -67,7 +72,7 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
     private fun schedule(scope: ExecutionScope, delay: Duration, period: Duration?, block: () -> Unit): Handle {
         // Zero delay on the owning thread runs now: same-tick ordering of a synchronous sequence is preserved
         // (a queued task would land one tick later and could be overtaken by what follows it).
-        if (period == null && delay <= Duration.ZERO && ownedByCurrentThread(scope)) {
+        if (period == null && delay <= Duration.ZERO && isOnScope(scope)) {
             val inline = Handle()
             try {
                 block()
@@ -78,7 +83,7 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
         }
         val handle = Handle()
         handles.add(handle)
-        val callback = Consumer<ScheduledTask> {
+        val executeBlock = {
             if (!handle.isTerminated()) {
                 try {
                     block()
@@ -87,11 +92,37 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
                 }
             }
         }
+        fun submitInstance(scope: ExecutionScope.Instance) {
+            // Lookup/enqueue and idle removal share the map's key lock: no two mailboxes can own one instance.
+            strands.compute(scope.id) { _, existing ->
+                val strand = existing ?: com.astarworks.astera.core.application.service.SerialExecutor(
+                    java.util.concurrent.Executor { task ->
+                        computePool.async(com.astarworks.astera.core.application.port.outbound.WorkClass.Background) { task.run() }
+                    },
+                    onIdle = { strands.computeIfPresent(scope.id) { _, current -> if (current.isIdle) null else current } },
+                )
+                strand.execute {
+                    currentInstance.set(scope.id)
+                    try { executeBlock() } finally { currentInstance.remove() }
+                }
+                strand
+            }
+        }
+        val callback = Consumer<ScheduledTask> {
+            if (scope is ExecutionScope.Instance) submitInstance(scope) else executeBlock()
+        }
         val delayTicks = (delay / TICK).toLong().coerceAtLeast(1L)
         val periodTicks = period?.let { (it / TICK).toLong().coerceAtLeast(1L) }
         val server = plugin.server
         try {
             when (scope) {
+                is ExecutionScope.Instance -> {
+                    if (period == null && delay <= Duration.ZERO) submitInstance(scope)
+                    else handle.bind(
+                        if (period == null) server.asyncScheduler.runDelayed(plugin, callback, delay.inWholeMilliseconds.coerceAtLeast(1L), TimeUnit.MILLISECONDS)
+                        else server.asyncScheduler.runAtFixedRate(plugin, callback, delay.inWholeMilliseconds.coerceAtLeast(1L), period.inWholeMilliseconds.coerceAtLeast(1L), TimeUnit.MILLISECONDS),
+                    )
+                }
                 ExecutionScope.Global -> handle.bind(
                     if (periodTicks == null) server.globalRegionScheduler.runDelayed(plugin, callback, delayTicks)
                     else server.globalRegionScheduler.runAtFixedRate(plugin, callback, delayTicks, periodTicks),
@@ -139,7 +170,8 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
         return handle
     }
 
-    private fun ownedByCurrentThread(scope: ExecutionScope): Boolean = when (scope) {
+    override fun isOnScope(scope: ExecutionScope): Boolean = when (scope) {
+        is ExecutionScope.Instance -> currentInstance.get() == scope.id
         ExecutionScope.Global -> Bukkit.isGlobalTickThread()
         ExecutionScope.Io -> false
         is ExecutionScope.Entity -> (plugin.server.getPlayer(scope.id) ?: entities[scope.id])?.let { Bukkit.isOwnedByCurrentRegion(it) } ?: false
@@ -165,6 +197,7 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler, Listener {
     override fun dispatcher(scope: ExecutionScope): CoroutineDispatcher = object : CoroutineDispatcher() {
         override fun isDispatchNeeded(context: CoroutineContext): Boolean = when (scope) {
             ExecutionScope.Global -> !Bukkit.isGlobalTickThread()
+            is ExecutionScope.Instance -> !isOnScope(scope)
             ExecutionScope.Io -> true
             is ExecutionScope.Entity -> (plugin.server.getPlayer(scope.id) ?: entities[scope.id])
                 ?.let { !Bukkit.isOwnedByCurrentRegion(it) } ?: true

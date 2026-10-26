@@ -15,4 +15,6 @@ public data class PermissionBackendSwitched(
     val atTick: Long,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+}

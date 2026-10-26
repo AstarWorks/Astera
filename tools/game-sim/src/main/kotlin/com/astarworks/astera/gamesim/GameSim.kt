@@ -1,5 +1,7 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.combat.application.service.ProjectileImpactResolver
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
@@ -185,7 +187,7 @@ public class GameSim private constructor(
 
     private fun runCommand(actor: CommandActor, line: String): CommandRun {
         val replies = mutableListOf<Pair<MessageKey, Map<String, String>>>()
-        val outcome = kotlinx.coroutines.runBlocking {
+        val outcome = com.astarworks.astera.testfixtures.runSimSuspending(scheduler) {
             commandRunner.run(actor, line) { key, placeholders -> replies += key to placeholders }
         }
         return CommandRun(outcome, replies)
@@ -530,6 +532,7 @@ public class GameSim private constructor(
             val corePorts = CorePlatformPorts(
                 mcServer = mcServer,
                 scheduler = scheduler,
+                computePool = com.astarworks.astera.testfixtures.InlineComputePool(),
                 broadcaster = broadcaster,
                 guiAdapter = GuiAdapterFactory { _, _, _ -> FakeGuiAdapter() },
                 worldGateway = { worldGateway },
@@ -628,7 +631,7 @@ public class GameSim private constructor(
                 },
             )
             val bus = services.getOrThrow<IDomainEventBus>()
-            contexts.last().subscriptions += bus.subscribe(PlayerHealthChanged::class) { change ->
+            contexts.last().subscriptions += bus.subscribe(PlayerHealthChanged::class, EventDelivery.Global) { change ->
                 killResolver.resolve(change, null)?.let { bus.publish(it) }
             }
 
@@ -647,15 +650,15 @@ public class GameSim private constructor(
     private fun attachTaps() {
         val bus = eventBus
         hud.attach(bus)
-        bus.subscribe(DomainEvent::class) { event ->
+        bus.subscribe(DomainEvent::class, EventDelivery.Global) { event ->
             events += event
             val type = event::class.simpleName ?: "event"
             if (type !in TRACE_NOISE) recorder.recordEvent(tick, type, event.toString())
         }
-        bus.subscribe(com.astarworks.astera.combat.domain.event.aoe.LightningStrike::class) { e ->
+        bus.subscribe(com.astarworks.astera.combat.domain.event.aoe.LightningStrike::class, EventDelivery.Global) { e ->
             recorder.recordEffect(tick, "lightning", e.position, "damaging=${e.damageEntities}")
         }
-        bus.subscribe(DamageDealt::class) { e ->
+        bus.subscribe(DamageDealt::class, EventDelivery.Global) { e ->
             recorder.recordDamage(
                 tick = tick,
                 attacker = e.attacker,
@@ -665,16 +668,16 @@ public class GameSim private constructor(
                 hpAfter = hpOf(e.target),
             )
         }
-        bus.subscribe(StatusApplied::class) { e ->
+        bus.subscribe(StatusApplied::class, EventDelivery.Global) { e ->
             recorder.recordStatus(tick, e.target, e.effect.spec.id.value, "applied", e.effect.currentStacks, e.effect.remainingTicks)
         }
-        bus.subscribe(StatusRemoved::class) { e ->
+        bus.subscribe(StatusRemoved::class, EventDelivery.Global) { e ->
             recorder.recordStatus(tick, e.target, e.effectId.value, "removed", null, null)
         }
-        bus.subscribe(StatusExpired::class) { e ->
+        bus.subscribe(StatusExpired::class, EventDelivery.Global) { e ->
             recorder.recordStatus(tick, e.target, e.effectId.value, "expired", null, null)
         }
-        bus.subscribe(PlayerKilled::class) { e ->
+        bus.subscribe(PlayerKilled::class, EventDelivery.Global) { e ->
             recorder.recordDeath(tick, e.victim, e.killer, e.source::class.simpleName ?: "unknown")
         }
     }

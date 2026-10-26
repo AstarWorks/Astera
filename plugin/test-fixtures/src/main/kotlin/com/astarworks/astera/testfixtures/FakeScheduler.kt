@@ -11,6 +11,8 @@ import kotlin.time.Duration
 
 /** All scopes share one deterministic (tick, insertion sequence) heap driven by [advanceTicks]. */
 public class FakeScheduler(startTick: Long = 0L) : IScheduler {
+    private var currentScope: ExecutionScope = ExecutionScope.Global
+    override fun isOnScope(scope: ExecutionScope): Boolean = scope == currentScope
     private var now = startTick
     private var sequence = 0L
     private val retiredScopes = mutableSetOf<ExecutionScope>()
@@ -74,7 +76,9 @@ public class FakeScheduler(startTick: Long = 0L) : IScheduler {
             val task = queue.remove()
             now = task.fireAt
             if (task.isCancelled) continue
-            task.block()
+            val previous = currentScope
+            currentScope = task.scope
+            try { task.block() } finally { currentScope = previous }
             if (task.period != null && !task.isCancelled) {
                 task.fireAt += task.period
                 task.sequence = sequence++

@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.service.replay
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
@@ -89,14 +91,14 @@ public class ReplayCaptureEngine(
 
         // Cross-plugin combat events (softdep — these classes are present
         // at runtime because Astera-Match `softdepend: [Astera-Combat]`).
-        subscriptions += bus.subscribe(DamageDealt::class) { e -> onDamageDealt(e) }
-        subscriptions += bus.subscribe(PlayerKilled::class) { e -> onPlayerKilled(e) }
-        subscriptions += bus.subscribe(SkillCast::class) { e -> onSkillCast(e) }
+        subscriptions += bus.subscribe(DamageDealt::class, EventDelivery.Global) { e -> onDamageDealt(e) }
+        subscriptions += bus.subscribe(PlayerKilled::class, EventDelivery.Global) { e -> onPlayerKilled(e) }
+        subscriptions += bus.subscribe(SkillCast::class, EventDelivery.Global) { e -> onSkillCast(e) }
 
         // Core / Match events.
-        subscriptions += bus.subscribe(ChatMessageSent::class) { e -> onChatSent(e) }
-        subscriptions += bus.subscribe(PhaseChanged::class) { e -> onPhaseChanged(e) }
-        subscriptions += bus.subscribe(MatchStarted::class) { e ->
+        subscriptions += bus.subscribe(ChatMessageSent::class, EventDelivery.Global) { e -> onChatSent(e) }
+        subscriptions += bus.subscribe(PhaseChanged::class, EventDelivery.Global) { e -> onPhaseChanged(e) }
+        subscriptions += bus.subscribe(MatchStarted::class, EventDelivery.Global) { e ->
             // Phase 1 PoC: do NOT auto-record. Logged at DEBUG so operators
             // can verify the listener wired.
             logger.debug("ReplayCaptureEngine: observed MatchStarted ${e.matchId}; opt-in recording.")

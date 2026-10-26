@@ -71,7 +71,7 @@ public class StartMatchUseCase(
             ?: defaultTeamIdsFor(modeKey)
         require(resolvedTeamIds.isNotEmpty()) { "StartMatchUseCase requires at least one team id" }
 
-        val matchId = MatchId("match-${UUID.randomUUID().toString().take(8)}")
+        val matchId = MatchId(arenas.instanceId(stage.id)?.value ?: "match-${UUID.randomUUID().toString().take(8)}")
         val initialTeams = resolvedTeamIds.map { teamId ->
             Team(
                 id = teamId,

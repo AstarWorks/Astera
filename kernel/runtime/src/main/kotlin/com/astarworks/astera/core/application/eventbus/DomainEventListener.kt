@@ -12,6 +12,7 @@ import kotlin.reflect.KClass
  * registers them via [DomainEventListenerRegistry].
  */
 public interface DomainEventListener<E : DomainEvent> {
+    public val delivery: com.astarworks.astera.core.application.port.outbound.EventDelivery
     public val eventType: KClass<E>
     public fun handle(event: E)
 }

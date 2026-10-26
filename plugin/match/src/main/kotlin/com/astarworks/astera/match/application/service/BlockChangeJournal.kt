@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.service
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.event.BlockBroken
 import com.astarworks.astera.core.domain.event.BlockPlaced
@@ -54,8 +56,8 @@ public class BlockChangeJournal {
      * so the caller (Phase C `AsteraMatchPlugin.onDisable`) can cancel them.
      */
     public fun subscribe(bus: IDomainEventBus): List<IDomainEventBus.Subscription> = listOf(
-        bus.subscribe(BlockPlaced::class) { event -> onPlaced(event) },
-        bus.subscribe(BlockBroken::class) { event -> onBroken(event) },
+        bus.subscribe(BlockPlaced::class, EventDelivery.Global) { event -> onPlaced(event) },
+        bus.subscribe(BlockBroken::class, EventDelivery.Global) { event -> onBroken(event) },
     )
 
     /** Visible for tests; exercised through [subscribe] in production. */

@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.core.domain.entity.EntityHandle
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.item.ItemId
@@ -27,6 +29,8 @@ public data class TargetLockReleased(
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+
     init {
         require(atTick >= 0L) {
             "TargetLockReleased.atTick must be >= 0: $atTick"

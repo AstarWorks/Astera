@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.combat.domain.combo.ComboStep
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.item.ItemId
@@ -30,6 +32,8 @@ public data class ComboStepRecorded(
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+
     init {
         require(streakCount > 0) {
             "ComboStepRecorded.streakCount must be > 0: $streakCount"

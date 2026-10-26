@@ -1,5 +1,7 @@
 package com.astarworks.astera.economy.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -23,4 +25,6 @@ public data class CurrencyExpired(
     public val occurredAtTick: Long,
     override val occurredAt: Instant = expiredAt,
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+}

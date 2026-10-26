@@ -37,6 +37,8 @@ public data class PerViewerOverridesCleared(
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(viewer.uuid)
+
     init {
         require(gatewayFamily in KNOWN_FAMILIES) {
             "PerViewerOverridesCleared.gatewayFamily must be one of $KNOWN_FAMILIES, got '$gatewayFamily'"

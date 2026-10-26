@@ -35,6 +35,8 @@ public data class PveLootDistributed(
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+
     init {
         items.forEach { (_, count) ->
             require(count > 0) {

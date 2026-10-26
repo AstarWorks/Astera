@@ -44,6 +44,8 @@ public data class ItemInstanceRefined(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(owner.uuid)
+
     init {
         require(layerKind.isNotBlank()) { "ItemInstanceRefined.layerKind must not be blank." }
         require(totalLayers >= 1) {

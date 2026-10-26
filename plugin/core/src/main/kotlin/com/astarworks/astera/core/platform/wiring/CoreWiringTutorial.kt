@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.config.LobbyNpcYamlConfig
 import com.astarworks.astera.core.application.port.outbound.*
@@ -39,34 +41,34 @@ internal fun CoreWiringState.wireTutorialGuide() {
         } },
     )
     ctx.registrations += services.register<TutorialGuide>(guide)
-    ctx.subscriptions += eventBus.subscribe(PlayerJoinedServer::class) { guide.joined(it.playerId) }
-    ctx.subscriptions += eventBus.subscribe(PlayerQuitServer::class) { guide.left(it.playerId) }
-    ctx.subscriptions += eventBus.subscribe(MatchFormed::class) { it.players.forEach(guide::hide) }
-    ctx.subscriptions += eventBus.subscribe(MatchStarted::class) {
+    ctx.subscriptions += eventBus.subscribe(PlayerJoinedServer::class, EventDelivery.Global) { guide.joined(it.playerId) }
+    ctx.subscriptions += eventBus.subscribe(PlayerQuitServer::class, EventDelivery.Global) { guide.left(it.playerId) }
+    ctx.subscriptions += eventBus.subscribe(MatchFormed::class, EventDelivery.Global) { it.players.forEach(guide::hide) }
+    ctx.subscriptions += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) {
         services.get<IMatchRepository>()?.findById(it.matchId)?.teams?.flatMap { team -> team.members }?.forEach(guide::hide)
     }
-    ctx.subscriptions += eventBus.subscribe(TutorialStepEntered::class) { guide.refresh(it.player) }
-    ctx.subscriptions += eventBus.subscribe(TutorialSequenceCancelled::class) { guide.hide(it.playerId) }
-    ctx.subscriptions += eventBus.subscribe(TutorialSequenceCompleted::class) {
+    ctx.subscriptions += eventBus.subscribe(TutorialStepEntered::class, EventDelivery.Global) { guide.refresh(it.player) }
+    ctx.subscriptions += eventBus.subscribe(TutorialSequenceCancelled::class, EventDelivery.Global) { guide.hide(it.playerId) }
+    ctx.subscriptions += eventBus.subscribe(TutorialSequenceCompleted::class, EventDelivery.Global) {
         guide.hide(it.playerId)
         mcServer.findPlayer(it.playerId)?.sendTitle(
             com.astarworks.astera.core.domain.i18n.MessageKey("astera.tutorial.guide.complete.title"),
             com.astarworks.astera.core.domain.i18n.MessageKey("astera.tutorial.guide.complete.subtitle"),
         )
     }
-    ctx.subscriptions += eventBus.subscribe(SkillCooldownStarted::class) {
+    ctx.subscriptions += eventBus.subscribe(SkillCooldownStarted::class, EventDelivery.Global) {
         if (it.sourceItemId?.value == "knight-sword" && it.trigger == SkillTrigger.SNEAK_RIGHT && it.skillId.value == "sword-dash") {
             tutorialSequencer.recordAction(it.playerId, "secondary")
         }
     }
-    ctx.subscriptions += eventBus.subscribe(ResourceReloaded::class) {
+    ctx.subscriptions += eventBus.subscribe(ResourceReloaded::class, EventDelivery.Global) {
         if (it.weapon.value == "pistol") tutorialSequencer.recordAction(it.playerId, "reload")
     }
-    ctx.subscriptions += eventBus.subscribe(LobbyLanePadEntered::class) {
+    ctx.subscriptions += eventBus.subscribe(LobbyLanePadEntered::class, EventDelivery.Global) {
         tutorialSequencer.recordAction(it.playerId, "queue")
     }
     // Queueing from the Play picker counts too (ADR-0248).
-    ctx.subscriptions += eventBus.subscribe(MatchQueueJoined::class) {
+    ctx.subscriptions += eventBus.subscribe(MatchQueueJoined::class, EventDelivery.Global) {
         tutorialSequencer.recordAction(it.playerId, "queue")
     }
     val task = scheduler.runRepeatingTicks(ExecutionScope.Global, 10, 10) { guide.tick() }

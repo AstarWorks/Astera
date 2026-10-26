@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.match.domain.pin.PlayerPinId
 import java.time.Instant
@@ -14,4 +16,6 @@ public data class PlayerPinExpired(
     val pinId: PlayerPinId,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+}

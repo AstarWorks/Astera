@@ -3,23 +3,13 @@ package com.astarworks.astera.core.application.port.outbound
 import com.astarworks.astera.core.domain.event.DomainEvent
 import kotlin.reflect.KClass
 
-/**
- * Outbound port: in-process domain event bus with publish + subscribe.
- *
- * Coexists with [IBroadcaster]: that port keeps a single, fire-and-forget
- * publish semantics for adapters (logging, Discord, Redis fan-out, etc.).
- * This port adds **subscribe** so application-layer listeners can react in
- * the same process without going through an external broker.
- *
- * silly-knuth §5: type dispatch happens via [KClass.isInstance] only — no
- * reflection-based discovery; subscribers register themselves explicitly.
- *
- * Phase 2: a single in-memory implementation is wired. Phase 6 may add a
- * Redis-backed impl; subscribers stay framework-agnostic.
- */
+/** Routed in-process events. Delivery is explicit; handlers run in registration order on their owner. */
 public interface IDomainEventBus {
 
-    /** Publish [event] to all matching subscribers synchronously. */
+    /** Local subscriptions see only this instance, including player routes admitted to it. */
+    public fun local(id: com.astarworks.astera.core.domain.game.InstanceId): IDomainEventBus
+
+    /** Publish to the declared route, dispatching each subscription on its declared owner. */
     public fun publish(event: DomainEvent)
 
     /**
@@ -31,6 +21,7 @@ public interface IDomainEventBus {
      */
     public fun <E : DomainEvent> subscribe(
         type: KClass<E>,
+        delivery: EventDelivery,
         handler: (E) -> Unit,
     ): Subscription
 

@@ -54,6 +54,7 @@ import com.astarworks.astera.core.domain.world.BlockDurabilityRule
 public class CorePlatformPorts(
     public val mcServer: IMcServer,
     public val scheduler: IScheduler,
+    public val computePool: com.astarworks.astera.core.application.port.outbound.IComputePool,
     public val broadcaster: IBroadcaster,
     /** Required: GUI rendering has no in-memory default. Built before the wiring registers [IGuiBindingResolver]. */
     public val guiAdapter: GuiAdapterFactory,

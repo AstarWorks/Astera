@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.contents.MobContents
 import com.astarworks.astera.core.application.port.outbound.entity.IEntityRegistry
@@ -120,11 +122,11 @@ internal fun CoreWiringState.wirePlayerSystems() {
     shutdownHooks += { resourceRegenTask.cancel() }
     // Initialise the resource pool whenever a player joins, mirroring the
     // existing Wave 5e RestoreInventorySnapshot subscribe pattern.
-    wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { event ->
+    wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class, EventDelivery.Global) { event ->
         resourcePool.initialiseFor(event.playerId)
         resourceRegen.trackPlayer(event.playerId)
     }
-    wave5completeSubs += eventBus.subscribe(PlayerQuitServer::class) { event ->
+    wave5completeSubs += eventBus.subscribe(PlayerQuitServer::class, EventDelivery.Global) { event ->
         resourceRegen.untrackPlayer(event.playerId)
     }
 
@@ -136,8 +138,8 @@ internal fun CoreWiringState.wirePlayerSystems() {
     scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 20L, periodTicks = 20L) {
         egoGauge.decay(scheduler.currentTick())
     }
-    wave5completeSubs += eventBus.subscribe(PlayerEnteredMatch::class) { egoGauge.reset(it.playerId) }
-    wave5completeSubs += eventBus.subscribe(PlayerQuitServer::class) { egoGauge.reset(it.playerId) }
+    wave5completeSubs += eventBus.subscribe(PlayerEnteredMatch::class, EventDelivery.Global) { egoGauge.reset(it.playerId) }
+    wave5completeSubs += eventBus.subscribe(PlayerQuitServer::class, EventDelivery.Global) { egoGauge.reset(it.playerId) }
 
     // ---- Wave 5o (ADR-0081) Respawn / Spawn protection / PvP toggle -----
     // ISpawnProtectionGateway: per-player invulnerability window with TTL

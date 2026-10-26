@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.eventbus.listeners.presentation.MilestonePresentationListener
 import com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway
 import com.astarworks.astera.core.application.port.outbound.effect.ISoundCuePlayer
@@ -65,14 +67,14 @@ internal fun CoreWiringState.wirePresentation() {
 
     val l = MilestonePresentationListener(presentation, bgm)
     val subs = ctx.subscriptions
-    subs += eventBus.subscribe(PlayerRespawned::class) { l.onRespawned(it) }
-    subs += eventBus.subscribe(MatchSummaryReady::class) { l.onSummary(it) }
-    subs += eventBus.subscribe(LoginBonusClaimed::class) { l.onLoginBonus(it) }
-    subs += eventBus.subscribe(QuestChainCompleted::class) { l.onQuestChainCompleted(it) }
-    subs += eventBus.subscribe(CurrencyChanged::class) { l.onCurrencyChanged(it) }
-    subs += eventBus.subscribe(PlayerJoinedServer::class) { l.onJoined(it) }
-    subs += eventBus.subscribe(PlayerReturnedToLobby::class) { l.onReturnedToLobby(it) }
-    subs += eventBus.subscribe(PlayerEnteredMatch::class) { l.onEnteredMatch(it) }
-    subs += eventBus.subscribe(PlayerQuitServer::class) { l.onQuit(it) }
+    subs += eventBus.subscribe(PlayerRespawned::class, EventDelivery.Global) { l.onRespawned(it) }
+    subs += eventBus.subscribe(MatchSummaryReady::class, EventDelivery.Global) { l.onSummary(it) }
+    subs += eventBus.subscribe(LoginBonusClaimed::class, EventDelivery.Global) { l.onLoginBonus(it) }
+    subs += eventBus.subscribe(QuestChainCompleted::class, EventDelivery.Global) { l.onQuestChainCompleted(it) }
+    subs += eventBus.subscribe(CurrencyChanged::class, EventDelivery.Global) { l.onCurrencyChanged(it) }
+    subs += eventBus.subscribe(PlayerJoinedServer::class, EventDelivery.Global) { l.onJoined(it) }
+    subs += eventBus.subscribe(PlayerReturnedToLobby::class, EventDelivery.Global) { l.onReturnedToLobby(it) }
+    subs += eventBus.subscribe(PlayerEnteredMatch::class, EventDelivery.Global) { l.onEnteredMatch(it) }
+    subs += eventBus.subscribe(PlayerQuitServer::class, EventDelivery.Global) { l.onQuit(it) }
     logger.info("ADR-0267 presentation wired: ISoundCuePlayer / IPlayerBgm / milestone listeners")
 }

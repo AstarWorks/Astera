@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.event
 
+import com.astarworks.astera.core.domain.game.InstanceId
+
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.music.MusicTrackId
 import java.time.Instant
@@ -33,6 +35,8 @@ public data class MatchMusicChanged(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Instance(InstanceId(matchId.value))
+
     init {
         require(previousTrack != newTrack) {
             "MatchMusicChanged requires distinct tracks (got both=$newTrack)"

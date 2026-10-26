@@ -28,5 +28,5 @@ public class DomainEventListenerRegistry(private val bus: IDomainEventBus) {
     public val activeCount: Int get() = subscriptions.count { it.isActive }
 
     private fun <E : DomainEvent> subscribe(listener: DomainEventListener<E>): IDomainEventBus.Subscription =
-        bus.subscribe(listener.eventType) { event -> listener.handle(event) }
+        bus.subscribe(listener.eventType, listener.delivery) { event -> listener.handle(event) }
 }

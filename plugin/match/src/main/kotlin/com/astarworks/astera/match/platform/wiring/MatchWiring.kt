@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.command.CommandMount
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
@@ -276,7 +278,7 @@ public object MatchWiring {
         registrations += services.register<com.astarworks.astera.match.application.service.ISpawnSelector>(
             spawnSelector, priority = 0,
         )
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) {
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class, EventDelivery.Global) {
             spawnSelector.forget(it.matchId)
         }
         // WP8: entry teleports the player to a stage spawn of their team, so a
@@ -580,7 +582,7 @@ public object MatchWiring {
         // reads exactly that key) seeds the tracker with non-empty pillar
         // teams. Without this seed, AnnihilationMatchTracker.register()
         // creates an empty pillar set and the match cannot win-condition.
-        subscriptions += eventBus.subscribe(MatchStarted::class) { event ->
+        subscriptions += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { event ->
             // Wave 5game-complete (ADR-0121 §F+§E): mirror modeKey for
             // SwitchPhase's min-player guard + PvP death-policy resolver.
             matchModeRegistry.register(event.matchId, event.modeKey)
@@ -611,7 +613,7 @@ public object MatchWiring {
             gameModeScheduler.register(event.matchId, mode, gmCtx)
         }
         subscriptions += eventBus.subscribe(
-            com.astarworks.astera.match.domain.event.PhaseChanged::class,
+            com.astarworks.astera.match.domain.event.PhaseChanged::class, EventDelivery.Global,
         ) { event ->
             // PhaseChanged carries no modeKey: use the one MatchStarted mirrored for this match.
             val mode = gameModeFrameworkRegistry.get(
@@ -622,7 +624,7 @@ public object MatchWiring {
             val next = IGameModePhase.fromCore(event.to)
             mode.onPhaseChanged(gmCtx, old, next)
         }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { event ->
             // Wave 5game-complete (ADR-0121): forget per-match modeKey;
             // any post-end lookup falls back to KeepInventory / default.
             matchModeRegistry.unregister(event.matchId)

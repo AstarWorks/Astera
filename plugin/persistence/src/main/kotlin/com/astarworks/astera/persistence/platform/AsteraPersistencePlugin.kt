@@ -1,5 +1,7 @@
 package com.astarworks.astera.persistence.platform
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IBlockDurabilityRepository
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IFriendshipRepository
@@ -165,7 +167,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         attributeStore?.let { store ->
             getPlugin(AsteraCorePlugin::class.java).services
                 .get<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()?.let { bus ->
-                    subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) {
+                    subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class, EventDelivery.Global) {
                         store.reload(it.playerId)
                     }
                 }

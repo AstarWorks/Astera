@@ -1,5 +1,7 @@
 package com.astarworks.astera.items.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
@@ -183,7 +185,7 @@ public object ItemsWiring {
 
         // ADR-0197 — a skill going on cooldown (primary binding / reload) runs the hotbar sweep.
         val sweepOnCooldown = SweepItemOnSkillCooldownUseCase(itemRegistry, ports.itemCooldownSweep)
-        ctx.subscriptions += eventBus.subscribe(SkillCooldownStarted::class) { sweepOnCooldown.handle(it) }
+        ctx.subscriptions += eventBus.subscribe(SkillCooldownStarted::class, EventDelivery.Global) { sweepOnCooldown.handle(it) }
 
         // Click → trigger sink (vendor-neutral). The host feeds it IMcEvents.
         val triggerListener = ItemSkillTriggerListener(
@@ -258,8 +260,8 @@ public object ItemsWiring {
                 messages = messages,
                 matches = { services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>() },
             )
-            ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { rack.onMatchStarted(it) }
-            ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { rack.onMatchFormed(it) }
+            ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class, EventDelivery.Global) { rack.onMatchStarted(it) }
+            ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class, EventDelivery.Global) { rack.onMatchFormed(it) }
             // Players join a match after MatchStarted fires, so also sweep: nobody in a match keeps a training weapon.
             val sweepLoop = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 20L, periodTicks = 20L) { rack.sweep() }
             shutdownHooks += { sweepLoop.cancel() }

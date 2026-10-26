@@ -1,5 +1,7 @@
 package com.astarworks.astera.economy.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.player.PlayerId
 import java.time.Instant
@@ -28,4 +30,6 @@ public data class PowerIndexComputed(
     public val marketplaceListingValue: Long,
     override val occurredAt: Instant,
     override val version: Int = 1,
-) : DomainEvent
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+}

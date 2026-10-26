@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.domain.event
 
+import com.astarworks.astera.core.domain.event.EventRoute
+
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
@@ -18,8 +20,9 @@ public data class SkillCastRejected(
     val atTick: Long,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
-) : DomainEvent
-
+) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(caster.uuid)
+}
 /** Why a cast was rejected. The feedback listener maps each value to an i18n key. */
 public enum class CastRejectionReason(public val keySuffix: String) {
     INSUFFICIENT_AMMO("insufficient.ammo"),

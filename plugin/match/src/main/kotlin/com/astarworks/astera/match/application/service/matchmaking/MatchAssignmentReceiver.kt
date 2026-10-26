@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.service.matchmaking
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
@@ -86,13 +88,13 @@ public class MatchAssignmentReceiver(
             val assignment = MatchAssignmentCodec.decodeAssignment(message.payload)
             if (assignment == null) log.warn("Dropping malformed match assignment from {}", message.fromServer) else onAssignment(assignment, message.fromServer)
         }
-        val joined = eventBus.subscribe(PlayerArrivedOnServer::class) { onPlayerJoined(it.playerId) }
-        val quit = eventBus.subscribe(PlayerQuitServer::class) { event ->
+        val joined = eventBus.subscribe(PlayerArrivedOnServer::class, EventDelivery.Global) { onPlayerJoined(it.playerId) }
+        val quit = eventBus.subscribe(PlayerQuitServer::class, EventDelivery.Global) { event ->
             // Before the match starts a departed player is simply forgotten; afterwards the abandon watchdog applies.
             session?.takeIf { it.matchId == null }?.arrived?.remove(event.playerId)
             onPlayerQuit(event.playerId)
         }
-        val ended = eventBus.subscribe(MatchEnded::class) { onMatchEnded(it.matchId) }
+        val ended = eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { onMatchEnded(it.matchId) }
         handles += { assignments.cancel() }
         handles += { joined.cancel() }
         handles += { quit.cancel() }

@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.usecase.mode
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.event.EndReason
@@ -52,10 +54,10 @@ public class CarryMiniTNTListener(
 
     /** Subscribes to pickup + region events. Returns subscriptions for later cancel. */
     public fun subscribe(): List<IDomainEventBus.Subscription> {
-        val pickupSub = eventBus.subscribe(EntityPickedUpItem::class) { event ->
+        val pickupSub = eventBus.subscribe(EntityPickedUpItem::class, EventDelivery.Global) { event ->
             onPickup(event)
         }
-        val regionSub = eventBus.subscribe(EntityEnteredRegion::class) { event ->
+        val regionSub = eventBus.subscribe(EntityEnteredRegion::class, EventDelivery.Global) { event ->
             onRegionEntered(event)
         }
         return listOf(pickupSub, regionSub)

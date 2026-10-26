@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.service.presence
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.presence.IRichPresenceGateway
 import com.astarworks.astera.core.domain.event.MatchEnded
@@ -34,16 +36,16 @@ public class SessionLifecycleRichPresenceListener(
     public fun bind(eventBus: IDomainEventBus): List<IDomainEventBus.Subscription> {
         val subs = mutableListOf<IDomainEventBus.Subscription>()
 
-        subs += eventBus.subscribe(PlayerJoinedServer::class) { ev ->
+        subs += eventBus.subscribe(PlayerJoinedServer::class, EventDelivery.Global) { ev ->
             gateway.publish(ev.playerId, RichPresenceState.InLobby(serverId))
         }
 
-        subs += eventBus.subscribe(MatchStarted::class) { _ ->
+        subs += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { _ ->
             // Wave 5t scope: no per-event participant list yet. Player
             // states flip via trackParticipant when team-join happens.
         }
 
-        subs += eventBus.subscribe(MatchEnded::class) { ev ->
+        subs += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { ev ->
             participants.remove(ev.matchId)?.forEach { playerId ->
                 gateway.publish(playerId, RichPresenceState.InLobby(serverId))
             }

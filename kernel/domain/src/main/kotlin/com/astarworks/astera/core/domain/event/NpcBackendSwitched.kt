@@ -24,6 +24,8 @@ public data class NpcBackendSwitched(
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Global
+
     init {
         require(oldBackend != newBackend) {
             "NpcBackendSwitched: oldBackend and newBackend must differ; both were $oldBackend"

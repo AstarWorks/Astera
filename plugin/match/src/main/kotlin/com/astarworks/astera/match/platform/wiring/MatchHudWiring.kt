@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.EventDelivery
+
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.adapter.api.hud.ITabList
@@ -71,21 +73,21 @@ internal object MatchHudWiring {
         )
         env.shutdownHooks += { matchSidebar.stop() }
 
-        subscriptions += eventBus.subscribe(MatchStarted::class) { matchSidebar.refresh(it.matchId) }
-        subscriptions += eventBus.subscribe(PhaseChanged::class) { matchSidebar.refresh(it.matchId) }
-        subscriptions += eventBus.subscribe(EntityPickedUpItem::class) { matchSidebar.refresh(it.matchId) }
-        subscriptions += eventBus.subscribe(PlayerKilled::class) { event ->
+        subscriptions += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { matchSidebar.refresh(it.matchId) }
+        subscriptions += eventBus.subscribe(PhaseChanged::class, EventDelivery.Global) { matchSidebar.refresh(it.matchId) }
+        subscriptions += eventBus.subscribe(EntityPickedUpItem::class, EventDelivery.Global) { matchSidebar.refresh(it.matchId) }
+        subscriptions += eventBus.subscribe(PlayerKilled::class, EventDelivery.Global) { event ->
             env.matches.findMatchOf(event.victim)?.let { matchSidebar.refresh(it.id) }
         }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { matchSidebar.release(it.matchId) }
+        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { matchSidebar.release(it.matchId) }
         // A rejoining participant has a blank client: drop the dedupe entry and redraw the match sidebar at once.
-        subscriptions += eventBus.subscribe(PlayerQuitServer::class) { matchSidebar.forget(it.playerId) }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PlayerReconnectedToMatch::class) {
+        subscriptions += eventBus.subscribe(PlayerQuitServer::class, EventDelivery.Global) { matchSidebar.forget(it.playerId) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PlayerReconnectedToMatch::class, EventDelivery.Global) {
             matchSidebar.forget(it.playerId)
             matchSidebar.refreshPlayer(it.playerId)
         }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.StarsCollected::class) { matchSidebar.refreshPlayer(it.playerId) }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.NormaLevelUp::class) { matchSidebar.refreshPlayer(it.playerId) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.StarsCollected::class, EventDelivery.Global) { matchSidebar.refreshPlayer(it.playerId) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.NormaLevelUp::class, EventDelivery.Global) { matchSidebar.refreshPlayer(it.playerId) }
 
         installNameplatesAndTab(env, modeOf)
 
@@ -102,19 +104,19 @@ internal object MatchHudWiring {
         )
         env.shutdownHooks += { lobbySidebar.stop() }
 
-        subscriptions += eventBus.subscribe(PlayerJoinedServer::class) { lobbySidebar.onJoined(it.playerId) }
-        subscriptions += eventBus.subscribe(PlayerQuitServer::class) { lobbySidebar.onQuit(it.playerId) }
+        subscriptions += eventBus.subscribe(PlayerJoinedServer::class, EventDelivery.Global) { lobbySidebar.onJoined(it.playerId) }
+        subscriptions += eventBus.subscribe(PlayerQuitServer::class, EventDelivery.Global) { lobbySidebar.onQuit(it.playerId) }
         // F3-6: kit + wallet + queue lines are re-read once the hand-off restore has finished.
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class) {
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class, EventDelivery.Global) {
             lobbySidebar.refresh(it.playerId)
         }
-        subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class) { lobbySidebar.refresh(it.playerId) }
+        subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class, EventDelivery.Global) { lobbySidebar.refresh(it.playerId) }
         // A forfeiter (left the match for good) is a lobby player again.
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerLeftMatch::class) { lobbySidebar.refresh(it.playerId) }
-        subscriptions += eventBus.subscribe(MatchQueueJoined::class) { lobbySidebar.refresh(it.playerId) }
-        subscriptions += eventBus.subscribe(MatchQueueLeft::class) { lobbySidebar.refresh(it.playerId) }
-        subscriptions += eventBus.subscribe(MatchFormed::class) { event -> event.players.forEach(lobbySidebar::refresh) }
-        subscriptions += eventBus.subscribe(CurrencyChanged::class) { lobbySidebar.refresh(it.playerId) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerLeftMatch::class, EventDelivery.Global) { lobbySidebar.refresh(it.playerId) }
+        subscriptions += eventBus.subscribe(MatchQueueJoined::class, EventDelivery.Global) { lobbySidebar.refresh(it.playerId) }
+        subscriptions += eventBus.subscribe(MatchQueueLeft::class, EventDelivery.Global) { lobbySidebar.refresh(it.playerId) }
+        subscriptions += eventBus.subscribe(MatchFormed::class, EventDelivery.Global) { event -> event.players.forEach(lobbySidebar::refresh) }
+        subscriptions += eventBus.subscribe(CurrencyChanged::class, EventDelivery.Global) { lobbySidebar.refresh(it.playerId) }
 
         env.ctx.logger.info("WP14 wired: match + lobby sidebar services (ADR-0177).")
     }
@@ -142,12 +144,12 @@ internal object MatchHudWiring {
                 scheduler = env.scheduler,
             )
             env.shutdownHooks += { nameplates.stop() }
-            subscriptions += eventBus.subscribe(MatchStarted::class) { nameplates.refresh(it.matchId) }
-            subscriptions += eventBus.subscribe(PhaseChanged::class) { nameplates.refresh(it.matchId) }
-            subscriptions += eventBus.subscribe(PlayerHealthChanged::class) { nameplates.refreshMatchOf(it.playerId) }
-            subscriptions += eventBus.subscribe(MatchEnded::class) { nameplates.release(it.matchId) }
-            subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class) { nameplates.onLeft(it.playerId) }
-            subscriptions += eventBus.subscribe(PlayerQuitServer::class) { nameplates.onLeft(it.playerId) }
+            subscriptions += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { nameplates.refresh(it.matchId) }
+            subscriptions += eventBus.subscribe(PhaseChanged::class, EventDelivery.Global) { nameplates.refresh(it.matchId) }
+            subscriptions += eventBus.subscribe(PlayerHealthChanged::class, EventDelivery.Global) { nameplates.refreshMatchOf(it.playerId) }
+            subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { nameplates.release(it.matchId) }
+            subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class, EventDelivery.Global) { nameplates.onLeft(it.playerId) }
+            subscriptions += eventBus.subscribe(PlayerQuitServer::class, EventDelivery.Global) { nameplates.onLeft(it.playerId) }
         }
 
         services.get<ITabList>()?.let { tabList ->
@@ -159,11 +161,11 @@ internal object MatchHudWiring {
                 scheduler = env.scheduler,
             )
             env.shutdownHooks += { tab.stop() }
-            subscriptions += eventBus.subscribe(PlayerJoinedServer::class) { tab.onJoined(it.playerId) }
-            subscriptions += eventBus.subscribe(PlayerQuitServer::class) { tab.onQuit(it.playerId) }
-            subscriptions += eventBus.subscribe(MatchStarted::class) { tab.refreshAll() }
-            subscriptions += eventBus.subscribe(MatchEnded::class) { tab.refreshAll() }
-            subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class) { tab.refreshAll() }
+            subscriptions += eventBus.subscribe(PlayerJoinedServer::class, EventDelivery.Global) { tab.onJoined(it.playerId) }
+            subscriptions += eventBus.subscribe(PlayerQuitServer::class, EventDelivery.Global) { tab.onQuit(it.playerId) }
+            subscriptions += eventBus.subscribe(MatchStarted::class, EventDelivery.Global) { tab.refreshAll() }
+            subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { tab.refreshAll() }
+            subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class, EventDelivery.Global) { tab.refreshAll() }
         }
     }
 }

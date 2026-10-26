@@ -16,6 +16,8 @@ import java.time.Instant
  * RTM source: `event/data/PlayerPortalReadyEvent.kt`.
  */
 public sealed interface PlayerPortalReady : DomainEvent {
+    override val route: EventRoute get() = EventRoute.Player(playerId.uuid)
+
     public val playerId: PlayerId
 
     public data class EntryReady(
