@@ -2,6 +2,8 @@ package com.astarworks.astera.combat.adapter.paper
 
 import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
+import com.astarworks.astera.core.application.port.outbound.IActionBarChannel
+import com.astarworks.astera.core.application.port.outbound.postRendered
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay
 import net.kyori.adventure.key.Key
@@ -19,10 +21,11 @@ import java.util.concurrent.ThreadLocalRandom
  */
 public class PaperPlayerFeedbackGateway(
     private val server: Server,
+    private val actionBar: IActionBarChannel,
 ) : IPlayerFeedbackGateway {
 
-    override fun sendActionBar(target: PlayerId, rendered: String) {
-        server.getPlayer(target.uuid)?.sendActionBar(AsteraTextDeserializer.deserialize(rendered))
+    override fun postActionBar(target: PlayerId, rendered: String) {
+        actionBar.postRendered(target, rendered)
     }
 
     override fun sendTitle(

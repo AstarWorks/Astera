@@ -6,6 +6,7 @@ import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import com.astarworks.astera.core.application.gui.ViewerVisibility
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.post
 import com.astarworks.astera.core.application.service.lobby.KitClickFacts
 import com.astarworks.astera.core.application.service.lobby.LobbyKitLockRules
 import com.astarworks.astera.core.domain.gui.GuiSlot
@@ -85,6 +86,7 @@ internal class PaperLobbyMenuKit(
     private val role: ServerRole,
     private val renderer: PaperItemTemplateRenderer,
     private val messages: IMessageRenderer,
+    private val actionBar: com.astarworks.astera.core.application.port.outbound.IActionBarChannel,
     private val intents: IGuiIntentRouter,
     private val mcServer: IMcServer,
     private val inMatch: (PlayerId) -> Boolean,
@@ -231,8 +233,7 @@ internal class PaperLobbyMenuKit(
             plugin,
             Runnable {
                 if (!player.isOnline || !active(player)) return@Runnable
-                val text = messages.render(PlayerId(player.uniqueId), com.astarworks.astera.core.domain.i18n.MessageKey(KEYS_HINT))
-                player.sendActionBar(AsteraTextDeserializer.deserialize(text))
+                actionBar.post(PlayerId(player.uniqueId), com.astarworks.astera.core.domain.i18n.MessageKey(KEYS_HINT))
             },
             null, HINT_DELAY_TICKS,
         )

@@ -43,6 +43,11 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 /**
+ * **The action-bar compositor (ADR-0279).** This file is the only place that calls the platform
+ * action-bar send (Konsist `action bar is sent only by the HUD compositor`); everything else posts
+ * through `IActionBarChannel`, which lands here as an `ActionBar` layout and is merged with the HP
+ * status line into one component.
+ *
  * Paper concrete of [IHudGateway] (Wave 6b-2, ADR-0031 / ADR-0097).
  *
  * Replaces [com.astarworks.astera.core.application.service.InMemoryHudGateway]
@@ -491,6 +496,7 @@ public class PaperHudGateway(
         when (component) {
             is HudComponent.Text -> renderTextComponent(playerId, component)
             is HudComponent.FontText -> fontText(component.text)
+            is HudComponent.Rendered -> miniMessage.deserialize(component.miniMessage)
             is HudComponent.Glyph -> Component.text("<glyph:${component.textureRef.value}>")
             is HudComponent.ProgressBar -> renderProgressBarComponent(playerId, component)
             is HudComponent.Composite -> {

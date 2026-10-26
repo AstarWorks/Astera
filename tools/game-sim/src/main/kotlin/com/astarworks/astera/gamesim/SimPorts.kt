@@ -391,7 +391,7 @@ public class SimPlayerFeedbackGateway(
     public val actionBars: MutableList<Pair<PlayerId, String>> = mutableListOf()
     public val titles: MutableList<Title> = mutableListOf()
 
-    override fun sendActionBar(target: PlayerId, rendered: String) {
+    override fun postActionBar(target: PlayerId, rendered: String) {
         actionBars += target to rendered
     }
 

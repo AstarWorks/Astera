@@ -15,11 +15,11 @@ import kotlin.time.Duration
  * Tests use [register] to populate `(id, IMcPlayer)` pairs; `findPlayer`
  * and `findPlayerByName` return them. The shipped [FakeMcPlayer] is a
  * minimal IMcPlayer that records `sendMessage` / `giveItem` /
- * `sendActionBar` / `sendTitle` calls.
+ * `postActionBar` / `sendTitle` calls.
  *
  * Promoted from `plugin/weapons/src/test` in Wave 5b so HUD tests in
  * `plugin/core` can reuse the same fixture without duplicating it. The
- * `sendActionBar` / `sendTitle` recording surface is added in the same
+ * `postActionBar` / `sendTitle` recording surface is added in the same
  * wave together with the matching `IMcPlayer` interface methods (Worker δ).
  */
 public class FakeMcServer : IMcServer {
@@ -38,7 +38,7 @@ public class FakeMcServer : IMcServer {
 /**
  * In-memory [IMcPlayer]. Records `sendMessage` invocations so
  * tests can assert on what the use case did. HUD-related recording
- * (`sendActionBar` / `sendTitle`) is filled in by Wave 5b Worker δ.
+ * (`postActionBar` / `sendTitle`) is filled in by Wave 5b Worker δ.
  */
 public class FakeMcPlayer(
     override val id: PlayerId,
@@ -71,7 +71,7 @@ public class FakeMcPlayer(
 
     override fun heldItemMaterialKey(): String? = heldMaterialKey
 
-    override fun sendActionBar(messageKey: MessageKey, placeholders: Map<String, String>) {
+    override fun postActionBar(messageKey: MessageKey, placeholders: Map<String, String>) {
         actionBars += ActionBarCall(messageKey, placeholders)
     }
 

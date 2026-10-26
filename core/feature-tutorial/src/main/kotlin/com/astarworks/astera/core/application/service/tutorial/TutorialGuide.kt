@@ -73,7 +73,7 @@ public class TutorialGuide(
             }
             showing[id] = Showing(action, scheduler.currentTick(), marker)
         }
-        player.sendActionBar(key(action, "hint"))
+        player.postActionBar(key(action, "hint"))
         // These steps teach reading, not doing: the HUD gets four uninterrupted seconds, the Norma goal seven.
         val shownFor = scheduler.currentTick() - checkNotNull(showing[id]).since
         if ((action == "hud" && shownFor >= 80) || (action == "norma" && shownFor >= 140)) {

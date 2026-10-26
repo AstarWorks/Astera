@@ -18,7 +18,7 @@ public class TransferNoticeListener(private val mcServer: IMcServer) {
         val player = mcServer.findPlayer(event.playerId) ?: return
         // A cosmetic notice must never abort the transfer or the listeners after it.
         notify("title") { player.sendTitle(TITLE, SUBTITLE) }
-        notify("action bar") { player.sendActionBar(ACTION_BAR, mapOf("server" to event.targetServer.value)) }
+        notify("action bar") { player.postActionBar(ACTION_BAR, mapOf("server" to event.targetServer.value)) }
     }
 
     private inline fun notify(what: String, block: () -> Unit) {
