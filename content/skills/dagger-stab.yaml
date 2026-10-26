@@ -43,7 +43,7 @@ phases:
       chance: { type: literal, value: 0.6 }
     - type: play_sound
       targets: { type: target }
-      sound_id: entity.player.attack.crit
+      sound_id: astera:weapons/blade-hit
       volume: { type: literal, value: 0.6 }
       pitch: { type: literal, value: 1.5 }
     - type: spawn_particle
