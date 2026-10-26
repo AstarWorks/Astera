@@ -21,7 +21,7 @@ Owner track `wp/modes-combat`. Seed: audit 2026-10-26. Items: Board prefix `MODE
 - Stage allocation (MODE-06): a stage id is one fixed set of coordinates in the `arenas` world and hosts one match at a time (`MatchFoundUseCase.isStageBusy`). World slots / `ArenaPaster` (ADR-0255) are design only, with no code yet, so instancing does not exist. Each siege-family lane therefore has its own copy of the stage: `siege-isles` (break-core) and `siege-isles-{tnt,wool,jewelry,loyal,mini-tnt}`, each shifted +800 on z (stages 800 apart, the ADR-0255 region-independence distance), with their own star generators `siege-<variant>-{north,south,center-east,center-west}`. The six siege lanes now run concurrently. When ADR-0255 slots land, delete the variants and point the lanes back at `siege-isles`. Costs: six large stages to build at boot and in the arena marker; keep the copies in sync when editing `siege-isles.yaml`.
 
 ## 理想形
-Play shows Norma-based modes and PvE first; siege variants sit in an "advanced" group until each has a real-server playthrough. Every mode carries the Norma layer. A newcomer gets gun, sword and staff access in the first match within the 2-weapon cap, and the sidebar always shows the goal ("Lv n/5, X stars or Y kills to go"). Stars can be spent on 1-2 special items. Weapons are ordered by difficulty with a documented TTK table; demo content is split from production.
+Play shows Norma-based modes and PvE first; siege variants sit in an "advanced" group until each has a real-server playthrough. Every mode carries the Norma layer. A newcomer gets gun, sword and staff access in the first match within the 2-weapon cap, and the sidebar always shows the goal ("Lv n/5, X stars or Y kills to go"). Stars are an in-match resource only (never a currency; ADR-0271), and no star-spending item exists yet; any in-match sink is a later decision. Weapons are ordered by difficulty with a documented TTK table; demo content is split from production.
 
 ## 未決
 - Exact 2-weapon rule for the kit (which two by default) and whether other modes adopt `weapon_limits` (recommended yes).
@@ -32,4 +32,4 @@ Play shows Norma-based modes and PvE first; siege variants sit in an "advanced" 
 - Unverified from the old loop checklist: pistol bullets vs pillars, block-break speed on pillars/cores, the arena shared between lanes.
 
 ## Governing ADRs
-0032, 0036, 0063, 0073, 0174, 0237, 0247, 0248, 0249, 0262 (stars-are-match-scoped).
+0032, 0036, 0063, 0073, 0174, 0237, 0247, 0248, 0249, 0271 (stars-are-match-scoped).

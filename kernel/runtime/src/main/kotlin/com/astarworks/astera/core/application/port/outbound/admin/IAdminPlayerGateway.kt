@@ -26,7 +26,7 @@ public interface IAdminPlayerGateway {
     public fun onlinePlayers(): List<AdminOnlinePlayer>
 
     /** Teleport [who] next to [destination]. `false` if either is offline. */
-    public fun teleportToPlayer(who: PlayerId, destination: PlayerId): Boolean
+    public fun teleportToPlayer(who: PlayerId, destination: PlayerId): java.util.concurrent.CompletableFuture<Boolean>
 
     /**
      * Flip [player] between creative and survival (anything else — adventure /

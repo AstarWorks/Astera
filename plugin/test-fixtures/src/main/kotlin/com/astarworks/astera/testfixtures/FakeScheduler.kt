@@ -1,128 +1,86 @@
 package com.astarworks.astera.testfixtures
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
-import com.astarworks.astera.core.application.port.outbound.SchedulerRegion
 import com.astarworks.astera.core.application.port.outbound.TICK
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.Job
 import java.util.PriorityQueue
-import kotlin.coroutines.resume
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
-/**
- * Deterministic [IScheduler] for tests.
- *
- * Time is driven entirely by [advanceTicks] — nothing happens until the test
- * advances the virtual clock. `runLater` callbacks fire when their scheduled
- * tick is reached; `runRepeating` re-arms itself after firing; `awaitTicks`
- * suspends until the target tick is reached.
- *
- * `runAsync` runs the block immediately on the calling thread (tests don't
- * need real async). Override [asyncRunner] if a test needs a different
- * semantic.
- *
- * `mainDispatcher` / `asyncDispatcher` are [Dispatchers.Unconfined] — tests
- * usually run coroutines inline.
- */
+/** All scopes share one deterministic (tick, insertion sequence) heap driven by [advanceTicks]. */
 public class FakeScheduler(startTick: Long = 0L) : IScheduler {
+    private var now = startTick
+    private var sequence = 0L
+    private val retiredScopes = mutableSetOf<ExecutionScope>()
+    private val queue = PriorityQueue(compareBy<Scheduled> { it.fireAt }.thenBy { it.sequence })
 
-    private var now: Long = startTick
-
-    private data class Scheduled(
+    private class Scheduled(
+        val scope: ExecutionScope,
         var fireAt: Long,
-        val periodTicks: Long?, // null = one-shot
+        var sequence: Long,
+        val period: Long?,
         val block: () -> Unit,
-        var cancelled: Boolean = false,
-    )
-
-    private val queue: PriorityQueue<Scheduled> = PriorityQueue(compareBy { it.fireAt })
-
-    /** Optional override for async semantics (default: run inline). */
-    public var asyncRunner: (() -> Unit) -> Unit = { it() }
+    ) : IScheduler.TaskHandle {
+        override var isCancelled: Boolean = false
+            private set
+        private var retired = false
+        private val callbacks = mutableListOf<() -> Unit>()
+        override fun cancel() { isCancelled = true; callbacks.clear() }
+        override fun onRetired(cb: () -> Unit) {
+            if (retired) cb() else if (!isCancelled) callbacks.add(cb)
+        }
+        fun retire() {
+            if (isCancelled) return
+            retired = true
+            isCancelled = true
+            callbacks.toList().also { callbacks.clear() }.forEach { it() }
+        }
+    }
 
     override fun currentTick(): Long = now
 
-    override fun runLater(delay: Duration, block: () -> Unit): IScheduler.TaskHandle {
-        val ticks = (delay / TICK).toLong().coerceAtLeast(0)
-        return scheduleOneShot(ticks, block)
+    override fun run(scope: ExecutionScope, delay: Duration, block: () -> Unit): IScheduler.TaskHandle =
+        enqueue(scope, delay, null, block)
+
+    override fun repeat(scope: ExecutionScope, initialDelay: Duration, period: Duration, block: () -> Unit): IScheduler.TaskHandle {
+        require(period > Duration.ZERO)
+        return enqueue(scope, initialDelay, (period / TICK).toLong().coerceAtLeast(1L), block)
     }
 
-    override fun runRepeating(initialDelay: Duration, period: Duration, block: () -> Unit): IScheduler.TaskHandle {
-        val delayTicks = (initialDelay / TICK).toLong().coerceAtLeast(0)
-        val periodTicks = (period / TICK).toLong().coerceAtLeast(1)
-        val s = Scheduled(fireAt = now + delayTicks, periodTicks = periodTicks, block = block)
-        queue.add(s)
-        return Handle(s)
+    private fun enqueue(scope: ExecutionScope, delay: Duration, period: Long?, block: () -> Unit): Scheduled {
+        val task = Scheduled(scope, now + (delay / TICK).toLong().coerceAtLeast(0L), sequence++, period, block)
+        if (scope in retiredScopes) task.retire() else queue.add(task)
+        return task
     }
 
-    override fun runAsync(block: () -> Unit): IScheduler.TaskHandle {
-        asyncRunner(block)
-        return Handle(Scheduled(fireAt = now, periodTicks = null, block = {}, cancelled = true))
-    }
-
-    override fun scheduleAt(tickAbsolute: Long, block: () -> Unit): IScheduler.TaskHandle {
-        val s = Scheduled(fireAt = tickAbsolute, periodTicks = null, block = block)
-        queue.add(s)
-        return Handle(s)
-    }
-
-    // Region-aware overloads — region is ignored in deterministic tests (same
-    // semantics as PaperScheduler's Paper-backed path where all tasks run on
-    // the single main thread).
-    override fun runLater(delay: Duration, region: SchedulerRegion, block: () -> Unit): IScheduler.TaskHandle =
-        runLater(delay, block)
-
-    override fun runRepeating(
-        initialDelay: Duration,
-        period: Duration,
-        region: SchedulerRegion,
-        block: () -> Unit,
-    ): IScheduler.TaskHandle = runRepeating(initialDelay, period, block)
-
-    override fun scheduleAt(tickAbsolute: Long, region: SchedulerRegion, block: () -> Unit): IScheduler.TaskHandle =
-        scheduleAt(tickAbsolute, block)
-
-    override suspend fun awaitTicks(ticks: Long) {
-        if (ticks <= 0) return
-        suspendCancellableCoroutine<Unit> { cont ->
-            val handle = scheduleOneShot(ticks) { cont.resume(Unit) }
-            cont.invokeOnCancellation { handle.cancel() }
+    override fun dispatcher(scope: ExecutionScope): CoroutineDispatcher = object : CoroutineDispatcher() {
+        override fun dispatch(context: CoroutineContext, block: Runnable) {
+            run(scope, Duration.ZERO) { block.run() }.onRetired { context[Job]?.cancel() }
         }
     }
 
-    override val mainDispatcher: CoroutineDispatcher = Dispatchers.Unconfined
-    override val asyncDispatcher: CoroutineDispatcher = Dispatchers.Unconfined
-
-    private fun scheduleOneShot(ticksFromNow: Long, block: () -> Unit): IScheduler.TaskHandle {
-        val s = Scheduled(fireAt = now + ticksFromNow, periodTicks = null, block = block)
-        queue.add(s)
-        return Handle(s)
+    /** Simulate owner removal, including callbacks registered after retirement. */
+    public fun retire(scope: ExecutionScope) {
+        retiredScopes.add(scope)
+        queue.filter { it.scope == scope }.forEach { it.retire() }
     }
 
-    /** Advance virtual time by [ticks]. Fires any callbacks whose target tick is reached. */
     public fun advanceTicks(ticks: Long) {
-        require(ticks >= 0) { "ticks must be >= 0" }
+        require(ticks >= 0)
         val target = now + ticks
         while (queue.isNotEmpty() && queue.peek().fireAt <= target) {
-            val s = queue.poll() ?: break
-            now = s.fireAt
-            if (s.cancelled) continue
-            s.block()
-            val period = s.periodTicks
-            if (period != null && !s.cancelled) {
-                s.fireAt += period
-                queue.add(s)
+            val task = queue.remove()
+            now = task.fireAt
+            if (task.isCancelled) continue
+            task.block()
+            if (task.period != null && !task.isCancelled) {
+                task.fireAt += task.period
+                task.sequence = sequence++
+                queue.add(task)
             }
         }
         now = target
-    }
-
-    private class Handle(private val scheduled: Scheduled) : IScheduler.TaskHandle {
-        override fun cancel() {
-            scheduled.cancelled = true
-        }
-        override val isActive: Boolean
-            get() = !scheduled.cancelled
     }
 }

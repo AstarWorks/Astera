@@ -16,7 +16,7 @@ import java.time.Instant
  *
  * In-memory note: the default `InMemoryGuiAnimationController` does not run
  * a scheduler — the Paper adapter (Wave 6) fires this event from
- * `IScheduler.runLater(durationTicks)`. Tests that need to assert completion
+ * `IScheduler.run(durationTicks)`. Tests that need to assert completion
  * call `simulateComplete(handle)` on the in-memory impl.
  */
 public data class SlotAnimationCompleted(

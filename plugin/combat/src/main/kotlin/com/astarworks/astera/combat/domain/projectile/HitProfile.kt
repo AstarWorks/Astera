@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.domain.projectile
 
+import com.astarworks.astera.core.domain.skill.targeter.BakedHitShape
+
 /**
  * Shape used to test "did this projectile hit something this tick?".
  *
@@ -16,6 +18,8 @@ public sealed class HitProfile {
 
     /** Axis-aligned box centered on the projectile. */
     public data class Box(val width: Double, val height: Double, val depth: Double) : HitProfile() {
+        public val baked: BakedHitShape.Box =
+            BakedHitShape.Box(width, height, depth)
         init {
             require(width > 0.0 && height > 0.0 && depth > 0.0) {
                 "Box dimensions must be > 0, got ($width, $height, $depth)"

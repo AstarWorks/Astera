@@ -1,31 +1,29 @@
 # Annihilation arena (3 teams: red / blue / yellow) on sky islands (ADR-0246; scaled up after the founder's playtest).
 # Used by the `annihilation` lane of content/matchmaking/queue.yaml.
 #
-#                        red (0,-364)
+#                        red (0,-64)
 #                 /                      \                   Team islands (r22) sit 64 blocks from the centre island
-#     yellow-red flank                red-blue flank         (0,-300, r24) on a triangle; a bridge runs from each
-#        (-68,-339)                    (68,-339)             base to the centre. Three small flank islands (r11)
+#     yellow-red flank                red-blue flank         (0,0, r24) on a triangle; a bridge runs from each
+#        (-68,-39)                    (68,-39)             base to the centre. Three small flank islands (r11)
 #            |                                |              sit between the bases: every pair of teams has a
-#   yellow (-55,-268) ---- centre ---- blue (55,-268)        second, longer route past the centre (base - flank -
-#                 \       (0,-300)      /                    base).
+#   yellow (-55,32) ---- centre ---- blue (55,32)        second, longer route past the centre (base - flank -
+#                 \       (0,0)      /                    base).
 #                    yellow-blue flank
-#                        (0,-222)
+#                        (0,78)
 #
 # Per base: 4 spawns behind the pillars (12 blocks back from the island centre, facing the centre) and the 3 Nexus
 # pillars spread across the island: tier 1 and tier 2 (the outer pillars) stand 9 blocks forward and 9 to either
 # side of the island centre; tier 3, the Nexus proper (beacon), stands just behind the centre, 14 blocks from each
-# of the others. `pillars:` entries are block coordinates in `world` one above the island top (y=65); the match
+# of the others. `pillars:` entries are stage-local block coordinates one above the island top (y=65); the match
 # places `block` there while the pillar stands (WP10). The builder lays a team-coloured footing under each pillar.
 #
-# World `arenas` (void, created by Astera), top layer y=64, players stand at y=65. This stage lives at z=-300 so it
-# never overlaps the other arenas in the same world.
+# Stage-local coordinates (the server places the stage in a world slot), top layer y=64, players stand at y=65.
 # Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
 
 id: debug-annihilation-arena
 
 display_name_key: astera.stage.annihilation-arena.name
 
-world: debug-arenas
 
 layout:
   marker_version: 2
@@ -33,13 +31,13 @@ layout:
   surface_y: 64
   kill_y: 30
   islands:
-    - { id: red, kind: base, team: red, center: { x: 0, z: -364 }, radius: 22.0 }
-    - { id: blue, kind: base, team: blue, center: { x: 55, z: -268 }, radius: 22.0 }
-    - { id: yellow, kind: base, team: yellow, center: { x: -55, z: -268 }, radius: 22.0 }
-    - { id: center, kind: center, center: { x: 0, z: -300 }, radius: 24.0 }
-    - { id: flank-red-blue, kind: outpost, center: { x: 68, z: -339 }, radius: 11.0 }
-    - { id: flank-blue-yellow, kind: outpost, center: { x: 0, z: -222 }, radius: 11.0 }
-    - { id: flank-yellow-red, kind: outpost, center: { x: -68, z: -339 }, radius: 11.0 }
+    - { id: red, kind: base, team: red, center: { x: 0, z: -64 }, radius: 22.0 }
+    - { id: blue, kind: base, team: blue, center: { x: 55, z: 32 }, radius: 22.0 }
+    - { id: yellow, kind: base, team: yellow, center: { x: -55, z: 32 }, radius: 22.0 }
+    - { id: center, kind: center, center: { x: 0, z: 0 }, radius: 24.0 }
+    - { id: flank-red-blue, kind: outpost, center: { x: 68, z: -39 }, radius: 11.0 }
+    - { id: flank-blue-yellow, kind: outpost, center: { x: 0, z: 78 }, radius: 11.0 }
+    - { id: flank-yellow-red, kind: outpost, center: { x: -68, z: -39 }, radius: 11.0 }
   bridges:
     - { from: red, to: center, width: 3 }
     - { from: blue, to: center, width: 3 }
@@ -53,92 +51,92 @@ layout:
 
 regions:
   - name: full-arena
-    min: { x: -105.0, y: 20.0, z: -395.0 }
-    max: { x: 105.0, y: 140.0, z: -205.0 }
+    min: { x: -105.0, y: 20.0, z: -95.0 }
+    max: { x: 105.0, y: 140.0, z: 95.0 }
   - name: center
-    min: { x: -10.0, y: 64.0, z: -310.0 }
-    max: { x: 10.0, y: 67.0, z: -290.0 }
+    min: { x: -10.0, y: 64.0, z: -10.0 }
+    max: { x: 10.0, y: 67.0, z: 10.0 }
 
 pillars:
   - team: red
     tier: 1
-    position: { x: -9.0, y: 65.0, z: -355.0 }
+    position: { x: -9.0, y: 65.0, z: -55.0 }
     block: minecraft:obsidian
   - team: red
     tier: 2
-    position: { x: 9.0, y: 65.0, z: -355.0 }
+    position: { x: 9.0, y: 65.0, z: -55.0 }
     block: minecraft:crying_obsidian
   - team: red
     tier: 3
-    position: { x: 0.0, y: 65.0, z: -366.0 }
+    position: { x: 0.0, y: 65.0, z: -66.0 }
     block: minecraft:beacon
     hp: 800
   - team: blue
     tier: 1
-    position: { x: 52.0, y: 65.0, z: -280.0 }
+    position: { x: 52.0, y: 65.0, z: 20.0 }
     block: minecraft:obsidian
   - team: blue
     tier: 2
-    position: { x: 43.0, y: 65.0, z: -265.0 }
+    position: { x: 43.0, y: 65.0, z: 35.0 }
     block: minecraft:crying_obsidian
   - team: blue
     tier: 3
-    position: { x: 57.0, y: 65.0, z: -267.0 }
+    position: { x: 57.0, y: 65.0, z: 33.0 }
     block: minecraft:beacon
     hp: 800
   - team: yellow
     tier: 1
-    position: { x: -43.0, y: 65.0, z: -265.0 }
+    position: { x: -43.0, y: 65.0, z: 35.0 }
     block: minecraft:obsidian
   - team: yellow
     tier: 2
-    position: { x: -52.0, y: 65.0, z: -280.0 }
+    position: { x: -52.0, y: 65.0, z: 20.0 }
     block: minecraft:crying_obsidian
   - team: yellow
     tier: 3
-    position: { x: -57.0, y: 65.0, z: -267.0 }
+    position: { x: -57.0, y: 65.0, z: 33.0 }
     block: minecraft:beacon
     hp: 800
 
 spawn_points:
   - team: red
-    position: { x: -2.5, y: 65.0, z: -375.5 }
+    position: { x: -2.5, y: 65.0, z: -75.5 }
     yaw: 0.0
   - team: red
-    position: { x: 3.5, y: 65.0, z: -375.5 }
+    position: { x: 3.5, y: 65.0, z: -75.5 }
     yaw: 0.0
   - team: red
-    position: { x: 0.5, y: 65.0, z: -373.5 }
+    position: { x: 0.5, y: 65.0, z: -73.5 }
     yaw: 0.0
   - team: red
-    position: { x: 0.5, y: 65.0, z: -377.5 }
+    position: { x: 0.5, y: 65.0, z: -77.5 }
     yaw: 0.0
   - team: blue
-    position: { x: 66.5, y: 65.0, z: -264.5 }
+    position: { x: 66.5, y: 65.0, z: 35.5 }
     yaw: 120.2
   - team: blue
-    position: { x: 63.5, y: 65.0, z: -259.5 }
+    position: { x: 63.5, y: 65.0, z: 40.5 }
     yaw: 120.2
   - team: blue
-    position: { x: 63.5, y: 65.0, z: -262.5 }
+    position: { x: 63.5, y: 65.0, z: 37.5 }
     yaw: 120.2
   - team: blue
-    position: { x: 67.5, y: 65.0, z: -260.5 }
+    position: { x: 67.5, y: 65.0, z: 39.5 }
     yaw: 120.2
   - team: yellow
-    position: { x: -63.5, y: 65.0, z: -259.5 }
+    position: { x: -63.5, y: 65.0, z: 40.5 }
     yaw: 239.8
   - team: yellow
-    position: { x: -66.5, y: 65.0, z: -264.5 }
+    position: { x: -66.5, y: 65.0, z: 35.5 }
     yaw: 239.8
   - team: yellow
-    position: { x: -63.5, y: 65.0, z: -262.5 }
+    position: { x: -63.5, y: 65.0, z: 37.5 }
     yaw: 239.8
   - team: yellow
-    position: { x: -67.5, y: 65.0, z: -260.5 }
+    position: { x: -67.5, y: 65.0, z: 39.5 }
     yaw: 239.8
   - role: lobby
-    position: { x: 0.5, y: 65.0, z: -299.5 }
+    position: { x: 0.5, y: 65.0, z: 0.5 }
   - role: spectator
-    position: { x: 0.5, y: 100.0, z: -299.5 }
+    position: { x: 0.5, y: 100.0, z: 0.5 }
     pitch: 60.0

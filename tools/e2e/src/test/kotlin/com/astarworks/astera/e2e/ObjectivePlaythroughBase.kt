@@ -26,8 +26,12 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         val actor: Bot,
         val idle: Bot,
         val walker: ObjectiveWalker,
+        val originX: Double,
+        val originZ: Double,
     ) {
-        fun zone(name: String): Pair<Double, Double> = objectives.zoneCentre(name) ?: error("stage has no region '$name'")
+        /** World (x, z) of the stage region [name]: the stage is stage-local, the match lives at the slot origin. */
+        fun zone(name: String): Pair<Double, Double> =
+            (objectives.zoneCentre(name) ?: error("stage has no region '$name'")).let { (zx, zz) -> zx + originX to zz + originZ }
         fun chat(b: Bot = actor): List<String> = b.chat.drop(chatFrom.getValue(b)).map { it.text.replace(Regex("§.|\u001B\\[[0-9;]*m"), "") }
         fun chatCount(needle: String, b: Bot = actor): Int = chat(b).count { it.contains(needle, ignoreCase = true) }
     }
@@ -53,7 +57,7 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
         if (active == null) return null
         Thread.sleep(2_500)
 
-        val sideOf = bots.associateWith { b -> posOf(b)?.let { if (it.first < 0) "red" else "blue" } }
+        val sideOf = bots.associateWith { b -> localPosOf(b)?.let { if (it.first < 0) "red" else "blue" } }
         val actor = bots.firstOrNull { sideOf[it] == "red" }
         val idle = bots.firstOrNull { sideOf[it] == "blue" }
         E2eReport.check(suite, "the two bots start on opposite sides", "RCON data get Pos") {
@@ -72,8 +76,8 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             "on island: ${bots.map { it.name to posOf(it) }}"
         }
         // Stars are picked up on the way; the Norma goal KILL keeps them from levelling the actor up to a Norma win before the objective.
-        val walker = ObjectiveWalker(actor, objectives, periodic = { bots.forEach { it.command("astera norma choose kill") } })
-        return Ctx(suite, lane, bots, lobbyTitle, chatFrom, logFrom, objectives, actor, idle, walker)
+        val walker = ObjectiveWalker(actor, objectives, originX = originX.toDouble(), originZ = originZ.toDouble(), periodic = { bots.forEach { it.command("astera norma choose kill") } })
+        return Ctx(suite, lane, bots, lobbyTitle, chatFrom, logFrom, objectives, actor, idle, walker, originX.toDouble(), originZ.toDouble())
     }
 
     /** The match must end on its own (winner / time-limit tie-break), then summary, rewards, lobby and a clean log. */

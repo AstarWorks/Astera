@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.usecase.spectator
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.domain.Result
@@ -30,25 +32,25 @@ public class LeaveSpectatorUseCase(
     private val worldGateway: IWorldGateway? = null,
 ) {
 
-    public fun leave(playerId: PlayerId): Result<Unit, SpectatorError> {
+    public fun leave(playerId: PlayerId): CompletableFuture<Result<Unit, SpectatorError>> {
         val current = sessionRepository.find(playerId)
-            ?: return Result.failure(SpectatorError.SessionNotFound(playerId))
+            ?: return CompletableFuture.completedFuture(Result.failure(SpectatorError.SessionNotFound(playerId)))
 
         if (current.state !is SessionState.Spectator) {
-            return Result.failure(SpectatorError.NotSpectator(playerId))
+            return CompletableFuture.completedFuture(Result.failure(SpectatorError.NotSpectator(playerId)))
         }
 
         sessionRepository.upsert(
             current.copy(state = SessionState.Lobby, currentMatch = null),
         )
 
-        if (worldGateway != null) {
-            val spawnResult = worldGateway.lobbySpawn(playerId)
-            if (spawnResult is Result.Failure) {
-                return Result.failure(SpectatorError.TeleportFailed(spawnResult.error.toString()))
-            }
-        }
+        val placed = worldGateway?.lobbySpawn(playerId)
+            ?: CompletableFuture.completedFuture(Result.success(Unit))
+        return placed.thenApply { outcome ->
+            if (outcome is Result.Failure) return@thenApply Result.failure(SpectatorError.TeleportFailed(outcome.error.toString()))
 
-        return Result.success(Unit)
+
+            return@thenApply Result.success(Unit)
+        }
     }
 }

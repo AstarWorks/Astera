@@ -47,9 +47,9 @@ class NormaLayerScenarioTest {
             val blue = player("blue-1", team = "blue")
             val matchId = startMatch("break-core", mapOf(red to "red", blue to "blue"))
 
-            // The siege stage has its own star generators (siege-center-east at 12.5, 65, 300.5).
-            red.moveTo(Vec3(12.5, 65.0, 300.5))
-            blue.moveTo(Vec3(60.0, 65.0, 300.5))
+            // The siege stage has its own star generators (siege-center-east at 14.5, 65, 0.5, stage-local).
+            red.moveTo(Vec3(14.5, 65.0, 0.5))
+            blue.moveTo(Vec3(60.0, 65.0, 0.5))
             advance(650)
             assertThat(eventsOf<StarsCollected>().filter { it.playerId == red.id }).`as`("red collected a pop in break-core").isNotEmpty()
             assertThat(stars().get(matchId, red.id)).isGreaterThanOrEqualTo(1)
@@ -71,10 +71,10 @@ class NormaLayerScenarioTest {
             val yellow = player("yellow-1", team = "yellow")
             val matchId = startMatch("annihilation", mapOf(red to "red", blue to "blue", yellow to "yellow"), stage = "annihilation-arena")
 
-            // annihilation-center-east stands at 14.5, 65, -299.5 on the centre island.
-            red.moveTo(Vec3(14.5, 65.0, -299.5))
-            blue.moveTo(Vec3(55.0, 65.0, -268.0))
-            yellow.moveTo(Vec3(-55.0, 65.0, -268.0))
+            // annihilation-center-east stands at 14.5, 65, 0.5 (stage-local) on the centre island.
+            red.moveTo(Vec3(14.5, 65.0, 0.5))
+            blue.moveTo(Vec3(143.0, 65.0, 83.0))
+            yellow.moveTo(Vec3(-143.0, 65.0, 83.0))
             advance(650)
             assertThat(eventsOf<StarsCollected>().filter { it.playerId == red.id }).`as`("red collected a pop in annihilation").isNotEmpty()
 

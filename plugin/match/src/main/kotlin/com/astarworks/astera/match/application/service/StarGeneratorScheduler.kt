@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -60,7 +61,7 @@ public class StarGeneratorScheduler(
      * restart.
      */
     public fun start(): IScheduler.TaskHandle =
-        scheduler.runRepeating(
+        scheduler.repeat(ExecutionScope.Global,
             initialDelay = Duration.ZERO,
             period = ticks(1L),
         ) {

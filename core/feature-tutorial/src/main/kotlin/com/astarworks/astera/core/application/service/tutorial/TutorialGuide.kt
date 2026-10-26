@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service.tutorial
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService
 import com.astarworks.astera.core.application.port.outbound.IHologramGateway
@@ -34,7 +35,7 @@ public class TutorialGuide(
         tickPlayer(player)
     }
 
-    public fun tick() { players.toList().forEach(::tickPlayer) }
+    public fun tick() { players.toList().forEach { id -> scheduler.run(ExecutionScope.Entity(id.uuid), kotlin.time.Duration.ZERO) { tickPlayer(id) } } }
 
     private fun tickPlayer(id: PlayerId) {
         val player = server.findPlayer(id)

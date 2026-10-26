@@ -32,14 +32,14 @@ rigs:
     size: [0.32, 0.07, 0.18]
   swing:
   - t: 0
-    rotate: &id001 [0, -100, 0]
+    rotate: [0, -100, 0]
   - t: 2
-    rotate: *id001
+    rotate: [0, -100, 0]
   - t: 6
-    rotate: &id002 [0, 70, 0]
+    rotate: [0, 70, 0]
     ease: out_quad
   - t: 9
-    rotate: *id002
+    rotate: [0, 70, 0]
   - t: 14
     rotate: [0, 0, 0]
     ease: in_out_quad

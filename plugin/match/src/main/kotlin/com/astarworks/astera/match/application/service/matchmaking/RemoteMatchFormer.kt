@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service.matchmaking
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IProxyMessenger
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IServerLiveness
@@ -114,7 +115,7 @@ public class RemoteMatchFormer(
             return Result.Failure(MatchFoundError.DispatchFailure("send failed: ${sent.error}"))
         }
         if (!flight.accepted) {
-            flight.ackTimeout = scheduler.runLater(ticks(settings.ackTimeoutSeconds * TICKS_PER_SECOND)) { onAckTimeout(assignment.id) }
+            flight.ackTimeout = scheduler.run(ExecutionScope.Global, ticks(settings.ackTimeoutSeconds * TICKS_PER_SECOND)) { onAckTimeout(assignment.id) }
         }
         log.info("Assignment {} sent to {} ({} players)", assignment.id, settings.gameServer, formation.players.size)
         return Result.Success(assignment.id)

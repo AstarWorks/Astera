@@ -1,0 +1,9 @@
+# ADR-0274 demo: a few retextured cloud puffs that swell, curl and fray away.
+id: skin-demo-smoke
+shape: { kind: point }
+color: { r: 255, g: 255, b: 255 }
+count: 8
+lifetime_ticks: 40
+vanilla_particle: cloud
+velocity: { direction: up, speed: 0.05, spread_degrees: 50, speed_jitter: 0.5 }
+force: true

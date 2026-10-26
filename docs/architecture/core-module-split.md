@@ -52,9 +52,16 @@ signatures; no feature library depends on the plugin host. External libraries re
 
 - GUI ↔ lobby, inventory/profile ↔ lobby, and world ↔ lobby form one strongly connected cluster.
   These are merged in `feature-gameplay`. Existing cross-module smart casts require
-  `BlockDrop`, `CustomBlockSpec`, `ItemSpec`, `Portal`, `RegionRule`, and the HUD layout records
+  `BlockDrop`, `CustomBlockSpec`, `ItemSpec`, `Portal` and `RegionRule`
   to share that compilation boundary with their consumers. Their dependent ports move with them.
-- Survival/vault/recipe code and HUD code join gameplay because their dependencies would
+- Amended by [ADR-0277](../adr/0277-hud-and-weapon-limit-placement-after-core-split.md): `HudLayout` and
+  `HudChannels` live in `:kernel:domain` and `IHudGateway` in `:kernel:runtime`, because `kernel:paper`'s
+  `PaperPlayer.sendActionBar` routes through the HUD gateway and the kernel cannot depend on gameplay.
+  `WeaponCategory`, `WeaponLimits` and `IWeaponLimitProvider` sit in `:core:feature-gameplay` (they need `ItemSpec`).
+  The `Cosmetic` domain type is in `:kernel:domain` and the cosmetic ports in `:kernel:runtime`; `CosmeticService`,
+  `InMemoryCosmeticLoadoutRepository` and `PaperCosmeticDisplay` are in `:core:feature-social` (avoids a cycle), while
+  `CosmeticContents`, `CosmeticYamlConfig` and `PaperCosmeticEffectPlayer` stay in gameplay.
+- Survival/vault/recipe code and the remaining HUD code (services, listeners, adapters) join gameplay because their dependencies would
   otherwise form cycles with that cluster. The quest-to-HUD listener sits with gameplay;
   progression services remain a separate dependency below it.
 - Generic command-console helpers stay beside `ArgumentType` in runtime, preserving existing

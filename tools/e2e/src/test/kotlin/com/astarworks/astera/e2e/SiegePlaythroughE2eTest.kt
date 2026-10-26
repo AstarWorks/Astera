@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test
 /**
  * G1: a whole Break Core (siege) match with two bots: both cores intact on the sidebar, a team cannot break its own
  * core, breaking the enemy core eliminates that team and ends the match with the right winner, then summary, rewards
- * and the way back to the lobby. The stage is a sky-island arena in the void `arenas` world (ADR-0246): cores stand at
- * x = -82 (red) and x = +82 (blue), y = 65 (one above the island top), z = 300 (content/stages/siege-isles.yaml), at the back of
+ * and the way back to the lobby. The stage is a sky-island arena in a world slot (ADR-0255, stage-local coordinates): cores stand at
+ * x = -82 (red) and x = +82 (blue), y = 65 (one above the island top), z = 0 (content/stages/siege-isles.yaml), at the back of
  * the 22-radius team islands (centres x = -68 / +68) behind a wall arc; the front of each core stays open.
  */
 class SiegePlaythroughE2eTest : PlaythroughBase() {
@@ -41,7 +41,7 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
         if (active == null) return
         Thread.sleep(2_000)
 
-        val sideOf = bots.associateWith { b -> posOf(b)?.let { if (it.first < 0) "red" else "blue" } }
+        val sideOf = bots.associateWith { b -> localPosOf(b)?.let { if (it.first < 0) "red" else "blue" } }
         val attacker = bots.firstOrNull { sideOf[it] == "red" }
         val defender = bots.firstOrNull { sideOf[it] == "blue" }
         E2eReport.check(suite, "the two bots start on opposite sides", "RCON data get Pos") {
@@ -57,31 +57,31 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
             quote(lines)
         }
 
-        E2eReport.check(suite, "both bots spawn standing on a solid island block in the arenas world (not the flat world)", "RCON data get Dimension/Pos + execute unless block") {
+        E2eReport.check(suite, "both bots spawn standing on a solid island block inside its slot (not the lobby)", "RCON data get Dimension/Pos + execute unless block") {
             val problems = listOf(attacker, defender).mapNotNull { islandStanceProblem(it) }
             assertThat(problems).describedAs("bots not on an arena island: $problems").isEmpty()
-            "dimension minecraft:arenas, solid block under both bots: ${listOf(attacker, defender).map { it.name to posOf(it) }}"
+            "slot ($originX, $originZ), solid block under both bots: ${listOf(attacker, defender).map { it.name to posOf(it) }}"
         }
 
         // The core blocks must really stand in the world, on a pedestal of the built island.
-        E2eReport.check(suite, "both core blocks exist in the arena world at match start, on built pedestals", "RCON execute if block") {
-            val blueCore = arenaBlockIs(82, 65, 300, "minecraft:emerald_block")
-            val redCore = arenaBlockIs(-82, 65, 300, "minecraft:emerald_block")
-            assertThat(blueCore).describedAs("no emerald block at the blue core cell (82 65 300)").isTrue()
-            assertThat(redCore).describedAs("no emerald block at the red core cell (-82 65 300)").isTrue()
-            assertThat(arenaBlockIs(82, 64, 300, "minecraft:polished_blackstone_bricks")).describedAs("blue core pedestal").isTrue()
-            assertThat(arenaBlockIs(-82, 64, 300, "minecraft:polished_blackstone_bricks")).describedAs("red core pedestal").isTrue()
-            "emerald cores at (+-82, 65, 300) on blackstone-brick pedestals"
+        E2eReport.check(suite, "both core blocks exist in the slot at match start, on built pedestals", "RCON execute if block") {
+            val blueCore = arenaBlockIs(82, 65, 0, "minecraft:emerald_block")
+            val redCore = arenaBlockIs(-82, 65, 0, "minecraft:emerald_block")
+            assertThat(blueCore).describedAs("no emerald block at the blue core cell (82 65 0)").isTrue()
+            assertThat(redCore).describedAs("no emerald block at the red core cell (-82 65 0)").isTrue()
+            assertThat(arenaBlockIs(82, 64, 0, "minecraft:polished_blackstone_bricks")).describedAs("blue core pedestal").isTrue()
+            assertThat(arenaBlockIs(-82, 64, 0, "minecraft:polished_blackstone_bricks")).describedAs("red core pedestal").isTrue()
+            "emerald cores at (+-82, 65, 0) on blackstone-brick pedestals"
         }
         E2eReport.check(suite, "the objective anchors are built: jewelry and wool pedestals, TNT pedestal, void between the islands", "RCON execute if block") {
-            assertThat(arenaBlockIs(78, 64, 310, "minecraft:chiseled_quartz_block")).describedAs("blue jewelry pedestal (78 64 310)").isTrue()
-            assertThat(arenaBlockIs(-78, 64, 310, "minecraft:chiseled_quartz_block")).describedAs("red jewelry pedestal (-78 64 310)").isTrue()
-            assertThat(arenaBlockIs(0, 64, 292, "minecraft:tnt") || arenaBlockIs(0, 64, 292, "minecraft:obsidian")).describedAs("TNT spawn pedestal (0 64 292)").isTrue()
-            listOf(Triple(0, 64, 244), Triple(0, 64, 308), Triple(0, 64, 356)).forEach { (x, y, z) ->
+            assertThat(arenaBlockIs(78, 64, 10, "minecraft:chiseled_quartz_block")).describedAs("blue jewelry pedestal (78 64 10)").isTrue()
+            assertThat(arenaBlockIs(-78, 64, 10, "minecraft:chiseled_quartz_block")).describedAs("red jewelry pedestal (-78 64 10)").isTrue()
+            assertThat(arenaBlockIs(0, 64, -8, "minecraft:tnt") || arenaBlockIs(0, 64, -8, "minecraft:obsidian")).describedAs("TNT spawn pedestal (0 64 -8)").isTrue()
+            listOf(Triple(0, 64, -56), Triple(0, 64, 8), Triple(0, 64, 56)).forEach { (x, y, z) ->
                 assertThat(arenaSolid(x, y, z)).describedAs("wool control point floor ($x $y $z)").isTrue()
             }
-            assertThat(arenaSolid(34, 64, 312) || arenaSolid(34, 50, 312)).describedAs("gap beside the bridge to the blue island at (34 64 312): the arena is islands, not a plane").isFalse()
-            "jewelry pedestals, TNT pedestal, 3 wool points; void at (34, 64, 312)"
+            assertThat(arenaSolid(34, 64, 12) || arenaSolid(34, 50, 12)).describedAs("gap beside the bridge to the blue island at (34 64 12): the arena is islands, not a plane").isFalse()
+            "jewelry pedestals, TNT pedestal, 3 wool points; void at (34, 64, 12)"
         }
 
         // --- the Norma layer is on in a siege mode too (MODE-15) ----------------------------------------------------
@@ -94,12 +94,12 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
             assertThat(lines.count { it.contains("intact", true) }).describedAs("core lines gone: $lines").isEqualTo(2)
             quote(lines)
         }
-        // Stand on the east centre generator (12.5, 65, 300.5) until a pickup shows; leave at once after the level-up so a
+        // Stand on the east centre generator (12.5, 65, 0.5), stage-local until a pickup shows; leave at once after the level-up so a
         // second pop cannot carry the attacker to the top level (that would end the match before the core test).
-        tpArena(attacker.name, 12.5, 65.0, 300.5, 0f, 0f)
+        tpArena(attacker.name, 12.5, 65.0, 0.5, 0f, 0f)
         val gotStar = attacker.waitUntil(15_000) { (starCount(attacker) ?: 0) >= 1 }
         val leveledUp = attacker.waitUntil(6_000) { (levelOf(attacker)?.first ?: 1) >= 2 }
-        tpArena(attacker.name, -79.5, 65.0, 300.5, 90f, 10f)
+        tpArena(attacker.name, -79.5, 65.0, 0.5, 90f, 10f)
         E2eReport.check(suite, "a star pickup on a break-core generator shows on the sidebar", "SetScore (sidebar) / item pickup") {
             assertThat(gotStar).describedAs("no star pickup within 15s on the siege generator; sidebar=${sidebar(attacker)}").isTrue()
             "stars=${starCount(attacker)}"
@@ -116,22 +116,22 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
         rcon("item replace entity ${attacker.name} hotbar.7 with minecraft:diamond_pickaxe")
         attacker.selectHotbar(7)
         Thread.sleep(300)
-        tpArena(attacker.name, -79.5, 65.0, 300.5, 90f, 10f) // open front of the red core, between its two posts
+        tpArena(attacker.name, -79.5, 65.0, 0.5, 90f, 10f) // open front of the red core, between its two posts
         Thread.sleep(500)
-        attacker.dig(-82, 65, 300)
+        attacker.dig(-82 + originX, 65, originZ)
         Thread.sleep(1_500)
         E2eReport.check(suite, "breaking your own core does nothing (core stays, team stays alive)", "SetScore (sidebar)") {
             val lines = sidebar(attacker)
             assertThat(lines.count { it.contains("intact", true) }).describedAs("own core fell? $lines").isEqualTo(2)
             assertThat(matchLines()).describedAs("match ended by breaking your own core").isNotEmpty()
-            assertThat(arenaBlockIs(-82, 65, 300, "minecraft:emerald_block")).describedAs("own core block missing").isTrue()
+            assertThat(arenaBlockIs(-82, 65, 0, "minecraft:emerald_block")).describedAs("own core block missing").isTrue()
             quote(lines)
         }
 
         // --- the void under the islands kills ------------------------------------------------------------------
         val defenderDeaths = defender.deaths.size
         // Protocol bots have no gravity, so put the bot straight below the kill plane (y=30), 29 blocks north of the north island: void.
-        tpArena(defender.name, 0.5, 28.0, 205.5, 0f, 0f)
+        tpArena(defender.name, 0.5, 28.0, -94.5, 0f, 0f)
         val fell = defender.waitUntil(10_000) { defender.deaths.size > defenderDeaths }
         E2eReport.check(suite, "falling into the void below the islands kills the player (kill plane)", "death screen (void kill plane)") {
             assertThat(fell).describedAs("no death within 10s of being below the kill plane; pos=${posOf(defender)}").isTrue()
@@ -145,9 +145,9 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
         }
 
         // --- break the enemy core -----------------------------------------------------------------------------------
-        tpArena(attacker.name, 79.5, 65.0, 300.5, 270f, 10f) // open front of the blue core, between its two posts
+        tpArena(attacker.name, 79.5, 65.0, 0.5, 270f, 10f) // open front of the blue core, between its two posts
         Thread.sleep(500)
-        attacker.dig(82, 65, 300)
+        attacker.dig(82 + originX, 65, originZ)
         var fallen = attacker.waitUntil(4_000) { sidebar(attacker).any { it.contains("core down", true) } || matchLines().isEmpty() }
         var creativeFallback = false
         if (!fallen) {
@@ -155,7 +155,7 @@ class SiegePlaythroughE2eTest : PlaythroughBase() {
             creativeFallback = true
             rcon("gamemode creative ${attacker.name}")
             Thread.sleep(300)
-            attacker.dig(82, 65, 300)
+            attacker.dig(82 + originX, 65, originZ)
             fallen = attacker.waitUntil(5_000) { sidebar(attacker).any { it.contains("core down", true) } || matchLines().isEmpty() }
         }
         E2eReport.check(suite, "breaking the enemy core eliminates that team", "SetScore (sidebar) / chat") {

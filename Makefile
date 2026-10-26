@@ -180,9 +180,17 @@ e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, v
 	bash scripts/e2e.sh down
 
 .PHONY: vfx-shot
-vfx-shot: ## Film a skill with a real headless MC client: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|all] [TICKS=60] [FOV=90]
-	@test -n "$(SKILL)" || { echo "usage: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|all] [TICKS=60]"; exit 2; }
-	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(or $(TICKS),60)" bash tools/vfx-shot/vfx-shot.sh
+vfx-shot: ## Film a skill with a real headless MC client on this checkout's warm stack: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60] [FOV=90] [BEAT_TICKS=case|0,8,16]
+	@test -n "$(SKILL)" || { echo "usage: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60]"; exit 2; }
+	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(TICKS)" bash tools/vfx-shot/vfx-shot.sh
+
+.PHONY: vfx-shot-up
+vfx-shot-up: ## Create/refresh this checkout's warm capture stack and park the clients (VIEW=compare CASE=<case> | side), no capture
+	VIEW="$(or $(VIEW),all)" bash tools/vfx-shot/vfx-shot.sh up
+
+.PHONY: vfx-shot-status
+vfx-shot-status: ## Warm capture stack state: server, deployed content/pack/code vs working tree, parked clients, locks
+	bash tools/vfx-shot/vfx-shot.sh status
 
 .PHONY: anim-shot
 anim-shot: ## Film a skin-rig animation for the skill-compare /anim review: make anim-shot ANIM=<animation-id | skill-id>
@@ -190,7 +198,7 @@ anim-shot: ## Film a skin-rig animation for the skill-compare /anim review: make
 	bash tools/vfx-shot/anim-shot.sh "$(ANIM)"
 
 .PHONY: vfx-shot-down
-vfx-shot-down: ## Stop + drop the vfx-shot server (this checkout + SKILL/CASE; only needed after SHOT_KEEP=1)
+vfx-shot-down: ## Stop the parked clients and drop this checkout's warm capture stack (server, pack host, volumes)
 	bash tools/vfx-shot/vfx-shot.sh down
 
 # ----------------------------------------------------------------------------
@@ -232,6 +240,46 @@ skill-brief: ## Browser-free AI brief: reference|in-game contact sheets + manife
 skill-pairs: ## Video vs MC frame pairs at video times -> build/pairs/<case>.png: make skill-pairs CASE=<id> [SKILL=<skill>] AT="t1:label t2:label ..."
 	@test -n "$(CASE)" -a -n "$(AT)" || { echo "usage: make skill-pairs CASE=<id> [SKILL=<skill>] AT=\"19.7:hit1 20.9:hit2\" (t = video seconds)"; exit 2; }
 	python3 -I tools/skill-compare/scripts/pairs.py --case "$(CASE)" $(if $(SKILL),--skill "$(SKILL)") --out "build/pairs/$(CASE).png" $(AT)
+
+.PHONY: skill-lint-plan
+skill-lint-plan: ## Writes build/skill-lint/<skill>/plan.json (headless cast: body bones, weapon, visibleWeapons per tick): make skill-lint-plan SKILL=<skill-id>
+	@test -n "$(SKILL)" || { echo "usage: make skill-lint-plan SKILL=<skill-id>"; exit 2; }
+	./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q
+
+.PHONY: skill-lint
+skill-lint: ## Machine-checkable facts of a VFX skill before any capture (exit 1 on FAIL); writes build/skill-lint/<skill>/report.json and publishes it to skill-compare (PUBLISH=0 skips): make skill-lint SKILL=<skill-id> [CAPTURE=<capture dir>] [PLAN=<plan.json>]
+	@test -n "$(SKILL)" || { echo "usage: make skill-lint SKILL=<skill-id> [CAPTURE=<dir>] [PLAN=<plan.json>]"; exit 2; }
+	@python3 tools/skill-lint/skill_lint.py "$(SKILL)" $(if $(CAPTURE),--capture "$(CAPTURE)") $(if $(PLAN),--plan "$(PLAN)"); rc=$$?; \
+	  if [ "$(PUBLISH)" != "0" ]; then node tools/skill-compare/scripts/publish-lint.mjs "$(SKILL)" || echo "warn: lint publish to skill-compare failed"; fi; exit $$rc
+
+.PHONY: particle-sim
+particle-sim: ## Run the real vanilla particle classes (local 26.3 client jar) for a skill's emissions -> build/skill-preview/<skill>/particles.json: make particle-sim SKILL=<skill-id> [REUSE=1 keeps plan.json] [SEED=<n>]
+	@test -n "$(SKILL)" || { echo "usage: make particle-sim SKILL=<skill-id> [REUSE=1] [SEED=n]"; exit 2; }
+	$(if $(REUSE),,./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q --offline 2>&1 | grep -v ' INFO \| DEBUG \| WARN ' || true)
+	./gradlew :tools:particle-sim:run --args="$(SKILL) $(if $(SEED),--seed $(SEED))" -q 2>&1 | grep -v '^WARNING'
+
+.PHONY: skill-preview
+skill-preview: ## Render a skill from the skill-compare camera without the client and publish it as the PREVIEW view of skill-compare (PUBLISH=0 skips): make skill-preview SKILL=<skill-id> [CASE=<case id>] [TICKS=0-53] [EVERY=4] [FOV=<deg>] [REUSE=1 keeps plan.json]
+	@test -n "$(SKILL)" || { echo "usage: make skill-preview SKILL=<skill-id> [CASE=..] [TICKS=a-b] [EVERY=n] [FOV=deg] [REUSE=1]"; exit 2; }
+	$(if $(REUSE),,./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q --offline 2>&1 | grep -v ' INFO \| DEBUG \| WARN ' || true)
+	cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null && bun run build >/dev/null && bun scripts/skill-preview.mjs --skill "$(SKILL)" $(if $(CASE),--case "$(CASE)") $(if $(TICKS),--ticks "$(TICKS)") $(if $(EVERY),--every "$(EVERY)") $(if $(FOV),--fov "$(FOV)")
+	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)")
+
+.PHONY: pose-solve
+pose-solve: ## Reference keypoints -> skin-rig body keys + wrist keys + lint targets in content/skill-lint/solved/ (never overwrites shipped keys): make pose-solve SKILL=<skill-id>
+	@test -n "$(SKILL)" || { echo "usage: make pose-solve SKILL=<skill-id>"; exit 2; }
+	python3 tools/pose-solve/solve.py "$(SKILL)"
+
+.PHONY: skill-overlay
+skill-overlay: ## Project a plan dump (or a numpy simulation of content/) onto the annotated reference frames, PNG per beat: make skill-overlay SKILL=<skill-id> [PLAN=<plan.json>]
+	@test -n "$(SKILL)" || { echo "usage: make skill-overlay SKILL=<skill-id> [PLAN=<plan.json>]"; exit 2; }
+	python3 tools/pose-solve/overlay.py "$(SKILL)" $(if $(PLAN),--plan "$(PLAN)",--simulate)
+	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-lint.mjs "$(SKILL)")
+
+.PHONY: skill-round
+skill-round: ## Publish the director's round notes (tools/skill-compare/data/<case>/round.md) to skill-compare: make skill-round SKILL=<skill-id> [FILE=<round.md>]
+	@test -n "$(SKILL)" || { echo "usage: make skill-round SKILL=<skill-id> [FILE=<round.md>]"; exit 2; }
+	node tools/skill-compare/scripts/publish-round.mjs "$(SKILL)" $(FILE)
 
 .PHONY: arena-preview
 arena-preview: ## Render every stage to build/arena-previews/ and measure generation/routing

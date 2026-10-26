@@ -9,6 +9,9 @@ public sealed class SkinRigError {
     public data class UnknownPlayer(public val playerId: PlayerId) : SkinRigError()
     public data class NotPlaying(public val playerId: PlayerId) : SkinRigError()
 
+    /** A skill performance holds the player's hand and body (ADR-0276); the emote is refused, never layered. */
+    public data class Busy(public val playerId: PlayerId) : SkinRigError()
+
     /** Platform failure (off the main thread, entity spawn refused, ...). */
     public data class Platform(public val detail: String) : SkinRigError()
 }

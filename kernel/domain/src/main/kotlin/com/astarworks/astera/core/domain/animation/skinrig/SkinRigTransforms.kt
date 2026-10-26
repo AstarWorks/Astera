@@ -63,11 +63,39 @@ public object SkinRigTransforms {
     private const val HELD_TILT = 90.0
 
     /**
-     * Vanilla `poseRightArm` for a held item: `xRot = xRot * 0.5 - PI/10`, i.e. the item arm is lifted 18 degrees
-     * forward. The skin arm follows the animation, but the item keeps this wrist pitch so the held blade stands
-     * like the vanilla one at rest (negative X swings forward and up).
+     * Pitch of the held display relative to the arm frame: the `rotX(90)` tilt plus vanilla's `poseRightArm` item lift
+     * of 18 degrees (`xRot * 0.5 - PI/10`). It is part of the constant grip, not of the anatomical arm (ADR-0276).
      */
-    private const val HELD_ARM_PITCH = -18.0
+    public const val HELD_GRIP_PITCH: Double = HELD_TILT - 18.0
+
+    /** Display origin of the held item in the right-arm frame (blocks, `PLAYER_SCALE` applied): the constant grip. */
+    public val HELD_GRIP_OFFSET: Vec3 = run {
+        val v = Vector3d(HAND_OFFSET).rotateX(Math.toRadians(HELD_GRIP_PITCH))
+        Vec3(v.x * PX * PLAYER_SCALE, v.y * PX * PLAYER_SCALE, v.z * PX * PLAYER_SCALE)
+    }
+
+    /** Right-arm joint (blocks) and the arm's rotation in the rig frame (root x arm). */
+    public data class ArmFrame(public val joint: Vec3, public val rotation: RigQuat)
+
+    /** The anatomical frame the held weapon hangs from; independent of the item pitch. */
+    public fun rightArm(frame: RigFrame, slim: Boolean): ArmFrame {
+        val rootRot = euler(frame.root.rotation)
+        val pivot = vec(ROOT_PIVOT)
+        val armPose = frame.bones.getValue(SkinRigBone.RIGHT_ARM)
+        val joint = vec(SkinRigBone.RIGHT_ARM.rest(slim).pivot).add(vec(armPose.position))
+        val world = Vector3d(joint).sub(pivot).rotate(rootRot).add(pivot).add(vec(frame.root.position))
+        return ArmFrame(
+            Vec3(world.x * PX * PLAYER_SCALE, world.y * PX * PLAYER_SCALE, world.z * PX * PLAYER_SCALE),
+            quat(Quaterniond(rootRot).mul(euler(armPose.rotation))),
+        )
+    }
+
+    /** Hip pivot (blocks) and root rotation of the whole rig: the `hips` landmark. */
+    public fun hips(frame: RigFrame): ArmFrame {
+        val rootRot = euler(frame.root.rotation)
+        val w = vec(ROOT_PIVOT).add(vec(frame.root.position))
+        return ArmFrame(Vec3(w.x * PX * PLAYER_SCALE, w.y * PX * PLAYER_SCALE, w.z * PX * PLAYER_SCALE), quat(rootRot))
+    }
 
     /**
      * @param headLook live head look as Euler degrees `(pitch about X, yaw about Y, 0)`, applied to the head bone
@@ -100,15 +128,13 @@ public object SkinRigTransforms {
             )
         }
 
-        val arm = SkinRigBone.RIGHT_ARM
-        val armPose = frame.bones.getValue(arm)
-        val armRot = euler(armPose.rotation)
-        val joint = vec(arm.rest(slim).pivot).add(vec(armPose.position))
-        val handRot = Quaterniond(rootRot).mul(armRot)
-            .rotateX(Math.toRadians(HELD_TILT + HELD_ARM_PITCH))
-        val handPos = toWorld(joint).add(Vector3d(HAND_OFFSET).rotate(handRot))
+        val arm = rightArm(frame, slim)
+        val armRot = Quaterniond(arm.rotation.x, arm.rotation.y, arm.rotation.z, arm.rotation.w)
+        val handRot = Quaterniond(armRot).rotateX(Math.toRadians(HELD_GRIP_PITCH))
+        val handPos = Vector3d(arm.joint.x, arm.joint.y, arm.joint.z)
+            .add(Vector3d(HELD_GRIP_OFFSET.x, HELD_GRIP_OFFSET.y, HELD_GRIP_OFFSET.z).rotate(armRot))
         val held = RigPartTransform(
-            translation = Vec3(handPos.x * PX * PLAYER_SCALE, handPos.y * PX * PLAYER_SCALE, handPos.z * PX * PLAYER_SCALE),
+            translation = Vec3(handPos.x, handPos.y, handPos.z),
             rotation = quat(handRot),
             scale = Vec3(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE),
         )

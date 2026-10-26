@@ -1,0 +1,24 @@
+# r15 (director r13 caster FP: key-2 blade ~15-18 % of the right half at t2-3). Keys 2-3 re-solved; key 4 (extreme) and keys 5+ unchanged.
+# FP model recalibrated: eye (0,1.62,0) +Z, vertical FOV 90, 16:9, coverage = % of the RIGHT HALF (the director's metric).
+#   r13 keys at FOV 90: key 2 = 17.9 (measured t2 16.7, t3 17.9), key 3 = 0.0 (measured t4 2.7 = noise floor), half 1->2 = 10.5.
+#   The old FOV-70 model said key 2 = 1.4 %: wrong FOV, not wrong geometry. No dash lag fits (rig z offset -0.3 would give 0 for old key 2).
+#   Real frames t2/t3 = key 2 at u ~0.95 / 1.0, t4 = key 3: the client shows ~whole keys, mid-chunk states are not caught.
+# Rig-at-held-pose share at FOV 90 = 8.5 % (the vanilla first-person held item measured 6.6 %).
+key tick   phi  pitch chunk  front  dFront  face  dFace   side  FP%(R-half,fov90) FPhalf%  euler
+  0    1     0   52.0   0.0   -5.8    0.0  35.1    0.0   38.4    8.5    0.0  [-336.4, -47.8, -59.4]
+  1    2     0   52.0   0.0   -5.8    0.0  35.1    0.0   38.4    8.5    8.5  [-336.4, -47.8, -59.4]
+  2    3   342   56.0  35.0  -20.0  -14.1  56.3   21.2   34.4    5.2    6.0  [-320.0, -46.0, -80.6]
+  3    4   238   51.0  59.4  -30.9  -11.0  81.0   24.7  -23.7    0.0    7.1  [-246.5, -33.2, -49.9]
+  4    5   222   26.0  55.4  -37.7   -6.8  67.6  -13.4  -61.5    0.0    0.0  [-227.0, -11.9, -90.7]
+  5    6   262    8.2  49.4  -79.0  -41.3  53.9  -13.8  -92.7    0.0    0.0  [-261.9, 11.6, -117.6]
+  6    7   310   24.0  49.0  -78.7    0.3  33.3  -20.6   64.4   11.4    0.3  [-306.4, -8.2, -123.7]
+  7    8   356   30.5  41.8  126.1  204.8  75.5   42.3   60.3    6.7    8.3  [-345.0, -27.1, -128.1]
+  8   11    50   24.1  48.9   74.8  -51.3  26.6  -48.9   47.4    0.4    4.7  [-401.4, -38.5, -151.1]
+  9   12   100    7.5  51.5   79.3    4.5  29.3    2.7  -38.9    0.0    0.0  [-461.2, -27.2, -195.9]
+rig z offset -0.5 FP k2/k3: 21.7 0.0
+rig z offset -0.3 FP k2/k3: 14.0 0.0
+rig z offset 0.3 FP k2/k3: 5.6 1.8
+rig z offset 0.5 FP k2/k3: 5.2 10.8
+1->2 u0.00:  8.5 u0.25:  7.2 u0.50:  6.0 u0.60:  5.5 u0.70:  5.3 u0.80:  5.1 u0.90:  5.1 u1.00:  5.2
+2->3 u0.00:  5.2 u0.25:  9.0 u0.50:  7.1 u0.60:  0.2 u0.70:  0.0 u0.80:  0.0 u0.90:  0.0 u1.00:  0.0
+3->4 u0.00:  0.0 u0.25:  0.0 u0.50:  0.0 u0.60:  0.0 u0.70:  0.0 u0.80:  0.0 u0.90:  0.0 u1.00:  0.0

@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISpawnProtectionGateway
@@ -45,7 +46,7 @@ public class InMemorySpawnProtectionGateway(
         active[playerId]?.handle?.cancel()
 
         val ticksUntilExpiry = (effectiveExpiry - nowTick).coerceAtLeast(1L)
-        val handle = scheduler.runLaterTicks(ticksUntilExpiry) {
+        val handle = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), ticksUntilExpiry) {
             // Only fire expiry if this entry is still the live one — guards
             // against late-firing tasks racing a more recent grantProtection.
             val current = active[playerId]

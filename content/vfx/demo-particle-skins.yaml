@@ -1,0 +1,26 @@
+# ADR-0274 demo: one burst each of retextured embers, sparks and smoke 2.4 blocks in front of the caster.
+id: demo-particle-skins
+duration_ticks: 50
+orient: yaw
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: embers
+    kind: { type: particle, particle_id: skin-demo-ember, every_ticks: 6 }
+    start_tick: 2
+    end_tick: 14
+    keyframes:
+      - { t: 0, translate: [0.0, 0.9, 2.4] }
+  - id: sparks
+    kind: { type: particle, particle_id: skin-demo-spark, every_ticks: 6 }
+    start_tick: 2
+    end_tick: 14
+    keyframes:
+      - { t: 0, translate: [0.0, 1.5, 2.4] }
+  - id: smoke
+    kind: { type: particle, particle_id: skin-demo-smoke, every_ticks: 6 }
+    start_tick: 2
+    end_tick: 14
+    keyframes:
+      - { t: 0, translate: [0.0, 0.6, 2.4] }

@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -42,6 +44,7 @@ public class StarDropService(
     private val store: IMatchStarStore,
     private val eventBus: IDomainEventBus,
     private val world: IStarDropWorld?,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
     private val presentation: IPresentation,
     private val deathDropRatio: (MatchId) -> Double,
     private val random: Random = Random.Default,
@@ -124,6 +127,8 @@ public class StarDropService(
         val w = world
         if (w != null) {
             for (drop in drops.values.toList()) {
+                val scope = drop.entity?.let(w::executionScope) ?: regionScope(drop.world, drop.position)
+                scheduler.run(scope, kotlin.time.Duration.ZERO) {
                 val handle = drop.entity
                 val here = handle?.let { w.locate(it) }
                 if (here != null) {
@@ -131,6 +136,11 @@ public class StarDropService(
                 } else {
                     // Never spawned (chunk not loaded yet) or destroyed: put it back where it lay.
                     drops.computeIfPresent(drop.id) { _, cur -> withEntity(cur.copy(entity = null), null) }
+                }
+                }.onRetired {
+                    scheduler.run(regionScope(drop.world, drop.position), kotlin.time.Duration.ZERO) {
+                        drops.computeIfPresent(drop.id) { _, cur -> withEntity(cur.copy(entity = null), null) }
+                    }
                 }
             }
         }
@@ -143,8 +153,9 @@ public class StarDropService(
         if (match.teams.none { player in it.members }) return
         val loc = positions.positionOf(player) ?: return // dead / spectating
         if (loc.world != drop.world) return
-        if (isDenied(drop, player)) return
-        take(drop, player)
+        if (isDenied(drop, player) || System.currentTimeMillis() < drop.readyAtMillis) return
+        // The pickup event arrives on the player's thread; the star ledger is owned by Global.
+        scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { take(drop, player) }
     }
 
     /** Match ended: its drops vanish, things included. */

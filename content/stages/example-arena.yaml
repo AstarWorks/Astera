@@ -1,7 +1,6 @@
 # Authored siege-scale layout. See README.md and ADR-0273.
 id: example-arena
 display_name_key: astera.stage.example-arena.name
-world: arenas
 layout:
   marker_version: 4
   seed: 20261023

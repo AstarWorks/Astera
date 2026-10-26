@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.service
 
+import java.util.concurrent.ConcurrentHashMap
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IResourceRegenScheduler
@@ -35,8 +37,8 @@ public class DefaultResourceRegenScheduler(
     private val eventBus: IDomainEventBus,
 ) : IResourceRegenScheduler {
 
-    private val tracked: MutableSet<PlayerId> = mutableSetOf()
-    private val accumulator: MutableMap<Pair<PlayerId, ResourceType>, Double> = mutableMapOf()
+    private val tracked: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
+    private val accumulator: MutableMap<Pair<PlayerId, ResourceType>, Double> = ConcurrentHashMap()
 
     /** Begin regen ticks for [playerId]. Idempotent. */
     public fun trackPlayer(playerId: PlayerId) {
@@ -57,35 +59,39 @@ public class DefaultResourceRegenScheduler(
     override fun tick(currentTick: Long): Set<PlayerId> {
         if (tracked.isEmpty()) return emptySet()
         val changed = mutableSetOf<PlayerId>()
-        for (playerId in tracked) {
-            for (type in ResourceType.all) {
-                val rate = resourcePool.capFor(playerId, type).regenPerSecond
-                if (rate <= 0.0) continue
-                val key = playerId to type
-                val perTick = rate / 20.0
-                val acc = (accumulator[key] ?: 0.0) + perTick
-                val flush = floor(acc).toInt()
-                if (flush > 0) {
-                    val outcome = resourcePool.applyRegen(playerId, type, flush)
-                    outcome.onSuccess { newValue ->
-                        accumulator[key] = acc - flush
-                        eventBus.publish(
-                            ResourceRegenned(
-                                playerId = playerId,
-                                type = type,
-                                amount = flush,
-                                newValue = newValue,
-                                atTick = currentTick,
-                            ),
-                        )
-                        changed += playerId
-                    }.onFailure {
-                        // Uninitialised player — drop accumulator; harmless.
-                        accumulator.remove(key)
-                    }
-                } else {
-                    accumulator[key] = acc
+        for (playerId in tracked.toList()) if (tickPlayer(playerId, currentTick)) changed += playerId
+        return changed
+    }
+
+    public fun tickPlayer(playerId: PlayerId, currentTick: Long): Boolean {
+        var changed = false
+        for (type in ResourceType.all) {
+            val rate = resourcePool.capFor(playerId, type).regenPerSecond
+            if (rate <= 0.0) continue
+            val key = playerId to type
+            val perTick = rate / 20.0
+            val acc = (accumulator[key] ?: 0.0) + perTick
+            val flush = floor(acc).toInt()
+            if (flush > 0) {
+                val outcome = resourcePool.applyRegen(playerId, type, flush)
+                outcome.onSuccess { newValue ->
+                    accumulator[key] = acc - flush
+                    eventBus.publish(
+                        ResourceRegenned(
+                            playerId = playerId,
+                            type = type,
+                            amount = flush,
+                            newValue = newValue,
+                            atTick = currentTick,
+                        ),
+                    )
+                    changed = true
+                }.onFailure {
+                    // Uninitialised player — drop accumulator; harmless.
+                    accumulator.remove(key)
                 }
+            } else {
+                accumulator[key] = acc
             }
         }
         return changed

@@ -118,7 +118,7 @@ Optional case.json fields read by the index (the page preserves them on save): `
 
 `SKILL_COMPARE_CANONICAL=1 bun server.mjs` prioritizes the serving checkout's cases over older worktrees. `SKILL_COMPARE_WORKTREE_ROOT` can point to another checkout's `.claude/worktrees` for shared reference caches. Native-fps reference caches must match the case's video and exact interval. Cases with `status: from-wiki` do not borrow footage of another skill.
 
-Round 2 captures require matching `referenceRevision` and `contentRevision` in the case and capture `meta.json`. Changed content requires recapture. The player bounds image concurrency and memory, waits for both columns before advancing, and exposes loading/errors/retry. Automatic focus slow motion defaults off. Missing traces are shown as unmeasured rather than zero hits.
+Round 2 captures require the case `referenceRevision` and `contentRevision` to equal the capture `meta.json` `referenceRevision` and `caseContentRevision` (the capture's own `contentRevision` is a fingerprint of the filmed `content/`, see the vfx-shot README). Changed content requires recapture. The player bounds image concurrency and memory, waits for both columns before advancing, and exposes loading/errors/retry. Automatic focus slow motion defaults off. Missing traces are shown as unmeasured rather than zero hits.
 
 
 Frames use WebP previews when the full preview sequence exists; PNG remains the measurement source and fallback. Frame URLs include capture metadata modification time, so recapturing the same case does not display stale cached images. `captureQuality.invalid: true` excludes a confirmed stalled capture; repeated idle frames alone do not prove a stall.

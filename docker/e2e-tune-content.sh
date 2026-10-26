@@ -14,30 +14,25 @@ patch() { # <file under root> <sed -E expression> <grep -E pattern that must mat
   sed -i -E "$2" "$f"
 }
 
-# MODE-05/06: every siege lane has its own full-size stage (siege-isles-<v>, +800 z each). The e2e image must not build five
-# production-size arenas, so each variant id becomes a copy of the compact debug siege stage shifted along z (offsets keep the
-# copies apart, same world), with its star generators moved onto the compact landmarks of the shifted copy.
-for variant in tnt:800 wool:1600 jewelry:2400 loyal:3200 mini-tnt:4000; do
-  v="${variant%%:*}"
-  off="${variant##*:}"
+# MODE-05/06: every siege lane has its own full-size stage (siege-isles-<v>). The e2e image must not build five
+# production-size arenas, so each variant id becomes a copy of the compact debug siege stage (stage-local; world slots keep
+# the copies apart). Their star generators are patched onto the compact landmarks below.
+for v in tnt wool jewelry loyal mini-tnt; do
   test -f "$root/stages/siege-isles-$v.yaml"
-  awk -v off="$off" '{ out = ""; line = $0
-    while (match(line, /z: -?[0-9.]+/)) { out = out substr(line, 1, RSTART + 2) (substr(line, RSTART + 3, RLENGTH - 3) + off); line = substr(line, RSTART + RLENGTH) }
-    print out line }' "$root/stages/debug-siege-isles.yaml" \
-    | sed -e "s/^id: debug-siege-isles$/id: siege-isles-$v/" -e 's/^world: debug-arenas$/world: arenas/' > "$root/stages/siege-isles-$v.yaml"
+  sed -e "s/^id: debug-siege-isles$/id: siege-isles-$v/" "$root/stages/debug-siege-isles.yaml" > "$root/stages/siege-isles-$v.yaml"
   grep -q "^id: siege-isles-$v$" "$root/stages/siege-isles-$v.yaml" || { echo "e2e-tune: siege-isles-$v was not generated" >&2; exit 1; }
-  patch "generators/siege-$v-center-east.yaml" "s/^position:.*/position: { x: 12.5, y: 65.0, z: $((300 + off)).5 }/" '^position:'
-  patch "generators/siege-$v-center-west.yaml" "s/^position:.*/position: { x: -11.5, y: 65.0, z: $((300 + off)).5 }/" '^position:'
-  patch "generators/siege-$v-north.yaml" "s/^position:.*/position: { x: 0.5, y: 65.0, z: $((244 + off)).5 }/" '^position:'
-  patch "generators/siege-$v-south.yaml" "s/^position:.*/position: { x: 0.5, y: 65.0, z: $((356 + off)).5 }/" '^position:'
+  patch "generators/siege-$v-center-east.yaml" 's/^position:.*/position: { x: 12.5, y: 65.0, z: 0.5 }/' '^position:'
+  patch "generators/siege-$v-center-west.yaml" 's/^position:.*/position: { x: -11.5, y: 65.0, z: 0.5 }/' '^position:'
+  patch "generators/siege-$v-north.yaml" 's/^position:.*/position: { x: 0.5, y: 65.0, z: -55.5 }/' '^position:'
+  patch "generators/siege-$v-south.yaml" 's/^position:.*/position: { x: 0.5, y: 65.0, z: 56.5 }/' '^position:'
 done
 
-# Use the preserved compact fixtures only in the E2E image. Keep production IDs and world
+# Use the preserved compact fixtures only in the E2E image. Keep production IDs
 # so queue assignments, mode references, generator IDs and existing protocol assertions agree.
 for stage in example-arena siege-isles annihilation-arena pve-proving-grounds; do
   source="$root/stages/debug-$stage.yaml"
   test -f "$source"
-  sed -e "s/^id: debug-$stage$/id: $stage/" -e 's/^world: debug-arenas$/world: arenas/' "$source" > "$root/stages/$stage.yaml"
+  sed -e "s/^id: debug-$stage$/id: $stage/" "$source" > "$root/stages/$stage.yaml"
   rm "$source"
 done
 # Compact Norma fixture generator coordinates (the production positions are route outposts).
@@ -46,11 +41,11 @@ patch generators/arena-west.yaml 's/^position:.*/position: { x: -11.5, y: 65.0, 
 patch generators/arena-north.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: -61.5 }/' '^position:'
 patch generators/arena-south.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: 62.5 }/' '^position:'
 
-# Same for the siege-isles star generators: the compact debug stage has a centre island at (0,300) and outposts at z 244/356.
-patch generators/siege-center-east.yaml 's/^position:.*/position: { x: 12.5, y: 65.0, z: 300.5 }/' '^position:'
-patch generators/siege-center-west.yaml 's/^position:.*/position: { x: -11.5, y: 65.0, z: 300.5 }/' '^position:'
-patch generators/siege-north.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: 244.5 }/' '^position:'
-patch generators/siege-south.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: 356.5 }/' '^position:'
+# Same for the siege-isles star generators: the compact debug stage has a centre island at (0,0) and outposts at z -56/56 (stage-local).
+patch generators/siege-center-east.yaml 's/^position:.*/position: { x: 12.5, y: 65.0, z: 0.5 }/' '^position:'
+patch generators/siege-center-west.yaml 's/^position:.*/position: { x: -11.5, y: 65.0, z: 0.5 }/' '^position:'
+patch generators/siege-north.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: -55.5 }/' '^position:'
+patch generators/siege-south.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z: 56.5 }/' '^position:'
 patch matchmaking/queue.yaml 's/^queue_countdown_seconds:.*/queue_countdown_seconds: 3/' '^queue_countdown_seconds:'
 patch matchmaking/queue.yaml 's/^match_countdown_seconds:.*/match_countdown_seconds: 5/' '^match_countdown_seconds:'
 

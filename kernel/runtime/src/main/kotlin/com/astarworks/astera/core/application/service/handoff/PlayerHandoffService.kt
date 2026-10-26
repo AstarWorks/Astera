@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service.handoff
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventoryGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
@@ -61,8 +62,9 @@ public class PlayerHandoffService(
     )
 
     private class Waiting(val deadlineTick: Long) {
-        var poll: IScheduler.TaskHandle? = null
-        var token: HandoffToken? = null
+        @Volatile var poll: IScheduler.TaskHandle? = null
+        @Volatile var token: HandoffToken? = null
+        val generation = java.util.concurrent.atomic.AtomicLong()
     }
 
     private class Stored(val token: HandoffToken, val atTick: Long)
@@ -176,7 +178,7 @@ public class PlayerHandoffService(
     }
 
     private fun schedulePoll(playerId: PlayerId, entry: Waiting) {
-        entry.poll = scheduler.runLater(ticks(settings.pollEveryTicks)) {
+        entry.poll = scheduler.run(ExecutionScope.Entity(playerId.uuid), ticks(settings.pollEveryTicks)) {
             if (waiting[playerId] === entry) attempt(playerId, entry)
         }
     }
@@ -184,29 +186,32 @@ public class PlayerHandoffService(
     /** One try: restore when the token (and a snapshot at least that new) is there, else wait or give up. */
     private fun attempt(playerId: PlayerId, entry: Waiting) {
         entry.poll?.cancel()
-        val token = entry.token
-        val expired = scheduler.currentTick() >= entry.deadlineTick
-        if (token != null) {
-            val snapshot = loadLatest(playerId)
-            val fresh = snapshot != null && snapshot.savedAt.toEpochMilli() >= token.version
-            if (fresh) {
-                waiting.remove(playerId)
-                finish(playerId, applySnapshot(playerId, snapshot), token.fromServer)
-                return
-            }
-            if (!expired) {
-                schedulePoll(playerId, entry)
-                return
-            }
-            log.warn("Snapshot of {} older than hand-off version {} after the wait; restoring it anyway.", playerId, token.version)
-        } else if (!expired) {
+        val generation = entry.generation.incrementAndGet()
+        if (entry.token == null && scheduler.currentTick() < entry.deadlineTick) {
             schedulePoll(playerId, entry)
             return
-        } else {
-            log.warn("No hand-off token for {} within {} ticks; restoring the latest snapshot.", playerId, settings.maxWaitTicks)
         }
-        waiting.remove(playerId)
-        finish(playerId, applySnapshot(playerId, loadLatest(playerId)), token?.fromServer)
+        // Snapshot reads can block on Postgres; only inventory application runs on the entity owner.
+        entry.poll = scheduler.run(ExecutionScope.Io, kotlin.time.Duration.ZERO) {
+            val snapshot = loadLatest(playerId)
+            scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
+                if (waiting[playerId] !== entry || entry.generation.get() != generation) return@run
+                val token = entry.token
+                val fresh = token != null && snapshot != null && snapshot.savedAt.toEpochMilli() >= token.version
+                val expired = scheduler.currentTick() >= entry.deadlineTick
+                if (!fresh && !expired) {
+                    schedulePoll(playerId, entry)
+                    return@run
+                }
+                if (!fresh && token != null) {
+                    log.warn("Snapshot of {} older than hand-off version {} after the wait; restoring it anyway.", playerId, token.version)
+                } else if (token == null) {
+                    log.warn("No hand-off token for {} within {} ticks; restoring the latest snapshot.", playerId, settings.maxWaitTicks)
+                }
+                waiting.remove(playerId, entry)
+                finish(playerId, applySnapshot(playerId, snapshot), token?.fromServer)
+            }.onRetired { waiting.remove(playerId, entry) }
+        }
     }
 
     private fun loadLatest(playerId: PlayerId): PlayerInventorySnapshot? = try {

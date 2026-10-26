@@ -14,9 +14,9 @@
  *   - jackson-databind — converts SnakeYAML's `Object` tree into `JsonNode` so
  *     the schema validator can walk it.
  *
- * No Paper / Bukkit / kotlinx.serialization dependency: this is a pure-JVM
- * CLI, not a Minecraft plugin, and is therefore outside the Konsist
- * sibling-isolation matrix (ADR-0022).
+ * The pure-JVM CLI also uses the real combat/effects content loaders to bake
+ * skills, VFX and particle tables and print advisory cost estimates. Paper
+ * remains compile-only in those modules and is absent from this CLI runtime.
  */
 
 plugins {
@@ -26,6 +26,8 @@ plugins {
 
 dependencies {
     implementation(libs.kotlin.stdlib)
+    implementation(project(":plugin:combat"))
+    implementation(project(":core:feature-gameplay"))
     implementation(libs.networknt.json.schema.validator)
     implementation(libs.snakeyaml)
     implementation(libs.jackson.databind)

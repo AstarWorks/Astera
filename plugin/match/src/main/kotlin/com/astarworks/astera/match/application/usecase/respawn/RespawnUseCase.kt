@@ -1,5 +1,9 @@
 package com.astarworks.astera.match.application.usecase.respawn
 
+import java.util.concurrent.CompletableFuture
+
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.executor
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -56,56 +60,56 @@ public class RespawnUseCase(
     private val statusEffectContainer: IStatusEffectContainer? = null,
 ) {
 
-    public fun respawn(spec: RespawnSpec): Result<Unit, RespawnError> {
+    public fun respawn(spec: RespawnSpec): CompletableFuture<Result<Unit, RespawnError>> {
         // 1. Teleport.
-        val teleported = worldGateway.teleport(
+        return worldGateway.teleportAsync(
             playerId = spec.playerId,
             at = spec.spawnPoint.position,
             world = spec.spawnPoint.world,
             yaw = spec.spawnPoint.yaw,
             pitch = spec.spawnPoint.pitch,
-        )
-        if (!teleported) return Result.Failure(RespawnError.TeleportFailed(spec.playerId))
+        ).thenApplyAsync({ moved ->
+            if (!moved) return@thenApplyAsync Result.failure(RespawnError.TeleportFailed(spec.playerId))
+            // 2. Restore health (admin / system path; ignore the gateway's
+            //    Result.Failure for invalid value since the spec is already
+            //    bounds-checked at construction).
+            healthGateway.setHealth(spec.playerId, spec.initialHealth, HealthChangeSource.Respawn)
 
-        // 2. Restore health (admin / system path; ignore the gateway's
-        //    Result.Failure for invalid value since the spec is already
-        //    bounds-checked at construction).
-        healthGateway.setHealth(spec.playerId, spec.initialHealth, HealthChangeSource.Respawn)
-
-        // 3. Spawn protection — skip when caller asked for 0 seconds.
-        if (spec.protectionSeconds > 0) {
-            protectionGateway.grantProtection(spec.playerId, spec.protectionSeconds)
-        }
-
-        // 4. Pre-fill kit. Resolve every item up-front so an unknown id
-        //    surfaces as a typed error rather than a "half-applied kit".
-        val kit = spec.kit
-        if (kit != null && kit.applyOnRespawn) {
-            val unknown = kit.items.firstOrNull { (_, id) -> itemRegistry.find(id) == null }
-            if (unknown != null) {
-                return Result.Failure(RespawnError.UnknownKitItem(unknown.second))
+            // 3. Spawn protection — skip when caller asked for 0 seconds.
+            if (spec.protectionSeconds > 0) {
+                protectionGateway.grantProtection(spec.playerId, spec.protectionSeconds)
             }
-            // The actual "give item to slot" Bukkit-side application lives in the
-            // Wave 6 `PaperInventoryGateway` (deferred). For Wave 5o the kit is
-            // resolved + emitted on the event so downstream listeners + tests
-            // can verify the contract end-to-end without a Paper harness.
-        }
 
-        // 5. Status effects via the optional container.
-        if (statusEffectContainer != null && spec.effects.isNotEmpty()) {
-            statusEffectContainer.applyBulk(spec.effects)
-        }
+            // 4. Pre-fill kit. Resolve every item up-front so an unknown id
+            //    surfaces as a typed error rather than a "half-applied kit".
+            val kit = spec.kit
+            if (kit != null && kit.applyOnRespawn) {
+                val unknown = kit.items.firstOrNull { (_, id) -> itemRegistry.find(id) == null }
+                if (unknown != null) {
+                    return@thenApplyAsync Result.Failure(RespawnError.UnknownKitItem(unknown.second))
+                }
+                // The actual "give item to slot" Bukkit-side application lives in the
+                // Wave 6 `PaperInventoryGateway` (deferred). For Wave 5o the kit is
+                // resolved + emitted on the event so downstream listeners + tests
+                // can verify the contract end-to-end without a Paper harness.
+            }
 
-        // 6. Publish event.
-        eventBus.publish(
-            PlayerRespawned(
-                playerId = spec.playerId,
-                matchId = spec.matchId,
-                spawnPoint = spec.spawnPoint,
-                atTick = scheduler.currentTick(),
-            ),
-        )
-        return Result.Success(Unit)
+            // 5. Status effects via the optional container.
+            if (statusEffectContainer != null && spec.effects.isNotEmpty()) {
+                statusEffectContainer.applyBulk(spec.effects)
+            }
+
+            // 6. Publish event.
+            eventBus.publish(
+                PlayerRespawned(
+                    playerId = spec.playerId,
+                    matchId = spec.matchId,
+                    spawnPoint = spec.spawnPoint,
+                    atTick = scheduler.currentTick(),
+                ),
+            )
+            return@thenApplyAsync Result.Success(Unit)
+        }, scheduler.executor(ExecutionScope.Entity(spec.playerId.uuid)))
     }
 }
 

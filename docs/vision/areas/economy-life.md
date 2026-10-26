@@ -28,4 +28,4 @@ One path: a match gives GOLD/XP, the player chooses a weapon or skill to unlock,
 - Fate of GEM (hide until real money exists) and of gathering/recipes (park vs remove).
 
 ## Governing ADRs
-0034, 0035, 0091, 0101, 0102, 0107, 0124, 0201, 0202, 0210, 0211, 0235, 0262 (stars-are-match-scoped).
+0034, 0035, 0091, 0101, 0102, 0107, 0124, 0201, 0202, 0210, 0211, 0235, 0271 (stars-are-match-scoped).

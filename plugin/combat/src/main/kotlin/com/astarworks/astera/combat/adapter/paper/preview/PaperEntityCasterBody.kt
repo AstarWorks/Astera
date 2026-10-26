@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.adapter.paper.preview
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.combat.application.port.outbound.IEntityCasterBody
 import com.astarworks.astera.combat.application.port.outbound.ITickRateControl
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -11,7 +13,7 @@ import org.bukkit.Server
 import org.bukkit.entity.LivingEntity
 
 /** Paper [IEntityCasterBody]: reads / moves the living entity whose uuid is the caster id. Main thread only. */
-internal class PaperEntityCasterBody(private val server: Server) : IEntityCasterBody {
+internal class PaperEntityCasterBody(private val server: Server, private val plugin: org.bukkit.plugin.Plugin) : IEntityCasterBody {
 
     override fun poseOf(id: PlayerId): PlayerPose? {
         val entity = living(id) ?: return null
@@ -27,11 +29,17 @@ internal class PaperEntityCasterBody(private val server: Server) : IEntityCaster
         )
     }
 
-    override fun teleport(id: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean {
-        val entity = living(id) ?: return false
+    override fun teleportAsync(id: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): CompletableFuture<Boolean> {
+        val entity = living(id) ?: return CompletableFuture.completedFuture(false)
         val targetWorld = world?.let { server.getWorld(it.value) } ?: entity.world
         val loc = Location(targetWorld, at.x, at.y, at.z, yaw ?: entity.location.yaw, pitch ?: entity.location.pitch)
-        return entity.teleport(loc)
+        val completed = CompletableFuture<Boolean>()
+        entity.teleportAsync(loc).whenComplete { moved, failure ->
+            if (!entity.scheduler.execute(plugin, Runnable { completed.complete(failure == null && moved == true) }, { completed.complete(false) }, 1L)) {
+                completed.complete(false)
+            }
+        }
+        return completed
     }
 
     private fun living(id: PlayerId): LivingEntity? = (server.getEntity(id.uuid) as? LivingEntity)?.takeIf { it.isValid }

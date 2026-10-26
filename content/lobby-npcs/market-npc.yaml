@@ -9,7 +9,7 @@ display_name: astera.lobby.npc.market.name
 type: display_entity
 
 spawn:
-  world: lobby
+  world: world
   x: 47.5
   y: 65.0
   z: -5.5

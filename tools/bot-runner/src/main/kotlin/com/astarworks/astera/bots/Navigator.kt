@@ -38,6 +38,10 @@ class Navigator(private val terrain: Terrain, private val graph: ArenaRouteGraph
     val expandedTotal = AtomicInteger()
     @Volatile var maxSearchMicros = 0L; private set
 
+    /** World position of the stage origin (the slot the bot plays in); the route graph is stage-local. */
+    var originX = 0.0
+    var originZ = 0.0
+
     private fun clearLocal() { cells = emptyList(); idx = 0; planGx = Double.NaN; noPathUntil = 0L }
 
     fun clear() { clearLocal(); waypoints.clear(); routeGx = Double.NaN }
@@ -47,7 +51,7 @@ class Navigator(private val terrain: Terrain, private val graph: ArenaRouteGraph
         if (hypot(gx - bot.x, gz - bot.z) <= arrive && (gy == null || abs(gy - bot.y) <= 2.5)) { clear(); return Status.ARRIVED }
         if (routeGx.isNaN() || hypot(gx - routeGx, gz - routeGz) > 3.0) {
             waypoints.clear()
-            if (hypot(gx - bot.x, gz - bot.z) > 48.0) waypoints.addAll(graph?.route(bot.x, bot.z, gx, gz).orEmpty())
+            if (hypot(gx - bot.x, gz - bot.z) > 48.0) waypoints.addAll(graph?.route(bot.x - originX, bot.z - originZ, gx - originX, gz - originZ).orEmpty().map { it.copy(x = it.x + originX, z = it.z + originZ) })
             routeGx = gx; routeGz = gz
             clearLocal()
         }

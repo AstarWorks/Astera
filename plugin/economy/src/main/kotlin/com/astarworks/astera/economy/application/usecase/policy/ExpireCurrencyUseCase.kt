@@ -16,7 +16,7 @@ import java.time.Instant
  * lookup uses the same `policyOf` injection as
  * [EnforceCurrencyPolicyUseCase].
  *
- * Phase C wires [sweep] into `IScheduler.runRepeatingTicks` at a daily
+ * Phase C wires [sweep] into `IScheduler.repeatTicks` at a daily
  * interval (the orchestrator decides exact frequency). The [scheduler]
  * dependency is held so [sweep] can stamp [CurrencyExpired.occurredAtTick]
  * from the current server tick; it does not self-schedule.

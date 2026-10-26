@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.animation
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway
 import com.astarworks.astera.core.domain.Result
@@ -87,7 +88,7 @@ import java.util.concurrent.ConcurrentHashMap
  * PlayerAnimationError>`, off-main calls are surfaced as
  * [PlayerAnimationError.Platform] with `detail = "off-main"` rather than
  * silently dropped. Callers from off-main paths MUST round-trip through
- * `IScheduler.runLater(Duration.ZERO, ...)`.
+ * `IScheduler.run(Duration.ZERO, ...)`.
  *
  * # Synthetic armor-stand lifecycle
  *
@@ -161,7 +162,7 @@ public class PaperPlayerAnimationGateway(
         handOverrides[id] = state
         val empty = ItemStack(Material.AIR)
         showHand(player, empty)
-        state.task = clock.runRepeating(
+        state.task = clock.repeat(ExecutionScope.Entity(player.uniqueId),
             com.astarworks.astera.core.application.port.outbound.ticks(1),
             com.astarworks.astera.core.application.port.outbound.ticks(1),
         ) {
@@ -199,7 +200,7 @@ public class PaperPlayerAnimationGateway(
         playerId: PlayerId,
         hand: PlayerHand,
     ): Result<Unit, PlayerAnimationError> {
-        if (!server.isPrimaryThread) return offMain("swingArm")
+        if (server.getPlayer(playerId.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return offMain("swingArm")
         val player = onlinePlayer(playerId) ?: return unknownPlayer(playerId)
         when (hand) {
             PlayerHand.MainHand -> player.swingMainHand()
@@ -214,7 +215,7 @@ public class PaperPlayerAnimationGateway(
         slot: EquipSlot,
         item: ItemId,
     ): Result<Unit, PlayerAnimationError> {
-        if (!server.isPrimaryThread) return offMain("applyEquipAnimation")
+        if (server.getPlayer(playerId.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return offMain("applyEquipAnimation")
         // Animation-only per port KDoc; we don't touch inventory. The
         // online-player check still runs so an offline-target use case
         // surfaces UnknownPlayer rather than silently publishing a ghost
@@ -230,7 +231,7 @@ public class PaperPlayerAnimationGateway(
         playerId: PlayerId,
         sneaking: Boolean,
     ): Result<Unit, PlayerAnimationError> {
-        if (!server.isPrimaryThread) return offMain("setSneaking")
+        if (server.getPlayer(playerId.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return offMain("setSneaking")
         val player = onlinePlayer(playerId) ?: return unknownPlayer(playerId)
         val previous = sneakStates[playerId]
         if (previous == sneaking) return Result.success(Unit)
@@ -248,7 +249,7 @@ public class PaperPlayerAnimationGateway(
         position: Vec3,
         sleeping: Boolean,
     ): Result<Unit, PlayerAnimationError> {
-        if (!server.isPrimaryThread) return offMain("setSleeping")
+        if (server.getPlayer(playerId.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return offMain("setSleeping")
         val player = onlinePlayer(playerId) ?: return unknownPlayer(playerId)
         val previous = sleepStates[playerId]
         if (previous == sleeping) return Result.success(Unit)
@@ -281,7 +282,7 @@ public class PaperPlayerAnimationGateway(
         playerId: PlayerId,
         target: SitTarget,
     ): Result<Unit, PlayerAnimationError> {
-        if (!server.isPrimaryThread) return offMain("setSitting")
+        if (server.getPlayer(playerId.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return offMain("setSitting")
         val player = onlinePlayer(playerId) ?: return unknownPlayer(playerId)
         val previous = sitStates[playerId] ?: SitTarget.None
         if (previous == target) return Result.success(Unit)
@@ -336,7 +337,7 @@ public class PaperPlayerAnimationGateway(
                 ),
             )
         }
-        if (!server.isPrimaryThread) return offMain("playCustomAnimation")
+        if (server.getPlayer(playerId.uuid)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(it) } != true) return offMain("playCustomAnimation")
         val player = onlinePlayer(playerId) ?: return unknownPlayer(playerId)
         if (animation.value == "hide-main-hand") return hideHand(playerId, player, durationTicks)
         if (animation.value == "swing-main-hand") {
@@ -360,7 +361,7 @@ public class PaperPlayerAnimationGateway(
         val state = PoseOverride(player, previous?.previous ?: player.pose, previous?.fixed ?: player.hasFixedPose())
         poseOverrides[playerId] = state
         player.setPose(org.bukkit.entity.Pose.SNEAKING, true)
-        clock.runLater(com.astarworks.astera.core.application.port.outbound.ticks(durationTicks)) {
+        clock.run(ExecutionScope.Entity(playerId.uuid), com.astarworks.astera.core.application.port.outbound.ticks(durationTicks)) {
             releasePose(playerId, state)
         }
         return Result.success(Unit)

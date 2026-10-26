@@ -62,7 +62,7 @@ public class PaperWorldWeatherGateway(
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun setWeather(world: WorldId, weather: WeatherState) {
-        if (!server.isPrimaryThread) {
+        if (!org.bukkit.Bukkit.isGlobalTickThread()) {
             log.warn(
                 "PaperWorldWeatherGateway.setWeather called off main-thread (world={}, weather={}); ignored",
                 world,
@@ -98,7 +98,7 @@ public class PaperWorldWeatherGateway(
     }
 
     override fun freezeWeather(world: WorldId, frozen: Boolean) {
-        if (!server.isPrimaryThread) {
+        if (!org.bukkit.Bukkit.isGlobalTickThread()) {
             log.warn(
                 "PaperWorldWeatherGateway.freezeWeather called off main-thread (world={}, frozen={}); ignored",
                 world,

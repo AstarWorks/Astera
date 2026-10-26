@@ -49,8 +49,8 @@ services:
       MAX_PLAYERS: "20"
       ONLINE_MODE: "FALSE"
       ENFORCE_SECURE_PROFILE: "FALSE"
-      LEVEL_TYPE: "minecraft:flat"
-      GENERATOR_SETTINGS: '{"biome":"minecraft:plains","features":false,"lakes":false,"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"structure_overrides":[]}'
+      LEVEL_TYPE: "astera:void"
+      GENERATOR_SETTINGS: '{"biome":"minecraft:plains","features":false,"lakes":false,"layers":[{"block":"minecraft:air","height":1}],"structure_overrides":[]}'
       MODE: "survival"
       DIFFICULTY: "normal"
       PVP: "true"

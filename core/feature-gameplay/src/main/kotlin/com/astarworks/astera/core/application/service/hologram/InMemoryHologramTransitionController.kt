@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.application.service.hologram
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IHologramGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -40,7 +42,7 @@ import kotlin.math.roundToInt
  *
  * # Why one repeating task vs. per-transition tasks
  *
- * `IScheduler.runRepeatingTicks(period = 1)` once is cheaper than
+ * `IScheduler.repeatTicks(period = 1)` once is cheaper than
  * registering N scheduler tasks (N transitions concurrent). The tick loop
  * iterates the live transition set, computes each transition's progress
  * from `(currentTick - startTick) / durationTicks`, and writes the
@@ -151,7 +153,7 @@ public class InMemoryHologramTransitionController(
 
     init {
         // Single repeating tick driver. Idempotent on shutdown.
-        schedulerTask = scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) {
+        schedulerTask = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 1L, periodTicks = 1L) {
             step()
         }
     }
@@ -303,10 +305,14 @@ public class InMemoryHologramTransitionController(
         // Snapshot keys so we can mutate `active` during iteration.
         for (transitionHandle in active.keys.toList()) {
             val entry = active[transitionHandle] ?: continue
-            when (entry) {
-                is SingleEntry -> stepSingle(entry, tick)
-                is CompositeEntry -> stepComposite(entry, tick)
-                is TimelineEntry -> stepTimeline(entry, tick)
+            val hologram = lookupHologram(entry.handle) ?: continue
+            scheduler.run(regionScope(hologram.worldId, hologram.position), kotlin.time.Duration.ZERO) {
+                if (active[transitionHandle] !== entry) return@run
+                when (entry) {
+                    is SingleEntry -> stepSingle(entry, tick)
+                    is CompositeEntry -> stepComposite(entry, tick)
+                    is TimelineEntry -> stepTimeline(entry, tick)
+                }
             }
         }
     }
@@ -839,7 +845,7 @@ public class InMemoryHologramTransitionController(
 
     private fun register(transitionHandle: HologramTransitionHandle, entry: ActiveEntry) {
         active[transitionHandle] = entry
-        byHologram.computeIfAbsent(entry.handle) { java.util.concurrent.ConcurrentHashMap.newKeySet() }
+        byHologram.computeIfAbsent(entry.handle) { ConcurrentHashMap.newKeySet() }
             .add(transitionHandle)
     }
 

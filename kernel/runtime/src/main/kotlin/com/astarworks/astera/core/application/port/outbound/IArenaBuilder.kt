@@ -1,13 +1,13 @@
 package com.astarworks.astera.core.application.port.outbound
 
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
 
-/**
- * Outbound port: puts a stage's sky-island layout ([com.astarworks.astera.core.domain.stage.ArenaLayout]) into
- * its world (ADR-0246). The Paper adapter builds into the void `arenas` world; the in-memory default does
- * nothing (the simulator has no blocks to place).
- */
+/** Slot-backed geometry. Claims run on Global; reads are thread safe. */
 public interface IArenaBuilder {
+    public fun acquire(stage: Stage): Result<Stage, ArenaAllocationError>
+    public fun resolve(stageId: StageId): Stage?
 
     /**
      * Makes sure [stageId]'s arena stands in its world: builds it when it was never built or its layout
@@ -16,7 +16,10 @@ public interface IArenaBuilder {
      * Callers must wait/retry before admitting players; this never forces a synchronous large build.
      */
     public fun ensureBuilt(stageId: StageId): Boolean
-
-    /** Shortly after a match: re-places island blocks that players destroyed (objective cells excluded). */
     public fun repairLater(stageId: StageId)
+}
+
+public sealed interface ArenaAllocationError {
+    public data object NotReady : ArenaAllocationError
+    public data object WrongScope : ArenaAllocationError
 }

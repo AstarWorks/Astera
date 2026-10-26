@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.hud
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.hud.IScoreboardManager
 import com.astarworks.astera.core.adapter.api.hud.ScoreboardId
 import com.astarworks.astera.core.application.port.outbound.HudError
@@ -52,7 +53,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  *  - `ActionBar` → `Player.sendActionBar(Component)`. The
  *    vanilla client fades the action bar in ~40 ticks; we re-send on
- *    the TTL boundary (`scheduler.runLater(ticks(ttl - 5), ...)`) when
+ *    the TTL boundary (`scheduler.run(ExecutionScope.Global, ticks(ttl - 5), ...)`) when
  *    `ttl > 5` so persistent readouts (mana, cooldown) don't flicker.
  *    On TTL boundary the cleared-handle check matches
  *    [InMemoryHudGateway.scheduleActionBarTtl] — an explicit `updateFor`
@@ -139,7 +140,7 @@ public class PaperHudGateway(
     init {
         // The client fades an action bar out after ~3 s; the status line (HP) is
         // permanent, so it is re-sent (composited with the live readout) well before that.
-        scheduler.runRepeatingTicks(STATUS_REFRESH_TICKS, STATUS_REFRESH_TICKS) { refreshStatusLines() }
+        scheduler.runRepeatingTicks(ExecutionScope.Global, STATUS_REFRESH_TICKS, STATUS_REFRESH_TICKS) { refreshStatusLines() }
     }
 
     override fun showFor(
@@ -367,10 +368,10 @@ public class PaperHudGateway(
         if (layout !is HudLayout.ActionBar) return
         val ttl = layout.ttlTicks
         if (ttl <= 0) return
-        scheduler.runLater(ticks(ttl.toLong())) {
+        scheduler.run(ExecutionScope.Entity(playerId.uuid), ticks(ttl.toLong())) {
             // Only the latest show / update of the handle may expire it.
-            val current = active[handle] ?: return@runLater
-            if (current.playerId != playerId || current.gen != gen) return@runLater
+            val current = active[handle] ?: return@run
+            if (current.playerId != playerId || current.gen != gen) return@run
             clearFor(playerId, HudRegion.ACTION_BAR)
         }
     }
@@ -397,8 +398,11 @@ public class PaperHudGateway(
     private fun refreshStatusLines() {
         val withStatus = active.values.filter { it.layout is HudLayout.StatusLine }.map { it.playerId }.distinct()
         for (playerId in withStatus) {
-            val player = server.getPlayer(playerId.uuid) ?: continue
-            sendActionBar(player, playerId, liveReadout(playerId))
+            scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
+
+                val player = server.getPlayer(playerId.uuid) ?: return@run
+                sendActionBar(player, playerId, liveReadout(playerId))
+                        }
         }
     }
 

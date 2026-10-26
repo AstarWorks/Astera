@@ -25,10 +25,10 @@ elements:
       drag: 0.04
       life_ticks: [22, 34]
       size: [0.05, 0.12]
-      size_over_life: [1.0, 0.3]
-      color_over_life: ["#ffd24a", "#ff7a18", "#d02010"]
-      alpha_over_life: [1.0, 0.9, 0.0]
-      spin_deg_per_tick: 12
+      size_over_life: [{ t: 0, v: 1.0 }, { t: 1, v: 0.3 }]
+      color_over_life: [{ t: 0, v: "#ffd24a" }, { t: 0.5, v: "#ff7a18" }, { t: 1, v: "#d02010" }]
+      alpha_over_life: [{ t: 0, v: 1.0 }, { t: 0.5, v: 0.9 }, { t: 1, v: 0.0 }]
+      spin_over_life: [{ t: 0, v: 12 }]
 
   # Animated colour / alpha by keyframes: a glyph flash that swells and fades.
   - id: flash

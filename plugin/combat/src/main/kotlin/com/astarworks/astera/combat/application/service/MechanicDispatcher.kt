@@ -1,20 +1,22 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
-import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
 import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
+import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
+import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
+import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
+import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
+import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
+import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
+import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
 import com.astarworks.astera.combat.application.port.outbound.ISummonGateway
 import com.astarworks.astera.combat.application.port.outbound.aoe.IExplosionGateway
 import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGateway
-import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
-import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
-import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
-import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
-import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
-import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
-import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.service.dash.DashStrikeRunner
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
@@ -22,22 +24,24 @@ import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.skill.expression.CelContext
 import com.astarworks.astera.combat.domain.skill.expression.CelSkillScript
+import com.astarworks.astera.combat.domain.skill.expression.CompiledCelScript
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IParticleRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
-import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
-import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
-import com.astarworks.astera.core.application.port.outbound.IParticleRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.effect.IParticleScheduler
-import com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler
 import com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler
 import com.astarworks.astera.core.application.port.outbound.ticks
+import com.astarworks.astera.core.application.service.observability.ExecutionCosts
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.attribute.AttributeKey
 import com.astarworks.astera.core.domain.attribute.AttributeModifier
@@ -70,9 +74,9 @@ import com.astarworks.astera.core.domain.skill.value.NumericValue
 import com.astarworks.astera.core.domain.skill.value.VectorValue
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.world.WorldId
+import java.util.concurrent.ConcurrentHashMap
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 /**
  * Wave _skills-2 (ADR-0077) central runtime: takes a `List<Mechanic>` plus a
  * [MechanicContext] and fires each mechanic against its resolved targets.
@@ -86,8 +90,8 @@ import org.slf4j.LoggerFactory
  * Dispatch loop (per mechanic):
  *
  *  1. Resolve the gating [Condition] — if false (or CEL failure), skip.
- *  2. Resolve timing: `delayTicks > 0` → [IScheduler.runLater]; `periodTicks > 0`
- *     → [IScheduler.runRepeating] (terminated by `durationTicks` or by phase
+ *  2. Resolve timing: `delayTicks > 0` → [IScheduler.run]; `periodTicks > 0`
+ *     → [IScheduler.repeat] (terminated by `durationTicks` or by phase
  *     end, whichever comes first); else execute now.
  *  3. Resolve targets via [TargeterResolver] and dispatch the gameplay /
  *     visual side-effect to the right outbound port.
@@ -183,6 +187,10 @@ public class MechanicDispatcher(
     /** ADR-0220: catalog for `play_vfx`; needs [displayGateway] too, otherwise the mechanic warns and drops. */
     private val vfxRegistry: com.astarworks.astera.core.application.port.outbound.IVfxRegistry? = null,
     private val spriteFrames: com.astarworks.astera.core.domain.effect.vfx.SpriteFrames = com.astarworks.astera.core.domain.effect.vfx.SpriteFrames.NONE,
+    /** ADR-0276: lease service for held-item / armor / body hiding (performances, `hide_held_item`). */
+    private val presentation: (() -> com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation?)? = null,
+    /** ADR-0276: resolves a vfx `body:` id to its skin-rig animation. */
+    private val skinBodies: ((com.astarworks.astera.core.domain.animation.player.CustomAnimationId) -> com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation?)? = null,
     /** WP5: Summon. */
     private val summonGateway: ISummonGateway? = null,
     /** WP5: summon ownership / allegiance bookkeeping, shared with the host's targeting guard. */
@@ -193,6 +201,7 @@ public class MechanicDispatcher(
     private val resourcePool: (() -> com.astarworks.astera.core.application.port.outbound.IResourcePoolService?)? = null,
     private val playerAnimation: com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway? = null,
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
+    private val bakedSkills: ISkillRegistry? = null,
 ) {
 
     /**
@@ -236,6 +245,9 @@ public class MechanicDispatcher(
         resolveDouble = { value, c -> resolveDouble(value, c) },
     )
 
+    /** `hide_held_item` (rig-less skills): a timed lease; a performance claims its own lease in [VfxPlayer]. */
+    private val heldItemHider: HeldItemHider? = presentation?.let { HeldItemHider(it, scheduler) }
+
     /** WP5 mechanics batch B (explode, lightning, blocks, display, summon, heal, glow, shake). */
     private val worldMechanics = WorldMechanics(
         host = this,
@@ -249,6 +261,7 @@ public class MechanicDispatcher(
         summons = summonGateway,
         summonRegistry = summonRegistry,
         effects = entityEffects,
+        heldItems = heldItemHider,
         feedback = feedback,
         messageRenderer = messageRenderer,
         teamLookup = teamLookup,
@@ -269,6 +282,8 @@ public class MechanicDispatcher(
                     sprites = spriteFrames,
                     emitParticle = ::emitVfxParticle,
                     log = log,
+                    presentation = presentation,
+                    bodies = skinBodies,
                 ),
                 targeters = targeterResolver,
                 isLiving = { living(listOf(it)).isNotEmpty() },
@@ -326,6 +341,11 @@ public class MechanicDispatcher(
         run = { mechanics, context -> dispatch(mechanics, context) })
 
     /** Undoes every temporary world change batch B made (blocks, displays, summons, glow) and ends running dashes. */
+    /** Ends every skill performance of [caster] in this tick (death, quit, world change; ADR-0276). */
+    public fun endPerformances(caster: PlayerId) {
+        vfxMechanics?.endFor(caster)
+    }
+
     public fun shutdown() {
         counters.shutdown()
         dashRunner.shutdown()
@@ -388,18 +408,18 @@ public class MechanicDispatcher(
                 // is expected to cancel handles when its phase ends). Phase 1:
                 // we self-terminate after duration ticks; Phase 6 will let the
                 // archetype handler hold the handle and cancel on phase end.
-                val handle = scheduler.runRepeating(
+                val handle = scheduler.repeat(ExecutionScope.Entity(ctx.actorId.uuid),
                     initialDelay = ticks(delay.toLong()),
                     period = ticks(period.toLong()),
                 ) {
                     fireGated(mechanic, livePose(mechanic, ctx))
                 }
                 if (duration > 0) {
-                    scheduler.runLater(ticks((delay + duration).toLong())) { handle.cancel() }
+                    scheduler.run(ExecutionScope.Entity(ctx.actorId.uuid), ticks((delay + duration).toLong())) { handle.cancel() }
                 }
             }
             delay > 0 -> {
-                scheduler.runLater(ticks(delay.toLong())) { fireGated(mechanic, livePose(mechanic, ctx)) }
+                scheduler.run(ExecutionScope.Entity(ctx.actorId.uuid), ticks(delay.toLong())) { fireGated(mechanic, livePose(mechanic, ctx)) }
             }
             else -> {
                 fireGated(mechanic, ctx)
@@ -408,7 +428,12 @@ public class MechanicDispatcher(
     }
 
     /** Runs [mechanic] if its `condition` holds against [ctx] at THIS moment (cast time or fire time). */
-    private fun fireGated(mechanic: Mechanic, ctx: MechanicContext) {
+    private fun fireGated(mechanic: Mechanic, ctx: MechanicContext): Unit =
+        ExecutionCosts.measure(mechanicKinds.get(mechanic.javaClass), ctx.castedSkills.lastOrNull()?.value ?: "unbound") {
+            fireChecked(mechanic, ctx)
+        }
+
+    private fun fireChecked(mechanic: Mechanic, ctx: MechanicContext) {
         if (ctx.boundTargetState?.cancelled == true) return
         if (ctx.boundTargetWorld != null) {
             val target = ctx.targetId
@@ -457,7 +482,7 @@ public class MechanicDispatcher(
         if (sameTick.isNotEmpty()) deferredMovement.getOrPut(id) { ArrayList() } += sameTick
         val release = now + ticks
         heldUntil[id] = maxOf(heldUntil[id] ?: 0L, release)
-        scheduler.runLater(ticks(ticks.toLong())) {
+        scheduler.run(ExecutionScope.Entity(id.uuid), ticks(ticks.toLong())) {
             if ((heldUntil[id] ?: Long.MAX_VALUE) <= scheduler.currentTick()) {
                 heldUntil.remove(id)
                 deferredMovement.remove(id)?.forEach { it() }
@@ -651,7 +676,7 @@ public class MechanicDispatcher(
                 val targets = targeterResolver.resolvePlayers(mechanic.targets, ctx)
                 val dest = resolveLocation(mechanic.destination, ctx) ?: return
                 for (target in targets) {
-                    worldGateway.teleport(target, dest.position, dest.world)
+                    worldGateway.teleportAsync(target, dest.position, dest.world)
                 }
             }
 
@@ -724,7 +749,7 @@ public class MechanicDispatcher(
                     container.addModifier(AttributeModifier(key, AttributeModifier.Operation.ADD, delta, source))
                     // ticks = 0 keeps the modifier for good (until the container is rebuilt).
                     if (lifetime > 0) {
-                        scheduler.runLater(ticks(lifetime.toLong())) { container.removeModifiersBySource(source) }
+                        scheduler.run(ExecutionScope.Entity(target.uuid), ticks(lifetime.toLong())) { container.removeModifiersBySource(source) }
                     }
                 }
             }
@@ -822,6 +847,7 @@ public class MechanicDispatcher(
                 vfx.play(mechanic, ctx, resolveDouble(mechanic.scale, ctx), mechanic.follow?.let { resolveBool(it, ctx) }, mechanic.freeze)
             }
             is Mechanic.Glow -> worldMechanics.glow(mechanic, ctx)
+            is Mechanic.HideHeldItem -> worldMechanics.hideHeldItem(mechanic, ctx)
             is Mechanic.CameraShake -> worldMechanics.cameraShake(mechanic, ctx)
 
             is Mechanic.ScheduleParticleAnimation -> {
@@ -925,7 +951,7 @@ public class MechanicDispatcher(
                     val iterCtx = ctx.copy(tickIndex = ctx.tickIndex + i)
                     // Iteration i runs i * stride ticks after the loop fires (stride 0 = all at once).
                     if (stride > 0 && i > 0) {
-                        scheduler.runLater(ticks((i.toLong() * stride))) { dispatch(mechanic.mechanics, iterCtx) }
+                        scheduler.run(ExecutionScope.Entity(ctx.actorId.uuid), ticks((i.toLong() * stride))) { dispatch(mechanic.mechanics, iterCtx) }
                     } else {
                         dispatch(mechanic.mechanics, iterCtx)
                     }
@@ -1004,17 +1030,17 @@ public class MechanicDispatcher(
 
     internal fun resolveDouble(value: NumericValue, ctx: MechanicContext): Double = when (value) {
         is NumericValue.Literal -> value.value
-        is NumericValue.Cel -> evalCelScalar(value.script) { (it as? Number)?.toDouble() ?: 0.0 } ?: 0.0
+        is NumericValue.Cel -> evalCelScalar(value.script, ctx) { (it as? Number)?.toDouble() ?: 0.0 } ?: 0.0
     }
 
     internal fun resolveInt(value: IntValue, ctx: MechanicContext): Int = when (value) {
         is IntValue.Literal -> value.value
-        is IntValue.Cel -> evalCelScalar(value.script) { (it as? Number)?.toInt() ?: 0 } ?: 0
+        is IntValue.Cel -> evalCelScalar(value.script, ctx) { (it as? Number)?.toInt() ?: 0 } ?: 0
     }
 
     internal fun resolveBool(value: BoolValue, ctx: MechanicContext): Boolean = when (value) {
         is BoolValue.Literal -> value.value
-        is BoolValue.Cel -> evalCelScalar(value.script) { it as? Boolean ?: false } ?: false
+        is BoolValue.Cel -> evalCelScalar(value.script, ctx) { it as? Boolean ?: false } ?: false
     }
 
     internal fun resolveVec3(value: VectorValue, ctx: MechanicContext): Vec3 = when (value) {
@@ -1025,8 +1051,15 @@ public class MechanicDispatcher(
         }
     }
 
-    private fun <T> evalCelScalar(script: String, project: (Any) -> T): T? {
-        return when (val r = celEvaluator.evaluate(CelSkillScript(script), emptyCelContext())) {
+    private val mechanicKinds = object : ClassValue<String>() {
+        override fun computeValue(type: Class<*>): String = "mechanic.${type.simpleName}"
+    }
+
+    private val extraPrograms = ConcurrentHashMap<String, CompiledCelScript>()
+
+    private fun <T> evalCelScalar(script: String, ctx: MechanicContext, project: (Any) -> T): T? {
+        return when (val r = (ctx.castedSkills.lastOrNull()?.let { bakedSkills?.find(it)?.baked?.formulas?.get(script) }
+            ?: extraPrograms.computeIfAbsent(script) { celEvaluator.compile(CelSkillScript(it)) }).evaluate(emptyCelContext())) {
             is Result.Success -> project(r.value)
             is Result.Failure -> {
                 log.warn("CEL script '{}' failed ({}); defaulting", script, r.error)
@@ -1069,7 +1102,7 @@ public class MechanicDispatcher(
     }
 
     private fun resolveCondition(condition: Condition, ctx: MechanicContext): Boolean = when (condition) {
-        is Condition.Cel -> evalCelScalar(condition.script) { it as? Boolean ?: false } ?: false
+        is Condition.Cel -> evalCelScalar(condition.script, ctx) { it as? Boolean ?: false } ?: false
         is Condition.And -> resolveCondition(condition.left, ctx) && resolveCondition(condition.right, ctx)
         is Condition.Or -> resolveCondition(condition.left, ctx) || resolveCondition(condition.right, ctx)
         is Condition.Not -> !resolveCondition(condition.inner, ctx)

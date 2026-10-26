@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.event
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -141,7 +142,7 @@ public class BukkitEventAdapter(
      */
     public fun start(plugin: JavaPlugin): IScheduler.TaskHandle {
         plugin.server.pluginManager.registerEvents(this, plugin)
-        return scheduler.runRepeatingTicks(
+        return scheduler.runRepeatingTicks(ExecutionScope.Global,
             initialDelayTicks = TIME_POLL_PERIOD_TICKS,
             periodTicks = TIME_POLL_PERIOD_TICKS,
         ) {

@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.usecase.spectator
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -40,40 +42,40 @@ public class EnterSpectatorUseCase(
     private val scheduler: IScheduler? = null,
 ) {
 
-    public fun enter(playerId: PlayerId, matchId: MatchId): Result<Unit, SpectatorError> {
+    public fun enter(playerId: PlayerId, matchId: MatchId): CompletableFuture<Result<Unit, SpectatorError>> {
         val current = sessionRepository.find(playerId)
-            ?: return Result.failure(SpectatorError.SessionNotFound(playerId))
+            ?: return CompletableFuture.completedFuture(Result.failure(SpectatorError.SessionNotFound(playerId)))
 
         if (current.state is SessionState.Spectator) {
-            return Result.failure(SpectatorError.AlreadySpectator(playerId))
+            return CompletableFuture.completedFuture(Result.failure(SpectatorError.AlreadySpectator(playerId)))
         }
 
         sessionRepository.upsert(
             current.copy(state = SessionState.Spectator, currentMatch = matchId),
         )
 
-        if (worldGateway != null) {
-            val spawnResult = worldGateway.spectatorSpawn(matchId, playerId)
-            if (spawnResult is Result.Failure) {
-                return Result.failure(SpectatorError.TeleportFailed(spawnResult.error.toString()))
-            }
+        val placed = worldGateway?.spectatorSpawn(matchId, playerId)
+            ?: CompletableFuture.completedFuture(Result.success(Unit))
+        return placed.thenApply { outcome ->
+            if (outcome is Result.Failure) return@thenApply Result.failure(SpectatorError.TeleportFailed(outcome.error.toString()))
+
+
+            // Wave 5match-hud (ADR-0118) — publish PlayerEnteredSpectator so
+            // SpectatorCameraControlListener (freelook gateway wire) + future
+            // audit listeners can react. Optional event bus keeps existing
+            // tests (which omit it) source-compatible.
+            if (eventBus != null) {
+                eventBus.publish(
+                    PlayerEnteredSpectator(
+                        playerId = playerId,
+                        matchId = matchId,
+                        atTick = scheduler?.currentTick() ?: 0L,
+                    ),
+                )
         }
 
-        // Wave 5match-hud (ADR-0118) — publish PlayerEnteredSpectator so
-        // SpectatorCameraControlListener (freelook gateway wire) + future
-        // audit listeners can react. Optional event bus keeps existing
-        // tests (which omit it) source-compatible.
-        if (eventBus != null) {
-            eventBus.publish(
-                PlayerEnteredSpectator(
-                    playerId = playerId,
-                    matchId = matchId,
-                    atTick = scheduler?.currentTick() ?: 0L,
-                ),
-            )
+        return@thenApply Result.success(Unit)
         }
-
-        return Result.success(Unit)
     }
 }
 

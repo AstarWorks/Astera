@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service.hud
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerLabelGateway
@@ -27,11 +28,11 @@ public class MatchNameplateService(
     private val labels: IPlayerLabelGateway,
     private val messages: IMessageRenderer,
     private val hpOf: (PlayerId) -> Double?,
-    scheduler: IScheduler,
+    private val scheduler: IScheduler,
     pollPeriodTicks: Long = DEFAULT_POLL_PERIOD_TICKS,
 ) {
 
-    private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(
+    private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(ExecutionScope.Global,
         initialDelayTicks = pollPeriodTicks,
         periodTicks = pollPeriodTicks,
     ) {
@@ -73,7 +74,7 @@ public class MatchNameplateService(
                 }
             }
         }
-        for (viewer in styled.keys) labels.apply(viewer, styled)
+        for (viewer in styled.keys) scheduler.run(ExecutionScope.Entity(viewer.uuid), kotlin.time.Duration.ZERO) { labels.apply(viewer, styled) }
     }
 
     /** A living player never reads 0 (rounded up), mirroring the status line. */

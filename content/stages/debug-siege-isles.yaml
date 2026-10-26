@@ -3,20 +3,20 @@
 # only the regions it knows by name, so they never get in each other's way. The lanes share this stage, so one siege
 # match runs at a time.
 #
-#                       north island (0,244)  wool-a
+#                       north island (0,-56)  wool-a
 #                      /          |          \
 #   red island ------ centre island (r22) ------ blue island
-#   (-68,300) r22     tnt-spawn (0,292)          (68,300) r22
-#   core(-82,300)     wool-b (0,308)             core(82,300)
-#   jewelry(-78,310)                             jewelry(78,310)
+#   (-68,0) r22     tnt-spawn (0,-8)          (68,0) r22
+#   core(-82,0)     wool-b (0,8)             core(82,0)
+#   jewelry(-78,10)                             jewelry(78,10)
 #                      \          |          /
-#                       south island (0,356)  wool-c
+#                       south island (0,56)  wool-c
 #
 # Cores and jewelry sit at the back of each team island behind a wall arc (the builder raises it behind every core);
 # the spawn pad and the front lane to the centre stay open. Three routes between the bases: through the centre, or
-# round the north / south island. This stage lives at z=300 so it never overlaps the other arenas in the same world.
+# round the north / south island.
 #
-# World `arenas` (void, created by Astera), top layer y=64, players stand at y=65.
+# Stage-local coordinates (the server places the stage in a world slot), top layer y=64, players stand at y=65.
 #
 # Region vocabulary (name -> mode):
 #   core-<team>      1 block, the team's core, ONE ABOVE the floor (y=65)   (break-core)
@@ -32,7 +32,6 @@ id: debug-siege-isles
 
 display_name_key: astera.stage.siege-isles.name
 
-world: debug-arenas
 
 layout:
   marker_version: 2
@@ -40,11 +39,11 @@ layout:
   surface_y: 64
   kill_y: 30
   islands:
-    - { id: red, kind: base, team: red, center: { x: -68, z: 300 }, radius: 22.0 }
-    - { id: blue, kind: base, team: blue, center: { x: 68, z: 300 }, radius: 22.0 }
-    - { id: center, kind: center, center: { x: 0, z: 300 }, radius: 22.0 }
-    - { id: north, kind: outpost, center: { x: 0, z: 244 }, radius: 14.0 }
-    - { id: south, kind: outpost, center: { x: 0, z: 356 }, radius: 14.0 }
+    - { id: red, kind: base, team: red, center: { x: -68, z: 0 }, radius: 22.0 }
+    - { id: blue, kind: base, team: blue, center: { x: 68, z: 0 }, radius: 22.0 }
+    - { id: center, kind: center, center: { x: 0, z: 0 }, radius: 22.0 }
+    - { id: north, kind: outpost, center: { x: 0, z: -56 }, radius: 14.0 }
+    - { id: south, kind: outpost, center: { x: 0, z: 56 }, radius: 14.0 }
   bridges:
     - { from: red, to: center, width: 3 }
     - { from: blue, to: center, width: 3 }
@@ -57,66 +56,66 @@ layout:
 
 regions:
   - name: full-arena
-    min: { x: -105.0, y: 20.0, z: 220.0 }
-    max: { x: 105.0, y: 140.0, z: 380.0 }
+    min: { x: -105.0, y: 20.0, z: -80.0 }
+    max: { x: 105.0, y: 140.0, z: 80.0 }
   - name: base-red
-    min: { x: -92.0, y: 64.0, z: 284.0 }
-    max: { x: -50.0, y: 70.0, z: 316.0 }
+    min: { x: -92.0, y: 64.0, z: -16.0 }
+    max: { x: -50.0, y: 70.0, z: 16.0 }
   - name: base-blue
-    min: { x: 50.0, y: 64.0, z: 284.0 }
-    max: { x: 92.0, y: 70.0, z: 316.0 }
+    min: { x: 50.0, y: 64.0, z: -16.0 }
+    max: { x: 92.0, y: 70.0, z: 16.0 }
   - name: core-red
-    min: { x: -82.0, y: 65.0, z: 300.0 }
-    max: { x: -82.0, y: 65.0, z: 300.0 }
+    min: { x: -82.0, y: 65.0, z: 0.0 }
+    max: { x: -82.0, y: 65.0, z: 0.0 }
   - name: core-blue
-    min: { x: 82.0, y: 65.0, z: 300.0 }
-    max: { x: 82.0, y: 65.0, z: 300.0 }
+    min: { x: 82.0, y: 65.0, z: 0.0 }
+    max: { x: 82.0, y: 65.0, z: 0.0 }
   - name: jewelry-red
-    min: { x: -79.0, y: 64.0, z: 309.0 }
-    max: { x: -77.0, y: 70.0, z: 311.0 }
+    min: { x: -79.0, y: 64.0, z: 9.0 }
+    max: { x: -77.0, y: 70.0, z: 11.0 }
   - name: jewelry-blue
-    min: { x: 77.0, y: 64.0, z: 309.0 }
-    max: { x: 79.0, y: 70.0, z: 311.0 }
+    min: { x: 77.0, y: 64.0, z: 9.0 }
+    max: { x: 79.0, y: 70.0, z: 11.0 }
   - name: tnt-spawn
-    min: { x: -3.0, y: 64.0, z: 289.0 }
-    max: { x: 3.0, y: 70.0, z: 295.0 }
+    min: { x: -3.0, y: 64.0, z: -11.0 }
+    max: { x: 3.0, y: 70.0, z: -5.0 }
   - name: wool-a
-    min: { x: -3.0, y: 64.0, z: 241.0 }
-    max: { x: 3.0, y: 70.0, z: 247.0 }
+    min: { x: -3.0, y: 64.0, z: -59.0 }
+    max: { x: 3.0, y: 70.0, z: -53.0 }
   - name: wool-b
-    min: { x: -3.0, y: 64.0, z: 305.0 }
-    max: { x: 3.0, y: 70.0, z: 311.0 }
+    min: { x: -3.0, y: 64.0, z: 5.0 }
+    max: { x: 3.0, y: 70.0, z: 11.0 }
   - name: wool-c
-    min: { x: -3.0, y: 64.0, z: 353.0 }
-    max: { x: 3.0, y: 70.0, z: 359.0 }
+    min: { x: -3.0, y: 64.0, z: 53.0 }
+    max: { x: 3.0, y: 70.0, z: 59.0 }
 
 spawn_points:
   - team: red
-    position: { x: -65.5, y: 65.0, z: 297.5 }
+    position: { x: -65.5, y: 65.0, z: -2.5 }
     yaw: 270.0
   - team: red
-    position: { x: -65.5, y: 65.0, z: 303.5 }
+    position: { x: -65.5, y: 65.0, z: 3.5 }
     yaw: 270.0
   - team: red
-    position: { x: -63.5, y: 65.0, z: 300.5 }
+    position: { x: -63.5, y: 65.0, z: 0.5 }
     yaw: 270.0
   - team: red
-    position: { x: -67.5, y: 65.0, z: 300.5 }
+    position: { x: -67.5, y: 65.0, z: 0.5 }
     yaw: 270.0
   - team: blue
-    position: { x: 66.5, y: 65.0, z: 297.5 }
+    position: { x: 66.5, y: 65.0, z: -2.5 }
     yaw: 90.0
   - team: blue
-    position: { x: 66.5, y: 65.0, z: 303.5 }
+    position: { x: 66.5, y: 65.0, z: 3.5 }
     yaw: 90.0
   - team: blue
-    position: { x: 64.5, y: 65.0, z: 300.5 }
+    position: { x: 64.5, y: 65.0, z: 0.5 }
     yaw: 90.0
   - team: blue
-    position: { x: 68.5, y: 65.0, z: 300.5 }
+    position: { x: 68.5, y: 65.0, z: 0.5 }
     yaw: 90.0
   - role: lobby
-    position: { x: 0.5, y: 65.0, z: 300.5 }
+    position: { x: 0.5, y: 65.0, z: 0.5 }
   - role: spectator
-    position: { x: 0.5, y: 100.0, z: 300.5 }
+    position: { x: 0.5, y: 100.0, z: 0.5 }
     pitch: 60.0

@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service.item
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.item.IItemEntityGateway
 import com.astarworks.astera.core.application.port.outbound.item.ItemEntityError
@@ -24,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap
  * # Lifetime
  *
  * When [scheduler] is non-null, [spawnItemEntity] schedules a one-shot
- * despawn via [IScheduler.runLaterTicks] (`lifetimeSeconds * 20` ticks). The
+ * despawn via [IScheduler.runTicks] (`lifetimeSeconds * 20` ticks). The
  * scheduler is optional so unit tests can drive the gateway without a real
  * scheduler.
  *
@@ -61,7 +62,7 @@ public class InMemoryItemEntityGateway(
         val effectiveLifetime = lifetimeSeconds ?: IItemEntityGateway.DEFAULT_LIFETIME_SECONDS
         val task: IScheduler.TaskHandle? = scheduler
             ?.takeIf { effectiveLifetime > 0 }
-            ?.runLaterTicks((effectiveLifetime.toLong()) * TICKS_PER_SECOND) {
+            ?.runLaterTicks(regionScope(world, position), (effectiveLifetime.toLong()) * TICKS_PER_SECOND) {
                 entities.remove(handle)
             }
 

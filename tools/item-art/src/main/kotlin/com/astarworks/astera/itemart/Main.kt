@@ -26,6 +26,7 @@ public fun main(args: Array<String>) {
             writePreview(content, Path(args[2]))
             writeSourcesPreview(content, Path(args[2]).resolveSibling("item-art-sources-preview.png"))
             writeSpritePreview(content, Path(args[2]).resolveSibling("sprite-preview.png"))
+            writeParticleSkinPreview(content, Path(args[2]).resolveSibling("particle-skin-preview.png"))
             if (args.size > 3) writeIconPreview(content, Path(args[3]))
             println("item art: $n files under $content, preview ${args[2]}")
         }
@@ -121,6 +122,64 @@ internal fun writeSpritePreview(contentDir: Path, out: Path) {
     }
     Files.createDirectories(out.parent)
     ImageIO.write(sheet, "png", out.toFile())
+}
+
+/**
+ * Every particle skin's frames in a row at x2 (grey skins twice: raw, and multiplied by an orange server tint, since
+ * that is how they render). Deleted when there are no skins.
+ */
+internal fun writeParticleSkinPreview(contentDir: Path, out: Path) {
+    val skins = ParticleSkins.load(contentDir)
+    if (skins.isEmpty()) { Files.deleteIfExists(out); return }
+    val scale = 2
+    val pad = 6
+    val labelW = 170
+    val cell = skins.maxOf { it.size } * scale + pad
+    val maxFrames = skins.maxOf { it.frames }
+    val rows = skins.flatMap { s -> if (s.grey) listOf(s to 0, s to 1) else listOf(s to 0) }
+    val w = labelW + maxFrames * cell + pad
+    val h = rows.size * cell + pad
+    val sheet = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+    val g = sheet.createGraphics()
+    try {
+        g.color = Color(0x15151C)
+        g.fillRect(0, 0, w, h)
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+        g.font = Font(Font.SANS_SERIF, Font.BOLD, 12)
+        val frames = skins.associateWith { ParticleSkins.render(it) }
+        rows.forEachIndexed { row, (skin, variant) ->
+            val y = pad / 2 + row * cell
+            g.color = Color(0xE6E6F0)
+            g.drawString("${skin.type} / ${skin.channel}" + if (skin.grey) (if (variant == 0) " (grey)" else " (tint)") else " (baked)", 6, y + 16)
+            frames.getValue(skin).forEachIndexed { i, frame ->
+                val x = labelW + i * cell
+                g.color = if (variant == 0) Color(0x2A2A36) else Color(0x1B1B24)
+                g.fillRect(x, y, skin.size * scale, skin.size * scale)
+                val shown = if (skin.grey && variant == 1) multiply(frame, 0xFF8A1E) else frame
+                g.drawImage(shown, x, y, skin.size * scale, skin.size * scale, null)
+            }
+        }
+    } finally {
+        g.dispose()
+    }
+    Files.createDirectories(out.parent)
+    ImageIO.write(sheet, "png", out.toFile())
+}
+
+private fun multiply(src: BufferedImage, rgb: Int): BufferedImage {
+    val out = BufferedImage(src.width, src.height, BufferedImage.TYPE_INT_ARGB)
+    val tr = rgb shr 16 and 0xFF
+    val tg = rgb shr 8 and 0xFF
+    val tb = rgb and 0xFF
+    for (y in 0 until src.height) for (x in 0 until src.width) {
+        val p = src.getRGB(x, y)
+        val r = (p shr 16 and 0xFF) * tr / 255
+        val gg = (p shr 8 and 0xFF) * tg / 255
+        val b = (p and 0xFF) * tb / 255
+        out.setRGB(x, y, (p ushr 24 shl 24) or (r shl 16) or (gg shl 8) or b)
+    }
+    return out
 }
 
 /** Contact sheet of the GUI / kit / skill-kind icons. */

@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service.effect
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.effect.IParticleScheduler
@@ -62,7 +63,7 @@ public class InMemoryParticleScheduler(
     // ----- variants ----------------------------------------------------
 
     private fun scheduleOnce(spec: ScheduledParticleSpec.EmitOnce, world: WorldId): EffectHandle {
-        val handle = scheduler.scheduleAt(spec.atTick) {
+        val handle = scheduler.run(regionScope(world, spec.position), ticks((spec.atTick - scheduler.currentTick()).coerceAtLeast(0))) {
             worldGateway.spawnParticle(world, spec.position, spec.particle)
         }
         return TaskBackedHandle(handle)
@@ -70,7 +71,7 @@ public class InMemoryParticleScheduler(
 
     private fun scheduleLoop(spec: ScheduledParticleSpec.Loop, world: WorldId): EffectHandle {
         val composite = CompositeHandle()
-        val period = scheduler.runRepeating(
+        val period = scheduler.repeat(regionScope(world, spec.position),
             initialDelay = ticks(spec.initialDelayTicks),
             period = ticks(spec.intervalTicks),
         ) {
@@ -81,7 +82,7 @@ public class InMemoryParticleScheduler(
         composite.add(period)
         if (spec.durationTicks > 0) {
             val total = spec.initialDelayTicks + spec.durationTicks
-            val cancel = scheduler.runLater(ticks(total)) { composite.cancel() }
+            val cancel = scheduler.run(regionScope(world, spec.position), ticks(total)) { composite.cancel() }
             composite.add(cancel)
         }
         return composite
@@ -92,7 +93,7 @@ public class InMemoryParticleScheduler(
         val per = if (spec.spreadTicks == 0L || spec.count == 1) 0L else spec.spreadTicks / spec.count
         repeat(spec.count) { i ->
             val delay = spec.initialDelayTicks + per * i
-            val task = scheduler.runLater(ticks(delay)) {
+            val task = scheduler.run(regionScope(world, spec.position), ticks(delay)) {
                 if (composite.isActive) {
                     worldGateway.spawnParticle(world, spec.position, spec.particle)
                 }
@@ -100,7 +101,7 @@ public class InMemoryParticleScheduler(
             composite.add(task)
         }
         // Self-complete after the last fire.
-        val complete = scheduler.runLater(
+        val complete = scheduler.run(regionScope(world, spec.position),
             ticks(spec.initialDelayTicks + max(per * spec.count, 0L)),
         ) { composite.markComplete() }
         composite.add(complete)
@@ -114,14 +115,14 @@ public class InMemoryParticleScheduler(
             val frac = if (steps == 0L) 0.0 else i.toDouble() / steps.toDouble()
             val radius = spec.fromRadius + (spec.toRadius - spec.fromRadius) * frac
             val delay = spec.initialDelayTicks + i * spec.stepTicks
-            val task = scheduler.runLater(ticks(delay)) {
+            val task = scheduler.run(regionScope(world, spec.center), ticks(delay)) {
                 if (composite.isActive) {
                     emitRing(world, spec.center, radius, spec.particle)
                 }
             }
             composite.add(task)
         }
-        val complete = scheduler.runLater(
+        val complete = scheduler.run(regionScope(world, spec.center),
             ticks(spec.initialDelayTicks + spec.durationTicks),
         ) { composite.markComplete() }
         composite.add(complete)
@@ -137,14 +138,14 @@ public class InMemoryParticleScheduler(
         for (i in 0..steps) {
             val radius = spec.initialRadius + spec.expandRate * (i * spec.stepTicks)
             val delay = spec.initialDelayTicks + i * spec.stepTicks
-            val task = scheduler.runLater(ticks(delay)) {
+            val task = scheduler.run(regionScope(world, spec.center), ticks(delay)) {
                 if (composite.isActive) {
                     emitRing(world, spec.center, radius, spec.particle)
                 }
             }
             composite.add(task)
         }
-        val complete = scheduler.runLater(
+        val complete = scheduler.run(regionScope(world, spec.center),
             ticks(spec.initialDelayTicks + spec.durationTicks),
         ) { composite.markComplete() }
         composite.add(complete)
@@ -177,7 +178,7 @@ public class InMemoryParticleScheduler(
             task.cancel()
         }
         override val isActive: Boolean
-            get() = task.isActive
+            get() = !task.isCancelled
     }
 
     private class CompositeHandle : EffectHandle {

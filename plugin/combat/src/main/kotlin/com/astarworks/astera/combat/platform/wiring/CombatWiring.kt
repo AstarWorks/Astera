@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.damage.attackerIdOrNull
 import com.astarworks.astera.combat.application.config.StatusEffectInteractionLoader
 import com.astarworks.astera.combat.application.contents.ArmorContents
@@ -138,9 +139,15 @@ public object CombatWiring {
         // replace the legacy Mutable*Registry + *LoaderService pairs and participate
         // in the unified /astera reload <category> dispatcher.
         val skillsContentDir = ctx.contentDir.resolve("skills")
-        val skillContents = SkillContents()
+        val contentCelEvaluator = services.get<ICelEvaluator>() ?: StubCelEvaluator()
+        val skillVfx = services.get<com.astarworks.astera.core.application.port.outbound.IVfxRegistry>()
+        val skillParticles = services.get<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>()
+        val skillContents = SkillContents(contentCelEvaluator, skillVfx, skillParticles)
         val skillReport = skillContents.bootstrap(skillsContentDir)
         logger.info("Skills loaded: ${skillReport.loaded} ok, ${skillReport.failed} failed")
+        logger.info("Top 10 skill lifetime cost estimates:\n" + com.astarworks.astera.combat.application.contents.SkillCostReport.format(
+            com.astarworks.astera.combat.application.contents.SkillCostReport.top(skillContents, skillVfx, skillParticles),
+        ))
 
         val statusContentDir = ctx.contentDir.resolve("status")
         val statusContents = StatusContents()
@@ -199,7 +206,7 @@ public object CombatWiring {
         // Wave 5f (ADR-0035, RTM #21): CEL evaluator port + Stub impl. Real
         // evaluator (JCEL / proxima / DIY) lands in a Phase 6 wave; Phase 1
         // ships the Stub so port consumers can wire against the surface.
-        registrations += services.register<ICelEvaluator>(StubCelEvaluator())
+        registrations += services.register<ICelEvaluator>(contentCelEvaluator)
 
         // WP3: host spatial query (players + mobs) before anything captures it.
         // WP10: wrapped so world structures (Annihilation pillars, IStructureTargets,
@@ -434,7 +441,9 @@ public object CombatWiring {
         // load these from `content/balance/critical.yaml`).
         val knockbackGateway = services.get<IKnockbackGateway>() ?: NoOpKnockbackGateway()
         val armorProvider = services.get<IArmorEquipmentProvider>() ?: StubArmorEquipmentProvider()
-        val nearbyQuery = services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery()
+        val nearbyQuery = com.astarworks.astera.combat.application.service.MeasuredNearbyTargetQuery(
+            services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery(),
+        )
 
         // Wave 6a-N2 (ADR-0155) — projectile service. Paper spawns vanilla
         // Bukkit projectile entities as visual carriers; damage resolution
@@ -546,6 +555,7 @@ public object CombatWiring {
                 nearbyQuery = nearbyQuery,
                 broadcaster = broadcaster,
                 celEvaluator = celEvaluator,
+                bakedSkills = skillContents,
                 scheduler = scheduler,
                 eventBus = eventBus,
                 playerAnimation = services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>(),
@@ -585,8 +595,17 @@ public object CombatWiring {
                 summonGateway = ports.summonGateway?.invoke(services),
                 summonRegistry = summonRegistry,
                 randomizer = damageRandomizer,
+                presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() },
+                skinBodies = { id -> services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>()?.find(id) },
             )
             registrations += services.register<MechanicDispatcher>(mechanicDispatcher)
+            // ADR-0276: every way a performance can end goes through VfxPlayer.finish in the tick it happens.
+            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { event ->
+                mechanicDispatcher.endPerformances(event.victim)
+            }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { event ->
+                mechanicDispatcher.endPerformances(event.playerId)
+            }
             // Temporary blocks, displays and summons must not outlive the plugin.
             shutdownHooks += { mechanicDispatcher.shutdown() }
 
@@ -642,7 +661,7 @@ public object CombatWiring {
                 scheduler = scheduler,
                 eventBus = eventBus,
             )
-            val tickCooldownHandle = scheduler.runRepeatingTicks(
+            val tickCooldownHandle = scheduler.runRepeatingTicks(ExecutionScope.Global,
                 initialDelayTicks = 1L,
                 periodTicks = 1L,
             ) { tickCooldown.execute() }

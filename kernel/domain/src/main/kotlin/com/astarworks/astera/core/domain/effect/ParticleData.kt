@@ -92,15 +92,19 @@ public sealed interface VelocityDirection {
 
 /**
  * Vanilla directed-particle motion: the particle is spawned with `count = 0`, `offset` = unit
- * direction, `extra` = [speed]. A non-zero [spreadDegrees] jitters each particle inside a cone.
+ * direction, `extra` = [speed]. A non-zero [spreadDegrees] jitters each particle inside a cone; a non-zero
+ * [speedJitter] scales each particle's speed by a random factor in `1 +- speedJitter`, so a burst of dozens
+ * of particles fans out into a depth of speeds instead of one shell (ADR-0274).
  */
 public data class ParticleVelocity(
     public val direction: VelocityDirection,
     public val speed: Double,
     public val spreadDegrees: Double = 0.0,
+    public val speedJitter: Double = 0.0,
 ) {
     init {
         require(speed >= 0.0) { "velocity speed must be >= 0: $speed" }
         require(spreadDegrees in 0.0..180.0) { "spread_degrees must be in 0..180: $spreadDegrees" }
+        require(speedJitter in 0.0..1.0) { "speed_jitter must be in 0..1: $speedJitter" }
     }
 }

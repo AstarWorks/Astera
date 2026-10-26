@@ -1,0 +1,45 @@
+# r25 director @15d2d7c7 (wp/integrate-limbus 462017c7 + ADR-0275 amend). Ticks = cast tick (compare frame = tick + 6).
+#   Content: model-artist shading squeeze 0.57-0.77 + luma dark-texel lift (item.vsh/fsh patches), particle-artist
+#   strike_windows (no wind-up sparks) + denser hits, vfx-artist hit-1 ring plane fit (off-plane 0.22, closes fx 12).
+# Regen (bastion_s1_regen.sh steps one by one): no-op. hring window (2.0,4,6,12) off-plane 0.22 closed fx 12, all 4 tiles;
+#   ring (hit 2) unchanged; fx/particle YAML byte-identical; item-art re-encodes of unrelated sprites restored.
+# Every published capture: codeRevision 15d2d7c7 (codeDirty false), contentRevision 1270f2e3 (contentDirty false), TICKS 72.
+# Published (/IdeaProjects/Astera/build/skill-compare-published/bastion-greatsword-s1/<view>/):
+#   compare 8b836e2cd7af (79 f)  side 38edb43fc07b (73 f)  opponent 1459bb96ee31 (73 f)  caster 00c2c1569784 (73 f, HIDE_HUD=0)
+# Tries at load 8-10: compare 4 (#1 codeDirty from a poller .pyc + 3-frame freeze t25-26, #2 invalid camera late 102 ms,
+#   #3 7-frame freeze t26-31), side 3 (#1 stutter t27-30, #2 stutter in the coil t3-6), opponent 1, caster 3 (#1 frozen t0-15,
+#   #2 frozen t0-7). Kept takes: zero true duplicates outside the static tail; compare cameraMaxLatenessMs 96.
+# Display peak (RCON poll display_poll.py, item+block+text displays, minus 10 scene text displays):
+#   compare 43, side 44, opponent 44, caster 45 (<= 60). r24: 41-43 (+2 hring tiles this round).
+
+## Acceptance checks
+Coil (cmp-start-zoom, side-start-3x): t0-3 held/rig diagonal, one sword; t4 blade upright (edge-on, tip up, behind the head in
+  side) for one tick; t5-6 low-back toward the floor; t7 cut to the close-up with the blade at the target. Rig keys are the r24
+  keys (unchanged); the upright frame is key 3 (r25 modeler side t4 "vertical, face to the sky", r24 compare showed it at t3).
+  Reads as lift-then-drop for one frame before the low-back coil. Reference holds low-back from t0. Minor [animation].
+One weapon: every frame start and end in compare/side/opponent; caster FP held t0-2, nothing t3-57, held back t58 (cas-t50-61).
+  End hand-over compare t57 rig -> t58 held, no doubled blade at 2x (cmp-end-zoom); opponent smooth lean to vertical by t53.
+Ring vs blade, hit 1 (side-h1-2x, cmp-t12-23, opp-t0-19): band starts at the coil bottom (strike window fx 2 = skill 5): side
+  t6-8 a thin dotted line low behind the caster on the arc the blade just left (edge-on band), compare t6 one small piece at the
+  tip. Head on the tip t9-12; the loop closes on the follow-through t14-15 (compare) with the blade inside, back low at the
+  floor (~y 0.25), front at head height; one tilted ellipse t15-19, fades t20, gone t21. Never ahead of the blade. Closed ring of
+  r9-r23 is back (r24 3/4 crescent fixed).
+Ring vs blade, hit 2 (side-h2-2x, cmp-t24-39, opp-t24-39): t29 piece behind the caster = trail of the passed blade; head on the
+  tip t30-33; closes t35-38 with the blade at the back. Never ahead. (cmp-h2-zoom t30: blade foreshortened toward the camera, band
+  end reaches the target side = the tip's projected position.)
+Wind-up sparks: none. Warm specks (p25 warm.py, compare): t3-5 17-26 with 0 in the upper 35 % (= hair/guard baseline,
+  r24 had 6-8 sparks above the head t4-5). The only warm pixels before contact are the hit-1 ring band (t6-7).
+Particle density (compare specks): hit 1 t10-22 129-211 (particle-artist r25 take 69-212, same metric), hit 2 t33-40 110-259.
+  Dense, moving, gold/orange; no square, lavender or grey-halo looks.
+Hit sync: tint compare t8 / t32, side t9 / t31, caster t9 / t32 (server contacts 7 / 31, +1-2 client lag).
+Blade luminance (modeler/r25/lum.py, median Rec.709 luma, background-masked band):
+  side   t0 135  t1 134  t2 139  t3 162  t4 154  t5 98 (edge-on low-back)       r24: 108 .. 231
+  compare held t0 159, t1 159, rig t2 157, t3 139, coil t4 69, t5 76 (edge-on: rims)   r24 coil 33-48
+  compare end rig t56 155 / t57 155 -> held t58 158 / t59 158 (match)
+  opponent contact from below t7 130 (face, light-mid grey with dark rails; t8 68 on the rim side)   r24 134
+  Hand-over within 2 % at both ends; no near-white, coil dark grey not black.
+Opponent contact from below (opp-contact-below): light grey face with dark fuller and rims, ring head meeting the blade t8-9.
+Front start step (opp-t0-19): held vertical t0-3, lean ~30 deg t4, horizontal low-left t5. One ~30 deg step (accepted bound).
+First person (cas-*): no blade or particle obstruction; no wind-up cue t3-8 (unchanged playability note); streaks at contact.
+Inventory icon (cas-hotbar-icon, GUI scale 2, slot 1): renders (no magenta), mid-grey blade with dark rims, gold guard, green
+  inlay; vanilla GUI shading (GUI excluded from the rule). Thin at slot size but reads as the greatsword.

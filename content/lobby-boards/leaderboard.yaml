@@ -2,7 +2,7 @@
 # current season (rating, W/L). It floats north of the plaza fountain, in view from the spawn.
 # Only lobby-hosting backends spawn it. Restart (or `make dev-content`) to move it.
 
-world: lobby
+world: world
 x: 0.5
 y: 68.5
 z: -7.5

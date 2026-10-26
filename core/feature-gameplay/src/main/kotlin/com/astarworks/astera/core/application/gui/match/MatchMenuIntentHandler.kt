@@ -35,9 +35,11 @@ public class MatchMenuIntentHandler(
             INTENT_LEAVE -> if (!guiAdapter.open(player, MatchMenuGuiSpec.CONFIRM)) send(player.id, MSG_OPEN_REJECTED)
             INTENT_LEAVE_CONFIRM -> {
                 guiAdapter.close(player)
-                when (val outcome = returnToLobby.returnToLobby(player.id)) {
-                    is Result.Success -> send(player.id, MSG_LEFT)
-                    is Result.Failure -> send(player.id, outcome.error.messageKey)
+                returnToLobby.returnToLobby(player.id).thenAccept { outcome ->
+                    when (outcome) {
+                        is Result.Success -> send(player.id, MSG_LEFT)
+                        is Result.Failure -> send(player.id, outcome.error.messageKey)
+                    }
                 }
             }
             INTENT_HELP -> {

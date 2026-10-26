@@ -140,7 +140,8 @@ class BotBrain(
     private var patrolIndex = 0
     private var patrolHeld = 0L
     private var dwellUntil = 0L
-    private val starPoints: List<Pair<Double, Double>> = objectives?.starPoints().orEmpty()
+    /** Stage-local generator points shifted to the slot the bot plays in (set at each spawn). */
+    private var starPoints: List<Pair<Double, Double>> = emptyList()
     private val visitedAt = HashMap<Int, Long>()
     private val ignoredStars = HashMap<Int, Long>()
     private val starsSeen = HashMap<Int, DoubleArray>()
@@ -188,7 +189,13 @@ class BotBrain(
         if (!wasFighting) {
             wasFighting = true
             spawnX = bot.x; spawnZ = bot.z
-            objective = objectives?.objectiveFor(spawnX, spawnZ)
+            // Stages are authored around (0,0) and pasted into a slot on a fixed grid (ADR-0255): find that slot's origin.
+            val originX = Math.round(spawnX / SLOT_PITCH) * SLOT_PITCH
+            val originZ = Math.round(spawnZ / SLOT_PITCH) * SLOT_PITCH
+            nav.originX = originX; nav.originZ = originZ
+            objective = objectives?.objectiveFor(spawnX - originX, spawnZ - originZ)
+                ?.let { it.copy(x = it.x + originX, z = it.z + originZ) }
+            starPoints = objectives?.starPoints().orEmpty().map { (x, z) -> (x + originX) to (z + originZ) }
             fightStartedAt = now
             nav.clear()
             retreating = false
@@ -644,6 +651,8 @@ class BotBrain(
     }
 
     private companion object {
+        /** Distance between slot origins (SlotAllocator pitch). */
+        const val SLOT_PITCH = 2048.0
         val AMMO_WORD = Regex("reload|リロード")
         const val SIGHT_RANGE = 70.0
         const val MELEE_REACH = 2.9

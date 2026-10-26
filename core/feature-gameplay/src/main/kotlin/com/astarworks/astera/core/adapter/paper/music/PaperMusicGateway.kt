@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.music
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.music.IMusicGateway
 import com.astarworks.astera.core.application.port.outbound.music.IMusicTrackRegistry
@@ -59,7 +60,9 @@ public class PaperMusicGateway(
         emit(player, session)
         val period = def.durationTicks
         if (def.loop && period != null && period > 0L) {
-            session.loop = scheduler.runRepeating(ticks(period), ticks(period)) { restart(session) }
+            // The loop belongs to the listener: it retires with them.
+            session.loop = scheduler.repeat(ExecutionScope.Entity(playerId.uuid), ticks(period), ticks(period)) { restart(session) }
+                .also { it.onRetired { halt(session) } }
         }
         return Result.success(session.handle)
     }

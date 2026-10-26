@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.adapter.paper.cinematic
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.cinematic.CameraError
@@ -45,7 +46,7 @@ import java.util.concurrent.ConcurrentHashMap
  *    detach + publishes `CameraReleased` mirroring the InMemory shape.
  *  - `freeze(player, durationTicks)` → re-targets the player onto
  *    themselves (`setSpectatorTarget(player)`) as a degenerate "look
- *    at self" lock; `IScheduler.runLaterTicks` schedules
+ *    at self" lock; `IScheduler.runTicks` schedules
  *    `releaseCamera` at the end of the window. **Caveat**: vanilla
  *    Bukkit may immediately drop a self-target on input; Wave 6b
  *    `ClientboundPlayerRotationPacket` will provide true rotation
@@ -89,7 +90,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * Bukkit `Player.setSpectatorTarget` requires the main thread. Same
  * contract as ADR-0144 / 0145 / 0146 / 0147 / 0148 — off-main callers
- * must round-trip through `scheduler.runLater(Duration.ZERO, ...)`.
+ * must round-trip through `scheduler.run(ExecutionScope.Entity(playerId.uuid), Duration.ZERO, ...)`.
  *
  * # Registration
  *
@@ -290,7 +291,7 @@ public class PaperCameraGateway(
 
         freezeExpiry.remove(playerId)?.cancel()
         if (durationTicks > 0L) {
-            freezeExpiry[playerId] = scheduler.runLaterTicks(durationTicks) {
+            freezeExpiry[playerId] = scheduler.runLaterTicks(ExecutionScope.Entity(playerId.uuid), durationTicks) {
                 // Per port KDoc: auto-release fires CameraReleased.
                 releaseCamera(playerId)
             }

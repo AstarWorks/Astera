@@ -1,6 +1,7 @@
 package com.astarworks.astera.match.application.eventbus.listeners.match
 
 import com.astarworks.astera.combat.domain.event.PlayerKilled
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
@@ -9,6 +10,7 @@ import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.music.MusicMood
 import com.astarworks.astera.match.domain.event.PhaseChanged
 
@@ -33,10 +35,17 @@ public class MatchCueListener(
         if (recipients.isEmpty()) return
         for (n in MatchCountdownListener.COUNTDOWN_FROM downTo 1) {
             val offset = (MatchCountdownListener.COUNTDOWN_FROM - n).toLong() * MatchCountdownListener.TICKS_PER_SECOND
-            scheduler.runLater(ticks(offset)) { recipients.forEach { presentation.play(PresentationMoments.COUNTDOWN_TICK, it) } }
+            cueAt(recipients, offset, PresentationMoments.COUNTDOWN_TICK)
         }
         val goAt = MatchCountdownListener.COUNTDOWN_FROM.toLong() * MatchCountdownListener.TICKS_PER_SECOND
-        scheduler.runLater(ticks(goAt)) { recipients.forEach { presentation.play(PresentationMoments.COUNTDOWN_GO, it) } }
+        cueAt(recipients, goAt, PresentationMoments.COUNTDOWN_GO)
+    }
+
+    /** Each cue plays on its listener's own thread. */
+    private fun cueAt(recipients: List<PlayerId>, delayTicks: Long, moment: String) {
+        for (player in recipients) {
+            scheduler.run(ExecutionScope.Entity(player.uuid), ticks(delayTicks)) { presentation.play(moment, player) }
+        }
     }
 
     public fun onKilled(event: PlayerKilled) {

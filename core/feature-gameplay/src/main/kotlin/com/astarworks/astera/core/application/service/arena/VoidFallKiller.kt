@@ -13,7 +13,7 @@ public class VoidFallKiller(
     private val health: () -> IPlayerHealthGateway?,
     private val currentTick: () -> Long,
 ) {
-    private val lastKill = HashMap<PlayerId, Long>()
+    private val lastKill = java.util.concurrent.ConcurrentHashMap<PlayerId, Long>()
 
     /**
      * Kills [playerId] unless already dead or killed within the last second. [beforeKill] runs right before the

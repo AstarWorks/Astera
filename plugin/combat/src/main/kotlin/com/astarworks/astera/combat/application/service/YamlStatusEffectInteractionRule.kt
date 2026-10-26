@@ -42,14 +42,26 @@ public class YamlStatusEffectInteractionRule(
      */
     private val rules: List<CompiledRule> = config.rules.map { it.compile() }
 
+    private val ids = rules.flatMap { it.requiredExistingIds }.distinct().withIndex().associate { it.value to it.index }
+    private val offsets = IntArray(rules.size + 1).also { out ->
+        rules.forEachIndexed { i, rule -> out[i + 1] = out[i] + rule.requiredExistingIds.size }
+    }
+    private val required = rules.flatMap { it.requiredExistingIds }.map { ids.getValue(it) }.toIntArray()
+    private val byIncoming = rules.indices.groupBy { rules[it].incomingId }.mapValues { it.value.toIntArray() }
+
     override fun resolve(
         incoming: StatusEffectInstance,
         existing: Collection<StatusEffectInstance>,
     ): StatusInteraction {
-        for (rule in rules) {
-            if (rule.incomingId != incoming.spec.id) continue
-            if (!rule.requiredExistingIds.all { req -> existing.any { it.spec.id == req } }) continue
-            return rule.interaction
+        val candidates = byIncoming[incoming.spec.id] ?: return StatusInteraction.Pass
+        val active = BooleanArray(ids.size)
+        for (effect in existing) ids[effect.spec.id]?.let { active[it] = true }
+        for (index in candidates) {
+            var matches = true
+            for (i in offsets[index] until offsets[index + 1]) {
+                if (!active[required[i]]) { matches = false; break }
+            }
+            if (matches) return rules[index].interaction
         }
         return StatusInteraction.Pass
     }

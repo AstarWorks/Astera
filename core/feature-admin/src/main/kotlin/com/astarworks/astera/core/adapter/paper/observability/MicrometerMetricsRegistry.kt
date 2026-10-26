@@ -41,7 +41,8 @@ public class MicrometerMetricsRegistry(
             .register(delegate)
     }
 
-    override fun scrape(): String = delegate.scrape()
+    override fun scrape(): String = delegate.scrape() +
+        com.astarworks.astera.core.application.service.observability.ExecutionCosts.scrape()
 
     init {
         log.debug("MicrometerMetricsRegistry initialised (delegate={})", delegate.javaClass.simpleName)
