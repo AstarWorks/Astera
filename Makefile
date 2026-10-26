@@ -190,6 +190,10 @@ private-update: ## Pull the latest commit from the private/ submodule
 e2e: ## Integration-window e2e: skips the slowest low-churn suites (E2E_PROFILE=window), writes build/e2e-report.md (exit code = result)
 	bash scripts/e2e.sh
 
+.PHONY: e2e-smoke
+e2e-smoke: ## Merge-gate e2e (E2E_PROFILE=smoke, < 10 min): boot, client packets, first ten minutes, lobby, shop, one objective, bot-vs-bot
+	E2E_PROFILE=smoke bash scripts/e2e.sh
+
 .PHONY: e2e-full
 e2e-full: ## Full e2e: every suite incl. PersonaWeapons / Weapons (same as `make e2e E2E_PROFILE=full`)
 	E2E_PROFILE=full bash scripts/e2e.sh

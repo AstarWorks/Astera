@@ -31,18 +31,23 @@
 # suites (measured on the 2026-10-26 run, ~34 min of bots: PersonaWeaponsE2eTest ~6.3 min, WeaponsE2eTest ~3.8 min);
 # every mode playthrough, Join, Norma, ClientReceives, CueGuard, FirstTenMinutes-style checks still run. `full`
 # (`make e2e-full`) runs everything. An explicit E2E_SKIP or E2E_ONLY always wins over the profile default.
+# `smoke` (`make e2e-smoke`) is the MERGE GATE: a handful of suites that prove boot, client packets, the first-ten-minutes
+# player path, lobby, shop, one objective mode and a full bot-vs-bot match, in well under 10 minutes end to end. `window` and
+# `full` are the later, non-blocking runs. Phase and per-suite wall times are appended to build/e2e-report.md (## Timing).
 # Per-class skip: E2E_SKIP=ClassA,ClassB. Per-class run: E2E_ONLY=ClassA.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
 E2E_PROFILE="${E2E_PROFILE:-window}"
 E2E_WINDOW_SKIP="PersonaWeaponsE2eTest,WeaponsE2eTest"
+E2E_SMOKE_ONLY="BootHealthE2eTest,ClientReceivesE2eTest,FirstTenMinutesE2eTest,LobbyKitE2eTest,LobbyAccessMapE2eTest,ShopPurchaseE2eTest,CaptureWoolPlaythroughE2eTest,BotVsBotE2eTest"
 case "$E2E_PROFILE" in
+  smoke)  E2E_ONLY="${E2E_ONLY:-$E2E_SMOKE_ONLY}"; E2E_SKIP="${E2E_SKIP:-}" ;;
   window) [ -n "${E2E_ONLY:-}" ] || E2E_SKIP="${E2E_SKIP-$E2E_WINDOW_SKIP}" ;;
   full)   E2E_SKIP="${E2E_SKIP:-}" ;;
-  *) echo "[e2e] unknown E2E_PROFILE '$E2E_PROFILE' (window|full)"; exit 2 ;;
+  *) echo "[e2e] unknown E2E_PROFILE '$E2E_PROFILE' (smoke|window|full)"; exit 2 ;;
 esac
-export E2E_SKIP E2E_PROFILE
+export E2E_SKIP E2E_ONLY E2E_PROFILE
 
 E2E_VIA="${E2E_VIA:-velocity}"
 export E2E_VIA
@@ -177,7 +182,7 @@ trap 'exit 143' TERM
 
 reap_stale
 wait_for_load
-LOAD_START="$(load_triple)"; T_START="$(date -u +%FT%TZ)"
+LOAD_START="$(load_triple)"; T_START="$(date -u +%FT%TZ)"; S_START="$(date +%s)"
 echo "[e2e] load avg at start: $LOAD_START ($NPROC cores)"
 echo "[e2e] checkout id $ASTERA_E2E_ID (project $PROJECT); profile $E2E_PROFILE, skipping: ${E2E_SKIP:-nothing}"
 
@@ -191,12 +196,17 @@ echo "[e2e] building the runner in the background; building + starting the backe
 RUNNER_BUILD_PID=$!
 "${C[@]}" up -d --build --wait "${SERVICES[@]}" || { echo "[e2e] backend failed to start"; "${C[@]}" logs --tail 80 "${SERVICES[@]}"; kill "$RUNNER_BUILD_PID" 2>/dev/null; exit 2; }
 
+S_BACKEND="$(date +%s)"
 wait "$RUNNER_BUILD_PID" || { echo "[e2e] runner build failed"; tail -60 "$RUNNER_BUILD_LOG"; exit 2; }
 rm -f "$RUNNER_BUILD_LOG"
 
 docker rm -f "$RUNNER" >/dev/null 2>&1 || true
+S_RUNNER_READY="$(date +%s)"
 "${C[@]}" run --name "$RUNNER" --no-deps e2e-runner
 rc=$?
+S_RUN_END="$(date +%s)"
+TIMINGS=build/e2e-timings.tsv
+docker cp "$RUNNER:/workspace/tools/e2e/build/e2e-timings.tsv" "$TIMINGS" 2>/dev/null || : > "$TIMINGS"
 docker cp "$RUNNER:/workspace/tools/e2e/build/e2e-report.md" "$REPORT" 2>/dev/null \
   && echo "[e2e] report: $REPORT" || echo "[e2e] no report produced"
 docker rm -f "$RUNNER" >/dev/null 2>&1 || true
@@ -212,6 +222,20 @@ LOAD_END="$(load_triple)"
   if [ "$LOAD_WAIT_TIMED_OUT" = 1 ]; then printf -- '- **OVERLOADED at start** (load1 stayed above %sx cores for the whole wait): discard timing results\n' "${E2E_LOAD_FACTOR:-2}"; fi
   if awk -v l="${LOAD_END%% *}" -v n="$NPROC" 'BEGIN{exit !(l > 2*n)}'; then printf -- '- **OVERLOADED at end** (load1 > 2x cores): timing results may be unreliable\n'; fi
 } >> "$REPORT"
+
+# Phase and per-suite wall times (measure before tuning): where the minutes of a run go.
+{
+  printf '\n## Timing\n\n'
+  printf -- '- backend images built + booted healthy: %ss\n' "$((S_BACKEND - S_START))"
+  printf -- '- extra wait for the runner image after the backend: %ss\n' "$((S_RUNNER_READY - S_BACKEND))"
+  printf -- '- runner (gradle start + all suites): %ss\n' "$((S_RUN_END - S_RUNNER_READY))"
+  printf -- '- total since start (excl. load wait and teardown): %ss\n\n' "$((S_RUN_END - S_START))"
+  if [ -s "$TIMINGS" ]; then
+    printf '| Suite | Tests | Wall s |\n|---|---|---|\n'
+    awk -F'\t' '{t[$1]+=$3; n[$1]++; tot+=$3} END{for(k in t) printf "| %s | %d | %.1f |\n", k, n[k], t[k]/1000; printf "| **sum of tests** | | **%.1f** |\n", tot/1000}' "$TIMINGS" | sort -t'|' -k4 -n -r
+  fi
+} >> "$REPORT"
+echo "[e2e] timing: backend $((S_BACKEND - S_START))s, runner-wait $((S_RUNNER_READY - S_BACKEND))s, runner $((S_RUN_END - S_RUNNER_READY))s, total $((S_RUN_END - S_START))s"
 
 # QA-7: Velocity's own verdict. Any exception / decode failure in the proxy log fails the run, even when
 # every bot check passed (the bot that hit it may already have been written off as a flaky disconnect).
