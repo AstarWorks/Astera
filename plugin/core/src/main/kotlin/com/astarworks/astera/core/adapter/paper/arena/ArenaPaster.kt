@@ -44,8 +44,9 @@ internal class ArenaPaster(
         return granted
     }
 
-    fun paste(world: World, plan: ArenaBuildPlan): CompletableFuture<Result<Journal, Error>> =
-        write(world, plan.blocks, Journal(), capture = true)
+    /** The caller owns [journal] so a failed paste can still be rolled back from what it captured before failing. */
+    fun paste(world: World, plan: ArenaBuildPlan, journal: Journal = Journal()): CompletableFuture<Result<Journal, Error>> =
+        write(world, plan.blocks, journal, capture = true)
 
     fun rollback(world: World, journal: Journal): CompletableFuture<Result<Journal, Error>> =
         write(world, journal.before.mapValues { it.value.asString }, Journal(), capture = false)
