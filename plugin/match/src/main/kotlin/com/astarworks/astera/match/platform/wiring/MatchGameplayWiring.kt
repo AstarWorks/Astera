@@ -638,6 +638,7 @@ internal object MatchGameplayWiring {
                 requester.start()
                 env.shutdownHooks += { requester.stop() }
             }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) { botRequester.onQueueLeft(it) }
             val lobbyQueueIntentHandler =
                 com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler(
                     matchmaker = matchmaker,
