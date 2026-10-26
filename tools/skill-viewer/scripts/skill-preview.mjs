@@ -2,7 +2,7 @@
 // rendered from the skill-compare camera without the Minecraft client, plus a reference | preview | real-client strip.
 //
 //   bun scripts/skill-preview.mjs --skill bastion-greatsword-s1 [--case <case id>] [--plan <plan.json>] [--particles <particles.json>]
-//        [--out <dir>] [--size 1280x720] [--ticks 0-53] [--every 4] [--no-ref] [--client <compare capture dir>] [--skin <png>]
+//        [--out <dir>] [--size 1280x720] [--ticks 0-53] [--every 4] [--no-ref] [--client <compare capture dir>] [--skin <png>] [--camera <preset>]
 //
 // Inputs (see docs/contributing/vfx-team/skill-preview.md): build/skill-lint/<skill>/plan.json (make skill-lint-plan),
 // build/skill-preview/<skill>/particles.json (optional), the case's intent camera, content/models + content/textures, the local
@@ -48,7 +48,10 @@ if (!caseId) { console.error(`no skill-compare case plays skill '${skill}' (tool
 const caseDir = join(casesDir, caseId);
 const kase = readJson(join(caseDir, 'case.json'));
 const intent = readJson(join(caseDir, kase.intent?.file ?? 'intent.json'));
-const keys = intent.camera ?? [];
+// --camera <name>: an entry of the intent's camera_presets (vfx-shot CAMERA=<name> films the same camera); default = intent.camera
+const cameraPreset = args.camera && args.camera !== true ? String(args.camera) : null;
+if (cameraPreset && !intent.camera_presets?.[cameraPreset]) { console.error(`case ${caseId}: no camera_presets.${cameraPreset} in the intent (${Object.keys(intent.camera_presets ?? {}).join(', ') || 'none'})`); process.exit(2); }
+const keys = (cameraPreset ? intent.camera_presets[cameraPreset] : intent.camera) ?? [];
 if (!keys.length) { console.error(`case ${caseId}: intent has no camera keys`); process.exit(2); }
 const actor = (id) => (intent.actors ?? []).find((a) => a.id === id)?.keys?.[0]?.pos;
 const casterOrigin = actor('caster') ?? [0, 0, 0];
