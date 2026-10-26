@@ -181,7 +181,7 @@ def defs():
          "flame", 1, 14, burst(0.03), speed=0.012)
     # cut trail (the swept volume between two held poses, emitted on the cut tick)
     vdef("trail", "r28 cut trail: big gold -> ember dust along the swept arc.",
-         "dust_color_transition", 1, 8, burst(0.04), GOLD, dct(GOLD_HOT, EMBER_RED, 0.3), speed=0.0)
+         "dust_color_transition", 1, 8, burst(0.04), GOLD, dct(GOLD, EMBER_RED, 0.17), speed=0.0)
     vdef("trail-crit", "r28 cut trail: crit sparks sprayed off the swept tip arc in every direction.",
          "crit", 2, 8, burst(0.06), velocity="{ direction: along_tangent, speed: 0.32, spread_degrees: 12, speed_jitter: 0.5 }")
     vdef("slash", "r28 vanilla sweep_attack slash on the swept arc (camera-facing, so it reads from every side).",
@@ -192,15 +192,15 @@ def defs():
     vdef("impact-crit", "r28 impact: crit burst, all directions.",
          "crit", 6, 5, burst(0.12), velocity="{ direction: outward, speed: 0.55, spread_degrees: 0, speed_jitter: 0.45 }")
     vdef("impact-dust", "r3b impact: small short gold dust (no big puffs).",
-         "dust_color_transition", 5, 4, burst(0.12), GOLD, dct(WHITE_HOT, ORANGE, 0.4), speed=0.0)
+         "dust_color_transition", 5, 4, burst(0.12), GOLD, dct(GOLD_HOT, ORANGE, 0.2), speed=0.0)
     vdef("impact-smoke", "r3b impact: unused (puffs removed).",
          "smoke", 1, 2, burst(0.05), speed=0.0)
     # staged tiers (principles: convergence = charge / spread = release; phase-shifted rings; rare detail; afterglow)
     vdef("gather", "gather: dust flowing INTO the blade tip before a cut (negative outward speed = convergence).",
-         "dust_color_transition", 1, 6, burst(0.3), GOLD, dct(WHITE_HOT, GOLD, 0.22),
+         "dust_color_transition", 1, 6, burst(0.3), GOLD, dct(GOLD_HOT, GOLD, 0.14),
          velocity="{ direction: outward, speed: -0.09, spread_degrees: 0, speed_jitter: 0.3 }")
     vdef("ring-crit", "release ring: crit sparks thrown radially from points on a ring round the impact (ring-by-ring phase shift).",
-         "dust_color_transition", 1, 6, burst(0.02), GOLD, dct(WHITE_HOT, GOLD, 0.25),
+         "dust_color_transition", 1, 6, burst(0.02), GOLD, dct(GOLD_HOT, GOLD, 0.14),
          velocity="{ direction: outward, speed: 0.3, spread_degrees: 0, speed_jitter: 0.3 }")
     vdef("afterglow", "afterglow: embers rising off the impact point after the release.",
          "flame", 2, 12, burst(0.15), velocity="{ direction: up, speed: 0.04, spread_degrees: 25, speed_jitter: 0.5 }")
