@@ -134,7 +134,8 @@ from rig_path import RigPath  # noqa: E402
 
 SKILL, RIG = "bastion-greatsword-s1", "bastion-s1-rig"
 FX = {"s1h1": "bastion-s1-fx-high", "s1h2": "bastion-s1-fx-low"}
-TARGETS = ROOT / "content/skill-lint" / (SKILL + ".targets.yaml")
+# hold / coil beats (beat-sheet.md): nothing is emitted in these skill ticks [first, last]
+HOLD_BEATS = [(0, 5), (20, 27), (28, 29), (40, 51)]
 
 # near-field: no particle spawns closer than this to the caster's eye (a dust/crit there fills the first-person view);
 # the big sprites (sweep_attack, poof, smoke) keep BIG_NEAR. Distances are to the spawn point; the scatter adds <= 0.2.
@@ -250,12 +251,10 @@ def skill_hits():
 
 
 def none_ticks():
-    """Skill ticks of the `fx: none` beats (hold / coil): nothing may be emitted there (skill-lint check 3)."""
-    t = yaml.safe_load(TARGETS.read_text())
+    """Skill ticks of the hold / coil beats: nothing may be emitted there."""
     out = set()
-    for b in t.get("beats", []):
-        if b.get("fx") == "none":
-            out.update(range(b["ticks"][0], b["ticks"][1] + 1))
+    for a, b in HOLD_BEATS:
+        out.update(range(a, b + 1))
     return out
 
 

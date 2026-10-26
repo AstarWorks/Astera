@@ -21,6 +21,15 @@ LOCK=/tmp/claude-1000/astera-dev-deploy.lock
 SUPERVISOR=astera-dev-autodeploy
 mkdir -p "$STATE" "$(dirname "$LOCK")"
 log() { printf '%s %s\n' "$(date -Is)" "$*" | tee -a "$STATE/deploy.log"; }
+# One greppable line for a FAILED deploy: the reason (failing content file / aborted reload) from build.log, so a
+# manager sees why without opening it. `grep FAILED deploy.log` shows the reasons.
+fail_reason() {
+  local r
+  r=$(tr -d '\r' < "$STATE/build.log" 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g' \
+    | grep -E 'RUNTIME-DECODE FAIL|Failed to load content from|Reload aborted|DEPLOY FAILED|FAIL ' | tail -n 3 | tr '\n' '|' | cut -c1-500) || true
+  printf '%s\n' "${r:-no reason found; see $STATE/build.log}"
+}
+fail() { log "FAILED $* reason: $(fail_reason)"; }
 # Stack commands only (deploy / rollback); `up` / `down` / `status` keep talking to the local daemon.
 use_remote_stack() {
   [ -n "${ASTERA_DEV_HOST:-}" ] || return 0
@@ -187,7 +196,7 @@ deploy() (
         esac
       done
     ) >> "$STATE/build.log" 2>&1; then :; else
-      log "FAILED $sha $step"
+      fail "$sha $step"
       rollback >> "$STATE/build.log" 2>&1 || log "FAILED $sha rollback (manual recovery needed)"
       return 0
     fi
