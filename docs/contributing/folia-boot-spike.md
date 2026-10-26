@@ -354,3 +354,122 @@ The same mechanism carries the main world: `level-type=astera:void` resolves the
   It now `chown`s the world dir to the server uid.
 - `docker/Dockerfile.resource-pack` lacked `COPY kernel` / `COPY core`
   (same fix as `wp/folia-dockerfix`; expect a trivial merge).
+
+
+## Round 4 — packet-only HUD, bundled PacketEvents (2026-10-26)
+
+Code under test: `wp/folia-t9-packet-hud`, based on `cf64f738`, implementing
+ADR-0260. Sidebar models, tab headers/footers/rows, nametag colours and
+below-name HP use the same `PacketSink` on Paper and Folia. There are zero
+Bukkit scoreboard imports/calls in main sources. Title, action bar and boss
+bar remain on Adventure.
+
+### Packaging and ownership
+
+- PacketEvents `2.14.0` comes from `gradle/libs.versions.toml` and is a required
+  runtime library shaded/relocated into Astera-Core. There is no external
+  `packetevents` plugin dependency or Bukkit fallback. The core jar contains
+  exactly one `plugin.yml`, Astera's; the dependency's plugin descriptor is
+  excluded without losing merged service registrations.
+- Each connected player has one virtual client state. Sidebar, labels and tab
+  occupy independent slices. Cosmetic tab names are a baseline beneath explicit
+  tab rows, rendered per viewer without changing real latency. All tab writers,
+  including cosmetics, now use the sink. Diffs and writes execute on that player's
+  `ExecutionScope.Entity`; stale queued frames are coalesced, and quit/owner
+  retirement drops session state. Matching transitions share encoded buffers
+  per client protocol version through a bounded cache; writes retain their own
+  duplicate, and eviction/shutdown releases the cached buffers.
+- The Konsist rule bans Bukkit tab writers and Bukkit/Paper scoreboard imports in **all** main
+  sources, including `kernel/paper` (stronger than an adapter exception).
+  It and the changed plugin-load-order matrix compile; no test/check task was
+  executed for these architecture checks.
+
+### Isolated Folia procedure and HUD result
+
+Used throwaway projects `astera-t9-r4-31024` and
+`astera-t9-r4-final-31024` (plus the final cosmetic integration probe
+`astera-t9-r4-cosmetic-31024`), with `SERVER_TYPE=FOLIA`, own volumes/network and
+only ephemeral loopback ports. The image `astera/t9-packet-hud:folia` derives
+from the previously pinned Folia runtime (`26.3.build.5-alpha`) and copies all
+seven locally compiled plugin jars, current content, void-world datapack and
+startup script. No `astera-dev-*` container was operated on. All projects are
+removed with `down -v` after collecting logs.
+
+All seven plugins enable and Folia reaches `Done`. Two real MCProtocolLib
+clients (`T9HudA`, `T9HudB`) receive the following on a fresh volume:
+
+| Surface | Observed client state |
+|---|---|
+| Lobby sidebar | `Astera`, online count, queue status |
+| Tab header/footer | Localized ASTERA header and populated footer |
+| Queue sidebar | Countdown updates through team-prefix packets |
+| Match sidebar | `Skirmish`, live timer, red/blue kill counts, personal Norma progress |
+| Nametags | Viewer-local `ast_np_*` teams, RED and BLUE |
+| Below-name HP | `ast_np_hp`, both players at 20 HP |
+
+The first fresh-volume probe joins, queues both players and observes the match
+for 30 seconds; no server ERROR or thread-ownership exception occurs. The final
+jars also pass the same two-player probe on a new volume (probe exit 0;
+`Done (19.291s)`). All seven deployed jar hashes match local artifacts.
+Evidence is under `build/t9-*`: `t9-boot-jars.sha256`,
+`t9-folia-container-jars.sha256`, `t9-folia-summary.json`,
+`t9-folia-first-runtime.log`, `t9-folia-probe-first.log`,
+`t9-folia-fresh.log` and `t9-folia-fresh-probe.log`. The final cosmetic integration
+also passes (two-player Skirmish, probe exit 0, 7/7 jar hashes matching,
+zero server errors before shutdown): `t9-folia-cosmetic.log`,
+`t9-folia-cosmetic-probe.log`, `t9-folia-cosmetic-container-jars.sha256`.
+The standalone
+probe uses the existing protocol bot; its debug-level DNS/Unsafe fallback
+messages are client-library messages, not Folia plugin exceptions.
+
+### Next failure layer: saved-player rejoin and entity shutdown
+
+A restart **with the existing world/player data**, followed by rejoining
+`T9HudA` saved at an arena position, exposes a separate lifecycle problem:
+
+1. `PaperLobbyRulesListener.onJoin:54` calls `teleportAsync` during
+   `PlayerJoinEvent`. Folia throws `IllegalStateException: Player is already
+   removed from player chunk loader` in `RegionizedPlayerChunkLoader.removePlayer`.
+2. That region then fails to tick: `ChunkMap.newTrackerTick` dereferences a null
+   entity chunk status (`moonrise$getChunkStatus()`), and Folia shuts down.
+3. Shutdown also fails in `PaperManagedEntities.purge:29`, called by
+   `PaperManagedEntityJanitor.stop:42`: `ServerLevel.getCurrentWorldData()` is
+   null while a managed entity is removed on `RegionShutdownThread`.
+
+The managed-entity shutdown exception also occurs when stopping the successful
+fresh-volume run normally; it is not limited to the crashed rejoin case
+(`build/t9-folia-fresh-full.log`). During that successful fresh-volume boot,
+join and match observation there were zero server ERROR entries.
+
+The lobby sidebar/tab packets were received on the failed rejoin before the region
+failed. No stack points into the packet sink or a Bukkit scoreboard method.
+This is evidence for the join-teleport/entity-lifecycle ownership sweep (T12),
+not evidence that all Folia gameplay is safe. The shutdown failure is an
+ownership-context symptom, although no explicit `isOwnedByCurrentRegion`
+assertion was emitted. Full reproduction logs:
+`build/t9-folia-final.log` and `build/t9-folia-rejoin-probe.log`.
+
+### Paper E2E and harness changes
+
+Added `PacketHudE2eTest` (fresh client state after reconnect and cosmetic tab
+names for existing/new viewers) and extended
+`HudE2eTest` to prove sidebar refreshes preserve labels and create the HP
+objective once. The bot observer now handles `ResetScore` and team-member
+removals/moves; this corrects incomplete protocol bookkeeping. No packet-order
+expectation was added or relaxed. The full serialized Paper run writes
+`build/e2e-report.md`.
+
+- Full Paper run before the final cosmetic-tab integration: **462/462 checks
+  passed**, zero failures; Velocity saw 182 joins with no exception/decode error.
+  Evidence: `build/t9-e2e-full-report.md`, `build/t9-e2e-run.log`,
+  `build/t9-e2e-full-jars.sha256`. It includes the added HP-objective stability
+  and sidebar/tab reconnect checks.
+- Final rebuilt jars: compile-only checks pass. The focused Paper rerun
+  (`HudE2eTest`, `PacketHudE2eTest`) passes **11/11 checks**, zero failures,
+  with 18 proxy joins and no Velocity exception/decode error. This includes
+  the final cosmetic-tab writer, existing/new viewers, reconnect, match labels,
+  stable HP objectives and 16-character nametag team identifiers. Evidence:
+  `build/e2e-report.md`, `build/t9-e2e-focused-report.md` and
+  `build/t9-e2e-focused-run.log`. The complete full-suite report above is retained
+  separately because that run preceded the cosmetic completion.
+

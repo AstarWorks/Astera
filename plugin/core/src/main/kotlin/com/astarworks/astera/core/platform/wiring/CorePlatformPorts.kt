@@ -112,7 +112,7 @@ public class CorePlatformPorts(
     /** Admin panel host operations (online list, gamemode, fly, kick, teleport). Null = in-memory (headless). */
     public val adminPlayerGateway: IAdminPlayerGateway? = null,
     // ---- Infrastructure -------------------------------------------------
-    /** Returns a started interceptor (registered at priority 100) or is null when PacketEvents is absent. */
+    /** Returns a started interceptor (registered at priority 100) or is null for headless hosts. */
     public val packetInterceptor: (() -> IPacketInterceptor)? = null,
     /**
      * Metrics endpoint bootstrap. May register `IMetricsRegistry` and start an

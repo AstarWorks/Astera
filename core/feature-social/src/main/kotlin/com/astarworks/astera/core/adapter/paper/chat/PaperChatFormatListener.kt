@@ -38,7 +38,7 @@ public class PaperChatFormatListener(
         // AsyncChatEvent fires off every game thread, and the renderer must be set before the handler returns,
         // so blocking here stalls no region. Equipped cosmetics are preloaded at login: normally no I/O waits.
         val (nameColor, title) = kotlinx.coroutines.runBlocking {
-            nameColorOf(id) to PaperCosmeticDisplay.titleComponent(cosmetics(), messages(), id)
+            nameColorOf(id) to PaperCosmeticDisplay.titleComponent(cosmetics(), messages(), id, null)
         }
         event.renderer(
             ChatRenderer.viewerUnaware { _, sourceDisplayName, message ->

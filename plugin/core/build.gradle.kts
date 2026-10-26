@@ -17,7 +17,7 @@ dependencies {
     api(project(":kernel:mc-api"))
     api(project(":kernel:paper"))
     api(project(":kernel:runtime"))
-    compileOnly(libs.packetevents.spigot)
+    implementation(libs.packetevents.spigot)
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)
 
@@ -39,6 +39,10 @@ tasks.shadowJar {
     archiveBaseName.set("astera-core")
     archiveClassifier.set("")
     mergeServiceFiles()
+    // PacketEvents ships a plugin.yml too; retain only Astera's descriptor, while merging service files.
+    filesMatching("plugin.yml") { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
+    relocate("com.github.retrooper.packetevents", "com.astarworks.astera.internal.packetevents")
+    relocate("io.github.retrooper.packetevents", "com.astarworks.astera.internal.packetevents.spigot")
 }
 
 tasks.named("build") {

@@ -20,9 +20,8 @@ internal fun CoreWiringState.wireInfrastructure() {
     // ADR-0015 supersede (PacketEvents section only): the deferred-to-Phase 3+
     // posture is replaced with Phase 1 adoption + a type-erased boundary so
     // core.domain stays packet-library-agnostic. The InMemory implementations
-    // ship in Phase 1; the Wave 6c-stub-packetevents Paper adapter swaps
-    // them for PacketEvents-backed variants at priority 100 once the
-    // soft-dep is confirmed loaded.
+    // remain the headless defaults; Paper/Folia always supply the bundled
+    // PacketEvents interceptor at priority 100 (ADR-0260).
     ports.packetInterceptor?.let { create ->
         // Wave 6c-stub-packetevents (ADR-0170): the host factory runs PE lifecycle
         // phase 2 (init) and starts the Netty-backed interceptor; registered at

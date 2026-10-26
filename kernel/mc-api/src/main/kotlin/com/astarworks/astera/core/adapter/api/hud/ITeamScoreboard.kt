@@ -24,9 +24,8 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
  * resolved per-viewer by the Wave 6 Paper adapter; the Wave 5b fake stores
  * them as-is.
  *
- * **Threading.** Same as [IScoreboard]: Bukkit scoreboard mutation must
- * happen on the main server thread in production. The fake is
- * unsynchronized.
+ * **Threading.** Same as [IScoreboard]: production models serialize mutations;
+ * [PacketSink] owns client state on each viewer's Entity scope.
  */
 public interface ITeamScoreboard {
     /** Stable identifier the board was created with. */

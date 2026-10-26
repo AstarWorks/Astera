@@ -78,6 +78,16 @@ class ArchitectureTest {
         }
     }
 
+    @Test
+    fun `main sources must not use Bukkit scoreboards or tab writers (ADR-0260)`() {
+        projectScope().files.filter { it.path.contains("/src/main/") }.assertFalse { file ->
+            file.imports.any {
+                it.name.startsWith("org.bukkit.scoreboard.") || it.name.startsWith("io.papermc.paper.scoreboard.")
+            } || Regex("""\b(?:getScoreboardManager|registerNewObjective|registerNewTeam|clearSlot|playerListName|sendPlayerListHeader|sendPlayerListFooter|sendPlayerListHeaderAndFooter)\s*\(""")
+                .containsMatchIn(sourceWithoutComments(file.text))
+        }
+    }
+
     private fun sourceWithoutComments(text: String): String =
         text.replace(Regex("""/\*.*?\*/|//[^\n]*""", RegexOption.DOT_MATCHES_ALL), " ")
 

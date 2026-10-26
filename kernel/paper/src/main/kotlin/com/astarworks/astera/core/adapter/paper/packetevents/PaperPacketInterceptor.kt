@@ -22,11 +22,8 @@ import java.util.concurrent.CopyOnWriteArrayList
  * Paper-side [IPacketInterceptor] backed by PacketEvents (ADR-0170 Wave 6c-
  * stub-packetevents).
  *
- * Replaces the [com.astarworks.astera.core.application.service.packet.InMemoryPacketInterceptor]
- * default at priority 100 when the PacketEvents plugin is installed on the
- * target server. When PacketEvents is absent the InMemory variant continues
- * to serve and surfaces packet observations only when explicitly dispatched
- * from tests / scenario DSL (per the existing Phase 1 PoC posture).
+ * Required on Paper/Folia with the bundled PacketEvents library (ADR-0260).
+ * Headless hosts use the in-memory interceptor.
  *
  * ## Translation layer
  *

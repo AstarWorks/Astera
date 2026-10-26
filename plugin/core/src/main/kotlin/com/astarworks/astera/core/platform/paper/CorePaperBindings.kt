@@ -14,8 +14,7 @@ import com.astarworks.astera.core.adapter.paper.observability.MatchQueueMetric
 import com.astarworks.astera.core.adapter.paper.observability.MetricsConfig
 import com.astarworks.astera.core.adapter.paper.observability.MicrometerMetricsRegistry
 import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsBootstrap
-import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsTabListPacketSender
-import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsTeamPacketSender
+import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsPacketSink
 import com.astarworks.astera.core.adapter.paper.packetevents.PaperPacketInterceptor
 import com.astarworks.astera.core.adapter.paper.scheduler.PaperScheduler
 import com.astarworks.astera.core.adapter.paper.server.PaperServer
@@ -53,12 +52,6 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 internal class CorePaperBindings(
     private val plugin: JavaPlugin,
-    /**
-     * Wave 6c-stub-packetevents (ADR-0170): whether `onLoad` confirmed the
-     * PacketEvents plugin. PE symbols are only resolved strictly behind this
-     * gate (JLS §5.3.4 lazy resolution keeps vanilla Paper bootable).
-     */
-    private val packetEventsInstalled: Boolean,
     /** Role and proxy name of this backend (ADR-0179). */
     private val serverEnvironment: com.astarworks.astera.core.platform.wiring.ServerEnvironment,
 ) {
@@ -123,6 +116,8 @@ internal class CorePaperBindings(
     private var playGateHologram: com.astarworks.astera.core.adapter.paper.lobby.PaperPlayGateHologram? = null
 
     /** Retained so players' action-bar messages are composed with the HP status line. */
+    private var packetSink: PacketEventsPacketSink? = null
+
     private var paperHudGateway: com.astarworks.astera.core.application.port.outbound.IHudGateway? = null
 
     fun buildPorts(): CorePlatformPorts {
@@ -135,6 +130,8 @@ internal class CorePaperBindings(
         val scheduler: IScheduler = ps
         this.scheduler = scheduler
 
+        val packetSink = PacketEventsPacketSink(server, scheduler).also { this.packetSink = it }
+        server.pluginManager.registerEvents(packetSink, plugin)
         val broadcaster = buildBroadcaster(scheduler)
 
         return CorePlatformPorts(
@@ -154,33 +151,18 @@ internal class CorePaperBindings(
                     messages = messages,
                 ).also { paperGuiAdapter = it }
             },
-            // Wave 6c-stub-packetevents-B (ADR-0171): per-viewer scoreboard locale.
-            // The PE-backed sender is constructed strictly inside the
-            // packetEventsInstalled gate; without PE the scoreboards get null and
-            // keep the shared default-locale baseline.
             scoreboardManager = { services ->
-                val teamPacketSender: com.astarworks.astera.core.adapter.paper.packetevents.ITeamPacketSender? =
-                    if (packetEventsInstalled) PacketEventsTeamPacketSender() else null
                 com.astarworks.astera.core.adapter.paper.hud.PaperScoreboardManager(
-                    server,
-                    services.getOrThrow<IMessageRenderer>(),
-                    teamPacketSender,
+                    services.getOrThrow<IMessageRenderer>(), packetSink,
                 )
             },
-            // Wave 6c-stub-packetevents-C (ADR-0172): per-viewer tab-list locale +
-            // ping badge. Without PE the tab list falls back to server-wide
-            // `Player.playerListName` (the known leaky path).
             tabList = { services ->
-                val tabListPacketSender: com.astarworks.astera.core.adapter.paper.packetevents.ITabListPacketSender? =
-                    if (packetEventsInstalled) PacketEventsTabListPacketSender() else null
                 com.astarworks.astera.core.adapter.paper.hud.PaperTabList(
-                    server,
-                    services.getOrThrow<IMessageRenderer>(),
-                    tabListPacketSender,
-                )
+                    server, services.getOrThrow<IMessageRenderer>(), packetSink,
+                ).also { server.pluginManager.registerEvents(it, plugin) }
             },
             damageIndicatorGateway = { com.astarworks.astera.core.adapter.paper.hud.PaperDamageIndicatorGateway(server, plugin, scheduler) },
-            playerLabelGateway = { com.astarworks.astera.core.adapter.paper.hud.PaperPlayerLabelGateway(server) },
+            playerLabelGateway = { com.astarworks.astera.core.adapter.paper.hud.PaperPlayerLabelGateway(server, packetSink) },
             resourcePack = com.astarworks.astera.core.platform.wiring.ResourcePackEnv.load(logger = logger),
             hudGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.hud.PaperHudGateway(
@@ -389,19 +371,9 @@ internal class CorePaperBindings(
                     ).start(plugin)
                 logger.info("Wave 6b-3: Paper inventory lifecycle + action-lock listeners wired.")
             },
-            packetInterceptor = if (packetEventsInstalled) {
-                {
-                    // Wave 6c-stub-packetevents (ADR-0170) — PE 2.x lifecycle phase 2
-                    // (init). Wraps the PE Netty pipeline; listeners registered
-                    // through IPacketInterceptor.register run on PE's Netty thread
-                    // per the existing ADR-0090 contract.
-                    PacketEventsBootstrap.init()
-                    val paperPacketInterceptor = PaperPacketInterceptor(tickProvider = { scheduler.currentTick() })
-                    paperPacketInterceptor.start()
-                    paperPacketInterceptor
-                }
-            } else {
-                null
+            packetInterceptor = {
+                PacketEventsBootstrap.init()
+                PaperPacketInterceptor(tickProvider = { scheduler.currentTick() }).also { it.start() }
             },
             metrics = { services -> bootstrapMetrics(services) },
             // ADR-0184: operators / LuckPerms-style nodes pass Astera permission checks too.
@@ -581,6 +553,7 @@ internal class CorePaperBindings(
         // ECO-02: equipped title + name colour in the tab list, and the kill-effect particle player.
         val cosmeticDisplay = com.astarworks.astera.core.adapter.paper.cosmetic.PaperCosmeticDisplay(
             server = server,
+            sink = checkNotNull(packetSink),
             scheduler = scheduler,
             cosmetics = { ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
             messages = { ctx.services.get<IMessageRenderer>() },
@@ -923,14 +896,9 @@ internal class CorePaperBindings(
         botRequestGateway = null
         bungeeConnector?.close()
         bungeeConnector = null
-        // Wave 6c-stub-packetevents (ADR-0170) — PE 2.x lifecycle phase 3
-        // (terminate). Mirrors the `onLoad`-gated entry: only call when the
-        // PacketEvents plugin was confirmed installed at load time. Skipped
-        // otherwise so we never resolve `PacketEvents.getAPI()` on a server
-        // without the lib.
-        if (packetEventsInstalled) {
-            PacketEventsBootstrap.terminate()
-        }
+        packetSink?.close()
+        packetSink = null
+        PacketEventsBootstrap.terminate()
         paperScheduler?.stop()
     }
 

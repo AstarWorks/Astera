@@ -71,15 +71,6 @@ public class AsteraCorePlugin : JavaPlugin() {
     public lateinit var contentDir: Path
         private set
 
-    /**
-     * Wave 6c-stub-packetevents (ADR-0170) — set in `onLoad` if the PacketEvents
-     * plugin is installed on the target server. Retained so `onDisable` knows
-     * whether it should call `PacketEvents.getAPI().terminate()`. Stays `false`
-     * when PacketEvents is absent — Astera continues with `InMemoryPacketInterceptor`
-     * at priority 0 (CLAUDE.md §4 invariant: boots vanilla).
-     */
-    private var packetEventsInstalled: Boolean = false
-
     // Retained for onDisable (ADR-0174): wiring subscriptions / registrations,
     // wiring-owned tasks, and the Paper-side teardown.
     private var wiringContext: WiringContext? = null
@@ -87,26 +78,8 @@ public class AsteraCorePlugin : JavaPlugin() {
     private var paperBindings: CorePaperBindings? = null
 
     override fun onLoad() {
-        // Wave 6c-stub-packetevents (ADR-0170) — PacketEvents 2.x lifecycle phase 1.
-        // Called once at plugin load, before onEnable, while every plugin is in
-        // a "loaded but not yet enabled" state. PE requires `setAPI + load`
-        // here so `onEnable.init()` can hand the now-initialised API to its
-        // Netty interceptors. The runtime presence check is intentionally
-        // outside `PacketEventsBootstrap` (which references PE classes) so
-        // class loading stays lazy: when PacketEvents is absent on the target
-        // server, `PacketEventsBootstrap` is never resolved and the
-        // `com.github.retrooper.packetevents.*` symbols never load (avoiding
-        // NoClassDefFoundError per JLS §5.3.4).
-        if (PacketEventsBootstrap.isInstalled(this)) {
-            packetEventsInstalled = true
-            PacketEventsBootstrap.load(this)
-            logger.info("Wave 6c-stub-packetevents: PacketEvents loaded (lifecycle phase 1/3).")
-        } else {
-            logger.info(
-                "Wave 6c-stub-packetevents: PacketEvents plugin not installed — staying on " +
-                    "InMemoryPacketInterceptor (Astera boots vanilla per CLAUDE.md §4).",
-            )
-        }
+        PacketEventsBootstrap.load(this)
+        logger.info("PacketEvents bundled library loaded (ADR-0260).")
     }
 
     override fun onEnable() {
@@ -118,7 +91,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         val ctx = WiringContext(services, contentDir, logger, serverEnvironment.role, serverEnvironment.name)
         logger.info("Server role=${serverEnvironment.role} name=${serverEnvironment.name}")
         wiringContext = ctx
-        val bindings = CorePaperBindings(this, packetEventsInstalled, serverEnvironment)
+        val bindings = CorePaperBindings(this, serverEnvironment)
         paperBindings = bindings
 
         val ports = bindings.buildPorts()

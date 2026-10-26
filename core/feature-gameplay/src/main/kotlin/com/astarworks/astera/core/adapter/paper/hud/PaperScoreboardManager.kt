@@ -4,39 +4,14 @@ import com.astarworks.astera.core.adapter.api.hud.IScoreboard
 import com.astarworks.astera.core.adapter.api.hud.IScoreboardManager
 import com.astarworks.astera.core.adapter.api.hud.ITeamScoreboard
 import com.astarworks.astera.core.adapter.api.hud.ScoreboardId
-import com.astarworks.astera.core.adapter.paper.packetevents.ITeamPacketSender
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
-import org.bukkit.Server
 
-/**
- * Wave 6b Paper [IScoreboardManager] registered at priority 100, replacing
- * the Wave 5b `InMemoryScoreboardManager`.
- *
- * Same lifecycle and id-collision semantics as the in-memory fake (see
- * `IScoreboardManager` KDoc): each [ScoreboardId] is line OR team, never
- * both; cross-flavor collisions throw [IllegalStateException]; idempotent
- * `create*` calls update the title and return the existing instance.
- *
- * Wave 6b backs every created board with a fresh vanilla `Scoreboard`
- * obtained from `Server.scoreboardManager.newScoreboard`. The vanilla
- * `mainScoreboard` is never mutated — restoring viewers via [hide]
- * reassigns them to the main scoreboard so they revert to baseline.
- *
- * Wave 6c-stub-packetevents-B (ADR-0171): [messageRenderer] +
- * [teamPacketSender] are threaded into every created board so each viewer
- * can be served their own locale via per-viewer team UPDATE packets.
- * [teamPacketSender] is null on vanilla Paper (no PacketEvents) — boards
- * then keep the shared default-locale baseline.
- *
- * Threading: same constraint as `PaperScoreboard` — mutating methods run
- * on the main server thread.
- */
+/** Registry of shared models. Client state lives exclusively in PacketSink. */
 public class PaperScoreboardManager(
-    private val server: Server,
-    private val messageRenderer: IMessageRenderer? = null,
-    private val teamPacketSender: ITeamPacketSender? = null,
+    private val messageRenderer: IMessageRenderer,
+    private val sink: com.astarworks.astera.core.adapter.api.hud.PacketSink,
 ) : IScoreboardManager {
 
     private val lineBoards: MutableMap<ScoreboardId, PaperScoreboard> = linkedMapOf()
@@ -54,6 +29,7 @@ public class PaperScoreboardManager(
 
     private val viewers: MutableMap<PlayerId, ActiveBoard> = linkedMapOf()
 
+    @Synchronized
     override fun createScoreboard(id: ScoreboardId, title: MessageKey): IScoreboard {
         check(id !in teamBoards) {
             "ScoreboardId '$id' is already registered as a team-style board."
@@ -62,17 +38,12 @@ public class PaperScoreboardManager(
             it.setTitle(title)
             return it
         }
-        val vanilla = server.scoreboardManager
-            ?.newScoreboard
-            ?: error(
-                "Server.scoreboardManager is null — cannot create scoreboard '$id'. " +
-                    "This happens before the first world is loaded; create boards on onEnable or later.",
-            )
-        val created = PaperScoreboard(id, title, vanilla, server, messageRenderer, teamPacketSender)
+        val created = PaperScoreboard(id, title, messageRenderer, sink)
         lineBoards[id] = created
         return created
     }
 
+    @Synchronized
     override fun createTeamScoreboard(id: ScoreboardId, title: MessageKey): ITeamScoreboard {
         check(id !in lineBoards) {
             "ScoreboardId '$id' is already registered as a line-style board."
@@ -81,20 +52,17 @@ public class PaperScoreboardManager(
             it.setTitle(title)
             return it
         }
-        val vanilla = server.scoreboardManager
-            ?.newScoreboard
-            ?: error(
-                "Server.scoreboardManager is null — cannot create team scoreboard '$id'. " +
-                    "This happens before the first world is loaded; create boards on onEnable or later.",
-            )
-        val created = PaperTeamScoreboard(id, title, vanilla, server, messageRenderer, teamPacketSender)
+        val created = PaperTeamScoreboard(id, title, messageRenderer, sink)
         teamBoards[id] = created
         return created
     }
 
+    @Synchronized
     override fun scoreboard(id: ScoreboardId): IScoreboard? = lineBoards[id]
+    @Synchronized
     override fun teamScoreboard(id: ScoreboardId): ITeamScoreboard? = teamBoards[id]
 
+    @Synchronized
     override fun remove(id: ScoreboardId) {
         val removedLine = lineBoards.remove(id)
         val removedTeam = teamBoards.remove(id)
@@ -103,12 +71,13 @@ public class PaperScoreboardManager(
         while (iter.hasNext()) {
             val (playerId, active) = iter.next()
             if (active.id == id) {
-                detachFromMain(playerId)
+                detachExisting(playerId)
                 iter.remove()
             }
         }
     }
 
+    @Synchronized
     override fun show(playerId: PlayerId, scoreboard: IScoreboard) {
         require(scoreboard is PaperScoreboard) {
             "PaperScoreboardManager.show only accepts PaperScoreboard instances " +
@@ -119,6 +88,7 @@ public class PaperScoreboardManager(
         scoreboard.addViewer(playerId)
     }
 
+    @Synchronized
     override fun show(playerId: PlayerId, scoreboard: ITeamScoreboard) {
         require(scoreboard is PaperTeamScoreboard) {
             "PaperScoreboardManager.show only accepts PaperTeamScoreboard instances " +
@@ -129,14 +99,17 @@ public class PaperScoreboardManager(
         scoreboard.addViewer(playerId)
     }
 
+    @Synchronized
     override fun hide(playerId: PlayerId) {
         detachExisting(playerId)
         viewers.remove(playerId)
     }
 
+    @Synchronized
     override fun currentScoreboard(playerId: PlayerId): IScoreboard? =
         (viewers[playerId] as? ActiveBoard.Line)?.board
 
+    @Synchronized
     override fun currentTeamScoreboard(playerId: PlayerId): ITeamScoreboard? =
         (viewers[playerId] as? ActiveBoard.Team)?.board
 
@@ -148,8 +121,4 @@ public class PaperScoreboardManager(
         }
     }
 
-    private fun detachFromMain(playerId: PlayerId) {
-        val mainScoreboard = server.scoreboardManager?.mainScoreboard ?: return
-        server.getPlayer(playerId.uuid)?.let { it.scoreboard = mainScoreboard }
-    }
 }
