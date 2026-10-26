@@ -2,7 +2,7 @@
 // captures (side / top / front, others behind a toggle) are all drawn from it, see timeline.js for the mappings.
 // Everything for authors lives in the collapsed 作者向け section; the founder's beat marks are the only thing this page writes.
 import { createFrameCache } from "./frame-cache.js";
-import { renderProv } from "./prov.js";
+import { renderProv, renderFresh, sha7, agoText, videoSha } from "./prov.js";
 import { renderMarkdown } from "./markdown.js";
 import { createViews } from "./views.js";
 import { clamp, msToVideoFrame, videoFrameToMs, msToTick, tickToMs, sToMs, castMs } from "./timeline.js";
@@ -15,7 +15,11 @@ const store = { get: (k) => { try { return localStorage.getItem(k); } catch { re
 
 const PRIMARY = ["side"]; // main player = reference + this one slot; top / front sit in the collapsed extra views
 // The side slot has two interchangeable sources: the three.js preview (same orientation as the reference) and the real-client capture.
-const SIDE_SOURCES = { "vfx-preview-side": "プレビュー", "vfx-side": "実機" };
+// Slot default = best available Minecraft source in this order, then any other view; the selector lists every source.
+const SLOT_PRIORITY = ["vfx-compare", "vfx-side", "vfx-preview-side", "vfx-input"];
+const slotSources = (srcs) => Object.keys(srcs).filter((n) => n !== "vfx-viewer" && VIEW_LABEL[n.replace("vfx-", "")])
+  .sort((a, b) => { const r = (n) => { const i = SLOT_PRIORITY.indexOf(n); return i < 0 ? 99 : i; }; return r(a) - r(b); });
+const srcLabel = (n) => n === "vfx-preview-side" ? "プレビュー横" : "実機 " + (n === "vfx-compare" ? "compare" : VIEW_LABEL[n.replace("vfx-", "")]);
 // STOPGAP: real-client `side` captures taken before the vfx-shot side camera moved to the caster's right are mirrored
 // (screen-left = forward). Flip them at display time; captures at/after this instant are already correct. Remove with the old captures.
 const SIDE_MIRRORED_BEFORE = "2026-10-26T23:00:00Z";
@@ -28,18 +32,24 @@ const S = {
   panes: [], rows: [], founder: {}, authorOpen: false, showExtra: false,
 };
 
-fetch("/api/cases/" + encodeURIComponent(caseId)).then((r) => { if (!r.ok) throw new Error("case " + r.status); return r.json(); }).then(init)
-  .catch((e) => { $("title").textContent = "読み込めません: " + e.message; });
+const fetchCase = () => fetch("/api/cases/" + encodeURIComponent(caseId), { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error("case " + r.status); return r.json(); });
+fetchCase().then(init).catch((e) => { $("title").textContent = "読み込めません: " + e.message; });
 
-function init(d) {
-  if (d.case.kind === "pose-review") { location.replace("/stills.html?id=" + encodeURIComponent(d.case.id)); return; }
+/** Fill S from a /api/cases/<id> payload (first load and every live refresh). */
+function adopt(d) {
   S.data = d; S.c = d.case;
   const ps = d.views?.previewSide; // published by skill-preview --camera side; exposed to the side slot as the source "vfx-preview-side"
   if (ps) d.mc.sources["vfx-preview-side"] = { kind: "frames", base: ps.base, count: ps.count, fps: 20, castFrame: ps.castFrame ?? 0, extension: ps.extension, revision: ps.revision, prov: ps.prov };
   S.c.mc ??= { source: "vfx-caster", offset_ms: 0, castTickInTrace: 5 };
+  S.serverOffset = S.c.mc.offset_ms ?? 0;
   S.dur = Math.round((S.c.end_s - S.c.start_s) * 1000);
   S.fps = d.media.ready ? d.media.fps : 30;
   S.frameCount = d.media.ready ? d.media.frameCount : Math.floor((S.dur * S.fps) / 1000);
+}
+
+function init(d) {
+  if (d.case.kind === "pose-review") { location.replace("/stills.html?id=" + encodeURIComponent(d.case.id)); return; }
+  adopt(d);
   S.founder = { ...(d.review?.founder || {}) };
   S.frameCache = createFrameCache(() => { S.needsRedraw = true; });
   S.views = createViews({ S, $, clamp, msToTick, tickToMs, castOf, seek });
@@ -57,7 +67,58 @@ function init(d) {
   if (m) S.ms = clamp(+m[1], 0, S.dur);
   update(true);
   requestAnimationFrame(tickLoop);
+  connectLive();
+  setInterval(() => { S.needsRedraw = true; }, 15000); // ages ("3分前") tick on their own
   window.__ready = true;
+}
+
+// ---- live updates: the server pushes /api/events when anything for this case changed -----------------------------
+// A new published revision swaps the frame URLs (…?v=<revision>) under the unchanged S.ms, so the playhead stays on the same tick.
+let liveCode = null, liveTimer = 0, liveBusy = false, liveAgain = false;
+function connectLive() {
+  if (!window.EventSource) return;
+  const es = new EventSource("/api/events");
+  es.addEventListener("hello", (e) => {
+    const h = JSON.parse(e.data);
+    if (liveCode && h.code !== liveCode) { // the server's own code changed (tools/skill-compare redeployed): reload, keeping the tick
+      history.replaceState(null, "", location.pathname + location.search + "#t=" + Math.round(S.ms)); location.reload(); return;
+    }
+    const first = liveCode === null; liveCode = h.code;
+    if (!first) scheduleRefresh(); // reconnected after a server restart: catch up on what was missed
+  });
+  es.addEventListener("change", (e) => {
+    const c = JSON.parse(e.data);
+    if (c.all || (c.cases || []).includes(caseId)) scheduleRefresh();
+  });
+  es.onerror = () => { $("liveDot").classList.add("off"); };
+  es.onopen = () => { $("liveDot").classList.remove("off"); };
+}
+function scheduleRefresh() { clearTimeout(liveTimer); liveTimer = setTimeout(doRefresh, 250); }
+async function doRefresh() {
+  if (liveBusy) { liveAgain = true; return; }
+  liveBusy = true;
+  try { const d = await fetchCase(); if (d.case.kind !== "pose-review") refresh(d); } catch { /* next event retries */ }
+  liveBusy = false;
+  if (liveAgain) { liveAgain = false; scheduleRefresh(); }
+}
+function refresh(d) {
+  const prevOffset = S.c.mc?.offset_ms ?? 0, edited = prevOffset !== S.serverOffset;   // the page-local cast-offset slider survives
+  const prevSlot = S.panes.find((p) => p.slot)?.name;
+  adopt(d);
+  if (edited) S.c.mc.offset_ms = prevOffset;
+  if (!fTimer) S.founder = { ...(d.review?.founder || {}) };
+  S.ms = clamp(S.ms, 0, S.dur);
+  const skillId = S.c.skill.asteraSkillId || caseId;
+  document.title = `${skillId} - skill compare`;
+  buildHeader(skillId);
+  rebuildPanes(prevSlot);
+  buildRows();
+  buildSound();
+  fillAuthor();
+  S.views.setup();
+  syncControls();
+  S.activeRow = -2;
+  update(true);
 }
 
 const castOf = () => castMs(S.c);
@@ -77,14 +138,19 @@ function buildHeader(skillId) {
   const round = rv.round ?? S.c.iterations;
   if (round != null) { $("roundChip").hidden = false; $("roundChip").textContent = `round ${round}`; }
   if (rv.gate) { $("gateChip").hidden = false; $("gateChip").textContent = rv.gate === 1 ? "ゲート1: ビート表の読みを確認" : "ゲート2: ゲーム内で確認"; }
-  const row = $("shaRow"), chip = (txt, cls, title) => { const e = el("span", "chip " + (cls || ""), txt); if (title) e.title = title; row.append(e); return e; };
+  const row = $("shaRow"); row.textContent = "";
+  $("focusLine").hidden = $("fireLine").hidden = true;
+  const chip = (txt, cls, title) => { const e = el("span", "chip " + (cls || ""), txt); if (title) e.title = title; row.append(e); return e; };
   const cap = captureProv(), dev = d.dev;
-  chip(dev ? `dev 反映 ${dev.sha.slice(0, 7)}${dev.at ? " · " + dev.at.replace("T", " ").slice(0, 16) : ""}` : "dev 反映 不明", dev ? "" : "mute", "dev サーバーに反映されている実装の git sha");
+  chip(dev ? `dev ${sha7(dev.sha)}${dev.at ? " · " + agoText(dev.at) : ""}` : "dev 不明", dev ? "strong" : "mute", "dev サーバーに反映されている実装の git sha" + (dev?.at ? " (" + dev.at + ")" : ""));
   chip(cap?.commit ? `撮影 ${cap.commit.slice(0, 7)}${cap.capturedAt ? " · " + cap.capturedAt.replace("T", " ").slice(0, 16) : ""}` : "撮影 sha 不明", cap?.commit ? "" : "mute", "この映像を撮影した時点の実装の git sha");
-  const contentStale = Object.values(d.mc.sources).some((s) => s.prov?.stale === true);
-  if (dev && cap?.commit && !sameSha(dev.sha, cap.commit)) chip("STALE", "bad", "dev に反映された版と撮影した版が違います。映像は今の dev と一致しません");
-  else if (contentStale) chip("STALE", "bad", "撮影後に content が変わっています");
-  else if (dev && cap?.commit) chip("dev = 撮影 ✔", "ok");
+  // Outdated only when THIS skill's content changed after the video (server: lib/freshness.mjs), never because an unrelated push landed.
+  const fv = Object.values(d.freshness?.views || {}).filter((f) => f.published);
+  const nBuild = fv.filter((f) => f.state === "building").length, nFail = fv.filter((f) => f.state === "failed").length, nOk = fv.filter((f) => f.state === "current").length;
+  if (nFail) chip(`失敗 ${nFail}`, "bad", fv.filter((f) => f.state === "failed").map((f) => f.reason).filter(Boolean).join(" / ") || "生成に失敗");
+  if (nBuild) chip(`生成中… (旧版を表示中) ${nBuild}`, "warn", "この skill の内容が映像の後に変わりました。新しい映像を生成中です");
+  if (!nFail && !nBuild && nOk) chip("最新 ✔", "ok", "この skill の内容は dev と一致 (映像より後の変更なし)");
+  if (!nFail && !nBuild && !nOk && fv.length) chip("版不明", "mute", "映像が撮影時の sha を記録していないため dev と比べられません");
   const skipped = Object.entries(d.mc.sources).filter(([, s]) => (s.prov?.skippedTicks ?? 0) > 0);
   if (skipped.length) chip("未確認 (欠落あり)", "bad", skipped.map(([n, s]) => `${VIEW_LABEL[n.replace("vfx-", "")] || n}: ${s.prov.skippedTicks} tick 欠落`).join(" / "));
   if (rv.focus) { $("focusLine").hidden = false; $("focusText").textContent = rv.focus; }
@@ -109,19 +175,19 @@ function setupSkillNav() {
 function mkPane(host, name, label) {
   const fig = el("figure", "pane"), cap = el("figcaption"), info = el("small");
   cap.append(el("b", "", label), info);
-  const view = el("div", "view"), img = el("img"), ph = el("div", "ph on", "未撮影"), badge = el("div", "badge", ""), miss = el("div", "miss", "未確認 (欠落あり)");
-  badge.hidden = true; miss.hidden = true; img.alt = label; img.style.visibility = "hidden";
-  view.append(img, ph, badge, miss); fig.append(cap, view); host.append(fig);
-  const p = { name, label, fig, img, ph, badge, miss, info };
+  const view = el("div", "view"), img = el("img"), ph = el("div", "ph on", "未撮影"), badge = el("div", "badge", ""), miss = el("div", "miss", "未確認 (欠落あり)"), fresh = el("div", "fresh");
+  badge.hidden = true; miss.hidden = true; fresh.hidden = true; img.alt = label; img.style.visibility = "hidden";
+  view.append(img, ph, badge, miss, fresh); fig.append(cap, view); host.append(fig);
+  const p = { name, label, fig, img, ph, badge, miss, fresh, info };
   S.panes.push(p);
   return p;
 }
 function buildPanes() {
   const srcs = S.data.mc.sources, host = $("panes");
   $("vph").textContent = S.c.status === "from-wiki" ? "原動画に該当技なし・wiki由来の設計" : S.data.media.ready ? "読み込み中…" : "参照区間の映像を準備中";
-  for (const v of PRIMARY) mkPane(host, "vfx-" + v, VIEW_LABEL[v]);
-  buildSideToggle(S.panes[0], srcs);
-  const extras = Object.keys(srcs).map((n) => n.replace("vfx-", "")).filter((v) => !PRIMARY.includes(v) && v !== "preview-side" && VIEW_LABEL[v] && v !== "viewer")
+  for (const v of PRIMARY) mkPane(host, "vfx-" + v, "Minecraft");
+  const slotDefault = buildSideToggle(S.panes[0], srcs);
+  const extras = Object.keys(srcs).filter((n) => n !== slotDefault && n !== "vfx-preview-side").map((n) => n.replace("vfx-", "")).filter((v) => VIEW_LABEL[v] && v !== "viewer")
     .sort((a, b) => (EXTRA_ORDER.indexOf(a) + 99) % 99 - (EXTRA_ORDER.indexOf(b) + 99) % 99);
   for (const v of extras) mkPane($("panesExtra"), "vfx-" + v, VIEW_LABEL[v]);
   $("bMore").hidden = !extras.length;
@@ -133,24 +199,41 @@ function buildPanes() {
   };
   $("moreInfo").textContent = extras.length ? extras.map((v) => VIEW_LABEL[v]).join("・") : "";
 }
+/** Panes follow the set of published views (a first capture of a view adds a pane); the chosen slot source and the extra-views toggle survive. */
+function rebuildPanes(prevSlot) {
+  S.panes.length = 0;
+  for (const f of $("panes").querySelectorAll("figure.pane:not(.ref)")) f.remove();
+  document.querySelectorAll(".sidenote").forEach((e) => e.remove());
+  $("panes").classList.remove("solo");
+  $("panesExtra").textContent = "";
+  buildPanes();
+  const slot = S.panes.find((p) => p.slot);
+  if (slot && prevSlot && prevSlot !== slot.name && S.data.mc.sources[prevSlot]) {
+    const want = srcLabel(prevSlot);
+    [...slot.fig.querySelectorAll(".srctog button")].find((b) => b.textContent === want)?.click();
+  }
+  $("panesExtra").hidden = !S.showExtra;
+  $("bMore").setAttribute("aria-expanded", String(S.showExtra));
+  $("bMore").textContent = S.showExtra ? "その他の視点を隠す ▴" : "その他の視点を表示 ▾";
+}
 function buildSideToggle(p, srcs) {
-  const avail = Object.keys(SIDE_SOURCES).filter((n) => srcs[n]);
+  const avail = slotSources(srcs);
   if (!avail.length) { // nothing to show: reference at full width instead of an empty panel
     S.panes.splice(S.panes.indexOf(p), 1); p.fig.remove(); p.fig.closest(".panes")?.classList.add("solo");
-    $("panes").classList.add("solo"); $("panes").before(el("p", "status sidenote", "横からの映像はまだ作られていません（プレビュー・実機とも未公開）"));
-    return;
+    $("panes").classList.add("solo"); $("panes").before(el("p", "status sidenote", "Minecraft の映像はまだありません（実機・プレビューとも未公開）"));
+    return null;
   }
-  const at = (n) => srcs[n].prov?.capturedAt || "";
-  p.name = avail.reduce((a, b) => (at(b) > at(a) ? b : a)); // default: the newest capture
+  p.name = avail[0];
   p.slot = true;
-  if (avail.length < 2) return;
+  if (avail.length < 2) return p.name;
   const box = el("span", "srctog");
   for (const n of avail) {
-    const b = el("button", "", SIDE_SOURCES[n]); b.type = "button";
+    const b = el("button", "", srcLabel(n)); b.type = "button";
     b.onclick = () => { p.name = n; box.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); update(true); };
     b.setAttribute("aria-pressed", String(n === p.name)); box.append(b);
   }
   p.fig.querySelector("figcaption").insertBefore(box, p.info);
+  return p.name;
 }
 const visiblePanes = () => S.panes.filter((p) => !p.fig.closest("[hidden]"));
 
@@ -181,14 +264,18 @@ function mcFrame(name, ms) {
 function showPane(p, ms) {
   const src = S.data.mc.sources[p.name], f = mcFrame(p.name, ms);
   p.miss.hidden = !((src?.prov?.skippedTicks ?? 0) > 0);
+  const fr = S.data.freshness?.views?.[p.name];
+  renderFresh(p.fresh, fr);
   if (!f) { p.ph.classList.add("on"); p.img.style.visibility = "hidden"; p.info.textContent = ""; p.badge.hidden = true; return; }
   const mirrored = p.slot && sideMirrored(p.name);
-  p.info.textContent = `t+${f.tick}` + (p.slot ? ` · ${SIDE_SOURCES[p.name]} ${(src?.prov?.commit || "sha不明").slice(0, 7)}${mirrored ? " · 表示反転(旧撮影)" : ""}` : "");
+  // every video states the sha it was made from and how old it is
+  const vs = videoSha(src?.prov), age = agoText(src?.prov?.capturedAt);
+  p.info.textContent = `t+${f.tick}` + (p.slot ? ` · ${srcLabel(p.name)}` : "") + ` · ${vs ? sha7(vs) : "sha不明"}${age ? " · " + age : ""}${mirrored ? " · 表示反転(旧撮影)" : ""}`;
   p.img.style.transform = mirrored ? "scaleX(-1)" : "";
   p.badge.hidden = !f.dim; p.badge.textContent = f.tick < 0 ? "発動前" : "撮影範囲の終端";
   const entry = S.frameCache.get(f.url);
   if (entry?.state !== "ready") return; // keep the previous image until the next one is in the browser cache
-  p.img.src = entry.img.src; p.img.classList.toggle("dim", f.dim);
+  p.img.src = entry.img.src; p.img.classList.toggle("dim", f.dim || fr?.state === "building" || fr?.state === "failed");
   p.ph.classList.remove("on"); p.img.style.visibility = "visible";
 }
 function prepareFrames(ms) {
@@ -291,6 +378,7 @@ let fTimer = 0;
 function saveFounderSoon(delay = 600) {
   clearTimeout(fTimer); $("fstatus").textContent = "保存中…";
   fTimer = setTimeout(async () => {
+    fTimer = 0;
     try {
       const who = store.get("skill-compare.who") || "founder";
       const r = await fetch(`/api/cases/${encodeURIComponent(caseId)}/founder`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ founder: S.founder, who }) });
@@ -335,6 +423,18 @@ function buildAuthor() {
   $("moff").value = $("moffn").value = S.c.mc.offset_ms ?? 0;
   const setOff = (v) => { S.c.mc.offset_ms = clamp(Math.round(+v || 0), -5000, 5000); $("moff").value = $("moffn").value = S.c.mc.offset_ms; buildRows(); update(true); };
   $("moff").oninput = (e) => setOff(e.target.value); $("moffn").onchange = (e) => setOff(e.target.value);
+  $("author").addEventListener("toggle", () => {
+    S.authorOpen = $("author").open; update(true);
+    if (S.authorOpen && !S.filesLoaded) loadFiles();
+  });
+  fillAuthor();
+}
+/** The data-driven part of the author section (also re-run by every live refresh). */
+function fillAuthor() {
+  const d = S.data;
+  $("moff").value = $("moffn").value = S.c.mc.offset_ms ?? 0;
+  for (const id of ["provList", "seglist", "log", "sheetText"]) $(id).textContent = "";
+  $("aSheet").hidden = true;
   const pl = $("provList");
   for (const [name, src] of Object.entries(d.mc.sources)) {
     if (!src.prov) continue;
@@ -356,10 +456,6 @@ function buildAuthor() {
     $("aSheet").hidden = false;
     $("sheetText").append(renderMarkdown(bs.markdown.replace(/(!\[[^\]]*\]\()([^)\s/:]+\))/g, "$1img/$2"), { images: bs.images, imgBase: `/beat/${caseId}/` }));
   }
-  $("author").addEventListener("toggle", () => {
-    S.authorOpen = $("author").open; update(true);
-    if (S.authorOpen && !S.filesLoaded) loadFiles();
-  });
 }
 function loadFiles() {
   S.filesLoaded = true;
@@ -425,11 +521,17 @@ function update(force) {
   updateRows(tick);
 }
 
-function setupControls() {
-  const sc = $("scrub"); sc.max = String(S.dur);
-  const dl = el("datalist"); dl.id = "beatmarks";
+/** controls that depend on the case data (duration, beat ticks); re-run by every live refresh */
+function syncControls() {
+  $("scrub").max = String(S.dur);
+  const dl = $("beatmarks"); dl.textContent = "";
   for (const t of beatTicks()) { const o = el("option"); o.value = String(clamp(Math.round(tickMs(t)), 0, S.dur)); dl.append(o); }
-  sc.setAttribute("list", "beatmarks"); sc.after(dl);
+  $("bBeatP").hidden = $("bBeatN").hidden = !beatTicks().length;
+}
+function setupControls() {
+  const sc = $("scrub");
+  const dl = el("datalist"); dl.id = "beatmarks"; sc.setAttribute("list", "beatmarks"); sc.after(dl);
+  syncControls();
   sc.oninput = () => { S.scrubbing = true; S.ms = +sc.value; update(true); };
   sc.onchange = () => { S.scrubbing = false; };
   $("bRetry").onclick = () => S.frameCache.retry();
@@ -437,7 +539,6 @@ function setupControls() {
   $("bTm").onclick = () => stepTick(-1); $("bTp").onclick = () => stepTick(1);
   $("bBeatP").onclick = () => jumpBeat(-1); $("bBeatN").onclick = () => jumpBeat(1);
   $("bSlow").onclick = () => setSlow(!S.slow);
-  const hasBeats = beatTicks().length > 0; $("bBeatP").hidden = $("bBeatN").hidden = !hasBeats;
   window.addEventListener("keydown", (e) => {
     const t = e.target;
     if (t.tagName === "TEXTAREA" || (t.tagName === "INPUT" && t.type !== "range") || t.tagName === "SELECT" || e.ctrlKey || e.metaKey) return;

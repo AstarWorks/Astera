@@ -35,14 +35,14 @@ public fun scenario(
         name, annihilation = annihilation, seed = seed,
         persistenceOverlay = persistenceOverlay, standaloneTeams = standaloneTeams,
     )
-    var trace: Path? = null
+    var trace: Result<Path>? = null
     try {
         ScenarioScope(sim).block()
     } finally {
-        trace = runCatching { sim.writeTrace() }.getOrNull()
+        trace = runCatching { sim.writeTrace() }
         sim.shutdown()
     }
-    return checkNotNull(trace) { "trace could not be written for scenario $name" }
+    return checkNotNull(trace).getOrElse { cause -> throw IllegalStateException("trace could not be written for scenario $name", cause) }
 }
 
 /** Receiver of a scenario block. Everything on [sim] is reachable; the members below are the common verbs. */
@@ -55,7 +55,8 @@ public class ScenarioScope(public val sim: GameSim) {
         at: Vec3 = Vec3(0.0, groundY, 0.0),
         team: String? = null,
         facing: Vec3 = Vec3(0.0, 0.0, 1.0),
-    ): SimEntity = sim.spawnPlayer(name, at, team?.let { TeamId(it) }, facing)
+        clientLocale: String = "en",
+    ): SimEntity = sim.spawnPlayer(name, at, team?.let { TeamId(it) }, facing, clientLocale = clientLocale)
 
     public fun mob(name: String, at: Vec3, team: String? = null): SimEntity =
         sim.spawnMob(name, at, team?.let { TeamId(it) })
@@ -87,8 +88,8 @@ public class ScenarioScope(public val sim: GameSim) {
         sim.breakBlock(this, cell)
     }
 
-    /** Block placed at [cell] in the simulated [world] (default: the sky-island `arenas` world of the shipped stages), or `null`. */
-    public fun blockAt(cell: Vec3, world: String = "arenas"): String? =
+    /** Block placed at [cell] in the simulated [world] (default: the one void `world` the shipped stages are built in, ADR-0255), or `null`. */
+    public fun blockAt(cell: Vec3, world: String = "world"): String? =
         sim.world.blockAt(com.astarworks.astera.core.domain.world.WorldId(world), cell)?.key
 
     /** Presses Q with the held item; [sneaking] selects Shift+Q. The pistol reloads on Q. */

@@ -30,7 +30,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public class SimpleMessageRenderer(
     languages: Map<String, Map<String, Any>>,
     private val localeResolver: (PlayerId?) -> String?,
-    private val defaultLocale: String = "en",
+    private val defaultLocale: String,
 ) : IMessageRenderer, IDynamicMessages {
 
     private val dynamic = java.util.concurrent.ConcurrentHashMap<String, String>()

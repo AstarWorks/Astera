@@ -112,7 +112,7 @@ class SiegeModesScenarioTest {
         scenario("siege-carry-tnt") {
             val runner = player("runner", at = nowhere)
             val guard = player("guard", at = nowhere)
-            val matchId = startMatch("carry-tnt", mapOf(runner to "red", guard to "blue"))
+            val matchId = startMatch("carry-tnt", mapOf(runner to "red", guard to "blue"), stage = "siege-isles-tnt")
             assertThat(blockAt(tntSpawn.copy(y = 64.0))).isEqualTo("minecraft:tnt")
 
             // Delivering without the TNT scores nothing.
@@ -185,7 +185,7 @@ class SiegeModesScenarioTest {
         scenario("siege-steal-jewelry") {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
-            val matchId = startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"))
+            val matchId = startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"), stage = "siege-isles-jewelry")
             val bluePedestal = Vec3(101.0, 65.0, 10.0)
             val pedestalMarker = Vec3(101.0, 64.0, 10.0)
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:diamond_block")
@@ -222,7 +222,7 @@ class SiegeModesScenarioTest {
         scenario("siege-battle-loyal") {
             val ace = player("ace", at = Vec3(0.0, groundY, 0.0))
             val prey = player("prey", at = Vec3(0.0, groundY, 10.0))
-            val matchId = startMatch("battle-loyal", mapOf(ace to "red", prey to "blue"))
+            val matchId = startMatch("battle-loyal", mapOf(ace to "red", prey to "blue"), stage = "siege-isles-loyal")
             ace.position = Vec3(0.0, groundY, 0.0)
             prey.position = Vec3(0.0, groundY, 10.0)
             ace.holds("pistol")
@@ -247,7 +247,7 @@ class SiegeModesScenarioTest {
 
     // ---- queue lanes ------------------------------------------------------
 
-    @ParameterizedTest(name = "lane {0} forms a match on its own siege-isles stage for two queued players")
+    @ParameterizedTest(name = "lane {0} forms a match on its own stage for two queued players")
     @ValueSource(strings = ["break-core", "carry-tnt", "capture-wool", "steal-jewelry", "battle-loyal", "carry-mini-tnt"])
     fun `each siege lane forms a match once both sides have a player`(lane: String) {
         scenario("siege-lane-$lane") {
@@ -260,8 +260,13 @@ class SiegeModesScenarioTest {
             assertThat(advanceUntil(600) { eventsOf<MatchStarted>().isNotEmpty() }).isTrue()
             val started = eventsOf<MatchStarted>().single()
             assertThat(started.modeKey).isEqualTo(lane)
-            // MODE-06: every siege lane has its own stage copy (siege-isles, siege-isles-tnt, ...).
-            assertThat(started.stageId).isEqualTo(StageId(if (lane == "break-core") "siege-isles" else "siege-isles-${lane.removePrefix("carry-").removePrefix("capture-").removePrefix("steal-").removePrefix("battle-")}"))
+            // MODE-06 / ADR-0281: break-core and capture-wool run on imported worlds, the other lanes on their own siege-isles copy.
+            val stage = when (lane) {
+                "break-core" -> "medieval-village"
+                "capture-wool" -> "temple-trouble"
+                else -> "siege-isles-${lane.removePrefix("carry-").removePrefix("steal-").removePrefix("battle-")}"
+            }
+            assertThat(started.stageId).isEqualTo(StageId(stage))
             // The 10 s in-arena countdown ends and the match is live.
             assertThat(advanceUntil(20 * 15) { phaseOf(started.matchId) == MatchPhase.ACTIVE }).isTrue()
         }

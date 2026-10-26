@@ -78,6 +78,7 @@ class HudScenarioTest {
         "carry-tnt,    astera.hud.sidebar.carry-tnt.team",
         "capture-wool, astera.hud.sidebar.capture-wool.team",
         "steal-jewelry, astera.hud.sidebar.steal-jewelry.team",
+        "carry-mini-tnt, astera.hud.sidebar.carry-mini-tnt.team",
     )
     fun `siege mode sidebars show a live phase line and per-team objective progress`(mode: String, teamKey: String) {
         scenario("hud-sidebar-$mode") {
@@ -88,7 +89,7 @@ class HudScenarioTest {
 
             val sidebar = checkNotNull(sim.hud.sidebar(red.id)) { "$mode: no match sidebar" }
             assertThat(sidebar.titleKey.value).isEqualTo("astera.gamemode.$mode.title")
-            assertThat(sidebar.keys().first()).isEqualTo("astera.hud.sidebar.phase.active")
+            assertThat(sidebar.keys().first()).isIn("astera.hud.sidebar.phase.active", "astera.hud.sidebar.phase.active-limited")
             val teamLines = sidebar.texts().filter { it.messageKey.value == teamKey }
             assertThat(teamLines.map { it.placeholders["team"] }).hasSize(2)
             assertThat(sidebar.texts().first { it.messageKey.value == "astera.hud.sidebar.you" }.placeholders)

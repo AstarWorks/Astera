@@ -10,7 +10,7 @@
 <body>
 <div id="app" class="cp">
   <header class="hd">
-    <div class="hd-nav"><span class="crumb" id="crumb"><a href="/">&larr; 武器一覧</a></span><nav id="skillnav" aria-label="この武器のスキル"></nav></div>
+    <div class="hd-nav"><span class="live" id="liveDot" title="live: サーバーから自動更新されます (赤 = 切断中)"></span><span class="crumb" id="crumb"><a href="/">&larr; 武器一覧</a></span><nav id="skillnav" aria-label="この武器のスキル"></nav></div>
     <div class="hd-title">
       <h1 id="title">読み込み中&hellip;</h1>
       <span class="chip strong" id="roundChip" hidden></span>
@@ -65,7 +65,7 @@
           <h3>プレビュー・注釈オーバーレイ</h3>
           <div class="panes small">
             <figure class="pane pv" id="pvPane"><figcaption><b>プレビュー（実機ではない）</b><small id="pinfo"></small></figcaption>
-              <div class="view"><img id="pimg" alt="preview frame" style="visibility:hidden"><div class="ph on" id="pph">no preview frames</div><div class="badge" id="pbadge" hidden></div></div>
+              <div class="view"><img id="pimg" alt="preview frame" style="visibility:hidden"><div class="ph on" id="pph">no preview frames</div><div class="badge" id="pbadge" hidden></div><div class="fresh" id="pfresh" hidden></div></div>
               <div class="pvwarn" id="pvwarn" hidden></div><div class="prov" id="pvprov"></div></figure>
             <figure class="pane ov" id="ovPane" hidden><figcaption><b>注釈オーバーレイ</b><small id="ovlabel"></small></figcaption>
               <div class="view"><img id="vov" alt="annotation overlay"></div></figure>

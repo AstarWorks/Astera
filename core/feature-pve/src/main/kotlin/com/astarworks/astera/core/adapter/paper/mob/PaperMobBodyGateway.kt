@@ -53,6 +53,8 @@ import java.util.concurrent.ConcurrentHashMap
  */
 public class PaperMobBodyGateway(
     private val plugin: JavaPlugin,
+    /** Server default language (ADR-0283); a vanilla custom name is world-shared, so there is no per-viewer variant. */
+    private val defaultLocale: LocaleCode,
 ) : IMobBodyGateway, Listener {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -140,7 +142,7 @@ public class PaperMobBodyGateway(
             eq.itemInOffHandDropChance = 0f
         }
 
-        val name = spec.displayName.get(LocaleCode.EN)
+        val name = spec.displayName.get(defaultLocale)
         if (name.isNotBlank()) {
             entity.customName(mini.deserialize(name))
             entity.isCustomNameVisible = spec.appearance.customNameVisible

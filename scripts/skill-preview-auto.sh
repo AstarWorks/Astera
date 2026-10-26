@@ -54,6 +54,15 @@ if ! (cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null 2>&1 && 
 fi
 for s in "${cases[@]}"; do
   t0=$SECONDS
+  # The headless preview needs a performance rig (a vfx with weapon: main_hand or body); skills without one cannot be previewed.
+  has_rig=0
+  for v in $(grep -ohE 'vfx_id:[[:space:]]*[a-z0-9-]+' "content/skills/$s.yaml" | sed -E 's/vfx_id:[[:space:]]*//' | sort -u); do
+    if [ -f "content/vfx/$v.yaml" ] && grep -qE '^[[:space:]]*(weapon:[[:space:]]*main_hand|body:)' "content/vfx/$v.yaml"; then has_rig=1; break; fi
+  done
+  if [ "$has_rig" = 0 ]; then
+    log "preview-skip $sha $s: plays no performance vfx (no rig with weapon: main_hand)"
+    continue
+  fi
   out=build/skill-preview/$s
   if {
     ./gradlew :tools:game-sim:skillLintPlan -Pskill="$s" -q --offline \

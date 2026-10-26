@@ -1,0 +1,9 @@
+# S3 pillar floor lightning: electric sparks skittering out from the planted sword base.
+id: bastion-s3-p-volt
+shape: { kind: burst, spread_blocks: 0.3 }
+color: { r: 255, g: 255, b: 255 }
+count: 3
+lifetime_ticks: 9
+vanilla_particle: electric_spark
+velocity: { direction: outward, speed: 0.35, spread_degrees: 0, speed_jitter: 0.5 }
+force: true

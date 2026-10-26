@@ -41,6 +41,11 @@ public class FakeScheduler(startTick: Long = 0L) : IScheduler {
 
     override fun currentTick(): Long = now
 
+    /** Scope of the task being run right now, `null` outside any task (lets a fake mimic Paper's Global-thread checks). */
+    @Volatile
+    public var currentScope: ExecutionScope? = null
+        private set
+
     override fun run(scope: ExecutionScope, delay: Duration, block: () -> Unit): IScheduler.TaskHandle =
         enqueue(scope, delay, null, block)
 
@@ -74,7 +79,9 @@ public class FakeScheduler(startTick: Long = 0L) : IScheduler {
             val task = queue.remove()
             now = task.fireAt
             if (task.isCancelled) continue
-            task.block()
+            val outer = currentScope
+            currentScope = task.scope
+            try { task.block() } finally { currentScope = outer }
             if (task.period != null && !task.isCancelled) {
                 task.fireAt += task.period
                 task.sequence = sequence++

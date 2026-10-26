@@ -77,7 +77,7 @@ class BotTwoWeaponsScenarioTest {
             )
 
             // Range: the rifle (20 rounds) fires until empty and the bot reloads it.
-            fighter.phase(12.0, 260)
+            fighter.phase(12.0, RANGE_TICKS)
             val rangedHits = eventsOf<DamageDealt>().count { it.attacker == bot.id }
             assertThat(rangedHits).`as`("rifle hits at range").isGreaterThan(0)
             assertThat(eventsOf<ResourceReloaded>()).`as`("empty rifle was reloaded").isNotEmpty()
@@ -106,7 +106,7 @@ class BotTwoWeaponsScenarioTest {
                 listOf(Weapon(0, WeaponKind.RANGED), Weapon(1, WeaponKind.RANGED, magazine = true)),
             )
 
-            fighter.phase(12.0, 260)
+            fighter.phase(12.0, RANGE_TICKS)
 
             assertThat(fighter.log.map { it.second }.toSet()).containsExactlyInAnyOrder("rifle", "frost-staff")
             assertThat(eventsOf<ResourceReloaded>()).isNotEmpty()
@@ -117,5 +117,8 @@ class BotTwoWeaponsScenarioTest {
     private companion object {
         const val STEP_TICKS = 5
         const val RELOAD_TICKS = 40L
+
+        /** The rifle fires every 15 ticks (cooldown 14, 5-tick decisions): 20 rounds take 300, then the reload. */
+        const val RANGE_TICKS = 400
     }
 }

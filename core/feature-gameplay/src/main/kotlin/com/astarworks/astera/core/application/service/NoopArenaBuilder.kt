@@ -9,6 +9,8 @@ public class NoopArenaBuilder : IArenaBuilder {
 
     override fun resolve(stageId: StageId): com.astarworks.astera.core.domain.stage.Stage? = null
 
+    override fun peekReady(stage: com.astarworks.astera.core.domain.stage.Stage): com.astarworks.astera.core.domain.stage.Stage? = stage
+
     override fun ensureBuilt(stageId: StageId): Boolean = true
 
     override fun repairLater(stageId: StageId) {

@@ -1,19 +1,16 @@
-# Carry Mini TNT. RTM concept (ADR-0029): collect 10 mini-TNTs into 1 larger TNT.
+# Carry Mini TNT. Players collect mini TNT and carry it to the ENEMY base to blow it up.
 #
 # Small TNT pieces sit on the stage's pickup spots (`pickup_regions`). Walk into a spot to pick one up (up to
-# `carry_limit` at a time) and carry them into YOUR OWN `base-<team>` zone to add them to the team's pool. A taken piece
-# regrows after `respawn_seconds`; a carrier who dies loses what they carried. When the pool holds `minis_per_tnt` pieces
-# they combine into one real TNT at `combine_region`; only that team can pick it up, and it is carried and delivered like
-# carry-tnt (enemy `base-<team>` zone; the carrier dying returns it). First team to `tnts_to_win` delivered TNTs wins.
-# Implementation: CarryMiniTntGameMode (SiegeGameMode; the carry rules are TntCarrier, shared with carry-tnt).
+# `carry_limit` at a time) and carry them into the ENEMY `base-<team>` zone to plant them there (your own base plants
+# nothing). A taken piece regrows after `respawn_seconds`; a carrier who dies loses what they carried. The first team to
+# plant `minis_to_win` pieces blows the enemy base up and wins.
+# Implementation: CarryMiniTntGameMode (SiegeGameMode).
 #
 # default_config
-#   minis_per_tnt    pooled pieces that combine into one TNT
-#   tnts_to_win      delivered combined TNTs needed to win
+#   minis_to_win     pieces a team must plant in the enemy base to win
 #   carry_limit      pieces one player can carry
 #   respawn_seconds  seconds until a taken piece regrows
 #   pickup_regions   comma-separated stage regions that hold a piece
-#   combine_region   stage region the combined TNT appears in
 
 id: carry-mini-tnt
 title_key: astera.gamemode.carry-mini-tnt.title
@@ -28,9 +25,7 @@ default_config:
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
-  minis_per_tnt: "10"
-  tnts_to_win: "1"
+  minis_to_win: "10"
   carry_limit: "4"
   respawn_seconds: "15"
   pickup_regions: "wool-a,wool-b,wool-c"
-  combine_region: "tnt-spawn"

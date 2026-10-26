@@ -1,6 +1,8 @@
 package com.astarworks.astera.match.application.service.matchmaking
 
+import com.astarworks.astera.core.application.port.outbound.ArenaAllocationError
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.IArenaBuilder
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -11,6 +13,7 @@ import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.hud.HudRegion
 import com.astarworks.astera.core.domain.stage.SpawnPoint
 import com.astarworks.astera.core.domain.stage.SpawnRole
+import com.astarworks.astera.match.application.usecase.match.StartMatchError
 import com.astarworks.astera.match.application.usecase.match.StartMatchUseCase
 import com.astarworks.astera.core.application.port.outbound.IProxyMessenger
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -20,6 +23,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.PlayerArrivedOnServer
+import com.astarworks.astera.core.domain.event.PlayerPortalReady
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
@@ -48,6 +52,11 @@ import org.slf4j.LoggerFactory
  * 3. When the match ends, after [CrossServerSettings.returnDelaySeconds] every
  *    participant is transferred back to the lobby server and `Ended` is sent.
  *
+ * Players are only ever put where blocks stand: the arrival spawn is read from the READY, built arena slot
+ * ([IArenaBuilder.peekReady]), never from the stage template (its coordinates hold no blocks: the void world
+ * swallows the player). While no arena is ready nobody is placed; the arrived players wait for it (up to
+ * [CrossServerSettings.arenaWaitSeconds]) rather than being bounced. Entrants stay damage-protected until their entry teleport landed.
+ *
  * Anybody else who connects to a game server (not assigned, or too late) is
  * sent back to the lobby: this server hosts matches only.
  */
@@ -61,6 +70,7 @@ public class MatchAssignmentReceiver(
     private val notifier: IQueueNotifier,
     private val settings: CrossServerSettings,
     private val waivers: MatchMinPlayerWaivers? = null,
+    private val arenas: IArenaBuilder,
     private val stages: IStageRegistry? = null,
     private val worlds: IWorldGateway? = null,
     private val hud: IHudGateway? = null,
@@ -71,14 +81,21 @@ public class MatchAssignmentReceiver(
     private class Session(
         val assignment: MatchAssignment,
         val replyTo: ServerName,
-        val arrived: MutableSet<PlayerId> = linkedSetOf(),
+        val arrived: MutableSet<PlayerId> = java.util.concurrent.ConcurrentHashMap.newKeySet(),
         var matchId: MatchId? = null,
         var arrivalTimeout: IScheduler.TaskHandle? = null,
+        /** Everyone needed is here (or the timeout ran out) and the match is waiting for its arena to finish building. */
+        var starting: Boolean = false,
+        var arenaDeadlineTick: Long = 0,
+        var arenaWaitLogged: Boolean = false,
     )
 
     @Volatile
     private var session: Session? = null
     private val handles = mutableListOf<() -> Unit>()
+
+    /** Entrants whose entry teleport has not landed yet (plus a short landing grace): no damage meanwhile. */
+    private val placing: MutableSet<PlayerId> = java.util.concurrent.ConcurrentHashMap.newKeySet()
 
     /** Subscribes to the assignment channel and the events it reacts to. Call [stop] on shutdown. */
     public fun start() {
@@ -93,6 +110,10 @@ public class MatchAssignmentReceiver(
             onPlayerQuit(event.playerId)
         }
         val ended = eventBus.subscribe(MatchEnded::class) { onMatchEnded(it.matchId) }
+        val placed = eventBus.subscribe(PlayerPortalReady.EntryReady::class) { event ->
+            if (event.playerId in placing) scheduler.run(ExecutionScope.Global, ticks(LANDING_GRACE_TICKS)) { placing -= event.playerId }
+        }
+        handles += { placed.cancel() }
         handles += { assignments.cancel() }
         handles += { joined.cancel() }
         handles += { quit.cancel() }
@@ -104,6 +125,7 @@ public class MatchAssignmentReceiver(
         handles.clear()
         session?.arrivalTimeout?.cancel()
         session = null
+        placing.clear()
     }
 
     private fun onAssignment(assignment: MatchAssignment, from: ServerName) {
@@ -131,14 +153,26 @@ public class MatchAssignmentReceiver(
         }
         current.arrived += playerId
         placeOnArena(current, playerId)
-        if (current.arrived.size == current.assignment.players.size) startMatch(current) else showWaiting(current)
+        // While the arena is still being built the start loop owns the match; late arrivals just join its roster.
+        if (current.starting) return
+        if (current.arrived.size == current.assignment.players.size) startOnGlobal(current) else showWaiting(current)
+    }
+
+    /**
+     * Arrival events fire on the arriving player's own region thread, but claiming an arena (`IArenaBuilder.acquire`)
+     * is Global-only and answers `WrongScope` anywhere else, which used to bounce every assigned player to the lobby.
+     */
+    private fun startOnGlobal(current: Session) {
+        scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { startMatch(current) }
     }
 
     override fun spawnFor(playerId: PlayerId): SpawnPoint? {
         val current = session?.takeIf { it.matchId == null } ?: return null
         val teamIndex = current.assignment.teams.indexOfFirst { playerId in it }
         if (teamIndex < 0) return null
-        val stage = stages?.find(current.assignment.stageId) ?: return null
+        val template = stages?.find(current.assignment.stageId) ?: return null
+        // Not ready yet: no spawn at all (a template spawn would be a void coordinate).
+        val stage = arenas.peekReady(template) ?: return null
         val teamIds = teamIdsFor(current.assignment.modeKey)
         val teamId = teamIds[teamIndex % teamIds.size]
         val own = stage.spawnPoints.filter { it.role == SpawnRole.TEAM && it.team == teamId }
@@ -151,7 +185,7 @@ public class MatchAssignmentReceiver(
 
     override fun isWaiting(playerId: PlayerId): Boolean {
         val current = session ?: return false
-        return current.matchId == null && playerId in current.assignment.players
+        return (current.matchId == null && playerId in current.assignment.players) || playerId in placing
     }
 
     private fun teamIdsFor(modeKey: String?) =
@@ -184,6 +218,20 @@ public class MatchAssignmentReceiver(
         }
     }
 
+    private fun showArenaPreparing(current: Session) {
+        val gateway = hud ?: return
+        current.arrived.forEach { player ->
+            gateway.showFor(
+                player,
+                HudLayout.ActionBar(
+                    component = HudComponent.Text(MessageKey("astera.match.matchmaking.arena-preparing")),
+                    ttlTicks = 60,
+                    priority = 1,
+                ),
+            )
+        }
+    }
+
     private fun clearWaiting(current: Session) {
         val gateway = hud ?: return
         current.arrived.forEach { gateway.clearFor(it, HudRegion.ACTION_BAR) }
@@ -209,15 +257,20 @@ public class MatchAssignmentReceiver(
     }
 
     private fun onArrivalTimeout(current: Session) {
-        if (session !== current || current.matchId != null) return
+        if (session !== current || current.matchId != null || current.starting) return
         val missing = current.assignment.players.size - current.arrived.size
         log.warn("Assignment {}: {} player(s) never arrived; starting without them.", current.assignment.id, missing)
         startMatch(current)
     }
 
     private fun startMatch(current: Session) {
+        if (session !== current || current.matchId != null) return
         current.arrivalTimeout?.cancel()
         clearWaiting(current)
+        if (!current.starting) {
+            current.starting = true
+            current.arenaDeadlineTick = scheduler.currentTick() + settings.arenaWaitSeconds * TICKS_PER_SECOND
+        }
         if (current.arrived.isEmpty()) {
             log.warn("Assignment {}: nobody arrived; dropping it.", current.assignment.id)
             finish(current)
@@ -227,7 +280,21 @@ public class MatchAssignmentReceiver(
         val matchId = when (val started = lifecycle.start(assignment.stageId, assignment.modeKey)) {
             is Result.Success -> started.value
             is Result.Failure -> {
-                log.warn("Assignment {}: match could not start: {}", assignment.id, started.error)
+                val err = started.error
+                // A freshly (re)started game server pastes its arenas for a while, and the next arena is rebuilt after
+                // every match. Players are already here: wait for the arena instead of bouncing them back to the lobby.
+                if (err is StartMatchError.ArenaUnavailable && err.reason == ArenaAllocationError.NotReady &&
+                    scheduler.currentTick() < current.arenaDeadlineTick
+                ) {
+                    if (!current.arenaWaitLogged) {
+                        current.arenaWaitLogged = true
+                        log.info("Assignment {}: arena {} is still being built; waiting up to {} s.", assignment.id, assignment.stageId, settings.arenaWaitSeconds)
+                    }
+                    showArenaPreparing(current)
+                    scheduler.run(ExecutionScope.Global, ticks(ARENA_RETRY_TICKS)) { if (session === current) startMatch(current) }
+                    return
+                }
+                log.warn("Assignment {}: match could not start: {}", assignment.id, err)
                 current.arrived.forEach { returnToLobby(it) }
                 finish(current)
                 return
@@ -235,6 +302,8 @@ public class MatchAssignmentReceiver(
         }
         current.matchId = matchId
         if (assignment.forced) waivers?.waive(matchId)
+        current.arrived.forEach { placing += it }
+        scheduler.run(ExecutionScope.Global, ticks(PLACEMENT_TIMEOUT_TICKS)) { current.arrived.forEach { placing -= it } }
         // Assignment team i maps onto the match's i-th team; surplus teams fold back.
         val teamIds = matches.findById(matchId)?.teams?.map { it.id }.orEmpty()
         assignment.teams.forEachIndexed { index, team ->
@@ -248,8 +317,10 @@ public class MatchAssignmentReceiver(
     private fun onMatchEnded(matchId: MatchId) {
         val current = session?.takeIf { it.matchId == matchId } ?: return
         scheduler.run(ExecutionScope.Global, ticks(settings.returnDelaySeconds * TICKS_PER_SECOND)) {
-            val participants = matches.findById(matchId)?.teams?.flatMap { it.members }.orEmpty()
-            participants.forEach { returnToLobby(it) }
+            // The roster plus everyone still connected here: a player who left the roster (or never made it onto
+            // it) but is standing on this server must not be stranded when the match is aborted or cancelled.
+            val participants = matches.findById(matchId)?.teams?.flatMap { it.members }.orEmpty() + current.arrived
+            participants.toSet().forEach { returnToLobby(it) }
             finish(current)
         }
     }
@@ -284,6 +355,9 @@ public class MatchAssignmentReceiver(
     private companion object {
         const val TICKS_PER_SECOND = 20L
         const val BOUNCE_DELAY_SECONDS = 3
+        const val ARENA_RETRY_TICKS = 20L
         const val ABANDON_GRACE_SECONDS = 30L
+        const val LANDING_GRACE_TICKS = 100L
+        const val PLACEMENT_TIMEOUT_TICKS = 300L
     }
 }

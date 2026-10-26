@@ -217,8 +217,9 @@ public class GameSim private constructor(
         facing: Vec3 = Vec3(0.0, 0.0, 1.0),
         join: Boolean = true,
         worldId: WorldId = WorldId("world"),
+        clientLocale: String = "en",
     ): SimEntity {
-        val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team, world = worldId))
+        val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team, world = worldId, locale = clientLocale))
         recorder.registerEntity(entity)
         if (join) {
             handoff?.onJoin(entity.id)
@@ -491,16 +492,24 @@ public class GameSim private constructor(
             persistenceOverlay: Boolean = false,
             /** Use entity-declared teams outside matches; false exercises Paper's late Match-owned team lookup. */
             standaloneTeams: Boolean = true,
+            /** Overrides the default no-op arena builder (every arena "built") so a scenario can drive arena readiness. */
+            arenas: com.astarworks.astera.core.application.port.outbound.IArenaBuilder? = null,
+            /** Stand-in for the Redis link to the bot runner (ADR-0248); `null` = "bots unavailable", like a server without Redis. */
+            botGateway: com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway? = null,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
             val scheduler = FakeScheduler()
             val services = ServiceRegistry()
             val overlay = if (persistenceOverlay) SimPersistenceOverlay.install(services) else null
+            arenas?.let { services.register<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(it, priority = 1000) }
             // One seeded source for every random roll; CombatWiring picks it up instead of its own.
             services.register<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(
                 com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer(seed),
             )
+            if (botGateway != null) {
+                services.register<com.astarworks.astera.core.application.port.outbound.bots.IBotRequestGateway>(botGateway, priority = 100)
+            }
             val recorder = TraceRecorder(scenarioName, groundY)
             val mcServer = SimMcServer(world)
             val broadcaster = FakeBroadcaster()
@@ -537,6 +546,8 @@ public class GameSim private constructor(
                 mcServer = mcServer,
                 scheduler = scheduler,
                 broadcaster = broadcaster,
+                // Scenarios assert English text; the sim pins en like the e2e server (ADR-0283).
+                defaultLocale = com.astarworks.astera.core.domain.i18n.LocaleCode.EN,
                 guiAdapter = GuiAdapterFactory { _, _, _ -> FakeGuiAdapter() },
                 // ADR-0276: the headless lease service with a per-viewer model of what each client was sent.
                 playerPresentation = {
