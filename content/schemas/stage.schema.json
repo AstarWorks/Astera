@@ -120,6 +120,9 @@
                 "kill_y": {
                     "type": "integer"
                 },
+                "relief": {
+                    "type": "number"
+                },
                 "islands": {
                     "type": "array",
                     "items": {

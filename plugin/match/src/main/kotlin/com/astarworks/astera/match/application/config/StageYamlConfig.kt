@@ -93,6 +93,7 @@ public data class StageYamlConfig(
  *   landmarks:
  *     - { kind: generator, x: 0, z: -26 }
  *   atmosphere: { time_of_day: 12000, weather: clear }   # optional; per-player sky for this arena (MAP-08)
+ *   relief: 1.0              # optional terrain relief strength (0 = flat plateau, default 1)
  * ```
  */
 @Serializable
@@ -107,6 +108,7 @@ public data class ArenaLayoutYamlConfig(
     public val bridges: List<ArenaBridgeYamlConfig> = emptyList(),
     public val landmarks: List<ArenaLandmarkYamlConfig> = emptyList(),
     public val atmosphere: ArenaAtmosphereYamlConfig? = null,
+    public val relief: Double = 1.0,
 ) {
     public fun toDomain(): ArenaLayout = ArenaLayout(
         markerVersion = markerVersion,
@@ -119,6 +121,7 @@ public data class ArenaLayoutYamlConfig(
         bridges = bridges.map { ArenaBridge(it.from, it.to, it.width) },
         landmarks = landmarks.map { it.toDomain() },
         atmosphere = atmosphere?.toDomain(),
+        relief = relief,
     )
 }
 

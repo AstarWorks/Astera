@@ -31,6 +31,7 @@ fun main(args: Array<String>) {
     val routes = StringBuilder("\n## Routing (5000 nodes per A* search)\n\nTerrain treats every non-air block as solid, exactly as packet Terrain does; this is conservative for plants and banners. All chunks are known in this offline measurement. Live bots must progressively discover chunks.\n\n| Stage | Route | Direct complete | Direct nodes | Routed complete | Total local nodes | Max local nodes | Cells |\n|---|---|---|---:|---|---:|---:|---:|\n")
     val problems = mutableListOf<String>()
     val walks = StringBuilder("\n## Bot traversal (spawn to objective, centre, stars, towers; real PathFinder + route graph, re-plans on capped searches)\n\n| Stage | Route | Reached | Nodes | Last cell |\n|---|---|---|---:|---|\n")
+    val metrics = StringBuilder("\n## Relief metrics\n\nGround = highest solid non-tree block below surface_y + 12. Flat ground = 5x5 equal height with 3 blocks of headroom. Free run = mean 16-ray distance at eye height on land (void ends the run). Cover clusters = 4-connected groups of >= 3 columns standing 2+ above local ground or carrying a full block.\n\n" + ArenaMetrics.HEADER)
     for (stage in stages.all().sortedBy { it.id.value }) {
         val start = System.nanoTime()
         val plan = ArenaIslandGenerator.generate(stage, parts)
@@ -91,11 +92,17 @@ fun main(args: Array<String>) {
             route("climb ${placement.part} #$index", start.x, start.z, goal.x, goal.z, start.y, goal.y)
         }
         problems += TraversalCheck.run(stage, plan, generators.all().filter { it.matchStageId == stage.id.value }.map { it.position.x to it.position.z }, walks)
+        run {
+            val g = PathFinder { x, y, z -> plan.stateAt(x, y, z) != null }
+            metrics.append(ArenaMetrics.measure(stage, plan, g, ArenaRouteGraph(layout)).row(stage.id.value)).append('\n')
+        }
+        ImageIO.write(ArenaMetrics.heightmap(stage, plan), "png", out.resolve("${stage.id.value}-height.png").toFile())
         ImageIO.write(ArenaRenderer.top(stage, plan), "png", out.resolve("${stage.id.value}-top.png").toFile())
         ImageIO.write(ArenaRenderer.iso(stage, plan), "png", out.resolve("${stage.id.value}-iso.png").toFile())
         ImageIO.write(ArenaRenderer.section(stage, plan), "png", out.resolve("${stage.id.value}-section.png").toFile())
         println("${stage.id.value}: ${plan.blocks.size} blocks, %.1f ms".format(ms))
     }
+    report.append(metrics)
     report.append(routes)
     report.append(walks)
     report.append("\n## Content / routing problems\n\n")

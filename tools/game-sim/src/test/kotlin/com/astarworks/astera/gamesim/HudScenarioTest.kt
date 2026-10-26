@@ -122,7 +122,7 @@ class HudScenarioTest {
             assertThat(checkNotNull(sim.hud.sidebar(defender.id)).keys().count { it == "astera.hud.sidebar.break-core.intact" })
                 .isEqualTo(2)
 
-            attacker.breaks(Vec3(41.0, 65.0, 300.0)) // blue core: the mode ends the match
+            attacker.breaks(Vec3(118.0, 65.0, 0.0)) // blue core: the mode ends the match
             advance(25)
             assertThat(sim.eventsOf<MatchEnded>()).hasSize(1)
         }
