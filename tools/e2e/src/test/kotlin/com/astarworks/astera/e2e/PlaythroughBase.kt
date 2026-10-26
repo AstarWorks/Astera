@@ -79,7 +79,7 @@ abstract class PlaythroughBase : E2eBase() {
 
     protected fun matchLines(): List<MatchLine> =
         clean(rcon("astera match list")).lineSequence().mapNotNull { line ->
-            Regex("(match-[0-9a-f]+) \\[(\\w+)]").find(line)?.let { MatchLine(it.groupValues[1], it.groupValues[2], line.trim()) }
+            Regex("([A-Za-z0-9_-]+) \\[([A-Z_]+)]").find(line)?.let { MatchLine(it.groupValues[1], it.groupValues[2], line.trim()) }
         }.toList()
 
     /** Polls `astera match list` until a match is in [phase]; returns it, or null on timeout. */
