@@ -1,12 +1,11 @@
 """RCON director for `VIEW=compare`: casts the skill and runs the camera plan.
 
-Realtime mode (default): the camera plan runs on the wall clock. Stepped mode (DIRECTOR_STEP_TICKS set): the server is
-frozen (`/tick freeze`) and advanced one tick at a time (`/tick step 1`); after every step the director waits until the
-viewer's screen shows the new tick in the stamp (the stamp datapack's boss bar) and then dwells so the client draws it at
-least twice. The camera plan is applied by tick (t_ms / 50), right before the step into that tick. Output is then one
-settled frame per tick whatever the render rate. Env: DIRECTOR_STEP_TICKS (ticks after the cast), DIRECTOR_STEP_PRE (ticks
-before the cast), DIRECTOR_STEP_DISPLAY (X display, e.g. :0), DIRECTOR_STEP_SCREEN (WxH), DIRECTOR_STEP_GUI (gui scale),
-DIRECTOR_STEP_DWELL (seconds, default 0.35).
+Realtime mode (default): the camera plan runs on the wall clock. Slow mode (DIRECTOR_SLOW_RATE=<tps> set): the whole server tick
+loop runs at that rate (`/tick rate <tps>`; the client follows it), so the plugin scheduler (delay_ticks, rig keys, dashes), the
+entities and the client's display interpolation all keep ONE clock, just slower; the recorder films at its normal rate and the
+tick stamp maps frames to ticks. (`/tick freeze` + `/tick step` is NOT used: it freezes the world but not the Bukkit scheduler, so
+scheduled skill events ran ahead of the frozen world.) Plan times and the end of the capture are scaled by 20 / rate.
+Env: DIRECTOR_SLOW_RATE (ticks per second, 1-20), DIRECTOR_STEP_PRE (ticks before the cast; compare windows).
 
 usage: python3 -I director.py <host> <port> <password> <plan.tsv> <cast-command...>
 
@@ -55,81 +54,6 @@ def run(sock, command):
             return body
 
 
-def stamp_on_screen(display, screen_w, screen_h, gui):
-    """Game time mod 1024 currently shown by the viewer's client, or None (one x11grab of the stamp rectangle)."""
-    import numpy as np
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from stampcodec import decode_stamp, STAMP_HALF_W, STAMP_H
-    x0 = max(0, screen_w // 2 - STAMP_HALF_W * gui)
-    w = min(screen_w - x0, 2 * STAMP_HALF_W * gui)
-    h = STAMP_H * gui
-    out = subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-f", "x11grab", "-video_size", f"{w}x{h}",
-                          "-i", f"{display}+{x0},0", "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
-                         capture_output=True, timeout=20).stdout
-    if len(out) != w * h * 3:
-        return None
-    return decode_stamp(np.frombuffer(out, np.uint8).reshape(h, w, 3))
-
-
-def gametime(sock):
-    return int(re.search(r"(\d+)\D*$", run(sock, "time query gametime")).group(1))
-
-
-def main_stepped(sock, steps, cast):
-    ticks, pre = int(os.environ["DIRECTOR_STEP_TICKS"]), int(os.environ.get("DIRECTOR_STEP_PRE", "0"))
-    display = os.environ["DIRECTOR_STEP_DISPLAY"]
-    sw, sh = (int(v) for v in os.environ["DIRECTOR_STEP_SCREEN"].split("x"))
-    gui, dwell = int(os.environ.get("DIRECTOR_STEP_GUI", "1")), float(os.environ.get("DIRECTOR_STEP_DWELL", "0.35"))
-
-    def shown(g, what):
-        # the stamp function runs at the start of a tick, before the level time advances: with game time g the last executed
-        # tick (and so the stamp on screen) is g - 1. A frame stamped s shows the world after tick s ran.
-        deadline = time.time() + 30
-        while time.time() < deadline:
-            if stamp_on_screen(display, sw, sh, gui) == (g - 1) % 1024:
-                time.sleep(dwell)
-                return
-        raise RuntimeError("the viewer never showed tick %d (%s)" % (g, what))
-
-    def step(g):
-        run(sock, "tick step 1")
-        deadline = time.time() + 30
-        while gametime(sock) < g + 1:
-            if time.time() > deadline:
-                raise RuntimeError("server did not step to tick %d" % (g + 1))
-            time.sleep(0.02)
-        shown(g + 1, "step")
-
-    run(sock, "tick freeze")
-    try:
-        g = gametime(sock)
-        shown(g, "freeze")
-        for _ in range(pre):
-            step(g)
-            g += 1
-        print("MARK_BEFORE %.3f %d" % (time.time(), g), file=sys.stderr, flush=True)
-        print("STAMP %.3f" % time.time(), file=sys.stderr, flush=True)
-        print(run(sock, cast), flush=True)
-        print("CAST_ACK %.3f" % time.time(), file=sys.stderr, flush=True)
-        g_cast = gametime(sock)
-        print("MARK_AFTER %.3f %d" % (time.time(), g_cast), file=sys.stderr, flush=True)
-        if g_cast != g:
-            raise RuntimeError("game time moved while frozen (%d -> %d)" % (g, g_cast))
-        pending = sorted((round(t_ms / 50.0), t_ms, cmd) for t_ms, cmd in steps)
-        for k in range(ticks + 1):
-            # tick g_cast + k executes in this step (frames stamped g_cast + k); a camera cut due at tick k goes out right before it
-            while pending and pending[0][0] <= k:
-                _d, t_ms, cmd = pending.pop(0)
-                print("CUT_MARK %d %.3f %d" % (t_ms, time.time(), g), file=sys.stderr, flush=True)
-                run(sock, cmd)
-                print("CAMERA %d SENT %.3f ACK %.3f" % (t_ms, time.time(), time.time()), file=sys.stderr, flush=True)
-            step(g)
-            g += 1
-        return 0
-    finally:
-        run(sock, "tick unfreeze")
-
-
 def main():
     host, port, password, plan = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4]
     cast = " ".join(sys.argv[5:])
@@ -147,9 +71,13 @@ def main():
         # Tick marks: the server game time right before and right after the cast, on this same connection.
         # RCON commands queued back to back normally run in the same server tick, so before == after pins the cast
         # tick exactly; a difference of one tick is recorded as the uncertainty.
-        if os.environ.get("DIRECTOR_STEP_TICKS"):
-            return main_stepped(sock, steps, cast)
         mark = os.environ.get("DIRECTOR_MARK_CMD", "")
+        rate = float(os.environ.get("DIRECTOR_SLOW_RATE", "20"))
+        scale = 20.0 / rate    # wall seconds per nominal (20 tps) second
+        pre = int(os.environ.get("DIRECTOR_STEP_PRE", "0"))
+        if rate != 20.0:
+            run(sock, "tick rate %g" % rate)
+            time.sleep(1.0 + 4.0 / rate + pre / rate)   # the new rate reaches the client and settles; the pre-cast window plays at the slow rate
         if mark:
             print("MARK_BEFORE %.3f %s" % (time.time(), run(sock, mark).strip()), file=sys.stderr, flush=True)
         t0 = time.time()
@@ -159,7 +87,7 @@ def main():
         if mark:
             print("MARK_AFTER %.3f %s" % (time.time(), run(sock, mark).strip()), file=sys.stderr, flush=True)
         for t_ms, cmd in steps:
-            wait = t0 + t_ms / 1000.0 - time.time()
+            wait = t0 + t_ms / 1000.0 * scale - time.time()
             if wait > 0:
                 time.sleep(wait)
             if mark:

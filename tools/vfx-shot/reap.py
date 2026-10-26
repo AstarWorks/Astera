@@ -292,6 +292,10 @@ class Stack:
         except (OSError, ValueError):
             return 0.0
 
+    def pinned(self):
+        """The capture farm's stack (SHOT_PIN=1): a kept stack that other checkouts' runs never evict to make room (its TTL still applies)."""
+        return os.path.exists(os.path.join(self.state, "pinned"))
+
     def recorded_pids(self):
         """XPID / CPID of clients/*.env, parker.pid."""
         pids = set()
@@ -315,7 +319,7 @@ class Stack:
         for pat in ("clients/*.env",):
             for f in glob.glob(f"{self.state}/{pat}"):
                 os.unlink(f)
-        for n in ("parker.on", "parker.pid", "capture.active", "keep-until", "subnet", "deployed.json", "owner"):
+        for n in ("parker.on", "parker.pid", "capture.active", "keep-until", "pinned", "subnet", "deployed.json", "owner"):
             try:
                 os.unlink(os.path.join(self.state, n))
             except OSError:
@@ -377,6 +381,8 @@ def decide(st, evict=False, force=False):
     if force:
         return True, "forced"
     ku = st.keep_until()
+    if st.pinned() and evict:
+        return False, "pinned capture-farm stack"
     if ku > NOW and not evict:
         return False, f"kept (SHOT_KEEP=1) for another {int(ku - NOW)}s"
     if ku > NOW:
@@ -464,7 +470,8 @@ def main():
 
     if A.make_room > 0:
         live = [pr for pr, info in projects.items() if info["running"] and pr not in reaped
-                and not (by_project.get(pr) and by_project[pr].state == skip)]
+                and not (by_project.get(pr) and by_project[pr].state == skip)
+                and not (by_project.get(pr) and by_project[pr].pinned())]
         if len(live) >= A.make_room:
             cands = [by_project[pr] for pr in live if by_project.get(pr) and in_scope(by_project[pr].state)]
             cands.sort(key=lambda s: last_activity(s.state, s.clients))

@@ -243,6 +243,17 @@ anim-shot: ## Film a skin-rig animation for the skill-compare /anim review: make
 vfx-shot-down: ## Stop the parked clients and drop this checkout's capture stack (server, pack host, volumes), kept or not
 	bash tools/vfx-shot/vfx-shot.sh down
 
+.PHONY: vfx-auto-up vfx-auto-down vfx-auto-status vfx-auto-once
+vfx-auto-up: ## Capture farm: on every dev "deployed <sha>" film the changed skills (top+side, realtime PREVIEW then stepped) and publish to skill-compare as "auto <sha>"
+	bash tools/vfx-shot/auto-capture.sh up
+vfx-auto-down: ## Stop the capture farm daemon and drop its warm stack
+	bash tools/vfx-shot/auto-capture.sh down
+vfx-auto-status: ## Capture farm: daemon, last run, warm stack, log tail
+	bash tools/vfx-shot/auto-capture.sh status
+vfx-auto-once: ## Run the farm for one commit now: make vfx-auto-once SHA=<sha> [BASE=<sha>]
+	@test -n "$(SHA)" || { echo "usage: make vfx-auto-once SHA=<sha> [BASE=<sha>]"; exit 2; }
+	bash tools/vfx-shot/auto-capture.sh once "$(SHA)" "$(BASE)"
+
 .PHONY: vfx-shot-reap
 vfx-shot-reap: ## Kill vfx-shot clients / astera-shot-* stacks of dead runs, host-wide (live runs + kept stacks within TTL survive; SHOT_REAP_DRY=1 only lists)
 	bash tools/vfx-shot/vfx-shot.sh reap
