@@ -379,7 +379,7 @@ layout:
     z: 0
     rotation: 0
   theme: temperate
-  atmosphere: {time_of_day: 12000, weather: clear}
+  atmosphere: {time_of_day: 6000, weather: clear}
 regions:
 - name: full-arena
   min: {x: -235, y: 20.0, z: -140}
