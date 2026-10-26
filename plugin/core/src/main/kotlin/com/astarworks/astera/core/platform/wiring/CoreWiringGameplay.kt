@@ -273,6 +273,11 @@ internal fun CoreWiringState.wireGameplayLoop() {
             // ADR-0197: the combat plugin registers the cooldown icons later; look them up per flush.
             cooldownIcons = { services.get<com.astarworks.astera.core.application.port.outbound.ICooldownIconSource>() },
             statusEffectIcons = { services.get<com.astarworks.astera.core.application.port.outbound.IStatusEffectIconSource>() },
+            // A reload keeps the clients connected without a new join event: online players are served anyway.
+            onlinePlayers = {
+                services.get<com.astarworks.astera.core.application.port.outbound.admin.IAdminPlayerGateway>()
+                    ?.onlinePlayers().orEmpty().map { it.id }
+            },
         )
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hpStatusHud.onJoined(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hpStatusHud.onQuit(it) }
@@ -303,6 +308,11 @@ internal fun CoreWiringState.wireGameplayLoop() {
         .ResourcePackPushOnJoinListener(hudGateway) { resourcePackService.current() }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { pushOnJoin.handle(it) }
     ports.resourcePack?.let { logger.info("ADR-0182: resource pack push on join enabled (${it.url}).") }
+    // A reload / hotswap leaves clients connected with the pack applied but this process unaware of it (no join, no
+    // status event): ask once, shortly after enable, so each client reports LOADED again and gets the glyph bar back.
+    scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Global, kotlin.time.Duration.parse("2s")) {
+        resourcePackService.repushToOnline()
+    }
         ?: logger.info("ADR-0182: no resource pack configured (ASTERA_RESOURCE_PACK_URL unset); status HUD uses its text form.")
 
     // 4.2 Wave H 5content-depth (ADR-0125) — Quest + Recipe listener wiring.

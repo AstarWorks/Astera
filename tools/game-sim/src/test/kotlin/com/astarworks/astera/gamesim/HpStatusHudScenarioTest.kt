@@ -57,6 +57,34 @@ class HpStatusHudScenarioTest {
     }
 
     @Test
+    fun `the status line reads 0 on death and full max again after the respawn heal, in both renderings`() {
+        scenario("hud-hp-status-respawn") {
+            val alice = player("alice")
+            sim.setMaxHealth(alice, 20.0)
+            val health = sim.services.getOrThrow<IPlayerHealthGateway>()
+            advance(4)
+            assertThat(sim.hud.statusLineText(alice.id)).isEqualTo("astera.hud.status.hp{current=20,max=20}")
+
+            health.damage(alice.id, 20.0, HealthChangeSource.Other("test"))
+            advance(4)
+            assertThat(sim.hud.statusLineText(alice.id)).isEqualTo("astera.hud.status.hp{current=0,max=20}")
+
+            // The respawn path (DeathRespawnCoordinator) restores the container's own max, not a default.
+            health.setHealth(alice.id, health.getMaxHealth(alice.id)!!, HealthChangeSource.Respawn)
+            advance(4)
+            assertThat(sim.hud.statusLineText(alice.id)).isEqualTo("astera.hud.status.hp{current=20,max=20}")
+
+            sim.services.getOrThrow<IDomainEventBus>().publish(ResourcePackStatusChanged(alice.id, ResourcePackStatus.LOADED))
+            health.damage(alice.id, 5.0, HealthChangeSource.Other("test"))
+            advance(4)
+            assertThat(sim.hud.statusLineText(alice.id)).isEqualTo("hp-bar:15/20")
+            health.setHealth(alice.id, 20.0, HealthChangeSource.Respawn)
+            advance(4)
+            assertThat(sim.hud.statusLineText(alice.id)).isEqualTo("hp-bar:20/20")
+        }
+    }
+
+    @Test
     fun `an idle player costs no HUD traffic`() {
         scenario("hud-hp-status-idle") {
             val alice = player("alice")
