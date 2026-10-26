@@ -492,7 +492,7 @@ public class VfxPlayer(
             throw IllegalStateException("native attachment unavailable for performer '${e.elementId}'")
         }
         if (state.handle == null) state.handle = displays.spawn(instance.request.world, instance.position + e.spawnOffset + state.targetOffset, spec, lines)
-        if (state.handle == null) log.debug("VFX {}: display for element '{}' was not spawned", instance.request.vfxId, e.elementId)
+        if (state.handle == null) log.warn("[cue-dropped] vfx: {} display for element '{}' was not spawned", instance.request.vfxId, e.elementId)
         state.staged = state.performer && spec.viewRange == 0f
     }
 

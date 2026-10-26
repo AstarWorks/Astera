@@ -277,6 +277,7 @@ public class PaperHudGateway(
             // Bukkit throws on malformed URL / hash; the domain init block
             // should have caught both, but mirror to a typed error so
             // callers can branch on the failure surface.
+            log.warn("[cue-dropped] pack: resource pack push to {} failed: {}", playerId, ex.message)
             return Result.failure(HudError.ResourcePackPushFailed(ex.message ?: "invalid pack spec"))
         }
         eventBus.publish(
@@ -302,7 +303,7 @@ public class PaperHudGateway(
     private fun renderFailure(layout: HudLayout, ex: RuntimeException): HudError {
         val kind = layout::class.simpleName ?: "layout"
         if (renderFailureLogged.add(kind)) {
-            log.error("HUD render failed for {}; later failures of this kind are not logged.", kind, ex)
+            log.error("[cue-dropped] hud: render failed for {}; later failures of this kind are not logged.", kind, ex)
         }
         return HudError.RenderFailed("$kind: ${ex.message}")
     }
@@ -460,7 +461,7 @@ public class PaperHudGateway(
                 board.addLine(index, component.messageKey, component.placeholders)
             } else {
                 if (!unsupportedSidebarLineLogged) {
-                    log.warn("Sidebar lines must be HudComponent.Text; {} skipped.", component::class.simpleName)
+                    log.warn("[cue-dropped] hud: sidebar lines must be HudComponent.Text; {} skipped.", component::class.simpleName)
                     unsupportedSidebarLineLogged = true
                 }
                 board.removeLine(index)

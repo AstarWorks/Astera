@@ -13,6 +13,7 @@ import net.kyori.adventure.title.Title
 import org.bukkit.Location
 import org.bukkit.Particle
 import org.bukkit.Server
+import org.slf4j.LoggerFactory
 import java.time.Duration
 
 /** Paper [IPresentationVisuals]: Adventure titles / action bar and per-viewer `Player.spawnParticle`. */
@@ -20,6 +21,8 @@ public class PaperPresentationVisuals(
     private val server: Server,
     private val renderer: IMessageRenderer,
 ) : IPresentationVisuals {
+
+    private val log = LoggerFactory.getLogger(javaClass)
 
     override fun title(player: PlayerId, title: MessageKey?, subtitle: MessageKey?, args: Map<String, String>, stayTicks: Int) {
         val p = server.getPlayer(player.uuid) ?: return
@@ -37,7 +40,10 @@ public class PaperPresentationVisuals(
     }
 
     override fun particles(preset: ParticlePreset, viewers: Collection<PlayerId>, anchor: PlayerId, at: Vec3?, world: WorldId?) {
-        val particle = runCatching { Particle.valueOf(preset.particle.uppercase()) }.getOrNull() ?: return
+        val particle = runCatching { Particle.valueOf(preset.particle.uppercase()) }.getOrNull() ?: run {
+            log.warn("[cue-dropped] particle: unknown presentation particle '{}'", preset.particle)
+            return
+        }
         val w = world?.let { server.getWorld(it.value) } ?: server.getPlayer(anchor.uuid)?.world ?: return
         val base = at?.let { Location(w, it.x, it.y, it.z) } ?: server.getPlayer(anchor.uuid)?.location ?: return
         val loc = base.clone().add(0.0, preset.yOffset, 0.0)

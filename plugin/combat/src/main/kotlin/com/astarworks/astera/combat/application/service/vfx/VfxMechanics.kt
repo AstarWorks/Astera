@@ -72,7 +72,12 @@ internal class VfxMechanics(
             )
             when (val result = player.play(request)) {
                 is Result.Success -> Unit
-                is Result.Failure -> log.debug("PlayVfx {} not played: {}", m.vfxId, result.error)
+                is Result.Failure -> when (result.error) {
+                    // Unresolved content ids are authoring bugs the player sees as a missing effect.
+                    is VfxPlayError.UnknownVfx, is VfxPlayError.UnknownBody, is VfxPlayError.InvalidTargetTracking ->
+                        log.warn("[cue-dropped] vfx: {} not played: {}", m.vfxId, result.error)
+                    else -> log.debug("PlayVfx {} not played: {}", m.vfxId, result.error)
+                }
             }
         }
     }

@@ -16,4 +16,12 @@ object ServerLog {
     }
 
     fun lines(contains: String): List<String> = read().lineSequence().filter { contains in it }.toList()
+
+    /** Marker the adapters log (WARN) when a player-facing cue (sound, particle, HUD line, title, pack push) is dropped for an unresolved id. */
+    const val CUE_DROPPED = "[cue-dropped]"
+
+    fun lineCount(): Int = read().lineSequence().count()
+
+    /** `[cue-dropped]` lines logged after line [from]: a cue the player should have received but did not. */
+    fun cueDroppedSince(from: Int): List<String> = read().lineSequence().drop(from).filter { CUE_DROPPED in it }.toList()
 }

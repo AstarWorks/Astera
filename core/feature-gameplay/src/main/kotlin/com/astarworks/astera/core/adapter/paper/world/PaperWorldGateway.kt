@@ -122,7 +122,7 @@ public class PaperWorldGateway(
             return
         }
         val material = Material.matchMaterial(type.key) ?: run {
-            log.debug("PaperWorldGateway.placeBlock: unknown material {}", type.key)
+            log.warn("[cue-dropped] block: unknown material {} (PaperWorldGateway.placeBlock)", type.key)
             return
         }
         w.getBlockAt(at.x.toInt(), at.y.toInt(), at.z.toInt()).type = material
@@ -148,11 +148,11 @@ public class PaperWorldGateway(
             return
         }
         val bukkitParticle = resolveParticle(particle.key) ?: run {
-            log.debug("PaperWorldGateway.spawnParticle: unknown particle {}", particle.key)
+            log.warn("[cue-dropped] particle: unknown particle {} (PaperWorldGateway.spawnParticle)", particle.key)
             return
         }
         val data = PaperParticleData.map(bukkitParticle, particle, w, ::blockData) ?: run {
-            log.debug("PaperWorldGateway.spawnParticle: {} needs data this spec cannot supply", particle.key)
+            log.warn("[cue-dropped] particle: {} needs data this spec cannot supply (PaperWorldGateway.spawnParticle)", particle.key)
             return
         }
         w.spawnParticle(
@@ -190,7 +190,7 @@ public class PaperWorldGateway(
             return
         }
         val key = NamespacedKey.fromString(sound.key)?.asString() ?: run {
-            log.debug("PaperWorldGateway.playSound: malformed sound key {}", sound.key)
+            log.warn("[cue-dropped] sound: malformed sound key {} (PaperWorldGateway.playSound)", sound.key)
             return
         }
         val loc = toLocation(w, at)
