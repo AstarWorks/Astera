@@ -46,6 +46,7 @@ val e2e by tasks.registering(Test::class) {
     outputs.upToDateWhen { false }
     filter {
         excludeTestsMatching("*.live.*")
+        if (System.getenv("SERVER_TYPE") != "FOLIA") excludeTestsMatching("*.FoliaConcurrencyE2eTest")
         // E2E_ONLY=PersonaWeaponsE2eTest (comma separated simple class names) narrows the run.
         System.getenv("E2E_ONLY")?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.forEach { includeTestsMatching("*.$it") }
     }
@@ -58,6 +59,7 @@ val e2e by tasks.registering(Test::class) {
     listOf("host", "port", "rconPort", "rconPassword", "autostart", "serverLog", "via", "proxyHost", "proxyPort", "velocityLog", "redisHost", "redisPort").forEach { k ->
         (project.findProperty("e2e.$k") as String?)?.let { systemProperty("astera.e2e.$k", it) }
     }
+    systemProperty("astera.e2e.concurrentMatches", System.getenv("E2E_CONCURRENT_MATCHES") ?: "4")
     testLogging.showStandardStreams = false
 }
 
@@ -88,4 +90,12 @@ val live by tasks.registering(Test::class) {
 // Used by docker/Dockerfile.e2e-runner to pre-fetch every runtime dependency so the run is offline.
 tasks.register("resolveE2eClasspath") {
     doLast { configurations.testRuntimeClasspath.get().resolve() }
+}
+
+// Test-only server probe; shipped only into the Folia E2E backend.
+val probe by sourceSets.creating
+dependencies { add(probe.compileOnlyConfigurationName, libs.paper.api) }
+tasks.register<Jar>("foliaProbeJar") {
+    archiveFileName.set("folia-e2e-probe.jar")
+    from(probe.output)
 }

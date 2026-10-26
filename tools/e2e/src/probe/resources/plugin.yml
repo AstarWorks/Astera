@@ -1,0 +1,8 @@
+name: FoliaE2eProbe
+version: '1'
+main: com.astarworks.astera.e2e.FoliaE2eProbe
+api-version: '26.3'
+folia-supported: true
+commands:
+  e2eregions:
+    description: Test-only region ownership snapshot
