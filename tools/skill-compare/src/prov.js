@@ -7,6 +7,10 @@ export function renderProv(box, p) {
   const when = { preview: "プレビュー生成", lint: "lint 実行", round: "メモ公開" }[p.kind] || "撮影";
   box.hidden = false;
   if (p.kind === "preview") chip("PREVIEW・実機ではありません", "pvw", "skill-preview（クライアント非使用の近似描画）。実機の見た目の判断材料にしない");
+  if (p.auto) {
+    chip("auto " + (p.auto.sha ? p.auto.sha.slice(0, 7) : "?"), "ok", "capture farm: push 後に自動撮影・自動公開 (" + (p.auto.at || "") + ")");
+    if (p.auto.kind === "preview") chip("PREVIEW（リアルタイム・暫定）", "pvw", "リアルタイム撮影の暫定版。tick 抜けがあり得る。段階撮影版が後で置き換える");
+  }
   chip(p.branch || "branch ?", p.branch ? "" : "warn");
   chip(p.commit ? p.commit.slice(0, 8) : "commit ?", p.commit ? "" : "warn", "git revision");
   if ("stale" in p) {

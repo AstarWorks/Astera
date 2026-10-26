@@ -59,6 +59,7 @@ export function makeHandler(opts = {}) {
       fov: m.fov ?? null, fovMode: m.fovMode ?? null, resolution: m.resolution ?? null, view: m.view ?? null,
       skippedTicks: m.skippedTicks ?? m.captureQuality?.skippedTicks ?? null, deployedSha: m.stack?.deployedCodeRevision ?? null,
       repeated: m.captureQuality?.maxRepeatedFrames ?? null, reviewRequired: !!m.captureQuality?.reviewRequired,
+      auto: m.auto ?? null,
       contentRevision: m.contentRevision ?? null, contentDirty: m.contentDirty ?? null, codeDirty: m.codeDirty ?? null,
       stale: cur && m.contentRevision ? m.contentRevision !== cur.contentRevision : null, currentContent: cur?.contentRevision ?? null };
   };
@@ -104,9 +105,11 @@ export function makeHandler(opts = {}) {
       if (existsSync(pointer)) {
         try {
           const { revision, extension, meta } = readJson(pointer);
-          if (!/^[a-f0-9]{64}$/.test(revision) || meta.captureQuality?.invalid ||
-              (referenceRevision && meta.referenceRevision !== referenceRevision) ||
-              (contentRevision && meta.caseContentRevision !== contentRevision)) continue;
+          // orbit views (farm auto captures: side/top) carry no case revisions: only compare views are pinned to the case's
+          const pinned = view === "compare";
+          if (!/^[a-f0-9]{64}$/.test(revision) || (meta.captureQuality?.invalid && meta.auto?.kind !== "preview") ||
+              (referenceRevision && (pinned || meta.referenceRevision) && meta.referenceRevision !== referenceRevision) ||
+              (contentRevision && (pinned || meta.caseContentRevision) && meta.caseContentRevision !== contentRevision)) continue;
           info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`,
             count: meta.frames, fps: meta.fps || 20, castFrame: Math.round(((meta.cast_tick_ms ?? 0) * (meta.fps || 20)) / 1000), extension, revision, prov: { ...provOf(meta), published: true } };
         } catch { /* Never fall back to a partially overwritten source after publication. */ }

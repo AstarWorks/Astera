@@ -6,7 +6,7 @@ viewer's screen shows the new tick in the stamp (the stamp datapack's boss bar) 
 least twice. The camera plan is applied by tick (t_ms / 50), right before the step into that tick. Output is then one
 settled frame per tick whatever the render rate. Env: DIRECTOR_STEP_TICKS (ticks after the cast), DIRECTOR_STEP_PRE (ticks
 before the cast), DIRECTOR_STEP_DISPLAY (X display, e.g. :0), DIRECTOR_STEP_SCREEN (WxH), DIRECTOR_STEP_GUI (gui scale),
-DIRECTOR_STEP_DWELL (seconds, default 0.35).
+DIRECTOR_STEP_DWELL (seconds, default 0.35), DIRECTOR_STEP_POLL_FPS (persistent stamp grabber rate, default 60; 0 = one ffmpeg per poll).
 
 usage: python3 -I director.py <host> <port> <password> <plan.tsv> <cast-command...>
 
@@ -71,6 +71,62 @@ def stamp_on_screen(display, screen_w, screen_h, gui):
     return decode_stamp(np.frombuffer(out, np.uint8).reshape(h, w, 3))
 
 
+class StampWatcher:
+    """One long-lived ffmpeg x11grab of the stamp rectangle (rawvideo on a pipe) and a reader thread that keeps the newest
+    decoded stamp: waiting for a tick is a condition wait on that thread instead of spawning ffmpeg per poll (a spawn costs
+    0.1-0.3 s on the loaded capture host, per tick). `latest` = (stamp or None, monotonic time the frame was read)."""
+
+    def __init__(self, display, screen_w, screen_h, gui, fps):
+        import threading
+        import numpy as np
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from stampcodec import decode_stamp, STAMP_HALF_W, STAMP_H
+        self._np, self._decode = np, decode_stamp
+        self.x0 = max(0, screen_w // 2 - STAMP_HALF_W * gui)
+        self.w = min(screen_w - self.x0, 2 * STAMP_HALF_W * gui)
+        self.h = STAMP_H * gui
+        self.latest = (None, 0.0)
+        self.cond = threading.Condition()
+        self.dead = False
+        self.proc = subprocess.Popen(
+            ["ffmpeg", "-nostdin", "-loglevel", "error", "-f", "x11grab", "-framerate", str(fps), "-video_size", f"{self.w}x{self.h}",
+             "-i", f"{display}+{self.x0},0", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        threading.Thread(target=self._read, daemon=True).start()
+
+    def _read(self):
+        size = self.w * self.h * 3
+        while True:
+            buf = self.proc.stdout.read(size)
+            if len(buf) < size:
+                break
+            v = self._decode(self._np.frombuffer(buf, self._np.uint8).reshape(self.h, self.w, 3))
+            with self.cond:
+                self.latest = (v, time.monotonic())
+                self.cond.notify_all()
+        with self.cond:
+            self.dead = True
+            self.cond.notify_all()
+
+    def wait_for(self, want, timeout):
+        """True once a frame shows stamp `want` (checked on frames read from now on or already read)."""
+        end = time.monotonic() + timeout
+        with self.cond:
+            while self.latest[0] != want:
+                left = end - time.monotonic()
+                if left <= 0 or self.dead:
+                    return False
+                self.cond.wait(min(left, 0.25))
+            return True
+
+    def close(self):
+        try:
+            self.proc.terminate()
+            self.proc.wait(timeout=5)
+        except Exception:
+            self.proc.kill()
+
+
 def gametime(sock):
     return int(re.search(r"(\d+)\D*$", run(sock, "time query gametime")).group(1))
 
@@ -81,23 +137,34 @@ def main_stepped(sock, steps, cast):
     sw, sh = (int(v) for v in os.environ["DIRECTOR_STEP_SCREEN"].split("x"))
     gui, dwell = int(os.environ.get("DIRECTOR_STEP_GUI", "1")), float(os.environ.get("DIRECTOR_STEP_DWELL", "0.35"))
 
+    poll_fps = int(os.environ.get("DIRECTOR_STEP_POLL_FPS", "60"))
+    watcher = StampWatcher(display, sw, sh, gui, poll_fps) if poll_fps > 0 else None
+    stats = {"n": 0, "wait": 0.0, "max": 0.0}
+
     def shown(g, what):
         # the stamp function runs at the start of a tick, before the level time advances: with game time g the last executed
         # tick (and so the stamp on screen) is g - 1. A frame stamped s shows the world after tick s ran.
-        deadline = time.time() + 30
-        while time.time() < deadline:
-            if stamp_on_screen(display, sw, sh, gui) == (g - 1) % 1024:
-                time.sleep(dwell)
-                return
-        raise RuntimeError("the viewer never showed tick %d (%s)" % (g, what))
+        t0 = time.monotonic()
+        if watcher is not None:
+            ok = watcher.wait_for((g - 1) % 1024, 30)
+        else:
+            ok = False
+            deadline = time.time() + 30
+            while time.time() < deadline:
+                if stamp_on_screen(display, sw, sh, gui) == (g - 1) % 1024:
+                    ok = True
+                    break
+        if not ok:
+            raise RuntimeError("the viewer never showed tick %d (%s; server game time %d)" % (g, what, gametime(sock)))
+        waited = time.monotonic() - t0
+        stats["n"] += 1
+        stats["wait"] += waited
+        stats["max"] = max(stats["max"], waited)
+        time.sleep(dwell)
 
     def step(g):
+        # no gametime poll: the viewer showing the new tick's stamp proves the server stepped (and the poll costs an RCON round trip)
         run(sock, "tick step 1")
-        deadline = time.time() + 30
-        while gametime(sock) < g + 1:
-            if time.time() > deadline:
-                raise RuntimeError("server did not step to tick %d" % (g + 1))
-            time.sleep(0.02)
         shown(g + 1, "step")
 
     run(sock, "tick freeze")
@@ -128,6 +195,11 @@ def main_stepped(sock, steps, cast):
         return 0
     finally:
         run(sock, "tick unfreeze")
+        if watcher is not None:
+            watcher.close()
+        if stats["n"]:
+            print("STEP_STATS n=%d mean_wait_ms=%.0f max_wait_ms=%.0f dwell_ms=%.0f" % (
+                stats["n"], 1000 * stats["wait"] / stats["n"], 1000 * stats["max"], 1000 * dwell), file=sys.stderr, flush=True)
 
 
 def main():
