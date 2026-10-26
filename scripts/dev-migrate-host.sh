@@ -15,7 +15,7 @@
 # 4 pg_dump -> restore (skipped when the target DB already has tables), 5 non-world state of lobby-data /
 # game-data (worlds are regenerated: void world + slots, ADR-0255), 6 bring the whole stack up, 7 connect address.
 #
-# Env: DRY_RUN=1 (print the steps, run nothing), RESTORE=1 (redo DB + volume restore even if already done;
+# Env: RCON_WAIT_SECONDS=900 (total wait for lobby+game RCON), DRY_RUN=1 (print the steps, run nothing), RESTORE=1 (redo DB + volume restore even if already done;
 # overwrites newer data on the target), ASTERA_PUBLIC_HOST (address clients use, default the host part),
 # SRC_PROJECT (default astera-dev), DATA_PATHS (non-world paths to carry, relative to /data; default
 # "*.json plugins"), ASTERA_PORT / RESOURCE_PACK_PORT (as in docker-compose.yml).
@@ -138,10 +138,11 @@ done
 step "bring the whole stack up on the target"
 run rcompose up -d --build
 if [ "$DRY" != 1 ]; then
-  deadline=$((SECONDS + 420))
+  wait_s=${RCON_WAIT_SECONDS:-900}   # first boot on a fresh host downloads Paper/Velocity (helper retries on flaky links)
+  deadline=$((SECONDS + wait_s))
   for svc in lobby game; do
     until rdocker exec "$(rcompose ps -q "$svc")" rcon-cli list 2>/dev/null | grep -q 'There are'; do
-      [ "$SECONDS" -lt "$deadline" ] || die "$svc not answering RCON after 420s (docker compose logs $svc on the target)"
+      [ "$SECONDS" -lt "$deadline" ] || die "$svc not answering RCON after ${wait_s}s (RCON_WAIT_SECONDS) (docker compose logs $svc on the target)"
       sleep 3
     done
     info "$svc: up"

@@ -638,6 +638,11 @@ internal object MatchGameplayWiring {
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class) { queueLog.onJoined(it) }
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) { queueLog.onLeft(it) }
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { queueLog.onFormed(it) }
+            val queuePresentation = com.astarworks.astera.match.application.eventbus.listeners.match.QueuePresentationListener(
+                services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
+            )
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class) { queuePresentation.onJoined(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { queuePresentation.onFormed(it) }
             val lobbyQueueIntentRouter =
                 services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>()
             registrations += lobbyQueueIntentRouter.register(

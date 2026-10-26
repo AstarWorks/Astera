@@ -23,18 +23,14 @@ internal fun CoreWiringState.wireTutorialGuide() {
     ContentLoader(ContentLoader.DEFAULT_PARSERS, LobbyNpcYamlConfig.serializer())
         .loadFrom(contentDir.resolve("lobby-npcs")) { npcs += it }
     fun npcById(id: String): Vec3? = npcs.firstOrNull { it.id == id }?.spawn?.let { Vec3(it.x, it.y, it.z) }
-    fun npc(intent: String): Vec3? = npcs.firstOrNull { it.interaction.rightClickIntent == intent }
-        ?.spawn?.let { Vec3(it.x, it.y, it.z) }
     val guide = TutorialGuide(
         tutorialSequencer, mcServer, scheduler, services.getOrThrow<IHologramGateway>(),
         range = { services.get<ILobbyTrainingRange>() }, eligible = { tutorialEligible(it) },
+        hintsEnabled = { services.get<com.astarworks.astera.core.application.service.hud.HudPreferences>()?.tutorialHintsEnabled(it) ?: true },
         landmark = { action -> when (action) {
             "menu" -> Vec3(lobby.spawn.x, lobby.spawn.y, lobby.spawn.z)
-            "shop" -> npc("lobby.shop.open")
-            // The vault counter is scenery opposite the Market hub; the marker points at the Market NPC.
-            "vault" -> npc("lobby.shop.open")
             // ADR-0248: the marker points at the Play gate in front of the spawn, not at a far lane pad.
-            "queue" -> npcById("play-npc") ?: services.get<LobbyLanePadService>()?.pads()?.values?.firstOrNull()
+            "queue", "norma" -> npcById("play-npc") ?: services.get<LobbyLanePadService>()?.pads()?.values?.firstOrNull()
             else -> null
         } },
     )
@@ -57,6 +53,11 @@ internal fun CoreWiringState.wireTutorialGuide() {
     ctx.subscriptions += eventBus.subscribe(SkillCooldownStarted::class) {
         if (it.sourceItemId?.value == "knight-sword" && it.trigger == SkillTrigger.SNEAK_RIGHT && it.skillId.value == "sword-dash") {
             tutorialSequencer.recordAction(it.playerId, "secondary")
+        }
+    }
+    ctx.subscriptions += eventBus.subscribe(SkillCooldownStarted::class) {
+        if (it.sourceItemId?.value == "fire-staff" && it.trigger == SkillTrigger.RIGHT_CLICK) {
+            tutorialSequencer.recordAction(it.playerId, "staff")
         }
     }
     ctx.subscriptions += eventBus.subscribe(ResourceReloaded::class) {

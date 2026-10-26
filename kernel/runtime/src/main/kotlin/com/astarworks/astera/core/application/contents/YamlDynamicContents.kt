@@ -3,7 +3,6 @@ package com.astarworks.astera.core.application.contents
 import com.astarworks.astera.core.application.port.outbound.IContentParser
 import com.astarworks.astera.core.application.service.ContentLoader
 import kotlinx.serialization.DeserializationStrategy
-import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
@@ -40,7 +39,6 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
 
     private val store: AtomicReference<Map<K, V>> = AtomicReference(emptyMap())
     private val loader = ContentLoader(parsers, deserializer)
-    private val log = LoggerFactory.getLogger(javaClass)
 
     /**
      * Map a successfully-parsed config to its registry entry. Subclasses
@@ -107,18 +105,7 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
             toEntry(cfg)?.let { (k, v) -> next[k] = v }
         }
         if (report.failed != 0) return report
-        if (next.isEmpty() && store.get().isNotEmpty()) {
-            // A loader/layout mismatch must never silently empty a populated registry (the sound-cue reload bug).
-            log.warn(
-                "[content-reload] {}: reload of {} produced 0 entries but the registry holds {}; keeping the old store",
-                categoryName, dir, store.get().size,
-            )
-            return ContentLoader.LoadReport(
-                loaded = 0,
-                failed = 1,
-                failures = listOf(ContentLoader.LoadFailure(dir, "reload produced no entries; keeping the previous ${store.get().size}")),
-            )
-        }
+        EmptyReloadGuard.check(categoryName, dir, next.size, store.get().size)?.let { return it }
         store.set(next.toMap())
         return report
     }

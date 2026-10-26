@@ -175,6 +175,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         settingsSpec = { guiContents.find(com.astarworks.astera.core.domain.gui.GuiId("settings")) },
         messages = messages,
         playerGateway = playerGateway,
+        onChanged = { services.get<com.astarworks.astera.core.application.service.hud.HudPreferences>()?.invalidate(it) },
     )
     waveGRegistrations += waveGRouter.register(
         com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsToggleIntentHandler.INTENT_TOGGLE,
