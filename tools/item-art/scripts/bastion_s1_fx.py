@@ -313,6 +313,21 @@ def low():
     # r12: static chips removed (see high()); dark debris = sliver display particles of the particle layer
     # r16: s1h2-smoke-up dropped (hard grey "C" crescent between the bodies, compare t36-40; see high()).
     # r13: the flattened floor smoke (s1h2-smoke, y 0.18) is dropped: it read as a low grey smear on t35-39 (reviewer r9).
+    # r3b (back view): the camera-facing planes above vanish from behind; crossed fixed planes (yaw 90, and a flat one) give
+    # the flash and the streak a volume that reads from any side. Same shapes, same scale curves.
+    for tag, yaw, pitch in (("x", 90, 0), ("f", 0, 90)):
+        cf, m = sprite(f"s1h2-flash-{tag}", "bastion-s1-flare", c, c + 4, [
+            kf(0, at(hit, (0.039, 0.337, -0.395)), [pitch, yaw, 0], [s256(1.2), s256(1.2), 1.0]),
+            kf(1, scale=[s256(2.3), s256(2.3), 1.0], ease="out_back"),
+            kf(3, scale=[s256(0.9), s256(0.9), 1.0], ease="out_quad")])
+        cf["billboard"] = "fixed"
+        els.append((cf, m))
+    cs, m = sprite("s1h2-streak-x", "bastion-s1-streak", c, c + 6, [
+        kf(0, at(hit, (-0.011, 0.837, -0.295)), [0, 90, -4], [s256(0.6), 0.32, 1.0]),
+        kf(1, scale=[s256(5.6), 0.32, 1.0], ease="out_expo"),
+        kf(6, scale=[s256(3.6), 0.04, 1.0], ease="in_quad")])
+    cs["billboard"] = "fixed"
+    els.append((cs, m))
     return {"id": "bastion-s1-fx-low", "duration_ticks": 18, "orient": "yaw", "follow": False, "sample_ticks": 1,
             "elements": [e for e, _ in els]}, [m for _, m in els]
 

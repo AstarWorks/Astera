@@ -538,7 +538,7 @@ SWEEPS = {
     # meets the floor behind the caster); one global radius curve (no monotone curl: the ring continues past the front).
     "hring": dict(centre=np.array([-0.35, 1.15, 0.0]), e1=np.array([1.0, 0.0, 0.0]),
                   e2=np.array([0.0, math.sin(math.radians(HRING_TILT)), math.cos(math.radians(HRING_TILT))]), sign=-1, r_tip=2.75,
-                  t_max=0.42, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(HRING_TILT)), ellipse=(0.0, -0.15, 2.55, 1.75), ymin=0.2,
+                  t_max=0.55, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(HRING_TILT)), ellipse=(0.0, -0.15, 2.55, 1.75), ymin=0.2,
                   smooth=10.0, hot="inner", fan_alpha=0.0,
                   # r23 (director r22, opponent t9-10: the outer rim read as an ~8 px dark grey band over the sky). Cause:
                   # the r12 dark rim (#3A2A06 at <= 0.6 alpha, centred 1.5 px OUTSIDE the band) plus the 1.5 px outer

@@ -190,11 +190,11 @@ def defs():
          "dust_color_transition", 1, 12, burst(0.09), CHAR, dct((92, 50, 26), (28, 18, 12), 0.5), speed=0.0)
     # impact (damage ticks, at the blade point nearest the target)
     vdef("impact-crit", "r28 impact: crit burst, all directions.",
-         "crit", 14, 8, burst(0.15), velocity="{ direction: outward, speed: 0.55, spread_degrees: 0, speed_jitter: 0.45 }")
-    vdef("impact-dust", "r28 impact: hot gold dust cloud.",
-         "dust_color_transition", 10, 14, burst(0.22), GOLD, dct(WHITE_HOT, ORANGE, 0.85), speed=0.0)
-    vdef("impact-smoke", "r28 impact: dark smoke after the flash.",
-         "smoke", 6, 16, burst(0.18), speed=0.05)
+         "crit", 14, 6, burst(0.15), velocity="{ direction: outward, speed: 0.55, spread_degrees: 0, speed_jitter: 0.45 }")
+    vdef("impact-dust", "r3b impact: small short gold dust (no big puffs).",
+         "dust_color_transition", 5, 4, burst(0.12), GOLD, dct(WHITE_HOT, ORANGE, 0.4), speed=0.0)
+    vdef("impact-smoke", "r3b impact: unused (puffs removed).",
+         "smoke", 1, 2, burst(0.05), speed=0.0)
     # staged tiers (principles: convergence = charge / spread = release; phase-shifted rings; rare detail; afterglow)
     vdef("gather", "gather: dust flowing INTO the blade tip before a cut (negative outward speed = convergence).",
          "dust_color_transition", 1, 6, burst(0.3), GOLD, dct(WHITE_HOT, GOLD, 0.4),
@@ -394,11 +394,8 @@ class Layer:
             q = (p[0] + 0.25 * j, p[1], p[2] - 0.15 * j)
             self.once("impact-crit", "impact-crit", ft, q)
             self.once("impact-dust", "impact-dust", ft, q)
-            self.once("impact-flame", "impact-flame", ft, q)
             self.once("impact-crit", "impact-crit", ft + 1, q)
-            self.once("impact-smoke", "impact-smoke", ft + 1, q, big=True)
-            self.once("impact-dust", "impact-dust", ft + 2, q)
-        self.once("slash", "slash", ft, p, big=True)
+        self.once("slash", "slash", ft, p)
         return p
 
     def build(self):
