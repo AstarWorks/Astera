@@ -1,9 +1,9 @@
-# r28 impact: dark smoke after the flash.
+# r3b impact: unused (puffs removed).
 id: bastion-s1-p-impact-smoke
-shape: { kind: burst, spread_blocks: 0.18 }
+shape: { kind: burst, spread_blocks: 0.05 }
 color: { r: 255, g: 255, b: 255 }
-count: 6
-lifetime_ticks: 16
+count: 1
+lifetime_ticks: 2
 vanilla_particle: smoke
-speed: 0.05
+speed: 0.0
 force: true

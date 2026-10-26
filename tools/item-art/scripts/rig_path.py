@@ -283,8 +283,28 @@ class RigPath:
         return (self.pivot[0] + v[0], self.pivot[1] + v[1], self.pivot[2] + v[2] + dz)
 
     def _plan_seg(self, skill_tick):
-        """(grip, unit direction, length) of the blade at whole skill tick floor(skill_tick) in this fx file's frame (x = left)."""
-        T = max(min(int(math.floor(skill_tick + 1e-9)), max(self.plan)), min(self.plan))
+        """(grip, unit direction, length) of the blade at skill tick `skill_tick` in this fx file's frame (x = left). Whole
+        ticks are the plan dump; between two whole ticks the direction is slerped and the grip lerped (r28, ADR-0278: the
+        per-tick swing keys are interpolated by the client, so a 80 deg/tick sweep has a real arc between the dumps; a held
+        pose or an `ease: step` cut is equal at both ends, i.e. unchanged)."""
+        T0 = int(math.floor(skill_tick + 1e-9))
+        f = skill_tick - T0
+        g0, d0, L0 = self._plan_seg_whole(T0)
+        if f < 1e-9 or (T0 + 1) > max(self.plan):
+            return g0, d0, L0
+        g1, d1, L1 = self._plan_seg_whole(T0 + 1)
+        c = max(-1.0, min(1.0, sum(a * b for a, b in zip(d0, d1))))
+        om = math.acos(c)
+        if om < 1e-6:
+            d = d0
+        else:
+            k0, k1 = math.sin((1 - f) * om) / math.sin(om), math.sin(f * om) / math.sin(om)
+            d = tuple(k0 * a + k1 * b for a, b in zip(d0, d1))
+        g = tuple(a + (b - a) * f for a, b in zip(g0, g1))
+        return g, d, L0 + (L1 - L0) * f
+
+    def _plan_seg_whole(self, T):
+        T = max(min(T, max(self.plan)), min(self.plan))
         w = self.plan[T]
         dz = self.dash_offset(T) - self.dash_offset(self.fx_delay)
         g = (-w["pos"][0], w["pos"][1], w["pos"][2] + dz)

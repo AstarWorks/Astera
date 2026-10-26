@@ -510,9 +510,13 @@ _t1 = math.radians(22.0)
 # r7 blade keys 24-30 (phi 163 .. 102) with the lowest point held at the floor pitch -15 (tip y 0.11): max off-plane
 # 0.12 blocks over the whole arc. The r6 plane (-8 / 14) dipped to y -0.19 at phi 60 (under the floor) while the blade
 # stayed at -15; a -1 / 14 plane fixes the floor but sits 0.31 above the r7 wind-up keys 23-27.
-RING_CENTRE_PITCH = -5.0
-RING_TILT = 10.0
-_h60 = np.array([math.sin(math.radians(60)), 0.0, math.cos(math.radians(60))])
+# r29 (round r4, ring/sword mesh): re-FIT to the r4 cut-2 keys (tools/pose-solve/author_bastion_s1.py: crouch 0.6 .. thrust 1.0, a flat
+# ring around the hips as in the reference, measured tilt ~3 deg, camera pitch 19-21 deg vs ellipse minor/major 0.30-0.40): least squares
+# y = y0 + gx x + gz z over the sweep + thrust tip path (fx-low ticks 1-11): y0 0.77, gx 0.066, gz 0.069 = 5.5 deg, lowest toward
+# phi 224 (behind-right), rms 0.017 / max 0.05. Same fit as `_fit_plane` (rig_path.RigPath.arc + lstsq).
+RING_CENTRE_PITCH = 0.0
+RING_TILT = 5.5
+_h60 = np.array([math.sin(math.radians(224)), 0.0, math.cos(math.radians(224))])
 _n2 = math.cos(math.radians(RING_TILT)) * np.array([0.0, 1.0, 0.0]) + math.sin(math.radians(RING_TILT)) * _h60
 _f2 = np.array([0.0, 0.0, 1.0]) - _n2[2] * _n2
 _f2 = _f2 / np.linalg.norm(_f2)
@@ -523,7 +527,7 @@ _f2 = _f2 / np.linalg.norm(_f2)
 # height all round): plane tilt 20 -> 14 deg about the x axis through the tip-circle centre. The sides (z 0) are unchanged
 # (y 1.15 = the blade tip there); the back (z -1.9) rises from y 0.46 to 0.68 (above the knee), the front (z 1.6) drops
 # from 1.73 to 1.55, i.e. the band sits <= 0.2 off the r10 tip plane at the very front / back.
-HRING_TILT = 14.0
+HRING_TILT = 5.0  # seed only: `fit_plane` re-derives the plane from the blade path (r4 fit: 4.9 deg rising toward the front)
 
 SWEEPS = {
     # hit 1 (r10 rig): tilted horizontal sweep. The tip stays on the plane y = 1.15 + tan(20 deg) z (animator Round 10), so
@@ -538,7 +542,7 @@ SWEEPS = {
     # meets the floor behind the caster); one global radius curve (no monotone curl: the ring continues past the front).
     "hring": dict(centre=np.array([-0.35, 1.15, 0.0]), e1=np.array([1.0, 0.0, 0.0]),
                   e2=np.array([0.0, math.sin(math.radians(HRING_TILT)), math.cos(math.radians(HRING_TILT))]), sign=-1, r_tip=2.75,
-                  t_max=0.42, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(HRING_TILT)), ellipse=(0.0, -0.15, 2.55, 1.75), ymin=0.2,
+                  t_max=0.55, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(HRING_TILT)), ellipse=(0.0, -0.15, 2.55, 1.75), ymin=0.2,
                   smooth=10.0, hot="inner", fan_alpha=0.0,
                   # r23 (director r22, opponent t9-10: the outer rim read as an ~8 px dark grey band over the sky). Cause:
                   # the r12 dark rim (#3A2A06 at <= 0.6 alpha, centred 1.5 px OUTSIDE the band) plus the 1.5 px outer
@@ -585,7 +589,9 @@ SWEEPS = {
                   # way) and ends where the follow-through stops advancing, not where the speed drops under 1 block/tick.
                   # If the blade does not sweep a full turn the ring is closed on the follow-through (`close_ticks`) by
                   # drawing the tail back to meet the head, while the head stays on the blade.
-                  cut=dict(tick=0, open=[250.0], closed=4),  # r27: pose-to-pose cut, see _cut_schedule
+                  # r28 (ADR-0278 per-tick swing keys: the blade sweeps again, cut 1 CCW from above behind -> right -> front ->
+                  # left): back to the tracked trail of r25b (the r27 `cut` schedule was for the pose-to-pose step cuts).
+                  fit_plane=True, track="reversal", close_ticks=2,
                   lead=1,
                   # r26 (reviewer r25 #2: the compare close-up showed no ring on the contact frames f13-14, the band came
                   # one tick after the hurt tint): `lead` = ticks the tile frames run AHEAD of the tip state. The rig pose of
@@ -597,15 +603,15 @@ SWEEPS = {
                   # edge (sprite scale grows by the same factor), so neighbours overlap by 2 x that across the join. The
                   # band core is opaque, so the double-drawn strip does not show.
                   tile_overlap=2,
-                  fade=[(0.0, 0.9, 1.0, 0.4), (0.0, 0.7, 0.95, 0.35), (0.0, 0.55, 0.9, 0.3), (0.0, 0.4, 0.85, 0.3),
-                        (0.0, 0.3, 0.8, 0.3)]),
+                  fade=[(0.0, 0.6, 0.9, 0.35), (0.0, 0.3, 0.8, 0.3)]),  # r3: gone by skill ~16 (reference), was 5 fade frames
     # hit 2 low ring: plane tilted RING_TILT (lowest toward phi 60 = left-front), centre on the pivot axis at the
     # cone-centre height (tip pitch RING_CENTRE_PITCH). alpha 0 ~ forward, +90 ~ left; the blade turns +alpha
     # (left-back -> back -> right -> front). Tip alpha per skill tick (r7, in this plane): 134 (26), 163 (27),
     # 210.8 (28), 265 (29), 320.7 (30), 379.1 contact (31, phi 18 y 0.11, held 31-32); follow 60.4 (34), 101.6 (35).
     # Played in fx-low (skill tick = fx tick + 27).
+    # r28: cut 2 turns CW from above (behind -> caster's left -> front -> right): alpha DECREASES in this basis (sign -1).
     "ring": dict(centre=_PIVOT + np.array([0.0, _TIP * math.sin(math.radians(RING_CENTRE_PITCH)), 0.0]), e1=_f2,
-                 e2=np.cross(_n2, _f2), sign=1, r_tip=round(_TIP * math.cos(math.radians(RING_CENTRE_PITCH)), 3), fan_in=1.5, cams=[np.array([0.0, 1.62, 1.7])],  # hit-2 dash stop 1.7
+                 e2=np.cross(_n2, _f2), sign=-1, r_tip=round(_TIP * math.cos(math.radians(RING_CENTRE_PITCH)), 3), fan_in=1.5, cams=[np.array([0.0, 1.62, 1.7])],  # hit-2 dash stop 1.7
                  # r13: shipped as 4 quadrant TILES (front face only, 2x texel density) with a soft edge, a thickness floor
                  # (the tail no longer dies to a needle) and a thicker BACK arc (alpha 120-250): the opponent (z 1.7) only
                  # sees the back half, nearly edge-on (~14 deg), so the r9 0.24-block band read as a hairline.
@@ -626,7 +632,7 @@ SWEEPS = {
                  # r25: frames from the rig (`ring_schedule`, as hring): the trail of the tip from the start of its fast swing,
                  # thickening over the first two ticks (`grow`), then `fade` = the tail chasing the head (erase fraction of the
                  # span, thickness, opacity).
-                 fx="bastion-s1-fx-low", grow=[0.75, 0.9], cut=dict(tick=1, open=[200.0], closed=3),
+                 fx="bastion-s1-fx-low", grow=[0.75, 0.9], close_ticks=2,  # r28: tracked trail again (per-tick keys)
                  fade=[(0.0, 0.85, 0.9), (0.25, 0.72, 0.8), (0.5, 0.58, 0.68), (0.7, 0.44, 0.54), (0.85, 0.3, 0.4),
                        (0.93, 0.18, 0.28)]),
 }

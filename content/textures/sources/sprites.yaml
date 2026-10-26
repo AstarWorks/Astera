@@ -69,16 +69,16 @@ sprites:
   bastion-s1-glint: { from: bastion-s1-glint, raw: true, frames: 2, size: 128 }
   bastion-s1-flare: { from: bastion-s1-flare, raw: true, frames: 2, size: 256 }
   bastion-s1-sliver: { from: bastion-s1-sliver, raw: true, frames: 3, size: 128 }
-  bastion-s1-ring-q0: { from: bastion-s1-ring-q0, raw: true, frames: 10, size: 256 }
-  bastion-s1-ring-q1: { from: bastion-s1-ring-q1, raw: true, frames: 10, size: 256 }
-  bastion-s1-ring-q2: { from: bastion-s1-ring-q2, raw: true, frames: 10, size: 256 }
-  bastion-s1-ring-q3: { from: bastion-s1-ring-q3, raw: true, frames: 10, size: 256 }
-  bastion-s1-hring-q0: { from: bastion-s1-hring-q0, raw: true, frames: 10, size: 256 }
-  bastion-s1-hring-q1: { from: bastion-s1-hring-q1, raw: true, frames: 10, size: 256 }
-  bastion-s1-hring-q2: { from: bastion-s1-hring-q2, raw: true, frames: 10, size: 256 }
-  bastion-s1-hring-q3: { from: bastion-s1-hring-q3, raw: true, frames: 10, size: 256 }
-  bastion-s1-hring-bq0: { from: bastion-s1-hring-bq0, raw: true, frames: 10, size: 256 }
-  bastion-s1-hring-bq1: { from: bastion-s1-hring-bq1, raw: true, frames: 10, size: 256 }
-  bastion-s1-hring-bq2: { from: bastion-s1-hring-bq2, raw: true, frames: 10, size: 256 }
-  bastion-s1-hring-bq3: { from: bastion-s1-hring-bq3, raw: true, frames: 10, size: 256 }
+  bastion-s1-ring-q0: { from: bastion-s1-ring-q0, raw: true, frames: 13, size: 256 }
+  bastion-s1-ring-q1: { from: bastion-s1-ring-q1, raw: true, frames: 13, size: 256 }
+  bastion-s1-ring-q2: { from: bastion-s1-ring-q2, raw: true, frames: 13, size: 256 }
+  bastion-s1-ring-q3: { from: bastion-s1-ring-q3, raw: true, frames: 13, size: 256 }
+  bastion-s1-hring-q0: { from: bastion-s1-hring-q0, raw: true, frames: 12, size: 256 }
+  bastion-s1-hring-q1: { from: bastion-s1-hring-q1, raw: true, frames: 12, size: 256 }
+  bastion-s1-hring-q2: { from: bastion-s1-hring-q2, raw: true, frames: 12, size: 256 }
+  bastion-s1-hring-q3: { from: bastion-s1-hring-q3, raw: true, frames: 12, size: 256 }
+  bastion-s1-hring-bq0: { from: bastion-s1-hring-bq0, raw: true, frames: 12, size: 256 }
+  bastion-s1-hring-bq1: { from: bastion-s1-hring-bq1, raw: true, frames: 12, size: 256 }
+  bastion-s1-hring-bq2: { from: bastion-s1-hring-bq2, raw: true, frames: 12, size: 256 }
+  bastion-s1-hring-bq3: { from: bastion-s1-hring-bq3, raw: true, frames: 12, size: 256 }
   bastion-s1-spark: { from: bastion-s1-spark, raw: true, frames: 4, size: 64 }

@@ -172,7 +172,7 @@ def defs():
     burst = lambda s: "{ kind: burst, spread_blocks: %s }" % s  # noqa: E731
     # blade sheath (held poses, every tick, every 0.2 blocks root -> tip)
     vdef("sheath", "r28 blade sheath: gold -> orange dust, 2 per point scattered round the blade (3D), re-rolled every tick.",
-         "dust_color_transition", 2, 12, burst(0.05), GOLD, dct(GOLD_HOT, ORANGE, 0.45), speed=0.0)
+         "dust_color_transition", 1, 10, burst(0.04), GOLD, dct(GOLD_HOT, ORANGE, 0.28), speed=0.0)
     vdef("sheath-hot", "r28 white-hot edge glints on the outer half of the blade.",
          "dust_color_transition", 1, 8, burst(0.035), WHITE_HOT, dct(WHITE_HOT, GOLD, 0.35), speed=0.0)
     vdef("fleck", "r28 crit flecks thrown off the blade in random directions (vanilla scatter: gaussian velocity x speed).",
@@ -181,20 +181,29 @@ def defs():
          "flame", 1, 14, burst(0.03), speed=0.012)
     # cut trail (the swept volume between two held poses, emitted on the cut tick)
     vdef("trail", "r28 cut trail: big gold -> ember dust along the swept arc.",
-         "dust_color_transition", 2, 14, burst(0.07), GOLD, dct(GOLD_HOT, EMBER_RED, 0.6), speed=0.0)
+         "dust_color_transition", 1, 8, burst(0.04), GOLD, dct(GOLD_HOT, EMBER_RED, 0.3), speed=0.0)
     vdef("trail-crit", "r28 cut trail: crit sparks sprayed off the swept tip arc in every direction.",
-         "crit", 3, 8, burst(0.06), velocity="{ direction: outward, speed: 0.32, spread_degrees: 0, speed_jitter: 0.5 }")
+         "crit", 2, 8, burst(0.06), velocity="{ direction: along_tangent, speed: 0.32, spread_degrees: 12, speed_jitter: 0.5 }")
     vdef("slash", "r28 vanilla sweep_attack slash on the swept arc (camera-facing, so it reads from every side).",
          "sweep_attack", 1, 4, speed=0.0)
     vdef("ash", "r28 dark ash in the trail (dark mixed with bright): near-black dust.",
          "dust_color_transition", 1, 12, burst(0.09), CHAR, dct((92, 50, 26), (28, 18, 12), 0.5), speed=0.0)
     # impact (damage ticks, at the blade point nearest the target)
     vdef("impact-crit", "r28 impact: crit burst, all directions.",
-         "crit", 14, 8, burst(0.15), velocity="{ direction: outward, speed: 0.55, spread_degrees: 0, speed_jitter: 0.45 }")
-    vdef("impact-dust", "r28 impact: hot gold dust cloud.",
-         "dust_color_transition", 10, 14, burst(0.22), GOLD, dct(WHITE_HOT, ORANGE, 0.85), speed=0.0)
-    vdef("impact-smoke", "r28 impact: dark smoke after the flash.",
-         "smoke", 6, 16, burst(0.18), speed=0.05)
+         "crit", 6, 5, burst(0.12), velocity="{ direction: outward, speed: 0.55, spread_degrees: 0, speed_jitter: 0.45 }")
+    vdef("impact-dust", "r3b impact: small short gold dust (no big puffs).",
+         "dust_color_transition", 5, 4, burst(0.12), GOLD, dct(WHITE_HOT, ORANGE, 0.4), speed=0.0)
+    vdef("impact-smoke", "r3b impact: unused (puffs removed).",
+         "smoke", 1, 2, burst(0.05), speed=0.0)
+    # staged tiers (principles: convergence = charge / spread = release; phase-shifted rings; rare detail; afterglow)
+    vdef("gather", "gather: dust flowing INTO the blade tip before a cut (negative outward speed = convergence).",
+         "dust_color_transition", 1, 6, burst(0.3), GOLD, dct(WHITE_HOT, GOLD, 0.22),
+         velocity="{ direction: outward, speed: -0.09, spread_degrees: 0, speed_jitter: 0.3 }")
+    vdef("ring-crit", "release ring: crit sparks thrown radially from points on a ring round the impact (ring-by-ring phase shift).",
+         "dust_color_transition", 1, 6, burst(0.02), GOLD, dct(WHITE_HOT, GOLD, 0.25),
+         velocity="{ direction: outward, speed: 0.3, spread_degrees: 0, speed_jitter: 0.3 }")
+    vdef("afterglow", "afterglow: embers rising off the impact point after the release.",
+         "flame", 2, 12, burst(0.15), velocity="{ direction: up, speed: 0.04, spread_degrees: 25, speed_jitter: 0.5 }")
     vdef("impact-flame", "r28 impact: flames flung out.",
          "flame", 6, 12, burst(0.1), velocity="{ direction: outward, speed: 0.12, spread_degrees: 0, speed_jitter: 0.5 }")
 
@@ -262,27 +271,23 @@ def cuts(rp, ticks):
 
 
 def sweep(rp, ft, hit_half):
-    """The swept blade between the pose before the cut (ft - 1) and the pose after it (ft), as a list of (grip, dir, length)
-    samples every ~15 deg. Yaw turns forehand (right -> front -> left, phi increasing: the moon-ring direction of the rig's
-    ring smear) for a contact cut and goes round once more when the short way would miss the damage cone (hit 1 is a full
-    circle: coil behind -> follow-through behind); a cut with no hit takes the shortest way."""
-    gA, dA, LA = pose(rp, ft - 1)
-    gB, dB, LB = pose(rp, ft)
-    pA, pB = phi_of(dA), phi_of(dB)
-    tA, tB = pitch_of(dA), pitch_of(dB)
-    if hit_half is not None:
-        dphi = (pB - pA) % 360.0
-        passes = any(abs(((pA + dphi * i / 60.0 + 180) % 360) - 180) <= hit_half for i in range(61))
-        if not passes:
-            dphi += 360.0
-    else:
-        dphi = ((pB - pA + 180) % 360) - 180
-    n = max(3, int(abs(dphi) / 15) + 1)
+    """The swept blade between the pose before the cut (ft - 1) and the pose after it (ft), as a list of (grip, dir, length,
+    phi) samples every ~15 deg of blade turn. r28 (ADR-0278 per-tick swing keys): the samples ride the TRUE interpolated arc
+    (rig_path slerps the plan dump between whole ticks, <= 91 deg per tick), so the trail turns the way the blade does --
+    cut 1 counter-clockwise from above, cut 2 clockwise -- instead of a forced forehand / "go round once more" rule.
+    `hit_half` is kept for the caller's signature (the impact picks the sample nearest the target bearing)."""
+    _, dA, _ = pose(rp, ft - 1)
+    _, dB, _ = pose(rp, ft)
+    ang = math.degrees(math.acos(max(-1.0, min(1.0, sum(a * b for a, b in zip(dA, dB))))))
+    n = max(3, int(ang / 15) + 1)
     out = []
     for i in range(n + 1):
-        u = i / n
-        g = tuple(gA[k] + (gB[k] - gA[k]) * u for k in range(3))
-        out.append((g, dir_of(pA + dphi * u, tA + (tB - tA) * u), LA + (LB - LA) * u, pA + dphi * u))
+        u = ft - 1 + i / n
+        g, t = rp.blade_point(u, 0.0), rp.blade_point(u, 1.0)
+        d = tuple(t[k] - g[k] for k in range(3))
+        L = math.sqrt(sum(x * x for x in d)) or 1.0
+        d = tuple(x / L for x in d)
+        out.append((g, d, L, phi_of(d)))
     return out
 
 
@@ -318,17 +323,15 @@ class Layer:
     def held(self, ticks):
         """Every tick of `ticks` (fx), along the blade: sheath dust root -> tip, white-hot glints on the outer half, crit
         flecks, a flame lick. Runs of consecutive ticks share one element per blade station (keyframes follow the blade)."""
-        stations = [0.12 + 0.88 * i / 8 for i in range(9)]  # 9 stations, ~0.19 blocks apart on the 1.75 blade
+        stations = [0.12 + 0.88 * i / 4 for i in range(5)]  # 9 stations, ~0.19 blocks apart on the 1.75 blade
         for si, fr in enumerate(stations):
             self._runs("sheath-%d" % si, "sheath", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
-        for si, fr in enumerate((0.6, 0.8, 0.97)):
+        for si, fr in enumerate((0.8,)):
             self._runs("hot-%d" % si, "sheath-hot", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
-        for si, fr in enumerate((0.45, 0.75, 1.0)):
-            self._runs("fleck-%d" % si, "fleck", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
-        # one flame per tick, hopping root -> tip (a different station every tick: the lick moves along the blade)
-        for ft in ticks:
-            fr = (0.3, 0.85, 0.55, 1.0, 0.7, 0.4)[ft % 6]
-            self.once("lick", "lick", ft, on_blade(*pose(self.rp, ft), fr))
+        # envelope: the sheath is thickest mid-blade (extra stations), plus a rare slash detail (~1 tick in 7)
+        for si, fr in enumerate((0.5,)):
+            self._runs("mid-%d" % si, "sheath", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
+        # r3: no flame / ember on held poses (rest beats stay a faint sheath only)
 
     def _runs(self, name, pid, ticks, at):
         run = []
@@ -347,36 +350,52 @@ class Layer:
         sw = sweep(self.rp, ft, hit_half)
         slash_every = 3 if heavy else 5
         for i, (g, d, L, _) in enumerate(sw):
-            for fr in ((0.6, 0.85, 1.0) if i % 2 else (0.7, 1.0)):
+            if not heavy and i % 2:
+                continue  # ~50% of the steps; the emphasised cut keeps them all
+            # r4: only small bright dust along the edge; no crit (X sprites), no slash, no ash (all read as chunky puffs close up)
+            for fr in ((0.85, 1.0) if i % 2 else (1.0,)):
                 self.once("trail", "trail", ft, on_blade(g, d, L, fr))
-            if i % 2 == 0:
-                self.once("ash", "ash", ft, on_blade(g, d, L, 0.9))
-            self.once("trail-crit", "trail-crit", ft, on_blade(g, d, L, 0.95))
-            if i % slash_every == 1:
-                self.once("slash", "slash", ft, on_blade(g, d, L, 0.7), big=True)
-            if i % 2 == 1:
-                self.once("trail", "trail", ft + 1, on_blade(g, d, L, 0.9))
         return sw
+
+    def gather(self, c):
+        """Charge: dust converging on the blade tip for the 3 ticks before the cut at fx tick c."""
+        for ft in range(max(0, c - 3), c):
+            g, d, L = pose(self.rp, ft)
+            self.once("gather", "gather", ft, on_blade(g, d, L, 1.0))
+            self.once("gather", "gather", ft, on_blade(g, d, L, 0.7))
+
+    def release(self, ft, p, c, sense):
+        """Release: three expanding rings of outward sparks round the impact point, phase-shifted ring to ring in the cut's
+        own sense (cut 1 counter-clockwise from above = +1, cut 2 clockwise = -1), then an afterglow."""
+        g, d, L = pose(self.rp, c)
+        a = unit((d[2], 0.0, -d[0])) if abs(d[1]) < 0.95 else (1.0, 0.0, 0.0)
+        b = (d[1] * a[2] - d[2] * a[1], d[2] * a[0] - d[0] * a[2], d[0] * a[1] - d[1] * a[0])
+        for r, (rad, dt) in enumerate(((0.25, 0), (0.5, 1), (0.8, 2))):
+            n = 10 if self.tag == "s1h2" else 6  # the emphasised hit (cut 2) scales the same ring up
+            for k in range(n):
+                th = math.radians(360.0 / n * k + sense * 20 * r)
+                q = tuple(p[i] + rad * (math.cos(th) * a[i] + math.sin(th) * b[i]) for i in range(3))
+                self.once("ring", "ring-crit", ft + dt, q)
 
     def impact(self, ft, sw, hit_half, heavy):
         """Damage tick: burst at the swept blade point nearest the target bearing (phi 0), outer quarter of the blade."""
         g, d, L, _ = min(sw, key=lambda s: abs(((s[3] + 180) % 360) - 180))
         p = on_blade(g, d, L, 1.05)  # just past the tip: where the edge meets the target
-        k = 2 if heavy else 1
+        k = 3 if self.tag == "s1h2" else (2 if heavy else 1)
         for j in range(k):
             q = (p[0] + 0.25 * j, p[1], p[2] - 0.15 * j)
             self.once("impact-crit", "impact-crit", ft, q)
             self.once("impact-dust", "impact-dust", ft, q)
-            self.once("impact-flame", "impact-flame", ft, q)
             self.once("impact-crit", "impact-crit", ft + 1, q)
-            self.once("impact-smoke", "impact-smoke", ft + 1, q, big=True)
-            self.once("impact-dust", "impact-dust", ft + 2, q)
-        self.once("slash", "slash", ft, p, big=True)
         return p
 
     def build(self):
         rp = self.rp
         last = rp.fx_duration - 1
+        # r28: a tick on which the blade sweeps is never a hold, whatever the reference beat says (the r28 keys draw the
+        # anticipation / first half of cut 1 on skill 4-5, inside the reference's still coil B0 0-5): drop it from `none`.
+        moving = cuts(rp, range(1, last + 1))
+        self.none = self.none - {ft + rp.fx_delay for ft in moving}
         active = [ft for ft in range(0, last + 1) if ft + rp.fx_delay not in self.none]
         hits = {t - rp.fx_delay: h for t, h in skill_hits() if 0 <= t - rp.fx_delay <= last}
         cut_ticks = cuts(rp, active)
@@ -386,9 +405,13 @@ class Layer:
             nxt = min([x for x in cut_ticks if x > c] + [last + 1])
             h = [t for t in hits if c <= t < nxt]
             half = hits[h[0]] if h else None
+            self.gather(c)
             sw = self.cut(c, half, heavy=self.tag == "s1h2" or half is not None)
             if h:
-                self.impact(h[0], sw, half, heavy=self.tag == "s1h2")
+                p = self.impact(h[0], sw, half, heavy=self.tag == "s1h2")
+                _, dA, _ = pose(rp, c - 1)
+                _, dB, _ = pose(rp, c)
+                self.release(h[0], p, c, 1 if (dA[2] * dB[0] - dA[0] * dB[2]) > 0 else -1)
         return self.fx
 
 
