@@ -68,4 +68,9 @@ public class FakePlayerProfileService(
         profiles[playerId] = profile
         return Result.success(profile)
     }
+
+    override fun recordDisplayName(playerId: PlayerId, displayName: String) {
+        if (displayName.isBlank()) return
+        profiles[playerId]?.let { profiles[playerId] = it.copy(displayName = displayName) }
+    }
 }

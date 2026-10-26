@@ -107,7 +107,10 @@ public class SimWorld(
 }
 
 /** [IMcPlayer] view over a [SimEntity]. Outputs (messages, action bars, titles) are recorded for assertions. */
-public class SimMcPlayer(private val entity: SimEntity) : IMcPlayer {
+public class SimMcPlayer(private var entity: SimEntity) : IMcPlayer {
+    /** A reconnect puts a fresh entity (possibly a new name) under the same id; the recorded view keeps its history. */
+    internal fun rebind(next: SimEntity) { entity = next }
+
     override val id: PlayerId get() = entity.id
     override val name: String get() = entity.name
     override val location: Vec3 get() = entity.position
@@ -162,7 +165,7 @@ public class SimMcServer(private val world: SimWorld) : IMcServer {
     /** The recording [SimMcPlayer] for [id] (players only). */
     public fun view(id: PlayerId): SimMcPlayer? {
         val entity = world.find(id)?.takeIf { it.kind == SimEntityKind.PLAYER } ?: return null
-        return views.getOrPut(id) { SimMcPlayer(entity) }
+        return views.getOrPut(id) { SimMcPlayer(entity) }.also { it.rebind(entity) }
     }
 }
 

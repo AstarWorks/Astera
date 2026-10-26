@@ -875,7 +875,9 @@ astera:
         star: "<yellow>Time up - default goal: <gold>★ carry {goal}</gold></yellow>"
         kill: "<yellow>Time up - goal stays: <red>⚔ {goal} kills</red></yellow>"
       chosen: "<green>Norma goal: <gold>{goal}</gold>.</green>"
-      not-in-match: "<red>Norma levels exist only inside a PvP match (not in PvE waves).</red>"
+      not-in-match: "<red>Norma levels can only be used during a PvP match.</red>"
+      no-norma-mode: "<red>This mode has no Norma levels.</red>"
+      match-not-running: "<yellow>The match is not running yet or is already over.</yellow>"
       max-level: "<yellow>You are at the top Norma level.</yellow>"
       gui:
         title: "<gold>Norma goal</gold> <gray>- pick one</gray>"
