@@ -213,6 +213,8 @@ public object EconomyWiring {
             playerGateway = playerGateway,
             lastMatches = { services.get<ILastMatchStore>() },
             nextUnlock = nextUnlockFinder::find,
+            nextLevelReward = { lv -> services.get<com.astarworks.astera.stats.application.usecase.level.GrantLevelRewardsUseCase>()?.nextAfter(lv) },
+            unlockName = { id -> services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()?.find(id)?.nameKey },
         )
         val depositOnMissionCompletedListener = DepositOnMissionCompletedListener(deposit)
 
@@ -232,6 +234,17 @@ public object EconomyWiring {
         )
         subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.AchievementUnlocked::class) { event ->
             depositOnAchievementUnlocked.handle(event)
+        }
+        // Quest / advancement `grant_title` rewards (the fan-out event had no title consumer before).
+        val grantTitleOnReward = com.astarworks.astera.economy.application.eventbus.listeners.GrantTitleOnRewardGrantedListener(
+            unlocks = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockStore>() },
+            messages = msgRenderer,
+            players = playerGateway,
+            titleName = { id -> services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()?.find(id)?.nameKey },
+            onTitleGranted = { id -> services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()?.notifyChanged(id) },
+        )
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.AdvancementRewardGranted::class) { event ->
+            grantTitleOnReward.handle(event)
         }
 
         // ADR-0202: every wallet movement lands in the append-only audit log.

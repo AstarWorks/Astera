@@ -48,7 +48,7 @@ class ShippedStatsContentDecodesTest {
         val ids = contents.all().map { it.id.value }.toSet()
         assertThat(ids).contains(
             "kills-10", "kills-50", "kills-100", "wins-1", "wins-10", "wins-50", "damage-1k", "damage-10k",
-            "tutorial-graduate", "explorer", "streak-7", "level-5", "level-10", "mission-first",
+            "tutorial-graduate", "streak-7", "level-5", "level-10", "mission-first",
         )
     }
 

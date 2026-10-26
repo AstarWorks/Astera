@@ -42,6 +42,10 @@ public class GrantLevelRewardsUseCase(
         return Result.success(granted)
     }
 
+    /** The first configured reward strictly above [level] (level, reward), for the post-match preview; null past the last. */
+    public fun nextAfter(level: Int): Pair<Int, LevelReward>? =
+        rewards.toSortedMap().entries.firstOrNull { it.key > level }?.let { it.key to it.value }
+
     public companion object {
         public val CHAT: MessageKey = MessageKey("astera.progression.reward.chat")
         public val TITLE: MessageKey = MessageKey("astera.progression.reward.title")

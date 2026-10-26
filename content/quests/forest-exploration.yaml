@@ -1,6 +1,6 @@
 # Wave H 5content-depth (ADR-0125): 2-stage forest hunt quest chain.
 # Stage 1: kill 10 forest mobs → 100 GOLD → auto-advances.
-# Stage 2: win 1 match → grant the "forest-ranger" title → chain complete.
+# Stage 2: win 1 match → grant the "ranger" title → chain complete.
 id: forest-exploration
 title_key: astera.quest.forest-exploration.title
 stages:
@@ -23,7 +23,7 @@ stages:
       count: 1
     rewards:
       - type: grant_title
-        title_id: forest-ranger
+        title_id: ranger
     # Wave K 5integration-wire (ADR-0128): chain completion unlocks the
     # Explorer achievement via UpdateAchievementProgressOnQuestStageCompletedListener.
-    linked_achievement_id: explorer
+    linked_achievement_id: wins-1
