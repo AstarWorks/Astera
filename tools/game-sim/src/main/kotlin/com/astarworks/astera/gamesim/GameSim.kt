@@ -217,8 +217,9 @@ public class GameSim private constructor(
         facing: Vec3 = Vec3(0.0, 0.0, 1.0),
         join: Boolean = true,
         worldId: WorldId = WorldId("world"),
+        clientLocale: String = "en",
     ): SimEntity {
-        val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team, world = worldId))
+        val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team, world = worldId, locale = clientLocale))
         recorder.registerEntity(entity)
         if (join) {
             handoff?.onJoin(entity.id)
@@ -545,6 +546,8 @@ public class GameSim private constructor(
                 mcServer = mcServer,
                 scheduler = scheduler,
                 broadcaster = broadcaster,
+                // Scenarios assert English text; the sim pins en like the e2e server (ADR-0282).
+                defaultLocale = com.astarworks.astera.core.domain.i18n.LocaleCode.EN,
                 guiAdapter = GuiAdapterFactory { _, _, _ -> FakeGuiAdapter() },
                 // ADR-0276: the headless lease service with a per-viewer model of what each client was sent.
                 playerPresentation = {

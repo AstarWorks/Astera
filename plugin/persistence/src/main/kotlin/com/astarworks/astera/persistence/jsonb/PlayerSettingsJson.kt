@@ -26,10 +26,9 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  *
  * # Wave G 5player-prefs-social (ADR-0124)
  *
- * Three new fields landed: [locale] (raw string for `en` / `ja`), and the
- * three per-channel volumes ([musicVolume] / [soundVolume] / [voiceVolume]).
- * Defaults match the domain — older rows decode with `ignoreUnknownKeys`
- * and the defaults below kick in, so no DB migration is needed.
+ * Three new fields landed: [locale] (raw string for `en` / `ja`, null = server
+ * default per ADR-0282), and the three per-channel volumes
+ * ([musicVolume] / [soundVolume] / [voiceVolume]). Defaults match the domain.
  */
 @Serializable
 public data class PlayerSettingsJson(
@@ -41,10 +40,10 @@ public data class PlayerSettingsJson(
     // false (privacy-by-default). ignoreUnknownKeys is on, so older rows
     // without this field round-trip as default-disabled.
     val publicProfileEnabled: Boolean = false,
-    // Wave G ADR-0124: preferred UI locale. Stored as raw string (`"en"` /
-    // `"ja"`); the domain wraps with LocaleCode. Older rows missing this
-    // key default to "en" via ignoreUnknownKeys + the default below.
-    val locale: String = LocaleCode.EN.code,
+    // Wave G ADR-0124: explicit UI locale. Stored as raw string (`"en"` /
+    // `"ja"`); the domain wraps with LocaleCode. Absent / null = follow the
+    // server default (ADR-0282).
+    val locale: String? = null,
     // Wave G ADR-0124: per-channel volume in 0..100 (percent). Defaults to
     // 100 (unattenuated) on missing-key rows.
     val musicVolume: Int = PlayerSettings.DEFAULT_VOLUME,
@@ -63,15 +62,9 @@ public data class PlayerSettingsJson(
         doubleJumpEnabled = doubleJumpEnabled,
         quickCastSlots = quickCastSlots.mapKeys { (k, _) -> k.toInt() },
         publicProfileEnabled = publicProfileEnabled,
-        locale = LocaleCode.parse(locale).let { parsed ->
-            // Defensive fallback: a row persisted with an unrecognised locale
-            // (manual edit, future locale not yet supported on this server)
-            // falls back to EN at decode time. Domain `init` would otherwise
-            // happily accept any LocaleCode; the SUPPORTED_LOCALES filter
-            // lives on the use-case side, so we just normalise here so the
-            // GUI / chat renders cleanly.
-            if (parsed in PlayerSettings.SUPPORTED_LOCALES) parsed else LocaleCode.EN
-        },
+        // An unrecognised locale (manual edit, future locale not yet supported
+        // on this server) decodes as "no explicit choice" so the server default applies.
+        locale = locale?.let(LocaleCode::parse)?.takeIf { it in PlayerSettings.SUPPORTED_LOCALES },
         musicVolume = musicVolume.coerceIn(PlayerSettings.VOLUME_RANGE),
         soundVolume = soundVolume.coerceIn(PlayerSettings.VOLUME_RANGE),
         voiceVolume = voiceVolume.coerceIn(PlayerSettings.VOLUME_RANGE),
@@ -87,7 +80,7 @@ public data class PlayerSettingsJson(
             doubleJumpEnabled = settings.doubleJumpEnabled,
             quickCastSlots = settings.quickCastSlots.mapKeys { (k, _) -> k.toString() },
             publicProfileEnabled = settings.publicProfileEnabled,
-            locale = settings.locale.code,
+            locale = settings.locale?.code,
             musicVolume = settings.musicVolume,
             soundVolume = settings.soundVolume,
             voiceVolume = settings.voiceVolume,

@@ -84,7 +84,7 @@ astera:
   permission.backend_unavailable: "<red>The permission backend is unavailable.</red>"
   permission.not_assigned: "<yellow>That role is not assigned.</yellow>"
   permission.role_not_found: "<red>Unknown role.</red>"
-  settings.locale.changed: "<green>Language changed.</green>"
+  settings.locale.changed: "<green>Language changed to <gold>{locale}</gold>.</green>"
   settings.locale.error: "<red>Could not change the language to <gold>{locale}</gold>.</red>"
   settings.locale.unsupported: "<red>Unsupported language <gold>{locale}</gold>. Use ja or en.</red>"
   settings.volume.changed: "<green>Volume changed.</green>"

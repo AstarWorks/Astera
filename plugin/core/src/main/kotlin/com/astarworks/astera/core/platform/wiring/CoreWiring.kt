@@ -241,14 +241,14 @@ internal class CoreWiringState(
 internal fun CoreWiringState.wireBase() {
     // ---- i18n --------------------------------------------------------
     val languages = LanguageLoader.loadFrom(contentDir.resolve("languages"))
+    // ADR-0282: explicit player choice > server default. The client's Minecraft language is not consulted.
+    logger.info("Default locale: ${ports.defaultLocale.code}")
     simpleMessages = SimpleMessageRenderer(
         languages = languages,
         localeResolver = { playerId ->
-            playerId?.let {
-                services.get<IPlayerSettingsRepository>()?.find(it)?.locale?.code
-                    ?: mcServer.findPlayer(it)?.locale
-            }
+            playerId?.let { services.get<IPlayerSettingsRepository>()?.find(it)?.locale?.code }
         },
+        defaultLocale = ports.defaultLocale.code,
     )
     messages = com.astarworks.astera.core.application.service.RefusalAwareMessageRenderer(simpleMessages)
 

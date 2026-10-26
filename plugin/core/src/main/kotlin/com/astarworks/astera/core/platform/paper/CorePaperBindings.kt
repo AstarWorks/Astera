@@ -145,6 +145,7 @@ internal class CorePaperBindings(
             mcServer = mcServer,
             scheduler = scheduler,
             broadcaster = broadcaster,
+            defaultLocale = serverEnvironment.defaultLocale,
             guiAdapter = GuiAdapterFactory { items, messages, bindingResolver ->
                 val guiRenderer = PaperItemTemplateRenderer(items, messages, bindingResolver) { itemMaterializer?.invoke() }
                 PaperGuiAdapter(
@@ -277,7 +278,7 @@ internal class CorePaperBindings(
             },
             mobBodies = { _ ->
                 // ADR-0249: PvE mobs are real vanilla-based entities carrying Astera's numbers.
-                val gateway = com.astarworks.astera.core.adapter.paper.mob.PaperMobBodyGateway(plugin)
+                val gateway = com.astarworks.astera.core.adapter.paper.mob.PaperMobBodyGateway(plugin, serverEnvironment.defaultLocale)
                 gateway.start()
                 mobBodyGateway = gateway
                 gateway

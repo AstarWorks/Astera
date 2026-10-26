@@ -516,7 +516,7 @@ public class VfxPlayer(
         is VfxElementKind.Block -> DisplayKind.Block(kind.blockKey)
         is VfxElementKind.Item -> DisplayKind.Item(kind.itemId, kind.displayMode, kind.itemModel)
         is VfxElementKind.Text -> DisplayKind.Text(
-            lines = listOf(LocalizedText(mapOf(LocaleCode.EN to kind.text))),
+            lines = listOf(LocalizedText(mapOf(LocaleCode.EN to kind.text, LocaleCode.JA to kind.text))),
             backgroundArgb = kind.backgroundArgb,
             shadow = kind.shadow,
             seeThrough = kind.seeThrough,
@@ -526,7 +526,7 @@ public class VfxPlayer(
         is VfxElementKind.Quad -> {
             val style = VfxQuad.style(kind, kind.colorRgb, kind.alpha)
             DisplayKind.Text(
-                lines = listOf(LocalizedText(mapOf(LocaleCode.EN to VfxQuad.text(kind)))),
+                lines = listOf(VfxQuad.text(kind).let { q -> LocalizedText(mapOf(LocaleCode.EN to q, LocaleCode.JA to q)) }),
                 backgroundArgb = style.backgroundArgb,
                 shadow = false,
                 seeThrough = kind.seeThrough,

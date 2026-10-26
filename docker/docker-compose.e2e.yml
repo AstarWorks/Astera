@@ -68,6 +68,8 @@ services:
       CFG_VELOCITY_SECRET: "${E2E_FORWARDING_SECRET:-astera-e2e-forwarding-secret}"
       ASTERA_SERVER_ROLE: "all"
       ASTERA_SERVER_NAME: "e2e"
+      # ADR-0282: bots join as en_us and the suite asserts English; prod/dev default to ja.
+      ASTERA_DEFAULT_LOCALE: "en"
       # ADR-0248: "Play vs bots" publishes on astera:bots:request here and listens on astera:bots:status.
       ASTERA_BOTS_REDIS_URI: "redis://e2e-redis:6379"
       ASTERA_METRICS_ENABLED: "false"

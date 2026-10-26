@@ -55,7 +55,8 @@ public class ScenarioScope(public val sim: GameSim) {
         at: Vec3 = Vec3(0.0, groundY, 0.0),
         team: String? = null,
         facing: Vec3 = Vec3(0.0, 0.0, 1.0),
-    ): SimEntity = sim.spawnPlayer(name, at, team?.let { TeamId(it) }, facing)
+        clientLocale: String = "en",
+    ): SimEntity = sim.spawnPlayer(name, at, team?.let { TeamId(it) }, facing, clientLocale = clientLocale)
 
     public fun mob(name: String, at: Vec3, team: String? = null): SimEntity =
         sim.spawnMob(name, at, team?.let { TeamId(it) })

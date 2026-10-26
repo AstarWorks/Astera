@@ -92,7 +92,7 @@ astera:
   permission.backend_unavailable: "<red>権限バックエンドが利用できません。</red>"
   permission.not_assigned: "<yellow>そのロールは付与されていません。</yellow>"
   permission.role_not_found: "<red>未知のロールです。</red>"
-  settings.locale.changed: "<green>言語を変更しました。</green>"
+  settings.locale.changed: "<green>言語を <gold>{locale}</gold> に変更しました。</green>"
   settings.locale.error: "<red>言語を <gold>{locale}</gold> に変更できませんでした。</red>"
   settings.locale.unsupported: "<red>未対応の言語 <gold>{locale}</gold> です。ja か en を指定してください。</red>"
   settings.volume.changed: "<green>音量を変更しました。</green>"
@@ -2480,7 +2480,7 @@ astera:
 
   # ADR-0248 - プレイゲート、モード選択、待機状態の表示、ボット戦。
   lobby.play.hologram: "<green><bold>▶ Play</bold></green> <gray>/</gray> <green><bold>プレイ</bold></green>\n<gray>右クリックでゲームを始める</gray>"
-  lobby.npc.play.name: "<green><bold>▶ Play / プレイ</bold></green>"
+  lobby.npc.play.name: "<green><bold>▶ プレイ</bold></green>"
   lobby-kit.hint.leave: "<red>右クリックでキューを抜ける</red> <gray>（F: メニュー）</gray>"
   gui.main-menu.leave-queue.tooltip: "<gray>クリックでキューを抜ける。</gray>"
   play.picker.title: "<green>▶ プレイ</green> <gray>- モードを選ぶ</gray>"
@@ -2555,8 +2555,8 @@ astera:
   settings.toggle.particles: "<green>表示するパーティクル: <gold>{value}</gold></green>"
   settings.toggle.double-jump: "<green>二段ジャンプ: <gold>{value}</gold></green>"
   settings.toggle.public-profile: "<green>公開プロフィール: <gold>{value}</gold></green>"
-  settings.value.on: "ON"
-  settings.value.off: "OFF"
+  settings.value.on: "オン"
+  settings.value.off: "オフ"
   settings.value.particles.all: "全員"
   settings.value.particles.team: "自チームのみ"
   settings.value.particles.own: "自分のみ"
