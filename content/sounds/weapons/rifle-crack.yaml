@@ -1,0 +1,7 @@
+# Sound cue (ADR-0267). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
+# the event is generated into assets/astera/sounds.json by :tools:resource-pack from this id + weapons/rifle-crack.ogg.
+id: "astera:weapons/rifle-crack"
+resource_key: "astera:weapons/rifle-crack"
+default_volume: 1.0
+default_pitch: 1.0
+category: weapons

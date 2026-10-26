@@ -187,9 +187,104 @@ skills_wand_cast() {   # rising shimmer and a bell crown
     mix wand 0.8 a:0:0.7 s0:150:0.6 s1:220:0.6 s2:290:0.6 s3:360:0.6; finish skills/wand-cast wand
 }
 
+# ---- weapon-family cue sets (2026-10-27): gun / blade / elemental staff; reused across the basic skills ----
+weapons_rifle_crack() {   # sharper, longer-ranged than the pistol: bright crack + low thump + a distant slap tail
+    noise a 0.4 "highpass=f=1800,volume='exp(-t*22)':eval=frame" 91
+    gen b 0.3 "$(sweep 150 40 0.12 14)"
+    noise c 0.6 "bandpass=f=700:w=2,aecho=0.6:0.5:120:0.35,volume='exp(-t*5)':eval=frame" 92
+    mix shot 0.6 a:0:0.9 b:0:1 c:20:0.35; finish weapons/rifle-crack shot
+}
+weapons_shotgun_blast() {   # wide, heavy: broadband burst, deep boom, slow rumble tail
+    noise a 0.5 "volume='exp(-t*14)':eval=frame" 93
+    gen b 0.5 "$(sweep 120 30 0.18 10)"
+    noise c 0.7 "lowpass=f=900,volume='exp(-t*5)':eval=frame" 94
+    mix shot 0.7 a:0:0.8 b:0:1.2 c:15:0.5; finish weapons/shotgun-blast shot
+}
+weapons_gun_impact() {   # bullet strike on a body: dull thud + tiny high tick
+    gen a 0.18 "$(sweep 260 90 0.06 30)"
+    noise b 0.12 "bandpass=f=3200:w=1.5,volume='exp(-t*60)':eval=frame" 95
+    mix hit 0.18 a:0:1 b:0:0.5; finish weapons/gun-impact hit
+}
+weapons_gun_impact_block() {   # bullet strike on stone: ricochet whine + gritty spall
+    gen a 0.3 "$(sweep 3200 1400 0.25 12)"
+    noise b 0.15 "highpass=f=2500,volume='exp(-t*40)':eval=frame" 96
+    mix hit 0.3 a:0:0.35 b:0:0.8; finish weapons/gun-impact-block hit
+}
+weapons_gun_reload_start() {   # mag out: two dry clicks and a slide scrape
+    gen a 0.08 "$(sq 1500 90)"; gen b 0.08 "$(sq 1100 90)"
+    noise c 0.2 "bandpass=f=2200:w=1.2,volume='sin(PI*min(t/0.2,1))':eval=frame" 97
+    mix rl 0.4 a:0:0.8 b:90:0.8 c:150:0.4; finish weapons/gun-reload-start rl
+}
+weapons_gun_reload_end() {   # chamber closes: heavy clack and a lighter latch
+    gen a 0.15 "$(sq 520 40)"; gen b 0.1 "$(sq 1800 80)"
+    noise c 0.1 "highpass=f=3000,volume='exp(-t*70)':eval=frame" 98
+    mix rl 0.35 a:0:1 b:80:0.6 c:0:0.4; finish weapons/gun-reload-end rl
+}
+weapons_blade_hit() {   # steel meets flesh: dull slap plus a short metallic ring
+    noise a 0.2 "bandpass=f=900:w=1.5,volume='exp(-t*35)':eval=frame" 101
+    gen b 0.4 "$(bell 1750 18)"
+    mix hit 0.4 a:0:1 b:0:0.25; finish weapons/blade-hit hit
+}
+weapons_blade_crit() {   # heavy hit: low thud, ringing steel, bright accent
+    gen a 0.3 "$(sweep 200 60 0.12 16)"
+    noise b 0.2 "bandpass=f=1200:w=1.5,volume='exp(-t*30)':eval=frame" 102
+    gen c 0.7 "$(bell 1320 9)"; gen d 0.7 "$(bell 2640 11)"
+    mix hit 0.7 a:0:1 b:0:0.8 c:0:0.45 d:20:0.3; finish weapons/blade-crit hit
+}
+weapons_blade_miss() {   # airy low-key whiff, quieter and shorter than the swing
+    noise a 0.3 "bandpass=f=1100:w=1.2,volume='pow(sin(PI*min(t/0.28,1)),2)':eval=frame" 103
+    mix miss 0.3 a:0:1; finish weapons/blade-miss miss
+}
+weapons_blade_heavy_swing() {   # greatsword: slower, lower, weightier whoosh with a rising moan
+    noise a 0.7 "bandpass=f=700:w=1.4,volume='pow(sin(PI*min(t/0.65,1)),2)':eval=frame" 104
+    gen b 0.7 "sin(2*PI*(150*t+(520-150)*t*t/(2*0.65)))*sin(PI*min(t/0.65,1))*0.2"
+    mix swing 0.7 a:0:1 b:0:0.6; finish weapons/blade-heavy-swing swing
+}
+weapons_dash_whoosh() {   # quick burst of air with a falling tone: dash / backstep
+    noise a 0.35 "bandpass=f=2400:w=1.8,volume='exp(-t*9)*min(t/0.02,1)':eval=frame" 105
+    gen b 0.35 "$(sweep 900 200 0.3 6)"
+    mix dash 0.35 a:0:1 b:0:0.25; finish weapons/dash-whoosh dash
+}
+skills_fire_impact() {   # fire burst: boom, crackling noise, warm tail
+    gen a 0.5 "$(sweep 200 50 0.2 9)"
+    noise b 0.6 "lowpass=f=2500,volume='exp(-t*6)':eval=frame" 111
+    noise c 0.5 "highpass=f=4000,volume='exp(-t*10)*(0.5+0.5*sin(2*PI*40*t))':eval=frame" 112
+    mix fire 0.7 a:0:1 b:0:0.7 c:30:0.3; finish skills/fire-impact fire
+}
+skills_frost_cast() {   # cold: glassy upward chime cluster with an icy hiss
+    local i=0 f; for f in 2349 3136 3951 4699; do gen "s$i" 0.7 "$(bell $f 8)"; i=$((i + 1)); done
+    noise a 0.5 "highpass=f=6000,volume='sin(PI*min(t/0.5,1))':eval=frame" 113
+    mix frost 0.8 s0:0:0.6 s1:60:0.6 s2:120:0.6 s3:180:0.5 a:0:0.3; finish skills/frost-cast frost
+}
+skills_frost_impact() {   # ice shatter: bright noise crack plus falling glass bells
+    noise a 0.4 "highpass=f=3500,volume='exp(-t*14)':eval=frame" 114
+    gen b 0.6 "$(bell 3520 12)"; gen c 0.6 "$(bell 2637 14)"
+    gen d 0.25 "$(sweep 400 120 0.1 20)"
+    mix ice 0.6 a:0:0.8 b:0:0.5 c:30:0.5 d:0:0.5; finish skills/frost-impact ice
+}
+skills_lightning_impact() {   # electric crack: sharp noise burst, buzz, rolling thunder
+    noise a 0.2 "highpass=f=1500,volume='exp(-t*30)':eval=frame" 115
+    gen b 0.5 "$(sq 110 8)"
+    noise c 0.9 "lowpass=f=500,volume='exp(-t*3.5)':eval=frame" 116
+    mix zap 0.9 a:0:1 b:0:0.5 c:60:0.7; finish skills/lightning-impact zap
+}
+skills_nature_impact() {   # thorn/vine strike: woody pluck, leafy rustle
+    gen a 0.25 "$(pluck 330 22)"
+    noise b 0.3 "bandpass=f=3000:w=2,volume='exp(-t*14)':eval=frame" 117
+    mix nat 0.3 a:0:0.9 b:0:0.5; finish skills/nature-impact nat
+}
+skills_heal_chime() {   # soft rising triad of bells
+    local i=0 f; for f in 784 988 1175 1568; do gen "h$i" 0.9 "$(bell $f 5)"; i=$((i + 1)); done
+    mix heal 1.0 h0:0:0.7 h1:110:0.7 h2:220:0.7 h3:330:0.8; finish skills/heal-chime heal
+}
+
 ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-up norma/level-max
      match/countdown-tick match/go combat/kill match/death match/win match/lose
-     weapons/gun-shot weapons/sword-swing skills/wand-cast)
+     weapons/gun-shot weapons/sword-swing skills/wand-cast
+     weapons/rifle-crack weapons/shotgun-blast weapons/gun-impact weapons/gun-impact-block weapons/gun-reload-start
+     weapons/gun-reload-end weapons/blade-hit weapons/blade-crit weapons/blade-miss weapons/blade-heavy-swing
+     weapons/dash-whoosh skills/fire-impact skills/frost-cast skills/frost-impact skills/lightning-impact
+     skills/nature-impact skills/heal-chime)
 
 targets=("$@"); [[ ${#targets[@]} -gt 0 ]] || targets=("${ALL[@]}")
 for name in "${targets[@]}"; do
