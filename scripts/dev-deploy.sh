@@ -368,7 +368,10 @@ content() {
 rebuild_pack() {
   local t
   t=$(now)
-  quiet "${COMPOSE[@]}" up -d --build --no-deps resource-pack
+  # ASTERA_PREBUILT_IMAGES=1 (dev-autodeploy): the image was built locally and shipped; never build on the VM.
+  local build=--build
+  [ "${ASTERA_PREBUILT_IMAGES:-0}" != 1 ] || build=--no-build
+  quiet "${COMPOSE[@]}" up -d "$build" --no-deps resource-pack
   log "resource-pack: rebuilt ($(elapsed "$t"))"
 }
 
