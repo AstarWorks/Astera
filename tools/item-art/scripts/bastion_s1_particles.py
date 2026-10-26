@@ -262,27 +262,23 @@ def cuts(rp, ticks):
 
 
 def sweep(rp, ft, hit_half):
-    """The swept blade between the pose before the cut (ft - 1) and the pose after it (ft), as a list of (grip, dir, length)
-    samples every ~15 deg. Yaw turns forehand (right -> front -> left, phi increasing: the moon-ring direction of the rig's
-    ring smear) for a contact cut and goes round once more when the short way would miss the damage cone (hit 1 is a full
-    circle: coil behind -> follow-through behind); a cut with no hit takes the shortest way."""
-    gA, dA, LA = pose(rp, ft - 1)
-    gB, dB, LB = pose(rp, ft)
-    pA, pB = phi_of(dA), phi_of(dB)
-    tA, tB = pitch_of(dA), pitch_of(dB)
-    if hit_half is not None:
-        dphi = (pB - pA) % 360.0
-        passes = any(abs(((pA + dphi * i / 60.0 + 180) % 360) - 180) <= hit_half for i in range(61))
-        if not passes:
-            dphi += 360.0
-    else:
-        dphi = ((pB - pA + 180) % 360) - 180
-    n = max(3, int(abs(dphi) / 15) + 1)
+    """The swept blade between the pose before the cut (ft - 1) and the pose after it (ft), as a list of (grip, dir, length,
+    phi) samples every ~15 deg of blade turn. r28 (ADR-0278 per-tick swing keys): the samples ride the TRUE interpolated arc
+    (rig_path slerps the plan dump between whole ticks, <= 91 deg per tick), so the trail turns the way the blade does --
+    cut 1 counter-clockwise from above, cut 2 clockwise -- instead of a forced forehand / "go round once more" rule.
+    `hit_half` is kept for the caller's signature (the impact picks the sample nearest the target bearing)."""
+    _, dA, _ = pose(rp, ft - 1)
+    _, dB, _ = pose(rp, ft)
+    ang = math.degrees(math.acos(max(-1.0, min(1.0, sum(a * b for a, b in zip(dA, dB))))))
+    n = max(3, int(ang / 15) + 1)
     out = []
     for i in range(n + 1):
-        u = i / n
-        g = tuple(gA[k] + (gB[k] - gA[k]) * u for k in range(3))
-        out.append((g, dir_of(pA + dphi * u, tA + (tB - tA) * u), LA + (LB - LA) * u, pA + dphi * u))
+        u = ft - 1 + i / n
+        g, t = rp.blade_point(u, 0.0), rp.blade_point(u, 1.0)
+        d = tuple(t[k] - g[k] for k in range(3))
+        L = math.sqrt(sum(x * x for x in d)) or 1.0
+        d = tuple(x / L for x in d)
+        out.append((g, d, L, phi_of(d)))
     return out
 
 
@@ -377,6 +373,10 @@ class Layer:
     def build(self):
         rp = self.rp
         last = rp.fx_duration - 1
+        # r28: a tick on which the blade sweeps is never a hold, whatever the reference beat says (the r28 keys draw the
+        # anticipation / first half of cut 1 on skill 4-5, inside the reference's still coil B0 0-5): drop it from `none`.
+        moving = cuts(rp, range(1, last + 1))
+        self.none = self.none - {ft + rp.fx_delay for ft in moving}
         active = [ft for ft in range(0, last + 1) if ft + rp.fx_delay not in self.none]
         hits = {t - rp.fx_delay: h for t, h in skill_hits() if 0 <= t - rp.fx_delay <= last}
         cut_ticks = cuts(rp, active)
