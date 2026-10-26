@@ -535,6 +535,7 @@ public object MatchWiring {
                 players = playerGateway,
                 config = normaLayer.configFor(gameModeContents.find(id)?.defaultConfig.orEmpty()),
                 now = { scheduler.currentTick() },
+                presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>() },
             )
         }
         val siegeModes = listOf(

@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
 import com.astarworks.astera.match.application.gamemode.siege.SiegeGameMode
 import com.astarworks.astera.match.application.gamemode.siege.SiegeRun
+import com.astarworks.astera.match.application.gamemode.siege.TntCarrier
 import com.astarworks.astera.match.domain.mode.GameModeId
 
 /**
@@ -24,7 +25,7 @@ public class CarryTntGameMode @JvmOverloads constructor(
 ) : SiegeGameMode<CarryTntGameMode.Run>(ID, TITLE_KEY, env) {
 
     public class Run(matchId: MatchId, stage: Stage, public val spawnCell: Vec3) : SiegeRun(matchId, stage) {
-        public var carrier: PlayerId? = null
+        public val tnt: TntCarrier = TntCarrier()
         public val deliveries: MutableMap<TeamId, Int> = mutableMapOf()
     }
 
@@ -43,15 +44,13 @@ public class CarryTntGameMode @JvmOverloads constructor(
     override fun entered(run: Run, match: Match, player: PlayerId, team: TeamId, region: String) {
         if (!live(match)) return
         if (region == SPAWN_REGION) {
-            if (run.carrier == null) {
-                run.carrier = player
+            if (run.tnt.pickUp(player)) {
                 tellMatch(match, KEY_PICKED_UP, mapOf("team" to team.value))
             }
             return
         }
         val base = teamOfRegion(region, BASE_PREFIX, match) ?: return
-        if (run.carrier != player || base == team) return
-        run.carrier = null
+        if (!run.tnt.deliver(player, team, base)) return
         val score = (run.deliveries[team] ?: 0) + 1
         run.deliveries[team] = score
         tellMatch(match, KEY_DELIVERED, mapOf("team" to team.value, "score" to score.toString(), "goal" to deliveriesToWin().toString()))
@@ -59,15 +58,14 @@ public class CarryTntGameMode @JvmOverloads constructor(
     }
 
     override fun killed(run: Run, match: Match, victim: PlayerId, victimTeam: TeamId?, killer: PlayerId?, killerTeam: TeamId?) {
-        if (run.carrier != victim) return
-        run.carrier = null
+        if (!run.tnt.lose(victim)) return
         tellMatch(match, KEY_DROPPED, mapOf("team" to (victimTeam?.value ?: "")))
     }
 
     override fun standing(run: Run, match: Match, team: TeamId): Int = run.deliveries[team] ?: 0
 
     override fun hudLines(run: Run, match: Match): List<HudLine> {
-        val carrierTeam = run.carrier?.let { c -> match.teams.firstOrNull { c in it.members }?.id }
+        val carrierTeam = run.tnt.carrier?.let { c -> match.teams.firstOrNull { c in it.members }?.id }
         val teamLines = match.teams.map { team ->
             HudLine(
                 key = MessageKey("astera.hud.sidebar.carry-tnt.team"),
