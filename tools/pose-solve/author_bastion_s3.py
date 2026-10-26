@@ -38,6 +38,12 @@ CAMV = np.array([-3.0, 1.3, 0.6])      # world (x_left, y, z_fwd): the compare c
 BEHIND = np.array([3.0, 1.2, 1.0])     # while the back is turned: she looks away over her left shoulder
 
 
+# feet (f, l, u) world targets: together, side by side across the chest facing the compare camera (-x): left foot +z, right foot -z
+UP = {"l": (0.14, 0.0, 0.0), "r": (-0.14, 0.0, 0.0)}
+MID = {"l": (0.3, 0.07, 0.0), "r": (-0.28, -0.18, 0.0)}
+FEET_AT = {47: MID, 48: UP, 49: UP, 50: UP, 51: UP, 54: UP, 57: UP, 59: UP, 60: UP, 61: UP, 62: MID}
+
+
 def beats():
     L = []
     # -- coil t0-9: crouched, blade flat low behind (tip near the floor, a little toward the camera side), turning away
@@ -67,20 +73,22 @@ def beats():
     L.append(B(40, 0, 90, 1.4, "cam", "thrust", lean=22, drop=0.32, grip_y=1.55, reach=0.7, look=ENEMY))
     L.append(B(44, 0, 90, 1.42, "cam", "thrust-b", lean=23, drop=0.33, grip_y=1.56, reach=0.7, look=ENEMY))
     L.append(B(46, 0, 90, 1.4, "cam", "thrust-hold", lean=24, drop=0.34, grip_y=1.55, reach=0.7, look=ENEMY))
-    L.append(B(47, -8, 90, 1.6, "cam", "raise-a", lean=20, drop=0.3, grip_y=1.6, reach=0.62, look=ENEMY))
-    L.append(B(48, -40, 90, 2.8, "cam", "raise-b", lean=14, drop=0.15, grip_y=1.85, reach=0.45, look=CAMV))
-    L.append(B(49, -65, 180, 2.9, "cam", "raise-c", lean=10, drop=0.1, grip_y=1.95, reach=0.35, look=CAMV))
-    L.append(B(50, -90, 270, 2.4, "cam", "raise-d", lean=6, drop=0.05, grip_y=1.95, reach=0.3, look=CAMV))
-    L.append(B(51, -90, 270, 1.15, "cam", "raise-hold", lean=4, drop=0.0, grip_y=2.05, reach=0.25, look=CAMV))
-    L.append(B(54, -90, 270, 1.2, "cam", "raise-breath", lean=2, drop=0.0, grip_y=2.08, reach=0.25, look=CAMV))
-    L.append(B(57, -90, 270, 1.15, "cam", "raise-hold2", lean=5, drop=0.02, grip_y=2.05, reach=0.25, look=CAMV))
-    L.append(B(58, -88, 270, 2.1, "side", "chop-lift", lean=4, drop=0.06, grip_y=1.75, reach=0.32, look=CAMV))
-    # -- slam t60-63 = S2 chop (anticipation lift, coil, top, contact), plant, kneel with the sword upright
-    L.append(B(60, -84, 270, 3.0, "side", "chop-wind", lean=4, drop=0.1, grip_y=1.45, reach=0.4, look=CAMV))
-    L.append(B(61, -76, 310, 3.3, "side", "chop-wind2", lean=2, drop=0.1, grip_y=1.5, reach=0.4, look=CAMV))
-    L.append(B(62, -40, 90, 3.4, "side", "chop-top", lean=12, drop=0.1, grip_y=1.6, reach=0.45))
-    L.append(B(63, 0, 90, 0.5, "side", "chop-hit", lean=30, drop=0.3, grip_y=1.05, reach=0.7))
-    L.append(B(67, 0, 90, 0.1, "side", "chop-plant", lean=30, drop=0.45, grip_y=1.2, reach=0.62))
+    # -- raise t47-51: straight upright stance (lean ~0-4, drop ~0, feet together), turning to the compare camera, fist overhead
+    L.append(B(47, -8, 90, 1.6, "cam", "raise-a", lean=14, drop=0.2, grip_y=1.6, reach=0.62, look=ENEMY))
+    L.append(B(48, -40, 90, 2.8, "cam", "raise-b", lean=5, drop=0.05, grip_y=1.85, reach=0.45, look=CAMV))
+    L.append(B(49, -65, 180, 2.9, "cam", "raise-c", lean=3, drop=0.0, grip_y=1.95, reach=0.35, look=CAMV))
+    L.append(B(50, -90, 270, 2.4, "cam", "raise-d", lean=2, drop=0.0, grip_y=2.0, reach=0.3, look=CAMV))
+    # -- overhead hold t51-59: fist overhead, the blade trails back-low (tip ~(-1.5, 1.0)), alive with tiny breathing
+    L.append(B(51, -90, 270, 0.85, "cam", "raise-hold", lean=1, drop=0.0, grip_y=2.05, reach=0.25, look=CAMV))
+    L.append(B(54, -90, 270, 0.9, "cam", "raise-breath", lean=0, drop=0.0, grip_y=2.08, reach=0.25, look=CAMV))
+    L.append(B(57, -90, 270, 0.85, "cam", "raise-hold2", lean=2, drop=0.0, grip_y=2.05, reach=0.25, look=CAMV))
+    # -- slam t59-63: anticipation dip + pull back (blade swings back-low), then it whips back-up -> over -> forward-up -> forward-down
+    L.append(B(59, -92, 270, 0.55, "side", "chop-dip", lean=2, drop=0.05, grip_y=1.95, reach=0.3, look=CAMV))
+    L.append(B(60, -90, 270, 1.9, "side", "chop-wind", lean=0, drop=0.0, grip_y=2.1, reach=0.3, look=CAMV))
+    L.append(B(61, -80, 270, 3.1, "side", "chop-back-up", lean=0, drop=0.0, grip_y=2.1, reach=0.3, look=CAMV))
+    L.append(B(62, -40, 90, 2.3, "side", "chop-top", lean=12, drop=0.1, grip_y=1.6, reach=0.45))
+    L.append(B(63, 0, 90, 0.0, "side", "chop-hit", lean=30, drop=0.3, grip_y=1.05, reach=0.7))
+    L.append(B(67, 0, 90, 0.1, "side", "chop-plant", lean=30, drop=0.45, grip_y=0.95, reach=0.62))
     L.append(B(68, 0, 90, -0.05, "side", "plant-b", lean=29, drop=0.46, grip_y=1.3, reach=0.62))
     L.append(B(69, 0, 90, -0.15, "side", "plant-c", lean=28, drop=0.48, grip_y=1.45, reach=0.62))
     L.append(B(70, 0, 90, -0.3, "side", "stand-a", lean=26, drop=0.5, grip_y=1.6, reach=0.62))
@@ -91,6 +99,7 @@ def beats():
     L.append(B(76, 0, 90, -0.6, "side", "kneel", lean=18, drop=0.6, grip_y=1.75, reach=0.62))
     L.append(B(94, 0, 90, -0.6, "side", "kneel-hold", lean=20, drop=0.6, grip_y=1.72, reach=0.62))
     for b in L:
+        b.feet = FEET_AT.get(b.tick, A.FEET)
         if b.tick <= 9 or 22 <= b.tick <= 37:
             b.off = -80.0
     return L
@@ -100,6 +109,7 @@ def spec3(b):
     """S2 spec, but the right-hand grip may be forced to the caster's right side (off = degrees from the chest facing): a blade straight
     behind the chest is ambiguous (+-180) and the grip would flip sides between two keys."""
     s = S2.spec_of(b)
+    s.feet = getattr(b, "feet", A.FEET)
     off = getattr(b, "off", None)
     if off is not None:
         s.grip = A.W(A.az(90.0 + b.yaw + off) * b.reach + np.array([0.0, b.grip_y - b.drop, 0.0]))

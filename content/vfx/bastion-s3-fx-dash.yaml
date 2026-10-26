@@ -1,95 +1,72 @@
-# Bastion S3 beat 6 (video n57-59, skill t38-39, ~5.4 block dash): a gold slab with a dark rim trailing behind the caster (jagged ink plate, front + back faces, 4 ticks) plus 5 speed streaks, caster-follow.
-# Played at skill tick 37: dash is effect ticks 1-3. The slab starts 0.9 behind her and slides to 2.4 behind (it travels with the caster; no world-anchored pieces). Display budget: 4 slab planes + 5 streaks = 9 sprites at peak.
+# Bastion S3 beat 6 (video n57-59, skill t38-39): r2 the HUGE black-outlined gold plate (bastion-s3-plate, ~3.8 blocks wide, front + back faces) behind the caster, trailing back as she lunges, a 1-tick near-full-screen gold pop flash at the pop, plus speed streaks. Caster-follow.
+# Played at skill tick 37: dash = effect ticks 1-3. Plate ticks 1-5, pop flash tick 2 only (t39). Display budget: 2 plates + 1 flash + 5 streaks = 8 sprites at peak.
 id: bastion-s3-fx-dash
 duration_ticks: 8
 orient: yaw
 follow: true
 sample_ticks: 1
 elements:
-- id: s3d-rim-a
-  kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: true, color: '#14182E'}
+- id: s3d-plate-a
+  kind: {type: sprite, sprite: bastion-s3-plate, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 1
-  end_tick: 5
+  end_tick: 6
   keyframes:
   - t: 0
-    translate: [0.06, 0.95, -0.9]
-    rotate: [0, 90, 0]
-    scale: [0.05, 0.3, 1]
+    translate: [0, 1.1, -0.9]
+    rotate: [90, 0, 0]
+    scale: [0.3, 0.3, 1]
   - t: 1
-    translate: [0.06, 0.95, -1.2]
-    rotate: [0, 90, 0]
-    scale: [0.74, 0.7, 1]
+    translate: [0, 1.1, -1.5]
+    rotate: [90, 0, 0]
+    scale: [0.62, 0.5, 1]
     ease: out_expo
   - t: 3
-    translate: [0.06, 0.95, -2.4]
-    rotate: [0, 90, 0]
-    scale: [0.6, 0.3, 1]
+    translate: [0, 1.1, -1.9]
+    rotate: [90, 0, 0]
+    scale: [0.6, 0.45, 1]
+  - t: 5
+    translate: [0, 1.1, -2.4]
+    rotate: [90, 0, 0]
+    scale: [0.55, 0.06, 1]
     ease: in_quad
-- id: s3d-slab-a
-  kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: true}
+- id: s3d-plate-b
+  kind: {type: sprite, sprite: bastion-s3-plate, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 1
-  end_tick: 5
+  end_tick: 6
   keyframes:
   - t: 0
-    translate: [0.03, 0.95, -0.9]
-    rotate: [0, 90, 0]
-    scale: [0.05, 0.28, 1]
+    translate: [0, 1.1, -0.9]
+    rotate: [-90, 0, 0]
+    scale: [0.3, 0.3, 1]
   - t: 1
-    translate: [0.03, 0.95, -1.2]
-    rotate: [0, 90, 0]
-    scale: [0.66, 0.62, 1]
+    translate: [0, 1.1, -1.5]
+    rotate: [-90, 0, 0]
+    scale: [0.62, 0.5, 1]
     ease: out_expo
   - t: 3
-    translate: [0.03, 0.95, -2.4]
-    rotate: [0, 90, 0]
-    scale: [0.52, 0.26, 1]
+    translate: [0, 1.1, -1.9]
+    rotate: [-90, 0, 0]
+    scale: [0.6, 0.45, 1]
+  - t: 5
+    translate: [0, 1.1, -2.4]
+    rotate: [-90, 0, 0]
+    scale: [0.55, 0.06, 1]
     ease: in_quad
-- id: s3d-rim-b
-  kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: true, color: '#14182E'}
-  billboard: fixed
+- id: s3d-pop
+  kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: true, color: '#FFF2B8'}
+  billboard: center
   brightness: 15
-  start_tick: 1
-  end_tick: 5
+  start_tick: 2
+  end_tick: 3
   keyframes:
   - t: 0
-    translate: [-0.06, 0.95, -0.9]
-    rotate: [0, -90, 0]
-    scale: [0.05, 0.3, 1]
-  - t: 1
-    translate: [-0.06, 0.95, -1.2]
-    rotate: [0, -90, 0]
-    scale: [0.74, 0.7, 1]
-    ease: out_expo
-  - t: 3
-    translate: [-0.06, 0.95, -2.4]
-    rotate: [0, -90, 0]
-    scale: [0.6, 0.3, 1]
-    ease: in_quad
-- id: s3d-slab-b
-  kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: true}
-  billboard: fixed
-  brightness: 15
-  start_tick: 1
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [-0.03, 0.95, -0.9]
-    rotate: [0, -90, 0]
-    scale: [0.05, 0.28, 1]
-  - t: 1
-    translate: [-0.03, 0.95, -1.2]
-    rotate: [0, -90, 0]
-    scale: [0.66, 0.62, 1]
-    ease: out_expo
-  - t: 3
-    translate: [-0.03, 0.95, -2.4]
-    rotate: [0, -90, 0]
-    scale: [0.52, 0.26, 1]
-    ease: in_quad
+    translate: [0, 1.2, 0.4]
+    rotate: [0, 0, 0]
+    scale: [0.75, 0.75, 1]
 - id: s3d-line-0
   kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FFF2B8'}
   billboard: fixed
