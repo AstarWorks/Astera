@@ -37,7 +37,7 @@ AIRBORNE_Y = 0.15        # caster feet this far above where they stood at the ca
 BUDGET_DISPLAYS = 60     # director.md "Display budget"
 BUDGET_PARTICLES = 300
 
-# Rig defaults when the dump predates `bones.*.scale` (box size in blocks): 4 x 12 x 4 px boxes at PLAYER_SCALE.
+# Rig defaults when the dump predates `bones.*.scale` (box size in blocks; a dumped `scale` is twice that, see dump_box_size): 4 x 12 x 4 px boxes at PLAYER_SCALE.
 PLAYER_SCALE = 0.9375
 DEFAULT_LEG_SIZE = (4 / 16 * PLAYER_SCALE, 12 / 16 * PLAYER_SCALE, 4 / 16 * PLAYER_SCALE)
 DEFAULT_ARM_SIZE = (4 / 16 * PLAYER_SCALE, 12 / 16 * PLAYER_SCALE, 4 / 16 * PLAYER_SCALE)
@@ -138,10 +138,17 @@ def check_one_weapon(plan):
         emit(c, "PASS", "visibleWeapons == 1 on all %d ticks" % n)
 
 
+def dump_box_size(bone, default):
+    """Box size in blocks. The dump's `scale` is the Display scale of an 8 px model cube (head 0.9375 = 8 px at PLAYER_SCALE, body
+    0.9375 x 1.406 x 0.469 = 8 x 12 x 4 px), so the box edge in blocks is scale / 2, not scale."""
+    sc = bone.get("scale")
+    return tuple(v / 2.0 for v in sc) if sc else default
+
+
 # ---- check 2 ------------------------------------------------------------------------------------------------------
 def left_hand_end(bone):
     """Hand end of the left arm box: its centre + the box's -Y half length, in the box's own rotation (caster-local)."""
-    size = bone.get("scale") or DEFAULT_ARM_SIZE
+    size = dump_box_size(bone, DEFAULT_ARM_SIZE)
     return add(tuple(bone["pos"]), qrot(bone["rot"], (0.0, -size[1] / 2.0, 0.0)))
 
 
@@ -164,7 +171,9 @@ def check_two_hand_grip(plan):
             d = math.dist(rh["pos"], w["pos"])
             if d > GRIP_TOL:
                 right_far.append((tk["tick"], d))
-        if left_present:
+        la = tk["bones"].get("left_arm") if left_present else None
+        # a neutral left arm (identity rotation) is the vanilla held pose after the hand-back: nobody claims a two-hand hold there
+        if la is not None and any(abs(v) > 1e-6 for v in la["rot"][:3]):
             d = math.dist(left_hand_end(tk["bones"]["left_arm"]), w["pos"])
             if d > LEFT_GRIP_TOL:
                 left_far.append((tk["tick"], d))
@@ -187,7 +196,7 @@ def check_two_hand_grip(plan):
 
 # ---- check 3 ------------------------------------------------------------------------------------------------------
 def lowest_corner_y(bone):
-    size = bone.get("scale") or DEFAULT_LEG_SIZE
+    size = dump_box_size(bone, DEFAULT_LEG_SIZE)
     lo = float("inf")
     for sx in (-1, 1):
         for sy in (-1, 1):

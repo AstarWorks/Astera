@@ -31,7 +31,11 @@ ROOT = Path(__file__).resolve().parents[2]
 K = RM.PX * RM.PLAYER_SCALE          # blocks per px
 LEG_LEN = 12.0 * K                   # hip joint -> ankle
 FREEZES = [(7, 2), (31, 2)]          # the skill's play_vfx freeze windows (effect ticks)
+TW = -30.0  # arm twist of the cut1-a key: keeps the wrist swing t3 -> t4 under the 170 deg per tick slerp limit
 DURATION = 58
+LEG_W = 4 * K                        # leg box edge, blocks
+ARM_MIN = 0.42                       # the arm cannot fold: a grip closer than this to the left shoulder pushes the hand past it
+ARM_REACH = 0.62                     # shoulder to grip: the engine aims the left arm at the grip (two_hand_grip), arm length 0.586, lint allows 0.35 more
 FLOOR = 0.03                         # lowest tip height
 
 
@@ -76,14 +80,41 @@ HIP_SHARE = 0.45                     # share of the chest yaw the hips take (roo
 def build(spec: Spec, prev: RM.Pose | None = None) -> RM.Pose:
     """One pose: hips take HIP_SHARE of the yaw (root), the spine (`body`) the rest of the yaw and the whole lean, so the chest
     frame is Ry(yaw) Rx(lean) as before while the legs stay planted. `prev` warm-starts the arm solves (continuous eulers)."""
-    p = RM.Pose(root_rot=[0.0, spec.yaw * HIP_SHARE, spec.roll], root_pos=[spec.shift[1] / K, -spec.drop / K, spec.shift[0] / K])
-    p.bones["body"]["rotation"] = np.array([spec.lean, spec.yaw * (1 - HIP_SHARE), 0.0])
+    def posed(sh):
+        q = RM.Pose(root_rot=[0.0, spec.yaw * HIP_SHARE, spec.roll], root_pos=[sh[1] / K, -spec.drop / K, sh[0] / K])
+        q.bones["body"]["rotation"] = np.array([spec.lean, spec.yaw * (1 - HIP_SHARE), 0.0])
+        return q
+    shift = np.array(spec.shift, float)
+    if spec.two_hand:
+        # both arms are fixed-length sticks: the hilt must sit ARM_MIN..ARM_REACH from BOTH shoulders. The blade path is the ring's source, so the
+        # grip stays exactly where the key put it and the BODY steps under it (root shift, feet stay on their world targets) the least it must.
+        g0 = to_world(spec.grip, spec.yaw, spec.frame)
+        best = None
+        for dx in np.arange(-0.5, 0.501, 0.05):
+            for dz in np.arange(-0.5, 0.501, 0.05):
+                sh = shift + np.array([dx, dz])
+                lq = RM.fk(posed(sh))
+                v = 0.0
+                for j in (lq["joint_l"], lq["joint_r"]):
+                    dd = float(np.linalg.norm(g0 - j))
+                    v += max(0.0, ARM_MIN - dd) + max(0.0, dd - ARM_REACH)
+                c = (v, float(np.hypot(dx, dz)))
+                if best is None or c < best[0]:
+                    best = (c, sh)
+        shift = best[1]
+    p = posed(shift)
     rootR = RM.euler_body(p.root_rot)
     lm = RM.fk(p)
     chestR = lm["body_R"]
     # legs: aim each leg at its foot target, stretch / shorten with scale y
     for s, name in (("r", "right_leg"), ("l", "left_leg")):
         foot = to_world(spec.feet[s], spec.yaw, "w") * np.array([1.0, 0.0, 1.0])
+        for _ in range(3):  # a tilted leg box dips below its end centre by half the footprint: lift the target so the lowest CORNER is on the floor
+            d = foot - lm["hip_" + s]
+            dl = rootR.inv().apply(d)
+            R = rot_from_to([0.0, -1.0, 0.0], dl)
+            M = (rootR * R).as_matrix()
+            foot[1] = min(0.2, 2.0 * 0.5 * LEG_W * (abs(M[1, 0]) + abs(M[1, 2])) * 0.5)
         d = foot - lm["hip_" + s]
         dl = rootR.inv().apply(d)
         R = rot_from_to([0.0, -1.0, 0.0], dl)
@@ -91,7 +122,7 @@ def build(spec: Spec, prev: RM.Pose | None = None) -> RM.Pose:
         p.bones[name]["scale"] = np.array([1.0, float(np.linalg.norm(d) / LEG_LEN), 1.0])
     # right arm: the grip lands on the target (3 dof, small preference for no twist)
     grip_t = to_world(spec.grip, spec.yaw, spec.frame)
-
+    a_world = unit(to_world(spec.blade, spec.yaw, spec.frame))
     def res_r(x):
         q = p.copy()
         q.bones["right_arm"]["rotation"] = x
@@ -99,10 +130,14 @@ def build(spec: Spec, prev: RM.Pose | None = None) -> RM.Pose:
     x0 = prev.bones["right_arm"]["rotation"] if prev is not None else \
         np.array(RM.body_euler_of(rot_from_to([0.0, -1.0, 0.0], chestR.inv().apply(grip_t - lm["joint_r"]))))
     sol = least_squares(res_r, x0)
+    if sol.cost > 1e-4:  # warm start stuck in a local minimum: retry from the straight aim, keep the better
+        x1 = np.array(RM.body_euler_of(rot_from_to([0.0, -1.0, 0.0], chestR.inv().apply(grip_t - lm["joint_r"]))))
+        s1 = least_squares(res_r, x1)
+        sol = s1 if s1.cost < sol.cost else sol
     p.bones["right_arm"]["rotation"] = sol.x
     lm = RM.fk(p)
     # blade frame: axis + broad-face normal (hint orthogonalised), tip kept above the floor
-    a = unit(to_world(spec.blade, spec.yaw, spec.frame))
+    a = a_world
     grip = lm["grip"]
     if grip[1] + a[1] * 1.75 < FLOOR:
         hz = unit([a[0], 0.0, a[2]])
@@ -157,6 +192,7 @@ def report(spec, p):
     rg = abs(np.linalg.norm(lm["grip"] - to_world(spec.grip, spec.yaw, spec.frame)))
     lh = np.linalg.norm(lm["hand_l"] - (wp["grip"] - wp["axis"] * 0.17)) if spec.two_hand else 0
     sc = [round(float(p.bones[n]["scale"][1]), 2) for n in ("right_leg", "left_leg")]
+    lh = max(lh, 0) if not spec.two_hand else float(np.linalg.norm(lm["hand_l"] - wp["grip"]))  # the lint's number: left hand end to the grip origin
     print(f"  {spec.name:<14} grip err {rg:.3f} lhand err {lh:.3f} grip {np.round(wp['grip'], 2).tolist()}"
           f" head_top y {lm['head_top'][1]:.2f} hips y {lm['hips'][1]:.2f} leg scale {sc}")
 
@@ -193,8 +229,37 @@ def W(v):
     return (float(v[2]), float(v[0]), float(v[1]))
 
 
+GRIP_PIN = {  # world (x_left, y, z_fwd) grip of each key as the approved blade path reached it (the ring derives from it): the BODY moves, the blade does not
+    "coil": (-0.383, 0.533, -0.297),
+    "coil-hold": (-0.383, 0.533, -0.297),
+    "wind-back": (-0.261, 0.808, -0.570),
+    "cut1-a": (-0.727, 1.348, -0.132),
+    "cut1-b": (-0.021, 1.308, 0.910),
+    "cut1-hit": (0.642, 1.313, -0.109),
+    "follow-a": (0.380, 1.228, -0.364),
+    "follow-b": (0.255, 1.210, -0.397),
+    "over": (0.205, 1.205, -0.400),
+    "over-hold": (0.181, 1.207, -0.418),
+    "settle-a": (0.137, 0.710, -0.408),
+    "settle-b": (0.072, 0.678, -0.449),
+    "rest-away": (0.041, 0.650, -0.468),
+    "rest-hold": (0.041, 0.650, -0.468),
+    "crouch2": (0.075, 0.719, -0.364),
+    "crouch2-hold": (0.087, 0.708, -0.326),
+    "sweep2": (0.520, 0.667, 0.012),
+    "thrust2": (0.030, 0.807, 0.707),
+    "thrust2-mid": (-0.036, 0.810, 0.710),
+    "thrust2-m2": (-0.058, 0.811, 0.711),
+    "thrust2-m3": (-0.080, 0.812, 0.712),
+    "thrust2-hold": (-0.101, 0.812, 0.713),
+    "drop2": (-0.464, 0.460, 0.047),
+    "drop2-b": (-0.410, 0.530, -0.259),
+    "coil-end": (-0.383, 0.533, -0.297),
+}
+
+
 class Beat:
-    def __init__(self, tick, yaw, th, tip_y, face, lean=22.0, drop=0.2, grip_y=0.92, reach=0.42, look=None, roll=0.0, name=""):
+    def __init__(self, tick, yaw, th, tip_y, face, lean=22.0, drop=0.2, grip_y=0.92, reach=0.42, look=None, roll=0.0, name="", twist=0.0):
         self.__dict__.update(dict(locals()))
         self.__dict__.pop("self")
 
@@ -219,7 +284,7 @@ def spec_of(b: Beat) -> Spec:
         n = CAM_SIDE
     look = b.look if b.look is not None else np.array([0.0, 1.2, 4.0])
     return Spec(b.name or f"t{b.tick}", yaw=b.yaw, lean=b.lean, drop=b.drop, roll=b.roll, frame="w", feet=FEET,
-                grip=W(grip), blade=W(a), face=W(n), look=W(look))
+                grip=W(GRIP_PIN.get(b.name, grip)), blade=W(a), face=W(n), look=W(look), arm_twist=b.twist)
 
 
 ENEMY = np.array([0.0, 1.3, 4.0])
@@ -230,7 +295,7 @@ BEATS = [  # skill tick, chest yaw, tip azimuth, tip height, face; ticks 1, 8-9 
     Beat(4, -45, -75, 1.15, ("cam", "ccw", 0.6), lean=28, drop=0.24, grip_y=1.15, name="wind-back"),  # anticipation: lift behind the shoulder, against the cut
     # r5: the blade lies IN the ring plane through the swing + follow-through (plane ~y 1.3, derived from the tip path): grip at 1.2-1.25
     # (arm raised to ~shoulder height, shallower crouch) and tip at 1.3-1.4, so blade-vs-plane stays under ~6 deg on skill 5-16
-    Beat(5, 5, 5, 1.30, "ccw", lean=18, drop=0.12, grip_y=1.32, name="cut1-a"),                          # behind -> the near side
+    Beat(5, 5, 5, 1.30, "ccw", lean=18, drop=0.12, grip_y=1.32, name="cut1-a", twist=TW),                          # behind -> the near side
     Beat(6, 50, 85, 1.38, "ccw", lean=16, drop=0.10, grip_y=1.32, reach=0.55, name="cut1-b"),  # across the enemy (ring snap)
     Beat(7, 95, 165, 1.36, "ccw", lean=20, drop=0.14, grip_y=1.34, name="cut1-hit"),       # contact, hit-stop t7-9
     Beat(10, 108, 212, 1.34, "ccw", lean=20, drop=0.14, grip_y=1.34, look=ENEMY, name="follow-a"),
@@ -245,6 +310,9 @@ BEATS = [  # skill tick, chest yaw, tip azimuth, tip height, face; ticks 1, 8-9 
     Beat(29, 112, 268, 0.65, "cw", lean=38, drop=0.32, grip_y=1.0, look=np.array([1.0, 0.0, 0.8]), name="crouch2-hold"),
     Beat(30, 60, 182, 0.9, "cw", lean=34, drop=0.3, grip_y=0.95, reach=0.55, look=ENEMY, name="sweep2"),
     Beat(31, 0, 92, 1.0, "cw", lean=24, drop=0.24, grip_y=1.05, reach=0.7, look=ENEMY, name="thrust2"),
+    Beat(35, -2, 86, 0.99, "cw", lean=23, drop=0.23, grip_y=1.05, reach=0.69, look=ENEMY, name="thrust2-mid"),  # the body lerps 7 ticks here: a middle key keeps the left hand on the hilt
+    Beat(36, -3, 84, 0.99, "cw", lean=23, drop=0.23, grip_y=1.05, reach=0.69, look=ENEMY, name="thrust2-m2"),
+    Beat(37, -4, 82, 0.98, "cw", lean=22, drop=0.22, grip_y=1.05, reach=0.68, look=ENEMY, name="thrust2-m3"),
     Beat(38, -5, 80, 0.98, "cw", lean=22, drop=0.22, grip_y=1.05, reach=0.68, look=ENEMY, name="thrust2-hold"),
     Beat(39, -20, 10, 0.8, "cw", lean=22, drop=0.2, look=ENEMY, name="drop2"),
     Beat(40, -30, -40, 0.45, ("cw", "cam", 0.6), lean=23, drop=0.2, look=ENEMY, name="drop2-b"),
