@@ -24,4 +24,4 @@ Each skill is a short performance: caster body motion, one real weapon, Display-
 - When and by whom are the other 9 families re-reviewed?
 
 ## Governing ADRs
-0231, 0238, 0239, 0241, 0250, 0252, 0253, 0254.
+0231, 0238, 0239, 0241, 0250, 0274, 0275, 0276.
