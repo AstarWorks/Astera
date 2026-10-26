@@ -253,5 +253,17 @@ class ClientReceivesE2eTest : E2eBase() {
                 .describedAs("MISSING astera:weapons/gun-shot after reload; sound packets=${heard.take(10)}; reload='${reload.trim()}'").isTrue()
             "heard gun-shot after reload; all=${heard.take(6)}"
         }
+
+        // Hand-written reloads (not YamlDynamicContents) share EmptyReloadGuard: re-reading the real shipped content must
+        // succeed, and a layout mismatch that yields 0 entries would be answered with "Reload aborted" instead.
+        E2eReport.check(suite, "per-category reload of the hand-written stores succeeds on shipped content", "rcon reload replies") {
+            val replies = listOf("login-bonus", "cosmetics", "armor", "balance-combat", "lobby-kit", "achievements")
+                .associateWith { rcon("astera admin reload $it").trim() }
+            replies.forEach { (cat, reply) ->
+                assertThat(reply).describedAs("reload $cat refused or unknown (reply='$reply')")
+                    .doesNotContain("aborted").doesNotContain("Unknown").contains("Reloaded")
+            }
+            "replies=$replies"
+        }
     }
 }

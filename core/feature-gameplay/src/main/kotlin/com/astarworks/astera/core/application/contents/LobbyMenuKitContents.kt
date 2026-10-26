@@ -30,7 +30,7 @@ public class LobbyMenuKitContents : ReloadableContents {
     }
 
     override fun reload(dir: Path): ContentLoader.LoadReport = when (val loaded = LobbyMenuKitContent.load(dir)) {
-        is Result.Success -> {
+        is Result.Success -> EmptyReloadGuard.check(categoryName, dir, loaded.value.entries.size, kit.entries.size) ?: run {
             kit = loaded.value
             listeners.forEach { it() }
             ContentLoader.LoadReport(loaded = loaded.value.entries.size, failed = 0)
