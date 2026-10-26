@@ -98,6 +98,11 @@ public data class VfxDefinition(
      * for effects that belong to the torso / blade frame, e.g. a ring cast out of a back-turn twist. Needs `follow: true`.
      */
     public val followBodyYaw: Boolean = false,
+    /**
+     * The caster's look pitch (clamped to +-45 degrees) tilts the effect's frame about the caster's feet: a `yaw`-oriented effect
+     * spawns tilted by the pitch at spawn, and a performance (body / rig) tilts with the live pitch while it plays.
+     */
+    public val followPitch: Boolean = false,
 ) {
     /** A performance owns the caster's hand, and with a body the whole body, for its duration. */
     public val isPerformance: Boolean get() = body != null || rigs.any { it.weapon != null }

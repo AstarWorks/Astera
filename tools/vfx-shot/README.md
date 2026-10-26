@@ -141,8 +141,8 @@ opponent視点のTargetは最大HP200で全回復してから撮影する(多段
 |---|---|---|
 | `caster` | the caster, first person (`Caster`) | husk (AI off) 4 blocks ahead |
 | `opponent` | the target (`Target`) looking at the caster | caster is a second real client (small, 480x270) |
-| `side` | `Watcher` in spectator, 6 blocks off the caster's left, looking at the midpoint | caster client + husk target |
-| `right` | as `side`, from the caster's right | caster client + husk target |
+| `side` | `Watcher` in spectator, 6 blocks off the caster's right (screen-right = forward, same as the compare reference), looking at the midpoint | caster client + husk target |
+| `right` | as `side`, from the caster's left | caster client + husk target |
 | `front` | `Watcher` ahead of the caster, 2 blocks beside the target line (+1.7 up), looking back at the caster's chest | caster client + husk target |
 | `back` | `Watcher` 5 blocks behind the caster (+2.0 up), looking at its chest | caster client + husk target |
 | `high` | `Watcher` back-left, 5.8 up, looking ~45 deg down at the swing | caster client + husk target |
@@ -160,7 +160,7 @@ framed with `/tp x y z yaw pitch`. Arena: overworld flat world at (300.5, -60, 3
 ### `SHOT_CASTER_TURN=<tick>:<yaw>[,<tick>:<yaw>...]` (any view)
 
 Turns the caster (`/rotate Caster <yaw> ~`, no teleport so the rig passengers stay mounted; absolute yaw in degrees) that many ticks after the cast, through the same RCON plan as the camera
-cuts. Use it to check that the skin body, the weapon rig and the follow VFX rotate with the live yaw (`SHOT_CASTER_TURN=14:90,28:180`).
+cuts. Use it to check that the skin body, the weapon rig and the follow VFX rotate with the live yaw (`SHOT_CASTER_TURN=14:90:30,28:180` (`tick:yaw[:pitch]`, pitch in degrees, down is positive)).
 
 ### `VIEW=compare CASE=<case-id>`
 

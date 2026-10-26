@@ -13,8 +13,14 @@ const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) 
 const svgNS = "http://www.w3.org/2000/svg";
 const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* private mode */ } } };
 
-const PRIMARY = ["side", "top", "front"];
-const VIEW_LABEL = { compare: "参照と同じ角度", input: "通常操作で発動", caster: "術者視点", opponent: "相手視点", side: "横", right: "横（右）", front: "正面", back: "背面", top: "真上", high: "俯瞰45°", near: "近くのプレイヤー目線" };
+const PRIMARY = ["side"]; // main player = reference + this one slot; top / front sit in the collapsed extra views
+// The side slot has two interchangeable sources: the three.js preview (same orientation as the reference) and the real-client capture.
+const SIDE_SOURCES = { "vfx-preview-side": "プレビュー", "vfx-side": "実機" };
+// STOPGAP: real-client `side` captures taken before the vfx-shot side camera moved to the caster's right are mirrored
+// (screen-left = forward). Flip them at display time; captures at/after this instant are already correct. Remove with the old captures.
+const SIDE_MIRRORED_BEFORE = "2026-10-26T23:00:00Z";
+const sideMirrored = (name) => { if (name !== "vfx-side") return false; const at = S.data.mc.sources[name]?.prov?.capturedAt; return !at || at < SIDE_MIRRORED_BEFORE; };
+const VIEW_LABEL = { compare: "参照と同じ角度", input: "通常操作で発動", caster: "術者視点", opponent: "相手視点", side: "横", "preview-side": "横", right: "横（左）", front: "正面", back: "背面", top: "真上", high: "俯瞰45°", near: "近くのプレイヤー目線" };
 const EXTRA_ORDER = ["compare", "back", "right", "caster", "opponent", "near", "high", "input"];
 
 const S = {
@@ -28,6 +34,8 @@ fetch("/api/cases/" + encodeURIComponent(caseId)).then((r) => { if (!r.ok) throw
 function init(d) {
   if (d.case.kind === "pose-review") { location.replace("/stills.html?id=" + encodeURIComponent(d.case.id)); return; }
   S.data = d; S.c = d.case;
+  const ps = d.views?.previewSide; // published by skill-preview --camera side; exposed to the side slot as the source "vfx-preview-side"
+  if (ps) d.mc.sources["vfx-preview-side"] = { kind: "frames", base: ps.base, count: ps.count, fps: 20, castFrame: ps.castFrame ?? 0, extension: ps.extension, revision: ps.revision, prov: ps.prov };
   S.c.mc ??= { source: "vfx-caster", offset_ms: 0, castTickInTrace: 5 };
   S.dur = Math.round((S.c.end_s - S.c.start_s) * 1000);
   S.fps = d.media.ready ? d.media.fps : 30;
@@ -112,7 +120,8 @@ function buildPanes() {
   const srcs = S.data.mc.sources, host = $("panes");
   $("vph").textContent = S.c.status === "from-wiki" ? "原動画に該当技なし・wiki由来の設計" : S.data.media.ready ? "読み込み中…" : "参照区間の映像を準備中";
   for (const v of PRIMARY) mkPane(host, "vfx-" + v, VIEW_LABEL[v]);
-  const extras = Object.keys(srcs).map((n) => n.replace("vfx-", "")).filter((v) => !PRIMARY.includes(v) && VIEW_LABEL[v] && v !== "viewer")
+  buildSideToggle(S.panes[0], srcs);
+  const extras = Object.keys(srcs).map((n) => n.replace("vfx-", "")).filter((v) => !PRIMARY.includes(v) && v !== "preview-side" && VIEW_LABEL[v] && v !== "viewer")
     .sort((a, b) => (EXTRA_ORDER.indexOf(a) + 99) % 99 - (EXTRA_ORDER.indexOf(b) + 99) % 99);
   for (const v of extras) mkPane($("panesExtra"), "vfx-" + v, VIEW_LABEL[v]);
   $("bMore").hidden = !extras.length;
@@ -123,6 +132,25 @@ function buildPanes() {
     update(true);
   };
   $("moreInfo").textContent = extras.length ? extras.map((v) => VIEW_LABEL[v]).join("・") : "";
+}
+function buildSideToggle(p, srcs) {
+  const avail = Object.keys(SIDE_SOURCES).filter((n) => srcs[n]);
+  if (!avail.length) { // nothing to show: reference at full width instead of an empty panel
+    S.panes.splice(S.panes.indexOf(p), 1); p.fig.remove(); p.fig.closest(".panes")?.classList.add("solo");
+    $("panes").classList.add("solo"); $("panes").before(el("p", "status sidenote", "横からの映像はまだ作られていません（プレビュー・実機とも未公開）"));
+    return;
+  }
+  const at = (n) => srcs[n].prov?.capturedAt || "";
+  p.name = avail.reduce((a, b) => (at(b) > at(a) ? b : a)); // default: the newest capture
+  p.slot = true;
+  if (avail.length < 2) return;
+  const box = el("span", "srctog");
+  for (const n of avail) {
+    const b = el("button", "", SIDE_SOURCES[n]); b.type = "button";
+    b.onclick = () => { p.name = n; box.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); update(true); };
+    b.setAttribute("aria-pressed", String(n === p.name)); box.append(b);
+  }
+  p.fig.querySelector("figcaption").insertBefore(box, p.info);
 }
 const visiblePanes = () => S.panes.filter((p) => !p.fig.closest("[hidden]"));
 
@@ -154,7 +182,9 @@ function showPane(p, ms) {
   const src = S.data.mc.sources[p.name], f = mcFrame(p.name, ms);
   p.miss.hidden = !((src?.prov?.skippedTicks ?? 0) > 0);
   if (!f) { p.ph.classList.add("on"); p.img.style.visibility = "hidden"; p.info.textContent = ""; p.badge.hidden = true; return; }
-  p.info.textContent = `t+${f.tick}`;
+  const mirrored = p.slot && sideMirrored(p.name);
+  p.info.textContent = `t+${f.tick}` + (p.slot ? ` · ${SIDE_SOURCES[p.name]} ${(src?.prov?.commit || "sha不明").slice(0, 7)}${mirrored ? " · 表示反転(旧撮影)" : ""}` : "");
+  p.img.style.transform = mirrored ? "scaleX(-1)" : "";
   p.badge.hidden = !f.dim; p.badge.textContent = f.tick < 0 ? "発動前" : "撮影範囲の終端";
   const entry = S.frameCache.get(f.url);
   if (entry?.state !== "ready") return; // keep the previous image until the next one is in the browser cache

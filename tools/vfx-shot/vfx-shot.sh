@@ -3,7 +3,7 @@
 # Output: build/vfx-shot/<skill>/<view>/{frame_NNN.png,sheet.png,<skill>-<view>.gif,.mp4,meta.json}
 #
 #   make vfx-shot SKILL=couture-rapier-s2 [VIEW=caster|opponent|side|front|back|right|high|near|top|compare|all] [TICKS=60]
-#   orbit views (spectator Watcher): side = 6 blocks off the caster's left, right = the opposite side, front = ahead beside
+#   orbit views (spectator Watcher): side = 6 blocks off the caster's right (screen-right = forward), right = the opposite side, front = ahead beside
 #   the target looking back, back = behind the caster, high = 45 deg down from the back-left, near = a bystander at eye
 #   height ~2.4 blocks away (orbit_cam)
 #   make vfx-shot SKILL=bastion-greatsword-s3 VIEW=compare CASE=zwei-s3     # camera from the skill-compare intent
@@ -804,10 +804,11 @@ film() { # viewer view_dir
   # SHOT_CASTER_TURN="<tick>:<yaw>[,<tick>:<yaw>...]": turns the caster (server-side /rotate, pitch kept (a /tp would eject the rig passengers)) that many ticks after the cast,
   # to check that the skin / rig / VFX follow the live yaw. Works in every view (the plan is just rcon commands by time).
   if [ -n "${SHOT_CASTER_TURN:-}" ]; then
-    [[ "$SHOT_CASTER_TURN" =~ ^[0-9]+:-?[0-9.]+(,[0-9]+:-?[0-9.]+)*$ ]] || die "SHOT_CASTER_TURN must look like 20:90,40:180 (tick:yaw)"
+    [[ "$SHOT_CASTER_TURN" =~ ^[0-9]+:-?[0-9.]+(:-?[0-9.]+)?(,[0-9]+:-?[0-9.]+(:-?[0-9.]+)?)*$ ]] || die "SHOT_CASTER_TURN must look like 20:90,40:180:30 (tick:yaw[:pitch])"
     local turn
     for turn in ${SHOT_CASTER_TURN//,/ }; do
-      printf '%s\trotate Caster %s ~\n' "$(( ${turn%%:*} * 50 ))" "${turn#*:}" >> "$STATE/camera-plan.tsv"
+      IFS=: read -r t_tick t_yaw t_pitch <<<"$turn"
+      printf '%s\trotate Caster %s %s\n' "$(( t_tick * 50 ))" "$t_yaw" "${t_pitch:-~}" >> "$STATE/camera-plan.tsv"
     done
   fi
   # one RCON connection: game time, cast, game time, then (compare) the camera cuts of the plan. Stepped: the server is frozen and
@@ -928,8 +929,8 @@ orbit_cam() {
 import math, sys
 v, cx, y, cz, d = sys.argv[1], *map(float, sys.argv[2:])
 cams = {  # (camera offset, look-at offset) from the caster feet; x = +east = the caster left, z = forward
-    "side": ((6.0, 1.0, d / 2), None),
-    "right": ((-6.0, 1.0, d / 2), None),
+    "side": ((-6.0, 1.0, d / 2), None),  # the caster's RIGHT: screen-right = forward, same orientation as the skill-compare reference
+    "right": ((6.0, 1.0, d / 2), None),
     "front": ((2.0, 1.7, d + 3.0), (0.0, 1.2, 0.6)),
     "back": ((-1.0, 2.0, -5.0), (0.0, 1.2, 0.8)),
     "high": ((4.0, 5.8, -1.5), (0.0, 0.9, 1.0)),

@@ -295,6 +295,10 @@ deploy() (
   mv "$STATE/last-sha.tmp" "$STATE/last-sha"
   rm -f "$STATE/manual-needed" "$STATE/current-step"
   log "deployed $sha [${steps[*]:-none}]"
+  # Minecraft-free skill previews for the skills this push touched (own lock, detached, never blocks or fails a deploy).
+  if [ -n "$last" ] && grep -zqE '^content/(skills|vfx|animations|models|sounds|particles|particle-skins|poses|items)/' "$STATE/paths" 2>/dev/null; then
+    setsid nohup bash "$DEPLOY/scripts/skill-preview-auto.sh" "$last" "$sha" > /dev/null 2>&1 9>&- 8>&- < /dev/null &
+  fi
 ) 9>"$LOCK"
 
 case "${1:-run}" in

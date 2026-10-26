@@ -50,6 +50,9 @@
         },
         "follow_body_yaw": {
             "type": "boolean"
+        },
+        "follow_pitch": {
+            "type": "boolean"
         }
     },
     "required": [
@@ -963,6 +966,12 @@
                     "items": {
                         "type": "number"
                     }
+                },
+                "weapon_model": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxWeaponModelKeyYaml"
+                    }
                 }
             },
             "required": [
@@ -1134,6 +1143,21 @@
                 "start_t",
                 "end_t",
                 "life_ticks"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxWeaponModelKeyYaml": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "integer"
+                },
+                "model": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "t",
+                "model"
             ]
         }
     }
