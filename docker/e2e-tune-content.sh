@@ -88,3 +88,25 @@ if grep -Eq '^  time_limit_seconds:' "$root/game-modes/battle-loyal.yaml"; then
 else
   patch game-modes/battle-loyal.yaml 's/^default_config:.*/&\n  time_limit_seconds: "300"/' '^default_config:'
 fi
+
+# T14: independent copies, generated only in the Folia E2E images.
+count="${2:-0}"
+case "$count" in ''|*[!0-9]*) echo "invalid concurrent match count: $count" >&2; exit 1;; esac
+i=1
+while [ "$i" -le "$count" ]; do
+  lane="folia-e2e-$i"
+  sed "s/^id: example-arena$/id: $lane/" "$root/stages/example-arena.yaml" > "$root/stages/$lane.yaml"
+  sed "s/^id: skirmish$/id: $lane/" "$root/game-modes/skirmish.yaml" > "$root/game-modes/$lane.yaml"
+  # No generators in these copies: stationary bots should tie on every Norma metric.
+  # Short enough for E2E, long enough to observe all N matches ACTIVE together.
+  printf '\n  time_limit_seconds: "45"\n' >> "$root/game-modes/$lane.yaml"
+  cat >> "$root/matchmaking/queue.yaml" <<LANE
+  - id: $lane
+    stage: $lane
+    teams: 2
+    players_per_team: 1
+    min_players: 2
+    kind: pvp
+LANE
+  i=$((i + 1))
+done

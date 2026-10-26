@@ -40,10 +40,20 @@ if [ -n "${E2E_ID:-}" ]; then
 else
   ASTERA_E2E_ID="$(printf '%s' "$ROOT" | { sha256sum 2>/dev/null || shasum -a 256; } | cut -c1-8)"
 fi
+export SERVER_TYPE="${SERVER_TYPE:-PAPER}"
+LOG_PREFIX=e2e
+if [ "$SERVER_TYPE" = FOLIA ]; then
+  ASTERA_E2E_ID="folia$ASTERA_E2E_ID"
+  LOG_PREFIX=e2e-folia
+  export E2E_CONCURRENT_MATCHES="${E2E_CONCURRENT_MATCHES:-4}"
+  case "$E2E_CONCURRENT_MATCHES" in ''|*[!0-9]*|0) echo "E2E_CONCURRENT_MATCHES must be positive" >&2; exit 2;; esac
+  export E2E_MAX_PLAYERS="${E2E_MAX_PLAYERS:-$((2 * E2E_CONCURRENT_MATCHES + 20))}"
+  export E2E_FOLIA_THREADS="${E2E_FOLIA_THREADS:-4}"
+fi
 export ASTERA_E2E_ID
 PROJECT="astera-e2e-$ASTERA_E2E_ID"
 RUNNER="$PROJECT-runner"
-REPORT=build/e2e-report.md
+REPORT="build/$LOG_PREFIX-report.md"
 
 C=(docker compose -p "$PROJECT" -f docker/docker-compose.e2e.yml --profile e2e)
 
@@ -147,6 +157,10 @@ printf '%s %s %s\n' "$$" "$HOST" "$(date +%s)" > "$STAMP"
 on_exit() {
   local rc=$?
   trap - EXIT INT TERM
+  "${C[@]}" logs --no-color --no-log-prefix e2e > "build/$LOG_PREFIX-server.log" 2>&1 || true
+  if [ ! -f "$REPORT" ]; then
+    printf '# E2E report\n\n- result: **0 / 0 checks executed**\n- harness exit: %s (see %s-boot.log and matching server log)\n' "$rc" "$LOG_PREFIX" > "$REPORT"
+  fi
   docker rm -f "$RUNNER" >/dev/null 2>&1 || true
   if [ -z "${E2E_KEEP:-}" ]; then
     if [ -n "${E2E_REUSE:-}" ]; then "${C[@]}" down --remove-orphans >/dev/null 2>&1 || true
@@ -168,7 +182,7 @@ echo "[e2e] checkout id $ASTERA_E2E_ID (project $PROJECT)"
 [ -n "${E2E_REUSE:-}" ] || "${C[@]}" down -v --remove-orphans >/dev/null 2>&1 || true
 
 echo "[e2e] building + starting the backend (first run builds the Paper image: several minutes)"
-"${C[@]}" up -d --build --wait "${SERVICES[@]}" || { echo "[e2e] backend failed to start"; "${C[@]}" logs --tail 80 "${SERVICES[@]}"; exit 2; }
+"${C[@]}" up -d --build --wait "${SERVICES[@]}" 2>&1 | tee "build/$LOG_PREFIX-boot.log" || { echo "[e2e] backend failed to start"; "${C[@]}" logs --tail 80 "${SERVICES[@]}"; exit 2; }
 
 echo "[e2e] building the runner"
 "${C[@]}" build e2e-runner || { echo "[e2e] runner build failed"; exit 2; }
@@ -178,6 +192,7 @@ docker rm -f "$RUNNER" >/dev/null 2>&1 || true
 rc=$?
 docker cp "$RUNNER:/workspace/tools/e2e/build/e2e-report.md" "$REPORT" 2>/dev/null \
   && echo "[e2e] report: $REPORT" || echo "[e2e] no report produced"
+docker cp "$RUNNER:/workspace/tools/e2e/build/test-results/e2e" "build/$LOG_PREFIX-junit" 2>/dev/null || true
 docker rm -f "$RUNNER" >/dev/null 2>&1 || true
 
 # OPS-10: record host load so readers can discard runs made under overload.
@@ -194,7 +209,7 @@ LOAD_END="$(load_triple)"
 # QA-7: Velocity's own verdict. Any exception / decode failure in the proxy log fails the run, even when
 # every bot check passed (the bot that hit it may already have been written off as a flaky disconnect).
 if [ "$E2E_VIA" = "velocity" ]; then
-  VLOG=build/e2e-velocity.log
+  VLOG="build/$LOG_PREFIX-velocity.log"
   "${C[@]}" logs --no-color --no-log-prefix e2e-velocity > "$VLOG" 2>&1 || true
   # A client socket that vanished mid-write (backend kicked the bot) logs "decode frame" + "Broken pipe": a peer
   # disconnect race, not a protocol decode failure. Those line pairs are ignored.
@@ -205,6 +220,17 @@ if [ "$E2E_VIA" = "velocity" ]; then
   else
     echo "[e2e] Velocity log clean: $(grep -c 'has connected' "$VLOG") joins, no exceptions / decode errors"
   fi
+fi
+
+if [ "$SERVER_TYPE" = FOLIA ]; then
+  SLOG="build/$LOG_PREFIX-server.log"
+  "${C[@]}" logs --no-color --no-log-prefix e2e > "$SLOG" 2>&1
+  bad="$(grep -Ein 'Thread failed main thread check|not owned by current region|IllegalStateException.*(own|region|thread)|Cannot (read|write).*off.*thread' "$SLOG" || true)"
+  {
+    printf '\n## Folia ownership log gate\n\n'
+    if [ -n "$bad" ]; then printf '**FAIL**\n\n\x60\x60\x60\n%s\n\x60\x60\x60\n' "$bad"; else printf 'PASS: no ownership errors.\n'; fi
+  } >> "$REPORT"
+  [ -z "$bad" ] || rc=1
 fi
 
 if [ -n "${E2E_KEEP:-}" ]; then

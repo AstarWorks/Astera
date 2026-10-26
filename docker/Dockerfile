@@ -46,6 +46,7 @@ RUN --mount=type=cache,id=astera-plugins-gradle,sharing=locked,target=/home/grad
         :plugin:stats:shadowJar \
         :plugin:economy:shadowJar \
         :plugin:persistence:shadowJar \
+        :tools:e2e:foliaProbeJar \
  && mkdir /out \
  && cp plugin/*/build/libs/astera-*.jar /out/ \
  && test "$(ls /out | wc -l)" -eq 7
@@ -76,13 +77,17 @@ COPY --from=builder /out/ /plugins/
 # mount of ../content would appear empty; bake it into the image at /content.
 # It lives outside the /data volume, so each rebuilt image carries exactly the
 # repo's content — deleted files do not linger.
+COPY --from=builder /workspace/tools/e2e/build/libs/folia-e2e-probe.jar /opt/astera/folia-e2e-probe.jar
+COPY docker/e2e-server-start.sh /opt/astera/e2e-server-start.sh
 COPY content /content/
 COPY docker/void-world /opt/astera/void-world/
 
 # G1: the e2e image (docker-compose.e2e.yml, E2E_FAST=1) runs the playthrough suites with shortened timers.
 ARG E2E_FAST=0
+ENV ASTERA_E2E_FAST=${E2E_FAST}
+ARG E2E_CONCURRENT_MATCHES=0
 COPY docker/e2e-tune-content.sh /tmp/e2e-tune-content.sh
-RUN if [ "$E2E_FAST" = "1" ]; then sh /tmp/e2e-tune-content.sh /content; fi && rm /tmp/e2e-tune-content.sh
+RUN if [ "$E2E_FAST" = "1" ]; then sh /tmp/e2e-tune-content.sh /content "$E2E_CONCURRENT_MATCHES"; fi && rm /tmp/e2e-tune-content.sh
 
 # Paper config patches (itzg PATCH_DEFINITIONS): the compose file points
 # PATCH_DEFINITIONS=/patches at this directory on the lobby / game backends so
@@ -118,7 +123,7 @@ RUN set -eu; \
     fi; \
     rm -rf /tmp/libs.versions.toml /tmp/folia-patches
 COPY --chmod=0755 docker/server-type-start.sh /usr/local/bin/astera-start
-ENTRYPOINT ["/usr/local/bin/astera-start"]
+ENTRYPOINT ["/bin/sh", "/opt/astera/e2e-server-start.sh"]
 
 # 25565 = Minecraft Java, 25575 = RCON. World/config volume is /data.
 EXPOSE 25565 25575

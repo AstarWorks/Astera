@@ -175,6 +175,10 @@ private-update: ## Pull the latest commit from the private/ submodule
 e2e: ## Boot the offline e2e backend, run the MCProtocolLib bot suite, write build/e2e-report.md (exit code = result)
 	bash scripts/e2e.sh
 
+.PHONY: e2e-folia
+e2e-folia: ## Same lock as e2e: flock /tmp/claude-1000/astera-e2e.lock make e2e-folia
+	SERVER_TYPE=FOLIA bash scripts/e2e.sh
+
 .PHONY: e2e-down
 e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, volumes, images)
 	bash scripts/e2e.sh down

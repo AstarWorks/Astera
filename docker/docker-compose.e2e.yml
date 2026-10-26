@@ -30,6 +30,7 @@ services:
       dockerfile: docker/Dockerfile
       args:
         E2E_FAST: "1"
+        E2E_CONCURRENT_MATCHES: "${E2E_CONCURRENT_MATCHES:-0}"
         # PAPER (default) or FOLIA; see docker/Dockerfile.
         SERVER_TYPE: "${SERVER_TYPE:-PAPER}"
       labels:
@@ -46,7 +47,8 @@ services:
       VERSION: "26.3"
       MEMORY: "2G"
       USE_AIKAR_FLAGS: "true"
-      MAX_PLAYERS: "20"
+      MAX_PLAYERS: "${E2E_MAX_PLAYERS:-20}"
+      E2E_FOLIA_THREADS: "${E2E_FOLIA_THREADS:-4}"
       ONLINE_MODE: "FALSE"
       ENFORCE_SECURE_PROFILE: "FALSE"
       LEVEL_TYPE: "astera:void"
@@ -148,11 +150,15 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.e2e-runner
+      args:
+        E2E_CONCURRENT_MATCHES: "${E2E_CONCURRENT_MATCHES:-0}"
       labels:
         astera.e2e.id: "${ASTERA_E2E_ID:-local}"
     image: astera/e2e-runner:e2e-${ASTERA_E2E_ID:-local}
     environment:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+      SERVER_TYPE: "${SERVER_TYPE:-PAPER}"
+      E2E_CONCURRENT_MATCHES: "${E2E_CONCURRENT_MATCHES:-0}"
       E2E_ONLY: "${E2E_ONLY:-}"
       E2E_WEAPONS: "${E2E_WEAPONS:-}"
       E2E_VIA: "${E2E_VIA:-velocity}"
