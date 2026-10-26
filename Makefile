@@ -193,6 +193,15 @@ private-update: ## Pull the latest commit from the private/ submodule
 e2e: ## Integration-window e2e: skips the slowest low-churn suites (E2E_PROFILE=window), writes build/e2e-report.md (exit code = result)
 	bash scripts/e2e.sh
 
+.PHONY: e2e-smoke
+e2e-smoke: ## Merge-gate e2e (E2E_PROFILE=smoke, < 10 min): boot, client packets, first ten minutes, lobby, shop, one objective, bot-vs-bot
+	E2E_PROFILE=smoke bash scripts/e2e.sh build
+	flock $${E2E_LOCK:-/tmp/claude-$$(id -u)/astera-e2e.lock} env E2E_PROFILE=smoke bash scripts/e2e.sh
+
+.PHONY: e2e-build
+e2e-build: ## Pre-build this checkout's e2e images without the host-wide lock (overlaps with whoever holds it)
+	bash scripts/e2e.sh build
+
 .PHONY: e2e-full
 e2e-full: ## Full e2e: every suite incl. PersonaWeapons / Weapons (same as `make e2e E2E_PROFILE=full`)
 	E2E_PROFILE=full bash scripts/e2e.sh

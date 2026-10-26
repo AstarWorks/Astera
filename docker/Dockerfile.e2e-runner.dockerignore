@@ -31,3 +31,8 @@ docs/
 deploy/
 private/
 tools/architecture-test/build/
+
+# Only tools/e2e and tools/bot-runner are built here; other tool sources must not invalidate the compile layer.
+tools/*/src
+!tools/e2e/src
+!tools/bot-runner/src
