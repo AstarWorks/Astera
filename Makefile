@@ -274,6 +274,14 @@ bots: ## Fill the live queue with AI bots (ADR-0247): make bots N=2 LANE=skirmis
 skill-compare: ## Video vs Minecraft (+ text beat sheet) compare web app on 0.0.0.0:8097 (PORT=, HOST= to change)
 	cd tools/skill-compare && bun install && bun server.mjs
 
+.PHONY: skill-compare-up skill-compare-down skill-compare-status
+skill-compare-up: ## Serve skill-compare on :8097 and keep it in sync with dev: follows every "deployed <sha>" (own detached worktree), restarts the server when tools/skill-compare changed or it dies (SC_PORT=, SC_ROOT=, ...)
+	bash scripts/skill-compare-follow.sh up
+skill-compare-down: ## Stop the skill-compare follower and its server
+	bash scripts/skill-compare-follow.sh down
+skill-compare-status: ## skill-compare follower: server up?, serve sha vs dev sha, log tails
+	bash scripts/skill-compare-follow.sh status
+
 .PHONY: skill-compare-fetch
 skill-compare-fetch: ## Download a reference video + native-fps frames/waveform for its cases: make skill-compare-fetch VIDEO=<youtube id> [CASE=<id>]
 	@test -n "$(VIDEO)" || { echo "usage: make skill-compare-fetch VIDEO=<youtube id> [CASE=<case id>]"; exit 2; }
