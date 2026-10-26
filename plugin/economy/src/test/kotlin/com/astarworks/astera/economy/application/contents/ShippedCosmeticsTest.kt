@@ -38,9 +38,9 @@ class ShippedCosmeticsTest {
     }
 
     @Test
-    fun `every sink is priced above the cheapest weapon-free impulse buy and kill effects cost more than titles`() {
+    fun `cheap starter cosmetics sit under the confirm threshold and kill effects cost more than titles`() {
         val sold = catalog.all().filter { it.priceGold != null }
-        assertThat(sold.minOf { it.priceGold!! }).isGreaterThanOrEqualTo(100L)
+        assertThat(sold.minOf { it.priceGold!! }).isBetween(50L, 99L) // a first match's GOLD buys one without a confirm
         val maxTitle = sold.filter { it.kind == CosmeticKind.TITLE }.maxOf { it.priceGold!! }
         val minEffect = sold.filter { it.kind == CosmeticKind.KILL_EFFECT }.minOf { it.priceGold!! }
         assertThat(minEffect).isLessThanOrEqualTo(maxTitle + 100L)

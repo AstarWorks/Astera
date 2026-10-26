@@ -136,4 +136,45 @@ class ShopPurchaseE2eTest : E2eBase() {
             "before=$before after=$after"
         }
     }
+
+    @Test
+    fun `the shop leads to the cosmetics menu where a cheap colour is bought with one click and worn`() {
+        val b = bot("Dresser")
+        Thread.sleep(2_500)
+        rcon("astera economy grant ${b.name} GOLD 60")
+        Thread.sleep(500)
+        val shop = openShop(b)
+
+        var menu: ScreenView? = null
+        E2eReport.check(suite, "the shop footer has a Cosmetics button that opens the cosmetics menu listing the 60 GOLD colour", "SetContainerContent + OpenScreen") {
+            val items = b.contents[shop.containerId].orEmpty()
+            val button = items.indexOfFirst { it.amount > 0 && it.lore.contains("Name colours, titles and kill effects") }
+            assertThat(button).describedAs("no cosmetics button in the shop footer").isGreaterThanOrEqualTo(0)
+            val before = b.screens.size
+            click(b, shop, button)
+            check(b.waitUntil(5_000) { b.screens.size > before }) { "cosmetics button opened nothing; chat=${b.chatTexts().takeLast(3)}" }
+            val m = b.screens.last()
+            menu = m
+            b.waitUntil(3_000) { b.contents[m.containerId]?.any { it.lore.contains("60 GOLD") } == true }
+            assertThat(rawKeys(listOf(m.title))).describedAs("raw key as title").isEmpty()
+            assertThat(b.contents[m.containerId].orEmpty().any { it.lore.contains("Name colour") && it.lore.contains("60 GOLD") })
+                .describedAs("no 60 GOLD name colour in the menu").isTrue()
+            "title='${m.title}' button slot=$button"
+        }
+        val m = checkNotNull(menu)
+
+        E2eReport.check(suite, "one click buys the colour (no confirm under 100 GOLD), charges 60 and the menu shows it equipped", "SystemChat + RCON balance + SetContainerContent") {
+            val slot = b.contents[m.containerId].orEmpty().indexOfFirst { it.lore.contains("Name colour") && it.lore.contains("60 GOLD") }
+            val chatFrom = b.chat.size
+            click(b, m, slot)
+            b.waitUntil(3_000) { gold(b) == 0L }
+            val lines = plain(b.chatSince(chatFrom))
+            assertThat(lines.any { it.contains("Bought") }).describedAs("no purchase message; chat=$lines").isTrue()
+            assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
+            assertThat(gold(b)).describedAs("GOLD after the 60 GOLD colour").isEqualTo(0L)
+            val ok = b.waitUntil(3_000) { b.contents[b.screens.last().containerId]?.getOrNull(slot)?.lore?.contains("Equipped") == true }
+            assertThat(ok).describedAs("menu entry does not show Equipped; lore=${b.contents[b.screens.last().containerId]?.getOrNull(slot)?.lore}").isTrue()
+            "chat=$lines"
+        }
+    }
 }

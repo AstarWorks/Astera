@@ -151,7 +151,11 @@ public class GrantMatchRewardsOnSummaryListener(
     private fun sendNextUnlock(playerId: PlayerId) {
         val next = nextUnlock(playerId) ?: return
         val name = next.nameKey?.let { messages.render(playerId, it) } ?: next.itemId
-        val key = if (next.affordable) "astera.match.reward.next.affordable" else "astera.match.reward.next.short"
+        val key = when {
+            next.cosmetic -> "astera.match.reward.next.cosmetic-affordable"
+            next.affordable -> "astera.match.reward.next.affordable"
+            else -> "astera.match.reward.next.short"
+        }
         playerGateway.sendMessage(
             playerId,
             messages.render(

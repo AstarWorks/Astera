@@ -86,4 +86,33 @@ class CosmeticsScenarioTest {
             assertThat(ledger.balance(alice.id, Currency.GOLD)).isEqualTo(before)
         }
     }
+
+    @Test
+    fun `the shop leads to the cosmetics menu, a cheap colour is bought without confirm and worn, and Lv4 grants a kill effect`() {
+        scenario("cosmetics-shop-route") {
+            val ledger = sim.services.getOrThrow<ICurrencyLedger>()
+            val cosmetics = sim.services.getOrThrow<CosmeticService>()
+            val rookie = player("rookie")
+            advance(1)
+            dispatch(rookie, "shop.open", "shop_id" to "example-shop")
+            val view = checkNotNull(sim.server.view(rookie.id))
+            val shop = checkNotNull(sim.services.getOrThrow<IGuiAdapter>().currentSpec(view))
+            assertThat(shop.slots.values.filterIsInstance<GuiSlot.Static>().mapNotNull { it.onLeftClick?.key })
+                .contains("cosmetic.open")
+
+            // Lv4 reward: a free kill effect, wearable at once.
+            sim.stats.grantXp.execute(rookie.id, 600L, XpSource.AdminGrant)
+            assertThat(cosmetics.owned(rookie.id).map { it.id }).contains("first-spark")
+            dispatch(rookie, "cosmetic.open")
+            dispatch(rookie, "cosmetic.click", "id" to "first-spark")
+            assertThat(cosmetics.equipped(rookie.id, CosmeticKind.KILL_EFFECT)?.id).isEqualTo("first-spark")
+
+            // mint costs 60: under the confirm threshold, one click pays and wears it.
+            val before = ledger.balance(rookie.id, Currency.GOLD)
+            ledger.credit(rookie.id, Currency.GOLD, 100L)
+            dispatch(rookie, "cosmetic.click", "id" to "mint")
+            assertThat(ledger.balance(rookie.id, Currency.GOLD)).isEqualTo(before + 40L)
+            assertThat(cosmetics.equipped(rookie.id, CosmeticKind.NAME_COLOR)?.id).isEqualTo("mint")
+        }
+    }
 }

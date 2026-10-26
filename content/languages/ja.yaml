@@ -555,6 +555,8 @@ astera:
       crimson: "深紅"
       emerald: "翠"
       violet: "菫"
+      mint: "ミント"
+      amber: "琥珀"
     kill_effect:
       stardust: "星屑"
       sparkle: "きらめき"
@@ -562,6 +564,8 @@ astera:
       hearts: "ハート"
       flames: "炎"
       portal: "異界"
+      puff: "ふわり"
+      first-spark: "はじめの火花"
     kind:
       title: "称号"
       name_color: "名前の色"
@@ -651,6 +655,9 @@ astera:
           gui_title: "購入履歴"
           line: "<gray>{when} - <white>{amount}</white> {currency} で購入</gray>"
           back: "<yellow>ショップに戻る</yellow>"
+        cosmetics:
+          title: "<light_purple>コスメティック</light_purple>"
+          hint: "<gray>名前の色・称号・キルエフェクトが 60 GOLD から。クリックで見る。</gray>"
         wallet:
           title: "<gold>所持金</gold>"
           line: "<gray>{currency}: <white>{amount}</white></gray>"
@@ -994,6 +1001,7 @@ astera:
       next:
         affordable: "<green>購入できます:</green> <white>{name}</white> <gray>({price} GOLD、所持 {balance})。</gray> <gray>ショップで買って次の試合に持ち込もう。</gray>"
         short: "<gray>次の解放:</gray> <white>{name}</white> <gold>{price} GOLD</gold> <gray>(あと {short}、所持 {balance})。</gray>"
+        cosmetic-affordable: "<green>購入できます:</green> <white>{name}</white> <gray>({price} GOLD、所持 {balance})。</gray> <gray>ショップのコスメティックボタンから買って身につけよう。</gray>"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — 切断保留中の再接続猶予
     # ActionBar カウントダウン。
     reconnect:

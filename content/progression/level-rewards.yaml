@@ -9,6 +9,7 @@ levels:
     cosmetics: [rising-star]
   4:
     gold: 125
+    cosmetics: [first-spark]
   5:
     gold: 125
     titles: [adventurer]
