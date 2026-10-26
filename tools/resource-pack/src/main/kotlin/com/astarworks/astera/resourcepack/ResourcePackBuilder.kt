@@ -212,10 +212,17 @@ public class ResourcePackBuilder(
             events[id] = key
         }
         for (key in oggKeys) if (key !in events.values) events[key] = key
-        if (events.isNotEmpty()) {
-            val soundsJson = events.mapValues { (_, key) -> mapOf("sounds" to listOf("$NAMESPACE:$key")) }
-            files["assets/$NAMESPACE/sounds.json"] = json(soundsJson).toByteArray()
+        val soundsJson = sortedMapOf<String, Any>()
+        events.forEach { (id, key) -> soundsJson[id] = mapOf("sounds" to listOf("$NAMESPACE:$key")) }
+        // BGM (content/music/<id>.ogg): event music/<id>, streamed from disk rather than preloaded (long files).
+        val musicDir = contentDir.resolve("music")
+        for (ogg in filesUnder("music").filter { it.extension == "ogg" }) {
+            val rel = ogg.relativeTo(musicDir).invariantSeparatorsPathString
+            files["assets/$NAMESPACE/sounds/music/$rel"] = Files.readAllBytes(ogg)
+            val id = "music/" + rel.removeSuffix(".ogg")
+            soundsJson[id] = mapOf("sounds" to listOf(mapOf("name" to "$NAMESPACE:$id", "stream" to true)))
         }
+        if (soundsJson.isNotEmpty()) files["assets/$NAMESPACE/sounds.json"] = json(soundsJson).toByteArray()
     }
 
     private fun addHud(files: MutableMap<String, ByteArray>) {

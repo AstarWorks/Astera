@@ -55,6 +55,9 @@ public class MatchCueListener(
     public fun onPhaseChanged(event: PhaseChanged) {
         if (event.to != MatchPhase.SUDDEN_DEATH) return
         val match = matches.findById(event.matchId) ?: return
-        for (member in match.teams.flatMap { it.members }) bgm.switchTo(member, MusicMood.HIGH_INTENSITY)
+        for (member in match.teams.flatMap { it.members }) {
+            presentation.play(PresentationMoments.SUDDEN_DEATH, member)
+            bgm.switchTo(member, MusicMood.HIGH_INTENSITY)
+        }
     }
 }

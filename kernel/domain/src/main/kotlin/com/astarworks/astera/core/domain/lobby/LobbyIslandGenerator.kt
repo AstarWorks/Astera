@@ -30,6 +30,10 @@ import kotlin.random.Random
  *  - the four NPC hubs each have a building (MAP-07): Play gate house (spawn front), Travel station and Social
  *    pergola on the plaza, Market with a gate arch and three stalls; coloured ribbons in the plaza floor lead
  *    from the spawn to each.
+ *  - the Guild Hall (MAP-07): a through-hall north of the fountain, built from the [LobbyStructurePart] layer
+ *    (palette + layers text format), on the axis to the pavilion bridge.
+ *  - the weapon test range (MAP-07): gun lanes, melee pit and a new staff bay, each with a roofed stand and a
+ *    colour-coded floor ribbon from the entry gate.
  * Bridges (3 wide, fenced, lantern posts) join the four satellites to the main island.
  */
 public object LobbyIslandGenerator {
@@ -119,8 +123,10 @@ public object LobbyIslandGenerator {
             playGate()
             travelStation()
             socialPlaza()
+            guildHall()
             signposts()
             trainingIsland()
+            weaponBays()
             trainingGround()
             marketIsland()
             queueIsland()
@@ -924,6 +930,7 @@ public object LobbyIslandGenerator {
             for (z in iz - 2..iz + 2) put(gx, s + 5, z, "minecraft:dark_oak_planks")
             for (z in intArrayOf(iz - 1, iz + 1)) put(gx, s + 4, z, "minecraft:lantern[hanging=true]")
             if (deck(gx - 1, iz + 2)) keySign(gx - 1, s + 3, iz + 2, "minecraft:oak_wall_sign[facing=west]", "training.entry", "hint")
+            if (deck(gx - 1, iz - 2)) keySign(gx - 1, s + 3, iz - 2, "minecraft:oak_wall_sign[facing=west]", "training.guide", "hint")
 
             // a loose ring of trees around the rim, never near the stations
             val planted = ArrayList<Pair<Int, Int>>()
@@ -948,6 +955,146 @@ public object LobbyIslandGenerator {
                     r < 0.015 -> set(x, s + 1, z, "minecraft:" + FLOWERS[(rnd(x, z, 73) * FLOWERS.size).toInt()])
                     r < 0.10 -> set(x, s + 1, z, "minecraft:short_grass")
                 }
+            }
+        }
+
+        // ── guild hall (MAP-07) ─────────────────────────────────────────
+
+        /**
+         * The Guild Hall: the town's front building, a through-hall north of the fountain (x -8..8, z -20..-13 from
+         * the plaza centre) that every player sees from the spawn tile. Doors face the plaza and the pavilion bridge
+         * (the north axis path runs through it). Walls are the [GUILD_HALL] part; the gabled roof, tables, banners
+         * and chandeliers are placed here.
+         */
+        private fun guildHall() {
+            val x0 = cx - 8
+            val z0 = cz - 20
+            // Clear whatever the ring path / lamp posts left in the footprint (and the eaves).
+            for (x in x0 - 1..x0 + 17) for (z in z0 - 1..z0 + 8) for (y in 1..16) blocks.remove(LobbyBlockPos(x, s + y, z))
+            GUILD_HALL.place(x0, s, z0, 0) { x, y, z, state -> set(x, y, z, state) }
+
+            // gabled roof along x: the north slope faces north, the south slope south, ridge at s + 10
+            for (n in 0..4) {
+                for (x in x0 - 1..x0 + 17) {
+                    set(x, s + 6 + n, z0 - 1 + n, "minecraft:spruce_stairs[facing=north,half=bottom,shape=straight]")
+                    set(x, s + 6 + n, z0 + 8 - n, "minecraft:spruce_stairs[facing=south,half=bottom,shape=straight]")
+                }
+                // gable ends: fill the triangle under each slope step
+                for (y in s + 6 until s + 6 + n) for (x in intArrayOf(x0, x0 + 16)) {
+                    set(x, y, z0 - 1 + n, "minecraft:spruce_planks")
+                    set(x, y, z0 + 8 - n, "minecraft:spruce_planks")
+                }
+            }
+            // pennant mast on the ridge: readable from every island
+            val mz = z0 + 3
+            for (h in 11..14) set(cx, s + h, mz, "minecraft:dark_oak_fence")
+            set(cx, s + 15, mz, "minecraft:sea_lantern")
+            for (h in 12..13) for (dx in 1..2) set(cx + dx, s + h, mz, "minecraft:yellow_wool")
+
+            // facade: team-colour banners on the outer pillars, lanterns under the door lintels, name boards
+            for ((dx, wool) in listOf(-5 to "red_wool", 5 to "blue_wool")) {
+                for (h in 2..4) set(cx + dx, s + h, z0 + 8, "minecraft:$wool")
+            }
+            for (dx in intArrayOf(-1, 1)) {
+                set(cx + dx, s + 3, z0 + 7, "minecraft:lantern[hanging=true]")
+                set(cx + dx, s + 3, z0, "minecraft:lantern[hanging=true]")
+            }
+            hubSign(cx - 2, s + 2, z0 + 8, "south", "guild")
+            hubSign(cx + 2, s + 2, z0 + 8, "south", "guild")
+            hubSign(cx - 2, s + 2, z0 - 1, "north", "guild")
+            lampPost(cx - 10, z0 + 8)
+            lampPost(cx + 10, z0 + 8)
+            lampPost(cx - 10, z0)
+            lampPost(cx + 10, z0)
+
+            // interior: red aisle, two long tables with benches, bookshelf walls, chandeliers
+            for (z in z0 + 1..z0 + 6) for (dx in -1..1) set(cx + dx, s + 1, z, "minecraft:red_carpet")
+            for (side in intArrayOf(-1, 1)) {
+                for (k in 4..6) {
+                    set(cx + side * k, s + 1, z0 + 3, "minecraft:dark_oak_slab[type=bottom]")
+                    set(cx + side * k, s + 1, z0 + 2, "minecraft:spruce_stairs[facing=south,half=bottom,shape=straight]")
+                    set(cx + side * k, s + 1, z0 + 4, "minecraft:spruce_stairs[facing=north,half=bottom,shape=straight]")
+                }
+                set(cx + side * 5, s + 2, z0 + 3, "minecraft:lantern[hanging=false]")
+                for (k in 3..6) for (h in 1..2) set(cx + side * k, s + h, z0 + 1, "minecraft:bookshelf")
+                for (h in 6..9) set(cx + side * 3, s + h, z0 + 3, "minecraft:chain[axis=y]")
+                set(cx + side * 3, s + 5, z0 + 3, "minecraft:lantern[hanging=true]")
+            }
+        }
+
+        // ── weapon test range (MAP-07) ──────────────────────────────────
+
+        /**
+         * Turns the training deck into a weapon test range a first-timer can read: three colour-coded bays (gun
+         * yellow, sword red, staff purple), each with a roofed stand and a name board, floor ribbons from the entry
+         * gate to each, and the staff bay itself (three lanes of targets). The gun lanes and the melee pit are the
+         * F3-11 stations built by [trainingIsland]; this only dresses them.
+         */
+        private fun weaponBays() {
+            val ix = cx + LobbyTrainingLayout.ISLAND_X
+            val iz = cz + LobbyTrainingLayout.ISLAND_Z
+            fun soil(x: Int, z: Int): Boolean = when (get(x, s, z)) {
+                "minecraft:grass_block", "minecraft:coarse_dirt", "minecraft:gravel", "minecraft:dirt_path" -> true
+                else -> false
+            }
+            fun ground(x: Int, z: Int, state: String) {
+                if (soil(x, z)) set(x, s, z, state)
+            }
+            fun ribbon(x1: Int, z1: Int, x2: Int, z2: Int, color: String) {
+                for (x in ix + minOf(x1, x2)..ix + maxOf(x1, x2)) for (z in iz + minOf(z1, z2)..iz + maxOf(z1, z2)) ground(x, z, "minecraft:${color}_concrete")
+            }
+            fun booth(x0: Int, z0: Int, color: String, backRow: Boolean, base: String) {
+                for (x in x0..x0 + 4) for (z in z0..z0 + 6) ground(x, z, "minecraft:smooth_stone")
+                boothPart(color, backRow).place(x0, s + 1, z0, 3) { x, y, z, state -> if (get(x, s, z) != null) set(x, y, z, state) }
+                if (backRow) {
+                    val signState = "minecraft:oak_wall_sign[facing=east]"
+                    set(x0 + 1, s + 2, z0 + 3, signState)
+                    signs += LobbySign(
+                        LobbyBlockPos(x0 + 1, s + 2, z0 + 3),
+                        signState,
+                        listOf(MessageKey("astera.lobby.sign.training.bay.$base.title"), MessageKey("astera.lobby.sign.training.bay.$base.hint"), null, null),
+                    )
+                }
+            }
+
+            // ribbons first, so the gravel roads laid by trainingGround() leave them alone
+            // (they start at the firing platform's south edge, where the spine road begins; the rack wall bars the west)
+            ribbon(-25, 0, -21, 0, "yellow") // gun: from the bridge landing straight onto the firing platform
+            ribbon(-21, 5, -17, 5, "red") // sword: to the stand west of the pit
+            ribbon(-17, 5, -17, 10, "red")
+            ribbon(-21, 6, 1, 6, "purple") // staff: along the spine, then south to the stand
+            ribbon(1, 6, 1, 17, "purple")
+
+            // gun: a roof over the firing platform (the rack frames sit behind it, so no back wall)
+            val shootX = ix + LobbyTrainingLayout.SHOOT_X
+            booth(shootX - 2, iz - 8, "yellow", false, "gun")
+            // the gun bay is named on a board by the platform's north lamp
+            run {
+                val signState = "minecraft:oak_sign[rotation=4]"
+                set(shootX + 2, s + 1, iz - 9, signState)
+                signs += LobbySign(
+                    LobbyBlockPos(shootX + 2, s + 1, iz - 9),
+                    signState,
+                    listOf(MessageKey("astera.lobby.sign.training.bay.gun.title"), MessageKey("astera.lobby.sign.training.bay.gun.hint"), null, null),
+                )
+            }
+            // sword: a stand west of the pit, open to it
+            booth(ix + LobbyTrainingLayout.PIT_X - 9, iz + LobbyTrainingLayout.PIT_Z - 3, "red", true, "sword")
+            // staff: a stand and three lanes of targets (the dummies come from LobbyTrainingLayout.plan)
+            val staffX = ix + LobbyTrainingLayout.STAFF_STAND_X
+            booth(staffX - 2, iz + LobbyTrainingLayout.STAFF_LANE_Z[0] - 1, "purple", true, "staff")
+            LobbyTrainingLayout.STAFF_DISTANCES.forEachIndexed { i, d ->
+                val z = iz + LobbyTrainingLayout.STAFF_LANE_Z[i]
+                for (x in staffX + 3..staffX + d - 2) ground(x, z, "minecraft:smooth_stone")
+                for (dx in -1..1) for (dz in -1..1) ground(staffX + d + dx, z + dz, "minecraft:purple_concrete")
+                ground(staffX + d, z, "minecraft:amethyst_block")
+                for (dz in -1..1) {
+                    if (get(staffX + d + 2, s, z + dz) != null) {
+                        set(staffX + d + 2, s + 1, z + dz, "minecraft:purple_terracotta")
+                        set(staffX + d + 2, s + 2, z + dz, "minecraft:purple_terracotta")
+                    }
+                }
+                if (get(staffX + d + 2, s, z) != null) set(staffX + d + 2, s + 3, z, "minecraft:lantern[hanging=false]")
             }
         }
 
@@ -1123,6 +1270,63 @@ public object LobbyIslandGenerator {
     }
 
     private const val WALL = "minecraft:stone_brick_wall"
+
+    private val HALL_GAP: String = ".".repeat(15)
+
+    /**
+     * The Guild Hall shell, 17 wide x 8 deep (row 0 = north). Layers are y + 0..5: floor with a quartz aisle,
+     * a stone base, two windows rows, the lintel course and the wall plate. Doors are the 3-wide gaps at the middle
+     * of the north and south walls; the roof is placed by the generator.
+     */
+    private val GUILD_HALL: LobbyStructurePart = run {
+        // [front] is the north / south wall row; [pattern] gives the side-wall char per row (pillars at rows 3-4)
+        fun layer(front: String, pattern: String): List<String> =
+            (0..7).map { r -> if (r == 0 || r == 7) front else "${pattern[r]}$HALL_GAP${pattern[r]}" }
+        LobbyStructurePart(
+            palette = mapOf(
+                'P' to "minecraft:polished_andesite",
+                'Q' to "minecraft:smooth_quartz",
+                'L' to "minecraft:stripped_spruce_log[axis=y]",
+                'S' to "minecraft:stone_bricks",
+                'G' to "minecraft:glass",
+                'T' to "minecraft:dark_oak_planks",
+            ),
+            layers = listOf(
+                List(8) { "PPPPPPPQQQPPPPPPP" },
+                layer("LSSLSSL...LSSLSSL", "LSSSSSSL"),
+                layer("LGGLGGL...LGGLGGL", "LGGLLGGL"),
+                layer("LGGLGGL...LGGLGGL", "LGGLLGGL"),
+                layer("LTTLTTLTTTLTTLTTL", "LTTTTTTL"),
+                List(8) { r -> if (r == 0 || r == 7) "T".repeat(17) else "T${HALL_GAP}T" },
+            ),
+        )
+    }
+
+    /**
+     * A roofed weapon stand, 7 wide x 5 deep (row 0 = back), layers from y + 0 up: posts and a barrel counter,
+     * a coloured panel (the bay colour) on the back wall, a hanging lantern, the roof. [backRow] false switches the
+     * counter and panel off (the gun stand sits in front of the weapon rack and must not hide its frames).
+     */
+    private fun boothPart(color: String, backRow: Boolean): LobbyStructurePart {
+        val none = ".......".let { listOf(it, it, it) }
+        return LobbyStructurePart(
+            palette = mapOf(
+                'P' to "minecraft:stripped_dark_oak_log[axis=y]",
+                'C' to if (backRow) "minecraft:barrel[facing=up]" else "minecraft:air",
+                'T' to if (backRow) "minecraft:${color}_wool" else "minecraft:air",
+                'L' to "minecraft:lantern[hanging=true]",
+                'R' to "minecraft:${color}_terracotta",
+                'S' to "minecraft:dark_oak_slab[type=bottom]",
+            ),
+            layers = listOf(
+                listOf("PCCCCCP") + none + listOf("P.....P"),
+                listOf("PTTTTTP") + none + listOf("P.....P"),
+                listOf("PTTTTTP", ".......", "...L...", ".......", "P.....P"),
+                List(5) { "RRRRRRR" },
+                listOf(".......", ".SSSSS.", ".SSSSS.", ".SSSSS.", "......."),
+            ),
+        )
+    }
     /** Z offset (south of the plaza centre) of the Play gate, between the fountain and the spawn tile. */
     private const val PLAY_GATE_DZ: Int = 4
     private const val TRAINING_SALT: Long = 0x7261696e696e67L

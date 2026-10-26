@@ -1,6 +1,5 @@
 package com.astarworks.astera.gamesim
 
-import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService
 import com.astarworks.astera.core.application.port.outbound.*
 import com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange
@@ -12,13 +11,10 @@ import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.event.TutorialCompleted
 import com.astarworks.astera.core.domain.geometry.Vec3
-import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.item.ItemId
-import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.proxy.ServerRole
 import com.astarworks.astera.core.domain.tutorial.TutorialScriptId
 import com.astarworks.astera.core.domain.tutorial.TutorialStep
-import com.astarworks.astera.core.domain.vault.PersonalVault
 import com.astarworks.astera.core.domain.world.WorldId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -35,9 +31,6 @@ class TutorialScenarioTest {
             val runner = sim.services.getOrThrow<ITutorialSequencerService>()
             val states = sim.services.getOrThrow<IPlayerTutorialStateRepository>()
             fun action(): String? = (runner.currentStep(learner.id) as? TutorialStep.WaitForAction)?.actionId
-            fun intent(key: String) {
-                sim.services.getOrThrow<IGuiIntentRouter>().dispatch(checkNotNull(sim.server.view(learner.id)), GuiIntent(key))
-            }
             assertThat(action()).isEqualTo("menu") // CreateFirstTimeProfile started it, no direct sequencer start.
             advance(10)
             assertThat(checkNotNull(sim.server.view(learner.id)).titles).contains(TutorialGuide.key("menu", "title"))
@@ -80,11 +73,17 @@ class TutorialScenarioTest {
             assertThat(action()).isEqualTo("reload")
             advance(32)
             assertThat(ammo(learner)).isEqualTo(12)
+            assertThat(action()).isEqualTo("staff")
+            assertThat(rack.claim(learner.id, ItemId("fire-staff")).isSuccess).isTrue()
+            sim.hold(learner, "fire-staff")
+            learner.rightClick()
+            advance(4)
             assertThat(action()).isEqualTo("hud")
             assertThat(foodLevel(learner)).isNotNull()
             assertThat(cooldownSweeps()).isNotEmpty()
             advance(90)
-            assertThat(action()).isEqualTo("shop")
+            assertThat(action()).isEqualTo("norma") // reading the HUD advances by itself; the Norma goal text comes next.
+            assertThat(checkNotNull(sim.server.view(learner.id)).titles).contains(TutorialGuide.key("norma", "title"))
 
             assertThat(sim.command("learner", "tutorial skip").succeeded).isTrue()
             assertThat(states.find(learner.id)?.paused).isTrue()
@@ -95,22 +94,8 @@ class TutorialScenarioTest {
             assertThat(runner.currentStep(id)).isNull() // skip survives a reconnect.
             assertThat(sim.command("learner", "tutorial status").succeeded).isTrue()
             assertThat(sim.command("learner", "tutorial start").succeeded).isTrue()
-            assertThat(action()).isEqualTo("shop")
-            val gui = sim.services.getOrThrow<IGuiAdapter>() as com.astarworks.astera.testfixtures.FakeGuiAdapter
-            gui.openResult = false
-            intent("lobby.shop.open")
-            assertThat(action()).isEqualTo("shop")
-            gui.openResult = true
-            intent("lobby.shop.open")
-            advance(10)
-            assertThat(action()).isEqualTo("vault")
-            intent("lobby.vault.open") // absent host window must not advance.
-            assertThat(action()).isEqualTo("vault")
-            sim.services.register<IVaultWindow>(object : IVaultWindow {
-                override fun show(vault: PersonalVault, page: Int): Boolean = vault.playerId == id
-                override fun closeFor(playerId: PlayerId) = Unit
-            }, priority = 100)
-            intent("lobby.vault.open")
+            assertThat(action()).isEqualTo("norma")
+            advance(150) // the win-condition step is read-only and advances after seven seconds.
             assertThat(action()).isEqualTo("queue")
             val before = sim.services.getOrThrow<ICurrencyLedger>().balance(id, Currency.GOLD)
             val pad = sim.services.getOrThrow<LobbyLanePadService>().pads().values.first()

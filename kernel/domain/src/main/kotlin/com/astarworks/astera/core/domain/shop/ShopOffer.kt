@@ -28,4 +28,6 @@ public data class ShopOffer(
     public val displayKey: MessageKey? = null,
     public val limit: PurchaseLimit = PurchaseLimit.ONCE,
     public val category: String? = null,
+    /** Pinned first with a badge for a player who has bought nothing here yet (the newcomer's first buy). */
+    public val recommended: Boolean = false,
 )

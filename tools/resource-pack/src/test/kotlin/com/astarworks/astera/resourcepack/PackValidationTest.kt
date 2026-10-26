@@ -91,7 +91,7 @@ class PackValidationTest {
         assertThat(events.size()).`as`("sound events").isGreaterThanOrEqualTo(17)
         for ((event, def) in events.properties()) {
             assertThat(def.path("sounds")).`as`("sounds of $event").isNotEmpty()
-            for (ref in def.path("sounds").map { it.asText() }) {
+            for (ref in def.path("sounds").map { if (it.isObject) it.path("name").asText() else it.asText() }) {
                 assertThat(ref).startsWith("astera:")
                 val bytes = files["assets/astera/sounds/${ref.removePrefix("astera:")}.ogg"]
                 assertThat(bytes).`as`("file of $event ($ref)").isNotNull()

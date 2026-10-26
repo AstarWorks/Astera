@@ -17,6 +17,7 @@ import com.astarworks.astera.core.domain.match.result.MatchRewardResult
 import com.astarworks.astera.core.domain.match.result.PlayerMatchLine
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
+import com.astarworks.astera.economy.application.service.NextUnlock
 import com.astarworks.astera.economy.domain.reward.MatchRewardCalculator
 import com.astarworks.astera.economy.domain.reward.MatchRewardTable
 import com.astarworks.astera.stats.application.port.outbound.ILevelService
@@ -51,6 +52,7 @@ public class GrantMatchRewardsOnSummaryListener(
     private val messages: IMessageRenderer,
     private val playerGateway: IPlayerGateway,
     private val lastMatches: () -> ILastMatchStore?,
+    private val nextUnlock: (PlayerId) -> NextUnlock? = { null },
     private val clock: Clock = Clock.systemUTC(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -142,6 +144,22 @@ public class GrantMatchRewardsOnSummaryListener(
                 "next" to result.xpForNextLevel.toString(),
             )
         }
+        sendNextUnlock(playerId)
+    }
+
+    /** One closing line: the cheapest unowned shop unlock and whether the new balance already covers it. */
+    private fun sendNextUnlock(playerId: PlayerId) {
+        val next = nextUnlock(playerId) ?: return
+        val name = next.nameKey?.let { messages.render(playerId, it) } ?: next.itemId
+        val key = if (next.affordable) "astera.match.reward.next.affordable" else "astera.match.reward.next.short"
+        playerGateway.sendMessage(
+            playerId,
+            messages.render(
+                playerId,
+                MessageKey(key),
+                mapOf("name" to name, "price" to next.price.toString(), "balance" to next.balance.toString(), "short" to next.shortBy.toString()),
+            ),
+        )
     }
 
     private fun record(
