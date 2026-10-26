@@ -31,7 +31,8 @@ data class BotSkill(
 
 enum class WeaponKind { MELEE, RANGED }
 
-data class Weapon(val slot: Int, val kind: WeaponKind)
+/** [magazine]: a ranged item with an ammo counter and a reload (a gun); a ranged item without one is a caster (staff). */
+data class Weapon(val slot: Int, val kind: WeaponKind, val magazine: Boolean = false)
 
 /** A point of interest the bot walks to when no enemy is around (and digs at when it is a `core`). */
 data class Objective(val name: String, val x: Double, val y: Double, val z: Double, val breakable: Boolean)
@@ -528,16 +529,9 @@ class BotBrain(
 
     // --- weapons -------------------------------------------------------------------------------------------------
 
-    /** Melee up close (or while the magazine reloads), the ranged item at distance. */
-    private fun chooseWeapon(dist: Double, now: Long): Weapon? {
-        val melee = loadout.firstOrNull { it.kind == WeaponKind.MELEE }
-        val ranged = loadout.firstOrNull { it.kind == WeaponKind.RANGED }
-        return when {
-            ranged != null && melee != null -> if (dist <= MELEE_SWITCH || now < reloadBusyUntil && dist <= 8.0) melee else ranged
-            ranged != null -> ranged
-            else -> melee
-        }
-    }
+    /** Sword up close, gun or staff at range, see [WeaponPolicy]. */
+    private fun chooseWeapon(dist: Double, now: Long): Weapon? =
+        WeaponPolicy.choose(loadout, dist, now, reloadBusyUntil, loadout.firstOrNull { it.slot == bot.selectedSlot })
 
     private fun act(enemy: EntityView, weapon: Weapon?, dist: Double, now: Long, yaw: Float, pitch: Float) {
         val aimYaw = yaw + ((rnd.nextFloat() - 0.5f) * 2f * skill.aimErrorDeg)
@@ -562,11 +556,11 @@ class BotBrain(
                 }
             }
             WeaponKind.RANGED -> {
-                if (now < reloadBusyUntil) return
-                val ammo = ammoOnBar()
+                if (weapon.magazine && now < reloadBusyUntil) return
+                val ammo = if (weapon.magazine) ammoOnBar() else null
                 if (ammo == 0) { startReload(now); return }
                 // Energy-cost casters (staffs) have no magazine: the food bar is their budget.
-                val energyOk = ammo != null || bot.food < 0 || bot.food >= MIN_CAST_FOOD
+                val energyOk = weapon.magazine || bot.food < 0 || bot.food >= MIN_CAST_FOOD
                 if (dist <= RANGED_REACH && energyOk && now - lastShotAt > skill.shotIntervalMs + rnd.nextInt(120)) {
                     lastShotAt = now
                     bot.useItem(aimYaw, aimPitch)
@@ -612,16 +606,16 @@ class BotBrain(
         lastLoadoutScanAt = now
         lastLoadoutSignature = signature
         val found = ArrayList<Weapon>()
-        val kindByItem = HashMap<Int, WeaponKind>()
+        val kindByItem = HashMap<Int, Weapon>()
         for (slot in 0..7) {
             val item = hotbar[slot]
             if (item == -1) continue
             val known = kindByItem[item]
-            if (known != null) { found += Weapon(slot, known); continue }
+            if (known != null) { found += known.copy(slot = slot); continue }
             val lore = bot.hotbarLore(slot)
-            val kind = classifyByLore(lore) ?: probeForAmmo(slot)
-            kindByItem[item] = kind
-            found += Weapon(slot, kind)
+            val weapon = classifyByLore(lore)?.copy(slot = slot) ?: probeForAmmo(slot)
+            kindByItem[item] = weapon
+            found += weapon
         }
         loadout = found
         lastLoadoutSignature = bot.hotbar().take(8).joinToString(",")
@@ -629,25 +623,27 @@ class BotBrain(
     }
 
     /** Left-click bound = melee, only right-click bound = ranged (the item lore says which; en and ja). `null` = no lore. */
-    private fun classifyByLore(lore: String): WeaponKind? {
+    private fun classifyByLore(lore: String): Weapon? {
         if (lore.isBlank()) return null
         val l = lore.lowercase()
         val left = Regex("(^|\\| )\\s*(left-click|左クリック)").containsMatchIn(l)
         val right = Regex("(^|\\| )\\s*(right-click|右クリック)").containsMatchIn(l)
+        val reloadable = AMMO_WORD.containsMatchIn(l)
         return when {
-            left -> WeaponKind.MELEE
-            right || AMMO_WORD.containsMatchIn(l) -> WeaponKind.RANGED
-            else -> WeaponKind.MELEE
+            left -> Weapon(-1, WeaponKind.MELEE)
+            right || reloadable -> Weapon(-1, WeaponKind.RANGED, magazine = reloadable)
+            else -> Weapon(-1, WeaponKind.MELEE)
         }
     }
 
     /** Fallback for items without lore: select it and see whether the action bar shows an ammo counter. */
-    private fun probeForAmmo(slot: Int): WeaponKind {
+    private fun probeForAmmo(slot: Int): Weapon {
         val barsBefore = bot.actionBars.size
         bot.selectHotbar(slot)
         val end = System.currentTimeMillis() + 1_200
         while (System.currentTimeMillis() < end && bot.actionBars.drop(barsBefore).none { AMMO.containsMatchIn(it.text) }) Thread.sleep(30)
-        return if (bot.actionBars.drop(barsBefore).any { AMMO.containsMatchIn(it.text) }) WeaponKind.RANGED else WeaponKind.MELEE
+        val ammo = bot.actionBars.drop(barsBefore).any { AMMO.containsMatchIn(it.text) }
+        return Weapon(slot, if (ammo) WeaponKind.RANGED else WeaponKind.MELEE, magazine = ammo)
     }
 
     private companion object {
@@ -656,7 +652,6 @@ class BotBrain(
         val AMMO_WORD = Regex("reload|リロード")
         const val SIGHT_RANGE = 70.0
         const val MELEE_REACH = 2.9
-        const val MELEE_SWITCH = 4.0
         const val RANGED_REACH = 40.0
         const val MIN_MELEE_FOOD = 4
         const val MIN_CAST_FOOD = 2
