@@ -84,8 +84,8 @@ slots:
     index: 18
     item: gui-tile-back
     on_left:
-      key: gui.open
-      payload: { gui: main-menu }
+      key: gui.back
+      payload: { gui: main-menu, in_match: match-menu }
     tooltip:
       - astera.gui.button.back
   - type: static

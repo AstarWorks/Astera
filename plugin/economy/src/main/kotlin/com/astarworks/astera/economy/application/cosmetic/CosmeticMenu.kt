@@ -49,6 +49,7 @@ public class CosmeticMenu(
     private val messages: IMessageRenderer,
     private val players: IPlayerGateway,
     private val clock: Clock = Clock.systemUTC(),
+    private val presentation: () -> com.astarworks.astera.core.application.port.outbound.presentation.IPresentation? = { null },
 ) {
     private data class Pending(val cosmeticId: String, val expiresAtMs: Long)
 
@@ -82,24 +83,31 @@ public class CosmeticMenu(
         }
     }
 
+    private fun ui(playerId: PlayerId, moment: String) {
+        presentation()?.play(moment, playerId)
+    }
+
     private fun click(playerId: PlayerId, id: String) {
-        val cosmetic = cosmetics.find(id) ?: return send(playerId, MSG_ERROR)
+        val cosmetic = cosmetics.find(id) ?: return deny(playerId)
         val name = messages.render(playerId, cosmetic.nameKey)
         val price = cosmetic.priceGold
         when {
             cosmetics.owns(playerId, cosmetic) -> {
                 if (cosmetics.equipped(playerId, cosmetic.kind)?.id == cosmetic.id) {
                     cosmetics.unequip(playerId, cosmetic.kind)
+                    ui(playerId, com.astarworks.astera.core.domain.presentation.PresentationMoments.UI_CONFIRM)
                     send(playerId, MSG_UNEQUIPPED, mapOf("kind" to messages.render(playerId, kindKey(cosmetic.kind))))
                 } else {
                     cosmetics.equip(playerId, cosmetic.id)
+                    ui(playerId, com.astarworks.astera.core.domain.presentation.PresentationMoments.UI_CONFIRM)
                     send(playerId, MSG_EQUIPPED, mapOf("name" to name))
                 }
             }
-            price == null -> send(playerId, MSG_REWARD_ONLY, mapOf("name" to name))
+            price == null -> deny(playerId).also { send(playerId, MSG_REWARD_ONLY, mapOf("name" to name)) }
             else -> {
                 val have = ledger.balance(playerId, Currency.GOLD)
                 if (have < price) {
+                    deny(playerId)
                     send(playerId, MSG_SHORT, mapOf("name" to name, "need" to price.toString(), "have" to have.toString(), "short" to (price - have).toString()))
                 } else if (price >= CONFIRM_AT && !armed(playerId, cosmetic.id)) {
                     pending[playerId] = Pending(cosmetic.id, clock.millis() + CONFIRM_WINDOW_MS)
@@ -114,6 +122,9 @@ public class CosmeticMenu(
         }
         open(playerId)
     }
+
+    private fun deny(playerId: PlayerId) =
+        ui(playerId, com.astarworks.astera.core.domain.presentation.PresentationMoments.UI_DENY)
 
     private fun armed(playerId: PlayerId, id: String): Boolean =
         pending[playerId]?.let { it.cosmeticId == id && it.expiresAtMs >= clock.millis() } == true

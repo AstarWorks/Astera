@@ -509,6 +509,7 @@ internal class CorePaperBindings(
         server.pluginManager.registerEvents(guiListener, plugin)
 
         installLobbyMenuKit(ctx, result)
+        installMatchMenu(ctx, result)
 
         // ── Wave 6a-6 (ADR-0153) — Bukkit → DomainEvent adapter ────────────
         // Single Bukkit Listener that:
@@ -599,6 +600,29 @@ internal class CorePaperBindings(
                 "Role 2: EntityDamageEvent + PlayerDeathEvent defensive cancellation " +
                 "per ADR-0149 §D).",
         )
+    }
+
+    /**
+     * UI-06 — F during a match opens `content/gui/match-menu.yaml` (the vanilla swap is cancelled there only).
+     * "In a match" is the same predicate the lobby kit uses, so the two F handlers never both apply.
+     */
+    private fun installMatchMenu(ctx: WiringContext, result: CoreWiringResult) {
+        val contents = ctx.services.get<com.astarworks.astera.core.application.port.outbound.IGuiRegistry>() ?: return
+        val listener = com.astarworks.astera.core.adapter.paper.gui.PaperMatchMenuListener(
+            inMatch = { playerId ->
+                com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy.inMatch(
+                    snapshotHeld = ctx.services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
+                        ?.isHeld(playerId) ?: false,
+                    membershipPhase = ctx.services.get<IMatchRepository>()?.findMatchOf(playerId)?.phase,
+                )
+            },
+            menuSpec = { contents.find(com.astarworks.astera.core.domain.gui.GuiId(
+                com.astarworks.astera.core.application.gui.match.MatchMenuIntentHandler.MENU_GUI_ID,
+            )) },
+            guiAdapter = result.guiAdapter,
+            mcServer = mcServer,
+        )
+        server.pluginManager.registerEvents(listener, plugin)
     }
 
     /**

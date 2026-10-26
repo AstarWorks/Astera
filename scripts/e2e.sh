@@ -17,6 +17,14 @@
 # the production path, and the run fails if Velocity's log shows any exception / decode error.
 #   E2E_VIA=direct scripts/e2e.sh   # bots straight to the backend, no Velocity (diagnostics)
 # Velocity's log is copied to build/e2e-velocity.log (uploaded by CI as the e2e-velocity-log artifact).
+#
+# OPS-10 resilience:
+#   - leak cleanup: this checkout's project is removed at start and (trap) on every exit incl. SIGINT/SIGTERM;
+#     stale OTHER astera-e2e-* projects are reaped when older than E2E_STALE_HOURS (default 3) AND no live run
+#     owns them (stamp file with pid+host in $E2E_STAMP_DIR). astera-dev-* is never touched.
+#     E2E_REAP=0 disables the reaper.
+#   - load pre-flight: wait while load1 > E2E_LOAD_FACTOR (default 2) x nproc, up to E2E_LOAD_WAIT_SECS (default
+#     900); then boot anyway with a warning. Load at start/end is appended to build/e2e-report.md.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -50,13 +58,111 @@ cleanup_id() {
     | xargs -r docker volume rm >/dev/null 2>&1 || true
 }
 
+# ---- OPS-10: stamps, reaper, load ---------------------------------------------------------------------
+STAMP_DIR="${E2E_STAMP_DIR:-/tmp/claude-$(id -u)/astera-e2e-runs}"
+STALE_HOURS="${E2E_STALE_HOURS:-3}"
+HOST="$(hostname 2>/dev/null || echo unknown)"
+STAMP="$STAMP_DIR/$PROJECT"
+
+stamp_live() { # $1 = project; true when a live run on this host owns it
+  local f="$STAMP_DIR/$1" pid host
+  [ -f "$f" ] || return 1
+  read -r pid host _ < "$f" || return 1
+  [ "$host" = "$HOST" ] && [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null
+}
+
+# Removes one stale project by name. Only ever called with names matching ^astera-e2e-[A-Za-z0-9]+$.
+reap_project() {
+  local p="$1" id="${1#astera-e2e-}"
+  docker ps -aq --filter "label=com.docker.compose.project=$p" | xargs -r docker rm -f -v >/dev/null 2>&1 || true
+  docker volume ls -q --filter "label=com.docker.compose.project=$p" | xargs -r docker volume rm -f >/dev/null 2>&1 || true
+  docker network ls -q --filter "label=com.docker.compose.project=$p" | xargs -r docker network rm >/dev/null 2>&1 || true
+  docker image ls -q --filter "label=astera.e2e.id=$id" | sort -u | xargs -r docker rmi -f >/dev/null 2>&1 || true
+  rm -f "$STAMP_DIR/$p"
+}
+
+# Age (hours, integer) of the oldest container/network of a project; empty when unknown.
+project_age_hours() {
+  local created oldest="" now t line
+  now="$(date +%s)"
+  created="$( { docker ps -a --filter "label=com.docker.compose.project=$1" --format '{{.CreatedAt}}'
+                docker network ls --filter "label=com.docker.compose.project=$1" --format '{{.CreatedAt}}'; } 2>/dev/null)"
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    t="$(date -d "${line% [A-Z]*}" +%s 2>/dev/null)" || continue   # "2026-10-26 01:02:03 +0000 UTC"
+    if [ -z "$oldest" ] || [ "$t" -lt "$oldest" ]; then oldest="$t"; fi
+  done <<< "$created"
+  if [ -n "$oldest" ]; then echo $(( (now - oldest) / 3600 )); fi
+}
+
+reap_stale() {
+  [ "${E2E_REAP:-1}" = "0" ] && return 0
+  local p age n=0
+  for p in $( { docker ps -a --format '{{.Label "com.docker.compose.project"}}'
+                docker network ls --format '{{.Label "com.docker.compose.project"}}'; } 2>/dev/null | sort -u); do
+    [[ "$p" =~ ^astera-e2e-[A-Za-z0-9]+$ ]] || continue   # never astera-dev-*, never anything else
+    [ "$p" = "$PROJECT" ] && continue
+    stamp_live "$p" && continue
+    age="$(project_age_hours "$p")"
+    # Unknown age => keep (cannot prove it is stale). The age gate protects runs started without a stamp.
+    if [ -z "$age" ] || [ "$age" -lt "$STALE_HOURS" ]; then continue; fi
+    echo "[e2e] reaping stale project $p (age ${age}h >= ${STALE_HOURS}h, no live owner)"
+    reap_project "$p"; n=$((n+1))
+  done
+  if [ "$n" -gt 0 ]; then docker network prune -f >/dev/null 2>&1 || true; fi
+}
+
+load1() { cut -d' ' -f1 /proc/loadavg 2>/dev/null || echo 0; }
+load_triple() { cut -d' ' -f1-3 /proc/loadavg 2>/dev/null || echo "n/a"; }
+NPROC="$(nproc 2>/dev/null || echo 1)"
+LOAD_WAIT_TIMED_OUT=0
+
+wait_for_load() {
+  local factor="${E2E_LOAD_FACTOR:-2}" max="${E2E_LOAD_WAIT_SECS:-900}" waited=0 l
+  while :; do
+    l="$(load1)"
+    awk -v l="$l" -v n="$NPROC" -v f="$factor" 'BEGIN{exit !(l > f*n)}' || return 0
+    if [ "$waited" -ge "$max" ]; then
+      echo "[e2e] WARNING: load1 $l still > ${factor}x$NPROC cores after ${max}s; booting anyway (timing results unreliable)"
+      LOAD_WAIT_TIMED_OUT=1
+      return 0
+    fi
+    [ "$waited" -eq 0 ] && echo "[e2e] host overloaded (load1 $l > ${factor}x$NPROC cores); waiting up to ${max}s"
+    sleep 15; waited=$((waited + 15))
+  done
+}
+
 if [ "${1:-}" = "down" ]; then
   echo "[e2e] removing project $PROJECT (checkout id $ASTERA_E2E_ID)"
   cleanup_id
   exit 0
 fi
 
-mkdir -p build
+mkdir -p build "$STAMP_DIR"
+rm -f "$REPORT"   # never append load data to a previous run's report
+printf '%s %s %s\n' "$$" "$HOST" "$(date +%s)" > "$STAMP"
+
+# Exit trap: always drop the runner and (unless E2E_KEEP) this project's containers, network and volume.
+# Images stay cached for the next run. The stamp is always removed. Preserves the exit code.
+on_exit() {
+  local rc=$?
+  trap - EXIT INT TERM
+  docker rm -f "$RUNNER" >/dev/null 2>&1 || true
+  if [ -z "${E2E_KEEP:-}" ]; then
+    if [ -n "${E2E_REUSE:-}" ]; then "${C[@]}" down --remove-orphans >/dev/null 2>&1 || true
+    else "${C[@]}" down -v --remove-orphans >/dev/null 2>&1 || true; fi
+  fi
+  rm -f "$STAMP"
+  exit "$rc"
+}
+trap on_exit EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+reap_stale
+wait_for_load
+LOAD_START="$(load_triple)"; T_START="$(date -u +%FT%TZ)"
+echo "[e2e] load avg at start: $LOAD_START ($NPROC cores)"
 echo "[e2e] checkout id $ASTERA_E2E_ID (project $PROJECT)"
 
 [ -n "${E2E_REUSE:-}" ] || "${C[@]}" down -v --remove-orphans >/dev/null 2>&1 || true
@@ -73,6 +179,17 @@ rc=$?
 docker cp "$RUNNER:/workspace/tools/e2e/build/e2e-report.md" "$REPORT" 2>/dev/null \
   && echo "[e2e] report: $REPORT" || echo "[e2e] no report produced"
 docker rm -f "$RUNNER" >/dev/null 2>&1 || true
+
+# OPS-10: record host load so readers can discard runs made under overload.
+LOAD_END="$(load_triple)"
+[ -f "$REPORT" ] || printf '# E2E report\n\n(no suite report produced)\n' > "$REPORT"
+{
+  printf '\n## Host load\n\n'
+  printf -- '- cores: %s\n- load avg (1/5/15m) at start: %s (%s)\n- load avg (1/5/15m) at end: %s (%s)\n' \
+    "$NPROC" "$LOAD_START" "$T_START" "$LOAD_END" "$(date -u +%FT%TZ)"
+  if [ "$LOAD_WAIT_TIMED_OUT" = 1 ]; then printf -- '- **OVERLOADED at start** (load1 stayed above %sx cores for the whole wait): discard timing results\n' "${E2E_LOAD_FACTOR:-2}"; fi
+  if awk -v l="${LOAD_END%% *}" -v n="$NPROC" 'BEGIN{exit !(l > 2*n)}'; then printf -- '- **OVERLOADED at end** (load1 > 2x cores): timing results may be unreliable\n'; fi
+} >> "$REPORT"
 
 # QA-7: Velocity's own verdict. Any exception / decode failure in the proxy log fails the run, even when
 # every bot check passed (the bot that hit it may already have been written off as a flaky disconnect).
@@ -92,7 +209,5 @@ fi
 
 if [ -n "${E2E_KEEP:-}" ]; then
   echo "[e2e] backend left running (E2E_KEEP=1; tear down with: make e2e-down)"
-else
-  "${C[@]}" stop "${SERVICES[@]}" >/dev/null 2>&1 || true
 fi
-exit $rc
+exit $rc   # the on_exit trap tears the project down (unless E2E_KEEP)

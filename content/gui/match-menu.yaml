@@ -1,0 +1,31 @@
+# In-match mini menu (UI-06, docs/game-design/access-map.md). Opened with F during a match (the vanilla hand swap is
+# cancelled there); the lobby keeps its own F = main menu. Three buttons in one 9-slot row:
+#   Settings (2) -> the settings screen | Leave (4) -> confirm screen, then the leave-to-lobby flow | Help (6) -> chat lines.
+# Intents are handled by MatchMenuIntentHandler (core/feature-gameplay .../gui/match/); the confirm screen is MatchMenuGuiSpec.
+id: match-menu
+title_key: astera.match_menu.title
+size: CHEST_9
+
+slots:
+  - type: static
+    index: 2
+    item: gui-tile-settings
+    on_left:
+      key: gui.open
+      payload: { gui: settings }
+    tooltip:
+      - astera.match_menu.settings.tooltip
+  - type: static
+    index: 4
+    item: gui-tile-travel-lobby
+    on_left:
+      key: match.menu.leave
+    tooltip:
+      - astera.match_menu.leave.tooltip
+  - type: static
+    index: 6
+    item: gui-tile-help
+    on_left:
+      key: match.menu.help
+    tooltip:
+      - astera.match_menu.help.tooltip

@@ -51,6 +51,7 @@ spawn_points:
   and the straight lane from each island centre to its bridges.
 - Bridges are drawn centre to centre; an island block always wins over a bridge block.
 - Every stage is authored around its own origin (0,0); the server pastes a copy into a free world slot and shifts spawns, regions, pillars, layout and generators by the slot origin at claim time.
+- Per-lane siege-isles variants (MODE-06, ADR-0273) copy `siege-isles` with their own lane objective and generator ids: `siege-isles` (break-core), `siege-isles-tnt`, `-wool`, `-jewelry`, `-loyal`, `-mini-tnt`. They carry no offsets (slots separate concurrent matches); keep each variant in sync with `siege-isles.yaml`.
 - `arena-worlds.marker` stores each stage's marker version, plan digest and previous bounds. Changed content rebuilds
   on restart; bump `marker_version` when editing a cached stage. The old bounds are cleared before placement.
   Planning/digesting runs off thread. Chunk loading is asynchronous; clearing, placing and releasing chunk tickets

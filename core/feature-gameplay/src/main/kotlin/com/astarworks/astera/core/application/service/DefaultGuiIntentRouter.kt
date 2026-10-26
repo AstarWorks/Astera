@@ -3,8 +3,10 @@ package com.astarworks.astera.core.application.service
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.domain.gui.GuiIntent
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -26,6 +28,12 @@ import java.util.concurrent.CopyOnWriteArrayList
  * current GUI through [IGuiAdapter]. Feature plugins MUST NOT shadow this
  * prefix (the [IGuiIntentRouter] doc-comment is authoritative on that).
  *
+ * # Click feedback (FX-10)
+ *
+ * Every dispatched button click plays the `ui-click` moment for the clicking player, here, once, so no handler
+ * has to. `settings.*` buttons play `ui-confirm` instead (they always succeed). Handlers whose outcome can be a
+ * refusal or a notable success add `ui-confirm` / `ui-deny` themselves.
+ *
  * # Lazy adapter wiring
  *
  * The adapter is supplied via [adapterProvider] (a `() -> IGuiAdapter` lambda)
@@ -43,6 +51,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 public class DefaultGuiIntentRouter(
     private val adapterProvider: () -> IGuiAdapter,
+    private val presentation: () -> IPresentation? = { null },
 ) : IGuiIntentRouter {
 
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -89,6 +98,8 @@ public class DefaultGuiIntentRouter(
             log.warn("No handler registered for GuiIntent key '{}'", intent.key)
             return
         }
+        val moment = if (intent.key.startsWith("settings.")) PresentationMoments.UI_CONFIRM else PresentationMoments.UI_CLICK
+        presentation()?.play(moment, player.id)
         match.handler(intent, player)
     }
 

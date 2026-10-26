@@ -77,11 +77,15 @@ public object PresentationMoments {
     public const val PURCHASE: String = "purchase"
     public const val QUEST_COMPLETE: String = "quest-complete"
     public const val PLAYER_LEVEL_UP: String = "player-level-up"
+    public const val UI_CLICK: String = "ui-click"
+    public const val UI_CONFIRM: String = "ui-confirm"
+    public const val UI_DENY: String = "ui-deny"
 
     public val ALL: List<String> = listOf(
         COUNTDOWN_TICK, COUNTDOWN_GO, KILL, DEATH, RESPAWN, HIT, CRIT, BLOCKED, SKILL_READY, EGO_READY,
         STAR_POP, STAR_PICKUP, STAR_BURST, STAR_BURST_KILLER,
         NORMA_LEVEL_UP, NORMA_LEVEL_MAX, NORMA_CHOICE_OPEN, NORMA_CHOICE_PICKED, NORMA_CHOICE_DEFAULTED,
         MATCH_WIN, MATCH_LOSE, MATCH_DRAW, REWARD_LOGIN, PURCHASE, QUEST_COMPLETE, PLAYER_LEVEL_UP,
+        UI_CLICK, UI_CONFIRM, UI_DENY,
     )
 }

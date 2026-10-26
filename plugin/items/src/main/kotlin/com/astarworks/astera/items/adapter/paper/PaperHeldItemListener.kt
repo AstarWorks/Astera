@@ -33,7 +33,7 @@ public class PaperHeldItemListener(
         )
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public fun onSwap(e: PlayerSwapHandItemsEvent) {
         // The event carries the stack that moves into the main hand.
         handleTrigger.onHeldItemChanged(PlayerId(e.player.uniqueId), itemIdResolver.itemIdOf(e.mainHandItem))
