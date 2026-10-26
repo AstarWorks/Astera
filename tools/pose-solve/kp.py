@@ -10,7 +10,7 @@ File shape (human + agent edited; `view` is written by the solver):
     - id: B0-coil
       tick: 3                            # reference tick of the annotated frame (t = start_s + 0.05 * tick)
       key_tick: 0                        # skill tick at which the solved pose becomes visible
-      ticks: [0, 5]                      # hold range written into targets.yaml
+      ticks: [0, 5]                      # hold range of the beat
       facing: -60                        # optional: 0 = torso faces the camera, 90 = screen right, 180 = away, -90 = screen left
       hips_h: 0.3                        # optional: hips / H (rig units) hint for a beat whose legs are hidden
       camera: {}                         # overrides on top of the intent camera: bearing, elevation, distance, fov, target
