@@ -73,6 +73,12 @@ public class HpStatusHudService(
     flushPeriodTicks: Long = FLUSH_PERIOD_TICKS,
     private val cooldownIcons: () -> ICooldownIconSource? = { null },
     private val statusEffectIcons: () -> IStatusEffectIconSource? = { null },
+    /**
+     * Everyone online right now. A plugin reload / hotswap drops [joined] while the clients stay connected and no
+     * `PlayerJoinedServer` follows, so without this their status line (and, with the pack applied, the only HP
+     * readout there is) never came back until they re-logged.
+     */
+    private val onlinePlayers: () -> Collection<PlayerId> = { emptyList() },
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -101,23 +107,26 @@ public class HpStatusHudService(
 
     /** Sends every pending update now (also called by the task). */
     public fun flush() {
-        if (joined.isEmpty()) return
-        for (playerId in joined.toList()) {
+        val targets = LinkedHashSet<PlayerId>(joined)
+        targets += onlinePlayers()
+        for (playerId in targets) {
             scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
-
                 val layout = render(playerId)
                 if (lastSent[playerId] == layout) return@run
                 when (val outcome = hudGateway.showFor(playerId, layout)) {
                     is Result.Success -> lastSent[playerId] = layout
                     is Result.Failure -> {
                         if (outcome.error is HudError.UnknownPlayer) {
-                            forget(playerId)
+                            // Gone (or not resolvable yet): drop the cached line only. The pack status survives, and
+                            // an online player is picked up again by the next flush.
+                            joined -= playerId
+                            lastSent -= playerId
                         } else if (failureLogged.add(playerId)) {
                             log.warn("HP status HUD show failed for {}: {}", playerId, outcome.error)
                         }
                     }
                 }
-                        }
+            }
         }
     }
 
