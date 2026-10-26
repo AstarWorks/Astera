@@ -46,6 +46,13 @@ fun interface ObjectiveSource {
     fun starPoints(): List<Pair<Double, Double>> = emptyList()
 
     fun routeGraph(): ArenaRouteGraph? = null
+
+    /** Stage regions (stage-local coordinates) for [ModePlanner]; null = unknown. */
+    fun zones(): ModePlanner.Zones? = null
+
+    /** Team (`red`/`blue`) whose spawn is nearest ([spawnX], [spawnZ]) and every team of the stage. */
+    fun ownTeamAt(spawnX: Double, spawnZ: Double): String? = null
+    fun teams(): List<String> = emptyList()
 }
 
 /**
@@ -68,13 +75,15 @@ class BotBrain(
     private val objectives: ObjectiveSource? = null,
     /** Pick the Norma goal (`/astera norma choose star|kill`) from the situation. Off = keep whatever the server set. */
     private val chooseNormaGoal: Boolean = true,
+    /** Game-mode id of the lane (lane id = mode id): selects the per-mode objective plan ([ModePlanner]). */
+    private val modeId: String? = null,
 ) : AutoCloseable {
 
     enum class Mode { IDLE, FIGHT }
 
     private enum class Goal { STAR, KILL }
 
-    private class Dest(val x: Double, val z: Double, val y: Double?, val arrive: Double, val kind: String, val starId: Int = -1)
+    private class Dest(val x: Double, val z: Double, val y: Double?, val arrive: Double, val kind: String, val starId: Int = -1, val zone: String = "")
 
     @Volatile var mode: Mode = Mode.IDLE
 
@@ -157,6 +166,18 @@ class BotBrain(
     private var starApproachSince = 0L
     private var highY = Double.NEGATIVE_INFINITY
     private var fellRecently = false
+    /** Tick of the running travel jump (-1 = on the ground). */
+    private var jumpStep = -1
+    private val stuck = StuckEscapePolicy()
+    private val ineffective = IneffectiveTargets()
+    private var planner: ModePlanner? = null
+    private var sidestepUntil = 0L
+    private var sidestepSign = 1
+    private var forceJump = false
+    private var lastBreakAt = 0L
+    /** Escapes taken, for reports and tests. */
+    val stuckEscapes = AtomicInteger()
+    val blocksBroken = AtomicInteger()
 
     fun start(): BotBrain {
         exec.scheduleAtFixedRate({ runCatching { tick() }.onFailure { Bot.noteSink("bot ${bot.name}: brain error $it") } }, 500, 50, TimeUnit.MILLISECONDS)
@@ -181,16 +202,21 @@ class BotBrain(
         dismissScreens()
         if (mode != Mode.FIGHT) {
             wasFighting = false
+            endTravel()
             idleNudge(now)
             return
         }
         if (bot.health == 0f) {
+            endTravel()
+            planner?.onDeath()
             if (now - lastRespawnAt > 1_000) { lastRespawnAt = now; bot.respawn() }
             return
         }
         val gm = bot.gameMode
         if (gm == GameMode.SPECTATOR) {
             // Death cam: the server owns us until it respawns us. Stay quiet.
+            endTravel()
+            planner?.onDeath()
             idleNudge(now)
             return
         }
@@ -207,6 +233,8 @@ class BotBrain(
             fightStartedAt = now
             nav.clear()
             retreating = false
+            stuck.reset()
+            planner = buildPlanner(originX, originZ)
         }
         trackFall()
         if (now - lastTraceAt >= 2_500) {
@@ -216,7 +244,7 @@ class BotBrain(
         resolveLoadoutIfNeeded(now)
         tickReload(now)
 
-        val enemy = nearestEnemy()
+        val enemy = nearestEnemy(now)
         trackStars(now)
         updateRetreat(enemy, now)
         tryDrinkPotion(now)
@@ -233,6 +261,9 @@ class BotBrain(
         val goForStar = starDest != null && enemyFlat > STAR_YIELD_RANGE && !retreating
 
         if (enemy != null) {
+            endTravel() // combat movement is never sprint-jumped
+            stuck.reset()
+            ineffective.engage(enemy.id, now, bot.damageNumbers.size, swings.get() + shots.get())
             ticksWithEnemy.incrementAndGet()
             if (firstSightMs < 0) firstSightMs = now - fightStartedAt
             lastEnemyAt = now; lastEnemyX = enemy.x; lastEnemyZ = enemy.z
@@ -282,19 +313,27 @@ class BotBrain(
                 return
             }
         } else {
+            ineffective.disengage()
             val dest = chooseDest(now, starDest)
             if (dest == null) {
+                endTravel()
                 standStill = true
             } else {
+                if (escapeStuck(dest, now)) return
+                travel(dest)
                 val st = nav.follow(bot, dest.x, dest.z, dest.y, dest.arrive, skill.walkSpeed, now, null, 0f)
+                if (st != Navigator.Status.MOVING) endTravel()
                 lastKind = "go>${dest.kind}:$st"
+                if (st == Navigator.Status.ARRIVED) stuck.reset()
                 when (st) {
                     Navigator.Status.MOVING -> { dwellOn(dest, now); return }
                     Navigator.Status.ARRIVED -> {
                         arrivedAt(dest, now)
                         objective?.takeIf { it.breakable && dest.kind == "objective" }?.let { digObjective(it, now) }
+                        if (dest.kind == "mode" && modeBreakable) digObjective(Objective(dest.zone, dest.x, dest.y ?: bot.y, dest.z, true), now)
                     }
                     Navigator.Status.NO_PATH -> {
+                        if (dest.kind == "mode") modePausedUntil = now + 5_000 // unreachable for now: patrol / roam meanwhile
                         if (dest.kind == "star") ignoreStar(dest.starId, now) else if (dest.kind != "enemy-seen") arrivedAt(dest, now, unreachable = true)
                     }
                 }
@@ -331,19 +370,23 @@ class BotBrain(
 
     // --- target selection ------------------------------------------------------------------------------------------
 
-    private fun nearestEnemy(): EntityView? {
+    private fun nearestEnemy(now: Long): EntityView? {
         val myTeam = bot.teamOf(bot.name)?.first
-        var best: EntityView? = null
-        var bestD = Double.MAX_VALUE
+        val candidates = ArrayList<TargetPolicy.Candidate>()
         for (e in bot.entities.values) {
             if (e.type != "PLAYER" || e.id == bot.selfEntityId) continue
-            val name = bot.playerNames[e.uuid] ?: continue
-            if (name == bot.name) continue
-            if (myTeam != null && bot.teamOf(name)?.first == myTeam) continue
-            val d = hypot(e.x - bot.x, e.z - bot.z) + abs(e.y - bot.y) * 0.5
-            if (d < bestD && d <= SIGHT_RANGE) { best = e; bestD = d }
+            if (ineffective.ignored(e.id, now)) continue
+            // No Tab-list entry (enemy team hidden from the list): no name, team or game mode - an unlisted player is
+            // someone who is not on our team, and a dead one is caught by IneffectiveTargets (no hit lands).
+            val name = bot.playerNames[e.uuid]
+            candidates += TargetPolicy.Candidate(
+                id = e.id, name = name ?: "?${e.uuid}", team = name?.let { bot.teamOf(it)?.first },
+                spectating = bot.playerGameModes[e.uuid] == GameMode.SPECTATOR,
+                x = e.x, y = e.y, z = e.z, listed = name != null,
+            )
         }
-        return best
+        val pick = TargetPolicy.nearest(bot.name, myTeam, bot.x, bot.y, bot.z, candidates, SIGHT_RANGE) ?: return null
+        return bot.entities[pick.id]
     }
 
     /**
@@ -352,6 +395,10 @@ class BotBrain(
      */
     private fun chooseDest(now: Long, starDest: Dest?): Dest? {
         if (starDest != null) return starDest
+        if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
+            modeBreakable = st.breakable
+            return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone)
+        }
         if (goal == Goal.STAR && starPoints.isNotEmpty()) {
             var bestI = -1
             var bestD = Double.MAX_VALUE
@@ -406,6 +453,61 @@ class BotBrain(
     }
 
     private var starArrivedSince = 0L
+    private var modeBreakable = false
+    private var modePausedUntil = 0L
+
+    private fun buildPlanner(originX: Double, originZ: Double): ModePlanner? {
+        val id = modeId ?: return null
+        val src = objectives ?: return null
+        if (id !in ModePlanner.MODES) return null
+        val base = src.zones() ?: return null
+        val own = src.ownTeamAt(spawnX - originX, spawnZ - originZ) ?: return null
+        val world = object : ModePlanner.Zones {
+            override fun point(name: String) = base.point(name)?.let { Triple(it.first + originX, it.second, it.third + originZ) }
+            override fun names(prefix: String) = base.names(prefix)
+        }
+        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world).takeIf { it.handles() }
+    }
+
+    /**
+     * Stuck escape for non-combat travel (see [StuckEscapePolicy]): hop, sidestep, re-plan around the blocked cell,
+     * dig through. Returns true when this tick was spent on a sidestep.
+     */
+    private fun escapeStuck(dest: Dest, now: Long): Boolean {
+        val moving = hypot(dest.x - bot.x, dest.z - bot.z) > dest.arrive
+        when (stuck.update(now, bot.x, bot.z, moving)) {
+            StuckEscapePolicy.Action.NONE -> Unit
+            StuckEscapePolicy.Action.JUMP -> { stuckEscapes.incrementAndGet(); forceJump = true }
+            StuckEscapePolicy.Action.SIDESTEP_LEFT -> { stuckEscapes.incrementAndGet(); sidestepSign = 1; sidestepUntil = now + 700 }
+            StuckEscapePolicy.Action.SIDESTEP_RIGHT -> { stuckEscapes.incrementAndGet(); sidestepSign = -1; sidestepUntil = now + 700 }
+            StuckEscapePolicy.Action.REPATH -> { stuckEscapes.incrementAndGet(); nav.markStuck(now) }
+            StuckEscapePolicy.Action.BREAK_BLOCK -> { stuckEscapes.incrementAndGet(); breakAhead(dest, now) }
+        }
+        if (now < sidestepUntil) {
+            val h = atan2(dest.z - bot.z, dest.x - bot.x) + sidestepSign * PI / 2
+            endTravel()
+            move(h, skill.walkSpeed * 0.8, bot.yawDeg, bot.pitchDeg, now)
+            lastKind = "go>${dest.kind}:sidestep"
+            return true
+        }
+        return false
+    }
+
+    /** Digs the first solid block (head height, then feet height) in front towards [dest]; the server decides whether it breaks. */
+    private fun breakAhead(dest: Dest, now: Long) {
+        if (now - lastBreakAt < 1_500) return
+        val dx = dest.x - bot.x
+        val dz = dest.z - bot.z
+        val d = hypot(dx, dz).coerceAtLeast(1e-6)
+        val fx = Math.floor(bot.x + dx / d * 0.9).toInt()
+        val fz = Math.floor(bot.z + dz / d * 0.9).toInt()
+        val by = Math.floor(bot.y + 0.05).toInt()
+        val y = listOf(by + 1, by).firstOrNull { bot.terrain.isSolid(fx, it, fz) == true } ?: return
+        lastBreakAt = now
+        blocksBroken.incrementAndGet()
+        Thread({ runCatching { bot.dig(fx, y, fz, 400) } }, "bot-dig-${bot.name}").also { it.isDaemon = true }.start()
+        nav.clear()
+    }
 
     /** Called every tick the bot is on its way somewhere: gives up on a star it has chased for too long. */
     private fun dwellOn(d: Dest, now: Long) {
@@ -513,6 +615,51 @@ class BotBrain(
     // --- movement ------------------------------------------------------------------------------------------------
 
     /**
+     * Non-combat travel (objective, stars, waypoints, roaming) sprint-jumps per [SprintJumpPolicy]: sets the sprint state
+     * and the jump-arc [Bot.lift] that the next position packet (sent by [Navigator.follow]) carries. The floor pose
+     * the navigator works on is not changed, so path and edge checks stay on the ground.
+     */
+    private fun travel(dest: Dest) {
+        val dx = dest.x - bot.x
+        val dz = dest.z - bot.z
+        val dist = hypot(dx, dz)
+        val moving = dist > dest.arrive
+        val dirX = if (dist > 1e-6) dx / dist else 0.0
+        val dirZ = if (dist > 1e-6) dz / dist else 0.0
+        val aheadX = bot.x + dirX * JUMP_LOOKAHEAD
+        val aheadZ = bot.z + dirZ * JUMP_LOOKAHEAD
+        val groundAhead = bot.terrain.knows(aheadX, aheadZ) && bot.terrain.floorAt(aheadX, aheadZ, bot.y, 0, 1) != null
+        val by = Math.floor(bot.y + 0.05).toInt()
+        val headroom = listOf(bot.x to bot.z, aheadX to aheadZ).all { (cx, cz) ->
+            (2..3).all { dy -> bot.terrain.isSolid(Math.floor(cx).toInt(), by + dy, Math.floor(cz).toInt()) == false }
+        }
+        val airborne = jumpStep >= 0
+        val stepUp = nav.nextRise(bot) > 0.5
+        val decision = SprintJumpPolicy.decide(
+            inCombat = false, moving = moving, airborne = airborne, groundAhead = groundAhead, headroom = headroom,
+            stepUp = stepUp, forceJump = forceJump,
+        )
+        if (decision.jump) forceJump = false
+        if (!decision.sprint) { endTravel(); return }
+        bot.setSprinting(true)
+        if (airborne || decision.jump) {
+            val step = if (airborne) jumpStep else 0
+            val lift = SprintJumpPolicy.lift(step)
+            bot.lift = lift
+            jumpStep = if (lift == 0.0) -1 else step + 1
+        } else {
+            bot.lift = 0.0
+        }
+    }
+
+    /** Back on the ground, not sprinting. Idempotent; called whenever the bot stops travelling (combat, arrival, death, lobby). */
+    private fun endTravel() {
+        jumpStep = -1
+        bot.lift = 0.0
+        bot.setSprinting(false)
+    }
+
+    /**
      * Sends one position for this tick: [heading] bent around obstacles and island edges. A step is only taken when
      * the block under the landing point AND under a point a little further ahead is solid ("probe ahead"), so the
      * bot stops at the rim instead of walking off it.
@@ -609,7 +756,7 @@ class BotBrain(
     private fun tickReload(now: Long) {
         if (reloadStartedAt == 0L) return
         val t = now - reloadStartedAt
-        if (t in 150..199 && reloadDropSent != reloadStartedAt) { reloadDropSent = reloadStartedAt; bot.dropSelected() }
+        if (t >= 150 && reloadDropSent != reloadStartedAt) { reloadDropSent = reloadStartedAt; bot.dropSelected() }
         if (t >= 400) { bot.sneak(false); reloadStartedAt = 0L }
     }
     private var reloadDropSent = 0L
@@ -681,6 +828,8 @@ class BotBrain(
         const val MIN_MELEE_FOOD = 4
         const val MIN_CAST_FOOD = 2
         const val PROBE_AHEAD = 0.8
+        /** How far ahead of a travelling bot the floor must exist for it to jump. */
+        const val JUMP_LOOKAHEAD = 2.5
         const val STAR_YIELD_RANGE = 12.0
         const val KILL_DETOUR_RANGE = 4.0
         const val STAR_SIGHT_RANGE = 90.0

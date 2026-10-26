@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.event.PlayerLeavingForLobby
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerSession
 import com.astarworks.astera.core.domain.player.SessionState
@@ -27,9 +28,9 @@ import org.slf4j.LoggerFactory
  *
  * Per-phase policy:
  *
- * - [MatchPhase.COUNTDOWN] — kick immediately via [RemoveFromMatchUseCase];
- *   the player has not committed to the match, so the seat re-opens for the
- *   next queue cycle.
+ * - [MatchPhase.COUNTDOWN] — kick immediately via [RemoveFromMatchUseCase] (off the roster, lobby, inventory back);
+ *   the player has not committed to the match. [onCountdownLeft] then cancels the match if a side is empty,
+ *   so it never starts with bots or ghosts only.
  * - [MatchPhase.ACTIVE] — on a connection loss the stars they carry burst where they stand ([onLeaving]), the session flips to
  *   [SessionState.Disconnected], and a [reconnectWindowTicks] (60 s) window starts; [PlayerDisconnectedFromMatch]
  *   carries `willTimeoutAtTick` for the HUD countdown and the lobby's reconnect route. Back within the window,
@@ -53,6 +54,8 @@ public class DisconnectDuringMatchListener(
     /** Runs while the leaver still stands where they were (before any teleport): their carried stars burst there. */
     private val onLeaving: (MatchId, PlayerId) -> Unit = { _, _ -> },
     private val reconnectWindowTicks: Long = RECONNECT_WINDOW_TICKS,
+    /** After a COUNTDOWN leave removed the player from the roster: lets the match be cancelled when a side is empty. */
+    private val onCountdownLeft: (MatchId, TeamId?) -> Unit = { _, _ -> },
 ) {
 
     private val log = LoggerFactory.getLogger(DisconnectDuringMatchListener::class.java)
@@ -74,7 +77,7 @@ public class DisconnectDuringMatchListener(
         // Sessions are not flipped to InMatch on entry (the match repository is the source of truth for
         // membership), so a roster member of a running match counts even without a session claim.
         val matchId = session?.currentMatch
-            ?: matches.findMatchOf(playerId)?.takeIf { it.phase == MatchPhase.ACTIVE || it.phase == MatchPhase.SUDDEN_DEATH }?.id
+            ?: matches.findMatchOf(playerId)?.takeIf { it.phase in LIVE_PHASES }?.id
             ?: return
         val match = matches.findById(matchId) ?: return
         // Already counted as away (a lobby command followed by a quit): one window, one burst.
@@ -82,6 +85,7 @@ public class DisconnectDuringMatchListener(
 
         when (match.phase) {
             MatchPhase.COUNTDOWN -> {
+                val teamId = match.teams.firstOrNull { playerId in it.members }?.id
                 removeFromMatch.remove(
                     playerId = playerId,
                     matchId = matchId,
@@ -91,11 +95,11 @@ public class DisconnectDuringMatchListener(
                         "DisconnectDuringMatchListener: remove failed (COUNTDOWN) player={} match={} error={}",
                         playerId, matchId, err,
                     )
-                }
+                }.onSuccess { settleCountdown(matchId, teamId) }
             }
 
             MatchPhase.ACTIVE -> {
-                onLeaving(matchId, playerId)
+                leaving(matchId, playerId)
                 if (deliberate) {
                     applyForfeit.apply(playerId, matchId).onFailure { err ->
                         log.debug(
@@ -143,7 +147,7 @@ public class DisconnectDuringMatchListener(
             }
 
             MatchPhase.SUDDEN_DEATH -> {
-                onLeaving(matchId, playerId)
+                leaving(matchId, playerId)
                 applyForfeit.apply(playerId, matchId).onFailure { err ->
                     log.debug(
                         "DisconnectDuringMatchListener: forfeit failed (SUDDEN_DEATH) player={} match={} error={}",
@@ -160,6 +164,17 @@ public class DisconnectDuringMatchListener(
         }
     }
 
+    /** The star burst is cosmetic: whatever it does, the leave itself (roster, forfeit, evaluation) must still run. */
+    private fun leaving(matchId: MatchId, playerId: PlayerId) {
+        runCatching { onLeaving(matchId, playerId) }
+            .onFailure { log.warn("DisconnectDuringMatchListener: leaving hook failed player={} match={}: {}", playerId, matchId, it.toString()) }
+    }
+
+    private fun settleCountdown(matchId: MatchId, teamId: TeamId?) {
+        runCatching { onCountdownLeft(matchId, teamId) }
+            .onFailure { log.warn("DisconnectDuringMatchListener: countdown settle failed match={}: {}", matchId, it.toString()) }
+    }
+
     /** A finished match leaves nothing to come back to: players still marked as dropped from it are lobby players again. */
     public fun onMatchEnded(event: MatchEnded) {
         val members = matches.findById(event.matchId)?.teams?.flatMap { it.members } ?: return
@@ -172,6 +187,8 @@ public class DisconnectDuringMatchListener(
     }
 
     public companion object {
+        private val LIVE_PHASES = setOf(MatchPhase.COUNTDOWN, MatchPhase.ACTIVE, MatchPhase.SUDDEN_DEATH)
+
         /** 60 s @ 20 tps. A dropped participant may come back to their match and team within this window (MODE-14). */
         public const val RECONNECT_WINDOW_TICKS: Long = 1200L
     }

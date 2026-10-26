@@ -17,11 +17,11 @@ public data class StarDrop(
     val amount: Int,
     val pickupRadius: Double,
     val generatorId: GeneratorId?,
-    /** A kill burst cannot be taken back by its victim until [deniedUntilMillis] (wall clock). */
+    /** A kill burst cannot be taken back by its victim until scheduler tick [deniedUntilTick]. */
     val deniedTo: com.astarworks.astera.core.domain.player.PlayerId? = null,
-    val deniedUntilMillis: Long = 0L,
+    val deniedUntilTick: Long = 0L,
     /** Handle of the world thing showing this drop ([com.astarworks.astera.match.application.port.outbound.IStarDropWorld]); null in headless hosts. */
     val entity: String? = null,
-    /** The host holds the pickup back until this wall-clock time (a kill burst is seen flying out): becomes the item entity's pickup delay. */
-    val readyAtMillis: Long = 0L,
+    /** The host holds the pickup back until this scheduler tick (a kill burst is seen flying out): becomes the item entity's pickup delay. */
+    val readyAtTick: Long = 0L,
 )

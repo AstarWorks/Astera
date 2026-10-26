@@ -60,13 +60,15 @@ public class NormaLevelService(
 
     /** `/astera norma choose star|kill`. */
     public fun choose(playerId: PlayerId, goal: NormaGoal): Result<NormaProgress, NormaError> {
-        val match = matches.findMatchOf(playerId)?.takeIf { live(it) && isNorma(it.id) }
-            ?: return Result.failure(NormaError.NotInNormaMatch)
+        val match = matches.findMatchOf(playerId) ?: return Result.failure(NormaError.NotInMatch)
+        if (!isNorma(match.id)) return Result.failure(NormaError.ModeHasNoNorma)
+        // The picker opens right after the match starts, which is the COUNTDOWN phase: choosing then is allowed.
+        if (match.phase == MatchPhase.WAITING || match.phase == MatchPhase.ENDED) return Result.failure(NormaError.MatchNotRunning)
         val p = norma.get(match.id, playerId)
         if (p.level >= configOf(match.id).maxLevel) return Result.failure(NormaError.AtMaxLevel)
         val updated = p.copy(goal = goal)
         norma.put(match.id, playerId, updated)
-        evaluate(match, playerId)
+        if (live(match)) evaluate(match, playerId)
         return Result.success(norma.get(match.id, playerId))
     }
 

@@ -144,6 +144,8 @@ class AnnihilationPillarScenarioTest {
             val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
             val matchId: MatchId = (lifecycle.start(StageId("annihilation-arena"), "annihilation") as Result.Success).value
             lifecycle.entry(matchId, solo.id, TeamId("red"))
+            // The admin force-start waives the roster floor (min 3 players); without it the countdown guard cancels a lone playtest.
+            sim.services.getOrThrow<com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers>().waive(matchId)
             lifecycle.switchPhase(matchId, MatchStateMachine.TransitionTrigger.CountdownComplete)
             advance(600)
             assertThat(eventsOf<MatchStarted>()).isNotEmpty()

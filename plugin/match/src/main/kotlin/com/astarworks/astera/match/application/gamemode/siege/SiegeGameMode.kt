@@ -62,6 +62,9 @@ public class SiegeEnv(
 /** Per-match state of one siege mode. [ended] latches once the mode declared a result. */
 public open class SiegeRun(public val matchId: MatchId, public val stage: Stage) {
     public var ended: Boolean = false
+
+    /** Server tick the next objective reminder is due at; 0 = not scheduled yet. */
+    public var reminderAt: Long = 0L
 }
 
 /**
@@ -152,7 +155,24 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         val e = env ?: return
         val run = runs[context.matchId] ?: return
         val match = e.matches.findById(context.matchId) ?: return
-        if (live(match)) tickRun(run, match, tick)
+        if (!live(match)) return
+        tickRun(run, match, tick)
+        remindObjective(run, match, e)
+    }
+
+    /** Every [REMINDER_TICKS] of live play, everyone gets the mode's "how to win" line again (the briefing is long gone from chat by then). */
+    private fun remindObjective(run: R, match: Match, e: SiegeEnv) {
+        val now = e.now()
+        if (run.reminderAt == 0L) run.reminderAt = now + REMINDER_TICKS
+        if (now < run.reminderAt || run.ended) return
+        run.reminderAt = now + REMINDER_TICKS
+        val lineKey = MessageKey("astera.match.briefing.mode.${modeId.value}")
+        for (member in match.teams.flatMap { it.members }) {
+            val line = e.messages.render(member, lineKey)
+            if (line.isBlank() || line.startsWith("astera.")) continue
+            tellPlayer(member, MessageKey("astera.match.briefing.reminder"))
+            e.players.sendMessage(member, line)
+        }
     }
 
     final override fun hudStatus(match: Match, nowTick: Long): MatchHudStatus {
@@ -258,6 +278,9 @@ public abstract class SiegeGameMode<R : SiegeRun>(
 
     public companion object {
         public const val DEFAULT_FLOOR_BLOCK: String = "minecraft:grass_block"
+
+        /** Two minutes of server ticks between objective reminders. */
+        private const val REMINDER_TICKS: Long = 2400L
 
         private val PHASES: List<IGameModePhase> = listOf(
             IGameModePhase.Lobby,

@@ -12,6 +12,7 @@ Owner track `wp/ui-access`. Seed: audit 2026-10-26. Items: Board prefix `UI-`.
 ## 現状
 - 2026-10-27 時点 (正本は `docs/game-design/access-map.md`): 入口は 3 層に整理済み。メインメニュー 27 スロット (Play/Shop/Vault/Travel/Training/Profile/Settings/Cosmetics/Party/Friends/Achievements/Daily/Help + 管理者タイル)、NPC は 4 体 (Play/Market/Travel/Social)、試合中は `F` の 3 ボタンメニュー。
 - Settings = 言語・音量 3 種・操作方式・クイックキャスト・パーティクル・二段ジャンプ・公開プロフィール・HUD 表示切替 3 種 (HPバー / ダメージ数字 / チュートリアルのヒント、JSONB 保存でマイグレーション不要、`HudPreferences` が 2 秒キャッシュ)。未実装: チャット設定、通知。
+- 表示言語 (ADR-0283): サーバー既定は `ja` (`ASTERA_DEFAULT_LOCALE=en|ja` で変更、e2e は `en` 固定)。個人の明示選択 (`/astera lang`・Settings タイル) が最優先で、クライアントの MC 言語は見ない。`PlayerSettings.locale` は null = サーバー既定。
 - メインメニューの Daily/Quests タイルは専用 GUI (`progress.open`, 54 スロット: ログインボーナス (クリックで受け取り)・ミッション一覧と進捗・クエスト現在ステージ)。`/astera daily|missions|quests` はチャットのショートカットとして残る。
 - 初回ガイド (ADR-0242, `content/tutorials/getting-started.yaml`): menu → range → rack → primary (剣) → secondary → reload (銃) → staff (杖: ファイアスタッフを右クリック) → hud → norma (勝ち方を 7 秒表示) → queue。ショップ/金庫は必須経路から外した (メニューから到達可)。
 - 試合中サイドバーのフッターは「自チーム / Stars / Norma Lv / 現在のゴール」。モード本体が長くてもフッターは切れない (`MatchSidebarModel`)。e2e `NormaPlaythroughE2eTest` が確認する。

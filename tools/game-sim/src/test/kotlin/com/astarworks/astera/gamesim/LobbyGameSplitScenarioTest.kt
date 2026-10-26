@@ -145,6 +145,7 @@ class LobbyGameSplitScenarioTest {
                 }
             }
             assertThat(secondArrived).`as`("held player is assigned once the game server is free").isTrue()
+            network.step(5) // the start runs on the next Global tick after the last arrival
             assertThat(game.eventsOf<MatchStarted>()).hasSize(2)
         } finally {
             lobby.shutdown()
@@ -176,6 +177,93 @@ class LobbyGameSplitScenarioTest {
             network.step(45 * 20)
             assertThat(game.eventsOf<MatchStarted>()).isEmpty()
             assertThat(game.services.getOrThrow<IMatchRepository>().findActiveMatches()).isEmpty()
+        } finally {
+            game.shutdown()
+        }
+    }
+
+    /** Bug 11: a game server whose arena is still being built used to bounce every arrived player back to the lobby. */
+    @Test
+    fun `assigned players wait for a still-building arena instead of being sent back to the lobby`() {
+        val network = SimProxyNetwork()
+        val lobbyNode = network.node(lobbyName)
+        val building = object : com.astarworks.astera.core.application.port.outbound.IArenaBuilder {
+            @Volatile var ready = false
+            override fun acquire(stage: com.astarworks.astera.core.domain.stage.Stage) =
+                if (ready) Result.Success(stage)
+                else Result.Failure(com.astarworks.astera.core.application.port.outbound.ArenaAllocationError.NotReady)
+            override fun peekReady(stage: com.astarworks.astera.core.domain.stage.Stage): com.astarworks.astera.core.domain.stage.Stage? = if (ready) stage else null
+            override fun resolve(stageId: com.astarworks.astera.core.domain.stage.StageId): com.astarworks.astera.core.domain.stage.Stage? = null
+            override fun ensureBuilt(stageId: com.astarworks.astera.core.domain.stage.StageId): Boolean = ready
+            override fun repairLater(stageId: com.astarworks.astera.core.domain.stage.StageId) = Unit
+        }
+        val game = GameSim.boot("split-arena-building", role = ServerRole.GAME, serverName = gameName, proxy = network.node(gameName), arenas = building)
+        network.register(gameName, game)
+        try {
+            val a = com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())
+            val b = com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())
+            val assignment = com.astarworks.astera.match.domain.matchmaking.MatchAssignment(
+                com.astarworks.astera.core.domain.match.MatchId("arena-wait"),
+                com.astarworks.astera.core.domain.stage.StageId("example-arena"), null,
+                listOf(listOf(a), listOf(b)),
+            )
+            lobbyNode.sendMessage(gameName, ProxyChannel.MATCH_FOUND,
+                com.astarworks.astera.match.application.service.matchmaking.MatchAssignmentCodec.encode(assignment))
+            network.pump()
+            game.attachPlayer(a, "arena-wait-a")
+            game.attachPlayer(b, "arena-wait-b")
+            // Well past the 3 s stray-bounce delay and the arrival wait, the arena is still not built.
+            network.step(10 * 20)
+            assertThat(game.eventsOf<MatchStarted>()).isEmpty()
+            assertThat(game.world.find(a)).`as`("player still on the game server while the arena builds").isNotNull()
+            assertThat(game.world.find(b)).isNotNull()
+            assertThat(network.moves).`as`("nobody was sent back to the lobby").isEmpty()
+
+            building.ready = true
+            network.step(3 * 20)
+            assertThat(game.eventsOf<MatchStarted>()).hasSize(1)
+            val match = game.services.getOrThrow<IMatchRepository>().findActiveMatches().single()
+            assertThat(match.teams.flatMap { it.members }).containsExactlyInAnyOrder(a, b)
+            assertThat(network.moves).isEmpty()
+        } finally {
+            game.shutdown()
+        }
+    }
+
+    /** Bug 11 (root cause): the last arrival triggers the start from the player's own thread; arena claims are Global-only. */
+    @Test
+    fun `the match starts on the global thread so the arena claim is not refused as wrong scope`() {
+        val network = SimProxyNetwork()
+        val lobbyNode = network.node(lobbyName)
+        var scheduler: com.astarworks.astera.testfixtures.FakeScheduler? = null
+        val globalOnly = object : com.astarworks.astera.core.application.port.outbound.IArenaBuilder {
+            override fun acquire(stage: com.astarworks.astera.core.domain.stage.Stage) =
+                if (scheduler?.currentScope == com.astarworks.astera.core.application.port.outbound.ExecutionScope.Global) Result.Success(stage)
+                else Result.Failure(com.astarworks.astera.core.application.port.outbound.ArenaAllocationError.WrongScope)
+            override fun peekReady(stage: com.astarworks.astera.core.domain.stage.Stage): com.astarworks.astera.core.domain.stage.Stage? = stage
+            override fun resolve(stageId: com.astarworks.astera.core.domain.stage.StageId): com.astarworks.astera.core.domain.stage.Stage? = null
+            override fun ensureBuilt(stageId: com.astarworks.astera.core.domain.stage.StageId): Boolean = true
+            override fun repairLater(stageId: com.astarworks.astera.core.domain.stage.StageId) = Unit
+        }
+        val game = GameSim.boot("split-arena-scope", role = ServerRole.GAME, serverName = gameName, proxy = network.node(gameName), arenas = globalOnly)
+        scheduler = game.scheduler
+        network.register(gameName, game)
+        try {
+            val a = com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())
+            val b = com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())
+            val assignment = com.astarworks.astera.match.domain.matchmaking.MatchAssignment(
+                com.astarworks.astera.core.domain.match.MatchId("arena-scope"),
+                com.astarworks.astera.core.domain.stage.StageId("example-arena"), null,
+                listOf(listOf(a), listOf(b)),
+            )
+            lobbyNode.sendMessage(gameName, ProxyChannel.MATCH_FOUND,
+                com.astarworks.astera.match.application.service.matchmaking.MatchAssignmentCodec.encode(assignment))
+            network.pump()
+            game.attachPlayer(a, "arena-scope-a")
+            game.attachPlayer(b, "arena-scope-b")
+            network.step(10 * 20)
+            assertThat(game.eventsOf<MatchStarted>()).hasSize(1)
+            assertThat(network.moves).`as`("nobody was sent back to the lobby").isEmpty()
         } finally {
             game.shutdown()
         }
@@ -261,6 +349,47 @@ class LobbyGameSplitScenarioTest {
             assertThat(checkNotNull(lobby.inventory).items(player.id)).containsExactly("sword")
             assertThat(checkNotNull(game.inventory).items(player.id)).isEmpty()
             assertThat(lobby.eventsOf<PlayerArrivedOnServer>().last().fromServer).isEqualTo(gameName)
+        } finally {
+            lobby.shutdown()
+            game.shutdown()
+        }
+    }
+
+    @Test
+    fun `a failed restore on the game server never overwrites the saved lobby inventory`() {
+        val network = SimProxyNetwork()
+        val shared = SharedSnapshotRepository()
+        var readsFail = true
+        // The game server's view of the shared store: reads fail (DB outage) until the flag is cleared; writes land.
+        val gameView = object : com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository by shared {
+            override fun findLatest(playerId: com.astarworks.astera.core.domain.player.PlayerId) =
+                if (readsFail) throw IllegalStateException("sim: snapshot store down") else shared.findLatest(playerId)
+        }
+        val lobby = GameSim.boot("split-fail-lobby", role = ServerRole.LOBBY, serverName = lobbyName, proxy = network.node(lobbyName), snapshots = shared)
+        val game = GameSim.boot("split-fail-game", role = ServerRole.GAME, serverName = gameName, proxy = network.node(gameName), snapshots = gameView)
+        network.register(lobbyName, lobby)
+        network.register(gameName, game)
+        try {
+            val player = lobby.spawnPlayer("p1")
+            network.step(60)
+            checkNotNull(lobby.inventory).put(player.id, "sword")
+            val mate = lobby.spawnPlayer("p1b")
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.SKIRMISH)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.SKIRMISH)
+
+            assertThat(arrivedOn(network, game, player.id, 800)).isTrue()
+            network.step(80) // restore wait expires with the store down
+            assertThat(game.eventsOf<MatchStarted>()).hasSize(1)
+            assertThat(checkNotNull(game.inventory).items(player.id)).`as`("restore failed: nothing was applied").isEmpty()
+            readsFail = false
+            assertThat(shared.findLatest(player.id)).`as`("saved lobby snapshot untouched by the game-side entry capture").isNotNull()
+
+            val match = game.services.getOrThrow<IMatchRepository>().findActiveMatches().single()
+            game.services.getOrThrow<IMatchLifecycle>().end(match.id, EndReason.AdminEnded)
+            network.step(8 * 20 + 40)
+
+            assertThat(lobby.world.find(player.id)).isNotNull()
+            assertThat(checkNotNull(lobby.inventory).items(player.id)).containsExactly("sword")
         } finally {
             lobby.shutdown()
             game.shutdown()

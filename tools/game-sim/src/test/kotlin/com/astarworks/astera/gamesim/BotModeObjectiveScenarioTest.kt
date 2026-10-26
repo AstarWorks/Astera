@@ -1,0 +1,113 @@
+package com.astarworks.astera.gamesim
+
+import com.astarworks.astera.bots.IneffectiveTargets
+import com.astarworks.astera.bots.ModePlanner
+import com.astarworks.astera.bots.StageObjectives
+import com.astarworks.astera.bots.TargetPolicy
+import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.match.TeamId
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+/**
+ * Bots play the mode's objective, not just "find enemies" (item 25d). The planner ([ModePlanner], the object BotBrain asks
+ * for its destination) is fed the REAL stage regions (StageObjectives.load) and drives a sim player through the REAL
+ * mode: in carry-mini-tnt it must collect mini TNT, bank it, fetch the combined TNT and win at the enemy base.
+ * Also: core roles, and the Tab-list independent target fallback.
+ */
+class BotModeObjectiveScenarioTest {
+
+    private fun objectives(lane: String): StageObjectives =
+        checkNotNull(StageObjectives.load(GameSim.defaultContentDir().toFile(), lane)) { "stage of lane $lane did not load" }
+
+    private fun planner(mode: String, name: String, team: String, enemy: String): ModePlanner {
+        val src = objectives(mode)
+        return ModePlanner(mode, name, team, listOf(enemy), checkNotNull(src.zones()))
+    }
+
+    /** Teleports the sim player to each destination the planner names (region entry is what the mode rewards). */
+    private fun ScenarioScope.drive(runner: SimEntity, planner: ModePlanner, maxRounds: Int, done: () -> Boolean): List<String> {
+        val kinds = ArrayList<String>()
+        var now = 0L
+        repeat(maxRounds) {
+            if (done()) return kinds
+            val step = checkNotNull(planner.step(now, runner.position.x, runner.position.z)) { "mode has a plan" }
+            if (kinds.lastOrNull() != step.kind) kinds += step.kind
+            runner.moveTo(Vec3(step.x, 65.0, step.z))
+            advance(10)
+            now += 500
+        }
+        return kinds
+    }
+
+    @Test
+    fun `carry-mini-tnt bot collects banks fetches the TNT and wins at the enemy base`() {
+        scenario("bot-mini-tnt-objective") {
+            val runner = player("runner", at = Vec3(0.0, 65.0, -50.0))
+            val guard = player("guard", at = Vec3(0.0, 65.0, -50.0))
+            startMatch("carry-mini-tnt", mapOf(runner to "red", guard to "blue"))
+            val p = planner("carry-mini-tnt", "runner", "red", "blue")
+
+            val kinds = drive(runner, p, 400) { eventsOf<MatchEnded>().isNotEmpty() }
+
+            val end = eventsOf<MatchEnded>().singleOrNull()
+            assertThat(end).`as`("the planner alone wins the mode (trace: $kinds)").isNotNull()
+            assertThat(end!!.winningTeam).isEqualTo(TeamId("red"))
+            assertThat(kinds.take(3)).containsExactly("pickup", "bank", "pickup")
+            assertThat(kinds).contains("tnt", "deliver")
+            assertThat(kinds.indexOf("tnt")).isGreaterThan(kinds.indexOf("bank"))
+        }
+    }
+
+    @Test
+    fun `carry-tnt bot takes the TNT to the enemy base`() {
+        scenario("bot-tnt-objective") {
+            val runner = player("runner", at = Vec3(0.0, 65.0, -50.0))
+            val guard = player("guard", at = Vec3(0.0, 65.0, -50.0))
+            startMatch("carry-tnt", mapOf(runner to "red", guard to "blue"), stage = "siege-isles-tnt")
+            val kinds = drive(runner, planner("carry-tnt", "runner", "red", "blue"), 40) { eventsOf<MatchEnded>().isNotEmpty() }
+            assertThat(kinds.take(2)).containsExactly("tnt", "deliver")
+            assertThat(eventsOf<MatchEnded>().singleOrNull()?.winningTeam).isEqualTo(TeamId("red"))
+        }
+    }
+
+    @Test
+    fun `core mode - most bots attack the enemy core, every third defends its own`() {
+        val names = (1..12).map { "bot$it" }
+        val plans = names.associateWith { planner("break-core", it, "red", "blue") }
+        val defenders = plans.filterValues { it.role == ModePlanner.Role.DEFEND }
+        assertThat(defenders).`as`("some defend").isNotEmpty()
+        assertThat(defenders.size).`as`("most attack").isLessThan(names.size / 2 + 1)
+        for ((_, plan) in plans) {
+            val step = checkNotNull(plan.step(0, -60.0, 0.0))
+            if (plan.role == ModePlanner.Role.DEFEND) {
+                assertThat(step.zone).isEqualTo("core-red"); assertThat(step.kind).isEqualTo("defend-core"); assertThat(step.breakable).isFalse()
+            } else {
+                assertThat(step.zone).isEqualTo("core-blue"); assertThat(step.kind).isEqualTo("attack-core"); assertThat(step.breakable).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun `an enemy missing from the Tab list is still a target, and an untouchable one is dropped after no hit lands`() {
+        // Hidden enemy: no name / team / game mode known. A listed team mate is still never a target.
+        val hidden = TargetPolicy.Candidate(id = 7, name = "?uuid", team = null, spectating = false, x = 0.0, y = 65.0, z = 8.0, listed = false)
+        val mate = TargetPolicy.Candidate(id = 8, name = "mate", team = "red", spectating = false, x = 0.0, y = 65.0, z = 3.0)
+        assertThat(TargetPolicy.nearest("me", "red", 0.0, 65.0, 0.0, listOf(hidden, mate), 70.0)?.id).isEqualTo(7)
+
+        // It is a corpse in the death cam (no Tab game mode to tell): 5 s and 3 attacks without a hit -> ignored for a while.
+        val ineffective = IneffectiveTargets()
+        var attacks = 0
+        var now = 0L
+        repeat(60) { ineffective.engage(7, now, hits = 0, attacks = attacks); now += 100; if (it % 10 == 0) attacks++ }
+        assertThat(ineffective.ignored(7, now)).isTrue()
+        assertThat(ineffective.ignored(7, now + 13_000)).`as`("only for a while").isFalse()
+
+        // A real enemy that takes hits is never dropped.
+        val real = IneffectiveTargets()
+        var hits = 0; attacks = 0; now = 0
+        repeat(200) { real.engage(9, now, hits, attacks); now += 100; if (it % 10 == 0) { attacks++; hits++ } }
+        assertThat(real.ignored(9, now)).isFalse()
+    }
+}

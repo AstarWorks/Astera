@@ -163,7 +163,7 @@ layout:
   - {part: ruin, x: -18, z: -20, rotation: 0}
   - {part: ruin, x: 18, z: 20, rotation: 180}
   theme: frost
-  atmosphere: {time_of_day: 22800, weather: clear}
+  atmosphere: {time_of_day: 23500, weather: clear}
 regions:
 - name: full-arena
   min: {x: -151.0, y: 20.0, z: -168.0}

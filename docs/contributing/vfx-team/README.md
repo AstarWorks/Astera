@@ -94,10 +94,32 @@ make vfx-shot-reap                                         # kill stragglers of 
 - **Lighter output.** caster / opponent / side views film at 640x360 (compare stays 1280x720; `RES=` overrides). `BEAT_TICKS=case` (the case's `beats[].tick`) or an explicit tick
   list saves only those PNGs (no sheet / gif / mp4, `beatFramesOnly: true`, not publishable): use it for pose / VFX iteration, and a full capture for the round you publish.
 - **Lock and memory discipline.** One capture at a time on the whole host: the slot lock `/tmp/claude-1000/astera-vfx-shot.lock` (`SHOT_SLOTS`, default 1) queues every other
-  run (`queued: all 1 vfx-shot slot(s) busy`). Do not use `/tmp/claude-1000/astera-e2e.lock` for captures. A kept stack (`SHOT_KEEP=1`) is bounded: it is removed
+  run (the capture farm has its own lock, see above) (`queued: all 1 vfx-shot slot(s) busy`). Do not use `/tmp/claude-1000/astera-e2e.lock` for captures. A kept stack (`SHOT_KEEP=1`) is bounded: it is removed
   `SHOT_KEEP_TTL` seconds (default = `SHOT_TIMEOUT`, 45 min) after its last run, or earlier when a run from another checkout needs the slot. Each run has a hard
   `SHOT_TIMEOUT` (45 min). Run captures in the foreground or with `run_in_background`; never `nohup ... &` and walk away (a run whose caller is gone is stopped, unless
   `SHOT_DETACHED=1`). Never kill another worktree's processes by hand or the `astera-dev-*` / `astera-e2e-*` containers; `make vfx-shot-reap` only removes stacks whose run is dead.
+
+### Capture farm: skills appear on skill-compare by themselves (2026-10-27)
+
+You do not need to run `make vfx-shot` just to get a skill onto skill-compare. A daemon (`make vfx-auto-up`, one per host) watches the dev
+autodeploy log (`.claude/state/dev-deploy/deploy.log`). For every `deployed <sha>` it diffs `content/{skills,vfx,animations,sounds,poses}`
+against the previous sha, maps the changed files to skill ids (`tools/vfx-shot/changed-skills.py`: a changed vfx/animation/sound file
+re-films every skill that references it), films each skill from `top` and `side` on a warm pinned stack and publishes it. On the page the chips read
+`auto <sha7>`; a first realtime pass shows `PREVIEW (realtime)` within about a minute and is replaced by the exact stepped capture
+(slow-motion take, one frame per tick). A stepped capture with skipped ticks is retried once, never published, and the preview stays.
+
+```
+make vfx-auto-status                       # daemon, last run (sha, seconds, per-skill ok/FAILED), warm stack, log tail
+make vfx-auto-once SHA=<sha> [BASE=<sha>]  # process one commit now (what the daemon does for a deployed line)
+make vfx-auto-down                         # stop the daemon and drop its stack
+tail -f .claude/state/capture-farm/farm.log   # what it did, with seconds per pass
+```
+
+The farm uses its own worktree (`.claude/worktrees/capture-farm`, detached on the deployed sha), its own slot lock
+(`/tmp/claude-1000/astera-vfx-shot-farm.lock`) and a pinned stack that `reap.py` never evicts, so your `make vfx-shot` runs are not queued behind it.
+Compare views (reference video next to the capture) still need `VIEW=compare CASE=<case>` from the author; the farm only does `top` + `side`.
+Knobs: `FARM_VIEWS` (`top,side`), `FARM_TICKS` (80, or the frame count already published for the skill), `FARM_MAX_SKILLS` (8),
+`FARM_PREVIEW=0` (skip the realtime pass), `FARM_RATE` (slow-motion tick rate, 5), `FARM_TTL` (idle stack lifetime, 24 h).
 
 ## Shared rules
 

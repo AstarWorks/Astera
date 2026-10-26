@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory
  * Wave G 5player-prefs-social (ADR-0124) — cycle the player's locale.
  *
  * Triggered by the `settings.locale.cycle` intent emitted from the Settings
- * GUI's locale tile. The cycle order today is `en ↔ ja` (the two locales in
+ * GUI's locale tile. A player without an explicit choice cycles from the
+ * server default (ADR-0283). The cycle order today is `en ↔ ja` (the two locales in
  * [com.astarworks.astera.core.domain.player.PlayerSettings.SUPPORTED_LOCALES]).
  * Adding a third locale means extending the constant set — the cycle picks
  * the next element after the current locale by iterating the supported set
@@ -34,6 +35,8 @@ public class LobbySettingsLocaleIntentHandler(
     private val guiAdapter: IGuiAdapter,
     private val messages: IMessageRenderer,
     private val playerGateway: IPlayerGateway,
+    /** Server default (ADR-0283): the effective locale of a player who never chose one, where the cycle starts. */
+    private val defaultLocale: LocaleCode,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -46,7 +49,7 @@ public class LobbySettingsLocaleIntentHandler(
             )
             return
         }
-        val current = settings.findOrDefault(player.id).locale
+        val current = settings.findOrDefault(player.id).locale ?: defaultLocale
         val next = nextLocale(current)
         when (val outcome = setLocale.set(player.id, next)) {
             is Result.Success -> {

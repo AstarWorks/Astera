@@ -12,6 +12,8 @@ import kotlinx.serialization.json.Json
  *  - [BotMatchWire.REQUEST_CHANNEL] `astera:bots:request` : lobby -> runner, one [BotRequest] per click.
  *  - [BotMatchWire.STATUS_CHANNEL]  `astera:bots:status`  : runner -> lobby, any number of [BotStatus] per request
  *    (`spawning`, then `queued`, or `failed`).
+ *  - [BotMatchWire.RELEASE_CHANNEL] `astera:bots:release` : lobby -> runner, one [BotRelease] when the player the
+ *    bots came for left the queue before the match formed; the runner logs those bots out.
  *
  * The runner is expected to log its bots in, queue them in [BotRequest.lane] and answer with the bot names.
  */
@@ -25,6 +27,15 @@ public data class BotRequest(
     val count: Int,
     /** User name of the player who asked (for runner logs only). */
     val requestedBy: String,
+)
+
+/** "The player who asked is gone": the runner disconnects every bot of [requestId] that is not in a match yet. */
+@Serializable
+public data class BotRelease(
+    /** The [BotRequest.requestId] whose bots are no longer wanted. */
+    val requestId: String,
+    /** Why (for runner logs only). */
+    val reason: String = "",
 )
 
 /** The runner's answer to a [BotRequest]. */
@@ -58,12 +69,18 @@ public enum class BotState {
 public object BotMatchWire {
     public const val REQUEST_CHANNEL: String = "astera:bots:request"
     public const val STATUS_CHANNEL: String = "astera:bots:status"
+    public const val RELEASE_CHANNEL: String = "astera:bots:release"
 
     private val json: Json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
     public fun encode(request: BotRequest): String = json.encodeToString(BotRequest.serializer(), request)
 
     public fun encode(status: BotStatus): String = json.encodeToString(BotStatus.serializer(), status)
+
+    public fun encode(release: BotRelease): String = json.encodeToString(BotRelease.serializer(), release)
+
+    public fun decodeRelease(payload: String): BotRelease? =
+        runCatching { json.decodeFromString(BotRelease.serializer(), payload) }.getOrNull()
 
     public fun decodeRequest(payload: String): BotRequest? =
         runCatching { json.decodeFromString(BotRequest.serializer(), payload) }.getOrNull()

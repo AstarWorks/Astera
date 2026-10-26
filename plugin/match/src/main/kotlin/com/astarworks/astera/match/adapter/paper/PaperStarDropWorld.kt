@@ -20,6 +20,8 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.entity.ItemMergeEvent
 import org.bukkit.event.inventory.InventoryPickupItemEvent
+import org.bukkit.event.world.EntitiesLoadEvent
+import org.bukkit.scoreboard.Scoreboard
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
@@ -28,7 +30,9 @@ import java.util.UUID
 
 /**
  * A star drop in the world is a dropped NETHER_STAR item entity: glowing, named `★ xN`, stack count = N (capped at
- * 64), never despawning, invulnerable, tagged with a unique PDC value so it never merges with another drop. Its
+ * 64), never despawning, invulnerable, tagged with a PDC value (this boot's session token + a unique id) so it never
+ * merges with another drop and a star left over from an earlier boot is recognised and removed. The glow is white for a
+ * single star and gold for a stack of two or more (scoreboard team colour, see [syncGlow]). Its
  * vanilla pickup (player, mob, hopper) is always cancelled; a player touching it is reported to the listener, which
  * credits the in-match star count and removes the entity. The drop never reaches an inventory.
  */
@@ -37,13 +41,16 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
     private val key = NamespacedKey(plugin, "star_drop")
     private var listener: ((String, PlayerId) -> Unit)? = null
 
+    /** Stars persist in the world (unlimited lifetime) but the drop ledger does not: a star from another boot is an orphan. */
+    private val session = UUID.randomUUID().toString().take(8)
+
     init {
         server.pluginManager.registerEvents(this, plugin)
     }
 
     override fun spawn(world: WorldId, position: Vec3, amount: Int, velocity: Vec3?, pickupDelayTicks: Int): String? {
         val w = server.getWorld(world.value) ?: return null
-        val handle = UUID.randomUUID().toString()
+        val handle = "$session:${UUID.randomUUID()}"
         val stack = ItemStack(Material.NETHER_STAR, amount.coerceIn(1, MAX_STACK))
         stack.editMeta { it.persistentDataContainer.set(key, PersistentDataType.STRING, handle) }
         val item = w.dropItem(Location(w, position.x, position.y, position.z), stack) { e ->
@@ -56,6 +63,7 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
             e.isCustomNameVisible = true
             e.velocity = velocity?.let { Vector(it.x, it.y, it.z) } ?: Vector(0.0, 0.0, 0.0)
         }
+        syncGlow(item.uniqueId, amount)
         // The entity UUID is the lookup key, so it can be located again without a side table.
         return item.uniqueId.toString()
     }
@@ -66,6 +74,8 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
     override fun locate(handle: String): Vec3? {
         val e = server.getEntity(UUID.fromString(handle)) as? Item ?: return null
         if (!e.isValid) return null
+        // A viewer who joined (or got a fresh scoreboard) after the last relabel still needs the stack colour.
+        if (e.itemStack.amount >= 2) syncGlow(e.uniqueId, e.itemStack.amount)
         return Vec3(e.location.x, e.location.y, e.location.z)
     }
 
@@ -74,17 +84,21 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
         e.scheduler.execute(plugin, Runnable {
             e.customName(label(amount))
             e.itemStack = e.itemStack.also { it.amount = amount.coerceIn(1, MAX_STACK) }
+            syncGlow(e.uniqueId, amount)
         }, null, 1L)
     }
 
     override fun remove(handle: String) {
-        (server.getEntity(UUID.fromString(handle)) as? Item)?.let { item -> item.scheduler.execute(plugin, Runnable { item.remove() }, null, 1L) }
+        (server.getEntity(UUID.fromString(handle)) as? Item)?.let { item ->
+            item.scheduler.execute(plugin, Runnable { dropFromTeams(item.uniqueId); item.remove() }, null, 1L)
+        }
     }
 
     override fun take(handle: String, player: PlayerId) {
         val item = server.getEntity(UUID.fromString(handle)) as? Item ?: return
         item.scheduler.execute(plugin, Runnable {
             server.getPlayer(player.uuid)?.playPickupItemAnimation(item)
+            dropFromTeams(item.uniqueId)
             item.remove()
         }, null, 1L)
     }
@@ -96,14 +110,53 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
     private fun label(amount: Int): Component =
         Component.text("★ x$amount", NamedTextColor.GOLD).decorate(TextDecoration.BOLD)
 
-    private fun isStar(item: Item): Boolean =
-        item.itemStack.takeIf { it.type == Material.NETHER_STAR }?.itemMeta?.persistentDataContainer?.has(key, PersistentDataType.STRING) == true
+    private fun tag(item: Item): String? =
+        item.itemStack.takeIf { it.type == Material.NETHER_STAR }?.itemMeta?.persistentDataContainer?.get(key, PersistentDataType.STRING)
+
+    private fun isStar(item: Item): Boolean = tag(item) != null
+
+    /** A star of an earlier boot: nothing tracks it, so it could never be collected. */
+    private fun isOrphan(item: Item): Boolean = tag(item)?.startsWith("$session:") == false
+
+    private fun removeOrphan(item: Item) {
+        item.scheduler.execute(plugin, Runnable { item.remove() }, null, 1L)
+    }
+
+    /** Every scoreboard a viewer can be on (a match gives each player their own); glow colour is read from the viewer's board. */
+    private fun boards(): Collection<Scoreboard> =
+        (server.onlinePlayers.map { it.scoreboard } + listOfNotNull(server.scoreboardManager?.mainScoreboard)).distinct()
+
+    /** Single star: no team (default white glow). Two or more: the gold team. */
+    private fun syncGlow(entity: UUID, amount: Int) {
+        val entry = entity.toString()
+        for (board in boards()) {
+            val team = board.getTeam(MULTI_TEAM)
+            if (amount >= 2) {
+                val t = team ?: board.registerNewTeam(MULTI_TEAM).also { it.color(NamedTextColor.GOLD) }
+                if (!t.hasEntry(entry)) t.addEntry(entry)
+            } else if (team != null && team.hasEntry(entry)) {
+                team.removeEntry(entry)
+            }
+        }
+    }
+
+    private fun dropFromTeams(entity: UUID) {
+        val entry = entity.toString()
+        for (board in boards()) board.getTeam(MULTI_TEAM)?.takeIf { it.hasEntry(entry) }?.removeEntry(entry)
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public fun onPlayerAttempt(event: PlayerAttemptPickupItemEvent) {
         if (!isStar(event.item)) return
         event.isCancelled = true
+        if (isOrphan(event.item)) { removeOrphan(event.item); return }
         listener?.invoke(event.item.uniqueId.toString(), PlayerId(event.player.uniqueId))
+    }
+
+    /** Stars saved with a chunk by an earlier boot (the drop ledger is gone) are swept as the chunk loads. */
+    @EventHandler
+    public fun onEntitiesLoad(event: EntitiesLoadEvent) {
+        for (e in event.entities) if (e is Item && isOrphan(e)) removeOrphan(e)
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -123,5 +176,7 @@ public class PaperStarDropWorld(private val plugin: JavaPlugin) : IStarDropWorld
 
     private companion object {
         const val MAX_STACK = 64
+        /** Scoreboard team (gold glow) of stacked stars; the nameplate teams use the `ast_np_` prefix. */
+        const val MULTI_TEAM = "ast_star_multi"
     }
 }

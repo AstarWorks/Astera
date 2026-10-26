@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * The carry rules of a single TNT charge, shared by carry-tnt and the combined TNT of carry-mini-tnt: it is picked up
+ * The carry rules of a single TNT charge, of carry-tnt: it is picked up
  * only while nobody carries it, delivered by its carrier entering a base that is not the carrier's own, and returned
  * when the carrier dies.
  */

@@ -26,7 +26,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.application.service.NormaLevelService
 import com.astarworks.astera.match.application.usecase.match.EndMatchError
-import com.astarworks.astera.match.domain.norma.NormaError
+import com.astarworks.astera.match.application.service.NormaChoicePrompter
 import com.astarworks.astera.match.domain.norma.NormaGoal
 import com.astarworks.astera.match.application.usecase.match.EntryGameError
 import com.astarworks.astera.match.application.usecase.match.StartMatchError
@@ -70,12 +70,7 @@ internal object MatchCommandSpecs {
                             ctx.reply(MessageKey("astera.match.norma-choice.chosen"), mapOf("goal" to goal.name.lowercase()))
                             CommandResult.Success
                         }
-                        is Result.Failure -> CommandResult.Failure(
-                            when (res.error) {
-                                NormaError.NotInNormaMatch -> MessageKey("astera.match.norma-choice.not-in-match")
-                                NormaError.AtMaxLevel -> MessageKey("astera.match.norma-choice.max-level")
-                            },
-                        )
+                        is Result.Failure -> CommandResult.Failure(NormaChoicePrompter.errorKey(res.error))
                     }
                 },
             ).forEveryone(Permission("astera.norma.choose")),

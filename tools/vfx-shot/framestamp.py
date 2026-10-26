@@ -2,7 +2,7 @@
 
 usage: python3 -I framestamp.py <rec.mkv> <showinfo.log> <director.stderr> <cast_stamp> <pre_ticks> <ticks> <fps> <gui_scale> <survival 0|1> <out_dir> <out.json> [stepped 0|1]
 
-stepped=1 (director.py DIRECTOR_STEP_TICKS: the server was frozen and stepped one tick at a time, every tick was held on screen
+stepped=1 (director.py DIRECTOR_SLOW_RATE: the server ran at a low tick rate, every tick stays on screen several frames
 until the client had drawn it): ticks are unwrapped against the cast tick (no wall-clock), and the LAST recorded frame of a tick
 is taken (the settled one). skippedTicks is then expected to be 0 whatever the render rate.
 

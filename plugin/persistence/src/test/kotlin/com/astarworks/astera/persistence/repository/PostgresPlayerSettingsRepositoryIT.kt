@@ -105,13 +105,13 @@ public class PostgresPlayerSettingsRepositoryIT : PostgresIntegrationTestBase() 
     }
 
     @Test
-    public fun `default locale is EN and default volumes are 100`() {
+    public fun `default locale is null (server default) and default volumes are 100`() {
         val repo = PostgresPlayerSettingsRepository(db)
         val id = PlayerId(UUID.randomUUID())
         repo.upsert(PlayerSettings(id))
 
         val found = repo.find(id)!!
-        assertThat(found.locale).isEqualTo(LocaleCode.EN)
+        assertThat(found.locale).isNull()
         assertThat(found.musicVolume).isEqualTo(100)
         assertThat(found.soundVolume).isEqualTo(100)
         assertThat(found.voiceVolume).isEqualTo(100)

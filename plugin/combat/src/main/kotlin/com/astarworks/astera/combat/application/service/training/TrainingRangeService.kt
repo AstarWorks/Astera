@@ -135,7 +135,7 @@ public class TrainingRangeService(
         // Fan the numbers out a little so a burst of hits stays readable.
         val at = Vec3(body.x + ((n % 3) - 1) * 0.35, body.y + NUMBER_HEIGHT + (n % 2) * 0.25, body.z + (((n / 3) % 3) - 1) * 0.35)
         val spec = DisplaySpec(
-            kind = DisplayKind.Text(listOf(LocalizedText(mapOf(LocaleCode.EN to text))), backgroundArgb = 0),
+            kind = DisplayKind.Text(listOf(LocalizedText(mapOf(LocaleCode.EN to text, LocaleCode.JA to text))), backgroundArgb = 0),
             lifetimeTicks = NUMBER_LIFETIME_TICKS,
             billboard = DisplayBillboard.CENTER,
         )

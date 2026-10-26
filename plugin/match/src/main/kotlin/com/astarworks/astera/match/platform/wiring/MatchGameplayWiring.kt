@@ -197,6 +197,7 @@ internal object MatchGameplayWiring {
                 notifier = queueNotifier,
                 settings = crossServer,
                 waivers = services.get<com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers>(),
+                arenas = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(),
                 stages = stages,
                 worlds = worldGateway,
                 hud = queueHud,
@@ -508,21 +509,33 @@ internal object MatchGameplayWiring {
         )
         subscriptions += eventBus.subscribe(MatchStarted::class) { matchCueListener.onStarted(it) }
 
-        // Astera HP outlives matches (in-memory container, mirrored to a 1.0-floored Bukkit health).
-        // A player left at 0 HP by an earlier match would reject every hit (TargetAlreadyDead) and look
-        // invincible, so every participant starts a match at full HP with no leftover status effects.
-        // Mid-match join / reconnect: a player entering a server while registered in a match starts at full HP too.
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { joined ->
-            if (matches.findMatchOf(joined.playerId) != null) {
-                val max = health.getMaxHealth(joined.playerId) ?: 20.0
-                health.setHealth(joined.playerId, max, com.astarworks.astera.core.domain.player.physiology.HealthChangeSource.Respawn)
+        // Astera HP, status effects, cooldowns and ammo/energy outlive matches (in-memory containers). A player left at
+        // 0 HP (TargetAlreadyDead on every hit), silenced, on cooldown or out of ammo/energy by an earlier match would
+        // find "weapons suddenly stop working", so every participant starts a match at full HP with a clean weapon state.
+        // Mid-match join / reconnect: a player entering a server while registered in a match starts clean too.
+        fun resetWeaponState(pid: com.astarworks.astera.core.domain.player.PlayerId) {
+            val max = health.getMaxHealth(pid) ?: 20.0
+            health.setHealth(pid, max, com.astarworks.astera.core.domain.player.physiology.HealthChangeSource.Respawn)
+            services.get<IStatusEffectContainer>()?.clear(pid)
+            services.get<com.astarworks.astera.core.application.port.outbound.ICooldownTracker>()?.let { cooldowns ->
+                cooldowns.activeKeysFor(pid).forEach { cooldowns.reset(pid, it) }
+            }
+            services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>()?.let { pools ->
+                if (pools.currentPool(pid) != null) {
+                    for (type in com.astarworks.astera.core.domain.resource.ResourceType.all) {
+                        pools.applyRegen(pid, type, pools.capFor(pid, type).maxPool)
+                    }
+                }
             }
         }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { joined ->
+            if (matches.findMatchOf(joined.playerId) != null) resetWeaponState(joined.playerId)
+        }
+        // MatchStarted publishes before the roster fills (entries follow), so each entry is the reliable hook;
+        // the MatchStarted sweep covers a roster that was already assembled.
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class) { resetWeaponState(it.playerId) }
         subscriptions += eventBus.subscribe(MatchStarted::class) { started ->
-            matches.findById(started.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { pid ->
-                val max = health.getMaxHealth(pid) ?: 20.0
-                health.setHealth(pid, max, com.astarworks.astera.core.domain.player.physiology.HealthChangeSource.Respawn)
-            }
+            matches.findById(started.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { resetWeaponState(it) }
         }
         subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { matchCueListener.onKilled(it) }
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) { matchCueListener.onPhaseChanged(it) }
@@ -567,6 +580,11 @@ internal object MatchGameplayWiring {
             modeKeyOf = { id -> env.matchModeRegistry.modeKeyOf(id) },
             configOf = env.modeConfigOf,
             isNorma = env.normaLayerOf,
+            showTitle = { id, title, subtitle -> env.ctx.services.get<IMcServer>()?.findPlayer(id)?.sendTitle(title, subtitle) },
+            isFirstMatch = { id ->
+                val stats = env.ctx.services.get<com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository>()
+                stats != null && (stats.find(id)?.matchesPlayed ?: 0L) == 0L
+            },
         )
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) {
             matchBriefingListener.onPhaseChanged(it)
@@ -638,6 +656,7 @@ internal object MatchGameplayWiring {
                 requester.start()
                 env.shutdownHooks += { requester.stop() }
             }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) { botRequester.onQueueLeft(it) }
             val lobbyQueueIntentHandler =
                 com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler(
                     matchmaker = matchmaker,

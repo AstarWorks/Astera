@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.match.domain.event.PlayerForfeited
 import org.slf4j.LoggerFactory
 
@@ -17,6 +18,8 @@ import org.slf4j.LoggerFactory
 public class ForfeitMatchSettler(
     private val matches: IMatchRepository,
     private val end: (MatchId, EndReason) -> Unit,
+    /** Cancels a match that is still in COUNTDOWN because a side ran out of players (tells the stayers, ends it). */
+    private val cancelCountdown: (MatchId) -> Unit = { id -> end(id, EndReason.Cancelled("opponents-left")) },
 ) {
     private val log = LoggerFactory.getLogger(ForfeitMatchSettler::class.java)
 
@@ -37,6 +40,22 @@ public class ForfeitMatchSettler(
                 end(event.matchId, EndReason.TeamVictory(standing.single().id))
             }
             else -> Unit // free-for-all style matches with several teams left play on
+        }
+    }
+
+    /**
+     * A participant left a match that has not started yet ([leaverTeam] = the team they were on). The match starts
+     * with whoever is left, unless nobody is or a side is now empty: then there is nothing to play, it is cancelled
+     * at once (everyone still in it goes back to the lobby) instead of starting with bots or ghosts only.
+     */
+    public fun onLeftCountdown(matchId: MatchId, leaverTeam: TeamId?) {
+        val match = matches.findById(matchId) ?: return
+        if (match.phase != MatchPhase.COUNTDOWN) return
+        val occupied = match.teams.count { it.members.isNotEmpty() }
+        val sideEmptied = leaverTeam != null && match.teams.firstOrNull { it.id == leaverTeam }?.members?.isEmpty() == true
+        if (occupied == 0 || (sideEmptied && occupied == 1)) {
+            log.info("Match {}: a side is empty before the start; cancelling.", matchId)
+            cancelCountdown(matchId)
         }
     }
 }
