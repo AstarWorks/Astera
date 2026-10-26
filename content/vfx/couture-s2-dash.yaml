@@ -1,4 +1,5 @@
 # S2 dash smear + pale pink crescent behind (played at skill tick 70, contact ~72).
+# --- dense particle layer (couture-s2 particle pass) ---
 id: couture-s2-dash
 duration_ticks: 28
 orient: yaw
@@ -6,37 +7,35 @@ follow: true
 sample_ticks: 1
 elements:
 - id: smear
-  kind: {type: sprite, sprite: couture-cut, frame_ticks: 1, loop: false, see_through: true, color: '#FFE9F0'}
+  kind: {type: sprite, sprite: couture-s2-smear, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 0
-  end_tick: 6
+  end_tick: 7
   keyframes:
   - t: 0
-    translate: [0.0, 1.0, 1.2]
-    rotate: [0, 90, 0]
-    scale: [3.2, 3.2, 1]
+    translate: [0.0, 1.2, 1.0]
+    rotate: [0, 0, 8]
+    scale: [10, 6, 1]
+    alpha: 0.0
+  - t: 2
+    translate: [0.0, 1.3, 2.5]
+    rotate: [0, 0, 8]
+    scale: [26, 14, 1]
+    ease: out_expo
+    alpha: 1.0
   - t: 5
-    translate: [0.0, 1.0, 3.5]
-    rotate: [0, 90, 0]
-    scale: [3.4, 1.4, 1]
+    translate: [0.0, 1.3, 4.0]
+    rotate: [0, 0, 8]
+    scale: [30, 15, 1]
     ease: out_quad
-- id: smear-bar
-  kind: {type: quad, color: '#FFFFFF', alpha: 0.85, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 0
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0.0, 1.1, 2.2]
-    rotate: [0, 0, 90]
-    scale: [0.5, 8.0, 1]
-  - t: 4
-    translate: [0.0, 1.1, 4.5]
-    rotate: [0, 0, 90]
-    scale: [0.0, 8.0, 1]
+    alpha: 0.9
+  - t: 7
+    translate: [0.0, 1.3, 5.0]
+    rotate: [0, 0, 8]
+    scale: [32, 6, 1]
     ease: in_quad
+    alpha: 0.0
 - id: p-trail
   kind: {type: particle, particle_id: couture-s2-p-spark, every_ticks: 3}
   brightness: 15
@@ -85,7 +84,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.0, 1.4, -0.6]
-# --- dense particle layer (couture-s2 particle pass) ---
 - id: pt-pink-0
   kind: {type: particle, particle_id: couture-s2-p-pink, every_ticks: 3}
   brightness: 15
