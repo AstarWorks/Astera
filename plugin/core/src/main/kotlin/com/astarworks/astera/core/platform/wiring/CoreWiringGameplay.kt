@@ -201,6 +201,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
             profileService = profileService,
             eventBus = eventBus,
             scheduler = scheduler,
+            nameOf = { id -> mcServer.findPlayer(id)?.name },
         )
     // First-time onboarding is owned by the lobby (ADR-0179): profiles live in
     // memory per backend, so a game-only server would treat every arrival from
@@ -208,6 +209,11 @@ internal fun CoreWiringState.wireGameplayLoop() {
     if (ctx.serverRole.hostsLobby) {
         wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { event ->
             createFirstTimeListener.handle(event)
+        }
+    } else {
+        // Game-only backends never onboard, but still keep the shared last-known name current.
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { event ->
+            createFirstTimeListener.refreshName(event)
         }
     }
     val starterItemsListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding

@@ -204,6 +204,12 @@ public class InMemoryPlayerProfileService(
         }
     }
 
+    override fun recordDisplayName(playerId: PlayerId, displayName: String) {
+        if (displayName.isBlank()) return
+        if (repository.find(playerId)?.displayName == displayName) return
+        repository.updateDisplayName(playerId, displayName)
+    }
+
     /** Item ids of the starter grant (`starter_items`), also lent to unarmed players for a match. */
     public fun starterItemIds(): List<com.astarworks.astera.core.domain.item.ItemId> = starterGrant.starterItems
 

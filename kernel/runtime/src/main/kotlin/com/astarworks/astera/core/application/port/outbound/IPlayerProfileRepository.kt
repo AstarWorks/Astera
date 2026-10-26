@@ -14,4 +14,7 @@ public interface IPlayerProfileRepository {
 
     /** Stores [profile] unless one exists. `true` = this call created it (first writer wins). */
     public fun insertIfAbsent(profile: PlayerProfile): Boolean
+
+    /** Overwrites the last-known display name of an existing profile. `false` = no such profile. */
+    public fun updateDisplayName(playerId: PlayerId, displayName: String): Boolean
 }
