@@ -50,7 +50,7 @@ Status vocabulary for the report: 未分析 / 実装済・未検証 / 検証不�
 - A `--force` capture says nothing about cooldown, resources or key bindings.
 - HP loss does not count hits (random 10% x2 crits); count contacts on frames or events.
 - Headless time is wall-clock, not server ticks; do not accept per-hit offset tuning that hides sync drift.
-- Captures run one at a time host-wide (vfx-shot slot lock) and are torn down on exit unless `SHOT_KEEP=1`; never use the e2e flock for them. Do not start captures yourself unless the director asks. Read `meta.json` `stack.workingTreeInSync`, `stack.contentVerifiedInContainer` and `clapper` (measured lag, `fitHolds`) before trusting a frame-to-tick claim.
+- Captures run one at a time host-wide (vfx-shot slot lock) and are torn down on exit unless `SHOT_KEEP=1`; never use the e2e flock for them. Do not start captures yourself unless the director asks. Read `meta.json` `stack.workingTreeInSync`, `stack.contentVerifiedInContainer` and `tickStamp` (`skippedTicks`, `firstFxTickAfterCast`) before trusting a frame-to-tick claim.
 - Runtime facts that explain "missing" effects: font sprites render only up to 256 px (512 fails); a horizontal `fixed`-billboard TextDisplay does not render in the real client; hit VFX must peak on the damage tick; `hide_held_item` is only on `wp/pilot-bastion-s1`/ee976100, not main (two weapons visible on other branches is expected until merged).
 
 ## Rejected looks (fail on sight, label with owner)

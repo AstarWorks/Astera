@@ -133,11 +133,12 @@ if deployed_file and deployed_file.is_file():
         meta["captureQuality"].update(invalid=True, reviewRequired=True,
             reason="content/, pack inputs or plugin code changed on disk while the capture ran; the frames show the previously "
                    "deployed state, not the working tree. Recapture required.")
-clapper_file = directory / "clapper.json"
-if clapper_file.is_file():
-    meta["clapper"] = {"measured": True, **json.loads(clapper_file.read_text())}
+stamp_file = directory / "framestamp.json"
+if stamp_file.is_file():
+    st = json.loads(stamp_file.read_text())
+    meta["tickStamp"] = {k: v for k, v in st.items() if k not in ("map", "changeEvents")}
 else:
-    meta["clapper"] = {"measured": False, "assumedCastLagMs": int(os.environ.get("VFX_SHOT_CAST_LAG_MS", "60"))}
+    meta["tickStamp"] = None
 if os.environ.get("VFX_SHOT_BEAT_ONLY") == "1":
     meta["beatFramesOnly"] = True
     meta["beatFrames"] = [int(f.stem.split("_")[1]) for f in frames]

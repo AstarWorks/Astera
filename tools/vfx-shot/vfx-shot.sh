@@ -25,6 +25,7 @@ HERE="$(cd "$(dirname "$0")" && pwd -P)"
 ROOT="$(cd "$HERE/../.." && pwd -P)"
 # shellcheck source=lib.sh
 . "$HERE/lib.sh"
+drop_inherited_locks
 
 SOURCED="${VFX_SHOT_SOURCED:-0}"     # anim-shot.sh sources this file for the functions only
 CMD="${1:-capture}"                  # capture | up | down | status
@@ -103,7 +104,7 @@ stop_client_state() { # name: kill a parked client recorded in the state dir
   [ -n "$XPID_" ] && kill "$XPID_" 2>/dev/null
   sleep 0.5
   [ -n "$CPID_" ] && kill -KILL -- "-$CPID_" 2>/dev/null
-  rm -f "$f" "$STATE/clients/$1.hud"
+  rm -f "$f"
 }
 
 stack_down() {
@@ -213,8 +214,7 @@ TICKS="${TICKS:-60}"                 # ticks filmed after the cast (compare: the
 FPS="${FPS:-20}"                     # recording rate; FPS=60 keeps 3 frames per tick (frame_NNN = NNN/3 ticks), no sheet/gif
 RES="${RES:-}"                       # viewer resolution; default 1280x720 for compare, 640x360 for every other view
 [ "$SOURCED" = 1 ] && RES="${RES:-1280x720}"   # anim-shot keeps the old default
-HIDE_HUD="${HIDE_HUD:-1}"            # 1 = F1 (hand + world only), 0 = keep the HUD
-GUI_SCALE="${GUI_SCALE:-2}"
+GUI_SCALE="${GUI_SCALE:-1}"          # 1 = the smallest stamp rectangle to mask out of the saved frames
 # Client FOV in degrees (vertical, same as the in-game slider). Default 90 for caster/opponent/side: what most players
 # run; vanilla 70 reads narrow in a 16:9 viewer. VIEW=compare defaults to the case's intent camera fov (reference
 # framing, e.g. 45-50) unless FOV is set; with FOV set, each key's own fov is emulated by dollying (FOV_DOLLY=1, same
@@ -231,14 +231,10 @@ DISTANCE="${DISTANCE:-4}"            # caster -> target, blocks
 JOIN_SETTLE="${JOIN_SETTLE:-8}"      # seconds after a client joined before the scene is placed (lobby relocations)
 SETTLE="${SETTLE:-5}"                # seconds after the teleport before filming (chunks, join titles)
 SETTLE_WARM="${SETTLE_WARM:-2}"      # same, when both clients were already parked in the arena
-PRE_ROLL="${PRE_ROLL:-1.0}"          # seconds filmed (HUD hidden) before the cast (not in the frames)
+PRE_ROLL="${PRE_ROLL:-1.0}"          # seconds filmed before the cast (not in the frames)
 SHEET_STEP="${SHEET_STEP:-2}"        # contact sheet shows every Nth tick
 SHEET_COLS="${SHEET_COLS:-6}"
 ITEM="${ITEM:-}"                     # item to hold; default: skill id minus -sN / -def
-CAST_LAG_MS="${CAST_LAG_MS:-60}"     # assumed client lag, used only with CLAPPER=0 (with the clapperboard it is measured)
-CLAPPER="${CLAPPER:-1}"              # 1 = bookend the recording with the server-tick boss bar and measure the tick mapping
-CLAP_HEAD="${CLAP_HEAD:-1.2}"        # seconds of visible clapperboard before the HUD is hidden
-CLAP_TAIL="${CLAP_TAIL:-1.2}"        # seconds of visible clapperboard after the motion
 BEAT_TICKS="${BEAT_TICKS:-}"         # comma list of ticks after the cast (or `case`: the beat ticks of the case): save only those PNGs
 KEEP="${SHOT_KEEP:-0}"               # 1 = keep the stack + parked clients for SHOT_KEEP_TTL s after the run (vfx-shot-up always keeps)
 [ "$CMD" = up ] && KEEP=1
@@ -417,20 +413,20 @@ wait_rcon() { # seconds
   die "RCON never came up ($SERVER_IP:$RCON_PORT); docker logs $SERVER_CT"
 }
 
-install_clapper() {
-  # the datapack puts the server game time (mod 100) into a boss bar: the tick clapperboard of CLAPPER=1
+install_stamp() {
+  # the datapack renders the server game time into a boss bar title on every tick: the per-frame tick stamp (framestamp.py)
   local want have
-  want="$(tree_hash "$HERE/clapper-pack")"
-  have="$(docker exec "$SERVER_CT" sh -c 'cd /data/world/datapacks/vfxclap 2>/dev/null && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -c1-16' 2>/dev/null)"
-  if [ "$have" = "$want" ] && rcon "datapack list" 2>/dev/null | grep -q 'file/vfxclap'; then return 0; fi
-  phase "clapper datapack: installing"
-  docker exec -u root "$SERVER_CT" rm -rf /data/world/datapacks/vfxclap
-  docker cp "$HERE/clapper-pack" "$SERVER_CT:/data/world/datapacks/vfxclap" || die "docker cp clapper failed"
-  docker exec -u root "$SERVER_CT" chown -R 1000:1000 /data/world/datapacks/vfxclap 2>/dev/null || true
+  want="$(tree_hash "$HERE/stamp-pack")"
+  have="$(docker exec "$SERVER_CT" sh -c 'cd /data/world/datapacks/vfxstamp 2>/dev/null && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -c1-16' 2>/dev/null)"
+  if [ "$have" = "$want" ] && rcon "datapack list" 2>/dev/null | grep -q 'file/vfxstamp'; then return 0; fi
+  phase "stamp datapack: installing"
+  docker exec -u root "$SERVER_CT" rm -rf /data/world/datapacks/vfxstamp /data/world/datapacks/vfxclap
+  docker cp "$HERE/stamp-pack" "$SERVER_CT:/data/world/datapacks/vfxstamp" || die "docker cp stamp-pack failed"
+  docker exec -u root "$SERVER_CT" chown -R 1000:1000 /data/world/datapacks/vfxstamp 2>/dev/null || true
   rcon "minecraft:reload" >/dev/null
   sleep 2
-  rcon "datapack list" | grep -q vfxclap || log "WARN: clapper datapack not listed after reload ($(rcon 'datapack list' | head -c 300))"
-  rcon "datapack enable \"file/vfxclap\"" >/dev/null 2>&1 || true
+  rcon "datapack list" | grep -q vfxstamp || log "WARN: stamp datapack not listed after reload ($(rcon 'datapack list' | head -c 300))"
+  rcon "datapack enable \"file/vfxstamp\"" >/dev/null 2>&1 || true
 }
 
 restart_server_with_jars() { # jars...
@@ -498,7 +494,7 @@ create_stack() {
   dset contentSourceHash "$IN_CONTENT" deployedContentHash "$STAGE_HASH" contentVerified true packHash "$IN_PACK" \
     codeHash "$IN_CODE" deployedJars "$(cat "${JARS[@]}" | sha256sum | cut -c1-16)" noFx "${SHOT_NO_FX:-0}"
   record_code_revision
-  install_clapper
+  install_stamp
   [ "$(container_content_hash)" = "$STAGE_HASH" ] || die "content hash mismatch right after the first copy"
 }
 
@@ -540,7 +536,7 @@ boot_server() {
       PACK_PUSHED=1
     fi
     if [ "$want_jars" = 1 ]; then sync_plugins; else collect_jars && phase "plugins: unchanged"; fi
-    install_clapper
+    install_stamp
     sync_content
     if [ "$PACK_PUSHED" = 1 ]; then
       out="$(rcon "astera admin pack reload force")"
@@ -576,6 +572,7 @@ renderDistance:$RENDER_DISTANCE
 simulationDistance:6
 particles:0
 guiScale:$GUI_SCALE
+chatVisibility:2
 pauseOnLostFocus:false
 maxFps:60
 enableVsync:false
@@ -631,7 +628,6 @@ start_client() { # name width height
     --join-server "$SERVER_IP" --join-server-port 25565 --resolution "${w}x${h}" \
     >"$wd/client.log" 2>&1 {STACK_LOCK_FD}>&- {SLOT_FD}>&- &
   CPID[$name]=$!
-  rm -f "$STATE/clients/$name.hud"
   save_client "$name" "$(client_sig "$w" "$h")"
   log "client $name on :$d ($w x $h)"
 }
@@ -643,7 +639,7 @@ stop_client() {
   sleep 0.5
   [ -n "${CPID[$n]:-}" ] && kill -KILL -- "-${CPID[$n]}" 2>/dev/null
   unset "CPID[$n]" "XPID[$n]" "DISP[$n]"
-  rm -f "$STATE/clients/$n.env" "$STATE/clients/$n.hud"
+  rm -f "$STATE/clients/$n.env"
 }
 
 # join -> server pack applied (atlas rebuilt after the server/ reload) -> world visible
@@ -696,15 +692,6 @@ wait_pack_applied() { # name count_before
 }
 
 key() { DISPLAY=":${DISP[$1]}" xdotool key "${@:2}"; }
-
-# HUD (F1) state is remembered per client so a capture knows whether to press F1.
-hud() { # name show|hide
-  local f="$STATE/clients/$1.hud" cur=show
-  [ -f "$f" ] && cur=hide
-  [ "$cur" = "$2" ] && return 0
-  key "$1" F1
-  if [ "$2" = hide ]; then : > "$f"; else rm -f "$f"; fi
-}
 
 # ---------------------------------------------------------------- scene
 # The lobby plugin's void rescue (content/worlds/lobby.yaml void_rescue_y = 19) sends any player who moves
@@ -786,16 +773,14 @@ give_item() { # player
 }
 
 # ---------------------------------------------------------------- capture
-# clapper_analyse <rec.mkv> <showinfo log> <dir>: reads the boss bar in the head/tail of the recording (CLAPPER=1) and
-# writes <dir>/clapper.json (tick <-> video time fit); prints `OFFSET=<seconds>` when the mapping was measured.
+# film <viewer> <dir>: records the viewer's X display, then framestamp.py reads the tick stamp the client rendered into every
+# frame and writes frame_NNN.png (stamp rectangle masked) + <dir>/framestamp.json (frame <-> tick map).
 film() { # viewer view_dir
   local viewer="$1" dir="$2" rec="$OUT_ROOT/.rec-$SHOT_ID.mkv" d="${DISP[$1]}"
-  local t_total cast_stamp first_pts offset clog="$CLIENTS/$1/client.log" log_off pos_start pos_end fpid i end_wait
+  local cast_stamp clog="$CLIENTS/$1/client.log" log_off pos_start pos_end fpid i end_wait survival=0
   log_off="$(stat -c %s "$clog" 2>/dev/null || echo 0)"
   rm -f "$rec"
   DISPLAY=":$d" xdotool mousemove 320 180 2>/dev/null || true
-  # the clapperboard needs the HUD (boss bar) for the head and tail of the recording
-  if [ "$CLAPPER" = 1 ]; then hud "$viewer" show; fi
   # showinfo (before the rebase) logs each frame's wall-clock pts -> epoch time of the first frame
   ffmpeg -nostdin -loglevel info -y -copyts -use_wallclock_as_timestamps 1 -f x11grab -framerate "$FPS" \
     -video_size "$RES_FILM" -i ":$d" -vf "showinfo,setpts=PTS-STARTPTS" \
@@ -803,50 +788,37 @@ film() { # viewer view_dir
   fpid=$!
   FILM_PID=$fpid
   for i in $(seq 1 100); do grep -q ' pts:' "$rec.log" 2>/dev/null && break; sleep 0.1; done
-  if [ "$CLAPPER" = 1 ]; then sleep "$CLAP_HEAD"; fi
-  if [ "$HIDE_HUD" = 1 ]; then hud "$viewer" hide; fi
   sleep "$PRE_ROLL"
   pos_start="$(rcon "data get entity $viewer Pos" | sed 's/.*data: //') in $(rcon "data get entity $viewer Dimension" | sed 's/.*data: //')"
   log "caster before cast: $(rcon "data get entity Caster Pos" | sed 's/.*data: //') in $(rcon "data get entity Caster Dimension" | sed 's/.*data: //')"
   [ -s "$STATE/camera-plan.tsv" ] && [ "$VIEW_NOW" = compare ] || : > "$STATE/camera-plan.tsv"
   # one RCON connection: game time, cast, game time, then (compare) the camera cuts of the plan on the wall clock
-  DIRECTOR_MARK_CMD="$([ "$CLAPPER" = 1 ] && echo "time query gametime")" python3 -I "$HERE/director.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$STATE/camera-plan.tsv" "astera skill cast $SKILL Caster --force" \
+  DIRECTOR_MARK_CMD="time query gametime" python3 -I "$HERE/director.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$STATE/camera-plan.tsv" "astera skill cast $SKILL Caster --force" \
     >"$STATE/director.stdout" 2>"$STATE/director.stderr" || { kill "$fpid" 2>/dev/null; cat "$STATE/director.stderr" >&2; die "director failed"; }
   cast_stamp="$(awk '/^STAMP/{print $2}' "$STATE/director.stderr")"
   [ -n "$cast_stamp" ] || { kill "$fpid" 2>/dev/null; die "cast command failed"; }
-  # film until the motion (plus the pre-ticks of the window) is over, then bring the HUD back for the tail clapperboard
-  end_wait="$(awk -v c="$cast_stamp" -v t="$TICKS" -v n="$(date +%s.%N)" 'BEGIN{w = c + t/20 + 0.6 - n; printf "%.2f", (w > 0 ? w : 0)}')"
+  # film until the motion (plus the pre-ticks of the window) is over
+  end_wait="$(awk -v c="$cast_stamp" -v t="$TICKS" -v n="$(date +%s.%N)" 'BEGIN{w = c + t/20 + 0.8 - n; printf "%.2f", (w > 0 ? w : 0)}')"
   sleep "$end_wait"
-  if [ "$CLAPPER" = 1 ]; then hud "$viewer" show; sleep "$CLAP_TAIL"; else sleep 0.8; fi
   kill -TERM "$fpid" 2>/dev/null
   wait "$fpid" 2>/dev/null
   FILM_PID=""
   pos_end="$(rcon "data get entity $viewer Pos" | sed 's/.*data: //') in $(rcon "data get entity $viewer Dimension" | sed 's/.*data: //')"
   [ -s "$rec" ] || die "recording failed"
-  # showinfo's `pts:` is in microseconds (wall-clock timebase 1/1e6)
-  first_pts="$(grep -m1 -o ' pts:[0-9]*' "$rec.log" | tr -dc '0-9' | awk '{printf "%.6f", $1/1000000}')"
-  [ -n "$first_pts" ] || die "could not read the first frame time from $rec.log"
-  offset="$(awk -v c="$cast_stamp" -v f="$first_pts" -v l="$CAST_LAG_MS" 'BEGIN{printf "%.3f", c - f + l/1000.0 - '"$PRE_TICKS"'/20.0}')"
   rm -rf "$dir"; mkdir -p "$dir"
   cp "$STATE/director.stderr" "$dir/director-timing.log"
-  if [ "$CLAPPER" = 1 ]; then
-    if python3 -I "$HERE/clapper.py" "$rec" "$rec.log" "$STATE/director.stderr" "$cast_stamp" "$PRE_TICKS" "$dir/clapper.json" > "$STATE/clapper.out" 2>"$STATE/clapper.err"; then
-      offset="$(sed -n 's/^OFFSET=//p' "$STATE/clapper.out")"
-      log "clapperboard: $(grep -v '^OFFSET=' "$STATE/clapper.out" | tr '\n' ' ')"
-    else
-      log "WARN: clapperboard could not be read ($(tail -1 "$STATE/clapper.err")); falling back to the assumed ${CAST_LAG_MS} ms lag"
-      CLAPPER_FAILED=1
-    fi
-  fi
-  log "cast at ${offset}s into the recording (cast $cast_stamp, first frame $first_pts)"
   # viewer session evidence for capture_meta.py: client log written during the recording + position before/after
   tail -c +"$((log_off + 1))" "$clog" > "$dir/viewer-client.log" 2>/dev/null || : > "$dir/viewer-client.log"
   printf '%s\n%s\n' "$pos_start" "$pos_end" > "$dir/viewer-pos.txt"
-  local frames_total=$(((TICKS + PRE_TICKS + 1) * FPS / 20)) all="$dir"
+  local all="$dir"
   if [ -n "$BEAT_TICKS" ]; then all="$dir/.all"; mkdir -p "$all"; fi
-  ffmpeg -nostdin -loglevel error -y -i "$rec" \
-    -vf "fps=$FPS:start_time=$offset,setpts=N/$FPS/TB" -frames:v "$frames_total" -start_number 0 "$all/frame_%03d.png" \
-    || die "frame extraction failed"
+  case "$VIEW_NOW" in caster|opponent) survival=1 ;; esac    # survival viewers have a hotbar (its items cannot be blanked by the pack)
+  if ! python3 -I "$HERE/framestamp.py" "$rec" "$rec.log" "$STATE/director.stderr" "$cast_stamp" "$PRE_TICKS" "$TICKS" "$FPS" "$GUI_SCALE" "$survival" \
+      "$all" "$dir/framestamp.json" > "$STATE/framestamp.out" 2>"$STATE/framestamp.err"; then
+    if [ "${SHOT_KEEP_REC:-0}" = 1 ]; then mv "$rec" "$dir/recording.mkv"; mv "$rec.log" "$dir/recording.showinfo.log"; fi
+    die "tick stamp could not be read ($(tail -1 "$STATE/framestamp.err")); SHOT_KEEP_REC=1 keeps the recording"
+  fi
+  log "tick stamp: $(cat "$STATE/framestamp.out")"
   if [ "${SHOT_KEEP_REC:-0}" = 1 ]; then mv "$rec" "$dir/recording.mkv"; mv "$rec.log" "$dir/recording.showinfo.log"; else rm -f "$rec" "$rec.log"; fi
   if [ -n "$BEAT_TICKS" ]; then keep_beats "$all" "$dir"; fi
 }
@@ -874,7 +846,7 @@ keep_beats() { # all_dir dir
 }
 
 meta_py() {
-  VFX_SHOT_STATE="$STATE" VFX_SHOT_STACK_COLD="${STACK_WAS_COLD:-0}" VFX_SHOT_CAST_LAG_MS="$CAST_LAG_MS" \
+  VFX_SHOT_STATE="$STATE" VFX_SHOT_STACK_COLD="${STACK_WAS_COLD:-0}" \
     VFX_SHOT_BEAT_ONLY="${BEAT_ONLY:-0}" python3 -I "$@"
 }
 
@@ -1054,7 +1026,6 @@ prepare_view() {
 run_view() { # view
   local view="$1" out
   BEAT_ONLY=0
-  CLAPPER_FAILED=0
   prepare_view "$view"
   phase "filming $view"
   film "$VIEWER" "$OUT_ROOT/$SKILL/$view"
@@ -1095,7 +1066,7 @@ print_status() {
     n="$(basename "$f" .env)"
     if load_client "$n"; then
       jp="$(client_java "$n")"
-      echo "client     $n alive (:${DISP[$n]}), $(sed -n 's/^SIG=//p' "$f")$([ -f "$STATE/clients/$n.hud" ] && echo ', HUD hidden')${jp:+, jvm $(awk '{print $3}' "/proc/$jp/stat" | sed 's/T/frozen between captures/;s/^[SRD]$/running/'), $(($(awk '/^VmRSS/{print $2}' "/proc/$jp/status") / 1024)) MB}"
+      echo "client     $n alive (:${DISP[$n]}), $(sed -n 's/^SIG=//p' "$f")${jp:+, jvm $(awk '{print $3}' "/proc/$jp/stat" | sed 's/T/frozen between captures/;s/^[SRD]$/running/'), $(($(awk '/^VmRSS/{print $2}' "/proc/$jp/status") / 1024)) MB}"
       [ -n "${CPU:-}" ] && [ -n "$jp" ] && cpu_before[$n]="$(proc_ticks "$jp")"
     else
       echo "client     $n DEAD ($(sed -n 's/^SIG=//p' "$f"))"
