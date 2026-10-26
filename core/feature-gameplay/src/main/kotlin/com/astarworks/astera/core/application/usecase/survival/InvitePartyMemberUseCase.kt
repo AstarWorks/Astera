@@ -38,7 +38,7 @@ public class InvitePartyMemberUseCase(
     private val ttl: Duration = DEFAULT_TTL,
 ) {
 
-    public fun invite(
+    public suspend fun invite(
         islandId: IslandId,
         inviter: PlayerId,
         invitee: PlayerId,

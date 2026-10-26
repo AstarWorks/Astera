@@ -18,15 +18,15 @@ import java.util.concurrent.ConcurrentHashMap
 public class InMemoryCreatorRevenueRepository : ICreatorRevenueRepository {
     private val records = ConcurrentHashMap<ItemId, CreatorRevenue>()
 
-    override fun findByItem(itemId: ItemId): CreatorRevenue? = records[itemId]
+    override suspend fun findByItem(itemId: ItemId): CreatorRevenue? = records[itemId]
 
-    override fun save(record: CreatorRevenue) {
+    override suspend fun save(record: CreatorRevenue) {
         records[record.itemId] = record
     }
 
-    override fun delete(itemId: ItemId) {
+    override suspend fun delete(itemId: ItemId) {
         records.remove(itemId)
     }
 
-    override fun all(): List<CreatorRevenue> = records.values.toList()
+    override suspend fun all(): List<CreatorRevenue> = records.values.toList()
 }

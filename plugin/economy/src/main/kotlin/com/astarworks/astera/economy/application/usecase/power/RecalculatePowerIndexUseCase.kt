@@ -48,7 +48,7 @@ public class RecalculatePowerIndexUseCase(
     private val currencyWeight: (Currency) -> Long = DEFAULT_WEIGHTS,
 ) {
 
-    public fun recalculate(playerId: PlayerId): PowerIndex {
+    public suspend fun recalculate(playerId: PlayerId): PowerIndex {
         val equipment = valuator.estimatedEquipmentValue(playerId)
         val vault = valuator.estimatedVaultValue(playerId)
         val walletTotal = Currency.entries.sumOf { c ->

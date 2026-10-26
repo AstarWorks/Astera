@@ -41,7 +41,7 @@ public class AwardSkillXpUseCase(
     private val eventBus: IDomainEventBus,
 ) {
 
-    public fun execute(playerId: PlayerId, kind: SkillKind, amount: Long): SkillProgression? {
+    public suspend fun execute(playerId: PlayerId, kind: SkillKind, amount: Long): SkillProgression? {
         if (amount <= 0L) return repository.find(playerId, kind)
 
         val current = repository.find(playerId, kind) ?: SkillProgression.initial(playerId, kind)

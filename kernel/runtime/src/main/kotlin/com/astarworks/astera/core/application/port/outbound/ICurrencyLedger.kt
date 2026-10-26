@@ -27,10 +27,10 @@ public interface ICurrencyLedger {
      * Atomically debit [amount] from the player's balance. Fails with
      * [WalletError.InsufficientFunds] if the balance is too low.
      */
-    public fun debit(playerId: PlayerId, currency: Currency, amount: Long): Result<Wallet, WalletError>
+    public suspend fun debit(playerId: PlayerId, currency: Currency, amount: Long): Result<Wallet, WalletError>
 
     /** Credit a non-negative [amount]. Negative amounts are a programming error and throw. */
-    public fun credit(playerId: PlayerId, currency: Currency, amount: Long): Wallet
+    public suspend fun credit(playerId: PlayerId, currency: Currency, amount: Long): Wallet
 
     /**
      * Atomically transfer [amount] of [currency] from [from] to [to]. Implementations
@@ -43,7 +43,7 @@ public interface ICurrencyLedger {
      * Caller is responsible for rejecting `from == to` and non-positive [amount] before
      * calling (TransferUseCase enforces these).
      */
-    public fun transfer(
+    public suspend fun transfer(
         from: PlayerId,
         to: PlayerId,
         currency: Currency,

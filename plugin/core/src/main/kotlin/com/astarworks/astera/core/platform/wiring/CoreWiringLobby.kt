@@ -312,6 +312,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             access = { services.getOrThrow<com.astarworks.astera.core.application.usecase.vault.AccessPersonalVaultUseCase>() },
             messages = messages,
             playerGateway = playerGateway,
+            scheduler = scheduler,
         )
     waveGRegistrations += waveGRouter.register(
         com.astarworks.astera.core.application.gui.lobby.intent
@@ -346,6 +347,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         mcServer = mcServer,
         messages = messages,
         playerGateway = playerGateway,
+        scheduler = scheduler,
     )
     waveGRegistrations += waveGRouter.register(
         com.astarworks.astera.core.application.gui.lobby.intent
@@ -432,7 +434,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
                     com.astarworks.astera.core.application.service.lobby.LobbyLanePadService(
                         onWalk = { player, world, at ->
                             if (services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>()?.contains(world, at) == true) {
-                                tutorialSequencer.recordAction(player, "range")
+                                launchFor(player) { tutorialSequencer.recordAction(player, "range") }
                             }
                         },
                         lobbyWorld = com.astarworks.astera.core.domain.world.WorldId(lobbyConfig.id),

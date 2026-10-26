@@ -7,14 +7,14 @@ import com.astarworks.astera.persistence.table.LoginStreaksTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
 /** Postgres-backed [ILoginStreakRepository] (V61, ADR-0210). */
 public class PostgresLoginStreakRepository(private val db: Database) : ILoginStreakRepository {
 
-    override fun findByPlayer(playerId: PlayerId): LoginStreakRecord? = transaction(db) {
+    override suspend fun findByPlayer(playerId: PlayerId): LoginStreakRecord? = ioTransaction(db) {
         LoginStreaksTable.selectAll()
             .where { LoginStreaksTable.playerId eq playerId.uuid }
             .firstOrNull()
@@ -27,8 +27,8 @@ public class PostgresLoginStreakRepository(private val db: Database) : ILoginStr
             }
     }
 
-    override fun upsert(record: LoginStreakRecord) {
-        transaction(db) {
+    override suspend fun upsert(record: LoginStreakRecord) {
+        ioTransaction(db) {
             LoginStreaksTable.upsert(LoginStreaksTable.playerId) {
                 it[playerId] = record.playerId.uuid
                 it[streakDays] = record.streakDays

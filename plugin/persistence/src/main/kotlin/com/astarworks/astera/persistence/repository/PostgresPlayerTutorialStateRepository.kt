@@ -10,17 +10,17 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 public class PostgresPlayerTutorialStateRepository(private val db: Database) : IPlayerTutorialStateRepository {
-    override fun find(playerId: PlayerId): TutorialRunnerSnapshot? = transaction(db) {
+    override suspend fun find(playerId: PlayerId): TutorialRunnerSnapshot? = ioTransaction(db) {
         PlayerTutorialStateTable.selectAll().where { PlayerTutorialStateTable.playerId eq playerId.uuid }
             .firstOrNull()?.let(::snapshot)
     }
 
-    override fun save(playerId: PlayerId, snapshot: TutorialRunnerSnapshot) {
-        transaction(db) {
+    override suspend fun save(playerId: PlayerId, snapshot: TutorialRunnerSnapshot) {
+        ioTransaction(db) {
             PlayerTutorialStateTable.upsert(PlayerTutorialStateTable.playerId) {
                 it[PlayerTutorialStateTable.playerId] = playerId.uuid
                 it[scriptId] = snapshot.scriptId.value
@@ -33,11 +33,11 @@ public class PostgresPlayerTutorialStateRepository(private val db: Database) : I
         }
     }
 
-    override fun clear(playerId: PlayerId) {
-        transaction(db) { PlayerTutorialStateTable.deleteWhere { PlayerTutorialStateTable.playerId eq playerId.uuid } }
+    override suspend fun clear(playerId: PlayerId) {
+        ioTransaction(db) { PlayerTutorialStateTable.deleteWhere { PlayerTutorialStateTable.playerId eq playerId.uuid } }
     }
 
-    override fun all(): Map<PlayerId, TutorialRunnerSnapshot> = transaction(db) {
+    override suspend fun all(): Map<PlayerId, TutorialRunnerSnapshot> = ioTransaction(db) {
         PlayerTutorialStateTable.selectAll().associate { PlayerId(it[PlayerTutorialStateTable.playerId]) to snapshot(it) }
     }
 

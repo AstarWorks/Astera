@@ -25,6 +25,7 @@ public class PostgresRewardBridgeIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `enqueue + consumeForPlayer round-trips one bundle with items, currency, and xp`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresRewardBridge(db)
         val playerId = PlayerId(UUID.randomUUID())
         val bundle = RewardBundle(
@@ -54,10 +55,12 @@ public class PostgresRewardBridgeIT : PostgresIntegrationTestBase() {
         assertThat(got.currency).isEqualTo(mapOf(Currency.GEM to 1500L, Currency.GOLD to 100L))
         assertThat(got.xp).isEqualTo(250L)
         assertThat(got.createdAt).isEqualTo(bundle.createdAt)
+        }
     }
 
     @Test
     public fun `consumeForPlayer marks rows delivered so the second call returns empty`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresRewardBridge(db)
         val playerId = PlayerId(UUID.randomUUID())
         repo.enqueue(simpleBundle(playerId))
@@ -67,10 +70,12 @@ public class PostgresRewardBridgeIT : PostgresIntegrationTestBase() {
 
         assertThat(first).hasSize(1)
         assertThat(second).isEmpty()
+        }
     }
 
     @Test
     public fun `peek returns undelivered bundles without marking them delivered`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresRewardBridge(db)
         val playerId = PlayerId(UUID.randomUUID())
         val bundle = simpleBundle(playerId)
@@ -85,20 +90,24 @@ public class PostgresRewardBridgeIT : PostgresIntegrationTestBase() {
         assertThat(peeked.map { it.id }).containsExactly(bundle.id)
         assertThat(peekedAgain.map { it.id }).containsExactly(bundle.id)
         assertThat(consumed.map { it.id }).containsExactly(bundle.id)
+        }
     }
 
     @Test
     public fun `peek does not return bundles that have already been consumed`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresRewardBridge(db)
         val playerId = PlayerId(UUID.randomUUID())
         repo.enqueue(simpleBundle(playerId))
         repo.consumeForPlayer(playerId)
 
         assertThat(repo.peek(playerId)).isEmpty()
+        }
     }
 
     @Test
     public fun `consumeForPlayer returns multiple bundles in creation order`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresRewardBridge(db)
         val playerId = PlayerId(UUID.randomUUID())
         val base = Instant.now().minusSeconds(300)
@@ -115,10 +124,12 @@ public class PostgresRewardBridgeIT : PostgresIntegrationTestBase() {
         val drained = repo.consumeForPlayer(playerId)
 
         assertThat(drained.map { it.id }).containsExactly(first.id, second.id, third.id)
+        }
     }
 
     @Test
     public fun `enqueue is isolated per player — other players bundles are not returned`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresRewardBridge(db)
         val a = PlayerId(UUID.randomUUID())
         val b = PlayerId(UUID.randomUUID())
@@ -135,18 +146,23 @@ public class PostgresRewardBridgeIT : PostgresIntegrationTestBase() {
 
         assertThat(drainedA.map { it.id }).containsExactly(bundleA.id)
         assertThat(drainedB.map { it.id }).containsExactlyInAnyOrder(bundleB1.id, bundleB2.id)
+        }
     }
 
     @Test
     public fun `consumeForPlayer on an empty queue returns an empty list`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresRewardBridge(db)
         assertThat(repo.consumeForPlayer(PlayerId(UUID.randomUUID()))).isEmpty()
+        }
     }
 
     @Test
     public fun `peek on an empty queue returns an empty list`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresRewardBridge(db)
         assertThat(repo.peek(PlayerId(UUID.randomUUID()))).isEmpty()
+        }
     }
 
     // Atomicity (SELECT-then-UPDATE within a single transaction) is enforced

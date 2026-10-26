@@ -56,7 +56,7 @@ class CombatContextProgressionScenarioTest {
         val messages: Int,
     )
 
-    private fun ScenarioScope.snapshot(entity: SimEntity): Snapshot {
+    private suspend fun ScenarioScope.snapshot(entity: SimEntity): Snapshot {
         val id = entity.id
         val stats = sim.services.getOrThrow<IPlayerStatsRepository>().find(id)
         return Snapshot(

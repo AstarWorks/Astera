@@ -57,7 +57,7 @@ public class TrackAdvancementProgressListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: PlayerKilled) {
+    public suspend fun handle(event: PlayerKilled) {
         if (!event.context.countsForProgression) return // ADR-0235
         val killer = event.killer ?: return
         forEachMatching(killer) { advancement ->
@@ -69,7 +69,7 @@ public class TrackAdvancementProgressListener(
         }
     }
 
-    public fun handle(event: CurrencyChanged) {
+    public suspend fun handle(event: CurrencyChanged) {
         if (event.delta <= 0) return
         forEachMatching(event.playerId) { advancement ->
             firstLeaf(advancement.criteria) { leaf ->
@@ -85,7 +85,7 @@ public class TrackAdvancementProgressListener(
         }
     }
 
-    public fun handle(event: MatchEnded) {
+    public suspend fun handle(event: MatchEnded) {
         val winningTeamId = event.winningTeam ?: return
         val match = matchRepository.findById(event.matchId) ?: run {
             log.debug("TrackAdvancementProgressListener: match {} not found", event.matchId)
@@ -100,7 +100,7 @@ public class TrackAdvancementProgressListener(
         }
     }
 
-    public fun handle(event: ItemAcquired) {
+    public suspend fun handle(event: ItemAcquired) {
         forEachMatching(event.playerId) { advancement ->
             firstLeaf(advancement.criteria) { leaf ->
                 leaf is AdvancementCriteria.ItemAcquired && leaf.itemId == event.itemId
@@ -125,7 +125,7 @@ public class TrackAdvancementProgressListener(
         else -> if (predicate(criteria)) criteria else null
     }
 
-    private fun progressSafe(
+    private suspend fun progressSafe(
         playerId: PlayerId,
         advancement: CustomAdvancement,
         increment: Int = 1,

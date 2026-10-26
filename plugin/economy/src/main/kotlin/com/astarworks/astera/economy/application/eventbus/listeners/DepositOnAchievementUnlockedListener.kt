@@ -29,7 +29,7 @@ public class DepositOnAchievementUnlockedListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: AchievementUnlocked) {
+    public suspend fun handle(event: AchievementUnlocked) {
         val achievement = achievements()?.find(event.achievementId) ?: return
         achievement.rewardTitle?.let { title ->
             if (titles()?.grant(event.playerId, "title:$title") == true) {

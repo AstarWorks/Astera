@@ -35,7 +35,7 @@ public class AcceptPartyInvitationUseCase(
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
-    public fun accept(
+    public suspend fun accept(
         invitationId: PartyInvitationId,
         invitee: PlayerId,
     ): Result<Party, InvitationError> {

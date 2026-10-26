@@ -26,6 +26,7 @@ public class PostgresCurrencyLedgerIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `a credit on one server is visible on another at once`() {
+        kotlinx.coroutines.runBlocking {
         val game = PostgresCurrencyLedger(db)
         val lobby = PostgresCurrencyLedger(db)
         val p = id()
@@ -35,10 +36,12 @@ public class PostgresCurrencyLedgerIT : PostgresIntegrationTestBase() {
         lobby.credit(p, Currency.GOLD, 5)
         assertThat(game.balance(p, Currency.GOLD)).isEqualTo(125)
         assertThat(game.wallet(p).balances()).containsEntry(Currency.GOLD, 125L)
+        }
     }
 
     @Test
     public fun `debit reports the real balance and never goes negative`() {
+        kotlinx.coroutines.runBlocking {
         val ledger = PostgresCurrencyLedger(db)
         val p = id()
         ledger.credit(p, Currency.GOLD, 50)
@@ -50,31 +53,36 @@ public class PostgresCurrencyLedgerIT : PostgresIntegrationTestBase() {
         assertThat(ledger.debit(p, Currency.GOLD, 50)).isInstanceOf(Result.Success::class.java)
         assertThat(ledger.balance(p, Currency.GOLD)).isZero()
         assertThat(ledger.debit(p, Currency.GEM, 1)).isInstanceOf(Result.Failure::class.java)
+        }
     }
 
     @Test
     public fun `a stale container write on another server does not roll the wallet back`() {
-        val lobbyStore = PostgresPlayerAttributeContainer(db)
+        kotlinx.coroutines.runBlocking {
+        val lobbyStore = attributeStore()
         val lobbyLedger = PostgresCurrencyLedger(db)
         val gameLedger = PostgresCurrencyLedger(db)
         val p = id()
 
         // The lobby loads the player (wallet 10) and keeps the container cached.
         gameLedger.credit(p, Currency.GOLD, 10)
-        val cached = lobbyStore.containerFor(p)
+        val cached = lobbyStore.load(p).containerFor(p)
         assertThat((cached.get(Attributes.WALLET_GOLD) as AttributeValue.NumberValue).value).isEqualTo(10.0)
 
         // The game server pays out a match reward, then the lobby saves an unrelated stat.
         gameLedger.credit(p, Currency.GOLD, 100)
         cached.set(Attributes.STAT_KILLS, AttributeValue.NumberValue(3.0))
 
+        writes.read { lobbyLedger.preload(p) }.join()
         assertThat(lobbyLedger.balance(p, Currency.GOLD)).`as`("money survives a stale whole-document write").isEqualTo(110)
-        val fresh = PostgresPlayerAttributeContainer(db).containerFor(p)
+        val fresh = attributeStore().load(p).containerFor(p)
         assertThat((fresh.get(Attributes.STAT_KILLS) as AttributeValue.NumberValue).value).isEqualTo(3.0)
+        }
     }
 
     @Test
     public fun `concurrent debits from two servers spend a balance exactly once`() {
+        kotlinx.coroutines.runBlocking {
         val a = PostgresCurrencyLedger(db)
         val b = PostgresCurrencyLedger(db)
         val p = id()
@@ -88,7 +96,7 @@ public class PostgresCurrencyLedgerIT : PostgresIntegrationTestBase() {
                 pool.submit {
                     start.await(5, TimeUnit.SECONDS)
                     val ledger = if (i % 2 == 0) a else b
-                    if (ledger.debit(p, Currency.GOLD, 30) is Result.Success) ok.incrementAndGet()
+                    if (kotlinx.coroutines.runBlocking { ledger.debit(p, Currency.GOLD, 30) } is Result.Success) ok.incrementAndGet()
                 }
             }
             start.countDown()
@@ -98,10 +106,12 @@ public class PostgresCurrencyLedgerIT : PostgresIntegrationTestBase() {
         }
         assertThat(ok.get()).isEqualTo(3)
         assertThat(a.balance(p, Currency.GOLD)).isEqualTo(10)
-    }
+        }
+}
 
     @Test
     public fun `transfer moves money atomically and fails cleanly when short`() {
+        kotlinx.coroutines.runBlocking {
         val ledger = PostgresCurrencyLedger(db)
         val from = id()
         val to = id()
@@ -114,5 +124,6 @@ public class PostgresCurrencyLedgerIT : PostgresIntegrationTestBase() {
         assertThat(ledger.transfer(from, to, Currency.GOLD, 15)).isInstanceOf(Result.Success::class.java)
         assertThat(ledger.balance(from, Currency.GOLD)).isEqualTo(25)
         assertThat(ledger.balance(to, Currency.GOLD)).isEqualTo(15)
-    }
+        }
+}
 }

@@ -43,10 +43,10 @@ public class CosmeticService(
 
     public fun find(id: String): Cosmetic? = catalog.find(id)
 
-    public fun owns(playerId: PlayerId, cosmetic: Cosmetic): Boolean =
+    public suspend fun owns(playerId: PlayerId, cosmetic: Cosmetic): Boolean =
         cosmetic.unlockId in (unlocks()?.unlocks(playerId) ?: emptySet())
 
-    public fun owned(playerId: PlayerId): List<Cosmetic> {
+    public suspend fun owned(playerId: PlayerId): List<Cosmetic> {
         val held = unlocks()?.unlocks(playerId) ?: return emptyList()
         return catalog.all().filter { it.unlockId in held }
     }
@@ -54,10 +54,10 @@ public class CosmeticService(
     public fun loadout(playerId: PlayerId): CosmeticLoadout = loadouts.find(playerId)
 
     /** The equipped cosmetic of [kind], only while it is still owned and still in the catalog. */
-    public fun equipped(playerId: PlayerId, kind: CosmeticKind): Cosmetic? =
+    public suspend fun equipped(playerId: PlayerId, kind: CosmeticKind): Cosmetic? =
         loadout(playerId).idOf(kind)?.let(catalog::find)?.takeIf { it.kind == kind && owns(playerId, it) }
 
-    public fun equip(playerId: PlayerId, cosmeticId: String): Result<Cosmetic, CosmeticError> {
+    public suspend fun equip(playerId: PlayerId, cosmeticId: String): Result<Cosmetic, CosmeticError> {
         val cosmetic = catalog.find(cosmeticId) ?: return Result.failure(CosmeticError.Unknown)
         if (!owns(playerId, cosmetic)) return Result.failure(CosmeticError.NotOwned)
         loadouts.set(playerId, cosmetic.kind, cosmetic.id)
@@ -70,12 +70,12 @@ public class CosmeticService(
         notifyChanged(playerId)
     }
 
-    public fun titleSummary(playerId: PlayerId): TitleSummary = TitleSummary(
+    public suspend fun titleSummary(playerId: PlayerId): TitleSummary = TitleSummary(
         unlockedCount = owned(playerId).count { it.kind == CosmeticKind.TITLE },
         equippedTitleId = equipped(playerId, CosmeticKind.TITLE)?.id,
     )
 
-    public fun cosmeticSummary(playerId: PlayerId): CosmeticSummary {
+    public suspend fun cosmeticSummary(playerId: PlayerId): CosmeticSummary {
         val ownedCosmetics = owned(playerId).filter { it.kind != CosmeticKind.TITLE }
         val featured = equipped(playerId, CosmeticKind.KILL_EFFECT) ?: equipped(playerId, CosmeticKind.NAME_COLOR)
         return CosmeticSummary(ownedCosmetics.size, featured?.id)

@@ -56,7 +56,7 @@ public class AdminCurrencyPanel(
         router.register(AdminIntents.CURRENCY_PREFIX, guard.guarded(::handle)),
     )
 
-    public fun handle(intent: GuiIntent, player: IMcPlayer) {
+    public suspend fun handle(intent: GuiIntent, player: IMcPlayer) {
         val target = intent.payload[AdminPanelUi.PAYLOAD_TARGET]
             ?.let { runCatching { PlayerId(UUID.fromString(it)) }.getOrNull() }
         if (target == null) {

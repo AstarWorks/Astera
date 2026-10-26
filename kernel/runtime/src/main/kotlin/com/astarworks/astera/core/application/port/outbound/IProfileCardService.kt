@@ -30,12 +30,12 @@ import com.astarworks.astera.core.domain.profile.PublicProfileCard
  */
 public interface IProfileCardService {
 
-    public fun find(playerId: PlayerId): PublicProfileCard?
+    public suspend fun find(playerId: PlayerId): PublicProfileCard?
 
-    public fun save(card: PublicProfileCard)
+    public suspend fun save(card: PublicProfileCard)
 
-    public fun delete(playerId: PlayerId)
+    public suspend fun delete(playerId: PlayerId)
 
     /** Snapshot of every card. Used by Web admin landing page. */
-    public fun all(): List<PublicProfileCard>
+    public suspend fun all(): List<PublicProfileCard>
 }

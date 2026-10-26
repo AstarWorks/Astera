@@ -21,7 +21,7 @@ import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.update
 import org.slf4j.LoggerFactory
 import java.sql.SQLException
@@ -69,10 +69,10 @@ public class PostgresModerationService(
         encodeDefaults = true
     }
 
-    override fun apply(action: ModerationAction): Result<ModerationAction, ModerationError> {
+    override suspend fun apply(action: ModerationAction): Result<ModerationAction, ModerationError> {
         val (kindStr, payloadStr) = encode(action)
         return try {
-            transaction(db) {
+            ioTransaction(db) {
                 ModerationActionsTable.insert {
                     it[id] = action.id.value
                     it[playerId] = action.playerId.uuid
@@ -92,17 +92,17 @@ public class PostgresModerationService(
         }
     }
 
-    override fun lift(actionId: ModerationActionId, liftedBy: PlayerId): Result<Unit, ModerationError> {
+    override suspend fun lift(actionId: ModerationActionId, liftedBy: PlayerId): Result<Unit, ModerationError> {
         return try {
-            transaction(db) {
+            ioTransaction(db) {
                 val existing = ModerationActionsTable
                     .selectAll()
                     .where { ModerationActionsTable.id eq actionId.value }
                     .firstOrNull()
-                    ?: return@transaction Result.success(Unit)
+                    ?: return@ioTransaction Result.success(Unit)
 
                 if (existing[ModerationActionsTable.liftedAt] != null) {
-                    return@transaction Result.success(Unit)
+                    return@ioTransaction Result.success(Unit)
                 }
 
                 val now = Instant.now(clock)
@@ -119,9 +119,9 @@ public class PostgresModerationService(
         }
     }
 
-    override fun activeFor(playerId: PlayerId): Collection<ModerationAction> {
+    override suspend fun activeFor(playerId: PlayerId): Collection<ModerationAction> {
         val now = Instant.now(clock)
-        return transaction(db) {
+        return ioTransaction(db) {
             ModerationActionsTable
                 .selectAll()
                 .where {
@@ -136,10 +136,10 @@ public class PostgresModerationService(
         }
     }
 
-    override fun history(playerId: PlayerId, limit: Int): List<ModerationAction> {
+    override suspend fun history(playerId: PlayerId, limit: Int): List<ModerationAction> {
         require(limit >= 0) { "limit must be >= 0: $limit" }
         if (limit == 0) return emptyList()
-        return transaction(db) {
+        return ioTransaction(db) {
             ModerationActionsTable
                 .selectAll()
                 .where { ModerationActionsTable.playerId eq playerId.uuid }

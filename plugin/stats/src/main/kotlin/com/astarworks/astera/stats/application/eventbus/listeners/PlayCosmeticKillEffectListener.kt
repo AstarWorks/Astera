@@ -10,7 +10,7 @@ public class PlayCosmeticKillEffectListener(
     private val cosmetics: () -> CosmeticService?,
     private val effects: () -> ICosmeticEffectPlayer?,
 ) {
-    public fun handle(event: PlayerKilled) {
+    public suspend fun handle(event: PlayerKilled) {
         val killer = event.killer ?: return
         val effect = cosmetics()?.equipped(killer, CosmeticKind.KILL_EFFECT) ?: return
         effects()?.playAt(event.victim, effect.value, effect.count)

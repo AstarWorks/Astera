@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.social.PartyId
 public class DisbandPartyUseCase(
     private val repository: IPartyRepository,
 ) {
-    public fun disband(caller: PlayerId, partyId: PartyId): Result<Unit, PartyError> {
+    public suspend fun disband(caller: PlayerId, partyId: PartyId): Result<Unit, PartyError> {
         val party = repository.find(partyId)
             ?: return Result.failure(PartyError.NotFound(partyId))
         if (party.leader != caller) {

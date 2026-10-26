@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.platform.paper
 
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.event.BukkitEventAdapter
@@ -497,6 +498,7 @@ internal class CorePaperBindings(
             save = ctx.services.getOrThrow<com.astarworks.astera.core.application.usecase.vault.SaveVaultUseCase>(),
             access = { ctx.services.getOrThrow<com.astarworks.astera.core.application.usecase.vault.AccessPersonalVaultUseCase>() },
             messages = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
+            scheduler = scheduler,
         )
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IVaultWindow>(
             vaultWindow,
@@ -576,7 +578,7 @@ internal class CorePaperBindings(
         )
         server.pluginManager.registerEvents(cosmeticDisplay, plugin)
         ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()
-            ?.addChangeListener { cosmeticDisplay.refresh(it) }
+            ?.addChangeListener { scheduler.launch(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(it.uuid)) { cosmeticDisplay.refresh(it) } }
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticEffectPlayer>(
             com.astarworks.astera.core.adapter.paper.cosmetic.PaperCosmeticEffectPlayer(server),
             priority = 100,
@@ -651,7 +653,9 @@ internal class CorePaperBindings(
             onMenuKey = { id ->
                 val player = mcServer.findPlayer(id)
                 if (player != null && result.guiAdapter.currentSpec(player)?.id?.value == "main-menu") {
-                    ctx.services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()?.recordAction(id, "menu")
+                    scheduler.launch(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(id.uuid)) {
+                        ctx.services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()?.recordAction(id, "menu")
+                    }
                 }
             },
             inMatch = { playerId ->

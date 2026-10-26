@@ -48,7 +48,7 @@ public class InitiateBettingChallengeUseCase(
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
-    public fun execute(
+    public suspend fun execute(
         challengerId: PlayerId,
         opponentId: PlayerId,
         policyId: BettingPolicyId,

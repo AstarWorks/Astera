@@ -29,7 +29,7 @@ public fun scenario(
     seed: Long = GameSim.DEFAULT_SEED,
     persistenceOverlay: Boolean = false,
     standaloneTeams: Boolean = true,
-    block: ScenarioScope.() -> Unit,
+    block: suspend ScenarioScope.() -> Unit,
 ): Path {
     val sim = GameSim.boot(
         name, annihilation = annihilation, seed = seed,
@@ -37,7 +37,8 @@ public fun scenario(
     )
     var trace: Path? = null
     try {
-        ScenarioScope(sim).block()
+        // Persistence-backed ports are suspend; in-memory fakes return immediately, so this stays deterministic.
+        kotlinx.coroutines.runBlocking { ScenarioScope(sim).block() }
     } finally {
         trace = runCatching { sim.writeTrace() }.getOrNull()
         sim.shutdown()

@@ -51,6 +51,24 @@ class ArchitectureTest {
         }
     }
 
+    /** ADR-0259: JDBC and Exposed `transaction(` never run on a game thread; only the persistence Io adapter opens them. */
+    @Test
+    fun `JDBC drivers stay in the persistence plugin and transaction is opened only by its io adapter`() {
+        val jdbcFamily = listOf("java.sql", "javax.sql", "org.jetbrains.exposed", "com.zaxxer", "org.flywaydb", "org.postgresql")
+        projectScope().files.filter {
+            it.path.contains("/src/main/") && !it.path.contains("/plugin/persistence/")
+        }.assertFalse { file ->
+            file.imports.any { import -> jdbcFamily.any { import.name == it || import.name.startsWith("$it.") } }
+        }
+        val rawTransaction = Regex("""(?<![A-Za-z.])transaction\s*\(""")
+        projectScope().files.filter {
+            it.path.contains("/plugin/persistence/src/main/") && !it.path.contains("/persistence/adapter/io/")
+        }.assertFalse { file ->
+            file.imports.any { it.name == "org.jetbrains.exposed.v1.jdbc.transactions.transaction" } ||
+                rawTransaction.containsMatchIn(sourceWithoutComments(file.text))
+        }
+    }
+
     private fun sourceWithoutComments(text: String): String =
         text.replace(Regex("""/\*.*?\*/|//[^\n]*""", RegexOption.DOT_MATCHES_ALL), " ")
 

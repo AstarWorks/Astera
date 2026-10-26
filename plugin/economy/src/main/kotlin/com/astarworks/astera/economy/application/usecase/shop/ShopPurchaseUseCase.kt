@@ -103,12 +103,12 @@ public class ShopPurchaseUseCase(
     private val clock: Clock = Clock.systemUTC(),
 ) {
     /** True when [playerId] already owns the [PurchaseLimit.ONCE] unlock behind [offerId] (a re-click hands out a free copy). */
-    public fun owns(playerId: PlayerId, shopId: ShopId, offerId: ShopOfferId): Boolean {
+    public suspend fun owns(playerId: PlayerId, shopId: ShopId, offerId: ShopOfferId): Boolean {
         val offer = registry.resolve(shopId)?.offer(offerId) ?: return false
         return offer.limit == PurchaseLimit.ONCE && purchases.count(playerId, shopId, offerId) > 0
     }
 
-    public fun execute(
+    public suspend fun execute(
         playerId: PlayerId,
         shopId: ShopId,
         offerId: ShopOfferId,

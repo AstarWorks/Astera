@@ -23,7 +23,7 @@ public class DepositOnMissionCompletedListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: MissionCompleted) {
+    public suspend fun handle(event: MissionCompleted) {
         val amount = event.reward.currencyAmount
         if (amount <= 0L) {
             log.debug(

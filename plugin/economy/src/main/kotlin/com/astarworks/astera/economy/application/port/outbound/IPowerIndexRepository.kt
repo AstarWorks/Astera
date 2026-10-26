@@ -36,18 +36,18 @@ import com.astarworks.astera.economy.domain.power.PowerIndex
 public interface IPowerIndexRepository {
 
     /** Lookup the latest snapshot. `null` if never computed for [playerId]. */
-    public fun find(playerId: PlayerId): PowerIndex?
+    public suspend fun find(playerId: PlayerId): PowerIndex?
 
     /** Upsert the snapshot keyed by [PowerIndex.playerId]. */
-    public fun save(snapshot: PowerIndex)
+    public suspend fun save(snapshot: PowerIndex)
 
     /** Hard-delete; tests + admin only. */
-    public fun delete(playerId: PlayerId)
+    public suspend fun delete(playerId: PlayerId)
 
     /**
      * Top [n] snapshots by [PowerIndex.total] descending. Stable tie-break is
      * implementation-defined (Postgres impl uses `computed_at DESC` on ties,
      * in-memory uses insertion order).
      */
-    public fun topN(n: Int): List<PowerIndex>
+    public suspend fun topN(n: Int): List<PowerIndex>
 }

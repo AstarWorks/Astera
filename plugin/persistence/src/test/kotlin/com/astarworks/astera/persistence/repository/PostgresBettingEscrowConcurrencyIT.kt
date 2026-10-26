@@ -16,7 +16,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class PostgresBettingEscrowConcurrencyIT : PostgresIntegrationTestBase() {
-    private fun match(): BettingMatch {
+    private fun match(): BettingMatch = kotlinx.coroutines.runBlocking {
         val match = BettingMatch.initiate(
             BettingMatchId.mint(), BettingPolicy.DEFAULT,
             PlayerId(UUID.randomUUID()), PlayerId(UUID.randomUUID()),
@@ -26,59 +26,67 @@ class PostgresBettingEscrowConcurrencyIT : PostgresIntegrationTestBase() {
         val ledger = PostgresCurrencyLedger(db)
         ledger.credit(match.challengerId, Currency.GOLD, 1_000L)
         ledger.credit(match.opponentId, Currency.GOLD, 1_000L)
-        return match
+        match
     }
 
     @Test
     fun `missing escrow still returns a typed failure when no match row exists`() {
+        kotlinx.coroutines.runBlocking {
         val id = BettingMatchId.mint()
         val escrow = PostgresBettingEscrowService(db, PostgresCurrencyLedger(db))
         val missing = com.astarworks.astera.economy.domain.betting.BettingError.EscrowMissing(id)
         assertThat(escrow.releaseToWinner(id, PlayerId(UUID.randomUUID()), 1.0, Instant.now()).errorOrNull())
             .isEqualTo(missing)
         assertThat(escrow.refundBoth(id, Instant.now()).errorOrNull()).isEqualTo(missing)
+        }
     }
 
     @Test
     fun `concurrent holds debit each participant only once`() {
+        kotlinx.coroutines.runBlocking {
         val match = match()
         val outcomes = whileWalletLocked(match.challengerId) {
-            PostgresBettingEscrowService(db, PostgresCurrencyLedger(db)).hold(
+            kotlinx.coroutines.runBlocking { PostgresBettingEscrowService(db, PostgresCurrencyLedger(db)).hold(
                 match.id, match.challengerId, match.opponentId, Currency.GOLD, 100L, Instant.now(),
-            )
+            ) }
         }
         assertThat(outcomes.count { it is Result.Success }).isEqualTo(1)
         val ledger = PostgresCurrencyLedger(db)
         assertThat(ledger.balance(match.challengerId, Currency.GOLD)).isEqualTo(900L)
         assertThat(ledger.balance(match.opponentId, Currency.GOLD)).isEqualTo(900L)
-    }
+        }
+}
 
     @Test
     fun `concurrent payouts credit the winner only once`() {
+        kotlinx.coroutines.runBlocking {
         val match = match()
         val ledger = PostgresCurrencyLedger(db)
         val escrow = PostgresBettingEscrowService(db, ledger)
         escrow.hold(match.id, match.challengerId, match.opponentId, Currency.GOLD, 100L, Instant.now())
         whileWalletLocked(match.challengerId) {
-            PostgresBettingEscrowService(db, PostgresCurrencyLedger(db))
-                .releaseToWinner(match.id, match.challengerId, 1.0, Instant.now())
+            kotlinx.coroutines.runBlocking { PostgresBettingEscrowService(db, PostgresCurrencyLedger(db))
+                .releaseToWinner(match.id, match.challengerId, 1.0, Instant.now()) }
         }
         assertThat(ledger.balance(match.challengerId, Currency.GOLD)).isEqualTo(1_100L)
         assertThat(ledger.balance(match.opponentId, Currency.GOLD)).isEqualTo(900L)
-    }
+        }
+}
 
     @Test
     fun `concurrent refunds return each stake only once`() {
+        kotlinx.coroutines.runBlocking {
         val match = match()
         val ledger = PostgresCurrencyLedger(db)
         PostgresBettingEscrowService(db, ledger)
             .hold(match.id, match.challengerId, match.opponentId, Currency.GOLD, 100L, Instant.now())
         whileWalletLocked(match.challengerId) {
-            PostgresBettingEscrowService(db, PostgresCurrencyLedger(db)).refundBoth(match.id, Instant.now())
+            kotlinx.coroutines.runBlocking { PostgresBettingEscrowService(db, PostgresCurrencyLedger(db)).refundBoth(match.id, Instant.now()) }
         }
         assertThat(ledger.balance(match.challengerId, Currency.GOLD)).isEqualTo(1_000L)
         assertThat(ledger.balance(match.opponentId, Currency.GOLD)).isEqualTo(1_000L)
-    }
+        }
+}
 
     // Hold the first wallet write until all contenders are waiting in Postgres. Before the fix,
     // all have read the same escrow state; after it, one waits on the wallet and the rest on the match.

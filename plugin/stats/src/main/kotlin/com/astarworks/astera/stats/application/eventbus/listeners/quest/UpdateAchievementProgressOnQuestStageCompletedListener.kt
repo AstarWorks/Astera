@@ -58,7 +58,7 @@ public class UpdateAchievementProgressOnQuestStageCompletedListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: QuestStageCompleted) {
+    public suspend fun handle(event: QuestStageCompleted) {
         val chain = chains.find(event.chainId)
         if (chain == null) {
             log.debug(

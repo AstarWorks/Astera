@@ -14,6 +14,7 @@ import java.util.UUID
 class PostgresSeasonBootstrapIT : PostgresIntegrationTestBase() {
     @Test
     fun `fresh migrated database accepts ranked results without a manual season reset`() {
+        kotlinx.coroutines.runBlocking {
         val seasons = PostgresSeasonRepository(db)
         val rankings = PostgresLeaderboardRepository(db)
         val player = PlayerId(UUID.randomUUID())
@@ -27,5 +28,6 @@ class PostgresSeasonBootstrapIT : PostgresIntegrationTestBase() {
         assertThat(entry.playerId).isEqualTo(player)
         assertThat(entry.rating).isEqualTo(1020)
         assertThat(entry.wins).isEqualTo(1L)
-    }
+        }
+}
 }

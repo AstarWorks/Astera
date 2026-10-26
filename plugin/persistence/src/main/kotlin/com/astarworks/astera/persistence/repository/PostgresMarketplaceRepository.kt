@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -37,7 +37,7 @@ import java.time.Instant
  */
 public class PostgresMarketplaceRepository(private val db: Database) : IMarketplaceRepository {
 
-    override fun findById(id: ListingId): MarketplaceListing? = transaction(db) {
+    override suspend fun findById(id: ListingId): MarketplaceListing? = ioTransaction(db) {
         MarketplaceListingsTable
             .selectAll()
             .where { MarketplaceListingsTable.id eq id.value }
@@ -45,7 +45,7 @@ public class PostgresMarketplaceRepository(private val db: Database) : IMarketpl
             ?.toDomainOrNull()
     }
 
-    override fun findActiveBySeller(seller: PlayerId): List<MarketplaceListing> = transaction(db) {
+    override suspend fun findActiveBySeller(seller: PlayerId): List<MarketplaceListing> = ioTransaction(db) {
         MarketplaceListingsTable
             .selectAll()
             .where {
@@ -55,14 +55,14 @@ public class PostgresMarketplaceRepository(private val db: Database) : IMarketpl
             .mapNotNull { it.toDomainOrNull() }
     }
 
-    override fun findAllActive(): List<MarketplaceListing> = transaction(db) {
+    override suspend fun findAllActive(): List<MarketplaceListing> = ioTransaction(db) {
         MarketplaceListingsTable
             .selectAll()
             .where { MarketplaceListingsTable.status eq STATUS_ACTIVE }
             .mapNotNull { it.toDomainOrNull() }
     }
 
-    override fun save(listing: MarketplaceListing): Unit = transaction(db) {
+    override suspend fun save(listing: MarketplaceListing): Unit = ioTransaction(db) {
         MarketplaceListingsTable.upsert(MarketplaceListingsTable.id) {
             it[id] = listing.id.value
             it[sellerId] = listing.seller.uuid
@@ -79,7 +79,7 @@ public class PostgresMarketplaceRepository(private val db: Database) : IMarketpl
         Unit
     }
 
-    override fun delete(id: ListingId): Unit = transaction(db) {
+    override suspend fun delete(id: ListingId): Unit = ioTransaction(db) {
         MarketplaceListingsTable.deleteWhere { MarketplaceListingsTable.id eq id.value }
         Unit
     }

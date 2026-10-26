@@ -13,7 +13,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
@@ -31,7 +31,7 @@ import org.jetbrains.exposed.v1.jdbc.upsert
  */
 public class PostgresProfileCardService(private val db: Database) : IProfileCardService {
 
-    override fun find(playerId: PlayerId): PublicProfileCard? = transaction(db) {
+    override suspend fun find(playerId: PlayerId): PublicProfileCard? = ioTransaction(db) {
         ProfileCardSnapshotsTable
             .selectAll()
             .where { ProfileCardSnapshotsTable.playerId eq playerId.uuid }
@@ -39,7 +39,7 @@ public class PostgresProfileCardService(private val db: Database) : IProfileCard
             ?.toDomainOrNull()
     }
 
-    override fun save(card: PublicProfileCard): Unit = transaction(db) {
+    override suspend fun save(card: PublicProfileCard): Unit = ioTransaction(db) {
         ProfileCardSnapshotsTable.upsert(ProfileCardSnapshotsTable.playerId) {
             it[playerId] = card.playerId.uuid
             it[displayName] = card.displayName
@@ -56,12 +56,12 @@ public class PostgresProfileCardService(private val db: Database) : IProfileCard
         Unit
     }
 
-    override fun delete(playerId: PlayerId): Unit = transaction(db) {
+    override suspend fun delete(playerId: PlayerId): Unit = ioTransaction(db) {
         ProfileCardSnapshotsTable.deleteWhere { ProfileCardSnapshotsTable.playerId eq playerId.uuid }
         Unit
     }
 
-    override fun all(): List<PublicProfileCard> = transaction(db) {
+    override suspend fun all(): List<PublicProfileCard> = ioTransaction(db) {
         ProfileCardSnapshotsTable
             .selectAll()
             .mapNotNull { it.toDomainOrNull() }

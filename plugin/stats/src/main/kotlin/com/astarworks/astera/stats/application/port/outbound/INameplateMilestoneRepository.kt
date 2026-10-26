@@ -35,9 +35,9 @@ public interface INameplateMilestoneRepository {
         public val setAt: Instant,
     )
 
-    public fun find(playerId: PlayerId): Record?
+    public suspend fun find(playerId: PlayerId): Record?
 
-    public fun save(record: Record)
+    public suspend fun save(record: Record)
 
-    public fun delete(playerId: PlayerId)
+    public suspend fun delete(playerId: PlayerId)
 }

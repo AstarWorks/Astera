@@ -16,6 +16,7 @@ class PostgresSkillProgressionRepositoryIT : PostgresIntegrationTestBase() {
 
     @Test
     fun `upsert + find round-trip per axis`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresSkillProgressionRepository(db)
         val id = PlayerId(UUID.randomUUID())
         val combat = SkillProgression(id, SkillKind.Combat, xp = 1000L, level = 5)
@@ -24,10 +25,12 @@ class PostgresSkillProgressionRepositoryIT : PostgresIntegrationTestBase() {
         val found = repo.find(id, SkillKind.Combat)
         assertThat(found).isEqualTo(combat)
         assertThat(repo.find(id, SkillKind.Mining)).isNull()
+        }
     }
 
     @Test
     fun `upsert overwrites existing row`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresSkillProgressionRepository(db)
         val id = PlayerId(UUID.randomUUID())
         repo.upsert(SkillProgression(id, SkillKind.Mining, xp = 100L, level = 2))
@@ -36,10 +39,12 @@ class PostgresSkillProgressionRepositoryIT : PostgresIntegrationTestBase() {
         val found = repo.find(id, SkillKind.Mining)
         assertThat(found?.xp).isEqualTo(250L)
         assertThat(found?.level).isEqualTo(3)
+        }
     }
 
     @Test
     fun `allFor returns every axis for a player`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresSkillProgressionRepository(db)
         val id = PlayerId(UUID.randomUUID())
         repo.upsertAll(
@@ -57,10 +62,12 @@ class PostgresSkillProgressionRepositoryIT : PostgresIntegrationTestBase() {
             SkillKind.Mining,
             SkillKind.Trading,
         )
+        }
     }
 
     @Test
     fun `allFor scopes to one player`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresSkillProgressionRepository(db)
         val a = PlayerId(UUID.randomUUID())
         val b = PlayerId(UUID.randomUUID())
@@ -70,5 +77,6 @@ class PostgresSkillProgressionRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(repo.allFor(a)).hasSize(1)
         assertThat(repo.allFor(a).first().xp).isEqualTo(100L)
         assertThat(repo.allFor(b).first().xp).isEqualTo(999L)
-    }
+        }
+}
 }

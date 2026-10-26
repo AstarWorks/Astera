@@ -26,6 +26,7 @@ public class PostgresPartyRepositoryIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `upsert + find round-trips party with leader and three members`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresPartyRepository(db)
         val leader = newPlayer()
         val m2 = newPlayer()
@@ -46,10 +47,12 @@ public class PostgresPartyRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(found.leader).isEqualTo(leader)
         assertThat(found.members).containsExactlyInAnyOrder(leader, m2, m3)
         assertThat(found.maxSize).isEqualTo(4)
+        }
     }
 
     @Test
     public fun `forPlayer returns the party the player belongs to`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresPartyRepository(db)
         val leader = newPlayer()
         val m2 = newPlayer()
@@ -70,17 +73,21 @@ public class PostgresPartyRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(byLeader!!.id).isEqualTo(partyId)
         assertThat(byMember).isNotNull
         assertThat(byMember!!.members).containsExactlyInAnyOrder(leader, m2)
+        }
     }
 
     @Test
     public fun `forPlayer returns null for player in no party`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresPartyRepository(db)
         val stranger = newPlayer()
         assertThat(repo.forPlayer(stranger)).isNull()
+        }
     }
 
     @Test
     public fun `upsert replaces member list atomically with leader change`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresPartyRepository(db)
         val leader = newPlayer()
         val a = newPlayer()
@@ -116,10 +123,12 @@ public class PostgresPartyRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(repo.forPlayer(a)).isNull()
         // forPlayer for the new member returns the new party.
         assertThat(repo.forPlayer(c)?.id).isEqualTo(partyId)
+        }
     }
 
     @Test
     public fun `remove deletes party AND cascades to members`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresPartyRepository(db)
         val leader = newPlayer()
         val m2 = newPlayer()
@@ -153,16 +162,20 @@ public class PostgresPartyRepositoryIT : PostgresIntegrationTestBase() {
                 .count()
         }
         assertThat(headCount).isEqualTo(0L)
+        }
     }
 
     @Test
     public fun `find returns null for unknown party`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresPartyRepository(db)
         assertThat(repo.find(PartyId.random())).isNull()
+        }
     }
 
     @Test
     public fun `all returns multiple parties with their members`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresPartyRepository(db)
         val l1 = newPlayer()
         val l2 = newPlayer()
@@ -187,5 +200,6 @@ public class PostgresPartyRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(byId[p1]!!.maxSize).isEqualTo(4)
         assertThat(byId[p2]!!.members).containsExactly(l2)
         assertThat(byId[p2]!!.maxSize).isEqualTo(2)
-    }
+        }
+}
 }

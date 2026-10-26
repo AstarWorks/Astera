@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
 import com.astarworks.astera.core.application.port.outbound.AssignRoleError
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.RevokeRoleError
@@ -20,7 +21,6 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
@@ -41,7 +41,7 @@ import org.jetbrains.exposed.v1.jdbc.upsert
 public class PostgresPermissionService(private val db: Database) : IPermissionService {
 
     init {
-        transaction(db) {
+        blockingTransaction(db) {
             DefaultRoles.builtin().forEach { def ->
                 RoleDefinitionsTable.upsert(RoleDefinitionsTable.id) {
                     it[id] = def.id.value
@@ -52,14 +52,14 @@ public class PostgresPermissionService(private val db: Database) : IPermissionSe
         }
     }
 
-    override fun assign(playerId: PlayerId, roleId: RoleId): Result<Unit, AssignRoleError> = transaction(db) {
+    override fun assign(playerId: PlayerId, roleId: RoleId): Result<Unit, AssignRoleError> = blockingTransaction(db) {
         val exists = RoleDefinitionsTable
             .selectAll()
             .where { RoleDefinitionsTable.id eq roleId.value }
             .limit(1)
             .any()
         if (!exists) {
-            return@transaction Result.failure(AssignRoleError.RoleNotFound(roleId))
+            return@blockingTransaction Result.failure(AssignRoleError.RoleNotFound(roleId))
         }
         val inserted = RoleAssignmentsTable.insertIgnore {
             it[RoleAssignmentsTable.playerId] = playerId.uuid
@@ -73,7 +73,7 @@ public class PostgresPermissionService(private val db: Database) : IPermissionSe
         }
     }
 
-    override fun revoke(playerId: PlayerId, roleId: RoleId): Result<Unit, RevokeRoleError> = transaction(db) {
+    override fun revoke(playerId: PlayerId, roleId: RoleId): Result<Unit, RevokeRoleError> = blockingTransaction(db) {
         val deleted = RoleAssignmentsTable.deleteWhere {
             (RoleAssignmentsTable.playerId eq playerId.uuid) and (RoleAssignmentsTable.roleId eq roleId.value)
         }
@@ -84,7 +84,7 @@ public class PostgresPermissionService(private val db: Database) : IPermissionSe
         }
     }
 
-    override fun check(playerId: PlayerId, permission: Permission): Boolean = transaction(db) {
+    override fun check(playerId: PlayerId, permission: Permission): Boolean = blockingTransaction(db) {
         val wildcard = Permission("*")
         (RoleAssignmentsTable innerJoin RoleDefinitionsTable)
             .select(RoleDefinitionsTable.permissions)
@@ -95,7 +95,7 @@ public class PostgresPermissionService(private val db: Database) : IPermissionSe
             }
     }
 
-    override fun rolesOf(playerId: PlayerId): Set<RoleId> = transaction(db) {
+    override fun rolesOf(playerId: PlayerId): Set<RoleId> = blockingTransaction(db) {
         RoleAssignmentsTable
             .select(RoleAssignmentsTable.roleId)
             .where { RoleAssignmentsTable.playerId eq playerId.uuid }
@@ -103,7 +103,7 @@ public class PostgresPermissionService(private val db: Database) : IPermissionSe
             .toSet()
     }
 
-    override fun definitionOf(roleId: RoleId): RoleDefinition? = transaction(db) {
+    override fun definitionOf(roleId: RoleId): RoleDefinition? = blockingTransaction(db) {
         RoleDefinitionsTable
             .selectAll()
             .where { RoleDefinitionsTable.id eq roleId.value }
@@ -111,7 +111,7 @@ public class PostgresPermissionService(private val db: Database) : IPermissionSe
             ?.toDomain()
     }
 
-    override fun allDefinitions(): Collection<RoleDefinition> = transaction(db) {
+    override fun allDefinitions(): Collection<RoleDefinition> = blockingTransaction(db) {
         RoleDefinitionsTable.selectAll().map { it.toDomain() }
     }
 

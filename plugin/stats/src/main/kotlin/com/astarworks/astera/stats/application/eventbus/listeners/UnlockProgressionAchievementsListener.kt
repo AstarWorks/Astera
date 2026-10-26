@@ -15,21 +15,21 @@ import com.astarworks.astera.stats.domain.event.MissionCompleted
 public class UnlockProgressionAchievementsListener(
     private val unlock: UnlockAchievementUseCase,
 ) {
-    public fun handle(event: LoginBonusClaimed) {
+    public suspend fun handle(event: LoginBonusClaimed) {
         if (event.streakDays >= STREAK_FOR_REGULAR) tryUnlock(event.playerId, STREAK_7)
     }
 
-    public fun handle(event: LeveledUp) {
+    public suspend fun handle(event: LeveledUp) {
         LEVEL_ACHIEVEMENTS.forEach { (level, id) ->
             if (event.newLevel.value >= level) tryUnlock(event.playerId, id)
         }
     }
 
-    public fun handle(event: MissionCompleted) {
+    public suspend fun handle(event: MissionCompleted) {
         tryUnlock(event.playerId, MISSION_FIRST)
     }
 
-    private fun tryUnlock(playerId: PlayerId, id: AchievementId) {
+    private suspend fun tryUnlock(playerId: PlayerId, id: AchievementId) {
         unlock.unlock(playerId, id)
     }
 

@@ -16,6 +16,7 @@ public class PostgresPersonalVaultRepositoryIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `upsert + find round-trips a vault including a VaultItem with NBT`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresPersonalVaultRepository(db)
         val id = PlayerId(UUID.randomUUID())
         val nbt = """{"Enchantments":[{"id":"minecraft:sharpness","lvl":5}]}"""
@@ -39,16 +40,20 @@ public class PostgresPersonalVaultRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(found.items[0].nbt).isEqualTo(nbt)
         assertThat(found.items[1].count).isEqualTo(32)
         assertThat(found.items[2].count).isEqualTo(64)
+        }
     }
 
     @Test
     public fun `find returns null when no row exists`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresPersonalVaultRepository(db)
         assertThat(repo.find(PlayerId(UUID.randomUUID()))).isNull()
+        }
     }
 
     @Test
     public fun `upsert replaces the prior items array atomically`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresPersonalVaultRepository(db)
         val id = PlayerId(UUID.randomUUID())
         repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem(slot = 3, "old", 1))))
@@ -59,10 +64,12 @@ public class PostgresPersonalVaultRepositoryIT : PostgresIntegrationTestBase() {
 
         val found = repo.find(id)!!
         assertThat(found.items.map { it.itemId }).containsExactly("new-a", "new-b")
+        }
     }
 
     @Test
     public fun `remove deletes the row`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresPersonalVaultRepository(db)
         val id = PlayerId(UUID.randomUUID())
         repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem(slot = 6, "x", 1))))
@@ -70,5 +77,6 @@ public class PostgresPersonalVaultRepositoryIT : PostgresIntegrationTestBase() {
         repo.remove(id)
 
         assertThat(repo.find(id)).isNull()
-    }
+        }
+}
 }

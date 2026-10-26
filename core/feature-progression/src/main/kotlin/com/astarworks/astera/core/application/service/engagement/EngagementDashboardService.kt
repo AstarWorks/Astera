@@ -67,7 +67,7 @@ public class EngagementDashboardService(
      * is published to the per-player gauge if the player makes the top-N
      * after this update.
      */
-    public fun recordPlayerActivity(
+    public suspend fun recordPlayerActivity(
         playerId: PlayerId,
         totalPlaytime: Duration,
         loginStreakDays: Int,
@@ -129,7 +129,7 @@ public class EngagementDashboardService(
      * snapshot (the score depends on `now - lastSeenAt`, which is ~0 right
      * after the first call).
      */
-    public fun recomputeForPlayer(playerId: PlayerId) {
+    public suspend fun recomputeForPlayer(playerId: PlayerId) {
         val existing = repository.find(playerId)
         if (existing == null) {
             log.debug(
@@ -161,7 +161,7 @@ public class EngagementDashboardService(
      * persisted per-player snapshots. Pure function of repository state +
      * current clock; safe to call from any thread the dashboard scheduler chooses.
      */
-    public fun compute(): EngagementDashboardSnapshot {
+    public suspend fun compute(): EngagementDashboardSnapshot {
         val now = clock()
         val all = repository.all()
         val dauWauMau = computeDauWauMau(all, now)
@@ -195,7 +195,7 @@ public class EngagementDashboardService(
         return snapshot
     }
 
-    private fun publishTopNGauges() {
+    private suspend fun publishTopNGauges() {
         repository.topByScore(topNForGauges).forEach { snap ->
             exporter.setPlayerEngagementScore(snap.playerId.uuid.toString(), snap.score.value)
         }

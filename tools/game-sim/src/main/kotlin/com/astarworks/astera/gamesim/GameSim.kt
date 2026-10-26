@@ -299,7 +299,7 @@ public class GameSim private constructor(
     public fun leftClick(entity: SimEntity): Boolean = input(entity, IMcEvent.InputKind.LEFT_CLICK)
 
     /** The lobby F key (the same menu-kit entry and successful-open check as Paper). */
-    public fun swapHands(entity: SimEntity): Boolean {
+    public suspend fun swapHands(entity: SimEntity): Boolean {
         val player = server.view(entity.id) ?: return false
         if (com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy.inMatch(
                 services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()?.isHeld(entity.id) ?: false,

@@ -7,6 +7,9 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.usecase.vault.AccessPersonalVaultUseCase
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.gui.GuiIntent
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.launch
 import org.slf4j.LoggerFactory
 
 /**
@@ -18,6 +21,7 @@ public class LobbyVaultOpenIntentHandler(
     private val access: () -> AccessPersonalVaultUseCase,
     private val messages: IMessageRenderer,
     private val playerGateway: IPlayerGateway,
+    private val scheduler: IScheduler,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -27,12 +31,14 @@ public class LobbyVaultOpenIntentHandler(
             log.warn("Unknown lobby.vault intent '{}' from player {}", intent.key, player.id)
             return
         }
-        val result = access().open(player.id)
-        if (result is Result.Failure) {
-            playerGateway.sendMessage(
-                player.id,
-                messages.render(player.id, vaultErrorKey(result.error), emptyMap()),
-            )
+        scheduler.launch(ExecutionScope.Entity(player.id.uuid)) {
+            val result = access().open(player.id)
+            if (result is Result.Failure) {
+                playerGateway.sendMessage(
+                    player.id,
+                    messages.render(player.id, vaultErrorKey(result.error), emptyMap()),
+                )
+            }
         }
     }
 

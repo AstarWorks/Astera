@@ -14,14 +14,14 @@ import com.astarworks.astera.match.domain.rating.Rating
 public interface IPlayerRatingRepository {
 
     /** Stored rating for [playerId], or null if the player has no record. */
-    public fun find(playerId: PlayerId): Rating?
+    public suspend fun find(playerId: PlayerId): Rating?
 
     /** [find] with a [Rating.DEFAULT] fallback — never null. */
-    public fun ratingOf(playerId: PlayerId): Rating = find(playerId) ?: Rating.DEFAULT
+    public suspend fun ratingOf(playerId: PlayerId): Rating = find(playerId) ?: Rating.DEFAULT
 
     /** Insert or replace [playerId]'s rating. */
-    public fun upsert(playerId: PlayerId, rating: Rating)
+    public suspend fun upsert(playerId: PlayerId, rating: Rating)
 
     /** Snapshot of every recorded rating. */
-    public fun all(): Map<PlayerId, Rating>
+    public suspend fun all(): Map<PlayerId, Rating>
 }

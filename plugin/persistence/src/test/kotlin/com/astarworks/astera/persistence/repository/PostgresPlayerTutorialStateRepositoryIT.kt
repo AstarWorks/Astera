@@ -11,6 +11,7 @@ import java.util.UUID
 class PostgresPlayerTutorialStateRepositoryIT : PostgresIntegrationTestBase() {
     @Test
     fun `cursor pause and reward latch round trip across repository instances`() {
+        kotlinx.coroutines.runBlocking {
         val id = PlayerId(UUID.randomUUID())
         val state = TutorialRunnerSnapshot(TutorialScriptId("getting-started"), 5, 500, paused = true)
         PostgresPlayerTutorialStateRepository(db).save(id, state)
@@ -22,5 +23,6 @@ class PostgresPlayerTutorialStateRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(repo.all()).containsEntry(id, complete)
         repo.clear(id)
         assertThat(repo.find(id)).isNull()
-    }
+        }
+}
 }

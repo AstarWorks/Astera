@@ -154,7 +154,7 @@ public class ReplayCaptureEngine(
         )
     }
 
-    override fun stopRecording(matchId: MatchId): Result<RecordedReplay, ReplayError> {
+    override suspend fun stopRecording(matchId: MatchId): Result<RecordedReplay, ReplayError> {
         val buffer = active.remove(matchId)
             ?: return Result.failure(ReplayError.NotRecording(matchId))
 

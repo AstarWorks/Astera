@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
 import com.astarworks.astera.core.application.port.outbound.IRegionPermissionService
 import com.astarworks.astera.core.application.port.outbound.IStageRegionIndex
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -19,7 +20,6 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 import java.util.UUID
 
@@ -66,7 +66,7 @@ public class PostgresRegionPermissionService(
 
         val key = permission.key()
         val regionStrings: List<String> = regions.map { it.value }
-        return transaction(db) {
+        return blockingTransaction(db) {
             val rows = RegionPermissionTable
                 .selectAll()
                 .where {
@@ -79,7 +79,7 @@ public class PostgresRegionPermissionService(
                 }
                 .toList()
 
-            if (rows.isEmpty()) return@transaction true
+            if (rows.isEmpty()) return@blockingTransaction true
 
             // Group by region; for each region pick the most specific rule.
             val byRegion = rows.groupBy { it[RegionPermissionTable.regionId] }
@@ -120,7 +120,7 @@ public class PostgresRegionPermissionService(
     ) {
         val key = permission.key()
         val now = Instant.now()
-        transaction(db) {
+        blockingTransaction(db) {
             if (players == null) {
                 // Everyone rule — delete then insert.
                 RegionPermissionTable.deleteWhere {
@@ -162,7 +162,7 @@ public class PostgresRegionPermissionService(
         players: Set<PlayerId>?,
     ): Boolean {
         val key = permission.key()
-        return transaction(db) {
+        return blockingTransaction(db) {
             val deleted = if (players == null) {
                 RegionPermissionTable.deleteWhere {
                     (RegionPermissionTable.regionId eq regionId.value) and
@@ -181,7 +181,7 @@ public class PostgresRegionPermissionService(
         }
     }
 
-    override fun rules(regionId: RegionId): List<RegionRule> = transaction(db) {
+    override fun rules(regionId: RegionId): List<RegionRule> = blockingTransaction(db) {
         RegionPermissionTable
             .selectAll()
             .where { RegionPermissionTable.regionId eq regionId.value }

@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerSession
@@ -9,7 +10,6 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -29,7 +29,7 @@ import java.time.Instant
  */
 public class PostgresPlayerSessionRepository(private val db: Database) : IPlayerSessionRepository {
 
-    override fun find(playerId: PlayerId): PlayerSession? = transaction(db) {
+    override fun find(playerId: PlayerId): PlayerSession? = blockingTransaction(db) {
         PlayerSessionsTable
             .selectAll()
             .where { PlayerSessionsTable.playerId eq playerId.uuid }
@@ -40,7 +40,7 @@ public class PostgresPlayerSessionRepository(private val db: Database) : IPlayer
     }
 
     override fun upsert(session: PlayerSession) {
-        transaction(db) {
+        blockingTransaction(db) {
             PlayerSessionsTable.upsert(PlayerSessionsTable.playerId) {
                 it[playerId] = session.playerId.uuid
                 it[PlayerSessionsTable.session] = PlayerSessionJson.fromDomain(session)
@@ -50,12 +50,12 @@ public class PostgresPlayerSessionRepository(private val db: Database) : IPlayer
     }
 
     override fun remove(playerId: PlayerId) {
-        transaction(db) {
+        blockingTransaction(db) {
             PlayerSessionsTable.deleteWhere { PlayerSessionsTable.playerId eq playerId.uuid }
         }
     }
 
-    override fun all(): List<PlayerSession> = transaction(db) {
+    override fun all(): List<PlayerSession> = blockingTransaction(db) {
         PlayerSessionsTable
             .selectAll()
             .map { row ->

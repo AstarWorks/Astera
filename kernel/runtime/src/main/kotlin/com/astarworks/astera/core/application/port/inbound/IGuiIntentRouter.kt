@@ -45,7 +45,7 @@ public interface IGuiIntentRouter {
      */
     public fun register(
         prefix: String,
-        handler: (GuiIntent, IMcPlayer) -> Unit,
+        handler: suspend (GuiIntent, IMcPlayer) -> Unit,
     ): ServiceRegistry.Registration
 
     /**

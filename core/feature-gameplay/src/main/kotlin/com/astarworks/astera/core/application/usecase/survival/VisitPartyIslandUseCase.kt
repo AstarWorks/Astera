@@ -27,7 +27,7 @@ public class VisitPartyIslandUseCase(
     private val partyRepository: IPartyRepository,
 ) {
 
-    public fun visit(visitor: PlayerId, islandId: IslandId): Result<Unit, IslandError> {
+    public suspend fun visit(visitor: PlayerId, islandId: IslandId): Result<Unit, IslandError> {
         val island = islandRepository.find(islandId)
             ?: return Result.failure(IslandError.NotFound(islandId))
 

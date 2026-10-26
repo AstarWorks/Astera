@@ -21,7 +21,7 @@ public class GrantLevelRewardsUseCase(
     private val onGranted: (PlayerId, Int, LevelReward) -> Unit = { _, _, _ -> },
 ) {
     /** Reconcile all eligible levels, including claims interrupted after XP was committed. */
-    public fun execute(playerId: PlayerId, level: Int): Result<Int, LevelRewardError> {
+    public suspend fun execute(playerId: PlayerId, level: Int): Result<Int, LevelRewardError> {
         var granted = 0
         for ((earnedLevel, reward) in rewards.toSortedMap()) {
             if (earnedLevel > level) break

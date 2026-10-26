@@ -24,7 +24,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public class KickPartyMemberUseCase(
     private val repository: IPartyRepository,
 ) {
-    public fun kick(leader: PlayerId, target: PlayerId): Result<Unit, PartyError> {
+    public suspend fun kick(leader: PlayerId, target: PlayerId): Result<Unit, PartyError> {
         val party = repository.forPlayer(leader)
             ?: return Result.failure(PartyError.NotInParty(leader))
         if (party.leader != leader) {

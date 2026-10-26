@@ -14,7 +14,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public class RemoveFriendUseCase(
     private val repository: IFriendshipRepository,
 ) {
-    public fun remove(a: PlayerId, b: PlayerId): Result<Unit, FriendshipError> {
+    public suspend fun remove(a: PlayerId, b: PlayerId): Result<Unit, FriendshipError> {
         repository.find(a, b)
             ?: return Result.failure(FriendshipError.NotFound(a, b))
         repository.remove(a, b)

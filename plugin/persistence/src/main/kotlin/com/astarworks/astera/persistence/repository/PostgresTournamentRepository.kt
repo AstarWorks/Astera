@@ -11,7 +11,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -25,7 +25,7 @@ import java.time.Instant
  */
 public class PostgresTournamentRepository(private val db: Database) : ITournamentRepository {
 
-    override fun find(id: TournamentId): Tournament? = transaction(db) {
+    override suspend fun find(id: TournamentId): Tournament? = ioTransaction(db) {
         TournamentsTable
             .selectAll()
             .where { TournamentsTable.id eq id.value }
@@ -33,8 +33,8 @@ public class PostgresTournamentRepository(private val db: Database) : ITournamen
             ?.toDomain()
     }
 
-    override fun upsert(tournament: Tournament): Tournament {
-        transaction(db) {
+    override suspend fun upsert(tournament: Tournament): Tournament {
+        ioTransaction(db) {
             TournamentsTable.upsert(TournamentsTable.id) {
                 it[id] = tournament.id.value
                 it[name] = tournament.name
@@ -46,11 +46,11 @@ public class PostgresTournamentRepository(private val db: Database) : ITournamen
         return tournament
     }
 
-    override fun all(): Collection<Tournament> = transaction(db) {
+    override suspend fun all(): Collection<Tournament> = ioTransaction(db) {
         TournamentsTable.selectAll().map { it.toDomain() }
     }
 
-    override fun delete(id: TournamentId): Unit = transaction(db) {
+    override suspend fun delete(id: TournamentId): Unit = ioTransaction(db) {
         TournamentsTable.deleteWhere { TournamentsTable.id eq id.value }
         Unit
     }

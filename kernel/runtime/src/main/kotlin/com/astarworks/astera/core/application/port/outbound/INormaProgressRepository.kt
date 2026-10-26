@@ -18,11 +18,11 @@ import com.astarworks.astera.core.domain.player.PlayerId
  */
 public interface INormaProgressRepository {
     /** Returns the persisted progress entry for ([playerId], [normaId]), or null. */
-    public fun find(playerId: PlayerId, normaId: NormaId): MissionProgress?
+    public suspend fun find(playerId: PlayerId, normaId: NormaId): MissionProgress?
 
     /** Upsert progress. `progress.playerId` must match [playerId] (defensive). */
-    public fun upsert(playerId: PlayerId, progress: MissionProgress)
+    public suspend fun upsert(playerId: PlayerId, progress: MissionProgress)
 
     /** Every progress entry for [playerId] across all normas. */
-    public fun allFor(playerId: PlayerId): Collection<MissionProgress>
+    public suspend fun allFor(playerId: PlayerId): Collection<MissionProgress>
 }

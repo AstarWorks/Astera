@@ -24,11 +24,11 @@ public class PaperCosmeticDisplay(
 ) : Listener {
 
     @EventHandler
-    public fun onJoin(event: PlayerJoinEvent) {
+    public suspend fun onJoin(event: PlayerJoinEvent) {
         refresh(PlayerId(event.player.uniqueId))
     }
 
-    public fun refresh(playerId: PlayerId) {
+    public suspend fun refresh(playerId: PlayerId) {
         val player = server.getPlayer(playerId.uuid) ?: return
         val service = cosmetics() ?: return
         val title = titleComponent(service, messages(), playerId)
@@ -40,14 +40,14 @@ public class PaperCosmeticDisplay(
 
     public companion object {
         /** `[Title] ` in gold, or empty when no title is equipped. */
-        public fun titleComponent(service: CosmeticService?, messages: IMessageRenderer?, playerId: PlayerId): Component {
+        public suspend fun titleComponent(service: CosmeticService?, messages: IMessageRenderer?, playerId: PlayerId): Component {
             val title = service?.equipped(playerId, CosmeticKind.TITLE) ?: return Component.empty()
             val text = messages?.render(null, title.nameKey) ?: title.id
             return Component.text("[$text] ", NamedTextColor.GOLD)
         }
 
         /** The equipped name colour, or null when none. */
-        public fun nameColorOf(service: CosmeticService?, playerId: PlayerId): TextColor? =
+        public suspend fun nameColorOf(service: CosmeticService?, playerId: PlayerId): TextColor? =
             service?.equipped(playerId, CosmeticKind.NAME_COLOR)?.let { parseColor(it.value) }
 
         public fun parseColor(value: String): TextColor? =

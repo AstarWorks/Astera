@@ -7,7 +7,7 @@ import com.astarworks.astera.persistence.table.PlayerRatingsTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -21,7 +21,7 @@ import java.time.Instant
  */
 public class PostgresPlayerRatingRepository(private val db: Database) : IPlayerRatingRepository {
 
-    override fun find(playerId: PlayerId): Rating? = transaction(db) {
+    override suspend fun find(playerId: PlayerId): Rating? = ioTransaction(db) {
         PlayerRatingsTable
             .selectAll()
             .where { PlayerRatingsTable.playerId eq playerId.uuid }
@@ -29,8 +29,8 @@ public class PostgresPlayerRatingRepository(private val db: Database) : IPlayerR
             ?.let { Rating.of(it[PlayerRatingsTable.rating]) }
     }
 
-    override fun upsert(playerId: PlayerId, rating: Rating) {
-        transaction(db) {
+    override suspend fun upsert(playerId: PlayerId, rating: Rating) {
+        ioTransaction(db) {
             PlayerRatingsTable.upsert(PlayerRatingsTable.playerId) {
                 it[PlayerRatingsTable.playerId] = playerId.uuid
                 it[PlayerRatingsTable.rating] = rating.value
@@ -39,7 +39,7 @@ public class PostgresPlayerRatingRepository(private val db: Database) : IPlayerR
         }
     }
 
-    override fun all(): Map<PlayerId, Rating> = transaction(db) {
+    override suspend fun all(): Map<PlayerId, Rating> = ioTransaction(db) {
         PlayerRatingsTable
             .selectAll()
             .associate { row ->

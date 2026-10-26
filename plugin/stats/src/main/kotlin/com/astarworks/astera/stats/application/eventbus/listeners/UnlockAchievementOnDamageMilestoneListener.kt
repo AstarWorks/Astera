@@ -29,7 +29,7 @@ public class UnlockAchievementOnDamageMilestoneListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: DamageDealt) {
+    public suspend fun handle(event: DamageDealt) {
         if (!event.context.countsForProgression) return // ADR-0235
         val attackerId = event.attacker ?: return
         val total = stats.find(attackerId)?.damageDealt ?: return

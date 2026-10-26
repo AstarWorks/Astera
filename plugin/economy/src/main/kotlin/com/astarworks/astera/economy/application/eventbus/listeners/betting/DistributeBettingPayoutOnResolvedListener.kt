@@ -45,7 +45,7 @@ public class DistributeBettingPayoutOnResolvedListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: BettingMatchResolved) {
+    public suspend fun handle(event: BettingMatchResolved) {
         val bettingMatchId = BettingMatchId(event.bettingMatchUuid)
         val betting = bettingMatches.findById(bettingMatchId)
         if (betting == null) {
@@ -81,7 +81,7 @@ public class DistributeBettingPayoutOnResolvedListener(
         }
     }
 
-    private fun distributeRefund(
+    private suspend fun distributeRefund(
         betting: BettingMatch,
         bettingMatchId: BettingMatchId,
         now: java.time.Instant,
@@ -116,7 +116,7 @@ public class DistributeBettingPayoutOnResolvedListener(
         )
     }
 
-    private fun distributeWinnerPayout(
+    private suspend fun distributeWinnerPayout(
         betting: BettingMatch,
         bettingMatchId: BettingMatchId,
         winnerId: PlayerId,

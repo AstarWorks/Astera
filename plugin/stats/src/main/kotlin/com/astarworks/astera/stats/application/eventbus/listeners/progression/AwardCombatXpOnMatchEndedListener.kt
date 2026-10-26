@@ -21,7 +21,7 @@ public class AwardCombatXpOnMatchEndedListener(
     private val awardXp: AwardSkillXpUseCase,
     private val matchWinXp: Long = MATCH_WIN_XP,
 ) {
-    public fun handle(event: MatchEnded) {
+    public suspend fun handle(event: MatchEnded) {
         val winning = event.winningTeam ?: return
         val match = matchRepository.findById(event.matchId) ?: return
         val winners = match.teams.firstOrNull { it.id == winning } ?: return

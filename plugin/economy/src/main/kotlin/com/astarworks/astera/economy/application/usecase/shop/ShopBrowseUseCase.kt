@@ -69,7 +69,7 @@ public class ShopBrowseUseCase(
     private val purchases: IShopPurchaseRepository = InMemoryShopPurchaseRepository(),
     private val carried: (PlayerId) -> List<ItemId> = { emptyList() },
     private val zone: ZoneId = ZoneOffset.UTC,
-    private val onOpened: (PlayerId) -> Unit = {},
+    private val onOpened: suspend (PlayerId) -> Unit = {},
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -84,7 +84,7 @@ public class ShopBrowseUseCase(
      * purchase). [pendingOffer] marks the offer that is waiting for its
      * confirming second click.
      */
-    public fun execute(
+    public suspend fun execute(
         playerId: PlayerId,
         shopId: ShopId,
         pendingOffer: ShopOfferId? = null,
@@ -123,7 +123,7 @@ public class ShopBrowseUseCase(
      * previous page, category cycle, wallet, history, next page. Each offer icon is the item itself (its own
      * name, lore and stats), with ownership, price, live stock and the click hint appended.
      */
-    private fun buildShopGui(playerId: PlayerId, shopSpec: ShopSpec, pendingOffer: ShopOfferId?, view: View): GuiSpec {
+    private suspend fun buildShopGui(playerId: PlayerId, shopSpec: ShopSpec, pendingOffer: ShopOfferId?, view: View): GuiSpec {
         val categories = shopSpec.offers.mapNotNull { it.category }.distinct()
         val category = view.category?.takeIf { it in categories }
         val filtered = shopSpec.offers.filter { category == null || it.category == category }
@@ -136,14 +136,13 @@ public class ShopBrowseUseCase(
         val cycle = (listOf<String?>(null) + categories)
         val nextCategory = cycle[(cycle.indexOf(category) + 1) % cycle.size]
 
+        val offerSlots = visibleOffers.map { offer -> offerSlot(playerId, shopSpec, offer, pendingOffer == offer.id) }
         return GuiSpec.build(
             id = GuiId("shop-${shopSpec.id.value}"),
             title = shopSpec.displayKey,
             size = size,
         ) {
-            visibleOffers.forEachIndexed { index, offer ->
-                slot(SlotIndex(index), offerSlot(playerId, shopSpec, offer, pendingOffer == offer.id))
-            }
+            offerSlots.forEachIndexed { index, offerSlot -> slot(SlotIndex(index), offerSlot) }
             for (col in 0 until 9) slot(SlotIndex(footer + col), GuiSlot.Border(FOOTER_PANE))
             if (page > 0) slot(SlotIndex(footer), pageSlot(shopSpec, PREV_ICON, PAGE_PREV, page - 1, category, page, pages))
             if (categories.isNotEmpty()) {
@@ -204,7 +203,7 @@ public class ShopBrowseUseCase(
         messages.render(playerId, MessageKey("astera.economy.shop.category.${category ?: "all"}"))
 
     /** The player's own purchase history (newest first) as a read-only GUI with a way back to the shop. */
-    public fun history(playerId: PlayerId, shopId: ShopId): Result<Unit, ShopBrowseError> {
+    public suspend fun history(playerId: PlayerId, shopId: ShopId): Result<Unit, ShopBrowseError> {
         val player = server.findPlayer(playerId) ?: return Result.failure(ShopBrowseError.PlayerNotOnline)
         val shopSpec = registry.resolve(shopId) ?: return Result.failure(ShopBrowseError.ShopNotFound(shopId))
         val records = purchases.history(playerId, MAX_OFFERS)
@@ -252,7 +251,7 @@ public class ShopBrowseUseCase(
         }
     }
 
-    private fun offerSlot(playerId: PlayerId, shopSpec: ShopSpec, offer: ShopOffer, pending: Boolean): GuiSlot.Static {
+    private suspend fun offerSlot(playerId: PlayerId, shopSpec: ShopSpec, offer: ShopOffer, pending: Boolean): GuiSlot.Static {
         val have = ledger.balance(playerId, offer.price.currency)
         val affordable = have >= offer.price.amount
         val remaining = when (val live = stock.currentStock(shopSpec.id, offer.id) ?: offer.stock) {

@@ -45,7 +45,7 @@ public class HarvestGatheringSpotUseCase(
 
     private val spotLastHarvest: ConcurrentHashMap<GatheringSpotId, Instant> = ConcurrentHashMap()
 
-    public fun harvest(
+    public suspend fun harvest(
         spotId: GatheringSpotId,
         playerId: PlayerId,
         trigger: GatheringSkillTrigger,

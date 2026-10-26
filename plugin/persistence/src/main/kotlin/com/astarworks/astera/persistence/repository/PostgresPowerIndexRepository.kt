@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
@@ -34,7 +34,7 @@ import org.jetbrains.exposed.v1.jdbc.upsert
  */
 public class PostgresPowerIndexRepository(private val db: Database) : IPowerIndexRepository {
 
-    override fun find(playerId: PlayerId): PowerIndex? = transaction(db) {
+    override suspend fun find(playerId: PlayerId): PowerIndex? = ioTransaction(db) {
         PowerIndexSnapshotsTable
             .selectAll()
             .where { PowerIndexSnapshotsTable.playerId eq playerId.uuid }
@@ -42,7 +42,7 @@ public class PostgresPowerIndexRepository(private val db: Database) : IPowerInde
             ?.toDomain()
     }
 
-    override fun save(snapshot: PowerIndex): Unit = transaction(db) {
+    override suspend fun save(snapshot: PowerIndex): Unit = ioTransaction(db) {
         PowerIndexSnapshotsTable.upsert(PowerIndexSnapshotsTable.playerId) {
             it[playerId] = snapshot.playerId.uuid
             it[equipmentValue] = snapshot.equipmentValue
@@ -55,14 +55,14 @@ public class PostgresPowerIndexRepository(private val db: Database) : IPowerInde
         Unit
     }
 
-    override fun delete(playerId: PlayerId): Unit = transaction(db) {
+    override suspend fun delete(playerId: PlayerId): Unit = ioTransaction(db) {
         PowerIndexSnapshotsTable.deleteWhere { PowerIndexSnapshotsTable.playerId eq playerId.uuid }
         Unit
     }
 
-    override fun topN(n: Int): List<PowerIndex> {
+    override suspend fun topN(n: Int): List<PowerIndex> {
         if (n <= 0) return emptyList()
-        return transaction(db) {
+        return ioTransaction(db) {
             PowerIndexSnapshotsTable
                 .selectAll()
                 .orderBy(

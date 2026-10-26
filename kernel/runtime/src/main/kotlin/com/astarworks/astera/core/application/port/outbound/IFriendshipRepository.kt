@@ -8,8 +8,8 @@ import com.astarworks.astera.core.domain.social.Friendship
  * `find(A, B)` returns the same row as `find(B, A)`.
  */
 public interface IFriendshipRepository {
-    public fun find(a: PlayerId, b: PlayerId): Friendship?
-    public fun forPlayer(playerId: PlayerId): List<Friendship>
-    public fun upsert(friendship: Friendship)
-    public fun remove(a: PlayerId, b: PlayerId)
+    public suspend fun find(a: PlayerId, b: PlayerId): Friendship?
+    public suspend fun forPlayer(playerId: PlayerId): List<Friendship>
+    public suspend fun upsert(friendship: Friendship)
+    public suspend fun remove(a: PlayerId, b: PlayerId)
 }

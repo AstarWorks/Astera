@@ -66,7 +66,7 @@ public class DefaultGuiBindingResolver(
 
     private val log = LoggerFactory.getLogger(DefaultGuiBindingResolver::class.java)
 
-    override fun resolve(binding: BindingKey, viewer: PlayerId?): ResolvedReactiveSlot? {
+    override suspend fun resolve(binding: BindingKey, viewer: PlayerId?): ResolvedReactiveSlot? {
         if (viewer == null) {
             // Bindings are viewer-relative; without a viewer there is no data.
             return null

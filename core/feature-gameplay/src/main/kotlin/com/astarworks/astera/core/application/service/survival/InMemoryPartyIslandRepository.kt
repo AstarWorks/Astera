@@ -22,21 +22,21 @@ public class InMemoryPartyIslandRepository : IPartyIslandRepository {
 
     private val islands: ConcurrentHashMap<IslandId, PartyIsland> = ConcurrentHashMap()
 
-    override fun find(id: IslandId): PartyIsland? = islands[id]
+    override suspend fun find(id: IslandId): PartyIsland? = islands[id]
 
-    override fun forParty(partyId: PartyId): PartyIsland? =
+    override suspend fun forParty(partyId: PartyId): PartyIsland? =
         islands.values.firstOrNull { it.partyId == partyId }
 
-    override fun byStatus(statuses: Set<IslandStatus>): List<PartyIsland> =
+    override suspend fun byStatus(statuses: Set<IslandStatus>): List<PartyIsland> =
         islands.values.filter { it.status in statuses }
 
-    override fun upsert(island: PartyIsland) {
+    override suspend fun upsert(island: PartyIsland) {
         islands[island.id] = island
     }
 
-    override fun remove(id: IslandId) {
+    override suspend fun remove(id: IslandId) {
         islands.remove(id)
     }
 
-    override fun all(): List<PartyIsland> = islands.values.toList()
+    override suspend fun all(): List<PartyIsland> = islands.values.toList()
 }

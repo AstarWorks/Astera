@@ -55,7 +55,7 @@ public class StartTutorialOnFirstTimeProfileCreatedListener(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: FirstTimeProfileCreated) {
+    public suspend fun handle(event: FirstTimeProfileCreated) {
         val scriptIdRaw = profileService.findTutorialEnrollment(event.playerId)
         if (scriptIdRaw.isNullOrBlank()) {
             log.debug(

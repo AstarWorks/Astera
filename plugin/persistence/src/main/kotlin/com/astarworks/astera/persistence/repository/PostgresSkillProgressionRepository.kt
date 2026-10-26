@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -31,7 +31,7 @@ public class PostgresSkillProgressionRepository(
     private val db: Database,
 ) : ISkillProgressionRepository {
 
-    override fun find(playerId: PlayerId, kind: SkillKind): SkillProgression? = transaction(db) {
+    override suspend fun find(playerId: PlayerId, kind: SkillKind): SkillProgression? = ioTransaction(db) {
         SkillProgressionsTable
             .selectAll()
             .where {
@@ -42,8 +42,8 @@ public class PostgresSkillProgressionRepository(
             ?.toDomainOrNull()
     }
 
-    override fun upsert(progression: SkillProgression) {
-        transaction(db) {
+    override suspend fun upsert(progression: SkillProgression) {
+        ioTransaction(db) {
             SkillProgressionsTable.upsert(
                 SkillProgressionsTable.playerId,
                 SkillProgressionsTable.skillKind,
@@ -57,7 +57,7 @@ public class PostgresSkillProgressionRepository(
         }
     }
 
-    override fun allFor(playerId: PlayerId): Collection<SkillProgression> = transaction(db) {
+    override suspend fun allFor(playerId: PlayerId): Collection<SkillProgression> = ioTransaction(db) {
         SkillProgressionsTable
             .selectAll()
             .where { SkillProgressionsTable.playerId eq playerId.uuid }

@@ -9,7 +9,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -28,7 +28,7 @@ import java.time.Instant
  */
 public class PostgresPersonalVaultRepository(private val db: Database) : IPersonalVaultRepository {
 
-    override fun find(playerId: PlayerId): PersonalVault? = transaction(db) {
+    override suspend fun find(playerId: PlayerId): PersonalVault? = ioTransaction(db) {
         PersonalVaultsTable
             .selectAll()
             .where { PersonalVaultsTable.playerId eq playerId.uuid }
@@ -38,8 +38,8 @@ public class PostgresPersonalVaultRepository(private val db: Database) : IPerson
             }
     }
 
-    override fun upsert(vault: PersonalVault) {
-        transaction(db) {
+    override suspend fun upsert(vault: PersonalVault) {
+        ioTransaction(db) {
             PersonalVaultsTable.upsert(PersonalVaultsTable.playerId) {
                 it[playerId] = vault.playerId.uuid
                 it[items] = PersonalVaultJson.fromDomain(vault)
@@ -48,8 +48,8 @@ public class PostgresPersonalVaultRepository(private val db: Database) : IPerson
         }
     }
 
-    override fun remove(playerId: PlayerId) {
-        transaction(db) {
+    override suspend fun remove(playerId: PlayerId) {
+        ioTransaction(db) {
             PersonalVaultsTable.deleteWhere { PersonalVaultsTable.playerId eq playerId.uuid }
         }
     }

@@ -29,13 +29,13 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public interface IAdvancementService {
 
     /** Increment counter for `(playerId, advancementId)` by [increment] (must be > 0). */
-    public fun progress(
+    public suspend fun progress(
         playerId: PlayerId,
         advancementId: AdvancementId,
         increment: Int = 1,
     ): Result<AdvancementProgress, AdvancementError>
 
-    public fun completed(playerId: PlayerId): Set<AdvancementId>
+    public suspend fun completed(playerId: PlayerId): Set<AdvancementId>
 
-    public fun progressOf(playerId: PlayerId, advancementId: AdvancementId): AdvancementProgress?
+    public suspend fun progressOf(playerId: PlayerId, advancementId: AdvancementId): AdvancementProgress?
 }

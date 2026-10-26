@@ -17,7 +17,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
@@ -30,7 +30,7 @@ import org.jetbrains.exposed.v1.jdbc.upsert
  */
 public class PostgresBettingMatchRepository(private val db: Database) : IBettingMatchRepository {
 
-    override fun save(match: BettingMatch): BettingMatch = transaction(db) {
+    override suspend fun save(match: BettingMatch): BettingMatch = ioTransaction(db) {
         BettingMatchesTable.upsert(BettingMatchesTable.id) {
             it[id] = match.id.value
             it[policyId] = match.policyId.value
@@ -51,7 +51,7 @@ public class PostgresBettingMatchRepository(private val db: Database) : IBetting
         match
     }
 
-    override fun findById(id: BettingMatchId): BettingMatch? = transaction(db) {
+    override suspend fun findById(id: BettingMatchId): BettingMatch? = ioTransaction(db) {
         BettingMatchesTable
             .selectAll()
             .where { BettingMatchesTable.id eq id.value }
@@ -59,7 +59,7 @@ public class PostgresBettingMatchRepository(private val db: Database) : IBetting
             ?.toDomainOrNull()
     }
 
-    override fun recentForPlayer(playerId: PlayerId, limit: Int): List<BettingMatch> = transaction(db) {
+    override suspend fun recentForPlayer(playerId: PlayerId, limit: Int): List<BettingMatch> = ioTransaction(db) {
         require(limit > 0) { "limit must be > 0, got $limit" }
         BettingMatchesTable
             .selectAll()
@@ -72,7 +72,7 @@ public class PostgresBettingMatchRepository(private val db: Database) : IBetting
             .mapNotNull { it.toDomainOrNull() }
     }
 
-    override fun openForPlayer(playerId: PlayerId): List<BettingMatch> = transaction(db) {
+    override suspend fun openForPlayer(playerId: PlayerId): List<BettingMatch> = ioTransaction(db) {
         BettingMatchesTable
             .selectAll()
             .where {
@@ -86,7 +86,7 @@ public class PostgresBettingMatchRepository(private val db: Database) : IBetting
             }
     }
 
-    override fun findByMatchId(matchId: MatchId): BettingMatch? = transaction(db) {
+    override suspend fun findByMatchId(matchId: MatchId): BettingMatch? = ioTransaction(db) {
         BettingMatchesTable
             .selectAll()
             .where { BettingMatchesTable.matchId eq matchId.value }
@@ -94,7 +94,7 @@ public class PostgresBettingMatchRepository(private val db: Database) : IBetting
             ?.toDomainOrNull()
     }
 
-    override fun findByStatus(status: BettingStatus): List<BettingMatch> = transaction(db) {
+    override suspend fun findByStatus(status: BettingStatus): List<BettingMatch> = ioTransaction(db) {
         BettingMatchesTable
             .selectAll()
             .where { BettingMatchesTable.status eq status.name }

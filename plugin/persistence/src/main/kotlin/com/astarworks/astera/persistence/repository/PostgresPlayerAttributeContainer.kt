@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.domain.attribute.AttributeKey
 import com.astarworks.astera.core.domain.attribute.AttributeModifier
@@ -13,32 +14,14 @@ import com.astarworks.astera.persistence.table.PlayerAttributesTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
-/**
- * Postgres-backed [IPlayerAttributeContainerStore] (Wave 5e / ADR-0058 §5).
- *
- * Lazy-loads one container per [PlayerId] on first call to [containerFor];
- * subsequent calls return the cached instance. Each cached container is a
- * [WriteThroughContainer] wrapping a [SimpleAttributeContainer] — every
- * `set` / `addModifier` / `removeModifiersBySource` writes through to the
- * V14 `player_attributes` JSONB row in the same call (per-call flush is
- * simpler than a debounced timer, and Phase 1 traffic doesn't justify the
- * extra machinery; revisit when HUD refresh hits >100 ops/sec/player).
- *
- * Registered by `AsteraPersistencePlugin` at priority 100; overlays the
- * in-memory `InMemoryPlayerAttributeContainer` (priority 0).
- *
- * Threading: same contract as [IAttributeContainer] — main-thread only.
- * Exposed transactions are short and synchronous; long-running batches
- * should debounce via a future scheduler hook, not here.
- */
-public class PostgresPlayerAttributeContainer(private val db: Database) : IPlayerAttributeContainerStore {
+/** Entity-owned attribute cache. Pre-login loads it on IO; mutations enqueue immutable JSON snapshots. */
+public class PostgresPlayerAttributeContainer(private val db: Database, private val writes: com.astarworks.astera.persistence.adapter.io.WriteBehind) : IPlayerAttributeContainerStore {
 
-    private val cache: MutableMap<PlayerId, WriteThroughContainer> = mutableMapOf()
+    private val cache: MutableMap<PlayerId, WriteThroughContainer> = java.util.concurrent.ConcurrentHashMap()
 
     override fun containerFor(playerId: PlayerId): IAttributeContainer =
-        cache.getOrPut(playerId) { load(playerId) }
+        checkNotNull(cache[playerId]) { "Attributes not preloaded: $playerId" }
 
     override fun flush(playerId: PlayerId) {
         val container = cache[playerId] ?: return
@@ -48,11 +31,15 @@ public class PostgresPlayerAttributeContainer(private val db: Database) : IPlaye
     override fun loaded(): Map<PlayerId, IAttributeContainer> = cache.toMap()
 
     override fun reload(playerId: PlayerId) {
-        val cached = cache[playerId] ?: return
-        val fresh = SimpleAttributeContainer()
-        readInto(playerId, fresh)
-        cached.replaceWith(fresh)
+        // The async login preload is the only refresh boundary; gameplay never reads through.
+        check(cache.containsKey(playerId)) { "Attributes not preloaded: $playerId" }
     }
+
+    public fun preload(playerId: PlayerId) {
+        cache[playerId] = load(playerId)
+    }
+
+    public fun evict(playerId: PlayerId) { cache.remove(playerId) }
 
     private fun load(playerId: PlayerId): WriteThroughContainer {
         val backing = SimpleAttributeContainer()
@@ -61,7 +48,7 @@ public class PostgresPlayerAttributeContainer(private val db: Database) : IPlaye
     }
 
     private fun readInto(playerId: PlayerId, backing: SimpleAttributeContainer) {
-        val payload = transaction(db) {
+        val payload = blockingTransaction(db) {
             PlayerAttributesTable
                 .selectAll()
                 .where { PlayerAttributesTable.playerId eq playerId.uuid }
@@ -91,13 +78,13 @@ public class PostgresPlayerAttributeContainer(private val db: Database) : IPlaye
             modifiers = container.snapshotModifiers(),
         )
         val text = JsonbColumnType.DefaultJson.encodeToString(PlayerAttributesJson.serializer(), payload)
-        transaction(db) {
+        writes.enqueue("attributes" to playerId) { blockingTransaction(db) {
             (connection.connection as java.sql.Connection).prepareStatement(UPSERT_KEEPING_WALLET).use { st ->
                 st.setObject(1, playerId.uuid)
                 st.setString(2, text)
                 st.executeUpdate()
             }
-        }
+        } }
     }
 
     private companion object {

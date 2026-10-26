@@ -30,7 +30,7 @@ public class AwardTradingXpOnCurrencyChangedListener(
         require(xpDivisor >= 1L) { "xpDivisor must be >= 1, got $xpDivisor" }
     }
 
-    public fun handle(event: CurrencyChanged) {
+    public suspend fun handle(event: CurrencyChanged) {
         if (event.reason !is CurrencyChangeReason.ShopPurchase) return
         val magnitude = Math.abs(event.delta)
         if (magnitude <= 0L) return

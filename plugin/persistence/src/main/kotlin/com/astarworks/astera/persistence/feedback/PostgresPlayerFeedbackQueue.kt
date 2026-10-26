@@ -16,7 +16,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.update
 import org.slf4j.LoggerFactory
 import java.sql.SQLException
@@ -37,7 +37,7 @@ public class PostgresPlayerFeedbackQueue(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun submit(
+    override suspend fun submit(
         submittedBy: PlayerId,
         target: PlayerId?,
         category: FeedbackCategory,
@@ -56,7 +56,7 @@ public class PostgresPlayerFeedbackQueue(
             status = FeedbackStatus.Open,
         )
         return try {
-            transaction(db) {
+            ioTransaction(db) {
                 PlayerFeedbackTable.insert {
                     it[PlayerFeedbackTable.id] = record.id.value
                     it[PlayerFeedbackTable.submittedBy] = record.submittedBy.uuid
@@ -76,11 +76,11 @@ public class PostgresPlayerFeedbackQueue(
         }
     }
 
-    override fun list(
+    override suspend fun list(
         statusFilter: FeedbackStatus?,
         categoryKey: String?,
         limit: Int,
-    ): List<PlayerFeedback> = transaction(db) {
+    ): List<PlayerFeedback> = ioTransaction(db) {
         // Phase 1 PoC: load + filter in-process. The expected admin queue
         // size (< 10k rows) keeps this comfortably fast; Phase 4 may push
         // the filter into SQL once the Web Admin UI lands.
@@ -93,7 +93,7 @@ public class PostgresPlayerFeedbackQueue(
             .take(limit)
     }
 
-    override fun triage(
+    override suspend fun triage(
         id: FeedbackId,
         decision: FeedbackTriageDecision,
         decidedBy: PlayerId,
@@ -105,16 +105,16 @@ public class PostgresPlayerFeedbackQueue(
         }
 
         return try {
-            transaction(db) {
+            ioTransaction(db) {
                 val current = PlayerFeedbackTable
                     .selectAll()
                     .where { PlayerFeedbackTable.id eq id.value }
                     .firstOrNull()
                     ?.toFeedback()
-                    ?: return@transaction Result.failure(PlayerFeedbackError.UnknownFeedback(id))
+                    ?: return@ioTransaction Result.failure(PlayerFeedbackError.UnknownFeedback(id))
 
                 if (!isValidTransition(current.status, newStatus)) {
-                    return@transaction Result.failure(
+                    return@ioTransaction Result.failure(
                         PlayerFeedbackError.InvalidTransition(current.status, newStatus),
                     )
                 }
@@ -132,7 +132,7 @@ public class PostgresPlayerFeedbackQueue(
         }
     }
 
-    override fun get(id: FeedbackId): PlayerFeedback? = transaction(db) {
+    override suspend fun get(id: FeedbackId): PlayerFeedback? = ioTransaction(db) {
         PlayerFeedbackTable
             .selectAll()
             .where { PlayerFeedbackTable.id eq id.value }

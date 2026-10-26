@@ -19,12 +19,12 @@ public class ResetSeasonUseCase(
     private val clock: () -> Instant = { Instant.now() },
 ) {
 
-    public fun execute(label: String): Result<Season, SeasonError> {
+    public suspend fun execute(label: String): Result<Season, SeasonError> {
         if (label.isBlank()) return Result.failure(SeasonError.BlankLabel)
         return Result.success(seasonRepository.start(label, clock()))
     }
 
-    public fun executeScheduled(scheduleKey: String, label: String, at: Instant): Result<Season?, SeasonError> {
+    public suspend fun executeScheduled(scheduleKey: String, label: String, at: Instant): Result<Season?, SeasonError> {
         if (label.isBlank()) return Result.failure(SeasonError.BlankLabel)
         if (scheduleKey.isBlank()) return Result.failure(SeasonError.BlankScheduleKey)
         return Result.success(seasonRepository.startOnce(scheduleKey, label, at))

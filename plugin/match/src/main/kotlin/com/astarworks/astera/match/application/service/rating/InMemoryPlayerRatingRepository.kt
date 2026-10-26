@@ -16,11 +16,11 @@ public class InMemoryPlayerRatingRepository : IPlayerRatingRepository {
 
     private val ratings: MutableMap<PlayerId, Rating> = mutableMapOf()
 
-    override fun find(playerId: PlayerId): Rating? = ratings[playerId]
+    override suspend fun find(playerId: PlayerId): Rating? = ratings[playerId]
 
-    override fun upsert(playerId: PlayerId, rating: Rating) {
+    override suspend fun upsert(playerId: PlayerId, rating: Rating) {
         ratings[playerId] = rating
     }
 
-    override fun all(): Map<PlayerId, Rating> = ratings.toMap()
+    override suspend fun all(): Map<PlayerId, Rating> = ratings.toMap()
 }

@@ -77,13 +77,13 @@ public class InMemoryNormaService(
 
     override fun activeNormasFor(playerId: PlayerId): Collection<Norma> = definitions.all()
 
-    override fun progress(playerId: PlayerId): Collection<MissionProgress> =
+    override suspend fun progress(playerId: PlayerId): Collection<MissionProgress> =
         progressRepository.allFor(playerId).filter { row ->
             val norma = definitions.find(row.normaId)
             norma == null || row.periodKey == periodKey(norma.period)
         }
 
-    override fun views(playerId: PlayerId): List<NormaView> {
+    override suspend fun views(playerId: PlayerId): List<NormaView> {
         val rows = progressRepository.allFor(playerId).associateBy { it.normaId }
         return definitions.all().map { norma ->
             val row = rows[norma.id]?.takeIf { it.periodKey == periodKey(norma.period) }
@@ -96,7 +96,7 @@ public class InMemoryNormaService(
         }
     }
 
-    override fun recordProgress(playerId: PlayerId, target: NormaTarget, delta: Long): List<MissionProgress> {
+    override suspend fun recordProgress(playerId: PlayerId, target: NormaTarget, delta: Long): List<MissionProgress> {
         val newlyCompleted = mutableListOf<MissionProgress>()
 
         for (norma in definitions.all()) {
@@ -128,7 +128,7 @@ public class InMemoryNormaService(
         return newlyCompleted
     }
 
-    override fun markComplete(playerId: PlayerId, normaId: NormaId): MissionProgress? {
+    override suspend fun markComplete(playerId: PlayerId, normaId: NormaId): MissionProgress? {
         val existing = progressRepository.find(playerId, normaId) ?: run {
             val norma = definitions.find(normaId) ?: return null
             MissionProgress(playerId, normaId, requiredCount(norma.target), false, null, periodKey(norma.period))

@@ -40,7 +40,7 @@ public interface IMatchRecorder {
      * After this returns the in-memory buffer for [matchId] is dropped.
      * Subsequent `isRecording(matchId)` returns false.
      */
-    public fun stopRecording(matchId: MatchId): Result<RecordedReplay, ReplayError>
+    public suspend fun stopRecording(matchId: MatchId): Result<RecordedReplay, ReplayError>
 
     /** True iff `startRecording` has been called for [matchId] and not yet stopped. */
     public fun isRecording(matchId: MatchId): Boolean

@@ -9,11 +9,11 @@ import com.astarworks.astera.core.domain.shop.ShopOfferId
 public interface IShopPurchaseRepository {
 
     /** Persist [record]. Called after the debit and delivery succeeded. */
-    public fun record(record: PurchaseRecord)
+    public suspend fun record(record: PurchaseRecord)
 
     /** How many times [playerId] bought [offerId] in [shopId]. */
-    public fun count(playerId: PlayerId, shopId: ShopId, offerId: ShopOfferId): Int
+    public suspend fun count(playerId: PlayerId, shopId: ShopId, offerId: ShopOfferId): Int
 
     /** The player's [limit] most recent purchases, newest first. */
-    public fun history(playerId: PlayerId, limit: Int): List<PurchaseRecord>
+    public suspend fun history(playerId: PlayerId, limit: Int): List<PurchaseRecord>
 }

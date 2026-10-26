@@ -27,6 +27,7 @@ public class PostgresEngagementSnapshotRepositoryIT : PostgresIntegrationTestBas
      */
     @Test
     public fun `upsert + find round-trips a snapshot`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresEngagementSnapshotRepository(db)
         val pid = PlayerId(UUID.randomUUID())
         val now = Instant.now().truncatedTo(ChronoUnit.MICROS)
@@ -52,10 +53,12 @@ public class PostgresEngagementSnapshotRepositoryIT : PostgresIntegrationTestBas
         assertThat(loaded.refinementAttempts).isEqualTo(7L)
         assertThat(loaded.score.value).isEqualTo(0.42)
         assertThat(loaded.lastSeenAt).isEqualTo(now)
+        }
     }
 
     @Test
     public fun `upsert replaces an existing row`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresEngagementSnapshotRepository(db)
         val pid = PlayerId(UUID.randomUUID())
         val t0 = Instant.now().truncatedTo(ChronoUnit.MICROS)
@@ -79,10 +82,12 @@ public class PostgresEngagementSnapshotRepositoryIT : PostgresIntegrationTestBas
         val loaded = repo.find(pid)!!
         assertThat(loaded.score.value).isEqualTo(0.9)
         assertThat(loaded.computedAt).isEqualTo(t1)
+        }
     }
 
     @Test
     public fun `topByScore returns highest-score first`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresEngagementSnapshotRepository(db)
         val now = Instant.now().truncatedTo(ChronoUnit.MICROS)
         fun snap(scoreVal: Double) = EngagementSnapshot(
@@ -104,5 +109,6 @@ public class PostgresEngagementSnapshotRepositoryIT : PostgresIntegrationTestBas
         val top = repo.topByScore(2)
         assertThat(top).hasSize(2)
         assertThat(top.map { it.score.value }).containsExactly(0.9, 0.5)
-    }
+        }
+}
 }

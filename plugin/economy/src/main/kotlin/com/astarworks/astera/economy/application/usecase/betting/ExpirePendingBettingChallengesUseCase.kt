@@ -19,7 +19,7 @@ public class ExpirePendingBettingChallengesUseCase(
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
-    public fun execute(): List<BettingMatch> {
+    public suspend fun execute(): List<BettingMatch> {
         val now = clock.instant()
         return matches.findByStatus(BettingStatus.PendingAcceptance)
             .filter { it.acceptanceDeadline.isBefore(now) }

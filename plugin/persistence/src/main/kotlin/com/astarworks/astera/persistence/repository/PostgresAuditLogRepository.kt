@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
 import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
 import com.astarworks.astera.core.domain.audit.AuditEvent
 import com.astarworks.astera.core.domain.audit.AuditEventId
@@ -22,7 +23,6 @@ import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.postgresql.util.PGobject
 import java.time.Instant
 import java.util.UUID
@@ -59,7 +59,7 @@ public class PostgresAuditLogRepository(private val db: Database) : IAuditLogRep
         encodeDefaults = true
     }
 
-    override fun write(event: AuditEvent): Unit = transaction(db) {
+    override fun write(event: AuditEvent): Unit = blockingTransaction(db) {
         val (k, payload) = encode(event)
         AuditLogTable.insert {
             it[id] = event.id.value
@@ -74,7 +74,7 @@ public class PostgresAuditLogRepository(private val db: Database) : IAuditLogRep
     override fun recent(limit: Int, since: Instant?): List<AuditEvent> {
         require(limit >= 0) { "limit must be >= 0: $limit" }
         if (limit == 0) return emptyList()
-        return transaction(db) {
+        return blockingTransaction(db) {
             val q = if (since != null) {
                 AuditLogTable.selectAll().where { AuditLogTable.recordedAt greaterEq since }
             } else {

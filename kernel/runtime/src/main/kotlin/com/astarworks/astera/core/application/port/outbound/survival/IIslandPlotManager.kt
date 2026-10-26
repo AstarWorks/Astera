@@ -23,21 +23,21 @@ public interface IIslandPlotManager {
      * island is unknown, the player is not a party member, the player
      * already owns a plot, or no free region is available.
      */
-    public fun assignPlot(islandId: IslandId, ownerId: PlayerId): Result<IslandPlot, PlotError>
+    public suspend fun assignPlot(islandId: IslandId, ownerId: PlayerId): Result<IslandPlot, PlotError>
 
     /**
      * `true` if [playerId] may modify blocks at [position] inside any
      * plot on [islandId]. Returns `true` outside every plot (the
      * region-permission service handles default-allow elsewhere).
      */
-    public fun canBuild(islandId: IslandId, playerId: PlayerId, position: Vec3): Boolean
+    public suspend fun canBuild(islandId: IslandId, playerId: PlayerId, position: Vec3): Boolean
 
     /** Plot for [ownerId] on [islandId], if any. */
-    public fun plotFor(islandId: IslandId, ownerId: PlayerId): IslandPlot?
+    public suspend fun plotFor(islandId: IslandId, ownerId: PlayerId): IslandPlot?
 
     /** All plots currently allocated on [islandId]. */
-    public fun plotsOn(islandId: IslandId): List<IslandPlot>
+    public suspend fun plotsOn(islandId: IslandId): List<IslandPlot>
 
     /** Drop the plot — typically when its owner leaves the party. */
-    public fun releasePlot(plotId: PlotId)
+    public suspend fun releasePlot(plotId: PlotId)
 }

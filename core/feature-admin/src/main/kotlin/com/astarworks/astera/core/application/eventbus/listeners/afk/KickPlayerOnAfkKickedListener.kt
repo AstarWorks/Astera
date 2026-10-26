@@ -59,18 +59,20 @@ public class KickPlayerOnAfkKickedListener(
             reasonKey = REASON_KEY,
             issuedAt = Instant.now(clock),
         )
-        when (val outcome = moderationService.apply(action)) {
-            is Result.Success -> log.info(
-                "AFK auto-kick recorded for {} (idle {} s).",
-                event.playerId,
-                event.durationSec,
-            )
+        com.astarworks.astera.core.application.port.outbound.IoScope.launch {
+            when (val outcome = moderationService.apply(action)) {
+                is Result.Success -> log.info(
+                    "AFK auto-kick recorded for {} (idle {} s).",
+                    event.playerId,
+                    event.durationSec,
+                )
 
-            is Result.Failure -> log.warn(
-                "AFK auto-kick record failed for {}: {}",
-                event.playerId,
-                outcome.error,
-            )
+                is Result.Failure -> log.warn(
+                    "AFK auto-kick record failed for {}: {}",
+                    event.playerId,
+                    outcome.error,
+                )
+            }
         }
     }
 

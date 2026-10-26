@@ -17,16 +17,16 @@ public class InMemoryTournamentRepository : ITournamentRepository {
 
     private val store: MutableMap<TournamentId, Tournament> = ConcurrentHashMap()
 
-    override fun find(id: TournamentId): Tournament? = store[id]
+    override suspend fun find(id: TournamentId): Tournament? = store[id]
 
-    override fun upsert(tournament: Tournament): Tournament {
+    override suspend fun upsert(tournament: Tournament): Tournament {
         store[tournament.id] = tournament
         return tournament
     }
 
-    override fun all(): Collection<Tournament> = store.values.toList()
+    override suspend fun all(): Collection<Tournament> = store.values.toList()
 
-    override fun delete(id: TournamentId) {
+    override suspend fun delete(id: TournamentId) {
         store.remove(id)
     }
 }

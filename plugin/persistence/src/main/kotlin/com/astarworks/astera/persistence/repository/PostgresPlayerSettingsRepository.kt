@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerSettings
@@ -8,7 +9,6 @@ import com.astarworks.astera.persistence.table.PlayerSettingsTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -27,7 +27,7 @@ import java.time.Instant
  */
 public class PostgresPlayerSettingsRepository(private val db: Database) : IPlayerSettingsRepository {
 
-    override fun find(playerId: PlayerId): PlayerSettings? = transaction(db) {
+    override fun find(playerId: PlayerId): PlayerSettings? = blockingTransaction(db) {
         PlayerSettingsTable
             .selectAll()
             .where { PlayerSettingsTable.playerId eq playerId.uuid }
@@ -38,7 +38,7 @@ public class PostgresPlayerSettingsRepository(private val db: Database) : IPlaye
     }
 
     override fun upsert(settings: PlayerSettings) {
-        transaction(db) {
+        blockingTransaction(db) {
             PlayerSettingsTable.upsert(PlayerSettingsTable.playerId) {
                 it[playerId] = settings.playerId.uuid
                 it[PlayerSettingsTable.settings] = PlayerSettingsJson.fromDomain(settings)

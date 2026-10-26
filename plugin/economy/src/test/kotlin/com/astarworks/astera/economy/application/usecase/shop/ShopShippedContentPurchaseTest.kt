@@ -55,6 +55,7 @@ class ShopShippedContentPurchaseTest {
 
     @BeforeEach
     fun setUp() {
+        kotlinx.coroutines.runBlocking {
         server = FakeMcServer()
         player = FakeMcPlayer(id = playerId)
         server.register(player)
@@ -67,7 +68,7 @@ class ShopShippedContentPurchaseTest {
         assertThat(items.bootstrap(content.resolve("items")).failures).isEmpty()
         shops = InMemoryShopRegistry()
         stock = InMemoryShopStockRepository()
-        val report = ShopLoaderService(shops, stock).loadFrom(content.resolve("shops"))
+        val report = kotlinx.coroutines.runBlocking { ShopLoaderService(shops, stock).loadFrom(content.resolve("shops")) }
         assertThat(report.failures).isEmpty()
 
         purchase = ShopPurchaseUseCase(shops, ledger, items, messages, server, eventBus, stock, { delivery }, { false })
@@ -76,6 +77,7 @@ class ShopShippedContentPurchaseTest {
 
         // New players start with no GOLD: give this one enough for the cheapest offer.
         ledger.credit(playerId, Currency.GOLD, 150L)
+        }
     }
 
     @Test
@@ -90,6 +92,7 @@ class ShopShippedContentPurchaseTest {
 
     @Test
     fun `a new player buys the cheapest offer - wallet debited and item delivered`() {
+        kotlinx.coroutines.runBlocking {
         val offer = shops.resolve(shopId)!!.offers.minBy { it.price.amount }
         val startBalance = ledger.balance(playerId, offer.price.currency)
         assertThat(startBalance).`as`("the test wallet must afford the cheapest lobby offer").isGreaterThanOrEqualTo(offer.price.amount)
@@ -103,10 +106,12 @@ class ShopShippedContentPurchaseTest {
         assertThat(ledger.balance(playerId, offer.price.currency)).isEqualTo(startBalance - offer.price.amount)
         assertThat(delivery.delivered).hasSize(1)
         assertThat(eventBus.publishedOfType<CurrencyChanged>().single().delta).isEqualTo(-offer.price.amount)
+        }
     }
 
     @Test
     fun `an offer the wallet cannot cover fails with InsufficientFunds and changes nothing`() {
+        kotlinx.coroutines.runBlocking {
         val offer = shops.resolve(shopId)!!.offers.maxBy { it.price.amount }
         val balance = ledger.balance(playerId, offer.price.currency)
         // Drain to just under the price (the wallet may already be below it).
@@ -124,10 +129,12 @@ class ShopShippedContentPurchaseTest {
         assertThat(ledger.balance(playerId, offer.price.currency)).isEqualTo(before).isLessThan(offer.price.amount)
         assertThat(delivery.delivered).isEmpty()
         assertThat(eventBus.publishedOfType<CurrencyChanged>()).isEmpty()
+        }
     }
 
     @Test
     fun `purchase intent tells the buyer what they bought and what is left`() {
+        kotlinx.coroutines.runBlocking {
         val handler = handler()
         val offer = shops.resolve(shopId)!!.offers.minBy { it.price.amount }
         val click = GuiIntent("shop.purchase", mapOf("shop_id" to shopId.value, "offer_id" to offer.id.value))
@@ -139,10 +146,12 @@ class ShopShippedContentPurchaseTest {
         assertThat(call.placeholders).containsKeys("offer", "price", "currency", "balance")
         assertThat(call.placeholders["price"]).isEqualTo(offer.price.amount.toString())
         assertThat(call.placeholders["currency"]).isEqualTo("astera.economy.currency.${offer.price.currency.name.lowercase()}")
+        }
     }
 
     @Test
     fun `insufficient funds message names the missing currency`() {
+        kotlinx.coroutines.runBlocking {
         val handler = handler()
         val offer = shops.resolve(shopId)!!.offers.maxBy { it.price.amount }
         ledger.debit(playerId, offer.price.currency, ledger.balance(playerId, offer.price.currency))
@@ -156,12 +165,14 @@ class ShopShippedContentPurchaseTest {
         assertThat(call.placeholders["need"]).isEqualTo(offer.price.amount.toString())
         assertThat(call.placeholders["have"]).isEqualTo("0")
         assertThat(call.placeholders["short"]).isEqualTo(offer.price.amount.toString())
+        }
     }
 
     @Test
     fun `an expensive offer needs a confirming second click and the shop repaints with the new balance`() {
+        kotlinx.coroutines.runBlocking {
         val offer = shops.resolve(shopId)!!.offers.filter { it.price.amount >= ShopIntentHandler.CONFIRM_AT }
-            .minByOrNull { it.price.amount } ?: return
+            .minByOrNull { it.price.amount } ?: return@runBlocking
         ledger.credit(playerId, offer.price.currency, offer.price.amount * 2)
         val before = ledger.balance(playerId, offer.price.currency)
         browse.execute(playerId, shopId)
@@ -178,10 +189,12 @@ class ShopShippedContentPurchaseTest {
         assertThat(delivery.delivered).hasSize(1)
         // Repainted in place (Update, not a second Open) and the wallet line shows the new balance.
         assertThat(gui.history(player).filterIsInstance<FakeGuiAdapter.GuiOperation.Update>()).isNotEmpty
+        }
     }
 
     @Test
     fun `the shop gui shows price in the offer currency, a wallet and shortfall for unaffordable offers`() {
+        kotlinx.coroutines.runBlocking {
         ledger.debit(playerId, Currency.GOLD, ledger.balance(playerId, Currency.GOLD))
         assertThat(browse.execute(playerId, shopId)).isInstanceOf(Result.Success::class.java)
         val spec = gui.currentSpec(player)!!
@@ -194,12 +207,15 @@ class ShopShippedContentPurchaseTest {
         val footer = (0 until spec.size.slotCount).map { spec.slotAt(com.astarworks.astera.core.domain.gui.SlotIndex(it)) }.filterIsInstance<com.astarworks.astera.core.domain.gui.GuiSlot.Static>().filter { it.displayName?.key?.value == "astera.economy.shop.gui.wallet.title" }
         assertThat(footer).hasSize(1)
         assertThat(footer.single().lore).hasSize(Currency.entries.size)
+        }
     }
 
     @Test
     fun `unknown ids do not throw`() {
+        kotlinx.coroutines.runBlocking {
         val result = purchase.execute(playerId, ShopId("no-such-shop"), ShopOfferId("x"))
         assertThat(result.errorOrNull()).isEqualTo(ShopPurchaseError.ShopNotFound(ShopId("no-such-shop")))
+        }
     }
 
     private fun handler() = ShopIntentHandler(purchase, messages, FakePlayerGateway(), shops, ledger, browse)

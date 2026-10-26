@@ -20,16 +20,16 @@ public class InMemoryFriendshipRepository : IFriendshipRepository {
 
     private val rows: ConcurrentHashMap<Pair<PlayerId, PlayerId>, Friendship> = ConcurrentHashMap()
 
-    override fun find(a: PlayerId, b: PlayerId): Friendship? = rows[canonicalKey(a, b)]
+    override suspend fun find(a: PlayerId, b: PlayerId): Friendship? = rows[canonicalKey(a, b)]
 
-    override fun forPlayer(playerId: PlayerId): List<Friendship> =
+    override suspend fun forPlayer(playerId: PlayerId): List<Friendship> =
         rows.values.filter { it.playerA == playerId || it.playerB == playerId }
 
-    override fun upsert(friendship: Friendship) {
+    override suspend fun upsert(friendship: Friendship) {
         rows[canonicalKey(friendship.playerA, friendship.playerB)] = friendship
     }
 
-    override fun remove(a: PlayerId, b: PlayerId) {
+    override suspend fun remove(a: PlayerId, b: PlayerId) {
         rows.remove(canonicalKey(a, b))
     }
 

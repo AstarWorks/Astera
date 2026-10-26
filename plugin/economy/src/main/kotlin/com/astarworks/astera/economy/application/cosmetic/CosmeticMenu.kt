@@ -56,7 +56,7 @@ public class CosmeticMenu(
     private val pending = ConcurrentHashMap<PlayerId, Pending>()
 
     /** Open (or repaint, when already open) the menu for [playerId]. False when the player is offline or the GUI was refused. */
-    public fun open(playerId: PlayerId, pendingId: String? = null): Boolean {
+    public suspend fun open(playerId: PlayerId, pendingId: String? = null): Boolean {
         val player = server.findPlayer(playerId) ?: return false
         val spec = build(playerId, pendingId)
         return if (adapter.currentSpec(player)?.id == GUI_ID) {
@@ -67,7 +67,7 @@ public class CosmeticMenu(
         }
     }
 
-    public fun handle(intent: GuiIntent, player: IMcPlayer) {
+    public suspend fun handle(intent: GuiIntent, player: IMcPlayer) {
         when (intent.key) {
             INTENT_OPEN -> if (!open(player.id)) send(player.id, MSG_ERROR)
             INTENT_CLICK -> click(player.id, intent.payload["id"].orEmpty())
@@ -87,7 +87,7 @@ public class CosmeticMenu(
         presentation()?.play(moment, playerId)
     }
 
-    private fun click(playerId: PlayerId, id: String) {
+    private suspend fun click(playerId: PlayerId, id: String) {
         val cosmetic = cosmetics.find(id) ?: return deny(playerId)
         val name = messages.render(playerId, cosmetic.nameKey)
         val price = cosmetic.priceGold
@@ -129,7 +129,7 @@ public class CosmeticMenu(
     private fun armed(playerId: PlayerId, id: String): Boolean =
         pending[playerId]?.let { it.cosmeticId == id && it.expiresAtMs >= clock.millis() } == true
 
-    private fun purchase(playerId: PlayerId, cosmetic: Cosmetic, price: Long, name: String) {
+    private suspend fun purchase(playerId: PlayerId, cosmetic: Cosmetic, price: Long, name: String) {
         val store = unlocks() ?: return send(playerId, MSG_ERROR)
         val debit = ledger.debit(playerId, Currency.GOLD, price)
         if (debit is com.astarworks.astera.core.domain.Result.Failure) return send(playerId, MSG_ERROR)
@@ -152,7 +152,7 @@ public class CosmeticMenu(
         send(playerId, MSG_BOUGHT, mapOf("name" to name, "price" to price.toString(), "balance" to balance.toString()))
     }
 
-    private fun build(playerId: PlayerId, pendingId: String?): GuiSpec {
+    private suspend fun build(playerId: PlayerId, pendingId: String?): GuiSpec {
         val catalog = cosmetics.catalog()
             .sortedWith(compareBy({ it.kind }, { it.priceGold ?: 0L }, { it.id }))
             .take(MAX_ENTRIES)
@@ -160,8 +160,9 @@ public class CosmeticMenu(
         val size = GuiSize.entries.first { it.slotCount == (rows + 1) * 9 }
         val footer = size.slotCount - 9
         val have = ledger.balance(playerId, Currency.GOLD)
+        val entries = catalog.map { c -> entry(playerId, c, have, pendingId == c.id) }
         return GuiSpec.build(id = GUI_ID, title = MessageKey("astera.cosmetic.gui.title"), size = size) {
-            catalog.forEachIndexed { index, c -> slot(SlotIndex(index), entry(playerId, c, have, pendingId == c.id)) }
+            entries.forEachIndexed { index, entry -> slot(SlotIndex(index), entry) }
             for (col in 0 until 9) slot(SlotIndex(footer + col), GuiSlot.Border(FOOTER_PANE))
             CosmeticKind.entries.forEachIndexed { i, kind ->
                 slot(
@@ -183,7 +184,7 @@ public class CosmeticMenu(
         }
     }
 
-    private fun entry(playerId: PlayerId, c: Cosmetic, have: Long, pending: Boolean): GuiSlot.Static {
+    private suspend fun entry(playerId: PlayerId, c: Cosmetic, have: Long, pending: Boolean): GuiSlot.Static {
         val owned = cosmetics.owns(playerId, c)
         val equipped = owned && cosmetics.equipped(playerId, c.kind)?.id == c.id
         val price = c.priceGold

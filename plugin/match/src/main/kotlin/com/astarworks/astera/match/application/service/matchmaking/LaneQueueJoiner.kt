@@ -34,7 +34,7 @@ public class LaneQueueJoiner(
         public data class Rejected(val error: QueueError) : Outcome
     }
 
-    public fun join(player: PlayerId, lane: QueueLane): Outcome {
+    public suspend fun join(player: PlayerId, lane: QueueLane): Outcome {
         if (matches.findActiveMatches().any { m -> m.teams.any { player in it.members } }) return Outcome.InMatch
         val existing = matchmaker.queueStatus(player)
         if (existing != null && existing.mode == lane.mode) return Outcome.AlreadyHere(existing)

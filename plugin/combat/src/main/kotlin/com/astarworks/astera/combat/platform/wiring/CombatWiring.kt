@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.domain.damage.attackerIdOrNull
 import com.astarworks.astera.combat.application.config.StatusEffectInteractionLoader
@@ -405,7 +406,9 @@ public object CombatWiring {
                             else -> false
                         }
                         if (primary) source.attackerIdOrNull()?.let { player ->
-                            services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()?.recordAction(player, "primary")
+                            scheduler.launch(ExecutionScope.Entity(player.uuid)) {
+                                services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()?.recordAction(player, "primary")
+                            }
                         }
                     },
                 ),

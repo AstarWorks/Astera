@@ -36,7 +36,7 @@ public class DefaultDialogPredicateEvaluator(
     private val inventoryProbe: (PlayerId, DialogPredicate.HasItem) -> Boolean = { _, _ -> false },
 ) : IDialogPredicateEvaluator {
 
-    override fun evaluate(playerId: PlayerId, predicate: DialogPredicate): Boolean = when (predicate) {
+    override suspend fun evaluate(playerId: PlayerId, predicate: DialogPredicate): Boolean = when (predicate) {
         is DialogPredicate.HasItem -> inventoryProbe(playerId, predicate)
         is DialogPredicate.HasCurrency -> {
             // Lazy ledger lookup: economy plugin loads after core, so the

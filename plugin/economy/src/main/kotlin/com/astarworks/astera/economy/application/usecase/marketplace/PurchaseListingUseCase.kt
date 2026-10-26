@@ -40,7 +40,7 @@ public class PurchaseListingUseCase(
     private val clock: () -> Instant = Instant::now,
 ) {
 
-    public fun execute(
+    public suspend fun execute(
         buyer: PlayerId,
         listingId: ListingId,
     ): Result<Unit, PurchaseListingError> {

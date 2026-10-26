@@ -23,7 +23,7 @@ public interface IBettingHistoryService {
      * only matches that progressed past `PendingAcceptance` (i.e. accepted —
      * declined / expired stakes are NOT counted against the daily cap).
      */
-    public fun dailyStakeFor(
+    public suspend fun dailyStakeFor(
         playerId: PlayerId,
         currency: Currency,
         sinceUtcDayStart: Instant,
@@ -34,21 +34,21 @@ public interface IBettingHistoryService {
      * challenge. Returns null if no cooldown is active. Computed from the
      * most recent match's `resolvedAt + policy.cooldownAfterMatch`.
      */
-    public fun cooldownUntil(playerId: PlayerId): Instant?
+    public suspend fun cooldownUntil(playerId: PlayerId): Instant?
 
     /** Get-or-create the [LossStreakState] for [playerId]. Default = empty. */
-    public fun lossStreakOf(playerId: PlayerId): LossStreakState
+    public suspend fun lossStreakOf(playerId: PlayerId): LossStreakState
 
     /**
      * Record [playerId]'s most recent match-resolution timestamp (used for
      * cooldown computation). Called from
      * `DistributeBettingPayoutOnResolvedListener`.
      */
-    public fun recordResolution(playerId: PlayerId, resolvedAt: Instant)
+    public suspend fun recordResolution(playerId: PlayerId, resolvedAt: Instant)
 
     /**
      * Persist the player's updated loss-streak state. Called from
      * `DistributeBettingPayoutOnResolvedListener` after each outcome.
      */
-    public fun saveLossStreak(state: LossStreakState)
+    public suspend fun saveLossStreak(state: LossStreakState)
 }

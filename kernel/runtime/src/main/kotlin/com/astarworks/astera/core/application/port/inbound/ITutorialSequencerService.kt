@@ -12,17 +12,17 @@ import com.astarworks.astera.core.domain.tutorial.TutorialStep
  */
 public interface ITutorialSequencerService {
 
-    public fun startSequence(
+    public suspend fun startSequence(
         playerId: PlayerId,
         scriptId: TutorialScriptId,
     ): Result<Unit, TutorialSequencerError>
 
-    public fun currentStep(playerId: PlayerId): TutorialStep?
+    public suspend fun currentStep(playerId: PlayerId): TutorialStep?
 
-    public fun advance(playerId: PlayerId): Result<TutorialStep?, TutorialSequencerError>
+    public suspend fun advance(playerId: PlayerId): Result<TutorialStep?, TutorialSequencerError>
 
     /** Only successful gameplay operations may supply action tokens. */
-    public fun recordAction(playerId: PlayerId, actionId: String): Result<Boolean, TutorialSequencerError> {
+    public suspend fun recordAction(playerId: PlayerId, actionId: String): Result<Boolean, TutorialSequencerError> {
         val step = currentStep(playerId) as? TutorialStep.WaitForAction
         if (step?.actionId != actionId) return Result.success(false)
         return when (val result = advance(playerId)) {
@@ -31,5 +31,5 @@ public interface ITutorialSequencerService {
         }
     }
 
-    public fun cancel(playerId: PlayerId): Result<Unit, TutorialSequencerError>
+    public suspend fun cancel(playerId: PlayerId): Result<Unit, TutorialSequencerError>
 }

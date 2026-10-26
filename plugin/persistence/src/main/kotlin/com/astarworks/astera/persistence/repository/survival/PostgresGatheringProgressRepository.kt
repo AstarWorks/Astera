@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
@@ -21,7 +21,7 @@ import org.jetbrains.exposed.v1.jdbc.upsert
  */
 public class PostgresGatheringProgressRepository(private val db: Database) : IGatheringProgressRepository {
 
-    override fun find(playerId: PlayerId, spotId: GatheringSpotId): GatheringProgress? = transaction(db) {
+    override suspend fun find(playerId: PlayerId, spotId: GatheringSpotId): GatheringProgress? = ioTransaction(db) {
         GatheringProgressTable
             .selectAll()
             .where { (GatheringProgressTable.playerId eq playerId.uuid) and (GatheringProgressTable.spotId eq spotId.value) }
@@ -29,15 +29,15 @@ public class PostgresGatheringProgressRepository(private val db: Database) : IGa
             ?.toProgress()
     }
 
-    override fun forPlayer(playerId: PlayerId): List<GatheringProgress> = transaction(db) {
+    override suspend fun forPlayer(playerId: PlayerId): List<GatheringProgress> = ioTransaction(db) {
         GatheringProgressTable
             .selectAll()
             .where { GatheringProgressTable.playerId eq playerId.uuid }
             .map { it.toProgress() }
     }
 
-    override fun upsert(progress: GatheringProgress) {
-        transaction(db) {
+    override suspend fun upsert(progress: GatheringProgress) {
+        ioTransaction(db) {
             GatheringProgressTable.upsert(
                 GatheringProgressTable.playerId,
                 GatheringProgressTable.spotId,

@@ -22,10 +22,10 @@ public class InMemoryPlayerAdvancementProgressRepository : IPlayerAdvancementPro
     private val store: ConcurrentHashMap<Pair<PlayerId, AdvancementId>, AdvancementProgress> =
         ConcurrentHashMap()
 
-    override fun find(playerId: PlayerId, advancementId: AdvancementId): AdvancementProgress? =
+    override suspend fun find(playerId: PlayerId, advancementId: AdvancementId): AdvancementProgress? =
         store[playerId to advancementId]
 
-    override fun upsert(
+    override suspend fun upsert(
         playerId: PlayerId,
         advancementId: AdvancementId,
         progress: AdvancementProgress,
@@ -33,7 +33,7 @@ public class InMemoryPlayerAdvancementProgressRepository : IPlayerAdvancementPro
         store[playerId to advancementId] = progress
     }
 
-    override fun allFor(playerId: PlayerId): Map<AdvancementId, AdvancementProgress> =
+    override suspend fun allFor(playerId: PlayerId): Map<AdvancementId, AdvancementProgress> =
         store.entries.asSequence()
             .filter { it.key.first == playerId }
             .associate { it.key.second to it.value }

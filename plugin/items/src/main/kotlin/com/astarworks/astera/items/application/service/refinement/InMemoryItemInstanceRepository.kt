@@ -21,16 +21,16 @@ public class InMemoryItemInstanceRepository : IItemInstanceRepository {
 
     private val store: MutableMap<ItemInstanceId, ItemInstance> = ConcurrentHashMap()
 
-    override fun findById(id: ItemInstanceId): ItemInstance? = store[id]
+    override suspend fun findById(id: ItemInstanceId): ItemInstance? = store[id]
 
-    override fun findByOwner(player: PlayerId): List<ItemInstance> =
+    override suspend fun findByOwner(player: PlayerId): List<ItemInstance> =
         store.values.filter { it.owner == player }
 
-    override fun save(instance: ItemInstance) {
+    override suspend fun save(instance: ItemInstance) {
         store[instance.id] = instance
     }
 
-    override fun delete(id: ItemInstanceId) {
+    override suspend fun delete(id: ItemInstanceId) {
         store.remove(id)
     }
 }

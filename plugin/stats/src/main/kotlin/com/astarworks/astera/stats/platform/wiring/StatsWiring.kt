@@ -1,5 +1,6 @@
 package com.astarworks.astera.stats.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -210,9 +211,9 @@ public object StatsWiring {
             cosmetics = { services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
             effects = { services.get<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticEffectPlayer>() },
         )
-        subscriptions += eventBus.subscribe(PlayerKilled::class) { cosmeticKillEffect.handle(it) }
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { scheduler.launch(ExecutionScope.Global) { scheduler.launch(ExecutionScope.Global) { cosmeticKillEffect.handle(it) } } }
         subscriptions += eventBus.subscribe(DamageDealt::class) { rewardOnDamage.handle(it) }
-        subscriptions += eventBus.subscribe(PlayerKilled::class) { missionProgressOnKill.handle(it) }
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { scheduler.launch(ExecutionScope.Global) { missionProgressOnKill.handle(it)  }}
         subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchPlayedListener.handle(it) }
         subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchResultListener.handle(it) }
         val recordForfeitLossListener = RecordForfeitLossListener(recordMatchPlayed, recordMatchResult)
@@ -256,8 +257,10 @@ public object StatsWiring {
         )
         registrations += services.register(grantLevelRewards)
         fun reconcileRewards(id: com.astarworks.astera.core.domain.player.PlayerId) {
-            grantLevelRewards.execute(id, levelService.currentLevel(id).value).onFailure {
-                logger.warning("Level reward reconciliation failed for $id: $it")
+            scheduler.launch(ExecutionScope.Entity(id.uuid)) {
+                grantLevelRewards.execute(id, levelService.currentLevel(id).value).onFailure {
+                    logger.warning("Level reward reconciliation failed for $id: $it")
+                }
             }
         }
         subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.XpGranted::class) {
@@ -279,10 +282,10 @@ public object StatsWiring {
         val achievementContents = com.astarworks.astera.stats.application.contents.AchievementContents()
         val achievementReport = achievementContents.bootstrap(achievementContentDir)
         logger.info("Loaded ${achievementReport.loaded} achievement(s) from $achievementContentDir (failed: ${achievementReport.failed})")
-        achievementRepo.registerAll(achievementContents.all().toList())
+        kotlinx.coroutines.runBlocking { achievementRepo.registerAll(achievementContents.all().toList()) }
         val achievementReload = reloadRegistry.register(
             com.astarworks.astera.stats.application.contents.ReloadSyncedContents(achievementContents) {
-                achievementRepo.registerAll(achievementContents.all().toList())
+                kotlinx.coroutines.runBlocking { achievementRepo.registerAll(achievementContents.all().toList()) }
             },
             achievementContentDir,
         )
@@ -336,17 +339,17 @@ public object StatsWiring {
         )
         val progressionAchievements = com.astarworks.astera.stats.application.eventbus.listeners.UnlockProgressionAchievementsListener(unlockAchievement)
 
-        subscriptions += eventBus.subscribe(PlayerKilled::class) { killMilestoneListener.handle(it) }
-        subscriptions += eventBus.subscribe(DamageDealt::class) { damageMilestoneListener.handle(it) }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { matchWinMilestoneListener.handle(it) }
-        subscriptions += eventBus.subscribe(MissionCompleted::class) { advanceLevelOnNormaListener.handle(it) }
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { scheduler.launch(ExecutionScope.Global) { scheduler.launch(ExecutionScope.Global) { killMilestoneListener.handle(it) } } }
+        subscriptions += eventBus.subscribe(DamageDealt::class) { scheduler.launch(ExecutionScope.Global) { damageMilestoneListener.handle(it) } }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { scheduler.launch(ExecutionScope.Global) { scheduler.launch(ExecutionScope.Global) { matchWinMilestoneListener.handle(it) } } }
+        subscriptions += eventBus.subscribe(MissionCompleted::class) { scheduler.launch(ExecutionScope.Global) { advanceLevelOnNormaListener.handle(it) } }
         subscriptions += eventBus.subscribe(MissionCompleted::class) { payOutMission.handle(it) }
-        subscriptions += eventBus.subscribe(MissionCompleted::class) { progressionAchievements.handle(it) }
-        subscriptions += eventBus.subscribe(LeveledUp::class) { progressionAchievements.handle(it) }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.LoginBonusClaimed::class) { progressionAchievements.handle(it) }
-        subscriptions += eventBus.subscribe(DamageDealt::class) { trackNormaProgress.handle(it) }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { trackNormaProgress.handle(it) }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.XpGranted::class) { trackNormaProgress.handle(it) }
+        subscriptions += eventBus.subscribe(MissionCompleted::class) { scheduler.launch(ExecutionScope.Global) { progressionAchievements.handle(it) } }
+        subscriptions += eventBus.subscribe(LeveledUp::class) { scheduler.launch(ExecutionScope.Global) { progressionAchievements.handle(it) } }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.LoginBonusClaimed::class) { scheduler.launch(ExecutionScope.Global) { progressionAchievements.handle(it) } }
+        subscriptions += eventBus.subscribe(DamageDealt::class) { scheduler.launch(ExecutionScope.Global) { trackNormaProgress.handle(it)  }}
+        subscriptions += eventBus.subscribe(MatchEnded::class) { scheduler.launch(ExecutionScope.Global) { trackNormaProgress.handle(it)  }}
+        subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.XpGranted::class) { scheduler.launch(ExecutionScope.Global) { trackNormaProgress.handle(it)  }}
 
         // ---- Wave 5p Advancement progress fan-out (ADR-0088) ------------
         // Bridges combat / economy / match / items events into core's
@@ -360,14 +363,14 @@ public object StatsWiring {
             registry = advancementRegistry,
             matchRepository = matchRepository,
         )
-        subscriptions += eventBus.subscribe(PlayerKilled::class) { trackAdvancement.handle(it) }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { trackAdvancement.handle(it) }
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { scheduler.launch(ExecutionScope.Global) { trackAdvancement.handle(it) } }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { scheduler.launch(ExecutionScope.Global) { trackAdvancement.handle(it) } }
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.core.domain.event.CurrencyChanged::class,
-        ) { trackAdvancement.handle(it) }
+        ) { scheduler.launch(ExecutionScope.Global) { trackAdvancement.handle(it) } }
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.core.domain.event.ItemAcquired::class,
-        ) { trackAdvancement.handle(it) }
+        ) { scheduler.launch(ExecutionScope.Global) { trackAdvancement.handle(it) } }
 
         // ---- Wave 5multi-skill (ADR-0101): multi-axis skill progression -----
         // Repository: Postgres overlay at priority=100 wins when persistence is loaded.
@@ -398,12 +401,12 @@ public object StatsWiring {
         val broadcastSkillLevelUp = BroadcastOnSkillLevelUpListener(broadcaster)
         val grantPerksOnLevelUp = GrantPerksOnSkillLevelUpListener(skillProgressionContents, eventBus, broadcaster)
 
-        subscriptions += eventBus.subscribe(DamageDealt::class) { combatXpOnDamage.handle(it) }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { combatXpOnMatchEnded.handle(it) }
-        subscriptions += eventBus.subscribe(MobKilled::class) { bossSlayerXpOnKill.handle(it) }
-        subscriptions += eventBus.subscribe(BlockBroken::class) { miningXpOnBlockBroken.onPickaxeBreak(it) }
-        subscriptions += eventBus.subscribe(BlockBrokenBySkill::class) { miningXpOnBlockBroken.onSkillBreak(it) }
-        subscriptions += eventBus.subscribe(CurrencyChanged::class) { tradingXpOnCurrency.handle(it) }
+        subscriptions += eventBus.subscribe(DamageDealt::class) { scheduler.launch(ExecutionScope.Global) { scheduler.launch(ExecutionScope.Global) { combatXpOnDamage.handle(it) } } }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { scheduler.launch(ExecutionScope.Global) { scheduler.launch(ExecutionScope.Global) { combatXpOnMatchEnded.handle(it) } } }
+        subscriptions += eventBus.subscribe(MobKilled::class) { scheduler.launch(ExecutionScope.Global) { scheduler.launch(ExecutionScope.Global) { bossSlayerXpOnKill.handle(it) } } }
+        subscriptions += eventBus.subscribe(BlockBroken::class) { scheduler.launch(ExecutionScope.Global) { miningXpOnBlockBroken.onPickaxeBreak(it) } }
+        subscriptions += eventBus.subscribe(BlockBrokenBySkill::class) { scheduler.launch(ExecutionScope.Global) { miningXpOnBlockBroken.onSkillBreak(it) } }
+        subscriptions += eventBus.subscribe(CurrencyChanged::class) { scheduler.launch(ExecutionScope.Global) { tradingXpOnCurrency.handle(it) } }
         subscriptions += eventBus.subscribe(SkillLevelUp::class) { broadcastSkillLevelUp.handle(it) }
         subscriptions += eventBus.subscribe(SkillLevelUp::class) { grantPerksOnLevelUp.handle(it) }
 
@@ -450,9 +453,9 @@ public object StatsWiring {
             hudGateway = hudGateway,
             achievements = achievementRepo,
         )
-        subscriptions += eventBus.subscribe(AchievementUnlocked::class) {
+        subscriptions += eventBus.subscribe(AchievementUnlocked::class) { scheduler.launch(ExecutionScope.Global) {
             notifyOnUnlock.handle(it)
-        }
+ } }
 
         // ---- Wave K 5integration-wire (ADR-0128) — 3 cross-feature wires ---
         //
@@ -466,25 +469,25 @@ public object StatsWiring {
         //    public profile card cache so the unlock shows up on web /
         //    Discord embed without waiting for a scheduler tick.
         val grantAchievementOnTutorial = GrantAchievementOnTutorialCompletedListener(unlockAchievement)
-        subscriptions += eventBus.subscribe(TutorialCompleted::class) {
+        subscriptions += eventBus.subscribe(TutorialCompleted::class) { scheduler.launch(ExecutionScope.Global) {
             grantAchievementOnTutorial.handle(it)
-        }
+ } }
 
         val questChainRegistry = services.getOrThrow<IQuestChainRegistry>()
         val updateAchievementOnQuestStage = UpdateAchievementProgressOnQuestStageCompletedListener(
             chains = questChainRegistry,
             unlockAchievement = unlockAchievement,
         )
-        subscriptions += eventBus.subscribe(QuestStageCompleted::class) {
+        subscriptions += eventBus.subscribe(QuestStageCompleted::class) { scheduler.launch(ExecutionScope.Global) {
             updateAchievementOnQuestStage.handle(it)
-        }
+ } }
 
         val recomputeProfileCard = services.getOrThrow<RecomputeProfileCardUseCase>()
         val recomputeProfileCardOnAchievementUnlocked =
             RecomputeProfileCardOnAchievementUnlockedListener(recomputeProfileCard)
-        subscriptions += eventBus.subscribe(AchievementUnlocked::class) {
+        subscriptions += eventBus.subscribe(AchievementUnlocked::class) { scheduler.launch(ExecutionScope.Global) {
             recomputeProfileCardOnAchievementUnlocked.handle(it)
-        }
+ } }
         logger.info(
             "Wave K 5integration-wire (ADR-0128) wired: " +
                 "GrantAchievementOnTutorialCompleted, " +
@@ -511,7 +514,7 @@ public object StatsWiring {
             .RecordRatingOnPlayerRatingUpdatedListener(seasonRepository, leaderboardRepository)
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.core.domain.event.PlayerRatingUpdated::class,
-        ) { recordRatingListener.handle(it) }
+        ) { scheduler.launch(ExecutionScope.Global) { recordRatingListener.handle(it) } }
 
         val queryLeaderboard = com.astarworks.astera.stats.application.usecase.leaderboard
             .QueryLeaderboardUseCase(leaderboardRepository, seasonRepository)
@@ -534,7 +537,7 @@ public object StatsWiring {
             }
             registrations += services.register(checkSeason)
             val seasonTask = scheduler.runRepeatingTicks(ExecutionScope.Io, 1L, 1200L) {
-                checkSeason.execute(java.time.Instant.now()).onFailure { logger.warning("Season check failed: $it") }
+                kotlinx.coroutines.runBlocking { checkSeason.execute(java.time.Instant.now()) }.onFailure { logger.warning("Season check failed: $it") }
             }
             shutdownHooks += { seasonTask.cancel() }
         }
@@ -590,12 +593,12 @@ public object StatsWiring {
             .TrackQuestProgressListener(questService, questChainRegistry, matchRepository)
         val notifyQuestStage = com.astarworks.astera.stats.application.eventbus.listeners.quest
             .NotifyOnQuestStageCompletedListener(questChainRegistry, messages, playerGateway, hudGateway)
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { startQuestsOnJoin.handle(it) }
-        subscriptions += eventBus.subscribe(PlayerKilled::class) { trackQuestProgress.handle(it) }
-        subscriptions += eventBus.subscribe(MobKilled::class) { trackQuestProgress.handle(it) }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { trackQuestProgress.handle(it) }
-        subscriptions += eventBus.subscribe(CurrencyChanged::class) { trackQuestProgress.handle(it) }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.ItemAcquired::class) { trackQuestProgress.handle(it) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { scheduler.launch(ExecutionScope.Global) { startQuestsOnJoin.handle(it) } }
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { scheduler.launch(ExecutionScope.Global) { scheduler.launch(ExecutionScope.Global) { trackQuestProgress.handle(it) } } }
+        subscriptions += eventBus.subscribe(MobKilled::class) { scheduler.launch(ExecutionScope.Global) { scheduler.launch(ExecutionScope.Global) { trackQuestProgress.handle(it) } } }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { scheduler.launch(ExecutionScope.Global) { trackQuestProgress.handle(it) } }
+        subscriptions += eventBus.subscribe(CurrencyChanged::class) { scheduler.launch(ExecutionScope.Global) { trackQuestProgress.handle(it) } }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.ItemAcquired::class) { scheduler.launch(ExecutionScope.Global) { trackQuestProgress.handle(it) } }
         subscriptions += eventBus.subscribe(QuestStageCompleted::class) { notifyQuestStage.handle(it) }
 
         val loginBonusService = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginBonusService>()
@@ -607,9 +610,9 @@ public object StatsWiring {
             scheduler = scheduler,
         )
         if (ctx.serverRole.hostsLobby) {
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) {
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { scheduler.launch(ExecutionScope.Global) {
                 claimLoginBonus.handle(it)
-            }
+ } }
         }
         com.astarworks.astera.stats.command.ProgressionCommands(
             loginBonus = loginBonusService,

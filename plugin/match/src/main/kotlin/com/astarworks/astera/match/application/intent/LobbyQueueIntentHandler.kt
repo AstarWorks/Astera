@@ -54,7 +54,7 @@ public class LobbyQueueIntentHandler(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(intent: GuiIntent, player: IMcPlayer) {
+    public suspend fun handle(intent: GuiIntent, player: IMcPlayer) {
         when (intent.key) {
             INTENT_SHOW -> openPicker(player)
             INTENT_JOIN -> choose(intent, player, withBots = false)
@@ -101,7 +101,7 @@ public class LobbyQueueIntentHandler(
     /** [key] when the catalogue knows it (the renderer echoes unknown keys back). */
     private fun known(key: MessageKey): MessageKey? = key.takeIf { messages.render(null, it) != it.value }
 
-    private fun choose(intent: GuiIntent, player: IMcPlayer, withBots: Boolean) {
+    private suspend fun choose(intent: GuiIntent, player: IMcPlayer, withBots: Boolean) {
         val lane = resolveLane(intent)
         if (lane == null) {
             log.warn("lobby.queue intent without a usable lane from {}: {}", player.name, intent.payload)

@@ -44,7 +44,7 @@ public class SlowQueryAuditLogger(
             val sql = runCatching { context.sql(transaction) }.getOrElse {
                 context.statement.toString()
             }
-            repository.record(
+            com.astarworks.astera.core.application.port.outbound.IoScope.launch { repository.record(
                 SlowQueryRecord(
                     capturedAt = clock(),
                     durationMs = durationMs,
@@ -53,7 +53,7 @@ public class SlowQueryAuditLogger(
                     rowsAffected = 0L,
                     context = context.statement.type.name,
                 ),
-            )
+            ) }
         } catch (t: Throwable) {
             this.log.debug("slow-query logger dispatch failed (dropped)", t)
         }

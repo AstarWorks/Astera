@@ -21,7 +21,7 @@ public class WithdrawUseCase(
     private val ledger: ICurrencyLedger,
     private val eventBus: IDomainEventBus,
 ) {
-    public fun execute(
+    public suspend fun execute(
         playerId: PlayerId,
         currency: Currency,
         amount: Long,

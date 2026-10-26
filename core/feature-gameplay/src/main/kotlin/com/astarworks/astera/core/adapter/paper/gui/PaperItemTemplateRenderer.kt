@@ -84,7 +84,8 @@ public class PaperItemTemplateRenderer(
      * (`player.coins.gold`, `player.kills`).
      */
     private fun resolveReactive(slot: GuiSlot.Reactive, viewer: PlayerId?): ItemStack {
-        val resolved = bindingResolver.resolve(slot.binding, viewer)
+        // GUI rendering is synchronous on the owning thread; binding resolvers read preloaded/cached state.
+        val resolved = kotlinx.coroutines.runBlocking { bindingResolver.resolve(slot.binding, viewer) }
         if (resolved == null) {
             log.warn(
                 "Reactive binding '{}' did not resolve for viewer={}; rendering BARRIER.",

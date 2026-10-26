@@ -16,12 +16,12 @@ import com.astarworks.astera.stats.domain.achievement.PlayerAchievement
 public interface IAchievementRepository {
 
     // ---- Catalog -------------------------------------------------------
-    public fun find(id: AchievementId): Achievement?
-    public fun list(): List<Achievement>
-    public fun registerAll(achievements: List<Achievement>)
+    public suspend fun find(id: AchievementId): Achievement?
+    public suspend fun list(): List<Achievement>
+    public suspend fun registerAll(achievements: List<Achievement>)
 
     // ---- Per-player unlocks --------------------------------------------
-    public fun unlocked(playerId: PlayerId): Set<AchievementId>
-    public fun isUnlocked(playerId: PlayerId, id: AchievementId): Boolean
-    public fun unlock(playerAchievement: PlayerAchievement)
+    public suspend fun unlocked(playerId: PlayerId): Set<AchievementId>
+    public suspend fun isUnlocked(playerId: PlayerId, id: AchievementId): Boolean
+    public suspend fun unlock(playerAchievement: PlayerAchievement)
 }

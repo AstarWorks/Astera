@@ -25,11 +25,11 @@ public class InMemoryAchievementRepository : IAchievementRepository {
 
     // ---- Catalog -----------------------------------------------------------
 
-    override fun find(id: AchievementId): Achievement? = catalog[id]
+    override suspend fun find(id: AchievementId): Achievement? = catalog[id]
 
-    override fun list(): List<Achievement> = catalog.values.toList()
+    override suspend fun list(): List<Achievement> = catalog.values.toList()
 
-    override fun registerAll(achievements: List<Achievement>) {
+    override suspend fun registerAll(achievements: List<Achievement>) {
         for (a in achievements) {
             catalog[a.id] = a
         }
@@ -37,13 +37,13 @@ public class InMemoryAchievementRepository : IAchievementRepository {
 
     // ---- Per-player unlocks ------------------------------------------------
 
-    override fun unlocked(playerId: PlayerId): Set<AchievementId> =
+    override suspend fun unlocked(playerId: PlayerId): Set<AchievementId> =
         unlocks[playerId]?.toSet() ?: emptySet()
 
-    override fun isUnlocked(playerId: PlayerId, id: AchievementId): Boolean =
+    override suspend fun isUnlocked(playerId: PlayerId, id: AchievementId): Boolean =
         unlocks[playerId]?.contains(id) == true
 
-    override fun unlock(playerAchievement: PlayerAchievement) {
+    override suspend fun unlock(playerAchievement: PlayerAchievement) {
         val set = unlocks.computeIfAbsent(playerAchievement.playerId) {
             java.util.Collections.synchronizedSet(linkedSetOf())
         }

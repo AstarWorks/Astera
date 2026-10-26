@@ -91,6 +91,7 @@ class LevelRewardsSeasonScenarioTest {
 
     @Test
     fun `scheduled lobby check resets once and game role never schedules a reset`() {
+        kotlinx.coroutines.runBlocking {
         val content = endedSeasonContent()
         val lobby = GameSim.boot("season-lobby-schedule", contentDir = content, role = ServerRole.LOBBY)
         val game = GameSim.boot("season-game-no-schedule", contentDir = content, role = ServerRole.GAME)
@@ -123,5 +124,6 @@ class LevelRewardsSeasonScenarioTest {
             lobby.shutdown()
             game.shutdown()
         }
-    }
+        }
+}
 }

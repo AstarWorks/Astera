@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.social.PartyId
 public class CreatePartyUseCase(
     private val repository: IPartyRepository,
 ) {
-    public fun create(leader: PlayerId, maxSize: Int): Result<Party, PartyError> {
+    public suspend fun create(leader: PlayerId, maxSize: Int): Result<Party, PartyError> {
         repository.forPlayer(leader)?.let {
             return Result.failure(PartyError.AlreadyInParty(leader, it.id))
         }

@@ -20,7 +20,7 @@ public class AwardBossSlayerXpOnMobKilledListener(
     private val awardXp: AwardSkillXpUseCase,
     private val xpPerKill: Long = BOSS_SLAYER_XP_PER_KILL,
 ) {
-    public fun handle(event: MobKilled) {
+    public suspend fun handle(event: MobKilled) {
         if (!event.context.countsForProgression) return // ADR-0235: lobby / wild mob kills give nothing yet
         val killer = event.killerId ?: return
         awardXp.execute(killer, SkillKind.BossSlayer, xpPerKill)

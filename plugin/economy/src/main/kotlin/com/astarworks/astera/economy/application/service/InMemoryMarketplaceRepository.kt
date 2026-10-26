@@ -16,19 +16,19 @@ public class InMemoryMarketplaceRepository : IMarketplaceRepository {
 
     private val store = ConcurrentHashMap<ListingId, MarketplaceListing>()
 
-    override fun findById(id: ListingId): MarketplaceListing? = store[id]
+    override suspend fun findById(id: ListingId): MarketplaceListing? = store[id]
 
-    override fun findActiveBySeller(seller: PlayerId): List<MarketplaceListing> =
+    override suspend fun findActiveBySeller(seller: PlayerId): List<MarketplaceListing> =
         store.values.filter { it.seller == seller && it.status is ListingStatus.Active }
 
-    override fun findAllActive(): List<MarketplaceListing> =
+    override suspend fun findAllActive(): List<MarketplaceListing> =
         store.values.filter { it.status is ListingStatus.Active }
 
-    override fun save(listing: MarketplaceListing) {
+    override suspend fun save(listing: MarketplaceListing) {
         store[listing.id] = listing
     }
 
-    override fun delete(id: ListingId) {
+    override suspend fun delete(id: ListingId) {
         store.remove(id)
     }
 }

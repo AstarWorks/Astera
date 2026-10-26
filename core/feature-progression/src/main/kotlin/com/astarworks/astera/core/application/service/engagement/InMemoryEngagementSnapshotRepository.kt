@@ -20,11 +20,11 @@ public class InMemoryEngagementSnapshotRepository : IEngagementSnapshotRepositor
 
     private val store: MutableMap<PlayerId, EngagementSnapshot> = ConcurrentHashMap()
 
-    override fun find(playerId: PlayerId): EngagementSnapshot? = store[playerId]
+    override suspend fun find(playerId: PlayerId): EngagementSnapshot? = store[playerId]
 
-    override fun upsert(snapshot: EngagementSnapshot) {
+    override suspend fun upsert(snapshot: EngagementSnapshot) {
         store[snapshot.playerId] = snapshot
     }
 
-    override fun all(): List<EngagementSnapshot> = store.values.toList()
+    override suspend fun all(): List<EngagementSnapshot> = store.values.toList()
 }

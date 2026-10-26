@@ -72,7 +72,7 @@ public class SlowQueryRetentionScheduler(
     internal fun sweep() {
         val cutoff = clock().minus(retention.toJavaDuration())
         try {
-            val removed = auditRepo.deleteOlderThan(cutoff)
+            val removed = kotlinx.coroutines.runBlocking { auditRepo.deleteOlderThan(cutoff) }
             if (removed > 0) {
                 log.info(
                     "SlowQueryRetentionScheduler: purged {} record(s) older than {} ({} retention)",

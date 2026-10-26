@@ -44,7 +44,7 @@ public class RefinementTierTooltipProvider(
 ) : ITooltipExtensionProvider {
 
     override fun extend(item: ItemId, viewer: PlayerId): List<TooltipLine> {
-        val owned = instances.findByOwner(viewer).filter { it.itemId == item }
+        val owned = kotlinx.coroutines.runBlocking { instances.findByOwner(viewer) }.filter { it.itemId == item }
         if (owned.isEmpty()) return emptyList()
         val highest = owned.maxOf { it.layers().size }
         if (highest <= 0) return emptyList()

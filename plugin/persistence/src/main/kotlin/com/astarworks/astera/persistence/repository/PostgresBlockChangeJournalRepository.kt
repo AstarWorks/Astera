@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
 import com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -17,7 +18,6 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import org.slf4j.LoggerFactory
 import java.sql.SQLException
@@ -64,10 +64,14 @@ public class PostgresBlockChangeJournalRepository(
     private val log = LoggerFactory.getLogger(javaClass)
     private val json: Json = Json { ignoreUnknownKeys = true }
 
+    internal fun worlds(): Set<WorldId> = blockingTransaction(db) {
+        BlockChangeJournalTable.selectAll().map { WorldId(it[BlockChangeJournalTable.worldId]) }.toSet()
+    }
+
     override fun save(key: BlockKey, state: BlockState): Result<Unit, JournalError> {
         return try {
             val payload = json.encodeToString(BlockStateJson.serializer(), state.toJson())
-            transaction(db) {
+            blockingTransaction(db) {
                 val updated = BlockChangeJournalTable.update(
                     {
                         (BlockChangeJournalTable.worldId eq key.worldId) and
@@ -97,7 +101,7 @@ public class PostgresBlockChangeJournalRepository(
 
     override fun load(key: BlockKey): Result<BlockState?, JournalError> {
         return try {
-            val row = transaction(db) {
+            val row = blockingTransaction(db) {
                 BlockChangeJournalTable
                     .selectAll()
                     .where {
@@ -119,7 +123,7 @@ public class PostgresBlockChangeJournalRepository(
 
     override fun loadAll(world: WorldId): Result<Map<BlockKey, BlockState>, JournalError> {
         return try {
-            val rows = transaction(db) {
+            val rows = blockingTransaction(db) {
                 BlockChangeJournalTable
                     .selectAll()
                     .where { BlockChangeJournalTable.worldId eq world.value }
@@ -146,7 +150,7 @@ public class PostgresBlockChangeJournalRepository(
 
     override fun delete(key: BlockKey): Result<Unit, JournalError> {
         return try {
-            transaction(db) {
+            blockingTransaction(db) {
                 BlockChangeJournalTable.deleteWhere {
                     (BlockChangeJournalTable.worldId eq key.worldId) and
                         (BlockChangeJournalTable.posX eq key.x) and

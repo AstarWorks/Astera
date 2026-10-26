@@ -25,7 +25,7 @@ public class InMemoryPlayerFeedbackQueue(
 
     private val byId: MutableMap<FeedbackId, PlayerFeedback> = ConcurrentHashMap()
 
-    override fun submit(
+    override suspend fun submit(
         submittedBy: PlayerId,
         target: PlayerId?,
         category: FeedbackCategory,
@@ -47,7 +47,7 @@ public class InMemoryPlayerFeedbackQueue(
         return Result.success(feedback)
     }
 
-    override fun list(
+    override suspend fun list(
         statusFilter: FeedbackStatus?,
         categoryKey: String?,
         limit: Int,
@@ -60,7 +60,7 @@ public class InMemoryPlayerFeedbackQueue(
             .take(limit)
             .toList()
 
-    override fun triage(
+    override suspend fun triage(
         id: FeedbackId,
         decision: FeedbackTriageDecision,
         decidedBy: PlayerId,
@@ -85,7 +85,7 @@ public class InMemoryPlayerFeedbackQueue(
         return Result.success(updated)
     }
 
-    override fun get(id: FeedbackId): PlayerFeedback? = byId[id]
+    override suspend fun get(id: FeedbackId): PlayerFeedback? = byId[id]
 
     private fun isValidTransition(from: FeedbackStatus, to: FeedbackStatus): Boolean = when (from) {
         FeedbackStatus.Open -> to != FeedbackStatus.Open

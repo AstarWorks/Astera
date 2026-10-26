@@ -24,7 +24,7 @@ public class SendFriendRequestUseCase(
     private val repository: IFriendshipRepository,
     private val clock: Clock = Clock.systemUTC(),
 ) {
-    public fun send(from: PlayerId, to: PlayerId): Result<Friendship, FriendshipError> {
+    public suspend fun send(from: PlayerId, to: PlayerId): Result<Friendship, FriendshipError> {
         if (from == to) {
             return Result.failure(FriendshipError.SelfFriend(from))
         }

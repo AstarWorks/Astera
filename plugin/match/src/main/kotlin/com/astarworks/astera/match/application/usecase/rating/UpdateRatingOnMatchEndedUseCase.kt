@@ -32,7 +32,7 @@ public class UpdateRatingOnMatchEndedUseCase(
     private val eventBus: IDomainEventBus,
 ) {
 
-    public fun onMatchEnded(event: MatchEnded) {
+    public suspend fun onMatchEnded(event: MatchEnded) {
         val winningTeam = event.winningTeam ?: return // draw → ratings unchanged
         val match = matchRepository.findById(event.matchId) ?: return
 

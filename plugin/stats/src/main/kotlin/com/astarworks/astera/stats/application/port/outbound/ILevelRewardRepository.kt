@@ -7,7 +7,7 @@ import com.astarworks.astera.stats.domain.level.LevelReward
 
 public interface ILevelRewardRepository : IPlayerUnlockStore {
     /** Claim, currency credits and unlock inserts commit together. False means already claimed. */
-    public fun apply(playerId: PlayerId, level: Int, reward: LevelReward): Result<Boolean, LevelRewardError>
+    public suspend fun apply(playerId: PlayerId, level: Int, reward: LevelReward): Result<Boolean, LevelRewardError>
 }
 
 public sealed interface LevelRewardError {

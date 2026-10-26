@@ -50,6 +50,7 @@ public class ConcurrentWriteIT : PostgresIntegrationTestBase() {
     /** Wallet double-spend regression: exactly one of two concurrent debits succeeds. */
     @Test
     public fun `concurrent debit on the same wallet yields one success and one insufficient-funds`() {
+        kotlinx.coroutines.runBlocking {
         val ledger = PostgresCurrencyLedger(db)
         val player = PlayerId(UUID.randomUUID())
 
@@ -66,7 +67,7 @@ public class ConcurrentWriteIT : PostgresIntegrationTestBase() {
             val futures = (1..attempts).map {
                 pool.submit {
                     barrier.await(5, TimeUnit.SECONDS)
-                    when (ledger.debit(player, Currency.GOLD, 100L)) {
+                    when (kotlinx.coroutines.runBlocking { ledger.debit(player, Currency.GOLD, 100L) }) {
                         is Result.Success -> successes.incrementAndGet()
                         is Result.Failure -> failures.incrementAndGet()
                     }
@@ -83,7 +84,8 @@ public class ConcurrentWriteIT : PostgresIntegrationTestBase() {
         assertThat(failures.get()).`as`("exactly one debit must fail").isEqualTo(1)
         // Final balance: 100 - 100 = 0; double-spend would leave 100 - 0 (race) or 100 - 200 (uncapped) etc.
         assertThat(ledger.balance(player, Currency.GOLD)).isZero()
-    }
+        }
+}
 
     /** Inventory snapshot race: both saves commit, one of the two written snapshots survives. */
     @Test
@@ -137,6 +139,7 @@ public class ConcurrentWriteIT : PostgresIntegrationTestBase() {
     /** Party concurrent-join: 5 threads, max-size 4 (with leader pre-seated): 3 succeed, 2 rejected. */
     @Test
     public fun `concurrent party join with maxSize 4 admits exactly 3 candidates`() {
+        kotlinx.coroutines.runBlocking {
         // Party repo is in-memory only by design (parties are runtime-scoped) —
         // the concurrency surface is the use case, which now uses Wave-F lock
         // striping.
@@ -163,7 +166,7 @@ public class ConcurrentWriteIT : PostgresIntegrationTestBase() {
             val futures = candidates.map { c ->
                 pool.submit {
                     barrier.await(5, TimeUnit.SECONDS)
-                    when (val r = joinUC.join(c, partyId)) {
+                    when (val r = kotlinx.coroutines.runBlocking { joinUC.join(c, partyId) }) {
                         is Result.Success -> successes.incrementAndGet()
                         is Result.Failure -> if (r.error is PartyError.PartyFull) full.incrementAndGet()
                     }
@@ -181,5 +184,6 @@ public class ConcurrentWriteIT : PostgresIntegrationTestBase() {
         val finalParty = repo.find(partyId)
         assertThat(finalParty).isNotNull
         assertThat(finalParty!!.members).hasSize(finalParty.maxSize)
-    }
+        }
+}
 }

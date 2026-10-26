@@ -13,7 +13,7 @@ import java.time.Instant
 public interface ISeasonRepository {
 
     /** The currently-active season, or null if none has been started. */
-    public fun current(): Season?
+    public suspend fun current(): Season?
 
     /**
      * Close the active season (if any) at [at] and open a new active season
@@ -21,11 +21,11 @@ public interface ISeasonRepository {
      * [SeasonId][com.astarworks.astera.stats.domain.season.SeasonId] is derived
      * by the implementation (e.g. slug of [label]).
      */
-    public fun start(label: String, at: Instant): Season
+    public suspend fun start(label: String, at: Instant): Season
 
     /** Atomically record a schedule key and reset; null if that key already ran. */
-    public fun startOnce(scheduleKey: String, label: String, at: Instant): Season?
+    public suspend fun startOnce(scheduleKey: String, label: String, at: Instant): Season?
 
     /** All seasons, most recent first. */
-    public fun all(): List<Season>
+    public suspend fun all(): List<Season>
 }

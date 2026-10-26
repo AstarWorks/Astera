@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -31,17 +31,17 @@ import java.time.Instant
  */
 public class PostgresBettingEscrowService(
     private val db: Database,
-    private val ledger: ICurrencyLedger,
+    private val ledger: PostgresCurrencyLedger,
 ) : IBettingEscrowService {
 
-    override fun hold(
+    override suspend fun hold(
         bettingMatchId: BettingMatchId,
         challengerId: PlayerId,
         opponentId: PlayerId,
         currency: Currency,
         perSideAmount: Long,
         now: Instant,
-    ): Result<BettingEscrow, BettingError> = transaction(db) {
+    ): Result<BettingEscrow, BettingError> = ioTransaction(db) {
         require(challengerId != opponentId) { "challenger and opponent must differ" }
         require(perSideAmount > 0L) { "perSideAmount must be > 0, got $perSideAmount" }
 
@@ -51,20 +51,20 @@ public class PostgresBettingEscrowService(
             .where { BetEscrowsTable.bettingMatchId eq bettingMatchId.value }
             .firstOrNull()
         if (existing != null) {
-            return@transaction Result.failure(BettingError.AlreadyEscrowed(bettingMatchId))
+            return@ioTransaction Result.failure(BettingError.AlreadyEscrowed(bettingMatchId))
         }
 
-        val challengerDebit = ledger.debit(challengerId, currency, perSideAmount)
+        val challengerDebit = ledger.debitOnIo(challengerId, currency, perSideAmount)
         if (challengerDebit is Result.Failure) {
-            return@transaction Result.failure(BettingError.EscrowDebitFailed(challengerId, challengerDebit.error))
+            return@ioTransaction Result.failure(BettingError.EscrowDebitFailed(challengerId, challengerDebit.error))
         }
-        val opponentDebit = ledger.debit(opponentId, currency, perSideAmount)
+        val opponentDebit = ledger.debitOnIo(opponentId, currency, perSideAmount)
         if (opponentDebit is Result.Failure) {
             // Compensate the challenger; whole transaction rolls back on the implicit
             // throw path used by transaction { } if we were to throw, but here we
             // return a Failure value — so apply the credit explicitly.
-            ledger.credit(challengerId, currency, perSideAmount)
-            return@transaction Result.failure(BettingError.EscrowDebitFailed(opponentId, opponentDebit.error))
+            ledger.creditOnIo(challengerId, currency, perSideAmount)
+            return@ioTransaction Result.failure(BettingError.EscrowDebitFailed(opponentId, opponentDebit.error))
         }
 
         val escrow = BettingEscrow(
@@ -90,20 +90,20 @@ public class PostgresBettingEscrowService(
         Result.success(escrow)
     }
 
-    override fun releaseToWinner(
+    override suspend fun releaseToWinner(
         bettingMatchId: BettingMatchId,
         winnerId: PlayerId,
         payoutSplit: Double,
         now: Instant,
-    ): Result<BettingEscrow, BettingError> = transaction(db) {
+    ): Result<BettingEscrow, BettingError> = ioTransaction(db) {
         require(payoutSplit > 0.0 && payoutSplit <= 1.0) {
             "payoutSplit must be in (0.0, 1.0], got $payoutSplit"
         }
         lockMatch(bettingMatchId)
         val current = loadEscrow(bettingMatchId)
-            ?: return@transaction Result.failure(BettingError.EscrowMissing(bettingMatchId))
+            ?: return@ioTransaction Result.failure(BettingError.EscrowMissing(bettingMatchId))
         if (current.status == BettingEscrowStatus.Paid) {
-            return@transaction Result.success(current)
+            return@ioTransaction Result.success(current)
         }
         require(current.status == BettingEscrowStatus.Held) {
             "cannot release escrow in status ${current.status}"
@@ -114,34 +114,34 @@ public class PostgresBettingEscrowService(
         val pot = current.perSideAmount * 2L
         val payout = ((pot.toDouble() * payoutSplit).toLong())
         if (payout > 0L) {
-            ledger.credit(winnerId, current.currency, payout)
+            ledger.creditOnIo(winnerId, current.currency, payout)
         }
         val updated = current.copy(status = BettingEscrowStatus.Paid, settledAt = now)
         writeBack(updated)
         Result.success(updated)
     }
 
-    override fun refundBoth(
+    override suspend fun refundBoth(
         bettingMatchId: BettingMatchId,
         now: Instant,
-    ): Result<BettingEscrow, BettingError> = transaction(db) {
+    ): Result<BettingEscrow, BettingError> = ioTransaction(db) {
         lockMatch(bettingMatchId)
         val current = loadEscrow(bettingMatchId)
-            ?: return@transaction Result.failure(BettingError.EscrowMissing(bettingMatchId))
+            ?: return@ioTransaction Result.failure(BettingError.EscrowMissing(bettingMatchId))
         if (current.status == BettingEscrowStatus.Refunded || current.status == BettingEscrowStatus.Paid) {
-            return@transaction Result.success(current)
+            return@ioTransaction Result.success(current)
         }
         require(current.status == BettingEscrowStatus.Held) {
             "cannot refund escrow in status ${current.status}"
         }
-        ledger.credit(current.challengerId, current.currency, current.perSideAmount)
-        ledger.credit(current.opponentId, current.currency, current.perSideAmount)
+        ledger.creditOnIo(current.challengerId, current.currency, current.perSideAmount)
+        ledger.creditOnIo(current.opponentId, current.currency, current.perSideAmount)
         val updated = current.copy(status = BettingEscrowStatus.Refunded, settledAt = now)
         writeBack(updated)
         Result.success(updated)
     }
 
-    override fun find(bettingMatchId: BettingMatchId): BettingEscrow? = transaction(db) {
+    override suspend fun find(bettingMatchId: BettingMatchId): BettingEscrow? = ioTransaction(db) {
         loadEscrow(bettingMatchId)
     }
 

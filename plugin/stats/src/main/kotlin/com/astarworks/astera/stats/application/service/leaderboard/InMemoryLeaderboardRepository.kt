@@ -27,7 +27,7 @@ public class InMemoryLeaderboardRepository : ILeaderboardRepository {
             .thenByDescending { it.winRate }
             .thenByDescending { it.gamesPlayed }
 
-    override fun apply(seasonId: SeasonId, playerId: PlayerId, rating: Int, won: Boolean) {
+    override suspend fun apply(seasonId: SeasonId, playerId: PlayerId, rating: Int, won: Boolean) {
         val season = store.getOrPut(seasonId) { ConcurrentHashMap() }
         season.compute(playerId) { _, existing ->
             val wins = (existing?.wins ?: 0L) + if (won) 1L else 0L
@@ -36,19 +36,19 @@ public class InMemoryLeaderboardRepository : ILeaderboardRepository {
         }
     }
 
-    override fun topN(seasonId: SeasonId, n: Int): List<LeaderboardEntry> {
+    override suspend fun topN(seasonId: SeasonId, n: Int): List<LeaderboardEntry> {
         if (n <= 0) return emptyList()
         val season = store[seasonId] ?: return emptyList()
         return season.values.sortedWith(ranking).take(n)
     }
 
-    override fun rankOf(seasonId: SeasonId, playerId: PlayerId): Int? {
+    override suspend fun rankOf(seasonId: SeasonId, playerId: PlayerId): Int? {
         val season = store[seasonId] ?: return null
         val ordered = season.values.sortedWith(ranking)
         val index = ordered.indexOfFirst { it.playerId == playerId }
         return if (index < 0) null else index + 1
     }
 
-    override fun entry(seasonId: SeasonId, playerId: PlayerId): LeaderboardEntry? =
+    override suspend fun entry(seasonId: SeasonId, playerId: PlayerId): LeaderboardEntry? =
         store[seasonId]?.get(playerId)
 }

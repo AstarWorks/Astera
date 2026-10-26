@@ -21,7 +21,7 @@ public class RecordRatingOnPlayerRatingUpdatedListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: PlayerRatingUpdated) {
+    public suspend fun handle(event: PlayerRatingUpdated) {
         val season = seasonRepository.current()
         if (season == null) {
             log.debug(

@@ -66,7 +66,7 @@ public interface IPlayerProfileService {
      *   `Result.failure(ProfileError.PartialGrant)` when the profile row was
      *   created but one or more grant steps failed.
      */
-    public fun createFirstTime(
+    public suspend fun createFirstTime(
         playerId: PlayerId,
         displayName: String,
         locale: String?,

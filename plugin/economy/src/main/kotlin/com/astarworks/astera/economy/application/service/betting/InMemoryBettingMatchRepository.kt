@@ -15,14 +15,14 @@ public class InMemoryBettingMatchRepository : IBettingMatchRepository {
 
     private val byId: MutableMap<BettingMatchId, BettingMatch> = mutableMapOf()
 
-    override fun save(match: BettingMatch): BettingMatch {
+    override suspend fun save(match: BettingMatch): BettingMatch {
         byId[match.id] = match
         return match
     }
 
-    override fun findById(id: BettingMatchId): BettingMatch? = byId[id]
+    override suspend fun findById(id: BettingMatchId): BettingMatch? = byId[id]
 
-    override fun recentForPlayer(playerId: PlayerId, limit: Int): List<BettingMatch> {
+    override suspend fun recentForPlayer(playerId: PlayerId, limit: Int): List<BettingMatch> {
         require(limit > 0) { "limit must be > 0, got $limit" }
         return byId.values
             .asSequence()
@@ -32,7 +32,7 @@ public class InMemoryBettingMatchRepository : IBettingMatchRepository {
             .toList()
     }
 
-    override fun openForPlayer(playerId: PlayerId): List<BettingMatch> =
+    override suspend fun openForPlayer(playerId: PlayerId): List<BettingMatch> =
         byId.values
             .asSequence()
             .filter { it.challengerId == playerId || it.opponentId == playerId }
@@ -40,10 +40,10 @@ public class InMemoryBettingMatchRepository : IBettingMatchRepository {
             .sortedByDescending { it.createdAt }
             .toList()
 
-    override fun findByMatchId(matchId: MatchId): BettingMatch? =
+    override suspend fun findByMatchId(matchId: MatchId): BettingMatch? =
         byId.values.firstOrNull { it.matchId == matchId }
 
-    override fun findByStatus(status: BettingStatus): List<BettingMatch> =
+    override suspend fun findByStatus(status: BettingStatus): List<BettingMatch> =
         byId.values.filter { it.status == status }.sortedBy { it.createdAt }
 
     /** Phase 1 helper for tests: drop everything. */

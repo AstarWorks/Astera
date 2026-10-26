@@ -36,13 +36,13 @@ public class RecomputeProfileCardUseCase(
     private val displayNameProvider: (PlayerId) -> String?,
     private val visibilityProvider: (PlayerId) -> ProfileVisibility = { ProfileVisibility.PUBLIC },
     private val equipmentProvider: (PlayerId) -> EquipmentSummary = { EquipmentSummary.EMPTY },
-    private val titlesProvider: (PlayerId) -> TitleSummary = { TitleSummary.EMPTY },
-    private val cosmeticsProvider: (PlayerId) -> CosmeticSummary = { CosmeticSummary.EMPTY },
+    private val titlesProvider: suspend (PlayerId) -> TitleSummary = { TitleSummary.EMPTY },
+    private val cosmeticsProvider: suspend (PlayerId) -> CosmeticSummary = { CosmeticSummary.EMPTY },
     private val powerIndexTotalProvider: (PlayerId) -> Long = { 0L },
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
-    public fun recompute(playerId: PlayerId): PublicProfileCard? {
+    public suspend fun recompute(playerId: PlayerId): PublicProfileCard? {
         val name = displayNameProvider(playerId) ?: return null
         val card = PublicProfileCard(
             playerId = playerId,

@@ -22,7 +22,7 @@ public class InMemorySlowQueryAuditRepository(
     private val entries: ConcurrentLinkedDeque<SlowQueryRecord> = ConcurrentLinkedDeque()
     private val counter: AtomicLong = AtomicLong(0L)
 
-    override fun record(record: SlowQueryRecord) {
+    override suspend fun record(record: SlowQueryRecord) {
         entries.addLast(record)
         counter.incrementAndGet()
         // Cheap bound — synchronizing once per add keeps the deque small.
@@ -31,21 +31,21 @@ public class InMemorySlowQueryAuditRepository(
         }
     }
 
-    override fun findAfter(since: Instant, limit: Int): List<SlowQueryRecord> =
+    override suspend fun findAfter(since: Instant, limit: Int): List<SlowQueryRecord> =
         entries
             .filter { it.capturedAt >= since }
             .sortedByDescending { it.durationMs }
             .take(limit)
 
-    override fun findByHash(statementHash: Long, limit: Int): List<SlowQueryRecord> =
+    override suspend fun findByHash(statementHash: Long, limit: Int): List<SlowQueryRecord> =
         entries
             .filter { it.statementHash == statementHash }
             .sortedByDescending { it.capturedAt }
             .take(limit)
 
-    override fun count(): Long = counter.get()
+    override suspend fun count(): Long = counter.get()
 
-    override fun deleteOlderThan(cutoff: Instant): Int {
+    override suspend fun deleteOlderThan(cutoff: Instant): Int {
         var removed = 0
         val iterator = entries.iterator()
         while (iterator.hasNext()) {

@@ -34,7 +34,7 @@ public class ReportMatchResultUseCase(
     private val eventBus: IDomainEventBus,
 ) {
 
-    public fun execute(
+    public suspend fun execute(
         id: TournamentId,
         winner: PlayerId,
     ): Result<Tournament, TournamentError> {

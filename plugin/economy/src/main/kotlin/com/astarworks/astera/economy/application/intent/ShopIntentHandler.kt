@@ -67,7 +67,7 @@ public class ShopIntentHandler(
 
     private val pending = ConcurrentHashMap<PlayerId, Pending>()
 
-    public fun handle(intent: GuiIntent, player: IMcPlayer) {
+    public suspend fun handle(intent: GuiIntent, player: IMcPlayer) {
         when (intent.key) {
             INTENT_PURCHASE -> handlePurchase(intent, player)
             ShopBrowseUseCase.INTENT_PAGE -> handleBrowse(intent, player) { shopId ->
@@ -89,10 +89,10 @@ public class ShopIntentHandler(
         }
     }
 
-    private fun handleBrowse(
+    private suspend fun handleBrowse(
         intent: GuiIntent,
         player: IMcPlayer,
-        action: (ShopId) -> Result<Unit, *>,
+        action: suspend (ShopId) -> Result<Unit, *>,
     ) {
         val shopId = intent.payload[PAYLOAD_SHOP_ID]?.let { runCatching { ShopId(it) }.getOrNull() }
         if (shopId == null) {
@@ -103,7 +103,7 @@ public class ShopIntentHandler(
         if (action(shopId) is Result.Failure) send(player, MSG_FAILURE_GENERIC, emptyMap())
     }
 
-    private fun handlePurchase(intent: GuiIntent, player: IMcPlayer) {
+    private suspend fun handlePurchase(intent: GuiIntent, player: IMcPlayer) {
         val shopIdRaw = intent.payload[PAYLOAD_SHOP_ID]
         val offerIdRaw = intent.payload[PAYLOAD_OFFER_ID]
         if (shopIdRaw.isNullOrBlank() || offerIdRaw.isNullOrBlank()) {

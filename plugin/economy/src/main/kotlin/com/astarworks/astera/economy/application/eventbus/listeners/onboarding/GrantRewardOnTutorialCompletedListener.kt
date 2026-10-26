@@ -57,7 +57,7 @@ public class GrantRewardOnTutorialCompletedListener(
         }
     }
 
-    public fun handle(event: TutorialCompleted) {
+    public suspend fun handle(event: TutorialCompleted) {
         when (val outcome = deposit.execute(
             playerId = event.playerId,
             currency = currency,

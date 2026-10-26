@@ -8,7 +8,7 @@ import com.astarworks.astera.persistence.table.PlayerEngagementSnapshotsTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -26,7 +26,7 @@ import java.time.Instant
  */
 public class PostgresEngagementSnapshotRepository(private val db: Database) : IEngagementSnapshotRepository {
 
-    override fun find(playerId: PlayerId): EngagementSnapshot? = transaction(db) {
+    override suspend fun find(playerId: PlayerId): EngagementSnapshot? = ioTransaction(db) {
         PlayerEngagementSnapshotsTable
             .selectAll()
             .where { PlayerEngagementSnapshotsTable.playerId eq playerId.uuid }
@@ -36,8 +36,8 @@ public class PostgresEngagementSnapshotRepository(private val db: Database) : IE
             }
     }
 
-    override fun upsert(snapshot: EngagementSnapshot) {
-        transaction(db) {
+    override suspend fun upsert(snapshot: EngagementSnapshot) {
+        ioTransaction(db) {
             PlayerEngagementSnapshotsTable.upsert(PlayerEngagementSnapshotsTable.playerId) {
                 it[playerId] = snapshot.playerId.uuid
                 it[PlayerEngagementSnapshotsTable.snapshot] = EngagementSnapshotJson.fromDomain(snapshot)
@@ -46,7 +46,7 @@ public class PostgresEngagementSnapshotRepository(private val db: Database) : IE
         }
     }
 
-    override fun all(): List<EngagementSnapshot> = transaction(db) {
+    override suspend fun all(): List<EngagementSnapshot> = ioTransaction(db) {
         PlayerEngagementSnapshotsTable
             .selectAll()
             .map { row ->
@@ -63,7 +63,7 @@ public class PostgresEngagementSnapshotRepository(private val db: Database) : IE
      * schedule, not per-request). We still expose a Postgres-side variant
      * that defers to the default-method implementation.
      */
-    override fun topByScore(limit: Int): List<EngagementSnapshot> {
+    override suspend fun topByScore(limit: Int): List<EngagementSnapshot> {
         require(limit >= 0) { "limit must be >= 0, was $limit" }
         return super.topByScore(limit)
     }
@@ -77,5 +77,5 @@ public class PostgresEngagementSnapshotRepository(private val db: Database) : IE
      * Phase 1: defer to default impl until we have a documented production
      * load that justifies a path-extract index.
      */
-    override fun seenSince(cutoff: Instant): List<EngagementSnapshot> = super.seenSince(cutoff)
+    override suspend fun seenSince(cutoff: Instant): List<EngagementSnapshot> = super.seenSince(cutoff)
 }

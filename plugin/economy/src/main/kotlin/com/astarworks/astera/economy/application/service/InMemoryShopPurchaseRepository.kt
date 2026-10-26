@@ -11,13 +11,13 @@ import java.util.concurrent.CopyOnWriteArrayList
 public class InMemoryShopPurchaseRepository : IShopPurchaseRepository {
     private val records = CopyOnWriteArrayList<PurchaseRecord>()
 
-    override fun record(record: PurchaseRecord) {
+    override suspend fun record(record: PurchaseRecord) {
         records += record
     }
 
-    override fun count(playerId: PlayerId, shopId: ShopId, offerId: ShopOfferId): Int =
+    override suspend fun count(playerId: PlayerId, shopId: ShopId, offerId: ShopOfferId): Int =
         records.count { it.playerId == playerId && it.shopId == shopId && it.offerId == offerId }
 
-    override fun history(playerId: PlayerId, limit: Int): List<PurchaseRecord> =
+    override suspend fun history(playerId: PlayerId, limit: Int): List<PurchaseRecord> =
         records.filter { it.playerId == playerId }.sortedByDescending { it.purchasedAt }.take(limit)
 }

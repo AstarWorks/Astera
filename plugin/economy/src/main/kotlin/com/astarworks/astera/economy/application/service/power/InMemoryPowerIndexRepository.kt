@@ -18,17 +18,17 @@ public class InMemoryPowerIndexRepository : IPowerIndexRepository {
 
     private val snapshots = ConcurrentHashMap<PlayerId, PowerIndex>()
 
-    override fun find(playerId: PlayerId): PowerIndex? = snapshots[playerId]
+    override suspend fun find(playerId: PlayerId): PowerIndex? = snapshots[playerId]
 
-    override fun save(snapshot: PowerIndex) {
+    override suspend fun save(snapshot: PowerIndex) {
         snapshots[snapshot.playerId] = snapshot
     }
 
-    override fun delete(playerId: PlayerId) {
+    override suspend fun delete(playerId: PlayerId) {
         snapshots.remove(playerId)
     }
 
-    override fun topN(n: Int): List<PowerIndex> {
+    override suspend fun topN(n: Int): List<PowerIndex> {
         if (n <= 0) return emptyList()
         return snapshots.values
             .sortedByDescending { it.total }

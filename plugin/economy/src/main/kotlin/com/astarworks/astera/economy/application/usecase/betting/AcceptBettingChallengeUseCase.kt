@@ -49,7 +49,7 @@ public class AcceptBettingChallengeUseCase(
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
-    public fun execute(
+    public suspend fun execute(
         bettingMatchId: BettingMatchId,
         accepterId: PlayerId,
         matchId: MatchId,

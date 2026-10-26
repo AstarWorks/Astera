@@ -17,7 +17,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
@@ -55,7 +55,7 @@ public class PostgresItemInstanceRepository(private val db: Database) : IItemIns
         classDiscriminator = "kind"
     }
 
-    override fun findById(id: ItemInstanceId): ItemInstance? = transaction(db) {
+    override suspend fun findById(id: ItemInstanceId): ItemInstance? = ioTransaction(db) {
         ItemInstancesTable
             .selectAll()
             .where { ItemInstancesTable.id eq id.value }
@@ -63,14 +63,14 @@ public class PostgresItemInstanceRepository(private val db: Database) : IItemIns
             ?.toDomainOrNull()
     }
 
-    override fun findByOwner(player: PlayerId): List<ItemInstance> = transaction(db) {
+    override suspend fun findByOwner(player: PlayerId): List<ItemInstance> = ioTransaction(db) {
         ItemInstancesTable
             .selectAll()
             .where { ItemInstancesTable.ownerId eq player.uuid }
             .mapNotNull { it.toDomainOrNull() }
     }
 
-    override fun save(instance: ItemInstance): Unit = transaction(db) {
+    override suspend fun save(instance: ItemInstance): Unit = ioTransaction(db) {
         ItemInstancesTable.upsert(ItemInstancesTable.id) {
             it[id] = instance.id.value
             it[itemId] = instance.itemId.value
@@ -83,7 +83,7 @@ public class PostgresItemInstanceRepository(private val db: Database) : IItemIns
         Unit
     }
 
-    override fun delete(id: ItemInstanceId): Unit = transaction(db) {
+    override suspend fun delete(id: ItemInstanceId): Unit = ioTransaction(db) {
         ItemInstancesTable.deleteWhere { ItemInstancesTable.id eq id.value }
         Unit
     }

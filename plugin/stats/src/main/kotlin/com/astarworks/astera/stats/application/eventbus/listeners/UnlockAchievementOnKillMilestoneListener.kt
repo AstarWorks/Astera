@@ -35,7 +35,7 @@ public class UnlockAchievementOnKillMilestoneListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: PlayerKilled) {
+    public suspend fun handle(event: PlayerKilled) {
         if (!event.context.countsForProgression) return // ADR-0235
         val killerId = event.killer ?: return
         val currentKills = stats.find(killerId)?.kills ?: return

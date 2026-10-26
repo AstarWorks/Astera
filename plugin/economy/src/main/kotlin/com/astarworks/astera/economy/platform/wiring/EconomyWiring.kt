@@ -1,5 +1,6 @@
 package com.astarworks.astera.economy.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
@@ -101,6 +102,7 @@ public object EconomyWiring {
         val registrations = ctx.registrations
         val subscriptions = ctx.subscriptions
         val scheduledTasks = mutableListOf<IScheduler.TaskHandle>()
+        val scheduler = services.getOrThrow<IScheduler>()
         // Wave 5server-harden / ADR-0123: ContentReferenceCheck registrations
         // retained so shutdown can unregister cleanly across plugin hot-swap.
         val validationRegistrations = mutableListOf<
@@ -168,7 +170,7 @@ public object EconomyWiring {
         scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(ExecutionScope.Io,
             initialDelayTicks = 20L,
             periodTicks = 1_728_000L,
-        ) { expireCurrency.sweep() }
+        ) { kotlinx.coroutines.runBlocking { expireCurrency.sweep() } }
 
         // Marketplace use cases. PurchaseListingUseCase composes γ's
         // CreatorRevenueCalculator (10% default platform fee).
@@ -209,12 +211,12 @@ public object EconomyWiring {
         )
         val depositOnMissionCompletedListener = DepositOnMissionCompletedListener(deposit)
 
-        subscriptions += eventBus.subscribe(MatchSummaryReady::class) { event ->
+        subscriptions += eventBus.subscribe(MatchSummaryReady::class) { event -> scheduler.launch(ExecutionScope.Global) {
             grantMatchRewards.handle(event)
-        }
-        subscriptions += eventBus.subscribe(MissionCompleted::class) { event ->
+         }}
+        subscriptions += eventBus.subscribe(MissionCompleted::class) { event -> scheduler.launch(ExecutionScope.Global) {
             depositOnMissionCompletedListener.handle(event)
-        }
+         }}
         val depositOnAchievementUnlocked = com.astarworks.astera.economy.application.eventbus.listeners.DepositOnAchievementUnlockedListener(
             deposit = deposit,
             achievements = { services.get<com.astarworks.astera.stats.application.port.outbound.IAchievementRepository>() },
@@ -223,9 +225,9 @@ public object EconomyWiring {
             titles = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockStore>() },
             onTitleGranted = { id -> services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>()?.notifyChanged(id) },
         )
-        subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.AchievementUnlocked::class) { event ->
+        subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.AchievementUnlocked::class) { event -> scheduler.launch(ExecutionScope.Global) {
             depositOnAchievementUnlocked.handle(event)
-        }
+         }}
 
         // ADR-0202: every wallet movement lands in the append-only audit log.
         val recordMovements = com.astarworks.astera.economy.application.eventbus.listeners.AuditCurrencyMovementListener {
@@ -243,9 +245,9 @@ public object EconomyWiring {
         //   are independent — either firing without the other is still a
         //   valid (partial) close.
         val grantRewardOnTutorial = GrantRewardOnTutorialCompletedListener(deposit)
-        subscriptions += eventBus.subscribe(TutorialCompleted::class) { event ->
+        subscriptions += eventBus.subscribe(TutorialCompleted::class) { event -> scheduler.launch(ExecutionScope.Global) {
             grantRewardOnTutorial.handle(event)
-        }
+         }}
         logger.info(
             "Wave K 5integration-wire (ADR-0128) wired: " +
                 "GrantRewardOnTutorialCompleted subscribed.",
@@ -270,7 +272,7 @@ public object EconomyWiring {
             }
 
         val shopsContentDir = ctx.contentDir.resolve("shops")
-        val shopReport = ShopLoaderService(shopRegistry, shopStockRepository).loadFrom(shopsContentDir)
+        val shopReport = kotlinx.coroutines.runBlocking { ShopLoaderService(shopRegistry, shopStockRepository).loadFrom(shopsContentDir) }
         logger.info("Loaded ${shopReport.loaded} shop(s) from $shopsContentDir (failed: ${shopReport.failed})")
 
         // ADR-0211: ownership ledger + player-facing history. Postgres overlays this at priority 100.
@@ -487,19 +489,19 @@ public object EconomyWiring {
             ledger = ledger,
             eventBus = eventBus,
         )
-        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+        subscriptions += eventBus.subscribe(MatchEnded::class) { event -> scheduler.launch(ExecutionScope.Global) {
             resolveBettingOnMatchEnded.handle(event)
-        }
-        subscriptions += eventBus.subscribe(BettingMatchResolved::class) { event ->
+         }}
+        subscriptions += eventBus.subscribe(BettingMatchResolved::class) { event -> scheduler.launch(ExecutionScope.Global) {
             distributePayoutOnResolved.handle(event)
-        }
+         }}
 
         // Per-minute expiry sweep for pending challenges past their deadline
         // (acceptanceTimeout in BettingPolicy). 20 ticks/s × 60 s = 1,200 ticks.
         scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(ExecutionScope.Io,
             initialDelayTicks = 60L,
             periodTicks = 1_200L,
-        ) { expireBetting.execute() }
+        ) { kotlinx.coroutines.runBlocking { expireBetting.execute() } }
 
         // ── Commands ───────────────────────────────────────────────────────────
         // `/astera economy balance|grant|withdraw|transfer` and `/astera shop [id]` (ADR-0184).

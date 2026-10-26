@@ -17,7 +17,7 @@ import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -59,7 +59,7 @@ public object CurrencyIssuanceLogTable : Table("currency_issuance_log") {
  */
 public class PostgresCurrencyIssuanceLog(private val db: Database) : ICurrencyIssuanceLog {
 
-    override fun record(record: IssuanceRecord): Unit = transaction(db) {
+    override suspend fun record(record: IssuanceRecord): Unit = ioTransaction(db) {
         CurrencyIssuanceLogTable.insert {
             it[id] = record.id.value
             it[playerId] = record.playerId.uuid
@@ -72,10 +72,10 @@ public class PostgresCurrencyIssuanceLog(private val db: Database) : ICurrencyIs
         Unit
     }
 
-    override fun findExpired(currency: Currency, asOf: Instant, olderThanDays: Int): List<IssuanceRecord> {
+    override suspend fun findExpired(currency: Currency, asOf: Instant, olderThanDays: Int): List<IssuanceRecord> {
         require(olderThanDays > 0) { "olderThanDays must be > 0, got $olderThanDays" }
         val cutoff = asOf.minus(olderThanDays.toLong(), ChronoUnit.DAYS)
-        return transaction(db) {
+        return ioTransaction(db) {
             CurrencyIssuanceLogTable
                 .selectAll()
                 .where {
@@ -87,15 +87,15 @@ public class PostgresCurrencyIssuanceLog(private val db: Database) : ICurrencyIs
         }
     }
 
-    override fun markConsumed(issuanceId: IssuanceId, amount: Long) {
+    override suspend fun markConsumed(issuanceId: IssuanceId, amount: Long) {
         require(amount >= 0) { "amount must be >= 0, got $amount" }
         if (amount == 0L) return
-        transaction(db) {
+        ioTransaction(db) {
             val current = CurrencyIssuanceLogTable
                 .selectAll()
                 .where { CurrencyIssuanceLogTable.id eq issuanceId.value }
                 .firstOrNull()
-                ?: return@transaction
+                ?: return@ioTransaction
             val newOutstanding = (current[CurrencyIssuanceLogTable.outstandingAmount] - amount).coerceAtLeast(0L)
             CurrencyIssuanceLogTable.update({ CurrencyIssuanceLogTable.id eq issuanceId.value }) {
                 it[outstandingAmount] = newOutstanding
@@ -103,14 +103,14 @@ public class PostgresCurrencyIssuanceLog(private val db: Database) : ICurrencyIs
         }
     }
 
-    override fun totalOutstanding(currency: Currency): Long = transaction(db) {
+    override suspend fun totalOutstanding(currency: Currency): Long = ioTransaction(db) {
         CurrencyIssuanceLogTable
             .selectAll()
             .where { CurrencyIssuanceLogTable.currency eq currency.name }
             .sumOf { it[CurrencyIssuanceLogTable.outstandingAmount] }
     }
 
-    override fun totalOutstanding(playerId: PlayerId, currency: Currency): Long = transaction(db) {
+    override suspend fun totalOutstanding(playerId: PlayerId, currency: Currency): Long = ioTransaction(db) {
         CurrencyIssuanceLogTable
             .selectAll()
             .where {

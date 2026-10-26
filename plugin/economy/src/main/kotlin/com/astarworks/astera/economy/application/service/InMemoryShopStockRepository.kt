@@ -42,12 +42,12 @@ public class InMemoryShopStockRepository : IShopStockRepository {
 
     private val store: ConcurrentHashMap<Pair<ShopId, ShopOfferId>, Int> = ConcurrentHashMap()
 
-    override fun currentStock(shopId: ShopId, offerId: ShopOfferId): ShopStock? {
+    override suspend fun currentStock(shopId: ShopId, offerId: ShopOfferId): ShopStock? {
         val remaining = store[shopId to offerId] ?: return null
         return ShopStock.Limited(remaining)
     }
 
-    override fun decrementStock(
+    override suspend fun decrementStock(
         shopId: ShopId,
         offerId: ShopOfferId,
         by: Int,
@@ -80,7 +80,7 @@ public class InMemoryShopStockRepository : IShopStockRepository {
         )
     }
 
-    override fun seed(
+    override suspend fun seed(
         shopId: ShopId,
         offerId: ShopOfferId,
         initial: Int,

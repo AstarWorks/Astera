@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import com.astarworks.astera.persistence.table.SeasonsTable
 import com.astarworks.astera.stats.application.port.outbound.ISeasonRepository
 import com.astarworks.astera.stats.domain.season.Season
@@ -10,7 +11,7 @@ import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 
@@ -28,7 +29,7 @@ import java.time.Instant
  */
 public class PostgresSeasonRepository(private val db: Database) : ISeasonRepository {
 
-    override fun current(): Season? = transaction(db) {
+    override suspend fun current(): Season? = ioTransaction(db) {
         SeasonsTable
             .selectAll()
             .where { SeasonsTable.endedAt.isNull() }
@@ -37,7 +38,9 @@ public class PostgresSeasonRepository(private val db: Database) : ISeasonReposit
             ?.toDomain()
     }
 
-    override fun start(label: String, at: Instant): Season = transaction(db) {
+    override suspend fun start(label: String, at: Instant): Season = ioTransaction(db) { startOnIo(label, at) }
+
+    private fun JdbcTransaction.startOnIo(label: String, at: Instant): Season {
         (connection.connection as java.sql.Connection).prepareStatement(
             "SELECT pg_advisory_xact_lock(20923501)",
         ).use { it.execute() }
@@ -60,10 +63,10 @@ public class PostgresSeasonRepository(private val db: Database) : ISeasonReposit
             it[startedAt] = season.startedAt
             it[endedAt] = season.endedAt
         }
-        season
+        return season
     }
 
-    override fun startOnce(scheduleKey: String, label: String, at: Instant): Season? = transaction(db) {
+    override suspend fun startOnce(scheduleKey: String, label: String, at: Instant): Season? = ioTransaction(db) {
         val c = connection.connection as java.sql.Connection
         c.prepareStatement("SELECT pg_advisory_xact_lock(20923501)").use { it.execute() }
         val inserted = c.prepareStatement(
@@ -72,10 +75,10 @@ public class PostgresSeasonRepository(private val db: Database) : ISeasonReposit
             st.setString(1, scheduleKey)
             st.executeUpdate() > 0
         }
-        if (inserted) start(label, at) else null
+        if (inserted) startOnIo(label, at) else null
     }
 
-    override fun all(): List<Season> = transaction(db) {
+    override suspend fun all(): List<Season> = ioTransaction(db) {
         SeasonsTable
             .selectAll()
             .orderBy(SeasonsTable.startedAt to SortOrder.DESC)

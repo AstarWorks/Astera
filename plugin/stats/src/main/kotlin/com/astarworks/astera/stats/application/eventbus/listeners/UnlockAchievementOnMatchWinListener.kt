@@ -36,7 +36,7 @@ public class UnlockAchievementOnMatchWinListener(
     private val log = LoggerFactory.getLogger(javaClass)
 
     @Suppress("UNUSED_PARAMETER")
-    public fun handle(event: MatchEnded) {
+    public suspend fun handle(event: MatchEnded) {
         for (playerStats in stats.all()) {
             val wins = playerStats.wins
             for ((threshold, id) in THRESHOLDS) {

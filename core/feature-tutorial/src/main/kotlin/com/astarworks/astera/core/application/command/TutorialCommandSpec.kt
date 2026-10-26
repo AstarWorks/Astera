@@ -24,7 +24,7 @@ import com.astarworks.astera.core.domain.tutorial.TutorialScriptId
 public fun buildTutorialCommandSpec(
     sequencer: ITutorialSequencerService,
     scriptIds: () -> List<String> = { emptyList() },
-    savedState: (PlayerId) -> TutorialRunnerSnapshot? = { null },
+    savedState: suspend (PlayerId) -> TutorialRunnerSnapshot? = { null },
 ): CommandSpec.Literal {
 
     val start = CommandSpec.Literal(

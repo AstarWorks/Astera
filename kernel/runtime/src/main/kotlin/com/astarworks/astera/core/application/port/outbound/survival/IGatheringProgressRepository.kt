@@ -13,10 +13,10 @@ import com.astarworks.astera.core.domain.survival.GatheringSpotId
  */
 public interface IGatheringProgressRepository {
 
-    public fun find(playerId: PlayerId, spotId: GatheringSpotId): GatheringProgress?
+    public suspend fun find(playerId: PlayerId, spotId: GatheringSpotId): GatheringProgress?
 
     /** All progress rows for [playerId] across every spot. */
-    public fun forPlayer(playerId: PlayerId): List<GatheringProgress>
+    public suspend fun forPlayer(playerId: PlayerId): List<GatheringProgress>
 
-    public fun upsert(progress: GatheringProgress)
+    public suspend fun upsert(progress: GatheringProgress)
 }

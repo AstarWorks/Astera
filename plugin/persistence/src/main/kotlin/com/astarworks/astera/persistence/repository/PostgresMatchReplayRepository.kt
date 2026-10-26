@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import org.slf4j.LoggerFactory
 
@@ -36,8 +36,8 @@ public class PostgresMatchReplayRepository(private val db: Database) :
 
     private val logger = LoggerFactory.getLogger(PostgresMatchReplayRepository::class.java)
 
-    override fun save(replay: RecordedReplay): Result<Unit, ReplayError> = runCatching {
-        transaction(db) {
+    override suspend fun save(replay: RecordedReplay): Result<Unit, ReplayError> = runCatching {
+        ioTransaction(db) {
             MatchReplaysTable.upsert(MatchReplaysTable.matchId) {
                 it[matchId] = replay.matchId.value
                 it[replayId] = replay.id.uuid
@@ -55,7 +55,7 @@ public class PostgresMatchReplayRepository(private val db: Database) :
         Result.failure(ReplayError.Storage(t.message ?: t::class.simpleName.orEmpty()))
     }
 
-    override fun findByMatchId(matchId: MatchId): RecordedReplay? = transaction(db) {
+    override suspend fun findByMatchId(matchId: MatchId): RecordedReplay? = ioTransaction(db) {
         MatchReplaysTable
             .selectAll()
             .where { MatchReplaysTable.matchId eq matchId.value }
@@ -74,7 +74,7 @@ public class PostgresMatchReplayRepository(private val db: Database) :
             }
     }
 
-    override fun findById(id: ReplayId): RecordedReplay? = transaction(db) {
+    override suspend fun findById(id: ReplayId): RecordedReplay? = ioTransaction(db) {
         MatchReplaysTable
             .selectAll()
             .where { MatchReplaysTable.replayId eq id.uuid }
@@ -93,8 +93,8 @@ public class PostgresMatchReplayRepository(private val db: Database) :
             }
     }
 
-    override fun delete(matchId: MatchId) {
-        transaction(db) {
+    override suspend fun delete(matchId: MatchId) {
+        ioTransaction(db) {
             MatchReplaysTable.deleteWhere {
                 MatchReplaysTable.matchId eq matchId.value
             }

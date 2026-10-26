@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
@@ -15,7 +16,6 @@ import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -33,7 +33,7 @@ import java.time.Instant
  */
 public class PostgresMatchRepository(private val db: Database) : IMatchRepository {
 
-    override fun findById(id: MatchId): Match? = transaction(db) {
+    override fun findById(id: MatchId): Match? = blockingTransaction(db) {
         MatchesTable
             .selectAll()
             .where { MatchesTable.id eq id.value }
@@ -41,11 +41,11 @@ public class PostgresMatchRepository(private val db: Database) : IMatchRepositor
             ?.toDomain()
     }
 
-    override fun all(): Collection<Match> = transaction(db) {
+    override fun all(): Collection<Match> = blockingTransaction(db) {
         MatchesTable.selectAll().map { it.toDomain() }
     }
 
-    override fun save(entity: Match): Unit = transaction(db) {
+    override fun save(entity: Match): Unit = blockingTransaction(db) {
         MatchesTable.upsert(MatchesTable.id) {
             it[id] = entity.id.value
             it[phase] = entity.phase.name
@@ -58,12 +58,12 @@ public class PostgresMatchRepository(private val db: Database) : IMatchRepositor
         Unit
     }
 
-    override fun delete(id: MatchId): Unit = transaction(db) {
+    override fun delete(id: MatchId): Unit = blockingTransaction(db) {
         MatchesTable.deleteWhere { MatchesTable.id eq id.value }
         Unit
     }
 
-    override fun findActiveMatches(): Collection<Match> = transaction(db) {
+    override fun findActiveMatches(): Collection<Match> = blockingTransaction(db) {
         MatchesTable
             .selectAll()
             .where { MatchesTable.phase neq MatchPhase.ENDED.name }
@@ -74,7 +74,7 @@ public class PostgresMatchRepository(private val db: Database) : IMatchRepositor
         // Phase 1 cost: small N, in-memory containment check on active matches only.
         findActiveMatches().firstOrNull { it.hasParticipant(playerId) }
 
-    override fun findInPhase(phase: MatchPhase): Collection<Match> = transaction(db) {
+    override fun findInPhase(phase: MatchPhase): Collection<Match> = blockingTransaction(db) {
         MatchesTable
             .selectAll()
             .where { MatchesTable.phase eq phase.name }

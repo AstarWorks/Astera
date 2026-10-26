@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
@@ -23,7 +23,7 @@ import org.jetbrains.exposed.v1.jdbc.upsert
  */
 public class PostgresNameplateMilestoneRepository(private val db: Database) : INameplateMilestoneRepository {
 
-    override fun find(playerId: PlayerId): INameplateMilestoneRepository.Record? = transaction(db) {
+    override suspend fun find(playerId: PlayerId): INameplateMilestoneRepository.Record? = ioTransaction(db) {
         NameplateMilestonesTable
             .selectAll()
             .where { NameplateMilestonesTable.playerId eq playerId.uuid }
@@ -31,7 +31,7 @@ public class PostgresNameplateMilestoneRepository(private val db: Database) : IN
             ?.toDomain()
     }
 
-    override fun save(record: INameplateMilestoneRepository.Record): Unit = transaction(db) {
+    override suspend fun save(record: INameplateMilestoneRepository.Record): Unit = ioTransaction(db) {
         NameplateMilestonesTable.upsert(NameplateMilestonesTable.playerId) {
             it[playerId] = record.playerId.uuid
             it[achievementId] = record.achievementId?.value
@@ -41,7 +41,7 @@ public class PostgresNameplateMilestoneRepository(private val db: Database) : IN
         Unit
     }
 
-    override fun delete(playerId: PlayerId): Unit = transaction(db) {
+    override suspend fun delete(playerId: PlayerId): Unit = ioTransaction(db) {
         NameplateMilestonesTable.deleteWhere { NameplateMilestonesTable.playerId eq playerId.uuid }
         Unit
     }

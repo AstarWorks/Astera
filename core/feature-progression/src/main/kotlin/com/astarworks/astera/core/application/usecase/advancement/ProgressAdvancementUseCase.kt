@@ -61,7 +61,7 @@ public class ProgressAdvancementUseCase(
     private val clock: () -> Instant = { Instant.now() },
 ) : IAdvancementService {
 
-    override fun progress(
+    override suspend fun progress(
         playerId: PlayerId,
         advancementId: AdvancementId,
         increment: Int,
@@ -123,13 +123,13 @@ public class ProgressAdvancementUseCase(
         return Result.success(newProgress)
     }
 
-    override fun completed(playerId: PlayerId): Set<AdvancementId> =
+    override suspend fun completed(playerId: PlayerId): Set<AdvancementId> =
         repository.completed(playerId)
             // Filter out the synthetic sub-row keys (those end with '-l<index>').
             .filter { !SUB_ROW_SUFFIX.containsMatchIn(it.value) }
             .toSet()
 
-    override fun progressOf(
+    override suspend fun progressOf(
         playerId: PlayerId,
         advancementId: AdvancementId,
     ): AdvancementProgress? = repository.find(playerId, advancementId)
@@ -205,7 +205,7 @@ public class ProgressAdvancementUseCase(
         val SUB_ROW_SUFFIX: Regex = Regex("-l\\d+$")
     }
 
-    private fun loadLeafSnapshots(
+    private suspend fun loadLeafSnapshots(
         playerId: PlayerId,
         advancement: CustomAdvancement,
         overlay: Pair<Int, Int>,
@@ -213,7 +213,7 @@ public class ProgressAdvancementUseCase(
         val (overlayLeaf, overlayCurrent) = overlay
         val snap = mutableMapOf<Int, Int>()
         var idx = 0
-        fun walk(c: AdvancementCriteria) {
+        suspend fun walk(c: AdvancementCriteria) {
             when (c) {
                 is AdvancementCriteria.AllOf -> c.children.forEach { walk(it) }
                 is AdvancementCriteria.AnyOf -> c.children.forEach { walk(it) }

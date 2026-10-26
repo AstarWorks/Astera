@@ -21,11 +21,11 @@ import java.util.UUID
  * the economy plugin for tests + dev (Phase C wiring).
  */
 public interface ICurrencyIssuanceLog {
-    public fun record(record: IssuanceRecord)
-    public fun findExpired(currency: Currency, asOf: Instant, olderThanDays: Int): List<IssuanceRecord>
-    public fun markConsumed(issuanceId: IssuanceId, amount: Long)
-    public fun totalOutstanding(currency: Currency): Long
-    public fun totalOutstanding(playerId: PlayerId, currency: Currency): Long
+    public suspend fun record(record: IssuanceRecord)
+    public suspend fun findExpired(currency: Currency, asOf: Instant, olderThanDays: Int): List<IssuanceRecord>
+    public suspend fun markConsumed(issuanceId: IssuanceId, amount: Long)
+    public suspend fun totalOutstanding(currency: Currency): Long
+    public suspend fun totalOutstanding(playerId: PlayerId, currency: Currency): Long
 }
 
 @JvmInline

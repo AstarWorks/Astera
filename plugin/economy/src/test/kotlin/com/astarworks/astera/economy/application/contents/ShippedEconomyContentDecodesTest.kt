@@ -27,7 +27,7 @@ class ShippedEconomyContentDecodesTest {
         val cases: List<Pair<String, (Path) -> ContentLoader.LoadReport>> = listOf(
             "bet-policies" to { d -> BettingPolicyContents().bootstrap(d) },
             "shops" to { d ->
-                val r = ShopLoaderService(InMemoryShopRegistry(), InMemoryShopStockRepository()).loadFrom(d)
+                val r = kotlinx.coroutines.runBlocking { ShopLoaderService(InMemoryShopRegistry(), InMemoryShopStockRepository()).loadFrom(d) }
                 ContentLoader.LoadReport(r.loaded, r.failed, r.failures)
             },
         )

@@ -34,7 +34,7 @@ public class ApplyModerationActionUseCase(
     private val permissionService: IPermissionService,
 ) {
 
-    public fun apply(action: ModerationAction): Result<ModerationAction, ModerationError> {
+    public suspend fun apply(action: ModerationAction): Result<ModerationAction, ModerationError> {
         val required = requiredPermission(action)
         if (!permissionService.check(action.issuedBy, required)) {
             return Result.failure(

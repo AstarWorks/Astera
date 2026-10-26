@@ -14,7 +14,7 @@ import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
@@ -38,11 +38,11 @@ public class PostgresBettingHistoryService(
     private val lastResolvedAt: MutableMap<PlayerId, Instant> = ConcurrentHashMap()
     private val streaks: MutableMap<PlayerId, LossStreakState> = ConcurrentHashMap()
 
-    override fun dailyStakeFor(
+    override suspend fun dailyStakeFor(
         playerId: PlayerId,
         currency: Currency,
         sinceUtcDayStart: Instant,
-    ): Long = transaction(db) {
+    ): Long = ioTransaction(db) {
         val activeStatuses = listOf(
             BettingStatus.Active.name,
             BettingStatus.Resolved.name,
@@ -60,27 +60,27 @@ public class PostgresBettingHistoryService(
             .sumOf { it[BettingMatchesTable.stakeAmount] }
     }
 
-    override fun cooldownUntil(playerId: PlayerId): Instant? {
+    override suspend fun cooldownUntil(playerId: PlayerId): Instant? {
         val last = lastResolvedAt[playerId]
             ?: lookupMostRecentResolved(playerId)?.also { lastResolvedAt[playerId] = it }
             ?: return null
         return last.plusMillis(cooldownAfterMatchMs)
     }
 
-    override fun lossStreakOf(playerId: PlayerId): LossStreakState =
+    override suspend fun lossStreakOf(playerId: PlayerId): LossStreakState =
         streaks[playerId] ?: LossStreakState.empty(playerId)
 
-    override fun recordResolution(playerId: PlayerId, resolvedAt: Instant) {
+    override suspend fun recordResolution(playerId: PlayerId, resolvedAt: Instant) {
         lastResolvedAt.merge(playerId, resolvedAt) { existing, incoming ->
             if (incoming.isAfter(existing)) incoming else existing
         }
     }
 
-    override fun saveLossStreak(state: LossStreakState) {
+    override suspend fun saveLossStreak(state: LossStreakState) {
         streaks[state.playerId] = state
     }
 
-    private fun lookupMostRecentResolved(playerId: PlayerId): Instant? = transaction(db) {
+    private suspend fun lookupMostRecentResolved(playerId: PlayerId): Instant? = ioTransaction(db) {
         BettingMatchesTable
             .selectAll()
             .where {

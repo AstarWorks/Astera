@@ -86,10 +86,10 @@ internal fun CoreWiringState.wireInfrastructure() {
         eventBus = eventBus,
     )
     services.register<com.astarworks.astera.core.application.service.engagement.EngagementDashboardService>(engagementService, priority = 0)
-    engagementDashboardHandle = scheduler.runRepeatingTicks(ExecutionScope.Global,
+    engagementDashboardHandle = scheduler.runRepeatingTicks(ExecutionScope.Io,
         initialDelayTicks = 1200L, // 1 min warmup
         periodTicks = 6000L, // 5 min cadence
-    ) { engagementService.compute() }
+    ) { kotlinx.coroutines.runBlocking { engagementService.compute() } }
     logger.info("Wave 5engage dashboard service wired (repo=${engagementRepo::class.simpleName}, recompute every 5 min).")
 
     // ── Wave 5flex (ADR-0102) — Public profile card surface ─────────
@@ -133,7 +133,7 @@ internal fun CoreWiringState.wireInfrastructure() {
         titlesProvider = cosmeticService::titleSummary,
         cosmeticsProvider = cosmeticService::cosmeticSummary,
     )
-    cosmeticService.addChangeListener { recomputeProfileCard.recompute(it) }
+    cosmeticService.addChangeListener { com.astarworks.astera.core.application.port.outbound.IoScope.launch { recomputeProfileCard.recompute(it) } }
     services.register<com.astarworks.astera.core.application.profile.RecomputeProfileCardUseCase>(recomputeProfileCard, priority = 0)
     logger.info("Wave 5flex profile card service wired (impl=${profileCardService::class.simpleName}).")
 

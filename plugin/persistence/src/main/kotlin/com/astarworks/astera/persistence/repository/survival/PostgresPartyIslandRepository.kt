@@ -17,7 +17,7 @@ import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
@@ -29,7 +29,7 @@ import org.jetbrains.exposed.v1.jdbc.upsert
  */
 public class PostgresPartyIslandRepository(private val db: Database) : IPartyIslandRepository {
 
-    override fun find(id: IslandId): PartyIsland? = transaction(db) {
+    override suspend fun find(id: IslandId): PartyIsland? = ioTransaction(db) {
         PartyIslandsTable
             .selectAll()
             .where { PartyIslandsTable.islandId eq id.value }
@@ -37,7 +37,7 @@ public class PostgresPartyIslandRepository(private val db: Database) : IPartyIsl
             ?.toIsland()
     }
 
-    override fun forParty(partyId: PartyId): PartyIsland? = transaction(db) {
+    override suspend fun forParty(partyId: PartyId): PartyIsland? = ioTransaction(db) {
         PartyIslandsTable
             .selectAll()
             .where { PartyIslandsTable.partyId eq partyId.value }
@@ -45,16 +45,16 @@ public class PostgresPartyIslandRepository(private val db: Database) : IPartyIsl
             ?.toIsland()
     }
 
-    override fun byStatus(statuses: Set<IslandStatus>): List<PartyIsland> = transaction(db) {
-        if (statuses.isEmpty()) return@transaction emptyList()
+    override suspend fun byStatus(statuses: Set<IslandStatus>): List<PartyIsland> = ioTransaction(db) {
+        if (statuses.isEmpty()) return@ioTransaction emptyList()
         PartyIslandsTable
             .selectAll()
             .where { PartyIslandsTable.status inList statuses.map { it.name } }
             .mapNotNull { it.toIsland() }
     }
 
-    override fun upsert(island: PartyIsland) {
-        transaction(db) {
+    override suspend fun upsert(island: PartyIsland) {
+        ioTransaction(db) {
             PartyIslandsTable.upsert(PartyIslandsTable.islandId) {
                 it[islandId] = island.id.value
                 it[partyId] = island.partyId.value
@@ -70,13 +70,13 @@ public class PostgresPartyIslandRepository(private val db: Database) : IPartyIsl
         }
     }
 
-    override fun remove(id: IslandId) {
-        transaction(db) {
+    override suspend fun remove(id: IslandId) {
+        ioTransaction(db) {
             PartyIslandsTable.deleteWhere { PartyIslandsTable.islandId eq id.value }
         }
     }
 
-    override fun all(): List<PartyIsland> = transaction(db) {
+    override suspend fun all(): List<PartyIsland> = ioTransaction(db) {
         PartyIslandsTable.selectAll().mapNotNull { it.toIsland() }
     }
 

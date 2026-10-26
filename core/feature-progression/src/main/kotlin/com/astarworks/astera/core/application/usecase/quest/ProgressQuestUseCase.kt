@@ -63,12 +63,12 @@ public class ProgressQuestUseCase(
     private val clock: () -> Instant = { Instant.now() },
 ) : IQuestService {
 
-    override fun startChain(
+    override suspend fun startChain(
         playerId: PlayerId,
         chainId: QuestChainId,
     ): Result<PlayerQuestProgress, QuestError> = startChainUseCase.start(playerId, chainId)
 
-    override fun progressCurrent(
+    override suspend fun progressCurrent(
         playerId: PlayerId,
         chainId: QuestChainId,
         increment: Int,
@@ -143,10 +143,10 @@ public class ProgressQuestUseCase(
         }
     }
 
-    override fun activeChains(playerId: PlayerId): Collection<PlayerQuestProgress> =
+    override suspend fun activeChains(playerId: PlayerId): Collection<PlayerQuestProgress> =
         repository.activeFor(playerId)
 
-    override fun allChains(playerId: PlayerId): Collection<PlayerQuestProgress> =
+    override suspend fun allChains(playerId: PlayerId): Collection<PlayerQuestProgress> =
         repository.allFor(playerId)
 
     /**

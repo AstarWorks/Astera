@@ -31,7 +31,7 @@ public class DefaultPartyIslandManager(
     private val visitUseCase: VisitPartyIslandUseCase,
 ) : IPartyIslandManager {
 
-    override fun create(
+    override suspend fun create(
         partyId: PartyId,
         createdBy: PlayerId,
         templateId: IslandTemplateId,
@@ -40,12 +40,12 @@ public class DefaultPartyIslandManager(
     ): Result<PartyIsland, IslandError> =
         createUseCase.create(partyId, createdBy, templateId, maxMembers, visibility)
 
-    override fun load(islandId: IslandId): Result<WorldId, IslandError> =
+    override suspend fun load(islandId: IslandId): Result<WorldId, IslandError> =
         loadUseCase.load(islandId)
 
-    override fun unload(islandId: IslandId, reasonKind: String): Result<Unit, IslandError> =
+    override suspend fun unload(islandId: IslandId, reasonKind: String): Result<Unit, IslandError> =
         unloadUseCase.unload(islandId, reasonKind)
 
-    override fun visit(visitor: PlayerId, islandId: IslandId): Result<Unit, IslandError> =
+    override suspend fun visit(visitor: PlayerId, islandId: IslandId): Result<Unit, IslandError> =
         visitUseCase.visit(visitor, islandId)
 }

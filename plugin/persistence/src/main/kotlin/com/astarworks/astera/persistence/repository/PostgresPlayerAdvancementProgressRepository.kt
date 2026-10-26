@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -30,8 +30,8 @@ public class PostgresPlayerAdvancementProgressRepository(
     private val db: Database,
 ) : IPlayerAdvancementProgressRepository {
 
-    override fun find(playerId: PlayerId, advancementId: AdvancementId): AdvancementProgress? =
-        transaction(db) {
+    override suspend fun find(playerId: PlayerId, advancementId: AdvancementId): AdvancementProgress? =
+        ioTransaction(db) {
             PlayerAdvancementProgressTable
                 .selectAll()
                 .where {
@@ -42,12 +42,12 @@ public class PostgresPlayerAdvancementProgressRepository(
                 ?.toDomain()
         }
 
-    override fun upsert(
+    override suspend fun upsert(
         playerId: PlayerId,
         advancementId: AdvancementId,
         progress: AdvancementProgress,
     ) {
-        transaction(db) {
+        ioTransaction(db) {
             PlayerAdvancementProgressTable.upsert(
                 PlayerAdvancementProgressTable.playerId,
                 PlayerAdvancementProgressTable.advancementId,
@@ -62,8 +62,8 @@ public class PostgresPlayerAdvancementProgressRepository(
         }
     }
 
-    override fun allFor(playerId: PlayerId): Map<AdvancementId, AdvancementProgress> =
-        transaction(db) {
+    override suspend fun allFor(playerId: PlayerId): Map<AdvancementId, AdvancementProgress> =
+        ioTransaction(db) {
             PlayerAdvancementProgressTable
                 .selectAll()
                 .where { PlayerAdvancementProgressTable.playerId eq playerId.uuid }

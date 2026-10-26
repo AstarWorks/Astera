@@ -31,7 +31,7 @@ public class InMemoryBettingEscrowService(
 
     private val byMatch: MutableMap<BettingMatchId, BettingEscrow> = ConcurrentHashMap()
 
-    override fun hold(
+    override suspend fun hold(
         bettingMatchId: BettingMatchId,
         challengerId: PlayerId,
         opponentId: PlayerId,
@@ -69,7 +69,7 @@ public class InMemoryBettingEscrowService(
         return Result.success(escrow)
     }
 
-    override fun releaseToWinner(
+    override suspend fun releaseToWinner(
         bettingMatchId: BettingMatchId,
         winnerId: PlayerId,
         payoutSplit: Double,
@@ -100,7 +100,7 @@ public class InMemoryBettingEscrowService(
         return Result.success(updated)
     }
 
-    override fun refundBoth(
+    override suspend fun refundBoth(
         bettingMatchId: BettingMatchId,
         now: Instant,
     ): Result<BettingEscrow, BettingError> {
@@ -119,7 +119,7 @@ public class InMemoryBettingEscrowService(
         return Result.success(updated)
     }
 
-    override fun find(bettingMatchId: BettingMatchId): BettingEscrow? = byMatch[bettingMatchId]
+    override suspend fun find(bettingMatchId: BettingMatchId): BettingEscrow? = byMatch[bettingMatchId]
 
     /** Phase 1 test helper. */
     public fun clear() {

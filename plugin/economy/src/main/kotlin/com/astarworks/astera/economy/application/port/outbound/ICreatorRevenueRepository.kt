@@ -13,8 +13,8 @@ import com.astarworks.astera.economy.domain.marketplace.CreatorRevenue
  * [com.astarworks.astera.core.application.port.outbound.ServiceRegistry].
  */
 public interface ICreatorRevenueRepository {
-    public fun findByItem(itemId: ItemId): CreatorRevenue?
-    public fun save(record: CreatorRevenue)
-    public fun delete(itemId: ItemId)
-    public fun all(): List<CreatorRevenue>
+    public suspend fun findByItem(itemId: ItemId): CreatorRevenue?
+    public suspend fun save(record: CreatorRevenue)
+    public suspend fun delete(itemId: ItemId)
+    public suspend fun all(): List<CreatorRevenue>
 }

@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
@@ -9,7 +10,6 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
@@ -33,7 +33,7 @@ public class PostgresPlayerInventorySnapshotRepository(private val db: Database)
     IPlayerInventorySnapshotRepository {
 
     override fun save(snapshot: PlayerInventorySnapshot) {
-        transaction(db) {
+        blockingTransaction(db) {
             PlayerInventorySnapshotsTable.upsert(PlayerInventorySnapshotsTable.playerId) {
                 it[playerId] = snapshot.playerId.uuid
                 it[PlayerInventorySnapshotsTable.snapshot] = PlayerInventorySnapshotJson.fromDomain(snapshot)
@@ -43,7 +43,7 @@ public class PostgresPlayerInventorySnapshotRepository(private val db: Database)
         }
     }
 
-    override fun findLatest(playerId: PlayerId): PlayerInventorySnapshot? = transaction(db) {
+    override fun findLatest(playerId: PlayerId): PlayerInventorySnapshot? = blockingTransaction(db) {
         PlayerInventorySnapshotsTable
             .selectAll()
             .where { PlayerInventorySnapshotsTable.playerId eq playerId.uuid }
@@ -58,7 +58,7 @@ public class PostgresPlayerInventorySnapshotRepository(private val db: Database)
     }
 
     override fun delete(playerId: PlayerId) {
-        transaction(db) {
+        blockingTransaction(db) {
             PlayerInventorySnapshotsTable.deleteWhere {
                 PlayerInventorySnapshotsTable.playerId eq playerId.uuid
             }

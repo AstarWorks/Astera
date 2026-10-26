@@ -16,6 +16,8 @@ import com.astarworks.astera.core.domain.loginbonus.LoginStreakRecord
 import com.astarworks.astera.core.domain.player.PlayerId
 import java.time.LocalDate
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * [ILoginBonusService] (ADR-0210). The reward currency is credited through the shared
@@ -33,20 +35,20 @@ public class DefaultLoginBonusService(
     private val events: IDomainEventBus,
 ) : ILoginBonusService {
 
-    private val locks = ConcurrentHashMap<PlayerId, Any>()
+    private val locks = ConcurrentHashMap<PlayerId, Mutex>()
 
-    override fun claimDaily(
+    override suspend fun claimDaily(
         playerId: PlayerId,
         today: LocalDate,
-    ): Result<LoginBonusClaim, LoginBonusError> = synchronized(locks.computeIfAbsent(playerId) { Any() }) {
+    ): Result<LoginBonusClaim, LoginBonusError> = locks.computeIfAbsent(playerId) { Mutex() }.withLock {
         val record = streakRepo.findByPlayer(playerId)
         if (record != null && record.lastClaimDate == today) {
-            return@synchronized Result.failure(LoginBonusError.AlreadyClaimedToday)
+            return@withLock Result.failure(LoginBonusError.AlreadyClaimedToday)
         }
         val streak = nextStreak(record, today)
         val day = rotationDay(streak)
         val reward = day?.let { registry.forDay(it)?.reward }
-            ?: return@synchronized Result.failure(LoginBonusError.NoRewardForDay(day ?: streak))
+            ?: return@withLock Result.failure(LoginBonusError.NoRewardForDay(day ?: streak))
 
         if (reward.amount > 0L) {
             val wallet = ledger()?.credit(playerId, reward.currency, reward.amount)
@@ -67,7 +69,7 @@ public class DefaultLoginBonusService(
         Result.success(LoginBonusClaim(streakDays = streak, day = day, reward = reward))
     }
 
-    override fun status(playerId: PlayerId, today: LocalDate): LoginBonusStatus {
+    override suspend fun status(playerId: PlayerId, today: LocalDate): LoginBonusStatus {
         val record = streakRepo.findByPlayer(playerId)
         val claimed = record != null && record.lastClaimDate == today
         val streak = if (claimed) record!!.streakDays else nextStreak(record, today)
@@ -82,7 +84,7 @@ public class DefaultLoginBonusService(
         )
     }
 
-    override fun streakOf(playerId: PlayerId): LoginStreakRecord? = streakRepo.findByPlayer(playerId)
+    override suspend fun streakOf(playerId: PlayerId): LoginStreakRecord? = streakRepo.findByPlayer(playerId)
 
     private fun nextStreak(record: LoginStreakRecord?, today: LocalDate): Int =
         if (record != null && record.lastClaimDate == today.minusDays(1)) record.streakDays + 1 else 1

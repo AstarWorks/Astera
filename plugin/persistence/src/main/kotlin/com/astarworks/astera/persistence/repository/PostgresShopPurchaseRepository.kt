@@ -15,12 +15,12 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 
 /** Postgres-backed [IShopPurchaseRepository] (V64, ADR-0211); overlays the in-memory default at priority 100. */
 public class PostgresShopPurchaseRepository(private val db: Database) : IShopPurchaseRepository {
 
-    override fun record(record: PurchaseRecord): Unit = transaction(db) {
+    override suspend fun record(record: PurchaseRecord): Unit = ioTransaction(db) {
         ShopPurchasesTable.insert {
             it[playerId] = record.playerId.uuid
             it[shopId] = record.shopId.value
@@ -33,7 +33,7 @@ public class PostgresShopPurchaseRepository(private val db: Database) : IShopPur
         Unit
     }
 
-    override fun count(playerId: PlayerId, shopId: ShopId, offerId: ShopOfferId): Int = transaction(db) {
+    override suspend fun count(playerId: PlayerId, shopId: ShopId, offerId: ShopOfferId): Int = ioTransaction(db) {
         ShopPurchasesTable.selectAll()
             .where {
                 (ShopPurchasesTable.playerId eq playerId.uuid) and
@@ -44,7 +44,7 @@ public class PostgresShopPurchaseRepository(private val db: Database) : IShopPur
             .toInt()
     }
 
-    override fun history(playerId: PlayerId, limit: Int): List<PurchaseRecord> = transaction(db) {
+    override suspend fun history(playerId: PlayerId, limit: Int): List<PurchaseRecord> = ioTransaction(db) {
         ShopPurchasesTable.selectAll()
             .where { ShopPurchasesTable.playerId eq playerId.uuid }
             .orderBy(ShopPurchasesTable.purchasedAt to SortOrder.DESC, ShopPurchasesTable.id to SortOrder.DESC)

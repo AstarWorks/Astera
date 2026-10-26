@@ -16,15 +16,15 @@ public class InMemoryRewardBridge : IRewardBridge {
 
     private val queue: MutableMap<PlayerId, MutableList<RewardBundle>> = mutableMapOf()
 
-    override fun enqueue(bundle: RewardBundle) {
+    override suspend fun enqueue(bundle: RewardBundle) {
         queue.getOrPut(bundle.playerId) { mutableListOf() } += bundle
     }
 
-    override fun consumeForPlayer(playerId: PlayerId): List<RewardBundle> {
+    override suspend fun consumeForPlayer(playerId: PlayerId): List<RewardBundle> {
         val pending = queue.remove(playerId) ?: return emptyList()
         return pending.toList()
     }
 
-    override fun peek(playerId: PlayerId): List<RewardBundle> =
+    override suspend fun peek(playerId: PlayerId): List<RewardBundle> =
         queue[playerId]?.toList() ?: emptyList()
 }

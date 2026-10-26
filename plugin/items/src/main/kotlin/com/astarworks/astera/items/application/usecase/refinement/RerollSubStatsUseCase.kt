@@ -69,7 +69,7 @@ public class RerollSubStatsUseCase(
             { previous, candidate -> candidate.sumOf { it.magnitude } > previous.sumOf { it.magnitude } }
     }
 
-    public fun reroll(
+    public suspend fun reroll(
         owner: PlayerId,
         wallet: Wallet,
         instanceId: ItemInstanceId,

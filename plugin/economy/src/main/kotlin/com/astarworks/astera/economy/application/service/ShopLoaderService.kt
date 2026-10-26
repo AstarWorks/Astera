@@ -46,14 +46,14 @@ public class ShopLoaderService(
     )
 
     /** Loads every supported content file in [dir]. Missing dir = warn + no-op. */
-    public fun loadFrom(dir: Path): LoadReport {
+    public suspend fun loadFrom(dir: Path): LoadReport {
         val report = loader.loadFrom(dir) { cfg ->
             val spec = cfg.toSpec()
             registry.register(spec)
             spec.offers.forEach { offer ->
                 val stock = offer.stock
                 if (stock is ShopStock.Limited) {
-                    stockRepository.seed(spec.id, offer.id, stock.remaining)
+                    kotlinx.coroutines.runBlocking { stockRepository.seed(spec.id, offer.id, stock.remaining) }
                 }
             }
         }

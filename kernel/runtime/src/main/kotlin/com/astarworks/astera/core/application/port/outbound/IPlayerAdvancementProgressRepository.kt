@@ -28,7 +28,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public interface IPlayerAdvancementProgressRepository {
 
     /** Returns the stored progress, or `null` if the player has never advanced this row. */
-    public fun find(playerId: PlayerId, advancementId: AdvancementId): AdvancementProgress?
+    public suspend fun find(playerId: PlayerId, advancementId: AdvancementId): AdvancementProgress?
 
     /**
      * Atomically write [progress] for `(playerId, advancementId)`. Replaces any
@@ -36,13 +36,13 @@ public interface IPlayerAdvancementProgressRepository {
      * a fixed timestamp (latched) — callers must never go back from non-null
      * to null.
      */
-    public fun upsert(playerId: PlayerId, advancementId: AdvancementId, progress: AdvancementProgress)
+    public suspend fun upsert(playerId: PlayerId, advancementId: AdvancementId, progress: AdvancementProgress)
 
     /** Snapshot of every advancement the player has any row for. */
-    public fun allFor(playerId: PlayerId): Map<AdvancementId, AdvancementProgress>
+    public suspend fun allFor(playerId: PlayerId): Map<AdvancementId, AdvancementProgress>
 
     /** Set of advancements the player has completed (convenience over [allFor] for the HUD). */
-    public fun completed(playerId: PlayerId): Set<AdvancementId> =
+    public suspend fun completed(playerId: PlayerId): Set<AdvancementId> =
         allFor(playerId).asSequence()
             .filter { it.value.completedAt != null }
             .map { it.key }

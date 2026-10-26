@@ -17,7 +17,7 @@ import com.astarworks.astera.core.domain.social.FriendshipStatus
 public class DeclineFriendRequestUseCase(
     private val repository: IFriendshipRepository,
 ) {
-    public fun decline(decliner: PlayerId, requester: PlayerId): Result<Friendship, FriendshipError> {
+    public suspend fun decline(decliner: PlayerId, requester: PlayerId): Result<Friendship, FriendshipError> {
         val existing = repository.find(decliner, requester)
             ?: return Result.failure(FriendshipError.NotFound(decliner, requester))
         if (existing.status != FriendshipStatus.PENDING) {

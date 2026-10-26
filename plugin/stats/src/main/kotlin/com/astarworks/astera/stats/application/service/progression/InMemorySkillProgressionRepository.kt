@@ -20,14 +20,14 @@ public class InMemorySkillProgressionRepository : ISkillProgressionRepository {
 
     private val store = ConcurrentHashMap<Key, SkillProgression>()
 
-    override fun find(playerId: PlayerId, kind: SkillKind): SkillProgression? =
+    override suspend fun find(playerId: PlayerId, kind: SkillKind): SkillProgression? =
         store[Key(playerId, kind)]
 
-    override fun upsert(progression: SkillProgression) {
+    override suspend fun upsert(progression: SkillProgression) {
         store[Key(progression.playerId, progression.kind)] = progression
     }
 
-    override fun allFor(playerId: PlayerId): Collection<SkillProgression> =
+    override suspend fun allFor(playerId: PlayerId): Collection<SkillProgression> =
         store.values.filter { it.playerId == playerId }
 
     private data class Key(val playerId: PlayerId, val kind: SkillKind)

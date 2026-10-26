@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.vault.PersonalVault
  */
 public class OpenVaultUseCase(private val vaults: IPersonalVaultRepository) {
 
-    public fun openVault(playerId: PlayerId): Result<PersonalVault, VaultError> {
+    public suspend fun openVault(playerId: PlayerId): Result<PersonalVault, VaultError> {
         val existing = vaults.find(playerId) ?: PersonalVault.empty(playerId)
         return Result.Success(existing)
     }

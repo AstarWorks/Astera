@@ -16,14 +16,14 @@ import com.astarworks.astera.match.domain.tournament.TournamentId
 public interface ITournamentRepository {
 
     /** The tournament with [id], or null if none. */
-    public fun find(id: TournamentId): Tournament?
+    public suspend fun find(id: TournamentId): Tournament?
 
     /** Insert or replace [tournament]; returns the stored value. */
-    public fun upsert(tournament: Tournament): Tournament
+    public suspend fun upsert(tournament: Tournament): Tournament
 
     /** All known tournaments (unordered). */
-    public fun all(): Collection<Tournament>
+    public suspend fun all(): Collection<Tournament>
 
     /** Remove the tournament with [id]; no-op if absent. */
-    public fun delete(id: TournamentId)
+    public suspend fun delete(id: TournamentId)
 }
