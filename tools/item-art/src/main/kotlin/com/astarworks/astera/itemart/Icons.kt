@@ -40,7 +40,7 @@ internal enum class Glyph {
     SHOP, QUEUE, CUSTOMIZE, PARTY, FRIENDS, SETTINGS, TRAVEL, HOME, ARENA, SAPLING, VAULT, COMPASS,
     ORB_ON, ORB_OFF, AOE, SLASH, ARROW_SHOT, BUFF, SKULL, PORTAL,
     BACK, PREV, NEXT, PAGE, CLOSE, REFRESH, CHECK, BRING, KICK, KIT, FLAG, SWORDS, CLOCK, WING, CUBE, SHIELD,
-    HEART, HEAL, SERVER, BOOK, FLASK, SWORD, GUN, STAFF, BOX, STAR, COIN, BOLT, AMMO,
+    HEART, HEAL, SERVER, BOOK, FLASK, SWORD, GUN, STAFF, BOX, STAR, COIN, BOLT, AMMO, MIRROR,
 }
 
 /** Icon design of one item id. */
@@ -62,6 +62,7 @@ internal object Icons {
         t("gui-tile-travel-pve", Glyph.ARENA)
         t("gui-tile-travel-survival", Glyph.SAPLING)
         t("gui-tile-vault", Glyph.VAULT)
+        t("gui-tile-cosmetics", Glyph.MIRROR)
         // indicators
         put("indicator-on", IconSpec(Glyph.ORB_ON, Theme.GOOD, plaque = false))
         put("indicator-off", IconSpec(Glyph.ORB_OFF, Theme.ADMIN, plaque = false))
@@ -285,6 +286,18 @@ private class IconCanvas(val s: Sprite, val spec: IconSpec) {
                 s.rect(7.0, 13.5, 25.0, 15.5, dark)
                 s.rect(14.0, 15.0, 18.0, 20.5, ink)
                 s.disc(16.0, 17.2, 1.0, fill)
+            }
+            Glyph.MIRROR -> {
+                // standing oval mirror: accent frame, ink glass with two glints, stand and a sparkle
+                s.disc(13.5, 15.0, 8.8, acc)
+                s.disc(13.5, 15.0, 6.6, ink)
+                s.line(P(10.0, 17.0), P(13.0, 11.0), 1.4, acc)
+                s.line(P(14.5, 19.5), P(15.5, 17.5), 1.0, acc)
+                s.rect(12.5, 23.5, 14.5, 26.5, acc)
+                s.rect(9.0, 26.0, 18.0, 27.5, acc)
+                s.line(P(24.0, 5.5), P(24.0, 11.5), 1.6, ink)
+                s.line(P(21.0, 8.5), P(27.0, 8.5), 1.6, ink)
+                s.spark(24, 8, th.glow)
             }
             Glyph.COMPASS -> {
                 ring(16.0, 16.0, 11.0, 2.2, acc)
