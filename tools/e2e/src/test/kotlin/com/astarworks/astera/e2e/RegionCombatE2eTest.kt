@@ -32,7 +32,7 @@ class RegionCombatE2eTest : E2eBase() {
             }
 
             // Keep the old snapshot near the caster if teleport maintenance breaks.
-            rcon("tp @e[tag=$tag,limit=1] ${x + 48.0} $y ${z + 2.0}")
+            rcon("tp @e[tag=$tag,limit=1] ${x + 48.0} ${y + 30.0} ${z + 2.0}") // airborne: no suffocation damage in terrain
             Thread.sleep(1_100) // i-frames must not hide a stale-grid hit
             // Same-tick follow-up damage of the first slash can land after the first poll; settle before comparing.
             val beforeFar = health()
