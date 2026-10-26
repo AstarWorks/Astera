@@ -5,6 +5,11 @@ import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.inbound.IQuestService
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IPlayerUnlockView
+import com.astarworks.astera.core.domain.achievement.TitleId
+import com.astarworks.astera.core.domain.advancement.AdvancementId
+import com.astarworks.astera.core.domain.advancement.AdvancementReward
+import com.astarworks.astera.core.domain.event.AdvancementRewardGranted
 import com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginBonusService
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.achievement.AchievementId
@@ -90,6 +95,19 @@ class ProgressionLoopScenarioTest {
             // The mission screen shows the state.
             val views = sim.services.getOrThrow<INormaService>().views(red.id)
             assertThat(views.first { it.norma.id == NormaId("daily-victory") }.completed).isTrue
+        }
+    }
+    @Test
+    fun `a quest title reward becomes an owned title`() {
+        scenario("progression-quest-title") {
+            val alice = player("alice")
+            advance(5)
+            val bus = sim.services.getOrThrow<IDomainEventBus>()
+            // The same fan-out event GrantQuestRewardUseCase publishes for a `grant_title` stage reward.
+            bus.publish(
+                AdvancementRewardGranted(alice.id, AdvancementId("quest-tutorial-chain-win-match"), 0, AdvancementReward.GrantTitle(TitleId("rookie")), 1L),
+            )
+            assertThat(sim.services.getOrThrow<IPlayerUnlockView>().unlocks(alice.id)).contains("title:rookie")
         }
     }
 }
