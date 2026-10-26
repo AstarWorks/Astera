@@ -60,7 +60,7 @@ public class ArenaBuildPlan(
         private val PASSABLE: Set<String> = setOf(
             "air", "short_grass", "tall_grass", "fern", "dandelion", "poppy", "azure_bluet", "cornflower",
             "allium", "oxeye_daisy", "pink_tulip", "red_tulip", "orange_tulip", "white_tulip", "blue_orchid",
-            "lily_of_the_valley", "torch", "lantern",
+            "lily_of_the_valley", "torch", "lantern", "snow", "dead_bush", "short_dry_grass", "crimson_roots", "warped_roots",
         )
 
         /** True for blocks a player walks through (plants, banners, lanterns). */
@@ -1042,15 +1042,30 @@ public object ArenaIslandGenerator {
         // ── decoration ───────────────────────────────────────────────────
 
         private fun deco() {
-            if (layout.theme != ArenaTheme.TEMPERATE) return
             for ((k, isl) in topCells) {
                 if (isl.kind == ArenaIslandKind.CENTER || k in reserved) continue
                 val x = (k shr 32).toInt()
                 val z = k.toInt()
                 if (get(x, s, z) != material("ground") || get(x, s + 1, z) != null) continue
                 val r = rnd(x, z, 5)
-                if (r >= 0.06) continue
-                set(x, s + 1, z, FLOWERS[(r / 0.06 * FLOWERS.size).toInt().coerceAtMost(FLOWERS.size - 1)])
+                val patch = noise2(x * 0.11, z * 0.11, 13) > 0.3
+                when (layout.theme) {
+                    ArenaTheme.TEMPERATE -> if (r < 0.06) set(x, s + 1, z, FLOWERS[(r / 0.06 * FLOWERS.size).toInt().coerceAtMost(FLOWERS.size - 1)])
+                    ArenaTheme.FROST -> when {
+                        patch && r < 0.5 -> set(x, s, z, "minecraft:packed_ice")
+                        r < 0.14 -> set(x, s + 1, z, "minecraft:snow")
+                        r > 0.9985 && k !in laneCells -> for (dy in 1..2 + (r * 4000).toInt() % 3) set(x, s + dy, z, "minecraft:packed_ice")
+                    }
+                    ArenaTheme.DESERT -> when {
+                        patch && r < 0.6 -> set(x, s, z, if (r < 0.3) "minecraft:cut_sandstone" else "minecraft:red_sandstone")
+                        r < 0.05 -> set(x, s + 1, z, if (r < 0.03) "minecraft:dead_bush" else "minecraft:short_dry_grass")
+                    }
+                    ArenaTheme.VOLCANIC -> when {
+                        patch && r < 0.55 -> set(x, s, z, if (r < 0.2) "minecraft:blackstone" else "minecraft:smooth_basalt")
+                        r < 0.012 -> set(x, s, z, "minecraft:shroomlight")
+                        r < 0.05 -> set(x, s + 1, z, "minecraft:crimson_roots")
+                    }
+                }
             }
         }
     }
