@@ -485,6 +485,9 @@ public class GameSim private constructor(
             persistenceOverlay: Boolean = false,
             /** Use entity-declared teams outside matches; false exercises Paper's late Match-owned team lookup. */
             standaloneTeams: Boolean = true,
+            /** Inline by default; integration scenarios can exercise the production pool on identical wiring. */
+            projectileCompute: com.astarworks.astera.combat.application.service.CombatComputePool =
+                com.astarworks.astera.combat.application.service.CombatComputePool(parallelism = 0),
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
@@ -520,6 +523,7 @@ public class GameSim private constructor(
                 isAlive = alive,
                 resolver = { services.get<ProjectileImpactResolver>() },
                 worldGateway = { worldGateway },
+                compute = projectileCompute,
             )
 
             sim = GameSim(scenarioName, world, scheduler, services, recorder, mcServer, projectiles, broadcaster, contexts)

@@ -121,6 +121,7 @@ public class ProjectileImpactResolver(
         val mechanics = select(binding.phases)
         if (mechanics.isEmpty()) return
         val ctx = MechanicContext(
+            maxTargets = flight.spec.skill?.maxTargets,
             actorId = flight.owner,
             targetId = target,
             origin = binding.castOrigin,

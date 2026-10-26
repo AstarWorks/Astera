@@ -41,6 +41,7 @@ public class AoeHandler(
 
         val candidates = nearbyQuery.findInRadius(event.at, params.radius, event.pose?.world)
             .filter { it != event.caster }
+            .let { ids -> event.maxTargets?.let { ids.take(it) } ?: ids }
 
         if (candidates.isNotEmpty()) {
             val source = DamageSource.Skill(

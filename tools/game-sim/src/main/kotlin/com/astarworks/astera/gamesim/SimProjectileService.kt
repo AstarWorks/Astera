@@ -43,6 +43,8 @@ public class SimProjectileService(
     private val resolver: () -> ProjectileImpactResolver?,
     /** Trail particles (resolved lazily; `null` => no trail). */
     worldGateway: () -> IWorldGateway? = { null },
+    private val compute: com.astarworks.astera.combat.application.service.CombatComputePool =
+        com.astarworks.astera.combat.application.service.CombatComputePool(parallelism = 0),
 ) : IProjectileService {
 
     private val stepper = ProjectileStepper(resolver)
@@ -61,6 +63,7 @@ public class SimProjectileService(
         stepTask?.cancel()
         stepTask = null
         flights.clear()
+        compute.close()
     }
 
     /** Positions of the projectiles currently in flight (for trace snapshots). */
@@ -97,9 +100,13 @@ public class SimProjectileService(
 
     private fun step() {
         val now = scheduler.currentTick()
-        for (f in flights.toList()) {
+        val batch = flights.sortedBy { it.id.uuid }
+        val plans = compute.map(batch.map { f ->
+            com.astarworks.astera.combat.domain.compute.ProjectileMotionInput(f.position, f.velocity, f.spec.motion)
+        }, com.astarworks.astera.combat.domain.compute.ProjectileMotion::compute)
+        for ((index, f) in batch.withIndex()) {
             if (flights.none { it === f }) continue // cancelled by an earlier impact this tick
-            stepper.step(f, now, probe) { terminal ->
+            stepper.step(f, now, probe, motion = plans[index]) { terminal ->
                 flights.remove(f)
                 when (terminal) {
                     is ProjectileStepOutcome.HitEntity ->

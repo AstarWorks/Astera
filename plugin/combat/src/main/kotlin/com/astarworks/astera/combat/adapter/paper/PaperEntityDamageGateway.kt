@@ -33,29 +33,39 @@ import org.bukkit.entity.Player
  */
 public class PaperEntityDamageGateway(
     private val server: Server,
+    private val grid: CombatSpatialGrid,
+    private val ownership: PaperCombatOwnership,
 ) : IEntityDamageGateway {
 
     /** True only while this gateway's own `damage(...)` call is on the stack. */
-    @Volatile
-    public var applying: Boolean = false
-        private set
+    private val applyingOnThread = ThreadLocal.withInitial { false }
+    public val applying: Boolean get() = applyingOnThread.get()
 
     override fun isEntityTarget(target: PlayerId): Boolean {
-        val entity = server.getEntity(target.uuid)
+        val entity = grid.entity(target.uuid)
         return entity is LivingEntity && entity !is Player && entity !is ArmorStand
     }
 
-    override fun hitPoints(target: PlayerId): Double? =
-        (server.getEntity(target.uuid) as? LivingEntity)?.takeIf { it.isValid }?.health
+    override fun hitPoints(target: PlayerId): Double? {
+        val entity = grid.entity(target.uuid) ?: return null
+        return if (org.bukkit.Bukkit.isOwnedByCurrentRegion(entity)) entity.takeIf { it.isValid }?.health
+        else grid.snapshot(target.uuid)?.health
+    }
 
-    override fun maxHitPoints(target: PlayerId): Double? =
-        (server.getEntity(target.uuid) as? LivingEntity)?.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value
+    override fun maxHitPoints(target: PlayerId): Double? {
+        val entity = grid.entity(target.uuid) ?: return null
+        return if (org.bukkit.Bukkit.isOwnedByCurrentRegion(entity)) entity.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value
+        else grid.snapshot(target.uuid)?.maxHealth
+    }
 
     override fun heal(target: PlayerId, amount: Double) {
-        val entity = server.getEntity(target.uuid) as? LivingEntity ?: return
+        if (ownership.deferIfForeign(target) { heal(target, amount) }) return
+        ownership.assertOwned(target)
+        val entity = grid.entity(target.uuid) as? LivingEntity ?: return
         if (!entity.isValid || entity.isDead) return
         val max = entity.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: entity.health
         entity.health = (entity.health + amount).coerceIn(0.0, max)
+        grid.update(entity)
     }
 
     override fun apply(
@@ -63,8 +73,9 @@ public class PaperEntityDamageGateway(
         resolved: ResolvedDamage,
         source: DamageSource,
     ): Result<DamageOutcome, DamageApplicationError> {
-        val entity = server.getEntity(target.uuid) as? LivingEntity
+        val entity = grid.entity(target.uuid) as? LivingEntity
             ?: return Result.failure(DamageApplicationError.TargetOffline(target))
+        check(org.bukkit.Bukkit.isOwnedByCurrentRegion(entity)) { "Damage outside target region" }
         if (entity.isDead || !entity.isValid) {
             return Result.failure(DamageApplicationError.TargetAlreadyDead(target))
         }
@@ -75,16 +86,18 @@ public class PaperEntityDamageGateway(
 
         // Skill cadence is governed by cooldowns, not by vanilla i-frames.
         entity.noDamageTicks = 0
-        applying = true
+        val previousApplying = applyingOnThread.get()
+        applyingOnThread.set(true)
         try {
             // SkillDamageScope: the caster-as-damager event must never re-enter item input triggers.
             SkillDamageScope.around {
                 if (attacker != null) entity.damage(resolved.finalAmount, attacker) else entity.damage(resolved.finalAmount)
             }
         } finally {
-            applying = false
+            applyingOnThread.set(previousApplying)
         }
 
+        grid.update(entity)
         return if (entity.isDead || entity.health <= 0.0) {
             Result.success(DamageOutcome.Killed)
         } else {

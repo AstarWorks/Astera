@@ -113,6 +113,7 @@ import org.slf4j.LoggerFactory
  */
 public class MechanicDispatcher(
     private val applyDamage: ApplyDamageUseCase?,
+    private val ownership: com.astarworks.astera.combat.application.port.outbound.ICombatOwnership? = null,
     private val applyStatus: ApplyStatusUseCase?,
     private val worldGateway: IWorldGateway,
     private val knockbackGateway: IKnockbackGateway?,
@@ -354,8 +355,15 @@ public class MechanicDispatcher(
      * synchronously by the `PlayerKilled` listeners, so HP alone no longer says
      * "died in this hit" by the time the next mechanic runs.
      */
-    private val killedThisDispatch: MutableSet<PlayerId> = HashSet()
-    private var dispatchDepth: Int = 0
+    private class DispatchFrame {
+        val killed = HashSet<PlayerId>()
+        var depth = 0
+    }
+    private val dispatchFrames = ThreadLocal.withInitial { DispatchFrame() }
+    private val killedThisDispatch: MutableSet<PlayerId> get() = dispatchFrames.get().killed
+    private var dispatchDepth: Int
+        get() = dispatchFrames.get().depth
+        set(value) { dispatchFrames.get().depth = value }
 
     /**
      * Dispatch each mechanic in [mechanics] against [ctx]. Used by archetype
@@ -436,13 +444,13 @@ public class MechanicDispatcher(
     // ---- hit_stop vs. movement ordering -------------------------------------------------------
 
     /** Tick at which a hit-stopped entity is released. */
-    private val heldUntil: MutableMap<PlayerId, Long> = HashMap()
+    private val heldUntil: MutableMap<PlayerId, Long> = java.util.concurrent.ConcurrentHashMap()
 
     /** Movement impulses applied to a held entity, replayed on release. */
-    private val deferredMovement: MutableMap<PlayerId, MutableList<() -> Unit>> = HashMap()
+    private val deferredMovement: MutableMap<PlayerId, MutableList<() -> Unit>> = java.util.concurrent.ConcurrentHashMap()
 
     /** Movement applied this tick per entity, so a hit_stop that follows can defer it instead of wiping it. */
-    private val recentMovement: MutableMap<PlayerId, Pair<Long, MutableList<() -> Unit>>> = HashMap()
+    private val recentMovement: MutableMap<PlayerId, Pair<Long, MutableList<() -> Unit>>> = java.util.concurrent.ConcurrentHashMap()
 
     /**
      * Applies a knockback / knockup / propel [op] now, unless [target] is hit-stopped, in which case it
@@ -974,7 +982,10 @@ public class MechanicDispatcher(
     ) {
         val consumed = LinkedHashMap<Pair<PlayerId, StatusEffectId>, Int>()
         for (target in targets) {
-            perTarget(target, buildDamageProfile(profile.components, target, ctx, consumed))
+            val folded = buildDamageProfile(profile.components, target, ctx, consumed)
+            if (ownership?.deferIfForeign(target) { perTarget(target, folded) } == true) continue
+            ownership?.assertOwned(target)
+            perTarget(target, folded)
         }
         for ((key, stacks) in consumed) statusContainer?.removeStacks(key.first, key.second, stacks)
     }
@@ -1133,6 +1144,7 @@ public data class MechanicContext(
     public val boundTargetState: BoundTargetState? = null,
     public val origin: Vec3,
     public val worldId: WorldId? = null,
+    public val maxTargets: Int? = null,
     public val depth: Int = 0,
     public val castedSkills: Set<SkillId> = emptySet(),
     public val sourceItemId: ItemId? = null,

@@ -189,6 +189,7 @@ internal class CorePaperBindings(
             worldGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.world.PaperWorldGateway(
                     server = server,
+                    encodeParticles = packetEventsInstalled,
                     scheduler = scheduler,
                     eventBus = services.getOrThrow<IDomainEventBus>(),
                 )

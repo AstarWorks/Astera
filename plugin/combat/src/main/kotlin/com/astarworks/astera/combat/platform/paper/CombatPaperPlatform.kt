@@ -48,6 +48,13 @@ import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import org.bukkit.plugin.java.JavaPlugin
+import com.astarworks.astera.combat.adapter.paper.CombatSpatialGrid
+import com.astarworks.astera.combat.adapter.paper.PaperCombatOwnership
+import com.astarworks.astera.combat.adapter.paper.PaperCombatPhase
+import com.astarworks.astera.combat.application.service.CombatComputePool
+import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.world.WorldId
 
 /**
  * Paper half of Combat's enable (ADR-0174): builds the [CombatPlatformPorts]
@@ -62,6 +69,15 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
 
     // Concrete Paper instances the factories create; the post-wiring step
     // needs them (not just their port interface).
+    private val spatialGrid = CombatSpatialGrid()
+    private var gridStarted = false
+    private val computePool = CombatComputePool()
+    private var phase: PaperCombatPhase? = null
+    private fun phase(services: ServiceRegistry): PaperCombatPhase =
+        phase ?: PaperCombatPhase(services.getOrThrow<IScheduler>()).also {
+            phase = it
+            spatialGrid.onMove = it::entityMoved
+        }
     private var statusContainer: PaperStatusEffectContainer? = null
     private var projectileService: PaperProjectileService? = null
     private var explosionGateway: PaperExplosionGateway? = null
@@ -70,14 +86,25 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
     private var statusTickHandle: IScheduler.TaskHandle? = null
 
     val ports: CombatPlatformPorts = CombatPlatformPorts(
-        nearbyTargetQuery = { PaperNearbyTargetQuery(plugin.server) },
-        entityDamageGateway = {
-            val gateway = PaperEntityDamageGateway(plugin.server)
+        combatPoseLookup = { com.astarworks.astera.combat.adapter.paper.PaperCombatPoseLookup(spatialGrid) },
+        combatOwnership = { services -> PaperCombatOwnership(services.getOrThrow<IScheduler>(), spatialGrid) },
+        nearbyTargetQuery = { services ->
+            if (!gridStarted) {
+                spatialGrid.start(plugin, services.getOrThrow<IScheduler>())
+                gridStarted = true
+            }
+            PaperNearbyTargetQuery(spatialGrid)
+        },
+        entityDamageGateway = { services ->
+            val gateway = PaperEntityDamageGateway(
+                plugin.server, spatialGrid, PaperCombatOwnership(services.getOrThrow<IScheduler>(), spatialGrid))
             entityDamageGateway = gateway
             gateway
         },
-        entityEffectsGateway = { PaperEntityEffectsGateway(plugin.server, plugin) },
-        displayEntityGateway = { PaperDisplayEntityGateway(plugin.server) },
+        entityEffectsGateway = { services ->
+            PaperEntityEffectsGateway(plugin.server, PaperCombatOwnership(services.getOrThrow<IScheduler>(), spatialGrid), plugin)
+        },
+        displayEntityGateway = { services -> PaperDisplayEntityGateway(plugin.server, services.getOrThrow<IScheduler>()) },
         summonGateway = { PaperSummonGateway(plugin.server) },
         trainingDummyShells = { PaperTrainingDummyShells(plugin) },
         entityCasterBody = { PaperEntityCasterBody(plugin.server, plugin) },
@@ -88,8 +115,10 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             // F2-4 — server-simulated projectiles (no vanilla projectile entity).
             val paperProjectile = PaperProjectileService(
                 server = plugin.server,
+                grid = spatialGrid,
+                phase = phase(services),
+                compute = computePool,
                 scheduler = services.getOrThrow<IScheduler>(),
-                worldGateway = services.getOrThrow<IWorldGateway>(),
                 teamLookup = { services.get<IMatchTeamLookup>() },
             )
             paperProjectile.start()
@@ -130,12 +159,22 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
                 server = plugin.server,
                 scheduler = services.getOrThrow<IScheduler>(),
                 eventBus = services.getOrThrow<IDomainEventBus>(),
+                ownership = PaperCombatOwnership(services.getOrThrow<IScheduler>(), spatialGrid),
                 statusEffectRegistry = services.getOrThrow<IStatusEffectRegistry>(),
+                onTrack = { id ->
+                    plugin.server.getPlayer(id.uuid)?.let { player ->
+                        val at = player.location
+                        phase(services).status(id.uuid, WorldId(player.world.name),
+                            Vec3(at.x, at.y, at.z))
+                    }
+                },
             )
             statusContainer = container
             container
         },
-        knockbackGateway = { PaperKnockbackGateway(plugin.server) },
+        knockbackGateway = { services ->
+            PaperKnockbackGateway(plugin.server, PaperCombatOwnership(services.getOrThrow<IScheduler>(), spatialGrid))
+        },
         explosionGateway = { services, damageApplier ->
             val gateway = PaperExplosionGateway(
                 server = plugin.server,
@@ -169,6 +208,9 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
                 scheduler = scheduler,
                 eventBus = eventBus,
                 container = container,
+                grid = spatialGrid,
+                phase = phase(services),
+                compute = computePool,
                 playerHealthGateway = playerHealthGatewayForTicks,
             )
             statusTickHandle = statusTickListener.start(plugin)
@@ -234,6 +276,10 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
 
     /** Cancels the scheduler-driven Paper pieces. Bukkit reclaims listeners via `HandlerList.unregisterAll(plugin)`. */
     fun teardown() {
+        phase?.close()
+        phase = null
+        computePool.close()
+        spatialGrid.clear()
         statusTickHandle?.cancel()
         statusTickHandle = null
         projectileService?.stop()

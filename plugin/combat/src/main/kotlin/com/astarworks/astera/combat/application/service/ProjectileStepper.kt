@@ -103,9 +103,10 @@ public class ProjectileStepper(
         flight: ProjectileFlight,
         now: Long,
         probe: ProjectileWorldProbe,
+        motion: com.astarworks.astera.combat.domain.compute.ProjectileMotionResult? = null,
         beforeResolve: (ProjectileStepOutcome) -> Unit = {},
     ): ProjectileStepOutcome = ExecutionCosts.measure("projectile.step", flight.spec.skill?.skillId?.value ?: "unbound") {
-        stepFlight(flight, now, probe, beforeResolve)
+        stepFlight(flight, now, probe, beforeResolve, motion)
     }
 
     private fun stepFlight(
@@ -113,11 +114,14 @@ public class ProjectileStepper(
         now: Long,
         probe: ProjectileWorldProbe,
         beforeResolve: (ProjectileStepOutcome) -> Unit,
+        motion: com.astarworks.astera.combat.domain.compute.ProjectileMotionResult?,
     ): ProjectileStepOutcome {
         val age = now - flight.spawnTick
         steer(flight, probe)
         val from = flight.position
-        val to = from + flight.velocity
+        val planned = motion ?: com.astarworks.astera.combat.domain.compute.ProjectileMotion.compute(
+            com.astarworks.astera.combat.domain.compute.ProjectileMotionInput(from, flight.velocity, flight.spec.motion))
+        val to = planned?.to ?: (from + flight.velocity)
         val outcome: ProjectileStepOutcome = when (val contact = ExecutionCosts.measure("target.projectile_contact", flight.spec.skill?.skillId?.value ?: "unbound") { probe.firstContact(flight, from, to) }) {
             is ProjectileContact.Entity -> {
                 flight.position = contact.at
@@ -132,7 +136,7 @@ public class ProjectileStepper(
             null -> {
                 flight.travelled += from.distance(to)
                 flight.position = to
-                applyForces(flight)
+                if (planned != null) flight.velocity = planned.nextVelocity else applyForces(flight)
                 if (isExpired(flight, age)) ProjectileStepOutcome.Expired(to) else ProjectileStepOutcome.Flying
             }
         }

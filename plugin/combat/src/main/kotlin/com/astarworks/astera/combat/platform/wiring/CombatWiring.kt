@@ -218,6 +218,7 @@ public object CombatWiring {
             dummies = trainingDummies,
             poses = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>() },
         )
+        val combatOwnership = ports.combatOwnership?.invoke(services)
         val baseNearbyQuery = ports.nearbyTargetQuery?.invoke(services)
             ?: services.get<INearbyTargetQuery>()
             ?: EmptyNearbyTargetQuery()
@@ -330,7 +331,7 @@ public object CombatWiring {
         val worldGateway = services.getOrThrow<IWorldGateway>().let { base ->
             if (entityBody != null) com.astarworks.astera.combat.application.preview.EntityTeleportingWorldGateway(base, entityBody) else base
         }
-        val casterPoses = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>()?.let { base ->
+        val casterPoses = ports.combatPoseLookup?.invoke(services) ?: services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>()?.let { base ->
             if (entityBody != null) com.astarworks.astera.combat.application.preview.EntityFallbackPoseLookup(base, entityBody) else base
         }
 
@@ -492,6 +493,7 @@ public object CombatWiring {
             val focusFireBonusSource = FocusFireBonusSource(focusFireTracker)
             val targetLockBonusSource = TargetLockBonusSource(targetLockController)
             val applyDamage = ApplyDamageUseCase(
+                ownership = combatOwnership,
                 damageGateway = damageGateway,
                 knockbackGateway = knockbackGateway,
                 statusContainer = statusContainer,
@@ -548,6 +550,7 @@ public object CombatWiring {
             val summonRegistry = SummonRegistry { services.get<IMatchTeamLookup>() }
             registrations += services.register<SummonRegistry>(summonRegistry)
             val mechanicDispatcher = MechanicDispatcher(
+                ownership = combatOwnership,
                 applyDamage = applyDamage,
                 applyStatus = applyStatus,
                 worldGateway = worldGateway,
@@ -620,6 +623,7 @@ public object CombatWiring {
             }
 
             val castSkill = CastSkillUseCase(
+                ownership = combatOwnership,
                 skillRegistry = skillContents,
                 statusContainer = statusContainer,
                 eventBus = eventBus,

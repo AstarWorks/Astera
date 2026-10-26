@@ -42,7 +42,7 @@ public class MeleeHandler(
         dispatcher.dispatch(phases.cast, baseCtx)
 
         // 2. Select targets: cone when the caster's facing is known, else sphere.
-        val targets = selectTargets(event, params)
+        val targets = selectTargets(event, params).let { ids -> event.maxTargets?.let { ids.take(it) } ?: ids }
 
         if (targets.isEmpty()) {
             // 3a. No targets -> fire the miss phase.

@@ -70,6 +70,7 @@ public class ProjectileHandler(
             onHit = emptyList(),
             visual = visualOf(params.visual),
             skill = ProjectileSkillBinding(
+                maxTargets = event.maxTargets,
                 skillId = event.skillId,
                 phases = phases,
                 castOrigin = event.at,

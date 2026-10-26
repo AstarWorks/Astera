@@ -11,6 +11,15 @@ public object ExecutionCosts {
         val total = Histogram()
         val ids = ConcurrentHashMap<String, Histogram>()
     }
+    private val counters = ConcurrentHashMap<String, LongAdder>()
+
+    public fun increment(name: String, amount: Long = 1) {
+        counters.computeIfAbsent(name) {
+            require(it.matches(Regex("[a-z_]+")))
+            LongAdder()
+        }.add(amount)
+    }
+
     private val families = ConcurrentHashMap<String, Family>()
 
     public inline fun <T> measure(kind: String, id: String, block: () -> T): T {
@@ -31,6 +40,9 @@ public object ExecutionCosts {
 
     /** Approximate power-of-two bucket upper bounds; max is exact. CPS is since first observation. */
     public fun scrape(): String = buildString {
+        for ((name, value) in counters.entries.sortedBy { it.key }) {
+            append("astera_").append(name).append("_total ").append(value.sum()).append('\n')
+        }
         val snapshots = families.entries.flatMap { (kind, family) ->
             listOf(Key(kind, "*") to family.total) + family.ids.entries.map { Key(kind, it.key) to it.value }
         }.sortedWith(compareBy({ it.first.kind }, { it.first.id }))

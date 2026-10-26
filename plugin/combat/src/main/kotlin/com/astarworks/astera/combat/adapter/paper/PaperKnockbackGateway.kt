@@ -55,11 +55,14 @@ import org.slf4j.LoggerFactory
  */
 public class PaperKnockbackGateway(
     private val server: Server,
+    private val ownership: PaperCombatOwnership,
 ) : IKnockbackGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun applyImpulse(target: PlayerId, impulse: Vec3) {
+        if (ownership.deferIfForeign(target) { applyImpulse(target, impulse) }) return
+        ownership.assertOwned(target)
         // Players and non-player living entities (mobs travel as PlayerId(entityUuid), WP3).
         val player = server.getEntity(target.uuid) as? LivingEntity
         if (player == null) {

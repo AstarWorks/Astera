@@ -28,6 +28,7 @@ import org.bukkit.util.Vector
  */
 public class PaperEntityEffectsGateway(
     private val server: Server,
+    private val ownership: PaperCombatOwnership,
     private val plugin: Plugin? = null,
 ) : IEntityEffectsGateway {
 
@@ -36,19 +37,27 @@ public class PaperEntityEffectsGateway(
     private val noJumpKey: NamespacedKey = NamespacedKey("astera", "root_no_jump")
 
     override fun setVelocity(target: PlayerId, velocity: Vec3) {
+        if (ownership.deferIfForeign(target) { setVelocity(target, velocity) }) return
+        ownership.assertOwned(target)
         entity(target)?.velocity = Vector(velocity.x, velocity.y, velocity.z)
     }
 
     override fun addVelocity(target: PlayerId, delta: Vec3) {
+        if (ownership.deferIfForeign(target) { addVelocity(target, delta) }) return
+        ownership.assertOwned(target)
         val entity = entity(target) ?: return
         entity.velocity = entity.velocity.add(Vector(delta.x, delta.y, delta.z))
     }
 
     override fun setFireTicks(target: PlayerId, ticks: Int) {
+        if (ownership.deferIfForeign(target) { setFireTicks(target, ticks) }) return
+        ownership.assertOwned(target)
         entity(target)?.fireTicks = ticks.coerceAtLeast(0)
     }
 
     override fun freeze(target: PlayerId, ticks: Int) {
+        if (ownership.deferIfForeign(target) { freeze(target, ticks) }) return
+        ownership.assertOwned(target)
         val living = entity(target) as? LivingEntity ?: return
         living.freezeTicks = ticks.coerceAtLeast(living.maxFreezeTicks)
         living.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, ticks, ROOT_AMPLIFIER, false, false, false))
@@ -56,6 +65,8 @@ public class PaperEntityEffectsGateway(
     }
 
     override fun hold(target: PlayerId, ticks: Int) {
+        if (ownership.deferIfForeign(target) { hold(target, ticks) }) return
+        ownership.assertOwned(target)
         val living = entity(target) as? LivingEntity ?: return
         living.velocity = Vector(0.0, 0.0, 0.0)
         living.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, ticks, ROOT_AMPLIFIER, false, false, false))
@@ -63,6 +74,8 @@ public class PaperEntityEffectsGateway(
     }
 
     override fun thaw(target: PlayerId) {
+        if (ownership.deferIfForeign(target) { thaw(target) }) return
+        ownership.assertOwned(target)
         val living = entity(target) as? LivingEntity ?: return
         if (living.freezeTicks > 0) living.freezeTicks = 0
         living.getPotionEffect(PotionEffectType.SLOWNESS)
@@ -102,6 +115,8 @@ public class PaperEntityEffectsGateway(
     }
 
     override fun setGlowing(target: PlayerId, glowing: Boolean) {
+        if (ownership.deferIfForeign(target) { setGlowing(target, glowing) }) return
+        ownership.assertOwned(target)
         entity(target)?.isGlowing = glowing
     }
 

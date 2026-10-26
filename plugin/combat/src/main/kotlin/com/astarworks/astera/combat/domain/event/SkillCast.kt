@@ -20,6 +20,7 @@ public data class SkillCast(
     val at: Vec3,
     val atTick: Long,
     val pose: PlayerPose? = null,
+    val maxTargets: Int? = null,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent

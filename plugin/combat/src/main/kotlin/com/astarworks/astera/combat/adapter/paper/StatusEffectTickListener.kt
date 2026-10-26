@@ -22,76 +22,23 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
 /**
- * Paper-side tick + Bukkit-event glue for [PaperStatusEffectContainer]
- * (Wave 6a-N2, ADR-0155 — Combat polish).
- *
- * # Two responsibilities
- *
- *  1. **Tick decrement + DoT application** — every 20 ticks (1 second of
- *     wall clock), walk every active effect on every player tracked by
- *     [container.activeEffects], decrement `remainingTicks` by [TICK_PERIOD_TICKS],
- *     apply tick-based side effects (BURN → DoT damage via
- *     [IPlayerHealthGateway.damage], future HEAL_AMP-style ticks via
- *     [IPlayerHealthGateway.heal]), and on `remainingTicks <= 0` remove the
- *     effect + publish [StatusExpired].
- *
- *  2. **Vanilla potion REMOVED translation** — when Bukkit fires
- *     [EntityPotionEffectEvent] with action REMOVED (typical trigger: the
- *     player drank a milk bucket, which clears every active vanilla
- *     potion), translate the removed Bukkit type back to whichever Astera
- *     [StatusEffectId]s mapped onto it via
- *     [PaperStatusEffectContainer.bukkitPotionTypeFor] and remove those
- *     Astera-side too. Publishes [StatusRemoved] with reason
- *     `"vanilla-cleared"`.
- *
- * # Why a Listener-shaped adapter
- *
- * The 6a sweep deliberately kept most physiology gateways as pure
- * write-through types. Two callsites needed a Bukkit inbound hook —
- * [com.astarworks.astera.core.adapter.paper.physiology.PaperPlayerFoodGateway]
- * (Wave 6a-5, ADR-0148 §A: neutralise vanilla hunger decrement) and
- * [com.astarworks.astera.core.adapter.paper.event.BukkitEventAdapter] (Wave
- * 6a-6, ADR-0152: translate a curated set of Bukkit events into
- * DomainEvents). This listener is the third — same shape as ADR-0148 §A
- * (`Listener` + `start(plugin)` that registers the listener and returns a
- * scheduler [TaskHandle][IScheduler.TaskHandle] so `onDisable` can cancel).
- *
- * The container itself is intentionally NOT a `Listener` — keeping the
- * inbound-event surface in a separate type means the container can be
- * unit-tested without a Bukkit harness, and the tick / event-translation
- * cost lives in one focused class.
- *
- * # Threading
- *
- * The scheduler tick task runs on main (Paper's tick scheduler is
- * main-thread). `IPlayerHealthGateway.damage` / `.heal` and Bukkit potion
- * mutations are main-thread only — same contract as
- * [PaperDamageGateway]. The `onEntityPotionEffect` handler is invoked on
- * main by Bukkit. No off-main work is performed here.
- *
- * # Registration
- *
- * Construct in `AsteraCombatPlugin.onEnable` AFTER
- * [PaperStatusEffectContainer] (the listener depends on its `active`
- * map). Call [start] with the plugin instance + retain the returned
- * [IScheduler.TaskHandle] so `onDisable` can cancel the tick loop. The
- * Bukkit listener side is unregistered automatically by Paper's
- * `HandlerList.unregisterAll(plugin)` during normal teardown.
- *
- * @see com.astarworks.astera.core.adapter.paper.event.BukkitEventAdapter
- *      for the Listener + `start(plugin)` precedent (ADR-0152).
- * @see com.astarworks.astera.core.adapter.paper.physiology.PaperPlayerFoodGateway
- *      for the Listener-shaped adapter precedent inside a feature plugin
- *      (ADR-0148 §A — first Listener inside `adapter/paper/physiology/`).
+ * Region-phase DoT/regen and expiry, retaining the existing 20-tick cadence.
+ * Workers compute immutable magnitudes; side effects and re-reads merge on the owner.
+ * Vanilla potion removals (e.g. milk) still translate to Astera StatusRemoved.
  */
 public class StatusEffectTickListener(
     private val server: Server,
     private val scheduler: IScheduler,
     private val eventBus: IDomainEventBus,
     private val container: PaperStatusEffectContainer,
+    private val phase: PaperCombatPhase,
+    private val grid: CombatSpatialGrid,
+    private val compute: com.astarworks.astera.combat.application.service.CombatComputePool,
     private val playerHealthGateway: IPlayerHealthGateway? = null,
 ) : Listener {
 
+    private val lastTicks = java.util.concurrent.ConcurrentHashMap<PlayerId, Long>()
+    private val ownership = PaperCombatOwnership(scheduler, grid)
     private val log = LoggerFactory.getLogger(javaClass)
 
     /**
@@ -102,11 +49,12 @@ public class StatusEffectTickListener(
      */
     public fun start(plugin: JavaPlugin): IScheduler.TaskHandle {
         plugin.server.pluginManager.registerEvents(this, plugin)
-        return scheduler.runRepeatingTicks(ExecutionScope.Global,
-            initialDelayTicks = TICK_PERIOD_TICKS,
-            periodTicks = TICK_PERIOD_TICKS,
-        ) {
-            tickAll()
+        phase.tickStatuses = ::tickBatch
+        return object : IScheduler.TaskHandle {
+            private var cancelled = false
+            override fun cancel() { cancelled = true; phase.tickStatuses = {} }
+            override val isCancelled: Boolean get() = cancelled
+            override fun onRetired(cb: () -> Unit) = Unit
         }
     }
 
@@ -120,31 +68,36 @@ public class StatusEffectTickListener(
      * mutation (a side-effect call that itself removes an effect) does not
      * trip the iterator.
      */
-    internal fun tickAll() {
+    private fun tickBatch(playerIds: List<PlayerId>) {
         val now = scheduler.currentTick()
-        val playerIds = container.activeEffects.keys.toList()
-        for (playerId in playerIds) {
-            scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
-
-                val effectIds = container.activeEffects[playerId]?.keys?.toList() ?: return@run
-                for (effectId in effectIds) {
-                    // Re-resolve each iteration: a DoT tick can kill the player, and the
-                    // death listener clears every status (the map is replaced/removed).
-                    val perPlayer = container.activeEffects[playerId] ?: break
-                    val instance = perPlayer[effectId] ?: continue
-                    applyTickEffect(playerId, instance)
-                    val current = container.activeEffects[playerId]?.get(effectId) ?: continue
-                    val nextTicks = current.remainingTicks - TICK_PERIOD_TICKS.toInt()
-                    if (nextTicks <= 0) {
-                        expire(playerId, current, now)
-                    } else {
-                        container.activeEffects[playerId]?.put(effectId, current.copy(remainingTicks = nextTicks))
-                    }
-                }
-                if (container.activeEffects[playerId]?.isEmpty() == true) {
-                    container.activeEffects.remove(playerId)
-                }
-                        }
+        // Compute only immutable magnitudes in workers. Re-read state in order after every side effect.
+        val localPlayers = playerIds.filter { id ->
+            if (ownership.deferIfForeign(id) { tickBatch(listOf(id)) }) false
+            else {
+                ownership.assertOwned(id)
+                lastTicks.put(id, now) != now
+            }
+        }
+        val inputs = localPlayers.flatMap { id ->
+            container.activeEffects[id]?.values?.sortedBy { it.spec.id.value }?.map { id to it }.orEmpty()
+        }
+        val amounts = compute.map(inputs) { (_, instance) -> instance.spec.magnitude * instance.currentStacks }
+        for ((index, input) in inputs.withIndex()) {
+            val (playerId, snapshot) = input
+            ownership.assertOwned(playerId)
+            val current = container.activeEffects[playerId]?.get(snapshot.spec.id) ?: continue
+            // A preceding tick effect can refresh or remove the next effect.
+            val amount = if (current === snapshot) amounts[index] else current.spec.magnitude * current.currentStacks
+            applyTickEffect(playerId, current, amount)
+            val after = container.activeEffects[playerId]?.get(snapshot.spec.id) ?: continue
+            val nextTicks = after.remainingTicks - TICK_PERIOD_TICKS.toInt()
+            if (nextTicks <= 0) expire(playerId, after, now)
+            else container.activeEffects[playerId]?.put(snapshot.spec.id, after.copy(remainingTicks = nextTicks))
+        }
+        for (id in localPlayers) if (container.activeEffects[id].isNullOrEmpty()) {
+            container.activeEffects.remove(id)
+            phase.removeStatus(id.uuid)
+            lastTicks.remove(id)
         }
     }
 
@@ -155,11 +108,11 @@ public class StatusEffectTickListener(
      * nothing here — their behaviour is read by the resolver that consults
      * `IStatusEffectContainer.has(...)` / `.active(...)`.
      */
-    private fun applyTickEffect(playerId: PlayerId, instance: StatusEffectInstance) {
+    private fun applyTickEffect(playerId: PlayerId, instance: StatusEffectInstance, amount: Double) {
         val healthGateway = playerHealthGateway ?: return
         when (instance.spec.kind) {
             StatusKind.BURN -> {
-                val damage = instance.spec.magnitude * instance.currentStacks
+                val damage = amount
                 if (damage > 0.0) {
                     healthGateway.damage(
                         playerId = playerId,
@@ -171,7 +124,7 @@ public class StatusEffectTickListener(
             StatusKind.HEAL_AMP -> {
                 // Tick-amp heal: magnitude HP per tick * stacks. HEAL_REDUCE /
                 // HEAL_NULL are read by the heal resolver, not ticked here.
-                val healAmount = instance.spec.magnitude * instance.currentStacks
+                val healAmount = amount
                 if (healAmount > 0.0) {
                     healthGateway.heal(
                         playerId = playerId,

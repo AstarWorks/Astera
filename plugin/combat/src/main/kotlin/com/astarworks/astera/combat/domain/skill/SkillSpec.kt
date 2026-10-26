@@ -56,6 +56,8 @@ public data class SkillSpec(
     val chargeVariant: ChargedSkillVariant = ChargedSkillVariant.Instant,
     val readyCue: Boolean? = null,
     val egoCost: Int? = null,
+    /** Null preserves unlimited targeting. */
+    val maxTargets: Int? = null,
     val baked: BakedSkill = BakedSkill(hitShape = when (params) {
         is SkillParams.MeleeParams -> params.hitShape
         is SkillParams.AoeParams -> params.hitShape
@@ -64,6 +66,7 @@ public data class SkillSpec(
     }),
 ) {
     init {
+        maxTargets?.let { require(it > 0) { "maxTargets must be > 0 when set: $it" } }
         require(cooldownTicks >= 0) { "cooldownTicks must be >= 0: $cooldownTicks" }
         resourceCost?.let { require(it >= 0) { "resourceCost must be >= 0 when set: $it" } }
         egoCost?.let { require(it >= 0) { "egoCost must be >= 0 when set: $it" } }

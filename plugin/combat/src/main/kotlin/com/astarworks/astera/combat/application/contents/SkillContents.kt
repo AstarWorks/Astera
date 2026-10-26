@@ -75,6 +75,7 @@ public class SkillContents(
         collect(Json.encodeToJsonElement(SkillYamlConfig.serializer(), config))
         val raw = config.toSpec()
         val estimate = SkillCost.estimate(raw.phases, raw.params,
+            maxTargets = raw.maxTargets, assumedCrowdSize = SkillCostReport.assumedCrowdSize,
             vfx = { SkillCostReport.vfxCost(vfx, it) },
             particle = { id, count -> SkillCostReport.particleCost(particles, id, count) },
         )

@@ -11,6 +11,7 @@ import com.astarworks.astera.combat.domain.event.SkillCast
  */
 internal fun SkillCast.toMechanicContext(): MechanicContext = MechanicContext(
     actorId = caster,
+    maxTargets = maxTargets,
     origin = at,
     worldId = pose?.world,
     castedSkills = setOf(skillId),
