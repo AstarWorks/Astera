@@ -76,7 +76,7 @@ public class MatchAssignmentReceiver(
     private class Session(
         val assignment: MatchAssignment,
         val replyTo: ServerName,
-        val arrived: MutableSet<PlayerId> = linkedSetOf(),
+        val arrived: MutableSet<PlayerId> = java.util.concurrent.ConcurrentHashMap.newKeySet(),
         var matchId: MatchId? = null,
         var arrivalTimeout: IScheduler.TaskHandle? = null,
         /** Everyone needed is here (or the timeout ran out) and the match is waiting for its arena to finish building. */
@@ -142,7 +142,15 @@ public class MatchAssignmentReceiver(
         placeOnArena(current, playerId)
         // While the arena is still being built the start loop owns the match; late arrivals just join its roster.
         if (current.starting) return
-        if (current.arrived.size == current.assignment.players.size) startMatch(current) else showWaiting(current)
+        if (current.arrived.size == current.assignment.players.size) startOnGlobal(current) else showWaiting(current)
+    }
+
+    /**
+     * Arrival events fire on the arriving player's own region thread, but claiming an arena (`IArenaBuilder.acquire`)
+     * is Global-only and answers `WrongScope` anywhere else, which used to bounce every assigned player to the lobby.
+     */
+    private fun startOnGlobal(current: Session) {
+        scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { startMatch(current) }
     }
 
     override fun spawnFor(playerId: PlayerId): SpawnPoint? {

@@ -17,8 +17,10 @@ ping-passthrough = "DISABLED"
 [servers]
 lobby = "lobby:25565"
 game = "game:25565"
-# Fallback order: new logins and players kicked from a backend land on the lobby, or on game while
-# the lobby is down (ADR-0186).
-try = ["lobby", "game"]
+# Velocity sends a player kicked from a backend to the next server in `try`. With game listed, a lobby kick (admin
+# kick, anti-cheat, plugin error) dropped the player into the game server. Only the lobby is a login/fallback
+# target: a kick from the lobby disconnects the player, and a kick from game returns them to the lobby.
+# While the lobby is down (redeploy) logins are refused rather than routed to a game server that hosts matches only.
+try = ["lobby"]
 
 [forced-hosts]

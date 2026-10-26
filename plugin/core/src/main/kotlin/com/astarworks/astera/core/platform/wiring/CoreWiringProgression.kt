@@ -308,6 +308,7 @@ internal fun CoreWiringState.wireProgression() {
         saveSnapshot = saveSnapshotUseCase,
         matches = { services.get<IMatchRepository>() },
         removal = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>() },
+        restorePending = { services.get<com.astarworks.astera.core.application.service.handoff.PlayerHandoffService>()?.isRestorePending(it) ?: false },
         afterEntryCapture = {
             weaponLimits.enforceOnEntry(it)
             loanerKit.ensureArmed(it)
