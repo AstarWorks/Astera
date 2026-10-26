@@ -46,8 +46,9 @@ class WeaponLimitE2eTest : E2eBase() {
         partner.command("astera queue join skirmish")
         val chatBefore = b.chat.size
         val worldsBefore = b.worldHistory.size
+        val posBefore = b.positionPackets.get()
         b.command("astera queue join skirmish")
-        val teleported = b.waitUntil(45_000) { b.worldHistory.size > worldsBefore }
+        val teleported = b.waitUntil(45_000) { b.positionPackets.get() > posBefore || b.worldHistory.size > worldsBefore }
         Thread.sleep(2_500)
         val during = carried(b)
         val notices = b.chatSince(chatBefore, minNew = 1, timeoutMs = 2_000)
