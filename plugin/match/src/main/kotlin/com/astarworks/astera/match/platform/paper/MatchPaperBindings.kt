@@ -43,12 +43,13 @@ internal object MatchPaperBindings {
         },
         // F3-5: death cam + eliminated-team spectating use Bukkit spectator mode.
         spectator = { services -> PaperSpectator(plugin.server, services.getOrThrow<IScheduler>()) },
-        playerPositions = { PaperMatchPlayerPositions(plugin.server) },
-        starDropWorld = { PaperStarDropWorld(plugin) },
+        playerPositions = { services -> PaperMatchPlayerPositions(plugin.server, services.getOrThrow<IScheduler>()) },
+        starDropWorld = { services -> PaperStarDropWorld(plugin, services.getOrThrow<IScheduler>()) },
         normaPresentation = { services -> PaperNormaPresentation(
                 plugin.server,
                 services.getOrThrow<IMessageRenderer>(),
                 services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>(),
+                services.getOrThrow<IScheduler>(),
             ) },
     )
 

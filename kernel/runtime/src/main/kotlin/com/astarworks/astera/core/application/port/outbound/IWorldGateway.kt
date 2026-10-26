@@ -24,8 +24,10 @@ import com.astarworks.astera.core.domain.world.WorldId
  */
 public interface IWorldGateway {
 
+    /** World writes dispatch to the affected chunk; zero-delay writes on its owner run inline. */
     public fun placeBlock(world: WorldId, at: Vec3, type: BlockType)
     public fun removeBlock(world: WorldId, at: Vec3)
+    /** Synchronous live read: callers must already own the affected chunk. */
     public fun blockAt(world: WorldId, at: Vec3): BlockType?
 
     public fun spawnParticle(world: WorldId, at: Vec3, particle: ParticleSpec)

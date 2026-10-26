@@ -128,34 +128,35 @@ public class StarDropService(
         if (w != null) {
             for (drop in drops.values.toList()) {
                 val scope = drop.entity?.let(w::executionScope) ?: regionScope(drop.world, drop.position)
-                scheduler.run(scope, kotlin.time.Duration.ZERO) {
-                val handle = drop.entity
-                val here = handle?.let { w.locate(it) }
-                if (here != null) {
-                    drops.computeIfPresent(drop.id) { _, cur -> cur.copy(position = here) }
-                } else {
-                    // Never spawned (chunk not loaded yet) or destroyed: put it back where it lay.
-                    drops.computeIfPresent(drop.id) { _, cur -> withEntity(cur.copy(entity = null), null) }
-                }
-                }.onRetired {
-                    scheduler.run(regionScope(drop.world, drop.position), kotlin.time.Duration.ZERO) {
-                        drops.computeIfPresent(drop.id) { _, cur -> withEntity(cur.copy(entity = null), null) }
+                fun record(here: Vec3?) {
+                    scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) {
+                        val current = drops[drop.id] ?: return@run
+                        if (current.entity != drop.entity) return@run
+                        drops[drop.id] = if (here != null) current.copy(position = here)
+                        else {
+                            current.entity?.let(w::remove)
+                            withEntity(current.copy(entity = null), null)
+                        }
                     }
                 }
+                scheduler.run(scope, kotlin.time.Duration.ZERO) {
+                    record(drop.entity?.let(w::locate))
+                }.onRetired { record(null) }
             }
         }
     }
 
     /** A player touched the thing [handle] (its vanilla pickup is already cancelled). */
     public fun onTouched(handle: String, player: PlayerId) {
-        val drop = drops.values.firstOrNull { it.entity == handle } ?: return
-        val match = matches.findById(drop.matchId) ?: return
-        if (match.teams.none { player in it.members }) return
-        val loc = positions.positionOf(player) ?: return // dead / spectating
-        if (loc.world != drop.world) return
-        if (isDenied(drop, player) || System.currentTimeMillis() < drop.readyAtMillis) return
-        // The pickup event arrives on the player's thread; the star ledger is owned by Global.
-        scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) { take(drop, player) }
+        scheduler.run(ExecutionScope.Global, kotlin.time.Duration.ZERO) {
+            val drop = drops.values.firstOrNull { it.entity == handle } ?: return@run
+            val match = matches.findById(drop.matchId) ?: return@run
+            if (match.teams.none { player in it.members }) return@run
+            val loc = positions.positionOf(player) ?: return@run
+            if (loc.world != drop.world) return@run
+            if (isDenied(drop, player) || System.currentTimeMillis() < drop.readyAtMillis) return@run
+            take(drop, player)
+        }
     }
 
     /** Match ended: its drops vanish, things included. */

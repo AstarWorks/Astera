@@ -127,6 +127,7 @@ class SiegeModesScenarioTest {
             respawnAt(runner, nowhere)
             guard.moveTo(tntSpawn)
             guard.moveTo(redBase) // the guard (blue) delivers: 1/2
+            assertThat(blockAt(tntSpawn.copy(y = 64.0))).`as`("TNT pickup spot survives delivery").isEqualTo("minecraft:tnt")
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             // Runner now carries it to the blue base twice.
@@ -156,6 +157,7 @@ class SiegeModesScenarioTest {
             val woolA = Vec3(0.0, 64.0, 274.0)
             val woolB = Vec3(0.0, 64.0, 306.0)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
+            assertThat(blockAt(woolB)).`as`("the second chunk has its own marker").isEqualTo("minecraft:white_wool")
 
             // Both stand in wool-a for longer than the capture time: nobody captures.
             holder.moveTo(Vec3(0.0, 65.0, 274.0))
@@ -175,6 +177,7 @@ class SiegeModesScenarioTest {
             assertThat(end.matchId).isEqualTo(matchId)
             assertThat(end.winningTeam).isEqualTo(TeamId("red"))
             assertThat(blockAt(woolA)).`as`("markers restored at match end").isEqualTo("minecraft:grass_block")
+            assertThat(blockAt(woolB)).`as`("second chunk is restored too").isEqualTo("minecraft:grass_block")
         }
     }
 

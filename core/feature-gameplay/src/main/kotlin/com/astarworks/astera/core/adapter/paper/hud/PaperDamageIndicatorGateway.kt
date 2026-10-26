@@ -9,6 +9,10 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.domain.world.WorldId
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.adapter.paper.world.assertWorldOwnership
 import org.bukkit.Server
 import org.bukkit.entity.Display
 import org.bukkit.entity.TextDisplay
@@ -26,7 +30,7 @@ import java.util.concurrent.ThreadLocalRandom
  * server) and is removed after [LIFETIME_TICKS]. Not persistent, so a crash can
  * never leave one behind in a saved chunk.
  *
- * Main thread only.
+ * Target reads use Entity; the jittered spawn position uses Region.
  */
 public class PaperDamageIndicatorGateway(
     private val server: Server,
@@ -35,34 +39,42 @@ public class PaperDamageIndicatorGateway(
 ) : IDamageIndicatorGateway {
 
     override fun show(viewer: PlayerId, target: PlayerId, amount: Int, style: DamageIndicatorStyle) {
-        val viewerPlayer = server.getPlayer(viewer.uuid) ?: return
-        val targetPlayer = server.getPlayer(target.uuid) ?: return
-        val rng = ThreadLocalRandom.current()
-        val at = targetPlayer.eyeLocation.add(rng.nextDouble(-0.45, 0.45), 0.35, rng.nextDouble(-0.45, 0.45))
-        val scale = if (style == DamageIndicatorStyle.CRITICAL) 1.5f else 1.0f
+        scheduler.run(ExecutionScope.Entity(target.uuid), kotlin.time.Duration.ZERO) action@ {
+            val viewerPlayer = server.getPlayer(viewer.uuid) ?: return@action
+            val targetPlayer = server.getPlayer(target.uuid) ?: return@action
+            val rng = ThreadLocalRandom.current()
+            val at = targetPlayer.eyeLocation.add(rng.nextDouble(-0.45, 0.45), 0.35, rng.nextDouble(-0.45, 0.45))
+            val scale = if (style == DamageIndicatorStyle.CRITICAL) 1.5f else 1.0f
 
-        val display = at.world.spawn(at, TextDisplay::class.java) { entity ->
-            entity.isVisibleByDefault = false
-            com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(entity, "damage-indicator")
-            entity.billboard = Display.Billboard.CENTER
-            entity.text(label(amount, style))
-            entity.isShadowed = true
-            entity.backgroundColor = org.bukkit.Color.fromARGB(0, 0, 0, 0)
-            entity.viewRange = 0.5f
-            entity.interpolationDuration = RISE_TICKS
-            entity.transformation = Transformation(Vector3f(), Quaternionf(), Vector3f(scale), Quaternionf())
-        }
-        viewerPlayer.showEntity(plugin, display)
+            val scope = regionScope(WorldId(at.world.name), Vec3(at.x, at.y, at.z))
+            scheduler.run(scope, kotlin.time.Duration.ZERO) {
+                assertWorldOwnership(scheduler, scope)
+                val display = at.world.spawn(at, TextDisplay::class.java) { entity ->
+                    entity.isVisibleByDefault = false
+                    com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(entity, "damage-indicator")
+                    entity.billboard = Display.Billboard.CENTER
+                    entity.text(label(amount, style))
+                    entity.isShadowed = true
+                    entity.backgroundColor = org.bukkit.Color.fromARGB(0, 0, 0, 0)
+                    entity.viewRange = 0.5f
+                    entity.interpolationDuration = RISE_TICKS
+                    entity.transformation = Transformation(Vector3f(), Quaternionf(), Vector3f(scale), Quaternionf())
+                }
+                scheduler.run(ExecutionScope.Entity(viewer.uuid), kotlin.time.Duration.ZERO) {
+                    viewerPlayer.showEntity(plugin, display)
+                }
 
-        // Next tick: the new transformation interpolates from the spawn pose, i.e. the number floats up.
-        scheduler.runLaterTicks(ExecutionScope.Entity(display.uniqueId), 1) {
-            if (display.isValid) {
-                display.interpolationDelay = 0
-                display.transformation =
-                    Transformation(Vector3f(0f, RISE_BLOCKS, 0f), Quaternionf(), Vector3f(scale), Quaternionf())
+                // Next tick: the new transformation interpolates from the spawn pose, i.e. the number floats up.
+                scheduler.runLaterTicks(ExecutionScope.Entity(display.uniqueId), 1) {
+                    if (display.isValid) {
+                        display.interpolationDelay = 0
+                        display.transformation =
+                            Transformation(Vector3f(0f, RISE_BLOCKS, 0f), Quaternionf(), Vector3f(scale), Quaternionf())
+                    }
+                }
+                scheduler.runLaterTicks(ExecutionScope.Entity(display.uniqueId), LIFETIME_TICKS) { if (display.isValid) display.remove() }
             }
         }
-        scheduler.runLaterTicks(ExecutionScope.Entity(display.uniqueId), LIFETIME_TICKS) { if (display.isValid) display.remove() }
     }
 
     private fun label(amount: Int, style: DamageIndicatorStyle): Component {
