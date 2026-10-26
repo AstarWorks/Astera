@@ -71,7 +71,7 @@ No GitHub CI, webhook or external service is involved.
   prevents retrying a failed push, including after restarts. The next push diffs from `last-sha`.
 - Docker/compose changes are never auto-deployed: the watcher logs `manual deploy needed ... entire
   range held` and keeps `last-sha`. Deploy by hand from a checkout of that sha
-  (`make dev-content && FORCE=1 make dev-plugins`, then
+  (`FORCE=1 make dev-deploy`, then
   `docker compose up -d --build --no-deps bot-runner resource-pack`), then tell the watcher with
   `scripts/dev-autodeploy.sh mark-deployed <sha>`. It writes `last-sha` and `attempted-sha`, clears
   `manual-needed` and logs `deployed <sha> [manual]`; later commits are diffed from that sha.
@@ -85,8 +85,8 @@ No GitHub CI, webhook or external service is involved.
   (models, textures, sounds, sprites, effects, HUD, fonts, animations, pack assets, shaders)
   and pack-builder changes rebuild the resource-pack service then run `dev-pack`.
   Core/build changes also rebuild the pack because its builder consumes Core glyphs.
-  Mixed changes stage new content before restarting plugins (supports breaking YAML schema
-  changes), then apply plugins, pack, content reload. First start deploys all three.
+  Mixed changes run `dev-deploy` (new content staged, backends restarted once on matching jar+content; supports
+  breaking YAML schema changes), then pack, content reload confirmation. First start deploys all three.
 - Deploys require 10 GiB free on the checkout filesystem before building; insufficient
   space records a failed attempt, leaving live files alone. Builds finish before live
   files change. Rollback copies restore previous jars/content
@@ -123,7 +123,7 @@ moved to the other backend, not kicked):
 | `content/` YAML: skills, status, items, armor, stages, game-modes, mobs, quests, recipes, normas, languages, `balance/element-matrix.yaml`, `balance/status-effect-interactions.yaml`, bet-policies, ... (full list below) | `make dev-content` | no | about 3 s |
 | Item name / lore / model of items players already hold | `make dev-content` (it runs `/astera items refresh`) | no | about 3 s |
 | Textures, models, HUD art, sounds-in-pack (anything the resource pack carries) | `docker compose -f docker/docker-compose.yml up -d --build resource-pack`, then `make dev-pack` | no | pack build + 1 s |
-| Content that is only read at boot (list below) | `make dev-content`, then `FORCE=1 make dev-plugins` | yes | 55 s per backend |
+| Content that is only read at boot (list below) | `FORCE=1 make dev-deploy` (jars + content, one restart per backend) | yes | 55 s per backend |
 | `velocity.toml`, compose env, Dockerfile | `make docker-up` | everything | minutes |
 
 `make dev-hotswap-up` (once per fresh stack) starts the same stack with the two backends on
@@ -144,6 +144,11 @@ sends the changed classes to the running JVM. What that does and does not do:
   jar, or a class the JVM refuses to redefine. Nothing is applied in that case.
 - Verify with the server log (`make docker-logs`): the script prints the changed classes, and your
   log line shows the next time that path runs.
+
+`make dev-deploy` = jars + `content/` staged into each backend, then ONE restart per backend (same drain/park
+behaviour, same `BACKENDS=` / `FORCE=1`). Use it whenever a change touches both code and content: a plain
+`dev-plugins` boots the new jar on old content (loader errors, stages not built), and `dev-content` after it
+does not build arenas. Jars unchanged and no `FORCE`: it only reloads content in place.
 
 `make dev-plugins` details:
 
@@ -182,7 +187,7 @@ their registries when used, so the next cast / hit / click uses the new values. 
 inventory keep the name, lore and model they were given with until `/astera items refresh` (which
 `make dev-content` runs for you); their attributes and skill bindings are live already.
 
-**Not reloadable (loaded at boot)**, push with `make dev-content` and then `FORCE=1 make dev-plugins`:
+**Not reloadable (loaded at boot)**, push with `FORCE=1 make dev-deploy` (stages jars and content, restarts each backend once):
 `shops/` (a reload would re-seed limited stock), `lobby-npcs/`, `worlds/`, `flex/glow-profile.yaml`,
 and the rest of `balance/` (`starter-grant`, `block-durability`, `resource-defaults`,
 `backup-policy`). `hud/` is resource-pack art, not server content: rebuild and push the pack.

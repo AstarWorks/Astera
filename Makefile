@@ -79,6 +79,10 @@ dev-hotswap: ## Fast loop: build jars, apply the changed classes to the RUNNING 
 dev-plugins: ## Fast loop: build jars, push changed ones into the running backends, restart only those (players are moved, not kicked)
 	./scripts/dev-deploy.sh plugins
 
+.PHONY: dev-deploy
+dev-deploy: ## Fast loop: build jars + push content/ into the running backends, restart each ONCE (matching jar+content, arenas built in that boot; players are moved, not kicked)
+	./scripts/dev-deploy.sh deploy
+
 .PHONY: dev-content
 dev-content: ## Fast loop: push content/ into the running backends, reload it in place and refresh held items (no restart)
 	./scripts/dev-deploy.sh content

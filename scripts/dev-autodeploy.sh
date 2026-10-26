@@ -4,7 +4,7 @@
 # Commands: up | down | status | run | once | mark-deployed <sha>
 #   mark-deployed <sha>  Record a MANUAL deploy. When a range holds docker/compose changes the watcher logs
 #                        "manual deploy needed ... entire range held" and never advances last-sha. After deploying
-#                        by hand from a checkout of <sha> (make dev-content && FORCE=1 make dev-plugins, plus
+#                        by hand from a checkout of <sha> (FORCE=1 make dev-deploy, plus
 #                        docker compose up -d --build --no-deps bot-runner resource-pack), run this so later
 #                        commits are diffed from <sha> instead of staying held forever.
 set -euo pipefail
@@ -130,15 +130,13 @@ deploy() (
       set -e
       if [ "$step" = pack ]; then compose up -d --no-deps --no-build resource-pack || exit 1; fi
       if [ "$step" = plugins ] && [ "$content" = 1 ]; then
-        # A new loader may reject the old schema: stage new YAML before restarting it.
-        for svc in lobby game; do
-          docker exec -u root "astera-dev-$svc-1" rm -rf /content.new || exit 1
-          compose cp content/. "$svc:/content.new" || exit 1
-          docker exec -u root "astera-dev-$svc-1" sh -c \
-            'rm -rf /content.old && mv /content /content.old && mv /content.new /content && rm -rf /content.old' || exit 1
-        done
+        # One restart with new jars AND new YAML staged together (no old-jar/new-content mismatch, arenas built once).
+        make dev-deploy || exit 1
+      elif [ "$step" = content ] && [ "$plugins" = 1 ]; then
+        : # already pushed by dev-deploy; only the reload confirmation below runs
+      else
+        make "dev-$step" || exit 1
       fi
-      make "dev-$step" || exit 1
       for svc in lobby game; do
         case "$step" in
           content) confirm "$svc" "astera admin reload all" "Reloaded all." || exit 1 ;;

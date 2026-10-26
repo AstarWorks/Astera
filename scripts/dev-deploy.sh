@@ -5,6 +5,10 @@
 #   scripts/dev-deploy.sh hotswap   build the 7 shadow jars and apply the changed classes to the RUNNING
 #                                   backends (JBR + agent image, `make dev-hotswap-up`); a backend restarts
 #                                   only when the JVM refuses the change
+#   scripts/dev-deploy.sh deploy    build jars AND push content/ into each backend while it still runs, then restart
+#                                   that backend ONCE (players moved, not kicked): it boots with matching jar+content
+#                                   and builds every arena in that single boot. Jars byte-identical and no FORCE:
+#                                   content-only, reloaded in place like `content`.
 #   scripts/dev-deploy.sh content   push content/ into the backends and reload it in place (no restart)
 #   scripts/dev-deploy.sh pack      re-read the resource pack hash on the backends and re-push the pack
 #
@@ -216,23 +220,60 @@ hotswap() {
   log "total: $(elapsed "$t0")"
 }
 
+# Copy content/ next to /content, then swap, so files deleted from the repo disappear too.
+stage_content() {
+  local svc=$1
+  quiet dexec_root "$svc" rm -rf /content.new
+  quiet "${COMPOSE[@]}" cp content/. "$svc:/content.new"
+  quiet dexec_root "$svc" sh -c 'rm -rf /content.old && mv /content /content.old && mv /content.new /content && rm -rf /content.old'
+}
+
+refresh_items() {
+  local out
+  # Items already in inventories keep the name/lore/model they were given with: refresh them in place.
+  out=$(rcon "$1" "astera items refresh")
+  log "$1: held items: ${out:-<no output>}"
+}
+
 content() {
   local t0 svc t out
   t0=$(now)
   for svc in $BACKENDS; do
     if ! is_running "$svc"; then log "$svc is not running: start the stack with 'make docker-up' first"; exit 1; fi
     t=$(now)
-    # Copy next to /content, then swap, so files deleted from the repo disappear too.
-    quiet dexec_root "$svc" rm -rf /content.new
-    quiet "${COMPOSE[@]}" cp content/. "$svc:/content.new"
-    quiet dexec_root "$svc" sh -c 'rm -rf /content.old && mv /content /content.old && mv /content.new /content && rm -rf /content.old'
+    stage_content "$svc"
     log "$svc: content copied ($(elapsed "$t"))"
     t=$(now)
     out=$(rcon "$svc" "astera admin reload all")
     log "$svc: reload: ${out:-<no output>} ($(elapsed "$t"))"
-    # Items already in inventories keep the name/lore/model they were given with: refresh them in place.
-    out=$(rcon "$svc" "astera items refresh")
-    log "$svc: held items: ${out:-<no output>}"
+    refresh_items "$svc"
+  done
+  log "total: $(elapsed "$t0")"
+}
+
+# Jars + content in one restart. Content is swapped in while the old JVM runs (it only reads /content on
+# boot or on `reload all`, neither happens before the stop), so the one boot sees matching jar and content.
+deploy() {
+  local t0 svc t out
+  t0=$(now)
+  build_jars
+  for svc in $BACKENDS; do
+    if ! is_running "$svc"; then log "$svc is not running: start the stack with 'make docker-up' first"; exit 1; fi
+    local changed=()
+    mapfile -t changed < <(changed_jars "$svc")
+    t=$(now)
+    stage_content "$svc"
+    log "$svc: content staged ($(elapsed "$t"))"
+    if [ "${#changed[@]}" = 0 ]; then
+      log "$svc: jars unchanged, reloading content in place (FORCE=1 restarts to rebuild arenas)"
+      out=$(rcon "$svc" "astera admin reload all")
+      log "$svc: reload: ${out:-<no output>}"
+      refresh_items "$svc"
+      continue
+    fi
+    log "$svc: changed: $(printf '%s ' "${changed[@]##*/}")"
+    restart_backend "$svc" "${changed[@]}"
+    refresh_items "$svc"
   done
   log "total: $(elapsed "$t0")"
 }
@@ -252,7 +293,8 @@ pack() {
 case "${1:-}" in
   plugins) plugins ;;
   hotswap) hotswap ;;
+  deploy) deploy ;;
   content) content ;;
   pack) pack ;;
-  *) echo "usage: $0 plugins|hotswap|content|pack" >&2; exit 2 ;;
+  *) echo "usage: $0 plugins|hotswap|deploy|content|pack" >&2; exit 2 ;;
 esac
