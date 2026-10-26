@@ -46,6 +46,8 @@ tasks.withType<Test>().configureEach {
     systemProperty("astera.sim.traceDir", layout.buildDirectory.dir("sim-traces").get().asFile.absolutePath)
     // Traces are an output of the run; never serve a cached result.
     outputs.upToDateWhen { false }
+    // The long annihilation pillar scenarios produce traces that do not fit the 512 MB default test heap.
+    maxHeapSize = "2g"
 }
 
 // V-1 (ADR-0225): only the per-skill showcase traces, for :tools:skill-viewer. Not part of `check`

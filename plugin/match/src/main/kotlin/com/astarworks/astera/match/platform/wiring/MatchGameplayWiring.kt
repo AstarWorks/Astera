@@ -580,6 +580,11 @@ internal object MatchGameplayWiring {
             modeKeyOf = { id -> env.matchModeRegistry.modeKeyOf(id) },
             configOf = env.modeConfigOf,
             isNorma = env.normaLayerOf,
+            showTitle = { id, title, subtitle -> env.ctx.services.get<IMcServer>()?.findPlayer(id)?.sendTitle(title, subtitle) },
+            isFirstMatch = { id ->
+                val stats = env.ctx.services.get<com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository>()
+                stats != null && (stats.find(id)?.matchesPlayed ?: 0L) == 0L
+            },
         )
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) {
             matchBriefingListener.onPhaseChanged(it)
