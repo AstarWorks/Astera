@@ -1,0 +1,46 @@
+# r14 @11f1560b (wp/integrate-limbus ff b96ac5d6: animator r15 505e9e86, vfx r17 d11e7aa3) + director: s1h2-flash y 1.05 -> 0.8
+#   (onto the r17 ink band centre y 0.75; bastion_s1_fx.py + bastion_s1_particles.py re-run, only the flash translate changed).
+# shadowJar OK; contentLint 542/542 OK. TICKS=72. Ticks = cast tick (compare frame = tick + 6).
+# Published (build/skill-compare-published/bastion-greatsword-s1/<view>/current.json confirmed, implementationCommit 11f1560b):
+#   compare a8989be3511e (79 f), side 210f5911c5ab, opponent 01738cb1e15c, caster 8529303c1839 (73 f each; caster HIDE_HUD=0).
+# Quality: all maxRepeatedFrames 1, compare cameraMaxLatenessMs 57. Tries: compare 1, side 1, opponent 2 (1st maxRep 3 + 4 zero-diff
+#   early frames), caster 1 (one repeated frame t4=t5, no early freeze).
+# Display peak (RCON live count above the 10 text_display baseline): compare 41 @t31, side 41, opponent 42, caster 41 (r13 41-42).
+
+## (1) weapon
+caster FP (HUD on), diff vs empty t4 frame, full frame %: held t0-1 7.9; t2 6.7 (rig blade thin from the bottom right, held-item
+  footprint); t3 20.5 (broad blade diagonal from the top centre to the lower right, ONE frame); t4+ none. r13: t2 20.3, t3 21.8.
+  -> r15 fixed t2, t3 is still one large blade frame. cas-start-big.jpg. End: t50-58 rig thin at the right edge, t59 held item back
+  in its final pose, no raise (cas-end.jpg).
+front (opponent) view t0-6: t0-1 held edge-on vertical; t2 overlap (doubled tip); t3 rig still edge-on vertical; t4 ~35 deg lean with
+  the broad face open; t5 ~30; t6 horizontal (wind-up). r13: t3 ~10, t4 ~30 (face turn spread over t3-t4). So the lean + face turn
+  is again one step (t3 -> t4), about the size of the r12 pop, though it now coincides with the first wind-up frame.
+  opp-start-r13-vs-r14.jpg. End t50 ~40 -> t51 ~10 -> t52-62 vertical edge-on, t57 overlap (doubled tip), smooth (opp-end.jpg).
+one weapon every frame t0-6 and t50-62 in compare (cmp-start/cmp-end), side (side-start-2x/side-end-2x), opponent (opp-start/
+  opp-end) and caster FP. Overlap frames: opponent t2, t57; side t57 (doubled tip); compare none visible.
+
+## (2) ink (r17 shaded band) + flash
+Broad warm mask (R>200, G>150, R-B>70, sat>0.3; includes ring/streak/flare, same mask applied to the r13 published frames):
+            t31   t32   t33   t34   t35     r13 peak (same mask)   tint frame
+compare     6.5   6.5  13.7   9.7   5.7     13.4 (t32)            t32 (ink t33, 1 frame)
+side        0.2   1.0   0.8   0.7   0.1      0.9 (t33)            t32 (ink t32, on the tint)
+opponent    1.7  14.6  11.1   6.8   1.9     28.4 (t33)            own view (ink t32)
+caster FP   0.8   0.8   7.7   3.8   3.5     13.1 (t33)            t32 (ink t33, 1 frame)
+Compare is ring-dominated (ring is most of the warm px in both rounds); opponent and caster peaks halved vs r13.
+Read per view:
+  compare (cmp-ink.jpg): soft translucent yellow burst ON the blade line between the bodies, the flare core (orange-white star)
+    sits on the blade at the contact, white streak above. Reads as an impact. r13: ~0.4 above the blade.
+  side (side-h2.jpg): small yellow-white glow at waist height between the bodies on the tint frame t32 (r13 t33 behind the body).
+  opponent (opp-ink.jpg): t32 a soft brushy yellow band with a white-hot core in the lower ~third of the screen around the caster's
+    hilt; floor grid visible through it; caster chest/face clear. t33 a remnant at the bottom edge under the white streak. Reads as a
+    soft burst, NOT the r13 opaque slab; it sits at/below the hilt (blade line), not over the waist. Flare core small at t32.
+  caster FP (cas-ink.jpg): t33 only, soft translucent yellow brush low-left and around the hotbar, at the target's feet; the target
+    body is clear. Reads as a soft impact but low and partly under the hotbar; ~1 frame after the tint.
+
+## (3) regressions vs r13
+- front view start: lean + face turn back in one frame (t3 -> t4, ~35 deg), r13 had it over 2 frames. animator.
+- FP wind-up: t3 is still one broad blade frame (~20 % of the frame); t2 fixed. animator.
+- ink lands 1 frame after the tint in compare and caster (r13: on the tint frame); on the tint in side/opponent. Within the 1-3 tick
+  client lag noted in Learnings; not retuned.
+Improved: ink is no longer a slab in opponent/caster (peak warm px 28.4 -> 14.6 / 13.1 -> 7.7), on the blade line in compare; the
+  flare core now on the contact inside the ink; display peak unchanged; no new static particles / squares seen.

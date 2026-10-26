@@ -24,7 +24,7 @@ attributes:
 equip_slot: mainhand
 resource_type: energy
 resource_cost_per_use: 20
-glint: true
+glint: false
 skills:
 - trigger: left_click
   skill_id: bastion-greatsword-s1

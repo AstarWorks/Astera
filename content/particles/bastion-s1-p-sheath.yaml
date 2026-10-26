@@ -1,0 +1,10 @@
+# r28 blade sheath: gold -> orange dust, 2 per point scattered round the blade (3D), re-rolled every tick.
+id: bastion-s1-p-sheath
+shape: { kind: burst, spread_blocks: 0.05 }
+color: { r: 255, g: 200, b: 70 }
+count: 2
+lifetime_ticks: 12
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 255, g: 238, b: 150 }, to: { r: 255, g: 120, b: 24 }, scale: 0.45 }
+speed: 0.0
+force: true

@@ -10,6 +10,8 @@ import { CASE_ID_RE, validateCase, diffSummary } from "./src/timeline.js";
 import { makeSources } from "./lib/sources.mjs";
 import { buildIndex } from "./lib/weapons.mjs";
 import { makeAnim, ANIM_ID_RE } from "./lib/anim.mjs";
+import { spawnSync } from "node:child_process";
+import { contentRevision, publishedRoot } from "./lib/revision.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MAX_BODY = 1_000_000;
@@ -22,7 +24,7 @@ export function makeHandler(opts = {}) {
   const S = makeSources({ root, repo, vfxShotDir, mediaDirs: opts.mediaDirs, worktrees: opts.worktrees ?? true });
   const vfxFind = S.vfxFind;
   const A = makeAnim({ repo, root, S });
-  const publishedDir = opts.publishedDir ?? process.env.SKILL_COMPARE_PUBLISHED ?? join(repo, "build", "skill-compare-published");
+  const publishedDir = opts.publishedDir ?? publishedRoot(repo);
   const viewerDir = opts.viewerDir ?? join(repo, "tools", "skill-viewer", "build", "skill-frames");
   const tracesDir = opts.tracesDir ?? join(repo, "tools", "game-sim", "build", "sim-traces");
 
@@ -36,28 +38,73 @@ export function makeHandler(opts = {}) {
     return [...S.allCases().values()].map(({ id, c, src }) => ({
       id, videoId: c.videoId, skill: c.skill, start_s: c.start_s, end_s: c.end_s,
       hits: (c.segments || []).filter((x) => x.kind === "hit").length,
-      media: !!S.cacheFor(id, src), edits: (c.editLog || []).length, from: { worktree: src.name, branch: src.branch },
+      media: !!S.cacheFor(id, src) || !!stillsOf(c.skill?.asteraSkillId), edits: (c.editLog || []).length, from: { worktree: src.name, branch: src.branch },
     }));
   }
 
   /** Capture provenance shown as a badge on the page (and written to the brief manifest by scripts/brief.py). */
-  const provOf = (m) => ({ branch: m.branch ?? null, commit: m.implementationCommit ?? null, capturedAt: m.capturedAt ?? null,
-    fov: m.fov ?? null, fovMode: m.fovMode ?? null, resolution: m.resolution ?? null, view: m.view ?? null,
-    repeated: m.captureQuality?.maxRepeatedFrames ?? null, reviewRequired: !!m.captureQuality?.reviewRequired });
+  let treeCache = { at: 0, v: null };
+  /** content revision of the tree this server runs from (3 s cache); views made from another content revision are STALE. */
+  const currentTree = () => {
+    if (Date.now() - treeCache.at < 3000) return treeCache.v;
+    let v = null; try { v = contentRevision(repo); } catch { /* not a checkout: staleness unknown */ }
+    treeCache = { at: Date.now(), v }; return v;
+  };
+  const provOf = (m) => {
+    const cur = currentTree();
+    return { branch: m.branch ?? null, commit: m.implementationCommit ?? m.gitRevision ?? null, capturedAt: m.capturedAt ?? null,
+      fov: m.fov ?? null, fovMode: m.fovMode ?? null, resolution: m.resolution ?? null, view: m.view ?? null,
+      repeated: m.captureQuality?.maxRepeatedFrames ?? null, reviewRequired: !!m.captureQuality?.reviewRequired,
+      contentRevision: m.contentRevision ?? null, contentDirty: m.contentDirty ?? null, codeDirty: m.codeDirty ?? null,
+      stale: cur && m.contentRevision ? m.contentRevision !== cur.contentRevision : null, currentContent: cur?.contentRevision ?? null };
+  };
+
+  /** Preview / lint / round notes published for a skill (build/skill-compare-published/<skill>/{preview,lint,round}/current.json). */
+  function reviewViews(skill, referenceRevision) {
+    const out = { tree: currentTree(), preview: null, lint: null, round: null };
+    if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return out;
+    const cur = (kind) => { const f = join(publishedDir, skill, kind, "current.json"); if (!existsSync(f)) return null; try { return readJson(f); } catch { return null; } };
+    const pv = cur("preview");
+    if (pv && /^[a-f0-9]{64}$/.test(pv.revision || "")) {
+      out.preview = { base: `/mc/vfx/${skill}/preview/`, count: pv.meta.frames, castFrame: pv.meta.castFrame ?? 0, extension: pv.extension || "png", revision: pv.revision,
+        prov: { ...provOf(pv.meta), published: true, kind: "preview" }, warnings: pv.meta.warnings ?? [], particles: !!pv.meta.particles,
+        referenceStale: !!(referenceRevision && pv.meta.referenceRevision && pv.meta.referenceRevision !== referenceRevision) };
+    }
+    const ln = cur("lint");
+    if (ln && /^[a-f0-9]{64}$/.test(ln.revision || "")) {
+      out.lint = { revision: ln.revision, report: ln.report ?? null, overlays: ln.overlays ?? [], base: `/lint/${skill}/${ln.revision}/overlay/`,
+        prov: ln.report ? { ...provOf(ln.report.provenance ?? {}), published: true, kind: "lint" } : null };
+    }
+    const rd = cur("round");
+    if (rd && typeof rd.text === "string") out.round = { text: rd.text, revision: rd.revision, images: Array.isArray(rd.images) ? rd.images : [], imgBase: `/round/${skill}/${rd.revision}/img/`, prov: { ...provOf(rd), published: true, kind: "round" } };
+    return out;
+  }
+
+  /** Plain stills grid (pose-review cases): <published>/<skill>/stills/current.json (scripts/publish-stills.mjs). */
+  function stillsOf(skill) {
+    if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return null;
+    const f = join(publishedDir, skill, "stills", "current.json");
+    if (!existsSync(f)) return null;
+    try {
+      const m = readJson(f);
+      if (!/^[a-f0-9]{64}$/.test(m.revision || "")) return null;
+      return { revision: m.revision, title: m.title, rows: m.rows, base: `/stills/${skill}/${m.revision}/`, contentRevision: m.contentRevision ?? null, contentDirty: m.contentDirty ?? null };
+    } catch { return null; }
+  }
 
   function mcInfo(skill, referenceRevision, contentRevision) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return info;
-    for (const view of ["compare", "input", "caster", "opponent", "side"]) {
+    for (const view of ["compare", "input", "caster", "opponent", "side", "front", "back", "right", "high", "near"]) {
       const pointer = join(publishedDir, skill, view, "current.json");
       if (existsSync(pointer)) {
         try {
           const { revision, extension, meta } = readJson(pointer);
           if (!/^[a-f0-9]{64}$/.test(revision) || meta.captureQuality?.invalid ||
               (referenceRevision && meta.referenceRevision !== referenceRevision) ||
-              (contentRevision && meta.contentRevision !== contentRevision)) continue;
+              (contentRevision && meta.caseContentRevision !== contentRevision)) continue;
           info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`,
-            count: meta.frames, castFrame: Math.round((meta.cast_tick_ms ?? 0) / 50), extension, revision, prov: { ...provOf(meta), published: true } };
+            count: meta.frames, fps: meta.fps || 20, castFrame: Math.round(((meta.cast_tick_ms ?? 0) * (meta.fps || 20)) / 1000), extension, revision, prov: { ...provOf(meta), published: true } };
         } catch { /* Never fall back to a partially overwritten source after publication. */ }
         continue;
       }
@@ -65,13 +112,14 @@ export function makeHandler(opts = {}) {
       const d = base && join(base, skill, view);
       if (base) {
         if (referenceRevision) {
-          try { const m = readJson(join(d, "meta.json")); if (m.captureQuality?.invalid || m.referenceRevision !== referenceRevision || (contentRevision && m.contentRevision !== contentRevision)) continue; } catch { continue; }
+          try { const m = readJson(join(d, "meta.json")); if (m.captureQuality?.invalid || m.referenceRevision !== referenceRevision || (contentRevision && m.caseContentRevision !== contentRevision)) continue; } catch { continue; }
         }
         const n = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).length;
         const webpReady = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).every((f) => existsSync(join(d, f.replace(/\.png$/, ".webp"))));
-        let castFrame = 0, prov = { published: false };  // compare: frames before the cast (meta.json cast_tick_ms)
-        try { const m = readJson(join(d, "meta.json")); castFrame = Math.round((m.cast_tick_ms ?? 0) / 50); prov = { ...provOf(m), published: false }; } catch { /* no meta: frame 0 = cast */ }
-        if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n, castFrame, prov,
+        // compare: frames before the cast (meta.json cast_tick_ms); FPS=60 captures hold 3 frames per tick
+        let castFrame = 0, fps = 20, prov = { published: false };
+        try { const m = readJson(join(d, "meta.json")); fps = m.fps || 20; castFrame = Math.round(((m.cast_tick_ms ?? 0) * fps) / 1000); prov = { ...provOf(m), published: false }; } catch { /* no meta: frame 0 = cast */ }
+        if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n, fps, castFrame, prov,
           extension: webpReady ? "webp" : "png",
           revision: String(statSync(existsSync(join(d, "meta.json")) ? join(d, "meta.json") : d).mtimeMs) };
       }
@@ -109,6 +157,8 @@ export function makeHandler(opts = {}) {
       media: cdir ? { ready: true, ...readJson(join(cdir, "meta.json")), revision: c.referenceRevision || String(c.rev ?? 0), base: `/media/${id}/frames/` } : { ready: false },
       analysis: ap && existsSync(ap) ? readJson(ap) : { waveform: [], waveformStepMs: 10, onsets: [], cuts: [] },
       mc: mcInfo(c.skill?.asteraSkillId, c.referenceRevision, c.contentRevision),
+      views: reviewViews(c.skill?.asteraSkillId, c.referenceRevision),
+      stills: stillsOf(c.skill?.asteraSkillId),
     };
   }
 
@@ -174,10 +224,46 @@ export function makeHandler(opts = {}) {
     return json(r.body);
   }
 
+  // Keypoints for the pose solver (tools/pose-solve): content/skill-lint/<skill>.keypoints.yaml, read / written through kp.py (the one validator).
+  const SKILL_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
+  const kpScript = join(repo, "tools", "pose-solve", "kp.py");
+  const kpRun = (args, input) => spawnSync("python3", [kpScript, ...args], { cwd: repo, input, encoding: "utf8", timeout: 60_000 });
+
+  async function keypoints(skill, req) {
+    if (req.method === "GET") {
+      const r = kpRun(["read", skill]);
+      return r.status === 0 ? new Response(r.stdout, { headers: { "content-type": "application/json", "cache-control": "no-store" } }) : err(404, (r.stderr || "no keypoints file").trim().split("\n").pop());
+    }
+    if (req.method !== "POST" && req.method !== "PUT") return err(405, "method not allowed");
+    const text = await req.text();
+    if (text.length > MAX_BODY) return err(413, "body too large");
+    try { JSON.parse(text); } catch { return err(400, "invalid JSON"); }
+    const r = kpRun(["write", skill], text);
+    return r.status === 0 ? json({ ok: true }) : json({ error: (r.stderr || "write failed").trim().split("\n").slice(-4).join(" ") }, 422);
+  }
+
   return async function handle(req) {
     const url = new URL(req.url);
     const p = url.pathname;
     let m;
+    if (p === "/annotate.html") return file(join(publicDir, "annotate.html"), "text/html; charset=utf-8");
+    if (p === "/annotate.js") return appJs("annotate");
+    if ((m = /^\/api\/keypoints\/([a-z0-9-]+)$/.exec(p))) return SKILL_RE.test(m[1]) ? keypoints(m[1], req) : err(400, "bad skill id");
+    if ((m = /^\/api\/keypoints\/([a-z0-9-]+)\/frame\/(\d{1,4})\.png$/.exec(p))) {
+      const r = kpRun(["frame", m[1], m[2]]);
+      return r.status === 0 ? file(r.stdout.trim(), "image/png") : err(404, (r.stderr || "no frame").trim().split("\n").pop());
+    }
+    if ((m = /^\/api\/keypoints\/([a-z0-9-]+)\/overlay\/([A-Za-z0-9-]+)\.png$/.exec(p))) {
+      const f = join(repo, "build", "skill-lint", m[1], "overlay", m[2] + ".png");
+      return inside(join(repo, "build"), f) ? file(f, "image/png") : err(400, "bad path");
+    }
+    if ((m = /^\/round\/([a-z0-9-]+)\/([a-f0-9]{64})\/img\/([A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|jpg|webp))$/.exec(p))) {
+      const f = join(publishedDir, m[1], "round", m[2], "img", m[3]);
+      if (!existsSync(f) || !statSync(f).isFile()) return err(404, "not found");
+      return new Response(Bun.file(f), { headers: { "content-type": m[4] === "png" ? "image/png" : m[4] === "jpg" ? "image/jpeg" : "image/webp", "x-content-type-options": "nosniff", "cache-control": "private, max-age=31536000, immutable" } });
+    }
+    if (p === "/stills.html") return file(join(publicDir, "stills.html"), "text/html; charset=utf-8");
+    if ((m = /^\/stills\/([a-z0-9-]+)\/([a-f0-9]{64})\/(\d{1,2}-(?:reference|preview|ingame)\.png)$/.exec(p))) return file(join(publishedDir, m[1], "stills", m[2], m[3]), "image/png");
     if (p === "/" || p === "/index.html") return file(join(publicDir, "index.html"), "text/html; charset=utf-8");
     if (p === "/case.html" || /^\/case\/[a-z0-9-]+$/.test(p)) return file(join(publicDir, "case.html"), "text/html; charset=utf-8");
     if ((m = /^\/evidence\/([a-z0-9-]+)\.png$/.exec(p))) return file(join(repo, "build", "limbus-review", "pairs-round2", m[1] + ".png"), "image/png");
@@ -217,7 +303,7 @@ export function makeHandler(opts = {}) {
       const f = join(cdir, "frames", m[2]);
       return inside(cdir, f) ? file(f, "image/jpeg") : err(400, "bad path");
     }
-    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|input|caster|opponent|side)\/(frame_\d{3,4}\.(?:png|webp))$/.exec(p))) {
+    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|input|caster|opponent|side|front|back|right|high|near|preview)\/(frame_\d{3,4}\.(?:png|webp))$/.exec(p))) {
       const revision = new URL(req.url).searchParams.get("v");
       if (/^[a-f0-9]{64}$/.test(revision || "")) {
         const f = join(publishedDir, m[1], m[2], revision, m[3]);
@@ -227,6 +313,7 @@ export function makeHandler(opts = {}) {
       const f = join(base, m[1], m[2], m[3]);
       return inside(base, f) ? file(f, f.endsWith("webp") ? "image/webp" : "image/png") : err(400, "bad path");
     }
+    if ((m = /^\/lint\/([a-z0-9-]+)\/([a-f0-9]{64})\/overlay\/([A-Za-z0-9_-]+\.png)$/.exec(p))) return file(join(publishedDir, m[1], "lint", m[2], "overlay", m[3]), "image/png");
     if ((m = /^\/mc\/viewer\/([a-z0-9-]+)\/(key-\d+\.png)$/.exec(p))) {
       const f = join(viewerDir, m[1], "frames", m[2]);
       return inside(viewerDir, f) ? file(f, "image/png") : err(400, "bad path");

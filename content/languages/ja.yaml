@@ -805,7 +805,7 @@ astera:
     mode:
       carry-mini-tnt:
         name: "<gold>ミニTNTキャリー</gold>"
-        description: "<gray>ミニTNTを {count} 個収集後、敵拠点へ配達する。</gray>"
+        description: "<gray>ミニTNTを {count} 個自拠点に集めて1つのTNTに合体させ、敵拠点へ届ける。</gray>"
     # Wave 5d — バリアドメイン (ADR-0033, RTM issue #8)
     barrier:
       created: "<aqua>{position} に {player} がバリアを設置しました。</aqua>"
@@ -1181,8 +1181,10 @@ astera:
         carried: "<gray>TNT 所持:</gray> <{color}>{team}</{color}>"
         loose: "<gray>TNT は誰でも取れる</gray>"
       carry-mini-tnt:
-        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>ミニ TNT 納品</gray>"
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{pool}/{size}</white> <gray>ミニ TNT</gray> <white>{score}/{goal}</white> <gray>TNT</gray>"
         loose: "<gray>マップ上のミニ TNT:</gray> <white>{count}</white>"
+        tnt-ready: "<{color}>{team}</{color}> <gray>の TNT がスポーンで待機中</gray>"
+        tnt-carried: "<gray>TNT 所持:</gray> <{color}>{team}</{color}>"
       pve-waves:
         ready: "<gray>準備しよう: <white>{waves}</white> ウェーブが来る</gray>"
         wave: "<gold>ウェーブ {wave}/{waves}</gold> <gray>-</gray> <white>{left}</white> <gray>体残り</gray>"
@@ -1507,8 +1509,15 @@ astera:
       dropped: "<gray>TNT の運び手が倒れた。TNT は元の場所に戻った。</gray>"
     carry-mini-tnt:
       title: "<gold>ミニ TNT 収集</gold>"
-      picked-up: "<gold>ミニ TNT を拾った ({count}/{limit})。敵基地へ届けよう！</gold>"
-      delivered: "<green>{team} チームがミニ TNT を {count} 個届けた！ ({score}/{goal})</green>"
+      picked-up: "<gold>ミニ TNT を拾った ({count}/{limit})。自分の基地へ持ち帰ろう！</gold>"
+      pooled: "<yellow>{team} チームがミニ TNT を {count} 個プールに加えた ({pool}/{size})。</yellow>"
+      combined:
+        title: "<gold><bold>TNT 合体！</bold></gold>"
+        subtitle: "<yellow>敵基地へ運べ</yellow>"
+        broadcast: "<gold>{team} チームがミニ TNT {size} 個を 1 つの TNT に合体させた！</gold>"
+      tnt-picked-up: "<gold>{team} チームが合体 TNT を拾った！</gold>"
+      tnt-dropped: "<gray>TNT の運び手が倒れた。TNT は元の場所に戻った。</gray>"
+      delivered: "<green>{team} チームが合体 TNT を届けた！ ({score}/{goal})</green>"
       dropped: "<gray>倒れてミニ TNT を失った。</gray>"
     pve-waves:
       title: "<gold>PvE ウェーブ</gold>"
@@ -2399,7 +2408,7 @@ astera:
   play.lane.annihilation.desc: "<gray>3チーム・各3本の柱。敵のネクサスを破壊せよ。</gray>"
   play.lane.break-core.desc: "<gray>敵のコアを壊し、自陣のコアを守る。</gray>"
   play.lane.carry-tnt.desc: "<gray>TNTを運んで敵基地へ届ける。</gray>"
-  play.lane.carry-mini-tnt.desc: "<gray>マップ中の小さなTNTを集めて敵基地へ届ける。先に規定数に達したチームの勝利。</gray>"
+  play.lane.carry-mini-tnt.desc: "<gray>マップ中の小さなTNTを自拠点へ持ち帰って1つの大きなTNTに合体させ、敵基地へ届けたチームの勝利。</gray>"
   play.lane.capture-wool.desc: "<gray>相手より先にウールのゾーンを制圧。</gray>"
   play.lane.steal-jewelry.desc: "<gray>敵の台座から宝石を奪って持ち帰る。</gray>"
   play.lane.battle-loyal.desc: "<gray>チームデスマッチ。先にキル目標に届いた側の勝ち。</gray>"

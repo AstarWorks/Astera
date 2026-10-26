@@ -45,7 +45,6 @@ When unsure: does it boot or load real components or real files end-to-end? Keep
 | tools/schema-gen | 2 | 0 |
 | tools/skill-compare | 2 | 0 |
 | tools/skill-viewer | 1 | 0 |
-| tools/vfx-preview | 1 | 0 |
 
 Deleted also includes test-only fixtures/fakes (reason `fixture`) used only by deleted tests.
 

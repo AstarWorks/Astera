@@ -62,6 +62,7 @@ internal class PaperLobbyWorld(
             java.util.concurrent.CompletableFuture.allOf(*signs.toTypedArray()).whenComplete { _, failure ->
                 scheduler.run(ExecutionScope.Global, Duration.ZERO) {
                     if (failure == null) {
+                        warnIfNotVoid(world, config)
                         slots.state(-1, com.astarworks.astera.core.application.service.instance.SlotAllocator.State.Ready)
                         slots.state(-1, com.astarworks.astera.core.application.service.instance.SlotAllocator.State.Running)
                         ready = true
@@ -72,5 +73,20 @@ internal class PaperLobbyWorld(
             }
         }
         return world
+    }
+
+    /**
+     * ADR-0255 needs the main world to be the void preset. An old persisted flat world keeps its terrain under the pasted
+     * lobby (players then see "superflat" ground under floating islands), so say so loudly instead of silently.
+     */
+    private fun warnIfNotVoid(world: World, config: LobbyWorldYamlConfig) {
+        val x = config.spawn.x.toInt()
+        val z = config.spawn.z.toInt()
+        scheduler.run(ExecutionScope.Region(WorldId(world.name), x shr 4, z shr 4), Duration.ZERO) {
+            val ground = world.getBlockAt(x, world.minHeight + 4, z).type
+            if (!ground.isAir) log.error("Main world '{}' is NOT void (found {} at y={}): the persisted level predates ADR-0255. " +
+                "Delete the world dir and recreate the container from the current image so astera:void applies.",
+                world.name, ground, world.minHeight + 4)
+        }
     }
 }

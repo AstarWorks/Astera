@@ -1,0 +1,66 @@
+# r9 @0756580c: gold/orange small-blob counts (6-600 px) per frame; moved = no blob within 2 px in the previous frame (hit_stop ticks 8-10 / 31-33 freeze displays)
+## compare hit1
+t8: small=20 moved=0 same-pos=0 big-components=2
+t9: small=29 moved=25 same-pos=4 big-components=2
+t10: small=34 moved=24 same-pos=10 big-components=2
+t11: small=31 moved=18 same-pos=13 big-components=3
+t12: small=10 moved=10 same-pos=0 big-components=2
+t13: small=6 moved=0 same-pos=6 big-components=2
+t14: small=19 moved=13 same-pos=6 big-components=3
+t15: small=17 moved=5 same-pos=12 big-components=3
+t16: small=18 moved=8 same-pos=10 big-components=1
+## compare hit2
+t30: small=8 moved=0 same-pos=0 big-components=3
+t31: small=31 moved=31 same-pos=0 big-components=5
+t32: small=37 moved=12 same-pos=25 big-components=6
+t33: small=53 moved=26 same-pos=27 big-components=6
+t34: small=32 moved=30 same-pos=2 big-components=2
+t35: small=26 moved=26 same-pos=0 big-components=1
+t36: small=11 moved=11 same-pos=0 big-components=1
+t37: small=11 moved=11 same-pos=0 big-components=1
+t38: small=16 moved=16 same-pos=0 big-components=1
+## opponent hit1
+t8: small=10 moved=0 same-pos=0 big-components=1
+t9: small=18 moved=18 same-pos=0 big-components=1
+t10: small=35 moved=35 same-pos=0 big-components=2
+t11: small=36 moved=36 same-pos=0 big-components=2
+t12: small=26 moved=25 same-pos=1 big-components=3
+t13: small=9 moved=9 same-pos=0 big-components=3
+t14: small=6 moved=6 same-pos=0 big-components=3
+t15: small=17 moved=16 same-pos=1 big-components=3
+t16: small=20 moved=19 same-pos=1 big-components=2
+## opponent hit2
+t30: small=18 moved=0 same-pos=0 big-components=2
+t31: small=10 moved=10 same-pos=0 big-components=4
+t32: small=12 moved=12 same-pos=0 big-components=4
+t33: small=21 moved=21 same-pos=0 big-components=9
+t34: small=21 moved=1 same-pos=20 big-components=9
+t35: small=35 moved=35 same-pos=0 big-components=2
+t36: small=2 moved=2 same-pos=0 big-components=0
+t37: small=6 moved=6 same-pos=0 big-components=0
+t38: small=1 moved=1 same-pos=0 big-components=0
+## caster hit1
+t8: small=3 moved=0 same-pos=0 big-components=0
+t9: small=14 moved=14 same-pos=0 big-components=2
+t10: small=28 moved=28 same-pos=0 big-components=3
+t11: small=61 moved=61 same-pos=0 big-components=11
+t12: small=35 moved=35 same-pos=0 big-components=6
+t13: small=13 moved=13 same-pos=0 big-components=3
+t14: small=15 moved=15 same-pos=0 big-components=2
+t15: small=13 moved=12 same-pos=1 big-components=2
+t16: small=3 moved=1 same-pos=2 big-components=0
+## caster hit2
+t30: small=0 moved=0 same-pos=0 big-components=0
+t31: small=2 moved=2 same-pos=0 big-components=2
+t32: small=13 moved=12 same-pos=1 big-components=3
+t33: small=20 moved=11 same-pos=9 big-components=3
+t34: small=36 moved=36 same-pos=0 big-components=7
+t35: small=33 moved=33 same-pos=0 big-components=8
+t36: small=37 moved=37 same-pos=0 big-components=0
+t37: small=21 moved=21 same-pos=0 big-components=0
+t38: small=3 moved=3 same-pos=0 big-components=0
+# ink % (flat yellow, 2 px grid) t29-37; r8 peaks: compare 5.0 caster 9.4 opponent 13.1 side 0.9
+compare t29:0.1 t30:1.4 t31:5.1 t32:3.7 t33:3.8 t34:0.2 t35:0.0 t36:0.0 t37:0.0 | peak 5.1%
+opponent t29:0.0 t30:0.2 t31:2.4 t32:13.3 t33:1.9 t34:1.9 t35:1.0 t36:0.2 t37:0.1 | peak 13.3%
+caster t29:0.0 t30:0.0 t31:9.2 t32:9.4 t33:9.3 t34:0.8 t35:0.7 t36:0.3 t37:0.2 | peak 9.4%
+side t29:0.0 t30:0.0 t31:0.0 t32:0.9 t33:0.6 t34:0.0 t35:0.0 t36:0.0 t37:0.0 | peak 0.9%

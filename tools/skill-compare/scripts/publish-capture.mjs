@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
 
 export function publishCapture(source, root, skill, view) {
-  if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill) || !['compare', 'input', 'caster', 'opponent', 'side'].includes(view)) throw Error('Invalid capture identity');
+  if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill) || !['compare', 'input', 'caster', 'opponent', 'side', 'front', 'back', 'right', 'high', 'near'].includes(view)) throw Error('Invalid capture identity');
   const raw = readFileSync(join(source, 'meta.json'), 'utf8');
   const meta = JSON.parse(raw);
   if (meta.captureQuality?.invalid || !Number.isInteger(meta.frames) || meta.frames < 1 || meta.frames > 10000) throw Error('Capture incomplete or invalid');

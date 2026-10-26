@@ -105,7 +105,8 @@ public object ParticleEmitter {
         }
         val dir = (raw?.takeIf { it.lengthSquared() > EPS } ?: UP).normalize()
         val jittered = if (v.spreadDegrees > 0.0) coneJitter(dir, v.spreadDegrees, ctx.random) else dir
-        return base.copy(count = 0, offset = jittered, extra = v.speed)
+        val speed = if (v.speedJitter > 0.0) v.speed * (1.0 + v.speedJitter * ctx.random.nextDouble(-1.0, 1.0)) else v.speed
+        return base.copy(count = 0, offset = jittered, extra = speed)
     }
 
     private fun resolveTargets(spec: ParticleSpec, at: Vec3, ctx: ParticleEmitContext): ParticleSpec {

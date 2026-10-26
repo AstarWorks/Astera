@@ -1,0 +1,76 @@
+# r11 3-axis check, rig key vs held item (handover_s1.py 26.3 third-person chain; held = mean bob zRot 0.05 rad, xRot 0).
+# 'vs held' = world-frame delta decomposed yaw (about up) / pitch (about left) / roll (about forward); front = lean seen by the opponent
+# (+ = caster's left), side = lean seen from the side (+ = forward). Held lines show the bob range (+-2.9 deg front lean, +-2.9 deg pitch).
+
+## BEFORE (r10, 5be25065)
+held bob_z=0.05 bob_x=0: pitch 52.0 phi 0.1 frontLean 0.0 sideLean 38.0 face [ 1.    -0.    -0.001]
+held bob_z=0.0 bob_x=0: pitch 51.9 phi 356.4 frontLean -2.8 sideLean 38.0 face [ 0.999  0.05  -0.001]
+held bob_z=0.1 bob_x=0: pitch 51.9 phi 3.7 frontLean 2.9 sideLean 38.0 face [ 0.999 -0.05  -0.001]
+held bob_z=0.05 bob_x=0.05: pitch 49.1 phi 359.9 frontLean -0.1 sideLean 40.9 face [ 1.    -0.     0.002]
+held bob_z=0.05 bob_x=-0.05: pitch 54.9 phi 0.2 frontLean 0.2 sideLean 35.1 face [ 1.    -0.    -0.003]
+k 0 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k 1 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k39 pitch  -15.0 phi  180.0 front -179.8 side -105.0 chunk   2.0 | vs held: total  143.0 yaw -179.9 pitch  -37.0 roll -180.0 face [-1.  0.  0.]
+k40 pitch  -10.7 phi  177.6 front  167.6 side -100.7 chunk   6.2 | vs held: total  138.8 yaw -177.9 pitch  -41.2 roll  174.4 face [-1.   -0.07 -0.03]
+k41 pitch    0.7 phi  173.2 front   83.7 side  -89.3 chunk  15.4 | vs held: total  128.6 yaw -169.2 pitch  -50.6 roll  157.5 face [-0.96 -0.24 -0.12]
+k42 pitch   20.1 phi  170.1 front   25.1 side  -69.6 chunk  24.6 | vs held: total  113.6 yaw -142.0 pitch  -59.5 roll  117.9 face [-0.84 -0.45 -0.31]
+k43 pitch   44.3 phi  174.6 front    5.6 side  -45.6 chunk  30.9 | vs held: total   98.2 yaw -103.6 pitch  -52.5 roll   64.1 face [-0.59 -0.55 -0.59]
+k44 pitch   63.4 phi  201.3 front  -10.3 side  -25.0 chunk  30.8 | vs held: total   88.9 yaw  -88.7 pitch  -33.1 roll   32.3 face [-0.31 -0.45 -0.84]
+k45 pitch   64.0 phi  246.4 front  -24.1 side  -11.1 chunk  24.6 | vs held: total   87.1 yaw  -87.0 pitch  -15.3 roll   14.5 face [-0.12 -0.24 -0.96]
+k46 pitch   52.0 phi  270.0 front  -38.0 side    0.0 chunk  21.6 | vs held: total   90.1 yaw  -90.1 pitch    0.0 roll    0.0 face [-0.  0. -1.]
+k47 pitch   52.0 phi  302.1 front  -33.5 side   22.5 chunk  32.1 | vs held: total   58.0 yaw  -58.0 pitch    0.0 roll    0.0 face [-0.53 -0.   -0.85]
+k48 pitch   52.0 phi  330.1 front  -21.3 side   34.1 chunk  28.0 | vs held: total   30.0 yaw  -30.0 pitch   -0.0 roll    0.0 face [-0.87 -0.   -0.5 ]
+k49 pitch   52.1 phi  350.0 front   -7.7 side   37.5 chunk  19.9 | vs held: total   10.1 yaw  -10.1 pitch   -0.0 roll   -0.0 face [-0.98  0.   -0.17]
+k50 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk  10.1 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k51 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k52 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+
+## AFTER (r11)
+k 0 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k 1 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k39 pitch  -15.0 phi  180.0 front -179.8 side -105.0 chunk   2.0 | vs held: total  143.0 yaw -179.9 pitch  -37.0 roll -180.0 face [-1.  0.  0.]
+k40 pitch   -4.2 phi  174.8 front  129.3 side  -94.2 chunk  15.0 | vs held: total  132.9 yaw -173.6 pitch  -46.8 roll  165.3 face [-0.98 -0.17 -0.08]
+k41 pitch   23.6 phi  170.1 front   21.5 side  -66.1 chunk  35.6 | vs held: total  111.1 yaw -135.7 pitch  -59.8 roll  109.4 face [-0.81 -0.47 -0.35]
+k42 pitch   59.1 phi  189.6 front   -5.7 side  -30.5 chunk  48.4 | vs held: total   90.8 yaw  -91.0 pitch  -39.1 roll   39.8 face [-0.39 -0.5  -0.78]
+k43 pitch   61.4 phi  255.4 front  -27.8 side   -7.8 chunk  39.6 | vs held: total   87.5 yaw  -87.4 pitch  -10.9 roll   10.4 face [-0.08 -0.18 -0.98]
+k44 pitch   52.0 phi  297.5 front  -34.7 side   19.9 chunk  28.2 | vs held: total   62.5 yaw  -62.5 pitch    0.0 roll   -0.0 face [-0.46  0.   -0.89]
+k45 pitch   52.0 phi  338.6 front  -15.9 side   36.0 chunk  41.1 | vs held: total   21.5 yaw  -21.5 pitch   -0.0 roll    0.0 face [-0.93  0.   -0.37]
+k46 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk  21.5 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k47 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k48 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k49 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k50 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k51 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+k52 pitch   52.0 phi    0.1 front    0.0 side   38.0 chunk   0.0 | vs held: total    0.0 yaw   -0.0 pitch   -0.0 roll    0.0 face [-1.  0.  0.]
+
+## first-person coverage BEFORE (eye ray-cast, vfov 70, 16:9)
+k39   0.0%  half->40   0.0%
+k40   0.0%  half->41   0.0%
+k41   0.0%  half->42   0.0%
+k42   0.0%  half->43   0.0%
+k43   0.0%  half->44   0.0%
+k44   0.0%  half->45   0.0%
+k45   0.0%  half->46   0.0%
+k46   0.0%  half->47   0.0%
+k47   0.1%  half->48   5.0%
+k48   4.9%  half->49   5.1%
+k49   5.4%  half->50   5.7%
+k50   5.9%  half->51   5.9%
+k51   5.9%  half->52   5.9%
+k52   5.9%
+
+## first-person coverage AFTER
+k39   0.0%  half->40   0.0%
+k40   0.0%  half->41   0.0%
+k41   0.0%  half->42   0.0%
+k42   0.0%  half->43   0.0%
+k43   0.0%  half->44   0.0%
+k44   0.0%  half->45   4.9%
+k45   5.1%  half->46   5.4%
+k46   5.9%  half->47   5.9%
+k47   5.9%  half->48   5.9%
+k48   5.9%  half->49   5.9%
+k49   5.9%  half->50   5.9%
+k50   5.9%  half->51   5.9%
+k51   5.9%  half->52   5.9%
+k52   5.9%

@@ -1,0 +1,31 @@
+# ADR-0276 demo body for the skill performance (content/vfx/demo-performance.yaml): crouch coil, a CUT at t6 (ease: step) into a
+# raised right arm, hold, then back to rest. length_ticks must equal the vfx duration_ticks. blend_in / blend_out are ignored by a
+# performance (the swap with the real player is atomic).
+id: performance-demo
+length_ticks: 20
+loop: false
+lock_movement: false
+blend_in_ticks: 0
+blend_out_ticks: 0
+bones:
+  right_arm:
+    rotation:
+      - { t: 0, v: [0, 0, 0] }
+      - { t: 6, v: [-80, 0, -10], ease: step }
+      - { t: 14, v: [-80, 0, -10] }
+      - { t: 18, v: [0, 0, 0], ease: ease_in_out }
+  left_arm:
+    rotation:
+      - { t: 0, v: [0, 0, 0] }
+      - { t: 6, v: [-20, 0, 10], ease: step }
+      - { t: 18, v: [0, 0, 0], ease: ease_in_out }
+  body:
+    rotation:
+      - { t: 0, v: [10, 25, 0] }
+      - { t: 6, v: [-5, -35, 0], ease: step }
+      - { t: 18, v: [0, 0, 0], ease: ease_in_out }
+root:
+  position:
+    - { t: 0, v: [0, -4, 0] }
+    - { t: 6, v: [0, -1, 0], ease: step }
+    - { t: 18, v: [0, 0, 0], ease: ease_in_out }

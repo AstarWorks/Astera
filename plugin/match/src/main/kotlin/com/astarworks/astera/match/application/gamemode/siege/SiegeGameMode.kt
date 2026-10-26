@@ -11,6 +11,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
 import com.astarworks.astera.core.domain.event.BlockBroken
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -41,6 +42,7 @@ import org.slf4j.LoggerFactory
  *
  * @property config the mode's `default_config` from `content/game-modes/<id>.yaml`.
  * @property now current server tick (for framework event stamps).
+ * @property presentation the game-moment player (cue / title / particles), resolved lazily; `null` = silent.
  */
 public class SiegeEnv(
     public val eventBus: IDomainEventBus,
@@ -52,6 +54,7 @@ public class SiegeEnv(
     public val players: IPlayerGateway,
     public val config: Map<String, String>,
     public val now: () -> Long,
+    public val presentation: () -> IPresentation? = { null },
 ) {
     public fun int(key: String, default: Int): Int = config[key]?.toIntOrNull() ?: default
 

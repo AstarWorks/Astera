@@ -1,0 +1,10 @@
+# r28 dark ash in the trail (dark mixed with bright): near-black dust.
+id: bastion-s1-p-ash
+shape: { kind: burst, spread_blocks: 0.09 }
+color: { r: 60, g: 34, b: 20 }
+count: 1
+lifetime_ticks: 12
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 92, g: 50, b: 26 }, to: { r: 28, g: 18, b: 12 }, scale: 0.5 }
+speed: 0.0
+force: true

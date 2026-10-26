@@ -1,5 +1,5 @@
 // A shared, bounded queue prevents the two image sequences from starving each other.
-export function createFrameCache(onChange, { concurrency = 6, capacity = 48 } = {}) {
+export function createFrameCache(onChange, { concurrency = 6, capacity = 96 } = {}) {
   const entries = new Map();
   let active = 0, wanted = [];
   function pump() {

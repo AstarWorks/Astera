@@ -1,6 +1,7 @@
 // skill-compare case page. Master clock = ms since case.start_s; see timeline.js for the mappings.
 import { createFrameCache } from "./frame-cache.js";
 import { renderProv } from "./prov.js";
+import { createViews } from "./views.js";
 import {
   TICK_MS, clamp, msToVideoFrame, videoFrameToMs, msToTick, tickToMs, sToMs, msToS, castMs, focusZones, effectiveSpeed,
 } from "./timeline.js";
@@ -21,6 +22,7 @@ fetch("/api/cases/" + encodeURIComponent(caseId)).then((r) => { if (!r.ok) throw
   .catch((e) => { $("title").textContent = "failed to load case: " + e.message; });
 
 function init(d) {
+  if (d.case.kind === "pose-review") { location.replace("/stills.html?id=" + encodeURIComponent(d.case.id)); return; }
   S.data = d; S.c = d.case;
   S.c.mc ??= { source: "vfx-caster", offset_ms: 0, castTickInTrace: 5 };
   S.c.focus ??= { enabled: false, factor: 0.2, windowMs: 150 };
@@ -40,16 +42,18 @@ function init(d) {
   $("who").value = store.get("skill-compare.who") || "";
   $("cnotes").value = S.c.notes || "";
   S.frameCache = createFrameCache(() => { S.needsRedraw = true; });
+  S.views = createViews({ S, $, clamp, msToTick, tickToMs, castOf, seek });
   setupVideo();
   setupSkillNav();
   setupMc();
+  S.views.setup();
   setupControls();
   recomputeZones();
   buildTimeline();
   syncFocusUi();
   const m = /[#&?]t=(\d+)/.exec(location.hash + location.search);
   if (m) S.ms = clamp(+m[1], 0, S.dur);
-  const fm = /[#&?]focus=(video|mc)/.exec(location.hash + location.search);
+  const fm = /[#&?]focus=(video|pv|mc)/.exec(location.hash + location.search);
   if (fm) setFocusCol(fm[1]);
   update(true);
   requestAnimationFrame(tickLoop);
@@ -114,7 +118,7 @@ function setupMc() {
   sel.textContent = "";
   const names = Object.keys(srcs);
   if (!names.length) sel.appendChild(Object.assign(el("option", "", "(no frames)"), { value: "" }));
-  const labels = { "vfx-compare": "比較用カメラ（強制発動）", "vfx-input": "通常操作で発動", "vfx-caster": "術者視点", "vfx-opponent": "相手視点", "vfx-side": "側面" };
+  const labels = { "vfx-compare": "比較用カメラ（強制発動）", "vfx-input": "通常操作で発動", "vfx-caster": "術者視点", "vfx-opponent": "相手視点", "vfx-side": "側面（左）", "vfx-right": "側面（右）", "vfx-front": "正面", "vfx-back": "背面", "vfx-high": "俯瞰45°", "vfx-near": "近くのプレイヤー目線" };
   for (const n of names) sel.appendChild(Object.assign(el("option", "", labels[n] || n), { value: n }));
   if (names.includes("vfx-compare") && !S.srcPicked) { sel.value = S.c.mc.source = "vfx-compare"; }
   else if (names.includes(S.c.mc.source)) sel.value = S.c.mc.source;
@@ -130,7 +134,8 @@ function mcFrame(ms) {
   if (!src) return null;
   const tick = msToTick(ms, castOf());
   if (src.kind === "frames") {
-    const f = tick + (src.castFrame ?? 0), n = clamp(f, 0, src.count - 1);
+    // Frame on the capture's own clock: 20 fps = 1 frame per tick, FPS=60 captures = 3 frames per tick.
+    const f = Math.floor(((ms - castOf()) * (src.fps || 20)) / 1000 + 1e-6) + (src.castFrame ?? 0), n = clamp(f, 0, src.count - 1);
     return { url: `${src.base}frame_${String(n).padStart(3, "0")}.${src.extension || "png"}?v=${encodeURIComponent(src.revision || "0")}`,
       dim: f < 0 || f >= src.count, label: `t+${tick} (frame ${n})`, tick };
   }
@@ -164,10 +169,10 @@ function prepareFrames(ms) {
   const urls = [];
   for (let i = 0; i <= 12; i++) {
     const t = clamp(ms + i * 1000 / Math.max(S.fps, 20), 0, S.dur);
-    urls.push(videoUrl(t), mcFrame(t)?.url);
+    urls.push(videoUrl(t), mcFrame(t)?.url, ...S.views.urls(t));
   }
   S.frameCache.want(urls);
-  const current = [videoUrl(ms), mcFrame(ms)?.url].filter(Boolean);
+  const current = [videoUrl(ms), mcFrame(ms)?.url, S.views.previewUrl(ms)].filter(Boolean);
   const failed = current.some((url) => S.frameCache.get(url)?.state === "error");
   const ready = current.every((url) => S.frameCache.get(url)?.state === "ready");
   $("buffer").hidden = ready;
@@ -373,7 +378,7 @@ function jumpHit(dir) {
 }
 function seek(ms) { S.ms = clamp(ms, 0, S.dur); update(); }
 function play() { if (S.ms >= S.dur) S.ms = S.loop?.from ?? 0; S.playing = true; S.lastTs = 0; $("bPlay").textContent = "Pause"; }
-function pause() { S.playing = false; $("bPlay").textContent = "Play"; }
+function pause() { S.playing = false; $("bPlay").textContent = "Play"; S.needsRedraw = true; }
 function stepFrame(d) { pause(); const i = msToVideoFrame(S.ms, S.fps) + d; S.ms = clamp(videoFrameToMs(i, S.fps) + 0.01, 0, S.dur); update(); }
 function stepTick(d) { pause(); const t = msToTick(S.ms, castOf()) + d; S.ms = clamp(tickToMs(t, castOf()) + 0.01, 0, S.dur); update(); }
 function setSpeed(v) { S.speed = v; $("speed").value = String(v); }
@@ -401,6 +406,7 @@ function update(force) {
   if (force || vf !== S.lastVideo) { S.lastVideo = vf; drawVideo(S.ms); }
   $("vinfo").textContent = `frame ${vf} / ${Math.max(0, S.frameCount - 1)} @ ${S.fps} fps`;
   showMc(S.ms);
+  S.views.show(S.ms);
   const tick = msToTick(S.ms, castOf());
   const inZ = S.c.focus.enabled && S.zones.some((z) => S.ms >= z.from && S.ms <= z.to);
   $("read").innerHTML = `<b>${S.ms.toFixed(0)}</b> ms &middot; video <b>${(S.c.start_s + S.ms / 1000).toFixed(3)}s</b> f<b>${vf}</b> &middot; MC tick <b>${tick}</b>${inZ ? " &middot; <b style='color:var(--accent)'>focus</b>" : ""}`;
@@ -409,6 +415,7 @@ function update(force) {
 }
 
 function setFocusCol(name) {
+  if (name === "pv" && !S.data.views?.preview) name = "";
   $("cols").classList.toggle("f", !!name);
   document.querySelectorAll(".col").forEach((c) => c.classList.toggle("focus", c.dataset.col === name));
   document.querySelectorAll("[data-focus]").forEach((b) => b.classList.toggle("on", b.dataset.focus === (name || "")));

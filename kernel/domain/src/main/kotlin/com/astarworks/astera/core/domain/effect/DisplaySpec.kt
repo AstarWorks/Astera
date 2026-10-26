@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.effect
 
+import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.i18n.LocalizedText
@@ -29,9 +30,16 @@ public data class DisplaySpec(
     public val glowArgb: Int? = null,
     /** Render-distance multiplier; `null` = vanilla default. */
     public val viewRange: Float? = null,
+    /**
+     * `true`: a weapon-rig part that stands in for the held item. The adapter sends the [WeaponRigShading]
+     * light marker, which the pack's item shader lights like an outdoor held item with a lifted underside (ADR-0275).
+     * Excludes [brightness].
+     */
+    public val weaponRigShading: Boolean = false,
 ) {
     init {
         require(brightness == null || brightness in 0..15) { "DisplaySpec.brightness must be 0..15: $brightness" }
+        require(!(weaponRigShading && brightness != null)) { "DisplaySpec.weaponRigShading excludes brightness ($brightness)" }
         require(lifetimeTicks > 0L) { "DisplaySpec.lifetimeTicks must be > 0: $lifetimeTicks" }
     }
 }
@@ -52,6 +60,15 @@ public sealed class DisplayKind {
         public val displayMode: DisplayItemMode = DisplayItemMode.NONE,
         public val itemModel: String? = null,
     ) : DisplayKind()
+
+    /**
+     * One bone of the skin rig (ADR-0250, ADR-0276): the owner's skin on a `player_head` cube, remapped by the pack's core
+     * shader. The adapter resolves the owner's profile; [slim] only selects the Alex arm marker.
+     */
+    public data class SkinBone(public val bone: SkinRigBone, public val slim: Boolean = false) : DisplayKind()
+
+    /** The anchor's real main-hand stack in the `THIRDPERSON_RIGHTHAND` context (ADR-0276): the one weapon of a performance. */
+    public data object AnchorMainHand : DisplayKind()
 
     /**
      * Renders floating text. `lines` is i18n-aware: the adapter picks the

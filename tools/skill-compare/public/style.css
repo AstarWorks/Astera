@@ -141,3 +141,48 @@ a.slot:hover{background:var(--head)}
 .beatt tr{cursor:pointer}
 .beatt td.bl{font-weight:600}
 @media (max-width:900px){.beats{grid-template-columns:minmax(0,1fr)}.beatt{display:block;overflow-x:auto}}
+
+/* review views: preview column, lint panel, overlay, round notes, provenance badges */
+.pv.bad{background:var(--onset);border-color:var(--onset);color:#fff;font-weight:700}
+.pv.pvw{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.cols.three,.cols.three.f{grid-template-columns:repeat(3,minmax(0,1fr))}
+.cols.three.f .col.focus{grid-column:1/-1}
+@media (max-width:1100px){.cols.three,.cols.three.f{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){.cols.three,.cols.three.f{grid-template-columns:minmax(0,1fr)}}
+.col h2 .tag.pvtag{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pvbanner{position:absolute;left:6px;top:6px;background:var(--accent);color:var(--accent-ink);font-size:11px;font-weight:700;padding:1px 8px;border-radius:6px;pointer-events:none;letter-spacing:.03em}
+.pvwarn{padding:5px 10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--onset)}
+.pvwarn[hidden],.lintnow[hidden],.round[hidden],.lintpanel[hidden],#vov[hidden],.ovlabel[hidden]{display:none}
+#vov{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--stage)}
+.ovlabel{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;padding:1px 8px;border-radius:6px;pointer-events:none}
+.lintnow{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;padding:6px 10px;border-top:1px solid var(--line);font-size:11.5px}
+.lintnow .k{color:var(--mute)}
+.lc{padding:0 7px;border-radius:99px;border:1px solid var(--line);font-size:11.5px;font-variant-numeric:tabular-nums}
+.lc.ok{border-color:var(--mc);color:var(--mc)}
+.lc.bad{background:var(--onset);border-color:var(--onset);color:#fff;font-weight:700}
+.lc.warn{border-color:var(--onset);color:var(--onset)}
+.round{margin:0 0 10px;background:var(--panel);border:1px solid var(--accent);border-left-width:5px;border-radius:10px;padding:8px 12px}
+.round .rhead{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:4px}
+.round .rtext{overflow-wrap:anywhere;font-size:13.5px;line-height:1.6}
+.md>:first-child{margin-top:0}.md>:last-child{margin-bottom:0}
+.md h3,.md h4,.md h5,.md h6{margin:12px 0 4px;font-size:14.5px}.md p{margin:6px 0}.md ul,.md ol{margin:6px 0;padding-left:22px}
+.md blockquote{margin:6px 0;padding:2px 10px;border-left:3px solid var(--line);color:var(--mute)}
+.md pre,.md code{background:var(--head);border-radius:4px;font-size:12.5px}.md code{padding:0 4px}.md pre{padding:6px 8px;overflow:auto;white-space:pre}
+.mdtw{overflow-x:auto;margin:6px 0}.mdt{border-collapse:collapse;font-size:12.5px}
+.mdt th,.mdt td{border:1px solid var(--line);padding:3px 8px;text-align:left;vertical-align:top}.mdt th{background:var(--head);color:var(--mute)}
+.md .rimg{display:inline-block;margin:4px 8px 4px 0;vertical-align:top}.md .rimg img{display:block;max-width:100%;max-height:420px;border:1px solid var(--line);border-radius:6px;background:var(--stage)}
+.prov.inline{border:0;padding:0;display:inline-flex}
+.lintpanel{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.lintpanel .lhead{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:6px}
+.lintpanel .lhead label{margin-left:auto}
+.lbody{max-height:340px;overflow:auto}
+.lintt{border-collapse:collapse;width:100%;font-size:12.5px}
+.lintt th{position:sticky;top:0;background:var(--head);text-align:left;padding:3px 8px;font-size:11.5px;color:var(--mute)}
+.lintt td{padding:3px 8px;border-top:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
+.lintt tr.seekable{cursor:pointer}
+.lintt tr.active td{background:var(--zone)}
+.lintt td.lst{font-weight:700;white-space:nowrap}
+.lintt td.lst.pass{color:var(--mc)}.lintt td.lst.fail{color:var(--onset)}.lintt td.lst.skip{color:var(--mute)}
+.lintt td.bt{white-space:nowrap}
+@media (max-width:900px){.lintt{display:block;overflow-x:auto}}
+.col[hidden],.mcctl[hidden],[data-focus][hidden]{display:none}

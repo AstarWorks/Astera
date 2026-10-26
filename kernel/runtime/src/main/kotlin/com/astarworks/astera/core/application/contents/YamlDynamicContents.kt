@@ -3,8 +3,11 @@ package com.astarworks.astera.core.application.contents
 import com.astarworks.astera.core.application.port.outbound.IContentParser
 import com.astarworks.astera.core.application.service.ContentLoader
 import kotlinx.serialization.DeserializationStrategy
+import org.slf4j.LoggerFactory
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.io.path.isDirectory
 
 /**
  * Abstract base for every YAML-backed content registry in Astera.
@@ -37,6 +40,7 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
 
     private val store: AtomicReference<Map<K, V>> = AtomicReference(emptyMap())
     private val loader = ContentLoader(parsers, deserializer)
+    private val log = LoggerFactory.getLogger(javaClass)
 
     /**
      * Map a successfully-parsed config to its registry entry. Subclasses
@@ -79,7 +83,7 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
      */
     public fun bootstrap(dir: Path): ContentLoader.LoadReport {
         val incoming = LinkedHashMap<K, V>()
-        val report = loader.loadFrom(dir) { cfg ->
+        val report = loadAll(dir) { cfg ->
             toEntry(cfg)?.let { (k, v) -> incoming[k] = v }
         }
         while (true) {
@@ -94,16 +98,53 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
      * Atomic, all-or-nothing reload. On `failed > 0` the previous state
      * remains untouched and the report is returned so the operator can
      * fix the offending YAMLs and retry. On `failed == 0` the new map
-     * replaces the old in one atomic operation.
+     * replaces the old in one atomic operation, unless it is empty while the
+     * store is not: that is reported as a failure and the old store is kept.
      */
     final override fun reload(dir: Path): ContentLoader.LoadReport {
         val next = LinkedHashMap<K, V>()
-        val report = loader.loadFrom(dir) { cfg ->
+        val report = loadAll(dir) { cfg ->
             toEntry(cfg)?.let { (k, v) -> next[k] = v }
         }
-        if (report.failed == 0) {
-            store.set(next.toMap())
+        if (report.failed != 0) return report
+        if (next.isEmpty() && store.get().isNotEmpty()) {
+            // A loader/layout mismatch must never silently empty a populated registry (the sound-cue reload bug).
+            log.warn(
+                "[content-reload] {}: reload of {} produced 0 entries but the registry holds {}; keeping the old store",
+                categoryName, dir, store.get().size,
+            )
+            return ContentLoader.LoadReport(
+                loaded = 0,
+                failed = 1,
+                failures = listOf(ContentLoader.LoadFailure(dir, "reload produced no entries; keeping the previous ${store.get().size}")),
+            )
         }
+        store.set(next.toMap())
         return report
+    }
+
+    /**
+     * `true` when the category keeps one YAML per entry in per-category subdirectories (`sounds/ui/click.yaml`):
+     * [bootstrap] and [reload] then read [dir] and each direct subdirectory alike, so a reload sees what the
+     * bootstrap saw instead of replacing the registry with the root files only.
+     */
+    protected open val readsSubdirectories: Boolean = false
+
+    private fun loadAll(dir: Path, onLoaded: (C) -> Unit): ContentLoader.LoadReport {
+        val dirs = if (readsSubdirectories && dir.isDirectory()) {
+            listOf(dir) + Files.list(dir).use { stream -> stream.filter { it.isDirectory() }.sorted().toList() }
+        } else {
+            listOf(dir)
+        }
+        var loaded = 0
+        var failed = 0
+        val failures = mutableListOf<ContentLoader.LoadFailure>()
+        for (d in dirs) {
+            val r = loader.loadFrom(d, onLoaded)
+            loaded += r.loaded
+            failed += r.failed
+            failures += r.failures
+        }
+        return ContentLoader.LoadReport(loaded = loaded, failed = failed, failures = failures)
     }
 }

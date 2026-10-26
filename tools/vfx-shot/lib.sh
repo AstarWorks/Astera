@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # vfx-shot shared helpers (sourced by vfx-shot.sh). No side effects on source.
 
+# fds of the held capture locks. Long-lived children (parked Xvfb / clients / parker) must not inherit them (a flock lives as
+# long as any process holds the open file description), so they are started with `{STACK_LOCK_FD}>&- {SLOT_FD}>&-`. The one
+# exception is watchdog.sh, which inherits both on purpose (the stack stays owned until its teardown is done). 99 = unused.
+STACK_LOCK_FD=99
+SLOT_FD=99
+
 log() { printf '[vfx-shot] %s\n' "$*" >&2; }
 die() { log "ERROR: $*"; exit 1; }
 
@@ -17,23 +23,28 @@ pick_subnet_prefix() {
   return 1
 }
 
-# Global concurrency limit across worktrees/agents: SHOT_SLOTS (default 2) flock slots, held on a file descriptor
-# for the life of the process (the kernel releases them when the run ends, however it ends). Heavy parts (gradle in
-# the docker build, server, two Minecraft clients) all run inside the slot.
+# Host-wide concurrency limit across worktrees/agents: at most SHOT_SLOTS (default 1) shot runs (= live stacks with clients)
+# at once. Slot 1 is the flock on SHOT_LOCK (default /tmp/claude-1000/astera-vfx-shot.lock), slot N > 1 is "$SHOT_LOCK.N".
+# The slot is taken before the stack is booted and held on a file descriptor for the whole run (the run's watchdog inherits
+# it, so it stays taken until the teardown after the run is finished); others queue. It is vfx-shot's own lock: never the
+# e2e flock (/tmp/claude-1000/astera-e2e.lock). Kept stacks (SHOT_KEEP=1) sit outside the slot; a run that needs room
+# evicts idle kept stacks of other checkouts (reap.py --make-room), so at most SHOT_SLOTS stacks exist host-wide.
 acquire_slot() {
-  local dir="${SHOT_SLOT_DIR:-/tmp/claude-1000/vfx-shot-slots}" n i fd announced=0
-  n="${SHOT_SLOTS:-2}"
-  mkdir -p "$dir" || die "cannot create $dir"
+  local lock="${SHOT_LOCK:-/tmp/claude-1000/astera-vfx-shot.lock}" n i fd f announced=0
+  n="${SHOT_SLOTS:-1}"
+  mkdir -p "$(dirname "$lock")" || die "cannot create $(dirname "$lock")"
   while :; do
     for i in $(seq 1 "$n"); do
-      exec {fd}>"$dir/slot-$i.lock" || die "cannot open $dir/slot-$i.lock"
+      f="$lock"; [ "$i" = 1 ] || f="$lock.$i"
+      exec {fd}>"$f" || die "cannot open $f"
       if flock -n "$fd"; then
-        log "slot $i/$n acquired"
+        SLOT_FD="$fd"
+        log "slot $i/$n acquired ($f)"
         return 0
       fi
       exec {fd}>&-
     done
-    [ "$announced" = 1 ] || { log "queued: all $n slots busy ($dir), waiting"; announced=1; }
+    [ "$announced" = 1 ] || { log "queued: all $n vfx-shot slot(s) busy ($lock), waiting"; announced=1; }
     sleep 3
   done
 }
@@ -49,3 +60,40 @@ with_global_lock() {
   exec {fd}>&-
   return "$rc"
 }
+
+# Memory guard (replaces "wrap every capture in the e2e flock"): the e2e lock exists because of host OOM, not because
+# capture stacks share anything with e2e. A warm stack is ~6-7 GB resident (2 GB server heap + 2 clients), so refuse
+# to start a server or a client while the host has less than SHOT_MIN_FREE_GB (default 8) available.
+mem_available_gb() { awk '/^MemAvailable:/ {printf "%d", $2 / 1048576}' /proc/meminfo; }
+
+memory_guard() { # <what>
+  local need="${SHOT_MIN_FREE_GB:-8}" wait="${SHOT_MEM_WAIT:-900}" deadline announced=0 have
+  deadline=$((SECONDS + wait))
+  while :; do
+    have="$(mem_available_gb)"
+    [ "$have" -ge "$need" ] && return 0
+    [ "$announced" = 1 ] || { log "memory guard: ${have} GB available < ${need} GB, waiting before $1"; announced=1; }
+    [ "$SECONDS" -lt "$deadline" ] || die "memory guard: still only ${have} GB available after ${wait}s (SHOT_MIN_FREE_GB=$need)"
+    sleep 5
+  done
+}
+
+# One capture at a time per checkout (= per warm stack): queues on $1; held on an fd until the process exits.
+acquire_stack_lock() { # <lockfile>
+  local fd
+  exec {fd}>"$1" || die "cannot open $1"
+  if ! flock -n "$fd"; then
+    log "queued: another capture is using this checkout's stack ($1), waiting"
+    flock "$fd"
+  fi
+  STACK_LOCK_FD="$fd"
+}
+
+# Hash of a directory tree, in the exact pipeline the container runs too (compare host staging with /content).
+tree_hash() { # <dir>
+  (cd "$1" && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -c1-16)
+}
+
+# Elapsed-seconds trace, one line per phase, so the next speed decision is measured.
+PHASE_T0=$SECONDS
+phase() { log "[+$((SECONDS - PHASE_T0))s] $*"; }

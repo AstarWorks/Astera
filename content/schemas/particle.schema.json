@@ -140,6 +140,9 @@
                 },
                 "spread_degrees": {
                     "type": "number"
+                },
+                "speed_jitter": {
+                    "type": "number"
                 }
             },
             "required": [

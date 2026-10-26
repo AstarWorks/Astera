@@ -1,0 +1,65 @@
+# r12 @08503a47 (on wp/integrate-limbus 41331568: particles bb14879d + skins 76865ecc, held-item audience a64ae1e8,
+#   vfx r15 40a64b15, particles r15 738439ce, rig r13 4bb71b06). TICKS=72. Ticks = cast tick (compare frame = tick + 6).
+# Integration: S1 had no electric_spark / hit-crit users left (comment-only change); contentLint 542/542 OK; shadowJar OK.
+# Published (build/skill-compare-published/bastion-greatsword-s1/<view>/current.json confirmed, meta.implementationCommit 08503a47):
+#   compare 84d301ccdd9a (79 f), side 88717d5f5934, opponent 11b1007c50ee, caster 7dd21dd2c52b (73 f each; caster HIDE_HUD=0).
+# Quality: compare maxRep 1, cameraMaxLatenessMs 38; side 1; opponent 1; caster 1. Tries: compare 1, side 1, opponent 1,
+#   caster 3 (1st maxRep 20 frozen t0-6, 2nd maxRep 9 frozen t5-15). Early-frame grey-diff check passes on the used takes.
+
+## (4) Display budget, live count (RCON, ~2.3 polls/tick, all four runs)
+baseline 10 text_display (scene). rig = 22 block_display t0-56, gone t57.
+compare: t0-5 22-24 | t8-11 35-38 | t26-29 26-28 | t30 39 t31 40 t32 40 t33 37 | t38-44 22 | t57 rig gone.
+PEAK above baseline: compare 40 @t31, side 40 @t31, opponent 41 @t31, caster 40 @t32. r11: 59-60 @t31. 19-20 headroom now.
+(the display-particle cut to 10-11/hit is the saving; text_display baseline drops to 0 at t45 in every run = scene holograms
+ despawn, not the skill.)
+
+## (1) weapon t0-6 / t50-62 (one weapon per frame?)
+compare:  one weapon every frame t0-6 and t48-64. Start overlap t2: one sword, tip doubled (two dark tip ends ~4 px).
+          End overlap t58: one sword, tip + blade edges doubled ~4-6 px, guards coincide. Held item back t59.
+          cmp-start.jpg, cmp-end.jpg, cmp-start-full.jpg, cmp-end-full.jpg
+side:     one weapon every frame t0-6 and t50-62; t58 overlap doubled blade edge (one sword read). t5 blade edge-on jagged 1 frame
+          (as r10/r11 t4). side-start-3x.jpg, side-end-2x.jpg
+opponent: one weapon every frame t0-7 and t50-62. NEW POSE POP at start: t1 held item vertical edge-on (~2 deg from vertical)
+          -> t2 rig leaning ~25 deg with the broad face showing (rest yaw 18 deg outward now applies from the first rig key,
+          the held item has no yaw). End: t56 rig face-on leaning ~8 deg -> t57 overlap shows TWO blades/tips ~7 px apart
+          -> t58 held edge-on. opp-weapon.jpg, opp-handover-2x.jpg
+caster FP (HUD on, hand visible): t0-1 held item in the FP hand; t2-4 rig blade (world display) only, FP hand empty: no double,
+          no re-equip raise. t5-50 no weapon in view (rig swings outside the FOV). t52-59 rig blade at the right edge;
+          t60 held item back in its final FP pose, t61 identical (no raise animation). The swap itself is a large silhouette
+          change (FP item sprite, face-on, lower right -> world rig blade, edge-on, from screen bottom centre) in 1 frame at
+          t1->t2 and t59->t60. cas-start.jpg, cas-end.jpg, cas-handover.jpg
+
+## (2) particles: gold/orange blobs per frame (hue 15-58, sat>0.45, val>0.6, 6-600 px; moved = no blob within 2 px prev frame)
+compare  hit1 t6-17:  5 3 10 5 46 45 58 47 55 60 63 56     moved 0 3 10 5 46 7 35 46 31 46 48 42      (r11 4..48)
+compare  hit2 t29-41: 9 6 9 24 35 51 66 66 98 75 70 64 64  moved 0 5 8 24 15 45 57 66 82 71 56 61 54 (r11 6..60)
+side     hit1: 4 5 3 8 7 9 10 10 14 12 18 15 (moved 0-10) ; hit2: 3 4 5 7 15 12 32 42 38 37 33 27 19 (moved up to 27)
+opponent hit1: 8 13 16 18 24 22 25 30 94 30 37 26 (moved = count) ; hit2: 10 22 15 20 38 36 48 59 43 43 40 37 36
+caster   hit1: 21 21 22 21 64 47 54 35 41 48 83 55 (moved up to 59) ; hit2: 22 22 21 22 45 69 88 96 120 112 108 95 78 (moved up to 97)
+Contacts: hit 1 tint f10 (compare/side/opponent/caster), hit 2 tint f32-33. Particles peak 2-6 ticks after contact and live to ~t20 / ~t44.
+Skins (cmp-p1-2x.jpg, cmp-p2-2x.jpg, opp-h1/h2, cas-hits): spark = soft gold 4-point twinkles 6-15 px with glow, ember = round orange
+  glowing dots with a darker red core shrinking over its life. No lavender, no square/dust blocks, no "+" crosses, no potion
+  spirals in any view. Freeze ticks 8-10 / 31-33 lower 'moved' as expected.
+Unchanged since r11, still to judge: grey crescent smoke puffs ("C" shapes, 2 per hit) behind the target t14-16 / t36-40 in compare and caster FP.
+
+## (3) ink / flare / rings (r11 reviewer blockers)
+ink (#FFE35B, sampled #F8E058, % of frame within RGB 28):
+  opponent t30 7.7 t31 7.7 t32 0.3    caster t32 4.0 t33 3.6    compare t31 0.4 t32 1.3 t33 0.4    side t32 0.3
+  (r11: opp 6.2, caster 6.0, compare 1.8, side 0.4). Shares are under the caps, BUT the ink at (1.7, 1.35, 0.85) is at the
+  target's position: in the opponent view it is a flat, opaque, ragged cut-out blob floating at the right third of the screen
+  at chest height, detached from the caster and the blade, for 2 frames BEFORE the contact (t30-31; tint t32) (opp-ink.jpg);
+  in caster FP it sits at the left screen edge beside the target t32-33 (cas-hits.jpg). Compare/side: a yellow smear at
+  head height behind the caster's head t31-32 (cmp-h2.jpg). It no longer reads as an impact on the target in any view.
+flare: soft round white-gold core with thin slanted streaks, no "+" (opp-flare.jpg t10-11, cmp-h1 t10-12). PASS.
+hit-1 ring: centred on the caster from the front (opponent t9-16, ring centre on the body); side t10-14 still puts the caster
+  in the target-side third of the ellipse (top/opponent rule applies). Caster FP: the band now runs horizontally THROUGH the
+  crosshair / target head t10-14 (5 frames, opaque gold, ~60 px tall at t11-12): the camera sits inside the ring plane
+  height. Same in r11 (r11/cas-h1.jpg t10-16): not new, but still a P3 occlusion > 3 ticks in FP.
+hit-2 ring: thick, closed full ellipse around the caster t32-35 (side-hits.jpg, cmp-h2.jpg); fades to a thin ring t36; no
+  tile cut ends on the first frame (compare t31). PASS. Opponent: low band across the lower screen t32-34, caster face visible.
+
+## (5) regressions vs r11
+- opponent start pose pop t1->t2 (~25 deg lean + face turn) from the 18 deg rest yaw (animator r13). r11 had 0 deg.
+(not a regression, still open: caster FP hit-1 ring band across the target head t10-14, as r11 t10-16.)
+- ink now detached from the hit (opponent / FP floating blob, precedes contact by 1-2 frames).
+Improved: display peak 60 -> 40; particle skins clean in all views (no lavender/stars); flare has no "+"; hit-2 ring closed
+  and thicker; FP hand-over has no double and no raise.

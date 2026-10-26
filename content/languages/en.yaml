@@ -798,7 +798,7 @@ astera:
     mode:
       carry-mini-tnt:
         name: "<gold>Carry Mini TNT</gold>"
-        description: "<gray>Collect {count} mini-TNT pieces, then deliver to the enemy base.</gray>"
+        description: "<gray>Collect {count} mini-TNT pieces at your base to combine them into one TNT, then deliver it to the enemy base.</gray>"
     # Wave 5d — Barrier domain (ADR-0033, RTM issue #8)
     barrier:
       created: "<aqua>Barrier deployed at {position} by {player}.</aqua>"
@@ -1175,8 +1175,10 @@ astera:
         carried: "<gray>TNT carried by</gray> <{color}>{team}</{color}>"
         loose: "<gray>TNT is up for grabs</gray>"
       carry-mini-tnt:
-        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>mini-TNT delivered</gray>"
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{pool}/{size}</white> <gray>mini-TNT</gray> <white>{score}/{goal}</white> <gray>TNT</gray>"
         loose: "<gray>Mini-TNT on the map:</gray> <white>{count}</white>"
+        tnt-ready: "<{color}>{team}</{color}> <gray>TNT is ready at the spawn</gray>"
+        tnt-carried: "<gray>TNT carried by</gray> <{color}>{team}</{color}>"
       pve-waves:
         ready: "<gray>Get ready: <white>{waves}</white> waves incoming</gray>"
         wave: "<gold>Wave {wave}/{waves}</gold> <gray>-</gray> <white>{left}</white> <gray>enemies left</gray>"
@@ -1510,8 +1512,15 @@ astera:
       dropped: "<gray>The TNT carrier fell. The TNT is back at its spawn.</gray>"
     carry-mini-tnt:
       title: "<gold>Carry Mini TNT</gold>"
-      picked-up: "<gold>Mini-TNT picked up ({count}/{limit}). Deliver it to the enemy base!</gold>"
-      delivered: "<green>Team {team} delivered {count} mini-TNT! ({score}/{goal})</green>"
+      picked-up: "<gold>Mini-TNT picked up ({count}/{limit}). Take it to your own base!</gold>"
+      pooled: "<yellow>Team {team} added {count} mini-TNT to its pool ({pool}/{size}).</yellow>"
+      combined:
+        title: "<gold><bold>TNT combined!</bold></gold>"
+        subtitle: "<yellow>Carry it to the enemy base</yellow>"
+        broadcast: "<gold>Team {team} combined {size} mini-TNT into one TNT!</gold>"
+      tnt-picked-up: "<gold>Team {team} picked up the combined TNT!</gold>"
+      tnt-dropped: "<gray>The TNT carrier fell. The TNT is back at its spawn.</gray>"
+      delivered: "<green>Team {team} delivered the combined TNT! ({score}/{goal})</green>"
       dropped: "<gray>You fell and lost your mini-TNT.</gray>"
     pve-waves:
       title: "<gold>PvE Waves</gold>"
@@ -2411,7 +2420,7 @@ astera:
   play.lane.annihilation.desc: "<gray>3 teams, 3 pillars each. Break the enemy Nexus.</gray>"
   play.lane.break-core.desc: "<gray>Destroy the enemy core, defend your own.</gray>"
   play.lane.carry-tnt.desc: "<gray>Carry TNT across the map to the enemy base.</gray>"
-  play.lane.carry-mini-tnt.desc: "<gray>Gather small TNT from around the map and deliver it to the enemy base. First to the goal wins.</gray>"
+  play.lane.carry-mini-tnt.desc: "<gray>Gather small TNT from around the map and bring it home to combine it into one big TNT. Deliver that to the enemy base to win.</gray>"
   play.lane.capture-wool.desc: "<gray>Capture the wool zones before the other team.</gray>"
   play.lane.steal-jewelry.desc: "<gray>Steal jewels from rival pedestals and bank them.</gray>"
   play.lane.battle-loyal.desc: "<gray>Team deathmatch. First to the kill goal wins.</gray>"

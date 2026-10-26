@@ -70,6 +70,9 @@ patch game-modes/annihilation.yaml 's/^(  sudden_death_ticks:).*/\1 "600"/' '^  
 # The tier-3 pillars carry their own HP in the stage.
 patch stages/annihilation-arena.yaml 's/^(    hp:) 800$/\1 60/' '^    hp: 800$'
 
+# carry-mini-tnt: the bot needs four laps over the compact stage to pool 10 pieces, so the pickup spots regrow in 3 s instead of 15 s.
+patch game-modes/carry-mini-tnt.yaml 's/^(  respawn_seconds:).*/\1 "3"/' '^  respawn_seconds:'
+
 # Star generators (in-match stars): 30s -> 3s so a bot standing on a pedestal collects within the suite.
 for gf in "$root"/generators/*.yaml; do
   g=$(basename "$gf" .yaml)

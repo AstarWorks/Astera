@@ -67,7 +67,7 @@ function thumbs(rec, S, mc) {
   }
   const cmp = mc?.sources?.["vfx-compare"];
   if (cmp) {
-    const n = Math.round((t - c.start_s) * 20) + cmp.castFrame;
+    const n = Math.round((t - c.start_s) * (cmp.fps || 20)) + cmp.castFrame;
     if (n >= 0 && n < cmp.count) out.mc = `${cmp.base}frame_${String(n).padStart(3, "0")}.${cmp.extension || "png"}?v=${encodeURIComponent(cmp.revision || "")}`;
   }
   return out;

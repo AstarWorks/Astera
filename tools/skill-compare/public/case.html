@@ -13,13 +13,21 @@
     <h1 id="title">loading&hellip;</h1>
     <span class="sub" id="sub"></span>
     <span>focus column:
-      <button data-focus="">all</button><button data-focus="video">video</button><button data-focus="mc">minecraft</button>
+      <button data-focus="">all</button><button data-focus="video">video</button><button data-focus="pv" hidden>preview</button><button data-focus="mc">minecraft</button>
     </span>
   </div>
   <nav id="skillnav" aria-label="この武器のスキル"></nav>
+  <section id="round" class="round" aria-label="round notes" hidden></section>
   <div class="cols" id="cols">
     <section class="col" data-col="video"><h2>参照映像 <span class="tag">Reference</span> <small id="vinfo"></small></h2>
-      <div class="view"><canvas id="vcv"></canvas><div class="ph on" id="vph">frames not cached: make skill-compare-fetch</div></div></section>
+      <div class="view"><canvas id="vcv"></canvas><div class="ph on" id="vph">frames not cached: make skill-compare-fetch</div>
+      <img id="vov" alt="annotation overlay" hidden><div class="ovlabel" id="ovlabel" hidden></div></div>
+      <div class="mcctl" id="ovctl" hidden><label class="chk"><input type="checkbox" id="ovOn" checked> 注釈オーバーレイ（一時停止中、ビートの tick で表示）<span id="ovn"></span></label></div></section>
+    <section class="col" data-col="pv" id="pvcol" hidden><h2>プレビュー <span class="tag pvtag">Preview・実機ではない</span> <small id="pinfo"></small></h2>
+      <div class="view"><img id="pimg" alt="preview frame" style="visibility:hidden"><div class="ph on" id="pph">no preview frames</div><div class="badge" id="pbadge" hidden></div><div class="pvbanner">PREVIEW — not the real client</div></div>
+      <div class="pvwarn" id="pvwarn" hidden></div>
+      <div class="lintnow" id="lintnow" hidden></div>
+      <div class="prov" id="pvprov" aria-label="preview provenance"></div></section>
     <section class="col" data-col="mc"><h2>実機 <span class="tag">In-game</span> <small id="minfo"></small></h2>
       <div class="view"><img id="mimg" alt="minecraft frame"><div class="ph on" id="mph">no Minecraft frames</div><div class="badge" id="mbadge" hidden></div></div>
       <div class="mcctl">
@@ -28,6 +36,10 @@
       </div>
       <div class="prov" id="prov" aria-label="capture provenance"></div></section>
   </div>
+  <section class="lintpanel" id="lintpanel" aria-label="skill lint" hidden>
+    <div class="lhead"><span id="lintsum"></span><label class="chk"><input type="checkbox" id="failOnly"> FAIL のみ</label></div>
+    <div class="lbody"><table class="lintt"><thead><tr><th>結果</th><th>チェック</th><th>tick</th><th>内容・数値</th></tr></thead><tbody id="lintbody"></tbody></table></div>
+  </section>
   <section class="beats" id="beats" aria-label="beat sheet">
     <div class="bcol"><h3>セグメント（時系列）</h3><div class="blist" id="seglist"></div></div>
     <div class="bcol"><h3>ケースメモ</h3><div class="cnote" id="cnoteView"></div></div>

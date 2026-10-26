@@ -13,7 +13,7 @@ Output (default build/brief/<case>/):
 stdout: the manifest path, then a one-line summary. Read the PNGs to judge; read manifest.json for the facts.
 
 Alignment is the page's own: master ms = (t - case.start_s) * 1000, cast ms = skill segment start + mc.offset_ms,
-MC tick = floor((ms - castMs) / 50), MC frame = tick + cast_tick_ms / 50 (clamped to the capture, and warned).
+MC tick = floor((ms - castMs) / 50), MC frame = floor((ms - castMs) * fps / 1000) + cast_tick_ms * fps / 1000 (fps from meta.json, 20 default; clamped to the capture, and warned).
 """
 import argparse, datetime, json, math, os, subprocess, sys, tempfile
 from PIL import Image, ImageDraw, ImageFont
@@ -95,7 +95,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--case", required=True)
     ap.add_argument("--skill")
-    ap.add_argument("--view", default="compare", choices=["compare", "input", "caster", "opponent", "side"])
+    ap.add_argument("--view", default="compare", choices=["compare", "input", "caster", "opponent", "side", "front", "back", "right", "high", "near"])
     ap.add_argument("--mc", help="capture directory (frame_NNN.png + meta.json); default: published current, else build/vfx-shot")
     ap.add_argument("--out")
     ap.add_argument("--offset-ms", type=int, help="override case.mc.offset_ms")
@@ -133,11 +133,12 @@ def main():
     have_mc = os.path.isdir(mcdir)
     if not have_mc:
         warnings.append("no %s capture for %s (looked in %s)" % (a.view, skill, mcdir))
-    cast_frame = round(meta.get("cast_tick_ms", 0) / 50)
+    mc_fps = meta.get("fps") or 20  # FPS=60 captures hold 3 frames per tick
+    cast_frame = round(meta.get("cast_tick_ms", 0) * mc_fps / 1000)
     frames_total = meta.get("frames")
-    for key in ("referenceRevision", "contentRevision"):
-        if case.get(key) and meta.get(key) != case.get(key):
-            warnings.append("%s of the capture (%s) does not match the case (%s): recapture before judging" % (key, (meta.get(key) or "none")[:8], case[key][:8]))
+    for key, meta_key in (("referenceRevision", "referenceRevision"), ("contentRevision", "caseContentRevision")):
+        if case.get(key) and meta.get(meta_key) != case.get(key):
+            warnings.append("%s of the capture (%s) does not match the case (%s): recapture before judging" % (key, (meta.get(meta_key) or "none")[:8], case[key][:8]))
     if meta and not meta.get("fov"):
         warnings.append("capture has no FOV recorded (taken before FOV tracking; vanillaFOV unknown)")
     if meta.get("captureQuality", {}).get("invalid"):
@@ -151,7 +152,7 @@ def main():
     sf, hf, tf = font(13), font(12), font(15)
     for i, ((t, label), ms) in enumerate(zip(moments, ms_list)):
         tick = math.floor((ms - cast_ms) / 50 + 1e-6)
-        n = tick + cast_frame
+        n = math.floor((ms - cast_ms) * mc_fps / 1000 + 1e-6) + cast_frame
         clamped = frames_total is not None and (n < 0 or n >= frames_total)
         n_used = min(max(n, 0), (frames_total or n + 1) - 1)
         files, panels = {}, {}

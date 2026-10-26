@@ -1,0 +1,56 @@
+# bastion-greatsword rig parts (sword local frame), delivered by model-artist r22 (generator: tools/model-forge/work/bastion-greatsword/rig_parts_s1.py).
+# 22 parts, 7 distinct blocks: dried_kelp_block, gold_block, iron_block, lime_concrete, polished_blackstone, polished_deepslate, smooth_quartz.
+# AXES (rig-local, pivot = grip centre = origin = held model point (8,-10,8)):
+#   blade LENGTH axis  = +Y (grip -> tip). pommel end y=-0.225, tip y=2.545; total 2.770 block.
+#   EDGE axis          = +-X (cutting edges on +X / -X; blade width 0.24 block incl. rims).
+#   FACE NORMAL axis   = +-Z (broad faces; core thickness 0.05).
+#   => size is [x = edge-to-edge, y = along the blade, z = thickness]; every value = held model units / 16.
+# Symmetric pairs are single parts whose middle hides inside a thicker part (edges, rims, flares, caps, rivets, pommel gold).
+# Face detail (fuller, highlights, pinstripes, inlay) passes through the core, so both faces carry it.
+# No rotated parts; no part id is referenced elsewhere.
+# name | block | size [x,y,z] | offset [x,y,z] | held source
+#  blade_face   iron_block           [0.16875, 1.8875, 0.05] [0.0, 1.38125, 0.0]  held blade_core + tip0_core/tip1_core
+#  edges        smooth_quartz        [0.2125, 1.7575, 0.0425] [0.0, 1.31625, 0.0]  held bevel_hi_l/r (middle inside the core)
+#  rims         polished_blackstone  [0.24, 1.7575, 0.03] [0.0, 1.31625, 0.0]  held bevel_rim_l/r (middle inside the edges)
+#  fuller       polished_deepslate   [0.0275, 1.425, 0.06625] [0.0, 1.4375, 0.0]  held fuller_ridge/start/end_f/b (both faces; hi strips + pinstripes cut for the 22-part cap)
+#  tip_1        polished_blackstone  [0.2, 1.8975, 0.03] [0.0, 1.38625, 0.0]  held tip0/tip1 rims (frame round the blade_face core; hidden inside edges below 25.12)
+#  tip_2        polished_blackstone  [0.08, 2.1075, 0.0375] [0.0, 1.49125, 0.0]  held tip2 + tip3 + tip_point (mean outer width; 0.6 = rim + quartz strips; hidden in the core below 27.2)
+#  inlay        lime_concrete        [0.09, 0.2, 0.07] [0.0, 0.6, 0.0]  held inlay_f/b
+#  inlay_frame  gold_block           [0.1125, 0.225, 0.0625] [0.0, 0.6, 0.0]  held inlay_frame_*
+#  ricasso      polished_blackstone  [0.24, 0.07125, 0.065] [0.0, 0.40187, 0.0]  held ricasso
+#  collar       gold_block           [0.26875, 0.02125, 0.0875] [0.0, 0.35562, 0.0]  held guard_collar
+#  flares       gold_block           [0.35, 0.08375, 0.04625] [0.0, 0.40813, 0.0]  held shoulder_flare_l/r (wings beside the ricasso; z < blade core so the middle hides in ricasso + core)
+#  guard_1      polished_deepslate   [0.2875, 0.12, 0.11875] [0.0, 0.285, 0.0]  held guard_step1
+#  guard_2      polished_deepslate   [0.4625, 0.1, 0.1] [0.0, 0.285, 0.0]  held guard_step2_l/r
+#  guard_3      polished_deepslate   [0.575, 0.07625, 0.08125] [0.0, 0.285, 0.0]  held guard_step3_l/r
+#  guard_caps   gold_block           [0.62, 0.1, 0.075] [0.0, 0.29375, 0.0]  held guard_cap_l/r + trim_top2 (gold line over step 2/3)
+#  guard_plate  gold_block           [0.2125, 0.0825, 0.13125] [0.0, 0.285, 0.0]  held guard_plate_f/b
+#  guard_inset  polished_blackstone  [0.11875, 0.045, 0.14] [0.0, 0.285, 0.0]  held guard_inset_f/b
+#  guard_rivets smooth_quartz        [0.34, 0.0275, 0.1125] [0.0, 0.27938, 0.0]  held guard_rivet_+-1_0 (studs show on step 2 beside step 1)
+#  grip         dried_kelp_block     [0.1125, 0.2625, 0.1125] [0.0, 0.05625, 0.0]  held grip_core + grip_wrap_0..5 (kelp side = wrap bands)
+#  grip_collar  gold_block           [0.125, 0.0375, 0.125] [0.0, 0.20625, 0.0]  held grip_collar + guard_trim_bot1
+#  pommel       polished_blackstone  [0.15625, 0.09375, 0.14375] [0.0, -0.14687, 0.0]  held pommel_ball
+#  pommel_gold  gold_block           [0.125, 0.15, 0.125] [0.0, -0.15, 0.0]  held pommel_cap + pommel_collar (middle inside the ball)
+parts:
+  - { id: blade_face, block: iron_block, offset: [0.0, 1.38125, 0.0], size: [0.16875, 1.8875, 0.05] }
+  - { id: edges, block: smooth_quartz, offset: [0.0, 1.31625, 0.0], size: [0.2125, 1.7575, 0.0425] }
+  - { id: rims, block: polished_blackstone, offset: [0.0, 1.31625, 0.0], size: [0.24, 1.7575, 0.03] }
+  - { id: fuller, block: polished_deepslate, offset: [0.0, 1.4375, 0.0], size: [0.0275, 1.425, 0.06625] }
+  - { id: tip_1, block: polished_blackstone, offset: [0.0, 1.38625, 0.0], size: [0.2, 1.8975, 0.03] }
+  - { id: tip_2, block: polished_blackstone, offset: [0.0, 1.49125, 0.0], size: [0.08, 2.1075, 0.0375] }
+  - { id: inlay, block: lime_concrete, offset: [0.0, 0.6, 0.0], size: [0.09, 0.2, 0.07] }
+  - { id: inlay_frame, block: gold_block, offset: [0.0, 0.6, 0.0], size: [0.1125, 0.225, 0.0625] }
+  - { id: ricasso, block: polished_blackstone, offset: [0.0, 0.40187, 0.0], size: [0.24, 0.07125, 0.065] }
+  - { id: collar, block: gold_block, offset: [0.0, 0.35562, 0.0], size: [0.26875, 0.02125, 0.0875] }
+  - { id: flares, block: gold_block, offset: [0.0, 0.40813, 0.0], size: [0.35, 0.08375, 0.04625] }
+  - { id: guard_1, block: polished_deepslate, offset: [0.0, 0.285, 0.0], size: [0.2875, 0.12, 0.11875] }
+  - { id: guard_2, block: polished_deepslate, offset: [0.0, 0.285, 0.0], size: [0.4625, 0.1, 0.1] }
+  - { id: guard_3, block: polished_deepslate, offset: [0.0, 0.285, 0.0], size: [0.575, 0.07625, 0.08125] }
+  - { id: guard_caps, block: gold_block, offset: [0.0, 0.29375, 0.0], size: [0.62, 0.1, 0.075] }
+  - { id: guard_plate, block: gold_block, offset: [0.0, 0.285, 0.0], size: [0.2125, 0.0825, 0.13125] }
+  - { id: guard_inset, block: polished_blackstone, offset: [0.0, 0.285, 0.0], size: [0.11875, 0.045, 0.14] }
+  - { id: guard_rivets, block: smooth_quartz, offset: [0.0, 0.27938, 0.0], size: [0.34, 0.0275, 0.1125] }
+  - { id: grip, block: dried_kelp_block, offset: [0.0, 0.05625, 0.0], size: [0.1125, 0.2625, 0.1125] }
+  - { id: grip_collar, block: gold_block, offset: [0.0, 0.20625, 0.0], size: [0.125, 0.0375, 0.125] }
+  - { id: pommel, block: polished_blackstone, offset: [0.0, -0.14687, 0.0], size: [0.15625, 0.09375, 0.14375] }
+  - { id: pommel_gold, block: gold_block, offset: [0.0, -0.15, 0.0], size: [0.125, 0.15, 0.125] }

@@ -42,6 +42,23 @@ public class ResourcePackService(
     )
 
     /**
+     * Pushes the active spec to everyone online, so every client reports its pack status again. Called once after a
+     * plugin reload: the new process has no memory of who already applied the pack, and the HP bar / icons stay in
+     * their text fallback for a player whose client never re-reports.
+     */
+    public fun repushToOnline(): Int {
+        val spec = active.get() ?: return 0
+        var pushed = 0
+        for (player in onlinePlayers()) {
+            when (val outcome = hud.pushResourcePack(player.id, spec)) {
+                is Result.Success -> pushed++
+                is Result.Failure -> log.warn("Resource pack re-push failed for {}: {}", player.name, outcome.error)
+            }
+        }
+        return pushed
+    }
+
+    /**
      * Re-read the pack spec. `null` = it could not be read (URL unset, sha1 file
      * unreachable); the previous spec stays active so a half-finished pack
      * rebuild never switches the server to "no pack".

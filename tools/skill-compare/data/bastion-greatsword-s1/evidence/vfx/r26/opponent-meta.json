@@ -1,0 +1,22 @@
+{
+  "view": "opponent",
+  "skill": "bastion-greatsword-s1",
+  "fps": 20,
+  "cast_tick_ms": 0,
+  "frames": 73,
+  "fov": 90,
+  "fovMode": "fixed",
+  "resolution": "1280x720",
+  "captureQuality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "viewerMovedBlocks": 1.7
+  },
+  "capturedAt": "2026-10-24T14:37:30.702058+00:00",
+  "implementationCommit": "8ba00b4c84852834dec665242fa7727dfae64d9a",
+  "codeRevision": "8ba00b4c84852834dec665242fa7727dfae64d9a",
+  "contentRevision": "2f7ab9dfa4539ad222c036cc8686c924c058c9b0",
+  "contentDirty": false,
+  "codeDirty": false,
+  "branch": "worktree-agent-af9f52fe8be86917c"
+}

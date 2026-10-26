@@ -47,6 +47,8 @@ class ShippedContentDecodesTest {
             "blocks" to { d -> CustomBlockContents().bootstrap(d) },
             "particles" to { d -> ParticleContents().bootstrap(d) },
             "sprites" to { d -> SpriteContents().bootstrap(d) },
+            "particle-skins" to { d -> ParticleSkinContents().bootstrap(d) },
+            "vfx" to { d -> VfxContents().bootstrap(d) },
             "animations" to { d -> SkinRigContents().bootstrap(d) },
             "gathering" to { d -> GatheringSpotContents().bootstrap(d) },
             "tutorials" to { d -> TutorialContents().bootstrap(d) },
@@ -64,7 +66,7 @@ class ShippedContentDecodesTest {
             "news" to { d -> NewsContents().bootstrap(d) },
             "changelog" to { d -> ChangelogContents().bootstrap(d) },
             "login-bonus" to { d -> LoginBonusContents().bootstrap(d) },
-            "sounds" to { d -> SoundContents().bootstrapRecursive(d) },
+            "sounds" to { d -> SoundContents().bootstrap(d) },
         )
         return cases.map { (category, load) ->
             DynamicTest.dynamicTest(category) {

@@ -1,0 +1,200 @@
+# Reference keypoints for bastion-greatsword-s1 (月輪の薙ぎ): first annotation pass by a vision agent reading the 1280x720 reference frames
+# (video Svaaq9F7Ty8, t = 11.633 + 0.05 * tick). Correct them by dragging on the skill-compare annotate page:
+#   make skill-compare  ->  http://localhost:8097/annotate.html?skill=bastion-greatsword-s1
+# Then `make pose-solve SKILL=bastion-greatsword-s1` solves keys + targets from these points and `make skill-lint` draws them back on the frames.
+# Format and conventions: docs/contributing/vfx-team/skill-lint.md section "Keypoints and the overlay check".
+# xy = pixel in the reference frame; c = confidence 0..1 (0 = hidden, solved from priors); depth = near | mid | far relative to the pelvis (toward the camera = near).
+# r_/l_ are the CHARACTER's right / left (the sword is in her right hand). blade.depth: tip toward / away from the camera vs the grip, or inplane. blade.face: up | camera | edge | unknown. blade.floor: true when the blade lies on the floor (picks the depth solution whose tip is at floor level).
+# `view` is written by the solver (image-space pan/zoom fit of the camera estimate).
+skill: bastion-greatsword-s1
+case: bastion-greatsword-s1
+image: [1280, 720]
+caster_height: 1.8
+blade_length_ref: 1.9
+handback_skill_tick: 52
+overlay_tolerance: {rms_frac: 0.12, blade_deg: 14, tip_off_frac: 0.06}
+beats:
+  - id: B0-coil
+    tick: 3
+    key_tick: 0
+    ticks: [0, 5]
+    confidence: high
+    facing: 60
+    camera: {}
+    blade: {depth: inplane, face: up, floor: true}
+    notes: "Low wide stance, both hands on the grip at the right hip, blade flat on the floor behind (screen left), flat up."
+    points:
+      head_top: {xy: [565, 277], c: 0.9}
+      neck: {xy: [600, 337], c: 0.8}
+      r_shoulder: {xy: [578, 348], c: 0.7, depth: near}
+      l_shoulder: {xy: [603, 345], c: 0.4, depth: far}
+      r_elbow: {xy: [560, 378], c: 0.4}
+      l_elbow: {xy: [603, 382], c: 0.3}
+      r_wrist: {xy: [560, 398], c: 0.5}
+      l_wrist: {xy: [575, 392], c: 0.4}
+      pelvis: {xy: [590, 397], c: 0.6}
+      r_knee: {xy: [550, 428], c: 0.3}
+      l_knee: {xy: [622, 425], c: 0.3}
+      r_ankle: {xy: [535, 446], c: 0.7}
+      l_ankle: {xy: [645, 443], c: 0.8}
+      grip: {xy: [558, 400], c: 0.6}
+      pommel: {xy: [582, 392], c: 0.4}
+      blade_tip: {xy: [384, 452], c: 1}
+    view: [174, 5.7, 1.02]
+  - id: B1-snap-follow-through
+    tick: 10
+    key_tick: 6
+    ticks: [7, 15]
+    confidence: low
+    facing: 130
+    camera: {bearing: 140, elevation: 10, distance: 7.2, target: [0, 1, 1.2]}
+    blade: {depth: inplane, face: unknown}
+    notes: "Seen from behind-right over the shoulder (hard cut). Torso and arms are under the cloak and hair, so only the head, the blade tip and the feet are readable."
+    points:
+      head_top: {xy: [500, 292], c: 0.8}
+      neck: {xy: [497, 336], c: 0.5}
+      r_shoulder: {xy: [520, 352], c: 0.3, depth: near}
+      l_shoulder: {xy: [470, 346], c: 0.3, depth: far}
+      r_wrist: {xy: [470, 346], c: 0.3}
+      l_wrist: {xy: [475, 350], c: 0.2}
+      pelvis: {xy: [490, 440], c: 0.3}
+      r_ankle: {xy: [412, 504], c: 0.4}
+      l_ankle: {xy: [558, 480], c: 0.4}
+      grip: {xy: [470, 346], c: 0.35}
+      blade_tip: {xy: [259, 331], c: 0.9}
+    view: [-43.8, 1.7, 0.933]
+  - id: B2-overshoot
+    tick: 17
+    key_tick: 16
+    ticks: [16, 18]
+    confidence: low
+    facing: 130
+    camera: {bearing: 130, elevation: 12, distance: 8.7}
+    blade: {depth: inplane, face: unknown}
+    notes: Blade lifts up and back over the shoulder; the same hidden torso as B1.
+    points:
+      head_top: {xy: [398, 290], c: 0.8}
+      neck: {xy: [402, 337], c: 0.5}
+      r_shoulder: {xy: [425, 348], c: 0.3, depth: near}
+      l_shoulder: {xy: [372, 345], c: 0.3, depth: far}
+      r_wrist: {xy: [352, 358], c: 0.25}
+      pelvis: {xy: [395, 425], c: 0.3}
+      r_ankle: {xy: [350, 468], c: 0.4}
+      l_ankle: {xy: [468, 470], c: 0.4}
+      grip: {xy: [352, 358], c: 0.3}
+      blade_tip: {xy: [224, 327], c: 0.8}
+    view: [-36.6, -13.4, 0.934]
+  - id: B3-turned-away-rest
+    tick: 23
+    key_tick: 19
+    ticks: [20, 27]
+    confidence: medium
+    facing: -80
+    camera: {distance: 6.7}
+    blade: {depth: toward, face: up, floor: true}
+    notes: "Spun about 165 degrees, profile facing screen left, hair streaming right. Both hands low in front, tip resting on the floor in front of her, flat up."
+    points:
+      head_top: {xy: [570, 258], c: 0.9}
+      neck: {xy: [555, 322], c: 0.7}
+      r_shoulder: {xy: [572, 338], c: 0.4, depth: far}
+      l_shoulder: {xy: [558, 340], c: 0.6, depth: near}
+      r_elbow: {xy: [545, 365], c: 0.2}
+      l_elbow: {xy: [538, 368], c: 0.3}
+      r_wrist: {xy: [522, 392], c: 0.4}
+      l_wrist: {xy: [525, 390], c: 0.5}
+      pelvis: {xy: [545, 410], c: 0.4}
+      r_ankle: {xy: [545, 492], c: 0.3}
+      l_ankle: {xy: [505, 470], c: 0.3}
+      grip: {xy: [515, 393], c: 0.6}
+      pommel: {xy: [545, 380], c: 0.3}
+      blade_tip: {xy: [310, 483], c: 1}
+    view: [207.4, 22.7, 0.991]
+  - id: B4-coil-2
+    tick: 29
+    key_tick: 28
+    ticks: [28, 29]
+    confidence: low
+    facing: 130
+    hips_h: 0.3
+    camera: {bearing: 135, elevation: 14, distance: 6.3}
+    blade: {depth: toward, face: up}
+    notes: "Deepest crouch seen from behind-right, torso pitched forward. Blade = the dark diagonal band with a light bevel stripe leaving the cloak at (446,412) and running down toward the camera to about (416,562) (t28-29; absent at t27). The horizontal dark line at y~400 is a floor crack (visible at t27 while the blade lies elsewhere), not the blade. Hilt hidden in the cloak."
+    points:
+      head_top: {xy: [569, 265], c: 0.8}
+      neck: {xy: [585, 327], c: 0.6}
+      r_shoulder: {xy: [590, 335], c: 0.5, depth: near}
+      l_shoulder: {xy: [560, 332], c: 0.3, depth: far}
+      pelvis: {xy: [540, 430], c: 0.4}
+      r_ankle: {xy: [570, 512], c: 0.5}
+      grip: {xy: [456, 392], c: 0.25}
+      blade_tip: {xy: [416, 562], c: 0.6}
+    view: [166.3, -47.4, 0.736]
+  - id: B6-extended
+    tick: 35
+    key_tick: 31
+    ticks: [32, 37]
+    confidence: medium
+    facing: 80
+    camera: {}
+    blade: {depth: toward, face: unknown}
+    notes: "Lunge, arms reach toward the target at chest height, the blade is the white streak (direction read from the streak, length not)."
+    points:
+      head_top: {xy: [504, 265], c: 0.8}
+      neck: {xy: [525, 342], c: 0.6}
+      r_shoulder: {xy: [520, 366], c: 0.5, depth: near}
+      l_shoulder: {xy: [495, 364], c: 0.4, depth: far}
+      r_wrist: {xy: [560, 360], c: 0.4}
+      l_wrist: {xy: [555, 356], c: 0.3}
+      pelvis: {xy: [520, 438], c: 0.5}
+      r_ankle: {xy: [470, 498], c: 0.25}
+      l_ankle: {xy: [548, 498], c: 0.25}
+      grip: {xy: [560, 355], c: 0.5}
+      blade_tip: {xy: [780, 391], c: 0.5}
+    view: [236.2, 40.9, 0.938]
+  - id: B7-drop
+    tick: 39
+    key_tick: 38
+    ticks: [38, 39]
+    confidence: low
+    facing: 80
+    camera: {distance: 7.4}
+    blade: {depth: inplane, face: unknown}
+    notes: "Settling back into the low stance, blade coming down to low back-left."
+    points:
+      head_top: {xy: [505, 284], c: 0.7}
+      neck: {xy: [503, 345], c: 0.5}
+      r_shoulder: {xy: [490, 360], c: 0.4, depth: near}
+      l_shoulder: {xy: [525, 355], c: 0.4, depth: far}
+      r_wrist: {xy: [452, 410], c: 0.3}
+      pelvis: {xy: [472, 430], c: 0.4}
+      r_ankle: {xy: [440, 496], c: 0.3}
+      l_ankle: {xy: [510, 490], c: 0.3}
+      grip: {xy: [452, 410], c: 0.4}
+      blade_tip: {xy: [192, 492], c: 0.6}
+    view: [176.5, 37.9, 1.044]
+  - id: B8-rest
+    tick: 46
+    key_tick: 40
+    ticks: [40, 51]
+    confidence: high
+    facing: 65
+    camera: {}
+    blade: {depth: inplane, face: up, floor: true}
+    notes: "Same silhouette as B0, held to the end of the segment; the blade lies low back-left with the flat up."
+    points:
+      head_top: {xy: [340, 305], c: 0.9}
+      neck: {xy: [360, 370], c: 0.7}
+      r_shoulder: {xy: [343, 380], c: 0.6, depth: near}
+      l_shoulder: {xy: [372, 373], c: 0.5, depth: far}
+      r_elbow: {xy: [325, 405], c: 0.3}
+      r_wrist: {xy: [312, 426], c: 0.5}
+      l_wrist: {xy: [320, 424], c: 0.4}
+      pelvis: {xy: [333, 452], c: 0.6}
+      r_knee: {xy: [315, 478], c: 0.3}
+      l_knee: {xy: [377, 472], c: 0.3}
+      r_ankle: {xy: [295, 504], c: 0.7}
+      l_ankle: {xy: [387, 503], c: 0.7}
+      grip: {xy: [310, 427], c: 0.6}
+      pommel: {xy: [333, 421], c: 0.4}
+      blade_tip: {xy: [113, 483], c: 1}
+    view: [25.5, 54.4, 1.137]

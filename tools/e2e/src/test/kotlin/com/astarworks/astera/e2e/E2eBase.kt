@@ -1,6 +1,9 @@
 package com.astarworks.astera.e2e
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInfo
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance
 
@@ -52,6 +55,15 @@ abstract class E2eBase {
         rcon("op ${bot.name}")
     }
 
+    private var logStart = 0
+    private var testName = ""
+
+    @BeforeEach
+    fun markServerLog(info: TestInfo) {
+        testName = info.displayName
+        logStart = ServerLog.lineCount()
+    }
+
     @AfterEach
     fun cleanUp() {
         // A bot still in the norma queue would be formed into a match after this test, and hold the arena for the next suite.
@@ -63,6 +75,13 @@ abstract class E2eBase {
             b.close()
         }
         bots.clear()
+        // A cue the adapters could not resolve (sound / particle / HUD / pack id) is invisible to the player and to
+        // every state assertion; the adapters WARN with this marker so no test can pass over it.
+        E2eReport.check("CueGuard", "no player-facing cue was dropped during '$testName'", "server log ${ServerLog.CUE_DROPPED}") {
+            val dropped = ServerLog.cueDroppedSince(logStart).map { it.substringAfter(ServerLog.CUE_DROPPED).trim() }.distinct()
+            assertThat(dropped).describedAs("dropped cues").isEmpty()
+            "none"
+        }
         try {
             // QA-4: any match a test started (HUD, Match, ...) must not hold the arena for the next suite.
             endActiveMatches()

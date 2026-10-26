@@ -1,0 +1,49 @@
+# r26 director @fd2e0690 (wp/integrate-limbus). Ticks = cast tick (compare frame = tick + 6).
+#   Content: vfx-artist 8ba00b4c (hit-1 contact lead + overlapping ring tiles), model-artist fd901374 (tip parts rooted at the
+#   blade core start), animator 9f0f4f9e (no upright wind-up frame intent, recovery hold to key 43 = t48), regen 6808d3c7.
+# Regen (bastion_s1_regen.sh, run twice): no-op on fd2e0690. hring window (2.0,4,6,12) lead 1, off-plane 0.22, closed fx 12,
+#   all 4 tiles; ring (hit 2) off-plane 0.22. Tree clean before every take.
+# Every published capture: codeRevision fd2e0690 (codeDirty false), contentRevision da916a79 (contentDirty false), TICKS 72.
+# Published (/IdeaProjects/Astera/build/skill-compare-published/bastion-greatsword-s1/<view>/):
+#   compare 7394b2f64a93 (79 f)  side f31e66379c4f (73 f)  opponent 04e8c8ad4ae3 (73 f)  caster 1cc4f430f7ec (73 f, HIDE_HUD=0)
+# Tries at load 3.5-7: compare 1 (cameraMaxLatenessMs 95; one true duplicate at t52 inside the recovery, 0.01 vs 0.27 neighbours),
+#   side 9 (frozen t1-10, frozen whole take, stutters in the coil t1-5; the r25 retry filter now ignores the hit_stop freezes
+#   t9-13 / t32-36), opponent 3 (dups t1/t3; frozen t1-6), caster 4 (three frozen takes, 28-67 frames).
+#   Kept takes: zero true duplicates in t1-58 (except compare t52), maxRepeatedFrames 1. Retry loop: evidence/director/r26/retry.sh.
+# Display peak (RCON poll evidence/director/r25/display_poll.py, item+block+text, minus 10 scene text displays):
+#   compare 43, side 42, opponent 45, caster 44 (<= 60). r25: 43-45.
+
+## r25 minor diffs
+#1 [model-artist] hit-2 pull-back blade colour / tip (cmp-tip4x, cmp-t24-39; bladecol.py, compare crop 200,330-540,470):
+   t24 RGB 164/161/142 luma 160, t25 171/161/148 luma 162 (face-on, neutral-warm silver, ONE tip). PASS for t25.
+   Edge-on frames t26-29 (blade foreshortened behind the caster): RGB 76-84/76-80/89-97, luma 77-82, B-R +13..+14: the violet
+   cast is still there on the edge-on rim (polished_blackstone side faces, modeler r26 note), now on t26-29 instead of t25.
+   One tip in every frame (no doubled silhouette). Residual minor: needs the rim material swap on held + rig (model change).
+#2 [vfx-artist] hit-1 impact on the contact frames (cmp-contact, side-h1-2x, sheet-t3-8): compare t7 (f13) streak + flash +
+   ring head at chest height, t8 (f14) flash on the blade line with the blade at the target, tint t9 (this take +2 lag). Side
+   t7 blade at the target with the flash on it, tint t8. Opponent t7 flash + band at the blade. The compare t7 flash leads the
+   rising blade by one frame (the designed 1-tick lead); t8 aligned. Not clearly ahead. PASS.
+#3 [vfx-artist] ring seam (cmp-band2x-a t10, cmp-band2x-c t14, cmp-t12-23 wide at 0.4x): no dotted line, no staircase at 2x;
+   the only break is the open head/tail before the loop closes at t15. PASS.
+#4 [animator] upright blade before the coil (cmp-start-zoom, side-start-3x, opp-t0-11, sheet-t3-8):
+   compare t3 diagonal ~40 deg -> t4 near-vertical (~15 deg back-lean, full length, face open) -> t5 low-back.
+   side t4 diagonal -> t5 vertical stub (~60 % length, in front of the face) -> t6 low-back (edge-on).
+   opponent t0-3 edge-on vertical, t4 ~40 deg lean, t5 low-left: one step, like r25.
+   Animator's own take (evidence/animator/r26/compare-t0-8) showed no upright frame: the client lands on the mid-chunk 2->3
+   crossing in some takes (the animator's per-key note: the lateral cameras must cross vertical between forward-up and
+   back-low). Shorter than r25 in side, not gone. Residual minor [animator].
+#5 [animator] recovery (cmp-t44-61, side-t44-59, opp-t44-59, sheet-t46-52): low-back until t48 (r25 t45), lift t49-52,
+   held pose by t53, held item back compare t58->t59 no double. Opponent: blade hidden behind the body t44-50, lift t51-53.
+   Reference holds low until t51 then cuts away (t52). Lift starts 2-3 ticks early in compare/side (server key 44 at t49 + lag),
+   on time in opponent. PASS (minor, within lag).
+
+## No-regression checks
+One weapon: compare/side/opponent every frame t0-59 on the grids; caster FP held t0-3, nothing t4-58, held t59 (cas-t0-11,
+  cas-t46-61). End hand-over compare t57 rig -> t58/59 held, one blade.
+Rings close: hit 1 closed tilted ellipse compare t15-19, opponent t12-18; hit 2 low gold ring compare t35-39, opponent t36-40,
+  yellow ground fill compare t31-33, opponent t32-34.
+Wind-up sparks: none in compare t0-6, side t0-6, opponent t0-6 (side t6 = thin band edge low behind, known r25 note).
+Particle density: dense moving gold/orange sparks and embers compare t9-23 and t33-40, opponent t10-21 and t35-41,
+  caster t9-16 and t33-39; no squares, lavender "+", grey halo or black glyphs.
+Hit sync: tint compare t9 / t32, side t8 / t32, caster t9 / t32 (server 7 / 31, +1-2 lag).
+First person: no obstruction; streaks at contact t8-11, hit-2 ink and streaks t33-38 (same as r25).

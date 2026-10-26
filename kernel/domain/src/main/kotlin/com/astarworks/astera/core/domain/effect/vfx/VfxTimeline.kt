@@ -111,11 +111,20 @@ public object VfxTimeline {
         scale: Double = 1.0,
         sprites: SpriteFrames = SpriteFrames.NONE,
         freezes: List<VfxFreeze> = emptyList(),
+        /** The resolved `body:` animation of a performance (ADR-0276); required when [VfxDefinition.body] is set. */
+        body: VfxBodyContext? = null,
     ): VfxPlan {
+        require((def.body == null) == (body == null)) {
+            if (body == null) "effect '${def.id}' has body '${def.body}' but no body animation was resolved" else "effect '${def.id}' has no body but one was supplied"
+        }
+        val track = body?.let { VfxBodyTrack(it) }
         val slots = def.elements.flatMapIndexed { index, element ->
             planElement(def, element, index, anchor.rotation, seed, scale, sprites)
-        } + def.rigs.flatMap { VfxRigPlanner.plan(def, it, anchor.rotation, scale, freezes) }
-        return VfxPlan(anchor.origin, def.durationTicks, def.follow, slots.sortedBy { it.spawnTick }, def.followTeleportTicks, def.attachToAnchor, def.replaceGroup)
+        } + def.rigs.flatMap { VfxRigPlanner.plan(def, it, anchor.rotation, scale, freezes, if (it.weapon != null) track else null) }
+        return VfxPlan(
+            anchor.origin, def.durationTicks, def.follow, slots.sortedBy { it.spawnTick }, def.followTeleportTicks, def.attachToAnchor, def.replaceGroup,
+            performance = def.isPerformance, cutTicks = VfxBodyPlanner.cutTicks(slots),
+        )
     }
 
     // ---- element ---------------------------------------------------------------
@@ -129,7 +138,7 @@ public object VfxTimeline {
         scale: Double,
         sprites: SpriteFrames,
     ): List<VfxElementPlan> {
-        if (el.emit != null) return VfxEmitterPlanner.plan(def, el, elementIndex, anchorRot, seed, scale)
+        if (el.emit != null) return VfxEmitterPlanner.plan(def, el, elementIndex, anchorRot, seed, scale, sprites)
         val formation = el.formation
         val baked = def.baked.elements[elementIndex]
         val absoluteEnd = el.endTick ?: def.durationTicks

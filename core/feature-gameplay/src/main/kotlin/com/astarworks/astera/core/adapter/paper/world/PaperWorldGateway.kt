@@ -23,9 +23,8 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.Particle
-import org.bukkit.Registry
 import org.bukkit.Server
-import org.bukkit.Sound
+import org.bukkit.SoundCategory
 import org.bukkit.World
 import org.bukkit.block.data.BlockData
 import org.bukkit.entity.Player
@@ -56,10 +55,10 @@ import org.slf4j.LoggerFactory
  *    ([PaperParticleData]: dust, block, item, trail, vibration, ...). `count == 0` is vanilla's
  *    directional form (offset = velocity). `force` and `viewers` map to the `force` flag and the
  *    receivers list.
- *  - [playSound] → resolves through `Registry.SOUNDS.get(NamespacedKey)`
- *    because `Sound` migrated to the Bukkit Registry pattern in 1.21.
- *    Falls back to silent no-op (DEBUG-logged) when the sound key is
- *    unknown so authoring typos do not crash the call site.
+ *  - [playSound] → the `World.playSound(Location, String, ...)` overload: the
+ *    client resolves the key, so resource-pack sounds (`astera:...`) play.
+ *    `Registry.SOUNDS` only knows vanilla events and would silently drop
+ *    every pack sound. A malformed key is a DEBUG-logged no-op.
  *  - [teleportAsync] → uses Paper `Player.teleportAsync(Location)`; this is
  *    the boolean-returning Wave 4.5 variant. The Wave 5h Result-returning
  *    variants ([spectatorSpawn] / [lobbySpawn]) below wrap the same call.
@@ -123,7 +122,7 @@ public class PaperWorldGateway(
             return
         }
         val material = Material.matchMaterial(type.key) ?: run {
-            log.debug("PaperWorldGateway.placeBlock: unknown material {}", type.key)
+            log.warn("[cue-dropped] block: unknown material {} (PaperWorldGateway.placeBlock)", type.key)
             return
         }
         scheduler.run(regionScope(world, at), Duration.ZERO) {
@@ -156,11 +155,11 @@ public class PaperWorldGateway(
             return
         }
         val bukkitParticle = resolveParticle(particle.key) ?: run {
-            log.debug("PaperWorldGateway.spawnParticle: unknown particle {}", particle.key)
+            log.warn("[cue-dropped] particle: unknown particle {} (PaperWorldGateway.spawnParticle)", particle.key)
             return
         }
         val data = PaperParticleData.map(bukkitParticle, particle, w, ::blockData) ?: run {
-            log.debug("PaperWorldGateway.spawnParticle: {} needs data this spec cannot supply", particle.key)
+            log.warn("[cue-dropped] particle: {} needs data this spec cannot supply (PaperWorldGateway.spawnParticle)", particle.key)
             return
         }
         // The online-player collection supplies identities only; all live reads happen on Entity.
@@ -197,14 +196,14 @@ public class PaperWorldGateway(
             log.debug("PaperWorldGateway.playSound: world {} not loaded", world)
             return
         }
-        val bukkitSound = resolveSound(sound.key) ?: run {
-            log.debug("PaperWorldGateway.playSound: unknown sound {}", sound.key)
+        val key = NamespacedKey.fromString(sound.key)?.asString() ?: run {
+            log.warn("[cue-dropped] sound: malformed sound key {} (PaperWorldGateway.playSound)", sound.key)
             return
         }
         val loc = toLocation(w, at)
         scheduler.run(regionScope(world, at), Duration.ZERO) {
             assertWorldOwnership(scheduler, regionScope(world, at))
-            w.playSound(loc, bukkitSound, sound.volume.toFloat(), sound.pitch.toFloat())
+            w.playSound(loc, key, SoundCategory.MASTER, sound.volume.toFloat(), sound.pitch.toFloat())
         }
     }
 
@@ -277,17 +276,5 @@ public class PaperWorldGateway(
     private fun resolveParticle(key: String): Particle? {
         val identifier = key.substringAfter(':', missingDelimiterValue = key)
         return runCatching { Particle.valueOf(identifier.uppercase()) }.getOrNull()
-    }
-
-    /**
-     * Resolve a sound key (`minecraft:entity.lightning_bolt.thunder`) to a
-     * Bukkit [Sound] through `Registry.SOUNDS.get(NamespacedKey)`. `Sound`
-     * migrated from an enum to a Registry-backed interface in Paper 1.21,
-     * so `Sound.valueOf` is no longer the canonical lookup. Returns `null`
-     * on malformed or unknown key.
-     */
-    private fun resolveSound(key: String): Sound? {
-        val nk = NamespacedKey.fromString(key) ?: return null
-        return Registry.SOUNDS.get(nk)
     }
 }

@@ -31,7 +31,7 @@ Everything else (incl. `.claude/CLAUDE.md`, `.claude/settings.json`, hooks, rule
 | Allowed | Blocked |
 |---|---|
 | `git` merge/commit/push/fetch/log/status/diff/show/worktree/branch/merge-base/rev-parse/add/stash/switch/checkout/restore --staged | `git mv/rm/apply/am/clean`, `git checkout -- p`, `git restore` (worktree), `reset --hard` |
-| `make dev-content/dev-plugins/dev-pack/docker-up/dev-hotswap*/help/check` | other `make` targets |
+| `make dev-content/dev-plugins/dev-deploy/dev-pack/docker-up/dev-hotswap*/help/check` | other `make` targets |
 | `flock /tmp/claude-1000/astera-e2e.lock make e2e` (serialized) | |
 | `flock … -c '…'` / `bash -c` (inner command is analysed recursively) | |
 | `docker …`, `gh …`, read-only `codex exec …`, `scripts/codex-task.sh` (only with `run_in_background: true`) | |

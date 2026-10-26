@@ -27,13 +27,17 @@ root:                      # optional whole-rig transform, same channel shape (r
 - `ease` is the curve INTO that keyframe from the previous one: `linear` (default) | `step` | `ease_in` | `ease_out` | `ease_in_out` | `catmullrom`.
 - Runtime samples curves per tick server-side and lets Display interpolation (interpolation_duration = 1) smooth between ticks.
 - Keyframes sorted by `t`, `0 <= t <= length_ticks`.
+- Hierarchy (ADR-0278): `root` (hips) → `body` (spine, waist pivot) → `head`, `right_arm`, `left_arm`; `root` → legs. Lean and twist on `body`; crouch with `root.position.y` plus leg rotations.
+- `two_hand_grip: true` (top level) aims the left arm at the right-hand grip every tick (its authored `left_arm` rotation is ignored).
 - Extra bones (elbows/knees) are a later extension; the schema allows arbitrary bone names but the PoC rig only renders the six above (unknown bone = load error with clear message).
 
 ## Start in Blockbench
 
 1. Open `content/animations/_rig/player-rig.bbmodel` as a native Blockbench
    project. It uses the **Generic Model** format, classic 4-pixel-wide arms,
-   a 64×64 skin UV layout, six cubes and six sibling bone groups. No plugin
+   a 64×64 skin UV layout, six cubes and six bone groups nested like the runtime
+   rig: `head`, `right_arm` and `left_arm` inside `body` (the spine), `body` and
+   the two legs at the project root (ADR-0278). No plugin
    or Bedrock animation export is required.
 2. Save a working copy of the `.bbmodel`. Optionally import a copy of your
    own classic skin as a texture and apply it to all cubes for previewing.
@@ -66,15 +70,17 @@ matching: `RightArm`, `rightArm`, `right_arm` and `right-arm` all map to
 | Canonical name | Vanilla pivot in Blockbench pixels | Classic cube bounds (from → to) |
 | --- | --- | --- |
 | `head` | `(0, 24, 0)` neck | `(-4, 24, -4)` → `(4, 32, 4)` |
-| `body` | `(0, 24, 0)` top of torso (neck line, not the waist) | `(-4, 12, -2)` → `(4, 24, 2)` |
+| `body` | `(0, 12, 0)` waist (the spine; carries head and arms) | `(-4, 12, -2)` → `(4, 24, 2)` |
 | `right_arm` | `(-5, 22, 0)` shoulder | `(-8, 12, -2)` → `(-4, 24, 2)` |
 | `left_arm` | `(5, 22, 0)` shoulder | `(4, 12, -2)` → `(8, 24, 2)` |
 | `right_leg` | `(-1.9, 12, 0)` hip | `(-4, 0, -2)` → `(0, 12, 2)` |
 | `left_leg` | `(1.9, 12, 0)` hip | `(0, 0, -2)` → `(4, 12, 2)` |
 
-Keep the six groups as siblings at the project root. Nested groups would
-introduce inherited transforms absent from the six-bone contract and are
-rejected. Unknown groups are listed in an error, even if they have no keys.
+Keep the template's nesting: `head`, `right_arm` and `left_arm` are children
+of `body`; `body`, `right_leg` and `left_leg` are at the project root. A child
+rotates in its parent's frame around its own joint, exactly as at runtime, so
+leaning / twisting `body` (at the waist) carries the head, arms and held
+weapon while the legs stay. Any other nesting is rejected. Unknown groups are listed in an error, even if they have no keys.
 Duplicate aliases for the same bone, unknown animator UUIDs, rotated rest
 poses, global rotations and quaternion interpolation also fail explicitly.
 The importer does not export cubes and rejects non-vanilla group origins:

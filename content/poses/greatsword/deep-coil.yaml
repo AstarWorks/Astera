@@ -1,0 +1,18 @@
+# Named static pose (pose library seed). Same channels and conventions as a content/animations key (ADR-0250 rig frame:
+# +Y up, +Z front, the right hand at -X; rotations are degrees R = Rz*Ry*Rx about the bone joint; positions are px).
+# Hierarchy: root (hips) -> body (spine, waist pivot) -> head / right_arm / left_arm; root -> legs. So `body` leans and
+# twists the chest, head and arms; the legs stay where root puts them.
+# `wrist` = the weapon rig `swing` rotate [a, b, c] (only a performance weapon has a wrist; an emote holds the item at the
+# vanilla grip). Not loaded by the plugin: tools/pose-solve/bake_pose.py bakes it into a static scratch performance.
+id: greatsword/deep-coil
+weapon: bastion-greatsword
+two_hand_grip: true                 # the left hand aims at the right-hand grip (left_arm rotation is ignored)
+root:
+  position: [0, -6, 0]              # hips 6 px * 15/16 = 0.35 blocks lower
+bones:
+  body: { rotation: [30, -25, 0] }  # chest pitched forward 30, twisted 25 toward the back (weapon side)
+  head: { rotation: [-8, 25, 0] }   # counter-twist toward the enemy; net ~22 deg down
+  right_arm: { rotation: [20, 0, 20] }  # hangs back and out beside the rear hip
+  left_leg: { rotation: [-58, 0, -6] }  # front leg; 58 deg keeps the foot on the floor with the 6 px sink (no knee)
+  right_leg: { rotation: [58, 0, 6] }   # rear leg
+wrist: [-180, 60, -75]              # blade flat behind, tip ~1.65 blocks back, ~0.1 above the floor

@@ -26,6 +26,9 @@ internal class VfxMechanics(
 
     fun shutdown() = player.shutdown()
 
+    /** Ends every performance of [caster] now (death, quit, world change). */
+    fun endFor(caster: com.astarworks.astera.core.domain.player.PlayerId) = player.endFor(caster)
+
     fun play(m: Mechanic.PlayVfx, ctx: MechanicContext, scale: Double, follow: Boolean?, freeze: List<VfxFreeze> = emptyList()) {
         val world = ctx.worldId ?: return log.debug("PlayVfx {} dropped: ctx.worldId is null", m.vfxId)
         val trackedTarget = if (m.trackBoundTarget) {
@@ -69,7 +72,12 @@ internal class VfxMechanics(
             )
             when (val result = player.play(request)) {
                 is Result.Success -> Unit
-                is Result.Failure -> log.debug("PlayVfx {} not played: {}", m.vfxId, result.error)
+                is Result.Failure -> when (result.error) {
+                    // Unresolved content ids are authoring bugs the player sees as a missing effect.
+                    is VfxPlayError.UnknownVfx, is VfxPlayError.UnknownBody, is VfxPlayError.InvalidTargetTracking ->
+                        log.warn("[cue-dropped] vfx: {} not played: {}", m.vfxId, result.error)
+                    else -> log.debug("PlayVfx {} not played: {}", m.vfxId, result.error)
+                }
             }
         }
     }

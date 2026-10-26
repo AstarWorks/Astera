@@ -7,12 +7,15 @@ import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.damage.InvulnerabilityFrames
 import com.astarworks.astera.combat.domain.damage.ResolvedDamage
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.attribute.AttributeValue
 import com.astarworks.astera.core.domain.attribute.Attributes
+import com.astarworks.astera.core.domain.event.PlayerHealthChanged
+import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.Server
 import org.bukkit.attribute.Attribute
@@ -31,7 +34,9 @@ import java.util.concurrent.ConcurrentHashMap
  *  2. Compute `newHp = (currentHp - resolved.finalAmount).coerceAtLeast(0.0)`
  *     — pure Kotlin arithmetic. NO vanilla armor / Protection / Resistance /
  *     Absorption math.
- *  3. Write the new HP back to the container.
+ *  3. Write the new HP back to the container and publish `PlayerHealthChanged`
+ *     (HUDs refresh immediately; the `Other("combat")` source keeps the vanilla
+ *     kill resolver from announcing a second death).
  *  4. Update Bukkit `player.health` as a UI mirror with `MIRROR_MIN_HP = 1.0`
  *     floor (ADR-0149 §C) so vanilla `PlayerDeathEvent` NEVER fires.
  *  5. Trigger `player.playHurtAnimation(0f)` for vanilla red-flash +
@@ -97,6 +102,7 @@ public class PaperDamageGateway(
     private val server: Server,
     private val scheduler: IScheduler,
     private val containerStore: IPlayerAttributeContainerStore,
+    private val eventBus: IDomainEventBus,
 ) : IDamageGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -157,6 +163,18 @@ public class PaperDamageGateway(
 
         val newHp = (currentHp - resolved.finalAmount).coerceAtLeast(0.0)
         container.set(Attributes.CURRENT_HP, AttributeValue.NumberValue(newHp))
+        // Announce the change so the HP HUD and the nameplates refresh now instead of on their next poll.
+        // The source is a non-damage `Other`, so `VanillaKillResolver` ignores it: the death is announced
+        // once, by `ApplyDamageUseCase` (`PlayerKilled`) on `DamageOutcome.Killed`.
+        eventBus.publish(
+            PlayerHealthChanged(
+                playerId = target,
+                oldHp = currentHp,
+                newHp = newHp,
+                source = COMBAT_HEALTH_SOURCE,
+                atTick = scheduler.currentTick(),
+            ),
+        )
 
         // UI mirror per ADR-0149 §C: clamp ≥ MIRROR_MIN_HP to prevent
         // vanilla PlayerDeathEvent. Visual hearts ≈ proportional with
@@ -179,6 +197,9 @@ public class PaperDamageGateway(
     }
 
     public companion object {
+        /** `PlayerHealthChanged.source` of a combat hit; deliberately not a damage source for the vanilla kill resolver. */
+        private val COMBAT_HEALTH_SOURCE: HealthChangeSource = HealthChangeSource.Other("combat")
+
         /**
          * Mirrors [com.astarworks.astera.core.adapter.paper.physiology.PaperPlayerHealthGateway.MIRROR_MIN_HP].
          * Duplicated here to keep the combat gateway independent of the

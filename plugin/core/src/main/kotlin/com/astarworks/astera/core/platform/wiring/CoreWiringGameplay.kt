@@ -35,6 +35,15 @@ internal fun CoreWiringState.wireGameplayLoop() {
     }
     logger.info("Wave 5animation (ADR-0113) PlayerAnimation port wired (InMemory @ p=0, Paper @ p=100 via ADR-0161).")
 
+    // ── ADR-0276 — the one owner of held-item / armor / body hiding (leases) ──
+    services.register<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>(
+        com.astarworks.astera.core.application.service.presentation.InMemoryPlayerPresentation(),
+        priority = 0,
+    )
+    ports.playerPresentation?.let {
+        services.register<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>(it(services), priority = 100)
+    }
+
     // ── ADR-0250 — keyframed skin-rig animations (`play_animation` + `/astera emote`) ──
     //
     // The headless animator runs the same playback timeline without rendering; the Paper overlay
@@ -266,10 +275,17 @@ internal fun CoreWiringState.wireGameplayLoop() {
             // ADR-0197: the combat plugin registers the cooldown icons later; look them up per flush.
             cooldownIcons = { services.get<com.astarworks.astera.core.application.port.outbound.ICooldownIconSource>() },
             statusEffectIcons = { services.get<com.astarworks.astera.core.application.port.outbound.IStatusEffectIconSource>() },
+            // A reload keeps the clients connected without a new join event: online players are served anyway.
+            onlinePlayers = {
+                services.get<com.astarworks.astera.core.application.port.outbound.admin.IAdminPlayerGateway>()
+                    ?.onlinePlayers().orEmpty().map { it.id }
+            },
         )
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class, EventDelivery.Global) { hpStatusHud.onJoined(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class, EventDelivery.Global) { hpStatusHud.onQuit(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class, EventDelivery.Global) { hpStatusHud.onPackStatus(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerHealthChanged::class, EventDelivery.Global) { hpStatusHud.onHealthChanged(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerMaxHealthChanged::class, EventDelivery.Global) { hpStatusHud.onMaxHealthChanged(it) }
     // F3-9 (ADR-0224): the pack spec is re-readable (`/astera admin pack reload`), so the
     // join listener and the diagnostics always go through the service.
     val resourcePackService = com.astarworks.astera.core.application.service.hud.ResourcePackService(
@@ -297,6 +313,11 @@ internal fun CoreWiringState.wireGameplayLoop() {
         .ResourcePackPushOnJoinListener(hudGateway) { resourcePackService.current() }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class, EventDelivery.Global) { pushOnJoin.handle(it) }
     ports.resourcePack?.let { logger.info("ADR-0182: resource pack push on join enabled (${it.url}).") }
+    // A reload / hotswap leaves clients connected with the pack applied but this process unaware of it (no join, no
+    // status event): ask once, shortly after enable, so each client reports LOADED again and gets the glyph bar back.
+    scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Global, kotlin.time.Duration.parse("2s")) {
+        resourcePackService.repushToOnline()
+    }
         ?: logger.info("ADR-0182: no resource pack configured (ASTERA_RESOURCE_PACK_URL unset); status HUD uses its text form.")
 
     // 4.2 Wave H 5content-depth (ADR-0125) — Quest + Recipe listener wiring.

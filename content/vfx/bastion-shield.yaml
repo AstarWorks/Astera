@@ -1,0 +1,116 @@
+# Bastion DEF (video 23.9-28.4s): a gold barrier, drawn as two nested tapered oval outlines + a shield crest + a faint translucent fill, held 162 ticks.
+# The reference guard flares come from enemy strikes; Astera has no on-damaged trigger.
+
+id: bastion-shield
+duration_ticks: 162
+orient: yaw
+follow: true
+sample_ticks: 4
+elements:
+- id: rim0r
+  kind:
+    type: sprite
+    sprite: bastion-rim
+    frame_ticks: 162
+    loop: false
+    see_through: true
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 162
+  keyframes:
+  - t: 0
+    translate: [0.2, 1.3, 1.15]
+    rotate: [50.0, 0, 90]
+    scale: [0.58, 0.3, 1.0]
+- id: rim0l
+  kind:
+    type: sprite
+    sprite: bastion-rim
+    frame_ticks: 162
+    loop: false
+    see_through: true
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 162
+  keyframes:
+  - t: 0
+    translate: [0.2, 1.3, 1.15]
+    rotate: [50.0, 0, -90]
+    scale: [0.58, 0.3, 1.0]
+- id: rim1r
+  kind:
+    type: sprite
+    sprite: bastion-rim
+    frame_ticks: 162
+    loop: false
+    see_through: true
+    color: '#FFF3C8'
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 162
+  keyframes:
+  - t: 0
+    translate: [0.2, 1.3, 1.15]
+    rotate: [50.0, 0, 90]
+    scale: [0.48, 0.22, 1.0]
+- id: rim1l
+  kind:
+    type: sprite
+    sprite: bastion-rim
+    frame_ticks: 162
+    loop: false
+    see_through: true
+    color: '#FFF3C8'
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 162
+  keyframes:
+  - t: 0
+    translate: [0.2, 1.3, 1.15]
+    rotate: [50.0, 0, -90]
+    scale: [0.48, 0.22, 1.0]
+- id: crest
+  kind:
+    type: sprite
+    sprite: bastion-crest
+    frame_ticks: 162
+    loop: false
+    see_through: true
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 162
+  keyframes:
+  - t: 0
+    translate: [0.2, 1.35, 1.15]
+    rotate: [50.0, 0, 0]
+    scale: [0.26, 0.26, 1.0]
+- id: fill
+  kind:
+    type: quad
+    glyph: ●
+    color: '#FFD66E'
+    alpha: 0.0
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 162
+  keyframes:
+  - t: 0
+    translate: [0.2, 1.3, 1.15]
+    rotate: [50.0, 0, 0]
+    scale: [0.3, 0.6, 1.0]
+  - t: 6
+    scale: [1.5, 3.3, 1.0]
+    alpha: 0.14
+    ease: out_cubic
+  - t: 152
+    alpha: 0.14
+  - t: 162
+    scale: [1.4, 3.1, 1.0]
+    alpha: 0.0
+    ease: in_quad

@@ -1,0 +1,54 @@
+# r25 modeler: rig blade brightness swings with pose/camera despite ADR-0275 (director r24: side held 108 -> rig 231 near-white
+# at t4, compare coil 36-58 near-black). Base wp/integrate-limbus 201fc6ca + this round's shader change (content dirty at capture).
+# Real-client captures, one at a time: side 17 f, compare 23 f, maxRepeatedFrames 1 both, compare cameraMaxLatenessMs 96.
+# Luma = Rec.709 Y (lum.py): pixels within 3 px of the hand-picked hilt->tip segment, 15-100 % of its length (blade only),
+# that differ from the per-pixel median of the take (background) by > 18. Same method on the director's r24 frames (webp).
+# Side frame = cast tick; compare frame = tick + 6 (t0 = f6, coil t4/t5 = f10/f11 in r24, one tick later in r25 = load lag).
+
+## Cause (no transform bug)
+- 26.3 jar: Lighting LEVEL = fixed world directions; PoseStack normal = inverse-transpose + normalize for scaled display
+  transforms, camera rotation lives in ModelViewMat, so the normal IS world-space and correct for every rig part.
+- keys.py (rig euler -> world normal per face -> vanilla) reproduces the director's numbers from geometry alone:
+  side key 0 (held) broad face n=(1,0,0) -> 0.50 (220 x 0.50 = 110, measured 108); key 2 n.y +0.38 -> 0.77; key 3 (shown t4)
+  n.y +0.84 -> 1.00 = iron 220 / quartz 231 (measured 230). The swing turns the blade face to the SKY while the side camera
+  still sees it: vanilla's up side (1.0) was untouched by the r24 rule, which only lifted down faces.
+- Compare coil (keys 3-4, t4-5): the camera sees the +X EDGE (vis 0.60-0.93), i.e. the polished_blackstone rims (texture luma
+  50) and tip parts; 50 x 0.65 = 33 = measured. Texture, not light: no lighting rule can lift it above ~50.
+- Same rule for the held item: its own spread across azimuth/pose is the same 0.40-1.0, just not exercised by a static hold.
+
+## Fix (content/shader-patches/core/item.{vsh,fsh}.patch, same two markers as ADR-0275)
+- vsh: shade = 0.65 + 0.35 * (vanilla - 0.65): 0.57 (down) .. 0.77 (up); side faces 0.56-0.68. Replaces the r24 underside lift.
+- fsh: marked faces lift dark texels on luma, hue kept: y' = y + 0.3 (1 - y)^2 (blackstone 50 -> 100, deepslate 73 -> 112,
+  iron/gold/quartz +1-3). A per-channel first try greyed the gold guard and gem (rejected; capture 1).
+- GUI (orthographic ProjMat) keeps vanilla shading; held marker colour still reset to white there.
+
+## Side (fixed camera, caster's left)      r24 (director)    r25
+  t0 held                                   108               134
+  t1                                        119               134
+  t2 rig                                    150               139   (+3 % vs held)
+  t3 rig                                    172               154   (+15 %)
+  t4 rig vertical, face to the sky          230 near-white    118   (-12 %)
+  t6-9 low, edge toward camera              57-144 (p25 33)   74-108 (p25 66)
+  t10                                        57               125
+
+## Compare (case camera)                    r24 (director)    r25
+  f4/f6 held (t-2 / t0)                     171 / 172         158 / 157
+  f7 rig t1                                 141               155   (-1 %)
+  f8 rig t2                                  59*              152   (-3 %)   *r24 band partly on the moving edge
+  f9 rig t3                                  45                88   (edge turning in)
+  f10 coil                                   33 near-black     67
+  f11 coil                                   48                76
+  f12 (r25 coil t5, blade toward floor)        -              125
+  The coil frames show the edge (rims) by the animator's roll: 67-76 is dark grey (rim lifted), the blade outline reads
+  (cmp-r25-f4-12.jpg). Bringing it to held level would need a lighter rim material or a coil roll that shows the face.
+
+## Held vs rig (both views) under r25: hand-over start within 3 % (compare t0 -> t2, side t1 -> t2), max +15 % (side t3),
+  no frame above 160 or below 66 t0-12 in either view (r24: 33-231).
+## Predicted (not re-captured): opponent contact face from below n.y -0.75 -> 0.57 x 220 = 126 (r24 134, -6 %); end hand-over
+  matches by construction (same rule on both).
+## Evidence: side-r24-t0-11.jpg / side-r25-t0-11.jpg (crop 600-800 x 290-480, 2x), cmp-r24-f4-12.jpg / cmp-r25-f4-12.jpg
+  (crop 300-680 x 150-480, 2x). Segments (frame:hilt x,y,tip x,y) passed to lum.py:
+  side r24 '0:708,392,649,308;1:703,392,643,311;2:689,389,641,313;3:684,389,642,314;4:682,389,688,335;5:680,401,713,401;8:641,415,602,378;9:648,409,603,379;10:658,408,610,394'
+  side r25 '0:708,392,649,308;1:708,392,649,308;2:704,395,650,308;3:684,380,643,313;4:688,374,698,343;6:630,394,600,373;7:622,400,601,379;8:644,415,614,382;9:648,409,600,378;10:676,412,634,403'
+  cmp r24  '4:482,355,602,186;6:482,355,602,186;7:492,361,611,198;8:511,361,619,201;9:525,367,604,207;10:549,384,355,363;11:602,378,448,475'
+  cmp r25  '4:482,355,602,186;6:479,355,601,186;7:479,355,601,186;8:488,350,602,190;9:490,361,604,196;10:531,355,634,190;11:528,384,311,452;12:525,389,376,478'

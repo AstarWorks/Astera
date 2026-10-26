@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory
  *  - Non-player pickups (mobs grabbing armour off the ground, etc.) are
  *    ignored — the domain event is player-scoped.
  *  - Players not currently in a match return early (
- *    `IMatchRepository.findMatchOf(playerId) == null`); the CarryTNT /
- *    CarryMiniTNT subscribers are match-scoped consumers and an out-of-match
+ *    `IMatchRepository.findMatchOf(playerId) == null`); the sidebar
+ *    subscriber is a match-scoped consumer and an out-of-match
  *    publish would just be silently dropped further down anyway.
  *  - `itemId` synthesis: prefer the Astera-canonical `astera:item_id` PDC
  *    string written by `PaperItemMaterializer` (Wave _items-1, ADR-0073)

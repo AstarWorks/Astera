@@ -12,7 +12,7 @@
 #   blend-in/{front,side}/, blend-out/{front,side}/   slices of play/ around the blend, firstTick in meta.json
 #   meta.json                      provenance (branch, commit, capture time, anim, length, resolution, FOV)
 # Knobs: ITEM (held item, default bastion-greatsword), D (camera distance, 2.4), REST_TICK (max(2, blend_in_ticks)), plus the vfx-shot ones
-# (RES, FOV, SETTLE, CAST_LAG_MS, SHOT_KEEP, SHOT_CACHE). See tools/vfx-shot/README.md.
+# (RES, FOV, SETTLE, CAST_LAG_MS, SHOT_TIMEOUT, SHOT_CACHE). See tools/vfx-shot/README.md.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd -P)"
@@ -69,6 +69,7 @@ rec() {
     -video_size "$RES" -i ":${DISP[Watcher]}" -t "$t_total" -vf "showinfo,setpts=PTS-STARTPTS" \
     -c:v libx264 -preset ultrafast -crf 10 -pix_fmt yuv444p -f matroska "$rec" 2>"$rec.log" &
   local fpid=$! i
+  FILM_PID=$fpid
   for i in $(seq 1 100); do grep -q ' pts:' "$rec.log" 2>/dev/null && break; sleep 0.1; done
   sleep "$PRE_ROLL"
   stamp="$(rcon --stamp "$cmd" 2>&1 >/dev/null | awk '/^STAMP/{print $2}')"
@@ -104,11 +105,9 @@ reset() { # caster back to the middle, motion ended
 }
 
 # ---------------------------------------------------------------- main
-trap cleanup EXIT
-trap 'exit 130' INT TERM
-acquire_slot
 command -v ffmpeg >/dev/null && command -v xdotool >/dev/null && command -v Xvfb >/dev/null \
   && command -v montage >/dev/null || die "need ffmpeg, xdotool, Xvfb and ImageMagick (montage)"
+run_begin   # stack lock, host-wide slot, watchdog (SHOT_TIMEOUT), straggler reap; the EXIT trap tears everything down
 ensure_client_install
 boot_server
 if [ "$TRIGGER_KIND" = skill ] && ! grep -qw -- "$TRIGGER_SKILL" <<<"$(rcon "astera skill list")"; then
