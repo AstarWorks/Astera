@@ -12,9 +12,12 @@ import { buildIndex } from "./lib/weapons.mjs";
 import { makeAnim, ANIM_ID_RE } from "./lib/anim.mjs";
 import { spawnSync } from "node:child_process";
 import { contentRevision, publishedRoot } from "./lib/revision.mjs";
+import { parseBeatSheet } from "./lib/beatsheet.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MAX_BODY = 1_000_000;
+
+const SKILL_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
 
 export function makeHandler(opts = {}) {
   const root = opts.root ?? HERE;
@@ -54,6 +57,7 @@ export function makeHandler(opts = {}) {
     const cur = currentTree();
     return { branch: m.branch ?? null, commit: m.implementationCommit ?? m.gitRevision ?? null, capturedAt: m.capturedAt ?? null,
       fov: m.fov ?? null, fovMode: m.fovMode ?? null, resolution: m.resolution ?? null, view: m.view ?? null,
+      skippedTicks: m.skippedTicks ?? m.captureQuality?.skippedTicks ?? null, deployedSha: m.stack?.deployedCodeRevision ?? null,
       repeated: m.captureQuality?.maxRepeatedFrames ?? null, reviewRequired: !!m.captureQuality?.reviewRequired,
       contentRevision: m.contentRevision ?? null, contentDirty: m.contentDirty ?? null, codeDirty: m.codeDirty ?? null,
       stale: cur && m.contentRevision ? m.contentRevision !== cur.contentRevision : null, currentContent: cur?.contentRevision ?? null };
@@ -95,7 +99,7 @@ export function makeHandler(opts = {}) {
   function mcInfo(skill, referenceRevision, contentRevision) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return info;
-    for (const view of ["compare", "input", "caster", "opponent", "side", "front", "back", "right", "high", "near"]) {
+    for (const view of ["compare", "input", "caster", "opponent", "side", "front", "back", "right", "top", "high", "near"]) {
       const pointer = join(publishedDir, skill, view, "current.json");
       if (existsSync(pointer)) {
         try {
@@ -159,6 +163,77 @@ export function makeHandler(opts = {}) {
       mc: mcInfo(c.skill?.asteraSkillId, c.referenceRevision, c.contentRevision),
       views: reviewViews(c.skill?.asteraSkillId, c.referenceRevision),
       stills: stillsOf(c.skill?.asteraSkillId),
+      review: readReview(rec), beatSheet: parseBeatSheet(join(dir, "beat-sheet")), dev: devDeployed(),
+      sound: soundOf(id, c, rec),
+    };
+  }
+
+  // ---- founder-facing review record: data/<case>/review.json -----------------------------------------------------
+  // { round, gate (1|2), focus, fireHint, soundKind, reviewer: {<beat>: {v: ok|ng, reason}}, founder: {<beat>: {v, note}}, founderAt, founderWho }
+  // Agents write everything but `founder`; the page writes only `founder` (POST /api/cases/<id>/founder, no rev: it never clobbers the rest).
+  const reviewFile = (rec) => join(dirname(rec.file), "review.json");
+  function readReview(rec) {
+    try { return readJson(reviewFile(rec)); } catch { return null; }
+  }
+  const BEAT_KEY_RE = /^[A-Za-z0-9_-]{1,24}$/;
+  async function saveFounder(id, req) {
+    if (!(req.headers.get("content-type") || "").startsWith("application/json")) return err(415, "application/json required");
+    const text = await req.text();
+    if (text.length > MAX_BODY) return err(413, "body too large");
+    let body;
+    try { body = JSON.parse(text); } catch { return err(400, "invalid JSON"); }
+    const rec = S.allCases().get(id);
+    if (!rec) return err(404, "no such case");
+    const marks = {};
+    for (const [k, v] of Object.entries(body.founder || {})) {
+      if (!BEAT_KEY_RE.test(k) || !v || !["ok", "ng"].includes(v.v)) continue;
+      marks[k] = { v: v.v, note: String(v.note || "").slice(0, 400) };
+    }
+    const cur = readReview(rec) || {};
+    const next = { ...cur, founder: marks, founderAt: new Date().toISOString(), founderWho: String(body.who || "founder").slice(0, 40) };
+    writeCaseFile(reviewFile(rec), next);
+    return json({ ok: true, review: next });
+  }
+
+  // ---- author files: data/<case>/{briefs,deliver,evidence}/** (read-only, text + images) ------------------------------------
+  const AUTHOR_DIRS = ["briefs", "deliver", "evidence"], AUTHOR_FILE_RE = /\.(md|txt|yaml|yml|json|png|jpg|webp)$/i;
+  function listAuthorFiles(rec) {
+    const base = dirname(rec.file), out = [];
+    const walk = (rel) => {
+      for (const d of readdirSync(join(base, rel), { withFileTypes: true })) {
+        const r = rel + "/" + d.name;
+        if (d.isDirectory()) walk(r); else if (AUTHOR_FILE_RE.test(d.name) && out.length < 600) out.push(r);
+      }
+    };
+    for (const d of AUTHOR_DIRS) if (existsSync(join(base, d))) walk(d);
+    for (const f of ["notes.md", "beat-sheet-check.md"]) if (existsSync(join(base, f))) out.push(f);
+    return out;
+  }
+  const MIME = { md: "text/plain; charset=utf-8", txt: "text/plain; charset=utf-8", yaml: "text/plain; charset=utf-8", yml: "text/plain; charset=utf-8", json: "application/json", png: "image/png", jpg: "image/jpeg", webp: "image/webp" };
+
+  /** Which dev build the founder would test in game: env SKILL_COMPARE_DEV_SHA or <published>/dev-deployed.json {sha, at} (written by the deploy step). */
+  function devDeployed() {
+    if (process.env.SKILL_COMPARE_DEV_SHA) return { sha: process.env.SKILL_COMPARE_DEV_SHA.trim(), at: null };
+    try { const d = readJson(join(publishedDir, "dev-deployed.json")); return /^[0-9a-f]{7,40}$/.test(d.sha || "") ? { sha: d.sha, at: d.at ?? null } : null; } catch { return null; }
+  }
+
+  // ---- sound: 参照 (the reference clip's audio) / 今回 / 前回 (<published>/<skill>/sound/{current,previous}.{ogg,mp3,wav}) -----------
+  const SOUND_EXT = { ogg: "audio/ogg", mp3: "audio/mpeg", wav: "audio/wav" };
+  function soundFile(skill, which) {
+    if (!SKILL_RE.test(skill || "")) return null;
+    for (const ext of Object.keys(SOUND_EXT)) { const f = join(publishedDir, skill, "sound", `${which}.${ext}`); if (existsSync(f)) return { f, type: SOUND_EXT[ext] }; }
+    return null;
+  }
+  const referenceVideo = (c, rec) => {
+    for (const d of [join(rec.src.cacheDir, "videos"), ...S.sources().map((x) => join(x.cacheDir, "videos"))]) { const f = join(d, `${c.videoId}.mp4`); if (existsSync(f)) return f; }
+    return null;
+  };
+  function soundOf(id, c, rec) {
+    const skill = c.skill?.asteraSkillId;
+    return {
+      reference: referenceVideo(c, rec) ? { url: `/sound/${id}/reference#t=${c.start_s},${c.end_s}` } : null,
+      current: soundFile(skill, "current") ? { url: `/sound/${id}/current` } : null,
+      previous: soundFile(skill, "previous") ? { url: `/sound/${id}/previous` } : null,
     };
   }
 
@@ -225,7 +300,6 @@ export function makeHandler(opts = {}) {
   }
 
   // Keypoints for the pose solver (tools/pose-solve): content/skill-lint/<skill>.keypoints.yaml, read / written through kp.py (the one validator).
-  const SKILL_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
   const kpScript = join(repo, "tools", "pose-solve", "kp.py");
   const kpRun = (args, input) => spawnSync("python3", [kpScript, ...args], { cwd: repo, input, encoding: "utf8", timeout: 60_000 });
 
@@ -288,9 +362,34 @@ export function makeHandler(opts = {}) {
     if (p === "/app.js") return appJs();
     if (p === "/index.js") return file(join(publicDir, "index.js"), "text/javascript");
     if (p === "/style.css") return file(join(publicDir, "style.css"), "text/css");
+    if (p === "/case.css") return file(join(publicDir, "case.css"), "text/css");
     if (p === "/api/cases" && req.method === "GET") return json(listCases());
     if (p === "/api/index" && req.method === "GET") return json(buildIndex({ repo, S, mcInfo }));
     if ((m = /^\/icon\/([a-z0-9-]+)\.png$/.exec(p))) return file(join(repo, "content", "textures", "generated", "items", m[1] + ".png"), "image/png");
+    if ((m = /^\/api\/cases\/([a-z0-9-]+)\/founder$/.exec(p))) {
+      if (!CASE_ID_RE.test(m[1])) return err(400, "bad id");
+      return req.method === "POST" ? saveFounder(m[1], req) : err(405, "method not allowed");
+    }
+    if ((m = /^\/api\/cases\/([a-z0-9-]+)\/files$/.exec(p))) {
+      const rec = S.allCases().get(m[1]);
+      return rec ? json(listAuthorFiles(rec)) : err(404, "no such case");
+    }
+    if ((m = /^\/casefile\/([a-z0-9-]+)\/((?:briefs|deliver|evidence)\/[^?]+|notes\.md|beat-sheet-check\.md)$/.exec(p))) {
+      const rec = S.allCases().get(m[1]);
+      if (!rec) return err(404, "no such case");
+      const base = dirname(rec.file), rel = decodeURIComponent(m[2]), f = join(base, rel);
+      return inside(base, f) && AUTHOR_FILE_RE.test(f) ? file(f, MIME[f.split(".").pop().toLowerCase()]) : err(400, "bad path");
+    }
+    if ((m = /^\/beat\/([a-z0-9-]+)\/([A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|jpg|webp))$/.exec(p))) {
+      const rec = S.allCases().get(m[1]);
+      return rec ? file(join(dirname(rec.file), "beat-sheet", m[2]), m[3] === "png" ? "image/png" : m[3] === "jpg" ? "image/jpeg" : "image/webp") : err(404, "no such case");
+    }
+    if ((m = /^\/sound\/([a-z0-9-]+)\/(reference|current|previous)$/.exec(p))) {
+      const rec = S.allCases().get(m[1]);
+      if (!rec) return err(404, "no such case");
+      const sf = m[2] === "reference" ? (() => { const f = referenceVideo(rec.c, rec); return f && { f, type: "video/mp4" }; })() : soundFile(rec.c.skill?.asteraSkillId, m[2]);
+      return sf ? file(sf.f, sf.type) : err(404, "no sound");
+    }
     if ((m = /^\/api\/cases\/([a-z0-9-]+)$/.exec(p))) {
       if (!CASE_ID_RE.test(m[1])) return err(400, "bad id");
       if (req.method === "GET") { const c = getCase(m[1]); return c ? json(c) : err(404, "no such case"); }
@@ -303,7 +402,7 @@ export function makeHandler(opts = {}) {
       const f = join(cdir, "frames", m[2]);
       return inside(cdir, f) ? file(f, "image/jpeg") : err(400, "bad path");
     }
-    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|input|caster|opponent|side|front|back|right|high|near|preview)\/(frame_\d{3,4}\.(?:png|webp))$/.exec(p))) {
+    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|input|caster|opponent|side|front|back|right|top|high|near|preview)\/(frame_\d{3,4}\.(?:png|webp))$/.exec(p))) {
       const revision = new URL(req.url).searchParams.get("v");
       if (/^[a-f0-9]{64}$/.test(revision || "")) {
         const f = join(publishedDir, m[1], m[2], revision, m[3]);
