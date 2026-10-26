@@ -89,6 +89,15 @@ internal fun CoreWiringState.wireHudAndWorld() {
     )
     services.register<ICustomBlockRegistry>(customBlockContents, priority = 0)
 
+    // ADR-0090: crack-stage overlay on cover blocks; Paper overlays this at priority 100.
+    services.register<com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway>(
+        com.astarworks.astera.core.application.service.animation.InMemoryBlockBreakAnimationGateway(
+            eventBus = eventBus,
+            tickClock = { scheduler.currentTick() },
+        ),
+        priority = 0,
+    )
+
     // Wave 5x (ADR-0090): Postgres-backed block durability repository
     // (in-memory default at priority 0; Persistence overlays at 100).
     val blockDurabilityRepository: IBlockDurabilityRepository =
