@@ -196,9 +196,10 @@ def defs():
     vdef("impact-smoke", "r3b impact: unused (puffs removed).",
          "smoke", 1, 2, burst(0.05), speed=0.0)
     # staged tiers (principles: convergence = charge / spread = release; phase-shifted rings; rare detail; afterglow)
-    vdef("gather", "gather: dust flowing INTO the blade tip before a cut (negative outward speed = convergence).",
-         "dust_color_transition", 1, 6, burst(0.3), GOLD, dct(WHITE_HOT, GOLD, 0.22),
-         velocity="{ direction: outward, speed: -0.09, spread_degrees: 0, speed_jitter: 0.3 }")
+    # velocity speed must be >= 0 (ParticleVelocity), so convergence = the scatter radius shrinking tick by tick (3 -> 1)
+    for k, rad in ((3, 0.4), (2, 0.26), (1, 0.12)):
+        vdef("gather-%d" % k, "gather: dust spawned on a shrinking sphere round the blade tip, %d tick(s) before a cut." % k,
+             "dust_color_transition", 1, 5, burst(rad), GOLD, dct(WHITE_HOT, GOLD, 0.22), speed=0.0)
     vdef("ring-crit", "release ring: crit sparks thrown radially from points on a ring round the impact (ring-by-ring phase shift).",
          "dust_color_transition", 1, 6, burst(0.02), GOLD, dct(WHITE_HOT, GOLD, 0.25),
          velocity="{ direction: outward, speed: 0.3, spread_degrees: 0, speed_jitter: 0.3 }")
@@ -361,8 +362,9 @@ class Layer:
         """Charge: dust converging on the blade tip for the 3 ticks before the cut at fx tick c."""
         for ft in range(max(0, c - 3), c):
             g, d, L = pose(self.rp, ft)
-            self.once("gather", "gather", ft, on_blade(g, d, L, 1.0))
-            self.once("gather", "gather", ft, on_blade(g, d, L, 0.7))
+            pid = "gather-%d" % (c - ft)
+            self.once("gather", pid, ft, on_blade(g, d, L, 1.0))
+            self.once("gather", pid, ft, on_blade(g, d, L, 0.7))
 
     def release(self, ft, p, c, sense):
         """Release: three expanding rings of outward sparks round the impact point, phase-shifted ring to ring in the cut's
