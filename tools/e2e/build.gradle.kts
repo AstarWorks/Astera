@@ -48,6 +48,9 @@ val e2e by tasks.registering(Test::class) {
         excludeTestsMatching("*.live.*")
         // E2E_ONLY=PersonaWeaponsE2eTest (comma separated simple class names) narrows the run.
         System.getenv("E2E_ONLY")?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.forEach { includeTestsMatching("*.$it") }
+        // E2E_SKIP=PersonaWeaponsE2eTest (comma separated simple class names) drops suites from a full run; the persona sweep
+        // (10 weapons x 4 bindings, 6+ s per cast) is the single biggest block of wall-clock time.
+        System.getenv("E2E_SKIP")?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.forEach { excludeTestsMatching("*.$it") }
     }
     // Bot sessions are stateful against one server: run strictly serially.
     maxParallelForks = 1
