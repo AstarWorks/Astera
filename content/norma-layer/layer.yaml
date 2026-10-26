@@ -37,3 +37,8 @@ defaults:
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
+
+  # Weapon restriction (RTM-style MAIN + SUB), a layer default so EVERY mode keeps the 2-weapon cap (MODE-15 follow-up):
+  # at most 1 weapon per family (gun / sword / staff) and 2 in total. Extra weapons are set aside on match entry
+  # (restored at match end) and further pickups are refused. A mode overrides it, or sets "" to lift the cap.
+  weapon_limits: "gun:1,sword:1,staff:1,total:2"

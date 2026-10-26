@@ -67,6 +67,6 @@ class BattleLoyalPlaythroughE2eTest : ObjectivePlaythroughBase() {
             assertThat(ended).describedAs("match still running: ${matchLines()}; sidebar=${sidebar(bots[0])}").isTrue()
             "match gone after ${(System.currentTimeMillis() - tPlay) / 1000}s"
         }
-        finishMatch(ctx, endTimeoutMs = 20_000)
+        finishMatch(ctx, endTimeoutMs = 20_000, actorWins = false)
     }
 }

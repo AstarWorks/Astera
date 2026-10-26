@@ -33,6 +33,14 @@ public object LobbyTrainingLayout {
     /** X offset (from the island centre) where shooters stand; dummies are `distance` blocks east of it. */
     public const val SHOOT_X: Int = -20
 
+    /**
+     * Staff bay (MAP-07): a third weapon family on the deck. The caster stands [STAFF_STAND_X] east of the island
+     * centre; one target per lane, [STAFF_DISTANCES] blocks east of the stand, lanes [STAFF_LANE_Z] south of the centre.
+     */
+    public const val STAFF_STAND_X: Int = 2
+    public val STAFF_DISTANCES: List<Int> = listOf(5, 8, 11)
+    public val STAFF_LANE_Z: List<Int> = listOf(19, 21, 23)
+
     /** Melee pit centre offset and radius (floor sunk one block). */
     public const val PIT_X: Int = -10
     public const val PIT_Z: Int = 14
@@ -78,6 +86,17 @@ public object LobbyTrainingLayout {
                 x = ix + SHOOT_X + d + 0.5,
                 y = y,
                 z = iz + LANE_Z[i] + 0.5,
+                yaw = FACE_WEST,
+                distance = d,
+            )
+        }
+        STAFF_DISTANCES.forEachIndexed { i, d ->
+            dummies += TrainingDummySpot(
+                id = "staff-$d",
+                kind = TrainingDummyKind.RANGE,
+                x = ix + STAFF_STAND_X + d + 0.5,
+                y = y,
+                z = iz + STAFF_LANE_Z[i] + 0.5,
                 yaw = FACE_WEST,
                 distance = d,
             )

@@ -61,6 +61,17 @@ class ClientReceivesE2eTest : E2eBase() {
     }
 
     @Test
+    fun `joining the lobby starts the astera lobby BGM track as a sound packet`() {
+        val a = bot("BgmListener")
+        a.waitUntil(15_000) { a.sounds.any { soundKey("astera:music/lobby-loop") in soundKey(it) } }
+        E2eReport.check(suite, "joining the lobby sends the astera:music/lobby-loop BGM event to the player", "ClientboundSound") {
+            assertThat(a.sounds.map(::soundKey).any { soundKey("astera:music/lobby-loop") in it })
+                .describedAs("MISSING astera:music/lobby-loop after joining; sound packets=${a.sounds.take(10)}").isTrue()
+            "heard ${a.sounds.take(6)}"
+        }
+    }
+
+    @Test
     fun `basic gun sword and wand skills send their astera sound packets to the caster`() {
         val a = bot("SoundCaster")
         op(a)
@@ -136,10 +147,16 @@ class ClientReceivesE2eTest : E2eBase() {
             assertThat(behind).describedAs("HP line is $behind ms behind the hearts (budget $hudLagBudgetMs ms = 3 ticks + jitter); vanilla ${lag.vanillaMs} ms, line ${lag.hudMs} ms").isLessThanOrEqualTo(hudLagBudgetMs)
             "hearts at ${lag.vanillaMs} ms, line at ${lag.hudMs} ms ($behind ms behind); ${lag.hudBefore} -> ${lag.hudAfter}; glyph bar=${lag.hudAfter?.glyphs}"
         }
-        E2eReport.check(suite, "$label: the shooter hears the hit marker", "ClientboundSound") {
+        E2eReport.check(suite, "$label: the shooter hears exactly one hit marker (no vanilla double)", "ClientboundSound") {
             val heard = a.sounds.drop(soundsBefore)
-            assertThat(heard.map(::soundKey).any { soundKey("entity.arrow.hit_player") in it })
-                .describedAs("MISSING sound entity.arrow.hit_player for the shooter after a hit; heard=${heard.take(10)}").isTrue()
+            assertThat(heard.map(::soundKey).none { soundKey("entity.arrow.hit_player") in it })
+                .describedAs("vanilla entity.arrow.hit_player still plays on a hit (double marker); heard=${heard.take(10)}").isTrue()
+            "heard ${heard.take(6)}"
+        }
+        E2eReport.check(suite, "$label: the shooter hears Astera's own hit-marker cue (astera:combat/hit, not a vanilla stand-in)", "ClientboundSound") {
+            val heard = a.sounds.drop(soundsBefore)
+            assertThat(heard.map(::soundKey).any { soundKey("astera:combat/hit") in it || soundKey("astera:combat/crit") in it })
+                .describedAs("MISSING astera:combat/hit (or crit) for the shooter after a hit; heard=${heard.take(10)}").isTrue()
             "heard ${heard.take(6)}"
         }
     }

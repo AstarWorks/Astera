@@ -11,6 +11,7 @@ No paid or credit-metered generator (fal.ai, ElevenLabs, ...), no API keys, no n
 | Script | Use |
 |---|---|
 | `scripts/synth.sh [name...]` | Synthesizes every shipped SFX from formulas (sine / bell partials / brass-ish / filtered noise, envelopes, sweeps, echo), normalizes loudness and writes `content/sounds/<name>.ogg`. No args = all. `ASTERA_SOUNDS_DIR=/tmp/x` writes elsewhere to audition. |
+| `scripts/music_synth.py [id...]` | Synthesizes the BGM tracks of `content/music/` (numpy + ffmpeg, seamless loops) and prints each length in ticks, which must equal `duration_ticks` in the track yaml. |
 | `scripts/to_ogg.sh IN OUT.ogg` | Converts a CC0 recording (any format) to the required OGG: mono, 44.1 kHz, loudnorm, Vorbis `-q:a 5`, with a format assertion. |
 | `scripts/dry_run.sh DUR OUT.wav` | Sine test tone, for smoke-testing the ffmpeg install. |
 

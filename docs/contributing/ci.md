@@ -9,7 +9,7 @@ A newer push to the same ref cancels the older run.
 | Job | What | Artifacts |
 |---|---|---|
 | `build` | `./gradlew check` (integration tests + Konsist; unit tests are forbidden), then the 7 plugin shadow jars (`make build`) | `astera-plugin-jars`, `test-reports` (on failure) |
-| `e2e` | `make e2e-full` (every suite; docker, MCProtocolLib bots); report copied to the job summary; fails on any failed check | `e2e-report`, `e2e-backend-logs` (on failure) |
+| `e2e` | `make e2e` (window profile, see below; docker, MCProtocolLib bots); report copied to the job summary; fails on any failed check | `e2e-report`, `e2e-backend-logs` (on failure) |
 | `skill-frames` | `:tools:skill-viewer:render` (bun + Chromium + ffmpeg) for the `content/skills/*.yaml` changed in the push / PR. Manual run: `gh workflow run CI --ref wp/<name> -f skills="simple-shoot backstep"` (or `ALL`, 40+ min) | `skill-frames` (sheet.png, anim.gif per skill) |
 
 ## E2E profiles (QA-8)
@@ -19,7 +19,7 @@ A full run is ~35-40 min of bot time (measured from the 2026-10-26 Velocity join
 | Command | Profile | Runs |
 |---|---|---|
 | `make e2e` | `window` (default; integration windows) | everything except `E2E_WINDOW_SKIP` in `scripts/e2e.sh` (`PersonaWeaponsE2eTest` ~6.3 min, `WeaponsE2eTest` ~3.8 min). Mode playthroughs, Join, Norma, ClientReceives, CueGuard stay. |
-| `make e2e-full` (= `make e2e E2E_PROFILE=full`) | `full` | every suite; CI and pre-release runs |
+| `make e2e-full` (= `make e2e E2E_PROFILE=full`) | `full` | every suite; pre-release and on-demand full runs |
 
 Overrides: `E2E_SKIP=ClassA,ClassB` drops classes, `E2E_ONLY=ClassA` runs only those (wins over the profile). The report lists the profile and skipped classes under "Host load". The runner image now builds in parallel with the backend boot.
 
