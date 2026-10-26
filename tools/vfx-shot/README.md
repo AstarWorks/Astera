@@ -163,7 +163,7 @@ SKILL=bastion-greatsword-s3 VIEW=compare CASE=zwei-s3 bash tools/vfx-shot/vfx-sh
 (x toward the enemy, y up, z toward the side camera, caster at the origin; world = arena centre + intent) = spectator
 `/tp` hard cuts at `t` ticks after the cast (`director.py` sends the cast + the cuts over one RCON connection on a wall
 clock). The client FOV option is the first key's fov; other keys' fov is emulated by dollying along the view ray
-(`compare_plan.py`). `CAMERA=side` ignores the keys (6 blocks to the side, eye level). Output
+(`compare_plan.py`). `CAMERA=side` ignores the keys (6 blocks to the side, eye level); `CAMERA=<name>` uses the intent's `camera_presets.<name>` keys instead (skill-preview `--camera <name>` renders the same camera; e.g. the `side` / `front34` / `back` pose-review cameras of `pose-greatsword-deep-coil`). Output
 `build/vfx-shot/<skill>/compare/` has `PRE_TICKS_CMP` (6) frames before the cast and `meta.json` with `cast_tick_ms`,
 which skill-compare reads (source `vfx-compare`, the default) to align the frames with the case's skill start.
 

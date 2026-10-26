@@ -74,6 +74,7 @@ public class VfxBodyTrack(public val body: VfxBodyContext) {
     private fun sample(at: Double): RigFrame = RigFrame(
         root = pose(animation.root, at),
         bones = SkinRigBone.entries.associateWith { pose(animation.bones[it], at) },
+        leftHandGrip = if (animation.twoHandGrip) 1.0 else 0.0,
     )
 
     private fun pose(track: RigBoneTrack?, at: Double): BonePose {

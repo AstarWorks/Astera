@@ -51,6 +51,8 @@ public object VfxPerformanceSampler {
             }
             val hips = SkinRigTransforms.hips(frame)
             bones["hips"] = out(hips.joint * scale, VfxBodyTrack.quat(hips.rotation))
+            val spine = SkinRigTransforms.spine(frame, body?.slim ?: false)
+            bones["spine"] = out(spine.joint * scale, VfxBodyTrack.quat(spine.rotation))
             val arm = SkinRigTransforms.rightArm(frame, body?.slim ?: false)
             val armRot = VfxBodyTrack.quat(arm.rotation)
             bones["right_hand"] = out((arm.joint + armRot.rotate(SkinRigTransforms.HELD_GRIP_OFFSET)) * scale, armRot)

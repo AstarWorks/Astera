@@ -22,6 +22,7 @@ fetch("/api/cases/" + encodeURIComponent(caseId)).then((r) => { if (!r.ok) throw
   .catch((e) => { $("title").textContent = "failed to load case: " + e.message; });
 
 function init(d) {
+  if (d.case.kind === "pose-review") { location.replace("/stills.html?id=" + encodeURIComponent(d.case.id)); return; }
   S.data = d; S.c = d.case;
   S.c.mc ??= { source: "vfx-caster", offset_ms: 0, castTickInTrace: 5 };
   S.c.focus ??= { enabled: false, factor: 0.2, windowMs: 150 };

@@ -18,8 +18,20 @@ public data class BoneRest(
 )
 
 /**
- * The six bones of the PoC skin rig (ADR-0250). The numbers are the vanilla 26.x `PlayerModel`
- * boxes and joints, so a rig at rest is indistinguishable from the real player.
+ * The six bones of the PoC skin rig (ADR-0250). The boxes and limb joints are the vanilla 26.x
+ * `PlayerModel` ones, so a rig at rest is indistinguishable from the real player.
+ *
+ * Hierarchy (two levels under the hip `root`):
+ * ```
+ * root (hips) -+- body (spine: pivot at the waist) -+- head
+ *              |                                     +- right_arm (+ held item)
+ *              |                                     +- left_arm
+ *              +- right_leg
+ *              +- left_leg
+ * ```
+ * [parent] says which bone a bone hangs from; a child's rotation / position are in its parent's frame, around its
+ * own joint. Unlike vanilla, [BODY] pivots at the waist (12 px), so pitching / twisting the torso carries the head
+ * and arms while the legs stay planted.
  *
  * [id] is what the server tells the client shader (see [SkinRigMarker]); the shader owns the
  * matching skin-UV table, so the two must stay in the same order.
@@ -33,12 +45,20 @@ public enum class SkinRigBone(public val yamlName: String, public val id: Int) {
     LEFT_LEG("left_leg", 5),
     ;
 
+    /** The bone this one hangs from (`null` = directly under `root`). */
+    public val parent: SkinRigBone?
+        get() = when (this) {
+            HEAD, RIGHT_ARM, LEFT_ARM -> BODY
+            BODY, RIGHT_LEG, LEFT_LEG -> null
+        }
+
     /** True for the two bones whose box is 1 px narrower on a slim (Alex) skin. */
     public val isArm: Boolean get() = this == RIGHT_ARM || this == LEFT_ARM
 
     public fun rest(slim: Boolean): BoneRest = when (this) {
         HEAD -> BoneRest(Vec3(0.0, 28.0, 0.0), Vec3(8.0, 8.0, 8.0), Vec3(0.0, 24.0, 0.0))
-        BODY -> BoneRest(Vec3(0.0, 18.0, 0.0), Vec3(8.0, 12.0, 4.0), Vec3(0.0, 24.0, 0.0))
+        // The spine pivots at the waist (top of the legs), not at the vanilla neck joint: see the hierarchy above.
+        BODY -> BoneRest(Vec3(0.0, 18.0, 0.0), Vec3(8.0, 12.0, 4.0), Vec3(0.0, 12.0, 0.0))
         // Classic arms hang from a joint 2 px below the shoulder line; slim arms sit 0.5 px lower (vanilla offset 2.5).
         RIGHT_ARM ->
             if (slim) BoneRest(Vec3(-5.5, 17.5, 0.0), Vec3(3.0, 12.0, 4.0), Vec3(-5.0, 21.5, 0.0))

@@ -31,7 +31,9 @@ public sealed class SkinRigConfigError {
  * lock_movement: true
  * blend_in_ticks: 2
  * blend_out_ticks: 3
- * bones:
+ * two_hand_grip: false     # true: the left hand follows the weapon grip
+ * bones:                   # body carries head + arms (spine at the waist); legs hang from root
+
  *   right_arm:
  *     rotation:
  *       - { t: 0, v: [0, 0, 0] }
@@ -48,6 +50,8 @@ public data class SkinRigAnimationYamlConfig(
     @SerialName("blend_out_ticks") public val blendOutTicks: Int = 0,
     public val bones: Map<String, RigBoneTrackYaml> = emptyMap(),
     public val root: RigBoneTrackYaml? = null,
+    /** Aim the left arm at the right-hand grip every tick (two-handed weapons); its authored `left_arm` rotation is ignored. */
+    @SerialName("two_hand_grip") public val twoHandGrip: Boolean = false,
 ) {
     public fun toDefinition(): Result<SkinRigAnimation, SkinRigConfigError> = try {
         Result.success(
@@ -66,6 +70,7 @@ public data class SkinRigAnimationYamlConfig(
                     bone to track.toDomain("bones.$name")
                 },
                 root = root?.toDomain("root"),
+                twoHandGrip = twoHandGrip,
             ),
         )
     } catch (e: IllegalArgumentException) {

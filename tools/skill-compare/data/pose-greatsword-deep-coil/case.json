@@ -1,0 +1,19 @@
+{
+  "id": "pose-greatsword-deep-coil",
+  "rev": 1,
+  "kind": "pose-review",
+  "identity": "Static pose check: content/poses/greatsword/deep-coil.yaml (baked by tools/pose-solve/bake_pose.py)",
+  "weapon": "bastion-greatsword",
+  "status": "pose-review",
+  "start_s": 0,
+  "end_s": 2,
+  "skill": {
+    "name": "deep coil (pose)",
+    "asteraSkillId": "pose-greatsword-deep-coil"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "notes": "深い溜め(背骨リグ)。膝は曲がらない。左手は柄の手前0.14ブロック",
+  "segments": []
+}

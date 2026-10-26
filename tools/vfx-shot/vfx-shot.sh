@@ -244,7 +244,7 @@ KEEP="${SHOT_KEEP:-0}"               # 1 = keep the stack + parked clients for S
 [ "$CMD" = up ] && KEEP=1
 [ "$SOURCED" = 1 ] && KEEP=0         # anim-shot: its stack is per animation, never worth keeping
 
-CAMERA="${CAMERA:-case}"             # VIEW=compare: case = intent.json camera keys, side = fixed 6 blocks to the side
+CAMERA="${CAMERA:-case}"             # VIEW=compare: case = intent.json camera keys, side = fixed 6 blocks to the side, <name> = intent camera_presets.<name>
 PRE_TICKS=0                          # frames filmed before the cast (compare only; cast_tick_ms = PRE_TICKS * 50)
 ARENA_R=15                           # floor half-size around the arena centre
 ARENA_H=12                           # air cleared above the floor
@@ -253,7 +253,7 @@ CMP_FOV_DEG=""
 CAM0_CMD=""
 ENEMY_X=4.2
 case "$VIEW" in caster|opponent|side|front|back|right|high|near|compare|all) ;; *) die "VIEW must be caster|opponent|side|front|back|right|high|near|compare|all";; esac
-case "$CAMERA" in case|side) ;; *) die "CAMERA must be case|side";; esac
+[[ "$CAMERA" =~ ^[a-z0-9][a-z0-9_-]{0,31}$ ]] || die "CAMERA must be case|side|<intent camera_presets name>"
 if [ "$VIEW" = compare ]; then
   [ -n "$CASE" ] || die "VIEW=compare needs CASE=<case-id> (e.g. CASE=zwei-s3)"
   INTENT="$(python3 -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); c=json.loads((d/"case.json").read_text()); p=(d/c.get("intent",{}).get("file","intent.json")).resolve(); p.relative_to(d.resolve()); print(p)' "$ROOT/tools/skill-compare/data/$CASE")"
@@ -729,6 +729,16 @@ build_arena() {
     sleep 1
   done
   [[ "$out" == *"not loaded"* ]] && die "arena chunks never loaded"
+  # A main world that is not void (a persisted level from before ADR-0255: generated terrain) roofs the arena with
+  # mountains and films it in the dark. Open the sky above the arena, TOP DOWN (so sand / gravel has nothing left to fall
+  # from), in slabs that fit the 32768-block fill limit; then drop any falling block and clear the arena itself.
+  local side=$((hi - lo + 1)) step y bottom
+  step=$((32768 / (side * side))); [ "$step" -ge 1 ] || step=1
+  for ((y = 319; y > Y + ARENA_H; y -= step)); do
+    bottom=$((y - step + 1)); [ "$bottom" -gt $((Y + ARENA_H)) ] || bottom=$((Y + ARENA_H + 1))
+    rcon "execute in minecraft:overworld run fill $lo $bottom $lo $hi $y $hi minecraft:air" >/dev/null
+  done
+  rcon "kill @e[type=minecraft:falling_block]" >/dev/null
   rcon "execute in minecraft:overworld run fill $lo $Y $lo $hi $((Y + ARENA_H)) $hi minecraft:air" >/dev/null
 }
 
