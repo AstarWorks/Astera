@@ -30,7 +30,7 @@ logged as `[+Ns]`):
 |---|---|---|
 | `content/` (any file; fingerprint = `contentSourceHash`) | stage the working tree (`git ls-files -c -o --exclude-standard`) + the e2e timer tuning of `docker/e2e-tune-content.sh`, `docker cp` into `/content`, `/astera admin reload all`, `/astera items refresh` (same as `scripts/dev-deploy.sh content`) | ~2 s |
 | pack inputs (`content/{textures,models,sounds,hud,fonts,pack-assets,shader-patches,particle-skins,items,sprites}`, `tools/resource-pack`) | host `./gradlew :tools:resource-pack:buildResourcePack`, `docker cp` zip + sha1 into the pack host, `/astera admin pack reload force`; parked clients are waited for until they have reloaded the pack | ~10-20 s |
-| plugin code (`plugin/`, `buildSrc/`, `gradle/`, root build files; fingerprint = `codeHash`) | host `./gradlew :plugin:*:shadowJar` (seven jars), copy the changed jars, **restart the server container** (~40 s); the clients drop and are rejoined by the capture | ~1-2 min |
+| plugin code (`plugin/`, `kernel/`, `core/`, `buildSrc/`, `gradle/`, root build files; fingerprint = `codeHash`) | host `./gradlew :plugin:*:shadowJar` (seven jars), copy the changed jars, **restart the server container** (~40 s); the clients drop and are rejoined by the capture | ~1-2 min |
 | `SHOT_NO_FX` | recreate the server container (it is an env var) | ~40 s |
 
 **No stale content is ever served**: after every push the hash of `/content` inside the container is computed with the same

@@ -156,6 +156,7 @@ public class PaperPlayerPresentation(
             d.beforeSend()
             (server.getEntity(d.id) as? Display)?.also { e -> d.viewRange?.let { e.viewRange = it } }
         }
+        val ownerHidden = displays.filter { it.hiddenFromOwner }.map { it.id }.toSet()
         if (mask.body && !o.bodyApplied) {
             o.wasInvisible = owner.isInvisible
             owner.isInvisible = true
@@ -178,12 +179,12 @@ public class PaperPlayerPresentation(
             val shown = hiddenStacks(owner, mask, isOwner)
             if (isOwner && entities.isNotEmpty()) {
                 entities.forEach { viewer.hideEntity(plugin, it) }
-                entities.forEach { viewer.showEntity(plugin, it) }
+                entities.filter { it.uniqueId !in ownerHidden }.forEach { viewer.showEntity(plugin, it) }
             }
             if (packets != null) {
                 val list = ArrayList<Any>()
                 if (shown.isNotEmpty()) list += packets.equipmentPacket(owner, shown)
-                if (!isOwner && viewer.uniqueId in tracking) list.addAll(displayData)
+                if (isOwner || viewer.uniqueId in tracking) list.addAll(displayData)
                 playerData?.let { list += it }
                 packets.send(viewer, list)
             } else if (shown.isNotEmpty()) {
@@ -287,6 +288,9 @@ public class PaperPlayerPresentation(
                     viewer.sendEquipmentChange(owner, shown)
                 }
             }
+            // The owner is not in its own trackedBy, and the bundler took the dirty flag, so the tracker never sends the owner its
+            // own "visible again": without this the owner stays invisible to itself (third person) after the first performance.
+            if (packets != null && playerData != null) packets.send(owner, listOf(playerData))
             if (playerData == null && freed.body && owner.isInvisible && !o.wasInvisible) {
                 owner.isInvisible = o.wasInvisible
                 o.bodyApplied = false
