@@ -536,9 +536,23 @@ internal object MatchGameplayWiring {
                     tally = matchTally,
                     eventBus = eventBus,
                     nameOf = { id -> env.ctx.services.get<IMcServer>()?.findPlayer(id)?.name },
+                    normaStandings = { id -> matchStars.norma.takeFinalStandings(id) },
                 )
         subscriptions += eventBus.subscribe(MatchEnded::class) {
             matchEndSummaryListener.handle(it)
+        }
+
+        // "How to win" chat briefing when a match turns ACTIVE: the mode's objective + how Norma levels win it.
+        val matchBriefingListener = com.astarworks.astera.match.application.eventbus.listeners.match.MatchBriefingListener(
+            matches = matches,
+            playerGateway = playerGateway,
+            messages = msgRenderer,
+            modeKeyOf = { id -> env.matchModeRegistry.modeKeyOf(id) },
+            configOf = env.modeConfigOf,
+            isNorma = env.normaLayerOf,
+        )
+        subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) {
+            matchBriefingListener.onPhaseChanged(it)
         }
 
         val applyPvpDeathPolicyListener =

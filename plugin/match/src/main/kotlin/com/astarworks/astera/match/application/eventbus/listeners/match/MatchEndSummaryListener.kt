@@ -22,6 +22,7 @@ import com.astarworks.astera.core.domain.match.result.PlayerMatchLine
 import com.astarworks.astera.core.domain.match.result.TeamResult
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.application.service.result.MatchTallyService
+import com.astarworks.astera.match.domain.norma.NormaStanding
 import org.slf4j.LoggerFactory
 
 /**
@@ -55,6 +56,8 @@ public class MatchEndSummaryListener(
     private val tally: MatchTallyService,
     private val eventBus: IDomainEventBus,
     private val nameOf: (PlayerId) -> String?,
+    /** Final per-team Norma standings of a match (empty outside a Norma match); the result screen shows them. */
+    private val normaStandings: (MatchId) -> List<NormaStanding> = { emptyList() },
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -65,11 +68,12 @@ public class MatchEndSummaryListener(
             return
         }
         val summary = buildSummary(match, event)
+        val standings = normaStandings(event.matchId)
 
         for (team in match.teams) {
             for (member in team.members) {
                 pushTitle(member, summary.outcomeOf(member), event.matchId)
-                pushChat(member, match, summary, event)
+                pushChat(member, match, summary, event, standings)
             }
         }
         eventBus.publish(MatchSummaryReady(summary))
@@ -118,7 +122,7 @@ public class MatchEndSummaryListener(
         }
     }
 
-    private fun pushChat(viewer: PlayerId, match: Match, summary: MatchSummary, event: MatchEnded) {
+    private fun pushChat(viewer: PlayerId, match: Match, summary: MatchSummary, event: MatchEnded, standings: List<NormaStanding>) {
         fun send(key: String, vararg params: Pair<String, String>) =
             playerGateway.sendMessage(viewer, messages.render(viewer, MessageKey(key), params.toMap()))
 
@@ -149,7 +153,17 @@ public class MatchEndSummaryListener(
                 "wave" to reason.wave.toString(),
                 "waves" to reason.waves.toString(),
             )
-            else -> send("astera.match.summary.reason.${reasonKindOf(event)}")
+            else -> {
+                // "Ended by objective completion" tells nobody anything: name the winner and the mode's own objective.
+                val winner = event.winningTeam
+                val modeReason = summary.modeKey.takeIf { it.isNotBlank() && winner != null && reasonKindOf(event) == "objective" }
+                    ?.let { "astera.match.summary.reason.objective-by.$it" }
+                    ?.let { key -> teamParams(viewer, teamsById[winner], winner!!.value).let { params -> key to params } }
+                    ?.let { (key, params) -> key to messages.render(viewer, MessageKey(key), params.toMap()) }
+                    ?.takeIf { (key, text) -> text.isNotBlank() && text != key && !text.startsWith("astera.") }
+                if (modeReason != null) playerGateway.sendMessage(viewer, modeReason.second)
+                else send("astera.match.summary.reason.${reasonKindOf(event)}")
+            }
         }
 
         // Score line: "Score  Red 3 - Blue 5".
@@ -157,6 +171,17 @@ public class MatchEndSummaryListener(
             teamLabel(r.team, "astera.match.result.score.team", mapOf("score" to r.score.toString()))
         }
         send("astera.match.result.score.label", "scores" to scores)
+
+        // Norma standing per team: the tie-break order of the time limit (level, stars, kills), so a loser sees how close it was.
+        if (standings.isNotEmpty()) {
+            val line = standings.joinToString(SCORE_SEPARATOR) { st ->
+                teamLabel(
+                    st.team, "astera.match.result.norma.team",
+                    mapOf("level" to st.level.toString(), "max" to st.maxLevel.toString(), "stars" to st.stars.toString(), "kills" to st.kills.toString()),
+                )
+            }
+            send("astera.match.result.norma.label", "standings" to line)
+        }
 
         // Top players.
         val top = summary.topPlayers(TOP_PLAYERS)

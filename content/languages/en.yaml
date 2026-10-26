@@ -962,8 +962,35 @@ astera:
         encounter-cleared: "<green>All {waves} waves of the encounter were cleared.</green>"
         encounter-failed: "<red>The party fell on wave {wave}/{waves}.</red>"
         encounter-time-up: "<red>Time ran out on wave {wave}/{waves}.</red>"
+        objective-by:
+          break-core: "<{color}><bold>{team}</bold></{color}> <gray>destroyed the last enemy core.</gray>"
+          annihilation: "<{color}><bold>{team}</bold></{color}> <gray>was the last team with a Nexus standing.</gray>"
+          carry-tnt: "<{color}><bold>{team}</bold></{color}> <gray>delivered the TNT to the enemy base.</gray>"
+          carry-mini-tnt: "<{color}><bold>{team}</bold></{color}> <gray>delivered the combined TNT to the enemy base.</gray>"
+          capture-wool: "<{color}><bold>{team}</bold></{color}> <gray>captured enough wool zones.</gray>"
+          steal-jewelry: "<{color}><bold>{team}</bold></{color}> <gray>banked enough jewels.</gray>"
+          battle-loyal: "<{color}><bold>{team}</bold></{color}> <gray>reached the kill goal first.</gray>"
+    # "How to win" chat block when a match turns ACTIVE (MatchBriefingListener).
+    briefing:
+      header: "<gold>== How to win ==</gold>"
+      mode:
+        skirmish: "<gray>Team deathmatch:</gray> <white>beat the other team to the top Norma level.</white>"
+        break-core: "<gray>Break Core:</gray> <white>destroy the enemy core and defend your own. The last team with a core wins.</white>"
+        annihilation: "<gray>Annihilation:</gray> <white>break the enemy Nexus pillars. The last team with a Nexus standing wins.</white>"
+        carry-tnt: "<gray>Carry TNT:</gray> <white>pick up the TNT and carry it into the enemy base. Deliver it first to win.</white>"
+        carry-mini-tnt: "<gray>Carry Mini-TNT:</gray> <white>collect mini-TNTs and bank them at your own base; enough of them combine into one big TNT. Deliver that to the enemy base to win.</white>"
+        capture-wool: "<gray>Capture Wool:</gray> <white>stand in the wool zones to capture them. Capture enough zones first to win.</white>"
+        steal-jewelry: "<gray>Steal Jewelry:</gray> <white>take jewels from the enemy pedestals and bank them at home. Bank enough to win.</white>"
+        battle-loyal: "<gray>Battle Royal:</gray> <white>team deathmatch. The first team to the kill goal wins.</white>"
+        pve-waves: "<gray>Waves:</gray> <white>team up against the monsters and clear every wave without running out of lives.</white>"
+      norma-win: "<gray>Norma:</gray> <white>stars from generators and kills level you up (your current goal is on the sidebar). The first player to reach</white> <gold>Lv {max}</gold> <white>wins the match for their team.</white>"
+      norma-rank: "<gray>Norma:</gray> <white>stars from generators and kills level you up (your goal is on the sidebar). Levels rank the teams if time runs out.</white>"
+      time: "<gray>Time limit {minutes} min: the team ahead on the objective, then Norma level, stars and kills wins.</gray>"
     # F3-4 — result screen (chat part) shown at match end, before the transfer back.
     result:
+      norma:
+        label: "<gray>Norma</gray>  {standings}"
+        team: "<{color}>{team}</{color}> <white><bold>Lv {level}/{max}</bold></white> <gray>★{stars} ⚔{kills}</gray>"
       score:
         label: "<gray>Score</gray>  {scores}"
         team: "<{color}>{team}</{color}> <white><bold>{score}</bold></white>"

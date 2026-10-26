@@ -20,6 +20,7 @@ import com.astarworks.astera.match.domain.norma.NormaError
 import com.astarworks.astera.match.domain.norma.NormaGoal
 import com.astarworks.astera.match.domain.norma.NormaHud
 import com.astarworks.astera.match.domain.norma.NormaProgress
+import com.astarworks.astera.match.domain.norma.NormaStanding
 
 /**
  * Orange-Juice-style Norma levels, per (match, player). Everyone starts at level 1 with the STAR goal. At each level
@@ -98,9 +99,25 @@ public class NormaLevelService(
     public fun kills(match: Match, team: TeamId): Int =
         match.teams.firstOrNull { it.id == team }?.members.orEmpty().sumOf { norma.get(match.id, it).totalKills }
 
+    /**
+     * Drops the match's Norma data. The final per-team standings are kept aside first so the result screen (which runs
+     * after this on the same `MatchEnded`) can explain who was ahead; [takeFinalStandings] hands them over once.
+     */
     public fun clear(matchId: MatchId) {
+        if (isNorma(matchId)) {
+            matches.findById(matchId)?.let { match ->
+                val max = configOf(matchId).maxLevel
+                finalStandings[matchId] = match.teams.map { NormaStanding(it.id, topLevel(match, it.id), max, carried(match, it.id), kills(match, it.id)) }
+                while (finalStandings.size > MAX_KEPT_STANDINGS) finalStandings.keys.firstOrNull()?.let { finalStandings.remove(it) }
+            }
+        }
         norma.clear(matchId)
     }
+
+    /** The standings [clear] kept for [matchId] (empty outside a Norma match); each match's are handed out once. */
+    public fun takeFinalStandings(matchId: MatchId): List<NormaStanding> = finalStandings.remove(matchId).orEmpty()
+
+    private val finalStandings: MutableMap<MatchId, List<NormaStanding>> = java.util.concurrent.ConcurrentHashMap()
 
     private fun evaluate(match: Match, playerId: PlayerId) {
         val cfg = configOf(match.id)
@@ -121,4 +138,9 @@ public class NormaLevelService(
     }
 
     private fun live(match: Match): Boolean = match.phase == MatchPhase.ACTIVE || match.phase == MatchPhase.SUDDEN_DEATH
+
+    private companion object {
+        /** Standings nobody collected (no result screen) must not pile up. */
+        const val MAX_KEPT_STANDINGS = 32
+    }
 }
