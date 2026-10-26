@@ -224,12 +224,12 @@ internal class CorePaperBindings(
             worldTimeGateway = com.astarworks.astera.core.adapter.paper.world.PaperWorldTimeGateway(server),
             worldWeatherGateway = com.astarworks.astera.core.adapter.paper.world.PaperWorldWeatherGateway(server),
             worldRulesGateway = com.astarworks.astera.core.adapter.paper.world.PaperWorldRulesGateway(server),
-            signActionService = com.astarworks.astera.core.adapter.paper.sign.PaperSignActionService(server),
+            signActionService = com.astarworks.astera.core.adapter.paper.sign.PaperSignActionService(server, scheduler),
             hologramGateway = { services ->
                 // Wave 6f (ADR-0163): Paper overlay routes through Bukkit Display
                 // Entity API (TextDisplay / ItemDisplay / BlockDisplay).
                 val managedRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry>()
-                val janitor = com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntityJanitor(plugin, managedRegistry)
+                val janitor = com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntityJanitor(plugin, managedRegistry, scheduler)
                 janitor.start()
                 managedJanitor = janitor
                 val paperHologramGateway = com.astarworks.astera.core.adapter.paper.hologram.PaperHologramGateway(
@@ -259,10 +259,12 @@ internal class CorePaperBindings(
                 val bodies = com.astarworks.astera.core.adapter.paper.entity.PaperNpcBodyService(
                     plugin = plugin,
                     mcServer = mcServer,
+                    scheduler = scheduler,
                     messages = services.getOrThrow<IMessageRenderer>(),
                     interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
                     intents = services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>(),
                     registry = services.get<com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry>(),
+                    itemIcon = { id -> services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()?.find(id)?.let { spec -> services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>()?.buildFor(spec, null, 1) } },
                 )
                 bodies.start()
                 npcBodyService = bodies

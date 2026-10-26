@@ -40,7 +40,6 @@ com.astarworks.astera.core.domain.event.MiningCompleted
 com.astarworks.astera.core.domain.event.MiningCancelled
 # NPC system (Phase 2 — beyond Wave 5q tutorial NPC stub)
 com.astarworks.astera.core.domain.event.NpcInteracted
-com.astarworks.astera.core.domain.event.NpcBackendSwitched
 # Tutorial extension (Phase 2 — Wave 5q published `TutorialStepEntered` only;
 # full lifecycle events Started/Completed/Skipped deferred)
 com.astarworks.astera.core.domain.event.TutorialStarted

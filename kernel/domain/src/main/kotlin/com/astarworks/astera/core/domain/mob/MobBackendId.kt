@@ -4,8 +4,7 @@ package com.astarworks.astera.core.domain.mob
  * Identity of an [com.astarworks.astera.core.application.port.outbound.mob.IMobAdapter]
  * backend (Wave 5pve, ADR-0085).
  *
- * Same pattern as [com.astarworks.astera.core.domain.entity.NpcBackendId] from
- * Wave 5l (ADR-0082) — a value class wrapping a constrained string so the
+ * A value class wrapping a constrained string so the
  * type system distinguishes backend ids from arbitrary text. Konsist
  * enforces uniqueness across `IMobAdapter` implementations
  * (`IMobAdapter implementations must declare backendId() uniquely`).

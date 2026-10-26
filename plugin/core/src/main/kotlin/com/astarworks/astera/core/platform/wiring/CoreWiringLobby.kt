@@ -422,6 +422,14 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     // intent handlers (e.g. Economy's `lobby.shop.open`) register in their own
     // plugins; dispatch happens at click time, so enable order does not matter.
     // Game-only backends (ServerRole.GAME) have no lobby world, so no lobby NPCs.
+    val lobbyNpcBodies = ports.npcBodies?.invoke(services)
+    if (lobbyNpcBodies != null) {
+        services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcAdapter>().bindBodies(lobbyNpcBodies)
+        services.register<com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer>(
+            lobbyNpcBodies,
+            priority = 100,
+        )
+    }
     if (ctx.serverRole.hostsLobby) {
         // Queue lane pads (F3-1): step-on detection + the live per-lane queued counts. The lane list
         // comes from the Match plugin's ILobbyLaneCatalog at use time (Match enables after Core).
@@ -450,17 +458,9 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             is com.astarworks.astera.core.domain.Result.Failure ->
                 logger.warning("Lobby lane pads disabled: lobby world content unavailable (${lobbyContent.error}).")
         }
-        val lobbyNpcBodies = ports.npcBodies?.invoke(services)
-        if (lobbyNpcBodies != null) {
-            services.register<com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer>(
-                lobbyNpcBodies,
-                priority = 100,
-            )
-        }
         val lobbyNpcReport = com.astarworks.astera.core.application.service.entity.LobbyNpcLoaderService(
             spawner = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner>(),
             interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
-            bodies = lobbyNpcBodies,
         ).loadFrom(contentDir.resolve("lobby-npcs"))
         logger.info("Lobby NPCs loaded: ${lobbyNpcReport.loaded} ok, ${lobbyNpcReport.failed} failed")
     } else {

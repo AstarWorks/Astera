@@ -93,17 +93,20 @@ import kotlin.math.floor
  */
 public class PaperSignActionService(
     private val server: Server,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
 ) : ISignActionService {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
     private data class Slot(val world: WorldId, val blockX: Int, val blockY: Int, val blockZ: Int)
 
-    private val bindings: MutableMap<Slot, SignAction> = mutableMapOf()
+    private val bindings: MutableMap<Slot, SignAction> = java.util.concurrent.ConcurrentHashMap()
 
     override fun bindSignAction(world: WorldId, position: Vec3, action: SignAction) {
         val slot = slotOf(world, position)
-        validateBlockIsSign(world, slot)
+        scheduler.run(com.astarworks.astera.core.application.port.outbound.regionScope(world, position), kotlin.time.Duration.ZERO) {
+            validateBlockIsSign(world, slot)
+        }
         bindings[slot] = action
     }
 

@@ -5,16 +5,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 
-/**
- * Declarative description of "what to spawn" — domain-layer input to
- * [com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner.spawn].
- *
- * The five variants intentionally mirror the categories in [EntityCategory] so
- * the router can dispatch on type without reflection. Mob vs NPC vs Display vs
- * Projectile vs CitizensNpc is **not** a vendor distinction — it's a domain
- * distinction (different gameplay roles), and the spawner picks the right
- * backend adapter underneath.
- */
+/** Declarative input to the entity spawner (ADR-0264). */
 public sealed interface SpawnSpec {
 
     /**
@@ -33,38 +24,21 @@ public sealed interface SpawnSpec {
         }
     }
 
-    /**
-     * Minimal NPC backed by an `ArmorStand`. Visible / invisible toggle plus
-     * optional held-item display. Suitable for shop vendors, quest givers
-     * and decorative props when Citizens is not installed.
-     */
-    public data class ArmorStandNpc(
-        public val displayName: MessageKey?,
-        public val visible: Boolean = false,
-        public val itemInHand: ItemId? = null,
+    /** Region-owned Display body with an Interaction hitbox. */
+    public data class DisplayNpc(
+        public val kind: HologramKind,
+        public val yaw: Float = 0f,
+        public val pitch: Float = 0f,
     ) : SpawnSpec
 
-    /**
-     * Display-entity hologram. Routes to the same Minimal backend as
-     * [ArmorStandNpc] but uses the 1.19.4+ Display family for cleaner visuals.
-     */
-    public data class DisplayNpc(public val kind: HologramKind) : SpawnSpec
-
-    /**
-     * Citizens-backed NPC. Requires the Citizens plugin to be present at
-     * runtime — when absent the spawner falls back to [ArmorStandNpc] /
-     * [DisplayNpc] for compatible specs and returns [SpawnError.NoSpawnableBackend]
-     * otherwise.
-     */
-    public data class CitizensNpc(
-        public val typeKey: String,
-        public val displayName: MessageKey?,
-        public val skin: NpcSkin? = null,
-        public val traits: List<NpcTraitSpec> = emptyList(),
+    /** Packet-only player body; signed textures are supplied by content. */
+    public data class PlayerNpc(
+        public val profileName: String,
+        public val skin: NpcSkin,
+        public val yaw: Float = 0f,
+        public val pitch: Float = 0f,
     ) : SpawnSpec {
-        init {
-            require(typeKey.isNotBlank()) { "CitizensNpc.typeKey must not be blank" }
-        }
+        init { require(profileName.matches(Regex("[A-Za-z0-9_]{1,16}"))) }
     }
 
     /**

@@ -26,20 +26,25 @@ public class PaperItemDelivery(
     private val materializer: PaperItemMaterializer,
     private val server: Server,
     private val idResolver: PaperItemIdResolver,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
 ) : IItemDelivery {
 
-    override fun refreshHeld(items: IItemRegistry): Int {
+    override fun refreshHeld(items: IItemRegistry): java.util.concurrent.CompletableFuture<Int> {
         materializer.rescanModels()
-        var changed = 0
-        for (player in server.onlinePlayers) {
-            for (stack in player.inventory.contents) {
-                if (stack == null) continue
-                val id = idResolver.itemIdOf(stack) ?: continue
-                val spec = items.find(id) ?: continue
-                if (materializer.refreshVisuals(stack, spec, PlayerId(player.uniqueId))) changed++
-            }
+        val counts = server.onlinePlayers.map { player ->
+            val count = java.util.concurrent.CompletableFuture<Int>()
+            scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(player.uniqueId), kotlin.time.Duration.ZERO) {
+                runCatching {
+                    player.inventory.contents.count { stack ->
+                        val id = stack?.let(idResolver::itemIdOf)
+                        val spec = id?.let(items::find)
+                        stack != null && spec != null && materializer.refreshVisuals(stack, spec, PlayerId(player.uniqueId))
+                    }
+                }.fold(count::complete, count::completeExceptionally)
+            }.onRetired { count.complete(0) }
+            count
         }
-        return changed
+        return java.util.concurrent.CompletableFuture.allOf(*counts.toTypedArray()).thenApply { counts.sumOf { it.join() } }
     }
 
     override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int, origin: ItemOrigin): DeliveryResult {

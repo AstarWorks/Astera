@@ -144,7 +144,12 @@ internal class PaperLobbyMenuKit(
 
     /** Plugin disable: playerdata is saved after plugins stop, so take the kit off everyone first. */
     fun stripAll() {
-        for (p in plugin.server.onlinePlayers) strip(p)
+        for (p in plugin.server.onlinePlayers) stripOnOwner(p)
+    }
+
+    private fun stripOnOwner(player: Player) {
+        if (org.bukkit.Bukkit.isOwnedByCurrentRegion(player)) strip(player)
+        else player.scheduler.execute(plugin, Runnable { strip(player) }, null, 1L)
     }
 
     private fun later(player: Player) {

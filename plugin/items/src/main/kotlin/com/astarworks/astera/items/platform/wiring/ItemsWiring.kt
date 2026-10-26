@@ -272,7 +272,7 @@ public object ItemsWiring {
 
         // Command tree.
         // `/astera items give <target> <item> [amount]` (ADR-0184).
-        commands.register("items", giveItemSubcommand(giveItem, itemRegistry))
+        commands.register("items", giveItemSubcommand(giveItem, itemRegistry, scheduler, playerGateway))
         commands.register("items", refreshItemsSubcommand(itemDelivery, itemRegistry))
 
         // ── Wave M 5polish-quickwin (ADR-0130 §D) ────────────────────────

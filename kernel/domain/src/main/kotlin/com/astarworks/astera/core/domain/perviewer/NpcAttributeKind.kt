@@ -3,8 +3,7 @@ package com.astarworks.astera.core.domain.perviewer
 /**
  * Per-viewer attribute axis for an NPC override (Wave 5y-ext, ADR-0112).
  *
- * Where `NpcTraitSpec` describes traits an NPC carries **globally**, this
- * sealed family describes a single scalar / boolean knob whose value can
+ * This sealed family describes a single scalar / boolean knob whose value can
  * differ **per viewer**. The packet adapter (Wave 6) translates each variant
  * into the corresponding Player Info Update / Entity Metadata packet.
  *
@@ -14,9 +13,7 @@ package com.astarworks.astera.core.domain.perviewer
  *
  * # Variant semantics
  *
- *  - [Scale] — visual size multiplier (`1.0` = default). Maps to Citizens
- *    `scale` attribute / Display entity transform / Mob attribute scale
- *    in Wave 6 depending on backend.
+ *  - [Scale] — visual size multiplier via the Display transform or entity scale attribute.
  *  - [Glowing] — outline-shader toggle. Per-viewer because teammate vs.
  *    enemy spectator filters need to differ.
  *  - [Invisible] — render-suppress (the NPC stays spawned, viewers in

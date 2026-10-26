@@ -34,12 +34,3 @@ public sealed interface HologramKind {
         }
     }
 }
-
-/**
- * Opaque reference to a previously-spawned hologram (returned by a display-NPC
- * spawn) — used by [NpcTraitSpec.HologramAttachment] to glue a label onto a
- * separately-spawned NPC.
- */
-public data class HologramHandle(
-    public val entity: EntityHandle,
-)

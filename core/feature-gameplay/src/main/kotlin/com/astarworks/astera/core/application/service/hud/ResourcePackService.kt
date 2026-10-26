@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference
  * the new pack without any further action.
  */
 public class ResourcePackService(
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
     initial: ResourcePackSpec?,
     private val loader: () -> ResourcePackSpec?,
     private val hud: IHudGateway,
@@ -52,10 +53,11 @@ public class ResourcePackService(
         var pushed = 0
         if (changed || force) {
             for (player in onlinePlayers()) {
-                when (val outcome = hud.pushResourcePack(player.id, fresh)) {
-                    is Result.Success -> pushed++
-                    is Result.Failure -> log.warn("Resource pack re-push failed for {}: {}", player.name, outcome.error)
+                scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(player.id.uuid), kotlin.time.Duration.ZERO) {
+                    val outcome = hud.pushResourcePack(player.id, fresh)
+                    if (outcome is Result.Failure) log.warn("Resource pack re-push failed for {}: {}", player.name, outcome.error)
                 }
+                pushed++
             }
         }
         log.info(

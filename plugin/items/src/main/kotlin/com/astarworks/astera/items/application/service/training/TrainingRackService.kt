@@ -112,20 +112,20 @@ public class TrainingRackService(
     /** Players who are in a match must not carry training weapons, whatever order the match events came in. */
     public fun sweep(): Int {
         val repo = matches() ?: return 0
-        val holders = inventory.holders().filter { repo.findMatchOf(it) != null }
+        val holders = inventory.candidates().filter { repo.findMatchOf(it) != null }
         holders.forEach { id -> scheduler.run(ExecutionScope.Entity(id.uuid), kotlin.time.Duration.ZERO) { strip(id) } }
         return holders.size
     }
 
     /** A formed match takes [players] out of the lobby. */
     public fun onMatchFormed(event: MatchFormed) {
-        event.players.forEach { strip(it) }
+        event.players.forEach { id -> scheduler.run(ExecutionScope.Entity(id.uuid), kotlin.time.Duration.ZERO) { strip(id) } }
     }
 
     /** Participants of a starting match leave the lobby: their training weapons must not follow. */
     public fun onMatchStarted(event: MatchStarted) {
         val match = matches()?.findById(event.matchId) ?: return
-        match.teams.flatMap { it.members }.forEach { strip(it) }
+        match.teams.flatMap { it.members }.forEach { id -> scheduler.run(ExecutionScope.Entity(id.uuid), kotlin.time.Duration.ZERO) { strip(id) } }
     }
 
     private fun fail(playerId: PlayerId, error: RackError, itemId: ItemId): Result<ItemSpec, RackError> {

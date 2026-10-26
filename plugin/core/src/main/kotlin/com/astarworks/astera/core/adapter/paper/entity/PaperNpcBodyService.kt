@@ -1,194 +1,201 @@
 package com.astarworks.astera.core.adapter.paper.entity
 
-import java.util.concurrent.CopyOnWriteArrayList
-
 import com.astarworks.astera.core.adapter.api.server.IMcServer
+import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsNpcPlayers
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer
 import com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter
+import com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.domain.entity.EntityHandle
+import com.astarworks.astera.core.domain.entity.HologramKind
 import com.astarworks.astera.core.domain.entity.NpcInteractionClick
+import com.astarworks.astera.core.domain.entity.SpawnSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
-import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
-import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Location
-import org.bukkit.NamespacedKey
+import org.bukkit.Material
+import org.bukkit.entity.Display
 import org.bukkit.entity.Entity
+import org.bukkit.entity.Interaction
+import org.bukkit.entity.TextDisplay
+import org.bukkit.entity.ItemDisplay
+import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Player
-import org.bukkit.entity.Villager
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
+import org.bukkit.event.world.EntitiesLoadEvent
+import org.bukkit.event.world.EntitiesUnloadEvent
 import org.bukkit.event.server.ServerLoadEvent
-import org.bukkit.persistence.PersistentDataType
-import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.inventory.EquipmentSlot
-import org.slf4j.LoggerFactory
+import org.bukkit.inventory.ItemStack
+import org.bukkit.plugin.java.JavaPlugin
+import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration
 
-/**
- * Paper body for the lobby NPCs declared in `content/lobby-npcs/`: each NPC is
- * a frozen, invulnerable, non-persistent [Villager] tagged (PDC) with its
- * [EntityHandle]. A right / left click on the body looks up the intent bound in
- * [INpcInteractionRouter] and dispatches it through [IGuiIntentRouter], the
- * same path a GUI tile click takes (so `lobby.shop.open` opens the shop).
- *
- * The villager is never saved to disk (`isPersistent = false`) and is removed
- * in [removeAll] on plugin disable, so a restart re-spawns each NPC exactly once.
- */
+/** Region-owned Display + Interaction bodies, or packet-only players. No living NPC entities. */
 internal class PaperNpcBodyService(
     private val plugin: JavaPlugin,
     private val mcServer: IMcServer,
+    private val scheduler: IScheduler,
     private val messages: IMessageRenderer,
     private val interactions: INpcInteractionRouter,
     private val intents: IGuiIntentRouter,
-    /**
-     * Claims each body (ADR-0248). The managed-entity janitor removes every `astera_managed` entity nobody has
-     * claimed when a world / chunk's entities load, so an unclaimed NPC body vanishes as soon as the lobby is built.
-     */
-    private val registry: com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry? = null,
+    private val registry: IManagedEntityRegistry? = null,
+    private val itemIcon: (com.astarworks.astera.core.domain.item.ItemId) -> ItemStack?,
 ) : INpcBodyMaterializer, Listener {
+    private data class Request(val handle: EntityHandle, val world: WorldId, val position: Vec3, val spec: SpawnSpec)
+    private val requests = ConcurrentHashMap<EntityHandle, Request>()
+    private val bodies = ConcurrentHashMap<EntityHandle, List<Entity>>()
+    private val hitboxes = ConcurrentHashMap<UUID, EntityHandle>()
+    private val packets = PacketEventsNpcPlayers(plugin, scheduler, ::dispatch)
 
-    private val log = LoggerFactory.getLogger(javaClass)
-    private val tagKey = NamespacedKey(plugin, TAG)
-    private val bodies = ConcurrentHashMap<EntityHandle, UUID>()
-    private val pending = CopyOnWriteArrayList<PendingBody>()
-
-    /**
-     * Worlds that are being created after startup (the lobby world, ADR-0180). A body for one of
-     * these stays pending instead of falling back to the main world; clear the set and call
-     * [flush] once the world exists (or its creation failed).
-     */
-    @Volatile
-    var awaitedWorlds: Set<String> = emptySet()
-
-    fun flush() {
-        plugin.server.globalRegionScheduler.execute(plugin, Runnable { flushPending() })
-    }
+    @Volatile var awaitedWorlds: Set<String> = emptySet()
 
     fun start() {
         plugin.server.pluginManager.registerEvents(this, plugin)
-        plugin.server.globalRegionScheduler.execute(plugin, Runnable { flushPending() })
+        packets.start()
     }
 
-    override fun materialize(
-        handle: EntityHandle,
-        world: WorldId,
-        position: Vec3,
-        yaw: Float,
-        pitch: Float,
-        displayName: MessageKey,
-    ) {
-        val request = PendingBody(handle, world, position, yaw, pitch, displayName)
-        val run = Runnable { if (!trySpawn(request)) pending += request }
-        schedule(request, run)
+    fun flush() {
+        requests.values.forEach(::schedule)
+    }
+
+    @EventHandler fun onServerLoad(event: ServerLoadEvent) = flush()
+
+    @EventHandler
+    fun onEntitiesUnload(event: EntitiesUnloadEvent) {
+        val unloaded = event.entities.map { it.uniqueId }.toSet()
+        bodies.entries.toList().filter { (_, entities) -> entities.any { it.uniqueId in unloaded } }.forEach { (handle, entities) ->
+            val request = requests[handle] ?: return@forEach
+            synchronized(request) {
+                if (!bodies.remove(handle, entities)) return@forEach
+                entities.forEach { entity ->
+                    hitboxes.remove(entity.uniqueId)
+                    packets.unbindInteraction(entity.entityId)
+                    registry?.release("npc:${handle.id}:${entity.uniqueId}")
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    fun onEntitiesLoad(event: EntitiesLoadEvent) {
+        requests.values.filter { request ->
+            val scope = regionScope(request.world, request.position)
+            request.world.value == event.world.name && scope.cx == event.chunk.x && scope.cz == event.chunk.z
+        }.forEach(::schedule)
+    }
+
+    override fun materialize(handle: EntityHandle, world: WorldId, position: Vec3, spec: SpawnSpec) {
+        val request = Request(handle, world, position, spec)
+        requests[handle] = request
+        schedule(request)
+    }
+
+    private fun schedule(request: Request) {
+        if (request.world.value in awaitedWorlds || plugin.server.getWorld(request.world.value) == null) return
+        if (request.spec is SpawnSpec.PlayerNpc) {
+            synchronized(request) {
+                if (requests[request.handle] !== request) return
+                packets.put(request.handle, request.world, request.position, request.spec)
+            }
+            return
+        }
+        scheduler.run(regionScope(request.world, request.position), Duration.ZERO) {
+            synchronized(request) {
+                if (request.world.value in awaitedWorlds || requests[request.handle] !== request || bodies.containsKey(request.handle)) return@run
+                val world = plugin.server.getWorld(request.world.value) ?: return@run
+                val spec = request.spec as SpawnSpec.DisplayNpc
+                val at = Location(world, request.position.x, request.position.y, request.position.z, spec.yaw, spec.pitch)
+                val display: Display = when (val kind = spec.kind) {
+                    is HologramKind.Text -> world.spawn(at.clone().add(0.0, 2.0, 0.0), TextDisplay::class.java) {
+                        it.text(AsteraTextDeserializer.deserialize(messages.render(null, kind.messageKey)))
+                        it.billboard = Display.Billboard.CENTER
+                    }
+                    is HologramKind.Item -> world.spawn(at, ItemDisplay::class.java) {
+                        it.setItemStack(requireNotNull(itemIcon(kind.itemId)) { "Unknown NPC display item ${kind.itemId}" })
+                    }
+                    is HologramKind.Block -> world.spawn(at, BlockDisplay::class.java) {
+                        it.block = requireNotNull(Material.matchMaterial(kind.blockKey)).createBlockData()
+                    }
+                }
+                val hitbox = world.spawn(at, Interaction::class.java) {
+                    it.interactionWidth = 0.9f
+                    it.interactionHeight = 2f
+                    it.isResponsive = true
+                    (spec.kind as? HologramKind.Text)?.let { kind ->
+                        it.customName(AsteraTextDeserializer.deserialize(messages.render(null, kind.messageKey)))
+                    }
+                }
+                val entities = listOf(display, hitbox)
+                entities.forEach { entity ->
+                    val owner = "npc:${request.handle.id}:${entity.uniqueId}"
+                    PaperManagedEntities.mark(entity, owner)
+                    registry?.claim(owner, entity.uniqueId)
+                }
+                hitboxes[hitbox.uniqueId] = request.handle
+                packets.bindInteraction(hitbox.entityId, request.handle, request.world, request.position)
+                bodies[request.handle] = entities
+            }
+        }
+    }
+
+    override fun remove(handle: EntityHandle) {
+        val request = requests[handle] ?: return
+        synchronized(request) {
+            if (!requests.remove(handle, request)) return
+            packets.remove(handle)
+            bodies.remove(handle)?.forEach { entity ->
+                hitboxes.remove(entity.uniqueId)
+                packets.unbindInteraction(entity.entityId)
+                scheduler.run(ExecutionScope.Entity(entity.uniqueId), Duration.ZERO) { entity.remove() }
+                registry?.release("npc:${handle.id}:${entity.uniqueId}")
+            }
+        }
+    }
+
+    override fun move(handle: EntityHandle, position: Vec3) {
+        val request = requests[handle] ?: return
+        remove(handle)
+        materialize(handle, request.world, position, request.spec)
     }
 
     override fun removeAll() {
-        val remove = Runnable {
-            pending.clear()
-            bodies.values.forEach { id -> plugin.server.getEntity(id)?.let { entity -> entity.scheduler.execute(plugin, Runnable { entity.remove() }, null, 1L) } }
-            bodies.keys.forEach { handle -> registry?.release("npc:${handle.id}") }
-            bodies.clear()
-        }
-        remove.run()
+        requests.keys.toList().forEach(::remove)
+        packets.stop()
     }
-
-    /**
-     * Core enables before the server has loaded its worlds, so early requests are parked in
-     * [pending] and flushed once worlds exist (ServerLoadEvent, or the first tick as a fallback).
-     */
-    @EventHandler
-    fun onServerLoad(event: ServerLoadEvent) {
-        flushPending()
-    }
-
-    private fun flushPending() {
-        if (pending.isEmpty()) return
-        val batch = pending.toList()
-        pending.clear()
-        batch.forEach { req -> schedule(req, Runnable { if (!trySpawn(req)) pending += req }) }
-    }
-
-    /** `false` when no world is loaded yet (caller keeps the request pending). */
-    private fun trySpawn(req: PendingBody): Boolean {
-        // "lobby" is the logical world name: the sky-island world (ADR-0180) when loaded,
-        // else the server's main world (see PaperWorldGateway.lobbySpawn).
-        val named = plugin.server.getWorld(req.world.value)
-        if (req.world.value in awaitedWorlds) return false
-        val bukkitWorld = named ?: plugin.server.worlds.firstOrNull()
-            ?: return false
-        val location = Location(bukkitWorld, req.position.x, req.position.y, req.position.z, req.yaw, req.pitch)
-        val name = MiniMessage.miniMessage().deserialize(messages.render(null, req.displayName))
-        val villager = bukkitWorld.spawn(location, Villager::class.java) { v ->
-            v.setAI(false)
-            v.isInvulnerable = true
-            v.isSilent = true
-            PaperManagedEntities.mark(v, "npc:${req.handle.id}")
-            v.removeWhenFarAway = false
-            v.customName(name)
-            v.isCustomNameVisible = true
-            v.persistentDataContainer.set(tagKey, PersistentDataType.STRING, encode(req.handle))
-        }
-        bodies[req.handle] = villager.uniqueId
-        registry?.claim("npc:${req.handle.id}", villager.uniqueId)
-        return true
-    }
-
-    private fun schedule(req: PendingBody, action: Runnable) {
-        val world = plugin.server.getWorld(req.world.value) ?: run { pending += req; return }
-        plugin.server.regionScheduler.execute(plugin, world,
-            kotlin.math.floor(req.position.x).toInt() shr 4,
-            kotlin.math.floor(req.position.z).toInt() shr 4, action)
-    }
-
-    private data class PendingBody(
-        val handle: EntityHandle,
-        val world: WorldId,
-        val position: Vec3,
-        val yaw: Float,
-        val pitch: Float,
-        val displayName: MessageKey,
-    )
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onInteract(event: PlayerInteractEntityEvent) {
-        val handle = handleOf(event.rightClicked) ?: return
+        val handle = hitboxes[event.rightClicked.uniqueId] ?: return
         event.isCancelled = true
-        if (event.hand != EquipmentSlot.HAND) return
-        dispatch(event.player, handle, NpcInteractionClick.RIGHT)
+        if (event.hand == EquipmentSlot.HAND) dispatch(event.player.uniqueId, handle, NpcInteractionClick.RIGHT)
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     fun onDamage(event: EntityDamageEvent) {
-        val handle = handleOf(event.entity) ?: return
+        val handle = hitboxes[event.entity.uniqueId] ?: return
         event.isCancelled = true
         val attacker = (event as? EntityDamageByEntityEvent)?.damager as? Player ?: return
-        dispatch(attacker, handle, NpcInteractionClick.LEFT)
+        dispatch(attacker.uniqueId, handle, NpcInteractionClick.LEFT)
     }
 
-    private fun dispatch(bukkitPlayer: Player, handle: EntityHandle, click: NpcInteractionClick) {
-        val intent = interactions.resolve(handle, click) ?: return
-        val player = mcServer.findPlayer(PlayerId(bukkitPlayer.uniqueId)) ?: return
-        intents.dispatch(player, intent)
-    }
-
-    private fun handleOf(entity: Entity): EntityHandle? {
-        val raw = entity.persistentDataContainer.get(tagKey, PersistentDataType.STRING) ?: return null
-        val (id, backend) = raw.split('|', limit = 2).takeIf { it.size == 2 } ?: return null
-        return runCatching { EntityHandle(UUID.fromString(id), backend) }.getOrNull()
-    }
-
-    private fun encode(handle: EntityHandle): String = "${handle.id}|${handle.backendId}"
-
-    private companion object {
-        const val TAG = "lobby_npc"
+    private fun dispatch(playerId: UUID, handle: EntityHandle, click: NpcInteractionClick) {
+        scheduler.run(ExecutionScope.Entity(playerId), Duration.ZERO) {
+            val intent = interactions.resolve(handle, click) ?: return@run
+            val player = mcServer.findPlayer(PlayerId(playerId)) ?: return@run
+            intents.dispatch(player, intent)
+        }
     }
 }

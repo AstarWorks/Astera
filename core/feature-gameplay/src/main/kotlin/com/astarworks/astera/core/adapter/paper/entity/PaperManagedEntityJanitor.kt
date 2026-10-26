@@ -10,7 +10,6 @@ import org.bukkit.event.Listener
 import org.bukkit.event.world.EntitiesLoadEvent
 import org.bukkit.event.world.WorldLoadEvent
 import org.bukkit.plugin.java.JavaPlugin
-import org.slf4j.LoggerFactory
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -24,9 +23,9 @@ import java.util.concurrent.CopyOnWriteArrayList
 public class PaperManagedEntityJanitor(
     private val plugin: JavaPlugin,
     private val registry: IManagedEntityRegistry,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
 ) : Listener {
 
-    private val log = LoggerFactory.getLogger(javaClass)
     private val zones = CopyOnWriteArrayList<LegacyZone>()
 
     /** Untagged [TextDisplay]s within [radius] blocks of [center] in [world] are legacy duplicates. */
@@ -34,50 +33,47 @@ public class PaperManagedEntityJanitor(
 
     public fun start() {
         plugin.server.pluginManager.registerEvents(this, plugin)
-        val removed = PaperManagedEntities.purge(plugin.server)
-        if (removed > 0) log.info("Purged {} stale Astera-managed entities on boot", removed)
+        PaperManagedEntities.purge(plugin.server, scheduler)
     }
 
     public fun stop() {
-        PaperManagedEntities.purge(plugin.server)
+        PaperManagedEntities.purge(plugin.server, scheduler)
     }
 
     /** Registers [zone] and sweeps it right away in the already loaded chunks. */
     public fun addLegacyZone(zone: LegacyZone) {
         if (zone !in zones) zones += zone
         val world = plugin.server.getWorld(zone.world.value) ?: return
-        val removed = sweepZone(world.entities, zone)
-        if (removed > 0) log.info("Removed {} legacy hologram duplicates near {} in {}", removed, zone.center, zone.world.value)
+        sweepZone(world.entities, zone)
     }
 
     @EventHandler
     public fun onEntitiesLoad(event: EntitiesLoadEvent) {
-        for (entity in event.entities) removeIfStale(entity)
+        for (entity in event.entities) onOwner(entity) { removeIfStale(entity) }
         zones.filter { it.world.value == event.world.name }.forEach { sweepZone(event.entities, it) }
     }
 
     @EventHandler
     public fun onWorldLoad(event: WorldLoadEvent) {
-        for (entity in event.world.entities) removeIfStale(entity)
+        for (entity in event.world.entities) onOwner(entity) { removeIfStale(entity) }
     }
 
     private fun removeIfStale(entity: Entity) {
         if (PaperManagedEntities.isManaged(entity) && !registry.isClaimed(entity.uniqueId)) entity.remove()
     }
 
-    private fun sweepZone(entities: Collection<Entity>, zone: LegacyZone): Int {
-        var removed = 0
-        for (entity in entities) {
-            if (entity !is TextDisplay || PaperManagedEntities.isManaged(entity) || !entity.isValid) continue
-            val l = entity.location
-            val dx = l.x - zone.center.x
-            val dy = l.y - zone.center.y
-            val dz = l.z - zone.center.z
-            if (dx * dx + dy * dy + dz * dz <= zone.radius * zone.radius) {
-                entity.remove()
-                removed++
-            }
+    private fun sweepZone(entities: Collection<Entity>, zone: LegacyZone) {
+        for (entity in entities) onOwner(entity) {
+            if (entity !is TextDisplay || PaperManagedEntities.isManaged(entity) || !entity.isValid) return@onOwner
+            val at = entity.location
+            val dx = at.x - zone.center.x
+            val dy = at.y - zone.center.y
+            val dz = at.z - zone.center.z
+            if (dx * dx + dy * dy + dz * dz <= zone.radius * zone.radius) entity.remove()
         }
-        return removed
+    }
+
+    private fun onOwner(entity: Entity, action: () -> Unit) {
+        scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(entity.uniqueId), kotlin.time.Duration.ZERO, action)
     }
 }

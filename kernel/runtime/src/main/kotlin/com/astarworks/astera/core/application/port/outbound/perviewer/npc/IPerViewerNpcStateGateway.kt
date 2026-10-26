@@ -15,8 +15,8 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * Outbound port — per-viewer NPC state override (Wave 5y-ext, ADR-0112).
  *
  * Where [com.astarworks.astera.core.application.port.outbound.entity.INpcAdapter]
- * stages traits that every viewer sees, this gateway stages **per-viewer**
- * overrides on top of those traits. Use cases:
+ * owns the base body, this gateway stages **per-viewer**
+ * overrides on top of that body. Use cases:
  *
  *  - **Disguise / spy ability** — show a hostile NPC as a teammate to one
  *    player while every other player still sees the real model.
@@ -29,8 +29,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
  *
  * # Backend coverage
  *
- * Implementations target both Citizens NPCs and Display entities — the same
- * two-tier coverage as [com.astarworks.astera.core.application.port.outbound.entity.INpcAdapter].
+ * Overrides describe the single NPC backend's Display and packet-player bodies.
  * The Phase 1 in-memory impl is logic-only (records what should be
  * overridden); Wave 6's Paper adapter routes through PacketEvents'
  * `WrapperPlayServerPlayerInfoUpdate` + `WrapperPlayServerEntityMetadata`

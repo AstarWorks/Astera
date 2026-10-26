@@ -414,7 +414,7 @@ public class SimItemDelivery : IItemDelivery {
     }
 
     /** The simulator keeps item ids only, there is no name/lore/model on a held item to refresh. */
-    override fun refreshHeld(items: IItemRegistry): Int = 0
+    override fun refreshHeld(items: IItemRegistry): java.util.concurrent.CompletableFuture<Int> = java.util.concurrent.CompletableFuture.completedFuture(0)
 }
 
 /** [ITrainingInventory] over [SimItemDelivery.trainingStacks]. */
@@ -424,7 +424,7 @@ public class SimTrainingInventory(private val delivery: SimItemDelivery) : ITrai
 
     override fun strip(playerId: PlayerId): Int = delivery.trainingStacks.remove(playerId)?.size ?: 0
 
-    override fun holders(): Set<PlayerId> = delivery.trainingStacks.filterValues { it.isNotEmpty() }.keys.toSet()
+    override fun candidates(): Set<PlayerId> = delivery.trainingStacks.filterValues { it.isNotEmpty() }.keys.toSet()
 }
 
 /** [ITrainingRackGateway] that remembers the frames the rack asked for. */

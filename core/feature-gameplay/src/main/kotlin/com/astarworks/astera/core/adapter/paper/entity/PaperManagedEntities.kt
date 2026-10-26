@@ -20,17 +20,14 @@ public object PaperManagedEntities {
 
     public fun isManaged(entity: Entity): Boolean = IManagedEntityRegistry.MANAGED_TAG in entity.scoreboardTags
 
-    /** Removes every managed entity in every loaded chunk of every world. Main thread. Returns how many. */
-    public fun purge(server: Server): Int {
-        var removed = 0
+    /** Inspect and remove each candidate on its owning Entity scope. */
+    public fun purge(server: Server, scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler) {
         for (world in server.worlds) {
             for (entity in world.entities) {
-                if (isManaged(entity)) {
-                    entity.remove()
-                    removed++
+                scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(entity.uniqueId), kotlin.time.Duration.ZERO) {
+                    if (isManaged(entity)) entity.remove()
                 }
             }
         }
-        return removed
     }
 }

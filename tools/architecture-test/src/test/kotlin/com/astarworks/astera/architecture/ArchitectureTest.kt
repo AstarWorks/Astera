@@ -1093,7 +1093,7 @@ class ArchitectureTest {
      * and routes despawn calls back via `EntityHandle.backendId` — colliding
      * backend ids would silently route handles to the wrong adapter.
      *
-     * Same convention as ADR-0082 (`INpcAdapter`): every implementation must
+     * Every mob adapter implementation must
      * declare a `public val BACKEND_ID: MobBackendId = MobBackendId.X` in a
      * companion object. The test scans the source for those declarations
      * and asserts no two adapters reference the same constant.
@@ -2347,6 +2347,61 @@ class ArchitectureTest {
                         .doesNotContain(forbidden)
                 }
             }
+    }
+
+    @Test
+    fun `there is exactly one NPC adapter (ADR-0264)`() {
+        val adapters = projectScope().files.filter { it.path.contains("/src/main/kotlin/") }
+            .flatMap { it.classes(includeNested = false) }
+            .filter { cls -> cls.parents().any { it.name == "INpcAdapter" } }
+            .map { it.name }
+        assertThat(adapters).containsExactly("NpcAdapter")
+    }
+
+    @Test
+    fun `Citizens imports are forbidden (ADR-0264)`() {
+        projectScope().files.assertFalse(additionalMessage = "Use the single NpcAdapter (ADR-0264).") { file ->
+            file.imports.any { it.name.startsWith("net.citizensnpcs.") }
+        }
+    }
+
+    @Test
+    fun `onlinePlayers loops fan out to entity scopes outside kernel (ADR-0262)`() {
+        val files = projectScope().files.filter {
+            it.path.contains("/src/main/kotlin/") && !it.path.contains("/kernel/")
+        }
+        requireSubjects(files, "non-kernel runtime source files")
+        val loop = Regex("""(?:for\s*\([^\n]*\bin\s+[^\n]*onlinePlayers(?:\(\))?\s*\)|onlinePlayers(?:\(\))?\s*\.\s*(?:forEach|map|onEach|filter))\s*""")
+        val mutation = Regex("""\.(?:inventory|openInventory|closeInventory|setItemOnCursor|updateCommands|kick|gameMode|allowFlight|health|velocity|walkSpeed|flySpeed|foodLevel|saturation)\b""")
+        val ownerCallback = Regex("""(?:ExecutionScope\.Entity\([^\n{]*|\.scheduler\.(?:execute|run|runDelayed)\([^\n{]*)\{""")
+        fun endOfBlock(source: String, start: Int): Int {
+            var depth = 1
+            var end = start
+            while (end < source.length && depth > 0) {
+                when (source[end++]) { '{' -> depth++; '}' -> depth-- }
+            }
+            return end
+        }
+        val offenders = files.flatMap { file ->
+            loop.findAll(file.text).mapNotNull { match ->
+                val source = file.text
+                val start = match.range.last + 1
+                val end = if (source.getOrNull(start) == '{') endOfBlock(source, start + 1)
+                    else source.indexOf('\n', start).takeIf { it >= 0 } ?: source.length
+                val body = source.substring(start, end)
+                // Remove only the owned callback bodies. A mutation after a scheduled callback still fails.
+                val unowned = StringBuilder()
+                var cursor = 0
+                while (cursor < body.length) {
+                    val callback = ownerCallback.find(body, cursor) ?: break
+                    unowned.append(body.substring(cursor, callback.range.first))
+                    cursor = endOfBlock(body, callback.range.last + 1)
+                }
+                unowned.append(body.substring(cursor))
+                if (mutation.containsMatchIn(unowned)) "${file.path}:${source.take(start).count { it == '\n' } + 1}" else null
+            }.toList()
+        }
+        assertThat(offenders).withFailMessage { "Fan out per Entity before accessing players in onlinePlayers loops: $offenders" }.isEmpty()
     }
 
     // ─── Private helpers ─────────────────────────────────────────────────────

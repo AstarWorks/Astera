@@ -34,7 +34,7 @@ public interface IItemDelivery {
      * Gameplay data (attributes, skill bindings) is read from the registry at use time and needs no
      * refresh.
      */
-    public fun refreshHeld(items: IItemRegistry): Int
+    public fun refreshHeld(items: IItemRegistry): java.util.concurrent.CompletableFuture<Int>
 }
 
 /** Where a delivered stack comes from; [TRAINING] stacks are tagged lobby-only (F3-11, ADR-0200). */

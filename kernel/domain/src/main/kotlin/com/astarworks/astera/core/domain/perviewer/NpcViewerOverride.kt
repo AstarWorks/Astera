@@ -27,8 +27,7 @@ import com.astarworks.astera.core.domain.item.ItemId
  *
  * Keyed by attribute discriminator string (`"scale" / "glowing" / "invisible"
  * / "name_visible"`) so two `Scale(...)` overrides collapse into the most
- * recent value rather than coexist. The string keying mirrors Wave 5l
- * `NpcTraitSpec` trait-id discipline.
+ * recent value rather than coexist.
  */
 public data class NpcViewerOverride(
     val skin: NpcSkin? = null,

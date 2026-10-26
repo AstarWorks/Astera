@@ -10,6 +10,43 @@ class CommandsE2eTest : E2eBase() {
     private fun Bot.treeVersion() = packetCounts["ClientboundCommandsPacket"]?.get() ?: 0
 
     @Test
+    fun `console and player item commands reach a remote player scope`() {
+        val admin = bot("RouteOp")
+        val target = bot("RouteTarget")
+        op(admin)
+        rcon("gamemode creative ${target.name}")
+        rcon("astera admin teleport ${target.name} world 4096 100 4096")
+        check(target.waitUntil(8_000) { target.x > 4000.0 }) { "target never reached a different region" }
+        rcon("clear ${target.name} minecraft:iron_horse_armor")
+        Thread.sleep(1_100)
+        E2eReport.check(suite, "a player command gives an item to another region and replies to the sender", "Entity(sender) -> Entity(target) -> Entity(sender)") {
+            val before = admin.chat.size
+            admin.command("astera items give ${target.name} pistol")
+            val replies = admin.chatSince(before, 1)
+            assertThat(replies).isNotEmpty()
+            assertThat(rawKeys(replies)).isEmpty()
+            assertThat(target.waitUntil(5_000) {
+                rcon("execute if items entity ${target.name} container.* minecraft:iron_horse_armor").contains("passed")
+            }).isTrue()
+            "remote give replies: ${quote(replies)}"
+        }
+        E2eReport.check(suite, "console give and refresh fan out to a remote player's inventory", "Global -> Entity(target); refresh future -> sender") {
+            rcon("clear ${target.name} minecraft:netherite_sword")
+            rcon("astera items give ${target.name} greatsword")
+            assertThat(target.waitUntil(5_000) {
+                rcon("execute if items entity ${target.name} container.* minecraft:netherite_sword").contains("passed")
+            }).describedAs("console give did not reach the remote inventory").isTrue()
+            Thread.sleep(1_100)
+            val before = admin.chat.size
+            admin.command("astera items refresh")
+            val replies = admin.chatSince(before, 1)
+            assertThat(replies).isNotEmpty()
+            assertThat(rawKeys(replies)).isEmpty()
+            "refresh replies: ${quote(replies)}"
+        }
+    }
+
+    @Test
     fun `command tree is permission filtered`() {
         val player = bot("CmdPlayer")
         val admin = bot("CmdOp")

@@ -2,7 +2,6 @@ package com.astarworks.astera.core.application.service.entity
 
 import com.astarworks.astera.core.application.config.LobbyNpcYamlConfig
 import com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner
-import com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer
 import com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter
 import com.astarworks.astera.core.application.service.ContentLoader
 import com.astarworks.astera.core.domain.Result
@@ -17,11 +16,11 @@ import java.nio.file.Path
 
 /**
  * Spawns every NPC declared under `content/lobby-npcs/` (ADR-0119 content,
- * ADR-0082 spawner) and binds its click intents.
+ * ADR-0264 backend) and binds its click intents.
  *
  * Per file: [IEntitySpawner.spawn] mints the logical NPC, the YAML's
  * `right_click_intent` / `left_click_intent` are bound on
- * [INpcInteractionRouter], and (when the host provides one) [bodies] gives the
+ * [INpcInteractionRouter], and the adapter gives the
  * NPC a physical body. A click on that body dispatches the bound
  * [GuiIntent], e.g. `lobby.shop.open` opens the shop.
  *
@@ -30,7 +29,6 @@ import java.nio.file.Path
 public class LobbyNpcLoaderService(
     private val spawner: IEntitySpawner,
     private val interactions: INpcInteractionRouter,
-    private val bodies: INpcBodyMaterializer? = null,
 ) {
     private val loader = ContentLoader(
         parsers = ContentLoader.DEFAULT_PARSERS,
@@ -45,9 +43,13 @@ public class LobbyNpcLoaderService(
     private fun spawn(cfg: LobbyNpcYamlConfig) {
         val nameKey = MessageKey(cfg.displayName)
         val spec = when (cfg.type) {
-            LobbyNpcYamlConfig.TYPE_DISPLAY_ENTITY -> SpawnSpec.DisplayNpc(HologramKind.Text(nameKey))
-            LobbyNpcYamlConfig.TYPE_ARMOR_STAND -> SpawnSpec.ArmorStandNpc(displayName = nameKey, visible = true)
-            else -> error("lobby NPC '${cfg.id}': unsupported type '${cfg.type}' (display_entity | armor_stand)")
+            LobbyNpcYamlConfig.TYPE_DISPLAY_ENTITY, LobbyNpcYamlConfig.TYPE_ARMOR_STAND -> SpawnSpec.DisplayNpc(HologramKind.Text(nameKey), cfg.spawn.yaw, cfg.spawn.pitch)
+            LobbyNpcYamlConfig.TYPE_PLAYER -> SpawnSpec.PlayerNpc(
+                requireNotNull(cfg.profileName) { "player NPC needs profile_name" },
+                com.astarworks.astera.core.domain.entity.NpcSkin(requireNotNull(cfg.textureValue) { "player NPC needs texture_value" }, cfg.signature),
+                cfg.spawn.yaw, cfg.spawn.pitch,
+            )
+            else -> error("lobby NPC '${cfg.id}': unsupported type '${cfg.type}' (display_entity | armor_stand | player)")
         }
         val world = WorldId(cfg.spawn.world)
         val position = Vec3(cfg.spawn.x, cfg.spawn.y, cfg.spawn.z)
@@ -57,7 +59,6 @@ public class LobbyNpcLoaderService(
         }
         cfg.interaction.rightClickIntent?.let { interactions.bindRightClick(handle, GuiIntent(it, cfg.interaction.rightClickPayload)) }
         cfg.interaction.leftClickIntent?.let { interactions.bindLeftClick(handle, GuiIntent(it, cfg.interaction.leftClickPayload)) }
-        bodies?.materialize(handle, world, position, cfg.spawn.yaw, cfg.spawn.pitch, nameKey)
         spawned[cfg.id] = handle
     }
 }

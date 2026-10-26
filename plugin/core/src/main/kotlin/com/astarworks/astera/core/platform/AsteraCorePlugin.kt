@@ -202,7 +202,7 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IResourcePoolService (Wave 5k)",
             "IResourceRegenScheduler (Wave 5k)",
             "IEntityRegistry",
-            "INpcAdapter (minimal+citizens)",
+            "INpcAdapter (display+packet-player)",
             "INpcInteractionRouter",
             "IEntitySpawner",
             // Wave 5pve (ADR-0085)
