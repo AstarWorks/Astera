@@ -21,9 +21,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * MODE-14: leaving a running match (connection drop or `/astera travel lobby`) bursts the carried stars where the
- * player stands, holds the seat for 60 s (back within it = same match, team, Norma level), and after it the player
- * forfeits: out of the roster, a loss on the record, the match goes on or ends when their team is empty.
+ * MODE-14: leaving a running match bursts the carried stars where the player stands. A dropped connection holds the
+ * seat for 60 s (back within it = same match, team, Norma level), and after it the player forfeits; a deliberate leave
+ * (`/astera travel lobby`, F-menu Leave) forfeits at once. A forfeit means: out of the roster, a loss on the record, the match goes on or ends when their team is empty.
  */
 class MidMatchLeaveScenarioTest {
 
@@ -133,7 +133,7 @@ class MidMatchLeaveScenarioTest {
     }
 
     @Test
-    fun `leaving for the lobby by command is the same as a drop and bursts the stars in the arena`() {
+    fun `leaving for the lobby by command forfeits at once and bursts the stars in the arena`() {
         scenario("leave-by-command", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
@@ -148,13 +148,14 @@ class MidMatchLeaveScenarioTest {
 
             sim.eventBus.publish(PlayerLeavingForLobby(red.id))
 
-            assertThat(sessions.find(red.id)?.state).isEqualTo(SessionState.Disconnected)
+            assertThat(eventsOf<PlayerForfeited>().map { it.playerId }).`as`("no rejoin grace: forfeited at once").containsExactly(red.id)
+            assertThat(sessions.find(red.id)?.state).isNotEqualTo(SessionState.Disconnected)
             assertThat(stars.get(matchId, red.id)).isZero()
             assertThat(sim.starDrops.lying().filter { it.world == world && it.position.distance(spot) < 4.0 }.sumOf { it.amount })
                 .`as`("the stars burst at the arena position, not at the lobby").isEqualTo(4)
 
             advance(windowTicks + 20)
-            assertThat(eventsOf<PlayerForfeited>().map { it.playerId }).containsExactly(red.id)
+            assertThat(eventsOf<PlayerForfeited>()).`as`("forfeited once, not again after the old window").hasSize(1)
         }
     }
 }

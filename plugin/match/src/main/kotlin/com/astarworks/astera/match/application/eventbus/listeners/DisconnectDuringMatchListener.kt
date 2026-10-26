@@ -29,12 +29,13 @@ import org.slf4j.LoggerFactory
  * - [MatchPhase.COUNTDOWN] — kick immediately via [RemoveFromMatchUseCase];
  *   the player has not committed to the match, so the seat re-opens for the
  *   next queue cycle.
- * - [MatchPhase.ACTIVE] — the stars they carry burst where they stand ([onLeaving]), the session flips to
+ * - [MatchPhase.ACTIVE] — on a connection loss the stars they carry burst where they stand ([onLeaving]), the session flips to
  *   [SessionState.Disconnected], and a [reconnectWindowTicks] (60 s) window starts; [PlayerDisconnectedFromMatch]
  *   carries `willTimeoutAtTick` for the HUD countdown and the lobby's reconnect route. Back within the window,
  *   `ReconnectDuringMatchListener` returns them to the same match and team with their Norma level and stats.
  *   When the window runs out they forfeit via [ApplyForfeitUseCase]: out of the roster, no win rewards,
  *   a loss on the record, and the match goes on (or ends when their team is empty).
+ * - A deliberate exit (`/astera travel lobby`, F-menu Leave) in [MatchPhase.ACTIVE] skips the window and forfeits at once.
  * - [MatchPhase.SUDDEN_DEATH] — stars burst and the player forfeits at once; the final stretch cannot tolerate the pause.
  * - [MatchPhase.WAITING] / [MatchPhase.ENDED] — no-op: pre-match queue
  *   bookkeeping owns WAITING, and ENDED matches have nothing left to lose.
@@ -56,15 +57,18 @@ public class DisconnectDuringMatchListener(
     private val log = LoggerFactory.getLogger(DisconnectDuringMatchListener::class.java)
 
     public fun handle(event: PlayerQuitServer) {
-        leave(event.playerId)
+        leave(event.playerId, deliberate = false)
     }
 
-    /** `/astera travel lobby` from a running match behaves like a dropped connection. */
+    /**
+     * `/astera travel lobby` or the F-menu Leave from a running match is a deliberate exit: no rejoin grace,
+     * the player forfeits at once (seat released, inventory + lobby kit restored, a loss on the record).
+     */
     public fun onLeavingForLobby(event: PlayerLeavingForLobby) {
-        leave(event.playerId)
+        leave(event.playerId, deliberate = true)
     }
 
-    private fun leave(playerId: PlayerId) {
+    private fun leave(playerId: PlayerId, deliberate: Boolean) {
         val session = sessions.find(playerId)
         // Sessions are not flipped to InMatch on entry (the match repository is the source of truth for
         // membership), so a roster member of a running match counts even without a session claim.
@@ -91,6 +95,15 @@ public class DisconnectDuringMatchListener(
 
             MatchPhase.ACTIVE -> {
                 onLeaving(matchId, playerId)
+                if (deliberate) {
+                    applyForfeit.apply(playerId, matchId).onFailure { err ->
+                        log.debug(
+                            "DisconnectDuringMatchListener: forfeit failed (deliberate leave) player={} match={} error={}",
+                            playerId, matchId, err,
+                        )
+                    }
+                    return
+                }
 
                 val nowTick = scheduler.currentTick()
                 val timeoutAtTick = nowTick + reconnectWindowTicks
