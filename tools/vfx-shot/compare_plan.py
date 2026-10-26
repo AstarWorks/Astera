@@ -1,11 +1,13 @@
 """Plan for `VIEW=compare`: maps a skill-compare case's intent.json onto world space.
 
-usage: python3 -I compare_plan.py <intent.json|-> <mode case|side> <cx> <cy> <cz> <plan_out> [client_fov_degrees|-] [dolly|nodolly]
+usage: python3 -I compare_plan.py <intent.json|-> <mode case|side|<preset>> <cx> <cy> <cz> <plan_out> [client_fov_degrees|-] [dolly|nodolly]
 
 Intent units: x toward the enemy, y up, z toward the side camera, caster at the origin. The world mapping is the
 identity (world = (cx+x, cy+y, cz+z)); the caster faces +x (yaw -90), so the side camera at +z sees the enemy on its
 right. The client FOV option is fixed per run (the first key's fov); keys with another fov are emulated by moving the
 camera along its view ray (distance * tan(fov/2) / tan(fov0/2)) so the framing matches.
+A mode that names an entry of the intent's `camera_presets` (it wins over the built-in `side`) ({name: [camera keys]}), e.g. the pose-review cameras
+(side / front34 / back) that skill-preview also reads with `--camera <name>`, so preview and client share one camera.
 For a reused client, pass its actual FOV as the optional final argument; every camera key, including the first,
 is then converted to that FOV. Without it, the caller must launch the client with CMP_FOV_OPT.
 
@@ -38,6 +40,11 @@ def main() -> int:
         enemy_x = actors["enemy"]["keys"][0]["pos"][0] - caster_x
     duration = int(intent.get("duration_ticks", 100))
     keys = intent.get("camera", [])
+    presets = intent.get("camera_presets", {})
+    if mode in presets:  # an intent preset wins over the built-in mode of the same name
+        keys, mode = presets[mode], "case"
+    elif mode not in ("case", "side"):
+        raise SystemExit("compare_plan: CAMERA=%s is not in the intent's camera_presets (%s)" % (mode, ", ".join(presets) or "none"))
     if mode == "side" or not keys:
         mid = enemy_x / 2
         keys = [{"t": 0, "pos": [mid, 1.6, 6.0], "target": [mid, 1.0, 0.0], "fov": 55}]

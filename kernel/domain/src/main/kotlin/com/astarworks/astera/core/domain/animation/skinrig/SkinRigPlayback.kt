@@ -39,7 +39,7 @@ public class SkinRigPlayback(public val animation: SkinRigAnimation) {
         val sampleAt = if (animation.loop) (tick % animation.lengthTicks).toDouble() else minOf(tick, animation.lengthTicks).toDouble()
         val root = blend(animation.root, sampleAt, weight)
         val bones = SkinRigBone.entries.associateWith { bone -> blend(animation.bones[bone], sampleAt, weight) }
-        return RigFrame(root, bones)
+        return RigFrame(root, bones, if (animation.twoHandGrip) weight else 0.0)
     }
 
     private fun inWeight(t: Int): Double {

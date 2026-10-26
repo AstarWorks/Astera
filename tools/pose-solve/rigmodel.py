@@ -1,7 +1,7 @@
 """Forward kinematics of the skin rig + the main-hand weapon, a numpy port of the runtime math (ADR-0250 / ADR-0276).
 
 Sources that this file mirrors (change both together):
-  SkinRigBone.rest / SkinRigTransforms.compute / rightArm / hips   plugin/core/.../domain/animation/skinrig/
+  SkinRigBone.rest / .parent / SkinRigTransforms.compute / rightArm / hips / spine   kernel/domain/.../animation/skinrig/
   VfxBodyTrack, VfxRigMotion (originAt, frameRotationAt, pointAt)  plugin/core/.../domain/effect/vfx/
   VfxPerformanceSampler (the plan.json frame: +x right, +y up, +z forward, mirrored from the rig frame)
 
@@ -28,13 +28,15 @@ HELD_GRIP_OFFSET = Rot.from_euler("x", HELD_GRIP_PITCH, degrees=True).apply(np.a
 # SkinRigBone.rest(slim = False): center, size, pivot (px, rig frame).
 BONES = {
     "head": dict(center=(0, 28, 0), size=(8, 8, 8), pivot=(0, 24, 0)),
-    "body": dict(center=(0, 18, 0), size=(8, 12, 4), pivot=(0, 24, 0)),
+    "body": dict(center=(0, 18, 0), size=(8, 12, 4), pivot=(0, 12, 0)),  # spine: pivots at the waist
     "right_arm": dict(center=(-6, 18, 0), size=(4, 12, 4), pivot=(-5, 22, 0)),
     "left_arm": dict(center=(6, 18, 0), size=(4, 12, 4), pivot=(5, 22, 0)),
     "right_leg": dict(center=(-1.9, 6, 0), size=(4, 12, 4), pivot=(-1.9, 12, 0)),
     "left_leg": dict(center=(1.9, 6, 0), size=(4, 12, 4), pivot=(1.9, 12, 0)),
 }
 BONE_NAMES = list(BONES)
+# SkinRigBone.parent: head and arms hang from the spine (`body`), body and legs from root.
+PARENT = {"head": "body", "right_arm": "body", "left_arm": "body", "body": None, "right_leg": None, "left_leg": None}
 ARM_LEN_PX = 12.0   # box height; the hand end of an arm is pivot + R * (0, -(12 - 2), 0) for the classic arm (box top is 2 px above the joint)
 
 # weapon geometry of the shipped greatsword rig (content/vfx/bastion-s1-rig.yaml; rig-local, after the grip pitch)
@@ -80,7 +82,8 @@ def mir_rot(R: Rot) -> Rot:
 class Pose:
     """One frame of body keys: `bones[name] = {rotation, position, scale}` + `root = {rotation, position}` (px / degrees)."""
 
-    def __init__(self, root_rot=(0, 0, 0), root_pos=(0, 0, 0), bones=None, wrist=(0, 0, 0)):
+    def __init__(self, root_rot=(0, 0, 0), root_pos=(0, 0, 0), bones=None, wrist=(0, 0, 0), two_hand_grip=False):
+        self.two_hand_grip = bool(two_hand_grip)
         self.root_rot = np.array(root_rot, float)
         self.root_pos = np.array(root_pos, float)
         self.bones = {n: dict(rotation=np.zeros(3), position=np.zeros(3), scale=np.ones(3)) for n in BONE_NAMES}
@@ -90,44 +93,92 @@ class Pose:
         self.wrist = np.array(wrist, float)
 
     def copy(self) -> "Pose":
-        return Pose(self.root_rot, self.root_pos, {n: {k: v.copy() for k, v in b.items()} for n, b in self.bones.items()}, self.wrist)
+        return Pose(self.root_rot, self.root_pos, {n: {k: v.copy() for k, v in b.items()} for n, b in self.bones.items()}, self.wrist, self.two_hand_grip)
 
 
-def _world_px(p_px, rootR: Rot, root_pos):
-    return rootR.apply(np.asarray(p_px, float) - ROOT_PIVOT) + ROOT_PIVOT + root_pos
+class _Xf:
+    """Rigid `p -> R p + t` in rig px (SkinRigTransforms.Xf); `a * b` applies b first."""
+
+    def __init__(self, R: Rot, t):
+        self.R, self.t = R, np.asarray(t, float)
+
+    def apply(self, p):
+        return self.R.apply(np.asarray(p, float)) + self.t
+
+    def __mul__(self, o: "_Xf") -> "_Xf":
+        return _Xf(self.R * o.R, self.apply(o.t))
+
+
+def _about(pivot, R: Rot, offset) -> _Xf:
+    pivot = np.asarray(pivot, float)
+    return _Xf(R, pivot + np.asarray(offset, float) - R.apply(pivot))
+
+
+def _local(pose: Pose, n: str, R: Rot) -> _Xf:
+    return _about(BONES[n]["pivot"], R, pose.bones[n]["position"])
+
+
+def _parent_xf(pose: Pose, n: str) -> _Xf:
+    p = PARENT[n]
+    if p is None:
+        return _about(ROOT_PIVOT, euler_body(pose.root_rot), pose.root_pos)
+    return _parent_xf(pose, p) * _local(pose, p, euler_body(pose.bones[p]["rotation"]))
+
+
+def _local_rot(pose: Pose, n: str) -> Rot:
+    """The bone's local rotation; with `two_hand_grip` the left arm aims its -Y at the right-hand grip (SkinRigTransforms.leftArmRot)."""
+    R = euler_body(pose.bones[n]["rotation"])
+    if n != "left_arm" or not pose.two_hand_grip:
+        return R
+    arm = _parent_xf(pose, "right_arm") * _local(pose, "right_arm", euler_body(pose.bones["right_arm"]["rotation"]))
+    grip = arm.apply(HELD_GRIP_OFFSET / (PX * PLAYER_SCALE) + np.array(BONES["right_arm"]["pivot"], float))
+    par = _parent_xf(pose, "left_arm")
+    joint = par.apply(np.array(BONES["left_arm"]["pivot"], float) + pose.bones["left_arm"]["position"])
+    d = grip - joint
+    if np.linalg.norm(d) < 1e-6:
+        return R
+    d = par.R.inv().apply(d / np.linalg.norm(d))
+    a = np.array([0.0, -1.0, 0.0])
+    axis = np.cross(a, d)
+    s_, c_ = np.linalg.norm(axis), float(np.dot(a, d))
+    if s_ < 1e-9:
+        return Rot.identity() if c_ > 0 else Rot.from_rotvec([np.pi, 0.0, 0.0])
+    return Rot.from_rotvec(axis / s_ * np.arctan2(s_, c_))
+
+
+def _chain(pose: Pose, n: str) -> _Xf:
+    return _parent_xf(pose, n) * _local(pose, n, _local_rot(pose, n))
 
 
 def fk(pose: Pose) -> dict:
     """All landmarks of one pose in the RIG frame, blocks, PLAYER_SCALE applied (feet at y = 0, x = z = 0).
 
-    keys: bone centres + rotations (`<name>`), `hips`, `joint_<r|l>`, `hand_<r|l>` (arm end), `elbow_<r|l>`, `knee_<r|l>`,
+    Two-level hierarchy (SkinRigBone.parent): root -> body (waist pivot) -> head / arms; root -> legs.
+    keys: bone centres + rotations (`<name>`), `hips`, `spine`, `joint_<r|l>`, `hand_<r|l>` (arm end), `elbow_<r|l>`, `knee_<r|l>`,
     `ankle_<r|l>`, `grip` (weapon origin = right-hand grip), `arm_R_right` (the right-arm frame), `frame_R` (rig frame of the weapon
     without the wrist, i.e. the arm frame), `neck`, `head_top`.
     """
     rootR = euler_body(pose.root_rot)
     k = PX * PLAYER_SCALE
     out: dict = {}
-    rots = {}
+    chains = {n: _chain(pose, n) for n in BONES}
     for n, rest in BONES.items():
         b = pose.bones[n]
-        R = euler_body(b["rotation"])
-        rots[n] = R
         piv = np.array(rest["pivot"], float)
-        off = R.apply((np.array(rest["center"], float) - piv) * b["scale"])
-        center = piv + b["position"] + off
-        out[n] = _world_px(center, rootR, pose.root_pos) * k
-        out[n + "_R"] = rootR * R
+        out[n] = chains[n].apply(piv + (np.array(rest["center"], float) - piv) * b["scale"]) * k
+        out[n + "_R"] = chains[n].R
     out["hips"] = (ROOT_PIVOT + pose.root_pos) * k
     out["hips_R"] = rootR
+    out["spine"] = _parent_xf(pose, "body").apply(np.array(BONES["body"]["pivot"], float) + pose.bones["body"]["position"]) * k
+    out["spine_R"] = chains["body"].R
 
     def joint(n):
-        return _world_px(np.array(BONES[n]["pivot"], float) + pose.bones[n]["position"], rootR, pose.root_pos) * k
+        return chains[n].apply(np.array(BONES[n]["pivot"], float)) * k
 
     def end(n, down_px):
         """A point `down_px` below the pivot along the bone's own -Y (arm hand / leg foot), scaled by the bone scale."""
         b = pose.bones[n]
-        local = np.array(BONES[n]["pivot"], float) + b["position"] + rots[n].apply(np.array([0.0, -down_px, 0.0]) * b["scale"][1])
-        return _world_px(local, rootR, pose.root_pos) * k
+        return chains[n].apply(np.array(BONES[n]["pivot"], float) + np.array([0.0, -down_px, 0.0]) * b["scale"][1]) * k
 
     for s, side in (("r", "right"), ("l", "left")):
         a, lg = side + "_arm", side + "_leg"
@@ -137,12 +188,11 @@ def fk(pose: Pose) -> dict:
         out["hip_" + s] = joint(lg)
         out["ankle_" + s] = end(lg, 12.0)
         out["knee_" + s] = end(lg, 6.0)
-    armR = rootR * rots["right_arm"]
+    armR = chains["right_arm"].R
     out["frame_R"] = armR
     out["grip"] = out["joint_r"] + armR.apply(HELD_GRIP_OFFSET + WEAPON_PIVOT)
-    out["neck"] = _world_px(np.array([0.0, 24.0, 0.0]), rootR, pose.root_pos) * k
-    hb = pose.bones["head"]
-    out["head_top"] = _world_px(np.array([0.0, 24.0, 0.0]) + hb["position"] + rots["head"].apply(np.array([0.0, 8.0, 0.0])), rootR, pose.root_pos) * k
+    out["neck"] = chains["body"].apply(np.array([0.0, 24.0, 0.0])) * k
+    out["head_top"] = chains["head"].apply(np.array([0.0, 32.0, 0.0])) * k
     return out
 
 
@@ -189,7 +239,7 @@ def _sample(keys, t, ease_key="ease"):
 
 
 def pose_from_yaml(body_doc: dict, rig_doc: dict | None, rig_tick: float) -> Pose:
-    p = Pose()
+    p = Pose(two_hand_grip=body_doc.get("two_hand_grip", False))
     root = body_doc.get("root") or {}
     if "rotation" in root:
         p.root_rot = _sample(root["rotation"], rig_tick)

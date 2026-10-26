@@ -20,9 +20,14 @@ object AnimationImporter {
     private val boneNames = listOf("head", "body", "right_arm", "left_arm", "right_leg", "left_leg")
     private val aliases = boneNames.associateBy { it.replace("_", "") } + mapOf("torso" to "body")
     private val pivots = mapOf(
-        "head" to listOf(0.0, 24.0, 0.0), "body" to listOf(0.0, 24.0, 0.0),
+        "head" to listOf(0.0, 24.0, 0.0), "body" to listOf(0.0, 12.0, 0.0),
         "right_arm" to listOf(-5.0, 22.0, 0.0), "left_arm" to listOf(5.0, 22.0, 0.0),
         "right_leg" to listOf(-1.9, 12.0, 0.0), "left_leg" to listOf(1.9, 12.0, 0.0),
+    )
+    /** The runtime hierarchy (`SkinRigBone.parent`): head and arms are children of the spine `body`; body and legs are top level. */
+    private val parents = mapOf(
+        "head" to "body", "right_arm" to "body", "left_arm" to "body",
+        "body" to null, "right_leg" to null, "left_leg" to null,
     )
     private val channels = setOf("rotation", "position", "scale")
     private val interpolations = setOf("linear", "step", "catmullrom", "bezier")
@@ -31,16 +36,21 @@ object AnimationImporter {
         val model = ObjectMapper().readTree(input.toFile())
         val groups = linkedMapOf<String, JsonNode>()
         model.path("groups").forEach { group -> groups[group.path("uuid").asText()] = group }
-        fun collect(nodes: JsonNode, depth: Int = 0) {
+        val nested = linkedMapOf<String, JsonNode>()
+        val parentOf = linkedMapOf<String, String?>()
+        // The outliner nests groups as objects; plain strings are cube uuids. Nesting must match the runtime hierarchy.
+        fun collect(nodes: JsonNode, parent: String?) {
             nodes.filter { it.isObject }.forEach { node ->
                 val uuid = node.path("uuid").asText()
                 val group = groups[uuid] ?: node
-                require(depth == 0) { "Nested bone '${group.path("name").asText()}': use six sibling groups; parent transforms cannot be flattened." }
-                groups[uuid] = group
-                collect(node.path("children"), depth + 1)
+                nested[uuid] = group
+                parentOf[uuid] = parent
+                collect(node.path("children"), uuid)
             }
         }
-        collect(model.path("outliner"))
+        collect(model.path("outliner"), null)
+        groups.clear()
+        groups.putAll(nested)
         require(groups.isNotEmpty()) { "No bone groups; start from content/animations/_rig/player-rig.bbmodel." }
         val unknown = groups.values.map { it.path("name").asText() }.filter { bone(it) == null }
         require(unknown.isEmpty()) { "Unknown bones: ${unknown.joinToString()}. Supported: ${boneNames.joinToString()}." }
@@ -48,6 +58,11 @@ object AnimationImporter {
         require(mapped.values.toSet().size == mapped.size) { "Multiple groups map to the same bone: ${mapped.values}." }
         groups.values.forEach { group ->
             val target = mapped.getValue(group.path("uuid").asText())
+            val parent = parentOf[group.path("uuid").asText()]?.let { mapped.getValue(it) }
+            require(parent == parents.getValue(target)) {
+                "Bone '$target' must be ${parents.getValue(target)?.let { "a child of '$it'" } ?: "top level"} (found ${parent?.let { "under '$it'" } ?: "top level"}); " +
+                    "start from content/animations/_rig/player-rig.bbmodel."
+            }
             require(group.path("rotation").all { constant(it, "rest rotation") == 0.0 }) {
                 "Bone '${group.path("name").asText()}' has a rotated rest pose; use the template rest pose."
             }
