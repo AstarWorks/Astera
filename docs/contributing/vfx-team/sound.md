@@ -74,3 +74,4 @@ Numbers only; low band is music-contaminated.
 | E8 impact-2 body | 30.3 | dull body | 390 Hz | -4.6 dB |
 | E9 shimmer 2 | 32.6 | noisy 2-12 kHz | 6.9 kHz | -9.1 dB |
 | E10 / E11 settle | 19.2 / 41.2 | quiet 500 Hz-1 kHz rattle | 560-760 Hz | -9.2 / -12.7 dB |
+- 2026-10-27 bastion-greatsword-s1 impact weight pass: founder heard the impact as light. The pure-synth thump was too short and clean; impact-steel/cut-thud/ground-slam are now sub thump + CC0 plate/metal body (Kenney Impact Sounds 1.0, CC0, pitched down, low-passed) + transient crack + inharmonic ring, tanh-saturated with a short synthetic room tail. Hit-1 impact volume 0.59 -> 0.78, hit 2 0.31 -> 0.51 (mix peak -1.2 dBFS). Wiring audited statically: ids match and nothing else in the skill plays sound; vanilla GOLDEN_SWORD attack/damage sounds are not muted by the pack.

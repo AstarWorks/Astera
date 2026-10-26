@@ -28,6 +28,7 @@ SHEET = os.path.join(ROOT, "tools/skill-compare/data/bastion-greatsword-s1/deliv
 SND = os.path.join(ROOT, "content/sounds/weapons")
 PAD_TICKS = 4      # silence before tick 0 so band filters / pre-roll see a clean floor
 TOTAL_TICKS = 60
+IMPACT_VOL = 0.78  # play_sound volume of the hit-1 impact (client loudness caps at 1.0)
 REF = os.environ.get("BASTION_REF_FEAT", "/tmp/claude-1000/ana/ref_feat.json")
 
 # calibration groups: reference event -> (hit key, cue files whose volumes scale together)
@@ -116,7 +117,18 @@ def calibrate(write):
         for c in doc["cues"]:
             for h in ("hit1", "hit2"):
                 if h in c:
-                    c[h]["volume"] *= 0.9 / mx
+                    c[h]["volume"] *= 0.95 / mx
+    # Weight pass (founder 2026-10-27: impact reads light): the impact is the loudest thing in the skill. Pin hit-1 impact-steel to
+    # IMPACT_VOL, scale everything by the same factor (others clip at 1.0, i.e. the bright flicks end up a little under the
+    # reference ratio), and keep the cut-thud / ground-slam layers at fixed fractions of the impact so the contact tick does not clip.
+    k = IMPACT_VOL / by["bastion-s1-impact-steel"]["hit1"]["volume"]
+    for c in doc["cues"]:
+        for h in ("hit1", "hit2"):
+            if h in c:
+                c[h]["volume"] = float(min(1.0, c[h]["volume"] * k))
+    for h in ("hit1", "hit2"):
+        by["bastion-s1-cut-thud"][h]["volume"] = by["bastion-s1-impact-steel"][h]["volume"] * 0.35
+    by["bastion-s1-ground-slam"]["hit2"]["volume"] = by["bastion-s1-impact-steel"]["hit2"]["volume"] * 0.4
     buf = render(doc["cues"])
     print(f"mix peak {db(np.abs(buf).max()):.2f} dBFS")
     if write:
