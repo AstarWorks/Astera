@@ -192,6 +192,7 @@ class LobbyGameSplitScenarioTest {
             override fun acquire(stage: com.astarworks.astera.core.domain.stage.Stage) =
                 if (ready) Result.Success(stage)
                 else Result.Failure(com.astarworks.astera.core.application.port.outbound.ArenaAllocationError.NotReady)
+            override fun peekReady(stage: com.astarworks.astera.core.domain.stage.Stage): com.astarworks.astera.core.domain.stage.Stage? = if (ready) stage else null
             override fun resolve(stageId: com.astarworks.astera.core.domain.stage.StageId): com.astarworks.astera.core.domain.stage.Stage? = null
             override fun ensureBuilt(stageId: com.astarworks.astera.core.domain.stage.StageId): Boolean = ready
             override fun repairLater(stageId: com.astarworks.astera.core.domain.stage.StageId) = Unit
@@ -239,6 +240,7 @@ class LobbyGameSplitScenarioTest {
             override fun acquire(stage: com.astarworks.astera.core.domain.stage.Stage) =
                 if (scheduler?.currentScope == com.astarworks.astera.core.application.port.outbound.ExecutionScope.Global) Result.Success(stage)
                 else Result.Failure(com.astarworks.astera.core.application.port.outbound.ArenaAllocationError.WrongScope)
+            override fun peekReady(stage: com.astarworks.astera.core.domain.stage.Stage): com.astarworks.astera.core.domain.stage.Stage? = stage
             override fun resolve(stageId: com.astarworks.astera.core.domain.stage.StageId): com.astarworks.astera.core.domain.stage.Stage? = null
             override fun ensureBuilt(stageId: com.astarworks.astera.core.domain.stage.StageId): Boolean = true
             override fun repairLater(stageId: com.astarworks.astera.core.domain.stage.StageId) = Unit

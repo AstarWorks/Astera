@@ -33,7 +33,6 @@ import com.astarworks.astera.core.domain.proxy.ProxyChannel
 import com.astarworks.astera.core.domain.proxy.ServerName
 import com.astarworks.astera.core.domain.proxy.TransferReason
 import com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers
-import com.astarworks.astera.match.application.usecase.match.StartMatchError
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueNotifier
 import com.astarworks.astera.match.domain.matchmaking.AssignmentStatus
