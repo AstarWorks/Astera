@@ -1719,6 +1719,9 @@ astera:
         market:
           title: "<gold><bold>マーケット</bold></gold>"
           subtitle: "<dark_gray>ショップ・金庫</dark_gray>"
+        guild:
+          title: "<gold><bold>ギルドホール</bold></gold>"
+          subtitle: "<dark_gray>拠点</dark_gray>"
       lane:
         hint: "<dark_gray>床の上に立つ</dark_gray>"
         title: "<gold><bold>{lane}</bold></gold>"
@@ -1745,6 +1748,19 @@ astera:
         entry:
           title: "<aqua><bold>練習場</bold></aqua>"
           hint: "<dark_gray>的は倒れません</dark_gray>"
+        guide:
+          title: "<gold><bold>3種類を試そう</bold></gold>"
+          hint: "<dark_gray>黄=銃 赤=剣 紫=杖</dark_gray>"
+        bay:
+          gun:
+            title: "<yellow><bold>銃</bold></yellow>"
+            hint: "<dark_gray>レーンを撃とう</dark_gray>"
+          sword:
+            title: "<red><bold>剣</bold></red>"
+            hint: "<dark_gray>ダミーを斬ろう</dark_gray>"
+          staff:
+            title: "<light_purple><bold>杖</bold></light_purple>"
+            hint: "<dark_gray>的に魔法を撃とう</dark_gray>"
     # F3-1 — キューのレーン床: 床の上のホログラムと参加の確認表示。
     lane:
       board:
