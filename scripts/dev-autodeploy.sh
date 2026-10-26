@@ -203,6 +203,7 @@ case "${1:-run}" in
     # Singleton survives supervisor restarts; never leave a second worker behind.
     exec 8>"$STATE/watcher.lock"
     flock -n 8 || exit 0
+    log "watcher started; deployed=$(cat "$STATE/last-sha" 2>/dev/null || echo none) host=${ASTERA_DEV_HOST:-local}"
     while :; do
       bash "$0" once || log "FAILED - watcher (see build.log)"
       sleep 60
