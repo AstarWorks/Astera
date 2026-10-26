@@ -23,6 +23,7 @@ import org.geysermc.mcprotocollib.network.event.session.SessionAdapter
 import org.geysermc.mcprotocollib.network.factory.ClientNetworkSessionFactory
 import org.geysermc.mcprotocollib.network.packet.Packet
 import org.geysermc.mcprotocollib.protocol.MinecraftProtocol
+import org.geysermc.mcprotocollib.protocol.data.game.PlayerListEntryAction
 import org.geysermc.mcprotocollib.protocol.data.game.ResourcePackStatus
 import org.geysermc.mcprotocollib.protocol.data.game.command.CommandNode
 import org.geysermc.mcprotocollib.protocol.data.game.command.CommandType
@@ -30,6 +31,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.entity.player.Hand
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.GameMode
 import org.geysermc.mcprotocollib.protocol.data.game.item.ItemStack
 import org.geysermc.mcprotocollib.protocol.data.game.item.component.DataComponentTypes
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundPlayerInfoRemovePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundPlayerInfoUpdatePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundEntityPositionSyncPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundMoveEntityPosPacket
@@ -71,6 +73,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.inventory.C
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.scoreboard.ClientboundSetDisplayObjectivePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.scoreboard.ClientboundSetObjectivePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.scoreboard.ClientboundSetPlayerTeamPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.scoreboard.ClientboundResetScorePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.scoreboard.ClientboundSetScorePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.title.ClientboundSetActionBarTextPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket
@@ -173,6 +176,7 @@ class Bot private constructor(
     val actionBars = CopyOnWriteArrayList<ChatLine>()
     val bossBars = ConcurrentHashMap<UUID, BossBarView>()
     val bossBarEvents = CopyOnWriteArrayList<String>()
+    val objectiveCreates = ConcurrentHashMap<String, AtomicInteger>()
     val objectives = ConcurrentHashMap<String, String>()
     val displaySlots = ConcurrentHashMap<ScoreboardPosition, String>()
     val scores = ConcurrentHashMap<String, ConcurrentHashMap<String, ScoreView>>()
@@ -181,6 +185,7 @@ class Bot private constructor(
     @Volatile var tabHeader: String? = null; private set
     @Volatile var tabFooter: String? = null; private set
     val tabUpdates = AtomicInteger()
+    val tabDisplayNames = ConcurrentHashMap<UUID, String>()
     /** Entity types the server spawned for this client (e.g. TEXT_DISPLAY for floating damage numbers), by count. */
     val spawnedEntityTypes = ConcurrentHashMap<String, AtomicInteger>()
     /** Sound events played at this client (packet sound, as printed by the protocol library). */
@@ -336,10 +341,18 @@ class Bot private constructor(
             is ClientboundBossEventPacket -> handleBossBar(packet)
             is ClientboundSetObjectivePacket -> when (packet.action) {
                 ObjectiveAction.REMOVE -> { objectives.remove(packet.name); scores.remove(packet.name) }
-                else -> objectives[packet.name] = plain(packet.displayName)
+                else -> {
+                    if (packet.action == ObjectiveAction.ADD) objectiveCreates.computeIfAbsent(packet.name) { AtomicInteger() }.incrementAndGet()
+                    objectives[packet.name] = plain(packet.displayName)
+                }
             }
             is ClientboundSetDisplayObjectivePacket -> {
                 if (packet.name.isEmpty()) displaySlots.remove(packet.position) else displaySlots[packet.position] = packet.name
+            }
+            is ClientboundResetScorePacket -> {
+                val objective = packet.objective
+                if (objective == null) scores.values.forEach { it.remove(packet.owner) }
+                else scores[objective]?.remove(packet.owner)
             }
             is ClientboundSetScorePacket -> scores.computeIfAbsent(packet.objective) { ConcurrentHashMap() }[packet.owner] =
                 ScoreView(packet.value, packet.display?.let(::plain))
@@ -348,7 +361,15 @@ class Bot private constructor(
                 packet.color?.let { t.color = it.name }
                 packet.playerPrefix?.let { t.prefix = plain(it) }
                 packet.playerSuffix?.let { t.suffix = plain(it) }
-                packet.players?.forEach { p -> if (p != null) t.players += p }
+                packet.players?.forEach { p ->
+                    if (p != null) {
+                        if (packet.action.name == "REMOVE_PLAYER") t.players.remove(p)
+                        else {
+                            teams.values.forEach { it.players.remove(p) }
+                            t.players += p
+                        }
+                    }
+                }
                 if (packet.action.name == "REMOVE") teams.remove(packet.teamName)
             }
             is ClientboundAddEntityPacket -> {
@@ -387,7 +408,18 @@ class Bot private constructor(
                 val end = packet.endPosition ?: packet.steps?.lastOrNull()?.position
                 if (end != null) e.moveTo(end.x, end.y, end.z)
             }
-            is ClientboundPlayerInfoUpdatePacket -> packet.entries.forEach { en -> en.profile?.name?.let { playerNames[en.profileId] = it } }
+            is ClientboundPlayerInfoUpdatePacket -> packet.entries.forEach { en ->
+                en.profile?.name?.let { playerNames[en.profileId] = it }
+                if (PlayerListEntryAction.UPDATE_DISPLAY_NAME in packet.actions) {
+                    val displayName = en.displayName
+                    if (displayName == null) tabDisplayNames.remove(en.profileId)
+                    else tabDisplayNames[en.profileId] = plain(displayName)
+                }
+            }
+            is ClientboundPlayerInfoRemovePacket -> packet.profileIds.forEach {
+                playerNames.remove(it)
+                tabDisplayNames.remove(it)
+            }
             is ClientboundLevelChunkWithLightPacket -> terrain.load(packet.x, packet.z, packet.chunkData)
             is ClientboundForgetLevelChunkPacket -> terrain.forget(packet.x, packet.z)
             is ClientboundBlockUpdatePacket -> terrain.set(packet.entry.position.x, packet.entry.position.y, packet.entry.position.z, packet.entry.block)
@@ -488,7 +520,7 @@ class Bot private constructor(
         joined = false; loggedIn = false; disconnectReason = null
         runCatching { old.disconnect("hop") }
         entities.clear(); terrain.clear()
-        objectives.clear(); displaySlots.clear(); scores.clear(); teams.clear(); bossBars.clear()
+        objectives.clear(); displaySlots.clear(); scores.clear(); teams.clear(); bossBars.clear(); tabDisplayNames.clear()
         contents.clear(); screens.clear(); stateIds.clear()
         endpoint = ep
         connect()

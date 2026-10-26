@@ -36,7 +36,7 @@ public class PaperChatFormatListener(
     public fun onChat(event: AsyncChatEvent) {
         val id = PlayerId(event.player.uniqueId)
         val nameColor = nameColorOf(id)
-        val title = PaperCosmeticDisplay.titleComponent(cosmetics(), messages(), id)
+        val title = PaperCosmeticDisplay.titleComponent(cosmetics(), messages(), id, null)
         event.renderer(
             ChatRenderer.viewerUnaware { _, sourceDisplayName, message ->
                 Component.text()

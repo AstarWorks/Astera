@@ -34,9 +34,8 @@ public data class TabListEntry(
  * Vendor-neutral handle for each player's tablist (header / footer / rows).
  *
  * Per ADR-0001/0002 this lives in `core.adapter.api` and stays free of
- * Bukkit / Adventure imports. The Wave 6 Paper implementation (ADR-0031)
- * wraps Adventure's `Audience#sendPlayerListHeaderAndFooter` plus
- * `Player#sendPlayerListHeader` / packet-level entry overrides; the
+ * Bukkit / Adventure imports. The Paper/Folia implementation (ADR-0260)
+ * routes header, footer and rows through [PacketSink]; the
  * in-memory [com.astarworks.astera.testfixtures.FakeTabList] covers
  * application-layer tests today.
  *

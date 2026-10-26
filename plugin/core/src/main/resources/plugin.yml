@@ -7,8 +7,4 @@ authors: [AstarWorks]
 description: Astera core plugin — shared domain, ServiceRegistry, IDomainEventBus, Paper adapter scaffolding (ADR-0022).
 website: https://github.com/AstarWorks/Astera
 load: STARTUP
-# Wave 6c-stub-packetevents (ADR-0170): PacketEvents loads first so the
-# Core onLoad/onEnable can detect + initialise its API. Soft (not depend)
-# so Astera boots in vanilla Paper if PacketEvents is absent — the Paper
-# adapter falls back to the InMemory IPacketInterceptor.
-softdepend: [packetevents]
+# ADR-0260: PacketEvents is a required library bundled in this jar.

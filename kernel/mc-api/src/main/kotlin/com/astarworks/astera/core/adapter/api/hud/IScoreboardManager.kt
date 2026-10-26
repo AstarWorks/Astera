@@ -8,8 +8,8 @@ import com.astarworks.astera.core.domain.player.PlayerId
  *
  * Owns the lifecycle of every [IScoreboard] and [ITeamScoreboard] in the
  * server. Use cases create boards by id, then [show] them to players or
- * [hide] them. The Wave 6 Paper adapter (ADR-0031) implements this against
- * Bukkit's `ScoreboardManager`; the in-memory
+ * [hide] them. The Paper/Folia adapter (ADR-0260) implements this through
+ * [PacketSink]; the in-memory
  * [com.astarworks.astera.testfixtures.FakeScoreboardManager] implements the
  * same interface for application-layer tests.
  *

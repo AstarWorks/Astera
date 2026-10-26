@@ -59,8 +59,8 @@ public data class ScoreboardLine(
  * Vendor-neutral handle for a line-style sidebar scoreboard.
  *
  * Per ADR-0001/0002 this lives in `core.adapter.api` and stays free of
- * Bukkit / Adventure imports. The Wave 6 Paper implementation wraps a
- * Bukkit `Scoreboard` keyed on a sidebar `Objective`. The in-memory
+ * Bukkit / Adventure imports. The Paper/Folia implementation renders through
+ * [PacketSink] without creating a platform scoreboard (ADR-0260). The in-memory
  * [com.astarworks.astera.testfixtures.FakeScoreboardManager] implements the
  * same interface for application-layer tests.
  *
@@ -74,10 +74,8 @@ public data class ScoreboardLine(
  * The Wave 6 Paper impl renders per-viewer at draw-time via
  * `IMessageRenderer` so each player sees their locale.
  *
- * **Threading.** Bukkit scoreboard mutation must happen on the main server
- * thread; production callers dispatch via `IScheduler` when called from
- * async contexts. The fake is unsynchronized — domain/application tests
- * don't care about server threads.
+ * **Threading.** Production models serialize mutations. The packet sink owns
+ * each viewer's client state on their Entity scope. The headless fake is unsynchronized.
  *
  * **Why [title] is not a `var`.** Adventure-style API consistency with
  * [IBossBar] led to mutable fields, but [setTitle] gives the Paper adapter

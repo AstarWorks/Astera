@@ -27,7 +27,7 @@ import net.kyori.adventure.text.format.TextColor
  * Wave 6b `PaperHudGateway` calls into this renderer per layout:
  *  - [HudLayout.ActionBar]     → `audience.sendActionBar(render(layout.component))`
  *  - [HudLayout.Sidebar]       → Scoreboard objective with one rendered line per [HudComponent]
- *  - [HudLayout.TabList]       → `audience.sendPlayerListHeaderAndFooter(header, footer)`
+ *  - [HudLayout.TabList]       → packet-only tab model (ADR-0260)
  *  - [HudLayout.Subtitle]      → `audience.showTitle(Title.title(empty, render(component), times))`
  *
  * # Glyph resolution

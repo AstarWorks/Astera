@@ -141,6 +141,18 @@ class HudE2eTest : E2eBase() {
             "header='${visible(b.tabHeader.orEmpty())}' footer='${visible(b.tabFooter.orEmpty())}' updates=${b.tabUpdates.get()}"
         }
 
+        val labelTeam = b.teamOf(b.name)?.first
+        val createsBefore = b.objectiveCreates["ast_np_hp"]?.get()
+        Thread.sleep(2_500) // several sidebar/label polls must update in place
+        E2eReport.check(suite, "sidebar refreshes preserve labels without recreating the HP objective", "SetObjective + SetPlayerTeam + SetScore") {
+            assertThat(b.sidebarLines()).isNotEmpty()
+            assertThat(b.teamOf(b.name)?.first).isEqualTo(labelTeam)
+            assertThat(b.belowNameScores()[b.name]).isGreaterThan(0)
+            assertThat(createsBefore).isEqualTo(1)
+            assertThat(b.objectiveCreates["ast_np_hp"]?.get()).isEqualTo(createsBefore)
+            "HP objective created once; sidebar and labels coexist"
+        }
+
         val matchId = run {
             val before = b.chat.size
             b.command("astera match list")

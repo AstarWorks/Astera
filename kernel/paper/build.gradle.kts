@@ -18,5 +18,5 @@ dependencies {
     implementation(libs.opentelemetry.sdk)
     implementation(libs.opentelemetry.exporter.logging)
     implementation(libs.opentelemetry.exporter.otlp)
-    compileOnly(libs.packetevents.spigot)
+    implementation(libs.packetevents.spigot)
 }
