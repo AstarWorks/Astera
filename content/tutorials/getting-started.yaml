@@ -15,10 +15,10 @@ steps:
   - type: wait_for_action
     actionId: reload
   - type: wait_for_action
+    actionId: staff
+  - type: wait_for_action
     actionId: hud
   - type: wait_for_action
-    actionId: shop
-  - type: wait_for_action
-    actionId: vault
+    actionId: norma
   - type: wait_for_action
     actionId: queue

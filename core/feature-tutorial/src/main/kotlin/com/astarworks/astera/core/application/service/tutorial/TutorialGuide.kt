@@ -72,9 +72,10 @@ public class TutorialGuide(
             showing[id] = Showing(action, scheduler.currentTick(), marker)
         }
         player.sendActionBar(key(action, "hint"))
-        // This step teaches reading an existing HUD, so give the player four uninterrupted seconds.
-        if (action == "hud" && scheduler.currentTick() - checkNotNull(showing[id]).since >= 80) {
-            sequencer.recordAction(id, "hud")
+        // These steps teach reading, not doing: the HUD gets four uninterrupted seconds, the Norma goal seven.
+        val shownFor = scheduler.currentTick() - checkNotNull(showing[id]).since
+        if ((action == "hud" && shownFor >= 80) || (action == "norma" && shownFor >= 140)) {
+            sequencer.recordAction(id, action)
         }
     }
 
@@ -82,7 +83,7 @@ public class TutorialGuide(
         val plan = range()?.plan
         return when (action) {
             "range" -> plan?.spawn
-            "rack", "reload" -> plan?.rackSlots?.firstOrNull()?.let { Vec3(it.x + 0.5, it.y.toDouble(), it.z + 0.5) }
+            "rack", "reload", "staff" -> plan?.rackSlots?.firstOrNull()?.let { Vec3(it.x + 0.5, it.y.toDouble(), it.z + 0.5) }
             "primary", "secondary", "hud" -> plan?.dummies?.firstOrNull { it.id == "melee-1" }?.position
             else -> landmark(action)
         }
@@ -98,7 +99,7 @@ public class TutorialGuide(
     }
 
     public companion object {
-        public val ACTIONS: List<String> = listOf("menu", "range", "rack", "primary", "secondary", "reload", "hud", "shop", "vault", "queue")
+        public val ACTIONS: List<String> = listOf("menu", "range", "rack", "primary", "secondary", "reload", "staff", "hud", "norma", "queue")
         public fun key(action: String, part: String): MessageKey = MessageKey("astera.tutorial.guide.$action.$part")
     }
 }
