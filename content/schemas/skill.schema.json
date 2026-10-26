@@ -53,6 +53,71 @@
             "items": {
                 "type": "string"
             }
+        },
+        "block_damage": {
+            "type": "object",
+            "description": "ADR-0280: opt in to damaging cover. Absent = the skill never touches cover.",
+            "required": [
+                "amount"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Flat HP chip; with `tool`, the matrix base (100 = one swing of that tool)."
+                },
+                "radius": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 6
+                },
+                "tool": {
+                    "type": "string",
+                    "description": "Count as this tool, e.g. PICKAXE/IRON."
+                },
+                "reach": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16,
+                    "description": "Cast-time skills: look-ray length; line length for shape: line."
+                },
+                "shape": {
+                    "type": "string",
+                    "enum": [
+                        "ball",
+                        "line"
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
+        "block_place": {
+            "type": "object",
+            "description": "ADR-0280: raise a temporary cover wall in front of the caster; removed at match end.",
+            "required": [
+                "block"
+            ],
+            "properties": {
+                "block": {
+                    "type": "string"
+                },
+                "distance": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6
+                },
+                "width": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 7
+                },
+                "height": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 4
+                }
+            },
+            "additionalProperties": false
         }
     },
     "required": [
