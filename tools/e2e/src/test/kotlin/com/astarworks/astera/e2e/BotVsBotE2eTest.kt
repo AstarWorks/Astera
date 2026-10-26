@@ -18,6 +18,10 @@ import org.junit.jupiter.api.Test
 class BotVsBotE2eTest : PlaythroughBase() {
 
     private val suite = "Bot vs bot"
+    private companion object {
+        const val NAV_MAX_SEARCH_US = 100_000L
+        const val NAV_MAX_AVG_NODES = 600
+    }
     private val brains = mutableListOf<BotBrain>()
 
     @AfterEach
@@ -63,6 +67,10 @@ class BotVsBotE2eTest : PlaythroughBase() {
             }
             b.name to if (hasWeapon) "game kit" else "rcon starter pair"
         }
+        // Consumables: a player buys a heal-potion in the shop and carries it in; here it is handed over by an item grant
+        // so the retreat logic has something to drink. The brain must not mistake it for a weapon.
+        bots.forEach { rcon("astera items give ${it.name} heal-potion") }
+        Thread.sleep(800)
         E2eReport.check(suite, "both bots enter the match armed", "SetContainerContent") {
             bots.forEach { assertThat(it.hotbar().take(8).any { id -> id != -1 }).describedAs("${it.name} has no weapon: ${it.hotbar()}").isTrue() }
             "armed by: $armedBy; hotbars=${bots.map { it.hotbar() }}"
@@ -115,6 +123,21 @@ class BotVsBotE2eTest : PlaythroughBase() {
         E2eReport.check(suite, "the AI produces at least one kill (no RCON damage)", "PlayerCombatKill / death cam") {
             assertThat(kills).describedAs("no bot ever died in ${(System.currentTimeMillis() - tPlay) / 1000}s. $brainSummary; positions=${bots.map { posOf(it) }}; sidebar=${sidebar(bots[0])}").isGreaterThanOrEqualTo(1)
             "deaths=$kills first at ${firstKillMs}ms; ${brainSummary.joinToString(" | ")}"
+        }
+        E2eReport.check(suite, "a retreating bot drinks its heal-potion and its HP rises", "bot counters + SetHealth") {
+            val drank = brains.withIndex().filter { it.value.drinks.get() > 0 }
+            assertThat(drank).describedAs("no bot ever retreated and drank (hp history ${bots.map { it.healthHistory.takeLast(6) }}); $brainSummary").isNotEmpty()
+            drank.forEach { (i, b) -> assertThat(b.peakHpAfterDrink).describedAs("${bots[i].name} drank at ${b.lastDrinkHp} HP but never healed").isGreaterThan(b.lastDrinkHp) }
+            drank.joinToString { (i, b) -> "${bots[i].name}: drinks=${b.drinks.get()} hp ${b.lastDrinkHp} -> peak ${b.peakHpAfterDrink}" }
+        }
+        // Pathfinding budget. Observed 2026-10: maxSearchUs 721..8056, avgNodes 31..36, 35..59 searches. About 10x headroom, so only a real regression trips it.
+        E2eReport.check(suite, "A* stays within its budget (slowest search, average expanded nodes)", "Navigator counters") {
+            brains.forEachIndexed { i, b ->
+                val avg = b.nav.expandedTotal.get() / b.nav.searches.get().coerceAtLeast(1)
+                assertThat(b.nav.maxSearchMicros).describedAs("${bots[i].name} slowest search").isLessThan(NAV_MAX_SEARCH_US)
+                assertThat(avg).describedAs("${bots[i].name} average expanded nodes").isLessThan(NAV_MAX_AVG_NODES)
+            }
+            brains.mapIndexed { i, b -> "${bots[i].name}: searches=${b.nav.searches.get()} maxSearchUs=${b.nav.maxSearchMicros} avgNodes=${b.nav.expandedTotal.get() / b.nav.searches.get().coerceAtLeast(1)}" }.joinToString(" | ")
         }
         E2eReport.check(suite, "both bots actually attacked (swings or shots sent)", "bot counters") {
             brains.forEachIndexed { i, b -> assertThat(b.swings.get() + b.shots.get()).describedAs("${bots[i].name} never attacked: ${b.summary()}").isGreaterThan(0) }
