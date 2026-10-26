@@ -804,10 +804,11 @@ film() { # viewer view_dir
   # SHOT_CASTER_TURN="<tick>:<yaw>[,<tick>:<yaw>...]": turns the caster (server-side /rotate, pitch kept (a /tp would eject the rig passengers)) that many ticks after the cast,
   # to check that the skin / rig / VFX follow the live yaw. Works in every view (the plan is just rcon commands by time).
   if [ -n "${SHOT_CASTER_TURN:-}" ]; then
-    [[ "$SHOT_CASTER_TURN" =~ ^[0-9]+:-?[0-9.]+(,[0-9]+:-?[0-9.]+)*$ ]] || die "SHOT_CASTER_TURN must look like 20:90,40:180 (tick:yaw)"
+    [[ "$SHOT_CASTER_TURN" =~ ^[0-9]+:-?[0-9.]+(:-?[0-9.]+)?(,[0-9]+:-?[0-9.]+(:-?[0-9.]+)?)*$ ]] || die "SHOT_CASTER_TURN must look like 20:90,40:180:30 (tick:yaw[:pitch])"
     local turn
     for turn in ${SHOT_CASTER_TURN//,/ }; do
-      printf '%s\trotate Caster %s ~\n' "$(( ${turn%%:*} * 50 ))" "${turn#*:}" >> "$STATE/camera-plan.tsv"
+      IFS=: read -r t_tick t_yaw t_pitch <<<"$turn"
+      printf '%s\trotate Caster %s %s\n' "$(( t_tick * 50 ))" "$t_yaw" "${t_pitch:-~}" >> "$STATE/camera-plan.tsv"
     done
   fi
   # one RCON connection: game time, cast, game time, then (compare) the camera cuts of the plan. Stepped: the server is frozen and
