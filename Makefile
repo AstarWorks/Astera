@@ -93,12 +93,16 @@ dev-hotswap: ## Fast loop: build jars, apply the changed classes to the RUNNING 
 dev-plugins: ## Fast loop: build jars, push changed ones into the running backends, restart only those (players are moved, not kicked)
 	./scripts/dev-deploy.sh plugins
 
+.PHONY: content-validate
+content-validate: ## Decode every content/ file through the server's own loaders (compile+run only, no tests); fails naming file + field
+	./gradlew -q :tools:content-lint:run
+
 .PHONY: dev-deploy
-dev-deploy: ## Fast loop: rebuild+push the resource pack, build jars + push content/ into the running backends, restart each ONCE (matching jar+content, arenas built in that boot; players are moved, not kicked)
+dev-deploy: content-validate ## Fast loop: rebuild+push the resource pack, build jars + push content/ into the running backends, restart each ONCE (matching jar+content, arenas built in that boot; players are moved, not kicked)
 	./scripts/dev-deploy.sh deploy
 
 .PHONY: dev-content
-dev-content: ## Fast loop: push content/ into the running backends, reload it in place and refresh held items (no restart)
+dev-content: content-validate ## Fast loop: push content/ into the running backends, reload it in place and refresh held items (no restart)
 	./scripts/dev-deploy.sh content
 
 .PHONY: dev-pack
@@ -280,9 +284,9 @@ skill-lint-plan: ## Writes build/skill-lint/<skill>/plan.json (headless cast: bo
 	./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q
 
 .PHONY: skill-lint
-skill-lint: ## Machine-checkable facts of a VFX skill before any capture (exit 1 on FAIL); writes build/skill-lint/<skill>/report.json and publishes it to skill-compare (PUBLISH=0 skips): make skill-lint SKILL=<skill-id> [CAPTURE=<capture dir>] [PLAN=<plan.json>]
-	@test -n "$(SKILL)" || { echo "usage: make skill-lint SKILL=<skill-id> [CAPTURE=<dir>] [PLAN=<plan.json>]"; exit 2; }
-	@python3 tools/skill-lint/skill_lint.py "$(SKILL)" $(if $(CAPTURE),--capture "$(CAPTURE)") $(if $(PLAN),--plan "$(PLAN)"); rc=$$?; \
+skill-lint: ## Preflight of a VFX skill before any capture: one weapon, both hands on the grip, feet on floor, display budget (exit 1 on FAIL); writes build/skill-lint/<skill>/report.json and publishes it to skill-compare (PUBLISH=0 skips): make skill-lint SKILL=<skill-id> [PLAN=<plan.json>]
+	@test -n "$(SKILL)" || { echo "usage: make skill-lint SKILL=<skill-id> [PLAN=<plan.json>]"; exit 2; }
+	@python3 tools/skill-lint/skill_lint.py "$(SKILL)" $(if $(PLAN),--plan "$(PLAN)"); rc=$$?; \
 	  if [ "$(PUBLISH)" != "0" ]; then node tools/skill-compare/scripts/publish-lint.mjs "$(SKILL)" || echo "warn: lint publish to skill-compare failed"; fi; exit $$rc
 
 .PHONY: particle-sim
@@ -299,7 +303,7 @@ skill-preview: ## Render a skill from the skill-compare camera without the clien
 	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)")
 
 .PHONY: pose-solve
-pose-solve: ## Reference keypoints -> skin-rig body keys + wrist keys + lint targets in content/skill-lint/solved/ (never overwrites shipped keys): make pose-solve SKILL=<skill-id>
+pose-solve: ## Reference keypoints -> skin-rig body keys + wrist keys in content/skill-lint/solved/ (never overwrites shipped keys): make pose-solve SKILL=<skill-id>
 	@test -n "$(SKILL)" || { echo "usage: make pose-solve SKILL=<skill-id>"; exit 2; }
 	python3 tools/pose-solve/solve.py "$(SKILL)"
 
