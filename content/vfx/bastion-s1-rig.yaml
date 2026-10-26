@@ -23,12 +23,14 @@ rigs:
   weapon_root: [0.0, 0.2367, 0.0]
   weapon_edge: [0.0, -0.6155, 0.7881]  # cutting edge direction, rig-local (broad-face normal = rig X)
   swing:
-  - { t: 0, rotate: [125.9, 3.9, 161] }   # B0-coil
-  - { t: 5, rotate: [64.9, -41.2, -124], ease: step }   # B1-snap-follow-through
-  - { t: 13, rotate: [-22, -160.5, -2.9], ease: step }   # B2-overshoot
-  - { t: 16, rotate: [-10.4, 41.3, 74], ease: step }   # B3-turned-away-rest
-  - { t: 25, rotate: [-51.7, -146.5, 15.2], ease: step }   # B4-coil-2
-  - { t: 28, rotate: [5.8, 13.6, 26.9], ease: step }   # B6-extended
-  - { t: 33, rotate: [-65.3, -158.1, -13.8], ease: step }   # B7-drop
-  - { t: 35, rotate: [-56.2, 167.5, -6.8], ease: step }   # B8-rest
-  - { t: 47, rotate: [0, 0, 0], ease: step }   # hand-back
+  - { t: 0, rotate: [59.5, 11.7, 114.7] }   # skill 0 coil
+  - { t: 5, rotate: [-148.3, 50.9, 153.0], ease: step }   # skill 6 sweep1
+  - { t: 6, rotate: [93.3, 33.3, -139.8], ease: step }   # skill 7 follow1
+  - { t: 13, rotate: [58.0, 27.1, -133.4], ease: step }   # skill 16 over1
+  - { t: 16, rotate: [-32.0, 54.3, 33.0], ease: step }   # skill 19 rest-away
+  - { t: 25, rotate: [34.4, -0.0, -169.2], ease: step }   # skill 28 crouch2
+  - { t: 27, rotate: [-108.8, 45.7, 88.8], ease: step }   # skill 30 sweep2
+  - { t: 28, rotate: [-1.8, 32.5, 172.1], ease: step }   # skill 31 thrust2
+  - { t: 34, rotate: [75.0, 31.6, 112.0], ease: step }   # skill 39 drop2
+  - { t: 36, rotate: [59.5, 11.7, 114.7], ease: step }   # skill 41 coil
+  - { t: 47, rotate: [0.0, 0.0, 0.0], ease: step }   # skill 52 hand-back

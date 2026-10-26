@@ -171,7 +171,7 @@ CMP_FOV_DEG=""
 CAM0_CMD=""
 ENEMY_X=4.2
 case "$VIEW" in caster|opponent|side|compare|all) ;; *) die "VIEW must be caster|opponent|side|compare|all";; esac
-case "$CAMERA" in case|side) ;; *) die "CAMERA must be case|side";; esac
+case "$CAMERA" in case|side|front|back|opposite|high45|back45|eye) ;; *) die "CAMERA must be case|side|front|back|opposite|high45|back45|eye (tools/vfx-shot/camera-presets.json)";; esac
 if [ "$VIEW" = compare ]; then
   [ -n "$CASE" ] || die "VIEW=compare needs CASE=<case-id> (e.g. CASE=zwei-s3)"
   INTENT="$(python3 -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); c=json.loads((d/"case.json").read_text()); p=(d/c.get("intent",{}).get("file","intent.json")).resolve(); p.relative_to(d.resolve()); print(p)' "$ROOT/tools/skill-compare/data/$CASE")"

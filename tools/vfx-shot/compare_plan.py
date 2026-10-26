@@ -16,6 +16,7 @@ Writes <plan_out> as `t_ms<TAB>command` lines (t relative to the cast) and print
 """
 import json
 import math
+import os
 import sys
 
 
@@ -38,7 +39,11 @@ def main() -> int:
         enemy_x = actors["enemy"]["keys"][0]["pos"][0] - caster_x
     duration = int(intent.get("duration_ticks", 100))
     keys = intent.get("camera", [])
-    if mode == "side" or not keys:
+    presets = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "camera-presets.json")))
+    if mode in presets and not mode.startswith("_"):
+        pr = presets[mode]
+        keys = [{"t": 0, "pos": pr["pos"], "target": pr["target"], "fov": pr["fov"]}]
+    elif mode == "side" or not keys:
         mid = enemy_x / 2
         keys = [{"t": 0, "pos": [mid, 1.6, 6.0], "target": [mid, 1.0, 0.0], "fov": 55}]
     explicit = len(sys.argv) > 7 and sys.argv[7] != "-"
