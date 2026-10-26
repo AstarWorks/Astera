@@ -42,7 +42,7 @@ interface IMcPlayer {
      *
      * Paper impl: Adventure via PaperPlayer (renderer-resolved keys).
      */
-    fun sendActionBar(messageKey: MessageKey, placeholders: Map<String, String> = emptyMap())
+    fun postActionBar(messageKey: MessageKey, placeholders: Map<String, String> = emptyMap())
 
     /**
      * Show a title (large center text) with optional subtitle and

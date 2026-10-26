@@ -122,9 +122,13 @@ internal class CorePaperBindings(
     /** Retained so players' action-bar messages are composed with the HP status line. */
     private var paperHudGateway: com.astarworks.astera.core.application.port.outbound.IHudGateway? = null
 
+    /** The one door to the action bar (ADR-0279); resolves the Paper compositor lazily. */
+    private val actionBarChannel: com.astarworks.astera.core.application.port.outbound.IActionBarChannel =
+        com.astarworks.astera.core.application.service.HudActionBarChannel { paperHudGateway }
+
     fun buildPorts(): CorePlatformPorts {
         // ---- Vendor-neutral abstraction over Paper -----------------------
-        val mcServer: IMcServer = PaperServer(server, { messageRenderer?.invoke() }, { paperHudGateway })
+        val mcServer: IMcServer = PaperServer(server, { messageRenderer?.invoke() }, { actionBarChannel })
         this.mcServer = mcServer
         val ps = PaperScheduler(plugin)
         ps.start()
@@ -281,6 +285,7 @@ internal class CorePaperBindings(
                 com.astarworks.astera.core.adapter.paper.presentation.PaperPresentationVisuals(
                     server,
                     services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
+                    actionBarChannel,
                 )
             },
             musicGateway = { services ->
@@ -651,6 +656,7 @@ internal class CorePaperBindings(
             role = ctx.serverRole,
             renderer = renderer,
             messages = ctx.services.getOrThrow<IMessageRenderer>(),
+            actionBar = actionBarChannel,
             intents = result.guiIntentRouter,
             mcServer = mcServer,
             visibility = { ctx.services.get<com.astarworks.astera.core.application.gui.ViewerVisibility>() },

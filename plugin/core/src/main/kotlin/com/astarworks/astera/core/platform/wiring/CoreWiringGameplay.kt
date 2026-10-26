@@ -160,6 +160,13 @@ internal fun CoreWiringState.wireGameplayLoop() {
     }
     hudGateway =
         services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+    // ADR-0279: the one door to the action bar for combat / match / presentation callers.
+    services.register<com.astarworks.astera.core.application.port.outbound.IActionBarChannel>(
+        com.astarworks.astera.core.application.service.HudActionBarChannel {
+            services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+        },
+        priority = 0,
+    )
 
     // 2. Player profile service. The starter grant is read from
     //    `content/balance/starter-grant.yaml` if present; otherwise the

@@ -885,7 +885,7 @@ public class MechanicDispatcher(
                 val renderer = messageRenderer ?: return warnMissing("SendActionBar", "IMessageRenderer")
                 val out = feedback ?: return warnMissing("SendActionBar", "IPlayerFeedbackGateway")
                 for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
-                    out.sendActionBar(target, renderer.renderText(target, mechanic.message))
+                    out.postActionBar(target, renderer.renderText(target, mechanic.message))
                 }
             }
 

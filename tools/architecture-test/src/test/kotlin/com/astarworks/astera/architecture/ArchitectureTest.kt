@@ -44,6 +44,17 @@ class ArchitectureTest {
     }
 
     @Test
+    fun `action bar is sent only by the HUD compositor (ADR-0279)`() {
+        // The action bar is shared with the HP status line; any other sender erases the HP line until the
+        // next refresh. Everything posts through IActionBarChannel; PaperHudGateway composes and sends.
+        val forbidden = Regex("""\bsendActionBar\s*\(|ClientboundSetActionBar\w*Packet|ChatMessageType\.ACTION_BAR|ChatType\.GAME_INFO""")
+        projectScope().files
+            .filter { it.path.contains("/src/main/") && !it.path.contains("/tools/") }
+            .filterNot { it.path.endsWith("/adapter/paper/hud/PaperHudGateway.kt") }
+            .assertFalse { file -> forbidden.containsMatchIn(sourceWithoutComments(file.text)) }
+    }
+
+    @Test
     fun `main sources must not create or unload worlds`() {
         val forbidden = Regex("""\b(?:WorldCreator|createWorld|unloadWorld)\b""")
         projectScope().files.filter { it.path.contains("/src/main/") }.assertFalse { file ->

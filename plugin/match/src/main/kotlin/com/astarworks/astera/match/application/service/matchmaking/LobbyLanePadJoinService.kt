@@ -36,7 +36,7 @@ public class LobbyLanePadJoinService(
         val ph = mapOf("lane" to laneName)
 
         if (matches.findActiveMatches().any { m -> m.teams.any { event.playerId in it.members } }) {
-            player?.sendActionBar(K_IN_MATCH, ph)
+            player?.postActionBar(K_IN_MATCH, ph)
             return
         }
         val partyId = parties.forPlayer(event.playerId)?.id
@@ -45,7 +45,7 @@ public class LobbyLanePadJoinService(
         val failure = (result as? Result.Failure)?.error
         if (failure is QueueError.AlreadyEnqueued) {
             if (failure.mode == lane.mode) {
-                player?.sendActionBar(K_ALREADY, ph)
+                player?.postActionBar(K_ALREADY, ph)
                 return
             }
             matchmaker.dequeue(event.playerId)
@@ -55,9 +55,9 @@ public class LobbyLanePadJoinService(
         when (result) {
             is Result.Success -> {
                 player?.sendTitle(K_TITLE, K_SUBTITLE)
-                player?.sendActionBar(if (switched) K_SWITCHED else K_JOINED, ph)
+                player?.postActionBar(if (switched) K_SWITCHED else K_JOINED, ph)
             }
-            is Result.Failure -> player?.sendActionBar(errorKey(result.error), ph)
+            is Result.Failure -> player?.postActionBar(errorKey(result.error), ph)
         }
         refreshBoard()
     }

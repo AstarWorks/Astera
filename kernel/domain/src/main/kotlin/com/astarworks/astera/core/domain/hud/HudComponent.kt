@@ -124,6 +124,18 @@ public sealed interface HudComponent {
     }
 
     /**
+     * An already rendered MiniMessage string (the caller resolved i18n itself, e.g. a skill's inline
+     * localized text). Prefer [Text] with a key wherever one exists.
+     */
+    public data class Rendered(
+        public val miniMessage: String,
+    ) : HudComponent {
+        init {
+            require(miniMessage.isNotEmpty()) { "Rendered.miniMessage must not be empty" }
+        }
+    }
+
+    /**
      * A pre-composed string in the Astera font (PUA glyphs and negative-space
      * advances, see `StatusHudGlyphs`) whose total advance is [widthPx] pixels.
      * The gateway draws it verbatim, white, in the `astera:default` font.

@@ -133,7 +133,7 @@ public class SimMcPlayer(private val entity: SimEntity) : IMcPlayer {
 
     override fun heldItemMaterialKey(): String? = entity.heldItem?.value
 
-    override fun sendActionBar(messageKey: MessageKey, placeholders: Map<String, String>) {
+    override fun postActionBar(messageKey: MessageKey, placeholders: Map<String, String>) {
         if (failNotices) throw NotImplementedError("sim: action bar failure")
         actionBars += messageKey
     }
