@@ -419,6 +419,45 @@ The main world is superflat (surface block y=-61, you stand at y=-60); the lobby
 - A stage names its Bukkit world with `world:` (default `world`, the server's main world); a stage with a `layout:`
   is built into that world on boot (versioned marker, see `content/stages/README.md`).
 
+## Running the dev stack on a separate host
+
+The stack (velocity, lobby, game, postgres, redis, resource-pack, bot-runner) can live on a dedicated
+VM (Ubuntu 24.04 + Docker + compose plugin, 8 vCPU / 16 GB / 100 GB SSD, ssh key login for a user in
+the `docker` group). Gradle, e2e and shot stacks stay on the dev host.
+
+- **Remote mode:** `ASTERA_DEV_HOST=user@host` makes `make docker-up`, `dev-plugins`, `dev-deploy`,
+  `dev-content`, `dev-pack`, `dev-hotswap*` and `scripts/dev-deploy.sh` talk to the VM's Docker
+  daemon (`DOCKER_HOST=ssh://user@host`). Jars are still built locally; `docker compose cp` /
+  `exec` and `up --build` (build context streamed over ssh) run against the VM. Unset = the local
+  daemon, exactly as before. `docker/.env` stays on the dev host: compose reads it client-side, so
+  the Velocity forwarding secret is never copied by hand or printed. Add
+  `ControlMaster auto`, `ControlPath ~/.ssh/cm-%r@%h`, `ControlPersist 10m` for the host in
+  `~/.ssh/config`; every docker call is an ssh round trip otherwise.
+- **Move:** `scripts/dev-migrate-host.sh user@host` (`DRY_RUN=1` previews). It checks ssh and docker,
+  builds and creates the stack on the VM, restores the `astera` DB (pg_dump piped over ssh), carries
+  the non-world state of `lobby-data` / `game-data` (top-level `*.json`, `plugins/` without jars;
+  worlds are regenerated, ADR-0255), starts everything and prints the connect address. It never
+  touches the local stack; re-running skips the DB and volume restore once done (`RESTORE=1` forces).
+- **Firewall:** open `25565/tcp` (Velocity) and the resource-pack port `8099/tcp` (`RESOURCE_PACK_PORT`).
+  Docker publishes ports around `ufw`, so keep postgres / redis off the network: remote mode binds
+  them to `127.0.0.1` (`POSTGRES_BIND` / `REDIS_BIND`), and RCON is never published.
+- **Resource-pack URL:** `ASTERA_RESOURCE_PACK_URL` defaults to
+  `http://${ASTERA_PUBLIC_HOST:-localhost}:${RESOURCE_PACK_PORT:-8099}/astera.zip`; remote mode sets
+  `ASTERA_PUBLIC_HOST` to the host part of `ASTERA_DEV_HOST` (override it for a DNS name or when the
+  address clients use differs). An explicit `ASTERA_RESOURCE_PACK_URL` in `docker/.env` wins, so
+  remove a stale `localhost` value there. The URL is fixed when the container is created.
+- **Autodeploy watcher:** it can stay on the dev host and deploy remotely:
+  `ASTERA_DEV_HOST=user@host make dev-autodeploy-up`. The supervisor container and the gradle build
+  stay local; deploy and rollback docker commands go to the VM. The watcher runs inside the
+  devcontainer, so that needs an `ssh` client and the key (or an agent) there. Restart it after the
+  cutover so it picks up the variable.
+- **Cutover:** do the first migration and a test join to `host:25565` while the local stack still
+  serves. Then for the final delta: `make dev-autodeploy-down`; stop only the local
+  `velocity lobby game bot-runner` (postgres must keep running for the dump); stop `lobby game`
+  on the VM (`ASTERA_DEV_HOST=user@host docker compose -p astera-dev -f docker/docker-compose.yml stop lobby game`);
+  `RESTORE=1 scripts/dev-migrate-host.sh user@host`; announce the new address;
+  `ASTERA_DEV_HOST=user@host make dev-autodeploy-up`. Rollback = start the local services again.
+
 ## Logs / reset
 
 - Logs: `docker compose -f docker/docker-compose.yml logs -f velocity lobby game`

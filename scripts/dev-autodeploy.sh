@@ -7,6 +7,9 @@
 #                        by hand from a checkout of <sha> (FORCE=1 make dev-deploy, plus
 #                        docker compose up -d --build --no-deps bot-runner resource-pack), run this so later
 #                        commits are diffed from <sha> instead of staying held forever.
+#
+# ASTERA_DEV_HOST=user@host (given to `up`) deploys to the dev stack on that machine over DOCKER_HOST=ssh://...
+# The watcher and its supervisor container stay on THIS host; only the stack commands go remote. Unset = local.
 set -euo pipefail
 ROOT=/IdeaProjects/Astera
 DEPLOY=$ROOT/.claude/worktrees/dev-deploy
@@ -15,6 +18,13 @@ LOCK=/tmp/claude-1000/astera-dev-deploy.lock
 SUPERVISOR=astera-dev-autodeploy
 mkdir -p "$STATE" "$(dirname "$LOCK")"
 log() { printf '%s %s\n' "$(date -Is)" "$*" | tee -a "$STATE/deploy.log"; }
+# Stack commands only (deploy / rollback); `up` / `down` / `status` keep talking to the local daemon.
+use_remote_stack() {
+  [ -n "${ASTERA_DEV_HOST:-}" ] || return 0
+  export DOCKER_HOST="ssh://$ASTERA_DEV_HOST"
+  export ASTERA_PUBLIC_HOST="${ASTERA_PUBLIC_HOST:-${ASTERA_DEV_HOST##*@}}"
+  export POSTGRES_BIND="${POSTGRES_BIND:-127.0.0.1}" REDIS_BIND="${REDIS_BIND:-127.0.0.1}"
+}
 compose() { docker compose -p astera-dev -f "$DEPLOY/docker/docker-compose.yml" "$@"; }
 
 # All builds finish before any running service changes. Backups cover files outside /data,
@@ -68,6 +78,7 @@ confirm() {
 deploy() (
   flock 9
   cd "$DEPLOY"
+  use_remote_stack
   export COMPOSE_PROJECT_NAME=astera-dev COMPOSE_FILES=docker/docker-compose.yml BACKENDS="lobby game"
   local sha last path step=fetch plugins=0 content=0 pack=0 manual=0 old_pack
   git fetch origin main >> "$STATE/build.log" 2>&1 || { log "FAILED - fetch"; return; }
@@ -184,12 +195,12 @@ case "${1:-run}" in
     docker rm -f "$SUPERVISOR" >/dev/null 2>&1 || true
     docker run -d --name "$SUPERVISOR" --restart unless-stopped \
       -v /var/run/docker.sock:/var/run/docker.sock \
-      -e TARGET="$host" -e RUN_AS="$(id -u)" -e WATCHER="$STATE/watcher.sh" \
+      -e TARGET="$host" -e ASTERA_DEV_HOST="${ASTERA_DEV_HOST:-}" -e RUN_AS="$(id -u)" -e WATCHER="$STATE/watcher.sh" \
       -e WORKER_PATH="$PATH" -e WORKER_JAVA_HOME="${JAVA_HOME:-}" \
       --entrypoint sh docker:cli -c '
         trap "exit 0" TERM INT
         while :; do
-          docker exec -u "$RUN_AS" -e PATH="$WORKER_PATH" -e JAVA_HOME="$WORKER_JAVA_HOME" \
+          docker exec -u "$RUN_AS" -e ASTERA_DEV_HOST="$ASTERA_DEV_HOST" -e PATH="$WORKER_PATH" -e JAVA_HOME="$WORKER_JAVA_HOME" \
             "$TARGET" bash "$WATCHER" run
           sleep 10 & wait $!
         done'

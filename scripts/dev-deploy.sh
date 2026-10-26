@@ -18,10 +18,19 @@
 # COMPOSE_PROJECT_NAME (another stack, e.g. an experiment next to the live one), PACK_FORCE=1 (`pack`
 # re-pushes even when the hash is unchanged).
 #
+# ASTERA_DEV_HOST=user@host runs everything against the Docker daemon on that machine (DOCKER_HOST=ssh://...):
+# jars are still built here, `docker compose cp` / `docker exec` go over ssh. Unset = the local daemon.
+#
 # Velocity, Postgres and Redis are never touched. The Docker daemon is shared with the host, so bind
 # mounts of the repo would be empty: everything goes in with `docker compose cp`.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+
+if [ -n "${ASTERA_DEV_HOST:-}" ]; then
+  export DOCKER_HOST="ssh://$ASTERA_DEV_HOST"
+  export ASTERA_PUBLIC_HOST="${ASTERA_PUBLIC_HOST:-${ASTERA_DEV_HOST##*@}}"
+  export POSTGRES_BIND="${POSTGRES_BIND:-127.0.0.1}" REDIS_BIND="${REDIS_BIND:-127.0.0.1}"
+fi
 
 COMPOSE=(docker compose)
 for f in ${COMPOSE_FILES:-docker/docker-compose.yml}; do COMPOSE+=(-f "$f"); done

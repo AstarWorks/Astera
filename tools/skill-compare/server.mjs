@@ -92,7 +92,7 @@ export function makeHandler(opts = {}) {
               (referenceRevision && meta.referenceRevision !== referenceRevision) ||
               (contentRevision && meta.caseContentRevision !== contentRevision)) continue;
           info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`,
-            count: meta.frames, castFrame: Math.round((meta.cast_tick_ms ?? 0) / 50), extension, revision, prov: { ...provOf(meta), published: true } };
+            count: meta.frames, fps: meta.fps || 20, castFrame: Math.round(((meta.cast_tick_ms ?? 0) * (meta.fps || 20)) / 1000), extension, revision, prov: { ...provOf(meta), published: true } };
         } catch { /* Never fall back to a partially overwritten source after publication. */ }
         continue;
       }
@@ -104,9 +104,10 @@ export function makeHandler(opts = {}) {
         }
         const n = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).length;
         const webpReady = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).every((f) => existsSync(join(d, f.replace(/\.png$/, ".webp"))));
-        let castFrame = 0, prov = { published: false };  // compare: frames before the cast (meta.json cast_tick_ms)
-        try { const m = readJson(join(d, "meta.json")); castFrame = Math.round((m.cast_tick_ms ?? 0) / 50); prov = { ...provOf(m), published: false }; } catch { /* no meta: frame 0 = cast */ }
-        if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n, castFrame, prov,
+        // compare: frames before the cast (meta.json cast_tick_ms); FPS=60 captures hold 3 frames per tick
+        let castFrame = 0, fps = 20, prov = { published: false };
+        try { const m = readJson(join(d, "meta.json")); fps = m.fps || 20; castFrame = Math.round(((m.cast_tick_ms ?? 0) * fps) / 1000); prov = { ...provOf(m), published: false }; } catch { /* no meta: frame 0 = cast */ }
+        if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n, fps, castFrame, prov,
           extension: webpReady ? "webp" : "png",
           revision: String(statSync(existsSync(join(d, "meta.json")) ? join(d, "meta.json") : d).mtimeMs) };
       }

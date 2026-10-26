@@ -53,6 +53,17 @@ clean: ## Clean Gradle build outputs
 # local docker compose
 # ----------------------------------------------------------------------------
 
+# Remote dev stack: ASTERA_DEV_HOST=user@host drives the compose project on another machine over
+# DOCKER_HOST=ssh://... (see docs/contributing/playtest.md "Running the dev stack on a separate host").
+# Only the dev-stack targets get it, so `make e2e` and friends stay on the local daemon. Unset = local.
+ifneq ($(ASTERA_DEV_HOST),)
+DEV_STACK_TARGETS := docker-up dev-hotswap-up dev-hotswap dev-plugins dev-deploy dev-content dev-pack
+$(DEV_STACK_TARGETS): export DOCKER_HOST := ssh://$(ASTERA_DEV_HOST)
+$(DEV_STACK_TARGETS): export POSTGRES_BIND := $(or $(POSTGRES_BIND),127.0.0.1)
+$(DEV_STACK_TARGETS): export REDIS_BIND := $(or $(REDIS_BIND),127.0.0.1)
+$(DEV_STACK_TARGETS): export ASTERA_PUBLIC_HOST := $(or $(ASTERA_PUBLIC_HOST),$(lastword $(subst @, ,$(ASTERA_DEV_HOST))))
+endif
+
 .PHONY: docker-env
 docker-env: ## Create docker/.env (from the example) and a Velocity forwarding secret if absent
 	@test -f docker/.env || cp docker/.env.example docker/.env
