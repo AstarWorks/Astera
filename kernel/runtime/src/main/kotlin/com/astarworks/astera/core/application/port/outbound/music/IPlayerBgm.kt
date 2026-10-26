@@ -13,6 +13,13 @@ public interface IPlayerBgm {
     /** Switch [playerId] to [mood]. A no-op when they already hear it. */
     public fun switchTo(playerId: PlayerId, mood: MusicMood)
 
+    /**
+     * Start [playerId]'s current mood again from the top (default lobby when none yet). Called when the
+     * client finishes loading the resource pack: a pack reload cuts every playing sound and a track
+     * started at join references an astera music sound event the client does not know yet.
+     */
+    public fun replay(playerId: PlayerId)
+
     /** Silence [playerId]'s BGM. */
     public fun stop(playerId: PlayerId)
 

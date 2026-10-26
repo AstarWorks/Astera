@@ -63,6 +63,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.Clie
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundDamageEventPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundSetEntityDataPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundSoundPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundSoundEntityPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundSetHealthPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.inventory.ClientboundContainerSetContentPacket
@@ -399,6 +400,8 @@ class Bot private constructor(
             is ClientboundBlockUpdatePacket -> terrain.set(packet.entry.position.x, packet.entry.position.y, packet.entry.position.z, packet.entry.block)
             is ClientboundSectionBlocksUpdatePacket -> packet.entries.forEach { terrain.set(it.position.x, it.position.y, it.position.z, it.block) }
             is ClientboundSoundPacket -> sounds += packet.sound.toString()
+            // Entity-emitter sounds (BGM follows the listener: Player.playSound(player, ...)) are heard just the same.
+            is ClientboundSoundEntityPacket -> sounds += packet.sound.toString()
             is ClientboundSetEntityDataPacket -> packet.metadata.forEach { m ->
                 if (m.id == 0 && m.value is Byte) entityFlags[packet.entityId] = (m.value as Byte).toInt()
                 // Custom names are OPTIONAL_COMPONENT: unwrap the Optional, or a villager's name tag is never seen.
