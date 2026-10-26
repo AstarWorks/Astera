@@ -202,6 +202,7 @@ public object EconomyWiring {
             registry = { services.get<com.astarworks.astera.core.application.port.outbound.IShopRegistry>() },
             purchases = { services.get<com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository>() },
             ledger = ledger,
+            cosmetics = { services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
         )
         val grantMatchRewards = GrantMatchRewardsOnSummaryListener(
             table = { matchRewardsLoader.load(matchRewardsPath) },

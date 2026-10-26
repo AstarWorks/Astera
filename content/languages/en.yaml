@@ -547,6 +547,8 @@ astera:
       crimson: "Crimson"
       emerald: "Emerald"
       violet: "Violet"
+      mint: "Mint"
+      amber: "Amber"
     kill_effect:
       stardust: "Stardust"
       sparkle: "Sparkle"
@@ -554,6 +556,8 @@ astera:
       hearts: "Hearts"
       flames: "Flames"
       portal: "Portal"
+      puff: "Puff"
+      first-spark: "First Spark"
     kind:
       title: "Title"
       name_color: "Name colour"
@@ -643,6 +647,9 @@ astera:
           gui_title: "Your purchases"
           line: "<gray>{when} - paid <white>{amount}</white> {currency}</gray>"
           back: "<yellow>Back to the shop</yellow>"
+        cosmetics:
+          title: "<light_purple>Cosmetics</light_purple>"
+          hint: "<gray>Name colours, titles and kill effects from 60 GOLD. Click to browse.</gray>"
         wallet:
           title: "<gold>Your wallet</gold>"
           line: "<gray>{currency}: <white>{amount}</white></gray>"
@@ -987,6 +994,7 @@ astera:
       next:
         affordable: "<green>You can afford</green> <white>{name}</white> <gray>({price} GOLD, you have {balance}).</gray> <gray>Buy it in the shop, then bring it to your next match.</gray>"
         short: "<gray>Next unlock:</gray> <white>{name}</white> <gold>{price} GOLD</gold> <gray>({short} more; you have {balance}).</gray>"
+        cosmetic-affordable: "<green>You can afford</green> <white>{name}</white> <gray>({price} GOLD, you have {balance}).</gray> <gray>Buy and wear it from the Cosmetics button in the shop.</gray>"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — reconnect-window countdown
     # ActionBar shown while a disconnected participant is held in the seat.
     reconnect:

@@ -18,6 +18,7 @@ Owner track `wp/economy-life`. Seed: audit 2026-10-26. Items: Board prefix `ECO-
 - A player who has bought nothing yet sees the `recommended: true` offer (frost-staff, completing gun/sword/staff) pinned first in the shop with a badge. The wallet tile lists GEM only once a balance exists (GEM has no source).
 - Purchase flow pinned from a client by `ShopPurchaseE2eTest` (confirm click, exact charge, delivery, shortfall refusal).
 - Level rewards Lv2-30 with round GOLD, titles and cosmetics (`content/progression/level-rewards.yaml`); cosmetics layer (titles, name colours, kill effects) is the second GOLD sink; 14 achievements all pay GOLD.
+- Cosmetic earn route (wp/cosmetic-route): the shop footer has a Cosmetics button into the cosmetics menu (previously only the profile card); three cheap starter cosmetics are sold there (mint 60 G, amber 80 G name colours under the 100 G confirm; puff 100 G kill effect); Lv4 grants the kill effect `first-spark`. The post-match next-unlock line points at the priciest affordable unowned cosmetic when the cheapest unowned weapon is out of reach (weapons stay the goal otherwise). Pinned by `CosmeticsScenarioTest` and `ShopPurchaseE2eTest` (shop -> menu -> one-click buy -> Equipped). GEM still has no cosmetic price (GOLD only).
 - Daily/weekly missions, 7-day login bonus (monotonic, day7 peak), quests; `/astera daily|missions|quests|achievements`.
 - Frozen: PvE drop tables and the `item-collection` quest are parked under `_frozen/`; `content/gathering`, `recipes`, no survival world. Gacha, guild, trade: no code.
 

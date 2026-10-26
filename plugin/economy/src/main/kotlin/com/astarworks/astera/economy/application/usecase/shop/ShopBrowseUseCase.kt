@@ -152,6 +152,7 @@ public class ShopBrowseUseCase(
             if (categories.isNotEmpty()) {
                 slot(SlotIndex(footer + 2), categorySlot(playerId, shopSpec, category, nextCategory))
             }
+            slot(SlotIndex(footer + 1), cosmeticsSlot())
             slot(SlotIndex(footer + 4), walletSlot(playerId))
             slot(SlotIndex(footer + 6), historySlot(shopSpec))
             if (page < pages - 1) {
@@ -195,6 +196,14 @@ public class ShopBrowseUseCase(
                 },
             ),
         )
+
+    /** The way into the cosmetics menu (ADR-0269): the GOLD sink beyond weapons is reachable from the shop itself. */
+    private fun cosmeticsSlot(): GuiSlot.Static = GuiSlot.Static(
+        itemId = COSMETICS_ICON,
+        displayName = GuiText(COSMETICS_TITLE),
+        lore = listOf(GuiText(COSMETICS_HINT)),
+        onLeftClick = GuiIntent(key = INTENT_COSMETICS),
+    )
 
     private fun historySlot(shopSpec: ShopSpec): GuiSlot.Static = GuiSlot.Static(
         itemId = HISTORY_ICON,
@@ -348,6 +357,12 @@ public class ShopBrowseUseCase(
         private val CATEGORY_ICON = ItemId("gui-admin-cat-all")
         private val HISTORY_ICON = ItemId("gui-admin-page")
         private val BACK_ICON = ItemId("gui-admin-back")
+        private val COSMETICS_ICON = ItemId("gui-tile-customize")
+        private val COSMETICS_TITLE = MessageKey("astera.economy.shop.gui.cosmetics.title")
+        private val COSMETICS_HINT = MessageKey("astera.economy.shop.gui.cosmetics.hint")
+
+        /** Handled by the cosmetics menu (`cosmetic.` prefix), not by the shop handler. */
+        public const val INTENT_COSMETICS: String = "cosmetic.open"
 
         public const val INTENT_PAGE: String = "shop.page"
         public const val INTENT_HISTORY: String = "shop.history"

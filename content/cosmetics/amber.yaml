@@ -1,0 +1,6 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.name_color.amber. Sold in the cosmetics menu (cheap starter buy, under the 100 G confirm).
+id: amber
+kind: name_color
+name_key: astera.cosmetic.name_color.amber
+price_gold: 80
+value: "#FFBF00"
