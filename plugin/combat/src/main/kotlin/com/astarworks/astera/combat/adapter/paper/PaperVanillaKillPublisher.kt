@@ -46,7 +46,7 @@ public class PaperVanillaKillPublisher(
     /** Registers the Bukkit listener and the bus subscription; caller keeps the subscription for onDisable. */
     public fun start(plugin: JavaPlugin): IDomainEventBus.Subscription {
         plugin.server.pluginManager.registerEvents(this, plugin)
-        return eventBus.subscribe(PlayerHealthChanged::class, EventDelivery.Global) { onHealthChanged(it) }
+        return eventBus.subscribe(PlayerHealthChanged::class, EventDelivery.Entity) { onHealthChanged(it) }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

@@ -1,5 +1,7 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+
 import com.astarworks.astera.core.application.port.outbound.EventDelivery
 
 import com.astarworks.astera.combat.application.service.ProjectileImpactResolver
@@ -295,7 +297,14 @@ public class GameSim private constructor(
     /** Feeds one input with the held item into the same sink `PaperItemInputListener` feeds. */
     public fun input(entity: SimEntity, kind: IMcEvent.InputKind, sneaking: Boolean = false): Boolean {
         val view = checkNotNull(server.view(entity.id)) { "${entity.name} is not a player" }
-        return items.triggerListener.handle(IMcEvent.PlayerInput(view, kind, sneaking, entity.heldItem))
+        val scope = ExecutionScope.Entity(entity.id.uuid)
+        if (scheduler.isOnScope(scope)) return items.triggerListener.handle(IMcEvent.PlayerInput(view, kind, sneaking, entity.heldItem))
+        var handled = false
+        scheduler.run(scope, kotlin.time.Duration.ZERO) {
+            handled = items.triggerListener.handle(IMcEvent.PlayerInput(view, kind, sneaking, entity.heldItem))
+        }
+        scheduler.advanceTicks(0)
+        return handled
     }
 
     public fun leftClick(entity: SimEntity): Boolean = input(entity, IMcEvent.InputKind.LEFT_CLICK)
@@ -331,6 +340,12 @@ public class GameSim private constructor(
      * skills no shipped item binds yet (staff-style casts).
      */
     public fun cast(entity: SimEntity, skillId: String, sourceItem: String = entity.heldItem?.value ?: "sim") {
+        val scope = ExecutionScope.Entity(entity.id.uuid)
+        if (!scheduler.isOnScope(scope)) {
+            scheduler.run(scope, kotlin.time.Duration.ZERO) { cast(entity, skillId, sourceItem) }
+            scheduler.advanceTicks(0)
+            return
+        }
         eventBus.publish(
             com.astarworks.astera.core.domain.event.SkillCastRequested(
                 actorId = entity.id,

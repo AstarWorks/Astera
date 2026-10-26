@@ -74,8 +74,7 @@ public class StatusEffectTickListener(
         val localPlayers = playerIds.filter { id ->
             if (ownership.deferIfForeign(id) { tickBatch(listOf(id)) }) false
             else {
-                ownership.assertOwned(id)
-                lastTicks.put(id, now) != now
+                ownership.checkOwned(id) && lastTicks.put(id, now) != now
             }
         }
         val inputs = localPlayers.flatMap { id ->
@@ -84,7 +83,7 @@ public class StatusEffectTickListener(
         val amounts = compute.map(inputs) { (_, instance) -> instance.spec.magnitude * instance.currentStacks }
         for ((index, input) in inputs.withIndex()) {
             val (playerId, snapshot) = input
-            ownership.assertOwned(playerId)
+            if (!ownership.checkOwned(playerId)) continue
             val current = container.activeEffects[playerId]?.get(snapshot.spec.id) ?: continue
             // A preceding tick effect can refresh or remove the next effect.
             val amount = if (current === snapshot) amounts[index] else current.spec.magnitude * current.currentStacks

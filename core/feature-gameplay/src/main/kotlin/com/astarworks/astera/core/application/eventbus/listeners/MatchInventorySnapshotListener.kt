@@ -10,6 +10,10 @@ import com.astarworks.astera.core.domain.event.PlayerLeftMatch
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import kotlin.time.Duration
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import org.slf4j.LoggerFactory
 
@@ -32,6 +36,7 @@ import org.slf4j.LoggerFactory
  * never enter a snapshot. At end the remembered set is used because the match aggregate may already be torn down.
  */
 public class MatchInventorySnapshotListener(
+    private val scheduler: IScheduler,
     private val gateway: () -> IPlayerInventoryGateway?,
     private val saveSnapshot: SaveInventorySnapshotUseCase,
     /** Runs once per player right after the entry snapshot was taken (so anything it adds is not snapshotted). */
@@ -41,7 +46,7 @@ public class MatchInventorySnapshotListener(
 
     private val log = LoggerFactory.getLogger(MatchInventorySnapshotListener::class.java)
 
-    private val held: ConcurrentHashMap<MatchId, MutableMap<PlayerId, PlayerInventorySnapshot>> = ConcurrentHashMap()
+    private val held: ConcurrentHashMap<MatchId, MutableMap<PlayerId, CompletableFuture<PlayerInventorySnapshot?>>> = ConcurrentHashMap()
 
     /** `true` while [playerId] has an entry snapshot of a running match outstanding. */
     public fun isHeld(playerId: PlayerId): Boolean = held.values.any { playerId in it }
@@ -51,7 +56,7 @@ public class MatchInventorySnapshotListener(
      * top of it (the loaner kit for an unarmed player) is handed out again. No-op for players not held.
      */
     public fun rearm(playerId: PlayerId) {
-        if (isHeld(playerId)) afterEntryCapture(playerId)
+        onPlayer(playerId) { if (isHeld(playerId)) afterEntryCapture(playerId) }
     }
 
     /** A match that already has members at start (admin paths) is captured here; later entries go through [handleEntered]. */
@@ -67,11 +72,23 @@ public class MatchInventorySnapshotListener(
 
     private fun capture(matchId: MatchId, playerId: PlayerId) {
         val perMatch = held.computeIfAbsent(matchId) { ConcurrentHashMap() }
-        if (playerId in perMatch) return
-        val snapshot = gateway()?.capture(playerId) ?: return
-        saveSnapshot.save(snapshot)
-        perMatch[playerId] = snapshot
-        afterEntryCapture(playerId)
+        val pending = CompletableFuture<PlayerInventorySnapshot?>()
+        if (perMatch.putIfAbsent(playerId, pending) != null) return
+        scheduler.run(ExecutionScope.Entity(playerId.uuid),
+            Duration.ZERO) {
+            var snapshot: PlayerInventorySnapshot? = null
+            try {
+                snapshot = gateway()?.capture(playerId)
+                if (snapshot != null) {
+                    saveSnapshot.save(snapshot)
+                    afterEntryCapture(playerId)
+                }
+            } catch (ex: Exception) {
+                log.error("Inventory capture failed for {}", playerId, ex)
+            } finally {
+                pending.complete(snapshot)
+            }
+        }.onRetired { pending.complete(null) }
     }
 
     /**
@@ -79,19 +96,28 @@ public class MatchInventorySnapshotListener(
      * they are online; offline, the persisted entry snapshot restores on their next join. Not held any more.
      */
     public fun handleLeft(event: PlayerLeftMatch) {
-        val snapshot = held[event.matchId]?.remove(event.playerId) ?: return
-        if (gateway()?.apply(snapshot) == true) saveSnapshot.save(snapshot)
+        val pending = held[event.matchId]?.remove(event.playerId) ?: return
+        restore(event.playerId, pending)
+    }
+
+    private fun restore(playerId: PlayerId, pending: CompletableFuture<PlayerInventorySnapshot?>) {
+        // An immediate leave/end waits for capture and the entity's already-queued entry work, without blocking.
+        val delay = if (pending.isDone) Duration.ZERO else com.astarworks.astera.core.application.port.outbound.TICK
+        pending.thenAccept { snapshot ->
+            if (snapshot != null) scheduler.run(ExecutionScope.Entity(playerId.uuid), delay) {
+                if (gateway()?.apply(snapshot) == true) saveSnapshot.save(snapshot)
+                else log.debug("Player {} offline at match end; persisted entry snapshot restores on next join", playerId)
+            }
+        }
+    }
+
+    private fun onPlayer(playerId: PlayerId, action: () -> Unit) {
+        scheduler.run(ExecutionScope.Entity(playerId.uuid),
+            Duration.ZERO, action)
     }
 
     public fun handleEnded(event: MatchEnded) {
         val captured = held.remove(event.matchId) ?: return
-        for ((playerId, snapshot) in captured) {
-            if (gateway()?.apply(snapshot) != true) {
-                log.debug("Player {} offline at match end; persisted entry snapshot restores on next join", playerId)
-                continue
-            }
-            // Re-persist so the stored row reflects the restored (pre-match) inventory.
-            saveSnapshot.save(snapshot)
-        }
+        for ((playerId, pending) in captured) restore(playerId, pending)
     }
 }

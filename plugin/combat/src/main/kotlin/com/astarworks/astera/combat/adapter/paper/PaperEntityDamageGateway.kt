@@ -60,7 +60,7 @@ public class PaperEntityDamageGateway(
 
     override fun heal(target: PlayerId, amount: Double) {
         if (ownership.deferIfForeign(target) { heal(target, amount) }) return
-        ownership.assertOwned(target)
+        if (!ownership.checkOwned(target)) return
         val entity = grid.entity(target.uuid) as? LivingEntity ?: return
         if (!entity.isValid || entity.isDead) return
         val max = entity.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value ?: entity.health

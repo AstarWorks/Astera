@@ -984,7 +984,7 @@ public class MechanicDispatcher(
         for (target in targets) {
             val folded = buildDamageProfile(profile.components, target, ctx, consumed)
             if (ownership?.deferIfForeign(target) { perTarget(target, folded) } == true) continue
-            ownership?.assertOwned(target)
+            if (ownership?.checkOwned(target) == false) continue
             perTarget(target, folded)
         }
         for ((key, stacks) in consumed) statusContainer?.removeStacks(key.first, key.second, stacks)

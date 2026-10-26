@@ -42,6 +42,10 @@ internal class PaperArenaWorld(
         it.stage.world.value == worldName && kotlin.math.abs(x - it.slot.x) < 1024 && kotlin.math.abs(z - it.slot.z) < 1024
     }?.stage?.layout?.atmosphere
 
+    fun bootReady(): Boolean = stages()?.all()?.filter { it.layout != null }?.all { template ->
+        slots.snapshot().count { it.stage == template.id && it.state == SlotAllocator.State.Ready } >= (template.warmSlots ?: warm)
+    } ?: false
+
     fun installAll(): Pair<Int, Int> {
         val templates = stages()?.all()?.filter { it.layout != null }.orEmpty()
         templates.forEach(::replenish)

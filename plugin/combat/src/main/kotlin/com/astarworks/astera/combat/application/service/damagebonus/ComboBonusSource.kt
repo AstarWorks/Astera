@@ -46,21 +46,21 @@ import com.astarworks.astera.core.domain.player.PlayerId
  *
  * # Thread model
  *
- * Single-threaded (main thread). The `pending` map is not synchronised
- * — same posture as the three trackers per ADR-0105 §"Main-thread only".
+ * Route completion runs on the player's Entity owner. Concurrent storage also
+ * permits foreign-target damage to consume a bonus without corrupting another player's entry.
  */
 public class ComboBonusSource(
     eventBus: IDomainEventBus,
 ) : IDamageBonusSource {
 
-    private val pending: MutableMap<PlayerId, Double> = HashMap()
+    private val pending: MutableMap<PlayerId, Double> = java.util.concurrent.ConcurrentHashMap()
 
     /**
      * Active subscription to [ComboRouteCompleted]. Held so [AsteraCombatPlugin]
      * can cancel it during `onDisable` along with the rest of its subscriptions.
      */
     public val subscription: IDomainEventBus.Subscription =
-        eventBus.subscribe(ComboRouteCompleted::class, EventDelivery.Global) { event -> arm(event) }
+        eventBus.subscribe(ComboRouteCompleted::class, EventDelivery.Entity) { event -> arm(event) }
 
     override fun bonusFor(attempt: DamageAttempt, nowTick: Long): Double {
         val attackerId = attackerOf(attempt) ?: return 1.0

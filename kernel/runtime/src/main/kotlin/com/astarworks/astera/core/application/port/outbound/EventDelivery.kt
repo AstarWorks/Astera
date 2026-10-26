@@ -1,3 +1,4 @@
 package com.astarworks.astera.core.application.port.outbound
 
-public enum class EventDelivery { SameStrand, Global, Io }
+/** Entity uses the event's Player route directly, without resolving its instance strand. */
+public enum class EventDelivery { SameStrand, Entity, Global, Io }

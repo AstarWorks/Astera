@@ -203,10 +203,10 @@ internal fun CoreWiringState.wireGameplayLoop() {
             server = mcServer,
             sessions = sessionRepo,
         )
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class, EventDelivery.Global) { event ->
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class, EventDelivery.Entity) { event ->
         starterItemsListener.handle(event)
     }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class, EventDelivery.Global) { event ->
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class, EventDelivery.Entity) { event ->
         starterItemsListener.handle(event)
     }
     val startTutorialListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
@@ -222,7 +222,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
             profileService = profileService,
             dialogGateway = dialogGateway,
         )
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class, EventDelivery.Global) { event ->
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class, EventDelivery.Entity) { event ->
         welcomeDialogListener.handle(event)
     }
 

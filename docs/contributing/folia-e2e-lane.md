@@ -199,3 +199,88 @@ later suite failed with "e2e backend is not reachable". Causes:
 
 Not chased: both need a scope-hop design (global enable-time hop for slot allocation, an entity
 or region delivery mode for combat events), not a quick win.
+
+
+## T15: bootstrap and combat ownership — 2026-10-27
+
+The registry keeps its strict Global assertion. `SlotAllocator` construction is pure;
+`initializeLobby` explicitly registers its reserved instance on Global. `CorePaperBindings.afterWiring`
+schedules that bootstrap at enable (inline on Paper), while service/listener registration remains
+synchronous so Match's enable captures the real arena builder. ServerLoad construction requests also
+hop to Global and initialize the lobby idempotently before starting either build, so they do not rely
+on timer ordering. Existing `ArenaPaster` region tasks still own all block/sign placement. Folia pre-login fails closed until the
+lobby completion callback and every stage's initial warm slots report Ready. Setup/paste failure
+keeps the gate closed, with a SEVERE/error log; no player is admitted over an unfinished lobby.
+Paper retains its enable/ServerLoad path and inline owner execution.
+
+`EventDelivery.Entity` requires a Player route and dispatches directly to that UUID's Entity owner;
+it never resolves the directory's Instance strand. Both `SkillCastRequested` and `SkillCast` already
+carry the caster Player route, so their handlers run inline in the input tick when published by the
+caster owner. Foreign targets alone use `ICombatOwnership.deferIfForeign`, counted by
+`astera_combat_cross_region_hops_total`. A rejected ownership check logs SEVERE, increments
+`astera_combat_ownership_violations_total`, returns false and skips that target/cast; it never throws.
+Damage, status ticks/removal, healing, knockback and entity-effect gateways all honor the result.
+
+### Global subscription sweep
+
+- Combat: migrated cast request/dispatch, counter windows (damage and vanilla health), combo bonus,
+  vanilla kill attribution, cast-rejection feedback, damage history/assists, E.G.O gain/death clear,
+  combo HUD, pack-status HUD, cooldown ready cues, E.G.O ready cue and hit/kill feedback to Entity.
+  Quit cleanup remains Global because its entity may already have retired. Counter and combo maps
+  use concurrent storage across independent owners. Foreign poses use the existing grid snapshots;
+  feedback adapters hop to the viewer/target owners where needed.
+- Items: cooldown sweep now uses Entity. Training-rack MatchStarted/MatchFormed subscriptions remain
+  Global: their existing service fans each strip out to the participant's Entity scheduler.
+- Core: movement auto-pickup/portal/region notifications, block interactions, join health sync,
+  starter delivery and welcome dialog use Entity. Match inventory capture/rearm/restore now fan out
+  per player; a pending capture future also preserves capture-before-restore on an immediate exit,
+  without blocking either scheduler. The Bukkit health mirror itself hops to Entity for system calls.
+- Retained Global match lifecycle/objective/block subscribers (including Annihilation, Siege,
+  Capture Wool and Carry TNT) access world state through the already region-scheduled
+  `PaperWorldGateway`. HUD/menu, NPC, world baseline, presentation, training rack, player movement/
+  food/speed, stats/economy notifications and persistence paths retain their existing adapter hops
+  or snapshot/repository-only work; moving their match/repository bookkeeping to a player owner
+  would break their declared ownership. No raw Bukkit subscriber remains in this audited group.
+
+### Verification
+
+`./gradlew compileKotlin compileTestKotlin :tools:architecture-test:test`: BUILD SUCCESSFUL.
+Konsist: **78/78 passed**, zero failures/errors/skips. Only Konsist tests were executed;
+no unit test or general test/check task was run.
+Added `RegionCombatScenarioTest.item cast request resolves on the caster owner in the input tick`
+(real shipped content and combat wiring, compiled only), plus
+`MatchEntryInventoryScenarioTest.immediate match end restores an entry capture still queued on the entity owner`.
+A restore that encounters an unfinished capture waits one inventory tick after capture to follow
+already-queued entry work; completed captures retain inline owner restoration.
+Simulator input/cast helpers now submit
+on the caster Entity owner and drain the virtual scheduler without advancing the tick.
+
+Full Folia and Paper invocations are queued, in that order, behind the shared external lock.
+**Runtime verification is blocked, not passed.** At 02:15 JST, Folia has waited approximately
+63 minutes without starting; Paper follows it and has not started either. No new pass/total or
+remaining-product-failure classification can be supplied without a run. The historical 4/7 crash
+result above is not a result for this change; Paper's full-pass requirement remains unverified.
+
+The earlier orphan VFX clients released their inherited lock, then an earlier Paper lane completed.
+The next VFX shot again left parentless clients holding the same lock descriptor: portablemc PIDs
+1814531/1820515, Java 1814655/1820615, Xvfb 1814487/1820491 and parker 1840390, from worktree
+`agent-ab93560b37ec29777`. These are outside T15's worktree and were not stopped. Their owner must
+release the descriptor before the queued Paper/T15 lanes can proceed. This is a verification
+infrastructure blocker, not an observed product failure.
+
+Active verification shell PID 1011892 (Folia flock PID 1011904) runs each requested command once,
+in order; check that shell before launching any replacement. Worker console logs are
+`build/t15-folia-run.log` and `build/t15-paper-run.log`; suite reports will be
+`build/e2e-folia-report.md` and `build/e2e-report.md`. Full continuation details, including the
+queue and process evidence, are in `build/t15-verification-status.md`.
+
+Pending after lock release: collect both actual totals, classify remaining Folia failures with
+source file:line, confirm Paper's full pass, and amend this section with the evidence.
+
+### Historical document/code differences
+
+The T14 failure table's `PaperWorldGateway.kt:129` asynchronous block write and T4b's statement that
+all migrated subscribers select Global describe older code. The current gateway already schedules
+block writes on Region; T15 adds explicit Entity delivery for entity-owned handlers. The old
+CorePaperBindings comments about provisioning new lobby/arena worlds also predate the current
+slot implementation: `PaperLobbyWorld.install` and `PaperArenaWorld.replenish` use boot-loaded worlds.

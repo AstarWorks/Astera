@@ -185,7 +185,7 @@ public object ItemsWiring {
 
         // ADR-0197 — a skill going on cooldown (primary binding / reload) runs the hotbar sweep.
         val sweepOnCooldown = SweepItemOnSkillCooldownUseCase(itemRegistry, ports.itemCooldownSweep)
-        ctx.subscriptions += eventBus.subscribe(SkillCooldownStarted::class, EventDelivery.Global) { sweepOnCooldown.handle(it) }
+        ctx.subscriptions += eventBus.subscribe(SkillCooldownStarted::class, EventDelivery.Entity) { sweepOnCooldown.handle(it) }
 
         // Click → trigger sink (vendor-neutral). The host feeds it IMcEvents.
         val triggerListener = ItemSkillTriggerListener(

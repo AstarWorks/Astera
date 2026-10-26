@@ -113,7 +113,7 @@ public class CastSkillUseCase(
         ignoreResource: Boolean = false,
         trigger: SkillTrigger? = null,
     ): Result<SkillSpec, CastSkillError> {
-        ownership?.assertOwned(casterId)
+        if (ownership?.checkOwned(casterId) == false) return Result.failure(CastSkillError.WrongScope(casterId))
         val castPose = poseLookup?.poseOf(casterId)
         if (castPose != null) com.astarworks.astera.core.application.service.observability.CombatTickBudget.enter(
             scheduler.currentTick(), com.astarworks.astera.core.application.port.outbound.regionScope(castPose.world, castPose.position))
@@ -281,6 +281,7 @@ public class CastSkillUseCase(
 
 /** Expected failure modes of [CastSkillUseCase.execute]. */
 public sealed class CastSkillError {
+    public data class WrongScope(val casterId: PlayerId) : CastSkillError()
     public data class SkillNotFound(val skillId: SkillId) : CastSkillError()
     public data class OnCooldown(val skillId: SkillId, val remainingMs: Long) : CastSkillError()
     public data class Silenced(val casterId: PlayerId) : CastSkillError()
