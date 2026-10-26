@@ -28,6 +28,10 @@ sources:
   bastion-s1-hring-bq2: { file: images/bastion-s1-hring-bq2.png }
   bastion-s1-hring-bq3: { file: images/bastion-s1-hring-bq3.png }
   bastion-s1-spark: { file: images/bastion-s1-spark.png }
+  bastion-s3-pillar: { file: images/bastion-s3-pillar.png }
+  bastion-s3-bar: { file: images/bastion-s3-bar.png }
+  bastion-s3-spikes: { file: images/bastion-s3-spikes.png }
+  bastion-s3-plate: { file: images/bastion-s3-plate.png }
 
 sprites:
   gossamer-ribbon: { draw: gossamer_ribbon, frames: 4, size: 128, color: "#DDE5F5" }
@@ -82,3 +86,7 @@ sprites:
   bastion-s1-hring-bq2: { from: bastion-s1-hring-bq2, raw: true, frames: 12, size: 256 }
   bastion-s1-hring-bq3: { from: bastion-s1-hring-bq3, raw: true, frames: 12, size: 256 }
   bastion-s1-spark: { from: bastion-s1-spark, raw: true, frames: 4, size: 64 }
+  bastion-s3-pillar: { from: bastion-s3-pillar, raw: true, frames: 1, size: 256 }
+  bastion-s3-bar: { from: bastion-s3-bar, raw: true, frames: 1, size: 256 }
+  bastion-s3-spikes: { from: bastion-s3-spikes, raw: true, frames: 2, size: 256 }
+  bastion-s3-plate: { from: bastion-s3-plate, raw: true, frames: 1, size: 256 }

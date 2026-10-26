@@ -1,5 +1,6 @@
 # Bastion S3 beat 5 (video n41-56, skill t27-t37): orange sparks at the blade tip dragging on the floor behind the caster, 6 intermittent bursts at effect ticks 0,2,4,6,8,10.
 # Played at skill tick 27, caster-follow. Each burst = orange/dark ember dust + crit sparks + (chip | flame wisp) + a 2-tick orange flare + a floor streak. Alive sprite displays: at most 4 (flare + line, 2 ticks each, bursts are 2 ticks apart => at most 2 pairs overlap at the boundary; 12 spawned in total) (flare + line, 2 ticks each, bursts are 2 ticks apart).
+# r2: grey-square chips (block_crumble has no preview texture) removed; orange spark SPRITES (bastion-s1-spark, 5 intermittent bursts of 4) thrown off the blade tip.
 id: bastion-s3-fx-scrape
 duration_ticks: 13
 orient: yaw
@@ -20,13 +21,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.3, 0.1, -1.85]
-- id: s3s-p-chip-0
-  kind: {type: particle, particle_id: bastion-s3-scrape-chip, every_ticks: 1}
-  start_tick: 0
-  end_tick: 1
-  keyframes:
-  - t: 0
-    translate: [0.3, 0.05, -1.9]
 - id: s3s-flare-0
   kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
   billboard: center
@@ -126,13 +120,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.3, 0.1, -2]
-- id: s3s-p-chip-2
-  kind: {type: particle, particle_id: bastion-s3-scrape-chip, every_ticks: 1}
-  start_tick: 4
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0.3, 0.05, -2.05]
 - id: s3s-flare-2
   kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
   billboard: center
@@ -232,13 +219,6 @@ elements:
   keyframes:
   - t: 0
     translate: [0.3, 0.1, -1.9]
-- id: s3s-p-chip-4
-  kind: {type: particle, particle_id: bastion-s3-scrape-chip, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [0.3, 0.05, -1.95]
 - id: s3s-flare-4
   kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
   billboard: center
@@ -324,4 +304,144 @@ elements:
     rotate: [-90, 0, 0]
     scale: [0.3, 0.05, 1]
     ease: out_expo
+- id: s3s-spark-0
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.1, -1.9]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+  emit:
+    count: 5
+    speed: [0.05, 0.16]
+    spread_deg: 60
+    direction: up
+    gravity: 0.012
+    drag: 0.1
+    life_ticks: [4, 8]
+    size: [0.22, 0.4]
+    size_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0.3}
+    alpha_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0}
+    start_frame: random
+    frame_ticks: [1, 2]
+- id: s3s-spark-1
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.1, -1.75]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+  emit:
+    count: 5
+    speed: [0.05, 0.16]
+    spread_deg: 60
+    direction: up
+    gravity: 0.012
+    drag: 0.1
+    life_ticks: [4, 8]
+    size: [0.22, 0.4]
+    size_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0.3}
+    alpha_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0}
+    start_frame: random
+    frame_ticks: [1, 2]
+- id: s3s-spark-2
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 5
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.1, -2.05]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+  emit:
+    count: 5
+    speed: [0.05, 0.16]
+    spread_deg: 60
+    direction: up
+    gravity: 0.012
+    drag: 0.1
+    life_ticks: [4, 8]
+    size: [0.22, 0.4]
+    size_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0.3}
+    alpha_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0}
+    start_frame: random
+    frame_ticks: [1, 2]
+- id: s3s-spark-3
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 8
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0.52, 0.1, -1.85]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+  emit:
+    count: 5
+    speed: [0.05, 0.16]
+    spread_deg: 60
+    direction: up
+    gravity: 0.012
+    drag: 0.1
+    life_ticks: [4, 8]
+    size: [0.22, 0.4]
+    size_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0.3}
+    alpha_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0}
+    start_frame: random
+    frame_ticks: [1, 2]
+- id: s3s-spark-4
+  kind: {type: sprite, sprite: bastion-s1-spark, frame_ticks: 1, loop: false, see_through: true, color: '#FF8A20'}
+  billboard: center
+  brightness: 15
+  start_tick: 10
+  end_tick: 16
+  keyframes:
+  - t: 0
+    translate: [0.3, 0.1, -1.95]
+    rotate: [0, 0, 0]
+    scale: [1, 1, 1]
+  emit:
+    count: 5
+    speed: [0.05, 0.16]
+    spread_deg: 60
+    direction: up
+    gravity: 0.012
+    drag: 0.1
+    life_ticks: [4, 8]
+    size: [0.22, 0.4]
+    size_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0.3}
+    alpha_over_life:
+    - {t: 0, v: 1}
+    - {t: 1, v: 0}
+    start_frame: random
+    frame_ticks: [1, 2]
 follow_pitch: true

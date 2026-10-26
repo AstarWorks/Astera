@@ -370,8 +370,8 @@ phases:
       distance: {type: literal, value: 3.6}
       angle_degrees: {type: literal, value: 90}
     direction: {type: away_from_caster, vertical: 0.2}
-    strength: {type: literal, value: 1.0}
-    delay_ticks: {type: literal, value: 63}
+    strength: {type: literal, value: 1.5}
+    delay_ticks: {type: literal, value: 72}
   - type: camera_shake
     targets:
       type: nearby_entities
