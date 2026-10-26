@@ -293,9 +293,6 @@ public object EconomyWiring {
                     ?.itemIds(playerId) ?: emptyList()
             }
         val shopBrowse = ShopBrowseUseCase(
-            onOpened = { player ->
-                services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()?.recordAction(player, "shop")
-            },
             registry = shopRegistry,
             adapter = guiAdapter,
             server = mcServer,

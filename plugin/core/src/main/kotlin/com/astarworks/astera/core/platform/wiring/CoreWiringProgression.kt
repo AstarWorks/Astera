@@ -308,7 +308,6 @@ internal fun CoreWiringState.wireProgression() {
         openVault = openVaultUseCase,
         window = { services.get<IVaultWindow>() },
         matches = { services.get<IMatchRepository>() },
-        onOpened = { tutorialSequencer.recordAction(it, "vault") },
     )
     services.register<AccessPersonalVaultUseCase>(accessVault, priority = 0)
     commands.register(com.astarworks.astera.core.application.command.buildVaultCommandSpec(accessVault))
