@@ -977,8 +977,36 @@ astera:
         encounter-cleared: "<green>エンカウンターの全 {waves} ウェーブを突破しました。</green>"
         encounter-failed: "<red>パーティはウェーブ {wave}/{waves} で倒れました。</red>"
         encounter-time-up: "<red>ウェーブ {wave}/{waves} で時間切れになりました。</red>"
+        objective-by:
+          break-core: "<{color}><bold>{team}</bold></{color}> <gray>が最後の敵コアを破壊しました。</gray>"
+          annihilation: "<{color}><bold>{team}</bold></{color}> <gray>が最後までネクサスを守り抜きました。</gray>"
+          carry-tnt: "<{color}><bold>{team}</bold></{color}> <gray>が敵基地へTNTを届けました。</gray>"
+          carry-mini-tnt: "<{color}><bold>{team}</bold></{color}> <gray>が合体TNTを敵基地へ届けました。</gray>"
+          capture-wool: "<{color}><bold>{team}</bold></{color}> <gray>が必要数のウールゾーンを制圧しました。</gray>"
+          steal-jewelry: "<{color}><bold>{team}</bold></{color}> <gray>が必要数の宝石を持ち帰りました。</gray>"
+          battle-loyal: "<{color}><bold>{team}</bold></{color}> <gray>が先にキル目標へ到達しました。</gray>"
+    # 試合開始時の「勝ち方」チャット (MatchBriefingListener)。
+    briefing:
+      header: "<gold>== 勝ち方 ==</gold>"
+      mode:
+        skirmish: "<gray>チームデスマッチ:</gray> <white>相手チームより先にノルマ最上位へ。</white>"
+        break-core: "<gray>コア破壊:</gray> <white>敵のコアを壊し、自陣のコアを守る。最後までコアが残ったチームの勝ち。</white>"
+        annihilation: "<gray>殲滅戦:</gray> <white>敵のネクサスの柱を壊す。最後までネクサスが残ったチームの勝ち。</white>"
+        carry-tnt: "<gray>TNT運搬:</gray> <white>TNTを拾って敵基地へ運ぶ。先に届けたチームの勝ち。</white>"
+        carry-mini-tnt: "<gray>ミニTNT運搬:</gray> <white>ミニTNTを集めて自陣に納めると、規定数で大きなTNTに合体。それを敵基地へ届ければ勝ち。</white>"
+        capture-wool: "<gray>ウール制圧:</gray> <white>ウールのゾーンに立って制圧。先に必要数を制圧したチームの勝ち。</white>"
+        steal-jewelry: "<gray>宝石強奪:</gray> <white>敵の台座から宝石を奪い、自陣へ持ち帰る。必要数を持ち帰れば勝ち。</white>"
+        battle-loyal: "<gray>バトルロイヤル:</gray> <white>チームデスマッチ。先にキル目標に届いたチームの勝ち。</white>"
+        pve-waves: "<gray>ウェーブ:</gray> <white>仲間とモンスターを迎え撃ち、ライフを切らさず全ウェーブを突破。</white>"
+      norma-win: "<gray>ノルマ:</gray> <white>ジェネレーターのスターとキルでレベルアップ(現在の目標はサイドバー)。先に</white> <gold>Lv {max}</gold> <white>へ到達した人のチームが勝利します。</white>"
+      norma-rank: "<gray>ノルマ:</gray> <white>ジェネレーターのスターとキルでレベルアップ(目標はサイドバー)。時間切れの際はレベルが順位を決めます。</white>"
+      time: "<gray>制限時間 {minutes} 分: 目標の達成度、次にノルマレベル・スター・キルで上回ったチームの勝ち。</gray>"
     # F3-4 — 試合終了時のリザルト画面（チャット部分）。ロビーへ戻る前に表示。
     result:
+      hint: "<yellow>勝つには:</yellow> <white>先にノルマ Lv {max} へ到達する(キルとスターでレベルが上がる)か、相手より先にモードの目標を達成する。</white>"
+      norma:
+        label: "<gray>ノルマ</gray>  {standings}"
+        team: "<{color}>{team}</{color}> <white><bold>Lv {level}/{max}</bold></white> <gray>★{stars} ⚔{kills}</gray>"
       score:
         label: "<gray>スコア</gray>  {scores}"
         team: "<{color}>{team}</{color}> <white><bold>{score}</bold></white>"
@@ -1180,6 +1208,7 @@ astera:
         waiting: "<gray>プレイヤー待機中</gray>"
         countdown: "<yellow>まもなく開始...</yellow>"
         active: "<green>対戦中</green> <white>{time}</white>"
+        active-limited: "<green>対戦中</green> <white>{time}</white> <gray>/ {limit}</gray>"
         sudden-death: "<red>サドンデス</red> <white>{time}</white>"
         ended: "<dark_gray>終了</dark_gray>"
       nexus:
@@ -1222,6 +1251,7 @@ astera:
       you: "<gray>あなた:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>スター</gray>"
       level: "<gray>ノルマ</gray> <white>Lv {level}/{max}</white>"
+      level-vs: "<gray>ノルマ</gray> <white>Lv {level}/{max}</white> <gray>(敵 {rival})</gray>"
       objective-star: "<gray>目標：</gray> <yellow>スター</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>目標：</gray> <red>キル</red> <white>{progress}/{target}</white>"
       objective-max: "<gold>最高ノルマレベル</gold>"

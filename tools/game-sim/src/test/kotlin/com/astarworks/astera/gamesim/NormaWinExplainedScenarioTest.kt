@@ -1,0 +1,88 @@
+package com.astarworks.astera.gamesim
+
+import com.astarworks.astera.core.application.services.getOrThrow
+import com.astarworks.astera.core.domain.event.EndReason
+import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.match.application.port.outbound.IMatchStarStore
+import com.astarworks.astera.match.domain.event.StarsCollected
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import java.nio.file.Files
+
+/**
+ * "How does Norma win the match?" must be answerable from what the player is shown: a briefing when the match goes
+ * ACTIVE (the mode's objective + how Norma levels win it), and a result screen that names the winning objective and
+ * each team's final Norma standing, so the loser can see how close it was.
+ */
+class NormaWinExplainedScenarioTest {
+
+    private fun ScenarioScope.chat(who: SimEntity): String = checkNotNull(sim.server.view(who.id)).messages.joinToString("\n")
+
+    private fun ScenarioScope.climb(matchId: MatchId, who: SimEntity, levels: Int) {
+        val stars = sim.services.getOrThrow<IMatchStarStore>()
+        repeat(levels) {
+            stars.add(matchId, who.id, 12)
+            sim.eventBus.publish(StarsCollected(matchId, who.id, 12, stars.get(matchId, who.id)))
+            advance(2)
+        }
+    }
+
+    @Test
+    fun `break-core - the briefing teaches the objective and the Norma win, the result names the broken core and both Norma standings`() {
+        scenario("norma-explained-break-core") {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            startMatch("break-core", mapOf(red to "red", blue to "blue"))
+            advance(40)
+
+            val briefing = chat(red)
+            assertThat(briefing).contains("How to win").contains("destroy the enemy core").contains("Lv 5").contains("Time limit 20 min")
+            assertThat(chat(blue)).`as`("everybody is briefed").contains("How to win")
+
+            val sidebar = sim.hud.sidebarText(red.id).joinToString("\n")
+            assertThat(sidebar).`as`("the clock shows the limit").contains("/ 20:00")
+            assertThat(sidebar).`as`("the Norma race against the rival is on the sidebar").contains("Lv 1/5").contains("rival 1")
+
+            red.breaks(Vec3(41.0, 65.0, 300.0))
+            advance(60)
+
+            val ended = eventsOf<MatchEnded>().single()
+            assertThat(ended.reason).isNotInstanceOf(EndReason.NormaLevelReached::class.java)
+            val loserChat = chat(blue)
+            assertThat(loserChat).`as`("the verdict says what decided it, not 'objective completion'").contains("destroyed the last enemy core")
+            assertThat(loserChat).`as`("both teams' final Norma level is on the result screen").contains("Norma").contains("Lv 1/5")
+            assertThat(loserChat).`as`("the loser is told what would have won").contains("To win:").contains("Norma Lv 5")
+            assertThat(chat(red)).`as`("the winner gets no hint").doesNotContain("To win:")
+        }
+    }
+
+    @Test
+    fun `reaching the top Norma level - the result screen names the level and shows the winner at the top`() {
+        scenario("norma-explained-top-level") {
+            val red = player("red-1", team = "red")
+            val blue = player("blue-1", team = "blue")
+            val matchId = startMatch("break-core", mapOf(red to "red", blue to "blue"))
+            climb(matchId, red, levels = 4)
+
+            assertThat(eventsOf<MatchEnded>().single().reason).isEqualTo(EndReason.NormaLevelReached(com.astarworks.astera.core.domain.match.TeamId("red"), 5))
+            val loserChat = chat(blue)
+            assertThat(loserChat).contains("reached Norma level 5 and won").contains("Lv 5/5").contains("Lv 1/5")
+        }
+    }
+
+    @Test
+    fun `every shipped game mode has a briefing line in both languages, and every objective mode names its win`() {
+        val root = GameSim.defaultContentDir()
+        val modes = Files.list(root.resolve("game-modes")).use { s -> s.map { it.fileName.toString().removeSuffix(".yaml") }.toList() }
+        val objectiveModes = modes - setOf("skirmish", "pve-waves")
+        for (lang in listOf("en", "ja")) {
+            val text = Files.readString(root.resolve("languages/$lang.yaml"))
+            val briefing = text.substringAfter("    briefing:\n").substringBefore("      norma-win:")
+            for (mode in modes) assertThat(briefing).`as`("$lang briefing for $mode").contains("        $mode: ")
+            val reasons = text.substringAfter("        objective-by:\n").substringBefore("    # F3-4")
+            for (mode in objectiveModes) assertThat(reasons).`as`("$lang win reason for $mode").contains("          $mode: ")
+        }
+    }
+}

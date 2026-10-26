@@ -68,6 +68,17 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             assertThat(listOfNotNull(actor, idle)).describedAs("sides: ${sideOf.mapKeys { it.key.name }}").hasSize(2)
             "red=${actor?.name} blue=${idle?.name}"
         }
+        E2eReport.check(suite, "the client got the how-to-win briefing in chat and the sidebar shows the clock limit and the rival Norma level", "SystemChat + scoreboard packets") {
+            val ansi = Regex("§.|\u001B\\[[0-9;]*m")
+            val briefing = bots.associateWith { b -> b.chat.drop(chatFrom.getValue(b)).map { it.text.replace(ansi, "") } }
+            bots.forEach { b -> assertThat(briefing.getValue(b).any { it.contains("How to win") }).describedAs("${b.name} got no briefing; chat=${briefing.getValue(b).takeLast(8)}").isTrue() }
+            assertThat(briefing.getValue(bots[0]).any { it.contains("Lv 5") }).describedAs("the briefing does not name the top Norma level").isTrue()
+            val side = bots.associateWith { it.sidebarLines().joinToString("\n") { l -> l.replace(ansi, "") } }
+            bots.forEach { b ->
+                assertThat(side.getValue(b)).describedAs("${b.name} sidebar:\n${side.getValue(b)}").containsPattern("\\d+:\\d{2} ?/ ?\\d+:\\d{2}").contains("rival")
+            }
+            "briefing + sidebar ok: ${side.getValue(bots[0]).lines().take(3)}"
+        }
         val objectives = StageObjectives.load(contentDir(), lane)
         E2eReport.check(suite, "the lane's stage and regions load from the shipped content (bot navigation data)", "content/stages") {
             assertThat(objectives).describedAs("StageObjectives.load(${contentDir()}, $lane) failed").isNotNull()
@@ -101,6 +112,12 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             assertThat(chat.any { it.contains("Match Summary") }).describedAs("no summary:\n${quote(chat, 40)}").isTrue()
             if (chat.any { it.contains("ended in a draw") }) E2eReport.notes += "${ctx.suite}: the match ended in a draw (time-limit tie)"
             "verdict lines: ${chat.filter { it.contains("VICTORY") || it.contains("DEFEAT") || it.contains("Victory") || it.contains("Ended by") || it.contains("reached Norma") || it.contains("was ahead") }.take(6)}"
+        }
+        E2eReport.check(ctx.suite, "the result screen shows each team's final Norma standing and the loser's what-would-have-won hint", "SystemChat") {
+            val chat = ctx.chat(ctx.idle)
+            assertThat(chat.any { it.contains("Norma") && it.contains("Lv ") && it.contains("/5") }).describedAs("no Norma standing line:\n${quote(chat, 30)}").isTrue()
+            if (actorWins) assertThat(chat.any { it.contains("To win:") }).describedAs("the loser got no what-would-have-won hint:\n${quote(chat, 30)}").isTrue()
+            "norma lines: ${chat.filter { it.contains("Lv ") }.take(2)}"
         }
         E2eReport.check(ctx.suite, "each player is told their verdict (the winner VICTORY, the other DEFEAT)", "SystemChat") {
             // The verdict is the match-end subtitle (MatchEndSummaryListener.pushTitle), not a chat line.

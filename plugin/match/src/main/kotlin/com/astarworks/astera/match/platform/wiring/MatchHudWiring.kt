@@ -67,6 +67,9 @@ internal object MatchHudWiring {
             hud = hudGateway,
             messages = env.msgRenderer,
             norma = norma,
+            timeLimitTicks = { id ->
+                if (env.normaLayerOf(id)) (env.modeConfigOf(id)["time_limit_seconds"]?.toLongOrNull()?.takeIf { it >= 0 } ?: 600L) * 20L else 0L
+            },
             scheduler = env.scheduler,
         )
         env.shutdownHooks += { matchSidebar.stop() }

@@ -8,4 +8,6 @@ public data class NormaHud(
     val goal: NormaGoal,
     val progress: Int,
     val target: Int,
+    /** The best Norma level held by any other team (the race that wins the match); `null` when there is no rival. */
+    val rivalLevel: Int? = null,
 )
