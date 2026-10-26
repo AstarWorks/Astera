@@ -491,12 +491,15 @@ public class GameSim private constructor(
             persistenceOverlay: Boolean = false,
             /** Use entity-declared teams outside matches; false exercises Paper's late Match-owned team lookup. */
             standaloneTeams: Boolean = true,
+            /** Replaces the always-ready no-op arena builder (e.g. one that is still "building" after a server restart). */
+            arenas: com.astarworks.astera.core.application.port.outbound.IArenaBuilder? = null,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
             val scheduler = FakeScheduler()
             val services = ServiceRegistry()
             val overlay = if (persistenceOverlay) SimPersistenceOverlay.install(services) else null
+            if (arenas != null) services.register<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(arenas, priority = 100)
             // One seeded source for every random roll; CombatWiring picks it up instead of its own.
             services.register<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(
                 com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer(seed),

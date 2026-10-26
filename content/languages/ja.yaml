@@ -861,6 +861,7 @@ astera:
       dispatch-failure: "<red>アリーナサーバーが応答しませんでした。キューに戻しました。</red>"
       wrong-server: "<gray>このサーバーはマッチ専用です。ロビーに戻します…</gray>"
       arrival-waiting: "<yellow>あと <gold>{remaining}</gold> 人を待っています… 試合開始まで無敵です。</yellow>"
+      arena-preparing: "<yellow>アリーナを準備中です… 完成次第、試合が始まります。</yellow>"
     norma-up:
       title: "<gold><bold>ノルマ達成！</bold></gold>"
       subtitle: "<yellow>Lv {level}/{max}</yellow>"

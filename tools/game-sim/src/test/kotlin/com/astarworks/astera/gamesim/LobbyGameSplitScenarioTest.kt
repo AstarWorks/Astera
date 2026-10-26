@@ -181,6 +181,53 @@ class LobbyGameSplitScenarioTest {
         }
     }
 
+    /** Bug 11: a game server whose arena is still being built used to bounce every arrived player back to the lobby. */
+    @Test
+    fun `assigned players wait for a still-building arena instead of being sent back to the lobby`() {
+        val network = SimProxyNetwork()
+        val lobbyNode = network.node(lobbyName)
+        val building = object : com.astarworks.astera.core.application.port.outbound.IArenaBuilder {
+            @Volatile var ready = false
+            override fun acquire(stage: com.astarworks.astera.core.domain.stage.Stage) =
+                if (ready) Result.Success(stage)
+                else Result.Failure(com.astarworks.astera.core.application.port.outbound.ArenaAllocationError.NotReady)
+            override fun resolve(stageId: com.astarworks.astera.core.domain.stage.StageId): com.astarworks.astera.core.domain.stage.Stage? = null
+            override fun ensureBuilt(stageId: com.astarworks.astera.core.domain.stage.StageId): Boolean = ready
+            override fun repairLater(stageId: com.astarworks.astera.core.domain.stage.StageId) = Unit
+        }
+        val game = GameSim.boot("split-arena-building", role = ServerRole.GAME, serverName = gameName, proxy = network.node(gameName), arenas = building)
+        network.register(gameName, game)
+        try {
+            val a = com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())
+            val b = com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())
+            val assignment = com.astarworks.astera.match.domain.matchmaking.MatchAssignment(
+                com.astarworks.astera.core.domain.match.MatchId("arena-wait"),
+                com.astarworks.astera.core.domain.stage.StageId("example-arena"), null,
+                listOf(listOf(a), listOf(b)),
+            )
+            lobbyNode.sendMessage(gameName, ProxyChannel.MATCH_FOUND,
+                com.astarworks.astera.match.application.service.matchmaking.MatchAssignmentCodec.encode(assignment))
+            network.pump()
+            game.attachPlayer(a, "arena-wait-a")
+            game.attachPlayer(b, "arena-wait-b")
+            // Well past the 3 s stray-bounce delay and the arrival wait, the arena is still not built.
+            network.step(10 * 20)
+            assertThat(game.eventsOf<MatchStarted>()).isEmpty()
+            assertThat(game.world.find(a)).`as`("player still on the game server while the arena builds").isNotNull()
+            assertThat(game.world.find(b)).isNotNull()
+            assertThat(network.moves).`as`("nobody was sent back to the lobby").isEmpty()
+
+            building.ready = true
+            network.step(3 * 20)
+            assertThat(game.eventsOf<MatchStarted>()).hasSize(1)
+            val match = game.services.getOrThrow<IMatchRepository>().findActiveMatches().single()
+            assertThat(match.teams.flatMap { it.members }).containsExactlyInAnyOrder(a, b)
+            assertThat(network.moves).isEmpty()
+        } finally {
+            game.shutdown()
+        }
+    }
+
     private fun arrivedOn(network: SimProxyNetwork, sim: GameSim, player: com.astarworks.astera.core.domain.player.PlayerId, maxTicks: Int): Boolean {
         repeat(maxTicks) {
             if (sim.world.find(player) != null) return true
