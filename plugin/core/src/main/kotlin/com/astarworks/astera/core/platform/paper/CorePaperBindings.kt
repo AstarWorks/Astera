@@ -541,12 +541,13 @@ internal class CorePaperBindings(
         runCatching { installArenaWorld(ctx) }
             .onFailure { logger.log(java.util.logging.Level.SEVERE, "Arena world setup failed; stages stay hand-built.", it) }
         bukkitEventAdapterTimeTaskHandle = bukkitEventAdapter.start(plugin)
+        val chatCosmeticCache = com.astarworks.astera.core.adapter.paper.cosmetic.ChatCosmeticCache()
         // ADR-0206: chat lines read `Name » message`, the name in the sender's team colour.
         server.pluginManager.registerEvents(
             com.astarworks.astera.core.adapter.paper.chat.PaperChatFormatListener(
                 matches = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>() },
                 messages = { ctx.services.get<IMessageRenderer>() },
-                cosmetics = { ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
+                cache = chatCosmeticCache,
             ),
             plugin,
         )
@@ -554,6 +555,7 @@ internal class CorePaperBindings(
         val cosmeticDisplay = com.astarworks.astera.core.adapter.paper.cosmetic.PaperCosmeticDisplay(
             server = server,
             sink = checkNotNull(packetSink),
+            chatCache = chatCosmeticCache,
             scheduler = scheduler,
             cosmetics = { ctx.services.get<com.astarworks.astera.core.application.service.cosmetic.CosmeticService>() },
             messages = { ctx.services.get<IMessageRenderer>() },

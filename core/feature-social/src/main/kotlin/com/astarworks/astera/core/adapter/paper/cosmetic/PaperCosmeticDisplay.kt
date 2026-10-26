@@ -30,6 +30,7 @@ import org.bukkit.event.player.PlayerQuitEvent
 public class PaperCosmeticDisplay(
     private val server: Server,
     private val sink: PacketSink,
+    private val chatCache: ChatCosmeticCache,
     private val scheduler: IScheduler,
     private val cosmetics: () -> CosmeticService?,
     private val messages: () -> IMessageRenderer?,
@@ -47,6 +48,7 @@ public class PaperCosmeticDisplay(
     @EventHandler
     public fun onQuit(event: PlayerQuitEvent) {
         val id = PlayerId(event.player.uniqueId)
+        chatCache.remove(id.uuid)
         scheduler.launch(ExecutionScope.Global) { refreshAll(id) }
     }
 
@@ -58,6 +60,10 @@ public class PaperCosmeticDisplay(
         val service = cosmetics() ?: return
         val online = server.onlinePlayers.filter { it.uniqueId != exclude?.uuid }.map { it.uniqueId to it.name }
         val mini = MiniMessage.miniMessage()
+        for ((uuid, _) in online) {
+            val subject = PlayerId(uuid)
+            chatCache.put(uuid, ChatCosmeticCache.Entry(titleComponent(service, messages(), subject, null), nameColorOf(service, subject)))
+        }
         for ((viewerUuid, _) in online) {
             val viewer = PlayerId(viewerUuid)
             sink.submit(viewer, HudSurface.COSMETIC_TAB, HudFrame(rows = online.associate { (uuid, name) ->
