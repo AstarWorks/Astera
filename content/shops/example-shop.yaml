@@ -11,6 +11,8 @@
 # Not sold, on purpose: the starter weapons (pistol, knight-sword) and the dev/demo items rtm-blaster / skill-tester.
 # A new player starts with no GOLD: every offer has to be earned.
 # Offers priced at >= 100 need a confirming second click in the GUI (ShopIntentHandler.CONFIRM_AT).
+# `recommended: true` pins the offer first (with a badge) for a player who has bought nothing here yet: the starter kit is
+# gun + sword, so the newcomer is steered to a staff to meet all three archetypes.
 # Offers iterate in YAML order, 9 per GUI row, 45 per page; the footer row holds paging, the category
 # cycle (when offers declare `category:`), the wallet and the purchase history (ADR-0211).
 # `limit: once` (default) = an unlock paid once, re-claimable for free if the item is lost;
@@ -31,6 +33,7 @@ offers:
   - id: frost-staff
     item: frost-staff
     category: staff
+    recommended: true
     price:
       currency: GOLD
       amount: 150

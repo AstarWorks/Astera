@@ -635,6 +635,7 @@ astera:
           sold_out: "<dark_red>売り切れ</dark_red>"
           carrying: "<green>所持中です</green>"
           take_copy: "<yellow>クリックでもう1本受け取る（無料）</yellow>"
+        recommended: "<light_purple>最初のおすすめ</light_purple> <gray>- 銃と剣に杖を加えよう</gray>"
         owned: "<green>購入済み <dark_gray>(一度買えば永久にあなたのもの)</dark_gray></green>"
         page:
           prev: "<yellow>前のページ <gray>({page}/{pages})</gray></yellow>"
@@ -988,6 +989,9 @@ astera:
         assists: "アシスト x{count}"
         objectives: "目標 x{count}"
         mvp: "MVP ボーナス"
+      next:
+        affordable: "<green>購入できます:</green> <white>{name}</white> <gray>({price} GOLD、所持 {balance})。</gray> <gray>ショップで買って次の試合に持ち込もう。</gray>"
+        short: "<gray>次の解放:</gray> <white>{name}</white> <gold>{price} GOLD</gold> <gray>(あと {short}、所持 {balance})。</gray>"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — 切断保留中の再接続猶予
     # ActionBar カウントダウン。
     reconnect:

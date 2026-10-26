@@ -628,6 +628,7 @@ astera:
           carrying: "<green>You are carrying it</green>"
           take_copy: "<yellow>Click to take another copy (free)</yellow>"
         owned: "<green>Owned <dark_gray>(bought once, yours for good)</dark_gray></green>"
+        recommended: "<light_purple>Recommended first buy</light_purple> <gray>- a staff to go with your gun and sword</gray>"
         page:
           prev: "<yellow>Previous page <gray>({page}/{pages})</gray></yellow>"
           next: "<yellow>Next page <gray>({page}/{pages})</gray></yellow>"
@@ -981,6 +982,9 @@ astera:
         assists: "Assists x{count}"
         objectives: "Objectives x{count}"
         mvp: "MVP bonus"
+      next:
+        affordable: "<green>You can afford</green> <white>{name}</white> <gray>({price} GOLD, you have {balance}).</gray> <gray>Buy it in the shop, then bring it to your next match.</gray>"
+        short: "<gray>Next unlock:</gray> <white>{name}</white> <gold>{price} GOLD</gold> <gray>({short} more; you have {balance}).</gray>"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — reconnect-window countdown
     # ActionBar shown while a disconnected participant is held in the seat.
     reconnect:
