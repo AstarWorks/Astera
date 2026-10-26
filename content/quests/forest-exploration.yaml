@@ -26,4 +26,4 @@ stages:
         title_id: ranger
     # Wave K 5integration-wire (ADR-0128): chain completion unlocks the
     # Explorer achievement via UpdateAchievementProgressOnQuestStageCompletedListener.
-    linked_achievement_id: explorer
+    linked_achievement_id: wins-1

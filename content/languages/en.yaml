@@ -1294,9 +1294,6 @@ astera:
       tutorial-graduate:
         name: "<gold>Tutorial Graduate</gold>"
         description: "<gray>Finish the tutorial.</gray>"
-      explorer:
-        name: "<gold>Explorer</gold>"
-        description: "<gray>Finish the forest exploration quest.</gray>"
       streak-7:
         name: "<gold>Regular</gold>"
         description: "<gray>Log in 7 days in a row.</gray>"
@@ -1373,10 +1370,6 @@ astera:
     tutorial_graduate:
       title: "<aqua>Tutorial Graduate</aqua>"
       description: "<gray>Walk every tutorial step at least once.</gray>"
-    # Wave K 5integration-wire (ADR-0128) — forest-exploration quest link.
-    explorer:
-      title: "<green>Explorer</green>"
-      description: "<gray>Finish the forest-exploration quest chain.</gray>"
 
   # Wave H 5content-depth (ADR-0125) — NotifyOnAchievementUnlockedListener keys.
   # Distinct from `astera.advancement.*` (display catalog) and

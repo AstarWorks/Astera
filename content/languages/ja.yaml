@@ -1296,9 +1296,6 @@ astera:
       tutorial-graduate:
         name: "<gold>チュートリアル卒業</gold>"
         description: "<gray>チュートリアルを完了する。</gray>"
-      explorer:
-        name: "<gold>探検家</gold>"
-        description: "<gray>森の探索クエストを達成する。</gray>"
       streak-7:
         name: "<gold>常連</gold>"
         description: "<gray>7 日連続でログインする。</gray>"
@@ -1374,10 +1371,6 @@ astera:
     tutorial_graduate:
       title: "<aqua>チュートリアル修了</aqua>"
       description: "<gray>すべてのチュートリアルステップを一度は通過しましょう。</gray>"
-    # Wave K 5integration-wire (ADR-0128) — 森林探索クエスト連携。
-    explorer:
-      title: "<green>探検家</green>"
-      description: "<gray>森林探索クエストチェーンをクリアしましょう。</gray>"
 
   # Wave H 5content-depth (ADR-0125) — NotifyOnAchievementUnlockedListener 用のキー。
   achievement:
