@@ -10,19 +10,19 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: false}
   billboard: center
   brightness: 15
-  start_tick: 1
-  end_tick: 3
+  start_tick: 4
+  end_tick: 6
   keyframes:
   - t: 0
-    translate: [-0.064, 1.425, 1.17]
+    translate: [0.21, 1.223, 2.254]
     rotate: [0, 0, 0]
-    scale: [0.375, 0.375, 1.0]
+    scale: [0.5312, 0.5312, 1.0]
 - id: s1h2-floor-fill
   kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: false}
   billboard: fixed
   brightness: 15
-  start_tick: 0
-  end_tick: 2
+  start_tick: 3
+  end_tick: 5
   keyframes:
   - t: 0
     translate: [0.25, 0.03, 0.5]
@@ -33,72 +33,72 @@ elements:
   billboard: fixed
   brightness: 15
   start_tick: 1
-  end_tick: 12
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [0.979, 0.465, -1.027]
-    rotate: [-60.0, -80.0, -150.4]
+    translate: [0.98, 0.77, -1.029]
+    rotate: [136.0, -84.5, 45.87]
     scale: [0.4141, 0.4141, 1.0]
 - id: s1h2-ring-q1
   kind: {type: sprite, sprite: bastion-s1-ring-q1, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 1
-  end_tick: 12
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [0.944, 0.237, 1.613]
-    rotate: [-60.0, -80.0, -150.4]
+    translate: [0.968, 0.953, 1.615]
+    rotate: [136.0, -84.5, 45.87]
     scale: [0.4141, 0.4141, 1.0]
 - id: s1h2-ring-q2
   kind: {type: sprite, sprite: bastion-s1-ring-q2, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 1
-  end_tick: 12
+  start_tick: 5
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [-1.64, 0.865, -1.027]
-    rotate: [-60.0, -80.0, -150.4]
+    translate: [-1.664, 0.593, -1.029]
+    rotate: [136.0, -84.5, 45.87]
     scale: [0.4141, 0.4141, 1.0]
 - id: s1h2-ring-q3
   kind: {type: sprite, sprite: bastion-s1-ring-q3, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 1
-  end_tick: 12
+  start_tick: 6
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [-1.675, 0.637, 1.613]
-    rotate: [-60.0, -80.0, -150.4]
+    translate: [-1.676, 0.776, 1.615]
+    rotate: [136.0, -84.5, 45.87]
     scale: [0.4141, 0.4141, 1.0]
 - id: s1h2-streak-main
   kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
-  start_tick: 1
-  end_tick: 7
+  start_tick: 4
+  end_tick: 10
   keyframes:
   - t: 0
-    translate: [-0.214, 1.975, 1.22]
+    translate: [0.06, 1.773, 2.304]
     rotate: [0, 0, -4]
     scale: [0.09375, 0.32, 1.0]
   - t: 1
     scale: [0.7187, 0.32, 1.0]
     ease: out_expo
-    translate: [-0.214, 1.975, 1.22]
+    translate: [0.06, 1.773, 2.304]
     rotate: [0, 0, -4]
   - t: 6
     scale: [0.5625, 0.04, 1.0]
     ease: in_quad
-    translate: [-0.214, 1.975, 1.22]
+    translate: [0.06, 1.773, 2.304]
     rotate: [0, 0, -4]
 - id: s1h2-line-1
   kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
-  start_tick: 0
-  end_tick: 3
+  start_tick: 3
+  end_tick: 6
   keyframes:
   - t: 0
     translate: [0.5, 0.6, 1.2]
@@ -118,8 +118,8 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true, color: '#FFE070'}
   billboard: center
   brightness: 15
-  start_tick: 1
-  end_tick: 4
+  start_tick: 4
+  end_tick: 7
   keyframes:
   - t: 0
     translate: [-0.5, 1.05, 1.4]
@@ -139,1096 +139,1097 @@ elements:
   kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
-  start_tick: 1
-  end_tick: 5
+  start_tick: 4
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [-0.164, 1.475, 1.12]
+    translate: [0.11, 1.273, 2.204]
     rotate: [0, 0, 0]
-    scale: [0.02344, 0.02344, 1.0]
+    scale: [0.1875, 0.1875, 1.0]
   - t: 1
-    scale: [0.1562, 0.1562, 1.0]
+    scale: [0.3594, 0.3594, 1.0]
     ease: out_back
-    translate: [-0.164, 1.475, 1.12]
+    translate: [0.11, 1.273, 2.204]
     rotate: [0, 0, 0]
   - t: 3
-    scale: [0.07031, 0.07031, 1.0]
+    scale: [0.1406, 0.1406, 1.0]
     ease: out_quad
-    translate: [-0.164, 1.475, 1.12]
+    translate: [0.11, 1.273, 2.204]
     rotate: [0, 0, 0]
+- id: s1h2-flash-x
+  kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 4
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0.11, 1.273, 2.204]
+    rotate: [0, 90, 0]
+    scale: [0.1875, 0.1875, 1.0]
+  - t: 1
+    scale: [0.3594, 0.3594, 1.0]
+    ease: out_back
+    translate: [0.11, 1.273, 2.204]
+    rotate: [0, 90, 0]
+  - t: 3
+    scale: [0.1406, 0.1406, 1.0]
+    ease: out_quad
+    translate: [0.11, 1.273, 2.204]
+    rotate: [0, 90, 0]
+- id: s1h2-flash-f
+  kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 4
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0.11, 1.273, 2.204]
+    rotate: [90, 0, 0]
+    scale: [0.1875, 0.1875, 1.0]
+  - t: 1
+    scale: [0.3594, 0.3594, 1.0]
+    ease: out_back
+    translate: [0.11, 1.273, 2.204]
+    rotate: [90, 0, 0]
+  - t: 3
+    scale: [0.1406, 0.1406, 1.0]
+    ease: out_quad
+    translate: [0.11, 1.273, 2.204]
+    rotate: [90, 0, 0]
+- id: s1h2-streak-x
+  kind: {type: sprite, sprite: bastion-s1-streak, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 4
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0.06, 1.773, 2.304]
+    rotate: [0, 90, -4]
+    scale: [0.09375, 0.32, 1.0]
+  - t: 1
+    scale: [0.875, 0.32, 1.0]
+    ease: out_expo
+    translate: [0.06, 1.773, 2.304]
+    rotate: [0, 90, -4]
+  - t: 6
+    scale: [0.5625, 0.04, 1.0]
+    ease: in_quad
+    translate: [0.06, 1.773, 2.304]
+    rotate: [0, 90, -4]
 # --- particle layer (tools/item-art/scripts/bastion_s1_particles.py): do not edit by hand ---
 - id: s1h2-p-sheath-0
   kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-0.169, 0.938, -0.378]
-  - t: 1
-    translate: [0.25, 1.096, 0.635]
-  - t: 2
-    translate: [0.25, 1.096, 0.635]
-  - t: 3
-    translate: [0.25, 1.096, 0.635]
-  - t: 4
-    translate: [0.25, 1.096, 0.635]
-  - t: 5
-    translate: [0.25, 1.096, 0.635]
-  - t: 6
-    translate: [0.25, 1.096, 0.635]
-  - t: 7
-    translate: [0.25, 1.096, 0.635]
-  - t: 8
-    translate: [-0.122, 0.811, -0.255]
-  - t: 9
-    translate: [-0.122, 0.811, -0.255]
-- id: s1h2-p-sheath-1
-  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-0.334, 0.926, -0.475]
-  - t: 1
-    translate: [0.162, 1.104, 0.806]
-  - t: 2
-    translate: [0.162, 1.104, 0.806]
-  - t: 3
-    translate: [0.162, 1.104, 0.806]
-  - t: 4
-    translate: [0.162, 1.104, 0.806]
-  - t: 5
-    translate: [0.162, 1.104, 0.806]
-  - t: 6
-    translate: [0.162, 1.104, 0.806]
-  - t: 7
-    translate: [0.162, 1.104, 0.806]
-  - t: 8
-    translate: [-0.244, 0.793, -0.403]
-  - t: 9
-    translate: [-0.244, 0.793, -0.403]
-- id: s1h2-p-sheath-2
-  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-0.499, 0.913, -0.573]
-  - t: 1
-    translate: [0.074, 1.113, 0.977]
-  - t: 2
-    translate: [0.074, 1.113, 0.977]
-  - t: 3
-    translate: [0.074, 1.113, 0.977]
-  - t: 4
-    translate: [0.074, 1.113, 0.977]
-  - t: 5
-    translate: [0.074, 1.113, 0.977]
-  - t: 6
-    translate: [0.074, 1.113, 0.977]
-  - t: 7
-    translate: [0.074, 1.113, 0.977]
-  - t: 8
-    translate: [-0.367, 0.776, -0.55]
-  - t: 9
-    translate: [-0.367, 0.776, -0.55]
-- id: s1h2-p-sheath-3
-  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-0.665, 0.901, -0.671]
-  - t: 1
-    translate: [-0.014, 1.121, 1.148]
-  - t: 2
-    translate: [-0.014, 1.121, 1.148]
-  - t: 3
-    translate: [-0.014, 1.121, 1.148]
-  - t: 4
-    translate: [-0.014, 1.121, 1.148]
-  - t: 5
-    translate: [-0.014, 1.121, 1.148]
-  - t: 6
-    translate: [-0.014, 1.121, 1.148]
-  - t: 7
-    translate: [-0.014, 1.121, 1.148]
-  - t: 8
-    translate: [-0.489, 0.759, -0.698]
-  - t: 9
-    translate: [-0.489, 0.759, -0.698]
-- id: s1h2-p-sheath-4
-  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-0.83, 0.889, -0.769]
-  - t: 1
-    translate: [-0.102, 1.129, 1.319]
-  - t: 2
-    translate: [-0.102, 1.129, 1.319]
-  - t: 3
-    translate: [-0.102, 1.129, 1.319]
-  - t: 4
-    translate: [-0.102, 1.129, 1.319]
-  - t: 5
-    translate: [-0.102, 1.129, 1.319]
-  - t: 6
-    translate: [-0.102, 1.129, 1.319]
-  - t: 7
-    translate: [-0.102, 1.129, 1.319]
-  - t: 8
-    translate: [-0.611, 0.742, -0.846]
-  - t: 9
-    translate: [-0.611, 0.742, -0.846]
-- id: s1h2-p-sheath-5
-  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-0.995, 0.877, -0.867]
-  - t: 1
-    translate: [-0.19, 1.137, 1.49]
-  - t: 2
-    translate: [-0.19, 1.137, 1.49]
-  - t: 3
-    translate: [-0.19, 1.137, 1.49]
-  - t: 4
-    translate: [-0.19, 1.137, 1.49]
-  - t: 5
-    translate: [-0.19, 1.137, 1.49]
-  - t: 6
-    translate: [-0.19, 1.137, 1.49]
-  - t: 7
-    translate: [-0.19, 1.137, 1.49]
-  - t: 8
-    translate: [-0.733, 0.725, -0.993]
-  - t: 9
-    translate: [-0.733, 0.725, -0.993]
-- id: s1h2-p-sheath-6
-  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-1.16, 0.865, -0.965]
-  - t: 1
-    translate: [-0.278, 1.145, 1.661]
-  - t: 2
-    translate: [-0.278, 1.145, 1.661]
-  - t: 3
-    translate: [-0.278, 1.145, 1.661]
-  - t: 4
-    translate: [-0.278, 1.145, 1.661]
-  - t: 5
-    translate: [-0.278, 1.145, 1.661]
-  - t: 6
-    translate: [-0.278, 1.145, 1.661]
-  - t: 7
-    translate: [-0.278, 1.145, 1.661]
-  - t: 8
-    translate: [-0.855, 0.708, -1.141]
-  - t: 9
-    translate: [-0.855, 0.708, -1.141]
-- id: s1h2-p-sheath-7
-  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-1.326, 0.853, -1.063]
-  - t: 1
-    translate: [-0.366, 1.153, 1.832]
-  - t: 2
-    translate: [-0.366, 1.153, 1.832]
-  - t: 3
-    translate: [-0.366, 1.153, 1.832]
-  - t: 4
-    translate: [-0.366, 1.153, 1.832]
-  - t: 5
-    translate: [-0.366, 1.153, 1.832]
-  - t: 6
-    translate: [-0.366, 1.153, 1.832]
-  - t: 7
-    translate: [-0.366, 1.153, 1.832]
-  - t: 8
-    translate: [-0.978, 0.691, -1.289]
-  - t: 9
-    translate: [-0.978, 0.691, -1.289]
-- id: s1h2-p-sheath-8
-  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-1.491, 0.84, -1.16]
-  - t: 1
-    translate: [-0.454, 1.161, 2.003]
-  - t: 2
-    translate: [-0.454, 1.161, 2.003]
-  - t: 3
-    translate: [-0.454, 1.161, 2.003]
-  - t: 4
-    translate: [-0.454, 1.161, 2.003]
-  - t: 5
-    translate: [-0.454, 1.161, 2.003]
-  - t: 6
-    translate: [-0.454, 1.161, 2.003]
-  - t: 7
-    translate: [-0.454, 1.161, 2.003]
-  - t: 8
-    translate: [-1.1, 0.673, -1.437]
-  - t: 9
-    translate: [-1.1, 0.673, -1.437]
-- id: s1h2-p-hot-0
-  kind: {type: particle, particle_id: bastion-s1-p-sheath-hot, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-0.89, 0.885, -0.805]
-  - t: 1
-    translate: [-0.134, 1.132, 1.381]
-  - t: 2
-    translate: [-0.134, 1.132, 1.381]
-  - t: 3
-    translate: [-0.134, 1.132, 1.381]
-  - t: 4
-    translate: [-0.134, 1.132, 1.381]
-  - t: 5
-    translate: [-0.134, 1.132, 1.381]
-  - t: 6
-    translate: [-0.134, 1.132, 1.381]
-  - t: 7
-    translate: [-0.134, 1.132, 1.381]
-  - t: 8
-    translate: [-0.655, 0.736, -0.899]
-  - t: 9
-    translate: [-0.655, 0.736, -0.899]
-- id: s1h2-p-hot-1
-  kind: {type: particle, particle_id: bastion-s1-p-sheath-hot, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-1.191, 0.863, -0.982]
-  - t: 1
-    translate: [-0.294, 1.147, 1.692]
-  - t: 2
-    translate: [-0.294, 1.147, 1.692]
-  - t: 3
-    translate: [-0.294, 1.147, 1.692]
-  - t: 4
-    translate: [-0.294, 1.147, 1.692]
-  - t: 5
-    translate: [-0.294, 1.147, 1.692]
-  - t: 6
-    translate: [-0.294, 1.147, 1.692]
-  - t: 7
-    translate: [-0.294, 1.147, 1.692]
-  - t: 8
-    translate: [-0.878, 0.705, -1.168]
-  - t: 9
-    translate: [-0.878, 0.705, -1.168]
-- id: s1h2-p-hot-2
-  kind: {type: particle, particle_id: bastion-s1-p-sheath-hot, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-1.446, 0.844, -1.134]
-  - t: 1
-    translate: [-0.43, 1.159, 1.957]
-  - t: 2
-    translate: [-0.43, 1.159, 1.957]
-  - t: 3
-    translate: [-0.43, 1.159, 1.957]
-  - t: 4
-    translate: [-0.43, 1.159, 1.957]
-  - t: 5
-    translate: [-0.43, 1.159, 1.957]
-  - t: 6
-    translate: [-0.43, 1.159, 1.957]
-  - t: 7
-    translate: [-0.43, 1.159, 1.957]
-  - t: 8
-    translate: [-1.066, 0.678, -1.396]
-  - t: 9
-    translate: [-1.066, 0.678, -1.396]
-- id: s1h2-p-fleck-0
-  kind: {type: particle, particle_id: bastion-s1-p-fleck, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-0.665, 0.901, -0.671]
-  - t: 1
-    translate: [-0.014, 1.121, 1.148]
-  - t: 2
-    translate: [-0.014, 1.121, 1.148]
-  - t: 3
-    translate: [-0.014, 1.121, 1.148]
-  - t: 4
-    translate: [-0.014, 1.121, 1.148]
-  - t: 5
-    translate: [-0.014, 1.121, 1.148]
-  - t: 6
-    translate: [-0.014, 1.121, 1.148]
-  - t: 7
-    translate: [-0.014, 1.121, 1.148]
-  - t: 8
-    translate: [-0.489, 0.759, -0.698]
-  - t: 9
-    translate: [-0.489, 0.759, -0.698]
-- id: s1h2-p-fleck-1
-  kind: {type: particle, particle_id: bastion-s1-p-fleck, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-1.115, 0.868, -0.938]
-  - t: 1
-    translate: [-0.254, 1.143, 1.615]
-  - t: 2
-    translate: [-0.254, 1.143, 1.615]
-  - t: 3
-    translate: [-0.254, 1.143, 1.615]
-  - t: 4
-    translate: [-0.254, 1.143, 1.615]
-  - t: 5
-    translate: [-0.254, 1.143, 1.615]
-  - t: 6
-    translate: [-0.254, 1.143, 1.615]
-  - t: 7
-    translate: [-0.254, 1.143, 1.615]
-  - t: 8
-    translate: [-0.822, 0.712, -1.101]
-  - t: 9
-    translate: [-0.822, 0.712, -1.101]
-- id: s1h2-p-fleck-2
-  kind: {type: particle, particle_id: bastion-s1-p-fleck, every_ticks: 1}
-  start_tick: 0
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-1.491, 0.84, -1.16]
-  - t: 1
-    translate: [-0.454, 1.161, 2.003]
-  - t: 2
-    translate: [-0.454, 1.161, 2.003]
-  - t: 3
-    translate: [-0.454, 1.161, 2.003]
-  - t: 4
-    translate: [-0.454, 1.161, 2.003]
-  - t: 5
-    translate: [-0.454, 1.161, 2.003]
-  - t: 6
-    translate: [-0.454, 1.161, 2.003]
-  - t: 7
-    translate: [-0.454, 1.161, 2.003]
-  - t: 8
-    translate: [-1.1, 0.673, -1.437]
-  - t: 9
-    translate: [-1.1, 0.673, -1.437]
-- id: s1h2-p-lick
-  kind: {type: particle, particle_id: bastion-s1-p-lick, every_ticks: 1}
-  start_tick: 0
-  end_tick: 1
-  keyframes:
-  - t: 0
-    translate: [-0.439, 0.918, -0.538]
-- id: s1h2-p-lick-2
-  kind: {type: particle, particle_id: bastion-s1-p-lick, every_ticks: 1}
   start_tick: 1
   end_tick: 2
   keyframes:
   - t: 0
-    translate: [-0.334, 1.15, 1.77]
-- id: s1h2-p-lick-3
-  kind: {type: particle, particle_id: bastion-s1-p-lick, every_ticks: 1}
-  start_tick: 2
-  end_tick: 3
-  keyframes:
-  - t: 0
-    translate: [-0.094, 1.128, 1.304]
-- id: s1h2-p-lick-4
-  kind: {type: particle, particle_id: bastion-s1-p-lick, every_ticks: 1}
+    translate: [0.089, 0.709, -0.34]
+- id: s1h2-p-sheath-0-2
+  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
   start_tick: 3
-  end_tick: 4
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [-0.454, 1.161, 2.003]
-- id: s1h2-p-lick-5
-  kind: {type: particle, particle_id: bastion-s1-p-lick, every_ticks: 1}
-  start_tick: 4
-  end_tick: 5
+    translate: [0.728, 0.698, 0.704]
+  - t: 1
+    translate: [0.037, 0.829, 1.616]
+  - t: 2
+    translate: [0.037, 0.829, 1.616]
+  - t: 3
+    translate: [0.037, 0.829, 1.616]
+  - t: 4
+    translate: [0.003, 0.828, 1.619]
+  - t: 5
+    translate: [-0.032, 0.827, 1.621]
+  - t: 6
+    translate: [-0.067, 0.827, 1.621]
+  - t: 7
+    translate: [-0.102, 0.827, 1.621]
+  - t: 8
+    translate: [-0.137, 0.828, 1.619]
+  - t: 9
+    translate: [-0.671, 0.47, 0.782]
+  - t: 10
+    translate: [-0.569, 0.499, 0.308]
+  - t: 11
+    translate: [-0.477, 0.474, 0.225]
+- id: s1h2-p-sheath-1
+  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
+  start_tick: 1
+  end_tick: 2
   keyframes:
   - t: 0
-    translate: [-0.214, 1.139, 1.537]
-- id: s1h2-p-lick-6
-  kind: {type: particle, particle_id: bastion-s1-p-lick, every_ticks: 1}
-  start_tick: 5
-  end_tick: 6
+    translate: [0.116, 0.688, -0.724]
+- id: s1h2-p-sheath-1-2
+  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
+  start_tick: 3
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [0.026, 1.117, 1.07]
-- id: s1h2-p-lick-7
-  kind: {type: particle, particle_id: bastion-s1-p-lick, every_ticks: 1}
-  start_tick: 6
-  end_tick: 7
+    translate: [1.108, 0.753, 0.69]
+  - t: 1
+    translate: [0.05, 0.87, 1.998]
+  - t: 2
+    translate: [0.05, 0.87, 1.998]
+  - t: 3
+    translate: [0.05, 0.87, 1.998]
+  - t: 4
+    translate: [-0.0, 0.867, 2.002]
+  - t: 5
+    translate: [-0.051, 0.864, 2.003]
+  - t: 6
+    translate: [-0.102, 0.862, 2.003]
+  - t: 7
+    translate: [-0.152, 0.861, 2.001]
+  - t: 8
+    translate: [-0.203, 0.861, 1.997]
+  - t: 9
+    translate: [-1.049, 0.488, 0.849]
+  - t: 10
+    translate: [-0.86, 0.439, 0.063]
+  - t: 11
+    translate: [-0.65, 0.363, -0.1]
+- id: s1h2-p-sheath-2
+  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
+  start_tick: 1
+  end_tick: 2
   keyframes:
   - t: 0
-    translate: [0.106, 1.11, 0.915]
-- id: s1h2-p-lick-8
-  kind: {type: particle, particle_id: bastion-s1-p-lick, every_ticks: 1}
-  start_tick: 7
-  end_tick: 8
+    translate: [0.143, 0.666, -1.107]
+- id: s1h2-p-sheath-2-2
+  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
+  start_tick: 3
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [-0.334, 1.15, 1.77]
-- id: s1h2-p-lick-9
-  kind: {type: particle, particle_id: bastion-s1-p-lick, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+    translate: [1.489, 0.808, 0.676]
+  - t: 1
+    translate: [0.063, 0.912, 2.381]
+  - t: 2
+    translate: [0.063, 0.912, 2.381]
+  - t: 3
+    translate: [0.063, 0.912, 2.381]
+  - t: 4
+    translate: [-0.003, 0.906, 2.385]
+  - t: 5
+    translate: [-0.07, 0.901, 2.386]
+  - t: 6
+    translate: [-0.137, 0.897, 2.385]
+  - t: 7
+    translate: [-0.203, 0.895, 2.381]
+  - t: 8
+    translate: [-0.27, 0.894, 2.374]
+  - t: 9
+    translate: [-1.428, 0.506, 0.916]
+  - t: 10
+    translate: [-1.151, 0.38, -0.182]
+  - t: 11
+    translate: [-0.823, 0.252, -0.426]
+- id: s1h2-p-sheath-3
+  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
+  start_tick: 1
+  end_tick: 2
   keyframes:
   - t: 0
-    translate: [-0.6, 0.744, -0.832]
-- id: s1h2-p-lick-10
-  kind: {type: particle, particle_id: bastion-s1-p-lick, every_ticks: 1}
-  start_tick: 9
-  end_tick: 10
+    translate: [0.17, 0.645, -1.49]
+- id: s1h2-p-sheath-3-2
+  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
+  start_tick: 3
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [-1.1, 0.673, -1.437]
+    translate: [1.87, 0.863, 0.663]
+  - t: 1
+    translate: [0.076, 0.953, 2.763]
+  - t: 2
+    translate: [0.076, 0.953, 2.763]
+  - t: 3
+    translate: [0.076, 0.953, 2.763]
+  - t: 4
+    translate: [-0.006, 0.945, 2.768]
+  - t: 5
+    translate: [-0.089, 0.938, 2.769]
+  - t: 6
+    translate: [-0.172, 0.933, 2.766]
+  - t: 7
+    translate: [-0.254, 0.929, 2.761]
+  - t: 8
+    translate: [-0.336, 0.927, 2.752]
+  - t: 9
+    translate: [-1.807, 0.524, 0.983]
+  - t: 10
+    translate: [-1.442, 0.32, -0.426]
+  - t: 11
+    translate: [-0.996, 0.141, -0.751]
+- id: s1h2-p-sheath-4
+  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
+  start_tick: 1
+  end_tick: 2
+  keyframes:
+  - t: 0
+    translate: [0.197, 0.623, -1.874]
+- id: s1h2-p-sheath-4-2
+  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
+  start_tick: 3
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [2.251, 0.918, 0.649]
+  - t: 1
+    translate: [0.09, 0.995, 3.145]
+  - t: 2
+    translate: [0.09, 0.995, 3.145]
+  - t: 3
+    translate: [0.09, 0.995, 3.145]
+  - t: 4
+    translate: [-0.009, 0.984, 3.15]
+  - t: 5
+    translate: [-0.108, 0.975, 3.151]
+  - t: 6
+    translate: [-0.207, 0.968, 3.148]
+  - t: 7
+    translate: [-0.305, 0.963, 3.141]
+  - t: 8
+    translate: [-0.403, 0.96, 3.13]
+  - t: 9
+    translate: [-2.185, 0.542, 1.05]
+  - t: 10
+    translate: [-1.733, 0.261, -0.671]
+- id: s1h2-p-hot-0
+  kind: {type: particle, particle_id: bastion-s1-p-sheath-hot, every_ticks: 1}
+  start_tick: 1
+  end_tick: 2
+  keyframes:
+  - t: 0
+    translate: [0.173, 0.643, -1.525]
+- id: s1h2-p-hot-0-2
+  kind: {type: particle, particle_id: bastion-s1-p-sheath-hot, every_ticks: 1}
+  start_tick: 3
+  end_tick: 15
+  keyframes:
+  - t: 0
+    translate: [1.904, 0.868, 0.661]
+  - t: 1
+    translate: [0.078, 0.957, 2.798]
+  - t: 2
+    translate: [0.078, 0.957, 2.798]
+  - t: 3
+    translate: [0.078, 0.957, 2.798]
+  - t: 4
+    translate: [-0.007, 0.949, 2.802]
+  - t: 5
+    translate: [-0.091, 0.941, 2.804]
+  - t: 6
+    translate: [-0.175, 0.936, 2.801]
+  - t: 7
+    translate: [-0.259, 0.932, 2.795]
+  - t: 8
+    translate: [-0.342, 0.93, 2.786]
+  - t: 9
+    translate: [-1.841, 0.525, 0.989]
+  - t: 10
+    translate: [-1.468, 0.315, -0.449]
+  - t: 11
+    translate: [-1.012, 0.131, -0.781]
+- id: s1h2-p-mid-0
+  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
+  start_tick: 1
+  end_tick: 2
+  keyframes:
+  - t: 0
+    translate: [0.136, 0.672, -1.002]
+- id: s1h2-p-mid-0-2
+  kind: {type: particle, particle_id: bastion-s1-p-sheath, every_ticks: 1}
+  start_tick: 3
+  end_tick: 15
+  keyframes:
+  - t: 0
+    translate: [1.385, 0.793, 0.68]
+  - t: 1
+    translate: [0.06, 0.901, 2.276]
+  - t: 2
+    translate: [0.06, 0.901, 2.276]
+  - t: 3
+    translate: [0.06, 0.901, 2.276]
+  - t: 4
+    translate: [-0.003, 0.895, 2.28]
+  - t: 5
+    translate: [-0.065, 0.891, 2.282]
+  - t: 6
+    translate: [-0.127, 0.888, 2.281]
+  - t: 7
+    translate: [-0.19, 0.886, 2.277]
+  - t: 8
+    translate: [-0.252, 0.885, 2.271]
+  - t: 9
+    translate: [-1.325, 0.501, 0.898]
+  - t: 10
+    translate: [-1.071, 0.396, -0.115]
+  - t: 11
+    translate: [-0.776, 0.282, -0.337]
 - id: s1h2-p-trail
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
   start_tick: 1
   end_tick: 2
   keyframes:
   - t: 0
-    translate: [-1.04, 0.874, -0.894]
+    translate: [0.282, 0.292, -1.775]
 - id: s1h2-p-trail-2
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
   start_tick: 1
   end_tick: 2
   keyframes:
   - t: 0
-    translate: [-1.491, 0.84, -1.16]
-- id: s1h2-p-ash
-  kind: {type: particle, particle_id: bastion-s1-p-ash, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-1.341, 0.852, -1.071]
-- id: s1h2-p-trail-crit
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-1.416, 0.846, -1.116]
+    translate: [0.323, 0.224, -2.025]
 - id: s1h2-p-trail-3
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
   start_tick: 1
   end_tick: 2
   keyframes:
   - t: 0
-    translate: [-0.942, 0.92, -0.48]
+    translate: [0.261, 0.422, -1.96]
 - id: s1h2-p-trail-4
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
   start_tick: 1
   end_tick: 2
   keyframes:
   - t: 0
-    translate: [-1.359, 0.899, -0.609]
+    translate: [0.179, 0.638, -1.612]
 - id: s1h2-p-trail-5
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
   start_tick: 1
   end_tick: 2
   keyframes:
   - t: 0
-    translate: [-1.609, 0.886, -0.687]
-- id: s1h2-p-trail-crit-2
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
+    translate: [0.197, 0.623, -1.874]
+- id: s1h2-p-gather
+  kind: {type: particle, particle_id: bastion-s1-p-gather-2, every_ticks: 1}
   start_tick: 1
   end_tick: 2
   keyframes:
   - t: 0
-    translate: [-1.526, 0.891, -0.661]
+    translate: [0.197, 0.623, -1.874]
+- id: s1h2-p-gather-2
+  kind: {type: particle, particle_id: bastion-s1-p-gather-2, every_ticks: 1}
+  start_tick: 1
+  end_tick: 2
+  keyframes:
+  - t: 0
+    translate: [0.16, 0.653, -1.351]
 - id: s1h2-p-trail-6
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 2
-  end_tick: 3
+  start_tick: 3
+  end_tick: 4
   keyframes:
   - t: 0
-    translate: [-1.443, 0.895, -0.635]
+    translate: [0.147, 0.678, -1.608]
 - id: s1h2-p-trail-7
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 3
+  end_tick: 4
   keyframes:
   - t: 0
-    translate: [-1.114, 0.949, -0.149]
+    translate: [0.573, 0.729, -1.192]
 - id: s1h2-p-trail-8
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 3
+  end_tick: 4
   keyframes:
   - t: 0
-    translate: [-1.638, 0.932, -0.185]
-- id: s1h2-p-ash-2
-  kind: {type: particle, particle_id: bastion-s1-p-ash, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-1.463, 0.938, -0.173]
-- id: s1h2-p-trail-crit-3
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-1.55, 0.935, -0.179]
+    translate: [0.646, 0.735, -1.444]
 - id: s1h2-p-trail-9
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 3
+  end_tick: 4
   keyframes:
   - t: 0
-    translate: [-0.881, 0.991, 0.209]
+    translate: [1.115, 0.79, -1.176]
 - id: s1h2-p-trail-10
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 3
+  end_tick: 4
   keyframes:
   - t: 0
-    translate: [-1.312, 0.983, 0.281]
+    translate: [1.345, 0.816, -0.627]
 - id: s1h2-p-trail-11
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 3
+  end_tick: 4
   keyframes:
   - t: 0
-    translate: [-1.571, 0.978, 0.323]
-- id: s1h2-p-trail-crit-4
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-1.485, 0.98, 0.309]
+    translate: [1.529, 0.838, -0.813]
 - id: s1h2-p-trail-12
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 2
-  end_tick: 3
+  start_tick: 3
+  end_tick: 4
   keyframes:
   - t: 0
-    translate: [-1.399, 0.981, 0.295]
+    translate: [1.866, 0.878, -0.373]
 - id: s1h2-p-trail-13
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 3
+  end_tick: 4
   keyframes:
   - t: 0
-    translate: [-0.927, 1.025, 0.614]
+    translate: [1.861, 0.87, 0.196]
 - id: s1h2-p-trail-14
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 3
+  end_tick: 4
   keyframes:
   - t: 0
-    translate: [-1.411, 1.024, 0.817]
-- id: s1h2-p-ash-3
-  kind: {type: particle, particle_id: bastion-s1-p-ash, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-1.25, 1.024, 0.749]
-- id: s1h2-p-trail-crit-5
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-1.33, 1.024, 0.783]
+    translate: [2.11, 0.905, 0.122]
 - id: s1h2-p-trail-15
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
+  start_tick: 3
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [2.251, 0.918, 0.649]
+- id: s1h2-p-gather-3
+  kind: {type: particle, particle_id: bastion-s1-p-gather-3, every_ticks: 1}
   start_tick: 1
   end_tick: 2
   keyframes:
   - t: 0
-    translate: [-0.598, 1.061, 0.862]
+    translate: [0.197, 0.623, -1.874]
+- id: s1h2-p-gather-4
+  kind: {type: particle, particle_id: bastion-s1-p-gather-3, every_ticks: 1}
+  start_tick: 1
+  end_tick: 2
+  keyframes:
+  - t: 0
+    translate: [0.16, 0.653, -1.351]
+- id: s1h2-p-gather-5
+  kind: {type: particle, particle_id: bastion-s1-p-gather-1, every_ticks: 1}
+  start_tick: 3
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [2.251, 0.918, 0.649]
+- id: s1h2-p-gather-6
+  kind: {type: particle, particle_id: bastion-s1-p-gather-1, every_ticks: 1}
+  start_tick: 3
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate: [1.731, 0.843, 0.668]
 - id: s1h2-p-trail-16
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 4
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-0.951, 1.067, 1.119]
+    translate: [2.251, 0.918, 0.649]
 - id: s1h2-p-trail-17
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 4
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-1.164, 1.07, 1.274]
-- id: s1h2-p-trail-crit-6
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-1.093, 1.069, 1.222]
+    translate: [1.868, 0.937, 1.155]
 - id: s1h2-p-trail-18
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 2
-  end_tick: 3
+  start_tick: 4
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-1.022, 1.068, 1.171]
+    translate: [2.12, 0.98, 1.213]
 - id: s1h2-p-trail-19
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 4
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-0.498, 1.101, 1.276]
+    translate: [1.877, 1.023, 1.752]
 - id: s1h2-p-trail-20
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 4
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-0.839, 1.116, 1.675]
-- id: s1h2-p-ash-4
-  kind: {type: particle, particle_id: bastion-s1-p-ash, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-0.726, 1.111, 1.542]
-- id: s1h2-p-trail-crit-7
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-0.782, 1.113, 1.608]
+    translate: [1.344, 0.999, 2.06]
 - id: s1h2-p-trail-21
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 4
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-0.134, 1.132, 1.381]
+    translate: [1.532, 1.045, 2.236]
 - id: s1h2-p-trail-22
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 4
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-0.334, 1.15, 1.77]
+    translate: [1.103, 1.047, 2.642]
 - id: s1h2-p-trail-23
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
+  start_tick: 4
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-0.454, 1.161, 2.003]
-- id: s1h2-p-trail-crit-8
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-0.414, 1.158, 1.926]
-- id: s1h2-p-slash
-  kind: {type: particle, particle_id: bastion-s1-p-slash, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-0.214, 1.139, 1.537]
+    translate: [0.538, 0.992, 2.7]
 - id: s1h2-p-trail-24
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 2
-  end_tick: 3
+  start_tick: 4
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-0.374, 1.154, 1.848]
-- id: s1h2-p-impact-crit
-  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-0.494, 1.165, 2.081]
-- id: s1h2-p-impact-dust
-  kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-0.494, 1.165, 2.081]
-- id: s1h2-p-impact-flame
-  kind: {type: particle, particle_id: bastion-s1-p-impact-flame, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-0.494, 1.165, 2.081]
-- id: s1h2-p-impact-crit-2
-  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
-  start_tick: 2
-  end_tick: 3
-  keyframes:
-  - t: 0
-    translate: [-0.494, 1.165, 2.081]
-- id: s1h2-p-impact-smoke
-  kind: {type: particle, particle_id: bastion-s1-p-impact-smoke, every_ticks: 1}
-  start_tick: 2
-  end_tick: 3
-  keyframes:
-  - t: 0
-    translate: [-0.494, 1.165, 2.081]
-- id: s1h2-p-impact-dust-2
-  kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
-  start_tick: 3
-  end_tick: 4
-  keyframes:
-  - t: 0
-    translate: [-0.494, 1.165, 2.081]
-- id: s1h2-p-impact-crit-3
-  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-0.244, 1.165, 1.931]
-- id: s1h2-p-impact-dust-3
-  kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-0.244, 1.165, 1.931]
-- id: s1h2-p-impact-flame-2
-  kind: {type: particle, particle_id: bastion-s1-p-impact-flame, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-0.244, 1.165, 1.931]
-- id: s1h2-p-impact-crit-4
-  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
-  start_tick: 2
-  end_tick: 3
-  keyframes:
-  - t: 0
-    translate: [-0.244, 1.165, 1.931]
-- id: s1h2-p-impact-smoke-2
-  kind: {type: particle, particle_id: bastion-s1-p-impact-smoke, every_ticks: 1}
-  start_tick: 2
-  end_tick: 3
-  keyframes:
-  - t: 0
-    translate: [-0.244, 1.165, 1.931]
-- id: s1h2-p-impact-dust-4
-  kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
-  start_tick: 3
-  end_tick: 4
-  keyframes:
-  - t: 0
-    translate: [-0.244, 1.165, 1.931]
-- id: s1h2-p-slash-2
-  kind: {type: particle, particle_id: bastion-s1-p-slash, every_ticks: 1}
-  start_tick: 1
-  end_tick: 2
-  keyframes:
-  - t: 0
-    translate: [-0.494, 1.165, 2.081]
+    translate: [0.613, 1.029, 2.949]
 - id: s1h2-p-trail-25
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 4
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [-0.214, 1.139, 1.537]
+    translate: [0.09, 0.995, 3.145]
+- id: s1h2-p-impact-crit
+  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.093, 1.004, 3.232]
+- id: s1h2-p-impact-dust
+  kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.093, 1.004, 3.232]
+- id: s1h2-p-impact-crit-2
+  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.093, 1.004, 3.232]
+- id: s1h2-p-impact-crit-3
+  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.343, 1.004, 3.082]
+- id: s1h2-p-impact-dust-2
+  kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.343, 1.004, 3.082]
+- id: s1h2-p-impact-crit-4
+  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.343, 1.004, 3.082]
+- id: s1h2-p-impact-crit-5
+  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.593, 1.004, 2.932]
+- id: s1h2-p-impact-dust-3
+  kind: {type: particle, particle_id: bastion-s1-p-impact-dust, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.593, 1.004, 2.932]
+- id: s1h2-p-impact-crit-6
+  kind: {type: particle, particle_id: bastion-s1-p-impact-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.593, 1.004, 2.932]
+- id: s1h2-p-ring
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.343, 1.004, 3.224]
+- id: s1h2-p-ring-2
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.294, 1.15, 3.21]
+- id: s1h2-p-ring-3
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.169, 1.241, 3.204]
+- id: s1h2-p-ring-4
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.015, 1.241, 3.209]
+- id: s1h2-p-ring-5
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [-0.11, 1.15, 3.224]
+- id: s1h2-p-ring-6
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [-0.157, 1.004, 3.241]
+- id: s1h2-p-ring-7
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [-0.109, 0.858, 3.255]
+- id: s1h2-p-ring-8
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.016, 0.768, 3.261]
+- id: s1h2-p-ring-9
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.171, 0.768, 3.255]
+- id: s1h2-p-ring-10
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 4
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [0.295, 0.858, 3.241]
+- id: s1h2-p-ring-11
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.563, 0.834, 3.235]
+- id: s1h2-p-ring-12
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.573, 1.141, 3.201]
+- id: s1h2-p-ring-13
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.399, 1.396, 3.179]
+- id: s1h2-p-ring-14
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.108, 1.501, 3.178]
+- id: s1h2-p-ring-15
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [-0.188, 1.416, 3.197]
+- id: s1h2-p-ring-16
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [-0.378, 1.174, 3.23]
+- id: s1h2-p-ring-17
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [-0.387, 0.867, 3.264]
+- id: s1h2-p-ring-18
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [-0.213, 0.613, 3.285]
+- id: s1h2-p-ring-19
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.077, 0.508, 3.287]
+- id: s1h2-p-ring-20
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 5
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0.374, 0.592, 3.267]
+- id: s1h2-p-ring-21
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.707, 0.493, 3.267]
+- id: s1h2-p-ring-22
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.89, 0.949, 3.211]
+- id: s1h2-p-ring-23
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.769, 1.426, 3.163]
+- id: s1h2-p-ring-24
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.389, 1.742, 3.142]
+- id: s1h2-p-ring-25
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [-0.104, 1.776, 3.155]
+- id: s1h2-p-ring-26
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [-0.522, 1.516, 3.198]
+- id: s1h2-p-ring-27
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [-0.705, 1.06, 3.254]
+- id: s1h2-p-ring-28
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [-0.584, 0.583, 3.302]
+- id: s1h2-p-ring-29
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [-0.204, 0.267, 3.323]
+- id: s1h2-p-ring-30
+  kind: {type: particle, particle_id: bastion-s1-p-ring-crit, every_ticks: 1}
+  start_tick: 6
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.289, 0.233, 3.309]
+- id: s1h2-p-gather-7
+  kind: {type: particle, particle_id: bastion-s1-p-gather-3, every_ticks: 1}
+  start_tick: 9
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [-0.207, 0.968, 3.148]
+- id: s1h2-p-gather-8
+  kind: {type: particle, particle_id: bastion-s1-p-gather-3, every_ticks: 1}
+  start_tick: 9
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [-0.159, 0.92, 2.628]
+- id: s1h2-p-gather-9
+  kind: {type: particle, particle_id: bastion-s1-p-gather-2, every_ticks: 1}
+  start_tick: 10
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [-0.305, 0.963, 3.141]
+- id: s1h2-p-gather-10
+  kind: {type: particle, particle_id: bastion-s1-p-gather-2, every_ticks: 1}
+  start_tick: 10
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [-0.236, 0.917, 2.623]
+- id: s1h2-p-gather-11
+  kind: {type: particle, particle_id: bastion-s1-p-gather-1, every_ticks: 1}
+  start_tick: 11
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate: [-0.403, 0.96, 3.13]
+- id: s1h2-p-gather-12
+  kind: {type: particle, particle_id: bastion-s1-p-gather-1, every_ticks: 1}
+  start_tick: 11
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate: [-0.312, 0.915, 2.615]
 - id: s1h2-p-trail-26
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 12
+  end_tick: 13
   keyframes:
   - t: 0
-    translate: [-0.454, 1.161, 2.003]
-- id: s1h2-p-ash-5
-  kind: {type: particle, particle_id: bastion-s1-p-ash, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-0.374, 1.154, 1.848]
-- id: s1h2-p-trail-crit-9
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-0.414, 1.158, 1.926]
+    translate: [-0.403, 0.96, 3.13]
 - id: s1h2-p-trail-27
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 12
+  end_tick: 13
   keyframes:
   - t: 0
-    translate: [-0.39, 1.082, 1.169]
+    translate: [-0.776, 0.87, 2.633]
 - id: s1h2-p-trail-28
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 12
+  end_tick: 13
   keyframes:
   - t: 0
-    translate: [-0.679, 1.094, 1.497]
+    translate: [-0.883, 0.893, 2.871]
 - id: s1h2-p-trail-29
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 12
+  end_tick: 13
   keyframes:
   - t: 0
-    translate: [-0.852, 1.1, 1.694]
-- id: s1h2-p-trail-crit-10
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-0.794, 1.098, 1.628]
+    translate: [-1.32, 0.817, 2.519]
 - id: s1h2-p-trail-30
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 9
-  end_tick: 10
+  start_tick: 12
+  end_tick: 13
   keyframes:
   - t: 0
-    translate: [-0.736, 1.096, 1.562]
+    translate: [-1.488, 0.713, 1.925]
 - id: s1h2-p-trail-31
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 12
+  end_tick: 13
   keyframes:
   - t: 0
-    translate: [-0.748, 1.034, 1.007]
+    translate: [-1.694, 0.733, 2.086]
 - id: s1h2-p-trail-32
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 12
+  end_tick: 13
   keyframes:
   - t: 0
-    translate: [-1.18, 1.039, 1.304]
-- id: s1h2-p-ash-6
-  kind: {type: particle, particle_id: bastion-s1-p-ash, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-1.036, 1.038, 1.205]
-- id: s1h2-p-trail-crit-11
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-1.108, 1.039, 1.254]
+    translate: [-1.987, 0.64, 1.589]
 - id: s1h2-p-trail-33
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 12
+  end_tick: 13
   keyframes:
   - t: 0
-    translate: [-0.764, 0.983, 0.61]
+    translate: [-1.927, 0.529, 1.004]
 - id: s1h2-p-trail-34
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 12
+  end_tick: 13
   keyframes:
   - t: 0
-    translate: [-1.174, 0.98, 0.762]
+    translate: [-2.185, 0.542, 1.05]
+- id: s1h2-p-gather-13
+  kind: {type: particle, particle_id: bastion-s1-p-gather-3, every_ticks: 1}
+  start_tick: 10
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [-0.305, 0.963, 3.141]
+- id: s1h2-p-gather-14
+  kind: {type: particle, particle_id: bastion-s1-p-gather-3, every_ticks: 1}
+  start_tick: 10
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [-0.236, 0.917, 2.623]
+- id: s1h2-p-gather-15
+  kind: {type: particle, particle_id: bastion-s1-p-gather-2, every_ticks: 1}
+  start_tick: 11
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate: [-0.403, 0.96, 3.13]
+- id: s1h2-p-gather-16
+  kind: {type: particle, particle_id: bastion-s1-p-gather-2, every_ticks: 1}
+  start_tick: 11
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate: [-0.312, 0.915, 2.615]
+- id: s1h2-p-gather-17
+  kind: {type: particle, particle_id: bastion-s1-p-gather-1, every_ticks: 1}
+  start_tick: 12
+  end_tick: 13
+  keyframes:
+  - t: 0
+    translate: [-2.185, 0.542, 1.05]
+- id: s1h2-p-gather-18
+  kind: {type: particle, particle_id: bastion-s1-p-gather-1, every_ticks: 1}
+  start_tick: 12
+  end_tick: 13
+  keyframes:
+  - t: 0
+    translate: [-1.669, 0.517, 0.958]
 - id: s1h2-p-trail-35
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 13
+  end_tick: 14
   keyframes:
   - t: 0
-    translate: [-1.42, 0.978, 0.853]
-- id: s1h2-p-trail-crit-12
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-1.338, 0.979, 0.823]
+    translate: [-2.185, 0.542, 1.05]
 - id: s1h2-p-trail-36
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 9
-  end_tick: 10
+  start_tick: 13
+  end_tick: 14
   keyframes:
   - t: 0
-    translate: [-1.256, 0.98, 0.793]
+    translate: [-1.936, 0.468, 0.607]
 - id: s1h2-p-trail-37
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 13
+  end_tick: 14
   keyframes:
   - t: 0
-    translate: [-1.039, 0.93, 0.31]
+    translate: [-2.199, 0.466, 0.595]
 - id: s1h2-p-trail-38
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 13
+  end_tick: 14
   keyframes:
   - t: 0
-    translate: [-1.561, 0.917, 0.366]
-- id: s1h2-p-ash-7
-  kind: {type: particle, particle_id: bastion-s1-p-ash, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-1.387, 0.921, 0.347]
-- id: s1h2-p-trail-crit-13
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-1.474, 0.919, 0.357]
+    translate: [-2.125, 0.391, 0.145]
 - id: s1h2-p-trail-39
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 13
+  end_tick: 14
   keyframes:
   - t: 0
-    translate: [-0.902, 0.884, -0.036]
+    translate: [-1.736, 0.35, -0.163]
 - id: s1h2-p-trail-40
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 13
+  end_tick: 14
   keyframes:
   - t: 0
-    translate: [-1.335, 0.867, -0.096]
+    translate: [-1.967, 0.321, -0.283]
 - id: s1h2-p-trail-41
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 13
+  end_tick: 14
   keyframes:
   - t: 0
-    translate: [-1.595, 0.856, -0.132]
-- id: s1h2-p-trail-crit-14
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+    translate: [-1.733, 0.261, -0.671]
+- id: s1h2-p-gather-19
+  kind: {type: particle, particle_id: bastion-s1-p-gather-3, every_ticks: 1}
+  start_tick: 11
+  end_tick: 12
   keyframes:
   - t: 0
-    translate: [-1.508, 0.86, -0.12]
+    translate: [-0.403, 0.96, 3.13]
+- id: s1h2-p-gather-20
+  kind: {type: particle, particle_id: bastion-s1-p-gather-3, every_ticks: 1}
+  start_tick: 11
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate: [-0.312, 0.915, 2.615]
+- id: s1h2-p-gather-21
+  kind: {type: particle, particle_id: bastion-s1-p-gather-2, every_ticks: 1}
+  start_tick: 12
+  end_tick: 13
+  keyframes:
+  - t: 0
+    translate: [-2.185, 0.542, 1.05]
+- id: s1h2-p-gather-22
+  kind: {type: particle, particle_id: bastion-s1-p-gather-2, every_ticks: 1}
+  start_tick: 12
+  end_tick: 13
+  keyframes:
+  - t: 0
+    translate: [-1.669, 0.517, 0.958]
+- id: s1h2-p-gather-23
+  kind: {type: particle, particle_id: bastion-s1-p-gather-1, every_ticks: 1}
+  start_tick: 13
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [-1.733, 0.261, -0.671]
+- id: s1h2-p-gather-24
+  kind: {type: particle, particle_id: bastion-s1-p-gather-1, every_ticks: 1}
+  start_tick: 13
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [-1.336, 0.342, -0.337]
 - id: s1h2-p-trail-42
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 9
-  end_tick: 10
+  start_tick: 14
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [-1.422, 0.863, -0.108]
+    translate: [-1.733, 0.261, -0.671]
 - id: s1h2-p-trail-43
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 14
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [-1.038, 0.825, -0.418]
+    translate: [-1.39, 0.23, -0.64]
 - id: s1h2-p-trail-44
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 14
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [-1.524, 0.795, -0.615]
-- id: s1h2-p-ash-8
-  kind: {type: particle, particle_id: bastion-s1-p-ash, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-1.362, 0.805, -0.55]
-- id: s1h2-p-trail-crit-15
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-1.443, 0.8, -0.583]
+    translate: [-1.564, 0.177, -0.829]
 - id: s1h2-p-trail-45
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 14
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [-0.791, 0.785, -0.645]
+    translate: [-1.376, 0.1, -0.965]
 - id: s1h2-p-trail-46
   kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
+  start_tick: 14
+  end_tick: 15
   keyframes:
   - t: 0
-    translate: [-1.143, 0.753, -0.903]
-- id: s1h2-p-trail-47
-  kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-1.354, 0.734, -1.058]
-- id: s1h2-p-trail-crit-16
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-1.284, 0.741, -1.006]
-- id: s1h2-p-trail-48
-  kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 9
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-1.214, 0.747, -0.955]
-- id: s1h2-p-trail-49
-  kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-0.766, 0.72, -1.034]
-- id: s1h2-p-trail-50
-  kind: {type: particle, particle_id: bastion-s1-p-trail, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-1.1, 0.673, -1.437]
-- id: s1h2-p-ash-9
-  kind: {type: particle, particle_id: bastion-s1-p-ash, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-0.989, 0.689, -1.302]
-- id: s1h2-p-trail-crit-17
-  kind: {type: particle, particle_id: bastion-s1-p-trail-crit, every_ticks: 1}
-  start_tick: 8
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [-1.044, 0.681, -1.369]
+    translate: [-1.051, 0.105, -0.855]

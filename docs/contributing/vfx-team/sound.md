@@ -53,3 +53,24 @@ Tools needed: `ffmpeg` >= 4.2 with `loudnorm`, `ffprobe`; `sox` optional. `tools
 - 2026-10-24 bastion-greatsword-s1: worktree was branched from main, not from `wp/pilot-bastion-s1`; the briefs were absent from it (267 commits diverged); merging `wp/pilot-bastion-s1` conflicts in `SpriteSources.kt`, so the briefs were read from the branch during the merge attempt and the merge was aborted. Director should base specialist worktrees on the pilot branch.
 - 2026-10-24 bastion-greatsword-s1: pack builder (gradle) not run; agents cannot listen, so audibility is unchecked.
 - 2026-10-24 bastion-greatsword-s1 r10: when the animator moves a contact tick, the cue sheet (`deliver/sound-cues.yaml`) and the checker's `CONTACT` in `tools/sound-gen/scripts/bastion_s1_timeline.py` go stale silently while the director shifts the skill YAML; resync both from the shipped `play_sound delay_ticks` and re-run the checker. Hit-1 r9 (contact 8): whoosh-heavy at tick 5 peaks at tick 7.43 (file peak 121 ms = 2.4 ticks), 0.57 tick before contact; tick 4 would peak 1.57 before. Keep 5: sound is not delayed in the client while displays show ~1-2 ticks late, so an earlier whoosh would lead the visible chop even more. Mixed peaks: hit 1 -3.5 dBFS at 8.03, hit 2 -1.1 dBFS at 31.05 (hit 2 +2.4 dB louder, as intended).
+- 2026-10-26 bastion-greatsword-s1 r2: re-synthesised against the reference with `bastion_s1_features.py` (per-event onset/peak/decay/centroid/band shares/level), `bastion_s1_mix.py` (renders the sheet, `calibrate --write` solves volumes relative to the hit-1 body) and `bastion_s1_sound_evidence.py` (spectrogram/waveform pairs + table). Result: all onsets within 1 tick, centroids within 20% except swing-2 whoosh (+23%) and settle 2, levels within 0.2 dB. Never put the reference audio in the repo; fetch to scratch, keep numbers only.
+- 2026-10-26 bastion-greatsword-s1 r2: reference clips carry music and voice. Judge events by 4.5-16 kHz band envelopes and the excess spectrum (window power minus median of the 5 ticks before onset); low-band peaks and decays (body thuds) are contaminated.
+- 2026-10-26 bastion-greatsword-s1 r2: Chamberlin SVF band-pass clips near SR/6 (7.3 kHz at 44.1 kHz); bright 8-12 kHz noise needs STFT-mask shaped noise (`spec_noise`). Fractional-tick onsets go in as internal lead silence in the file because delays are integer ticks.
+- 2026-10-26 bastion-greatsword-s1 r2b (manager review of spec-full.png: numbers matched, picture did not): matching onset/centroid/level is not enough. Brick-wall `lo`/`hi` masks in STFT noise read as static slabs: use soft roll-offs plus a smooth random time-frequency texture. Impact bodies are short thumps (<80 ms) with a pitch drop and slow wander, never a held tone. Every file needs a long cosine tail fade (here at least 40% of the file, max 120 ms) or the spectrogram shows vertical walls. Steel = inharmonic partials with own decays, wander and beating, not 2-3 pure sines. The evidence table now has a timbre metric (log band-energy correlation ref vs ours, 4.5-16 kHz and own band); low-band values are music-contaminated.
+
+## Reference profile: bastion-greatsword-s1 (Limbus Ishmael, tick 0 = video t 11.633 s; contacts tick 7 / 31)
+
+Numbers only; low band is music-contaminated.
+
+| event | onset tick | character | centroid | level vs hit-1 body |
+|---|---|---|---|---|
+| E1 lift flick A | 0.1 | bright noise, 40 ms | 9.3 kHz | -6.0 dB |
+| E2 lift flick B | 3.0 | bright noise, 55 ms | 9.1 kHz | -7.8 dB |
+| E3 swing-1 whoosh | 5.0 | mid rising noise, peak t5.9 | 2.6 kHz | -12.1 dB |
+| E4 impact-1 body | 7.0 | dull body, 76% in 150-500 Hz | 510 Hz | 0 |
+| E5 shimmer 1 | 8.7 | noisy 2-12 kHz, about 1.7 ticks after contact | 6.5 kHz | -14.4 dB |
+| E6 flick before swing 2 | 23.3 | bright noise | 7.7 kHz | -5.7 dB |
+| E7 swing-2 whoosh | 26.5 | falling sweep ~12 kHz to 3.3 kHz, peak ~4 ticks before contact | 7.3 kHz | -3.3 dB |
+| E8 impact-2 body | 30.3 | dull body | 390 Hz | -4.6 dB |
+| E9 shimmer 2 | 32.6 | noisy 2-12 kHz | 6.9 kHz | -9.1 dB |
+| E10 / E11 settle | 19.2 / 41.2 | quiet 500 Hz-1 kHz rattle | 560-760 Hz | -9.2 / -12.7 dB |
