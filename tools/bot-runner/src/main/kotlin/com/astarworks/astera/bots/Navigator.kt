@@ -46,6 +46,16 @@ class Navigator(private val terrain: Terrain, private val graph: ArenaRouteGraph
 
     fun clear() { clearLocal(); waypoints.clear(); routeGx = Double.NaN }
 
+    /** Height of the next path cell above [bot] (0 when there is none): > 0.5 means the route climbs right ahead. */
+    fun nextRise(bot: Bot): Double = cells.getOrNull(idx)?.let { it.y - bot.y } ?: 0.0
+
+    /** Stuck escape: the cell in front is bad, plan around it (it stays blocked for a while). */
+    fun markStuck(now: Long) {
+        cells.getOrNull(idx)?.let { blocked[PathFinder.key(it.x, it.y, it.z)] = now + 8_000 }
+        stuckReplans.incrementAndGet()
+        clearLocal()
+    }
+
     /** Moves one tick towards ([gx], [gz]) until within [arrive] blocks horizontally. [yaw] null = face the movement. */
     fun follow(bot: Bot, gx: Double, gz: Double, gy: Double?, arrive: Double, speed: Double, now: Long, yaw: Float?, pitch: Float): Status {
         if (hypot(gx - bot.x, gz - bot.z) <= arrive && (gy == null || abs(gy - bot.y) <= 2.5)) { clear(); return Status.ARRIVED }

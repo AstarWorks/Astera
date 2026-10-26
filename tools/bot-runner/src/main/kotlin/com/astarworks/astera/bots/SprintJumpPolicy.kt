@@ -19,10 +19,15 @@ object SprintJumpPolicy {
      * @param airborne a jump is already in progress
      * @param groundAhead solid, known floor a little ahead along the heading (no edge, hole or unloaded chunk)
      * @param headroom free air above the bot for the whole jump (no ceiling to bump into)
+     * @param stepUp the route climbs a block right ahead: the bot has to hop onto it (a bare position jump of one block is not walkable)
+     * @param forceJump a stuck escape asks for a hop
      */
-    fun decide(inCombat: Boolean, moving: Boolean, airborne: Boolean, groundAhead: Boolean, headroom: Boolean): Decision {
+    fun decide(
+        inCombat: Boolean, moving: Boolean, airborne: Boolean, groundAhead: Boolean, headroom: Boolean,
+        stepUp: Boolean = false, forceJump: Boolean = false,
+    ): Decision {
         if (inCombat || !moving) return Decision.NONE
-        return Decision(sprint = true, jump = !airborne && groundAhead && headroom)
+        return Decision(sprint = true, jump = !airborne && headroom && (groundAhead || stepUp || forceJump))
     }
 
     /** Height above the floor for each tick of a vanilla jump (initial velocity 0.42, gravity 0.08, drag 0.98); ends with 0.0 (landed). */

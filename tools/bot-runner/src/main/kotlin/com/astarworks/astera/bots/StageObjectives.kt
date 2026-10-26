@@ -16,6 +16,16 @@ class StageObjectives private constructor(
     override fun starPoints(): List<Pair<Double, Double>> = generators
     override fun routeGraph(): ArenaRouteGraph? = graph
 
+    override fun zones(): ModePlanner.Zones = object : ModePlanner.Zones {
+        override fun point(name: String) = regions.firstOrNull { it.name == name }?.let { Triple(it.cx, it.cy, it.cz) }
+        override fun names(prefix: String) = zoneNames(prefix)
+    }
+
+    override fun ownTeamAt(spawnX: Double, spawnZ: Double): String? =
+        spawns.minByOrNull { (it.x - spawnX) * (it.x - spawnX) + (it.z - spawnZ) * (it.z - spawnZ) }?.team
+
+    override fun teams(): List<String> = spawns.map { it.team }.distinct()
+
     /** Centre (x, z) of the stage region [name] (e.g. `tnt-spawn`, `base-blue`, `wool-b`), or null when the stage has none. */
     fun zoneCentre(name: String): Pair<Double, Double>? = regions.firstOrNull { it.name == name }?.let { it.cx to it.cz }
 
