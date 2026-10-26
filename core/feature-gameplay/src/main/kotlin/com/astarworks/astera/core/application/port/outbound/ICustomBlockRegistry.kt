@@ -34,4 +34,11 @@ public interface ICustomBlockRegistry : Contents<BlockType, CustomBlockSpec>, Re
      * (tens to low hundreds of custom blocks).
      */
     public fun resolveByItem(itemId: ItemId): CustomBlockSpec?
+
+    /**
+     * Reverse lookup by the vanilla material a block is rendered with (`CustomBlockSpec.baseBukkitMaterial`,
+     * upper-case Bukkit name). Stages place custom blocks as plain vanilla blocks; the unique base material is
+     * what identifies them again. `null` when no custom block uses that material.
+     */
+    public fun resolveByBaseMaterial(bukkitMaterial: String): CustomBlockSpec?
 }

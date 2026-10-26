@@ -39,6 +39,20 @@
         "display_name_key"
     ],
     "definitions": {
+        "com.astarworks.astera.match.application.config.ArenaAtmosphereYamlConfig": {
+            "type": "object",
+            "properties": {
+                "time_of_day": {
+                    "type": "integer"
+                },
+                "weather": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "time_of_day"
+            ]
+        },
         "com.astarworks.astera.match.application.config.ArenaBridgeYamlConfig": {
             "type": "object",
             "properties": {
@@ -55,6 +69,23 @@
             "required": [
                 "from",
                 "to"
+            ]
+        },
+        "com.astarworks.astera.match.application.config.ArenaImportPlacementYamlConfig": {
+            "type": "object",
+            "properties": {
+                "map": {
+                    "type": "string"
+                },
+                "x": {
+                    "type": "integer"
+                },
+                "z": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "map"
             ]
         },
         "com.astarworks.astera.match.application.config.ArenaIslandYamlConfig": {
@@ -111,6 +142,15 @@
                 "marker_version": {
                     "type": "integer"
                 },
+                "theme": {
+                    "type": "string"
+                },
+                "structures": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.match.application.config.ArenaStructureYamlConfig"
+                    }
+                },
                 "seed": {
                     "type": "integer"
                 },
@@ -126,6 +166,9 @@
                         "$ref": "#/definitions/com.astarworks.astera.match.application.config.ArenaIslandYamlConfig"
                     }
                 },
+                "import": {
+                    "$ref": "#/definitions/com.astarworks.astera.match.application.config.ArenaImportPlacementYamlConfig"
+                },
                 "bridges": {
                     "type": "array",
                     "items": {
@@ -137,11 +180,47 @@
                     "items": {
                         "$ref": "#/definitions/com.astarworks.astera.match.application.config.ArenaLandmarkYamlConfig"
                     }
+                },
+                "atmosphere": {
+                    "$ref": "#/definitions/com.astarworks.astera.match.application.config.ArenaAtmosphereYamlConfig"
+                },
+                "relief": {
+                    "type": "number"
                 }
             },
             "required": [
-                "seed",
-                "islands"
+                "seed"
+            ]
+        },
+        "com.astarworks.astera.match.application.config.ArenaStructureYamlConfig": {
+            "type": "object",
+            "properties": {
+                "part": {
+                    "type": "string"
+                },
+                "x": {
+                    "type": "integer"
+                },
+                "y": {
+                    "type": "integer"
+                },
+                "z": {
+                    "type": "integer"
+                },
+                "rotation": {
+                    "type": "integer"
+                },
+                "palette": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "part",
+                "x",
+                "z"
             ]
         },
         "com.astarworks.astera.match.application.config.ArenaXzYamlConfig": {

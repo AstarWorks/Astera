@@ -29,6 +29,7 @@ layout:
   marker_version: 2
   seed: 20261025
   surface_y: 64
+  relief: 0.0
   kill_y: 30
   islands:
     - { id: red, kind: base, team: red, center: { x: 0, z: -64 }, radius: 22.0 }

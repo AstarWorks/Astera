@@ -39,9 +39,10 @@ lanes:
   # Siege / objective modes (WP11) on sky islands. A stage hosts one match at a time and stages are fixed
   # coordinates in the `arenas` world (no per-match instancing yet), so every siege lane has its OWN copy of
   # siege-isles, 800 blocks apart on z (content/stages/siege-isles-<mode>.yaml): the six lanes run concurrently.
-  # Each mode reads its own regions from its stage.
+  # Each mode reads its own regions from its stage. break-core runs on the imported CC BY-SA world medieval-village and
+  # capture-wool on temple-trouble (ADR-0281, content/stages/NOTICE.md); the siege-isles copies for those two modes stay unrouted.
   - id: break-core
-    stage: siege-isles
+    stage: medieval-village
     teams: 2
     players_per_team: 4
     min_players: 2
@@ -53,7 +54,7 @@ lanes:
     min_players: 2
     kind: pvp
   - id: capture-wool
-    stage: siege-isles-wool
+    stage: temple-trouble
     teams: 2
     players_per_team: 4
     min_players: 2

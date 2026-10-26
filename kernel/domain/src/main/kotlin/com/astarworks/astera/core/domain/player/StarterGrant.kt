@@ -48,6 +48,8 @@ public data class StarterGrant(
     val tutorialAutoEnroll: Boolean,
     val tutorialScriptId: String?,
     val welcomeDialogId: String?,
+    /** Field tools (pickaxe / axe / shovel) lent to every match participant for the match only; not part of the first-login grant. */
+    val matchTools: List<ItemId> = emptyList(),
 ) {
     init {
         walletGrants.forEach { (currency, amount) ->

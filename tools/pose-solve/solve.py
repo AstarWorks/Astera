@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""pose-solve: reference keypoints -> skin-rig body keys + wrist keys + skill-lint targets (deterministic, no client).
+"""pose-solve: reference keypoints -> skin-rig body keys + wrist keys (deterministic, no client).
 
     python3 tools/pose-solve/solve.py <skill-id> [--out content/skill-lint/solved] [--no-write-view] [--only B3]
 
 Reads  content/skill-lint/<skill>.keypoints.yaml   (annotated by an agent, corrected by a human on the skill-compare /annotate page)
        content/animations/<body>.yaml + content/vfx/<rig>.yaml   (the shipped keys; only used for the hand-back key, ids, header)
        tools/skill-compare/data/<case>/<intent>.json              (the compare camera)
-Writes <out>/<body-id>.yaml, <out>/<rig-id>.yaml, <out>/<skill>.targets.yaml and build/pose-solve/<skill>/solve.json.
+Writes <out>/<body-id>.yaml, <out>/<rig-id>.yaml, and build/pose-solve/<skill>/solve.json.
 The outputs never overwrite the shipped content: the manager copies them over when the review says so.
 
 Method per beat: the unknowns are the root (lean, yaw, roll, height), head, both arms, both legs and a small image-space fit of
@@ -283,7 +283,7 @@ def rig_tick_for(skill_tick: int, freezes, base=1, length=200) -> int:
 
 
 def targets_from_pose(beat: dict, pose: RM.Pose, d_plan, n_plan, height: float):
-    """The lint numbers of a solved beat, measured the way skill_lint.check1 measures them (lean in the torso's own frame)."""
+    """Diagnostic numbers of a solved beat for solve.json / the console (lean in the torso's own frame). Not lint targets."""
     lm = RM.fk(pose)
     wp = RM.weapon(pose, lm)
     tip = RM.mir(wp["tip"])
@@ -297,16 +297,6 @@ def targets_from_pose(beat: dict, pose: RM.Pose, d_plan, n_plan, height: float):
     twist = abs(math.degrees(psi))
     return dict(tip_side_deg=side, tip_y=float(tip[1]), normal=[float(v) for v in RM.mir(wp["normal"])],
                 hips_h=float(lm["hips"][1] / height), lean_deg=lean, twist_deg=twist)
-
-
-TOL = {   # [high, medium, low]: what an annotation of that confidence can honestly pin down
-    "tip_side_deg": (15, 22, 35), "tip_y": (0.20, 0.30, 0.50), "face_tol": (30, 40, 55),
-    "hips_h": (0.06, 0.09, 0.14), "lean_deg": (10, 15, 22), "twist_deg": (20, 30, 45),
-}
-
-
-def tol(key, conf):
-    return TOL[key][{"high": 0, "medium": 1, "low": 2}.get(conf, 1)]
 
 
 def main():
@@ -362,11 +352,10 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     write_body(out / f"{body_id}.yaml", body0, body_id, solved, freezes, a.skill, kpd)
     write_rig(out / f"{rig_id}.yaml", rig_text, solved, freezes, a.skill)
-    write_targets(out / f"{a.skill}.targets.yaml", a.skill, solved)
     bdir = ROOT / "build" / "pose-solve" / a.skill
     bdir.mkdir(parents=True, exist_ok=True)
     (bdir / "solve.json").write_text(json.dumps(report, indent=1))
-    print("wrote", out / f"{body_id}.yaml", out / f"{rig_id}.yaml", out / f"{a.skill}.targets.yaml")
+    print("wrote", out / f"{body_id}.yaml", out / f"{rig_id}.yaml")
     return 0
 
 
@@ -426,28 +415,6 @@ def write_rig(path: Path, text: str, solved, freezes, skill):
         raise SystemExit("could not find the swing: block of the rig file")
     head = f"# SOLVED wrist keys (tools/pose-solve/solve.py from content/skill-lint/{skill}.keypoints.yaml); everything outside `swing:` is the shipped rig.\n"
     path.write_text(head + new)
-
-
-def write_targets(path: Path, skill: str, solved):
-    src = yaml.safe_load((ROOT / "content/skill-lint" / f"{skill}.targets.yaml").read_text())
-    byid = {b["id"]: b for b in src["beats"]}
-    for beat, pose, tg in solved:
-        t = byid.get(beat["id"])
-        if t is None:
-            continue
-        conf = beat.get("confidence", "medium")
-        t["confidence"] = conf
-        if "blade" in t or beat.get("blade"):
-            bl = {"tip_side_deg": [round(tg["tip_side_deg"]), tol("tip_side_deg", conf)], "tip_y": [round(tg["tip_y"], 2), tol("tip_y", conf)]}
-            if (beat.get("blade") or {}).get("face") in ("up", "camera", "edge"):
-                bl["face_normal"] = [round(v, 2) for v in tg["normal"]]
-                bl["face_tol"] = tol("face_tol", conf)
-            t["blade"] = bl
-        t["body"] = {"hips_h": [round(tg["hips_h"], 2), tol("hips_h", conf)], "lean_deg": [round(tg["lean_deg"]), tol("lean_deg", conf)],
-                     "twist_deg": [round(tg["twist_deg"]), tol("twist_deg", conf)]}
-    head = (f"# SOLVED targets for {skill}: numbers measured from the solved pose (tools/pose-solve/solve.py), tolerances from the annotation confidence.\n"
-            f"# Same format as {skill}.targets.yaml (docs/contributing/vfx-team/skill-lint.md). Copy over it once the solved keys replace the shipped ones.\n")
-    path.write_text(head + yaml.safe_dump(src, sort_keys=False, allow_unicode=True, default_flow_style=None, width=140))
 
 
 if __name__ == "__main__":

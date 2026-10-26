@@ -1,0 +1,59 @@
+# Imported world (ADR-0281): "Temple Trouble" by Salgadoh, CC BY-SA 4.0, modified.
+# The blocks live in content/arenas/temple-trouble.yaml (credits there and in content/stages/NOTICE.md).
+# Stage x/z equal the map's own x/z; the map is moved up so its spawn floor is y=64. wool-* zones are control points.
+id: temple-trouble
+display_name_key: astera.stage.temple-trouble.name
+layout:
+  marker_version: 1
+  seed: 20261027
+  surface_y: 64
+  kill_y: 30
+  import: {map: temple-trouble}
+  landmarks:
+  - {kind: generator, x: -10, z: -45}
+  - {kind: generator, x: 10, z: -45}
+  - {kind: generator, x: -10, z: 45}
+  - {kind: generator, x: 10, z: 45}
+  atmosphere: {time_of_day: 6000, weather: clear}
+regions:
+- name: full-arena
+  min: {x: -66.0, y: 30.0, z: -98.0}
+  max: {x: 66.0, y: 120.0, z: 98.0}
+- name: wool-a
+  min: {x: -24.0, y: 59.0, z: -1.0}
+  max: {x: -22.0, y: 65.0, z: 1.0}
+- name: wool-b
+  min: {x: 22.0, y: 59.0, z: -1.0}
+  max: {x: 24.0, y: 65.0, z: 1.0}
+- name: wool-c
+  min: {x: -1.0, y: 59.0, z: -7.0}
+  max: {x: 1.0, y: 65.0, z: -5.0}
+- name: wool-d
+  min: {x: -4.0, y: 59.0, z: 5.0}
+  max: {x: -2.0, y: 65.0, z: 7.0}
+spawn_points:
+- team: red
+  position: {x: 0.5, y: 65.5, z: -82.5}
+- team: red
+  position: {x: -1.5, y: 65.5, z: -83.5}
+- team: red
+  position: {x: 2.5, y: 65.5, z: -83.5}
+- team: red
+  position: {x: 0.5, y: 65.5, z: -84.5}
+- team: blue
+  position: {x: 0.5, y: 65.5, z: 83.5}
+  yaw: 180.0
+- team: blue
+  position: {x: -1.5, y: 65.5, z: 84.5}
+  yaw: 180.0
+- team: blue
+  position: {x: 2.5, y: 65.5, z: 84.5}
+  yaw: 180.0
+- team: blue
+  position: {x: 0.5, y: 65.5, z: 85.5}
+  yaw: 180.0
+- role: lobby
+  position: {x: 0.5, y: 65.5, z: -80.5}
+- role: spectator
+  position: {x: 0.5, y: 110.0, z: 0.5}
+  pitch: 60.0

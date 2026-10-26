@@ -68,6 +68,8 @@ public class BlockStateAutoRecoveryUseCase(
         for ((pos, state) in snapshot) {
             if (state.durability >= state.maxHp) continue
             if (state.durability <= 0) continue
+            // Cover never heals mid-match; it is rebuilt at match end (ADR-0280).
+            if (gateway.isCover(world, pos)) continue
             if (state.lastDamagedTick + coolOffTicks > currentTick) continue
             val nextDurability = (state.durability + regenPerCycle)
                 .coerceAtMost(state.maxHp)

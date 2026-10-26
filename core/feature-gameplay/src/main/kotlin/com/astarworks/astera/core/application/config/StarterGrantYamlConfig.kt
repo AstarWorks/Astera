@@ -51,6 +51,7 @@ public data class StarterGrantYamlConfig(
     @SerialName("wallet_grants") public val walletGrants: Map<String, Long> = emptyMap(),
     public val tutorial: TutorialBlock = TutorialBlock(),
     @SerialName("welcome_dialog_id") public val welcomeDialogId: String? = null,
+    @SerialName("match_tools") public val matchTools: List<String> = emptyList(),
 ) {
     @Serializable
     public data class TutorialBlock(
@@ -114,9 +115,24 @@ public data class StarterGrantYamlConfig(
             }
         }
 
+        val parsedTools = matchTools.mapIndexed { idx, raw ->
+            try {
+                ItemId(raw)
+            } catch (e: IllegalArgumentException) {
+                return Result.failure(
+                    ConfigError.InvalidIdentifier(
+                        field = "match_tools[$idx]",
+                        rawValue = raw,
+                        constraint = e.message ?: "kebab-case [a-z0-9-]",
+                    ),
+                )
+            }
+        }
+
         return Result.success(
             StarterGrant(
                 starterItems = parsedItems,
+                matchTools = parsedTools,
                 walletGrants = parsedWallet.toMap(),
                 tutorialAutoEnroll = tutorial.autoEnroll,
                 tutorialScriptId = tutorial.scriptId?.takeIf { tutorial.autoEnroll },

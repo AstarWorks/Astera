@@ -1,0 +1,404 @@
+{
+ "id": "temple-trouble",
+ "floor": {
+  "x": 0,
+  "z": -83,
+  "y": 15
+ },
+ "min_component": 300,
+ "fill": [
+  {
+   "box": [
+    -16,
+    8,
+    -51,
+    -4,
+    10,
+    -39
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -15,
+    11,
+    -50,
+    -5,
+    11,
+    -40
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -14,
+    12,
+    -49,
+    -6,
+    12,
+    -41
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -13,
+    13,
+    -48,
+    -7,
+    13,
+    -42
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -12,
+    14,
+    -47,
+    -8,
+    14,
+    -43
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -11,
+    15,
+    -46,
+    -9,
+    15,
+    -44
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    4,
+    8,
+    -51,
+    16,
+    10,
+    -39
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    5,
+    11,
+    -50,
+    15,
+    11,
+    -40
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    6,
+    12,
+    -49,
+    14,
+    12,
+    -41
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    7,
+    13,
+    -48,
+    13,
+    13,
+    -42
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    8,
+    14,
+    -47,
+    12,
+    14,
+    -43
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    9,
+    15,
+    -46,
+    11,
+    15,
+    -44
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -16,
+    8,
+    39,
+    -4,
+    10,
+    51
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -15,
+    11,
+    40,
+    -5,
+    11,
+    50
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -14,
+    12,
+    41,
+    -6,
+    12,
+    49
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -13,
+    13,
+    42,
+    -7,
+    13,
+    48
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -12,
+    14,
+    43,
+    -8,
+    14,
+    47
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -11,
+    15,
+    44,
+    -9,
+    15,
+    46
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    4,
+    8,
+    39,
+    16,
+    10,
+    51
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    5,
+    11,
+    40,
+    15,
+    11,
+    50
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    6,
+    12,
+    41,
+    14,
+    12,
+    49
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    7,
+    13,
+    42,
+    13,
+    13,
+    48
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    8,
+    14,
+    43,
+    12,
+    14,
+    47
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    9,
+    15,
+    44,
+    11,
+    15,
+    46
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "stepped plinth for a star generator"
+  },
+  {
+   "box": [
+    -2,
+    9,
+    -27,
+    2,
+    9,
+    -9
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "bridge over the void (the original is bridged by players)"
+  },
+  {
+   "box": [
+    -2,
+    9,
+    9,
+    2,
+    9,
+    27
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "bridge over the void (the original is bridged by players)"
+  },
+  {
+   "box": [
+    -24,
+    9,
+    -20,
+    -19,
+    9,
+    -9
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "bridge over the void (the original is bridged by players)"
+  },
+  {
+   "box": [
+    19,
+    9,
+    -20,
+    24,
+    9,
+    -9
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "bridge over the void (the original is bridged by players)"
+  },
+  {
+   "box": [
+    -24,
+    9,
+    9,
+    -19,
+    9,
+    20
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "bridge over the void (the original is bridged by players)"
+  },
+  {
+   "box": [
+    19,
+    9,
+    9,
+    24,
+    9,
+    20
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "bridge over the void (the original is bridged by players)"
+  },
+  {
+   "box": [
+    -17,
+    9,
+    -1,
+    -9,
+    9,
+    1
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "bridge over the void (the original is bridged by players)"
+  },
+  {
+   "box": [
+    9,
+    9,
+    -1,
+    17,
+    9,
+    1
+   ],
+   "block": "minecraft:stone_bricks",
+   "note": "bridge over the void (the original is bridged by players)"
+  }
+ ],
+ "credits": {
+  "title": "Temple Trouble",
+  "authors": [
+   "Salgadoh"
+  ],
+  "source": "https://github.com/OvercastCommunity/CommunityMaps/tree/17a7432a670589e153f5b07c933557dabca3d981/ctw/temple_trouble",
+  "license": "CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)",
+  "modified": "converted from a pre-1.13 world to modern block states, moved to y=64, signs/banners/skulls/pistons dropped, stray decoration removed, bridges over the middle void and star plinths added"
+ }
+}
