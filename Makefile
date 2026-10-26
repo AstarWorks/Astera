@@ -194,6 +194,13 @@ e2e: ## Boot the offline e2e backend, run the MCProtocolLib bot suite, write bui
 e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, volumes, images)
 	bash scripts/e2e.sh down
 
+.PHONY: live-view live-view-down
+live-view: ## Live real Minecraft video + audio on 0.0.0.0:8098: make live-view SKILL=<id> [VIEW=caster|side|compare] [CASE=<id>] [PORT=8098]
+	SKILL="$(SKILL)" VIEW="$(or $(VIEW),caster)" CASE="$(CASE)" PORT="$(or $(PORT),8098)" bash tools/live-view/live-view.sh
+
+live-view-down: ## Stop this checkout's live viewer, clients, private audio daemon and capture stack
+	bash tools/live-view/live-view.sh down
+
 .PHONY: vfx-shot
 vfx-shot: ## Film a skill with a real headless MC client (serialized host-wide, torn down on exit; SHOT_KEEP=1 keeps it warm for SHOT_KEEP_TTL): make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60] [FOV=90] [BEAT_TICKS=case|0,8,16]
 	@test -n "$(SKILL)" || { echo "usage: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60]"; exit 2; }
