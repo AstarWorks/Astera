@@ -1,0 +1,8 @@
+{
+  "round": 1,
+  "gate": 2,
+  "focus": "ゲート1通過 (Q1=A 背向け突進+smear内で時計回り180°振り向き / Q2=B 武器モデルは常に1本 / Q3=A 遠隔ヒットは発動時位置に固定)。構築中。実機で見る点: コイン1/2/3 の接触tick (9/41/72) と突進の鋭さ",
+  "fireHint": "/astera items give で couture-rapier を持ち、S2 を発動",
+  "soundKind": "vanilla tuned",
+  "reviewer": {}
+}
