@@ -112,6 +112,39 @@ class PackValidationTest {
     }
 
     @Test
+    fun `every astera sound id a skill or item plays resolves to a sound event in the pack`() {
+        val events = json("assets/astera/sounds.json")
+        val yaml = org.yaml.snakeyaml.Yaml()
+        // Registry cues: id -> resource_key (a cue without a yaml plays under its own id).
+        val resourceKeyById = mutableMapOf<String, String>()
+        java.nio.file.Files.walk(contentDir.resolve("sounds")).use { stream ->
+            stream.filter { it.toString().endsWith(".yaml") }.forEach { file ->
+                val doc = yaml.load<Map<String, Any?>>(java.nio.file.Files.readString(file)).orEmpty()
+                val id = doc["id"] as? String ?: return@forEach
+                resourceKeyById[id] = doc["resource_key"] as? String ?: id
+            }
+        }
+        val soundId = Regex("""sound_id:\s*['"]?([^'"\s#]+)""")
+        var checked = 0
+        for (dir in listOf("skills", "items")) {
+            java.nio.file.Files.walk(contentDir.resolve(dir)).use { stream ->
+                stream.filter { it.toString().endsWith(".yaml") }.forEach { file ->
+                    for (m in soundId.findAll(java.nio.file.Files.readString(file))) {
+                        val id = m.groupValues[1]
+                        val key = resourceKeyById[id] ?: id
+                        // Vanilla ids (no astera: namespace) resolve on the client; only pack cues need an event.
+                        if (!key.startsWith("astera:")) continue
+                        checked++
+                        assertThat(events.has(key.removePrefix("astera:")))
+                            .`as`("${contentDir.relativize(file)}: sound_id $id -> $key has no sound event in sounds.json").isTrue()
+                    }
+                }
+            }
+        }
+        assertThat(checked).`as`("astera sound ids referenced by skills/items").isGreaterThan(10)
+    }
+
+    @Test
     fun `no file in the pack is oversized`() {
         for ((path, bytes) in files) {
             val limit = when {
