@@ -623,6 +623,8 @@ astera:
           crimson-chain-axe: "緋の鎖斧"
           orrery-staff: "天球儀の杖"
           sigil-rifle: "刻印の狙撃銃"
+          heal-potion: "回復薬"
+          swift-powder: "疾風の粉"
       gui:
         spacer: " "
         price: "<gray>価格: <green>{amount}</green> {currency}</gray>"

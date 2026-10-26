@@ -89,4 +89,51 @@ class ShopPurchaseE2eTest : E2eBase() {
             "chat=$lines"
         }
     }
+
+    private fun hotbarSlotOf(b: Bot, material: String): Int? =
+        (0..8).firstOrNull { rcon("execute if items entity ${b.name} hotbar.$it minecraft:$material").contains("passed") }
+
+    @Test
+    fun `a consumable costs GOLD on every purchase, arrives in the inventory and is used up by right-click`() {
+        val b = bot("Drinker")
+        Thread.sleep(2_500)
+        rcon("astera economy grant ${b.name} GOLD 100")
+        Thread.sleep(500)
+        val s = openShop(b)
+
+        E2eReport.check(suite, "buying the healing draught (40 GOLD, no confirm below 100) drops GOLD to 60 and delivers it", "SystemChat + RCON balance + inventory") {
+            val lore = b.contents[s.containerId]?.getOrNull(18)?.lore.orEmpty()
+            assertThat(lore).describedAs("slot 18 should be the healing draught offer").contains("40")
+            val chatFrom = b.chat.size
+            click(b, s, 18)
+            b.waitUntil(3_000) { hotbarSlotOf(b, "glistering_melon_slice") != null }
+            val lines = plain(b.chatSince(chatFrom))
+            assertThat(gold(b)).describedAs("GOLD after paying 40; chat=$lines").isEqualTo(60L)
+            assertThat(hotbarSlotOf(b, "glistering_melon_slice")).describedAs("healing draught missing from the hotbar").isNotNull()
+            "chat=$lines"
+        }
+
+        E2eReport.check(suite, "the same offer can be bought again (unlimited) and charges again", "RCON balance") {
+            Thread.sleep(600)
+            click(b, s, 18)
+            b.waitUntil(3_000) { gold(b) == 20L }
+            assertThat(gold(b)).describedAs("second purchase must charge again").isEqualTo(20L)
+            "gold=${gold(b)}"
+        }
+
+        E2eReport.check(suite, "right-click uses one draught up", "ServerboundUseItem + RCON inventory") {
+            b.closeWindow(s.containerId)
+            Thread.sleep(400)
+            val slot = checkNotNull(hotbarSlotOf(b, "glistering_melon_slice")) { "no draught in the hotbar" }
+            b.selectHotbar(slot)
+            Thread.sleep(300)
+            val count = { rcon("clear ${b.name} minecraft:glistering_melon_slice 0") }
+            val before = count()
+            b.useItem(0f, 0f)
+            Thread.sleep(1_200)
+            val after = count()
+            assertThat(after).describedAs("a draught should have been consumed; before=$before after=$after").isNotEqualTo(before)
+            "before=$before after=$after"
+        }
+    }
 }
