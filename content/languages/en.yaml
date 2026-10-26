@@ -981,6 +981,9 @@ astera:
         assists: "Assists x{count}"
         objectives: "Objectives x{count}"
         mvp: "MVP bonus"
+      next:
+        affordable: "<green>You can afford</green> <white>{name}</white> <gray>({price} GOLD, you have {balance}).</gray> <gray>Buy it in the shop, then bring it to your next match.</gray>"
+        short: "<gray>Next unlock:</gray> <white>{name}</white> <gold>{price} GOLD</gold> <gray>({short} more; you have {balance}).</gray>"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — reconnect-window countdown
     # ActionBar shown while a disconnected participant is held in the seat.
     reconnect:

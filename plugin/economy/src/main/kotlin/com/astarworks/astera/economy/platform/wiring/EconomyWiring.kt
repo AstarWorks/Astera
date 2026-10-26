@@ -198,6 +198,11 @@ public object EconomyWiring {
         // `make dev-content` takes effect without a restart.
         val matchRewardsPath = ctx.contentDir.resolve("balance").resolve("match-rewards.yaml")
         val matchRewardsLoader = MatchRewardsLoader()
+        val nextUnlockFinder = com.astarworks.astera.economy.application.service.NextUnlockFinder(
+            registry = { services.get<com.astarworks.astera.core.application.port.outbound.IShopRegistry>() },
+            purchases = { services.get<com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository>() },
+            ledger = ledger,
+        )
         val grantMatchRewards = GrantMatchRewardsOnSummaryListener(
             table = { matchRewardsLoader.load(matchRewardsPath) },
             deposit = deposit,
@@ -206,6 +211,7 @@ public object EconomyWiring {
             messages = msgRenderer,
             playerGateway = playerGateway,
             lastMatches = { services.get<ILastMatchStore>() },
+            nextUnlock = nextUnlockFinder::find,
         )
         val depositOnMissionCompletedListener = DepositOnMissionCompletedListener(deposit)
 
