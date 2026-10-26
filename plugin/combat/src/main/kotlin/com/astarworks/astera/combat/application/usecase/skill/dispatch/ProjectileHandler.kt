@@ -9,6 +9,7 @@ import com.astarworks.astera.combat.domain.projectile.MotionProfile
 import com.astarworks.astera.combat.domain.projectile.ProjectileSkillBinding
 import com.astarworks.astera.combat.domain.projectile.ProjectileSpec
 import com.astarworks.astera.combat.domain.projectile.ProjectileVisual
+import com.astarworks.astera.combat.domain.skill.BlockDamageSpec
 import com.astarworks.astera.combat.domain.skill.params.ProjectileVisualParams
 import com.astarworks.astera.core.domain.effect.ParticleDefinition
 import com.astarworks.astera.core.domain.effect.ParticleId
@@ -47,6 +48,7 @@ public class ProjectileHandler(
         event: SkillCast,
         params: SkillParams.ProjectileParams,
         phases: PhaseMechanics.Projectile,
+        blockDamage: BlockDamageSpec? = null,
     ) {
         val ctx = event.toMechanicContext()
 
@@ -75,6 +77,7 @@ public class ProjectileHandler(
                 castOrigin = event.at,
                 worldId = pose?.world,
                 pose = pose,
+                blockDamage = blockDamage,
             ),
         )
         val handle = projectileService.spawn(

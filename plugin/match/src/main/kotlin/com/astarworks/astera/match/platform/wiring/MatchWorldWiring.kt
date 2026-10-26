@@ -96,6 +96,8 @@ internal object MatchWorldWiring {
             gateway = blockStateGateway,
             journal = blockJournal,
             matchWorlds = matchWorlds,
+            cover = { services.get<com.astarworks.astera.core.application.service.CoverBlockService>() },
+            arenas = arenaBuilder,
         )
         subscriptions += restoreOnEnd.subscribe(eventBus)
 

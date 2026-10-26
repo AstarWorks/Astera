@@ -1,15 +1,12 @@
 package com.astarworks.astera.core.application.usecase.block
 
-import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
+import com.astarworks.astera.core.application.service.CoverBlockService
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
-import com.astarworks.astera.core.application.port.outbound.IWorldGateway
-import com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.animation.block.BlockBreakStage
-import com.astarworks.astera.core.domain.block.BlockDamageOutcome
 import com.astarworks.astera.core.domain.block.BlockDamageProfile
 import com.astarworks.astera.core.domain.block.BlockGatewayError
 import com.astarworks.astera.core.domain.effect.SoundSpec
@@ -27,17 +24,15 @@ import java.util.concurrent.ConcurrentHashMap
  * A player swings a field tool (pickaxe / axe / shovel, ADR-0090) at a custom cover block.
  *
  * The held item names its [ToolType] through the `astera:tool` pdc tag (`"PICKAXE/IRON"`). The hit goes through
- * [IBlockStateGateway.applyDamageFromSkill], so the (tool, block material) damage matrix and the block's own HP
+ * [CoverBlockService.strikeCell], so the (tool, block material) damage matrix and the block's own HP
  * decide how many swings it takes. The crack stage shown on the block follows the HP that is left, the swing and the
  * break play a per-tool sound, and the wrong tool plays a dull clang plus a (rate limited) hint.
  *
  * Swings closer than [HIT_COOLDOWN_TICKS] apart are ignored so a click macro cannot chew through cover.
  */
 public class HitCustomBlockUseCase(
-    private val blocks: () -> IBlockStateGateway?,
+    private val cover: () -> CoverBlockService?,
     private val items: IItemRegistry,
-    private val animation: () -> IBlockBreakAnimationGateway?,
-    private val worldGateway: () -> IWorldGateway?,
     private val scheduler: IScheduler,
     private val players: IPlayerGateway,
     private val messages: IMessageRenderer,
@@ -73,48 +68,34 @@ public class HitCustomBlockUseCase(
         val now = scheduler.currentTick()
         val previous = lastHitTick[playerId]
         if (previous != null && now - previous < HIT_COOLDOWN_TICKS) return Result.success(Outcome.TooFast)
-        val gateway = blocks() ?: return Result.success(Outcome.NotATool)
+        val service = cover() ?: return Result.success(Outcome.NotATool)
 
         lastHitTick[playerId] = now
-        val result = gateway.applyDamageFromSkill(
+        val result = service.strikeCell(
+            playerId,
             world,
             pos,
             TOOL_HIT,
-            playerId,
             BlockDamageProfile(BlockDamageProfile.DEFAULT_BASE, tool),
-        )
+            CoverBlockService.Feedback.swing(tool.kind, WRONG_TOOL_SOUND),
+        ) ?: return Result.success(Outcome.NotATool)
         val outcome = when (result) {
             is Result.Failure -> return result
             is Result.Success -> result.value
         }
         return Result.success(
             when (outcome) {
-                is BlockDamageOutcome.Ineffective -> {
-                    sound(world, pos, WRONG_TOOL_SOUND)
+                is CoverBlockService.CellOutcome.Ineffective -> {
                     hint(playerId, now)
                     Outcome.WrongTool
                 }
-                is BlockDamageOutcome.Damaged -> {
-                    val stage = stageFor(outcome.newState.durability, outcome.newState.maxHp)
-                    animation()?.setBreakStage(world, pos, stage)
-                    sound(world, pos, hitSound(tool.kind))
-                    Outcome.Chipped(outcome.newState.durability, outcome.newState.maxHp, stage)
-                }
-                is BlockDamageOutcome.Broken -> {
-                    animation()?.cancelBreakAnimation(world, pos)
-                    sound(world, pos, breakSound(tool.kind))
-                    Outcome.Broken(outcome.drops)
-                }
+                is CoverBlockService.CellOutcome.Chipped -> Outcome.Chipped(outcome.hp, outcome.maxHp, outcome.stage)
+                is CoverBlockService.CellOutcome.Broken -> Outcome.Broken(outcome.drops)
             },
         )
     }
 
-    private fun toolOf(item: ItemId): ToolType? =
-        items.find(item)?.pdcTags?.get(TOOL_TAG)?.let { ToolType.fromSerialKey(it) }?.takeIf { it.kind != ToolKind.NONE }
-
-    private fun sound(world: WorldId, pos: Vec3, spec: SoundSpec) {
-        worldGateway()?.playSound(world, pos, spec)
-    }
+    private fun toolOf(item: ItemId): ToolType? = toolOf(items, item)
 
     private fun hint(playerId: PlayerId, now: Long) {
         val last = lastHintTick[playerId]
@@ -134,24 +115,11 @@ public class HitCustomBlockUseCase(
         private val WRONG_TOOL_HINT = MessageKey("astera.cover.wrong-tool")
         private val WRONG_TOOL_SOUND = SoundSpec("minecraft:item.shield.block", 0.6, 0.7)
 
-        /** Crack stage for the HP that is left: STAGE_0 right after the first scratch, STAGE_9 on the last sliver. */
-        public fun stageFor(hp: Int, maxHp: Int): BlockBreakStage {
-            if (maxHp <= 0) return BlockBreakStage.STAGE_9
-            val lost = (maxHp - hp).coerceIn(0, maxHp).toDouble() / maxHp
-            val index = (lost * 9.0).toInt().coerceIn(0, 9)
-            return BlockBreakStage.entries[index]
-        }
+        /** The [ToolType] a field tool item names through [TOOL_TAG], or `null` for any other item. */
+        public fun toolOf(items: IItemRegistry, item: ItemId): ToolType? =
+            items.find(item)?.pdcTags?.get(TOOL_TAG)?.let { ToolType.fromSerialKey(it) }?.takeIf { it.kind != ToolKind.NONE }
 
-        private fun hitSound(kind: ToolKind): SoundSpec = when (kind) {
-            ToolKind.PICKAXE -> SoundSpec("minecraft:block.stone.hit", 1.0, 0.8)
-            ToolKind.AXE -> SoundSpec("minecraft:block.wood.hit", 1.0, 0.9)
-            else -> SoundSpec("minecraft:block.gravel.hit", 1.0, 0.9)
-        }
-
-        private fun breakSound(kind: ToolKind): SoundSpec = when (kind) {
-            ToolKind.PICKAXE -> SoundSpec("minecraft:block.deepslate_tiles.break", 1.2, 0.8)
-            ToolKind.AXE -> SoundSpec("minecraft:block.wood.break", 1.2, 0.8)
-            else -> SoundSpec("minecraft:block.gravel.break", 1.2, 0.8)
-        }
+        /** Crack stage for the HP that is left. */
+        public fun stageFor(hp: Int, maxHp: Int): BlockBreakStage = CoverBlockService.stageFor(hp, maxHp)
     }
 }
