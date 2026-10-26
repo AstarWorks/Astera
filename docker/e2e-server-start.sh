@@ -6,7 +6,7 @@ if [ "${ASTERA_E2E_FAST:-0}" = 1 ] && [ "${SERVER_TYPE:-PAPER}" = FOLIA ]; then
   # itzg patches only existing files. Seed before the first fresh-volume boot.
   mkdir -p /data/config /plugins
   if [ ! -f /data/config/paper-global.yml ]; then
-    printf 'threaded-regions:\n  threads: %s\n  grid-exponent: 4\n' "${E2E_FOLIA_THREADS:-4}" > /data/config/paper-global.yml
+    printf 'proxies:\n  velocity:\n    enabled: false\n    online-mode: true\n    secret: placeholder\nthreaded-regions:\n  threads: %s\n  grid-exponent: 4\n' "${E2E_FOLIA_THREADS:-4}" > /data/config/paper-global.yml
   fi
   # The fixed four-thread image patch would overwrite the explicit lane value.
   rm -f /patches/threaded-regions.json
