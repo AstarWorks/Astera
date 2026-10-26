@@ -1,7 +1,7 @@
 # Zwei West Section 3 Ishmael, Can't Let You Through (video 14.633-18.4): ring, ring, vertical chop. Rebuilt on the S1 pattern (beat sheet r2, tools/skill-compare/data/bastion-greatsword-s2/beat-sheet/beat-sheet.md).
 # ONE rig (bastion-s2-rig, real main-hand stack; no hide_held_item) with freezes at the three contacts 13 / 32 / 53. Ring fx (copy of S1 hit 2) at 9 / 28 (contact = effect tick 4), chop fx at 49 (contact 53). Every VFX follows the caster.
 # Hit areas = the visual reach: rings are the radius-3.0 gold crescent round the caster; the chop is a forward cone 80 deg / 3.4 (crescent plane). The navy streak is an afterimage and has no hit (founder Q2).
-# Travel: small bursts into the rings (1.2 over t10-12, 0.8 over t29-31), then after the chop contact a 2.0 block step (t54-56, 3 ticks, hard stop; founder Q3). Sounds: all vanilla, layered and pitched low; the chop contact is the heaviest stack. Charge: banked by S1, +0.5 per stack on every hit, spent by the chop.
+# Travel: bursts into the rings (2.4 over t10-12, 1.6 over t29-31; founder 2026-10-27: doubled), then after the chop contact a 4.0 block step (t54-56, 3 ticks, hard stop; founder Q3, doubled). Sounds: all vanilla, layered and pitched low; the chop contact is the heaviest stack. Charge: banked by S1, +0.5 per stack on every hit, spent by the chop.
 id: bastion-greatsword-s2
 name: {ja: 審判の突進, en: Judgement Rush}
 description: {ja: 踏み込んで二度薙ぎ払い、頭上から斬り下ろして前へ踏み込む。最後の一撃で溜めを消費する。, en: 'Step in, sweep twice, then cleave from overhead and step through. The final blow spends charge.'}
@@ -285,7 +285,7 @@ phases:
     pitch: {type: literal, value: 0.6}
     delay_ticks: {type: literal, value: 64}
   - type: dash_strike
-    distance: 1.2
+    distance: 2.4
     ticks: 3
     radius: 0.5
     hit_once: true
@@ -295,7 +295,7 @@ phases:
     stop_before_target: 1.7
     delay_ticks: {type: literal, value: 10}
   - type: dash_strike
-    distance: 0.8
+    distance: 1.6
     ticks: 3
     radius: 0.5
     hit_once: true
@@ -374,7 +374,7 @@ phases:
     strength: {type: literal, value: 0.9}
     delay_ticks: {type: literal, value: 53}
   - type: dash_strike
-    distance: 2.0
+    distance: 4.0
     ticks: 3
     radius: 0.5
     hit_once: true
