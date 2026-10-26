@@ -58,6 +58,8 @@ ticks_for() { # skill: frames of an already published view (the author's chosen 
 publish() { # skill sha mode(preview|stepped)  -> 0 when every view was published
   local skill="$1" sha="$2" mode="$3" v rc=0 flag=()
   [ "$mode" = preview ] && flag=(--preview)
+  local c; c="$(grep -l "\"asteraSkillId\": *\"$skill\"" "$FARM_ROOT"/tools/skill-compare/data/*/case.json 2>/dev/null | head -1)"
+  [ -n "$c" ] && flag+=(--case "$(basename "$(dirname "$c")")")   # stamps the case's reference/content revision into the meta
   for v in ${VIEWS//,/ }; do
     if ! out="$(node "$TOOLS_ROOT/tools/skill-compare/scripts/publish-capture.mjs" "$OUT_ROOT/$skill/$v" "$PUBLISHED" "$skill" "$v" --auto "$sha" "${flag[@]}" 2>&1)"; then
       flog "publish $skill/$v ($mode) REFUSED: $out"; rc=1
