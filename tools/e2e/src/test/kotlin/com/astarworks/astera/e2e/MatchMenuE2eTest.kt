@@ -87,7 +87,9 @@ class MatchMenuE2eTest : PlaythroughBase() {
 
         E2eReport.check(suite, "confirming Leave puts the player back in the lobby with the kit", "inventory + RCON") {
             click(a, c.containerId, 2)
-            assertThat(a.waitUntil(30_000) { a.hotbar()[8] != -1 })
+            // Leaving a running match is a drop (MODE-14): the player is teleported at once, but the roster seat, the
+            // match inventory and so the lobby kit are only released when the 60 s reconnect window ends in a forfeit.
+            assertThat(a.waitUntil(90_000) { a.hotbar()[8] != -1 })
                 .describedAs("no lobby kit after Leave; hotbar=${a.hotbar()} chat=${a.chatTexts().takeLast(4)}").isTrue()
             val dim = dimensionOf(a)
             assertThat(dim).describedAs("still in the arena world").isNotEqualTo("minecraft:arenas")
