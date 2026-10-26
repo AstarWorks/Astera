@@ -11,6 +11,8 @@
 # ASTERA_DEV_HOST=user@host (given to `up`) deploys to the dev stack on that machine over DOCKER_HOST=ssh://...
 # The watcher and its supervisor container stay on THIS host; only the stack commands go remote. Unset = local.
 set -euo pipefail
+# Default dev VM (non-secret). Export ASTERA_DEV_HOST="" to deploy to the local daemon instead.
+export ASTERA_DEV_HOST="${ASTERA_DEV_HOST-astera@192.168.14.3}"
 ROOT=/IdeaProjects/Astera
 DEPLOY=$ROOT/.claude/worktrees/dev-deploy
 STATE=$ROOT/.claude/state/dev-deploy
