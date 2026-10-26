@@ -2,7 +2,7 @@
 id: siege-isles-loyal
 display_name_key: astera.stage.siege-isles.name
 layout:
-  marker_version: 6
+  marker_version: 8
   seed: 20261024
   surface_y: 64
   kill_y: 16
@@ -25,10 +25,12 @@ layout:
     kind: outpost
     center: {x: 0, z: -95}
     radius: 32
+    accent: purple
   - id: south
     kind: outpost
     center: {x: 0, z: 95}
     radius: 32
+    accent: purple
   bridges:
   - from: red
     to: center
@@ -376,8 +378,8 @@ layout:
     x: 80
     z: 0
     rotation: 0
-  theme: temperate
-  atmosphere: {time_of_day: 12000, weather: clear}
+  theme: frost
+  atmosphere: {time_of_day: 23000, weather: clear}
 regions:
 - name: full-arena
   min: {x: -235, y: 20.0, z: -140}

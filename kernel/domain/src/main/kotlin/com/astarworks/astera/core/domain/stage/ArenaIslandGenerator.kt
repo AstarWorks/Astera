@@ -60,7 +60,7 @@ public class ArenaBuildPlan(
         private val PASSABLE: Set<String> = setOf(
             "air", "short_grass", "tall_grass", "fern", "dandelion", "poppy", "azure_bluet", "cornflower",
             "allium", "oxeye_daisy", "pink_tulip", "red_tulip", "orange_tulip", "white_tulip", "blue_orchid",
-            "lily_of_the_valley", "torch", "lantern",
+            "lily_of_the_valley", "torch", "lantern", "snow", "dead_bush", "short_dry_grass", "crimson_roots", "warped_roots",
         )
 
         /** True for blocks a player walks through (plants, banners, lanterns). */
@@ -403,9 +403,18 @@ public object ArenaIslandGenerator {
                 d <= max(2.2, isl.radius * 0.14) -> "minecraft:smooth_quartz"
                 d <= max(3.4, isl.radius * 0.14 + 1.2) -> material("deck")
                 d >= rim - 1.0 -> material("rock")
+                noise2(x * 0.16, z * 0.16, 7) > 0.28 -> centreVariant()
                 else -> if (rnd(x, z, 3) < 0.15) material("rock") else material("wall")
             }
             else -> material("ground")
+        }
+
+        /** Weathered patches on the plaza floor so the hub is not one flat grey plane; the look follows the theme. */
+        private fun centreVariant(): String = when (layout.theme) {
+            ArenaTheme.TEMPERATE -> "minecraft:mossy_stone_bricks"
+            ArenaTheme.FROST -> "minecraft:cracked_deepslate_bricks"
+            ArenaTheme.DESERT -> "minecraft:cut_sandstone"
+            ArenaTheme.VOLCANIC -> "minecraft:cracked_polished_blackstone_bricks"
         }
 
         private fun shallow(isl: ArenaIsland): String = material(if (isl.kind == ArenaIslandKind.CENTER) "wall" else "soil")
@@ -724,7 +733,11 @@ public object ArenaIslandGenerator {
                     val k = key(x, z)
                     clear += k
                     laneCells += k
-                    if (abs(w) <= width / 2 && k !in reserved) paintTop(x, z, material("wall"))
+                    if (abs(w) <= width / 2 && k !in reserved) {
+                        // On the hub the lane centre line is inlaid in the colour of the island it leads to.
+                        val inlay = from.kind == ArenaIslandKind.CENTER && w == 0 && t >= 5 && t < reach - 2 && (t / 3) % 4 != 3
+                        paintTop(x, z, if (inlay) "minecraft:${to.colour}_concrete" else material("wall"))
+                    }
                 }
             }
         }
@@ -748,8 +761,8 @@ public object ArenaIslandGenerator {
                         findSpot(isl, hx, hz, 3)?.let { (x, z) -> spire(x, z, 34, isl.colour) }
                         standards(isl)
                     }
-                    ArenaIslandKind.CENTER -> if (isl.radius >= 30) findSpot(isl, hx, hz, 3)?.let { (x, z) -> spire(x, z, 42, "white") }
-                    ArenaIslandKind.OUTPOST -> findSpot(isl, hx, hz, 2)?.let { (x, z) -> cairn(x, z) }
+                    ArenaIslandKind.CENTER -> if (isl.radius >= 30) findSpot(isl, hx, hz, 3)?.let { (x, z) -> spire(x, z, 56, "white", crown = true) }
+                    ArenaIslandKind.OUTPOST -> findSpot(isl, hx, hz, 2)?.let { (x, z) -> if (isl.accent != null) totem(x, z, isl.accent) else cairn(x, z) }
                 }
             }
             pylons()
@@ -797,7 +810,7 @@ public object ArenaIslandGenerator {
         }
 
         /** A themed tower topped by a beacon: the stained glass above it colours the beam in [colour]. */
-        private fun spire(cx: Int, cz: Int, height: Int, colour: String) {
+        private fun spire(cx: Int, cz: Int, height: Int, colour: String, crown: Boolean = false) {
             val band = "minecraft:${colour}_concrete"
             val wall = material("wall")
             val light = material("light")
@@ -819,6 +832,15 @@ public object ArenaIslandGenerator {
                     set(cx + 2 * c.first, s + horn + 1, cz + 2 * c.second, light)
                 }
             }
+            if (crown) {
+                // A lit ring with four arms that reads from every island: the hub's landmark.
+                for (a in -4..4) for (b in -4..4) {
+                    val edge = maxOf(abs(a), abs(b))
+                    if (edge == 4 && (a + b) % 2 == 0) set(cx + a, top - 8, cz + b, material("light"))
+                    if (edge in 3..4 && (a == 0 || b == 0)) set(cx + a, top - 9, cz + b, band)
+                }
+                for (y in top - 18..top - 10) if (y % 3 == 0) for ((ax, az) in ARROWS) set(cx + 2 * ax, y, cz + 2 * az, material("light"))
+            }
             fill(cx, cz, 2, top - 1, material("deck"))
             fill(cx, cz, 1, top, "minecraft:iron_block")
             set(cx, top + 1, cz, "minecraft:beacon")
@@ -838,6 +860,19 @@ public object ArenaIslandGenerator {
             set(cx, s + 9, cz, material("light"))
             for ((ax, az) in ARROWS) set(cx + ax, s + 9, cz + az, material("light"))
             set(cx, s + 10, cz, material("light"))
+        }
+
+        /** A lane-identity totem for an outpost whose accent names the lane colour: a taller striped pillar with a crown and banners. */
+        private fun totem(cx: Int, cz: Int, colour: String) {
+            val band = "minecraft:${colour}_concrete"
+            fill(cx, cz, 2, s + 1, material("rock"))
+            for ((ax, az) in CORNERS) set(cx + 2 * ax, s + 2, cz + 2 * az, band)
+            for (y in s + 2..s + 15) set(cx, y, cz, if (y % 4 == 0) band else material("wall"))
+            for (y in s + 2..s + 15) if (y % 4 == 0) for ((ax, az) in ARROWS) set(cx + ax, y, cz + az, band)
+            fill(cx, cz, 1, s + 16, band)
+            for ((ax, az) in ARROWS) set(cx + 2 * ax, s + 16, cz + 2 * az, material("light"))
+            set(cx, s + 17, cz, material("light"))
+            for ((ax, az) in ARROWS) set(cx + ax, s + 17, cz + az, "minecraft:${colour}_banner[rotation=${((ax * 4 + az * 8) + 16) % 16}]")
         }
 
         /** Tall team-banner standards spaced around the rim of a base island, far enough in not to hang over the edge. */
@@ -1020,15 +1055,31 @@ public object ArenaIslandGenerator {
         // ── decoration ───────────────────────────────────────────────────
 
         private fun deco() {
-            if (layout.theme != ArenaTheme.TEMPERATE) return
             for ((k, isl) in topCells) {
                 if (isl.kind == ArenaIslandKind.CENTER || k in reserved) continue
                 val x = (k shr 32).toInt()
                 val z = k.toInt()
                 if (get(x, s, z) != material("ground") || get(x, s + 1, z) != null) continue
                 val r = rnd(x, z, 5)
-                if (r >= 0.09) continue
-                set(x, s + 1, z, FLOWERS[(r / 0.09 * FLOWERS.size).toInt().coerceAtMost(FLOWERS.size - 1)])
+                val blob = noise2(x * 0.06, z * 0.06, 13)
+                val patch = blob > 0.42
+                when (layout.theme) {
+                    ArenaTheme.TEMPERATE -> if (r < 0.06) set(x, s + 1, z, FLOWERS[(r / 0.06 * FLOWERS.size).toInt().coerceAtMost(FLOWERS.size - 1)])
+                    ArenaTheme.FROST -> when {
+                        patch -> set(x, s, z, "minecraft:packed_ice")
+                        r < 0.05 -> set(x, s + 1, z, "minecraft:snow")
+                        r > 0.9985 && k !in laneCells -> for (dy in 1..2 + (r * 4000).toInt() % 3) set(x, s + dy, z, "minecraft:packed_ice")
+                    }
+                    ArenaTheme.DESERT -> when {
+                        patch -> set(x, s, z, if (blob > 0.55) "minecraft:red_sandstone" else "minecraft:cut_sandstone")
+                        r < 0.02 -> set(x, s + 1, z, if (r < 0.012) "minecraft:dead_bush" else "minecraft:short_dry_grass")
+                    }
+                    ArenaTheme.VOLCANIC -> when {
+                        patch -> set(x, s, z, if (blob > 0.55) "minecraft:blackstone" else "minecraft:smooth_basalt")
+                        r < 0.008 -> set(x, s, z, "minecraft:shroomlight")
+                        r < 0.025 -> set(x, s + 1, z, "minecraft:crimson_roots")
+                    }
+                }
             }
         }
     }
@@ -1038,8 +1089,9 @@ public object ArenaIslandGenerator {
     private val SPOT_OFFSETS: List<Double> = listOf(0.0, 0.3, -0.3, 0.6, -0.6, 0.9, -0.9, 1.3, -1.3, 1.8, -1.8, 2.4, -2.4, 3.1)
     private val ARROWS: List<Pair<Int, Int>> = listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1)
     private val CORNERS: List<Pair<Int, Int>> = listOf(1 to 1, 1 to -1, -1 to 1, -1 to -1)
+    /** No red or blue blooms: those are the team colours and must stay unambiguous on the ground. */
     private val FLOWERS: List<String> = listOf(
         "minecraft:short_grass", "minecraft:short_grass", "minecraft:short_grass", "minecraft:dandelion",
-        "minecraft:poppy", "minecraft:cornflower", "minecraft:azure_bluet", "minecraft:oxeye_daisy",
+        "minecraft:allium", "minecraft:azure_bluet", "minecraft:oxeye_daisy", "minecraft:short_grass",
     )
 }
