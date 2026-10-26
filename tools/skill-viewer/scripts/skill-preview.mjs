@@ -52,7 +52,18 @@ const intent = readJson(join(caseDir, kase.intent?.file ?? 'intent.json'));
 // (front | back | opposite | high45 | back45 | eye | top); vfx-shot CAMERA=<name> films the same camera. Default = intent.camera.
 const cameraPreset = [args.camera, args.view].find((v) => v && v !== true && v !== 'compare') ?? null;
 let keys = intent.camera ?? [];
-if (cameraPreset) {
+if (cameraPreset === 'side') {
+  // fixed SIDE camera (skill-compare "side" slot): caster faces screen-right toward the enemy, camera on the caster's right (+z in intent
+  // units; looking -z, screen-right = +x), framed on the whole travel (caster path, enemy), vertical FOV 45, no cuts. The sim caster
+  // moves along sim +z which the viewer rotates onto compare +x. A case `mirrored` flag is only recorded: this view always faces right.
+  const xs = [-1.2, ...(plan.caster ?? []).map((c) => c.pos?.[2] ?? 0)];
+  const e = (intent.actors ?? []).find((a) => a.id === 'enemy')?.keys?.[0]?.pos;
+  if (e) xs.push(e[0]);
+  const lo = Math.min(...xs), hi = Math.max(...xs), halfW = (hi - lo) / 2 + 2.2;
+  const dist = Math.max(5.5, halfW / (Math.tan((22.5 * Math.PI) / 180) * (1280 / 720)));
+  const cx = (lo + hi) / 2;
+  keys = [{ t: 0, pos: [cx, 1.5, dist], target: [cx, 1.0, 0], fov: 45 }];
+} else if (cameraPreset) {
   if (intent.camera_presets?.[cameraPreset]) keys = intent.camera_presets[cameraPreset];
   else {
     const pr = cameraPreset.startsWith('_') ? null : readJson(join(repo, 'tools/vfx-shot/camera-presets.json'))[cameraPreset];
@@ -252,7 +263,7 @@ await browser.close();
 
 const total = (performance.now() - T0) / 1000;
 const meta = {
-  skill, case: caseId, provenance, ticks: [tFrom, tTo], size: [W, H], weapon: weapon && { item: weapon.itemId, model: weapon.modelFile }, slim: plan.slim,
+  skill, case: caseId, camera: cameraPreset ?? 'compare', mirrored: kase.mirrored ?? null, provenance, ticks: [tFrom, tTo], size: [W, H], weapon: weapon && { item: weapon.itemId, model: weapon.modelFile }, slim: plan.slim,
   fxDisplays: setup.fx, particles: particles ? setup.particles : null, reference: refAvailable, client: clientAvailable ? clientDir : null,
   timings: { ...timings, total: +total.toFixed(2), perFrame: +(timings.frames / ticks.length).toFixed(3) }, warnings: [...warnings, ...setup.warnings, ...pageLog],
 };
