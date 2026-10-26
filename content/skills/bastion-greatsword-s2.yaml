@@ -412,3 +412,4 @@ phases:
     stay: {type: literal, value: 1}
     fade_out: {type: literal, value: 2}
     delay_ticks: {type: literal, value: 53}
+# capture-farm e2e probe (no-op)
