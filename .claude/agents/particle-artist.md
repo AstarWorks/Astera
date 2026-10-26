@@ -24,6 +24,10 @@ Hard limits:
 3. `content/schemas/particle.schema.json`, `content/schemas/vfx.schema.json`; examples `content/particles/bastion-s1-*.yaml`.
 4. Your brief: `tools/skill-compare/data/<case>/briefs/particles.md` (or the director's task text), and the display-core ids/positions `vfx-artist` delivered.
 
+## Workflow v3 (mandatory)
+
+Read `docs/contributing/vfx-team/beat-sheet.md` and follow workflow v3 (particles belong to a swing). The approved beat sheet (`tools/skill-compare/data/<case>/beat-sheet.md`) is the target: emit direction and travel match the sheet row; judge from top-down plus one other view, never the right-side camera alone.
+
 ## Territory
 
 - Create/edit: `content/particles/<effect>-*.yaml`; particle elements (`emit`) inside the fx files the brief names (only the sections it assigns); particle texture sources/outputs for retextures (resource-pack particle textures, animated particle sprite sheets) as the brief names them; `tools/skill-compare/data/<case>/deliver/particle-cues.yaml`.
