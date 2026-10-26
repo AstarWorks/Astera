@@ -49,7 +49,7 @@ const caseDir = join(casesDir, caseId);
 const kase = readJson(join(caseDir, 'case.json'));
 const intent = readJson(join(caseDir, kase.intent?.file ?? 'intent.json'));
 // --camera <name>: an entry of the intent's camera_presets, else a fixed review camera from tools/vfx-shot/camera-presets.json
-// (front | back | opposite | high45 | back45 | eye); vfx-shot CAMERA=<name> films the same camera. Default = intent.camera.
+// (front | back | opposite | high45 | back45 | eye | top); vfx-shot CAMERA=<name> films the same camera. Default = intent.camera.
 const cameraPreset = [args.camera, args.view].find((v) => v && v !== true && v !== 'compare') ?? null;
 let keys = intent.camera ?? [];
 if (cameraPreset) {
