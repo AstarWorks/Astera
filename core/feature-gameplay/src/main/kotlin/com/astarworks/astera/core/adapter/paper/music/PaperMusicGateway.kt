@@ -53,8 +53,12 @@ public class PaperMusicGateway(
         }
         val player = server.getPlayer(playerId.uuid) ?: return Result.failure(MusicError.UnknownPlayer(playerId))
         val def = tracks.find(track) ?: return Result.failure(MusicError.UnknownTrack(track))
-        val key = (def.source as? MusicSource.Vanilla)?.soundKey
-            ?: return Result.failure(MusicError.Platform("track ${def.id.value} has no playable source on Paper (${def.source})"))
+        // A resource-pack track is a sound event of the Astera pack (astera:music/<id>); a vanilla one is a client event.
+        val key = when (val source = def.source) {
+            is MusicSource.Vanilla -> source.soundKey
+            is MusicSource.ResourcePack -> source.path
+            else -> null
+        } ?: return Result.failure(MusicError.Platform("track ${def.id.value} has no playable source on Paper (${def.source})"))
         val session = Session(MusicHandle(UUID.randomUUID().toString()), playerId, def, key, volume * def.defaultVolume)
         live[session.handle] = session
         emit(player, session)

@@ -597,6 +597,8 @@ public object CombatWiring {
                 randomizer = damageRandomizer,
                 presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() },
                 skinBodies = { id -> services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>()?.find(id) },
+                itemRemoval = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>() },
+                consumptionRecorder = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder>() },
             )
             registrations += services.register<MechanicDispatcher>(mechanicDispatcher)
             // ADR-0276: every way a performance can end goes through VfxPlayer.finish in the tick it happens.

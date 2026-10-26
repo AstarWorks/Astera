@@ -615,6 +615,8 @@ astera:
           crimson-chain-axe: "Crimson Chain-Axe"
           orrery-staff: "Orrery Staff"
           sigil-rifle: "Sigil Rifle"
+          heal-potion: "Healing Draught"
+          swift-powder: "Swift Powder"
       gui:
         spacer: " "
         price: "<gray>Price: <green>{amount}</green> {currency}</gray>"
@@ -628,6 +630,7 @@ astera:
           carrying: "<green>You are carrying it</green>"
           take_copy: "<yellow>Click to take another copy (free)</yellow>"
         owned: "<green>Owned <dark_gray>(bought once, yours for good)</dark_gray></green>"
+        recommended: "<light_purple>Recommended first buy</light_purple> <gray>- a staff to go with your gun and sword</gray>"
         page:
           prev: "<yellow>Previous page <gray>({page}/{pages})</gray></yellow>"
           next: "<yellow>Next page <gray>({page}/{pages})</gray></yellow>"
@@ -981,6 +984,9 @@ astera:
         assists: "Assists x{count}"
         objectives: "Objectives x{count}"
         mvp: "MVP bonus"
+      next:
+        affordable: "<green>You can afford</green> <white>{name}</white> <gray>({price} GOLD, you have {balance}).</gray> <gray>Buy it in the shop, then bring it to your next match.</gray>"
+        short: "<gray>Next unlock:</gray> <white>{name}</white> <gold>{price} GOLD</gold> <gray>({short} more; you have {balance}).</gray>"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — reconnect-window countdown
     # ActionBar shown while a disconnected participant is held in the seat.
     reconnect:
@@ -1720,6 +1726,9 @@ astera:
         market:
           title: "<gold><bold>MARKET</bold></gold>"
           subtitle: "<dark_gray>Shop & Vault</dark_gray>"
+        guild:
+          title: "<gold><bold>GUILD HALL</bold></gold>"
+          subtitle: "<dark_gray>Your base</dark_gray>"
       lane:
         hint: "<dark_gray>Step on the pad</dark_gray>"
         title: "<gold><bold>{lane}</bold></gold>"
@@ -1746,6 +1755,19 @@ astera:
         entry:
           title: "<aqua><bold>Practice Ground</bold></aqua>"
           hint: "<dark_gray>Dummies never die</dark_gray>"
+        guide:
+          title: "<gold><bold>Try all three</bold></gold>"
+          hint: "<dark_gray>Yellow gun, red sword, purple staff</dark_gray>"
+        bay:
+          gun:
+            title: "<yellow><bold>GUN</bold></yellow>"
+            hint: "<dark_gray>Shoot the lanes</dark_gray>"
+          sword:
+            title: "<red><bold>SWORD</bold></red>"
+            hint: "<dark_gray>Hit the dummies</dark_gray>"
+          staff:
+            title: "<light_purple><bold>STAFF</bold></light_purple>"
+            hint: "<dark_gray>Cast at the targets</dark_gray>"
     # F3-1 — queue lane pads: holograms above the pads, join confirmation.
     lane:
       board:
@@ -2162,6 +2184,8 @@ astera:
       name: "Reloading"
     dash:
       name: "Dashing"
+    swift:
+      name: "Hasted"
     shock:
       name: "Shocked"
     wet:
@@ -2383,12 +2407,12 @@ astera:
   tutorial.guide.hud.title: "Read your HUD"
   tutorial.guide.hud.subtitle: "Watch the food bar and skill icons for four seconds"
   tutorial.guide.hud.hint: "Food bar = energy, not hunger. Ammo icon = rounds; cooldown icons and the hotbar sweep show when skills are ready."
-  tutorial.guide.shop.title: "Visit the shop"
-  tutorial.guide.shop.subtitle: "Open the shop at the marked merchant"
-  tutorial.guide.shop.hint: "Put your weapon away. Use F → Shop, or right-click the marked shopkeeper. No purchase needed."
-  tutorial.guide.vault.title: "Your personal vault"
-  tutorial.guide.vault.subtitle: "Open your personal vault"
-  tutorial.guide.vault.hint: "Use sneak+F, or F → Vault. Stored items persist; no deposit needed."
+  tutorial.guide.staff.title: "Cast a spell"
+  tutorial.guide.staff.subtitle: "Take the Fire Staff and right-click"
+  tutorial.guide.staff.hint: "Right-click the Fire Staff frame on the rack, select it, then right-click to cast. Spells spend energy (the food bar)."
+  tutorial.guide.norma.title: "How to win"
+  tutorial.guide.norma.subtitle: "Clear Norma levels before the other team"
+  tutorial.guide.norma.hint: "Grab stars from generators and kills, hit each level's goal (shown on the sidebar), and reach the top Norma level first."
   tutorial.guide.queue.title: "Ready to play"
   tutorial.guide.queue.subtitle: "Go to the Play gate by the spawn"
   tutorial.guide.queue.hint: "Walk to the glowing Play gate next to the spawn and right-click the Play guide, then pick a mode. Q on the compass opens the same picker."
@@ -2455,12 +2479,13 @@ astera:
   lobby.npc.social.name: "Social Hub"
   gui.social-hub.title: "<gold>Social</gold>"
   gui.button.back: "Back"
+  gui.button.close: "Close"
   gui.main-menu.vault.tooltip: "<gray>Click to open your personal vault.</gray>"
   gui.main-menu.settings.tooltip: "<gray>Click for language, volume, controls, particles and privacy.</gray>"
   gui.main-menu.party.tooltip: "<gray>Click to manage your party.</gray>"
   gui.main-menu.friends.tooltip: "<gray>Click to see your friends and requests.</gray>"
   gui.main-menu.achievements.tooltip: "<gray>Click to see your achievements.</gray>"
-  gui.main-menu.quests.tooltip: "<gray>Click to see how to check daily bonus, missions and quests.</gray>"
+  gui.main-menu.quests.tooltip: "<gray>Click to open the daily bonus, missions and quests screen.</gray>"
   gui.main-menu.help.tooltip: "<gray>Click for the command cheat sheet and the tutorial.</gray>"
   gui.settings.volume.music.tooltip: "<gray>Click to step the music volume (100 / 75 / 50 / 25 / 0).</gray>"
   gui.settings.volume.sound.tooltip: "<gray>Click to step the sound-effect volume (100 / 75 / 50 / 25 / 0).</gray>"
@@ -2479,10 +2504,6 @@ astera:
   settings.value.particles.all: "everyone"
   settings.value.particles.team: "own team only"
   settings.value.particles.own: "only yours"
-  hint.progress.header: "<gold>Daily bonus, missions and quests</gold>"
-  hint.progress.daily: "<gray>/astera daily</gray> - collect today's login bonus and see your streak"
-  hint.progress.missions: "<gray>/astera missions</gray> - daily / weekly missions"
-  hint.progress.quests: "<gray>/astera quests</gray> - quest chains"
   hint.help.header: "<gold>Help</gold>"
   hint.help.commands: "<gray>/astera help</gray> - every command; <gray>/astera menu</gray>, <gray>/astera settings</gray>, <gray>/astera social</gray> open the screens"
   hint.help.tutorial: "<gray>/astera tutorial start</gray> - replay the tutorial"
@@ -2502,3 +2523,30 @@ astera:
   match_menu.help.norma: "<gray>Norma:</gray> your team clears Norma levels by reaching a star or kill goal; the first team to the top level wins."
   match_menu.help.stars: "<gray>Stars:</gray> a star is an item you carry inside the match. Bring them to your goal; if you are defeated or leave, they burst out for others to grab."
   match_menu.help.weapon-limit: "<gray>Weapon limit:</gray> you can only carry a limited number of weapons in a match; extras are set aside and returned afterwards."
+  presentation.sudden-death.title: "<red><bold>Final stretch!</bold></red>"
+  presentation.sudden-death.subtitle: "<yellow>The match ends soon - go for the win</yellow>"
+  presentation.match-found.title: "<green><bold>Match found!</bold></green>"
+  presentation.match-found.subtitle: "<gray>Get ready - the match is being prepared</gray>"
+  gui.settings.hp-line.tooltip: "<gray>Click to show or hide the HP / ammo status line. Off hides the whole line.</gray>"
+  gui.settings.damage-numbers.tooltip: "<gray>Click to show or hide the floating damage numbers when you hit someone.</gray>"
+  gui.settings.tutorial-hints.tooltip: "<gray>Click to show or hide the first-time guide's hints (the guide pauses while off).</gray>"
+  settings.toggle.hp-line: "<green>HP line: <gold>{value}</gold></green>"
+  settings.toggle.damage-numbers: "<green>Damage numbers: <gold>{value}</gold></green>"
+  settings.toggle.tutorial-hints: "<green>Tutorial hints: <gold>{value}</gold></green>"
+  progress.gui.title: "<gold>Daily and Quests</gold>"
+  progress.gui.daily.name: "<gold>Daily login bonus</gold>"
+  progress.gui.daily.status: "<gray>Streak:</gray> <white>{streak}</white> <gray>day(s), today pays day</gray> <white>{day}</white>"
+  progress.gui.daily.reward: "<gray>Today:</gray> <yellow>{amount} {currency}</yellow>"
+  progress.gui.daily.claim: "<green>Click to collect today's bonus</green>"
+  progress.gui.daily.claimed: "<green>Today's bonus is collected</green>"
+  progress.gui.daily.none: "<yellow>No bonus is configured for today</yellow>"
+  progress.gui.daily.tomorrow: "<gray>Tomorrow:</gray> <yellow>{amount} {currency}</yellow>"
+  progress.gui.missions.header: "<gold><bold>Missions</bold></gold>"
+  progress.gui.missions.none: "<gray>No missions are available</gray>"
+  progress.gui.mission.period: "<gray>[{period}]</gray>"
+  progress.gui.mission.progress: "<yellow>{current}/{required}</yellow>"
+  progress.gui.mission.done: "<green>Done</green>"
+  progress.gui.quests.header: "<gold><bold>Quests</bold></gold>"
+  progress.gui.quests.none: "<gray>No quests yet. They start when you join</gray>"
+  progress.gui.quest.progress: "<yellow>{current}/{required}</yellow>"
+  progress.gui.quest.complete: "<green>Complete</green>"

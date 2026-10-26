@@ -1,0 +1,7 @@
+# UI-03 (docs/vision/areas/ui-access.md) - settings tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-hud-hp
+material: GOLDEN_APPLE
+name:
+  ja: "<gold>HPバー</gold>"
+  en: "<gold>HP line</gold>"

@@ -6,6 +6,7 @@ import com.astarworks.astera.combat.domain.armor.ArmorId
 import com.astarworks.astera.combat.domain.armor.ArmorSet
 import com.astarworks.astera.combat.domain.armor.ArmorSetKey
 import com.astarworks.astera.combat.domain.armor.ArmorSpec
+import com.astarworks.astera.core.application.contents.EmptyReloadGuard
 import com.astarworks.astera.core.application.contents.ReloadableContents
 import com.astarworks.astera.core.application.port.outbound.IContentParser
 import com.astarworks.astera.core.application.service.ContentLoader
@@ -168,10 +169,11 @@ public class ArmorContents(
                 }
             }
         }
-        if (report.failed == 0) {
-            piecesStore.set(nextPieces.toMap())
-            setsStore.set(nextSets.toMap())
-        }
+        if (report.failed != 0) return report
+        val oldSize = piecesStore.get().size + setsStore.get().size
+        EmptyReloadGuard.check(categoryName, dir, nextPieces.size + nextSets.size, oldSize)?.let { return it }
+        piecesStore.set(nextPieces.toMap())
+        setsStore.set(nextSets.toMap())
         return report
     }
 }

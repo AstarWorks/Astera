@@ -1,0 +1,7 @@
+# Sound cue (ADR-0267). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
+# the event is generated into assets/astera/sounds.json by :tools:resource-pack from this id + weapons/dash-whoosh.ogg.
+id: "astera:weapons/dash-whoosh"
+resource_key: "astera:weapons/dash-whoosh"
+default_volume: 0.8
+default_pitch: 1.0
+category: weapons

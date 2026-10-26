@@ -1,0 +1,7 @@
+# Sound cue (ADR-0267). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
+# the event is generated into assets/astera/sounds.json by :tools:resource-pack from this id + weapons/blade-miss.ogg.
+id: "astera:weapons/blade-miss"
+resource_key: "astera:weapons/blade-miss"
+default_volume: 0.6
+default_pitch: 1.0
+category: weapons

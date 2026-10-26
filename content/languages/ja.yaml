@@ -623,6 +623,8 @@ astera:
           crimson-chain-axe: "緋の鎖斧"
           orrery-staff: "天球儀の杖"
           sigil-rifle: "刻印の狙撃銃"
+          heal-potion: "回復薬"
+          swift-powder: "疾風の粉"
       gui:
         spacer: " "
         price: "<gray>価格: <green>{amount}</green> {currency}</gray>"
@@ -635,6 +637,7 @@ astera:
           sold_out: "<dark_red>売り切れ</dark_red>"
           carrying: "<green>所持中です</green>"
           take_copy: "<yellow>クリックでもう1本受け取る（無料）</yellow>"
+        recommended: "<light_purple>最初のおすすめ</light_purple> <gray>- 銃と剣に杖を加えよう</gray>"
         owned: "<green>購入済み <dark_gray>(一度買えば永久にあなたのもの)</dark_gray></green>"
         page:
           prev: "<yellow>前のページ <gray>({page}/{pages})</gray></yellow>"
@@ -988,6 +991,9 @@ astera:
         assists: "アシスト x{count}"
         objectives: "目標 x{count}"
         mvp: "MVP ボーナス"
+      next:
+        affordable: "<green>購入できます:</green> <white>{name}</white> <gray>({price} GOLD、所持 {balance})。</gray> <gray>ショップで買って次の試合に持ち込もう。</gray>"
+        short: "<gray>次の解放:</gray> <white>{name}</white> <gold>{price} GOLD</gold> <gray>(あと {short}、所持 {balance})。</gray>"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — 切断保留中の再接続猶予
     # ActionBar カウントダウン。
     reconnect:
@@ -1715,6 +1721,9 @@ astera:
         market:
           title: "<gold><bold>マーケット</bold></gold>"
           subtitle: "<dark_gray>ショップ・金庫</dark_gray>"
+        guild:
+          title: "<gold><bold>ギルドホール</bold></gold>"
+          subtitle: "<dark_gray>拠点</dark_gray>"
       lane:
         hint: "<dark_gray>床の上に立つ</dark_gray>"
         title: "<gold><bold>{lane}</bold></gold>"
@@ -1741,6 +1750,19 @@ astera:
         entry:
           title: "<aqua><bold>練習場</bold></aqua>"
           hint: "<dark_gray>的は倒れません</dark_gray>"
+        guide:
+          title: "<gold><bold>3種類を試そう</bold></gold>"
+          hint: "<dark_gray>黄=銃 赤=剣 紫=杖</dark_gray>"
+        bay:
+          gun:
+            title: "<yellow><bold>銃</bold></yellow>"
+            hint: "<dark_gray>レーンを撃とう</dark_gray>"
+          sword:
+            title: "<red><bold>剣</bold></red>"
+            hint: "<dark_gray>ダミーを斬ろう</dark_gray>"
+          staff:
+            title: "<light_purple><bold>杖</bold></light_purple>"
+            hint: "<dark_gray>的に魔法を撃とう</dark_gray>"
     # F3-1 — キューのレーン床: 床の上のホログラムと参加の確認表示。
     lane:
       board:
@@ -2150,6 +2172,8 @@ astera:
       name: "リロード中"
     dash:
       name: "ダッシュ"
+    swift:
+      name: "疾風"
     shock:
       name: "感電"
     wet:
@@ -2371,12 +2395,12 @@ astera:
   tutorial.guide.hud.title: "HUDの読み方"
   tutorial.guide.hud.subtitle: "満腹度バーとアイコンを4秒見よう"
   tutorial.guide.hud.hint: "満腹度バー＝エネルギー。弾薬アイコン＝残弾。クールダウンアイコンとホットバーの表示で再使用までの時間がわかる。"
-  tutorial.guide.shop.title: "ショップへ"
-  tutorial.guide.shop.subtitle: "マーカーの商人からショップを開こう"
-  tutorial.guide.shop.hint: "武器をしまい、F → ショップ、または商人を右クリック。購入は不要。"
-  tutorial.guide.vault.title: "個人倉庫"
-  tutorial.guide.vault.subtitle: "個人倉庫を開こう"
-  tutorial.guide.vault.hint: "スニーク＋F、または F → 金庫。保管物は保存される。預け入れは不要。"
+  tutorial.guide.staff.title: "魔法を撃つ"
+  tutorial.guide.staff.subtitle: "ファイアスタッフを取って右クリック"
+  tutorial.guide.staff.hint: "ラックのファイアスタッフを右クリックして取り、手に持って右クリックで発動。魔法はエネルギー（満腹度バー）を使う。"
+  tutorial.guide.norma.title: "勝ち方"
+  tutorial.guide.norma.subtitle: "相手より先にノルマを進めよう"
+  tutorial.guide.norma.hint: "ジェネレーターや撃破でスターを集め、サイドバーに出る各レベルの目標を達成し、先に最上位のノルマに到達する。"
   tutorial.guide.queue.title: "対戦の準備完了"
   tutorial.guide.queue.subtitle: "スポーン横のプレイゲートへ"
   tutorial.guide.queue.hint: "スポーンの隣で光るプレイゲートへ歩き、案内人を右クリックしてモードを選ぶ。コンパスでQを押しても同じ選択画面が開く。"
@@ -2443,12 +2467,13 @@ astera:
   lobby.npc.social.name: "ソーシャル"
   gui.social-hub.title: "<gold>ソーシャル</gold>"
   gui.button.back: "戻る"
+  gui.button.close: "閉じる"
   gui.main-menu.vault.tooltip: "<gray>クリックで個人金庫を開く。</gray>"
   gui.main-menu.settings.tooltip: "<gray>クリックで言語・音量・操作・パーティクル・公開設定。</gray>"
   gui.main-menu.party.tooltip: "<gray>クリックでパーティを管理。</gray>"
   gui.main-menu.friends.tooltip: "<gray>クリックでフレンドと申請を見る。</gray>"
   gui.main-menu.achievements.tooltip: "<gray>クリックで実績を見る。</gray>"
-  gui.main-menu.quests.tooltip: "<gray>クリックでデイリー・ミッション・クエストの確認方法を表示。</gray>"
+  gui.main-menu.quests.tooltip: "<gray>クリックでデイリー・ミッション・クエスト画面を開く。</gray>"
   gui.main-menu.help.tooltip: "<gray>クリックでコマンド早見表とチュートリアルを表示。</gray>"
   gui.settings.volume.music.tooltip: "<gray>クリックで音楽の音量を段階的に変更 (100 / 75 / 50 / 25 / 0)。</gray>"
   gui.settings.volume.sound.tooltip: "<gray>クリックで効果音の音量を段階的に変更 (100 / 75 / 50 / 25 / 0)。</gray>"
@@ -2467,10 +2492,6 @@ astera:
   settings.value.particles.all: "全員"
   settings.value.particles.team: "自チームのみ"
   settings.value.particles.own: "自分のみ"
-  hint.progress.header: "<gold>デイリー・ミッション・クエスト</gold>"
-  hint.progress.daily: "<gray>/astera daily</gray> - 今日のログインボーナスを受け取り、連続日数を確認"
-  hint.progress.missions: "<gray>/astera missions</gray> - デイリー / ウィークリーミッション"
-  hint.progress.quests: "<gray>/astera quests</gray> - クエストチェーン"
   hint.help.header: "<gold>ヘルプ</gold>"
   hint.help.commands: "<gray>/astera help</gray> - コマンド一覧。<gray>/astera menu</gray>・<gray>/astera settings</gray>・<gray>/astera social</gray> で各画面を開く"
   hint.help.tutorial: "<gray>/astera tutorial start</gray> - チュートリアルをやり直す"
@@ -2490,3 +2511,30 @@ astera:
   match_menu.help.norma: "<gray>ノルマ:</gray> チームでスター目標かキル目標を達成してノルマレベルを上げ、先に最上位に届いたチームの勝ち。"
   match_menu.help.stars: "<gray>スター:</gray> 試合中だけ持てるアイテム。目標まで運ぶ。倒されたり抜けたりすると弾け飛び、他のプレイヤーが拾える。"
   match_menu.help.weapon-limit: "<gray>武器制限:</gray> 試合中に持てる武器の数には上限があり、超えた分は預かられて試合後に戻る。"
+  presentation.sudden-death.title: "<red><bold>ラストスパート！</bold></red>"
+  presentation.sudden-death.subtitle: "<yellow>まもなく決着 - 勝ちに行け</yellow>"
+  presentation.match-found.title: "<green><bold>マッチ成立！</bold></green>"
+  presentation.match-found.subtitle: "<gray>まもなく試合が始まります</gray>"
+  gui.settings.hp-line.tooltip: "<gray>クリックで HP・弾薬の表示バーの表示 / 非表示を切替 (OFF で全体が消えます)。</gray>"
+  gui.settings.damage-numbers.tooltip: "<gray>クリックで攻撃が当たったときのダメージ数字の表示 / 非表示を切替。</gray>"
+  gui.settings.tutorial-hints.tooltip: "<gray>クリックで初回ガイドのヒントの表示 / 非表示を切替 (OFF の間ガイドは一時停止)。</gray>"
+  settings.toggle.hp-line: "<green>HPバー: <gold>{value}</gold></green>"
+  settings.toggle.damage-numbers: "<green>ダメージ数字: <gold>{value}</gold></green>"
+  settings.toggle.tutorial-hints: "<green>チュートリアルのヒント: <gold>{value}</gold></green>"
+  progress.gui.title: "<gold>デイリー・クエスト</gold>"
+  progress.gui.daily.name: "<gold>デイリーログインボーナス</gold>"
+  progress.gui.daily.status: "<gray>連続ログイン:</gray> <white>{streak}</white> <gray>日 / 今日は</gray> <white>{day}</white> <gray>日目の報酬</gray>"
+  progress.gui.daily.reward: "<gray>今日:</gray> <yellow>{amount} {currency}</yellow>"
+  progress.gui.daily.claim: "<green>クリックで今日のボーナスを受け取る</green>"
+  progress.gui.daily.claimed: "<green>今日のボーナスは受け取り済み</green>"
+  progress.gui.daily.none: "<yellow>今日のボーナスは設定されていません</yellow>"
+  progress.gui.daily.tomorrow: "<gray>明日:</gray> <yellow>{amount} {currency}</yellow>"
+  progress.gui.missions.header: "<gold><bold>ミッション</bold></gold>"
+  progress.gui.missions.none: "<gray>ミッションはありません</gray>"
+  progress.gui.mission.period: "<gray>[{period}]</gray>"
+  progress.gui.mission.progress: "<yellow>{current}/{required}</yellow>"
+  progress.gui.mission.done: "<green>達成</green>"
+  progress.gui.quests.header: "<gold><bold>クエスト</bold></gold>"
+  progress.gui.quests.none: "<gray>クエストはまだありません (参加時に開始されます)</gray>"
+  progress.gui.quest.progress: "<yellow>{current}/{required}</yellow>"
+  progress.gui.quest.complete: "<green>クリア</green>"

@@ -33,7 +33,7 @@ phases:
       strength: { type: literal, value: 0.35 }
     - type: play_sound
       targets: { type: caster }
-      sound_id: entity.player.attack.knockback
+      sound_id: astera:weapons/dash-whoosh
     - type: spawn_particle
       targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
       particle_id: dash-cloud
