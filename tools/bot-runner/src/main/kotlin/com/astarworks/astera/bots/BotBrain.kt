@@ -80,6 +80,13 @@ class BotBrain(
 
     /** Counters for reports and tests. */
     val swings = AtomicInteger()
+    /** Healing potions drunk (right-click on the consumable slot while retreating at low HP). */
+    val drinks = AtomicInteger()
+    /** Health at the last drink and the highest health seen in the 3 s after it; lets a test assert that drinking healed. */
+    @Volatile var lastDrinkHp = Float.NaN
+    @Volatile var peakHpAfterDrink = Float.NaN
+    private var healSlot = -1
+    private var lastDrinkAt = 0L
     val shots = AtomicInteger()
     val reloads = AtomicInteger()
     val ticksWithEnemy = AtomicInteger()
@@ -164,7 +171,7 @@ class BotBrain(
     /** What the brain was doing every ~2.5 s of the fight (decision kind, status, position): for stall diagnosis in reports. */
     fun traceText(): String = trace.joinToString(" ; ")
 
-    fun summary(): String = "swings=${swings.get()} shots=${shots.get()} reloads=${reloads.get()} enemyTicks=${ticksWithEnemy.get()} edgeBlocks=${blockedByEdge.get()} stars=${starsCollected.get()} falls=${edgeFalls.get()} sight=${firstSightMs}ms attack=${firstAttackMs}ms searches=${nav.searches.get()} stuckReplans=${nav.stuckReplans.get()} maxSearchUs=${nav.maxSearchMicros} avgNodes=${nav.expandedTotal.get() / nav.searches.get().coerceAtLeast(1)} goal=${objective?.name}/$goal loadout=$loadout"
+    fun summary(): String = "swings=${swings.get()} drinks=${drinks.get()} shots=${shots.get()} reloads=${reloads.get()} enemyTicks=${ticksWithEnemy.get()} edgeBlocks=${blockedByEdge.get()} stars=${starsCollected.get()} falls=${edgeFalls.get()} sight=${firstSightMs}ms attack=${firstAttackMs}ms searches=${nav.searches.get()} stuckReplans=${nav.stuckReplans.get()} maxSearchUs=${nav.maxSearchMicros} avgNodes=${nav.expandedTotal.get() / nav.searches.get().coerceAtLeast(1)} goal=${objective?.name}/$goal loadout=$loadout"
 
     // --- the tick ------------------------------------------------------------------------------------------------
 
@@ -212,6 +219,7 @@ class BotBrain(
         val enemy = nearestEnemy()
         trackStars(now)
         updateRetreat(enemy, now)
+        tryDrinkPotion(now)
         if (chooseNormaGoal) updateGoal(enemy, now)
         var yaw = bot.yawDeg
         var pitch = bot.pitchDeg
@@ -453,6 +461,21 @@ class BotBrain(
         else if (fellRecently && bot.y > highY - 4) fellRecently = false
     }
 
+    /** Retreating at RETREAT_HP or lower with a consumable heal in the hotbar: select it and right-click (the skill has a 5 s cooldown). */
+    private fun tryDrinkPotion(now: Long) {
+        if (lastDrinkAt > 0 && now - lastDrinkAt < 3_000) peakHpAfterDrink = maxOf(peakHpAfterDrink.takeUnless { it.isNaN() } ?: 0f, bot.health)
+        val hp = bot.health
+        if (healSlot < 0 || !retreating || hp <= 0f || hp > RETREAT_HP || now - lastDrinkAt < 5_500) return
+        if (bot.hotbar()[healSlot] == -1) { healSlot = -1; return }
+        bot.selectHotbar(healSlot)
+        lastSwitchAt = now
+        bot.useItem(bot.yawDeg, bot.pitchDeg)
+        lastDrinkAt = now
+        lastDrinkHp = hp
+        peakHpAfterDrink = hp
+        drinks.incrementAndGet()
+    }
+
     private fun updateRetreat(enemy: EntityView?, now: Long) {
         val hp = bot.health
         val enemyNear = enemy != null && hypot(enemy.x - bot.x, enemy.z - bot.z) < 14.0
@@ -607,9 +630,11 @@ class BotBrain(
         lastLoadoutSignature = signature
         val found = ArrayList<Weapon>()
         val kindByItem = HashMap<Int, Weapon>()
+        healSlot = -1
         for (slot in 0..7) {
             val item = hotbar[slot]
             if (item == -1) continue
+            if (HEAL_LORE.containsMatchIn(bot.hotbarLore(slot).lowercase())) { healSlot = slot; continue }
             val known = kindByItem[item]
             if (known != null) { found += known.copy(slot = slot); continue }
             val lore = bot.hotbarLore(slot)
@@ -664,6 +689,7 @@ class BotBrain(
         const val GEN_COOLDOWN_MS = 12_000L
         const val GEN_DWELL_MS = 1_500L
         const val FALL_DEPTH = 12.0
+        val HEAL_LORE = Regex("single use|使い切り")
         const val RETREAT_HP = 6f
         const val RECOVER_HP = 12f
         val AMMO = Regex("Ammo\\D*(\\d+)\\s*/\\s*(\\d+)")
