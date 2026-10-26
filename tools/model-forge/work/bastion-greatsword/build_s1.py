@@ -20,7 +20,7 @@ YBLADE = 5.86        # local y where the ricasso starts
 OFF = -10.0          # model y = local y + OFF
 MAT = {
  'steel':'metal.iron_block', 'edge':'stone.smooth_quartz', 'rim':'stone.polished_blackstone',
- 'guard':'stone.polished_deepslate', 'gold':'metal.gold_block', 'ridge':'stone.polished_deepslate',
+ 'guard':'stone.polished_deepslate', 'gold':'metal.gold_block', 'ridge':'stone.smooth_stone',
  'inlay':'concrete.lime_concrete', 'grip':'cloth.black_wool', 'wrap':'leather.dried_kelp_block',
 }
 els = []
@@ -92,7 +92,6 @@ def build():
     both('fuller_end', 'ridge', -0.12, 0.12, 33.4, 34.4, 0.40, 0.45)
     for s in (-1, 1):
         both(f'fuller_hi_{s}', 'edge', *sorted((s*0.22, s*0.4)), 12.4, 33.4, 0.40, 0.45)
-        both(f'pinstripe_{s}', 'rim', *sorted((s*0.9, s*1.04)), 12.0, 34.0, 0.40, 0.44)
         for k in range(7):  # etched dashes between ridge and pinstripe
             y = 13.0+k*3.1
             both(f'dash_{s}_{k}', 'gold', *sorted((s*0.55, s*0.7)), y, y+0.9, 0.40, 0.43)
