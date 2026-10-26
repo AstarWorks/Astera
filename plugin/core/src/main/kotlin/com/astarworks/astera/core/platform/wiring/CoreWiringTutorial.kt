@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.config.LobbyNpcYamlConfig
 import com.astarworks.astera.core.application.port.outbound.*
 import com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange
@@ -30,7 +31,8 @@ internal fun CoreWiringState.wireTutorialGuide() {
         landmark = { action -> when (action) {
             "menu" -> Vec3(lobby.spawn.x, lobby.spawn.y, lobby.spawn.z)
             "shop" -> npc("lobby.shop.open")
-            "vault" -> npc("lobby.customize.show")
+            // The vault counter is scenery opposite the Market hub; the marker points at the Market NPC.
+            "vault" -> npc("lobby.shop.open")
             // ADR-0248: the marker points at the Play gate in front of the spawn, not at a far lane pad.
             "queue" -> npcById("play-npc") ?: services.get<LobbyLanePadService>()?.pads()?.values?.firstOrNull()
             else -> null
@@ -67,7 +69,7 @@ internal fun CoreWiringState.wireTutorialGuide() {
     ctx.subscriptions += eventBus.subscribe(MatchQueueJoined::class) {
         tutorialSequencer.recordAction(it.playerId, "queue")
     }
-    val task = scheduler.runRepeatingTicks(10, 10) { guide.tick() }
+    val task = scheduler.runRepeatingTicks(ExecutionScope.Global, 10, 10) { guide.tick() }
     shutdownHooks += { task.cancel(); guide.close() }
 }
 

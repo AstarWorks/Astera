@@ -1,4 +1,4 @@
-"""Mark a held weapon model for the weapon shading rule of ADR-0253.
+"""Mark a held weapon model for the weapon shading rule of ADR-0275.
 
 Every face gets tintindex 0 and the model gets `astera_tints: [0xFEFEFE]`; the pack builder turns that into a
 `minecraft:constant` tint, so the item reaches the patched core/item.vsh with vertex colour (254, 254, 254), which

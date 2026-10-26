@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
 import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
@@ -185,7 +187,7 @@ internal class WorldMechanics(
         val token = ++nextToken
         entry.token = token
         change()
-        scheduler.runLaterTicks(revertAfter) {
+        scheduler.runLaterTicks(regionScope(world, cell), revertAfter) {
             if (editedBlocks[key]?.token == token) restore(key, cell)
         }
     }
@@ -215,7 +217,7 @@ internal class WorldMechanics(
         for (at in targeters.resolveLocations(m.targets, ctx).take(MAX_DISPLAYS_PER_CAST)) {
             val handle = gateway.spawn(world, at, m.display, lines) ?: continue
             liveDisplays += handle
-            scheduler.runLaterTicks(m.display.lifetimeTicks) {
+            scheduler.runLaterTicks(regionScope(world, at), m.display.lifetimeTicks) {
                 if (liveDisplays.remove(handle)) gateway.remove(handle)
             }
         }
@@ -242,7 +244,7 @@ internal class WorldMechanics(
                         return
                     }
                 summonRegistry.register(id, ctx.actorId)
-                scheduler.runLaterTicks(lifetime) {
+                scheduler.runLaterTicks(ExecutionScope.Entity(id.uuid), lifetime) {
                     if (summonRegistry.isSummon(id)) {
                         summonRegistry.forget(id)
                         gateway.despawn(id)
@@ -286,7 +288,7 @@ internal class WorldMechanics(
             val until = scheduler.currentTick() + duration
             glowUntil[target] = until
             // A later glow on the same target pushes the end out; only the last one switches it off.
-            scheduler.runLaterTicks(duration) {
+            scheduler.runLaterTicks(ExecutionScope.Entity(target.uuid), duration) {
                 if ((glowUntil[target] ?: 0L) <= scheduler.currentTick()) {
                     glowUntil.remove(target)
                     gateway.setGlowing(target, false)
@@ -315,8 +317,8 @@ internal class WorldMechanics(
         var offset = 0
         while (offset < duration) {
             val strength = intensity * (1.0 - offset.toDouble() / duration)
-            val kick = { targets.forEach { out.cameraKick(it, strength) } }
-            if (offset == 0) kick() else scheduler.runLaterTicks(offset.toLong()) { kick() }
+            val kick = { targets.forEach { target -> scheduler.run(ExecutionScope.Entity(target.uuid), kotlin.time.Duration.ZERO) { out.cameraKick(target, strength) } } }
+            if (offset == 0) kick() else scheduler.runLaterTicks(ExecutionScope.Global, offset.toLong()) { kick() }
             offset += SHAKE_PULSE_TICKS
         }
     }

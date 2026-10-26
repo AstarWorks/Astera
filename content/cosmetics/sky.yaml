@@ -1,0 +1,6 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.name_color.sky. Sold in the cosmetics menu.
+id: sky
+kind: name_color
+name_key: astera.cosmetic.name_color.sky
+price_gold: 200
+value: "aqua"

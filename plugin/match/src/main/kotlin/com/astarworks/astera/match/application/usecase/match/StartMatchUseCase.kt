@@ -51,6 +51,7 @@ public class StartMatchUseCase(
     private val matches: IMatchRepository,
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
+    private val arenas: com.astarworks.astera.core.application.port.outbound.IArenaBuilder = com.astarworks.astera.core.application.service.NoopArenaBuilder(),
 ) {
 
     public fun execute(
@@ -58,13 +59,12 @@ public class StartMatchUseCase(
         modeKey: String? = null,
         teamIds: List<TeamId>? = null,
     ): Result<MatchId, StartMatchError> {
-        val stage = stages.find(stageId)
+        val template = stages.find(stageId)
             ?: return Result.failure(StartMatchError.StageNotFound(stageId))
 
-        val activeForStage = matches.findActiveMatches()
-            .any { it.stageId == stageId }
-        if (activeForStage) {
-            return Result.failure(StartMatchError.AlreadyActive(stageId))
+        val stage = when (val allocated = arenas.acquire(template)) {
+            is Result.Success -> allocated.value
+            is Result.Failure -> return Result.failure(StartMatchError.ArenaUnavailable(stageId, allocated.error))
         }
 
         val resolvedTeamIds: List<TeamId> = teamIds
@@ -107,7 +107,7 @@ public class StartMatchUseCase(
         eventBus.publish(
             MatchStarted(
                 matchId = matchId,
-                stageId = stageId,
+                stageId = stage.id,
                 atTick = currentTick,
                 modeKey = modeKey,
             ),
@@ -143,6 +143,10 @@ public sealed class StartMatchError {
 
     public data class AlreadyActive(val stageId: StageId) : StartMatchError() {
         override val messageKey: MessageKey = MessageKey("astera.match.error.already-active")
+    }
+
+    public data class ArenaUnavailable(val stageId: StageId, val reason: com.astarworks.astera.core.application.port.outbound.ArenaAllocationError) : StartMatchError() {
+        override val messageKey: MessageKey = MessageKey("astera.match.error.arena-not-ready")
     }
 
     public data class TransitionFailed(val cause: MatchTransitionError) : StartMatchError() {

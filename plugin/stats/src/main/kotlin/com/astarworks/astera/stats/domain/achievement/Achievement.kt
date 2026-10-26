@@ -22,4 +22,7 @@ public data class Achievement(
     val nameKey: MessageKey,
     val descriptionKey: MessageKey,
     val iconItemId: String,
+    val rewardGold: Long = 0,
+    /** Cosmetic title id granted on unlock (ECO-02). */
+    val rewardTitle: String? = null,
 )

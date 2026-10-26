@@ -23,3 +23,16 @@ gh run download <run-id> -n e2e-report     # or -n skill-frames / astera-plugin-
 ```
 
 If `gh` reports a repo access error, retry with `ASTERA_GH_IDENTITY=human gh ...`.
+
+## e2e harness resilience (OPS-10)
+
+`scripts/e2e.sh` cleans up after itself and checks the host before booting:
+
+- **Leaks.** This checkout's `astera-e2e-<id>` project is removed at start and by an exit trap (also on
+  SIGINT/SIGTERM); `E2E_KEEP=1` skips the exit teardown. Other `astera-e2e-*` projects are reaped only when
+  older than `E2E_STALE_HOURS` (default 3) and no live run owns them (stamp file with pid+host in
+  `E2E_STAMP_DIR`, default `/tmp/claude-<uid>/astera-e2e-runs`). `astera-dev-*` is never touched.
+  `E2E_REAP=0` disables the reaper.
+- **Load.** Before booting, waits while `load1 > E2E_LOAD_FACTOR (2) x nproc`, up to `E2E_LOAD_WAIT_SECS`
+  (900), then boots with a warning. `build/e2e-report.md` ends with a "Host load" section (1/5/15m load at
+  start and end, overload flags); discard timing failures from runs flagged OVERLOADED.

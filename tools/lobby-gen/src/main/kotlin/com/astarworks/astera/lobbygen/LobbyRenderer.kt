@@ -119,7 +119,7 @@ object LobbyRenderer {
     private fun shaded(c: Color, f: Double): Color =
         Color((c.red * f).toInt().coerceIn(0, 255), (c.green * f).toInt().coerceIn(0, 255), (c.blue * f).toInt().coerceIn(0, 255))
 
-    private fun colorOf(state: String): Color {
+    fun colorOf(state: String): Color {
         val name = state.substringAfter(':').substringBefore('[')
         PALETTE[name]?.let { return Color(it) }
         return when {
@@ -145,7 +145,12 @@ object LobbyRenderer {
     }
 
     private val PALETTE: Map<String, Int> = mapOf(
-        "grass_block" to 0x5da83c, "dirt" to 0x866043, "coarse_dirt" to 0x77553b, "dirt_path" to 0xa0804a,
+        "snow_block" to 0xe6f1ff, "packed_ice" to 0x90b9ed, "deepslate" to 0x45454e,
+        "deepslate_bricks" to 0x51515a, "basalt" to 0x55545b, "blackstone" to 0x302b35,
+        "polished_blackstone_bricks" to 0x39313f, "sandstone" to 0xd8c58c, "smooth_sandstone" to 0xe0ce96,
+        "cut_sandstone" to 0xd4c18a, "terracotta" to 0x98634d, "glowstone" to 0xe9ce82,
+        "crimson_planks" to 0x71374e, "crimson_stem" to 0x572536, "nether_wart_block" to 0x991d2d,
+        "shroomlight" to 0xf5aa5c, "grass_block" to 0x5da83c, "dirt" to 0x866043, "coarse_dirt" to 0x77553b, "dirt_path" to 0xa0804a,
         "stone" to 0x7d7d7d, "andesite" to 0x888888, "tuff" to 0x6b6b60, "calcite" to 0xdcdcd6,
         "moss_block" to 0x59702b, "amethyst_block" to 0x8a5fd0, "water" to 0x3a6fd8,
         "stone_bricks" to 0x7a7a78, "polished_andesite" to 0x929292, "smooth_stone" to 0xa8a8a8,

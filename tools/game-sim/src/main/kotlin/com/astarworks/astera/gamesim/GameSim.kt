@@ -95,7 +95,7 @@ public class GameSim private constructor(
     /** Native hotbar cooldown sweeps the item side asked for (ADR-0197). */
     public val sweeps: SimItemCooldownSweep = SimItemCooldownSweep { scheduler.currentTick() }
 
-    /** The presentation lease service (ADR-0254) and its per-viewer client model. */
+    /** The presentation lease service (ADR-0276) and its per-viewer client model. */
     public val presentation: com.astarworks.astera.core.application.service.presentation.InMemoryPlayerPresentation by lazy {
         services.getOrThrow<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>()
             as com.astarworks.astera.core.application.service.presentation.InMemoryPlayerPresentation
@@ -132,6 +132,16 @@ public class GameSim private constructor(
         private set
     /** Spectator-mode recorder behind the `ISpectator` port (death cam / eliminated teams). */
     public val spectator: SimSpectator = SimSpectator()
+
+    /** Star drops lying in the simulated world; collected by [SimStarDropWorld.pickupSweep] like a vanilla item pickup. */
+    public val starDrops: SimStarDropWorld = SimStarDropWorld()
+
+    /** Every per-viewer sound the game plays (ADR-0267 cues resolve to these), in order. */
+    public val playerSounds: com.astarworks.astera.testfixtures.effect.FakePlayerSoundGateway =
+        com.astarworks.astera.testfixtures.effect.FakePlayerSoundGateway()
+
+    /** Everything the Norma level-up / goal-picker presentation would have shown. */
+    public val normaPresentation: SimNormaPresentation = SimNormaPresentation()
     public lateinit var stats: StatsWiringResult
         private set
     public lateinit var economy: EconomyWiringResult
@@ -223,8 +233,9 @@ public class GameSim private constructor(
      */
     public fun detachPlayer(id: PlayerId): SimEntity? {
         val entity = world.find(id) ?: return null
-        world.remove(id)
+        // Like Bukkit's PlayerQuitEvent, the quit is announced while the player is still in the world.
         eventBus.publish(com.astarworks.astera.core.domain.event.PlayerQuitServer(playerId = id))
+        world.remove(id)
         handoff?.onQuit(id)
         inventory?.clear(id)
         return entity
@@ -400,6 +411,7 @@ public class GameSim private constructor(
         }
         repeat(ticks) {
             scheduler.advanceTicks(1)
+            starDrops.pickupSweep(scheduler.currentTick(), world.entities)
             recorder.snapshot(scheduler.currentTick(), world.entities, ::hpOf, projectiles.snapshots())
         }
     }
@@ -526,13 +538,14 @@ public class GameSim private constructor(
                 scheduler = scheduler,
                 broadcaster = broadcaster,
                 guiAdapter = GuiAdapterFactory { _, _, _ -> FakeGuiAdapter() },
-                // ADR-0254: the headless lease service with a per-viewer model of what each client was sent.
+                // ADR-0276: the headless lease service with a per-viewer model of what each client was sent.
                 playerPresentation = {
                     com.astarworks.astera.core.application.service.presentation.InMemoryPlayerPresentation(
                         viewers = { world.entities.filter { it.kind == SimEntityKind.PLAYER }.map { it.id } },
                     )
                 },
                 worldGateway = { worldGateway },
+                playerSoundGateway = sim.playerSounds,
                 proxyMessenger = proxy?.let { messenger -> { _ -> messenger } },
             )
             val coreCtx = context()
@@ -569,7 +582,11 @@ public class GameSim private constructor(
                 context(),
                 ItemsPlatformPorts(
                     itemDelivery = { sim.itemDelivery },
-                    itemIdResolver = SimItemIdResolver(world) { id -> mcServer.view(id)?.givenItems.orEmpty() },
+                    itemIdResolver = SimItemIdResolver(
+                        world,
+                        inventory = { id -> mcServer.view(id)?.givenItems.orEmpty() },
+                        remove = { id, item -> mcServer.view(id)?.givenItems?.remove(item) == true },
+                    ),
                     trainingRack = { sim.trainingRack },
                     trainingInventory = { SimTrainingInventory(sim.itemDelivery) },
                     itemCooldownSweep = sim.sweeps,
@@ -615,6 +632,12 @@ public class GameSim private constructor(
             if (statusContainer.isInitialized()) statusContainer.value.start()
             val killResolver = VanillaKillResolver(
                 com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() },
+                recentAttacker = { victim, atTick ->
+                    services.get<com.astarworks.astera.combat.application.port.outbound.IDamageHistoryService>()
+                        ?.entries(victim)
+                        ?.lastOrNull { it.at >= atTick - VanillaKillResolver.VOID_ATTRIBUTION_TICKS }
+                        ?.attackerId
+                },
             )
             val bus = services.getOrThrow<IDomainEventBus>()
             contexts.last().subscriptions += bus.subscribe(PlayerHealthChanged::class) { change ->
@@ -623,7 +646,7 @@ public class GameSim private constructor(
 
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
-            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }))
+            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, normaPresentation = { sim.normaPresentation }))
             sim.stats = StatsWiring.install(context(), StatsPlatformPorts())
             sim.economy = EconomyWiring.install(context(), EconomyPlatformPorts())
 

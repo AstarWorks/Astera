@@ -1,0 +1,7 @@
+# UI-01..UI-05 (docs/game-design/access-map.md) - tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-controls
+material: LEVER
+name:
+  ja: "<gold>操作方式</gold>"
+  en: "<gold>Controls</gold>"

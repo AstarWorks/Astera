@@ -1,12 +1,14 @@
+# BGM track (ADR-0267): a vanilla sound event, no resource pack needed. Replace the source with
+# an astera: OGG event (CC0 or ffmpeg-synthesised) when real music exists.
 id: match-default
 display_name: "Match Default"
 source:
-  kind: resource_pack
-  path: "astera:music/match-default"
+  kind: vanilla
+  key: "minecraft:music_disc.stal"
 license:
   kind: royalty_free
-  attribution: "Astera Phase 1 placeholder (CC0)"
+  attribution: "Vanilla Minecraft sound event (client-provided, not redistributed by Astera)"
 mood: match
 default_volume: 0.7
 loop: true
-duration_ticks: 4800
+duration_ticks: 3000

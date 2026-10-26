@@ -1,0 +1,6 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.name_color.crimson. Sold in the cosmetics menu.
+id: crimson
+kind: name_color
+name_key: astera.cosmetic.name_color.crimson
+price_gold: 300
+value: "#DC143C"

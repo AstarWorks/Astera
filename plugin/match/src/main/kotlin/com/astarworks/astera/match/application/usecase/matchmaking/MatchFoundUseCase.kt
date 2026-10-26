@@ -43,8 +43,7 @@ public class MatchFoundUseCase(
 
     /** `true` while a non-ended match already occupies [mode]'s stage. */
     override fun isStageBusy(mode: MatchmakingMode): Boolean {
-        val stageId = planFor(mode).stageId
-        return matches.findActiveMatches().any { it.stageId == stageId }
+        return false
     }
 
     /**

@@ -8,7 +8,7 @@
 # NPC stands live in content/lobby-npcs/*.yaml and must match the generated plan
 # (LobbyWorldContentTest fails when an NPC is not on a walkable block).
 
-id: lobby
+id: world
 seed: 20261022
 
 # Y of the top grass/pavement layer; players stand at surface_y + 1.
@@ -29,7 +29,7 @@ spawn:
 
 # Bump to repaste the build (the old bounds are cleared first). Unchanged => the
 # marker (plugins/Astera-Core/lobby-world.marker) makes boot skip the paste.
-marker_version: 4                 # 4: Play gate arch in front of the spawn tile (ADR-0248)
+marker_version: 5                 # 5: hub buildings + practice ground (MAP-07); 4: Play gate arch in front of the spawn tile (ADR-0248)
 
 rules:
   time_of_day: 6000        # noon

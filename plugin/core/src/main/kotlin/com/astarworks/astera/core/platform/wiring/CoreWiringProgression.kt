@@ -272,15 +272,30 @@ internal fun CoreWiringState.wireProgression() {
         messages = messages,
         kitItems = { profileService.starterItemIds() },
     )
+    // Match weapon restriction: trims an over-full inventory right after the entry snapshot (and gates pickups/moves
+    // through the Paper listener). The limit comes from Match (IWeaponLimitProvider), removal from Items.
+    val weaponLimits = com.astarworks.astera.core.application.service.inventory.WeaponLimitService(
+        limits = { services.get<com.astarworks.astera.core.application.port.outbound.item.IWeaponLimitProvider>() },
+        owned = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>() },
+        removal = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>() },
+        items = itemContents,
+        players = playerGateway,
+        messages = messages,
+    )
+    services.register<com.astarworks.astera.core.application.service.inventory.WeaponLimitService>(weaponLimits, priority = 0)
     val matchSnapshots = MatchInventorySnapshotListener(
         gateway = { services.get<IPlayerInventoryGateway>() },
         saveSnapshot = saveSnapshotUseCase,
         matches = { services.get<IMatchRepository>() },
-        afterEntryCapture = { loanerKit.ensureArmed(it) },
+        afterEntryCapture = {
+            weaponLimits.enforceOnEntry(it)
+            loanerKit.ensureArmed(it)
+        },
     )
     services.register<MatchInventorySnapshotListener>(matchSnapshots, priority = 0)
     wave5completeSubs += eventBus.subscribe(MatchStarted::class) { matchSnapshots.handleStarted(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class) { matchSnapshots.handleEntered(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerLeftMatch::class) { matchSnapshots.handleLeft(it) }
     wave5completeSubs += eventBus.subscribe(MatchEnded::class) { matchSnapshots.handleEnded(it) }
 
     // WP12: personal vault (= ender chest) — `/astera vault` and the ender chest block

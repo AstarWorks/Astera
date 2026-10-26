@@ -968,7 +968,7 @@ def _fit_plane(name, rp, t0, t1):
 
 
 def _cut_schedule(name, rp):
-    """r27: the S1 motion is pose to pose (ADR-0254: held poses, step cuts), so the blade never sweeps and there is no trail to
+    """r27: the S1 motion is pose to pose (ADR-0276: held poses, step cuts), so the blade never sweeps and there is no trail to
     track. The smear is the REFERENCE's: it appears whole on the cut tick (one partial arc frame, then the closed ring), is held
     while the pose is held, then fades by thinning. `cut` = dict(tick = fx tick of the cut (every tile spawns on it, no blank
     lead frame: frame 0 shows on spawn and spawn + 1), open = in-plane spans (deg) of the partial arc frames, closed = frames of

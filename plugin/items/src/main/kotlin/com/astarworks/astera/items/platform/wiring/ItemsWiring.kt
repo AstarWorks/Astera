@@ -1,9 +1,10 @@
 package com.astarworks.astera.items.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.admin.panel.AdminPanelGuard
 import com.astarworks.astera.core.application.admin.panel.IAdminPanelRegistry
-import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.items.application.admin.AdminGiveItemsUseCase
@@ -12,7 +13,6 @@ import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
-import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -21,7 +21,6 @@ import com.astarworks.astera.core.application.service.InMemoryCooldownTracker
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
-import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.items.adapter.paper.IPaperItemIdResolver
 import com.astarworks.astera.items.adapter.paper.ItemSkillTriggerListener
@@ -112,6 +111,9 @@ public object ItemsWiring {
         registrations += services.register<IPaperItemIdResolver>(itemIdResolver)
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>(
             com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery { itemIdResolver.inventoryItemIds(it) },
+        )
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>(
+            com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval { player, item -> itemIdResolver.removeOne(player, item) },
         )
 
         // ── Wave 5refine / ADR-0100 — Item Refinement Layer ──────────────
@@ -241,6 +243,7 @@ public object ItemsWiring {
         val trainingInventory = ports.trainingInventory?.invoke(services)
         if (rackGateway != null && trainingInventory != null) {
             val rack = TrainingRackService(
+                scheduler = scheduler,
                 range = { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>() },
                 items = itemRegistry,
                 delivery = itemDelivery,
@@ -258,10 +261,10 @@ public object ItemsWiring {
             ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { rack.onMatchStarted(it) }
             ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { rack.onMatchFormed(it) }
             // Players join a match after MatchStarted fires, so also sweep: nobody in a match keeps a training weapon.
-            val sweepLoop = scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) { rack.sweep() }
+            val sweepLoop = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 20L, periodTicks = 20L) { rack.sweep() }
             shutdownHooks += { sweepLoop.cancel() }
             // The lobby world does not exist yet at enable time (it is created on ServerLoad); the loop also repairs lost frames.
-            val rackLoop = scheduler.runRepeatingTicks(initialDelayTicks = 40L, periodTicks = 100L) { rack.ensureRendered() }
+            val rackLoop = scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 40L, periodTicks = 100L) { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>()?.let { training -> scheduler.run(regionScope(training.world, training.plan.spawn), kotlin.time.Duration.ZERO) { rack.ensureRendered() } } }
             shutdownHooks += { rackLoop.cancel() }
             shutdownHooks += { rackGateway.removeAll() }
             trainingRack = rack

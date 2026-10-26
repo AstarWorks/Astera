@@ -6,7 +6,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * Retextured vanilla particle types (ADR-0252): `content/particle-skins/<vanilla-type>.yaml` names the vanilla
+ * Retextured vanilla particle types (ADR-0274): `content/particle-skins/<vanilla-type>.yaml` names the vanilla
  * particle type, the channel id (texture names), the painter, the frame count and whether the texture is
  * `grey` (the particle's server colour multiplies it) or `baked` (coloured as drawn).
  *

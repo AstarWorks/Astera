@@ -1,9 +1,9 @@
 package com.astarworks.astera.stats.application.eventbus.listeners.hud
 
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
-import com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.effect.SoundSpec
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory
  *
  * The title goes through the same [IHudGateway] Subtitle path as the other
  * one-shot toasts (achievement, countdown, killfeed). The chime is viewer-only
- * via [IPlayerSoundGateway] so it does not leak to other players.
+ * via [IPresentation] so it does not leak to other players.
  */
 public class HudUpdateOnLeveledUpListener(
     private val hudGateway: IHudGateway,
-    private val playerSounds: IPlayerSoundGateway,
+    private val playerSounds: IPresentation,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -55,11 +55,6 @@ public class HudUpdateOnLeveledUpListener(
                 )
             }
         }
-        playerSounds.playForViewer(event.playerId, LEVEL_UP_SOUND)
-    }
-
-    public companion object {
-        /** Vanilla `entity.player.levelup` chime. */
-        public val LEVEL_UP_SOUND: SoundSpec = SoundSpec(key = "minecraft:entity.player.levelup")
+        playerSounds.play(PresentationMoments.PLAYER_LEVEL_UP, event.playerId)
     }
 }

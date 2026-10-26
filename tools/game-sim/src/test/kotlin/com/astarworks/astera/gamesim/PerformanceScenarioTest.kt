@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 import kotlin.math.sqrt
 
 /**
- * ADR-0254: a skill performance (skin-rig body + ONE hand-parented weapon) shows exactly one weapon to every viewer on every
+ * ADR-0276: a skill performance (skin-rig body + ONE hand-parented weapon) shows exactly one weapon to every viewer on every
  * tick, through start, end, interruption, death, quit, world change and a viewer that starts tracking mid-skill; and the weapon
  * stays at the right hand while the body animates. Real wiring, real shipped content (`vfx-demo-performance`), the headless
  * presentation lease with its per-viewer client model.

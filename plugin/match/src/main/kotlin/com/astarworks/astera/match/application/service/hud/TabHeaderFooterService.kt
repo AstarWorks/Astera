@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.service.hud
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.hud.ITabList
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -29,7 +30,7 @@ public class TabHeaderFooterService(
     private val tabList: ITabList,
     private val messages: IMessageRenderer,
     private val modeOf: (MatchId) -> IGameMode?,
-    scheduler: IScheduler,
+    private val scheduler: IScheduler,
     pollPeriodTicks: Long = DEFAULT_POLL_PERIOD_TICKS,
 ) {
 
@@ -38,7 +39,7 @@ public class TabHeaderFooterService(
     private val online: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
     private val lastSent: MutableMap<PlayerId, Content> = ConcurrentHashMap()
 
-    private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(
+    private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(ExecutionScope.Global,
         initialDelayTicks = pollPeriodTicks,
         periodTicks = pollPeriodTicks,
     ) {
@@ -63,7 +64,7 @@ public class TabHeaderFooterService(
     public fun refreshAll() {
         val now = online.toList()
         lastSent.keys.retainAll(now.toSet())
-        for (player in now) refresh(player, now.size)
+        for (player in now) scheduler.run(ExecutionScope.Entity(player.uuid), kotlin.time.Duration.ZERO) { refresh(player, now.size) }
     }
 
     private fun refresh(player: PlayerId, onlineCount: Int) {

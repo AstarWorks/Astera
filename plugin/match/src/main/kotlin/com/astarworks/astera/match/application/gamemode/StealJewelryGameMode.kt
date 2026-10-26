@@ -83,6 +83,8 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         tellMatch(match, KEY_RECOVERED, mapOf("team" to (victimTeam?.value ?: "")))
     }
 
+    override fun standing(run: Run, match: Match, team: TeamId): Int = run.banked[team] ?: 0
+
     override fun hudLines(run: Run, match: Match): List<HudLine> {
         val goal = gemsPerTeam() * (match.teams.size - 1)
         return match.teams.map { team ->

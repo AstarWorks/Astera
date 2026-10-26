@@ -61,7 +61,7 @@ public interface IDisplayEntityGateway {
      */
     public fun setViewRange(handle: DisplayHandle, viewRange: Float) {}
 
-    /** Whether [player] wears a slim (Alex) skin; selects the arm marker of the skin-rig bones (ADR-0254). */
+    /** Whether [player] wears a slim (Alex) skin; selects the arm marker of the skin-rig bones (ADR-0276). */
     public fun isSlimSkin(player: PlayerId): Boolean = false
 
     /** Removes a display; unknown / already removed handles are ignored. */

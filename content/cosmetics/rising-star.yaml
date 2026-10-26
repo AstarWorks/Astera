@@ -1,0 +1,5 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.name_color.rising-star. Granted only (level / achievement), never sold.
+id: rising-star
+kind: name_color
+name_key: astera.cosmetic.name_color.rising-star
+value: "gold"

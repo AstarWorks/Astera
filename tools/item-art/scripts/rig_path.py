@@ -157,7 +157,7 @@ class RigPath:
             self.keys.append((int(k["t"]), cur, _ease(k.get("ease"))))
         self.chunks = self._chunks()
         # blade segment in rig-local space: grip end -> farthest +Y extent of any part (the tip)
-        # ADR-0254: a `weapon: main_hand` rig has no parts; the blade ends are declared (weapon_tip / weapon_root).
+        # ADR-0276: a `weapon: main_hand` rig has no parts; the blade ends are declared (weapon_tip / weapon_root).
         parts = self.rig.get("parts", [])
         if self.rig.get("weapon") and "weapon_tip" in self.rig:
             self.tip_local = float(self.rig["weapon_tip"][1])
@@ -173,7 +173,7 @@ class RigPath:
             self.dashes.append((int(_literal(s.get("delay_ticks"))), int(s["ticks"]), d))
             left -= d
         self.distance = distance
-        # pose-to-pose rigs (ADR-0254: skin-rig body, ease: step keys) hang the blade off the HAND: the plan dump written by the
+        # pose-to-pose rigs (ADR-0276: skin-rig body, ease: step keys) hang the blade off the HAND: the plan dump written by the
         # runtime (make skill-lint-plan) is the ground truth for where the blade is, whole tick by whole tick.
         self.plan = None
         pf = ROOT / "build/skill-lint" / skill_id / "plan.json"

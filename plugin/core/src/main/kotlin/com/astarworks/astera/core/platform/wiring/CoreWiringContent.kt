@@ -125,7 +125,7 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     services.register<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>(particleContents, priority = 0)
     reloadRegistry.register(particleContents, particlesContentDir)
 
-    // ---- Particle skins (ADR-0252) ----------------------------------
+    // ---- Particle skins (ADR-0274) ----------------------------------
     // Retextured vanilla particle types at content/particle-skins/; the pack ships the art, boot only validates the files.
     val particleSkinsContentDir = contentDir.resolve("particle-skins")
     val particleSkinContents = com.astarworks.astera.core.application.contents.ParticleSkinContents()

@@ -1,4 +1,4 @@
-# r25 director @15d2d7c7 (wp/integrate-limbus 462017c7 + ADR-0253 amend). Ticks = cast tick (compare frame = tick + 6).
+# r25 director @15d2d7c7 (wp/integrate-limbus 462017c7 + ADR-0275 amend). Ticks = cast tick (compare frame = tick + 6).
 #   Content: model-artist shading squeeze 0.57-0.77 + luma dark-texel lift (item.vsh/fsh patches), particle-artist
 #   strike_windows (no wind-up sparks) + denser hits, vfx-artist hit-1 ring plane fit (off-plane 0.22, closes fx 12).
 # Regen (bastion_s1_regen.sh steps one by one): no-op. hring window (2.0,4,6,12) off-plane 0.22 closed fx 12, all 4 tiles;

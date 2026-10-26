@@ -1,4 +1,4 @@
-# Astera weapon shading (ADR-0253, r25 rule in docs/contributing/vfx-team/modeler.md): our own additions to Mojang's
+# Astera weapon shading (ADR-0275, r25 rule in docs/contributing/vfx-team/modeler.md): our own additions to Mojang's
 # core/item.vsh, applied at pack build time to the vanilla shader taken from the client jar (never committed).
 # Format: `@@ before|after|replace: <anchor>`, anchor = one whole vanilla line (trimmed), must match exactly once or the
 # pack build fails. The body runs to the next `@@` line (or the end of file).

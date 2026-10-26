@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper.aoe
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.port.outbound.aoe.IExplosionGateway
@@ -117,7 +118,7 @@ import kotlin.time.Duration
  *
  * `World.createExplosion` and `IBlockStateGateway` mutations are
  * main-thread only. When [trigger] is invoked off-main we defer the work
- * via `scheduler.runLater(Duration.ZERO, ...)` and return
+ * via `scheduler.run(regionScope(spec.world, spec.center), Duration.ZERO, ...)` and return
  * `Result.success(ExplosionResult.empty())` immediately — callers get
  * the same "fire and forget" semantics the in-memory impl provides
  * synchronously. Off-main callers who NEED the actual damage list must
@@ -178,12 +179,12 @@ public class PaperExplosionGateway(
             }
         }
 
-        if (!server.isPrimaryThread) {
+        if (server.getWorld(spec.world.value)?.let { org.bukkit.Bukkit.isOwnedByCurrentRegion(org.bukkit.Location(it, spec.center.x, spec.center.y, spec.center.z)) } != true) {
             // Off-main: defer to next tick and return a placeholder success.
             // The deferred run publishes the actual ExplosionTriggered event;
             // synchronous callers that need the damage list must call us on
             // main. Matches the Wave 6d defer pattern.
-            scheduler.runLater(Duration.ZERO) {
+            scheduler.run(regionScope(spec.world, spec.center), Duration.ZERO) {
                 runOnMain(spec)
             }
             return Result.success(EMPTY_RESULT)

@@ -1,74 +1,21 @@
-# Lobby main menu — five navigation tiles in a 9-slot single-row chest
-# (Wave 5wireup, ADR-0116 §G17).
+# Lobby main menu - the one general menu (docs/game-design/access-map.md, UI-04; ADR-0240 admin tiles).
 #
-# Tiles are placed at slots 1/2/3/4/6/7. Each `on_left` intent is routed by the application-layer
-# IGuiIntentRouter — adding a new intent means extending the router, not
-# editing this file.
+# 27 slots, three rows. Every feature a player can reach has exactly one tile here; NPC hubs, keybinds and
+# `/astera` commands are shortcuts to the same targets. Each `on_left` intent is routed by the application-layer
+# IGuiIntentRouter - adding a new intent means extending the router, not editing this file.
 #
-# Item ids are placeholder `gui-tile-*` references. Wave 6 inventory
-# adapter (gui-tile texture pack) supplies the actual visuals; for now
-# the items render through whatever the InMemoryItemRegistry returns.
+# Row 0 (slots 0..8): ops-only Admin (0) and Item catalog (8) via `visible_if: permission:astera.admin.panel`
+#   (ADR-0240), and "Leave queue" (4), shown only while the viewer waits in a queue (`visible_if: state:queued`, ADR-0248).
+# Row 1 (slots 10..17): Play (ADR-0248, the first and most prominent tile), Shop, Vault, Travel, Training, Profile, Settings,
+#   Cosmetics (UI-08; the same screen the profile card's button opens).
+# Row 2 (slots 19..23): Party, Friends, Achievements, Daily/Quests, Help.
 #
-# Slot 1 is the Play tile (ADR-0248): the first and most prominent entry, a green emerald "Play / プレイ".
-# Slot 5 is "Leave queue", shown only while the viewer is waiting in a queue (`visible_if: state:queued`).
-#
-# Slots 0 and 8 are ops-only (ADR-0240): `visible_if: permission:astera.admin.panel` hides them
-# for everyone who is neither op nor holds the node. Both dispatch guarded `admin.*` intents.
+# Item ids are `gui-tile-*` (content/items/); the texture pack supplies the visuals.
 id: main-menu
 title_key: astera.gui.main-menu.title
-size: CHEST_9
+size: CHEST_27
 
 slots:
-  - type: static
-    index: 1
-    item: gui-tile-queue
-    on_left:
-      key: lobby.queue.show
-    tooltip:
-      - astera.gui.main-menu.queue.tooltip
-  - type: static
-    index: 2
-    item: gui-tile-shop
-    on_left:
-      key: lobby.shop.open
-    tooltip:
-      - astera.gui.main-menu.shop.tooltip
-  - type: static
-    index: 3
-    item: gui-tile-training
-    on_left:
-      key: lobby.training.travel
-    tooltip:
-      - astera.gui.main-menu.training.tooltip
-  - type: static
-    index: 4
-    item: gui-tile-customize
-    on_left:
-      key: lobby.customize.open
-    tooltip:
-      - astera.gui.main-menu.customize.tooltip
-  - type: static
-    index: 5
-    item: gui-tile-leave-queue
-    visible_if: "state:queued"
-    on_left:
-      key: lobby.queue.leave
-    tooltip:
-      - astera.gui.main-menu.leave-queue.tooltip
-  - type: static
-    index: 6
-    item: gui-tile-travel
-    on_left:
-      key: lobby.travel.show
-    tooltip:
-      - astera.gui.main-menu.travel.tooltip
-  - type: static
-    index: 7
-    item: gui-tile-profile
-    on_left:
-      key: lobby.profile.show
-    tooltip:
-      - astera.gui.main-menu.profile.tooltip
   - type: static
     index: 0
     item: gui-tile-admin
@@ -78,6 +25,14 @@ slots:
     tooltip:
       - astera.gui.main-menu.admin.tooltip
   - type: static
+    index: 4
+    item: gui-tile-leave-queue
+    visible_if: "state:queued"
+    on_left:
+      key: lobby.queue.leave
+    tooltip:
+      - astera.gui.main-menu.leave-queue.tooltip
+  - type: static
     index: 8
     item: gui-tile-item-catalog
     visible_if: permission:astera.admin.panel
@@ -86,3 +41,99 @@ slots:
       payload: { category: all }
     tooltip:
       - astera.gui.main-menu.item-catalog.tooltip
+
+  - type: static
+    index: 10
+    item: gui-tile-queue
+    on_left:
+      key: lobby.queue.show
+    tooltip:
+      - astera.gui.main-menu.queue.tooltip
+  - type: static
+    index: 11
+    item: gui-tile-shop
+    on_left:
+      key: lobby.shop.open
+    tooltip:
+      - astera.gui.main-menu.shop.tooltip
+  - type: static
+    index: 12
+    item: gui-tile-vault
+    on_left:
+      key: lobby.vault.open
+    tooltip:
+      - astera.gui.main-menu.vault.tooltip
+  - type: static
+    index: 13
+    item: gui-tile-travel
+    on_left:
+      key: lobby.travel.show
+    tooltip:
+      - astera.gui.main-menu.travel.tooltip
+  - type: static
+    index: 14
+    item: gui-tile-training
+    on_left:
+      key: lobby.training.travel
+    tooltip:
+      - astera.gui.main-menu.training.tooltip
+  - type: static
+    index: 15
+    item: gui-tile-profile
+    on_left:
+      key: lobby.profile.show
+    tooltip:
+      - astera.gui.main-menu.profile.tooltip
+  - type: static
+    index: 16
+    item: gui-tile-settings
+    on_left:
+      key: gui.open
+      payload: { gui: settings }
+    tooltip:
+      - astera.gui.main-menu.settings.tooltip
+  - type: static
+    index: 17
+    item: gui-tile-cosmetics
+    on_left:
+      key: cosmetic.open
+    tooltip:
+      - astera.menu.cosmetics.tooltip
+
+  - type: static
+    index: 19
+    item: gui-tile-party
+    on_left:
+      key: lobby.party.show
+    tooltip:
+      - astera.gui.main-menu.party.tooltip
+  - type: static
+    index: 20
+    item: gui-tile-friends
+    on_left:
+      key: lobby.friends.show
+    tooltip:
+      - astera.gui.main-menu.friends.tooltip
+  - type: static
+    index: 21
+    item: gui-tile-achievements
+    on_left:
+      key: lobby.achievement.show
+    tooltip:
+      - astera.gui.main-menu.achievements.tooltip
+  - type: static
+    index: 22
+    item: gui-tile-quests
+    on_left:
+      key: lobby.hint.show
+      payload: { topic: progress }
+    tooltip:
+      - astera.gui.main-menu.quests.tooltip
+  - type: static
+    index: 23
+    item: gui-tile-help
+    on_left:
+      key: lobby.hint.show
+      payload: { topic: help }
+    tooltip:
+      - astera.gui.main-menu.help.tooltip

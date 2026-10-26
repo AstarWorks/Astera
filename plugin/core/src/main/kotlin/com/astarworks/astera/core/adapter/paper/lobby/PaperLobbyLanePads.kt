@@ -48,18 +48,16 @@ internal class PaperLobbyLaneHolograms(
     private val messages: IMessageRenderer,
     private val board: ILobbyLaneBoard,
 ) {
-    private val displays = LinkedHashMap<String, TextDisplay>()
+    private val displays = java.util.concurrent.ConcurrentHashMap<String, TextDisplay>()
     private var subscription: AutoCloseable? = null
 
     fun install(worldName: String, pads: Map<String, Vec3>) {
         val world = plugin.server.getWorld(worldName) ?: return
-        world.entities.filterIsInstance<TextDisplay>()
-            .filter { TAG in it.scoreboardTags }
-            .forEach { it.remove() }
         removeAll()
         for ((lane, pad) in pads) {
             val loc = Location(world, pad.x, pad.y + HEIGHT, pad.z)
-            world.getChunkAt(loc).load()
+            plugin.server.regionScheduler.execute(plugin, world, loc.blockX shr 4, loc.blockZ shr 4, Runnable {
+            world.getChunkAt(loc).entities.filterIsInstance<TextDisplay>().filter { TAG in it.scoreboardTags }.forEach { it.remove() }
             displays[lane] = world.spawn(loc, TextDisplay::class.java) { d ->
                 com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(d, "lane-pad:$lane")
                 d.addScoreboardTag(TAG)
@@ -69,9 +67,10 @@ internal class PaperLobbyLaneHolograms(
                 d.isShadowed = true
                 d.text(render(lane))
             }
+            })
         }
         subscription = board.onChanged { lane ->
-            if (plugin.server.isPrimaryThread) refresh(lane) else plugin.server.scheduler.runTask(plugin, Runnable { refresh(lane) })
+            displays[lane]?.scheduler?.execute(plugin, Runnable { refresh(lane) }, null, 1L)
         }
     }
 
@@ -91,7 +90,7 @@ internal class PaperLobbyLaneHolograms(
     fun removeAll() {
         subscription?.close()
         subscription = null
-        displays.values.forEach { it.remove() }
+        displays.values.forEach { entity -> entity.scheduler.execute(plugin, Runnable { entity.remove() }, null, 1L) }
         displays.clear()
     }
 

@@ -5,7 +5,6 @@ import com.astarworks.astera.core.application.port.outbound.IArenaBuilder
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
-import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.application.eventbus.listeners.world.EndMatchOnWorldUnloadListener
 import com.astarworks.astera.core.domain.event.WorldUnloading
 import com.astarworks.astera.core.domain.event.MatchEnded
@@ -72,7 +71,7 @@ internal object MatchWorldWiring {
 
         // Block pseudo-recovery scheduler — re-uses the BlockStateGateway to
         // regenerate +5 HP every 10s for blocks past their cool-off window.
-        val blockRecovery = BlockStateAutoRecoveryUseCase(blockStateGateway)
+        val blockRecovery = BlockStateAutoRecoveryUseCase(blockStateGateway, scheduler)
         val blockRecoveryScheduler = BlockRecoveryScheduler(
             matchWorlds = matchWorlds,
             recovery = blockRecovery,

@@ -26,7 +26,7 @@ class LobbyLanePadScenarioTest {
             val pads = sim.services.getOrThrow<LobbyLanePadService>().pads()
             // pads exist for exactly the lanes of content/matchmaking/queue.yaml (7 shipped: two front rows + back row)
             assertThat(pads.keys).containsExactlyElementsOf(sim.services.getOrThrow<ILobbyLaneCatalog>().laneIds())
-            assertThat(pads.keys).contains("norma", "annihilation")
+            assertThat(pads.keys).contains("skirmish", "annihilation")
 
             val matchmaker = sim.services.getOrThrow<IMatchmaker>()
             val board = sim.services.getOrThrow<ILobbyLaneBoard>()
@@ -37,22 +37,22 @@ class LobbyLanePadScenarioTest {
             p.moveTo(Vec3(0.5, 65.0, 10.5)) // plaza, no pad
             assertThat(matchmaker.queueStatus(p.id)).isNull()
 
-            p.moveTo(pads.getValue("norma"))
-            assertThat(matchmaker.queueStatus(p.id)?.mode).isEqualTo(MatchmakingMode.Norma)
+            p.moveTo(pads.getValue("skirmish"))
+            assertThat(matchmaker.queueStatus(p.id)?.mode).isEqualTo(MatchmakingMode.SKIRMISH)
             assertThat(view.titles.map { it.value }).containsExactly("astera.lobby.lane.joined.title")
             assertThat(view.actionBars.map { it.value }).containsExactly("astera.lobby.lane.joined.actionbar")
-            assertThat(board.queued("norma")).isEqualTo(1)
+            assertThat(board.queued("skirmish")).isEqualTo(1)
 
             // stepping off does NOT leave the queue
             p.moveTo(Vec3(0.5, 65.0, 40.5))
-            assertThat(matchmaker.queueStatus(p.id)?.mode).isEqualTo(MatchmakingMode.Norma)
-            assertThat(board.queued("norma")).isEqualTo(1)
+            assertThat(matchmaker.queueStatus(p.id)?.mode).isEqualTo(MatchmakingMode.SKIRMISH)
+            assertThat(board.queued("skirmish")).isEqualTo(1)
 
             // another pad moves the player to that lane
             p.moveTo(pads.getValue("annihilation"))
             assertThat(matchmaker.queueStatus(p.id)?.mode)
                 .isEqualTo(MatchmakingMode.Custom(GameModeId("annihilation")))
-            assertThat(board.queued("norma")).isEqualTo(0)
+            assertThat(board.queued("skirmish")).isEqualTo(0)
             assertThat(board.queued("annihilation")).isEqualTo(1)
             assertThat(view.actionBars.last().value).isEqualTo("astera.lobby.lane.switched.actionbar")
 
@@ -63,7 +63,7 @@ class LobbyLanePadScenarioTest {
 
             // a player outside the lobby world never triggers a pad
             val other = player("p2", at = Vec3(0.5, 65.0, 6.5))
-            other.moveTo(pads.getValue("norma"))
+            other.moveTo(pads.getValue("skirmish"))
             assertThat(matchmaker.queueStatus(other.id)).isNull()
             assertThat(eventsOf<LobbyLanePadEntered>()).hasSize(2)
         }

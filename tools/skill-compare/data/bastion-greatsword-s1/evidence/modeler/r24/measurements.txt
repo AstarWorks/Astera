@@ -1,4 +1,4 @@
-# r24 modeler: rig blade darker than the held item from below (vfx-reviewer r22 #5, animator r23 opponent t10-11). ADR-0253.
+# r24 modeler: rig blade darker than the held item from below (vfx-reviewer r22 #5, animator r23 opponent t10-11). ADR-0275.
 # Luminance = Rec.709 Y of 1280x720 real-client PNGs (worktree build, one capture at a time, maxRepeatedFrames 1 in all takes).
 
 Cause (26.3 client jar, javap):

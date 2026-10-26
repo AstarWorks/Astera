@@ -22,6 +22,38 @@ import java.io.File
  */
 class ArchitectureTest {
 
+    /** ADR-0262: every runtime module uses Folia-family schedulers; no compatibility allowlist. */
+    @Test
+    fun `main sources must not use the legacy Bukkit scheduler or primary thread flag`() {
+        val forbidden = Regex(
+            """\b(?:getScheduler\s*\(|BukkitRunnable\b|BukkitScheduler\b|isPrimaryThread\b|runTask(?:Later|Timer|Asynchronously|LaterAsynchronously|TimerAsynchronously)?\s*\()|(?:\bserver|\.server|getServer\(\))\s*\.\s*scheduler\b""",
+        )
+        projectScope().files.filter { it.path.contains("/src/main/") }.assertFalse { file ->
+            file.imports.any { it.name.startsWith("org.bukkit.scheduler.") } ||
+                forbidden.containsMatchIn(sourceWithoutComments(file.text))
+        }
+    }
+
+    @Test
+    fun `Paper adapters must use asynchronous entity teleportation`() {
+        projectScope().files.filter {
+            it.path.contains("/src/main/") && (it.path.contains("/adapter/paper/") || it.path.contains("/platform/"))
+        }.assertFalse { file ->
+            Regex("""\.\s*teleport\s*\(""").containsMatchIn(sourceWithoutComments(file.text))
+        }
+    }
+
+    @Test
+    fun `main sources must not create or unload worlds`() {
+        val forbidden = Regex("""\b(?:WorldCreator|createWorld|unloadWorld)\b""")
+        projectScope().files.filter { it.path.contains("/src/main/") }.assertFalse { file ->
+            forbidden.containsMatchIn(sourceWithoutComments(file.text))
+        }
+    }
+
+    private fun sourceWithoutComments(text: String): String =
+        text.replace(Regex("""/\*.*?\*/|//[^\n]*""", RegexOption.DOT_MATCHES_ALL), " ")
+
     private val bukkitFamily = listOf(
         "org.bukkit",
         "io.papermc",
@@ -60,7 +92,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core domain must not depend on any platform or framework`() {
-        moduleScope("plugin/core")
+        coreScope()
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain") == true }
             .assertFalse { file ->
@@ -90,7 +122,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core application must not import Bukkit family or persistence drivers`() {
-        moduleScope("plugin/core")
+        coreScope()
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.application") == true }
             .assertFalse { file ->
@@ -112,7 +144,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core adapter-api MUST stay vendor-neutral (no Bukkit imports)`() {
-        moduleScope("plugin/core")
+        coreScope()
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.adapter.api") == true }
             .assertFalse(additionalMessage = "ADR-0002 violation: vendor-neutral layer leaked Bukkit imports.") { file ->
@@ -127,7 +159,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core domain event package must not import IBroadcaster or IDomainEventBus`() {
-        moduleScope("plugin/core")
+        coreScope()
             .files
             .filter { it.packagee?.name == "com.astarworks.astera.core.domain.event" }
             .assertFalse(
@@ -145,7 +177,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core must not import any feature plugin`() {
-        moduleScope("plugin/core")
+        coreScope()
             .files
             .assertFalse(
                 additionalMessage = "ADR-0022 violation: Core cannot depend on feature plugins (creates dependency cycle).",
@@ -159,6 +191,13 @@ class ArchitectureTest {
                         imp.name.startsWith("com.astarworks.astera.persistence")
                 }
             }
+    }
+
+    @Test
+    fun `host neutral kernel modules must not import Bukkit family`() {
+        for (module in listOf("kernel/domain", "kernel/runtime", "kernel/mc-api")) {
+            moduleScope(module).files.assertFalse { hasBukkitFamilyImport(it) }
+        }
     }
 
     // ─── Items plugin (formerly Weapons) ─────────────────────────────────────────────────────
@@ -542,7 +581,8 @@ class ArchitectureTest {
             .files
             .filter { file ->
                 val path = file.path.replace('\\', '/')
-                path.contains("/plugin/") && path.contains("/src/main/")
+                (path.contains("/plugin/") || path.contains("/kernel/") || path.contains("/core/")) &&
+                    path.contains("/src/main/")
             }
             .flatMap { file ->
                 file.text.lines().withIndex()
@@ -631,7 +671,7 @@ class ArchitectureTest {
      */
     @Test
     fun `gui slot variants must not contain lambda fields`() {
-        moduleScope("plugin/core")
+        coreScope()
             .files
             .filter { it.packagee?.name == "com.astarworks.astera.core.domain.gui" }
             .flatMap { it.classes() }
@@ -1134,7 +1174,7 @@ class ArchitectureTest {
             "com.astarworks.astera.core.domain.mob.raid",
             "com.astarworks.astera.core.domain.mob.runtime",
         )
-        moduleScope("plugin/core")
+        coreScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1184,7 +1224,7 @@ class ArchitectureTest {
      */
     @Test
     fun `pve content yaml DTOs must stay platform-free (ADR-0099)`() {
-        moduleScope("plugin/core")
+        coreScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1222,7 +1262,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core domain must not import PacketEvents (ADR-0090)`() {
-        moduleScope("plugin/core")
+        coreScope()
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain") == true }
             .assertFalse(

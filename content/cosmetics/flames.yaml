@@ -1,0 +1,7 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.kill_effect.flames. Sold in the cosmetics menu.
+id: flames
+kind: kill_effect
+name_key: astera.cosmetic.kill_effect.flames
+price_gold: 500
+value: "flame"
+count: 20

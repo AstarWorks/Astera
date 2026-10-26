@@ -1,7 +1,7 @@
 /*
  * :tools:lobby-gen — renders the procedural sky-island lobby (ADR-0180) to a
  * top-down + side-elevation PNG, straight from the pure build plan in
- * `:plugin:core` (no Minecraft needed), and prints the NPC stands the plan
+ * `:kernel:domain` / `:core:feature-gameplay` (no Minecraft needed), and prints the NPC stands the plan
  * recommends for the lobby-npcs content files.
  *
  * NON-SHIPPED. Run: ./gradlew :tools:lobby-gen:run   (writes docs/assets/lobby-preview.png)
@@ -13,7 +13,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":plugin:core"))
+    implementation(project(":core:feature-gameplay"))
+    implementation(project(":kernel:domain"))
     implementation(libs.kotlin.stdlib)
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)

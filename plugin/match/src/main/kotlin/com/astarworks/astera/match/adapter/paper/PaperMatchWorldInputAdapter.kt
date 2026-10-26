@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.adapter.paper
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -55,7 +56,7 @@ public class PaperMatchWorldInputAdapter(
         )
         // MONITOR fires before the server removes the block. Publish a tick later so a listener that writes the block
         // back (break-core: "your own core cannot be broken") is not overwritten by the break completing afterwards.
-        scheduler.runLaterTicks(1L) { eventBus.publish(broken) }
+        scheduler.runLaterTicks(ExecutionScope.Global, 1L) { eventBus.publish(broken) }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.usecase.skill.dispatch
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.service.MechanicDispatcher
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.domain.event.SkillCast
@@ -44,7 +45,7 @@ public class BuffHandler(
 
         // 3. Schedule expire after duration_ticks.
         if (params.durationTicks > 0 && phases.expire.isNotEmpty()) {
-            scheduler.runLater(ticks(params.durationTicks.toLong())) {
+            scheduler.run(ExecutionScope.Entity(event.caster.uuid), ticks(params.durationTicks.toLong())) {
                 dispatcher.dispatch(phases.expire, ctx)
             }
         }

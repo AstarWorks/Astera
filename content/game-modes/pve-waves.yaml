@@ -18,6 +18,8 @@ title_key: astera.gamemode.pve-waves.title
 impl_class: com.astarworks.astera.match.application.gamemode.PveWaveGameMode
 tick_period_ticks: 20
 default_config:
+  # Norma layer off: PvE is co-op against mobs, there is no player-vs-player Norma race (MODE-15 decision).
+  norma_layer: "false"
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"

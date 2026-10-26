@@ -28,8 +28,8 @@ public enum class LaneKind {
  * One queue lane of `content/matchmaking/queue.yaml` (WP8): which stage a
  * lane plays on and how big the match is.
  *
- * [key] is `norma` (the legacy 2-team lane, `modeKey = null`) or a game-mode
- * id (`modeKey = key`, joined as `custom:<key>`).
+ * [key] is a game-mode id (`modeKey = key`, joined as `custom:<key>`); [DEFAULT_KEY]
+ * is the standard 2-team skirmish lane.
  */
 public data class QueueLane(
     val key: String,
@@ -40,16 +40,16 @@ public data class QueueLane(
     val kind: LaneKind = LaneKind.PVP,
 ) {
     init {
-        if (key != NORMA_KEY) GameModeId(key) // validates lower-kebab
+        GameModeId(key) // validates lower-kebab
         // Re-uses MatchSizeSpec's invariants (teams >= 2, 1 <= minPlayers <= cap).
         sizeSpec()
     }
 
     public val mode: MatchmakingMode
-        get() = if (key == NORMA_KEY) MatchmakingMode.Norma else MatchmakingMode.Custom(GameModeId(key))
+        get() = MatchmakingMode.Custom(GameModeId(key))
 
-    /** `MatchStarted.modeKey` for matches formed from this lane (`null` = legacy Norma). */
-    public val modeKey: String? get() = key.takeIf { it != NORMA_KEY }
+    /** `MatchStarted.modeKey` for matches formed from this lane. */
+    public val modeKey: String get() = key
 
     /** Roster cap: a full queue starts immediately. */
     public val capacity: Int get() = if (kind == LaneKind.PVE) playersPerTeam else teams * playersPerTeam
@@ -68,7 +68,8 @@ public data class QueueLane(
         )
 
     public companion object {
-        public const val NORMA_KEY: String = "norma"
+        /** The standard 2-team lane (plain skirmish). */
+        public const val DEFAULT_KEY: String = "skirmish"
     }
 }
 
@@ -94,7 +95,6 @@ public data class QueueSettings(
     }
 
     public fun laneFor(mode: MatchmakingMode): QueueLane? = when (mode) {
-        MatchmakingMode.Norma -> lanes[QueueLane.NORMA_KEY]
         is MatchmakingMode.Custom -> lanes[mode.adminConfigured.value]
         is MatchmakingMode.Tournament -> null
     }
@@ -104,7 +104,7 @@ public data class QueueSettings(
 
     /** Configured COUNTDOWN to ACTIVE floor for [modeKey]; `null` = no lane, use the mode policy. */
     public fun minPlayersForModeKey(modeKey: String?): Int? =
-        lanes[modeKey ?: QueueLane.NORMA_KEY]?.minPlayers
+        lanes[modeKey ?: QueueLane.DEFAULT_KEY]?.minPlayers
 
     public companion object {
         /** Used when `content/matchmaking/queue.yaml` is absent. */
@@ -113,8 +113,8 @@ public data class QueueSettings(
             queueCountdownSeconds = 10,
             matchCountdownSeconds = 10,
             lanes = mapOf(
-                QueueLane.NORMA_KEY to QueueLane(
-                    key = QueueLane.NORMA_KEY,
+                QueueLane.DEFAULT_KEY to QueueLane(
+                    key = QueueLane.DEFAULT_KEY,
                     stage = StageId("example-arena"),
                     teams = 2,
                     playersPerTeam = 4,

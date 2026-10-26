@@ -2,10 +2,10 @@
 # Adding a line needs founder-approved justification; see docs/contributing/testing-policy.md.
 plugin/combat/src/test/kotlin/com/astarworks/astera/combat/application/contents/SkillVisualContentTest.kt
 plugin/combat/src/test/kotlin/com/astarworks/astera/combat/application/contents/CombatBalanceContentsTest.kt
-plugin/core/src/test/kotlin/com/astarworks/astera/core/application/contents/VfxRigContentTest.kt
-plugin/core/src/test/kotlin/com/astarworks/astera/core/application/service/lobby/LobbyWorldContentTest.kt
-plugin/core/src/test/kotlin/com/astarworks/astera/core/application/service/lobby/LobbyMenuKitTest.kt
-plugin/core/src/test/kotlin/com/astarworks/astera/core/application/service/entity/LobbyNpcLoaderServiceTest.kt
+core/feature-effects/src/test/kotlin/com/astarworks/astera/core/application/contents/VfxRigContentTest.kt
+core/feature-gameplay/src/test/kotlin/com/astarworks/astera/core/application/service/lobby/LobbyWorldContentTest.kt
+core/feature-gameplay/src/test/kotlin/com/astarworks/astera/core/application/service/lobby/LobbyMenuKitTest.kt
+core/feature-gameplay/src/test/kotlin/com/astarworks/astera/core/application/service/entity/LobbyNpcLoaderServiceTest.kt
 plugin/core/src/test/kotlin/com/astarworks/astera/core/application/command/CommandMessageKeysTest.kt
 plugin/match/src/test/kotlin/com/astarworks/astera/match/application/contents/StageContentsTest.kt
 plugin/stats/src/test/kotlin/com/astarworks/astera/stats/application/contents/SkillProgressionContentsTest.kt

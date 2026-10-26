@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Accepted (PoC); partially superseded by [[adr/0254-skill-performance-one-body-one-weapon-one-lease]] for skill playback (transport, equipment hiding, the held-item display); the emote path stands. Builds on [[adr/0231-skill-timeline-semantics-live-pose-and-sequence]] (`play_animation` is a timeline
+Accepted (PoC); partially superseded by [[adr/0276-skill-performance-one-body-one-weapon-one-lease]] for skill playback (transport, equipment hiding, the held-item display); the emote path stands. Builds on [[adr/0231-skill-timeline-semantics-live-pose-and-sequence]] (`play_animation` is a timeline
 mechanic), [[adr/0113-player-entity-block-animation-foundation]] (`IPlayerAnimationGateway.playCustomAnimation`) and
 [[adr/0182-resource-pack-pipeline-and-hp-status-hud]] (pack builder). Unverified in a real client at the time of writing: see
 "Verification".

@@ -34,7 +34,7 @@ class CommandTreeTest {
         scenario("command-tree-areas") {
             val tree = areas(sim)
             assertThat(tree.keys).containsExactlyInAnyOrder(
-                "help", "menu", "travel", "vault", "lang", "volume", "friend", "party", "chat", "tutorial",
+                "help", "menu", "settings", "social", "travel", "vault", "lang", "volume", "friend", "party", "chat", "tutorial",
                 "news", "patch", "report", "queue", "match", "items", "shop", "economy", "stats", "mod", "admin", "skill",
                 "daily", "missions", "quests", "achievements",
             )
@@ -85,7 +85,7 @@ class CommandTreeTest {
         scenario("command-tree-access") {
             val byPath = leaves(sim).associate { (path, node) -> path.joinToString(" ") to node }
             for (open in listOf("queue join", "queue leave", "queue status", "shop", "vault",
-                "lang", "friend add", "party invite", "match list", "stats show", "economy balance", "help", "menu")) {
+                "lang", "friend add", "party invite", "match list", "stats show", "economy balance", "help", "menu", "settings", "social")) {
                 val node = byPath[open] ?: error("missing $open")
                 assertThat(node.access.name).`as`(open).isEqualTo("EVERYONE")
             }
@@ -118,7 +118,7 @@ class CommandTreeTest {
         scenario("command-tree-suggestions") {
             player("alice")
             player("bob")
-            assertThat(sim.complete("alice", "queue join ")).contains("norma", "annihilation", "break-core")
+            assertThat(sim.complete("alice", "queue join ")).contains("skirmish", "annihilation", "break-core")
             assertThat(sim.complete("alice", "queue join an")).containsExactly("annihilation")
             assertThat(sim.complete("alice", "items give ", operator = true)).containsExactlyInAnyOrder("alice", "bob")
             assertThat(sim.complete("alice", "items give bob ", operator = true)).contains("greatsword", "dagger")
@@ -163,7 +163,7 @@ class CommandTreeTest {
     fun `queue join leave and status execute and reply`() {
         scenario("command-queue-exec") {
             player("alice")
-            val join = sim.command("alice", "queue join norma")
+            val join = sim.command("alice", "queue join skirmish")
             assertThat(join.succeeded).`as`(join.replies.toString()).isTrue()
             assertThat(join.replies.map { it.first.value }).contains("astera.match.queue.join.success")
 
@@ -171,7 +171,7 @@ class CommandTreeTest {
             assertThat(status.succeeded).isTrue()
             assertThat(status.replies.map { it.first.value }).contains("astera.match.queue.status.line")
 
-            val again = sim.command("alice", "queue join norma")
+            val again = sim.command("alice", "queue join skirmish")
             assertThat(again.succeeded).isFalse()
             assertThat(again.replies.map { it.first.value }).contains("astera.match.queue.join.already-queued")
 
@@ -314,8 +314,8 @@ class CommandTreeTest {
     fun `top-level shortcuts run the same nodes as the full paths`() {
         scenario("command-shortcuts") {
             player("alice")
-            assertThat(sim.complete("alice", "play ")).contains("norma", "annihilation")
-            val play = sim.command("alice", "play norma")
+            assertThat(sim.complete("alice", "play ")).contains("skirmish", "annihilation")
+            val play = sim.command("alice", "play skirmish")
             assertThat(play.succeeded).`as`(play.replies.toString()).isTrue()
             assertThat(play.replies.map { it.first.value }).contains("astera.match.queue.join.success")
             assertThat(sim.command("alice", "queue status").replies.map { it.first.value })

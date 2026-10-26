@@ -1,4 +1,4 @@
-"""Forward kinematics of the skin rig + the main-hand weapon, a numpy port of the runtime math (ADR-0250 / ADR-0254).
+"""Forward kinematics of the skin rig + the main-hand weapon, a numpy port of the runtime math (ADR-0250 / ADR-0276).
 
 Sources that this file mirrors (change both together):
   SkinRigBone.rest / SkinRigTransforms.compute / rightArm / hips   plugin/core/.../domain/animation/skinrig/

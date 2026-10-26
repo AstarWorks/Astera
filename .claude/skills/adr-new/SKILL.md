@@ -20,8 +20,8 @@ must invoke it explicitly via `/adr-new` or by asking for an ADR scaffold.
 The caller should supply (ask via AskUserQuestion if any is missing):
 
 - **`number`** — the ADR number, zero-padded to 4 digits (e.g., `0031`).
-  - If blank: look up `IMPLEMENTATION-ROADMAP.md §"ADR allocation per wave"`
-    for the current wave. If still unclear: `ls docs/adr/00*.md | tail` to
+  - If blank: use the number on the Board item (`adr` field). If still
+    unclear: `ls docs/adr/00*.md | tail` to
     find the next free number, accounting for known gaps (e.g., 0023, 0024,
     0026 are intentionally skipped).
 - **`title`** — short title (e.g., `"Adopt LiteCore for projectile sim"`).

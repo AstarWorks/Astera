@@ -15,9 +15,10 @@ queue_countdown_seconds: 10
 match_countdown_seconds: 10
 
 lanes:
-  # `norma` = the standard 2-team lane. A game-mode id (e.g. annihilation)
-  # adds a `custom:<id>` lane.
-  - id: norma
+  # `skirmish` = the standard 2-team lane: plain team deathmatch decided by the Norma layer
+  # (stars + Norma levels, a layer of EVERY mode). A lane id is a game-mode id and joins as
+  # `custom:<id>` (e.g. annihilation).
+  - id: skirmish
     stage: example-arena
     teams: 2
     players_per_team: 4
@@ -35,9 +36,10 @@ lanes:
     min_players: 3
     kind: pvp
 
-  # Siege / objective modes (WP11) on sky islands. They share the
-  # `siege-isles` stage, so one siege match runs at a time (the next lane waits).
-  # Each mode reads its own regions: see content/stages/siege-isles.yaml.
+  # Siege / objective modes (WP11) on sky islands. A stage hosts one match at a time and stages are fixed
+  # coordinates in the `arenas` world (no per-match instancing yet), so every siege lane has its OWN copy of
+  # siege-isles, 800 blocks apart on z (content/stages/siege-isles-<mode>.yaml): the six lanes run concurrently.
+  # Each mode reads its own regions from its stage.
   - id: break-core
     stage: siege-isles
     teams: 2
@@ -45,25 +47,31 @@ lanes:
     min_players: 2
     kind: pvp
   - id: carry-tnt
-    stage: siege-isles
+    stage: siege-isles-tnt
     teams: 2
     players_per_team: 4
     min_players: 2
     kind: pvp
   - id: capture-wool
-    stage: siege-isles
+    stage: siege-isles-wool
     teams: 2
     players_per_team: 4
     min_players: 2
     kind: pvp
   - id: steal-jewelry
-    stage: siege-isles
+    stage: siege-isles-jewelry
     teams: 2
     players_per_team: 4
     min_players: 2
     kind: pvp
   - id: battle-loyal
-    stage: siege-isles
+    stage: siege-isles-loyal
+    teams: 2
+    players_per_team: 4
+    min_players: 2
+    kind: pvp
+  - id: carry-mini-tnt
+    stage: siege-isles-mini-tnt
     teams: 2
     players_per_team: 4
     min_players: 2

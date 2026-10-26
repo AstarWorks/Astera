@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.usecase.generator
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.attribute.number
@@ -50,6 +51,7 @@ public class AdvanceGeneratorChargeUseCase(
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
     private val spawn: SpawnResourceUseCase,
+    private val matchWorlds: () -> com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository?,
 ) {
 
     public fun advance(matchId: MatchId, deltaTicks: Long) {
@@ -59,6 +61,8 @@ public class AdvanceGeneratorChargeUseCase(
         val now: Long = scheduler.currentTick()
 
         for (generator in generators.listForMatch(matchId)) {
+            val world = matchWorlds()?.findByMatch(matchId)?.worldId ?: continue
+            scheduler.run(regionScope(world, generator.position), kotlin.time.Duration.ZERO) {
             val currentEnergy: Double = generator.attributes
                 .number(GeneratorAttributes.ENERGY) ?: 0.0
 
@@ -92,6 +96,7 @@ public class AdvanceGeneratorChargeUseCase(
                     atTick = now,
                 ),
             )
+            }
         }
     }
 }

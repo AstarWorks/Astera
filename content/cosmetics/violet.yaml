@@ -1,0 +1,6 @@
+# Cosmetic (ECO-02/ECO-04). Names: astera.cosmetic.name_color.violet. Sold in the cosmetics menu.
+id: violet
+kind: name_color
+name_key: astera.cosmetic.name_color.violet
+price_gold: 350
+value: "#9B59FF"

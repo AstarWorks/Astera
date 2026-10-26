@@ -53,10 +53,9 @@ public class EntryGameUseCase(
         eventBus.publish(PlayerEnteredMatch(matchId, playerId))
 
         if (spawn != null) {
-            val outcome = spawn.spawnPlayer(matchId, playerId)
-            if (outcome is Result.Failure) {
+            spawn.spawnPlayer(matchId, playerId).thenAccept { outcome -> if (outcome is Result.Failure) {
                 log.warn("Entry teleport for {} into {} failed: {}", playerId, matchId, outcome.error)
-            }
+            } }
         }
 
         return Result.success(Unit)

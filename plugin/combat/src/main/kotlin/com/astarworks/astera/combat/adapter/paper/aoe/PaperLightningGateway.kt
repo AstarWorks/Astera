@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.adapter.paper.aoe
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGateway
 import com.astarworks.astera.combat.domain.aoe.LightningError
 import com.astarworks.astera.combat.domain.event.aoe.LightningStrike
@@ -76,13 +77,13 @@ public class PaperLightningGateway(
 
         val location = Location(bukkitWorld, position.x, position.y, position.z)
 
-        if (!server.isPrimaryThread) {
+        if (!org.bukkit.Bukkit.isOwnedByCurrentRegion(location)) {
             log.warn(
                 "PaperLightningGateway.strike invoked off-main (world={}, pos={}); " +
                     "deferring to next main tick. Callers should round-trip via IScheduler.",
                 world, position,
             )
-            scheduler.runLater(kotlin.time.Duration.ZERO) {
+            scheduler.run(regionScope(world, position), kotlin.time.Duration.ZERO) {
                 fireAndPublish(bukkitWorld, location, world, position, damageEntities)
             }
             return Result.success(Unit)

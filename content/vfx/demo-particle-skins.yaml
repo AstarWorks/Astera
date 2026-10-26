@@ -1,4 +1,4 @@
-# ADR-0252 demo: one burst each of retextured embers, sparks and smoke 2.4 blocks in front of the caster.
+# ADR-0274 demo: one burst each of retextured embers, sparks and smoke 2.4 blocks in front of the caster.
 id: demo-particle-skins
 duration_ticks: 50
 orient: yaw

@@ -17,7 +17,7 @@ lore:
   - 'sneak_left: Flame Reprisal'
   - 'drop: Cinder Heart'
 rarity: epic
-level_requirement: 4
+level_requirement: 3
 attributes:
   attack_damage: 5.0
   attack_speed: 2.0

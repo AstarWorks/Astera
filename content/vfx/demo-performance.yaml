@@ -1,4 +1,4 @@
-# ADR-0254 demo performance: the skin-rig body (content/animations/performance-demo.yaml) and ONE weapon display (the caster's real
+# ADR-0276 demo performance: the skin-rig body (content/animations/performance-demo.yaml) and ONE weapon display (the caster's real
 # main-hand stack) hanging from the body's right hand, on one clock. A cut at rig tick 6 (ease: step on body and wrist) makes both
 # jump in the same server tick. Cast with `vfx-demo-performance`; freeze = hit-stop window.
 id: demo-performance

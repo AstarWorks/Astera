@@ -52,6 +52,7 @@ public class AuditCurrencyMovementListener(
             CurrencyChangeReason.LoginBonus -> "login_bonus"
             CurrencyChangeReason.AdminGrant -> "admin_grant"
             CurrencyChangeReason.TutorialReward -> "tutorial_reward"
+            CurrencyChangeReason.AchievementReward -> "achievement_reward"
             is CurrencyChangeReason.ShopPurchase -> "shop:${reason.shopId.value}/${reason.offerId.value}"
             is CurrencyChangeReason.Betting -> "betting:${reason.kind}:${reason.bettingMatchUuid}"
         }

@@ -1,5 +1,7 @@
 package com.astarworks.astera.testfixtures
 
+import java.util.concurrent.CompletableFuture
+
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.WorldGatewayError
 import com.astarworks.astera.core.domain.Result
@@ -77,18 +79,18 @@ public class FakeWorldGateway : IWorldGateway {
         sounds += SoundEmission(world, at, sound)
     }
 
-    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean {
+    override fun teleportAsync(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): CompletableFuture<Boolean> {
         teleports += TeleportCall(playerId, at, world, yaw, pitch)
-        return teleportResult
+        return CompletableFuture.completedFuture(teleportResult)
     }
 
-    override fun spectatorSpawn(matchId: MatchId, playerId: PlayerId): Result<Unit, WorldGatewayError> {
+    override fun spectatorSpawn(matchId: MatchId, playerId: PlayerId): CompletableFuture<Result<Unit, WorldGatewayError>> {
         spawnCalls += SpawnCall(playerId, "match:${matchId.value}")
-        return spectatorSpawnResult ?: Result.success(Unit)
+        return CompletableFuture.completedFuture(spectatorSpawnResult ?: Result.success(Unit))
     }
 
-    override fun lobbySpawn(playerId: PlayerId): Result<Unit, WorldGatewayError> {
+    override fun lobbySpawn(playerId: PlayerId): CompletableFuture<Result<Unit, WorldGatewayError>> {
         spawnCalls += SpawnCall(playerId, "lobby")
-        return lobbySpawnResult ?: Result.success(Unit)
+        return CompletableFuture.completedFuture(lobbySpawnResult ?: Result.success(Unit))
     }
 }

@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.service.dash
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
@@ -82,8 +83,9 @@ internal class DashStrikeRunner(
         // An explicit zero-length, facing dash is a turn in place, without a sweep or immunity.
         if (params.distance == 0.0) {
             val facing = face ?: return false
-            return worldGateway.teleport(caster, pose.position, pose.world,
+            worldGateway.teleportAsync(caster, pose.position, pose.world,
                 yaw = Math.toDegrees(atan2(-facing.x, facing.z)).toFloat())
+            return true
         }
         val distance = approachDistance(caster, pose, direction, params)
         if (distance <= 0.0) return false
@@ -102,7 +104,7 @@ internal class DashStrikeRunner(
         dash.immunityApplied = params.invulnerable && grantImmunity(caster, steps)
         stepOnce(dash)
         if (!dash.finished) {
-            dash.handle = scheduler.runRepeating(initialDelay = ticks(1), period = ticks(1)) { stepOnce(dash) }
+            dash.handle = scheduler.repeat(ExecutionScope.Entity(caster.uuid), initialDelay = ticks(1), period = ticks(1)) { stepOnce(dash) }
         }
         return true
     }
@@ -129,7 +131,7 @@ internal class DashStrikeRunner(
     }
 
     private fun stepOnce(dash: Dash) {
-        if (dash.finished) return
+        if (dash.finished || dash.teleporting) return
         if (living(listOf(dash.caster)).isEmpty()) {
             finish(dash)
             return
@@ -141,13 +143,15 @@ internal class DashStrikeRunner(
             finish(dash)
             return
         }
-        if (!worldGateway.teleport(dash.caster, to, dash.world, yaw = dash.yaw)) {
-            finish(dash)
-            return
+        dash.teleporting = true
+        worldGateway.teleportAsync(dash.caster, to, dash.world, yaw = dash.yaw).thenAccept { moved ->
+            dash.teleporting = false
+            if (dash.finished) return@thenAccept
+            if (!moved) { finish(dash); return@thenAccept }
+            dash.position = to
+            sweep(dash, from, to)
+            if (dash.stepIndex >= dash.steps) finish(dash)
         }
-        dash.position = to
-        sweep(dash, from, to)
-        if (dash.stepIndex >= dash.steps) finish(dash)
     }
 
     private fun sweep(dash: Dash, from: Vec3, to: Vec3) {
@@ -176,7 +180,7 @@ internal class DashStrikeRunner(
     }
 
     private fun finish(dash: Dash) {
-        if (dash.finished) return
+        if (dash.finished || dash.teleporting) return
         dash.finished = true
         dash.handle?.cancel()
         active -= dash
@@ -241,6 +245,7 @@ internal class DashStrikeRunner(
     ) {
         var position: Vec3 = origin
         var stepIndex: Int = 0
+        var teleporting: Boolean = false
         var finished: Boolean = false
         var immunityApplied: Boolean = false
         var handle: IScheduler.TaskHandle? = null

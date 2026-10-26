@@ -1,4 +1,4 @@
-# Astera weapon shading (ADR-0253, r25 rule in docs/contributing/vfx-team/modeler.md): our own additions to Mojang's
+# Astera weapon shading (ADR-0275, r25 rule in docs/contributing/vfx-team/modeler.md): our own additions to Mojang's
 # core/item.fsh, applied at pack build time to the vanilla shader from the client jar (never committed).
 # Faces marked as weapon by item.vsh.patch (rig parts and the held weapon model, not GUI) get a toe lift on dark texels:
 # on luma y' = y + 0.3 * (1 - y)^2, applied as a scale of rgb so hue is kept (per channel it greyed gold and the gem).

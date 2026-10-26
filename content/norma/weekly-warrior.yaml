@@ -7,5 +7,5 @@ target:
   count: 5
 reward:
   currency_id: GOLD
-  currency_amount: 40
+  currency_amount: 250
   xp: 300

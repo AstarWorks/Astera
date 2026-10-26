@@ -1,0 +1,396 @@
+# Siege-isles variant for the jewelry lane (MODE-06, ADR-0273): a stage-local copy of siege-isles.yaml (slots separate concurrent matches). Keep in sync with siege-isles.yaml.
+id: siege-isles-jewelry
+display_name_key: astera.stage.siege-isles.name
+layout:
+  marker_version: 4
+  seed: 20261024
+  surface_y: 64
+  kill_y: 16
+  islands:
+  - id: red
+    kind: base
+    team: red
+    center: {x: -160, z: 0}
+    radius: 56
+  - id: blue
+    kind: base
+    team: blue
+    center: {x: 160, z: 0}
+    radius: 56
+  - id: center
+    kind: center
+    center: {x: 0, z: 0}
+    radius: 46
+  - id: north
+    kind: outpost
+    center: {x: 0, z: -95}
+    radius: 32
+  - id: south
+    kind: outpost
+    center: {x: 0, z: 95}
+    radius: 32
+  bridges:
+  - from: red
+    to: center
+    width: 7
+  - from: blue
+    to: center
+    width: 7
+  - from: center
+    to: north
+    width: 7
+  - from: center
+    to: south
+    width: 7
+  - from: red
+    to: north
+    width: 7
+  - from: north
+    to: blue
+    width: 7
+  - from: red
+    to: south
+    width: 7
+  - from: south
+    to: blue
+    width: 7
+  landmarks:
+  - kind: generator
+    x: 14
+    z: 0
+  - kind: generator
+    x: -14
+    z: 0
+  - kind: generator
+    x: 10
+    z: -95
+  - kind: generator
+    x: 10
+    z: 95
+  structures:
+  - part: castle-gate
+    x: -130
+    z: 0
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -182
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -166
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -150
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -138
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -182
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -166
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -150
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -138
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -190
+    z: -16
+    rotation: 270
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -190
+    z: 16
+    rotation: 270
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -130
+    z: -16
+    rotation: 90
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -130
+    z: 16
+    rotation: 90
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-wall
+    x: -190
+    z: 0
+    rotation: 270
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: -190
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: -190
+    z: 24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: -130
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-tower
+    x: -130
+    z: 24
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-keep
+    x: -174
+    z: 0
+    rotation: 0
+    palette:
+      team: minecraft:red_concrete
+  - part: castle-gate
+    x: 130
+    z: 0
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 182
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 166
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 150
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 138
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 182
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 166
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 150
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 138
+    z: -24
+    rotation: 0
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 190
+    z: 16
+    rotation: 90
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 190
+    z: -16
+    rotation: 90
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 130
+    z: 16
+    rotation: 270
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 130
+    z: -16
+    rotation: 270
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-wall
+    x: 190
+    z: 0
+    rotation: 90
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-tower
+    x: 190
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-tower
+    x: 190
+    z: -24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-tower
+    x: 130
+    z: 24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-tower
+    x: 130
+    z: -24
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: castle-keep
+    x: 174
+    z: 0
+    rotation: 180
+    palette:
+      team: minecraft:blue_concrete
+  - part: ruin
+    x: -20
+    z: -22
+    rotation: 0
+  - part: ruin
+    x: 20
+    z: 22
+    rotation: 180
+  - part: ruin
+    x: -17
+    z: 24
+    rotation: 90
+  - part: ruin
+    x: 16
+    z: -25
+    rotation: 270
+  - part: ruin
+    x: 0
+    z: -95
+    rotation: 90
+  - part: ruin
+    x: 0
+    z: 95
+    rotation: 270
+  - part: bridge
+    x: -80
+    z: 0
+    rotation: 0
+  - part: bridge
+    x: 80
+    z: 0
+    rotation: 0
+  theme: temperate
+  atmosphere: {time_of_day: 12000, weather: clear}
+regions:
+- name: full-arena
+  min: {x: -235, y: 20.0, z: -140}
+  max: {x: 235, y: 140.0, z: 140}
+- name: base-red
+  min: {x: -184.0, y: 64.0, z: -16.0}
+  max: {x: -142.0, y: 70.0, z: 16.0}
+- name: base-blue
+  min: {x: 142.0, y: 64.0, z: -16.0}
+  max: {x: 184.0, y: 70.0, z: 16.0}
+- name: core-red
+  min: {x: -174.0, y: 65.0, z: 0.0}
+  max: {x: -174.0, y: 65.0, z: 0.0}
+- name: core-blue
+  min: {x: 174.0, y: 65.0, z: 0.0}
+  max: {x: 174.0, y: 65.0, z: 0.0}
+- name: jewelry-red
+  min: {x: -158.0, y: 64.0, z: 9.0}
+  max: {x: -156.0, y: 70.0, z: 11.0}
+- name: jewelry-blue
+  min: {x: 156.0, y: 64.0, z: 9.0}
+  max: {x: 158.0, y: 70.0, z: 11.0}
+- name: tnt-spawn
+  min: {x: -3.0, y: 64.0, z: -11.0}
+  max: {x: 3.0, y: 70.0, z: -5.0}
+- name: wool-a
+  min: {x: -3.0, y: 64.0, z: -98}
+  max: {x: 3.0, y: 70.0, z: -92}
+- name: wool-b
+  min: {x: -3.0, y: 64.0, z: 5.0}
+  max: {x: 3.0, y: 70.0, z: 11.0}
+- name: wool-c
+  min: {x: -3.0, y: 64.0, z: 92}
+  max: {x: 3.0, y: 70.0, z: 98}
+spawn_points:
+- team: red
+  position: {x: -123.5, y: 65.0, z: -2.5}
+  yaw: 270.0
+- team: red
+  position: {x: -123.5, y: 65.0, z: 3.5}
+  yaw: 270.0
+- team: red
+  position: {x: -121.5, y: 65.0, z: 0.5}
+  yaw: 270.0
+- team: red
+  position: {x: -125.5, y: 65.0, z: 0.5}
+  yaw: 270.0
+- team: blue
+  position: {x: 124.5, y: 65.0, z: -2.5}
+  yaw: 90.0
+- team: blue
+  position: {x: 124.5, y: 65.0, z: 3.5}
+  yaw: 90.0
+- team: blue
+  position: {x: 122.5, y: 65.0, z: 0.5}
+  yaw: 90.0
+- team: blue
+  position: {x: 126.5, y: 65.0, z: 0.5}
+  yaw: 90.0
+- role: lobby
+  position: {x: 0.5, y: 65.0, z: 0.5}
+- role: spectator
+  position: {x: 0.5, y: 100.0, z: 0.5}
+  pitch: 60.0

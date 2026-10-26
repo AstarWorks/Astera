@@ -80,7 +80,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         displayEntityGateway = { PaperDisplayEntityGateway(plugin.server) },
         summonGateway = { PaperSummonGateway(plugin.server) },
         trainingDummyShells = { PaperTrainingDummyShells(plugin) },
-        entityCasterBody = { PaperEntityCasterBody(plugin.server) },
+        entityCasterBody = { PaperEntityCasterBody(plugin.server, plugin) },
         skillPreviewStage = { PaperSkillPreviewStage(plugin) },
         tickRateControl = { PaperTickRateControl(plugin.server) },
         playerFeedbackGateway = { PaperPlayerFeedbackGateway(plugin.server) },
@@ -193,7 +193,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         // WP5: summons never target or hurt their owner's side.
         services.get<SummonRegistry>()?.let { SummonAllegianceListener(it).start(plugin) }
 
-        // ADR-0254: a world change ends the caster's skill performance in the same tick.
+        // ADR-0276: a world change ends the caster's skill performance in the same tick.
         services.get<com.astarworks.astera.combat.application.service.MechanicDispatcher>()?.let { dispatcher ->
             com.astarworks.astera.combat.adapter.paper.PerformanceWorldChangeListener(dispatcher::endPerformances).start(plugin)
         }
@@ -226,6 +226,12 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             resolver = VanillaKillResolver(
                 com.astarworks.astera.core.application.service.combat.CombatContextResolver {
                     services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()
+                },
+                recentAttacker = { victim, atTick ->
+                    services.get<com.astarworks.astera.combat.application.port.outbound.IDamageHistoryService>()
+                        ?.entries(victim)
+                        ?.lastOrNull { it.at >= atTick - VanillaKillResolver.VOID_ATTRIBUTION_TICKS }
+                        ?.attackerId
                 },
             ),
         ).start(plugin)

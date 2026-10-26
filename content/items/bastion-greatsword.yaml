@@ -17,7 +17,7 @@ lore:
   - 'sneak_left: Tower Shield'
   - 'drop: Citadel Dawn'
 rarity: rare
-level_requirement: 4
+level_requirement: 3
 attributes:
   attack_damage: 9.0
   attack_speed: 0.8

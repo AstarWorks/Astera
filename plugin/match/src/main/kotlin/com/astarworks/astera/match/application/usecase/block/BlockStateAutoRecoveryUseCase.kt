@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.usecase.block
 
+import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.domain.world.BlockState
 import com.astarworks.astera.core.domain.world.WorldId
@@ -41,6 +42,7 @@ import com.astarworks.astera.core.domain.world.WorldId
  */
 public class BlockStateAutoRecoveryUseCase(
     private val gateway: IBlockStateGateway,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
     private val coolOffTicks: Long = 600L,
     private val regenPerCycle: Int = 5,
 ) {
@@ -69,7 +71,7 @@ public class BlockStateAutoRecoveryUseCase(
             if (state.lastDamagedTick + coolOffTicks > currentTick) continue
             val nextDurability = (state.durability + regenPerCycle)
                 .coerceAtMost(state.maxHp)
-            gateway.track(world, pos, state.copy(durability = nextDurability))
+            scheduler.run(regionScope(world, pos), kotlin.time.Duration.ZERO) { gateway.track(world, pos, state.copy(durability = nextDurability)) }
             regenerated++
         }
         return regenerated

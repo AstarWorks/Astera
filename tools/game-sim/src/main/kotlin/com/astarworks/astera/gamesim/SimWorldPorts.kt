@@ -171,7 +171,7 @@ public class SimDisplayGateway(
         return handle
     }
 
-    /** Displays riding a player (ADR-0254): handle -> the anchor. */
+    /** Displays riding a player (ADR-0276): handle -> the anchor. */
     public val attached: MutableMap<IDisplayEntityGateway.DisplayHandle, com.astarworks.astera.core.domain.player.PlayerId> = linkedMapOf()
 
     /** The last `view_range` set per display (staged displays start at 0). */

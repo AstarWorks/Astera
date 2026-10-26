@@ -1,0 +1,95 @@
+# Quick-cast slot picker (UI-05, docs/game-design/access-map.md). Opened from Settings > Quick-cast slots.
+# Slot N (stack count N) opens the skill selector for hotbar slot N (lobby.hotbar.bind.N, ADR-0130 §C);
+# only used with the "Button" control scheme.
+id: quickcast-slots
+title_key: astera.gui.quickcast-slots.title
+size: CHEST_18
+
+slots:
+  - type: static
+    index: 0
+    item: gui-tile-quickcast
+    count: 1
+    on_left:
+      key: lobby.hotbar.bind.1
+    tooltip:
+      - astera.gui.quickcast-slots.slot.tooltip
+  - type: static
+    index: 1
+    item: gui-tile-quickcast
+    count: 2
+    on_left:
+      key: lobby.hotbar.bind.2
+    tooltip:
+      - astera.gui.quickcast-slots.slot.tooltip
+  - type: static
+    index: 2
+    item: gui-tile-quickcast
+    count: 3
+    on_left:
+      key: lobby.hotbar.bind.3
+    tooltip:
+      - astera.gui.quickcast-slots.slot.tooltip
+  - type: static
+    index: 3
+    item: gui-tile-quickcast
+    count: 4
+    on_left:
+      key: lobby.hotbar.bind.4
+    tooltip:
+      - astera.gui.quickcast-slots.slot.tooltip
+  - type: static
+    index: 4
+    item: gui-tile-quickcast
+    count: 5
+    on_left:
+      key: lobby.hotbar.bind.5
+    tooltip:
+      - astera.gui.quickcast-slots.slot.tooltip
+  - type: static
+    index: 5
+    item: gui-tile-quickcast
+    count: 6
+    on_left:
+      key: lobby.hotbar.bind.6
+    tooltip:
+      - astera.gui.quickcast-slots.slot.tooltip
+  - type: static
+    index: 6
+    item: gui-tile-quickcast
+    count: 7
+    on_left:
+      key: lobby.hotbar.bind.7
+    tooltip:
+      - astera.gui.quickcast-slots.slot.tooltip
+  - type: static
+    index: 7
+    item: gui-tile-quickcast
+    count: 8
+    on_left:
+      key: lobby.hotbar.bind.8
+    tooltip:
+      - astera.gui.quickcast-slots.slot.tooltip
+  - type: static
+    index: 8
+    item: gui-tile-quickcast
+    count: 9
+    on_left:
+      key: lobby.hotbar.bind.9
+    tooltip:
+      - astera.gui.quickcast-slots.slot.tooltip
+  - type: static
+    index: 16
+    item: gui-tile-back
+    on_left:
+      key: gui.open
+      payload: { gui: settings }
+    tooltip:
+      - astera.gui.button.back
+  - type: static
+    index: 17
+    item: gui-pane-red
+    on_left:
+      key: gui.close
+    tooltip:
+      - astera.gui.button.close

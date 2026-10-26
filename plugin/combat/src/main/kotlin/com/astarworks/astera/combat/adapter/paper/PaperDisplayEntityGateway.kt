@@ -47,7 +47,7 @@ public class PaperDisplayEntityGateway(
 
     private val log = LoggerFactory.getLogger(javaClass)
     /**
-     * [height] is the passenger origin height captured at attach time. The pose is pinned for a performance (ADR-0254), so it is a
+     * [height] is the passenger origin height captured at attach time. The pose is pinned for a performance (ADR-0276), so it is a
      * constant for the display's life; reading `player.height` per update let a one-tick pose change move the client attachment
      * while the compensation lerped (hilt and body one tick apart). [flip] marks skin-rig bones (see [transformation]).
      */
@@ -242,7 +242,7 @@ public class PaperDisplayEntityGateway(
             return
         }
         display.teleportDuration = teleportTicks.coerceIn(0, 59)
-        display.teleport(Location(display.world, at.x, at.y, at.z, yaw, pitch))
+        display.teleportAsync(Location(display.world, at.x, at.y, at.z, yaw, pitch))
     }
 
     /** [flip]: skin bones only. `ItemDisplay` draws its item after a `rotY(180)`, which would turn the skull cube's face to the back; a `right_rotation` of the same angle cancels it. */

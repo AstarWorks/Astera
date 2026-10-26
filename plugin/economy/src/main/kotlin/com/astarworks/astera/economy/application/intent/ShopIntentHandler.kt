@@ -5,10 +5,12 @@ import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IShopRegistry
+import com.astarworks.astera.core.application.port.outbound.presentation.IPresentation
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.shop.ShopId
 import com.astarworks.astera.core.domain.shop.ShopOfferId
 import com.astarworks.astera.economy.application.usecase.shop.ShopBrowseUseCase
@@ -57,6 +59,7 @@ public class ShopIntentHandler(
     private val ledger: ICurrencyLedger,
     private val browse: ShopBrowseUseCase,
     private val clock: Clock = Clock.systemUTC(),
+    private val presentation: () -> IPresentation? = { null },
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -169,6 +172,7 @@ public class ShopIntentHandler(
                 )
             }
             is Result.Failure -> {
+                presentation()?.play(PresentationMoments.UI_DENY, player.id)
                 val (key, placeholders) = result.error.toRendering(player.id, shopId, offerId)
                 send(player, key, placeholders)
             }

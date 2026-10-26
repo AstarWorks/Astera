@@ -210,7 +210,7 @@ live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=
 	bash scripts/live-bots.sh $(or $(SCENARIO),all)
 
 .PHONY: bots
-bots: ## Fill the live queue with AI bots (ADR-0247): make bots N=2 LANE=norma  (starts the bot-runner service if needed)
+bots: ## Fill the live queue with AI bots (ADR-0247): make bots N=2 LANE=skirmish  (starts the bot-runner service if needed)
 	bash scripts/bots.sh $(or $(N),2) $(or $(LANE),norma)
 
 .PHONY: skill-compare
@@ -280,3 +280,7 @@ skill-overlay: ## Project a plan dump (or a numpy simulation of content/) onto t
 skill-round: ## Publish the director's round notes (tools/skill-compare/data/<case>/round.md) to skill-compare: make skill-round SKILL=<skill-id> [FILE=<round.md>]
 	@test -n "$(SKILL)" || { echo "usage: make skill-round SKILL=<skill-id> [FILE=<round.md>]"; exit 2; }
 	node tools/skill-compare/scripts/publish-round.mjs "$(SKILL)" $(FILE)
+
+.PHONY: arena-preview
+arena-preview: ## Render every stage to build/arena-previews/ and measure generation/routing
+	$(GRADLEW) :tools:arena-preview:run

@@ -36,11 +36,11 @@ class LevelRewardsSeasonScenarioTest {
 
             val payouts = eventsOf<CurrencyChanged>().filter { it.reason is CurrencyChangeReason.LevelReward }
             assertThat(payouts.map { (it.reason as CurrencyChangeReason.LevelReward).level }).containsExactly(2, 3)
-            assertThat(payouts.sumOf { it.delta }).isEqualTo(125L)
+            assertThat(payouts.sumOf { it.delta }).isEqualTo(150L)
             assertThat(sim.services.getOrThrow<IPlayerUnlockView>().unlocks(alice.id))
                 .containsExactlyInAnyOrder("title:newcomer", "cosmetic:rising-star")
             assertThat(sim.server.view(alice.id)!!.messages.joinToString("\n"))
-                .contains("Level 2 rewards:", "Level 3 rewards:", "+50 GOLD", "+75 GOLD")
+                .contains("Level 2 rewards:", "Level 3 rewards:", "+50 GOLD", "+100 GOLD")
             val view = sim.server.view(alice.id)!!
             sim.services.getOrThrow<IGuiIntentRouter>().dispatch(view, GuiIntent("lobby.profile.show"))
             val card = sim.services.getOrThrow<IGuiAdapter>().currentSpec(view)!!
@@ -65,7 +65,7 @@ class LevelRewardsSeasonScenarioTest {
             assertThat(sim.services.getOrThrow<IPlayerUnlockView>().unlocks(alice.id))
                 .containsExactlyInAnyOrder("title:newcomer", "cosmetic:rising-star")
             assertThat(eventsOf<CurrencyChanged>().filter { it.reason is CurrencyChangeReason.LevelReward }.sumOf { it.delta })
-                .isEqualTo(125L)
+                .isEqualTo(150L)
         }
     }
 

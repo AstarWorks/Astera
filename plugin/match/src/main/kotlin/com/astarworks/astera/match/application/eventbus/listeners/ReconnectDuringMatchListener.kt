@@ -41,7 +41,7 @@ public class ReconnectDuringMatchListener(
         val matchId = session.currentMatch ?: return
         if (session.state !is SessionState.Disconnected) return
 
-        when (val result = resumeMatch.resume(event.playerId, matchId)) {
+        resumeMatch.resume(event.playerId, matchId).thenAccept { result -> when (result) {
             is Result.Success -> {
                 // Resume use case publishes PlayerReconnectedToMatch; nothing else
                 // to do here.
@@ -55,6 +55,6 @@ public class ReconnectDuringMatchListener(
                 sessions.upsert(session.copy(state = SessionState.Lobby, currentMatch = null))
                 worldGateway.lobbySpawn(event.playerId)
             }
-        }
+        } }
     }
 }

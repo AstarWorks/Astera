@@ -23,7 +23,7 @@ class CommandMessageKeysTest {
     private val literal = Regex("""MessageKey\("([a-z0-9][a-z0-9._-]*)"\)""")
 
     private fun commandSources(): List<Path> =
-        Files.walk(repoRoot.resolve("plugin")).use { stream ->
+        java.util.stream.Stream.of("plugin", "kernel", "core").flatMap { Files.walk(repoRoot.resolve(it)) }.use { stream ->
             stream
                 .filter { it.extension == "kt" }
                 .filter { "/src/main/" in it.toString() }
