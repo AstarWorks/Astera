@@ -71,6 +71,7 @@ internal fun CoreWiringState.wirePresentation() {
     subs += eventBus.subscribe(QuestChainCompleted::class) { l.onQuestChainCompleted(it) }
     subs += eventBus.subscribe(CurrencyChanged::class) { l.onCurrencyChanged(it) }
     subs += eventBus.subscribe(PlayerJoinedServer::class) { l.onJoined(it) }
+    subs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { l.onPackStatus(it) }
     subs += eventBus.subscribe(PlayerReturnedToLobby::class) { l.onReturnedToLobby(it) }
     subs += eventBus.subscribe(PlayerEnteredMatch::class) { l.onEnteredMatch(it) }
     subs += eventBus.subscribe(PlayerQuitServer::class) { l.onQuit(it) }

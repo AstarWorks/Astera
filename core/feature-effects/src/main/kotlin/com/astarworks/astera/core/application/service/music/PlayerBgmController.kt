@@ -57,6 +57,13 @@ public class PlayerBgmController(
     }
 
     @Synchronized
+    override fun replay(playerId: PlayerId) {
+        val current = sessions.remove(playerId)
+        current?.handle?.let { gateway().stop(it, 0L) }
+        switchTo(playerId, current?.mood ?: MusicMood.LOBBY)
+    }
+
+    @Synchronized
     override fun stop(playerId: PlayerId) {
         val current = sessions.remove(playerId) ?: return
         current.handle?.let { gateway().stop(it, 0L) }
