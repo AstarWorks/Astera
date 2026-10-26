@@ -128,3 +128,6 @@
 .srctog { display: inline-flex; gap: 2px; margin-left: auto; margin-right: 8px; }
 .srctog button { padding: 0 8px; font-size: .78rem; }
 .srctog button[aria-pressed="true"] { background: var(--accent, #2563eb); color: #fff; }
+.panes.solo { grid-template-columns: minmax(0, 1fr); }
+.panes.solo .pane { max-width: calc((100vh - 360px) * 16 / 9); width: 100%; justify-self: center; }
+.sidenote { margin: 4px 2px 0; }
