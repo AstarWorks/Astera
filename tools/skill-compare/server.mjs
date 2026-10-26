@@ -76,7 +76,7 @@ export function makeHandler(opts = {}) {
         prov: ln.report ? { ...provOf(ln.report.provenance ?? {}), published: true, kind: "lint" } : null };
     }
     const rd = cur("round");
-    if (rd && typeof rd.text === "string") out.round = { text: rd.text, revision: rd.revision, prov: { ...provOf(rd), published: true, kind: "round" } };
+    if (rd && typeof rd.text === "string") out.round = { text: rd.text, revision: rd.revision, images: Array.isArray(rd.images) ? rd.images : [], imgBase: `/round/${skill}/${rd.revision}/img/`, prov: { ...provOf(rd), published: true, kind: "round" } };
     return out;
   }
 
@@ -256,6 +256,11 @@ export function makeHandler(opts = {}) {
     if ((m = /^\/api\/keypoints\/([a-z0-9-]+)\/overlay\/([A-Za-z0-9-]+)\.png$/.exec(p))) {
       const f = join(repo, "build", "skill-lint", m[1], "overlay", m[2] + ".png");
       return inside(join(repo, "build"), f) ? file(f, "image/png") : err(400, "bad path");
+    }
+    if ((m = /^\/round\/([a-z0-9-]+)\/([a-f0-9]{64})\/img\/([A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|jpg|webp))$/.exec(p))) {
+      const f = join(publishedDir, m[1], "round", m[2], "img", m[3]);
+      if (!existsSync(f) || !statSync(f).isFile()) return err(404, "not found");
+      return new Response(Bun.file(f), { headers: { "content-type": m[4] === "png" ? "image/png" : m[4] === "jpg" ? "image/jpeg" : "image/webp", "x-content-type-options": "nosniff", "cache-control": "private, max-age=31536000, immutable" } });
     }
     if (p === "/stills.html") return file(join(publicDir, "stills.html"), "text/html; charset=utf-8");
     if ((m = /^\/stills\/([a-z0-9-]+)\/([a-f0-9]{64})\/(\d{1,2}-(?:reference|preview|ingame)\.png)$/.exec(p))) return file(join(publishedDir, m[1], "stills", m[2], m[3]), "image/png");
