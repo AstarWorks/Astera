@@ -172,7 +172,7 @@ def defs():
     burst = lambda s: "{ kind: burst, spread_blocks: %s }" % s  # noqa: E731
     # blade sheath (held poses, every tick, every 0.2 blocks root -> tip)
     vdef("sheath", "r28 blade sheath: gold -> orange dust, 2 per point scattered round the blade (3D), re-rolled every tick.",
-         "dust_color_transition", 2, 12, burst(0.05), GOLD, dct(GOLD_HOT, ORANGE, 0.45), speed=0.0)
+         "dust_color_transition", 1, 10, burst(0.04), GOLD, dct(GOLD_HOT, ORANGE, 0.28), speed=0.0)
     vdef("sheath-hot", "r28 white-hot edge glints on the outer half of the blade.",
          "dust_color_transition", 1, 8, burst(0.035), WHITE_HOT, dct(WHITE_HOT, GOLD, 0.35), speed=0.0)
     vdef("fleck", "r28 crit flecks thrown off the blade in random directions (vanilla scatter: gaussian velocity x speed).",
@@ -181,7 +181,7 @@ def defs():
          "flame", 1, 14, burst(0.03), speed=0.012)
     # cut trail (the swept volume between two held poses, emitted on the cut tick)
     vdef("trail", "r28 cut trail: big gold -> ember dust along the swept arc.",
-         "dust_color_transition", 2, 14, burst(0.07), GOLD, dct(GOLD_HOT, EMBER_RED, 0.6), speed=0.0)
+         "dust_color_transition", 1, 8, burst(0.04), GOLD, dct(GOLD_HOT, EMBER_RED, 0.3), speed=0.0)
     vdef("trail-crit", "r28 cut trail: crit sparks sprayed off the swept tip arc in every direction.",
          "crit", 2, 8, burst(0.06), velocity="{ direction: along_tangent, speed: 0.32, spread_degrees: 12, speed_jitter: 0.5 }")
     vdef("slash", "r28 vanilla sweep_attack slash on the swept arc (camera-facing, so it reads from every side).",
@@ -190,17 +190,18 @@ def defs():
          "dust_color_transition", 1, 12, burst(0.09), CHAR, dct((92, 50, 26), (28, 18, 12), 0.5), speed=0.0)
     # impact (damage ticks, at the blade point nearest the target)
     vdef("impact-crit", "r28 impact: crit burst, all directions.",
-         "crit", 14, 6, burst(0.15), velocity="{ direction: outward, speed: 0.55, spread_degrees: 0, speed_jitter: 0.45 }")
+         "crit", 6, 5, burst(0.12), velocity="{ direction: outward, speed: 0.55, spread_degrees: 0, speed_jitter: 0.45 }")
     vdef("impact-dust", "r3b impact: small short gold dust (no big puffs).",
          "dust_color_transition", 5, 4, burst(0.12), GOLD, dct(WHITE_HOT, ORANGE, 0.4), speed=0.0)
     vdef("impact-smoke", "r3b impact: unused (puffs removed).",
          "smoke", 1, 2, burst(0.05), speed=0.0)
     # staged tiers (principles: convergence = charge / spread = release; phase-shifted rings; rare detail; afterglow)
     vdef("gather", "gather: dust flowing INTO the blade tip before a cut (negative outward speed = convergence).",
-         "dust_color_transition", 1, 6, burst(0.3), GOLD, dct(WHITE_HOT, GOLD, 0.4),
+         "dust_color_transition", 1, 6, burst(0.3), GOLD, dct(WHITE_HOT, GOLD, 0.22),
          velocity="{ direction: outward, speed: -0.09, spread_degrees: 0, speed_jitter: 0.3 }")
     vdef("ring-crit", "release ring: crit sparks thrown radially from points on a ring round the impact (ring-by-ring phase shift).",
-         "crit", 1, 8, burst(0.02), velocity="{ direction: outward, speed: 0.3, spread_degrees: 0, speed_jitter: 0.3 }")
+         "dust_color_transition", 1, 6, burst(0.02), GOLD, dct(WHITE_HOT, GOLD, 0.25),
+         velocity="{ direction: outward, speed: 0.3, spread_degrees: 0, speed_jitter: 0.3 }")
     vdef("afterglow", "afterglow: embers rising off the impact point after the release.",
          "flame", 2, 12, burst(0.15), velocity="{ direction: up, speed: 0.04, spread_degrees: 25, speed_jitter: 0.5 }")
     vdef("impact-flame", "r28 impact: flames flung out.",
@@ -330,9 +331,6 @@ class Layer:
         # envelope: the sheath is thickest mid-blade (extra stations), plus a rare slash detail (~1 tick in 7)
         for si, fr in enumerate((0.5,)):
             self._runs("mid-%d" % si, "sheath", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
-        for ft in ticks:
-            if (ft * 7 + 3) % 7 == 0 and ft % 2 == 1:
-                self.once("detail", "slash", ft, on_blade(*pose(self.rp, ft), 0.8), big=True)
         # r3: no flame / ember on held poses (rest beats stay a faint sheath only)
 
     def _runs(self, name, pid, ticks, at):
@@ -354,15 +352,9 @@ class Layer:
         for i, (g, d, L, _) in enumerate(sw):
             if not heavy and i % 2:
                 continue  # ~50% of the steps; the emphasised cut keeps them all
-            for fr in ((0.6, 0.85, 1.0) if i % 2 else (0.7, 1.0)):
+            # r4: only small bright dust along the edge; no crit (X sprites), no slash, no ash (all read as chunky puffs close up)
+            for fr in ((0.85, 1.0) if i % 2 else (1.0,)):
                 self.once("trail", "trail", ft, on_blade(g, d, L, fr))
-            if i % 2 == 0:
-                self.once("ash", "ash", ft, on_blade(g, d, L, 0.9))
-            self.once("trail-crit", "trail-crit", ft, on_blade(g, d, L, 0.95))
-            if i % slash_every == 1:
-                self.once("slash", "slash", ft, on_blade(g, d, L, 0.7), big=True)
-            if i % 2 == 1:
-                self.once("trail", "trail", ft + 1, on_blade(g, d, L, 0.9))
         return sw
 
     def gather(self, c):
@@ -395,7 +387,6 @@ class Layer:
             self.once("impact-crit", "impact-crit", ft, q)
             self.once("impact-dust", "impact-dust", ft, q)
             self.once("impact-crit", "impact-crit", ft + 1, q)
-        self.once("slash", "slash", ft, p)
         return p
 
     def build(self):
