@@ -2,8 +2,9 @@
 # Host-local origin/main watcher. Runtime copy lives outside the detached checkout.
 #
 # Commands: up | down | status | run | once | mark-deployed <sha>
-#   mark-deployed <sha>  Record a MANUAL deploy. When a range holds docker/compose changes the watcher logs
-#                        "manual deploy needed ... entire range held" and never advances last-sha. After deploying
+#   mark-deployed <sha>  Record a MANUAL deploy. Docker/compose changes are deployed automatically (stack step:
+#                        recreate with the remote overlay, then FORCE deploy); only postgres/redis/volume changes log
+#                        "manual deploy needed ... entire range held" and never advance last-sha. After deploying
 #                        by hand from a checkout of <sha> (FORCE=1 make dev-deploy, plus
 #                        docker compose up -d --build --no-deps bot-runner resource-pack), run this so later
 #                        commits are diffed from <sha> instead of staying held forever.
@@ -27,7 +28,12 @@ use_remote_stack() {
   export ASTERA_PUBLIC_HOST="${ASTERA_PUBLIC_HOST:-${ASTERA_DEV_HOST##*@}}"
   export POSTGRES_BIND="${POSTGRES_BIND:-127.0.0.1}" REDIS_BIND="${REDIS_BIND:-127.0.0.1}"
 }
-compose() { docker compose -p astera-dev -f "$DEPLOY/docker/docker-compose.yml" "$@"; }
+compose() {
+  local files=(-f "$DEPLOY/docker/docker-compose.yml")
+  # Same overlay as `make dev-deploy` / scripts/dev-deploy.sh (JAVA_TOOL_OPTIONS + pinned pack URL on the remote VM).
+  [ -z "${ASTERA_DEV_HOST:-}" ] || files+=(-f "$DEPLOY/docker/docker-compose.remote.yml")
+  docker compose -p astera-dev "${files[@]}" "$@"
+}
 
 # All builds finish before any running service changes. Backups cover files outside /data,
 # plus the next-boot jars in /data/plugins; named data volumes are never replaced.
@@ -82,7 +88,7 @@ deploy() (
   cd "$DEPLOY"
   use_remote_stack
   export COMPOSE_PROJECT_NAME=astera-dev COMPOSE_FILES=docker/docker-compose.yml BACKENDS="lobby game"
-  local sha last path step=fetch plugins=0 content=0 pack=0 manual=0 old_pack
+  local sha last path step=fetch plugins=0 content=0 pack=0 stack=0 manual=0 old_pack
   git fetch origin main >> "$STATE/build.log" 2>&1 || { log "FAILED - fetch"; return; }
   sha=$(git rev-parse origin/main)
   [ "$sha" != "$(cat "$STATE/attempted-sha" 2>/dev/null || true)" ] || return 0
@@ -95,7 +101,9 @@ deploy() (
     git diff --name-only --no-renames -z "$last" "$sha" > "$STATE/paths" || { log "FAILED $sha diff"; return; }
     while IFS= read -r -d '' path; do
       case "$path" in
-        docker/*|*Dockerfile*|*compose*.yml|*compose*.yaml) manual=1 ;;
+        # E2E / docs / hotswap-only files never reach the dev stack.
+        docker/e2e-*|docker/*e2e*|docker/README.md|docker/hotswap/*|docker/docker-compose.hotswap.yml|*Dockerfile.e2e-runner*) ;;
+        docker/*|*Dockerfile*|*compose*.yml|*compose*.yaml) stack=1 ;;
         content/models/*|content/textures/*|content/sounds/*|content/sprites/*|content/effects/*|content/hud/*|content/fonts/*|content/pack-assets/*|content/shader-patches/*|content/animations/*) pack=1 ;;
         content/*) content=1 ;;
         tools/resource-pack*) pack=1 ;;
@@ -105,8 +113,19 @@ deploy() (
       esac
     done < "$STATE/paths"
   fi
+  if [ "$stack" = 1 ]; then
+    # Hold only for truly unsafe changes: anything touching the postgres/redis services or any volume definition.
+    if git diff -U0 --no-renames "$last" "$sha" -- docker/docker-compose.yml docker/docker-compose.remote.yml \
+        | grep -E '^[+-]' | grep -Ev '^(\+\+\+|---)' | grep -Eiq 'postgres|redis|pgdata|^[+-][[:space:]]*volumes:|[a-z]+-data'; then
+      manual=1
+    else
+      # Recreate lobby/game/velocity/bot-runner from the remote-overlay compose, then a FORCE deploy
+      # (container-local /plugins and /content are lost on recreate).
+      plugins=1; content=1; pack=1
+    fi
+  fi
   if [ "$manual" = 1 ]; then
-    log "manual deploy needed $sha [docker/compose changes; entire range held]"
+    log "manual deploy needed $sha [unsafe docker/compose change (postgres/redis/volumes); entire range held]"
     printf '%s\n' "$sha" > "$STATE/manual-needed"
     return 0
   fi
@@ -116,6 +135,7 @@ deploy() (
   if [ "$available_kib" -lt 10485760 ]; then log "FAILED $sha disk-space (need 10 GiB free)"; return; fi
   if ! git checkout --detach "$sha" >> "$STATE/build.log" 2>&1; then log "FAILED $sha checkout"; return; fi
   local steps=() tasks=() svc
+  [ "$stack" = 0 ] || steps+=(stack)
   [ "$plugins" = 0 ] || steps+=(plugins)
   [ "$pack" = 0 ] || steps+=(pack)
   [ "$content" = 0 ] || steps+=(content)
@@ -141,10 +161,14 @@ deploy() (
     printf '%s\n' "$step" > "$STATE/current-step"
     if (
       set -e
-      if [ "$step" = pack ]; then compose up -d --no-deps --no-build resource-pack || exit 1; fi
-      if [ "$step" = plugins ] && [ "$content" = 1 ]; then
+      if [ "$step" = stack ]; then
+        compose up -d --build --no-deps velocity bot-runner lobby game || exit 1
+      elif [ "$step" = pack ]; then compose up -d --no-deps --no-build resource-pack || exit 1; fi
+      if [ "$step" = stack ]; then
+        : # containers recreated above; the plugins step force-redeploys jars + content
+      elif [ "$step" = plugins ] && [ "$content" = 1 ]; then
         # One restart with new jars AND new YAML staged together (no old-jar/new-content mismatch, arenas built once).
-        make dev-deploy || exit 1
+        if [ "$stack" = 1 ]; then FORCE=1 make dev-deploy || exit 1; else make dev-deploy || exit 1; fi
       elif [ "$step" = content ] && [ "$plugins" = 1 ]; then
         : # already pushed by dev-deploy; only the reload confirmation below runs
       else
@@ -152,6 +176,7 @@ deploy() (
       fi
       for svc in lobby game; do
         case "$step" in
+          stack) ;;
           content) confirm "$svc" "astera admin reload all" "Reloaded all." || exit 1 ;;
           pack)
             hash=$(docker exec astera-dev-resource-pack-1 cat /usr/share/nginx/html/astera.zip.sha1) || exit 1
