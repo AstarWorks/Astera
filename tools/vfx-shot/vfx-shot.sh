@@ -2,16 +2,22 @@
 # vfx-shot: cast one skill on an Astera server and film it with a REAL Minecraft client (headless: Xvfb + llvmpipe).
 # Output: build/vfx-shot/<skill>/<view>/{frame_NNN.png,sheet.png,<skill>-<view>.gif,.mp4,meta.json}
 #
-#   make vfx-shot SKILL=couture-rapier-s2 [VIEW=caster|opponent|side|compare|all] [TICKS=60]
+#   make vfx-shot SKILL=couture-rapier-s2 [VIEW=caster|opponent|side|front|back|right|high|near|compare|all] [TICKS=60]
+#   orbit views (spectator Watcher): side = 6 blocks off the caster's left, right = the opposite side, front = ahead beside
+#   the target looking back, back = behind the caster, high = 45 deg down from the back-left, near = a bystander at eye
+#   height ~2.4 blocks away (orbit_cam)
 #   make vfx-shot SKILL=bastion-greatsword-s3 VIEW=compare CASE=zwei-s3     # camera from the skill-compare intent
-#   make vfx-shot-up | vfx-shot-status | vfx-shot-down                      # the warm stack, explicitly
+#   make vfx-shot-up | vfx-shot-status | vfx-shot-down | vfx-shot-reap       # the kept stack, explicitly / sweep stragglers
 #
-# WARM STACK (default). One stack per checkout (compose project astera-shot-<hash of the checkout path>): a Paper
-# server + resource-pack host + the two clients (Watcher, Caster) that stay joined and parked. A capture only syncs
-# what changed (content/ -> docker cp + `astera admin reload all`; pack inputs -> host gradle + docker cp + pack
-# reload; plugin code -> host gradle + jar copy + server restart), resets the scene, films and extracts. The first
-# capture (or `vfx-shot-up`) creates the stack: no image is built, jars/content/pack are copied into stock images.
-# SHOT_EPHEMERAL=1 tears everything down at the end instead (the old one-shot behaviour).
+# LIFECYCLE. One stack per checkout (compose project astera-shot-<hash of the checkout path>): a Paper server +
+# resource-pack host + the clients (Watcher, Caster). By default a run tears down everything it started on every exit
+# path (clients' whole process groups, the compose project); a watchdog (watchdog.sh) enforces SHOT_TIMEOUT and finishes
+# the teardown when the run dies without its EXIT trap. Runs are serialized host-wide (SHOT_SLOTS, default 1, flock on
+# /tmp/claude-1000/astera-vfx-shot.lock) and every run first reaps stragglers of dead runs (reap.py).
+# SHOT_KEEP=1 keeps the stack + parked clients warm for the next capture from this checkout (only what changed is synced:
+# content/ -> docker cp + `astera admin reload all`; pack inputs -> host gradle + docker cp + pack reload; plugin code ->
+# host gradle + jar copy + server restart), but only for SHOT_KEEP_TTL seconds after the run and only while no other
+# checkout needs the slot; then the parker / the next run's reaper removes it.
 # See tools/vfx-shot/README.md for the knobs and troubleshooting.
 set -uo pipefail
 
@@ -115,14 +121,91 @@ stack_down() {
   log "stack $PROJECT removed"
 }
 
-if [ "$SOURCED" != 1 ] && [ "$CMD" = down ]; then stack_down; exit 0; fi
+# ---------------------------------------------------------------- run lifecycle (lock, watchdog, reap, teardown)
+SHOT_TIMEOUT="${SHOT_TIMEOUT:-2700}"          # hard wall-clock limit per run (s), counted from the moment it holds its locks
+SHOT_KEEP_TTL="${SHOT_KEEP_TTL:-$SHOT_TIMEOUT}"   # SHOT_KEEP=1: how long the kept stack may idle after the run (s)
+SHOT_REGISTRY="${SHOT_REGISTRY:-/tmp/claude-1000/astera-vfx-shot/stacks}"
+export SHOT_TIMEOUT SHOT_KEEP_TTL SHOT_REGISTRY
+RUN_STARTED=0
+WATCHDOG_PID=""
+FILM_PID=""
+
+reap_py() { python3 -I "$HERE/reap.py" "$@"; }
+
+# Host sweep for stragglers of dead runs + room for this run (SHOT_REAP_SCOPE=host (default) | self (this checkout only) | off).
+reap_stragglers() {
+  local scope=(--root "$ROOT")
+  case "${SHOT_REAP_SCOPE:-host}" in
+    off) return 0 ;;
+    self) ;;
+    host) scope=() ;;
+    *) die "SHOT_REAP_SCOPE must be host|self|off" ;;
+  esac
+  reap_py "${scope[@]}" --skip-state "$STATE" --make-room "${SHOT_SLOTS:-1}" {STACK_LOCK_FD}>&- {SLOT_FD}>&- || log "WARN: reaper failed"
+}
+
+proc_starttime() { sed 's/^.*) //' "/proc/$1/stat" 2>/dev/null | awk '{print $20}'; }
+
+# The caller chain the watchdog watches (parent + grandparent, e.g. make + the agent shell); SHOT_DETACHED=1 watches none.
+caller_pids() {
+  local p="$PPID" i st
+  [ "${SHOT_DETACHED:-0}" = 1 ] && return 0
+  for i in 1 2; do
+    [ -n "$p" ] && [ "$p" -gt 1 ] || return 0
+    st="$(proc_starttime "$p")"
+    [ -n "$st" ] && printf '%s:%s ' "$p" "$st"
+    p="$(awk '{print $4}' "/proc/$p/stat" 2>/dev/null)"
+  done
+}
+
+# run_begin: everything a capture / anim-shot run does before touching the stack. Ownership = the stack lock (held by this
+# process and its watchdog); the slot bounds the number of runs host-wide.
+run_begin() {
+  trap cleanup EXIT
+  trap 'exit 130' INT TERM HUP
+  acquire_stack_lock "$STATE/stack.lock"   # one run at a time per stack (it is shared by all skills filmed from this checkout)
+  acquire_slot                             # host-wide vfx-shot slot (not the e2e flock)
+  RUN_STARTED=1
+  rm -f "$STATE/run.done" "$STATE/abort"
+  # this stack's own leftovers: reuse them only when a previous SHOT_KEEP=1 run kept them and they are within the TTL
+  local ku
+  ku="$(cat "$STATE/keep-until" 2>/dev/null || true)"
+  if [ -n "$ku" ] && [ "$(date +%s)" -lt "${ku%.*}" ]; then
+    log "reusing the kept stack $PROJECT (kept for another $(( ${ku%.*} - $(date +%s) ))s)"
+  else
+    reap_py --only-state "$STATE" --force --lock-held {STACK_LOCK_FD}>&- {SLOT_FD}>&- || true
+  fi
+  : > "$STATE/capture.active"              # tells a parker (kept stack) to keep the clients running, before keep-until goes
+  rm -f "$STATE/keep-until"
+  echo "$PROJECT" > "$STATE/project"
+  mkdir -p "$SHOT_REGISTRY" && echo "$STATE" > "$SHOT_REGISTRY/$PROJECT"
+  # shellcheck disable=SC2046
+  setsid bash "$HERE/watchdog.sh" "$$" "$STATE" "$SHOT_TIMEOUT" $(caller_pids) </dev/null >/dev/null 2>&1 &
+  WATCHDOG_PID=$!
+  printf 'PID=%s\nSTART=%s\nWATCHDOG=%s\nKEEP=%s\nTIMEOUT=%s\nPROJECT=%s\nROOT=%s\n' \
+    "$$" "$(date +%s)" "$WATCHDOG_PID" "$KEEP" "$SHOT_TIMEOUT" "$PROJECT" "$ROOT" > "$STATE/owner"
+  reap_stragglers
+  log "run limits: SHOT_TIMEOUT=${SHOT_TIMEOUT}s, SHOT_KEEP=$KEEP$([ "$KEEP" = 1 ] && echo " (TTL ${SHOT_KEEP_TTL}s)"), slots ${SHOT_SLOTS:-1}"
+}
+
+if [ "$SOURCED" != 1 ] && [ "$CMD" = down ]; then
+  # wait up to 10 min for a capture of this checkout to finish, then remove its stack, kept or not
+  reap_py --only-state "$STATE" --force --wait-lock 600 || exit 1
+  log "stack $PROJECT removed"
+  exit 0
+fi
+if [ "$SOURCED" != 1 ] && [ "$CMD" = reap ]; then
+  # sweep stragglers of every checkout (SHOT_REAP_SCOPE=self: this one only; SHOT_REAP_DRY=1: only print)
+  if [ "${SHOT_REAP_SCOPE:-host}" = self ]; then reap_py --root "$ROOT"; else reap_py; fi
+  exit 0
+fi
 
 # ---------------------------------------------------------------- capture config
 VIEW="${VIEW:-all}"
 case "$CMD" in
   capture) [ "$SOURCED" = 1 ] || [ -n "$SKILL" ] || die "SKILL=<skill-id> is required (e.g. SKILL=couture-rapier-s2)" ;;
   up|status) ;;
-  *) die "usage: vfx-shot.sh [capture|up|down|status]" ;;
+  *) die "usage: vfx-shot.sh [capture|up|down|status|reap]" ;;
 esac
 if [ "$CMD" = up ] && [ "$VIEW" = all ]; then VIEW=$([ -n "$CASE" ] && echo compare || echo side); fi
 TICKS_SET="${TICKS:-}"
@@ -157,12 +240,11 @@ CLAPPER="${CLAPPER:-1}"              # 1 = bookend the recording with the server
 CLAP_HEAD="${CLAP_HEAD:-1.2}"        # seconds of visible clapperboard before the HUD is hidden
 CLAP_TAIL="${CLAP_TAIL:-1.2}"        # seconds of visible clapperboard after the motion
 BEAT_TICKS="${BEAT_TICKS:-}"         # comma list of ticks after the cast (or `case`: the beat ticks of the case): save only those PNGs
-EPHEMERAL="${SHOT_EPHEMERAL:-0}"     # 1 = the old one-shot flow: stack and clients are removed when the run ends
-KEEP="${SHOT_KEEP:-1}"
-if [ "$SOURCED" = 1 ]; then EPHEMERAL=1; KEEP="${SHOT_KEEP:-0}"; fi
-[ "$EPHEMERAL" = 1 ] && [ "${SHOT_KEEP:-0}" != 1 ] && KEEP=0
+KEEP="${SHOT_KEEP:-0}"               # 1 = keep the stack + parked clients for SHOT_KEEP_TTL s after the run (vfx-shot-up always keeps)
+[ "$CMD" = up ] && KEEP=1
+[ "$SOURCED" = 1 ] && KEEP=0         # anim-shot: its stack is per animation, never worth keeping
 
-CAMERA="${CAMERA:-case}"             # VIEW=compare: case = intent.json camera keys, side = fixed 6 blocks to the side
+CAMERA="${CAMERA:-case}"             # VIEW=compare: case = intent.json camera keys, side = fixed 6 blocks to the side, <name> = intent camera_presets.<name>
 PRE_TICKS=0                          # frames filmed before the cast (compare only; cast_tick_ms = PRE_TICKS * 50)
 ARENA_R=15                           # floor half-size around the arena centre
 ARENA_H=12                           # air cleared above the floor
@@ -170,8 +252,8 @@ CMP_FOV_OPT=""
 CMP_FOV_DEG=""
 CAM0_CMD=""
 ENEMY_X=4.2
-case "$VIEW" in caster|opponent|side|compare|all) ;; *) die "VIEW must be caster|opponent|side|compare|all";; esac
-case "$CAMERA" in case|side) ;; *) die "CAMERA must be case|side";; esac
+case "$VIEW" in caster|opponent|side|front|back|right|high|near|compare|all) ;; *) die "VIEW must be caster|opponent|side|front|back|right|high|near|compare|all";; esac
+[[ "$CAMERA" =~ ^[a-z0-9][a-z0-9_-]{0,31}$ ]] || die "CAMERA must be case|side|<intent camera_presets name>"
 if [ "$VIEW" = compare ]; then
   [ -n "$CASE" ] || die "VIEW=compare needs CASE=<case-id> (e.g. CASE=zwei-s3)"
   INTENT="$(python3 -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); c=json.loads((d/"case.json").read_text()); p=(d/c.get("intent",{}).get("file","intent.json")).resolve(); p.relative_to(d.resolve()); print(p)' "$ROOT/tools/skill-compare/data/$CASE")"
@@ -200,19 +282,26 @@ PMC_VERSION="${PMC_VERSION:-5.0.6}"
 PLUGINS=(core items combat match stats economy persistence)
 
 # ---------------------------------------------------------------- cleanup
+# EXIT trap of a run (any exit path: success, die, INT/TERM/HUP). Before the run holds its locks it must not touch the stack
+# (another run of this checkout may own it). SHOT_KEEP=1 parks the clients for SHOT_KEEP_TTL s; otherwise (and always after a
+# watchdog abort) every process carrying this stack's marker (client process groups: portablemc + java + what they spawned,
+# Xvfb, parker) is killed and the compose project removed. run.done tells the watchdog the teardown is complete.
 cleanup() {
-  local n
-  rm -f "$STATE/capture.active"
-  if [ "$EPHEMERAL" != 1 ] && [ "$SOURCED" != 1 ]; then park_start; fi
-  if [ "$EPHEMERAL" = 1 ]; then
-    for n in "${!CPID[@]}"; do stop_client "$n"; done
+  [ "$RUN_STARTED" = 1 ] || return 0
+  trap '' INT TERM HUP   # a second Ctrl-C must not cut the teardown short
+  [ -n "$FILM_PID" ] && kill "$FILM_PID" 2>/dev/null
+  if [ -e "$STATE/abort" ]; then KEEP=0; log "stopped by the watchdog: $(grep -E 'stopping run' "$STATE/watchdog.log" | tail -1)"; fi
+  if [ "$KEEP" = 1 ]; then
+    echo "$(( $(date +%s) + SHOT_KEEP_TTL ))" > "$STATE/keep-until"
+    rm -f "$STATE/capture.active"
+    park_start
+    log "stack $PROJECT kept (SHOT_KEEP=1) until $(date -d "@$(cat "$STATE/keep-until")" '+%H:%M:%S'); make vfx-shot-down drops it now"
+  else
+    rm -f "$STATE/capture.active" "$STATE/parker.on"
+    reap_py --only-state "$STATE" --force --lock-held {STACK_LOCK_FD}>&- {SLOT_FD}>&- || true
+    log "stack $PROJECT and its clients removed"
   fi
-  if [ "$KEEP" != "1" ]; then
-    docker network disconnect "$NET" "$SELF_CT" >/dev/null 2>&1 || true
-    compose down -v --remove-orphans >/dev/null 2>&1 || true
-    rm -f "$STATE/subnet" "$STATE/deployed.json"
-    log "server project $PROJECT removed"
-  fi
+  : > "$STATE/run.done"
 }
 
 # ---------------------------------------------------------------- deployed-state record (provenance)
@@ -524,15 +613,21 @@ start_client() { # name width height
   write_client_files "$name" "$w" "$h"
   # -displayfd: the X server picks a free display number itself and writes it to stdout (no race between runs)
   : > "$wd/display"
-  setsid Xvfb -displayfd 1 -screen 0 "${w}x${h}x24" -nolisten tcp >"$wd/display" 2>"$wd/xvfb.log" {STACK_LOCK_FD}>&- {SLOT_FD}>&- &
+  # every client process carries VFX_SHOT_STATE (inherited by java and whatever it spawns): reap.py attributes it to this
+  # stack. setsid = own process group (the portablemc pid is the group: portablemc + java die together); no lock fds.
+  VFX_SHOT_STATE="$STATE" setsid Xvfb -displayfd 1 -screen 0 "${w}x${h}x24" -nolisten tcp >"$wd/display" 2>"$wd/xvfb.log" {STACK_LOCK_FD}>&- {SLOT_FD}>&- &
   XPID[$name]=$!
   d=""
   for i in $(seq 1 100); do d="$(tr -dc '0-9' <"$wd/display")"; [ -n "$d" ] && break; sleep 0.1; done
   [ -n "$d" ] || die "Xvfb did not report a display (see $wd/xvfb.log)"
   DISP[$name]="$d"
   : > "$wd/client.log"
+  # DBUS_SESSION_BUS_ADDRESS: without it the client autolaunches a session dbus + xdg-desktop-portal that escape its group.
+  # SHOT_CLIENT_XMX: without -Xmx the JVM may grow to 1/4 of host RAM (2.5-3 GB RSS seen per client).
+  VFX_SHOT_STATE="$STATE" DBUS_SESSION_BUS_ADDRESS="disabled:" NO_AT_BRIDGE=1 \
   DISPLAY=":$d" LIBGL_ALWAYS_SOFTWARE=1 LP_NUM_THREADS="${LP_NUM_THREADS:-4}" XDG_RUNTIME_DIR="$wd" \
     setsid "$VENV/bin/portablemc" --main-dir "$MCDIR" start "$MC_VERSION" --mc-dir "$wd" -u "$name" \
+    "--jvm-arg=-Xmx${SHOT_CLIENT_XMX:-1536m}" "--jvm-arg=-Xms256m" \
     --join-server "$SERVER_IP" --join-server-port 25565 --resolution "${w}x${h}" \
     >"$wd/client.log" 2>&1 {STACK_LOCK_FD}>&- {SLOT_FD}>&- &
   CPID[$name]=$!
@@ -634,6 +729,16 @@ build_arena() {
     sleep 1
   done
   [[ "$out" == *"not loaded"* ]] && die "arena chunks never loaded"
+  # A main world that is not void (a persisted level from before ADR-0255: generated terrain) roofs the arena with
+  # mountains and films it in the dark. Open the sky above the arena, TOP DOWN (so sand / gravel has nothing left to fall
+  # from), in slabs that fit the 32768-block fill limit; then drop any falling block and clear the arena itself.
+  local side=$((hi - lo + 1)) step y bottom
+  step=$((32768 / (side * side))); [ "$step" -ge 1 ] || step=1
+  for ((y = 319; y > Y + ARENA_H; y -= step)); do
+    bottom=$((y - step + 1)); [ "$bottom" -gt $((Y + ARENA_H)) ] || bottom=$((Y + ARENA_H + 1))
+    rcon "execute in minecraft:overworld run fill $lo $bottom $lo $hi $y $hi minecraft:air" >/dev/null
+  done
+  rcon "kill @e[type=minecraft:falling_block]" >/dev/null
   rcon "execute in minecraft:overworld run fill $lo $Y $lo $hi $((Y + ARENA_H)) $hi minecraft:air" >/dev/null
 }
 
@@ -696,6 +801,7 @@ film() { # viewer view_dir
     -video_size "$RES_FILM" -i ":$d" -vf "showinfo,setpts=PTS-STARTPTS" \
     -c:v libx264 -preset ultrafast -crf 10 -pix_fmt yuv444p -f matroska "$rec" 2>"$rec.log" &
   fpid=$!
+  FILM_PID=$fpid
   for i in $(seq 1 100); do grep -q ' pts:' "$rec.log" 2>/dev/null && break; sleep 0.1; done
   if [ "$CLAPPER" = 1 ]; then sleep "$CLAP_HEAD"; fi
   if [ "$HIDE_HUD" = 1 ]; then hud "$viewer" hide; fi
@@ -714,6 +820,7 @@ film() { # viewer view_dir
   if [ "$CLAPPER" = 1 ]; then hud "$viewer" show; sleep "$CLAP_TAIL"; else sleep 0.8; fi
   kill -TERM "$fpid" 2>/dev/null
   wait "$fpid" 2>/dev/null
+  FILM_PID=""
   pos_end="$(rcon "data get entity $viewer Pos" | sed 's/.*data: //') in $(rcon "data get entity $viewer Dimension" | sed 's/.*data: //')"
   [ -s "$rec" ] || die "recording failed"
   # showinfo's `pts:` is in microseconds (wall-clock timebase 1/1e6)
@@ -815,7 +922,34 @@ make_outputs() { # dir view
 }
 
 # ---------------------------------------------------------------- views
-players_of() { case "$1" in caster) echo Caster ;; opponent) echo "Caster Target" ;; side|compare) echo "Caster Watcher" ;; esac; }
+players_of() { case "$1" in caster) echo Caster ;; opponent) echo "Caster Target" ;; side|front|back|right|high|near|compare) echo "Caster Watcher" ;; esac; }
+
+# orbit_cam <view>: "x y z yaw pitch" of the spectator camera for the orbit views, relative to the caster (CX, Y, CZ) facing
+# +z with the target DISTANCE ahead. Each camera looks at the caster's chest / swing so the whole blade is in frame; front sits
+# 2 blocks beside the target line so the target does not hide the caster; near = a bystander at eye height ~2.4 blocks away.
+orbit_cam() {
+  python3 -I -c '
+import math, sys
+v, cx, y, cz, d = sys.argv[1], *map(float, sys.argv[2:])
+cams = {  # (camera offset, look-at offset) from the caster feet; x = +east = the caster left, z = forward
+    "side": ((6.0, 1.0, d / 2), None),
+    "right": ((-6.0, 1.0, d / 2), None),
+    "front": ((2.0, 1.7, d + 3.0), (0.0, 1.2, 0.6)),
+    "back": ((-1.0, 2.0, -5.0), (0.0, 1.2, 0.8)),
+    "high": ((4.0, 5.8, -1.5), (0.0, 0.9, 1.0)),
+    "near": ((2.2, 1.62, 1.2), (0.0, 1.2, 0.3)),
+}
+c, look = cams[v]
+if look is None:
+    yaw, pitch = (90.0 if c[0] > 0 else -90.0), 8.0
+else:
+    dx, dy, dz = (look[i] - c[i] for i in range(3))
+    yaw = math.degrees(math.atan2(-dx, dz))
+    pitch = -math.degrees(math.atan2(dy, math.hypot(dx, dz)))
+print("%.2f %.2f %.2f %.1f %.1f" % (cx + c[0], y + c[1], cz + c[2], yaw, pitch))
+' "$1" "$CX" "$Y" "$CZ" "$DISTANCE"
+}
+
 
 in_arena() { # player -> 0 when in the overworld, x/z in the 300s
   local dim pos
@@ -847,11 +981,11 @@ place_scene() { # view target_z
       rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" -v d="$ENEMY_X" 'BEGIN{printf "%.2f", x+d}') $Y $CZ $(dummy_nbt 90)" >/dev/null
       rcon "gamemode spectator Watcher" >/dev/null
       rcon "$CAM0_CMD" >/dev/null ;;
-    side)
+    side|front|back|right|high|near)
       summon_target
       rcon "gamemode spectator Watcher" >/dev/null
-      tp Watcher "$(awk -v x="$CX" 'BEGIN{printf "%.1f", x+6}')" "$(awk -v y="$Y" 'BEGIN{printf "%.1f", y+1.0}')" \
-        "$(awk -v z="$CZ" -v d="$DISTANCE" 'BEGIN{printf "%.1f", z+d/2}')" 90 8 ;;
+      # shellcheck disable=SC2046
+      tp Watcher $(orbit_cam "$view") ;;
   esac
 }
 
@@ -864,7 +998,7 @@ prepare_view() {
   case "$view" in
     caster)   VIEWER="Caster" ;;
     opponent) VIEWER="Target"; DUMMY_CASTER=1 ;;
-    side)     VIEWER="Watcher"; DUMMY_CASTER=1 ;;
+    side|front|back|right|high|near) VIEWER="Watcher"; DUMMY_CASTER=1 ;;
     compare)  VIEWER="Watcher"; DUMMY_CASTER=1 ;;
   esac
   res="${RES:-}"
@@ -974,7 +1108,14 @@ print_status() {
     done
   fi
   if [ -e "$STATE/stack.lock" ] && ! flock -n "$STATE/stack.lock" true 2>/dev/null; then echo "capture    RUNNING (stack lock held)"; else echo "capture    idle"; fi
-  echo "slots      $(ls "${SHOT_SLOT_DIR:-/tmp/claude-1000/vfx-shot-slots}"/slot-*.lock 2>/dev/null | while read -r s; do flock -n "$s" true 2>/dev/null && echo -n 'free ' || echo -n 'busy '; done)"
+  local lock="${SHOT_LOCK:-/tmp/claude-1000/astera-vfx-shot.lock}" i sf
+  echo -n "slots      "
+  for i in $(seq 1 "${SHOT_SLOTS:-1}"); do
+    sf="$lock"; [ "$i" = 1 ] || sf="$lock.$i"
+    if [ ! -e "$sf" ] || flock -n "$sf" true 2>/dev/null; then echo -n 'free '; else echo -n 'busy '; fi
+  done
+  echo "($lock)"
+  if [ -s "$STATE/keep-until" ]; then echo "kept       until $(date -d "@$(cat "$STATE/keep-until")" '+%F %T') (SHOT_KEEP=1)"; fi
 }
 
 # ---------------------------------------------------------------- main
@@ -983,11 +1124,7 @@ print_status() {
 command -v ffmpeg >/dev/null && command -v xdotool >/dev/null && command -v Xvfb >/dev/null \
   && command -v montage >/dev/null && command -v jq >/dev/null || die "need ffmpeg, xdotool, Xvfb, jq and ImageMagick (montage)"
 if [ "$CMD" = status ]; then print_status; exit 0; fi
-trap cleanup EXIT
-trap 'exit 130' INT TERM
-acquire_stack_lock "$STATE/stack.lock"   # one capture at a time per checkout (the stack is shared by all skills filmed here)
-acquire_slot                             # vfx-shot's own global semaphore (not the e2e flock); held (fd) until this process exits
-: > "$STATE/capture.active"   # tells parker.sh to keep the clients running
+run_begin
 thaw_clients
 ensure_client_install
 declare -A PACK_RELOADS_BEFORE

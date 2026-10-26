@@ -88,6 +88,11 @@ public object SkillLintPlanDump {
             val castTick = sim.tick
             origin = caster.position
             val casterLook = caster.direction
+            // Hold the skill's weapon (skill id minus -sN / -def, as tools/vfx-shot does): the onboarding starter kit makes
+            // the pistol the held item, and casting with it as the source spends the pistol's ammo pool (rejected: no
+            // emissions or displays in the dump).
+            val item = skill.replace(Regex("-(s[0-9]+|def|ego)$"), "")
+            if (sim.give(caster, item)) sim.hold(caster, item)
             caster.cast(skill)
             val last = def.durationTicks + 10
             for (t in 0..last) {

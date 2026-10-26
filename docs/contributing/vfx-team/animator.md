@@ -7,6 +7,8 @@ Agent: `.claude/agents/animator.md`. Team overview: [README.md](README.md).
 1. Weapon rig swing keyframes in a VFX file's `rigs:` block (`swing`, with `pivot`, `rest`, `tilt`).
 2. Caster movement vectors in the skill YAML (`dash_strike`, `propel`, `leap`, `set_velocity`), each as distance / ticks / direction.
 
+Workflow v3: build to the approved beat sheet ([beat-sheet.md](beat-sheet.md)): its tip path, rotation direction (camera and top-down), edge facing, reversals and swing count are the target, not a list of end poses. Plot the tip path from above before handing back.
+
 ## Principles (source: [vfx-art-direction.md](../vfx-art-direction.md) sections 0, 0.5, 7)
 
 - Anticipation (wind-up) -> fast main motion -> overshoot and settle. The main motion finishes within the **first 1/4** of the lifetime. No linear timing; the aftermath weakens gradually.

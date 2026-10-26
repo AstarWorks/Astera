@@ -195,12 +195,12 @@ e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, v
 	bash scripts/e2e.sh down
 
 .PHONY: vfx-shot
-vfx-shot: ## Film a skill with a real headless MC client on this checkout's warm stack: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60] [FOV=90] [BEAT_TICKS=case|0,8,16]
+vfx-shot: ## Film a skill with a real headless MC client (serialized host-wide, torn down on exit; SHOT_KEEP=1 keeps it warm for SHOT_KEEP_TTL): make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60] [FOV=90] [BEAT_TICKS=case|0,8,16]
 	@test -n "$(SKILL)" || { echo "usage: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|compare|all] [CASE=<case>] [TICKS=60]"; exit 2; }
 	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(TICKS)" bash tools/vfx-shot/vfx-shot.sh
 
 .PHONY: vfx-shot-up
-vfx-shot-up: ## Create/refresh this checkout's warm capture stack and park the clients (VIEW=compare CASE=<case> | side), no capture
+vfx-shot-up: ## Create/refresh this checkout's kept capture stack and park the clients for SHOT_KEEP_TTL s (VIEW=compare CASE=<case> | side), no capture
 	VIEW="$(or $(VIEW),all)" bash tools/vfx-shot/vfx-shot.sh up
 
 .PHONY: vfx-shot-status
@@ -213,8 +213,12 @@ anim-shot: ## Film a skin-rig animation for the skill-compare /anim review: make
 	bash tools/vfx-shot/anim-shot.sh "$(ANIM)"
 
 .PHONY: vfx-shot-down
-vfx-shot-down: ## Stop the parked clients and drop this checkout's warm capture stack (server, pack host, volumes)
+vfx-shot-down: ## Stop the parked clients and drop this checkout's capture stack (server, pack host, volumes), kept or not
 	bash tools/vfx-shot/vfx-shot.sh down
+
+.PHONY: vfx-shot-reap
+vfx-shot-reap: ## Kill vfx-shot clients / astera-shot-* stacks of dead runs, host-wide (live runs + kept stacks within TTL survive; SHOT_REAP_DRY=1 only lists)
+	bash tools/vfx-shot/vfx-shot.sh reap
 
 # ----------------------------------------------------------------------------
 # bots inside the LIVE stack (QA-2, ADR-0221) - Velocity modern forwarding, needs the astera-dev stack

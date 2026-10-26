@@ -4,20 +4,21 @@ Agent: `.claude/agents/vfx-director.md`. Team overview: [README.md](README.md).
 
 ## What the director produces
 
-`beats` in `tools/skill-compare/data/<case>/case.json`, six briefs in `.../briefs/`, the skill YAML, the composite VFX, the capture and its publication. Then it routes reviewer diffs.
+the beat sheet `tools/skill-compare/data/<case>/beat-sheet.md` ([beat-sheet.md](beat-sheet.md): mandatory template, swings counted, rotation direction from the camera and from above) with its reverse-check record, `beats` (tick mirror) in `case.json`, six briefs in `.../briefs/`, the skill YAML, the composite VFX, the capture and its publication. Then it routes reviewer diffs.
 
 ## Verified facts and where they live
 
 ### Procedure and acceptance
-- Procedure, acceptance table, status vocabulary (未分析 / 実装済・未検証 / 検証不合格 / 再現合格 / 独自設計・動作確認済): [limbus-skill-reproduction.md](../limbus-skill-reproduction.md) sections 1-7. The 2026-10-23 founder instruction removed the "max 4 iterations" stop: iterate until the match is shown with evidence. A skill is done only when the reviewer passes every row AND the founder approves the published capture on skill-compare; the director records the approval (date, published revision) in the weapon REPORT.
+- Procedure, acceptance table, status vocabulary (未分析 / 実装済・未検証 / 検証不合格 / 再現合格 / 独自設計・動作確認済): [limbus-skill-reproduction.md](../limbus-skill-reproduction.md) sections 1-7. The 2026-10-23 founder instruction removed the "max 4 iterations" stop: iterate until the match is shown with evidence. Workflow v3 (README "The loop"): beat sheet -> reverse check by a different AI that sees only the sheet -> founder gate 1 (the sheet, with top-down / side / front stick diagram, on skill-compare) -> build -> capture (side, front, back, top-down, 45 deg high, eye height) -> fresh reviewer marks every sheet row ○/× -> founder gate 2 in game. Never build before the reverse check passes and gate 1 is approved. A skill is done only when the reviewer marks every row ○ AND the founder approves in game; the director records the approval (date, published revision) in the weapon REPORT.
 - Do not change the target to fit the implementation; `intent` is an interpretation of the video, not proof.
-- Observation: measure sizes against character height; separate camera change from object scaling.
+- Observation: read the reference as motion, not as a pose list. Count the swings first, write the direction of every smear from successive frames, and put the rotation direction in both the camera and the top-down column. Measure sizes against character height; separate camera change from object scaling.
+- Lint is a preflight only (one sword, both hands on the grip, feet on the floor, display budget); a lint pass proves nothing about the motion.
 
 ### Tools
 - `make skill-compare-case CASE=<id> VIDEO=<youtubeId> START=<s> END=<s> SKILL=<skill> [WEAPON=<item-id>]` creates `case.json`, an `intent.json` template and native-fps frames. Schema example: `tools/skill-compare/data/zwei-s3/intent.json`.
 - `make skill-brief CASE=<id> [VIEW=compare] [AT="t:label"]` writes `build/brief/<case>/sheet-NN.png` + `manifest.json` (reference | intent | in-game per row). Non-empty `warnings` in the manifest means do not use the image as evidence. See [skill-compare README](../../../tools/skill-compare/README.md).
 - `make skill-pairs CASE=<id> AT="19.7:hit1 20.9:hit2"` (absolute video seconds).
-- Capture: `SKILL=<skill> ITEM=<item-id> VIEW=compare CASE=<case> make vfx-shot` (warm stack: content / pack / jar changes are synced automatically, ~30 s when only content moved; `make vfx-shot-up` / `-status` / `-down`; `BEAT_TICKS=case` for beat frames only; `meta.json` `clapper` is the measured frame-to-tick mapping). Always give `ITEM` explicitly (especially `-ego`). Details, views, FOV rules, slots: [vfx-shot README](../../../tools/vfx-shot/README.md).
+- Capture: `SKILL=<skill> ITEM=<item-id> VIEW=compare CASE=<case> make vfx-shot` (torn down on exit; with `SHOT_KEEP=1` the stack stays warm for `SHOT_KEEP_TTL` and content / pack / jar changes are synced automatically, ~30 s when only content moved; `make vfx-shot-up` / `-status` / `-down` / `-reap`; `BEAT_TICKS=case` for beat frames only; `meta.json` `clapper` is the measured frame-to-tick mapping). Always give `ITEM` explicitly (especially `-ego`). Details, views, FOV rules, slots: [vfx-shot README](../../../tools/vfx-shot/README.md).
 - Publish after quality review: `node tools/skill-compare/scripts/publish-capture.mjs build/vfx-shot/<skill>/compare <published-root> <skill> compare`. Requires matching skill/view, a contiguous PNG sequence, and no `captureQuality.invalid`. Once published, the server never falls back to the mutable working directory.
 - Round-2 captures need matching `referenceRevision` and `contentRevision` in case and `meta.json`; changed content requires recapture.
 - After ANY rig re-key or skill timing change (bastion S1): `bash tools/item-art/scripts/bastion_s1_regen.sh` runs the rig-derived chain in order (ring sprites `hring ring` -> `bastion_s1_fx.py` -> `bastion_s1_particles.py` -> `:tools:item-art:run`) and restores the unrelated sprite / preview / `.pyc` re-encodes. Commit its output BEFORE capturing; specialists' own regenerations go stale the moment the animator re-keys after them.
@@ -44,7 +45,7 @@ Agent: `.claude/agents/vfx-director.md`. Team overview: [README.md](README.md).
 - Machine load causes 2-6 tick (sometimes ~20) capture lag. Reject frozen or magenta-cube captures (`captureQuality.invalid`). Repeated idle frames alone do not prove a stall; `maxRepeatedFrames >= 15` needs visual confirmation.
 - Software GL renders ~35 fps at 1280x720, so +-1 tick is normal; do not tune per-hit offsets to hide sync drift.
 - Runtime applies 10% / x2 random crits (`CombatWiring`, procedure section 5), so total HP loss does not count hits; count hits from frames or events.
-- Machine/slot discipline: captures of one checkout run one at a time on its warm stack (the stack lock queues them; a compare and a 3-view capture of the same skill simply run one after the other). Never use the e2e flock for captures. See the "Real-client capture" section of [README.md](README.md).
+- Machine/slot discipline: one capture runs at a time on the whole host (`/tmp/claude-1000/astera-vfx-shot.lock`, `SHOT_SLOTS=1`); others queue. A run tears its stack down when it exits unless `SHOT_KEEP=1`, and a kept stack lives at most `SHOT_KEEP_TTL` (45 min) or until another checkout needs the slot. Never use the e2e flock for captures. See the "Real-client capture" section of [README.md](README.md).
 
 ## Brief template (copy per specialist)
 

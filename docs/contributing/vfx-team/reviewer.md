@@ -4,14 +4,27 @@ Agent: `.claude/agents/vfx-reviewer.md`. Team overview: [README.md](README.md).
 
 ## Independence rule
 
-The reviewer is read-only on content, code, briefs and case data. It never fixes; it writes diffs. The people who built the skill do not grade it. The reviewer judges against the **reference video**, not against the director's briefs or intent file ("intent is an interpretation, not proof").
+The reviewer is read-only on content, code, briefs and case data. It never fixes; it writes marks and diffs. The people who built the skill do not grade it, and a reviewer is a **fresh AI** each round (not the author, not the reverse-check agent). The reviewer judges against the **reference video** and the **approved beat sheet** ([beat-sheet.md](beat-sheet.md)), not against the director's briefs or intent file ("intent is an interpretation, not proof").
+
+## Judging: one mark per beat-sheet row (workflow v3 step 6)
+
+For every row of the approved beat sheet write **○ or ×** and a one-line reason that cites what you saw (reference time, in-game tick, image path). Rules:
+
+- **No free-form verdicts.** "Looks good", "feels heavy", "roughly OK" are not marks. A row has no half marks and no skipped rows; a row you could not judge is × with the reason "not visible in views X" and a capture request.
+- **No numbers as evidence.** Do not report lint scores, pixel errors, percentages or angle measurements as the reason. Say what is visible: "cut 1 turns clockwise from above; the sheet says counter-clockwise". Numeric lint is the author's preflight, never a reason to mark ○.
+- **Paired images.** Judge on ref|ours pairs of the same beat, same moment, equal scale (`make skill-pairs`, `make skill-brief`), then step frames before and after (direction comes from successive frames, never one still). Build pairs for every required view.
+- **Required views: side, front, back, top-down, 45 deg high, player eye height.** The **top-down view is mandatory**: it is the only view that shows rotation direction (clockwise vs counter-clockwise); the side camera cannot tell them apart. No top-down capture means no verdict on any rotation, reversal, or particle-travel row: reject the capture and request it. Particles are judged from the top-down and at least one more view, never from the right-side camera alone.
+- **Check the sheet columns, row by row:** swing count (count the swings in the capture first and compare), tip path, rotation direction in both views, edge facing, reversal, body twist, feet, hit tick, VFX/particle direction.
+- A × produces a diff (format below) labelled with its owning role and the row id. All rows ○ is necessary for done; the founder's in-game approval (gate 2) is the finish.
 
 ## Acceptance rows (source: [limbus-skill-reproduction.md](../limbus-skill-reproduction.md) section 6)
+
+These stay as the vocabulary for what a sheet row is judged on; the per-row ○/× above is the mark.
 
 | Row | Pass condition |
 |---|---|
 | Target skill | video segment and binding / implementation id match |
-| Motion | move direction, swing direction, contact order, count, return match the observation table |
+| Motion | move direction, swing direction, contact order, count, return match the beat sheet |
 | Shape | main shape, pose, size, placement, colour targets met; no board facing the wrong way, occlusion, floating or missing piece |
 | Timing | beats align from a common origin; 20 TPS rounding is up to 25 ms; real-client lag measured separately; if unknown, timing does not pass |
 | Hit | display and damage agree; expected count of hits with the weapon equipped |
@@ -20,7 +33,7 @@ The reviewer is read-only on content, code, briefs and case data. It never fixes
 
 Add for this team: a sound exists for every beat; only one weapon is visible during the skill; the model is multi-part, multi-material, not a flat slab; sprites are smooth at close-up.
 
-Status vocabulary for the report: 未分析 / 実装済・未検証 / 検証不合格 / 再現合格 / 独自設計・動作確認済. "Captured" or "iteration limit reached" is never a pass, and a reviewer pass alone is never done: the founder must also approve on skill-compare. A skill with no observed reference never gets an original-match verdict.
+Status vocabulary for the report: 未分析 / 実装済・未検証 / 検証不合格 / 再現合格 / 独自設計・動作確認済. "Captured" or "iteration limit reached" is never a pass, and a reviewer pass alone is never done: the founder must also approve in game. A skill with no observed reference never gets an original-match verdict.
 
 ## How to review (verified commands)
 
@@ -37,7 +50,7 @@ Status vocabulary for the report: 未分析 / 実装済・未検証 / 検証不�
 - A `--force` capture says nothing about cooldown, resources or key bindings.
 - HP loss does not count hits (random 10% x2 crits); count contacts on frames or events.
 - Headless time is wall-clock, not server ticks; do not accept per-hit offset tuning that hides sync drift.
-- Captures of one checkout share its warm stack and run one at a time (stack lock); never use the e2e flock for them. Do not start captures yourself unless the director asks. Read `meta.json` `stack.workingTreeInSync`, `stack.contentVerifiedInContainer` and `clapper` (measured lag, `fitHolds`) before trusting a frame-to-tick claim.
+- Captures run one at a time host-wide (vfx-shot slot lock) and are torn down on exit unless `SHOT_KEEP=1`; never use the e2e flock for them. Do not start captures yourself unless the director asks. Read `meta.json` `stack.workingTreeInSync`, `stack.contentVerifiedInContainer` and `clapper` (measured lag, `fitHolds`) before trusting a frame-to-tick claim.
 - Runtime facts that explain "missing" effects: font sprites render only up to 256 px (512 fails); a horizontal `fixed`-billboard TextDisplay does not render in the real client; hit VFX must peak on the damage tick; `hide_held_item` is only on `wp/pilot-bastion-s1`/ee976100, not main (two weapons visible on other branches is expected until merged).
 
 ## Rejected looks (fail on sight, label with owner)
@@ -57,9 +70,10 @@ Status vocabulary for the report: 未分析 / 実装済・未検証 / 検証不�
 | block-only effects with almost no particles | vfx |
 | no sound or one reused sound | sound |
 
-## Diff format (each diff)
+## Diff format (each ×)
 
 ```
+Row: <beat-sheet row id>
 [owner: model | animation | texture | particles | sound | integration(director)]
 Reference fact: <video time / frame, what it shows>
 Game now: <tick / image path, what it shows>

@@ -1,0 +1,9 @@
+# r28 crit flecks thrown off the blade in random directions (vanilla scatter: gaussian velocity x speed).
+id: bastion-s1-p-fleck
+shape: { kind: burst, spread_blocks: 0.04 }
+color: { r: 255, g: 255, b: 255 }
+count: 3
+lifetime_ticks: 8
+vanilla_particle: crit
+speed: 0.16
+force: true

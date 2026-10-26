@@ -1,0 +1,9 @@
+# r28 impact: dark smoke after the flash.
+id: bastion-s1-p-impact-smoke
+shape: { kind: burst, spread_blocks: 0.18 }
+color: { r: 255, g: 255, b: 255 }
+count: 6
+lifetime_ticks: 16
+vanilla_particle: smoke
+speed: 0.05
+force: true

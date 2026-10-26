@@ -23,31 +23,34 @@ This page defines who does what and how work moves.
 
 All are `model: sonnet` agents defined in `.claude/agents/{vfx-director,model-artist,animator,vfx-artist,particle-artist,sound-designer,vfx-reviewer}.md`. The main session stays a manager (`.claude/rules/manager-mode.md`): it launches the director (or the specialists for the director) and merges branches.
 
-## The loop
+## The loop (workflow v3, founder 2026-10-26)
+
+Details of steps 1-3 and the template: [beat-sheet.md](beat-sheet.md). Every role reads it.
 
 ```
-1. Director   observes reference frame by frame
-              -> beats in tools/skill-compare/data/<case>/case.json
-              -> briefs/{model,animation,texture,particles,sound,integration}.md
-2. Specialists (parallel, each in its own worktree/branch, own files only)
-              model-artist | animator | vfx-artist (texture / display core) | particle-artist | sound-designer
-              each returns files + a report + Learnings log entry
-3. Director   merges specialist branches, writes skill YAML + composite VFX,
-              captures in the real client, publishes to skill-compare
-4. Reviewer   compares reference | intent | in-game, judges every acceptance row,
-              outputs diffs each labelled with its owning role
-5. Director   routes each diff to its role as a new brief section -> back to 2
-              (only the affected roles run again)
-6. Founder    after reviewer PASS the director reports to the manager, who asks the
-              founder to review the published capture on skill-compare
-              (https://skill-compare.astarworks.com)
-              approve -> done | reject -> comments become diffs routed by role -> back to 2
-Stop when the reviewer passes every row with evidence AND the founder approves on skill-compare. Reviewer PASS alone is not done. An iteration count is never a stop condition.
+1. Observe        author writes the beat sheet from the reference (one row per beat, no blank cell,
+                  swings counted first, rotation direction from the camera AND from above)
+2. Reverse check  a different AI sees only the sheet (not the reference) and re-describes the motion;
+                  diff it with the author's reading; a gap = re-observe. No build before this passes.
+3. Founder gate 1 the beat sheet (text + top-down / side / front stick diagram) published on skill-compare
+4. Build          ONE author end to end, composing from the pose library (tools/pose-solve, keypoints) and
+                  the specialists' parts; the sword is judged on matching the sheet's trajectory,
+                  not on "moves big". Priority: sword > VFX > particles > posture.
+                  Preflight: make skill-lint (one sword, both hands on the grip, feet on the floor, display budget)
+5. Capture        real player path, views side, front, back, `top` (TOP-DOWN, mandatory: the only view that shows
+                  rotation direction), `high` (45 deg), `caster` (player eye height)
+6. Visual review  a fresh AI reviewer marks every beat-sheet row ○ or × with a reason on paired
+                  ref|ours images. No free-form "looks good", no numbers. Each × becomes a diff [owner: role].
+                  × -> back to 4 (only the affected roles run again)
+7. Founder gate 2 in game. Approve -> done | reject -> comments become sheet-row diffs -> back to 4
+                  (if the comment shows the sheet was wrong, back to 1)
+Stop when every row is ○ with evidence AND the founder approves in game. Reviewer ○ alone is not done. An iteration count is never a stop condition.
 ```
 
 Rules of the loop:
 
-- Specialists never talk to each other; every cross-role need goes through the director.
+- Specialists never talk to each other; every cross-role need goes through the director (the author in step 4).
+- The sheet is the contract: the author builds to it, the reviewer judges against it, the founder approved it. A change to the motion is a change to the sheet and repeats steps 2-3.
 - The reviewer never edits content and never sees "work done" as evidence; it judges the published capture against the reference.
 - A common-runtime fix (planner, mechanic) is not specialist work. The director raises it separately and, once fixed, every affected weapon is re-checked equipped.
 - Each role appends to its own Learnings log after every skill. The next skill's brief links the relevant entries.
@@ -56,18 +59,19 @@ Rules of the loop:
 
 | Artifact | Path | Written by | Read by |
 |---|---|---|---|
-| Beat sheet | `tools/skill-compare/data/<case>/case.json` field `beats` | director | everyone, reviewer |
+| Beat sheet | `tools/skill-compare/data/<case>/beat-sheet.md` (template: [beat-sheet.md](beat-sheet.md)); `case.json` `beats` mirrors its ticks | director (author) | everyone, reviewer, founder (gate 1) |
+| Reverse-check record | `tools/skill-compare/data/<case>/beat-sheet-check.md` (checker output + verdict) | director | founder (gate 1) |
 | Briefs | `tools/skill-compare/data/<case>/briefs/{model,animation,texture,particles,sound,integration}.md` | director | matching specialist |
 | Particle cues | `tools/skill-compare/data/<case>/deliver/particle-cues.yaml` | particle-artist | director |
 | Specialist delivery | files in its territory + report (format in the agent file) | specialist | director |
 | Brief sheet / pairs | `build/brief/<case>/`, `build/pairs/<case>.png` (`make skill-brief`, `make skill-pairs`) | any | reviewer, director |
-| Capture | `build/vfx-shot/<skill>/<view>/` (`meta.json` provenance) | director | reviewer |
+| Capture | `build/vfx-shot/<skill>/<view>/` (`meta.json` provenance); views side, front, back, top-down, 45 deg high, eye | director | reviewer |
 | Published capture | `build/skill-compare-published/<skill>/<view>/current.json` | director | reviewer, founder (approval review on skill-compare) |
-| Review diffs | reviewer report, each diff `[owner: role]` | reviewer | director |
+| Review marks | reviewer report: every sheet row ○/× with reason, each × `[owner: role]` | reviewer | director |
 | Founder approval | weapon REPORT: date + published revision; rejection comments become review diffs | director (records, via manager) | manager, reviewer |
 | Learnings | `## Learnings log` of each knowledge doc | each role | next skill's roles |
 
-`beats` is a new field in `case.json`; the page preserves unknown fields on save only if documented in `tools/skill-compare/README.md`, so the first director to use it checks that a Save in the page does not drop it.
+`beats` in `case.json` only mirrors the sheet's tick ranges and hit ticks (for `BEAT_TICKS=case`); the page preserves unknown fields on save only if documented in `tools/skill-compare/README.md`, so the first director to use it checks that a Save in the page does not drop it.
 
 ## File territories
 
@@ -83,21 +87,26 @@ Rules of the loop:
 
 Two roles never edit the same file in one round. Where one VFX YAML mixes pieces (rig swing vs trail style), the director splits the assignment by section in the brief.
 
-## Real-client capture (warm stack, 2026-10-26)
+## Real-client capture (2026-10-26)
 
-`make vfx-shot` used to build an image with gradle inside docker, boot a server and join two clients on every run (3-10+ minutes, plus a 30-60
-minute queue behind e2e). It now keeps **one warm stack per checkout** (server + pack host + parked clients) and only syncs what changed.
-Reference: [tools/vfx-shot/README.md](../../../tools/vfx-shot/README.md) (sections "Warm stack", "Tick clapperboard").
+Workflow v3 step 5 needs the views `side`, `front`, `back`, `top`, `high`, `caster`. `top` (camera straight above the caster, forward at the top of the image) is mandatory because it is the only view that shows rotation direction; a review without it is invalid. Skill captures do not have a `top` view in `tools/vfx-shot` yet (only the animation mode does): until it exists the director raises it as a runtime request to the manager and does not substitute another view.
+
+`make vfx-shot` boots an `astera-shot-<id>` stack (server + pack host) and headless clients (~2.5 GB each, server ~2.5 GB), films, and
+**tears everything down when it exits** (success, error, Ctrl-C, TERM/HUP, its caller dying). Runs are serialized host-wide; with `SHOT_KEEP=1`
+the stack and parked clients stay warm for the next capture from the same checkout and only what changed is synced.
+Reference: [tools/vfx-shot/README.md](../../../tools/vfx-shot/README.md) (sections "Lifecycle", "Tick clapperboard").
 
 ```
-make vfx-shot-up VIEW=compare CASE=<case>                 # optional: create the stack and park the clients (~2 min the first time)
-SKILL=<skill> ITEM=<item-id> VIEW=compare CASE=<case> make vfx-shot      # warm: ~30 s (1280x720, gif/mp4/sheet)
-SKILL=<skill> VIEW=side TICKS=40 BEAT_TICKS=0,8,20 make vfx-shot          # warm: ~12 s, 640x360, PNGs of the beat ticks only
-make vfx-shot-status                                       # fresh/STALE per layer, parked clients, locks, memory
-make vfx-shot-down                                         # when the track is done (frees ~7 GB and the parked clients)
+SKILL=<skill> ITEM=<item-id> VIEW=compare CASE=<case> make vfx-shot      # one-shot: boot, film (1280x720, gif/mp4/sheet), tear down
+SHOT_KEEP=1 SKILL=<skill> ITEM=<item-id> VIEW=compare CASE=<case> make vfx-shot   # keep it warm: the next capture takes ~30 s
+SHOT_KEEP=1 SKILL=<skill> VIEW=side TICKS=40 BEAT_TICKS=0,8,20 make vfx-shot      # warm: ~12 s, 640x360, PNGs of the beat ticks only
+make vfx-shot-up VIEW=compare CASE=<case>                 # create a kept stack and park the clients (~2 min the first time)
+make vfx-shot-status                                       # fresh/STALE per layer, parked clients, kept-until, slots, memory
+make vfx-shot-down                                         # drop this checkout's kept stack as soon as the round is done
+make vfx-shot-reap                                         # kill stragglers of dead runs host-wide (SHOT_REAP_DRY=1 lists only)
 ```
 
-- **Edit, then capture; nothing else.** Content (YAML, sprites, particles, animations) is pushed with `docker cp` and `/astera admin reload all` (seconds);
+- **Edit, then capture; nothing else.** On a kept stack, content (YAML, sprites, particles, animations) is pushed with `docker cp` and `/astera admin reload all` (seconds);
   textures / models / sounds / sprites rebuild the pack on the host and the parked clients reload it (10-20 s); a Kotlin plugin change rebuilds the seven jars and
   restarts the server (1-2 min, clients rejoin). The capture log prints `[+Ns]` per phase and `content: pushing` / `pack: pushing` /
   `plugins: restarting` so you can see which layer moved. Do not restart containers or copy files into the stack by hand.
@@ -109,15 +118,16 @@ make vfx-shot-down                                         # when the track is d
   (+-1-2 ticks, bursty software client) is a property of the client, not of the offset. If `clapper.measured` is false the capture fell back to the assumed 60 ms.
 - **Lighter output.** caster / opponent / side views film at 640x360 (compare stays 1280x720; `RES=` overrides). `BEAT_TICKS=case` (the case's `beats[].tick`) or an explicit tick
   list saves only those PNGs (no sheet / gif / mp4, `beatFramesOnly: true`, not publishable): use it for pose / VFX iteration, and a full capture for the round you publish.
-- **Lock discipline.** Do not use `/tmp/claude-1000/astera-e2e.lock` for captures. A second capture from the same worktree waits (`queued: another capture is using this checkout's stack`); the global
-  semaphore (`SHOT_SLOTS`, 2) and the memory guard (`SHOT_MIN_FREE_GB`, 8 GB) hold back captures from other worktrees. Never kill another worktree's stack or the `astera-dev-*` /
-  `astera-e2e-*` containers; `make vfx-shot-down` only removes this checkout's own.
-- Parked clients are frozen between captures (`parker.sh`), so an idle stack costs about one core and ~7 GB of RAM. `SHOT_EPHEMERAL=1` gives the old tear-down-at-the-end behaviour.
+- **Lock and memory discipline.** One capture at a time on the whole host: the slot lock `/tmp/claude-1000/astera-vfx-shot.lock` (`SHOT_SLOTS`, default 1) queues every other
+  run (`queued: all 1 vfx-shot slot(s) busy`). Do not use `/tmp/claude-1000/astera-e2e.lock` for captures. A kept stack (`SHOT_KEEP=1`) is bounded: it is removed
+  `SHOT_KEEP_TTL` seconds (default = `SHOT_TIMEOUT`, 45 min) after its last run, or earlier when a run from another checkout needs the slot. Each run has a hard
+  `SHOT_TIMEOUT` (45 min). Run captures in the foreground or with `run_in_background`; never `nohup ... &` and walk away (a run whose caller is gone is stopped, unless
+  `SHOT_DETACHED=1`). Never kill another worktree's processes by hand or the `astera-dev-*` / `astera-e2e-*` containers; `make vfx-shot-reap` only removes stacks whose run is dead.
 
 ## Shared rules
 
 - No push (the manager pushes), no unit tests, no gradle `check`; commit trailer `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
-- Real-client capture: use the warm stack (section "Real-client capture" below), never wrap it in the e2e flock. Captures of one checkout queue behind each other on the stack lock (different skills, cases and views all share the stack); captures of different worktrees run side by side under the slot semaphore and the memory guard.
+- Real-client capture: see "Real-client capture" above; never wrap it in the e2e flock. All captures on the host queue on the vfx-shot slot lock; each run tears its stack down on exit unless `SHOT_KEEP=1` (bounded by `SHOT_KEEP_TTL`).
 - No paid services (founder). The `generate-sounds` skill uses paid fal.ai; see [sound.md](sound.md).
 - Only one weapon may be visible during a skill (mechanic `hide_held_item`; see [director.md](director.md) for where it lives).
 

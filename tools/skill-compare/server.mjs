@@ -38,7 +38,7 @@ export function makeHandler(opts = {}) {
     return [...S.allCases().values()].map(({ id, c, src }) => ({
       id, videoId: c.videoId, skill: c.skill, start_s: c.start_s, end_s: c.end_s,
       hits: (c.segments || []).filter((x) => x.kind === "hit").length,
-      media: !!S.cacheFor(id, src), edits: (c.editLog || []).length, from: { worktree: src.name, branch: src.branch },
+      media: !!S.cacheFor(id, src) || !!stillsOf(c.skill?.asteraSkillId), edits: (c.editLog || []).length, from: { worktree: src.name, branch: src.branch },
     }));
   }
 
@@ -76,14 +76,26 @@ export function makeHandler(opts = {}) {
         prov: ln.report ? { ...provOf(ln.report.provenance ?? {}), published: true, kind: "lint" } : null };
     }
     const rd = cur("round");
-    if (rd && typeof rd.text === "string") out.round = { text: rd.text, revision: rd.revision, prov: { ...provOf(rd), published: true, kind: "round" } };
+    if (rd && typeof rd.text === "string") out.round = { text: rd.text, revision: rd.revision, images: Array.isArray(rd.images) ? rd.images : [], imgBase: `/round/${skill}/${rd.revision}/img/`, prov: { ...provOf(rd), published: true, kind: "round" } };
     return out;
+  }
+
+  /** Plain stills grid (pose-review cases): <published>/<skill>/stills/current.json (scripts/publish-stills.mjs). */
+  function stillsOf(skill) {
+    if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return null;
+    const f = join(publishedDir, skill, "stills", "current.json");
+    if (!existsSync(f)) return null;
+    try {
+      const m = readJson(f);
+      if (!/^[a-f0-9]{64}$/.test(m.revision || "")) return null;
+      return { revision: m.revision, title: m.title, rows: m.rows, base: `/stills/${skill}/${m.revision}/`, contentRevision: m.contentRevision ?? null, contentDirty: m.contentDirty ?? null };
+    } catch { return null; }
   }
 
   function mcInfo(skill, referenceRevision, contentRevision) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return info;
-    for (const view of ["compare", "input", "caster", "opponent", "side"]) {
+    for (const view of ["compare", "input", "caster", "opponent", "side", "front", "back", "right", "high", "near"]) {
       const pointer = join(publishedDir, skill, view, "current.json");
       if (existsSync(pointer)) {
         try {
@@ -146,6 +158,7 @@ export function makeHandler(opts = {}) {
       analysis: ap && existsSync(ap) ? readJson(ap) : { waveform: [], waveformStepMs: 10, onsets: [], cuts: [] },
       mc: mcInfo(c.skill?.asteraSkillId, c.referenceRevision, c.contentRevision),
       views: reviewViews(c.skill?.asteraSkillId, c.referenceRevision),
+      stills: stillsOf(c.skill?.asteraSkillId),
     };
   }
 
@@ -244,6 +257,13 @@ export function makeHandler(opts = {}) {
       const f = join(repo, "build", "skill-lint", m[1], "overlay", m[2] + ".png");
       return inside(join(repo, "build"), f) ? file(f, "image/png") : err(400, "bad path");
     }
+    if ((m = /^\/round\/([a-z0-9-]+)\/([a-f0-9]{64})\/img\/([A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|jpg|webp))$/.exec(p))) {
+      const f = join(publishedDir, m[1], "round", m[2], "img", m[3]);
+      if (!existsSync(f) || !statSync(f).isFile()) return err(404, "not found");
+      return new Response(Bun.file(f), { headers: { "content-type": m[4] === "png" ? "image/png" : m[4] === "jpg" ? "image/jpeg" : "image/webp", "x-content-type-options": "nosniff", "cache-control": "private, max-age=31536000, immutable" } });
+    }
+    if (p === "/stills.html") return file(join(publicDir, "stills.html"), "text/html; charset=utf-8");
+    if ((m = /^\/stills\/([a-z0-9-]+)\/([a-f0-9]{64})\/(\d{1,2}-(?:reference|preview|ingame)\.png)$/.exec(p))) return file(join(publishedDir, m[1], "stills", m[2], m[3]), "image/png");
     if (p === "/" || p === "/index.html") return file(join(publicDir, "index.html"), "text/html; charset=utf-8");
     if (p === "/case.html" || /^\/case\/[a-z0-9-]+$/.test(p)) return file(join(publicDir, "case.html"), "text/html; charset=utf-8");
     if ((m = /^\/evidence\/([a-z0-9-]+)\.png$/.exec(p))) return file(join(repo, "build", "limbus-review", "pairs-round2", m[1] + ".png"), "image/png");
@@ -283,7 +303,7 @@ export function makeHandler(opts = {}) {
       const f = join(cdir, "frames", m[2]);
       return inside(cdir, f) ? file(f, "image/jpeg") : err(400, "bad path");
     }
-    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|input|caster|opponent|side|preview)\/(frame_\d{3,4}\.(?:png|webp))$/.exec(p))) {
+    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|input|caster|opponent|side|front|back|right|high|near|preview)\/(frame_\d{3,4}\.(?:png|webp))$/.exec(p))) {
       const revision = new URL(req.url).searchParams.get("v");
       if (/^[a-f0-9]{64}$/.test(revision || "")) {
         const f = join(publishedDir, m[1], m[2], revision, m[3]);

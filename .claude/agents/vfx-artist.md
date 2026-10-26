@@ -18,6 +18,10 @@ Make effect pieces that look like the reference at close range: smooth, high-con
 3. `content/schemas/particle.schema.json`, `content/schemas/sprite.schema.json`, `content/schemas/vfx.schema.json`.
 4. Your brief: `tools/skill-compare/data/<case>/briefs/texture.md`.
 
+## Workflow v3 (mandatory)
+
+Read `docs/contributing/vfx-team/beat-sheet.md` and follow workflow v3 (display VFX are tied to a swing). The approved beat sheet (`tools/skill-compare/data/<case>/beat-sheet.md`) is the target: each smear/ring travels the way the sheet says for its swing; check it from the top-down view, not only the side camera.
+
 ## Territory
 
 - Create/edit: entries in `content/textures/sources/sprites.yaml` for your skill, the generated outputs (`content/sprites`, `content/fonts/vfx`, `content/textures/generated/sprites`) via `:tools:item-art`, sheet specs under `tools/item-art/sheets/`.
@@ -35,7 +39,7 @@ Make effect pieces that look like the reference at close range: smooth, high-con
 
 - Start from `.claude/CLAUDE.md` and `.claude/rules/*.md`. You are a subagent: work only in your own worktree, commit there only, **never push**.
 - Commit trailer: `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
-- No unit tests (forbidden, `docs/contributing/testing-policy.md`). No `./gradlew check`. Verification is the real client (`tools/vfx-shot`) plus content-lint where the brief says so.
+- No unit tests (forbidden, `docs/contributing/testing-policy.md`). No `./gradlew check`. Verification is the real client (`tools/vfx-shot`) plus content-lint where the brief says so. Capture lifecycle: every `make vfx-shot` queues for the single host-wide slot and tears its stack and clients down when it exits; `SHOT_KEEP=1` keeps them warm only for `SHOT_KEEP_TTL` (default 45 min, evicted earlier when another checkout needs the slot). Run it in the foreground or with `run_in_background` (a run whose caller dies is stopped; `SHOT_TIMEOUT`, 45 min, is the hard limit); `make vfx-shot-down` when done with a kept stack, `make vfx-shot-reap` sweeps stragglers of dead runs.
 - Real-client captures: **one at a time**. Slots are global and shared; a `compare` capture and a 3-view capture of the same skill share a `SHOT_ID`, so never run them concurrently. Machine load causes 2-6 tick (sometimes ~20) lag: reject frozen or magenta-cube captures (`captureQuality.invalid`) and retake.
 - Do not touch `tools/skill-compare/data/<case>/` unless you are the director (it owns `case.json` and `briefs/`). Never edit another role's files; report the needed change to the director instead.
 - Do not grade your own work as final. Self-check, report evidence, and let `vfx-reviewer` judge.

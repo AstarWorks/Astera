@@ -93,6 +93,9 @@ public data class RigBoneTrack(
  * A keyframed pose animation for the skin rig (`content/animations/<id>.yaml`, ADR-0250).
  * Rotations are degrees relative to the rest pose around the bone's pivot, positions are pixels,
  * scales are multipliers; see [SkinRigTransforms] for the exact frame and rotation order.
+ *
+ * @property twoHandGrip when true the left arm's authored rotation is replaced by an aim at the right-hand grip
+ * (the held weapon's handle), so the off hand stays on the weapon whatever the body does.
  */
 public class SkinRigAnimation(
     public val id: CustomAnimationId,
@@ -103,6 +106,7 @@ public class SkinRigAnimation(
     public val blendOutTicks: Int,
     public val bones: Map<SkinRigBone, RigBoneTrack>,
     public val root: RigBoneTrack?,
+    public val twoHandGrip: Boolean = false,
 ) {
     init {
         require(lengthTicks in 1..MAX_LENGTH_TICKS) { "length_ticks must be 1..$MAX_LENGTH_TICKS: $lengthTicks" }
@@ -134,10 +138,14 @@ public data class BonePose(
     }
 }
 
-/** A sampled pose of every bone plus the whole-rig [root] transform; bones the animation does not touch are at rest. */
+/**
+ * A sampled pose of every bone plus the whole-rig [root] transform; bones the animation does not touch are at rest.
+ * [leftHandGrip] (0..1) is how far the left arm is turned from its authored rotation to aim at the right-hand grip.
+ */
 public data class RigFrame(
     public val root: BonePose,
     public val bones: Map<SkinRigBone, BonePose>,
+    public val leftHandGrip: Double = 0.0,
 ) {
     public companion object {
         public val REST: RigFrame = RigFrame(BonePose.REST, SkinRigBone.entries.associateWith { BonePose.REST })

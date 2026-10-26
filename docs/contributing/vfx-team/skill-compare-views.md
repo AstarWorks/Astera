@@ -4,7 +4,7 @@ Founder rule (2026-10-26): skills are reviewed and accepted ONLY on the skill-co
 
 | View | Produced by | Published by | Shown as |
 |---|---|---|---|
-| real client capture | `tools/vfx-shot` | `scripts/publish-capture.mjs` | "In-game" column |
+| real client capture | `tools/vfx-shot` (`VIEW=` compare, input, caster, opponent, side, right, front, back, high, near) | `scripts/publish-capture.mjs` | "In-game" column (source menu: one entry per published view) |
 | preview | `make skill-preview SKILL=<s>` | `scripts/publish-preview.mjs` (called by the make target) | middle "Preview" column, tick-synced with reference and capture; banner "PREVIEW - not the real client" |
 | lint | `make skill-lint SKILL=<s>` writes `build/skill-lint/<s>/report.json` (terminal output and exit code unchanged) | `scripts/publish-lint.mjs` (called by the make target) | lint panel under the columns (PASS/FAIL/SKIP per check with numbers, click a row to seek), plus per-tick "lint @ t+N" chips under the preview |
 | overlay | lint check 1b / `make skill-overlay` -> `build/skill-lint/<s>/overlay/<beat>.png` | `publish-lint.mjs` | shown over the reference column on the beat's tick, toggle "注釈オーバーレイ" |
@@ -18,4 +18,10 @@ Every view shows branch, git revision, content revision, dirty flag (content/cod
 
 ## Round notes
 
-`round.md`: short, written by the director each round: what changed, open questions for the founder. Plain text (shown verbatim, max 20 kB). Skipped silently when absent.
+`round.md`: short, written by the director each round: what changed, open questions for the founder. Markdown, rendered on the page: headings, paragraphs, lists, GFM tables, quotes, code, **bold** / *italic*, `http(s)` links. Raw HTML is never interpreted (shown as text). Max 20,000 characters. Skipped silently when absent.
+
+Images: `![top-down](beat-top.png)` with a path relative to the notes file, e.g. `make skill-round SKILL=<s> FILE=notes/beat-sheet.md` next to `notes/beat-top.png`, `beat-side.png`, `beat-front.png`. Rules (the publisher fails the whole publish on a violation):
+
+- `.png` / `.jpg` / `.jpeg` / `.webp` only (content is checked, no SVG), at most 2 MB per image and 12 images per round.
+- The file must live inside the notes file's directory (or below it): no `..`, absolute paths, URLs or symlinks leaving it.
+- Images are copied into the immutable published revision and served from `/round/<skill>/<revision>/img/<name>`; the page only shows images the publisher listed. Rendering happens once when the case loads, so playback never repaints the notes.

@@ -1,6 +1,7 @@
 // Director-published review views on the case page: preview column, lint panel, annotation overlay, round notes.
 // Data comes from /api/cases/<id> `views` (server.mjs reviewViews); everything is optional and the page works without it.
 import { renderProv } from "./prov.js";
+import { renderMarkdown } from "./markdown.js";
 
 const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
 
@@ -18,7 +19,9 @@ export function createViews(ctx) {
     const h = el("div", "rhead");
     h.append(el("b", "", "ラウンドメモ（director → founder）"));
     const prov = el("span", "prov inline"); h.append(prov);
-    box.append(h, el("div", "rtext", r.text));
+    const body = el("div", "rtext");
+    body.append(renderMarkdown(r.text, { images: r.images || [], imgBase: r.imgBase || "" }));
+    box.append(h, body);
     renderProv(prov, { ...r.prov, published: true });
   }
 

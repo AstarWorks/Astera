@@ -95,7 +95,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--case", required=True)
     ap.add_argument("--skill")
-    ap.add_argument("--view", default="compare", choices=["compare", "input", "caster", "opponent", "side"])
+    ap.add_argument("--view", default="compare", choices=["compare", "input", "caster", "opponent", "side", "front", "back", "right", "high", "near"])
     ap.add_argument("--mc", help="capture directory (frame_NNN.png + meta.json); default: published current, else build/vfx-shot")
     ap.add_argument("--out")
     ap.add_argument("--offset-ms", type=int, help="override case.mc.offset_ms")

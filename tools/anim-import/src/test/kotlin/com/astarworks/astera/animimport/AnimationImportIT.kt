@@ -157,11 +157,23 @@ class AnimationImportIT {
         assertThat(decode().path("bones").has("right_arm")).isTrue()
 
         val invalid = edited { model ->
-            (model.path("outliner")[2].path("origin") as ArrayNode).set(1, mapper.nodeFactory.numberNode(21))
+            val arm = model.path("outliner")[0].path("children").first { it.path("name").asText() == "right_arm" }
+            (arm.path("origin") as ArrayNode).set(1, mapper.nodeFactory.numberNode(21))
         }
         val failure = run(invalid)
         assertThat(failure.first).isEqualTo(2)
         assertThat(failure.second).contains("right_arm: pivot must be")
+
+        val flat = edited { model ->
+            val outliner = model.path("outliner") as ArrayNode
+            val children = outliner[0].path("children") as ArrayNode
+            val head = children.first { it.path("name").asText() == "head" }
+            children.remove(children.indexOf(head))
+            outliner.add(head)
+        }
+        val wrongParent = run(flat)
+        assertThat(wrongParent.first).isEqualTo(2)
+        assertThat(wrongParent.second).contains("Bone 'head' must be a child of 'body'")
     }
 
     @Test

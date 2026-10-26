@@ -1,28 +1,21 @@
 #!/usr/bin/env python3
-"""Bastion S1 particle layer (r16: retextured vanilla particle channels, ADR-0274): particle files + particle and
-sprite-emitter elements appended to the fx files.
+"""Bastion S1 particle layer (r28: plain vanilla particles riding the blade): particle files + particle elements appended
+to the fx files.
 
-Run AFTER tools/item-art/scripts/bastion_s1_fx.py (that script rewrites the fx files from scratch and drops the
-marked particle block); this script removes its own previous block and re-appends it, so it is idempotent:
+Run AFTER tools/item-art/scripts/bastion_s1_fx.py (that script rewrites the fx files from scratch and drops the marked
+particle block) and after `make skill-lint-plan SKILL=bastion-greatsword-s1` (rig_path reads the blade per tick from the
+plan dump); this script removes its own previous block and re-appends it, so it is idempotent:
 
     python3 tools/item-art/scripts/bastion_s1_particles.py
 
-r24: every blade-riding element (sheds, ring embers, contact anchor, follow-through spray) is computed from the rig and skill
-YAML through rig_path.py (no hardcoded keys / delays): re-run after any animator re-key and the particles follow the blade.
-
-r16 (reviewer r11: hit 1 showed ~8 glints vs dozens in the reference): the volume now comes from the three skinned channels
-(content/particle-skins/), which cost no display: `spark` = firework (exact velocity, friction 0.91, visible ~12-15 ticks),
-`ember` = entity_effect (server tint; horizontal velocity is RANDOM in the client, only `up` keeps them near-still, then they
-rise), `smoke` = cloud (unused here: big light puffs, pulled toward a player within 2 blocks). Directions are fx-frame
-vectors delivered through `along_tangent` on a 2+-keyframe element that creeps 0.02/tick along the wanted direction, so they
-turn with the caster's yaw (a particle file's `custom` direction is world-fixed). Display sprites stay only for the dark
-slivers (the channels cannot be dark) and a few orange streaks.
-Frame: x = left, y = up, z = forward, origin at the caster's feet; the opponent camera sits ON the enemy (hit 1 eye z
-2.0-2.4, hit 2 eye z 1.7-2.0): every trajectory keeps EYE_KEEP (0.85) from those eyes and NEAR (1.5) from the caster eye
-(0, 1.62, 0); sparks stay at y >= 0.6 while visible. report() checks all of it with the client's own per-type maths.
+Every position comes from the rig (rig_path.py): a sheath of vanilla particles on the blade root -> tip on every tick of a
+held pose, the swept trail of every pose-to-pose cut, an impact burst on each damage tick. No display particles, no
+ADR-0274 skinned types (firework / entity_effect / cloud), so everything reads as vanilla. See the r28 block below.
 """
 import math
 import pathlib
+
+import numpy as _np
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 PART = ROOT / "content/particles"
@@ -45,40 +38,6 @@ def pdef(name, comment, vanilla, count, lifetime, shape="{ kind: point }", color
         lines.append("velocity: " + velocity)
     lines.append("force: true")
     (PART / ("bastion-s1-p-%s.yaml" % name)).write_text("\n".join(lines) + "\n")
-
-
-GOLD = (255, 210, 58)
-ORANGE = (255, 150, 40)
-SLIVER_TINT = None  # painted in its final colours (r21: opaque hot head + char tail); the r8 '#FF2A2218' tint turned it black
-SLIVER_SPIN = 12  # deg/tick, random sign per particle: the shards tumble apart instead of all lying at the sprite's 28 deg tilt
-
-
-def emitter(eid, sprite, tint, start, p, n, rate, speed, direction, spread, gravity, drag, life, size, sol, spin, aol=None):
-    """Sprite display-particle element (one display per particle): flies, spins, shrinks to nothing."""
-    keys = ", ".join("{ t: %s, v: %s%s }" % (t, v, ", ease: " + e if e else "") for t, v, e in sol)
-    EMITS.append(dict(id=eid, start=start, p=p, n=n, rate=rate, speed=speed, direction=direction, spread=spread,
-                      gravity=gravity, drag=drag, life=life, size=size, sprite=sprite))
-    akeys = "" if not aol else ", alpha_over_life: [%s]" % ", ".join(
-        "{ t: %s, v: %s%s }" % (t, v, ", ease: " + e if e else "") for t, v, e in aol)
-    return "\n".join([
-        "- id: " + eid,
-        "  kind: {type: sprite, sprite: %s, frame_ticks: 1, loop: false, see_through: true%s}" % (sprite, ", color: " + tint if tint else ""),
-        "  billboard: center",
-        "  brightness: 15",
-        "  start_tick: %d" % start,
-        "  keyframes:",
-        "  - t: 0",
-        "    translate: [%s]" % ", ".join(str(round(v, 3)) for v in p),
-        "  emit: { count: %d, rate_per_tick: %d, speed: [%s, %s], direction: '%s', spread_deg: %s, gravity: %s, drag: %s," % (
-            n, rate, speed[0], speed[1], direction, spread, gravity, drag),
-        "    life_ticks: [%d, %d], size: [%s, %s], size_over_life: [%s]," % (life[0], life[1], size[0], size[1], keys),
-        "    spin_over_life: [{ t: 0, v: %s }]%s, start_frame: random, frame_ticks: [1, 2] }" % (spin, akeys)])
-
-
-EMITS = []  # every sprite emitter written this run (for the keep-out / budget report)
-
-
-SLIVER_SOL = [(0, 1.0, None), (0.6, 0.85, None), (1, 0.0, "in_quad")]
 
 
 class Fx:
@@ -114,59 +73,6 @@ class Fx:
 
 
 # ---------------------------------------------------------------------------------------------------------
-# r24: the blade path is READ from the rig (tools/item-art/scripts/rig_path.py: content/vfx/<rig>.yaml keys, pivot, tilt,
-# rest, hit-stop freezes and the play_vfx / dash_strike delays of content/skills/<skill>.yaml), never hardcoded. Before r24
-# this file carried the r9 tip table (H1_KEYS, H1_DELAY 4) and the r10 sweep angles, so when the animator re-keyed the
-# wind-up (r23: coil, contact 8 -> 7) the sheds kept flying on the old path (director r23: detached orange streak, compare t5,
-# side t5-6). Re-run this script after ANY rig or skill timing change; the windows, contact points and arcs follow.
-# ---------------------------------------------------------------------------------------------------------
-import sys  # noqa: E402
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-import numpy as _np  # noqa: E402
-from rig_path import RigPath  # noqa: E402
-from bastion_s1_sprites import SWEEPS as _SWEEPS  # noqa: E402
-
-H1_CONTACT = (-0.439, 1.533, 1.583)  # r27: hit-1 contact point on the target side (bastion_s1_fx.H1_HIT)
-
-SKILL, RIG = "bastion-greatsword-s1", "bastion-s1-rig"
-RP1 = RigPath(SKILL, RIG, fx_vfx="bastion-s1-fx-high")
-RP2 = RigPath(SKILL, RIG, fx_vfx="bastion-s1-fx-low")
-CASTER_EYE = (0.0, 1.62, 0.0)  # fx frame; both fx files spawn after their dash has finished (rig_path.caster_eye)
-NEAR = 1.55  # caster camera near field: nothing emitted closer (brief: < 1.5)
-EYE_KEEP = 0.85  # opponent eye keep-out for path points
-H1_EYE, H2_EYE = RP1.target_eye(), RP2.target_eye()  # opponent camera = the target at the dash stop (capture DISTANCE 4)
-
-
-def eye_band(rp):
-    """Opponent eye positions to keep clear: the computed dash stop, 0.2 nearer (a target that steps in / client lag) and
-    0.3 further (a dash cut short)."""
-    z = rp.target_eye()[2]
-    return [(0.0, 1.62, round(z + d, 3)) for d in (-0.2, -0.1, 0.0, 0.3)]
-
-
-def blade_safe(rp, t, r, eyes, ymin=0.14):
-    """Point at radius r along the rig blade at (fractional) fx tick t, pulled in toward the pivot until it is EYE_KEEP
-    clear of every opponent eye and pushed out until it is NEAR clear of the caster eye; never under ymin."""
-    for _ in range(40):
-        p = rp.blade_point(t, radius=r)
-        if any(math.dist(p, e) < EYE_KEEP for e in eyes):
-            r -= 0.05
-            continue
-        if math.dist(p, CASTER_EYE) < NEAR:
-            r += 0.05
-            continue
-        break
-    return (p[0], max(p[1], ymin), p[2])
-
-
-def off(p, dx=0.0, dy=0.0, dz=0.0):
-    return (p[0] + dx, p[1] + dy, p[2] + dz)
-
-
-SPARK, STREAK_TINT = "bastion-s1-spark", "'#FF8A1E'"
-SPARK_SOL = [(0, 0.6, None), (0.2, 1.0, "out_quad"), (1, 0.0, "in_quad")]
-STREAK_SOL = [(0, 0.5, None), (0.15, 1.0, "out_expo"), (1, 0.0, "in_quad")]
-# ---------------------------------------------------------------------------------------------------------
 # r12 particle sprite: bastion-s1-spark (64 px, 4 frames), a smooth gold streak-glint: white-hot round core, gold lens body
 # tapering to needle tails along image +X, faint orange halo. Frames vary length / core size (flicker when the emitter
 # draws a random start frame and 1-2 ticks per frame). Size 1 = 1.6 blocks; emit size 0.14-0.2 = 0.2-0.3 blocks long.
@@ -199,383 +105,6 @@ def make_spark():
     save_strip("spark", frames, size)
 
 
-
-
-# ---------------------------------------------------------------------------------------------------------
-# r16: the channel layer (ADR-0274). Particle files are generated per (channel, count, speed, spread, jitter); elements
-# carry position and direction. CHAN_EMITS records every planned emission for the report (client maths per type).
-# ---------------------------------------------------------------------------------------------------------
-CH = {"spark": "firework", "ember": "entity_effect"}
-EMBER = (255, 140, 40)
-EMBER_HOT = (255, 196, 80)
-EMBER_DEEP = (226, 84, 26)
-DEFS = {}
-CHAN_EMITS = []  # dict(fx, tick, at, dir, def)
-
-
-def chdef(name, channel, count, speed, spread, jitter, direction="along_tangent", tint=None, comment=""):
-    data, color = None, (255, 255, 255)
-    if tint:
-        data, color = "{ kind: tint, color: %s }" % rgb(tint), tint
-    life = {"spark": 14, "ember": 24}[channel]
-    vel = "{ direction: %s, speed: %s, spread_degrees: %s, speed_jitter: %s }" % (direction, speed, spread, jitter)
-    pdef(name, comment, CH[channel], count, life, color=color, data=data, velocity=vel)
-    DEFS[name] = dict(channel=channel, count=count, speed=speed, spread=spread, jitter=jitter, direction=direction)
-    return name
-
-
-def channel_defs():
-    """Remove every previous bastion-s1-p-* file (r12 left none; earlier rounds' names) and write this round's set."""
-    for old in PART.glob("bastion-s1-p-*.yaml"):
-        old.unlink()
-    S, E = "spark", "ember"
-    chdef("spray", S, 4, 0.3, 16, 0.45, comment="r16 hit spray: retextured firework sparks (ADR-0274) thrown along the element's creep direction.")
-    chdef("fan", S, 4, 0.22, 28, 0.4, comment="r16 upward fan: firework sparks rising out of the contact.")
-    chdef("shed", S, 3, 0.17, 25, 0.4, comment="r16 ring shed: one firework spark per path point, flung along the sweep tangent.")
-    chdef("ember", E, 1, 0.05, 0, 0.5, "up", EMBER, "r16 ember: retextured entity_effect, orange; `up` with spread 0 (x = z = 0 exactly) makes the client scale its random sideways drift x0.1, then it rises.")
-    chdef("ember-hot", E, 1, 0.05, 0, 0.5, "up", EMBER_HOT, "r16 ember: retextured entity_effect, gold-white hot core.")
-    chdef("ember-deep", E, 1, 0.05, 0, 0.5, "up", EMBER_DEEP, "r16 ember: retextured entity_effect, deep red-orange (cooling).")
-
-
-def _path_between(a, b, step):
-    d = math.dist(a, b)
-    if d < 1e-9:
-        return []
-    n = max(1, min(24, math.ceil(d / step)))
-    return [tuple(a[k] + (b[k] - a[k]) * i / n for k in range(3)) for i in range(1, n + 1)]
-
-
-def chan(f, name, pid, start, pts, every=1, along=False, step=0.3):
-    """A particle element over `pts` (one keyframe per tick); records the planned emissions (VfxTimeline maths)."""
-    eid = f.add(name, pid, start, start + len(pts), pts, every=every, along=along, step=step)
-    life = len(pts)
-    for u in range(0, life, every):
-        at = pts[u]
-        nxt = tuple(pts[u + 1][k] - at[k] for k in range(3)) if u + 1 < life else tuple(at[k] - pts[max(u - 1, 0)][k] for k in range(3))
-        pp = _path_between(pts[max(u - every, 0)], at, step) if along and u > 0 else []
-        for q in (pp or [at]):
-            CHAN_EMITS.append(dict(fx=f.tag, eid=eid, tick=start + u, at=q, dir=nxt, d=DEFS[pid]))
-    return eid
-
-
-def spray(f, name, pid, tick, p, d, ticks=1):
-    """Directed burst(s): the element creeps 0.02/tick along d (fx frame) so along_tangent = d, turned with the yaw."""
-    L = math.sqrt(sum(x * x for x in d))
-    u = [x / L for x in d]
-    pts = [tuple(p[k] + 0.02 * i * u[k] for k in range(3)) for i in range(max(ticks, 2))]
-    if ticks == 1:  # one emission: life 2, every 2 (a 1-tick element has no tangent)
-        return chan(f, name, pid, tick, pts, every=2)
-    return chan(f, name, pid, tick, pts)
-
-
-def scatter(f, name, pid, tick, box, ticks, seed, step=0.28):
-    """Embers spread over a box: the element hops between random points each tick and along_path fills the chord, so
-    every tick drops a staggered line of embers across the zone."""
-    import random
-    rnd = random.Random(seed)
-    pts = []
-    for _ in range(20000):
-        if len(pts) == ticks:
-            break
-        q = tuple(rnd.uniform(lo, hi) for lo, hi in box)
-        if ember_ok(q, EYES[f.tag]) and (not pts or all(ember_ok(c, EYES[f.tag]) for c in _path_between(pts[-1], q, 0.1))):
-            pts.append(q)
-    return chan(f, name, pid, tick, pts, along=True, step=step)
-
-
-def eyes_clear(q, eyes, keep=EYE_KEEP, near=NEAR):
-    return all(math.dist(q, e) >= keep for e in eyes) and math.dist(q, CASTER_EYE) >= near
-
-
-def ember_ok(q, eyes):
-    """An `up` ember drifts <= 0.45 sideways and rises up to ~2.5 blocks: its whole column (+ 0.4 drift) must clear the
-    eyes."""
-    def col(e, keep):
-        h = math.hypot(q[0] - e[0], q[2] - e[2])
-        return h >= keep + 0.4 or q[1] >= e[1] + keep
-    return col(CASTER_EYE, NEAR) and all(col(e, EYE_KEEP) for e in eyes)
-
-
-def ring_embers(f, name, pid, rp, t0, t1, r, eyes, step, ymin=0.14):
-    """Embers dropped along the TRUE blade arc (rig_path.arc) between fx ticks t0 and t1, one per `step` blocks, each
-    emitted at the tick the blade has just passed it; points whose rising column would cross an eye are skipped."""
-    for t, _, _ in rp.arc(t0, t1, radius=r, step=step):
-        q = blade_safe(rp, t, r, eyes, ymin)
-        if ember_ok(q, eyes):
-            chan(f, name, pid, int(math.ceil(t - 1e-9)), [q, q], every=2)
-
-
-def spark_safe(at, d, pid, eyes, n=120, floor=0.6):
-    """Every sampled spark of this emission (cone x speed extremes, client maths) keeps the keep-outs and stays above
-    `floor` (r15 rule: 0.6, no glints lying under the target; the hit-2 floor scrape passes a lower one)."""
-    import random
-    rnd = random.Random(3)
-    df = DEFS[pid]
-    for _ in range(n):
-        dv = _cone(d, df["spread"], rnd)
-        for sp in (df["speed"] * (1 - df["jitter"]), df["speed"] * (1 + df["jitter"])):
-            p, v = list(at), [x * sp for x in dv]
-            for _ in range(15):
-                v[1] -= 0.004
-                p = [p[k] + v[k] for k in range(3)]
-                v = [x * 0.91 for x in v]
-                if p[1] < floor or math.dist(p, CASTER_EYE) < 1.5 or any(math.dist(p, e) < EYE_KEEP for e in eyes):
-                    return False
-    return True
-
-
-def ring_sheds(f, name, pid, rp, t0, t1, r, eyes, step, lift, ymin=0.3, floor=0.6):
-    """Sparks shed along the TRUE blade arc between fx ticks t0 and t1 (rig_path.arc, never a chord): one 1-tick spray per
-    `step` blocks, emitted at the tick the blade has just passed the point, flung along the arc tangent + outward from the
-    pivot + `lift` up; emissions whose sparks could cut a keep-out are dropped."""
-    pv = rp.pivot
-    for t, _, tg in rp.arc(t0, t1, radius=r, step=step):
-        q = blade_safe(rp, t, r, eyes, ymin)
-        o = (q[0] - pv[0], 0.0, q[2] - pv[2])
-        lo = math.hypot(o[0], o[2]) or 1.0
-        d = (tg[0] + 0.45 * o[0] / lo, tg[1] + lift, tg[2] + 0.45 * o[2] / lo)
-        if spark_safe(q, d, pid, eyes, floor=floor):
-            spray(f, name, pid, int(math.ceil(t - 1e-9)), q, d)
-
-
-H1_EYES, H2_EYES = eye_band(RP1), eye_band(RP2)
-EYES = {"s1h1": H1_EYES, "s1h2": H2_EYES}
-
-
-def rel_box(c, box, c0):
-    """A zone authored around an earlier contact point c0, moved with the contact point c read from the rig."""
-    return tuple((lo + c[k] - c0[k], hi + c[k] - c0[k]) for k, (lo, hi) in enumerate(box))
-
-
-def rel(c, p, c0):
-    return tuple(p[k] + c[k] - c0[k] for k in range(3))
-
-
-def blade_row(f, name, pid, rp, ft, radii, eyes, lift, spread_out=0.5, ymin=0.3, floor=0.6):
-    """Sparks shed ALONG the blade body on fx tick ft (one spray per radius): flung along the blade's own direction (the
-    pose is held, so the only motion the eye reads is the air dragging the sparks off it) plus a little outward / up. The
-    spray starts ON the blade (distance 0), so it never leads it."""
-    d = rp.blade_dir(ft)
-    for r in radii:
-        q = blade_safe(rp, ft, r, eyes, ymin)
-        out = (q[0], 0.0, q[2])
-        lo = math.hypot(out[0], out[2]) or 1.0
-        v = (d[0] + spread_out * out[0] / lo, d[1] + lift, d[2] + spread_out * out[2] / lo)
-        if spark_safe(q, v, pid, eyes, floor=floor):
-            spray(f, name, pid, ft, q, v)
-
-
-def blade_embers(f, name, pid, rp, ft, radii, eyes, ymin=0.14):
-    """Embers dropped ON the blade at fx tick ft (they drift up off it)."""
-    for r in radii:
-        q = blade_safe(rp, ft, r, eyes, ymin)
-        if ember_ok(q, eyes):
-            chan(f, name, pid, ft, [q, q], every=2)
-
-
-def hit1(rp=RP1):
-    """r27 pose to pose. fx tick 0 = skill 6 = the CUT to the follow-through (the blade jumps behind the neck, held to 15; hit
-    stop 7-8; overshoot cut at 16, fx 10). Nothing starts before the cut (B0 coil is `fx: none`). The contact bursts (sprays,
-    fan, embers, streaks, slivers) fly off the target-side contact point H1_HIT on the cut tick (reference: the white streak
-    runs into the target with orange sparks at its tip, t6-11). While the pose is held the blade keeps shedding: a spark row
-    and a few embers ON the blade body every second tick (the air drags them off it), so every tick differs and the sparks
-    follow the sword instead of floating at the old swing. The overshoot cut (fx 10-11) throws one more row."""
-    f = Fx("s1h1")
-    c = H1_CONTACT
-    kc = 0
-    for r_ft in (0, 1):  # the cut tick and the next one (frozen by the hit stop): full rows
-        blade_row(f, "shed", "shed", rp, r_ft, (1.0, 1.4, 1.8, 2.2), H1_EYES, 0.45)
-    for ft in (3, 5, 7, 9):  # held follow-through (skill 9, 11, 13, 15): thinner rows + embers
-        blade_row(f, "shed", "shed", rp, ft, (1.2, 1.8), H1_EYES, 0.55)
-        blade_embers(f, "ember-ring", "ember-deep" if ft % 4 == 3 else "ember", rp, ft, (1.0, 1.7, 2.2), H1_EYES)
-    blade_embers(f, "ember-ring", "ember-hot", rp, 0, (1.3, 2.0), H1_EYES)
-    for ft in (10, 11):  # overshoot cut (skill 16-17): the blade jumps up over the shoulder
-        blade_row(f, "shed", "shed", rp, ft, (0.9, 1.3, 1.7, 2.1), H1_EYES, 0.5)
-    blade_embers(f, "ember-ring", "ember-hot", rp, 10, (1.2, 1.9), H1_EYES)
-    for i, (dt, p, d) in enumerate((
-            (0, (-0.72, 1.62, 1.55), (-1.0, 0.18, 0.15)),
-            (0, (-0.75, 1.55, 1.45), (-1.0, 0.25, -0.25)),
-            (1, (-0.8, 1.7, 1.5), (-1.0, 0.3, 0.0)),
-            (1, (-0.78, 1.5, 1.55), (-1.0, 0.3, 0.3)),
-            (2, (-0.85, 1.6, 1.4), (-1.0, 0.2, -0.1)),
-            (3, (-0.9, 1.55, 1.45), (-1.0, 0.35, 0.1)))):
-        spray(f, "spray", "spray", kc + dt, p, d, ticks=2 if i < 2 else 1)
-    spray(f, "fan", "fan", kc, (-1.05, 1.7, 1.35), (-0.35, 1.0, -0.05), ticks=3)
-    scatter(f, "ember", "ember", kc, ((-2.0, -1.25), (1.2, 1.9), (1.15, 1.8)), 8, 11, 0.22)
-    scatter(f, "ember-hot", "ember-hot", kc, ((-1.6, -1.2), (1.4, 1.8), (1.3, 1.7)), 5, 12)
-    scatter(f, "ember-deep", "ember-deep", kc + 2, ((-2.2, -1.3), (1.0, 1.6), (1.1, 1.9)), 7, 13)
-    s = off(c, 0, 0.15, -0.1)
-    f.els.append(emitter("s1h1-p-streaks", "bastion-s1-streak", STREAK_TINT, kc, off(c, 0, -0.1, -0.15), 5, 2, (0.35, 0.5),
-                         "custom[-1, 0.2, 0.25]", 25, 0.0, 0.2, (3, 4), (0.07, 0.1), STREAK_SOL, 0))
-    f.els.append(emitter("s1h1-p-slivers", "bastion-s1-sliver", SLIVER_TINT, kc, off(s, -0.3, 0, -0.05), 8, 2, (0.18, 0.26),
-                         "custom[-1, 0.8, 0.1]", 40, 0.03, 0.08, (4, 5), (0.04, 0.06), SLIVER_SOL, SLIVER_SPIN))
-    return f
-
-
-def hit2(rp=RP2):
-    """r27 pose to pose. fx tick 0 = skill 30 (flash beat, no particles); fx 1 = skill 31 = the CUT to the extension (blade
-    forward at chest height, held to 37; hit stop 31-32); fx 8 = skill 38 the drop cut to the low back-left pose. Contact
-    bursts fly off the blade at radius 1.2 on the cut; the held extension sheds a spark row + embers every tick pair; the drop
-    cut throws a last row (fx 8-9, skill 38-39, the last emissions before the B8 rest, which is `fx: none`)."""
-    f = Fx("s1h2")
-    k = 1
-    c = rp.blade_point(k, radius=1.2)
-    for ft in (1, 2):
-        blade_row(f, "shed", "shed", rp, ft, (0.9, 1.3, 1.7, 2.1), H2_EYES, 0.5, ymin=0.45, floor=0.25)
-    for ft in (3, 4, 5, 6, 7):
-        blade_row(f, "shed", "shed", rp, ft, (1.1, 1.8) if ft % 2 else (0.9, 1.5, 2.1), H2_EYES, 0.6, ymin=0.45, floor=0.25)
-        blade_embers(f, "ember-ring", "ember-deep" if ft % 2 else "ember", rp, ft, (1.0, 1.6), H2_EYES, ymin=0.3)
-    for ft in (8, 9):  # the drop cut
-        blade_row(f, "shed", "shed", rp, ft, (0.8, 1.2, 1.6, 2.0), H2_EYES, 0.6, ymin=0.45, floor=0.25)
-        blade_embers(f, "ember-ring", "ember-deep", rp, ft, (1.0, 1.7), H2_EYES, ymin=0.3)
-    for sg, side in ((1, "l"), (-1, "r")):
-        for dt, dx, dy, dz, d in ((0, 0.5, 0.55, -0.02, (1.0, 0.3, 0.05)), (0, 0.55, 0.55, 0.1, (1.0, 0.4, -0.2)),
-                                  (1, 0.6, 0.6, -0.05, (1.0, 0.4, 0.15)), (2, 0.65, 0.5, 0.0, (1.0, 0.3, -0.05))):
-            spray(f, "spray-" + side, "spray", k + dt, (c[0] + sg * dx, c[1] + dy, c[2] + dz), (sg * d[0], d[1], d[2]),
-                  ticks=2 if dt == 0 else 1)
-        spray(f, "fan-" + side, "fan", k + 1, (c[0] + sg * 1.2, c[1] + 0.5, c[2] + 0.15), (sg * 0.45, 1.0, 0.1), ticks=2)
-        scatter(f, "ember-" + side, "ember", k, rel_box(c, ((1.3, 2.0) if sg > 0 else (-2.0, -1.3), (0.75, 1.25), (1.2, 1.9)),
-                                                         (0.02, 0.46, 1.40)), 5, 21 + sg)
-        scatter(f, "ember-deep-" + side, "ember-deep", k + 2, rel_box(c, ((1.35, 2.2) if sg > 0 else (-2.2, -1.35), (0.7, 1.1),
-                                                                         (1.1, 1.9)), (0.02, 0.46, 1.40)), 4, 31 + sg)
-        scatter(f, "ember-hot-" + side, "ember-hot", k, rel_box(c, ((1.3, 1.6) if sg > 0 else (-1.6, -1.3), (0.85, 1.15),
-                                                                   (1.3, 1.7)), (0.02, 0.46, 1.40)), 2, 41 + sg)
-        f.els.append(emitter("s1h2-p-streaks-" + side, "bastion-s1-streak", STREAK_TINT, k, off(c, 0.45 * sg, 0.45, -0.1), 2, 2,
-                             (0.35, 0.5), "custom[%d, 0.1, 0.15]" % sg, 20, 0.0, 0.2, (3, 4), (0.07, 0.1), STREAK_SOL, 0))
-        f.els.append(emitter("s1h2-p-slivers-" + side, "bastion-s1-sliver", SLIVER_TINT, k, off(c, 0.45 * sg, 0.5, 0.0), 3, 2,
-                             (0.2, 0.28), "custom[%.1f, 0.3, 0.1]" % (0.9 * sg), 20, 0.015, 0.08, (4, 5), (0.04, 0.06),
-                             SLIVER_SOL, SLIVER_SPIN))
-    return f
-
-
-# ---------------------------------------------------------------------------------------------------------
-# channel report: client maths per type (26.3 jar). spark (firework): v exact, per tick v.y -= 0.004, p += v, v *= 0.91,
-# drawn for the first 8/32 of a 48-60 tick life = 12-15 ticks. ember (entity_effect, `up`): horizontal |v| <= 0.018
-# random, v.y in [-0.016, 0.056], per tick v.y += 0.004, p += v, v *= 0.96, life 8-40.
-# ---------------------------------------------------------------------------------------------------------
-def _cone(d, spread, rnd):
-    L = math.sqrt(sum(x * x for x in d))
-    b = [x / L for x in d]
-    h = (0.0, 1.0, 0.0) if abs(b[1]) < 0.99 else (1.0, 0.0, 0.0)
-    u = (b[1] * h[2] - b[2] * h[1], b[2] * h[0] - b[0] * h[2], b[0] * h[1] - b[1] * h[0])
-    lu = math.sqrt(sum(x * x for x in u))
-    u = tuple(x / lu for x in u)
-    w = (b[1] * u[2] - b[2] * u[1], b[2] * u[0] - b[0] * u[2], b[0] * u[1] - b[1] * u[0])
-    ct = 1 - rnd.random() * (1 - math.cos(math.radians(spread)))
-    st = math.sqrt(max(0.0, 1 - ct * ct))
-    ph = rnd.uniform(0, 2 * math.pi)
-    return tuple(b[k] * ct + u[k] * st * math.cos(ph) + w[k] * st * math.sin(ph) for k in range(3))
-
-
-def channel_report(tag, eyes, samples=60):
-    import random
-    rnd = random.Random(5)
-    ems = [e for e in CHAN_EMITS if e["fx"] == tag]
-    worst = {}
-    alive = {"spark": [0] * 40, "ember": [0] * 40}
-    for e in ems:
-        d = e["d"]
-        n = d["count"]
-        ch = d["channel"]
-        key = (ch, e["tick"])
-        for i in range(n):
-            vis = 15 if ch == "spark" else 24  # alive estimate (ember mean of 8-40)
-            for t in range(e["tick"], min(40, e["tick"] + vis)):
-                alive[ch][t] += 1
-        for _ in range(samples):
-            p = list(e["at"])
-            if ch == "spark":
-                dv = _cone(e["dir"] if d["direction"] == "along_tangent" else (0, 1, 0), d["spread"], rnd)
-                sp = d["speed"] * (1 + d["jitter"] * rnd.uniform(-1, 1))
-                v = [x * sp for x in dv]
-                life, fr, acc = 15, 0.91, -0.004
-            else:
-                a = rnd.uniform(0, 2 * math.pi)
-                hz = rnd.uniform(0, 0.018)
-                v = [hz * math.cos(a), rnd.uniform(-0.016, 0.056), hz * math.sin(a)]
-                life, fr, acc = rnd.randint(8, 40), 0.96, 0.004
-            for _ in range(life):
-                v[1] += acc
-                p = [p[k] + v[k] for k in range(3)]
-                v = [x * fr for x in v]
-                for w in (worst.setdefault(ch, [9.0, 9.0, 9.0]), worst.setdefault(e["eid"], [9.0, 9.0, 9.0])):
-                    w[0] = min(w[0], math.dist(p, CASTER_EYE))
-                    w[1] = min(w[1], min(math.dist(p, q) for q in eyes))
-                    if ch == "spark":
-                        w[2] = min(w[2], p[1])
-        del key
-    bad = [(k, w) for k, w in worst.items() if k.startswith(tag) and (w[0] < 1.5 or w[1] < EYE_KEEP or w[2] < (0.25 if '-shed' in k else 0.6))]
-    for k, w in sorted(bad):
-        print("   !! %-24s caster %.2f  opponent %.2f  y_min %.2f" % (k, w[0], w[1], w[2]))
-    for ch in ("spark", "ember"):
-        w = worst.get(ch, [9, 9, 9])
-        cnt = sum(e["d"]["count"] for e in ems if e["d"]["channel"] == ch)
-        print("%s %-5s emitted %3d   min caster-eye %.2f  min opponent-eye %.2f  spark y_min %.2f" % (tag, ch, cnt, w[0], w[1], w[2]))
-        per = {}
-        for e in ems:
-            if e["d"]["channel"] == ch:
-                per[e["tick"]] = per.get(e["tick"], 0) + e["d"]["count"]
-        print("   spawned per fx tick:", dict(sorted(per.items())))
-        print("   alive per fx tick 0-24:", alive[ch][:25])
-
-
-# ---------------------------------------------------------------------------------------------------------
-# report: keep-out distances (the planner's own trajectory maths, 400 sampled cone directions x speed extremes) and the
-# display particles alive per fx tick (conservative = longest life; expected = mean life).
-# ---------------------------------------------------------------------------------------------------------
-def _dirs(e, n=400):
-    import random
-    rnd = random.Random(7)
-    v = [float(x) for x in e["direction"][len("custom["):-1].split(",")]
-    L = math.sqrt(sum(x * x for x in v))
-    base = [x / L for x in v]
-    helper = (0.0, 1.0, 0.0) if abs(base[1]) < 0.99 else (1.0, 0.0, 0.0)
-
-    def cr(a, b):
-        return (a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0])
-    u = cr(base, helper)
-    lu = math.sqrt(sum(x * x for x in u))
-    u = tuple(x / lu for x in u)
-    w = cr(base, u)
-    cm = math.cos(math.radians(e["spread"]))
-    out = []
-    for _ in range(n):
-        ct = rnd.uniform(cm, 1.0)
-        st = math.sqrt(max(0.0, 1 - ct * ct))
-        ph = rnd.uniform(0, 2 * math.pi)
-        out.append(tuple(base[k] * ct + u[k] * st * math.cos(ph) + w[k] * st * math.sin(ph) for k in range(3)))
-    return out
-
-
-def report(eye_opp, label, emits):
-    print(label, "keep-out (id, min to caster eye, min to opponent eye, min y):")
-    for e in emits:
-        dmin_c = dmin_o = ymin = 9.0
-        for d in _dirs(e):
-            for sp in e["speed"]:
-                p = list(e["p"])
-                v = [d[k] * sp for k in range(3)]
-                for _ in range(e["life"][1]):
-                    v = [v[0] * (1 - e["drag"]), (v[1] - e["gravity"]) * (1 - e["drag"]), v[2] * (1 - e["drag"])]
-                    p = [p[k] + v[k] for k in range(3)]
-                    dmin_c = min(dmin_c, math.dist(p, CASTER_EYE))
-                    dmin_o = min(dmin_o, math.dist(p, eye_opp))
-                    ymin = min(ymin, p[1])
-        print("   %-20s caster %.2f  opponent %.2f  y_min %.2f" % (e["id"], dmin_c, dmin_o, ymin))
-    cons, exp = [], []
-    for t in range(16):
-        a = b = 0
-        for e in emits:
-            for slot in range(e["n"]):
-                sp = e["start"] + slot // e["rate"]
-                a += sp <= t <= sp + e["life"][1] - 1
-                b += sp <= t <= sp + (e["life"][0] + e["life"][1]) / 2 - 1
-        cons.append(a)
-        exp.append(b)
-    print(label, "display particles alive per fx tick 0-15  conservative:", cons)
-    print(label, "                                          expected:    ", exp, " total emitted:", sum(e["n"] for e in emits))
-
-
 def patch(path, fx):
     txt = path.read_text()
     if MARK in txt:
@@ -584,15 +113,310 @@ def patch(path, fx):
     path.write_text(txt)
 
 
+# ---------------------------------------------------------------------------------------------------------
+# r28 (founder 2026-10-26: "not around the sword; don't we use vanilla particles at all?" + "read from every angle, not a
+# plane facing the side camera"): the layer is now PLAIN vanilla particles (no ADR-0274 skinned type: firework /
+# entity_effect / cloud are avoided, so nothing reads as a custom sprite) emitted EVERY tick ON the blade, root to tip, while
+# a pose is held, plus the swept trail of every cut and an impact burst on each damage tick. Every position is read from the
+# rig through rig_path.py (plan dump = the runtime's own blade per tick), nothing is hand-placed, so a re-keyed motion moves
+# the whole layer with it: re-run this script after any rig / skill timing change (and `make skill-lint-plan` first).
+#
+# Volume: every emitter is a vanilla scatter (`shape: burst` = gaussian position spread in all three axes, `speed` = random
+# velocity in all three axes) or a random-direction `outward` spray, so the particles form a sheath AROUND the blade, not a
+# plane: they read the same from the front, back, both sides, above and from a player standing next to the caster.
+#
+# Frame: x = left, y = up, z = forward, origin = the caster's feet when the fx file spawned (rig_path's fx frame).
+# ---------------------------------------------------------------------------------------------------------
+import sys  # noqa: E402
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import yaml  # noqa: E402
+from rig_path import RigPath  # noqa: E402
+
+SKILL, RIG = "bastion-greatsword-s1", "bastion-s1-rig"
+FX = {"s1h1": "bastion-s1-fx-high", "s1h2": "bastion-s1-fx-low"}
+TARGETS = ROOT / "content/skill-lint" / (SKILL + ".targets.yaml")
+
+# near-field: no particle spawns closer than this to the caster's eye (a dust/crit there fills the first-person view);
+# the big sprites (sweep_attack, poof, smoke) keep BIG_NEAR. Distances are to the spawn point; the scatter adds <= 0.2.
+NEAR, BIG_NEAR = 0.6, 1.5
+
+GOLD_HOT = (255, 238, 150)
+GOLD = (255, 200, 70)
+ORANGE = (255, 120, 24)
+EMBER_RED = (196, 52, 12)
+WHITE_HOT = (255, 252, 230)
+CHAR = (60, 34, 20)
+
+DEFS = {}
+
+
+def vdef(name, comment, vanilla, count, life, shape="{ kind: point }", color=(255, 255, 255), data=None, velocity=None,
+         speed=None, size=None):
+    pdef(name, comment, vanilla, count, life, shape=shape, color=color, data=data, velocity=velocity, size=size)
+    if speed is not None:  # pdef has no `speed:` line (vanilla random-velocity scale for count > 0 scatter)
+        f = PART / ("bastion-s1-p-%s.yaml" % name)
+        f.write_text(f.read_text().replace("force: true\n", "speed: %s\nforce: true\n" % speed))
+    DEFS[name] = dict(vanilla=vanilla, count=count)
+
+
+def dct(a, b, scale):
+    return "{ kind: dust_color_transition, from: %s, to: %s, scale: %s }" % (rgb(a), rgb(b), scale)
+
+
+def defs():
+    """Remove every earlier bastion-s1-p-* file and write this round's set (all plain vanilla types)."""
+    for old in PART.glob("bastion-s1-p-*.yaml"):
+        old.unlink()
+    # dust life (DustParticleBase, 26.3 jar): 8 / (0.2 + 0.8 U) ticks x scale, so scale 0.45 lives 4-18 (median ~7): the
+    # sheath re-rolls every tick instead of piling up; scale 1.0 hung a full ring of trail dust for 20+ ticks (r28 sim).
+    burst = lambda s: "{ kind: burst, spread_blocks: %s }" % s  # noqa: E731
+    # blade sheath (held poses, every tick, every 0.2 blocks root -> tip)
+    vdef("sheath", "r28 blade sheath: gold -> orange dust, 2 per point scattered round the blade (3D), re-rolled every tick.",
+         "dust_color_transition", 2, 12, burst(0.05), GOLD, dct(GOLD_HOT, ORANGE, 0.45), speed=0.0)
+    vdef("sheath-hot", "r28 white-hot edge glints on the outer half of the blade.",
+         "dust_color_transition", 1, 8, burst(0.035), WHITE_HOT, dct(WHITE_HOT, GOLD, 0.35), speed=0.0)
+    vdef("fleck", "r28 crit flecks thrown off the blade in random directions (vanilla scatter: gaussian velocity x speed).",
+         "crit", 3, 8, burst(0.04), speed=0.16)
+    vdef("lick", "r28 a flame licking off the blade (rises slowly, dies in ~8-20 ticks).",
+         "flame", 1, 14, burst(0.03), speed=0.012)
+    # cut trail (the swept volume between two held poses, emitted on the cut tick)
+    vdef("trail", "r28 cut trail: big gold -> ember dust along the swept arc.",
+         "dust_color_transition", 2, 14, burst(0.07), GOLD, dct(GOLD_HOT, EMBER_RED, 0.6), speed=0.0)
+    vdef("trail-crit", "r28 cut trail: crit sparks sprayed off the swept tip arc in every direction.",
+         "crit", 3, 8, burst(0.06), velocity="{ direction: outward, speed: 0.32, spread_degrees: 0, speed_jitter: 0.5 }")
+    vdef("slash", "r28 vanilla sweep_attack slash on the swept arc (camera-facing, so it reads from every side).",
+         "sweep_attack", 1, 4, speed=0.0)
+    vdef("ash", "r28 dark ash in the trail (dark mixed with bright): near-black dust.",
+         "dust_color_transition", 1, 12, burst(0.09), CHAR, dct((92, 50, 26), (28, 18, 12), 0.5), speed=0.0)
+    # impact (damage ticks, at the blade point nearest the target)
+    vdef("impact-crit", "r28 impact: crit burst, all directions.",
+         "crit", 14, 8, burst(0.15), velocity="{ direction: outward, speed: 0.55, spread_degrees: 0, speed_jitter: 0.45 }")
+    vdef("impact-dust", "r28 impact: hot gold dust cloud.",
+         "dust_color_transition", 10, 14, burst(0.22), GOLD, dct(WHITE_HOT, ORANGE, 0.85), speed=0.0)
+    vdef("impact-smoke", "r28 impact: dark smoke after the flash.",
+         "smoke", 6, 16, burst(0.18), speed=0.05)
+    vdef("impact-flame", "r28 impact: flames flung out.",
+         "flame", 6, 12, burst(0.1), velocity="{ direction: outward, speed: 0.12, spread_degrees: 0, speed_jitter: 0.5 }")
+
+
+# ---- rig-derived geometry ---------------------------------------------------------------------------------------
+def unit(v):
+    L = math.sqrt(sum(x * x for x in v)) or 1.0
+    return tuple(x / L for x in v)
+
+
+def pose(rp, ft):
+    """(grip, unit blade direction, length) at whole fx tick ft, from the rig (plan dump)."""
+    g, t = rp.blade_point(ft, 0.0), rp.blade_point(ft, 1.0)
+    d = tuple(t[k] - g[k] for k in range(3))
+    L = math.sqrt(sum(x * x for x in d))
+    return g, unit(d), L
+
+
+def phi_of(d):
+    return math.degrees(math.atan2(d[0], d[2]))
+
+
+def pitch_of(d):
+    return math.degrees(math.asin(max(-1.0, min(1.0, d[1]))))
+
+
+def dir_of(phi, pitch):
+    cp = math.cos(math.radians(pitch))
+    return (cp * math.sin(math.radians(phi)), math.sin(math.radians(pitch)), cp * math.cos(math.radians(phi)))
+
+
+def skill_hits():
+    """(skill tick, cone half angle) of every damage step of the skill."""
+    sk = yaml.safe_load((ROOT / "content/skills" / (SKILL + ".yaml")).read_text())
+    out = []
+    for s in sk["phases"]["cast"]:
+        if s.get("type") == "damage":
+            ang = s.get("targets", {}).get("angle_degrees", {})
+            ang = ang.get("value", 180) if isinstance(ang, dict) else (ang or 180)
+            d = s.get("delay_ticks", 0)
+            out.append((int(d.get("value", 0) if isinstance(d, dict) else d), float(ang) / 2))
+    return out
+
+
+def none_ticks():
+    """Skill ticks of the `fx: none` beats (hold / coil): nothing may be emitted there (skill-lint check 3)."""
+    t = yaml.safe_load(TARGETS.read_text())
+    out = set()
+    for b in t.get("beats", []):
+        if b.get("fx") == "none":
+            out.update(range(b["ticks"][0], b["ticks"][1] + 1))
+    return out
+
+
+def cuts(rp, ticks):
+    """Fx ticks whose pose differs from the previous tick's (a pose-to-pose CUT): [(ft, angle turned)]."""
+    out = []
+    for ft in ticks:
+        g0, d0, _ = pose(rp, ft - 1)
+        g1, d1, _ = pose(rp, ft)
+        ang = math.degrees(math.acos(max(-1.0, min(1.0, sum(a * b for a, b in zip(d0, d1))))))
+        if ang > 8 or math.dist(g0, g1) > 0.35:  # a dash step alone moves the grip ~0.23 per tick
+            out.append(ft)
+    return out
+
+
+def sweep(rp, ft, hit_half):
+    """The swept blade between the pose before the cut (ft - 1) and the pose after it (ft), as a list of (grip, dir, length)
+    samples every ~15 deg. Yaw turns forehand (right -> front -> left, phi increasing: the moon-ring direction of the rig's
+    ring smear) for a contact cut and goes round once more when the short way would miss the damage cone (hit 1 is a full
+    circle: coil behind -> follow-through behind); a cut with no hit takes the shortest way."""
+    gA, dA, LA = pose(rp, ft - 1)
+    gB, dB, LB = pose(rp, ft)
+    pA, pB = phi_of(dA), phi_of(dB)
+    tA, tB = pitch_of(dA), pitch_of(dB)
+    if hit_half is not None:
+        dphi = (pB - pA) % 360.0
+        passes = any(abs(((pA + dphi * i / 60.0 + 180) % 360) - 180) <= hit_half for i in range(61))
+        if not passes:
+            dphi += 360.0
+    else:
+        dphi = ((pB - pA + 180) % 360) - 180
+    n = max(3, int(abs(dphi) / 15) + 1)
+    out = []
+    for i in range(n + 1):
+        u = i / n
+        g = tuple(gA[k] + (gB[k] - gA[k]) * u for k in range(3))
+        out.append((g, dir_of(pA + dphi * u, tA + (tB - tA) * u), LA + (LB - LA) * u, pA + dphi * u))
+    return out
+
+
+def on_blade(g, d, L, frac):
+    return tuple(g[k] + d[k] * L * frac for k in range(3))
+
+
+EMS = []  # (fx tag, fx tick, pid, point) for the report
+
+
+class Layer:
+    def __init__(self, tag):
+        self.tag = tag
+        self.rp = RigPath(SKILL, RIG, fx_vfx=FX[tag])
+        self.fx = Fx(tag)
+        self.none = none_ticks()
+
+    def ok(self, ft, p, big=False):
+        eye = self.rp.caster_eye(ft)
+        return math.dist(p, eye) >= (BIG_NEAR if big else NEAR) and p[1] >= 0.05 and ft + self.rp.fx_delay not in self.none
+
+    def track(self, name, pid, start, pts):
+        """One element riding a run of per-tick points (one keyframe per tick); emits every tick."""
+        for i, p in enumerate(pts):
+            EMS.append((self.tag, start + i, pid, p))
+        self.fx.add(name, pid, start, start + len(pts), pts)
+
+    def once(self, name, pid, ft, p, big=False):
+        if self.ok(ft, p, big):
+            EMS.append((self.tag, ft, pid, p))
+            self.fx.add(name, pid, ft, ft + 1, [p])
+
+    def held(self, ticks):
+        """Every tick of `ticks` (fx), along the blade: sheath dust root -> tip, white-hot glints on the outer half, crit
+        flecks, a flame lick. Runs of consecutive ticks share one element per blade station (keyframes follow the blade)."""
+        stations = [0.12 + 0.88 * i / 8 for i in range(9)]  # 9 stations, ~0.19 blocks apart on the 1.75 blade
+        for si, fr in enumerate(stations):
+            self._runs("sheath-%d" % si, "sheath", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
+        for si, fr in enumerate((0.6, 0.8, 0.97)):
+            self._runs("hot-%d" % si, "sheath-hot", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
+        for si, fr in enumerate((0.45, 0.75, 1.0)):
+            self._runs("fleck-%d" % si, "fleck", ticks, lambda ft, fr=fr: on_blade(*pose(self.rp, ft), fr))
+        # one flame per tick, hopping root -> tip (a different station every tick: the lick moves along the blade)
+        for ft in ticks:
+            fr = (0.3, 0.85, 0.55, 1.0, 0.7, 0.4)[ft % 6]
+            self.once("lick", "lick", ft, on_blade(*pose(self.rp, ft), fr))
+
+    def _runs(self, name, pid, ticks, at):
+        run = []
+        for ft in sorted(ticks) + [None]:
+            p = at(ft) if ft is not None else None
+            if ft is not None and self.ok(ft, p) and (not run or run[-1][0] == ft - 1):
+                run.append((ft, p))
+                continue
+            if run:
+                self.track(name, pid, run[0][0], [q for _, q in run])
+            run = [(ft, p)] if ft is not None and self.ok(ft, p) else []
+
+    def cut(self, ft, hit_half, heavy):
+        """The swept trail of the cut that lands on fx tick ft: dust + ash on two / three radii (alternating), crit spray off the tip arc,
+        sweep_attack slashes on the outer third; a thinner second pass on ft + 1 (the trail lingers one tick)."""
+        sw = sweep(self.rp, ft, hit_half)
+        slash_every = 3 if heavy else 5
+        for i, (g, d, L, _) in enumerate(sw):
+            for fr in ((0.6, 0.85, 1.0) if i % 2 else (0.7, 1.0)):
+                self.once("trail", "trail", ft, on_blade(g, d, L, fr))
+            if i % 2 == 0:
+                self.once("ash", "ash", ft, on_blade(g, d, L, 0.9))
+            self.once("trail-crit", "trail-crit", ft, on_blade(g, d, L, 0.95))
+            if i % slash_every == 1:
+                self.once("slash", "slash", ft, on_blade(g, d, L, 0.7), big=True)
+            if i % 2 == 1:
+                self.once("trail", "trail", ft + 1, on_blade(g, d, L, 0.9))
+        return sw
+
+    def impact(self, ft, sw, hit_half, heavy):
+        """Damage tick: burst at the swept blade point nearest the target bearing (phi 0), outer quarter of the blade."""
+        g, d, L, _ = min(sw, key=lambda s: abs(((s[3] + 180) % 360) - 180))
+        p = on_blade(g, d, L, 1.05)  # just past the tip: where the edge meets the target
+        k = 2 if heavy else 1
+        for j in range(k):
+            q = (p[0] + 0.25 * j, p[1], p[2] - 0.15 * j)
+            self.once("impact-crit", "impact-crit", ft, q)
+            self.once("impact-dust", "impact-dust", ft, q)
+            self.once("impact-flame", "impact-flame", ft, q)
+            self.once("impact-crit", "impact-crit", ft + 1, q)
+            self.once("impact-smoke", "impact-smoke", ft + 1, q, big=True)
+            self.once("impact-dust", "impact-dust", ft + 2, q)
+        self.once("slash", "slash", ft, p, big=True)
+        return p
+
+    def build(self):
+        rp = self.rp
+        last = rp.fx_duration - 1
+        active = [ft for ft in range(0, last + 1) if ft + rp.fx_delay not in self.none]
+        hits = {t - rp.fx_delay: h for t, h in skill_hits() if 0 <= t - rp.fx_delay <= last}
+        cut_ticks = cuts(rp, active)
+        self.held(active)
+        for c in cut_ticks:
+            # the hit this cut delivers: the first damage tick at or after the cut, before the next cut
+            nxt = min([x for x in cut_ticks if x > c] + [last + 1])
+            h = [t for t in hits if c <= t < nxt]
+            half = hits[h[0]] if h else None
+            sw = self.cut(c, half, heavy=self.tag == "s1h2" or half is not None)
+            if h:
+                self.impact(h[0], sw, half, heavy=self.tag == "s1h2")
+        return self.fx
+
+
+def layer_report():
+    """Per fx file: particles per skill tick (calls x count), min distance of each spawn to the blade segment of its own
+    tick, min distance to the caster eye."""
+    import collections
+    for tag in FX:
+        rp = RigPath(SKILL, RIG, fx_vfx=FX[tag])
+        per, dmax, near = collections.Counter(), collections.defaultdict(float), 9.0
+        for t, ft, pid, p in EMS:
+            if t != tag:
+                continue
+            per[ft + rp.fx_delay] += DEFS[pid]["count"]
+            g, d, L = pose(rp, ft)
+            ap = [p[k] - g[k] for k in range(3)]
+            u = max(0.0, min(L, sum(ap[k] * d[k] for k in range(3))))
+            if not pid.startswith(("trail", "ash", "slash", "impact")):
+                dmax[ft + rp.fx_delay] = max(dmax[ft + rp.fx_delay], math.dist(p, on_blade(g, d, L, u / L)))
+            near = min(near, math.dist(p, rp.caster_eye(ft)))
+        print("%s (%s at skill %d): particles per skill tick %s" % (tag, FX[tag], rp.fx_delay, dict(sorted(per.items()))))
+        print("   held-pose emitters max distance from the blade per tick: %s" % {k: round(v, 3) for k, v in sorted(dmax.items())})
+        print("   min spawn distance to the caster eye %.2f; types %s" % (near, sorted({DEFS[pid]["vanilla"] for t, _, pid, _ in EMS if t == tag})))
 
 
 if __name__ == "__main__":
-    channel_defs()
+    defs()
     make_spark()
-    patch(VFX / "bastion-s1-fx-high.yaml", hit1())
-    report(H1_EYE, "hit 1 display", list(EMITS))
-    channel_report("s1h1", H1_EYES)
-    n1 = len(EMITS)
-    patch(VFX / "bastion-s1-fx-low.yaml", hit2())
-    report(H2_EYE, "hit 2 display", EMITS[n1:])
-    channel_report("s1h2", H2_EYES)
+    patch(VFX / "bastion-s1-fx-high.yaml", Layer("s1h1").build())
+    patch(VFX / "bastion-s1-fx-low.yaml", Layer("s1h2").build())
+    layer_report()
