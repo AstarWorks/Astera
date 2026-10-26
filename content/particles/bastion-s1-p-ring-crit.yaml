@@ -1,9 +1,10 @@
 # release ring: crit sparks thrown radially from points on a ring round the impact (ring-by-ring phase shift).
 id: bastion-s1-p-ring-crit
 shape: { kind: burst, spread_blocks: 0.02 }
-color: { r: 255, g: 255, b: 255 }
+color: { r: 255, g: 200, b: 70 }
 count: 1
-lifetime_ticks: 8
-vanilla_particle: crit
+lifetime_ticks: 6
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 255, g: 252, b: 230 }, to: { r: 255, g: 200, b: 70 }, scale: 0.25 }
 velocity: { direction: outward, speed: 0.3, spread_degrees: 0, speed_jitter: 0.3 }
 force: true

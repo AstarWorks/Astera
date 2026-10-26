@@ -119,6 +119,8 @@ GOLD = hexc("#FFD23A")
 BODY = hexc("#E88A0C")  # round 2: more orange body
 HOT = hexc("#FFF6D0")
 RIM = hexc("#3A2A06")
+RING_OUT = hexc("#FFB41C")  # r5 rings: thin bright gold crescent (no dark / ember fill): warm gold outside, pale gold inside, white-hot core line
+RING_IN = hexc("#FFE680")
 
 
 def crescent_frame(size, ext, tail, wscale, seed):
@@ -542,7 +544,7 @@ SWEEPS = {
     # meets the floor behind the caster); one global radius curve (no monotone curl: the ring continues past the front).
     "hring": dict(centre=np.array([-0.35, 1.15, 0.0]), e1=np.array([1.0, 0.0, 0.0]),
                   e2=np.array([0.0, math.sin(math.radians(HRING_TILT)), math.cos(math.radians(HRING_TILT))]), sign=-1, r_tip=2.75,
-                  t_max=0.55, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(HRING_TILT)), ellipse=(0.0, -0.15, 2.55, 1.75), ymin=0.2,
+                  t_max=0.28, fan_in=1.9, half=3.0, aniso=math.cos(math.radians(HRING_TILT)), ellipse=(0.0, -0.15, 2.55, 1.75), ymin=0.2,
                   smooth=10.0, hot="inner", fan_alpha=0.0,
                   # r23 (director r22, opponent t9-10: the outer rim read as an ~8 px dark grey band over the sky). Cause:
                   # the r12 dark rim (#3A2A06 at <= 0.6 alpha, centred 1.5 px OUTSIDE the band) plus the 1.5 px outer
@@ -551,7 +553,7 @@ SWEEPS = {
                   # (opacity 0.4 / 0.25) were 100% translucent. Fix: no rim outside (`rim_alpha` 0), no fan, a narrow outer
                   # feather (0.7 px), an OPAQUE ember edge line inside the silhouette (`edge` = colour, width px: dark
                   # mixed with bright, but it keeps its hue), alpha < 0.3 zeroed, and fades by thinning (opacity >= 0.8).
-                  rim_alpha=0.0, feather_out=1.0, edge=("#C8500A", 1.8), alpha_floor=0.3,
+                  rim_alpha=0.0, feather_out=1.0, edge=None, alpha_floor=0.3, head_deg=10.0, taper=1.15, hot_px=3.6, hot_frac=0.3,
                   # r23 (reviewer r22: ~10 px stair on the band edge at the compare close-up f16-18; one texel of the 256 px
                   # / 6-block sprite = 0.023 blocks): shipped as 2 x 2 tiles on BOTH faces (`<id>-q0..3` front +
                   # `<id>-bq0..3` back, mirrored), texels 0.0117 blocks; the 1.0 full-px outer feather = a 2-texel ramp
@@ -579,7 +581,7 @@ SWEEPS = {
                   # are the blade tip's own trail, read from the rig (`ring_schedule`, rig_path.RigPath): tail = the tip's
                   # in-plane angle when its fast swing starts, head = the tip's angle on each fx tick, closed once it has
                   # gone 360 deg; then the `fade` frames. Each tile spawns on the first tick its quarter holds any band.
-                  fx="bastion-s1-fx-high", track_floor=0.6,
+                  fx="bastion-s1-fx-high", track_floor=0.12,
                   # r25b (director r24: after the down-back coil re-key the ring became a 3/4 crescent diving to the floor
                   # behind the caster, tile q2 was dropped and the tip ran up to 1.20 off the fixed 14 deg plane): the plane is
                   # FITTED to the tip path (`fit_plane`: least squares y = y0 + gx x + gz z over the swing + follow-through,
@@ -628,7 +630,7 @@ SWEEPS = {
                  # above), the back boost 2.2 -> 1.0 (0.84 blocks in-plane, was 0.77) and the contact frames 3-4 are CLOSED
                  # (tail = head - 360: uniform thickness all round, no head needle / tail taper, see sweep_frame); the fade
                  # frames open the loop again from the tail side.
-                 t_max=0.42,
+                 t_max=0.22, bright=True, hot_px=3.6, hot_frac=0.3,
                  # r25: frames from the rig (`ring_schedule`, as hring): the trail of the tip from the start of its fast swing,
                  # thickening over the first two ticks (`grow`), then `fade` = the tail chasing the head (erase fraction of the
                  # span, thickness, opacity).
@@ -754,7 +756,8 @@ def ring_frame(size, name, tail, head, tscale, opacity, floor_t=0.0, window=None
     als, rs = ring_radius(name)
     r_out = np.interp(al_pix, als, rs)
     u = np.clip(dh / max(span, 1e-3), 0, 1)
-    prof = smooth(dh / 26.0) * np.clip(1.0 - u, 0, 1) ** 0.7  # needle head over ~26 deg (no blunt radial cut)
+    # r5: thick right behind the head (short ramp, no blunt radial cut), long soft taper to a needle at the tail
+    prof = smooth(dh / sw.get("head_deg", 26.0)) * np.clip(1.0 - u, 0, 1) ** sw.get("taper", 0.7)
     closed = span >= 359.9
     if floor_t > 0:
         prof = floor_t + (1 - floor_t) * prof
@@ -776,8 +779,8 @@ def ring_frame(size, name, tail, head, tscale, opacity, floor_t=0.0, window=None
     band *= soft(cut + 0.4, 1.0)
     floor = soft((world[1] - 0.04) / px, 1.0)
     tt = np.clip(d_out / np.maximum(T / px, 1e-3), 0, 1)  # 0 outer .. 1 inner
-    col = BODY[None, None] * (1 - tt[..., None] ** 0.7) + GOLD[None, None] * tt[..., None] ** 0.7
-    hot = soft(np.minimum(3.0, 0.2 * T / px) - d_in, 0.8) * (d_in > -0.5)
+    col = RING_OUT[None, None] * (1 - tt[..., None] ** 0.7) + RING_IN[None, None] * tt[..., None] ** 0.7
+    hot = soft(np.minimum(sw.get("hot_px", 3.0), sw.get("hot_frac", 0.2) * T / px) - d_in, 0.8) * (d_in > -0.5)
     col = col * (1 - hot[..., None] * 0.95) + PALE[None, None] * hot[..., None] * 0.95
     if sw.get("edge"):  # r23: crisp warm outer edge INSIDE the silhouette (opaque, keeps its hue over the sky)
         ec, ew = sw["edge"]
@@ -855,8 +858,12 @@ def sweep_frame(size, name, tail, head, tscale, opacity, window=None):
     band *= soft(cut + 0.4, 1.0)
     floor = soft((world[1] - 0.04) / px, 1.0)  # see_through text would show under the floor
     tt = np.clip(d_out / np.maximum(T / px, 1e-3), 0, 1)  # 0 outer .. 1 inner
-    col = GOLD[None, None] * (1 - tt[..., None] ** 1.5) + BODY[None, None] * tt[..., None] ** 1.5
-    hot = soft(np.minimum(2.2, 0.45 * T / px) - d_out, 0.8) * (d_out > -0.5)
+    if sw.get("bright"):  # r5: same thin bright crescent look as hring (warm gold outside, pale gold inside, white-hot core)
+        col = RING_OUT[None, None] * (1 - tt[..., None] ** 0.7) + RING_IN[None, None] * tt[..., None] ** 0.7
+        hot = soft(np.minimum(sw["hot_px"], sw["hot_frac"] * T / px) - d_out, 0.8) * (d_out > -0.5)
+    else:
+        col = GOLD[None, None] * (1 - tt[..., None] ** 1.5) + BODY[None, None] * tt[..., None] ** 1.5
+        hot = soft(np.minimum(2.2, 0.45 * T / px) - d_out, 0.8) * (d_out > -0.5)
     col = col * (1 - hot[..., None] * 0.92) + PALE[None, None] * hot[..., None] * 0.92
     img = blank(size * SS)
     # fan face: translucent gold wedge from the band's inner edge toward the pivot, fades with distance behind the head
@@ -865,7 +872,9 @@ def sweep_frame(size, name, tail, head, tscale, opacity, window=None):
     fan = (fr ** 1.6) * (r < r_out - T * 0.5) * (r > fan_r0) * inside * np.clip(1 - u, 0, 1) ** 1.4 * np.clip(dh / 10, 0, 1)
     img = over(img, hexc("#FFC83A")[None, None] * np.ones((1, 1, 3)), fan * sw.get("fan_alpha", 0.3) * tscale * floor)
     # dark rim just outside the outer edge (dark mixed with bright)
-    if sw.get("rim"):  # r14: (alpha, feather) of the soft rim, centred just outside the wider outer ramp
+    if sw.get("bright"):  # r5: no dark rim at all
+        pass
+    elif sw.get("rim"):  # r14: (alpha, feather) of the soft rim, centred just outside the wider outer ramp
         ra, rf = sw["rim"]
         rim = soft(1.6 - np.abs(d_out + 1.5 + 0.5 * (sw.get("feather_out", fe) - fe)), rf) * inside * np.clip(prof * 3, 0, 1) * soft(cut + 0.4, 1.0)
         img = over(img, RIM[None, None] * np.ones((1, 1, 3)), rim * ra * floor)
