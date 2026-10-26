@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.contents
 import com.astarworks.astera.core.application.port.outbound.IContentParser
 import com.astarworks.astera.core.application.service.ContentLoader
 import kotlinx.serialization.DeserializationStrategy
+import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
@@ -39,6 +40,7 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
 
     private val store: AtomicReference<Map<K, V>> = AtomicReference(emptyMap())
     private val loader = ContentLoader(parsers, deserializer)
+    private val log = LoggerFactory.getLogger(javaClass)
 
     /**
      * Map a successfully-parsed config to its registry entry. Subclasses
@@ -96,16 +98,28 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
      * Atomic, all-or-nothing reload. On `failed > 0` the previous state
      * remains untouched and the report is returned so the operator can
      * fix the offending YAMLs and retry. On `failed == 0` the new map
-     * replaces the old in one atomic operation.
+     * replaces the old in one atomic operation, unless it is empty while the
+     * store is not: that is reported as a failure and the old store is kept.
      */
     final override fun reload(dir: Path): ContentLoader.LoadReport {
         val next = LinkedHashMap<K, V>()
         val report = loadAll(dir) { cfg ->
             toEntry(cfg)?.let { (k, v) -> next[k] = v }
         }
-        if (report.failed == 0) {
-            store.set(next.toMap())
+        if (report.failed != 0) return report
+        if (next.isEmpty() && store.get().isNotEmpty()) {
+            // A loader/layout mismatch must never silently empty a populated registry (the sound-cue reload bug).
+            log.warn(
+                "[content-reload] {}: reload of {} produced 0 entries but the registry holds {}; keeping the old store",
+                categoryName, dir, store.get().size,
+            )
+            return ContentLoader.LoadReport(
+                loaded = 0,
+                failed = 1,
+                failures = listOf(ContentLoader.LoadFailure(dir, "reload produced no entries; keeping the previous ${store.get().size}")),
+            )
         }
+        store.set(next.toMap())
         return report
     }
 

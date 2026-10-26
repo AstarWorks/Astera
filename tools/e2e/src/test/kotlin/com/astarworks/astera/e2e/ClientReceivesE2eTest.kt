@@ -222,5 +222,19 @@ class ClientReceivesE2eTest : E2eBase() {
         }
         stage(a, b)
         checkHitLag(a, b, "after reload")
+
+        // `reload all` once emptied the sound registry (reload read only the root of content/sounds/); the item, its skill
+        // and the astera:* cast cue must all still resolve afterwards.
+        Thread.sleep(1_200)
+        stage(a, b)
+        val soundsBefore = a.sounds.size
+        a.useItem(0f, 0f)
+        heardAfter(a, soundsBefore, "astera:weapons/gun-shot")
+        E2eReport.check(suite, "after a reload the pistol (item + skill) still casts and plays its astera:* sound cue", "ClientboundSound") {
+            val heard = a.sounds.drop(soundsBefore)
+            assertThat(heard.map(::soundKey).any { soundKey("astera:weapons/gun-shot") in it })
+                .describedAs("MISSING astera:weapons/gun-shot after reload; sound packets=${heard.take(10)}; reload='${reload.trim()}'").isTrue()
+            "heard gun-shot after reload; all=${heard.take(6)}"
+        }
     }
 }
