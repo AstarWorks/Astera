@@ -65,15 +65,20 @@ export function makeHandler(opts = {}) {
 
   /** Preview / lint / round notes published for a skill (build/skill-compare-published/<skill>/{preview,lint,round}/current.json). */
   function reviewViews(skill, referenceRevision) {
-    const out = { tree: currentTree(), preview: null, lint: null, round: null };
+    const out = { tree: currentTree(), preview: null, previewSide: null, lint: null, round: null };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return out;
     const cur = (kind) => { const f = join(publishedDir, skill, kind, "current.json"); if (!existsSync(f)) return null; try { return readJson(f); } catch { return null; } };
-    const pv = cur("preview");
-    if (pv && /^[a-f0-9]{64}$/.test(pv.revision || "")) {
-      out.preview = { base: `/mc/vfx/${skill}/preview/`, count: pv.meta.frames, castFrame: pv.meta.castFrame ?? 0, extension: pv.extension || "png", revision: pv.revision,
-        prov: { ...provOf(pv.meta), published: true, kind: "preview" }, warnings: pv.meta.warnings ?? [], particles: !!pv.meta.particles,
+    // preview = the intent's moving compare camera; preview-side = fixed side camera, caster faces screen-right (skill-preview --camera side).
+    // Neither is withheld for a revision mismatch: prov.stale / referenceStale are flags for the page to badge.
+    const previewOf = (kind) => {
+      const pv = cur(kind);
+      if (!(pv && /^[a-f0-9]{64}$/.test(pv.revision || ""))) return null;
+      return { base: `/mc/vfx/${skill}/${kind}/`, count: pv.meta.frames, castFrame: pv.meta.castFrame ?? 0, extension: pv.extension || "png", revision: pv.revision,
+        prov: { ...provOf(pv.meta), published: true, kind }, warnings: pv.meta.warnings ?? [], particles: !!pv.meta.particles, camera: pv.meta.camera ?? null,
         referenceStale: !!(referenceRevision && pv.meta.referenceRevision && pv.meta.referenceRevision !== referenceRevision) };
-    }
+    };
+    out.preview = previewOf("preview");
+    out.previewSide = previewOf("preview-side");
     const ln = cur("lint");
     if (ln && /^[a-f0-9]{64}$/.test(ln.revision || "")) {
       out.lint = { revision: ln.revision, report: ln.report ?? null, overlays: ln.overlays ?? [], base: `/lint/${skill}/${ln.revision}/overlay/`,
