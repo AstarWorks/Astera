@@ -82,7 +82,7 @@ function weaponCard(w) {
 }
 
 function load() {
-  fetch("/api/index").then((r) => r.json()).then((d) => {
+  return fetch("/api/index").then((r) => r.json()).then((d) => {
     const box = document.getElementById("cases");
     box.textContent = "";
     for (const w of d.weapons) box.appendChild(weaponCard(w));
@@ -98,3 +98,10 @@ function load() {
   }).catch((e) => { document.getElementById("cases").textContent = "読み込み失敗: " + e.message; });
 }
 load();
+// Live: the server pushes /api/events when published views, dev sha or case data change; the list refreshes itself.
+try {
+  let timer = 0, code = null;
+  const es = new EventSource("/api/events");
+  es.addEventListener("hello", (e) => { const c = JSON.parse(e.data).code; if (code && c !== code) location.reload(); code = c; });
+  es.addEventListener("change", () => { clearTimeout(timer); timer = setTimeout(() => { const y = scrollY; load().then(() => scrollTo(0, y)); }, 1500); });
+} catch { /* no EventSource: manual reload */ }
