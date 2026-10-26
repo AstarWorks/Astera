@@ -15,8 +15,8 @@ import kotlin.io.path.readText
  *  - a content YAML (`sound_id:` / `cue:` / `audience_cue:`) or a production Kotlin `SoundId("astera:...")` literal names
  *    an event that is not shipped, or
  *  - a `MusicTrackId("...")` literal names a BGM track with no `content/music/<id>.ogg`, or
- *  - a `content/sounds/**` registry YAML has no OGG next to it (the pack builder then emits no event for it), or
- *  - a `content/music/*.yaml` track has no OGG next to it.
+ *  - a registry YAML under `content/sounds` has no OGG next to it (the pack builder then emits no event for it), or
+ *  - a track YAML under `content/music` has no OGG next to it.
  *
  * Event resolution mirrors `ResourcePackBuilder.addSounds`: a registry YAML with an OGG names its event by `id`
  * (namespace stripped); a bare OGG is its own event; `content/music/<n>.ogg` is the event `music/<n>`.
