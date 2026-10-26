@@ -1017,7 +1017,7 @@ public object LobbyIslandGenerator {
                 }
                 set(cx + side * 5, s + 2, z0 + 3, "minecraft:lantern[hanging=false]")
                 for (k in 3..6) for (h in 1..2) set(cx + side * k, s + h, z0 + 1, "minecraft:bookshelf")
-                for (h in 6..9) set(cx + side * 3, s + h, z0 + 3, "minecraft:chain[axis=y]")
+                for (h in 6..9) set(cx + side * 3, s + h, z0 + 3, "minecraft:iron_chain[axis=y]")
                 set(cx + side * 3, s + 5, z0 + 3, "minecraft:lantern[hanging=true]")
             }
         }
