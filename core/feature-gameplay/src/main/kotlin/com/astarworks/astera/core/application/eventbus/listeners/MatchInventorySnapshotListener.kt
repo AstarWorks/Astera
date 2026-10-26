@@ -42,6 +42,8 @@ public class MatchInventorySnapshotListener(
     private val matches: () -> IMatchRepository?,
     /** Takes a consumed item out again after the restore (see [IItemConsumptionRecorder]). */
     private val removal: () -> IOwnedItemRemoval? = { null },
+    /** `true` while the player's inventory is not confirmed restored (hand-off pending/failed): never capture it. */
+    private val restorePending: (PlayerId) -> Boolean = { false },
 ) : IItemConsumptionRecorder {
 
     private val log = LoggerFactory.getLogger(MatchInventorySnapshotListener::class.java)
@@ -98,6 +100,10 @@ public class MatchInventorySnapshotListener(
     private fun capture(matchId: MatchId, playerId: PlayerId) {
         val perMatch = held.computeIfAbsent(matchId) { ConcurrentHashMap() }
         if (playerId in perMatch) return
+        if (restorePending(playerId)) {
+            log.warn("Entry snapshot of {} skipped: inventory restore not confirmed; the saved snapshot stays authoritative.", playerId)
+            return
+        }
         val snapshot = gateway()?.capture(playerId) ?: return
         saveSnapshot.save(snapshot)
         perMatch[playerId] = snapshot

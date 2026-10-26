@@ -855,6 +855,7 @@ astera:
       dispatch-failure: "<red>The arena server did not answer; you were put back in the queue.</red>"
       wrong-server: "<gray>This server only hosts matches. Sending you back to the lobby…</gray>"
       arrival-waiting: "<yellow>Waiting for <gold>{remaining}</gold> more player(s)… you are protected until the match starts.</yellow>"
+      arena-preparing: "<yellow>The arena is still being prepared… hang tight, the match starts as soon as it is ready.</yellow>"
     norma-up:
       title: "<gold><bold>Norma cleared!</bold></gold>"
       subtitle: "<yellow>Level {level}/{max}</yellow>"
