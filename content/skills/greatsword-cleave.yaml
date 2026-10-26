@@ -28,7 +28,7 @@ phases:
   cast:
     - type: play_sound
       targets: { type: caster }
-      sound_id: astera:weapons/sword-swing
+      sound_id: astera:weapons/blade-heavy-swing
       pitch: { type: literal, value: 0.6 }
     - type: spawn_particle
       targets: { type: caster_forward, distance: 2.4, height: -0.3 }
@@ -36,7 +36,7 @@ phases:
   hit_entity:
     - type: play_sound
       targets: { type: target }
-      sound_id: entity.player.attack.crit
+      sound_id: astera:weapons/blade-crit
     - type: spawn_particle
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
       particle_id: hit-spark
@@ -46,4 +46,4 @@ phases:
   miss:
     - type: play_sound
       targets: { type: caster }
-      sound_id: entity.player.attack.nodamage
+      sound_id: astera:weapons/blade-miss

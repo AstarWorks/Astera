@@ -84,6 +84,12 @@ class ClientReceivesE2eTest : E2eBase() {
             Triple("pistol", "right", "astera:weapons/gun-shot"),
             Triple("knight-sword", "left", "astera:weapons/sword-swing"),
             Triple("fire-staff", "right", "astera:skill/wand/cast"),
+            // one cast cue per remaining weapon family member (gun / blade / elemental staff)
+            Triple("rifle", "right", "astera:weapons/rifle-crack"),
+            Triple("shotgun", "right", "astera:weapons/shotgun-blast"),
+            Triple("dagger", "left", "astera:weapons/sword-swing"),
+            Triple("greatsword", "left", "astera:weapons/blade-heavy-swing"),
+            Triple("frost-staff", "right", "astera:skills/frost-cast"),
         )
         for ((item, click, soundId) in cases) {
             val slot = give(a, item)

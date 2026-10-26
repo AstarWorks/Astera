@@ -39,7 +39,7 @@ phases:
   cast:
     - type: play_sound
       targets: { type: caster }
-      sound_id: entity.blaze.shoot
+      sound_id: astera:skill/wand/cast
     - type: schedule_particle_animation
       targets: { type: caster_forward, distance: 1.2, height: 0.0 }
       animation:
@@ -48,6 +48,9 @@ phases:
             - { id: flame, count: 50, extra: 0.2 }
             - { id: dust, count: 20, extra: 0.0, color: { r: 255, g: 100, b: 20 }, scale: 1.6, offset: { x: 0.2, y: 0.2, z: 0.2 } }
   hit_entity:
+    - type: play_sound
+      targets: { type: target }
+      sound_id: astera:skills/fire-impact
     - type: damage
       targets: { type: target }
       components:

@@ -45,11 +45,6 @@ phases:
       sound_id: astera:skill/wand/cast
       volume: { type: literal, value: 0.9 }
       pitch: { type: literal, value: 1.4 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.crossbow.shoot
-      volume: { type: literal, value: 0.35 }
-      pitch: { type: literal, value: 1.7 }
     - type: spawn_particle
       targets: { type: caster_forward, distance: 1.0, height: -0.2 }
       particle_id: verdant-cast
@@ -65,7 +60,7 @@ phases:
       effect_duration_ticks: { type: literal, value: 160 }
     - type: play_sound
       targets: { type: target }
-      sound_id: block.grass.break
+      sound_id: astera:skills/nature-impact
       volume: { type: literal, value: 1.0 }
       pitch: { type: literal, value: 0.7 }
     - type: spawn_particle
@@ -98,7 +93,7 @@ phases:
   hit_block:
     - type: play_sound
       targets: { type: hit_location }
-      sound_id: block.grass.break
+      sound_id: astera:skills/nature-impact
       volume: { type: literal, value: 0.8 }
       pitch: { type: literal, value: 0.8 }
     - type: spawn_particle
