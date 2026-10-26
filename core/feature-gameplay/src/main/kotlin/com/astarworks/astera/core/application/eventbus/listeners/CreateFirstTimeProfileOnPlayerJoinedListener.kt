@@ -53,7 +53,7 @@ public class CreateFirstTimeProfileOnPlayerJoinedListener(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: PlayerJoinedServer) {
+    public suspend fun handle(event: PlayerJoinedServer) {
         val playerId = event.playerId
 
         // The domain event is deliberately lean (id + timestamp; see its

@@ -22,7 +22,7 @@ public class AwardCombatXpOnDamageDealtListener(
     private val awardXp: AwardSkillXpUseCase,
     private val xpPerDamage: Long = COMBAT_XP_PER_DAMAGE,
 ) {
-    public fun handle(event: DamageDealt) {
+    public suspend fun handle(event: DamageDealt) {
         if (!event.context.countsForProgression) return // ADR-0235: no Combat XP for sandbag hits
         val attacker = event.attacker ?: return
         if (attacker == event.target) return

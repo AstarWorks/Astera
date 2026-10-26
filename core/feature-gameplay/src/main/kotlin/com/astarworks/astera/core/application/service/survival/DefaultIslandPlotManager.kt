@@ -25,23 +25,23 @@ public class DefaultIslandPlotManager(
     private val assignUseCase: AssignIslandPlotUseCase,
 ) : IIslandPlotManager {
 
-    override fun assignPlot(islandId: IslandId, ownerId: PlayerId): Result<IslandPlot, PlotError> =
+    override suspend fun assignPlot(islandId: IslandId, ownerId: PlayerId): Result<IslandPlot, PlotError> =
         assignUseCase.assignPlot(islandId, ownerId)
 
-    override fun canBuild(islandId: IslandId, playerId: PlayerId, position: Vec3): Boolean {
+    override suspend fun canBuild(islandId: IslandId, playerId: PlayerId, position: Vec3): Boolean {
         val plot = plotRepository.byIsland(islandId).firstOrNull {
             it.regionBounds.contains(position)
         } ?: return true // No plot covers this position — default-allow.
         return plot.canBuild(playerId)
     }
 
-    override fun plotFor(islandId: IslandId, ownerId: PlayerId): IslandPlot? =
+    override suspend fun plotFor(islandId: IslandId, ownerId: PlayerId): IslandPlot? =
         plotRepository.forOwner(islandId, ownerId)
 
-    override fun plotsOn(islandId: IslandId): List<IslandPlot> =
+    override suspend fun plotsOn(islandId: IslandId): List<IslandPlot> =
         plotRepository.byIsland(islandId)
 
-    override fun releasePlot(plotId: PlotId) {
+    override suspend fun releasePlot(plotId: PlotId) {
         plotRepository.remove(plotId)
     }
 }

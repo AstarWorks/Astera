@@ -22,11 +22,11 @@ public class InMemoryCurrencyIssuanceLog : ICurrencyIssuanceLog {
 
     private val store = ConcurrentHashMap<IssuanceId, IssuanceRecord>()
 
-    override fun record(record: IssuanceRecord) {
+    override suspend fun record(record: IssuanceRecord) {
         store[record.id] = record
     }
 
-    override fun findExpired(currency: Currency, asOf: Instant, olderThanDays: Int): List<IssuanceRecord> {
+    override suspend fun findExpired(currency: Currency, asOf: Instant, olderThanDays: Int): List<IssuanceRecord> {
         val cutoff = asOf.minus(olderThanDays.toLong(), ChronoUnit.DAYS)
         return store.values.filter {
             it.currency == currency &&
@@ -35,17 +35,17 @@ public class InMemoryCurrencyIssuanceLog : ICurrencyIssuanceLog {
         }
     }
 
-    override fun markConsumed(issuanceId: IssuanceId, amount: Long) {
+    override suspend fun markConsumed(issuanceId: IssuanceId, amount: Long) {
         store.computeIfPresent(issuanceId) { _, record ->
             val newOutstanding = (record.outstandingAmount - amount).coerceAtLeast(0L)
             record.copy(outstandingAmount = newOutstanding)
         }
     }
 
-    override fun totalOutstanding(currency: Currency): Long =
+    override suspend fun totalOutstanding(currency: Currency): Long =
         store.values.filter { it.currency == currency }.sumOf { it.outstandingAmount }
 
-    override fun totalOutstanding(playerId: PlayerId, currency: Currency): Long =
+    override suspend fun totalOutstanding(playerId: PlayerId, currency: Currency): Long =
         store.values
             .filter { it.playerId == playerId && it.currency == currency }
             .sumOf { it.outstandingAmount }

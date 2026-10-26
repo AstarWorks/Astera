@@ -19,7 +19,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public class LeavePartyUseCase(
     private val repository: IPartyRepository,
 ) {
-    public fun leave(player: PlayerId): Result<Unit, PartyError> {
+    public suspend fun leave(player: PlayerId): Result<Unit, PartyError> {
         val party = repository.forPlayer(player)
             ?: return Result.failure(PartyError.NotInParty(player))
 

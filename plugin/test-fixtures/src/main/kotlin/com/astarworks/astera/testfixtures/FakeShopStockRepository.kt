@@ -24,12 +24,12 @@ public class FakeShopStockRepository : IShopStockRepository {
 
     private val store: MutableMap<Pair<ShopId, ShopOfferId>, Int> = linkedMapOf()
 
-    override fun currentStock(shopId: ShopId, offerId: ShopOfferId): ShopStock? {
+    override suspend fun currentStock(shopId: ShopId, offerId: ShopOfferId): ShopStock? {
         val remaining = store[shopId to offerId] ?: return null
         return ShopStock.Limited(remaining)
     }
 
-    override fun decrementStock(
+    override suspend fun decrementStock(
         shopId: ShopId,
         offerId: ShopOfferId,
         by: Int,
@@ -45,7 +45,7 @@ public class FakeShopStockRepository : IShopStockRepository {
         return Result.success(ShopStock.Limited(next))
     }
 
-    override fun seed(
+    override suspend fun seed(
         shopId: ShopId,
         offerId: ShopOfferId,
         initial: Int,

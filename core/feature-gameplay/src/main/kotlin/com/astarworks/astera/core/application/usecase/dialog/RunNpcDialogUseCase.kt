@@ -72,7 +72,7 @@ public class RunNpcDialogUseCase(
 
     private val state: MutableMap<PlayerId, RunnerState> = mutableMapOf()
 
-    override fun startTree(
+    override suspend fun startTree(
         playerId: PlayerId,
         npcEntity: EntityHandle,
         treeId: DialogTreeId,
@@ -86,7 +86,7 @@ public class RunNpcDialogUseCase(
         return enterNode(playerId, npcEntity, tree, tree.rootNodeId)
     }
 
-    override fun advance(
+    override suspend fun advance(
         playerId: PlayerId,
         choiceIndex: Int?,
     ): Result<Unit, NpcDialogError> {
@@ -149,7 +149,7 @@ public class RunNpcDialogUseCase(
         return enterNode(playerId, cursor.npcEntity, tree, nextId)
     }
 
-    override fun cancel(playerId: PlayerId): Result<Unit, NpcDialogError> {
+    override suspend fun cancel(playerId: PlayerId): Result<Unit, NpcDialogError> {
         val cursor = state.remove(playerId)
             ?: return Result.failure(NpcDialogError.NotRunning(playerId))
         publishEnd(playerId, cursor.treeId, DialogEndReason.CANCELLED)
@@ -161,7 +161,7 @@ public class RunNpcDialogUseCase(
      * transition publishes a [NpcDialogNodeEntered] for the final landed
      * node only — conditions are invisible to the HUD.
      */
-    private fun enterNode(
+    private suspend fun enterNode(
         playerId: PlayerId,
         npcEntity: EntityHandle,
         tree: NpcDialogTree,

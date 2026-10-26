@@ -35,7 +35,7 @@ public class UnloadPartyIslandUseCase(
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
-    public fun unload(islandId: IslandId, reasonKind: String): Result<Unit, IslandError> {
+    public suspend fun unload(islandId: IslandId, reasonKind: String): Result<Unit, IslandError> {
         require(reasonKind.isNotBlank()) {
             "UnloadPartyIslandUseCase.reasonKind must not be blank"
         }

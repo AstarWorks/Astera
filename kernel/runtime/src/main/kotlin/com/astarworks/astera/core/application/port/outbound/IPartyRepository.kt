@@ -9,9 +9,9 @@ import com.astarworks.astera.core.domain.social.PartyId
  * runtime-scoped and disband on server restart.
  */
 public interface IPartyRepository {
-    public fun find(id: PartyId): Party?
-    public fun forPlayer(playerId: PlayerId): Party?
-    public fun upsert(party: Party)
-    public fun remove(id: PartyId)
-    public fun all(): List<Party>
+    public suspend fun find(id: PartyId): Party?
+    public suspend fun forPlayer(playerId: PlayerId): Party?
+    public suspend fun upsert(party: Party)
+    public suspend fun remove(id: PartyId)
+    public suspend fun all(): List<Party>
 }

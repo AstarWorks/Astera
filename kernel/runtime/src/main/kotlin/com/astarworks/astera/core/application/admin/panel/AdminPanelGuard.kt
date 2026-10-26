@@ -50,7 +50,7 @@ public class AdminPanelGuard(
     }
 
     /** Wrap [handler] so it only runs for authorised clickers. */
-    public fun guarded(handler: (GuiIntent, IMcPlayer) -> Unit): (GuiIntent, IMcPlayer) -> Unit =
+    public fun guarded(handler: suspend (GuiIntent, IMcPlayer) -> Unit): suspend (GuiIntent, IMcPlayer) -> Unit =
         { intent, player -> if (authorize(player)) handler(intent, player) }
 
     /** Append an [AuditEvent.AdminActionPerformed] for [actor]. Never throws into the click path. */

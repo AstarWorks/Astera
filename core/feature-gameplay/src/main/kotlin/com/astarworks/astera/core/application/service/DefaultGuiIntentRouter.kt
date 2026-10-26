@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
@@ -51,6 +52,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 public class DefaultGuiIntentRouter(
     private val adapterProvider: () -> IGuiAdapter,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
     private val presentation: () -> IPresentation? = { null },
 ) : IGuiIntentRouter {
 
@@ -58,7 +60,7 @@ public class DefaultGuiIntentRouter(
 
     private data class Entry(
         val prefix: String,
-        val handler: (GuiIntent, IMcPlayer) -> Unit,
+        val handler: suspend (GuiIntent, IMcPlayer) -> Unit,
     )
 
     private val entries: MutableList<Entry> = CopyOnWriteArrayList()
@@ -73,7 +75,7 @@ public class DefaultGuiIntentRouter(
 
     override fun register(
         prefix: String,
-        handler: (GuiIntent, IMcPlayer) -> Unit,
+        handler: suspend (GuiIntent, IMcPlayer) -> Unit,
     ): ServiceRegistry.Registration {
         val entry = Entry(prefix, handler)
         entries += entry
@@ -100,7 +102,10 @@ public class DefaultGuiIntentRouter(
         }
         val moment = if (intent.key.startsWith("settings.")) PresentationMoments.UI_CONFIRM else PresentationMoments.UI_CLICK
         presentation()?.play(moment, player.id)
-        match.handler(intent, player)
+        // Handlers may touch persistence; the continuation resumes on the clicking player's Entity scope.
+        scheduler.launch(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(player.id.uuid)) {
+            match.handler(intent, player)
+        }
     }
 
     override fun hasHandler(key: String): Boolean = entries.any { key.startsWith(it.prefix) }

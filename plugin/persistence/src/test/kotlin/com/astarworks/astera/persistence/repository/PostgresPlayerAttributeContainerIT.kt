@@ -19,10 +19,10 @@ public class PostgresPlayerAttributeContainerIT : PostgresIntegrationTestBase() 
 
     @Test
     public fun `containerFor + mutations + flush round-trip via the V14 row`() {
-        val store = PostgresPlayerAttributeContainer(db)
+        val store = attributeStore()
         val id = PlayerId(UUID.randomUUID())
 
-        val container = store.containerFor(id)
+        val container = store.load(id).containerFor(id)
         container.set(Attributes.STAT_KILLS, AttributeValue.NumberValue(7.0))
         container.set(Attributes.WALLET_GOLD, AttributeValue.NumberValue(1500.0))
         container.addModifier(
@@ -36,8 +36,8 @@ public class PostgresPlayerAttributeContainerIT : PostgresIntegrationTestBase() 
         store.flush(id)
 
         // Re-load from a brand new store instance — exercises the JSONB read path.
-        val freshStore = PostgresPlayerAttributeContainer(db)
-        val reloaded = freshStore.containerFor(id)
+        val freshStore = attributeStore()
+        val reloaded = freshStore.load(id).containerFor(id)
 
         assertThat((reloaded.get(Attributes.STAT_KILLS) as AttributeValue.NumberValue).value).isEqualTo(7.0)
         assertThat((reloaded.get(Attributes.WALLET_GOLD) as AttributeValue.NumberValue).value).isEqualTo(1500.0)
@@ -50,21 +50,21 @@ public class PostgresPlayerAttributeContainerIT : PostgresIntegrationTestBase() 
 
     @Test
     public fun `loaded snapshot includes only the players seen via containerFor`() {
-        val store = PostgresPlayerAttributeContainer(db)
+        val store = attributeStore()
         val a = PlayerId(UUID.randomUUID())
         val b = PlayerId(UUID.randomUUID())
 
-        store.containerFor(a).set(Attributes.STAT_WINS, AttributeValue.NumberValue(1.0))
-        store.containerFor(b) // touched but not mutated
+        store.load(a).containerFor(a).set(Attributes.STAT_WINS, AttributeValue.NumberValue(1.0))
+        store.load(b).containerFor(b) // touched but not mutated
 
         assertThat(store.loaded().keys).containsExactlyInAnyOrder(a, b)
     }
 
     @Test
     public fun `removeModifiersBySource persists across a fresh load`() {
-        val store = PostgresPlayerAttributeContainer(db)
+        val store = attributeStore()
         val id = PlayerId(UUID.randomUUID())
-        val container = store.containerFor(id)
+        val container = store.load(id).containerFor(id)
 
         container.addModifier(
             AttributeModifier(Attributes.RESIST_FIRE, AttributeModifier.Operation.ADD, 0.3, "armor:fire-chest"),
@@ -78,8 +78,8 @@ public class PostgresPlayerAttributeContainerIT : PostgresIntegrationTestBase() 
         container.removeModifiersBySource("armor:fire-chest")
         store.flush(id)
 
-        val freshStore = PostgresPlayerAttributeContainer(db)
-        val reloaded = freshStore.containerFor(id)
+        val freshStore = attributeStore()
+        val reloaded = freshStore.load(id).containerFor(id)
 
         assertThat(reloaded.modifiers().none { it.sourceId == "armor:fire-chest" }).isTrue()
         assertThat(reloaded.modifiers().count { it.sourceId == "armor:fire-helm" }).isEqualTo(1)

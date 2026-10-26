@@ -20,13 +20,13 @@ public class InMemoryPersonalVaultRepository : IPersonalVaultRepository {
 
     private val vaults: ConcurrentHashMap<PlayerId, PersonalVault> = ConcurrentHashMap()
 
-    override fun find(playerId: PlayerId): PersonalVault? = vaults[playerId]
+    override suspend fun find(playerId: PlayerId): PersonalVault? = vaults[playerId]
 
-    override fun upsert(vault: PersonalVault) {
+    override suspend fun upsert(vault: PersonalVault) {
         vaults[vault.playerId] = vault
     }
 
-    override fun remove(playerId: PlayerId) {
+    override suspend fun remove(playerId: PlayerId) {
         vaults.remove(playerId)
     }
 }

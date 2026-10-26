@@ -30,7 +30,7 @@ import java.time.LocalDate
 internal class ProgressionCommands(
     private val loginBonus: ILoginBonusService,
     /** Collects and announces today's bonus; `false` when there was nothing to collect. */
-    private val claimDaily: (PlayerId) -> Boolean,
+    private val claimDaily: suspend (PlayerId) -> Boolean,
     private val normas: INormaService,
     private val quests: IQuestService,
     private val questChains: IQuestChainRegistry,

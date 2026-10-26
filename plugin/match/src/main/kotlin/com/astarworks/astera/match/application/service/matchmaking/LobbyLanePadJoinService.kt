@@ -29,7 +29,7 @@ public class LobbyLanePadJoinService(
     private val board: ILobbyLaneBoard?,
 ) {
 
-    public fun onPadEntered(event: LobbyLanePadEntered) {
+    public suspend fun onPadEntered(event: LobbyLanePadEntered) {
         val lane = settings().lanes[event.laneId] ?: return
         val player = mcServer.findPlayer(event.playerId)
         val laneName = LobbyLanePadLayout.displayName(lane.key)

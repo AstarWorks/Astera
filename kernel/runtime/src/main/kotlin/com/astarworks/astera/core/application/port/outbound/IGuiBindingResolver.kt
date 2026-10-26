@@ -38,5 +38,5 @@ public interface IGuiBindingResolver {
      * viewer. Returning non-null with every override `null` is valid and
      * means "render the item id with GUI-YAML defaults".
      */
-    public fun resolve(binding: BindingKey, viewer: PlayerId?): ResolvedReactiveSlot?
+    public suspend fun resolve(binding: BindingKey, viewer: PlayerId?): ResolvedReactiveSlot?
 }

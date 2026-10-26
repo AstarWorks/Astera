@@ -46,7 +46,7 @@ public interface IBettingEscrowService {
      * Idempotent on [bettingMatchId]: a subsequent call for the same id
      * returns [BettingError.AlreadyEscrowed].
      */
-    public fun hold(
+    public suspend fun hold(
         bettingMatchId: BettingMatchId,
         challengerId: PlayerId,
         opponentId: PlayerId,
@@ -64,7 +64,7 @@ public interface IBettingEscrowService {
      * Idempotent on [bettingMatchId]: a re-call after Paid returns the
      * already-paid escrow without re-crediting.
      */
-    public fun releaseToWinner(
+    public suspend fun releaseToWinner(
         bettingMatchId: BettingMatchId,
         winnerId: PlayerId,
         payoutSplit: Double,
@@ -75,10 +75,10 @@ public interface IBettingEscrowService {
      * Credit each side back its original stake. Returns the escrow with
      * `status = Refunded`. Idempotent.
      */
-    public fun refundBoth(
+    public suspend fun refundBoth(
         bettingMatchId: BettingMatchId,
         now: Instant,
     ): Result<BettingEscrow, BettingError>
 
-    public fun find(bettingMatchId: BettingMatchId): BettingEscrow?
+    public suspend fun find(bettingMatchId: BettingMatchId): BettingEscrow?
 }

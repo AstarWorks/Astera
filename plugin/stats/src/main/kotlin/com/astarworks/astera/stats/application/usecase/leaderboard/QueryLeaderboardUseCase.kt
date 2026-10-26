@@ -18,7 +18,7 @@ public class QueryLeaderboardUseCase(
     private val seasonRepository: ISeasonRepository,
 ) {
 
-    public fun execute(limit: Int): Result<List<LeaderboardEntry>, LeaderboardError> {
+    public suspend fun execute(limit: Int): Result<List<LeaderboardEntry>, LeaderboardError> {
         if (limit <= 0) return Result.failure(LeaderboardError.InvalidLimit(limit))
         val season = seasonRepository.current()
             ?: return Result.failure(LeaderboardError.NoActiveSeason)

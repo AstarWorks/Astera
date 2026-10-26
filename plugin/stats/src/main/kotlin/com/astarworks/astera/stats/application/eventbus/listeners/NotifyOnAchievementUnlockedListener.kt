@@ -56,7 +56,7 @@ public class NotifyOnAchievementUnlockedListener(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: AchievementUnlocked) {
+    public suspend fun handle(event: AchievementUnlocked) {
         val definition = achievements.find(event.achievementId)
         val chatKey = MessageKey("astera.achievement.unlocked.chat")
         val rendered = messages.render(

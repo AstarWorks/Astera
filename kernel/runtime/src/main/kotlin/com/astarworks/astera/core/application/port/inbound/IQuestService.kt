@@ -34,21 +34,21 @@ import com.astarworks.astera.core.domain.quest.QuestStageOutcome
 public interface IQuestService {
 
     /** Start [chainId] for [playerId]. Writes the entry stage to the progress row. */
-    public fun startChain(
+    public suspend fun startChain(
         playerId: PlayerId,
         chainId: QuestChainId,
     ): Result<PlayerQuestProgress, QuestError>
 
     /** Increment counter for the player's current stage in [chainId] by [increment] (must be > 0). */
-    public fun progressCurrent(
+    public suspend fun progressCurrent(
         playerId: PlayerId,
         chainId: QuestChainId,
         increment: Int = 1,
     ): Result<QuestStageOutcome, QuestError>
 
     /** Snapshot of every in-progress chain row for [playerId] (excludes completed). */
-    public fun activeChains(playerId: PlayerId): Collection<PlayerQuestProgress>
+    public suspend fun activeChains(playerId: PlayerId): Collection<PlayerQuestProgress>
 
     /** Snapshot of every chain row for [playerId] (includes completed); for quest log UI. */
-    public fun allChains(playerId: PlayerId): Collection<PlayerQuestProgress>
+    public suspend fun allChains(playerId: PlayerId): Collection<PlayerQuestProgress>
 }

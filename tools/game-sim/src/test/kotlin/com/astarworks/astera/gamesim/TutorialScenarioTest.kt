@@ -28,13 +28,14 @@ class TutorialScenarioTest {
 
     @Test
     fun `first join learns every action, resumes after skip and reconnect, and graduates once`() {
+        kotlinx.coroutines.runBlocking {
         scenario("new-player-guided-tutorial") {
             sim.trainingShells.worldLoaded = true
             val plan = sim.services.getOrThrow<ILobbyTrainingRange>().plan
             var learner = sim.spawnPlayer("learner", at = Vec3(0.5, 65.0, 6.5), worldId = lobby)
             val runner = sim.services.getOrThrow<ITutorialSequencerService>()
             val states = sim.services.getOrThrow<IPlayerTutorialStateRepository>()
-            fun action(): String? = (runner.currentStep(learner.id) as? TutorialStep.WaitForAction)?.actionId
+            suspend fun action(): String? = (runner.currentStep(learner.id) as? TutorialStep.WaitForAction)?.actionId
             fun intent(key: String) {
                 sim.services.getOrThrow<IGuiIntentRouter>().dispatch(checkNotNull(sim.server.view(learner.id)), GuiIntent(key))
             }
@@ -123,6 +124,7 @@ class TutorialScenarioTest {
             learner.moveTo(pad)
             assertThat(eventsOf<TutorialCompleted>().filter { it.playerId == id }).hasSize(1)
         }
+        }
     }
 
     @Test
@@ -143,6 +145,7 @@ class TutorialScenarioTest {
 
     @Test
     fun `game backends never enroll or present the tutorial`() {
+        kotlinx.coroutines.runBlocking {
         val sim = GameSim.boot("tutorial-game-role", role = ServerRole.GAME)
         try {
             val player = sim.spawnPlayer("learner", worldId = lobby)
@@ -151,6 +154,7 @@ class TutorialScenarioTest {
             assertThat(sim.services.getOrThrow<IPlayerTutorialStateRepository>().find(player.id)).isNull()
             assertThat(sim.services.get<TutorialGuide>()).isNull()
         } finally { sim.shutdown() }
+        }
     }
 
     @Test

@@ -36,6 +36,7 @@ public class PostgresMatchReplayRepositoryIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `save + findByMatchId round-trips every ReplayEvent variant`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresMatchReplayRepository(db)
         val matchId = MatchId("it-match-${java.util.UUID.randomUUID().toString().take(8)}")
         val p1 = PlayerId(UUID.randomUUID())
@@ -76,10 +77,12 @@ public class PostgresMatchReplayRepositoryIT : PostgresIntegrationTestBase() {
 
         val found = repo.findByMatchId(matchId)
         assertThat(found).isEqualTo(replay)
+        }
     }
 
     @Test
     public fun `findById uses the replay_id index`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresMatchReplayRepository(db)
         val matchId = MatchId("it-match-id-${java.util.UUID.randomUUID().toString().take(8)}")
         val replay = trivialReplay(matchId)
@@ -87,10 +90,12 @@ public class PostgresMatchReplayRepositoryIT : PostgresIntegrationTestBase() {
 
         val found = repo.findById(replay.id)
         assertThat(found).isEqualTo(replay)
+        }
     }
 
     @Test
     public fun `re-recording the same match upserts and reassigns replay_id`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresMatchReplayRepository(db)
         val matchId = MatchId("it-match-up-${java.util.UUID.randomUUID().toString().take(8)}")
         val first = trivialReplay(matchId)
@@ -101,10 +106,12 @@ public class PostgresMatchReplayRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(repo.findByMatchId(matchId)?.id).isEqualTo(second.id)
         assertThat(repo.findById(first.id)).isNull()
         assertThat(repo.findById(second.id)).isEqualTo(second)
+        }
     }
 
     @Test
     public fun `delete removes the row`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresMatchReplayRepository(db)
         val matchId = MatchId("it-match-del-${java.util.UUID.randomUUID().toString().take(8)}")
         val replay = trivialReplay(matchId)
@@ -113,6 +120,7 @@ public class PostgresMatchReplayRepositoryIT : PostgresIntegrationTestBase() {
         repo.delete(matchId)
         assertThat(repo.findByMatchId(matchId)).isNull()
         assertThat(repo.findById(replay.id)).isNull()
+        }
     }
 
     private fun trivialReplay(matchId: MatchId): RecordedReplay = RecordedReplay(

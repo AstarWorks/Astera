@@ -24,7 +24,7 @@ public class TransferUseCase(
     private val ledger: ICurrencyLedger,
     private val eventBus: IDomainEventBus,
 ) {
-    public fun execute(
+    public suspend fun execute(
         from: PlayerId,
         to: PlayerId,
         currency: Currency,

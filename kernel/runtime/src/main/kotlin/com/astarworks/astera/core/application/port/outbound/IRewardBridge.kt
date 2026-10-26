@@ -14,15 +14,15 @@ import com.astarworks.astera.core.domain.reward.RewardBundle
 public interface IRewardBridge {
 
     /** Push a bundle into the queue for later consumption. */
-    public fun enqueue(bundle: RewardBundle)
+    public suspend fun enqueue(bundle: RewardBundle)
 
     /**
      * Drain and return all bundles queued for [playerId]. Atomic: callers
      * must apply the bundles successfully before the call returns, or
      * accept that retried calls will not re-see them.
      */
-    public fun consumeForPlayer(playerId: PlayerId): List<RewardBundle>
+    public suspend fun consumeForPlayer(playerId: PlayerId): List<RewardBundle>
 
     /** Peek without consuming — admin / debug. */
-    public fun peek(playerId: PlayerId): List<RewardBundle>
+    public suspend fun peek(playerId: PlayerId): List<RewardBundle>
 }

@@ -12,7 +12,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greater
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -26,8 +26,8 @@ import java.time.Instant
  */
 public class PostgresLeaderboardRepository(private val db: Database) : ILeaderboardRepository {
 
-    override fun apply(seasonId: SeasonId, playerId: PlayerId, rating: Int, won: Boolean) {
-        transaction(db) {
+    override suspend fun apply(seasonId: SeasonId, playerId: PlayerId, rating: Int, won: Boolean) {
+        ioTransaction(db) {
             // Read-modify-write the tally: each call counts as one game played,
             // so the win/loss column grows by one off the current value.
             val current = entryRow(seasonId, playerId)
@@ -48,9 +48,9 @@ public class PostgresLeaderboardRepository(private val db: Database) : ILeaderbo
         }
     }
 
-    override fun topN(seasonId: SeasonId, n: Int): List<LeaderboardEntry> {
+    override suspend fun topN(seasonId: SeasonId, n: Int): List<LeaderboardEntry> {
         if (n <= 0) return emptyList()
-        return transaction(db) {
+        return ioTransaction(db) {
             LeaderboardRankingsTable
                 .selectAll()
                 .where { LeaderboardRankingsTable.seasonId eq seasonId.value }
@@ -60,9 +60,9 @@ public class PostgresLeaderboardRepository(private val db: Database) : ILeaderbo
         }
     }
 
-    override fun rankOf(seasonId: SeasonId, playerId: PlayerId): Int? = transaction(db) {
+    override suspend fun rankOf(seasonId: SeasonId, playerId: PlayerId): Int? = ioTransaction(db) {
         val mine = entryRow(seasonId, playerId)?.get(LeaderboardRankingsTable.rating)
-            ?: return@transaction null
+            ?: return@ioTransaction null
         val higher = LeaderboardRankingsTable
             .selectAll()
             .where {
@@ -73,7 +73,7 @@ public class PostgresLeaderboardRepository(private val db: Database) : ILeaderbo
         (higher + 1).toInt()
     }
 
-    override fun entry(seasonId: SeasonId, playerId: PlayerId): LeaderboardEntry? = transaction(db) {
+    override suspend fun entry(seasonId: SeasonId, playerId: PlayerId): LeaderboardEntry? = ioTransaction(db) {
         entryRow(seasonId, playerId)?.toDomain()
     }
 

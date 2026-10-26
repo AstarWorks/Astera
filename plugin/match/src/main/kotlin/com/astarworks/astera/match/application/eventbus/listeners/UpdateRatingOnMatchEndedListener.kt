@@ -20,7 +20,7 @@ public class UpdateRatingOnMatchEndedListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: MatchEnded) {
+    public suspend fun handle(event: MatchEnded) {
         runCatching { updateRating.onMatchEnded(event) }
             .onFailure { err ->
                 log.debug(

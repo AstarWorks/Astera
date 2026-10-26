@@ -23,14 +23,14 @@ public class InMemoryNormaProgressRepository : INormaProgressRepository {
 
     private val store: ConcurrentHashMap<Pair<PlayerId, NormaId>, MissionProgress> = ConcurrentHashMap()
 
-    override fun find(playerId: PlayerId, normaId: NormaId): MissionProgress? =
+    override suspend fun find(playerId: PlayerId, normaId: NormaId): MissionProgress? =
         store[playerId to normaId]
 
-    override fun upsert(playerId: PlayerId, progress: MissionProgress) {
+    override suspend fun upsert(playerId: PlayerId, progress: MissionProgress) {
         store[playerId to progress.normaId] = progress
     }
 
-    override fun allFor(playerId: PlayerId): Collection<MissionProgress> =
+    override suspend fun allFor(playerId: PlayerId): Collection<MissionProgress> =
         store.entries
             .asSequence()
             .filter { (key, _) -> key.first == playerId }

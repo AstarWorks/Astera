@@ -14,10 +14,10 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public class QueryActiveModerationUseCase(
     private val service: IModerationService,
 ) {
-    public fun activeFor(playerId: PlayerId): Collection<ModerationAction> =
+    public suspend fun activeFor(playerId: PlayerId): Collection<ModerationAction> =
         service.activeFor(playerId)
 
-    public fun history(playerId: PlayerId, limit: Int = DEFAULT_HISTORY_LIMIT): List<ModerationAction> =
+    public suspend fun history(playerId: PlayerId, limit: Int = DEFAULT_HISTORY_LIMIT): List<ModerationAction> =
         service.history(playerId, limit)
 
     public companion object {

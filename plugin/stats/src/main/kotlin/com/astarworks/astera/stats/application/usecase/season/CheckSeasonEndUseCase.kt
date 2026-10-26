@@ -11,7 +11,7 @@ public class CheckSeasonEndUseCase(
     private val reset: ResetSeasonUseCase,
     private val announce: (String, Season) -> Unit,
 ) {
-    public fun execute(now: Instant): Result<Int, ResetSeasonUseCase.SeasonError> {
+    public suspend fun execute(now: Instant): Result<Int, ResetSeasonUseCase.SeasonError> {
         var count = 0
         for (window in windows) {
             if (now.isBefore(Instant.parse(window.end))) continue

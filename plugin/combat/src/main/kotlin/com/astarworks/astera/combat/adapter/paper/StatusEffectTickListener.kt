@@ -33,7 +33,7 @@ public class StatusEffectTickListener(
     private val container: PaperStatusEffectContainer,
     private val phase: PaperCombatPhase,
     private val grid: CombatSpatialGrid,
-    private val compute: com.astarworks.astera.combat.application.service.CombatComputePool,
+    private val compute: com.astarworks.astera.combat.application.service.CombatChunking,
     private val playerHealthGateway: IPlayerHealthGateway? = null,
 ) : Listener {
 

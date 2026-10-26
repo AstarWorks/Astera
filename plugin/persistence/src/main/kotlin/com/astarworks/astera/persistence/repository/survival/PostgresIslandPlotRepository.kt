@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
@@ -23,7 +23,7 @@ import org.jetbrains.exposed.v1.jdbc.upsert
  */
 public class PostgresIslandPlotRepository(private val db: Database) : IIslandPlotRepository {
 
-    override fun find(id: PlotId): IslandPlot? = transaction(db) {
+    override suspend fun find(id: PlotId): IslandPlot? = ioTransaction(db) {
         IslandPlotsTable
             .selectAll()
             .where { IslandPlotsTable.plotId eq id.value }
@@ -31,7 +31,7 @@ public class PostgresIslandPlotRepository(private val db: Database) : IIslandPlo
             ?.toPlot()
     }
 
-    override fun forOwner(islandId: IslandId, ownerId: PlayerId): IslandPlot? = transaction(db) {
+    override suspend fun forOwner(islandId: IslandId, ownerId: PlayerId): IslandPlot? = ioTransaction(db) {
         IslandPlotsTable
             .selectAll()
             .where { (IslandPlotsTable.islandId eq islandId.value) and (IslandPlotsTable.ownerId eq ownerId.uuid) }
@@ -39,15 +39,15 @@ public class PostgresIslandPlotRepository(private val db: Database) : IIslandPlo
             ?.toPlot()
     }
 
-    override fun byIsland(islandId: IslandId): List<IslandPlot> = transaction(db) {
+    override suspend fun byIsland(islandId: IslandId): List<IslandPlot> = ioTransaction(db) {
         IslandPlotsTable
             .selectAll()
             .where { IslandPlotsTable.islandId eq islandId.value }
             .mapNotNull { it.toPlot() }
     }
 
-    override fun upsert(plot: IslandPlot) {
-        transaction(db) {
+    override suspend fun upsert(plot: IslandPlot) {
+        ioTransaction(db) {
             IslandPlotsTable.upsert(IslandPlotsTable.plotId) {
                 it[plotId] = plot.id.value
                 it[islandId] = plot.islandId.value
@@ -63,8 +63,8 @@ public class PostgresIslandPlotRepository(private val db: Database) : IIslandPlo
         }
     }
 
-    override fun remove(id: PlotId) {
-        transaction(db) {
+    override suspend fun remove(id: PlotId) {
+        ioTransaction(db) {
             IslandPlotsTable.deleteWhere { IslandPlotsTable.plotId eq id.value }
         }
     }

@@ -44,7 +44,7 @@ public class StartQuestChainUseCase(
     private val clock: () -> Instant = { Instant.now() },
 ) {
 
-    public fun start(
+    public suspend fun start(
         playerId: PlayerId,
         chainId: QuestChainId,
     ): Result<PlayerQuestProgress, QuestError> {

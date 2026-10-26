@@ -36,7 +36,7 @@ public class LobbyFriendsPendingIntentHandler(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(intent: GuiIntent, player: IMcPlayer) {
+    public suspend fun handle(intent: GuiIntent, player: IMcPlayer) {
         if (intent.key != INTENT_PENDING) {
             log.warn(
                 "Unexpected intent '{}' routed to LobbyFriendsPendingIntentHandler for player {}",

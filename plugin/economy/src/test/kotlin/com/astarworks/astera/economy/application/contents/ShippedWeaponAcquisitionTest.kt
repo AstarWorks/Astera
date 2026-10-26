@@ -34,7 +34,7 @@ class ShippedWeaponAcquisitionTest {
 
     private val shopOffers = run {
         val registry = InMemoryShopRegistry()
-        val report = ShopLoaderService(registry, InMemoryShopStockRepository()).loadFrom(content.resolve("shops"))
+        val report = kotlinx.coroutines.runBlocking { ShopLoaderService(registry, InMemoryShopStockRepository()).loadFrom(content.resolve("shops")) }
         assertThat(report.failures).isEmpty()
         registry.all().flatMap { it.offers }
     }

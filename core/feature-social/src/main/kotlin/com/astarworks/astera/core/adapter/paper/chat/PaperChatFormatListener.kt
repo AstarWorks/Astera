@@ -33,7 +33,7 @@ public class PaperChatFormatListener(
 ) : Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public fun onChat(event: AsyncChatEvent) {
+    public suspend fun onChat(event: AsyncChatEvent) {
         val id = PlayerId(event.player.uniqueId)
         val nameColor = nameColorOf(id)
         val title = PaperCosmeticDisplay.titleComponent(cosmetics(), messages(), id)
@@ -49,7 +49,7 @@ public class PaperChatFormatListener(
         )
     }
 
-    private fun nameColorOf(player: PlayerId): TextColor = try {
+    private suspend fun nameColorOf(player: PlayerId): TextColor = try {
         val match = matches()?.findMatchOf(player)
         val team = match?.teams?.firstOrNull { player in it.members }
         val colorName = team?.let { messages()?.render(null, it.colorKey) }

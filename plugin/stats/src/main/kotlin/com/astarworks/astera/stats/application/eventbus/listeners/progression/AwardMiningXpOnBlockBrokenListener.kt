@@ -19,11 +19,11 @@ public class AwardMiningXpOnBlockBrokenListener(
     private val awardXp: AwardSkillXpUseCase,
     private val xpPerBlock: Long = MINING_XP_PER_BLOCK,
 ) {
-    public fun onPickaxeBreak(event: BlockBroken) {
+    public suspend fun onPickaxeBreak(event: BlockBroken) {
         awardXp.execute(event.playerId, SkillKind.Mining, xpPerBlock)
     }
 
-    public fun onSkillBreak(event: BlockBrokenBySkill) {
+    public suspend fun onSkillBreak(event: BlockBrokenBySkill) {
         awardXp.execute(event.attackerId, SkillKind.Mining, xpPerBlock)
     }
 

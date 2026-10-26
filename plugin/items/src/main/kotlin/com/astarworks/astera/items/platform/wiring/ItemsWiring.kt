@@ -1,7 +1,7 @@
 package com.astarworks.astera.items.platform.wiring
 
 import com.astarworks.astera.core.application.port.outbound.EventDelivery
-
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.adapter.api.server.IMcServer
@@ -252,7 +252,9 @@ public object ItemsWiring {
                 server = mcServer,
                 poses = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>() },
                 onClaimed = { player, item ->
-                    if (item.value == "knight-sword") services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()?.recordAction(player, "rack")
+                    if (item.value == "knight-sword") scheduler.launch(ExecutionScope.Entity(player.uuid)) {
+                        services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()?.recordAction(player, "rack")
+                    }
                 },
                 inventory = trainingInventory,
                 gateway = rackGateway,

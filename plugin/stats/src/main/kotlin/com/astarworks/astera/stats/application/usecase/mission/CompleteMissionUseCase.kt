@@ -18,7 +18,7 @@ public class CompleteMissionUseCase(
     private val normaService: INormaService,
     private val eventBus: IDomainEventBus,
 ) {
-    public fun execute(playerId: PlayerId, normaId: NormaId): Result<MissionProgress, CompleteMissionError> {
+    public suspend fun execute(playerId: PlayerId, normaId: NormaId): Result<MissionProgress, CompleteMissionError> {
         val allNormas = normaService.activeNormasFor(playerId)
         val norma = allNormas.find { it.id == normaId }
             ?: return Result.failure(CompleteMissionError.UnknownNorma)

@@ -11,7 +11,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -26,16 +26,16 @@ public class PostgresAchievementRepository(private val db: Database) : IAchievem
     private val catalog = ConcurrentHashMap<AchievementId, Achievement>()
     private val unlockedCache = ConcurrentHashMap<PlayerId, MutableSet<AchievementId>>()
 
-    override fun find(id: AchievementId): Achievement? = catalog[id]
+    override suspend fun find(id: AchievementId): Achievement? = catalog[id]
 
-    override fun list(): List<Achievement> = catalog.values.toList()
+    override suspend fun list(): List<Achievement> = catalog.values.toList()
 
-    override fun registerAll(achievements: List<Achievement>) {
+    override suspend fun registerAll(achievements: List<Achievement>) {
         achievements.forEach { catalog[it.id] = it }
     }
 
-    override fun unlocked(playerId: PlayerId): Set<AchievementId> {
-        val ids = transaction(db) {
+    override suspend fun unlocked(playerId: PlayerId): Set<AchievementId> {
+        val ids = ioTransaction(db) {
             PlayerAchievementsTable.selectAll()
                 .where { PlayerAchievementsTable.playerId eq playerId.uuid }
                 .map { AchievementId(it[PlayerAchievementsTable.achievementId]) }
@@ -44,9 +44,9 @@ public class PostgresAchievementRepository(private val db: Database) : IAchievem
         return ids
     }
 
-    override fun isUnlocked(playerId: PlayerId, id: AchievementId): Boolean {
+    override suspend fun isUnlocked(playerId: PlayerId, id: AchievementId): Boolean {
         if (cacheFor(playerId).contains(id)) return true
-        val present = transaction(db) {
+        val present = ioTransaction(db) {
             PlayerAchievementsTable.selectAll()
                 .where {
                     (PlayerAchievementsTable.playerId eq playerId.uuid) and
@@ -58,8 +58,8 @@ public class PostgresAchievementRepository(private val db: Database) : IAchievem
         return present
     }
 
-    override fun unlock(playerAchievement: PlayerAchievement) {
-        transaction(db) {
+    override suspend fun unlock(playerAchievement: PlayerAchievement) {
+        ioTransaction(db) {
             PlayerAchievementsTable.insertIgnore {
                 it[playerId] = playerAchievement.playerId.uuid
                 it[achievementId] = playerAchievement.achievementId.value

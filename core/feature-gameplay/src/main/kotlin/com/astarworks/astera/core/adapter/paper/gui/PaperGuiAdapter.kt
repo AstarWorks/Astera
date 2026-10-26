@@ -51,6 +51,19 @@ public class PaperGuiAdapter(
     private val messages: IMessageRenderer,
 ) : IGuiAdapter {
 
+    init {
+        renderer.onSettled = { id -> repaintReactive(id.uuid) }
+    }
+
+    /** Redraw the reactive slots of [uuid]'s open GUI from the renderer's cache (a resolver finished late). */
+    private fun repaintReactive(uuid: UUID) {
+        val session = sessions[uuid] ?: return
+        val viewer = PlayerId(uuid)
+        for ((idx, guiSlot) in session.spec.slots) {
+            if (guiSlot is GuiSlot.Reactive) session.inventory.setItem(idx.value, renderer.renderCached(guiSlot, viewer))
+        }
+    }
+
     internal fun afterClick(player: IMcPlayer, action: () -> Unit) {
         scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(player.id.uuid), com.astarworks.astera.core.application.port.outbound.TICK, action)
     }

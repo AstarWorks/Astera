@@ -1,6 +1,5 @@
 package com.astarworks.astera.persistence.platform
 
-import com.astarworks.astera.core.application.port.outbound.EventDelivery
 
 import com.astarworks.astera.core.application.port.outbound.IBlockDurabilityRepository
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
@@ -77,6 +76,13 @@ import com.astarworks.astera.persistence.repository.PostgresBettingEscrowService
 import com.astarworks.astera.persistence.repository.PostgresBettingHistoryService
 import com.astarworks.astera.persistence.repository.PostgresBettingMatchRepository
 import org.bukkit.plugin.java.JavaPlugin
+import com.astarworks.astera.persistence.adapter.io.*
+import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
+import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import com.astarworks.astera.core.domain.player.PlayerId
 import org.slf4j.LoggerFactory
 
 /**
@@ -99,13 +105,15 @@ import org.slf4j.LoggerFactory
  *
  * On disable: unregister all overlays and close the Hikari pool.
  */
-public class AsteraPersistencePlugin : JavaPlugin() {
+public class AsteraPersistencePlugin : JavaPlugin(), Listener {
 
     private val registrations = mutableListOf<ServiceRegistry.Registration>()
     private val staged = mutableListOf<Pair<String, (ServiceRegistry) -> ServiceRegistry.Registration>>()
-    private val subscriptions = mutableListOf<com.astarworks.astera.core.application.port.outbound.IDomainEventBus.Subscription>()
     private var persistence: PersistenceContext? = null
-    private var attributeStore: IPlayerAttributeContainerStore? = null
+    private var writes: WriteBehind? = null
+    private var playerData: PlayerDataCache? = null
+    private var permissionCache: CachedPermissionService? = null
+    private var ledgerCache: PostgresCurrencyLedger? = null
     private var bootstrapFailure: Throwable? = null
 
     /** Queues an overlay; nothing is registered until every repository has been built. */
@@ -125,18 +133,24 @@ public class AsteraPersistencePlugin : JavaPlugin() {
 
         val services = getPlugin(AsteraCorePlugin::class.java).services
 
+        val queue = WriteBehind()
+        writes = queue
         val ctx = try {
-            connectAndMigrate(config, LoggerFactory.getLogger(javaClass))
+            queue.read { connectAndMigrate(config, LoggerFactory.getLogger(javaClass)) }.join()
         } catch (t: Throwable) {
+            queue.close()
+            writes = null
             failBootstrap(t)
             return
         }
         persistence = ctx
 
         try {
-            stageAll(ctx)
+            queue.read { stageAll(ctx) }.join()
         } catch (t: Throwable) {
             staged.clear()
+            queue.close()
+            writes = null
             ctx.dataSource.close()
             persistence = null
             failBootstrap(t)
@@ -160,18 +174,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
     }
 
     override fun onEnable() {
-        // F3-4: the lobby and the game server share one player row but each JVM caches it. A
-        // player arriving on this backend re-reads the row first, so the wallet / last-match
-        // written on the other backend is what shows. Subscribed before any feature plugin's
-        // join listener (loadbefore). Needs Core's bus, so it cannot run in onLoad.
-        attributeStore?.let { store ->
-            getPlugin(AsteraCorePlugin::class.java).services
-                .get<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()?.let { bus ->
-                    subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class, EventDelivery.Global) {
-                        store.reload(it.playerId)
-                    }
-                }
-        }
+        if (persistence != null) server.pluginManager.registerEvents(this, this)
         // Core has enabled (its error reporter exists) by now: surface the onLoad failure.
         val t = bootstrapFailure ?: return
         // Wave L 5hardening-complete (ADR-0129): structured fan-out for the
@@ -198,46 +201,33 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // for player resources (Wallet / PlayerStats / ManaPool facades go
         // through it). PostgresPlayerStatsRepository + PostgresCurrencyLedger
         // are thin facades over it.
-        val attributeContainerStore: IPlayerAttributeContainerStore =
-            PostgresPlayerAttributeContainer(ctx.database)
-        stage<IPlayerAttributeContainerStore>(
-            attributeContainerStore,
-            priority = 100,
-        )
-        // ADR-0195: onboarding fact + lifetime XP survive restarts (V49 / V50).
-        stage<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>(
-            com.astarworks.astera.persistence.repository.PostgresPlayerProfileRepository(ctx.database),
-            priority = 100,
-        )
-        stage<com.astarworks.astera.stats.application.port.outbound.IPlayerXpRepository>(
-            com.astarworks.astera.persistence.repository.PostgresPlayerXpRepository(ctx.database),
-            priority = 100,
-        )
+        val queue = checkNotNull(writes)
+        val players = PlayerDataCache(ctx.database, queue)
+        playerData = players
+        val attributeContainerStore: IPlayerAttributeContainerStore = players.attributes
+        stage<IPlayerAttributeContainerStore>(attributeContainerStore)
+        stage<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>(players.profiles)
+        stage<com.astarworks.astera.stats.application.port.outbound.IPlayerXpRepository>(players.playerXp)
         stage<com.astarworks.astera.stats.application.port.outbound.ILevelRewardRepository>(
             com.astarworks.astera.persistence.repository.PostgresLevelRewardRepository(ctx.database),
-            priority = 100,
         )
-        stage<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticLoadoutRepository>(
-            com.astarworks.astera.persistence.repository.PostgresCosmeticLoadoutRepository(ctx.database),
-            priority = 100,
-        )
-        attributeStore = attributeContainerStore
+        stage<com.astarworks.astera.core.application.port.outbound.cosmetic.ICosmeticLoadoutRepository>(players.cosmetics)
         stage<IPlayerStatsRepository>(
             PostgresPlayerStatsRepository(attributeContainerStore),
             priority = 100,
         )
         stage<IMatchRepository>(
-            PostgresMatchRepository(ctx.database),
+            CachedMatchRepository(PostgresMatchRepository(ctx.database), queue).also { it.preload() },
             priority = 100,
         )
         // IStageRegistry is intentionally NOT overlaid (ADR-0226): stages are content.
-        val ledger: ICurrencyLedger = PostgresCurrencyLedger(ctx.database)
+        val ledger = PostgresCurrencyLedger(ctx.database).also { ledgerCache = it }
         stage<ICurrencyLedger>(
             ledger,
             priority = 100,
         )
         stage<IPermissionService>(
-            PostgresPermissionService(ctx.database),
+            CachedPermissionService(PostgresPermissionService(ctx.database), queue).also { permissionCache = it },
             priority = 100,
         )
         stage<INormaProgressRepository>(
@@ -250,22 +240,22 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
         stage<IPlayerSettingsRepository>(
-            PostgresPlayerSettingsRepository(ctx.database),
+            players.playerSettings,
             priority = 100,
         )
         stage<IAuditLogRepository>(
-            PostgresAuditLogRepository(ctx.database),
+            CachedAuditLog(PostgresAuditLogRepository(ctx.database), queue),
             priority = 100,
         )
         stage<IPlayerInventorySnapshotRepository>(
-            PostgresPlayerInventorySnapshotRepository(ctx.database),
+            players.snapshots,
             priority = 100,
         )
         // Wave _persist-1: cross-server persistence landmines closed (ADR-0068).
         // SessionState / Friendship / Party / Reward outbox all DB-backed so
         // pod kill / cross-server traversal preserves state.
         stage<IPlayerSessionRepository>(
-            PostgresPlayerSessionRepository(ctx.database),
+            players.sessions,
             priority = 100,
         )
         stage<IFriendshipRepository>(
@@ -392,8 +382,12 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // shipped + V20 migration applied. KDoc on the repo explicitly
         // promises "Registered by AsteraPersistencePlugin at priority=100";
         // this fills the missing wiring.
+        val blocks = CachedBlockStorage(
+            com.astarworks.astera.persistence.repository.PostgresBlockChangeJournalRepository(ctx.database),
+            PostgresBlockDurabilityRepository(ctx.database), queue,
+        ).also { it.preload() }
         stage<IBlockDurabilityRepository>(
-            PostgresBlockDurabilityRepository(ctx.database),
+            blocks.blocks,
             priority = 100,
         )
 
@@ -402,7 +396,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // PaperBlockStateGateway calls save()/delete() per mutation;
         // loadAll() drives plugin-enable warm-up.
         stage<com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository>(
-            com.astarworks.astera.persistence.repository.PostgresBlockChangeJournalRepository(ctx.database),
+            blocks.journal,
             priority = 100,
         )
 
@@ -450,13 +444,52 @@ public class AsteraPersistencePlugin : JavaPlugin() {
     }
 
     override fun onDisable() {
-        subscriptions.forEach { it.cancel() }
-        subscriptions.clear()
         registrations.forEach { it.unregister() }
         registrations.clear()
-        persistence?.dataSource?.close()
+        try {
+            writes?.close()
+        } finally {
+            persistence?.dataSource?.close()
+            writes = null
+        }
         persistence = null
         logger.info("Astera-Persistence disabled.")
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public fun preload(event: AsyncPlayerPreLoginEvent) {
+        if (event.loginResult != AsyncPlayerPreLoginEvent.Result.ALLOWED) return
+        val queue = writes ?: return
+        val id = PlayerId(event.uniqueId)
+        try {
+            queue.read {
+                playerData?.preload(id)
+                permissionCache?.preload(id)
+                ledgerCache?.preload(id)
+            }.join()
+        } catch (ex: Exception) {
+            playerData?.evict(id)
+            permissionCache?.evict(id)
+            ledgerCache?.evict(id)
+            logger.log(java.util.logging.Level.SEVERE, "Player persistence preload failed for $id", ex)
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
+                net.kyori.adventure.text.Component.text("Unable to load player data. Please reconnect."))
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public fun flushOnQuit(event: PlayerQuitEvent) {
+        val id = PlayerId(event.player.uniqueId)
+        writes?.flush()?.whenComplete { _, failure ->
+            if (failure != null) {
+                // Keep the cache entry: the queue retains the failed snapshot and retries on the interval flush.
+                logger.log(java.util.logging.Level.SEVERE, "Quit persistence flush failed", failure)
+            } else {
+                playerData?.evict(id)
+                permissionCache?.evict(id)
+                ledgerCache?.evict(id)
+            }
+        }
     }
 
     private companion object {

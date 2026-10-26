@@ -17,18 +17,18 @@ public class InMemoryPartyRepository : IPartyRepository {
 
     private val parties: ConcurrentHashMap<PartyId, Party> = ConcurrentHashMap()
 
-    override fun find(id: PartyId): Party? = parties[id]
+    override suspend fun find(id: PartyId): Party? = parties[id]
 
-    override fun forPlayer(playerId: PlayerId): Party? =
+    override suspend fun forPlayer(playerId: PlayerId): Party? =
         parties.values.firstOrNull { playerId in it.members }
 
-    override fun upsert(party: Party) {
+    override suspend fun upsert(party: Party) {
         parties[party.id] = party
     }
 
-    override fun remove(id: PartyId) {
+    override suspend fun remove(id: PartyId) {
         parties.remove(id)
     }
 
-    override fun all(): List<Party> = parties.values.toList()
+    override suspend fun all(): List<Party> = parties.values.toList()
 }

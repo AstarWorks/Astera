@@ -18,14 +18,14 @@ public interface ILeaderboardRepository {
      * stored rating and increments the win or loss tally by one. Idempotency is
      * NOT assumed — each call counts as one game played.
      */
-    public fun apply(seasonId: SeasonId, playerId: PlayerId, rating: Int, won: Boolean)
+    public suspend fun apply(seasonId: SeasonId, playerId: PlayerId, rating: Int, won: Boolean)
 
     /** Top [n] entries for [seasonId], highest rating first. */
-    public fun topN(seasonId: SeasonId, n: Int): List<LeaderboardEntry>
+    public suspend fun topN(seasonId: SeasonId, n: Int): List<LeaderboardEntry>
 
     /** 1-based rank of [playerId] within [seasonId], or null if absent. */
-    public fun rankOf(seasonId: SeasonId, playerId: PlayerId): Int?
+    public suspend fun rankOf(seasonId: SeasonId, playerId: PlayerId): Int?
 
     /** The full entry for [playerId] in [seasonId], or null if absent. */
-    public fun entry(seasonId: SeasonId, playerId: PlayerId): LeaderboardEntry?
+    public suspend fun entry(seasonId: SeasonId, playerId: PlayerId): LeaderboardEntry?
 }

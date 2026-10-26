@@ -1,5 +1,6 @@
 package com.astarworks.astera.stats.application.eventbus.listeners.loginbonus
 
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -33,11 +34,13 @@ public class ClaimLoginBonusOnJoinListener(
     private val clock: Clock = Clock.systemDefaultZone(),
 ) {
     public fun handle(event: PlayerJoinedServer) {
-        scheduler.run(ExecutionScope.Entity(event.playerId.uuid), ticks(CLAIM_DELAY_TICKS)) { claim(event.playerId) }
+        scheduler.run(ExecutionScope.Entity(event.playerId.uuid), ticks(CLAIM_DELAY_TICKS)) {
+            scheduler.launch(ExecutionScope.Entity(event.playerId.uuid)) { claim(event.playerId) }
+        }
     }
 
     /** Claims for [playerId] now; also the entry point of the manual `/astera daily claim`. */
-    public fun claim(playerId: PlayerId): Boolean {
+    public suspend fun claim(playerId: PlayerId): Boolean {
         val result = loginBonus.claimDaily(playerId, LocalDate.now(clock))
         if (result !is Result.Success) return false
         announce(playerId, result.value)

@@ -40,7 +40,7 @@ public class LobbyShopOpenIntentHandler(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(intent: GuiIntent, player: IMcPlayer) {
+    public suspend fun handle(intent: GuiIntent, player: IMcPlayer) {
         if (intent.key != INTENT_OPEN) {
             log.warn(
                 "Unknown lobby.shop intent '{}' from player {} — payload={}",

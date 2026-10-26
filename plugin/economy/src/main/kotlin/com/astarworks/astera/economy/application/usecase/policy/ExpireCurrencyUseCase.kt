@@ -34,7 +34,7 @@ public class ExpireCurrencyUseCase(
     private val policyOf: (Currency) -> CurrencyPolicy,
     private val clock: () -> Instant = Instant::now,
 ) {
-    public fun sweep() {
+    public suspend fun sweep() {
         Currency.entries.forEach { currency ->
             val policy = policyOf(currency)
             if (!policy.expirable) return@forEach

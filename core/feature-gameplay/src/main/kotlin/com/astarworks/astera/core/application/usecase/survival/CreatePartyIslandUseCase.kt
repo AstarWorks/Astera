@@ -48,7 +48,7 @@ public class CreatePartyIslandUseCase(
     private val worldIdMinter: (IslandId) -> WorldId = { id -> WorldId("survival-${id.value}") },
 ) {
 
-    public fun create(
+    public suspend fun create(
         partyId: PartyId,
         createdBy: PlayerId,
         templateId: IslandTemplateId,

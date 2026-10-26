@@ -25,7 +25,7 @@ public class LiftModerationActionUseCase(
     private val permissionService: IPermissionService,
 ) {
 
-    public fun lift(actionId: ModerationActionId, liftedBy: PlayerId): Result<Unit, ModerationError> {
+    public suspend fun lift(actionId: ModerationActionId, liftedBy: PlayerId): Result<Unit, ModerationError> {
         val perm = Permission(PERM_LIFT)
         if (!permissionService.check(liftedBy, perm)) {
             return Result.failure(

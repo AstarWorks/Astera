@@ -24,13 +24,13 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public interface IModerationService {
 
     /** Record a new moderation action. Returns the action with its assigned id. */
-    public fun apply(action: ModerationAction): Result<ModerationAction, ModerationError>
+    public suspend fun apply(action: ModerationAction): Result<ModerationAction, ModerationError>
 
     /**
      * Lift a previously-applied action (sets `liftedAt = now()`). No-op
      * (Success) if the action is already lifted or does not exist.
      */
-    public fun lift(actionId: ModerationActionId, liftedBy: PlayerId): Result<Unit, ModerationError>
+    public suspend fun lift(actionId: ModerationActionId, liftedBy: PlayerId): Result<Unit, ModerationError>
 
     /**
      * Currently-active actions on [playerId] (not lifted, not expired).
@@ -39,13 +39,13 @@ public interface IModerationService {
      * `SendChatMessageUseCase`) filter by variant
      * (`activeFor(player).filterIsInstance<ModerationAction.Mute>()`).
      */
-    public fun activeFor(playerId: PlayerId): Collection<ModerationAction>
+    public suspend fun activeFor(playerId: PlayerId): Collection<ModerationAction>
 
     /**
      * Full action history for [playerId], most recent first, up to [limit]
      * rows. Used by moderator dashboard / audit query.
      */
-    public fun history(playerId: PlayerId, limit: Int = 50): List<ModerationAction>
+    public suspend fun history(playerId: PlayerId, limit: Int = 50): List<ModerationAction>
 }
 
 public sealed class ModerationError {

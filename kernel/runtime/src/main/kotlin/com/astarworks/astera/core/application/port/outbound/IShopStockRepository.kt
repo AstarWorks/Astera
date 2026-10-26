@@ -33,7 +33,7 @@ public interface IShopStockRepository {
      *   never seeded (callers must treat null as "no limit"), or
      * - the spec / loader is out of sync.
      */
-    public fun currentStock(shopId: ShopId, offerId: ShopOfferId): ShopStock?
+    public suspend fun currentStock(shopId: ShopId, offerId: ShopOfferId): ShopStock?
 
     /**
      * Atomically decrement remaining stock for `(shopId, offerId)` by [by].
@@ -46,7 +46,7 @@ public interface IShopStockRepository {
      * Postgres impl uses `SELECT ... FOR UPDATE` inside a transaction so
      * concurrent calls serialize at the row level.
      */
-    public fun decrementStock(
+    public suspend fun decrementStock(
         shopId: ShopId,
         offerId: ShopOfferId,
         by: Int = 1,
@@ -60,7 +60,7 @@ public interface IShopStockRepository {
      * Called by `ShopLoaderService` at plugin startup for every authored
      * [ShopStock.Limited] offer.
      */
-    public fun seed(
+    public suspend fun seed(
         shopId: ShopId,
         offerId: ShopOfferId,
         initial: Int,

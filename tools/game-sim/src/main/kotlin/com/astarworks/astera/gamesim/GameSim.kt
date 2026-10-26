@@ -301,7 +301,7 @@ public class GameSim private constructor(
     public fun leftClick(entity: SimEntity): Boolean = input(entity, IMcEvent.InputKind.LEFT_CLICK)
 
     /** The lobby F key (the same menu-kit entry and successful-open check as Paper). */
-    public fun swapHands(entity: SimEntity): Boolean {
+    public suspend fun swapHands(entity: SimEntity): Boolean {
         val player = server.view(entity.id) ?: return false
         if (com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy.inMatch(
                 services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()?.isHeld(entity.id) ?: false,
@@ -488,8 +488,8 @@ public class GameSim private constructor(
             /** Use entity-declared teams outside matches; false exercises Paper's late Match-owned team lookup. */
             standaloneTeams: Boolean = true,
             /** Inline by default; integration scenarios can exercise the production pool on identical wiring. */
-            projectileCompute: com.astarworks.astera.combat.application.service.CombatComputePool =
-                com.astarworks.astera.combat.application.service.CombatComputePool(parallelism = 0),
+            projectileCompute: com.astarworks.astera.combat.application.service.CombatChunking =
+                com.astarworks.astera.combat.application.service.CombatChunking(com.astarworks.astera.testfixtures.InlineComputePool()),
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)

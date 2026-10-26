@@ -33,7 +33,7 @@ public class InMemoryCurrencyLedger(
 
     override fun wallet(playerId: PlayerId): Wallet = walletFor(playerId)
 
-    override fun debit(
+    override suspend fun debit(
         playerId: PlayerId,
         currency: Currency,
         amount: Long,
@@ -42,7 +42,7 @@ public class InMemoryCurrencyLedger(
         return walletFor(playerId).withdraw(currency, amount)
     }
 
-    override fun credit(playerId: PlayerId, currency: Currency, amount: Long): Wallet {
+    override suspend fun credit(playerId: PlayerId, currency: Currency, amount: Long): Wallet {
         require(amount >= 0) { "credit amount must be >= 0, got $amount" }
         return walletFor(playerId).deposit(currency, amount)
     }
@@ -53,7 +53,7 @@ public class InMemoryCurrencyLedger(
      * for non-negative values, there is no failure path on the credit side
      * that would require a compensating refund.
      */
-    override fun transfer(
+    override suspend fun transfer(
         from: PlayerId,
         to: PlayerId,
         currency: Currency,

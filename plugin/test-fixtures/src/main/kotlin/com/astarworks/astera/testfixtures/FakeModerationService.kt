@@ -34,12 +34,12 @@ public class FakeModerationService(
     public val liftedIds: Set<ModerationActionId>
         get() = store.filter { it.liftedAt != null }.map { it.id }.toSet()
 
-    override fun apply(action: ModerationAction): Result<ModerationAction, ModerationError> {
+    override suspend fun apply(action: ModerationAction): Result<ModerationAction, ModerationError> {
         store += action
         return Result.success(action)
     }
 
-    override fun lift(actionId: ModerationActionId, liftedBy: PlayerId): Result<Unit, ModerationError> {
+    override suspend fun lift(actionId: ModerationActionId, liftedBy: PlayerId): Result<Unit, ModerationError> {
         val idx = store.indexOfFirst { it.id == actionId }
         if (idx < 0) return Result.success(Unit)
         val current = store[idx]
@@ -48,7 +48,7 @@ public class FakeModerationService(
         return Result.success(Unit)
     }
 
-    override fun activeFor(playerId: PlayerId): Collection<ModerationAction> {
+    override suspend fun activeFor(playerId: PlayerId): Collection<ModerationAction> {
         val now = Instant.now(clock)
         return store.filter { action ->
             action.playerId == playerId &&
@@ -57,7 +57,7 @@ public class FakeModerationService(
         }
     }
 
-    override fun history(playerId: PlayerId, limit: Int): List<ModerationAction> {
+    override suspend fun history(playerId: PlayerId, limit: Int): List<ModerationAction> {
         require(limit >= 0) { "limit must be >= 0" }
         if (limit == 0) return emptyList()
         return store

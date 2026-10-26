@@ -30,15 +30,15 @@ import com.astarworks.astera.core.domain.quest.QuestChainId
 public interface IPlayerQuestProgressRepository {
 
     /** Returns the stored progress row, or `null` if the player never started this chain. */
-    public fun find(playerId: PlayerId, chainId: QuestChainId): PlayerQuestProgress?
+    public suspend fun find(playerId: PlayerId, chainId: QuestChainId): PlayerQuestProgress?
 
     /** Atomically write [progress] for `(playerId, progress.chainId)`. Replaces any existing row. */
-    public fun upsert(progress: PlayerQuestProgress)
+    public suspend fun upsert(progress: PlayerQuestProgress)
 
     /** Snapshot of every chain the player has any row for. */
-    public fun allFor(playerId: PlayerId): Collection<PlayerQuestProgress>
+    public suspend fun allFor(playerId: PlayerId): Collection<PlayerQuestProgress>
 
     /** Subset of [allFor] whose `completedAt` is null. */
-    public fun activeFor(playerId: PlayerId): Collection<PlayerQuestProgress> =
+    public suspend fun activeFor(playerId: PlayerId): Collection<PlayerQuestProgress> =
         allFor(playerId).filter { !it.isComplete }
 }

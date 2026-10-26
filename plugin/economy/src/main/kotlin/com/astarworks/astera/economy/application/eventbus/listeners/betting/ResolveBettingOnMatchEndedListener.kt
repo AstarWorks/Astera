@@ -46,7 +46,7 @@ public class ResolveBettingOnMatchEndedListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: MatchEnded) {
+    public suspend fun handle(event: MatchEnded) {
         val betting = bettingMatches.findByMatchId(event.matchId) ?: return
         if (betting.status != BettingStatus.Active) {
             log.debug(

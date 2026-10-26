@@ -20,7 +20,7 @@ public class DeclineBettingChallengeUseCase(
     private val matches: IBettingMatchRepository,
 ) {
 
-    public fun execute(
+    public suspend fun execute(
         bettingMatchId: BettingMatchId,
         actorId: PlayerId,
     ): Result<BettingMatch, BettingError> {

@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.vault
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import com.astarworks.astera.core.application.command.vaultErrorKey
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -55,9 +57,11 @@ public class PaperVaultWindow(
     private val save: SaveVaultUseCase,
     private val access: () -> AccessPersonalVaultUseCase,
     private val messages: IMessageRenderer,
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler,
 ) : IVaultWindow, Listener {
 
     private val log = LoggerFactory.getLogger(PaperVaultWindow::class.java)
+    private val pendingSaves = java.util.concurrent.ConcurrentLinkedQueue<kotlinx.coroutines.Job>()
 
     private class VaultHolder(val owner: PlayerId, val page: Int) : InventoryHolder {
         lateinit var bound: Inventory
@@ -93,6 +97,13 @@ public class PaperVaultWindow(
     /** Close every open vault so contents are saved (called on plugin disable). */
     public fun closeAll() {
         server.onlinePlayers.map { PlayerId(it.uniqueId) }.forEach(::closeFor)
+        // Shutdown must not outrun the off-thread page saves started by the closes above.
+        val pending = pendingSaves.toList()
+        val done = java.util.concurrent.CountDownLatch(pending.size)
+        pending.forEach { it.invokeOnCompletion { done.countDown() } }
+        if (!done.await(SAVE_JOIN_SECONDS, java.util.concurrent.TimeUnit.SECONDS)) {
+            log.warn("Vault: {} page save(s) still running at shutdown", done.count)
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -145,10 +156,15 @@ public class PaperVaultWindow(
         val items = (0 until PersonalVault.PAGE_SIZE).mapNotNull { slot ->
             event.inventory.getItem(slot)?.takeUnless { it.isEmpty }?.let { encode(slot, it) }
         }
-        when (val result = save.savePage(holder.owner, holder.page, items)) {
-            is Result.Success -> Unit
-            is Result.Failure -> log.warn("Vault save failed for {}: {}", holder.owner, result.error)
+        // The page snapshot is captured above; the save itself runs off the game thread.
+        val job = scheduler.launch(ExecutionScope.Io) {
+            when (val result = save.savePage(holder.owner, holder.page, items)) {
+                is Result.Success -> Unit
+                is Result.Failure -> log.warn("Vault save failed for {}: {}", holder.owner, result.error)
+            }
         }
+        pendingSaves += job
+        job.invokeOnCompletion { pendingSaves.remove(job) }
     }
 
     private fun goToPage(player: Player, page: Int) {
@@ -158,11 +174,13 @@ public class PaperVaultWindow(
             Runnable {
                 if (!player.isOnline) return@Runnable
                 player.closeInventory() // saves the page being left
-                when (val result = access().open(playerId, page)) {
-                    is Result.Success -> Unit
-                    is Result.Failure -> player.sendMessage(
-                        AsteraTextDeserializer.deserialize(messages.render(playerId, vaultErrorKey(result.error))),
-                    )
+                scheduler.launch(ExecutionScope.Entity(player.uniqueId)) {
+                    when (val result = access().open(playerId, page)) {
+                        is Result.Success -> Unit
+                        is Result.Failure -> player.sendMessage(
+                            AsteraTextDeserializer.deserialize(messages.render(playerId, vaultErrorKey(result.error))),
+                        )
+                    }
                 }
             }, null, 1L,
         )
@@ -216,11 +234,13 @@ public class PaperVaultWindow(
 
     private fun openFor(player: Player) {
         val playerId = PlayerId(player.uniqueId)
-        when (val result = access().open(playerId)) {
-            is Result.Success -> Unit
-            is Result.Failure -> player.sendMessage(
-                AsteraTextDeserializer.deserialize(messages.render(playerId, vaultErrorKey(result.error))),
-            )
+        scheduler.launch(ExecutionScope.Entity(player.uniqueId)) {
+            when (val result = access().open(playerId)) {
+                is Result.Success -> Unit
+                is Result.Failure -> player.sendMessage(
+                    AsteraTextDeserializer.deserialize(messages.render(playerId, vaultErrorKey(result.error))),
+                )
+            }
         }
     }
 
@@ -243,6 +263,7 @@ public class PaperVaultWindow(
     }
 
     private companion object {
+        const val SAVE_JOIN_SECONDS = 10L
         val TITLE = MessageKey("astera.vault.title")
         val NAV_PREV = MessageKey("astera.vault.nav.prev")
         val NAV_NEXT = MessageKey("astera.vault.nav.next")

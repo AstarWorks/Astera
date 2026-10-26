@@ -193,7 +193,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
     // the lobby as a new player and re-run the starter grant.
     if (ctx.serverRole.hostsLobby) {
         wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class, EventDelivery.Global) { event ->
-            createFirstTimeListener.handle(event)
+            launchFor(event.playerId) { createFirstTimeListener.handle(event) }
         }
     }
     val starterItemsListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
@@ -215,7 +215,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
             sequencer = tutorialSequencer,
         )
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class, EventDelivery.Global) { event ->
-        startTutorialListener.handle(event)
+        launchFor(event.playerId) { startTutorialListener.handle(event) }
     }
     val welcomeDialogListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
         .ShowWelcomeDialogOnFirstTimeProfileCreatedListener(

@@ -17,10 +17,10 @@ public class AccessPersonalVaultUseCase(
     private val openVault: OpenVaultUseCase,
     private val window: () -> IVaultWindow?,
     private val matches: () -> IMatchRepository?,
-    private val onOpened: (PlayerId) -> Unit = {},
+    private val onOpened: suspend (PlayerId) -> Unit = {},
 ) {
 
-    public fun open(playerId: PlayerId, page: Int = 0): Result<Unit, VaultError> {
+    public suspend fun open(playerId: PlayerId, page: Int = 0): Result<Unit, VaultError> {
         val match = matches()?.findMatchOf(playerId)
         if (match != null && match.phase in LIVE_PHASES) {
             return Result.Failure(VaultError.BlockedInMatch)

@@ -29,21 +29,26 @@ public class PostgresShopStockRepositoryIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `seed then currentStock returns Limited(initial)`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresShopStockRepository(db)
         val offerId = offer("seed-basic")
         val seedResult = repo.seed(shopId, offerId, initial = 5)
         assertThat(seedResult.isSuccess).isTrue
         assertThat(repo.currentStock(shopId, offerId)).isEqualTo(ShopStock.Limited(5))
+        }
     }
 
     @Test
     public fun `currentStock returns null for unseeded offer`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresShopStockRepository(db)
         assertThat(repo.currentStock(shopId, offer("never-seeded"))).isNull()
+        }
     }
 
     @Test
     public fun `seed is idempotent and does NOT overwrite existing remaining`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresShopStockRepository(db)
         val offerId = offer("idempotent-seed")
         repo.seed(shopId, offerId, initial = 10)
@@ -55,18 +60,22 @@ public class PostgresShopStockRepositoryIT : PostgresIntegrationTestBase() {
         val secondSeed = repo.seed(shopId, offerId, initial = 10)
         assertThat(secondSeed.isSuccess).isTrue
         assertThat(repo.currentStock(shopId, offerId)).isEqualTo(ShopStock.Limited(6))
+        }
     }
 
     @Test
     public fun `decrementStock for unknown offer returns UnknownOffer`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresShopStockRepository(db)
         val result = repo.decrementStock(shopId, offer("unknown"), by = 1)
         assertThat(result.isFailure).isTrue
         assertThat(result.errorOrNull()).isInstanceOf(ShopStockError.UnknownOffer::class.java)
+        }
     }
 
     @Test
     public fun `decrementStock returns OutOfStock when remaining is 0`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresShopStockRepository(db)
         val offerId = offer("oos-basic")
         repo.seed(shopId, offerId, initial = 1)
@@ -78,10 +87,12 @@ public class PostgresShopStockRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(second.errorOrNull())
             .isEqualTo(ShopStockError.OutOfStock(shopId, offerId))
         assertThat(repo.currentStock(shopId, offerId)).isEqualTo(ShopStock.Limited(0))
+        }
     }
 
     @Test
     public fun `concurrent decrement on Limited(1) — exactly one success and one OutOfStock`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresShopStockRepository(db)
         val offerId = offer("race-${System.nanoTime()}")
         repo.seed(shopId, offerId, initial = 1)
@@ -95,11 +106,11 @@ public class PostgresShopStockRepositoryIT : PostgresIntegrationTestBase() {
 
         val threadA = Thread({
             start.await()
-            resultA.set(repo.decrementStock(shopId, offerId))
+            resultA.set(kotlinx.coroutines.runBlocking { repo.decrementStock(shopId, offerId) })
         }, "shop-stock-it-A")
         val threadB = Thread({
             start.await()
-            resultB.set(repo.decrementStock(shopId, offerId))
+            resultB.set(kotlinx.coroutines.runBlocking { repo.decrementStock(shopId, offerId) })
         }, "shop-stock-it-B")
 
         threadA.start()
@@ -123,5 +134,6 @@ public class PostgresShopStockRepositoryIT : PostgresIntegrationTestBase() {
         // Final state: remaining == 0. Critically NOT -1 (the row-level lock
         // + V19 CHECK (remaining >= 0) constraint guarantee this).
         assertThat(repo.currentStock(shopId, offerId)).isEqualTo(ShopStock.Limited(0))
-    }
+        }
+}
 }

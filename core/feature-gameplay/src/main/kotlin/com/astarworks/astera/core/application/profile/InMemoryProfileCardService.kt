@@ -17,15 +17,15 @@ public class InMemoryProfileCardService : IProfileCardService {
 
     private val store = ConcurrentHashMap<PlayerId, PublicProfileCard>()
 
-    override fun find(playerId: PlayerId): PublicProfileCard? = store[playerId]
+    override suspend fun find(playerId: PlayerId): PublicProfileCard? = store[playerId]
 
-    override fun save(card: PublicProfileCard) {
+    override suspend fun save(card: PublicProfileCard) {
         store[card.playerId] = card
     }
 
-    override fun delete(playerId: PlayerId) {
+    override suspend fun delete(playerId: PlayerId) {
         store.remove(playerId)
     }
 
-    override fun all(): List<PublicProfileCard> = store.values.toList()
+    override suspend fun all(): List<PublicProfileCard> = store.values.toList()
 }

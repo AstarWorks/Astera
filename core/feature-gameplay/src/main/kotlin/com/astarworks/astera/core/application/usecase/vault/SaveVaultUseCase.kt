@@ -14,7 +14,7 @@ import com.astarworks.astera.core.domain.vault.PersonalVault
  */
 public class SaveVaultUseCase(private val vaults: IPersonalVaultRepository) {
 
-    public fun save(vault: PersonalVault): Result<Unit, VaultError> {
+    public suspend fun save(vault: PersonalVault): Result<Unit, VaultError> {
         vault.items.forEach { item ->
             if (item.count < 1) {
                 return Result.Failure(VaultError.InvalidCount(item.itemId, item.count))
@@ -31,7 +31,7 @@ public class SaveVaultUseCase(private val vaults: IPersonalVaultRepository) {
      * Persist what the player left in one window [page] (page-local slots) without touching the other
      * pages, so closing page 2 can never erase page 1 (ADR-0211).
      */
-    public fun savePage(
+    public suspend fun savePage(
         playerId: PlayerId,
         page: Int,
         local: List<PersonalVault.VaultItem>,

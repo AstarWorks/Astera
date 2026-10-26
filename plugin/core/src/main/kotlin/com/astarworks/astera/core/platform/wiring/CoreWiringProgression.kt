@@ -176,10 +176,10 @@ internal fun CoreWiringState.wireProgression() {
     // Resolve on every operation so priority-100 persistence overlays remain authoritative.
     val tutorialStateRepo = object : IPlayerTutorialStateRepository {
         private fun delegate() = services.getOrThrow<IPlayerTutorialStateRepository>()
-        override fun find(playerId: com.astarworks.astera.core.domain.player.PlayerId) = delegate().find(playerId)
-        override fun save(playerId: com.astarworks.astera.core.domain.player.PlayerId, snapshot: com.astarworks.astera.core.domain.tutorial.TutorialRunnerSnapshot) = delegate().save(playerId, snapshot)
-        override fun clear(playerId: com.astarworks.astera.core.domain.player.PlayerId) = delegate().clear(playerId)
-        override fun all() = delegate().all()
+        override suspend fun find(playerId: com.astarworks.astera.core.domain.player.PlayerId) = delegate().find(playerId)
+        override suspend fun save(playerId: com.astarworks.astera.core.domain.player.PlayerId, snapshot: com.astarworks.astera.core.domain.tutorial.TutorialRunnerSnapshot) = delegate().save(playerId, snapshot)
+        override suspend fun clear(playerId: com.astarworks.astera.core.domain.player.PlayerId) = delegate().clear(playerId)
+        override suspend fun all() = delegate().all()
     }
     tutorialSequencer = RunTutorialSequencerUseCase(
         registry = tutorialContents,

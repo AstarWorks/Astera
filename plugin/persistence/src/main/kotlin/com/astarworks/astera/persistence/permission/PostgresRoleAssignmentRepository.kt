@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.permission
 
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
 import com.astarworks.astera.core.application.port.outbound.permission.RoleError
 import com.astarworks.astera.core.application.service.permission.IRoleAssignmentRepository
 import com.astarworks.astera.core.domain.Result
@@ -14,7 +15,6 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import org.slf4j.LoggerFactory
 import java.sql.SQLException
@@ -40,7 +40,7 @@ public class PostgresRoleAssignmentRepository(private val db: Database) : IRoleA
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun findActive(playerId: PlayerId, now: Instant): Collection<RoleAssignmentRecord> =
-        transaction(db) {
+        blockingTransaction(db) {
             PermissionRoleAssignmentTable
                 .selectAll()
                 .where { PermissionRoleAssignmentTable.playerId eq playerId.uuid }
@@ -61,7 +61,7 @@ public class PostgresRoleAssignmentRepository(private val db: Database) : IRoleA
 
     override fun upsert(record: RoleAssignmentRecord): Result<Unit, RoleError> {
         return try {
-            transaction(db) {
+            blockingTransaction(db) {
                 PermissionRoleAssignmentTable.upsert(
                     PermissionRoleAssignmentTable.playerId,
                     PermissionRoleAssignmentTable.roleId,
@@ -82,7 +82,7 @@ public class PostgresRoleAssignmentRepository(private val db: Database) : IRoleA
 
     override fun remove(playerId: PlayerId, roleId: RoleId): Result<Unit, RoleError> {
         return try {
-            val deleted = transaction(db) {
+            val deleted = blockingTransaction(db) {
                 PermissionRoleAssignmentTable.deleteWhere {
                     (PermissionRoleAssignmentTable.playerId eq playerId.uuid) and
                         (PermissionRoleAssignmentTable.roleId eq roleId.value)
@@ -96,7 +96,7 @@ public class PostgresRoleAssignmentRepository(private val db: Database) : IRoleA
         }
     }
 
-    override fun sweepExpired(now: Instant): List<RoleAssignmentRecord> = transaction(db) {
+    override fun sweepExpired(now: Instant): List<RoleAssignmentRecord> = blockingTransaction(db) {
         val expired = PermissionRoleAssignmentTable
             .select(
                 PermissionRoleAssignmentTable.playerId,

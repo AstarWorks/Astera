@@ -28,7 +28,7 @@ public class CreateTournamentUseCase(
     private val eventBus: IDomainEventBus,
 ) {
 
-    public fun execute(
+    public suspend fun execute(
         id: TournamentId,
         name: String,
         seeds: List<PlayerId>,

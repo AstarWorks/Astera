@@ -16,9 +16,9 @@ public class InMemoryLoginStreakRepository : ILoginStreakRepository {
 
     private val byPlayer: ConcurrentHashMap<PlayerId, LoginStreakRecord> = ConcurrentHashMap()
 
-    override fun findByPlayer(playerId: PlayerId): LoginStreakRecord? = byPlayer[playerId]
+    override suspend fun findByPlayer(playerId: PlayerId): LoginStreakRecord? = byPlayer[playerId]
 
-    override fun upsert(record: LoginStreakRecord) {
+    override suspend fun upsert(record: LoginStreakRecord) {
         byPlayer[record.playerId] = record
     }
 }

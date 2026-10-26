@@ -13,8 +13,8 @@ import com.astarworks.astera.core.domain.player.PlayerId
  */
 public interface ILoginStreakRepository {
     /** Return the player's record, or `null` if they have never claimed. */
-    public fun findByPlayer(playerId: PlayerId): LoginStreakRecord?
+    public suspend fun findByPlayer(playerId: PlayerId): LoginStreakRecord?
 
     /** Insert or update [record]; the player id inside identifies the row. */
-    public fun upsert(record: LoginStreakRecord)
+    public suspend fun upsert(record: LoginStreakRecord)
 }

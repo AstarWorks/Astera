@@ -35,7 +35,7 @@ public interface IPartyIslandManager {
      * [com.astarworks.astera.core.domain.event.PartyIslandCreated] on
      * success.
      */
-    public fun create(
+    public suspend fun create(
         partyId: PartyId,
         createdBy: PlayerId,
         templateId: IslandTemplateId,
@@ -48,7 +48,7 @@ public interface IPartyIslandManager {
      * case as a no-op). Resolves the schematic via [IIslandPersistence]
      * and returns the live [WorldId].
      */
-    public fun load(islandId: IslandId): Result<WorldId, IslandError>
+    public suspend fun load(islandId: IslandId): Result<WorldId, IslandError>
 
     /**
      * Release the island world (snapshot + unload). Publishes
@@ -57,12 +57,12 @@ public interface IPartyIslandManager {
      * [reasonKind] is the snake-case audit discriminator
      * (`leader_offline` / `admin_unload` / `archival_freeze`).
      */
-    public fun unload(islandId: IslandId, reasonKind: String): Result<Unit, IslandError>
+    public suspend fun unload(islandId: IslandId, reasonKind: String): Result<Unit, IslandError>
 
     /**
      * Authorise [visitor] to enter [islandId] — gates on
      * [IslandVisibility] + party membership. Does not actually teleport
      * (that is the Paper adapter's job in Wave 6).
      */
-    public fun visit(visitor: PlayerId, islandId: IslandId): Result<Unit, IslandError>
+    public suspend fun visit(visitor: PlayerId, islandId: IslandId): Result<Unit, IslandError>
 }

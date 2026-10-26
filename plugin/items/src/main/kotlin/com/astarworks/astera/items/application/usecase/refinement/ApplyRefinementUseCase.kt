@@ -53,7 +53,7 @@ public class ApplyRefinementUseCase(
         public val totalLayers: Int,
     )
 
-    public fun apply(
+    public suspend fun apply(
         owner: PlayerId,
         instanceId: ItemInstanceId?,
         itemId: ItemId,

@@ -18,6 +18,7 @@ public class PostgresProgressionRepositoriesIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `achievement unlocks survive a new repository and a repeat unlock is a no-op`() {
+        kotlinx.coroutines.runBlocking {
         val id = PlayerId(UUID.randomUUID())
         val kills = AchievementId("kills-10")
         val repo = PostgresAchievementRepository(db)
@@ -29,10 +30,12 @@ public class PostgresProgressionRepositoriesIT : PostgresIntegrationTestBase() {
         val reborn = PostgresAchievementRepository(db)
         assertThat(reborn.isUnlocked(id, kills)).isTrue
         assertThat(reborn.unlocked(id)).containsExactly(kills)
+        }
     }
 
     @Test
     public fun `login streak round trips and upsert replaces`() {
+        kotlinx.coroutines.runBlocking {
         val id = PlayerId(UUID.randomUUID())
         val repo = PostgresLoginStreakRepository(db)
 
@@ -42,10 +45,12 @@ public class PostgresProgressionRepositoriesIT : PostgresIntegrationTestBase() {
 
         assertThat(PostgresLoginStreakRepository(db).findByPlayer(id))
             .isEqualTo(LoginStreakRecord(id, 2, LocalDate.of(2026, 10, 22)))
+        }
     }
 
     @Test
     public fun `norma progress keeps its period key`() {
+        kotlinx.coroutines.runBlocking {
         val id = PlayerId(UUID.randomUUID())
         val repo = PostgresNormaProgressRepository(db)
         val row = MissionProgress(id, NormaId("daily-killer-1"), 3L, false, null, periodKey = "2026-10-22")
@@ -53,5 +58,6 @@ public class PostgresProgressionRepositoriesIT : PostgresIntegrationTestBase() {
         repo.upsert(id, row)
 
         assertThat(PostgresNormaProgressRepository(db).find(id, NormaId("daily-killer-1"))).isEqualTo(row)
-    }
+        }
+}
 }

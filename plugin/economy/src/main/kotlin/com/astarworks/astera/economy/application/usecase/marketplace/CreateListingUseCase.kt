@@ -33,7 +33,7 @@ public class CreateListingUseCase(
     private val idGen: () -> UUID = UUID::randomUUID,
 ) {
 
-    public fun execute(
+    public suspend fun execute(
         seller: PlayerId,
         itemId: ItemId,
         price: ShopPrice,

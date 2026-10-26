@@ -22,14 +22,14 @@ public interface ILoginBonusService {
      * otherwise advance the streak, credit the reward, save the streak and publish
      * `LoginBonusClaimed`.
      */
-    public fun claimDaily(
+    public suspend fun claimDaily(
         playerId: PlayerId,
         today: LocalDate,
     ): Result<LoginBonusClaim, LoginBonusError>
 
     /** What claiming (or having claimed) today means for [playerId]; nothing is written. */
-    public fun status(playerId: PlayerId, today: LocalDate): LoginBonusStatus
+    public suspend fun status(playerId: PlayerId, today: LocalDate): LoginBonusStatus
 
     /** Raw streak record, or `null` if the player never claimed. */
-    public fun streakOf(playerId: PlayerId): LoginStreakRecord?
+    public suspend fun streakOf(playerId: PlayerId): LoginStreakRecord?
 }

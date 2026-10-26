@@ -11,7 +11,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.slf4j.LoggerFactory
 import java.sql.SQLException
 import java.time.Instant
@@ -27,9 +27,9 @@ public class PostgresSlowQueryAuditRepository(private val db: Database) : ISlowQ
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun record(record: SlowQueryRecord) {
+    override suspend fun record(record: SlowQueryRecord) {
         try {
-            transaction(db) {
+            ioTransaction(db) {
                 SlowQueryAuditTable.insert {
                     it[capturedAt] = record.capturedAt
                     it[durationMs] = record.durationMs
@@ -44,7 +44,7 @@ public class PostgresSlowQueryAuditRepository(private val db: Database) : ISlowQ
         }
     }
 
-    override fun findAfter(since: Instant, limit: Int): List<SlowQueryRecord> = transaction(db) {
+    override suspend fun findAfter(since: Instant, limit: Int): List<SlowQueryRecord> = ioTransaction(db) {
         SlowQueryAuditTable
             .selectAll()
             .where { SlowQueryAuditTable.capturedAt greaterEq since }
@@ -62,7 +62,7 @@ public class PostgresSlowQueryAuditRepository(private val db: Database) : ISlowQ
             }
     }
 
-    override fun findByHash(statementHash: Long, limit: Int): List<SlowQueryRecord> = transaction(db) {
+    override suspend fun findByHash(statementHash: Long, limit: Int): List<SlowQueryRecord> = ioTransaction(db) {
         SlowQueryAuditTable
             .selectAll()
             .where { SlowQueryAuditTable.statementHash eq statementHash }
@@ -80,11 +80,11 @@ public class PostgresSlowQueryAuditRepository(private val db: Database) : ISlowQ
             }
     }
 
-    override fun count(): Long = transaction(db) {
+    override suspend fun count(): Long = ioTransaction(db) {
         SlowQueryAuditTable.selectAll().count()
     }
 
-    override fun deleteOlderThan(cutoff: Instant): Int = transaction(db) {
+    override suspend fun deleteOlderThan(cutoff: Instant): Int = ioTransaction(db) {
         SlowQueryAuditTable.deleteWhere { capturedAt less cutoff }
     }
 

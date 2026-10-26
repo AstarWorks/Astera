@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import org.jetbrains.exposed.v1.jdbc.JdbcTransaction
 import com.astarworks.astera.core.application.port.outbound.IPartyRepository
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.social.Party
@@ -11,7 +12,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.batchInsert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 /**
@@ -61,12 +62,14 @@ import org.jetbrains.exposed.v1.jdbc.upsert
  */
 public class PostgresPartyRepository(private val db: Database) : IPartyRepository {
 
-    override fun find(id: PartyId): Party? = transaction(db) {
+    override suspend fun find(id: PartyId): Party? = ioTransaction(db) { findOnIo(id) }
+
+    private fun JdbcTransaction.findOnIo(id: PartyId): Party? {
         val head = PartiesTable
             .selectAll()
             .where { PartiesTable.partyId eq id.value }
             .firstOrNull()
-            ?: return@transaction null
+            ?: return null
         val members = PartyMembersTable
             .selectAll()
             .where { PartyMembersTable.partyId eq id.value }
@@ -76,7 +79,7 @@ public class PostgresPartyRepository(private val db: Database) : IPartyRepositor
         // partial / corrupt DB state would build an invalid aggregate, return
         // null rather than throwing across the port boundary.
         val leaderId = PlayerId(head[PartiesTable.leaderId])
-        if (leaderId !in members) {
+        return if (leaderId !in members) {
             null
         } else {
             Party(
@@ -88,21 +91,21 @@ public class PostgresPartyRepository(private val db: Database) : IPartyRepositor
         }
     }
 
-    override fun forPlayer(playerId: PlayerId): Party? = transaction(db) {
+    override suspend fun forPlayer(playerId: PlayerId): Party? = ioTransaction(db) {
         val partyIdValue = PartyMembersTable
             .selectAll()
             .where { PartyMembersTable.memberId eq playerId.uuid }
             .firstOrNull()
             ?.get(PartyMembersTable.partyId)
-            ?: return@transaction null
+            ?: return@ioTransaction null
         // Reuse [find] for the head + member fetch — duplicating two queries
         // here would diverge over time. The outer transaction wraps both
         // calls so they observe a consistent snapshot.
-        find(PartyId(partyIdValue))
+        findOnIo(PartyId(partyIdValue))
     }
 
-    override fun upsert(party: Party) {
-        transaction(db) {
+    override suspend fun upsert(party: Party) {
+        ioTransaction(db) {
             PartiesTable.upsert(PartiesTable.partyId) {
                 it[partyId] = party.id.value
                 it[leaderId] = party.leader.uuid
@@ -121,8 +124,8 @@ public class PostgresPartyRepository(private val db: Database) : IPartyRepositor
         }
     }
 
-    override fun remove(id: PartyId) {
-        transaction(db) {
+    override suspend fun remove(id: PartyId) {
+        ioTransaction(db) {
             // The V13 FK declares ON DELETE CASCADE, so deleting from
             // `parties` removes the child `party_members` rows in one
             // statement. Explicit delete-members-first is redundant but
@@ -131,7 +134,7 @@ public class PostgresPartyRepository(private val db: Database) : IPartyRepositor
         }
     }
 
-    override fun all(): List<Party> = transaction(db) {
+    override suspend fun all(): List<Party> = ioTransaction(db) {
         // Two-step read: enumerate every party head, then resolve each
         // member set. For Phase 1 PoC the party count is bounded (lobby-side
         // grouping, ~tens of rows max) so the N+1 shape is acceptable. If

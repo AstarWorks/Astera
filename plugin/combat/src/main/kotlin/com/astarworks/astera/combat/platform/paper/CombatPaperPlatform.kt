@@ -51,7 +51,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import com.astarworks.astera.combat.adapter.paper.CombatSpatialGrid
 import com.astarworks.astera.combat.adapter.paper.PaperCombatOwnership
 import com.astarworks.astera.combat.adapter.paper.PaperCombatPhase
-import com.astarworks.astera.combat.application.service.CombatComputePool
+import com.astarworks.astera.combat.application.service.CombatChunking
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
@@ -71,7 +71,6 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
     // needs them (not just their port interface).
     private val spatialGrid = CombatSpatialGrid()
     private var gridStarted = false
-    private val computePool = CombatComputePool()
     private var phase: PaperCombatPhase? = null
     private fun phase(services: ServiceRegistry): PaperCombatPhase =
         phase ?: PaperCombatPhase(services.getOrThrow<IScheduler>()).also {
@@ -117,7 +116,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
                 server = plugin.server,
                 grid = spatialGrid,
                 phase = phase(services),
-                compute = computePool,
+                compute = CombatChunking(services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IComputePool>()),
                 scheduler = services.getOrThrow<IScheduler>(),
                 teamLookup = { services.get<IMatchTeamLookup>() },
             )
@@ -210,7 +209,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
                 container = container,
                 grid = spatialGrid,
                 phase = phase(services),
-                compute = computePool,
+                compute = CombatChunking(services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IComputePool>()),
                 playerHealthGateway = playerHealthGatewayForTicks,
             )
             statusTickHandle = statusTickListener.start(plugin)
@@ -278,7 +277,6 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
     fun teardown() {
         phase?.close()
         phase = null
-        computePool.close()
         spatialGrid.clear()
         statusTickHandle?.cancel()
         statusTickHandle = null

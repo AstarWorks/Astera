@@ -56,7 +56,7 @@ public class GrantAchievementOnTutorialCompletedListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: TutorialCompleted) {
+    public suspend fun handle(event: TutorialCompleted) {
         when (val outcome = unlockAchievement.unlock(event.playerId, achievementId)) {
             is Result.Success -> {
                 log.info(

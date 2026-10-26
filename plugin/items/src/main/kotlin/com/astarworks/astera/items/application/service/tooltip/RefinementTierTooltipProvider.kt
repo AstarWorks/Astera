@@ -1,5 +1,6 @@
 package com.astarworks.astera.items.application.service.tooltip
 
+import com.astarworks.astera.core.application.port.outbound.IoScope
 import com.astarworks.astera.core.application.port.outbound.guidepth.ITooltipExtensionProvider
 import com.astarworks.astera.core.domain.guidepth.TooltipLine
 import com.astarworks.astera.core.domain.hud.HudColor
@@ -43,10 +44,21 @@ public class RefinementTierTooltipProvider(
     private val instances: IItemInstanceRepository,
 ) : ITooltipExtensionProvider {
 
+    /** Highest layer count per item for one viewer, as of [loadedAtMillis]. */
+    private class Snapshot(val highestByItem: Map<ItemId, Int>, val loadedAtMillis: Long)
+
+    private val snapshots = java.util.concurrent.ConcurrentHashMap<PlayerId, Snapshot>()
+    private val loading: MutableSet<PlayerId> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+
+    /**
+     * Tooltips are built on the game thread and must not wait on the repository, so this reads the viewer's last
+     * snapshot and starts an Io refresh when it is missing or older than [REFRESH_MILLIS]. The first hover after a
+     * login (or a long gap) shows no tier line; the next one does.
+     */
     override fun extend(item: ItemId, viewer: PlayerId): List<TooltipLine> {
-        val owned = instances.findByOwner(viewer).filter { it.itemId == item }
-        if (owned.isEmpty()) return emptyList()
-        val highest = owned.maxOf { it.layers().size }
+        val snapshot = snapshots[viewer]
+        if (snapshot == null || System.currentTimeMillis() - snapshot.loadedAtMillis > REFRESH_MILLIS) refresh(viewer)
+        val highest = snapshot?.highestByItem?.get(item) ?: return emptyList()
         if (highest <= 0) return emptyList()
         return listOf(
             TooltipLine.Text(
@@ -56,7 +68,22 @@ public class RefinementTierTooltipProvider(
         )
     }
 
+    private fun refresh(viewer: PlayerId) {
+        if (!loading.add(viewer)) return
+        IoScope.launch {
+            try {
+                val highestByItem = instances.findByOwner(viewer)
+                    .groupBy { it.itemId }
+                    .mapValues { (_, owned) -> owned.maxOf { it.layers().size } }
+                snapshots[viewer] = Snapshot(highestByItem, System.currentTimeMillis())
+            } finally {
+                loading.remove(viewer)
+            }
+        }
+    }
+
     public companion object {
+        private const val REFRESH_MILLIS: Long = 5_000L
         public val MSG_TIER: MessageKey = MessageKey("astera.tooltip.refinement.tier")
     }
 }

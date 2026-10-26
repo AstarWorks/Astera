@@ -16,29 +16,29 @@ public class PostgresPlayerStatsRepositoryIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `first stat mutation and detached upserts survive a new store`() {
-        val store = PostgresPlayerAttributeContainer(db)
-        val repo = PostgresPlayerStatsRepository(store)
         val id = PlayerId(UUID.randomUUID())
+        val store = attributeStore().load(id)
+        val repo = PostgresPlayerStatsRepository(store)
         val first = repo.find(id) ?: PlayerStats.empty(id)
         first.container.set(
             com.astarworks.astera.core.domain.attribute.Attributes.STAT_KILLS,
             com.astarworks.astera.core.domain.attribute.AttributeValue.NumberValue(1.0),
         )
         repo.upsert(first)
-        val reloaded = PostgresPlayerStatsRepository(PostgresPlayerAttributeContainer(db))
+        val reloaded = PostgresPlayerStatsRepository(attributeStore().load(id))
         assertThat(reloaded.find(id)?.kills).isEqualTo(1L)
 
         repo.upsert(PlayerStats.of(id, kills = 3L, deaths = 2L))
-        val afterUpsert = PostgresPlayerStatsRepository(PostgresPlayerAttributeContainer(db)).find(id)!!
+        val afterUpsert = PostgresPlayerStatsRepository(attributeStore().load(id)).find(id)!!
         assertThat(afterUpsert.kills).isEqualTo(3L)
         assertThat(afterUpsert.deaths).isEqualTo(2L)
     }
 
     @Test
     public fun `upsert + find round-trips a PlayerStats`() {
-        val containerStore = PostgresPlayerAttributeContainer(db)
-        val repo = PostgresPlayerStatsRepository(containerStore)
         val id = PlayerId(UUID.randomUUID())
+        val containerStore = attributeStore().load(id)
+        val repo = PostgresPlayerStatsRepository(containerStore)
         val stats = PlayerStats.of(
             playerId = id,
             kills = 7L,

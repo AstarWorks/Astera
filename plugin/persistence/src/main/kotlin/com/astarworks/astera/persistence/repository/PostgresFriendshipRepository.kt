@@ -12,7 +12,7 @@ import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.util.UUID
 
@@ -42,7 +42,7 @@ import java.util.UUID
  */
 public class PostgresFriendshipRepository(private val db: Database) : IFriendshipRepository {
 
-    override fun find(a: PlayerId, b: PlayerId): Friendship? = transaction(db) {
+    override suspend fun find(a: PlayerId, b: PlayerId): Friendship? = ioTransaction(db) {
         val (low, high) = canonicalPair(a, b)
         FriendshipsTable
             .selectAll()
@@ -54,7 +54,7 @@ public class PostgresFriendshipRepository(private val db: Database) : IFriendshi
             ?.toDomain()
     }
 
-    override fun forPlayer(playerId: PlayerId): List<Friendship> = transaction(db) {
+    override suspend fun forPlayer(playerId: PlayerId): List<Friendship> = ioTransaction(db) {
         FriendshipsTable
             .selectAll()
             .where {
@@ -64,9 +64,9 @@ public class PostgresFriendshipRepository(private val db: Database) : IFriendshi
             .map { it.toDomain() }
     }
 
-    override fun upsert(friendship: Friendship) {
+    override suspend fun upsert(friendship: Friendship) {
         val (low, high) = canonicalPair(friendship.playerA, friendship.playerB)
-        transaction(db) {
+        ioTransaction(db) {
             FriendshipsTable.upsert(FriendshipsTable.playerLow, FriendshipsTable.playerHigh) {
                 it[playerLow] = low
                 it[playerHigh] = high
@@ -76,9 +76,9 @@ public class PostgresFriendshipRepository(private val db: Database) : IFriendshi
         }
     }
 
-    override fun remove(a: PlayerId, b: PlayerId) {
+    override suspend fun remove(a: PlayerId, b: PlayerId) {
         val (low, high) = canonicalPair(a, b)
-        transaction(db) {
+        ioTransaction(db) {
             FriendshipsTable.deleteWhere {
                 (FriendshipsTable.playerLow eq low) and
                     (FriendshipsTable.playerHigh eq high)

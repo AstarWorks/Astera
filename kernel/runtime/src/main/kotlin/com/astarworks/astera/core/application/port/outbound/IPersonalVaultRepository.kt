@@ -10,7 +10,7 @@ import com.astarworks.astera.core.domain.vault.PersonalVault
  * persistence; InMemory default in core for tests + dev.
  */
 public interface IPersonalVaultRepository {
-    public fun find(playerId: PlayerId): PersonalVault?
-    public fun upsert(vault: PersonalVault)
-    public fun remove(playerId: PlayerId)
+    public suspend fun find(playerId: PlayerId): PersonalVault?
+    public suspend fun upsert(vault: PersonalVault)
+    public suspend fun remove(playerId: PlayerId)
 }

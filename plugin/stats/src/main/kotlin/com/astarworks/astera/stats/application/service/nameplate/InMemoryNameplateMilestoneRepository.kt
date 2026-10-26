@@ -14,14 +14,14 @@ public class InMemoryNameplateMilestoneRepository : INameplateMilestoneRepositor
 
     private val store = ConcurrentHashMap<PlayerId, INameplateMilestoneRepository.Record>()
 
-    override fun find(playerId: PlayerId): INameplateMilestoneRepository.Record? =
+    override suspend fun find(playerId: PlayerId): INameplateMilestoneRepository.Record? =
         store[playerId]
 
-    override fun save(record: INameplateMilestoneRepository.Record) {
+    override suspend fun save(record: INameplateMilestoneRepository.Record) {
         store[record.playerId] = record
     }
 
-    override fun delete(playerId: PlayerId) {
+    override suspend fun delete(playerId: PlayerId) {
         store.remove(playerId)
     }
 }

@@ -29,7 +29,7 @@ public class EnforceCurrencyPolicyUseCase(
         return Result.Success(Unit)
     }
 
-    public fun checkDeposit(currency: Currency, playerId: PlayerId, amount: Long): Result<Unit, CurrencyPolicyError> {
+    public suspend fun checkDeposit(currency: Currency, playerId: PlayerId, amount: Long): Result<Unit, CurrencyPolicyError> {
         val policy = policyOf(currency)
         val cap = policy.circulationCap ?: return Result.Success(Unit)
         val outstanding = issuanceLog.totalOutstanding(currency)

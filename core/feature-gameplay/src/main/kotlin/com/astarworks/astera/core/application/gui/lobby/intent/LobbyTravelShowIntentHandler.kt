@@ -13,6 +13,9 @@ import com.astarworks.astera.core.application.usecase.travel.TravelToSurvivalIsl
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.launch
 import org.slf4j.LoggerFactory
 
 /**
@@ -51,6 +54,7 @@ public class LobbyTravelShowIntentHandler(
     private val mcServer: IMcServer,
     private val messages: IMessageRenderer,
     private val playerGateway: IPlayerGateway,
+    private val scheduler: IScheduler,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -58,9 +62,9 @@ public class LobbyTravelShowIntentHandler(
     public fun handle(intent: GuiIntent, player: IMcPlayer) {
         when (intent.key) {
             INTENT_SHOW -> openSubMenu(player)
-            INTENT_PVE -> dispatchTravel(player, TravelKind.PVE)
-            INTENT_SURVIVAL -> dispatchTravel(player, TravelKind.SURVIVAL)
-            INTENT_LOBBY -> dispatchTravel(player, TravelKind.LOBBY)
+            INTENT_PVE -> launchTravel(player, TravelKind.PVE)
+            INTENT_SURVIVAL -> launchTravel(player, TravelKind.SURVIVAL)
+            INTENT_LOBBY -> launchTravel(player, TravelKind.LOBBY)
             else -> log.warn(
                 "Unknown lobby.travel intent '{}' from player {} — payload={}",
                 intent.key, player.id, intent.payload,
@@ -79,7 +83,11 @@ public class LobbyTravelShowIntentHandler(
         }
     }
 
-    private fun dispatchTravel(player: IMcPlayer, kind: TravelKind) {
+    private fun launchTravel(player: IMcPlayer, kind: TravelKind) {
+        scheduler.launch(ExecutionScope.Entity(player.id.uuid)) { dispatchTravel(player, kind) }
+    }
+
+    private suspend fun dispatchTravel(player: IMcPlayer, kind: TravelKind) {
         val outcome = when (kind) {
             TravelKind.PVE -> travelToPve.travel(player.id)
             TravelKind.SURVIVAL -> travelToSurvival.travel(player.id)

@@ -56,7 +56,7 @@ public class GrantMatchRewardsOnSummaryListener(
     private val log = LoggerFactory.getLogger(javaClass)
     private val paid: MutableSet<MatchId> = ConcurrentHashMap.newKeySet()
 
-    public fun handle(event: MatchSummaryReady) {
+    public suspend fun handle(event: MatchSummaryReady) {
         val summary = event.summary
         if (!paid.add(summary.matchId)) {
             log.debug("GrantMatchRewards: match {} already paid, ignoring", summary.matchId)
@@ -75,7 +75,7 @@ public class GrantMatchRewardsOnSummaryListener(
         eventBus.publish(MatchRewardsGranted(summary.matchId, results))
     }
 
-    private fun pay(playerId: PlayerId, planned: MatchRewardResult, matchId: MatchId): MatchRewardResult {
+    private suspend fun pay(playerId: PlayerId, planned: MatchRewardResult, matchId: MatchId): MatchRewardResult {
         credit(playerId, Currency.GOLD, planned.gold, matchId)
         val levelService = levels() ?: return planned
         val before = levelService.currentLevel(playerId).value
@@ -96,7 +96,7 @@ public class GrantMatchRewardsOnSummaryListener(
         )
     }
 
-    private fun credit(playerId: PlayerId, currency: Currency, amount: Long, matchId: MatchId) {
+    private suspend fun credit(playerId: PlayerId, currency: Currency, amount: Long, matchId: MatchId) {
         if (amount <= 0L) return
         deposit.execute(playerId, currency, amount, CurrencyChangeReason.MatchReward)
             .onFailure { log.warn("GrantMatchRewards: {} {} for {} (match {}) failed: {}", amount, currency, playerId, matchId, it) }

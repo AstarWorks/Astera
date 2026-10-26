@@ -20,19 +20,19 @@ import java.time.Instant
 public interface ISlowQueryAuditRepository {
 
     /** Append a single record. */
-    public fun record(record: SlowQueryRecord)
+    public suspend fun record(record: SlowQueryRecord)
 
     /**
      * Records with [SlowQueryRecord.capturedAt] >= [since], sorted by
      * descending duration (slowest first). Caller paginates with [limit].
      */
-    public fun findAfter(since: Instant, limit: Int = 50): List<SlowQueryRecord>
+    public suspend fun findAfter(since: Instant, limit: Int = 50): List<SlowQueryRecord>
 
     /** Records by fingerprint, useful for "top N most-frequent" lookups. */
-    public fun findByHash(statementHash: Long, limit: Int = 50): List<SlowQueryRecord>
+    public suspend fun findByHash(statementHash: Long, limit: Int = 50): List<SlowQueryRecord>
 
     /** Snapshot total recorded count (for the digest header). */
-    public fun count(): Long
+    public suspend fun count(): Long
 
     /**
      * Delete every record with [SlowQueryRecord.capturedAt] strictly before
@@ -46,5 +46,5 @@ public interface ISlowQueryAuditRepository {
      * The default retention window is 30 days (configurable via the
      * scheduler that calls this).
      */
-    public fun deleteOlderThan(cutoff: Instant): Int
+    public suspend fun deleteOlderThan(cutoff: Instant): Int
 }

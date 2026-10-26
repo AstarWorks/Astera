@@ -28,7 +28,7 @@ public interface INpcDialogService {
      * NPC head / name). Fails if a dialog is already running for the player or
      * the tree is unknown.
      */
-    public fun startTree(
+    public suspend fun startTree(
         playerId: PlayerId,
         npcEntity: EntityHandle,
         treeId: DialogTreeId,
@@ -44,11 +44,11 @@ public interface INpcDialogService {
      * Condition nodes do not require an explicit advance — the runner walks
      * through them when reaching them on the previous transition.
      */
-    public fun advance(
+    public suspend fun advance(
         playerId: PlayerId,
         choiceIndex: Int? = null,
     ): Result<Unit, NpcDialogError>
 
     /** Cancel the player's in-flight dialog (player escape / disconnect). */
-    public fun cancel(playerId: PlayerId): Result<Unit, NpcDialogError>
+    public suspend fun cancel(playerId: PlayerId): Result<Unit, NpcDialogError>
 }

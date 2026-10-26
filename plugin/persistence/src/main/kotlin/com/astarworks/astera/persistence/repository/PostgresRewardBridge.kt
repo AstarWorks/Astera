@@ -14,7 +14,7 @@ import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 
@@ -65,8 +65,8 @@ import java.time.Instant
  */
 public class PostgresRewardBridge(private val db: Database) : IRewardBridge {
 
-    override fun enqueue(bundle: RewardBundle) {
-        transaction(db) {
+    override suspend fun enqueue(bundle: RewardBundle) {
+        ioTransaction(db) {
             RewardOutboxTable.insert {
                 it[bundleId] = bundle.id.value
                 it[playerId] = bundle.playerId.uuid
@@ -77,7 +77,7 @@ public class PostgresRewardBridge(private val db: Database) : IRewardBridge {
         }
     }
 
-    override fun consumeForPlayer(playerId: PlayerId): List<RewardBundle> = transaction(db) {
+    override suspend fun consumeForPlayer(playerId: PlayerId): List<RewardBundle> = ioTransaction(db) {
         val rows = RewardOutboxTable
             .selectAll()
             .where {
@@ -87,7 +87,7 @@ public class PostgresRewardBridge(private val db: Database) : IRewardBridge {
             .orderBy(RewardOutboxTable.createdAt to SortOrder.ASC)
             .toList()
         if (rows.isEmpty()) {
-            return@transaction emptyList()
+            return@ioTransaction emptyList()
         }
         val now = Instant.now()
         rows.forEach { row ->
@@ -99,7 +99,7 @@ public class PostgresRewardBridge(private val db: Database) : IRewardBridge {
         rows.map { it.toDomain(playerId) }
     }
 
-    override fun peek(playerId: PlayerId): List<RewardBundle> = transaction(db) {
+    override suspend fun peek(playerId: PlayerId): List<RewardBundle> = ioTransaction(db) {
         RewardOutboxTable
             .selectAll()
             .where {

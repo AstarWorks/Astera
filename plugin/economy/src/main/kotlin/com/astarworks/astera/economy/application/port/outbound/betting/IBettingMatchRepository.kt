@@ -15,29 +15,29 @@ import com.astarworks.astera.economy.domain.betting.BettingStatus
  */
 public interface IBettingMatchRepository {
 
-    public fun save(match: BettingMatch): BettingMatch
+    public suspend fun save(match: BettingMatch): BettingMatch
 
-    public fun findById(id: BettingMatchId): BettingMatch?
+    public suspend fun findById(id: BettingMatchId): BettingMatch?
 
     /**
      * Most recent matches owned by [playerId] in EITHER role (challenger or
      * opponent), ordered by `createdAt DESC`, capped at [limit].
      */
-    public fun recentForPlayer(playerId: PlayerId, limit: Int = 25): List<BettingMatch>
+    public suspend fun recentForPlayer(playerId: PlayerId, limit: Int = 25): List<BettingMatch>
 
     /** Currently `PendingAcceptance` or `Active` matches involving [playerId]. */
-    public fun openForPlayer(playerId: PlayerId): List<BettingMatch>
+    public suspend fun openForPlayer(playerId: PlayerId): List<BettingMatch>
 
     /**
      * Resolve a betting match by the underlying [MatchId] of the PvP
      * encounter. Used by `ResolveBettingMatchOnMatchEndedListener` when the
      * Match plugin publishes [com.astarworks.astera.core.domain.event.MatchEnded].
      */
-    public fun findByMatchId(matchId: MatchId): BettingMatch?
+    public suspend fun findByMatchId(matchId: MatchId): BettingMatch?
 
     /**
      * All matches in status [status]. Phase 1: used by the expiry sweeper to
      * find `PendingAcceptance` records whose deadline has passed.
      */
-    public fun findByStatus(status: BettingStatus): List<BettingMatch>
+    public suspend fun findByStatus(status: BettingStatus): List<BettingMatch>
 }

@@ -24,6 +24,7 @@ public class PostgresItemInstanceRepositoryIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `save + findById round-trips a fresh instance with no layers`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresItemInstanceRepository(db)
         val instance = ItemInstance(
             id = ItemInstanceId(UUID.randomUUID()),
@@ -38,10 +39,12 @@ public class PostgresItemInstanceRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(found.layers()).isEmpty()
         assertThat(found.subStatRolls()).isEmpty()
         assertThat(found.rerollCount()).isZero()
+        }
     }
 
     @Test
     public fun `save + findById preserves every Refinement variant`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresItemInstanceRepository(db)
         val owner = PlayerId(UUID.randomUUID())
         val instance = ItemInstance(
@@ -66,10 +69,12 @@ public class PostgresItemInstanceRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(layers[2]).isEqualTo(Refinement.Gemstone(0, "ruby", 4))
         assertThat(layers[3]).isEqualTo(Refinement.Star(7))
         assertThat(layers[4]).isEqualTo(Refinement.Recomb(15))
+        }
     }
 
     @Test
     public fun `save + findById preserves sub-stat rolls and reroll count`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresItemInstanceRepository(db)
         val instance = ItemInstance(
             id = ItemInstanceId(UUID.randomUUID()),
@@ -89,10 +94,12 @@ public class PostgresItemInstanceRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(rolls.first { it.key == SubStatKey.ATTACK }.magnitude).isEqualTo(80.0)
         assertThat(rolls.first { it.key == SubStatKey.ATTACK }.rollCount).isEqualTo(2)
         assertThat(found.rerollCount()).isEqualTo(4)
+        }
     }
 
     @Test
     public fun `findByOwner filters to one player`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresItemInstanceRepository(db)
         val owner = PlayerId(UUID.randomUUID())
         val otherOwner = PlayerId(UUID.randomUUID())
@@ -117,10 +124,12 @@ public class PostgresItemInstanceRepositoryIT : PostgresIntegrationTestBase() {
         repo.save(mineA); repo.save(mineB); repo.save(notMine)
         val mine = repo.findByOwner(owner)
         assertThat(mine.map { it.id }).containsExactlyInAnyOrder(mineA.id, mineB.id)
+        }
     }
 
     @Test
     public fun `save acts as upsert on the primary key`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresItemInstanceRepository(db)
         val id = ItemInstanceId(UUID.randomUUID())
         val owner = PlayerId(UUID.randomUUID())
@@ -142,5 +151,6 @@ public class PostgresItemInstanceRepositoryIT : PostgresIntegrationTestBase() {
         repo.save(second)
         val found = repo.findById(id)!!
         assertThat(found.layers()).hasSize(2)
-    }
+        }
+}
 }

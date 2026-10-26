@@ -70,7 +70,7 @@ public class CraftRecipeUseCase(
      * [CraftingStation.Hand] when no station block is involved (default for
      * `/astera items craft` commands and the in-inventory 2x2 grid).
      */
-    public fun craft(
+    public suspend fun craft(
         playerId: PlayerId,
         recipeId: RecipeId,
         station: CraftingStation = CraftingStation.Hand,
@@ -144,7 +144,7 @@ public class CraftRecipeUseCase(
      * the PoC content set (handful of recipes); it errs on the side of fewer
      * lockouts.
      */
-    private fun isUnlocked(playerId: PlayerId, criteria: AdvancementCriteria): Boolean {
+    private suspend fun isUnlocked(playerId: PlayerId, criteria: AdvancementCriteria): Boolean {
         // Wave 6a TODO: replace with criteria-shape-aware evaluation.
         return advancementService.completed(playerId).isNotEmpty() ||
             criteria is AdvancementCriteria.AnyOf && criteria.children.isEmpty()

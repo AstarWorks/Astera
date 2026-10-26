@@ -35,7 +35,7 @@ public class AssignIslandPlotUseCase(
     private val templateRegistry: IIslandTemplateRegistry,
 ) {
 
-    public fun assignPlot(
+    public suspend fun assignPlot(
         islandId: IslandId,
         ownerId: PlayerId,
     ): Result<IslandPlot, PlotError> {

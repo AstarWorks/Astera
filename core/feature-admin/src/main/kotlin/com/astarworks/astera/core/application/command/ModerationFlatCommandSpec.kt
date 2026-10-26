@@ -98,7 +98,7 @@ public fun buildModerationFlatCommands(
         }
     }
 
-    fun liftMostRecent(
+    suspend fun liftMostRecent(
         ctx: CommandContext,
         verb: String,
         actor: PlayerId,

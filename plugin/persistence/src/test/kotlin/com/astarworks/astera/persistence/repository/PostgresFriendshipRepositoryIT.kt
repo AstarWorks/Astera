@@ -25,6 +25,7 @@ public class PostgresFriendshipRepositoryIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `upsert + find(A, B) round-trips a Friendship`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresFriendshipRepository(db)
         val a = PlayerId(UUID.randomUUID())
         val b = PlayerId(UUID.randomUUID())
@@ -39,10 +40,12 @@ public class PostgresFriendshipRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(found.createdAt).isEqualTo(createdAt)
         // Canonical order is (low, high); domain pair semantics are unordered.
         assertThat(setOf(found.playerA, found.playerB)).isEqualTo(setOf(a, b))
+        }
     }
 
     @Test
     public fun `find(B, A) returns the same row as find(A, B)`() {
+        kotlinx.coroutines.runBlocking {
         // The whole point of canonicalisation — the port treats the pair as
         // unordered, so swapping inputs must hit the same row.
         val repo = PostgresFriendshipRepository(db)
@@ -56,10 +59,12 @@ public class PostgresFriendshipRepositoryIT : PostgresIntegrationTestBase() {
 
         assertThat(viaAB).isNotNull
         assertThat(viaBA).isEqualTo(viaAB)
+        }
     }
 
     @Test
     public fun `forPlayer returns friendships on both sides of the pair`() {
+        kotlinx.coroutines.runBlocking {
         // forPlayer's OR-of-columns must catch the player whether they ended
         // up as player_low or player_high after canonicalisation.
         val repo = PostgresFriendshipRepository(db)
@@ -82,10 +87,12 @@ public class PostgresFriendshipRepositoryIT : PostgresIntegrationTestBase() {
             setOf(center, other1),
             setOf(center, other2),
         )
+        }
     }
 
     @Test
     public fun `upsert with reversed pair order writes the same row`() {
+        kotlinx.coroutines.runBlocking {
         // Canonicalisation on insert: upserting (B, A) after (A, B) must
         // overwrite, not produce a second row.
         val repo = PostgresFriendshipRepository(db)
@@ -104,10 +111,12 @@ public class PostgresFriendshipRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(found).isNotNull
         assertThat(found!!.status).isEqualTo(FriendshipStatus.ACCEPTED)
         assertThat(found.createdAt).isEqualTo(t2)
+        }
     }
 
     @Test
     public fun `upsert overrides status (PENDING then ACCEPTED)`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresFriendshipRepository(db)
         val a = PlayerId(UUID.randomUUID())
         val b = PlayerId(UUID.randomUUID())
@@ -121,10 +130,12 @@ public class PostgresFriendshipRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(found).isNotNull
         assertThat(found!!.status).isEqualTo(FriendshipStatus.ACCEPTED)
         assertThat(found.createdAt).isEqualTo(t2)
+        }
     }
 
     @Test
     public fun `remove(B, A) deletes the row inserted as (A, B)`() {
+        kotlinx.coroutines.runBlocking {
         // Symmetric to find: remove must canonicalise so callers don't have
         // to remember which order they inserted with.
         val repo = PostgresFriendshipRepository(db)
@@ -140,14 +151,17 @@ public class PostgresFriendshipRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(repo.find(b, a)).isNull()
         assertThat(repo.forPlayer(a)).isEmpty()
         assertThat(repo.forPlayer(b)).isEmpty()
+        }
     }
 
     @Test
     public fun `find returns null for unknown pair`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresFriendshipRepository(db)
         val a = PlayerId(UUID.randomUUID())
         val b = PlayerId(UUID.randomUUID())
         assertThat(repo.find(a, b)).isNull()
         assertThat(repo.find(b, a)).isNull()
-    }
+        }
+}
 }

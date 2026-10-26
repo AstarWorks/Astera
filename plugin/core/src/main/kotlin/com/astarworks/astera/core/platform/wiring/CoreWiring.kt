@@ -1,6 +1,8 @@
 package com.astarworks.astera.core.platform.wiring
 
 import com.astarworks.astera.core.application.port.outbound.EventDelivery
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.adapter.api.binding.McPlayerGateway
 import com.astarworks.astera.core.adapter.api.hud.ITabList
 import com.astarworks.astera.core.adapter.api.server.IMcServer
@@ -139,6 +141,10 @@ internal class CoreWiringState(
     val mcServer: IMcServer get() = ports.mcServer
     val scheduler: IScheduler get() = ports.scheduler
     val broadcaster: IBroadcaster get() = ports.broadcaster
+    /** Run suspending (persistence-backed) work for [player]; continuations resume on that player's Entity scope. */
+    fun launchFor(player: com.astarworks.astera.core.domain.player.PlayerId, block: suspend () -> Unit) {
+        scheduler.launch(ExecutionScope.Entity(player.uuid)) { block() }
+    }
     /** The single `/astera` command tree (ADR-0184); every wiring stage mounts its subtrees here. */
     val commandRegistry: AsteraCommandRegistry = AsteraCommandRegistry()
     val commands: CommandMount = CommandMount(commandRegistry, "Astera-Core", ctx.registrations)
@@ -382,6 +388,7 @@ internal fun CoreWiringState.wireGui() {
     )
     guiIntentRouter = DefaultGuiIntentRouter(
         adapterProvider = { guiAdapter },
+        scheduler = scheduler,
         presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>() },
     )
 

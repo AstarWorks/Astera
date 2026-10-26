@@ -1,7 +1,7 @@
 package com.astarworks.astera.match.platform.wiring
 
 import com.astarworks.astera.core.application.port.outbound.EventDelivery
-
+import com.astarworks.astera.core.application.port.outbound.launch
 import java.util.concurrent.ConcurrentHashMap
 
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
@@ -85,11 +85,18 @@ internal object MatchGameplayWiring {
                     registrations += services.register<com.astarworks.astera.match.application.port.outbound.tournament.ITournamentRepository>(it, priority = 0)
                 }
 
+        // The matchmaker reads ratings synchronously on the game thread: serve them from a cache that is
+        // refreshed through the (possibly JDBC-backed) async repository on join and after every match.
+        val ratingCache = java.util.concurrent.ConcurrentHashMap<com.astarworks.astera.core.domain.player.PlayerId, com.astarworks.astera.match.domain.rating.Rating>()
+        fun refreshRating(id: com.astarworks.astera.core.domain.player.PlayerId) {
+            scheduler.launch(ExecutionScope.Global) { ratingCache[id] = ratingRepository.ratingOf(id) }
+        }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class, EventDelivery.Global) { refreshRating(it.playerId) }
         val matchmaker: IMatchmaker =
             services.get<IMatchmaker>()
                 ?: InMemoryMatchmaker(
                     eventBus = eventBus,
-                    ratingLookup = { ratingRepository.ratingOf(it) },
+                    ratingLookup = { ratingCache[it] ?: com.astarworks.astera.match.domain.rating.Rating.DEFAULT },
                     sizeByMode = { env.queueSettings.current().sizeFor(it) },
                 ).also {
                     registrations += services.register<IMatchmaker>(it, priority = 0)
@@ -240,7 +247,12 @@ internal object MatchGameplayWiring {
             eventBus = eventBus,
         )
         val updateRatingListener = com.astarworks.astera.match.application.eventbus.listeners.UpdateRatingOnMatchEndedListener(updateRatingOnMatchEnded)
-        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { updateRatingListener.handle(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) {
+            scheduler.launch(ExecutionScope.Global) {
+                updateRatingListener.handle(it)
+                ratingRepository.all().forEach { (id, rating) -> ratingCache[id] = rating }
+            }
+        }
 
         // Tournament bracket use cases registered for cross-plugin / web / admin
         // command use. In-game admin command surface lands in Wave 7c content
@@ -391,7 +403,7 @@ internal object MatchGameplayWiring {
                     engagement = engagementService,
                 )
         subscriptions += eventBus.subscribe(MatchEnded::class, EventDelivery.Global) { event ->
-            recomputeEngagementOnMatchEnded.handle(event)
+            scheduler.launch(ExecutionScope.Global) { recomputeEngagementOnMatchEnded.handle(event) }
         }
         logger.info(
             "Wave K 5integration-wire (ADR-0128) wired: " +
@@ -645,7 +657,7 @@ internal object MatchGameplayWiring {
             registrations += lobbyQueueIntentRouter.register(
                 com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler.INTENT_PREFIX,
             ) { intent, player ->
-                lobbyQueueIntentHandler.handle(intent, player)
+                scheduler.launch(ExecutionScope.Entity(player.id.uuid)) { lobbyQueueIntentHandler.handle(intent, player) }
             }
 
             logger.info(
@@ -671,7 +683,7 @@ internal object MatchGameplayWiring {
                 board = services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneBoard>(),
             )
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.LobbyLanePadEntered::class, EventDelivery.Global) {
-                lanePadJoin.onPadEntered(it)
+                scheduler.launch(ExecutionScope.Global) { lanePadJoin.onPadEntered(it) }
             }
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class, EventDelivery.Global) { lanePadJoin.refreshBoard() }
             subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class, EventDelivery.Global) { lanePadJoin.refreshBoard() }

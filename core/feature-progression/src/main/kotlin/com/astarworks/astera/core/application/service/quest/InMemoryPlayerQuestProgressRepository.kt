@@ -20,14 +20,14 @@ public class InMemoryPlayerQuestProgressRepository : IPlayerQuestProgressReposit
 
     private val store: MutableMap<Key, PlayerQuestProgress> = ConcurrentHashMap()
 
-    override fun find(playerId: PlayerId, chainId: QuestChainId): PlayerQuestProgress? =
+    override suspend fun find(playerId: PlayerId, chainId: QuestChainId): PlayerQuestProgress? =
         store[Key(playerId, chainId)]
 
-    override fun upsert(progress: PlayerQuestProgress) {
+    override suspend fun upsert(progress: PlayerQuestProgress) {
         store[Key(progress.playerId, progress.chainId)] = progress
     }
 
-    override fun allFor(playerId: PlayerId): Collection<PlayerQuestProgress> =
+    override suspend fun allFor(playerId: PlayerId): Collection<PlayerQuestProgress> =
         store.entries.asSequence()
             .filter { it.key.playerId == playerId }
             .map { it.value }

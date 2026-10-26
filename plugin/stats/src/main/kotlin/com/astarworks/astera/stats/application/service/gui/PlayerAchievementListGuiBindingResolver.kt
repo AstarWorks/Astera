@@ -45,7 +45,7 @@ public class PlayerAchievementListGuiBindingResolver(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun resolve(binding: BindingKey, viewer: PlayerId?): ResolvedReactiveSlot? {
+    override suspend fun resolve(binding: BindingKey, viewer: PlayerId?): ResolvedReactiveSlot? {
         if (viewer == null) return null
         val key = binding.value
         if (!key.startsWith(PREFIX)) return null

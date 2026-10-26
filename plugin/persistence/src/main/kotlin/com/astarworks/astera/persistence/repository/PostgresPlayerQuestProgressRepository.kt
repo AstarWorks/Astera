@@ -11,7 +11,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -27,8 +27,8 @@ public class PostgresPlayerQuestProgressRepository(
     private val db: Database,
 ) : IPlayerQuestProgressRepository {
 
-    override fun find(playerId: PlayerId, chainId: QuestChainId): PlayerQuestProgress? =
-        transaction(db) {
+    override suspend fun find(playerId: PlayerId, chainId: QuestChainId): PlayerQuestProgress? =
+        ioTransaction(db) {
             PlayerQuestProgressTable
                 .selectAll()
                 .where {
@@ -39,8 +39,8 @@ public class PostgresPlayerQuestProgressRepository(
                 ?.toDomain(playerId)
         }
 
-    override fun upsert(progress: PlayerQuestProgress) {
-        transaction(db) {
+    override suspend fun upsert(progress: PlayerQuestProgress) {
+        ioTransaction(db) {
             PlayerQuestProgressTable.upsert(
                 PlayerQuestProgressTable.playerId,
                 PlayerQuestProgressTable.chainId,
@@ -55,8 +55,8 @@ public class PostgresPlayerQuestProgressRepository(
         }
     }
 
-    override fun allFor(playerId: PlayerId): Collection<PlayerQuestProgress> =
-        transaction(db) {
+    override suspend fun allFor(playerId: PlayerId): Collection<PlayerQuestProgress> =
+        ioTransaction(db) {
             PlayerQuestProgressTable
                 .selectAll()
                 .where { PlayerQuestProgressTable.playerId eq playerId.uuid }

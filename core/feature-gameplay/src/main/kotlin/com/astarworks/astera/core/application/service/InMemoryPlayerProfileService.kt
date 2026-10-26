@@ -91,7 +91,7 @@ public class InMemoryPlayerProfileService(
 
     override fun find(playerId: PlayerId): PlayerProfile? = repository.find(playerId)
 
-    override fun createFirstTime(
+    override suspend fun createFirstTime(
         playerId: PlayerId,
         displayName: String,
         locale: String?,

@@ -58,18 +58,18 @@ internal fun CoreWiringState.wireTutorialGuide() {
     }
     ctx.subscriptions += eventBus.subscribe(SkillCooldownStarted::class, EventDelivery.Global) {
         if (it.sourceItemId?.value == "knight-sword" && it.trigger == SkillTrigger.SNEAK_RIGHT && it.skillId.value == "sword-dash") {
-            tutorialSequencer.recordAction(it.playerId, "secondary")
+            launchFor(it.playerId) { tutorialSequencer.recordAction(it.playerId, "secondary") }
         }
     }
     ctx.subscriptions += eventBus.subscribe(ResourceReloaded::class, EventDelivery.Global) {
-        if (it.weapon.value == "pistol") tutorialSequencer.recordAction(it.playerId, "reload")
+        if (it.weapon.value == "pistol") launchFor(it.playerId) { tutorialSequencer.recordAction(it.playerId, "reload") }
     }
     ctx.subscriptions += eventBus.subscribe(LobbyLanePadEntered::class, EventDelivery.Global) {
-        tutorialSequencer.recordAction(it.playerId, "queue")
+        launchFor(it.playerId) { tutorialSequencer.recordAction(it.playerId, "queue") }
     }
     // Queueing from the Play picker counts too (ADR-0248).
     ctx.subscriptions += eventBus.subscribe(MatchQueueJoined::class, EventDelivery.Global) {
-        tutorialSequencer.recordAction(it.playerId, "queue")
+        launchFor(it.playerId) { tutorialSequencer.recordAction(it.playerId, "queue") }
     }
     val task = scheduler.runRepeatingTicks(ExecutionScope.Global, 10, 10) { guide.tick() }
     shutdownHooks += { task.cancel(); guide.close() }

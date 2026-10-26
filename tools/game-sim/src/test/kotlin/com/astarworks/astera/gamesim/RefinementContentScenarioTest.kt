@@ -17,6 +17,7 @@ class RefinementContentScenarioTest {
 
     @Test
     fun `startup loads refinement profiles and skips malformed files`() {
+        kotlinx.coroutines.runBlocking {
         // Reuse the production content without modifying it; only this category is test-owned.
         Files.list(GameSim.defaultContentDir()).use { entries ->
             entries.filter { it.fileName.toString() != "refinement" }.forEach {
@@ -44,5 +45,6 @@ class RefinementContentScenarioTest {
             sim.writeTrace()
             sim.shutdown()
         }
-    }
+        }
+}
 }

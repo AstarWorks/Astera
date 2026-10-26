@@ -20,7 +20,7 @@ class RegionCombatScenarioTest {
             val before = crowd.associate { it.id to hp(it) }
             val tick = sim.tick
             val hits = mutableListOf<DamageDealt>()
-            val subscription = sim.eventBus.subscribe(DamageDealt::class) { hits += it }
+            val subscription = sim.eventBus.subscribe(DamageDealt::class, com.astarworks.astera.core.application.port.outbound.EventDelivery.Global) { hits += it }
             try {
                 sim.cast(caster, "sword-slash")
                 assertThat(sim.tick).isEqualTo(tick)
@@ -40,8 +40,11 @@ class RegionCombatScenarioTest {
         data class Frame(val hp: Double?, val positions: List<Vec3>)
         data class Run(val frames: List<Frame>, val hits: List<Pair<Long, Double>>)
         fun run(parallelism: Int): Run {
+            val pool: com.astarworks.astera.core.application.port.outbound.IComputePool =
+                if (parallelism == 0) com.astarworks.astera.testfixtures.InlineComputePool()
+                else com.astarworks.astera.core.adapter.paper.scheduler.PaperComputePool(parallelism)
             val sim = GameSim.boot("region-projectiles-pool-$parallelism", projectileCompute =
-                com.astarworks.astera.combat.application.service.CombatComputePool(threshold = 4, chunkSize = 2, parallelism = parallelism))
+                com.astarworks.astera.combat.application.service.CombatChunking(pool, threshold = 4, chunkSize = 2))
             val frames = mutableListOf<Frame>()
             val hits = mutableListOf<Pair<Long, Double>>()
             try {
@@ -51,7 +54,7 @@ class RegionCombatScenarioTest {
                 val registry = sim.services.getOrThrow<ISkillRegistry>() as SkillContents
                 val original = checkNotNull(registry.find(SkillId("pistol-shot")))
                 registry.register(original.copy(cooldownTicks = 0, resourceCost = 0))
-                val subscription = sim.eventBus.subscribe(DamageDealt::class) { hits += it.atTick to it.resolved.finalAmount }
+                val subscription = sim.eventBus.subscribe(DamageDealt::class, com.astarworks.astera.core.application.port.outbound.EventDelivery.Global) { hits += it.atTick to it.resolved.finalAmount }
                 repeat(9) { sim.cast(caster, "pistol-shot") }
                 assertThat(sim.projectiles.inFlight).isEqualTo(9)
                 repeat(40) {
@@ -62,7 +65,7 @@ class RegionCombatScenarioTest {
                 assertThat(hits).isNotEmpty()
                 assertThat(sim.projectiles.inFlight).isZero()
                 return Run(frames, hits)
-            } finally { sim.writeTrace(); sim.shutdown() }
+            } finally { sim.writeTrace(); sim.shutdown(); (pool as? AutoCloseable)?.close() }
         }
         val inline = run(0)
         assertThat(run(1)).isEqualTo(inline)

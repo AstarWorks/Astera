@@ -15,19 +15,19 @@ public class InMemoryIslandPlotRepository : IIslandPlotRepository {
 
     private val plots: ConcurrentHashMap<PlotId, IslandPlot> = ConcurrentHashMap()
 
-    override fun find(id: PlotId): IslandPlot? = plots[id]
+    override suspend fun find(id: PlotId): IslandPlot? = plots[id]
 
-    override fun forOwner(islandId: IslandId, ownerId: PlayerId): IslandPlot? =
+    override suspend fun forOwner(islandId: IslandId, ownerId: PlayerId): IslandPlot? =
         plots.values.firstOrNull { it.islandId == islandId && it.ownerId == ownerId }
 
-    override fun byIsland(islandId: IslandId): List<IslandPlot> =
+    override suspend fun byIsland(islandId: IslandId): List<IslandPlot> =
         plots.values.filter { it.islandId == islandId }
 
-    override fun upsert(plot: IslandPlot) {
+    override suspend fun upsert(plot: IslandPlot) {
         plots[plot.id] = plot
     }
 
-    override fun remove(id: PlotId) {
+    override suspend fun remove(id: PlotId) {
         plots.remove(id)
     }
 }

@@ -32,6 +32,23 @@ public abstract class PostgresIntegrationTestBase {
 
     private var container: PostgreSQLContainer<*>? = null
 
+    /** One write-behind queue per test class: production wires exactly one per plugin. */
+    protected val writes: com.astarworks.astera.persistence.adapter.io.WriteBehind by lazy {
+        com.astarworks.astera.persistence.adapter.io.WriteBehind()
+    }
+
+    protected fun attributeStore(): com.astarworks.astera.persistence.repository.PostgresPlayerAttributeContainer =
+        com.astarworks.astera.persistence.repository.PostgresPlayerAttributeContainer(db, writes)
+
+    /** Waits for queued writes, then loads [id] the way the AsyncPlayerPreLogin preload does. */
+    protected fun com.astarworks.astera.persistence.repository.PostgresPlayerAttributeContainer.load(
+        id: com.astarworks.astera.core.domain.player.PlayerId,
+    ): com.astarworks.astera.persistence.repository.PostgresPlayerAttributeContainer {
+        writes.flush().join()
+        writes.read { preload(id) }.join()
+        return this
+    }
+
     @BeforeAll
     public fun setupPostgres() {
         Assumptions.assumeTrue(

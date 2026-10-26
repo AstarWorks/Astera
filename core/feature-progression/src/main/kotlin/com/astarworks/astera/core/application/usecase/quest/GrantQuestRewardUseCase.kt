@@ -41,7 +41,7 @@ public class GrantQuestRewardUseCase(
 ) {
 
     /** Apply every reward of a quest stage to [playerId]. Safe to call once per completion. */
-    public fun grant(
+    public suspend fun grant(
         playerId: PlayerId,
         chainId: QuestChainId,
         stageId: QuestStageId,

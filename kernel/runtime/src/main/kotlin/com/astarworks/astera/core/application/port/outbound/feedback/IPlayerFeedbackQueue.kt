@@ -28,26 +28,26 @@ import com.astarworks.astera.core.domain.player.PlayerId
  */
 public interface IPlayerFeedbackQueue {
 
-    public fun submit(
+    public suspend fun submit(
         submittedBy: PlayerId,
         target: PlayerId?,
         category: FeedbackCategory,
         comment: String,
     ): Result<PlayerFeedback, PlayerFeedbackError>
 
-    public fun list(
+    public suspend fun list(
         statusFilter: FeedbackStatus? = null,
         categoryKey: String? = null,
         limit: Int = 50,
     ): List<PlayerFeedback>
 
-    public fun triage(
+    public suspend fun triage(
         id: FeedbackId,
         decision: FeedbackTriageDecision,
         decidedBy: PlayerId,
     ): Result<PlayerFeedback, PlayerFeedbackError>
 
-    public fun get(id: FeedbackId): PlayerFeedback?
+    public suspend fun get(id: FeedbackId): PlayerFeedback?
 }
 
 public sealed class PlayerFeedbackError {

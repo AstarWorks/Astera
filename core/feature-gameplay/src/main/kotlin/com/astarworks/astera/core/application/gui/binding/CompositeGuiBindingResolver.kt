@@ -64,7 +64,7 @@ public class CompositeGuiBindingResolver(
     /** Snapshot of the current chain — diagnostic / admin only. */
     public fun delegateSnapshot(): List<IGuiBindingResolver> = delegates.toList()
 
-    override fun resolve(binding: BindingKey, viewer: PlayerId?): ResolvedReactiveSlot? {
+    override suspend fun resolve(binding: BindingKey, viewer: PlayerId?): ResolvedReactiveSlot? {
         for (delegate in delegates) {
             val resolved = delegate.resolve(binding, viewer)
             if (resolved != null) return resolved

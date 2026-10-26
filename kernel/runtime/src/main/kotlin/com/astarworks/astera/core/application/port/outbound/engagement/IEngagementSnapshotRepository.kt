@@ -26,20 +26,20 @@ import java.time.Instant
 public interface IEngagementSnapshotRepository {
 
     /** Returns the latest snapshot for the player, or null if never computed. */
-    public fun find(playerId: PlayerId): EngagementSnapshot?
+    public suspend fun find(playerId: PlayerId): EngagementSnapshot?
 
     /** Replaces (or inserts) the player's snapshot. `computed_at` is taken from the snapshot. */
-    public fun upsert(snapshot: EngagementSnapshot)
+    public suspend fun upsert(snapshot: EngagementSnapshot)
 
     /** Returns all snapshots — used by the dashboard service to compute DAU/WAU/MAU and retention. */
-    public fun all(): List<EngagementSnapshot>
+    public suspend fun all(): List<EngagementSnapshot>
 
     /**
      * Returns the top-N snapshots sorted descending by [EngagementSnapshot.score].
      * Default implementation reads [all] and sorts in memory; Postgres impl
      * pushes the sort + LIMIT into SQL so cardinality stays bounded.
      */
-    public fun topByScore(limit: Int): List<EngagementSnapshot> {
+    public suspend fun topByScore(limit: Int): List<EngagementSnapshot> {
         require(limit >= 0) { "limit must be >= 0, was $limit" }
         return all()
             .sortedWith(compareByDescending<EngagementSnapshot> { it.score.value }.thenBy { it.playerId.uuid })
@@ -50,6 +50,6 @@ public interface IEngagementSnapshotRepository {
      * Returns snapshots whose `lastSeenAt` is after [cutoff]. Used by the
      * dashboard service to count active users for DAU/WAU/MAU.
      */
-    public fun seenSince(cutoff: Instant): List<EngagementSnapshot> =
+    public suspend fun seenSince(cutoff: Instant): List<EngagementSnapshot> =
         all().filter { it.lastSeenAt.isAfter(cutoff) }
 }

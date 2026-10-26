@@ -35,7 +35,7 @@ public class UnlockAchievementUseCase(
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
-    public fun unlock(
+    public suspend fun unlock(
         playerId: PlayerId,
         achievementId: AchievementId,
     ): Result<PlayerAchievement, AchievementError> {

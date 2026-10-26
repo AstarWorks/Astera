@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
 import com.astarworks.astera.core.application.port.outbound.IBlockDurabilityRepository
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.block.BlockGatewayError
@@ -15,7 +16,6 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import org.slf4j.LoggerFactory
 import java.sql.SQLException
@@ -47,9 +47,13 @@ public class PostgresBlockDurabilityRepository(private val db: Database) : IBloc
 
     private val log = LoggerFactory.getLogger(javaClass)
 
+    internal fun worlds(): Set<WorldId> = blockingTransaction(db) {
+        BlockDurabilityTable.selectAll().map { WorldId(it[BlockDurabilityTable.worldId]) }.toSet()
+    }
+
     override fun loadAll(world: WorldId): Result<Map<Vec3, BlockState>, BlockGatewayError> {
         return try {
-            val rows = transaction(db) {
+            val rows = blockingTransaction(db) {
                 BlockDurabilityTable
                     .selectAll()
                     .where { BlockDurabilityTable.worldId eq world.value }
@@ -83,7 +87,7 @@ public class PostgresBlockDurabilityRepository(private val db: Database) : IBloc
     ): Result<Unit, BlockGatewayError> {
         if (states.isEmpty()) return Result.success(Unit)
         return try {
-            transaction(db) {
+            blockingTransaction(db) {
                 for ((pos, state) in states) {
                     val px = pos.x.toInt()
                     val py = pos.y.toInt()
@@ -132,7 +136,7 @@ public class PostgresBlockDurabilityRepository(private val db: Database) : IBloc
         pos: Vec3,
     ): Result<Unit, BlockGatewayError> {
         return try {
-            transaction(db) {
+            blockingTransaction(db) {
                 BlockDurabilityTable.deleteWhere {
                     (worldId eq world.value) and
                         (posX eq pos.x.toInt()) and
@@ -156,7 +160,7 @@ public class PostgresBlockDurabilityRepository(private val db: Database) : IBloc
             // Single-statement DELETE keyed by (x, y, z) triples. Each position
             // hits the composite PK so cardinality is bounded by the caller's
             // batch size.
-            transaction(db) {
+            blockingTransaction(db) {
                 positions.forEach { pos ->
                     BlockDurabilityTable.deleteWhere {
                         (worldId eq world.value) and

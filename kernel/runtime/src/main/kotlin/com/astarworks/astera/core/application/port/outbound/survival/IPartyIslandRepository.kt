@@ -20,17 +20,17 @@ import com.astarworks.astera.core.domain.survival.PartyIsland
  */
 public interface IPartyIslandRepository {
 
-    public fun find(id: IslandId): PartyIsland?
+    public suspend fun find(id: IslandId): PartyIsland?
 
     /** First island owned by [partyId] (foundation: at most one per party). */
-    public fun forParty(partyId: PartyId): PartyIsland?
+    public suspend fun forParty(partyId: PartyId): PartyIsland?
 
     /** All islands matching any of [statuses]. */
-    public fun byStatus(statuses: Set<IslandStatus>): List<PartyIsland>
+    public suspend fun byStatus(statuses: Set<IslandStatus>): List<PartyIsland>
 
-    public fun upsert(island: PartyIsland)
+    public suspend fun upsert(island: PartyIsland)
 
-    public fun remove(id: IslandId)
+    public suspend fun remove(id: IslandId)
 
-    public fun all(): List<PartyIsland>
+    public suspend fun all(): List<PartyIsland>
 }

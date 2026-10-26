@@ -11,15 +11,15 @@ import com.astarworks.astera.core.domain.survival.PlotId
  */
 public interface IIslandPlotRepository {
 
-    public fun find(id: PlotId): IslandPlot?
+    public suspend fun find(id: PlotId): IslandPlot?
 
     /** Plot owned by [ownerId] on [islandId], if any (foundation: 0..1 per pair). */
-    public fun forOwner(islandId: IslandId, ownerId: PlayerId): IslandPlot?
+    public suspend fun forOwner(islandId: IslandId, ownerId: PlayerId): IslandPlot?
 
     /** All plots on [islandId]. */
-    public fun byIsland(islandId: IslandId): List<IslandPlot>
+    public suspend fun byIsland(islandId: IslandId): List<IslandPlot>
 
-    public fun upsert(plot: IslandPlot)
+    public suspend fun upsert(plot: IslandPlot)
 
-    public fun remove(id: PlotId)
+    public suspend fun remove(id: PlotId)
 }

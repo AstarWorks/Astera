@@ -6,6 +6,8 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.social.Party
 import com.astarworks.astera.core.domain.social.PartyId
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Join an existing [Party] (Wave 5e).
@@ -30,13 +32,13 @@ import java.util.concurrent.ConcurrentHashMap
 public class JoinPartyUseCase(
     private val repository: IPartyRepository,
 ) {
-    private val partyLocks = ConcurrentHashMap<PartyId, Any>()
+    private val partyLocks = ConcurrentHashMap<PartyId, Mutex>()
 
-    private fun lockFor(partyId: PartyId): Any =
-        partyLocks.computeIfAbsent(partyId) { Any() }
+    private fun lockFor(partyId: PartyId): Mutex =
+        partyLocks.computeIfAbsent(partyId) { Mutex() }
 
-    public fun join(player: PlayerId, partyId: PartyId): Result<Party, PartyError> =
-        synchronized(lockFor(partyId)) {
+    public suspend fun join(player: PlayerId, partyId: PartyId): Result<Party, PartyError> =
+        lockFor(partyId).withLock {
             val party = repository.find(partyId)
                 ?: return Result.failure(PartyError.NotFound(partyId))
             repository.forPlayer(player)?.let {

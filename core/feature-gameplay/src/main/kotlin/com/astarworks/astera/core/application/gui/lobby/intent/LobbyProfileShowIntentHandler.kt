@@ -38,7 +38,7 @@ public class LobbyProfileShowIntentHandler(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(intent: GuiIntent, player: IMcPlayer) {
+    public suspend fun handle(intent: GuiIntent, player: IMcPlayer) {
         if (intent.key != INTENT_SHOW) {
             log.warn(
                 "Unknown lobby.profile intent '{}' from player {} — payload={}",
@@ -58,7 +58,7 @@ public class LobbyProfileShowIntentHandler(
         }
     }
 
-    private fun snapshotOf(id: PlayerId): ProfileCardGuiSpec.Snapshot {
+    private suspend fun snapshotOf(id: PlayerId): ProfileCardGuiSpec.Snapshot {
         val s: PlayerStats? = stats()?.find(id)
         val ledger = wallet()
         val level = levels()

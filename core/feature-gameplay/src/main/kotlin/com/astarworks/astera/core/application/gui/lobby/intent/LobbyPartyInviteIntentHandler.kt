@@ -47,7 +47,7 @@ public class LobbyPartyInviteIntentHandler(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(intent: GuiIntent, player: IMcPlayer) {
+    public suspend fun handle(intent: GuiIntent, player: IMcPlayer) {
         if (intent.key != INTENT_INVITE) {
             log.warn(
                 "Unexpected intent '{}' routed to LobbyPartyInviteIntentHandler for player {}",

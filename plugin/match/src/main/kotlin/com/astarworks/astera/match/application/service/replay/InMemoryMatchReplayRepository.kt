@@ -24,7 +24,7 @@ public class InMemoryMatchReplayRepository : IMatchReplayRepository {
     private val byMatch: MutableMap<MatchId, RecordedReplay> = mutableMapOf()
     private val byReplay: MutableMap<ReplayId, RecordedReplay> = mutableMapOf()
 
-    override fun save(replay: RecordedReplay): Result<Unit, ReplayError> {
+    override suspend fun save(replay: RecordedReplay): Result<Unit, ReplayError> {
         // Drop any prior row's secondary index entry so findById on an old id
         // returns null after a re-record (latest-write-wins semantics).
         byMatch[replay.matchId]?.let { byReplay.remove(it.id) }
@@ -33,11 +33,11 @@ public class InMemoryMatchReplayRepository : IMatchReplayRepository {
         return Result.success(Unit)
     }
 
-    override fun findByMatchId(matchId: MatchId): RecordedReplay? = byMatch[matchId]
+    override suspend fun findByMatchId(matchId: MatchId): RecordedReplay? = byMatch[matchId]
 
-    override fun findById(id: ReplayId): RecordedReplay? = byReplay[id]
+    override suspend fun findById(id: ReplayId): RecordedReplay? = byReplay[id]
 
-    override fun delete(matchId: MatchId) {
+    override suspend fun delete(matchId: MatchId) {
         byMatch.remove(matchId)?.let { byReplay.remove(it.id) }
     }
 }

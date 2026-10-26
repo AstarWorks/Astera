@@ -32,7 +32,7 @@ public class RunTutorialSequencerUseCase(
     private val canStart: (PlayerId) -> Boolean = canRun,
 ) : ITutorialSequencerService {
 
-    override fun startSequence(
+    override suspend fun startSequence(
         playerId: PlayerId,
         scriptId: TutorialScriptId,
     ): Result<Unit, TutorialSequencerError> {
@@ -68,14 +68,14 @@ public class RunTutorialSequencerUseCase(
         return walkAutoAdvance(playerId, tick)
     }
 
-    override fun currentStep(playerId: PlayerId): TutorialStep? {
+    override suspend fun currentStep(playerId: PlayerId): TutorialStep? {
         val snap = stateRepo.find(playerId) ?: return null
         if (snap.paused || snap.completed) return null
         val script = registry.find(snap.scriptId) ?: return null
         return script.steps.getOrNull(snap.stepIndex)
     }
 
-    override fun advance(playerId: PlayerId): Result<TutorialStep?, TutorialSequencerError> {
+    override suspend fun advance(playerId: PlayerId): Result<TutorialStep?, TutorialSequencerError> {
         val snap = stateRepo.find(playerId)
             ?: return Result.failure(TutorialSequencerError.NotRunning(playerId))
         if (!canRun(playerId) || snap.paused || snap.completed) {
@@ -118,7 +118,7 @@ public class RunTutorialSequencerUseCase(
         }
     }
 
-    override fun cancel(playerId: PlayerId): Result<Unit, TutorialSequencerError> {
+    override suspend fun cancel(playerId: PlayerId): Result<Unit, TutorialSequencerError> {
         val snap = stateRepo.find(playerId)
             ?: return Result.failure(TutorialSequencerError.NotRunning(playerId))
         if (snap.completed) return Result.failure(TutorialSequencerError.NotRunning(playerId))
@@ -139,7 +139,7 @@ public class RunTutorialSequencerUseCase(
      * are point-in-time so the runner doesn't need to wait. Caps recursion
      * at the script's step count to prevent runaway.
      */
-    private fun walkAutoAdvance(playerId: PlayerId, @Suppress("UNUSED_PARAMETER") tick: Long): Result<Unit, TutorialSequencerError> {
+    private suspend fun walkAutoAdvance(playerId: PlayerId, @Suppress("UNUSED_PARAMETER") tick: Long): Result<Unit, TutorialSequencerError> {
         var iterations = 0
         while (true) {
             iterations++

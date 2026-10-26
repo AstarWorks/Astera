@@ -24,7 +24,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public class TransferPartyLeaderUseCase(
     private val repository: IPartyRepository,
 ) {
-    public fun transfer(
+    public suspend fun transfer(
         currentLeader: PlayerId,
         newLeader: PlayerId,
     ): Result<Unit, PartyError> {

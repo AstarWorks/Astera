@@ -27,5 +27,5 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * same evaluator for its `AwaitPredicate(...)` step.
  */
 public interface IDialogPredicateEvaluator {
-    public fun evaluate(playerId: PlayerId, predicate: DialogPredicate): Boolean
+    public suspend fun evaluate(playerId: PlayerId, predicate: DialogPredicate): Boolean
 }

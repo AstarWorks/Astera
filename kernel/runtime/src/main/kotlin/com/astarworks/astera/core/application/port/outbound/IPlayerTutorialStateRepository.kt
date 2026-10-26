@@ -8,12 +8,12 @@ import com.astarworks.astera.core.domain.tutorial.TutorialRunnerSnapshot
  */
 public interface IPlayerTutorialStateRepository {
 
-    public fun find(playerId: PlayerId): TutorialRunnerSnapshot?
+    public suspend fun find(playerId: PlayerId): TutorialRunnerSnapshot?
 
-    public fun save(playerId: PlayerId, snapshot: TutorialRunnerSnapshot)
+    public suspend fun save(playerId: PlayerId, snapshot: TutorialRunnerSnapshot)
 
-    public fun clear(playerId: PlayerId)
+    public suspend fun clear(playerId: PlayerId)
 
     /** Snapshot including paused and completed cursors. */
-    public fun all(): Map<PlayerId, TutorialRunnerSnapshot>
+    public suspend fun all(): Map<PlayerId, TutorialRunnerSnapshot>
 }

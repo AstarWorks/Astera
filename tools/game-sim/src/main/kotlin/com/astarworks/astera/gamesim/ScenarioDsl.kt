@@ -5,6 +5,9 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.application.services.getOrThrow
 import java.nio.file.Path
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.startCoroutine
 
 /**
  * Scenario DSL. A scenario boots a [GameSim] from the real `content/`, runs
@@ -29,7 +32,7 @@ public fun scenario(
     seed: Long = GameSim.DEFAULT_SEED,
     persistenceOverlay: Boolean = false,
     standaloneTeams: Boolean = true,
-    block: ScenarioScope.() -> Unit,
+    block: suspend ScenarioScope.() -> Unit,
 ): Path {
     val sim = GameSim.boot(
         name, annihilation = annihilation, seed = seed,
@@ -37,7 +40,17 @@ public fun scenario(
     )
     var trace: Path? = null
     try {
-        ScenarioScope(sim).block()
+        // Persistence-backed ports are suspend; in-memory fakes return immediately, so this stays deterministic.
+        val done = java.util.concurrent.CompletableFuture<Unit>()
+        block.startCoroutine(
+            ScenarioScope(sim),
+            Continuation(EmptyCoroutineContext) { result -> result.fold({ done.complete(Unit) }, { done.completeExceptionally(it) }) },
+        )
+        try {
+            done.get()
+        } catch (e: java.util.concurrent.ExecutionException) {
+            throw e.cause ?: e
+        }
     } finally {
         trace = runCatching { sim.writeTrace() }.getOrNull()
         sim.shutdown()

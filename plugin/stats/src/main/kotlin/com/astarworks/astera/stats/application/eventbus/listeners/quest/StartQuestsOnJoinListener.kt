@@ -13,7 +13,7 @@ public class StartQuestsOnJoinListener(
     private val quests: IQuestService,
     private val chains: IQuestChainRegistry,
 ) {
-    public fun handle(event: PlayerJoinedServer) {
+    public suspend fun handle(event: PlayerJoinedServer) {
         for (chain in chains.all()) quests.startChain(event.playerId, chain.id)
     }
 }

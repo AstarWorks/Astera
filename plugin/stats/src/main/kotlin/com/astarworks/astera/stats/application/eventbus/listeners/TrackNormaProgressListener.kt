@@ -28,7 +28,7 @@ public class TrackNormaProgressListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: DamageDealt) {
+    public suspend fun handle(event: DamageDealt) {
         if (!event.context.countsForProgression) return // ADR-0235: training damage is not a `damage` mission
         val attacker = event.attacker ?: return
         if (attacker == event.target) return
@@ -37,7 +37,7 @@ public class TrackNormaProgressListener(
         record(attacker, NormaTarget.Damage(1), damage)
     }
 
-    public fun handle(event: MatchEnded) {
+    public suspend fun handle(event: MatchEnded) {
         val winningTeam = event.winningTeam ?: return
         val match = matchRepository.findById(event.matchId) ?: run {
             log.debug("TrackNormaProgressListener: match {} not found", event.matchId)
@@ -47,12 +47,12 @@ public class TrackNormaProgressListener(
         for (playerId in winners) record(playerId, NormaTarget.MatchWins(1), 1)
     }
 
-    public fun handle(event: XpGranted) {
+    public suspend fun handle(event: XpGranted) {
         if (event.source == XpSource.MissionReward || event.source == XpSource.AdminGrant) return
         record(event.playerId, NormaTarget.XpGain(1), event.amount)
     }
 
-    private fun record(playerId: PlayerId, target: NormaTarget, delta: Long) {
+    private suspend fun record(playerId: PlayerId, target: NormaTarget, delta: Long) {
         val completed = runCatching { normaService.recordProgress(playerId, target, delta) }
             .onFailure { log.debug("TrackNormaProgressListener: {} for {} failed: {}", target, playerId, it.message) }
             .getOrNull() ?: return

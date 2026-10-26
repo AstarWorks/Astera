@@ -52,7 +52,7 @@ public class RecomputeEngagementSnapshotOnMatchEndedListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: MatchEnded) {
+    public suspend fun handle(event: MatchEnded) {
         val match = matchRepository.findById(event.matchId)
         if (match == null) {
             log.debug(

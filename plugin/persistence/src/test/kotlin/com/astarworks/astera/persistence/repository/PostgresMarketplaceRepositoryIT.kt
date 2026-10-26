@@ -24,6 +24,7 @@ public class PostgresMarketplaceRepositoryIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `save + findById round-trips an Active listing`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresMarketplaceRepository(db)
         val id = ListingId(UUID.randomUUID())
         val seller = PlayerId(UUID.randomUUID())
@@ -42,10 +43,12 @@ public class PostgresMarketplaceRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(found.itemId).isEqualTo(ItemId("example-sword"))
         assertThat(found.price).isEqualTo(ShopPrice(Currency.GOLD, 500L))
         assertThat(found.status).isEqualTo(ListingStatus.Active)
+        }
     }
 
     @Test
     public fun `save + findById preserves Sold-state side data`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresMarketplaceRepository(db)
         val id = ListingId(UUID.randomUUID())
         val seller = PlayerId(UUID.randomUUID())
@@ -65,10 +68,12 @@ public class PostgresMarketplaceRepositoryIT : PostgresIntegrationTestBase() {
         status as ListingStatus.Sold
         assertThat(status.buyer).isEqualTo(buyer)
         assertThat(status.soldAt).isEqualTo(soldAt)
+        }
     }
 
     @Test
     public fun `findActiveBySeller filters to active rows for one seller`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresMarketplaceRepository(db)
         val seller = PlayerId(UUID.randomUUID())
         val otherSeller = PlayerId(UUID.randomUUID())
@@ -86,10 +91,12 @@ public class PostgresMarketplaceRepositoryIT : PostgresIntegrationTestBase() {
 
         val mine = repo.findActiveBySeller(seller)
         assertThat(mine.map { it.id }).containsExactly(activeId)
+        }
     }
 
     @Test
     public fun `findAllActive returns every active row across sellers`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresMarketplaceRepository(db)
         val s1 = PlayerId(UUID.randomUUID())
         val s2 = PlayerId(UUID.randomUUID())
@@ -106,10 +113,12 @@ public class PostgresMarketplaceRepositoryIT : PostgresIntegrationTestBase() {
         val active = repo.findAllActive().map { it.id }.toSet()
         assertThat(active).contains(a1, a2)
         assertThat(active).doesNotContain(cancelled)
+        }
     }
 
     @Test
     public fun `save upserts on id — status transition rewrites the row`() {
+        kotlinx.coroutines.runBlocking {
         val repo = PostgresMarketplaceRepository(db)
         val id = ListingId(UUID.randomUUID())
         val seller = PlayerId(UUID.randomUUID())
@@ -133,5 +142,6 @@ public class PostgresMarketplaceRepositoryIT : PostgresIntegrationTestBase() {
         assertThat(finalListing).isNotNull
         assertThat(finalListing!!.status).isInstanceOf(ListingStatus.Sold::class.java)
         assertThat(repo.findActiveBySeller(seller)).isEmpty()
-    }
+        }
+}
 }

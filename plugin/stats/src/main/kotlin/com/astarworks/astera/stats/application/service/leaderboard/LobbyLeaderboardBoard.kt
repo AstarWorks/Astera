@@ -2,6 +2,7 @@ package com.astarworks.astera.stats.application.service.leaderboard
 
 import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.application.port.outbound.IDynamicMessages
 import com.astarworks.astera.core.application.port.outbound.IHologramGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository
@@ -43,7 +44,7 @@ public class LobbyLeaderboardBoard(
     private var handle: HologramHandle? = null
 
     private val task: IScheduler.TaskHandle =
-        scheduler.runRepeatingTicks(ExecutionScope.Io, initialDelayTicks = FIRST_REFRESH_TICKS, periodTicks = refreshTicks) { refresh() }
+        scheduler.runRepeatingTicks(ExecutionScope.Io, initialDelayTicks = FIRST_REFRESH_TICKS, periodTicks = refreshTicks) { scheduler.launch(ExecutionScope.Io) { refresh() } }
 
     public fun stop() {
         task.cancel()
@@ -52,7 +53,7 @@ public class LobbyLeaderboardBoard(
     }
 
     /** Rebuild the text from the current ranking and show it. */
-    public fun refresh() {
+    public suspend fun refresh() {
         val keys = publishRows()
         // Re-render even when the keys are unchanged: the text under them is what moved.
         scheduler.run(regionScope(world, position), kotlin.time.Duration.ZERO) {
@@ -78,7 +79,7 @@ public class LobbyLeaderboardBoard(
     }
 
     /** Publishes row texts and returns the keys to show, title first. */
-    private fun publishRows(): List<MessageKey> {
+    private suspend fun publishRows(): List<MessageKey> {
         val entries = (query.execute(rows) as? Result.Success)?.value.orEmpty()
         if (entries.isEmpty()) return listOf(TITLE, EMPTY)
         val names = profiles()

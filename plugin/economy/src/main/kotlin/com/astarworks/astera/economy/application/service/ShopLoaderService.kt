@@ -6,6 +6,8 @@ import com.astarworks.astera.core.application.config.parser.YamlContentParser
 import com.astarworks.astera.core.application.port.outbound.IContentParser
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.application.service.ContentLoader
+import com.astarworks.astera.core.domain.shop.ShopId
+import com.astarworks.astera.core.domain.shop.ShopOfferId
 import com.astarworks.astera.core.domain.shop.ShopStock
 import com.astarworks.astera.economy.application.config.ShopYamlConfig
 import java.nio.file.Path
@@ -45,19 +47,39 @@ public class ShopLoaderService(
         deserializer = ShopYamlConfig.serializer(),
     )
 
-    /** Loads every supported content file in [dir]. Missing dir = warn + no-op. */
-    public fun loadFrom(dir: Path): LoadReport {
+    /** A shop offer whose limited stock row still has to be written by [seed]. */
+    public data class PendingSeed(val shop: ShopId, val offer: ShopOfferId, val remaining: Int)
+
+    /** Result of [registerFrom]: the load report plus the stock rows [seed] must write. */
+    public data class Registered(val report: LoadReport, val seeds: List<PendingSeed>)
+
+    /**
+     * Registers every supported content file in [dir] synchronously (no I/O beyond reading the files). Missing dir =
+     * warn + no-op. Limited-stock rows are returned for [seed]; they are not written here.
+     */
+    public fun registerFrom(dir: Path): Registered {
+        val seeds = mutableListOf<PendingSeed>()
         val report = loader.loadFrom(dir) { cfg ->
             val spec = cfg.toSpec()
             registry.register(spec)
             spec.offers.forEach { offer ->
                 val stock = offer.stock
-                if (stock is ShopStock.Limited) {
-                    stockRepository.seed(spec.id, offer.id, stock.remaining)
-                }
+                if (stock is ShopStock.Limited) seeds += PendingSeed(spec.id, offer.id, stock.remaining)
             }
         }
-        return LoadReport(loaded = report.loaded, failed = report.failed, failures = report.failures)
+        return Registered(LoadReport(loaded = report.loaded, failed = report.failed, failures = report.failures), seeds)
+    }
+
+    /** Writes the idempotent stock rows collected by [registerFrom]. */
+    public suspend fun seed(seeds: List<PendingSeed>) {
+        seeds.forEach { stockRepository.seed(it.shop, it.offer, it.remaining) }
+    }
+
+    /** [registerFrom] followed by [seed]. */
+    public suspend fun loadFrom(dir: Path): LoadReport {
+        val registered = registerFrom(dir)
+        seed(registered.seeds)
+        return registered.report
     }
 
     public data class LoadReport(

@@ -65,7 +65,7 @@ public class PaperProjectileService(
     private val server: Server,
     private val grid: CombatSpatialGrid,
     private val phase: PaperCombatPhase,
-    private val compute: com.astarworks.astera.combat.application.service.CombatComputePool,
+    private val compute: com.astarworks.astera.combat.application.service.CombatChunking,
     private val scheduler: IScheduler,
     teamLookup: () -> IMatchTeamLookup?,
 ) : IProjectileService {

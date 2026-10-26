@@ -10,7 +10,10 @@ import com.astarworks.astera.core.domain.economy.Wallet
 import com.astarworks.astera.core.domain.economy.WalletError
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.blockingTransaction
+import com.astarworks.astera.persistence.adapter.io.IoThread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.sql.Connection
 import java.util.UUID
 
@@ -40,8 +43,16 @@ import java.util.UUID
  */
 public class PostgresCurrencyLedger(private val db: Database) : ICurrencyLedger {
 
+    private val balances = java.util.concurrent.ConcurrentHashMap<PlayerId, Map<Currency, Long>>()
+
     override fun balance(playerId: PlayerId, currency: Currency): Long =
-        withConnection { c -> readBalance(c, playerId.uuid, currency) }
+        checkNotNull(balances[playerId]) { "Wallet not preloaded: $playerId" }.getValue(currency)
+
+    public fun preload(playerId: PlayerId) {
+        balances[playerId] = withConnection { c -> Currency.entries.associateWith { readBalance(c, playerId.uuid, it) } }
+    }
+
+    public fun evict(playerId: PlayerId) { balances.remove(playerId) }
 
     /**
      * Detached snapshot of the stored balances (fresh at call time). Mutate
@@ -49,24 +60,29 @@ public class PostgresCurrencyLedger(private val db: Database) : ICurrencyLedger 
      */
     override fun wallet(playerId: PlayerId): Wallet {
         val snapshot = SimpleAttributeContainer()
-        withConnection { c ->
-            Currency.entries.forEach { cur ->
-                snapshot.set(
-                    Wallet.walletKeyFor(cur),
-                    AttributeValue.NumberValue(readBalance(c, playerId.uuid, cur).toDouble()),
-                )
-            }
+        Currency.entries.forEach { currency ->
+            snapshot.set(Wallet.walletKeyFor(currency), AttributeValue.NumberValue(balance(playerId, currency).toDouble()))
         }
         return Wallet(snapshot)
     }
 
-    override fun debit(
+    override suspend fun debit(playerId: PlayerId, currency: Currency, amount: Long): Result<Wallet, WalletError> =
+        withContext(Dispatchers.IO) { IoThread.run { debitOnIo(playerId, currency, amount) } }
+
+    override suspend fun credit(playerId: PlayerId, currency: Currency, amount: Long): Wallet =
+        withContext(Dispatchers.IO) { IoThread.run { creditOnIo(playerId, currency, amount) } }
+
+    override suspend fun transfer(from: PlayerId, to: PlayerId, currency: Currency, amount: Long): Result<TransferResult, WalletError> =
+        withContext(Dispatchers.IO) { IoThread.run { transferOnIo(from, to, currency, amount) } }
+
+    internal fun debitOnIo(
         playerId: PlayerId,
         currency: Currency,
         amount: Long,
     ): Result<Wallet, WalletError> {
         require(amount >= 0L) { "debit amount must be >= 0, got $amount" }
         val outcome = withConnection { c -> debitOn(c, playerId.uuid, currency, amount) }
+        preload(playerId)
         return if (outcome == null) {
             Result.failure(WalletError.InsufficientFunds(currency, balance(playerId, currency), amount))
         } else {
@@ -74,13 +90,14 @@ public class PostgresCurrencyLedger(private val db: Database) : ICurrencyLedger 
         }
     }
 
-    override fun credit(playerId: PlayerId, currency: Currency, amount: Long): Wallet {
+    internal fun creditOnIo(playerId: PlayerId, currency: Currency, amount: Long): Wallet {
         require(amount >= 0L) { "credit amount must be >= 0, got $amount" }
         withConnection { c -> creditOn(c, playerId.uuid, currency, amount) }
+        preload(playerId)
         return wallet(playerId)
     }
 
-    override fun transfer(
+    internal fun transferOnIo(
         from: PlayerId,
         to: PlayerId,
         currency: Currency,
@@ -103,6 +120,8 @@ public class PostgresCurrencyLedger(private val db: Database) : ICurrencyLedger 
                 true
             }
         }
+        preload(from)
+        preload(to)
         return if (ok) {
             Result.success(TransferResult(fromWallet = wallet(from), toWallet = wallet(to)))
         } else {
@@ -178,7 +197,7 @@ public class PostgresCurrencyLedger(private val db: Database) : ICurrencyLedger 
             st.executeQuery().use { rs -> if (rs.next()) rs.getLong(1) else null }
         }
 
-    private fun <T> withConnection(block: (Connection) -> T): T = transaction(db) {
+    private fun <T> withConnection(block: (Connection) -> T): T = blockingTransaction(db) {
         block(connection.connection as Connection)
     }
 }

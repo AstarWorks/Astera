@@ -43,8 +43,8 @@ public class SimProjectileService(
     private val resolver: () -> ProjectileImpactResolver?,
     /** Trail particles (resolved lazily; `null` => no trail). */
     worldGateway: () -> IWorldGateway? = { null },
-    private val compute: com.astarworks.astera.combat.application.service.CombatComputePool =
-        com.astarworks.astera.combat.application.service.CombatComputePool(parallelism = 0),
+    private val compute: com.astarworks.astera.combat.application.service.CombatChunking =
+        com.astarworks.astera.combat.application.service.CombatChunking(com.astarworks.astera.testfixtures.InlineComputePool()),
 ) : IProjectileService {
 
     private val stepper = ProjectileStepper(resolver)
@@ -63,7 +63,6 @@ public class SimProjectileService(
         stepTask?.cancel()
         stepTask = null
         flights.clear()
-        compute.close()
     }
 
     /** Positions of the projectiles currently in flight (for trace snapshots). */

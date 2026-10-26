@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
@@ -28,7 +28,7 @@ import java.time.Instant
  */
 public class PostgresNormaProgressRepository(private val db: Database) : INormaProgressRepository {
 
-    override fun find(playerId: PlayerId, normaId: NormaId): MissionProgress? = transaction(db) {
+    override suspend fun find(playerId: PlayerId, normaId: NormaId): MissionProgress? = ioTransaction(db) {
         NormaProgressTable
             .selectAll()
             .where {
@@ -39,11 +39,11 @@ public class PostgresNormaProgressRepository(private val db: Database) : INormaP
             ?.toDomain()
     }
 
-    override fun upsert(playerId: PlayerId, progress: MissionProgress) {
+    override suspend fun upsert(playerId: PlayerId, progress: MissionProgress) {
         // Defensive: the port contract requires playerId == progress.playerId.
         // We trust the call site (InMemoryNormaService) but store the explicit
         // playerId so a stray mismatch can't corrupt rows.
-        transaction(db) {
+        ioTransaction(db) {
             NormaProgressTable.upsert(NormaProgressTable.playerId, NormaProgressTable.normaId) {
                 it[NormaProgressTable.playerId] = playerId.uuid
                 it[NormaProgressTable.normaId] = progress.normaId.value
@@ -56,7 +56,7 @@ public class PostgresNormaProgressRepository(private val db: Database) : INormaP
         }
     }
 
-    override fun allFor(playerId: PlayerId): Collection<MissionProgress> = transaction(db) {
+    override suspend fun allFor(playerId: PlayerId): Collection<MissionProgress> = ioTransaction(db) {
         NormaProgressTable
             .selectAll()
             .where { NormaProgressTable.playerId eq playerId.uuid }

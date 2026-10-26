@@ -33,18 +33,18 @@ import com.astarworks.astera.items.domain.refinement.ItemInstanceId
 public interface IItemInstanceRepository {
 
     /** Lookup by id; `null` if the instance does not exist. */
-    public fun findById(id: ItemInstanceId): ItemInstance?
+    public suspend fun findById(id: ItemInstanceId): ItemInstance?
 
     /** Every instance owned by [player]. Order is implementation-defined. */
-    public fun findByOwner(player: PlayerId): List<ItemInstance>
+    public suspend fun findByOwner(player: PlayerId): List<ItemInstance>
 
     /**
      * Insert or overwrite the instance keyed by [ItemInstance.id]. The
      * container is *derived state*; impls serialise only the layers /
      * sub-stat rolls / reroll count + immutable header.
      */
-    public fun save(instance: ItemInstance)
+    public suspend fun save(instance: ItemInstance)
 
     /** Hard-delete; Phase 1 only used by tests + admin tools. */
-    public fun delete(id: ItemInstanceId)
+    public suspend fun delete(id: ItemInstanceId)
 }

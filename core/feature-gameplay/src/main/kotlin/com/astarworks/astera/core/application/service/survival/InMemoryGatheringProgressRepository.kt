@@ -19,13 +19,13 @@ public class InMemoryGatheringProgressRepository : IGatheringProgressRepository 
 
     private val rows: ConcurrentHashMap<Key, GatheringProgress> = ConcurrentHashMap()
 
-    override fun find(playerId: PlayerId, spotId: GatheringSpotId): GatheringProgress? =
+    override suspend fun find(playerId: PlayerId, spotId: GatheringSpotId): GatheringProgress? =
         rows[Key(playerId, spotId)]
 
-    override fun forPlayer(playerId: PlayerId): List<GatheringProgress> =
+    override suspend fun forPlayer(playerId: PlayerId): List<GatheringProgress> =
         rows.values.filter { it.playerId == playerId }
 
-    override fun upsert(progress: GatheringProgress) {
+    override suspend fun upsert(progress: GatheringProgress) {
         rows[Key(progress.playerId, progress.spotId)] = progress
     }
 }

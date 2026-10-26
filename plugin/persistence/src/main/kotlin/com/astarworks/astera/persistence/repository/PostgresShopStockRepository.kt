@@ -12,7 +12,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import com.astarworks.astera.persistence.adapter.io.ioTransaction
 import org.jetbrains.exposed.v1.jdbc.update
 import org.slf4j.LoggerFactory
 import java.sql.SQLException
@@ -46,7 +46,7 @@ public class PostgresShopStockRepository(private val db: Database) : IShopStockR
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun currentStock(shopId: ShopId, offerId: ShopOfferId): ShopStock? = transaction(db) {
+    override suspend fun currentStock(shopId: ShopId, offerId: ShopOfferId): ShopStock? = ioTransaction(db) {
         ShopStockTable
             .selectAll()
             .where {
@@ -56,14 +56,14 @@ public class PostgresShopStockRepository(private val db: Database) : IShopStockR
             ?.let { row -> ShopStock.Limited(row[ShopStockTable.remaining]) }
     }
 
-    override fun decrementStock(
+    override suspend fun decrementStock(
         shopId: ShopId,
         offerId: ShopOfferId,
         by: Int,
     ): Result<ShopStock, ShopStockError> {
         require(by >= 0) { "decrementStock 'by' must be >= 0, got $by" }
         return try {
-            transaction(db) {
+            ioTransaction(db) {
                 val current = ShopStockTable
                     .selectAll()
                     .where {
@@ -73,12 +73,12 @@ public class PostgresShopStockRepository(private val db: Database) : IShopStockR
                     .forUpdate()
                     .firstOrNull()
                     ?.get(ShopStockTable.remaining)
-                    ?: return@transaction Result.failure(
+                    ?: return@ioTransaction Result.failure(
                         ShopStockError.UnknownOffer(shopId, offerId),
                     )
 
                 if (current < by) {
-                    return@transaction Result.failure(
+                    return@ioTransaction Result.failure(
                         ShopStockError.OutOfStock(shopId, offerId),
                     )
                 }
@@ -104,14 +104,14 @@ public class PostgresShopStockRepository(private val db: Database) : IShopStockR
         }
     }
 
-    override fun seed(
+    override suspend fun seed(
         shopId: ShopId,
         offerId: ShopOfferId,
         initial: Int,
     ): Result<Unit, ShopStockError> {
         require(initial >= 0) { "seed 'initial' must be >= 0, got $initial" }
         return try {
-            transaction(db) {
+            ioTransaction(db) {
                 ShopStockTable.insertIgnore {
                     it[ShopStockTable.shopId] = shopId.value
                     it[ShopStockTable.offerId] = offerId.value

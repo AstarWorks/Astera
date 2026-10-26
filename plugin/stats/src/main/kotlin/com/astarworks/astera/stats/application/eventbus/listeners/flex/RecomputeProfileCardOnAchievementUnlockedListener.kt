@@ -45,7 +45,7 @@ public class RecomputeProfileCardOnAchievementUnlockedListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun handle(event: AchievementUnlocked) {
+    public suspend fun handle(event: AchievementUnlocked) {
         val card = recompute.recompute(event.playerId)
         if (card == null) {
             log.debug(

@@ -26,7 +26,7 @@ public class SubmitFeedbackUseCase(
     private val tickProvider: () -> Long = { 0L },
 ) {
 
-    public fun submit(
+    public suspend fun submit(
         submittedBy: PlayerId,
         target: PlayerId?,
         category: FeedbackCategory,

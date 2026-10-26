@@ -14,7 +14,7 @@ import java.util.UUID
 public class FilePlayerTutorialStateRepository(private val directory: Path) : IPlayerTutorialStateRepository {
     init { Files.createDirectories(directory) }
 
-    override fun find(playerId: PlayerId): TutorialRunnerSnapshot? {
+    override suspend fun find(playerId: PlayerId): TutorialRunnerSnapshot? {
         val file = directory.resolve("${playerId.uuid}.txt")
         if (!Files.exists(file)) return null
         val fields = Files.readString(file).trim().split("\t")
@@ -24,7 +24,7 @@ public class FilePlayerTutorialStateRepository(private val directory: Path) : IP
         )
     }
 
-    override fun save(playerId: PlayerId, snapshot: TutorialRunnerSnapshot) {
+    override suspend fun save(playerId: PlayerId, snapshot: TutorialRunnerSnapshot) {
         val temporary = Files.createTempFile(directory, "tutorial-", ".tmp")
         try {
             Files.writeString(temporary, listOf(snapshot.scriptId.value, snapshot.stepIndex,
@@ -35,9 +35,9 @@ public class FilePlayerTutorialStateRepository(private val directory: Path) : IP
         }
     }
 
-    override fun clear(playerId: PlayerId) { Files.deleteIfExists(directory.resolve("${playerId.uuid}.txt")) }
+    override suspend fun clear(playerId: PlayerId) { Files.deleteIfExists(directory.resolve("${playerId.uuid}.txt")) }
 
-    override fun all(): Map<PlayerId, TutorialRunnerSnapshot> = Files.list(directory).use { files ->
+    override suspend fun all(): Map<PlayerId, TutorialRunnerSnapshot> = Files.list(directory).use { files ->
         files.filter { it.fileName.toString().endsWith(".txt") }.toList().associate { file ->
             val player = PlayerId(UUID.fromString(file.fileName.toString().removeSuffix(".txt")))
             player to checkNotNull(find(player))

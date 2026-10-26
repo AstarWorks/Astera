@@ -35,7 +35,7 @@ public class LoadPartyIslandUseCase(
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
-    public fun load(islandId: IslandId): Result<WorldId, IslandError> {
+    public suspend fun load(islandId: IslandId): Result<WorldId, IslandError> {
         val island = islandRepository.find(islandId)
             ?: return Result.failure(IslandError.NotFound(islandId))
 

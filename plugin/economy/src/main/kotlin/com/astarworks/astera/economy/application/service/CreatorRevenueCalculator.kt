@@ -37,7 +37,7 @@ public class CreatorRevenueCalculator(
         }
     }
 
-    public fun split(itemId: ItemId, salePrice: Long): RevenueSplit {
+    public suspend fun split(itemId: ItemId, salePrice: Long): RevenueSplit {
         require(salePrice > 0) { "salePrice must be positive: $salePrice" }
         val platformAmount = (salePrice * platformFeeRate).toLong()
         val remainingAfterFee = salePrice - platformAmount

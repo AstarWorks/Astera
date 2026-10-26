@@ -1,7 +1,11 @@
 package com.astarworks.astera.core.adapter.paper.gui
 
 import com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.launch
+import com.astarworks.astera.core.domain.gui.BindingKey
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.gui.GuiSlot
 import com.astarworks.astera.core.domain.gui.ResolvedReactiveSlot
@@ -49,6 +53,7 @@ public class PaperItemTemplateRenderer(
     private val items: IItemRegistry,
     private val messages: IMessageRenderer,
     private val bindingResolver: com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver,
+    private val scheduler: IScheduler,
     /** Resolved lazily: the Items plugin registers the materializer after Core enabled. */
     private val materializer: () -> PaperItemMaterializer?,
 ) {
@@ -61,11 +66,19 @@ public class PaperItemTemplateRenderer(
      *   `displayName` / `lore` for. Passing `null` falls back to the
      *   renderer's default locale (see `SimpleMessageRenderer`).
      */
-    fun render(slot: GuiSlot, viewer: PlayerId?): ItemStack? = when (slot) {
+    fun render(slot: GuiSlot, viewer: PlayerId?): ItemStack? = render(slot, viewer, fetch = true)
+
+    /**
+     * Like [render], but reactive slots are drawn from the last resolved value only and never start a new
+     * resolution. Used to repaint after [onSettled] so a slow resolver cannot make the GUI poll itself.
+     */
+    fun renderCached(slot: GuiSlot, viewer: PlayerId?): ItemStack? = render(slot, viewer, fetch = false)
+
+    private fun render(slot: GuiSlot, viewer: PlayerId?, fetch: Boolean): ItemStack? = when (slot) {
         GuiSlot.Empty -> null
         is GuiSlot.Static -> resolve(slot.itemId, slot.count, viewer)?.let { applyStaticExtras(it, slot, viewer) }
         is GuiSlot.Border -> resolve(slot.itemId, count = 1, viewer = viewer)
-        is GuiSlot.Reactive -> resolveReactive(slot, viewer)
+        is GuiSlot.Reactive -> resolveReactive(slot, viewer, fetch)
         // Wave 5h: render the confirm-button item; cancel button + prompt
         // bar are the input-listener layer's job (Wave 6b). Treated like a
         // Static for now to keep the existing renderer monoline.
@@ -83,8 +96,14 @@ public class PaperItemTemplateRenderer(
      * can override display name / lore / count for numeric bindings
      * (`player.coins.gold`, `player.kills`).
      */
-    private fun resolveReactive(slot: GuiSlot.Reactive, viewer: PlayerId?): ItemStack {
-        val resolved = bindingResolver.resolve(slot.binding, viewer)
+    private fun resolveReactive(slot: GuiSlot.Reactive, viewer: PlayerId?, fetch: Boolean): ItemStack {
+        val key = ReactiveKey(slot.binding, viewer)
+        if (fetch) startResolve(key)
+        // A resolver backed by preloaded/cached state completes inside startResolve (undispatched launch), so its
+        // value is already in the cache. One that really suspends leaves the previous value (or a placeholder) on
+        // screen until onSettled repaints the slot.
+        val entry = reactiveCache[key] ?: return barrier()
+        val resolved = entry.value
         if (resolved == null) {
             log.warn(
                 "Reactive binding '{}' did not resolve for viewer={}; rendering BARRIER.",
@@ -165,6 +184,29 @@ public class PaperItemTemplateRenderer(
             return null
         }
         return builder.buildFor(spec, viewer, count)
+    }
+
+    private data class ReactiveKey(val binding: BindingKey, val viewer: PlayerId?)
+
+    /** A completed resolution; [value] is null when the binding is unknown to every resolver. */
+    private class ReactiveEntry(val value: ResolvedReactiveSlot?)
+
+    private val reactiveCache = java.util.concurrent.ConcurrentHashMap<ReactiveKey, ReactiveEntry>()
+
+    /**
+     * Invoked on the viewer's owning scope when a reactive slot resolved after [render] had already returned, so the
+     * GUI adapter can repaint it via [renderCached]. Never invoked for resolvers that complete synchronously.
+     */
+    var onSettled: ((PlayerId) -> Unit)? = null
+
+    private fun startResolve(key: ReactiveKey) {
+        val scope = key.viewer?.let { ExecutionScope.Entity(it.uuid) } ?: ExecutionScope.Global
+        val inWindow = java.util.concurrent.atomic.AtomicBoolean(true)
+        scheduler.launch(scope) {
+            reactiveCache[key] = ReactiveEntry(bindingResolver.resolve(key.binding, key.viewer))
+            if (!inWindow.get()) key.viewer?.let { onSettled?.invoke(it) }
+        }
+        inWindow.set(false)
     }
 
     /** Visible placeholder for "we tried to resolve something and it broke". */

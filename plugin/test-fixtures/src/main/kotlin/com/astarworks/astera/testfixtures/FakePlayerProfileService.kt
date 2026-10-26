@@ -43,7 +43,7 @@ public class FakePlayerProfileService(
 
     override fun find(playerId: PlayerId): PlayerProfile? = profiles[playerId]
 
-    override fun createFirstTime(
+    override suspend fun createFirstTime(
         playerId: PlayerId,
         displayName: String,
         locale: String?,

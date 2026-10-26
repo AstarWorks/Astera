@@ -61,7 +61,7 @@ public class SendChatMessageUseCase(
      */
     private val buckets: ConcurrentHashMap<PlayerId, TokenBucket> = ConcurrentHashMap()
 
-    public fun send(sender: PlayerId, channel: ChatChannel, content: String): Result<Unit, ChatError> {
+    public suspend fun send(sender: PlayerId, channel: ChatChannel, content: String): Result<Unit, ChatError> {
         if (content.isBlank()) {
             return Result.failure(ChatError.BlankMessage)
         }

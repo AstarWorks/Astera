@@ -23,7 +23,7 @@ public class CancelListingUseCase(
     @Suppress("unused") private val eventBus: IDomainEventBus,
 ) {
 
-    public fun execute(
+    public suspend fun execute(
         requester: PlayerId,
         listingId: ListingId,
     ): Result<Unit, CancelListingError> {

@@ -55,7 +55,7 @@ public class TravelToSurvivalIslandUseCase(
     private val defaultVisibility: IslandVisibility = IslandVisibility.PartyOnly,
 ) {
 
-    public fun travel(playerId: PlayerId): CompletableFuture<Result<Unit, TravelError>> {
+    public suspend fun travel(playerId: PlayerId): CompletableFuture<Result<Unit, TravelError>> {
         val party = parties.forPlayer(playerId)
             ?: return CompletableFuture.completedFuture(Result.failure(TravelError.NoParty))
 

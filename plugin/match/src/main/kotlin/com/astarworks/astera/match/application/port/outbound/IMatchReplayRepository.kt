@@ -25,14 +25,14 @@ import com.astarworks.astera.core.domain.replay.ReplayId
 public interface IMatchReplayRepository {
 
     /** Persist [replay], overwriting any prior recording for the same match. */
-    public fun save(replay: RecordedReplay): Result<Unit, ReplayError>
+    public suspend fun save(replay: RecordedReplay): Result<Unit, ReplayError>
 
     /** Load the most recent recording for [matchId], or null if none stored. */
-    public fun findByMatchId(matchId: MatchId): RecordedReplay?
+    public suspend fun findByMatchId(matchId: MatchId): RecordedReplay?
 
     /** Load by the row's own replay id. */
-    public fun findById(id: ReplayId): RecordedReplay?
+    public suspend fun findById(id: ReplayId): RecordedReplay?
 
     /** Delete the row for [matchId]. No-op if absent. */
-    public fun delete(matchId: MatchId)
+    public suspend fun delete(matchId: MatchId)
 }

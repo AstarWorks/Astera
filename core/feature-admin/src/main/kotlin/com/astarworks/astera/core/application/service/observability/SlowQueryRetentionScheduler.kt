@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.service.observability
 
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.launch
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.observability.ISlowQueryAuditRepository
 import org.slf4j.LoggerFactory
@@ -67,9 +68,9 @@ public class SlowQueryRetentionScheduler(
     private val log = LoggerFactory.getLogger(javaClass)
 
     public fun start(): IScheduler.TaskHandle =
-        scheduler.repeat(ExecutionScope.Io, initialDelay, period) { sweep() }
+        scheduler.repeat(ExecutionScope.Io, initialDelay, period) { scheduler.launch(ExecutionScope.Io) { sweep() } }
 
-    internal fun sweep() {
+    internal suspend fun sweep() {
         val cutoff = clock().minus(retention.toJavaDuration())
         try {
             val removed = auditRepo.deleteOlderThan(cutoff)

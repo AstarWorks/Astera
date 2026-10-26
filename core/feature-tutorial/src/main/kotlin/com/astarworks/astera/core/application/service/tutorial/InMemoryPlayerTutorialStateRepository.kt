@@ -10,15 +10,15 @@ public class InMemoryPlayerTutorialStateRepository : IPlayerTutorialStateReposit
 
     private val store: ConcurrentHashMap<PlayerId, TutorialRunnerSnapshot> = ConcurrentHashMap()
 
-    override fun find(playerId: PlayerId): TutorialRunnerSnapshot? = store[playerId]
+    override suspend fun find(playerId: PlayerId): TutorialRunnerSnapshot? = store[playerId]
 
-    override fun save(playerId: PlayerId, snapshot: TutorialRunnerSnapshot) {
+    override suspend fun save(playerId: PlayerId, snapshot: TutorialRunnerSnapshot) {
         store[playerId] = snapshot
     }
 
-    override fun clear(playerId: PlayerId) {
+    override suspend fun clear(playerId: PlayerId) {
         store.remove(playerId)
     }
 
-    override fun all(): Map<PlayerId, TutorialRunnerSnapshot> = store.toMap()
+    override suspend fun all(): Map<PlayerId, TutorialRunnerSnapshot> = store.toMap()
 }

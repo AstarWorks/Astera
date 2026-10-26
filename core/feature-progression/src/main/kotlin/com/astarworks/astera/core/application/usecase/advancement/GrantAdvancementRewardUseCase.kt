@@ -41,7 +41,7 @@ public class GrantAdvancementRewardUseCase(
 ) {
 
     /** Apply every reward of [advancement] to [playerId]. Safe to call once per completion. */
-    public fun grant(playerId: PlayerId, advancement: CustomAdvancement) {
+    public suspend fun grant(playerId: PlayerId, advancement: CustomAdvancement) {
         val tick = scheduler.currentTick()
         advancement.rewards.forEachIndexed { idx, reward ->
             when (reward) {

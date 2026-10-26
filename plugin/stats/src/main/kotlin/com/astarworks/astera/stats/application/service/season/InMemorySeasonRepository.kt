@@ -32,11 +32,13 @@ public class InMemorySeasonRepository(
         Season(id = SeasonId("season-1"), label = "Season 1", startedAt = clock()),
     )
 
-    override fun current(): Season? = synchronized(lock) {
+    override suspend fun current(): Season? = synchronized(lock) {
         seasons.lastOrNull { it.isActive }
     }
 
-    override fun start(label: String, at: Instant): Season = synchronized(lock) {
+    override suspend fun start(label: String, at: Instant): Season = synchronized(lock) { startLocked(label, at) }
+
+    private fun startLocked(label: String, at: Instant): Season {
         val activeIndex = seasons.indexOfLast { it.isActive }
         if (activeIndex >= 0) {
             seasons[activeIndex] = seasons[activeIndex].copy(endedAt = at)
@@ -44,17 +46,17 @@ public class InMemorySeasonRepository(
         val id = uniqueId(slugify(label))
         val opened = Season(id = id, label = label, startedAt = at)
         seasons += opened
-        opened
+        return opened
     }
 
-    override fun startOnce(scheduleKey: String, label: String, at: Instant): Season? = synchronized(lock) {
+    override suspend fun startOnce(scheduleKey: String, label: String, at: Instant): Season? = synchronized(lock) {
         if (scheduleKey in completedSchedules) return@synchronized null
-        val season = start(label, at)
+        val season = startLocked(label, at)
         completedSchedules += scheduleKey
         season
     }
 
-    override fun all(): List<Season> = synchronized(lock) {
+    override suspend fun all(): List<Season> = synchronized(lock) {
         seasons.asReversed().toList()
     }
 
