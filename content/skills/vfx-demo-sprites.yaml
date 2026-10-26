@@ -19,7 +19,7 @@ params:
   radius: 4.0
   falloff: linear
   damage:
-    - base: { type: literal, value: 1.0 }
+    - base: { type: literal, value: 2.5 }
       attribute: physical
 
 phases:

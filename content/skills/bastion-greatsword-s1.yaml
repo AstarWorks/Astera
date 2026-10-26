@@ -176,7 +176,7 @@ phases:
   - type: damage
     targets: {type: enemies, center: {type: caster}, radius: {type: literal, value: 3.0}}
     components:
-    - base: {type: literal, value: 7}
+    - base: {type: literal, value: 35}
       attribute: physical
     ignore_invulnerability: {type: literal, value: true}
     delay_ticks: {type: literal, value: 7}
@@ -227,7 +227,7 @@ phases:
   - type: damage
     targets: {type: enemies, center: {type: caster}, radius: {type: literal, value: 3.0}}
     components:
-    - base: {type: literal, value: 9}
+    - base: {type: literal, value: 45}
       attribute: physical
     ignore_invulnerability: {type: literal, value: true}
     delay_ticks: {type: literal, value: 31}

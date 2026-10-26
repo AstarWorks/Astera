@@ -514,13 +514,13 @@ internal object MatchGameplayWiring {
         // Mid-match join / reconnect: a player entering a server while registered in a match starts at full HP too.
         subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { joined ->
             if (matches.findMatchOf(joined.playerId) != null) {
-                val max = health.getMaxHealth(joined.playerId) ?: 20.0
+                val max = health.getMaxHealth(joined.playerId) ?: com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP
                 health.setHealth(joined.playerId, max, com.astarworks.astera.core.domain.player.physiology.HealthChangeSource.Respawn)
             }
         }
         subscriptions += eventBus.subscribe(MatchStarted::class) { started ->
             matches.findById(started.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { pid ->
-                val max = health.getMaxHealth(pid) ?: 20.0
+                val max = health.getMaxHealth(pid) ?: com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP
                 health.setHealth(pid, max, com.astarworks.astera.core.domain.player.physiology.HealthChangeSource.Respawn)
             }
         }

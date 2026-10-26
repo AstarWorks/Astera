@@ -36,7 +36,7 @@ phases:
       angle_degrees: {type: literal, value: 110}
       max_count: 1
     components:
-    - base: {type: literal, value: 4.5}
+    - base: {type: literal, value: 22.5}
       attribute: physical
       per_stack: {status_id: charge, amount: 0.4, 'on': caster, consume: false}
     ignore_invulnerability: {type: literal, value: true}
@@ -122,7 +122,7 @@ phases:
       angle_degrees: {type: literal, value: 110}
       max_count: 1
     components:
-    - base: {type: literal, value: 4.5}
+    - base: {type: literal, value: 22.5}
       attribute: physical
       per_stack: {status_id: charge, amount: 0.4, 'on': caster, consume: false}
     ignore_invulnerability: {type: literal, value: true}
@@ -211,7 +211,7 @@ phases:
       angle_degrees: {type: literal, value: 110}
       max_count: 1
     components:
-    - base: {type: literal, value: 8}
+    - base: {type: literal, value: 40}
       attribute: physical
       per_stack: {status_id: charge, amount: 0.6, 'on': caster, consume: true}
     ignore_invulnerability: {type: literal, value: true}

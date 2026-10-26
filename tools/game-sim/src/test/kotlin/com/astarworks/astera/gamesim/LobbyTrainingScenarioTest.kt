@@ -87,7 +87,7 @@ class LobbyTrainingScenarioTest {
             }
             assertThat(eventsOf<DamageDealt>().none { it.target == bystander.id }).isTrue()
             assertThat(hp(bystander)).isEqualTo(before)
-            assertThat(hp(shooter)).isEqualTo(20.0)
+            assertThat(hp(shooter)).isEqualTo(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
 
             // 7. idle for 3 s: the dummy refills and the DPS reads zero
             advance(80)
@@ -110,7 +110,7 @@ class LobbyTrainingScenarioTest {
                 advance(8)
             }
             assertThat(eventsOf<DamageDealt>().filter { it.target == victim.id }).isNotEmpty()
-            assertThat(hp(victim)).isLessThan(20.0)
+            assertThat(hp(victim)).isLessThan(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
         }
     }
 

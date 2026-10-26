@@ -111,7 +111,7 @@ public class EliminatedTeamSpectators(
     }
 
     private companion object {
-        const val DEFAULT_MAX_HP = 20.0
+        const val DEFAULT_MAX_HP = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP
         val TITLE = MessageKey("astera.death.eliminated.title")
         val SUBTITLE = MessageKey("astera.death.eliminated.subtitle")
     }

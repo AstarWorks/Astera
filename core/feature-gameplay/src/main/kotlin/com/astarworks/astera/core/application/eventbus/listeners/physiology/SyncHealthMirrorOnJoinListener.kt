@@ -37,6 +37,6 @@ public class SyncHealthMirrorOnJoinListener(
     }
 
     public companion object {
-        public const val DEFAULT_MAX_HP: Double = 20.0
+        public const val DEFAULT_MAX_HP: Double = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP
     }
 }

@@ -63,7 +63,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 8
+        value: 40
       attribute: physical
     delay_ticks:
       type: literal
@@ -144,7 +144,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 8
+        value: 40
       attribute: physical
     delay_ticks:
       type: literal
@@ -225,7 +225,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 11
+        value: 55
       attribute: physical
     delay_ticks:
       type: literal

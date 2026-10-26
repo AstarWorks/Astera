@@ -265,9 +265,9 @@ class GreatswordHammerPersonaScenarioTest {
             }
             return loss
         }
-        assertThat(lossFrom("bastion-greatsword", null)).isGreaterThanOrEqualTo(13.0)
-        assertThat(lossFrom("bastion-greatsword", "bastion-greatsword-def")).isLessThan(13.0 * 0.5)
-        assertThat(lossFrom("verdict-hammer", "verdict-hammer-def")).isLessThan(13.0 * 0.6)
+        assertThat(lossFrom("bastion-greatsword", null)).isGreaterThanOrEqualTo(65.0)
+        assertThat(lossFrom("bastion-greatsword", "bastion-greatsword-def")).isLessThan(65.0 * 0.5)
+        assertThat(lossFrom("verdict-hammer", "verdict-hammer-def")).isLessThan(65.0 * 0.6)
     }
 
     @Test

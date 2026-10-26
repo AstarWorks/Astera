@@ -12,7 +12,7 @@ display_name:
 base_entity_type: MOB
 
 attributes:
-  mob.max_hp: 30.0
+  mob.max_hp: 150.0   # x5: player melee damage is x5 (player max HP 100), same hits-to-kill as before
   mob.damage: 5.5
   mob.armor: 2.0
   mob.speed: 0.0

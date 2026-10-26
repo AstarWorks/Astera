@@ -12,9 +12,9 @@ name:
   en: "<red>Healing Draught</red>"
 lore:
   ja:
-    - "<gray>右クリック: 体力を 8 回復（使い切り）</gray>"
+    - "<gray>右クリック: 体力を 40 回復（使い切り）</gray>"
   en:
-    - "<gray>Right-click: restore 8 HP (single use)</gray>"
+    - "<gray>Right-click: restore 40 HP (single use)</gray>"
 
 rarity: common
 

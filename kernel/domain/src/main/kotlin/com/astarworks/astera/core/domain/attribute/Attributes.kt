@@ -13,6 +13,18 @@ package com.astarworks.astera.core.domain.attribute
  */
 public object Attributes {
     // ---- Stats ---------------------------------------------------------
+    /**
+     * Astera player max HP when no explicit value was set (item 18, 2026-10-27: 20 -> 100). The Bukkit health bar
+     * is a proportional mirror of Astera HP (10 hearts at any max), so this never touches the vanilla attribute.
+     */
+    public const val DEFAULT_PLAYER_MAX_HP: Double = 100.0
+
+    /**
+     * Factor from vanilla Minecraft damage / healing numbers (20 HP scale: fall, fire, mob melee, vanilla-sourced
+     * regen) to Astera HP ([DEFAULT_PLAYER_MAX_HP] / 20). Applied only where a vanilla-scale number enters Astera HP.
+     */
+    public const val VANILLA_HP_SCALE: Double = DEFAULT_PLAYER_MAX_HP / 20.0
+
     public val MAX_HP: AttributeKey = AttributeKey("stat.max_hp")
     public val CURRENT_HP: AttributeKey = AttributeKey("stat.current_hp")
     public val MOVEMENT_SPEED: AttributeKey = AttributeKey("stat.movement_speed")

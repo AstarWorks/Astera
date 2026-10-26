@@ -213,7 +213,7 @@ public class HpStatusHudService(
         public const val FLUSH_PERIOD_TICKS: Long = 2L
 
         /** Max HP of a player whose container holds none; matches the health / damage gateways. */
-        public const val DEFAULT_MAX_HP: Double = 20.0
+        public const val DEFAULT_MAX_HP: Double = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP
 
         private val KEY_HP: MessageKey = MessageKey("astera.hud.status.hp")
         private val KEY_HP_AMMO: MessageKey = MessageKey("astera.hud.status.hp-ammo")

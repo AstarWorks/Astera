@@ -88,7 +88,7 @@ public class PaperPlayerHealthGateway(
     private val server: Server,
     scheduler: IScheduler,
     eventBus: IDomainEventBus,
-    defaultMaxHp: Double = 20.0,
+    defaultMaxHp: Double = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP,
 ) : IPlayerHealthGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)

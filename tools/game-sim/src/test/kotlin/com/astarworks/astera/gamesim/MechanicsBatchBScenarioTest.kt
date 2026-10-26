@@ -50,14 +50,14 @@ class MechanicsBatchBScenarioTest {
                 ),
             )
 
-            assertThat(hp(near)).isLessThan(20.0)
-            assertThat(hp(dummy)).isLessThan(20.0)
-            assertThat(hp(far)).isEqualTo(20.0)
-            assertThat(hp(caster)).isEqualTo(20.0)
+            assertThat(hp(near)).isLessThan(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
+            assertThat(hp(dummy)).isLessThan(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
+            assertThat(hp(far)).isEqualTo(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
+            assertThat(hp(caster)).isEqualTo(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
             // Friendly fire policy of the real damage pipeline applies to explosions too.
-            assertThat(hp(mate)).isEqualTo(20.0)
+            assertThat(hp(mate)).isEqualTo(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
             // Linear falloff: the target at the centre's doorstep takes more than the one at the edge.
-            assertThat(20.0 - hp(dummy)).isGreaterThan(20.0 - hp(near))
+            assertThat(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP - hp(dummy)).isGreaterThan(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP - hp(near))
             assertThat(hp(edge)).isGreaterThanOrEqualTo(hp(near))
             // Knocked away from the blast.
             assertThat(near.velocity.z).isGreaterThan(0.0)
@@ -176,8 +176,8 @@ class MechanicsBatchBScenarioTest {
             caster.cast("mechanics-demo-quake")
             advance(2)
 
-            assertThat(hp(enemy)).isLessThan(20.0)
-            assertThat(hp(caster)).isEqualTo(14.0)
+            assertThat(hp(enemy)).isLessThan(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
+            assertThat(hp(caster)).isEqualTo(30.0)
             assertThat(enemy.glowing).isTrue()
             assertThat(sim.feedback.kicks.filter { it.target == enemy.id }).isNotEmpty()
             assertThat(sim.recorder.effects("explosion")).hasSize(1)

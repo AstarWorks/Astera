@@ -47,7 +47,7 @@ phases:
       distance: {type: literal, value: 7.0}
     ignore_invulnerability: {type: literal, value: true}
     components:
-    - base: {type: literal, value: 24.0}
+    - base: {type: literal, value: 120.0}
       attribute: physical
     delay_ticks: {type: literal, value: 60}
   - type: hit_stop

@@ -60,7 +60,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 14.0 }
+        - base: { type: literal, value: 35.0 }
           attribute: electric
     - type: apply_status
       targets: { type: target }

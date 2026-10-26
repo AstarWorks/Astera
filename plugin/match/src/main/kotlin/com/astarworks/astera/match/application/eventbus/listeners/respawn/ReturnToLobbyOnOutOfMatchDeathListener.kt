@@ -67,7 +67,7 @@ public class ReturnToLobbyOnOutOfMatchDeathListener(
     }
 
     private companion object {
-        const val DEFAULT_MAX_HP = 20.0
+        const val DEFAULT_MAX_HP = com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP
         val MSG = MessageKey("astera.hud.respawn.out-of-match")
         val MSG_HERE = MessageKey("astera.hud.respawn.out-of-match-here")
     }
