@@ -28,6 +28,7 @@ fun main(args: Array<String>) {
     report.append("| Stage | Theme | Blocks | Generation ms | Digest ms | Bounds |\n|---|---|---:|---:|---:|---|\n")
     val routes = StringBuilder("\n## Routing (5000 nodes per A* search)\n\nTerrain treats every non-air block as solid, exactly as packet Terrain does; this is conservative for plants and banners. All chunks are known in this offline measurement. Live bots must progressively discover chunks.\n\n| Stage | Route | Direct complete | Direct nodes | Routed complete | Total local nodes | Max local nodes | Cells |\n|---|---|---|---:|---|---:|---:|---:|\n")
     val problems = mutableListOf<String>()
+    val walks = StringBuilder("\n## Bot traversal (spawn to objective, centre, stars, towers; real PathFinder + route graph, re-plans on capped searches)\n\n| Stage | Route | Reached | Nodes | Last cell |\n|---|---|---|---:|---|\n")
     for (stage in stages.all().sortedBy { it.id.value }) {
         val start = System.nanoTime()
         val plan = ArenaIslandGenerator.generate(stage, parts)
@@ -86,12 +87,14 @@ fun main(args: Array<String>) {
             val goal = placement.transform(com.astarworks.astera.core.domain.stage.ArenaBlockPos(if (tower) 0 else 4, if (tower) 17 else 10, if (tower) 0 else 4), layout.surfaceY)
             route("climb ${placement.part} #$index", start.x, start.z, goal.x, goal.z, start.y, goal.y)
         }
+        problems += TraversalCheck.run(stage, plan, generators.all().filter { it.matchStageId == stage.id.value }.map { it.position.x to it.position.z }, walks)
         ImageIO.write(ArenaRenderer.top(stage, plan), "png", out.resolve("${stage.id.value}-top.png").toFile())
         ImageIO.write(ArenaRenderer.iso(stage, plan), "png", out.resolve("${stage.id.value}-iso.png").toFile())
         ImageIO.write(ArenaRenderer.section(stage, plan), "png", out.resolve("${stage.id.value}-section.png").toFile())
         println("${stage.id.value}: ${plan.blocks.size} blocks, %.1f ms".format(ms))
     }
     report.append(routes)
+    report.append(walks)
     report.append("\n## Content / routing problems\n\n")
     report.append(if (problems.isEmpty()) "None.\n" else problems.joinToString("\n", postfix = "\n") { "- $it" })
     Files.writeString(out.resolve("report.md"), report)

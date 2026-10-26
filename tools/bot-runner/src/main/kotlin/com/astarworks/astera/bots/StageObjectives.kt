@@ -1,5 +1,6 @@
 package com.astarworks.astera.bots
 
+import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.match.application.contents.GeneratorContents
 import com.astarworks.astera.match.application.contents.StageContents
@@ -45,6 +46,14 @@ class StageObjectives private constructor(
         private val LANE = Regex("^\\s*-\\s*id:\\s*(\\S+)")
         private val STAGE = Regex("^\\s*stage:\\s*(\\S+)")
 
+        /** Objectives of an already loaded [stage] with its star pedestals; shared with the offline arena traversal check. */
+        fun of(stage: Stage, starPoints: List<Pair<Double, Double>>): StageObjectives = StageObjectives(
+            stage.spawnPoints.mapNotNull { point -> point.team?.let { Spawn(it.value, point.position.x, point.position.z) } },
+            stage.regions.mapNotNull { region -> region.name?.let { Region(it, (region.min.x + region.max.x) / 2, region.min.y, (region.min.z + region.max.z) / 2) } },
+            starPoints,
+            stage.layout?.let(::ArenaRouteGraph),
+        )
+
         fun load(contentDir: File, lane: String): StageObjectives? = runCatching {
             val stageId = stageOf(File(contentDir, "matchmaking/queue.yaml").readLines(), lane) ?: return null
             val contents = StageContents()
@@ -52,12 +61,7 @@ class StageObjectives private constructor(
             val stage = contents.find(StageId(stageId)) ?: return null
             val generators = GeneratorContents()
             check(generators.bootstrap(contentDir.toPath().resolve("generators")).failed == 0)
-            StageObjectives(
-                stage.spawnPoints.mapNotNull { point -> point.team?.let { Spawn(it.value, point.position.x, point.position.z) } },
-                stage.regions.mapNotNull { region -> region.name?.let { Region(it, (region.min.x + region.max.x) / 2, region.min.y, (region.min.z + region.max.z) / 2) } },
-                generators.all().filter { it.matchStageId == stageId }.map { it.position.x to it.position.z },
-                stage.layout?.let(::ArenaRouteGraph),
-            )
+            of(stage, generators.all().filter { it.matchStageId == stageId }.map { it.position.x to it.position.z })
         }.onFailure { System.err.println("Bot stage '$lane' could not load: ${it.message}") }.getOrNull()
 
         private fun stageOf(lines: List<String>, lane: String): String? {
