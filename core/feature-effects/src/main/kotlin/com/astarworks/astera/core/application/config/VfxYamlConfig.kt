@@ -21,6 +21,7 @@ import com.astarworks.astera.core.domain.effect.vfx.VfxGroupKeyframe
 import com.astarworks.astera.core.domain.effect.vfx.VfxTargetKey
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.effect.vfx.VfxJitter
+import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.effect.vfx.VfxKeyframe
 import com.astarworks.astera.core.domain.effect.vfx.VfxOrient
 import com.astarworks.astera.core.domain.effect.vfx.VfxOscillate
@@ -93,6 +94,13 @@ public data class VfxYamlConfig(
     @SerialName("follow_body_yaw") public val followBodyYaw: Boolean = false,
     /** The caster's look pitch (clamped to +-45 degrees) tilts the effect / performance frame about the caster's feet. */
     @SerialName("follow_pitch") public val followPitch: Boolean = false,
+    /** The skin-rig body clock honours `play_vfx` hit-stop windows. */
+    @SerialName("body_respect_hit_stop") public val bodyRespectHitStop: Boolean = false,
+    /**
+     * Stage-variant colour palette: `{name: {variant: "#RRGGBB"}}` (e.g. `main: {day: "#..", night: "#.."}`); elements reference
+     * `$name` colours. Expanded at load into `id@variant` definitions (the first variant is the default).
+     */
+    public val palette: Map<String, Map<String, String>> = emptyMap(),
 ) {
     /** Materializes the domain definition; every validation failure comes back as a [VfxConfigError]. */
     public fun toDefinition(): Result<VfxDefinition, VfxConfigError> = try {
@@ -113,6 +121,7 @@ public data class VfxYamlConfig(
                 body = body?.let { com.astarworks.astera.core.domain.animation.player.CustomAnimationId(it) },
                 followBodyYaw = followBodyYaw,
                 followPitch = followPitch,
+                bodyRespectHitStop = bodyRespectHitStop,
             ),
         )
     } catch (e: IllegalArgumentException) {
@@ -145,6 +154,9 @@ public data class VfxElementYaml(
     public val emit: VfxEmitYaml? = null,
     @SerialName("target_track") public val targetTrack: List<VfxTargetKeyYaml> = emptyList(),
     @SerialName("target_line") public val targetLine: Boolean = false,
+    /** `core` (default) | `accent` | `ambient`: quality-scaling class. */
+    public val lane: String = "core",
+    @SerialName("respect_hit_stop") public val respectHitStop: Boolean = false,
 ) {
     public fun toDomain(): VfxElement = VfxElement(
         id = id,
@@ -165,6 +177,8 @@ public data class VfxElementYaml(
         emit = emit?.toDomain(),
         targetTrack = targetTrack.map { VfxTargetKey(it.t, it.weight) },
         targetLine = targetLine,
+        lane = VfxLane.fromYaml(lane),
+        respectHitStop = respectHitStop,
     )
 }
 
@@ -235,6 +249,35 @@ public sealed class VfxKindYaml {
         @SerialName("see_through") public val seeThrough: Boolean = false,
     ) : VfxKindYaml() {
         override fun toDomain(): VfxElementKind = VfxElementKind.Quad(parseRgb(color, "color"), alpha, glyph, seeThrough)
+    }
+
+    /**
+     * Shorthand: evenly spaced [sprite] dots from [from] to [to] every [spacing] blocks. Expanded into the sprite element +
+     * line formation at load; the expansion is not implemented yet and fails the definition.
+     */
+    @Serializable
+    @SerialName("dotted_line")
+    public data class DottedLine(
+        public val from: List<Double>,
+        public val to: List<Double>,
+        public val spacing: Double = 0.3,
+        public val sprite: String = "dot",
+    ) : VfxKindYaml() {
+        override fun toDomain(): VfxElementKind = throw IllegalArgumentException("kind dotted_line is not implemented yet")
+    }
+
+    /**
+     * Shorthand: a thin line quad from [from] to [to], [width] blocks wide. Expanded at load; the expansion is not
+     * implemented yet and fails the definition.
+     */
+    @Serializable
+    @SerialName("thin_line")
+    public data class ThinLine(
+        public val from: List<Double>,
+        public val to: List<Double>,
+        public val width: Double = 0.03,
+    ) : VfxKindYaml() {
+        override fun toDomain(): VfxElementKind = throw IllegalArgumentException("kind thin_line is not implemented yet")
     }
 
     @Serializable

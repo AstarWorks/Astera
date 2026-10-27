@@ -204,6 +204,10 @@ public class MechanicDispatcher(
     private val itemRemoval: (() -> com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval?)? = null,
     /** `consume_item`: lets Core keep the item gone across the match-end inventory restore. */
     private val consumptionRecorder: (() -> com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder?)? = null,
+    /** vfx-primitives: per-viewer sound stop (`stop_sound`); resolved lazily, the Paper overlay registers late. */
+    private val playerSound: (() -> com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway?)? = null,
+    /** vfx-primitives: team colour for telegraphs; resolved lazily (Match registers it after Combat enables). */
+    private val teamColors: (() -> com.astarworks.astera.core.application.port.outbound.ITeamColorLookup?)? = null,
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
     private val bakedSkills: ISkillRegistry? = null,
 ) {
@@ -247,6 +251,26 @@ public class MechanicDispatcher(
         statusContainer = statusContainer,
         vitals = vitals,
         resolveDouble = { value, c -> resolveDouble(value, c) },
+    )
+
+    /** vfx-primitives (ADR-0288 / ADR-0289): `stop_sound`, `telegraph`, `screen_veil` handlers, one file each. */
+    private val primitives = com.astarworks.astera.combat.application.service.primitives.PrimitiveMechanics(
+        com.astarworks.astera.combat.application.service.primitives.PrimitiveDeps(
+            host = this,
+            targeters = targeterResolver,
+            scheduler = scheduler,
+            worldGateway = worldGateway,
+            feedback = feedback,
+            displays = displayGateway,
+            entityEffects = entityEffects,
+            soundScheduler = soundScheduler,
+            soundRegistry = soundRegistry,
+            playerSound = { playerSound?.invoke() },
+            teamColors = { teamColors?.invoke() },
+            teamLookup = teamLookup,
+            poseLookup = poseLookup,
+            log = log,
+        ),
     )
 
     /** `hide_held_item` (rig-less skills): a timed lease; a performance claims its own lease in [VfxPlayer]. */
@@ -877,6 +901,9 @@ public class MechanicDispatcher(
             is Mechanic.Glow -> worldMechanics.glow(mechanic, ctx)
             is Mechanic.HideHeldItem -> worldMechanics.hideHeldItem(mechanic, ctx)
             is Mechanic.CameraShake -> worldMechanics.cameraShake(mechanic, ctx)
+            is Mechanic.StopSound -> primitives.stopSound(mechanic, ctx)
+            is Mechanic.Telegraph -> primitives.telegraph(mechanic, ctx)
+            is Mechanic.ScreenVeil -> primitives.screenVeil(mechanic, ctx)
 
             is Mechanic.ScheduleParticleAnimation -> {
                 val animator = particleAnimator ?: return warnMissing("ScheduleParticleAnimation", "IParticleAnimator")

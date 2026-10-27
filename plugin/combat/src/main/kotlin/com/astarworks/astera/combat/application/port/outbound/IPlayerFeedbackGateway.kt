@@ -40,4 +40,7 @@ public interface IPlayerFeedbackGateway {
      * the host only nudges the view once per call.
      */
     public fun cameraKick(target: PlayerId, intensity: Double)
+
+    /** One directional camera kick: [dx] degrees of yaw, [dy] degrees of pitch (relative). Default: no-op. */
+    public fun cameraKick(target: PlayerId, dx: Double, dy: Double) {}
 }

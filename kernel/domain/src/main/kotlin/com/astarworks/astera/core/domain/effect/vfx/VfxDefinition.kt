@@ -106,6 +106,8 @@ public data class VfxDefinition(
      * spawns tilted by the pitch at spawn. A performance (body / weapon rig) never pitches: it ignores this flag and stays upright.
      */
     public val followPitch: Boolean = false,
+    /** `true`: the skin-rig [body] clock honours hit-stop windows (the caster keeps animating otherwise). */
+    public val bodyRespectHitStop: Boolean = false,
 ) {
     /** A performance owns the caster's hand, and with a body the whole body, for its duration. */
     public val isPerformance: Boolean get() = body != null || rigs.any { it.weapon != null }
@@ -192,6 +194,10 @@ public data class VfxElement(
     public val targetTrack: List<VfxTargetKey> = emptyList(),
     /** Stretch local +Z endpoint to the bound target; preserve the authored -Z endpoint. */
     public val targetLine: Boolean = false,
+    /** Importance class for per-viewer quality scaling (`reduced` drops ambient, `minimal` also accent). */
+    public val lane: VfxLane = VfxLane.CORE,
+    /** `true`: the `play_vfx` hit-stop windows also freeze this element's keyframe clock. */
+    public val respectHitStop: Boolean = false,
 ) {
     /** Display slots this element can plan (emitter particles count individually toward the budget). */
     public val slotCount: Int get() = emit?.count ?: count

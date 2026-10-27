@@ -108,6 +108,8 @@ public data class SkillYamlConfig(
     @SerialName("block_damage") public val blockDamage: BlockDamageYaml? = null,
     @SerialName("block_place") public val blockPlace: BlockPlaceYaml? = null,
     public val tags: List<String> = emptyList(),
+    /** Telegraphed wind-up before impact (sound arc, ground warning, vfx). DTO only: desugared into cast-phase mechanics later. */
+    public val windup: WindupYaml? = null,
 ) {
     /**
      * Materialize this DTO into the domain [SkillSpec].
@@ -374,3 +376,35 @@ public data class BlockPlaceYaml(
 ) {
     internal fun toDomain(): BlockPlaceSpec = BlockPlaceSpec(block, distance, width, height)
 }
+
+/**
+ * Skill-level `windup:` block. [ticks] is the wind-up length: the sound / telegraph / vfx play from cast tick 0 and
+ * the damaging mechanics shift by [ticks].
+ */
+@Serializable
+public data class WindupYaml(
+    public val ticks: Int,
+    public val sound: WindupSoundYaml? = null,
+    public val telegraph: WindupTelegraphYaml? = null,
+    /** `content/vfx` id played at tick 0. */
+    public val vfx: String? = null,
+)
+
+@Serializable
+public data class WindupSoundYaml(
+    @SerialName("sound_id") public val soundId: String,
+    public val volume: Double = 1.0,
+    public val pitch: Double = 1.0,
+    @SerialName("pitch_arc") public val pitchArc: com.astarworks.astera.core.application.config.skill.PitchArcYaml? = null,
+    /** Cut the sound at the impact tick (`stop_sound`). */
+    @SerialName("stop_at_impact") public val stopAtImpact: Boolean = true,
+)
+
+@Serializable
+public data class WindupTelegraphYaml(
+    public val shape: String = "circle",
+    public val radius: Double,
+    @SerialName("angle_degrees") public val angleDegrees: Double = 60.0,
+    public val width: Double = 2.0,
+    @SerialName("team_color") public val teamColor: String = "enemy",
+)

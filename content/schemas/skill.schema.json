@@ -59,6 +59,9 @@
             "items": {
                 "type": "string"
             }
+        },
+        "windup": {
+            "$ref": "#/definitions/com.astarworks.astera.combat.application.config.WindupYaml"
         }
     },
     "required": [
@@ -209,6 +212,15 @@
                         },
                         "visual": {
                             "$ref": "#/definitions/com.astarworks.astera.combat.application.config.SkillParamsYaml.ProjectileVisualYaml"
+                        },
+                        "muzzle_forward": {
+                            "type": "number"
+                        },
+                        "muzzle_up": {
+                            "type": "number"
+                        },
+                        "aim_distance": {
+                            "type": "number"
                         }
                     },
                     "required": [
@@ -306,8 +318,77 @@
                 },
                 "display": {
                     "$ref": "#/definitions/com.astarworks.astera.combat.application.config.SkillParamsYaml.ProjectileDisplayYaml"
+                },
+                "vfx": {
+                    "type": "string"
                 }
             }
+        },
+        "com.astarworks.astera.combat.application.config.WindupSoundYaml": {
+            "type": "object",
+            "properties": {
+                "sound_id": {
+                    "type": "string"
+                },
+                "volume": {
+                    "type": "number"
+                },
+                "pitch": {
+                    "type": "number"
+                },
+                "pitch_arc": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.PitchArcYaml"
+                },
+                "stop_at_impact": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "sound_id"
+            ]
+        },
+        "com.astarworks.astera.combat.application.config.WindupTelegraphYaml": {
+            "type": "object",
+            "properties": {
+                "shape": {
+                    "type": "string"
+                },
+                "radius": {
+                    "type": "number"
+                },
+                "angle_degrees": {
+                    "type": "number"
+                },
+                "width": {
+                    "type": "number"
+                },
+                "team_color": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "radius"
+            ]
+        },
+        "com.astarworks.astera.combat.application.config.WindupYaml": {
+            "type": "object",
+            "properties": {
+                "ticks": {
+                    "type": "integer"
+                },
+                "sound": {
+                    "$ref": "#/definitions/com.astarworks.astera.combat.application.config.WindupSoundYaml"
+                },
+                "telegraph": {
+                    "$ref": "#/definitions/com.astarworks.astera.combat.application.config.WindupTelegraphYaml"
+                },
+                "vfx": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "ticks"
+            ]
         },
         "com.astarworks.astera.core.application.config.ColorDto": {
             "type": "object",
@@ -1216,6 +1297,18 @@
                         "ticks": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
                         },
+                        "shape": {
+                            "type": "string"
+                        },
+                        "direction": {
+                            "type": "string"
+                        },
+                        "frequency": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "viewers": {
+                            "type": "string"
+                        },
                         "delay_ticks": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
                         },
@@ -1825,6 +1918,9 @@
                         "include_caster": {
                             "type": "boolean"
                         },
+                        "freeze_animation": {
+                            "type": "boolean"
+                        },
                         "delay_ticks": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
                         },
@@ -2184,6 +2280,15 @@
                         "pitch": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
                         },
+                        "pitch_arc": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.PitchArcYaml"
+                        },
+                        "scale": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.SoundScaleYaml"
+                        },
+                        "viewers": {
+                            "type": "string"
+                        },
                         "delay_ticks": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
                         },
@@ -2233,6 +2338,9 @@
                             "items": {
                                 "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxFreezeYaml"
                             }
+                        },
+                        "viewers": {
+                            "type": "string"
                         },
                         "delay_ticks": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
@@ -2506,6 +2614,9 @@
                         "fade_out": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
                         },
+                        "viewers": {
+                            "type": "string"
+                        },
                         "delay_ticks": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
                         },
@@ -2526,6 +2637,60 @@
                         "type",
                         "targets",
                         "overlay"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "screen_veil"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "sprite": {
+                            "type": "string"
+                        },
+                        "distance": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "scale": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "color": {
+                            "type": "string"
+                        },
+                        "viewers": {
+                            "type": "string"
+                        },
+                        "max_screen_fraction": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "sprite",
+                        "ticks"
                     ]
                 },
                 {
@@ -2824,6 +2989,9 @@
                         "display": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.DisplaySpecYaml"
                         },
+                        "viewers": {
+                            "type": "string"
+                        },
                         "delay_ticks": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
                         },
@@ -2882,6 +3050,41 @@
                         "type",
                         "targets",
                         "particle_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "stop_sound"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "sound_id": {
+                            "type": "string"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "sound_id"
                     ]
                 },
                 {
@@ -2957,6 +3160,63 @@
                     "required": [
                         "type",
                         "targets"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "telegraph"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "shape": {
+                            "type": "string"
+                        },
+                        "radius": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "angle_degrees": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "width": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "impact_tick": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "team_color": {
+                            "type": "string"
+                        },
+                        "viewers": {
+                            "type": "string"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "radius",
+                        "ticks"
                     ]
                 },
                 {
@@ -3277,6 +3537,28 @@
                 }
             ]
         },
+        "com.astarworks.astera.core.application.config.skill.PitchArcYaml": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "number"
+                },
+                "to": {
+                    "type": "number"
+                },
+                "ticks": {
+                    "type": "integer"
+                },
+                "ease": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "from",
+                "to",
+                "ticks"
+            ]
+        },
         "com.astarworks.astera.core.application.config.skill.QuaternionYaml": {
             "type": "object",
             "properties": {
@@ -3298,6 +3580,23 @@
                 "y",
                 "z",
                 "w"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.SoundScaleYaml": {
+            "type": "object",
+            "properties": {
+                "root": {
+                    "type": "number"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "required": [
+                "steps"
             ]
         },
         "com.astarworks.astera.core.application.config.skill.TargeterYaml": {
