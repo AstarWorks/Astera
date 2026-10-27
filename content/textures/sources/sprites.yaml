@@ -22,6 +22,7 @@ sources:
   couture-s2-burst-shard: { file: images/couture-s2-burst-shard.png }
   couture-s2-burst-soft: { file: images/couture-s2-burst-soft.png }
   couture-s2-haze-soft: { file: images/couture-s2-haze-soft.png }
+  couture-s2-ring-thin: { file: images/couture-s2-ring-thin.png }
   couture-s2-burst-flare: { file: images/couture-s2-burst-flare.png }
   couture-s2-burst-core: { file: images/couture-s2-burst-core.png }
   couture-s2-shadow-spikes: { file: images/couture-s2-shadow-spikes.png }
@@ -77,6 +78,7 @@ sprites:
   couture-s2-burst-shard: { from: couture-s2-burst-shard, raw: true, frames: 1, size: 256 }
   couture-s2-burst-soft: { from: couture-s2-burst-soft, raw: true, frames: 1, size: 256 }
   couture-s2-haze-soft: { from: couture-s2-haze-soft, raw: true, frames: 1, size: 256 }
+  couture-s2-ring-thin: { from: couture-s2-ring-thin, raw: true, frames: 1, size: 256 }
   couture-s2-petal: { draw: petal, frames: 1, size: 128, color: "#ffffff" }
   couture-s2-burst-flare: { from: couture-s2-burst-flare, raw: true, frames: 1, size: 256 }
   couture-s2-burst-core: { from: couture-s2-burst-core, raw: true, frames: 1, size: 256 }

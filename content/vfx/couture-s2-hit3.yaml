@@ -884,11 +884,11 @@ elements:
 - id: ring-yellow
   kind:
     type: sprite
-    sprite: couture-orbit
+    sprite: couture-s2-ring-thin
     frame_ticks: 1
     loop: false
     see_through: true
-    color: '#E8DD49'
+    color: '#F2D84A'
   billboard: center
   brightness: 15
   start_tick: 1
@@ -904,8 +904,8 @@ elements:
     - 0
     - 0
     scale:
-    - 0.3
-    - 0.3
+    - 0.26
+    - 0.26
     - 1
   - t: 2
     translate:
@@ -915,10 +915,10 @@ elements:
     rotate:
     - 0
     - 0
-    - 120
+    - 0
     scale:
-    - 0.78
-    - 0.78
+    - 0.66
+    - 0.66
     - 1
     ease: out_cubic
   - t: 10
@@ -929,20 +929,20 @@ elements:
     rotate:
     - 0
     - 0
-    - 300
+    - 0
     scale:
-    - 1.02
-    - 1.02
+    - 0.87
+    - 0.87
     - 1
     ease: out_quad
 - id: ring-yellow-2
   kind:
     type: sprite
-    sprite: couture-orbit
+    sprite: couture-s2-ring-thin
     frame_ticks: 1
     loop: false
     see_through: true
-    color: '#E8DD49'
+    color: '#F2D84A'
   billboard: center
   brightness: 15
   start_tick: 1
@@ -956,10 +956,10 @@ elements:
     rotate:
     - 0
     - 0
-    - 180
+    - 0
     scale:
-    - 0.3
-    - 0.3
+    - 0.26
+    - 0.26
     - 1
   - t: 2
     translate:
@@ -969,10 +969,10 @@ elements:
     rotate:
     - 0
     - 0
-    - 300
+    - 0
     scale:
-    - 0.78
-    - 0.78
+    - 0.66
+    - 0.66
     - 1
     ease: out_cubic
   - t: 10
@@ -983,10 +983,10 @@ elements:
     rotate:
     - 0
     - 0
-    - 480
+    - 0
     scale:
-    - 1.02
-    - 1.02
+    - 0.87
+    - 0.87
     - 1
     ease: out_quad
 - id: p-orange
@@ -1179,8 +1179,8 @@ elements:
     - 0
     - 12.2
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1235,8 +1235,8 @@ elements:
     - 0
     - 38.2
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1291,8 +1291,8 @@ elements:
     - 0
     - 67.9
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1347,8 +1347,8 @@ elements:
     - 0
     - 103.9
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1403,8 +1403,8 @@ elements:
     - 0
     - 133.8
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1459,8 +1459,8 @@ elements:
     - 0
     - 160.6
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1515,8 +1515,8 @@ elements:
     - 0
     - 196.2
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1571,8 +1571,8 @@ elements:
     - 0
     - 217.7
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1627,8 +1627,8 @@ elements:
     - 0
     - 249.3
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1683,8 +1683,8 @@ elements:
     - 0
     - 290.1
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1739,8 +1739,8 @@ elements:
     - 0
     - 317.2
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -1795,8 +1795,8 @@ elements:
     - 0
     - 338.0
     scale:
-    - 0.23
-    - 0.14
+    - 0.2
+    - 0.12
     - 1
     alpha: 1.0
     ease: out_expo
@@ -2268,6 +2268,678 @@ elements:
     scale:
     - 0.14
     - 0.34
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-0
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.29
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 188.3
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - -1.0
+    - 1.51
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 160.8
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - -2.0
+    - 1.82
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 163.3
+    scale:
+    - 0.16
+    - 0.09
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-1
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - -0.19
+    - 1.08
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 212.2
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - -0.64
+    - 0.81
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 219.3
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - -1.28
+    - 0.42
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 229.0
+    scale:
+    - 0.16
+    - 0.09
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-2
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - 0.21
+    - 1.34
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 9.3
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - 0.7
+    - 1.67
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 52.5
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - 1.4
+    - 2.14
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 45.5
+    scale:
+    - 0.16
+    - 0.09
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-3
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - 0.4
+    - 1.31
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 43.0
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - 1.34
+    - 1.56
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 24.3
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - 2.68
+    - 1.92
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 22.0
+    scale:
+    - 0.16
+    - 0.09
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-4
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - 0.1
+    - 1.35
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 58.4
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - 0.34
+    - 1.71
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 30.3
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - 0.67
+    - 2.22
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 38.1
+    scale:
+    - 0.16
+    - 0.09
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-5
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - 0.01
+    - 1.39
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 84.9
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - 0.03
+    - 1.82
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 83.5
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - 0.06
+    - 2.45
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 107.6
+    scale:
+    - 0.16
+    - 0.09
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-6
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - -0.33
+    - 1.16
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 186.9
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - -1.1
+    - 1.07
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 196.6
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - -2.21
+    - 0.93
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 184.3
+    scale:
+    - 0.16
+    - 0.09
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-7
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - -0.07
+    - 1.61
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 129.9
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - -0.25
+    - 2.58
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 120.6
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - -0.49
+    - 3.95
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 112.6
+    scale:
+    - 0.16
+    - 0.09
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-8
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - -0.09
+    - 1.42
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 100.8
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - -0.31
+    - 1.92
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 87.7
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - -0.63
+    - 2.64
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 129.5
+    scale:
+    - 0.16
+    - 0.09
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-9
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - -0.31
+    - 1.42
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 137.3
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - -1.04
+    - 1.95
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 171.6
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - -2.07
+    - 2.7
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 165.0
+    scale:
+    - 0.16
+    - 0.09
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-10
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - 0.23
+    - 1.2
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 24.8
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - 0.77
+    - 1.2
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -1.6
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - 1.54
+    - 1.21
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 29.0
+    scale:
+    - 0.16
+    - 0.09
+    - 1
+    alpha: 0.0
+    ease: in_quad
+- id: pet2-11
+  kind:
+    type: sprite
+    sprite: couture-s2-petal
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - -0.16
+    - 1.32
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 150.8
+    scale:
+    - 0.05
+    - 0.03
+    - 1
+    alpha: 0.0
+  - t: 1
+    translate:
+    - -0.53
+    - 1.6
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 159.8
+    scale:
+    - 0.2
+    - 0.12
+    - 1
+    alpha: 1.0
+    ease: out_expo
+  - t: 8
+    translate:
+    - -1.05
+    - 1.99
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 129.3
+    scale:
+    - 0.16
+    - 0.09
     - 1
     alpha: 0.0
     ease: in_quad
