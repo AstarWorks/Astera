@@ -31,7 +31,7 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # python -I does not add the script dir
-from stampcodec import MOD, CELLS, STAMP_HALF_W, STAMP_H, MASK_HALF_W, MASK_TOP_H, MASK_BOTTOM_H, decode_stamp
+from stampcodec import MOD, CELLS, STAMP_HALF_W, STAMP_H, MASK_HALF_W, MASK_TOP_H, MASK_BOTTOM_H, MASK_BOTTOM_HALF_W, decode_stamp
 
 
 def parse_marks(path):
@@ -204,14 +204,15 @@ def main():
         top = (slice(0, MASK_TOP_H * gs), slice(W // 2 - MASK_HALF_W * gs, W // 2 + MASK_HALF_W * gs))
         small[:int(np.ceil(MASK_TOP_H * gs * gh / H)), int(gw * (W / 2 - MASK_HALF_W * gs) / W):int(np.ceil(gw * (W / 2 + MASK_HALF_W * gs) / W))] = 0
         if survival:
-            small[int(gh * (H - MASK_BOTTOM_H * gs) / H):, int(gw * (W / 2 - MASK_HALF_W * gs) / W):int(np.ceil(gw * (W / 2 + MASK_HALF_W * gs) / W))] = 0
+            small[int(gh * (H - MASK_BOTTOM_H * gs) / H):, int(gw * (W / 2 - MASK_BOTTOM_HALF_W * gs) / W):int(np.ceil(gw * (W / 2 + MASK_BOTTOM_HALF_W * gs) / W))] = 0
         grey.append(small)
         if idx in need:
             out = img.copy()
             band = out[:, W // 2 - MASK_HALF_W * gs:W // 2 + MASK_HALF_W * gs]
             mirror_fill(band[:MASK_TOP_H * gs * 2], 0, MASK_TOP_H * gs)
             if survival:
-                mirror_fill(band[H - MASK_BOTTOM_H * gs * 2:], MASK_BOTTOM_H * gs, MASK_BOTTOM_H * gs * 2)
+                bband = out[:, W // 2 - MASK_BOTTOM_HALF_W * gs:W // 2 + MASK_BOTTOM_HALF_W * gs]
+                mirror_fill(bband[H - MASK_BOTTOM_H * gs * 2:], MASK_BOTTOM_H * gs, MASK_BOTTOM_H * gs * 2)
             for n in src_to_n[idx]:
                 Image.fromarray(out).save(f"{out_dir}/frame_{n:03d}.png", compress_level=3)
         idx += 1

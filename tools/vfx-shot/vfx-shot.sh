@@ -242,7 +242,7 @@ skill, root = sys.argv[1], sys.argv[2]
 for cj in sorted(glob.glob(os.path.join(root, "tools/skill-compare/data/*/case.json"))):
     try:
         c = json.load(open(cj))
-        if c.get("asteraSkillId") != skill: continue
+        if (c.get("skill") or {}).get("asteraSkillId") != skill: continue
         d = json.load(open(os.path.join(os.path.dirname(cj), c.get("intent", {}).get("file", "intent.json"))))
         x = {a["id"]: a["keys"][0]["pos"][0] for a in d["actors"] if a.get("id") in ("caster", "enemy")}
         print(round(x["enemy"] - x["caster"], 2)); break
@@ -863,7 +863,7 @@ film() { # viewer view_dir
   printf '%s\n%s\n' "$pos_start" "$pos_end" > "$dir/viewer-pos.txt"
   local all="$dir"
   if [ -n "$BEAT_TICKS" ]; then all="$dir/.all"; mkdir -p "$all"; fi
-  case "$VIEW_NOW" in caster|opponent) survival=1 ;; esac    # survival viewers have a hotbar (its items cannot be blanked by the pack)
+  survival=1    # every viewer: the Astera status HUD glyphs (bottom centre) cannot be blanked client-side, they are masked like the hotbar
   if ! python3 -I "$HERE/framestamp.py" "$rec" "$rec.log" "$STATE/director.stderr" "$cast_stamp" "$PRE_TICKS" "$TICKS" "$FPS" "$GUI_SCALE" "$survival" \
       "$all" "$dir/framestamp.json" "$STEPPED" > "$STATE/framestamp.out" 2>"$STATE/framestamp.err"; then
     if [ "${SHOT_KEEP_REC:-0}" = 1 ]; then mv "$rec" "$dir/recording.mkv"; mv "$rec.log" "$dir/recording.showinfo.log"; fi
@@ -972,8 +972,10 @@ orbit_cam() {
 import math, sys
 v, cx, y, cz, d = sys.argv[1], *map(float, sys.argv[2:])
 cams = {  # (camera offset, look-at offset) from the caster feet; x = +east = the caster left, z = forward
-    "side": ((-6.0, 1.0, d / 2), None),  # the caster RIGHT side: screen-right = forward, same orientation as the skill-compare reference
-    "right": ((6.0, 1.0, d / 2), None),
+    # side/right: close and level like the reference -- the caster is ~1/3 of the frame height (fov 70: 1.8 / (2 D tan35) at D >= 3.9)
+    # and the dash (caster -> target, d blocks) stays inside the 16:9 frame (half width 1.245 D >= d/2 + 1.5); looks at its midpoint.
+    "side": ((-max(3.9, (d / 2 + 1.5) / 1.245), 0.1, d / 2), (0.0, 1.0, d / 2)),  # the caster RIGHT side: screen-right = forward, same orientation as the skill-compare reference
+    "right": ((max(3.9, (d / 2 + 1.5) / 1.245), 0.1, d / 2), (0.0, 1.0, d / 2)),
     "front": ((2.0, 1.7, d + 3.0), (0.0, 1.2, 0.6)),
     "back": ((-1.0, 2.0, -5.0), (0.0, 1.2, 0.8)),
     "high": ((4.0, 5.8, -1.5), (0.0, 0.9, 1.0)),
@@ -986,7 +988,7 @@ c, look = cams[v]
 if look is None:
     yaw, pitch = (90.0 if c[0] > 0 else -90.0), 8.0
 else:
-    dx, dy, dz = (look[i] - c[i] for i in range(3))
+    dx, dy, dz = (look[i] - c[i] - (1.62 if i == 1 else 0.0) for i in range(3))  # c is the tp (feet) position; the eye is 1.62 above
     yaw = math.degrees(math.atan2(-dx, dz))
     pitch = -math.degrees(math.atan2(dy, math.hypot(dx, dz)))
 print("%.2f %.2f %.2f %.1f %.1f" % (cx + c[0], y + c[1], cz + c[2], yaw, pitch))
@@ -1001,6 +1003,21 @@ in_arena() { # player -> 0 when in the overworld, x/z in the 300s
   # the arena is centred on CX/CZ (300.5): x/z anywhere in 250..350 counts (a camera behind the caster is at x ~ 296)
   [[ "$dim" == *overworld* ]] && [[ "$pos" =~ \[(-?[0-9]+)\.[0-9]*d,\ [^,]*,\ (-?[0-9]+)\. ]] \
     && (( BASH_REMATCH[1] >= 250 && BASH_REMATCH[1] <= 350 && BASH_REMATCH[2] >= 250 && BASH_REMATCH[2] <= 350 ))
+}
+
+# The film camera is a creative player, not a spectator: a spectator renders every invisible entity translucent, and a
+# performance hides the caster's body by invisibility (ADR-0276), so the spectator saw a ghost of the standing caster behind the
+# rig. Gravity 0 keeps the tp'd camera still between ticks; the hand holds an item whose model is empty (no arm in view); the
+# team makes the camera non-solid so a dash through it does not push the caster.
+watcher_camera_mode() {
+  rcon "team add cmp" >/dev/null 2>&1
+  rcon "team modify cmp collisionRule never" >/dev/null
+  rcon "team modify cmp nametagVisibility never" >/dev/null
+  rcon "team join cmp Watcher" >/dev/null
+  rcon "gamemode creative Watcher" >/dev/null
+  rcon "attribute Watcher minecraft:gravity base set 0" >/dev/null
+  rcon 'item replace entity Watcher weapon.mainhand with minecraft:stick[item_model="astera:shot_empty"]' >/dev/null
+  rcon "item replace entity Watcher weapon.offhand with minecraft:air" >/dev/null
 }
 
 place_scene() { # view target_z
@@ -1024,11 +1041,11 @@ place_scene() { # view target_z
       rcon "team join cmp Caster" >/dev/null
       tp Caster "$CX" "$Y" "$CZ" -90 0
       rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" -v d="$ENEMY_X" 'BEGIN{printf "%.2f", x+d}') $Y $CZ $(dummy_nbt 90)" >/dev/null
-      rcon "gamemode spectator Watcher" >/dev/null
+      watcher_camera_mode
       rcon "$CAM0_CMD" >/dev/null ;;
     side|front|back|right|high|near|top)
       summon_target
-      rcon "gamemode spectator Watcher" >/dev/null
+      watcher_camera_mode
       # shellcheck disable=SC2046
       tp Watcher $(orbit_cam "$view") ;;
   esac

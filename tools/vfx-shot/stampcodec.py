@@ -8,7 +8,8 @@ STAMP_HALF_W = 100  # gui px around the screen centre that the title + bar can o
 STAMP_H = 34        # gui px from the top that contain title + bar
 MASK_HALF_W = 100
 MASK_TOP_H = 26     # rows blanked in the saved PNGs (title text 3..12, bar 12..17, lerp slack)
-MASK_BOTTOM_H = 26  # hotbar (22) + 1 px offset + slack, survival viewers only
+MASK_BOTTOM_H = 52  # status HUD glyphs (health/mana text) + hotbar + slack: every viewer, the Astera HUD fonts cannot be blanked by the client pack
+MASK_BOTTOM_HALF_W = 320  # gui px around the screen centre
 
 
 def decode_stamp(img):

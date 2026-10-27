@@ -57,13 +57,15 @@ export function makeCompare({ publishedDir, getRec, cacheFor, F, failureOf, beat
     try { text = readFileSync(join(dir, "trace.log"), "utf8"); } catch { return null; }
     const num = (s) => [...(s?.matchAll(/[xyz]=(-?\d+(?:\.\d+)?)/g) ?? [])].map((m) => +m[1]);
     const spawns = [], pos = [];
+    let castTick = null;  // the first play line = cast tick 0; spawn planSpawn/age are relative to each effect's own start
     for (const l of text.split(/\r?\n/)) {
       let m;
+      if (castTick == null && (m = /\[vfx-trace\] play \S+ tick=(\d+)/.exec(l))) castTick = +m[1];
       if ((m = /\[vfx-trace\] spawn (\S+) (\S+) age=(\d+) planSpawn=(-?\d+) tick=(\d+)/.exec(l))) spawns.push({ vfx: m[1], element: m[2], age: +m[3], planSpawn: +m[4], tick: +m[5] });
       else if ((m = /\[vfx-trace\] pos (\S+) age=(\d+) tick=(\d+) caster=(.*?) target=(.*)$/.exec(l))) { const c = num(m[4]), t = num(m[5]); if (c.length === 3) pos.push({ age: +m[2], c, t: t.length === 3 ? t : null }); }
     }
     const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-    const out = { spawns: spawns.length, fxSpawnTicks: [...new Set(spawns.map((s) => s.planSpawn))].sort((a, b) => a - b) };
+    const out = { spawns: spawns.length, fxSpawnTicks: [...new Set(spawns.map((s) => s.tick - (castTick ?? 0)))].sort((a, b) => a - b) };
     if (pos.length) {
       const first = pos[0], last = pos[pos.length - 1];
       out.casterTravelBlocks = +dist(first.c, last.c).toFixed(2);
