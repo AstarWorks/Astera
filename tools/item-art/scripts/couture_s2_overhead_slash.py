@@ -10,10 +10,10 @@ y = (y + .5) / S - 128
 r = np.hypot(x, y)
 th = np.degrees(np.arctan2(-y, x)) % 360
 R = 112.0
-A0, A1 = 0.0, 165.0
+A0, A1 = 0.0, 120.0
 u = np.clip((th - A0) / (A1 - A0), 0, 1)
 inarc = (th >= A0) & (th <= A1)
-taper = np.sin(np.pi * u) ** 0.6
+taper = np.sin(np.pi * u) ** 0.45
 w = (2.0 + 4.6 * taper) * (0.8 + 0.4 * u)  # white core half width px
 d = np.abs(r - R)
 
