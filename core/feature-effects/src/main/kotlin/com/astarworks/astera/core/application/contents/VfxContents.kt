@@ -23,6 +23,13 @@ public class VfxContents : YamlDynamicContents<VfxId, VfxDefinition, VfxYamlConf
             is Result.Failure -> throw IllegalArgumentException(result.error.message)
         }
 
+    /** A file with a `palette:` registers `id` plus one `id@<variant>` definition per variant. */
+    override fun toEntries(config: VfxYamlConfig): List<Pair<VfxId, VfxDefinition>> =
+        when (val result = config.toDefinitions()) {
+            is Result.Success -> result.value.map { it.id to it }
+            is Result.Failure -> throw IllegalArgumentException(result.error.message)
+        }
+
     /** Registers by definition alone (the definition owns its id); used by tests and admin tooling. */
     public fun register(def: VfxDefinition) {
         register(def.id, def)

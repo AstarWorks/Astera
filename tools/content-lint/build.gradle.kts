@@ -36,6 +36,7 @@ dependencies {
     implementation(project(":plugin:match"))
     implementation(project(":plugin:stats"))
     implementation(project(":plugin:economy"))
+    implementation(project(":plugin:chat"))
     implementation(project(":plugin:test-fixtures"))
     implementation(libs.networknt.json.schema.validator)
     implementation(libs.snakeyaml)

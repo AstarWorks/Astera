@@ -31,7 +31,14 @@ public object VfxBodyPlanner {
             (translation - o.translation).lengthSquared() > EPS * EPS || rotation.angleTo(o.rotation) > EPS || (scale - o.scale).lengthSquared() > EPS * EPS
     }
 
-    public fun plan(def: VfxDefinition, rig: VfxRig, motion: VfxRigMotion, track: VfxBodyTrack?): List<VfxElementPlan> {
+    public fun plan(
+        def: VfxDefinition,
+        rig: VfxRig,
+        motion: VfxRigMotion,
+        track: VfxBodyTrack?,
+        /** The clock the skin-body bones follow (differs from [motion] only when `body_respect_hit_stop` freezes the body alone). */
+        bodyMotion: VfxRigMotion = motion,
+    ): List<VfxElementPlan> {
         val spawn = rig.startTick
         val despawn = minOf(def.durationTicks, rig.endTick ?: def.durationTicks)
         if (track != null) {
@@ -42,6 +49,7 @@ public object VfxBodyPlanner {
         }
         val last = def.durationTicks - motion.base
         val schedule = schedule(motion, last, despawn) { track?.isSnap(it) == true || motion.isSwingStep(it) }
+        val bodySchedule = if (bodyMotion === motion) schedule else schedule(bodyMotion, last, despawn) { track?.isSnap(it) == true }
 
         val out = ArrayList<VfxElementPlan>()
         if (track != null) {
@@ -49,7 +57,7 @@ public object VfxBodyPlanner {
                 out += element(
                     id = "${rig.id}.body.${bone.yamlName}",
                     kind = VfxElementKind.SkinBone(bone, track.body.slim),
-                    spawn = spawn, despawn = despawn, last = last, schedule = schedule,
+                    spawn = spawn, despawn = despawn, last = last, schedule = bodySchedule,
                 ) { l ->
                     val t = track.at(l).transforms.bones.getValue(bone)
                     Pose(

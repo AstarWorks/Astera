@@ -45,4 +45,7 @@ public interface IPlayerSoundGateway {
         position: Vec3? = null,
         world: WorldId? = null,
     )
+
+    /** Stops the sound [key] (`namespace:name`, as in [SoundSpec.key]) for [playerId] only. Default: no-op. */
+    public fun stop(playerId: PlayerId, key: String) {}
 }

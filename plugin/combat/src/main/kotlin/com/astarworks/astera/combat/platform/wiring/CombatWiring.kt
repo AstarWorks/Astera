@@ -611,6 +611,8 @@ public object CombatWiring {
                 presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() },
                 skinBodies = { id -> services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>()?.find(id) },
                 itemRemoval = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>() },
+                playerSound = { services.get<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>() },
+                teamColors = { services.get<com.astarworks.astera.core.application.port.outbound.ITeamColorLookup>() },
                 consumptionRecorder = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder>() },
             )
             registrations += services.register<MechanicDispatcher>(mechanicDispatcher)

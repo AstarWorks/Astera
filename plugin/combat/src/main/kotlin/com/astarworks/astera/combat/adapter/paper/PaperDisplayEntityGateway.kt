@@ -4,6 +4,14 @@ import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGate
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayHandle
 import com.astarworks.astera.core.adapter.paper.presentation.ConcealedDisplays
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.ticks
+import com.astarworks.astera.core.domain.effect.Audience
+import com.astarworks.astera.core.domain.effect.AudienceResolver
+import com.astarworks.astera.core.domain.effect.vfx.VfxIntensity
+import com.astarworks.astera.core.domain.effect.vfx.VfxLane
+import com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
@@ -28,6 +36,7 @@ import org.bukkit.entity.Display
 import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.TextDisplay
 import org.bukkit.inventory.ItemStack
+import org.bukkit.plugin.Plugin
 import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.profile.PlayerTextures
 import org.bukkit.util.Transformation
@@ -43,6 +52,10 @@ import org.slf4j.LoggerFactory
  */
 public class PaperDisplayEntityGateway(
     private val server: Server,
+    private val plugin: Plugin,
+    private val scheduler: IScheduler,
+    /** A viewer's own `vfx_intensity`; read when the display is spawned. */
+    private val intensityOf: (PlayerId) -> VfxIntensity = { VfxIntensity.FULL },
 ) : IDisplayEntityGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -97,7 +110,38 @@ public class PaperDisplayEntityGateway(
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): DisplayHandle? =
         spawn(world, at, spec, renderedLines, null)
 
-    private fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, owner: Player?): DisplayHandle? {
+    /**
+     * Audience-scoped spawn. The display is created `visibleByDefault = false` (before it is added to the world, so no
+     * tracker ever sends it unasked) and revealed with `Player.showEntity` to exactly the resolved viewers: the audience
+     * relative to the caster / target, minus viewers whose `vfx_intensity` drops [lane]. Candidates are the players near
+     * the display (read in the owning region) plus the caster and target. Each reveal runs on that viewer's entity
+     * scheduler; no player set is looped and mutated from one thread.
+     */
+    override fun spawn(
+        world: WorldId,
+        at: Vec3,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        audience: Audience,
+        caster: PlayerId?,
+        target: PlayerId?,
+        lane: VfxLane,
+    ): DisplayHandle? {
+        if (audience == Audience.ALL && lane == VfxLane.CORE) return spawn(world, at, spec, renderedLines)
+        val bukkitWorld = server.getWorld(world.value) ?: return null
+        val handle = spawn(world, at, spec, renderedLines, null, hidden = true) ?: return null
+        val display = server.getEntity(handle.id) ?: return handle
+        val nearby = bukkitWorld.getNearbyPlayers(Location(bukkitWorld, at.x, at.y, at.z), VIEWER_RADIUS).map { PlayerId(it.uniqueId) }
+        val candidates = AudienceResolver.select(AudienceResolver.displayPool(nearby, caster, target), audience, caster, target)
+        for (viewer in VfxQualityProfile.filterViewers(candidates, lane, intensityOf)) {
+            scheduler.run(ExecutionScope.Entity(viewer.uuid), ticks(0)) {
+                server.getPlayer(viewer.uuid)?.takeIf { display.isValid }?.showEntity(plugin, display)
+            }
+        }
+        return handle
+    }
+
+    private fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, owner: Player?, hidden: Boolean = false): DisplayHandle? {
         val bukkitWorld = server.getWorld(world.value) ?: return null
         val location = Location(bukkitWorld, at.x, at.y, at.z)
         val display: Display = when (val kind = spec.kind) {
@@ -106,7 +150,7 @@ public class PaperDisplayEntityGateway(
                     ?: return unsupported("unknown block '${kind.blockKey}'")
                 bukkitWorld.spawn(location, BlockDisplay::class.java) {
                     it.block = data
-                    configure(it, spec)
+                    configure(it, spec, hidden)
                 }
             }
             is DisplayKind.Item -> {
@@ -121,7 +165,7 @@ public class PaperDisplayEntityGateway(
                 bukkitWorld.spawn(location, ItemDisplay::class.java) {
                     it.setItemStack(stack)
                     it.itemDisplayTransform = itemMode(kind.displayMode)
-                    configure(it, spec)
+                    configure(it, spec, hidden)
                 }
             }
             is DisplayKind.SkinBone -> {
@@ -137,7 +181,7 @@ public class PaperDisplayEntityGateway(
                 bukkitWorld.spawn(location, ItemDisplay::class.java) {
                     it.setItemStack(head)
                     it.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.NONE
-                    configure(it, spec)
+                    configure(it, spec, hidden)
                     it.brightness = Display.Brightness(SkinRigMarker.BLOCK_LIGHT, SkinRigMarker.skyPayload(kind.bone, kind.slim, kind.ghost))
                     // The hidden player's shadow disappears with them; the body display stands in for it (vanilla 0.5 / 1.0). A ghost casts none.
                     val shadow = kind.bone == SkinRigBone.BODY && !kind.ghost
@@ -152,7 +196,7 @@ public class PaperDisplayEntityGateway(
                 bukkitWorld.spawn(location, ItemDisplay::class.java) {
                     it.setItemStack(held.clone())
                     it.itemDisplayTransform = ItemDisplay.ItemDisplayTransform.THIRDPERSON_RIGHTHAND
-                    configure(it, spec)
+                    configure(it, spec, hidden)
                     it.shadowRadius = 0f
                 }
             }
@@ -165,14 +209,15 @@ public class PaperDisplayEntityGateway(
                 kind.lineWidth?.let { text.lineWidth = it }
                 text.textOpacity = kind.textOpacity.toByte()
                 kind.textRgb?.let { text.text(text.text().color(TextColor.color(it))) }
-                configure(text, spec)
+                configure(text, spec, hidden)
             }
         }
         return DisplayHandle(display.uniqueId)
     }
 
     /** Initialize before the entity is added to the world and starts being tracked. */
-    private fun configure(display: Display, spec: DisplaySpec) {
+    private fun configure(display: Display, spec: DisplaySpec, hidden: Boolean) {
+        if (hidden) display.isVisibleByDefault = false
         com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(display, "display-entity")
         display.billboard = when (spec.billboard) {
             DisplayBillboard.FIXED -> Display.Billboard.FIXED
@@ -281,6 +326,9 @@ public class PaperDisplayEntityGateway(
         /** Pack item definition `astera:skinrig` (content/models/skinrig). */
         val SKINRIG_MODEL: NamespacedKey = NamespacedKey("astera", "skinrig")
         const val SHADOW_RADIUS = 0.5f
+
+        /** Players within this many blocks of an audience-scoped display are revealed candidates (beyond any display view range). */
+        const val VIEWER_RADIUS = 128.0
     }
 
     private fun blockKey(key: String): String = if (':' in key) key else "minecraft:$key"
