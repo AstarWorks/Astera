@@ -30,16 +30,16 @@ import org.junit.jupiter.params.provider.ValueSource
  */
 class SiegeModesScenarioTest {
 
-    // The sky-island siege stage (content/stages/siege-isles.yaml): top layer y=64, players stand at y=65. Stage-local coordinates.
+    // The sky-island siege stage (content/stages/siege-isles.yaml, 261x189): top layer y=64, players stand at y=65. Stage-local coordinates.
     private val tntSpawn = Vec3(0.0, 65.0, -6.0)
-    private val redBase = Vec3(-43.0, 65.0, 0.0)
-    private val blueBase = Vec3(43.0, 65.0, 0.0)
+    private val redBase = Vec3(-80.0, 65.0, 0.0)
+    private val blueBase = Vec3(80.0, 65.0, 0.0)
 
     // siege-isles-tnt: delivery pedestals deep in each base and the checkpoints on the way to them (routes in order).
-    private val deliverRed = Vec3(-52.0, 65.0, 0.0)
-    private val deliverBlue = Vec3(52.0, 65.0, 0.0)
-    private val redRoute = listOf(Vec3(-24.0, 65.0, 6.0), Vec3(-38.0, 65.0, -10.0))
-    private val blueRoute = listOf(Vec3(24.0, 65.0, -6.0), Vec3(38.0, 65.0, 10.0))
+    private val deliverRed = Vec3(-96.0, 65.0, 0.0)
+    private val deliverBlue = Vec3(96.0, 65.0, 0.0)
+    private val redRoute = listOf(Vec3(-60.0, 65.0, 10.0), Vec3(-80.0, 65.0, -14.0))
+    private val blueRoute = listOf(Vec3(60.0, 65.0, -10.0), Vec3(80.0, 65.0, 14.0))
     private val nowhere = Vec3(0.0, 65.0, -50.0)
 
     // ---- helpers ----------------------------------------------------------
@@ -184,14 +184,14 @@ class SiegeModesScenarioTest {
             val holder = player("holder", at = nowhere)
             val rival = player("rival", at = nowhere)
             val matchId = startMatch("capture-wool", mapOf(holder to "red", rival to "blue"))
-            val woolA = Vec3(0.0, 64.0, -30.0)
-            val woolB = Vec3(0.0, 64.0, 30.0)
+            val woolA = Vec3(0.0, 64.0, -62.0)
+            val woolB = Vec3(0.0, 64.0, 62.0)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
             assertThat(blockAt(woolA.copy(x = 2.0))).`as`("the pad is 5x5: concrete ring").isEqualTo("minecraft:light_gray_concrete")
 
             // Both stand in wool-a for longer than the capture time: nobody captures.
-            holder.moveTo(Vec3(0.0, 65.0, -30.0))
-            rival.moveTo(Vec3(1.0, 65.0, -29.0))
+            holder.moveTo(Vec3(0.0, 65.0, -62.0))
+            rival.moveTo(Vec3(1.0, 65.0, -61.0))
             advance(20 * 14)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
             assertThat(sim.objectiveStage.bar(holder.id, "objective")?.progress).`as`("contested: the bar shows no progress").isEqualTo(0.0)
@@ -206,14 +206,14 @@ class SiegeModesScenarioTest {
 
             // The rival retakes it alone (8 s): the pad turns blue.
             holder.moveTo(nowhere)
-            rival.moveTo(Vec3(0.0, 65.0, -30.0))
+            rival.moveTo(Vec3(0.0, 65.0, -62.0))
             assertThat(advanceUntil(20 * 12) { blockAt(woolA) == "minecraft:blue_wool" }).`as`("a captured zone can be retaken").isTrue()
             rival.moveTo(nowhere)
 
             // The holder takes both zones: majority held, 20 s later the match ends.
-            holder.moveTo(Vec3(0.0, 65.0, -30.0))
+            holder.moveTo(Vec3(0.0, 65.0, -62.0))
             assertThat(advanceUntil(20 * 12) { blockAt(woolA) == "minecraft:red_wool" }).isTrue()
-            holder.moveTo(Vec3(0.0, 65.0, 30.0))
+            holder.moveTo(Vec3(0.0, 65.0, 62.0))
             assertThat(advanceUntil(20 * 14) { blockAt(woolB) == "minecraft:red_wool" }).isTrue()
             assertThat(eventsOf<MatchEnded>()).`as`("holding the majority is not an instant win").isEmpty()
             assertThat(advanceUntil(20 * 25) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
@@ -233,15 +233,15 @@ class SiegeModesScenarioTest {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
             val matchId = startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"), stage = "siege-isles-jewelry")
-            val bluePedestal = Vec3(53.0, 65.0, 10.0)
-            val pedestalMarker = Vec3(53.0, 64.0, 10.0)
+            val bluePedestal = Vec3(99.0, 65.0, -15.0)
+            val pedestalMarker = Vec3(99.0, 64.0, -15.0)
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:diamond_block")
 
             // Thief steals a jewel (a 2.5 s hold); the keeper shoots them down before banking and the jewel lies where it fell.
             keeper.holds("pistol")
             hold(thief, bluePedestal, 70)
             assertThat(sim.objectiveStage.carrying(thief.id)).`as`("thief wears a jewel").isNotNull()
-            keeper.moveTo(Vec3(53.0, 65.0, 20.0))
+            keeper.moveTo(Vec3(99.0, 65.0, -5.0))
             kill(keeper, thief)
             assertThat(sim.objectiveStage.carrying(thief.id)).isNull()
             assertThat(sim.objectiveStage.markers(matchId).keys.filter { it.startsWith("pile-") }).`as`("jewels on the ground").isNotEmpty()
@@ -275,7 +275,7 @@ class SiegeModesScenarioTest {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
             startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"), stage = "siege-isles-jewelry")
-            val bluePedestal = Vec3(53.0, 65.0, 10.0)
+            val bluePedestal = Vec3(99.0, 65.0, -15.0)
 
             thief.moveTo(bluePedestal)
             advance(30)
@@ -283,7 +283,7 @@ class SiegeModesScenarioTest {
             assertThat(sim.objectiveStage.bar(thief.id, "channel")?.progress ?: 0.0).`as`("the steal bar fills").isGreaterThan(0.0)
             // One hit cancels the hold; the bar starts over.
             keeper.holds("pistol")
-            keeper.moveTo(Vec3(53.0, 65.0, 20.0))
+            keeper.moveTo(Vec3(99.0, 65.0, -5.0))
             keeper.faces(thief)
             keeper.rightClick()
             check(advanceUntil(40) { eventsOf<DamageDealt>().any { it.target == thief.id } }) { "the keeper never hit the thief" }

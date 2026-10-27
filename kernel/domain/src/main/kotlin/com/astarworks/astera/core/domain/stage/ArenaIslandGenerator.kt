@@ -564,7 +564,7 @@ public object ArenaIslandGenerator {
         /** Regions that mark an objective spot (a pedestal, pylons and a clear ring are built for each). */
         private fun isObjectiveRegion(name: String): Boolean =
             name.startsWith("core-") || name.startsWith("jewelry-") || name.startsWith("wool-") || name == "tnt-spawn" ||
-                name.startsWith("deliver-") || name.startsWith("checkpoint-")
+                name.startsWith("deliver-") || name.startsWith("checkpoint-") || name.startsWith("basket-") || name.startsWith("clam-")
 
         private fun colourOfTeam(team: String): String =
             layout.islands.firstOrNull { it.team == TeamId(team) }?.colour ?: "white"
@@ -604,6 +604,17 @@ public object ArenaIslandGenerator {
                     name.startsWith("checkpoint-") -> {
                         expectY(name, y, s)
                         pedestal(name, cx, cz, "minecraft:smooth_quartz", "minecraft:gold_block", true)
+                    }
+                    name.startsWith("basket-") -> {
+                        expectY(name, y, s)
+                        // The team's basket: a 5x5 plate in the team colour around a 3x3 blackstone pedestal with a composter in the middle.
+                        val colour = colourOfTeam(name.removePrefix("basket-"))
+                        for (dx in -2..2) for (dz in -2..2) paintTop(cx + dx, cz + dz, "minecraft:${colour}_concrete")
+                        pedestal(name, cx, cz, "minecraft:polished_blackstone_bricks", "minecraft:composter", false)
+                    }
+                    name.startsWith("clam-") -> {
+                        expectY(name, y, s)
+                        pedestal(name, cx, cz, "minecraft:prismarine_bricks", "minecraft:sea_lantern", true)
                     }
                     name.startsWith("mob-spawn-") -> keepClear(cx, cz, 5)
                 }

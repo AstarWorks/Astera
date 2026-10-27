@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Test
 class CarryMiniTntScenarioTest {
 
     private val pickupSpots = listOf(
-        Vec3(0.0, 65.0, -30.0), // wool-a
+        Vec3(0.0, 65.0, -62.0), // wool-a
         Vec3(0.0, 65.0, 6.0), // wool-b
-        Vec3(0.0, 65.0, 30.0), // wool-c
+        Vec3(0.0, 65.0, 62.0), // wool-c
     )
-    private val blueBase = Vec3(43.0, 65.0, 0.0)
-    private val redBase = Vec3(-43.0, 65.0, 0.0)
+    private val blueBase = Vec3(80.0, 65.0, 0.0)
+    private val redBase = Vec3(-80.0, 65.0, 0.0)
     private val nowhere = Vec3(0.0, 65.0, -50.0)
 
     /** Walks [who] to [at] and stays long enough for the pickup / plant hold (15 ticks) to complete. */

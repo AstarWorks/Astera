@@ -50,7 +50,7 @@ class NormaExplainedScenarioTest {
             repeat(2) {
                 red.moveTo(Vec3(0.0, 65.0, -6.0))
                 advance(40)
-                red.moveTo(Vec3(43.0, 65.0, 0.0))
+                red.moveTo(Vec3(80.0, 65.0, 0.0))
                 advance(40)
             }
 

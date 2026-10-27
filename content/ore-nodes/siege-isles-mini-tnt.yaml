@@ -12,7 +12,7 @@ nodes:
     required_tier: IRON
     drops: [{ item_id: ore-gold, count: 2 }]
   - block: astera:ore_diamond_node
-    positions: [{ x: 20, y: 65, z: 4 }, { x: -20, y: 65, z: -4 }]
+    positions: [{ x: 22, y: 65, z: 10 }, { x: -22, y: 65, z: -10 }]
     regrow_seconds: 90
     required_tier: IRON
     drops: [{ item_id: ore-diamond, count: 1 }]

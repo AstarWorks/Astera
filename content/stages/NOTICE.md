@@ -7,7 +7,7 @@ and the rest of this repository keep their own licence. See ADR-0281.
 
 All maps were modified: converted from the pre-1.13 world format to modern block states, moved vertically so the spawn
 floor sits at y=64, signs, banners, skulls and pistons dropped, stray decoration removed, bridges over void gaps and
-stone-brick plinths for the star generators and two stepped spawn daises added; `temple-trouble` was additionally cropped to its central play area (|x| <= 27, |z| <= 64: the spawn islands and the isolated side islands were removed). Objectives, spawns and generators are Astera's own.
+stone-brick plinths for the star generators and two stepped spawn daises added; `temple-trouble` was additionally cropped to its central play area (|x| <= 27, |z| <= 78: the temple tips beyond the spawn daises and the isolated side islands were removed). Objectives, spawns and generators are Astera's own.
 
 | Stage / arena | Title | Authors | Source (pinned commit) | Licence evidence |
 |---|---|---|---|---|
