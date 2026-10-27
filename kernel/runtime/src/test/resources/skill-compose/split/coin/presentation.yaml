@@ -1,0 +1,7 @@
+apiVersion: astera/v2
+kind: Skill
+id: coin
+presentation:
+  colors:
+    - {id: ring, color: "#ffffff"}
+    - {id: glow, color: "#00ff00"}

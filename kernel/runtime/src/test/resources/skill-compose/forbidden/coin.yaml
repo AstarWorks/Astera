@@ -1,0 +1,6 @@
+apiVersion: astera/v2
+kind: Skill
+id: coin
+gameplay:
+  params:
+    range: 12
