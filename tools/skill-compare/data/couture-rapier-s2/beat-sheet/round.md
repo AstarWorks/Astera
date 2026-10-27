@@ -112,3 +112,12 @@ capture miss: capture-miss.png
 - 新規レビュアー FAIL: 飛翔が見えない (t39 に物なし、t40 で敵に刺さる)。launch_speed 1.0 -> 0.6 に変更。再撮影: 飛翔 t36-43 が糸の線上に見える、刺さり t43、命中フレアのピーク t46、引き戻し t54-56、t58 で手に戻る。
 - 粒子: end_rod は長く残るため P1/P2 を electric_spark に変更。空の白い粒 (t44-58) は既存の hit2 / burst 系の end_rod で、まだ多い (未解決、particles 担当へ)。
 - 未解決: 糸が平たい赤い棒 (texture)、刃 A の左上端 t34 (animation)。
+
+## 2026-10-28 coordinator fixes (3dfc153ef)
+- 空の粒: 出どころは hit2 の axis-0/2/4 (p-spark を y 12-17 まで飛ばす) と pxo-* (hit3)、overhead-chain、burst-ember の長い軌跡。axis/pxo/chain を削除、ember は 0.2 倍に短縮、p-spark/ember は electric_spark。t50-58 の空はクリア。
+- 白い三日月: t34-38 の big-c と loop-c/d (と鏡) を削除。t22-33 の弧は残す。
+- 飛翔姿勢: rotate [0,90,0] で 3 つとも糸に沿って横向き (側面 t37-42、上面 t38-42)。
+- 刃 A: 分裂の高さを 1.75 に制限、t34 は枠内。
+- 命中フレア (hit2, t46-50): スケール 0.5 倍、ピンク #FFB8D8 に着色。
+- 糸: pink_concrete_powder、太さ 0.03、色は薄いピンクの細線。縫い目テクスチャは未実装。
+- 残り: ミス撮影の t34-36 に白い弧が見える (ミス用カメラの時刻ずれの可能性、未調査)。
