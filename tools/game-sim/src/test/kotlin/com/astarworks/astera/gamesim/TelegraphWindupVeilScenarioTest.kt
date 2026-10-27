@@ -13,7 +13,7 @@ import com.astarworks.astera.core.application.config.skill.PhaseMechanicsYaml
 import com.astarworks.astera.core.application.config.skill.TargeterYaml
 import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.DisplayKind
-import com.astarworks.astera.core.domain.effect.vfx.SpriteId
+import com.astarworks.astera.core.domain.sprite.SpriteId
 import com.astarworks.astera.core.domain.effect.vfx.telegraph.TelegraphPlanner
 import com.astarworks.astera.core.domain.effect.vfx.telegraph.TelegraphShape
 import com.astarworks.astera.core.domain.effect.vfx.veil.ScreenVeilMath

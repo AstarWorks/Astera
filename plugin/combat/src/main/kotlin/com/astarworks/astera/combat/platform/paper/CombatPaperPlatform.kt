@@ -92,7 +92,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
                 server = plugin.server,
                 plugin = plugin,
                 scheduler = services.getOrThrow<IScheduler>(),
-                intensityOf = { hud?.vfxIntensity(it) ?: com.astarworks.astera.core.domain.effect.vfx.VfxIntensity.FULL },
+                intensityOf = { hud?.vfxIntensity(it) ?: com.astarworks.astera.core.domain.effect.VfxIntensity.FULL },
             )
         },
         summonGateway = { PaperSummonGateway(plugin.server) },

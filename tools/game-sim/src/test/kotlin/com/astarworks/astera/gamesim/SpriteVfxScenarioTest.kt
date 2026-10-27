@@ -1,8 +1,8 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.domain.effect.DisplayKind
-import com.astarworks.astera.core.domain.effect.vfx.SpriteGlyphs
-import com.astarworks.astera.core.domain.effect.vfx.SpriteId
+import com.astarworks.astera.core.domain.sprite.SpriteGlyphs
+import com.astarworks.astera.core.domain.sprite.SpriteId
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive

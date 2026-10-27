@@ -1,7 +1,7 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.domain.effect.DisplayKind
-import com.astarworks.astera.core.domain.effect.vfx.VfxIntensity
+import com.astarworks.astera.core.domain.effect.VfxIntensity
 import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile
 import com.astarworks.astera.core.domain.geometry.Vec3

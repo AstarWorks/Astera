@@ -1,6 +1,6 @@
 package com.astarworks.astera.core.domain.player
 
-import com.astarworks.astera.core.domain.effect.vfx.VfxIntensity
+import com.astarworks.astera.core.domain.effect.VfxIntensity
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 
 /**

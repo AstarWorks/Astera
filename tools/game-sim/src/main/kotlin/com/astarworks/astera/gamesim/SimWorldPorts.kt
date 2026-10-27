@@ -180,10 +180,10 @@ public class SimDisplayGateway(
     public var nearbyPlayers: () -> Collection<com.astarworks.astera.core.domain.player.PlayerId> = { emptyList() }
 
     /** Per-viewer `vfx_intensity`; absent = full. Scenarios set it, mirroring the player's settings. */
-    public val intensity: MutableMap<com.astarworks.astera.core.domain.player.PlayerId, com.astarworks.astera.core.domain.effect.vfx.VfxIntensity> = linkedMapOf()
+    public val intensity: MutableMap<com.astarworks.astera.core.domain.player.PlayerId, com.astarworks.astera.core.domain.effect.VfxIntensity> = linkedMapOf()
 
     /** Server-wide intensity floor (the display-budget downgrade). */
-    public var serverFloor: com.astarworks.astera.core.domain.effect.vfx.VfxIntensity = com.astarworks.astera.core.domain.effect.vfx.VfxIntensity.FULL
+    public var serverFloor: com.astarworks.astera.core.domain.effect.VfxIntensity = com.astarworks.astera.core.domain.effect.vfx.VfxIntensity.FULL
 
     /** Who is shown each audience-scoped display, as the Paper gateway's show/hide would decide. */
     public val viewers: MutableMap<IDisplayEntityGateway.DisplayHandle, Set<com.astarworks.astera.core.domain.player.PlayerId>> = linkedMapOf()
@@ -201,7 +201,7 @@ public class SimDisplayGateway(
         val pool = com.astarworks.astera.core.domain.effect.AudienceResolver.displayPool(nearbyPlayers(), caster, target)
         val selected = com.astarworks.astera.core.domain.effect.AudienceResolver.select(pool, audience, caster, target)
         val shown = com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile.filterViewers(
-            selected, lane, { intensity[it] ?: com.astarworks.astera.core.domain.effect.vfx.VfxIntensity.FULL }, serverFloor,
+            selected, lane, { intensity[it] ?: com.astarworks.astera.core.domain.effect.VfxIntensity.FULL }, serverFloor,
         )
         val handle = spawn(world, at, spec, renderedLines)
         viewers[handle] = shown

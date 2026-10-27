@@ -2,8 +2,8 @@ package com.astarworks.astera.core.application.contents
 
 import com.astarworks.astera.core.application.config.SpriteYamlConfig
 import com.astarworks.astera.core.application.port.outbound.ISpriteRegistry
-import com.astarworks.astera.core.domain.effect.vfx.SpriteGlyphs
-import com.astarworks.astera.core.domain.effect.vfx.SpriteId
+import com.astarworks.astera.core.domain.sprite.SpriteGlyphs
+import com.astarworks.astera.core.domain.sprite.SpriteId
 
 /** Runtime metadata of one generated sprite: its flipbook length and cell size in pixels. */
 public data class SpriteDefinition(

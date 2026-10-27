@@ -9,7 +9,7 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.AudienceResolver
-import com.astarworks.astera.core.domain.effect.vfx.VfxIntensity
+import com.astarworks.astera.core.domain.effect.VfxIntensity
 import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
