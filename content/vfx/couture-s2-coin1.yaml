@@ -225,32 +225,32 @@ elements:
     alpha: 0.0
 - id: core
   kind: {type: sprite, sprite: couture-s2-crescent-core, frame_ticks: 1, loop: false, see_through: true}
-  billboard: fixed
+  billboard: center
   brightness: 15
   start_tick: 0
   end_tick: 10
   keyframes:
   - t: 0
-    translate: [0.0, 0.7, 0.0]
-    rotate: [38, 0, -98]
-    scale: [0.35, 0.7, 1]
+    translate: [0.0, 1.0, -0.2]
+    rotate: [0, 0, 196]
+    scale: [0.5, 0.4, 1]
     alpha: 0.0
   - t: 1
-    translate: [0.0, 0.7, 1.2]
-    rotate: [38, 0, -98]
-    scale: [0.5, 1.0, 1]
+    translate: [0.0, 1.0, 0.5]
+    rotate: [0, 0, 190]
+    scale: [0.8, 0.62, 1]
     ease: out_expo
     alpha: 1.0
   - t: 5
-    translate: [0.0, 0.7, 2.2]
-    rotate: [38, 0, -98]
-    scale: [0.46, 1.05, 1]
+    translate: [0.0, 1.0, 1.1]
+    rotate: [0, 0, 184]
+    scale: [0.76, 0.66, 1]
     ease: out_quad
-    alpha: 0.85
-  - t: 10
-    translate: [0.0, 0.7, 3.2]
-    rotate: [38, 0, -98]
-    scale: [0.14, 1.05, 1]
+    alpha: 0.9
+  - t: 9
+    translate: [0.0, 1.0, 1.6]
+    rotate: [0, 0, 180]
+    scale: [0.3, 0.66, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-0
