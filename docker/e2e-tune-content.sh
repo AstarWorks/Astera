@@ -49,7 +49,7 @@ patch generators/siege-south.yaml 's/^position:.*/position: { x: 0.5, y: 65.0, z
 patch matchmaking/queue.yaml 's/^queue_countdown_seconds:.*/queue_countdown_seconds: 3/' '^queue_countdown_seconds:'
 patch matchmaking/queue.yaml 's/^match_countdown_seconds:.*/match_countdown_seconds: 5/' '^match_countdown_seconds:'
 
-# skirmish has no timers of its own: it inherits the Norma layer's (patched below).
+# battle-loyal has no timers of its own: it inherits the Norma layer's (patched below).
 for mode in annihilation break-core; do
   patch "game-modes/$mode.yaml" 's/^(  respawn_delay_seconds:).*/\1 "2"/' '^  respawn_delay_seconds:'
   patch "game-modes/$mode.yaml" 's/^(  death_cam_seconds:).*/\1 "1"/' '^  death_cam_seconds:'

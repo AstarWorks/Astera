@@ -76,7 +76,7 @@ class NormaWinExplainedScenarioTest {
     fun `every shipped game mode has a briefing line in both languages, and every objective mode names its win`() {
         val root = GameSim.defaultContentDir()
         val modes = Files.list(root.resolve("game-modes")).use { s -> s.map { it.fileName.toString().removeSuffix(".yaml") }.toList() }
-        val objectiveModes = modes - setOf("skirmish", "pve-waves")
+        val objectiveModes = modes - setOf("pve-waves")
         for (lang in listOf("en", "ja")) {
             val text = Files.readString(root.resolve("languages/$lang.yaml"))
             val briefing = text.substringAfter("    briefing:\n").substringBefore("      norma-win:")

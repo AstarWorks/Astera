@@ -80,7 +80,7 @@ internal object MatchCommandSpecs {
     /**
      * `/astera queue join <lane>` / `leave` / `status` (Wave 5w ADR-0089 delta, WP8).
      *
-     * The lane argument is a lane key of `queue.yaml` (`skirmish`, `annihilation`, ...) or the
+     * The lane argument is a lane key of `queue.yaml` (`battle-loyal`, `annihilation`, ...) or the
      * [MatchmakingMode.parse] wire form: `custom:<game-mode-id>` or `tournament:<id>`. Players already in a running match cannot queue.
      * Replies use the `astera.match.queue.*` keys shared with the lobby GUI.
      */
@@ -194,7 +194,7 @@ internal object MatchCommandSpecs {
         )
     }
 
-    /** The lane keys of `content/matchmaking/queue.yaml` (`skirmish`, `annihilation`, ...): what `queue join` suggests. */
+    /** The lane keys of `content/matchmaking/queue.yaml` (`battle-loyal`, `annihilation`, ...): what `queue join` suggests. */
     private fun laneTokens(settings: QueueSettings): List<String> = settings.lanes.keys.toList()
 
     /**

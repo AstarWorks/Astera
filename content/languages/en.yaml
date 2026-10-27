@@ -139,7 +139,7 @@ astera:
     confirm:
       required: "<yellow>This cannot be undone. <click:run_command:'{command}'><hover:show_text:'{command}'><green>[Click to confirm]</green></hover></click> <gray>or run {command}</gray></yellow>"
     example:
-      queue-join: "/astera queue join skirmish   (or just /play skirmish)"
+      queue-join: "/astera queue join battle-loyal   (or just /play battle-loyal)"
       lang: "/astera lang ja"
       volume: "/astera volume music 50"
       shop: "/astera shop"
@@ -181,7 +181,7 @@ astera:
       travel-survival: "Go to your survival island"
       travel-lobby: "Return to the lobby"
       queue: "Matchmaking queue"
-      queue-join: "Join a queue lane (skirmish, annihilation, ... or custom:<mode>)"
+      queue-join: "Join a queue lane (battle-loyal, annihilation, ... or custom:<mode>)"
       queue-leave: "Leave the queue"
       queue-status: "Show your queue position"
       norma: "Norma levels"
@@ -526,8 +526,6 @@ astera:
         tooltip: "<gray>Cycle the control scheme.</gray>"
     queue-mode-list:
       title: "<gold>Match Queue</gold>"
-      skirmish:
-        tooltip: "<gray>Click to join the Skirmish queue.</gray>"
 
 
   # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
@@ -927,7 +925,7 @@ astera:
       "replay.not-found": "<red>No replay stored for match {match}.</red>"
       "replay.export-failed": "<red>Replay export failed for {match}: {reason}</red>"
       queue: "<gray>Join or leave the match queue.</gray>"
-      "queue.join": "<gray>Join the queue: LANE (skirmish, annihilation, ...) | custom:MODE.</gray>"
+      "queue.join": "<gray>Join the queue: LANE (battle-loyal, annihilation, ...) | custom:MODE.</gray>"
       "queue.leave": "<gray>Leave the match queue.</gray>"
       "queue.status": "<gray>Show your queue position.</gray>"
       # Wave 5complete (ADR-0117 §Axis 3) — flat admin sub-commands.
@@ -986,7 +984,6 @@ astera:
     briefing:
       header: "<gold>== How to win ==</gold>"
       mode:
-        skirmish: "<gray>Team deathmatch:</gray> <white>beat the other team to the top Norma level.</white>"
         break-core: "<gray>Break Core:</gray> <white>destroy the enemy core and defend your own. The last team with a core wins.</white>"
         annihilation: "<gray>Annihilation:</gray> <white>break the enemy Nexus pillars. The last team with a Nexus standing wins.</white>"
         carry-tnt: "<gray>Carry TNT:</gray> <white>pick up the TNT and carry it into the enemy base. Deliver it first to win.</white>"
@@ -1006,9 +1003,6 @@ astera:
         respawn: "<gray>If you fall you respawn after a few seconds with brief protection. Stay with your team and press F for the main menu.</gray>"
     # Objective title flashed when the match turns ACTIVE (MatchBriefingListener).
     objective:
-      skirmish:
-        title: "<gold><bold>Team Deathmatch</bold></gold>"
-        subtitle: "<yellow>Reach the top Norma level first</yellow>"
       break-core:
         title: "<gold><bold>Break Core</bold></gold>"
         subtitle: "<yellow>Destroy the enemy core, protect yours</yellow>"
@@ -1252,9 +1246,6 @@ astera:
       score: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
       battle-loyal:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>kills</gray>"
-      skirmish:
-        goal: "<gold>Skirmish:</gold> <gray>reach Norma level</gray> <white>{max}</white> <gray>to win</gray>"
-        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white> <gray>kills</gray>"
       annihilation:
         team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
         eliminated: "<dark_gray><st>{team}</st> out</dark_gray>"
@@ -1550,9 +1541,6 @@ astera:
   # tunables for the Wave 5c sealed `GameMode` carriers); these describe the
   # framework-level mode the entire match runs under.
   gamemode:
-    skirmish:
-      title: "<gold>Skirmish</gold>"
-      description: "<gray>Team deathmatch. Stars and Norma levels decide it: reach the top Norma level first.</gray>"
     # Wave 5annihilation (ADR-0108) — Astera Annihilation mode (3-pillar Nexus
     # hybrid). Astera's core-identity game mode: 銃/剣/魔法 hybrid combat +
     # graceful-degradation defensive Nexus.
@@ -2508,7 +2496,6 @@ astera:
   play.picker.leave.lane: "<gray>You are waiting for <white>{lane}</white></gray>"
   play.lane.generic.name: "<gold>{lane}</gold>"
   play.lane.generic.desc: "<gray>Team match on its own arena.</gray>"
-  play.lane.skirmish.desc: "<gray>Classic 2-team skirmish. Collect stars, level up your Norma, reach the top first.</gray>"
   play.lane.annihilation.desc: "<gray>3 teams, 3 pillars each. Break the enemy Nexus.</gray>"
   play.lane.break-core.desc: "<gray>Destroy the enemy core, defend your own.</gray>"
   play.lane.carry-tnt.desc: "<gray>Carry TNT across the map to the enemy base.</gray>"

@@ -147,7 +147,7 @@ astera:
     confirm:
       required: "<yellow>この操作は取り消せません。<click:run_command:'{command}'><hover:show_text:'{command}'><green>[クリックで実行]</green></hover></click> <gray>または {command} を実行</gray></yellow>"
     example:
-      queue-join: "/astera queue join skirmish （/play skirmish でも可）"
+      queue-join: "/astera queue join battle-loyal （/play battle-loyal でも可）"
       lang: "/astera lang ja"
       volume: "/astera volume music 50"
       shop: "/astera shop"
@@ -189,7 +189,7 @@ astera:
       travel-survival: "サバイバル島へ移動"
       travel-lobby: "ロビーへ戻る"
       queue: "マッチメイキングキュー"
-      queue-join: "キューのレーンに参加（skirmish / annihilation など / custom:<モード>）"
+      queue-join: "キューのレーンに参加（battle-loyal / annihilation など / custom:<モード>）"
       queue-leave: "キューから抜ける"
       queue-status: "キューの待ち順を表示"
       norma: "ノルマレベル"
@@ -534,8 +534,6 @@ astera:
         tooltip: "<gray>操作スキームを切り替え。</gray>"
     queue-mode-list:
       title: "<gold>マッチキュー</gold>"
-      skirmish:
-        tooltip: "<gray>クリックでスカーミッシュのキューに参加。</gray>"
 
 
   # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
@@ -934,7 +932,7 @@ astera:
       "replay.not-found": "<red>マッチ {match} の録画は保存されていません。</red>"
       "replay.export-failed": "<red>マッチ {match} の書き出しに失敗: {reason}</red>"
       queue: "<gray>マッチキューに参加／離脱します。</gray>"
-      "queue.join": "<gray>キュー参加: レーン（skirmish, annihilation など） | custom:MODE。</gray>"
+      "queue.join": "<gray>キュー参加: レーン（battle-loyal, annihilation など） | custom:MODE。</gray>"
       "queue.leave": "<gray>マッチキューを離脱します。</gray>"
       "queue.status": "<gray>キューの順番を表示します。</gray>"
       # Wave 5complete (ADR-0117 §Axis 3) — フラット管理サブコマンド。
@@ -993,7 +991,6 @@ astera:
     briefing:
       header: "<gold>== 勝ち方 ==</gold>"
       mode:
-        skirmish: "<gray>チームデスマッチ:</gray> <white>相手チームより先にノルマ最上位へ。</white>"
         break-core: "<gray>コア破壊:</gray> <white>敵のコアを壊し、自陣のコアを守る。最後までコアが残ったチームの勝ち。</white>"
         annihilation: "<gray>殲滅戦:</gray> <white>敵のネクサスの柱を壊す。最後までネクサスが残ったチームの勝ち。</white>"
         carry-tnt: "<gray>TNT運搬:</gray> <white>TNTを拾って敵基地へ運ぶ。先に届けたチームの勝ち。</white>"
@@ -1013,9 +1010,6 @@ astera:
         respawn: "<gray>倒されても数秒でリスポーンし、短い間は無敵です。仲間と固まって動き、F キーでメインメニューを開けます。</gray>"
     # 試合開始(ACTIVE)時に出す目標タイトル (MatchBriefingListener)。
     objective:
-      skirmish:
-        title: "<gold><bold>チームデスマッチ</bold></gold>"
-        subtitle: "<yellow>先にノルマ最上位へ</yellow>"
       break-core:
         title: "<gold><bold>コア破壊</bold></gold>"
         subtitle: "<yellow>敵のコアを壊し、自陣のコアを守れ</yellow>"
@@ -1258,9 +1252,6 @@ astera:
       score: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
       battle-loyal:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>キル</gray>"
-      skirmish:
-        goal: "<gold>スカーミッシュ:</gold> <gray>ノルマレベル</gray><white>{max}</white> <gray>到達で勝利</gray>"
-        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white> <gray>キル</gray>"
       annihilation:
         team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
         eliminated: "<dark_gray><st>{team}</st> 全滅</dark_gray>"
@@ -1547,9 +1538,6 @@ astera:
   # `match.mode.*` (各モード設定の表示文字列) とは別系統で、マッチ全体が
   # どのフレームワークモードで走っているかを示す。
   gamemode:
-    skirmish:
-      title: "<gold>スカーミッシュ</gold>"
-      description: "<gray>チーム戦。スターとノルマレベルで決まる: 先にノルマの最上位レベルへ。</gray>"
     # Wave 5annihilation (ADR-0108) — Astera Annihilation モード (3-pillar Nexus
     # ハイブリッド)。Astera のコアアイデンティティ: 銃/剣/魔法 ハイブリッド戦闘 +
     # 段階的防御 Nexus。
@@ -2496,7 +2484,6 @@ astera:
   play.picker.leave.lane: "<gray><white>{lane}</white> を待機中</gray>"
   play.lane.generic.name: "<gold>{lane}</gold>"
   play.lane.generic.desc: "<gray>専用アリーナのチーム戦。</gray>"
-  play.lane.skirmish.desc: "<gray>基本の2チーム戦。スターを集めてノルマを上げ、先に最上位へ。</gray>"
   play.lane.annihilation.desc: "<gray>3チーム・各3本の柱。敵のネクサスを破壊せよ。</gray>"
   play.lane.break-core.desc: "<gray>敵のコアを壊し、自陣のコアを守る。</gray>"
   play.lane.carry-tnt.desc: "<gray>TNTを運んで敵基地へ届ける。</gray>"

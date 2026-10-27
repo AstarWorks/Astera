@@ -118,7 +118,7 @@ class CommandTreeTest {
         scenario("command-tree-suggestions") {
             player("alice")
             player("bob")
-            assertThat(sim.complete("alice", "queue join ")).contains("skirmish", "annihilation", "break-core")
+            assertThat(sim.complete("alice", "queue join ")).contains("battle-loyal", "annihilation", "break-core")
             assertThat(sim.complete("alice", "queue join an")).containsExactly("annihilation")
             assertThat(sim.complete("alice", "items give ", operator = true)).containsExactlyInAnyOrder("alice", "bob")
             assertThat(sim.complete("alice", "items give bob ", operator = true)).contains("greatsword", "dagger")
@@ -163,7 +163,7 @@ class CommandTreeTest {
     fun `queue join leave and status execute and reply`() {
         scenario("command-queue-exec") {
             player("alice")
-            val join = sim.command("alice", "queue join skirmish")
+            val join = sim.command("alice", "queue join battle-loyal")
             assertThat(join.succeeded).`as`(join.replies.toString()).isTrue()
             assertThat(join.replies.map { it.first.value }).contains("astera.match.queue.join.success")
 
@@ -171,7 +171,7 @@ class CommandTreeTest {
             assertThat(status.succeeded).isTrue()
             assertThat(status.replies.map { it.first.value }).contains("astera.match.queue.status.line")
 
-            val again = sim.command("alice", "queue join skirmish")
+            val again = sim.command("alice", "queue join battle-loyal")
             assertThat(again.succeeded).isFalse()
             assertThat(again.replies.map { it.first.value }).contains("astera.match.queue.join.already-queued")
 
@@ -314,8 +314,8 @@ class CommandTreeTest {
     fun `top-level shortcuts run the same nodes as the full paths`() {
         scenario("command-shortcuts") {
             player("alice")
-            assertThat(sim.complete("alice", "play ")).contains("skirmish", "annihilation")
-            val play = sim.command("alice", "play skirmish")
+            assertThat(sim.complete("alice", "play ")).contains("battle-loyal", "annihilation")
+            val play = sim.command("alice", "play battle-loyal")
             assertThat(play.succeeded).`as`(play.replies.toString()).isTrue()
             assertThat(play.replies.map { it.first.value }).contains("astera.match.queue.join.success")
             assertThat(sim.command("alice", "queue status").replies.map { it.first.value })

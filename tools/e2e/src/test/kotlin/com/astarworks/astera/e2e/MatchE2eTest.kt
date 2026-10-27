@@ -8,7 +8,7 @@ class MatchE2eTest : E2eBase() {
     private val suite = "Match"
 
     @Test
-    fun `queue skirmish starts a match and an op can end it`() {
+    fun `queue battle-loyal starts a match and an op can end it`() {
         val b = bot("Matcher")
         op(b)
         b.waitUntil(5_000) { b.sidebarLines().isNotEmpty() }
@@ -23,12 +23,12 @@ class MatchE2eTest : E2eBase() {
         // norma needs a second player in the queue; this suite brings its own instead of relying on leftovers.
         val partner = bot("Matcher2")
         op(partner)
-        partner.command("astera queue join skirmish")
-        b.command("astera queue join skirmish")
+        partner.command("astera queue join battle-loyal")
+        b.command("astera queue join battle-loyal")
         val joinReply = b.chatSince(chatBefore)
 
-        E2eReport.check(suite, "queue join skirmish is acknowledged", "SystemChat") {
-            assertThat(joinReply).describedAs("no reply to /astera queue join skirmish").isNotEmpty()
+        E2eReport.check(suite, "queue join battle-loyal is acknowledged", "SystemChat") {
+            assertThat(joinReply).describedAs("no reply to /astera queue join battle-loyal").isNotEmpty()
             assertThat(rawKeys(joinReply)).describedAs("raw i18n keys").isEmpty()
             "reply:\n${quote(joinReply)}"
         }

@@ -33,7 +33,7 @@ public data class TeamResult(val team: TeamId, val score: Int, val members: Int)
  * "last match" record all see it. Built once per match by the match plugin
  * and published as `MatchSummaryReady`.
  *
- * @property modeKey game-mode id (`skirmish`, `annihilation`, ...), blank when unknown.
+ * @property modeKey game-mode id (`battle-loyal`, `annihilation`, ...), blank when unknown.
  * @property winningTeam `null` is a draw.
  * @property mvp the single best player of the match, `null` when nobody scored.
  */

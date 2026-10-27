@@ -31,7 +31,7 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
 
         // --- queue -> ACTIVE ------------------------------------------------------------------------------------
         val tQueue = System.nanoTime()
-        bots.forEach { it.command("astera queue join skirmish") }
+        bots.forEach { it.command("astera queue join battle-loyal") }
         val acks = bots.map { b -> b.chatSince(chatFrom.getValue(b)) }
         E2eReport.check(suite, "all four bots are acknowledged by the queue", "SystemChat") {
             acks.forEachIndexed { i, a -> assertThat(a).describedAs("no reply for bot ${i + 1}").isNotEmpty() }

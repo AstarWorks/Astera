@@ -40,16 +40,16 @@ class BotVsBotE2eTest : PlaythroughBase() {
         val chatFrom = bots.associateWith { it.chat.size }
         // Like the production bot-runner, the brains know the lane's objective (here: the enemy spawn) from the same content
         // the server runs; without it they roam at random, which on the 140-block sky-island arena rarely ends in a meeting.
-        val objectives = com.astarworks.astera.bots.StageObjectives.load(java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content")), "skirmish")
+        val objectives = com.astarworks.astera.bots.StageObjectives.load(java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content")), "battle-loyal")
         // chooseNormaGoal = false: this loop sends `norma choose kill` itself so stars cannot end the match before a fight.
         bots.forEach { brains += BotBrain(it, objectives = objectives, chooseNormaGoal = false).start() }
 
         // --- queue -> handoff -> ACTIVE -------------------------------------------------------------------------
         val tQueue = System.nanoTime()
-        bots.forEach { it.command("astera queue join skirmish") }
+        bots.forEach { it.command("astera queue join battle-loyal") }
         val acks = bots.map { b -> b.chatSince(chatFrom.getValue(b)) }
         val active = awaitMatch("ACTIVE", 70_000, keepAlive = bots)
-        E2eReport.check(suite, "two bots queue skirmish and the match goes ACTIVE", "RCON astera match list") {
+        E2eReport.check(suite, "two bots queue battle-loyal and the match goes ACTIVE", "RCON astera match list") {
             acks.forEachIndexed { i, a -> assertThat(a).describedAs("no queue reply for bot ${i + 1}").isNotEmpty() }
             assertThat(active).describedAs("never ACTIVE; chat=${bots[0].chatTexts().takeLast(6)}").isNotNull()
             "queue -> ACTIVE in ${(System.nanoTime() - tQueue) / 1_000_000_000}s; line='${active?.raw}'"

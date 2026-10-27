@@ -24,7 +24,7 @@ class MatchRewardsScenarioTest {
         scenario("match-rewards") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val matchId = startMatch("skirmish", mapOf(red to "red", blue to "blue"))
+            val matchId = startMatch("battle-loyal", mapOf(red to "red", blue to "blue"))
             val bus = sim.services.getOrThrow<IDomainEventBus>()
             val ledger = sim.services.getOrThrow<ICurrencyLedger>()
             val goldBefore = ledger.balance(red.id, Currency.GOLD) to ledger.balance(blue.id, Currency.GOLD)

@@ -26,8 +26,8 @@ class MatchEntryInventoryScenarioTest {
             inventory.put(player.id, "sword")
 
             val rival = sim.spawnPlayer("p2")
-            sim.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.SKIRMISH)
-            sim.services.getOrThrow<IMatchmaker>().enqueue(rival.id, MatchmakingMode.SKIRMISH)
+            sim.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.BATTLE_LOYAL)
+            sim.services.getOrThrow<IMatchmaker>().enqueue(rival.id, MatchmakingMode.BATTLE_LOYAL)
             assertThat(sim.stepUntil(600) { sim.eventsOf<MatchStarted>().isNotEmpty() }).isTrue()
             assertThat(sim.eventsOf<PlayerEnteredMatch>().map { it.playerId }).containsExactlyInAnyOrder(player.id, rival.id)
             assertThat(repo.findLatest(player.id)!!.hotbar[0]).isNotNull()
@@ -59,8 +59,8 @@ class MatchEntryInventoryScenarioTest {
             unarmedItems += "gui-pane-dark" // a non-weapon item does not count as a kit
 
             val matchmaker = sim.services.getOrThrow<IMatchmaker>()
-            matchmaker.enqueue(armed.id, MatchmakingMode.SKIRMISH)
-            matchmaker.enqueue(unarmed.id, MatchmakingMode.SKIRMISH)
+            matchmaker.enqueue(armed.id, MatchmakingMode.BATTLE_LOYAL)
+            matchmaker.enqueue(unarmed.id, MatchmakingMode.BATTLE_LOYAL)
             assertThat(sim.stepUntil(600) { sim.eventsOf<PlayerEnteredMatch>().size == 2 }).isTrue()
 
             assertThat(armedItems).containsExactly("pistol", "knight-sword")

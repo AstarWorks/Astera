@@ -34,7 +34,7 @@ class MatchLeaveAndAbortScenarioTest {
 
     private fun ScenarioScope.countdownMatch(vararg members: Pair<SimEntity, String>): MatchId {
         val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
-        val id = when (val started = lifecycle.start(StageId("siege-isles"), "skirmish")) {
+        val id = when (val started = lifecycle.start(StageId("siege-isles"), "battle-loyal")) {
             is Result.Success -> started.value
             is Result.Failure -> error("start failed: ${started.error}")
         }
@@ -148,7 +148,7 @@ class MatchLeaveAndAbortScenarioTest {
 
     private fun queueUp(lobby: GameSim, vararg names: String): List<PlayerId> = names.map { name ->
         val p = lobby.spawnPlayer(name)
-        check(lobby.services.getOrThrow<IMatchmaker>().enqueue(p.id, MatchmakingMode.SKIRMISH) is Result.Success)
+        check(lobby.services.getOrThrow<IMatchmaker>().enqueue(p.id, MatchmakingMode.BATTLE_LOYAL) is Result.Success)
         p.id
     }
 

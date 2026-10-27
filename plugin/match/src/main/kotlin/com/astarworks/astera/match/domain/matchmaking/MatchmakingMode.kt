@@ -8,7 +8,7 @@ import com.astarworks.astera.match.domain.mode.GameModeId
  * Distinct from [com.astarworks.astera.match.domain.mode.GameMode] sealed
  * (Wave 5c, ADR-0032): GameMode names the in-match rules (Battle Loyal,
  * Break Core, …); MatchmakingMode names the **queue lane** (a game-mode lane,
- * tournament bracket). The default lane is the skirmish ([SKIRMISH]); Norma is
+ * tournament bracket). The default lane is battle-loyal ([BATTLE_LOYAL]); Norma is
  * a layer of every mode, not a lane (MODE-15).
  *
  * Phase 2 adds rating-based queue split (Elo / Glicko2) — that arrives as a
@@ -30,8 +30,8 @@ public sealed interface MatchmakingMode {
     }
 
     public companion object {
-        /** The default 2-team lane: plain skirmish (the Norma layer decides it). */
-        public val SKIRMISH: MatchmakingMode = Custom(GameModeId("skirmish"))
+        /** The default 2-team lane: battle-loyal. */
+        public val BATTLE_LOYAL: MatchmakingMode = Custom(GameModeId("battle-loyal"))
 
         /**
          * Parse the wire form shared by `/astera queue join` and the lobby GUI:

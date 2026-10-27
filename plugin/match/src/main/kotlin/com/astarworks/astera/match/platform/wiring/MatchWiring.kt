@@ -29,7 +29,6 @@ import com.astarworks.astera.match.application.gamemode.PveEnv
 import com.astarworks.astera.match.application.gamemode.PveWaveGameMode
 import com.astarworks.astera.match.application.gamemode.CarryMiniTntGameMode
 import com.astarworks.astera.match.application.gamemode.CarryTntGameMode
-import com.astarworks.astera.match.application.gamemode.SkirmishGameMode
 import com.astarworks.astera.match.application.contents.NormaLayerContents
 import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
 import com.astarworks.astera.match.application.gamemode.StealJewelryGameMode
@@ -479,7 +478,7 @@ public object MatchWiring {
         }
         // Wave 5annihilation (ADR-0108) — Astera Annihilation mode foundation.
         // AnnihilationGameMode owns its own AnnihilationMatchTracker; unlike
-        // the skirmish mode, the
+        // the siege modes, the
         // tracker is the only writer of Annihilation match state and the
         // mode's onTick drives phase advances + sudden-death DoT.
         //
@@ -539,7 +538,6 @@ public object MatchWiring {
             )
         }
         val siegeModes = listOf(
-            SkirmishGameMode(siegeEnv(SkirmishGameMode.ID)),
             BattleLoyalGameMode(siegeEnv(BattleLoyalGameMode.ID)),
             BreakCoreGameMode(siegeEnv(BreakCoreGameMode.ID)),
             CarryTntGameMode(siegeEnv(CarryTntGameMode.ID)),
@@ -673,8 +671,8 @@ public object MatchWiring {
      * [com.astarworks.astera.match.domain.mode.GameModeId] used by
      * [gameModeFrameworkRegistry] (Wave 5wireup §G16).
      *
-     * `null` / empty / unregistered keys fall back to [SkirmishGameMode.ID] so any
-     * call site that ships without a mode key plays the plain team skirmish.
+     * `null` / empty / unregistered keys fall back to [BattleLoyalGameMode.ID] so any
+     * call site that ships without a mode key plays battle-loyal.
      */
     private fun resolveModeId(
         modeKey: String?,
@@ -682,7 +680,7 @@ public object MatchWiring {
     ): com.astarworks.astera.match.domain.mode.GameModeId {
         val id = modeKey?.takeIf { it.isNotBlank() }
             ?.let { runCatching { GameModeId(it) }.getOrNull() }
-        return if (id != null && registry.get(id) != null) id else SkirmishGameMode.ID
+        return if (id != null && registry.get(id) != null) id else BattleLoyalGameMode.ID
     }
 
 }

@@ -139,7 +139,7 @@ abstract class LiveBase {
     protected fun matchIdOf(line: String): String? = Regex("^(\\S+) \\[").find(line)?.groupValues?.get(1)
 
     /**
-     * Both bots (on the lobby) queue `skirmish`; the queue forms a match on the game backend and sends them over with a
+     * Both bots (on the lobby) queue `battle-loyal`; the queue forms a match on the game backend and sends them over with a
      * proxy Connect, which the bots follow like Velocity would. If the Connect never comes the check FAILS and the
      * harness hops the bots by hand (clearly labelled) so the rest of the loop can still be exercised.
      * Returns the match id once the match is ACTIVE, or null.
@@ -149,11 +149,11 @@ abstract class LiveBase {
         Thread.sleep(2_000)
         val chatA = a.chat.size
         val chatB = b.chat.size
-        a.command("astera queue join skirmish")
-        b.command("astera queue join skirmish")
+        a.command("astera queue join battle-loyal")
+        b.command("astera queue join battle-loyal")
         val replyA = a.chatSince(chatA)
         val replyB = b.chatSince(chatB)
-        E2eReport.check(suite, "queue join skirmish is acknowledged for both bots", "SystemChat") {
+        E2eReport.check(suite, "queue join battle-loyal is acknowledged for both bots", "SystemChat") {
             assertThat(replyA).describedAs("no reply for ${a.name}").isNotEmpty()
             assertThat(replyB).describedAs("no reply for ${b.name}").isNotEmpty()
             "A:\n${quote(replyA)}\nB:\n${quote(replyB)}\nsidebar A: ${a.sidebarLines()}"

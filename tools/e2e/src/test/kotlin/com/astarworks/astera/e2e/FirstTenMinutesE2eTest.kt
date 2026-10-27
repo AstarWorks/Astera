@@ -112,8 +112,8 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
             "picker='${picker.title}' sidebar=${first.sidebarLines()}"
         }
         val tQueue = System.nanoTime()
-        if (!queued) first.command("astera queue join skirmish")
-        bots.drop(1).forEach { it.command("astera queue join skirmish") }
+        if (!queued) first.command("astera queue join battle-loyal")
+        bots.drop(1).forEach { it.command("astera queue join battle-loyal") }
         val active = awaitMatch("ACTIVE", 90_000)
         E2eReport.check(suite, "queue: four players form a match and it goes ACTIVE within a minute", "RCON astera match list") {
             assertThat(active).describedAs("match never ACTIVE; list=${matchLines()}; chat=${first.chatTexts().takeLast(6)}").isNotNull()

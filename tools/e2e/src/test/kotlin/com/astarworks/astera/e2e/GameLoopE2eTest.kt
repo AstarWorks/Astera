@@ -26,7 +26,7 @@ class GameLoopE2eTest : PlaythroughBase() {
 
         // --- the queue floor ------------------------------------------------------------------------------------------
         val chatFrom = a.chat.size
-        a.command("astera queue join skirmish")
+        a.command("astera queue join battle-loyal")
         // The e2e image shortens the queue countdown to a few seconds; wait well past it.
         Thread.sleep(15_000)
         val soloReply = a.chatSince(chatFrom).map { clean(it) }
@@ -38,7 +38,7 @@ class GameLoopE2eTest : PlaythroughBase() {
             quote(soloReply)
         }
 
-        b.command("astera queue join skirmish")
+        b.command("astera queue join battle-loyal")
         val active = awaitMatch("ACTIVE", 60_000, keepAlive = listOf(a, b))
         E2eReport.check(suite, "the second player completes the roster and the match goes ACTIVE", "RCON astera match list") {
             assertThat(active).describedAs("no ACTIVE match after the second player joined; list=${matchLines()}").isNotNull()

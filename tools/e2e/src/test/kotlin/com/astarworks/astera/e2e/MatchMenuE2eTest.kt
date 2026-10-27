@@ -32,8 +32,8 @@ class MatchMenuE2eTest : PlaythroughBase() {
         val b = bot("MenuB", PackPolicy.DECLINE)
         listOf(a, b).forEach { bot -> bot.waitUntil(15_000) { bot.sidebarLines().isNotEmpty() && bot.hotbar()[8] != -1 } }
         val chatFrom = a.chat.size
-        a.command("astera queue join skirmish")
-        b.command("astera queue join skirmish")
+        a.command("astera queue join battle-loyal")
+        b.command("astera queue join battle-loyal")
         val active = awaitMatch("ACTIVE", 60_000, keepAlive = listOf(a, b))
         E2eReport.check(suite, "two queued players get an ACTIVE match", "RCON astera match list") {
             assertThat(active).describedAs("no ACTIVE match; list=${matchLines()}").isNotNull()

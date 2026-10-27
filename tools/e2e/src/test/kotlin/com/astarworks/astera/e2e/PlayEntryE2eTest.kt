@@ -71,7 +71,7 @@ class PlayEntryE2eTest : E2eBase() {
             val lines = b.sidebarLines()
             assertThat(lines.any { "Waiting" in it && ":" in it }).describedAs("elapsed time line missing: $lines").isTrue()
             assertThat(lines.any { "Waiting for opponents" in it }).describedAs("status line missing: $lines").isTrue()
-            assertThat(lines.any { "Skirmish" in it || "skirmish" in it }).describedAs("lane line missing: $lines").isTrue()
+            assertThat(lines.any { "battle-loyal" in it }).describedAs("lane line missing: $lines").isTrue()
             assertThat(b.waitUntil(4_000) { b.actionBars.any { "Waiting for opponents" in it.text && "1/2" in it.text } })
                 .describedAs("action bar never showed the waiting line; bars=${b.actionBars.takeLast(5).map { it.text }}").isTrue()
             assertThat(b.chatTexts().any { "Queued for" in it }).describedAs("no 'Queued for' chat line: ${b.chatTexts().takeLast(5)}").isTrue()
@@ -113,7 +113,7 @@ class PlayEntryE2eTest : E2eBase() {
                 val json = payload!!
                 requestId = Regex("\"requestId\":\"([^\"]+)\"").find(json)?.groupValues?.get(1).orEmpty()
                 assertThat(requestId).describedAs("requestId in $json").isNotBlank()
-                assertThat(json).contains("\"lane\":\"skirmish\"", "\"count\":1", "\"requestedBy\":\"${b.name}\"")
+                assertThat(json).contains("\"lane\":\"battle-loyal\"", "\"count\":1", "\"requestedBy\":\"${b.name}\"")
                 assertThat(b.waitUntil(4_000) { b.sidebarLines().any { "1/2" in it } }).describedAs("player not queued: ${b.sidebarLines()}").isTrue()
                 "published: $json"
             }

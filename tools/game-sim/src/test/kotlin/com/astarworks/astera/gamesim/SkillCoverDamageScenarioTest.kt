@@ -164,7 +164,7 @@ class SkillCoverDamageScenarioTest {
         scenario("skill-cover-rebuild", standaloneTeams = false) {
             val red = player("red", team = "red")
             val blue = player("blue", team = "blue")
-            val matchId = startMatch("skirmish", mapOf(red to "red", blue to "blue"))
+            val matchId = startMatch("battle-loyal", mapOf(red to "red", blue to "blue"))
             val matchWorld = checkNotNull(sim.services.getOrThrow<IMatchWorldRepository>().findByMatch(matchId))
             val stageWorld = matchWorld.worldId
             red.world = stageWorld

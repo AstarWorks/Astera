@@ -34,8 +34,8 @@ class WeaponLimitScenarioTest {
             assertThat(service.verdictFor(lobbyOnly.id, ItemId("pistol"))).isEqualTo(WeaponLimitService.Verdict.Allowed)
 
             val matchmaker = sim.services.getOrThrow<IMatchmaker>()
-            matchmaker.enqueue(loaded.id, MatchmakingMode.SKIRMISH)
-            matchmaker.enqueue(rival.id, MatchmakingMode.SKIRMISH)
+            matchmaker.enqueue(loaded.id, MatchmakingMode.BATTLE_LOYAL)
+            matchmaker.enqueue(rival.id, MatchmakingMode.BATTLE_LOYAL)
             assertThat(sim.stepUntil(600) { sim.eventsOf<PlayerEnteredMatch>().size == 2 }).isTrue()
 
             // 5 slots in, the first MAIN + SUB stay; the same-family and over-total weapons are set aside. Non-weapons stay.

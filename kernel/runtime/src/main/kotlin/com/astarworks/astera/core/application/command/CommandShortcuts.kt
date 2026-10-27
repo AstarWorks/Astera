@@ -4,7 +4,7 @@ package com.astarworks.astera.core.application.command
  * Short top-level aliases for the most common player actions (ADR-0234).
  *
  * Each shortcut is a Brigadier *redirect* to a node of the single `/astera`
- * tree, never a second spec: `/play skirmish` runs exactly `/astera queue join skirmish`
+ * tree, never a second spec: `/play battle-loyal` runs exactly `/astera queue join battle-loyal`
  * (same permission, completion, executor). This table is the only place the
  * mapping lives; the Paper bridge and the headless runner both read it.
  */

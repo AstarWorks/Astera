@@ -26,8 +26,8 @@ class ReconnectE2eTest : PlaythroughBase() {
         Thread.sleep(1_500)
         val lobbyTitle = a.sidebarTitle()
 
-        a.command("astera queue join skirmish")
-        b.command("astera queue join skirmish")
+        a.command("astera queue join battle-loyal")
+        b.command("astera queue join battle-loyal")
         val active = awaitMatch("ACTIVE", 60_000, keepAlive = listOf(a, b))
         E2eReport.check(suite, "two queued players get an ACTIVE match", "RCON astera match list") {
             assertThat(active).describedAs("no ACTIVE match; list=${matchLines()}").isNotNull()
