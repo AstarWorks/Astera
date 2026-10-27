@@ -4,6 +4,10 @@ import com.astarworks.astera.core.application.port.outbound.ExecutionScope
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
+import com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup
+import com.astarworks.astera.core.application.port.outbound.PlayerLocation
+import com.astarworks.astera.core.application.port.outbound.spectator.ISpectator
+import com.astarworks.astera.match.application.port.outbound.IMatchPlayerPositions
 import com.astarworks.astera.match.application.port.outbound.INormaPresentation
 import com.astarworks.astera.match.application.port.outbound.IStarDropWorld
 import com.astarworks.astera.match.domain.norma.NormaGoal
@@ -100,5 +104,16 @@ public class SimNormaPresentation : INormaPresentation {
 
     override fun choiceDefaulted(player: PlayerId, goal: NormaGoal, target: Int) {
         defaulted += Choice(player, goal, target)
+    }
+}
+
+/** [IMatchPlayerPositions] for the simulator with Paper's rule: a spectating player cannot pick anything up. */
+public class SimMatchPlayerPositions(
+    private val lookup: () -> IPlayerLocationLookup?,
+    private val spectator: ISpectator,
+) : IMatchPlayerPositions {
+    override fun positionOf(playerId: PlayerId, includeDead: Boolean): PlayerLocation? {
+        if (!includeDead && spectator.isSpectating(playerId)) return null
+        return lookup()?.locate(playerId)
     }
 }
