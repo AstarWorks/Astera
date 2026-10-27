@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 import java.util.UUID
 
 /**
- * Outbound ports of the skill engine (ADR-0299). All inputs are already evaluated numbers and
+ * Outbound ports of the skill engine (ADR-0301). All inputs are already evaluated numbers and
  * world-space poses; no frame or expression types cross the boundary. Paper implementations live in
  * `plugin/combat/.../adapter/paper/skillengine/`.
  */

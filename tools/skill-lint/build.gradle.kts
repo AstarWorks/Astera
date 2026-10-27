@@ -1,5 +1,5 @@
 /*
- * :tools:skill-lint — structural common-sense checks for skill engine v2 skills (ADR-0299, design section 9).
+ * :tools:skill-lint — structural common-sense checks for skill engine v2 skills (ADR-0301, design section 9).
  *
  * NON-SHIPPED CLI. Composes `astera/v2` YAML (SkillComposer), decodes through the SkillDecoder interface and
  * lints the composed tree and the typed SkillDef. Run: `./gradlew :tools:skill-lint:run --args="--root content/skills"`.

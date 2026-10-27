@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 /**
- * [ISkillGameplayGateway] over the existing combat pipeline (ADR-0299): damage goes through
+ * [ISkillGameplayGateway] over the existing combat pipeline (ADR-0301): damage goes through
  * [ApplyDamageUseCase] (armor, element matrix, i-frames, kill events), statuses through
  * [ApplyStatusUseCase], impulses through [IKnockbackGateway] (knockback resistance honoured) and
  * hit-stop through the dispatcher's own hold clock, supplied as [holdEntity].

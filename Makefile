@@ -298,7 +298,7 @@ skill-pairs: ## Video vs MC frame pairs at video times -> build/pairs/<case>.png
 	python3 -I tools/skill-compare/scripts/pairs.py --case "$(CASE)" $(if $(SKILL),--skill "$(SKILL)") --out "build/pairs/$(CASE).png" $(AT)
 
 .PHONY: skill-lint
-skill-lint: ## Structural lint of skill engine v2 skills (ADR-0299; exit 1 on FAIL): make skill-lint [ROOT=content/skills] [BALANCE=1]
+skill-lint: ## Structural lint of skill engine v2 skills (ADR-0301; exit 1 on FAIL): make skill-lint [ROOT=content/skills] [BALANCE=1]
 	./gradlew :tools:skill-lint:run --args="--root $(or $(ROOT),content/skills) $(if $(BALANCE),--balance)" -q
 
 .PHONY: skill-trace

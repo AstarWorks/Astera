@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import java.util.UUID
 
 /**
- * Entity movement seam of the skill engine (ADR-0299), used by the movement op family. Inputs are
+ * Entity movement seam of the skill engine (ADR-0301), used by the movement op family. Inputs are
  * evaluated world-space numbers. The Paper implementation lives next to the other gateways in
  * `plugin/combat/.../adapter/paper/skillengine/`.
  */

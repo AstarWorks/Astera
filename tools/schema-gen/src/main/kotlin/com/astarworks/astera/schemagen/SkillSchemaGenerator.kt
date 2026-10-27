@@ -28,7 +28,7 @@ import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.primaryConstructor
 
 /**
- * JSON Schema (Draft 7) generator for the skill engine v2 documents (ADR-0299): `kind: Skill`, `kind: Patch`
+ * JSON Schema (Draft 7) generator for the skill engine v2 documents (ADR-0301): `kind: Skill`, `kind: Patch`
  * and `kind: ItemFrames`.
  *
  * The op schemas are derived by reflection over the sealed hierarchy under [SkillOp]; nothing here lists an

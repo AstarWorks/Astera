@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 
 /**
- * The generic v2 trace feed of the skill preview (ADR-0299, SKL-08): casts any shipped v2 skill once against a dummy 6 blocks
+ * The generic v2 trace feed of the skill preview (ADR-0301, SKL-08): casts any shipped v2 skill once against a dummy 6 blocks
  * ahead and writes `build/sim-traces/v2/<skill-id>.json` (`astera-sim-trace/2`, `tools/vfx-shot/SIM-TRACE-V2.md`).
  *
  * Driven by `make skill-trace SKILL=<id>[,<id>...]` (`-Pskill=` -> system property `astera.sim.skill`); without it the test is

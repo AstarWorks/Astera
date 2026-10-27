@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.skillengine.op.PlateFace
 import kotlin.math.sqrt
 
 /**
- * Orientation of plates and lines (ADR-0299, design 3.6). Exactly two modes exist: the object faces the viewer
+ * Orientation of plates and lines (ADR-0301, design 3.6). Exactly two modes exist: the object faces the viewer
  * (fully, or only about one axis), or it is fixed in the plane of two frame axes. Nothing here takes euler angles.
  *
  * Every function returns a quaternion for a quad whose local +X is the quad width, +Y its height and +Z its normal.

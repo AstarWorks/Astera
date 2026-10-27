@@ -2,7 +2,7 @@
 # Minecraft-free skill-compare previews, rendered + published for the skills a push touched.
 #   scripts/skill-preview-auto.sh <from-sha> <to-sha>     skills affected by that range (run from a checkout of <to-sha>)
 #   scripts/skill-preview-auto.sh --skills a,b,c [--sha <sha>]
-# Per skill that has a skill-compare case: ONE game-sim run casts every skill (v2 sim trace, astera-sim-trace/2, SKL-08 / ADR-0299)
+# Per skill that has a skill-compare case: ONE game-sim run casts every skill (v2 sim trace, astera-sim-trace/2, SKL-08 / ADR-0301)
 # -> trace-preview (compare camera + hit-volume overlay) || (fixed side camera) -> publish views `preview`, `preview-side` and the
 # overlay as `lint`, with provenance (git sha, content revision). Renders run in parallel (PREVIEW_JOBS, default 4).
 # Never fails the caller. preview.log lines (format is a contract for the skill-compare page):

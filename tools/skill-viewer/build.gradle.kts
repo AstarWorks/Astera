@@ -1,5 +1,5 @@
 /*
- * :tools:skill-viewer - headless three.js renderer of `astera-sim-trace/2` skill performances (ADR-0299), the preview feed of
+ * :tools:skill-viewer - headless three.js renderer of `astera-sim-trace/2` skill performances (ADR-0301), the preview feed of
  * skill-compare. NOT shipped and NOT part of `check` (needs bun + a Chromium). Run it through `make skill-preview`.
  *
  *   ./gradlew :tools:skill-viewer:buildViewer   -> dist/ only

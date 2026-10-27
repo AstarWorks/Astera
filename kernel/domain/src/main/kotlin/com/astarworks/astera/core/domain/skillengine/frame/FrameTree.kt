@@ -29,7 +29,7 @@ public sealed interface FrameError {
 }
 
 /**
- * The single coordinate system of a cast (ADR-0299). One tree per cast; mutated only by motion laws
+ * The single coordinate system of a cast (ADR-0301). One tree per cast; mutated only by motion laws
  * and reparent ops, read by hit volumes and presentation ops.
  */
 public interface FrameTree {

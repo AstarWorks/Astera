@@ -3,7 +3,7 @@
 The file W5's `DefaultCastRunner` emits from a game-sim scenario (`Coin2CastScenario`), and the only input of the
 skill-compare **PREVIEW** (`make skill-preview`, `tools/skill-viewer/scripts/trace-preview.mjs`). It carries what a
 player would see, without a Paper server: **frame world poses per tick** and a **presentation object table**.
-It replaces the v1 `plan.json` / `astera-sim-trace/1` for skill previews (ADR-0299). No dual reader exists.
+It replaces the v1 `plan.json` / `astera-sim-trace/1` for skill previews (ADR-0301). No dual reader exists.
 
 Location: `tools/game-sim/build/sim-traces/v2/<skill-id>.json` (variant `couture-rapier-s2@crimson` -> `couture-rapier-s2@crimson.json`).
 Validate with `python3 -I tools/vfx-shot/trace_v2.py <file>`; `python3 -I tools/vfx-shot/trace_v2.py --sample <out.json>` writes a

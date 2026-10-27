@@ -13,7 +13,7 @@ import kotlin.math.sin
 import kotlin.math.tan
 
 /**
- * Paper [ISkillParticleGateway] (ADR-0299). Each particle is emitted with its own velocity (count 0 + offset = direction,
+ * Paper [ISkillParticleGateway] (ADR-0301). Each particle is emitted with its own velocity (count 0 + offset = direction,
  * extra 1), so a burst can fan inside a cone and inherit the velocity of the point it was emitted from. The sequence is
  * deterministic from [ParticleBurst.seed]. Particle delivery is the shared [IWorldGateway.spawnParticle].
  *

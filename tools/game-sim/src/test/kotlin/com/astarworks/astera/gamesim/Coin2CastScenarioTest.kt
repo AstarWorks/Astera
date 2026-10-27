@@ -57,7 +57,7 @@ import java.util.UUID
 import kotlin.math.abs
 
 /**
- * The proof of skill engine v2 (ADR-0299, SKL-08): coin 2 of couture-rapier-s2 run by the real cast runner.
+ * The proof of skill engine v2 (ADR-0301, SKL-08): coin 2 of couture-rapier-s2 run by the real cast runner.
  *
  * Runs on the real frame tree, motion laws, contact resolver, decoder / compiler / catalog, CEL layer, op executors
  * (assembled by `SkillEngineKit`) and the shipped coin-2 content; only the ports are fakes. Writes

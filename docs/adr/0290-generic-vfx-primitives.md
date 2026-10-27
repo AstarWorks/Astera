@@ -3,14 +3,14 @@ status: Superseded
 date: 2026-10-27
 deciders: founder, Claude
 supersedes: null
-superseded_by: 0299
+superseded_by: 0301
 ---
 
 # ADR-0290: Generic VFX primitives: sound arc, audience/intensity/lane, sprite + line shorthands, telegraph, stage palette, windup, shake profile, hit-stop clock
 
 ## Status
 
-Superseded by [[adr/0299-skill-engine-v2-frame-tree]] (was Proposed, track `vfx-primitives`).
+Superseded by [[adr/0301-skill-engine-v2-frame-tree]] (was Proposed, track `vfx-primitives`).
 
 ## Context
 

@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.skillengine.motion.MotionLawFactory
 import java.nio.file.Path
 
 /**
- * The real collaborators [Coin2CastScenarioTest] runs against (ADR-0299): the production frame tree, motion laws,
+ * The real collaborators [Coin2CastScenarioTest] runs against (ADR-0301): the production frame tree, motion laws,
  * contact resolver, CEL compiler and the shipped `content/frames` point tables. The op executors are assembled by
  * `SkillEngineKit` from the scenario's fake gateways.
  */

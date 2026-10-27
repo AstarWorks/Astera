@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Path
 
 /**
- * SKL-08 / ADR-0299 W3a: compose a coin-2 fixture (frozen grammar, test resources) with the real composer, decode it with
+ * SKL-08 / ADR-0301 W3a: compose a coin-2 fixture (frozen grammar, test resources) with the real composer, decode it with
  * the real decoder, compile every expression with the real CEL compiler, and check the failure modes. The op families
  * belong to other workers, so a tiny in-scenario decoder covers just the ops the fixture uses.
  */

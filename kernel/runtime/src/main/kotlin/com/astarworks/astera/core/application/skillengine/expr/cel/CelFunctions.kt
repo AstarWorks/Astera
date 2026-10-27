@@ -32,7 +32,7 @@ import kotlin.math.sqrt
 import kotlin.math.tan
 
 /**
- * Opaque-type outcome (ADR-0299): `vec3`, `quat` and `ref` are CEL OpaqueTypes whose runtime values are the kernel
+ * Opaque-type outcome (ADR-0301): `vec3`, `quat` and `ref` are CEL OpaqueTypes whose runtime values are the kernel
  * [Vec3] / [Quaternion] / [ExprValue.Ref] objects themselves. Operators are overloads of `_+_` etc. No list fallback needed.
  *
  * Scalars: every numeric function takes `dyn` so integer literals (`2`) and doubles (`2.0`) both work; results are doubles.

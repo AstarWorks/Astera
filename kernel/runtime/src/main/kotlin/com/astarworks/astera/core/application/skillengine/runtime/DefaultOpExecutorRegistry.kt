@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
-/** Executors keyed by the exact op class; no central `when` (ADR-0299). A later registration replaces an earlier one. */
+/** Executors keyed by the exact op class; no central `when` (ADR-0301). A later registration replaces an earlier one. */
 public class DefaultOpExecutorRegistry : OpExecutorRegistry {
     private val byClass = ConcurrentHashMap<KClass<*>, OpExecutor<*>>()
 

@@ -39,7 +39,7 @@ tasks.shadowJar {
     archiveBaseName.set("astera-core")
     archiveClassifier.set("")
     mergeServiceFiles()
-    // ADR-0299: cel-java drags guava / protobuf / antlr / re2j into the jar. Relocate all of it so it can never clash
+    // ADR-0301: cel-java drags guava / protobuf / antlr / re2j into the jar. Relocate all of it so it can never clash
     // with Paper's own guava or another plugin's protobuf.
     val shaded = "com.astarworks.astera.shaded"
     relocate("dev.cel", "$shaded.dev.cel")

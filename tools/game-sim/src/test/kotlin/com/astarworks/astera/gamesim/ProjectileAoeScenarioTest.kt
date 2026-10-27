@@ -53,7 +53,7 @@ import java.lang.reflect.Proxy
 import java.util.UUID
 
 /**
- * Projectile and aoe ops of the skill engine v2 (ADR-0299): the real spawn / damage executors run
+ * Projectile and aoe ops of the skill engine v2 (ADR-0301): the real spawn / damage executors run
  * against a tiny in-scenario cast (frame tree, event bus, fly stepper, sphere narrow phase) and
  * fake outbound ports. Checks: lowering to place + fly + hit, gravity/drag arc, block -> landing aoe,
  * pierce count, aoe hit set.

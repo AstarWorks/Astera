@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.roundToInt
 
 /**
- * Paper [ISkillVisualGateway] (ADR-0299). Meshes, plates and lines are Display entities from the shared
+ * Paper [ISkillVisualGateway] (ADR-0301). Meshes, plates and lines are Display entities from the shared
  * [IDisplayEntityGateway], teleported with interpolation every tick; no passengers. Trails are one fixed text-quad
  * Display per ribbon segment (a sheared parallelogram needs a transformation matrix, which the shared gateway does not
  * carry). Main thread only.

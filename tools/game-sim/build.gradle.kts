@@ -49,6 +49,6 @@ tasks.withType<Test>().configureEach {
     outputs.upToDateWhen { false }
     // The long annihilation pillar scenarios produce traces that do not fit the 512 MB default test heap.
     maxHeapSize = "2g"
-    // `make skill-trace SKILL=<id>` -> SkillTraceExportScenarioTest writes build/sim-traces/v2/<id>.json (ADR-0299 preview feed).
+    // `make skill-trace SKILL=<id>` -> SkillTraceExportScenarioTest writes build/sim-traces/v2/<id>.json (ADR-0301 preview feed).
     providers.gradleProperty("skill").orNull?.let { systemProperty("astera.sim.skill", it) }
 }

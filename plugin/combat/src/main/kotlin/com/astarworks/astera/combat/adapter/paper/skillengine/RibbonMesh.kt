@@ -3,7 +3,7 @@ package com.astarworks.astera.combat.adapter.paper.skillengine
 import com.astarworks.astera.core.domain.geometry.Vec3
 
 /**
- * A trail ribbon built from the history of one point and a root point (ADR-0299). Each tick contributes a cross-section
+ * A trail ribbon built from the history of one point and a root point (ADR-0301). Each tick contributes a cross-section
  * (root, tip); consecutive cross-sections form one parallelogram [Segment]. Pure maths, no Bukkit.
  */
 internal class RibbonMesh {

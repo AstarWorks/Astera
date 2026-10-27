@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.application.skillengine.runtime
 
 /**
- * The private bus of one cast (ADR-0299). The cast instance raises every event here exactly once, in
+ * The private bus of one cast (ADR-0301). The cast instance raises every event here exactly once, in
  * processing order; listeners (tests, observers) see the same order the handlers ran in. It also
  * remembers when each event name was first raised, which `until:` clauses and `at: event+N` rows read.
  */

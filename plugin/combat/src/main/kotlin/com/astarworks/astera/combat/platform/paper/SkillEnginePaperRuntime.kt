@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Skill engine v2 on Paper (ADR-0299, SKL-08): builds the kit from the Paper gateways, ticks it, reverts world edits at
+ * Skill engine v2 on Paper (ADR-0301, SKL-08): builds the kit from the Paper gateways, ticks it, reverts world edits at
  * match end, registers per-skill hot reload, and starts a v2 cast for every `SkillCast` whose skill id the v2 catalog
  * knows (the cooldown / cost / silence gates already ran in `CastSkillUseCase`).
  */

@@ -24,7 +24,7 @@ koin = "4.2.1"
 # koin-annotations + koin-ksp-compiler stay on the 2.x stream — the 4.x version
 # of koin-annotations exists but no matching koin-ksp-compiler 4.x is published.
 koin-annotations = "2.3.1"
-cel = "0.15.0"                  # Google CEL for Java (dev.cel); skill-engine expressions (ADR-0299)
+cel = "0.15.0"                  # Google CEL for Java (dev.cel); skill-engine expressions (ADR-0301)
 kaml = "0.104.0"
 ktoml = "0.7.1"                 # Latest stable; 0.6 / 0.7 line drops kotlinx-datetime jvm-only quirks
 kotlinx-coroutines = "1.11.0"

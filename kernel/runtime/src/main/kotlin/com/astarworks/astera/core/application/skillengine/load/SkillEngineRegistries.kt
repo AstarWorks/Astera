@@ -15,7 +15,7 @@ import java.nio.file.Path
 
 /**
  * The production decode + compile stack of skill engine v2, built in one place so the plugin, the game-sim scenarios
- * and `tools/skill-lint` cannot drift apart (ADR-0299). Every op family is registered here and nowhere else.
+ * and `tools/skill-lint` cannot drift apart (ADR-0301). Every op family is registered here and nowhere else.
  */
 public object SkillEngineRegistries {
     public fun decoder(): SkillDecoder = YamlSkillDecoder(

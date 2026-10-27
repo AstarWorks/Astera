@@ -202,7 +202,7 @@ internal class LintRunner(private val cli: CliArgs) {
 
         results += semanticResults()
 
-        // Skill engine v2 (ADR-0299): content/skills/ and content/frames/, dispatched by `kind`.
+        // Skill engine v2 (ADR-0301): content/skills/ and content/frames/, dispatched by `kind`.
         val v2 = SkillV2Lint(cli.contentDir, cli.schemasDir).run()
         results += v2.results
         missingSchemas += v2.missingSchemas

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mechanical skill converter v1 -> v2 (SKL-09, ADR-0299).
+"""Mechanical skill converter v1 -> v2 (SKL-09, ADR-0301).
 
   python3 tools/skill-convert/convert.py --all                  # every item-bound skill (+ cast_skill children)
   python3 tools/skill-convert/convert.py --ids fireball-cast,club-bash

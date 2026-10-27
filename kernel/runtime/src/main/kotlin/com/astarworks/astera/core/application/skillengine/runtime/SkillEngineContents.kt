@@ -10,7 +10,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * Hot reload of skill-engine v2 content (ADR-0299, design 7). `make dev-content` sends `astera admin reload all`;
+ * Hot reload of skill-engine v2 content (ADR-0301, design 7). `make dev-content` sends `astera admin reload all`;
  * the registry calls [reload] for every category, this one included.
  *
  * Flow: file diff since the last reload -> [SkillComposer.recompose] of only the changed files -> [SkillCatalog.reload]

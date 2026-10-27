@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
 
 /**
- * Paper [ISkillSoundGateway] (ADR-0299): a sound always plays at a world point with a volume and a pitch. Volume and pitch
+ * Paper [ISkillSoundGateway] (ADR-0301): a sound always plays at a world point with a volume and a pitch. Volume and pitch
  * are clamped to the range [SoundSpec] allows. The port carries no world; [worldId] supplies the world of the cast being ticked.
  */
 public class PaperSkillSoundGateway(

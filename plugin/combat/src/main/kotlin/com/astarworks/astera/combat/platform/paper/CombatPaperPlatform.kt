@@ -213,7 +213,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         // WP5: summons never target or hurt their owner's side.
         services.get<SummonRegistry>()?.let { SummonAllegianceListener(it).start(plugin) }
 
-        // Skill engine v2 (ADR-0299): v2 skills run through the cast runner; SkillCast is published once the gates pass.
+        // Skill engine v2 (ADR-0301): v2 skills run through the cast runner; SkillCast is published once the gates pass.
         val container = statusContainer
         if (applyDamage != null && applyStatus != null && container != null) {
             skillEngine = SkillEnginePaperRuntime(plugin, ports).also { it.start(ctx, applyDamage, applyStatus, container) }

@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 
 /**
- * Expression layer of the skill engine (ADR-0299). A skill field written as `= <expr>` is compiled ONCE at load
+ * Expression layer of the skill engine (ADR-0301). A skill field written as `= <expr>` is compiled ONCE at load
  * with [ExprCompiler.compile] and evaluated every tick with [CompiledExpr.eval]. The implementation is CEL
  * (kernel/runtime, `skillengine/expr/cel`); callers only see these interfaces.
  *

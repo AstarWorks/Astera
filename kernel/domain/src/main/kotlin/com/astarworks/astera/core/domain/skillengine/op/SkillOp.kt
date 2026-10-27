@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.skillengine.model.Value
  * One handler / timeline entry. Every op has a unique `id` within its skill (so patches can target
  * it) and an optional `when: "= <expr>"` guard.
  *
- * Extension rule (ADR-0299): each op FAMILY is one sealed sub-interface in its own file in this
+ * Extension rule (ADR-0301): each op FAMILY is one sealed sub-interface in its own file in this
  * package (FrameOps.kt, DamageOps.kt, ...). A worker adding ops edits only its family file, its
  * `OpDecoder` and its `OpExecutor` (application layer); no central `when` exists.
  */

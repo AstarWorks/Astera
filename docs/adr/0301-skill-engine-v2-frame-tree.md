@@ -6,7 +6,7 @@ supersedes: 0077, 0290
 superseded_by: null
 ---
 
-# ADR-0299: Skill engine v2: one frame tree, CEL expressions, kustomize-like composition
+# ADR-0301: Skill engine v2: one frame tree, CEL expressions, kustomize-like composition
 
 ## Status
 

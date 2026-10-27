@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Headless three.js preview of astera-sim-trace/2 skill performances (tools/vfx-shot/SIM-TRACE-V2.md) for skill-compare (ADR-0299)",
+  "description": "Headless three.js preview of astera-sim-trace/2 skill performances (tools/vfx-shot/SIM-TRACE-V2.md) for skill-compare (ADR-0301)",
   "scripts": {
     "embed": "bun scripts/embed-sprites.mjs",
     "build": "bun build src/preview2.js --outfile dist/preview2.js --target browser --minify && cp src/preview2.html dist/preview2.html",

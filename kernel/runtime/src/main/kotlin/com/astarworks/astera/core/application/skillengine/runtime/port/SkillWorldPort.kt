@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.skillengine.world.BlockCell
 public enum class BlockDamageOutcome { NONE, CHIPPED, BROKEN }
 
 /**
- * Block seam of the skill engine (ADR-0299). Cells are in the caster's world. The gateway owns permission
+ * Block seam of the skill engine (ADR-0301). Cells are in the caster's world. The gateway owns permission
  * (arena guard), custom cover durability and the match-end cover rebuild; the engine owns shapes, ordering
  * and reverting plain block edits (see SkillWorldEditor).
  */

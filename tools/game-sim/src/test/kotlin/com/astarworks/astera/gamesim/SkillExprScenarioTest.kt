@@ -17,7 +17,7 @@ import org.assertj.core.data.Offset
 import org.junit.jupiter.api.Test
 
 /**
- * SKL-08 / ADR-0299: the expression layer. Compiles the ten expressions couture-rapier-s2 coin 2 needs through the real
+ * SKL-08 / ADR-0301: the expression layer. Compiles the ten expressions couture-rapier-s2 coin 2 needs through the real
  * CEL compiler, asserts their values, and prints rough compile / eval timings.
  */
 class SkillExprScenarioTest {

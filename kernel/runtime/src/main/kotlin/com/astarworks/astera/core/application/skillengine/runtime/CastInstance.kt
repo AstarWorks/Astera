@@ -46,7 +46,7 @@ private val NIL_VICTIM: UUID = UUID(0L, 0L)
 private val UP = Vec3(0.0, 1.0, 0.0)
 
 /**
- * One running cast (ADR-0299) and the single per-cast object every collaborator talks to: it is the executors'
+ * One running cast (ADR-0301) and the single per-cast object every collaborator talks to: it is the executors'
  * [OpContext] / [OpHost], the spawn / damage executors' [SkillCastScope], the movement executors' [MovementHost],
  * the status executors' [OpTargetResolver] and the presentation runtime's [PresentationCastInfo]. It owns the frame
  * tree, the motion composer, hit volumes, scheduled events and the two timelines. Casts in progress keep their

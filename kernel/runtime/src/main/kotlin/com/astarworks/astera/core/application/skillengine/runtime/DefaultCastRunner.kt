@@ -56,7 +56,7 @@ public class CastRunnerDeps(
 )
 
 /**
- * Drives casts (ADR-0299). It implements dispatch only: timeline rows, motion laws, hit volumes and event
+ * Drives casts (ADR-0301). It implements dispatch only: timeline rows, motion laws, hit volumes and event
  * handlers call the registered [OpExecutor]s; no op semantics live here. A cast keeps the `CompiledSkill` it
  * started with, so a per-skill reload swaps definitions for the next cast only.
  */

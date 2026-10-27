@@ -21,7 +21,7 @@ import dev.cel.runtime.CelRuntime
 import dev.cel.runtime.CelRuntimeFactory
 import java.util.concurrent.ConcurrentHashMap
 
-/** CEL implementation of [ExprCompiler] (ADR-0299). Thread-safe; compilers are cached per [ExprEnvSpec]. */
+/** CEL implementation of [ExprCompiler] (ADR-0301). Thread-safe; compilers are cached per [ExprEnvSpec]. */
 public class CelExprCompiler : ExprCompiler {
     private val runtime: CelRuntime = CelRuntimeFactory.standardCelRuntimeBuilder()
         .addFunctionBindings(CelFunctions.bindings())
