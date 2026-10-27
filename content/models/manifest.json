@@ -73,6 +73,10 @@
     "items/couture-rapier-open-60": {
       "path": "content/models/items/couture-rapier-open-60.model.json",
       "updated_at": "2026-10-27T00:00:00.000Z"
+    },
+    "items/couture-shears-linked": {
+      "path": "content/models/items/couture-shears-linked.model.json",
+      "updated_at": "2026-10-27T00:00:00.000Z"
     }
   }
 }
