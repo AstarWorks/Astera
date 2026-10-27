@@ -1,5 +1,7 @@
 # Raster sources of item icons (ADR-0238). `./gradlew :tools:item-art:run` converts each listed item's
 # source to its 32x32 icon under textures/generated/items; unlisted items stay drawn by code (ADR-0193/0223).
+# Source options: remove-magenta removes key blends and rejects contaminated output; material-outline
+# replaces the outer near-black band with a 1px material shade without adding a rim. Both default false.
 # Any tool may make a source — an AI sheet (tools/item-art/scripts/gen_sheet.py), Aseprite, a hand-drawn
 # PNG — only the committed file counts. Per item: `name: <source>` or `{ from: <source>, colors: N, model: handheld|generated }`.
 
@@ -11,11 +13,15 @@ sources:
     cells: [bastion-greatsword, couture-rapier, crimson-chain-axe, dagger, edict-blade, ember-gauntlet, fire-staff, frost-staff, gossamer-katana, greatsword, knight-sword, orrery-staff, pistol, rifle, rtm-blaster, shotgun, sigil-rifle, thunder-staff, vendetta-rifle, verdant-staff, verdict-hammer]
 
   arsenal-tools-v1:
+    remove-magenta: true
+    material-outline: true
     file: sheets/arsenal-tools-v1.png
     grid: [5, 4]
-    cells: [stone-pickaxe, stone-axe, stone-shovel, iron-pickaxe, iron-axe, iron-shovel, diamond-pickaxe, diamond-axe, diamond-shovel, ore-iron, ore-gold, ore-diamond, ore-emerald, reinforced-planks-block, stone-bulwark-block, obsidian-plate-block, packed-clay-block, tempered-glass-block, hardened-soil-block, wool-block]
+    cells: [stone-pickaxe, stone-axe, stone-shovel, iron-pickaxe, iron-axe, iron-shovel, diamond-pickaxe, diamond-axe, diamond-shovel, ore-iron, ore-gold, ore-diamond, ore-emerald, null, null, null, null, null, null, null]
   # arsenal-weapons-art2: locked generated reference, 2026-10-28.
   arsenal-weapons-art2:
+    remove-magenta: true
+    material-outline: true
     file: sheets/arsenal-weapons-art2.png
     grid:
     - 6
@@ -83,60 +89,52 @@ items:
   verdant-staff: weapons-v1
   verdict-hammer: weapons-v1
 
-  # Match arsenal: generated concept sheet, shared currency seal and material tiers.
-  stone-pickaxe: { from: arsenal-tools-v1, colors: 24 }
-  stone-axe: { from: arsenal-tools-v1, colors: 24 }
-  stone-shovel: { from: arsenal-tools-v1, colors: 24 }
-  iron-pickaxe: { from: arsenal-tools-v1, colors: 24 }
-  iron-axe: { from: arsenal-tools-v1, colors: 24 }
-  iron-shovel: { from: arsenal-tools-v1, colors: 24 }
-  diamond-pickaxe: { from: arsenal-tools-v1, colors: 24 }
-  diamond-axe: { from: arsenal-tools-v1, colors: 24 }
-  diamond-shovel: { from: arsenal-tools-v1, colors: 24 }
+  # Match arsenal: generated flat handheld tools and currency; blocks use native cube models.
+  stone-pickaxe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  stone-axe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  stone-shovel: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  iron-pickaxe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  iron-axe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  iron-shovel: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  diamond-pickaxe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  diamond-axe: { from: arsenal-tools-v1, colors: 24, model: handheld }
+  diamond-shovel: { from: arsenal-tools-v1, colors: 24, model: handheld }
   ore-iron: { from: arsenal-tools-v1, colors: 24 }
   ore-gold: { from: arsenal-tools-v1, colors: 24 }
   ore-diamond: { from: arsenal-tools-v1, colors: 24 }
   ore-emerald: { from: arsenal-tools-v1, colors: 24 }
-  reinforced-planks-block: { from: arsenal-tools-v1, colors: 24 }
-  stone-bulwark-block: { from: arsenal-tools-v1, colors: 24 }
-  obsidian-plate-block: { from: arsenal-tools-v1, colors: 24 }
-  packed-clay-block: { from: arsenal-tools-v1, colors: 24 }
-  tempered-glass-block: { from: arsenal-tools-v1, colors: 24 }
-  hardened-soil-block: { from: arsenal-tools-v1, colors: 24 }
-  wool-block: { from: arsenal-tools-v1, colors: 24 }
   # arsenal-weapons-art2: vanilla use-state weapons deliberately excluded.
-  iron-blade: arsenal-weapons-art2
-  war-axe: arsenal-weapons-art2
-  spear: arsenal-weapons-art2
-  mace: arsenal-weapons-art2
-  twin-daggers: arsenal-weapons-art2
-  katana: arsenal-weapons-art2
-  halberd: arsenal-weapons-art2
-  rapier: arsenal-weapons-art2
-  cleaver: arsenal-weapons-art2
-  scythe: arsenal-weapons-art2
-  club: arsenal-weapons-art2
-  revolver: arsenal-weapons-art2
-  smg: arsenal-weapons-art2
-  sniper: arsenal-weapons-art2
-  harpoon: arsenal-weapons-art2
-  grappling-hook: arsenal-weapons-art2
-  throwing-knives: arsenal-weapons-art2
-  sticky-bomb: arsenal-weapons-art2
-  venom-flask: arsenal-weapons-art2
-  smoke-bomb: arsenal-weapons-art2
-  delay-mine: arsenal-weapons-art2
-  frag-grenade: arsenal-weapons-art2
-  flash-bang: arsenal-weapons-art2
-  shock-wand: arsenal-weapons-art2
-  ember-rod: arsenal-weapons-art2
-  frost-rod: arsenal-weapons-art2
-  fireball-charge: arsenal-weapons-art2
-  glacier-wand: arsenal-weapons-art2
-  sanctuary-staff: arsenal-weapons-art2
-  chain-rod: arsenal-weapons-art2
-  gale-fan: arsenal-weapons-art2
-  # Armor lane: generated inventory art.
+  iron-blade: { from: arsenal-weapons-art2, model: handheld }
+  war-axe: { from: arsenal-weapons-art2, model: handheld }
+  spear: { from: arsenal-weapons-art2, model: handheld }
+  mace: { from: arsenal-weapons-art2, model: handheld }
+  twin-daggers: { from: arsenal-weapons-art2, model: handheld }
+  katana: { from: arsenal-weapons-art2, model: handheld }
+  halberd: { from: arsenal-weapons-art2, model: handheld }
+  rapier: { from: arsenal-weapons-art2, model: handheld }
+  cleaver: { from: arsenal-weapons-art2, model: handheld }
+  scythe: { from: arsenal-weapons-art2, model: handheld }
+  club: { from: arsenal-weapons-art2, model: handheld }
+  revolver: { from: arsenal-weapons-art2, model: handheld }
+  smg: { from: arsenal-weapons-art2, model: handheld }
+  sniper: { from: arsenal-weapons-art2, model: handheld }
+  harpoon: { from: arsenal-weapons-art2, model: handheld }
+  grappling-hook: { from: arsenal-weapons-art2, model: handheld }
+  throwing-knives: { from: arsenal-weapons-art2, model: handheld }
+  sticky-bomb: { from: arsenal-weapons-art2, model: handheld }
+  venom-flask: { from: arsenal-weapons-art2, model: handheld }
+  smoke-bomb: { from: arsenal-weapons-art2, model: handheld }
+  delay-mine: { from: arsenal-weapons-art2, model: handheld }
+  frag-grenade: { from: arsenal-weapons-art2, model: handheld }
+  flash-bang: { from: arsenal-weapons-art2, model: handheld }
+  shock-wand: { from: arsenal-weapons-art2, model: handheld }
+  ember-rod: { from: arsenal-weapons-art2, model: handheld }
+  frost-rod: { from: arsenal-weapons-art2, model: handheld }
+  fireball-charge: { from: arsenal-weapons-art2, model: handheld }
+  glacier-wand: { from: arsenal-weapons-art2, model: handheld }
+  sanctuary-staff: { from: arsenal-weapons-art2, model: handheld }
+  chain-rod: { from: arsenal-weapons-art2, model: handheld }
+  gale-fan: { from: arsenal-weapons-art2, model: handheld }
   leather-scout-helmet: armor-v1
   leather-scout-chestplate: armor-v1
   leather-scout-leggings: armor-v1
@@ -153,3 +151,4 @@ items:
   diamond-champion-chestplate: armor-v1
   diamond-champion-leggings: armor-v1
   diamond-champion-boots: armor-v1
+
