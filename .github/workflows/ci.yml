@@ -33,7 +33,7 @@ jobs:
       - name: Check (unit tests + Konsist architecture tests)
         run: ./gradlew check --no-daemon --stacktrace
 
-      - name: Build the 7 plugin shadow jars
+      - name: Build the 8 plugin shadow jars
         run: make build GRADLEW="./gradlew --no-daemon"
 
       - name: Upload plugin jars

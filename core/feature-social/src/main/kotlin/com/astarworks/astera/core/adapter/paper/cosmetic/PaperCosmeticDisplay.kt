@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerJoinEvent
 
 /**
  * Shows the equipped title and name colour in the tab list (ECO-02). Chat uses the same helpers
- * through [PaperChatFormatListener][com.astarworks.astera.core.adapter.paper.chat.PaperChatFormatListener].
+ * through the Astera-Chat Paper adapter.
  * Must run on the main thread (join event / GUI click).
  */
 public class PaperCosmeticDisplay(

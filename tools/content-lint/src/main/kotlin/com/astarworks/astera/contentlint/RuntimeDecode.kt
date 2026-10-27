@@ -53,6 +53,10 @@ internal object RuntimeDecode {
     /** [alreadyLoaded]: categories [main] bootstrapped itself (skills need vfx + particles); reported here only. */
     fun run(contentDir: Path, alreadyLoaded: List<Pair<String, ContentLoader.LoadReport>>): Int {
         val cases: List<Pair<String, (Path) -> ContentLoader.LoadReport>> = listOf(
+            "chat" to { d ->
+                com.astarworks.astera.chat.application.config.ChatConfig.load(d.resolve("chat.yaml"))
+                ContentLoader.LoadReport(1, 0, emptyList())
+            },
             "items" to { d -> ItemContents().bootstrap(d) },
             "gui" to { d -> GuiContents().bootstrap(d) },
             "blocks" to { d -> CustomBlockContents().bootstrap(d) },

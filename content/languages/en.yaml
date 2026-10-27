@@ -2705,3 +2705,14 @@ astera:
   statusdesc.charge: "Stacks on you; charge skills spend it for extra damage."
   statusdesc.immunity: "Takes no damage for a moment."
   statusdesc.silence: "Cannot cast skills for a moment."
+
+  # Cross-server chat (ADR-0289)
+  chat.japanize.on: "Japanize enabled."
+  chat.japanize.off: "Japanize disabled."
+  chat.title.invalid: "Usage: /astera chat title <all|server-name> <title> [| subtitle]"
+  chat.title.sent: "Title sent to {target}."
+  chat.discord.line: "<blue>[Discord]</blue> <name>: <message>"
+  command.help.chat-japanize-on: "Enable Japanese conversion for this session."
+  command.help.chat-japanize-off: "Disable Japanese conversion for this session."
+  command.help.chat-title: "Send a screen title across servers."
+  command.help.chat-japanize: "Toggle Japanese conversion for this session."

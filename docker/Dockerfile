@@ -3,7 +3,7 @@
 # Astera Minecraft server image.
 #
 # Two stages:
-#   1. `builder`  — Gradle + JDK 25, produces the 7 shaded plugin jars.
+#   1. `builder`  — Gradle + JDK 25, produces the 8 shaded plugin jars.
 #   2. `runtime`  — itzg/minecraft-server:java25 with plugin jars + content baked in.
 #
 # Build context is the *repository root* (one level up from this Dockerfile),
@@ -35,11 +35,12 @@ COPY plugin /workspace/plugin/
 # content/ is deliberately NOT copied here (speed): the shaded jars do not read it, so a content-only change must not
 # invalidate this layer. It is copied into the runtime stage below.
 
-# Build the 7 shaded plugin jars (ADR-0022). Tests are skipped here because CI
+# Build the 8 shaded plugin jars (ADR-0022). Tests are skipped here because CI
 # runs `./gradlew check` separately. plugin:test-fixtures is NOT shipped.
 RUN --mount=type=cache,id=astera-plugins-gradle,sharing=locked,target=/home/gradle/.gradle \
     gradle --no-daemon -x test \
         :plugin:core:shadowJar \
+        :plugin:chat:shadowJar \
         :plugin:items:shadowJar \
         :plugin:combat:shadowJar \
         :plugin:match:shadowJar \
@@ -48,7 +49,7 @@ RUN --mount=type=cache,id=astera-plugins-gradle,sharing=locked,target=/home/grad
         :plugin:persistence:shadowJar \
  && mkdir /out \
  && cp plugin/*/build/libs/astera-*.jar /out/ \
- && test "$(ls /out | wc -l)" -eq 7
+ && test "$(ls /out | wc -l)" -eq 8
 
 # ---------- Stage 2: itzg/minecraft-server runtime ----------
 FROM itzg/minecraft-server:java25 AS runtime

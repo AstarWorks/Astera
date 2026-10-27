@@ -14,7 +14,7 @@
 # can join a backend directly or pose as another player.
 #
 # The Paper image is built from docker/Dockerfile using the repo root as the
-# build context: the multi-stage build compiles the 7 plugin jars AND bakes
+# build context: the multi-stage build compiles the 8 plugin jars AND bakes
 # `content/` into the image at /content (outside the /data volume). The Docker
 # daemon is shared with the host, so a bind mount of ../content would be empty
 # in the container. Content/code changes therefore need `make docker-up`
