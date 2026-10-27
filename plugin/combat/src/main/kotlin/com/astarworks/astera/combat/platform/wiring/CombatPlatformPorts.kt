@@ -48,6 +48,7 @@ import com.astarworks.astera.core.application.services.ServiceRegistry
  *   from `ApplyDamageUseCase` (Wave 6e-N1 / ADR-0164), so it is a 2-arg factory.
  */
 public class CombatPlatformPorts(
+    public val toolBlocks: ((ServiceRegistry) -> com.astarworks.astera.combat.application.port.outbound.IToolBlockGateway)? = null,
     public val projectileService: (ServiceRegistry) -> IProjectileService,
     public val lightningGateway: ((ServiceRegistry) -> ILightningGateway)? = null,
     public val fireSpreadController: ((ServiceRegistry) -> IFireSpreadController)? = null,

@@ -614,6 +614,7 @@ public object CombatWiring {
                 playerSound = { services.get<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>() },
                 teamColors = { services.get<com.astarworks.astera.core.application.port.outbound.ITeamColorLookup>() },
                 consumptionRecorder = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder>() },
+                toolBlocks = ports.toolBlocks?.invoke(services),
                 coverService = { services.get<com.astarworks.astera.core.application.service.CoverBlockService>() },
                 blockStates = { services.get<com.astarworks.astera.core.application.port.outbound.IBlockStateGateway>() },
                 customBlocks = { services.get<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>() },

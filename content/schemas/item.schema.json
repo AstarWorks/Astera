@@ -87,6 +87,11 @@
                 "type": "string"
             }
         },
+        "equipment_asset": {
+            "type": "string",
+            "pattern": "^[a-z0-9._-]+$",
+            "description": "Astera equipment asset id; requires textures/equipment/{humanoid,humanoid_leggings}/<id>.png."
+        },
         "armor_piece": {
             "type": "string",
             "description": "content/armor/ piece id this item stands for while worn; combat applies its damage reduction."

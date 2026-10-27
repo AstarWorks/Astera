@@ -1,5 +1,7 @@
 package com.astarworks.astera.e2e
 
+import java.net.URI
+import java.util.zip.ZipInputStream
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -15,6 +17,32 @@ class ArsenalWeaponArtE2eTest : E2eBase() {
             "flash-bang", "shock-wand", "ember-rod", "frost-rod", "fireball-charge", "glacier-wand",
             "sanctuary-staff", "chain-rod", "gale-fan",
         )
+        op(player)
+        assertThat(player.waitUntil(10_000) { player.packPushes.isNotEmpty() }).isTrue()
+        val connection = URI(player.packPushes.first().url).toURL().openConnection().apply {
+            connectTimeout = 5_000
+            readTimeout = 20_000
+        }
+        val assets = mutableMapOf<String, ByteArray>()
+        ZipInputStream(connection.getInputStream()).use { zip ->
+            generateSequence { zip.nextEntry }.forEach { entry ->
+                if (entry.name.startsWith("assets/astera/items/") || entry.name.startsWith("assets/astera/models/") ||
+                    entry.name.startsWith("assets/astera/textures/generated/items/")) {
+                    assets[entry.name] = zip.readBytes()
+                }
+            }
+        }
+        E2eReport.check("Arsenal art", "all 31 weapon definitions resolve to generated flat handheld art", "pushed pack ZIP") {
+            for (id in custom) {
+                assertCleanArsenalIcon(id, assets.getValue("assets/astera/textures/generated/items/$id.png"))
+                assertThat(assets.getValue("assets/astera/items/$id.json").toString(Charsets.UTF_8))
+                    .contains("astera:generated/items/$id")
+                assertThat(assets.getValue("assets/astera/models/generated/items/$id.json").toString(Charsets.UTF_8))
+                    .contains("minecraft:item/handheld", "astera:generated/items/$id").doesNotContain("\"elements\"")
+                assertThat(assets).doesNotContainKey("assets/astera/models/items/$id.json")
+            }
+            "31 flat handhelds; no retired cuboid models in the pack"
+        }
         for (id in custom) {
             rcon("clear ${player.name}")
             rcon("astera items give ${player.name} $id")
