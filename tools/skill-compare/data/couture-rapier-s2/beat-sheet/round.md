@@ -63,7 +63,7 @@ founder 確認済みの台帳 (coordinator 経由 2026-10-27)。この commit �
 | 2 | 鋏の本体 (花飾りのピボット) | 1 | `astera:couture-shears-linked` | 頭上: キャスターのリグ (follow)。飛翔: 実 projectile `couture-rapier-s2-shears` (couture-s2-body-flight)。命中後: 敵 (couture-s2-body-stuck, follow)。戻り: 糸 vfx の return-body | 手→頭上 (t22-34) → 敵へ平行に直進 (t34-39) → 刺さる (約 12 tick) → 糸で手へ戻る | t22-56 |
 | 3 | 単独の刃 A | 1 | `astera:couture-rapier-blade-a` | 頭上: リグ。飛翔: 実 projectile `couture-rapier-s2-blade-a`。命中後: 敵 (couture-s2-blade-a-stuck)。戻り: return-blade-a | 頭上で本体から左へ分離 (t26-34)、本体と並んで敵へ (側方 -0.7)、刺さる、戻る | t22-56 |
 | 4 | 単独の刃 B | 1 | `astera:couture-rapier-blade-b` | 同上 (couture-rapier-s2-blade-b) | 頭上で本体から右へ分離、本体と並んで敵へ (側方 +0.7)、刺さる、戻る | t22-56 |
-| 5 | 桃色の糸 | 1 | 3D の線 (`pink_concrete`、固定長で基準距離 5.4 先まで。target_line は yaw 向きで線が後ろへ反転したため外した)。`couture-s2-thread`、for_each_target + track_bound_target でキャスターに再生 | 一端: キャスターの手 / 他端: 生きている敵 (命中前は飛ぶ 3 つの方向にある線、命中後は手⇄敵) | 投擲 (t34) から張る、3 つが刺さっている間は保持、戻りで短くなり消える | t34-57 |
+| 5 | 桃色の糸 | 1 | 3D の線 (`pink_concrete`、`target_line: true`、translate は箱の中心 (手 z0.4 から基準 z5.4)。後ろへ伸びたのは作り方の誤りで、eed14e82d の値で直した)。`couture-s2-thread`、for_each_target + track_bound_target でキャスターに再生 | 一端: キャスターの手 / 他端: 生きている敵 (命中前は飛ぶ 3 つの方向にある線、命中後は手⇄敵) | 投擲の次の tick (t35) から張る (t34 には出ない)、3 つが刺さっている間は保持、戻りで短くなり消える | t34-57 |
 
 この commit で削除したもの: hit3 の白飛びレイヤー (wo-*, fb-*) と敵の橙の標的 UI 輪の転写 (ring-yellow*)。どちらも武器ではない。
 
@@ -78,10 +78,16 @@ capture top: capture-top.png
 capture miss: capture-miss.png
 
 - 飛行: 3 つは t35-t39 の約 4-5 tick 見える (launch_speed 1.0)。top では左刃・中央の本体・右刃が横並びで敵へ進む (side frame 035-039, top frame 036-039)。
-- 敵に刺さる 3 物: 本体 = `couture-shears-linked`、刃 = `couture-rapier-blade-a` / `-b`。ただし linked 自体が刃 2 枚と輪を含むため、敵の所で刃が重複して見える。本体はピボット (花) だけの専用モデルが要る (modeler への依頼待ち)。
+- 敵に刺さる 3 物: 本体 = `couture-s2-body` (花のピボットと輪だけ)、刃 = `couture-rapier-blade-a` / `-b`。刃の重複は解消。刃の留め具 (stud) は刃側に残してある (modeler の指摘、director 判断待ち)。
 - miss (敵なし): 3 つとも前へ飛び続け、最大射程/期限で消える。糸は出ない (標的が無い)。frame 042-046。
 - hit2 の星 (白い放射) は 30% に縮小。
 
 ### 構成コミット: 持つ鋏の決定と糸の出現 tick
 - 持つ武器は `couture-rapier` (1 本の鋏) のまま。t20 に隠し、t22 の頭上分裂で本体 + 刃 A + 刃 B の 3 つに入れ替える。3 つを重ねると `couture-rapier` と同じ形に戻る条件を modeler brief に入れた (`briefs/model.md`)。本体の台帳行: `understanding-body.md`。
 - 糸は投擲の 2 tick 後 (t36、3 つが飛び始めた後) から出す。投擲前 (t34) には出さない。戻りは t51-57。
+
+## 再撮影 (f4990d9e6、side / top / miss、contentDirty false)
+- 糸: t34 には無く、t35 から手 -> 敵 の線 (side / top とも前方、ターゲット距離まで)。t44-48 命中、t55 に戻りで短くなり t57 に消える。
+- 飛行: side t35-39、top t36-39 で 3 つが並んで頭上から敵へ。敵に刺さるのは t40-52 の 3 つ (本体 + 刃 2)、戻り t51-57。
+- 外れ (miss): 糸なし、3 つは敵のいない方向へ飛び去る (t44-48)。
+- 限界: 実機で見た目のみ確認。top は負荷で 4 回再撮影した。
