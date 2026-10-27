@@ -29,7 +29,7 @@ public enum class LaneKind {
  * lane plays on and how big the match is.
  *
  * [key] is a game-mode id (`modeKey = key`, joined as `custom:<key>`); [DEFAULT_KEY]
- * is the standard 2-team battle-loyal lane.
+ * is the standard 2-team carry-tnt lane.
  */
 public data class QueueLane(
     val key: String,
@@ -68,8 +68,8 @@ public data class QueueLane(
         )
 
     public companion object {
-        /** The standard 2-team lane (battle-loyal). */
-        public const val DEFAULT_KEY: String = "battle-loyal"
+        /** The standard 2-team lane (carry-tnt). */
+        public const val DEFAULT_KEY: String = "carry-tnt"
     }
 }
 
@@ -115,7 +115,7 @@ public data class QueueSettings(
             lanes = mapOf(
                 QueueLane.DEFAULT_KEY to QueueLane(
                     key = QueueLane.DEFAULT_KEY,
-                    stage = StageId("siege-isles-loyal"),
+                    stage = StageId("siege-isles-tnt"),
                     teams = 2,
                     playersPerTeam = 4,
                     minPlayers = 2,

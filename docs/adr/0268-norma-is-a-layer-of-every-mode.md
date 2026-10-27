@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Accepted. Builds on ADR-0271 (stars and Norma levels) and ADR-0272 (the top Norma level wins). Where ADR-0272 says "a
+Accepted. The win parts (a team reaching the top level ends the match, `norma_win`) are superseded by ADR-0288. Builds on ADR-0271 (stars and Norma levels) and ADR-0272 (the top Norma level wins). Where ADR-0272 says "a
 Norma match" read "a match with the Norma layer on", which is every mode except PvE waves.
 
 ## Context

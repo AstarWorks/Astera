@@ -21,7 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin
 /**
  * Bukkit -> domain events the objective modes (WP11) need while a match runs:
  *
- *  - [BlockBreakEvent] -> [BlockBroken] (break-core),
+ *  - [BlockBreakEvent] -> [BlockBroken] (siege modes),
  *  - [PlayerMoveEvent] -> [PlayerMoved] (region zones: tnt-spawn, wool-*, base-*, jewelry-*).
  *
  * Only players that are in a match are translated; everyone else (lobby, free
@@ -55,7 +55,7 @@ public class PaperMatchWorldInputAdapter(
             atTick = scheduler.currentTick(),
         )
         // MONITOR fires before the server removes the block. Publish a tick later so a listener that writes the block
-        // back (break-core: "your own core cannot be broken") is not overwritten by the break completing afterwards.
+        // back (a mode vetoing the break) is not overwritten by the break completing afterwards.
         scheduler.runLaterTicks(ExecutionScope.Global, 1L) { eventBus.publish(broken) }
     }
 

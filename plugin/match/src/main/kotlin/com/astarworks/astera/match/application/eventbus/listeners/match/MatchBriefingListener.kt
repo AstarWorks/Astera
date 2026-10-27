@@ -20,8 +20,8 @@ import com.astarworks.astera.match.domain.norma.NormaConfig
  *  1. t=0: the objective as a title (`astera.match.objective.<modeKey>.title|subtitle`, one sentence) plus the mode's
  *     chat line `astera.match.briefing.mode.<modeKey>`. The chat is only a backup of the title.
  *  2. From [FIRST_HINT_DELAY_TICKS] on, one short action-bar hint every [HINT_SPACING_TICKS] (`astera.match.hint.*`),
- *     each mirrored by its longer chat line: the beginner guide (first match only), then how Norma levels work, then
- *     the time-limit rule. A hint is dropped if the match is no longer ACTIVE.
+ *     each mirrored by its longer chat line: the beginner guide (first match only), then what Norma levels unlock (they never decide
+ *     the match, ADR-0288), then the time-limit rule. A hint is dropped if the match is no longer ACTIVE.
  *
  * The beginner guide is keyed on the stats' matches-played counter, so it shows once.
  */
@@ -80,10 +80,7 @@ public class MatchBriefingListener(
             }
             if (norma != null) {
                 val max = mapOf("max" to norma.maxLevel.toString())
-                add(
-                    if (norma.win) Stage("astera.match.hint.norma-win", max, listOf("astera.match.briefing.norma-win"))
-                    else Stage("astera.match.hint.norma-rank", max, listOf("astera.match.briefing.norma-rank")),
-                )
+                add(Stage("astera.match.hint.norma-rank", max, listOf("astera.match.briefing.norma-rank")))
                 if (timeLimitMinutes > 0) {
                     add(Stage("astera.match.hint.time", mapOf("minutes" to timeLimitMinutes.toString()), listOf("astera.match.briefing.time")))
                 }

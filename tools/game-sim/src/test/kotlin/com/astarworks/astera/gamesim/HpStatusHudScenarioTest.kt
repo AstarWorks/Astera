@@ -97,7 +97,7 @@ class HpStatusHudScenarioTest {
         scenario("hud-hp-combat-hit") {
             val attacker = player("attacker", team = "red", at = Vec3(0.0, groundY, 0.0))
             val victim = player("victim", team = "blue", at = Vec3(0.0, groundY, 10.0))
-            startMatch("battle-loyal", mapOf(attacker to "red", victim to "blue"))
+            startMatch("carry-tnt", mapOf(attacker to "red", victim to "blue"))
             advance(40)
             val labels = sim.services.getOrThrow<IPlayerLabelGateway>() as InMemoryPlayerLabelGateway
             val maxHp = 40.0

@@ -2,7 +2,7 @@
 # generator landmark of content/stages/annihilation-arena.yaml at the same x/z; mirrors content/generators/arena-*.yaml.
 id: annihilation-center-west
 match_stage_id: annihilation-arena
-position: { x: -13.5, y: 65.0, z: 0.5 }
+position: { x: -8.5, y: 65.0, z: 0.5 }
 period_seconds: 20.0
 amount: 5
 tier: iron

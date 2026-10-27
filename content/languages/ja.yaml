@@ -27,8 +27,6 @@ astera:
   objective.bar.steal-jewelry.team: "<{tag}><bold>{team}</bold></{tag}> <white>納品 {banked}/{goal}</white>"
   objective.bar.capture-wool.capturing: "<white>{zone}を制圧中</white> <yellow>{seconds}/{need}秒</yellow>"
   objective.bar.capture-wool.contested: "<red><bold>{zone}は競合中！</bold></red> <gray>敵を排除して制圧</gray>"
-  objective.bar.break-core: "<white>残りコア</white> <yellow>{alive}/{total}</yellow>"
-  objective.hint.break-core.break: "<red>{arrow} 最寄りの敵コアを壊せ ({dist}m)</red>"
   objective.hint.carry-tnt.deliver: "<gold>{arrow} <{team}>{team}</{team}> 基地へTNTを運べ ({dist}m)</gold>"
   objective.hint.carry-tnt.escort: "<green>{arrow} 運び手を護衛しろ ({dist}m)</green>"
   objective.hint.carry-tnt.stop: "<red>{arrow} TNTの運び手を止めろ！ ({dist}m)</red>"
@@ -50,7 +48,6 @@ astera:
   objective.moment.warn.bar: "<red><bold>敵が拠点に迫っている！</bold></red>"
   objective.moment.tension.bar: "<red><bold>あと1つで決着！</bold></red>"
   objective.moment.capture.bar: "<gold><bold>ゾーンを制圧！</bold></gold>"
-  objective.moment.core-alarm.bar: "<red><bold>コアが攻撃されている！</bold></red> <gray>{dir}</gray>"
   progression.reward.chat: "<gold>レベル {level} 報酬:</gold> +{gold} GOLD。解放: {unlocks}"
   progression.reward.title: "<gold>レベル {level} 報酬を獲得！</gold>"
   progression.unlocks.name: "<gold>解放済みコンテンツ</gold>"
@@ -188,7 +185,7 @@ astera:
     confirm:
       required: "<yellow>この操作は取り消せません。<click:run_command:'{command}'><hover:show_text:'{command}'><green>[クリックで実行]</green></hover></click> <gray>または {command} を実行</gray></yellow>"
     example:
-      queue-join: "/astera queue join battle-loyal （/play battle-loyal でも可）"
+      queue-join: "/astera queue join carry-tnt （/play carry-tnt でも可）"
       lang: "/astera lang ja"
       volume: "/astera volume music 50"
       shop: "/astera shop"
@@ -230,7 +227,7 @@ astera:
       travel-survival: "サバイバル島へ移動"
       travel-lobby: "ロビーへ戻る"
       queue: "マッチメイキングキュー"
-      queue-join: "キューのレーンに参加（battle-loyal / annihilation など / custom:<モード>）"
+      queue-join: "キューのレーンに参加（carry-tnt / annihilation など / custom:<モード>）"
       queue-leave: "キューから抜ける"
       queue-status: "キューの待ち順を表示"
       norma: "ノルマレベル"
@@ -461,6 +458,16 @@ astera:
         sneak_left: "<gray>スニーク + 左クリック: <white>{name}</white></gray>"
         drop: "<gray>ドロップ (Q): <white>{name}</white></gray>"
         sneak_drop: "<gray>Shift + ドロップ (Q): <white>{name}</white></gray>"
+      locked: "<dark_gray>ロック中: {trigger} - Lv {level} で解放</dark_gray>"
+      trigger_name:
+        left_click: "左クリック"
+        right_click: "右クリック"
+        sneak_right: "スニーク+右クリック"
+        sneak_left: "スニーク+左クリック"
+        drop: "ドロップ(Q)"
+        sneak_drop: "スニーク+ドロップ(Q)"
+        hold: "長押し"
+        shoot: "射撃"
       stat:
         attack_damage: "<gray>ダメージ: <white>{value}</white></gray>"
         attack_speed: "<gray>攻撃速度: <white>{value}</white></gray>"
@@ -507,6 +514,8 @@ astera:
     # Wave 5lobby-content (ADR-0119) — ロビー GUI タイトル + タイル tooltip.
     main-menu:
       title: "<gold>メインメニュー</gold>"
+      pve:
+        tooltip: "<gray>クリックで PvE 冒険へ出発（ソロ / 協力でモンスターの波に挑む）。</gray>"
       queue:
         tooltip: "<gray>クリックでモードを選んでゲーム開始（キュー / ボット戦）。</gray>"
       shop:
@@ -904,12 +913,16 @@ astera:
       arena-preparing: "<yellow>アリーナを準備中です… 完成次第、試合が始まります。</yellow>"
     norma-up:
       title: "<gold><bold>ノルマ達成！</bold></gold>"
-      subtitle: "<yellow>Lv {level}/{max}</yellow>"
+      subtitle: "<yellow>Lv {level}/{max}</yellow>{unlocked}"
+      unlocked-suffix: " <green>- 解放: {items}</green>"
+      unlocked: "<green>ノルマ Lv {level} で解放:</green> <white>{items}</white>"
       broadcast: "<gold>{player}</gold> <gray>がノルマを達成し</gray> <yellow>Lv {level}/{max}</yellow> <gray>になった！</gray>"
       max:
         title: "<gold><bold>ノルマ完全達成！</bold></gold>"
-        subtitle: "<yellow>最高レベル Lv {level} に到達</yellow>"
+        subtitle: "<yellow>最高レベル Lv {level} に到達</yellow>{unlocked}"
         broadcast: "<gold><bold>{player}</bold></gold> <yellow>が最高ノルマレベル Lv {level}/{max} に到達！</yellow>"
+    norma-locked:
+      bar: "<red>ロック中</red> <gray>-</gray> <gold>Lv {level}</gold> <gray>で解放</gray>"
     norma-choice:
       open:
         title: "<gold><bold>ノルマを選ぼう</bold></gold>"
@@ -973,7 +986,7 @@ astera:
       "replay.not-found": "<red>マッチ {match} の録画は保存されていません。</red>"
       "replay.export-failed": "<red>マッチ {match} の書き出しに失敗: {reason}</red>"
       queue: "<gray>マッチキューに参加／離脱します。</gray>"
-      "queue.join": "<gray>キュー参加: レーン（battle-loyal, annihilation など） | custom:MODE。</gray>"
+      "queue.join": "<gray>キュー参加: レーン（carry-tnt, annihilation など） | custom:MODE。</gray>"
       "queue.leave": "<gray>マッチキューを離脱します。</gray>"
       "queue.status": "<gray>キューの順番を表示します。</gray>"
       # Wave 5complete (ADR-0117 §Axis 3) — フラット管理サブコマンド。
@@ -1013,47 +1026,38 @@ astera:
         sudden-death: "<gray>サドンデスで決着。</gray>"
         objective: "<gray>モードの目標を達成して決着しました。</gray>"
         norma-time-limit: "<gray>制限時間終了:</gray> <{color}><bold>{team}</bold></{color}> <gray>がリードしていました。</gray>"
-        norma-time-draw: "<gray>制限時間終了。目標・ノルマレベル・スター・キルがすべて同点です。</gray>"
-        norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>がノルマレベル{level}に到達して勝利しました。</gray>"
+        norma-time-draw: "<gray>制限時間終了。目標・スター・キルがすべて同点です。</gray>"
         cancelled: "<gray>マッチがキャンセルされました。</gray>"
         world-unloaded: "<gray>マッチのワールドがアンロードされました。</gray>"
         encounter-cleared: "<green>エンカウンターの全 {waves} ウェーブを突破しました。</green>"
         encounter-failed: "<red>パーティはウェーブ {wave}/{waves} で倒れました。</red>"
         encounter-time-up: "<red>ウェーブ {wave}/{waves} で時間切れになりました。</red>"
         objective-by:
-          break-core: "<{color}><bold>{team}</bold></{color}> <gray>が最後の敵コアを破壊しました。</gray>"
           annihilation: "<{color}><bold>{team}</bold></{color}> <gray>が最後までネクサスを守り抜きました。</gray>"
           carry-tnt: "<{color}><bold>{team}</bold></{color}> <gray>が敵基地へTNTを届けました。</gray>"
           carry-mini-tnt: "<{color}><bold>{team}</bold></{color}> <gray>がミニTNTで敵基地を爆破しました。</gray>"
           capture-wool: "<{color}><bold>{team}</bold></{color}> <gray>が必要数のウールゾーンを制圧しました。</gray>"
           steal-jewelry: "<{color}><bold>{team}</bold></{color}> <gray>が必要数の宝石を持ち帰りました。</gray>"
-          battle-loyal: "<{color}><bold>{team}</bold></{color}> <gray>が先にキル目標へ到達しました。</gray>"
     # 試合開始時の「勝ち方」チャット (MatchBriefingListener)。
     briefing:
       header: "<gold>== 勝ち方 ==</gold>"
       mode:
-        break-core: "<gray>コア破壊:</gray> <white>敵のコアを壊し、自陣のコアを守る。最後までコアが残ったチームの勝ち。</white>"
         annihilation: "<gray>殲滅戦:</gray> <white>各チームの拠点「ネクサス」は外側の柱から壊せる。敵の柱を壊し、最後までネクサスが残ったチームの勝ち。</white>"
         carry-tnt: "<gray>TNT運搬:</gray> <white>TNTを拾って敵基地へ運ぶ。先に届けたチームの勝ち。</white>"
         carry-mini-tnt: "<gray>ミニTNT運搬:</gray> <white>マップ中のミニTNTを拾い、敵基地へ運んで設置しよう。規定数を設置すると敵基地が爆破されて勝ち。倒されると持っている分は失う。</white>"
         capture-wool: "<gray>ウール制圧:</gray> <white>ウールのゾーンに立って制圧。先に必要数を制圧したチームの勝ち。</white>"
         steal-jewelry: "<gray>宝石強奪:</gray> <white>敵の台座から宝石を奪い、自陣へ持ち帰る。必要数を持ち帰れば勝ち。</white>"
-        battle-loyal: "<gray>バトルロイヤル:</gray> <white>チームデスマッチ。先にキル目標に届いたチームの勝ち。</white>"
         pve-waves: "<gray>ウェーブ:</gray> <white>仲間とモンスターを迎え撃ち、ライフを切らさず全ウェーブを突破。</white>"
-      norma-win: "<gray>ノルマ:</gray> <white>ジェネレーターのスターとキルでレベルアップ(現在の目標はサイドバー)。先に</white> <gold>Lv {max}</gold> <white>へ到達した人のチームが勝利します。</white>"
-      norma-rank: "<gray>ノルマ:</gray> <white>ジェネレーターのスターとキルでレベルアップ(目標はサイドバー)。時間切れの際はレベルが順位を決めます。</white>"
-      time: "<gray>制限時間 {minutes} 分: 目標の達成度、次にノルマレベル・スター・キルで上回ったチームの勝ち。</gray>"
+      norma-rank: "<gray>ノルマ:</gray> <white>ジェネレーターのスターとキルでレベルアップ(目標はサイドバー)。レベルが上がるとアルティメットや特殊アイテムが解放されます。</white>"
+      time: "<gray>制限時間 {minutes} 分: 目標の達成度、次にスター所持数・キルで上回ったチームの勝ち。</gray>"
       reminder: "<gold>おさらい - 勝ち方:</gold>"
       first-time:
         header: "<aqua>== 初めての試合？ かんたんガイド ==</aqua>"
         sidebar: "<gray>右のサイドバーにチームのスコア、目標、ノルマの目標が出ています。</gray>"
-        stars: "<gray>マップのジェネレーター（スターが湧く装置）でスターを拾い、敵を倒してノルマレベルを上げよう。先に最上位へ到達した人のチームの勝ちです。</gray>"
+        stars: "<gray>マップのジェネレーター（スターが湧く装置）のスターを拾い、敵を倒してノルマレベルを上げよう。レベルが上がるとアルティメットや特殊アイテムが解放されます。</gray>"
         respawn: "<gray>倒されても数秒でリスポーンし、短い間は無敵です。仲間と固まって動き、F キーでメインメニューを開けます。</gray>"
     # 試合開始(ACTIVE)時に出す目標タイトル (MatchBriefingListener)。
     objective:
-      break-core:
-        title: "<gold><bold>コア破壊</bold></gold>"
-        subtitle: "<yellow>敵のコアを壊し、自陣のコアを守れ</yellow>"
       annihilation:
         title: "<gold><bold>殲滅戦</bold></gold>"
         subtitle: "<yellow>敵のネクサスの柱を壊せ</yellow>"
@@ -1069,15 +1073,11 @@ astera:
       steal-jewelry:
         title: "<gold><bold>宝石強奪</bold></gold>"
         subtitle: "<yellow>敵の宝石を奪って自陣へ持ち帰れ</yellow>"
-      battle-loyal:
-        title: "<gold><bold>バトルロイヤル</bold></gold>"
-        subtitle: "<yellow>先にキル目標に届いたチームの勝ち</yellow>"
       pve-waves:
         title: "<gold><bold>ウェーブ</bold></gold>"
         subtitle: "<yellow>全ウェーブを突破せよ</yellow>"
     # F3-4 — 試合終了時のリザルト画面（チャット部分）。ロビーへ戻る前に表示。
     result:
-      hint: "<yellow>勝つには:</yellow> <white>先にノルマ Lv {max} へ到達する(キルとスターでレベルが上がる)か、相手より先にモードの目標を達成する。</white>"
       norma:
         label: "<gray>ノルマ</gray>  {standings}"
         team: "<{color}>{team}</{color}> <white><bold>Lv {level}/{max}</bold></white> <gray>★{stars} ⚔{kills}</gray>"
@@ -1291,14 +1291,9 @@ astera:
         tier3: "<gold>第3層</gold> <white>{time}</white>"
         sudden-death: "<red>サドンデス</red>"
       score: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
-      battle-loyal:
-        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>キル</gray>"
       annihilation:
         team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
         eliminated: "<dark_gray><st>{team}</st> 全滅</dark_gray>"
-      break-core:
-        intact: "<{color}>{team}</{color}> <green>コア健在</green>"
-        destroyed: "<dark_gray><st>{team}</st> コア破壊</dark_gray>"
       carry-tnt:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>納品</gray>"
         carried: "<gray>TNT 所持:</gray> <{color}>{team}</{color}>"
@@ -1320,7 +1315,7 @@ astera:
       you: "<gray>あなた:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>スター</gray>"
       level: "<gray>ノルマ</gray> <white>Lv {level}/{max}</white>"
-      level-vs: "<gray>ノルマ</gray> <white>Lv {level}/{max}</white> <gray>(敵 {rival})</gray>"
+      next-unlock: "<gray>次:</gray> <white>Lv {level}</white> <gray>{item}</gray>"
       objective-star: "<gray>目標：</gray> <yellow>スター</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>目標：</gray> <red>キル</red> <white>{progress}/{target}</white>"
       objective-max: "<gold>最高ノルマレベル</gold>"
@@ -1602,12 +1597,6 @@ astera:
     # Wave 5c-N1 (ADR-0165): Wave 5c 6 モードの IGameMode façade タイトル。
     # ふるまい本体は `*Listener` 群 (Wave 5c) に存在、ここはフレームワーク階層
     # のモード名 (HUD / キュー / スコアボード用) のみ。
-    battle-loyal:
-      title: "<gold>バトルロイヤル</gold>"
-      scored: "<gold>{team} チームが得点！ ({score}/{goal})</gold>"
-    break-core:
-      title: "<gold>コアブレイク</gold>"
-      core-destroyed: "<red>{team} チームのコアが破壊された！</red>"
     carry-tnt:
       title: "<gold>TNT 輸送</gold>"
       picked-up: "<gold>{team} チームが TNT を拾った！</gold>"
@@ -2497,9 +2486,9 @@ astera:
   tutorial.guide.staff.title: "魔法を撃つ"
   tutorial.guide.staff.subtitle: "ファイアスタッフを取って右クリック"
   tutorial.guide.staff.hint: "ラックのファイアスタッフを右クリックして取り、手に持って右クリックで発動。魔法はエネルギー（満腹度バー）を使う。"
-  tutorial.guide.norma.title: "勝ち方"
-  tutorial.guide.norma.subtitle: "相手より先にノルマを進めよう"
-  tutorial.guide.norma.hint: "ジェネレーター（スターが湧く装置）や撃破でスターを集め、サイドバーに出る各レベルの目標を達成し、先に最上位のノルマに到達する。"
+  tutorial.guide.norma.title: "レベルアップ"
+  tutorial.guide.norma.subtitle: "アルティメットを解放しよう"
+  tutorial.guide.norma.hint: "ジェネレーター（スターが湧く装置）や撃破でスターを集め、サイドバーに出る各レベルの目標を達成し、ノルマレベルが上がるとアルティメットや特殊アイテムが解放される。"
   tutorial.guide.queue.title: "対戦の準備完了"
   tutorial.guide.queue.subtitle: "スポーン横のプレイゲートへ"
   tutorial.guide.queue.hint: "スポーンの隣で光るプレイゲートへ歩き、案内人を右クリックしてモードを選ぶ。コンパスでQを押しても同じ選択画面が開く。"
@@ -2528,12 +2517,10 @@ astera:
   play.lane.generic.name: "<gold>{lane}</gold>"
   play.lane.generic.desc: "<gray>専用アリーナのチーム戦。</gray>"
   play.lane.annihilation.desc: "<gray>3チーム・各3本の柱。敵のネクサスを破壊せよ。</gray>"
-  play.lane.break-core.desc: "<gray>敵のコアを壊し、自陣のコアを守る。</gray>"
   play.lane.carry-tnt.desc: "<gray>TNTを運んで敵基地へ届ける。</gray>"
   play.lane.carry-mini-tnt.desc: "<gray>マップ中の小さなTNTを敵基地へ運んで設置し、規定数で基地を爆破したチームの勝利。</gray>"
   play.lane.capture-wool.desc: "<gray>相手より先にウールのゾーンを制圧。</gray>"
   play.lane.steal-jewelry.desc: "<gray>敵の台座から宝石を奪って持ち帰る。</gray>"
-  play.lane.battle-loyal.desc: "<gray>チームデスマッチ。先にキル目標に届いた側の勝ち。</gray>"
   play.lane.pve-waves.desc: "<gray>ソロでも友達とでも。3ウェーブのモンスターを倒せ。</gray>"
   play.queue.joined: "<green><gold>{lane}</gold> のキューに参加しました。</green><gray>サイドバーで状況を確認。抜けるには赤いホットバーアイテムかメニュー。</gray>"
   play.queue.already-here: "<yellow>すでに <gold>{lane}</gold> で待機中です。</yellow>"
@@ -2607,7 +2594,7 @@ astera:
   match_menu.confirm.yes.tooltip: "<red>クリックで確定: 試合を抜け、スターは弾け飛び、離脱のルールが適用されます。</red>"
   match_menu.confirm.no.tooltip: "<gray>クリックで試合メニューに戻る。</gray>"
   match_menu.help.header: "<gold>試合ヘルプ</gold>"
-  match_menu.help.norma: "<gray>ノルマ:</gray> チームでスター目標かキル目標を達成してノルマレベルを上げ、先に最上位に届いたチームの勝ち。"
+  match_menu.help.norma: "<gray>ノルマ:</gray> チームでスター目標かキル目標を達成してノルマレベルを上げ、レベルが上がるとアルティメットや特殊アイテムが解放される。レベルで勝敗は決まらない。"
   match_menu.help.stars: "<gray>スター:</gray> 試合中だけ持てるアイテム。目標まで運ぶ。倒されたり抜けたりすると弾け飛び、他のプレイヤーが拾える。"
   match_menu.help.weapon-limit: "<gray>武器制限:</gray> 試合中に持てる武器の数には上限があり、超えた分は預かられて試合後に戻る。"
   presentation.sudden-death.title: "<red><bold>ラストスパート！</bold></red>"
@@ -2642,13 +2629,10 @@ astera:
   match.hint.sidebar: "<gray>右のサイドバーに目的とスコアが出ています</gray>"
   match.hint.stars: "<gold>★</gold> <gray>スターを拾い、敵を倒してレベルを上げよう</gray>"
   match.hint.respawn: "<gray>倒されても数秒で復活。<white>F</white> キーでメニューを開けます</gray>"
-  match.hint.norma-win: "<gray>先に</gray> <gold>Lv {max}</gold> <gray>へ到達したチームの勝ち</gray>"
-  match.hint.norma-rank: "<gray>時間切れの順位はレベルで決まります (最高 Lv {max})</gray>"
+  match.hint.norma-rank: "<gray>レベルを上げると新しいスキルやアルティメットが解放される (最高 Lv {max})。レベルで勝敗は決まらない</gray>"
   match.hint.time: "<gray>制限時間は {minutes} 分です</gray>"
   match.hint.norma-choice-star: "<gray>次の目標: <gold>★ {target}個</gold> を持つ。変更: <white>/astera norma choose kill</white></gray>"
   match.hint.norma-choice-kill: "<gray>次の目標: <red>⚔ {target}キル</red>。変更: <white>/astera norma choose star</white></gray>"
-  match.summary.subtitle.norma-level: "<{color}>{team}</{color}> <gray>が Lv{level} に到達</gray>"
-  match.summary.subtitle.norma-time: "<gray>時間切れ - </gray><{color}>{team}</{color}> <gray>がレベルで上回った</gray>"
   match.summary.subtitle.time-draw: "<gray>時間切れ - 同点</gray>"
   match.summary.subtitle.pve-cleared: "<green>全 {waves} ウェーブを突破</green>"
   match.summary.subtitle.pve-failed: "<red>ウェーブ {wave}/{waves} で全滅</red>"
@@ -2665,19 +2649,17 @@ astera:
   play.picker.bots.name-recommended: "<green>★</green> <aqua><bold>ボットと対戦</bold></aqua>"
   play.picker.bots.recommended: "<green>初めての人・待機が空のときはこちら（1人ですぐ遊べる）</green>"
   play.lane.annihilation.detail: "<gray>3チーム×最大4人。柱を崩して敵のネクサスを先に壊そう。</gray>"
-  play.lane.break-core.detail: "<gray>2チーム×最大4人。敵のコアを全部壊したチームの勝ち。</gray>"
   play.lane.carry-tnt.detail: "<gray>2チーム×最大4人。運んでいる間は狙われる。味方で守ろう。</gray>"
   play.lane.carry-mini-tnt.detail: "<gray>2チーム×最大4人。小さなTNTを集めて敵基地に設置しよう。</gray>"
   play.lane.capture-wool.detail: "<gray>2チーム×最大4人。ゾーンの上に立ち続けて制圧しよう。</gray>"
   play.lane.steal-jewelry.detail: "<gray>2チーム×最大4人。宝石を奪って自陣の台座に納めよう。</gray>"
-  play.lane.battle-loyal.detail: "<gray>2チーム×最大4人。敵を倒してキル目標に先に届こう。</gray>"
   play.lane.pve-waves.detail: "<gray>最大4人の協力プレイ。1人でも開始できる。</gray>"
   hint.currency.header: "<gold>通貨とレベル</gold>"
   hint.currency.gold: "<yellow>GOLD</yellow> <gray>- 試合の報酬で貯まる通貨。ショップで武器やコスメを買う。</gray>"
   hint.currency.gem: "<aqua>GEM</aqua> <gray>- プレミアム通貨。プレイでは貯まらず、現在は使い道なし（装飾・利便性用に予定）。</gray>"
   hint.currency.star: "<white>STAR</white> <gray>- 試合中だけのアイテム。通貨ではなく、試合の外には持ち出せない。</gray>"
   hint.currency.level: "<green>プレイヤーLv</green> <gray>- 試合の報酬XPで上がる永続レベル。上がるとご褒美が届く。</gray>"
-  hint.currency.norma: "<red>ノルマLv</red> <gray>- 試合の中だけの進行度（STARかキルで上げる）。試合が終わるとリセットされる。</gray>"
+  hint.currency.norma: "<red>ノルマLv</red> <gray>- 試合中だけのレベル。STARかキルで上がり、上げるとアルティメットや特殊アイテムが解放される。試合が終わるとリセットされ、勝敗は決まらない。</gray>"
   tutorial.guide.skip: "<gray>スキップ: <white>/astera tutorial skip</white>（あとで /astera tutorial start で再開）</gray>"
   gui.main-menu.last-result.tooltip: "<gray>クリックで直前の試合の結果をもう一度見る。</gray>"
 

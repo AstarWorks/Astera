@@ -32,5 +32,6 @@ skills:
   skill_id: bastion-greatsword-def
 - trigger: drop
   skill_id: bastion-greatsword-ego
+  min_norma_level: 3
 pdc_tags:
   astera:rarity: rare

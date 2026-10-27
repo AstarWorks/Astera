@@ -6,8 +6,9 @@
 #
 # Row 0 (slots 0..8): ops-only Admin (0) and Item catalog (8) via `visible_if: permission:astera.admin.panel`
 #   (ADR-0240), and "Leave queue" (4), shown only while the viewer waits in a queue (`visible_if: state:queued`, ADR-0248).
-# Row 1 (slots 10..16) "start here and earn": Help (10), Training (11), Daily/Quests (12), PLAY (13: the centre of the menu,
-#   tooltip marked "start here", ADR-0248), Shop (14), Vault (15), Cosmetics (16, UI-08).
+# Row 1 (slots 9..17) "start here and earn": PvE adventure (9, queues the pve-waves lane; it is not in the Play picker), Help (10),
+#   Training (11), Daily/Quests (12), PLAY (13: the centre of the menu, tooltip marked "start here", ADR-0248), Shop (14), Vault (15),
+#   Cosmetics (16, UI-08), last result (17).
 # Row 2 (slots 19..24) "people and settings": Party, Friends, Achievements, Profile, Travel, Settings.
 #
 # Item ids are `gui-tile-*` (content/items/); the texture pack supplies the visuals.
@@ -53,6 +54,14 @@ slots:
     tooltip:
       - astera.gui.main-menu.help.tooltip
 
+  - type: static
+    index: 9
+    item: gui-tile-travel-pve
+    on_left:
+      key: lobby.queue.join
+      payload: { lane: pve-waves }
+    tooltip:
+      - astera.gui.main-menu.pve.tooltip
   - type: static
     index: 11
     item: gui-tile-training

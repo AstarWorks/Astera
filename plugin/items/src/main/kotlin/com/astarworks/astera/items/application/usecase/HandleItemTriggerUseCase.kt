@@ -2,6 +2,7 @@ package com.astarworks.astera.items.application.usecase
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.IMatchLevelGate
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.domain.event.SkillCastRequested
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -27,6 +28,11 @@ import com.astarworks.astera.core.domain.skill.SkillTrigger
  * applies it as the one and only cooldown gate (the item override wins over
  * the skill's own `cooldown_ticks`).
  *
+ * ## Norma level gate
+ *
+ * A binding with `minNormaLevel > 1` is skipped (with feedback from [IMatchLevelGate]) while the caster is below
+ * that in-match level; the other bindings of the trigger still fire.
+ *
  * ## Active weapon
  *
  * [onHeldItemChanged] keeps the resource pool's active weapon (which decides
@@ -36,6 +42,8 @@ public class HandleItemTriggerUseCase(
     private val items: IItemRegistry,
     private val eventBus: IDomainEventBus,
     private val resourcePool: IResourcePoolService? = null,
+    /** Resolved lazily: Match may register after Items enables. `null` result = no Norma gate. */
+    private val levelGate: () -> IMatchLevelGate? = { null },
 ) {
 
     /** The hotbar selection changed; [itemId] is the Astera item now in hand, if any. */
@@ -78,6 +86,8 @@ public class HandleItemTriggerUseCase(
         if (matchingBindings.isEmpty()) return false
 
         for (binding in matchingBindings) {
+            // Norma level gate (ADR-0288): a locked binding is refused with feedback; the input is still swallowed.
+            if (binding.minNormaLevel > 1 && levelGate()?.denyIfLocked(playerId, binding.minNormaLevel) == true) continue
             eventBus.publish(
                 SkillCastRequested(
                     actorId = playerId,

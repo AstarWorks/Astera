@@ -1,7 +1,6 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.application.services.getOrThrow
-import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
@@ -12,11 +11,11 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Files
 
 /**
- * "How does Norma win the match?" must be answerable from what the player is shown: a briefing when the match goes
- * ACTIVE (the mode's objective + how Norma levels win it), and a result screen that names the winning objective and
- * each team's final Norma standing, so the loser can see how close it was.
+ * What decides a match must be answerable from what the player is shown: a briefing when the match goes ACTIVE (the
+ * mode's objective + what Norma levels are for), and a result screen that names the winning objective and each team's
+ * final Norma standing. Norma levels are power progression, never a win condition (ADR-0288).
  */
-class NormaWinExplainedScenarioTest {
+class NormaExplainedScenarioTest {
 
     private fun ScenarioScope.chat(who: SimEntity): String = checkNotNull(sim.server.view(who.id)).messages.joinToString("\n")
 
@@ -30,48 +29,50 @@ class NormaWinExplainedScenarioTest {
     }
 
     @Test
-    fun `break-core - the briefing teaches the objective and the Norma win, the result names the broken core and both Norma standings`() {
-        scenario("norma-explained-break-core") {
+    fun `carry-tnt - the briefing teaches the objective and the Norma unlocks, the result names the delivery and both Norma standings`() {
+        scenario("norma-explained-carry-tnt") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            startMatch("break-core", mapOf(red to "red", blue to "blue"))
+            startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "siege-isles-tnt")
             advance(40)
 
-            assertThat(chat(red)).contains("How to win").contains("destroy the enemy core")
+            assertThat(chat(red)).contains("How to win").contains("carry it into the enemy base")
             assertThat(chat(blue)).`as`("everybody is briefed").contains("How to win")
-            // The briefing is staged: the Norma and time-limit lines follow as spaced-out hints, not all at once.
+            // The briefing is staged: the Norma-unlock and time-limit lines follow as spaced-out hints, not all at once.
             advance(1500)
             val briefing = chat(red)
-            assertThat(briefing).contains("Lv 5").contains("Time limit 20 min")
+            assertThat(briefing).contains("unlock").contains("Time limit 20 min").doesNotContain("Lv 5 wins")
 
             val sidebar = sim.hud.sidebarText(red.id).joinToString("\n")
             assertThat(sidebar).`as`("the clock shows the limit (the sim shows the sidebar line keys with their placeholders)").contains("limit=20:00")
-            assertThat(sidebar).`as`("the Norma race against the rival is on the sidebar").contains("level=1,max=5,rival=1")
+            assertThat(sidebar).`as`("the own Norma level is on the sidebar").contains("level=1,max=5")
 
-            red.breaks(Vec3(90.0, 65.0, 0.0))
-            advance(60)
+            repeat(2) {
+                red.moveTo(Vec3(0.0, 65.0, -6.0))
+                advance(40)
+                red.moveTo(Vec3(43.0, 65.0, 0.0))
+                advance(40)
+            }
 
-            val ended = eventsOf<MatchEnded>().single()
-            assertThat(ended.reason).isNotInstanceOf(EndReason.NormaLevelReached::class.java)
+            eventsOf<MatchEnded>().single()
             val loserChat = chat(blue)
-            assertThat(loserChat).`as`("the verdict says what decided it, not 'objective completion'").contains("destroyed the last enemy core")
+            assertThat(loserChat).`as`("the verdict says what decided it, not 'objective completion'").contains("delivered the TNT to the enemy base")
             assertThat(loserChat).`as`("both teams' final Norma level is on the result screen").contains("Norma").contains("Lv 1/5")
-            assertThat(loserChat).`as`("the loser is told what would have won").contains("To win:").contains("Norma Lv 5")
-            assertThat(chat(red)).`as`("the winner gets no hint").doesNotContain("To win:")
+            assertThat(loserChat).`as`("no 'reach level N to win' hint exists any more").doesNotContain("To win:")
         }
     }
 
     @Test
-    fun `reaching the top Norma level - the result screen names the level and shows the winner at the top`() {
+    fun `reaching the top Norma level does not end the match`() {
         scenario("norma-explained-top-level") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val matchId = startMatch("break-core", mapOf(red to "red", blue to "blue"))
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
             climb(matchId, red, levels = 4)
 
-            assertThat(eventsOf<MatchEnded>().single().reason).isEqualTo(EndReason.NormaLevelReached(com.astarworks.astera.core.domain.match.TeamId("red"), 5))
-            val loserChat = chat(blue)
-            assertThat(loserChat).contains("reached Norma level 5 and won").contains("Lv 5/5").contains("Lv 1/5")
+            advance(40)
+            assertThat(eventsOf<MatchEnded>()).`as`("only the mode's own objective ends a match").isEmpty()
+            assertThat(chat(blue)).doesNotContain("and won")
         }
     }
 
@@ -82,7 +83,7 @@ class NormaWinExplainedScenarioTest {
         val objectiveModes = modes - setOf("pve-waves")
         for (lang in listOf("en", "ja")) {
             val text = Files.readString(root.resolve("languages/$lang.yaml"))
-            val briefing = text.substringAfter("    briefing:\n").substringBefore("      norma-win:")
+            val briefing = text.substringAfter("    briefing:\n").substringBefore("      norma-rank:")
             for (mode in modes) assertThat(briefing).`as`("$lang briefing for $mode").contains("        $mode: ")
             val reasons = text.substringAfter("        objective-by:\n").substringBefore("    # F3-4")
             for (mode in objectiveModes) assertThat(reasons).`as`("$lang win reason for $mode").contains("          $mode: ")

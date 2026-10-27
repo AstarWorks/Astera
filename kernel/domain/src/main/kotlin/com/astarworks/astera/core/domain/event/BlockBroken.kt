@@ -8,9 +8,9 @@ import java.time.Instant
 /**
  * Domain-level "a block was broken" event.
  *
- * Wave 5c introduced this as a Match-plugin stub for the BreakCore listener.
+ * Wave 5c introduced this as a Match-plugin stub for the block-break listener.
  * Wave 5d promotes it to Core alongside [BlockPlaced] so block tracking
- * (`IBlockStateGateway`), per-match journaling, and the BreakCore listener
+ * (`IBlockStateGateway`), per-match journaling, and the block-break listener
  * all consume the same vendor-neutral event from a stable package.
  *
  * The real **producer** (Bukkit `BlockBreakEvent` → adapter) lands in Wave 6

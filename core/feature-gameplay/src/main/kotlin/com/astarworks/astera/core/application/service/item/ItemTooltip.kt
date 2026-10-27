@@ -51,6 +51,7 @@ public class ItemTooltip(
         )
         addAll(usageWithEffects(spec, viewer))
         addAll(statLines(spec, viewer))
+        addAll(lockedLines(spec, viewer))
     }
 
     /**
@@ -76,6 +77,19 @@ public class ItemTooltip(
         if (briefs.any { it.usesEgo }) out += messages.render(viewer, EGO_NOTE)
         return out
     }
+
+    /** One greyed line per Norma-gated binding (ADR-0288): which input stays locked until which in-match level. */
+    private fun lockedLines(spec: ItemSpec, viewer: PlayerId?): List<String> =
+        spec.skillBindings.filter { it.minNormaLevel > 1 }.map {
+            messages.render(
+                viewer,
+                MessageKey("$BASE.locked"),
+                mapOf(
+                    "level" to it.minNormaLevel.toString(),
+                    "trigger" to messages.render(viewer, MessageKey("$BASE.trigger_name.${it.trigger.name.lowercase()}")),
+                ),
+            )
+        }
 
     /** Derived numeric lines only (no header / flavor), exposed for tests and compact surfaces. */
     public fun statLines(spec: ItemSpec, viewer: PlayerId?): List<String> {

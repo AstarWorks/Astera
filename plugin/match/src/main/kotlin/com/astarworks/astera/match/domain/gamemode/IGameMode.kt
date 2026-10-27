@@ -18,15 +18,14 @@ import com.astarworks.astera.match.domain.mode.GameModeId
  * ## Relationship with the legacy `GameMode` (data class hierarchy)
  *
  * `com.astarworks.astera.match.domain.mode.GameMode` (sealed) is **config**:
- * a value carrying mode-specific knobs (BattleLoyal.scoreThreshold,
- * BreakCore.coreBlockId, …). It pre-dates this framework and stays as-is —
+ * a value carrying mode-specific knobs (CarryTnt.deliveriesToWin, …). It pre-dates this framework and stays as-is —
  * the orchestration listeners under `match.application.usecase.mode/` still
  * consume those values.
  *
  * `IGameMode` (this file) is **behaviour**: the lifecycle contract that the
  * framework calls into. A given `IGameMode` impl may *delegate* to one or
  * more legacy `GameMode` configs (NormaGameMode wires the Star Generator +
- * Anomaly + Sudden Death pipeline that targets a `BattleLoyal`-style
+ * Anomaly + Sudden Death pipeline that targets a `CarryTnt`-style
  * objective), or own its own per-impl config (Phase 3 Siege).
  *
  * The two coexist because:

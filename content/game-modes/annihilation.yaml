@@ -26,7 +26,7 @@ impl_class: com.astarworks.astera.match.application.gamemode.annihilation.Annihi
 tick_period_ticks: 20
 default_config:
   # Norma layer (content/norma-layer/layer.yaml): Annihilation runs its own phase clock and sudden death, so the layer's
-  # time limit is off here; reaching the top Norma level still wins alongside the pillars.
+  # time limit is off here.
   time_limit_seconds: "0"
   # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability (ends on attack).
   respawn_delay_seconds: "5"
