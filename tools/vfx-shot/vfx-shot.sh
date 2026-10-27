@@ -981,11 +981,6 @@ place_scene() { # view target_z
   local view="$1" tz="$2"
   rcon "kill @e[type=minecraft:husk]" >/dev/null
   rcon "gamemode survival Caster" >/dev/null
-  # The performance hides the real body with invisibility; a SPECTATOR camera (Watcher) still draws invisible players as translucent
-  # ghosts, so a second upright head/torso shows beside the animated rig. Shrink the real body to its minimum scale for the film
-  # (SHOT_REAL_BODY=1 keeps it) so the ghost is a 1/16 speck under the rig.
-  if [ "${SHOT_REAL_BODY:-0}" = 1 ] || [ "$view" = caster ]; then rcon "attribute Caster minecraft:scale base set 1" >/dev/null
-  else rcon "attribute Caster minecraft:scale base set 0.0625" >/dev/null; fi
   [ "$view" = compare ] || tp Caster "$CX" "$Y" "$CZ" 0 0
   case "$view" in
     caster)
