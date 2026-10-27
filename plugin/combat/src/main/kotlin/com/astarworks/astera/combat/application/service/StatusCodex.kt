@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.status.StatusEffectId
 /**
  * UI-12: "what does this status do?" lookups. The one source of effect text is `astera.statusdesc.<id>`
  * (also used by the item tooltips); names come from the status spec's `display_name_key`. Builds the chat
- * lines for the applied notice, the `/astera status` list and the single-status detail.
+ * lines for the `/astera status` list and the single-status detail.
  */
 public class StatusCodex(
     private val statuses: IStatusEffectRegistry,
@@ -35,10 +35,6 @@ public class StatusCodex(
     public fun description(id: StatusEffectId, viewer: PlayerId?): String =
         messages.render(viewer, MessageKey("$STATUS_DESC.${id.value}"))
 
-    /** The one chat line sent when [id] lands on [viewer]: the name is hoverable (effect) and clickable (detail). */
-    public fun appliedLine(id: StatusEffectId, viewer: PlayerId?): String =
-        messages.render(viewer, K_APPLIED, entryPlaceholders(id, viewer))
-
     /** `/astera status`: every status with its one-line effect, each name clickable for the detail. */
     public fun listLines(viewer: PlayerId?): List<String> =
         listOf(messages.render(viewer, K_LIST_HEADER)) +
@@ -61,7 +57,6 @@ public class StatusCodex(
         private const val STATUS_DESC = "astera.statusdesc"
         private val EXTRA = listOf("immunity", "silence")
         public val K_UNKNOWN: MessageKey = MessageKey("astera.statuscodex.unknown")
-        private val K_APPLIED = MessageKey("astera.statuscodex.applied")
         private val K_LIST_HEADER = MessageKey("astera.statuscodex.list.header")
         private val K_LIST_LINE = MessageKey("astera.statuscodex.list.line")
         private val K_LIST_FOOTER = MessageKey("astera.statuscodex.list.footer")

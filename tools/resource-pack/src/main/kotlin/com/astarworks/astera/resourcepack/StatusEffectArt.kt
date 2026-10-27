@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage
 
 /** Hand-pixelled, deterministic 9x9 symbols in 9x12 cells. No system fonts or external assets. */
 internal object StatusEffectArt {
-    private val beneficial = setOf("charge", "dash", "evasive", "poise", "regen")
+    private val beneficial = setOf("charge", "dash", "evasive", "poise", "regen", "immunity", "swift")
     private val patterns = mapOf(
         "bleed" to "...#.../..###../..###../.#####./.#####./..###../.......",
         "burn" to "...#.../..##.#./.#.###./.#####./##.####/###.###/.#####.",
@@ -23,6 +23,8 @@ internal object StatusEffectArt {
         "tremor" to ".#...#./#.#.#.#/...#.../.#...#./#.#.#.#/...#.../.......",
         "wet" to "...#.../..###../..###../.#####./#.#####/#.#####/.#####.",
         "silence" to "#.....#/.#####./..###../#######/..###../.#####./#.....#",
+        "immunity" to "#######/#.....#/#.###.#/#.###.#/.#.#.#./..###../...#...",
+        "swift" to "...#..#/..#..#./.#..#../#####../.#..#../..#..#./...#..#",
     )
     private val colors = mapOf(
         "bleed" to 0xFFE45C76.toInt(),
@@ -41,6 +43,8 @@ internal object StatusEffectArt {
         "tremor" to 0xFFE4C694.toInt(),
         "wet" to 0xFF65BEFF.toInt(),
         "silence" to 0xFFE1B7FF.toInt(),
+        "immunity" to 0xFFFFF2A8.toInt(),
+        "swift" to 0xFF9CF2FF.toInt(),
     )
     private val digits = listOf(
         "111/101/101/101/111",
@@ -56,7 +60,7 @@ internal object StatusEffectArt {
     )
 
     fun atlas(): BufferedImage {
-        val image = BufferedImage(16 * 9, 3 * 12, BufferedImage.TYPE_INT_ARGB)
+        val image = BufferedImage(StatusEffectHudGlyphs.IDS.size * 9, 3 * 12, BufferedImage.TYPE_INT_ARGB)
         StatusEffectHudGlyphs.IDS.forEachIndexed { index, id ->
             val ox = index * 9
             val frame = if (id in beneficial) 0xFF56CB86.toInt() else 0xFFE76370.toInt()
@@ -79,13 +83,13 @@ internal object StatusEffectArt {
         return image
     }
 
-    /** 8 columns in stable glyph order; 8x nearest-neighbour magnification, including sample seconds/badges. */
+    /** 9 columns in stable glyph order; 8x nearest-neighbour magnification, including sample seconds/badges. */
     fun preview(): BufferedImage {
         val atlas = atlas()
-        val sheet = BufferedImage(8 * 18 * 8, 2 * 16 * 8, BufferedImage.TYPE_INT_ARGB)
+        val sheet = BufferedImage(9 * 18 * 8, 2 * 16 * 8, BufferedImage.TYPE_INT_ARGB)
         for (index in StatusEffectHudGlyphs.IDS.indices) {
-            val ox = (index % 8) * 18
-            val oy = (index / 8) * 16
+            val ox = (index % 9) * 18
+            val oy = (index / 9) * 16
             for (y in 0 until 12) for (x in 0 until 13) {
                 val color = if (x < 9) atlas.getRGB(index * 9 + x, y) else if (x == 9) 0 else {
                     // Example: two stacks at the top, four seconds at the bottom.

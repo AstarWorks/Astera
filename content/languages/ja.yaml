@@ -2765,7 +2765,6 @@ astera:
   # FX-12: 戦闘中のアクションバー表示 (被ダメージ・HP 低下・キル確認)
   hud.combat.hurt-by: "<red>{name} <gray>-{amount}</gray></red>"
   hud.combat.hurt: "<red>-{amount}</red>"
-  hud.combat.low-hp: "<red><bold>HP 危険 {hp}</bold></red>"
   hud.combat.kill: "<gold><bold>撃破</bold> <white>{name}</white></gold>"
   match.nav.carry-tnt.deliver: "<gold><{team}>{team}</{team}> 基地へ運べ</gold>"
   match.nav.carry-tnt.escort: "<green>運び手を護衛</green>"
@@ -2821,7 +2820,6 @@ astera:
   tutorial.guide.missions.next: "次のステップ: メニューでミッションを確認"
   # UI-12: 状態異常の効果をすぐ調べる (付与時のチャット / /astera status / 状態異常図鑑 GUI)。効果文は statusdesc.*
   statuscodex.title: "状態異常図鑑"
-  statuscodex.applied: "<gray>状態異常: </gray><click:run_command:'/astera status {id}'><hover:show_text:'<yellow>{name}</yellow><newline><white>{desc_q}</white><newline><dark_gray>クリックで詳しく見る</dark_gray>'><yellow><underlined>[{name}]</underlined></yellow></hover></click> <dark_gray>(カーソルで効果 / クリックで詳細)</dark_gray>"
   statuscodex.list.header: "<gold>状態異常の一覧</gold> <gray>- 名前をクリックで詳細</gray>"
   statuscodex.list.line: "<click:run_command:'/astera status {id}'><hover:show_text:'<white>{desc_q}</white>'><yellow>{name}</yellow></hover></click><gray> - {desc}</gray>"
   statuscodex.list.footer: "<gray>/astera status [名前]</gray> で 1 つの効果を詳しく、<gray>/astera status codex</gray> で図鑑画面を開きます。"
