@@ -9,6 +9,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.match.adapter.paper.PaperItemPickupAdapter
 import com.astarworks.astera.match.adapter.paper.PaperNormaPresentation
 import com.astarworks.astera.match.adapter.paper.PaperMatchPlayerPositions
+import com.astarworks.astera.match.adapter.paper.PaperObjectiveStage
 import com.astarworks.astera.match.adapter.paper.PaperStarDropWorld
 import com.astarworks.astera.match.adapter.paper.PaperMatchWorldInputAdapter
 import com.astarworks.astera.match.adapter.paper.PaperPillarBlockListener
@@ -45,6 +46,7 @@ internal object MatchPaperBindings {
         spectator = { services -> PaperSpectator(plugin.server, services.getOrThrow<IScheduler>()) },
         playerPositions = { PaperMatchPlayerPositions(plugin.server) },
         starDropWorld = { PaperStarDropWorld(plugin) },
+        objectiveStage = { PaperObjectiveStage(plugin) },
         normaPresentation = { services -> PaperNormaPresentation(
                 plugin,
                 services.getOrThrow<IMessageRenderer>(),
