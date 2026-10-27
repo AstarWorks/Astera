@@ -17,6 +17,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.ToolKind
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.config.toSpec
@@ -70,7 +71,7 @@ public class OreNodeService(
         val origin = stage?.origin ?: Vec3(0.0, 0.0, 0.0)
         val config = registry.find(source) ?: return
         val specs = config.nodes.mapNotNull { group ->
-            runCatching { group.toSpec { id -> customBlocks.all().firstOrNull { it.id.identifier == id }?.baseBukkitMaterial } }
+            runCatching { group.toSpec { id -> customBlocks.find(BlockType(id))?.baseBukkitMaterial } }
                 .onFailure { onInvalid(source, it.message ?: it.toString()) }
                 .getOrNull()
         }

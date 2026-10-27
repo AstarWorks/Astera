@@ -180,7 +180,7 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             Thread.sleep(1_500)
             val barsFrom = a.actionBars.size
             val goldBefore = count(a, "gold_ingot")
-            a.dig(0, 65, 12)
+            a.dig(0 + originX, 65, 12 + originZ)
             Thread.sleep(800)
             val bars = a.actionBars.drop(barsFrom).map { clean(it.text) }
             assertThat(bars.any { it.contains("pickaxe") }).describedAs("no tier hint on the action bar; bars=$bars").isTrue()
@@ -192,7 +192,7 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             selectTool(a, "stone_pickaxe")
             tpArena(a.name, 5.5, 65.0, 3.5, 0f, 0f)
             Thread.sleep(1_500)
-            a.dig(5, 65, 5)
+            a.dig(5 + originX, 65, 5 + originZ)
             val got = a.waitUntil(4_000) { count(a, "iron_ingot") > ironBefore }
             Thread.sleep(500)
             assertThat(got).describedAs("no ore item arrived; iron=${count(a, "iron_ingot")} (before $ironBefore); chat=${a.chatTexts().takeLast(3)}").isTrue()
@@ -215,8 +215,8 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
 
         // --- 6. tool skill break_area ---------------------------------------------------------------------------------------
         E2eReport.check(suite, "a stone pickaxe right-click (bore) removes the blocks in front inside the arena", "RCON execute if block") {
-            // A 3x3 dirt wall at x=-60, the bot stands at x=-63.5 facing east (yaw 270), bore reaches 4 blocks.
-            for (y in 65..67) for (z in 4..6) inArena("run setblock ${-60 + originX} $y ${z + originZ} minecraft:dirt")
+            // A 3x3 glass wall at x=-60, the bot stands at x=-63.5 facing east (yaw 270), bore reaches 4 blocks.
+            for (y in 65..67) for (z in 4..6) inArena("run setblock ${-60 + originX} $y ${z + originZ} minecraft:glass")
             tpArena(a.name, -63.5, 65.0, 5.5, 270f, 0f)
             Thread.sleep(1_500)
             val slot = selectTool(a, "stone_pickaxe")
@@ -225,37 +225,43 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             val before = solid()
             a.useItem(270f, 0f)
             Thread.sleep(1_500)
+            // Glass is cover (tempered-glass, 250 HP): one stone-pickaxe bore chips it, a second one (after the 8 s cooldown) breaks it.
+            if (solid() == before) {
+                Thread.sleep(7_000)
+                a.useItem(270f, 0f)
+                Thread.sleep(1_500)
+            }
             val after = solid()
             assertThat(before).describedAs("test wall was not placed").isEqualTo(9)
-            assertThat(after).describedAs("bore removed nothing from the 3x3 dirt wall; chat=${a.chatTexts().takeLast(3)}; bars=${a.actionBars.takeLast(2).map { it.text }}").isLessThan(before)
+            assertThat(after).describedAs("bore removed nothing from the 3x3 glass wall; chat=${a.chatTexts().takeLast(3)}; bars=${a.actionBars.takeLast(2).map { it.text }}").isLessThan(before)
             "wall solid cells $before -> $after"
         }
 
         // --- 7. hand-mining a custom block ----------------------------------------------------------------------------------
-        // astera:reinforced_planks is DARK_OAK_PLANKS and the axe is its tool. Holding START..FINISH for increasing times, the first hold
-        // that breaks it is the break time the server accepts.
-        fun breakTimeMs(tool: String?): Long? {
+        // astera:reinforced_planks is DARK_OAK_PLANKS cover (450 HP) and the axe is its tool. A left-click is one swing
+        // (HitCustomBlockUseCase), so the number of swings until it is gone is the speed.
+        fun swingsToBreak(tool: String?): Int? {
             if (tool != null) selectTool(a, tool) else {
                 val empty = (0..8).firstOrNull { rcon("execute if items entity ${a.name} hotbar.$it *").contains("failed") } ?: return null
                 a.selectHotbar(empty)
                 Thread.sleep(300)
             }
-            for (hold in listOf(250L, 500L, 1000L, 2000L, 4000L, 8000L)) {
-                inArena("run setblock ${-60 + originX} 66 ${0 + originZ} minecraft:dark_oak_planks")
-                tpArena(a.name, -62.5, 65.0, 0.5, 270f, 0f)
-                Thread.sleep(500)
-                a.dig(-60, 66, 0, hold)
+            inArena("run setblock ${-60 + originX} 66 ${0 + originZ} minecraft:dark_oak_planks")
+            tpArena(a.name, -62.5, 65.0, 0.5, 270f, 0f)
+            Thread.sleep(500)
+            for (n in 1..60) {
+                a.dig(-60 + originX, 66, 0 + originZ, 100L)
                 Thread.sleep(400)
-                if (!arenaBlockIs(-60, 66, 0, "minecraft:dark_oak_planks")) return hold
+                if (!arenaBlockIs(-60, 66, 0, "minecraft:dark_oak_planks")) return n
             }
             return null
         }
-        E2eReport.check(suite, "hand-mining reinforced planks with an axe is clearly faster than with a bare hand", "START/FINISH_DIGGING hold vs RCON block") {
-            val withAxe = breakTimeMs("stone_axe")
-            val bare = breakTimeMs(null)
-            assertThat(withAxe).describedAs("the axe never broke the planks within 8s").isNotNull()
-            assertThat(bare ?: Long.MAX_VALUE).describedAs("bare hand $bare ms vs axe $withAxe ms").isGreaterThanOrEqualTo(withAxe!! * 2)
-            "axe=${withAxe}ms bare=${bare}ms (smallest hold that broke it)"
+        E2eReport.check(suite, "hand-mining reinforced planks with an axe is clearly faster than with a bare hand", "left-click swings until the block is gone (RCON block)") {
+            val withAxe = swingsToBreak("stone_axe")
+            val bare = swingsToBreak(null)
+            assertThat(withAxe).describedAs("the axe never broke the planks within 60 swings").isNotNull()
+            assertThat(bare ?: Int.MAX_VALUE).describedAs("bare hand $bare swings vs axe $withAxe swings").isGreaterThanOrEqualTo(withAxe!! * 2)
+            "axe=$withAxe swings bare=${bare ?: ">60"} swings"
         }
 
         E2eReport.check(suite, "server log stayed free of errors during the match", "server log") {

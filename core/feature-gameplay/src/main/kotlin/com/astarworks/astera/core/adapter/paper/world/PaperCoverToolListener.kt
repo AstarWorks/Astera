@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.world
 
 import com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer
+import com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase
@@ -8,7 +9,6 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
-import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -34,9 +34,8 @@ public class PaperCoverToolListener(
     private val registry: ICustomBlockRegistry,
     private val matches: () -> IMatchRepository?,
     private val useCase: () -> HitCustomBlockUseCase?,
+    private val exclusion: () -> IAreaBreakExclusion?,
 ) : Listener {
-
-    private val itemIdKey: NamespacedKey = NamespacedKey(plugin, PaperItemMaterializer.ITEM_ID_KEY)
 
     public fun start(plugin: JavaPlugin) {
         plugin.server.pluginManager.registerEvents(this, plugin)
@@ -66,11 +65,15 @@ public class PaperCoverToolListener(
 
     private fun isCoverInMatch(player: Player, block: Block): Boolean =
         registry.resolveByBaseMaterial(block.type.name) != null &&
+            // Blocks another system owns (Mid ore nodes share a base material with cover) keep their own mining rules.
+            exclusion()?.isExcluded(WorldId(block.world.name), Vec3(block.x.toDouble(), block.y.toDouble(), block.z.toDouble())) != true &&
             matches()?.findMatchOf(PlayerId(player.uniqueId)) != null
 
     private fun heldItemId(player: Player): ItemId? {
-        val raw = player.inventory.itemInMainHand.itemMeta?.persistentDataContainer
-            ?.get(itemIdKey, PersistentDataType.STRING) ?: return null
+        // The item id key lives under the namespace of whichever plugin materialized the item (Items, Core, ...), so match by key name.
+        val pdc = player.inventory.itemInMainHand.itemMeta?.persistentDataContainer ?: return null
+        val key = pdc.keys.firstOrNull { it.key == PaperItemMaterializer.ITEM_ID_KEY } ?: return null
+        val raw = pdc.get(key, PersistentDataType.STRING) ?: return null
         return runCatching { ItemId(raw) }.getOrNull()
     }
 }
