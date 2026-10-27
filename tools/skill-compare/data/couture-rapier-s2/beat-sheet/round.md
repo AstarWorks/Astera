@@ -71,3 +71,13 @@ founder 確認済みの台帳 (coordinator 経由 2026-10-27)。この commit �
 - 3 つの projectile は同じ発射点・同じ照準。「並んで飛ぶ」の側方オフセットは VFX 側 (flight vfx の x 平行移動) で、判定球は 1 つ分の経路。エンジンに側方 muzzle が無い。
 - 糸は 3 つに直接結ばれていない。キャスターの手→生きた敵への 1 本の線で、飛翔中の 3 つはこの線の近くを飛ぶ。頭上の間 (t22-34) は糸なし。
 - 糸は敵に追従しない (固定で基準距離 5.4)。target_line は実機で線が手から後ろ向きに伸びたため使っていない。他の距離の敵への追従は engine 側の確認待ち。
+
+### 構成コミット: capture (merge 後に再撮影)
+capture side: capture-side.png
+capture top: capture-top.png
+capture miss: capture-miss.png
+
+- 飛行: 3 つは t35-t39 の約 4-5 tick 見える (launch_speed 1.0)。top では左刃・中央の本体・右刃が横並びで敵へ進む (side frame 035-039, top frame 036-039)。
+- 敵に刺さる 3 物: 本体 = `couture-shears-linked`、刃 = `couture-rapier-blade-a` / `-b`。ただし linked 自体が刃 2 枚と輪を含むため、敵の所で刃が重複して見える。本体はピボット (花) だけの専用モデルが要る (modeler への依頼待ち)。
+- miss (敵なし): 3 つとも前へ飛び続け、最大射程/期限で消える。糸は出ない (標的が無い)。frame 042-046。
+- hit2 の星 (白い放射) は 30% に縮小。
