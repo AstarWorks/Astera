@@ -116,6 +116,11 @@ def make_pillar():
     # pale core: ~35% of the width, soft, then a white hot spine
     dst = comp(dst, hexc("#FFF6C8"), soft(d - 58, 6.0) * env)
     dst = comp(dst, hexc("#FFFFFF"), soft(d - 86, 5.0) * env * 0.95)
+    # r4: dark mix - two hard broken dark slivers between the gold body and the pale core (angular, vertical)
+    seg = (noise1d(n, np.random.default_rng(19), 7, 1)[np.clip((Y * SS).astype(int), 0, n - 1)] > 0.45).astype(np.float32)
+    d2 = half - np.abs(X - N / 2)  # straight (un-wobbled) inset so the slivers stay ruler-straight
+    for dd in (36, 47):
+        dst = comp(dst, hexc("#1B1530"), soft(d2 - dd, 0.9) * soft(dd + 5 - d2, 0.9) * env * seg * 0.75)
     # faint vertical streaks in the body for the electric look
     g = noise1d(n, np.random.default_rng(3), 22, 2)[np.clip((X * SS).astype(int), 0, n - 1)]
     dst[..., :3] *= (0.94 + 0.12 * (g[..., None] - 0.5) * 2)

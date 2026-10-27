@@ -156,3 +156,7 @@ Relevant Learnings: <links>
 - 2026-10-27 S3 r3: Centre-based radial bursts need transparent gaps between rays; spikes need their origin at the base; dark vignettes must be 0 at the border or the square sprite edge shows (generator `tools/item-art/scripts/bastion_s3_slam_sprites.py`).
 - 2026-10-27 S3 r3: Never reuse another skill's baked ring tiles (S2 ring was a 0.15-block crescent baked around a rig pivot); bake ring-specific tiles centred on the feet (`bastion_s3_ring.py`). skill-preview does not draw ring tiles, so judge in the real client.
 - 2026-10-27 S3 r3: hits looked 1 tick early in stepped captures at all three contacts; consistent offset points to capture stamp mapping, not game timing (unconfirmed, needs a realtime capture).
+
+- 2026-10-27 S3 r4: the real full-screen flash is `screen_flash` (title overlay), visible only to targeted players; the compare Watcher (spectator ~8 blocks away) needs a nearby_entities radius >= 12 to see it. skill-preview draws world-space fx full-screen that the client does not; judge flashes in real captures.
+- 2026-10-27 S3 r4: dash distance check from the top capture: 105 px of 140 px for a 7.2-block enemy gap = ~5.4 blocks, lands ~1.8 short (rough pixel estimate; reviewer's 3.3 likely a mid-dash frame). follow:true fx snap to the caster anchor each tick, so dash plates must be world-fixed (follow:false) to flow along the path.
+- 2026-10-27 S3 r4: contacts 2/3 showed 1 tick early in the stepped capture; shifted fx, flashes, damage +1 (delays 41/64) empirically; verify in the next capture.
