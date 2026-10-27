@@ -44,6 +44,12 @@ public class LobbyHintIntentHandler(
                 "astera.hint.help.commands",
                 "astera.hint.help.tutorial",
                 "astera.hint.help.in-match",
+                "astera.hint.currency.header",
+                "astera.hint.currency.gold",
+                "astera.hint.currency.gem",
+                "astera.hint.currency.star",
+                "astera.hint.currency.level",
+                "astera.hint.currency.norma",
             ),
         )
     }
