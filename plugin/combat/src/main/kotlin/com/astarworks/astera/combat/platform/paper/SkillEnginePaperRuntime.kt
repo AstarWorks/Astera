@@ -19,6 +19,7 @@ import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCas
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.platform.wiring.CombatPlatformPorts
+import com.astarworks.astera.combat.platform.wiring.SkillMetaRegistry
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
@@ -73,6 +74,7 @@ internal class SkillEnginePaperRuntime(
         applyDamage: ApplyDamageUseCase,
         applyStatus: ApplyStatusUseCase,
         statusContainer: IStatusEffectContainer,
+        skillGate: SkillMetaRegistry,
     ) {
         val services = ctx.services
         val scheduler = services.getOrThrow<IScheduler>()
@@ -96,6 +98,8 @@ internal class SkillEnginePaperRuntime(
         frameErrors.forEach { log.warn("skill engine frame table: {}", it) }
         val catalog = SkillEngineRegistries.catalog(tables)
         val contents = SkillEngineContents(catalog)
+        // the cast gate reads cooldown / cost / reload / ego from the v2 `meta:` block of every skill that has one
+        skillGate.metaOf = { id -> catalog.get(id)?.def?.meta }
         val skillsDir = ctx.contentDir.resolve("skills")
         val report = contents.reload(skillsDir)
         log.info("skill engine v2: loaded {} (failed {})", report.loaded, report.failed)
@@ -173,6 +177,7 @@ internal class SkillEnginePaperRuntime(
 
         tickHandle = scheduler.runRepeatingTicks(ExecutionScope.Global, 1L, 1L) {
             built.runner.tick(scheduler.currentTick().toInt())
+            built.world.tick()
             val diagnostics = built.runner.diagnostics()
             if (diagnostics.size != seenDiagnostics) {
                 diagnostics.drop(seenDiagnostics).forEach {

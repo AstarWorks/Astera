@@ -90,6 +90,8 @@ import com.astarworks.astera.core.platform.wiring.WiringContext
  */
 public class CombatWiringResult(
     public val skillContents: SkillContents,
+    /** The cast gate's registry: v1 specs overlaid with the v2 `meta:` block (bound by the skill engine runtime). */
+    public val skillGate: SkillMetaRegistry,
     public val statusContents: StatusContents,
     public val armorContents: ArmorContents,
     public val applyDamage: ApplyDamageUseCase?,
@@ -131,6 +133,7 @@ public object CombatWiring {
         val skillsContentDir = ctx.contentDir.resolve("skills")
         val contentCelEvaluator = services.get<ICelEvaluator>() ?: StubCelEvaluator()
         val skillContents = SkillContents(contentCelEvaluator)
+        val skillGate = SkillMetaRegistry(skillContents)
         val skillReport = skillContents.bootstrap(skillsContentDir)
         logger.info("Skills loaded: ${skillReport.loaded} ok, ${skillReport.failed} failed")
 
@@ -178,7 +181,7 @@ public object CombatWiring {
         )
 
         // 3. Register Combat ports onto the shared registry --------------------
-        registrations += services.register<ISkillRegistry>(skillContents)
+        registrations += services.register<ISkillRegistry>(skillGate)
         registrations += services.register<IStatusEffectRegistry>(statusContents)
         // Also published so Match can wipe fire / glow / freeze when a match ends or a player leaves it.
         val entityEffects = ports.entityEffectsGateway?.invoke(services)
@@ -563,7 +566,7 @@ public object CombatWiring {
             }
 
             val castSkill = CastSkillUseCase(
-                skillRegistry = skillContents,
+                skillRegistry = skillGate,
                 statusContainer = statusContainer,
                 eventBus = eventBus,
                 cooldownTracker = cooldownTracker,
@@ -580,7 +583,7 @@ public object CombatWiring {
                 castSkill = castSkill,
                 chargeTracker = chargeTracker,
                 eventBus = eventBus,
-                skillRegistry = skillContents,
+                skillRegistry = skillGate,
                 scheduler = scheduler,
             )
 
@@ -764,6 +767,7 @@ public object CombatWiring {
 
         return CombatWiringResult(
             skillContents = skillContents,
+            skillGate = skillGate,
             statusContents = statusContents,
             armorContents = armorContents,
             applyDamage = applyDamageOut,
