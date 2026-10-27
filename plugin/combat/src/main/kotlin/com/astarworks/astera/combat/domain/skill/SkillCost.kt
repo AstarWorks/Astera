@@ -44,7 +44,7 @@ public object SkillCost {
                     is Mechanic.Loop -> multiply(count(m.count), list(m.mechanics))
                     is Mechanic.IfThen -> maxOf(list(m.then_), list(m.else_))
                     is Mechanic.Choose -> m.weighted.maxOf { list(it.mechanics) }
-                    is Mechanic.ForEachTarget -> list(m.mechanics)
+                    is Mechanic.ForEachTarget -> maxOf(list(m.mechanics), list(m.ifEmpty))
                     is Mechanic.Counter -> list(m.onHit)
                     is Mechanic.DashStrike -> Long.MAX_VALUE // per-tick unbounded swept candidates
                     is Mechanic.CastSkill -> skill(m.skillId)

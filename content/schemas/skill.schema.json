@@ -1603,6 +1603,12 @@
                                 "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
                             }
                         },
+                        "if_empty": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                            }
+                        },
                         "delay_ticks": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
                         },

@@ -658,10 +658,14 @@ public sealed class Mechanic {
 
     // ───────────────────────── Control flow (5) ─────────────────────────
 
-    /** Resolve once, then keep each entity as Target in delayed/repeated children. */
+    /**
+     * Resolve once, then keep each entity as Target in delayed/repeated children. [ifEmpty] runs once, in the
+     * unchanged context, when no living target was selected (ADR-0286).
+     */
     public data class ForEachTarget(
         override val targets: Targeter,
         val mechanics: List<Mechanic>,
+        val ifEmpty: List<Mechanic> = emptyList(),
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
