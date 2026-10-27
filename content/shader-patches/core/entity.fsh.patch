@@ -16,18 +16,18 @@ layout(location = 11) in vec3 rigCamOffset;
 // at least one hitbox (0.6) away. So head, torso and legs fade by HORIZONTAL distance to the camera (world axes, from
 // rigCamOffset) inside a vertical window, not by a sphere. Arms hang to the sides and swing in front of the camera:
 // they keep a small sphere so the first-person swing still shows.
-// Tuning constants (blocks): discarded below *_NEAR, fully visible from *_FAR, ordered-dither in between.
-const float RIG_HEAD_NEAR = 0.36;   // head: the camera inside the 0.5-wide cube (corner 0.35) sees only its inside
-const float RIG_HEAD_FAR = 0.46;
-const float RIG_TORSO_NEAR = 0.30;  // torso (corner 0.28)
-const float RIG_TORSO_FAR = 0.42;
-const float RIG_LEG_NEAR = 0.30;    // legs (corner 0.26)
-const float RIG_LEG_FAR = 0.40;
+// Tuning constants (blocks). Head, torso and legs are HARD-cut (no dither band, never translucent): inside the column
+// they are discarded, outside they are fully opaque. Radii exceed the bone corner (head 0.35, torso 0.28, leg 0.26) by a
+// margin that also covers the rig lagging the camera by a few ticks. The test is per fragment, so it only handles the
+// first-person column; a camera INSIDE a bone cube is handled by culling back faces (below), which hides the whole cube
+// at once instead of leaving its far inner faces (ADR-0288 round 2).
+const float RIG_HEAD_CUT = 0.12;
+const float RIG_TORSO_CUT = 0.28;
+const float RIG_LEG_CUT = 0.26;
 const float RIG_ARM_NEAR = 0.1;     // arms: sphere around the camera, they fade more gently so the first-person swing stays visible
 const float RIG_ARM_FAR = 0.35;
-const float RIG_COLUMN_UP = 0.5;    // the column reaches this far above the camera (the head top is 0.38 above the eye) ...
-const float RIG_COLUMN_DOWN = 1.0;  // ... and this far below it for head and torso (hips are 0.87 below); legs have no lower bound
-const float RIG_COLUMN_SOFT = 0.2;  // the vertical edges of the column fade over this distance
+const float RIG_COLUMN_UP = 0.6;    // the column reaches this far above the camera (the head top is 0.38 above the eye) ...
+const float RIG_COLUMN_DOWN = 1.1;  // ... and this far below it for head and torso (hips are 0.87 below); legs have no lower bound
 
 // 4x4 Bayer threshold in (0, 1) for this screen pixel.
 float rigBayer(vec2 fragCoord) {
@@ -125,19 +125,20 @@ vec2 rigRemap(vec2 uv, int part) {
     vec2 skinUV = texCoord0;
     if (rigPart >= 0) {
         int rigBone = rigPart & 7;
+        if (rigPart < 16 && dot(rigViewNormal, rigViewPos) > 0.0) {
+            discard;   // back face: the camera is inside this cube (the vanilla pipeline does not cull these)
+        }
         float rigVisible;
         if (rigBone == 2 || rigBone == 3) {
             rigVisible = clamp((length(rigViewPos) - RIG_ARM_NEAR) / (RIG_ARM_FAR - RIG_ARM_NEAR), 0.0, 1.0);
         } else {
             bool rigLeg = rigBone >= 4;
-            float rigNear = rigBone == 0 ? RIG_HEAD_NEAR : (rigLeg ? RIG_LEG_NEAR : RIG_TORSO_NEAR);
-            float rigFar = rigBone == 0 ? RIG_HEAD_FAR : (rigLeg ? RIG_LEG_FAR : RIG_TORSO_FAR);
-            float rigAbove = clamp((rigCamOffset.y - RIG_COLUMN_UP) / RIG_COLUMN_SOFT, 0.0, 1.0);
-            float rigBelow = rigLeg ? 0.0 : clamp((-rigCamOffset.y - RIG_COLUMN_DOWN) / RIG_COLUMN_SOFT, 0.0, 1.0);
-            float rigSide = clamp((length(rigCamOffset.xz) - rigNear) / (rigFar - rigNear), 0.0, 1.0);
-            rigVisible = max(rigSide, max(rigAbove, rigBelow));
+            float rigCut = rigBone == 0 ? RIG_HEAD_CUT : (rigLeg ? RIG_LEG_CUT : RIG_TORSO_CUT);
+            bool rigInColumn = length(rigCamOffset.xz) < rigCut && rigCamOffset.y < RIG_COLUMN_UP
+                && (rigLeg || rigCamOffset.y > -RIG_COLUMN_DOWN);
+            rigVisible = rigInColumn ? 0.0 : 1.0;
         }
-        if (rigVisible <= rigBayer(gl_FragCoord.xy)) {
+        if (rigVisible <= rigBayer(gl_FragCoord.xy) * 0.999) {
             discard;
         }
         skinUV = rigRemap(texCoord0, rigPart);
