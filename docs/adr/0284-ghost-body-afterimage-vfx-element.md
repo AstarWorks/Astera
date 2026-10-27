@@ -52,4 +52,4 @@ A new VFX top-level list `ghost_bodies` (`VfxGhostBody`): `id`, `animation` (ski
   (the reference afterimage is 1.2-1.3x).
 - The ghost shader now carries a glowing rim: faces seen head-on are thinner (alpha 0.38), grazing faces brighter and more opaque
   (alpha 0.8, lifted toward `#C7A8FF`), so the silhouette glows. Mean opacity stays near `GHOST_OPACITY`.
-- `start_tick` / `end_tick` count effect ticks (ghost spawns at skill tick 63, `end_tick: 9` keeps it to 71).
+- `start_tick` / `end_tick` count effect ticks (ghost spawns at skill tick 63, `end_tick: 12` keeps it to 74). A stepped side capture shows the ghost on frames labelled t60..t68 for end_tick 9, i.e. 3 ticks before the sim spawn tick, so 12 shows it on t60..t71 in capture numbering.
