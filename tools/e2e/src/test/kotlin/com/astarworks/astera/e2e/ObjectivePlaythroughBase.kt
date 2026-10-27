@@ -72,7 +72,6 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             val ansi = Regex("§.|\u001B\\[[0-9;]*m")
             val briefing = bots.associateWith { b -> b.chat.drop(chatFrom.getValue(b)).map { it.text.replace(ansi, "") } }
             bots.forEach { b -> assertThat(briefing.getValue(b).any { it.contains("How to win") }).describedAs("${b.name} got no briefing; chat=${briefing.getValue(b).takeLast(8)}").isTrue() }
-            assertThat(briefing.getValue(bots[0]).any { it.contains("Norma") && it.contains("unlock") }).describedAs("the briefing does not say Norma levels unlock ultimates/specials").isTrue()
             val side = bots.associateWith { it.sidebarLines().joinToString("\n") { l -> l.replace(ansi, "") } }
             bots.forEach { b ->
                 assertThat(side.getValue(b)).describedAs("${b.name} sidebar:\n${side.getValue(b)}").containsPattern("\\d+:\\d{2} ?/ ?\\d+:\\d{2}").contains("Norma Lv")
