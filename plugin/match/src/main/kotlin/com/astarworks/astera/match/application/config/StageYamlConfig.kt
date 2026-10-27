@@ -128,7 +128,7 @@ public data class ArenaLayoutYamlConfig(
     )
 }
 
-/** `import: { map: medieval-village, x: 0, z: 0 }`: a pre-built world of `content/arenas/` replaces the generated islands (ADR-0281). */
+/** `import: { map: temple-trouble, x: 0, z: 0 }`: a pre-built world of `content/arenas/` replaces the generated islands (ADR-0281). */
 @Serializable
 public data class ArenaImportPlacementYamlConfig(public val map: String, public val x: Int = 0, public val z: Int = 0)
 

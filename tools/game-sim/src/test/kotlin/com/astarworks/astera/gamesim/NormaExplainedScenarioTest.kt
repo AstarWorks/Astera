@@ -29,27 +29,31 @@ class NormaExplainedScenarioTest {
     }
 
     @Test
-    fun `break-core - the briefing teaches the objective and the Norma unlocks, the result names the broken core and both Norma standings`() {
-        scenario("norma-explained-break-core") {
+    fun `carry-tnt - the briefing teaches the objective and the Norma unlocks, the result names the delivery and both Norma standings`() {
+        scenario("norma-explained-carry-tnt") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            startMatch("break-core", mapOf(red to "red", blue to "blue"))
+            startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "siege-isles-tnt")
             advance(40)
 
             val briefing = chat(red)
-            assertThat(briefing).contains("How to win").contains("destroy the enemy core").contains("unlock").contains("Time limit 20 min")
+            assertThat(briefing).contains("How to win").contains("carry it into the enemy base").contains("unlock").contains("Time limit 20 min")
             assertThat(chat(blue)).`as`("everybody is briefed").contains("How to win")
 
             val sidebar = sim.hud.sidebarText(red.id).joinToString("\n")
             assertThat(sidebar).`as`("the clock shows the limit (the sim shows the sidebar line keys with their placeholders)").contains("limit=20:00")
             assertThat(sidebar).`as`("the own Norma level is on the sidebar").contains("level=1,max=5")
 
-            red.breaks(Vec3(90.0, 65.0, 0.0))
-            advance(60)
+            repeat(2) {
+                red.moveTo(Vec3(0.0, 65.0, -6.0))
+                advance(40)
+                red.moveTo(Vec3(85.0, 65.0, 0.0))
+                advance(40)
+            }
 
             eventsOf<MatchEnded>().single()
             val loserChat = chat(blue)
-            assertThat(loserChat).`as`("the verdict says what decided it, not 'objective completion'").contains("destroyed the last enemy core")
+            assertThat(loserChat).`as`("the verdict says what decided it, not 'objective completion'").contains("delivered the TNT to the enemy base")
             assertThat(loserChat).`as`("both teams' final Norma level is on the result screen").contains("Norma").contains("Lv 1/5")
             assertThat(loserChat).`as`("no 'reach level N to win' hint exists any more").doesNotContain("To win:")
         }
@@ -60,7 +64,7 @@ class NormaExplainedScenarioTest {
         scenario("norma-explained-top-level") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val matchId = startMatch("break-core", mapOf(red to "red", blue to "blue"))
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
             climb(matchId, red, levels = 4)
 
             advance(40)

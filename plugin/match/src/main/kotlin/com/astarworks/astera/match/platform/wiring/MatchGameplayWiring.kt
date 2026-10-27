@@ -730,10 +730,10 @@ internal object MatchGameplayWiring {
 
             // ── F3-1 — lobby lane pads: step on a pad -> join that lane; hologram counts ──
             // Core builds the pads from this catalog (it cannot read queue.yaml itself) and
-            // publishes LobbyLanePadEntered when a player steps on one.
+            // publishes LobbyLanePadEntered when a player steps on one. PvE lanes get no pad: they open from the main-menu PvE tile.
             registrations += services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneCatalog>(
                 com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneCatalog {
-                    env.queueSettings.current().lanes.keys.toList()
+                    env.queueSettings.current().lanes.values.filter { it.kind != com.astarworks.astera.match.domain.matchmaking.LaneKind.PVE }.map { it.key }
                 },
                 priority = 0,
             )

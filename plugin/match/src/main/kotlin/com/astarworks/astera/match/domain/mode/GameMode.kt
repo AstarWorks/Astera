@@ -10,10 +10,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
  * same package, so workers landing different modes don't race on a single
  * permits list:
  *
- * - [BattleLoyal] — small-scale arena, first to score threshold wins (this file's worker α).
- * - [BreakCore]  — destroy the enemy core block (this file's worker α).
- * - `CarryTNT`, `CaptureWool`, `StealJewelry` — added by
- *   workers β / γ / δ as separate files.
+ * - `CarryTNT`, `CaptureWool`, `StealJewelry`, … — one file each.
  *
  * A mode value is **configuration**, not behaviour. Per-mode runtime
  * behaviour lives in the corresponding `<Mode>Listener` under

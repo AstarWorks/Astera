@@ -65,7 +65,7 @@ The RTM README gives no numeric death-drop ratio. Decision: the ratio is content
   it wins next to that objective, whichever comes first, and `norma_win: "false"` leaves the objective as the only win path). In
   skirmish it is the only win path. There is no kill-count victory (ADR-0272): kills count for a player's KILL goal and, per team, as the
   last tie-break. **Time limit** (`time_limit_seconds`, 600 s of ACTIVE time by default, 1200 s in the siege objective modes, `0` = none): the mode's
-  own objective standing first (battle-loyal kills, break-core alive, deliveries, captured zones, banked jewels; skirmish and annihilation
+  own objective standing first (deliveries, captured zones, banked jewels; skirmish and annihilation
   have none), then the team with the highest member Norma level; tie: the most stars carried (sum over members); tie: the most kills;
   still tied: draw. The result screen
   names the reason ("reached Norma level N and won" / "was ahead" / tied). Winning pays the normal reward table

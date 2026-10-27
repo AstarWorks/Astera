@@ -19,8 +19,6 @@ astera:
   objective.bar.steal-jewelry.team: "<{tag}><bold>{team}</bold></{tag}> <white>{banked}/{goal} banked</white>"
   objective.bar.capture-wool.capturing: "<white>Capturing {zone}</white> <yellow>{seconds}/{need}s</yellow>"
   objective.bar.capture-wool.contested: "<red><bold>{zone} is contested!</bold></red> <gray>clear the enemy to capture</gray>"
-  objective.bar.break-core: "<white>Cores alive</white> <yellow>{alive}/{total}</yellow>"
-  objective.hint.break-core.break: "<red>{arrow} Break the nearest enemy core ({dist}m)</red>"
   objective.hint.carry-tnt.deliver: "<gold>{arrow} Carry the TNT to the <{team}>{team}</{team}> base ({dist}m)</gold>"
   objective.hint.carry-tnt.escort: "<green>{arrow} Escort your carrier ({dist}m)</green>"
   objective.hint.carry-tnt.stop: "<red>{arrow} Stop the TNT carrier! ({dist}m)</red>"
@@ -42,7 +40,6 @@ astera:
   objective.moment.warn.bar: "<red><bold>Enemy at your gates!</bold></red>"
   objective.moment.tension.bar: "<red><bold>One more and it is over!</bold></red>"
   objective.moment.capture.bar: "<gold><bold>Zone captured!</bold></gold>"
-  objective.moment.core-alarm.bar: "<red><bold>Your core is under attack!</bold></red> <gray>{dir}</gray>"
   progression.reward.chat: "<gold>Level {level} rewards:</gold> +{gold} GOLD. Unlocks: {unlocks}"
   progression.reward.title: "<gold>Level {level} rewards claimed!</gold>"
   progression.unlocks.name: "<gold>Permanent unlocks</gold>"
@@ -180,7 +177,7 @@ astera:
     confirm:
       required: "<yellow>This cannot be undone. <click:run_command:'{command}'><hover:show_text:'{command}'><green>[Click to confirm]</green></hover></click> <gray>or run {command}</gray></yellow>"
     example:
-      queue-join: "/astera queue join battle-loyal   (or just /play battle-loyal)"
+      queue-join: "/astera queue join carry-tnt   (or just /play carry-tnt)"
       lang: "/astera lang ja"
       volume: "/astera volume music 50"
       shop: "/astera shop"
@@ -222,7 +219,7 @@ astera:
       travel-survival: "Go to your survival island"
       travel-lobby: "Return to the lobby"
       queue: "Matchmaking queue"
-      queue-join: "Join a queue lane (battle-loyal, annihilation, ... or custom:<mode>)"
+      queue-join: "Join a queue lane (carry-tnt, annihilation, ... or custom:<mode>)"
       queue-leave: "Leave the queue"
       queue-status: "Show your queue position"
       norma: "Norma levels"
@@ -509,6 +506,8 @@ astera:
     # Wave 5lobby-content (ADR-0119) — lobby GUI titles + tile tooltips.
     main-menu:
       title: "<gold>Main Menu</gold>"
+      pve:
+        tooltip: "<gray>Click to set out on a PvE adventure (solo or co-op against waves of monsters).</gray>"
       queue:
         tooltip: "<gray>Click to pick a mode and start a game (queue or play vs bots).</gray>"
       shop:
@@ -980,7 +979,7 @@ astera:
       "replay.not-found": "<red>No replay stored for match {match}.</red>"
       "replay.export-failed": "<red>Replay export failed for {match}: {reason}</red>"
       queue: "<gray>Join or leave the match queue.</gray>"
-      "queue.join": "<gray>Join the queue: LANE (battle-loyal, annihilation, ...) | custom:MODE.</gray>"
+      "queue.join": "<gray>Join the queue: LANE (carry-tnt, annihilation, ...) | custom:MODE.</gray>"
       "queue.leave": "<gray>Leave the match queue.</gray>"
       "queue.status": "<gray>Show your queue position.</gray>"
       # Wave 5complete (ADR-0117 §Axis 3) — flat admin sub-commands.
@@ -1027,24 +1026,20 @@ astera:
         encounter-failed: "<red>The party fell on wave {wave}/{waves}.</red>"
         encounter-time-up: "<red>Time ran out on wave {wave}/{waves}.</red>"
         objective-by:
-          break-core: "<{color}><bold>{team}</bold></{color}> <gray>destroyed the last enemy core.</gray>"
           annihilation: "<{color}><bold>{team}</bold></{color}> <gray>was the last team with a Nexus standing.</gray>"
           carry-tnt: "<{color}><bold>{team}</bold></{color}> <gray>delivered the TNT to the enemy base.</gray>"
           carry-mini-tnt: "<{color}><bold>{team}</bold></{color}> <gray>blew up the enemy base with mini-TNT.</gray>"
           capture-wool: "<{color}><bold>{team}</bold></{color}> <gray>captured enough wool zones.</gray>"
           steal-jewelry: "<{color}><bold>{team}</bold></{color}> <gray>banked enough jewels.</gray>"
-          battle-loyal: "<{color}><bold>{team}</bold></{color}> <gray>reached the kill goal first.</gray>"
     # "How to win" chat block when a match turns ACTIVE (MatchBriefingListener).
     briefing:
       header: "<gold>== How to win ==</gold>"
       mode:
-        break-core: "<gray>Break Core:</gray> <white>destroy the enemy core and defend your own. The last team with a core wins.</white>"
         annihilation: "<gray>Annihilation:</gray> <white>break the enemy Nexus pillars. The last team with a Nexus standing wins.</white>"
         carry-tnt: "<gray>Carry TNT:</gray> <white>pick up the TNT and carry it into the enemy base. Deliver it first to win.</white>"
         carry-mini-tnt: "<gray>Carry Mini-TNT:</gray> <white>pick up mini-TNTs around the map and carry them into the ENEMY base to plant them. Plant enough to blow the base up and win. If you fall, you lose what you carry.</white>"
         capture-wool: "<gray>Capture Wool:</gray> <white>stand in the wool zones to capture them. Capture enough zones first to win.</white>"
         steal-jewelry: "<gray>Steal Jewelry:</gray> <white>take jewels from the enemy pedestals and bank them at home. Bank enough to win.</white>"
-        battle-loyal: "<gray>Battle Royal:</gray> <white>team deathmatch. The first team to the kill goal wins.</white>"
         pve-waves: "<gray>Waves:</gray> <white>team up against the monsters and clear every wave without running out of lives.</white>"
       norma-rank: "<gray>Norma:</gray> <white>stars from generators and kills level you up (your goal is on the sidebar). Higher levels unlock your ultimates and special items.</white>"
       time: "<gray>Time limit {minutes} min: the team ahead on the objective, then stars carried and kills wins.</gray>"
@@ -1056,9 +1051,6 @@ astera:
         respawn: "<gray>If you fall you respawn after a few seconds with brief protection. Stay with your team and press F for the main menu.</gray>"
     # Objective title flashed when the match turns ACTIVE (MatchBriefingListener).
     objective:
-      break-core:
-        title: "<gold><bold>Break Core</bold></gold>"
-        subtitle: "<yellow>Destroy the enemy core, protect yours</yellow>"
       annihilation:
         title: "<gold><bold>Annihilation</bold></gold>"
         subtitle: "<yellow>Break the enemy Nexus pillars</yellow>"
@@ -1074,9 +1066,6 @@ astera:
       steal-jewelry:
         title: "<gold><bold>Steal Jewelry</bold></gold>"
         subtitle: "<yellow>Take enemy jewels and bank them at home</yellow>"
-      battle-loyal:
-        title: "<gold><bold>Battle Royal</bold></gold>"
-        subtitle: "<yellow>First team to the kill goal wins</yellow>"
       pve-waves:
         title: "<gold><bold>Waves</bold></gold>"
         subtitle: "<yellow>Clear every wave</yellow>"
@@ -1296,14 +1285,9 @@ astera:
         tier3: "<gold>Tier 3</gold> <white>{time}</white>"
         sudden-death: "<red>Sudden death</red>"
       score: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
-      battle-loyal:
-        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>kills</gray>"
       annihilation:
         team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
         eliminated: "<dark_gray><st>{team}</st> out</dark_gray>"
-      break-core:
-        intact: "<{color}>{team}</{color}> <green>core intact</green>"
-        destroyed: "<dark_gray><st>{team}</st> core down</dark_gray>"
       carry-tnt:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>delivered</gray>"
         carried: "<gray>TNT carried by</gray> <{color}>{team}</{color}>"
@@ -1616,12 +1600,6 @@ astera:
     # Wave 5c-N1 (ADR-0165): IGameMode framework façades over the legacy
     # Wave 5c modes. Behaviour stays in `*Listener` globals — these strings
     # surface the registry-level mode title to HUD / queue / scoreboard.
-    battle-loyal:
-      title: "<gold>Battle Loyal</gold>"
-      scored: "<gold>{team} scores! ({score}/{goal})</gold>"
-    break-core:
-      title: "<gold>Break Core</gold>"
-      core-destroyed: "<red>The {team} core was destroyed!</red>"
     carry-tnt:
       title: "<gold>Carry TNT</gold>"
       picked-up: "<gold>Team {team} picked up the TNT!</gold>"
@@ -2549,12 +2527,10 @@ astera:
   play.lane.generic.name: "<gold>{lane}</gold>"
   play.lane.generic.desc: "<gray>Team match on its own arena.</gray>"
   play.lane.annihilation.desc: "<gray>3 teams, 3 pillars each. Break the enemy Nexus.</gray>"
-  play.lane.break-core.desc: "<gray>Destroy the enemy core, defend your own.</gray>"
   play.lane.carry-tnt.desc: "<gray>Carry TNT across the map to the enemy base.</gray>"
   play.lane.carry-mini-tnt.desc: "<gray>Gather small TNT from around the map and carry it into the enemy base. Plant enough to blow the base up and win.</gray>"
   play.lane.capture-wool.desc: "<gray>Capture the wool zones before the other team.</gray>"
   play.lane.steal-jewelry.desc: "<gray>Steal jewels from rival pedestals and bank them.</gray>"
-  play.lane.battle-loyal.desc: "<gray>Team deathmatch. First to the kill goal wins.</gray>"
   play.lane.pve-waves.desc: "<gray>Play alone or with a friend. Clear 3 waves of monsters.</gray>"
   play.queue.joined: "<green>Queued for <gold>{lane}</gold>.</green> <gray>Watch the sidebar. Leave with the red hotbar item or the menu.</gray>"
   play.queue.already-here: "<yellow>You are already queued for <gold>{lane}</gold>.</yellow>"

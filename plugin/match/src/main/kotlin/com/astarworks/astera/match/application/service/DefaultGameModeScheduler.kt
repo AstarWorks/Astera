@@ -15,7 +15,7 @@ import com.astarworks.astera.match.domain.gamemode.IGameMode
  * One [IScheduler.TaskHandle] per active match. A registration with
  * [IGameMode.tickPeriodTicks] returning `0L` tracks the (matchId → context)
  * pair but does not schedule a tick — useful for modes whose logic is purely
- * event-driven (e.g. BreakCore-style: react to BlockBroken, no polling).
+ * event-driven (e.g. block-event-style: react to BlockBroken, no polling).
  *
  * Tracks the most recent [GameModeContext] per match so callers that observe
  * a phase transition out-of-band can update the context without re-registering

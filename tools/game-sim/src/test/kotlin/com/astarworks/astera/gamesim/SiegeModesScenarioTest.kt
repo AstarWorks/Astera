@@ -30,8 +30,6 @@ import org.junit.jupiter.params.provider.ValueSource
 class SiegeModesScenarioTest {
 
     // The sky-island siege stage (content/stages/siege-isles.yaml): top layer y=64, players stand at y=65. Stage-local coordinates.
-    private val redCore = Vec3(-90.0, 65.0, 0.0)
-    private val blueCore = Vec3(90.0, 65.0, 0.0)
     private val tntSpawn = Vec3(0.0, 65.0, -6.0)
     private val redBase = Vec3(-85.0, 65.0, 0.0)
     private val blueBase = Vec3(85.0, 65.0, 0.0)
@@ -76,47 +74,6 @@ class SiegeModesScenarioTest {
     private fun ScenarioScope.hold(who: SimEntity, at: Vec3, ticks: Int = 40) {
         who.moveTo(at)
         advance(ticks)
-    }
-
-    // ---- break-core -------------------------------------------------------
-
-    @Test
-    fun `break core - destroying the enemy core wins, your own core cannot be broken`() {
-        scenario("siege-break-core") {
-            val attacker = player("attacker")
-            val defender = player("defender")
-            val matchId = startMatch("break-core", mapOf(attacker to "red", defender to "blue"))
-
-            assertThat(blockAt(redCore)).isEqualTo("minecraft:emerald_block")
-            assertThat(blockAt(blueCore)).isEqualTo("minecraft:emerald_block")
-            assertThat(attacker.position).`as`("spawned on a red spawn").isIn(
-                Vec3(-51.5, 65.0, -2.5), Vec3(-51.5, 65.0, 3.5), Vec3(-49.5, 65.0, 0.5), Vec3(-53.5, 65.0, 0.5),
-            )
-
-            // The kit shows every live core as a marker and the cores-alive bar.
-            advance(25)
-            assertThat(sim.objectiveStage.markers(matchId).keys).`as`("a marker over each live core").contains("core-red", "core-blue")
-            assertThat(sim.objectiveStage.bar(attacker.id, "objective")).`as`("cores-alive bar").isNotNull()
-
-            // Own core: block comes back, match goes on.
-            attacker.breaks(redCore)
-            assertThat(blockAt(redCore)).isEqualTo("minecraft:emerald_block")
-            assertThat(eventsOf<MatchEnded>()).isEmpty()
-
-            // A plain block next to the enemy core does not count.
-            attacker.breaks(Vec3(90.0, 64.0, 0.0))
-            assertThat(eventsOf<MatchEnded>()).isEmpty()
-
-            attacker.breaks(blueCore)
-            assertThat(sim.objectiveStage.markers(matchId).keys).`as`("a destroyed core loses its marker").doesNotContain("core-blue")
-            val end = ended()
-            assertThat(end.matchId).isEqualTo(matchId)
-            assertThat(end.winningTeam).isEqualTo(TeamId("red"))
-            assertThat(end.reason).isEqualTo(EndReason.TeamVictory(TeamId("red")))
-            assertThat(phaseOf(matchId)).isEqualTo(MatchPhase.ENDED)
-            assertThat(blockAt(redCore)).`as`("core markers are removed at match end").isNotEqualTo("minecraft:emerald_block")
-            assertThat(blockAt(blueCore)).isNotEqualTo("minecraft:emerald_block")
-        }
     }
 
     // ---- carry-tnt --------------------------------------------------------
@@ -289,40 +246,10 @@ class SiegeModesScenarioTest {
         }
     }
 
-    // ---- battle-loyal -----------------------------------------------------
-
-    @Test
-    fun `battle loyal - the first team to five kills wins and the score is mirrored`() {
-        scenario("siege-battle-loyal") {
-            val ace = player("ace", at = Vec3(0.0, groundY, 0.0))
-            val prey = player("prey", at = Vec3(0.0, groundY, 10.0))
-            val matchId = startMatch("battle-loyal", mapOf(ace to "red", prey to "blue"), stage = "siege-isles-loyal")
-            ace.position = Vec3(0.0, groundY, 0.0)
-            prey.position = Vec3(0.0, groundY, 10.0)
-            ace.holds("pistol")
-
-            // A kill only scores when the killer is credited: a burn that finishes the victim
-            // off has no origin, so more than five deaths may be needed.
-            var previous = 0
-            var rounds = 0
-            while (eventsOf<MatchEnded>().isEmpty() && rounds++ < 15) {
-                kill(ace, prey)
-                val score = sim.services.getOrThrow<IMatchRepository>().findById(matchId)!!.score.valueFor(TeamId("red"))
-                assertThat(score).isBetween(previous, previous + 1)
-                previous = score
-                if (eventsOf<MatchEnded>().isEmpty()) respawnAt(prey, Vec3(0.0, groundY, 10.0))
-            }
-            assertThat(previous).isEqualTo(5)
-            val end = ended()
-            assertThat(end.winningTeam).isEqualTo(TeamId("red"))
-            assertThat(end.reason).isEqualTo(EndReason.TeamVictory(TeamId("red")))
-        }
-    }
-
     // ---- queue lanes ------------------------------------------------------
 
     @ParameterizedTest(name = "lane {0} forms a match on its own stage for two queued players")
-    @ValueSource(strings = ["break-core", "carry-tnt", "capture-wool", "steal-jewelry", "battle-loyal", "carry-mini-tnt"])
+    @ValueSource(strings = ["carry-tnt", "capture-wool", "steal-jewelry", "carry-mini-tnt"])
     fun `each siege lane forms a match once both sides have a player`(lane: String) {
         scenario("siege-lane-$lane") {
             val solo = player("solo")
@@ -334,11 +261,10 @@ class SiegeModesScenarioTest {
             assertThat(advanceUntil(600) { eventsOf<MatchStarted>().isNotEmpty() }).isTrue()
             val started = eventsOf<MatchStarted>().single()
             assertThat(started.modeKey).isEqualTo(lane)
-            // MODE-06 / ADR-0281: break-core and capture-wool run on imported worlds, the other lanes on their own siege-isles copy.
+            // MODE-06 / ADR-0281: capture-wool runs on an imported world, the other lanes on their own siege-isles copy.
             val stage = when (lane) {
-                "break-core" -> "medieval-village"
                 "capture-wool" -> "temple-trouble"
-                else -> "siege-isles-${lane.removePrefix("carry-").removePrefix("steal-").removePrefix("battle-")}"
+                else -> "siege-isles-${lane.removePrefix("carry-").removePrefix("steal-")}"
             }
             assertThat(started.stageId).isEqualTo(StageId(stage))
             // The 10 s in-arena countdown ends and the match is live.

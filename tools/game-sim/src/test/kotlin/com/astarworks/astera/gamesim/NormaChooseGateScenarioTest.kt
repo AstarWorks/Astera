@@ -34,7 +34,7 @@ class NormaChooseGateScenarioTest {
             assertThat(sim.failureKey("lobby-1", "norma choose kill")).`as`("lobby").isEqualTo("astera.match.norma-choice.not-in-match")
 
             // Production flow: the match is started and stays in COUNTDOWN while the picker opens.
-            val matchId = (lifecycle.start(StageId("siege-isles"), "battle-loyal") as Result.Success).value
+            val matchId = (lifecycle.start(StageId("siege-isles"), "carry-tnt") as Result.Success).value
             lifecycle.entry(matchId, red.id, TeamId("red"))
             lifecycle.entry(matchId, blue.id, TeamId("blue"))
             advance(60)

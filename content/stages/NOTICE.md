@@ -11,7 +11,6 @@ stone-brick plinths for the star generators added. Objectives, spawns and genera
 
 | Stage / arena | Title | Authors | Source (pinned commit) | Licence evidence |
 |---|---|---|---|---|
-| `medieval-village` | Medieval Village | StanleyTheCow, mariogoat, FbprZ7 (contributors: Ruediger_LP, Cazadorian) | https://github.com/OvercastCommunity/CommunityMaps/tree/17a7432a670589e153f5b07c933557dabca3d981/dtcm/medieval_village | `LICENSE.md` at the repository root (CC BY-SA 4.0); the repository README states it only accepts CC BY-SA 4.0 maps |
 | `temple-trouble` | Temple Trouble | Salgadoh (contributors: TinyPigMX, diKali) | https://github.com/OvercastCommunity/CommunityMaps/tree/17a7432a670589e153f5b07c933557dabca3d981/ctw/temple_trouble | same repository, same `LICENSE.md` |
 
 Per-file credits (title, authors, source, licence, modifications) are repeated in the `credits` block of each

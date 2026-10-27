@@ -50,7 +50,7 @@ class MatchCancelBotLeakScenarioTest {
 
     private fun Rig.queueUp(vararg names: String): List<PlayerId> = names.map { name ->
         val p = lobby.spawnPlayer(name)
-        check(lobby.services.getOrThrow<IMatchmaker>().enqueue(p.id, MatchmakingMode.BATTLE_LOYAL) is Result.Success)
+        check(lobby.services.getOrThrow<IMatchmaker>().enqueue(p.id, MatchmakingMode.CARRY_TNT) is Result.Success)
         p.id
     }
 
@@ -149,7 +149,7 @@ class BotReleaseOnCancelScenarioTest {
 
     private fun GameSim.click(player: SimEntity, intent: String) {
         val view = checkNotNull(server.view(player.id))
-        services.getOrThrow<IGuiIntentRouter>().dispatch(view, GuiIntent(intent, mapOf("lane" to "battle-loyal")))
+        services.getOrThrow<IGuiIntentRouter>().dispatch(view, GuiIntent(intent, mapOf("lane" to "carry-tnt")))
     }
 
     @Test
@@ -162,7 +162,7 @@ class BotReleaseOnCancelScenarioTest {
                 request = { req ->
                     bots[req.requestId] = (1..req.count).map { i ->
                         val bot = lobby.spawnPlayer("Bot_${req.requestId.take(6)}_$i")
-                        lobby.services.getOrThrow<IMatchmaker>().enqueue(bot.id, MatchmakingMode.BATTLE_LOYAL)
+                        lobby.services.getOrThrow<IMatchmaker>().enqueue(bot.id, MatchmakingMode.CARRY_TNT)
                         bot.id
                     }
                 },
@@ -174,7 +174,7 @@ class BotReleaseOnCancelScenarioTest {
             lobby.click(human, "lobby.queue.bots")
             assertThat(runner.requests).hasSize(1)
             assertThat(runner.requests.single().count).isEqualTo(1)
-            assertThat(matchmaker.pendingByMode(MatchmakingMode.BATTLE_LOYAL)).hasSize(2)
+            assertThat(matchmaker.pendingByMode(MatchmakingMode.CARRY_TNT)).hasSize(2)
 
             // A second click while the first bots are on the way must not ask for another set.
             lobby.click(human, "lobby.queue.bots")
@@ -185,20 +185,20 @@ class BotReleaseOnCancelScenarioTest {
             lobby.click(human, "lobby.queue.leave")
             assertThat(runner.releases.map { it.requestId }).containsExactly(runner.requests.single().requestId)
             lobby.step(400)
-            assertThat(matchmaker.pendingByMode(MatchmakingMode.BATTLE_LOYAL)).`as`("stale bots left the queue").isEmpty()
+            assertThat(matchmaker.pendingByMode(MatchmakingMode.CARRY_TNT)).`as`("stale bots left the queue").isEmpty()
             assertThat(lobby.eventsOf<MatchStarted>()).isEmpty()
 
             // Next click brings exactly one bot again, not one more on top of a stale one.
             lobby.click(human, "lobby.queue.bots")
             assertThat(runner.requests).hasSize(2)
             assertThat(runner.requests.last().count).isEqualTo(1)
-            assertThat(matchmaker.pendingByMode(MatchmakingMode.BATTLE_LOYAL)).hasSize(2)
+            assertThat(matchmaker.pendingByMode(MatchmakingMode.CARRY_TNT)).hasSize(2)
 
             // The human disconnecting while queued releases the second set as well.
             lobby.detachPlayer(human.id)
             assertThat(runner.releases).hasSize(2)
             lobby.step(5)
-            assertThat(matchmaker.pendingByMode(MatchmakingMode.BATTLE_LOYAL)).isEmpty()
+            assertThat(matchmaker.pendingByMode(MatchmakingMode.CARRY_TNT)).isEmpty()
         } finally {
             lobby.shutdown()
         }

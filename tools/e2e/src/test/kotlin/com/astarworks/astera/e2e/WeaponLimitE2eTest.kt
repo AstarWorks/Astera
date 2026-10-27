@@ -43,11 +43,11 @@ class WeaponLimitE2eTest : E2eBase() {
 
         val partner = bot("Limiter2")
         op(partner)
-        partner.command("astera queue join battle-loyal")
+        partner.command("astera queue join carry-tnt")
         val chatBefore = b.chat.size
         val worldsBefore = b.worldHistory.size
         val posBefore = b.positionPackets.get()
-        b.command("astera queue join battle-loyal")
+        b.command("astera queue join carry-tnt")
         val teleported = b.waitUntil(45_000) { b.positionPackets.get() > posBefore || b.worldHistory.size > worldsBefore }
         Thread.sleep(2_500)
         val during = carried(b)

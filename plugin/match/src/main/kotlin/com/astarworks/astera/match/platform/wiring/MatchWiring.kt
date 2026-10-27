@@ -22,8 +22,6 @@ import com.astarworks.astera.core.application.port.outbound.IReloadableContentsR
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.match.application.contents.AnomalyContents
 import com.astarworks.astera.match.application.contents.GameModeContents
-import com.astarworks.astera.match.application.gamemode.BattleLoyalGameMode
-import com.astarworks.astera.match.application.gamemode.BreakCoreGameMode
 import com.astarworks.astera.match.application.gamemode.CaptureWoolGameMode
 import com.astarworks.astera.match.application.gamemode.PveEnv
 import com.astarworks.astera.match.application.gamemode.PveWaveGameMode
@@ -519,8 +517,8 @@ public object MatchWiring {
                 "registered into IGameModeFrameworkRegistry.",
         )
 
-        // WP11: the objective modes (break-core / carry-tnt / capture-wool /
-        // steal-jewelry / battle-loyal / carry-mini-tnt) own their per-match state and react to
+        // WP11: the objective modes (carry-tnt / capture-wool /
+        // steal-jewelry / carry-mini-tnt) own their per-match state and react to
         // region / block / kill events of their own matches; the config comes
         // from content/game-modes/<id>.yaml `default_config`.
         val objectivePositions = ports.playerPositions?.invoke(services)
@@ -548,8 +546,6 @@ public object MatchWiring {
             )
         }
         val siegeModes = listOf(
-            BattleLoyalGameMode(siegeEnv(BattleLoyalGameMode.ID)),
-            BreakCoreGameMode(siegeEnv(BreakCoreGameMode.ID)),
             CarryTntGameMode(siegeEnv(CarryTntGameMode.ID)),
             CarryMiniTntGameMode(siegeEnv(CarryMiniTntGameMode.ID)),
             CaptureWoolGameMode(siegeEnv(CaptureWoolGameMode.ID)),
@@ -681,8 +677,8 @@ public object MatchWiring {
      * [com.astarworks.astera.match.domain.mode.GameModeId] used by
      * [gameModeFrameworkRegistry] (Wave 5wireup §G16).
      *
-     * `null` / empty / unregistered keys fall back to [BattleLoyalGameMode.ID] so any
-     * call site that ships without a mode key plays battle-loyal.
+     * `null` / empty / unregistered keys fall back to [CarryTntGameMode.ID] so any
+     * call site that ships without a mode key plays carry-tnt.
      */
     private fun resolveModeId(
         modeKey: String?,
@@ -690,7 +686,7 @@ public object MatchWiring {
     ): com.astarworks.astera.match.domain.mode.GameModeId {
         val id = modeKey?.takeIf { it.isNotBlank() }
             ?.let { runCatching { GameModeId(it) }.getOrNull() }
-        return if (id != null && registry.get(id) != null) id else BattleLoyalGameMode.ID
+        return if (id != null && registry.get(id) != null) id else CarryTntGameMode.ID
     }
 
 }

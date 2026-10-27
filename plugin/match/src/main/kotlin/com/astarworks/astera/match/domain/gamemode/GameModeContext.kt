@@ -18,7 +18,7 @@ import com.astarworks.astera.match.domain.mode.GameModeId
  *
  * The legacy `match.domain.mode.GameModeContext` (Wave 5c) wraps a
  * sealed `GameMode` (config) and a flat `Map<String, String>` and is read
- * by the per-mode-config listeners (`BreakCoreListener`, etc.). That class
+ * by the per-mode-config listeners (`CarryTntListener`, etc.). That class
  * stays; this is the *framework-level* context handed to the
  * behaviour-side `IGameMode` impl. Two contexts because:
  *

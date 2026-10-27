@@ -43,7 +43,3 @@ modes:
     win:           { gold: 180, xp: 200 }
     lose:          { gold: 58, xp: 90 }
     per_objective: { gold: 27, xp: 60 }
-  # Free-for-all brawl: kills are the objective.
-  battle-loyal:
-    per_kill:      { gold: 9, xp: 30 }
-    per_assist:    { gold: 3, xp: 15 }

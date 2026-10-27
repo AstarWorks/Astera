@@ -9,7 +9,7 @@ public sealed interface EndReason {
 
     /**
      * Wave 5c: a game mode's primary objective was completed by a team
-     * (CarryTNT delivery threshold met, BreakCore destroyed,
+     * (CarryTNT delivery threshold met,
      * etc.). Listeners publishing [com.astarworks.astera.core.domain.event.MatchEnded]
      * with this reason should populate `winningTeam` with the objective-
      * completing team.

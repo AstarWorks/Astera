@@ -52,11 +52,11 @@ spawn_points:
 - `theme` supplies a material palette for terrain, trees, roads, bridges, structure walls and lights. Optional
   `structures` placements select a part, x/z, surface-relative y, rotation and palette overrides; see the part README.
 - Terrain the builder adds by itself, deterministic in `seed`: stepped hills, ruined walls (centre) / boulders and trees
-  (other islands) as cover, a wall arc behind `core-*` only in stages without authored structures. It stays clear of spawn pads, anchors, pillar footings
+  (other islands) as cover, a wall arc behind the bases only in stages without authored structures. It stays clear of spawn pads, anchors, pillar footings
   and the straight lane from each island centre to its bridges.
 - Bridges are drawn centre to centre; an island block always wins over a bridge block.
 - Every stage is authored around its own origin (0,0); the server pastes a copy into a free world slot and shifts spawns, regions, pillars, layout and generators by the slot origin at claim time.
-- Per-lane siege-isles variants (MODE-06, ADR-0273) copy `siege-isles` with their own lane objective and generator ids: `siege-isles` (break-core), `siege-isles-tnt`, `-wool`, `-jewelry`, `-loyal`, `-mini-tnt`. They carry no offsets (slots separate concurrent matches); keep each variant in sync with `siege-isles.yaml`.
+- Per-lane siege-isles variants (MODE-06, ADR-0273) copy `siege-isles` with their own lane objective and generator ids: `siege-isles` (base copy, unrouted), `siege-isles-tnt`, `-wool`, `-jewelry`, `-mini-tnt`. They carry no offsets (slots separate concurrent matches); keep each variant in sync with `siege-isles.yaml`.
 - `arena-worlds.marker` stores each stage's marker version, plan digest and previous bounds. Changed content rebuilds
   on restart; bump `marker_version` when editing a cached stage. The old bounds are cleared before placement.
   Planning/digesting runs off thread. Chunk loading is asynchronous; clearing, placing and releasing chunk tickets
@@ -90,7 +90,6 @@ Region `name`s are how a mode finds its objective zones (zones are plain AABBs; 
 
 | Region name | Used by | Meaning |
 |---|---|---|
-| `core-<team>` | `break-core` | exactly one block: the team's core (marker placed at match start, one above the floor) |
 | `base-<team>` | `carry-tnt`, `steal-jewelry` | team base: TNT delivery target / jewel deposit |
 | `jewelry-<team>` | `steal-jewelry` | pedestal zone; its centre floor block is the diamond marker |
 | `tnt-spawn` | `carry-tnt` | where the TNT waits |
@@ -98,7 +97,6 @@ Region `name`s are how a mode finds its objective zones (zones are plain AABBs; 
 
 `<team>` is the team id (`red` / `blue`). A stage that lacks the regions a mode
 needs lets the match run without an objective (warning in the log).
-`battle-loyal` needs no regions.
 
 ## Preview and E2E fixtures
 

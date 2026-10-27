@@ -36,7 +36,7 @@ class NormaUnlockScenarioTest {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
             red.holds("bastion-greatsword")
-            val matchId = startMatch("battle-loyal", mapOf(red to "red", blue to "blue"))
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"))
             advance(10)
 
             red.drop()
