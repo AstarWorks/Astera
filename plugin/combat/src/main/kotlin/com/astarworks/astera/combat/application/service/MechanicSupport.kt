@@ -42,7 +42,7 @@ public object MechanicSupport {
                 unsupportedCondition(mechanic.predicate, out, name)
                 (mechanic.then_ + mechanic.else_).forEach { collect(it, out) }
             }
-            is Mechanic.ForEachTarget -> mechanic.mechanics.forEach { collect(it, out) }
+            is Mechanic.ForEachTarget -> (mechanic.mechanics + mechanic.ifEmpty).forEach { collect(it, out) }
             is Mechanic.Loop -> mechanic.mechanics.forEach { collect(it, out) }
             is Mechanic.Counter -> mechanic.onHit.forEach { collect(it, out) }
             is Mechanic.DashStrike -> mechanic.onHit.forEach { collect(it, out) }

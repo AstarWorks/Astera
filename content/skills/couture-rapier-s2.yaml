@@ -17,8 +17,17 @@ phases:
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-coin1, delay_ticks: {type: literal, value: 7}, follow: {type: literal, value: true}}
   - {type: play_vfx, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 7}, angle_degrees: {type: literal, value: 24}, max_count: 1}, vfx_id: couture-s2-hit1, delay_ticks: {type: literal, value: 8}, snapshot_pose: true}
   - {type: damage, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 7}, angle_degrees: {type: literal, value: 24}, max_count: 1}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 6}, attribute: physical}], delay_ticks: {type: literal, value: 9}, snapshot_pose: true}
-  - {type: play_vfx, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 7}, angle_degrees: {type: literal, value: 24}, max_count: 1}, vfx_id: couture-s2-hit2, delay_ticks: {type: literal, value: 38}, snapshot_pose: true}
-  - {type: damage, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 7}, angle_degrees: {type: literal, value: 24}, max_count: 1}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 7}, attribute: physical}], delay_ticks: {type: literal, value: 41}, snapshot_pose: true}
+  # The throw (ADR-0286): resolved at t30; shears, chain, burst and damage all follow the REAL target (cone 30 deg / 9 blocks). No target: the shears fly to max range, no link, no burst.
+  - type: for_each_target
+    targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 9}, angle_degrees: {type: literal, value: 30}, max_count: 1}
+    snapshot_pose: true
+    delay_ticks: {type: literal, value: 30}
+    mechanics:
+    - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-throw, track_bound_target: true}
+    - {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-hit2, delay_ticks: {type: literal, value: 8}}
+    - {type: damage, targets: {type: target}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 7}, attribute: physical}], delay_ticks: {type: literal, value: 11}}
+    if_empty:
+    - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-throw-miss}
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-dash, delay_ticks: {type: literal, value: 70}, follow: {type: literal, value: true}}
   - {type: play_vfx, targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 9}, angle_degrees: {type: literal, value: 60}, max_count: 1}, vfx_id: couture-s2-hit3, delay_ticks: {type: literal, value: 72}, snapshot_pose: true}
   - {type: dash_strike, distance: 9, ticks: 3, radius: 0.8, hit_once: true, invulnerable: false, stop_on_block: true, follow_pitch: false,

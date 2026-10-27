@@ -1079,6 +1079,7 @@ public sealed class MechanicYaml {
     public data class ForEachTarget(
         public val targets: TargeterYaml,
         public val mechanics: List<MechanicYaml>,
+        @SerialName("if_empty") public val ifEmpty: List<MechanicYaml> = emptyList(),
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -1088,6 +1089,7 @@ public sealed class MechanicYaml {
         override fun toDomain(): Mechanic = Mechanic.ForEachTarget(
             targets = targets.toDomain(),
             mechanics = mechanics.map { it.toDomain() },
+            ifEmpty = ifEmpty.map { it.toDomain() },
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
