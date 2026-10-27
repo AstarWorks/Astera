@@ -3,16 +3,19 @@
 # anchor = one whole vanilla line (trimmed), must match exactly once or the pack build fails.
 # The body runs to the next `@@` line (or the end of file).
 @@ before: void main() {
-// Astera skin rig (ADR-0250). A player_head ItemDisplay with brightness override (block 15, sky = payload)
+// Astera skin rig (ADR-0250). A player_head ItemDisplay with brightness override (block 14, sky = payload)
 // is one bone of an animated player body. The server writes payload = bone id (0 head, 1 body, 2 right arm,
 // 3 left arm, 4 right leg, 5 left leg) + 8 for a slim arm. -1 = an ordinary entity. entity.fsh remaps the
-// head-cube UVs of such a display onto that bone's part of the skin. -2 = a head bone enclosing the camera (dropped).
+// head-cube UVs of such a display onto that bone's part of the skin. Block 15 is NOT the marker: every burning entity,
+// blaze, magma cube, fireball and glow item frame is drawn with block light 15 (EntityRenderer.getBlockLightLevel), whatever
+// the sky, and would be misread as a rig. The marker is block 14 (SkinRigMarker.BLOCK_LIGHT), which only world light
+// sources produce, and only inside the source's own cell. -2 = a head bone enclosing the camera (dropped).
 // Ghost bones (ADR-0284, a translucent tinted afterimage) use the codes 6..9 and 12..15: rigPart = bone + 8 if slim + 16 if ghost.
 layout(location = 8) flat out int rigPart;
 
 @@ after: void main() {
     rigPart = -1;
-    if (UV2.x == 240 && (UV2.y & 15) == 0) {
+    if (UV2.x == 224) {
         int sky = UV2.y >> 4;
         if (sky <= 5) {
             rigPart = sky;

@@ -82,7 +82,17 @@ class PackValidationTest {
         // The vertex stage writes the part id at location 8 and the fragment stage reads the same slot.
         assertThat(vsh).contains("layout(location = 8) flat out int rigPart;")
         assertThat(fsh).contains("layout(location = 8) flat in int rigPart;")
-        assertThat(vsh).contains("UV2.x == 240")
+        // The marker the shader tests is exactly the one the server writes, and it is not block light 15, which burning
+        // entities, blazes, magma cubes, fireballs and glow item frames are drawn with (any sky value).
+        val shaderBlock = Regex("""rigPart = -1;\s*if \(UV2\.x == (\d+)\)""").find(vsh)!!.groupValues[1].toInt()
+        assertThat(shaderBlock).isEqualTo(com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker.BLOCK_LIGHT * 16)
+        assertThat(shaderBlock).`as`("block light 15 is what burning/emissive entities carry").isNotEqualTo(15 * 16)
+        assertThat(vsh).doesNotContain("UV2.x == 240")
+        val marker = com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker
+        // All 16 sky payloads the server can write stay within the nibble.
+        for (bone in com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone.entries) for (slim in listOf(false, true)) for (ghost in listOf(false, true)) {
+            assertThat(marker.skyPayload(bone, slim, ghost)).isBetween(0, 15)
+        }
     }
 
     @Test
