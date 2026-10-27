@@ -4,7 +4,7 @@ Reference knowledge (2026-10-27): the skill has ONE author who builds every piec
 
 Skill author agent: `.claude/agents/limbus-director.md` (single end-to-end author). Team overview: [README.md](README.md).
 
-> Reference frames are native resolution (<= 1080p, jpg q2). Judge rotation, contact and blade detail from full-resolution single frames or zoomed crops, never from downscaled contact sheets or strips alone (see [beat-sheet.md](beat-sheet.md) "Reference frame quality").
+> Reference frames are native resolution (<= 1080p, lossless PNG). Judge rotation, contact and blade detail from full-resolution single frames or zoomed crops, never from downscaled contact sheets or strips alone (see [beat-sheet.md](beat-sheet.md) "Reference frame quality").
 
 ## What the director produces
 
@@ -57,6 +57,7 @@ Reviewers and directors MUST compare with `GET /api/cases/<id>/compare?ticks=..&
 case's tick mapping, labels revision/sha/age/failure on every row, and returns fx coverage, brightness and regression flags (and caster travel /
 final gap when the capture has `trace.log`). Quote its numbers and sheet URL in the report; a `regression: true` is a finding to route, not to ignore.
 See [skill-compare README](../../../tools/skill-compare/README.md) "Comparison API".
+Look at edges on native crops before handing a round over: add `&zoom=native&crop=x0,y0,x1,y1` (fractions of the frame, same region for ref and in-game; `crop=auto` follows caster + fx) to the sheet URL. Capture side/top with a `RES=` high enough to match the 1080p reference, otherwise the reviewer cannot judge edges.
 
 ## Runtime facts and pitfalls (confirmed)
 
