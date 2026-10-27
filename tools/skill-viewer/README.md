@@ -85,3 +85,7 @@ bun scripts/calibrate.mjs       # known displays rendered in Chromium, drawn bou
                                 # PNGs in build/calibration/ (block identity, beam roll 45, sword fixed/none, text centre billboard)
 ./gradlew :tools:skill-viewer:calibrate    # same, via Gradle
 ```
+
+## Interactive 3D page and headless strip
+
+`make skill-3d SKILL=<id>` (`scripts/skill-3d.mjs` + `src/viewer3d.js`) and `make skill-preview` (`scripts/skill-preview.mjs`) share `src/preview.js` (scene) and `scripts/lib/inputs.mjs` (plan/particle generation, case, skin, weapon, sprites, hit events). See `docs/contributing/vfx-team/skill-preview.md`.

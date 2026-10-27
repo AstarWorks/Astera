@@ -330,6 +330,11 @@ skill-preview: ## Render a skill from the skill-compare camera without the clien
 	cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null && bun run build >/dev/null && bun scripts/skill-preview.mjs --skill "$(SKILL)" $(if $(CASE),--case "$(CASE)") $(if $(TICKS),--ticks "$(TICKS)") $(if $(EVERY),--every "$(EVERY)") $(if $(FOV),--fov "$(FOV)") && bun scripts/skill-preview.mjs --skill "$(SKILL)" --no-ref --camera side --out "$(CURDIR)/build/skill-preview/$(SKILL)/side"
 	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" && node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" --src "build/skill-preview/$(SKILL)/side" --kind preview-side)
 
+.PHONY: skill-3d
+skill-3d: ## Interactive 3D inspection page (orbit/free/first-person camera, scrub, layers, hit events, real particles) at http://localhost:8765: make skill-3d SKILL=<skill-id> [PORT=8765] [REUSE=1 keeps plan.json] [FORCE=1 re-simulates] [NOOPEN=1] [CASE=<id>] [SHOTS=<dir> VIEWS=side,top TICKS=10,40 headless PNGs instead]
+	@test -n "$(SKILL)" || { echo "usage: make skill-3d SKILL=<skill-id> [PORT=n] [REUSE=1] [FORCE=1] [NOOPEN=1] [SHOTS=dir VIEWS=a,b TICKS=n,m]"; exit 2; }
+	cd tools/skill-viewer && bun scripts/skill-3d.mjs --skill "$(SKILL)" $(if $(PORT),--port "$(PORT)") $(if $(REUSE),--reuse) $(if $(FORCE),--force) $(if $(NOOPEN),--no-open) $(if $(CASE),--case "$(CASE)") $(if $(SHOTS),--shots "$(abspath $(SHOTS))") $(if $(VIEWS),--views "$(VIEWS)") $(if $(TICKS),--tick "$(TICKS)")
+
 .PHONY: pose-solve
 pose-solve: ## Reference keypoints -> skin-rig body keys + wrist keys in content/skill-lint/solved/ (never overwrites shipped keys): make pose-solve SKILL=<skill-id>
 	@test -n "$(SKILL)" || { echo "usage: make pose-solve SKILL=<skill-id>"; exit 2; }

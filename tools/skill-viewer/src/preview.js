@@ -9,6 +9,17 @@ import * as THREE from 'three';
 import { DisplayRenderer, entityMaterial } from './displays.js';
 import { buildModelParts, modelDisplayMatrix, playerBoxGeometry, skinBox } from './mcmodel.js';
 
+/** Linear/slerp blend of two sampled rig ticks (bones + weapon). */
+function lerpTick(a, b, u) {
+  if (!b) return a;
+  const lp = (p, q) => p.map((x, i) => x + (q[i] - x) * u);
+  const lq = (p, q) => { const o = new THREE.Quaternion(...p).slerp(new THREE.Quaternion(...q), u); return [o.x, o.y, o.z, o.w]; };
+  const lb = (x, y) => (x && y ? { pos: lp(x.pos, y.pos), rot: lq(x.rot, y.rot), scale: lp(x.scale ?? [1, 1, 1], y.scale ?? [1, 1, 1]) } : x);
+  const bones = {};
+  for (const k of Object.keys(a.bones)) bones[k] = lb(a.bones[k], b.bones[k]);
+  return { tick: a.tick, bones, weapon: a.weapon && b.weapon ? lb(a.weapon, b.weapon) : a.weapon };
+}
+
 const BONES = ['head', 'body', 'right_arm', 'left_arm', 'right_leg', 'left_leg'];
 const SKY = 0xb3d0ff, GROUND = 0x7d7c73; // sampled from a real-client compare frame (noon, flat arena)
 
@@ -86,7 +97,7 @@ class Preview {
     const [w, h] = cfg.size;
     const canvas = document.getElementById('c');
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
-    this.renderer.setPixelRatio(1);
+    this.renderer.setPixelRatio(cfg.interactive ? Math.min(window.devicePixelRatio || 1, 2) : 1);
     this.renderer.setSize(w, h, false);
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(SKY);
@@ -177,6 +188,7 @@ class Preview {
       dummy.position.set(e[0], e[1], e[2]);
       dummy.rotation.y = -Math.PI / 2;
       this.scene.add(dummy);
+      this.dummy = dummy;
     }
     this.blobShadow(this.G, 0.5);
 
@@ -198,6 +210,23 @@ class Preview {
     if (cfg.particles) await this.setupParticles(cfg.particles, cfg.particleTextures ?? {});
     this.scene.add(new THREE.AmbientLight(0xffffff, 0));
     return { fx: this.fxCount, particles: this.particleCount ?? 0, warnings: [...this.warnings, ...this.displays.warnings] };
+  }
+
+  layers = { particles: true, displays: true, weapon: true, caster: true, enemy: true };
+
+  setLayers(l) {
+    Object.assign(this.layers, l);
+    if (this.particleGroup) this.particleGroup.visible = this.layers.particles;
+    this.displays.root.visible = this.layers.displays;
+    for (const m of this.bones.values()) m.visible = this.layers.caster;
+    if (this.shadow) this.shadow.visible = this.layers.caster;
+    if (this.dummy) this.dummy.visible = this.layers.enemy;
+  }
+
+  resize(w, h) {
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
   }
 
   warn(m) { this.warnings.push(m); }
@@ -226,14 +255,23 @@ class Preview {
 
   /** Poses everything for skill tick [t] and renders one frame. */
   draw(t) {
-    const cam = this.cameraAt(t);
-    this.camera.position.set(...cam.pos);
-    this.camera.lookAt(new THREE.Vector3(...cam.target));
+    // interactive mode poses the camera itself (viewer3d.js, before draw); the headless strip follows the intent camera
+    if (!this.externalCamera) {
+      const cam = this.cameraAt(t);
+      this.camera.position.set(...cam.pos);
+      this.camera.lookAt(new THREE.Vector3(...cam.target));
+    }
     this.camera.updateMatrixWorld();
 
-    const pt = Math.max(this.firstTick, Math.min(this.lastTick, t));
-    const tick = this.idleTick ?? this.byTick.get(pt);
-    const feet = this.feet.get(Math.min(t, this.lastFeetTick)) ?? [0, 0, 0];
+    // The rig is sampled per tick; a fractional t (smooth playback) interpolates between the two neighbouring ticks like the client.
+    const t0 = Math.floor(t), fr = t - t0;
+    const at = (k) => this.idleTick ?? this.byTick.get(Math.max(this.firstTick, Math.min(this.lastTick, k)));
+    const tick = fr > 1e-6 ? lerpTick(at(t0), at(t0 + 1), fr) : at(t0);
+    const feetAt = (k) => this.feet.get(Math.min(k, this.lastFeetTick)) ?? [0, 0, 0];
+    const f0 = feetAt(t0), f1 = feetAt(t0 + 1);
+    const feet = f0.map((x, i) => x + (f1[i] - x) * fr);
+    this.feetNow = feet;
+    this.tickNow = tick;
     const feetV = new THREE.Vector3(...feet);
     for (const name of BONES) {
       const b = tick.bones[name], mesh = this.bones.get(name);
@@ -243,7 +281,7 @@ class Preview {
     }
     if (this.weapon) {
       const w = tick.weapon;
-      this.weapon.visible = !!w && t <= this.lastTick;
+      this.weapon.visible = !!w && t <= this.lastTick && this.layers.weapon;
       if (w) {
         const k = this.plan.weaponScale ?? 0.9375;
         this.weapon.matrix.compose(unmirrorP(w.pos).add(feetV), unmirrorQ(w.rot), new THREE.Vector3(k, k, k));
@@ -256,7 +294,7 @@ class Preview {
     const proxy = { getWorldDirection: (v) => this.camera.getWorldDirection(v).applyQuaternion(this.yawInv) };
     this.G.updateMatrixWorld(true);
     this.displays.update(t, proxy);
-    this.drawParticles(t);
+    this.drawParticles(t0);
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -287,10 +325,12 @@ class Preview {
       m.material.color.multiplyScalar(0.25 + 0.75 * l);
       m.position.copy(toWorld(p.pos));
       m.quaternion.copy(this.camera.quaternion);
+      if (p.roll) m.rotateZ(p.roll); // SingleQuadParticle roll about the view axis (radians)
       m.scale.setScalar(p.size * 2); // `size` = Particle.getQuadSize, the quad half-extent
     });
   }
 }
 
-window.preview = new Preview();
+const preview = new Preview();
+window.preview = preview;
 window.previewReady = true;

@@ -13,14 +13,10 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, wri
 import { homedir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bytesUrl, ensureSim, jarFile, loadInputs, parseArgs, readJson, repo, root, walk } from './lib/inputs.mjs';
 import { stampTree } from '../../skill-compare/lib/revision.mjs';
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const repo = resolve(root, '../..');
-const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) => {
-  if (a.startsWith('--')) acc.push([a.slice(2), all[i + 1] && !all[i + 1].startsWith('--') ? all[i + 1] : true]);
-  return acc;
-}, []));
+const args = parseArgs();
 const skill = String(args.skill ?? '');
 if (!skill || skill === 'true') { console.error('usage: skill-preview.mjs --skill <skill id> [--case <id>] [--plan f] [--particles f] [--out dir] [--size WxH] [--ticks a-b] [--every n] [--no-ref] [--client dir]'); process.exit(2); }
 const T0 = performance.now();
@@ -29,137 +25,19 @@ const timings = {};
 const mark = (name, since) => { timings[name] = +((performance.now() - since) / 1000).toFixed(2); };
 
 // ---------------------------------------------------------------- inputs
-const out = resolve(args.out ?? join(repo, 'build/skill-preview', skill));
-const planPath = resolve(args.plan ?? join(repo, 'build/skill-lint', skill, 'plan.json'));
-if (!existsSync(planPath)) { console.error(`plan.json missing: ${planPath}\n  make skill-lint-plan SKILL=${skill}`); process.exit(2); }
-const plan = JSON.parse(readFileSync(planPath, 'utf8'));
-if (!plan.caster || !plan.displays) console.log('note: plan.json predates skill-preview (no caster / displays): regenerate with make skill-lint-plan');
-
-const readJson = (p) => JSON.parse(readFileSync(p, 'utf8'));
-const walk = (d) => (existsSync(d) ? readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)])) : []);
-const dataUrl = (file) => 'data:image/png;base64,' + readFileSync(file).toString('base64');
-
-// the case (camera + reference video window)
-const casesDir = join(repo, 'tools/skill-compare/data');
-const caseIds = readdirSync(casesDir).filter((d) => existsSync(join(casesDir, d, 'case.json')));
-let caseId = args.case && args.case !== true ? String(args.case) : null;
-if (!caseId) caseId = caseIds.find((d) => readJson(join(casesDir, d, 'case.json')).skill?.asteraSkillId === skill) ?? null;
-if (!caseId) { console.error(`no skill-compare case plays skill '${skill}' (tools/skill-compare/data/*/case.json skill.asteraSkillId); pass --case <id>`); process.exit(2); }
-const caseDir = join(casesDir, caseId);
-const kase = readJson(join(caseDir, 'case.json'));
-const intent = readJson(join(caseDir, kase.intent?.file ?? 'intent.json'));
-// --camera <name>: an entry of the intent's camera_presets, else a fixed review camera from tools/vfx-shot/camera-presets.json
-// (front | back | opposite | high45 | back45 | eye | top); vfx-shot CAMERA=<name> films the same camera. Default = intent.camera.
-const cameraPreset = [args.camera, args.view].find((v) => v && v !== true && v !== 'compare') ?? null;
-let keys = intent.camera ?? [];
-let sideEnemy = null;
-if (cameraPreset === 'side' && !intent.camera_presets?.side) {
-  // SIDE camera = the capture farm's side view (tools/vfx-shot/vfx-shot.sh orbit_cam "side" + DISTANCE=4 + FOV=90), so the preview and the
-  // real capture compare frame for frame: spectator 6 blocks off the caster's right (+z in intent units, screen-right = forward), half the
-  // caster->target distance ahead, eye height 1.0 above the caster's feet, looking straight across with pitch 8 degrees down, vertical fov 90.
-  // The enemy husk stands at the farm's DISTANCE ahead. A case that wants the reference framing defines intent.camera_presets.side.
-  const SIDE_DISTANCE = 4, SIDE_OFF = 6, SIDE_EYE = 1.0, SIDE_PITCH = 8;
-  keys = [{ t: 0, pos: [SIDE_DISTANCE / 2, SIDE_EYE, SIDE_OFF], target: [SIDE_DISTANCE / 2, SIDE_EYE - SIDE_OFF * Math.tan((SIDE_PITCH * Math.PI) / 180), 0], fov: 90 }];
-  sideEnemy = [SIDE_DISTANCE, 0, 0];
-} else if (cameraPreset) {
-  if (intent.camera_presets?.[cameraPreset]) keys = intent.camera_presets[cameraPreset];
-  else {
-    const pr = cameraPreset.startsWith('_') ? null : readJson(join(repo, 'tools/vfx-shot/camera-presets.json'))[cameraPreset];
-    if (!pr) { console.error(`case ${caseId}: no camera preset ${cameraPreset} (intent: ${Object.keys(intent.camera_presets ?? {}).join(', ') || 'none'}; tools/vfx-shot/camera-presets.json)`); process.exit(2); }
-    keys = [{ t: 0, pos: pr.pos, target: pr.target, fov: pr.fov }];
-  }
-}
-if (!keys.length) { console.error(`case ${caseId}: intent has no camera keys`); process.exit(2); }
-const actor = (id) => (intent.actors ?? []).find((a) => a.id === id)?.keys?.[0]?.pos;
-const casterOrigin = actor('caster') ?? [0, 0, 0];
-const enemyPos = sideEnemy ?? actor('enemy');
-const duration = intent.duration_ticks ?? 60;
-const [tFrom, tTo] = String(args.ticks ?? `0-${duration}`).split('-').map(Number);
-const [W, H] = String(args.size ?? '1280x720').split('x').map(Number);
+const out = resolve(args.out ?? join(repo, "build/skill-preview", skill));
+// plan.json is made by make (skill-lint-plan); the particles are always simulated here from the real particle classes (reused while fresh)
+const sim = ensureSim(skill, { reuse: true, simulate: !args["no-sim"] && !args.particles });
+const inp = loadInputs(args, skill, sim);
+const { plan, caseId, kase, intent, cameraPreset, keys, casterOrigin, enemyPos, duration, fovOverride, fov0, skin, husk, weapon, particles, particleTextures } = inp;
+mark("sim", T0);
+const warnings = [...inp.warnings,
+  "プレビュー非対応: 農場キャプチャとの時間差 — サーバー実測(ASTERA_VFX_TRACE)で fx は計画tickどおりにスポーンする(S3: thrust flash cast+41, slam burst cast+64)。農場キャプチャのフレーム番号は fx で約1〜2 tick 早く見えるが、これはキャプチャ側の差でランタイムのバグではない",
+  ...(args.warn && args.warn !== true ? String(args.warn).split("||") : [])];
+const [tFrom, tTo] = String(args.ticks ?? `0-${duration}`).split("-").map(Number);
+const [W, H] = String(args.size ?? "1280x720").split("x").map(Number);
 const every = Number(args.every ?? 4);
-// --fov <deg>: the vertical FOV the client really ran at (camera positions are kept, no dolly); default = the intent's first key.
-const fovOverride = args.fov && args.fov !== true ? Number(args.fov) : null;
-const fov0 = fovOverride ?? keys[0].fov ?? 70;
-
-// the local 26.3 client jar (vanilla skins, husk, vanilla particle sprites)
-const jar = process.env.ASTERA_MC_JAR || join(homedir(), '.cache/astera-vfx-shot/mcdir/versions/26.3/26.3.jar');
-const jarFile = (entry) => { try { return execFileSync('unzip', ['-p', jar, entry], { maxBuffer: 1 << 24 }); } catch { return null; } };
-const bytesUrl = (b) => 'data:image/png;base64,' + b.toString('base64');
-const warnings = [...(plan.notes ?? []),
-  'プレビュー非対応: 農場キャプチャとの時間差 — サーバー実測(ASTERA_VFX_TRACE)で fx は計画tickどおりにスポーンする(S3: thrust flash cast+41, slam burst cast+64)。農場キャプチャのフレーム番号は fx で約1〜2 tick 早く見えるが、これはキャプチャ側の差でランタイムのバグではない',
-...(args.warn && args.warn !== true ? String(args.warn).split("||") : [])];
-
-let skin;
-// --skin alex|steve|<png>; the compare client's Caster is the offline-UUID default skin, Alex
-if (args.skin && args.skin !== true && /\.png$/.test(String(args.skin))) skin = dataUrl(resolve(String(args.skin)));
-else {
-  const who = args.skin === 'steve' ? 'steve' : 'alex';
-  const b = jarFile(`assets/minecraft/textures/entity/player/${plan.slim ? 'slim' : 'wide'}/${who}.png`);
-  if (!b) { console.error(`client jar not found or without the default skin: ${jar} (ASTERA_MC_JAR, or pass --skin <png>)`); process.exit(2); }
-  skin = bytesUrl(b);
-}
-const husk = jarFile('assets/minecraft/textures/entity/zombie/husk.png');
-
-// the weapon: the item whose binding plays this skill -> its resource-pack model + textures
-function weaponConfig() {
-  let itemId = kase.weapon && (existsSync(join(repo, 'content/items', kase.weapon + '.yaml'))) ? kase.weapon : null;
-  if (!itemId) {
-    for (const f of walk(join(repo, 'content/items')).filter((x) => x.endsWith('.yaml'))) {
-      if (new RegExp(`skill_id:\\s*${skill}\\s*$`, 'm').test(readFileSync(f, 'utf8'))) { itemId = basename(f, '.yaml'); break; }
-    }
-  }
-  if (!itemId) { warnings.push(`no item binds skill ${skill}: the weapon is not drawn`); return null; }
-  // Studio model whose last path segment is the item id wins over the generated icon (ResourcePackBuilder.addGeneratedItemDefinitions)
-  const modelsDir = join(repo, 'content/models');
-  const studio = walk(join(modelsDir, 'items')).find((f) => basename(f) === itemId + '.model.json');
-  const file = studio ?? join(modelsDir, 'generated/items', itemId + '.model.json');
-  if (!existsSync(file)) { warnings.push(`no model for item ${itemId}: the weapon is not drawn`); return null; }
-  let model = readJson(file);
-  const tints = model.astera_tints ?? [];
-  if (!model.elements) { // item/generated | item/handheld: a flat 1/16 slab of layer0 (no per-pixel extrusion)
-    const handheld = /handheld/.test(model.parent ?? '');
-    const face = () => ({ texture: '#layer0', uv: [0, 0, 16, 16] });
-    model = {
-      textures: model.textures,
-      elements: [{ from: [0, 0, 7.5], to: [16, 16, 8.5], faces: { north: face(), south: face() } }],
-      display: { thirdperson_righthand: handheld ? { rotation: [0, -90, 55], translation: [0, 4, 0.5], scale: [0.85, 0.85, 0.85] } : { rotation: [0, 0, 0], translation: [0, 3, 1], scale: [0.55, 0.55, 0.55] } },
-    };
-    warnings.push(`item ${itemId} has no cuboid model: drawn as a flat slab of its sprite`);
-  }
-  const textures = {};
-  const ids = new Set();
-  for (const el of model.elements) for (const f of Object.values(el.faces ?? {})) {
-    let r = f.texture, n = 0;
-    while (typeof r === 'string' && r.startsWith('#') && n++ < 16) r = model.textures?.[r.slice(1)];
-    if (typeof r === 'string') ids.add(r);
-  }
-  for (const id of ids) {
-    const [ns, path] = id.includes(':') ? id.split(':') : ['minecraft', id];
-    const local = ns === 'astera' ? join(repo, 'content/textures', path + '.png') : null;
-    if (local && existsSync(local)) textures[id] = dataUrl(local);
-    else {
-      const b = ns === 'minecraft' ? jarFile(`assets/minecraft/textures/${path}.png`) : null;
-      if (b) textures[id] = bytesUrl(b); else warnings.push(`model texture ${id} not found`);
-    }
-  }
-  return { itemId, model, tints, textures, modelFile: file.replace(repo + '/', '') };
-}
-const weapon = weaponConfig();
-
-// simulated particles (optional; written by tools/particle-sim)
-const particlesPath = resolve(args.particles && args.particles !== true ? String(args.particles) : join(repo, 'build/skill-preview', skill, 'particles.json'));
-let particles = null, particleTextures = {};
-if (existsSync(particlesPath)) {
-  particles = readJson(particlesPath);
-  const names = new Set(particles.ticks.flatMap((t) => t.particles.map((p) => p.sprite)));
-  for (const name of names) {
-    const bare = String(name).replace(/^minecraft:/, '').replace(/^particle\//, '').replace(/\.png$/, '');
-    const cands = [join(repo, 'content/particle-skins/generated', bare + '.png'), join(repo, 'content/textures', bare + '.png')];
-    const local = cands.find(existsSync);
-    const b = local ? readFileSync(local) : jarFile(`assets/minecraft/textures/particle/${bare}.png`);
-    if (b) particleTextures[name] = bytesUrl(b); else warnings.push(`particle sprite '${name}' has no texture (content/particle-skins/generated, jar textures/particle)`);
-  }
-}
+const caseDir = join(repo, "tools/skill-compare/data", caseId);
 
 // ---------------------------------------------------------------- the reference video + the published real-client capture
 const frameName = (t) => String(t).padStart(3, '0');
