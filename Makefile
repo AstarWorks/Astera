@@ -349,3 +349,7 @@ skill-round: ## Publish the director's round notes (tools/skill-compare/data/<ca
 .PHONY: arena-preview
 arena-preview: ## Render every stage to build/arena-previews/ and measure generation/routing
 	$(GRADLEW) :tools:arena-preview:run
+
+.PHONY: rig-fade-shot
+rig-fade-shot: ## Verify the skin-rig first-person fade (ADR-0285): first person vs F5 vs bystander: make rig-fade-shot [ANIM=<skill-id>]
+	bash tools/vfx-shot/rig-fade-shot.sh "$(ANIM)"
