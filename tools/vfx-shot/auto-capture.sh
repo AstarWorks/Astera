@@ -22,12 +22,13 @@ FARM_CHECKOUT="${FARM_CHECKOUT:-1}"                 # 1 = FARM_ROOT is detached 
 DEPLOY_LOG="${FARM_DEPLOY_LOG:-$PRIMARY/.claude/state/dev-deploy/deploy.log}"
 PUBLISHED="${FARM_PUBLISHED:-${SKILL_COMPARE_PUBLISHED:-$PRIMARY/build/skill-compare-published}}"
 FSTATE="${FARM_STATE:-$PRIMARY/.claude/state/capture-farm}"
-VIEWS="${FARM_VIEWS:-top,side}"
+VIEWS="${FARM_VIEWS:-side,top}"
+ALL_VIEWS="$VIEWS"
 TICKS_DEFAULT="${FARM_TICKS:-80}"
 POLL="${FARM_POLL:-5}"
 MAX_SKILLS="${FARM_MAX_SKILLS:-8}"
 PREVIEW="${FARM_PREVIEW:-1}"
-RETRIES="${FARM_RETRIES:-2}"
+RETRIES="${FARM_RETRIES:-1}"
 OUT_ROOT="${FARM_OUT:-$FARM_ROOT/build/vfx-shot}"
 mkdir -p "$FSTATE"
 
@@ -40,7 +41,7 @@ shot() { # mode(stepped|realtime) skill ticks
   local mode="$1" skill="$2" ticks="$3" stepped=1
   [ "$mode" = realtime ] && stepped=0
   ( cd "$FARM_ROOT" && env SKILL="$skill" VIEW="$VIEWS" TICKS="$ticks" STEPPED="$stepped" FPS=20 OUT_ROOT="$OUT_ROOT" \
-      SHOT_KEEP=1 SHOT_PIN=1 SHOT_KEEP_TTL="${FARM_TTL:-86400}" SHOT_OUTPUTS=lean SHOT_SLOW_RATE="${RATE:-${FARM_RATE:-5}}" \
+      SHOT_KEEP=1 SHOT_PIN=1 SHOT_KEEP_TTL="${FARM_TTL:-86400}" SHOT_OUTPUTS=lean SHOT_SLOW_RATE="${RATE:-${FARM_RATE:-2.5}}" \
       SHOT_LOCK="${SHOT_LOCK:-/tmp/claude-1000/astera-vfx-shot-farm.lock}" SHOT_REAP_SCOPE=self SHOT_DETACHED=1 \
       bash "$FARM_ROOT/tools/vfx-shot/vfx-shot.sh" capture ) >> "$FSTATE/shot.log" 2>&1
 }
@@ -93,6 +94,10 @@ process() { # sha [base]
   if [ -n "$skills" ]; then
     if [ "$PREVIEW" = 1 ]; then
       for s in $skills; do
+        # a preview only fills an empty slot (publish-capture keeps stepped captures): a skill that already has captures skips the pass
+        if ls "$PUBLISHED/$s"/*/current.json >/dev/null 2>&1 && [ -n "$(ls "$PUBLISHED/$s"/{side,top}/current.json 2>/dev/null)" ]; then
+          flog "PREVIEW $s skipped: already published, the stepped pass replaces it"; continue
+        fi
         ticks="$(ticks_for "$s")"; tp="$(now)"
         if shot realtime "$s" "$ticks" && publish "$s" "$sha" preview; then
           flog "PREVIEW $s published $(awk -v a="$tp" -v b="$(now)" 'BEGIN{printf "%.0f", b-a}')s (capture), $(awk -v a="$t0" -v b="$(now)" 'BEGIN{printf "%.0f", b-a}')s since detection"
@@ -100,22 +105,27 @@ process() { # sha [base]
       done
     fi
     for s in $skills; do
-      ticks="$(ticks_for "$s")"; tstep="$(now)"; n=0
-      while :; do
-        # a view that drops ticks at this tick rate (the software client hitches on heavy VFX, mostly side) is refilmed at half the rate
-        rate="$(awk -v r="${FARM_RATE:-5}" -v n="$n" 'BEGIN{for (i = 0; i < n; i++) r /= 2; if (r < 1) r = 1; print r}')"
-        if RATE="$rate" shot stepped "$s" "$ticks" && publish "$s" "$sha" stepped; then
-          flog "STEPPED $s published $(awk -v a="$tstep" -v b="$(now)" 'BEGIN{printf "%.0f", b-a}')s (capture), $(awk -v a="$t0" -v b="$(now)" 'BEGIN{printf "%.0f", b-a}')s since detection"
-          summary="$summary $s:ok"; break
-        fi
-        n=$((n + 1))
-        if [ "$n" -gt "$RETRIES" ]; then
-          flog "STEPPED $s not published after $n attempt(s); the last valid capture stays as the old version"
-          publish_failed "$s" "$sha" "stepped capture dropped ticks / invalid after $n attempt(s) (last rate $rate tps)"
-          summary="$summary $s:FAILED"; break
-        fi
-        flog "STEPPED $s attempt $n failed at $rate tps; retrying at half the rate"
+      # one view at a time, in FARM_VIEWS order: the first view (side) is published before the next is filmed
+      for v1 in ${ALL_VIEWS//,/ }; do
+        VIEWS="$v1"
+        ticks="$(ticks_for "$s")"; tstep="$(now)"; n=0
+        while :; do
+          # a view that drops ticks at this tick rate (the software client hitches on heavy VFX, mostly side) is refilmed at half the rate
+          rate="$(awk -v r="${FARM_RATE:-2.5}" -v n="$n" 'BEGIN{for (i = 0; i < n; i++) r /= 2; if (r < 1) r = 1; print r}')"
+          if RATE="$rate" shot stepped "$s" "$ticks" && publish "$s" "$sha" stepped; then
+            flog "STEPPED $s/$v1 published $(awk -v a="$tstep" -v b="$(now)" 'BEGIN{printf "%.0f", b-a}')s (capture), $(awk -v a="$t0" -v b="$(now)" 'BEGIN{printf "%.0f", b-a}')s since detection"
+            summary="$summary $s/$v1:ok"; break
+          fi
+          n=$((n + 1))
+          if [ "$n" -gt "$RETRIES" ]; then
+            flog "STEPPED $s/$v1 not published after $n attempt(s); the last valid capture stays as the old version"
+            publish_failed "$s" "$sha" "stepped capture dropped ticks / invalid after $n attempt(s) (last rate $rate tps)"
+            summary="$summary $s/$v1:FAILED"; break
+          fi
+          flog "STEPPED $s/$v1 attempt $n failed at $rate tps; retrying at half the rate"
+        done
       done
+      VIEWS="$ALL_VIEWS"
     done
   fi
   echo "$sha" > "$FSTATE/done-sha"
