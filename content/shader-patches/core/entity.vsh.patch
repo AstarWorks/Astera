@@ -10,10 +10,12 @@
 // Ghost bones (ADR-0284, a translucent tinted afterimage) use the codes 6..9 and 12..15: rigPart = bone + 8 if slim + 16 if ghost.
 layout(location = 8) flat out int rigPart;
 layout(location = 9) out vec3 rigViewPos;
+layout(location = 10) out vec3 rigViewNormal;
 
 @@ after: void main() {
     rigPart = -1;
     rigViewPos = vec3(0.0);
+    rigViewNormal = vec3(0.0);
     if (UV2.x == 240 && (UV2.y & 15) == 0) {
         int sky = UV2.y >> 4;
         if (sky <= 5) {
@@ -30,6 +32,7 @@ layout(location = 9) out vec3 rigViewPos;
         // Camera-space position, interpolated: the fragment shader fades every rig part (ghosts included) by its distance
         // to the camera (ADR-0285). That replaces the old "drop a head bone enclosing the camera" rule.
         rigViewPos = (ModelViewMat * vec4(Position, 1.0)).xyz;
+        rigViewNormal = (ModelViewMat * vec4(Normal, 0.0)).xyz;
     }
 
 @@ replace: lightMapColor = sample_lightmap(Sampler2, UV2);

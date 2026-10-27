@@ -473,8 +473,11 @@ public data class VfxGhostBody(
     public val delayTicks: Int = 0,
     public val startTick: Int = 0,
     public val endTick: Int? = null,
+    /** Uniform size of the copy about the caster's feet (the reference afterimage is ~1.25x). [offset] is not scaled. */
+    public val scale: Double = 1.0,
 ) {
     init {
+        require(scale in 0.5..3.0) { "ghost_body '$id' scale must be 0.5..3: $scale" }
         require(id.isNotBlank()) { "VfxGhostBody.id must not be blank" }
         require(delayTicks in 0..40) { "ghost_body '$id' delay_ticks must be 0..40: $delayTicks" }
         require(startTick >= 0) { "ghost_body '$id' start_tick must be >= 0: $startTick" }

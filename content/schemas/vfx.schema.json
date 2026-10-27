@@ -582,6 +582,9 @@
                 },
                 "end_tick": {
                     "type": "integer"
+                },
+                "scale": {
+                    "type": "number"
                 }
             },
             "required": [

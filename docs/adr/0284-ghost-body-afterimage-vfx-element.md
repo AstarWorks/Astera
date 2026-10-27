@@ -45,3 +45,11 @@ A new VFX top-level list `ghost_bodies` (`VfxGhostBody`): `id`, `animation` (ski
 - `entity.vsh.patch` decodes `rigPart` with the ghost bit (`+16`); the head-enclosing test now covers the ghost head too.
 - Covered by the game-sim scenario `PerformanceScenarioTest` "the ghost body afterimage shows six decorative bones on skill
   ticks 63 to 70 and never takes the lease".
+
+## Erratum (2026-10-27, round 7)
+
+- `ghost_bodies[].scale` (0.5..3, default 1) sizes the copy about the caster's feet; `offset` is not scaled. Couture S2 uses 1.25
+  (the reference afterimage is 1.2-1.3x).
+- The ghost shader now carries a glowing rim: faces seen head-on are thinner (alpha 0.38), grazing faces brighter and more opaque
+  (alpha 0.8, lifted toward `#C7A8FF`), so the silhouette glows. Mean opacity stays near `GHOST_OPACITY`.
+- `start_tick` / `end_tick` count effect ticks (ghost spawns at skill tick 63, `end_tick: 9` keeps it to 71).
