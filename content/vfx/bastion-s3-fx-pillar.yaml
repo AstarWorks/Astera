@@ -1,8 +1,9 @@
 # Bastion S3 beat 11 (video n99-132, pillar peak t66-68): THICK vertical gold light pillar (bastion-s3-pillar: dark rim + gold + white core, 0.9 block wide, 4.6 high, 2 crossing front+back plane pairs) rising at the planted sword (1.4 forward), horizontal cross bar (bastion-s3-bar, 4 planes), radial jagged lightning spikes (bastion-s3-spikes, 2 sizes), then electric gold floor sparks until ~t84.
+# r3: bar = 1 crisp center-billboard bastion-s3-pillar-bar (4+ blocks wide, y 1.4); spikes = bastion-s3-pillar-spikes (UP/outward from the base, 2 sprites); floor electricity = bastion-s3-pillar-crackle (ticks 8-24 = t71-87, 4 frames dense -> sparse) + spark particles to tick 24. Peak displays: 4 pillar + 1 bar + 2 spikes + root flash + crackle = 9.
 # Played at skill tick 63: the pillar rises at effect ticks 2-4 (t65-67), holds to tick 10 (t73), narrows out by 13 (t76); bar to tick 7, spikes ticks 2-8; floor sparks end at tick 21.
 # Display budget: peak 11 sprite displays (4 pillar planes, 4 bar, 2 spikes, 1 root flash), the rest vanilla particles.
 id: bastion-s3-fx-pillar
-duration_ticks: 24
+duration_ticks: 26
 orient: yaw
 follow: true
 sample_ticks: 1
@@ -106,152 +107,6 @@ elements:
     translate: [0, 2.3, 1.4]
     rotate: [180, 0, 0]
     scale: [0.03, 0.72, 1]
-    ease: in_quad
-- id: s3p-bar-a
-  kind: {type: sprite, sprite: bastion-s3-bar, frame_ticks: 1, loop: false, see_through: true}
-  billboard: fixed
-  brightness: 15
-  start_tick: 2
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [0, 0.75, 1.4]
-    rotate: [90, 0, 0]
-    scale: [0.15, 0.03, 1]
-  - t: 1
-    translate: [0, 0.75, 1.4]
-    rotate: [90, 0, 0]
-    scale: [0.95, 0.22, 1]
-    ease: out_expo
-  - t: 5
-    translate: [0, 0.75, 1.4]
-    rotate: [90, 0, 0]
-    scale: [0.9, 0.2, 1]
-  - t: 7
-    translate: [0, 0.75, 1.4]
-    rotate: [90, 0, 0]
-    scale: [0.7, 0.02, 1]
-    ease: in_quad
-- id: s3p-bar-b
-  kind: {type: sprite, sprite: bastion-s3-bar, frame_ticks: 1, loop: false, see_through: true}
-  billboard: fixed
-  brightness: 15
-  start_tick: 2
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [0, 0.75, 1.4]
-    rotate: [-90, 0, 0]
-    scale: [0.15, 0.03, 1]
-  - t: 1
-    translate: [0, 0.75, 1.4]
-    rotate: [-90, 0, 0]
-    scale: [0.95, 0.22, 1]
-    ease: out_expo
-  - t: 5
-    translate: [0, 0.75, 1.4]
-    rotate: [-90, 0, 0]
-    scale: [0.9, 0.2, 1]
-  - t: 7
-    translate: [0, 0.75, 1.4]
-    rotate: [-90, 0, 0]
-    scale: [0.7, 0.02, 1]
-    ease: in_quad
-- id: s3p-bar-c
-  kind: {type: sprite, sprite: bastion-s3-bar, frame_ticks: 1, loop: false, see_through: true}
-  billboard: fixed
-  brightness: 15
-  start_tick: 2
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [0, 0.75, 1.4]
-    rotate: [0, 0, 0]
-    scale: [0.15, 0.03, 1]
-  - t: 1
-    translate: [0, 0.75, 1.4]
-    rotate: [0, 0, 0]
-    scale: [0.95, 0.22, 1]
-    ease: out_expo
-  - t: 5
-    translate: [0, 0.75, 1.4]
-    rotate: [0, 0, 0]
-    scale: [0.9, 0.2, 1]
-  - t: 7
-    translate: [0, 0.75, 1.4]
-    rotate: [0, 0, 0]
-    scale: [0.7, 0.02, 1]
-    ease: in_quad
-- id: s3p-bar-d
-  kind: {type: sprite, sprite: bastion-s3-bar, frame_ticks: 1, loop: false, see_through: true}
-  billboard: fixed
-  brightness: 15
-  start_tick: 2
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [0, 0.75, 1.4]
-    rotate: [180, 0, 0]
-    scale: [0.15, 0.03, 1]
-  - t: 1
-    translate: [0, 0.75, 1.4]
-    rotate: [180, 0, 0]
-    scale: [0.95, 0.22, 1]
-    ease: out_expo
-  - t: 5
-    translate: [0, 0.75, 1.4]
-    rotate: [180, 0, 0]
-    scale: [0.9, 0.2, 1]
-  - t: 7
-    translate: [0, 0.75, 1.4]
-    rotate: [180, 0, 0]
-    scale: [0.7, 0.02, 1]
-    ease: in_quad
-- id: s3p-spike-big
-  kind: {type: sprite, sprite: bastion-s3-spikes, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 2
-  end_tick: 13
-  keyframes:
-  - t: 0
-    translate: [0, 0.75, 1.4]
-    rotate: [0, 0, 0]
-    scale: [0.3, 0.2, 1]
-  - t: 1
-    translate: [0, 0.75, 1.4]
-    rotate: [0, 0, 0]
-    scale: [1.15, 0.6, 1]
-    ease: out_back
-  - t: 7
-    translate: [0, 0.75, 1.4]
-    rotate: [0, 0, 0]
-    scale: [1.05, 0.55, 1]
-  - t: 9
-    translate: [0, 0.75, 1.4]
-    rotate: [0, 0, 0]
-    scale: [0.5, 0.25, 1]
-    ease: in_quad
-- id: s3p-spike-small
-  kind: {type: sprite, sprite: bastion-s3-spikes, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 3
-  end_tick: 12
-  keyframes:
-  - t: 0
-    translate: [0, 1.4, 1.4]
-    rotate: [0, 0, 18]
-    scale: [0.25, 0.25, 1]
-  - t: 1
-    translate: [0, 1.4, 1.4]
-    rotate: [0, 0, 18]
-    scale: [0.85, 0.45, 1]
-    ease: out_back
-  - t: 8
-    translate: [0, 1.4, 1.4]
-    rotate: [0, 0, 18]
-    scale: [0.3, 0.3, 1]
     ease: in_quad
 - id: s3p-root-flash
   kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FFF2B8'}
@@ -402,4 +257,101 @@ elements:
   keyframes:
   - t: 0
     translate: [0, 0.3, 1.4]
+- id: s3p-bar
+  kind: {type: sprite, sprite: bastion-s3-pillar-bar, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 1.4, 1.4]
+    rotate: [0, 0, 0]
+    scale: [0.2, 0.3, 1]
+  - t: 1
+    translate: [0, 1.4, 1.4]
+    rotate: [0, 0, 0]
+    scale: [0.85, 0.6, 1]
+    ease: out_expo
+  - t: 6
+    translate: [0, 1.4, 1.4]
+    rotate: [0, 0, 0]
+    scale: [0.8, 0.56, 1]
+  - t: 8
+    translate: [0, 1.4, 1.4]
+    rotate: [0, 0, 0]
+    scale: [0.62, 0.05, 1]
+    ease: in_quad
+- id: s3p-spike-big
+  kind: {type: sprite, sprite: bastion-s3-pillar-spikes, frame_ticks: 2, loop: true, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 13
+  keyframes:
+  - t: 0
+    translate: [0, 0.7, 1.4]
+    rotate: [0, 0, 0]
+    scale: [0.4, 0.2, 1]
+  - t: 1
+    translate: [0, 1.663, 1.4]
+    rotate: [0, 0, 0]
+    scale: [1.0, 0.55, 1]
+    ease: out_back
+  - t: 7
+    translate: [0, 1.525, 1.4]
+    rotate: [0, 0, 0]
+    scale: [0.95, 0.5, 1]
+  - t: 9
+    translate: [0, 0.838, 1.4]
+    rotate: [0, 0, 0]
+    scale: [0.6, 0.25, 1]
+    ease: in_quad
+- id: s3p-spike-small
+  kind: {type: sprite, sprite: bastion-s3-pillar-spikes, frame_ticks: 2, loop: true, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate: [0.35, 0.562, 1.7]
+    rotate: [0, 0, 0]
+    scale: [0.3, 0.15, 1]
+  - t: 1
+    translate: [0.35, 0.975, 1.7]
+    rotate: [0, 0, 0]
+    scale: [0.62, 0.3, 1]
+    ease: out_back
+  - t: 8
+    translate: [0.35, 0.48, 1.7]
+    rotate: [0, 0, 0]
+    scale: [0.3, 0.12, 1]
+    ease: in_quad
+- id: s3p-crackle
+  kind: {type: sprite, sprite: bastion-s3-pillar-crackle, frame_ticks: 4, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 8
+  end_tick: 24
+  keyframes:
+  - t: 0
+    translate: [0, 0.12, 1.4]
+    rotate: [0, 0, 0]
+    scale: [0.9, 0.9, 1]
+- id: s3p-p-floor-x0
+  kind: {type: particle, particle_id: bastion-s3-p-spark-up, every_ticks: 1}
+  start_tick: 23
+  end_tick: 24
+  keyframes:
+  - t: 0
+    translate: [0.35, 0.05, 1.8]
+- id: s3p-p-floor-x1
+  kind: {type: particle, particle_id: bastion-s3-p-spark-up, every_ticks: 1}
+  start_tick: 24
+  end_tick: 25
+  keyframes:
+  - t: 0
+    translate: [-0.45, 0.05, 1.1]
+
 follow_pitch: true

@@ -1,5 +1,6 @@
 # Bastion S3 beat 10 (video n94, contact t63): vertical slam, copy of bastion-s2-fx-chop (gold crescent in the forward/up plane front + back, dark ink under it, afterimage streak, floor ink, vanilla particles on the blade path) with the contact moved to 1.9 forward and a bigger flash (jagged ink + orange flare + 3 rays).
 # Played at skill tick 59: contact = effect tick 4 = skill tick 63. Caster-follow. Display budget: 8 base sprites + 5 flash = 13 at peak. Reuses the S1 sprites and particles.
+# r3: ADDS the contact-3 full-frame white-gold radial burst (bastion-s3-slam-burst, 3 frames, ticks 4-6 = t63-65, billboard center 1.9 forward, ~8-11 blocks) and a 1-tick dark ray/vignette frame (bastion-s3-slam-dark, tick 7 = t66, centre kept clear). Display budget +2.
 # r2: flash shrunk to ~2.4 blocks / short (was ~6 blocks) so blade and caster stay visible.
 id: bastion-s3-fx-slam
 duration_ticks: 16
@@ -338,4 +339,32 @@ elements:
   keyframes:
   - t: 0
     translate: [0, 0.4, 1.9]
+- id: s3sl-burst
+  kind: {type: sprite, sprite: bastion-s3-slam-burst, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 4
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0, 1.2, 1.9]
+    rotate: [0, 0, 0]
+    scale: [1.25, 1.25, 1]
+  - t: 3
+    translate: [0, 1.2, 1.9]
+    rotate: [0, 0, 0]
+    scale: [1.85, 1.85, 1]
+    ease: out_quad
+- id: s3sl-dark
+  kind: {type: sprite, sprite: bastion-s3-slam-dark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 7
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0, 1.2, 1.9]
+    rotate: [0, 0, 0]
+    scale: [1.9, 1.9, 1]
+
 follow_pitch: true
