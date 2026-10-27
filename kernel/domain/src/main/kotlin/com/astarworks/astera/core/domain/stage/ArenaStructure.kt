@@ -12,13 +12,16 @@ private fun materials(ground: String, soil: String, rock: String, wall: String, 
     mapOf("ground" to ground, "soil" to soil, "rock" to rock, "wall" to wall, "deck" to deck, "log" to log, "leaves" to leaves, "light" to light)
         .mapValues { "minecraft:${it.value}" }
 
+/** `@slot`, or `minecraft:id` with an optional block-state suffix such as `[instrument=harp,note=6,powered=false]` (ADR-0300 custom block states). */
+private val BLOCK_PATTERN = Regex("(?:@[a-z][a-z0-9_-]*|minecraft:[a-z0-9_]+(?:\\[[a-z0-9_]+=[a-z0-9_]+(?:,[a-z0-9_]+=[a-z0-9_]+)*\\])?)")
+
 /** Ordered inclusive cuboids: later boxes replace earlier ones; air explicitly carves openings. */
 public data class ArenaStructureBox(val min: ArenaBlockPos, val max: ArenaBlockPos, val block: String) {
     init {
         require(min.x <= max.x && min.y <= max.y && min.z <= max.z) { "structure box min must precede max" }
         require(listOf(min.x, min.y, min.z, max.x, max.y, max.z).all { it in -128..128 }) { "structure coordinates exceed ±128" }
         require((max.x - min.x + 1L) * (max.y - min.y + 1) * (max.z - min.z + 1) <= 100_000) { "structure box exceeds 100000 blocks" }
-        require(block.matches(Regex("(?:@[a-z][a-z0-9_-]*|minecraft:[a-z0-9_]+)"))) { "structure blocks must be full block IDs or @palette slots" }
+        require(block.matches(BLOCK_PATTERN)) { "structure blocks must be full block IDs (optionally with [key=value,...] states) or @palette slots: '$block'" }
     }
 }
 

@@ -29,7 +29,7 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
         val lines = file.readLines().dropWhile { it.trim() != "pillars:" }.drop(1).takeWhile { it.startsWith(" ") || it.startsWith("-") }
         val entry = Regex("""-\s*team:\s*(\w+)""")
         val tier = Regex("""tier:\s*(\d+)""")
-        val pos = Regex("""position:\s*\{x:\s*(-?[\d.]+),\s*y:\s*(-?[\d.]+),\s*z:\s*(-?[\d.]+)\}""")
+        val pos = Regex("""position:\s*\{\s*x:\s*(-?[\d.]+),\s*y:\s*(-?[\d.]+),\s*z:\s*(-?[\d.]+)\s*\}""")
         val byTeam = mutableMapOf<String, MutableMap<Int, Triple<Int, Int, Int>>>()
         var team: String? = null
         var t = 0

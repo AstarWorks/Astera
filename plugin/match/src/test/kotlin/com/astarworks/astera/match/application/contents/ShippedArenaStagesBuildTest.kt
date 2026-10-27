@@ -43,6 +43,15 @@ class ShippedArenaStagesBuildTest {
     }
 
     @Test
+    fun `every shipped structure file loads through the domain validator`() {
+        val files = Files.list(contentRoot.resolve("structures")).use { s -> s.filter { it.toString().endsWith(".yaml") }.toList() }
+        assertThat(files).isNotEmpty
+        // ArenaStructureContent.load throws when any file fails to decode or fails ArenaStructureBox validation (block IDs, states).
+        val parts = ArenaStructureContent.load(contentRoot)
+        assertThat(parts.keys).describedAs("a structure file that did not produce a part").hasSize(files.size)
+    }
+
+    @Test
     fun `no shipped stage sits in the darkest part of the night or pairs night with rain`() {
         for (stage in stages()) {
             val sky = stage.layout!!.atmosphere ?: continue
