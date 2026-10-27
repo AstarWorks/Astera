@@ -32,11 +32,9 @@ skills:
   skill_id: crimson-chain-axe-s2
 - trigger: sneak_right
   skill_id: crimson-chain-axe-s3
-  min_norma_level: 2
 - trigger: sneak_left
   skill_id: crimson-chain-axe-def
 - trigger: drop
   skill_id: crimson-chain-axe-ego
-  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

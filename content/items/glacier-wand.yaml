@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal, batch 2): Glacier Wand.
+
+id: glacier-wand
+
+material: BLUE_ICE
+
+name:
+  ja: "氷壁の杖"
+  en: "Glacier Wand"
+lore:
+  ja:
+    - "<gray>右クリック: 氷柱 (足止め)</gray>"
+    - "<gray>スニーク + 右クリック: 氷壁を張る</gray>"
+  en:
+    - "<gray>Right-click: ice spike (slows)</gray>"
+    - "<gray>Sneak + right-click: raise an ice wall</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 10
+
+skills:
+  - trigger: right_click
+    skill_id: glacier-spike
+  - trigger: sneak_right
+    skill_id: glacier-wall
+
+pdc_tags:
+  astera:rarity: uncommon

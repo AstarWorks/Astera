@@ -64,6 +64,102 @@ offers:
     price: { ore-gold: 3 }
     tab: weapons
     stack: 1
+  - item_id: katana
+    price: { ore-iron: 12 }
+    tab: weapons
+    stack: 1
+  - item_id: halberd
+    price: { ore-iron: 14 }
+    tab: weapons
+    stack: 1
+  - item_id: rapier
+    price: { ore-iron: 10 }
+    tab: weapons
+    stack: 1
+  - item_id: cleaver
+    price: { ore-iron: 14 }
+    tab: weapons
+    stack: 1
+  - item_id: scythe
+    price: { ore-iron: 12 }
+    tab: weapons
+    stack: 1
+  - item_id: club
+    price: { ore-iron: 8 }
+    tab: weapons
+    stack: 1
+  - item_id: shortbow
+    price: { ore-iron: 8 }
+    tab: weapons
+    stack: 1
+  - item_id: repeater-crossbow
+    price: { ore-iron: 14 }
+    tab: weapons
+    stack: 1
+  - item_id: revolver
+    price: { ore-gold: 6 }
+    tab: weapons
+    stack: 1
+  - item_id: smg
+    price: { ore-gold: 7 }
+    tab: weapons
+    stack: 1
+  - item_id: sniper
+    price: { ore-gold: 10 }
+    tab: weapons
+    stack: 1
+  - item_id: harpoon
+    price: { ore-iron: 12 }
+    tab: weapons
+    stack: 1
+  - item_id: fireball-charge
+    price: { ore-gold: 5 }
+    tab: weapons
+    stack: 1
+  - item_id: glacier-wand
+    price: { ore-gold: 6 }
+    tab: weapons
+    stack: 1
+  - item_id: sanctuary-staff
+    price: { ore-gold: 7 }
+    tab: weapons
+    stack: 1
+  - item_id: chain-rod
+    price: { ore-gold: 7 }
+    tab: weapons
+    stack: 1
+  - item_id: gale-fan
+    price: { ore-iron: 10 }
+    tab: weapons
+    stack: 1
+  - item_id: venom-flask
+    price: { ore-iron: 10 }
+    tab: weapons
+    stack: 1
+  - item_id: smoke-bomb
+    price: { ore-iron: 6 }
+    tab: weapons
+    stack: 1
+  - item_id: grappling-hook
+    price: { ore-iron: 8 }
+    tab: weapons
+    stack: 1
+  - item_id: shield-bulwark
+    price: { ore-iron: 10 }
+    tab: weapons
+    stack: 1
+  - item_id: delay-mine
+    price: { ore-iron: 8 }
+    tab: weapons
+    stack: 1
+  - item_id: frag-grenade
+    price: { ore-gold: 4 }
+    tab: weapons
+    stack: 1
+  - item_id: flash-bang
+    price: { ore-iron: 6 }
+    tab: weapons
+    stack: 1
   - item_id: iron-pickaxe
     price: { ore-iron: 12 }
     tab: tools

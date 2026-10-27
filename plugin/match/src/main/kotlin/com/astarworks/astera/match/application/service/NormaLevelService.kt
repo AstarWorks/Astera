@@ -86,6 +86,12 @@ public class NormaLevelService(
         return norma.get(match.id, playerId).level
     }
 
+    /** The Norma tunables of [playerId]'s current match, or `null` outside a Norma match. */
+    public fun normaConfigOf(playerId: PlayerId): NormaConfig? {
+        val match = matches.findMatchOf(playerId)?.takeIf { isNorma(it.id) } ?: return null
+        return configOf(match.id)
+    }
+
     /** Kills [playerId] made since reaching the current level (0 outside a Norma match). */
     public fun killsAtLevelOf(playerId: PlayerId): Int {
         val match = matches.findMatchOf(playerId)?.takeIf { isNorma(it.id) } ?: return 0

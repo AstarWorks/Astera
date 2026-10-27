@@ -28,23 +28,14 @@ import com.astarworks.astera.core.domain.skill.SkillTrigger
  * named this field `hookOverrides` against a now-removed 4-hook model; the
  * Phase-based replacement is archetype-aware (see [PhaseOverrides.applyTo]).
  * Defaults to [PhaseOverrides.EMPTY] so existing items needn't specify it.
- *
- * # Norma level gate
- *
- * [minNormaLevel] is the in-match Norma level (ADR-0268) the holder must have
- * reached before this binding fires; below it the cast is refused with an
- * "unlocks at Lv N" hint. `1` (the default) means ungated. Only meaningful in a
- * match that runs the Norma layer; outside one the gate is not consulted.
  */
 public data class ItemSkillBinding(
     val trigger: SkillTrigger,
     val skillId: SkillId,
     val cooldownOverrideTicks: Int? = null,
     val phaseOverrides: PhaseOverrides = PhaseOverrides.EMPTY,
-    val minNormaLevel: Int = 1,
 ) {
     init {
-        require(minNormaLevel >= 1) { "ItemSkillBinding.minNormaLevel must be >= 1, got $minNormaLevel" }
         cooldownOverrideTicks?.let {
             require(it >= 0) {
                 "ItemSkillBinding.cooldownOverrideTicks must be >= 0, got $it"

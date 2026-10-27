@@ -280,6 +280,8 @@ internal fun CoreWiringState.wireBase() {
         com.astarworks.astera.core.application.service.item.ItemBlueprintFactory(
             messages,
             com.astarworks.astera.core.application.service.item.ItemModelCatalog.fromContentDir(contentDir),
+            // ADR-0292: Match registers the rarity gate later; the lore asks for it lazily.
+            levelGate = { services.get<com.astarworks.astera.core.application.port.outbound.IMatchLevelGate>() },
         ),
     )
     services.register<IPlayerGateway>(playerGateway)

@@ -27,6 +27,7 @@ class PluginLoadOrderTest {
     /** Expected `depend + softdepend` per plugin (module-layout.md sibling matrix). */
     private val expectedDependencies: Map<String, Set<String>> = mapOf(
         "Astera-Core" to setOf("packetevents"),
+        "Astera-Chat" to setOf("Astera-Core"),
         "Astera-Items" to setOf("Astera-Core"),
         "Astera-Combat" to setOf("Astera-Core", "Astera-Items"),
         "Astera-Match" to setOf("Astera-Core", "Astera-Combat"),
@@ -36,7 +37,7 @@ class PluginLoadOrderTest {
     )
 
     private val featurePlugins = setOf(
-        "Astera-Items", "Astera-Combat", "Astera-Match", "Astera-Stats", "Astera-Economy",
+        "Astera-Chat", "Astera-Items", "Astera-Combat", "Astera-Match", "Astera-Stats", "Astera-Economy",
     )
 
     private fun repoRoot(): File {

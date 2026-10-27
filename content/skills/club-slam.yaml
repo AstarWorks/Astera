@@ -1,0 +1,54 @@
+# Match arsenal (wp/match-arsenal, batch 2): simple PvP skill. One cast sound, a few particles.
+
+id: club-slam
+
+name:
+  ja: "叩きつけ"
+  en: "Slam"
+description:
+  ja: "地面を叩き、周囲を弾き飛ばす。"
+  en: "Slams the ground and shoves everyone around you away."
+
+archetype: aoe
+cooldown_ticks: 130
+resource_cost: 14
+tags: [ aoe, physical, control ]
+
+params:
+  type: aoe
+  radius: 3.0
+  falloff: linear
+  damage:
+    - base: { type: literal, value: 16.0 }
+      attribute: physical
+
+phases:
+  type: aoe
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.mace.smash_ground_heavy
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 1.2 }
+    - type: schedule_particle_animation
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.15, z: 0.0 } } }
+      animation:
+        - type: ring
+          period_ticks: 6
+          points: 16
+          start_radius: 0.5
+          end_radius: 3.0
+          particles:
+            - { id: crit, count: 0, extra: 0.03 }
+            - { id: dust, color: { r: 150, g: 120, b: 90 }, scale: 1.4 }
+  hit_entity:
+    - type: play_sound
+      targets: { type: target }
+      sound_id: astera:weapons/blade-hit
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 1.0 }
+    - type: knockback
+      targets: { type: target }
+      direction: { type: away_from_caster, vertical: 0.3 }
+      strength: { type: literal, value: 1.1 }
+  expire: []

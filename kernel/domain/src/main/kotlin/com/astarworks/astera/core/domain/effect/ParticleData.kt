@@ -78,8 +78,6 @@ public sealed interface ParticleData {
     public data class Power(public val value: Float) : ParticleData
 }
 
-/** Who sees a skill particle. */
-public enum class ParticleViewers { ALL, CASTER, OTHERS }
 
 /** Direction of a directed (`count = 0`) particle; resolved per emission by [ParticleEmitter]. */
 public sealed interface VelocityDirection {

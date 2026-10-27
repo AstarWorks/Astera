@@ -1,0 +1,25 @@
+# Audience demo (caster): plays content/vfx/demo-lanes.yaml for viewers: caster. Not bound to any item.
+
+id: vfx-demo-lanes-caster
+
+name:
+  ja: "デモ・レーン (caster)"
+  en: "Demo Lanes (caster)"
+description:
+  ja: "レーン別の表示エンティティを viewers=caster で再生するデモ。"
+  en: "Plays one display per VFX lane with viewers=caster."
+
+archetype: sequence
+cooldown_ticks: 20
+tags: [ demo, vfx ]
+
+params:
+  type: sequence
+
+phases:
+  type: sequence
+  cast:
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: demo-lanes
+      viewers: caster

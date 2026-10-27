@@ -24,8 +24,8 @@ help: ## Show this help
 # ----------------------------------------------------------------------------
 
 .PHONY: build
-build: ## Build the 7 Astera plugin shadow jars (plugin/*/build/libs/astera-*.jar)
-	$(GRADLEW) $(foreach p,core items combat match stats economy persistence,:plugin:$(p):shadowJar)
+build: ## Build the 8 Astera plugin shadow jars (plugin/*/build/libs/astera-*.jar)
+	$(GRADLEW) $(foreach p,core chat items combat match stats economy persistence,:plugin:$(p):shadowJar)
 
 .PHONY: anim-import
 anim-import: ## Import Blockbench player animations: make anim-import BB=path.bbmodel [OUT=content/animations]

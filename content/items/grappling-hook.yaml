@@ -1,0 +1,33 @@
+# Match arsenal (wp/match-arsenal, batch 2): Grappling Hook.
+
+id: grappling-hook
+
+material: LEAD
+
+name:
+  ja: "グラップリングフック"
+  en: "Grappling Hook"
+lore:
+  ja:
+    - "<gray>右クリック: 壁に当てると自分が、敵に当てると相手が引き寄せられる</gray>"
+  en:
+    - "<gray>Right-click: hit a wall to reel yourself in, an enemy to pull it</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 10
+
+skills:
+  - trigger: right_click
+    skill_id: grapple-shot
+
+pdc_tags:
+  astera:rarity: uncommon

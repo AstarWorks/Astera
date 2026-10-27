@@ -1,0 +1,90 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/chat.schema.json",
+    "type": "object",
+    "properties": {
+        "format": {
+            "type": "string"
+        },
+        "japanize": {
+            "$ref": "#/definitions/com.astarworks.astera.chat.application.config.JapanizeConfig"
+        },
+        "ranks": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/com.astarworks.astera.chat.application.config.ChatRank"
+            }
+        },
+        "discord": {
+            "$ref": "#/definitions/com.astarworks.astera.chat.application.config.DiscordConfig"
+        }
+    },
+    "required": [
+        "format",
+        "japanize",
+        "ranks",
+        "discord"
+    ],
+    "definitions": {
+        "com.astarworks.astera.chat.application.config.ChatRank": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "suffix": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "prefix",
+                "suffix",
+                "priority",
+                "roles"
+            ]
+        },
+        "com.astarworks.astera.chat.application.config.DiscordConfig": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "bridge-server": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "enabled",
+                "bridge-server"
+            ]
+        },
+        "com.astarworks.astera.chat.application.config.JapanizeConfig": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "kanji": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "enabled",
+                "kanji"
+            ]
+        }
+    }
+}

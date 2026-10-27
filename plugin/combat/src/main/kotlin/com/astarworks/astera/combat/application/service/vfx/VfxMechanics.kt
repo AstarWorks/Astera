@@ -59,6 +59,8 @@ internal class VfxMechanics(
                 scale = scale,
                 follow = follow,
                 caster = ctx.actorId,
+                viewers = m.viewers,
+                targetPlayer = ctx.targetId,
                 freeze = freeze,
                 anchor = live,
                 anchorEntityId = entities.getOrNull(index),

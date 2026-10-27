@@ -25,14 +25,15 @@ Current focus is the **core vision** (2026-10): a game system (queue, match, mod
 
 ## What's playable
 
-A Docker server boots all 7 plugins and a player can: queue from the lobby, get auto-balanced into a match (Annihilation pillars, Carry TNT, Carry Mini TNT, Capture Wool, Steal Jewelry; PvE waves from the lobby menu), fight with a 10-weapon roster (pistol / rifle / shotgun, knight-sword / greatsword / dagger, frost / fire / thunder / verdant staff) with ammo and one shared energy bar (the food bar), hit players and mobs with skills and statuses, buy gear from the lobby shop, and keep items in a personal vault. Everything is also covered headlessly by the `:tools:game-sim` scenario tests (ADR-0174). Step by step: [`docs/contributing/playtest.md`](docs/contributing/playtest.md).
+A Docker server boots all 8 plugins and a player can: queue from the lobby, get auto-balanced into a match (Annihilation pillars, Carry TNT, Carry Mini TNT, Capture Wool, Steal Jewelry; PvE waves from the lobby menu), fight with a 10-weapon roster (pistol / rifle / shotgun, knight-sword / greatsword / dagger, frost / fire / thunder / verdant staff) with ammo and one shared energy bar (the food bar), hit players and mobs with skills and statuses, buy gear from the lobby shop, and keep items in a personal vault. Everything is also covered headlessly by the `:tools:game-sim` scenario tests (ADR-0174). Step by step: [`docs/contributing/playtest.md`](docs/contributing/playtest.md).
 
 ## Architecture in one breath
 
-Astera ships as **7 independent Paper plugins** (ADR-0022), wired via Core's `ServiceRegistry` + central `IDomainEventBus`. Server admins pick the subset they need — the minimum is just **Core + Items** for item authoring and test fire.
+Astera ships as **8 independent Paper plugins** (ADR-0022), wired via Core's `ServiceRegistry` + central `IDomainEventBus`. Server admins pick the subset they need — the minimum is just **Core + Items** for item authoring and test fire.
 
 ```
 plugin:core         (mandatory base — shared domain, ServiceRegistry, IDomainEventBus)
+  ├─ plugin:chat         (depend Core)                       — cross-server chat / Japanize / Discord / screen titles
   ├─ plugin:items        (depend Core)                       — 鯖民最小単位
   ├─ plugin:combat       (depend Core, softdepend Items)
   ├─ plugin:match        (depend Core, softdepend Combat)
@@ -40,6 +41,12 @@ plugin:core         (mandatory base — shared domain, ServiceRegistry, IDomainE
   ├─ plugin:economy      (depend Core, softdepend Stats/Match)
   └─ plugin:persistence  (depend Core, softdepend all — Postgres impl override)
 ```
+
+Chat configuration lives in `content/chat/chat.yaml`. `/astera chat japanize on|off` controls conversion for the
+current connection; `/astera chat title all <title> | <subtitle>` requires `astera.chat.title`. Kanji conversion
+sends hiragana message text to Google; disable `japanize.kanji` to keep conversion local. Only the configured
+Discord bridge backend reads `ASTERA_DISCORD_BOT_TOKEN` and `ASTERA_DISCORD_CHANNEL_ID`; enable Message Content
+intent for that bot. See [ADR-0289](docs/adr/0289-chat-plugin-redis-japanize-discord.md) for role mapping and setup.
 
 Inside every plugin the package layout is `domain` → `application` → `adapter.{api,paper}` → `platform`. **Konsist tests** (`tools/architecture-test/`) enforce both the per-plugin direction (domain cannot import Bukkit) and the cross-plugin sibling-isolation matrix at build time — see `ArchitectureTest.kt` for the live rule set, including i18n key parity and throwable-free application APIs. Adding Folia / Velocity support means adding a sibling `*.adapter.<vendor>.*` package family; the inner layers stay untouched.
 
@@ -50,7 +57,7 @@ Why: see [`docs/adr/0022-multi-plugin-portable-architecture.md`](docs/adr/0022-m
 5-minute setup with Docker Compose — full instructions in [`docker/README.md`](docker/README.md).
 
 ```bash
-# Build all 7 plugin jars (or pick a subset, e.g. :plugin:core :plugin:items for 鯖民最小)
+# Build all 8 plugin jars (or pick a subset, e.g. :plugin:core :plugin:items for 鯖民最小)
 ./gradlew shadowJar
 cp docker/.env.example docker/.env
 docker compose -f docker/docker-compose.yml up -d

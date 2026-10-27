@@ -25,7 +25,7 @@ public data class ParticleSpec(
     val data: ParticleData? = null,
     /** `World.spawnParticle(..., force)`: render beyond the normal 32-block particle range. */
     val force: Boolean = false,
-    val viewers: ParticleViewers = ParticleViewers.ALL,
+    val viewers: Audience = Audience.ALL,
     /** The caster, needed to resolve [viewers] other than `ALL`. */
     val source: PlayerId? = null,
 ) {

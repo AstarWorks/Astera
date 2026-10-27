@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.service.item
 
+import com.astarworks.astera.core.application.port.outbound.IMatchLevelGate
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.item.ISkillTooltipSource
 import com.astarworks.astera.core.application.port.outbound.item.SkillTooltipBrief
@@ -24,6 +25,8 @@ import java.util.Locale
  */
 public class ItemTooltip(
     private val messages: IMessageRenderer,
+    /** Resolved lazily: Match may register after Core builds the tooltip. `null` result = no Norma gate. */
+    private val levelGate: () -> IMatchLevelGate? = { null },
     private val skillBriefs: () -> ISkillTooltipSource? = { null },
 ) {
 
@@ -78,18 +81,12 @@ public class ItemTooltip(
         return out
     }
 
-    /** One greyed line per Norma-gated binding (ADR-0288): which input stays locked until which in-match level. */
-    private fun lockedLines(spec: ItemSpec, viewer: PlayerId?): List<String> =
-        spec.skillBindings.filter { it.minNormaLevel > 1 }.map {
-            messages.render(
-                viewer,
-                MessageKey("$BASE.locked"),
-                mapOf(
-                    "level" to it.minNormaLevel.toString(),
-                    "trigger" to messages.render(viewer, MessageKey("$BASE.trigger_name.${it.trigger.name.lowercase()}")),
-                ),
-            )
-        }
+    /** One greyed line when the item's rarity opens above Norma level 1 (ADR-0292): usable only from that in-match level. */
+    private fun lockedLines(spec: ItemSpec, viewer: PlayerId?): List<String> {
+        val required = levelGate()?.requiredLevel(spec.rarity) ?: return emptyList()
+        if (required <= 1 || spec.skillBindings.isEmpty()) return emptyList()
+        return listOf(messages.render(viewer, MessageKey("$BASE.locked"), mapOf("level" to required.toString())))
+    }
 
     /** Derived numeric lines only (no header / flavor), exposed for tests and compact surfaces. */
     public fun statLines(spec: ItemSpec, viewer: PlayerId?): List<String> {

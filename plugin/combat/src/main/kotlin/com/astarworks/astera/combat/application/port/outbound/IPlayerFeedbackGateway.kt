@@ -35,9 +35,9 @@ public interface IPlayerFeedbackGateway {
     )
 
     /**
-     * One camera jolt for `CameraShake` (WP5); [intensity] in 0..1. The
-     * mechanic repeats it every couple of ticks for the shake's duration, so
-     * the host only nudges the view once per call.
+     * One RELATIVE camera kick for `camera_shake`: [dx] degrees of yaw (positive = turn right), [dy] degrees of pitch
+     * (positive = look down), added to wherever the player's view currently is. The mechanic plans pulses whose kicks sum
+     * to zero (`ShakeProfile`), so the host must apply each one as a delta, never as an absolute rotation.
      */
-    public fun cameraKick(target: PlayerId, intensity: Double)
+    public fun cameraKick(target: PlayerId, dx: Double, dy: Double)
 }

@@ -265,8 +265,6 @@ public data class AttributesYaml(
  * - `skill_id` — kebab-case skill identifier.
  * - `cooldown_override_ticks` — optional, see
  *   [ItemSkillBinding.cooldownOverrideTicks].
- * - `min_norma_level` — optional in-match Norma level needed to use the binding (default 1 = ungated), see
- *   [ItemSkillBinding.minNormaLevel].
  * - `phase_overrides` — optional per-phase mechanic decoration (Wave
  *   _skills-2, ADR-0077). Single shared DTO; phases the bound skill's
  *   archetype does not own are ignored by the dispatcher. See
@@ -278,7 +276,6 @@ public data class ItemSkillBindingYaml(
     @SerialName("skill_id") public val skillId: String,
     @SerialName("cooldown_override_ticks") public val cooldownOverrideTicks: Int? = null,
     @SerialName("phase_overrides") public val phaseOverrides: PhaseOverridesYaml = PhaseOverridesYaml.EMPTY,
-    @SerialName("min_norma_level") public val minNormaLevel: Int = 1,
 ) {
     public fun toDomain(): ItemSkillBinding {
         val triggerEnum = try {
@@ -291,7 +288,6 @@ public data class ItemSkillBindingYaml(
             skillId = SkillId(skillId),
             cooldownOverrideTicks = cooldownOverrideTicks,
             phaseOverrides = phaseOverrides.toDomain(),
-            minNormaLevel = minNormaLevel,
         )
     }
 }
