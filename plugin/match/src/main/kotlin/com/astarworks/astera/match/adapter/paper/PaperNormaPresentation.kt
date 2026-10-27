@@ -84,18 +84,6 @@ public class PaperNormaPresentation(
         presentation.play(PresentationMoments.NORMA_LOCKED, player, mapOf("level" to required.toString(), "rarity" to rarityText))
     }
 
-    override fun choiceOpened(player: PlayerId) {
-        presentation.play(PresentationMoments.NORMA_CHOICE_OPEN, player)
-    }
-
-    override fun choicePicked(player: PlayerId, goal: NormaGoal, target: Int) {
-        presentation.play(PresentationMoments.NORMA_CHOICE_PICKED, player, mapOf("goal" to target.toString(), "kind" to goal.name.lowercase()))
-    }
-
-    override fun choiceDefaulted(player: PlayerId, goal: NormaGoal, target: Int) {
-        presentation.play(PresentationMoments.NORMA_CHOICE_DEFAULTED, player, mapOf("goal" to target.toString(), "kind" to goal.name.lowercase()))
-    }
-
     private fun firework(at: Location, big: Boolean) {
         at.world.spawn(at, Firework::class.java) { fw ->
             ours += fw.uniqueId

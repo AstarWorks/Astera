@@ -163,30 +163,16 @@ internal object MatchStarWiring {
             }
         }
         // Norma goal: default STAR, a non-blocking action-bar hint at each level-up; no GUI opens by itself.
-        val guiAdapter = services.get<IGuiAdapter>()
-        val renderer = services.get<IMessageRenderer>()
-        if (mcServer != null && guiAdapter != null && renderer != null) {
-            val prompter = NormaChoicePrompter(
-                matches = env.matches,
-                norma = norma,
-                configOf = configOf,
-                guiAdapter = guiAdapter,
-                mcServer = mcServer,
-                scheduler = env.scheduler,
-                messages = { p, key, args -> p.sendMessage(renderer.render(p.id, key, args)) },
-                presentation = presentation,
-                hintSink = { id, key, params ->
-                    services.get<IHudGateway>()?.showFor(
-                        id,
-                        HudLayout.ActionBar(HudComponent.Text(messageKey = key, placeholders = params), ttlTicks = HINT_TTL_TICKS, priority = 1),
-                    )
-                },
-            )
-            env.ctx.registrations += services.getOrThrow<IGuiIntentRouter>().register(NormaChoicePrompter.INTENT_PREFIX) { intent, player ->
-                prompter.handle(intent, player)
-            }
-            subs += eventBus.subscribe(NormaLevelUp::class) { e -> env.scheduler.runLaterTicks(ExecutionScope.Entity(e.playerId.uuid), LEVEL_UP_PROMPT_DELAY_TICKS) { prompter.hint(e.playerId) } }
-        }
+        val prompter = NormaChoicePrompter(
+            norma = norma,
+            hintSink = { id, key, params ->
+                services.get<IHudGateway>()?.showFor(
+                    id,
+                    HudLayout.ActionBar(HudComponent.Text(messageKey = key, placeholders = params), ttlTicks = HINT_TTL_TICKS, priority = 1),
+                )
+            },
+        )
+        subs += eventBus.subscribe(NormaLevelUp::class) { e -> env.scheduler.runLaterTicks(ExecutionScope.Entity(e.playerId.uuid), LEVEL_UP_PROMPT_DELAY_TICKS) { prompter.hint(e.playerId) } }
         // Command teleports raise no move event: a short poll covers them and redraws the drop markers.
         env.scheduledTasks += env.scheduler.runRepeatingTicks(ExecutionScope.Global, initialDelayTicks = 10L, periodTicks = 10L) { drops.poll() }
         return Wired(store, registry, env.stages, norma, drops, configOf)

@@ -39,12 +39,12 @@ class StageObjectives private constructor(
         val own = spawns.minByOrNull { (it.x - spawnX) * (it.x - spawnX) + (it.z - spawnZ) * (it.z - spawnZ) }?.team ?: return null
         val enemyTeams = spawns.map { it.team }.distinct().filter { it != own }
         val theirs = regions.filter { r -> enemyTeams.any { r.name.endsWith("-$it") } && !r.name.startsWith("base") }
-        pick(theirs, spawnX, spawnZ)?.let { return Objective(it.name, it.cx, it.cy, it.cz, breakable = false) }
+        pick(theirs, spawnX, spawnZ)?.let { return Objective(it.name, it.cx, it.cy, it.cz) }
         val shared = regions.filter { r -> r.name.startsWith("wool") || r.name.startsWith("tnt") || r.name.startsWith("flag") }
-        pick(shared, spawnX, spawnZ)?.let { return Objective(it.name, it.cx, it.cy, it.cz, breakable = false) }
+        pick(shared, spawnX, spawnZ)?.let { return Objective(it.name, it.cx, it.cy, it.cz) }
         val enemySpawn = spawns.filter { it.team in enemyTeams }.minByOrNull { (it.x - spawnX) * (it.x - spawnX) + (it.z - spawnZ) * (it.z - spawnZ) }
             ?: return null
-        return Objective("spawn-${enemySpawn.team}", enemySpawn.x, 0.0, enemySpawn.z, breakable = false)
+        return Objective("spawn-${enemySpawn.team}", enemySpawn.x, 0.0, enemySpawn.z)
     }
 
     private fun pick(list: List<Region>, fromX: Double, fromZ: Double): Region? =
