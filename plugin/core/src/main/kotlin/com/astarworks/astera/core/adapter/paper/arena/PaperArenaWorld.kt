@@ -168,6 +168,7 @@ internal class PaperArenaWorld(
             // chains and mode objectives change blocks without those events, and those ghosts would sit in the slot
             // when it is handed to the next arena. So after the rollback the whole build box (plus margin) is swept to
             // void, entities included, before the slot is freed.
+            val startedNanos = System.nanoTime()
             paster.rollback(world, build.journal).thenCompose { rolled ->
                 val swept: java.util.concurrent.CompletableFuture<Result<Any?, ArenaPaster.Error>> =
                     if (rolled is Result.Success) paster.clear(world, sweepBox(world, build.plan, entry.slot)).thenApply<Result<Any?, ArenaPaster.Error>> { it }
@@ -175,6 +176,7 @@ internal class PaperArenaWorld(
                 swept
             }.thenAccept { result ->
                 scheduler.run(ExecutionScope.Global, Duration.ZERO) {
+                    log.info("Arena slot {} repair ({}): {} ms wall, {} journaled blocks", entry.slot.index, if (result is Result.Success) "ok" else "failed", (System.nanoTime() - startedNanos) / 1_000_000, build.journal.before.size)
                     if (result is Result.Success) {
                         manifest.remove(entry.slot.index)
                         book.finishRepair(stageId, entry)

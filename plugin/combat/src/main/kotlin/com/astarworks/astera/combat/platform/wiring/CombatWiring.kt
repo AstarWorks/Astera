@@ -195,6 +195,9 @@ public object CombatWiring {
         // 3. Register Combat ports onto the shared registry --------------------
         registrations += services.register<ISkillRegistry>(skillContents)
         registrations += services.register<IStatusEffectRegistry>(statusContents)
+        // Also published so Match can wipe fire / glow / freeze when a match ends or a player leaves it.
+        val entityEffects = ports.entityEffectsGateway?.invoke(services)
+        if (entityEffects != null) registrations += services.register<com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway>(entityEffects)
         registrations += services.register<IElementMatrix>(elementMatrix)
         registrations += services.register<IArmorRegistry>(armorContents)
         if (services.get<IDamageRandomizer>() == null) {
@@ -571,7 +574,7 @@ public object CombatWiring {
                 // WP4 mechanics batch A.
                 statusContainer = statusContainer,
                 statusRegistry = statusContents,
-                entityEffects = ports.entityEffectsGateway?.invoke(services),
+                entityEffects = entityEffects,
                 feedback = ports.playerFeedbackGateway?.invoke(services),
                 messageRenderer = services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
                 playerGateway = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>(),

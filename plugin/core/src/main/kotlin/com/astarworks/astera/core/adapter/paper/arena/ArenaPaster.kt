@@ -74,10 +74,10 @@ internal class ArenaPaster(
                     scheduler.run(scope, delay) {
                         if (result.isDone) return@run
                         runCatching {
-                            // Air scanning is cheap; only real writes spend the budget.
+                            // Air scanning is cheap but not free: SCAN_PER_TICK keeps one chunk task well under ~10 ms.
                             var writes = allowance()
                             var scanned = 0
-                            while (cursor < total && writes > 0 && scanned < 65_536) {
+                            while (cursor < total && writes > 0 && scanned < SCAN_PER_TICK) {
                                 val i = cursor++; scanned++
                                 val y = box.minY + i % height
                                 val rest = i / height
@@ -157,5 +157,10 @@ internal class ArenaPaster(
             }
         }
         return result
+    }
+
+    private companion object {
+        /** Blocks inspected per chunk task per tick during [clear] (a few ms at most). */
+        const val SCAN_PER_TICK: Int = 16_384
     }
 }
