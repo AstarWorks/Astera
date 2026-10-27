@@ -33,6 +33,8 @@ public class HudPreferences(
 
     public fun tutorialHintsEnabled(playerId: PlayerId): Boolean = settings(playerId).tutorialHintsEnabled
 
+    public fun vfxIntensity(playerId: PlayerId): com.astarworks.astera.core.domain.effect.vfx.VfxIntensity = settings(playerId).vfxIntensity
+
     public fun invalidate(playerId: PlayerId) {
         cache.remove(playerId)
     }

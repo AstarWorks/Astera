@@ -13,7 +13,9 @@ import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.animation.player.CustomAnimationId
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigAnimation
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
+import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.vfx.VfxBodyContext
+import com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile
 import com.astarworks.astera.core.domain.presentation.PresentationAudience
 import com.astarworks.astera.core.domain.presentation.PresentationDisplay
 import com.astarworks.astera.core.domain.presentation.PresentationKind
@@ -82,6 +84,10 @@ public class VfxRequest(
     public val seed: Long = 0L,
     /** The caster, for particle `viewers: caster|others`. */
     public val caster: PlayerId? = null,
+    /** Who sees the effect's displays (`play_vfx viewers`); `ALL` = everyone in range. */
+    public val viewers: Audience = Audience.ALL,
+    /** The bound target entity for `viewers: target`; null = `target` behaves like `all`. */
+    public val targetPlayer: PlayerId? = null,
     /** Hit-stop windows (effect ticks) that freeze rigs with `respect_hit_stop`. */
     public val freeze: List<VfxFreeze> = emptyList(),
     /** Entity identity for optional native attachment; location anchors leave this null. */
@@ -578,6 +584,8 @@ public class VfxPlayer(
 
     private fun spawn(instance: Instance, state: ElementState) {
         val e = state.plan
+        // Display budget pressure downgrades everyone: ambient (then accent) elements are not spawned at all.
+        if (!VfxQualityProfile.admits(VfxQualityProfile.serverFloor(reserved, maxLiveDisplays), e.lane)) return
         if (trace) log.info("[vfx-trace] spawn {} {} age={} planSpawn={} tick={} started={}", instance.request.vfxId, e.elementId, instance.age, e.spawnTick, scheduler.currentTick(), instance.startedAt)
         val spec = DisplaySpec(
             kind = displayKind(e.kind) ?: return,
@@ -620,7 +628,11 @@ public class VfxPlayer(
             // One transport only (ADR-0276): a performer that cannot ride the caster would drift from the hand in a dash.
             throw IllegalStateException("native attachment unavailable for performer '${e.elementId}'")
         }
-        if (state.handle == null) state.handle = displays.spawn(instance.request.world, instance.position + e.spawnOffset + state.targetOffset, spec, lines)
+        if (state.handle == null) {
+            val request = instance.request
+            state.handle = displays.spawn(request.world, instance.position + e.spawnOffset + state.targetOffset, spec, lines,
+                request.viewers, request.caster, request.targetPlayer, e.lane)
+        }
         if (state.handle == null) log.warn("[cue-dropped] vfx: {} display for element '{}' was not spawned", instance.request.vfxId, e.elementId)
         state.staged = state.performer && spec.viewRange == 0f
     }

@@ -127,8 +127,10 @@ public object VfxTimeline {
         val slots = def.elements.flatMapIndexed { index, element ->
             planElement(def, element, index, anchor.rotation, seed, scale, sprites)
         } + def.rigs.flatMap { VfxRigPlanner.plan(def, it, anchor.rotation, scale, freezes, if (it.weapon != null) track else null, ghostTracks) }
+        val lanes = def.elements.associate { it.id to it.lane }.filterValues { it != VfxLane.CORE }
+        val laned = if (lanes.isEmpty()) slots else slots.map { plan -> lanes[plan.elementId]?.let { plan.copy(lane = it) } ?: plan }
         return VfxPlan(
-            anchor.origin, def.durationTicks, def.follow, slots.sortedBy { it.spawnTick }, def.followTeleportTicks, def.attachToAnchor, def.replaceGroup,
+            anchor.origin, def.durationTicks, def.follow, laned.sortedBy { it.spawnTick }, def.followTeleportTicks, def.attachToAnchor, def.replaceGroup,
             performance = def.isPerformance, cutTicks = VfxBodyPlanner.cutTicks(slots),
         )
     }

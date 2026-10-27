@@ -171,6 +171,38 @@ public class SimDisplayGateway(
         return handle
     }
 
+    /** Players that could see a world display (the sim has no range; every online player is "near"). Wired by [GameSim]. */
+    public var nearbyPlayers: () -> Collection<com.astarworks.astera.core.domain.player.PlayerId> = { emptyList() }
+
+    /** Per-viewer `vfx_intensity`; absent = full. Scenarios set it, mirroring the player's settings. */
+    public val intensity: MutableMap<com.astarworks.astera.core.domain.player.PlayerId, com.astarworks.astera.core.domain.effect.vfx.VfxIntensity> = linkedMapOf()
+
+    /** Server-wide intensity floor (the display-budget downgrade). */
+    public var serverFloor: com.astarworks.astera.core.domain.effect.vfx.VfxIntensity = com.astarworks.astera.core.domain.effect.vfx.VfxIntensity.FULL
+
+    /** Who is shown each audience-scoped display, as the Paper gateway's show/hide would decide. */
+    public val viewers: MutableMap<IDisplayEntityGateway.DisplayHandle, Set<com.astarworks.astera.core.domain.player.PlayerId>> = linkedMapOf()
+
+    override fun spawn(
+        world: WorldId,
+        at: Vec3,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        audience: com.astarworks.astera.core.domain.effect.Audience,
+        caster: com.astarworks.astera.core.domain.player.PlayerId?,
+        target: com.astarworks.astera.core.domain.player.PlayerId?,
+        lane: com.astarworks.astera.core.domain.effect.vfx.VfxLane,
+    ): IDisplayEntityGateway.DisplayHandle? {
+        val pool = com.astarworks.astera.core.domain.effect.AudienceResolver.displayPool(nearbyPlayers(), caster, target)
+        val selected = com.astarworks.astera.core.domain.effect.AudienceResolver.select(pool, audience, caster, target)
+        val shown = com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile.filterViewers(
+            selected, lane, { intensity[it] ?: com.astarworks.astera.core.domain.effect.vfx.VfxIntensity.FULL }, serverFloor,
+        )
+        val handle = spawn(world, at, spec, renderedLines)
+        viewers[handle] = shown
+        return handle
+    }
+
     /** Displays riding a player (ADR-0276): handle -> the anchor. */
     public val attached: MutableMap<IDisplayEntityGateway.DisplayHandle, com.astarworks.astera.core.domain.player.PlayerId> = linkedMapOf()
 
