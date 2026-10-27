@@ -28,8 +28,8 @@ elements:
     - 0
     - 0
     scale:
-    - 1.2
-    - 1.8
+    - 0.6
+    - 1.08
     - 1
     alpha: 0.0
   - t: 3
@@ -42,10 +42,10 @@ elements:
     - 0
     - 0
     scale:
-    - 2.0
-    - 2.6
+    - 1.0
+    - 1.56
     - 1
-    alpha: 0.6
+    alpha: 0.4
     ease: out_quad
   - t: 8
     translate:
@@ -57,8 +57,8 @@ elements:
     - 0
     - 0
     scale:
-    - 2.0
-    - 2.6
+    - 1.0
+    - 1.56
     - 1
     alpha: 0.0
     ease: in_quad
@@ -85,8 +85,8 @@ elements:
     - 0
     - 0
     scale:
-    - 1.2
-    - 1.8
+    - 0.6
+    - 1.08
     - 1
     alpha: 0.0
   - t: 3
@@ -99,10 +99,10 @@ elements:
     - 0
     - 0
     scale:
-    - 2.0
-    - 2.6
+    - 1.0
+    - 1.56
     - 1
-    alpha: 0.6
+    alpha: 0.4
     ease: out_quad
   - t: 8
     translate:
@@ -114,8 +114,8 @@ elements:
     - 0
     - 0
     scale:
-    - 2.0
-    - 2.6
+    - 1.0
+    - 1.56
     - 1
     alpha: 0.0
     ease: in_quad
