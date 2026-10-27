@@ -1,0 +1,38 @@
+# Match arsenal (wp/match-arsenal): simple PvP skill. One cast sound, a few particles.
+
+id: throwing-knives-slip
+
+name:
+  ja: "すり抜け"
+  en: "Slip Away"
+description:
+  ja: "後ろへ跳んで間合いを取る。"
+  en: "Hops back to break contact."
+
+archetype: buff
+cooldown_ticks: 120
+resource_cost: 0
+tags: [ buff, movement ]
+
+params:
+  type: buff
+  status_effect_id: evasive
+  duration_ticks: 25
+
+phases:
+  type: buff
+  cast:
+    - type: propel
+      targets: { type: caster }
+      direction: { type: from_caster }
+      strength: { type: literal, value: -1.0 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: astera:weapons/dash-whoosh
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 1.3 }
+    - type: spawn_particle
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
+      particle_id: dash-cloud
+  expire: []
+  removed: []

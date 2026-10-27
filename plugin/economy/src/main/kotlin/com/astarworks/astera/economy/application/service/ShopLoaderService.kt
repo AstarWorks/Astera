@@ -47,7 +47,7 @@ public class ShopLoaderService(
 
     /** Loads every supported content file in [dir]. Missing dir = warn + no-op. */
     public fun loadFrom(dir: Path): LoadReport {
-        val report = loader.loadFrom(dir) { cfg ->
+        val report = loader.loadFrom(dir, accept = { it.fileName.toString() != MatchShopLoaderService.FILE_NAME }) { cfg ->
             val spec = cfg.toSpec()
             registry.register(spec)
             spec.offers.forEach { offer ->

@@ -50,8 +50,7 @@ public class PaperCoverToolListener(
         if (!isCoverInMatch(player, block)) return
         event.setUseInteractedBlock(Event.Result.DENY)
         event.isCancelled = true
-        val held = heldItemId(player) ?: return
-        useCase()?.hit(PlayerId(player.uniqueId), WorldId(block.world.name), Vec3(block.x.toDouble(), block.y.toDouble(), block.z.toDouble()), held)
+        useCase()?.hit(PlayerId(player.uniqueId), WorldId(block.world.name), Vec3(block.x.toDouble(), block.y.toDouble(), block.z.toDouble()), heldItemId(player))
     }
 
     /** Survival dig start: never let vanilla chew through cover. */

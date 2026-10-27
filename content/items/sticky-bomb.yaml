@@ -1,0 +1,35 @@
+# Match arsenal (wp/match-arsenal): Sticky Bomb.
+
+id: sticky-bomb
+
+material: SLIME_BALL
+
+name:
+  ja: "<green>粘着爆弾</green>"
+  en: "<green>Sticky Bomb</green>"
+lore:
+  ja:
+    - "<gray>右クリック: 投げる (着弾で爆発)</gray>"
+    - "<gray>周囲のブロックを少し傷つける</gray>"
+  en:
+    - "<gray>Right-click: throw (bursts on contact)</gray>"
+    - "<gray>Chips nearby blocks a little</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: right_click
+    skill_id: sticky-bomb-throw
+
+pdc_tags:
+  astera:rarity: uncommon

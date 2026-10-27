@@ -1,0 +1,46 @@
+# Match arsenal (wp/match-arsenal): simple PvP skill. One cast sound, a few particles.
+
+id: spear-charge
+
+name:
+  ja: "突撃"
+  en: "Charge"
+description:
+  ja: "遠くまで駆け抜けて突き刺す。"
+  en: "Charges far forward, hitting the first target."
+
+archetype: sequence
+cooldown_ticks: 140
+resource_cost: 14
+tags: [ melee, movement, physical ]
+
+params:
+  type: sequence
+
+phases:
+  type: sequence
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: astera:weapons/dash-whoosh
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 1.1 }
+    - type: spawn_particle
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
+      particle_id: dash-cloud
+    - type: dash_strike
+      distance: 6
+      ticks: 6
+      radius: 1.0
+      hit_once: true
+      invulnerable: false
+      stop_on_block: true
+      on_hit:
+        - type: damage
+          targets: { type: target }
+          components:
+            - base: { type: literal, value: 40.0 }
+              attribute: physical
+        - type: play_sound
+          targets: { type: target }
+          sound_id: astera:weapons/blade-hit

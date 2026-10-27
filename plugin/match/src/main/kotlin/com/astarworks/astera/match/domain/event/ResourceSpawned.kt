@@ -26,6 +26,8 @@ public data class ResourceSpawned(
     val position: Vec3,
     val amount: Int,
     val atTick: Long,
+    /** Item id the pop drops as an item stack, or `null` when it is a star pop. */
+    val dropItem: String? = null,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent

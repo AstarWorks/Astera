@@ -23,7 +23,8 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * A player swings a field tool (pickaxe / axe / shovel, ADR-0090) at a custom cover block.
  *
- * The held item names its [ToolType] through the `astera:tool` pdc tag (`"PICKAXE/IRON"`). The hit goes through
+ * The held item names its [ToolType] through the `astera:tool` pdc tag (`"PICKAXE/IRON"`); a bare hand or a non-tool item
+ * swings as [ToolType.NONE]. The hit goes through
  * [CoverBlockService.strikeCell], so the (tool, block material) damage matrix and the block's own HP
  * decide how many swings it takes. The crack stage shown on the block follows the HP that is left, the swing and the
  * break play a per-tool sound, and the wrong tool plays a dull clang plus a (rate limited) hint.
@@ -42,7 +43,7 @@ public class HitCustomBlockUseCase(
 
     /** What one swing did. */
     public sealed interface Outcome {
-        /** The held item is not a field tool; nothing happened. */
+        /** No block gateway is registered (host without blocks); nothing happened. */
         public data object NotATool : Outcome
 
         /** Swung again before [HIT_COOLDOWN_TICKS] passed; nothing happened. */
@@ -62,9 +63,11 @@ public class HitCustomBlockUseCase(
         playerId: PlayerId,
         world: WorldId,
         pos: Vec3,
-        heldItem: ItemId,
+        heldItem: ItemId?,
     ): Result<Outcome, BlockGatewayError> {
-        val tool = toolOf(heldItem) ?: return Result.success(Outcome.NotATool)
+        // A bare hand or any non-tool item swings as ToolType.NONE: the matrix gives it a small baseline
+        // (soil, wood) or nothing (stone), so hand mining is about 10x slower than the matching tool.
+        val tool = heldItem?.let { toolOf(it) } ?: ToolType.NONE
         val now = scheduler.currentTick()
         val previous = lastHitTick[playerId]
         if (previous != null && now - previous < HIT_COOLDOWN_TICKS) return Result.success(Outcome.TooFast)

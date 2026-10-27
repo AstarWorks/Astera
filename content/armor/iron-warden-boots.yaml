@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Iron Warden boots.
+
+type: piece
+id: iron-warden-boots
+display_name_key: astera.armor.iron-warden-boots.name
+slot: boots
+damage_reduction: 0.06
+set_key: iron-warden

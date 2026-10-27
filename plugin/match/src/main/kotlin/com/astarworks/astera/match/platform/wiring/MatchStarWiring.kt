@@ -114,6 +114,34 @@ internal object MatchStarWiring {
         subs += eventBus.subscribe(MatchStarted::class) { lifecycle.onStarted(it) }
         subs += eventBus.subscribe(MatchEnded::class) { lifecycle.onEnded(it) }
         subs += eventBus.subscribe(ResourceSpawned::class) { drops.onSpawned(it) }
+        // Mid ore nodes (content/ore-nodes/<stage-id>.yaml): placed at match start, mined tier-gated, regrow.
+        val oreNodeDir = env.ctx.contentDir.resolve("ore-nodes")
+        val oreNodeContents = com.astarworks.astera.match.application.contents.OreNodeContents()
+        val oreReport = oreNodeContents.bootstrap(oreNodeDir)
+        env.ctx.logger.info("Loaded ${oreReport.loaded} ore node file(s) from $oreNodeDir (failed: ${oreReport.failed})")
+        env.ctx.registrations += services.register<com.astarworks.astera.match.application.port.outbound.IOreNodeRegistry>(oreNodeContents, priority = 0)
+        services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>().register(oreNodeContents, oreNodeDir)
+        val oreNodes = com.astarworks.astera.match.application.service.OreNodeService(
+            registry = oreNodeContents,
+            stages = env.stages,
+            matchWorlds = services.getOrThrow<IMatchWorldRepository>(),
+            customBlocks = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>(),
+            items = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
+            delivery = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemDelivery>() },
+            server = services.getOrThrow<IMcServer>(),
+            world = env.ports.oreNodeWorld?.invoke(services),
+            scheduler = env.scheduler,
+            onInvalid = { id, reason -> env.ctx.logger.warning("Ore nodes of stage $id not placed: $reason") },
+        )
+        env.ctx.registrations += services.register<com.astarworks.astera.match.application.service.OreNodeService>(oreNodes, priority = 0)
+        subs += eventBus.subscribe(MatchStarted::class) { oreNodes.onStarted(it) }
+        subs += eventBus.subscribe(MatchEnded::class) { oreNodes.onEnded(it) }
+        val itemDrops = com.astarworks.astera.match.application.service.GeneratorItemDropService(
+            generators = generators,
+            matchWorlds = services.getOrThrow<IMatchWorldRepository>(),
+            world = env.ports.generatorItemDrop?.invoke(services),
+        )
+        subs += eventBus.subscribe(ResourceSpawned::class) { itemDrops.onSpawned(it) }
         subs += eventBus.subscribe(PlayerKilled::class) { drops.onKilled(it) }
         subs += eventBus.subscribe(PlayerKilled::class) { norma.onKilled(it) }
         subs += eventBus.subscribe(StarsCollected::class) { norma.onStarsCollected(it) }

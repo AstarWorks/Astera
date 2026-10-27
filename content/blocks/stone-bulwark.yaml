@@ -1,0 +1,17 @@
+# Stone bulwark: sturdy stone cover. The pickaxe is the right tool; 600 HP -> 5 iron-pickaxe hits.
+
+id: "astera:stone_bulwark"
+display_name:
+  en: "Stone Bulwark"
+  ja: "石の防壁"
+base_bukkit_material: "STONE_BRICKS"
+material: "STONE"
+base_durability: 600
+
+tool_effectiveness:
+  "PICKAXE/STONE": 80
+  "PICKAXE/IRON": 120
+  "PICKAXE/DIAMOND": 200
+  "AXE/IRON": 15
+  "SHOVEL/IRON": 0
+placed_from: "stone-bulwark-block"

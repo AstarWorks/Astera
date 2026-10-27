@@ -448,7 +448,12 @@ public object CombatWiring {
         // Critical strike defaults: 10% chance, 2.0× multiplier (Wave 7c will
         // load these from `content/balance/critical.yaml`).
         val knockbackGateway = services.get<IKnockbackGateway>() ?: NoOpKnockbackGateway()
-        val armorProvider = services.get<IArmorEquipmentProvider>() ?: StubArmorEquipmentProvider()
+        val wornItems = ports.wornItems?.invoke(services)
+        val armorProvider = services.get<IArmorEquipmentProvider>()
+            ?: wornItems?.let {
+                com.astarworks.astera.combat.application.service.ItemArmorEquipmentProvider(it, { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() }, armorContents)
+            }
+            ?: StubArmorEquipmentProvider()
         val nearbyQuery = com.astarworks.astera.combat.application.service.MeasuredNearbyTargetQuery(
             services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery(),
         )

@@ -26,4 +26,10 @@ public interface IPaperItemIdResolver {
 
     /** Removes one [itemId] stack unit from the first matching inventory slot; `false` when none is carried. */
     public fun removeOne(playerId: PlayerId, itemId: ItemId): Boolean
+
+    /** Total units of [itemId] across the player's inventory (stack amounts summed). */
+    public fun countOf(playerId: PlayerId, itemId: ItemId): Int
+
+    /** Removes exactly [amount] units of [itemId] across stacks, or nothing; `false` when fewer are carried. */
+    public fun removeAmount(playerId: PlayerId, itemId: ItemId, amount: Int): Boolean
 }

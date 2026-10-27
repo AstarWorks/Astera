@@ -1,0 +1,29 @@
+# Match arsenal (wp/match-arsenal): Iron Warden Helmet.
+
+id: iron-warden-helmet
+
+material: IRON_HELMET
+
+name:
+  ja: "<white>アイアンウォーデン ヘルメット</white>"
+  en: "<white>Iron Warden Helmet</white>"
+lore:
+  ja:
+    - "<gray>アイアンウォーデンセットの防具</gray>"
+    - "<gray>2部位・4部位そろえるとボーナス</gray>"
+  en:
+    - "<gray>Iron Warden set piece</gray>"
+    - "<gray>2+ pieces and the full set give a bonus</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+equip_slot: helmet
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: false
+armor_piece: iron-warden-helmet
+
+pdc_tags:
+  astera:rarity: uncommon

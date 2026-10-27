@@ -136,6 +136,11 @@ public class GameSim private constructor(
     /** Star drops lying in the simulated world; collected by [SimStarDropWorld.pickupSweep] like a vanilla item pickup. */
     public val starDrops: SimStarDropWorld = SimStarDropWorld()
 
+    /** Mid ore node blocks and `drop_item` generator drops of the simulated world. */
+    public val wornItems: SimWornItems = SimWornItems()
+    public val oreNodes: SimOreNodeWorld = SimOreNodeWorld()
+    public val generatorDrops: SimGeneratorItemDrop = SimGeneratorItemDrop()
+
     /** Carrier looks, world markers and boss bars of the objective modes. */
     public val objectiveStage: SimObjectiveStage = SimObjectiveStage()
 
@@ -619,6 +624,7 @@ public class GameSim private constructor(
                 context(),
                 CombatPlatformPorts(
                     projectileService = { projectiles },
+                    wornItems = { sim.wornItems },
                     damageGateway = { svc ->
                         SimDamageGateway(world, svc.getOrThrow<IPlayerAttributeContainerStore>(), scheduler, svc.getOrThrow<IDomainEventBus>())
                     },
@@ -660,7 +666,7 @@ public class GameSim private constructor(
 
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
-            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, objectiveStage = { sim.objectiveStage }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation }))
+            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, oreNodeWorld = { sim.oreNodes }, generatorItemDrop = { sim.generatorDrops }, objectiveStage = { sim.objectiveStage }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation }))
             sim.stats = StatsWiring.install(context(), StatsPlatformPorts())
             sim.economy = EconomyWiring.install(context(), EconomyPlatformPorts())
 
