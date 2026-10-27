@@ -86,8 +86,8 @@ elements:
 - id: gh-0
   kind:
     type: quad
-    color: '#8A4FE0'
-    alpha: 0.28
+    color: '#8A52E6'
+    alpha: 0.1
     see_through: true
   billboard: center
   brightness: 15
@@ -97,34 +97,34 @@ elements:
   - t: 0
     translate:
     - -0.9
-    - 1.1
+    - 1.15
     - 0
     rotate:
     - 0
     - 0
-    - -5
+    - 0
     scale:
-    - 1.3
-    - 2.3
+    - 1.5
+    - 2.5
     - 1
   - t: 10
     translate:
     - -0.9
-    - 1.1
+    - 1.15
     - 0
     rotate:
     - 0
     - 0
-    - -5
+    - 0
     scale:
-    - 1.3
-    - 2.3
+    - 1.5
+    - 2.5
     - 1
 - id: gh-1
   kind:
     type: quad
-    color: '#6A3AC0'
-    alpha: 0.2
+    color: '#8A52E6'
+    alpha: 0.1
     see_through: true
   billboard: center
   brightness: 15
@@ -133,35 +133,35 @@ elements:
   keyframes:
   - t: 0
     translate:
-    - -1.4
-    - 1.1
+    - -0.9
+    - 1.15
     - 0
     rotate:
     - 0
     - 0
     - 0
     scale:
-    - 1.0
-    - 2.3
+    - 1.15
+    - 2.35
     - 1
   - t: 10
     translate:
-    - -1.4
-    - 1.1
+    - -0.9
+    - 1.15
     - 0
     rotate:
     - 0
     - 0
     - 0
     scale:
-    - 1.0
-    - 2.3
+    - 1.15
+    - 2.35
     - 1
 - id: gh-2
   kind:
     type: quad
-    color: '#A070F0'
-    alpha: 0.22
+    color: '#8A52E6'
+    alpha: 0.1
     see_through: true
   billboard: center
   brightness: 15
@@ -170,27 +170,101 @@ elements:
   keyframes:
   - t: 0
     translate:
-    - -0.5
-    - 1.1
+    - -0.9
+    - 1.15
     - 0
     rotate:
     - 0
     - 0
-    - 5
+    - 0
     scale:
-    - 0.8
-    - 2.3
+    - 0.85
+    - 2.2
     - 1
   - t: 10
     translate:
-    - -0.5
-    - 1.1
+    - -0.9
+    - 1.15
     - 0
     rotate:
     - 0
     - 0
-    - 5
+    - 0
     scale:
-    - 0.8
-    - 2.3
+    - 0.85
+    - 2.2
+    - 1
+- id: gh-3
+  kind:
+    type: quad
+    color: '#8A52E6'
+    alpha: 0.1
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - -0.9
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.55
+    - 2.05
+    - 1
+  - t: 10
+    translate:
+    - -0.9
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.55
+    - 2.05
+    - 1
+- id: gh-4
+  kind:
+    type: quad
+    color: '#8A52E6'
+    alpha: 0.1
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate:
+    - -0.9
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.3
+    - 1.9
+    - 1
+  - t: 10
+    translate:
+    - -0.9
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.3
+    - 1.9
     - 1
