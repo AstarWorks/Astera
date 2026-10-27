@@ -313,8 +313,7 @@ public class ShopBrowseUseCase(
     private fun walletSlot(playerId: PlayerId): GuiSlot.Static = GuiSlot.Static(
         itemId = WALLET_ICON,
         displayName = GuiText(WALLET_TITLE),
-        // GEM has no source yet: it stays out of the wallet until a balance exists.
-        lore = Currency.entries.filter { it == Currency.GOLD || ledger.balance(playerId, it) > 0L }.map { c ->
+        lore = Currency.entries.map { c ->
             GuiText(
                 WALLET_LINE,
                 mapOf("currency" to currencyName(playerId, c), "amount" to ledger.balance(playerId, c).toString()),

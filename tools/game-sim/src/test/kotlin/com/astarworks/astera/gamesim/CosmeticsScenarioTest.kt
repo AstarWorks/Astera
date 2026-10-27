@@ -30,6 +30,7 @@ class CosmeticsScenarioTest {
             val cosmetics = sim.services.getOrThrow<CosmeticService>()
             val buyer = player("buyer")
             advance(1)
+            val start = ledger.balance(buyer.id, Currency.GOLD) // the first-join starter GOLD
             ledger.credit(buyer.id, Currency.GOLD, 1000L)
 
             // The profile card carries the entry point.
@@ -44,9 +45,9 @@ class CosmeticsScenarioTest {
 
             // crimson costs 300: the first click only asks, the second buys.
             dispatch(buyer, "cosmetic.click", "id" to "crimson")
-            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(1000L)
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(start + 1000L)
             dispatch(buyer, "cosmetic.click", "id" to "crimson")
-            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(700L)
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(start + 700L)
             assertThat(sim.services.getOrThrow<IPlayerUnlockView>().unlocks(buyer.id)).contains("cosmetic:crimson")
             assertThat(cosmetics.equipped(buyer.id, CosmeticKind.NAME_COLOR)?.id).isEqualTo("crimson")
 
@@ -55,7 +56,7 @@ class CosmeticsScenarioTest {
             assertThat(cosmetics.equipped(buyer.id, CosmeticKind.NAME_COLOR)).isNull()
             dispatch(buyer, "cosmetic.click", "id" to "crimson")
             assertThat(cosmetics.equipped(buyer.id, CosmeticKind.NAME_COLOR)?.id).isEqualTo("crimson")
-            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(700L)
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(start + 700L)
 
             // The profile summary is no longer EMPTY.
             val summary = checkNotNull(sim.services.getOrThrow<IProfileCardService>().find(buyer.id)).cosmetics

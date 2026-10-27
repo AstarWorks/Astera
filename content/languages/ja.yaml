@@ -69,7 +69,7 @@ astera:
   proxy.transfer.actionbar: "<yellow>{server} へ移動中...</yellow>"
   economy.insufficient_funds: "<red>残高が足りません。</red>"
   economy.invalid_amount: "<red>無効な数量 <gold>{amount}</gold> です。</red>"
-  economy.invalid_currency: "<red>未知の通貨 <gold>{currency}</gold> です。gold / gem から選んでください。</red>"
+  economy.invalid_currency: "<red>未知の通貨 <gold>{currency}</gold> です。gold を指定してください。</red>"
   economy.player_not_found: "<red>プレイヤー <gold>{player}</gold> はオフラインか存在しません。</red>"
   economy.transfer_same_account: "<red>同じアカウントへは送金できません。</red>"
   economy.balance_entry: "<gray>{player} {currency}:</gray> <gold>{amount}</gold>"
@@ -548,7 +548,6 @@ astera:
       wallet:
         name: "<gold>ウォレット</gold>"
         gold: "<gray>ゴールド: <white>{amount}</white></gray>"
-        gem: "<gray>ジェム: <white>{amount}</white></gray>"
     friends-list:
       title: "<gold>フレンド</gold>"
       add:
@@ -647,7 +646,6 @@ astera:
       title-chat: "<gold>称号を獲得しました: {title}</gold>"
     currency:
       gold: "<gold>GOLD</gold>"
-      gem: "<light_purple>GEM</light_purple>"
     matchshop:
       title: "鉱石ショップ"
       npc: "<gold>鉱石ショップ</gold>"
@@ -1933,7 +1931,7 @@ astera:
     grant_currency:
       root: "<gray>プレイヤーに通貨残高をクレジットします。</gray>"
       player_not_found: "<red>プレイヤー '{player}' はオフラインか存在しません。</red>"
-      unknown_currency: "<red>不明な通貨 '{currency}' です。gold / gem を指定してください。</red>"
+      unknown_currency: "<red>不明な通貨 '{currency}' です。gold を指定してください。</red>"
     grant_xp:
       root: "<gray>プレイヤーに XP を付与します。</gray>"
       player_not_found: "<red>プレイヤー '{player}' はオフラインか存在しません。</red>"
@@ -2094,7 +2092,7 @@ astera:
       "match.validate.issues": "<red>{categories} カテゴリ中 <white>{issues}</white> 件の問題があります。</red>"
       "match.validate.line": "<gray> - {issue}</gray>"
       "currency.tile": "<gold>通貨を付与</gold>"
-      "currency.tile.lore": "<gray>gold / gem をプリセット額で付与します。</gray>"
+      "currency.tile.lore": "<gray>gold をプリセット額で付与します。</gray>"
       "currency.title": "管理: 通貨付与"
       "currency.preset": "<yellow>+{amount} {currency}</yellow>"
       "currency.granted": "<green><white>{amount} {currency}</white> を付与しました（残高 {balance}）。</green>"
@@ -2678,7 +2676,6 @@ astera:
   play.lane.pve-waves.detail: "<gray>最大4人の協力プレイ。1人でも開始できる。</gray>"
   hint.currency.header: "<gold>通貨とレベル</gold>"
   hint.currency.gold: "<yellow>GOLD</yellow> <gray>- 試合の報酬で貯まる通貨。ショップで武器やコスメを買う。</gray>"
-  hint.currency.gem: "<aqua>GEM</aqua> <gray>- プレミアム通貨。プレイでは貯まらず、現在は使い道なし（装飾・利便性用に予定）。</gray>"
   hint.currency.star: "<white>STAR</white> <gray>- 試合中だけのアイテム。通貨ではなく、試合の外には持ち出せない。</gray>"
   hint.currency.level: "<green>プレイヤーLv</green> <gray>- 試合の報酬XPで上がる永続レベル。上がるとご褒美が届く。</gray>"
   hint.currency.norma: "<red>ノルマLv</red> <gray>- 試合中だけのレベル。STARかキルで上がり、上げるとアルティメットや特殊アイテムが解放される。試合が終わるとリセットされ、勝敗は決まらない。</gray>"

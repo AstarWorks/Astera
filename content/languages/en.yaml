@@ -61,7 +61,7 @@ astera:
   proxy.transfer.actionbar: "<yellow>Moving to {server}...</yellow>"
   economy.insufficient_funds: "<red>Insufficient funds.</red>"
   economy.invalid_amount: "<red>Invalid amount <gold>{amount}</gold>.</red>"
-  economy.invalid_currency: "<red>Unknown currency <gold>{currency}</gold>. Use gold / gem.</red>"
+  economy.invalid_currency: "<red>Unknown currency <gold>{currency}</gold>. Use gold.</red>"
   economy.player_not_found: "<red>Player <gold>{player}</gold> is offline or unknown.</red>"
   economy.transfer_same_account: "<red>Cannot transfer to the same account.</red>"
   economy.balance_entry: "<gray>{player} {currency}:</gray> <gold>{amount}</gold>"
@@ -540,7 +540,6 @@ astera:
       wallet:
         name: "<gold>Wallet</gold>"
         gold: "<gray>Gold: <white>{amount}</white></gray>"
-        gem: "<gray>Gem: <white>{amount}</white></gray>"
     friends-list:
       title: "<gold>Friends</gold>"
       add:
@@ -639,7 +638,6 @@ astera:
       title-chat: "<gold>New title unlocked: {title}</gold>"
     currency:
       gold: "<gold>GOLD</gold>"
-      gem: "<light_purple>GEM</light_purple>"
     matchshop:
       title: "Ore Shop"
       npc: "<gold>Ore Shop</gold>"
@@ -1941,7 +1939,7 @@ astera:
     grant_currency:
       root: "<gray>Credit a currency balance to a player.</gray>"
       player_not_found: "<red>Player '{player}' is offline or unknown.</red>"
-      unknown_currency: "<red>Unknown currency '{currency}'. Use gold / gem.</red>"
+      unknown_currency: "<red>Unknown currency '{currency}'. Use gold.</red>"
     grant_xp:
       root: "<gray>Grant XP to a player.</gray>"
       player_not_found: "<red>Player '{player}' is offline or unknown.</red>"
@@ -2102,7 +2100,7 @@ astera:
       "match.validate.issues": "<red>Content has <white>{issues}</white> issue(s) in {categories} categories checked.</red>"
       "match.validate.line": "<gray> - {issue}</gray>"
       "currency.tile": "<gold>Give currency</gold>"
-      "currency.tile.lore": "<gray>Preset amounts of gold / gem.</gray>"
+      "currency.tile.lore": "<gray>Preset amounts of gold.</gray>"
       "currency.title": "Admin: Give currency"
       "currency.preset": "<yellow>+{amount} {currency}</yellow>"
       "currency.granted": "<green>Granted <white>{amount} {currency}</white> (balance {balance}).</green>"
@@ -2690,7 +2688,6 @@ astera:
   play.lane.pve-waves.detail: "<gray>Co-op for up to 4. One player is enough to start.</gray>"
   hint.currency.header: "<gold>Currencies and levels</gold>"
   hint.currency.gold: "<yellow>GOLD</yellow> <gray>- earned from match rewards. Spend it in the shop on weapons and cosmetics.</gray>"
-  hint.currency.gem: "<aqua>GEM</aqua> <gray>- premium currency. Not earned by playing and has no use yet (planned for cosmetics / convenience).</gray>"
   hint.currency.star: "<white>STAR</white> <gray>- an in-match item only. Not a currency and never leaves the match.</gray>"
   hint.currency.level: "<green>Player Lv</green> <gray>- permanent level raised by match reward XP. Level-ups bring rewards.</gray>"
   hint.currency.norma: "<red>Norma Lv</red> <gray>- in-match level, raised with STAR or kills. Higher levels unlock your ultimates and special items. Resets when the match ends and does not decide the win.</gray>"

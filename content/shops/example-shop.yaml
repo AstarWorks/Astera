@@ -9,7 +9,7 @@
 #   rare      350-400
 #   epic      500-600
 # Not sold, on purpose: the starter weapons (pistol, knight-sword) and the dev/demo items rtm-blaster / skill-tester.
-# A new player starts with no GOLD: every offer has to be earned.
+# A new player starts with 150 GOLD (content/balance/starter-grant.yaml, ECO-11): exactly the recommended frost-staff.
 # Offers priced at >= 100 need a confirming second click in the GUI (ShopIntentHandler.CONFIRM_AT).
 # `recommended: true` pins the offer first (with a badge) for a player who has bought nothing here yet: the starter kit is
 # gun + sword, so the newcomer is steered to a staff to meet all three archetypes.
