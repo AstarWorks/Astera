@@ -20,7 +20,7 @@ params:
   radius: 6.0
   falloff: linear
   damage:
-    - base: { type: literal, value: 2.5 }
+    - base: { type: literal, value: 6.25 }
       attribute: physical
 
 phases:
@@ -47,7 +47,7 @@ phases:
       radius: { type: literal, value: 6.0 }
       break_blocks: { type: literal, value: false }
       components:
-        - base: { type: literal, value: 20.0 }
+        - base: { type: literal, value: 50.0 }
           attribute: fire
     - type: play_sound
       targets: { type: target }

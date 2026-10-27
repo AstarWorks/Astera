@@ -55,7 +55,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 30.0 }
+        - base: { type: literal, value: 80.0 }
           attribute: fire
     - type: apply_status
       targets: { type: target }

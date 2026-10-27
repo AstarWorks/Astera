@@ -105,10 +105,9 @@ class LobbyTrainingScenarioTest {
             victim.world = lobby
             shooter.holds("pistol")
             shooter.faces(victim)
-            repeat(6) {
-                shooter.rightClick()
-                advance(8)
-            }
+            // One shot only: a pistol shot is 50 damage, so a second hit would kill the victim and respawn it at full HP.
+            shooter.rightClick()
+            advance(40)
             assertThat(eventsOf<DamageDealt>().filter { it.target == victim.id }).isNotEmpty()
             assertThat(hp(victim)).isLessThan(com.astarworks.astera.core.domain.attribute.Attributes.DEFAULT_PLAYER_MAX_HP)
         }

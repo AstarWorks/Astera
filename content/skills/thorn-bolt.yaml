@@ -52,7 +52,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 12.5 }
+        - base: { type: literal, value: 47.0 }
           attribute: earth
     - type: apply_status
       targets: { type: target }

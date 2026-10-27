@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * Item 18 (2026-10-27): player max HP 20 -> 100. Melee skill damage is x5 (same hits-to-kill as before), every
- * other weapon x2.5 (about twice the hits), healing x5 (heal potion 8 -> 40).
+ * other weapon kills in about half the original time (2 hits instead of 3-4; direct hits are limited to 1/s by the 20-tick invulnerability), healing x5 (heal potion 8 -> 40).
  */
 class HpBalanceScenarioTest {
 
@@ -54,12 +54,12 @@ class HpBalanceScenarioTest {
     }
 
     @Test
-    fun `melee weapons keep their old hits to kill and ranged weapons need about twice as many`() {
+    fun `melee weapons keep their old hits to kill and ranged weapons need fewer`() {
         // Before (20 HP): knight-sword 8 dmg = 3 hits, greatsword 13 = 2, pistol 7 = 3, rifle 8 = 3, frost shard 6 = 4.
         assertThat(hitsToKill("knight-sword", true, 2.2, false)).isEqualTo(3)
         assertThat(hitsToKill("greatsword", true, 2.2, false)).isEqualTo(2)
-        assertThat(hitsToKill("pistol", false, 8.0, true)).isEqualTo(6)
-        assertThat(hitsToKill("rifle", false, 12.0, true)).isEqualTo(5)
-        assertThat(hitsToKill("frost-staff", false, 8.0, false)).isEqualTo(7)
+        assertThat(hitsToKill("pistol", false, 8.0, true)).isEqualTo(2)
+        assertThat(hitsToKill("rifle", false, 12.0, true)).isEqualTo(2)
+        assertThat(hitsToKill("frost-staff", false, 8.0, false)).isEqualTo(2)
     }
 }

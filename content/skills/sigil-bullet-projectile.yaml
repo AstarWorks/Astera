@@ -43,7 +43,7 @@ phases:
     components:
     - base:
         type: literal
-        value: 25
+        value: 62.5
       attribute: physical
   - type: play_vfx
     targets:
