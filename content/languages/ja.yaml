@@ -839,7 +839,7 @@ astera:
     defeat: "<red>敗北。{team} チームの勝ち。</red>"
     draw: "<gray>引き分けで試合終了。</gray>"
     score:
-      threshold_reached: "<gold>{team} がスコア閾値に到達しました。</gold>"
+      threshold_reached: "<gold>{team} が目標スコアに到達しました。</gold>"
     no_winning_team: "<gray>勝者なし。</gray>"
     spawn:
       error:
@@ -1007,11 +1007,11 @@ astera:
       draw: "<gray><bold>引き分け</bold></gray>"
       header: "<dark_aqua>== マッチ結果 ==</dark_aqua>"
       reason:
-        score-threshold: "<gray>スコア閾値到達により終了。</gray>"
-        timer-expired: "<gray>タイマー終了により終了。</gray>"
-        admin: "<gray>管理者により終了。</gray>"
+        score-threshold: "<gray>目標スコアに到達して決着しました。</gray>"
+        timer-expired: "<gray>制限時間が終わって決着しました。</gray>"
+        admin: "<gray>管理者が試合を終了しました。</gray>"
         sudden-death: "<gray>サドンデスで決着。</gray>"
-        objective: "<gray>目標達成により終了。</gray>"
+        objective: "<gray>モードの目標を達成して決着しました。</gray>"
         norma-time-limit: "<gray>制限時間終了:</gray> <{color}><bold>{team}</bold></{color}> <gray>がリードしていました。</gray>"
         norma-time-draw: "<gray>制限時間終了。目標・ノルマレベル・スター・キルがすべて同点です。</gray>"
         norma-level-reached: "<{color}><bold>{team}</bold></{color}> <gray>がノルマレベル{level}に到達して勝利しました。</gray>"
@@ -1033,7 +1033,7 @@ astera:
       header: "<gold>== 勝ち方 ==</gold>"
       mode:
         break-core: "<gray>コア破壊:</gray> <white>敵のコアを壊し、自陣のコアを守る。最後までコアが残ったチームの勝ち。</white>"
-        annihilation: "<gray>殲滅戦:</gray> <white>敵のネクサスの柱を壊す。最後までネクサスが残ったチームの勝ち。</white>"
+        annihilation: "<gray>殲滅戦:</gray> <white>各チームの拠点「ネクサス」は外側の柱から壊せる。敵の柱を壊し、最後までネクサスが残ったチームの勝ち。</white>"
         carry-tnt: "<gray>TNT運搬:</gray> <white>TNTを拾って敵基地へ運ぶ。先に届けたチームの勝ち。</white>"
         carry-mini-tnt: "<gray>ミニTNT運搬:</gray> <white>マップ中のミニTNTを拾い、敵基地へ運んで設置しよう。規定数を設置すると敵基地が爆破されて勝ち。倒されると持っている分は失う。</white>"
         capture-wool: "<gray>ウール制圧:</gray> <white>ウールのゾーンに立って制圧。先に必要数を制圧したチームの勝ち。</white>"
@@ -1047,7 +1047,7 @@ astera:
       first-time:
         header: "<aqua>== 初めての試合？ かんたんガイド ==</aqua>"
         sidebar: "<gray>右のサイドバーにチームのスコア、目標、ノルマの目標が出ています。</gray>"
-        stars: "<gray>ジェネレーターのスターを拾い、敵を倒してノルマレベルを上げよう。先に最上位へ到達した人のチームの勝ちです。</gray>"
+        stars: "<gray>マップのジェネレーター（スターが湧く装置）でスターを拾い、敵を倒してノルマレベルを上げよう。先に最上位へ到達した人のチームの勝ちです。</gray>"
         respawn: "<gray>倒されても数秒でリスポーンし、短い間は無敵です。仲間と固まって動き、F キーでメインメニューを開けます。</gray>"
     # 試合開始(ACTIVE)時に出す目標タイトル (MatchBriefingListener)。
     objective:
@@ -1106,7 +1106,7 @@ astera:
         result: "試合結果"
         kills: "キル x{count}"
         assists: "アシスト x{count}"
-        objectives: "目標 x{count}"
+        objectives: "目標達成 x{count}"
         mvp: "MVP ボーナス"
       next-level: "<gray>次のレベル報酬:</gray> <white>Lv {level}</white> <gray>-</gray> <gold>{reward}</gold>"
       next:
@@ -1161,7 +1161,7 @@ astera:
       friendly_fire_blocked: "<yellow>フレンドリーファイアは無効です。</yellow>"
     cast:
       insufficient:
-        ammo: "弾切れ - Shift+Qでリロード"
+        ammo: "弾切れ - リロード（ピストル: Q / ライフル・ショットガン: スニーク+Q）"
         energy: "エネルギーが足りない"
         ego: "E.G.Oゲージが足りない"
       reloading: "リロード中..."
@@ -1197,7 +1197,7 @@ astera:
   anomaly:
     resource_spike:
       name: "<gold>リソース スパイク</gold>"
-      description: "<gray>ゼネレータ出力が一定時間ブーストされる。</gray>"
+      description: "<gray>ジェネレーター（スターが湧く装置）の出力が一定時間ブーストされる。</gray>"
     status_burst:
       name: "<gold>ステータス バースト</gold>"
       description: "<gray>ステータス効果が一定時間強化される。</gray>"
@@ -1584,16 +1584,16 @@ astera:
     # 段階的防御 Nexus。
     annihilation:
       title: "<red>アナイアレーション</red>"
-      description: "<gray>3 柱 Nexus ハイブリッド: 自陣を守り、敵陣を落とせ。</gray>"
+      description: "<gray>3 チーム戦。自陣のネクサス（守る拠点）を守り、敵のネクサスの柱を壊せ。</gray>"
       phase:
         build: "<aqua>準備フェーズ</aqua>"
         engage: "<yellow>戦闘フェーズ</yellow>"
-        tier3: "<gold>Tier 3 解放</gold>"
+        tier3: "<gold>ネクサス本体 解放</gold>"
         sudden_death: "<red>サドンデス</red>"
       pillar:
-        tier_1: "<gray>Tier 1 (外周)</gray>"
-        tier_2: "<yellow>Tier 2 (中段)</yellow>"
-        tier_3: "<red>Tier 3 (本体)</red>"
+        tier_1: "<gray>ネクサス 外周の柱</gray>"
+        tier_2: "<yellow>ネクサス 中段の柱</yellow>"
+        tier_3: "<red>ネクサス 本体</red>"
       event:
         nexus_damaged: "<red>{team} の Nexus tier {tier} に {damage} ダメージ ({hp}/{max} HP)</red>"
         nexus_destroyed: "<red>{team} の Nexus tier {tier} 破壊！</red>"
@@ -2242,7 +2242,7 @@ astera:
       epic: "<light_purple>⭐⭐⭐⭐ エピック</light_purple>"
       legendary: "<gold>⭐⭐⭐⭐⭐ レジェンダリー</gold>"
     refinement:
-      tier: "<light_purple>厳選 tier 適用中</light_purple>"
+      tier: "<light_purple>強化ランク適用中</light_purple>"
   hotbar:
     bind:
       no-skills: "<red>バインドできるスキルがありません。</red>"
@@ -2250,11 +2250,11 @@ astera:
       skill:
         tooltip: "<gray>このスキルをバインドします。</gray>"
   tip:
-    "1": "<aqua>💡 ヒント:</aqua> <gray>コンパスでロビーメニューを開き、キュー・保管庫・ショップ閲覧ができます。</gray>"
-    "2": "<aqua>💡 ヒント:</aqua> <gray>F キーでバインドしたスキルを発動。メニューの Hotbar タイルからスキルをバインドできます。</gray>"
+    "1": "<aqua>💡 ヒント:</aqua> <gray>コンパスを右クリックでロビーメニュー。キュー参加・保管庫・ショップを使えます。</gray>"
+    "2": "<aqua>💡 ヒント:</aqua> <gray>F キーでメインメニューを開けます（Shift+F で保管庫）。「プレイ」から試合に参加しよう。</gray>"
     "3": "<aqua>💡 ヒント:</aqua> <gray>パーティを組んで一緒にキュー: <yellow>/party invite &lt;名前&gt;</yellow> で招待。</gray>"
-    "4": "<aqua>💡 ヒント:</aqua> <gray>プロフィールタイルでアチーブメントを追跡 — 全ての達成が記録されます。</gray>"
-    "5": "<aqua>💡 ヒント:</aqua> <gray>アイテムの厳選でレア度ティアが上がり、ティア別パークが解放されます。Refinement タイルから。</gray>"
+    "4": "<aqua>💡 ヒント:</aqua> <gray>メニューの実績タイルで、達成したアチーブメントを確認できます。</gray>"
+    "5": "<aqua>💡 ヒント:</aqua> <gray>試合に参加すると GOLD と XP がもらえます。GOLD はロビーのショップで武器の購入に使えます。</gray>"
     "6": "<aqua>💡 ヒント:</aqua> <gray>サバイバルアイランドでパーティと建築 — Travel タイルから自分のアイランドへ。</gray>"
 
   # WP7: status effect display names (content/status/*.yaml display_name_key).
@@ -2299,6 +2299,8 @@ astera:
   damage.target_already_dead: "<red>対象はすでに倒れています。</red>"
   damage.target_immune: "<red>対象はダメージを受けません。</red>"
   dialog.welcome.ok: "わかった"
+  dialog.welcome.astera-welcome.title: "<gold><bold>Astera へようこそ</bold></gold>"
+  dialog.welcome.astera-welcome.body: "<white>Astera は、銃・剣・魔法で戦うチーム対戦 Minecraft です。</white><newline><yellow>まず F キーでメニューを開き、「プレイ」から試合に参加しよう。</yellow><newline><gray>ボット戦なら 1 人でも遊べます。</gray>"
   gui.binding.coins.value: "<gold>コイン</gold>"
   gui.binding.kills.value: "<red>キル数</red>"
   items.refinement.unknown_item: "<red>そのアイテムは登録されていません。</red>"
@@ -2497,7 +2499,7 @@ astera:
   tutorial.guide.staff.hint: "ラックのファイアスタッフを右クリックして取り、手に持って右クリックで発動。魔法はエネルギー（満腹度バー）を使う。"
   tutorial.guide.norma.title: "勝ち方"
   tutorial.guide.norma.subtitle: "相手より先にノルマを進めよう"
-  tutorial.guide.norma.hint: "ジェネレーターや撃破でスターを集め、サイドバーに出る各レベルの目標を達成し、先に最上位のノルマに到達する。"
+  tutorial.guide.norma.hint: "ジェネレーター（スターが湧く装置）や撃破でスターを集め、サイドバーに出る各レベルの目標を達成し、先に最上位のノルマに到達する。"
   tutorial.guide.queue.title: "対戦の準備完了"
   tutorial.guide.queue.subtitle: "スポーン横のプレイゲートへ"
   tutorial.guide.queue.hint: "スポーンの隣で光るプレイゲートへ歩き、案内人を右クリックしてモードを選ぶ。コンパスでQを押しても同じ選択画面が開く。"
@@ -2600,7 +2602,7 @@ astera:
   match_menu.hint: "<gray><yellow>F</yellow> キーで試合メニュー (設定・退出・ヘルプ)。</gray>"
   match_menu.settings.tooltip: "<gray>クリックで設定 (言語・音量・操作など) を開く。</gray>"
   match_menu.leave.tooltip: "<gray>クリックで試合を抜けてロビーへ戻る (確認あり)。</gray>"
-  match_menu.help.tooltip: "<gray>クリックでノルマ・スター・武器制限の説明を表示。</gray>"
+  match_menu.help.tooltip: "<gray>クリックでノルマ（試合中のレベル）・スター・武器制限（持てる武器数の上限）の説明を表示。</gray>"
   match_menu.confirm.title: "試合を抜けますか?"
   match_menu.confirm.yes.tooltip: "<red>クリックで確定: 試合を抜け、スターは弾け飛び、離脱のルールが適用されます。</red>"
   match_menu.confirm.no.tooltip: "<gray>クリックで試合メニューに戻る。</gray>"

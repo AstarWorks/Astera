@@ -7,15 +7,15 @@ lore:
   ja:
   - '左クリック: 炎拳と噴射'
   - '右クリック: 連拳'
-  - 'Shift+右: 炉心解放'
-  - 'Shift+左: 迎撃の炎拳'
+  - 'スニーク+右: 炉心解放'
+  - 'スニーク+左: 迎撃の炎拳'
   - 'Q: 熾火の心臓'
   en:
-  - 'left_click: Flame Fist and Jet'
-  - 'right_click: Double Fist'
-  - 'sneak_right: Furnace Release'
-  - 'sneak_left: Flame Reprisal'
-  - 'drop: Cinder Heart'
+  - 'Left-click: Flame Fist and Jet'
+  - 'Right-click: Double Fist'
+  - 'Sneak+Right-click: Furnace Release'
+  - 'Sneak+Left-click: Flame Reprisal'
+  - 'Q: Cinder Heart'
 rarity: epic
 level_requirement: 3
 attributes:
