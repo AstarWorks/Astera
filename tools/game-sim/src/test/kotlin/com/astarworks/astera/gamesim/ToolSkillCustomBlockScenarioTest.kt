@@ -35,14 +35,17 @@ class ToolSkillCustomBlockScenarioTest {
             blocks.placeCustomBlock(world, planksAt, checkNotNull(registry.find(BlockType("astera:reinforced_planks"))), caster.id)
 
             sim.cast(caster, "pickaxe-bore-iron", "iron-pickaxe")
-            advance(2)
+            assertThat(blocks.getDurability(world, bulwarkAt)).isEqualTo(600)
+            advance(10)
+            assertThat(blocks.getDurability(world, bulwarkAt)).isBetween(1, 599)
+            advance(20)
             // One cast hurts the bulwark (600 HP) but does not break it.
             assertThat(blocks.isCover(world, bulwarkAt)).isTrue()
             assertThat(blocks.getDurability(world, bulwarkAt)).isLessThan(600)
 
             advance(cooldownGap)
             sim.cast(caster, "pickaxe-bore-iron", "iron-pickaxe")
-            advance(2)
+            advance(30)
             assertThat(blocks.isCover(world, bulwarkAt)).isFalse()
 
             // The wrong class chips the planks (450 HP) only a little: still standing after the same two casts.
@@ -61,7 +64,8 @@ class ToolSkillCustomBlockScenarioTest {
             blocks.placeCustomBlock(caster.world, at, checkNotNull(registry.find(BlockType("astera:stone_bulwark"))), caster.id)
 
             sim.cast(caster, "pickaxe-bore-diamond", "diamond-pickaxe")
-            advance(2)
+            assertThat(blocks.isCover(caster.world, at)).isTrue()
+            advance(30)
             assertThat(blocks.isCover(caster.world, at)).isFalse()
         }
     }
@@ -87,7 +91,7 @@ class ToolSkillCustomBlockScenarioTest {
             caster.position = Vec3(origin.x + 1, 65.0, origin.z + 5)
             caster.direction = Vec3(1.0, 0.0, 0.0)
             sim.cast(caster, "pickaxe-bore-diamond", "diamond-pickaxe")
-            advance(2)
+            advance(30)
 
             assertThat(sim.world.blockAt(worldId, controlAt)).isNull()
             assertThat(sim.world.blockAt(worldId, nodeAt)).isEqualTo(ore)

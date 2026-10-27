@@ -203,6 +203,7 @@ public class MechanicDispatcher(
     /** `consume_item`: lazily resolved inventory removal (Items registers it). */
     private val itemRemoval: (() -> com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval?)? = null,
     /** `break_area` / `place_shape` on custom cover blocks: damage through the cover service, tool tier from the casting item. */
+    private val toolBlocks: com.astarworks.astera.combat.application.port.outbound.IToolBlockGateway? = null,
     private val coverService: (() -> com.astarworks.astera.core.application.service.CoverBlockService?)? = null,
     private val blockStates: (() -> com.astarworks.astera.core.application.port.outbound.IBlockStateGateway?)? = null,
     private val customBlocks: (() -> com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry?)? = null,
@@ -307,6 +308,7 @@ public class MechanicDispatcher(
         living = ::living,
         itemRemoval = { itemRemoval?.invoke() },
         consumptionRecorder = { consumptionRecorder?.invoke() },
+        toolBlocks = toolBlocks,
         coverBlocks = WorldMechanics.CoverBlocks(
             cover = { coverService?.invoke() },
             blocks = { blockStates?.invoke() },
