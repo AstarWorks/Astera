@@ -351,6 +351,10 @@ skill-round: ## Publish the director's round notes (tools/skill-compare/data/<ca
 	@test -n "$(SKILL)" || { echo "usage: make skill-round SKILL=<skill-id> [FILE=<round.md>]"; exit 2; }
 	node tools/skill-compare/scripts/publish-round.mjs "$(SKILL)" $(FILE)
 
+.PHONY: report-check
+report-check: ## First line of every founder report: is <sha> deployed to dev? prints 見られる場所 (exit 0) or まだ見られるものはありません (exit 1): make report-check SHA=<sha>
+	@bash tools/report-check.sh "$(SHA)"
+
 .PHONY: round-gate
 round-gate: ## A build round is finished only if its round note has the mandatory facts (workflow v4: inventory diff with every row ok + structure sha + skill-3d stills first; then compare sheet from the API, trace cast+N, framing, fidelity, "weaker than previous: none"; luma / fx_pct are advisory only); exit 1 otherwise: make round-gate SKILL=<skill-id> [FILE=<round.md>] [CASE=<case>] [STAGE=manager]
 	@test -n "$(SKILL)" || { echo "usage: make round-gate SKILL=<skill-id> [FILE=<round.md>] [CASE=<case>] [STAGE=author|manager]"; exit 2; }

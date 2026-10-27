@@ -31,7 +31,7 @@ Everything else (incl. `.claude/CLAUDE.md`, `.claude/settings.json`, hooks, rule
 | Allowed | Blocked |
 |---|---|
 | `git` merge/commit/push/fetch/log/status/diff/show/worktree/branch/merge-base/rev-parse/add/stash/switch/checkout/restore --staged | `git mv/rm/apply/am/clean`, `git checkout -- p`, `git restore` (worktree), `reset --hard` |
-| `make dev-content/dev-plugins/dev-deploy/dev-pack/docker-up/dev-hotswap*/skill-compare-up|down|status/vfx-auto-up|down|status|once/help/check` | other `make` targets |
+| `make dev-content/dev-plugins/dev-deploy/dev-pack/docker-up/dev-hotswap*/skill-compare-up|down|status/vfx-auto-up|down|status|once/help/check/report-check` | other `make` targets |
 | `flock /tmp/claude-1000/astera-e2e.lock make e2e` (serialized) | |
 | `flock … -c '…'` / `bash -c` (inner command is analysed recursively) | |
 | `docker …`, `gh …`, read-only `codex exec …`, `scripts/codex-task.sh` (only with `run_in_background: true`) | |
@@ -48,6 +48,12 @@ Known limit: `python3 script.py` / `bun x.ts` of an existing file is not inspect
   - Never poll, `tail -f` or `sleep` while it runs. Parallel tasks = separate background Bash calls.
   - Gate: `.claude/hooks/gate-codex-lane.py` (PreToolUse/Bash, main session and subagents) denies the launcher without `run_in_background: true`, any detached codex/launcher, and raw write-capable `codex exec` (only `timeout N codex exec --sandbox read-only ...` is allowed directly). Fails open on errors. Ported from AstarHarness `gate-raw-codex-lane`; test: `bash .claude/hooks/gate-codex-lane.test.sh`.
 - Harness changes (`.claude/**`, this rule included) also go through an agent.
+- **Understanding gate (C1/C2):** `.claude/hooks/understanding-gate.py` (PreToolUse/`Agent`, main session) refuses a brief without `Understanding: <abs path>` to a filled template from `docs/contributing/understanding/` (empty cell, TODO/TBD/??, or no `## 分からないこと` = refused), and any 「founder quote」 without a `→ これは <row/screen/function> の <what>` line within 3 lines. Exempt: Explore/Plan/claude-code-guide/statusline-setup/rtm-sync/astera-reviewer/limbus-reviewer/fork, and briefs with a `Kind: read-only` line. Override (founder only): `ASTERA_UNDERSTANDING_GATE=off`. Why: `docs/contributing/understanding/README.md`.
+
+## Questions and reports to the founder
+
+- Questions carry an image or path showing what the reference looks like plus the engine constraint, and never a "(Recommended)" option.
+- Every report starts with the output of `make report-check SHA=<sha>` (`見られる場所: dev (<sha>, <time>)` or `まだ見られるものはありません`). Commit, agent running or check green is not something the founder can see.
 
 ## E2E (batch rule, founder 2026-10-26; supersedes the 2026-10-23 per-agent rule)
 

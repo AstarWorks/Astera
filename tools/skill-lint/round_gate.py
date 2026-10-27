@@ -15,7 +15,8 @@ Checks (PASS / FAIL / ADVISORY / NOT CHECKED per line; exit 1 on any FAIL; ADVIS
   1 sections       every mandatory section exists and is not empty
   2 compare        the ref | this | previous sheet comes from the compare API (sheet.png beside the note, source line);
                    compare.json regression flags (fx_pct / luma) are printed as ADVISORY: they never pass or fail a round
-  3 trace          every vfx_id the skill plays is quoted with its server-side `cast+N`; a moving skill quotes `travel:` from trace
+  2b captures      `capture side:` / `capture top:` / `capture miss:` lines naming files beside the note (C3)
+  3 trace        every vfx_id the skill plays is quoted with its server-side `cast+N`; a moving skill quotes `travel:` from trace
   4 scene          capture scene facts: DISTANCE stated, skippedTicks=0
   5 framing        caster height (`framing[].casterHeightPct`) `this` is within 0.8x-1.25x of `ref` (review validity)
   6 fidelity       every mechanic type in the skill YAML has a shown / not shown line
@@ -564,6 +565,21 @@ def check_medium_table(body, displays):
     return problems
 
 
+def check_captures(text, note_dir):
+    """C3: side, top and miss captures must exist beside the note (`capture side: <file>`); fx_pct / luma stay advisory."""
+    problems = []
+    for kind in ("side", "top", "miss"):
+        m = re.search(rf"^\s*[-*]?\s*capture {kind}\s*:\s*(\S+)", text, re.M | re.I)
+        if not m:
+            problems.append(f"`capture {kind}: <file>` missing")
+        elif not (note_dir / m.group(1)).exists():
+            problems.append(f"capture {kind} not found beside the note: {m.group(1)}")
+    if problems:
+        report("captures", "FAIL", "; ".join(problems) + " (a round without side, top and miss views is not reviewable)")
+    else:
+        report("captures", "PASS", "side, top and miss captures present")
+
+
 def check_gameplay(sections, skill_info):
     body = find_section(sections, SECTIONS["gameplay"]) or ""
     problems = []
@@ -666,6 +682,7 @@ def main():
     check_compare(sections, note.parent, case)
     check_trace(sections, skill_info)
     check_scene(sections)
+    check_captures(text, note.parent)
     check_framing(sections)
     check_fidelity(sections, skill_info)
     check_regression(sections, header)
