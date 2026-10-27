@@ -6,28 +6,32 @@
   "soundKind": "vanilla tuned",
   "reviewer": {
     "verdict": "fail",
-    "round": "r5",
-    "head": "35da38dca",
-    "note": "fresh reviewer, clean side+top capture 35da38dca",
+    "round": "r6",
+    "head": "8d86c9eac",
+    "note": "fresh reviewer, clean stepped side+top capture 8d86c9eac (valid). Reviewer reported a t58 zero-weapon gap; director zoom sheet r6b shows hand shears at t58 (reviewer 2-tick sheet likely missed the small in-hand model) - verify at t58 on the page.",
     "beats": {
-      "t8-10 hit1": "O(weak)",
-      "t15-22 arm raise/throw": "partial",
-      "t22-38 overhead arcs": "O",
-      "t38-46 plume": "partial",
-      "t46-60 linked shears/shadow": "partial",
-      "t56-64 one weapon": "X (gap at t57)",
-      "t63-70 afterimage/coil": "O",
-      "t72-74 flash/X/ring": "partial",
-      "t75-100 aftermath": "partial"
+      "t0 stand": "O",
+      "t4-8 lunge/haze": "partial",
+      "t8-14 hit1 crescent/streak": "X",
+      "t16-20 arm raise": "partial",
+      "t22-38 overhead crescents": "partial (hollow outlines)",
+      "t40-50 hit2 plume/star": "O/partial",
+      "t52-56 shears at enemy + shadow": "O",
+      "t58-62 line/return": "partial",
+      "t64-70 afterimage": "partial (slab, engine agent)",
+      "t72 white-out": "O",
+      "t74-76 flash/X/ring": "partial",
+      "t80-96 aftermath": "partial",
+      "one weapon per tick": "partial (t58 disputed)"
     },
     "diffs": [
-      "P0 one-tick no-weapon gap at t57 (animation/integration)",
-      "P1 t72 not a full white-out (particles)",
-      "P1 coin2 plume flat white lines, no orange core/depth (particles)",
-      "P1 no caster-to-target chain of sparks/links t43-56 (particles/model)",
-      "P2 weapon small/unreadable at t8-10 and t19-21 (model/texture)",
-      "P2 final X thin, no shard/petal debris (particles)",
-      "P2 target does not stagger/kneel, stage not darkened t76-95 (animation)"
+      "particles/texture: hit1 crescent too small/thin, no orange streak or petals t8-14 (high)",
+      "texture/model: overhead crescents hollow outlines, tiny shears, no chain (high)",
+      "animation: t58 weapon gap per reviewer; director zoom shows hand shears (check)",
+      "particles: hit2 plume sparse, white squares instead of soft petals",
+      "texture/particles: hit3 flare thin lines, small ring",
+      "animation/particles: ghost slab, gone by t68 (engine agent)",
+      "particles: aftermath no pose hold, crescent, shadow shards t80-96"
     ]
   }
 }
