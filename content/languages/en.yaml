@@ -2735,3 +2735,9 @@ astera:
   command.help.chat-japanize-off: "Disable Japanese conversion for this session."
   command.help.chat-title: "Send a screen title across servers."
   command.help.chat-japanize: "Toggle Japanese conversion for this session."
+
+  # FX-12: in-combat action-bar feedback (damage taken, low HP, kill confirm)
+  hud.combat.hurt-by: "<red>{name} <gray>-{amount}</gray></red>"
+  hud.combat.hurt: "<red>-{amount}</red>"
+  hud.combat.low-hp: "<red><bold>HP LOW {hp}</bold></red>"
+  hud.combat.kill: "<gold><bold>KILL</bold> <white>{name}</white></gold>"
