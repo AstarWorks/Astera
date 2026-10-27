@@ -25,10 +25,13 @@ def sm(v):
 core = sm(w - d) * inarc
 rim = sm(w + 1.6 - d) * inarc * 0.55            # faint 1-2 px grey falloff
 glow = np.exp(-(d / (w * 2.6 + 5)) ** 2) * inarc * 0.40  # wide soft halo
+# thin inner gradient band (<= 15% of R, <= 20% alpha) just inside the rim: glossy blade-edge ribbon
+inner = np.clip(1 - (R - w - r) / (0.15 * R), 0, 1)
+fill = inarc * (r < R - w) * inner ** 1.5 * 0.20 * np.sin(np.pi * u) ** 0.5
 grey = np.array([150, 148, 156.])
 white = np.array([255, 255, 255.])
 halo = np.array([255, 240, 236.])
-a = np.maximum(np.maximum(rim, glow), core)
+a = np.maximum(np.maximum(np.maximum(rim, glow), core), fill)
 rgb = np.where(core[..., None] > 0.02, white,
                np.where(rim[..., None] > glow[..., None], grey, halo))
 pm = (rgb * a[..., None]).reshape(256, S, 256, S, 3).mean((1, 3))
