@@ -27,9 +27,9 @@ elements:
   end_tick: 28
   keyframes:
   - {t: 0, translate: [0.0, 1.25, 5.4], rotate: [90, 0, -110], scale: [0.5, 0.5, 0.5]}
-  - {t: 1, translate: [0.0, 1.25, 5.4], rotate: [90, 0, -110], scale: [1.3, 1.3, 1.3], ease: out_expo}
-  - {t: 10, translate: [0.0, 1.25, 5.4], rotate: [90, 0, -110], scale: [1.3, 1.3, 1.3]}
-  - {t: 12, translate: [0.0, 1.25, 5.4], rotate: [90, 0, -110], scale: [0.8, 0.8, 0.8]}
+  - {t: 1, translate: [0.0, 1.25, 5.4], rotate: [90, 0, -110], scale: [0.6, 0.6, 0.6], ease: out_expo}
+  - {t: 10, translate: [0.0, 1.25, 5.4], rotate: [90, 0, -110], scale: [0.6, 0.6, 0.6]}
+  - {t: 12, translate: [0.0, 1.25, 5.4], rotate: [90, 0, -110], scale: [0.45, 0.45, 0.45]}
   target_track:
   - {t: 0, weight: 1}
   - {t: 12, weight: 1}
@@ -37,21 +37,11 @@ elements:
   kind: {type: block, block: white_concrete}
   brightness: 15
   start_tick: 10
-  end_tick: 30
+  end_tick: 22
   keyframes:
-  - {t: 0, translate: [-0.025, 1.275, 0.0], rotate: [0, 0, 0], scale: [0.05, 0.05, 5.4]}
-  - {t: 18, translate: [-0.045, 1.255, 0.0], rotate: [0, 0, 0], scale: [0.09, 0.09, 5.4]}
-  - {t: 20, translate: [-0.015, 1.285, 0.0], rotate: [0, 0, 0], scale: [0.03, 0.03, 5.4]}
-  target_line: true
-- id: chain-glow
-  kind: {type: block, block: yellow_stained_glass}
-  brightness: 15
-  start_tick: 10
-  end_tick: 29
-  keyframes:
-  - {t: 0, translate: [-0.07, 1.23, 0.0], rotate: [0, 0, 0], scale: [0.14, 0.14, 5.4]}
-  - {t: 18, translate: [-0.06, 1.24, 0.0], rotate: [0, 0, 0], scale: [0.12, 0.12, 5.4]}
-  - {t: 19, translate: [-0.01, 1.29, 0.0], rotate: [0, 0, 0], scale: [0.02, 0.02, 5.4]}
+  - {t: 0, translate: [-0.0125, 1.2625, 0.0], rotate: [0, 0, 0], scale: [0.025, 0.025, 5.4]}
+  - {t: 8, translate: [-0.0125, 1.2625, 0.0], rotate: [0, 0, 0], scale: [0.025, 0.025, 5.4]}
+  - {t: 11, translate: [0.0, 1.275, 0.0], rotate: [0, 0, 0], scale: [0.0, 0.0, 5.4]}
   target_line: true
 - id: loop-d
   kind:
