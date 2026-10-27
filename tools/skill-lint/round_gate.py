@@ -12,7 +12,7 @@ Checks (PASS / FAIL / NOT CHECKED per line; exit 1 on any FAIL):
                    compare.json (when present) has no regression flag set
   3 trace          every vfx_id the skill plays is quoted with its server-side `cast+N`; a moving skill quotes `travel:` from trace
   4 scene          capture scene facts: DISTANCE stated, skippedTicks=0
-  5 framing        caster bbox share `this` is within 0.5x-2x of `ref` (review validity)
+  5 framing        caster height (`framing[].casterHeightPct`) `this` is within 0.5x-2x of `ref` (review validity)
   6 fidelity       every mechanic type in the skill YAML has a shown / not shown line
   7 regression     `weaker than previous: none` (or `previous: none` on the first round)
   8 review         (stage manager only) review.json reviewer.overall == ok and reviewer.regression == none
@@ -190,17 +190,17 @@ def check_framing(sections):
     ref = re.search(r"ref\s*([\d.]+)\s*%", body)
     this = re.search(r"this\s*([\d.]+)\s*%", body)
     if not ref or not this:
-        report("framing", "FAIL", "caster bbox: ref X% | this Y% missing")
+        report("framing", "FAIL", "caster height: ref X% | this Y% missing (compare API framing[].casterHeightPct)")
         return
     r, t = float(ref.group(1)), float(this.group(1))
     if r <= 0:
-        report("framing", "FAIL", "ref bbox share must be > 0")
+        report("framing", "FAIL", "ref caster height must be > 0")
         return
     ratio = t / r
     if FRAMING_MIN <= ratio <= FRAMING_MAX:
-        report("framing", "PASS", f"caster bbox this/ref = {ratio:.2f} (within {FRAMING_MIN}-{FRAMING_MAX})")
+        report("framing", "PASS", f"caster height this/ref = {ratio:.2f} (within {FRAMING_MIN}-{FRAMING_MAX})")
     else:
-        report("framing", "FAIL", f"caster bbox this/ref = {ratio:.2f}, outside {FRAMING_MIN}-{FRAMING_MAX}: capture is not review-valid, reframe (FOV_DOLLY / distance)")
+        report("framing", "FAIL", f"caster height this/ref = {ratio:.2f}, outside {FRAMING_MIN}-{FRAMING_MAX}: capture is not review-valid, reframe (FOV_DOLLY / distance)")
 
 
 def check_fidelity(sections, skill_info):

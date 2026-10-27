@@ -32,7 +32,8 @@ export function casterPath(dir) {
   const ages = [...byAge.keys()].sort((a, b) => a - b), o = byAge.get(ages[0]);
   const last = ages[ages.length - 1];
   const rel = (age) => { const p = byAge.get(age) ?? byAge.get(Math.max(...ages.filter((a) => a <= age))) ; return p ? [p[0] - o[0], p[1] - o[1], p[2] - o[2]] : [0, 0, 0]; };
-  return { at: (tick) => rel(Math.min(Math.max(tick, ages[0]), last)), from: ages[0], to: last };
+  const abs = (age) => { const c = Math.min(Math.max(age, ages[0]), last), p = byAge.get(c) ?? byAge.get(Math.max(...ages.filter((a) => a <= c))); return p ? [...p] : o; };
+  return { at: (tick) => rel(Math.min(Math.max(tick, ages[0]), last)), abs, from: ages[0], to: last };
 }
 
 function look(pos, tgt) {
@@ -104,24 +105,31 @@ function project(cam, fov, feet) {
  * @returns {{ method: string, fov: number, perTick: Record<number, {pct:number,onScreen:boolean}|null> } | { error: string }}
  */
 export function analyticHeights({ view, meta, intent, dir, ticks, distance }) {
-  if (view !== "compare" && !ORBIT.has(view)) return { error: `no camera model for view '${view}' (compare, side, right, front, back, high, near)` };
+  if (!(Array.isArray(meta?.cameraKeys) && meta.cameraKeys.length) && view !== "compare" && !ORBIT.has(view)) return { error: `no camera model for view '${view}' (compare, side, right, front, back, high, near)` };
   const path = casterPath(dir);
   if (!path) return { error: "no trace.log with [vfx-trace] pos lines (caster position unknown)" };
   const fovMeta = typeof meta?.fov === "number" ? meta.fov : null;
-  let camAt, fov;
-  if (view === "compare") {
+  let camAt, fov, method, world = false;
+  const keys = Array.isArray(meta?.cameraKeys) ? meta.cameraKeys.filter((k) => Array.isArray(k.pos) && Number.isFinite(k.yaw) && Number.isFinite(k.pitch)).sort((a, b) => a.tick - b.tick) : [];
+  if (keys.length) {
+    // recorded by the capture itself: world eye position (not the feet tp), yaw/pitch degrees, fov per key, tick = cast-relative plan tick
+    world = true; fov = fovMeta ?? keys[0].fov ?? 70; method = "capture meta cameraKeys + trace caster";
+    camAt = (tick) => { let k = keys[0]; for (const c of keys) if (c.tick <= tick) k = c; return { eye: k.pos, yaw: k.yaw, pitch: k.pitch, fov: k.fov }; };
+  } else if (view === "compare") {
     const plan = comparePlan(intent, meta?.camera ?? "case", fovMeta);
     fov = plan.fov;
     camAt = (tick) => { let c = plan.cams[0]; for (const k of plan.cams) if (k.ms <= tick * 50) c = k; return c; };
+    method = "compare_plan camera keys + trace caster (reconstructed; capture meta has no cameraKeys)";
   } else {
     const d = meta?.distance ?? distance ?? 4;
     fov = fovMeta ?? 70;
     const cam = orbitCam(view, d);
     camAt = () => cam;
+    method = "orbit_cam + trace caster (reconstructed; capture meta has no cameraKeys)";
   }
   const perTick = {};
-  for (const t of ticks) perTick[t] = project(camAt(t), fov, path.at(t));
-  return { method: view === "compare" ? "compare_plan camera keys + trace caster" : "orbit_cam + trace caster", fov, perTick };
+  for (const t of ticks) { const c = camAt(t); perTick[t] = project(c, c.fov ?? fov, world ? path.abs(t) : path.at(t)); }
+  return { method, fov, perTick };
 }
 
 /** ref_caster_height_pct {"<tick>": pct} from case.json: exact tick, else the nearest annotated tick within +-2 ticks; null otherwise. */

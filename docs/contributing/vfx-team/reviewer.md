@@ -70,7 +70,7 @@ See [skill-compare README](../../../tools/skill-compare/README.md) "Comparison A
 
 ## Capture validity
 
-- **Framing parity**: the caster's bounding-box share of the frame at the key ticks must be within 0.5x-2x of the reference's (round note "Framing", compare API `compare.json`). A far wide-angle side view with the caster at 1/40 of the frame, or a preview 2x closer than the client, is not review-valid: reject and request a reframed capture; do not mark rows on it.
+- **Framing parity**: compare API `framing[].ratioToRef` (caster height as % of the frame: analytic from the capture camera + trace vs the annotated ref) must be within 0.5x-2x (round note "Framing"). A far wide-angle side view with the caster at 1/40 of the frame, or a preview 2x closer than the client, is not review-valid: reject and request a reframed capture; do not mark rows on it.
 - **Scene parity**: the enemy stands at the case intent distance (`DISTANCE=` in the round note "Capture scene"); a tool-default scene changes dash travel and is rejected for travel rows.
 - **Tool fidelity**: the round note lists every mechanic type as `shown` / `not shown`; judge only what is shown. Spectator captures render no `send_title` / `screen_flash`; skill-preview is never evidence.
 - Provenance: `meta.json` records branch, implementation commit, capturedAt, FOV, fovMode, resolution. Round-2 captures need matching `referenceRevision` and `contentRevision`.

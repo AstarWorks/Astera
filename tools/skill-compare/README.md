@@ -200,7 +200,9 @@ and a regression slipped through unnoticed. Everyone asks the server, so everyon
   (`[vfx-trace] pos` lines). Other views (`top`, `preview-*`) report an `error`. The ref row is **annotated**: `case.json` `ref_caster_height_pct: {"<tick>": pct}` (hair top to feet
   of the upright caster in the ref frame, read off a gridded frame; add one entry per camera cut and for the key ticks; a tick uses the nearest annotated tick within +-2, else none).
   `ratioToRef` = median of per-tick this/ref over the ticks where both exist (`ratioTicks`); `perTick` shows each value (`onScreen` = feet and head inside the frame). bastion-greatsword-s3
-  is annotated. The old key-colour bbox (`caster_bbox_pct` per cell, `framing[].debugHueBboxPct`) is debug only: it swung 1.7-35% on r7 (fx share the hair hue) and is not a gate input.
+  is annotated. **Capture meta wins over reconstruction**: when a capture's manifest `meta.cameraKeys` is present (`[{tick, pos:[x,y,z] world eye, yaw, pitch, fov}]`, tick = cast-relative plan tick,
+  the key in force at a tick is the last one with `tick <=` it; per-tick samples are fine) the height is projected from those keys and the trace caster's world position, and `framing[].source` says so.
+  The old key-colour bbox (`caster_bbox_pct` per cell, `framing[].debugHueBboxPct`) is debug only: it swung 1.7-35% on r7 (fx share the hair hue) and is not a gate input.
 - **Source quality** (audited 2026-10-27, all 10 reference videos): YouTube offers 1080p at most (no 1440p/4K, no 60 fps); the cache holds the best stream (VP9 "premium"
   ~3.3-4.0 Mbps for 8 videos; Svaaq9F7Ty8 only offers H.264 2.2 Mbps). Reference frames are lossless PNG at native size/fps. MC captures are far smaller:
   `side`/`top` 640x360, `input` 854x480, `compare`/`preview` 1280x720 (`RES=` in vfx-shot raises it), so judge MC detail with `zoom=native`.
