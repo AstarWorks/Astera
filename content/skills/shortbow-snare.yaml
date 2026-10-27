@@ -41,7 +41,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 14 }
+        - base: { type: literal, value: 7 }
           attribute: physical
     - type: apply_status
       targets: { type: target }

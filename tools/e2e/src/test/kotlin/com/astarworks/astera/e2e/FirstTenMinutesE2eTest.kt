@@ -86,7 +86,11 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
             assertThat(weaponSlots.map { hb[it] }.toSet()).describedAs("expected two different starter weapons in 0..7: $hb").hasSize(2)
             assertThat(hb[8]).describedAs("compass missing: $hb").isNotEqualTo(-1)
             val lores = weaponSlots.associateWith { first.hotbarLore(it) }
-            assertThat(lores.values.any { Regex("shoot|射撃", RegexOption.IGNORE_CASE).containsMatchIn(it) }).describedAs("no gun lore ('Right-click: shoot'): $lores").isTrue()
+            // The lore is generated from the item's skills: the starter pistol's right-click skill appears by its display name.
+            val contentDir = java.io.File(System.getProperty("astera.live.contentDir", "/workspace/content"))
+            val gunSkillName = Regex("""(?s)^name:.*?\ben:\s*"([^"]+)"""", RegexOption.MULTILINE)
+                .find(java.io.File(contentDir, "skills/pistol-shot.yaml").readText())!!.groupValues[1]
+            assertThat(lores.values.any { it.contains(gunSkillName) }).describedAs("no gun lore with the skill name '$gunSkillName': $lores").isTrue()
             assertThat(lores.values.any { Regex("slash|斬撃", RegexOption.IGNORE_CASE).containsMatchIn(it) }).describedAs("no sword lore ('Left-click: slash'): $lores").isTrue()
             assertThat(rawKeys(lores.values)).isEmpty()
             "hotbar=$hb lores=$lores"

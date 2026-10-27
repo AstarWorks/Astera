@@ -12,7 +12,7 @@ elements:
 - id: thread
   kind:
     type: block
-    block: pink_concrete
+    block: pink_concrete_powder
   brightness: 15
   start_tick: 0
   end_tick: 21
@@ -27,8 +27,8 @@ elements:
     - 0
     - 0
     scale:
-    - 0.04
-    - 0.04
+    - 0.03
+    - 0.03
     - 5.0
   - t: 15
     translate:
@@ -40,8 +40,8 @@ elements:
     - 0
     - 0
     scale:
-    - 0.04
-    - 0.04
+    - 0.03
+    - 0.03
     - 5.0
   - t: 20
     translate:
@@ -53,8 +53,8 @@ elements:
     - 0
     - 0
     scale:
-    - 0.04
-    - 0.04
+    - 0.03
+    - 0.03
     - 1.0
     ease: in_quad
   - t: 21
@@ -67,8 +67,8 @@ elements:
     - 0
     - 0
     scale:
-    - 0
-    - 0
+    - 0.03
+    - 0.03
     - 1.0
   target_line: true
 - id: return-body

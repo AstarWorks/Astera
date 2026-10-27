@@ -51,11 +51,11 @@ phases:
     components:
     - base:
         type: literal
-        value: 75
+        value: 37.5
       attribute: physical
       per_stack:
         status_id: poise
-        amount: 0.1
+        amount: 0.05
         'on': caster
     delay_ticks:
       type: literal
@@ -140,11 +140,11 @@ phases:
     components:
     - base:
         type: literal
-        value: 87.5
+        value: 43.75
       attribute: physical
       per_stack:
         status_id: poise
-        amount: 0.1
+        amount: 0.05
         'on': caster
     delay_ticks:
       type: literal

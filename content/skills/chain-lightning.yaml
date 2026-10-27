@@ -41,7 +41,7 @@ phases:
     - type: damage
       targets: { type: enemies, center: { type: target }, radius: { type: literal, value: 4.5 } }
       components:
-        - base: { type: literal, value: 36 }
+        - base: { type: literal, value: 18 }
           attribute: electric
     - type: apply_status
       targets: { type: target }

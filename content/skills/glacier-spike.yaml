@@ -41,7 +41,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 30 }
+        - base: { type: literal, value: 15 }
           attribute: water
     - type: apply_status
       targets: { type: target }

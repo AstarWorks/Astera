@@ -58,8 +58,8 @@ class HpBalanceScenarioTest {
         // Before (20 HP): knight-sword 8 dmg = 3 hits, greatsword 13 = 2, pistol 7 = 3, rifle 8 = 3, frost shard 6 = 4.
         assertThat(hitsToKill("knight-sword", true, 2.2, false)).isEqualTo(3)
         assertThat(hitsToKill("greatsword", true, 2.2, false)).isEqualTo(2)
-        assertThat(hitsToKill("pistol", false, 8.0, true)).isEqualTo(2)
-        assertThat(hitsToKill("rifle", false, 12.0, true)).isEqualTo(2)
-        assertThat(hitsToKill("frost-staff", false, 8.0, false)).isEqualTo(2)
+        assertThat(hitsToKill("pistol", false, 8.0, true)).isEqualTo(4)
+        assertThat(hitsToKill("rifle", false, 12.0, true)).isEqualTo(4)
+        assertThat(hitsToKill("frost-staff", false, 8.0, false)).isEqualTo(4)
     }
 }

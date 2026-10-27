@@ -41,7 +41,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 20.0 }
+        - base: { type: literal, value: 10.0 }
           attribute: physical
     - type: play_sound
       targets: { type: target }
@@ -54,7 +54,7 @@ phases:
     - type: apply_status
       targets: { type: target }
       status_id: poison
-      effect_duration_ticks: { type: literal, value: 120 }
+      effect_duration_ticks: { type: literal, value: 60 }
   hit_block:
     - type: play_sound
       targets: { type: hit_location }
