@@ -36,7 +36,12 @@ if timing.is_file():
     start = re.search(r"^STAMP ([0-9.]+)$", log, re.M)
     cuts = re.findall(r"^CAMERA (\d+) SENT ([0-9.]+) ACK ([0-9.]+)$", log, re.M)
     if start and cuts:
-        lateness = max(0.0, max((float(ack) - float(start[1])) * 1000 - int(t) for t, sent, ack in cuts))
+        # stepped (slow-motion) capture: the plan runs on the slowed clock, a plan millisecond lasts 20/rate wall milliseconds
+        scale = 1.0
+        stamp_json = directory / "framestamp.json"
+        if stamp_json.is_file() and json.loads(stamp_json.read_text()).get("mode") == "stepped":
+            scale = 20.0 / float(os.environ.get("SLOW_RATE", "20"))
+        lateness = max(0.0, max((float(ack) - float(start[1])) * 1000 - int(t) * scale for t, sent, ack in cuts))
         meta["captureQuality"]["cameraMaxLatenessMs"] = round(lateness, 1)
         if lateness > 100:
             meta["captureQuality"].update(invalid=True, reviewRequired=True,

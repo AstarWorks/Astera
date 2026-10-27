@@ -215,7 +215,7 @@ esac
 if [ "$CMD" = up ] && [ "$VIEW" = all ]; then VIEW=$([ -n "$CASE" ] && echo compare || echo side); fi
 TICKS_SET="${TICKS:-}"
 TICKS="${TICKS:-60}"                 # ticks filmed after the cast (compare: the case duration_ticks)
-SLOW_RATE="${SHOT_SLOW_RATE:-5}"      # STEPPED=1: server tick rate while filming (ticks/s, 1-20); every tick then stays on screen 1/rate s
+export SLOW_RATE="${SHOT_SLOW_RATE:-5}"      # STEPPED=1: server tick rate while filming (ticks/s, 1-20); every tick then stays on screen 1/rate s
 STEPPED="${STEPPED:-$([ "${FPS:-20}" = 20 ] && echo 1 || echo 0)}"   # 1 = slow motion (/tick rate SHOT_SLOW_RATE): world, plugin scheduler and client on one clock, several frames per tick, the last is kept (default for 20 fps sheets); 0 = realtime
 FPS="${FPS:-20}"                     # output rate; FPS=60 keeps 3 frames per tick (frame_NNN = NNN/3 ticks), no sheet/gif
 RES="${RES:-}"                       # viewer resolution (client window + framebuffer, GUI scale fixed); default 1920x1080 = the reference's native size
