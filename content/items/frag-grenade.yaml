@@ -1,0 +1,33 @@
+# Match arsenal (wp/match-arsenal, batch 2): Frag Grenade.
+
+id: frag-grenade
+
+material: FIREWORK_STAR
+
+name:
+  ja: "破片手榴弾"
+  en: "Frag Grenade"
+lore:
+  ja:
+    - "<gray>右クリック: 投げる (破片で出血、ブロックを少し傷つける)</gray>"
+  en:
+    - "<gray>Right-click: throw (shrapnel bleeds, chips blocks)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 0
+
+skills:
+  - trigger: right_click
+    skill_id: frag-grenade-throw
+
+pdc_tags:
+  astera:rarity: uncommon

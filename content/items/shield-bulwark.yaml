@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal, batch 2): Bulwark Shield.
+
+id: shield-bulwark
+
+material: SHIELD
+
+name:
+  ja: "大盾"
+  en: "Bulwark Shield"
+lore:
+  ja:
+    - "<gray>左クリック: シールドバッシュ</gray>"
+    - "<gray>スニーク + 右クリック: 防御姿勢</gray>"
+  en:
+    - "<gray>Left-click: shield bash</gray>"
+    - "<gray>Sneak + right-click: brace</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.5
+  attack_speed: 1.2
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: left_click
+    skill_id: shield-bash
+  - trigger: sneak_right
+    skill_id: shield-brace
+
+pdc_tags:
+  astera:rarity: uncommon

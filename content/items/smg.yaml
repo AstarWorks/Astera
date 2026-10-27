@@ -1,0 +1,38 @@
+# Match arsenal (wp/match-arsenal, batch 2): SMG.
+
+id: smg
+
+material: IRON_NUGGET
+
+name:
+  ja: "サブマシンガン"
+  en: "SMG"
+lore:
+  ja:
+    - "<gray>右クリック: 連射</gray>"
+    - "<gray>スニーク + 右クリック: ダッシュ (加速)</gray>"
+  en:
+    - "<gray>Right-click: spray</gray>"
+    - "<gray>Sneak + right-click: rush (speed up)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 2
+
+skills:
+  - trigger: right_click
+    skill_id: smg-burst
+    cooldown_override_ticks: 4
+  - trigger: sneak_right
+    skill_id: smg-rush
+
+pdc_tags:
+  astera:rarity: uncommon
