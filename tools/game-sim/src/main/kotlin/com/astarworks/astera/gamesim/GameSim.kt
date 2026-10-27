@@ -136,6 +136,9 @@ public class GameSim private constructor(
     /** Star drops lying in the simulated world; collected by [SimStarDropWorld.pickupSweep] like a vanilla item pickup. */
     public val starDrops: SimStarDropWorld = SimStarDropWorld()
 
+    /** Carrier looks, world markers and boss bars of the objective modes. */
+    public val objectiveStage: SimObjectiveStage = SimObjectiveStage()
+
     /** Every per-viewer sound the game plays (ADR-0267 cues resolve to these), in order. */
     public val playerSounds: com.astarworks.astera.testfixtures.effect.FakePlayerSoundGateway =
         com.astarworks.astera.testfixtures.effect.FakePlayerSoundGateway()
@@ -657,7 +660,7 @@ public class GameSim private constructor(
 
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
-            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation }))
+            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }, starDropWorld = { sim.starDrops }, objectiveStage = { sim.objectiveStage }, playerPositions = { reg -> SimMatchPlayerPositions({ reg.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>() }, sim.spectator) }, normaPresentation = { sim.normaPresentation }))
             sim.stats = StatsWiring.install(context(), StatsPlatformPorts())
             sim.economy = EconomyWiring.install(context(), EconomyPlatformPorts())
 

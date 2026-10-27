@@ -70,6 +70,12 @@ class SiegeModesScenarioTest {
         victim.position = at
     }
 
+    /** Walks [who] to [at] and stays there long enough for a pickup / deposit channel (default 15 ticks) to complete. */
+    private fun ScenarioScope.hold(who: SimEntity, at: Vec3, ticks: Int = 40) {
+        who.moveTo(at)
+        advance(ticks)
+    }
+
     // ---- break-core -------------------------------------------------------
 
     @Test
@@ -108,7 +114,7 @@ class SiegeModesScenarioTest {
     // ---- carry-tnt --------------------------------------------------------
 
     @Test
-    fun `carry tnt - two deliveries win, a dead carrier returns the tnt`() {
+    fun `carry tnt - two deliveries win, a dead carrier drops the tnt where it fell`() {
         scenario("siege-carry-tnt") {
             val runner = player("runner", at = nowhere)
             val guard = player("guard", at = nowhere)
@@ -116,23 +122,32 @@ class SiegeModesScenarioTest {
             assertThat(blockAt(tntSpawn.copy(y = 64.0))).isEqualTo("minecraft:tnt")
 
             // Delivering without the TNT scores nothing.
-            runner.moveTo(blueBase)
+            hold(runner, blueBase)
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
-            // Runner grabs the TNT and is shot down: the TNT is back, so the guard can take it.
+            // Runner grabs the TNT (it is a hold, not a touch), glows and is slowed; the guard shoots them down.
             guard.holds("pistol")
             runner.moveTo(tntSpawn)
+            advance(5)
+            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("a brief touch does not pick up").isNull()
+            advance(40)
+            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("carrier wears the TNT").isNotNull()
             guard.moveTo(Vec3(0.0, 65.0, -14.0))
             kill(guard, runner)
+            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("dead carrier is stripped").isNull()
+            assertThat(sim.objectiveStage.markers(matchId).keys).`as`("the dropped TNT is marked").isNotEmpty()
             respawnAt(runner, nowhere)
-            guard.moveTo(tntSpawn)
-            guard.moveTo(redBase) // the guard (blue) delivers: 1/2
+
+            // The guard (blue) picks the dropped TNT up and delivers it to the red base: 1/2.
+            hold(guard, tntSpawn)
+            assertThat(sim.objectiveStage.carrying(guard.id)).isNotNull()
+            hold(guard, redBase)
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             // Runner now carries it to the blue base twice.
             repeat(2) {
-                runner.moveTo(tntSpawn)
-                runner.moveTo(blueBase)
+                hold(runner, tntSpawn)
+                hold(runner, blueBase)
                 if (it == 0) {
                     assertThat(eventsOf<MatchEnded>()).`as`("red 1/2, blue 1/2").isEmpty()
                     runner.moveTo(nowhere)
@@ -181,7 +196,7 @@ class SiegeModesScenarioTest {
     // ---- steal-jewelry ----------------------------------------------------
 
     @Test
-    fun `steal jewelry - a dead thief returns the jewels, banking every enemy jewel wins`() {
+    fun `steal jewelry - a dead thief drops the jewels, the owners recover them, banking every enemy jewel wins`() {
         scenario("siege-steal-jewelry") {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
@@ -190,23 +205,30 @@ class SiegeModesScenarioTest {
             val pedestalMarker = Vec3(73.0, 64.0, 10.0)
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:diamond_block")
 
-            // Thief steals one jewel, the keeper shoots them down before banking.
+            // Thief steals jewels; the keeper shoots them down before banking and the jewels lie where they fell.
             keeper.holds("pistol")
-            thief.moveTo(bluePedestal)
+            hold(thief, bluePedestal)
+            assertThat(sim.objectiveStage.carrying(thief.id)).`as`("thief wears a jewel").isNotNull()
             keeper.moveTo(Vec3(73.0, 65.0, 20.0))
             kill(keeper, thief)
+            assertThat(sim.objectiveStage.carrying(thief.id)).isNull()
+            assertThat(sim.objectiveStage.markers(matchId).keys.filter { it.startsWith("pile-") }).`as`("jewels on the ground").isNotEmpty()
+
+            // The keeper's team recovers its own jewels by standing on the pile; nothing was banked.
+            hold(keeper, bluePedestal)
+            assertThat(sim.objectiveStage.markers(matchId).keys.filter { it.startsWith("pile-") }).`as`("pile recovered").isEmpty()
             respawnAt(thief, nowhere)
-            thief.moveTo(redBase)
+            hold(thief, redBase)
             assertThat(eventsOf<MatchEnded>()).`as`("nothing was banked").isEmpty()
 
-            // The jewel went back: both can be stolen (leave the pedestal in between) and banked.
+            // Now the thief steals every jewel and banks them.
             keeper.moveTo(nowhere)
             repeat(2) {
-                thief.moveTo(bluePedestal)
+                hold(thief, bluePedestal)
                 thief.moveTo(nowhere)
             }
             assertThat(eventsOf<MatchEnded>()).isEmpty()
-            thief.moveTo(redBase)
+            hold(thief, redBase)
 
             val end = ended()
             assertThat(end.matchId).isEqualTo(matchId)
