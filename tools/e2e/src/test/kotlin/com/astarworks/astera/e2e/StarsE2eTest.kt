@@ -196,21 +196,15 @@ class StarsE2eTest : PlaythroughBase() {
             "C sidebar: ${sidebar(c)}; death spot=$deathSpot"
         }
 
-        // (c) the top Norma level wins: C (Lv 2, goal STAR again) takes pedestal stars until 3 are carried.
-        tpArena(c.name, 12.5, 65.0, 0.5, 0f, 0f)
+        // (c) the top Norma level no longer wins a match (it unlocks ultimates): end it from the console and check the lobby afterwards.
+        matchLines().forEach { rcon("astera match end ${it.id}") }
         val ended = awaitNoMatch(60_000, keepAlive = both)
-        E2eReport.check(suite, "reaching the top Norma level ends the match by itself", "RCON astera match list") {
+        E2eReport.check(suite, "an admin end returns the match to the lobby", "RCON astera match list") {
             assertThat(ended).describedAs("match still listed; C=${sidebar(c)} A=${sidebar(a)}; list=${matchLines()}").isTrue()
             "match gone"
         }
         both.forEach { b -> b.waitUntil(40_000) { b.hotbar()[8] != -1 && b.sidebarTitle() == lobbyTitle } }
         Thread.sleep(2_000)
-        E2eReport.check(suite, "the result names the Norma-level win", "SystemChat") {
-            val chat = c.chat.drop(chatFrom.getValue(c)).map { clean(it.text) }
-            assertThat(chat.any { it.contains("Norma level", true) && it.contains("reached", true) })
-                .describedAs("no 'reached Norma level' reason:\n${quote(chat, 40)}").isTrue()
-            quote(chat.filter { it.contains("Norma level", true) || it.contains("Match Summary") }, 6)
-        }
         for (b in both) {
             E2eReport.check(suite, "${b.name}: the lobby sidebar has no star line", "SetScore") {
                 assertThat(b.sidebarTitle()).describedAs("still on the match sidebar: ${sidebar(b)}").isEqualTo(lobbyTitle)

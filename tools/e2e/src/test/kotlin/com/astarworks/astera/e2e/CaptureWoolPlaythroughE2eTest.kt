@@ -27,7 +27,7 @@ class CaptureWoolPlaythroughE2eTest : ObjectivePlaythroughBase() {
             val zone = remaining.minBy { ctx.zone(it).let { (zx, zz) -> Math.hypot(zx - a.x, zz - a.z) } }
             remaining.remove(zone)
             val (px, pz) = ctx.zone(zone)
-            val walk = ctx.walker.walkTo(px, pz, 1.2, 120_000, others)
+            val walk = ctx.walker.walkTo(px, pz, 0.8, 120_000, others)
             walkCheck(ctx, "control point $zone", walk, px, pz)
             val captured = ctx.walker.hold(30_000, others) { ctx.chatCount("captured") >= round || matchLines().isEmpty() }
             E2eReport.check(suite, "standing alone in $zone for the capture time captures it ($round/2)", "SystemChat / sidebar") {
