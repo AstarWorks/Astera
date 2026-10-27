@@ -15,6 +15,11 @@ astera:
   objective.item.steal-jewelry: "宝石"
   objective.channel.carry-tnt.pickup: "<gold>TNTを掴んでいる...</gold>"
   objective.channel.carry-tnt.deliver: "<green>TNTを起爆準備中...</green>"
+  objective.channel.carry-tnt.checkpoint: "<yellow>チェックポイントを確保中...</yellow>"
+  objective.bar.carry-tnt.shield: "<aqua><bold>TNT シールド</bold></aqua> <white>{hp} HP</white> <gray>- 壊すと TNT を掴める</gray>"
+  objective.bar.carry-tnt.respawn: "<gray>次の TNT まで</gray> <white><bold>{seconds}秒</bold></white>"
+  objective.toast.carry-tnt.checkpoint: "<yellow>チェックポイント {n} 確保</yellow> <gray>(残り {left})</gray>"
+  objective.hint.carry-tnt.checkpoint: "<yellow>{arrow} 次のチェックポイントを確保 ({dist}m)</yellow>"
   objective.channel.carry-mini-tnt.pickup: "<gold>ミニTNTを拾っている...</gold>"
   objective.channel.carry-mini-tnt.plant: "<red>ミニTNTを設置中...</red>"
   objective.channel.steal-jewelry.steal: "<aqua>宝石を盗んでいる...</aqua>"
@@ -26,6 +31,8 @@ astera:
   objective.bar.steal-jewelry: "<white>所持</white> <aqua>{count}</aqua> <gray>|</gray> <white>納品</white> <green>{banked}/{goal}</green> <gray>|</gray> <white>自陣の残り</white> <yellow>{left}</yellow>"
   objective.bar.steal-jewelry.team: "<{tag}><bold>{team}</bold></{tag}> <white>納品 {banked}/{goal}</white>"
   objective.bar.capture-wool.capturing: "<white>{zone}を制圧中</white> <yellow>{seconds}/{need}秒</yellow>"
+  objective.bar.capture-wool.recapturing: "<white>{zone} を奪還中</white> <yellow>{seconds}/{need}秒</yellow>"
+  objective.toast.capture-wool.progress: "<{tag}>{zone}</{tag}> <white>{percent}%</white>"
   objective.bar.capture-wool.contested: "<red><bold>{zone}は競合中！</bold></red> <gray>敵を排除して制圧</gray>"
   objective.hint.carry-tnt.deliver: "<gold>{arrow} <{team}>{team}</{team}> 基地へTNTを運べ ({dist}m)</gold>"
   objective.hint.carry-tnt.escort: "<green>{arrow} 運び手を護衛しろ ({dist}m)</green>"
@@ -1306,6 +1313,7 @@ astera:
       capture-wool:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>ゾーン</gray>"
         open: "<gray>未占領ゾーン:</gray> <white>{open}/{total}</white>"
+        hold: "<gray>勝利まで</gray> <{color}><bold>{seconds}秒</bold></{color}>"
       steal-jewelry:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>確保、</gray><white>{left}</white> <gray>残り</gray>"
       you: "<gray>あなた:</gray> <{color}>{team}</{color}>"
@@ -1598,6 +1606,9 @@ astera:
       delivered: "<green>{team} チームが TNT を届けた！ ({score}/{goal})</green>"
       dropped: "<yellow>TNT の運び手が倒れた！ TNT が落ちている。</yellow>"
       returned: "<gray>誰も拾わなかった。TNT は元の場所に戻った。</gray>"
+      returned-checkpoint: "<gray>誰も拾わなかった。TNT は最後のチェックポイントで待っている。</gray>"
+      shield-broken: "<aqua>TNT のシールドが壊れた！ 掴め！</aqua>"
+      respawned: "<gold>新しい TNT が現れた。再びシールド付き。</gold>"
     carry-mini-tnt:
       title: "<gold>ミニ TNT 収集</gold>"
       picked-up: "<gold>ミニ TNT を拾った ({count}/{limit})。敵基地へ運ぼう！</gold>"

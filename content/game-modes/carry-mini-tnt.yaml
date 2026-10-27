@@ -24,7 +24,9 @@ default_config:
   spawn_protection_seconds: "3"
   minis_to_win: "10"
   carry_limit: "4"
-  respawn_seconds: "15"
+  respawn_seconds: "25"
+  # Count model: count each planted piece is worth (10 pieces x 10 = 100).
+  count_per_mini: "10"
   pickup_regions: "wool-a,wool-b,wool-c"
   # Objective feel (ObjectiveKit): hold time at a pickup / goal in ticks, how long a dropped objective lies before it
   # goes home (seconds), reach of a pile pickup (blocks), distance at which defenders get a gate warning (blocks).

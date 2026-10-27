@@ -1,14 +1,21 @@
 # Capture Wool (WP11, siege mode).
 #
-# The stage's `wool-*` zones are control points marked by a wool block. A team
-# that stands alone in a zone for `capture_seconds` captures it (the marker
-# turns into the team's wool); a contested or empty zone resets. First team to
-# `captures_to_win` zones wins (default: a majority of the zones).
+# The stage's `wool-*` zones are control points: a 5x5 pad (concrete ring, wool core) under a tall beam. A team
+# that stands alone in a zone fills its progress ring (`capture_seconds` for a neutral zone, `recapture_seconds` for
+# one an enemy holds) and the pad turns into its colour. A captured zone can be retaken; a contested zone pauses and
+# an abandoned one drains. Holding `captures_to_win` zones (default: a majority) for `win_hold_seconds` wins; every
+# second a team holds zones it scores count (`count_per_second_one` / `count_per_second_multi`).
 # Implementation: CaptureWoolGameMode, ticked once per second.
 #
 # default_config
-#   capture_seconds   seconds alone in a zone to capture it
-#   captures_to_win   zones needed to win (omit for a majority)
+#   capture_seconds          seconds alone in a neutral zone to capture it
+#   recapture_seconds        seconds alone in an enemy-held zone to take it
+#   progress_decay_per_second  progress an empty zone loses per second
+#   captures_to_win          zones to hold at once to win (omit for a majority)
+#   win_hold_seconds         seconds to keep that many zones
+#   count_per_second_one / _multi  count scored per second while holding one / several zones
+#   floor_radius / inner_radius    pad half-width (2 = 5x5) / wool core half-width (1 = 3x3)
+#   beam_height              blocks of the owner-colour beam
 id: capture-wool
 title_key: astera.gamemode.capture-wool.title
 impl_class: com.astarworks.astera.match.application.gamemode.CaptureWoolGameMode
@@ -20,3 +27,11 @@ default_config:
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
   capture_seconds: "10"
+  recapture_seconds: "8"
+  progress_decay_per_second: "1"
+  win_hold_seconds: "20"
+  count_per_second_one: "1"
+  count_per_second_multi: "2"
+  floor_radius: "2"
+  inner_radius: "1"
+  beam_height: "20"

@@ -4,8 +4,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * Capture Wool (capture_seconds 10, wool-* control points, a majority of them wins): the red bot walks (A*) to the nearest
- * unclaimed control point, stands alone in it until the capture message, then does the same until it holds a majority.
+ * Capture Wool (capture_seconds 10, wool-* control points, holding a majority of them for win_hold_seconds wins): the red bot walks (A*)
+ * to the nearest unclaimed control point, stands alone in it until the capture message, then does the same until it holds a
+ * majority and keeps it for the hold time (finishMatch waits for the win).
  */
 class CaptureWoolPlaythroughE2eTest : ObjectivePlaythroughBase() {
 

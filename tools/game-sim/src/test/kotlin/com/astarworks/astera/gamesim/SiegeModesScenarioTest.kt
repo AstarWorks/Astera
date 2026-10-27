@@ -2,6 +2,7 @@ package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.bots.ModePlanner
 import com.astarworks.astera.bots.StageObjectives
+import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.services.getOrThrow
@@ -33,6 +34,12 @@ class SiegeModesScenarioTest {
     private val tntSpawn = Vec3(0.0, 65.0, -6.0)
     private val redBase = Vec3(-43.0, 65.0, 0.0)
     private val blueBase = Vec3(43.0, 65.0, 0.0)
+
+    // siege-isles-tnt: delivery pedestals deep in each base and the checkpoints on the way to them (routes in order).
+    private val deliverRed = Vec3(-52.0, 65.0, 0.0)
+    private val deliverBlue = Vec3(52.0, 65.0, 0.0)
+    private val redRoute = listOf(Vec3(-24.0, 65.0, 6.0), Vec3(-38.0, 65.0, -10.0))
+    private val blueRoute = listOf(Vec3(24.0, 65.0, -6.0), Vec3(38.0, 65.0, 10.0))
     private val nowhere = Vec3(0.0, 65.0, -50.0)
 
     // ---- helpers ----------------------------------------------------------
@@ -78,8 +85,20 @@ class SiegeModesScenarioTest {
 
     // ---- carry-tnt --------------------------------------------------------
 
+    /** The carrier of [who]'s team walks the enemy route: every checkpoint of [owner] (3 s hold each), then its deliver pedestal (2 s hold). */
+    private fun ScenarioScope.deliverTo(who: SimEntity, checkpoints: List<Vec3>, deliver: Vec3) {
+        checkpoints.forEach { hold(who, it, 80) }
+        hold(who, deliver, 60)
+    }
+
+    /** [who] stands in tnt-spawn until the shield is gone and the pickup hold completes (200 HP at 10 HP/s alone, plus any respawn wait). */
+    private fun ScenarioScope.takeTnt(who: SimEntity) {
+        who.moveTo(tntSpawn)
+        check(advanceUntil(20 * 90) { sim.objectiveStage.carrying(who.id) != null }) { "${who.name} never got the TNT" }
+    }
+
     @Test
-    fun `carry tnt - two deliveries win, a dead carrier drops the tnt where it fell`() {
+    fun `carry tnt - shield, respawn delay, checkpoints, three deliveries win, a dead carrier drops the tnt where it fell`() {
         scenario("siege-carry-tnt") {
             val runner = player("runner", at = nowhere)
             val guard = player("guard", at = nowhere)
@@ -87,34 +106,45 @@ class SiegeModesScenarioTest {
             assertThat(blockAt(tntSpawn.copy(y = 64.0))).isEqualTo("minecraft:tnt")
 
             // Delivering without the TNT scores nothing.
-            hold(runner, blueBase)
+            hold(runner, deliverBlue, 80)
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
-            // Runner grabs the TNT (it is a hold, not a touch), glows and is slowed; the guard shoots them down.
-            guard.holds("pistol")
+            // The TNT is shielded: standing in tnt-spawn wears the shield down (a boss bar shows it) but does not pick it up yet.
             runner.moveTo(tntSpawn)
-            advance(5)
-            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("a brief touch does not pick up").isNull()
-            advance(40)
-            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("carrier wears the TNT").isNotNull()
+            advance(60)
+            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("the shield blocks the pickup").isNull()
+            assertThat(sim.objectiveStage.bar(runner.id, "shield")?.progress).`as`("the shield bar shows the damage").isLessThan(1.0)
+            // Broken after 200 HP; then the pickup is a hold: the carrier glows and is slowed. The guard shoots them down.
+            guard.holds("pistol")
+            check(advanceUntil(20 * 40) { sim.objectiveStage.carrying(runner.id) != null }) { "runner never picked the TNT up" }
             guard.moveTo(Vec3(0.0, 65.0, -14.0))
             kill(guard, runner)
             assertThat(sim.objectiveStage.carrying(runner.id)).`as`("dead carrier is stripped").isNull()
             assertThat(sim.objectiveStage.markers(matchId).keys).`as`("the dropped TNT is marked").isNotEmpty()
             respawnAt(runner, nowhere)
 
-            // The guard (blue) picks the dropped TNT up and delivers it to the red base: 1/2.
-            hold(guard, tntSpawn)
+            // The guard (blue) picks the dropped TNT up (no shield left), holds the red checkpoints and delivers it: blue 1/3.
+            hold(guard, tntSpawn, 60)
             assertThat(sim.objectiveStage.carrying(guard.id)).isNotNull()
-            hold(guard, redBase)
+            hold(guard, deliverRed, 60)
+            assertThat(eventsOf<MatchEnded>()).`as`("deliver without the checkpoints scores nothing").isEmpty()
+            assertThat(sim.objectiveStage.carrying(guard.id)).`as`("still carrying").isNotNull()
+            deliverTo(guard, redRoute, deliverRed)
+            assertThat(sim.objectiveStage.carrying(guard.id)).`as`("delivered: the carry is gone").isNull()
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
-            // Runner now carries it to the blue base twice.
-            repeat(2) {
-                hold(runner, tntSpawn)
-                hold(runner, blueBase)
-                if (it == 0) {
-                    assertThat(eventsOf<MatchEnded>()).`as`("red 1/2, blue 1/2").isEmpty()
+            // After a delivery the TNT is gone for 30 s: the runner waits in the zone and gets nothing for 20 s.
+            runner.moveTo(tntSpawn)
+            advance(20 * 20)
+            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("the TNT is still respawning").isNull()
+
+            // Runner now carries it to the blue base three times (each time shield again, then the checkpoints, then the pedestal).
+            repeat(3) {
+                guard.moveTo(nowhere)
+                takeTnt(runner)
+                deliverTo(runner, blueRoute, deliverBlue)
+                if (it < 2) {
+                    assertThat(eventsOf<MatchEnded>()).`as`("red ${it + 1}/3").isEmpty()
                     runner.moveTo(nowhere)
                 }
             }
@@ -125,10 +155,31 @@ class SiegeModesScenarioTest {
         }
     }
 
+    @Test
+    fun `carry tnt - a dropped tnt returns to the last checkpoint reached`() {
+        scenario("siege-carry-tnt-drop-return") {
+            val runner = player("runner", at = nowhere)
+            val guard = player("guard", at = nowhere)
+            val matchId = startMatch("carry-tnt", mapOf(runner to "red", guard to "blue"), stage = "siege-isles-tnt")
+            takeTnt(runner)
+            hold(runner, blueRoute.first(), 80)
+            guard.holds("pistol")
+            guard.moveTo(blueRoute.first().copy(z = blueRoute.first().z + 8.0))
+            kill(guard, runner)
+            assertThat(sim.objectiveStage.markers(matchId).keys).`as`("dropped TNT is marked").isNotEmpty()
+            guard.moveTo(nowhere)
+            // drop_return_seconds (12 s): nobody takes it, it goes to the last checkpoint and waits there with no timer.
+            advance(20 * 14)
+            respawnAt(runner, nowhere)
+            hold(runner, blueRoute.first(), 60)
+            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("the TNT waits at the checkpoint").isNotNull()
+        }
+    }
+
     // ---- capture-wool -----------------------------------------------------
 
     @Test
-    fun `capture wool - a contested zone does not progress, holding two zones wins`() {
+    fun `capture wool - a contested zone does not progress, a captured zone can be retaken, holding the majority for the hold time wins`() {
         scenario("siege-capture-wool") {
             val holder = player("holder", at = nowhere)
             val rival = player("rival", at = nowhere)
@@ -136,6 +187,7 @@ class SiegeModesScenarioTest {
             val woolA = Vec3(0.0, 64.0, -30.0)
             val woolB = Vec3(0.0, 64.0, 30.0)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
+            assertThat(blockAt(woolA.copy(x = 2.0))).`as`("the pad is 5x5: concrete ring").isEqualTo("minecraft:light_gray_concrete")
 
             // Both stand in wool-a for longer than the capture time: nobody captures.
             holder.moveTo(Vec3(0.0, 65.0, -30.0))
@@ -144,15 +196,27 @@ class SiegeModesScenarioTest {
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
             assertThat(sim.objectiveStage.bar(holder.id, "objective")?.progress).`as`("contested: the bar shows no progress").isEqualTo(0.0)
 
-            // Rival leaves: the holder captures wool-a after 10 s alone.
+            // Rival leaves: the holder captures wool-a after 10 s alone; the pad turns red.
             rival.moveTo(nowhere)
             advance(20 * 4)
             assertThat(sim.objectiveStage.bar(holder.id, "objective")?.progress).`as`("alone: the capture bar fills").isGreaterThan(0.0)
             assertThat(advanceUntil(20 * 12) { blockAt(woolA) == "minecraft:red_wool" }).isTrue()
+            assertThat(blockAt(woolA.copy(x = 2.0))).isEqualTo("minecraft:red_concrete")
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
+            // The rival retakes it alone (8 s): the pad turns blue.
+            holder.moveTo(nowhere)
+            rival.moveTo(Vec3(0.0, 65.0, -30.0))
+            assertThat(advanceUntil(20 * 12) { blockAt(woolA) == "minecraft:blue_wool" }).`as`("a captured zone can be retaken").isTrue()
+            rival.moveTo(nowhere)
+
+            // The holder takes both zones: majority held, 20 s later the match ends.
+            holder.moveTo(Vec3(0.0, 65.0, -30.0))
+            assertThat(advanceUntil(20 * 12) { blockAt(woolA) == "minecraft:red_wool" }).isTrue()
             holder.moveTo(Vec3(0.0, 65.0, 30.0))
-            assertThat(advanceUntil(20 * 12) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
+            assertThat(advanceUntil(20 * 14) { blockAt(woolB) == "minecraft:red_wool" }).isTrue()
+            assertThat(eventsOf<MatchEnded>()).`as`("holding the majority is not an instant win").isEmpty()
+            assertThat(advanceUntil(20 * 25) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
 
             val end = ended()
             assertThat(end.matchId).isEqualTo(matchId)
@@ -169,15 +233,15 @@ class SiegeModesScenarioTest {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
             val matchId = startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"), stage = "siege-isles-jewelry")
-            val bluePedestal = Vec3(37.0, 65.0, 8.0)
-            val pedestalMarker = Vec3(37.0, 64.0, 8.0)
+            val bluePedestal = Vec3(53.0, 65.0, 10.0)
+            val pedestalMarker = Vec3(53.0, 64.0, 10.0)
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:diamond_block")
 
-            // Thief steals jewels; the keeper shoots them down before banking and the jewels lie where they fell.
+            // Thief steals a jewel (a 2.5 s hold); the keeper shoots them down before banking and the jewel lies where it fell.
             keeper.holds("pistol")
-            hold(thief, bluePedestal)
+            hold(thief, bluePedestal, 70)
             assertThat(sim.objectiveStage.carrying(thief.id)).`as`("thief wears a jewel").isNotNull()
-            keeper.moveTo(Vec3(37.0, 65.0, 18.0))
+            keeper.moveTo(Vec3(53.0, 65.0, 20.0))
             kill(keeper, thief)
             assertThat(sim.objectiveStage.carrying(thief.id)).isNull()
             assertThat(sim.objectiveStage.markers(matchId).keys.filter { it.startsWith("pile-") }).`as`("jewels on the ground").isNotEmpty()
@@ -189,10 +253,10 @@ class SiegeModesScenarioTest {
             hold(thief, redBase)
             assertThat(eventsOf<MatchEnded>()).`as`("nothing was banked").isEmpty()
 
-            // Now the thief steals every jewel and banks them.
+            // Now the thief steals every jewel (3 per team) and banks them.
             keeper.moveTo(nowhere)
-            repeat(2) {
-                hold(thief, bluePedestal)
+            repeat(3) {
+                hold(thief, bluePedestal, 70)
                 thief.moveTo(nowhere)
             }
             assertThat(eventsOf<MatchEnded>()).isEmpty()
@@ -202,6 +266,31 @@ class SiegeModesScenarioTest {
             assertThat(end.matchId).isEqualTo(matchId)
             assertThat(end.winningTeam).isEqualTo(TeamId("red"))
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:grass_block")
+        }
+    }
+
+    @Test
+    fun `steal jewelry - the steal takes 2 and a half seconds and damage interrupts it`() {
+        scenario("siege-steal-jewelry-channel") {
+            val thief = player("thief", at = nowhere)
+            val keeper = player("keeper", at = nowhere)
+            startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"), stage = "siege-isles-jewelry")
+            val bluePedestal = Vec3(53.0, 65.0, 10.0)
+
+            thief.moveTo(bluePedestal)
+            advance(30)
+            assertThat(sim.objectiveStage.carrying(thief.id)).`as`("1.5 s is not enough").isNull()
+            assertThat(sim.objectiveStage.bar(thief.id, "channel")?.progress ?: 0.0).`as`("the steal bar fills").isGreaterThan(0.0)
+            // One hit cancels the hold; the bar starts over.
+            keeper.holds("pistol")
+            keeper.moveTo(Vec3(53.0, 65.0, 20.0))
+            keeper.faces(thief)
+            keeper.rightClick()
+            check(advanceUntil(40) { eventsOf<DamageDealt>().any { it.target == thief.id } }) { "the keeper never hit the thief" }
+            advance(30)
+            assertThat(sim.objectiveStage.carrying(thief.id)).`as`("the interrupted hold restarted from zero").isNull()
+            keeper.moveTo(nowhere)
+            check(advanceUntil(120) { sim.objectiveStage.carrying(thief.id) != null }) { "an undisturbed hold completes" }
         }
     }
 

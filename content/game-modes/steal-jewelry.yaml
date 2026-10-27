@@ -7,7 +7,8 @@
 # Implementation: StealJewelryGameMode.
 #
 # default_config
-#   gems_per_team  jewels on each pedestal
+#   gems_per_team       jewels on each pedestal
+#   steal_channel_ticks hold time to take a jewel (damage interrupts)
 id: steal-jewelry
 title_key: astera.gamemode.steal-jewelry.title
 impl_class: com.astarworks.astera.match.application.gamemode.StealJewelryGameMode
@@ -18,7 +19,11 @@ default_config:
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
-  gems_per_team: "2"
+  gems_per_team: "3"
+  # Hold time (ticks) to lift a jewel off an enemy pedestal; taking damage cancels it. Banking and piles use channel_ticks.
+  steal_channel_ticks: "50"
+  # Count model: count each banked jewel is worth (3 jewels x 34 > 100).
+  count_per_gem: "34"
   # Objective feel (ObjectiveKit): hold time at a pickup / goal in ticks, how long a dropped objective lies before it
   # goes home (seconds), reach of a pile pickup (blocks), distance at which defenders get a gate warning (blocks).
   channel_ticks: "15"

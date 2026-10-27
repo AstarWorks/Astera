@@ -7,6 +7,11 @@ astera:
   objective.item.steal-jewelry: "jewel"
   objective.channel.carry-tnt.pickup: "<gold>Grabbing the TNT...</gold>"
   objective.channel.carry-tnt.deliver: "<green>Arming the TNT...</green>"
+  objective.channel.carry-tnt.checkpoint: "<yellow>Securing checkpoint...</yellow>"
+  objective.bar.carry-tnt.shield: "<aqua><bold>TNT shield</bold></aqua> <white>{hp} HP</white> <gray>- break it to grab the TNT</gray>"
+  objective.bar.carry-tnt.respawn: "<gray>Next TNT in</gray> <white><bold>{seconds}s</bold></white>"
+  objective.toast.carry-tnt.checkpoint: "<yellow>Checkpoint {n} secured</yellow> <gray>({left} to go)</gray>"
+  objective.hint.carry-tnt.checkpoint: "<yellow>{arrow} Hold the next checkpoint ({dist}m)</yellow>"
   objective.channel.carry-mini-tnt.pickup: "<gold>Picking up mini-TNT...</gold>"
   objective.channel.carry-mini-tnt.plant: "<red>Planting mini-TNT...</red>"
   objective.channel.steal-jewelry.steal: "<aqua>Stealing a jewel...</aqua>"
@@ -18,6 +23,8 @@ astera:
   objective.bar.steal-jewelry: "<white>Carrying</white> <aqua>{count}</aqua> <gray>|</gray> <white>Banked</white> <green>{banked}/{goal}</green> <gray>|</gray> <white>Yours left</white> <yellow>{left}</yellow>"
   objective.bar.steal-jewelry.team: "<{tag}><bold>{team}</bold></{tag}> <white>{banked}/{goal} banked</white>"
   objective.bar.capture-wool.capturing: "<white>Capturing {zone}</white> <yellow>{seconds}/{need}s</yellow>"
+  objective.bar.capture-wool.recapturing: "<white>Retaking {zone}</white> <yellow>{seconds}/{need}s</yellow>"
+  objective.toast.capture-wool.progress: "<{tag}>{zone}</{tag}> <white>{percent}%</white>"
   objective.bar.capture-wool.contested: "<red><bold>{zone} is contested!</bold></red> <gray>clear the enemy to capture</gray>"
   objective.hint.carry-tnt.deliver: "<gold>{arrow} Carry the TNT to the <{team}>{team}</{team}> base ({dist}m)</gold>"
   objective.hint.carry-tnt.escort: "<green>{arrow} Escort your carrier ({dist}m)</green>"
@@ -1300,6 +1307,7 @@ astera:
       capture-wool:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>zones</gray>"
         open: "<gray>Open zones:</gray> <white>{open}/{total}</white>"
+        hold: "<gray>Win in</gray> <{color}><bold>{seconds}s</bold></{color}>"
       steal-jewelry:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>banked,</gray> <white>{left}</white> <gray>left</gray>"
       you: "<gray>You:</gray> <{color}>{team}</{color}>"
@@ -1601,6 +1609,9 @@ astera:
       delivered: "<green>Team {team} delivered the TNT! ({score}/{goal})</green>"
       dropped: "<yellow>The TNT carrier fell! The TNT is up for grabs.</yellow>"
       returned: "<gray>Nobody picked it up. The TNT is back at its spawn.</gray>"
+      returned-checkpoint: "<gray>Nobody picked it up. The TNT waits at the last checkpoint.</gray>"
+      shield-broken: "<aqua>The TNT shield is broken! Grab it!</aqua>"
+      respawned: "<gold>A fresh TNT appeared, shielded again.</gold>"
     carry-mini-tnt:
       title: "<gold>Carry Mini TNT</gold>"
       picked-up: "<gold>Mini-TNT picked up ({count}/{limit}). Carry it into the ENEMY base!</gold>"

@@ -8,7 +8,7 @@
 #   red island ------ centre island (r22) ------ blue island
 #   (-68,0) r22     tnt-spawn (0,-8)          (68,0) r22
 #   core(-82,0)     wool-b (0,8)             core(82,0)
-#   jewelry(-78,10)                             jewelry(78,10)
+#   jewelry(-80,12)                             jewelry(80,12)
 #                      \          |          /
 #                       south island (0,56)  wool-c
 #
@@ -33,7 +33,7 @@ display_name_key: astera.stage.siege-isles.name
 
 
 layout:
-  marker_version: 2
+  marker_version: 3
   seed: 20261024
   surface_y: 64
   relief: 0.0
@@ -65,14 +65,32 @@ regions:
     min: { x: 50.0, y: 64.0, z: -16.0 }
     max: { x: 92.0, y: 70.0, z: 16.0 }
   - name: jewelry-red
-    min: { x: -79.0, y: 64.0, z: 9.0 }
-    max: { x: -77.0, y: 70.0, z: 11.0 }
+    min: { x: -81.0, y: 64.0, z: 11.0 }
+    max: { x: -79.0, y: 70.0, z: 13.0 }
   - name: jewelry-blue
-    min: { x: 77.0, y: 64.0, z: 9.0 }
-    max: { x: 79.0, y: 70.0, z: 11.0 }
+    min: { x: 79.0, y: 64.0, z: 11.0 }
+    max: { x: 81.0, y: 70.0, z: 13.0 }
   - name: tnt-spawn
     min: { x: -3.0, y: 64.0, z: -11.0 }
     max: { x: 3.0, y: 70.0, z: -5.0 }
+  - name: deliver-red
+    min: { x: -84.0, y: 64.0, z: -2.0 }
+    max: { x: -80.0, y: 70.0, z: 2.0 }
+  - name: deliver-blue
+    min: { x: 80.0, y: 64.0, z: -2.0 }
+    max: { x: 84.0, y: 70.0, z: 2.0 }
+  - name: checkpoint-red-1
+    min: { x: -56.0, y: 64.0, z: 4.0 }
+    max: { x: -52.0, y: 70.0, z: 8.0 }
+  - name: checkpoint-red-2
+    min: { x: -72.0, y: 64.0, z: -12.0 }
+    max: { x: -68.0, y: 70.0, z: -8.0 }
+  - name: checkpoint-blue-1
+    min: { x: 52.0, y: 64.0, z: -8.0 }
+    max: { x: 56.0, y: 70.0, z: -4.0 }
+  - name: checkpoint-blue-2
+    min: { x: 68.0, y: 64.0, z: 8.0 }
+    max: { x: 72.0, y: 70.0, z: 12.0 }
   - name: wool-a
     min: { x: -3.0, y: 64.0, z: -59.0 }
     max: { x: 3.0, y: 70.0, z: -53.0 }
