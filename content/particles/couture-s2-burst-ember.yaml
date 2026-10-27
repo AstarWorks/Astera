@@ -1,14 +1,10 @@
-# orange sparks thrown up-left from the contact
+# enchanted_hit stitch glints thrown off the contact point (white/silver, no orange)
 id: couture-s2-burst-ember
-shape: {kind: burst, spread_blocks: 0.12}
-color: {r: 255, g: 150, b: 50}
+shape: {kind: burst, spread_blocks: 0.1}
+color: {r: 255, g: 255, b: 255}
 count: 2
-lifetime_ticks: 7
-vanilla_particle: dust
-data:
-  kind: dust
-  color: {r: 255, g: 150, b: 50}
-  scale: 0.9
+lifetime_ticks: 8
+vanilla_particle: enchanted_hit
 speed: 0.0
-velocity: {direction: outward, speed: 0.04, spread_degrees: 0, speed_jitter: 0.6}
+velocity: {direction: outward, speed: 0.05, spread_degrees: 0, speed_jitter: 0.6}
 force: true
