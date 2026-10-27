@@ -11,189 +11,234 @@ elements:
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 6
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.7349999999999999, -1.6465578987075382]
+    translate: [0.0, 1.417, -2.198]
     rotate: [0, 0, 30.0]
-    scale: [0.22, 0.05, 1]
+    scale: [0.176, 0.05, 1]
   - t: 1
-    translate: [0.0, 2.75, 0.11147367097487226]
+    translate: [0.0, 2.991, 0.528]
     rotate: [0, 0, 30.0]
-    scale: [3.19, 0.256, 1]
+    scale: [2.552, 0.5, 1]
     ease: out_expo
-  - t: 3
-    translate: [0.0, 3.098, 0.7142273520088414]
+  - t: 2
+    translate: [0.0, 3.075, 0.675]
     rotate: [0, 0, 30.0]
-    scale: [3.35, 0.02, 1]
+    scale: [2.68, 0.35, 1]
+    ease: out_quad
+  - t: 5
+    translate: [0.0, 3.075, 0.675]
+    rotate: [0, 0, 30.0]
+    scale: [2.68, 0.02, 1]
     ease: in_quad
 - id: fan-7
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 6
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.6501553406140572, -1.5546502277521725]
+    translate: [0.0, 1.389, -2.185]
     rotate: [0, 0, 22.5]
-    scale: [0.22, 0.05, 1]
+    scale: [0.176, 0.05, 1]
   - t: 1
-    translate: [0.0, 2.4671844687135236, 0.41783257415942465]
+    translate: [0.0, 2.661, 0.886]
     rotate: [0, 0, 22.5]
-    scale: [3.355, 0.256, 1]
+    scale: [2.684, 0.5, 1]
     ease: out_expo
-  - t: 3
-    translate: [0.0, 2.7473087412047694, 1.0941123919576867]
+  - t: 2
+    translate: [0.0, 2.729, 1.05]
     rotate: [0, 0, 22.5]
-    scale: [3.523, 0.02, 1]
+    scale: [2.818, 0.35, 1]
+    ease: out_quad
+  - t: 5
+    translate: [0.0, 2.729, 1.05]
+    rotate: [0, 0, 22.5]
+    scale: [2.818, 0.02, 1]
     ease: in_quad
 - id: fan-6
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 6
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.54846628329842, -1.4727112067624943]
+    translate: [0.0, 1.36, -2.175]
     rotate: [0, 0, 15.0]
-    scale: [0.22, 0.05, 1]
+    scale: [0.176, 0.05, 1]
   - t: 1
-    translate: [0.0, 2.128220944328066, 0.690962644125019]
+    translate: [0.0, 2.266, 1.204]
     rotate: [0, 0, 15.0]
-    scale: [3.52, 0.256, 1]
+    scale: [2.816, 0.5, 1]
     ease: out_expo
-  - t: 3
-    translate: [0.0, 2.3269939709668024, 1.4327936787150235]
+  - t: 2
+    translate: [0.0, 2.314, 1.384]
     rotate: [0, 0, 15.0]
-    scale: [3.696, 0.02, 1]
+    scale: [2.957, 0.35, 1]
+    ease: out_quad
+  - t: 5
+    translate: [0.0, 2.314, 1.384]
+    rotate: [0, 0, 15.0]
+    scale: [2.957, 0.02, 1]
     ease: in_quad
 - id: fan-5
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 6
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.431178823181152, -1.4035979143193207]
+    translate: [0.0, 1.33, -2.169]
     rotate: [0, 0, 7.5]
-    scale: [0.22, 0.05, 1]
+    scale: [0.176, 0.05, 1]
   - t: 1
-    translate: [0.0, 1.7372627439371728, 0.9213402856022648]
+    translate: [0.0, 1.81, 1.473]
     rotate: [0, 0, 7.5]
-    scale: [3.685, 0.256, 1]
+    scale: [2.948, 0.5, 1]
     ease: out_expo
-  - t: 3
-    translate: [0.0, 1.8422058024820944, 1.7184619541468087]
+  - t: 2
+    translate: [0.0, 1.835, 1.666]
     rotate: [0, 0, 7.5]
-    scale: [3.869, 0.02, 1]
+    scale: [3.095, 0.35, 1]
+    ease: out_quad
+  - t: 5
+    translate: [0.0, 1.835, 1.666]
+    rotate: [0, 0, 7.5]
+    scale: [3.095, 0.02, 1]
     ease: in_quad
 - id: fan-4
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 6
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.3, -1.3499999999999999]
+    translate: [0.0, 1.3, -2.167]
     rotate: [0, 0, 0.0]
-    scale: [0.22, 0.05, 1]
+    scale: [0.176, 0.05, 1]
   - t: 1
-    translate: [0.0, 1.3, 1.1]
+    translate: [0.0, 1.3, 1.681]
     rotate: [0, 0, 0.0]
-    scale: [3.85, 0.256, 1]
+    scale: [3.08, 0.5, 1]
     ease: out_expo
-  - t: 3
-    translate: [0.0, 1.3, 1.94]
+  - t: 2
+    translate: [0.0, 1.3, 1.886]
     rotate: [0, 0, 0.0]
-    scale: [4.043, 0.02, 1]
+    scale: [3.234, 0.35, 1]
+    ease: out_quad
+  - t: 5
+    translate: [0.0, 1.3, 1.886]
+    rotate: [0, 0, 0.0]
+    scale: [3.234, 0.02, 1]
     ease: in_quad
 - id: fan-3
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 6
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.1688211768188481, -1.4035979143193207]
+    translate: [0.0, 1.27, -2.169]
     rotate: [0, 0, -7.5]
-    scale: [0.22, 0.05, 1]
+    scale: [0.176, 0.05, 1]
   - t: 1
-    translate: [0.0, 0.8627372560628273, 0.9213402856022648]
+    translate: [0.0, 0.79, 1.473]
     rotate: [0, 0, -7.5]
-    scale: [3.685, 0.256, 1]
+    scale: [2.948, 0.5, 1]
     ease: out_expo
-  - t: 3
-    translate: [0.0, 0.7577941975179058, 1.7184619541468087]
+  - t: 2
+    translate: [0.0, 0.765, 1.666]
     rotate: [0, 0, -7.5]
-    scale: [3.869, 0.02, 1]
+    scale: [3.095, 0.35, 1]
+    ease: out_quad
+  - t: 5
+    translate: [0.0, 0.765, 1.666]
+    rotate: [0, 0, -7.5]
+    scale: [3.095, 0.02, 1]
     ease: in_quad
 - id: fan-2
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 6
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.0515337167015801, -1.4727112067624943]
+    translate: [0.0, 1.24, -2.175]
     rotate: [0, 0, -15.0]
-    scale: [0.22, 0.05, 1]
+    scale: [0.176, 0.05, 1]
   - t: 1
-    translate: [0.0, 0.4717790556719337, 0.690962644125019]
+    translate: [0.0, 0.334, 1.204]
     rotate: [0, 0, -15.0]
-    scale: [3.52, 0.256, 1]
+    scale: [2.816, 0.5, 1]
     ease: out_expo
-  - t: 3
-    translate: [0.0, 0.2730060290331977, 1.4327936787150235]
+  - t: 2
+    translate: [0.0, 0.286, 1.384]
     rotate: [0, 0, -15.0]
-    scale: [3.696, 0.02, 1]
+    scale: [2.957, 0.35, 1]
+    ease: out_quad
+  - t: 5
+    translate: [0.0, 0.286, 1.384]
+    rotate: [0, 0, -15.0]
+    scale: [2.957, 0.02, 1]
     ease: in_quad
 - id: fan-1
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 6
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 0.9498446593859429, -1.5546502277521725]
+    translate: [0.0, 1.211, -2.185]
     rotate: [0, 0, -22.5]
-    scale: [0.22, 0.05, 1]
+    scale: [0.176, 0.05, 1]
   - t: 1
-    translate: [0.0, 0.13281553128647627, 0.41783257415942465]
+    translate: [0.0, -0.061, 0.886]
     rotate: [0, 0, -22.5]
-    scale: [3.355, 0.256, 1]
+    scale: [2.684, 0.5, 1]
     ease: out_expo
-  - t: 3
-    translate: [0.0, -0.14730874120476933, 1.0941123919576867]
+  - t: 2
+    translate: [0.0, -0.129, 1.05]
     rotate: [0, 0, -22.5]
-    scale: [3.523, 0.02, 1]
+    scale: [2.818, 0.35, 1]
+    ease: out_quad
+  - t: 5
+    translate: [0.0, -0.129, 1.05]
+    rotate: [0, 0, -22.5]
+    scale: [2.818, 0.02, 1]
     ease: in_quad
 - id: fan-0
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
   start_tick: 2
-  end_tick: 6
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 0.8650000000000002, -1.6465578987075382]
+    translate: [0.0, 1.183, -2.198]
     rotate: [0, 0, -30.0]
-    scale: [0.22, 0.05, 1]
+    scale: [0.176, 0.05, 1]
   - t: 1
-    translate: [0.0, -0.1499999999999997, 0.11147367097487226]
+    translate: [0.0, -0.391, 0.528]
     rotate: [0, 0, -30.0]
-    scale: [3.19, 0.256, 1]
+    scale: [2.552, 0.5, 1]
     ease: out_expo
-  - t: 3
-    translate: [0.0, -0.49799999999999955, 0.7142273520088414]
+  - t: 2
+    translate: [0.0, -0.475, 0.675]
     rotate: [0, 0, -30.0]
-    scale: [3.35, 0.02, 1]
+    scale: [2.68, 0.35, 1]
+    ease: out_quad
+  - t: 5
+    translate: [0.0, -0.475, 0.675]
+    rotate: [0, 0, -30.0]
+    scale: [2.68, 0.02, 1]
     ease: in_quad
 - id: flash-0
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -267,69 +312,6 @@ elements:
     scale: [0.8800000000000001, 0.005, 1]
     ease: in_quad
     alpha: 0.0
-- id: conv-0
-  kind: {type: quad, color: '#FFFFFF', alpha: 0.95, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 0
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [-3.0, 3.4, 0]
-    rotate: [0, 0, 35]
-    scale: [0.09, 2.6, 1]
-  - t: 2
-    translate: [0.0, 1.2, 0]
-    rotate: [0, 0, 35]
-    scale: [0.09, 1.2, 1]
-    ease: in_expo
-  - t: 5
-    translate: [0.0, 1.2, 0]
-    rotate: [0, 0, 35]
-    scale: [0.0, 0.2, 1]
-    ease: in_quad
-- id: conv-1
-  kind: {type: quad, color: '#FFFFFF', alpha: 0.95, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 0
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [-2.4, 3.4, 0]
-    rotate: [0, 0, 39]
-    scale: [0.09, 2.6, 1]
-  - t: 2
-    translate: [0.0, 1.2, 0]
-    rotate: [0, 0, 39]
-    scale: [0.09, 1.2, 1]
-    ease: in_expo
-  - t: 5
-    translate: [0.0, 1.2, 0]
-    rotate: [0, 0, 39]
-    scale: [0.0, 0.2, 1]
-    ease: in_quad
-- id: conv-2
-  kind: {type: quad, color: '#FFFFFF', alpha: 0.95, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 0
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [-1.8, 3.4, 0]
-    rotate: [0, 0, 43]
-    scale: [0.09, 2.6, 1]
-  - t: 2
-    translate: [0.0, 1.2, 0]
-    rotate: [0, 0, 43]
-    scale: [0.09, 1.2, 1]
-    ease: in_expo
-  - t: 5
-    translate: [0.0, 1.2, 0]
-    rotate: [0, 0, 43]
-    scale: [0.0, 0.2, 1]
-    ease: in_quad
 - id: x-a
   kind: {type: quad, color: '#FFFFFF', alpha: 0.9, see_through: true}
   billboard: center
