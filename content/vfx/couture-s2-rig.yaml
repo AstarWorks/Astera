@@ -45,7 +45,7 @@ rigs:
     model: astera:couture-rapier
   - t: 20
     model: astera:couture-rapier-hidden
-  - t: 56
+  - t: 57
     model: astera:couture-rapier
 elements:
 - id: fly-shears
