@@ -52,3 +52,22 @@ side/top とも STEPPED=1、FOV 90、DISTANCE 5.4、100 tick。負荷が高く�
 | hit3 X / 輪 / 花びら8 / 影の破片4 | 標的 | 白 / 金の細い輪 / 白 / 暗紫 | t75-98 | 縫い切りの印、花びらは数を半減 |
 | haze-hip | キャスターの腰 | 紫 | t4-8 | 構えの小さな紫の揺らぎ |
 | 未対応(a83139担当) | coin1/hit1/trail のオレンジ筋(couture-s2-streak)と花びら | - | t8-20 | 次の担当へ |
+
+## 構成コミット (structure only): 物体台帳
+
+founder 確認済みの台帳 (coordinator 経由 2026-10-27)。この commit は構成だけ。スプライト・粒子の追加なし、色と形は構成確認後。
+
+| # | 物体 | 数 | 何か / モデル | 付く先 (親/アンカー) | 経路 | 出現-消失 (skill tick) |
+|---|---|---|---|---|---|---|
+| 1 | 手に持つ鋏 | 1 | 鋏。レイピアのように使う。`astera:couture-rapier` (リグの weapon_model) | キャスターの手 | 構え/横薙ぎ/突進で手の中 | t0-19, t57-。t20-56 は hidden |
+| 2 | 鋏の本体 (花飾りのピボット) | 1 | `astera:couture-shears-linked` | 頭上: キャスターのリグ (follow)。飛翔: 実 projectile `couture-rapier-s2-shears` (couture-s2-body-flight)。命中後: 敵 (couture-s2-body-stuck, follow)。戻り: 糸 vfx の return-body | 手→頭上 (t22-34) → 敵へ平行に直進 (t34-39) → 刺さる (約 12 tick) → 糸で手へ戻る | t22-56 |
+| 3 | 単独の刃 A | 1 | `astera:couture-rapier-blade-a` | 頭上: リグ。飛翔: 実 projectile `couture-rapier-s2-blade-a`。命中後: 敵 (couture-s2-blade-a-stuck)。戻り: return-blade-a | 頭上で本体から左へ分離 (t26-34)、本体と並んで敵へ (側方 -0.7)、刺さる、戻る | t22-56 |
+| 4 | 単独の刃 B | 1 | `astera:couture-rapier-blade-b` | 同上 (couture-rapier-s2-blade-b) | 頭上で本体から右へ分離、本体と並んで敵へ (側方 +0.7)、刺さる、戻る | t22-56 |
+| 5 | 桃色の糸 | 1 | 3D の線 (target_line, `pink_concrete`)。`couture-s2-thread`、for_each_target + track_bound_target でキャスターに再生 | 一端: キャスターの手 / 他端: 生きている敵 (命中前は飛ぶ 3 つの方向にある線、命中後は手⇄敵) | 投擲 (t34) から張る、3 つが刺さっている間は保持、戻りで短くなり消える | t34-57 |
+
+この commit で削除したもの: hit3 の白飛びレイヤー (wo-*, fb-*) と敵の橙の標的 UI 輪の転写 (ring-yellow*)。どちらも武器ではない。
+
+既知の限界 (構成で解決しないもの):
+- 3 つの projectile は同じ発射点・同じ照準。「並んで飛ぶ」の側方オフセットは VFX 側 (flight vfx の x 平行移動) で、判定球は 1 つ分の経路。エンジンに側方 muzzle が無い。
+- 糸は 3 つに直接結ばれていない。キャスターの手→生きた敵への 1 本の線で、飛翔中の 3 つはこの線の近くを飛ぶ。頭上の間 (t22-34) は糸なし。
+- 戻りで糸が短くなるのは敵が基準距離 5.4 のとき。他の距離では糸の端は敵に残る (target_line は終点を敵へ補正し続ける)。

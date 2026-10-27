@@ -1,6 +1,6 @@
 id: couture-rapier-s2-shears
 name: {ja: 型紙裁ち (鋏), en: Pattern Trim shears}
-description: {ja: S2 の 2 発目の鋏。実体のある投射体として飛び、当たったモブに刺さる。, en: "S2 coin 2 shears: a real projectile that sticks in what it hits."}
+description: {ja: S2 の 2 発目、3 つの投射体のうち鋏の本体 (花飾り+ピボット)。他の 2 つは単独の刃 couture-rapier-s2-blade-a / -b。, en: "S2 coin 2, one of three projectiles: the shears body (flower pivot). The other two are the separate blades couture-rapier-s2-blade-a / -b."}
 archetype: projectile
 cooldown_ticks: 0
 resource_cost: 0
@@ -15,14 +15,14 @@ params:
   muzzle_up: 1.8
   aim_distance: 7
   visual:
-    vfx: couture-s2-shears-flight
+    vfx: couture-s2-body-flight
 phases:
   type: projectile
   cast: []
   hit_entity:
   - {type: damage, targets: {type: target}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 35}, attribute: physical}], delay_ticks: {type: literal, value: 2}}
   - {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-hit2, follow: {type: literal, value: true}}
-  - {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-shears-stuck, follow: {type: literal, value: true}}
+  - {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-body-stuck, follow: {type: literal, value: true}}
   - {type: play_sound, targets: {type: target}, sound_id: entity.player.attack.sweep, volume: {type: literal, value: 0.9}, pitch: {type: literal, value: 1.3}}
   - {type: play_sound, targets: {type: target}, sound_id: entity.sheep.shear, volume: {type: literal, value: 1.0}, pitch: {type: literal, value: 0.9}}
   hit_block:

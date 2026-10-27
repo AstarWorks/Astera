@@ -1,0 +1,57 @@
+# S2 coin 2: body (couture-shears-linked) stuck in the hit entity, moves with it (played on the target, follow). 12 ticks, then couture-s2-thread pulls it back to the hand.
+id: couture-s2-body-stuck
+duration_ticks: 12
+orient: look
+follow: true
+sample_ticks: 1
+elements:
+- id: stuck-body
+  kind:
+    type: item
+    item: shears
+    item_model: astera:couture-shears-linked
+    display_mode: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 1.48
+    - -0.3
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 1.15
+    - 1.15
+    - 1.15
+  - t: 2
+    translate:
+    - 0.0
+    - 1.48
+    - 0.05
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 1
+    - 1
+    - 1
+    ease: out_back
+  - t: 12
+    translate:
+    - 0.0
+    - 1.48
+    - 0.05
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 1
+    - 1
+    - 1
