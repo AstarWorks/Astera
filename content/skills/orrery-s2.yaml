@@ -3,8 +3,8 @@ name:
   ja: 標的の電場
   en: Target Field
 description:
-  ja: 標的の電場
-  en: Target Field
+  ja: 標的に電場を張って打ち据える。
+  en: Lay an electric field on the target and strike.
 archetype: sequence
 cooldown_ticks: 140
 resource_cost: 20

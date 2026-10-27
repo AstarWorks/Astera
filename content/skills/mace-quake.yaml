@@ -1,0 +1,54 @@
+# Match arsenal (wp/match-arsenal): simple PvP skill. One cast sound, a few particles.
+
+id: mace-quake
+
+name:
+  ja: "大地震"
+  en: "Quake"
+description:
+  ja: "地面を叩き、周囲の敵を揺さぶる。"
+  en: "Slams the ground, shaking everyone nearby."
+
+archetype: aoe
+cooldown_ticks: 150
+resource_cost: 18
+tags: [ aoe, physical ]
+
+params:
+  type: aoe
+  radius: 3.5
+  falloff: linear
+  damage:
+    - base: { type: literal, value: 30.0 }
+      attribute: physical
+
+phases:
+  type: aoe
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: astera:weapons/blade-heavy-swing
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 0.6 }
+    - type: schedule_particle_animation
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.15, z: 0.0 } } }
+      animation:
+        - type: ring
+          period_ticks: 6
+          points: 16
+          start_radius: 0.5
+          end_radius: 3.5
+          particles:
+            - { id: crit, count: 0, extra: 0.03 }
+            - { id: dust, color: { r: 150, g: 120, b: 90 }, scale: 1.4 }
+  hit_entity:
+    - type: play_sound
+      targets: { type: target }
+      sound_id: astera:weapons/blade-hit
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 1.0 }
+    - type: apply_status
+      targets: { type: target }
+      status_id: tremor
+      effect_duration_ticks: { type: literal, value: 60 }
+  expire: []

@@ -3,8 +3,8 @@ name:
   ja: 返しの手枷
   en: Shackle Return
 description:
-  ja: 返しの手枷
-  en: Shackle Return
+  ja: 殴りつけてから、手枷で引き戻して追撃する。
+  en: Strike, then yank back with the shackle for a follow-up.
 archetype: sequence
 cooldown_ticks: 130
 resource_cost: 20

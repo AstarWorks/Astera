@@ -1,0 +1,29 @@
+# Match arsenal (wp/match-arsenal): Diamond Champion Chestplate.
+
+id: diamond-champion-chestplate
+
+material: DIAMOND_CHESTPLATE
+
+name:
+  ja: "<aqua>ダイヤチャンピオン チェストプレート</aqua>"
+  en: "<aqua>Diamond Champion Chestplate</aqua>"
+lore:
+  ja:
+    - "<gray>ダイヤチャンピオンセットの防具</gray>"
+    - "<gray>2部位・4部位そろえるとボーナス</gray>"
+  en:
+    - "<gray>Diamond Champion set piece</gray>"
+    - "<gray>2+ pieces and the full set give a bonus</gray>"
+
+rarity: rare
+level_requirement: 1
+
+equip_slot: chestplate
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: false
+armor_piece: diamond-champion-chestplate
+
+pdc_tags:
+  astera:rarity: rare

@@ -1,8 +1,13 @@
 package com.astarworks.astera.core.application.config
 
+import com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase
+import com.astarworks.astera.core.domain.world.ToolKind
+import com.astarworks.astera.core.domain.world.ToolTier
+import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedLore
 import com.astarworks.astera.core.domain.i18n.LocalizedText
+import com.astarworks.astera.core.domain.item.ARMOR_PIECE_TAG
 import com.astarworks.astera.core.domain.item.DropPolicy
 import com.astarworks.astera.core.domain.item.DurabilityPolicy
 import com.astarworks.astera.core.domain.item.EquipSlot
@@ -108,6 +113,10 @@ public data class ItemYamlConfig(
     public val glint: Boolean? = null,
     public val skills: List<ItemSkillBindingYaml> = emptyList(),
     @SerialName("pdc_tags") public val pdcTags: Map<String, String> = emptyMap(),
+    /** Field-tool identity (`tool: {class: PICKAXE, tier: STONE}`); stored as the `astera:tool` tag the mining path reads. */
+    public val tool: ToolYaml? = null,
+    /** Armor identity (`armor_piece: <content/armor id>`); stored as the `astera:armor_piece` tag combat reads for worn armor. */
+    @SerialName("armor_piece") public val armorPiece: String? = null,
     // ---- Resource pool (Wave 5k, ADR-0080) ----
     /** Lowercase serial name of the resource type (`ammo` / `energy`); omit for non-weapon items. */
     @SerialName("resource_type") public val resourceType: String? = null,
@@ -180,7 +189,9 @@ public data class ItemYamlConfig(
             enchantable = enchantable,
             glint = glint,
             skillBindings = skills.map { it.toDomain() },
-            pdcTags = pdcTags,
+            pdcTags = pdcTags +
+                (if (tool == null) emptyMap() else mapOf(HitCustomBlockUseCase.TOOL_TAG to tool.toSerialKey(itemId.value))) +
+                (if (armorPiece == null) emptyMap() else mapOf(ARMOR_PIECE_TAG to armorPiece)),
             modelSlug = model,
             resourceType = resourceType?.let {
                 ResourceType.fromKey(it)
@@ -254,8 +265,6 @@ public data class AttributesYaml(
  * - `skill_id` — kebab-case skill identifier.
  * - `cooldown_override_ticks` — optional, see
  *   [ItemSkillBinding.cooldownOverrideTicks].
- * - `min_norma_level` — optional in-match Norma level needed to use the binding (default 1 = ungated), see
- *   [ItemSkillBinding.minNormaLevel].
  * - `phase_overrides` — optional per-phase mechanic decoration (Wave
  *   _skills-2, ADR-0077). Single shared DTO; phases the bound skill's
  *   archetype does not own are ignored by the dispatcher. See
@@ -267,7 +276,6 @@ public data class ItemSkillBindingYaml(
     @SerialName("skill_id") public val skillId: String,
     @SerialName("cooldown_override_ticks") public val cooldownOverrideTicks: Int? = null,
     @SerialName("phase_overrides") public val phaseOverrides: PhaseOverridesYaml = PhaseOverridesYaml.EMPTY,
-    @SerialName("min_norma_level") public val minNormaLevel: Int = 1,
 ) {
     public fun toDomain(): ItemSkillBinding {
         val triggerEnum = try {
@@ -280,7 +288,24 @@ public data class ItemSkillBindingYaml(
             skillId = SkillId(skillId),
             cooldownOverrideTicks = cooldownOverrideTicks,
             phaseOverrides = phaseOverrides.toDomain(),
-            minNormaLevel = minNormaLevel,
         )
+    }
+}
+
+
+/** `tool:` block of an item YAML: which tool class and tier the item counts as when mining and when a skill reads it. */
+@Serializable
+public data class ToolYaml(
+    @SerialName("class") public val toolClass: String,
+    public val tier: String,
+) {
+    internal fun toSerialKey(itemId: String): String {
+        val kind = runCatching { ToolKind.valueOf(toolClass.trim().uppercase()) }.getOrNull()
+            ?.takeIf { it != ToolKind.NONE }
+            ?: throw IllegalArgumentException("ItemYamlConfig '$itemId': unknown tool.class '$toolClass' (expected PICKAXE / AXE / SHOVEL)")
+        val tierValue = runCatching { ToolTier.valueOf(tier.trim().uppercase()) }.getOrNull()
+            ?.takeIf { it != ToolTier.NONE }
+            ?: throw IllegalArgumentException("ItemYamlConfig '$itemId': unknown tool.tier '$tier' (expected WOOD / STONE / IRON / DIAMOND / NETHERITE)")
+        return ToolType(kind, tierValue).serialKey()
     }
 }

@@ -7,15 +7,15 @@ lore:
   ja:
   - '左クリック: 緋針'
   - '右クリック: 二重の刺繍'
-  - 'Shift+右: 緋針の雨'
-  - 'Shift+左: 緋の退避'
+  - 'スニーク+右: 緋針の雨'
+  - 'スニーク+左: 緋の退避'
   - 'Q: 緋鎖の展開'
   en:
-  - 'left_click: Crimson Needle'
-  - 'right_click: Double Embroidery'
-  - 'sneak_right: Needle Rain'
-  - 'sneak_left: Crimson Evasion'
-  - 'drop: Crimson Chain Unfurl'
+  - 'Left-click: Crimson Needle'
+  - 'Right-click: Double Embroidery'
+  - 'Sneak+Right-click: Needle Rain'
+  - 'Sneak+Left-click: Crimson Evasion'
+  - 'Q: Crimson Chain Unfurl'
 rarity: epic
 level_requirement: 4
 attributes:
@@ -32,11 +32,9 @@ skills:
   skill_id: crimson-chain-axe-s2
 - trigger: sneak_right
   skill_id: crimson-chain-axe-s3
-  min_norma_level: 2
 - trigger: sneak_left
   skill_id: crimson-chain-axe-def
 - trigger: drop
   skill_id: crimson-chain-axe-ego
-  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

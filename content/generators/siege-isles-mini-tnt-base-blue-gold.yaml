@@ -1,0 +1,11 @@
+# Team base gold generator of siege-isles-mini-tnt: only blue can collect it (gold is slow); drops the ore-gold item, not a star.
+id: siege-isles-mini-tnt-base-blue-gold
+match_stage_id: siege-isles-mini-tnt
+position: { x: 82.5, y: 65.0, z: 7.0 }
+period_seconds: 24.0
+amount: 1
+tier: gold
+drop_item: ore-gold
+affiliation:
+  kind: team
+  team_id: blue

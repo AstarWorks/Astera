@@ -1,0 +1,26 @@
+# Match arsenal (wp/match-arsenal): Obsidian Plate.
+
+id: obsidian-plate-block
+
+material: OBSIDIAN
+
+name:
+  ja: "<dark_purple>黒曜の板</dark_purple>"
+  en: "<dark_purple>Obsidian Plate</dark_purple>"
+lore:
+  ja:
+    - "<gray>置いて遮蔽物にする</gray>"
+    - "<gray>壊すには合った道具が必要</gray>"
+  en:
+    - "<gray>Place it for cover</gray>"
+    - "<gray>Use the right tool to break it</gray>"
+
+rarity: common
+level_requirement: 1
+
+equip_slot: mainhand
+drop_on_death: false
+keep_on_death: false
+
+pdc_tags:
+  astera:rarity: common

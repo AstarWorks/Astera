@@ -3,8 +3,8 @@ name:
   ja: 二本の杭
   en: Paired Nails
 description:
-  ja: 二本の杭
-  en: Paired Nails
+  ja: 杭を二本打ち込む。
+  en: Drive in two stakes.
 archetype: sequence
 cooldown_ticks: 90
 resource_cost: 16

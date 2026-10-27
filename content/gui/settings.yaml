@@ -4,7 +4,7 @@
 # Every tile writes PlayerSettings (persisted per player) and answers in chat; toggles reopen this screen.
 #
 #   Row 1: Language | Music | Sound | Voice | Controls | Quick-cast slots
-#   Row 2: Particle visibility | Double jump | Public profile | HP line | Damage numbers | Tutorial hints   ... Back (18) / Close (26)
+#   Row 2: Particle visibility | Double jump | Public profile | HP line | Damage numbers | Tutorial hints | Effect quality   ... Back (18) / Close (26)
 id: settings
 title_key: astera.gui.settings.title
 size: CHEST_27
@@ -104,6 +104,14 @@ slots:
       payload: { key: tutorial-hints }
     tooltip:
       - astera.gui.settings.tutorial-hints.tooltip
+  - type: static
+    index: 25
+    item: gui-tile-vfx-quality
+    on_left:
+      key: settings.toggle
+      payload: { key: vfx-intensity }
+    tooltip:
+      - astera.gui.settings.vfx-intensity.tooltip
   - type: static
     index: 18
     item: gui-tile-back

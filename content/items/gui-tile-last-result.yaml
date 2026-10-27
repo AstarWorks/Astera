@@ -1,0 +1,6 @@
+# Main-menu "last match result" tile (same output as `/astera stats last`).
+id: gui-tile-last-result
+material: PAPER
+name:
+  ja: "<gold><bold>前回の試合結果</bold></gold>"
+  en: "<gold><bold>Last match result</bold></gold>"

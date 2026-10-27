@@ -11,10 +11,10 @@ name:
 lore:
   ja:
     - "<gray>右クリック: 氷の刃</gray>"
-    - "<gray>スニーク + 右クリック: フロストノヴァ</gray>"
+    - "<gray>スニーク+右: フロストノヴァ</gray>"
   en:
     - "<gray>Right-click: frost shard</gray>"
-    - "<gray>Sneak + right-click: frost nova</gray>"
+    - "<gray>Sneak+Right-click: frost nova</gray>"
 
 rarity: uncommon
 level_requirement: 2

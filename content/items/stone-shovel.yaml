@@ -1,0 +1,38 @@
+# Match arsenal (wp/match-arsenal): Stone Shovel.
+
+id: stone-shovel
+
+material: STONE_SHOVEL
+
+name:
+  ja: "<gray>石のショベル</gray>"
+  en: "<gray>Stone Shovel</gray>"
+lore:
+  ja:
+    - "<gray>右クリック: 掘削</gray>"
+    - "<gray>スニーク + 右クリック: 土橋</gray>"
+  en:
+    - "<gray>Right-click: excavate</gray>"
+    - "<gray>Sneak + right-click: earth bridge</gray>"
+
+rarity: common
+level_requirement: 1
+
+equip_slot: mainhand
+unbreakable: true
+enchantable: false
+drop_on_death: false
+keep_on_death: true
+
+tool:
+  class: SHOVEL
+  tier: STONE
+
+skills:
+  - trigger: right_click
+    skill_id: shovel-excavate-stone
+  - trigger: sneak_right
+    skill_id: shovel-earth-bridge-stone
+
+pdc_tags:
+  astera:rarity: common

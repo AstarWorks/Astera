@@ -1,0 +1,12 @@
+# Match arsenal (wp/match-arsenal): Diamond Champion set. 2+ pieces / full set bonus stacks on the pieces' own reduction.
+
+type: set
+key: diamond-champion
+display_name_key: astera.armor.set.diamond-champion.name
+pieces:
+  - diamond-champion-helmet
+  - diamond-champion-chestplate
+  - diamond-champion-leggings
+  - diamond-champion-boots
+two_piece_bonus: 0.05
+four_piece_bonus: 0.12

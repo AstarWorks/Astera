@@ -1,0 +1,13 @@
+# Mid ore node: an iron pickaxe is slow, a diamond pickaxe is the real tool.
+
+id: "astera:ore_diamond_node"
+display_name:
+  en: "Diamond Ore Node"
+  ja: "ダイヤ鉱石ノード"
+base_bukkit_material: "DIAMOND_ORE"
+material: "STONE"
+base_durability: 500
+
+tool_effectiveness:
+  "PICKAXE/IRON": 80
+  "PICKAXE/DIAMOND": 200

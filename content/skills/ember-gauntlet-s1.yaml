@@ -3,8 +3,8 @@ name:
   ja: 炎拳と噴射
   en: Flame Fist and Jet
 description:
-  ja: 炎拳と噴射
-  en: Flame Fist and Jet
+  ja: 炎の拳で殴り、噴射で前へ押し出す。
+  en: Punch with a flaming fist and jet forward.
 archetype: sequence
 cooldown_ticks: 100
 resource_cost: 14

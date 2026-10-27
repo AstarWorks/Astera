@@ -7,15 +7,15 @@ lore:
   ja:
   - '左クリック: 銃床の踏み込み'
   - '右クリック: 二連の刻印弾'
-  - 'Shift+右: 刻印の追撃'
-  - 'Shift+左: 刻印の退き足'
+  - 'スニーク+右: 刻印の追撃'
+  - 'スニーク+左: 刻印の退き足'
   - 'Q: 終刻の弾丸'
   en:
-  - 'left_click: Rifle Rush'
-  - 'right_click: Twin Seal Shots'
-  - 'sneak_right: Seal Pursuit'
-  - 'sneak_left: Sigil Ward'
-  - 'drop: Final Inscription'
+  - 'Left-click: Rifle Rush'
+  - 'Right-click: Twin Seal Shots'
+  - 'Sneak+Right-click: Seal Pursuit'
+  - 'Sneak+Left-click: Sigil Ward'
+  - 'Q: Final Inscription'
 rarity: epic
 level_requirement: 4
 attributes:
@@ -32,11 +32,9 @@ skills:
   skill_id: sigil-rifle-s2
 - trigger: sneak_right
   skill_id: sigil-rifle-s3
-  min_norma_level: 2
 - trigger: sneak_left
   skill_id: sigil-rifle-def
 - trigger: drop
   skill_id: sigil-rifle-ego
-  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

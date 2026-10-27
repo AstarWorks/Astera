@@ -3,8 +3,8 @@ name:
   ja: 一線の傷
   en: Single Scar
 description:
-  ja: 一線の傷
-  en: Single Scar
+  ja: 一直線に駆け抜けて強烈な一太刀を浴びせる。
+  en: Rush in a straight line with one heavy cut.
 archetype: sequence
 cooldown_ticks: 120
 resource_cost: 25

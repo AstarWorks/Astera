@@ -1,0 +1,13 @@
+# Mid ore node: needs at least an iron pickaxe.
+
+id: "astera:ore_gold_node"
+display_name:
+  en: "Gold Ore Node"
+  ja: "金鉱石ノード"
+base_bukkit_material: "GOLD_ORE"
+material: "STONE"
+base_durability: 300
+
+tool_effectiveness:
+  "PICKAXE/IRON": 100
+  "PICKAXE/DIAMOND": 200

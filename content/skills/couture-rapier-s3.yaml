@@ -3,8 +3,8 @@ name:
   ja: 花鋏の終縫
   en: Floral Closure
 description:
-  ja: 花鋏の終縫
-  en: Floral Closure
+  ja: 鋏で三度切りつける仕上げの大技。
+  en: A three-cut finisher with the shears.
 archetype: sequence
 cooldown_ticks: 180
 resource_cost: 25

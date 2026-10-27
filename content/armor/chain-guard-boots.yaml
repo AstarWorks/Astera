@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Chain Guard boots.
+
+type: piece
+id: chain-guard-boots
+display_name_key: astera.armor.chain-guard-boots.name
+slot: boots
+damage_reduction: 0.045
+set_key: chain-guard

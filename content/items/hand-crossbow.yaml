@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal): Hand Crossbow.
+
+id: hand-crossbow
+
+material: CROSSBOW
+
+name:
+  ja: "<yellow>ハンドクロスボウ</yellow>"
+  en: "<yellow>Hand Crossbow</yellow>"
+lore:
+  ja:
+    - "<gray>右クリック: 矢</gray>"
+    - "<gray>スニーク + 右クリック: 毒矢</gray>"
+  en:
+    - "<gray>Right-click: bolt</gray>"
+    - "<gray>Sneak + right-click: venom bolt</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: right_click
+    skill_id: hand-crossbow-bolt
+  - trigger: sneak_right
+    skill_id: hand-crossbow-venom
+
+pdc_tags:
+  astera:rarity: uncommon

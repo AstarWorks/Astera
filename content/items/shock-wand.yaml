@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal): Shock Wand.
+
+id: shock-wand
+
+material: BREEZE_ROD
+
+name:
+  ja: "<yellow>ショックワンド</yellow>"
+  en: "<yellow>Shock Wand</yellow>"
+lore:
+  ja:
+    - "<gray>右クリック: 電撃</gray>"
+    - "<gray>スニーク + 右クリック: 放電</gray>"
+  en:
+    - "<gray>Right-click: zap</gray>"
+    - "<gray>Sneak + right-click: arc burst</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 2.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: right_click
+    skill_id: shock-wand-zap
+  - trigger: sneak_right
+    skill_id: shock-wand-arc
+
+pdc_tags:
+  astera:rarity: uncommon

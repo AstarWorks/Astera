@@ -204,6 +204,10 @@ public class MechanicDispatcher(
     private val itemRemoval: (() -> com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval?)? = null,
     /** `consume_item`: lets Core keep the item gone across the match-end inventory restore. */
     private val consumptionRecorder: (() -> com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder?)? = null,
+    /** vfx-primitives: per-viewer sound stop (`stop_sound`); resolved lazily, the Paper overlay registers late. */
+    private val playerSound: (() -> com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway?)? = null,
+    /** vfx-primitives: team colour for telegraphs; resolved lazily (Match registers it after Combat enables). */
+    private val teamColors: (() -> com.astarworks.astera.core.application.port.outbound.ITeamColorLookup?)? = null,
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
     private val bakedSkills: ISkillRegistry? = null,
 ) {
@@ -249,6 +253,28 @@ public class MechanicDispatcher(
         resolveDouble = { value, c -> resolveDouble(value, c) },
     )
 
+    /** vfx-primitives (ADR-0290 / ADR-0291): `stop_sound`, `telegraph`, `screen_veil` handlers, one file each. */
+    private val primitiveDeps = com.astarworks.astera.combat.application.service.primitives.PrimitiveDeps(
+            host = this,
+            targeters = targeterResolver,
+            scheduler = scheduler,
+            worldGateway = worldGateway,
+            feedback = feedback,
+            displays = displayGateway,
+            entityEffects = entityEffects,
+            soundScheduler = soundScheduler,
+            soundRegistry = soundRegistry,
+            playerSound = { playerSound?.invoke() },
+            teamColors = { teamColors?.invoke() },
+            teamLookup = teamLookup,
+            poseLookup = poseLookup,
+            log = log,
+        )
+
+    private val primitives = com.astarworks.astera.combat.application.service.primitives.PrimitiveMechanics(primitiveDeps)
+
+    private val soundMechanics = com.astarworks.astera.combat.application.service.primitives.SoundMechanics(primitiveDeps)
+
     /** `hide_held_item` (rig-less skills): a timed lease; a performance claims its own lease in [VfxPlayer]. */
     private val heldItemHider: HeldItemHider? = presentation?.let { HeldItemHider(it, scheduler) }
 
@@ -267,11 +293,14 @@ public class MechanicDispatcher(
         effects = entityEffects,
         heldItems = heldItemHider,
         feedback = feedback,
+        poseLookup = poseLookup,
         messageRenderer = messageRenderer,
         teamLookup = teamLookup,
         playerHealth = { playerHealth?.invoke() },
         entityHealth = { entityHealth?.invoke() },
         living = ::living,
+        itemRemoval = { itemRemoval?.invoke() },
+        consumptionRecorder = { consumptionRecorder?.invoke() },
         log = log,
     )
 
@@ -745,6 +774,8 @@ public class MechanicDispatcher(
             is Mechanic.Summon -> worldMechanics.summon(mechanic, ctx)
             is Mechanic.SetBlock -> worldMechanics.setBlock(mechanic, ctx)
             is Mechanic.RemoveBlock -> worldMechanics.removeBlock(mechanic, ctx)
+            is Mechanic.BreakArea -> worldMechanics.breakArea(mechanic, ctx)
+            is Mechanic.PlaceShape -> worldMechanics.placeShape(mechanic, ctx)
             is Mechanic.Explode -> worldMechanics.explode(mechanic, ctx)
 
             // ===== Item / inventory ===================================
@@ -834,40 +865,7 @@ public class MechanicDispatcher(
                     }
                 }
             }
-            is Mechanic.PlaySound -> {
-                val locations = targeterResolver.resolveLocations(mechanic.targets, ctx)
-                if (locations.isEmpty()) return
-                if (ctx.worldId == null) {
-                    log.debug("PlaySound {} dropped: ctx.worldId is null", mechanic.soundId)
-                    return
-                }
-                val definition = soundRegistry?.find(mechanic.soundId)
-                val volume = resolveDouble(mechanic.volume, ctx)
-                    .takeIf { it > 0.0 } ?: (definition?.defaultVolume ?: 1.0)
-                val pitch = resolveDouble(mechanic.pitch, ctx)
-                    .takeIf { it > 0.0 } ?: (definition?.defaultPitch ?: 1.0)
-                val key = definition?.resourceKey ?: mechanic.soundId.value
-                val spec = SoundSpec(
-                    key = key,
-                    volume = volume.coerceIn(0.0, SoundSpec.PRACTICAL_MAX_VOLUME),
-                    pitch = pitch.coerceIn(SoundSpec.MIN_PITCH, SoundSpec.MAX_PITCH),
-                )
-                val ss = soundScheduler
-                for (loc in locations) {
-                    if (ss != null) {
-                        ss.schedule(
-                            ScheduledSoundSpec.EmitOnce(
-                                sound = spec,
-                                position = loc,
-                                atTick = scheduler.currentTick(),
-                                world = ctx.worldId,
-                            ),
-                        )
-                    } else {
-                        worldGateway.playSound(ctx.worldId, loc, spec)
-                    }
-                }
-            }
+            is Mechanic.PlaySound -> soundMechanics.play(mechanic, ctx)
 
             is Mechanic.SpawnDisplay -> worldMechanics.display(mechanic, ctx)
             is Mechanic.PlayVfx -> {
@@ -877,6 +875,9 @@ public class MechanicDispatcher(
             is Mechanic.Glow -> worldMechanics.glow(mechanic, ctx)
             is Mechanic.HideHeldItem -> worldMechanics.hideHeldItem(mechanic, ctx)
             is Mechanic.CameraShake -> worldMechanics.cameraShake(mechanic, ctx)
+            is Mechanic.StopSound -> primitives.stopSound(mechanic, ctx)
+            is Mechanic.Telegraph -> primitives.telegraph(mechanic, ctx)
+            is Mechanic.ScreenVeil -> primitives.screenVeil(mechanic, ctx)
 
             is Mechanic.ScheduleParticleAnimation -> {
                 val animator = particleAnimator ?: return warnMissing("ScheduleParticleAnimation", "IParticleAnimator")
@@ -931,7 +932,10 @@ public class MechanicDispatcher(
                 val stay = resolveInt(mechanic.stayTicks, ctx).coerceAtLeast(0)
                 val fadeOut = resolveInt(mechanic.fadeOutTicks, ctx).coerceAtLeast(0)
                 val color = mechanic.colorRgb ?: mechanic.overlay.defaultColor
-                for (target in targeterResolver.resolveViewers(mechanic.targets, ctx)) {
+                val flashViewers = com.astarworks.astera.core.domain.effect.AudienceResolver.select(
+                    targeterResolver.resolveViewers(mechanic.targets, ctx), mechanic.viewers, ctx.actorId, ctx.targetId,
+                )
+                for (target in flashViewers) {
                     out.sendScreenFlash(target, mechanic.overlay, color, fadeIn, stay, fadeOut)
                 }
             }

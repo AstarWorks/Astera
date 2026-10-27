@@ -1,0 +1,23 @@
+# Mid ore nodes of siege-isles-jewelry: mined with a pickaxe of the required tier, regrow. Stage-relative x/z, absolute y.
+id: siege-isles-jewelry
+nodes:
+  - block: astera:ore_iron_node
+    positions: [{ x: 5, y: 65, z: 5 }, { x: -5, y: 65, z: 5 }, { x: 5, y: 65, z: -5 }, { x: -5, y: 65, z: -5 }]
+    regrow_seconds: 20
+    required_tier: STONE
+    drops: [{ item_id: ore-iron, count: 2 }]
+  - block: astera:ore_gold_node
+    positions: [{ x: 0, y: 65, z: 12 }, { x: 0, y: 65, z: -12 }]
+    regrow_seconds: 45
+    required_tier: IRON
+    drops: [{ item_id: ore-gold, count: 2 }]
+  - block: astera:ore_diamond_node
+    positions: [{ x: 20, y: 65, z: 4 }, { x: -20, y: 65, z: -4 }]
+    regrow_seconds: 90
+    required_tier: IRON
+    drops: [{ item_id: ore-diamond, count: 1 }]
+  - block: astera:ore_emerald_node
+    positions: [{ x: 0, y: 65, z: 20 }, { x: 0, y: 65, z: -20 }]
+    regrow_seconds: 90
+    required_tier: DIAMOND
+    drops: [{ item_id: ore-emerald, count: 1 }]

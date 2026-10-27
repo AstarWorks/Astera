@@ -1,6 +1,6 @@
 # Module layout (ADR-0022 multi-plugin)
 
-Astera is **7 independent Paper plugins** (one Gradle module each), wired via
+Astera is **8 independent Paper plugins** (one Gradle module each), wired via
 Core's `ServiceRegistry` + central `IDomainEventBus`. The canonical list lives
 in `settings.gradle.kts`; the dependency-direction rules are enforced in
 `tools/architecture-test/.../ArchitectureTest.kt`.
@@ -8,11 +8,12 @@ in `settings.gradle.kts`; the dependency-direction rules are enforced in
 If anything below contradicts `settings.gradle.kts` or `ArchitectureTest.kt`,
 **the code wins**.
 
-## The 7 plugins
+## The 8 plugins
 
 | Plugin | Role | Paper `depend` | Paper `softdepend` |
 |---|---|---|---|
 | `plugin:core` | base. shared domain, `ServiceRegistry`, `IDomainEventBus`, Paper adapter scaffolding. Owns ItemSpec / SkillId / SkillTrigger / DamageProfile vocabulary. | — | — |
+| `plugin:chat` | normal cross-server chat, Japanize, ranks, Discord, screen titles | Core | — |
 | `plugin:items` | Item-centric content (ADR-0073): paper materializer, click→skill-trigger listener, `/astera items give`. Renamed from `:plugin:weapons` in Wave _items-1. | Core | — |
 | `plugin:combat` | damage / skill / status / element matrix. Owns projectile types. Subscribes to `SkillCastRequested`. | Core | Items |
 | `plugin:match` | match lifecycle, phases, teams | Core | Combat |
@@ -30,6 +31,7 @@ fails the build on violation.
 
 ```
 Core         ← (nothing; base)
+Chat         ← Core
 Items        ← Core
 Combat       ← Core, Items
 Match        ← Core, Combat

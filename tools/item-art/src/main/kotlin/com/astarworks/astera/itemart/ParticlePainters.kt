@@ -132,7 +132,65 @@ internal object ParticlePainters {
         "gossamer_echo" to ::gossamerEcho, "gossamer_echo_mirror" to { c, t, _, n -> gossamerEcho(c, t, 1, n) }, "orrery_impact" to ::orreryImpact, "orb" to ::orb, "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
         "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue, "procuration_ribbon" to ::procurationRibbon, "crimson_orbit" to ::crimsonOrbit, "crimson_link" to ::crimsonLink,
         "arc" to ::arc, "rim" to ::rim, "crest" to ::crest, "ink" to ::ink,
+        "dot" to ::dotSprite, "line_thin" to ::lineThin, "sparkle_cross" to ::sparkleCross, "smoke_puff" to ::smokePuff,
     )
+
+    /** A crisp round dot: bright core, darker rim, hard pixel edge. Static, so a dotted line of it stays a clean row of beads. */
+    private fun dotSprite(c: Canvas, t: Double, i: Int, n: Int) {
+        val r = 5.2
+        c.forEach { x, y ->
+            val d = hypot(x - C, y - C)
+            if (d > r) 0.0 else if (d > r - 1.0) 0.2 else 0.62 + 0.38 * (1.0 - d / r)
+        }
+    }
+
+    /** A 1-2 px straight streak across the cell (tangent to +X) with a bright centre fading to the tips; rotate it with the quad. */
+    private fun lineThin(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val dx = abs(x - C) / 16.0
+            val dy = abs(y - C)
+            val half = 1.0
+            if (dy > half || dx > 1.0) 0.0 else (1.0 - dx.pow(2.2)) * (if (dy < 0.5) 1.0 else 0.6)
+        }
+    }
+
+    /** A thin four-armed cross with a hot centre; arms are 1 px wide and taper, no diagonal sparkle (cheaper than glint). */
+    private fun sparkleCross(c: Canvas, t: Double, i: Int, n: Int) {
+        val reach = 15.0
+        c.forEach { x, y ->
+            val dx = abs(x - C)
+            val dy = abs(y - C)
+            val arm = min(dx, dy)
+            val along = max(dx, dy)
+            val line = if (arm < 1.0 && along < reach) (1.0 - along / reach).pow(0.9) else 0.0
+            val core = 1.0 - hypot(dx, dy) / 3.2
+            max(line, core * 1.25)
+        }
+    }
+
+    /** A soft smoke blob with a dithered, pixel-edged rim; 4 frames billow outward and thin (frame 0 densest). */
+    private fun smokePuff(c: Canvas, t: Double, i: Int, n: Int) {
+        val grow = lerp(0.8, 1.15, ease(t))
+        val lumps = arrayOf(doubleArrayOf(0.0, 0.0, 9.0), doubleArrayOf(-6.0, 3.0, 6.0), doubleArrayOf(6.5, 2.0, 6.5), doubleArrayOf(-2.0, -6.0, 6.0), doubleArrayOf(3.0, -5.0, 5.0))
+        val sz = c.size
+        val k = 32.0 / sz
+        for (py in 0 until sz) for (pxl in 0 until sz) {
+            val x = (pxl + 0.5) * k
+            val y = (py + 0.5) * k
+            var f = 0.0
+            for (l in lumps) {
+                val r = l[2] * grow
+                val cx = C + l[0] * grow
+                val cy = C + l[1] * grow
+                val d2 = ((x - cx) * (x - cx) + (y - cy) * (y - cy)) / (r * r)
+                if (d2 < 1) f += (1 - d2).pow(1.6)
+            }
+            val density = f * lerp(1.0, 0.6, t)
+            if (density < 0.08) continue
+            val tone = 0.2 + density * 0.32 + ((C - y) / 16.0) * 0.12
+            if (density > 0.38 || (density - 0.08) / 0.3 > bayer(pxl, py)) c.put(pxl, py, tone.coerceIn(0.12, 0.7))
+        }
+    }
 
     /** Shallow crossing white loops at the first contact; open ends follow the visible orbital streaks. */
     private fun gossamerRibbon(c: Canvas, t: Double, i: Int, n: Int) {

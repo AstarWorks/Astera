@@ -57,6 +57,29 @@ public class PaperItemIdResolver(
         return true
     }
 
+    private fun ownedStacks(player: org.bukkit.entity.Player): List<Pair<Int, ItemStack>> =
+        player.inventory.contents.withIndex().mapNotNull { (i, stack) ->
+            if (stack != null && !TrainingItemTag.isTraining(stack) && !MenuKitTag.isKit(stack)) i to stack else null
+        }
+
+    override fun countOf(playerId: PlayerId, itemId: ItemId): Int {
+        val player = server.getPlayer(playerId.uuid) ?: return 0
+        return ownedStacks(player).filter { itemIdOf(it.second) == itemId }.sumOf { it.second.amount }
+    }
+
+    override fun removeAmount(playerId: PlayerId, itemId: ItemId, amount: Int): Boolean {
+        val player = server.getPlayer(playerId.uuid) ?: return false
+        if (amount <= 0 || countOf(playerId, itemId) < amount) return false
+        var left = amount
+        for ((index, stack) in ownedStacks(player).filter { itemIdOf(it.second) == itemId }) {
+            if (left == 0) break
+            val take = minOf(left, stack.amount)
+            if (stack.amount > take) stack.amount -= take else player.inventory.setItem(index, null)
+            left -= take
+        }
+        return true
+    }
+
     /** The `astera:item_id` of [stack], or `null` for air / non-Astera stacks. */
     public fun itemIdOf(stack: ItemStack?): ItemId? {
         val meta = stack?.itemMeta ?: return null

@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Leather Scout chestplate.
+
+type: piece
+id: leather-scout-chestplate
+display_name_key: astera.armor.leather-scout-chestplate.name
+slot: chestplate
+damage_reduction: 0.06
+set_key: leather-scout

@@ -7,13 +7,13 @@ lore:
   ja:
   - '左クリック: 月輪の薙ぎ'
   - '右クリック: 審判の突進'
-  - 'Shift+左: 城壁の構え'
+  - 'スニーク+左: 城壁の構え'
   - 'Q: 城塞の暁'
   en:
-  - 'left_click: Moon Sweep'
-  - 'right_click: Judgement Rush'
-  - 'sneak_left: Tower Shield'
-  - 'drop: Citadel Dawn'
+  - 'Left-click: Moon Sweep'
+  - 'Right-click: Judgement Rush'
+  - 'Sneak+Left-click: Tower Shield'
+  - 'Q: Citadel Dawn'
 rarity: rare
 level_requirement: 3
 attributes:
@@ -32,6 +32,5 @@ skills:
   skill_id: bastion-greatsword-def
 - trigger: drop
   skill_id: bastion-greatsword-ego
-  min_norma_level: 3
 pdc_tags:
   astera:rarity: rare

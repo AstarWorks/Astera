@@ -16,23 +16,28 @@ import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.effect.AudienceResolver
 import com.astarworks.astera.core.domain.effect.DisplayKind
+import com.astarworks.astera.core.domain.effect.camera.ShakeProfile
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
+import com.astarworks.astera.core.domain.skill.mechanic.ShakeDirection
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
 import org.slf4j.Logger
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.floor
+import kotlin.math.hypot
 import kotlin.math.sin
 
 /**
@@ -60,11 +65,14 @@ internal class WorldMechanics(
     private val effects: IEntityEffectsGateway?,
     private val heldItems: HeldItemHider?,
     private val feedback: IPlayerFeedbackGateway?,
+    private val poseLookup: IPlayerPoseLookup?,
     private val messageRenderer: IMessageRenderer?,
     private val teamLookup: IMatchTeamLookup?,
     private val playerHealth: () -> IPlayerHealthGateway?,
     private val entityHealth: () -> IEntityDamageGateway?,
     private val living: (List<PlayerId>) -> List<PlayerId>,
+    private val itemRemoval: () -> com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval?,
+    private val consumptionRecorder: () -> com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder?,
     private val log: Logger,
 ) {
 
@@ -168,6 +176,147 @@ internal class WorldMechanics(
         }
     }
 
+    // ---- BreakArea / PlaceShape ----------------------------------------------
+
+    /** Where the caster stands and looks: the pose of the cast, or the cast origin looking +X when there is none. */
+    private class Aim(val feet: Vec3, val eye: Vec3, val look: Vec3) {
+        /** Look flattened to the dominant horizontal axis: (+-1,0) or (0,+-1); builds and boxes follow it. */
+        val forward: Pair<Int, Int> = if (kotlin.math.abs(look.x) >= kotlin.math.abs(look.z)) (if (look.x >= 0) 1 else -1) to 0 else 0 to (if (look.z >= 0) 1 else -1)
+        val right: Pair<Int, Int> = -forward.second to forward.first
+    }
+
+    private fun aim(ctx: MechanicContext): Aim {
+        val pose = ctx.pose
+        val feet = pose?.position ?: ctx.origin
+        val eye = pose?.eyePosition ?: (feet + Vec3(0.0, 1.62, 0.0))
+        val look = pose?.direction?.takeIf { it.lengthSquared() > 0.0 } ?: Vec3(1.0, 0.0, 0.0)
+        return Aim(feet, eye, look)
+    }
+
+    fun breakArea(m: Mechanic.BreakArea, ctx: MechanicContext) {
+        val world = ctx.worldId ?: return warnNoWorld("BreakArea")
+        val revert = revertTicks(host.resolveInt(m.revertAfterTicks, ctx))
+        val anywhere = host.resolveBool(m.outsideArena, ctx)
+        val aim = aim(ctx)
+        for (cell in breakCells(m, aim)) {
+            if (!mayEdit(ctx, world, cell, anywhere)) continue
+            val current = worldGateway.blockAt(world, cell)
+            if (current == null || isAir(current) || isIndestructible(current)) continue
+            if (!breakable(current, m.power, m.toolClass)) continue
+            edit(world, cell, revert) { worldGateway.removeBlock(world, cell) }
+        }
+    }
+
+    private fun breakCells(m: Mechanic.BreakArea, aim: Aim): List<Vec3> {
+        val out = LinkedHashSet<Vec3>()
+        fun cell(x: Double, y: Double, z: Double) = Vec3(floor(x) + 0.0, floor(y) + 0.0, floor(z) + 0.0)
+        when (m.shape) {
+            Mechanic.AreaShape.SPHERE -> {
+                val c = aim.eye + aim.look * m.length
+                val r = m.radius
+                val n = kotlin.math.ceil(r).toInt()
+                for (dx in -n..n) for (dy in -n..n) for (dz in -n..n) {
+                    if (dx * dx + dy * dy + dz * dz <= r * r) out += cell(c.x + dx, c.y + dy, c.z + dz)
+                }
+            }
+            Mechanic.AreaShape.LINE -> {
+                val half = m.width / 2.0
+                val n = kotlin.math.ceil(half).toInt()
+                var t = 0.5
+                while (t <= m.length) {
+                    val p = aim.eye + aim.look * t
+                    for (dx in -n..n) for (dy in -n..n) for (dz in -n..n) {
+                        if (dx * dx + dy * dy + dz * dz <= half * half) out += cell(p.x + dx, p.y + dy, p.z + dz)
+                    }
+                    t += 0.5
+                }
+            }
+            Mechanic.AreaShape.BOX -> {
+                val fx = floor(aim.feet.x).toInt()
+                val fy = floor(aim.feet.y).toInt()
+                val fz = floor(aim.feet.z).toInt()
+                val w = m.width.toInt()
+                for (a in 1..kotlin.math.ceil(m.length).toInt().coerceAtLeast(1)) for (b in -(w / 2)..(w - 1) / 2) for (c in 0 until m.height.toInt()) {
+                    out += cell(
+                        (fx + aim.forward.first * a + aim.right.first * b).toDouble(),
+                        (fy + c).toDouble(),
+                        (fz + aim.forward.second * a + aim.right.second * b).toDouble(),
+                    )
+                }
+            }
+        }
+        return out.take(MAX_SHAPE_BLOCKS)
+    }
+
+    fun placeShape(m: Mechanic.PlaceShape, ctx: MechanicContext) {
+        val world = ctx.worldId ?: return warnNoWorld("PlaceShape")
+        val type = runCatching { BlockType(normalizeBlockKey(m.blockKey)) }.getOrNull()
+        if (type == null) {
+            log.warn("PlaceShape dropped: invalid block key '{}'", m.blockKey)
+            return
+        }
+        if (isIndestructible(type)) {
+            log.warn("PlaceShape dropped: '{}' may not be placed by a skill", m.blockKey)
+            return
+        }
+        val removal = if (m.consumeFromInventory) itemRemoval() ?: return warnMissing("PlaceShape", "IOwnedItemRemoval") else null
+        val itemId = if (m.consumeFromInventory) {
+            runCatching { com.astarworks.astera.core.domain.item.ItemId(m.itemId ?: type.identifier) }.getOrNull() ?: return
+        } else {
+            null
+        }
+        val revert = revertTicks(host.resolveInt(m.revertAfterTicks, ctx))
+        val anywhere = host.resolveBool(m.outsideArena, ctx)
+        for (cell in buildCells(m, aim(ctx))) {
+            if (!mayEdit(ctx, world, cell, anywhere)) continue
+            val current = worldGateway.blockAt(world, cell)
+            if (current != null && !isReplaceable(current)) continue
+            if (removal != null && itemId != null) {
+                if (!removal.removeOne(ctx.actorId, itemId)) return
+                consumptionRecorder()?.record(ctx.actorId, itemId)
+            }
+            edit(world, cell, revert) { worldGateway.placeBlock(world, cell, type) }
+        }
+    }
+
+    private fun buildCells(m: Mechanic.PlaceShape, aim: Aim): List<Vec3> {
+        val fx = floor(aim.feet.x).toInt()
+        val fy = floor(aim.feet.y).toInt()
+        val fz = floor(aim.feet.z).toInt()
+        val (ff, fr) = aim.forward to aim.right
+        fun at(ahead: Int, side: Int, up: Int) = Vec3(
+            (fx + ff.first * ahead + fr.first * side).toDouble(),
+            (fy + up).toDouble(),
+            (fz + ff.second * ahead + fr.second * side).toDouble(),
+        )
+        val out = ArrayList<Vec3>()
+        val sideRange = -(m.width / 2)..(m.width - 1) / 2
+        when (m.shape) {
+            Mechanic.BuildShape.WALL -> for (side in sideRange) for (up in 0 until m.height) out += at(2, side, up)
+            Mechanic.BuildShape.BRIDGE -> for (ahead in 1..m.length) for (side in sideRange) out += at(ahead, side, -1)
+            Mechanic.BuildShape.PILLAR -> for (up in 0 until m.height) out += at(2, 0, up)
+            Mechanic.BuildShape.PLATFORM -> for (ahead in -(m.length / 2)..(m.length - 1) / 2) for (side in sideRange) out += at(ahead, side, -1)
+        }
+        return out.take(MAX_SHAPE_BLOCKS)
+    }
+
+    /** Whether a skill with [power] (hardness ceiling) and [toolClass] may break [type]. */
+    private fun breakable(type: BlockType, power: Double, toolClass: String?): Boolean {
+        val id = type.identifier
+        val kind = when {
+            SOIL_WORDS.any { it in id } -> "SHOVEL"
+            WOOD_WORDS.any { it in id } -> "AXE"
+            else -> "PICKAXE"
+        }
+        if (toolClass != null && toolClass != kind) return false
+        val hardness = when {
+            kind != "PICKAXE" || "glass" in id -> 1
+            STONE_WORDS.any { it in id } -> 2
+            else -> 3
+        }
+        return hardness <= power
+    }
+
     private fun cells(targets: com.astarworks.astera.core.domain.skill.targeter.Targeter, ctx: MechanicContext): List<Vec3> =
         targeters.resolveLocations(targets, ctx)
             .map { Vec3(floor(it.x) + 0.0, floor(it.y) + 0.0, floor(it.z) + 0.0) }
@@ -215,7 +364,7 @@ internal class WorldMechanics(
             emptyList()
         }
         for (at in targeters.resolveLocations(m.targets, ctx).take(MAX_DISPLAYS_PER_CAST)) {
-            val handle = gateway.spawn(world, at, m.display, lines) ?: continue
+            val handle = gateway.spawn(world, at, m.display, lines, m.viewers, ctx.actorId, ctx.targetId) ?: continue
             liveDisplays += handle
             scheduler.runLaterTicks(regionScope(world, at), m.display.lifetimeTicks) {
                 if (liveDisplays.remove(handle)) gateway.remove(handle)
@@ -313,14 +462,33 @@ internal class WorldMechanics(
         val duration = host.resolveInt(m.ticks, ctx)
         val intensity = host.resolveDouble(m.intensity, ctx).coerceIn(0.0, 1.0)
         if (duration <= 0 || intensity <= 0.0) return
-        val targets = living(targeters.resolvePlayers(m.targets, ctx))
-        var offset = 0
-        while (offset < duration) {
-            val strength = intensity * (1.0 - offset.toDouble() / duration)
-            val kick = { targets.forEach { target -> scheduler.run(ExecutionScope.Entity(target.uuid), kotlin.time.Duration.ZERO) { out.cameraKick(target, strength) } } }
-            if (offset == 0) kick() else scheduler.runLaterTicks(ExecutionScope.Global, offset.toLong()) { kick() }
-            offset += SHAKE_PULSE_TICKS
+        val frequency = host.resolveDouble(m.frequency, ctx)
+        val resolved = living(targeters.resolvePlayers(m.targets, ctx))
+        val targets = AudienceResolver.select(resolved, m.viewers, ctx.actorId, ctx.targetId)
+        for (target in targets) {
+            val hit = if (m.direction == ShakeDirection.FROM_HIT) hitDirection(target, ctx) else null
+            val seed = ctx.tickIndex * SHAKE_SEED_MIX + target.uuid.leastSignificantBits
+            val pulses = ShakeProfile.plan(m.shape, m.direction, intensity, duration, frequency, hit, seed)
+            val scope = ExecutionScope.Entity(target.uuid)
+            for (pulse in pulses) {
+                val kick = { out.cameraKick(target, pulse.dx, pulse.dy) }
+                if (pulse.tick == 0) scheduler.run(scope, kotlin.time.Duration.ZERO) { kick() } else scheduler.runLaterTicks(scope, pulse.tick.toLong()) { kick() }
+            }
         }
+    }
+
+    /** Where the hit came from in [target]'s own view frame (the caster is the source); `null` for a self-shake or unknown pose. */
+    private fun hitDirection(target: PlayerId, ctx: MechanicContext): ShakeProfile.HitDirection? {
+        if (target == ctx.actorId) return null
+        val pose = poseLookup?.poseOf(target) ?: return null
+        val look = pose.direction
+        val flat = hypot(look.x, look.z)
+        if (flat < 1e-6) return null
+        val fx = look.x / flat
+        val fz = look.z / flat
+        val sx = ctx.origin.x - pose.position.x
+        val sz = ctx.origin.z - pose.position.z
+        return ShakeProfile.HitDirection(right = sx * -fz + sz * fx, forward = sx * fx + sz * fz)
     }
 
     // ---- Lifecycle -----------------------------------------------------------
@@ -356,12 +524,19 @@ internal class WorldMechanics(
         const val MAX_BLOCKS_PER_CAST: Int = 128
         const val MAX_DISPLAYS_PER_CAST: Int = 32
 
+        /** Cells one BreakArea / PlaceShape may touch. */
+        const val MAX_SHAPE_BLOCKS: Int = 512
+
+        private val SOIL_WORDS: List<String> = listOf("dirt", "grass_block", "sand", "gravel", "clay", "mud", "snow", "podzol", "mycelium", "soul_soil", "farmland")
+        private val WOOD_WORDS: List<String> = listOf("plank", "log", "wood", "stem", "hyphae", "leaves", "fence", "door", "bookshelf", "scaffolding", "bamboo", "wool", "hay_block", "carpet")
+        private val STONE_WORDS: List<String> = listOf("stone", "deepslate", "cobble", "brick", "ore", "andesite", "diorite", "granite", "terracotta", "concrete", "basalt", "blackstone", "tuff", "netherrack", "end_stone", "prismarine", "purpur")
+
         /** `lifetime_ticks: 0` means this; summons never live forever. */
         const val DEFAULT_SUMMON_LIFETIME_TICKS: Long = 1200L
         const val MAX_SUMMONS_PER_CAST: Int = 8
         const val MAX_ACTIVE_SUMMONS_PER_OWNER: Int = 16
         const val SUMMON_RING_RADIUS: Double = 1.5
-        const val SHAKE_PULSE_TICKS: Int = 2
+        const val SHAKE_SEED_MIX: Long = -0x61c8864680b583ebL
 
         private val AIR_LIKE: Set<String> = setOf(
             "air", "cave_air", "void_air", "water", "lava", "short_grass", "tall_grass", "fern", "snow", "fire",

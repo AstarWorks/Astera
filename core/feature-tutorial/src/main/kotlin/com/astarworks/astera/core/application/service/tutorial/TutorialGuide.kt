@@ -73,10 +73,11 @@ public class TutorialGuide(
             }
             showing[id] = Showing(action, scheduler.currentTick(), marker)
         }
-        player.postActionBar(key(action, "hint"))
-        // These steps teach reading, not doing: the HUD gets four uninterrupted seconds, the Norma goal seven.
         val shownFor = scheduler.currentTick() - checkNotNull(showing[id]).since
-        if ((action == "hud" && shownFor >= 80) || (action == "norma" && shownFor >= 140)) {
+        // The skip line stays reachable on every step: it takes the bar for 1.5 s out of every 5 s.
+        player.postActionBar(if (shownFor % SKIP_CYCLE_TICKS >= SKIP_FROM_TICK) SKIP_KEY else key(action, "hint"))
+        // The HUD step teaches reading, not doing: four uninterrupted seconds.
+        if (action == "hud" && shownFor >= 80) {
             sequencer.recordAction(id, action)
         }
     }
@@ -101,7 +102,10 @@ public class TutorialGuide(
     }
 
     public companion object {
-        public val ACTIONS: List<String> = listOf("menu", "range", "rack", "primary", "secondary", "reload", "staff", "hud", "norma", "queue")
+        public val ACTIONS: List<String> = listOf("menu", "primary", "secondary", "hud", "queue")
+        private const val SKIP_CYCLE_TICKS: Long = 100L
+        private const val SKIP_FROM_TICK: Long = 70L
+        private val SKIP_KEY: MessageKey = MessageKey("astera.tutorial.guide.skip")
         public fun key(action: String, part: String): MessageKey = MessageKey("astera.tutorial.guide.$action.$part")
     }
 }

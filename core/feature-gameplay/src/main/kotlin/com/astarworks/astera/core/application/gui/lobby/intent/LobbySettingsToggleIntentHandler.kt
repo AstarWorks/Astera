@@ -65,6 +65,10 @@ public class LobbySettingsToggleIntentHandler(
                 val next = !current.tutorialHintsEnabled
                 Triple(current.copy(tutorialHintsEnabled = next), "tutorial-hints", if (next) "on" else "off")
             }
+            KEY_VFX_INTENSITY -> {
+                val next = current.vfxIntensity.next()
+                Triple(current.copy(vfxIntensity = next), "vfx-intensity", "vfx-intensity.${next.yamlName}")
+            }
             else -> {
                 log.warn("settings.toggle: unknown key '{}' from {}", key, player.id)
                 return
@@ -105,5 +109,6 @@ public class LobbySettingsToggleIntentHandler(
         public const val KEY_HP_LINE: String = "hp-line"
         public const val KEY_DAMAGE_NUMBERS: String = "damage-numbers"
         public const val KEY_TUTORIAL_HINTS: String = "tutorial-hints"
+        public const val KEY_VFX_INTENSITY: String = "vfx-intensity"
     }
 }

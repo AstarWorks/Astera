@@ -158,7 +158,7 @@ class MechanicsBatchBScenarioTest {
             assertThat(sim.recorder.effects("lightning").single().detail).contains("damaging=false")
 
             advance(8)
-            assertThat(sim.feedback.kicks.filter { it.target == ally.id }).hasSize(3)
+            assertThat(sim.feedback.kicks.filter { it.target == ally.id }).hasSize(4)
             advance(12)
             assertThat(ally.glowing).isFalse()
             assertThat(sim.recorder.effects("glow").map { it.detail }).containsExactly("ally on", "ally off")
