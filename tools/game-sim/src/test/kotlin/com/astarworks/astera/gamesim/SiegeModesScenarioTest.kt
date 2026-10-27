@@ -1,5 +1,7 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.bots.ModePlanner
+import com.astarworks.astera.bots.StageObjectives
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.services.getOrThrow
@@ -91,6 +93,11 @@ class SiegeModesScenarioTest {
                 Vec3(-51.5, 65.0, -2.5), Vec3(-51.5, 65.0, 3.5), Vec3(-49.5, 65.0, 0.5), Vec3(-53.5, 65.0, 0.5),
             )
 
+            // The kit shows every live core as a marker and the cores-alive bar.
+            advance(25)
+            assertThat(sim.objectiveStage.markers(matchId).keys).`as`("a marker over each live core").contains("core-red", "core-blue")
+            assertThat(sim.objectiveStage.bar(attacker.id, "objective")).`as`("cores-alive bar").isNotNull()
+
             // Own core: block comes back, match goes on.
             attacker.breaks(redCore)
             assertThat(blockAt(redCore)).isEqualTo("minecraft:emerald_block")
@@ -101,6 +108,7 @@ class SiegeModesScenarioTest {
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             attacker.breaks(blueCore)
+            assertThat(sim.objectiveStage.markers(matchId).keys).`as`("a destroyed core loses its marker").doesNotContain("core-blue")
             val end = ended()
             assertThat(end.matchId).isEqualTo(matchId)
             assertThat(end.winningTeam).isEqualTo(TeamId("red"))
@@ -177,9 +185,12 @@ class SiegeModesScenarioTest {
             rival.moveTo(Vec3(1.0, 65.0, -61.0))
             advance(20 * 14)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
+            assertThat(sim.objectiveStage.bar(holder.id, "objective")?.progress).`as`("contested: the bar shows no progress").isEqualTo(0.0)
 
             // Rival leaves: the holder captures wool-a after 10 s alone.
             rival.moveTo(nowhere)
+            advance(20 * 4)
+            assertThat(sim.objectiveStage.bar(holder.id, "objective")?.progress).`as`("alone: the capture bar fills").isGreaterThan(0.0)
             assertThat(advanceUntil(20 * 12) { blockAt(woolA) == "minecraft:red_wool" }).isTrue()
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
@@ -234,6 +245,41 @@ class SiegeModesScenarioTest {
             assertThat(end.matchId).isEqualTo(matchId)
             assertThat(end.winningTeam).isEqualTo(TeamId("red"))
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:grass_block")
+        }
+    }
+
+    @Test
+    fun `steal jewelry - a bot whose carry was shot down walks back and re-picks the pile`() {
+        scenario("siege-steal-jewelry-bot-repick") {
+            val runner = player("runner", at = nowhere)
+            val keeper = player("keeper", at = nowhere)
+            startMatch("steal-jewelry", mapOf(runner to "red", keeper to "blue"), stage = "siege-isles-jewelry")
+            val src = checkNotNull(StageObjectives.load(GameSim.defaultContentDir().toFile(), "steal-jewelry")) { "stage did not load" }
+            val plan = ModePlanner("steal-jewelry", "runner", "red", listOf("blue"), checkNotNull(src.zones()))
+            var now = 0L
+            fun round(): ModePlanner.Step {
+                val step = checkNotNull(plan.step(now, runner.position.x, runner.position.z))
+                runner.moveTo(Vec3(step.x, 65.0, step.z))
+                advance(10)
+                now += 500
+                return step
+            }
+
+            repeat(40) { if (sim.objectiveStage.carrying(runner.id) == null) round() }
+            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("the bot stole a jewel").isNotNull()
+
+            keeper.holds("pistol")
+            keeper.moveTo(Vec3(runner.position.x, 65.0, runner.position.z + 10.0))
+            val deathAt = runner.position
+            kill(keeper, runner)
+            plan.onDeath(deathAt.x, deathAt.z)
+            keeper.moveTo(nowhere)
+            respawnAt(runner, nowhere)
+
+            val first = round()
+            assertThat(first.kind).`as`("the first goal after respawn is the dropped pile").isEqualTo("recover")
+            repeat(40) { if (sim.objectiveStage.carrying(runner.id) == null) round() }
+            assertThat(sim.objectiveStage.carrying(runner.id)).`as`("the bot picked the pile up again").isNotNull()
         }
     }
 

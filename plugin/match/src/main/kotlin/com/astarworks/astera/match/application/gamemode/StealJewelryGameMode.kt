@@ -54,6 +54,7 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         public val piles: MutableList<Pile> = mutableListOf()
         internal var nextPileId: Int = 1
         internal val lastPos: MutableMap<PlayerId, Vec3> = mutableMapOf()
+        internal val tensionShown: MutableSet<TeamId> = mutableSetOf()
     }
 
     private fun gemsPerTeam(): Int = env?.int("gems_per_team", DEFAULT_GEMS) ?: DEFAULT_GEMS
@@ -123,6 +124,7 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         run.onPedestal[owner] = run.onPedestal.getValue(owner) - 1
         showPedestal(run, match, owner)
         pickedUp(run, match, player, team, listOf(owner))
+        run.pedestalRegions[owner]?.let { kit.burst(run.stage.world, ObjectiveKit.centreOf(it, 1.0), ObjectiveKit.colorOf(owner)) }
         val enemies = match.teams.filter { it.id == owner }.flatMap { it.members }
         kit.broadcast(enemies, PresentationMoments.OBJECTIVE_ALERT, at = run.lastPos[player], world = run.stage.world)
         tellMatch(match, KEY_STOLEN, mapOf("team" to team.value, "victim" to owner.value))
@@ -163,9 +165,14 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         val args = mapOf("team" to team.value, "score" to total.toString(), "goal" to goal.toString(), "count" to gems.size.toString())
         tellMatch(match, KEY_BANKED, args)
         val burst = run.bases[team]?.let { ObjectiveKit.centreOf(it, 1.0) }
+        if (burst != null) kit.burst(run.stage.world, burst, ObjectiveKit.colorOf(team))
         kit.broadcast(match.teams.firstOrNull { it.id == team }?.members.orEmpty(), PresentationMoments.OBJECTIVE_DELIVER, args, burst, run.stage.world)
         kit.broadcast(match.teams.filter { it.id != team }.flatMap { it.members }, PresentationMoments.OBJECTIVE_DELIVER_AGAINST, args, burst, run.stage.world)
-        if (total >= goal) win(run, team)
+        if (total >= goal) {
+            win(run, team)
+        } else if (total == goal - 1 && run.tensionShown.add(team)) {
+            kit.broadcast(match.teams.flatMap { it.members }, PresentationMoments.OBJECTIVE_TENSION, args, burst, run.stage.world)
+        }
     }
 
     // ---- drops ----------------------------------------------------------------
@@ -209,8 +216,11 @@ public class StealJewelryGameMode @JvmOverloads constructor(
     private fun showPedestal(run: Run, match: Match, owner: TeamId) {
         val region = run.pedestalRegions[owner] ?: return
         val key = "$PEDESTAL_KEY${owner.value}"
-        if ((run.onPedestal[owner] ?: 0) > 0) {
-            kit.marker(match.id, key, run.stage.world, ObjectiveKit.centreOf(region, 1.0), ObjectiveLook(PEDESTAL_BLOCK, ObjectiveKit.colorOf(owner), 0.6))
+        val left = run.onPedestal[owner] ?: 0
+        if (left > 0) {
+            val tag = ObjectiveKit.tagOf(ObjectiveKit.colorOf(owner))
+            val look = ObjectiveLook(PEDESTAL_BLOCK, ObjectiveKit.colorOf(owner), 0.6, spin = true, label = "<$tag><bold>x$left</bold></$tag>")
+            kit.marker(match.id, key, run.stage.world, ObjectiveKit.centreOf(region, 1.0), look)
         } else {
             kit.unmarker(match.id, key)
         }
@@ -222,12 +232,14 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         val now = env?.let { it.now() } ?: return
         val world = run.stage.world
         for (pile in run.piles) kit.beam(world, pile.position, null)
+        run.pedestalRegions.keys.forEach { showPedestal(run, match, it) }
         for ((owner, region) in run.pedestalRegions) {
             if ((run.onPedestal[owner] ?: 0) > 0) kit.beam(world, ObjectiveKit.centreOf(region), ObjectiveKit.colorOf(owner))
         }
         for (team in match.teams) {
             for (member in team.members) {
                 statusBar(run, match, member, team.id)
+                teamBars(run, match, member)
                 compass(run, member, team.id)
             }
         }
@@ -242,6 +254,20 @@ public class StealJewelryGameMode @JvmOverloads constructor(
             mapOf("count" to run.carried[viewer].orEmpty().size.toString(), "banked" to banked.toString(), "goal" to goal.toString(), "left" to (run.onPedestal[team] ?: 0).toString()),
             if (goal > 0) banked.toDouble() / goal else 0.0, ObjectiveKit.barColorOf(ObjectiveKit.colorOf(team)),
         )
+    }
+
+    /** One bank-progress bar per team under the personal one, in the team's colour. */
+    private fun teamBars(run: Run, match: Match, viewer: PlayerId) {
+        val goal = goalFor(match)
+        for (team in match.teams) {
+            val banked = run.banked[team.id] ?: 0
+            val color = ObjectiveKit.colorOf(team.id)
+            kit.bar(
+                viewer, "$TEAM_BAR${team.id.value}", BAR_TEAM,
+                mapOf("team" to team.id.value, "tag" to ObjectiveKit.tagOf(color), "banked" to banked.toString(), "goal" to goal.toString()),
+                if (goal > 0) banked.toDouble() / goal else 0.0, ObjectiveKit.barColorOf(color),
+            )
+        }
     }
 
     private fun compass(run: Run, viewer: PlayerId, team: TeamId) {
@@ -300,6 +326,7 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         private val LABEL_STEAL: MessageKey = MessageKey("astera.objective.channel.steal-jewelry.steal")
         private val LABEL_BANK: MessageKey = MessageKey("astera.objective.channel.steal-jewelry.bank")
         private val BAR: MessageKey = MessageKey("astera.objective.bar.steal-jewelry")
+        private val BAR_TEAM: MessageKey = MessageKey("astera.objective.bar.steal-jewelry.team")
         private val HINT_BANK: MessageKey = MessageKey("astera.objective.hint.steal-jewelry.bank")
         private val HINT_STEAL: MessageKey = MessageKey("astera.objective.hint.steal-jewelry.steal")
         private val LOOK: ObjectiveLook = ObjectiveLook("minecraft:diamond_block", "aqua", 0.5)
@@ -311,6 +338,7 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         private const val PILE: String = "pile:"
         private const val PILE_KEY: String = "pile-"
         private const val PEDESTAL_KEY: String = "pedestal-"
+        private const val TEAM_BAR: String = "bank-"
         private const val DEFAULT_GEMS: Int = 3
         private const val FAST_TICKS: Long = 5L
         private const val TRAIL_TICKS: Long = 5L

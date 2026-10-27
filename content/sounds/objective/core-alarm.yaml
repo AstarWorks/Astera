@@ -1,0 +1,11 @@
+# Sound cue (ADR-0267). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
+# the event is generated into assets/astera/sounds.json by :tools:resource-pack from this id + objective/core-alarm.ogg.
+id: "astera:objective/core-alarm"
+resource_key: "astera:objective/core-alarm"
+default_volume: 1.0
+default_pitch: 1.0
+category: objective
+layers:
+  - resource_key: "minecraft:entity.generic.explode"
+    volume: 0.5
+    pitch: 0.8

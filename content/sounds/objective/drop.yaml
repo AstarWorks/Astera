@@ -1,0 +1,11 @@
+# Sound cue (ADR-0267). Astera OGG synthesized by tools/sound-gen/scripts/synth.sh (ffmpeg, no samples);
+# the event is generated into assets/astera/sounds.json by :tools:resource-pack from this id + objective/drop.ogg.
+id: "astera:objective/drop"
+resource_key: "astera:objective/drop"
+default_volume: 0.9
+default_pitch: 1.0
+category: objective
+layers:
+  - resource_key: "minecraft:block.glass.break"
+    volume: 0.4
+    pitch: 1.2

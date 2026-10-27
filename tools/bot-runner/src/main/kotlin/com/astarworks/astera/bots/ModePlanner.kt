@@ -34,7 +34,7 @@ class ModePlanner(
 
     enum class Role { ATTACK, DEFEND }
 
-    /** Where to go: [kind] is one of `attack-core`, `defend-core`, `pickup`, `bank`, `tnt`, `deliver`, `jewel`, `wool`. */
+    /** Where to go: [kind] is one of `attack-core`, `defend-core`, `pickup`, `bank`, `tnt`, `deliver`, `jewel`, `wool`, `recover`. */
     data class Step(val zone: String, val x: Double, val y: Double, val z: Double, val arrive: Double, val kind: String, val breakable: Boolean = false)
 
     val role: Role = if (modeId == "break-core" && Math.floorMod(botName.hashCode(), 3) == 0) Role.DEFEND else Role.ATTACK
@@ -49,15 +49,62 @@ class ModePlanner(
 
     fun handles(): Boolean = modeId in MODES
 
-    /** The bot died: whatever it carried is lost. */
-    fun onDeath() { carried = 0; holdingTnt = false; holdSince = 0L; dwellSince = 0L }
+    /** Where the bot's carry fell when it died (jewels / TNT are dropped in place); it goes back for it. */
+    private var lostX = 0.0
+    private var lostZ = 0.0
+    private var lostPending = false
+    private var recoverUntil = 0L
+
+    /** Loose objective markers the brain currently sees in the world (a dropped pile / TNT), filtered against the fixed stage points. */
+    private var looseSeen: List<Pair<Double, Double>> = emptyList()
+
+    /**
+     * The bot died at ([x], [z]): whatever it carried is lost where it fell. A carrier of TNT or jewels remembers the
+     * spot and re-picks it after the respawn instead of starting the whole plan over.
+     */
+    fun onDeath(x: Double, z: Double) {
+        if (holdingTnt || (modeId == "steal-jewelry" && carried > 0)) {
+            lostX = x; lostZ = z; lostPending = true; recoverUntil = 0L
+        }
+        carried = 0; holdingTnt = false; holdSince = 0L; dwellSince = 0L
+    }
+
+    /** Positions of block-display markers in sight; the ones that are not a fixed stage point are loose objectives. */
+    fun noteMarkers(markers: List<Pair<Double, Double>>) {
+        if (modeId != "carry-tnt" && modeId != "steal-jewelry") { looseSeen = emptyList(); return }
+        val fixed = (zones.names("jewelry-") + zones.names("base-") + zones.names("wool-") + zones.names("core-") + TNT_SPAWN)
+            .mapNotNull { zones.point(it) }
+        looseSeen = markers.filter { m -> fixed.none { hypot(it.first - m.first, it.third - m.second) <= FIXED_CLEARANCE } }
+    }
+
+    /** Heads for a dropped objective (own death spot first, else the nearest loose marker); null when there is none to chase. */
+    private fun recover(now: Long, x: Double, z: Double): Step? {
+        var tx: Double; var tz: Double
+        if (lostPending) {
+            if (recoverUntil == 0L) recoverUntil = now + RECOVER_MS
+            if (now > recoverUntil) { lostPending = false; return null }
+            tx = lostX; tz = lostZ
+        } else {
+            val near = looseSeen.minByOrNull { hypot(it.first - x, it.second - z) }
+                ?.takeIf { hypot(it.first - x, it.second - z) <= LOOSE_RANGE } ?: return null
+            tx = near.first; tz = near.second
+        }
+        val y = zones.point(if (modeId == "carry-tnt") TNT_SPAWN else "base-$ownTeam")?.second ?: return null
+        val s = Step("loose", tx, y, tz, 1.5, "recover")
+        if (held(s, now, x, z)) {
+            lostPending = false
+            if (modeId == "carry-tnt") holdingTnt = true else carried = 1
+            return step(now, x, z)
+        }
+        return s
+    }
 
     /** The step for a bot at ([x], [z]) at time [now]; null when the mode has no plan or the stage lacks the regions. */
     fun step(now: Long, x: Double, z: Double): Step? = when (modeId) {
         "break-core" -> breakCore()
-        "carry-tnt" -> carryTnt(now, x, z)
+        "carry-tnt" -> (if (holdingTnt) null else recover(now, x, z)) ?: carryTnt(now, x, z)
         "carry-mini-tnt" -> miniTnt(now, x, z)
-        "steal-jewelry" -> jewelry(now, x, z)
+        "steal-jewelry" -> (if (carried > 0) null else recover(now, x, z)) ?: jewelry(now, x, z)
         "capture-wool" -> wool(now, x, z)
         else -> null
     }
@@ -145,6 +192,9 @@ class ModePlanner(
         const val BASE_RADIUS = 3.0
         const val DEFEND_RADIUS = 7.0
         const val HOLD_MS = 1_500L
+        const val RECOVER_MS = 25_000L
+        const val LOOSE_RANGE = 40.0
+        const val FIXED_CLEARANCE = 5.0
         const val WOOL_HOLD_MS = 12_000L
     }
 }

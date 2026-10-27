@@ -118,42 +118,58 @@ moments:
   # Objective modes (carry-tnt / carry-mini-tnt / steal-jewelry): pickup, drop, return, delivery and the gate warning.
   # Subjects are the players concerned, each reads {item} in their language; delivery plays for the scoring team, the
   # "against" row for the rivals.
+  objective-channel:
+    # The hold begins (a pickup / goal progress bar starts filling): a short rising blip for the holder only.
+    cue: "astera:objective/channel-start"
   objective-pickup:
-    cue: "astera:star/pickup"
+    cue: "astera:objective/pickup"
     title: "astera.objective.moment.pickup.title"
     subtitle: "astera.objective.moment.pickup.subtitle"
     title_stay_ticks: 40
     particle: objective-pickup
   objective-collect:
-    cue: "astera:star/pickup"
+    cue: "astera:objective/pickup"
     action_bar: "astera.objective.moment.collect.bar"
     particle: objective-pickup
   objective-alert:
-    cue: "astera:combat/blocked"
+    # Your objective was taken: the owners hear the alarm and see who to stop.
+    cue: "astera:objective/warn"
     action_bar: "astera.objective.moment.alert.bar"
   objective-drop:
-    cue: "astera:combat/blocked"
+    cue: "astera:objective/drop"
     action_bar: "astera.objective.moment.drop.bar"
     particle: objective-drop
   objective-return:
-    cue: "astera:combat/skill-ready"
+    cue: "astera:objective/return"
     action_bar: "astera.objective.moment.return.bar"
     particle: objective-return
   objective-deliver:
-    cue: "astera:norma/level-up"
+    # The scoring team: the big bank fanfare (and the lower sting for bystanders of the match).
+    cue: "astera:objective/bank"
     audience_cue: "astera:norma/burst"
     title: "astera.objective.moment.deliver.title"
     subtitle: "astera.objective.moment.deliver.subtitle"
     title_stay_ticks: 50
     particle: objective-burst
   objective-deliver-against:
-    cue: "astera:match/sudden-death"
+    cue: "astera:objective/loss"
     title: "astera.objective.moment.deliver-against.title"
     subtitle: "astera.objective.moment.deliver-against.subtitle"
     title_stay_ticks: 50
   objective-warn:
-    cue: "astera:ui/deny"
+    cue: "astera:objective/warn"
     action_bar: "astera.objective.moment.warn.bar"
+  objective-tension:
+    # One more and it is over: everybody in the match feels it.
+    cue: "astera:objective/tension"
+    action_bar: "astera.objective.moment.tension.bar"
+  objective-capture:
+    cue: "astera:objective/capture"
+    action_bar: "astera.objective.moment.capture.bar"
+    particle: objective-burst
+  objective-core-alarm:
+    cue: "astera:objective/core-alarm"
+    action_bar: "astera.objective.moment.core-alarm.bar"
 
 
   # Queue: a short confirmation when queued; "match found" (title + sting) for everyone in the formed roster.

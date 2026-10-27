@@ -9,14 +9,17 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.port.outbound.ObjectiveBarColor
 import com.astarworks.astera.match.application.port.outbound.ObjectiveLook
 import kotlin.math.PI
 import kotlin.math.atan2
+import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 /**
  * The shared "objective feels good" kit of the carry / steal modes (Rainmaker-style): the carrier is slowed, glows and
@@ -47,6 +50,8 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
     public val warnDistance: Double get() = env.int("warn_distance", DEFAULT_WARN_DISTANCE).toDouble()
 
     /** Display name of the mode's objective for [viewer] ("TNT", "jewel", ...). */
+    private val extraBars: MutableMap<PlayerId, MutableSet<String>> = mutableMapOf()
+
     public fun itemName(viewer: PlayerId): String = env.messages.render(viewer, MessageKey("astera.objective.item.$modeKey"))
 
     public fun positionOf(player: PlayerId, includeDead: Boolean = false): Vec3? =
@@ -57,7 +62,7 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
     /** [player] carries [count] objective pieces: glow + block on the head + slowdown by `carrier_slow_pct_per_item` each. */
     public fun carry(player: PlayerId, count: Int, look: ObjectiveLook) {
         carriers += player
-        env.stage()?.setCarrying(player, look)
+        env.stage()?.setCarrying(player, look, count)
         val pct = max(env.int("carrier_min_speed_pct", DEFAULT_MIN_SPEED_PCT), 100 - env.int("carrier_slow_pct_per_item", DEFAULT_SLOW_PCT) * count)
         env.speed()?.setMultiplier(player, SpeedAxis.WALK, pct / 100.0, Int.MAX_VALUE)
     }
@@ -65,7 +70,7 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
     /** [player] no longer carries anything. */
     public fun uncarry(player: PlayerId) {
         if (!carriers.remove(player)) return
-        env.stage()?.setCarrying(player, null)
+        env.stage()?.setCarrying(player, null, 0)
         env.speed()?.resetMultiplier(player, SpeedAxis.WALK)
     }
 
@@ -81,6 +86,7 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
             uncarry(player)
             cancelChannel(player)
             env.stage()?.hideBar(player, STATUS_BAR)
+            extraBars.remove(player)?.forEach { env.stage()?.hideBar(player, it) }
         }
         env.stage()?.clearMatch(match, players)
     }
@@ -97,7 +103,10 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
             return false
         }
         val now = env.now()
-        val ch = channels[player]?.takeIf { it.key == key } ?: Channel(key, now).also { channels[player] = it }
+        val ch = channels[player]?.takeIf { it.key == key } ?: Channel(key, now).also {
+            channels[player] = it
+            moment(PresentationMoments.OBJECTIVE_CHANNEL, player, at = positionOf(player))
+        }
         val need = channelTicks
         val progress = if (need <= 0L) 1.0 else ((now - ch.startedAt).toDouble() / need).coerceIn(0.0, 1.0)
         if (progress >= 1.0) {
@@ -132,6 +141,25 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
         gateway.spawnParticle(world, Vec3(at.x, at.y + BEAM_HEIGHT, at.z), ParticleSpec("minecraft:end_rod", 3, Vec3(0.1, 0.5, 0.1), 0.02, force = true))
     }
 
+    /**
+     * The big team-wide delivery burst at [at]: two rings of dust, a firework fountain and a column of end rods, so a
+     * bank reads from across the base. Call once per delivery.
+     */
+    public fun burst(world: WorldId, at: Vec3, colorName: String?) {
+        val gateway = env.world ?: return
+        val dust = dustOf(colorName)
+        for (ring in 0 until BURST_RINGS) {
+            val radius = 1.2 + ring * 1.3
+            val y = at.y + 0.3 + ring * 0.7
+            for (i in 0 until BURST_POINTS) {
+                val a = 2 * PI * i / BURST_POINTS
+                gateway.spawnParticle(world, Vec3(at.x + radius * cos(a), y, at.z + radius * sin(a)), ParticleSpec("minecraft:dust", 2, Vec3(0.05, 0.05, 0.05), 0.0, dust, 1.8f, force = true))
+            }
+        }
+        gateway.spawnParticle(world, Vec3(at.x, at.y + 0.5, at.z), ParticleSpec("minecraft:firework", 60, Vec3(0.4, 0.2, 0.4), 0.35, force = true))
+        gateway.spawnParticle(world, Vec3(at.x, at.y + 2.0, at.z), ParticleSpec("minecraft:end_rod", 40, Vec3(0.2, 1.5, 0.2), 0.08, force = true))
+    }
+
     /** The carrier's wake: coloured dust at [at]. */
     public fun trail(world: WorldId, at: Vec3, colorName: String?) {
         env.world?.spawnParticle(world, Vec3(at.x, at.y + 1.0, at.z), ParticleSpec("minecraft:dust", 3, Vec3(0.3, 0.5, 0.3), 0.0, dustOf(colorName), 1.2f))
@@ -142,6 +170,17 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
     /** The objective status bar of [player]. */
     public fun statusBar(player: PlayerId, key: MessageKey, params: Map<String, String>, progress: Double, color: ObjectiveBarColor) {
         env.stage()?.showBar(player, STATUS_BAR, env.messages.render(player, key, params), progress.coerceIn(0.0, 1.0), color)
+    }
+
+    /** A further boss bar [barKey] of [player] (e.g. one per team: its bank progress), next to the personal [statusBar]. */
+    public fun bar(player: PlayerId, barKey: String, key: MessageKey, params: Map<String, String>, progress: Double, color: ObjectiveBarColor) {
+        extraBars.getOrPut(player) { mutableSetOf() } += barKey
+        env.stage()?.showBar(player, barKey, env.messages.render(player, key, params), progress.coerceIn(0.0, 1.0), color)
+    }
+
+    /** Hides the personal [statusBar] of [player]. */
+    public fun hideStatusBar(player: PlayerId) {
+        env.stage()?.hideBar(player, STATUS_BAR)
     }
 
     /** An action-bar toast. */
@@ -157,6 +196,12 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
         val dz = target.z - from.z
         val arrow = if (pose == null) "" else arrowFor(pose.direction.x, pose.direction.z, dx, dz)
         toast(player, key, params + mapOf("arrow" to arrow, "dist" to hypot(dx, dz).roundToInt().toString()))
+    }
+
+    /** The arrow glyph for where [target] lies relative to where [player] looks (empty when the pose is unknown). */
+    public fun arrow(player: PlayerId, target: Vec3): String {
+        val pose = env.poses()?.poseOf(player) ?: return ""
+        return arrowFor(pose.direction.x, pose.direction.z, target.x - pose.position.x, target.z - pose.position.z)
     }
 
     /** Plays the presentation row [moment] for [subject]; [audience] hears / sees the bystander part. */
@@ -181,6 +226,8 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
         public const val STATUS_BAR: String = "objective"
         public const val CHANNEL_BAR: String = "channel"
         private const val BEAM_HEIGHT: Int = 8
+        private const val BURST_RINGS: Int = 3
+        private const val BURST_POINTS: Int = 18
         private const val DEFAULT_CHANNEL_TICKS: Int = 15
         private const val DEFAULT_DROP_RETURN_SECONDS: Int = 20
         private const val DEFAULT_PICKUP_RADIUS: Int = 3
@@ -214,6 +261,12 @@ public class ObjectiveKit(private val env: SiegeEnv, private val modeKey: String
         /** Centre of [region] at [lift] above its floor. */
         public fun centreOf(region: com.astarworks.astera.core.domain.stage.Region, lift: Double = 0.0): Vec3 =
             Vec3((region.min.x + region.max.x) / 2, region.min.y + lift, (region.min.z + region.max.z) / 2)
+
+        /** MiniMessage colour tag name for a team colour [name] (unknown colours read white). */
+        public fun tagOf(name: String?): String = when (name) {
+            "red", "blue", "green", "yellow", "gold", "aqua" -> name
+            else -> "white"
+        }
 
         /** Team colour name for glow / dust of [team] (`red`, `blue`, ...). */
         public fun colorOf(team: TeamId): String = team.value
