@@ -30,12 +30,12 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 | [`operations/`](operations/) | 運用 runbook |
 | [`incidents/`](incidents/) | インシデント事後分析 |
 | [`contributing/`](contributing/) | コントリビュータ参加導線 (YAML / Kotlin / Web / Discord) |
-| [`game-design/`](game-design/) | ゲーム企画。Siege / UGC / Place / 武器 / 経済など |
+| [`game-design/`](game-design/) | ゲーム企画。Siege / UGC / Place / 武器 / 経済など。UX: [`bad-ux-checklist.md`](game-design/bad-ux-checklist.md) (BX/SP チェックリスト)・[`ux-clarity-audit-2026-10-27.md`](game-design/ux-clarity-audit-2026-10-27.md) (分かりにくさ監査) |
 | [`ai-pipeline/`](ai-pipeline/) | AI 委託パイプライン (Phase 6 で本格化) |
 | [`research/`](research/) | 業界調査 / サーベイ (CAD × LLM, モデル生成手法 等) |
 | [`security/`](security/) | 公開可能な範囲のセキュリティ方針 |
 | [`reference/`](reference/) | 自動生成リファレンス (YAML / port / event) |
-| [`reference/vfx/`](reference/vfx/README.md) | VFX 資料集 (桜井・失敗事例・業界技法・Minecraft 技法・Re:DIVERSE・改善案。skill を作る/直す前に読む) |
+| [`reference/vfx/`](reference/vfx/README.md) | VFX 資料集 (E3 (@s10129) 技法カタログ [`e3-s10129-techniques.md`](reference/vfx/e3-s10129-techniques.md)・桜井・失敗事例・業界技法・Minecraft 技法・Re:DIVERSE・改善案。skill を作る/直す前に読む) |
 
 ## トップレベル原則 (一覧)
 
