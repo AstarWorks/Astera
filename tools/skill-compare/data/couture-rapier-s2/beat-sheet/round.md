@@ -107,3 +107,8 @@ capture miss: capture-miss.png
 - 刺さり t40-42 (本体 -> 刃 A -> 刃 B の順に音)。引き戻し t51-56、t57 に消える。
 - 粒子 P1 (刃先の光) と P2 (刺さりの火花) は入れた。P3 (糸の縫い目) はエンジンが粒子の target_track を拒否するため未実装。頭上の白い火花 (overhead-spark) は残り続けて多すぎたため削除。
 - 残る限界: 敵の周りの白い粒 (t44-57) は既存の hit2 / burst の粒で、まだ多い。
+
+## 2026-10-28 reviewer round 1 -> fix (01036b8cd)
+- 新規レビュアー FAIL: 飛翔が見えない (t39 に物なし、t40 で敵に刺さる)。launch_speed 1.0 -> 0.6 に変更。再撮影: 飛翔 t36-43 が糸の線上に見える、刺さり t43、命中フレアのピーク t46、引き戻し t54-56、t58 で手に戻る。
+- 粒子: end_rod は長く残るため P1/P2 を electric_spark に変更。空の白い粒 (t44-58) は既存の hit2 / burst 系の end_rod で、まだ多い (未解決、particles 担当へ)。
+- 未解決: 糸が平たい赤い棒 (texture)、刃 A の左上端 t34 (animation)。
