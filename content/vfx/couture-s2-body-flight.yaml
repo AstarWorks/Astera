@@ -23,7 +23,7 @@ elements:
     rotate:
     - 0
     - 0
-    - 0
+    - 90
     scale: &id001
     - 1
     - 1
@@ -36,7 +36,7 @@ elements:
     rotate:
     - 0
     - 0
-    - 0
+    - 90
     scale: *id001
   - t: 40
     translate:
@@ -46,7 +46,7 @@ elements:
     rotate:
     - 0
     - 0
-    - 0
+    - 90
     scale:
     - 1
     - 1

@@ -21,7 +21,7 @@ elements:
     - 0.65
     - -0.8
     rotate:
-    - 0
+    - -90
     - 0
     - 0
     scale: &id001
@@ -34,7 +34,7 @@ elements:
     - 0.12
     - -0.4
     rotate:
-    - 0
+    - -90
     - 0
     - 0
     scale: *id001
@@ -44,7 +44,7 @@ elements:
     - 0.12
     - -0.4
     rotate:
-    - 0
+    - -90
     - 0
     - 0
     scale:
