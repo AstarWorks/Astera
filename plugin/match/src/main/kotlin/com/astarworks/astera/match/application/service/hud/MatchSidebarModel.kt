@@ -103,12 +103,12 @@ public object MatchSidebarModel {
                     val key = if (norma.goal == NormaGoal.STAR) "astera.hud.sidebar.objective-star" else "astera.hud.sidebar.objective-kill"
                     add(HudComponent.Text(MessageKey(key), placeholders = mapOf("progress" to norma.progress.toString(), "target" to norma.target.toString())))
                 }
-                // What the next level opens for this player (ADR-0288): an ultimate or special they carry.
+                // What the next level opens for this player (ADR-0292): the next weapon rarity it opens.
                 norma.nextUnlock?.let {
                     add(
                         HudComponent.Text(
                             MessageKey("astera.hud.sidebar.next-unlock"),
-                            placeholders = mapOf("level" to it.level.toString(), "item" to messages.renderText(viewer, it.item)),
+                            placeholders = mapOf("level" to it.level.toString(), "rarity" to messages.render(viewer, MessageKey("astera.item.tooltip.rarity.${it.rarity.name.lowercase()}"))),
                         ),
                     )
                 }

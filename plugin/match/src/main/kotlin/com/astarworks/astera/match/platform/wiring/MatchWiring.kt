@@ -119,6 +119,8 @@ internal class MatchWiringEnv(
      * of the game mode the match runs (the layer defaults alone when the mode is unknown); read live so reloads apply.
      */
     val modeConfigOf: (com.astarworks.astera.core.domain.match.MatchId) -> Map<String, String>,
+    /** The Norma layer defaults alone (`content/norma-layer/layer.yaml`), for what has no match to ask (item tooltips). */
+    val layerDefaults: () -> Map<String, String>,
     /**
      * Whether the Norma layer (stars, kill burst, Norma levels, time-limit ranking) runs in this match. It is a
      * standard layer of every game mode: on unless the mode's `default_config` says `norma_layer: "false"`. The
@@ -655,6 +657,7 @@ public object MatchWiring {
             permService = permService, msgRenderer = msgRenderer, matchModeRegistry = matchModeRegistry,
             facade = facade, queueSettings = queueSettings, annihilationTracker = annihilationTracker, worldGateway = worldGateway,
             modeConfigOf = modeConfigOf,
+            layerDefaults = normaLayer::defaults,
             normaLayerOf = { id -> modeConfigOf(id)["norma_layer"] != "false" },
             scheduledTasks = scheduledTasks, shutdownHooks = shutdownHooks,
         )

@@ -32,11 +32,9 @@ skills:
   skill_id: verdict-hammer-s2
 - trigger: sneak_right
   skill_id: verdict-hammer-s3
-  min_norma_level: 2
 - trigger: sneak_left
   skill_id: verdict-hammer-def
 - trigger: drop
   skill_id: verdict-hammer-ego
-  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

@@ -31,11 +31,9 @@ skills:
   skill_id: ember-gauntlet-s2
 - trigger: sneak_right
   skill_id: ember-gauntlet-s3
-  min_norma_level: 2
 - trigger: sneak_left
   skill_id: ember-gauntlet-def
 - trigger: drop
   skill_id: ember-gauntlet-ego
-  min_norma_level: 3
 pdc_tags:
   astera:rarity: epic

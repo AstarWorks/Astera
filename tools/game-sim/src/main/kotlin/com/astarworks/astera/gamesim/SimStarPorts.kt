@@ -11,6 +11,7 @@ import com.astarworks.astera.match.application.port.outbound.IMatchPlayerPositio
 import com.astarworks.astera.match.application.port.outbound.INormaPresentation
 import com.astarworks.astera.match.application.port.outbound.IStarDropWorld
 import com.astarworks.astera.match.domain.norma.NormaGoal
+import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.match.domain.norma.NormaUnlock
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -91,14 +92,14 @@ public class SimNormaPresentation : INormaPresentation {
     public val picked: MutableList<Choice> = CopyOnWriteArrayList()
     public val defaulted: MutableList<Choice> = CopyOnWriteArrayList()
 
-    public val locked: MutableList<Pair<PlayerId, Int>> = CopyOnWriteArrayList()
+    public val locked: MutableList<Triple<PlayerId, Int, Rarity>> = CopyOnWriteArrayList()
 
     override fun levelUp(player: PlayerId, audience: List<PlayerId>, level: Int, maxLevel: Int, unlocked: List<NormaUnlock>) {
         levelUps += LevelUp(player, audience, level, maxLevel, unlocked)
     }
 
-    override fun locked(player: PlayerId, required: Int) {
-        locked += player to required
+    override fun locked(player: PlayerId, required: Int, rarity: Rarity) {
+        locked += Triple(player, required, rarity)
     }
 
     override fun choiceOpened(player: PlayerId) {
