@@ -35,23 +35,35 @@ else
   from=${1:?usage: $0 <from-sha> <to-sha> or --skills a,b}
   to=${2:-HEAD}
   sha=$(git rev-parse "$to")
-  mapfile -t paths < <(git diff --name-only --no-renames "$from" "$to" -- content/skills content/vfx content/animations content/models content/sounds content/particles content/particle-skins content/poses content/items)
+  mapfile -t paths < <(git diff --name-only --no-renames "$from" "$to" -- content/skills content/frames content/vfx content/animations content/models content/sounds content/particles content/particle-skins content/poses content/items \
+    kernel/domain/src/main/kotlin/com/astarworks/astera/core/domain/skillengine kernel/runtime/src/main/kotlin/com/astarworks/astera/core/application/skillengine \
+    plugin/combat/src/main/kotlin/com/astarworks/astera/combat/adapter/paper/skillengine tools/game-sim/src/test/kotlin/com/astarworks/astera/gamesim/SkillTraceExportScenarioTest.kt tools/skill-viewer)
   declare -A seen=()
+  all=0
   for p in "${paths[@]}"; do
     case "$p" in
+      kernel/*|plugin/*|tools/*) all=1 ;;                               # engine / sim / viewer code: every skill-compare skill
+      content/skills/*/*) rest=${p#content/skills/}; seen[${rest%%/*}]=1 ;;   # v2 skill dir
       content/skills/*.yaml) seen[$(basename "$p" .yaml)]=1 ;;
-      *) # a shared asset: every skill YAML naming its stem
+      *) # a shared asset (frame, vfx, model, ...): every skill (dir or file) naming its stem
         stem=$(basename "$p")
         stem=${stem%%.*}
-        while IFS= read -r f; do seen[$(basename "$f" .yaml)]=1; done < <(grep -rlw -- "$stem" content/skills 2>/dev/null) ;;
+        while IFS= read -r f; do
+          rest=${f#content/skills/}
+          case "$rest" in */*) seen[${rest%%/*}]=1 ;; *) seen[$(basename "$f" .yaml)]=1 ;; esac
+        done < <(grep -rlw -- "$stem" content/skills 2>/dev/null) ;;
     esac
   done
-  skills=("${!seen[@]}")
+  if [ "$all" = 1 ]; then
+    mapfile -t skills < <(grep -ho '"asteraSkillId": "[^"]*"' tools/skill-compare/data/*/case.json | sed 's/.*: "//;s/"//' | sort -u)
+  else
+    skills=("${!seen[@]}")
+  fi
 fi
 # only skills a skill-compare case plays
 cases=()
 for s in "${skills[@]}"; do
-  [ -f "content/skills/$s.yaml" ] || continue
+  [ -f "content/skills/$s.yaml" ] || [ -f "content/skills/$s/skill.yaml" ] || continue
   grep -lq "\"asteraSkillId\": \"$s\"" tools/skill-compare/data/*/case.json 2>/dev/null || continue
   cases+=("$s")
 done
