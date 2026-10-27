@@ -574,6 +574,7 @@ write_client_files() { # name width height
   cat > "$wd/options.txt" <<EOF
 version:5023
 fov:${FOV_OPT:-0.0}
+fovEffectScale:${FOV_EFFECT_SCALE:-1.0}
 bobView:false
 renderDistance:$RENDER_DISTANCE
 simulationDistance:6

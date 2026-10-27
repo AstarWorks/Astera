@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0284: First-person hiding of the skin rig is a client-side camera-distance fade in the shader
+# ADR-0285: First-person hiding of the skin rig is a client-side camera-distance fade in the shader
 
 ## Status
 
@@ -26,7 +26,7 @@ The hiding is done on the client, in the resource-pack shader, by distance to th
 - `entity.vsh` passes the camera-space position of every rig fragment (`rigViewPos`, only for rig parts);
 - `entity.fsh` discards rig fragments closer than `*_NEAR`, shows them fully from `*_FAR`, and uses a 4x4 Bayer ordered
   dither in between (the pass is cutout/opaque, so no alpha blending). Constants at the top of the patch:
-  body/head/legs 0.6 -> 1.2 blocks, arms 0.25 -> 0.6 blocks (arms fade more gently, so the first-person swing feel stays);
+  body/head/legs 0.6 -> 1.2 blocks, arms 0.1 -> 0.35 blocks (arms fade more gently, so the first-person swing feel stays);
 - first person: the caster's rig overlaps the camera, hidden. F5: the camera is 3+ blocks away, fully visible. Other
   players' rigs are practically never within 1 block of your camera, so they look unchanged. Non-rig geometry is untouched.
 
@@ -51,4 +51,14 @@ F5, which is what this ADR avoids.
 
 ## Verification
 
-`make rig-fade-shot` (real client, tools/vfx-shot/rig-fade-shot.sh), skill anim-demo-sword-swing, 2026-10-27: first person shows no rig head/torso/arms (only the held weapon display); F5 back shows the full rig with no holes; a bystander 2.4 blocks away sees the rig unchanged. Core shader: `core/entity.{vsh,fsh}` (player_head ItemDisplay, `astera:skinrig`) on 26.3.
+`make rig-fade-shot` (real client, `tools/vfx-shot/rig-fade-shot.sh`, skill `anim-demo-sword-swing`, FOV effects off so
+`lock_movement` does not zoom the capture), 2026-10-27, A/B against the origin/main shader (`OUT_TAG=base`):
+
+- First person: the main-branch shader shows the swinging right arm filling the right quarter of the view (frames 12-14 of
+  the baseline) with the older arm radii 0.25 -> 0.6 the arm vanished completely, so the radii were lowered to 0.1 -> 0.35:
+  head, torso and legs never show, the arm still sweeps into view. The held-weapon display is not faded.
+- F5 (back, vanilla 4 blocks): the whole swing shows the full rig with no holes.
+- Bystander 2.4 blocks away: pose, twist and weapon identical to the baseline; the swing frames are clearly the rig (body
+  twist), the frames before/after are the rig at rest, indistinguishable from the vanilla model.
+
+Core shader: `core/entity.{vsh,fsh}` (player_head ItemDisplay, `astera:skinrig`) on 26.3.
