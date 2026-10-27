@@ -1,9 +1,0 @@
-# Zwei S3: light grey low smoke puffs at the slam foot (small, no big white sphere, no black clouds)
-id: bastion-s3-smoke
-shape: { kind: burst, spread_blocks: 0.4 }
-color: { r: 170, g: 170, b: 175 }
-count: 2
-lifetime_ticks: 16
-vanilla_particle: poof
-velocity: { direction: outward, speed: 0.06, spread_degrees: 70 }
-force: true
