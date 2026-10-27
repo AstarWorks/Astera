@@ -20,7 +20,7 @@ travel: caster z 300.5 -> 305.9 over cast+38..40 (5.4 blocks, from trace / `cast
 DISTANCE=7.2 (case intent enemy x)  FOV=45 (compare: intent camera)  skippedTicks=0  opponent alive  sha = dev
 
 ## Framing
-caster bbox: ref 11% | this 9% | previous 9%   (key ticks t10/t40/t63; read off the sheet until the API measures it)
+caster height: ref 26% | this 25% | previous 24%   (compare API framing[].casterHeightPct; ratioToRef 0.96)
 
 ## Tool fidelity
 screen_flash: not shown by the spectator capture (title overlay) -> judged in game at gate 2
@@ -45,7 +45,7 @@ Rules for the sections:
 - **Compare**: the sheet comes from the compare API (`GET /api/cases/<id>/compare?ticks=..&views=ref,<view>&rounds=current,prev` saved as `compare/compare.json`, `GET .../sheet.png?<same>` saved as `compare/sheet.png`, both beside the notes; see [tools/skill-compare/README.md](../../../tools/skill-compare/README.md) "Comparison API"). `round-gate` fails when `compare.json` says `regression: true` (fx coverage / brightness dropped more than 20% vs the previous round at a key tick). Hand-built crops do not satisfy this section. Default key ticks = the sheet's contact ticks.
 - **Trace**: numbers are copied from the `[vfx-trace]` server log (`docker logs` of the capture stack kept with `SHOT_KEEP=1`, or compare.json `sources[].trace` = `fxSpawnTicks`, `casterTravelBlocks`, `finalGapBlocks` when the capture published `trace.log`). Every `vfx_id` the skill plays must appear with `cast+N`. If the plan tick and the trace disagree, say so here; a content change to timing is allowed only then.
 - **Capture scene**: the enemy distance equals the case intent (`DISTANCE=`), FOV is stated, provenance conditions from the README "Real-client capture" are met.
-- **Framing**: caster bbox share of the frame at the key ticks, `ref` vs `this`; `this` must be within 0.5x-2x of `ref` or the capture is not review-valid (recapture with `FOV_DOLLY` / distance, see [tools/vfx-shot/README.md](../../../tools/vfx-shot/README.md)).
+- **Framing**: caster height as % of the frame (compare API `framing[].casterHeightPct`: analytic for the capture, annotated `ref_caster_height_pct` for the ref), `ref` vs `this`; `ratioToRef` must be within 0.5x-2x or the capture is not review-valid (recapture with `FOV_DOLLY` / distance, see [tools/vfx-shot/README.md](../../../tools/vfx-shot/README.md)).
 - **Tool fidelity**: one line per mechanic type found in the skill YAML (`screen_flash`, `send_title`, `camera_shake`, `spawn_particle` / particle elements, sprites, `play_sound`): `shown (view tick)` or `not shown -> gate 2`. A row that the capture cannot show is not judged by the reviewer.
 - **Regression**: `weaker than previous: none` is required to finish the round. Anything weaker is a × of this round even when its sheet row is ○. The first round of a skill writes `previous: none`.
 - **One point to look at**: one line; the manager's report quotes it.
