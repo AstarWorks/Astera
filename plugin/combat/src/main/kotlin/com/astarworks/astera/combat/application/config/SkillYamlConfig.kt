@@ -25,6 +25,15 @@ import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
+import com.astarworks.astera.core.domain.effect.SoundId
+import com.astarworks.astera.core.domain.effect.vfx.VfxDefinition
+import com.astarworks.astera.core.domain.effect.vfx.VfxId
+import com.astarworks.astera.core.domain.effect.vfx.telegraph.TelegraphShape
+import com.astarworks.astera.core.domain.effect.vfx.telegraph.TelegraphTeam
+import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
+import com.astarworks.astera.core.domain.skill.targeter.Targeter
+import com.astarworks.astera.core.domain.skill.value.IntValue
+import com.astarworks.astera.core.domain.skill.value.NumericValue
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -110,6 +119,8 @@ public data class SkillYamlConfig(
     public val tags: List<String> = emptyList(),
     /** Telegraphed wind-up before impact (sound arc, ground warning, vfx). DTO only: desugared into cast-phase mechanics later. */
     public val windup: WindupYaml? = null,
+    /** Skill rank 1..10 (docs/contributing/vfx-art-direction.md). Read by tools/skill-lint (windup > 20 ticks needs >= 9); no runtime effect. */
+    public val importance: Int? = null,
 ) {
     /**
      * Materialize this DTO into the domain [SkillSpec].
@@ -120,7 +131,7 @@ public data class SkillYamlConfig(
     public fun toSpec(): SkillSpec {
         val parsedArchetype = SkillArchetype.valueOf(archetype.trim().uppercase())
         val domainParams = params.toDomain()
-        val domainPhases = phases.toDomain()
+        val domainPhases = phases.toDomain().let { base -> windup?.let { applyWindup(parsedArchetype, base, it) } ?: base }
 
         require(matchesParams(parsedArchetype, domainParams)) {
             "Skill '$id' archetype=$parsedArchetype does not match params=${domainParams::class.simpleName}"
@@ -154,6 +165,60 @@ public data class SkillYamlConfig(
             blockDamage = blockDamage?.toDomain(id),
             blockPlace = blockPlace?.toDomain(),
         )
+    }
+
+    /**
+     * Desugars the skill-level `windup:` block into cast-phase mechanics (ADR-0288): the sound, telegraph and vfx start at cast
+     * tick 0, `stop_sound` cuts the sound at the impact tick, and the existing cast mechanics are shifted by `windup.ticks`
+     * (wrapped in a delayed one-iteration loop). Only `sequence` skills qualify: melee / aoe / projectile apply their baseline
+     * damage in the archetype handler, outside the mechanics, so their impact cannot be moved from here.
+     */
+    private fun applyWindup(archetype: SkillArchetype, base: PhaseMechanics, windup: WindupYaml): PhaseMechanics {
+        require(windup.ticks in 1..VfxDefinition.MAX_DURATION_TICKS) { "Skill '$id': windup.ticks must be 1..${VfxDefinition.MAX_DURATION_TICKS}: ${windup.ticks}" }
+        require(archetype == SkillArchetype.SEQUENCE && base is PhaseMechanics.Sequence) {
+            "Skill '$id': windup is supported on archetype=sequence only (got $archetype); its baseline damage cannot be delayed"
+        }
+        val caster = Targeter.Caster
+        val lead = ArrayList<Mechanic>()
+        windup.sound?.let { sound ->
+            val soundId = SoundId(sound.soundId)
+            lead += Mechanic.PlaySound(
+                targets = caster,
+                soundId = soundId,
+                volume = NumericValue.Literal(sound.volume),
+                pitch = NumericValue.Literal(sound.pitch),
+                pitchArc = sound.pitchArc?.toDomain(),
+            )
+            if (sound.stopAtImpact) {
+                lead += Mechanic.StopSound(targets = caster, soundId = soundId, delayTicks = IntValue.Literal(windup.ticks))
+            }
+        }
+        windup.telegraph?.let { t ->
+            lead += Mechanic.Telegraph(
+                targets = caster,
+                shape = TelegraphShape.fromYaml(t.shape),
+                radius = NumericValue.Literal(t.radius),
+                angleDegrees = NumericValue.Literal(t.angleDegrees),
+                width = NumericValue.Literal(t.width),
+                ticks = IntValue.Literal(windup.ticks),
+                impactTick = IntValue.Literal(windup.ticks),
+                teamColor = TelegraphTeam.fromYaml(t.teamColor),
+            )
+        }
+        windup.vfx?.let { lead += Mechanic.PlayVfx(targets = caster, vfxId = VfxId(it)) }
+        val shifted = if (base.cast.isEmpty()) {
+            emptyList()
+        } else {
+            listOf(
+                Mechanic.Loop(
+                    targets = caster,
+                    count = IntValue.Literal(1),
+                    mechanics = base.cast,
+                    delayTicks = IntValue.Literal(windup.ticks),
+                ),
+            )
+        }
+        return base.copy(cast = lead + shifted)
     }
 
     private fun matchesParams(archetype: SkillArchetype, params: SkillParams): Boolean = when (archetype) {
