@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal): Ember Rod.
+
+id: ember-rod
+
+material: BLAZE_ROD
+
+name:
+  ja: "<red>エンバーロッド</red>"
+  en: "<red>Ember Rod</red>"
+lore:
+  ja:
+    - "<gray>右クリック: 火花</gray>"
+    - "<gray>スニーク + 右クリック: 火炎爆発</gray>"
+  en:
+    - "<gray>Right-click: ember spark</gray>"
+    - "<gray>Sneak + right-click: ember burst</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 2.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: right_click
+    skill_id: ember-rod-spark
+  - trigger: sneak_right
+    skill_id: ember-rod-burst
+
+pdc_tags:
+  astera:rarity: uncommon

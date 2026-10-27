@@ -1,0 +1,46 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/match-shop.schema.json",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "offers": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/com.astarworks.astera.economy.application.config.MatchShopOfferYamlConfig"
+            }
+        }
+    },
+    "definitions": {
+        "com.astarworks.astera.economy.application.config.MatchShopOfferYamlConfig": {
+            "type": "object",
+            "properties": {
+                "item_id": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer",
+                        "minimum": 1
+                    }
+                },
+                "tab": {
+                    "type": "string",
+                    "enum": ["weapons", "tools", "blocks", "armor"]
+                },
+                "stack": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            },
+            "required": [
+                "item_id",
+                "price",
+                "tab"
+            ]
+        }
+    }
+}

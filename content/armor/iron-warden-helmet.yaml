@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Iron Warden helmet.
+
+type: piece
+id: iron-warden-helmet
+display_name_key: astera.armor.iron-warden-helmet.name
+slot: helmet
+damage_reduction: 0.06
+set_key: iron-warden

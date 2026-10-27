@@ -66,6 +66,8 @@ public data class GeneratorYamlConfig(
     @SerialName("stockpile_cap") public val stockpileCap: Int = StarGenerator.DEFAULT_STOCKPILE_CAP,
     @SerialName("pickup_radius") public val pickupRadius: Double = StarGenerator.DEFAULT_PICKUP_RADIUS,
     @SerialName("late_game_multiplier") public val lateGameMultiplier: Double = 1.0,
+    /** Drops this item id on the ground each pop instead of stars (ore generators). */
+    @SerialName("drop_item") public val dropItem: String? = null,
 ) {
     /**
      * Convert the parsed DTO into a domain [StarGenerator] under [matchId].
@@ -114,6 +116,7 @@ public data class GeneratorYamlConfig(
                 stockpileCap = stockpileCap,
                 pickupRadius = pickupRadius,
                 lateGameMultiplier = lateGameMultiplier,
+                dropItem = dropItem,
             ),
         )
     }

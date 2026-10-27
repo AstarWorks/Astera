@@ -523,6 +523,14 @@ public class SimItemIdResolver(
     override fun inventoryItemIds(playerId: PlayerId): List<ItemId> = inventory(playerId).map(::ItemId)
 
     override fun removeOne(playerId: PlayerId, itemId: ItemId): Boolean = remove(playerId, itemId.value)
+
+    override fun countOf(playerId: PlayerId, itemId: ItemId): Int = inventory(playerId).count { it == itemId.value }
+
+    override fun removeAmount(playerId: PlayerId, itemId: ItemId, amount: Int): Boolean {
+        if (amount <= 0 || countOf(playerId, itemId) < amount) return false
+        repeat(amount) { remove(playerId, itemId.value) }
+        return true
+    }
 }
 
 /** [IItemCooldownSweepGateway] that records the sweeps (`Player.setCooldown(group, ticks)` on Paper). */

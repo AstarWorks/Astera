@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Diamond Champion chestplate.
+
+type: piece
+id: diamond-champion-chestplate
+display_name_key: astera.armor.diamond-champion-chestplate.name
+slot: chestplate
+damage_reduction: 0.16
+set_key: diamond-champion

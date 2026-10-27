@@ -1,0 +1,26 @@
+# Match arsenal (wp/match-arsenal): Reinforced Planks.
+
+id: reinforced-planks-block
+
+material: DARK_OAK_PLANKS
+
+name:
+  ja: "<gold>補強板</gold>"
+  en: "<gold>Reinforced Planks</gold>"
+lore:
+  ja:
+    - "<gray>置いて遮蔽物にする</gray>"
+    - "<gray>壊すには合った道具が必要</gray>"
+  en:
+    - "<gray>Place it for cover</gray>"
+    - "<gray>Use the right tool to break it</gray>"
+
+rarity: common
+level_requirement: 1
+
+equip_slot: mainhand
+drop_on_death: false
+keep_on_death: false
+
+pdc_tags:
+  astera:rarity: common

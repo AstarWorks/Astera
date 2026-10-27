@@ -404,6 +404,77 @@ public sealed class Mechanic {
         override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
+    /** Shape of a [BreakArea] cut. */
+    public enum class AreaShape { SPHERE, LINE, BOX }
+
+    /** Shape of a [PlaceShape] build. */
+    public enum class BuildShape { WALL, BRIDGE, PILLAR, PLATFORM }
+
+    /**
+     * Break the world blocks inside [shape] in front of the caster (tool skills: pickaxe quarry, axe cleave, ...).
+     * SPHERE: [radius] around the point [length] ahead; LINE: a [length]-long tube of [width] along the look
+     * direction; BOX: [width] x [height] x [length] ahead. [power] is the hardness ceiling (1 = soil / wood / wool /
+     * glass, 2 = + stone and ores, 3 = anything not protected) and [toolClass] (PICKAXE / AXE / SHOVEL) narrows the
+     * cut to what that tool class digs. Edits revert like [RemoveBlock] and only touch arena blocks the edit guard allows.
+     */
+    public data class BreakArea(
+        val shape: AreaShape,
+        val radius: Double = 2.0,
+        val length: Double = 6.0,
+        val width: Double = 3.0,
+        val height: Double = 3.0,
+        val power: Double = 2.0,
+        val toolClass: String? = null,
+        val revertAfterTicks: IntValue = IntValue.Literal(0),
+        val outsideArena: BoolValue = BoolValue.Literal(false),
+        override val targets: Targeter = Targeter.Caster,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic() {
+        init {
+            require(radius in 0.0..16.0) { "Mechanic.BreakArea.radius must be in 0..16: $radius" }
+            require(length in 0.0..32.0) { "Mechanic.BreakArea.length must be in 0..32: $length" }
+            require(width in 1.0..16.0) { "Mechanic.BreakArea.width must be in 1..16: $width" }
+            require(height in 1.0..16.0) { "Mechanic.BreakArea.height must be in 1..16: $height" }
+            require(power in 0.0..3.0) { "Mechanic.BreakArea.power must be in 0..3: $power" }
+        }
+    }
+
+    /**
+     * Raise a temporary [shape] of [blockKey] in front of the caster, only into empty space: WALL [width] x [height]
+     * one block thick just ahead, BRIDGE a [width]-wide path [length] long at the feet level ahead, PILLAR a
+     * [height]-tall column just ahead, PLATFORM a [width] x [length] slab at the feet. With [consumeFromInventory]
+     * each placed block costs one inventory item ([itemId], default the block key's name); placement stops when
+     * the inventory runs out. Reverts like [SetBlock].
+     */
+    public data class PlaceShape(
+        val shape: BuildShape,
+        val blockKey: String,
+        val width: Int = 3,
+        val height: Int = 3,
+        val length: Int = 4,
+        val consumeFromInventory: Boolean = false,
+        val itemId: String? = null,
+        val revertAfterTicks: IntValue = IntValue.Literal(0),
+        val outsideArena: BoolValue = BoolValue.Literal(false),
+        override val targets: Targeter = Targeter.Caster,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic() {
+        init {
+            require(blockKey.isNotBlank()) { "Mechanic.PlaceShape.blockKey must not be blank" }
+            require(width in 1..16) { "Mechanic.PlaceShape.width must be in 1..16: $width" }
+            require(height in 1..16) { "Mechanic.PlaceShape.height must be in 1..16: $height" }
+            require(length in 1..32) { "Mechanic.PlaceShape.length must be in 1..32: $length" }
+        }
+    }
+
     /**
      * Explosion at each target location. [power] is the visual strength and,
      * unless [radius] is given, the blast radius in blocks. [components] is the

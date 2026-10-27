@@ -593,6 +593,80 @@ public sealed class MechanicYaml {
     }
 
     @Serializable
+    @SerialName("break_area")
+    public data class BreakArea(
+        public val shape: String,
+        public val radius: Double = 2.0,
+        public val length: Double = 6.0,
+        public val width: Double = 3.0,
+        public val height: Double = 3.0,
+        public val power: Double = 2.0,
+        @SerialName("tool_class") public val toolClass: String? = null,
+        @SerialName("revert_after_ticks") public val revertAfterTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("outside_arena") public val outsideArena: BoolValueYaml = BoolValueYaml.Literal(false),
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.BreakArea(
+            shape = parseEnum<Mechanic.AreaShape>(shape, "break_area.shape"),
+            radius = radius,
+            length = length,
+            width = width,
+            height = height,
+            power = power,
+            toolClass = toolClass?.trim()?.uppercase()?.also {
+                require(it in TOOL_CLASSES) { "break_area.tool_class must be one of $TOOL_CLASSES: '$toolClass'" }
+            },
+            revertAfterTicks = revertAfterTicks.toDomain(),
+            outsideArena = outsideArena.toDomain(),
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
+        )
+    }
+
+    @Serializable
+    @SerialName("place_shape")
+    public data class PlaceShape(
+        public val shape: String,
+        @SerialName("block_key") public val blockKey: String,
+        public val width: Int = 3,
+        public val height: Int = 3,
+        public val length: Int = 4,
+        @SerialName("consume_from_inventory") public val consumeFromInventory: Boolean = false,
+        @SerialName("item_id") public val itemId: String? = null,
+        @SerialName("revert_after_ticks") public val revertAfterTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("outside_arena") public val outsideArena: BoolValueYaml = BoolValueYaml.Literal(false),
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.PlaceShape(
+            shape = parseEnum<Mechanic.BuildShape>(shape, "place_shape.shape"),
+            blockKey = blockKey,
+            width = width,
+            height = height,
+            length = length,
+            consumeFromInventory = consumeFromInventory,
+            itemId = itemId,
+            revertAfterTicks = revertAfterTicks.toDomain(),
+            outsideArena = outsideArena.toDomain(),
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
+        )
+    }
+
+    @Serializable
     @SerialName("explode")
     public data class Explode(
         public val targets: TargeterYaml,
@@ -1329,6 +1403,12 @@ public sealed class MechanicYaml {
     }
 
     public companion object {
+        private val TOOL_CLASSES: Set<String> = setOf("PICKAXE", "AXE", "SHOVEL")
+
+        private inline fun <reified E : Enum<E>> parseEnum(raw: String, field: String): E =
+            enumValues<E>().firstOrNull { it.name.equals(raw.trim(), ignoreCase = true) }
+                ?: throw IllegalArgumentException("$field: unknown value '$raw' (expected ${enumValues<E>().joinToString { it.name.lowercase() }})")
+
         private fun Map<String, String>.toLocalizedText(): LocalizedText =
             if (isEmpty()) LocalizedText.EMPTY
             else LocalizedText(mapKeys { (k, _) -> LocaleCode.parse(k) })

@@ -1,0 +1,16 @@
+# Obsidian plate: only a diamond pickaxe makes real progress. 1500 HP -> 10 diamond-pickaxe hits.
+
+id: "astera:obsidian_plate"
+display_name:
+  en: "Obsidian Plate"
+  ja: "黒曜の板"
+base_bukkit_material: "OBSIDIAN"
+material: "STONE"
+base_durability: 1500
+
+tool_effectiveness:
+  "PICKAXE/IRON": 30
+  "PICKAXE/DIAMOND": 150
+  "AXE/IRON": 0
+  "SHOVEL/IRON": 0
+placed_from: "obsidian-plate-block"

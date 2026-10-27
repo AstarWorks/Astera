@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Chain Guard chestplate.
+
+type: piece
+id: chain-guard-chestplate
+display_name_key: astera.armor.chain-guard-chestplate.name
+slot: chestplate
+damage_reduction: 0.09
+set_key: chain-guard

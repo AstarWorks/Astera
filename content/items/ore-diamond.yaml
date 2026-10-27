@@ -1,0 +1,30 @@
+# Match currency (match-arsenal): earned from ore nodes / generators, spent at the in-match ore shop
+# (content/shops/match-shop.yaml). Match-scoped: leftovers are wiped at match end. Never sold for GOLD.
+
+id: ore-diamond
+
+material: DIAMOND
+
+name:
+  ja: "<aqua>ダイヤ鉱石</aqua>"
+  en: "<aqua>Diamond Ore</aqua>"
+lore:
+  ja:
+    - "<gray>試合中の通貨。陣地のショップで武具と交換できる。</gray>"
+    - "<dark_gray>試合終了時に消える</dark_gray>"
+  en:
+    - "<gray>Match currency. Trade it for gear at your base's shop.</gray>"
+    - "<dark_gray>Vanishes when the match ends</dark_gray>"
+
+rarity: common
+level_requirement: 1
+
+equip_slot: mainhand
+unbreakable: true
+enchantable: false
+drop_on_death: true
+keep_on_death: false
+
+pdc_tags:
+  astera:rarity: common
+  astera:currency: "ore-diamond"

@@ -133,7 +133,7 @@ public abstract class YamlDynamicContents<K : Any, V : Any, C : Any>(
         var failed = 0
         val failures = mutableListOf<ContentLoader.LoadFailure>()
         for (d in dirs) {
-            val r = loader.loadFrom(d, onLoaded)
+            val r = loader.loadFrom(d, onLoaded = onLoaded)
             loaded += r.loaded
             failed += r.failed
             failures += r.failures

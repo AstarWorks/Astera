@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal): Frost Rod.
+
+id: frost-rod
+
+material: AMETHYST_SHARD
+
+name:
+  ja: "<aqua>フロストロッド</aqua>"
+  en: "<aqua>Frost Rod</aqua>"
+lore:
+  ja:
+    - "<gray>右クリック: みぞれ</gray>"
+    - "<gray>スニーク + 右クリック: 冷気</gray>"
+  en:
+    - "<gray>Right-click: sleet</gray>"
+    - "<gray>Sneak + right-click: chill</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 2.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: right_click
+    skill_id: frost-rod-sleet
+  - trigger: sneak_right
+    skill_id: frost-rod-chill
+
+pdc_tags:
+  astera:rarity: uncommon

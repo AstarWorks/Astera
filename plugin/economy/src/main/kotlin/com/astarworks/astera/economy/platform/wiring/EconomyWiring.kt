@@ -345,6 +345,60 @@ public object EconomyWiring {
             shopIntentHandler.handle(intent, player)
         }
 
+        // ── In-match ore shop (match-arsenal W1): ore-priced catalog, team-base shop NPCs, matchshop.* intents ──
+        val matchShopLoader = com.astarworks.astera.economy.application.service.MatchShopLoaderService()
+        val matchShopReport = matchShopLoader.loadFrom(shopsContentDir)
+        logger.info("Loaded match shop from $shopsContentDir (loaded: ${matchShopReport.loaded}, failed: ${matchShopReport.failed})")
+        val matchTeams = com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup { id ->
+            services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()?.teamOf(id)
+        }
+        val ownedStock = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemStock>() }
+        val matchShopPurchase = com.astarworks.astera.economy.application.usecase.shop.MatchShopPurchaseUseCase(
+            itemRegistry = itemRegistry,
+            server = mcServer,
+            stock = ownedStock,
+            delivery = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemDelivery>() },
+            inMatch = { playerId ->
+                services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()?.teamOf(playerId) != null
+            },
+        )
+        val matchShopHandler = com.astarworks.astera.economy.application.intent.MatchShopIntentHandler(
+            catalog = { matchShopLoader.catalog },
+            purchase = matchShopPurchase,
+            adapter = guiAdapter,
+            server = mcServer,
+            messages = msgRenderer,
+            players = playerGateway,
+            teams = matchTeams,
+            stock = ownedStock,
+        )
+        registrations += intentRouter.register(
+            com.astarworks.astera.economy.application.intent.MatchShopIntentHandler.INTENT_PREFIX,
+        ) { intent, player -> matchShopHandler.handle(intent, player) }
+        val matchShopSpawner = services.get<com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner>()
+        val matchShopRouter = services.get<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>()
+        val matchShopStages = services.get<com.astarworks.astera.core.application.port.outbound.IStageRegistry>()
+        if (matchShopSpawner != null && matchShopRouter != null && matchShopStages != null) {
+            val matchShopNpcs = com.astarworks.astera.economy.application.service.MatchShopNpcService(
+                stages = matchShopStages,
+                spawner = matchShopSpawner,
+                interactions = matchShopRouter,
+                bodies = { services.get<com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer>() },
+                matches = matchRepository,
+                worldOf = { matchId ->
+                    services.get<com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository>()?.findByMatch(matchId)?.worldId
+                },
+                stock = ownedStock,
+                catalog = { matchShopLoader.catalog },
+            )
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { event ->
+                matchShopNpcs.onStarted(event)
+            }
+            subscriptions += eventBus.subscribe(MatchEnded::class) { event -> matchShopNpcs.onEnded(event) }
+        } else {
+            logger.warning("Match shop NPCs disabled: entity spawner / NPC router / stage registry unavailable.")
+        }
+
         // ── ECO-02 / ECO-04 (ADR-0269) — cosmetics menu: GOLD sink + title / colour / kill-effect equip ──
         // Opened from the profile card button (`cosmetic.open`); lobby-only like the shop.
         if (ctx.serverRole.hostsLobby) {

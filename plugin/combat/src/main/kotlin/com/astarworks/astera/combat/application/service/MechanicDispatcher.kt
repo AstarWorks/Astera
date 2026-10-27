@@ -299,6 +299,8 @@ public class MechanicDispatcher(
         playerHealth = { playerHealth?.invoke() },
         entityHealth = { entityHealth?.invoke() },
         living = ::living,
+        itemRemoval = { itemRemoval?.invoke() },
+        consumptionRecorder = { consumptionRecorder?.invoke() },
         log = log,
     )
 
@@ -772,6 +774,8 @@ public class MechanicDispatcher(
             is Mechanic.Summon -> worldMechanics.summon(mechanic, ctx)
             is Mechanic.SetBlock -> worldMechanics.setBlock(mechanic, ctx)
             is Mechanic.RemoveBlock -> worldMechanics.removeBlock(mechanic, ctx)
+            is Mechanic.BreakArea -> worldMechanics.breakArea(mechanic, ctx)
+            is Mechanic.PlaceShape -> worldMechanics.placeShape(mechanic, ctx)
             is Mechanic.Explode -> worldMechanics.explode(mechanic, ctx)
 
             // ===== Item / inventory ===================================

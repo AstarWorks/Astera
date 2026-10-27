@@ -1,0 +1,8 @@
+# Match arsenal (wp/match-arsenal): Iron Warden leggings.
+
+type: piece
+id: iron-warden-leggings
+display_name_key: astera.armor.iron-warden-leggings.name
+slot: leggings
+damage_reduction: 0.09
+set_key: iron-warden
