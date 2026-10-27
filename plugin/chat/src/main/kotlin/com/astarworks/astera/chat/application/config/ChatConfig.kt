@@ -14,7 +14,7 @@ public data class ChatConfig(
     public val discord: DiscordConfig,
 ) {
     init {
-        require(format.contains("<message>") && format.contains("<name>") && format.contains("<server>"))
+        require(format.contains("{message}") && format.contains("{name}") && format.contains("{server}"))
         require(ranks.isNotEmpty() && ranks.map { it.id }.distinct().size == ranks.size)
         require(ranks.any { it.id == "member" })
     }
@@ -31,6 +31,7 @@ public data class ChatRank(
     public val id: String,
     public val prefix: String,
     public val suffix: String,
+    public val decoration: Boolean,
     public val priority: Int,
     /** IDs from the existing Core role model, including its namespaced permission backend. */
     public val roles: List<String>,

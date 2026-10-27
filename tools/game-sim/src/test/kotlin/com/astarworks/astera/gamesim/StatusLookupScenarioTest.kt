@@ -11,7 +11,7 @@ import com.astarworks.astera.core.domain.status.StatusEffectId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** UI-12: a status landing on a player sends one lookup line; `/astera status` returns the description; the codex GUI opens. */
+/** UI-12: a status landing on a player is silent in chat (founder 2026-10-28); `/astera status` returns the description; the codex GUI opens. */
 class StatusLookupScenarioTest {
 
     private fun ScenarioScope.apply(target: SimEntity, id: String) {
@@ -28,19 +28,13 @@ class StatusLookupScenarioTest {
     }
 
     @Test
-    fun `a status landing on a player sends one clickable lookup line with a per-status cooldown`() {
+    fun `a status landing on a player sends no chat line`() {
         scenario("status-lookup-applied") {
             val target = player("target", team = "red")
             val chat = checkNotNull(sim.server.view(target.id)).messages
             apply(target, "burn")
-            val lines = chat.filter { "/astera status burn" in it }
-            assertThat(lines).hasSize(1)
-            assertThat(lines.single()).contains("run_command", "show_text")
-            // Re-applying the same status inside the cooldown stays quiet; another status gets its own line.
-            apply(target, "burn")
             apply(target, "freeze")
-            assertThat(chat.count { "/astera status burn" in it }).isEqualTo(1)
-            assertThat(chat.count { "/astera status freeze" in it }).isEqualTo(1)
+            assertThat(chat.filter { "/astera status" in it }).isEmpty()
         }
     }
 

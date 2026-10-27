@@ -71,6 +71,9 @@ public data class BlockDurabilityYamlConfig(
      */
     public fun toDomain(): Result<BlockDurabilityRule, ConfigError> {
         if (idleTicks <= 0) return Result.failure(ConfigError.OutOfRange("idle_ticks", idleTicks.toString(), "must be > 0"))
+        // The vanilla client drops a break-stage overlay that is not refreshed for ~400 ticks, so a longer idle window would
+        // clear the crack on screen while the server still remembers the damage.
+        if (idleTicks > MAX_IDLE_TICKS) return Result.failure(ConfigError.OutOfRange("idle_ticks", idleTicks.toString(), "must be <= $MAX_IDLE_TICKS (client crack overlay lifetime)"))
         val bindings = mutableMapOf<String, BlockMaterial>()
         for ((blockKey, materialRaw) in materials) {
             val parsed = parseMaterial(materialRaw, field = "materials[\"$blockKey\"]")
@@ -141,6 +144,9 @@ public data class BlockDurabilityYamlConfig(
         )
 
     public companion object {
+        /** Longest idle window that still keeps the client's crack overlay alive (it expires after ~400 ticks unrefreshed). */
+        public const val MAX_IDLE_TICKS: Long = 360L
+
         /**
          * Upper bound for a single damage_matrix cell. Even a 5000-HP custom
          * block respects this — the 1000 cap is defensive headroom that

@@ -22,6 +22,12 @@ class ItemTooltipStyleE2eTest : E2eBase() {
                 assertThat(received).describedAs(component()).isTrue()
                 "$id -> astera:$rarity"
             }
+            val hidden = rcon("data get entity ${b.name} Inventory[{Slot:0b}].components.\"minecraft:tooltip_display\"")
+            E2eReport.check("Item tooltip", "$id hides vanilla metadata lines", "Paper Inventory minecraft:tooltip_display") {
+                assertThat(hidden).contains("minecraft:attribute_modifiers", "minecraft:enchantments", "minecraft:unbreakable", "minecraft:dyed_color")
+                    .doesNotContain("minecraft:lore", "minecraft:custom_name")
+                "$id hides attribute/enchant/unbreakable/dye, keeps name+lore"
+            }
             // Preserve the real stack's item PDC while deliberately replacing only the style.
             rcon("item modify entity ${b.name} hotbar.0 {function:\"minecraft:set_components\",components:{\"minecraft:tooltip_style\":\"minecraft:wrong\"}}")
             assertThat(component()).contains("minecraft:wrong")

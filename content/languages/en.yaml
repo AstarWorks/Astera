@@ -2768,7 +2768,7 @@ astera:
   chat.japanize.off: "Japanize disabled."
   chat.title.invalid: "Usage: /astera chat title <all|server-name> <title> [| subtitle]"
   chat.title.sent: "Title sent to {target}."
-  chat.discord.line: "<blue>[Discord]</blue> <name>: <message>"
+  chat.discord.line: "&9[Discord]&r {name}: {message}"
   command.help.chat-japanize-on: "Enable Japanese conversion for this session."
   command.help.chat-japanize-off: "Disable Japanese conversion for this session."
   command.help.chat-title: "Send a screen title across servers."
@@ -2777,7 +2777,6 @@ astera:
   # FX-12: in-combat action-bar feedback (damage taken, low HP, kill confirm)
   hud.combat.hurt-by: "<red>{name} <gray>-{amount}</gray></red>"
   hud.combat.hurt: "<red>-{amount}</red>"
-  hud.combat.low-hp: "<red><bold>HP LOW {hp}</bold></red>"
   hud.combat.kill: "<gold><bold>KILL</bold> <white>{name}</white></gold>"
   match.nav.carry-tnt.deliver: "<gold>Deliver to <{team}>{team}</{team}> base</gold>"
   match.nav.carry-tnt.escort: "<green>Escort your carrier</green>"
@@ -2833,7 +2832,6 @@ astera:
   tutorial.guide.missions.next: "Next step: check missions in the menu"
   # UI-12: status effect lookup (chat line on apply, /astera status, status codex GUI). Effect texts: statusdesc.*
   statuscodex.title: "Status effect codex"
-  statuscodex.applied: "<gray>Status: </gray><click:run_command:'/astera status {id}'><hover:show_text:'<yellow>{name}</yellow><newline><white>{desc_q}</white><newline><dark_gray>Click for details</dark_gray>'><yellow><underlined>[{name}]</underlined></yellow></hover></click> <dark_gray>(hover: effect / click: details)</dark_gray>"
   statuscodex.list.header: "<gold>Status effects</gold> <gray>- click a name for details</gray>"
   statuscodex.list.line: "<click:run_command:'/astera status {id}'><hover:show_text:'<white>{desc_q}</white>'><yellow>{name}</yellow></hover></click><gray> - {desc}</gray>"
   statuscodex.list.footer: "<gray>/astera status [name]</gray> shows one status; <gray>/astera status codex</gray> opens the codex screen."

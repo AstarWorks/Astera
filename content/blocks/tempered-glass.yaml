@@ -15,3 +15,8 @@ tool_effectiveness:
   "AXE/IRON": 20
   "SHOVEL/IRON": 20
 placed_from: "tempered-glass-block"
+
+visual:
+  base: note_block
+  state: {instrument: harp, note: "8", powered: "false"}
+texture: "astera:blocks/tempered-glass"

@@ -16,3 +16,8 @@ tool_effectiveness:
   "AXE/IRON": 0
   "SHOVEL/IRON": 0
 placed_from: "obsidian-plate-block"
+
+visual:
+  base: note_block
+  state: {instrument: harp, note: "9", powered: "false"}
+texture: "astera:blocks/obsidian-plate"

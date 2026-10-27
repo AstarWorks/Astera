@@ -206,6 +206,12 @@ internal class CorePaperBindings(
                     scheduler = scheduler,
                     eventBus = deps.services.getOrThrow<IDomainEventBus>(),
                     customBlockRegistry = deps.customBlocks,
+                    dropCustom = { block, player, id ->
+                        val spec = deps.services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()?.find(id)
+                        val materializer = itemMaterializer?.invoke()
+                        if (spec != null && materializer != null && block.world.getGameRuleValue(org.bukkit.GameRules.BLOCK_DROPS) != false)
+                            block.world.dropItem(block.location.add(0.5, 0.5, 0.5), materializer.buildFor(spec, player, 1))
+                    },
                     durabilityRule = deps.durabilityRule,
                     // Cover blocks a stage placed must come back at the next match in the slot.
                     beforeWorldEdit = { block -> arenaWorld?.remember(block) },
@@ -527,7 +533,9 @@ internal class CorePaperBindings(
         )
         com.astarworks.astera.core.adapter.paper.world.PaperCoverToolListener(
             plugin = plugin,
+            scheduler = scheduler,
             registry = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>(),
+            blocks = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IBlockStateGateway>(),
             matches = { ctx.services.get<IMatchRepository>() },
             useCase = { ctx.services.get<com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase>() },
             exclusion = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>() },

@@ -646,19 +646,6 @@ public object CombatWiring {
                 subscriptions += eventBus.subscribe(PlayerKilled::class) { clearStatuses.handle(it) }
             }
 
-            // UI-12: one clickable chat line naming a status when it lands on a player.
-            val lookupMessages = services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()
-            val lookupPlayers = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>()
-            if (lookupMessages != null && lookupPlayers != null) {
-                val lookup = com.astarworks.astera.combat.application.eventbus.listeners.status
-                    .StatusAppliedLookupListener(
-                        com.astarworks.astera.combat.application.service.StatusCodex(statusContents, lookupMessages),
-                        lookupPlayers,
-                    )
-                subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.StatusApplied::class) { lookup.handle(it) }
-                subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { lookup.forget(it.playerId) }
-            }
-
             // Wave 5e: ApplyArmorModifiersUseCase + JumpCountTracker.
             // The use case is instantiated here for future Paper-side equip
             // wiring (Wave 6b's BukkitEventAdapter publishes LoadoutChanged
@@ -698,6 +685,7 @@ public object CombatWiring {
             statusContainer = statusContainer,
             eventBus = eventBus,
             scheduler = scheduler,
+            feedbackGateway = ports.playerFeedbackGateway?.invoke(services),
             shutdownHooks = shutdownHooks,
         )
 

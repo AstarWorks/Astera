@@ -112,7 +112,22 @@ internal object RuntimeDecode {
                 ContentLoader.LoadReport(0, 1, listOf(ContentLoader.LoadFailure(dir, "${t::class.simpleName}: ${t.message}")))
             }
         }
+        val blocks = CustomBlockContents()
+        blocks.bootstrap(contentDir.resolve("blocks"))
         var failed = 0
+        val visuals = blocks.all().filter { it.visual != null }.groupBy { it.visual!!.blockData }
+        for ((state, specs) in visuals) {
+            if (specs.size > 1) {
+                failed++
+                println("RUNTIME-DECODE FAIL content/blocks: duplicate visual $state: ${specs.map { it.id }}")
+            }
+        }
+        for (spec in blocks.all().filter { it.placedFrom != null }) {
+            if (spec.visual == null || spec.texture == null) {
+                failed++
+                println("RUNTIME-DECODE FAIL content/blocks/${spec.id}: placement requires visual and texture")
+            }
+        }
         for ((category, report) in reports) {
             for (f in report.failures) {
                 failed++

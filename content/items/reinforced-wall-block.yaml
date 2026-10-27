@@ -1,0 +1,16 @@
+# MODE-ARS7 reusable cover.
+id: reinforced-wall-block
+material: DEEPSLATE_TILES
+name:
+  en: "Reinforced Wall"
+  ja: "補強壁"
+role:
+  en: "Block / cover; break with a tool"
+  ja: "ブロック / 置いて遮蔽物に。壊すには合う道具"
+rarity: common
+level_requirement: 1
+equip_slot: mainhand
+drop_on_death: false
+keep_on_death: false
+pdc_tags:
+  astera:rarity: common

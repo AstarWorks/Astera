@@ -36,9 +36,13 @@ public interface ICustomBlockRegistry : Contents<BlockType, CustomBlockSpec>, Re
     public fun resolveByItem(itemId: ItemId): CustomBlockSpec?
 
     /**
-     * Reverse lookup by the vanilla material a block is rendered with (`CustomBlockSpec.baseBukkitMaterial`,
-     * upper-case Bukkit name). Stages place custom blocks as plain vanilla blocks; the unique base material is
-     * what identifies them again. `null` when no custom block uses that material.
+     * Reverse lookup for definitions without a visual (e.g. ore nodes), by upper-case Bukkit material.
+     * Visual-backed cover must use [resolveByBlockData]; its original material is ordinary terrain.
      */
     public fun resolveByBaseMaterial(bukkitMaterial: String): CustomBlockSpec?
+
+    /** Complete serialized block data, including properties; authored visuals never match by material alone. */
+    public fun resolveByBlockData(data: String): CustomBlockSpec? =
+        all().firstOrNull { it.visual?.blockData == data }
+            ?: resolveByBaseMaterial(data.substringBefore('[').substringAfter(':').uppercase())
 }

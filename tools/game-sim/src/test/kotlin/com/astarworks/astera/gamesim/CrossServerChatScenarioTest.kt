@@ -44,7 +44,11 @@ class CrossServerChatScenarioTest {
             val player = UUID.randomUUID()
             val admin = game.rank(setOf("astera:admin", "moderator"))
             assertThat(admin.id).isEqualTo("admin")
-            assertThat(game.rank(emptySet()).id).isEqualTo("member")
+            val member = game.rank(emptySet())
+            assertThat(member.id).isEqualTo("member")
+            assertThat(admin.decoration).isTrue()
+            assertThat(game.rank(setOf("moderator")).decoration).isTrue()
+            assertThat(member.decoration).isFalse()
             val samples = linkedMapOf(
                 "konnichiwa" to "こんにちわ (konnichiwa)",
                 "kanpai" to "かんぱい (kanpai)", "nn" to "ん (nn)", "gakkou" to "がっこう (gakkou)",
@@ -53,10 +57,15 @@ class CrossServerChatScenarioTest {
                 "https://example.com" to "https://example.com", "/spawn" to "/spawn",
                 "example.dev" to "example.dev", "EXAMPLE.TECH/path" to "EXAMPLE.TECH/path",
                 "see example.museum/path" to "see example.museum/path",
-                "<red>hi</red>" to "<れd>ひ</れd> (<red>hi</red>)",
+                "<red>hi</red>" to "<red>ひ</red> (<red>hi</red>)",
+                "konnnitiha red" to "こんにちは red (konnnitiha red)",
+                "red" to "red", "HELLO red xyz" to "HELLO red xyz",
+                "konnnitiha  RED!" to "こんにちは  RED! (konnnitiha  RED!)",
+                "ko-hi-" to "こーひー (ko-hi-)", "n'" to "ん (n')",
+                "&cX" to "&cX", "&#12abefX" to "&#12abefX",
             )
             samples.forEach { (input, output) ->
-                game.send(player, "Alice", input, admin, false).toCompletableFuture().join()
+                game.send(player, "Alice", input, admin).toCompletableFuture().join()
                 networkHop(gameBus, lobbyBus)
                 assertThat(gameLines.last().second.message).isEqualTo(output)
                 assertThat(lobbyLines.last()).isEqualTo("game" to gameLines.last().second)
@@ -66,12 +75,21 @@ class CrossServerChatScenarioTest {
             assertThat(discord).hasSize(samples.size)
             assertThat(discord.first().prefix).contains("Admin")
             game.toggle(player, false)
-            game.send(player, "Alice", "konnichiwa", admin, true).toCompletableFuture().join()
+            game.send(player, "Alice", "konnichiwa", admin).toCompletableFuture().join()
             networkHop(gameBus, lobbyBus)
             assertThat(lobbyLines.last().second.message).isEqualTo("konnichiwa")
             assertThat(lobbyLines.last().second.color).isTrue()
+            game.send(player, "Alice", "&cX {name} <click:run_command:/op>", member).toCompletableFuture().join()
+            networkHop(gameBus, lobbyBus)
+            assertThat(lobbyLines.last().second.color).isFalse()
+            assertThat(lobbyLines.last().second.message).isEqualTo("&cX {name} <click:run_command:/op>")
+            // Highest rank's flag wins, even if a lower matching rank permits decoration.
+            val restricted = config.copy(ranks = config.ranks.map { if (it.id == "admin") it.copy(decoration = false) else it })
+            ChatRelay(gameName, restricted, gameBus, noHttp, { _, _ -> }, {}).use { relay ->
+                assertThat(relay.rank(setOf("admin", "mod")).decoration).isFalse()
+            }
             game.forget(player)
-            game.send(player, "Alice", "konnichiwa", admin, false).toCompletableFuture().join()
+            game.send(player, "Alice", "konnichiwa", admin).toCompletableFuture().join()
             networkHop(gameBus, lobbyBus)
             assertThat(lobbyLines.last().second.message).isEqualTo("こんにちわ (konnichiwa)")
             val beforeDiscord = discord.size
@@ -80,17 +98,18 @@ class CrossServerChatScenarioTest {
             assertThat(gameLines.last().second.discord).isTrue()
             assertThat(gameLines.last().second.message).isEqualTo("hello <click:run_command:/op>")
             assertThat(discord).hasSize(beforeDiscord)
-            game.title("lobby", "<gold>Hi", "Sub")
+            game.title("lobby", "&#ffaa00&lHi&r", "Sub")
             networkHop(gameBus, lobbyBus)
             assertThat(lobbyTitles).hasSize(1)
             assertThat(gameTitles).isEmpty()
+            assertThat(lobbyTitles.single().title).isEqualTo("&#ffaa00&lHi&r")
             lobby.title("all", "Hello", "World")
             networkHop(lobbyBus, gameBus)
             assertThat(lobbyTitles).hasSize(2)
             assertThat(gameTitles).hasSize(1)
             assertThat(chatCommands(game).literals.map { it.name }).containsExactly("japanize", "title")
             lobby.close()
-            game.send(player, "Alice", "bye", admin, false).toCompletableFuture().join()
+            game.send(player, "Alice", "bye", admin).toCompletableFuture().join()
             val count = lobbyLines.size
             networkHop(gameBus, lobbyBus)
             assertThat(lobbyLines).hasSize(count)

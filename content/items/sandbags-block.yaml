@@ -1,0 +1,16 @@
+# MODE-ARS7 reusable cover.
+id: sandbags-block
+material: PACKED_MUD
+name:
+  en: "Sandbags"
+  ja: "土嚢"
+role:
+  en: "Block / cover; break with a tool"
+  ja: "ブロック / 置いて遮蔽物に。壊すには合う道具"
+rarity: common
+level_requirement: 1
+equip_slot: mainhand
+drop_on_death: false
+keep_on_death: false
+pdc_tags:
+  astera:rarity: common

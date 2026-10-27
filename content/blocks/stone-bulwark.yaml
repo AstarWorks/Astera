@@ -15,3 +15,8 @@ tool_effectiveness:
   "AXE/IRON": 15
   "SHOVEL/IRON": 0
 placed_from: "stone-bulwark-block"
+
+visual:
+  base: note_block
+  state: {instrument: harp, note: "7", powered: "false"}
+texture: "astera:blocks/stone-bulwark"
