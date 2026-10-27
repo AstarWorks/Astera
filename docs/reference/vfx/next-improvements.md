@@ -100,3 +100,13 @@ Astera の `Rarity` (COMMON〜LEGENDARY) は人格武器ではほぼ epic で、
 - コストの連動: 尺を伸ばしたら `cooldown_ticks` / `ego_cost` / `resource_cost` も上げる (演出が長い = 隙も長い)。参考サーバーの観測倍率は参考値で、そのまま使わない。
 - 参考サーバーで見られたアンチパターンを避ける: 完全固定 70-100t、粒子の暴力 (1 tick 数百〜数千粒)、威力が小さいのに演出だけ大きい。
 - **未対応で必要になるもの (大コスト、今回の 10 件には入れない):** 音の弧の宣言構文、`stopsound` 相当、telegraph 専用要素、`lane` 分類、viewer ごとの出し分け、演出強度のプレイヤー設定、減衰する camera shake。
+
+## 候補 (ピクセル作法 P7 / P12 / lint, 2026-10-28)
+
+出典と考え方は [`pixel-vfx-craft.md`](pixel-vfx-craft.md)。どれも未合意の候補で、着手は別の Board item。
+
+- **P7 命中対象の白シルエット 2 フレーム**: 現状 no knob yet -> candidate。対象を一瞬白く塗る primitive (命中 tick = `hit_stop` の tick に合わせる) が要る。
+- **P12 足りないレイヤ語彙**: 魔法陣 (描画してから回る)、地面の亀裂、せり上がる結晶スパイク、六角セルのシールドドーム、2 フレームごとに再生成する稲妻、跳ねて浮くダメージ文字、三本爪の筋、竜巻の漏斗。まず sprite 列 + `formation` / `emit` で近似できるか試し、足りないものだけ primitive 化する。
+- **P4 lint**: skill の `hit_stop` / `camera_shake` の tick と、vfx の最初のフラッシュ要素の開始 tick が一致するかを検査する。
+- **P1 / P10 lint**: sprite PNG ごとの色数 (帯の数) とアルファ値分布 (半透明の縁) を検査する。
+- **P6 lint**: pixel クラスの sprite の `size` と要素 `scale` から texel/block を概算し、約 8 未満 / 32 超を警告する。

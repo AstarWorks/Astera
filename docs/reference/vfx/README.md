@@ -21,6 +21,7 @@
 7. [`e3-s10129-techniques.md`](e3-s10129-techniques.md) — 外部クリエイター E3 (@s10129) の投稿から抽出したスプライト/パーティクル技法と Astera とのギャップ。値は推論を含む。
 
 8. [`patterns.md`](patterns.md) — 上の全資料を 7 軸・32 パターンに束ねたパターン言語。組み合わせレシピ、E3 の差分、表現できないもの (gaps) の順位つき。全体像をつかみたいときは最初にここを読んでもよい。
+9. [`pixel-vfx-craft.md`](pixel-vfx-craft.md) — ピクセル VFX / スプライトの作法 P1-P12 (帯状の熱、形が先、タイミング雛形、衝撃フレーム = ヒットストップ、熱の予算、texel 密度、スプライト衛生など)。外部投稿の原理を自分の言葉で書き直したもの。director / vfx / pixel-artist / reviewer の手順が P 番号で参照する。
 
 作業の流れ: 重要度 (1-10) を決める → 上の 1-4 で部品と失敗を確認 → YAML を書く →
 `tools/skill-compare` と `make vfx-shot` で検証 (検証手順は正本側)。

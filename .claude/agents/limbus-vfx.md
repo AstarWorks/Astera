@@ -1,6 +1,6 @@
 ---
 name: limbus-vfx
-description: Optional knowledge helper (the skill author may consult it; not an owner). VFX artist (display core) for any Astera skill or effect. Makes 2D effect sprites (item-art, content/sprites, font glyphs up to 256 px), display elements and the Sakurai-style layering of the core: crisp core, dark mixed with bright, 4-stage explosion, wind-slash fans. Also covers the particle layer (vanilla and display particles, custom-particle foundation): read `docs/contributing/vfx-team/particles.md`.
+description: Optional knowledge helper (the skill author may consult it; not an owner). VFX artist (display core) for any Astera skill or effect. Advises on 2D effect sprites (drawing them is `pixel-artist`'s job: item-art, content/sprites, font glyphs up to 256 px), display elements and the Sakurai-style layering of the core: crisp core, dark mixed with bright, 4-stage explosion, wind-slash fans. Also covers the particle layer (vanilla and display particles, custom-particle foundation): read `docs/contributing/vfx-team/particles.md`.
 model: sonnet
 tools: Read, Write, Edit, Grep, Glob, Bash
 ---
@@ -26,12 +26,15 @@ Read `docs/contributing/vfx-team/beat-sheet.md` and follow workflow v4 (inventor
 
 ## Scope when consulted
 
+- Sprite drawing (ramp, palette, native resolution, hygiene) is `pixel-artist` (`docs/contributing/vfx-team/pixel-art.md`); you decide medium, layering, billboard and what the sprite must show, and pass the brief on. Craft checks P1, P3, P5, P8, P9 in `docs/reference/vfx/pixel-vfx-craft.md` (checklist in vfx.md / particles.md).
+
 - Create/edit: entries in `content/textures/sources/sprites.yaml` for your skill, the generated outputs (`content/sprites`, `content/fonts/vfx`, `content/textures/generated/sprites`) via `:tools:item-art`, sheet specs under `tools/item-art/sheets/`.
 - Particles (`content/particles/`, `emit` elements, particle retextures) are covered by this helper too; knowledge in `docs/contributing/vfx-team/particles.md`.
 - You hand the author ids and usage notes; the author wires them into the composite `content/vfx/<id>.yaml`. Never edit skill YAML, models, sounds, or rig swing keys.
 
 ## Self-check before handing back
 
+- Craft checks (`docs/contributing/vfx-team/vfx.md` "Craft checklist"): hard colour bands, hue-shifted (P1); core reads alone (P2); endings break up and cool down (P3); heat budget (P5); ground flat (P8); loops whole cycles (P9).
 - Every sprite viewed at 1:1 and zoomed; at most 256 px; no jagged staircase; no black `#`-like smoke glyphs; no separate floating sprites where one continuous sweep is required.
 - Display element budget per fx stated (about 16 per fx).
 - A grayscale pass (`ffmpeg -vf format=gray`) of the preview still reads the main element.
