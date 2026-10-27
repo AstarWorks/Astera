@@ -14,23 +14,23 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0.0, 0.9, 0.5]
-    rotate: [0, 0, -80]
-    scale: [1.5, 1.5, 1]
+    translate: [0.0, 1.4, -0.6]
+    rotate: [0, 0, -60]
+    scale: [0.5, 1.08, 1]
   - t: 1
-    translate: [0.0, 1.0, 1.6]
-    rotate: [0, 0, -85]
-    scale: [5.0, 5.0, 1]
+    translate: [0.0, 3.4, -0.2]
+    rotate: [0, 0, -70]
+    scale: [1.1, 1.8, 1]
     ease: out_expo
   - t: 4
-    translate: [0.0, 1.0, 2.4]
-    rotate: [0, 0, -92]
-    scale: [5.6, 5.6, 1]
+    translate: [0.0, 3.7, 0.4]
+    rotate: [0, 0, -75]
+    scale: [1.2, 1.92, 1]
     ease: out_quad
-  - t: 7
-    translate: [0.0, 1.0, 3.0]
-    rotate: [0, 0, -98]
-    scale: [0.4, 5.6, 1]
+  - t: 6
+    translate: [0.0, 3.7, 0.8]
+    rotate: [0, 0, -80]
+    scale: [0.15, 1.92, 1]
     ease: in_quad
 - id: line
   kind: {type: block, block: white_concrete}
