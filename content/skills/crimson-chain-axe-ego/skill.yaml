@@ -1,0 +1,16 @@
+# Converted from content/skills/crimson-chain-axe-ego.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: crimson-chain-axe-ego
+item: crimson-chain-axe
+meta:
+  name: {ja: "緋鎖の展開", en: "Crimson Chain Unfurl"}
+  description: {ja: "E.G.Oを使い、鎖斧を展開して呼吸を溜める。", en: "Spend E.G.O to unfurl the chain axe and build Poise."}
+  cooldown_ticks: 220
+  resource_cost: 0
+  ego_cost: 100
+gameplay:
+  params: {poise_ticks: 400, poise_stacks: 5}
+  timeline:
+    - {id: t40, at: 40, do: [{id: st_poise, op: status, status: poise, duration_ticks: "${poise_ticks}", target: caster, stacks: "${poise_stacks}"}]}

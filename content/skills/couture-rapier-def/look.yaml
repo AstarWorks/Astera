@@ -1,0 +1,13 @@
+# Converted from content/skills/couture-rapier-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): couture-rapier-guard
+# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x1): orient="yaw"
+# CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x2): {"color": "#FFF4EE", "glyph": null} | {"color": "#E5B9BE", "glyph": "◯"}
+# CONVERT-PRESENT element emit (no v2 equivalent) (x1): {"alpha_over_life": [{"t": 0, "v": 1}, {"t": 1, "v": 0}], "c
+# CONVERT-PRESENT element brightness (no v2 equivalent) (x8): 15
+# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x6): black_concrete
+apiVersion: "astera/v2"
+kind: Skill
+id: couture-rapier-def
+frames:
+  - {id: fx1_couture_rapier_guard, kind: body, parent: world}

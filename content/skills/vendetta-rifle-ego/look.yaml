@@ -1,0 +1,169 @@
+# Converted from content/skills/vendetta-rifle-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x18): orient="yaw"
+# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x6): {"pivot": [0.35, 1.05, 0.25], "respect_hit_stop": true, "rest": [0, 90, 0], "til
+# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x6): 11 parts
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x6): 3 keys | 5 keys
+# CONVERT-PRESENT rig emitter repeats (emit is one burst) (x1): ticks=4
+# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x17): vendetta-slash-b | vendetta-thrust-flash
+# CONVERT-PRESENT play_vfx freeze (no v2 equivalent) (x5): [{"at": 5, "ticks": 2}]
+# CONVERT-PRESENT repeating particle element (emit is one burst) (x52): every=2 ticks=3 | every=3 ticks=5
+# CONVERT-PRESENT trail style / bands / edge / fade (trail has width_frac, color, alpha only) (x5): {"bands": [{"block": "orange_concrete", "color": "#FFFF8A28", "color_to": "#8049
+# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x85): black_concrete | magenta_stained_glass
+# CONVERT-PRESENT element brightness (no v2 equivalent) (x92): 15
+# CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x7): {"color": "#F52952", "glyph": null}
+# CONVERT-PRESENT element emit (no v2 equivalent) (x7): {"alpha_over_life": [{"t": 0, "v": 0.95}, {"t": 1, "v": 0}],
+# CONVERT-PRESENT screen_flash has no v2 op (x1): {"color": "#FF643C", "fade_in": 0, "fade_out": 2, "overlay": "impact_star", "stay": 1}
+# CONVERT-PRESENT vfx frame scale (frames carry no orientation / scale) (x2): scale=0.65
+apiVersion: "astera/v2"
+kind: Skill
+id: vendetta-rifle-ego
+frames:
+  - {id: fx1_vendetta_ready, kind: body, parent: caster}
+  - {id: fx1_vendetta_ready_bayonet, kind: body, parent: caster.right_hand}
+  - {id: pt_fx1_vendetta_ready_bayonet_0_1p5_0, kind: point, parent: fx1_vendetta_ready_bayonet, offset: [0.0, 1.5, 0.0]}
+  - {id: fx2_vendetta_slash_b, kind: body, parent: world}
+  - {id: fx2_vendetta_slash_b_bayonet, kind: body, parent: caster.right_hand}
+  - {id: pt_fx2_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx2_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
+  - {id: pt_fx2_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx2_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
+  - {id: fx3_vendetta_thrust_flash, kind: body, parent: world}
+  - {id: fx4_vendetta_burst, kind: body, parent: world}
+  - {id: fx5_vendetta_slash_b, kind: body, parent: world}
+  - {id: fx5_vendetta_slash_b_bayonet, kind: body, parent: caster.right_hand}
+  - {id: pt_fx5_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx5_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
+  - {id: pt_fx5_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx5_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
+  - {id: fx6_vendetta_thrust_flash, kind: body, parent: world}
+  - {id: fx7_vendetta_burst, kind: body, parent: world}
+  - {id: fx8_vendetta_slash_a, kind: body, parent: world}
+  - {id: fx8_vendetta_slash_a_bayonet, kind: body, parent: caster.right_hand}
+  - {id: pt_fx8_vendetta_slash_a_bayonet_0_0p55_0, kind: point, parent: fx8_vendetta_slash_a_bayonet, offset: [0.0, 0.55, 0.0]}
+  - {id: pt_fx8_vendetta_slash_a_bayonet_0_2p1_0, kind: point, parent: fx8_vendetta_slash_a_bayonet, offset: [0.0, 2.1, 0.0]}
+  - {id: fx9_vendetta_thrust_flash, kind: body, parent: world}
+  - {id: fx10_vendetta_burst, kind: body, parent: world}
+  - {id: fx11_vendetta_slash_b, kind: body, parent: world}
+  - {id: fx11_vendetta_slash_b_bayonet, kind: body, parent: caster.right_hand}
+  - {id: pt_fx11_vendetta_slash_b_bayonet_0_0p55_0, kind: point, parent: fx11_vendetta_slash_b_bayonet, offset: [0.0, 0.55, 0.0]}
+  - {id: pt_fx11_vendetta_slash_b_bayonet_0_2p1_0, kind: point, parent: fx11_vendetta_slash_b_bayonet, offset: [0.0, 2.1, 0.0]}
+  - {id: fx12_vendetta_thrust_flash, kind: body, parent: world}
+  - {id: fx13_vendetta_burst, kind: body, parent: world}
+  - {id: fx14_vendetta_slash_a, kind: body, parent: world}
+  - {id: fx14_vendetta_slash_a_bayonet, kind: body, parent: caster.right_hand}
+  - {id: pt_fx14_vendetta_slash_a_bayonet_0_0p55_0, kind: point, parent: fx14_vendetta_slash_a_bayonet, offset: [0.0, 0.55, 0.0]}
+  - {id: pt_fx14_vendetta_slash_a_bayonet_0_2p1_0, kind: point, parent: fx14_vendetta_slash_a_bayonet, offset: [0.0, 2.1, 0.0]}
+  - {id: fx15_vendetta_thrust_flash, kind: body, parent: world}
+  - {id: fx16_vendetta_burst, kind: body, parent: world}
+  - {id: fx17_vendetta_burst, kind: body, parent: world}
+  - {id: fx18_vendetta_burst, kind: body, parent: world}
+presentation:
+  timeline:
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: item.crossbow.loading_end, at: caster, pitch: 0.7}]}
+    - {id: fx3, at: 3, do: [{id: fx1_vendetta_ready_bayonet_ignition, op: emit, at: pt_fx1_vendetta_ready_bayonet_0_1p5_0, particle: fire-trail, count: 1}]}
+    - id: fx36
+      at: 36
+      do:
+        - {id: fx17_vendetta_burst_ember_0, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx17_vendetta_burst_ember_1, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx17_vendetta_burst_ember_2, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx17_vendetta_burst_ember_3, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx17_vendetta_burst_ember_4, op: emit, at: fx17_vendetta_burst, particle: fire-trail, count: 1}
+    - {id: fx43, at: 43, do: [{id: fx17_vendetta_burst_smoke, op: emit, at: fx17_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: fx49, at: 49, do: [{id: fx2_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx2_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx2_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6}]}
+    - id: fx53
+      at: 53
+      do:
+        - {id: fx2_vendetta_slash_b_contact, op: emit, at: fx2_vendetta_slash_b, particle: gun-impact, count: 1}
+        - {id: fx2_vendetta_slash_b_petals, op: emit, at: fx2_vendetta_slash_b, particle: vendetta-petals, count: 1}
+        - {id: snd_2, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
+        - {id: snd_3, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
+    - id: fx54
+      at: 54
+      do:
+        - {id: fx4_vendetta_burst_ember_0, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx4_vendetta_burst_ember_1, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx4_vendetta_burst_ember_2, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx4_vendetta_burst_ember_3, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx4_vendetta_burst_ember_4, op: emit, at: fx4_vendetta_burst, particle: fire-trail, count: 1}
+    - {id: fx59, at: 59, do: [{id: rm, op: remove, ids: [fx2_vendetta_slash_b_bayonet_cut]}]}
+    - {id: fx61, at: 61, do: [{id: fx4_vendetta_burst_smoke, op: emit, at: fx4_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: fx67, at: 67, do: [{id: fx5_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx5_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx5_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6}]}
+    - id: fx71
+      at: 71
+      do:
+        - {id: fx5_vendetta_slash_b_contact, op: emit, at: fx5_vendetta_slash_b, particle: gun-impact, count: 1}
+        - {id: fx5_vendetta_slash_b_petals, op: emit, at: fx5_vendetta_slash_b, particle: vendetta-petals, count: 1}
+        - {id: snd_4, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
+        - {id: snd_5, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
+    - id: fx72
+      at: 72
+      do:
+        - {id: fx7_vendetta_burst_ember_0, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx7_vendetta_burst_ember_1, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx7_vendetta_burst_ember_2, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx7_vendetta_burst_ember_3, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx7_vendetta_burst_ember_4, op: emit, at: fx7_vendetta_burst, particle: fire-trail, count: 1}
+    - {id: fx77, at: 77, do: [{id: rm_2, op: remove, ids: [fx5_vendetta_slash_b_bayonet_cut]}]}
+    - {id: fx79, at: 79, do: [{id: fx7_vendetta_burst_smoke, op: emit, at: fx7_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: fx104, at: 104, do: [{id: fx8_vendetta_slash_a_bayonet_cut, op: trail, of: pt_fx8_vendetta_slash_a_bayonet_0_2p1_0, root: pt_fx8_vendetta_slash_a_bayonet_0_0p55_0, ticks: 6}]}
+    - id: fx108
+      at: 108
+      do:
+        - {id: fx8_vendetta_slash_a_contact, op: emit, at: fx8_vendetta_slash_a, particle: gun-impact, count: 1}
+        - {id: fx8_vendetta_slash_a_petals, op: emit, at: fx8_vendetta_slash_a, particle: vendetta-petals, count: 1}
+        - {id: snd_6, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
+        - {id: snd_7, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
+    - id: fx109
+      at: 109
+      do:
+        - {id: fx10_vendetta_burst_ember_0, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx10_vendetta_burst_ember_1, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx10_vendetta_burst_ember_2, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx10_vendetta_burst_ember_3, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx10_vendetta_burst_ember_4, op: emit, at: fx10_vendetta_burst, particle: fire-trail, count: 1}
+    - {id: fx114, at: 114, do: [{id: rm_3, op: remove, ids: [fx8_vendetta_slash_a_bayonet_cut]}]}
+    - {id: fx116, at: 116, do: [{id: fx10_vendetta_burst_smoke, op: emit, at: fx10_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: fx137, at: 137, do: [{id: fx11_vendetta_slash_b_bayonet_cut, op: trail, of: pt_fx11_vendetta_slash_b_bayonet_0_2p1_0, root: pt_fx11_vendetta_slash_b_bayonet_0_0p55_0, ticks: 6}]}
+    - id: fx141
+      at: 141
+      do:
+        - {id: fx11_vendetta_slash_b_contact, op: emit, at: fx11_vendetta_slash_b, particle: gun-impact, count: 1}
+        - {id: fx11_vendetta_slash_b_petals, op: emit, at: fx11_vendetta_slash_b, particle: vendetta-petals, count: 1}
+        - {id: snd_8, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
+        - {id: snd_9, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
+    - id: fx142
+      at: 142
+      do:
+        - {id: fx13_vendetta_burst_ember_0, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx13_vendetta_burst_ember_1, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx13_vendetta_burst_ember_2, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx13_vendetta_burst_ember_3, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx13_vendetta_burst_ember_4, op: emit, at: fx13_vendetta_burst, particle: fire-trail, count: 1}
+    - {id: fx147, at: 147, do: [{id: rm_4, op: remove, ids: [fx11_vendetta_slash_b_bayonet_cut]}]}
+    - {id: fx149, at: 149, do: [{id: fx13_vendetta_burst_smoke, op: emit, at: fx13_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - id: fx185
+      at: 185
+      do:
+        - {id: fx18_vendetta_burst_ember_0, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx18_vendetta_burst_ember_1, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx18_vendetta_burst_ember_2, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx18_vendetta_burst_ember_3, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx18_vendetta_burst_ember_4, op: emit, at: fx18_vendetta_burst, particle: fire-trail, count: 1}
+    - {id: fx192, at: 192, do: [{id: fx18_vendetta_burst_smoke, op: emit, at: fx18_vendetta_burst, particle: dash-cloud, count: 1}]}
+    - {id: fx227, at: 227, do: [{id: fx14_vendetta_slash_a_bayonet_cut, op: trail, of: pt_fx14_vendetta_slash_a_bayonet_0_2p1_0, root: pt_fx14_vendetta_slash_a_bayonet_0_0p55_0, ticks: 6}]}
+    - id: fx231
+      at: 231
+      do:
+        - {id: fx14_vendetta_slash_a_contact, op: emit, at: fx14_vendetta_slash_a, particle: gun-impact, count: 1}
+        - {id: fx14_vendetta_slash_a_petals, op: emit, at: fx14_vendetta_slash_a, particle: vendetta-petals, count: 1}
+        - {id: snd_10, op: sound, sound: entity.player.attack.sweep, at: caster, pitch: 1.1}
+        - {id: snd_11, op: sound, sound: entity.generic.explode, at: caster, volume: 0.5, pitch: 1.5}
+        - {id: shake, op: camera_shake, target: caster, intensity: 0.25, ticks: 3}
+    - id: fx232
+      at: 232
+      do:
+        - {id: fx16_vendetta_burst_ember_0, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx16_vendetta_burst_ember_1, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx16_vendetta_burst_ember_2, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx16_vendetta_burst_ember_3, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}
+        - {id: fx16_vendetta_burst_ember_4, op: emit, at: fx16_vendetta_burst, particle: fire-trail, count: 1}
+    - {id: fx237, at: 237, do: [{id: rm_5, op: remove, ids: [fx14_vendetta_slash_a_bayonet_cut]}]}
+    - {id: fx239, at: 239, do: [{id: fx16_vendetta_burst_smoke, op: emit, at: fx16_vendetta_burst, particle: dash-cloud, count: 1}]}

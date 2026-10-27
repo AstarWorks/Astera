@@ -1,0 +1,22 @@
+# Converted from content/skills/cleaver-chop.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: cleaver-chop
+item: cleaver
+meta: {name: {ja: "大鉈の一撃", en: "Cleaver Chop"}, description: {ja: "重い一撃を叩き込む。", en: "A heavy chop."}, cooldown_ticks: 30, resource_cost: 14, tags: [melee, physical]}
+gameplay:
+  params: {arc_deg: 90.0, range: 2.8, dmg_physical: 62.0, knockback: 0.5, bleed_ticks: 60}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: range}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
+  "on":
+    hit:
+      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
+      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
+      - {id: st_bleed, op: status, status: bleed, duration_ticks: "${bleed_ticks}", target: victim, chance: 0.5, when: "= event.source == 'swing'"}

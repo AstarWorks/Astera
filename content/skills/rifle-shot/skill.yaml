@@ -1,0 +1,37 @@
+# Converted from content/skills/rifle-shot.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: rifle-shot
+item: rifle
+meta:
+  name: {ja: "ライフル射撃", en: "Rifle Shot"}
+  description: {ja: "高速で遠くまで届く、重い一発を撃つ。", en: "Fires a fast, long-range, hard-hitting round."}
+  cooldown_ticks: 14
+  resource_cost: 1
+  tags: [ranged, gun, sustain]
+frames:
+  - {id: bolt, kind: body, parent: world, inactive: true}
+  - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
+gameplay:
+  params: {launch_speed: 4.5, max_lifetime_ticks: 40, aim_distance: 50.0, dmg_physical: 25.0}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: flight_speed, param: launch_speed}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - id: bolt
+          op: projectile
+          body: bolt
+          from: pt_caster_eye_0_0_0p5
+          velocity: "= normalize(aim_point(caster, aim_distance) - pos(pt_caster_eye_0_0_0p5)) * launch_speed"
+          max_ticks: "${max_lifetime_ticks}"
+          radius: 0.3
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}
+      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 20, breaks: true, id: chip, at: "= contact.point"}
+    block:
+      - {op: break_area, shape: sphere, radius: 0.5, block_damage: 20, breaks: true, id: chip_2, at: "= contact.point"}

@@ -318,7 +318,7 @@ class Conv:
         c = m.get("condition")
         if not c:
             return None
-        if c["type"] == "distance_less_than":
+        if c["type"] == "distance_less_than" and c["b"]["type"] in ("caster", "victim", "target"):
             def ref(x):
                 return "caster" if x["type"] == "caster" else "victim"
             return "= dist(pos(%s), pos(%s)) < %s" % (ref(c["a"]), ref(c["b"]), fl(V(c["distance"])))

@@ -1,0 +1,21 @@
+# Converted from content/skills/scythe-reap.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: scythe-reap
+item: scythe
+meta: {name: {ja: "刈り取り", en: "Scythe Reap"}, description: {ja: "半円状に刈り取る。", en: "A wide reaping arc."}, cooldown_ticks: 16, resource_cost: 8, tags: [melee, physical]}
+gameplay:
+  params: {arc_deg: 180.0, range: 3.4, dmg_physical: 28.0, knockback: 0.3}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: range}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
+  "on":
+    hit:
+      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
+      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}

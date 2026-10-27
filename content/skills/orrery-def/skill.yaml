@@ -1,0 +1,20 @@
+# Converted from content/skills/orrery-def.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: orrery-def
+item: orrery-staff
+meta:
+  name: {en: "Orrery Counter-Seal", ja: "天球の返し"}
+  description: {en: "Guard against physical attacks and bank three Charge.", ja: "天球の返し。金の軌跡と充填を操る。"}
+  cooldown_ticks: 90
+  resource_cost: 12
+  tags: [persona, orrery]
+gameplay:
+  params: {charge_ticks: 400, charge_stacks: 3}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: attr, op: modify_attribute, attribute: resist.physical, operation: add, amount: 0.6, duration_ticks: 30, target: caster}
+        - {id: st_charge, op: status, status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}

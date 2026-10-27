@@ -1,0 +1,18 @@
+# Converted from content/skills/gale-gust.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: gale-gust
+item: gale-fan
+meta: {name: {ja: "突風", en: Gust}, description: {ja: "前方の敵を強く押し返す。", en: "Blows enemies in front of you away."}, cooldown_ticks: 70, resource_cost: 12, tags: [magic, wind, control]}
+gameplay:
+  params: {arc_deg: 80, reach: 6.0, knockback: 1.6, dmg_physical: 10.0}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: reach}
+  timeline:
+    - {id: t0, at: 0, do: [{id: sel, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}]}
+  "on":
+    hit:
+      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}", when: "= event.source == 'sel'"}
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, when: "= event.source == 'sel'"}

@@ -1,0 +1,32 @@
+# Converted from content/skills/verdict-hammer-s1.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: verdict-hammer-s1
+item: verdict-hammer
+meta: {name: {ja: "横薙ぎと追突", en: "Hammer Sweep and Rush"}, description: {ja: "槌で薙ぎ払い、前へ突っ込んで体当たりする。", en: "Sweep the hammer, then charge forward."}, cooldown_ticks: 80, resource_cost: 12}
+gameplay:
+  params: {arc_deg: 90, reach: 3.8, dmg_physical: 35, dash_distance: 6, dmg_physical_2: 50}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: reach}
+  timeline:
+    - id: t7
+      at: 7
+      do:
+        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+    - id: t23
+      at: 23
+      do:
+        - id: dash
+          op: dash_strike
+          distance: "${dash_distance}"
+          ticks: 4
+          radius: 0.8
+          hit_once: true
+          invulnerable: false
+          stop_on_block: true
+          follow_pitch: false
+          on_hit:
+            - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true}
+  "on": {hit: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}]}

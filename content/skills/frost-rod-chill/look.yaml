@@ -1,0 +1,18 @@
+# Converted from content/skills/frost-rod-chill.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT particle animation ring (emit has no shape / ring / path: one burst at the anchor) (x1): {"end_radius": 4.0, "period_ticks": 6, "points": 16, "start_radius": 0.5}
+# CONVERT-PRESENT particle scale / offset (emit has neither) (x1): {"scale": 1.4}
+apiVersion: "astera/v2"
+kind: Skill
+id: frost-rod-chill
+frames:
+  - {id: pt_caster_0_0p15_0, kind: point, parent: caster, offset: [0.0, 0.15, 0.0]}
+presentation:
+  timeline:
+    - id: fx0
+      at: 0
+      do:
+        - {id: snd, op: sound, sound: "astera:skill/wand/cast", at: caster, volume: 1.0, pitch: 1.0}
+        - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: snowflake, count: 0, speed: 0.03}
+        - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, color: "#c8ebff"}
+  "on": {hit: [{id: snd_2, op: sound, sound: "astera:weapons/blade-hit", at: contact.point, volume: 0.7, pitch: 1.0, when: "= event.source == 'burst'"}]}

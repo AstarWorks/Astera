@@ -1,0 +1,26 @@
+# Converted from content/skills/spear-charge.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: spear-charge
+item: spear
+meta: {name: {ja: "突撃", en: Charge}, description: {ja: "遠くまで駆け抜けて突き刺す。", en: "Charges far forward, hitting the first target."}, cooldown_ticks: 140, resource_cost: 14, tags: [melee, movement, physical]}
+gameplay:
+  params: {dash_distance: 6, dmg_physical: 40.0}
+  expose:
+    - {id: damage, param: dmg_physical}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - id: dash
+          op: dash_strike
+          distance: "${dash_distance}"
+          ticks: 6
+          radius: 1.0
+          hit_once: true
+          invulnerable: false
+          stop_on_block: true
+          follow_pitch: false
+          on_hit:
+            - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}

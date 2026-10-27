@@ -1,0 +1,8 @@
+# Converted from content/skills/shield-brace.yaml by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: shield-brace
+item: shield-bulwark
+meta: {name: {ja: "防御姿勢", en: Brace}, description: {ja: "構えを固め、しばらく踏ん張る。", en: "Plants your feet and braces for a while."}, cooldown_ticks: 180, resource_cost: 0, tags: [support, defense]}
+gameplay: {params: {poise_ticks: 160}, expose: [{id: duration, param: poise_ticks}], timeline: [{id: t0, at: 0, do: [{id: buff, op: status, target: caster, status: poise, duration_ticks: "${poise_ticks}"}]}]}

@@ -1,0 +1,13 @@
+# Converted from content/skills/glacier-wall.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: glacier-wall
+item: glacier-wand
+meta:
+  name: {ja: "氷壁", en: "Ice Wall"}
+  description: {ja: "目の前に氷の壁を張る。しばらくすると溶ける。", en: "Raises an ice wall ahead that melts after a while."}
+  cooldown_ticks: 200
+  resource_cost: 20
+  tags: [magic, water, cover]
+gameplay: {timeline: [{id: t0, at: 0, do: [{id: place, op: place_shape, shape: wall, block: "astera:tempered_glass", width: 3, height: 3, revert_after: 160}]}]}

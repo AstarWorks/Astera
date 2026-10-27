@@ -1,0 +1,21 @@
+# Converted from content/skills/gossamer-katana-ego.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: gossamer-katana-ego
+item: gossamer-katana
+meta: {name: {en: "Silent Loom", ja: "静寂の織機"}, description: {en: "Gather the remaining threads into a single final cut.", ja: "残された糸を集め、前方へ最後の一閃を放つ。"}, cooldown_ticks: 160, resource_cost: 0, ego_cost: 100}
+gameplay:
+  params: {arc_deg: 65.0, reach: 7.0, dmg_physical: 120.0}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: reach}
+  timeline:
+    - id: t60
+      at: 60
+      do:
+        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
+      - {id: stop, op: freeze, ticks: 2, scope: [enemy, caster], when: "= event.source == 'sel'"}

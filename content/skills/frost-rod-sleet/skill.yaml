@@ -1,0 +1,30 @@
+# Converted from content/skills/frost-rod-sleet.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: frost-rod-sleet
+item: frost-rod
+meta: {name: {ja: "みぞれ", en: Sleet}, description: {ja: "氷の欠片。凍らせることがある。", en: "A chilling shard that can freeze."}, cooldown_ticks: 22, resource_cost: 6, tags: [ranged, water]}
+frames:
+  - {id: bolt, kind: body, parent: world, inactive: true}
+  - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
+gameplay:
+  params: {launch_speed: 2.4, max_lifetime_ticks: 45, aim_distance: 50.0, dmg_water: 18.0, freeze_ticks: 40}
+  expose:
+    - {id: damage, param: dmg_water}
+    - {id: flight_speed, param: launch_speed}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - id: bolt
+          op: projectile
+          body: bolt
+          from: pt_caster_eye_0_0_0p5
+          velocity: "= normalize(aim_point(caster, aim_distance) - pos(pt_caster_eye_0_0_0p5)) * launch_speed"
+          max_ticks: "${max_lifetime_ticks}"
+          radius: 0.3
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: water, amount: "${dmg_water}"}], target: victim}
+      - {id: st_freeze, op: status, status: freeze, duration_ticks: "${freeze_ticks}", target: victim, chance: 0.4}

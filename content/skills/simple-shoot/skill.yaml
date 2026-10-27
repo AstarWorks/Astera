@@ -1,0 +1,31 @@
+# Converted from content/skills/simple-shoot.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: simple-shoot
+item: rtm-blaster
+meta:
+  name: {ja: "シンプルシュート", en: "Simple Shoot"}
+  description: {ja: "炎と橙色の粉塵の光線を撃ち、着弾点で輪状に弾ける。", en: "Fires a dense flame-and-ember beam that bursts into a ring where it lands."}
+  cooldown_ticks: 4
+  tags: [ranged, fire-family]
+frames:
+  - {id: bolt, kind: body, parent: world, inactive: true}
+  - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
+gameplay:
+  params: {launch_speed: 2.0, max_lifetime_ticks: 40, aim_distance: 50.0, dmg_fire: 25.0}
+  expose:
+    - {id: damage, param: dmg_fire}
+    - {id: flight_speed, param: launch_speed}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - id: bolt
+          op: projectile
+          body: bolt
+          from: pt_caster_eye_0_0_0p5
+          velocity: "= normalize(aim_point(caster, aim_distance) - pos(pt_caster_eye_0_0_0p5)) * launch_speed"
+          max_ticks: "${max_lifetime_ticks}"
+          radius: 0.3
+  "on": {hit: [{id: dmg, op: damage, components: [{kind: fire, amount: "${dmg_fire}"}], target: victim}]}

@@ -1,0 +1,26 @@
+# Converted from content/skills/gossamer-katana-s3.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: gossamer-katana-s3
+item: gossamer-katana
+meta: {name: {ja: "一線の傷", en: "Single Scar"}, description: {ja: "一直線に駆け抜けて強烈な一太刀を浴びせる。", en: "Rush in a straight line with one heavy cut."}, cooldown_ticks: 120, resource_cost: 25}
+gameplay:
+  params: {dash_distance: 6, dmg_physical: 100}
+  expose:
+    - {id: damage, param: dmg_physical}
+  timeline:
+    - id: t4
+      at: 4
+      do:
+        - id: dash
+          op: dash_strike
+          distance: "${dash_distance}"
+          ticks: 4
+          radius: 0.8
+          hit_once: true
+          invulnerable: false
+          stop_on_block: true
+          follow_pitch: false
+          on_hit:
+            - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}

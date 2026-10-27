@@ -1,0 +1,57 @@
+# Converted from content/skills/orrery-ego.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): orrery-poise
+# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x6): orient="yaw" | orient="look"
+# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x1): {"pivot": [-0.3, 1.1, 0.3], "respect_hit_stop": true, "rest": [0, 0, 0], "tilt":
+# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 11 parts
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 3 keys
+# CONVERT-PRESENT rig emitter repeats (emit is one burst) (x1): ticks=22
+# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x10): red_concrete | lime_concrete
+# CONVERT-PRESENT element formation (no v2 equivalent) (x7): {"curve": {"height": 2.2, "radius": 1.0, "start_deg": 0, "tu | {"curve": {"height": 2.2, "radius": 1.0, "start_deg": 180, "
+# CONVERT-PRESENT element count (no v2 equivalent) (x7): 8 | 24
+# CONVERT-PRESENT element slot_lifetime_ticks (no v2 equivalent) (x2): 14
+# CONVERT-PRESENT element brightness (no v2 equivalent) (x11): 15
+# CONVERT-PRESENT sprite frame_ticks / loop / color (plate has sprite, size_frac, alpha) (x1): {"color": "#FFFFFF", "frame_ticks": 1, "loop": false}
+# CONVERT-PRESENT element oscillate (no v2 equivalent) (x1): {"amplitude": 0.015625, "axis": "scale_xyz", "period_ticks":
+# CONVERT-PRESENT keyframe non-uniform scale (track scale is one number; the largest axis is used) (x4): [0.0264062, 0.0264062, 1] | [0.1584375, 0.1584375, 1]
+# CONVERT-PRESENT particle along_path (x1): true
+# CONVERT-PRESENT element jitter (no v2 equivalent) (x1): {"position": 0.08}
+# CONVERT-PRESENT repeating particle element (emit is one burst) (x1): every=1 ticks=7
+# CONVERT-PRESENT vfx anchored at a runtime point (frame parent must exist at cast start): anchored at world (x1): contact.point
+# CONVERT-PRESENT screen_flash has no v2 op (x1): {"color": "#FFD447", "fade_out": 2, "overlay": "impact_star", "stay": 1}
+apiVersion: "astera/v2"
+kind: Skill
+id: orrery-ego
+frames:
+  - {id: fx1_orrery_poise, kind: body, parent: world}
+  - {id: fx1_orrery_poise_staff, kind: body, parent: caster.right_hand}
+  - {id: pt_fx1_orrery_poise_staff_0_1p65_0, kind: point, parent: fx1_orrery_poise_staff, offset: [0.0, 1.65, 0.0]}
+  - {id: fx2_orrery_motes, kind: body, parent: caster}
+  - {id: fx3_orrery_orb, kind: body, parent: caster}
+  - {id: fx4_orrery_beam, kind: body, parent: caster}
+  - {id: fx5_orrery_seal_front, kind: body, parent: caster}
+  - {id: fx6_orrery_ring_hit, kind: body, parent: world}
+presentation:
+  timeline:
+    - id: fx0
+      at: 0
+      do:
+        - {id: fx1_orrery_poise_staff_embers, op: emit, at: pt_fx1_orrery_poise_staff_0_1p65_0, particle: orrery-ember, count: 1}
+        - {id: fx3_orrery_orb_core, op: plate, parent: fx3_orrery_orb, face: {viewer: center}, sprite: orrery-orb}
+        - id: fx3_orrery_orb_core_trk
+          op: track
+          target: fx3_orrery_orb_core
+          space: fx3_orrery_orb
+          keys:
+            - {t: 0, offset: [-0.3, 1.4, 1.95], scale: 1}
+            - {t: 14, scale: 1}
+            - {t: 16, scale: 1}
+            - {t: 38}
+            - {t: 44, scale: 1}
+    - id: fx24
+      at: 24
+      do:
+        - {id: fx5_orrery_seal_front_clock_sparks, op: emit, at: fx5_orrery_seal_front, particle: orrery-ember, count: 1}
+        - {id: snd, op: sound, sound: entity.player.attack.crit, at: caster, volume: 0.7, pitch: 1.2}
+    - {id: fx44, at: 44, do: [{id: rm, op: remove, ids: [fx3_orrery_orb_core]}]}
+  "on": {hit: [{id: emit, op: emit, at: contact.point, particle: orrery-sparks, count: 1, when: "= event.source == 'sel'"}]}

@@ -1,0 +1,38 @@
+# Converted from content/skills/grapple-shot.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: grapple-shot
+item: grappling-hook
+meta:
+  name: {ja: "フック射出", en: "Grapple Shot"}
+  description: {ja: "フックを撃ち、壁なら自分が、敵なら相手が引かれる。", en: "Fires a hook: reels you to a wall, or the enemy to you."}
+  cooldown_ticks: 120
+  resource_cost: 10
+  tags: [ranged, utility, movement]
+frames:
+  - {id: bolt, kind: body, parent: world, inactive: true}
+  - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
+gameplay:
+  params: {launch_speed: 2.4, max_lifetime_ticks: 40, aim_distance: 50.0, dmg_physical: 5, knockback: 1.2, propel: 1.3, propel_2: 0.4}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: flight_speed, param: launch_speed}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - id: bolt
+          op: projectile
+          body: bolt
+          from: pt_caster_eye_0_0_0p5
+          velocity: "= normalize(aim_point(caster, aim_distance) - pos(pt_caster_eye_0_0_0p5)) * launch_speed"
+          max_ticks: "${max_lifetime_ticks}"
+          radius: 0.3
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}
+      - {id: kb, op: knockback, direction: "= normalize(pos(caster) - pos(victim)) + vec(0.0, 0.2, 0.0)", strength: "${knockback}"}
+    block:
+      - {id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}
+      - {id: propel_2, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel_2}"}

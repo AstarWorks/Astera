@@ -1,0 +1,15 @@
+# Converted from content/skills/crimson-chain-axe-s3.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): crimson-chain-axe-charge | crimson-hand-nodes
+# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x4): orient="yaw"
+# CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x1): {"color": "#C71938", "glyph": "◆"}
+# CONVERT-PRESENT element brightness (no v2 equivalent) (x10): 15
+# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x9): redstone_block
+apiVersion: "astera/v2"
+kind: Skill
+id: crimson-chain-axe-s3
+frames:
+  - {id: fx1_crimson_chain_axe_charge, kind: body, parent: world}
+  - {id: fx2_crimson_hand_nodes, kind: body, parent: world}
+  - {id: fx3_crimson_hand_nodes, kind: body, parent: world}
+  - {id: fx4_crimson_hand_nodes, kind: body, parent: world}

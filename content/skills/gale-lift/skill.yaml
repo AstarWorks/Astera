@@ -1,0 +1,11 @@
+# Converted from content/skills/gale-lift.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: gale-lift
+item: gale-fan
+meta: {name: {ja: "追い風", en: Updraft}, description: {ja: "自分を前上方へ吹き飛ばす。", en: "Launches you up and forward."}, cooldown_ticks: 160, resource_cost: 10, tags: [magic, wind, movement]}
+gameplay:
+  params: {propel: 1.0, propel_2: 0.6}
+  timeline:
+    - {id: t0, at: 0, do: [{id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}, {id: propel_2, op: propel, direction: "= vec(0.0, 1.0, 0.0)", strength: "${propel_2}"}]}

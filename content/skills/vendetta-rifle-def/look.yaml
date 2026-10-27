@@ -1,0 +1,19 @@
+# Converted from content/skills/vendetta-rifle-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x2): orient="yaw"
+# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x5): brown_terracotta | black_concrete
+# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x1): vendetta-parry-ring
+# CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x1): {"color": "#FFCE66", "glyph": "✦"}
+# CONVERT-PRESENT element brightness (no v2 equivalent) (x1): 15
+# CONVERT-PRESENT repeating particle element (emit is one burst) (x1): every=3 ticks=4
+# CONVERT-PRESENT rig pivot / rest / tilt / respect_hit_stop / weapon points (frames carry no pivot or rest pose) (x1): {"pivot": [0.35, 1.05, 0.25], "respect_hit_stop": true, "rest": [0, 90, 0], "til
+# CONVERT-PRESENT rig block parts (mesh takes an item model, not a block + size) (x1): 11 parts
+# CONVERT-PRESENT rig swing without a weapon mesh (track needs a visual to move) (x1): 3 keys
+apiVersion: "astera/v2"
+kind: Skill
+id: vendetta-rifle-def
+frames:
+  - {id: fx1_vendetta_bayonet_thrust, kind: body, parent: caster}
+  - {id: fx2_vendetta_parry_ring, kind: body, parent: world}
+  - {id: fx2_vendetta_parry_ring_bayonet, kind: body, parent: caster.right_hand}
+presentation: {timeline: [{id: fx1, at: 1, do: [{id: fx2_vendetta_parry_ring_petals, op: emit, at: fx2_vendetta_parry_ring, particle: vendetta-petals, count: 1}]}]}

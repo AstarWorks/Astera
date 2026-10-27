@@ -1,0 +1,30 @@
+# Converted from content/skills/shock-wand-zap.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: shock-wand-zap
+item: shock-wand
+meta: {name: {ja: "電撃", en: Zap}, description: {ja: "素早い電撃。麻痺させることがある。", en: "A quick bolt of electricity that can stun."}, cooldown_ticks: 18, resource_cost: 6, tags: [ranged, electric]}
+frames:
+  - {id: bolt, kind: body, parent: world, inactive: true}
+  - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
+gameplay:
+  params: {launch_speed: 3.2, max_lifetime_ticks: 40, aim_distance: 50.0, dmg_electric: 16.0, shock_ticks: 30}
+  expose:
+    - {id: damage, param: dmg_electric}
+    - {id: flight_speed, param: launch_speed}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - id: bolt
+          op: projectile
+          body: bolt
+          from: pt_caster_eye_0_0_0p5
+          velocity: "= normalize(aim_point(caster, aim_distance) - pos(pt_caster_eye_0_0_0p5)) * launch_speed"
+          max_ticks: "${max_lifetime_ticks}"
+          radius: 0.3
+  "on":
+    hit:
+      - {id: dmg, op: damage, components: [{kind: electric, amount: "${dmg_electric}"}], target: victim}
+      - {id: st_shock, op: status, status: shock, duration_ticks: "${shock_ticks}", target: victim, chance: 0.3}

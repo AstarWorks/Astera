@@ -1,0 +1,26 @@
+# Converted from content/skills/iron-blade-lunge.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: iron-blade-lunge
+item: iron-blade
+meta: {name: {ja: "突進斬り", en: Lunge}, description: {ja: "前方へ踏み込み、触れた相手を斬る。", en: "Lunges forward and cuts whoever you hit."}, cooldown_ticks: 90, resource_cost: 10, tags: [melee, movement, physical]}
+gameplay:
+  params: {dash_distance: 3, dmg_physical: 30.0}
+  expose:
+    - {id: damage, param: dmg_physical}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - id: dash
+          op: dash_strike
+          distance: "${dash_distance}"
+          ticks: 4
+          radius: 1.0
+          hit_once: true
+          invulnerable: false
+          stop_on_block: true
+          follow_pitch: false
+          on_hit:
+            - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim}

@@ -1,0 +1,18 @@
+# Converted from content/skills/shock-wand-arc.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: shock-wand-arc
+item: shock-wand
+meta: {name: {ja: "放電", en: "Arc Burst"}, description: {ja: "周囲へ放電し、敵を痺れさせる。", en: "Releases a ring of lightning around you."}, cooldown_ticks: 140, resource_cost: 16, tags: [aoe, electric]}
+gameplay:
+  params: {radius: 3.5, dmg_electric: 15.0, shock_ticks: 30}
+  expose:
+    - {id: damage, param: dmg_electric}
+    - {id: radius, param: radius}
+  timeline:
+    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}]}
+  "on":
+    hit:
+      - {id: dmg, op: damage, target: victim, components: [{kind: electric, amount: "= dmg_electric * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
+      - {id: st_shock, op: status, status: shock, duration_ticks: "${shock_ticks}", target: victim, chance: 0.5, when: "= event.source == 'burst'"}

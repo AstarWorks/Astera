@@ -1,0 +1,44 @@
+# Converted from content/skills/gossamer-katana-s1.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: gossamer-katana-s1
+item: gossamer-katana
+meta: {name: {ja: "糸切り", en: "Thread Cut"}, description: {ja: "突進して二度斬り、さらに踏み込んで斬る。", en: "Dash and cut twice, then step in for another cut."}, cooldown_ticks: 100, resource_cost: 10}
+gameplay:
+  params: {dash_distance: 5, dmg_physical: 25, propel: -0.9, radius: 3, dash_distance_2: 4, dmg_physical_2: 40}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: radius, param: radius}
+  timeline:
+    - id: t10
+      at: 10
+      do:
+        - id: dash
+          op: dash_strike
+          distance: "${dash_distance}"
+          ticks: 4
+          radius: 0.8
+          hit_once: true
+          invulnerable: false
+          stop_on_block: true
+          follow_pitch: false
+          on_hit:
+            - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}
+    - {id: t21, at: 21, do: [{id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}]}
+    - {id: t24, at: 24, do: [{id: sel, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, max_count: 1, window: once}]}
+    - id: t37
+      at: 37
+      do:
+        - id: dash_2
+          op: dash_strike
+          distance: "${dash_distance_2}"
+          ticks: 4
+          radius: 0.8
+          hit_once: true
+          invulnerable: false
+          stop_on_block: true
+          follow_pitch: false
+          on_hit:
+            - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true}
+  "on": {hit: [{id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}]}

@@ -1,13 +1,10 @@
 # Converted from content/skills/edict-def.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
 # Generated point-frame offsets are [left, up, forward] in the parent frame.
-# CONVERT-TODO meta: no SkillDef home for name / description / cooldown / cost / tags (cooldown and cost live on the item binding): cooldown_ticks=90; resource_cost=10
-# CONVERT-TODO meta: name={"en": "Shackle Reprisal", "ja": "手枷の応酬"} | description={"en": "Guard with the shackles, then counter with a flurry.", "ja": "手枷で受けて、連続で反撃する。"}
-# CONVERT-TODO targeter max_count (hit has no cap) (x3): max_count=1
-# CONVERT-TODO damage ignore_invulnerability (no i-frame policy on damage) (x3): ignore_invulnerability=true
 apiVersion: "astera/v2"
 kind: Skill
 id: edict-def
 item: edict-blade
+meta: {name: {ja: "手枷の応酬", en: "Shackle Reprisal"}, description: {ja: "手枷で受けて、連続で反撃する。", en: "Guard with the shackles, then counter with a flurry."}, cooldown_ticks: 90, resource_cost: 10}
 gameplay:
   params: {arc_deg: 90, reach: 3.5, dmg_physical: 25}
   expose:
@@ -18,17 +15,17 @@ gameplay:
     - id: t14
       at: 14
       do:
-        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
     - id: t27
       at: 27
       do:
-        - {id: sel_2, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+        - {id: sel_2, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
     - id: t40
       at: 40
       do:
-        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, window: once}
+        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
   "on":
     hit:
-      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, when: "= event.source == 'sel'"}
-      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, when: "= event.source == 'sel_2'"}
-      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, when: "= event.source == 'sel_3'"}
+      - {id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel'"}
+      - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_2'"}
+      - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true, when: "= event.source == 'sel_3'"}
