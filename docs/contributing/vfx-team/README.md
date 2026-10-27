@@ -118,8 +118,8 @@ tail -f .claude/state/capture-farm/farm.log   # what it did, with seconds per pa
 The farm uses its own worktree (`.claude/worktrees/capture-farm`, detached on the deployed sha), its own slot lock
 (`/tmp/claude-1000/astera-vfx-shot-farm.lock`) and a pinned stack that `reap.py` never evicts, so your `make vfx-shot` runs are not queued behind it.
 Compare views (reference video next to the capture) still need `VIEW=compare CASE=<case>` from the author; the farm only does `top` + `side`.
-Knobs: `FARM_VIEWS` (`top,side`), `FARM_TICKS` (80, or the frame count already published for the skill), `FARM_MAX_SKILLS` (8),
-`FARM_PREVIEW=0` (skip the realtime pass), `FARM_RATE` (slow-motion tick rate, 5), `FARM_TTL` (idle stack lifetime, 24 h).
+Knobs: `FARM_VIEWS` (`side,top`), `FARM_TICKS` (80, or the frame count already published for the skill), `FARM_MAX_SKILLS` (8),
+`FARM_PREVIEW=0` (skip the realtime pass), `FARM_RATE` (slow-motion tick rate of the first attempt, 2.5; the retry runs at half: 1.25), `FARM_RETRIES` (1), `FARM_TTL` (idle stack lifetime, 24 h).
 
 ## Shared rules
 
