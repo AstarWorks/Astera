@@ -125,6 +125,25 @@ public class SimDisplayGateway(
     public val teleports: MutableList<Teleport> = mutableListOf()
     public val styles: MutableList<Style> = mutableListOf()
 
+    /** Audience an audience-scoped spawn was made with (displays spawned without one are absent = everyone). */
+    public data class Viewing(val audience: com.astarworks.astera.core.domain.effect.Audience, val caster: PlayerId?, val target: PlayerId?)
+
+    public val viewing: MutableMap<IDisplayEntityGateway.DisplayHandle, Viewing> = linkedMapOf()
+
+    override fun spawn(
+        world: WorldId,
+        at: Vec3,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        audience: com.astarworks.astera.core.domain.effect.Audience,
+        caster: PlayerId?,
+        target: PlayerId?,
+    ): IDisplayEntityGateway.DisplayHandle {
+        val handle = spawn(world, at, spec, renderedLines)
+        viewing[handle] = Viewing(audience, caster, target)
+        return handle
+    }
+
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): IDisplayEntityGateway.DisplayHandle {
         val handle = IDisplayEntityGateway.DisplayHandle(UUID.randomUUID())
         spec.viewRange?.let { viewRanges[handle] = it }
