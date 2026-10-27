@@ -54,6 +54,7 @@ public data class CustomBlockYamlConfig(
     @SerialName("base_bukkit_material") public val baseBukkitMaterial: String,
     public val material: String,
     @SerialName("base_durability") public val baseDurability: Int,
+    /** Percent of skill block_damage (100 = 1x); missing cells use the global matrix. */
     @SerialName("tool_effectiveness") public val toolEffectiveness: Map<String, Int> = emptyMap(),
     public val drops: List<BlockDropYamlConfig> = emptyList(),
     @SerialName("placed_from") public val placedFrom: String? = null,

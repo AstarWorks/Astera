@@ -291,13 +291,28 @@
         "com.astarworks.astera.match.application.config.ShopNpcYamlConfig": {
             "type": "object",
             "properties": {
-                "team": {"type": "string"},
-                "x": {"type": "number"},
-                "y": {"type": "number"},
-                "z": {"type": "number"},
-                "yaw": {"type": "number"}
+                "team": {
+                    "type": "string"
+                },
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                },
+                "z": {
+                    "type": "number"
+                },
+                "yaw": {
+                    "type": "number"
+                }
             },
-            "required": ["team", "x", "y", "z"]
+            "required": [
+                "team",
+                "x",
+                "y",
+                "z"
+            ]
         },
         "com.astarworks.astera.match.application.config.SpawnPointYamlConfig": {
             "type": "object",

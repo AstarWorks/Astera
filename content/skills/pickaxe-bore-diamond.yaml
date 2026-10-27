@@ -25,9 +25,8 @@ phases:
       length: 8
       width: 3
       height: 3
-      power: 3
       tool_class: PICKAXE
-      cover_damage: 350
+      block_damage: 100
     - type: play_sound
       targets: { type: caster }
       sound_id: astera:weapons/gun-impact-block

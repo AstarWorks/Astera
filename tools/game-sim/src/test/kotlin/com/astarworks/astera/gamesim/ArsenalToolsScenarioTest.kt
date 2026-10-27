@@ -47,29 +47,104 @@ class ArsenalToolsScenarioTest {
     }
 
     @Test
-    fun `vanilla stone survives the cast tick and diamond mines faster than iron and stone`() {
-        scenario("arsenal-timed-tier-mining") {
-            val caster = player("caster", team = "red")
-            val at = Vec3(2.0, groundY + 1, 0.0)
-            val stone = BlockType("minecraft:stone")
-            val dispatcher = checkNotNull(sim.combat.mechanicDispatcher)
-            val times = listOf("stone", "iron", "diamond").associateWith { tier ->
-                sim.world.placeBlock(caster.world, at, stone)
-                dispatcher.dispatch(
-                    listOf(Mechanic.BreakArea(shape = Mechanic.AreaShape.SPHERE, radius = 0.0, length = 0.0, power = 1.0, toolClass = "PICKAXE")),
-                    MechanicContext(actorId = caster.id, targetId = null, origin = at - Vec3(0.0, 1.62, 0.0), worldId = caster.world, sourceItemId = ItemId("$tier-pickaxe")),
-                )
-                assertThat(sim.world.blockAt(caster.world, at)).isEqualTo(stone)
-                var ticks = 0
-                while (sim.world.blockAt(caster.world, at) == stone && ticks < 30) {
-                    advance(1)
-                    ticks++
-                }
-                assertThat(sim.world.blockAt(caster.world, at)).isNull()
-                ticks
+    fun `stone bore cracks a mixed wall and the second cast finishes stone`() {
+        scenario("arsenal-mixed-hp") {
+            val caster = player("caster", team = "red", facing = Vec3(1.0, 0.0, 0.0))
+            val stoneAt = Vec3(2.0, groundY + 1, 0.0)
+            val dirtAt = Vec3(2.0, groundY + 1, 1.0)
+            val woolAt = Vec3(3.0, groundY + 1, 0.0)
+            val obsidianAt = Vec3(3.0, groundY + 1, 1.0)
+            sim.world.placeBlock(caster.world, stoneAt, BlockType("minecraft:stone"))
+            sim.world.placeBlock(caster.world, dirtAt, BlockType("minecraft:dirt"))
+            sim.world.placeBlock(caster.world, woolAt, BlockType("minecraft:white_wool"))
+            sim.world.placeBlock(caster.world, obsidianAt, BlockType("minecraft:obsidian"))
+            val blocks = sim.services.getOrThrow<IBlockStateGateway>()
+            sim.cast(caster, "pickaxe-bore-stone", "stone-pickaxe")
+            advance(30)
+            assertThat(sim.world.blockAt(caster.world, dirtAt)).isNull()
+            assertThat(sim.world.blockAt(caster.world, woolAt)).isNull()
+            assertThat(sim.world.blockAt(caster.world, stoneAt)).isEqualTo(BlockType("minecraft:stone"))
+            assertThat(blocks.getDurability(caster.world, stoneAt)).isEqualTo(50)
+            assertThat(eventsOf<com.astarworks.astera.core.domain.event.BlockBreakStageChanged>().last { it.position == stoneAt }.newStage)
+                .isEqualTo(com.astarworks.astera.core.domain.animation.block.BlockBreakStage.STAGE_6)
+            advance(130)
+            sim.cast(caster, "pickaxe-bore-stone", "stone-pickaxe")
+            advance(30)
+            assertThat(sim.world.blockAt(caster.world, stoneAt)).isNull()
+            repeat(3) {
+                advance(130)
+                sim.cast(caster, "pickaxe-bore-stone", "stone-pickaxe")
+                advance(30)
             }
-            assertThat(times.getValue("diamond")).isLessThan(times.getValue("iron"))
-            assertThat(times.getValue("iron")).isLessThan(times.getValue("stone"))
+            assertThat(sim.world.blockAt(caster.world, obsidianAt)).isEqualTo(BlockType("minecraft:obsidian"))
+        }
+    }
+
+    @Test
+    fun `iron bore finishes plain stone in one cast`() {
+        scenario("arsenal-iron-hp") {
+            val caster = player("caster", team = "red", facing = Vec3(1.0, 0.0, 0.0))
+            val at = Vec3(2.0, groundY + 1, 0.0)
+            sim.world.placeBlock(caster.world, at, BlockType("minecraft:stone"))
+            sim.cast(caster, "pickaxe-bore-iron", "iron-pickaxe")
+            assertThat(sim.world.blockAt(caster.world, at)).isNotNull()
+            advance(30)
+            assertThat(sim.world.blockAt(caster.world, at)).isNull()
+        }
+    }
+
+    @Test
+    fun `two players accumulate bore damage on the same block`() {
+        scenario("arsenal-shared-hp") {
+            val a = player("a", team = "red", facing = Vec3(1.0, 0.0, 0.0))
+            val b = player("b", team = "red", facing = Vec3(1.0, 0.0, 0.0))
+            val at = Vec3(2.0, groundY + 1, 0.0)
+            sim.world.placeBlock(a.world, at, BlockType("minecraft:stone"))
+            sim.cast(a, "pickaxe-bore-stone", "stone-pickaxe")
+            advance(30)
+            assertThat(sim.world.blockAt(a.world, at)).isNotNull()
+            sim.cast(b, "pickaxe-bore-stone", "stone-pickaxe")
+            advance(30)
+            assertThat(sim.world.blockAt(a.world, at)).isNull()
+        }
+    }
+
+    @Test
+    fun `periodic GC returns terrain and cover damage store to zero and a later bore starts fresh`() {
+        scenario("arsenal-idle-gc", standaloneTeams = false) {
+            val caster = player("caster", team = "red")
+            val enemy = player("enemy", team = "blue")
+            val match = startMatch("carry-tnt", mapOf(caster to "red", enemy to "blue"))
+            val matchWorld = checkNotNull(sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository>().findByMatch(match)).worldId
+            caster.world = matchWorld
+            caster.position = Vec3(0.0, groundY, 0.0)
+            caster.direction = Vec3(1.0, 0.0, 0.0)
+            val at = Vec3(2.0, groundY + 1, 0.0)
+            val coverAt = Vec3(3.0, groundY + 1, 0.0)
+            val blocks = sim.services.getOrThrow<IBlockStateGateway>()
+            val registry = sim.services.getOrThrow<ICustomBlockRegistry>()
+            sim.world.placeBlock(matchWorld, at, BlockType("minecraft:stone"))
+            blocks.placeCustomBlock(matchWorld, coverAt, checkNotNull(registry.find(BlockType("astera:stone_bulwark"))), caster.id)
+            assertThat(blocks.tracked(matchWorld)).isEmpty()
+            sim.cast(caster, "pickaxe-bore-stone", "stone-pickaxe")
+            advance(30)
+            assertThat(blocks.tracked(matchWorld).keys).contains(at, coverAt)
+            advance(221)
+            assertThat(blocks.tracked(matchWorld)).isEmpty()
+            assertThat(blocks.getDurability(matchWorld, coverAt)).isEqualTo(600)
+            assertThat(blocks.damagedWorlds()).doesNotContain(matchWorld)
+            for (cell in listOf(at, coverAt)) {
+                assertThat(eventsOf<com.astarworks.astera.core.domain.event.BlockBreakStageChanged>().last { it.position == cell }.newStage)
+                    .isEqualTo(com.astarworks.astera.core.domain.animation.block.BlockBreakStage.RESET)
+            }
+            sim.cast(caster, "pickaxe-bore-stone", "stone-pickaxe")
+            advance(30)
+            assertThat(sim.world.blockAt(matchWorld, at)).isEqualTo(BlockType("minecraft:stone"))
+            assertThat(blocks.getDurability(matchWorld, at)).isEqualTo(50)
+            sim.services.getOrThrow<com.astarworks.astera.match.application.port.inbound.IMatchLifecycle>()
+                .end(match, com.astarworks.astera.core.domain.event.EndReason.AdminEnded)
+            advance(2)
+            assertThat(blocks.tracked(matchWorld)).isEmpty()
         }
     }
 
@@ -92,9 +167,11 @@ class ArsenalToolsScenarioTest {
             )
 
             // Power 1 breaks soil and stone, not obsidian. Sphere centred at the origin (pose is absent: length 0 look +X).
-            val sphere = Mechanic.BreakArea(shape = Mechanic.AreaShape.SPHERE, radius = 2.0, length = 0.0, power = 1.0)
+            val sphere = Mechanic.BreakArea(shape = Mechanic.AreaShape.SPHERE, radius = 2.0, length = 0.0)
             run(caster, sphere)
             assertThat(sim.world.blockAt(caster.world, centre)).isEqualTo(stone)
+            advance(30)
+            run(caster, sphere)
             advance(30)
             assertThat(sim.world.blockAt(caster.world, centre)).isNull()
             assertThat(sim.world.blockAt(caster.world, centre + Vec3(1.0, 0.0, 0.0))).isNull()

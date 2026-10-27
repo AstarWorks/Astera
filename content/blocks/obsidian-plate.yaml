@@ -9,6 +9,8 @@ material: "STONE"
 base_durability: 1500
 
 tool_effectiveness:
+  "PICKAXE/WOOD": 1
+  "PICKAXE/STONE": 1
   "PICKAXE/IRON": 30
   "PICKAXE/DIAMOND": 150
   "AXE/IRON": 0

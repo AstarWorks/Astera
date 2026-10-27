@@ -125,6 +125,8 @@ internal fun CoreWiringState.wireHudAndWorld() {
         eventBus = eventBus,
         customBlockRegistry = customBlockContents,
         durabilityRule = durabilityRule,
+        initialTick = scheduler::currentTick,
+        worldGateway = { services.get<com.astarworks.astera.core.application.port.outbound.IWorldGateway>() },
     )
     schematicLoader = InMemorySchematicLoader()
     services.register<IBlockStateGateway>(blockStateGateway, priority = 0)

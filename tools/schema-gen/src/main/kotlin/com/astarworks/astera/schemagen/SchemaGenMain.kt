@@ -37,6 +37,8 @@ fun main(args: Array<String>) {
     outputDir.createDirectories()
 
     val schemas = listOf(
+        SchemaEntry("block", serializer<com.astarworks.astera.core.application.config.block.CustomBlockYamlConfig>(),
+            "https://astera.astarworks.com/schemas/block.schema.json"),
         SchemaEntry("chat", serializer<com.astarworks.astera.chat.application.config.ChatConfig>(),
             "https://astera.astarworks.com/schemas/chat.schema.json"),
         // Wave _items-1 (ADR-0073): WeaponYamlConfig was removed; Item is the

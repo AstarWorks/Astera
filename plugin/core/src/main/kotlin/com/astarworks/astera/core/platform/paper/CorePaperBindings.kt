@@ -207,24 +207,13 @@ internal class CorePaperBindings(
                     eventBus = deps.services.getOrThrow<IDomainEventBus>(),
                     customBlockRegistry = deps.customBlocks,
                     durabilityRule = deps.durabilityRule,
-                    // ADR-0195: the final journal (Postgres overlay when present), not the constructor default.
-                    journal = deps.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository>(),
                     // Cover blocks a stage placed must come back at the next match in the slot.
                     beforeWorldEdit = { block -> arenaWorld?.remember(block) },
                 )
-                // Wave 6c §B (ADR-0160) introduced PaperBlockStateGateway.warmUp(WorldId)
-                // to rehydrate the in-memory tracker from the persistent
-                // IBlockChangeJournalRepository so explosion-broken blocks survive
-                // `/restart`. Wave 6d-stub-warmup (ADR-0166) wires the driver: for
-                // every world loaded at plugin enable, hydrate the tracker once.
-                // Worlds loaded later (multiverse / dynamic load) re-warm on first
-                // damage event via the journalSave path, so this loop only needs
-                // to cover the boot-time roster.
-                server.worlds.forEach { world ->
-                    paperBlockStateGateway.warmUp(WorldId(world.name))
-                }
-                logger.info(
-                    "Wave 6d-stub-warmup: PaperBlockStateGateway tracker hydrated for ${server.worlds.size} loaded world(s).",
+                server.pluginManager.registerEvents(
+                    com.astarworks.astera.core.adapter.paper.world.PaperBlockHpListener(paperBlockStateGateway,
+                        { deps.services.get<com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway>() }),
+                    plugin,
                 )
                 paperBlockStateGateway
             },
@@ -822,6 +811,11 @@ internal class CorePaperBindings(
             scheduler = ctx.services.getOrThrow<IScheduler>(),
             slots = worldSlots,
             contentDir = ctx.contentDir,
+            clearBlockDamage = { world ->
+                val blocks = ctx.services.get<com.astarworks.astera.core.application.port.outbound.IBlockStateGateway>()
+                val animation = ctx.services.get<com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway>()
+                blocks?.clearWorldDamage(world)?.forEach { animation?.cancelBreakAnimation(world, it) }
+            },
         )
         arenaWorld = arena
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IArenaBuilder>(

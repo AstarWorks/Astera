@@ -54,7 +54,7 @@ class CustomBlockToolScenarioTest {
             // Reinforced wall (stone, 400 HP): pickaxe 100/hit -> exactly 4 swings; the first three leave it standing.
             val wall = place("astera:reinforced_wall", 0.0)
             repeat(3) { assertThat(swing("iron-pickaxe", wall)).isInstanceOf(Outcome.Chipped::class.java) }
-            assertThat(blocks.tracked(world)[wall]?.durability).isEqualTo(100)
+            assertThat(blocks.getDurability(world, wall)).isEqualTo(100)
             assertThat(swing("iron-pickaxe", wall)).isInstanceOf(Outcome.Broken::class.java)
 
             // The axe is the wrong tool for stone: 25/hit, so 16 swings. The shovel does nothing.
@@ -63,7 +63,7 @@ class CustomBlockToolScenarioTest {
             val wallShovel = place("astera:reinforced_wall", 4.0)
             assertThat(swingsToBreak("iron-shovel", wallShovel, 30)).isNull()
             assertThat(swing("iron-shovel", wallShovel)).isEqualTo(Outcome.WrongTool)
-            assertThat(blocks.tracked(world)[wallShovel]?.durability).isEqualTo(400)
+            assertThat(blocks.getDurability(world, wallShovel)).isEqualTo(400)
 
             // Barricade (wood, 300 HP): the axe needs 3 swings, the pickaxe 12.
             assertThat(swingsToBreak("iron-axe", place("astera:barricade", 6.0), 30)).isEqualTo(3)
@@ -97,14 +97,14 @@ class CustomBlockToolScenarioTest {
                 stages += (outcome as Outcome.Chipped).stage
             }
             // 400 HP, 100 per swing: 25 %, 50 %, 75 % lost.
-            assertThat(stages).containsExactly(BlockBreakStage.STAGE_2, BlockBreakStage.STAGE_4, BlockBreakStage.STAGE_6)
+            assertThat(stages).containsExactly(BlockBreakStage.STAGE_2, BlockBreakStage.STAGE_5, BlockBreakStage.STAGE_7)
             assertThat(stages).isSortedAccordingTo(compareBy { it.ordinal })
 
             advance(HitCustomBlockUseCase.HIT_COOLDOWN_TICKS.toInt() + 1)
             hitter.hit(miner.id, world, at, ItemId("iron-pickaxe"))
             val shown = eventsOf<BlockBreakStageChanged>().filter { it.position == at }.map { it.newStage }
             assertThat(shown).containsExactly(
-                BlockBreakStage.STAGE_2, BlockBreakStage.STAGE_4, BlockBreakStage.STAGE_6, BlockBreakStage.RESET,
+                BlockBreakStage.STAGE_2, BlockBreakStage.STAGE_5, BlockBreakStage.STAGE_7, BlockBreakStage.RESET,
             )
         }
     }
@@ -121,7 +121,7 @@ class CustomBlockToolScenarioTest {
 
             assertThat((hitter.hit(miner.id, world, at, ItemId("iron-axe")) as Result.Success).value).isInstanceOf(Outcome.Chipped::class.java)
             assertThat((hitter.hit(miner.id, world, at, ItemId("iron-axe")) as Result.Success).value).isEqualTo(Outcome.TooFast)
-            assertThat(blocks.tracked(world)[at]?.durability).isEqualTo(200)
+            assertThat(blocks.getDurability(world, at)).isEqualTo(200)
         }
     }
 

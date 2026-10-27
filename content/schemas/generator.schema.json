@@ -24,9 +24,6 @@
         "affiliation": {
             "$ref": "#/definitions/com.astarworks.astera.match.application.config.AffiliationYamlConfig"
         },
-        "drop_item": {
-            "type": "string"
-        },
         "stockpile_cap": {
             "type": "integer"
         },
@@ -35,6 +32,9 @@
         },
         "late_game_multiplier": {
             "type": "number"
+        },
+        "drop_item": {
+            "type": "string"
         }
     },
     "required": [
