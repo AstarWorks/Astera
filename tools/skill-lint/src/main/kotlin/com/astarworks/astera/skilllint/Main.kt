@@ -1,17 +1,7 @@
 package com.astarworks.astera.skilllint
 
 import com.astarworks.astera.core.application.skillengine.compose.ComposeOptions
-import com.astarworks.astera.core.application.skillengine.load.DefaultOpRegistries
-import com.astarworks.astera.core.application.skillengine.load.YamlSkillDecoder
-import com.astarworks.astera.core.application.skillengine.load.ops.damageDecoders
-import com.astarworks.astera.core.application.skillengine.load.ops.movementDecoders
-import com.astarworks.astera.core.application.skillengine.load.ops.ControlOpDecoders
-import com.astarworks.astera.core.application.skillengine.load.ops.FrameOpDecoders
-import com.astarworks.astera.core.application.skillengine.load.ops.HitOpDecoders
-import com.astarworks.astera.core.application.skillengine.load.presentation.presentationDecoders
-import com.astarworks.astera.core.application.skillengine.load.ops.spawnDecoders
-import com.astarworks.astera.core.application.skillengine.load.ops.statusDecoders
-import com.astarworks.astera.core.application.skillengine.load.worldDecoders
+import com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
 import com.astarworks.astera.core.application.skillengine.load.SkillDecoder
 import java.nio.file.Path
 import kotlin.system.exitProcess
@@ -21,12 +11,7 @@ import kotlin.system.exitProcess
  * Every op family is registered; the frame point tables are the compiler's concern, not the decoder's.
  */
 object ProductionDecoder {
-    fun create(): SkillDecoder = YamlSkillDecoder(
-        DefaultOpRegistries.decoders(
-            movementDecoders(), statusDecoders(), worldDecoders(), spawnDecoders(), damageDecoders(), presentationDecoders(),
-            listOf(FrameOpDecoders(), HitOpDecoders(), ControlOpDecoders()),
-        ),
-    )
+    fun create(): SkillDecoder = SkillEngineRegistries.decoder()
 }
 
 /**

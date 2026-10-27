@@ -55,11 +55,24 @@ public interface FrameLookup {
     public fun velocity(frame: String, point: String?): GeoVec3
 }
 
-/** Values at eval time. [seed] makes `rand(stream)` deterministic per cast. */
+/**
+ * Cast-level answers the CEL functions `aim_point` and `blade_len` need and a frame tree cannot give: the world
+ * (blocks, entities) along the caster's look ray, and the item point table.
+ */
+public interface ExprHost {
+    /** Point on the look ray of [caster] at [range] blocks, clamped to the first block or entity the ray meets. */
+    public fun aimPoint(caster: ExprValue.Ref, range: Double): GeoVec3
+
+    /** Grip-to-tip (or root-to-tip) distance of the item point table of [frame]. */
+    public fun bladeLen(frame: ExprValue.Ref): Double
+}
+
+/** Values at eval time. [seed] makes `rand(stream)` deterministic per cast; [host] serves `aim_point` / `blade_len`. */
 public class ExprEnv(
     public val variables: Map<String, ExprValue>,
     public val frames: FrameLookup,
     public val seed: Long = 0L,
+    public val host: ExprHost? = null,
 )
 
 public sealed interface ExprError {

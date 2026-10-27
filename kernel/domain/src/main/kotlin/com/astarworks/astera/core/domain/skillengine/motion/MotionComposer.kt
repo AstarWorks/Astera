@@ -107,6 +107,7 @@ internal object MotionMath {
 public class MotionComposer(
     private val tree: FrameTree,
     private val baseEnv: (FrameId) -> ExprEnv = { EmptyEnv },
+    private val frozen: (FrameId) -> Boolean = { false },
 ) {
     private class Active(val law: MotionLaw, val startTick: Int)
 
@@ -136,6 +137,9 @@ public class MotionComposer(
         absorbContribution(st)
     }
 
+    /** True while any law is still running (a cast with live laws is not idle). */
+    public fun hasWork(): Boolean = states.values.any { it.laws.isNotEmpty() }
+
     public fun isMoving(frame: FrameId): Boolean = states[frame]?.laws?.isNotEmpty() == true
 
     /** Stop every law bound to [event] (spin `until`). */
@@ -150,6 +154,7 @@ public class MotionComposer(
         val events = ArrayList<MotionEvent>()
         for (frame in states.keys.toList()) {
             val st = states[frame] ?: continue
+            if (frozen(frame)) continue
             val node = tree.node(frame)
             if (node == null || st.laws.isEmpty()) {
                 states.remove(frame)
@@ -200,7 +205,7 @@ public class MotionComposer(
     }
 
     private fun frameEnv(base: ExprEnv, velocity: Vec3): ExprEnv =
-        if (velocity.lengthSquared() > 0.0) ExprEnv(base.variables + ("velocity" to ExprValue.Vec3(velocity)), base.frames, base.seed) else base
+        if (velocity.lengthSquared() > 0.0) ExprEnv(base.variables + ("velocity" to ExprValue.Vec3(velocity)), base.frames, base.seed, base.host) else base
 
     private class Ctx(
         override val tick: Int,

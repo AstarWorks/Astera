@@ -4,11 +4,9 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.skillengine.expr.CompiledExpr
 import com.astarworks.astera.core.domain.skillengine.expr.ExprCompiler
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
-import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.frame.FrameKind
 import com.astarworks.astera.core.domain.skillengine.motion.AlignSpec
 import com.astarworks.astera.core.domain.skillengine.model.FrameDecl
-import com.astarworks.astera.core.domain.skillengine.model.ParamValue
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
 import com.astarworks.astera.core.domain.skillengine.model.SkillDef
 import com.astarworks.astera.core.domain.skillengine.model.Value
@@ -46,29 +44,10 @@ public class DefaultSkillCompiler(
         val frameNames: Set<String> = frameDecls.keys + SectionRules.BUILTIN_FRAMES
         val paramNames: Set<String> =
             def.gameplay.params.keys + def.presentation.params.keys + def.gameplay.expose.map { it.name }
-        val spec: ExprEnvSpec = envSpec()
+        val exprSpec: SkillExprSpec = SkillExprSpec.of(def)
+        val spec: ExprEnvSpec = exprSpec.spec
         val compiled = LinkedHashMap<String, CompiledExpr>()
         val cache = HashMap<String, CompiledExpr>()
-
-        fun envSpec(): ExprEnvSpec {
-            val vars = LinkedHashMap<String, ExprType>()
-            (def.gameplay.params + def.presentation.params).forEach { (k, v) ->
-                vars[k] = when (v) {
-                    is ParamValue.Num -> ExprType.NUM
-                    is ParamValue.Text -> ExprType.STR
-                    is ParamValue.Flag -> ExprType.BOOL
-                }
-            }
-            def.gameplay.expose.forEach { vars.putIfAbsent(it.name, ExprType.NUM) }
-            vars["tick"] = ExprType.NUM
-            vars["event.source"] = ExprType.STR
-            vars["contact.point"] = ExprType.VEC3
-            vars["contact.normal"] = ExprType.VEC3
-            vars["contact.rel_velocity"] = ExprType.VEC3
-            vars["contact.block"] = ExprType.BOOL
-            val frames = frameNames - "self" - "line" - "contact" + "victim"
-            return ExprEnvSpec(vars, frames)
-        }
 
         fun run(): CompiledSkill {
             for (f in def.frames) checkPoint(f.parent, "frames[${f.id}].parent")
@@ -76,7 +55,7 @@ public class DefaultSkillCompiler(
             walk(def.gameplay.on, "gameplay.on")
             walk(def.presentation.timeline, "presentation.timeline")
             walk(def.presentation.on, "presentation.on")
-            return CompiledSkill(def, compiled)
+            return CompiledSkill(def, compiled, cache.toMap())
         }
 
         fun undefined(path: String, ref: String): Nothing =
@@ -96,35 +75,8 @@ public class DefaultSkillCompiler(
             if (point !in part.points && point !in part.axes && point != "axis") undefined(path, ref.toString())
         }
 
-        val pointFrames: Set<String> = frameNames - "self" - "line" - "contact"
-        val dotted = Regex("""(?<![\w.])([A-Za-z_]\w*)\.([A-Za-z_]\w*)(?!\w|\s*\()""")
-
-        /** `shears.tip` (frame point sugar) -> `point(shears,"tip")`; string literals and `contact.*`/`event.*` are left alone. */
-        fun rewritePoints(source: String): String {
-            val sb = StringBuilder()
-            var i = 0
-            while (i < source.length) {
-                val ch = source[i]
-                if (ch == '\'' || ch == '"') {
-                    var j = i + 1
-                    while (j < source.length && source[j] != ch) j += if (source[j] == '\\') 2 else 1
-                    val end = minOf(j + 1, source.length)
-                    sb.append(source, i, end)
-                    i = end
-                } else {
-                    var j = i
-                    while (j < source.length && source[j] != '\'' && source[j] != '"') j++
-                    sb.append(dotted.replace(source.substring(i, j)) { m ->
-                        if (m.groupValues[1] in pointFrames) "point(${m.groupValues[1]},\"${m.groupValues[2]}\")" else m.value
-                    })
-                    i = j
-                }
-            }
-            return sb.toString()
-        }
-
         fun checkExpr(source: String, path: String) {
-            val c = cache[source] ?: when (val r = exprs.compile(rewritePoints(source), spec)) {
+            val c = cache[source] ?: when (val r = exprs.compile(exprSpec.rewrite(source), spec)) {
                 is Result.Success -> r.value.also { cache[source] = it }
                 is Result.Failure -> throw DecodeAbort(SkillDecodeError.BadExpr(def.id, path, r.error))
             }

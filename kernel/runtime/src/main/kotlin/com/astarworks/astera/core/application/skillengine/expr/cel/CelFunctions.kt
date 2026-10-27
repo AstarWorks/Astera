@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.geometry.math.SeededRandom
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
+import com.astarworks.astera.core.domain.skillengine.expr.ExprHost
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEvalException
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
 import dev.cel.common.CelFunctionDecl
@@ -58,6 +59,8 @@ internal object CelFunctions {
     }
 
     private fun env(): ExprEnv = current.get() ?: throw ExprEvalException("expression evaluated outside CompiledExpr.eval")
+
+    private fun host(): ExprHost = env().host ?: throw ExprEvalException("this expression needs a cast (aim_point / blade_len)")
 
     private fun n(o: Any?): Double = (o as? Number)?.toDouble() ?: throw ExprEvalException("expected a number, got $o")
 
@@ -197,6 +200,17 @@ internal object CelFunctions {
         def("point", "point_ref", REF, listOf(REF, SimpleType.STRING), listOf(R, STR)) { (it[0] as ExprValue.Ref).copy(point = it[1] as String) }
         def("vel", "vel_ref", VEC3, listOf(REF), listOf(R)) { (it[0] as ExprValue.Ref).let { r -> env().frames.velocity(r.name, r.point) } }
         def("speed", "speed_ref", D, listOf(REF), listOf(R)) { (it[0] as ExprValue.Ref).let { r -> env().frames.velocity(r.name, r.point).length() } }
+
+        // world axes of a frame (same as axis(f, "left") ...)
+        for (name in listOf("forward", "up", "left", "right")) {
+            def(name, "${name}_ref", VEC3, listOf(REF), listOf(R)) { axisOf(worldPose(it[0] as ExprValue.Ref), name) }
+        }
+
+        // cast-level queries, served by the cast through ExprEnv.host
+        def("aim_point", "aim_point_ref_num", VEC3, listOf(REF, NUM), listOf(R, OBJ)) {
+            host().aimPoint(it[0] as ExprValue.Ref, n(it[1]))
+        }
+        def("blade_len", "blade_len_ref", D, listOf(REF), listOf(R)) { host().bladeLen(it[0] as ExprValue.Ref) }
 
         // spatial tests (angles in degrees)
         def("dist", "dist_any", D, listOf(NUM, NUM), listOf(OBJ, OBJ)) { vec(it[0]).distance(vec(it[1])) }
