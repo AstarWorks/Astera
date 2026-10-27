@@ -4,22 +4,23 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * Capture Wool (capture_seconds 10, wool-* control points, a majority of them wins): the red bot walks (A*) to the nearest
- * unclaimed control point, stands alone in it until the capture message, then does the same until it holds a majority.
+ * Capture Wool (Splat Zones; capture_seconds 10, wool-* zones, the count drops per second while one team owns every zone; the e2e image makes it
+ * 5 per second): the red bot walks (A*) to the nearest unclaimed zone, stands alone in it until the capture message, then does
+ * the same until it owns every zone (finishMatch waits for the count to reach 0).
  */
 class CaptureWoolPlaythroughE2eTest : ObjectivePlaythroughBase() {
 
     private val suite = "Capture Wool playthrough"
 
     @Test
-    fun `capture-wool is played until a team holds a majority of the control points`() {
+    fun `capture-wool is played until a team owns every zone and counts down`() {
         val ctx = startMatch(suite, "capture-wool", "Cw") ?: return
         val a = ctx.actor
         val others = listOf(ctx.idle)
         val remaining = ctx.objectives.zoneNames("wool-").toMutableList()
-        val toWin = remaining.size / 2 + 1 // CaptureWoolGameMode default captures_to_win
-        E2eReport.check(suite, "the stage has at least three wool control points", "content/stages") {
-            assertThat(remaining.size).describedAs("wool zones: $remaining").isGreaterThanOrEqualTo(3)
+        val toWin = remaining.size // the count only moves while one team owns EVERY zone
+        E2eReport.check(suite, "the stage has at least one wool zone", "content/stages") {
+            assertThat(remaining.size).describedAs("wool zones: $remaining").isGreaterThanOrEqualTo(1)
             "zones=$remaining"
         }
 

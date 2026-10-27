@@ -49,7 +49,6 @@ public class PostgresCurrencyLedgerIT : PostgresIntegrationTestBase() {
 
         assertThat(ledger.debit(p, Currency.GOLD, 50)).isInstanceOf(Result.Success::class.java)
         assertThat(ledger.balance(p, Currency.GOLD)).isZero()
-        assertThat(ledger.debit(p, Currency.GEM, 1)).isInstanceOf(Result.Failure::class.java)
     }
 
     @Test

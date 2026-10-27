@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory
  * - `player.coins.<currency>` (Wave 5f) → `ResolvedReactiveSlot(itemId =
  *   "indicator-coin-<currency>", countOverride = balance.coerceIn(1, 64),
  *   displayOverride = MessageKey("astera.gui.binding.coins.value"))`. Currency
- *   token is `star` / `gold` / `gem` lowercase. The `countOverride` clamps to
+ *   token is `star` / `gold` lowercase. The `countOverride` clamps to
  *   [1, 64] because vanilla ItemStack amounts can't exceed 64 — actual balance
  *   reads happen via the i18n `displayOverride` placeholder rendering, not the
  *   stack count. Returns `null` if the wallet provider is not wired yet

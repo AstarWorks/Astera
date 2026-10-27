@@ -69,7 +69,7 @@ class ShopScenarioTest {
             val ledger = sim.services.getOrThrow<ICurrencyLedger>()
             val buyer = player("buyer")
             advance(1)
-            ledger.credit(buyer.id, Currency.GOLD, 200L)
+            ledger.credit(buyer.id, Currency.GOLD, 50L) // + 150 starter GOLD = 200
 
             dispatch(buyer, "lobby.shop.open")
             val view = checkNotNull(sim.server.view(buyer.id))
@@ -105,12 +105,31 @@ class ShopScenarioTest {
     }
 
     @Test
+    fun `a brand-new player can buy the recommended first offer with the starter GOLD alone`() {
+        scenario("shop-first-purchase") {
+            val ledger = sim.services.getOrThrow<ICurrencyLedger>()
+            val buyer = player("fresh")
+            advance(1)
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(150L)
+
+            dispatch(buyer, "lobby.shop.open")
+            val view = checkNotNull(sim.server.view(buyer.id))
+            val starterItems = view.givenItems.toList()
+            buyClick(buyer, "frost-staff") // 150 GOLD: the first click asks to confirm
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isEqualTo(150L)
+            buyClick(buyer, "frost-staff")
+            assertThat(ledger.balance(buyer.id, Currency.GOLD)).isZero()
+            assertThat(view.givenItems).containsExactlyElementsOf(starterItems + "frost-staff")
+        }
+    }
+
+    @Test
     fun `an owned unlock is never charged twice and the purchase shows up in the player history`() {
         scenario("shop-ownership") {
             val ledger = sim.services.getOrThrow<ICurrencyLedger>()
             val buyer = player("owner")
             advance(1)
-            ledger.credit(buyer.id, Currency.GOLD, 200L)
+            ledger.credit(buyer.id, Currency.GOLD, 50L) // + 150 starter GOLD = 200
             dispatch(buyer, "lobby.shop.open")
             buyClick(buyer, "dagger")
             buyClick(buyer, "dagger") // confirming click: bought for 150

@@ -1,0 +1,1201 @@
+{
+  "rapier": [
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "part000"
+        ],
+        "material": "cloth.white_wool",
+        "tint": "#315e9c",
+        "seed": 20261028
+      }
+    }
+  ],
+  "shock-wand": [
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "part001"
+        ],
+        "material": "cloth.white_wool",
+        "tint": "#315e9c",
+        "seed": 20261028
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "part000"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#526d89",
+        "seed": 20261028
+      }
+    },
+    {
+      "op": "element.add",
+      "args": {
+        "id": "middle-prong",
+        "element": {
+          "name": "central lightning prong",
+          "from": [
+            7.3,
+            20,
+            7
+          ],
+          "to": [
+            8.7,
+            26,
+            9
+          ],
+          "faces": {
+            "north": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "south": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "east": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "west": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "up": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "down": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "middle-prong"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#f6d45b",
+        "seed": 20261028
+      }
+    }
+  ],
+  "glacier-wand": [
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "part001"
+        ],
+        "material": "cloth.white_wool",
+        "tint": "#315e9c",
+        "seed": 20261028
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "part000"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#526d89",
+        "seed": 20261028
+      }
+    }
+  ],
+  "chain-rod": [
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "part000",
+          "part001"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#46535e",
+        "seed": 20261028
+      }
+    }
+  ],
+  "venom-flask": [
+    {
+      "op": "element.update",
+      "args": {
+        "id": "part001",
+        "changes": {
+          "from": [
+            6,
+            12,
+            6
+          ],
+          "to": [
+            10,
+            13,
+            10
+          ]
+        }
+      }
+    },
+    {
+      "op": "element.update",
+      "args": {
+        "id": "part003",
+        "changes": {
+          "from": [
+            7,
+            16,
+            7
+          ],
+          "to": [
+            9,
+            17,
+            9
+          ]
+        }
+      }
+    },
+    {
+      "op": "element.add",
+      "args": {
+        "id": "bottle-neck",
+        "element": {
+          "name": "narrow green neck",
+          "from": [
+            7,
+            13,
+            7
+          ],
+          "to": [
+            9,
+            16,
+            9
+          ],
+          "faces": {
+            "north": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "south": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "east": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "west": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "up": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "down": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "bottle-neck"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#619841",
+        "seed": 20261028
+      }
+    }
+  ],
+  "ember-rod": [
+    {
+      "op": "element.update",
+      "args": {
+        "id": "part004",
+        "changes": {
+          "from": [
+            7,
+            23,
+            7
+          ],
+          "to": [
+            9,
+            25,
+            9
+          ],
+          "rotation": {
+            "axis": "z",
+            "angle": 45,
+            "origin": [
+              8,
+              23,
+              8
+            ]
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "part004"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#f6bf4c",
+        "seed": 20261028
+      }
+    }
+  ],
+  "frost-rod": [
+    {
+      "op": "element.update",
+      "args": {
+        "id": "part004",
+        "changes": {
+          "from": [
+            7,
+            23,
+            7
+          ],
+          "to": [
+            9,
+            25,
+            9
+          ],
+          "rotation": {
+            "axis": "z",
+            "angle": 45,
+            "origin": [
+              8,
+              23,
+              8
+            ]
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "part004"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#d3f6ff",
+        "seed": 20261028
+      }
+    }
+  ],
+  "gale-fan": [
+    {
+      "op": "element.delete",
+      "args": {
+        "id": "part001"
+      }
+    },
+    {
+      "op": "element.delete",
+      "args": {
+        "id": "part003"
+      }
+    },
+    {
+      "op": "element.delete",
+      "args": {
+        "id": "part005"
+      }
+    },
+    {
+      "op": "element.delete",
+      "args": {
+        "id": "part007"
+      }
+    },
+    {
+      "op": "element.delete",
+      "args": {
+        "id": "part009"
+      }
+    },
+    {
+      "op": "element.add",
+      "args": {
+        "id": "leaf0",
+        "element": {
+          "name": "solid folded leaf",
+          "from": [
+            6.0,
+            10,
+            7.6
+          ],
+          "to": [
+            10.0,
+            12,
+            8.4
+          ],
+          "faces": {
+            "north": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "south": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "east": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "west": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "up": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "down": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "leaf0"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#a2ecff",
+        "seed": 20261028
+      }
+    },
+    {
+      "op": "element.add",
+      "args": {
+        "id": "leaf1",
+        "element": {
+          "name": "solid folded leaf",
+          "from": [
+            4.5,
+            12,
+            7.6
+          ],
+          "to": [
+            11.5,
+            14,
+            8.4
+          ],
+          "faces": {
+            "north": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "south": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "east": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "west": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "up": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "down": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "leaf1"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#a2ecff",
+        "seed": 20261028
+      }
+    },
+    {
+      "op": "element.add",
+      "args": {
+        "id": "leaf2",
+        "element": {
+          "name": "solid folded leaf",
+          "from": [
+            3.0,
+            14,
+            7.6
+          ],
+          "to": [
+            13.0,
+            16,
+            8.4
+          ],
+          "faces": {
+            "north": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "south": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "east": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "west": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "up": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "down": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "leaf2"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#a2ecff",
+        "seed": 20261028
+      }
+    },
+    {
+      "op": "element.add",
+      "args": {
+        "id": "leaf3",
+        "element": {
+          "name": "solid folded leaf",
+          "from": [
+            1.5,
+            16,
+            7.6
+          ],
+          "to": [
+            14.5,
+            18,
+            8.4
+          ],
+          "faces": {
+            "north": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "south": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "east": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "west": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "up": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "down": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "leaf3"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#a2ecff",
+        "seed": 20261028
+      }
+    },
+    {
+      "op": "element.add",
+      "args": {
+        "id": "leaf4",
+        "element": {
+          "name": "solid folded leaf",
+          "from": [
+            1.0,
+            18,
+            7.6
+          ],
+          "to": [
+            15.0,
+            20,
+            8.4
+          ],
+          "faces": {
+            "north": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "south": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "east": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "west": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "up": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "down": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "leaf4"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#a2ecff",
+        "seed": 20261028
+      }
+    },
+    {
+      "op": "element.add",
+      "args": {
+        "id": "leaf5",
+        "element": {
+          "name": "solid folded leaf",
+          "from": [
+            4.0,
+            20,
+            7.6
+          ],
+          "to": [
+            12.0,
+            22,
+            8.4
+          ],
+          "faces": {
+            "north": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "south": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "east": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "west": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "up": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "down": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "leaf5"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#a2ecff",
+        "seed": 20261028
+      }
+    }
+  ],
+  "sticky-bomb": [
+    {
+      "op": "element.update",
+      "args": {
+        "id": "part000",
+        "changes": {
+          "from": [
+            5,
+            5,
+            5
+          ],
+          "to": [
+            11,
+            11,
+            11
+          ]
+        }
+      }
+    },
+    {
+      "op": "element.update",
+      "args": {
+        "id": "part001",
+        "changes": {
+          "from": [
+            5,
+            11,
+            5
+          ],
+          "to": [
+            11,
+            12,
+            11
+          ]
+        }
+      }
+    },
+    {
+      "op": "element.update",
+      "args": {
+        "id": "part003",
+        "changes": {
+          "from": [
+            6.5,
+            12,
+            6.5
+          ],
+          "to": [
+            9.5,
+            13,
+            9.5
+          ]
+        }
+      }
+    },
+    {
+      "op": "element.update",
+      "args": {
+        "id": "part005",
+        "changes": {
+          "from": [
+            7.5,
+            13,
+            7.5
+          ],
+          "to": [
+            8.5,
+            16,
+            8.5
+          ]
+        }
+      }
+    },
+    {
+      "op": "element.update",
+      "args": {
+        "id": "part004",
+        "changes": {
+          "from": [
+            4.5,
+            6.5,
+            6
+          ],
+          "to": [
+            5,
+            10,
+            10
+          ]
+        }
+      }
+    },
+    {
+      "op": "element.add",
+      "args": {
+        "id": "plate-r",
+        "element": {
+          "name": "opposite adhesive plate",
+          "from": [
+            11,
+            6.5,
+            6
+          ],
+          "to": [
+            11.5,
+            10,
+            10
+          ],
+          "faces": {
+            "north": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "south": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "east": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "west": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "up": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "down": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "plate-r"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#bccbd0",
+        "seed": 20261028
+      }
+    }
+  ],
+  "iron-blade": [
+    {
+      "op": "element.add",
+      "args": {
+        "id": "tip-shoulder",
+        "element": {
+          "name": "tapered shoulder",
+          "from": [
+            7,
+            23,
+            7.4
+          ],
+          "to": [
+            9,
+            24,
+            8.6
+          ],
+          "faces": {
+            "north": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "south": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "east": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "west": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "up": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            },
+            "down": {
+              "texture": "#clay",
+              "uv": [
+                0,
+                0,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "op": "material.apply",
+      "args": {
+        "ids": [
+          "tip-shoulder"
+        ],
+        "material": "metal.iron_block",
+        "tint": "#edf5f5",
+        "seed": 20261028
+      }
+    }
+  ],
+  "scythe": [
+    {
+      "op": "element.update",
+      "args": {
+        "id": "part005",
+        "changes": {
+          "from": [
+            -6,
+            16,
+            7.4
+          ],
+          "to": [
+            -4.5,
+            22,
+            8.6
+          ]
+        }
+      }
+    }
+  ]
+}

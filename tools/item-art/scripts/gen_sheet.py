@@ -42,6 +42,10 @@ def prompt(spec: dict) -> str:
         lines = [f"Row {r + 1} ({name}): {cols} animation frames left to right, same size and position in every "
                  f"cell so the frames play back as a flipbook: {desc}" for r, (name, desc) in enumerate(anims)]
         return head + "\n".join(lines) + "\n"
+    if spec.get("texture_tiles"):
+        head = (f"Create one pixel-art texture sheet in a strict {cols}x{rows} grid of equal square tiles. "
+                f"Each tile fills its entire cell edge to edge, no gaps, no borders, no text or labels. "
+                f"Sheet aspect ratio {cols}:{rows}. Style: {spec['style']}\n\n")
     cells = list(spec["cells"].items())
     if len(cells) > cols * rows:
         sys.exit(f"{len(cells)} cells do not fit a {cols}x{rows} grid")
@@ -49,7 +53,7 @@ def prompt(spec: dict) -> str:
     if len(cells) < cols * rows:
         lines.append(f"{len(cells) + 1}-{cols * rows}: leave empty (background only)")
     return (
-        head + "Each icon fills about 80% of its cell.\n\nCells in reading order (row by row, left to right):\n"
+        head + ("" if spec.get("texture_tiles") else "Each icon fills about 80% of its cell.\n\n") + "Cells in reading order (row by row, left to right):\n"
         + "\n".join(lines) + "\n"
     )
 

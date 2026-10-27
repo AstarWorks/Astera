@@ -56,6 +56,7 @@ public class ResourcePackBuilder(
         val files = sortedMapOf<String, ByteArray>()
         files["pack.mcmeta"] = packMcmeta().toByteArray()
         addTextures(files)
+        addEquipment(files)
         addModels(files)
         addHeldHiddenDefinition(files)
         addSounds(files)
@@ -99,12 +100,32 @@ public class ResourcePackBuilder(
     private fun addTextures(files: MutableMap<String, ByteArray>) {
         for (file in filesUnder("textures")) {
             val rel = file.relativeTo(contentDir.resolve("textures")).invariantSeparatorsPathString
-            if (rel.startsWith("$SOURCES_DIR/")) continue
+            if (rel.startsWith("$SOURCES_DIR/") || rel.startsWith("equipment/")) continue
             when {
                 file.extension == "png" -> files["assets/$NAMESPACE/textures/$rel"] = Files.readAllBytes(file)
                 file.name.endsWith(".mcmeta.json") ->
                     files["assets/$NAMESPACE/textures/${rel.removeSuffix(".mcmeta.json")}.png.mcmeta"] = Files.readAllBytes(file)
             }
+        }
+    }
+
+    /** Equipment sources use vanilla's 64x32 humanoid UV layout, separate from item icons. */
+    private fun addEquipment(files: MutableMap<String, ByteArray>) {
+        val items = filesUnder("items").filter { it.extension == "yaml" }
+        val assets = items.mapNotNull { file ->
+            Yaml().load<Map<String, Any?>>(Files.readString(file)).orEmpty()["equipment_asset"] as? String
+        }.toSortedSet()
+        for (asset in assets) {
+            require(asset.matches(Regex("[a-z0-9._-]+"))) { "Invalid equipment_asset: $asset" }
+            val layers = listOf("humanoid", "humanoid_leggings").associateWith { layer ->
+                val source = contentDir.resolve("textures/equipment/$layer/$asset.png")
+                require(Files.isRegularFile(source)) { "Missing equipment texture: $source" }
+                val image = requireNotNull(ImageIO.read(source.toFile())) { "Unreadable equipment texture: $source" }
+                require(image.width == 64 && image.height == 32) { "Equipment texture must be 64x32: $source" }
+                files["assets/$NAMESPACE/textures/entity/equipment/$layer/$asset.png"] = Files.readAllBytes(source)
+                listOf(mapOf("texture" to "$NAMESPACE:$asset"))
+            }
+            files["assets/$NAMESPACE/equipment/$asset.json"] = json(mapOf("layers" to layers)).toByteArray()
         }
     }
 

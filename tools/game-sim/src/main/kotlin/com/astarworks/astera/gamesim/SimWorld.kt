@@ -147,6 +147,7 @@ public class SimMcPlayer(private var entity: SimEntity) : IMcPlayer {
         fadeIn: Duration,
         stay: Duration,
         fadeOut: Duration,
+        placeholders: Map<String, String>,
     ) {
         if (failNotices) throw NotImplementedError("sim: title failure")
         titles += titleKey

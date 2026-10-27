@@ -201,6 +201,7 @@ internal object ItemArt {
         for (id in sources.keys) if ("$TEXTURE_DIR/$id.png" !in files) put(id, ModelStyle.GENERATED) { error(id) }
         files.putAll(SpriteSources.renderAll(contentDir))
         files.putAll(ParticleSkins.renderAll(contentDir))
+        files.putAll(TooltipArt.renderAll(contentDir))
         return files
     }
 

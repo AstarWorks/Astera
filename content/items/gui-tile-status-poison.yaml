@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-poison
+material: SPIDER_EYE
+name:
+  ja: "<dark_green>毒</dark_green>"
+  en: "<dark_green>Poisoned</dark_green>"

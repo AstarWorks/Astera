@@ -105,6 +105,7 @@ internal class CorePaperBindings(
 
     private var managedJanitor: com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntityJanitor? = null
     private var paperHologramGateway: com.astarworks.astera.core.adapter.paper.hologram.PaperHologramGateway? = null
+    private var hologramGuide: com.astarworks.astera.core.adapter.paper.hologram.PaperHologramGuide? = null
 
     /** Retained so [shutdown] can remove the lobby NPC bodies. */
     private var npcBodyService: com.astarworks.astera.core.adapter.paper.entity.PaperNpcBodyService? = null
@@ -503,6 +504,10 @@ internal class CorePaperBindings(
             com.astarworks.astera.core.adapter.paper.entity.PaperPlayerPoseLookup(server),
             priority = 100,
         )
+        // ADR-0295: the per-player hologram guide (MODE-16 match navigation, UI-11 tutorial).
+        val guide = com.astarworks.astera.core.adapter.paper.hologram.PaperHologramGuide(plugin, server, scheduler).also { it.start() }
+        hologramGuide = guide
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IHologramGuide>(guide, priority = 100)
         // WP12: personal vault (= ender chest). Registered as the IVaultWindow the
         // wiring-built AccessPersonalVaultUseCase resolves lazily; the same object
         // is the Bukkit listener routing vanilla ender chest blocks to it.
@@ -901,6 +906,8 @@ internal class CorePaperBindings(
         playerAnimationGateway = null
         paperHologramGateway?.despawnAll()
         paperHologramGateway = null
+        hologramGuide?.shutdown()
+        hologramGuide = null
         managedJanitor?.stop()
         managedJanitor = null
         lobbyMenuKit?.stripAll()

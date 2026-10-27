@@ -44,4 +44,6 @@ public class MatchPlatformPorts(
     public val generatorItemDrop: ((ServiceRegistry) -> com.astarworks.astera.match.application.port.outbound.IGeneratorItemDrop)? = null,
     public val objectiveStage: ((ServiceRegistry) -> IObjectiveStage)? = null,
     public val normaPresentation: ((ServiceRegistry) -> INormaPresentation)? = null,
+    /** Floating labels over bases, spawns, objectives and pillars (Paper: TextDisplays shown per viewer). `null` = no labels (headless). */
+    public val worldLabels: ((ServiceRegistry) -> com.astarworks.astera.match.application.port.outbound.IWorldLabels)? = null,
 )

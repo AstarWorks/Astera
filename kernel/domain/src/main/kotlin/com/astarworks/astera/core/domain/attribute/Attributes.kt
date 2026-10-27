@@ -77,5 +77,4 @@ public object Attributes {
     // ---- Wallet currency keys (Wave 5e migration target) --------------
     // Wallet.balance(currency) becomes a computed read of these.
     public val WALLET_GOLD: AttributeKey = AttributeKey("wallet.gold")
-    public val WALLET_GEM: AttributeKey = AttributeKey("wallet.gem")
 }

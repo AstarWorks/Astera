@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.domain.event.PhaseChanged
+import com.astarworks.astera.match.domain.gamemode.IGameMode
 import java.util.concurrent.ConcurrentHashMap
 import org.slf4j.LoggerFactory
 
@@ -19,7 +20,10 @@ import org.slf4j.LoggerFactory
  * ACTIVE time (`time_limit_seconds`; `0` or less = no limit, the mode has its own clock) through [IMatchLifecycle.end],
  * like every other mode (result screen, rewards, return to the lobby).
  *
- * Time-limit ranking, best first: the mode's own objective standing ([objectiveOf], skipped when the mode has none),
+ * When regular time runs out and the mode reports [IGameMode.overtimeHolds] (the trailing team holds / carries the objective),
+ * the match runs on for up to [overtimeMaxTicks] more; the mode is told the clock through [IGameMode.onClock] every call.
+ *
+ * Time-limit ranking, best first: the mode's own objective standing ([IGameMode.objectiveStanding], skipped when the mode has none),
  * then the most stars carried, then the most kills (the Norma level is power progression, never a ranking); a full tie is a draw.
  *
  * Only matches for which [isNorma] holds are touched.
@@ -30,7 +34,8 @@ public class NormaTimeLimitListener(
     private val isNorma: (MatchId) -> Boolean,
     private val timeLimitTicks: (MatchId) -> Long,
     private val now: () -> Long,
-    private val objectiveOf: (Match, TeamId) -> Int? = { _, _ -> null },
+    private val modeOf: (Match) -> IGameMode? = { null },
+    private val overtimeMaxTicks: (MatchId) -> Long = { 0L },
     private val starsOf: (Match, TeamId) -> Int = { _, _ -> 0 },
     private val killsOf: (Match, TeamId) -> Int = { match, team -> match.score.valueFor(team) },
 ) {
@@ -54,7 +59,18 @@ public class NormaTimeLimitListener(
             if (match.phase != MatchPhase.ACTIVE || !isNorma(match.id)) continue
             val since = activeSince.getOrPut(match.id) { current }
             val limit = timeLimitTicks(match.id)
-            if (limit <= 0L || current - since < limit) continue
+            if (limit <= 0L) continue
+            val remaining = limit - (current - since)
+            val mode = modeOf(match)
+            if (remaining > 0L) {
+                mode?.onClock(match, remaining, -1L)
+                continue
+            }
+            val overtime = -remaining
+            if (mode != null && overtime < overtimeMaxTicks(match.id) && mode.overtimeHolds(match)) {
+                mode.onClock(match, 0L, overtime)
+                continue
+            }
             end(match.id, EndReason.NormaTimeLimit(leader(match)), "time limit")
         }
     }
@@ -62,7 +78,7 @@ public class NormaTimeLimitListener(
     /** Time-limit winner: mode objective, then stars carried, then kills; `null` when all tie. */
     internal fun leader(match: Match): TeamId? {
         fun rank(team: TeamId): List<Int> =
-            listOf(objectiveOf(match, team) ?: 0, starsOf(match, team), killsOf(match, team))
+            listOf(modeOf(match)?.objectiveStanding(match, team) ?: 0, starsOf(match, team), killsOf(match, team))
         val ranks = match.teams.associate { it.id to rank(it.id) }
         val best = ranks.values.maxWithOrNull(compareBy<List<Int>>({ it[0] }, { it[1] }, { it[2] })) ?: return null
         return ranks.entries.filter { it.value == best }.singleOrNull()?.key

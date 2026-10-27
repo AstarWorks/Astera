@@ -35,4 +35,10 @@ public data class HologramTransform(
     public val leftRotation: Quaternionf = Quaternionf(),
     public val scale: Vec3 = Vec3(1.0, 1.0, 1.0),
     public val rightRotation: Quaternionf = Quaternionf(),
-)
+) {
+    public companion object {
+        /** Scaled transform rolled [degrees] about the Z axis (pure math; keeps joml out of application code). */
+        public fun rolledZ(degrees: Double, scale: Vec3 = Vec3(1.0, 1.0, 1.0)): HologramTransform =
+            HologramTransform(leftRotation = Quaternionf().rotateZ(Math.toRadians(degrees).toFloat()), scale = scale)
+    }
+}

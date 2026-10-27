@@ -1,0 +1,104 @@
+# Status effect codex - every status with what it does (UI-12). Opened by `/astera status codex` and linked from
+# the Help text. The tooltip of each icon is the shared one-line effect text `astera.statusdesc.<id>`; the icon name
+# is the status name. Row 0 and 1 hold the 18 statuses (alphabetical by id); Back returns to the main menu.
+id: status-codex
+title_key: astera.statuscodex.title
+size: CHEST_27
+
+slots:
+  - type: static
+    index: 0
+    item: gui-tile-status-bleed
+    tooltip:
+      - astera.statusdesc.bleed
+  - type: static
+    index: 1
+    item: gui-tile-status-burn
+    tooltip:
+      - astera.statusdesc.burn
+  - type: static
+    index: 2
+    item: gui-tile-status-charge
+    tooltip:
+      - astera.statusdesc.charge
+  - type: static
+    index: 3
+    item: gui-tile-status-dash
+    tooltip:
+      - astera.statusdesc.dash
+  - type: static
+    index: 4
+    item: gui-tile-status-evasive
+    tooltip:
+      - astera.statusdesc.evasive
+  - type: static
+    index: 5
+    item: gui-tile-status-freeze
+    tooltip:
+      - astera.statusdesc.freeze
+  - type: static
+    index: 6
+    item: gui-tile-status-immunity
+    tooltip:
+      - astera.statusdesc.immunity
+  - type: static
+    index: 7
+    item: gui-tile-status-poise
+    tooltip:
+      - astera.statusdesc.poise
+  - type: static
+    index: 8
+    item: gui-tile-status-poison
+    tooltip:
+      - astera.statusdesc.poison
+  - type: static
+    index: 9
+    item: gui-tile-status-regen
+    tooltip:
+      - astera.statusdesc.regen
+  - type: static
+    index: 10
+    item: gui-tile-status-reloading
+    tooltip:
+      - astera.statusdesc.reloading
+  - type: static
+    index: 11
+    item: gui-tile-status-rupture
+    tooltip:
+      - astera.statusdesc.rupture
+  - type: static
+    index: 12
+    item: gui-tile-status-shock
+    tooltip:
+      - astera.statusdesc.shock
+  - type: static
+    index: 13
+    item: gui-tile-status-silence
+    tooltip:
+      - astera.statusdesc.silence
+  - type: static
+    index: 14
+    item: gui-tile-status-sinking
+    tooltip:
+      - astera.statusdesc.sinking
+  - type: static
+    index: 15
+    item: gui-tile-status-swift
+    tooltip:
+      - astera.statusdesc.swift
+  - type: static
+    index: 16
+    item: gui-tile-status-tremor
+    tooltip:
+      - astera.statusdesc.tremor
+  - type: static
+    index: 17
+    item: gui-tile-status-wet
+    tooltip:
+      - astera.statusdesc.wet
+  - type: static
+    index: 18
+    item: gui-tile-back
+    on_left:
+      key: gui.back
+      payload: { gui: main-menu, in_match: match-menu }

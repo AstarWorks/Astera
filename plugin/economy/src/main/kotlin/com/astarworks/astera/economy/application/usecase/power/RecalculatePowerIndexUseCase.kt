@@ -84,14 +84,11 @@ public class RecalculatePowerIndexUseCase(
 
     public companion object {
         /**
-         * Default per-currency multiplier. GOLD account-bound and tradable (counts as 5); GEM is
-         * premium (counts as 100 — Phase 4 may revisit when the GEM
-         * pricing tier is finalised).
+         * Default per-currency multiplier. GOLD account-bound and tradable (counts as 5).
          */
         public val DEFAULT_WEIGHTS: (Currency) -> Long = { c ->
             when (c) {
                 Currency.GOLD -> 5L
-                Currency.GEM -> 100L
             }
         }
     }

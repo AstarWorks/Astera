@@ -47,6 +47,13 @@ fun interface ObjectiveSource {
 
     fun routeGraph(): ArenaRouteGraph? = null
 
+    /**
+     * Server-side mode state for hosts that share a process with the server (game-sim): wraps [observed] (what the client sees)
+     * with the mode's own query. [originX]/[originZ] shift stage-local snapshot coordinates into the world frame. Protocol
+     * bots in e2e/live cannot reach the server and keep null.
+     */
+    fun modeFacts(observed: ModeFacts, originX: Double, originZ: Double): ModeFacts? = null
+
     /** Stage regions (stage-local coordinates) for [ModePlanner]; null = unknown. */
     fun zones(): ModePlanner.Zones? = null
 
@@ -83,7 +90,7 @@ class BotBrain(
 
     private enum class Goal { STAR, KILL }
 
-    private class Dest(val x: Double, val z: Double, val y: Double?, val arrive: Double, val kind: String, val starId: Int = -1, val zone: String = "")
+    private class Dest(val x: Double, val z: Double, val y: Double?, val arrive: Double, val kind: String, val starId: Int = -1, val zone: String = "", val strike: Triple<Int, Int, Int>? = null)
 
     @Volatile var mode: Mode = Mode.IDLE
 
@@ -171,6 +178,8 @@ class BotBrain(
     private val stuck = StuckEscapePolicy()
     private val ineffective = IneffectiveTargets()
     private var planner: ModePlanner? = null
+    private var observed: ObservedModeFacts? = null
+    private var lastStrikeAt = 0L
     private var sidestepUntil = 0L
     private var sidestepSign = 1
     private var forceJump = false
@@ -244,7 +253,9 @@ class BotBrain(
         resolveLoadoutIfNeeded(now)
         tickReload(now)
 
-        val enemy = nearestEnemy(now)
+        // A step can limit how far an enemy may be for the bot to leave it (a TNT carrier runs, a guard stays at its post).
+        val engage = planner?.engage ?: Double.MAX_VALUE
+        val enemy = nearestEnemy(now)?.takeIf { hypot(it.x - bot.x, it.z - bot.z) <= engage }
         trackStars(now)
         updateRetreat(enemy, now)
         tryDrinkPotion(now)
@@ -399,11 +410,14 @@ class BotBrain(
     private fun chooseDest(now: Long, starDest: Dest?): Dest? {
         if (starDest != null) return starDest
         planner?.let { pl ->
+            val markers = bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z }
+            observed?.update(markers, sightings())
+            pl.noteRoster(roster())
             pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
             pl.noteConfirmed(bot.sounds.count { it.contains("objective/pickup") })
         }
         if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
-            return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone)
+            return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone, strike = st.strike)
         }
         if (goal == Goal.STAR && starPoints.isNotEmpty()) {
             var bestI = -1
@@ -439,6 +453,7 @@ class BotBrain(
     }
 
     private fun arrivedAt(d: Dest, now: Long, unreachable: Boolean = false) {
+        if (d.strike != null && hypot(d.x - bot.x, d.z - bot.z) <= STRIKE_REACH) strikeBlock(d.strike, now)
         when (d.kind) {
             "gen" -> {
                 if (unreachable) { visitedAt[d.starId] = now; return }
@@ -460,6 +475,34 @@ class BotBrain(
     private var starArrivedSince = 0L
     private var modePausedUntil = 0L
 
+    /** Digs [block] (an Annihilation pillar): the server turns every break attempt on a pillar block into damage to it. */
+    private fun strikeBlock(block: Triple<Int, Int, Int>, now: Long) {
+        if (now - lastStrikeAt < STRIKE_INTERVAL_MS) return
+        lastStrikeAt = now
+        blocksBroken.incrementAndGet()
+        Thread({ runCatching { bot.dig(block.first, block.second, block.third, 400) } }, "bot-strike-${bot.name}").also { it.isDaemon = true }.start()
+    }
+
+    /** The bot's team as it sees it: every Tab-listed team mate with its entity position (NaN out of sight, then the shared spawn) and whether it is alive. */
+    private fun roster(): List<Mate> {
+        val myTeam = bot.teamOf(bot.name)?.first ?: return emptyList()
+        val byUuid = bot.entities.values.filter { it.type == "PLAYER" }.associateBy { it.uuid }
+        return bot.playerNames.mapNotNull { (uuid, name) ->
+            if (name == bot.name || bot.teamOf(name)?.first != myTeam) return@mapNotNull null
+            val e = byUuid[uuid]
+            Mate(name, e?.x ?: spawnX, e?.z ?: spawnZ, alive = bot.playerGameModes[uuid] != GameMode.SPECTATOR)
+        }
+    }
+
+    private fun sightings(): List<Sighting> {
+        val myTeam = bot.teamOf(bot.name)?.first
+        return bot.entities.values.filter { it.type == "PLAYER" && it.id != bot.selfEntityId }.mapNotNull { e ->
+            val name = bot.playerNames[e.uuid]
+            val team = name?.let { bot.teamOf(it)?.first }
+            if (bot.playerGameModes[e.uuid] == GameMode.SPECTATOR || (team != null && team == myTeam)) null else Sighting(name, e.x, e.z)
+        }
+    }
+
     private fun buildPlanner(originX: Double, originZ: Double): ModePlanner? {
         val id = modeId ?: return null
         val src = objectives ?: return null
@@ -469,8 +512,15 @@ class BotBrain(
         val world = object : ModePlanner.Zones {
             override fun point(name: String) = base.point(name)?.let { Triple(it.first + originX, it.second, it.third + originZ) }
             override fun names(prefix: String) = base.names(prefix)
+            override fun pillars() = base.pillars().map { it.copy(x = it.x + originX.toInt(), z = it.z + originZ.toInt()) }
         }
-        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world).takeIf { it.handles() }
+        val facts = ObservedModeFacts(
+            id,
+            solidAt = { x, y, z -> bot.terrain.isSolid(x, y, z) },
+            pillarBlock = { team, tier -> world.pillars().firstOrNull { it.team == team && it.tier == tier }?.let { Triple(it.x, it.y, it.z) } },
+        ).also { observed = it }
+        val modeFacts = src.modeFacts(facts, originX, originZ) ?: facts
+        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts).takeIf { it.handles() }
     }
 
     /**
@@ -824,6 +874,8 @@ class BotBrain(
         const val SLOT_PITCH = 2048.0
         val AMMO_WORD = Regex("reload|リロード")
         const val SIGHT_RANGE = 70.0
+        const val STRIKE_INTERVAL_MS = 450L
+        const val STRIKE_REACH = 4.5
         const val MELEE_REACH = 2.9
         const val RANGED_REACH = 40.0
         const val MIN_MELEE_FOOD = 4

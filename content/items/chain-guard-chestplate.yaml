@@ -20,6 +20,7 @@ enchantable: false
 drop_on_death: false
 keep_on_death: false
 armor_piece: chain-guard-chestplate
+equipment_asset: chain-guard
 
 pdc_tags:
   astera:rarity: uncommon

@@ -55,6 +55,7 @@ public class PveWaveGameMode @JvmOverloads constructor(
     env: SiegeEnv? = null,
     private val pve: PveEnv? = null,
 ) : SiegeGameMode<PveWaveGameMode.Run>(ID, TITLE_KEY, env) {
+    override val countModel: Boolean = false
 
     private val log = LoggerFactory.getLogger(javaClass)
 

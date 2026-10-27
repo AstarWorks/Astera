@@ -60,5 +60,6 @@ interface IMcPlayer {
         fadeIn: Duration = 500.milliseconds,
         stay: Duration = 3500.milliseconds,
         fadeOut: Duration = 1000.milliseconds,
+        placeholders: Map<String, String> = emptyMap(),
     )
 }

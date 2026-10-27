@@ -1,0 +1,48 @@
+name: arsenal-weapons-art2
+grid:
+- 6
+- 6
+background: '#FF00FF'
+style: chunky Minecraft prop concept pixel art, simple readable solid silhouettes,
+  restrained palette, dark outline, no particles, no glow outside the object. Long
+  weapons diagonal bottom-left grip to top-right tip; guns horizontal muzzle right.
+  Volume clear, 3D held prop reference, each weapon visibly distinct.
+cells:
+  iron-blade: straight silver arming sword, dark brown grip, small gold crossguard
+  war-axe: broad single silver axe head, brown wood handle, red collar
+  spear: long brown shaft, narrow silver leaf spearhead
+  mace: short brown handle, chunky iron flanged mace head
+  twin-daggers: two short silver daggers together, dark grips
+  katana: slender slightly curved silver katana, red wrap, round dark guard
+  halberd: long wooden pole, silver axe head with opposite hook and top spike
+  rapier: very thin silver thrusting blade, gold knuckle guard, blue grip
+  cleaver: wide rectangular steel butcher cleaver with clipped corner and brown handle
+  scythe: long dark shaft, large hooked crescent silver scythe blade
+  club: tapered heavy brown wooden club with three iron bands
+  longbow: tall plain curved brown wooden longbow and taut pale string
+  hand-crossbow: small wooden crossbow with silver limbs
+  shortbow: compact curved tan wooden shortbow and pale string
+  repeater-crossbow: large dark wooden crossbow, silver limbs and red bolt magazine
+  revolver: six-shot revolver, dark grey barrel, silver cylinder, brown grip
+  smg: compact gunmetal submachine gun, long black magazine and cyan stripe
+  sniper: long sniper rifle, dark stock, black scope, silver barrel
+  harpoon: wood and steel harpoon launcher with large cyan barbed spearhead
+  grappling-hook: compact steel grappling launcher, three-prong hook and coiled tan
+    rope
+  throwing-knives: three narrow silver throwing knives in a fanned bundle
+  sticky-bomb: small red cubical sticky explosive, yellow fuse and grey adhesive plates
+  venom-flask: green poison bottle with narrow neck, cork stopper and dark green base
+  smoke-bomb: round dark grey smoke canister, cyan band and short fuse
+  delay-mine: flat square iron mine plate, orange central pressure button
+  frag-grenade: olive green segmented grenade with silver safety lever and pull ring
+  flash-bang: slim white cylindrical flash grenade, gold center band and steel cap
+  shock-wand: short blue grip wand topped by a forked yellow lightning prong
+  ember-rod: short dark wood rod with orange faceted ember tip
+  frost-rod: short pale wood rod with cyan pointed ice tip
+  fireball-charge: small palm-sized jagged orange fire crystal with red outer facets
+  glacier-wand: long blue wand topped by three pale cyan ice prongs
+  sanctuary-staff: long white and gold staff topped by a broad gold cross and green
+    core
+  chain-rod: short dark iron rod, three chain links hanging from top
+  gale-fan: folding fan, dark blue ribs and pale cyan leaves
+  shield-bulwark: broad rectangular wooden shield, iron rim, blue center boss

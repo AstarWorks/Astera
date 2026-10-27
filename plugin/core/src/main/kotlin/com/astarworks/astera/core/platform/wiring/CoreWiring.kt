@@ -176,6 +176,8 @@ internal class CoreWiringState(
     lateinit var tutorialContents: TutorialContents
     lateinit var ledgerProvider: () -> com.astarworks.astera.core.application.port.outbound.ICurrencyLedger?
     lateinit var tutorialSequencer: ITutorialSequencerService
+    /** UI-11: set by wireTutorialGuide; sees every dispatched GUI intent (no-op on a game backend). */
+    var guiIntentObserver: (com.astarworks.astera.core.adapter.api.entity.IMcPlayer, com.astarworks.astera.core.domain.gui.GuiIntent) -> Unit = { _, _ -> }
     lateinit var mobSpawner: IMobSpawner
     lateinit var announcementSystem: IScheduledAnnouncementSystem
     lateinit var healthCheck: IServerHealthCheck
@@ -342,6 +344,7 @@ internal fun CoreWiringState.wireGui() {
     guiIntentRouter = DefaultGuiIntentRouter(
         adapterProvider = { guiAdapter },
         presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>() },
+        afterDispatch = { player, intent -> guiIntentObserver(player, intent) },
     )
 
     services.register<IGuiRegistry>(guiContents)

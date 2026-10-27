@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-shock
+material: LIGHTNING_ROD
+name:
+  ja: "<yellow>感電</yellow>"
+  en: "<yellow>Shocked</yellow>"

@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-immunity
+material: TOTEM_OF_UNDYING
+name:
+  ja: "<yellow>無敵</yellow>"
+  en: "<yellow>Immune</yellow>"
