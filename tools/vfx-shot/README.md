@@ -124,6 +124,11 @@ caster/opponent views, the hotbar) overwritten with a mirror of the adjacent row
 
 `framestamp.json` / `meta.json` `tickStamp`: `castTick`, `castTickSpan`, `castTickExact`, `recordedFrames`, `undecodedFrames`,
 `glitchFrames`, `regressions`, `skippedTicks`, `stampRateHz`, and two separate latencies:
+- Frame labelling: frame N is the picture of plan tick N, i.e. the one stamped `castTick + N - 1` (`planTickZeroStamp` = `castTick - 1`).
+  The cast runs between two server ticks, so `time query gametime` already names the NEXT tick, and the plugin scheduler (age++ and spawns,
+  as in `ASTERA_VFX_TRACE` `age=` / `cast+N`) runs before that tick's stamp function: an effect of age a is drawn with stamp `castTick + a - 1`.
+  Labelling frame N with stamp `castTick + N` showed every effect one tick early (S3 slam burst at 63 instead of 64, 2 of 2 runs; after the
+  fix 64 in 3 of 3). Effects that grow from a flipbook / interpolation can still read +-1 tick (client tick phase at slow tick rates).
 - `castStampToStampedFrameMs`: RCON cast time -> video time of the frame stamped with the cast tick (capture offset, not a game property);
 - `firstFxTickAfterCast` / `firstChangeTickAfterCast`: ticks from the cast tick until the first visible change in the picture (the real
   client display lag of the skill's first effect); camera cuts are excluded from `firstFx` and listed in `cutCheck`.
@@ -290,7 +295,7 @@ them and publishes with `publish-capture.mjs --auto <sha>` (first a `--preview` 
 
 Speed knobs that apply to every stepped capture:
 
-- `SHOT_SLOW_RATE` (default 5 ticks/s, 1-20): a take of N ticks lasts N/rate s plus 2 s. Higher is faster; too high shows up as skipped ticks (refused), never as wrong frames.
+- `SHOT_SLOW_RATE` (default 5 ticks/s; the farm uses 2.5 first, 1.25 on retry, because 5 tps drops ticks on heavy VFX, 1-20): a take of N ticks lasts N/rate s plus 2 s. Higher is faster; too high shows up as skipped ticks (refused), never as wrong frames.
 - `SHOT_OUTPUTS=lean`: only the WebP frames + `meta.json` (what skill-compare shows). `full` (default) also builds sheet.png / gif / mp4, now in parallel.
 - `VIEW=top,side` films several orbit views in one run (one scene setup, one stack sync). Not for `compare` / `all`.
 - `SHOT_PIN=1`: marks the kept stack `pinned`; other checkouts' runs never evict it to make room (its TTL still applies).

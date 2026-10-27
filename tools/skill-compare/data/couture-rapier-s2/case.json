@@ -65,5 +65,84 @@
   "iterations": 9,
   "report": "/report/couture-rapier",
   "referenceRevision": "2a0c71b6bf925c5522f4a1fd6d83a77e400ca197ab4467f06d1696e98bbc47ff",
-  "contentRevision": "a199dae3730bc7fa81e5682ff073c8b47190dd0d0831488f7f102b12cb17c8a4"
+  "contentRevision": "a199dae3730bc7fa81e5682ff073c8b47190dd0d0831488f7f102b12cb17c8a4",
+  "beats": [
+    {
+      "tick": 0,
+      "beat": "B1 stand",
+      "owner": "body anim couture-s2-body",
+      "carrier": "hand shears (rig shears-a)",
+      "status": "implemented-unverified"
+    },
+    {
+      "tick": 1,
+      "beat": "B2 lunge, arm back, purple haze",
+      "owner": "body anim + couture-s2-p-haze",
+      "carrier": "rig",
+      "status": "implemented-unverified"
+    },
+    {
+      "tick": 9,
+      "beat": "B3 coin 1: white crescent ring + thin line; hit1 star/orange streak/petals; damage 6 (snapshot cone)",
+      "owner": "couture-s2-coin1 + couture-s2-hit1",
+      "carrier": "skill",
+      "status": "implemented-unverified"
+    },
+    {
+      "tick": 16,
+      "beat": "B4 raise and release",
+      "owner": "body anim",
+      "carrier": "rig",
+      "status": "implemented-unverified"
+    },
+    {
+      "tick": 22,
+      "beat": "B5 ONE flying shears overhead (hand model off), white blades + loops are flat VFX",
+      "owner": "couture-s2-rig fly-shears",
+      "carrier": "rig",
+      "status": "implemented-unverified"
+    },
+    {
+      "tick": 41,
+      "beat": "B6 coin 2: 3 streaks converge, star shrinks to X; damage 7 (snapshot cone)",
+      "owner": "couture-s2-hit2",
+      "carrier": "skill",
+      "status": "implemented-unverified"
+    },
+    {
+      "tick": 52,
+      "beat": "B7 petals + black shadow, shears at the enemy",
+      "owner": "couture-s2-hit2 shadow + rig link-petals",
+      "carrier": "rig",
+      "status": "implemented-unverified"
+    },
+    {
+      "tick": 59,
+      "beat": "B8 line + linked dark shears (VFX only), hand shears return at 63",
+      "owner": "couture-s2-rig link-line/link-shear, couture-s2-rig-b",
+      "carrier": "rig",
+      "status": "implemented-unverified"
+    },
+    {
+      "tick": 64,
+      "beat": "B9 back-turned low stance (root yaw 180), purple haze + ghost",
+      "owner": "couture-s2-rig-b",
+      "carrier": "rig",
+      "status": "implemented-unverified"
+    },
+    {
+      "tick": 72,
+      "beat": "B10 coin 3: dash 9 blocks in 3 ticks, CW 180 turn in smear; hit3 flash, X, yellow ring; damage 10 on contact",
+      "owner": "couture-s2-dash + couture-s2-hit3 + dash_strike",
+      "carrier": "skill",
+      "status": "implemented-unverified"
+    },
+    {
+      "tick": 77,
+      "beat": "B11-B12 extended hold, pale pink crescent, speed lines",
+      "owner": "couture-s2-dash + body anim",
+      "carrier": "rig",
+      "status": "implemented-unverified"
+    }
+  ]
 }

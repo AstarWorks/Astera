@@ -13,7 +13,8 @@ HUD stays on for the whole recording and EVERY recorded frame carries the tick o
 and the entity packets of a tick are processed in the same client tick). There is no wall-clock fit: client bursts, render
 load and tick-rate wobble cannot move a frame to another tick.
 
-Output frame n (fps 20 = 1/tick, 60 = 3/tick) shows tick  T0 + n * 20 / fps  with  T0 = cast tick - pre_ticks. It is taken
+Output frame n (fps 20 = 1/tick, 60 = 3/tick) shows stamp  T0 + n * 20 / fps  with  T0 = cast gametime - 1 - pre_ticks:
+plan tick a (age a of an effect, `cast + a` in a VfxPlayer trace) is the picture stamped cast gametime + a - 1 (see "Plan tick 0" in main()). It is taken
 from the recorded frames that carry stamp floor(T) (the k-th third of them at 60 fps); a tick the client never drew falls back
 to the nearest stamped frame and is counted in `skippedTicks`. The stamp rectangle (and, for a survival viewer, the hotbar)
 is overwritten by a mirror of the rows next to it in the saved PNGs.
@@ -133,7 +134,14 @@ def main():
     rate = None if stepped else float(np.polyfit(kt - kt[0], kg, 1)[0])
 
     g_cast = g_b if g_b == g_a else (g_b + g_a) / 2.0
-    t0 = g_cast - pre_ticks
+    # Plan tick 0 is the cast. The cast command runs on the RCON connection BETWEEN two server ticks: `time query gametime`
+    # already returns the value the NEXT tick's stamp function will write (g_cast), but the effects the cast spawns (age 0)
+    # reach the client before that stamp does. The plugin scheduler then advances every effect one age per tick in the
+    # heartbeat, which runs BEFORE the stamp function of the same tick: age a spawns in the tick stamped g_cast + a - 1.
+    # So plan tick a is the picture stamped g_cast + a - 1 (frame 0 = the last picture of stamp g_cast - 1); labelling it
+    # g_cast + a showed every effect one tick early.
+    base = g_cast - 1
+    t0 = base - pre_ticks
     frames_total = (ticks + pre_ticks + 1) * fps // 20
     by_tick = {}
     for i in known:
@@ -152,7 +160,7 @@ def main():
             skipped += 1
         frac = t - np.floor(t + 1e-9) if exact else 0.0
         src = group[-1] if stepped else group[min(int(frac * len(group)), len(group) - 1)]
-        mapping.append({"n": n, "tick": round(t - g_cast, 3), "src": src, "stamp": stamp[src], "exact": exact})
+        mapping.append({"n": n, "tick": round(t - base, 3), "src": src, "stamp": stamp[src], "exact": exact})
     skipped_ticks = len({int(np.floor(t0 + n * 20.0 / fps + 1e-9)) for n, m in enumerate(mapping) if not m["exact"]})
 
     # ---- pass 2: full frames -> masked PNGs + a small grey copy of every frame for the change trace
@@ -187,13 +195,13 @@ def main():
     diffs = [0.0] + [float(np.abs(grey[i] - grey[i - 1]).mean()) for i in range(1, len(grey))]
 
     # ---- change trace: first visible change after the cast, in ticks after the cast tick
-    pre = [diffs[i] for i in known if stamp[i] is not None and stamp[i] <= g_cast - 1 and i > 0]
+    pre = [diffs[i] for i in known if stamp[i] is not None and stamp[i] <= base - 1 and i > 0]
     noise = max(pre) if pre else 0.0
     thr = max(0.05, 3.0 * noise)
-    post = [i for i in known if stamp[i] >= np.floor(g_cast) and diffs[i] > thr]
+    post = [i for i in known if stamp[i] >= np.floor(base) and diffs[i] > thr]
     cut_ticks = [g for _t, g in cut_marks]
-    events = [{"tick": stamp[i] - g_cast, "diff": round(diffs[i], 3), "t": round(rel[i], 3)} for i in post[:12]]
-    fx = [e for e in events if not any(-1 <= e["tick"] + g_cast - c <= 3 for c in cut_ticks)]
+    events = [{"tick": stamp[i] - base, "diff": round(diffs[i], 3), "t": round(rel[i], 3)} for i in post[:12]]
+    fx = [e for e in events if not any(-1 <= e["tick"] + base - c <= 3 for c in cut_ticks)]
     # cross-check with the camera hard cuts (real world changes with a known server tick)
     cut_check = []
     for t_ms, g in cut_marks:
@@ -210,7 +218,7 @@ def main():
     if near:
         t_stamp_cast = float(wall[near[0]])
     result = {
-        "castTick": g_cast, "castTickSpan": [g_b, g_a], "castTickExact": g_b == g_a,
+        "castTick": g_cast, "planTickZeroStamp": base, "castTickSpan": [g_b, g_a], "castTickExact": g_b == g_a,
         "firstFrameTick": t0, "frames": frames_total, "fps": fps,
         "recordedFrames": n_frames, "undecodedFrames": undecoded, "glitchFrames": glitches, "regressions": regressions,
         "skippedTicks": skipped_ticks, "stampRateHz": None if rate is None else round(rate, 3),

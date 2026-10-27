@@ -99,7 +99,7 @@ def make_pillar():
     X, Y = (xs + 0.5) / SS, (ys + 0.5) / SS
     rng = np.random.default_rng(7)
     half = 116.0  # half width in px (margin 12 px each side)
-    wob = (noise1d(n, rng, 9, 2) - 0.5) * 7.0  # low-frequency ragged edge
+    wob = (noise1d(n, rng, 5, 1) - 0.5) * 3.0  # low-frequency ragged edge
     wob_y = wob[np.clip((Y * SS).astype(int), 0, n - 1)]
     u = np.abs(X - N / 2 + wob_y * 0.6) / half  # 0 centre .. 1 edge
     # vertical envelope: hard base, soft top
@@ -108,22 +108,15 @@ def make_pillar():
     env = top * bot
     d = (1.0 - u) * half  # px inside the outer edge
     dst = np.zeros((n, n, 4), np.float32)
-    # dark rim: outermost ~12 px, navy-black
-    dst = comp(dst, hexc("#171326"), soft(d, 1.1) * env * 0.92)
-    # gold body, inset 11 px from the edge
-    dst = comp(dst, hexc("#F2B31F"), soft(d - 11, 1.1) * env)
-    dst = comp(dst, hexc("#FFE45A"), soft(d - 28, 4.0) * env)
-    # pale core: ~35% of the width, soft, then a white hot spine
-    dst = comp(dst, hexc("#FFF6C8"), soft(d - 58, 6.0) * env)
-    dst = comp(dst, hexc("#FFFFFF"), soft(d - 86, 5.0) * env * 0.95)
-    # r4: dark mix - two hard broken dark slivers between the gold body and the pale core (angular, vertical)
-    seg = (noise1d(n, np.random.default_rng(19), 7, 1)[np.clip((Y * SS).astype(int), 0, n - 1)] > 0.45).astype(np.float32)
-    d2 = half - np.abs(X - N / 2)  # straight (un-wobbled) inset so the slivers stay ruler-straight
-    for dd in (36, 47):
-        dst = comp(dst, hexc("#1B1530"), soft(d2 - dd, 0.9) * soft(dd + 5 - d2, 0.9) * env * seg * 0.75)
+    # r5: thin (3 px) dark rim, wide bright body (yellow from d=18, pale from 46, white spine from 72), 4x supersampled
+    dst = comp(dst, hexc("#171326"), soft(d, 0.9) * env * 0.92)
+    dst = comp(dst, hexc("#F2B31F"), soft(d - 3, 0.9) * env)
+    dst = comp(dst, hexc("#FFE45A"), soft(d - 18, 5.0) * env)
+    dst = comp(dst, hexc("#FFF6C8"), soft(d - 46, 8.0) * env)
+    dst = comp(dst, hexc("#FFFFFF"), soft(d - 72, 8.0) * env * 0.97)
     # faint vertical streaks in the body for the electric look
     g = noise1d(n, np.random.default_rng(3), 22, 2)[np.clip((X * SS).astype(int), 0, n - 1)]
-    dst[..., :3] *= (0.94 + 0.12 * (g[..., None] - 0.5) * 2)
+    dst[..., :3] *= (0.97 + 0.06 * (g[..., None] - 0.5) * 2)
     save("pillar", [down(to_img(dst))])
 
 

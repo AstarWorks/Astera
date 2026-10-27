@@ -35,11 +35,11 @@ phases:
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-s3-fx-thrust
-    delay_ticks: {type: literal, value: 37}
+    delay_ticks: {type: literal, value: 36}
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-s3-fx-slam
-    delay_ticks: {type: literal, value: 60}
+    delay_ticks: {type: literal, value: 59}
   - type: play_vfx
     targets: {type: caster}
     vfx_id: bastion-s3-fx-pillar
@@ -286,7 +286,7 @@ phases:
     stop_on_block: true
     follow_pitch: false
     on_hit: []
-    stop_before_target: 0.7
+    stop_before_target: 1.8
     delay_ticks: {type: literal, value: 37}
   - type: damage
     targets: {type: enemies, center: {type: caster}, radius: {type: literal, value: 3.0}}
@@ -318,7 +318,7 @@ phases:
       attribute: physical
       per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: false}
     ignore_invulnerability: {type: literal, value: true}
-    delay_ticks: {type: literal, value: 41}
+    delay_ticks: {type: literal, value: 40}
   - type: hit_stop
     targets:
       type: cone
@@ -328,7 +328,7 @@ phases:
       angle_degrees: {type: literal, value: 50}
     ticks: 2
     include_caster: true
-    delay_ticks: {type: literal, value: 41}
+    delay_ticks: {type: literal, value: 40}
   - type: knockback
     targets:
       type: cone
@@ -338,7 +338,7 @@ phases:
       angle_degrees: {type: literal, value: 50}
     direction: {type: away_from_caster, vertical: 0.2}
     strength: {type: literal, value: 0.6}
-    delay_ticks: {type: literal, value: 41}
+    delay_ticks: {type: literal, value: 40}
   - type: damage
     targets:
       type: cone
@@ -351,7 +351,7 @@ phases:
       attribute: physical
       per_stack: {status_id: charge, amount: 0.5, 'on': caster, consume: true}
     ignore_invulnerability: {type: literal, value: true}
-    delay_ticks: {type: literal, value: 64}
+    delay_ticks: {type: literal, value: 63}
   - type: hit_stop
     targets:
       type: cone
@@ -361,7 +361,7 @@ phases:
       angle_degrees: {type: literal, value: 90}
     ticks: 3
     include_caster: true
-    delay_ticks: {type: literal, value: 64}
+    delay_ticks: {type: literal, value: 63}
   - type: knockback
     targets:
       type: cone
@@ -380,7 +380,7 @@ phases:
       exclude_caster: true
     intensity: {type: literal, value: 0.8}
     ticks: {type: literal, value: 8}
-    delay_ticks: {type: literal, value: 64}
+    delay_ticks: {type: literal, value: 63}
   - type: screen_flash
     targets: {type: caster}
     overlay: gold_burst
@@ -388,7 +388,7 @@ phases:
     fade_in: {type: literal, value: 0}
     stay: {type: literal, value: 1}
     fade_out: {type: literal, value: 1}
-    delay_ticks: {type: literal, value: 41}
+    delay_ticks: {type: literal, value: 40}
   - type: screen_flash
     targets: {type: caster}
     overlay: gold_burst
@@ -396,7 +396,7 @@ phases:
     fade_in: {type: literal, value: 0}
     stay: {type: literal, value: 1}
     fade_out: {type: literal, value: 0}
-    delay_ticks: {type: literal, value: 64}
+    delay_ticks: {type: literal, value: 63}
   - type: screen_flash
     targets: {type: caster}
     overlay: vignette
@@ -404,7 +404,7 @@ phases:
     fade_in: {type: literal, value: 0}
     stay: {type: literal, value: 1}
     fade_out: {type: literal, value: 1}
-    delay_ticks: {type: literal, value: 65}
+    delay_ticks: {type: literal, value: 64}
   - type: screen_flash
     targets: 
       type: nearby_entities
@@ -416,7 +416,7 @@ phases:
     fade_in: {type: literal, value: 0}
     stay: {type: literal, value: 1}
     fade_out: {type: literal, value: 1}
-    delay_ticks: {type: literal, value: 41}
+    delay_ticks: {type: literal, value: 40}
   - type: screen_flash
     targets: 
       type: nearby_entities
@@ -428,7 +428,7 @@ phases:
     fade_in: {type: literal, value: 0}
     stay: {type: literal, value: 1}
     fade_out: {type: literal, value: 0}
-    delay_ticks: {type: literal, value: 64}
+    delay_ticks: {type: literal, value: 63}
   - type: screen_flash
     targets: 
       type: nearby_entities
@@ -440,4 +440,4 @@ phases:
     fade_in: {type: literal, value: 0}
     stay: {type: literal, value: 1}
     fade_out: {type: literal, value: 1}
-    delay_ticks: {type: literal, value: 65}
+    delay_ticks: {type: literal, value: 64}
