@@ -188,7 +188,7 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             assertThat(arenaBlockIs(0, 65, 12, "minecraft:gold_ore")).describedAs("gold node was removed").isTrue()
             "bars=$bars"
         }
-        E2eReport.check(suite, "mining the iron node with a stone pickaxe gives 2 iron ore and swaps in a placeholder", "RCON clear + block") {
+        E2eReport.check(suite, "mining the iron node with a stone pickaxe gives 2 iron ore and turns it into cobblestone", "RCON clear + block") {
             selectTool(a, "stone_pickaxe")
             tpArena(a.name, 5.5, 65.0, 3.5, 0f, 0f)
             Thread.sleep(1_500)
@@ -197,7 +197,7 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             Thread.sleep(500)
             assertThat(got).describedAs("no ore item arrived; iron=${count(a, "iron_ingot")} (before $ironBefore); chat=${a.chatTexts().takeLast(3)}").isTrue()
             assertThat(count(a, "iron_ingot") - ironBefore).describedAs("drop count").isEqualTo(2)
-            assertThat(arenaBlockIs(5, 65, 5, "minecraft:iron_ore")).describedAs("node did not change to a placeholder").isFalse()
+            assertThat(arenaBlockIs(5, 65, 5, "minecraft:cobblestone")).describedAs("node did not turn into cobblestone; now ${clean(inArena("run data get block ${5 + originX} 65 ${5 + originZ} id"))}").isTrue()
             "iron +${count(a, "iron_ingot") - ironBefore}; block now ${clean(inArena("run data get block ${5 + originX} 65 ${5 + originZ} id"))}"
         }
         E2eReport.check(suite, "the iron node regrows after its regrow time (20 s)", "RCON execute if block") {
@@ -211,6 +211,34 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             }
             assertThat(back).describedAs("iron_ore did not return within 45s").isTrue()
             "node back"
+        }
+        E2eReport.check(suite, "the regrown iron node can be mined again: ore, cobblestone, ore, mined (second cycle)", "RCON clear + block") {
+            selectTool(a, "stone_pickaxe")
+            tpArena(a.name, 5.5, 65.0, 3.5, 0f, 0f)
+            Thread.sleep(1_000)
+            val before = count(a, "iron_ingot")
+            a.dig(5 + originX, 65, 5 + originZ)
+            val got = a.waitUntil(4_000) { count(a, "iron_ingot") > before }
+            Thread.sleep(500)
+            assertThat(got).describedAs("second mining gave no ore; iron=${count(a, "iron_ingot")} (before $before)").isTrue()
+            assertThat(count(a, "iron_ingot") - before).describedAs("second drop count").isEqualTo(2)
+            assertThat(arenaBlockIs(5, 65, 5, "minecraft:cobblestone")).describedAs("node is not cobblestone after the second mine").isTrue()
+            // While regrowing the cobblestone cell must not be breakable by hand.
+            val cobbleIron = count(a, "iron_ingot")
+            a.dig(5 + originX, 65, 5 + originZ)
+            Thread.sleep(1_000)
+            assertThat(arenaBlockIs(5, 65, 5, "minecraft:cobblestone")).describedAs("regrowing cobblestone was broken by hand").isTrue()
+            assertThat(count(a, "iron_ingot")).describedAs("regrowing node gave ore").isEqualTo(cobbleIron)
+            var back = false
+            val end = System.currentTimeMillis() + 45_000
+            while (System.currentTimeMillis() < end && !back) {
+                keep.forEach { it.nudge() }
+                a.nudge()
+                Thread.sleep(1_000)
+                back = arenaBlockIs(5, 65, 5, "minecraft:iron_ore")
+            }
+            assertThat(back).describedAs("iron_ore did not return after the second mine").isTrue()
+            "second cycle ok: +2 iron, cobblestone, ore back"
         }
 
         // --- 6. tool skill break_area ---------------------------------------------------------------------------------------
@@ -235,6 +263,40 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             assertThat(before).describedAs("test wall was not placed").isEqualTo(9)
             assertThat(after).describedAs("bore removed nothing from the 3x3 glass wall; chat=${a.chatTexts().takeLast(3)}; bars=${a.actionBars.takeLast(2).map { it.text }}").isLessThan(before)
             "wall solid cells $before -> $after"
+        }
+
+        E2eReport.check(suite, "a stone pickaxe bore removes a 3x3 wall of plain vanilla stone and cobblestone", "RCON execute if block") {
+            // x=-60 wall at z 10..12: cobblestone row, two stone rows. The bot stands at x=-63.5 facing east.
+            for (z in 10..12) {
+                inArena("run setblock ${-60 + originX} 65 ${z + originZ} minecraft:cobblestone")
+                inArena("run setblock ${-60 + originX} 66 ${z + originZ} minecraft:stone")
+                inArena("run setblock ${-60 + originX} 67 ${z + originZ} minecraft:stone")
+            }
+            tpArena(a.name, -63.5, 65.0, 11.5, 270f, 0f)
+            Thread.sleep(1_500)
+            selectTool(a, "stone_pickaxe")
+            fun solid() = (65..67).flatMap { y -> (10..12).map { z -> y to z } }.count { (y, z) -> arenaSolid(-60, y, z) }
+            assertThat(solid()).describedAs("test wall was not placed").isEqualTo(9)
+            Thread.sleep(8_000)
+            a.useItem(270f, 0f)
+            Thread.sleep(1_500)
+            val after = solid()
+            assertThat(after).describedAs("bore left vanilla stone cells standing; chat=${a.chatTexts().takeLast(3)}").isZero()
+            "vanilla wall solid cells 9 -> $after"
+        }
+        E2eReport.check(suite, "a stone shovel excavate removes plain vanilla dirt", "RCON execute if block") {
+            for (x in -62..-59) for (y in 65..67) for (z in 16..18) inArena("run setblock ${x + originX} $y ${z + originZ} minecraft:dirt")
+            tpArena(a.name, -64.5, 65.0, 17.5, 270f, 0f)
+            Thread.sleep(1_500)
+            selectTool(a, "stone_shovel")
+            fun solid() = (-62..-59).flatMap { x -> (65..67).flatMap { y -> (16..18).map { z -> Triple(x, y, z) } } }.count { (x, y, z) -> arenaSolid(x, y, z) }
+            val before = solid()
+            assertThat(before).describedAs("dirt block was not placed").isEqualTo(36)
+            a.useItem(270f, 0f)
+            Thread.sleep(1_500)
+            val after = solid()
+            assertThat(after).describedAs("excavate removed no dirt; chat=${a.chatTexts().takeLast(3)}").isLessThan(before)
+            "dirt cells $before -> $after"
         }
 
         // --- 7. hand-mining a custom block ----------------------------------------------------------------------------------

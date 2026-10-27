@@ -364,19 +364,24 @@ internal class WorldMechanics(
         return out.take(MAX_SHAPE_BLOCKS)
     }
 
-    /** Whether a skill with [power] (hardness ceiling) and [toolClass] may break [type]. */
+    /**
+     * Whether a skill with [power] and [toolClass] may break [type]. Power is a hardness ceiling: 1 = every ordinary block
+     * (soil, wood, glass, stone, cobblestone, ores, bricks), 2 = also obsidian-like blocks, 3 = also the hardest unprotected ones.
+     * The class decides what the tool is for: shovel = soil, axe = wood, pickaxe = everything else.
+     */
     private fun breakable(type: BlockType, power: Double, toolClass: String?): Boolean {
         val id = type.identifier
         val kind = when {
+            id.contains("sandstone") || id.contains("mud_brick") -> "PICKAXE"
             SOIL_WORDS.any { it in id } -> "SHOVEL"
             WOOD_WORDS.any { it in id } -> "AXE"
             else -> "PICKAXE"
         }
         if (toolClass != null && toolClass != kind) return false
         val hardness = when {
-            kind != "PICKAXE" || "glass" in id -> 1
-            STONE_WORDS.any { it in id } -> 2
-            else -> 3
+            id in HARDEST -> 3
+            id in HARD -> 2
+            else -> 1
         }
         return hardness <= power
     }
@@ -593,7 +598,8 @@ internal class WorldMechanics(
 
         private val SOIL_WORDS: List<String> = listOf("dirt", "grass_block", "sand", "gravel", "clay", "mud", "snow", "podzol", "mycelium", "soul_soil", "farmland")
         private val WOOD_WORDS: List<String> = listOf("plank", "log", "wood", "stem", "hyphae", "leaves", "fence", "door", "bookshelf", "scaffolding", "bamboo", "wool", "hay_block", "carpet")
-        private val STONE_WORDS: List<String> = listOf("stone", "deepslate", "cobble", "brick", "ore", "andesite", "diorite", "granite", "terracotta", "concrete", "basalt", "blackstone", "tuff", "netherrack", "end_stone", "prismarine", "purpur")
+        private val HARD: Set<String> = setOf("obsidian", "crying_obsidian", "respawn_anchor", "enchanting_table", "anvil", "chipped_anvil", "damaged_anvil")
+        private val HARDEST: Set<String> = setOf("reinforced_deepslate", "netherite_block", "ancient_debris")
 
         /** `lifetime_ticks: 0` means this; summons never live forever. */
         const val DEFAULT_SUMMON_LIFETIME_TICKS: Long = 1200L
