@@ -95,6 +95,10 @@ if len(scene) == 5:
         cam_keys.append({"t_ms": 0, "feet": [x, y, z], "yaw": yaw, "pitch": pitch})
     for k in cam_keys:
         k["eye"] = [k["feet"][0], round(k["feet"][1] + EYE_HEIGHT, 3), k["feet"][2]]
+    # the skill-compare framing contract: world eye position, degrees, tick relative to the cast; the client fov is fixed per run
+    # (compare keys with another fov are emulated by dollying), so every key carries the run's fov
+    meta["cameraKeys"] = [{"tick": k["t_ms"] / 50, "pos": k["eye"], "yaw": k["yaw"], "pitch": k["pitch"], "fov": meta.get("fov")}
+                          for k in cam_keys]
     meta["scene"] = {
         "casterStart": [cx, cy, cz], "target": tgt, "casterHeight": 1.8,
         "camera": {"eyeHeight": EYE_HEIGHT, "fovDegVertical": meta.get("fov"), "keys": cam_keys,
