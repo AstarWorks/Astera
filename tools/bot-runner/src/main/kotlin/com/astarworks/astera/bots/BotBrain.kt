@@ -168,6 +168,7 @@ class BotBrain(
     private var fellRecently = false
     /** Tick of the running travel jump (-1 = on the ground). */
     private var jumpStep = -1
+    private var jumpDash = false
     private val stuck = StuckEscapePolicy()
     private val ineffective = IneffectiveTargets()
     private var planner: ModePlanner? = null
@@ -260,8 +261,11 @@ class BotBrain(
         // Stars first while the goal is STAR and the enemy is not close; a close enemy always wins the attention.
         val goForStar = starDest != null && enemyFlat > STAR_YIELD_RANGE && !retreating
 
+        val fighting = SprintJumpPolicy.inCombat(
+            enemyFlat = enemyFlat.takeIf { enemy != null }, retreating = retreating, reloading = now < reloadBusyUntil,
+        )
         if (enemy != null) {
-            endTravel() // combat movement is never sprint-jumped
+            if (fighting) endTravel() // combat movement is never sprint-jumped; a far enemy is a trip (dash-jump when long)
             stuck.reset()
             ineffective.engage(enemy.id, now, bot.damageNumbers.size, swings.get() + shots.get())
             ticksWithEnemy.incrementAndGet()
@@ -305,7 +309,9 @@ class BotBrain(
                     else -> Dest(enemy.x, enemy.z, enemy.y, if (weapon?.kind == WeaponKind.RANGED) skill.preferredRange - 1.0 else 1.8, "enemy")
                 }
                 // keep the enemy in the crosshair while walking the route
-                val st = nav.follow(bot, d.x, d.z, d.y, d.arrive, skill.walkSpeed, now, yaw, pitch)
+                val routeSpeed = travel(d, inCombat = fighting)
+                val st = nav.follow(bot, d.x, d.z, d.y, d.arrive, routeSpeed, now, yaw, pitch)
+                if (st != Navigator.Status.MOVING) endTravel()
                 lastKind = "fight>${d.kind}:$st"
                 if (st == Navigator.Status.MOVING) { dwellOn(d, now); return }
                 if (st == Navigator.Status.NO_PATH && d.kind == "star") ignoreStar(d.starId, now)
@@ -320,8 +326,8 @@ class BotBrain(
                 standStill = true
             } else {
                 if (escapeStuck(dest, now)) return
-                travel(dest)
-                val st = nav.follow(bot, dest.x, dest.z, dest.y, dest.arrive, skill.walkSpeed, now, null, 0f)
+                val travelSpeed = travel(dest)
+                val st = nav.follow(bot, dest.x, dest.z, dest.y, dest.arrive, travelSpeed, now, null, 0f)
                 if (st != Navigator.Status.MOVING) endTravel()
                 lastKind = "go>${dest.kind}:$st"
                 if (st == Navigator.Status.ARRIVED) stuck.reset()
@@ -619,7 +625,7 @@ class BotBrain(
      * and the jump-arc [Bot.lift] that the next position packet (sent by [Navigator.follow]) carries. The floor pose
      * the navigator works on is not changed, so path and edge checks stay on the ground.
      */
-    private fun travel(dest: Dest) {
+    private fun travel(dest: Dest, inCombat: Boolean = false): Double {
         val dx = dest.x - bot.x
         val dz = dest.z - bot.z
         val dist = hypot(dx, dz)
@@ -636,25 +642,29 @@ class BotBrain(
         val airborne = jumpStep >= 0
         val stepUp = nav.nextRise(bot) > 0.5
         val decision = SprintJumpPolicy.decide(
-            inCombat = false, moving = moving, airborne = airborne, groundAhead = groundAhead, headroom = headroom,
-            stepUp = stepUp, forceJump = forceJump,
+            inCombat = inCombat, moving = moving, airborne = airborne, groundAhead = groundAhead, headroom = headroom,
+            stepUp = stepUp, forceJump = forceJump, distance = dist, dashing = jumpDash, walkSpeed = skill.walkSpeed,
         )
         if (decision.jump) forceJump = false
-        if (!decision.sprint) { endTravel(); return }
-        bot.setSprinting(true)
+        if (!decision.sprint && !decision.jump && !airborne) { endTravel(); return decision.speed }
+        bot.setSprinting(decision.sprint)
         if (airborne || decision.jump) {
             val step = if (airborne) jumpStep else 0
+            if (!airborne) jumpDash = decision.sprint
             val lift = SprintJumpPolicy.lift(step)
             bot.lift = lift
             jumpStep = if (lift == 0.0) -1 else step + 1
+            if (jumpStep < 0) jumpDash = false
         } else {
             bot.lift = 0.0
         }
+        return decision.speed
     }
 
     /** Back on the ground, not sprinting. Idempotent; called whenever the bot stops travelling (combat, arrival, death, lobby). */
     private fun endTravel() {
         jumpStep = -1
+        jumpDash = false
         bot.lift = 0.0
         bot.setSprinting(false)
     }
