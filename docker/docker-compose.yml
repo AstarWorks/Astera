@@ -53,6 +53,7 @@ x-astera-backend: &astera-backend
     MAX_PLAYERS: "20"
     # Authentication happens on Velocity; the backend only trusts the proxy.
     ONLINE_MODE: "FALSE"
+    ENFORCE_SECURE_PROFILE: "FALSE"
     PATCH_DEFINITIONS: "/patches"
     # Always re-sync /plugins -> /data/plugins on start (default would skip a "newer" destination).
     # `make dev-plugins` updates both copies; a rebuilt image (make docker-up) must win (ADR-0186).
