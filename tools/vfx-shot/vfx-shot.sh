@@ -177,7 +177,9 @@ run_begin() {
   else
     reap_py --only-state "$STATE" --force --lock-held {STACK_LOCK_FD}>&- {SLOT_FD}>&- || true
   fi
-  if [ "${SHOT_PIN:-0}" = 1 ]; then : > "$STATE/pinned"; else rm -f "$STATE/pinned"; fi   # capture farm: other checkouts' runs never evict this stack
+  # SHOT_KEEP=1 / SHOT_PIN=1: other checkouts' runs never evict this stack (only its own TTL ends it). Kept stacks of every
+  # author are therefore safe from a neighbour's --make-room sweep. Never `rm -rf` an OUT_ROOT that holds a live stack (its .state goes with it).
+  if [ "${SHOT_PIN:-0}" = 1 ] || [ "${SHOT_KEEP:-0}" = 1 ]; then : > "$STATE/pinned"; else rm -f "$STATE/pinned"; fi
   : > "$STATE/capture.active"              # tells a parker (kept stack) to keep the clients running, before keep-until goes
   rm -f "$STATE/keep-until"
   echo "$PROJECT" > "$STATE/project"
@@ -216,7 +218,7 @@ TICKS="${TICKS:-60}"                 # ticks filmed after the cast (compare: the
 SLOW_RATE="${SHOT_SLOW_RATE:-5}"      # STEPPED=1: server tick rate while filming (ticks/s, 1-20); every tick then stays on screen 1/rate s
 STEPPED="${STEPPED:-$([ "${FPS:-20}" = 20 ] && echo 1 || echo 0)}"   # 1 = slow motion (/tick rate SHOT_SLOW_RATE): world, plugin scheduler and client on one clock, several frames per tick, the last is kept (default for 20 fps sheets); 0 = realtime
 FPS="${FPS:-20}"                     # output rate; FPS=60 keeps 3 frames per tick (frame_NNN = NNN/3 ticks), no sheet/gif
-RES="${RES:-}"                       # viewer resolution; default 1280x720 for compare, 640x360 for every other view
+RES="${RES:-}"                       # viewer resolution (client window + framebuffer, GUI scale fixed); default 1920x1080 = the reference's native size
 [ "$SOURCED" = 1 ] && RES="${RES:-1280x720}"   # anim-shot keeps the old default
 GUI_SCALE="${GUI_SCALE:-1}"          # 1 = the smallest stamp rectangle to mask out of the saved frames
 # Client FOV in degrees (vertical, same as the in-game slider). Default 90 for caster/opponent/side: what most players
@@ -798,7 +800,7 @@ film() { # viewer view_dir
   rcon "tick rate 20" >/dev/null 2>&1 || true; rcon "tick unfreeze" >/dev/null 2>&1 || true   # a killed earlier run may have left the server slow
   DISPLAY=":$d" xdotool mousemove 320 180 2>/dev/null || true
   # showinfo (before the rebase) logs each frame's wall-clock pts -> epoch time of the first frame
-  ffmpeg -nostdin -loglevel info -y -copyts -use_wallclock_as_timestamps 1 -f x11grab -framerate "$([ "$STEPPED" = 1 ] && echo 30 || echo "$FPS")" \
+  ffmpeg -nostdin -loglevel info -y -copyts -use_wallclock_as_timestamps 1 -f x11grab -framerate "$([ "$STEPPED" = 1 ] && echo "${SHOT_REC_FPS:-15}" || echo "$FPS")" \
     -video_size "$RES_FILM" -i ":$d" -vf "showinfo,setpts=PTS-STARTPTS" \
     -c:v libx264 -preset ultrafast -crf 10 -pix_fmt yuv444p -f matroska "$rec" 2>"$rec.log" &
   fpid=$!
@@ -850,6 +852,12 @@ film() { # viewer view_dir
     die "tick stamp could not be read ($(tail -1 "$STATE/framestamp.err")); SHOT_KEEP_REC=1 keeps the recording"
   fi
   phase "framestamp done"
+  # the server's [vfx-trace] lines of this cast (play/spawn/pos): skill-compare derives fx spawn ticks and caster travel from them
+  local ct; ct="$(jq -r '.castTick // empty' "$dir/framestamp.json" 2>/dev/null)"
+  if [ -n "$ct" ]; then
+    docker logs "$SERVER_CT" 2>&1 | grep -F '[vfx-trace]' \
+      | awk -v lo="$((ct - 1))" -v hi="$((ct + TICKS + PRE_TICKS + 10))" '{ if (match($0, /tick=[0-9]+/)) { t = substr($0, RSTART + 5, RLENGTH - 5) + 0; if (t >= lo && t <= hi) print } }' > "$dir/trace.log" || true
+  fi
   log "tick stamp: $(cat "$STATE/framestamp.out")"
   if [ "${SHOT_KEEP_REC:-0}" = 1 ]; then mv "$rec" "$dir/recording.mkv"; mv "$rec.log" "$dir/recording.showinfo.log"; else rm -f "$rec" "$rec.log"; fi
   if [ -n "$BEAT_TICKS" ]; then keep_beats "$all" "$dir"; fi
@@ -927,7 +935,7 @@ make_outputs() { # dir view
         -pix_fmt yuv420p "$dir/$SKILL-$view.mp4" || log "WARN: mp4 failed" ) &
     encoders+=($!)
   fi
-  ffmpeg -nostdin -loglevel error -y -i "$dir/frame_%03d.png" -c:v libwebp -quality 85 \
+  ffmpeg -nostdin -loglevel error -y -i "$dir/frame_%03d.png" -c:v libwebp -quality "${SHOT_WEBP_QUALITY:-96}" \
     -compression_level 4 -threads 4 -start_number 0 "$dir/frame_%03d.webp" || log "WARN: web preview failed; serving PNG"
   [ "${#encoders[@]}" -eq 0 ] || wait "${encoders[@]}"   # not a bare `wait`: the watchdog / parker are our children too
   write_meta "$dir" "$view" "$n"
@@ -1021,7 +1029,7 @@ prepare_view() {
     compare)  VIEWER="Watcher"; DUMMY_CASTER=1 ;;
   esac
   res="${RES:-}"
-  if [ -z "$res" ]; then if [ "$view" = compare ]; then res=1280x720; else res=640x360; fi; fi
+  if [ -z "$res" ]; then res=1920x1080; fi
   RES_FILM="$res"
   W="${res%x*}"; H="${res#*x}"
   if [ "$view" = compare ]; then
@@ -1073,6 +1081,17 @@ run_view() { # view
   BEAT_ONLY=0
   phase "preparing $view"
   prepare_view "$view"
+  # WARM_UP=1: cast the skill once at the normal tick rate first, so the software client has loaded every model / particle /
+  # display it will see (a first-time asset stalls it for >1 s: that tick is then never drawn and a stepped capture is invalid)
+  if [ "${WARM_UP:-1}" = 1 ] && [ "$STEPPED" = 1 ] && [ -n "$SKILL" ]; then
+    local wsec; wsec="$(awk -v t="$TICKS" 'BEGIN{ s = t / 20 + 1.5; if (s > 9) s = 9; printf "%.1f", s }')"
+    log "warm-up cast ($wsec s)"
+    rcon "astera skill cast $SKILL Caster --force" >/dev/null 2>&1 || true
+    sleep "$wsec"
+    place_scene "$view" "$(target_z)"
+    rcon "kill @e[type=minecraft:item]" >/dev/null
+    sleep 2
+  fi
   phase "filming $view"
   film "$VIEWER" "$OUT_ROOT/$SKILL/$view"
   out="$OUT_ROOT/$SKILL/$view"

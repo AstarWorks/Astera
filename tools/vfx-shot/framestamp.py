@@ -130,6 +130,29 @@ def main():
     known = [i for i, v in enumerate(stamp) if v is not None]
     # packets are processed in order: a stamp can never go back
     regressions = sum(1 for a, b in zip(known, known[1:]) if stamp[b] < stamp[a])
+    # Stepped: a full-screen title / flash (screen_flash) is drawn over the stamp's boss bar, so the stamp is unreadable for the
+    # ticks the overlay is up. Server ticks are evenly spaced in stepped mode (/tick rate), so the tick of an unreadable frame is
+    # recovered from a line fitted through every clean tick transition (adjacent readable frames, stamp +1).
+    inferred_ticks = []
+    if stepped:
+        trans = [(stamp[b], wall[b]) for a, b in zip(known, known[1:]) if b == a + 1 and stamp[b] == stamp[a] + 1]
+        if len(trans) >= 8:
+            tk = np.array([x[0] for x in trans], float); tw = np.array([x[1] for x in trans], float)
+            d, c = np.polyfit(tk, tw, 1)
+            resid = np.abs(tw - (c + d * tk))
+            keep = resid <= max(3 * float(np.median(resid)), 0.15 * d)
+            if keep.sum() >= 8:
+                d, c = np.polyfit(tk[keep], tw[keep], 1)
+            have = {stamp[i] for i in known}
+            lo_k, hi_k = min(have), max(have)
+            for i in range(n_frames):
+                if stamp[i] is None:
+                    k = int(np.floor((wall[i] - c) / d + 1e-9))
+                    if lo_k <= k <= hi_k:
+                        stamp[i] = k
+                        if k not in have and k not in inferred_ticks:
+                            inferred_ticks.append(k)
+            known = [i for i, v in enumerate(stamp) if v is not None]
     kt = np.array([wall[i] for i in known]); kg = np.array([stamp[i] for i in known], float)
     rate = None if stepped else float(np.polyfit(kt - kt[0], kg, 1)[0])
 
@@ -161,7 +184,8 @@ def main():
         frac = t - np.floor(t + 1e-9) if exact else 0.0
         src = group[-1] if stepped else group[min(int(frac * len(group)), len(group) - 1)]
         mapping.append({"n": n, "tick": round(t - base, 3), "src": src, "stamp": stamp[src], "exact": exact})
-    skipped_ticks = len({int(np.floor(t0 + n * 20.0 / fps + 1e-9)) for n, m in enumerate(mapping) if not m["exact"]})
+    # a pre-cast tick (plan tick < 0: the window before the cast, no key beat there) the client never drew keeps its stand-in without invalidating the capture
+    skipped_ticks = len({int(np.floor(t0 + n * 20.0 / fps + 1e-9)) for n, m in enumerate(mapping) if not m["exact"] and m["tick"] >= 0})
 
     # ---- pass 2: full frames -> masked PNGs + a small grey copy of every frame for the change trace
     need = {m["src"] for m in mapping}
@@ -220,7 +244,7 @@ def main():
     result = {
         "castTick": g_cast, "planTickZeroStamp": base, "castTickSpan": [g_b, g_a], "castTickExact": g_b == g_a,
         "firstFrameTick": t0, "frames": frames_total, "fps": fps,
-        "recordedFrames": n_frames, "undecodedFrames": undecoded, "glitchFrames": glitches, "regressions": regressions,
+        "recordedFrames": n_frames, "undecodedFrames": undecoded, "inferredTicks": [int(k - base) for k in inferred_ticks], "glitchFrames": glitches, "regressions": regressions,
         "skippedTicks": skipped_ticks, "stampRateHz": None if rate is None else round(rate, 3),
         "mode": "stepped" if stepped else "realtime",
         "minFramesPerTick": min(len(by_tick[k]) for k in range(int(t0), int(g_cast) + ticks + 1) if k in by_tick) if stepped else None,

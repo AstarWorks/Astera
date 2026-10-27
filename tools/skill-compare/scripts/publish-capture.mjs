@@ -2,7 +2,7 @@
 // node publish-capture.mjs <capture-dir> <published-root> <skill> <view> [--auto <sha>] [--preview] [--case <id>]
 // --case <id>: stamps meta.referenceRevision / caseContentRevision from tools/skill-compare/data/<id>/case.json (the case the page shows).
 // --auto <sha>: stamps meta.auto (capture farm, shown as "auto <sha7>"); --preview: realtime pass, skipped ticks allowed, shown as PREVIEW.
-import { readFileSync, writeFileSync, mkdirSync, renameSync, rmSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, renameSync, rmSync, existsSync, copyFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
@@ -48,6 +48,7 @@ export function publishCapture(source, root, skill, view, opts = {}) {
       hash.update(name).update(bytes);
       writeFileSync(join(staging, name + '.' + extension), bytes);
     }
+    if (existsSync(join(source, 'trace.log'))) copyFileSync(join(source, 'trace.log'), join(staging, 'trace.log'));
     if (readFileSync(join(source, 'meta.json'), 'utf8') !== raw) throw Error('Capture changed during publication');
     const revision = hash.digest('hex');
     const manifest = { revision, extension, meta };

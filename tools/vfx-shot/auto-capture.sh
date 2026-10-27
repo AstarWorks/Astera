@@ -40,7 +40,7 @@ flog() { printf '%s %s\n' "$(stamp)" "$*" | tee -a "$FSTATE/farm.log" >&2; }
 shot() { # mode(stepped|realtime) skill ticks
   local mode="$1" skill="$2" ticks="$3" stepped=1
   [ "$mode" = realtime ] && stepped=0
-  ( cd "$FARM_ROOT" && env SKILL="$skill" VIEW="$VIEWS" TICKS="$ticks" STEPPED="$stepped" FPS=20 OUT_ROOT="$OUT_ROOT" \
+  ( cd "$FARM_ROOT" && env SKILL="$skill" VIEW="$VIEWS" CASE="${CASE_ID:-}" TICKS="$ticks" STEPPED="$stepped" FPS=20 OUT_ROOT="$OUT_ROOT" \
       SHOT_KEEP=1 SHOT_PIN=1 SHOT_KEEP_TTL="${FARM_TTL:-86400}" SHOT_OUTPUTS=lean SHOT_SLOW_RATE="${RATE:-${FARM_RATE:-2.5}}" \
       SHOT_LOCK="${SHOT_LOCK:-/tmp/claude-1000/astera-vfx-shot-farm.lock}" SHOT_REAP_SCOPE=self SHOT_DETACHED=1 \
       bash "$FARM_ROOT/tools/vfx-shot/vfx-shot.sh" capture ) >> "$FSTATE/shot.log" 2>&1
@@ -106,9 +106,14 @@ process() { # sha [base]
     fi
     for s in $skills; do
       # one view at a time, in FARM_VIEWS order: the first view (side) is published before the next is filmed
-      for v1 in ${ALL_VIEWS//,/ }; do
-        VIEWS="$v1"
+      # a skill with a skill-compare case (intent.json) is filmed with the case camera FIRST: that framing matches the reference
+      cid="$(grep -l "\"asteraSkillId\": *\"$s\"" "$FARM_ROOT"/tools/skill-compare/data/*/case.json 2>/dev/null | head -1)"; cid="$(basename "$(dirname "${cid:-/}")")"
+      [ -f "$FARM_ROOT/tools/skill-compare/data/$cid/intent.json" ] || cid=""
+      cviews="$ALL_VIEWS"; [ -n "$cid" ] && cviews="compare ${ALL_VIEWS//,/ }"
+      for v1 in ${cviews//,/ }; do
+        VIEWS="$v1"; CASE_ID=""; [ "$v1" = compare ] && CASE_ID="$cid"
         ticks="$(ticks_for "$s")"; tstep="$(now)"; n=0
+        [ "$v1" = compare ] && ticks="$(jq -r '.duration_ticks // empty' "$FARM_ROOT/tools/skill-compare/data/$cid/intent.json" 2>/dev/null)"; ticks="${ticks:-$TICKS_DEFAULT}"
         while :; do
           # a view that drops ticks at this tick rate (the software client hitches on heavy VFX, mostly side) is refilmed at half the rate
           rate="$(awk -v r="${FARM_RATE:-2.5}" -v n="$n" 'BEGIN{for (i = 0; i < n; i++) r /= 2; if (r < 1) r = 1; print r}')"
@@ -125,7 +130,7 @@ process() { # sha [base]
           flog "STEPPED $s/$v1 attempt $n failed at $rate tps; retrying at half the rate"
         done
       done
-      VIEWS="$ALL_VIEWS"
+      VIEWS="$ALL_VIEWS"; CASE_ID=""
     done
   fi
   echo "$sha" > "$FSTATE/done-sha"

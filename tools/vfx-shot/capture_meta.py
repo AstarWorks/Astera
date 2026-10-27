@@ -139,7 +139,7 @@ if stamp_file.is_file():
     meta["tickStamp"] = {k: v for k, v in st.items() if k not in ("map", "changeEvents")}
     # A tick the client never drew has no true frame; the nearest-stamp stand-in must not pass as exact. List them and
     # invalidate the capture (publish-capture refuses it), including any key beat that lands on one.
-    missing = [m for m in st.get("map", []) if not m.get("exact", True)]
+    missing = [m for m in st.get("map", []) if not m.get("exact", True) and m.get("tick", 0) >= 0]
     if missing or st.get("skippedTicks", 0) > 0:
         ticks = sorted(m["tick"] for m in missing)
         gaps = []
