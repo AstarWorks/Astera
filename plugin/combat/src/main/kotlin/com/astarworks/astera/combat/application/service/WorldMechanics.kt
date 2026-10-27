@@ -230,7 +230,8 @@ internal class WorldMechanics(
         val anywhere = host.resolveBool(m.outsideArena, ctx)
         val aim = aim(ctx)
         val tool = toolOf(m.toolClass, ctx)
-        val toolData = toolBlocks?.heldTool(ctx.actorId)
+        // Captured once at cast time: the caster may swap or empty the hand mid-ripple, and a forced cast has no tool at all.
+        val toolData = runCatching { toolBlocks?.heldTool(ctx.actorId, tool.kind.name, tool.tier.name) }.getOrNull()
         val skillId = ctx.castedSkills.firstOrNull() ?: MechanicDispatcher.FALLBACK_SKILL_ID
         val centre = if (m.shape == Mechanic.AreaShape.SPHERE) aim.eye + aim.look * m.length else aim.eye
         val ordered = breakCells(m, aim).sortedBy { (it - centre).lengthSquared() }
@@ -251,9 +252,11 @@ internal class WorldMechanics(
             val token = ++nextToken
             progress.token = token
             val baseType = surface?.data?.substringBefore('[')?.let(::BlockType) ?: current
-            val allowed = if (isCover) baseType == null || breakable(baseType, m.power, null)
-                else current != null && breakable(current, m.power, m.toolClass)
-            val ticks = PowerToolMining.breakTicks(surface?.hardness ?: 1.5, tool.tier)
+            val allowed = if (isCover) baseType == null || breakable(baseType, m.power)
+                else current != null && breakable(current, m.power)
+            // A tool of the wrong class still mines (vanilla: dirt with a pickaxe), just at bare-hand speed.
+            val preferred = m.toolClass == null || baseType == null || preferredKind(baseType) == m.toolClass
+            val ticks = PowerToolMining.breakTicks(surface?.hardness ?: 1.5, if (preferred) tool.tier else ToolTier.NONE)
             // Spread fast blocks over the available window too, so equal-hardness walls do not burst in one tick.
             val span = PowerToolMining.CAST_TICKS - if (isCover) PowerToolMining.WORK_TICKS else minOf(ticks, PowerToolMining.WORK_TICKS)
             val delay = 1 + index * span / ordered.size.coerceAtLeast(1)
@@ -454,15 +457,18 @@ internal class WorldMechanics(
      * (soil, wood, glass, stone, cobblestone, ores, bricks), 2 = also obsidian-like blocks, 3 = also the hardest unprotected ones.
      * The class decides what the tool is for: shovel = soil, axe = wood, pickaxe = everything else.
      */
-    private fun breakable(type: BlockType, power: Double, toolClass: String?): Boolean {
+    private fun preferredKind(type: BlockType): String {
         val id = type.identifier
-        val kind = when {
+        return when {
             id.contains("sandstone") || id.contains("mud_brick") -> "PICKAXE"
             SOIL_WORDS.any { it in id } -> "SHOVEL"
             WOOD_WORDS.any { it in id } -> "AXE"
             else -> "PICKAXE"
         }
-        if (toolClass != null && toolClass != kind) return false
+    }
+
+    private fun breakable(type: BlockType, power: Double): Boolean {
+        val id = type.identifier
         val hardness = when {
             id in HARDEST -> 3
             id in HARD -> 2

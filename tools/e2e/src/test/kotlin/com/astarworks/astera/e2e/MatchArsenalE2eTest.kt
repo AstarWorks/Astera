@@ -312,6 +312,46 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             "stone survived dispatch, broke by 30 ticks, dropped cobblestone; obsidian survived"
         }
 
+        E2eReport.check(suite, "a pickaxe bore breaks the dirt column too (wrong-class block, bare-hand speed) and drops it", "RCON blocks and item entities") {
+            // x=-60 wall at z 36..38: dirt column z=36, stone z=37, obsidian z=38 (stays). Bot at z=37.5 looks east.
+            inArena("run kill @e[type=minecraft:item,x=${-60 + originX},y=66,z=${37 + originZ},distance=..8]")
+            for (y in 65..67) {
+                inArena("run setblock ${-60 + originX} $y ${36 + originZ} minecraft:dirt")
+                inArena("run setblock ${-60 + originX} $y ${37 + originZ} minecraft:stone")
+                inArena("run setblock ${-60 + originX} $y ${38 + originZ} minecraft:obsidian")
+            }
+            tpArena(a.name, -63.5, 65.0, 37.5, 270f, 0f)
+            selectTool(a, "stone_pickaxe")
+            Thread.sleep(8_000)
+            rcon("astera skill cast pickaxe-bore-stone ${a.name} --force")
+            Thread.sleep(2_500)
+            val dirt = (65..67).count { arenaSolid(-60, it, 36) }
+            val stone = (65..67).count { arenaSolid(-60, it, 37) }
+            assertThat(dirt).describedAs("dirt column still standing after the bore").isZero()
+            assertThat(stone).describedAs("stone column still standing after the bore").isZero()
+            assertThat(arenaBlockIs(-60, 66, 38, "minecraft:obsidian")).isTrue()
+            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${36 + originZ},distance=..4,limit=1,nbt={Item:{id:\"minecraft:dirt\"}}] Item.id"))
+            assertThat(loot).contains("minecraft:dirt")
+            "dirt and stone columns broken, dirt dropped, obsidian survived"
+        }
+
+        E2eReport.check(suite, "a bore cast with an empty main hand throws nothing, breaks blocks and still drops cobblestone", "RCON blocks and item entities") {
+            val empty = (0..8).firstOrNull { rcon("execute if items entity ${a.name} hotbar.$it *").contains("failed") }
+            assertThat(empty).describedAs("no empty hotbar slot").isNotNull()
+            inArena("run kill @e[type=minecraft:item,x=${-60 + originX},y=66,z=${45 + originZ},distance=..8]")
+            for (y in 65..67) for (z in 44..46) inArena("run setblock ${-60 + originX} $y ${z + originZ} minecraft:stone")
+            tpArena(a.name, -63.5, 65.0, 45.5, 270f, 0f)
+            a.selectHotbar(empty!!)
+            Thread.sleep(8_000)
+            rcon("astera skill cast pickaxe-bore-stone ${a.name} --force")
+            Thread.sleep(2_500)
+            val left = (65..67).flatMap { y -> (44..46).map { z -> y to z } }.count { (y, z) -> arenaSolid(-60, y, z) }
+            assertThat(left).describedAs("empty-handed forced bore left stone standing").isZero()
+            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${45 + originZ},distance=..5,limit=1,nbt={Item:{id:\"minecraft:cobblestone\"}}] Item.id"))
+            assertThat(loot).contains("minecraft:cobblestone")
+            "empty hand: all 9 stone cells broken, cobblestone dropped via the skill's tool stand-in"
+        }
+
         E2eReport.check(suite, "custom cover drops its reusable placement item", "RCON custom item identity") {
             inArena("run kill @e[type=minecraft:item,x=${-60 + originX},y=65,z=${30 + originZ},distance=..5]")
             inArena("run setblock ${-60 + originX} 66 ${30 + originZ} minecraft:glass")

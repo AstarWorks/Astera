@@ -27,8 +27,17 @@ public class PaperToolBlockGateway(
         IToolBlockGateway.Surface(it.blockData.asString, it.type.hardness.toDouble())
     }
 
-    override fun heldTool(player: PlayerId): String? = server.getPlayer(player.uuid)?.inventory?.itemInMainHand?.let {
-        Base64.getEncoder().encodeToString(it.serializeAsBytes())
+    override fun heldTool(player: PlayerId, kind: String?, tier: String?): String? {
+        val held = server.getPlayer(player.uuid)?.inventory?.itemInMainHand?.takeIf { !it.isEmpty && !it.type.isAir }
+        val usable = held?.takeIf { kind == null || kind == "NONE" || it.type.name.endsWith("_$kind") }
+        val stack = usable ?: standIn(kind, tier) ?: held ?: return null
+        return runCatching { Base64.getEncoder().encodeToString(stack.serializeAsBytes()) }.getOrNull()
+    }
+
+    private fun standIn(kind: String?, tier: String?): ItemStack? {
+        if (kind == null || kind == "NONE" || tier == null || tier == "NONE") return null
+        val prefix = if (tier == "WOOD") "WOODEN" else tier
+        return Material.matchMaterial("${prefix}_$kind")?.let { ItemStack(it) }
     }
 
     override fun crack(world: WorldId, cell: Vec3, progress: Double) {
