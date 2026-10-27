@@ -1,16 +1,16 @@
 ---
-status: Proposed
+status: Superseded
 date: 2026-05-20
 deciders: Astera workspace (Wave _skills-2)
 supersedes: null
-superseded_by: null
+superseded_by: 0299
 ---
 
 # ADR-0077: Mechanic-Targeter-Phase skill architecture + CEL injection
 
 ## Status
 
-Proposed
+Superseded by [[adr/0299-skill-engine-v2-frame-tree]]
 
 ## Context
 
