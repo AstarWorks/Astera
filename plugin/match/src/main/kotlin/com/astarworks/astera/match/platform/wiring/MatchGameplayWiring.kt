@@ -547,7 +547,8 @@ internal object MatchGameplayWiring {
             matches.findById(started.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { resetWeaponState(it); leaveSpectatorMode(it) }
         }
         subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) { ended ->
-            matches.findById(ended.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { leaveSpectatorMode(it) }
+            // Status effects, cooldowns, resource pools and HP otherwise ride into the lobby until the next match entry.
+            matches.findById(ended.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { resetWeaponState(it); leaveSpectatorMode(it) }
         }
         subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { matchCueListener.onKilled(it) }
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) { matchCueListener.onPhaseChanged(it) }

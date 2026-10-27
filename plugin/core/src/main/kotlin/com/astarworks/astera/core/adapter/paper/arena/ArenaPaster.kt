@@ -101,9 +101,12 @@ internal class ArenaPaster(
         return result
     }
 
-    /** Drops, arrows and orbs a match leaves lying around; mobs, displays and players are owned by their own cleanup. */
-    private fun isArenaDebris(e: org.bukkit.entity.Entity): Boolean =
-        e is org.bukkit.entity.Item || e is org.bukkit.entity.Projectile || e is org.bukkit.entity.ExperienceOrb
+    /**
+     * Everything a match leaves lying in a slot: drops, arrows, orbs, primed TNT, falling blocks, displays, interactions,
+     * stands, clouds and mobs. A slot is only reset after its match ended and its players left, and the next match gets a
+     * fresh copy, so the only entities that must survive are players.
+     */
+    private fun isArenaDebris(e: org.bukkit.entity.Entity): Boolean = e !is org.bukkit.entity.Player
 
     private fun write(
         world: World,
