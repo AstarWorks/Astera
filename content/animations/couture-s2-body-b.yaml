@@ -1,4 +1,4 @@
-# couture-s2-body-b: second half of the S2 performance (skill ticks 63-97, effect tick = skill tick - 63); the rig allows one weapon rig per effect so the hand shears are split in two composites.
+# couture-s2-body-b: second half of the S2 performance (skill ticks 63-97, effect tick = skill tick - 63). Ticks 0-6 (skill 63-69) coil: sink + twist toward the back-turn, shears pulled in; 6-8 hold; 8-11 clockwise release into the t72 dash.
 id: couture-s2-body-b
 length_ticks: 35
 loop: false
@@ -10,17 +10,17 @@ bones:
     rotation:
     - t: 0
       v: [-14, 0, 0]
-    - t: 1
+    - t: 3
       v: [-12, 0, 0]
-      ease: step
+    - t: 6
+      v: [-6, 0, 0]
     - t: 8
-      v: [-12, 0, 0]
+      v: [-6, 0, 0]
     - t: 10
       v: [-10, 0, 0]
       ease: ease_out
     - t: 13
       v: [-10, 0, 0]
-      ease: ease_out
     - t: 33
       v: [-10, 0, 0]
     - t: 34
@@ -30,17 +30,19 @@ bones:
     rotation:
     - t: 0
       v: [0, 0, 0]
-    - t: 1
-      v: [40, 0, 0]
-      ease: step
+    - t: 2
+      v: [14, 0, 0]
+    - t: 4
+      v: [28, 0, 0]
+    - t: 6
+      v: [46, 0, 0]
     - t: 8
-      v: [40, 0, 0]
+      v: [46, 0, 0]
     - t: 10
       v: [34, 0, 0]
       ease: ease_out
     - t: 13
       v: [28, 0, 0]
-      ease: ease_out
     - t: 33
       v: [28, 0, 0]
     - t: 34
@@ -51,16 +53,22 @@ bones:
     - t: 0
       v: [-160, 0, 4]
     - t: 1
-      v: [82, 0, 6]
-      ease: step
+      v: [-100, 0, 6]
+    - t: 2
+      v: [-40, 0, 8]
+    - t: 3
+      v: [10, 0, 8]
+    - t: 4
+      v: [30, 0, 8]
+    - t: 6
+      v: [40, 0, 8]
     - t: 8
-      v: [82, 0, 6]
+      v: [40, 0, 8]
     - t: 10
       v: [82, 0, 6]
       ease: ease_out
     - t: 13
       v: [80, 0, 6]
-      ease: ease_out
     - t: 33
       v: [80, 0, 6]
     - t: 34
@@ -70,9 +78,10 @@ bones:
     rotation:
     - t: 0
       v: [-30, 0, -20]
-    - t: 1
-      v: [-78, 0, -10]
-      ease: step
+    - t: 3
+      v: [-50, 0, -14]
+    - t: 6
+      v: [-70, 0, -10]
     - t: 8
       v: [-78, 0, -10]
     - t: 10
@@ -80,7 +89,6 @@ bones:
       ease: ease_out
     - t: 13
       v: [-60, 0, -10]
-      ease: ease_out
     - t: 33
       v: [-60, 0, -10]
     - t: 34
@@ -90,17 +98,19 @@ bones:
     rotation:
     - t: 0
       v: [0, 0, 0]
-    - t: 1
-      v: [-52, 0, 0]
-      ease: step
+    - t: 2
+      v: [-28, 0, 0]
+    - t: 4
+      v: [-44, 0, 0]
+    - t: 6
+      v: [-56, 0, 0]
     - t: 8
-      v: [-52, 0, 0]
+      v: [-56, 0, 0]
     - t: 10
       v: [-34, 0, 0]
       ease: ease_out
     - t: 13
       v: [-30, 0, 0]
-      ease: ease_out
     - t: 33
       v: [-30, 0, 0]
     - t: 34
@@ -110,17 +120,19 @@ bones:
     rotation:
     - t: 0
       v: [0, 0, 0]
-    - t: 1
-      v: [50, 0, 0]
-      ease: step
+    - t: 2
+      v: [28, 0, 0]
+    - t: 4
+      v: [44, 0, 0]
+    - t: 6
+      v: [54, 0, 0]
     - t: 8
-      v: [50, 0, 0]
+      v: [54, 0, 0]
     - t: 10
       v: [36, 0, 0]
       ease: ease_out
     - t: 13
       v: [32, 0, 0]
-      ease: ease_out
     - t: 33
       v: [32, 0, 0]
     - t: 34
@@ -130,14 +142,11 @@ root:
   rotation:
   - t: 0
     v: [0, 0, 0]
-  - t: 1
+  - t: 6
     v: [0, 180, 0]
-    ease: step
   - t: 8
     v: [0, 180, 0]
-  - t: 9
-    v: [0, 180, 0]
-  - t: 12
+  - t: 11
     v: [0, 0, 0]
   - t: 33
     v: [0, 0, 0]
@@ -147,15 +156,15 @@ root:
   position:
   - t: 0
     v: [0, 0, 0]
-  - t: 1
-    v: [0, -5, 0]
-    ease: step
+  - t: 2
+    v: [0, -2, 0]
+  - t: 4
+    v: [0, -4, 0]
+  - t: 6
+    v: [0, -7, 0]
   - t: 8
-    v: [0, -5, 0]
+    v: [0, -7, 0]
   - t: 10
-    v: [0, -3, 0]
-    ease: ease_out
-  - t: 13
     v: [0, -3, 0]
     ease: ease_out
   - t: 33
