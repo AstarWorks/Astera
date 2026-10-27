@@ -25,7 +25,7 @@ VIEWS="${FARM_VIEWS:-side,top}"
 ALL_VIEWS="$VIEWS"
 TICKS_DEFAULT="${FARM_TICKS:-80}"
 POLL="${FARM_POLL:-5}"
-MAX_SKILLS="${FARM_MAX_SKILLS:-8}"
+MAX_SKILLS="${FARM_MAX_SKILLS:-24}"   # skills past the cap are dropped for good (done-sha advances): a broad commit once starved couture-rapier-s2 at 8
 RETRIES="${FARM_RETRIES:-1}"
 OUT_ROOT="${FARM_OUT:-$FARM_ROOT/build/vfx-shot}"
 mkdir -p "$FSTATE"
@@ -86,6 +86,7 @@ process() { # sha [base]
   [ -n "$base" ] || base="$(cat "$FSTATE/done-sha" 2>/dev/null)"
   skills="$(python3 -I "$HERE/changed-skills.py" --root "$FARM_ROOT" "$base" "$sha")" || { flog "changed-skills failed ($base..$sha)"; return 1; }
   [ -z "${FARM_ONLY_SKILL:-}" ] || skills="$FARM_ONLY_SKILL"   # one-off: film this skill regardless of the diff (`once` only)
+  [ "$(printf '%s\n' "$skills" | sed '/^$/d' | wc -l)" -le "$MAX_SKILLS" ] || flog "WARNING: ${sha:0:8} changed more than $MAX_SKILLS skills; the rest are NOT filmed (raise FARM_MAX_SKILLS)"
   skills="$(printf '%s\n' "$skills" | sed '/^$/d' | head -n "$MAX_SKILLS")"
   flog "deployed ${sha:0:8} (log $deploy_ts) base=${base:0:8} skills: $(echo $skills)"
   if [ -n "$skills" ]; then

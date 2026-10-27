@@ -27,7 +27,7 @@ object SuiteOwners {
         own(
             "modes-combat",
             "Annihilation playthrough", "Capture Wool playthrough", "Carry TNT playthrough",
-            "Carry Mini TNT playthrough", "Steal Jewelry playthrough", "Norma playthrough", "PvE waves playthrough", "Match", "Game loop", "Combat", "Stars", "WeaponLimit",
+            "Carry Mini TNT playthrough", "Steal Jewelry playthrough", "PvE waves playthrough", "Match", "Game loop", "Combat", "Stars", "WeaponLimit",
             "Mid-match leave", "Mid-match reconnect",
         )
         own("economy-life", "Shop purchase")

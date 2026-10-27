@@ -940,31 +940,11 @@ astera:
     norma-locked:
       bar: "<red>ロック中</red> <gray>-</gray> <gold>Lv {level}</gold> <gray>で</gray> <white>{rarity}</white> <gray>解放</gray>"
     norma-choice:
-      open:
-        title: "<gold><bold>ノルマを選ぼう</bold></gold>"
-        subtitle: "<gray>スター目標かキル目標 - 10秒以内に選択</gray>"
-      picked:
-        star: "<green>ノルマ目標を設定：<gold>★ {goal}個持つ</gold></green>"
-        kill: "<green>ノルマ目標を設定：<red>⚔ {goal}キル</red></green>"
-      defaulted:
-        star: "<yellow>時間切れ - 初期目標：<gold>★ {goal}個持つ</gold></yellow>"
-        kill: "<yellow>時間切れ - 目標はそのまま：<red>⚔ {goal}キル</red></yellow>"
       chosen: "<green>ノルマ目標：<gold>{goal}</gold></green>"
       not-in-match: "<red>ノルマレベルは対人戦の試合中だけ使えます。</red>"
       no-norma-mode: "<red>このモードにはノルマレベルがありません。</red>"
       match-not-running: "<yellow>試合が始まっていないか、すでに終了しています。</yellow>"
       max-level: "<yellow>最高ノルマレベルです。</yellow>"
-      gui:
-        title: "<gold>ノルマ目標</gold> <gray>- どちらか選択</gray>"
-        star:
-          name: "<gold><bold>★ スター目標</bold></gold>"
-          lore: "<gray>スターを <gold>{goal}</gold> 個持つ。</gray>"
-        kill:
-          name: "<red><bold>⚔ キル目標</bold></red>"
-          lore: "<gray>このレベルで <red>{goal}</red> キルする。</gray>"
-        level: "<gray>ノルマレベル <white>{level}/{max}</white></gray>"
-        progress: "<gray>現在：<white>{now}</white>/<white>{goal}</white></gray>"
-        default: "<dark_gray>10秒選ばないとスター目標になります。</dark_gray>"
     star:
       collected: "<gold><bold>+{amount} ★</bold></gold> <gray>(所持 {total})</gray>"
     # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
@@ -1329,8 +1309,7 @@ astera:
       steal-jewelry:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>確保、</gray><white>{left}</white> <gray>残り</gray>"
       you: "<gray>あなた:</gray> <{color}>{team}</{color}>"
-      stars: "<yellow>*</yellow> <white>{stars}</white> <gray>スター</gray>"
-      level: "<gray>ノルマ</gray> <white>Lv {level}/{max}</white>"
+      level: "<gray>ノルマ</gray> <white>Lv {level}/{max}</white> <gray>|</gray> <yellow>*</yellow> <white>{stars}</white>"
       next-unlock: "<gray>次:</gray> <white>Lv {level}</white> <white>{rarity}</white> <gray>解放</gray>"
       objective-star: "<gray>目標：</gray> <yellow>スター</yellow> <white>{progress}/{target}</white>"
       objective-kill: "<gray>目標：</gray> <red>キル</red> <white>{progress}/{target}</white>"

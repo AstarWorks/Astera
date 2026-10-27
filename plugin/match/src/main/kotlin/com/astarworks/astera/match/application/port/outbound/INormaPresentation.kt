@@ -19,13 +19,4 @@ public interface INormaPresentation {
 
     /** [player] tried to use a weapon of [rarity], which opens at Norma level [required]: deny sound and an action bar line. */
     public fun locked(player: PlayerId, required: Int, rarity: Rarity)
-
-    /** The goal picker just opened for [player]: sound cue only (the GUI covers any title). */
-    public fun choiceOpened(player: PlayerId)
-
-    /** [player] picked [goal] (needing [target] stars or kills): confirmation sound and action bar. */
-    public fun choicePicked(player: PlayerId, goal: NormaGoal, target: Int)
-
-    /** The 10 s window ran out without a pick: the default [goal] stands (needing [target]). */
-    public fun choiceDefaulted(player: PlayerId, goal: NormaGoal, target: Int)
 }

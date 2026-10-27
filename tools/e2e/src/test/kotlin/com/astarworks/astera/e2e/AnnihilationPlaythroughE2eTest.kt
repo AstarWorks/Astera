@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
  * G1: a whole Annihilation match with three bots (one per team). Red attacks the other two teams' pillars:
  * Build-phase immunity, damage by pistol shots and by breaking the pillar block, the tier gates, elimination of blue
  * and then yellow, winner declared, summary/rewards, everyone (spectators included) back in the lobby.
- * Timers and HP come from docker/e2e-tune-content.sh (build 5s, engage 10s, every pillar 60 HP).
+ * Timers and HP come from docker/e2e-tune-content.sh (build 5s, engage 10s, every pillar 150 HP).
  *
  * The arena is a three-island sky stage in a world slot (content/stages/annihilation-arena.yaml, ADR-0255; all coordinates here are stage-local):
  * red island at (0, -64), blue at (55, 32), yellow at (-55, 32) (radius 22), centre island at (0, 0) (radius 24), three
@@ -113,12 +113,12 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
             "9 pillar blocks + 9 coloured footings; void at (40, 64, -10)"
         }
 
-        E2eReport.check(suite, "sidebar shows the Build phase and three intact 60 HP pillar sets", "SetObjective/SetScore") {
+        E2eReport.check(suite, "sidebar shows the Build phase and three intact 150 HP pillar sets", "SetObjective/SetScore") {
             val lines = sidebar(a)
             assertThat(a.sidebarTitle()).isNotEqualTo(lobbyTitle)
             assertThat(phaseLine(a)).describedAs("no phase line: $lines").isNotBlank()
-            assertThat(teamLine(a, "Blue")).describedAs("blue line in $lines").isEqualTo("●●●" to 180)
-            assertThat(teamLine(a, "Yellow")).describedAs("yellow line in $lines").isEqualTo("●●●" to 180)
+            assertThat(teamLine(a, "Blue")).describedAs("blue line in $lines").isEqualTo("●●●" to 450)
+            assertThat(teamLine(a, "Yellow")).describedAs("yellow line in $lines").isEqualTo("●●●" to 450)
             assertThat(rawKeys(lines)).isEmpty()
             quote(lines)
         }
@@ -132,7 +132,7 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
             dig(a, pillars.getValue("Blue")[0])
             Thread.sleep(1_800)
             E2eReport.check(suite, "Build phase: pillars take no damage from shots or block breaking", "SetScore (sidebar HP)") {
-                assertThat(teamLine(a, "Blue")).describedAs("blue pillars changed during Build: ${sidebar(a)}").isEqualTo("●●●" to 180)
+                assertThat(teamLine(a, "Blue")).describedAs("blue pillars changed during Build: ${sidebar(a)}").isEqualTo("●●●" to 450)
                 "slot=$slot; sidebar=${sidebar(a)}"
             }
         } else {
@@ -157,16 +157,18 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
         val hpAfterShots = teamLine(a, "Blue")?.second ?: -1
         E2eReport.check(suite, "Engage: pistol shots damage a Tier 1 pillar (HP on the sidebar drops)", "SetScore (sidebar HP)") {
             assertThat(hpAfterShots).describedAs("blue HP $hpBefore -> $hpAfterShots after $shotsToHit shots; sidebar=${sidebar(a)}").isLessThan(hpBefore)
-            "blue HP $hpBefore -> $hpAfterShots after $shotsToHit shots (7 per hit)"
+            "blue HP $hpBefore -> $hpAfterShots after $shotsToHit shots (~17 per hit)"
         }
 
-        stand(a, blueT1)
+        // The pistol (~50 a hit against a pillar since the HP-100 rebalance) can already have felled Tier 1: dig the first pillar still standing.
+        val digCell = pillars.getValue("Blue")[(teamLine(a, "Blue")?.first?.indexOf('●') ?: 0).coerceAtLeast(0)]
+        stand(a, digCell)
         rcon("effect give ${a.name} minecraft:haste 600 100 true")
         rcon("item replace entity ${a.name} hotbar.7 with minecraft:diamond_pickaxe")
         a.selectHotbar(7)
         Thread.sleep(300)
         val hpBeforeDig = teamLine(a, "Blue")?.second ?: -1
-        repeat(2) { dig(a, blueT1); Thread.sleep(400) }
+        repeat(2) { dig(a, digCell); Thread.sleep(400) }
         Thread.sleep(1_800)
         var hpAfterDig = teamLine(a, "Blue")?.second ?: -1
         var creativeFallback = false
@@ -175,7 +177,7 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
             creativeFallback = true
             rcon("gamemode creative ${a.name}")
             Thread.sleep(300)
-            repeat(2) { dig(a, blueT1); Thread.sleep(400) }
+            repeat(2) { dig(a, digCell); Thread.sleep(400) }
             Thread.sleep(1_800)
             hpAfterDig = teamLine(a, "Blue")?.second ?: -1
         }

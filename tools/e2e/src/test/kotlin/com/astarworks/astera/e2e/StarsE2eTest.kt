@@ -21,9 +21,12 @@ class StarsE2eTest : PlaythroughBase() {
 
     private val suite = "Stars"
 
-    /** The carried-stars number on the sidebar (`* 3 Stars`), or null when there is no such line. */
+    /**
+     * The carried-stars number: the `* N` after the level on the `Norma Lv 1/3 | * N` sidebar row. It stays on that row under
+     * either goal (STAR or KILL) and at the top level.
+     */
     private fun starCount(b: Bot): Int? =
-        sidebar(b).firstNotNullOfOrNull { Regex("(\\d+)\\s*Stars\\b", RegexOption.IGNORE_CASE).find(it)?.groupValues?.get(1)?.toIntOrNull() }
+        sidebar(b).firstNotNullOfOrNull { Regex("Lv\\s*\\d+/\\d+\\s*\\|\\s*\\*\\s*(\\d+)").find(it)?.groupValues?.get(1)?.toIntOrNull() }
 
     /** `Lv 2/3` on the sidebar as (level, max), or null. */
     private fun levelOf(b: Bot): Pair<Int, Int>? =
@@ -56,7 +59,7 @@ class StarsE2eTest : PlaythroughBase() {
         // Nobody stands on a pedestal. Keep the pre-pedestal steps short: every 3 s each generator holds one more star.
         both.forEach { b -> b.waitUntil(5_000) { goalLine(b) != null } }
 
-        E2eReport.check(suite, "the match sidebar shows 0 stars, Lv 1/3 and the goal (Stars 0/2) for everyone at the start", "SetScore") {
+        E2eReport.check(suite, "the match sidebar shows Lv 1/3 and the goal Stars 0/2 (0 carried) for everyone at the start", "SetScore") {
             for (b in both) {
                 assertThat(starCount(b)).describedAs("${b.name} sidebar ${sidebar(b)}").isEqualTo(0)
                 assertThat(levelOf(b)).describedAs("${b.name} sidebar ${sidebar(b)}").isEqualTo(1 to 3)
@@ -66,35 +69,20 @@ class StarsE2eTest : PlaythroughBase() {
             quote(sidebar(a))
         }
 
-        // Norma choice without commands: the picker window opens by itself (start of the match), a click picks the goal.
-        val windows = both.associateWith { b -> b.waitUntil(10_000) { b.screens.any { it.title.contains("Norma goal") } } }
-        E2eReport.check(suite, "a Norma goal picker window opens for every player at match start", "ClientboundOpenScreen") {
-            for (b in both) {
-                assertThat(windows.getValue(b)).describedAs("${b.name}: no picker; screens=${b.screens.map { it.title }}; chat=${b.chatTexts().takeLast(3)}").isTrue()
-                val sc = b.screens.last { it.title.contains("Norma goal") }
-                assertThat(rawKeys(listOf(sc.title))).isEmpty()
-                assertThat(b.waitUntil(3_000) { b.contents[sc.containerId]?.any { it.amount > 0 } == true }).describedAs("picker window is empty").isTrue()
-            }
-            "titles=${both.map { b -> b.screens.last { it.title.contains("Norma goal") }.title }}"
-        }
-        E2eReport.check(suite, "clicking the KILL tile (slot 6) switches the goal to Kills 0/1; clicking STAR (slot 2) keeps Stars 0/2", "ServerboundContainerClick -> SetScore") {
-            val sc = c.screens.last { it.title.contains("Norma goal") }
+        // The goal is chosen with /astera norma choose (nothing opens over the screen at match start; the picker window has no caller).
+        E2eReport.check(suite, "/astera norma choose kill switches the goal to Kills 0/1 and the star count stays on the Norma row; choosing star keeps Stars 0/2", "SystemChat -> SetScore") {
             val before = c.chat.size
-            val barsBefore = c.actionBars.size
-            val soundsBefore = c.sounds.size
-            c.clickSlot(sc.containerId, 6, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
+            c.command("astera norma choose kill")
             assertThat(c.waitUntil(6_000) { sidebar(c).any { Regex("Goal:\\s*Kills\\s*0/1").containsMatchIn(it) } })
                 .describedAs("C goal did not become Kills 0/1: ${sidebar(c)}; chat=${c.chatSince(before).map { clean(it) }}").isTrue()
-            assertThat(c.waitUntil(3_000) { c.actionBars.drop(barsBefore).any { it.text.contains("Norma goal set") && it.text.contains("1") } })
-                .describedAs("no pick confirmation on the action bar: ${c.actionBars.drop(barsBefore).map { it.text }}").isTrue()
-            assertThat(c.sounds.size).describedAs("no confirmation sound").isGreaterThan(soundsBefore)
-            val sa = a.screens.last { it.title.contains("Norma goal") }
-            a.clickSlot(sa.containerId, 2, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
+            assertThat(starCount(c)).describedAs("the carried-star count must stay on the Norma row under the Kills goal: ${sidebar(c)}").isEqualTo(0)
+            assertThat(both.all { it.screens.none { s -> s.title.contains("Norma goal") } }).describedAs("a picker window opened by itself: ${both.map { it.screens.map { s -> s.title } }}").isTrue()
+            a.command("astera norma choose star")
             Thread.sleep(800)
             assertThat(sidebar(a).any { Regex("Goal:\\s*Stars\\s*0/2").containsMatchIn(it) }).describedAs("A sidebar ${sidebar(a)}").isTrue()
             "C: ${sidebar(c)}; A: ${sidebar(a)}"
         }
-        // The window closes by itself after 10 s; /astera norma choose keeps working (C goes back to STAR for the pedestal run).
+        // C goes back to STAR for the pedestal run.
         val cmdFrom = c.chat.size
         c.command("astera norma choose star")
         E2eReport.check(suite, "/astera norma choose star still works", "SystemChat") {
@@ -187,7 +175,7 @@ class StarsE2eTest : PlaythroughBase() {
         if (deathSpot != null) {
             for ((dx, dz) in sweep) {
                 tpArena(c.name, deathSpot.first + dx, deathSpot.second, deathSpot.third + dz, 0f, 0f)
-                if (c.waitUntil(1_200) { (starCount(c) ?: 0) > 0 }) { picked = true; break }
+                if (c.waitUntil(1_200) { (starCount(c) ?: 0) > 0 || levelOf(c)?.first == 3 }) { picked = true; break }
             }
         }
         E2eReport.check(suite, "another player picks the burst stars up (killer count rises above 0)", "SetScore") {
@@ -196,21 +184,15 @@ class StarsE2eTest : PlaythroughBase() {
             "C sidebar: ${sidebar(c)}; death spot=$deathSpot"
         }
 
-        // (c) the top Norma level wins: C (Lv 2, goal STAR again) takes pedestal stars until 3 are carried.
-        tpArena(c.name, 12.5, 65.0, 0.5, 0f, 0f)
+        // (c) the top Norma level no longer wins a match (it unlocks ultimates): end it from the console and check the lobby afterwards.
+        matchLines().forEach { rcon("astera match end ${it.id}") }
         val ended = awaitNoMatch(60_000, keepAlive = both)
-        E2eReport.check(suite, "reaching the top Norma level ends the match by itself", "RCON astera match list") {
+        E2eReport.check(suite, "an admin end returns the match to the lobby", "RCON astera match list") {
             assertThat(ended).describedAs("match still listed; C=${sidebar(c)} A=${sidebar(a)}; list=${matchLines()}").isTrue()
             "match gone"
         }
         both.forEach { b -> b.waitUntil(40_000) { b.hotbar()[8] != -1 && b.sidebarTitle() == lobbyTitle } }
         Thread.sleep(2_000)
-        E2eReport.check(suite, "the result names the Norma-level win", "SystemChat") {
-            val chat = c.chat.drop(chatFrom.getValue(c)).map { clean(it.text) }
-            assertThat(chat.any { it.contains("Norma level", true) && it.contains("reached", true) })
-                .describedAs("no 'reached Norma level' reason:\n${quote(chat, 40)}").isTrue()
-            quote(chat.filter { it.contains("Norma level", true) || it.contains("Match Summary") }, 6)
-        }
         for (b in both) {
             E2eReport.check(suite, "${b.name}: the lobby sidebar has no star line", "SetScore") {
                 assertThat(b.sidebarTitle()).describedAs("still on the match sidebar: ${sidebar(b)}").isEqualTo(lobbyTitle)

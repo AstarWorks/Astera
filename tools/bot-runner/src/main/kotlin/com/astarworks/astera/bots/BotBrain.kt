@@ -34,8 +34,8 @@ enum class WeaponKind { MELEE, RANGED }
 /** [magazine]: a ranged item with an ammo counter and a reload (a gun); a ranged item without one is a caster (staff). */
 data class Weapon(val slot: Int, val kind: WeaponKind, val magazine: Boolean = false)
 
-/** A point of interest the bot walks to when no enemy is around (and digs at when it is a `core`). */
-data class Objective(val name: String, val x: Double, val y: Double, val z: Double, val breakable: Boolean)
+/** A point of interest the bot walks to when no enemy is around. */
+data class Objective(val name: String, val x: Double, val y: Double, val z: Double)
 
 /** Mode knowledge for the brain: where to go when nobody is in sight. Implemented by [StageObjectives]. */
 fun interface ObjectiveSource {
@@ -136,7 +136,6 @@ class BotBrain(
     private var lastEnemyZ = 0.0
     private var wanderHeading = 0.0
     private var wanderUntil = 0L
-    private var lastDigAt = 0L
     private var progressX = 0.0
     private var progressZ = 0.0
     private var progressAt = 0L
@@ -335,8 +334,6 @@ class BotBrain(
                     Navigator.Status.MOVING -> { dwellOn(dest, now); return }
                     Navigator.Status.ARRIVED -> {
                         arrivedAt(dest, now)
-                        objective?.takeIf { it.breakable && dest.kind == "objective" }?.let { digObjective(it, now) }
-                        if (dest.kind == "mode" && modeBreakable) digObjective(Objective(dest.zone, dest.x, dest.y ?: bot.y, dest.z, true), now)
                     }
                     Navigator.Status.NO_PATH -> {
                         if (dest.kind == "mode") modePausedUntil = now + 5_000 // unreachable for now: patrol / roam meanwhile
@@ -406,7 +403,6 @@ class BotBrain(
             pl.noteConfirmed(bot.sounds.count { it.contains("objective/pickup") })
         }
         if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
-            modeBreakable = st.breakable
             return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone)
         }
         if (goal == Goal.STAR && starPoints.isNotEmpty()) {
@@ -454,7 +450,6 @@ class BotBrain(
                 else if (now - starArrivedSince > 1_500) ignoreStar(d.starId, now)
             }
             "patrol", "objective" -> {
-                if (d.kind == "objective" && objective?.breakable == true && !unreachable) return
                 if (dwellUntil == 0L) dwellUntil = now + (if (unreachable) 0 else 800)
                 if (now >= dwellUntil) { patrolIndex++; dwellUntil = 0L }
             }
@@ -463,7 +458,6 @@ class BotBrain(
     }
 
     private var starArrivedSince = 0L
-    private var modeBreakable = false
     private var modePausedUntil = 0L
 
     private fun buildPlanner(originX: Double, originZ: Double): ModePlanner? {
@@ -613,13 +607,6 @@ class BotBrain(
 
     private fun noteAttack(now: Long) {
         if (firstAttackMs < 0) firstAttackMs = now - fightStartedAt
-    }
-
-    private fun digObjective(o: Objective, now: Long) {
-        if (now - lastDigAt < 1_500) return
-        lastDigAt = now
-        val x = Math.floor(o.x).toInt(); val y = Math.floor(o.y).toInt(); val z = Math.floor(o.z).toInt()
-        Thread({ runCatching { bot.dig(x, y, z, 400) } }, "bot-dig-${bot.name}").also { it.isDaemon = true }.start()
     }
 
     // --- movement ------------------------------------------------------------------------------------------------

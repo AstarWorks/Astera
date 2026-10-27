@@ -1,0 +1,27 @@
+# Ambient-lane demo: a large, long smoke bank ahead of the caster, away from any other effect. Hidden for viewers on vfx_intensity reduced/minimal.
+id: vfx-demo-smoke
+duration_ticks: 40
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: bank
+  lane: ambient
+  kind: {type: sprite, sprite: smoke-puff, frame_ticks: 10, loop: false, color: '#8A8478'}
+  billboard: center
+  brightness: 9
+  start_tick: 0
+  end_tick: 38
+  count: 5
+  formation:
+    curve: {type: circle, radius: 2.0}
+    offset: [0, 1.2, 6.0]
+  keyframes:
+  - t: 0
+    scale: [4.0, 4.0, 4.0]
+    alpha: 0.95
+  - t: 38
+    translate: [0, 1.0, 0]
+    scale: [10.0, 10.0, 10.0]
+    alpha: 0.0
+    ease: out_quad

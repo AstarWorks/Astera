@@ -1,0 +1,43 @@
+# S2 coin 2, one of THREE flying objects (body = couture-shears-linked). Rides its own real projectile (couture-rapier-s2-body), +z = flight, x = lateral offset 0.00 so the three fly side by side. No sprites, no particles.
+id: couture-s2-body-flight
+duration_ticks: 40
+orient: look
+follow: true
+sample_ticks: 1
+elements:
+- id: body
+  kind:
+    type: item
+    item: shears
+    item_model: astera:couture-s2-body
+    display_mode: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 40
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 0
+    - 0
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 1
+    - 1
+    - 1
+  - t: 40
+    translate:
+    - 0.0
+    - 0
+    - 0
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 1
+    - 1
+    - 1

@@ -536,6 +536,7 @@ internal class CorePaperBindings(
             registry = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>(),
             matches = { ctx.services.get<IMatchRepository>() },
             useCase = { ctx.services.get<com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase>() },
+            exclusion = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>() },
         ).start(plugin)
 
         // ── Wave 6a-6 (ADR-0153) — Bukkit → DomainEvent adapter ────────────

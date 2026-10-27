@@ -1,0 +1,18 @@
+# Bastion EGO leap trail: a dotted line of gold beads along the leap path, fading from the launch end (ADR-0290 dotted_line).
+# Played at the leap start (skill tick 20); path = the 2.8 block dash.
+
+id: bastion-ego-trail
+duration_ticks: 16
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: beads
+  lane: accent
+  kind: {type: dotted_line, from: [0, 1.0, 0.2], to: [0, 1.4, 3.0], spacing: 0.28, sprite: dot, color: '#FFE08A'}
+  brightness: 15
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - {t: 0, alpha: 1}
+  - {t: 14, alpha: 0, ease: in_quad}
