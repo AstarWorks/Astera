@@ -37,7 +37,19 @@ public data class PointRef(val frame: String, val point: String? = null) {
 public value class AxisRef(public val name: String)
 
 /** Who an op acts on. */
-public enum class TargetRef { VICTIM, CASTER }
+public sealed interface TargetRef {
+    /** The entity of the current contact (hit/block handlers). */
+    public data object Victim : TargetRef
+    public data object Caster : TargetRef
+    public data class Enemies(val around: PointRef, val radius: Value<Double>) : TargetRef
+    public data class Allies(val around: PointRef, val radius: Value<Double>) : TargetRef
+}
+
+/** A place: a frame point or a computed vector (world space). */
+public sealed interface LocationSpec {
+    public data class AtPoint(val point: PointRef) : LocationSpec
+    public data class AtValue(val value: Value<com.astarworks.astera.core.domain.geometry.Vec3>) : LocationSpec
+}
 
 /** Scalar skill parameter (`params:`). */
 public sealed interface ParamValue {
