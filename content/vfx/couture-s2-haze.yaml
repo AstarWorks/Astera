@@ -8,7 +8,7 @@ elements:
 - id: haze-0
   kind:
     type: sprite
-    sprite: couture-s2-burst-soft
+    sprite: couture-s2-smear
     frame_ticks: 1
     loop: false
     see_through: true
@@ -26,10 +26,10 @@ elements:
     rotate:
     - 0
     - 0
-    - 0
+    - 90
     scale:
-    - 1.04
-    - 1.6
+    - 2.6
+    - 0.9
     - 1
     alpha: 0.0
   - t: 3
@@ -40,12 +40,12 @@ elements:
     rotate:
     - 0
     - 0
-    - 0
+    - 90
     scale:
-    - 1.95
-    - 2.2
+    - 3.6
+    - 1.1
     - 1
-    alpha: 0.8
+    alpha: 0.55
     ease: out_quad
   - t: 8
     translate:
@@ -55,17 +55,17 @@ elements:
     rotate:
     - 0
     - 0
-    - 0
+    - 90
     scale:
-    - 2.47
-    - 2.5
+    - 3.6
+    - 1.1
     - 1
     alpha: 0.0
     ease: in_quad
 - id: haze-1
   kind:
     type: sprite
-    sprite: couture-s2-burst-soft
+    sprite: couture-s2-smear
     frame_ticks: 1
     loop: false
     see_through: true
@@ -83,10 +83,10 @@ elements:
     rotate:
     - 0
     - 0
-    - 0
+    - 90
     scale:
-    - 1.04
-    - 1.6
+    - 2.6
+    - 0.9
     - 1
     alpha: 0.0
   - t: 3
@@ -97,12 +97,12 @@ elements:
     rotate:
     - 0
     - 0
-    - 0
+    - 90
     scale:
-    - 1.95
-    - 2.2
+    - 3.6
+    - 1.1
     - 1
-    alpha: 0.8
+    alpha: 0.55
     ease: out_quad
   - t: 8
     translate:
@@ -112,10 +112,10 @@ elements:
     rotate:
     - 0
     - 0
-    - 0
+    - 90
     scale:
-    - 2.47
-    - 2.5
+    - 3.6
+    - 1.1
     - 1
     alpha: 0.0
     ease: in_quad
