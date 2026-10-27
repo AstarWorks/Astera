@@ -24,8 +24,8 @@ rigs:
     rotate: [0, 0, 0]
   weapon_model:
   - {t: 0, model: 'astera:couture-rapier'}
-  - {t: 22, model: 'astera:couture-rapier-hidden'}
-  - {t: 61, model: 'astera:couture-rapier'}
+  - {t: 21, model: 'astera:couture-rapier-hidden'}
+  - {t: 59, model: 'astera:couture-rapier'}
 elements:
 - id: fly-shears
   kind: {type: item, item: shears, item_model: 'astera:couture-rapier', display_mode: fixed}
