@@ -202,6 +202,12 @@ public class MechanicDispatcher(
     private val playerAnimation: com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway? = null,
     /** `consume_item`: lazily resolved inventory removal (Items registers it). */
     private val itemRemoval: (() -> com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval?)? = null,
+    /** `break_area` / `place_shape` on custom cover blocks: damage through the cover service, tool tier from the casting item. */
+    private val coverService: (() -> com.astarworks.astera.core.application.service.CoverBlockService?)? = null,
+    private val blockStates: (() -> com.astarworks.astera.core.application.port.outbound.IBlockStateGateway?)? = null,
+    private val customBlocks: (() -> com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry?)? = null,
+    private val itemRegistry: (() -> com.astarworks.astera.core.application.port.outbound.IItemRegistry?)? = null,
+    private val areaBreakExclusion: (() -> com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion?)? = null,
     /** `consume_item`: lets Core keep the item gone across the match-end inventory restore. */
     private val consumptionRecorder: (() -> com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder?)? = null,
     /** vfx-primitives: per-viewer sound stop (`stop_sound`); resolved lazily, the Paper overlay registers late. */
@@ -301,6 +307,13 @@ public class MechanicDispatcher(
         living = ::living,
         itemRemoval = { itemRemoval?.invoke() },
         consumptionRecorder = { consumptionRecorder?.invoke() },
+        coverBlocks = WorldMechanics.CoverBlocks(
+            cover = { coverService?.invoke() },
+            blocks = { blockStates?.invoke() },
+            registry = { customBlocks?.invoke() },
+            items = { itemRegistry?.invoke() },
+            exclusion = { areaBreakExclusion?.invoke() },
+        ),
         log = log,
     )
 

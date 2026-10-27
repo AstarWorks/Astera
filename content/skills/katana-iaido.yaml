@@ -1,0 +1,46 @@
+# Match arsenal (wp/match-arsenal, batch 2): simple PvP skill. One cast sound, a few particles.
+
+id: katana-iaido
+
+name:
+  ja: "抜刀斬り"
+  en: "Iaido"
+description:
+  ja: "一瞬で踏み込み、すれ違いざまに斬る。"
+  en: "Snaps forward and cuts whoever you pass."
+
+archetype: sequence
+cooldown_ticks: 110
+resource_cost: 10
+tags: [ melee, movement, physical ]
+
+params:
+  type: sequence
+
+phases:
+  type: sequence
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: astera:weapons/dash-whoosh
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 1.4 }
+    - type: spawn_particle
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
+      particle_id: dash-cloud
+    - type: dash_strike
+      distance: 4
+      ticks: 3
+      radius: 1.0
+      hit_once: true
+      invulnerable: false
+      stop_on_block: true
+      on_hit:
+        - type: damage
+          targets: { type: target }
+          components:
+            - base: { type: literal, value: 40.0 }
+              attribute: physical
+        - type: play_sound
+          targets: { type: target }
+          sound_id: astera:weapons/blade-hit

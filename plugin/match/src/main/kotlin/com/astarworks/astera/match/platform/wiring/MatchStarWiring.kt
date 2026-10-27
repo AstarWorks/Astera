@@ -132,6 +132,7 @@ internal object MatchStarWiring {
             onInvalid = { id, reason -> env.ctx.logger.warning("Ore nodes of stage $id not placed: $reason") },
         )
         env.ctx.registrations += services.register<com.astarworks.astera.match.application.service.OreNodeService>(oreNodes, priority = 0)
+        env.ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>(oreNodes, priority = 0)
         subs += eventBus.subscribe(MatchStarted::class) { oreNodes.onStarted(it) }
         subs += eventBus.subscribe(MatchEnded::class) { oreNodes.onEnded(it) }
         val itemDrops = com.astarworks.astera.match.application.service.GeneratorItemDropService(

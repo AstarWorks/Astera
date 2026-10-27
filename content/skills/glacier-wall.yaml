@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal, batch 2): simple PvP skill. One cast sound, a few particles.
+
+id: glacier-wall
+
+name:
+  ja: "氷壁"
+  en: "Ice Wall"
+description:
+  ja: "目の前に氷の壁を張る。しばらくすると溶ける。"
+  en: "Raises an ice wall ahead that melts after a while."
+
+archetype: sequence
+cooldown_ticks: 200
+resource_cost: 20
+tags: [ magic, water, cover ]
+
+params:
+  type: sequence
+
+phases:
+  type: sequence
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: astera:skills/frost-cast
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 1.0 }
+    - type: place_shape
+      shape: wall
+      block_key: "astera:tempered_glass"
+      width: 3
+      height: 3
+      revert_after_ticks: { type: literal, value: 160 }
+      consume_from_inventory: false
+    - type: spawn_particle
+      targets: { type: caster_forward, distance: 2.0, height: 0.2 }
+      particle_id: frost-cast

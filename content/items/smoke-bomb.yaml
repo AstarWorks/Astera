@@ -1,0 +1,33 @@
+# Match arsenal (wp/match-arsenal, batch 2): Smoke Bomb.
+
+id: smoke-bomb
+
+material: GUNPOWDER
+
+name:
+  ja: "煙幕弾"
+  en: "Smoke Bomb"
+lore:
+  ja:
+    - "<gray>右クリック: 投げる (煙の中の味方が素早く動ける)</gray>"
+  en:
+    - "<gray>Right-click: throw (allies in the smoke move evasively)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 12
+
+skills:
+  - trigger: right_click
+    skill_id: smoke-bomb-throw
+
+pdc_tags:
+  astera:rarity: uncommon

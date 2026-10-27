@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal, batch 2): Club.
+
+id: club
+
+material: BONE
+
+name:
+  ja: "棍棒"
+  en: "Club"
+lore:
+  ja:
+    - "<gray>左クリック: 強く吹き飛ばす</gray>"
+    - "<gray>スニーク + 右クリック: 叩きつけ (周囲を押し返す)</gray>"
+  en:
+    - "<gray>Left-click: heavy knockback</gray>"
+    - "<gray>Sneak + right-click: slam (pushes everyone back)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 2.5
+  attack_speed: 1.1
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 6
+
+skills:
+  - trigger: left_click
+    skill_id: club-bash
+  - trigger: sneak_right
+    skill_id: club-slam
+
+pdc_tags:
+  astera:rarity: uncommon

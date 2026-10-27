@@ -602,6 +602,7 @@ public sealed class MechanicYaml {
         public val height: Double = 3.0,
         public val power: Double = 2.0,
         @SerialName("tool_class") public val toolClass: String? = null,
+        @SerialName("cover_damage") public val coverDamage: Int = 100,
         @SerialName("revert_after_ticks") public val revertAfterTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("outside_arena") public val outsideArena: BoolValueYaml = BoolValueYaml.Literal(false),
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -620,6 +621,7 @@ public sealed class MechanicYaml {
             toolClass = toolClass?.trim()?.uppercase()?.also {
                 require(it in TOOL_CLASSES) { "break_area.tool_class must be one of $TOOL_CLASSES: '$toolClass'" }
             },
+            coverDamage = coverDamage,
             revertAfterTicks = revertAfterTicks.toDomain(),
             outsideArena = outsideArena.toDomain(),
             delayTicks = delayTicks.toDomain(),

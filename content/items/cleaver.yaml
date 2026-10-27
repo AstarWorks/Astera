@@ -1,0 +1,37 @@
+# Match arsenal (wp/match-arsenal, batch 2): Cleaver.
+
+id: cleaver
+
+material: IRON_AXE
+
+name:
+  ja: "大鉈"
+  en: "Cleaver"
+lore:
+  ja:
+    - "<gray>左クリック: 重い一撃 (出血しやすい)</gray>"
+    - "<gray>スニーク + 右クリック: 引き裂き (確定出血)</gray>"
+  en:
+    - "<gray>Left-click: heavy chop (may bleed)</gray>"
+    - "<gray>Sneak + right-click: rend (guaranteed bleed)</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 4.0
+  attack_speed: 0.9
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 8
+
+skills:
+  - trigger: left_click
+    skill_id: cleaver-chop
+  - trigger: sneak_right
+    skill_id: cleaver-rend
+
+pdc_tags:
+  astera:rarity: uncommon

@@ -614,6 +614,11 @@ public object CombatWiring {
                 playerSound = { services.get<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>() },
                 teamColors = { services.get<com.astarworks.astera.core.application.port.outbound.ITeamColorLookup>() },
                 consumptionRecorder = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder>() },
+                coverService = { services.get<com.astarworks.astera.core.application.service.CoverBlockService>() },
+                blockStates = { services.get<com.astarworks.astera.core.application.port.outbound.IBlockStateGateway>() },
+                customBlocks = { services.get<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>() },
+                itemRegistry = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
+                areaBreakExclusion = { services.get<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>() },
             )
             registrations += services.register<MechanicDispatcher>(mechanicDispatcher)
             // ADR-0276: every way a performance can end goes through VfxPlayer.finish in the tick it happens.

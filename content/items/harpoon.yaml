@@ -1,0 +1,33 @@
+# Match arsenal (wp/match-arsenal, batch 2): Harpoon.
+
+id: harpoon
+
+material: PRISMARINE_SHARD
+
+name:
+  ja: "銛"
+  en: "Harpoon"
+lore:
+  ja:
+    - "<gray>右クリック: 投げて引き寄せる</gray>"
+  en:
+    - "<gray>Right-click: throw and reel in</gray>"
+
+rarity: uncommon
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 10
+
+skills:
+  - trigger: right_click
+    skill_id: harpoon-throw
+
+pdc_tags:
+  astera:rarity: uncommon

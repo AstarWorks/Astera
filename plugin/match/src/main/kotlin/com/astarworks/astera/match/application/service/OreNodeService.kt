@@ -2,6 +2,7 @@ package com.astarworks.astera.match.application.service
 
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -43,7 +44,7 @@ public class OreNodeService(
     private val world: IOreNodeWorld?,
     private val scheduler: IScheduler,
     private val onInvalid: (stageId: String, reason: String) -> Unit = { _, _ -> },
-) {
+) : IAreaBreakExclusion {
     /** What one mining attempt did. */
     public sealed interface Outcome {
         /** Not an ore node of a running match: the caller treats the block as it would any other. */
@@ -120,6 +121,9 @@ public class OreNodeService(
         }
         return Outcome.Mined(given)
     }
+
+    /** A node cell (mined or regrowing) is never removed by an area skill: nodes are mined one at a time. */
+    override fun isExcluded(world: WorldId, pos: Vec3): Boolean = nodes.containsKey(keyOf(world, pos))
 
     private fun keyOf(world: WorldId, pos: Vec3) = Key(world.value, floor(pos.x).toInt(), floor(pos.y).toInt(), floor(pos.z).toInt())
 

@@ -85,15 +85,18 @@ abstract class LiveBase {
     @BeforeAll
     fun liveUp() {
         Bot.noteSink = { E2eReport.notes += it }
-        check(runCatching { LiveEnv.rcon("lobby", "list") }.isSuccess) { "lobby backend does not answer RCON" }
-        check(runCatching { LiveEnv.rcon("game", "list") }.isSuccess) { "game backend does not answer RCON" }
+        for (server in LiveEnv.servers.keys) {
+            runCatching { LiveEnv.rcon(server, "list") }.getOrElse { cause ->
+                throw IllegalStateException("$server backend does not answer RCON", cause)
+            }
+        }
         LiveEnv.sweepStaleBotOps()
     }
 
     /** Joins [server] (lobby by default) directly as a forwarded player named `bot_<prefix><tag><n>`. */
-    protected fun bot(prefix: String, on: Endpoint = LiveEnv.lobby, packPolicy: PackPolicy = PackPolicy.LOAD, waitForJoin: Boolean = true): Bot {
+    protected fun bot(prefix: String, on: Endpoint = LiveEnv.lobby, packPolicy: PackPolicy = PackPolicy.LOAD, waitForJoin: Boolean = true, servers: Map<String, Endpoint> = LiveEnv.servers): Bot {
         val name = "${LiveEnv.PREFIX}${prefix.take(5)}$runTag${++counter}"
-        return Bot.join(prefix, packPolicy, waitForJoin = waitForJoin, endpoint = on, servers = LiveEnv.servers, exactName = name)
+        return Bot.join(prefix, packPolicy, waitForJoin = waitForJoin, endpoint = on, servers = servers, exactName = name)
             .also { bots += it }
     }
 
