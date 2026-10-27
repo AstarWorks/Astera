@@ -1,4 +1,4 @@
-# Bastion S3 beat 7 (video n60-75, contact t40): gold BEAM along the blade from the fist to the enemy (bastion-s3-bar, 4 planes), navy afterimage streaks, gold crescent behind the enemy, orange sparks. No blob (r2).
+# Bastion S3 beat 7 (video n60-75, contact t40): gold BEAM along the blade from the fist to the enemy (bastion-s3-bar, 4 planes), navy afterimage streaks, gold crescent behind the enemy, orange sparks, a jagged orange-yellow flash exactly at effect tick 4 (ticks 4-5). No blob (r2).
 # Played at skill tick 36: contact = effect tick 4 = skill tick 40.
 id: bastion-s3-fx-thrust
 duration_ticks: 16
@@ -10,52 +10,57 @@ elements:
   kind: {type: sprite, sprite: bastion-s3-bar, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 3
+  start_tick: 4
   end_tick: 11
   keyframes:
   - t: 0
-    translate: [0, 1.25, 0.9]
+    translate: [0, 1.25, 1.85]
     rotate: [90, 0, 0]
-    scale: [0.12, 0.02, 1]
-  - t: 1
-    translate: [0, 1.25, 1.8]
+    scale: [0.56, 0.15, 1]
+  - t: 3
+    translate: [0, 1.25, 1.85]
     rotate: [90, 0, 0]
-    scale: [0.55, 0.085, 1]
-    ease: out_expo
-  - t: 5
-    translate: [0, 1.25, 1.9]
+    scale: [0.5, 0.125, 1]
+  - t: 7
+    translate: [0, 1.25, 1.85]
     rotate: [90, 0, 0]
-    scale: [0.5, 0.07, 1]
-  - t: 8
-    translate: [0, 1.25, 2.0]
-    rotate: [90, 0, 0]
-    scale: [0.45, 0.01, 1]
+    scale: [0.45, 0.02, 1]
     ease: in_quad
 - id: s3t-beam-b
   kind: {type: sprite, sprite: bastion-s3-bar, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
-  start_tick: 3
+  start_tick: 4
   end_tick: 11
   keyframes:
   - t: 0
-    translate: [0, 1.25, 0.9]
+    translate: [0, 1.25, 1.85]
     rotate: [-90, 0, 0]
-    scale: [0.12, 0.02, 1]
-  - t: 1
-    translate: [0, 1.25, 1.8]
+    scale: [0.56, 0.15, 1]
+  - t: 3
+    translate: [0, 1.25, 1.85]
     rotate: [-90, 0, 0]
-    scale: [0.55, 0.085, 1]
-    ease: out_expo
-  - t: 5
-    translate: [0, 1.25, 1.9]
+    scale: [0.5, 0.125, 1]
+  - t: 7
+    translate: [0, 1.25, 1.85]
     rotate: [-90, 0, 0]
-    scale: [0.5, 0.07, 1]
-  - t: 8
-    translate: [0, 1.25, 2.0]
-    rotate: [-90, 0, 0]
-    scale: [0.45, 0.01, 1]
+    scale: [0.45, 0.02, 1]
     ease: in_quad
+- id: s3t-flash
+  kind: {type: sprite, sprite: bastion-s3-dash-flash, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 4
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [0, 1.25, 3.2]
+    rotate: [0, 0, 0]
+    scale: [0.78, 0.78, 1]
+  - t: 2
+    translate: [0, 1.25, 3.2]
+    rotate: [0, 0, 0]
+    scale: [0.9, 0.9, 1]
 - id: s3t-tip
   kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FFF2B8'}
   billboard: center
