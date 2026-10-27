@@ -107,68 +107,6 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-  skill-frames:
-    name: Skill frame renders
-    runs-on: ubuntu-24.04
-    timeout-minutes: 90
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '25'
-          distribution: 'temurin'
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-
-      - uses: oven-sh/setup-bun@v2
-
-      - name: Install ffmpeg + Chromium
-        run: |
-          sudo apt-get update && sudo apt-get install -y ffmpeg
-          cd tools/skill-viewer
-          bun install --frozen-lockfile
-          bunx playwright-core install --with-deps chromium
-
-      - name: Pick skills
-        id: pick
-        run: |
-          if [ -n "${{ inputs.skills }}" ]; then
-            echo "skills=${{ inputs.skills }}" >> "$GITHUB_OUTPUT"; exit 0
-          fi
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            base="${{ github.event.pull_request.base.sha }}"
-          else
-            base="${{ github.event.before }}"
-          fi
-          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then base="$(git merge-base origin/main HEAD)"; fi
-          skills="$(git diff --name-only "$base" HEAD -- 'content/skills/*.yaml' | xargs -r -n1 basename | sed 's/\.yaml$//' | tr '\n' ' ')"
-          echo "changed skills: ${skills:-none}"
-          echo "skills=${skills}" >> "$GITHUB_OUTPUT"
-
-      - name: Render skills
-        if: steps.pick.outputs.skills != ''
-        run: |
-          if [ "${{ steps.pick.outputs.skills }}" = "ALL" ]; then
-            ./gradlew :tools:skill-viewer:render --no-daemon --stacktrace
-          else
-            for s in ${{ steps.pick.outputs.skills }}; do
-              ./gradlew :tools:skill-viewer:render -Pscenario="$s" --no-daemon --stacktrace
-            done
-          fi
-
-      - name: Upload skill frames
-        uses: actions/upload-artifact@v4
-        with:
-          name: skill-frames
-          path: tools/skill-viewer/build/skill-frames/
-          retention-days: 14
-          if-no-files-found: ignore
-
   hud-frames:
     name: HUD preview frames
     runs-on: ubuntu-24.04

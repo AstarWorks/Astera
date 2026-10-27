@@ -1,10 +1,9 @@
 /*
- * :tools:skill-viewer - static three.js replay viewer + headless frame renderer for :tools:game-sim traces
- * (ADR-0225). NOT shipped and NOT part of `check` (needs bun + a Chromium).
+ * :tools:skill-viewer - headless three.js renderer of `astera-sim-trace/2` skill performances (ADR-0299), the preview feed of
+ * skill-compare. NOT shipped and NOT part of `check` (needs bun + a Chromium). Run it through `make skill-preview`.
  *
- *   ./gradlew :tools:skill-viewer:render -Pscenario=simple-shoot   -> build/skill-frames/simple-shoot/{sheet.png,anim.gif,...}
- *   ./gradlew :tools:skill-viewer:render                           -> every skill
- *   ./gradlew :tools:skill-viewer:buildViewer                      -> dist/ only (open dist/index.html in a browser)
+ *   ./gradlew :tools:skill-viewer:buildViewer   -> dist/ only
+ *   ./gradlew :tools:skill-viewer:calibrate     -> display-entity calibration PNGs (build/calibration)
  */
 
 val viewerDir = layout.projectDirectory
@@ -25,34 +24,16 @@ val buildViewer = tasks.register<Exec>("buildViewer") {
     workingDir = viewerDir.asFile
     commandLine(bun.get(), "run", "build")
     inputs.dir("src")
-    inputs.dir("scripts")
     inputs.file("package.json")
-    // embedded by scripts/embed-sprites.mjs: item art + bitmap fonts (ADR-0239 particle sprites)
-    inputs.dir(rootProject.layout.projectDirectory.dir("content/textures/generated"))
-    inputs.dir(rootProject.layout.projectDirectory.dir("content/fonts")).optional()
     outputs.dir("dist")
-}
-
-tasks.register<Exec>("render") {
-    group = "skill viewer"
-    description = "Renders PNG frames + contact sheet + GIF per skill: -Pscenario=<skill id> (default: all skills)"
-    dependsOn(buildViewer, ":tools:game-sim:showcase")
-    workingDir = viewerDir.asFile
-    val scenario = providers.gradleProperty("scenario")
-    val extra = if (scenario.isPresent) listOf("--scenario", scenario.get()) else listOf("--all")
-    commandLine(
-        listOf(
-            bun.get(), "scripts/render.mjs",
-            "--traces", project(":tools:game-sim").layout.buildDirectory.dir("sim-traces").get().asFile.absolutePath,
-            "--out", layout.buildDirectory.dir("skill-frames").get().asFile.absolutePath,
-        ) + extra,
-    )
 }
 
 tasks.register<Exec>("calibrate") {
     group = "skill viewer"
     description = "Renders calibration displays and asserts their projected bounds (PNGs in build/calibration)"
-    dependsOn(buildViewer)
+    dependsOn(install)
     workingDir = viewerDir.asFile
-    commandLine(bun.get(), "scripts/calibrate.mjs")
+    inputs.dir(rootProject.layout.projectDirectory.dir("content/textures/generated"))
+    inputs.dir(rootProject.layout.projectDirectory.dir("content/fonts")).optional()
+    commandLine(bun.get(), "run", "calibrate")
 }

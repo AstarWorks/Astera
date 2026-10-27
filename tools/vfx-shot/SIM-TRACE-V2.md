@@ -72,6 +72,7 @@ are frames of kind `point`.
   "poses":   { "caster": Pose, "shears": Pose, "blade_a": Pose, "blade_b": Pose, "body": Pose, "enemy": Pose, "contact": Pose },
   "objects": { "3": { "pose": Pose, "interp": 1 }, "7": { "from": Vec, "to": Vec }, "9": { "root": Vec, "tip": Vec } },
   "events":    [ { "name": "release", "source": "shears" }, { "name": "hit", "source": "blade_a", "victim": "enemy" } ],
+  "hitVolumes":[ { "hit": "id", "frame": "name", "type": "capsule|sphere|sector", ...geometry (world) } ],   // game-sim only: what each hit registration tested this tick (the preview overlay)
   "contacts":  [ { "piece": "blade_a", "victim": "enemy", "point": Vec, "normal": Vec } ],
   "particles": [ { "particle": "minecraft:crit", "at": Vec, "count": 8, "dir": Vec|null, "spreadDeg": 20, "speed": 0.2, "color": "#ff5fa2"|null } ],
   "sounds":    [ { "sound": "astera:skill.whoosh", "at": Vec, "volume": 1.0, "pitch": 1.2 } ],
@@ -96,6 +97,8 @@ are frames of kind `point`.
   (rig frame as the skin boxes: x = the caster's left, y up, z forward, unit blocks, quaternion order x y z w):
   `{ "head": {"pos":[..],"rot":[..]}, "body": ..., "right_arm": ..., "left_arm": ..., "right_leg": ..., "left_leg": ... }`.
   `null` / absent = idle stance (the preview poses the arm so the held item stays in the hand, from `caster.right_hand`).
+
+Top-level `diagnostics` (game-sim only): cast op diagnostics (UnknownPoint, ...) as strings; the preview shows them as warnings.
 
 ## What the preview does with it
 

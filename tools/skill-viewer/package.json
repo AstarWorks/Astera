@@ -3,15 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Static three.js replay viewer + headless frame renderer for :tools:game-sim traces (ADR-0225)",
+  "description": "Headless three.js preview of astera-sim-trace/2 skill performances (tools/vfx-shot/SIM-TRACE-V2.md) for skill-compare (ADR-0299)",
   "scripts": {
     "embed": "bun scripts/embed-sprites.mjs",
-    "build": "bun scripts/embed-sprites.mjs && bun build src/main.js --outfile dist/viewer.js --target browser --minify && cp src/index.html dist/index.html && bun build src/preview.js --outfile dist/preview.js --target browser --minify && cp src/preview.html dist/preview.html && bun build src/preview2.js --outfile dist/preview2.js --target browser --minify && cp src/preview2.html dist/preview2.html && bun build src/viewer3d.js --outfile dist/viewer3d.js --target browser --minify && cp src/viewer3d.html dist/viewer3d.html",
-    "render": "bun scripts/render.mjs",
-    "preview": "bun scripts/skill-preview.mjs",
+    "build": "bun build src/preview2.js --outfile dist/preview2.js --target browser --minify && cp src/preview2.html dist/preview2.html",
     "trace-preview": "bun scripts/trace-preview.mjs",
-    "calibrate": "bun scripts/calibrate.mjs",
-    "skill-3d": "bun scripts/skill-3d.mjs"
+    "calibrate": "bun scripts/embed-sprites.mjs && bun scripts/calibrate.mjs"
   },
   "dependencies": {
     "three": "0.170.0",
