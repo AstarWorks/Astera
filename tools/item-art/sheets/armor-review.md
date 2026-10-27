@@ -9,12 +9,13 @@ The original generated PNGs are committed in `content/textures/sources/sheets/`.
 No downloaded art or Mojang PNGs are used. The local client jar is read only for
 inventory-parent display transforms during offline preview.
 
-`./gradlew :tools:item-art:run` converts all sixteen inventory cells through the
-existing source manifest. EquipmentSources converts the six generated surface
-tiles per set into vanilla's 64x32 cube UV nets: helmet, torso, mirrored arms and
-boots in humanoid; waist band and mirrored legs in humanoid_leggings. Outer boots are
-transparent above texel 7 so leggings remain visible. Paper retains equip_slot
-and armor_piece; equipment_asset only chooses the worn art.
+`./gradlew :tools:item-art:run` converts the sixteen inventory cells through the
+existing source manifest. The worn layers are NOT generated: the eight files
+`content/textures/equipment/{humanoid,humanoid_leggings}/<set>.png` are
+hand-authored from the concept (round 2, `88036829d`) and committed as assets;
+the item-art run never writes them. `armor-surfaces-v1` is concept reference only.
+Outer boots are transparent above texel 7 so leggings remain visible. Paper retains
+equip_slot and armor_piece; equipment_asset only chooses the worn art.
 
 ## Visual rounds
 
