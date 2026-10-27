@@ -25,6 +25,8 @@ import com.astarworks.astera.core.application.contents.pve.BossSpecContents
 import com.astarworks.astera.core.application.contents.pve.EncounterZoneContents
 import com.astarworks.astera.core.application.contents.survival.GatheringSpotContents
 import com.astarworks.astera.core.application.service.ContentLoader
+import com.astarworks.astera.core.application.skillengine.load.SkillEngineRegistries
+import com.astarworks.astera.core.application.skillengine.runtime.SkillEngineContents
 import com.astarworks.astera.core.application.service.mob.DeterministicLootRollService
 import com.astarworks.astera.core.application.service.mob.pve.LootTableLoaderService
 import com.astarworks.astera.economy.application.contents.betting.BettingPolicyContents
@@ -57,6 +59,13 @@ internal object RuntimeDecode {
             "chat" to { d ->
                 com.astarworks.astera.chat.application.config.ChatConfig.load(d.resolve("chat.yaml"))
                 ContentLoader.LoadReport(1, 0, emptyList())
+            },
+            // Skill engine v2 (ADR-0301): the same compose -> decode -> compile path the combat plugin runs at boot.
+            "skills" to { d ->
+                val (tables, frameErrors) = SkillEngineRegistries.frameTables(contentDir.resolve("frames"))
+                val report = SkillEngineContents(SkillEngineRegistries.catalog(tables)).reload(d)
+                val frameFailures = frameErrors.map { ContentLoader.LoadFailure(contentDir.resolve("frames"), "${it.path}: ${it.message}") }
+                ContentLoader.LoadReport(report.loaded, report.failed + frameFailures.size, report.failures + frameFailures)
             },
             "items" to { d -> ItemContents().bootstrap(d) },
             "gui" to { d -> GuiContents().bootstrap(d) },
