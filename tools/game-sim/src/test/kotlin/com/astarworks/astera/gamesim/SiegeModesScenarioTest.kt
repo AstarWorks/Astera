@@ -28,11 +28,11 @@ import org.junit.jupiter.params.provider.ValueSource
 class SiegeModesScenarioTest {
 
     // The sky-island siege stage (content/stages/siege-isles.yaml): top layer y=64, players stand at y=65. Stage-local coordinates.
-    private val redCore = Vec3(-118.0, 65.0, 0.0)
-    private val blueCore = Vec3(118.0, 65.0, 0.0)
-    private val tntSpawn = Vec3(0.0, 65.0, -8.0)
-    private val redBase = Vec3(-107.0, 65.0, 0.0)
-    private val blueBase = Vec3(107.0, 65.0, 0.0)
+    private val redCore = Vec3(-90.0, 65.0, 0.0)
+    private val blueCore = Vec3(90.0, 65.0, 0.0)
+    private val tntSpawn = Vec3(0.0, 65.0, -6.0)
+    private val redBase = Vec3(-85.0, 65.0, 0.0)
+    private val blueBase = Vec3(85.0, 65.0, 0.0)
     private val nowhere = Vec3(0.0, 65.0, -50.0)
 
     // ---- helpers ----------------------------------------------------------
@@ -82,7 +82,7 @@ class SiegeModesScenarioTest {
             assertThat(blockAt(redCore)).isEqualTo("minecraft:emerald_block")
             assertThat(blockAt(blueCore)).isEqualTo("minecraft:emerald_block")
             assertThat(attacker.position).`as`("spawned on a red spawn").isIn(
-                Vec3(-67.5, 65.0, -2.5), Vec3(-67.5, 65.0, 3.5), Vec3(-65.5, 65.0, 0.5), Vec3(-69.5, 65.0, 0.5),
+                Vec3(-51.5, 65.0, -2.5), Vec3(-51.5, 65.0, 3.5), Vec3(-49.5, 65.0, 0.5), Vec3(-53.5, 65.0, 0.5),
             )
 
             // Own core: block comes back, match goes on.
@@ -91,7 +91,7 @@ class SiegeModesScenarioTest {
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             // A plain block next to the enemy core does not count.
-            attacker.breaks(Vec3(118.0, 64.0, 0.0))
+            attacker.breaks(Vec3(90.0, 64.0, 0.0))
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             attacker.breaks(blueCore)
@@ -153,13 +153,13 @@ class SiegeModesScenarioTest {
             val holder = player("holder", at = nowhere)
             val rival = player("rival", at = nowhere)
             val matchId = startMatch("capture-wool", mapOf(holder to "red", rival to "blue"))
-            val woolA = Vec3(0.0, 64.0, -82.0)
-            val woolB = Vec3(0.0, 64.0, 82.0)
+            val woolA = Vec3(0.0, 64.0, -62.0)
+            val woolB = Vec3(0.0, 64.0, 62.0)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
 
             // Both stand in wool-a for longer than the capture time: nobody captures.
-            holder.moveTo(Vec3(0.0, 65.0, -82.0))
-            rival.moveTo(Vec3(1.0, 65.0, -81.0))
+            holder.moveTo(Vec3(0.0, 65.0, -62.0))
+            rival.moveTo(Vec3(1.0, 65.0, -61.0))
             advance(20 * 14)
             assertThat(blockAt(woolA)).isEqualTo("minecraft:white_wool")
 
@@ -168,7 +168,7 @@ class SiegeModesScenarioTest {
             assertThat(advanceUntil(20 * 12) { blockAt(woolA) == "minecraft:red_wool" }).isTrue()
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
-            holder.moveTo(Vec3(0.0, 65.0, 82.0))
+            holder.moveTo(Vec3(0.0, 65.0, 62.0))
             assertThat(advanceUntil(20 * 12) { eventsOf<MatchEnded>().isNotEmpty() }).isTrue()
 
             val end = ended()
@@ -186,14 +186,14 @@ class SiegeModesScenarioTest {
             val thief = player("thief", at = nowhere)
             val keeper = player("keeper", at = nowhere)
             val matchId = startMatch("steal-jewelry", mapOf(thief to "red", keeper to "blue"), stage = "siege-isles-jewelry")
-            val bluePedestal = Vec3(101.0, 65.0, 10.0)
-            val pedestalMarker = Vec3(101.0, 64.0, 10.0)
+            val bluePedestal = Vec3(73.0, 65.0, 10.0)
+            val pedestalMarker = Vec3(73.0, 64.0, 10.0)
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:diamond_block")
 
             // Thief steals one jewel, the keeper shoots them down before banking.
             keeper.holds("pistol")
             thief.moveTo(bluePedestal)
-            keeper.moveTo(Vec3(101.0, 65.0, 20.0))
+            keeper.moveTo(Vec3(73.0, 65.0, 20.0))
             kill(keeper, thief)
             respawnAt(thief, nowhere)
             thief.moveTo(redBase)

@@ -2,7 +2,7 @@
 id: pve-proving-grounds
 display_name_key: astera.stage.pve-proving-grounds.name
 layout:
-  marker_version: 5
+  marker_version: 6
   seed: 20261025
   surface_y: 64
   kill_y: 16
@@ -13,35 +13,35 @@ layout:
     radius: 42
   - id: north
     kind: outpost
-    center: {x: 0, z: -80}
+    center: {x: 0, z: -68}
     radius: 18
   - id: south
     kind: outpost
-    center: {x: 0, z: 80}
+    center: {x: 0, z: 68}
     radius: 18
   - id: west
     kind: outpost
-    center: {x: -80, z: 0}
+    center: {x: -68, z: 0}
     radius: 18
   - id: east
     kind: outpost
-    center: {x: 80, z: 0}
+    center: {x: 68, z: 0}
     radius: 18
   - id: north-east
     kind: outpost
-    center: {x: 61, z: -61}
+    center: {x: 52, z: -52}
     radius: 12
   - id: south-east
     kind: outpost
-    center: {x: 61, z: 61}
+    center: {x: 52, z: 52}
     radius: 12
   - id: south-west
     kind: outpost
-    center: {x: -61, z: 61}
+    center: {x: -52, z: 52}
     radius: 12
   - id: north-west
     kind: outpost
-    center: {x: -61, z: -61}
+    center: {x: -52, z: -52}
     radius: 12
   bridges:
   - {from: center, to: north, width: 7}
@@ -65,20 +65,20 @@ layout:
   atmosphere: {time_of_day: 12500, weather: clear}
 regions:
 - name: full-arena
-  min: {x: -114.0, y: 20.0, z: -114.0}
-  max: {x: 114.0, y: 140.0, z: 114.0}
+  min: {x: -102.0, y: 20.0, z: -102.0}
+  max: {x: 102.0, y: 140.0, z: 102.0}
 - name: mob-spawn-north
-  min: {x: -1.0, y: 65.0, z: -80.7}
-  max: {x: 1.0, y: 65.0, z: -78.7}
+  min: {x: -1.0, y: 65.0, z: -68.7}
+  max: {x: 1.0, y: 65.0, z: -66.7}
 - name: mob-spawn-east
-  min: {x: 78.7, y: 65.0, z: -1.0}
-  max: {x: 80.7, y: 65.0, z: 1.0}
+  min: {x: 66.7, y: 65.0, z: -1.0}
+  max: {x: 68.7, y: 65.0, z: 1.0}
 - name: mob-spawn-south
-  min: {x: -1.0, y: 65.0, z: 78.7}
-  max: {x: 1.0, y: 65.0, z: 80.7}
+  min: {x: -1.0, y: 65.0, z: 66.7}
+  max: {x: 1.0, y: 65.0, z: 68.7}
 - name: mob-spawn-west
-  min: {x: -80.7, y: 65.0, z: -1.0}
-  max: {x: -78.7, y: 65.0, z: 1.0}
+  min: {x: -68.7, y: 65.0, z: -1.0}
+  max: {x: -66.7, y: 65.0, z: 1.0}
 spawn_points:
 - team: red
   position: {x: 0.5, y: 65.0, z: -2.5}

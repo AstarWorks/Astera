@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Test
 class CarryMiniTntScenarioTest {
 
     private val pickupSpots = listOf(
-        Vec3(0.0, 65.0, -82.0), // wool-a
-        Vec3(0.0, 65.0, 8.0), // wool-b
-        Vec3(0.0, 65.0, 82.0), // wool-c
+        Vec3(0.0, 65.0, -62.0), // wool-a
+        Vec3(0.0, 65.0, 6.0), // wool-b
+        Vec3(0.0, 65.0, 62.0), // wool-c
     )
-    private val blueBase = Vec3(107.0, 65.0, 0.0)
-    private val redBase = Vec3(-107.0, 65.0, 0.0)
+    private val blueBase = Vec3(85.0, 65.0, 0.0)
+    private val redBase = Vec3(-85.0, 65.0, 0.0)
     private val nowhere = Vec3(0.0, 65.0, -50.0)
 
     private fun ScenarioScope.markers(): List<String?> = pickupSpots.map { blockAt(it.copy(y = 64.0)) }
