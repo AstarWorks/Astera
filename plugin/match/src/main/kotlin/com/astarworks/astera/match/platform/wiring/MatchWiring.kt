@@ -523,6 +523,11 @@ public object MatchWiring {
         // steal-jewelry / battle-loyal / carry-mini-tnt) own their per-match state and react to
         // region / block / kill events of their own matches; the config comes
         // from content/game-modes/<id>.yaml `default_config`.
+        val objectivePositions = ports.playerPositions?.invoke(services)
+            ?: com.astarworks.astera.match.application.service.LocationLookupMatchPlayerPositions {
+                services.get<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>()
+            }
+        val objectiveStage = ports.objectiveStage?.invoke(services)
         val siegeEnv = { id: com.astarworks.astera.match.domain.mode.GameModeId ->
             SiegeEnv(
                 eventBus = eventBus,
@@ -535,6 +540,11 @@ public object MatchWiring {
                 config = normaLayer.configFor(gameModeContents.find(id)?.defaultConfig.orEmpty()),
                 now = { scheduler.currentTick() },
                 presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPresentation>() },
+                positions = { objectivePositions },
+                poses = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>() },
+                speed = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerSpeedGateway>() },
+                actionBar = { services.get<com.astarworks.astera.core.application.port.outbound.IActionBarChannel>() },
+                stage = { objectiveStage },
             )
         }
         val siegeModes = listOf(

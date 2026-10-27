@@ -164,8 +164,19 @@ internal class PaperArenaWorld(
                 return@run
             }
             // Roll back the paste journal (everything the match changed, blocks outside the island included), then rebuild.
-            paster.rollback(world, build.journal).thenAccept { result ->
+            // The journal only knows what players broke/placed/exploded. Tool skills, fluids, fire, falling blocks, TNT
+            // chains and mode objectives change blocks without those events, and those ghosts would sit in the slot
+            // when it is handed to the next arena. So after the rollback the whole build box (plus margin) is swept to
+            // void, entities included, before the slot is freed.
+            val startedNanos = System.nanoTime()
+            paster.rollback(world, build.journal).thenCompose { rolled ->
+                val swept: java.util.concurrent.CompletableFuture<Result<Any?, ArenaPaster.Error>> =
+                    if (rolled is Result.Success) paster.clear(world, sweepBox(world, build.plan, entry.slot)).thenApply<Result<Any?, ArenaPaster.Error>> { it }
+                    else java.util.concurrent.CompletableFuture.completedFuture(rolled)
+                swept
+            }.thenAccept { result ->
                 scheduler.run(ExecutionScope.Global, Duration.ZERO) {
+                    log.info("Arena slot {} repair ({}): {} ms wall, {} journaled blocks", entry.slot.index, if (result is Result.Success) "ok" else "failed", (System.nanoTime() - startedNanos) / 1_000_000, build.journal.before.size)
                     if (result is Result.Success) {
                         manifest.remove(entry.slot.index)
                         book.finishRepair(stageId, entry)
@@ -186,6 +197,17 @@ internal class PaperArenaWorld(
                 }
             }
         }
+    }
+
+    /** The built box widened for strays (placed blocks beside the island, high-flying falling blocks), kept inside the slot. */
+    private fun sweepBox(world: org.bukkit.World, plan: ArenaBuildPlan, slot: SlotAllocator.Slot): ArenaPaster.Box {
+        fun clampX(v: Int) = v.coerceIn(slot.x - SWEEP_LIMIT, slot.x + SWEEP_LIMIT)
+        fun clampZ(v: Int) = v.coerceIn(slot.z - SWEEP_LIMIT, slot.z + SWEEP_LIMIT)
+        return ArenaPaster.Box(
+            clampX(plan.minX - SWEEP_MARGIN), clampX(plan.maxX + SWEEP_MARGIN),
+            (plan.minY - SWEEP_MARGIN).coerceAtLeast(world.minHeight), (plan.maxY + 2 * SWEEP_MARGIN).coerceAtMost(world.maxHeight - 1),
+            clampZ(plan.minZ - SWEEP_MARGIN), clampZ(plan.maxZ + SWEEP_MARGIN),
+        )
     }
 
     fun remember(block: org.bukkit.block.Block, previous: org.bukkit.block.data.BlockData = block.blockData) {
@@ -214,5 +236,11 @@ internal class PaperArenaWorld(
         )
     }
 
-    private companion object { const val MAX_REBUILD_ATTEMPTS = 5 }
+    private companion object {
+        const val MAX_REBUILD_ATTEMPTS = 5
+        /** Blocks swept beyond the built box on each side. */
+        const val SWEEP_MARGIN = 24
+        /** Slots sit 2048 apart and plans stay within +-512, so a sweep never reaches a neighbour. */
+        const val SWEEP_LIMIT = 1000
+    }
 }

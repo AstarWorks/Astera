@@ -74,10 +74,10 @@ internal class ArenaPaster(
                     scheduler.run(scope, delay) {
                         if (result.isDone) return@run
                         runCatching {
-                            // Air scanning is cheap; only real writes spend the budget.
+                            // Air scanning is cheap but not free: SCAN_PER_TICK keeps one chunk task well under ~10 ms.
                             var writes = allowance()
                             var scanned = 0
-                            while (cursor < total && writes > 0 && scanned < 65_536) {
+                            while (cursor < total && writes > 0 && scanned < SCAN_PER_TICK) {
                                 val i = cursor++; scanned++
                                 val y = box.minY + i % height
                                 val rest = i / height
@@ -101,9 +101,12 @@ internal class ArenaPaster(
         return result
     }
 
-    /** Drops, arrows and orbs a match leaves lying around; mobs, displays and players are owned by their own cleanup. */
-    private fun isArenaDebris(e: org.bukkit.entity.Entity): Boolean =
-        e is org.bukkit.entity.Item || e is org.bukkit.entity.Projectile || e is org.bukkit.entity.ExperienceOrb
+    /**
+     * Everything a match leaves lying in a slot: drops, arrows, orbs, primed TNT, falling blocks, displays, interactions,
+     * stands, clouds and mobs. A slot is only reset after its match ended and its players left, and the next match gets a
+     * fresh copy, so the only entities that must survive are players.
+     */
+    private fun isArenaDebris(e: org.bukkit.entity.Entity): Boolean = e !is org.bukkit.entity.Player
 
     private fun write(
         world: World,
@@ -154,5 +157,10 @@ internal class ArenaPaster(
             }
         }
         return result
+    }
+
+    private companion object {
+        /** Blocks inspected per chunk task per tick during [clear] (a few ms at most). */
+        const val SCAN_PER_TICK: Int = 16_384
     }
 }

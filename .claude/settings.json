@@ -66,6 +66,15 @@
         ]
       },
       {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/understanding-gate.py"
+          }
+        ]
+      },
+      {
         "matcher": "Bash",
         "hooks": [
           {

@@ -16,7 +16,7 @@ Make effect pieces that look like the reference at close range: smooth, high-con
 ## Required reading
 
 1. `docs/contributing/vfx-team/vfx.md` (read the Learnings log) and `docs/contributing/vfx-team/README.md`.
-2. `docs/contributing/vfx-art-direction.md`, `docs/reference/vfx/` (especially `failure-patterns.md`, `minecraft-techniques.md`, `sakurai.md`), `docs/adr/0239-custom-particle-sprites-as-textdisplay-glyphs.md`.
+2. `docs/contributing/vfx-art-direction.md`, `docs/reference/vfx/` (especially `failure-patterns.md`, `minecraft-techniques.md`, `sakurai.md`; also the sprite/particle technique catalog `e3-s10129-techniques.md`, principles learned from an external creator, inferred values need verification), `docs/adr/0239-custom-particle-sprites-as-textdisplay-glyphs.md`.
 3. `content/schemas/particle.schema.json`, `content/schemas/sprite.schema.json`, `content/schemas/vfx.schema.json`.
 4. Your brief: `tools/skill-compare/data/<case>/briefs/texture.md`.
 

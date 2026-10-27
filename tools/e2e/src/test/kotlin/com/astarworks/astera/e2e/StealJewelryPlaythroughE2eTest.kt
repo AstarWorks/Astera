@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 class StealJewelryPlaythroughE2eTest : ObjectivePlaythroughBase() {
 
     private val suite = "Steal Jewelry playthrough"
+    private val DWELL_MS = 1_600L
 
     @Test
     fun `steal-jewelry is played until a team banks every enemy jewel`() {
@@ -22,6 +23,7 @@ class StealJewelryPlaythroughE2eTest : ObjectivePlaythroughBase() {
 
         val toJewel = ctx.walker.walkTo(jx, jz, 0.8, 150_000, others)
         walkCheck(ctx, "the blue jewelry pedestal", toJewel, jx, jz)
+        Thread.sleep(DWELL_MS) // stealing is a short hold (channel_ticks): stand on the pedestal until the bar completes
         val first = a.waitUntil(6_000) { ctx.chatCount("stole a jewel") >= 1 }
         E2eReport.check(suite, "entering the enemy pedestal zone steals a jewel (1)", "SystemChat / sidebar") {
             assertThat(first).describedAs("no theft message; pos=${posOf(a)} chat=${ctx.chat().takeLast(5)} sidebar=${sidebar(a)}").isTrue()
@@ -30,6 +32,7 @@ class StealJewelryPlaythroughE2eTest : ObjectivePlaythroughBase() {
 
         ctx.walker.walkTo(ox, oz, 1.5, 60_000, others)
         ctx.walker.walkTo(jx, jz, 0.8, 60_000, others)
+        Thread.sleep(DWELL_MS)
         val second = a.waitUntil(6_000) { ctx.chatCount("stole a jewel") >= 2 }
         E2eReport.check(suite, "re-entering the pedestal zone steals the second jewel (2)", "SystemChat / sidebar") {
             assertThat(second).describedAs("no second theft; pos=${posOf(a)} chat=${ctx.chat().takeLast(5)} sidebar=${sidebar(a)}").isTrue()

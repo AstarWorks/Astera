@@ -4,14 +4,16 @@ import kotlin.math.hypot
 
 /**
  * What a bot does for the game mode when nobody is in sight (item: per-mode objectives). Pure and deterministic: the
- * clock is passed in, state advances only from the bot's own position (region entry is how every siege mode rewards
+ * clock is passed in, state advances only from the bot's own position (standing in a region is how every siege mode rewards
  * the player), so a game-sim scenario can drive the real mode with it.
  *
  *  - `break-core`: attackers dig the enemy core, every third bot (by name hash) defends its own core.
- *  - `carry-mini-tnt`: collect mini TNT at the pickup spots, bank at the own base, once the pool should hold enough
- *    take the combined TNT at `tnt-spawn` to the enemy base. A carrier that dies starts over.
+ *  - `carry-mini-tnt`: collect mini TNT at the pickup spots and plant it in the enemy base. A carrier that dies starts over.
  *  - `carry-tnt`: take the TNT at `tnt-spawn` to the enemy base.
  *  - `steal-jewelry`: take a jewel from the enemy pedestal, bank it at the own base.
+ *
+ * Pickups and deliveries are short holds in the mode (a progress bar fills), so a step only counts as done once the bot
+ * has stood inside its radius for [HOLD_MS].
  *  - `capture-wool`: hold the wool zones one after the other.
  *  - anything else: no plan (the brain falls back to [ObjectiveSource.objectiveFor]).
  */
@@ -22,7 +24,6 @@ class ModePlanner(
     private val enemyTeams: List<String>,
     private val zones: Zones,
     private val carryLimit: Int = 4,
-    private val minisPerTnt: Int = 10,
     private val pickupCooldownMs: Long = 15_000,
 ) {
     /** Stage regions by name (world coordinates). */
@@ -33,32 +34,96 @@ class ModePlanner(
 
     enum class Role { ATTACK, DEFEND }
 
-    /** Where to go: [kind] is one of `attack-core`, `defend-core`, `pickup`, `bank`, `tnt`, `deliver`, `jewel`, `wool`. */
+    /** Where to go: [kind] is one of `attack-core`, `defend-core`, `pickup`, `bank`, `tnt`, `deliver`, `jewel`, `wool`, `recover`. */
     data class Step(val zone: String, val x: Double, val y: Double, val z: Double, val arrive: Double, val kind: String, val breakable: Boolean = false)
 
     val role: Role = if (modeId == "break-core" && Math.floorMod(botName.hashCode(), 3) == 0) Role.DEFEND else Role.ATTACK
 
     // Inferred state (the server does not tell a client what it carries).
     var carried = 0; private set
-    var pooled = 0; private set
     var holdingTnt = false; private set
-    private var wantTnt = false
-    private var tntCheckedAt = 0L
     private val takenAt = HashMap<String, Long>()
     private var woolIndex = 0
     private var holdSince = 0L
+    private var dwellSince = 0L
 
     fun handles(): Boolean = modeId in MODES
 
-    /** The bot died: whatever it carried is lost. */
-    fun onDeath() { carried = 0; holdingTnt = false; holdSince = 0L }
+    /** Where the bot's carry fell when it died (jewels / TNT are dropped in place); it goes back for it. */
+    private var lostX = 0.0
+    private var lostZ = 0.0
+    private var lostPending = false
+    private var recoverUntil = 0L
+
+    /** Loose objective markers the brain currently sees in the world (a dropped pile / TNT), filtered against the fixed stage points. */
+    private var looseSeen: List<Pair<Double, Double>> = emptyList()
+
+    /**
+     * The bot died at ([x], [z]): whatever it carried is lost where it fell. A carrier of TNT or jewels remembers the
+     * spot and re-picks it after the respawn instead of starting the whole plan over.
+     */
+    fun onDeath(x: Double, z: Double) {
+        if (holdingTnt || (modeId == "steal-jewelry" && carried > 0)) {
+            lostX = x; lostZ = z; lostPending = true; recoverUntil = 0L
+        }
+        carried = 0; holdingTnt = false; holdSince = 0L; dwellSince = 0L; awaitingSince = 0L
+    }
+
+    /**
+     * Positions of the loose objective markers in sight (the mode tags exactly these entities, see [LOOSE_TAG]; carried
+     * stacks, pedestals and goal markers are never tagged, so carriers are not mistaken for dropped objectives).
+     */
+    fun noteMarkers(markers: List<Pair<Double, Double>>) {
+        looseSeen = if (modeId == "carry-tnt" || modeId == "steal-jewelry") markers else emptyList()
+    }
+
+    /** Total pickups the environment has confirmed so far (the pickup cue the server plays for the holder only). */
+    fun noteConfirmed(total: Int) { confirmed = total }
+
+    private var confirmed = 0
+    private var seenConfirmed = 0
+    private var awaitingSince = 0L
+
+    /**
+     * A pickup counts only once the server confirmed it: after the hold completes the bot keeps standing on [s] until
+     * [noteConfirmed] advances (then [apply] runs and true is returned), or [CONFIRM_MS] pass and the hold is retried.
+     */
+    private fun pickedUp(s: Step, now: Long, x: Double, z: Double, apply: () -> Unit): Boolean {
+        if (awaitingSince != 0L) {
+            if (confirmed > seenConfirmed) {
+                seenConfirmed = confirmed; awaitingSince = 0L; apply(); return true
+            }
+            if (now - awaitingSince > CONFIRM_MS) awaitingSince = 0L
+            return false
+        }
+        if (held(s, now, x, z)) awaitingSince = now
+        return false
+    }
+
+    /** Heads for a dropped objective (own death spot first, else the nearest loose marker); null when there is none to chase. */
+    private fun recover(now: Long, x: Double, z: Double): Step? {
+        var tx: Double; var tz: Double
+        if (lostPending) {
+            if (recoverUntil == 0L) recoverUntil = now + RECOVER_MS
+            if (now > recoverUntil) { lostPending = false; return null }
+            tx = lostX; tz = lostZ
+        } else {
+            val near = looseSeen.minByOrNull { hypot(it.first - x, it.second - z) }
+                ?.takeIf { hypot(it.first - x, it.second - z) <= LOOSE_RANGE } ?: return null
+            tx = near.first; tz = near.second
+        }
+        val y = zones.point(if (modeId == "carry-tnt") TNT_SPAWN else "base-$ownTeam")?.second ?: return null
+        val s = Step("loose", tx, y, tz, 1.5, "recover")
+        if (pickedUp(s, now, x, z) { lostPending = false; if (modeId == "carry-tnt") holdingTnt = true else carried = 1 }) return step(now, x, z)
+        return s
+    }
 
     /** The step for a bot at ([x], [z]) at time [now]; null when the mode has no plan or the stage lacks the regions. */
     fun step(now: Long, x: Double, z: Double): Step? = when (modeId) {
         "break-core" -> breakCore()
-        "carry-tnt" -> carryTnt(x, z)
+        "carry-tnt" -> (if (holdingTnt) null else recover(now, x, z)) ?: carryTnt(now, x, z)
         "carry-mini-tnt" -> miniTnt(now, x, z)
-        "steal-jewelry" -> jewelry(x, z)
+        "steal-jewelry" -> (if (carried > 0) null else recover(now, x, z)) ?: jewelry(now, x, z)
         "capture-wool" -> wool(now, x, z)
         else -> null
     }
@@ -79,59 +144,50 @@ class ModePlanner(
         return step(zone, "attack-core", 3.5, breakable = true)
     }
 
-    private fun carryTnt(x: Double, z: Double): Step? {
+    /** True once the bot has stood inside [s]'s radius for [HOLD_MS]: the modes' pickups and deliveries are short holds, not touches. */
+    private fun held(s: Step, now: Long, x: Double, z: Double): Boolean {
+        if (!reached(s, x, z)) { dwellSince = 0L; return false }
+        if (dwellSince == 0L) dwellSince = now
+        if (now - dwellSince < HOLD_MS) return false
+        dwellSince = 0L
+        return true
+    }
+
+    private fun carryTnt(now: Long, x: Double, z: Double): Step? {
         if (holdingTnt) {
             val s = nearestEnemy("base-", x, z)?.let { step(it, "deliver", BASE_RADIUS) } ?: return null
-            if (reached(s, x, z)) { holdingTnt = false; return carryTnt(x, z) }
+            if (held(s, now, x, z)) { holdingTnt = false; return carryTnt(now, x, z) }
             return s
         }
         val s = step(TNT_SPAWN, "tnt", 1.5) ?: return null
-        if (reached(s, x, z)) { holdingTnt = true; return carryTnt(x, z) }
+        if (pickedUp(s, now, x, z) { holdingTnt = true }) return carryTnt(now, x, z)
         return s
     }
 
     private fun miniTnt(now: Long, x: Double, z: Double): Step? {
-        if (holdingTnt) {
-            val s = nearestEnemy("base-", x, z)?.let { step(it, "deliver", BASE_RADIUS) } ?: return null
-            if (reached(s, x, z)) { holdingTnt = false; return miniTnt(now, x, z) }
-            return s
-        }
         val pickups = zones.names("wool-")
         val free = pickups.filter { now - (takenAt[it] ?: -pickupCooldownMs) >= pickupCooldownMs }
-        // Bank when the hands are full or nothing is left to take.
+        // Plant in the enemy base when the hands are full or nothing is left to take.
         if (carried >= carryLimit || (carried > 0 && free.isEmpty())) {
-            val s = step("base-$ownTeam", "bank", BASE_RADIUS) ?: return null
-            if (reached(s, x, z)) {
-                pooled += carried; carried = 0
-                if (pooled >= minisPerTnt) { pooled -= minisPerTnt; wantTnt = true }
-                return miniTnt(now, x, z)
-            }
-            return s
-        }
-        // The combined TNT: when our pool should have produced one, or to look once a minute (a mate may have banked the rest).
-        if (wantTnt || (pooled + carried > 0 && now - tntCheckedAt > TNT_CHECK_MS)) {
-            val s = step(TNT_SPAWN, "tnt", 1.5) ?: return null
-            if (reached(s, x, z)) { holdingTnt = true; wantTnt = false; tntCheckedAt = now; return miniTnt(now, x, z) }
+            val s = nearestEnemy("base-", x, z)?.let { step(it, "deliver", BASE_RADIUS) } ?: return null
+            if (held(s, now, x, z)) { carried = 0; return miniTnt(now, x, z) }
             return s
         }
         val target = nearest(free.ifEmpty { pickups }, x, z) ?: return null
         val s = step(target, "pickup", 1.5) ?: return null
-        if (target in free && reached(s, x, z)) {
-            takenAt[target] = now; carried++
-            return miniTnt(now, x, z)
-        }
+        if (target in free && pickedUp(s, now, x, z) { takenAt[target] = now; carried++ }) return miniTnt(now, x, z)
         return s
     }
 
-    private fun jewelry(x: Double, z: Double): Step? {
+    private fun jewelry(now: Long, x: Double, z: Double): Step? {
         if (carried > 0) {
             val s = step("base-$ownTeam", "bank", BASE_RADIUS) ?: return null
-            if (reached(s, x, z)) { carried = 0; return jewelry(x, z) }
+            if (held(s, now, x, z)) { carried = 0; return jewelry(now, x, z) }
             return s
         }
         val zone = nearestEnemy("jewelry-", x, z) ?: return null
         val s = step(zone, "jewel", 1.5) ?: return null
-        if (reached(s, x, z)) { carried = 1; return jewelry(x, z) }
+        if (pickedUp(s, now, x, z) { carried = 1 }) return jewelry(now, x, z)
         return s
     }
 
@@ -151,7 +207,12 @@ class ModePlanner(
         const val TNT_SPAWN = "tnt-spawn"
         const val BASE_RADIUS = 3.0
         const val DEFEND_RADIUS = 7.0
-        const val TNT_CHECK_MS = 60_000L
+        const val HOLD_MS = 1_500L
+        const val CONFIRM_MS = 4_000L
+        /** Custom name the mode puts on loose (dropped) objective markers; keep equal to `PaperObjectiveStage.LOOSE_TAG`. */
+        const val LOOSE_TAG = "astera:objective-loose"
+        const val RECOVER_MS = 25_000L
+        const val LOOSE_RANGE = 40.0
         const val WOOL_HOLD_MS = 12_000L
     }
 }

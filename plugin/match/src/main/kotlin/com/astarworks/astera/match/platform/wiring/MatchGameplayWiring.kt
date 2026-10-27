@@ -541,12 +541,24 @@ internal object MatchGameplayWiring {
                 spectator.stopSpectating(pid)
             }
         }
+        // Fire, outline glow (objective carriers glow) and freeze/hold live on the entity, not in the status container:
+        // none of it may follow a player out of the match. Runs on the player's own region thread.
+        fun clearEntityEffects(pid: com.astarworks.astera.core.domain.player.PlayerId) {
+            val effects = services.get<com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway>() ?: return
+            scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(pid.uuid), kotlin.time.Duration.ZERO) {
+                effects.setGlowing(pid, false)
+                effects.setFireTicks(pid, 0)
+                effects.thaw(pid)
+            }
+        }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerLeftMatch::class) { clearEntityEffects(it.playerId) }
         subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class) { resetWeaponState(it.playerId); leaveSpectatorMode(it.playerId) }
         subscriptions += eventBus.subscribe(MatchStarted::class) { started ->
             matches.findById(started.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { resetWeaponState(it); leaveSpectatorMode(it) }
         }
         subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) { ended ->
-            matches.findById(ended.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { leaveSpectatorMode(it) }
+            // Status effects, cooldowns, resource pools and HP otherwise ride into the lobby until the next match entry.
+            matches.findById(ended.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { resetWeaponState(it); clearEntityEffects(it); leaveSpectatorMode(it) }
         }
         subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { matchCueListener.onKilled(it) }
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) { matchCueListener.onPhaseChanged(it) }

@@ -11,7 +11,6 @@
 id: steal-jewelry
 title_key: astera.gamemode.steal-jewelry.title
 impl_class: com.astarworks.astera.match.application.gamemode.StealJewelryGameMode
-tick_period_ticks: 20
 default_config:
   # Norma layer (content/norma-layer/layer.yaml) overrides: objective rounds on the big islands take longer than a
   # battle-loyal round, so the time limit is 20 minutes. At the limit the teams are ranked by this mode's objective first, then
@@ -22,3 +21,11 @@ default_config:
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
   gems_per_team: "2"
+  # Objective feel (ObjectiveKit): hold time at a pickup / goal in ticks, how long a dropped objective lies before it
+  # goes home (seconds), reach of a pile pickup (blocks), distance at which defenders get a gate warning (blocks).
+  channel_ticks: "15"
+  drop_return_seconds: "20"
+  pickup_radius: "3"
+  warn_distance: "24"
+  carrier_slow_pct_per_item: "10"
+  carrier_min_speed_pct: "60"
