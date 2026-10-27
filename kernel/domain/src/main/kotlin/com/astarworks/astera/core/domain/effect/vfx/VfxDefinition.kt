@@ -19,13 +19,13 @@ import com.astarworks.astera.core.domain.geometry.math.Quaternion
 @JvmInline
 public value class VfxId(public val value: String) {
     init {
-        require(value.matches(KEBAB)) { "VfxId must be lower-kebab: $value" }
+        require(value.matches(KEBAB)) { "VfxId must be lower-kebab (optionally `@variant`): $value" }
     }
 
     override fun toString(): String = value
 
     public companion object {
-        private val KEBAB = Regex("^[a-z][a-z0-9-]*$")
+        private val KEBAB = Regex("^[a-z][a-z0-9-]*(@[a-z][a-z0-9-]*)?$")
     }
 }
 
