@@ -23,7 +23,7 @@ public class ControlOpDecoders : OpDecoder {
 
     override val opNames: Set<String> = setOf(
         "freeze", "schedule", "event", "raise_event", "cast_skill", "if", "loop", "choose",
-        "weighted_branch", "for_each", "counter", "set_cooldown", "give_item", "consume_item",
+        "weighted_branch", "for_each", "delay", "counter", "set_cooldown", "give_item", "consume_item",
     )
 
     override fun decode(op: String, id: String, whenExpr: Value<Boolean>?, reader: OpReader): SkillOp = when (op) {
@@ -43,6 +43,7 @@ public class ControlOpDecoders : OpDecoder {
             everyTicks = (reader.int("every_ticks") ?: 0).also { if (it < 0) reader.fail("every_ticks must be >= 0") },
             body = gameplay(reader, "do"),
         )
+        "delay" -> ControlOp.Delay(id, whenExpr, reader.requireNumber("after"), gameplay(reader, "do"))
         "choose" -> ControlOp.Choose(
             id, whenExpr,
             cases = reader.entries("cases").map { c ->

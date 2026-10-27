@@ -1,0 +1,38 @@
+# Converted from content/skills/orrery-s3.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-TODO missing vfx file (x14): orrery-beam-short | orrery-ring-hit-target
+apiVersion: "astera/v2"
+kind: Skill
+id: orrery-s3
+item: orrery-staff
+meta: {name: {ja: "四連の光束", en: "Fourfold Beam"}, description: {ja: "光の束を四連続で放ち、チャージを得る。", en: "Fire four beams in a row, gaining Charge."}, cooldown_ticks: 235, resource_cost: 28}
+frames:
+  - {id: pt_caster_eye_0_0_14, kind: point, parent: caster.eye, offset: [0.0, 0.0, 14.0]}
+gameplay:
+  params: {dmg_physical: 18.75, dmg_physical_2: 46.875, charge_ticks: 400, charge_stacks: 3}
+  expose:
+    - {id: damage, param: dmg_physical}
+  timeline:
+    - {id: t0, at: 0, do: [{id: sel, op: hit, frames: [caster], capsule: {from: caster.eye, to: pt_caster_eye_0_0_14, radius: 0.3}, window: once}]}
+    - {id: t145, at: 145, do: [{id: st_charge, op: status, status: charge, duration_ticks: "${charge_ticks}", target: caster, stacks: "${charge_stacks}"}]}
+  "on":
+    hit:
+      - {id: delay, op: delay, after: 45, do: [{id: dmg, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}], when: "= event.source == 'sel'"}
+      - id: delay_2
+        op: delay
+        after: 60
+        do:
+          - {id: dmg_2, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}
+        when: "= event.source == 'sel'"
+      - id: delay_3
+        op: delay
+        after: 72
+        do:
+          - {id: dmg_3, op: damage, components: [{kind: physical, amount: "${dmg_physical}"}], target: victim, ignore_invulnerability: true}
+        when: "= event.source == 'sel'"
+      - id: delay_4
+        op: delay
+        after: 143
+        do:
+          - {id: dmg_4, op: damage, components: [{kind: physical, amount: "${dmg_physical_2}"}], target: victim, ignore_invulnerability: true}
+        when: "= event.source == 'sel'"

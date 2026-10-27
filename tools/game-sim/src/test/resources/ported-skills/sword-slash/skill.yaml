@@ -1,0 +1,26 @@
+# Converted from content/skills/sword-slash.yaml by tools/skill-convert/convert.py (v1 archetype: melee). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: sword-slash
+item: knight-sword
+meta:
+  name: {ja: "斬撃", en: "Sword Slash"}
+  description: {ja: "前方の扇状の範囲を斬りつけ、命中した対象に物理ダメージを与える。", en: "Slashes a forward arc, dealing physical damage to everything it catches."}
+  cooldown_ticks: 10
+  tags: [melee, physical]
+gameplay:
+  params: {arc_deg: 100.0, range: 3.5, dmg_physical: 40.0, knockback: 0.4}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: range}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - {id: swing, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${range}", height: 2.0}, window: once}
+  "on":
+    hit:
+      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], when: "= event.source == 'swing'"}
+      - {id: kb, op: knockback, direction: "= normalize(pos(victim) - pos(caster))", strength: "${knockback}", when: "= event.source == 'swing'"}
+      - {id: swing_hit_count, op: counter, key: swing_hits, when: "= event.source == 'swing'"}

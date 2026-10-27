@@ -80,6 +80,16 @@ public class LoopOpExecutor : OpExecutor<ControlOp.Loop> {
     }
 }
 
+/** Runs the body once, `after` ticks later, in the victim binding the op ran in (the contact itself is not kept). */
+public class DelayOpExecutor : OpExecutor<ControlOp.Delay> {
+    override val opClass: KClass<ControlOp.Delay> = ControlOp.Delay::class
+
+    override fun execute(op: ControlOp.Delay, ctx: OpContext) {
+        val after = ctx.ticks(op.afterTicks)
+        if (after > 0) ctx.host.scheduleOps(after, op.body) else ctx.run(op.body)
+    }
+}
+
 /** First case whose guard holds; otherwise the `else` list. */
 public class ChooseOpExecutor : OpExecutor<ControlOp.Choose> {
     override val opClass: KClass<ControlOp.Choose> = ControlOp.Choose::class
@@ -165,6 +175,7 @@ public fun registerControlOpExecutors(registry: OpExecutorRegistry) {
     registry.register(CastSkillOpExecutor())
     registry.register(IfOpExecutor())
     registry.register(LoopOpExecutor())
+    registry.register(DelayOpExecutor())
     registry.register(ChooseOpExecutor())
     registry.register(WeightedBranchOpExecutor())
     registry.register(ForEachOpExecutor())

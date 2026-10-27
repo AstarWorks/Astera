@@ -65,6 +65,9 @@ public interface ExprHost {
 
     /** Grip-to-tip (or root-to-tip) distance of the item point table of [frame]. */
     public fun bladeLen(frame: ExprValue.Ref): Double
+
+    /** Value of the cast counter [key] (see the `counter` op); 0 when never bumped. */
+    public fun counter(key: String): Double
 }
 
 /** Values at eval time. [seed] makes `rand(stream)` deterministic per cast; [host] serves `aim_point` / `blade_len`. */

@@ -6,6 +6,7 @@ import com.astarworks.astera.core.application.skillengine.runtime.port.SkillDama
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skillengine.op.DamageComponentSpec
 import com.astarworks.astera.core.domain.skillengine.op.DamageOp
+import com.astarworks.astera.core.domain.skillengine.op.StackSide
 import java.util.UUID
 import kotlin.reflect.KClass
 
@@ -18,16 +19,27 @@ private fun OpContext.damageAll(
     victims: List<UUID>,
     specs: List<DamageComponentSpec>,
     fallbackPoint: Vec3?,
+    ignoreInvulnerability: Boolean = false,
 ) {
     if (victims.isEmpty() || specs.isEmpty()) return
-    val parts = specs.map { SkillDamage(it.kind, values.num(it.amount)) }
+    val consumed = LinkedHashSet<Pair<UUID, String>>()
     for (victim in victims) {
+        val parts = specs.map { spec ->
+            val extra = spec.perStack?.let { ps ->
+                val holder = if (ps.on == StackSide.CASTER) scope.caster else victim
+                if (ps.consume) consumed += holder to ps.status
+                values.num(ps.amount) * ports.gameplay.statusStacks(holder, ps.status)
+            } ?: 0.0
+            SkillDamage(spec.kind, values.num(spec.amount) + extra)
+        }
         val point = scope.contact?.takeIf { it.victim == victim }?.pointWorld
             ?: feetOf(victim)
             ?: fallbackPoint
             ?: Vec3.ZERO
-        ports.gameplay.damage(scope.caster, victim, parts, point)
+        if (ignoreInvulnerability) ports.gameplay.damage(scope.caster, victim, parts, point, true)
+        else ports.gameplay.damage(scope.caster, victim, parts, point)
     }
+    for ((holder, status) in consumed) ports.gameplay.removeStatus(holder, status)
 }
 
 internal object DamageExecutor : OpExecutor<DamageOp.Damage> {
@@ -36,7 +48,7 @@ internal object DamageExecutor : OpExecutor<DamageOp.Damage> {
     override fun execute(op: DamageOp.Damage, ctx: OpContext) {
         val scope = ctx as? SkillCastScope ?: return
         if (!ctx.passes(op.whenExpr)) return
-        ctx.damageAll(scope, ctx.resolveTargets(scope, op.target), op.components, ctx.positionOf(scope, op.target))
+        ctx.damageAll(scope, ctx.resolveTargets(scope, op.target), op.components, ctx.positionOf(scope, op.target), op.ignoreInvulnerability)
     }
 }
 
@@ -72,14 +84,14 @@ internal object ExplodeExecutor : OpExecutor<DamageOp.Explode> {
     override fun execute(op: DamageOp.Explode, ctx: OpContext) {
         val scope = ctx as? SkillCastScope ?: return
         if (!ctx.passes(op.whenExpr)) return
-        val at = ctx.positionOf(scope, op.target) ?: return
+        val at = (op.at?.let { ctx.locate(it) } ?: ctx.positionOf(scope, op.target)) ?: return
         scope.effects.explode(scope.caster, at, ctx.values.num(op.power), op.breakBlocks, op.incendiary)
         if (op.components.isEmpty()) return
         val radius = op.radius?.let { ctx.values.num(it) }
-        val victims = if (radius == null) {
+        val victims = if (radius == null && op.at == null) {
             ctx.resolveTargets(scope, op.target)
         } else {
-            ctx.ports.entities.nearby(at, radius, scope.caster).map { it.entityId }.filter { !scope.isAlly(it) }
+            ctx.ports.entities.nearby(at, radius ?: 0.0, scope.caster).map { it.entityId }.filter { !scope.isAlly(it) }
         }
         ctx.damageAll(scope, victims, op.components, at)
     }

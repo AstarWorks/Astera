@@ -385,6 +385,30 @@ object SkillSchemaGenerator {
         "apiVersion" to obj { put("const", "astera/v2") },
     )
 
+    private val localizedText: JsonObject = obj {
+        put("type", "object")
+        put("properties", obj { put("ja", type("string")); put("en", type("string")) })
+        put("required", buildJsonArray { add("ja"); add("en") })
+        put("additionalProperties", false)
+    }
+
+    /** `meta:` header of a skill (cooldown, cost, i18n name); mirrors `YamlSkillDecoder.decodeMeta`. */
+    private val skillMetaSchema: JsonObject = obj {
+        put("type", "object")
+        put("properties", obj {
+            put("name", localizedText)
+            put("description", localizedText)
+            put("cooldown_ticks", obj { put("type", "integer"); put("minimum", 0) })
+            put("resource_type", obj { put("enum", buildJsonArray { add("ammo"); add("energy") }) })
+            put("resource_cost", obj { put("type", "integer"); put("minimum", 0) })
+            put("ego_cost", obj { put("type", "integer"); put("minimum", 0) })
+            put("reload_ticks", obj { put("type", "integer"); put("minimum", 0) })
+            put("ready_cue", type("boolean"))
+            put("tags", arrayOf(type("string")))
+        })
+        put("additionalProperties", false)
+    }
+
     private fun docDef(kind: String, ctx: Ctx): JsonObject {
         val gameplay = section(GameplaySection::class, ctx)
         val presentation = section(PresentationSection::class, ctx)
@@ -398,6 +422,7 @@ object SkillSchemaGenerator {
                     put("id", obj { put("type", "string"); put("minLength", 1); put("pattern", "^[^@]+$") })
                     put("item", type("string"))
                     put("importance", type("integer"))
+                    put("meta", skillMetaSchema)
                     put("frames", arrayOf(ref(dataDef(FrameDecl::class, ctx))))
                     put("gameplay", gameplay)
                     put("presentation", presentation)

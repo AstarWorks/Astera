@@ -65,6 +65,14 @@ public data class SkillDamage(val kind: String, val amount: Double)
 /** Gameplay effects on entities. Damage numbers and status maths stay in combat; this is the seam. */
 public interface ISkillGameplayGateway {
     public fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3)
+
+    /** [damage] that may bypass the victim's invulnerability frames. Gateways with i-frames override this. */
+    public fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3, ignoreInvulnerability: Boolean) {
+        damage(caster, victim, components, hitPoint)
+    }
+
+    /** Current stacks of [statusId] on [entity] (0 when absent). */
+    public fun statusStacks(entity: UUID, statusId: String): Int = 0
     public fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int)
 
     /** Remove one status (all stacks) from [victim]. Missing status is a no-op. */

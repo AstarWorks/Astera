@@ -41,7 +41,7 @@ internal fun OpContext.positionOf(scope: SkillCastScope, target: TargetRef): Vec
 
 /** Entities a target ref stands for. Enemies exclude allies of the caster; allies include the caster. */
 internal fun OpContext.resolveTargets(scope: SkillCastScope, target: TargetRef): List<UUID> = when (target) {
-    TargetRef.Victim -> listOfNotNull(scope.contact?.victim)
+    TargetRef.Victim -> listOfNotNull(scope.contact?.victim ?: host.currentVictim)
     TargetRef.Caster -> listOf(scope.caster)
     is TargetRef.Enemies -> {
         val at = pointWorld(target.around)

@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.skillengine.runtime
 
+import com.astarworks.astera.core.application.skillengine.runtime.ops.locate
 import com.astarworks.astera.core.application.skillengine.runtime.port.BlockDamageOutcome
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -30,10 +31,7 @@ internal object WorldLimits {
     const val RIPPLE_TICKS: Int = 29
 }
 
-private fun OpContext.position(at: LocationSpec): Vec3? = when (at) {
-    is LocationSpec.AtValue -> values.vec3(at.value)
-    is LocationSpec.AtPoint -> (tree.pointWorld(FrameId(at.point.frame), at.point.point) as? Result.Success)?.value
-}
+private fun OpContext.position(at: LocationSpec): Vec3? = locate(at)
 
 /** Anchor and facing of a shape: the resolved [at] position looking where the caster frame looks. */
 private fun OpContext.aim(at: LocationSpec): WorldAim? {

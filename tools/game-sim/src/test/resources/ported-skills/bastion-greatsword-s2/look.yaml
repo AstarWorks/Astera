@@ -1,0 +1,86 @@
+# Converted from content/skills/bastion-greatsword-s2.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT screen_flash has no v2 op (x2): {"color": "#FFC84A", "fade_in": 0, "fade_out": 2, "overlay": "gold_burst", "stay": 1}
+apiVersion: "astera/v2"
+kind: Skill
+id: bastion-greatsword-s2
+presentation:
+  timeline:
+    - {id: fx0, at: 0, do: [{id: snd, op: sound, sound: block.gravel.step, at: caster, volume: 1.0, pitch: 0.6}, {id: snd_2, op: sound, sound: entity.ravager.step, at: caster, volume: 0.6, pitch: 0.8}]}
+    - id: fx2
+      at: 2
+      do:
+        - {id: snd_3, op: sound, sound: item.armor.equip_chain, at: caster, volume: 0.9, pitch: 0.7}
+        - {id: snd_4, op: sound, sound: item.armor.equip_iron, at: caster, volume: 0.6, pitch: 0.6}
+    - id: fx9
+      at: 9
+      do:
+        - {id: snd_5, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 1.0, pitch: 0.5}
+        - {id: snd_6, op: sound, sound: item.trident.throw, at: caster, volume: 0.7, pitch: 0.6}
+    - id: fx13
+      at: 13
+      do:
+        - {id: snd_7, op: sound, sound: item.mace.smash_ground_heavy, at: caster, volume: 1.0, pitch: 0.9}
+        - {id: snd_8, op: sound, sound: block.anvil.land, at: caster, volume: 0.8, pitch: 0.6}
+        - {id: snd_9, op: sound, sound: entity.player.attack.crit, at: caster, volume: 1.0, pitch: 0.8}
+    - id: fx14
+      at: 14
+      do:
+        - {id: snd_10, op: sound, sound: item.armor.equip_netherite, at: caster, volume: 0.9, pitch: 0.6}
+        - {id: snd_11, op: sound, sound: block.chain.place, at: caster, volume: 0.8, pitch: 0.6}
+    - {id: fx23, at: 23, do: [{id: snd_12, op: sound, sound: item.armor.equip_iron, at: caster, volume: 1.0, pitch: 0.8}]}
+    - id: fx27
+      at: 27
+      do:
+        - {id: snd_13, op: sound, sound: item.armor.equip_chain, at: caster, volume: 0.9, pitch: 0.7}
+        - {id: snd_14, op: sound, sound: item.armor.equip_iron, at: caster, volume: 0.6, pitch: 0.6}
+    - id: fx28
+      at: 28
+      do:
+        - {id: snd_15, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 1.0, pitch: 0.45}
+        - {id: snd_16, op: sound, sound: entity.breeze.wind_burst, at: caster, volume: 0.6, pitch: 0.5}
+        - {id: snd_17, op: sound, sound: item.trident.throw, at: caster, volume: 0.8, pitch: 0.5}
+    - id: fx32
+      at: 32
+      do:
+        - {id: snd_18, op: sound, sound: item.mace.smash_ground_heavy, at: caster, volume: 1.0, pitch: 0.7}
+        - {id: snd_19, op: sound, sound: block.anvil.land, at: caster, volume: 0.8, pitch: 0.5}
+        - {id: snd_20, op: sound, sound: entity.player.attack.crit, at: caster, volume: 1.0, pitch: 0.65}
+        - {id: snd_21, op: sound, sound: entity.iron_golem.attack, at: caster, volume: 1.0, pitch: 0.6}
+        - {id: snd_22, op: sound, sound: entity.generic.explode, at: caster, volume: 0.45, pitch: 0.5}
+    - id: fx33
+      at: 33
+      do:
+        - {id: snd_23, op: sound, sound: item.armor.equip_netherite, at: caster, volume: 0.9, pitch: 0.6}
+        - {id: snd_24, op: sound, sound: block.chain.place, at: caster, volume: 0.8, pitch: 0.6}
+    - {id: fx41, at: 41, do: [{id: snd_25, op: sound, sound: item.armor.equip_netherite, at: caster, volume: 0.9, pitch: 0.5}]}
+    - {id: fx42, at: 42, do: [{id: snd_26, op: sound, sound: block.chain.place, at: caster, volume: 0.8, pitch: 0.5}]}
+    - {id: fx43, at: 43, do: [{id: snd_27, op: sound, sound: item.armor.equip_chain, at: caster, volume: 0.9, pitch: 0.5}]}
+    - id: fx48
+      at: 48
+      do:
+        - {id: snd_28, op: sound, sound: entity.breeze.wind_burst, at: caster, volume: 0.8, pitch: 0.4}
+        - {id: snd_29, op: sound, sound: block.beacon.deactivate, at: caster, volume: 0.5, pitch: 0.5}
+    - id: fx50
+      at: 50
+      do:
+        - {id: snd_30, op: sound, sound: entity.player.attack.sweep, at: caster, volume: 1.0, pitch: 0.4}
+        - {id: snd_31, op: sound, sound: item.trident.throw, at: caster, volume: 0.9, pitch: 0.4}
+        - {id: snd_32, op: sound, sound: entity.ravager.roar, at: caster, volume: 0.5, pitch: 0.5}
+    - id: fx53
+      at: 53
+      do:
+        - {id: snd_33, op: sound, sound: item.mace.smash_ground_heavy, at: caster, volume: 1.0, pitch: 0.6}
+        - {id: snd_34, op: sound, sound: block.anvil.land, at: caster, volume: 1.0, pitch: 0.45}
+        - {id: snd_35, op: sound, sound: entity.player.attack.crit, at: caster, volume: 1.0, pitch: 0.55}
+        - {id: snd_36, op: sound, sound: entity.iron_golem.attack, at: caster, volume: 1.0, pitch: 0.5}
+        - {id: snd_37, op: sound, sound: entity.generic.explode, at: caster, volume: 0.6, pitch: 0.45}
+        - {id: snd_38, op: sound, sound: item.mace.smash_ground, at: caster, volume: 0.9, pitch: 0.5}
+        - {id: snd_39, op: sound, sound: block.bell.use, at: caster, volume: 0.5, pitch: 0.5}
+        - {id: shake, op: camera_shake, target: {enemies: {around: caster, radius: 9.0}}, intensity: 0.6, ticks: 6}
+    - id: fx56
+      at: 56
+      do:
+        - {id: snd_40, op: sound, sound: item.armor.equip_netherite, at: caster, volume: 1.0, pitch: 0.5}
+        - {id: snd_41, op: sound, sound: block.chain.place, at: caster, volume: 0.9, pitch: 0.5}
+    - {id: fx64, at: 64, do: [{id: snd_42, op: sound, sound: item.armor.equip_iron, at: caster, volume: 0.9, pitch: 0.6}]}

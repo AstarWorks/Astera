@@ -8,13 +8,17 @@ import com.astarworks.astera.core.domain.skillengine.model.literal
 import com.astarworks.astera.core.domain.skillengine.op.DamageComponentSpec
 import com.astarworks.astera.core.domain.skillengine.op.DamageOp
 import com.astarworks.astera.core.domain.skillengine.op.OpSection
+import com.astarworks.astera.core.domain.skillengine.op.PerStackSpec
+import com.astarworks.astera.core.domain.skillengine.op.StackSide
 import com.astarworks.astera.core.domain.skillengine.op.SkillOp
 
 public fun damageDecoders(): List<OpDecoder> = listOf(DamageOpDecoder)
 
 /**
  * `damage`: target?, components: [{kind, amount}]. `heal`: target?, amount. `resurrect`: target?,
- * health_fraction?. `explode`: target?, power, break_blocks?, incendiary?, radius?, components?.
+ * health_fraction?. `explode`: target? or at?, power, break_blocks?, incendiary?, radius?, components?.
+ * `damage` may set `ignore_invulnerability`; a component may carry `per_stack: {status, amount, on: caster|victim,
+ * consume}` (adds `amount x stacks`, read before the hit, removed after the op when `consume`).
  * Default target is `victim` (the contact in scope) for damage and `caster` for heal / resurrect.
  */
 internal object DamageOpDecoder : OpDecoder {
@@ -27,6 +31,7 @@ internal object DamageOpDecoder : OpDecoder {
             whenExpr = whenExpr,
             target = reader.target("target", TargetRef.Victim),
             components = components(reader, required = true),
+            ignoreInvulnerability = reader.bool("ignore_invulnerability") ?: false,
         )
         "heal" -> DamageOp.Heal(
             id = id,
@@ -49,9 +54,21 @@ internal object DamageOpDecoder : OpDecoder {
             incendiary = reader.bool("incendiary") ?: false,
             radius = reader.number("radius"),
             components = components(reader, required = false),
+            at = if (reader.raw("at") != null) reader.location("at") else null,
         )
         else -> reader.fail("unknown damage op '$op'")
     }
+
+    private fun perStack(m: Map<*, *>, reader: OpReader): PerStackSpec = PerStackSpec(
+        status = m["status"]?.toString() ?: reader.fail("per_stack.status missing"),
+        amount = parseNumber(m["amount"]) ?: reader.fail("per_stack.amount missing"),
+        on = when (val side = m["on"]?.toString() ?: "caster") {
+            "caster" -> StackSide.CASTER
+            "victim" -> StackSide.VICTIM
+            else -> reader.fail("per_stack.on must be caster or victim, got '$side'")
+        },
+        consume = m["consume"] as? Boolean ?: false,
+    )
 
     private fun components(reader: OpReader, required: Boolean): List<DamageComponentSpec> {
         val raw = reader.raw("components") as? List<*>
@@ -64,6 +81,7 @@ internal object DamageOpDecoder : OpDecoder {
             DamageComponentSpec(
                 kind = m["kind"]?.toString() ?: reader.fail("component.kind missing"),
                 amount = parseNumber(m["amount"]) ?: reader.fail("component.amount missing"),
+                perStack = (m["per_stack"] as? Map<*, *>)?.let { perStack(it, reader) },
             )
         }
     }
