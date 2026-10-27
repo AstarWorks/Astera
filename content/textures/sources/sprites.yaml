@@ -17,6 +17,8 @@ sources:
   couture-s2-burst-star: { file: images/couture-s2-burst-star.png }
   couture-s2-burst-plume: { file: images/couture-s2-burst-plume.png }
   couture-s2-burst-shard: { file: images/couture-s2-burst-shard.png }
+  couture-s2-burst-soft: { file: images/couture-s2-burst-soft.png }
+  couture-s2-burst-core: { file: images/couture-s2-burst-core.png }
   couture-s2-shadow-spikes: { file: images/couture-s2-shadow-spikes.png }
   bastion-s1-ink: { file: images/bastion-s1-ink.png }
   bastion-s1-streak: { file: images/bastion-s1-streak.png }
@@ -90,6 +92,8 @@ sprites:
   couture-s2-burst-star: { from: couture-s2-burst-star, raw: true, frames: 1, size: 256 }
   couture-s2-burst-plume: { from: couture-s2-burst-plume, raw: true, frames: 1, size: 256 }
   couture-s2-burst-shard: { from: couture-s2-burst-shard, raw: true, frames: 1, size: 256 }
+  couture-s2-burst-soft: { from: couture-s2-burst-soft, raw: true, frames: 1, size: 256 }
+  couture-s2-burst-core: { from: couture-s2-burst-core, raw: true, frames: 1, size: 256 }
   couture-s2-shadow-spikes: { from: couture-s2-shadow-spikes, raw: true, frames: 1, size: 256 }
   couture-orbit: { draw: orbit, frames: 1, size: 128, color: "#fff4ee" }
   couture-cut: { draw: slice, frames: 6, size: 128, color: "#fff4ee" }
