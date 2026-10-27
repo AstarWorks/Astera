@@ -20,7 +20,7 @@ phases:
   type: projectile
   cast: []
   hit_entity:
-  - {type: damage, targets: {type: target}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 7}, attribute: physical}]}
+  - {type: damage, targets: {type: target}, ignore_invulnerability: {type: literal, value: true}, components: [{base: {type: literal, value: 7}, attribute: physical}], delay_ticks: {type: literal, value: 2}}
   - {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-hit2, follow: {type: literal, value: true}}
   - {type: play_vfx, targets: {type: target}, vfx_id: couture-s2-shears-stuck, follow: {type: literal, value: true}}
   - {type: play_sound, targets: {type: target}, sound_id: entity.player.attack.sweep, volume: {type: literal, value: 0.9}, pitch: {type: literal, value: 1.3}}

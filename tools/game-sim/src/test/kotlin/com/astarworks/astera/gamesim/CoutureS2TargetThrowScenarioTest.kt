@@ -7,64 +7,58 @@ import org.assertj.core.data.Offset
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0286: the S2 throw (shears, stuck shears, chain, hit2 burst) is anchored to the real target, at any distance, follows
- * it, and a throw with nothing in range flies to max range with no link and no burst. Real wiring, real shipped content.
+ * ADR-0287: S2 coin 2 is a real projectile (`couture-rapier-s2-shears`). The burst and the stuck shears exist only after a real
+ * hit, at the real target, and follow it when it moves; a shot with nothing in line produces neither. Real wiring, real shipped content.
  */
 class CoutureS2TargetThrowScenarioTest {
 
-    private fun ScenarioScope.isModel(spawned: SimDisplayGateway.Spawned, model: String): Boolean =
-        (spawned.spec.kind as? DisplayKind.Item)?.itemModel == model
+    private fun isRapier(spawned: SimDisplayGateway.Spawned): Boolean =
+        (spawned.spec.kind as? DisplayKind.Item)?.itemModel == "astera:couture-rapier"
 
-    private fun ScenarioScope.lastTeleportZ(handle: com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayHandle): Double? =
-        sim.displays.teleports.lastOrNull { it.handle == handle }?.at?.z
-
-    private fun throwAt(distance: Double) {
-        scenario("couture-s2-throw-$distance") {
+    private fun hitAt(distance: Double) {
+        scenario("couture-s2-shears-hit-$distance") {
             val caster = player("caster", team = "red")
             val target = player("target", at = Vec3(0.0, groundY, distance), team = "blue")
             val castTick = sim.tick
             caster.cast("couture-rapier-s2")
-            advance(44)
+            advance(52)
 
-            // The flying shears landed on the target: authored 5.4 blocks ahead + (live target - authored target).
-            val flying = sim.displays.spawned.last { it.tick - castTick >= 30 && isModel(it, "astera:couture-rapier") }
-            assertThat(lastTeleportZ(flying.handle)).describedAs("flying shears offset at $distance blocks")
-                .isCloseTo(distance - 5.4, Offset.offset(0.05))
+            // flying shears (riding the projectile) + the stuck shears spawned on the target after the hit
+            val rapiers = sim.displays.spawned.filter { it.tick - castTick >= 30 && isRapier(it) }
+            assertThat(rapiers).describedAs("flying + stuck shears at $distance blocks").hasSizeGreaterThanOrEqualTo(2)
+            val stuck = rapiers.last()
+            assertThat(stuck.at.z).describedAs("stuck shears spawn at the real target").isCloseTo(distance, Offset.offset(0.6))
 
-            // The hit2 burst spawns at the target when the hit lands.
-            val burst = sim.displays.spawned.filter { it.tick - castTick in 38..44 && Math.abs(it.at.z - distance) < 0.01 }
+            // the burst spawns at the target
+            val burst = sim.displays.spawned.filter { it.tick - castTick >= 34 && Math.abs(it.at.z - distance) < 0.6 }
             assertThat(burst).describedAs("burst displays at the target, $distance blocks").hasSizeGreaterThan(5)
 
-            // The chain exists and the stuck shears follow the target when it moves.
-            assertThat(sim.displays.spawned.filter { (it.spec.kind as? DisplayKind.Block)?.blockKey?.contains("white_concrete") == true && it.tick - castTick >= 30 })
-                .describedAs("chain line").isNotEmpty()
-            advance(4)
+            // the stuck shears move with the target
             target.position = Vec3(0.0, groundY, distance + 1.5)
             advance(3)
-            val stuck = sim.displays.spawned.last { isModel(it, "astera:couture-shears-linked") }
-            assertThat(lastTeleportZ(stuck.handle)).describedAs("stuck shears follow the target")
-                .isCloseTo(distance + 1.5 - 5.4, Offset.offset(0.05))
+            val lastTp = sim.displays.teleports.lastOrNull { it.handle == stuck.handle }?.at?.z
+            assertThat(lastTp).describedAs("stuck shears follow the target").isCloseTo(distance + 1.5, Offset.offset(0.6))
         }
     }
 
     @Test
-    fun `the throw lands on a target 3 blocks away`() = throwAt(3.0)
+    fun `the shears hit a target 3 blocks away and stay stuck`() = hitAt(3.0)
 
     @Test
-    fun `the throw lands on a target 7 blocks away`() = throwAt(7.0)
+    fun `the shears hit a target 7 blocks away and stay stuck`() = hitAt(7.0)
 
     @Test
-    fun `a throw with nothing in range flies to max range with no link and no burst`() {
-        scenario("couture-s2-throw-miss") {
+    fun `a shot with nothing in line shows no burst and no stuck shears`() {
+        scenario("couture-s2-shears-miss") {
             val caster = player("caster", team = "red")
+            player("bystander", at = Vec3(8.0, groundY, 4.0), team = "blue")
             val castTick = sim.tick
             caster.cast("couture-rapier-s2")
             advance(62)
-            val late = sim.displays.spawned.filter { it.tick - castTick in 30..61 }
-            assertThat(late.filter { isModel(it, "astera:couture-shears-linked") }).isEmpty()
-            assertThat(late.filter { (it.spec.kind as? DisplayKind.Block)?.blockKey?.contains("white_concrete") == true }).isEmpty()
-            assertThat(late.filter { Math.abs(it.at.z) > 1.0 }).describedAs("no burst away from the caster").isEmpty()
-            assertThat(late.filter { isModel(it, "astera:couture-rapier") }).describedAs("the shears still fly").isNotEmpty()
+            val late = sim.displays.spawned.filter { it.tick - castTick in 34..61 }
+            assertThat(late.filter { isRapier(it) }).describedAs("only the flying shears, nothing stuck").hasSize(1)
+            assertThat(late.filter { Math.abs(it.at.x) > 2.0 && Math.abs(it.at.z) > 2.0 && !isRapier(it) })
+                .describedAs("no burst at the bystander").isEmpty()
         }
     }
 }
