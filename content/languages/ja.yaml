@@ -2745,3 +2745,14 @@ astera:
   statusdesc.charge: "自分に溜まる。チャージ系スキルが消費して追加ダメージにする。"
   statusdesc.immunity: "一瞬だけダメージを受けない。"
   statusdesc.silence: "少しの間スキルを使えない。"
+
+  # Cross-server chat (ADR-0289)
+  chat.japanize.on: "日本語変換を有効にしました。"
+  chat.japanize.off: "日本語変換を無効にしました。"
+  chat.title.invalid: "使い方: /astera chat title <all|サーバー名> <タイトル> [| サブタイトル]"
+  chat.title.sent: "{target} にタイトルを送信しました。"
+  chat.discord.line: "<blue>[Discord]</blue> <name>: <message>"
+  command.help.chat-japanize-on: "この接続中の日本語変換を有効にします。"
+  command.help.chat-japanize-off: "この接続中の日本語変換を無効にします。"
+  command.help.chat-title: "指定サーバーまたは全サーバーに画面タイトルを送ります。"
+  command.help.chat-japanize: "この接続中の日本語変換を切り替えます。"

@@ -100,6 +100,18 @@ spec:
               value: "game"
             - name: ASTERA_REDIS_URI
               value: "redis://redis.databases.svc.cluster.local:6379"
+            - name: ASTERA_DISCORD_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: astera-runtime
+                  key: discord-bot-token
+                  optional: true
+            - name: ASTERA_DISCORD_CHANNEL_ID
+              valueFrom:
+                secretKeyRef:
+                  name: astera-runtime
+                  key: discord-channel-id
+                  optional: true
             - name: ASTERA_PG_URL
               value: "jdbc:postgresql://postgresql.databases.svc.cluster.local:5432/astera_db"
             - name: ASTERA_PG_USER

@@ -211,6 +211,34 @@ class ArchitectureTest {
         }
     }
 
+    @Test
+    fun `chat domain and application preserve clean boundaries`() {
+        moduleScope("plugin/chat").files.filter { it.packagee?.name?.contains(".domain") == true }
+            .assertFalse { file ->
+                hasBukkitFamilyImport(file) || file.imports.any { imp ->
+                    listOf("java.io", "java.nio", "java.net", "java.sql", "javax.sql", "org.slf4j", "org.koin",
+                        "kotlinx.serialization", "org.jetbrains.exposed", "io.lettuce").any { imp.name.startsWith(it) }
+                }
+            }
+        moduleScope("plugin/chat").files.filter { it.packagee?.name?.contains(".application") == true }
+            .assertFalse { file ->
+                hasBukkitFamilyImport(file) || file.imports.any { imp ->
+                    listOf("java.sql", "javax.sql", "java.net.http", "org.postgresql", "org.jetbrains.exposed", "io.lettuce")
+                        .any { imp.name.startsWith(it) }
+                }
+            }
+    }
+
+    @Test
+    fun `chat references Core only and existing siblings do not reference Chat`() {
+        val siblings = listOf("items", "combat", "match", "stats", "economy", "persistence")
+        moduleScope("plugin/chat").files.assertFalse { file ->
+            file.imports.any { imp -> siblings.any { imp.name.startsWith("com.astarworks.astera.$it.") } }
+        }
+        (coreScope().files + siblings.filterNot { it == "persistence" }.flatMap { moduleScope("plugin/$it").files })
+            .assertFalse { file -> file.imports.any { it.name.startsWith("com.astarworks.astera.chat.") } }
+    }
+
     // ─── Items plugin (formerly Weapons) ─────────────────────────────────────────────────────
 
     /**
@@ -556,6 +584,7 @@ class ArchitectureTest {
             "java.lang.RuntimeException",
         )
         val applicationPackagePrefixes = listOf(
+            "com.astarworks.astera.chat.application",
             "com.astarworks.astera.core.application",
             "com.astarworks.astera.items.application",
             "com.astarworks.astera.combat.application",
@@ -815,6 +844,7 @@ class ArchitectureTest {
     @Test
     fun `feature plugins must not import core adapter paper gui`() {
         val featureModules = listOf(
+            "plugin/chat",
             "plugin/items",
             "plugin/combat",
             "plugin/match",
