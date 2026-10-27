@@ -26,7 +26,7 @@ frames:
 
 gameplay:
   params: {throw_speed: 1.7, throw_range: 7.0, spin_dpt: 54, open_deg: 70, lane: 0.35,
-           stick_ticks: 10, reel_speed: 2.2, dmg_throw: 18, dmg_reel: 6, bleed_stacks: 2, bleed_ticks: 60}
+           stick_ticks: 28, reel_speed: 0.45, dmg_throw: 18, dmg_reel: 6, bleed_stacks: 2, bleed_ticks: 60}
   expose:
     - {id: range, param: throw_range, min: 2.0, max: 12.0}
     - {id: flight_speed, param: throw_speed, min: 0.8, max: 3.0}
@@ -37,7 +37,7 @@ gameplay:
       do:
         # shears overhead: long axis up, blade faces toward the throw direction
         - {id: raise_pose, op: pose, frame: shears,
-           keys: [{t: 0}, {t: 6, align: {axis: shears.axis, to: world.up, up: caster.forward}, ease: ease_out}]}
+           keys: [{t: 0}, {t: 6, align: {axis: shears.axis, to: world.up, up: caster.forward}, offset: "= pos(palm) + up(caster) * 0.9", ease: ease_out}]}
     - id: spin_up
       at: 4
       do:
@@ -46,7 +46,7 @@ gameplay:
         - {id: open_a, op: pose, frame: blade_a, keys: [{t: 0}, {t: 4, rotate: {axis: blade_a.edge, deg: "= open_deg / 2.0"}}]}
         - {id: open_b, op: pose, frame: blade_b, keys: [{t: 0}, {t: 4, rotate: {axis: blade_b.edge, deg: "= -open_deg / 2.0"}}]}
     - id: let_go
-      at: 8
+      at: 34
       do:
         - {id: raise_release, op: event, name: release}
   on:
