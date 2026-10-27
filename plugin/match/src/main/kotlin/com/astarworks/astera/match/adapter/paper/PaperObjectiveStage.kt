@@ -82,6 +82,8 @@ public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveSta
                 d.brightness = Display.Brightness(15, 15)
                 d.transformation = scaled(look.scale, lift = 0f, centred = true)
                 d.viewRange = VIEW_RANGE
+                // Invisible metadata tag (the name is not shown): the only way a protocol client tells a dropped objective from a stack.
+                if (look.loose) d.customName(net.kyori.adventure.text.Component.text(LOOSE_TAG))
             }.also { markers[match to key] = it.uniqueId }
         }
         if (look.spin) spin(match, key, display, look)
@@ -186,6 +188,8 @@ public class PaperObjectiveStage(private val plugin: JavaPlugin) : IObjectiveSta
 
     private companion object {
         const val VIEW_RANGE: Float = 2.0f
+        /** Metadata name of loose objective markers; keep equal to the bot-runner's `ModePlanner.LOOSE_TAG`. */
+        const val LOOSE_TAG: String = "astera:objective-loose"
         const val MAX_STACK: Int = 5
         const val BOB_HEIGHT: Float = 0.25f
         const val SPIN_DEGREES: Double = 90.0

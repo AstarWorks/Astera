@@ -179,7 +179,7 @@ public class CarryTntGameMode @JvmOverloads constructor(
 
     private fun refreshMarker(run: Run, match: Match) {
         val pos = loosePos(run)
-        if (pos == null) kit.unmarker(match.id, MARKER_KEY) else kit.marker(match.id, MARKER_KEY, run.stage.world, pos, LOOK)
+        if (pos == null) kit.unmarker(match.id, MARKER_KEY) else kit.marker(match.id, MARKER_KEY, run.stage.world, pos, LOOK.copy(loose = true))
         val atHome = pos != null && run.tnt.droppedAt == null
         if (atHome != run.pedestalLit) {
             run.pedestalLit = atHome

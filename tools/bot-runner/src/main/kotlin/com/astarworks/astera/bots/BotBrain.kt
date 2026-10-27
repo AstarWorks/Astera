@@ -401,7 +401,10 @@ class BotBrain(
      */
     private fun chooseDest(now: Long, starDest: Dest?): Dest? {
         if (starDest != null) return starDest
-        planner?.noteMarkers(bot.entities.values.filter { it.type == "BLOCK_DISPLAY" }.map { it.x to it.z })
+        planner?.let { pl ->
+            pl.noteMarkers(bot.entities.values.filter { bot.entityTextsById[it.id]?.contains(ModePlanner.LOOSE_TAG) == true }.map { it.x to it.z })
+            pl.noteConfirmed(bot.sounds.count { it.contains("objective/pickup") })
+        }
         if (now >= modePausedUntil) planner?.step(now, bot.x, bot.z)?.let { st ->
             modeBreakable = st.breakable
             return Dest(st.x, st.z, st.y, st.arrive, "mode", zone = st.zone)
