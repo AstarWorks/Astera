@@ -19,7 +19,7 @@ import kotlin.math.sqrt
  *  4. pixelize    — per target pixel: opaque by coverage; colour = palette entry that wins a vote weighted
  *                   by contrast to the cell mean, so outlines / highlights survive instead of blurring
  *  5. cleanup     — drop orphan pixels, fill pinholes, merge low-contrast single-pixel noise
- *  6. outline     — dark edge pixels become the shared outline colour, missing edges get one
+ *  6. outline     — shared dark silhouette, or an opt-in single-pixel material shade on the existing edge
  */
 internal object PixelConverter {
 
@@ -33,6 +33,10 @@ internal object PixelConverter {
         val coverage: Double = COVERAGE,
         /** Keep single pixels with no neighbour (embers, droplets). */
         val keepOrphans: Boolean = false,
+        /** Magenta-screen item sheets: remove tinted blends before palette selection. */
+        val removeMagenta: Boolean = false,
+        /** Recolour the existing outer black band instead of adding a black silhouette. */
+        val materialOutline: Boolean = false,
     )
 
     class Stages(
@@ -47,12 +51,18 @@ internal object PixelConverter {
     fun convert(source: BufferedImage, options: Options = Options()): BufferedImage = stages(source, options).result
 
     fun stages(source: BufferedImage, options: Options = Options()): Stages {
-        val normalized = normalize(Raster.of(source))
+        val raw = Raster.of(source)
+        if (options.removeMagenta) for (i in raw.px.indices) if (isKeyMagenta(raw.px[i])) raw.px[i] = 0
+        val normalized = normalize(raw)
         val smoothed = if (max(normalized.w, normalized.h) >= options.size * 4) median(normalized) else normalized
         val palette = palette(smoothed, options.colors)
         val pixelized = pixelize(smoothed, palette, options)
         val cleaned = cleanup(pixelized, options.keepOrphans)
-        val result = if (options.outline) outline(cleaned) else cleaned
+        val result = when {
+            options.materialOutline -> materialOutline(cleaned)
+            options.outline -> outline(cleaned)
+            else -> cleaned
+        }
         return Stages(normalized.image(), smoothed.image(), palette, pixelized.image(), cleaned.image(), result.image())
     }
 
@@ -349,6 +359,48 @@ internal object PixelConverter {
             if (touchesLight) r[x, y] = Sprite.OUTLINE
         }
         return r
+    }
+
+    /** Includes dark/desaturated antialias blends, not just RGB distance to #ff00ff. */
+    internal fun isKeyMagenta(c: Int): Boolean {
+        if (c ushr 24 == 0) return false
+        val red = c shr 16 and 255
+        val green = c shr 8 and 255
+        val blue = c and 255
+        return min(red, blue) > green + 12 && min(red, blue) > green * 1.25
+    }
+
+    /** Only the near-black band connected to transparency is an outline; enclosed dark detail stays. */
+    internal fun materialOutline(src: Raster): Raster {
+        fun nearBlack(c: Int) = c ushr 24 != 0 && maxOf(c shr 16 and 255, c shr 8 and 255, c and 255) < 52
+        fun edge(i: Int) = neighbours4(i % src.w, i / src.w).any { (x, y) -> !src.opaque(x, y) }
+        val band = mutableSetOf<Int>()
+        val queue = ArrayDeque<Int>()
+        for (i in src.px.indices) if (nearBlack(src.px[i]) && edge(i)) { band.add(i); queue.add(i) }
+        while (queue.isNotEmpty()) {
+            val i = queue.removeFirst()
+            for ((x, y) in neighbours4(i % src.w, i / src.w)) {
+                if (x !in 0 until src.w || y !in 0 until src.h) continue
+                val j = y * src.w + x
+                if (nearBlack(src.px[j]) && band.add(j)) queue.add(j)
+            }
+        }
+        val material = src.px.indices.filter { src.px[it] ushr 24 != 0 && !nearBlack(src.px[it]) }
+        require(material.isNotEmpty()) { "no material colour for outline" }
+        val out = src.copy()
+        for (i in band) {
+            val nearest = material.minBy { j ->
+                val dx = i % src.w - j % src.w
+                val dy = i / src.w - j / src.w
+                dx * dx + dy * dy
+            }
+            val c = src.px[nearest]
+            // Only the outermost pixel gets the dark shade; thicker source bands become material.
+            val shade = if (edge(i)) 0.60 else 1.0
+            out.px[i] = OPAQUE or (((c shr 16 and 255) * shade).roundToInt() shl 16) or
+                (((c shr 8 and 255) * shade).roundToInt() shl 8) or ((c and 255) * shade).roundToInt()
+        }
+        return out
     }
 
     // ---- colour math ---------------------------------------------------------------------------------

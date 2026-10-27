@@ -153,6 +153,19 @@ public interface IGameMode {
      * Norma level, stars carried and kills (MODE-15).
      */
     public fun objectiveStanding(match: Match, team: TeamId): Int? = null
+
+    /**
+     * The Norma time limit's clock, about once a second while the limit is running (modes with a time limit announce 60 / 30 / 10 seconds,
+     * tick the last ten and show the clock). [remainingTicks] is the regular time left (0 once it ran out); [overtimeTicks] is
+     * `-1` in regular time, otherwise how long overtime has been running.
+     */
+    public fun onClock(match: Match, remainingTicks: Long, overtimeTicks: Long) {}
+
+    /**
+     * Regular time ran out: true extends the match (up to `overtime_max_seconds`) while the trailing side still holds or
+     * carries the objective. Asked about once a second; the match ends on the first false.
+     */
+    public fun overtimeHolds(match: Match): Boolean = false
 }
 
 /**

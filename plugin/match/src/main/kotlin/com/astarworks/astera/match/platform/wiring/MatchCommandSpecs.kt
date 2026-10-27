@@ -77,6 +77,16 @@ internal object MatchCommandSpecs {
         ),
     )
 
+    /** `/astera rules`: the goal / how to win / tip card of the match the sender is in (shown at match start and on a beginner's first death too). */
+    fun buildRulesCommandSpec(cards: com.astarworks.astera.match.application.service.RuleCards): CommandSpec.Literal = CommandSpec.Literal(
+        name = "rules",
+        executor = { ctx ->
+            val senderId = ctx.sender
+                ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
+            if (cards.sendCurrent(senderId)) CommandResult.Success else CommandResult.Failure(MessageKey("astera.rules.not-in-match"))
+        },
+    ).forEveryone(Permission("astera.rules"))
+
     /**
      * `/astera queue join <lane>` / `leave` / `status` (Wave 5w ADR-0089 delta, WP8).
      *

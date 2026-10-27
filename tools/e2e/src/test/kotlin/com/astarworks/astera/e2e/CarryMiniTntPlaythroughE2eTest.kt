@@ -1,52 +1,45 @@
 package com.astarworks.astera.e2e
 
-import com.astarworks.astera.bots.ObjectiveWalker
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * Carry Mini TNT (content/game-modes/carry-mini-tnt.yaml: pieces are planted in the ENEMY base, 10 planted pieces blow it up and win;
- * the e2e image regrows the spots after 3 s): the red bot walks (A*) laps over the three pickup spots and carries each load into the
- * blue base until the match ends.
+ * Carry Mini TNT (Clam Blitz; content/game-modes/carry-mini-tnt.yaml: clams on the stage's clam-<n> spots, up to 8 carried, ten make a
+ * power TNT, only a thrown-in power TNT opens an enemy basket barrier). One bot cannot make a power TNT (the carry limit is 8 and the
+ * idle bot is the other team), so this walks laps over the clam spots until 8 are in the bag and lets the clock end the match; the
+ * power TNT + barrier rules are covered by the game-sim scenario in SiegeModesScenarioTest.
  */
 class CarryMiniTntPlaythroughE2eTest : ObjectivePlaythroughBase() {
 
     private val suite = "Carry Mini TNT playthrough"
 
     @Test
-    fun `carry-mini-tnt is played from collecting pieces to planting them in the enemy base`() {
+    fun `carry-mini-tnt is played from collecting clams to the time limit`() {
         val ctx = startMatch(suite, "carry-mini-tnt", "Mt") ?: return
-        val spots = listOf("wool-b", "wool-a", "wool-c").map { ctx.zone(it) }
-        val (bx, bz) = ctx.zone("base-blue")
+        val spots = ctx.objectives.zoneNames("clam-").sorted().map { ctx.zone(it) }
         val a = ctx.actor
         val others = listOf(ctx.idle)
+        E2eReport.check(suite, "the stage has clam spots and an enemy basket", "content/stages") {
+            assertThat(spots).describedAs("clam-<n> zones").isNotEmpty()
+            assertThat(ctx.objectives.zoneNames("basket-")).describedAs("basket-<team> zones").isNotEmpty()
+            "clams=${spots.size}"
+        }
 
-        var laps = 0
-        while (ctx.chatCount("blew up") < 1 && laps < MAX_LAPS) {
-            laps++
-            for ((sx, sz) in spots) {
-                val before = ctx.chatCount("mini-TNT picked up")
-                ctx.walker.walkTo(sx, sz, 1.2, 120_000, others) { ctx.chatCount("blew up") >= 1 }
-                // A pickup is a short hold: stay on the spot until the piece is in the bag.
-                a.waitUntil(3_000) { ctx.chatCount("mini-TNT picked up") > before || ctx.chatCount("blew up") >= 1 }
-            }
-            ctx.walker.walkTo(bx, bz, 2.0, 120_000, others) { ctx.chatCount("blew up") >= 1 }
-            a.waitUntil(4_000) { ctx.chatCount("planted", a) >= laps || ctx.chatCount("blew up") >= 1 }
+        var picked = 0
+        for ((sx, sz) in spots) {
+            if (picked >= CARRY_LIMIT || matchLines().isEmpty()) break
+            ctx.walker.walkTo(sx, sz, 1.2, 120_000, others)
+            // A pickup is a short hold: stay on the spot until the clam is in the bag.
+            if (a.waitUntil(3_000) { ctx.chatCount("/$CARRY_LIMIT.") > picked }) picked++
         }
-        E2eReport.check(suite, "collecting pieces and planting them in the enemy base (plant progress on chat and sidebar)", "SystemChat / sidebar") {
-            assertThat(ctx.chatCount("mini-TNT picked up")).describedAs("no piece picked up; chat=${ctx.chat().takeLast(6)}").isGreaterThanOrEqualTo(3)
-            assertThat(ctx.chatCount("planted")).describedAs("nothing planted; pos=${posOf(a)} chat=${ctx.chat().takeLast(6)}").isGreaterThanOrEqualTo(1)
-            "laps=$laps planted=${ctx.chat().filter { it.contains("planted") }}; sidebar=${sidebar(a)}"
+        E2eReport.check(suite, "standing on clam spots picks clams up (carried/limit on chat)", "SystemChat / sidebar") {
+            assertThat(ctx.chatCount("/$CARRY_LIMIT.")).describedAs("no clam picked up; pos=${posOf(a)} chat=${ctx.chat().takeLast(6)}").isGreaterThanOrEqualTo(3)
+            "picked=$picked; sidebar=${sidebar(a)}"
         }
-        val blown = a.waitUntil(8_000) { ctx.chatCount("blew up") >= 1 || matchLines().isEmpty() }
-        E2eReport.check(suite, "planting enough mini-TNT blows up the enemy base and wins the match", "SystemChat") {
-            assertThat(blown).describedAs("enemy base never blown up after $laps laps; pos=${posOf(a)} chat=${ctx.chat().takeLast(8)} sidebar=${sidebar(a)}").isTrue()
-            "chat=${ctx.chat().filter { it.contains("blew up") }}"
-        }
-        finishMatch(ctx)
+        finishMatch(ctx, endTimeoutMs = 240_000, actorWins = false)
     }
 
     private companion object {
-        const val MAX_LAPS = 6
+        const val CARRY_LIMIT = 8
     }
 }

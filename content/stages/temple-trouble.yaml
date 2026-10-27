@@ -1,11 +1,11 @@
 # Imported world (ADR-0281): "Temple Trouble" by Salgadoh, CC BY-SA 4.0, modified.
 # The blocks live in content/arenas/temple-trouble.yaml (credits there and in content/stages/NOTICE.md).
-# Cropped to the central play area (|x| <= 27, |z| <= 64) so a match is not a 185-block walk (stage shrink); the spawn islands and the isolated side islands are gone.
-# Stage x/z equal the map's own x/z; the map is moved up so its spawn floor is y=64. wool-* zones are control points.
+# Cropped to the central play area (|x| <= 27, |z| <= 78): a 157-block walk between the spawn daises (the original is 185), long enough for a lane fight, short enough to reach the middle in about 13 s. The temple tips beyond the spawn daises and the isolated side islands are gone.
+# Stage x/z equal the map's own x/z; the map is moved up so its spawn floor is y=64. wool-* zones (two, in the middle plaza) are control points: a 5x5 pad at y=58 (the grass layer) under a 20-block beam, visible from the spawn deck at y=65 (zone cell = centre column of the region, pad = cell +-2).
 id: temple-trouble
 display_name_key: astera.stage.temple-trouble.name
 layout:
-  marker_version: 2
+  marker_version: 4
   seed: 20261027
   surface_y: 64
   kill_y: 30
@@ -18,43 +18,37 @@ layout:
   atmosphere: {time_of_day: 6000, weather: clear}
 regions:
 - name: full-arena
-  min: {x: -30.0, y: 30.0, z: -68.0}
-  max: {x: 30.0, y: 120.0, z: 68.0}
-- name: wool-a
-  min: {x: -24.0, y: 59.0, z: -1.0}
-  max: {x: -22.0, y: 65.0, z: 1.0}
-- name: wool-b
-  min: {x: 22.0, y: 59.0, z: -1.0}
-  max: {x: 24.0, y: 65.0, z: 1.0}
+  min: {x: -30.0, y: 30.0, z: -82.0}
+  max: {x: 30.0, y: 120.0, z: 82.0}
 - name: wool-c
-  min: {x: -1.0, y: 59.0, z: -7.0}
-  max: {x: 1.0, y: 65.0, z: -5.0}
+  min: {x: -2.0, y: 58.0, z: -8.0}
+  max: {x: 3.0, y: 65.0, z: -3.0}
 - name: wool-d
-  min: {x: -4.0, y: 59.0, z: 5.0}
-  max: {x: -2.0, y: 65.0, z: 7.0}
+  min: {x: -2.0, y: 58.0, z: 4.0}
+  max: {x: 3.0, y: 65.0, z: 9.0}
 spawn_points:
 - team: red
-  position: {x: -5.5, y: 65.0, z: -61.5}
+  position: {x: -5.5, y: 65.0, z: -75.5}
 - team: red
-  position: {x: -2.5, y: 65.0, z: -61.5}
+  position: {x: -2.5, y: 65.0, z: -75.5}
 - team: red
-  position: {x: 2.5, y: 65.0, z: -61.5}
+  position: {x: 2.5, y: 65.0, z: -75.5}
 - team: red
-  position: {x: 5.5, y: 65.0, z: -61.5}
+  position: {x: 5.5, y: 65.0, z: -75.5}
 - team: blue
-  position: {x: 6.5, y: 65.0, z: 62.5}
+  position: {x: 6.5, y: 65.0, z: 76.5}
   yaw: 180.0
 - team: blue
-  position: {x: 3.5, y: 65.0, z: 62.5}
+  position: {x: 3.5, y: 65.0, z: 76.5}
   yaw: 180.0
 - team: blue
-  position: {x: -1.5, y: 65.0, z: 62.5}
+  position: {x: -1.5, y: 65.0, z: 76.5}
   yaw: 180.0
 - team: blue
-  position: {x: -4.5, y: 65.0, z: 62.5}
+  position: {x: -4.5, y: 65.0, z: 76.5}
   yaw: 180.0
 - role: lobby
-  position: {x: 0.5, y: 65.0, z: -58.5}
+  position: {x: 0.5, y: 65.0, z: -72.5}
 - role: spectator
   position: {x: 0.5, y: 100.0, z: 0.5}
   pitch: 60.0

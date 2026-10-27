@@ -73,6 +73,8 @@ public class AnnihilationGameMode @JvmOverloads constructor(
      * the Build phase expire at once on any server that has been up for a while).
      */
     private val clock: () -> Long = { 0L },
+    /** Pillar labels + guide arrows (MODE-18); `null` = none. */
+    private val clarity: AnnihilationClarity? = null,
 ) : IGameMode {
 
     override fun id(): GameModeId = ID
@@ -100,6 +102,7 @@ public class AnnihilationGameMode @JvmOverloads constructor(
             world = stage?.world,
             pillarSites = stage?.pillars.orEmpty(),
         )
+        clarity?.start(context.matchId)
         eventBus?.publish(
             GameModeEvent.GameModeStarted(
                 matchId = context.matchId,
@@ -137,6 +140,7 @@ public class AnnihilationGameMode @JvmOverloads constructor(
         val tr = tracker ?: return
         tr.advancePhasesIfNeeded(context.matchId, tick)
         tr.applySuddenDeathTick(context.matchId, tick)
+        clarity?.tick(context.matchId)
         // The win condition is not evaluated here: AnnihilationWinConditionListener
         // ends the match on TeamEliminated and on the sudden-death timer.
     }
@@ -147,6 +151,7 @@ public class AnnihilationGameMode @JvmOverloads constructor(
     }
 
     override fun onMatchEnded(context: GameModeContext) {
+        clarity?.end(context.matchId)
         tracker?.unregister(context.matchId)
         eventBus?.publish(
             GameModeEvent.GameModeEnded(

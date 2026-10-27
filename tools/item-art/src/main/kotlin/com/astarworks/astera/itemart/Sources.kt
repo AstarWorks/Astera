@@ -32,6 +32,8 @@ internal object Sources {
         val cell: Cell?,
         val colors: Int,
         val model: ModelStyle?,
+        val removeMagenta: Boolean = false,
+        val materialOutline: Boolean = false,
     )
 
     /** Column / row in a sheet of [cols] x [rows] equal cells. */
@@ -59,7 +61,7 @@ internal object Sources {
             }
             val colors = (opts?.get("colors") as? Number)?.toInt() ?: (src["colors"] as? Number)?.toInt() ?: DEFAULT_COLORS
             val model = (opts?.get("model") ?: src["model"])?.toString()?.let { ModelStyle.valueOf(it.uppercase()) }
-            item to Ref(item, name, file, cell, colors, model)
+            item to Ref(item, name, file, cell, colors, model, src["remove-magenta"] == true, src["material-outline"] == true)
         }
     }
 
@@ -112,7 +114,19 @@ internal object Sources {
             name to Source(name, file, grid, src)
         }
 
-    fun render(ref: Ref): BufferedImage = PixelConverter.convert(crop(ref), PixelConverter.Options(colors = ref.colors))
+    fun render(ref: Ref): BufferedImage {
+        val image = PixelConverter.convert(crop(ref), PixelConverter.Options(
+            colors = ref.colors, removeMagenta = ref.removeMagenta, materialOutline = ref.materialOutline,
+        ))
+        if (ref.removeMagenta) {
+            for (y in 0 until image.height) for (x in 0 until image.width) {
+                require(!PixelConverter.isKeyMagenta(image.getRGB(x, y))) {
+                    "${ref.item}: key-colour-like pixel at ($x,$y) after quantising ${ref.source}"
+                }
+            }
+        }
+        return image
+    }
 
     private const val DEFAULT_COLORS = 16
 }

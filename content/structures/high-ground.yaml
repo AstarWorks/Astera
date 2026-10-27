@@ -1,0 +1,12 @@
+# A raised firing platform (3 high) with a stepped ramp on its -x side and a parapet on the +x edge. The ramp is the way up;
+# the other three sides are sheer, so the platform is a ledge a team climbs onto and can be pushed off.
+id: high-ground
+boxes:
+  - { min: [-2, 1, -4], max: [6, 3, 4], block: "@deck" }
+  - { min: [-6, 1, -2], max: [-5, 1, 2], block: "@deck" }
+  - { min: [-5, 1, -2], max: [-4, 2, 2], block: "@deck" }
+  - { min: [-4, 1, -2], max: [-3, 3, 2], block: "@deck" }
+  - { min: [6, 4, -4], max: [6, 4, 4], block: "@wall" }
+  - { min: [-2, 4, -4], max: [6, 4, -4], block: "@wall" }
+  - { min: [-2, 4, 4], max: [6, 4, 4], block: "@wall" }
+  - { min: [2, 4, 0], max: [2, 4, 0], block: "@light" }

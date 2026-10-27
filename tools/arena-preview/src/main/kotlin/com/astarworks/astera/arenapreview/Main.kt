@@ -82,7 +82,7 @@ fun main(args: Array<String>) {
         for (spawn in stage.spawnPoints.filter { it.team != null }.groupBy { it.team }.values.map { it.first() }) {
             for (base in bases.filter { it.team != spawn.team }) route("spawn ${spawn.team!!.value} -> ${base.id}", floor(spawn.position.x).toInt(), floor(spawn.position.z).toInt(), base.x, base.z)
         }
-        for (region in stage.regions.filter { region -> listOf("jewelry-", "wool-", "tnt-spawn").any { region.name?.startsWith(it) == true } }) {
+        for (region in stage.regions.filter { region -> listOf("jewelry-", "wool-", "tnt-spawn", "deliver-", "checkpoint-").any { region.name?.startsWith(it) == true } }) {
             val gx = floor((region.min.x + region.max.x) / 2).toInt(); val gz = floor((region.min.z + region.max.z) / 2).toInt()
             val a = bases.firstOrNull { it.team?.value != region.name!!.removePrefix("core-") } ?: layout.islands.firstOrNull()
             if (a != null) route(region.name!!, a.x, a.z, gx, gz)
