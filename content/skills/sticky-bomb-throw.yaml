@@ -13,8 +13,10 @@ archetype: projectile
 cooldown_ticks: 100
 resource_cost: 0
 tags: [ ranged, fire ]
-# Contract: block_damage is an int (0 = cannot touch blocks). Small chip only.
-block_damage: 25
+# Small cover chip where the bomb lands (ADR-0280).
+block_damage:
+  amount: 25
+  radius: 1.0
 
 params:
   type: projectile

@@ -2,6 +2,7 @@ package com.astarworks.astera.match.platform.paper
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.match.adapter.paper.PaperBarrierGateway

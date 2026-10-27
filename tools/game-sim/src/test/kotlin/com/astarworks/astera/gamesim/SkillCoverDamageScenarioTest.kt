@@ -93,73 +93,6 @@ class SkillCoverDamageScenarioTest {
     }
 
     @Test
-    fun `the pickaxe breach strike smashes a radius of stone and falls in two strikes`() {
-        scenario("skill-cover-breach") {
-            val miner = player("miner", at = Vec3(0.5, groundY, 0.0), team = "red")
-            miner.world = world
-            val a = Vec3(0.0, groundY + 1, 3.0)
-            val b = Vec3(1.0, groundY + 1, 3.0)
-            val c = Vec3(0.0, groundY + 1, 4.0)
-            for (cell in listOf(a, b, c)) cover("astera:reinforced_wall", cell, shooter = miner)
-
-            // 300 HP of pickaxe damage on every cover cell within radius 2 of where the look ray meets cover.
-            miner.cast("field-pickaxe-breach")
-            assertThat(listOf(hp(a), hp(b), hp(c))).containsExactly(100, 100, 100)
-
-            // The skill has an 8 s cooldown; after it the second strike finishes them.
-            advance(170)
-            miner.cast("field-pickaxe-breach")
-            assertThat(listOf(hp(a), hp(b), hp(c))).containsExactly(0, 0, 0)
-        }
-    }
-
-    @Test
-    fun `the axe cleave cuts a line of barricades in one swing`() {
-        scenario("skill-cover-cleave") {
-            val cutter = player("cutter", at = Vec3(0.5, groundY, 0.0), team = "red")
-            cutter.world = world
-            val near = Vec3(0.0, groundY + 1, 2.0)
-            val far = Vec3(0.0, groundY + 1, 5.0)
-            val aside = Vec3(4.0, groundY + 1, 3.0)
-            cover("astera:barricade", near, shooter = cutter)
-            cover("astera:barricade", far, shooter = cutter)
-            cover("astera:barricade", aside, shooter = cutter)
-
-            cutter.cast("field-axe-cleave")
-
-            // 300 HP of axe damage on wood: the barricades on the line fall, the one off the line stands.
-            assertThat(hp(near)).isZero()
-            assertThat(hp(far)).isZero()
-            assertThat(hp(aside)).isEqualTo(300)
-        }
-    }
-
-    @Test
-    fun `the shovel dig-in places a sandbag wall that the tools can break`() {
-        scenario("skill-cover-dig-in") {
-            val digger = player("digger", at = Vec3(0.5, groundY, 0.0), team = "red")
-            digger.world = world
-            val blocks = sim.services.getOrThrow<IBlockStateGateway>()
-            val hitter = sim.services.getOrThrow<HitCustomBlockUseCase>()
-
-            digger.cast("field-shovel-dig-in")
-
-            // 3 wide x 2 tall, two blocks ahead (+z), all sandbags (200 HP).
-            val cells = listOf(-1.0, 0.0, 1.0).flatMap { x -> listOf(0.0, 1.0).map { h -> Vec3(x, groundY + h, 2.0) } }
-            assertThat(cells.map { hp(it) }).containsOnly(200)
-            assertThat(blocks.isCover(world, cells.first())).isTrue()
-
-            // They are ordinary cover: the shovel breaks one in two swings.
-            val target = cells[2]
-            repeat(2) {
-                advance(HitCustomBlockUseCase.HIT_COOLDOWN_TICKS.toInt() + 1)
-                hitter.hit(digger.id, world, target, ItemId("field-shovel"))
-            }
-            assertThat(hp(target)).isZero()
-        }
-    }
-
-    @Test
     fun `cover is rebuilt when the match ends and not before`() {
         scenario("skill-cover-rebuild", standaloneTeams = false) {
             val red = player("red", team = "red")
@@ -177,17 +110,15 @@ class SkillCoverDamageScenarioTest {
             val blocks = sim.services.getOrThrow<IBlockStateGateway>()
             val hitter = sim.services.getOrThrow<HitCustomBlockUseCase>()
 
-            // Damage one wall by 300 (breach), break the other with the pickaxe, and dig in a sandbag wall.
-            red.cast("field-pickaxe-breach")
+            // Damage one wall with a pickaxe swing (100 HP), break the other with four swings.
+            advance(HitCustomBlockUseCase.HIT_COOLDOWN_TICKS.toInt() + 1)
+            hitter.hit(red.id, stageWorld, wall, ItemId("iron-pickaxe"))
             repeat(4) {
                 advance(HitCustomBlockUseCase.HIT_COOLDOWN_TICKS.toInt() + 1)
-                hitter.hit(red.id, stageWorld, stone, ItemId("field-pickaxe"))
+                hitter.hit(red.id, stageWorld, stone, ItemId("iron-pickaxe"))
             }
-            red.cast("field-shovel-dig-in")
-            assertThat(hp(wall, stageWorld)).isEqualTo(100)
+            assertThat(hp(wall, stageWorld)).isEqualTo(300)
             assertThat(hp(stone, stageWorld)).isZero()
-            val dugIn = blocks.tracked(stageWorld).keys.filter { it.z == 2.0 }
-            assertThat(dugIn).hasSize(6)
 
             // Broken cover is not regenerated during the match: still damaged a moment later.
             advance(20)
@@ -196,7 +127,7 @@ class SkillCoverDamageScenarioTest {
             sim.services.getOrThrow<IMatchLifecycle>().end(matchId, EndReason.AdminEnded)
             advance(2)
 
-            // The next match starts intact: full HP again, the dug-in wall gone.
+            // The next match starts intact: full HP again, the broken wall back.
             assertThat(hp(wall, stageWorld)).isEqualTo(400)
             assertThat(hp(stone, stageWorld)).isEqualTo(400)
             assertThat(blocks.tracked(stageWorld).keys.filter { it.z == 2.0 }).isEmpty()

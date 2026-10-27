@@ -16,18 +16,6 @@ offers:
     price: { ore-gold: 5 }
     tab: weapons
     stack: 1
-  - item_id: field-pickaxe
-    price: { ore-iron: 6 }
-    tab: tools
-    stack: 1
-  - item_id: field-axe
-    price: { ore-iron: 6 }
-    tab: tools
-    stack: 1
-  - item_id: field-shovel
-    price: { ore-iron: 6 }
-    tab: tools
-    stack: 1
   - item_id: throwing-knives
     price: { ore-iron: 8 }
     tab: weapons

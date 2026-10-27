@@ -25,7 +25,7 @@ phases:
       width: 5
       height: 4
       length: 5
-      power: 600
+      power: 3
       tool_class: SHOVEL
     - type: play_sound
       targets: { type: caster }

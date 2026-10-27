@@ -69,7 +69,7 @@ public class OreNodeService(
         val origin = stage?.origin ?: Vec3(0.0, 0.0, 0.0)
         val config = registry.find(source) ?: return
         val specs = config.nodes.mapNotNull { group ->
-            runCatching { group.toSpec { id -> customBlocks.all().firstOrNull { it.id.value == id }?.baseBukkitMaterial } }
+            runCatching { group.toSpec { id -> customBlocks.all().firstOrNull { it.id.identifier == id }?.baseBukkitMaterial } }
                 .onFailure { onInvalid(source, it.message ?: it.toString()) }
                 .getOrNull()
         }

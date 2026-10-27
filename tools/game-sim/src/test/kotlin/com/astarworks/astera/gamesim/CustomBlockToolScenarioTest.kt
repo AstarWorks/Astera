@@ -53,30 +53,30 @@ class CustomBlockToolScenarioTest {
 
             // Reinforced wall (stone, 400 HP): pickaxe 100/hit -> exactly 4 swings; the first three leave it standing.
             val wall = place("astera:reinforced_wall", 0.0)
-            repeat(3) { assertThat(swing("field-pickaxe", wall)).isInstanceOf(Outcome.Chipped::class.java) }
+            repeat(3) { assertThat(swing("iron-pickaxe", wall)).isInstanceOf(Outcome.Chipped::class.java) }
             assertThat(blocks.tracked(world)[wall]?.durability).isEqualTo(100)
-            assertThat(swing("field-pickaxe", wall)).isInstanceOf(Outcome.Broken::class.java)
+            assertThat(swing("iron-pickaxe", wall)).isInstanceOf(Outcome.Broken::class.java)
 
             // The axe is the wrong tool for stone: 25/hit, so 16 swings. The shovel does nothing.
             val wallAxe = place("astera:reinforced_wall", 2.0)
-            assertThat(swingsToBreak("field-axe", wallAxe, 30)).isEqualTo(16)
+            assertThat(swingsToBreak("iron-axe", wallAxe, 30)).isEqualTo(16)
             val wallShovel = place("astera:reinforced_wall", 4.0)
-            assertThat(swingsToBreak("field-shovel", wallShovel, 30)).isNull()
-            assertThat(swing("field-shovel", wallShovel)).isEqualTo(Outcome.WrongTool)
+            assertThat(swingsToBreak("iron-shovel", wallShovel, 30)).isNull()
+            assertThat(swing("iron-shovel", wallShovel)).isEqualTo(Outcome.WrongTool)
             assertThat(blocks.tracked(world)[wallShovel]?.durability).isEqualTo(400)
 
             // Barricade (wood, 300 HP): the axe needs 3 swings, the pickaxe 12.
-            assertThat(swingsToBreak("field-axe", place("astera:barricade", 6.0), 30)).isEqualTo(3)
-            assertThat(swingsToBreak("field-pickaxe", place("astera:barricade", 8.0), 30)).isEqualTo(12)
+            assertThat(swingsToBreak("iron-axe", place("astera:barricade", 6.0), 30)).isEqualTo(3)
+            assertThat(swingsToBreak("iron-pickaxe", place("astera:barricade", 8.0), 30)).isEqualTo(12)
 
             // Sandbags (soil, 200 HP): the shovel needs 2 swings; pickaxe and axe are useless.
-            assertThat(swingsToBreak("field-shovel", place("astera:sandbags", 10.0), 30)).isEqualTo(2)
-            assertThat(swingsToBreak("field-pickaxe", place("astera:sandbags", 12.0), 30)).isNull()
-            assertThat(swingsToBreak("field-axe", place("astera:sandbags", 14.0), 30)).isNull()
+            assertThat(swingsToBreak("iron-shovel", place("astera:sandbags", 10.0), 30)).isEqualTo(2)
+            assertThat(swingsToBreak("iron-pickaxe", place("astera:sandbags", 12.0), 30)).isNull()
+            assertThat(swingsToBreak("iron-axe", place("astera:sandbags", 14.0), 30)).isNull()
 
             // Hardened soil (500 HP) wants the pickaxe: 5 swings; the shovel scratches (25/hit) -> 20.
-            assertThat(swingsToBreak("field-pickaxe", place("astera:hardened_soil", 16.0), 30)).isEqualTo(5)
-            assertThat(swingsToBreak("field-shovel", place("astera:hardened_soil", 18.0), 30)).isEqualTo(20)
+            assertThat(swingsToBreak("iron-pickaxe", place("astera:hardened_soil", 16.0), 30)).isEqualTo(5)
+            assertThat(swingsToBreak("iron-shovel", place("astera:hardened_soil", 18.0), 30)).isEqualTo(20)
         }
     }
 
@@ -93,7 +93,7 @@ class CustomBlockToolScenarioTest {
             val stages = mutableListOf<BlockBreakStage>()
             repeat(3) {
                 advance(HitCustomBlockUseCase.HIT_COOLDOWN_TICKS.toInt() + 1)
-                val outcome = (hitter.hit(miner.id, world, at, ItemId("field-pickaxe")) as Result.Success).value
+                val outcome = (hitter.hit(miner.id, world, at, ItemId("iron-pickaxe")) as Result.Success).value
                 stages += (outcome as Outcome.Chipped).stage
             }
             // 400 HP, 100 per swing: 25 %, 50 %, 75 % lost.
@@ -101,7 +101,7 @@ class CustomBlockToolScenarioTest {
             assertThat(stages).isSortedAccordingTo(compareBy { it.ordinal })
 
             advance(HitCustomBlockUseCase.HIT_COOLDOWN_TICKS.toInt() + 1)
-            hitter.hit(miner.id, world, at, ItemId("field-pickaxe"))
+            hitter.hit(miner.id, world, at, ItemId("iron-pickaxe"))
             val shown = eventsOf<BlockBreakStageChanged>().filter { it.position == at }.map { it.newStage }
             assertThat(shown).containsExactly(
                 BlockBreakStage.STAGE_2, BlockBreakStage.STAGE_4, BlockBreakStage.STAGE_6, BlockBreakStage.RESET,
@@ -119,8 +119,8 @@ class CustomBlockToolScenarioTest {
             val at = Vec3(0.0, groundY + 1, 10.0)
             blocks.placeCustomBlock(world, at, checkNotNull(registry.find(BlockType("astera:barricade"))), miner.id)
 
-            assertThat((hitter.hit(miner.id, world, at, ItemId("field-axe")) as Result.Success).value).isInstanceOf(Outcome.Chipped::class.java)
-            assertThat((hitter.hit(miner.id, world, at, ItemId("field-axe")) as Result.Success).value).isEqualTo(Outcome.TooFast)
+            assertThat((hitter.hit(miner.id, world, at, ItemId("iron-axe")) as Result.Success).value).isInstanceOf(Outcome.Chipped::class.java)
+            assertThat((hitter.hit(miner.id, world, at, ItemId("iron-axe")) as Result.Success).value).isEqualTo(Outcome.TooFast)
             assertThat(blocks.tracked(world)[at]?.durability).isEqualTo(200)
         }
     }

@@ -73,10 +73,10 @@ public class PaperItemDelivery(
         }
         if (current != null && !current.type.isAir) return false
         when (spec.equipSlot) {
-            com.astarworks.astera.core.domain.item.EquipSlot.HELMET -> inv.helmet = stack
-            com.astarworks.astera.core.domain.item.EquipSlot.CHESTPLATE -> inv.chestplate = stack
-            com.astarworks.astera.core.domain.item.EquipSlot.LEGGINGS -> inv.leggings = stack
-            else -> inv.boots = stack
+            com.astarworks.astera.core.domain.item.EquipSlot.HELMET -> inv.setItem(org.bukkit.inventory.EquipmentSlot.HEAD, stack)
+            com.astarworks.astera.core.domain.item.EquipSlot.CHESTPLATE -> inv.setItem(org.bukkit.inventory.EquipmentSlot.CHEST, stack)
+            com.astarworks.astera.core.domain.item.EquipSlot.LEGGINGS -> inv.setItem(org.bukkit.inventory.EquipmentSlot.LEGS, stack)
+            else -> inv.setItem(org.bukkit.inventory.EquipmentSlot.FEET, stack)
         }
         return true
     }

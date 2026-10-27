@@ -40,7 +40,7 @@ class ArsenalToolsScenarioTest {
                 error("never broke")
             }
 
-            val withTool = swingsToBreak("field-pickaxe", 0.0)
+            val withTool = swingsToBreak("iron-pickaxe", 0.0)
             val bare = swingsToBreak(null, 2.0)
             assertThat(bare).isGreaterThanOrEqualTo(withTool * 5)
         }

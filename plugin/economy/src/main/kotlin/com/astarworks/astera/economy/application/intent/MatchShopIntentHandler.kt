@@ -172,8 +172,8 @@ public class MatchShopIntentHandler(
         private val MSG_FAILED = MessageKey("astera.economy.matchshop.failed")
         private val TAB_ICONS: Map<MatchShopTab, ItemId> = mapOf(
             MatchShopTab.WEAPONS to ItemId("dagger"),
-            MatchShopTab.TOOLS to ItemId("field-pickaxe"),
-            MatchShopTab.BLOCKS to ItemId("field-shovel"),
+            MatchShopTab.TOOLS to ItemId("iron-pickaxe"),
+            MatchShopTab.BLOCKS to ItemId("iron-shovel"),
             MatchShopTab.ARMOR to ItemId("gui-admin-cat-all"),
         )
     }

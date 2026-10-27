@@ -25,7 +25,7 @@ phases:
       length: 8
       width: 3
       height: 3
-      power: 600
+      power: 3
       tool_class: PICKAXE
     - type: play_sound
       targets: { type: caster }

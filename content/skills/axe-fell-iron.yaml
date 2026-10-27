@@ -25,7 +25,7 @@ phases:
       length: 7
       width: 1
       height: 3
-      power: 350
+      power: 2
       tool_class: AXE
     - type: play_sound
       targets: { type: caster }

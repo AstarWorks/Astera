@@ -23,7 +23,7 @@ phases:
     - type: break_area
       shape: sphere
       radius: 2
-      power: 200
+      power: 1
       tool_class: PICKAXE
     - type: play_sound
       targets: { type: caster }

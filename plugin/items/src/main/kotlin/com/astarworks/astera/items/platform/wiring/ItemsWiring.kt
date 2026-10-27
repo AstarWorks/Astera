@@ -145,7 +145,7 @@ public object ItemsWiring {
             val refinementReport = com.astarworks.astera.core.application.service.ContentLoader(
                 com.astarworks.astera.core.application.service.ContentLoader.DEFAULT_PARSERS,
                 com.astarworks.astera.items.application.config.refinement.RefinementProfileYaml.serializer(),
-            ).loadFrom(refinementDir, refinementProfiles::registerFromYaml)
+            ).loadFrom(refinementDir, onLoaded = refinementProfiles::registerFromYaml)
             logger.info("Refinement profiles loaded: ${refinementReport.loaded} ok, ${refinementReport.failed} failed")
         } else {
             logger.info("No content/refinement directory; refinement profiles not loaded.")
