@@ -80,6 +80,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.title.Clien
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.title.ClientboundSetSubtitleTextPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.title.ClientboundSetTitleTextPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundCommandSuggestionPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundPlayerLoadedPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundClientTickEndPacket
@@ -175,6 +176,7 @@ class Bot private constructor(
     @Volatile var disconnectReason: String? = null; private set
     val packPushes = CopyOnWriteArrayList<PackPush>()
     val packStatusesSent = CopyOnWriteArrayList<ResourcePackStatus>()
+    /** Received system (non-overlay) and player chat, retained across backend hops. */
     val chat = CopyOnWriteArrayList<ChatLine>()
     val actionBars = CopyOnWriteArrayList<ChatLine>()
     /** Big-screen titles and subtitles (match start, Norma cleared, ...) in arrival order, as plain text. */
@@ -555,6 +557,11 @@ class Bot private constructor(
     /** Sends `/<cmd>` (leading slash optional). */
     fun command(cmd: String) {
         session.send(ServerboundChatCommandPacket(cmd.removePrefix("/")))
+    }
+
+    /** Unsigned chat for the offline/forwarded integration clients. */
+    fun say(text: String) {
+        session.send(ServerboundChatPacket(text, System.currentTimeMillis(), 0L, null, 0, java.util.BitSet(), 0))
     }
 
     /** Requests tab completion for the exact text a client would hold in its chat box (e.g. `/astera `). */
