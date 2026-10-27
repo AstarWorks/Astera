@@ -1,4 +1,4 @@
-# ADR-0296: Skin-rig fade: wider own-body column, ghost sphere
+# ADR-0297: Skin-rig fade: wider own-body column, ghost sphere
 
 - Status: Accepted
 - Supersedes: ADR-0293 decision 3 (column radii and window) and its ghost handling

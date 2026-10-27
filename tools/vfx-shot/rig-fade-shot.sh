@@ -139,6 +139,9 @@ for c in ${CASES:-std wall-back ceiling wall-front bystander ghost}; do
       for d in ${BYSTANDER_DISTS:-0.45 0.6 1.0}; do
         watcher_at "$d"; rec "bystander-$d" Watcher; case_sheet "bystander-$d" Watcher
       done ;;
+    look-down) # F5 back looking steeply down (camera nearly straight above the body)
+      prep_skill "$ARG"; CASTER_POSE="$CX $Y $CZ 0 80"; tp Caster $CASTER_POSE; watcher_at 2.4
+      perspective 1; rec look-down-f5 Caster; case_sheet look-down-f5 Caster ;;
     move-*) # held movement keys while the rig plays: move-walk (w), move-sprint (ctrl+w), move-strafe (d); fp then F5, with Watcher walking alongside
       mode="${c#move-}"
       case "$mode" in walk) keys="w";; sprint) keys="w ctrl";; strafe) keys="d";; *) keys="w";; esac
