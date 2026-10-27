@@ -1,6 +1,7 @@
 package com.astarworks.astera.combat.adapter.paper
 
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
+import com.astarworks.astera.combat.domain.damage.KnockbackPush
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.Server
@@ -58,6 +59,15 @@ public class PaperKnockbackGateway(
 ) : IKnockbackGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
+
+    override fun applyPush(target: PlayerId, push: KnockbackPush) {
+        val entity = server.getEntity(target.uuid) as? LivingEntity ?: return
+        val dx = entity.location.x - push.awayFrom.x
+        val dz = entity.location.z - push.awayFrom.z
+        val length = kotlin.math.sqrt(dx * dx + dz * dz)
+        if (length < 1.0e-6) return // exactly on top of the attacker: no direction to push
+        applyImpulse(target, Vec3(dx / length * push.strength, 0.0, dz / length * push.strength))
+    }
 
     override fun applyImpulse(target: PlayerId, impulse: Vec3) {
         // Players and non-player living entities (mobs travel as PlayerId(entityUuid), WP3).

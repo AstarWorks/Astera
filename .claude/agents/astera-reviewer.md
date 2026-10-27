@@ -87,6 +87,12 @@ If an item reached `verified`, the 現状 section of its `docs/vision/areas/*.md
 should have been updated (`area-spec-sync`). If the diff of `docs/vision/areas`
 is empty for a closing batch that changed player-visible behaviour, flag.
 
+### Understanding / referent / independence (C1-C3)
+
+- Briefs and ADRs in the diff or the prompt that quote founder words (「…」) without a `→ これは …` referent line: flag "brief/ADR quotes founder words without a referent".
+- Any founder question in the session that carried a "(Recommended)" option or no image/path of the reference: flag.
+- You get only the reference, the target and the template from `docs/contributing/understanding/`. Write your own ledger/behaviour list first, then compare with the builder's `Understanding:` file and list mismatches. Ignore any builder hypothesis in the prompt.
+
 ## Output format
 
 Report in this exact shape (single markdown message):
