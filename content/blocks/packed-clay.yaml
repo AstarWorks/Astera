@@ -15,3 +15,8 @@ tool_effectiveness:
   "PICKAXE/IRON": 20
   "AXE/IRON": 0
 placed_from: "packed-clay-block"
+
+visual:
+  base: note_block
+  state: {instrument: harp, note: "3", powered: "false"}
+texture: "astera:blocks/packed-clay"

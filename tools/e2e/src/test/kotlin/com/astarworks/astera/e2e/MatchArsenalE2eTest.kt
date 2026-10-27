@@ -314,15 +314,15 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             aimWall(a, 30)
             repeat(5) { bore() }
             assertThat(arenaBlockIs(-60, 66, 30, "minecraft:obsidian")).isTrue()
-            "1500 HP authored obsidian plate survived five 1-HP scratches"
+            "plain obsidian retained hardness-derived HP after five stone-tier bores"
         }
 
         E2eReport.check(suite, "cover shares accumulated damage and drops its reusable placement item", "RCON tempered glass") {
             inArena("run kill @e[type=minecraft:item,x=${-60 + originX},y=66,z=${36 + originZ},distance=..5]")
-            wall(36, "glass")
+            wall(36, "note_block[instrument=harp,note=8,powered=false]")
             aimWall(a, 36)
             bore()
-            assertThat(arenaBlockIs(-60, 66, 36, "minecraft:glass")).isTrue()
+            assertThat(arenaBlockIs(-60, 66, 36, "minecraft:note_block[instrument=harp,note=8,powered=false]")).isTrue()
             // 250 HP, stone pickaxe matrix 60% of 100 = 60 HP per cast.
             repeat(4) { bore() }
             assertThat(arenaSolid(-60, 66, 36)).isFalse()
@@ -371,13 +371,13 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
                 a.selectHotbar(empty)
                 Thread.sleep(300)
             }
-            inArena("run setblock ${-60 + originX} 66 ${0 + originZ} minecraft:dark_oak_planks")
+            inArena("run setblock ${-60 + originX} 66 ${0 + originZ} minecraft:note_block[instrument=harp,note=4,powered=false]")
             tpArena(a.name, -62.5, 65.0, 0.5, 270f, 0f)
             Thread.sleep(500)
             for (n in 1..60) {
                 a.dig(-60 + originX, 66, 0 + originZ, 100L)
                 Thread.sleep(400)
-                if (!arenaBlockIs(-60, 66, 0, "minecraft:dark_oak_planks")) return n
+                if (!arenaBlockIs(-60, 66, 0, "minecraft:note_block[instrument=harp,note=4,powered=false]")) return n
             }
             return null
         }

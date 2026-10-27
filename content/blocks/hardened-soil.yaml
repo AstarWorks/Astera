@@ -14,3 +14,10 @@ tool_effectiveness:
   "PICKAXE/IRON": 100
   "SHOVEL/IRON": 25
   "AXE/IRON": 0
+
+placed_from: "hardened-soil-block"
+
+visual:
+  base: note_block
+  state: {instrument: harp, note: "2", powered: "false"}
+texture: "astera:blocks/hardened-soil"

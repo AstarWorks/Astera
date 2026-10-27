@@ -46,6 +46,7 @@ val buildResourcePack = tasks.register<JavaExec>("buildResourcePack") {
     workingDir = rootDir
     args = listOf("pack", "$rootDir/content", packDir.get().asFile.absolutePath)
     inputs.dir("$rootDir/content/items")
+    inputs.dir("$rootDir/content/blocks")
     inputs.dir("$rootDir/content/textures")
     inputs.dir("$rootDir/content/models")
     inputs.dir("$rootDir/content/sounds")

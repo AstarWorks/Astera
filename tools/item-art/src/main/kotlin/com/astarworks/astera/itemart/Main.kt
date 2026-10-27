@@ -21,6 +21,16 @@ import kotlin.system.exitProcess
  */
 public fun main(args: Array<String>) {
     when (args.firstOrNull()) {
+        "blocks" -> {
+            require(args.size == 2) { "usage: blocks <contentDir>" }
+            val content = Path(args[1])
+            for ((rel, bytes) in BlockArt.renderAll(content)) {
+                val file = content.resolve(rel)
+                Files.createDirectories(file.parent)
+                Files.write(file, bytes)
+            }
+            println("block art written")
+        }
         "write-sources" -> {
             require(args.size >= 3) { "usage: write-sources <contentDir> <source>..." }
             val content = Path(args[1])

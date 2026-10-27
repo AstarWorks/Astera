@@ -20,10 +20,9 @@ import com.astarworks.astera.core.domain.world.ToolType
  * - [id] — namespaced [BlockType] (`astera:hardened_soil`).
  * - [displayName] — inline en/ja `LocalizedText`; renderer resolves at
  *   query time.
- * - [baseBukkitMaterial] — vanilla `Material` name used as the placed
- *   block's visual base (`DIRT`, `OBSIDIAN`, …). The Paper adapter resolves
- *   this to `org.bukkit.Material` at I/O time so the domain stays
- *   vendor-neutral.
+ * - [baseBukkitMaterial] — original material for sound and non-visual definitions.
+ * - [visual] — complete reserved world state (ADR-0300); visual-backed cover never
+ *   identifies ordinary terrain by its base material.
  * - [material] — coarse [BlockMaterial] used as the right axis of the
  *   damage matrix when [toolEffectiveness] doesn't cover a cell.
  * - [baseDurability] — initial + max HP of the block. Custom blocks may set
@@ -41,9 +40,7 @@ import com.astarworks.astera.core.domain.world.ToolType
  * - [immuneTo] — set of [BlockMaterial]s the block is fully immune to.
  *   A skill profile whose `effectiveTool.material` lookup lands in this
  *   set produces [IneffectiveReason.ImmuneByMaterial].
- * - [texture] — opaque texture reference (HUD glyph slug or texture asset
- *   id). The texture-gen + HUD glyph registry (Wave 5j) resolve to the
- *   actual asset at render time.
+ * - [texture] — namespaced block surface for the pack-generated cube model.
  * - [onRightClick] — optional [GuiIntent] dispatched when a player
  *   right-clicks the placed block (Wave 5block-embed, ADR-0120 extension
  *   of ADR-0090). When non-null, the runtime registers the intent in
@@ -67,6 +64,7 @@ public data class CustomBlockSpec(
     val immuneTo: Set<BlockMaterial> = emptySet(),
     val texture: String? = null,
     val onRightClick: GuiIntent? = null,
+    val visual: BlockVisual? = null,
 ) {
     init {
         require(baseDurability >= 1) {

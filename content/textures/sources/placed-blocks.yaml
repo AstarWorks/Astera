@@ -1,0 +1,10 @@
+# Original procedural surfaces, rendered by tools/item-art BlockArt. No Mojang image inputs.
+barricade: {pattern: cross, color: "#825733"}
+hardened-soil: {pattern: layers, color: "#876446"}
+packed-clay: {pattern: tiles, color: "#bf8972"}
+reinforced-planks: {pattern: planks, color: "#73815d"}
+reinforced-wall: {pattern: armor, color: "#795a61"}
+sandbags: {pattern: bags, color: "#b4a975"}
+stone-bulwark: {pattern: ashlar, color: "#677d8c"}
+tempered-glass: {pattern: glass, color: "#284d59"}
+obsidian-plate: {pattern: seams, color: "#252338"}

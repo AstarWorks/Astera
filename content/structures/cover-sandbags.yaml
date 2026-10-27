@@ -1,8 +1,8 @@
 # Breakable soil cover (content/blocks/sandbags.yaml): a sandbag horseshoe, open to the back (+z).
-# packed_mud is the block's identity (its base material) - the shovel is the right tool.
+# The block state is the custom block's reserved visual state (ADR-0300); a plain vanilla material would not be cover.
 id: cover-sandbags
 boxes:
-  - { min: [-2, 1, 0], max: [2, 1, 0], block: "minecraft:packed_mud" }
-  - { min: [-1, 2, 0], max: [1, 2, 0], block: "minecraft:packed_mud" }
-  - { min: [-2, 1, 1], max: [-2, 1, 1], block: "minecraft:packed_mud" }
-  - { min: [2, 1, 1], max: [2, 1, 1], block: "minecraft:packed_mud" }
+  - { min: [-2, 1, 0], max: [2, 1, 0], block: "minecraft:note_block[instrument=harp,note=6,powered=false]" }
+  - { min: [-1, 2, 0], max: [1, 2, 0], block: "minecraft:note_block[instrument=harp,note=6,powered=false]" }
+  - { min: [-2, 1, 1], max: [-2, 1, 1], block: "minecraft:note_block[instrument=harp,note=6,powered=false]" }
+  - { min: [2, 1, 1], max: [2, 1, 1], block: "minecraft:note_block[instrument=harp,note=6,powered=false]" }

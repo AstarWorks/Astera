@@ -246,7 +246,7 @@ internal class WorldMechanics(
             if (hardness < 0) continue
             val preferred = baseType == null || preferredKind(baseType) == tool.kind.name
             val custom = current?.let { coverBlocks.registry()?.find(it) }
-                ?: surface?.let { coverBlocks.registry()?.resolveByBaseMaterial(it.data.substringBefore('[').substringAfter(':').uppercase()) }
+                ?: surface?.let { coverBlocks.registry()?.resolveByBlockData(it.data) }
             val delay = 1 + index * 29 / ordered.size.coerceAtLeast(1)
             scheduler.runLaterTicks(regionScope(world, cell), delay.toLong()) hit@{
                 if (stopped || !mayEdit(ctx, world, cell, anywhere) || coverBlocks.exclusion()?.isExcluded(world, cell) == true) return@hit
@@ -261,8 +261,10 @@ internal class WorldMechanics(
                     ) as? Result.Success)?.value
                     when (outcome) {
                         is CoverBlockService.CellOutcome.Broken -> {
-                            surface?.let { toolBlocks?.effect(world, cell, it.data, false) }
-                            custom?.placedFrom?.let { toolBlocks?.dropCustom(world, cell, ctx.actorId, it) }
+                            if (custom?.visual == null) {
+                                surface?.let { toolBlocks?.effect(world, cell, it.data, false) }
+                                custom?.placedFrom?.let { toolBlocks?.dropCustom(world, cell, ctx.actorId, it) }
+                            }
                         }
                         is CoverBlockService.CellOutcome.Chipped -> toolBlocks?.hitEffect(world, cell)
                         is CoverBlockService.CellOutcome.Ineffective -> toolBlocks?.clink(world, cell)

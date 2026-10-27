@@ -60,6 +60,7 @@ public data class CustomBlockYamlConfig(
     @SerialName("placed_from") public val placedFrom: String? = null,
     @SerialName("immune_to") public val immuneTo: List<String> = emptyList(),
     public val texture: String? = null,
+    public val visual: BlockVisualYamlConfig? = null,
     /**
      * Wave 5block-embed (ADR-0120): optional `on_right_click` intent.
      * `key` is the dot-prefixed intent name; `payload` is the parameter
@@ -81,6 +82,9 @@ public data class CustomBlockYamlConfig(
      * catches and counts these as failed loads, surfaced via the load report.
      */
     public fun toSpec(): CustomBlockSpec {
+        require(placedFrom == null || (visual != null && texture != null)) {
+            "CustomBlockYamlConfig[$id]: placed_from requires visual and texture"
+        }
         val blockType = BlockType(id)
         val materialEnum = parseMaterial(material, field = "material")
         val toolMatrix: Map<ToolType, Int>? =
@@ -116,6 +120,7 @@ public data class CustomBlockYamlConfig(
             placedFrom = placedFrom?.let { ItemId(it) },
             immuneTo = immune,
             texture = texture,
+            visual = visual?.let { com.astarworks.astera.core.domain.block.BlockVisual(it.base, it.state) },
             onRightClick = intent,
         )
     }
@@ -251,3 +256,6 @@ public data class OnRightClickYamlConfig(
             )
         }
 }
+
+@Serializable
+public data class BlockVisualYamlConfig(public val base: String, public val state: Map<String, String>)

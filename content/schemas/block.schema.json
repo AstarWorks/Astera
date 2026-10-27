@@ -45,6 +45,49 @@
         "texture": {
             "type": "string"
         },
+        "visual": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "base",
+                "state"
+            ],
+            "properties": {
+                "base": {
+                    "const": "note_block"
+                },
+                "state": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "instrument",
+                        "note",
+                        "powered"
+                    ],
+                    "properties": {
+                        "instrument": {
+                            "const": "harp"
+                        },
+                        "note": {
+                            "enum": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9"
+                            ]
+                        },
+                        "powered": {
+                            "const": "false"
+                        }
+                    }
+                }
+            }
+        },
         "on_right_click": {
             "$ref": "#/definitions/com.astarworks.astera.core.application.config.block.OnRightClickYamlConfig"
         }
@@ -93,5 +136,20 @@
                 "key"
             ]
         }
-    }
+    },
+    "allOf": [
+        {
+            "if": {
+                "required": [
+                    "placed_from"
+                ]
+            },
+            "then": {
+                "required": [
+                    "visual",
+                    "texture"
+                ]
+            }
+        }
+    ]
 }
