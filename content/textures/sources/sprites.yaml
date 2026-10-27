@@ -13,6 +13,9 @@ sources:
   couture-s2-feather: { file: images/couture-s2-feather.png }
   couture-s2-feather-warm: { file: images/couture-s2-feather-warm.png }
   couture-s2-smear: { file: images/couture-s2-smear.png }
+  couture-s2-burst-star: { file: images/couture-s2-burst-star.png }
+  couture-s2-burst-plume: { file: images/couture-s2-burst-plume.png }
+  couture-s2-shadow-spikes: { file: images/couture-s2-shadow-spikes.png }
   bastion-s1-ink: { file: images/bastion-s1-ink.png }
   bastion-s1-streak: { file: images/bastion-s1-streak.png }
   bastion-s1-smoke: { file: images/bastion-s1-smoke.png }
@@ -80,6 +83,9 @@ sprites:
   couture-s2-feather: { from: couture-s2-feather, raw: true, frames: 1, size: 256 }
   couture-s2-feather-warm: { from: couture-s2-feather-warm, raw: true, frames: 1, size: 256 }
   couture-s2-smear: { from: couture-s2-smear, raw: true, frames: 1, size: 256 }
+  couture-s2-burst-star: { from: couture-s2-burst-star, raw: true, frames: 1, size: 256 }
+  couture-s2-burst-plume: { from: couture-s2-burst-plume, raw: true, frames: 1, size: 256 }
+  couture-s2-shadow-spikes: { from: couture-s2-shadow-spikes, raw: true, frames: 1, size: 256 }
   couture-orbit: { draw: orbit, frames: 1, size: 128, color: "#fff4ee" }
   couture-cut: { draw: slice, frames: 6, size: 128, color: "#fff4ee" }
   bastion-arc: { draw: arc, frames: 6, size: 256, color: "#ffcf3a" }
