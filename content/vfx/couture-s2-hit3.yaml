@@ -44,7 +44,7 @@ elements:
     - 80
     - 34
     - 1
-    alpha: 0.9
+    alpha: 0.55
   - t: 2
     translate:
     - 0.0
@@ -98,7 +98,7 @@ elements:
     - 80
     - 24
     - 1
-    alpha: 0.9
+    alpha: 0.55
   - t: 2
     translate:
     - 0.0
@@ -152,7 +152,7 @@ elements:
     - 80
     - 18
     - 1
-    alpha: 0.9
+    alpha: 0.55
   - t: 2
     translate:
     - 0.0
@@ -206,7 +206,7 @@ elements:
     - 80
     - 44
     - 1
-    alpha: 0.9
+    alpha: 0.55
   - t: 2
     translate:
     - 0.0
@@ -260,7 +260,7 @@ elements:
     - 80
     - 12
     - 1
-    alpha: 0.9
+    alpha: 0.55
   - t: 2
     translate:
     - 0.0
@@ -314,7 +314,7 @@ elements:
     - 80
     - 28
     - 1
-    alpha: 0.9
+    alpha: 0.55
   - t: 2
     translate:
     - 0.0
@@ -369,7 +369,7 @@ elements:
     - 3.6
     - 1
     ease: out_expo
-    alpha: 0.36
+    alpha: 0.27
   - t: 4
     translate:
     - 1.2
@@ -425,7 +425,7 @@ elements:
     - 2.0
     - 1
     ease: out_expo
-    alpha: 0.3
+    alpha: 0.22
   - t: 4
     translate:
     - 1.2
@@ -481,7 +481,7 @@ elements:
     - 2.6
     - 1
     ease: out_expo
-    alpha: 0.3
+    alpha: 0.22
   - t: 4
     translate:
     - 1.2
@@ -537,7 +537,7 @@ elements:
     - 1.2
     - 1
     ease: out_expo
-    alpha: 0.36
+    alpha: 0.27
   - t: 4
     translate:
     - 1.2
@@ -593,7 +593,7 @@ elements:
     - 1.6
     - 1
     ease: out_expo
-    alpha: 0.27
+    alpha: 0.2
   - t: 4
     translate:
     - 1.2
