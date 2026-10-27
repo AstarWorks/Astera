@@ -374,7 +374,8 @@ public class VfxPlayer(
         // The owner gets the hand back a tick before the displays go (they are scaled to zero for the owner in the same client
         // step); other viewers get it in the bundle that removes the displays (releaseOthersLeg).
         if (instance.ownerLegOpen && age >= plan.durationTicks - 1) releaseOwnerLeg(instance)
-        if (instance.lease != null && age >= (instance.elements.filter { it.handle != null }.minOfOrNull { it.plan.despawnTick } ?: Int.MAX_VALUE)) {
+        // The lease outlives its LAST display: an early-ending element (a flying prop, a short flash) must not hand the body back.
+        if (instance.lease != null && age >= (instance.elements.filter { it.handle != null }.maxOfOrNull { it.plan.despawnTick } ?: Int.MAX_VALUE)) {
             releaseOthersLeg(instance)
         }
         val targetCorrection = instance.request.target?.let { target ->
