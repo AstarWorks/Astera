@@ -6,6 +6,14 @@ duration_ticks: 44
 orient: yaw
 follow: false
 sample_ticks: 1
+# ADR-0290 palette: the plain id plays the first variant (day); a stage tagged vfx_palette: night would get id@night.
+palette:
+  main:
+    day: '#FFF2B0'
+    night: '#A8C4FF'
+  accent:
+    day: '#FFD060'
+    night: '#C9B8FF'
 rigs:
 - id: sword
   pivot: [0.0, 1.4, 0.3]
@@ -62,10 +70,11 @@ rigs:
     rotate: [0, 66, 0]
 elements:
 - id: flash
+  lane: core
   kind:
     type: quad
     glyph: ✦
-    color: '#FFEFA0'
+    color: $main
     alpha: 1.0
   brightness: 15
   start_tick: 4
@@ -79,10 +88,12 @@ elements:
     ease: out_back
   - t: 6
     scale: [1.5, 1.5, 1.0]
-    color: '#FF9A30'
+    color: $accent
     alpha: 0.0
     ease: out_quad
 - id: pilcore
+  lane: core
+  respect_hit_stop: true   # the pillar holds still through the hit-stop
   kind:
     type: block
     block: white_concrete
@@ -102,6 +113,7 @@ elements:
     scale: [0.0, 10.0, 0.0]
     ease: in_quad
 - id: pilbloom
+  lane: accent
   kind:
     type: block
     block: yellow_stained_glass
@@ -119,10 +131,12 @@ elements:
     scale: [0.0, 9.6, 0.0]
     ease: in_quad
 - id: pildisc
+  lane: core
+  respect_hit_stop: false   # the shock disc keeps expanding through the hit-stop
   kind:
     type: quad
     glyph: ●
-    color: '#FFF2B0'
+    color: $main
     alpha: 0.95
   billboard: fixed
   brightness: 15
@@ -138,10 +152,11 @@ elements:
     ease: out_expo
   - t: 12
     scale: [3.9, 3.9, 1.0]
-    color: '#FFD060'
+    color: $accent
     alpha: 0.0
     ease: out_quad
 - id: bolt0
+  lane: accent
   kind:
     type: block
     block: yellow_concrete
@@ -172,6 +187,7 @@ elements:
     scale: [0.0, 0.0, 0.76]
     ease: in_quad
 - id: bolt1
+  lane: accent
   kind:
     type: block
     block: white_concrete
@@ -202,6 +218,7 @@ elements:
     scale: [0.0, 0.0, 0.76]
     ease: in_quad
 - id: bolt2
+  lane: accent
   kind:
     type: block
     block: yellow_concrete
@@ -232,6 +249,7 @@ elements:
     scale: [0.0, 0.0, 0.76]
     ease: in_quad
 - id: bolt3
+  lane: accent
   kind:
     type: block
     block: white_concrete
@@ -261,3 +279,28 @@ elements:
   - t: 12
     scale: [0.0, 0.0, 0.76]
     ease: in_quad
+- id: dust
+  lane: ambient
+  kind:
+    type: sprite
+    sprite: smoke-puff
+    frame_ticks: 6
+    loop: false
+    color: '#8A8478'
+  billboard: center   # sprite elements default to fixed (edge-on from the side); smoke must face the camera
+  brightness: 9
+  start_tick: 4
+  end_tick: 22
+  count: 6
+  formation:
+    curve: {type: circle, radius: 1.5}
+    offset: [0, 0.25, 1.7]
+  keyframes:
+  - t: 0
+    scale: [1.2, 1.2, 1.2]
+    alpha: 0.9
+  - t: 18
+    translate: [0, 0.7, 0]
+    scale: [2.6, 2.6, 2.6]
+    alpha: 0.0
+    ease: out_quad

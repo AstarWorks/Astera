@@ -263,7 +263,7 @@ vfx-shot-reap: ## Kill vfx-shot clients / astera-shot-* stacks of dead runs, hos
 # ----------------------------------------------------------------------------
 
 .PHONY: live-bots
-live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=smoke|weapons|match|all (report: build/live-report.md)
+live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=smoke|weapons|match|chat|all (report: build/live-report.md)
 	bash scripts/live-bots.sh $(or $(SCENARIO),all)
 
 .PHONY: bots

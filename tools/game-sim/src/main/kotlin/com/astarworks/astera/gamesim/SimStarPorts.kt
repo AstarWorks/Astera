@@ -85,12 +85,8 @@ public class SimStarDropWorld : IStarDropWorld {
 /** [INormaPresentation] for the simulator: records what a player would have seen. */
 public class SimNormaPresentation : INormaPresentation {
     public data class LevelUp(val player: PlayerId, val audience: List<PlayerId>, val level: Int, val maxLevel: Int, val unlocked: List<NormaUnlock>)
-    public data class Choice(val player: PlayerId, val goal: NormaGoal, val target: Int)
 
     public val levelUps: MutableList<LevelUp> = CopyOnWriteArrayList()
-    public val opened: MutableList<PlayerId> = CopyOnWriteArrayList()
-    public val picked: MutableList<Choice> = CopyOnWriteArrayList()
-    public val defaulted: MutableList<Choice> = CopyOnWriteArrayList()
 
     public val locked: MutableList<Triple<PlayerId, Int, Rarity>> = CopyOnWriteArrayList()
 
@@ -100,18 +96,6 @@ public class SimNormaPresentation : INormaPresentation {
 
     override fun locked(player: PlayerId, required: Int, rarity: Rarity) {
         locked += Triple(player, required, rarity)
-    }
-
-    override fun choiceOpened(player: PlayerId) {
-        opened += player
-    }
-
-    override fun choicePicked(player: PlayerId, goal: NormaGoal, target: Int) {
-        picked += Choice(player, goal, target)
-    }
-
-    override fun choiceDefaulted(player: PlayerId, goal: NormaGoal, target: Int) {
-        defaulted += Choice(player, goal, target)
     }
 }
 

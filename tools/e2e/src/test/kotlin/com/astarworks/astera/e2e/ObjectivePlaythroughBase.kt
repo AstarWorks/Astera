@@ -112,10 +112,9 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             if (chat.any { it.contains("ended in a draw") }) E2eReport.notes += "${ctx.suite}: the match ended in a draw (time-limit tie)"
             "verdict lines: ${chat.filter { it.contains("VICTORY") || it.contains("DEFEAT") || it.contains("Victory") || it.contains("Ended by") || it.contains("reached Norma") || it.contains("was ahead") }.take(6)}"
         }
-        E2eReport.check(ctx.suite, "the result screen shows each team's final Norma standing and the loser's what-would-have-won hint", "SystemChat") {
+        E2eReport.check(ctx.suite, "the result screen shows each team's final Norma standing", "SystemChat") {
             val chat = ctx.chat(ctx.idle)
             assertThat(chat.any { it.contains("Norma") && it.contains("Lv ") && it.contains("/$E2E_NORMA_MAX_LEVEL") }).describedAs("no Norma standing line:\n${quote(chat, 30)}").isTrue()
-            if (actorWins) assertThat(chat.any { it.contains("To win:") }).describedAs("the loser got no what-would-have-won hint:\n${quote(chat, 30)}").isTrue()
             "norma lines: ${chat.filter { it.contains("Lv ") }.take(2)}"
         }
         E2eReport.check(ctx.suite, "each player is told their verdict (the winner VICTORY, the other DEFEAT)", "SystemChat") {

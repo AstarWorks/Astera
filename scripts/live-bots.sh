@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # QA-2 (ADR-0221): run protocol-bot scenarios against the LIVE docker stack (compose project astera-dev).
 #
-#   scripts/live-bots.sh [smoke|weapons|match|all]     # or: make live-bots SCENARIO=smoke
+#   scripts/live-bots.sh [smoke|weapons|match|chat|all]     # or: make live-bots SCENARIO=chat
 #
 # The bots log in DIRECTLY to the lobby/game backends from a throw-away runner container on the
 # stack's own network (astera-dev_default), answering Paper's Velocity modern-forwarding query with
@@ -13,7 +13,7 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 SCENARIO="${1:-${SCENARIO:-all}}"
-case "$SCENARIO" in smoke|weapons|match|all) ;; *) echo "[live-bots] unknown scenario '$SCENARIO' (smoke|weapons|match|all)"; exit 2;; esac
+case "$SCENARIO" in smoke|weapons|match|chat|all) ;; *) echo "[live-bots] unknown scenario '$SCENARIO' (smoke|weapons|match|chat|all)"; exit 2;; esac
 
 PROJECT="${LIVE_COMPOSE_PROJECT:-astera-dev}"
 NETWORK="${PROJECT}_default"
@@ -54,5 +54,7 @@ docker start -a "$NAME"
 rc=$?
 docker cp "$NAME:/workspace/tools/e2e/build/live-report.md" "$REPORT" 2>/dev/null \
   && echo "[live-bots] report: $REPORT" || echo "[live-bots] no report produced"
+mkdir -p build/live-test-results
+docker cp "$NAME:/workspace/tools/e2e/build/test-results/live/." build/live-test-results 2>/dev/null || true
 docker rm -f "$NAME" >/dev/null 2>&1 || true
 exit $rc

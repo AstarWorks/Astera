@@ -51,16 +51,16 @@ class LobbyAccessMapE2eTest : E2eBase() {
             "villager names near spawn=$names"
         }
 
-        // Tiles by menu slot (content/gui/main-menu.yaml). Training (14) teleports the player, so it is not clicked here.
+        // Tiles by menu slot (content/gui/main-menu.yaml). Training (11) teleports the player, so it is not clicked here.
         val tiles = linkedMapOf(
-            10 to "Play", 11 to "Shop", 12 to "Vault", 13 to "Travel", 15 to "Profile",
-            16 to "Settings", 17 to "Cosmetics", 19 to "Party", 20 to "Friends", 21 to "Achievements", 22 to "Daily and Quests",
+            12 to "Daily and Quests", 13 to "Play", 14 to "Shop", 15 to "Vault", 16 to "Cosmetics",
+            19 to "Party", 20 to "Friends", 21 to "Achievements", 22 to "Profile", 23 to "Travel", 24 to "Settings",
         )
         E2eReport.check(suite, "/astera menu is a 27-slot menu whose tiles each open a window", "ClientboundOpenScreen") {
             val menu = open(b, "menu")
             val filled = (0..26).filter { b.contents[menu.containerId]?.getOrNull(it)?.amount?.let { n -> n > 0 } == true }
             assertThat(rawKeys(listOf(menu.title))).describedAs("raw key as title").isEmpty()
-            assertThat(filled).describedAs("menu tiles").containsAll(tiles.keys + listOf(14, 22, 23))
+            assertThat(filled).describedAs("menu tiles").containsAll(tiles.keys + listOf(9, 10, 11, 17))
             b.closeWindow(menu.containerId)
             "menu title='${menu.title}' filled slots=$filled"
         }
@@ -74,7 +74,7 @@ class LobbyAccessMapE2eTest : E2eBase() {
                 "slot $slot -> title='${opened.title}'"
             }
         }
-        for ((slot, expect) in mapOf(23 to "/astera help")) {
+        for ((slot, expect) in mapOf(10 to "/astera help")) {
             E2eReport.check(suite, "menu tile at slot $slot prints its command hint ('$expect')", "ClientboundSystemChat") {
                 val menu = open(b, "menu")
                 val chatBefore = b.chat.size
@@ -88,7 +88,7 @@ class LobbyAccessMapE2eTest : E2eBase() {
 
         E2eReport.check(suite, "the Daily / Quests tile opens a 54-slot screen with the login bonus tile and the mission and quest headers", "ServerboundContainerClick -> OpenScreen + ContainerSetContent") {
             val menu = open(b, "menu")
-            val progress = clickOpens(b, menu, 22)
+            val progress = clickOpens(b, menu, 12)
             assertThat(progress).describedAs("Daily/Quests tile opened nothing; chat=${b.chatTexts().takeLast(3)}").isNotNull()
             assertThat(rawKeys(listOf(progress!!.title))).describedAs("raw key as title").isEmpty()
             val items = b.contents[progress.containerId].orEmpty()
