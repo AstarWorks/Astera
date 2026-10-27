@@ -26,13 +26,15 @@ class ArsenalWeaponArtE2eTest : E2eBase() {
         val assets = mutableMapOf<String, ByteArray>()
         ZipInputStream(connection.getInputStream()).use { zip ->
             generateSequence { zip.nextEntry }.forEach { entry ->
-                if (entry.name.startsWith("assets/astera/items/") || entry.name.startsWith("assets/astera/models/")) {
+                if (entry.name.startsWith("assets/astera/items/") || entry.name.startsWith("assets/astera/models/") ||
+                    entry.name.startsWith("assets/astera/textures/generated/items/")) {
                     assets[entry.name] = zip.readBytes()
                 }
             }
         }
         E2eReport.check("Arsenal art", "all 31 weapon definitions resolve to generated flat handheld art", "pushed pack ZIP") {
             for (id in custom) {
+                assertCleanArsenalIcon(id, assets.getValue("assets/astera/textures/generated/items/$id.png"))
                 assertThat(assets.getValue("assets/astera/items/$id.json").toString(Charsets.UTF_8))
                     .contains("astera:generated/items/$id")
                 assertThat(assets.getValue("assets/astera/models/generated/items/$id.json").toString(Charsets.UTF_8))

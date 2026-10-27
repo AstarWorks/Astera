@@ -1,5 +1,7 @@
 # Raster sources of item icons (ADR-0238). `./gradlew :tools:item-art:run` converts each listed item's
 # source to its 32x32 icon under textures/generated/items; unlisted items stay drawn by code (ADR-0193/0223).
+# Source options: remove-magenta removes key blends and rejects contaminated output; material-outline
+# replaces the outer near-black band with a 1px material shade without adding a rim. Both default false.
 # Any tool may make a source — an AI sheet (tools/item-art/scripts/gen_sheet.py), Aseprite, a hand-drawn
 # PNG — only the committed file counts. Per item: `name: <source>` or `{ from: <source>, colors: N, model: handheld|generated }`.
 
@@ -11,11 +13,15 @@ sources:
     cells: [bastion-greatsword, couture-rapier, crimson-chain-axe, dagger, edict-blade, ember-gauntlet, fire-staff, frost-staff, gossamer-katana, greatsword, knight-sword, orrery-staff, pistol, rifle, rtm-blaster, shotgun, sigil-rifle, thunder-staff, vendetta-rifle, verdant-staff, verdict-hammer]
 
   arsenal-tools-v1:
+    remove-magenta: true
+    material-outline: true
     file: sheets/arsenal-tools-v1.png
     grid: [5, 4]
     cells: [stone-pickaxe, stone-axe, stone-shovel, iron-pickaxe, iron-axe, iron-shovel, diamond-pickaxe, diamond-axe, diamond-shovel, ore-iron, ore-gold, ore-diamond, ore-emerald, null, null, null, null, null, null, null]
   # arsenal-weapons-art2: locked generated reference, 2026-10-28.
   arsenal-weapons-art2:
+    remove-magenta: true
+    material-outline: true
     file: sheets/arsenal-weapons-art2.png
     grid:
     - 6

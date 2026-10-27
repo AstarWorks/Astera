@@ -51,6 +51,7 @@ class ArsenalArtE2eTest : E2eBase() {
                 assertThat(assets).doesNotContainKeys(
                     "assets/astera/models/items/$id.json", "assets/astera/models/items/arsenal/$id.json",
                 )
+                assertCleanArsenalIcon(id, assets.getValue("assets/astera/textures/generated/items/$id.png"))
                 val image = ImageIO.read(assets.getValue("assets/astera/textures/generated/items/$id.png").inputStream())
                 assertThat(image.width).isEqualTo(32)
                 assertThat(image.height).isEqualTo(32)
