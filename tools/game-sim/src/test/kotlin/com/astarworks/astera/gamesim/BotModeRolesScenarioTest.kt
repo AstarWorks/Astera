@@ -4,14 +4,22 @@ import com.astarworks.astera.bots.ClamFact
 import com.astarworks.astera.bots.Mate
 import com.astarworks.astera.bots.ModeFacts
 import com.astarworks.astera.bots.ModePlanner
+import com.astarworks.astera.bots.PlayerView
 import com.astarworks.astera.bots.PowerTntFact
 import com.astarworks.astera.bots.Role
 import com.astarworks.astera.bots.Sighting
+import com.astarworks.astera.bots.SnapshotModeFacts
 import com.astarworks.astera.bots.StageObjectives
 import com.astarworks.astera.bots.TntFact
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.application.services.getOrThrow
+import com.astarworks.astera.core.domain.hud.HudComponent
+import com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry
+import com.astarworks.astera.match.domain.mode.GameModeId
+import com.astarworks.astera.match.application.gamemode.siege.IObjectiveStateQuery
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -299,6 +307,83 @@ class BotModeRolesScenarioTest {
             val second = checkNotNull(make("r1").step(0, spawn.first, spawn.third))
             val yellowPillar = zones.pillars().single { it.team == "yellow" && it.tier == 2 }
             assertThat(second.strike).isEqualTo(Triple(yellowPillar.x, yellowPillar.y, yellowPillar.z))
+        }
+    }
+
+    // ---- bots make objective progress on the real stage (BOT-04 / MODE-17: snapshot facts) ----------------------------
+
+    /** The sidebar count of [team] as [viewer] sees it. */
+    private fun ScenarioScope.countOf(viewer: SimEntity, team: String): Int? =
+        checkNotNull(sim.hud.sidebar(viewer.id)).lines.map { it as HudComponent.Text }
+            .filter { it.messageKey.value == "astera.hud.sidebar.count" && it.placeholders["team"] == team }
+            .firstNotNullOfOrNull { it.placeholders["count"]?.toIntOrNull() }
+
+    /** [ModeFacts] read from the mode's own state query, like a bot sharing a process with the server. */
+    private fun ScenarioScope.snapshotFacts(mode: String, match: MatchId): ModeFacts {
+        val query = sim.services.getOrThrow<IGameModeFrameworkRegistry>().get(GameModeId(mode)) as IObjectiveStateQuery
+        return SnapshotModeFacts(
+            snapshot = { query.objectiveSnapshot(match) },
+            players = { id -> sim.world.find(id)?.let { PlayerView(it.name, it.team?.value, it.position.x, it.position.z) } },
+        )
+    }
+
+    /**
+     * Drives a lone red bot through the real [mode] with snapshot facts until the red count drops below 100 (it scored) or the
+     * budget runs out; a blue player stands idle far away. Returns the red count at the end.
+     */
+    private fun ScenarioScope.playUntilScored(mode: String, stage: String, rounds: Int): Pair<Int?, List<String>> {
+        val runner = player("runner", at = Vec3(0.0, 65.0, -50.0))
+        val idle = player("idle", at = Vec3(0.0, 65.0, -50.0))
+        val match = startMatch(mode, mapOf(runner to "red", idle to "blue"), stage = stage)
+        val bot = planner(mode, objectives(mode), "runner", "red", listOf("blue"), snapshotFacts(mode, match), emptyList())
+        val kinds = ArrayList<String>()
+        var now = 0L
+        var held = 0
+        var confirmed = 0
+        repeat(rounds) {
+            if ((countOf(runner, "red") ?: 100) < 100 || eventsOf<MatchEnded>().isNotEmpty()) return countOf(runner, "red") to kinds
+            val have = sim.objectiveStage.carriedCount(runner.id)
+            if (have > held) confirmed += have - held
+            held = have
+            bot.noteConfirmed(confirmed)
+            val step = checkNotNull(bot.step(now, runner.position.x, runner.position.z)) { "mode has a plan" }
+            if (kinds.lastOrNull() != step.kind) kinds += step.kind
+            runner.moveTo(Vec3(step.x, 65.0, step.z))
+            advance(10)
+            now += 500
+        }
+        return countOf(runner, "red") to kinds
+    }
+
+    @Test
+    fun `splat zones - a bot takes the zones and the red count falls`() {
+        scenario("bot-progress-zones") {
+            val (count, kinds) = playUntilScored("capture-wool", "siege-isles-wool", 600)
+            assertThat(count).`as`("red count after the bot held zones; plan $kinds").isLessThan(100)
+        }
+    }
+
+    @Test
+    fun `rainmaker - a bot breaks the shield, carries the TNT through the checkpoints and scores`() {
+        scenario("bot-progress-rainmaker") {
+            val (count, kinds) = playUntilScored("carry-tnt", "siege-isles-tnt", 900)
+            assertThat(count).`as`("red count after delivery; plan $kinds").isLessThan(100)
+        }
+    }
+
+    @Test
+    fun `clam blitz - a bot collects clams, throws the power TNT and plants minis into the open basket`() {
+        scenario("bot-progress-clams") {
+            val (count, kinds) = playUntilScored("carry-mini-tnt", "siege-isles-mini-tnt", 1500)
+            assertThat(count).`as`("red count after planting; plan $kinds").isLessThan(100)
+        }
+    }
+
+    @Test
+    fun `jewelry - a bot steals a jewel, banks it and the red count falls`() {
+        scenario("bot-progress-jewelry") {
+            val (count, kinds) = playUntilScored("steal-jewelry", "siege-isles-jewelry", 600)
+            assertThat(count).`as`("red count after banking; plan $kinds").isLessThan(100)
         }
     }
 }

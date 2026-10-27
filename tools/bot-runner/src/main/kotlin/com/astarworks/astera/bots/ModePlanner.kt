@@ -10,12 +10,14 @@ import kotlin.math.hypot
  * Each call asks [RoleAssigner] which [Role] this bot plays NOW (from the team roster and the [ModeFacts]) and turns the
  * role into a [Step]. Roles are recomputed on every call, so a dead carrier, a lost zone or an opened barrier re-splits the squad.
  *
- *  - `carry-tnt`: shield breakers stand in `tnt-spawn`; the carrier takes the TNT through `checkpoint-<enemy>-<n>` to
- *    `deliver-<enemy>`; escorts shadow the carrier; interceptors chase the enemy carrier, goal guards hold `deliver-<own>`.
- *  - `capture-wool`: holders stay in the zones the team owns, contesters / retakers work the others.
- *  - `carry-mini-tnt`: collectors take `clam-<n>`, a power TNT holder throws at `basket-<enemy>`, rushers run clams in
- *    while the barrier is open, a guard stays at `basket-<own>`.
- *  - `steal-jewelry`: thieves take a jewel from `jewelry-<enemy>` and bank it, guards hold `jewelry-<own>`.
+ *  - `carry-tnt` (Rainmaker): shield breakers stand in `tnt-spawn`; the carrier takes the TNT through `checkpoint-<enemy>-<n>`
+ *    to `deliver-<enemy>`; escorts shadow the carrier; interceptors chase the enemy carrier, goal guards hold `deliver-<own>`.
+ *  - `capture-wool` (Splat Zones): holders stay in the zones the team owns, contesters / retakers work the others.
+ *  - `carry-mini-tnt` (Clam Blitz): collectors take `clam-<n>` until the team's hands add up to a power TNT, its holder throws
+ *    it at `basket-<enemy>` (opening the barrier), rushers plant the minis they carry while the barrier is open, a guard
+ *    stays at `basket-<own>`.
+ *  - `steal-jewelry`: thieves take a jewel from a stocked `jewelry-<enemy>` (a long channel that damage cancels) and bank it
+ *    at `base-<own>`; guards hold `jewelry-<own>` and chase every enemy thief that runs with a jewel.
  *  - `annihilation`: attackers dig the lowest standing pillar of the weakest enemy team, a defender stays at the own pillars.
  *
  * Pickups and deliveries are short holds in the mode (a progress bar fills), so a step only counts as done once the bot
@@ -27,8 +29,8 @@ class ModePlanner(
     private val ownTeam: String,
     private val enemyTeams: List<String>,
     private val zones: Zones,
-    private val carryLimit: Int = 4,
-    private val pickupCooldownMs: Long = 15_000,
+    private val carryLimit: Int = 8,
+    private val pickupCooldownMs: Long = 20_000,
     private val facts: ModeFacts = ModeFacts.NONE,
 ) {
     /** Stage regions by name (world coordinates). */
@@ -116,7 +118,7 @@ class ModePlanner(
      * A pickup counts only once the server confirmed it: after the hold completes the bot keeps standing on [s] until
      * [noteConfirmed] advances (then [apply] runs and true is returned), or [CONFIRM_MS] pass and the hold is retried.
      */
-    private fun pickedUp(s: Step, now: Long, x: Double, z: Double, apply: () -> Unit): Boolean {
+    private fun pickedUp(s: Step, now: Long, x: Double, z: Double, holdMs: Long = HOLD_MS, apply: () -> Unit): Boolean {
         if (awaitingSince != 0L) {
             if (confirmed > seenConfirmed) {
                 seenConfirmed = confirmed; awaitingSince = 0L; apply(); return true
@@ -124,7 +126,7 @@ class ModePlanner(
             if (now - awaitingSince > CONFIRM_MS) awaitingSince = 0L
             return false
         }
-        if (held(s, now, x, z)) awaitingSince = now
+        if (held(s, now, x, z, holdMs)) awaitingSince = now
         return false
     }
 
@@ -148,6 +150,7 @@ class ModePlanner(
 
     /** The step for a bot at ([x], [z]) at time [now]; null when the mode has no plan or the stage lacks the regions. */
     fun step(now: Long, x: Double, z: Double): Step? {
+        syncFromFacts()
         val s = when (modeId) {
             "carry-tnt" -> (if (holdingTnt) null else recover(now, x, z)) ?: carryTnt(now, x, z)
             "carry-mini-tnt" -> miniTnt(now, x, z)
@@ -159,6 +162,14 @@ class ModePlanner(
         role = s?.role
         lastEngage = s?.engage ?: Double.MAX_VALUE
         return s
+    }
+
+    /** Hands and TNT as the mode itself reports them (when the facts know), instead of what the pickups inferred. */
+    private fun syncFromFacts() {
+        when (modeId) {
+            "carry-tnt" -> facts.tnt()?.let { holdingTnt = it.carrierName == botName }
+            "carry-mini-tnt", "steal-jewelry" -> facts.carriedBy(botName)?.let { carried = it }
+        }
     }
 
     private fun assigner() = RoleAssigner(ownTeam, botName, roster)
@@ -223,8 +234,19 @@ class ModePlanner(
         }
     }
 
-    /** The carrier's walk: each `checkpoint-<enemy>-<n>` ahead of it in order (a short hold each), then the enemy goal. */
+    /**
+     * The carrier's walk (Rainmaker): every checkpoint on the way is a hold (the mode re-shields the carrier there), the last
+     * stop is the enemy `deliver-<team>` pedestal, whose hold is the knockout. With the mode's own waypoint in the facts the
+     * walk follows it (checkpoints the team already passed are not walked again, even by a new carrier); otherwise the bot
+     * remembers the checkpoints it secured itself.
+     */
     private fun route(now: Long, x: Double, z: Double): Step? {
+        facts.nextWaypoint(ownTeam)?.let { w ->
+            val s = Step(if (w.goal) "goal" else "waypoint", w.x, zones.point(TNT_SPAWN)?.second ?: 65.0, w.z,
+                if (w.goal) BASE_RADIUS else CHECKPOINT_RADIUS, if (w.goal) "deliver" else "checkpoint", Role.CARRIER, CARRY_ENGAGE)
+            if (held(s, now, x, z, if (w.goal) DELIVER_HOLD_MS else CHECKPOINT_HOLD_MS) && w.goal) { holdingTnt = false; return carryTnt(now, x, z) }
+            return s
+        }
         val enemy = enemyTeams.filter { Regions.goal(it, zones) != null }
             .minByOrNull { t -> zones.point(Regions.goal(t, zones)!!)!!.let { hypot(it.first - x, it.third - z) } } ?: return null
         val goalName = Regions.goal(enemy, zones) ?: return null
@@ -239,7 +261,7 @@ class ModePlanner(
             return s
         }
         val s = step(goalName, "deliver", BASE_RADIUS, Role.CARRIER, CARRY_ENGAGE) ?: return null
-        if (held(s, now, x, z)) { holdingTnt = false; secured.clear(); return carryTnt(now, x, z) }
+        if (held(s, now, x, z, DELIVER_HOLD_MS)) { holdingTnt = false; secured.clear(); return carryTnt(now, x, z) }
         return s
     }
 
@@ -249,37 +271,40 @@ class ModePlanner(
         val a = assigner().carryMiniTnt(facts, enemyTeams, carried, holdsPower = false)
         return when (a.role) {
             Role.BASKET_GUARD -> {
-                val power = facts.powerTnt()?.takeIf { it.team != ownTeam }
+                val power = facts.powerTnts().firstOrNull { it.team != ownTeam }
                 if (power != null) at(power.x, zones.point(Regions.basket(ownTeam, zones) ?: "")?.second ?: 65.0, power.z, "power-tnt", "intercept", 3.0, Role.BASKET_GUARD)
                 else Regions.basket(ownTeam, zones)?.let { step(it, "guard", GUARD_RADIUS, Role.BASKET_GUARD, GUARD_ENGAGE) }
             }
-            Role.THROWER -> deliverClams(now, x, z, "throw", Role.THROWER)
+            // The power TNT is thrown INTO the enemy basket: that is what opens its barrier, so it never waits for it.
+            Role.THROWER -> deliverClams(now, x, z, "throw", Role.THROWER, waitForBarrier = false)
             Role.RUSHER -> deliverClams(now, x, z, "deliver", Role.RUSHER)
             else -> collect(now, x, z)
         }
     }
 
-    /** Plants what the hands hold in the nearest enemy basket; waits outside while its barrier is shut. */
-    private fun deliverClams(now: Long, x: Double, z: Double, kind: String, role: Role): Step? {
+    /** Carries what the hands hold into the nearest enemy basket; minis wait outside while its barrier is shut, a power TNT does not. */
+    private fun deliverClams(now: Long, x: Double, z: Double, kind: String, role: Role, waitForBarrier: Boolean = true): Step? {
         val basket = nearestEnemy({ Regions.basket(it, zones) }, x, z) ?: return null
         val team = enemyTeams.first { Regions.basket(it, zones) == basket }
-        if (facts.barrierOpen(team) == false) return step(basket, "stage", BARRIER_WAIT, role)
+        if (waitForBarrier && facts.barrierOpen(team) == false) return step(basket, "stage", BARRIER_WAIT, role)
         val s = step(basket, kind, BASE_RADIUS, role) ?: return null
-        if (held(s, now, x, z)) { carried = 0; return miniTnt(now, x, z) }
+        if (held(s, now, x, z)) { if (kind != "throw") carried = 0; return miniTnt(now, x, z) }
         return s
     }
 
     private fun collect(now: Long, x: Double, z: Double): Step? {
         val stage = Regions.clams(zones).mapNotNull { n -> zones.point(n)?.let { ClamFact(n, it.first, it.third) } }
         val lying = facts.clams() ?: stage.filter { now - (takenAt[it.id] ?: -pickupCooldownMs) >= pickupCooldownMs }
-        // Plant in the enemy basket when the hands are full or nothing is left to take.
+        // Hands full (or nothing left to take): a shut barrier means waiting at the own basket until a power TNT opens one.
         if (carried >= carryLimit || (carried > 0 && lying.isEmpty())) {
-            return deliverClams(now, x, z, "deliver", Role.COLLECTOR)
+            val open = enemyTeams.any { facts.barrierOpen(it) == true }
+            if (open || facts.barrierOpen(enemyTeams.firstOrNull() ?: "") == null) return deliverClams(now, x, z, "deliver", Role.COLLECTOR)
+            return Regions.basket(ownTeam, zones)?.let { step(it, "stage", BARRIER_WAIT, Role.COLLECTOR) }
         }
         val target = claimed(lying, x, z) ?: stage.minByOrNull { hypot(it.x - x, it.z - z) } ?: return null
         val y = zones.point(target.id)?.second ?: zones.point(Regions.clams(zones).firstOrNull() ?: "")?.second ?: 65.0
         val s = Step(target.id, target.x, y, target.z, 1.5, "pickup", Role.COLLECTOR)
-        if (target in lying && pickedUp(s, now, x, z) { takenAt[target.id] = now; carried++ }) return miniTnt(now, x, z)
+        if (target in lying && pickedUp(s, now, x, z) { takenAt[target.id] = now; carried = facts.carriedBy(botName) ?: (carried + 1) }) return miniTnt(now, x, z)
         return s
     }
 
@@ -304,20 +329,26 @@ class ModePlanner(
         if (carried > 0) {
             val bank = Regions.bank(ownTeam, zones) ?: return null
             val s = step(bank, "bank", BASE_RADIUS, Role.THIEF) ?: return null
-            if (held(s, now, x, z)) { carried = 0; return jewelry(now, x, z) }
+            if (held(s, now, x, z, BANK_HOLD_MS)) { carried = 0; return jewelry(now, x, z) }
             return s
         }
         val own = "jewelry-$ownTeam"
-        val threatened = zones.point(own)?.let { p -> facts.enemies().any { hypot(it.x - p.first, it.z - p.third) <= THREAT_RANGE } } == true
-        val a = assigner().stealJewelry(threatened)
+        val ownPoint = zones.point(own)
+        val threatened = ownPoint?.let { p -> facts.enemies().any { hypot(it.x - p.first, it.z - p.third) <= THREAT_RANGE } } == true
+        val thieves = facts.jewelCarriers().filter { it.team != ownTeam }
+        val a = assigner().stealJewelry(threatened, thiefLoose = thieves.isNotEmpty())
         if (a.role == Role.PEDESTAL_GUARD) {
-            val near = facts.enemies().minByOrNull { zones.point(own)?.let { p -> hypot(it.x - p.first, it.z - p.third) } ?: Double.MAX_VALUE }
-            if (near != null && threatened) return at(near.x, zones.point(own)?.second ?: 65.0, near.z, "thief", "intercept", 2.5, Role.PEDESTAL_GUARD)
+            val y = ownPoint?.second ?: 65.0
+            // A thief with a jewel is chased wherever it is: killing it drops the jewel before it banks.
+            thieves.minByOrNull { hypot(it.x - x, it.z - z) }?.let { return at(it.x, y, it.z, "thief", "intercept", 2.5, Role.PEDESTAL_GUARD) }
+            val near = facts.enemies().minByOrNull { ownPoint?.let { p -> hypot(it.x - p.first, it.z - p.third) } ?: Double.MAX_VALUE }
+            if (near != null && threatened) return at(near.x, y, near.z, "thief", "intercept", 2.5, Role.PEDESTAL_GUARD)
             return step(own, "guard", GUARD_RADIUS, Role.PEDESTAL_GUARD, GUARD_ENGAGE)
         }
-        val zone = nearestEnemy({ "jewelry-$it" }, x, z) ?: return null
+        val stocked = enemyTeams.filter { facts.jewelsOn(it)?.let { n -> n > 0 } != false }
+        val zone = nearestEnemy({ t -> "jewelry-$t".takeIf { t in stocked } }, x, z) ?: return null
         val s = step(zone, "jewel", 1.5, Role.THIEF) ?: return null
-        if (pickedUp(s, now, x, z) { carried = 1 }) return jewelry(now, x, z)
+        if (pickedUp(s, now, x, z, STEAL_HOLD_MS) { carried = facts.carriedBy(botName) ?: 1 }) return jewelry(now, x, z)
         return s
     }
 
@@ -355,15 +386,12 @@ class ModePlanner(
             strike = Triple(p.x, p.y, p.z))
     }
 
-    /**
-     * Stage region ids per the objective-mode region contract (`carry-tnt`: `deliver-`/`checkpoint-`, `carry-mini-tnt`: `basket-`/`clam-`).
-     * The older stage names are still used by stages that have not moved to the contract yet.
-     */
+    /** Stage region ids per the objective-mode region contract (ADR-0296): no fallbacks, a stage without them has no plan. */
     private object Regions {
-        fun goal(team: String, z: Zones) = listOf("deliver-$team", "base-$team").firstOrNull { z.point(it) != null }
-        fun basket(team: String, z: Zones) = listOf("basket-$team", "base-$team").firstOrNull { z.point(it) != null }
-        fun bank(team: String, z: Zones) = listOf("base-$team", "jewelry-$team").firstOrNull { z.point(it) != null }
-        fun clams(z: Zones) = z.names("clam-").ifEmpty { z.names("wool-") }
+        fun goal(team: String, z: Zones) = "deliver-$team".takeIf { z.point(it) != null }
+        fun basket(team: String, z: Zones) = "basket-$team".takeIf { z.point(it) != null }
+        fun bank(team: String, z: Zones) = "base-$team".takeIf { z.point(it) != null }
+        fun clams(z: Zones) = z.names("clam-")
         fun checkpoints(enemy: String, z: Zones) = z.names("checkpoint-$enemy-").sortedBy { it.substringAfterLast('-').toIntOrNull() ?: Int.MAX_VALUE }
     }
 
@@ -372,7 +400,11 @@ class ModePlanner(
         const val TNT_SPAWN = "tnt-spawn"
         const val BASE_RADIUS = 3.0
         const val HOLD_MS = 1_500L
-        const val CHECKPOINT_HOLD_MS = 3_500L
+        /** Server holds plus a margin: checkpoint 3 s, deliver 2 s, steal 4 s, bank 0.75 s. */
+        const val CHECKPOINT_HOLD_MS = 3_800L
+        const val DELIVER_HOLD_MS = 2_800L
+        const val STEAL_HOLD_MS = 4_500L
+        const val BANK_HOLD_MS = 1_500L
         const val CONFIRM_MS = 4_000L
         /** Custom name the mode puts on loose (dropped) objective markers; keep equal to `PaperObjectiveStage.LOOSE_TAG`. */
         const val LOOSE_TAG = "astera:objective-loose"

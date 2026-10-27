@@ -89,11 +89,12 @@ class RoleAssigner(
      * - everybody else collects.
      */
     fun carryMiniTnt(facts: ModeFacts, enemyTeams: List<String>, carried: Int, holdsPower: Boolean): Assignment {
-        val power = facts.powerTnt()
-        if (holdsPower || (power?.team == own && power.holder == self)) return Assignment(Role.THROWER)
-        val enemyPower = power != null && power.team != own
+        val powers = facts.powerTnts()
+        if (holdsPower || powers.any { it.team == own && it.holder == self }) return Assignment(Role.THROWER)
+        val power = powers.firstOrNull { it.team != own }
+        val enemyPower = power != null
         val guards = if (n >= 3) (if (enemyPower) 2 else 1) else if (enemyPower && n == 2) 1 else 0
-        if (index >= n - guards) return Assignment(Role.BASKET_GUARD, subject = power?.takeIf { enemyPower }?.holder)
+        if (index >= n - guards) return Assignment(Role.BASKET_GUARD, subject = power?.holder)
         val open = enemyTeams.any { facts.barrierOpen(it) == true }
         if (open && carried > 0) return Assignment(Role.RUSHER)
         return Assignment(Role.COLLECTOR)
@@ -101,9 +102,12 @@ class RoleAssigner(
 
     // ---- steal-jewelry ---------------------------------------------------------------------------------------------
 
-    /** One guard per three mates (at least one in a squad of 2+), and one more while an enemy is seen near the own pedestal. */
-    fun stealJewelry(threatened: Boolean): Assignment {
-        val guards = (if (n >= 2) maxOf(1, n / 3) else 0) + (if (threatened && n >= 2) 1 else 0)
+    /**
+     * One guard per three mates (at least one in a squad of 2+), one more while an enemy is seen near the own pedestal, and one
+     * more while an enemy thief runs with a jewel ([thiefLoose]: the guards hunt it down before it banks).
+     */
+    fun stealJewelry(threatened: Boolean, thiefLoose: Boolean = false): Assignment {
+        val guards = (if (n >= 2) maxOf(1, n / 3) else 0) + (if ((threatened || thiefLoose) && n >= 2) 1 else 0)
         return if (index >= n - minOf(guards, n - 1)) Assignment(Role.PEDESTAL_GUARD) else Assignment(Role.THIEF)
     }
 

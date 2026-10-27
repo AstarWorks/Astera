@@ -47,6 +47,13 @@ fun interface ObjectiveSource {
 
     fun routeGraph(): ArenaRouteGraph? = null
 
+    /**
+     * Server-side mode state for hosts that share a process with the server (game-sim): wraps [observed] (what the client sees)
+     * with the mode's own query. [originX]/[originZ] shift stage-local snapshot coordinates into the world frame. Protocol
+     * bots in e2e/live cannot reach the server and keep null.
+     */
+    fun modeFacts(observed: ModeFacts, originX: Double, originZ: Double): ModeFacts? = null
+
     /** Stage regions (stage-local coordinates) for [ModePlanner]; null = unknown. */
     fun zones(): ModePlanner.Zones? = null
 
@@ -512,7 +519,8 @@ class BotBrain(
             solidAt = { x, y, z -> bot.terrain.isSolid(x, y, z) },
             pillarBlock = { team, tier -> world.pillars().firstOrNull { it.team == team && it.tier == tier }?.let { Triple(it.x, it.y, it.z) } },
         ).also { observed = it }
-        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = facts).takeIf { it.handles() }
+        val modeFacts = src.modeFacts(facts, originX, originZ) ?: facts
+        return ModePlanner(id, bot.name, own, src.teams().filter { it != own }, world, facts = modeFacts).takeIf { it.handles() }
     }
 
     /**
