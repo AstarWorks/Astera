@@ -30,38 +30,42 @@ class ChatLiveTest : LiveBase() {
 
         val fromA = a.chat.size
         val fromB = b.chat.size
-        val inputs = listOf("konnnitiha", "hello https://youtu.be/x", "<red>x</red>")
+        val prefix = "[lobby] [Member] ${a.name} » "
+        fun matchesInput(line: String, input: String): Boolean {
+            if (!line.startsWith(prefix)) return false
+            val body = line.removePrefix(prefix)
+            return body == input || body.endsWith(" ($input)")
+        }
+        val inputs = listOf("konnnitiha", "konnnitiha red", "red", "&cX", "&#12abefX", "# {name} {message}", "hello https://youtu.be/x", "<red>x</red>")
         for (input in inputs) {
             a.say(input)
-            b.waitUntil(10_000) { b.chat.drop(fromB).any { input in it.text } }
+            b.waitUntil(10_000) { b.chat.drop(fromB).any { matchesInput(it.text, input) } }
             Thread.sleep(2_000) // Observe delayed Redis echoes as well as the first delivery.
         }
         val receivedA = a.chat.drop(fromA).map { it.text }
         val receivedB = b.chat.drop(fromB).map { it.text }
-        val prefix = "[lobby] [Member] ${a.name} » "
         E2eReport.notes += "Live chat transcript A (${a.name}, lobby): ${receivedA.joinToString(" | ")}"
         E2eReport.notes += "Live chat transcript B (${b.name}, game): ${receivedB.joinToString(" | ")}"
         if (receivedA.any { "chat.disabled.missingProfileKey" in it }) {
             E2eReport.notes += "Unsigned chat rejected by the backend before plugin:chat (chat.disabled.missingProfileKey); conversion, prefix and deduplication remain unverified."
         }
         for (input in inputs) {
-            val remote = receivedB.filter { a.name in it && input in it }
+            val remote = receivedB.filter { matchesInput(it, input) }
             E2eReport.check(suite, "B receives '$input' once with lobby/member prefix and correct text", "SystemChat / PlayerChat") {
                 assertThat(remote).describedAs("B transcript: $receivedB").hasSize(1)
                 assertThat(remote.single()).startsWith(prefix)
                 val body = remote.single().removePrefix(prefix)
-                if (input == "konnnitiha") {
-                    assertThat(body).matches("(?:こんにちは|[\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}]*[\\p{IsHan}][\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}]*) \\(konnnitiha\\)")
-                } else if (input.startsWith('<')) {
-                    // Japanize may prepend converted text; the original tags must still be visible literally.
-                    assertThat(body).contains(input)
+                if (input == "konnnitiha" || input == "konnnitiha red") {
+                    val tail = if (input.endsWith(" red")) " red" else ""
+                    assertThat(body).matches("(?:こんにちは|[\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}]*[\\p{IsHan}][\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}]*)$tail \\(${Regex.escape(input)}\\)")
                 } else {
+                    // Non-romaji words, MiniMessage tags, placeholders and member & codes stay literal.
                     assertThat(body).isEqualTo(input)
                 }
                 "B: ${remote.single()}"
             }
             E2eReport.check(suite, "A sees its own '$input' exactly once", "SystemChat / PlayerChat") {
-                val own = receivedA.filter { a.name in it && input in it }
+                val own = receivedA.filter { matchesInput(it, input) }
                 assertThat(own).describedAs("A transcript: $receivedA").hasSize(1)
                 assertThat(own).isEqualTo(remote)
                 "A: ${own.single()}"
@@ -72,9 +76,9 @@ class ChatLiveTest : LiveBase() {
         val titlePackets = b.packetCounts["ClientboundSetTitleTextPacket"]?.get() ?: 0
         val subtitlePackets = b.packetCounts["ClientboundSetSubtitleTextPacket"]?.get() ?: 0
         val gameBefore = rcon("game", "list")
-        val reply = rcon("lobby", "astera chat title all Test | Sub")
+        val reply = rcon("lobby", "astera chat title all &#ffaa00&lTest&r | &aSub")
         b.waitUntil(10_000) { b.titles.drop(titleFrom).map { it.text }.containsAll(listOf("Test", "Sub")) }
-        E2eReport.check(suite, "lobby console title all delivers Test and Sub packets to B on game", "SetTitleText + SetSubtitleText") {
+        E2eReport.check(suite, "ampersand hex and legacy titles deliver Test and Sub across backends", "SetTitleText + SetSubtitleText") {
             val texts = b.titles.drop(titleFrom).map { it.text }
             val gameAfter = rcon("game", "list")
             assertThat(gameBefore).contains(b.name)

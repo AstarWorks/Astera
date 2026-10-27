@@ -38,6 +38,9 @@
                 "suffix": {
                     "type": "string"
                 },
+                "decoration": {
+                    "type": "boolean"
+                },
                 "priority": {
                     "type": "integer"
                 },
@@ -52,6 +55,7 @@
                 "id",
                 "prefix",
                 "suffix",
+                "decoration",
                 "priority",
                 "roles"
             ]

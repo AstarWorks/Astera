@@ -14,7 +14,7 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
-/** Only kana is sent; name, UUID and the original romanised text never leave the server. */
+/** Japanized text includes preserved non-romaji words; player names and UUIDs are not sent. */
 public class GoogleKanjiConverter(private val http: HttpClient) : IKanjiConverter {
     override fun convert(kana: String): CompletionStage<String> {
         val encoded = URLEncoder.encode(kana, StandardCharsets.UTF_8)

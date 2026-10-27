@@ -7,8 +7,6 @@ authors: [AstarWorks]
 description: Cross-server chat, Japanize, ranks, Discord and titles.
 depend: [Astera-Core]
 permissions:
-  astera.chat.color:
-    default: op
   astera.chat.title:
     default: op
   astera.chat.japanize:

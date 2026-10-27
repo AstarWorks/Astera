@@ -27,37 +27,48 @@ public object Romaji {
     }
     private val url = Regex("(?i)(https?://|www\\.|\\S+\\.[a-z]{2,}(/\\S*)?)")
 
+    private val words = Regex("(?i)&#[0-9a-f]{6}|&[0-9a-fk-or]|[a-z][a-z'-]*")
+
     /** Null means the input is deliberately bypassed or contains no convertible syllables. */
     public fun hiragana(message: String): String? {
         if (message.any { it.code > 127 } || message.trimStart().startsWith('#') ||
             message.trimStart().startsWith('/') || url.containsMatchIn(message)) return null
+        var changed = false
+        val result = words.replace(message) { match ->
+            val word = match.value
+            if (word.startsWith('&')) word else {
+                val kana = wordToKana(word)
+                if (kana.any { it in 'a'..'z' || it in 'A'..'Z' }) word
+                else { changed = true; kana }
+            }
+        }
+        return result.takeIf { changed }
+    }
+
+    private fun wordToKana(message: String): String {
         val text = message.lowercase()
         var i = 0
-        var changed = false
         val result = StringBuilder()
         while (i < text.length) {
             val c = text[i]
             val next = text.getOrNull(i + 1)
             when {
-                c == '&' && next != null && next in "0123456789abcdefklmnor" -> {
-                    result.append(message, i, i + 2); i += 2
-                }
-                c == 'n' && next == '\'' -> { result.append('ん'); i += 2; changed = true }
+                c == 'n' && next == '\'' -> { result.append('ん'); i += 2 }
                 c == 'n' && next == 'n' -> {
-                    result.append('ん'); changed = true
+                    result.append('ん')
                     i += if (text.getOrNull(i + 2) in "aiueoy".toList()) 1 else 2
                 }
-                c == 'n' && (next == null || next !in "aiueoy") -> { result.append('ん'); i++; changed = true }
+                c == 'n' && (next == null || next !in "aiueoy") -> { result.append('ん'); i++ }
                 c in "bcdfghjklmpqrstvwxyz" && (c == next || (c == 't' && text.startsWith("ch", i + 1))) -> {
-                    result.append('っ'); i++; changed = true
+                    result.append('っ'); i++
                 }
                 else -> {
                     val key = (4 downTo 1).mapNotNull { len -> text.substring(i, (i + len).coerceAtMost(text.length)).takeIf { it in syllables } }.firstOrNull()
-                    if (key != null) { result.append(syllables.getValue(key)); i += key.length; changed = true }
+                    if (key != null) { result.append(syllables.getValue(key)); i += key.length }
                     else { result.append(message[i]); i++ }
                 }
             }
         }
-        return result.toString().takeIf { changed }
+        return result.toString()
     }
 }

@@ -2,7 +2,6 @@ package com.astarworks.astera.chat.adapter.paper
 
 import com.astarworks.astera.chat.application.ChatRelay
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
-import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.domain.player.PlayerId
 import io.papermc.paper.event.player.AsyncChatEvent
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
@@ -26,13 +25,11 @@ public class PaperChatListener(
         // Snapshot handle data on its owning region; repository lookups belong off-thread.
         player.scheduler.run(plugin, {
             val id = PlayerId(player.uniqueId)
-            val handleColor = player.hasPermission("astera.chat.color")
             val name = player.name
             plugin.server.asyncScheduler.runNow(plugin) {
                 val rank = relay.rank(permissions.rolesOf(id).map { it.value }.toSet())
-                val color = handleColor || permissions.check(id, Permission("astera.chat.color"))
                 val (cosmeticTitle, nameColor) = appearance(id)
-                relay.send(id.uuid, name, message, rank.copy(prefix = rank.prefix + cosmeticTitle), color, nameColor).exceptionally {
+                relay.send(id.uuid, name, message, rank.copy(prefix = rank.prefix + cosmeticTitle), nameColor).exceptionally {
                     plugin.logger.warning("Chat delivery failed (${it.javaClass.simpleName})")
                     null
                 }

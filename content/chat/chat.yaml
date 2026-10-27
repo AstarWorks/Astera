@@ -1,23 +1,26 @@
-# MiniMessage placeholders are component-safe; rank decorations are trusted administrator content.
-format: '<gray>[<server>]</gray> <prefix><name><suffix> <dark_gray>»</dark_gray> <message>'
+# Ampersand decoration only; placeholders insert components without parsing their text.
+format: '&7[{server}]&r {prefix}{name}{suffix} &8»&r {message}'
 japanize:
   enabled: true
-  # Privacy: when enabled, hiragana chat text is sent to Google Transliterate.
+  # Privacy: Japanized text, including preserved non-romaji words, is sent to Google Transliterate.
   kanji: true
 ranks:
   - id: admin
-    prefix: '<red>[Admin]</red> '
+    prefix: '&c[Admin]&r '
     suffix: ''
+    decoration: true
     priority: 100
     roles: [admin, 'astera:admin']
   - id: mod
-    prefix: '<green>[Mod]</green> '
+    prefix: '&a[Mod]&r '
     suffix: ''
+    decoration: true
     priority: 50
     roles: [mod, moderator, moderator-lite, 'astera:gm']
   - id: member
-    prefix: '<gray>[Member]</gray> '
+    prefix: '&7[Member]&r '
     suffix: ''
+    decoration: false
     priority: 0
     roles: [member, player, 'astera:player', 'astera:vip']
 discord:
