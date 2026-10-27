@@ -12,10 +12,16 @@ Checks (PASS / FAIL / NOT CHECKED per line; exit 1 on any FAIL):
                    compare.json (when present) has no regression flag set
   3 trace          every vfx_id the skill plays is quoted with its server-side `cast+N`; a moving skill quotes `travel:` from trace
   4 scene          capture scene facts: DISTANCE stated, skippedTicks=0
-  5 framing        caster height (`framing[].casterHeightPct`) `this` is within 0.5x-2x of `ref` (review validity)
+  5 framing        caster height (`framing[].casterHeightPct`) `this` is within 0.8x-1.25x of `ref` (review validity)
   6 fidelity       every mechanic type in the skill YAML has a shown / not shown line
-  7 regression     `weaker than previous: none` (or `previous: none` on the first round)
-  8 review         (stage manager only) review.json reviewer.overall == ok and reviewer.regression == none
+  7 regression     `weaker than previous: none` (or `previous: none` on the first round); fx_pct / coverage is never
+                   quoted there as an improvement (coverage is a floor signal, not quality)
+  8 sibling        a row of accepted frames from a sibling skill of the same weapon (`sibling: <case>`), the six
+                   art-language lines (stroke/fill, bands, taper, core line, glow, outline) and `art language: same`
+  9 medium         3D / particle first: `main body:` names particles and/or Display entities in 3D, `sprites:` are accents,
+                   `overlay:` is none or justified, `sticker check: no` (side view does not read as a pasted sprite)
+ 10 review         (stage manager only) review.json reviewer.overall == ok, reviewer.regression == none,
+                   reviewer.sibling.v == ok
 
 The gate never judges quality. It only refuses a round whose facts are missing, so nobody can report a round
 that was not compared with the reference and with the previous round, or whose timing was read by eye.
@@ -37,12 +43,19 @@ SECTIONS = {
     "framing": "Framing",
     "fidelity": "Tool fidelity",
     "regression": "Regression",
+    "sibling": "Sibling",
+    "medium": "Medium",
     "point": "One point to look at",
 }
+# 3D / particle first (founder, S3 rebuild): the main body of every effect is particles + Display entities placed in 3D
+# along the real swing / dash / impact geometry; flat custom sprites are accents; screen overlays need a reason.
+MEDIUM_LINES = ["main body", "sprites", "overlay", "sticker check"]
+# art-language checklist (docs/contributing/vfx-team/reviewer.md "Art language"): one line each in the Sibling section
+ART_LANGUAGE = ["stroke/fill", "bands", "taper", "core line", "glow", "outline"]
 MOVE_MECHANICS = {"dash_strike", "propel", "leap", "set_velocity"}
 # mechanic types the review capture may not be able to show; each needs a fidelity line
 FIDELITY_MECHANICS = {"screen_flash", "send_title", "camera_shake", "play_sound"}
-FRAMING_MIN, FRAMING_MAX = 0.5, 2.0
+FRAMING_MIN, FRAMING_MAX = 0.8, 1.25
 
 failures = []
 
@@ -228,10 +241,67 @@ def check_regression(sections, header):
         report("regression", "FAIL", "`weaker than previous: none` line missing")
         return
     value = m.group(1).strip()
-    if value.lower() == "none":
+    if re.search(r"fx_pct|coverage", body, re.I):
+        report("regression", "FAIL", "coverage is not quality: fx_pct / coverage must not appear in the Regression section (it is a floor signal in Compare only)")
+    elif value.lower() == "none":
         report("regression", "PASS", "weaker than previous: none")
     else:
         report("regression", "FAIL", f"round is weaker than the previous one: {value}")
+
+
+def check_sibling(sections, note_dir):
+    body = find_section(sections, SECTIONS["sibling"]) or ""
+    problems = []
+    sib = re.search(r"^sibling:\s*(.+)$", body, re.M | re.I)
+    if not sib:
+        problems.append("`sibling: <case>[, <case>]` line missing (or `sibling: none - <why no accepted sibling exists>`)")
+    elif sib.group(1).strip().lower().startswith("none"):
+        if "-" not in sib.group(1):
+            problems.append("`sibling: none` needs a reason after ` - `")
+    else:
+        img = re.search(r"!\[[^\]]*\]\(([^)]+\.png)\)", body)
+        src = re.search(r"source:\s*(\S+)", body)
+        if not img:
+            problems.append("no ![..](sibling/..png) row of the sibling's accepted frames")
+        elif not (note_dir / img.group(1)).exists():
+            problems.append(f"sibling sheet not found beside the note: {img.group(1)}")
+        if not src or "/api/cases/" not in src.group(1):
+            problems.append("source: must name the sibling frames on skill-compare (/api/cases/<sibling>/...)")
+    missing = [k for k in ART_LANGUAGE if not re.search(rf"^{re.escape(k)}\s*:\s*\S", body, re.M | re.I)]
+    if missing:
+        problems.append("art-language lines missing: " + ", ".join(missing))
+    verdict = re.search(r"^art language:\s*(\S+)", body, re.M | re.I)
+    if not verdict:
+        problems.append("`art language: same` line missing")
+    elif verdict.group(1).strip().lower() != "same":
+        problems.append(f"art language differs from the sibling ({verdict.group(1).strip()}): restore the weapon's language before the round is finished")
+    if problems:
+        report("sibling", "FAIL", "; ".join(problems))
+    else:
+        report("sibling", "PASS", f"sibling {sib.group(1).strip()}, art language same, six checklist lines")
+
+
+def check_medium(sections, skill_info):
+    body = find_section(sections, SECTIONS["medium"]) or ""
+    problems = []
+    missing = [k for k in MEDIUM_LINES if not re.search(rf"^{re.escape(k)}\s*:\s*\S", body, re.M | re.I)]
+    if missing:
+        problems.append("lines missing: " + ", ".join(missing))
+    main = re.search(r"^main body:\s*(.+)$", body, re.M | re.I)
+    if main and not re.search(r"particle|display", main.group(1), re.I):
+        problems.append("main body must be particles and/or Display entities in 3D (sprites are accents only)")
+    if not skill_info.get("particles"):
+        problems.append("the skill's vfx files spawn no particles: particles are the primary language (3D / particle first)")
+    overlay = re.search(r"^overlay:\s*(.+)$", body, re.M | re.I)
+    if overlay and overlay.group(1).strip().lower() != "none" and len(overlay.group(1).strip()) < 20:
+        problems.append("overlay: a screen overlay (screen_flash / full-screen quad / title) needs a one-line justification, or `none`")
+    sticker = re.search(r"^sticker check:\s*(\S+)", body, re.M | re.I)
+    if sticker and sticker.group(1).strip().lower() not in ("no", "none"):
+        problems.append(f"sticker check (side view): {sticker.group(1)} - an effect that reads as a flat pasted sprite from the side is not finished")
+    if problems:
+        report("medium", "FAIL", "; ".join(problems))
+    else:
+        report("medium", "PASS", "3D / particle-first lines present, no sticker from the side")
 
 
 def check_review(case, stage):
@@ -250,11 +320,16 @@ def check_review(case, stage):
     rev = data.get("reviewer") or {}
     overall = rev.get("overall")
     regression = rev.get("regression")
+    sibling = rev.get("sibling")
     problems = []
     if not isinstance(overall, dict) or overall.get("v") not in ("ok", "ng") or not overall.get("reason"):
         problems.append("reviewer.overall {v: ok|ng, reason} missing (whole-impression verdict)")
     elif overall["v"] != "ok":
         problems.append("reviewer.overall is ng: " + str(overall.get("reason")))
+    if not isinstance(sibling, dict) or sibling.get("v") not in ("ok", "ng") or not sibling.get("reason"):
+        problems.append("reviewer.sibling {v: ok|ng, reason} missing (same art language, at least as refined as the sibling)")
+    elif sibling["v"] != "ok":
+        problems.append("reviewer.sibling is ng: " + str(sibling.get("reason")))
     if regression is None:
         problems.append("reviewer.regression missing (\"none\" or list)")
     elif regression not in ("none", [], None) and regression:
@@ -262,7 +337,7 @@ def check_review(case, stage):
     if problems:
         report("review", "FAIL", "; ".join(problems))
     else:
-        report("review", "PASS", "reviewer overall ok, regression none")
+        report("review", "PASS", "reviewer overall ok, regression none, sibling ok")
 
 
 def main():
@@ -290,6 +365,8 @@ def main():
     check_framing(sections)
     check_fidelity(sections, skill_info)
     check_regression(sections, header)
+    check_sibling(sections, note.parent)
+    check_medium(sections, skill_info)
     check_review(case, args.stage)
     if failures:
         print(f"round-gate: FAIL ({', '.join(failures)}): the round is not finished; do not report it")

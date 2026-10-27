@@ -13,11 +13,27 @@ The reviewer is read-only on content, code, briefs and case data. It never fixes
 S3 r5 and r6 passed a per-row review while being plainly worse than r4: per-row crops hide the whole picture and no row says "weaker than last round". The order is therefore fixed:
 
 1. **Whole impression first, from the page.** Open the published compare sheet `ref | this | previous` (`/api/cases/<id>/compare`, shown in the page's 比較 panel; the author's `round.md` links `compare/sheet.png`) and the capture views on skill-compare. Before reading any row, write one verdict: `overall: ok | ng` with one sentence that names what is wrong even when no sheet row covers it (silhouette, weight, size of the main element, a weapon that follows the pitch, anything). This is the slot for everything the sheet did not foresee.
+   **Sibling consistency is part of this verdict.** Put the accepted frames of the sibling skills of the same weapon / character next to `this` (the round note's `sibling/sheet.png`, or the sibling case's own sheet on the page) and answer `sibling: ok | ng`: *same art language and at least as refined*, by the checklist below. S3 of the bastion greatsword went ng this way ("S1,S2にくらべてめっちゃチープ"): S2 is layered thin tapered crescent strokes with glow, S3 had drifted into flat opaque comic stamps (fat plates, a black-outlined filled starburst, white blobs) while every row and every coverage number was fine.
 2. **Regression second.** Compare `this` with `previous` at the same ticks and camera: `regression: none` or a list of what is weaker (element, tick, view). Anything weaker is a × of the round regardless of the row marks.
 3. **Rows third.** Then every row of the frozen sheet, ○ or ×, as below.
 4. **Author's notes last.** Read the author's `round.md` only after 1-3 are written; it may change a row mark (a fact you missed), never the overall or regression verdicts.
 
-Record 1-2 in `review.json` as `reviewer.overall: {v, reason}` and `reviewer.regression: "none" | [..]` (next to the per-row marks); `make round-gate STAGE=manager` reads them.
+Record 1-2 in `review.json` as `reviewer.overall: {v, reason}`, `reviewer.sibling: {v, reason}` and `reviewer.regression: "none" | [..]` (next to the per-row marks); `make round-gate STAGE=manager` reads all three.
+
+**Art language** (the checklist behind `sibling: ok | ng`; the author writes the same six lines in the round note "Sibling" section):
+
+| Line | Question | Cheap looks like | Refined looks like |
+|---|---|---|---|
+| `stroke/fill` | Is the element a stroke (a drawn path with thickness) or a filled shape? | Fat opaque plates, stamps, filled starbursts, blobs | Thin strokes whose shape is the motion path |
+| `bands` | How many layered bands build one stroke, and in what order? | One flat colour, or a flat colour plus a black line | Dark rim, saturated mid, white core, glow accent, each a separate band |
+| `taper` | Do strokes thin out at both ends? | Constant width, square or round caps | Crescent / sliver taper to a point at both ends |
+| `core line` | Is there one bright, thin core line per stroke? | Whole stroke equally bright | A single core line brighter than the band around it |
+| `glow` | Is brightness carried by a soft additive glow outside the core? | Brightness by making the fill white / bigger | Glow wider than the core, soft edge, lower alpha |
+| `outline` | Black / dark outlines? | Black outline around a filled shape (comic stamp) | None, or a dark rim band that belongs to the stroke |
+
+"Same" means the sibling and this round answer each line the same way; "at least as refined" means none of the six is worse than the sibling's. **Coverage is not quality**: the compare API's `fx_pct` / brightness are a floor and a regression signal, never a target; a round that gained coverage with opaque flat fills is a regression even when `fx_pct` went up, and "bigger / more opaque" is never a reason for ○.
+
+**3D / particle first** (founder, S3 rebuild: 「なぜかパーティクルが使われてない」「VFXをカスタム貼り付けで表現しすぎ、2Dじゃなくて3Dなので猶更ひどい」). The main body of every effect is particles and Display entities placed in 3D along the real swing / dash / impact geometry; flat custom sprites are accents only; screen overlays (flash quads, titles) need a reason from the reference. In the **side view** at every key tick ask "does this read as a sticker?": a flat element that keeps its shape while the camera is 90 degrees off its plane, a pillar or ring that is one billboard, an effect with no particles around it. Any yes is `overall: ng` with that sentence; the round note's "Medium" section lists what the author claims, you confirm it in `side` and `top`.
 
 **Native crops for edge quality.** Reference frames are lossless PNG at native size (<= 1080p); the default sheet may be downscaled. Edge quality (stair-stepping, blur, rim colour, trail width, sprite crispness) is judged ONLY on native crops: `GET /api/cases/<id>/sheet.png?ticks=..&views=ref,compare&zoom=native&crop=x0,y0,x1,y1` (fractions of the frame; `crop=auto` frames caster + fx, but is often the whole frame on the ref, so give an explicit crop). Native cells are never resampled; a sheet over 16000 px is refused. Read `sources[].nativeWidth/nativeHeight` first: a capture smaller than the ref (side/top 640x360) cannot support an edge verdict, so request a higher `RES=` capture instead of marking. A downscaled sheet may support shape, count and direction marks, never an edge or sharpness mark.
 
@@ -32,6 +48,7 @@ For every row of the approved beat sheet write **○ or ×** and a one-line reas
 - **Paired images.** Judge on ref|ours pairs of the same beat, same moment, equal scale (`make skill-pairs`, `make skill-brief`), then step frames before and after (direction comes from successive frames, never one still). Build pairs for every required view.
 - **Required views: side, front, back, top-down, 45 deg high, player eye height.** The **top-down view is mandatory**: it is the only view that shows rotation direction (clockwise vs counter-clockwise); the side camera cannot tell them apart. No top-down capture means no verdict on any rotation, reversal, or particle-travel row: reject the capture and request it. Particles are judged from the top-down and at least one more view, never from the right-side camera alone.
 - **Check the sheet columns, row by row:** swing count (count the swings in the capture first and compare), tip path, rotation direction in both views, edge facing, reversal, body twist, feet, hit tick, VFX/particle direction.
+- **Pose is a reviewed row.** The rig pose of each beat (body facing / twist, lean, weapon hold, feet) must read in **both** `compare` and `side`; a pose that reads in one view only, or a caster that stands upright through a thrust or slam, is × on that beat's body row with the tick and both image paths.
 - A × produces a diff (format below) labelled with its owning role and the row id. All rows ○ is necessary for done; the founder's in-game approval (gate 2) is the finish.
 
 ## Acceptance rows (source: [limbus-skill-reproduction.md](../limbus-skill-reproduction.md) section 6)
@@ -70,7 +87,7 @@ See [skill-compare README](../../../tools/skill-compare/README.md) "Comparison A
 
 ## Capture validity
 
-- **Framing parity**: compare API `framing[].ratioToRef` (caster height as % of the frame: analytic from the capture camera + trace vs the annotated ref) must be within 0.5x-2x (round note "Framing"). A far wide-angle side view with the caster at 1/40 of the frame, or a preview 2x closer than the client, is not review-valid: reject and request a reframed capture; do not mark rows on it.
+- **Framing parity**: compare API `framing[].ratioToRef` (caster height as % of the frame: analytic from the capture camera + trace vs the annotated ref) must be within 0.8x-1.25x (round note "Framing"). A far wide-angle side view with the caster at 1/40 of the frame, or a preview 2x closer than the client, is not review-valid: reject and request a reframed capture; do not mark rows on it.
 - **Scene parity**: the enemy stands at the case intent distance (`DISTANCE=` in the round note "Capture scene"); a tool-default scene changes dash travel and is rejected for travel rows.
 - **Tool fidelity**: the round note lists every mechanic type as `shown` / `not shown`; judge only what is shown. Spectator captures render no `send_title` / `screen_flash`; skill-preview is never evidence.
 - Provenance: `meta.json` records branch, implementation commit, capturedAt, FOV, fovMode, resolution. Round-2 captures need matching `referenceRevision` and `contentRevision`.
