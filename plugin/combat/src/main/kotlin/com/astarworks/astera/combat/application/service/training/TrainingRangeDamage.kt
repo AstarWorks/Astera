@@ -87,6 +87,10 @@ public class ProtectionAwareNearbyTargetQuery(
     override fun findInRadius(center: Vec3, radius: Double, world: WorldId?): List<PlayerId> =
         base.findInRadius(center, radius, world).filterNot(protection::isProtected)
 
+    /** Damage protection does not stop a player from seeing an effect. */
+    override fun findViewers(center: Vec3, radius: Double, world: WorldId?): List<PlayerId> =
+        base.findViewers(center, radius, world)
+
     override fun findNearby(center: Vec3, radius: Double, world: WorldId?): List<NearbyTarget> =
         base.findNearby(center, radius, world).filterNot { protection.isProtected(it.id) }
 }

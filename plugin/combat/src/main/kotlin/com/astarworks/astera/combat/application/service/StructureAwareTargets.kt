@@ -27,6 +27,10 @@ public class StructureAwareNearbyTargetQuery(
     override fun findInRadius(center: Vec3, radius: Double, world: WorldId?): List<PlayerId> =
         base.findInRadius(center, radius, world) + extra(center, radius, world).map { it.id }
 
+    /** Viewers are players only: structures never watch. */
+    override fun findViewers(center: Vec3, radius: Double, world: WorldId?): List<PlayerId> =
+        base.findViewers(center, radius, world)
+
     override fun findNearby(center: Vec3, radius: Double, world: WorldId?): List<NearbyTarget> =
         base.findNearby(center, radius, world) +
             extra(center, radius, world).map {

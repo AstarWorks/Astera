@@ -11,6 +11,8 @@ import com.astarworks.astera.core.domain.world.WorldId
 public class MeasuredNearbyTargetQuery(private val delegate: INearbyTargetQuery) : INearbyTargetQuery {
     override fun findInRadius(center: Vec3, radius: Double, world: WorldId?): List<PlayerId> =
         ExecutionCosts.measure("target.radius", "all") { delegate.findInRadius(center, radius, world) }
+    override fun findViewers(center: Vec3, radius: Double, world: WorldId?): List<PlayerId> =
+        ExecutionCosts.measure("target.viewers", "all") { delegate.findViewers(center, radius, world) }
     override fun findNearby(center: Vec3, radius: Double, world: WorldId?): List<NearbyTarget> =
         ExecutionCosts.measure("target.nearby", "all") { delegate.findNearby(center, radius, world) }
 }

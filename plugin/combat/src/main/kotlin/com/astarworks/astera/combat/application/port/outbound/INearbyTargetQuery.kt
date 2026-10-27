@@ -15,6 +15,13 @@ public interface INearbyTargetQuery {
     public fun findInRadius(center: Vec3, radius: Double, world: WorldId? = null): List<PlayerId>
 
     /**
+     * Players who can SEE an effect around a point (screen overlays, other client-only feedback):
+     * online players only, spectators included (unlike damage targets, which skip them).
+     */
+    public fun findViewers(center: Vec3, radius: Double, world: WorldId? = null): List<PlayerId> =
+        findInRadius(center, radius, world)
+
+    /**
      * Like [findInRadius] but with positions. The default derives ids from
      * [findInRadius] with unknown position (callers then fall back to a pose
      * lookup); hosts that know positions override this.

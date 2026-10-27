@@ -44,6 +44,25 @@ internal class TargeterResolver(
             selectPlayers(targeter, ctx)
         }
 
+    /**
+     * Players who should RECEIVE client-only feedback (screen_flash): like [resolvePlayers], but
+     * `nearby_entities` yields online players only, spectators (e.g. a camera viewer) included.
+     */
+    fun resolveViewers(targeter: Targeter, ctx: MechanicContext): List<PlayerId> {
+        if (targeter !is Targeter.NearbyEntities) return resolvePlayers(targeter, ctx)
+        val center = resolveLocationOnly(targeter.center, ctx) ?: return emptyList()
+        val limit = when (val count = targeter.maxCount) {
+            is IntValue.Literal -> count.value.coerceAtLeast(0)
+            is IntValue.Cel -> 0
+        }
+        return nearbyQuery.findViewers(center, literal(targeter.radius), ctx.worldId)
+            .asSequence()
+            .filter { !targeter.excludeCaster || it != ctx.actorId }
+            .distinct()
+            .take(limit)
+            .toList()
+    }
+
     private fun selectPlayers(targeter: Targeter, ctx: MechanicContext): List<PlayerId> {
         return when (targeter) {
             Targeter.Caster -> listOf(ctx.actorId)

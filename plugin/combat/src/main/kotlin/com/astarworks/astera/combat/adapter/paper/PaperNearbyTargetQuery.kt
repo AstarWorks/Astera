@@ -31,6 +31,24 @@ public class PaperNearbyTargetQuery(
     override fun findInRadius(center: Vec3, radius: Double, world: WorldId?): List<PlayerId> =
         findNearby(center, radius, world).map { it.id }
 
+    override fun findViewers(center: Vec3, radius: Double, world: WorldId?): List<PlayerId> {
+        if (radius <= 0.0) return emptyList()
+        val worlds: List<World> = if (world != null) listOfNotNull(server.getWorld(world.value)) else server.worlds
+        val radiusSq = radius * radius
+        val out = ArrayList<PlayerId>()
+        for (w in worlds) {
+            for (p in w.players) {
+                if (p.isDead || !p.isValid) continue
+                val loc = p.location
+                val dx = loc.x - center.x
+                val dy = loc.y + p.height / 2.0 - center.y
+                val dz = loc.z - center.z
+                if (dx * dx + dy * dy + dz * dz <= radiusSq) out += PlayerId(p.uniqueId)
+            }
+        }
+        return out
+    }
+
     override fun findNearby(center: Vec3, radius: Double, world: WorldId?): List<NearbyTarget> {
         if (radius <= 0.0) return emptyList()
         val worlds: List<World> = if (world != null) {

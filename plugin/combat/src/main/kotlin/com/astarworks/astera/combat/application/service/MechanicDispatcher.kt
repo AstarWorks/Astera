@@ -914,7 +914,7 @@ public class MechanicDispatcher(
                 val stay = resolveInt(mechanic.stayTicks, ctx).coerceAtLeast(0)
                 val fadeOut = resolveInt(mechanic.fadeOutTicks, ctx).coerceAtLeast(0)
                 val color = mechanic.colorRgb ?: mechanic.overlay.defaultColor
-                for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                for (target in targeterResolver.resolveViewers(mechanic.targets, ctx)) {
                     out.sendScreenFlash(target, mechanic.overlay, color, fadeIn, stay, fadeOut)
                 }
             }
