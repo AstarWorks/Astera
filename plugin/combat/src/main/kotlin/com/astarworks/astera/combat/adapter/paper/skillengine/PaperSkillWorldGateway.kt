@@ -1,11 +1,12 @@
 package com.astarworks.astera.combat.adapter.paper.skillengine
 
 import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
-import com.astarworks.astera.combat.application.service.WorldMechanics
+import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.regionScope
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
+import com.astarworks.astera.core.application.service.CoverBlockService
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.BlockType
@@ -27,8 +28,18 @@ internal class PaperSkillWorldGateway(
     private val world: IWorldGateway,
     private val scheduler: IScheduler,
     private val guard: IBlockEditGuard?,
-    private val cover: WorldMechanics.CoverBlocks = WorldMechanics.CoverBlocks.NONE,
+    private val cover: CoverBlocks = CoverBlocks.NONE,
 ) {
+
+    /** Lazily resolved Core ports that let edits treat custom cover blocks properly. */
+    class CoverBlocks(
+        val cover: () -> CoverBlockService?,
+        val blocks: () -> IBlockStateGateway?,
+    ) {
+        companion object {
+            val NONE: CoverBlocks = CoverBlocks({ null }, { null })
+        }
+    }
 
     private data class Key(val world: WorldId, val x: Int, val y: Int, val z: Int)
     private class Edited(val original: BlockType?, var token: Long)

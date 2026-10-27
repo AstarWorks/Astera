@@ -367,26 +367,6 @@ public class SimPlayerFeedbackGateway(
         recorder?.recordEffect(clock(), "camera_shake", null, "${target.uuid} dx=${"%.2f".format(dx)} dy=${"%.2f".format(dy)}")
     }
 
-    /** Screen flashes sent by ScreenFlash. */
-    public data class Flash(val target: PlayerId, val overlay: ScreenOverlay, val colorRgb: Int, val tick: Long,
-        val fadeInTicks: Int, val stayTicks: Int, val fadeOutTicks: Int)
-    public val flashes: MutableList<Flash> = mutableListOf()
-
-    override fun sendScreenFlash(
-        target: PlayerId,
-        overlay: ScreenOverlay,
-        colorRgb: Int,
-        fadeInTicks: Int,
-        stayTicks: Int,
-        fadeOutTicks: Int,
-    ) {
-        flashes += Flash(target, overlay, colorRgb, clock(), fadeInTicks, stayTicks, fadeOutTicks)
-        recorder?.recordEffect(
-            clock(), "screen_flash", null,
-            "${target.uuid} ${overlay.yamlName} #%06X in=$fadeInTicks stay=$stayTicks out=$fadeOutTicks".format(colorRgb),
-        )
-    }
-
     public val actionBars: MutableList<Pair<PlayerId, String>> = mutableListOf()
     public val titles: MutableList<Title> = mutableListOf()
 

@@ -257,7 +257,7 @@ public class PaperDisplayEntityGateway(
         if (textRgb != null) display.text(display.text().color(TextColor.color(textRgb)))
     }
 
-    override fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
+    override fun moveTo(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
         val display = server.getEntity(handle.id) as? Display ?: return
         val attachment = attachments[handle]
         if (attachment != null) {

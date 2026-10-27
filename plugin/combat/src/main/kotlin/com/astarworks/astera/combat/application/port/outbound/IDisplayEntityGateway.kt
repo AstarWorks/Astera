@@ -48,7 +48,7 @@ public interface IDisplayEntityGateway {
     public fun setTextStyle(handle: DisplayHandle, backgroundArgb: Int, textOpacity: Int, textRgb: Int?)
 
     /** Moves the display; the client smooths the move over [teleportTicks] (`teleport_duration`). */
-    public fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int)
+    public fun moveTo(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int)
 
     /** Spawn at the native riding origin with a corrected initial transform. Null requests ordinary follow fallback. */
     public fun spawnAttached(

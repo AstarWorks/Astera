@@ -241,7 +241,7 @@ public class SimDisplayGateway(
         recorder.recordEffect(scheduler.currentTick(), "display_style", record.at, "${handle.id} bg=${Integer.toHexString(backgroundArgb)} opacity=$textOpacity")
     }
 
-    override fun teleport(handle: IDisplayEntityGateway.DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
+    override fun moveTo(handle: IDisplayEntityGateway.DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
         if (handle !in active) return
         teleports += Teleport(handle, scheduler.currentTick(), at, teleportTicks)
         recorder.recordEffect(scheduler.currentTick(), "display_teleport", at, "${handle.id} over=$teleportTicks")
