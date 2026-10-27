@@ -1,0 +1,10 @@
+# white sparks shed from the overhead slashes
+id: couture-s2-overhead-spark
+shape: {kind: burst, spread_blocks: 0.5}
+color: {r: 255, g: 255, b: 255}
+count: 2
+lifetime_ticks: 8
+vanilla_particle: end_rod
+speed: 0.0
+velocity: {direction: outward, speed: 0.12, spread_degrees: 0, speed_jitter: 0.6}
+force: true
