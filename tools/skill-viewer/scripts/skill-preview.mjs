@@ -86,7 +86,7 @@ const jar = process.env.ASTERA_MC_JAR || join(homedir(), '.cache/astera-vfx-shot
 const jarFile = (entry) => { try { return execFileSync('unzip', ['-p', jar, entry], { maxBuffer: 1 << 24 }); } catch { return null; } };
 const bytesUrl = (b) => 'data:image/png;base64,' + b.toString('base64');
 const warnings = [...(plan.notes ?? []),
-  'プレビュー非対応: 農場キャプチャとの時間差 — プレビューはサーバーの計画tick(delay_ticks + 要素start_tick)で、農場キャプチャのフレーム番号は fx で約1〜2 tick 早く見える(S3: slam burst 計画64/実機62、thrust flash 41/39)。tick を数えるときは同じ基準で比べること',
+  'プレビュー非対応: 農場キャプチャとの時間差 — サーバー実測(ASTERA_VFX_TRACE)で fx は計画tickどおりにスポーンする(S3: thrust flash cast+41, slam burst cast+64)。農場キャプチャのフレーム番号は fx で約1〜2 tick 早く見えるが、これはキャプチャ側の差でランタイムのバグではない',
 ...(args.warn && args.warn !== true ? String(args.warn).split("||") : [])];
 
 let skin;
