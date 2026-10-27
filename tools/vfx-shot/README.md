@@ -124,6 +124,11 @@ caster/opponent views, the hotbar) overwritten with a mirror of the adjacent row
 
 `framestamp.json` / `meta.json` `tickStamp`: `castTick`, `castTickSpan`, `castTickExact`, `recordedFrames`, `undecodedFrames`,
 `glitchFrames`, `regressions`, `skippedTicks`, `stampRateHz`, and two separate latencies:
+- Frame labelling: frame N is the picture of plan tick N, i.e. the one stamped `castTick + N - 1` (`planTickZeroStamp` = `castTick - 1`).
+  The cast runs between two server ticks, so `time query gametime` already names the NEXT tick, and the plugin scheduler (age++ and spawns,
+  as in `ASTERA_VFX_TRACE` `age=` / `cast+N`) runs before that tick's stamp function: an effect of age a is drawn with stamp `castTick + a - 1`.
+  Labelling frame N with stamp `castTick + N` showed every effect one tick early (S3 slam burst at 63 instead of 64, 2 of 2 runs; after the
+  fix 64 in 3 of 3). Effects that grow from a flipbook / interpolation can still read +-1 tick (client tick phase at slow tick rates).
 - `castStampToStampedFrameMs`: RCON cast time -> video time of the frame stamped with the cast tick (capture offset, not a game property);
 - `firstFxTickAfterCast` / `firstChangeTickAfterCast`: ticks from the cast tick until the first visible change in the picture (the real
   client display lag of the skill's first effect); camera cuts are excluded from `firstFx` and listed in `cutCheck`.
