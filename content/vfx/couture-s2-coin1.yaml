@@ -11,26 +11,26 @@ elements:
   billboard: center
   brightness: 15
   start_tick: 0
-  end_tick: 6
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 0.9, 1.0]
+    translate: [0.0, 0.9, 0.3]
     rotate: [0, 0, -98]
-    scale: [0.6, 1.0, 1]
+    scale: [0.55, 0.85, 1]
   - t: 1
-    translate: [0.0, 1.0, 2.0]
+    translate: [0.0, 1.0, 0.9]
     rotate: [0, 0, -98]
-    scale: [1.0, 1.5, 1]
+    scale: [0.6, 0.9, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 1.0, 3.0]
+    translate: [0.0, 1.0, 1.4]
     rotate: [0, 0, -98]
-    scale: [0.9, 1.6, 1]
+    scale: [0.54, 0.96, 1]
     ease: out_quad
-  - t: 5
-    translate: [0.0, 1.0, 3.8]
+  - t: 7
+    translate: [0.0, 1.0, 1.8]
     rotate: [0, 0, -98]
-    scale: [0.1, 1.6, 1]
+    scale: [0.1, 0.96, 1]
     ease: in_quad
 - id: line
   kind: {type: block, block: white_concrete}
