@@ -1,14 +1,10 @@
-# white petal-like spark
+# white petal-like spark (end_rod glint, a few per tick)
 id: couture-s2-p-white
 shape: {kind: burst, spread_blocks: 0.35}
 color: {r: 255, g: 255, b: 255}
-count: 4
+count: 5
 lifetime_ticks: 9
-vanilla_particle: dust
-data:
-  kind: dust
-  color: {r: 255, g: 255, b: 255}
-  scale: 1.6
+vanilla_particle: firework
 speed: 0.0
-velocity: {direction: outward, speed: 0.22, spread_degrees: 0, speed_jitter: 0.6}
+velocity: {direction: outward, speed: 0.2, spread_degrees: 0, speed_jitter: 0.6}
 force: true
