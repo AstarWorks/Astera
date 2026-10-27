@@ -34,7 +34,11 @@ Checks (PASS / FAIL / NOT CHECKED per line; exit 1 on any FAIL):
  10 gameplay       respectful remake, not a replica: `startup:` ticks to the first hit (<= STARTUP_MAX_TICKS unless the line
                    says `justified:`), `reach:` hit area in blocks, `projectile:` (none, or speed / gravity-arc / 3D hit /
                    max range when the skill fires one), `dash:` (when the skill moves the caster), `pvp:`, `pve:`,
-                   `deviation from reference:` none or the list (gameplay wins over fidelity, the deviation is noted)
+                   `deviation from reference:` none or the list (gameplay wins over fidelity, the deviation is noted);
+                   `miss case:` what shows when nothing is hit (capture with the dummy out of reach, or the trace) and
+                   `moving target:` what shows when the enemy is off-axis / at another distance / moving (capture, or the
+                   vfx-shot request it waits on): hit effects, stuck objects and the thrown weapon must stay bound to the
+                   real hit / entity, never to a tick offset that only works at the capture DISTANCE
  11 review         (stage manager only) review.json reviewer.overall == ok, reviewer.regression == none,
                    reviewer.sibling.v == ok
 
@@ -91,7 +95,11 @@ FRAMING_MIN, FRAMING_MAX = 0.8, 1.25
 # 遅すぎる、範囲が狭すぎるetc… Limbusをリスペクトして、このゲームに合う形でリメイクする」): the reference sets the identity, play wins.
 STARTUP_MAX_TICKS = 10        # ticks from cast to the first hit for a normal skill; above it the line needs `justified: <why>`
 PROJECTILE_MECHANICS = {"projectile", "launch_projectile", "fire_projectile", "shoot"}
-GAMEPLAY_LINES = ["startup", "reach", "projectile", "pvp", "pve", "deviation from reference"]
+GAMEPLAY_LINES = ["startup", "reach", "projectile", "pvp", "pve", "deviation from reference", "miss case", "moving target"]
+# couture-rapier-s2 (founder: 「テストのための実装感がぬぐえない」): every hit skill shows what happens when nothing is hit and when the
+# target is not where the capture dummy stood. `miss case:` and `moving target:` quote a capture (or name the vfx-shot request) and
+# say which effects stayed correct; `none` is not an answer.
+MISS_MIN_CHARS = 25
 
 failures = []
 
@@ -508,6 +516,11 @@ def check_gameplay(sections, skill_info):
     reach = re.search(r"^reach:\s*(.*)$", body, re.M | re.I)
     if reach and not re.search(r"\d+(\.\d+)?\s*blocks?", reach.group(1), re.I):
         problems.append("reach: give the hit area / range in blocks (cone or box, from the skill YAML)")
+    for key in ("miss case", "moving target"):
+        m = re.search(rf"^{key}\s*:\s*(.*)$", body, re.M | re.I)
+        if m and (len(m.group(1).strip()) < MISS_MIN_CHARS or m.group(1).strip().lower() in ("none", "n/a", "-")):
+            problems.append(f"{key}: say what the effects do when the target is not where the capture dummy stood (what shows, what is bound to the hit, "
+                            "which capture or vfx-shot request); `none` is not an answer")
     proj = re.search(r"^projectile:\s*(.*)$", body, re.M | re.I)
     if skill_info["types"] & PROJECTILE_MECHANICS:
         if proj and proj.group(1).strip().lower().startswith("none"):
@@ -519,7 +532,7 @@ def check_gameplay(sections, skill_info):
     if problems:
         report("gameplay", "FAIL", "; ".join(problems))
     else:
-        report("gameplay", "PASS", "startup, reach, projectile, pvp / pve and deviation stated")
+        report("gameplay", "PASS", "startup, reach, projectile, pvp / pve, miss case, moving target and deviation stated")
 
 
 def check_review(case, stage):
