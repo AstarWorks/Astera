@@ -786,7 +786,7 @@ elements:
   billboard: center
   brightness: 15
   start_tick: 1
-  end_tick: 12
+  end_tick: 8
   keyframes:
   - t: 0
     translate:
@@ -815,7 +815,7 @@ elements:
     - 3.8
     - 1
     ease: out_expo
-  - t: 9
+  - t: 6
     translate:
     - 0
     - 1.2
@@ -890,7 +890,7 @@ elements:
   billboard: center
   brightness: 15
   start_tick: 1
-  end_tick: 12
+  end_tick: 8
   keyframes:
   - t: 0
     translate:
@@ -919,7 +919,7 @@ elements:
     - 3.4
     - 1
     ease: out_expo
-  - t: 9
+  - t: 6
     translate:
     - 0
     - 1.2
