@@ -51,6 +51,60 @@ internal class ArenaPaster(
     fun rollback(world: World, journal: Journal): CompletableFuture<Result<Journal, Error>> =
         write(world, journal.before.mapValues { it.value.asString }, Journal(), capture = false)
 
+    /** Inclusive block box; used to sweep what an earlier run left behind in a slot (server restart, plugin reload). */
+    data class Box(val minX: Int, val maxX: Int, val minY: Int, val maxY: Int, val minZ: Int, val maxZ: Int)
+
+    /** Sets every non-air block of [box] to air, chunk by chunk under the same per-tick budget as a paste. */
+    fun clear(world: World, box: Box): CompletableFuture<Result<Unit, Error>> {
+        val result = CompletableFuture<Result<Unit, Error>>()
+        val chunks = ((box.minX shr 4)..(box.maxX shr 4)).flatMap { cx -> ((box.minZ shr 4)..(box.maxZ shr 4)).map { cz -> cx to cz } }
+        val pending = AtomicInteger(chunks.size)
+        val air = plugin.server.createBlockData("minecraft:air")
+        val height = box.maxY - box.minY + 1
+        for ((cx, cz) in chunks) {
+            val x0 = maxOf(box.minX, cx shl 4); val x1 = minOf(box.maxX, (cx shl 4) + 15)
+            val z0 = maxOf(box.minZ, cz shl 4); val z1 = minOf(box.maxZ, (cz shl 4) + 15)
+            val width = x1 - x0 + 1
+            val total = width * (z1 - z0 + 1) * height
+            var cursor = 0
+            val scope = ExecutionScope.Region(WorldId(world.name), cx, cz)
+            fun schedule(delay: Duration) {
+                if (result.isDone) return
+                runCatching {
+                    scheduler.run(scope, delay) {
+                        if (result.isDone) return@run
+                        runCatching {
+                            // Air scanning is cheap; only real writes spend the budget.
+                            var writes = allowance()
+                            var scanned = 0
+                            while (cursor < total && writes > 0 && scanned < 65_536) {
+                                val i = cursor++; scanned++
+                                val y = box.minY + i % height
+                                val rest = i / height
+                                val block = world.getBlockAt(x0 + rest % width, y, z0 + rest / width)
+                                if (!block.type.isAir) { block.setBlockData(air, false); writes-- }
+                            }
+                            if (cursor < total) schedule(TICK)
+                            else {
+                                world.getChunkAt(cx, cz).entities.filter(::isArenaDebris).forEach { it.remove() }
+                                if (pending.decrementAndGet() == 0) result.complete(Result.success(Unit))
+                            }
+                        }.onFailure { result.complete(Result.failure(Error.WriteFailed(it.message ?: it.javaClass.simpleName))) }
+                    }.onRetired { result.complete(Result.failure(Error.Retired)) }
+                }.onFailure { result.complete(Result.failure(Error.WriteFailed(it.message ?: it.javaClass.simpleName))) }
+            }
+            world.getChunkAtAsync(cx, cz, true).whenComplete { _, failure ->
+                if (failure != null) result.complete(Result.failure(Error.WriteFailed(failure.message ?: "chunk load failed")))
+                else schedule(Duration.ZERO)
+            }
+        }
+        return result
+    }
+
+    /** Drops, arrows and orbs a match leaves lying around; mobs, displays and players are owned by their own cleanup. */
+    private fun isArenaDebris(e: org.bukkit.entity.Entity): Boolean =
+        e is org.bukkit.entity.Item || e is org.bukkit.entity.Projectile || e is org.bukkit.entity.ExperienceOrb
+
     private fun write(
         world: World,
         blocks: Map<ArenaBlockPos, String>,
@@ -86,7 +140,10 @@ internal class ArenaPaster(
                                 block.setBlockData(wanted, false)
                             }
                             if (cursor < entries.size) schedule(TICK)
-                            else if (pending.decrementAndGet() == 0) result.complete(Result.success(journal))
+                            else {
+                                if (!capture) world.getChunkAt(chunk.first, chunk.second).entities.filter(::isArenaDebris).forEach { it.remove() }
+                                if (pending.decrementAndGet() == 0) result.complete(Result.success(journal))
+                            }
                         }.onFailure { result.complete(Result.failure(Error.WriteFailed(it.message ?: it.javaClass.simpleName))) }
                     }.onRetired { result.complete(Result.failure(Error.Retired)) }
                 }.onFailure { result.complete(Result.failure(Error.WriteFailed(it.message ?: it.javaClass.simpleName))) }

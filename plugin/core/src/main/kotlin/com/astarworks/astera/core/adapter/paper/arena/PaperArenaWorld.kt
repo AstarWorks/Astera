@@ -3,6 +3,7 @@ package com.astarworks.astera.core.adapter.paper.arena
 import com.astarworks.astera.core.application.port.outbound.*
 import com.astarworks.astera.core.application.service.arena.ArenaImportContent
 import com.astarworks.astera.core.application.service.arena.ArenaStructureContent
+import com.astarworks.astera.core.application.service.instance.ArenaSlotBook
 import com.astarworks.astera.core.application.service.instance.SlotAllocator
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -12,7 +13,6 @@ import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration
 
 /** All slot mutations run on Global. A match can claim only a completed paste. */
@@ -27,13 +27,13 @@ internal class PaperArenaWorld(
     private fun setting(name: String, default: Int): Int = System.getenv(name)?.toIntOrNull() ?: default
     private val warm = setting("ASTERA_WARM_SLOTS", 1).also { require(it in 1..16) }
     private val paster = ArenaPaster(plugin, scheduler, setting("ASTERA_PASTE_BLOCKS_PER_TICK", 4096).also { require(it > 0) })
-    private data class Build(val slot: SlotAllocator.Slot, val stage: Stage, val plan: ArenaBuildPlan,
-                             val journal: ArenaPaster.Journal)
-    private val builds = ConcurrentHashMap<StageId, Build>()
+    private data class Build(val stage: Stage, val plan: ArenaBuildPlan, val journal: ArenaPaster.Journal)
+    private val book = ArenaSlotBook<Build>(slots, MAX_REBUILD_ATTEMPTS)
+    private val manifest = SlotManifest(plugin.dataFolder.toPath().resolve("arena-slots.txt"))
 
-    fun killY(worldName: String, x: Double, z: Double): Int? = builds.values.firstOrNull {
-        it.stage.world.value == worldName && kotlin.math.abs(x - it.slot.x) < 1024 && kotlin.math.abs(z - it.slot.z) < 1024
-    }?.stage?.layout?.killY
+    fun killY(worldName: String, x: Double, z: Double): Int? = book.entries().firstOrNull {
+        it.build.stage.world.value == worldName && kotlin.math.abs(x - it.slot.x) < 1024 && kotlin.math.abs(z - it.slot.z) < 1024
+    }?.build?.stage?.layout?.killY
 
     /** Authored structure parts, read once (off the region threads: first use is inside an Io task). */
     private val parts: Map<String, ArenaStructurePart> by lazy { ArenaStructureContent.load(contentDir) }
@@ -42,43 +42,46 @@ internal class PaperArenaWorld(
     private val imports: Map<String, com.astarworks.astera.core.domain.stage.ArenaImport> by lazy { ArenaImportContent.load(contentDir) }
 
     /** The sky of the stage whose slot contains this point (MAP-08), or `null` outside every built slot. */
-    fun atmosphereAt(worldName: String, x: Double, z: Double): ArenaAtmosphere? = builds.values.firstOrNull {
-        it.stage.world.value == worldName && kotlin.math.abs(x - it.slot.x) < 1024 && kotlin.math.abs(z - it.slot.z) < 1024
-    }?.stage?.layout?.atmosphere
+    fun atmosphereAt(worldName: String, x: Double, z: Double): ArenaAtmosphere? = book.entries().firstOrNull {
+        it.build.stage.world.value == worldName && kotlin.math.abs(x - it.slot.x) < 1024 && kotlin.math.abs(z - it.slot.z) < 1024
+    }?.build?.stage?.layout?.atmosphere
 
     fun installAll(): Pair<Int, Int> {
         val templates = stages()?.all()?.filter { it.layout != null }.orEmpty()
-        templates.forEach(::replenish)
+        val world = plugin.server.getWorld("world")
+        val stale = manifest.load()
+        if (world == null || stale.isEmpty()) { templates.forEach(::replenish); return templates.size to templates.size }
+        // A previous run (restart, /reload, crash) left arenas in the slots; the allocator forgot them. Sweep them out
+        // BEFORE the first paste: otherwise a shrunk layout keeps ghost islands and a rollback "restores" the old arena.
+        log.info("Sweeping {} arena slot(s) left by an earlier run", stale.size)
+        java.util.concurrent.CompletableFuture.allOf(*stale.values.map { paster.clear(world, it) }.toTypedArray()).whenComplete { _, _ ->
+            scheduler.run(ExecutionScope.Global, Duration.ZERO) {
+                stale.keys.forEach(manifest::remove)
+                templates.forEach(::replenish)
+            }
+        }
         return templates.size to templates.size
     }
 
-    override fun resolve(stageId: StageId): Stage? = builds[stageId]?.stage
-    override fun ensureBuilt(stageId: StageId): Boolean = builds.containsKey(stageId)
-
-    /** The completed build of a Ready slot of [stage]'s template; the single source for both [peekReady] and [acquire]. */
-    private fun readyBuild(stage: Stage): Pair<SlotAllocator.Slot, Build>? {
-        val ready = slots.snapshot().firstOrNull { it.stage == stage.id && it.state == SlotAllocator.State.Ready } ?: return null
-        val built = builds.values.firstOrNull { it.slot.index == ready.index } ?: return null
-        return ready to built
-    }
+    override fun resolve(stageId: StageId): Stage? = book.build(stageId)?.build?.stage
+    override fun ensureBuilt(stageId: StageId): Boolean = book.contains(stageId)
 
     override fun peekReady(stage: Stage): Stage? =
-        if (stage.layout == null) stage else readyBuild(stage)?.second?.stage
+        if (stage.layout == null) stage else book.ready(stage.id)?.build?.stage
 
     override fun acquire(stage: Stage): Result<Stage, ArenaAllocationError> {
         if (!Bukkit.isGlobalTickThread()) return Result.failure(ArenaAllocationError.WrongScope)
         if (stage.layout == null) return Result.failure(ArenaAllocationError.NotReady)
-        val (ready, built) = readyBuild(stage)
+        val ready = book.ready(stage.id)
             ?: run { replenish(stage); return Result.failure(ArenaAllocationError.NotReady) }
-        slots.state(ready.index, SlotAllocator.State.Running)
+        book.claim(ready)
         replenish(stage)
-        return Result.success(built.stage)
+        return Result.success(ready.build.stage)
     }
 
     private fun replenish(template: Stage) {
         val world = plugin.server.getWorld("world") ?: return
-        val waiting = slots.snapshot().count { it.stage == template.id && it.state in setOf(SlotAllocator.State.Ready, SlotAllocator.State.Building) }
-        repeat(((template.warmSlots ?: warm) - waiting).coerceAtLeast(0)) {
+        repeat(((template.warmSlots ?: warm) - book.waiting(template.id)).coerceAtLeast(0)) {
             val slot = slots.allocate(template.id) ?: return
             val stage = placed(template, slot)
             // Planning is pure CPU (no world access): off the tick threads, then back on Global to commit.
@@ -90,32 +93,31 @@ internal class PaperArenaWorld(
                 scheduler.run(ExecutionScope.Global, Duration.ZERO) {
                     if (plan == null || plan.problems.isNotEmpty()) {
                         plan?.let { log.error("Arena '{}' has layout problems: {}", template.id, it.problems) }
-                        slots.free(slot.index)
+                        book.abandon(slot)
                         return@run
                     }
                     if (plan.minX < slot.x - 512 || plan.maxX > slot.x + 512 || plan.minZ < slot.z - 512 || plan.maxZ > slot.z + 512) {
                         log.error("Stage '{}' exceeds its slot footprint", template.id)
-                        slots.free(slot.index)
+                        book.abandon(slot)
                         return@run
                     }
                     log.info("Arena '{}' plan: {} blocks in {} ms (off thread)", template.id, plan.blocks.size,
                         (System.nanoTime() - started) / 1_000_000)
                     val journal = ArenaPaster.Journal()
+                    manifest.add(slot.index, ArenaPaster.Box(plan.minX, plan.maxX, plan.minY, plan.maxY, plan.minZ, plan.maxZ))
                     paster.paste(world, plan, journal).thenAccept { result ->
                         scheduler.run(ExecutionScope.Global, Duration.ZERO) {
                             when (result) {
                                 is Result.Success -> {
-                                    builds[stage.id] = Build(slot, stage, plan, result.value)
-                                    slots.state(slot.index, SlotAllocator.State.Ready)
-                                    failures.remove(template.id)
+                                    book.publish(stage.id, ArenaSlotBook.Entry(slot, Build(stage, plan, result.value)), template.id)
                                     log.info("Arena '{}' ready in slot {}: {} blocks", template.id, slot.index, plan.blocks.size)
                                 }
                                 is Result.Failure -> {
                                     // A partial paste is quarantined (never reused dirty), rolled back, and only then freed:
                                     // otherwise the slot leaked for the whole uptime and the warm pool never refilled.
                                     log.error("Arena '{}' paste failed in slot {}: {}", template.id, slot.index, result.error)
-                                    slots.state(slot.index, SlotAllocator.State.Resetting)
-                                    quarantine(world, template, slot, journal)
+                                    book.quarantine(slot)
+                                    quarantine(world, template, slot, journal, 0)
                                 }
                             }
                         }
@@ -125,18 +127,21 @@ internal class PaperArenaWorld(
         }
     }
 
-    private val failures = ConcurrentHashMap<StageId, Int>()
-
-    /** Rolls a failed paste back, frees the slot and tries the warm copy again (bounded, so a broken layout cannot spin). */
-    private fun quarantine(world: org.bukkit.World, template: Stage, slot: SlotAllocator.Slot, journal: ArenaPaster.Journal) {
+    /** Rolls a failed paste back (retrying the rollback), frees the slot and tries the warm copy again (bounded). */
+    private fun quarantine(world: org.bukkit.World, template: Stage, slot: SlotAllocator.Slot, journal: ArenaPaster.Journal, attempt: Int) {
         paster.rollback(world, journal).thenAccept { rolled ->
             scheduler.run(ExecutionScope.Global, Duration.ZERO) {
                 if (rolled is Result.Failure) {
-                    log.error("Arena '{}' slot {} could not be rolled back ({}); it stays quarantined", template.id, slot.index, rolled.error)
+                    if (attempt < MAX_REBUILD_ATTEMPTS) {
+                        scheduler.run(ExecutionScope.Global, com.astarworks.astera.core.application.port.outbound.ticks(100)) {
+                            quarantine(world, template, slot, journal, attempt + 1)
+                        }
+                    } else log.error("Arena '{}' slot {} could not be rolled back ({}); it stays quarantined", template.id, slot.index, rolled.error)
                     return@run
                 }
-                slots.free(slot.index)
-                if (failures.merge(template.id, 1, Int::plus)!! <= MAX_REBUILD_ATTEMPTS) {
+                manifest.remove(slot.index)
+                book.release(slot)
+                if (book.buildFailed(template.id)) {
                     scheduler.run(ExecutionScope.Global, com.astarworks.astera.core.application.port.outbound.ticks(100)) { replenish(template) }
                 }
             }
@@ -145,35 +150,35 @@ internal class PaperArenaWorld(
 
     override fun repairLater(stageId: StageId) {
         scheduler.run(ExecutionScope.Global, com.astarworks.astera.core.application.port.outbound.ticks(60)) {
-            val build = builds[stageId] ?: return@run
-            slots.state(build.slot.index, SlotAllocator.State.Resetting)
+            // Claimed once: a duplicate / stale request, or a pristine warm copy, is ignored (see ArenaSlotBook).
+            val entry = book.beginRepair(stageId) ?: return@run
+            val build = entry.build
+            val template = stages()?.find(entry.slot.stage)
             val world = plugin.server.getWorld(build.stage.world.value)
             if (world == null) {
-                // The world is gone (unloaded): nothing on disk to roll back here. Drop the stale build and free the slot
-                // instead of leaving it Resetting (and the build referenced) forever.
-                log.warn("Arena slot {}: world '{}' is not loaded; dropping the stale build", build.slot.index, build.stage.world.value)
-                builds.remove(stageId)
-                slots.free(build.slot.index)
-                stages()?.find(build.slot.stage)?.let(::replenish)
+                // The world is gone (unloaded): nothing can be rolled back now; the manifest keeps the slot for the next
+                // boot's sweep. Drop the stale build and free the slot instead of leaving it Resetting forever.
+                log.warn("Arena slot {}: world '{}' is not loaded; dropping the stale build", entry.slot.index, build.stage.world.value)
+                book.finishRepair(stageId, entry)
+                template?.let(::replenish)
                 return@run
             }
-            // Match journal recovery runs first. Roll back the paste journal, then rebuild the warm copy.
+            // Roll back the paste journal (everything the match changed, blocks outside the island included), then rebuild.
             paster.rollback(world, build.journal).thenAccept { result ->
                 scheduler.run(ExecutionScope.Global, Duration.ZERO) {
                     if (result is Result.Success) {
-                        builds.remove(stageId)
-                        slots.free(build.slot.index)
-                        stages()?.find(build.slot.stage)?.let(::replenish)
+                        manifest.remove(entry.slot.index)
+                        book.finishRepair(stageId, entry)
+                        template?.let(::replenish)
                     } else {
                         // Keep the slot unavailable until the fallback paste has fully completed.
                         paster.paste(world, build.plan).thenAccept { pasted ->
                             scheduler.run(ExecutionScope.Global, Duration.ZERO) {
                                 if (pasted is Result.Success) {
-                                    builds[stageId] = build.copy(journal = pasted.value)
-                                    slots.state(build.slot.index, SlotAllocator.State.Ready)
+                                    book.repasted(stageId, entry, build.copy(journal = pasted.value))
                                 } else {
-                                    log.error("Slot {} reset failed: {}", build.slot.index, pasted)
-                                    if (failures.merge(stageId, 1, Int::plus)!! <= MAX_REBUILD_ATTEMPTS) repairLater(stageId)
+                                    log.error("Slot {} reset failed: {}", entry.slot.index, pasted)
+                                    if (book.repairFailed(stageId)) repairLater(stageId)
                                 }
                             }
                         }
@@ -184,10 +189,10 @@ internal class PaperArenaWorld(
     }
 
     fun remember(block: org.bukkit.block.Block, previous: org.bukkit.block.data.BlockData = block.blockData) {
-        val build = builds.values.firstOrNull {
-            block.world.name == it.stage.world.value &&
+        val build = book.entries().firstOrNull {
+            block.world.name == it.build.stage.world.value &&
                 kotlin.math.abs(block.x - it.slot.x) < 768 && kotlin.math.abs(block.z - it.slot.z) < 768
-        } ?: return
+        }?.build ?: return
         build.journal.before.putIfAbsent(ArenaBlockPos(block.x, block.y, block.z), previous.clone())
     }
 
