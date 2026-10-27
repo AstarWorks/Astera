@@ -33,6 +33,18 @@
                 }
             }
         },
+        "role": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "flavor": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
         "rarity": {
             "type": "string"
         },

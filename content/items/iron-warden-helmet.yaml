@@ -5,15 +5,11 @@ id: iron-warden-helmet
 material: IRON_HELMET
 
 name:
-  ja: "<white>アイアンウォーデン ヘルメット</white>"
-  en: "<white>Iron Warden Helmet</white>"
-lore:
-  ja:
-    - "<gray>アイアンウォーデンセットの防具</gray>"
-    - "<gray>2部位・4部位そろえるとボーナス</gray>"
-  en:
-    - "<gray>Iron Warden set piece</gray>"
-    - "<gray>2+ pieces and the full set give a bonus</gray>"
+  ja: "アイアンウォーデン ヘルメット"
+  en: "Iron Warden Helmet"
+role:
+  ja: "防具 / アイアンウォーデン、2・4部位でボーナス"
+  en: "Armor / Iron Warden set (2/4 bonus)"
 
 rarity: uncommon
 level_requirement: 1

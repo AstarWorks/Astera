@@ -7,11 +7,9 @@ material: TRIPWIRE_HOOK
 name:
   ja: "時限地雷"
   en: "Timed Mine"
-lore:
-  ja:
-    - "<gray>右クリック: 前方に設置 (2.5秒後に爆発)</gray>"
-  en:
-    - "<gray>Right-click: plant ahead (detonates in 2.5s)</gray>"
+role:
+  ja: "補助 / 設置して遅れて爆発する地雷"
+  en: "Support / mine that blows after a delay"
 
 rarity: uncommon
 level_requirement: 1

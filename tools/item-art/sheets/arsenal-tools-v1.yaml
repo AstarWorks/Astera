@@ -1,0 +1,58 @@
+name: arsenal-tools-v1
+grid:
+- 5
+- 4
+background: '#FF00FF'
+style: chunky crisp pixel art for 32px Minecraft-like inventory, bold dark outlines,
+  top left light, restrained saturated palettes, no text or particles. Each icon 75
+  percent of its cell, ample solid magenta spacing.
+cells:
+  stone-pickaxe: charcoal-grey chipped stone pickaxe, wide arched double pointed pick
+    head, dark oak shaft, leather grip, brass collar. Diagonal grip bottom left head
+    upper right. Volumetric chunky tool, recognizable silhouette.
+  stone-axe: charcoal-grey chipped stone axe, broad single wedge blade, short rear
+    poll, dark oak shaft, leather grip, brass collar. Diagonal grip bottom left head
+    upper right. Volumetric chunky tool, recognizable silhouette.
+  stone-shovel: charcoal-grey chipped stone shovel, broad square spade with tapered
+    cutting edge, dark oak shaft, leather grip, brass collar. Diagonal grip bottom
+    left head upper right. Volumetric chunky tool, recognizable silhouette.
+  iron-pickaxe: bright white-silver iron pickaxe, wide arched double pointed pick
+    head, dark oak shaft, leather grip, brass collar. Diagonal grip bottom left head
+    upper right. Volumetric chunky tool, recognizable silhouette.
+  iron-axe: bright white-silver iron axe, broad single wedge blade, short rear poll,
+    dark oak shaft, leather grip, brass collar. Diagonal grip bottom left head upper
+    right. Volumetric chunky tool, recognizable silhouette.
+  iron-shovel: bright white-silver iron shovel, broad square spade with tapered cutting
+    edge, dark oak shaft, leather grip, brass collar. Diagonal grip bottom left head
+    upper right. Volumetric chunky tool, recognizable silhouette.
+  diamond-pickaxe: luminous cyan diamond pickaxe, wide arched double pointed pick
+    head, dark oak shaft, leather grip, brass collar. Diagonal grip bottom left head
+    upper right. Volumetric chunky tool, recognizable silhouette.
+  diamond-axe: luminous cyan diamond axe, broad single wedge blade, short rear poll,
+    dark oak shaft, leather grip, brass collar. Diagonal grip bottom left head upper
+    right. Volumetric chunky tool, recognizable silhouette.
+  diamond-shovel: luminous cyan diamond shovel, broad square spade with tapered cutting
+    edge, dark oak shaft, leather grip, brass collar. Diagonal grip bottom left head
+    upper right. Volumetric chunky tool, recognizable silhouette.
+  ore-iron: angular charcoal rock cluster with silver crystal inclusions, octagonal
+    brass match-token seal on front, NOT an ingot
+  ore-gold: angular brown rock cluster with golden crystal inclusions, octagonal brass
+    match-token seal on front, NOT an ingot
+  ore-diamond: tall cyan crystal cluster on dark rock, octagonal brass match-token
+    seal on front, NOT a vanilla diamond
+  ore-emerald: wide green crystal cluster on dark rock, octagonal brass match-token
+    seal on front, NOT a vanilla emerald
+  reinforced-planks-block: dark wood crate cube with two silver reinforcement straps,
+    isolated three-quarter isometric inventory block icon
+  stone-bulwark-block: grey masonry cube with thick stone corner buttresses, isolated
+    three-quarter isometric inventory block icon
+  obsidian-plate-block: black violet cube with violet inset plates and pale rivets,
+    isolated three-quarter isometric inventory block icon
+  packed-clay-block: terracotta orange cube with broad pressed clay strata, isolated
+    three-quarter isometric inventory block icon
+  tempered-glass-block: pale blue transparent glass cube with thick silver frame and
+    diagonal highlight, isolated three-quarter isometric inventory block icon
+  hardened-soil-block: dark earth cube with compact pebbles and ochre top crust, isolated
+    three-quarter isometric inventory block icon
+  wool-block: cream white wool cube with broad woven seams, isolated three-quarter
+    isometric inventory block icon

@@ -7,13 +7,9 @@ material: WOODEN_HOE
 name:
   ja: "大鎌"
   en: "Scythe"
-lore:
-  ja:
-    - "<gray>左クリック: 半円の刈り取り</gray>"
-    - "<gray>スニーク + 右クリック: 引き寄せ</gray>"
-  en:
-    - "<gray>Left-click: wide reap</gray>"
-    - "<gray>Sneak + right-click: pull</gray>"
+role:
+  ja: "近接 / 広い刈り取りと引き寄せ"
+  en: "Melee / wide reaps and pulling enemies"
 
 rarity: uncommon
 level_requirement: 1

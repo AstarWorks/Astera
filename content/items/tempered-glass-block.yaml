@@ -5,15 +5,11 @@ id: tempered-glass-block
 material: GLASS
 
 name:
-  ja: "<aqua>強化ガラス</aqua>"
-  en: "<aqua>Tempered Glass</aqua>"
-lore:
-  ja:
-    - "<gray>置いて遮蔽物にする</gray>"
-    - "<gray>壊すには合った道具が必要</gray>"
-  en:
-    - "<gray>Place it for cover</gray>"
-    - "<gray>Use the right tool to break it</gray>"
+  ja: "強化ガラス"
+  en: "Tempered Glass"
+role:
+  ja: "ブロック / 置いて遮蔽物にする"
+  en: "Block / place it for cover"
 
 rarity: common
 level_requirement: 1

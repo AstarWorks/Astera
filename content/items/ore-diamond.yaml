@@ -6,15 +6,11 @@ id: ore-diamond
 material: DIAMOND
 
 name:
-  ja: "<aqua>ダイヤ鉱石</aqua>"
-  en: "<aqua>Diamond Ore</aqua>"
-lore:
-  ja:
-    - "<gray>試合中の通貨。陣地のショップで武具と交換できる。</gray>"
-    - "<dark_gray>試合終了時に消える</dark_gray>"
-  en:
-    - "<gray>Match currency. Trade it for gear at your base's shop.</gray>"
-    - "<dark_gray>Vanishes when the match ends</dark_gray>"
+  ja: "ダイヤ鉱石"
+  en: "Diamond Ore"
+role:
+  ja: "素材 / ショップ用の試合通貨（終了時に消滅）"
+  en: "Material / shop currency, match-only"
 
 rarity: common
 level_requirement: 1

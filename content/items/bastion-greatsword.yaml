@@ -1,19 +1,11 @@
 id: bastion-greatsword
 material: GOLDEN_SWORD
 name:
-  ja: <gold>城壁の大剣</gold>
-  en: <gold>Bastion Greatsword</gold>
-lore:
-  ja:
-  - '左クリック: 月輪の薙ぎ'
-  - '右クリック: 審判の突進'
-  - 'スニーク+左: 城壁の構え'
-  - 'Q: 城塞の暁'
-  en:
-  - 'Left-click: Moon Sweep'
-  - 'Right-click: Judgement Rush'
-  - 'Sneak+Left-click: Tower Shield'
-  - 'Q: Citadel Dawn'
+  ja: 城壁の大剣
+  en: Bastion Greatsword
+role:
+  ja: "近接 / 防御と突進を兼ねる大剣"
+  en: "Melee / greatsword for guard and charges"
 rarity: rare
 level_requirement: 3
 attributes:

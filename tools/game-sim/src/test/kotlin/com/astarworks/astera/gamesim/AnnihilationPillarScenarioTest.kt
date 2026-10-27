@@ -65,9 +65,9 @@ class AnnihilationPillarScenarioTest {
 
             // The arena's pillar blocks stand in the world from the match start.
             pillars.values.forEach { assertThat(sim.world.blockAt(world, it.position)).isEqualTo(it.block) }
-            // Tier 3 carries its stage hp override, the other tiers the mode's pillar hp.
+            // The scenario config sets one pillar hp for every tier (the shipped stage has no per-pillar hp override).
             assertThat(hp("blue", NexusPillarTier.TIER_1)).isEqualTo(40.0)
-            assertThat(hp("blue", NexusPillarTier.TIER_3)).isEqualTo(800.0)
+            assertThat(hp("blue", NexusPillarTier.TIER_3)).isEqualTo(40.0)
 
             // blue / yellow stay out of the line of fire.
             blue.position = Vec3(0.0, groundY, 0.0)

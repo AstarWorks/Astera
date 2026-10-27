@@ -6,13 +6,11 @@ id: fire-staff
 material: BLAZE_ROD
 
 name:
-  ja: "<red>ファイアスタッフ</red>"
-  en: "<red>Fire Staff</red>"
-lore:
-  ja:
-    - "<gray>右クリック: 炎の爆発（燃焼）</gray>"
-  en:
-    - "<gray>Right-click: flame burst (burn)</gray>"
+  ja: "ファイアスタッフ"
+  en: "Fire Staff"
+role:
+  ja: "魔法 / 炎の爆発で燃やす"
+  en: "Magic / flame burst that burns"
 
 rarity: uncommon
 level_requirement: 2

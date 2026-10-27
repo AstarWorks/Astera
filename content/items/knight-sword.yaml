@@ -5,15 +5,11 @@ id: knight-sword
 material: IRON_SWORD
 
 name:
-  ja: "<gold>騎士の剣</gold>"
-  en: "<gold>Knight's Sword</gold>"
-lore:
-  ja:
-    - "<gray>左クリック: 斬撃</gray>"
-    - "<gray>スニーク+右: ダッシュ</gray>"
-  en:
-    - "<gray>Left-click: slash</gray>"
-    - "<gray>Sneak+Right-click: dash</gray>"
+  ja: "騎士の剣"
+  en: "Knight's Sword"
+role:
+  ja: "近接 / 斬撃とダッシュ"
+  en: "Melee / slashes and a dash"
 
 rarity: common
 level_requirement: 1

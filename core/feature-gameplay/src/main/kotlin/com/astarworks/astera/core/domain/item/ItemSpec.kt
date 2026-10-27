@@ -87,6 +87,10 @@ public data class ItemSpec(
     val resourceMaxPool: Int = -1,
     val resourceRegenPerSecond: Double = -1.0,
     val resourceReloadable: Boolean = false,
+    /** One-line "what is this for" under the header (docs/contributing/item-lore-style.md). Plain text. */
+    val role: LocalizedText = LocalizedText.EMPTY,
+    /** Optional one-line flavour text at the bottom of the card. Plain text. */
+    val flavor: LocalizedText = LocalizedText.EMPTY,
 ) {
     init {
         require(levelRequirement >= 1) {

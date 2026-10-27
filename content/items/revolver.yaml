@@ -7,13 +7,9 @@ material: GOLDEN_HOE
 name:
   ja: "リボルバー"
   en: "Revolver"
-lore:
-  ja:
-    - "<gray>右クリック: 重い一発</gray>"
-    - "<gray>スニーク + 右クリック: ファニング (近距離)</gray>"
-  en:
-    - "<gray>Right-click: heavy shot</gray>"
-    - "<gray>Sneak + right-click: fan the hammer (close range)</gray>"
+role:
+  ja: "銃 / 重い一発と近距離ファニング"
+  en: "Gun / heavy shots and close-range fanning"
 
 rarity: uncommon
 level_requirement: 1

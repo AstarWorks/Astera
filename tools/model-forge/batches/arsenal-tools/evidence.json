@@ -1,0 +1,157 @@
+{
+  "concept": {
+    "path": "content/textures/sources/sheets/arsenal-tools-v1.png",
+    "sha256": "4605ab4b4dc5e7242fee65f91ce904641fe3180467ff85d4bb38bf7f5c5a98b7"
+  },
+  "assets": {
+    "stone-pickaxe": {
+      "model": "content/models/items/stone-pickaxe.model.json",
+      "model_sha256": "bc4ed305d38916441ad50d76f69e1cffbd419c15fe9245816447ecebae95c008",
+      "texture": "content/textures/generated/items/stone-pickaxe.png",
+      "texture_sha256": "a7ba1cc68ea114493abbf23d751a1d3534df63994da5072e64c33380d96aae58",
+      "elements": 19,
+      "coplanar_candidates": 0
+    },
+    "stone-axe": {
+      "model": "content/models/items/stone-axe.model.json",
+      "model_sha256": "0824393e5f7c27fcf74e727d3859979cb3181914c1dff763d2d8ba381e141c29",
+      "texture": "content/textures/generated/items/stone-axe.png",
+      "texture_sha256": "2494c42bf199a0a9aec18951d0e638c13fb194a96711818259f835d75c015232",
+      "elements": 16,
+      "coplanar_candidates": 0
+    },
+    "stone-shovel": {
+      "model": "content/models/items/stone-shovel.model.json",
+      "model_sha256": "da5a88576297c89d8c23efae8bc1bab3ded5e6ccebf7ef13551cf4236cd35f1d",
+      "texture": "content/textures/generated/items/stone-shovel.png",
+      "texture_sha256": "4ce28841dc5a36160614bc4d64746f8711280a8829184a7b86db1638f1086339",
+      "elements": 16,
+      "coplanar_candidates": 0
+    },
+    "iron-pickaxe": {
+      "model": "content/models/items/iron-pickaxe.model.json",
+      "model_sha256": "02738ab8b81aae0843b3e9ebf8785b4f3c7cff454ef022ad47f4defac9a19ea4",
+      "texture": "content/textures/generated/items/iron-pickaxe.png",
+      "texture_sha256": "900fc1e216b36a372b7eeb7ff30ac4ef5bad27240219371d9d3a7720abb034a5",
+      "elements": 19,
+      "coplanar_candidates": 0
+    },
+    "iron-axe": {
+      "model": "content/models/items/iron-axe.model.json",
+      "model_sha256": "6ff428fcbf0e4b8583882343c52ed2f40cf1b0f7da8bc454dd75dbfa0675bca8",
+      "texture": "content/textures/generated/items/iron-axe.png",
+      "texture_sha256": "784af104ce092b73b139c88798180b6334b253df2b325934ce80cc0f45ecf271",
+      "elements": 16,
+      "coplanar_candidates": 0
+    },
+    "iron-shovel": {
+      "model": "content/models/items/iron-shovel.model.json",
+      "model_sha256": "e9aaa16e5002d0a77d5a1470feb66f249c6aa87469b67f40ad0f48761568f795",
+      "texture": "content/textures/generated/items/iron-shovel.png",
+      "texture_sha256": "e6629e869c4953847fda7a2311a9d452d270d05a4eddc0a43c6128565794444b",
+      "elements": 16,
+      "coplanar_candidates": 0
+    },
+    "diamond-pickaxe": {
+      "model": "content/models/items/diamond-pickaxe.model.json",
+      "model_sha256": "59d4515bcc0c3cfa1f2a4c1d0afb2780a29bfae8f9812080e56c3053bb5fec12",
+      "texture": "content/textures/generated/items/diamond-pickaxe.png",
+      "texture_sha256": "a200a298626da27eb63e4591c83dfd082d23adee03848eba0f38bbc12a631719",
+      "elements": 19,
+      "coplanar_candidates": 0
+    },
+    "diamond-axe": {
+      "model": "content/models/items/diamond-axe.model.json",
+      "model_sha256": "f67ea7df3ceb5dd3a9a7ada79e8ae3c2da9fb1bf1af785f4c8855fd26f91912c",
+      "texture": "content/textures/generated/items/diamond-axe.png",
+      "texture_sha256": "155b3500117b8aaebb9a764216b802af684597662a0dda65d0f4a8f28ae0615a",
+      "elements": 16,
+      "coplanar_candidates": 0
+    },
+    "diamond-shovel": {
+      "model": "content/models/items/diamond-shovel.model.json",
+      "model_sha256": "e23a5c9da82289a46a190f9f828de099386e4ab79920e27c0a9cf98da7557256",
+      "texture": "content/textures/generated/items/diamond-shovel.png",
+      "texture_sha256": "7f8ef737e920eaff2f6b7b064968538bd477b3e89e07ad5f3b7dfe14263d5822",
+      "elements": 16,
+      "coplanar_candidates": 0
+    },
+    "ore-iron": {
+      "model": "content/models/items/arsenal/ore-iron.model.json",
+      "model_sha256": "8f45d82f3b54e87a604885bc93833d4fe02c9b800e01cc702b89a2f628f7f236",
+      "texture": "content/textures/generated/items/ore-iron.png",
+      "texture_sha256": "c85a7edb028a4c1b358b49f163bc08972b43bbf8d7860e10e29d5c238fd1cd3c",
+      "elements": 0
+    },
+    "ore-gold": {
+      "model": "content/models/items/arsenal/ore-gold.model.json",
+      "model_sha256": "ce31ee045d3f1adea142fc6f2fadce912df31e3e08a011b0812e43e214a009cc",
+      "texture": "content/textures/generated/items/ore-gold.png",
+      "texture_sha256": "de81a3d716e9580bbf14685bfcf937dba5ae945a86180ee7ef7542c945b930f1",
+      "elements": 0
+    },
+    "ore-diamond": {
+      "model": "content/models/items/arsenal/ore-diamond.model.json",
+      "model_sha256": "0ec1dff8b58d62ac202180efd2264391a0ddf1c668641747de3920942d2087f4",
+      "texture": "content/textures/generated/items/ore-diamond.png",
+      "texture_sha256": "6cd43a66b12134924aee9debac78168aa878b765a1d86604903ae1ec94ee79b4",
+      "elements": 0
+    },
+    "ore-emerald": {
+      "model": "content/models/items/arsenal/ore-emerald.model.json",
+      "model_sha256": "b70c9e093442090d4636eb74fffd4f9c9793adc8e3beb14f5eed279fc61a4d1f",
+      "texture": "content/textures/generated/items/ore-emerald.png",
+      "texture_sha256": "eef53015700bcf042a1b6dbb70c64932c2162f89f5fd7bf1cb3bd1d2599af999",
+      "elements": 0
+    },
+    "reinforced-planks-block": {
+      "model": "content/models/items/arsenal/reinforced-planks-block.model.json",
+      "model_sha256": "65dc62f7dab2e427d6c26a1f30a187f8c831adcc4325eb1744cfc0712f2bd188",
+      "texture": "content/textures/generated/items/reinforced-planks-block.png",
+      "texture_sha256": "980bbbd8cfd1c05c6519e6960736b47c1ca41ff5b947538347ff96c68c90ebe2",
+      "elements": 0
+    },
+    "stone-bulwark-block": {
+      "model": "content/models/items/arsenal/stone-bulwark-block.model.json",
+      "model_sha256": "343d14c5e527b413907d46c48dcf394ed8e3657deb46a73a335aebc132319970",
+      "texture": "content/textures/generated/items/stone-bulwark-block.png",
+      "texture_sha256": "0bc241f3419db87acae317d2b0672d707b8bbd99702c32647596348957140f8c",
+      "elements": 0
+    },
+    "obsidian-plate-block": {
+      "model": "content/models/items/arsenal/obsidian-plate-block.model.json",
+      "model_sha256": "5a6b7acddd8513cc82010a94fd12dada6640f7e4ef344a4257cdd4000f486bb4",
+      "texture": "content/textures/generated/items/obsidian-plate-block.png",
+      "texture_sha256": "8023eb41de0b7546fd23e34cdc8e3e94e6af50dff20477218bd5ed86957012be",
+      "elements": 0
+    },
+    "packed-clay-block": {
+      "model": "content/models/items/arsenal/packed-clay-block.model.json",
+      "model_sha256": "d07bf55b86f864ab9e8b18d507d23ac23024b505d1893996687073811091c4e8",
+      "texture": "content/textures/generated/items/packed-clay-block.png",
+      "texture_sha256": "cb8414c72932d9732fd07ce5e8508206795b3fa660deffcde28956a50a6f0cff",
+      "elements": 0
+    },
+    "tempered-glass-block": {
+      "model": "content/models/items/arsenal/tempered-glass-block.model.json",
+      "model_sha256": "4b364f19a3d4b551aecb9492d80902128233e9be7fd870296f73bb20a1194826",
+      "texture": "content/textures/generated/items/tempered-glass-block.png",
+      "texture_sha256": "2f9a38dfe037236be27d809465bbc5863e7023d6c246073a8ad23cdd000b37d7",
+      "elements": 0
+    },
+    "hardened-soil-block": {
+      "model": "content/models/items/arsenal/hardened-soil-block.model.json",
+      "model_sha256": "b497829c3d7c64c9cef205664d1230978cdc16ecd681e840938d633c4a4d1aad",
+      "texture": "content/textures/generated/items/hardened-soil-block.png",
+      "texture_sha256": "5af2f8bc9813b50f423788a288024af9e9548d45a29d134f0eebe1b128bbf091",
+      "elements": 0
+    },
+    "wool-block": {
+      "model": "content/models/items/arsenal/wool-block.model.json",
+      "model_sha256": "50d05cf7b2fc6c206859cd12f3daae39b8cbc0da6026b04d1c06f20d05864cfd",
+      "texture": "content/textures/generated/items/wool-block.png",
+      "texture_sha256": "2b5e5c98a68a9a50b1db0ed3feb682b0729516eb3bf2b3328c5f047263dce8af",
+      "elements": 0
+    }
+  }
+}

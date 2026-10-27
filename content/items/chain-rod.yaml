@@ -7,11 +7,9 @@ material: LIGHTNING_ROD
 name:
   ja: "連鎖の杖"
   en: "Chain Rod"
-lore:
-  ja:
-    - "<gray>右クリック: 連鎖雷 (着弾点の周囲の敵にも走る)</gray>"
-  en:
-    - "<gray>Right-click: chain lightning (arcs to nearby enemies)</gray>"
+role:
+  ja: "魔法 / 周囲の敵へ連鎖する雷"
+  en: "Magic / chain lightning to nearby foes"
 
 rarity: uncommon
 level_requirement: 1

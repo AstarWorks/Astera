@@ -5,15 +5,11 @@ id: longbow
 material: BOW
 
 name:
-  ja: "<yellow>ロングボウ</yellow>"
-  en: "<yellow>Longbow</yellow>"
-lore:
-  ja:
-    - "<gray>右クリック: 矢</gray>"
-    - "<gray>スニーク + 右クリック: 重矢</gray>"
-  en:
-    - "<gray>Right-click: arrow</gray>"
-    - "<gray>Sneak + right-click: heavy arrow</gray>"
+  ja: "ロングボウ"
+  en: "Longbow"
+role:
+  ja: "弓 / 矢と重矢の遠距離射撃"
+  en: "Bow / long-range arrows and heavy shots"
 
 rarity: uncommon
 level_requirement: 1

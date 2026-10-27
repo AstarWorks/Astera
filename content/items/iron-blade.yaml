@@ -5,15 +5,11 @@ id: iron-blade
 material: IRON_SWORD
 
 name:
-  ja: "<white>アイアンブレード</white>"
-  en: "<white>Iron Blade</white>"
-lore:
-  ja:
-    - "<gray>左クリック: 斬撃</gray>"
-    - "<gray>スニーク + 右クリック: 突進斬り</gray>"
-  en:
-    - "<gray>Left-click: slash</gray>"
-    - "<gray>Sneak + right-click: lunge</gray>"
+  ja: "アイアンブレード"
+  en: "Iron Blade"
+role:
+  ja: "近接 / 斬撃と突進斬り"
+  en: "Melee / slashes and a lunging strike"
 
 rarity: uncommon
 level_requirement: 1

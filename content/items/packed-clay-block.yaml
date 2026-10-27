@@ -5,15 +5,11 @@ id: packed-clay-block
 material: CLAY
 
 name:
-  ja: "<gold>固めた粘土</gold>"
-  en: "<gold>Packed Clay</gold>"
-lore:
-  ja:
-    - "<gray>置いて遮蔽物にする</gray>"
-    - "<gray>壊すには合った道具が必要</gray>"
-  en:
-    - "<gray>Place it for cover</gray>"
-    - "<gray>Use the right tool to break it</gray>"
+  ja: "固めた粘土"
+  en: "Packed Clay"
+role:
+  ja: "ブロック / 置いて遮蔽物に。壊すには合う道具"
+  en: "Block / cover; break with a tool"
 
 rarity: common
 level_requirement: 1

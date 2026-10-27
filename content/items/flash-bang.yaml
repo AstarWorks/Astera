@@ -7,11 +7,9 @@ material: GLOWSTONE_DUST
 name:
   ja: "閃光弾"
   en: "Flash Bang"
-lore:
-  ja:
-    - "<gray>右クリック: 投げる (周囲の敵を一瞬動けなくする)</gray>"
-  en:
-    - "<gray>Right-click: throw (briefly stuns enemies nearby)</gray>"
+role:
+  ja: "投擲 / 周囲の敵を一瞬動けなくする"
+  en: "Thrown / briefly stuns enemies nearby"
 
 rarity: uncommon
 level_requirement: 1

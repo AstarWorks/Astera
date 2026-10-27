@@ -7,11 +7,9 @@ material: FERMENTED_SPIDER_EYE
 name:
   ja: "毒霧の瓶"
   en: "Venom Flask"
-lore:
-  ja:
-    - "<gray>右クリック: 投げる (着弾点に毒の霧)</gray>"
-  en:
-    - "<gray>Right-click: throw (poison cloud on impact)</gray>"
+role:
+  ja: "投擲 / 着弾点に毒の霧を撒く"
+  en: "Thrown / poison cloud on impact"
 
 rarity: uncommon
 level_requirement: 1

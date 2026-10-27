@@ -5,15 +5,11 @@ id: mace
 material: MACE
 
 name:
-  ja: "<dark_gray>メイス</dark_gray>"
-  en: "<dark_gray>Mace</dark_gray>"
-lore:
-  ja:
-    - "<gray>左クリック: 叩き潰し</gray>"
-    - "<gray>スニーク + 右クリック: 大地震</gray>"
-  en:
-    - "<gray>Left-click: smash</gray>"
-    - "<gray>Sneak + right-click: quake</gray>"
+  ja: "メイス"
+  en: "Mace"
+role:
+  ja: "近接 / 叩き潰しと範囲の大地震"
+  en: "Melee / heavy smashes and a ground quake"
 
 rarity: uncommon
 level_requirement: 1

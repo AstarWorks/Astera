@@ -198,7 +198,7 @@ public object CombatWiring {
         // Item tooltips: Core owns the layout, Combat supplies "what this skill does" from content.
         services.get<com.astarworks.astera.core.application.service.item.ItemBlueprintFactory>()?.skillTooltips =
             services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()?.let {
-                com.astarworks.astera.combat.application.service.SkillTooltipSummary(skillContents, statusContents, it)
+                com.astarworks.astera.combat.application.service.SkillTooltipSummary(skillContents, statusContents, it, armorContents)
             }
         // Also published so Match can wipe fire / glow / freeze when a match ends or a player leaves it.
         val entityEffects = ports.entityEffectsGateway?.invoke(services)

@@ -3,19 +3,9 @@ material: LEATHER_HORSE_ARMOR
 name:
   ja: 勅令の手枷
   en: Edict Shackles
-lore:
-  ja:
-  - '左クリック: 双拳砕き'
-  - '右クリック: 返しの手枷'
-  - 'スニーク+右: 落下の鉄拳'
-  - 'スニーク+左: 手枷の応酬'
-  - 'Q: 解かれた勅令'
-  en:
-  - 'Left-click: Bound Fist Crush'
-  - 'Right-click: Shackle Return'
-  - 'Sneak+Right-click: Cuffed Descent'
-  - 'Sneak+Left-click: Shackle Reprisal'
-  - 'Q: Unbound Mandate'
+role:
+  ja: "近接 / 双拳で砕く手枷の格闘具"
+  en: "Melee / shackle fists that crush foes"
 rarity: epic
 level_requirement: 4
 attributes:

@@ -3,19 +3,9 @@ material: BREEZE_ROD
 name:
   ja: <gold>天球儀の杖</gold>
   en: <gold>Orrery Staff</gold>
-lore:
-  ja:
-  - '左クリック: 電撃の杖'
-  - '右クリック: 標的の電場'
-  - 'スニーク+右: 四連の光束'
-  - 'スニーク+左: 天球の返し'
-  - 'Q: 天球の極点'
-  en:
-  - 'Left-click: Energy Rod Strike'
-  - 'Right-click: Target Field'
-  - 'Sneak+Right-click: Fourfold Beam'
-  - 'Sneak+Left-click: Orrery Counter-Seal'
-  - 'Q: Orrery Zenith'
+role:
+  ja: "魔法 / 電場と光束を操る多彩な魔法"
+  en: "Magic / electric fields and fourfold beams"
 rarity: epic
 level_requirement: 4
 attributes:

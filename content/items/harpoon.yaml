@@ -7,11 +7,9 @@ material: PRISMARINE_SHARD
 name:
   ja: "銛"
   en: "Harpoon"
-lore:
-  ja:
-    - "<gray>右クリック: 投げて引き寄せる</gray>"
-  en:
-    - "<gray>Right-click: throw and reel in</gray>"
+role:
+  ja: "補助 / 投げて敵を引き寄せる"
+  en: "Support / throw to reel enemies in"
 
 rarity: uncommon
 level_requirement: 1

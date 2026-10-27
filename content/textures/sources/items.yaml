@@ -10,6 +10,54 @@ sources:
     grid: [5, 5]
     cells: [bastion-greatsword, couture-rapier, crimson-chain-axe, dagger, edict-blade, ember-gauntlet, fire-staff, frost-staff, gossamer-katana, greatsword, knight-sword, orrery-staff, pistol, rifle, rtm-blaster, shotgun, sigil-rifle, thunder-staff, vendetta-rifle, verdant-staff, verdict-hammer]
 
+  arsenal-tools-v1:
+    file: sheets/arsenal-tools-v1.png
+    grid: [5, 4]
+    cells: [stone-pickaxe, stone-axe, stone-shovel, iron-pickaxe, iron-axe, iron-shovel, diamond-pickaxe, diamond-axe, diamond-shovel, ore-iron, ore-gold, ore-diamond, ore-emerald, reinforced-planks-block, stone-bulwark-block, obsidian-plate-block, packed-clay-block, tempered-glass-block, hardened-soil-block, wool-block]
+  # arsenal-weapons-art2: locked generated reference, 2026-10-28.
+  arsenal-weapons-art2:
+    file: sheets/arsenal-weapons-art2.png
+    grid:
+    - 6
+    - 6
+    cells:
+    - iron-blade
+    - war-axe
+    - spear
+    - mace
+    - twin-daggers
+    - katana
+    - halberd
+    - rapier
+    - cleaver
+    - scythe
+    - club
+    - longbow
+    - hand-crossbow
+    - shortbow
+    - repeater-crossbow
+    - revolver
+    - smg
+    - sniper
+    - harpoon
+    - grappling-hook
+    - throwing-knives
+    - sticky-bomb
+    - venom-flask
+    - smoke-bomb
+    - delay-mine
+    - frag-grenade
+    - flash-bang
+    - shock-wand
+    - ember-rod
+    - frost-rod
+    - fireball-charge
+    - glacier-wand
+    - sanctuary-staff
+    - chain-rod
+    - gale-fan
+    - shield-bulwark
+
 items:
   bastion-greatsword: weapons-v1
   crimson-chain-axe: weapons-v1
@@ -30,3 +78,57 @@ items:
   vendetta-rifle: weapons-v1
   verdant-staff: weapons-v1
   verdict-hammer: weapons-v1
+
+  # Match arsenal: generated concept sheet, shared currency seal and material tiers.
+  stone-pickaxe: { from: arsenal-tools-v1, colors: 24 }
+  stone-axe: { from: arsenal-tools-v1, colors: 24 }
+  stone-shovel: { from: arsenal-tools-v1, colors: 24 }
+  iron-pickaxe: { from: arsenal-tools-v1, colors: 24 }
+  iron-axe: { from: arsenal-tools-v1, colors: 24 }
+  iron-shovel: { from: arsenal-tools-v1, colors: 24 }
+  diamond-pickaxe: { from: arsenal-tools-v1, colors: 24 }
+  diamond-axe: { from: arsenal-tools-v1, colors: 24 }
+  diamond-shovel: { from: arsenal-tools-v1, colors: 24 }
+  ore-iron: { from: arsenal-tools-v1, colors: 24 }
+  ore-gold: { from: arsenal-tools-v1, colors: 24 }
+  ore-diamond: { from: arsenal-tools-v1, colors: 24 }
+  ore-emerald: { from: arsenal-tools-v1, colors: 24 }
+  reinforced-planks-block: { from: arsenal-tools-v1, colors: 24 }
+  stone-bulwark-block: { from: arsenal-tools-v1, colors: 24 }
+  obsidian-plate-block: { from: arsenal-tools-v1, colors: 24 }
+  packed-clay-block: { from: arsenal-tools-v1, colors: 24 }
+  tempered-glass-block: { from: arsenal-tools-v1, colors: 24 }
+  hardened-soil-block: { from: arsenal-tools-v1, colors: 24 }
+  wool-block: { from: arsenal-tools-v1, colors: 24 }
+  # arsenal-weapons-art2: vanilla use-state weapons deliberately excluded.
+  iron-blade: arsenal-weapons-art2
+  war-axe: arsenal-weapons-art2
+  spear: arsenal-weapons-art2
+  mace: arsenal-weapons-art2
+  twin-daggers: arsenal-weapons-art2
+  katana: arsenal-weapons-art2
+  halberd: arsenal-weapons-art2
+  rapier: arsenal-weapons-art2
+  cleaver: arsenal-weapons-art2
+  scythe: arsenal-weapons-art2
+  club: arsenal-weapons-art2
+  revolver: arsenal-weapons-art2
+  smg: arsenal-weapons-art2
+  sniper: arsenal-weapons-art2
+  harpoon: arsenal-weapons-art2
+  grappling-hook: arsenal-weapons-art2
+  throwing-knives: arsenal-weapons-art2
+  sticky-bomb: arsenal-weapons-art2
+  venom-flask: arsenal-weapons-art2
+  smoke-bomb: arsenal-weapons-art2
+  delay-mine: arsenal-weapons-art2
+  frag-grenade: arsenal-weapons-art2
+  flash-bang: arsenal-weapons-art2
+  shock-wand: arsenal-weapons-art2
+  ember-rod: arsenal-weapons-art2
+  frost-rod: arsenal-weapons-art2
+  fireball-charge: arsenal-weapons-art2
+  glacier-wand: arsenal-weapons-art2
+  sanctuary-staff: arsenal-weapons-art2
+  chain-rod: arsenal-weapons-art2
+  gale-fan: arsenal-weapons-art2

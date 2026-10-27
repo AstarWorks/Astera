@@ -5,15 +5,11 @@ id: war-axe
 material: GOLDEN_AXE
 
 name:
-  ja: "<gold>ウォーアックス</gold>"
-  en: "<gold>War Axe</gold>"
-lore:
-  ja:
-    - "<gray>左クリック: 重い一撃</gray>"
-    - "<gray>スニーク + 右クリック: 旋風斬り</gray>"
-  en:
-    - "<gray>Left-click: heavy chop</gray>"
-    - "<gray>Sneak + right-click: whirl</gray>"
+  ja: "ウォーアックス"
+  en: "War Axe"
+role:
+  ja: "近接 / 重い一撃と旋風斬り"
+  en: "Melee / heavy chops and a whirl"
 
 rarity: uncommon
 level_requirement: 1
