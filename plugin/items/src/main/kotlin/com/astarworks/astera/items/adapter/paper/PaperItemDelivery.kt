@@ -48,6 +48,7 @@ public class PaperItemDelivery(
 
         val stack = materializer.build(spec, target, amount)
         if (origin == ItemOrigin.TRAINING) TrainingItemTag.mark(stack, spec.id.value)
+        if (origin == ItemOrigin.EQUIP_IF_FREE && equipIfFree(bukkitPlayer, spec, stack)) return DeliveryResult.Delivered
         val leftover = bukkitPlayer.inventory.addItem(stack)
         return if (leftover.isEmpty()) {
             DeliveryResult.Delivered
@@ -58,5 +59,25 @@ public class PaperItemDelivery(
             }
             DeliveryResult.InventoryFull(target.name)
         }
+    }
+
+    /** Puts a single armour [stack] into the [spec]'s armour slot when that slot is empty. */
+    private fun equipIfFree(player: org.bukkit.entity.Player, spec: ItemSpec, stack: org.bukkit.inventory.ItemStack): Boolean {
+        val inv = player.inventory
+        val current = when (spec.equipSlot) {
+            com.astarworks.astera.core.domain.item.EquipSlot.HELMET -> inv.helmet
+            com.astarworks.astera.core.domain.item.EquipSlot.CHESTPLATE -> inv.chestplate
+            com.astarworks.astera.core.domain.item.EquipSlot.LEGGINGS -> inv.leggings
+            com.astarworks.astera.core.domain.item.EquipSlot.BOOTS -> inv.boots
+            else -> return false
+        }
+        if (current != null && !current.type.isAir) return false
+        when (spec.equipSlot) {
+            com.astarworks.astera.core.domain.item.EquipSlot.HELMET -> inv.helmet = stack
+            com.astarworks.astera.core.domain.item.EquipSlot.CHESTPLATE -> inv.chestplate = stack
+            com.astarworks.astera.core.domain.item.EquipSlot.LEGGINGS -> inv.leggings = stack
+            else -> inv.boots = stack
+        }
+        return true
     }
 }

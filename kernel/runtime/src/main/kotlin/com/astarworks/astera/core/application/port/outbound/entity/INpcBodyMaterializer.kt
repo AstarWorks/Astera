@@ -27,6 +27,9 @@ public interface INpcBodyMaterializer {
         displayName: MessageKey,
     )
 
+    /** Remove the body of one [handle] (a per-match NPC despawning); no-op for hosts without bodies. */
+    public fun remove(handle: EntityHandle) {}
+
     /** Remove every body this materializer spawned (plugin disable). */
     public fun removeAll()
 }

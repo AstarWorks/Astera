@@ -115,6 +115,14 @@ public object ItemsWiring {
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>(
             com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval { player, item -> itemIdResolver.removeOne(player, item) },
         )
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemStock>(
+            object : com.astarworks.astera.core.application.port.outbound.item.IOwnedItemStock {
+                override fun count(playerId: com.astarworks.astera.core.domain.player.PlayerId, itemId: com.astarworks.astera.core.domain.item.ItemId): Int =
+                    itemIdResolver.countOf(playerId, itemId)
+                override fun remove(playerId: com.astarworks.astera.core.domain.player.PlayerId, itemId: com.astarworks.astera.core.domain.item.ItemId, amount: Int): Boolean =
+                    itemIdResolver.removeAmount(playerId, itemId, amount)
+            },
+        )
 
         // ── Wave 5refine / ADR-0100 — Item Refinement Layer ──────────────
         // Per-instance state + per-item profile registry. Persistence will

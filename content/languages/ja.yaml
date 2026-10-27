@@ -647,6 +647,31 @@ astera:
     currency:
       gold: "<gold>GOLD</gold>"
       gem: "<light_purple>GEM</light_purple>"
+    matchshop:
+      title: "鉱石ショップ"
+      npc: "<gold>鉱石ショップ</gold>"
+      tab:
+        weapons: "<red>武器</red>"
+        tools: "<yellow>ツール</yellow>"
+        blocks: "<aqua>ブロック</aqua>"
+        armor: "<green>防具</green>"
+        current: "<gray>表示中のタブです。</gray>"
+        switch: "<yellow>クリックでこのタブを開く</yellow>"
+      ore:
+        ore-iron: "鉄"
+        ore-gold: "金"
+        ore-diamond: "ダイヤ"
+        ore-emerald: "エメラルド"
+      lore:
+        price: "<gray>価格: <white>{price}</white></gray>"
+        stack: "<gray>入手数: <white>x{amount}</white></gray>"
+        buy: "<yellow>クリックで購入</yellow>"
+        short: "<red>鉱石が足りません。</red>"
+      bought: "<green>{item} x{amount} を購入しました。</green>"
+      short: "<red>{ore} 鉱石が {need} 個必要です (所持 {have})。</red>"
+      wrong-team: "<red>これは {team} チームのショップです。自陣のショップを使ってください。</red>"
+      not-in-match: "<red>鉱石ショップは試合中のみ使えます。</red>"
+      failed: "<red>購入に失敗しました。何も消費していません。</red>"
     shop:
       example-shop:
         title: "サンプルショップ"
