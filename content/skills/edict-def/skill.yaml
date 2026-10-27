@@ -1,0 +1,31 @@
+# Converted from content/skills/edict-def.yaml by tools/skill-convert/convert.py (v1 archetype: sequence). Grep the converter markers (TODO / PRESENT prefixed with CONVERT-) before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: edict-def
+item: edict-blade
+meta: {name: {ja: "手枷の応酬", en: "Shackle Reprisal"}, description: {ja: "手枷で受けて、連続で反撃する。", en: "Guard with the shackles, then counter with a flurry."}, cooldown_ticks: 90, resource_cost: 10}
+gameplay:
+  params: {arc_deg: 90, reach: 3.5, dmg_physical: 25}
+  expose:
+    - {id: damage, param: dmg_physical}
+    - {id: range, param: reach}
+  timeline:
+    - {id: t0, at: 0, do: [{id: attr, op: modify_attribute, target: caster, attribute: resist.physical, operation: add, amount: 0.7, duration_ticks: 35}]}
+    - id: t14
+      at: 14
+      do:
+        - {id: sel, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+    - id: t27
+      at: 27
+      do:
+        - {id: sel_2, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+    - id: t40
+      at: 40
+      do:
+        - {id: sel_3, op: hit, frames: [caster], sector: {frame: caster, forward: caster.forward, left: caster.left, angle_deg: "${arc_deg}", range: "${reach}", height: 2.0}, max_count: 1, window: once}
+  "on":
+    hit:
+      - {id: dmg, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], ignore_iframes: true, when: "= event.source == 'sel'"}
+      - {id: dmg_2, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], ignore_iframes: true, when: "= event.source == 'sel_2'"}
+      - {id: dmg_3, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_physical}"}], ignore_iframes: true, when: "= event.source == 'sel_3'"}

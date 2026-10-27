@@ -1,0 +1,1119 @@
+# Converted from content/skills/edict-def.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep the converter markers (TODO / PRESENT prefixed with CONVERT-) before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: edict-def
+frames:
+  - {id: fx1_edict_guard, kind: body, parent: caster, orient: world, vfx: edict-guard, follow: true}
+  - {id: fx2_edict_fists_down, kind: body, parent: caster, orient: yaw, vfx: edict-fists-down, follow: true}
+  - {id: fx3_edict_impact, kind: body, parent: world, orient: yaw, vfx: edict-impact, follow: false, anchor_at_spawn: enemy}
+  - {id: fx4_edict_fists_down, kind: body, parent: caster, orient: yaw, vfx: edict-fists-down, follow: true}
+  - {id: fx5_edict_impact, kind: body, parent: world, orient: yaw, vfx: edict-impact, follow: false, anchor_at_spawn: enemy}
+  - {id: fx6_edict_fists_down, kind: body, parent: caster, orient: yaw, vfx: edict-fists-down, follow: true}
+  - {id: fx7_edict_impact, kind: body, parent: world, orient: yaw, vfx: edict-impact, follow: false, anchor_at_spawn: enemy}
+presentation:
+  timeline:
+    - id: fx0
+      at: 0
+      do:
+        - {id: fx1_edict_guard_guard, op: plate, parent: fx1_edict_guard, face: {viewer: center}, color: "#8AAEE7", alpha: 0.3, brightness: 15}
+        - id: fx1_edict_guard_guard_trk
+          op: track
+          target: fx1_edict_guard_guard
+          space: fx1_edict_guard
+          keys:
+            - {t: 0, offset: [0, 1, 0.4], scale: [0.2, 1.8, 1]}
+            - {t: 2, scale: [1.8, 1.8, 1], ease: out_cubic}
+            - {t: 8, alpha: 0}
+    - id: fx8
+      at: 8
+      do:
+        - {id: rm, op: remove, ids: [fx1_edict_guard_guard]}
+        - {id: fx2_edict_fists_down_1_glove, op: mesh, frame: fx2_edict_fists_down, block: white_concrete}
+        - id: fx2_edict_fists_down_1_glove_trk
+          op: track
+          target: fx2_edict_fists_down_1_glove
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 3, offset: [-0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 6, offset: [-0.17, 0.990472, 1.122163], rotation: [0, 15, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 10, offset: [-0.17, 0.752798, 0.958451], rotation: [0, 25, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 13, offset: [-0.17, 1.05, 0.58], rotation: [0, 0, 0], scale: [0.27, 0.28, 0.3]}
+        - {id: fx2_edict_fists_down_1_cuff, op: mesh, frame: fx2_edict_fists_down, block: raw_iron_block}
+        - id: fx2_edict_fists_down_1_cuff_trk
+          op: track
+          target: fx2_edict_fists_down_1_cuff
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 3, offset: [-0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 6, offset: [-0.17, 1.05, 0.9], rotation: [0, 15, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 10, offset: [-0.17, 0.85, 0.75], rotation: [0, 25, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 13, offset: [-0.17, 1.05, 0.35], rotation: [0, 0, 0], scale: [0.34, 0.32, 0.19]}
+        - {id: fx2_edict_fists_down_1_cuff_inlay, op: mesh, frame: fx2_edict_fists_down, block: light_gray_concrete}
+        - id: fx2_edict_fists_down_1_cuff_inlay_trk
+          op: track
+          target: fx2_edict_fists_down_1_cuff_inlay
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 3, offset: [-0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 6, offset: [-0.17, 1.214207, 0.943999], rotation: [0, 15, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 10, offset: [-0.17, 1.004072, 0.821845], rotation: [0, 25, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 13, offset: [-0.17, 1.22, 0.35], rotation: [0, 0, 0], scale: [0.26, 0.025, 0.13]}
+        - {id: fx2_edict_fists_down_1_glove, op: mesh, frame: fx2_edict_fists_down, block: white_concrete}
+        - id: fx2_edict_fists_down_1_glove_trk
+          op: track
+          target: fx2_edict_fists_down_1_glove
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 3, offset: [0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 6, offset: [0.17, 0.990472, 1.122163], rotation: [0, 15, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 10, offset: [0.17, 0.752798, 0.958451], rotation: [0, 25, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 13, offset: [0.17, 1.05, 0.58], rotation: [0, 0, 0], scale: [0.27, 0.28, 0.3]}
+        - {id: fx2_edict_fists_down_1_cuff, op: mesh, frame: fx2_edict_fists_down, block: raw_iron_block}
+        - id: fx2_edict_fists_down_1_cuff_trk
+          op: track
+          target: fx2_edict_fists_down_1_cuff
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 3, offset: [0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 6, offset: [0.17, 1.05, 0.9], rotation: [0, 15, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 10, offset: [0.17, 0.85, 0.75], rotation: [0, 25, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 13, offset: [0.17, 1.05, 0.35], rotation: [0, 0, 0], scale: [0.34, 0.32, 0.19]}
+        - {id: fx2_edict_fists_down_1_cuff_inlay, op: mesh, frame: fx2_edict_fists_down, block: light_gray_concrete}
+        - id: fx2_edict_fists_down_1_cuff_inlay_trk
+          op: track
+          target: fx2_edict_fists_down_1_cuff_inlay
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 3, offset: [0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 6, offset: [0.17, 1.214207, 0.943999], rotation: [0, 15, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 10, offset: [0.17, 1.004072, 0.821845], rotation: [0, 25, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 13, offset: [0.17, 1.22, 0.35], rotation: [0, 0, 0], scale: [0.26, 0.025, 0.13]}
+        - {id: fx2_edict_fists_down_chain_0, op: mesh, frame: fx2_edict_fists_down, block: iron_block}
+        - id: fx2_edict_fists_down_chain_0_trk
+          op: track
+          target: fx2_edict_fists_down_chain_0
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.16, 1.7, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [-0.16, 1.7, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [-0.16, 0.9, 0.82], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [-0.16, 0.7, 0.67], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [-0.16, 0.9, 0.27], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx2_edict_fists_down_chain_1, op: mesh, frame: fx2_edict_fists_down, block: iron_block}
+        - id: fx2_edict_fists_down_chain_1_trk
+          op: track
+          target: fx2_edict_fists_down_chain_1
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.096, 1.629466, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [-0.096, 1.629466, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [-0.096, 0.829466, 0.82], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [-0.096, 0.629466, 0.67], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [-0.096, 0.829466, 0.27], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx2_edict_fists_down_chain_2, op: mesh, frame: fx2_edict_fists_down, block: iron_block}
+        - id: fx2_edict_fists_down_chain_2_trk
+          op: track
+          target: fx2_edict_fists_down_chain_2
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.032, 1.585873, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [-0.032, 1.585873, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [-0.032, 0.785873, 0.82], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [-0.032, 0.585873, 0.67], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [-0.032, 0.785873, 0.27], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx2_edict_fists_down_chain_3, op: mesh, frame: fx2_edict_fists_down, block: iron_block}
+        - id: fx2_edict_fists_down_chain_3_trk
+          op: track
+          target: fx2_edict_fists_down_chain_3
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.032, 1.585873, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [0.032, 1.585873, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [0.032, 0.785873, 0.82], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [0.032, 0.585873, 0.67], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [0.032, 0.785873, 0.27], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx2_edict_fists_down_chain_4, op: mesh, frame: fx2_edict_fists_down, block: iron_block}
+        - id: fx2_edict_fists_down_chain_4_trk
+          op: track
+          target: fx2_edict_fists_down_chain_4
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.096, 1.629466, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [0.096, 1.629466, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [0.096, 0.829466, 0.82], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [0.096, 0.629466, 0.67], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [0.096, 0.829466, 0.27], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx2_edict_fists_down_chain_5, op: mesh, frame: fx2_edict_fists_down, block: iron_block}
+        - id: fx2_edict_fists_down_chain_5_trk
+          op: track
+          target: fx2_edict_fists_down_chain_5
+          space: fx2_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.16, 1.7, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [0.16, 1.7, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [0.16, 0.9, 0.82], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [0.16, 0.7, 0.67], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [0.16, 0.9, 0.27], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+    - id: fx21
+      at: 21
+      do:
+        - {id: fx4_edict_fists_down_1_glove, op: mesh, frame: fx4_edict_fists_down, block: white_concrete}
+        - id: fx4_edict_fists_down_1_glove_trk
+          op: track
+          target: fx4_edict_fists_down_1_glove
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 3, offset: [-0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 6, offset: [-0.17, 0.990472, 1.122163], rotation: [0, 15, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 10, offset: [-0.17, 0.752798, 0.958451], rotation: [0, 25, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 13, offset: [-0.17, 1.05, 0.58], rotation: [0, 0, 0], scale: [0.27, 0.28, 0.3]}
+        - {id: fx4_edict_fists_down_1_cuff, op: mesh, frame: fx4_edict_fists_down, block: raw_iron_block}
+        - id: fx4_edict_fists_down_1_cuff_trk
+          op: track
+          target: fx4_edict_fists_down_1_cuff
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 3, offset: [-0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 6, offset: [-0.17, 1.05, 0.9], rotation: [0, 15, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 10, offset: [-0.17, 0.85, 0.75], rotation: [0, 25, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 13, offset: [-0.17, 1.05, 0.35], rotation: [0, 0, 0], scale: [0.34, 0.32, 0.19]}
+        - {id: fx4_edict_fists_down_1_cuff_inlay, op: mesh, frame: fx4_edict_fists_down, block: light_gray_concrete}
+        - id: fx4_edict_fists_down_1_cuff_inlay_trk
+          op: track
+          target: fx4_edict_fists_down_1_cuff_inlay
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 3, offset: [-0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 6, offset: [-0.17, 1.214207, 0.943999], rotation: [0, 15, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 10, offset: [-0.17, 1.004072, 0.821845], rotation: [0, 25, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 13, offset: [-0.17, 1.22, 0.35], rotation: [0, 0, 0], scale: [0.26, 0.025, 0.13]}
+        - {id: fx4_edict_fists_down_1_glove, op: mesh, frame: fx4_edict_fists_down, block: white_concrete}
+        - id: fx4_edict_fists_down_1_glove_trk
+          op: track
+          target: fx4_edict_fists_down_1_glove
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 3, offset: [0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 6, offset: [0.17, 0.990472, 1.122163], rotation: [0, 15, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 10, offset: [0.17, 0.752798, 0.958451], rotation: [0, 25, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 13, offset: [0.17, 1.05, 0.58], rotation: [0, 0, 0], scale: [0.27, 0.28, 0.3]}
+        - {id: fx4_edict_fists_down_1_cuff, op: mesh, frame: fx4_edict_fists_down, block: raw_iron_block}
+        - id: fx4_edict_fists_down_1_cuff_trk
+          op: track
+          target: fx4_edict_fists_down_1_cuff
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 3, offset: [0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 6, offset: [0.17, 1.05, 0.9], rotation: [0, 15, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 10, offset: [0.17, 0.85, 0.75], rotation: [0, 25, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 13, offset: [0.17, 1.05, 0.35], rotation: [0, 0, 0], scale: [0.34, 0.32, 0.19]}
+        - {id: fx4_edict_fists_down_1_cuff_inlay, op: mesh, frame: fx4_edict_fists_down, block: light_gray_concrete}
+        - id: fx4_edict_fists_down_1_cuff_inlay_trk
+          op: track
+          target: fx4_edict_fists_down_1_cuff_inlay
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 3, offset: [0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 6, offset: [0.17, 1.214207, 0.943999], rotation: [0, 15, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 10, offset: [0.17, 1.004072, 0.821845], rotation: [0, 25, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 13, offset: [0.17, 1.22, 0.35], rotation: [0, 0, 0], scale: [0.26, 0.025, 0.13]}
+        - {id: fx4_edict_fists_down_chain_0, op: mesh, frame: fx4_edict_fists_down, block: iron_block}
+        - id: fx4_edict_fists_down_chain_0_trk
+          op: track
+          target: fx4_edict_fists_down_chain_0
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.16, 1.7, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [-0.16, 1.7, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [-0.16, 0.9, 0.82], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [-0.16, 0.7, 0.67], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [-0.16, 0.9, 0.27], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx4_edict_fists_down_chain_1, op: mesh, frame: fx4_edict_fists_down, block: iron_block}
+        - id: fx4_edict_fists_down_chain_1_trk
+          op: track
+          target: fx4_edict_fists_down_chain_1
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.096, 1.629466, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [-0.096, 1.629466, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [-0.096, 0.829466, 0.82], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [-0.096, 0.629466, 0.67], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [-0.096, 0.829466, 0.27], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx4_edict_fists_down_chain_2, op: mesh, frame: fx4_edict_fists_down, block: iron_block}
+        - id: fx4_edict_fists_down_chain_2_trk
+          op: track
+          target: fx4_edict_fists_down_chain_2
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.032, 1.585873, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [-0.032, 1.585873, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [-0.032, 0.785873, 0.82], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [-0.032, 0.585873, 0.67], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [-0.032, 0.785873, 0.27], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx4_edict_fists_down_chain_3, op: mesh, frame: fx4_edict_fists_down, block: iron_block}
+        - id: fx4_edict_fists_down_chain_3_trk
+          op: track
+          target: fx4_edict_fists_down_chain_3
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.032, 1.585873, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [0.032, 1.585873, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [0.032, 0.785873, 0.82], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [0.032, 0.585873, 0.67], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [0.032, 0.785873, 0.27], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx4_edict_fists_down_chain_4, op: mesh, frame: fx4_edict_fists_down, block: iron_block}
+        - id: fx4_edict_fists_down_chain_4_trk
+          op: track
+          target: fx4_edict_fists_down_chain_4
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.096, 1.629466, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [0.096, 1.629466, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [0.096, 0.829466, 0.82], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [0.096, 0.629466, 0.67], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [0.096, 0.829466, 0.27], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx4_edict_fists_down_chain_5, op: mesh, frame: fx4_edict_fists_down, block: iron_block}
+        - id: fx4_edict_fists_down_chain_5_trk
+          op: track
+          target: fx4_edict_fists_down_chain_5
+          space: fx4_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.16, 1.7, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [0.16, 1.7, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [0.16, 0.9, 0.82], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [0.16, 0.7, 0.67], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [0.16, 0.9, 0.27], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+    - id: fx22
+      at: 22
+      do:
+        - id: rm_2
+          op: remove
+          ids:
+            - fx2_edict_fists_down_1_glove
+            - fx2_edict_fists_down_1_cuff
+            - fx2_edict_fists_down_1_cuff_inlay
+            - fx2_edict_fists_down_1_glove
+            - fx2_edict_fists_down_1_cuff
+            - fx2_edict_fists_down_1_cuff_inlay
+            - fx2_edict_fists_down_chain_0
+            - fx2_edict_fists_down_chain_1
+            - fx2_edict_fists_down_chain_2
+            - fx2_edict_fists_down_chain_3
+            - fx2_edict_fists_down_chain_4
+            - fx2_edict_fists_down_chain_5
+    - id: fx34
+      at: 34
+      do:
+        - {id: fx6_edict_fists_down_1_glove, op: mesh, frame: fx6_edict_fists_down, block: white_concrete}
+        - id: fx6_edict_fists_down_1_glove_trk
+          op: track
+          target: fx6_edict_fists_down_1_glove
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 3, offset: [-0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 6, offset: [-0.17, 0.990472, 1.122163], rotation: [0, 15, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 10, offset: [-0.17, 0.752798, 0.958451], rotation: [0, 25, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 13, offset: [-0.17, 1.05, 0.58], rotation: [0, 0, 0], scale: [0.27, 0.28, 0.3]}
+        - {id: fx6_edict_fists_down_1_cuff, op: mesh, frame: fx6_edict_fists_down, block: raw_iron_block}
+        - id: fx6_edict_fists_down_1_cuff_trk
+          op: track
+          target: fx6_edict_fists_down_1_cuff
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 3, offset: [-0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 6, offset: [-0.17, 1.05, 0.9], rotation: [0, 15, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 10, offset: [-0.17, 0.85, 0.75], rotation: [0, 25, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 13, offset: [-0.17, 1.05, 0.35], rotation: [0, 0, 0], scale: [0.34, 0.32, 0.19]}
+        - {id: fx6_edict_fists_down_1_cuff_inlay, op: mesh, frame: fx6_edict_fists_down, block: light_gray_concrete}
+        - id: fx6_edict_fists_down_1_cuff_inlay_trk
+          op: track
+          target: fx6_edict_fists_down_1_cuff_inlay
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 3, offset: [-0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 6, offset: [-0.17, 1.214207, 0.943999], rotation: [0, 15, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 10, offset: [-0.17, 1.004072, 0.821845], rotation: [0, 25, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 13, offset: [-0.17, 1.22, 0.35], rotation: [0, 0, 0], scale: [0.26, 0.025, 0.13]}
+        - {id: fx6_edict_fists_down_1_glove, op: mesh, frame: fx6_edict_fists_down, block: white_concrete}
+        - id: fx6_edict_fists_down_1_glove_trk
+          op: track
+          target: fx6_edict_fists_down_1_glove
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 3, offset: [0.17, 2.076506, 0.210061], rotation: [0, -100, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 6, offset: [0.17, 0.990472, 1.122163], rotation: [0, 15, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 10, offset: [0.17, 0.752798, 0.958451], rotation: [0, 25, 0], scale: [0.27, 0.28, 0.3]}
+            - {t: 13, offset: [0.17, 1.05, 0.58], rotation: [0, 0, 0], scale: [0.27, 0.28, 0.3]}
+        - {id: fx6_edict_fists_down_1_cuff, op: mesh, frame: fx6_edict_fists_down, block: raw_iron_block}
+        - id: fx6_edict_fists_down_1_cuff_trk
+          op: track
+          target: fx6_edict_fists_down_1_cuff
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 3, offset: [0.17, 1.85, 0.25], rotation: [0, -100, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 6, offset: [0.17, 1.05, 0.9], rotation: [0, 15, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 10, offset: [0.17, 0.85, 0.75], rotation: [0, 25, 0], scale: [0.34, 0.32, 0.19]}
+            - {t: 13, offset: [0.17, 1.05, 0.35], rotation: [0, 0, 0], scale: [0.34, 0.32, 0.19]}
+        - {id: fx6_edict_fists_down_1_cuff_inlay, op: mesh, frame: fx6_edict_fists_down, block: light_gray_concrete}
+        - id: fx6_edict_fists_down_1_cuff_inlay_trk
+          op: track
+          target: fx6_edict_fists_down_1_cuff_inlay
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 3, offset: [0.17, 1.82048, 0.082583], rotation: [0, -100, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 6, offset: [0.17, 1.214207, 0.943999], rotation: [0, 15, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 10, offset: [0.17, 1.004072, 0.821845], rotation: [0, 25, 0], scale: [0.26, 0.025, 0.13]}
+            - {t: 13, offset: [0.17, 1.22, 0.35], rotation: [0, 0, 0], scale: [0.26, 0.025, 0.13]}
+        - {id: fx6_edict_fists_down_chain_0, op: mesh, frame: fx6_edict_fists_down, block: iron_block}
+        - id: fx6_edict_fists_down_chain_0_trk
+          op: track
+          target: fx6_edict_fists_down_chain_0
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.16, 1.7, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [-0.16, 1.7, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [-0.16, 0.9, 0.82], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [-0.16, 0.7, 0.67], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [-0.16, 0.9, 0.27], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx6_edict_fists_down_chain_1, op: mesh, frame: fx6_edict_fists_down, block: iron_block}
+        - id: fx6_edict_fists_down_chain_1_trk
+          op: track
+          target: fx6_edict_fists_down_chain_1
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.096, 1.629466, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [-0.096, 1.629466, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [-0.096, 0.829466, 0.82], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [-0.096, 0.629466, 0.67], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [-0.096, 0.829466, 0.27], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx6_edict_fists_down_chain_2, op: mesh, frame: fx6_edict_fists_down, block: iron_block}
+        - id: fx6_edict_fists_down_chain_2_trk
+          op: track
+          target: fx6_edict_fists_down_chain_2
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [-0.032, 1.585873, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [-0.032, 1.585873, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [-0.032, 0.785873, 0.82], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [-0.032, 0.585873, 0.67], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [-0.032, 0.785873, 0.27], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx6_edict_fists_down_chain_3, op: mesh, frame: fx6_edict_fists_down, block: iron_block}
+        - id: fx6_edict_fists_down_chain_3_trk
+          op: track
+          target: fx6_edict_fists_down_chain_3
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.032, 1.585873, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [0.032, 1.585873, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [0.032, 0.785873, 0.82], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [0.032, 0.585873, 0.67], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [0.032, 0.785873, 0.27], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx6_edict_fists_down_chain_4, op: mesh, frame: fx6_edict_fists_down, block: iron_block}
+        - id: fx6_edict_fists_down_chain_4_trk
+          op: track
+          target: fx6_edict_fists_down_chain_4
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.096, 1.629466, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [0.096, 1.629466, 0.17], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [0.096, 0.829466, 0.82], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [0.096, 0.629466, 0.67], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [0.096, 0.829466, 0.27], rotation: [0, 0, -45], scale: [0.09, 0.04, 0.06]}
+        - {id: fx6_edict_fists_down_chain_5, op: mesh, frame: fx6_edict_fists_down, block: iron_block}
+        - id: fx6_edict_fists_down_chain_5_trk
+          op: track
+          target: fx6_edict_fists_down_chain_5
+          space: fx6_edict_fists_down
+          keys:
+            - {t: 0, offset: [0.16, 1.7, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 3, offset: [0.16, 1.7, 0.17], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 6, offset: [0.16, 0.9, 0.82], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 10, offset: [0.16, 0.7, 0.67], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+            - {t: 13, offset: [0.16, 0.9, 0.27], rotation: [0, 0, 45], scale: [0.09, 0.04, 0.06]}
+    - id: fx35
+      at: 35
+      do:
+        - id: rm_5
+          op: remove
+          ids:
+            - fx4_edict_fists_down_1_glove
+            - fx4_edict_fists_down_1_cuff
+            - fx4_edict_fists_down_1_cuff_inlay
+            - fx4_edict_fists_down_1_glove
+            - fx4_edict_fists_down_1_cuff
+            - fx4_edict_fists_down_1_cuff_inlay
+            - fx4_edict_fists_down_chain_0
+            - fx4_edict_fists_down_chain_1
+            - fx4_edict_fists_down_chain_2
+            - fx4_edict_fists_down_chain_3
+            - fx4_edict_fists_down_chain_4
+            - fx4_edict_fists_down_chain_5
+    - id: fx48
+      at: 48
+      do:
+        - id: rm_8
+          op: remove
+          ids:
+            - fx6_edict_fists_down_1_glove
+            - fx6_edict_fists_down_1_cuff
+            - fx6_edict_fists_down_1_cuff_inlay
+            - fx6_edict_fists_down_1_glove
+            - fx6_edict_fists_down_1_cuff
+            - fx6_edict_fists_down_1_cuff_inlay
+            - fx6_edict_fists_down_chain_0
+            - fx6_edict_fists_down_chain_1
+            - fx6_edict_fists_down_chain_2
+            - fx6_edict_fists_down_chain_3
+            - fx6_edict_fists_down_chain_4
+            - fx6_edict_fists_down_chain_5
+    - id: fxhit_7
+      at: "hit+7"
+      do:
+        - {id: rm_3, op: remove, ids: [fx3_edict_impact_core], when: "= event.source == 'sel'"}
+        - {id: rm_6, op: remove, ids: [fx5_edict_impact_core], when: "= event.source == 'sel_2'"}
+        - {id: rm_9, op: remove, ids: [fx7_edict_impact_core], when: "= event.source == 'sel_3'"}
+    - id: fxhit_10
+      at: "hit+10"
+      do:
+        - id: rm_4
+          op: remove
+          ids:
+            - fx3_edict_impact_ray_0_0
+            - fx3_edict_impact_ray_0_1
+            - fx3_edict_impact_ray_0_2
+            - fx3_edict_impact_ray_0_3
+            - fx3_edict_impact_ray_0_4
+            - fx3_edict_impact_ray_0_5
+            - fx3_edict_impact_ray_0_6
+            - fx3_edict_impact_ray_0_7
+            - fx3_edict_impact_ray_1_0
+            - fx3_edict_impact_ray_1_1
+            - fx3_edict_impact_ray_1_2
+            - fx3_edict_impact_ray_1_3
+            - fx3_edict_impact_ray_1_4
+            - fx3_edict_impact_ray_1_5
+            - fx3_edict_impact_ray_1_6
+            - fx3_edict_impact_ray_1_7
+          when: "= event.source == 'sel'"
+        - id: rm_7
+          op: remove
+          ids:
+            - fx5_edict_impact_ray_0_0
+            - fx5_edict_impact_ray_0_1
+            - fx5_edict_impact_ray_0_2
+            - fx5_edict_impact_ray_0_3
+            - fx5_edict_impact_ray_0_4
+            - fx5_edict_impact_ray_0_5
+            - fx5_edict_impact_ray_0_6
+            - fx5_edict_impact_ray_0_7
+            - fx5_edict_impact_ray_1_0
+            - fx5_edict_impact_ray_1_1
+            - fx5_edict_impact_ray_1_2
+            - fx5_edict_impact_ray_1_3
+            - fx5_edict_impact_ray_1_4
+            - fx5_edict_impact_ray_1_5
+            - fx5_edict_impact_ray_1_6
+            - fx5_edict_impact_ray_1_7
+          when: "= event.source == 'sel_2'"
+        - id: rm_10
+          op: remove
+          ids:
+            - fx7_edict_impact_ray_0_0
+            - fx7_edict_impact_ray_0_1
+            - fx7_edict_impact_ray_0_2
+            - fx7_edict_impact_ray_0_3
+            - fx7_edict_impact_ray_0_4
+            - fx7_edict_impact_ray_0_5
+            - fx7_edict_impact_ray_0_6
+            - fx7_edict_impact_ray_0_7
+            - fx7_edict_impact_ray_1_0
+            - fx7_edict_impact_ray_1_1
+            - fx7_edict_impact_ray_1_2
+            - fx7_edict_impact_ray_1_3
+            - fx7_edict_impact_ray_1_4
+            - fx7_edict_impact_ray_1_5
+            - fx7_edict_impact_ray_1_6
+            - fx7_edict_impact_ray_1_7
+          when: "= event.source == 'sel_3'"
+  "on":
+    hit:
+      - {id: fx3_edict_impact_ray_0_0, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_0_0_trk
+        op: track
+        target: fx3_edict_impact_ray_0_0
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0.035, 0.09, 1.3]}
+          - {t: 4, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0.035, 0.09, 1.3]}
+          - {t: 9, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_0_1, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_0_1_trk
+        op: track
+        target: fx3_edict_impact_ray_0_1
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0.035, 0.09, 0.9]}
+          - {t: 4, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0.035, 0.09, 0.9]}
+          - {t: 9, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_0_2, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_0_2_trk
+        op: track
+        target: fx3_edict_impact_ray_0_2
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0.035, 0.09, 1.5]}
+          - {t: 4, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0.035, 0.09, 1.5]}
+          - {t: 9, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_0_3, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_0_3_trk
+        op: track
+        target: fx3_edict_impact_ray_0_3
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0.035, 0.09, 1]}
+          - {t: 4, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0.035, 0.09, 1]}
+          - {t: 9, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_0_4, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_0_4_trk
+        op: track
+        target: fx3_edict_impact_ray_0_4
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0.035, 0.09, 1.2]}
+          - {t: 4, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0.035, 0.09, 1.2]}
+          - {t: 9, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_0_5, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_0_5_trk
+        op: track
+        target: fx3_edict_impact_ray_0_5
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0.035, 0.09, 0.8]}
+          - {t: 4, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0.035, 0.09, 0.8]}
+          - {t: 9, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_0_6, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_0_6_trk
+        op: track
+        target: fx3_edict_impact_ray_0_6
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0.035, 0.09, 1.4]}
+          - {t: 4, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0.035, 0.09, 1.4]}
+          - {t: 9, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_0_7, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_0_7_trk
+        op: track
+        target: fx3_edict_impact_ray_0_7
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0.035, 0.09, 1]}
+          - {t: 4, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0.035, 0.09, 1]}
+          - {t: 9, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_1_0, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_1_0_trk
+        op: track
+        target: fx3_edict_impact_ray_1_0
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [1.3, 0.09, 0.035]}
+          - {t: 4, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [1.3, 0.09, 0.035]}
+          - {t: 9, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_1_1, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_1_1_trk
+        op: track
+        target: fx3_edict_impact_ray_1_1
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0.9, 0.09, 0.035]}
+          - {t: 4, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0.9, 0.09, 0.035]}
+          - {t: 9, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_1_2, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_1_2_trk
+        op: track
+        target: fx3_edict_impact_ray_1_2
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [1.5, 0.09, 0.035]}
+          - {t: 4, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [1.5, 0.09, 0.035]}
+          - {t: 9, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_1_3, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_1_3_trk
+        op: track
+        target: fx3_edict_impact_ray_1_3
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [1, 0.09, 0.035]}
+          - {t: 4, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [1, 0.09, 0.035]}
+          - {t: 9, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_1_4, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_1_4_trk
+        op: track
+        target: fx3_edict_impact_ray_1_4
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [1.2, 0.09, 0.035]}
+          - {t: 4, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [1.2, 0.09, 0.035]}
+          - {t: 9, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_1_5, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_1_5_trk
+        op: track
+        target: fx3_edict_impact_ray_1_5
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0.8, 0.09, 0.035]}
+          - {t: 4, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0.8, 0.09, 0.035]}
+          - {t: 9, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_1_6, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_1_6_trk
+        op: track
+        target: fx3_edict_impact_ray_1_6
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [1.4, 0.09, 0.035]}
+          - {t: 4, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [1.4, 0.09, 0.035]}
+          - {t: 9, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_ray_1_7, op: mesh, frame: fx3_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_ray_1_7_trk
+        op: track
+        target: fx3_edict_impact_ray_1_7
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [1, 0.09, 0.035]}
+          - {t: 4, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [1, 0.09, 0.035]}
+          - {t: 9, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [0, 0, 0]}
+        when: "= event.source == 'sel'"
+      - {id: fx3_edict_impact_core, op: plate, parent: fx3_edict_impact, face: {viewer: center}, color: "#FFFFFF", alpha: 1, glyph: "✦", brightness: 15, when: "= event.source == 'sel'"}
+      - id: fx3_edict_impact_core_trk
+        op: track
+        target: fx3_edict_impact_core
+        space: fx3_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.15, 0], scale: [0.05, 0.05, 1]}
+          - {t: 1, offset: [0, 1.15, 0], scale: [0.8, 0.8, 1]}
+          - {t: 6, offset: [0, 1.15, 0], scale: [0, 0, 1]}
+        when: "= event.source == 'sel'"
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+      - {id: fx5_edict_impact_ray_0_0, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_0_0_trk
+        op: track
+        target: fx5_edict_impact_ray_0_0
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0.035, 0.09, 1.3]}
+          - {t: 4, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0.035, 0.09, 1.3]}
+          - {t: 9, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_0_1, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_0_1_trk
+        op: track
+        target: fx5_edict_impact_ray_0_1
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0.035, 0.09, 0.9]}
+          - {t: 4, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0.035, 0.09, 0.9]}
+          - {t: 9, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_0_2, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_0_2_trk
+        op: track
+        target: fx5_edict_impact_ray_0_2
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0.035, 0.09, 1.5]}
+          - {t: 4, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0.035, 0.09, 1.5]}
+          - {t: 9, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_0_3, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_0_3_trk
+        op: track
+        target: fx5_edict_impact_ray_0_3
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0.035, 0.09, 1]}
+          - {t: 4, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0.035, 0.09, 1]}
+          - {t: 9, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_0_4, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_0_4_trk
+        op: track
+        target: fx5_edict_impact_ray_0_4
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0.035, 0.09, 1.2]}
+          - {t: 4, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0.035, 0.09, 1.2]}
+          - {t: 9, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_0_5, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_0_5_trk
+        op: track
+        target: fx5_edict_impact_ray_0_5
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0.035, 0.09, 0.8]}
+          - {t: 4, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0.035, 0.09, 0.8]}
+          - {t: 9, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_0_6, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_0_6_trk
+        op: track
+        target: fx5_edict_impact_ray_0_6
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0.035, 0.09, 1.4]}
+          - {t: 4, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0.035, 0.09, 1.4]}
+          - {t: 9, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_0_7, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_0_7_trk
+        op: track
+        target: fx5_edict_impact_ray_0_7
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0.035, 0.09, 1]}
+          - {t: 4, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0.035, 0.09, 1]}
+          - {t: 9, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_1_0, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_1_0_trk
+        op: track
+        target: fx5_edict_impact_ray_1_0
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [1.3, 0.09, 0.035]}
+          - {t: 4, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [1.3, 0.09, 0.035]}
+          - {t: 9, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_1_1, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_1_1_trk
+        op: track
+        target: fx5_edict_impact_ray_1_1
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0.9, 0.09, 0.035]}
+          - {t: 4, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0.9, 0.09, 0.035]}
+          - {t: 9, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_1_2, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_1_2_trk
+        op: track
+        target: fx5_edict_impact_ray_1_2
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [1.5, 0.09, 0.035]}
+          - {t: 4, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [1.5, 0.09, 0.035]}
+          - {t: 9, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_1_3, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_1_3_trk
+        op: track
+        target: fx5_edict_impact_ray_1_3
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [1, 0.09, 0.035]}
+          - {t: 4, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [1, 0.09, 0.035]}
+          - {t: 9, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_1_4, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_1_4_trk
+        op: track
+        target: fx5_edict_impact_ray_1_4
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [1.2, 0.09, 0.035]}
+          - {t: 4, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [1.2, 0.09, 0.035]}
+          - {t: 9, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_1_5, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_1_5_trk
+        op: track
+        target: fx5_edict_impact_ray_1_5
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0.8, 0.09, 0.035]}
+          - {t: 4, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0.8, 0.09, 0.035]}
+          - {t: 9, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_1_6, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_1_6_trk
+        op: track
+        target: fx5_edict_impact_ray_1_6
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [1.4, 0.09, 0.035]}
+          - {t: 4, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [1.4, 0.09, 0.035]}
+          - {t: 9, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_ray_1_7, op: mesh, frame: fx5_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_ray_1_7_trk
+        op: track
+        target: fx5_edict_impact_ray_1_7
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [1, 0.09, 0.035]}
+          - {t: 4, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [1, 0.09, 0.035]}
+          - {t: 9, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_2'"
+      - {id: fx5_edict_impact_core, op: plate, parent: fx5_edict_impact, face: {viewer: center}, color: "#FFFFFF", alpha: 1, glyph: "✦", brightness: 15, when: "= event.source == 'sel_2'"}
+      - id: fx5_edict_impact_core_trk
+        op: track
+        target: fx5_edict_impact_core
+        space: fx5_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.15, 0], scale: [0.05, 0.05, 1]}
+          - {t: 1, offset: [0, 1.15, 0], scale: [0.8, 0.8, 1]}
+          - {t: 6, offset: [0, 1.15, 0], scale: [0, 0, 1]}
+        when: "= event.source == 'sel_2'"
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}
+      - {id: fx7_edict_impact_ray_0_0, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_0_0_trk
+        op: track
+        target: fx7_edict_impact_ray_0_0
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0.035, 0.09, 1.3]}
+          - {t: 4, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0.035, 0.09, 1.3]}
+          - {t: 9, offset: [0, 1.15, 0.65], rotation: [0, 0, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_0_1, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_0_1_trk
+        op: track
+        target: fx7_edict_impact_ray_0_1
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0.035, 0.09, 0.9]}
+          - {t: 4, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0.035, 0.09, 0.9]}
+          - {t: 9, offset: [0, 1.468198, 0.318198], rotation: [0, -45, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_0_2, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_0_2_trk
+        op: track
+        target: fx7_edict_impact_ray_0_2
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0.035, 0.09, 1.5]}
+          - {t: 4, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0.035, 0.09, 1.5]}
+          - {t: 9, offset: [0, 1.9, 0.0], rotation: [0, -90, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_0_3, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_0_3_trk
+        op: track
+        target: fx7_edict_impact_ray_0_3
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0.035, 0.09, 1]}
+          - {t: 4, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0.035, 0.09, 1]}
+          - {t: 9, offset: [0, 1.503553, -0.353553], rotation: [0, -135, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_0_4, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_0_4_trk
+        op: track
+        target: fx7_edict_impact_ray_0_4
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0.035, 0.09, 1.2]}
+          - {t: 4, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0.035, 0.09, 1.2]}
+          - {t: 9, offset: [0, 1.15, -0.6], rotation: [0, -180, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_0_5, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_0_5_trk
+        op: track
+        target: fx7_edict_impact_ray_0_5
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0.035, 0.09, 0.8]}
+          - {t: 4, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0.035, 0.09, 0.8]}
+          - {t: 9, offset: [0, 0.867157, -0.282843], rotation: [0, -225, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_0_6, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_0_6_trk
+        op: track
+        target: fx7_edict_impact_ray_0_6
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0.035, 0.09, 1.4]}
+          - {t: 4, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0.035, 0.09, 1.4]}
+          - {t: 9, offset: [0, 0.45, -0.0], rotation: [0, -270, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_0_7, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_0_7_trk
+        op: track
+        target: fx7_edict_impact_ray_0_7
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0.035, 0.09, 1]}
+          - {t: 4, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0.035, 0.09, 1]}
+          - {t: 9, offset: [0, 0.796447, 0.353553], rotation: [0, -315, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_1_0, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_1_0_trk
+        op: track
+        target: fx7_edict_impact_ray_1_0
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [1.3, 0.09, 0.035]}
+          - {t: 4, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [1.3, 0.09, 0.035]}
+          - {t: 9, offset: [0.65, 1.15, 0], rotation: [0, 0, 0], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_1_1, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_1_1_trk
+        op: track
+        target: fx7_edict_impact_ray_1_1
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0.9, 0.09, 0.035]}
+          - {t: 4, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0.9, 0.09, 0.035]}
+          - {t: 9, offset: [0.318198, 1.468198, 0], rotation: [0, 0, 45], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_1_2, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_1_2_trk
+        op: track
+        target: fx7_edict_impact_ray_1_2
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [1.5, 0.09, 0.035]}
+          - {t: 4, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [1.5, 0.09, 0.035]}
+          - {t: 9, offset: [0.0, 1.9, 0], rotation: [0, 0, 90], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_1_3, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_1_3_trk
+        op: track
+        target: fx7_edict_impact_ray_1_3
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [1, 0.09, 0.035]}
+          - {t: 4, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [1, 0.09, 0.035]}
+          - {t: 9, offset: [-0.353553, 1.503553, 0], rotation: [0, 0, 135], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_1_4, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_1_4_trk
+        op: track
+        target: fx7_edict_impact_ray_1_4
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [1.2, 0.09, 0.035]}
+          - {t: 4, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [1.2, 0.09, 0.035]}
+          - {t: 9, offset: [-0.6, 1.15, 0], rotation: [0, 0, 180], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_1_5, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_1_5_trk
+        op: track
+        target: fx7_edict_impact_ray_1_5
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0.8, 0.09, 0.035]}
+          - {t: 4, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0.8, 0.09, 0.035]}
+          - {t: 9, offset: [-0.282843, 0.867157, 0], rotation: [0, 0, 225], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_1_6, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_1_6_trk
+        op: track
+        target: fx7_edict_impact_ray_1_6
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [0, 0, 0]}
+          - {t: 1, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [1.4, 0.09, 0.035]}
+          - {t: 4, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [1.4, 0.09, 0.035]}
+          - {t: 9, offset: [-0.0, 0.45, 0], rotation: [0, 0, 270], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_ray_1_7, op: mesh, frame: fx7_edict_impact, block: white_concrete, brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_ray_1_7_trk
+        op: track
+        target: fx7_edict_impact_ray_1_7
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [0, 0, 0]}
+          - {t: 1, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [1, 0.09, 0.035]}
+          - {t: 4, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [1, 0.09, 0.035]}
+          - {t: 9, offset: [0.353553, 0.796447, 0], rotation: [0, 0, 315], scale: [0, 0, 0]}
+        when: "= event.source == 'sel_3'"
+      - {id: fx7_edict_impact_core, op: plate, parent: fx7_edict_impact, face: {viewer: center}, color: "#FFFFFF", alpha: 1, glyph: "✦", brightness: 15, when: "= event.source == 'sel_3'"}
+      - id: fx7_edict_impact_core_trk
+        op: track
+        target: fx7_edict_impact_core
+        space: fx7_edict_impact
+        keys:
+          - {t: 0, offset: [0, 1.15, 0], scale: [0.05, 0.05, 1]}
+          - {t: 1, offset: [0, 1.15, 0], scale: [0.8, 0.8, 1]}
+          - {t: 6, offset: [0, 1.15, 0], scale: [0, 0, 1]}
+        when: "= event.source == 'sel_3'"
+      - {id: snd_3, op: sound, sound: entity.player.attack.strong, at: enemy, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_3'"}

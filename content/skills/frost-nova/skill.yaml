@@ -1,0 +1,27 @@
+# Converted from content/skills/frost-nova.yaml by tools/skill-convert/convert.py (v1 archetype: aoe). Grep the converter markers (TODO / PRESENT prefixed with CONVERT-) before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: frost-nova
+item: frost-staff
+meta:
+  name: {ja: "フロストノヴァ", en: "Frost Nova"}
+  description: {ja: "周囲の敵に氷属性ダメージを与え、動きを鈍らせる。", en: "Blasts nearby enemies with ice and slows them."}
+  cooldown_ticks: 160
+  resource_cost: 25
+  tags: [magic, ice-family, aoe]
+  block_damage: {amount: 20, radius: 2.5}
+frames:
+  - {id: pt_caster_0_0p15_0, kind: point, parent: caster, offset: [0.0, 0.15, 0.0]}
+  - {id: pt_enemy_0_0p9_0, kind: point, parent: enemy, offset: [0.0, 0.9, 0.0]}
+gameplay:
+  params: {radius: 5.0, dmg_water: 25.0, freeze_ticks: 60}
+  expose:
+    - {id: damage, param: dmg_water}
+    - {id: radius, param: radius}
+  timeline:
+    - {id: t0, at: 0, do: [{id: burst, op: hit, frames: [caster], sphere: {at: caster, radius: "${radius}"}, window: once}, {id: chip, op: block_chip, amount: 20, radius: 2.5}]}
+  "on":
+    hit:
+      - {id: dmg, op: damage, target: victim, components: [{kind: water, amount: "= dmg_water * (1.0 - 0.5 * dist(pos(caster), pos(victim)) / radius)"}], when: "= event.source == 'burst'"}
+      - {id: st_freeze, op: status, target: victim, status: freeze, duration_ticks: "${freeze_ticks}", when: "= event.source == 'burst'"}

@@ -1,0 +1,43 @@
+# Converted from content/skills/frost-shard.yaml by tools/skill-convert/convert.py (v1 archetype: projectile). Grep the converter markers (TODO / PRESENT prefixed with CONVERT-) before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: frost-shard
+item: frost-staff
+meta:
+  name: {ja: "氷の刃", en: "Frost Shard"}
+  description: {ja: "氷属性の鋭い破片を放ち、対象の動きを鈍らせる。", en: "Hurls a piercing shard of ice that chills its target on impact."}
+  cooldown_ticks: 30
+  resource_cost: 8
+  tags: [ranged, ice-family, slow]
+  block_damage: {amount: 10}
+frames:
+  - {id: pt_caster_eye_0_0_0p5, kind: point, parent: caster.eye, offset: [0.0, 0.0, 0.5]}
+  - {id: pt_caster_0_m0p2_1, kind: point, parent: caster, offset: [0.0, -0.2, 1.0]}
+  - {id: pt_enemy_0_1_0, kind: point, parent: enemy, offset: [0.0, 1.0, 0.0]}
+gameplay:
+  params: {launch_speed: 2.2, max_lifetime_ticks: 50, aim_distance: 50.0, dmg_water: 25.0, freeze_ticks: 60, wet_ticks: 100}
+  expose:
+    - {id: damage, param: dmg_water}
+    - {id: flight_speed, param: launch_speed}
+  timeline:
+    - id: t0
+      at: 0
+      do:
+        - id: bolt
+          op: projectile
+          body: bolt
+          from: pt_caster_eye_0_0_0p5
+          velocity: "= normalize(aim_point(caster, aim_distance) - pos(pt_caster_eye_0_0_0p5)) * launch_speed"
+          gravity: 0.0
+          drag: 0.0
+          max_ticks: "${max_lifetime_ticks}"
+          volume: {sphere: {at: bolt, radius: 0.3}}
+          pierce: 0
+  "on":
+    block:
+      - {id: chip, op: block_chip, amount: 10}
+    hit:
+      - {id: dmg, op: damage, target: victim, components: [{kind: water, amount: "${dmg_water}"}]}
+      - {id: st_freeze, op: status, target: victim, status: freeze, duration_ticks: "${freeze_ticks}", chance: 0.7}
+      - {id: st_wet, op: status, target: victim, status: wet, duration_ticks: "${wet_ticks}"}

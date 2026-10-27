@@ -1,0 +1,27 @@
+# Converted from content/skills/frost-nova.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: aoe). Grep the converter markers (TODO / PRESENT prefixed with CONVERT-) before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+apiVersion: "astera/v2"
+kind: Skill
+id: frost-nova
+presentation:
+  timeline:
+    - id: fx0
+      at: 0
+      do:
+        - {id: snd, op: sound, sound: "astera:skills/frost-cast", at: caster, volume: 1.0, pitch: 0.9}
+        - {id: snd_2, op: sound, sound: "astera:skills/frost-impact", at: caster, volume: 0.7, pitch: 1.0}
+        - {id: emit, op: emit, at: pt_caster_0_0p15_0, particle: snowflake, count: 40, speed: 0.12}
+        - {id: emit_2, op: emit, at: pt_caster_0_0p15_0, particle: snowflake, count: 0, speed: 0.03, shape: ring, points: 24, radius: {from: 0.5, to: 5.0}, ticks: 8}
+        - {id: emit_3, op: emit, at: pt_caster_0_0p15_0, particle: dust, count: 1, color: "#c8ebff", scale: 1.6, shape: ring, points: 24, radius: {from: 0.5, to: 5.0}, ticks: 8}
+        - {id: emit_4, op: emit, at: pt_caster_0_0p15_0, particle: end_rod, count: 0, speed: 0.02, shape: ring, points: 24, radius: {from: 0.5, to: 5.0}, ticks: 8}
+    - id: fx2
+      at: 2
+      do:
+        - {id: emit_5, op: emit, at: pt_caster_0_0p15_0, particle: snowflake, count: 2, speed: 0.02, offset: [0.0, 0.5, 0.0], shape: ring, points: 12, radius: {from: 0.5, to: 3.5}, ticks: 6}
+  "on":
+    hit:
+      - {id: snd_3, op: sound, sound: "astera:skills/frost-impact", at: enemy, when: "= event.source == 'burst'"}
+      - {id: emit_6, op: emit, at: pt_enemy_0_0p9_0, particle: snowflake, count: 30, speed: 0.02, offset: [0.4, 0.8, 0.4], when: "= event.source == 'burst'"}
+      - {id: emit_7, op: emit, at: pt_enemy_0_0p9_0, particle: dust, count: 20, color: "#aae1ff", scale: 1.4, offset: [0.4, 0.8, 0.4], when: "= event.source == 'burst'"}
+      - {id: emit_8, op: emit, at: pt_enemy_0_0p9_0, particle: end_rod, count: 10, speed: 0.02, offset: [0.35, 0.8, 0.35], when: "= event.source == 'burst'"}
+      - {id: emit_9, op: emit, at: pt_enemy_0_0p9_0, particle: end_rod, count: 0, speed: 0.01, shape: ring, points: 10, radius: {from: 0.6, to: 0.9}, ticks: 3, when: "= event.source == 'burst'"}
