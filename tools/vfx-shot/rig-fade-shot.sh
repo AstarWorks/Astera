@@ -1,15 +1,24 @@
 #!/usr/bin/env bash
 # rig-fade-shot: verify the skin-rig first-person camera-distance fade (ADR-0285) in a REAL client.
 # Films the same animation from the CASTER's own client in first person and in F5 (third person, back), plus a bystander
-# (Watcher) 2.4 blocks off the side. Output: build/vfx-shot/rig-fade/{first-person,third-person-back,bystander}/frame_NNN.png
-# and sheet-*.png contact sheets.   make rig-fade-shot [ANIM=anim-demo-sword-swing]
+# (Watcher) 2.4 blocks off the side (case "std"), and the cases where the fade must NOT trigger (ADR-0288): F5 with a wall
+# directly behind, F5 under a low ceiling, F5 front view facing a wall, a bystander camera 0.45 / 0.6 / 1.0 blocks from the
+# casting player, and the couture-rapier-s2 dash + ghost set (case "ghost").
+# Output: build/vfx-shot/rig-fade[-TAG]/<case>-<view>/frame_NNN.png and sheet-<case>-<view>.png contact sheets.
+#   make rig-fade-shot [ANIM=anim-demo-sword-swing] [CASES="std wall-back ceiling wall-front bystander ghost"] [OUT_TAG=before]
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd -P)"
 ROOT="$(cd "$HERE/../.." && pwd -P)"
 ARG="${1:-${ANIM:-anim-demo-sword-swing}}"
 set --
-ANIM_ID="$(sed -nE 's/^[[:space:]]*animation:[[:space:]]*"?([a-z0-9-]+)"?.*/\1/p' "$ROOT/content/skills/$ARG.yaml" | head -1)"
-if [ -n "$ANIM_ID" ]; then LENGTH="$(sed -nE 's/^length_ticks:[[:space:]]*([0-9]+).*/\1/p' "$ROOT/content/animations/$ANIM_ID.yaml" | head -1)"; else LENGTH="${SHOT_LENGTH:-100}"; fi   # a skill without play_animation: SHOT_LENGTH ticks
+ANIM_ARG="$ARG"
+anim_length() { # skill id -> animation length in ticks (SHOT_LENGTH when the skill plays no animation)
+  local a l
+  a="$(sed -nE 's/^[[:space:]]*animation:[[:space:]]*"?([a-z0-9-]+)"?.*/\1/p' "$ROOT/content/skills/$1.yaml" | head -1)"
+  l=""; [ -n "$a" ] && l="$(sed -nE 's/^length_ticks:[[:space:]]*([0-9]+).*/\1/p' "$ROOT/content/animations/$a.yaml" | head -1)"
+  echo "${l:-${SHOT_LENGTH:-100}}"
+}
+LENGTH="$(anim_length "$ARG")"
 SKILL="$ARG"; ITEM="${ITEM:-bastion-greatsword}"; VIEW=side; VFX_SHOT_SOURCED=1
 # shellcheck source=vfx-shot.sh
 . "$HERE/vfx-shot.sh"
@@ -47,8 +56,23 @@ rec() {
     rm -f "$OUT/.rec-$v.mkv" "$OUT/.rec-$v.log"
   done
   sleep "$(awk -v t=$LENGTH 'BEGIN{printf "%.1f", t/20 + 1.5}')"
-  tp Caster "$CX" "$Y" "$CZ" 0 0; sleep 1.5
+  tp Caster $CASTER_POSE; sleep 1.5
 }
+
+prep_skill() { SKILL="$1"; LENGTH="$(anim_length "$1")"; TICKS=$((LENGTH + 18)); }
+
+# perspective <0 first person | 1 F5 back | 2 F5 front>: cycle the caster's client to it (F5 cycles 0 -> 1 -> 2 -> 0).
+PERSP=0
+perspective() {
+  local n=$(( ($1 - PERSP + 3) % 3 ))
+  while [ "$n" -gt 0 ]; do key Caster F5; sleep 0.4; n=$((n - 1)); done
+  PERSP=$1; sleep 1.5
+}
+
+# arena_clear: remove the blocks of the previous case around the caster (the floor is at Y-1 and stays).
+arena_clear() { rcon "execute in minecraft:overworld run fill $((${CX%.*} - 8)) $Y $((${CZ%.*} - 8)) $((${CX%.*} + 8)) $((Y + 8)) $((${CZ%.*} + 8)) minecraft:air" >/dev/null; sleep 0.5; }
+# arena_wall <dx0> <dz0> <dx1> <dz1> <dy0> <dy1>: stone box in block cells relative to the caster's cell.
+arena_wall() { rcon "execute in minecraft:overworld run fill $((${CX%.*} + $1)) $((Y + $5)) $((${CZ%.*} + $2)) $((${CX%.*} + $3)) $((Y + $6)) $((${CZ%.*} + $4)) minecraft:stone" >/dev/null; sleep 1.0; }
 
 # sheet <dir> <out.png>: contact sheet, one tile per 2 ticks, labelled with the frame number.
 sheet() {
@@ -58,6 +82,7 @@ sheet() {
   done
   montage "${files[@]}" -tile 4x -geometry 640x360+4+4 "$out" 2>/dev/null || log "WARN: montage failed for $d"
 }
+
 
 run_begin
 ensure_client_install
@@ -71,20 +96,51 @@ sleep "$JOIN_SETTLE"
 give_item Caster
 rcon "gamemode spectator Watcher" >/dev/null
 rcon "gamemode survival Caster" >/dev/null
-tp Caster "$CX" "$Y" "$CZ" 0 0; tp Watcher "$CX" "$Y" "$CZ" 0 0; sleep "$SETTLE"
+CASTER_POSE="$CX $Y $CZ 0 0"   # facing +z; "behind" is -z
+tp Caster $CASTER_POSE; tp Watcher "$CX" "$Y" "$CZ" 0 0; sleep "$SETTLE"
 rcon "kill @e[type=minecraft:item]" >/dev/null
 key Watcher 1; key Caster 1
 key Watcher F1; key Caster F1
 DISPLAY=":${DISP[Caster]}" xdotool mousemove 100 100 2>/dev/null || true
 
-# bystander: 2.4 blocks off the caster's side, looking at them (the anim-shot "side" camera)
-tp Watcher "$(awk -v cx=$CX 'BEGIN{print cx-2.4}')" "$(awk -v y=$Y 'BEGIN{print y-0.5}')" "$CZ" -90 0; sleep 1.3
-# 1. first person (caster) + bystander (watcher) in the same cast
-rec fp Caster Watcher
-# 2. F5 once = third person, camera behind (vanilla distance 4 blocks)
-key Caster F5; sleep 1.5
-rec f5 Caster
-sheet "$OUT/fp-Caster" "$OUT/sheet-first-person.png"
-sheet "$OUT/fp-Watcher" "$OUT/sheet-bystander.png"
-sheet "$OUT/f5-Caster" "$OUT/sheet-third-person-back.png"
+# watcher_at <distance>: the Watcher (spectator camera at eye height) <distance> blocks west of the caster, looking at them.
+watcher_at() { tp Watcher "$(awk -v cx=$CX -v d="$1" 'BEGIN{print cx-d}')" "$Y" "$CZ" -90 0; sleep 1.3; }
+case_sheet() { # <case-view> <viewer>...
+  local c="$1" v; shift
+  for v in "$@"; do sheet "$OUT/$c-$v" "$OUT/sheet-$c-$v.png"; done
+}
+
+for c in ${CASES:-std wall-back ceiling wall-front bystander ghost}; do
+  log "case $c"
+  arena_clear; perspective 0
+  CASTER_POSE="$CX $Y $CZ 0 0"
+  case "$c" in
+    std) # ADR-0285 set: first person + bystander 2.4 blocks away, then F5 back (vanilla distance 4 blocks)
+      prep_skill "$ARG"; tp Caster $CASTER_POSE; watcher_at 2.4
+      rec std-fp Caster Watcher
+      perspective 1; rec std-f5 Caster
+      case_sheet std-fp Caster Watcher; case_sheet std-f5 Caster ;;
+    ghost) # couture-rapier-s2: a 9-block dash and ghost afterimages
+      prep_skill couture-rapier-s2; tp Caster $CASTER_POSE; watcher_at 2.4
+      rec ghost-fp Caster Watcher
+      perspective 1; rec ghost-f5 Caster
+      case_sheet ghost-fp Caster Watcher; case_sheet ghost-f5 Caster ;;
+    wall-back) # F5 back with a stone wall one cell behind the caster: vanilla pulls the camera to ~0.3 blocks
+      prep_skill "$ARG"; arena_wall -6 -1 6 -1 0 5; tp Caster $CASTER_POSE; watcher_at 2.4
+      perspective 1; rec wall-back-f5 Caster; case_sheet wall-back-f5 Caster ;;
+    ceiling) # F5 back, looking down 35 deg, under a 2-block ceiling: the camera is pushed down toward the head
+      prep_skill "$ARG"; arena_wall -6 -6 6 6 2 2; CASTER_POSE="$CX $Y $CZ 0 35"; tp Caster $CASTER_POSE; watcher_at 2.4
+      perspective 1; rec ceiling-f5 Caster; case_sheet ceiling-f5 Caster ;;
+    wall-front) # F5 front view with a wall one cell ahead: the camera sits between the caster and the wall
+      prep_skill "$ARG"; arena_wall -6 1 6 1 0 5; tp Caster $CASTER_POSE; watcher_at 2.4
+      perspective 2; rec wall-front-f5 Caster; case_sheet wall-front-f5 Caster ;;
+    bystander) # another player's camera next to the casting rig
+      prep_skill "$ARG"; tp Caster $CASTER_POSE
+      for d in ${BYSTANDER_DISTS:-0.45 0.6 1.0}; do
+        watcher_at "$d"; rec "bystander-$d" Watcher; case_sheet "bystander-$d" Watcher
+      done ;;
+    *) log "unknown case $c" ;;
+  esac
+done
+perspective 0
 log "done: $OUT"

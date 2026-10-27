@@ -14,11 +14,13 @@
 layout(location = 8) flat out int rigPart;
 layout(location = 9) out vec3 rigViewPos;
 layout(location = 10) out vec3 rigViewNormal;
+layout(location = 11) out vec3 rigCamOffset;
 
 @@ after: void main() {
     rigPart = -1;
     rigViewPos = vec3(0.0);
     rigViewNormal = vec3(0.0);
+    rigCamOffset = vec3(0.0);
     if (UV2.x == 224 && (UV2.y & 15) == 0) {
         int sky = UV2.y >> 4;
         if (sky <= 5) {
@@ -32,9 +34,12 @@ layout(location = 10) out vec3 rigViewNormal;
         } else {
             rigPart = (sky - 12) + 8 + 16;
         }
-        // Camera-space position, interpolated: the fragment shader fades every rig part (ghosts included) by its distance
-        // to the camera (ADR-0285). That replaces the old "drop a head bone enclosing the camera" rule.
+        // Camera-space position, interpolated: the fragment shader fades every rig part (ghosts included) near the camera
+        // (ADR-0285, column rule ADR-0288). rigCamOffset is the same offset rotated back to world axes (the view matrix is a
+        // rotation), so the fragment shader can tell "straight below the eye" from "beside / behind the camera" whatever
+        // direction the camera looks in.
         rigViewPos = (ModelViewMat * vec4(Position, 1.0)).xyz;
+        rigCamOffset = transpose(mat3(ModelViewMat)) * rigViewPos;
         rigViewNormal = (ModelViewMat * vec4(Normal, 0.0)).xyz;
     }
 
