@@ -52,7 +52,7 @@ elements:
   kind:
     type: item
     item: shears
-    item_model: astera:couture-shears-linked
+    item_model: astera:couture-s2-body
     display_mode: fixed
   brightness: 15
   start_tick: 22
