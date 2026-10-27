@@ -92,6 +92,7 @@ include(
     ":tools:hud-preview", // Offline HUD frames from structured sim traces (ADR-0243).
     // Static three.js viewer for game-sim traces + headless PNG/GIF skill frames (ADR-0225). Not shipped, not in `check`.
     ":tools:skill-viewer",
+    ":tools:skill-lint", // Structural common-sense lint for skill engine v2 (ADR-0299). Not shipped.
     // Renders the procedural sky-island lobby plan to a PNG preview (ADR-0179). Not shipped.
     ":tools:lobby-gen",
     ":tools:arena-preview", // Authored arena PNGs and routing measurements, no Minecraft server.

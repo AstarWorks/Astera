@@ -1,0 +1,24 @@
+apiVersion: astera/v2
+kind: Skill
+id: broken-flyer
+item: couture-rapier
+importance: 5
+
+frames:
+  - {id: shears, kind: item, parent: caster.right_hand, model: couture-shears}
+  - {id: volley, kind: body, parent: world, inactive: true}
+
+gameplay:
+  params: {throw_speed: 1.7, dmg_throw: 18}
+  timeline:
+    - id: baked
+      at: 0
+      do:
+        - {id: k, op: pose, frame: shears, keys: [{t: 0}, {t: 1, rotate: {axis: shears.axis, deg: 10}}, {t: 2, rotate: {axis: shears.axis, deg: 20}}, {t: 3, rotate: {axis: shears.axis, deg: 30}}]}
+        - {id: bad_damage, op: damage, target: victim, components: [{kind: physical, amount: "${dmg_throw}"}]}
+  on:
+    release:
+      - {id: fly, op: fly, frame: volley, velocity: "= forward(caster) * throw_speed", gravity: 0.0, drag: 0.0, max_ticks: 10}
+      - {id: throw_hit, op: hit, frames: [volley], capsule: {from: volley.root, to: volley.tip, radius: 0.2}, window: once}
+
+presentation: {}
