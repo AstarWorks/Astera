@@ -66,6 +66,8 @@ patch norma-layer/layer.yaml 's/^(  time_limit_seconds:).*/\1 "150"/' '^  time_l
 patch game-modes/carry-tnt.yaml 's/^(  time_limit_seconds:).*/\1 "240"/' '^  time_limit_seconds:'
 
 patch game-modes/annihilation.yaml 's/^(  pillar_hp:).*/\1 "150"/' '^  pillar_hp:'
+patch game-modes/annihilation.yaml 's/^(  pillar_hp_tier2:).*/\1 "150"/' '^  pillar_hp_tier2:'
+patch game-modes/annihilation.yaml 's/^(  pillar_hp_tier3:).*/\1 "150"/' '^  pillar_hp_tier3:'
 patch game-modes/annihilation.yaml 's/^(  build_phase_ticks:).*/\1 "100"/' '^  build_phase_ticks:'
 patch game-modes/annihilation.yaml 's/^(  engage_phase_ticks:).*/\1 "200"/' '^  engage_phase_ticks:'
 patch game-modes/annihilation.yaml 's/^(  sudden_death_ticks:).*/\1 "600"/' '^  sudden_death_ticks:'
