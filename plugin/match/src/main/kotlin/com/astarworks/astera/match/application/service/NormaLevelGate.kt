@@ -4,7 +4,7 @@ import com.astarworks.astera.core.application.port.outbound.IMatchLevelGate
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * [IMatchLevelGate] backed by the in-match Norma level (ADR-0273). A player outside a Norma match is never gated.
+ * [IMatchLevelGate] backed by the in-match Norma level (ADR-0288). A player outside a Norma match is never gated.
  * [onDenied] gives the player the "unlocks at Lv N" feedback.
  */
 public class NormaLevelGate(

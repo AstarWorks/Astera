@@ -49,7 +49,7 @@ public class ItemTooltip(private val messages: IMessageRenderer) {
         addAll(lockedLines(spec, viewer))
     }
 
-    /** One greyed line per Norma-gated binding (ADR-0273): which input stays locked until which in-match level. */
+    /** One greyed line per Norma-gated binding (ADR-0288): which input stays locked until which in-match level. */
     private fun lockedLines(spec: ItemSpec, viewer: PlayerId?): List<String> =
         spec.skillBindings.filter { it.minNormaLevel > 1 }.map {
             messages.render(

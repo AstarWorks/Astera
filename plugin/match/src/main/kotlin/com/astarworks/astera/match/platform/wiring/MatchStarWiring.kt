@@ -120,7 +120,7 @@ internal object MatchStarWiring {
         val mcServer = services.get<IMcServer>()
         // Norma level-up: title, sound, burst at the player, chat line to the match; the top level is bigger.
         val presentation = env.ports.normaPresentation?.invoke(services)
-        // ADR-0273: Items asks this gate before firing a `min_norma_level` binding; below the level the player gets
+        // ADR-0288: Items asks this gate before firing a `min_norma_level` binding; below the level the player gets
         // the deny sound and "unlocks at Lv N" line.
         val unlocks = NormaUnlocks(
             items = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },

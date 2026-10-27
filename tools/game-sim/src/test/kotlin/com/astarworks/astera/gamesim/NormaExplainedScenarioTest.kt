@@ -13,7 +13,7 @@ import java.nio.file.Files
 /**
  * What decides a match must be answerable from what the player is shown: a briefing when the match goes ACTIVE (the
  * mode's objective + what Norma levels are for), and a result screen that names the winning objective and each team's
- * final Norma standing. Norma levels are power progression, never a win condition (ADR-0273).
+ * final Norma standing. Norma levels are power progression, never a win condition (ADR-0288).
  */
 class NormaExplainedScenarioTest {
 

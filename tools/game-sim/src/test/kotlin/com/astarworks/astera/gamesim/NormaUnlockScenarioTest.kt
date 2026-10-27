@@ -12,7 +12,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0273: Norma levels are in-match power progression. An ultimate (the `drop` EGO binding, `min_norma_level: 3`)
+ * ADR-0288: Norma levels are in-match power progression. An ultimate (the `drop` EGO binding, `min_norma_level: 3`)
  * stays locked below its level: no cast, a deny line to the player. Climbing to the level opens it, and the level-up
  * names what it unlocked. Outside a match nothing is gated.
  */

@@ -215,7 +215,7 @@ class MidMatchReconnectScenarioTest {
             assertThat(eventsOf<MatchEnded>().none { it.matchId == matchId }).`as`("20 kills ended the match").isTrue()
             assertThat(sim.match.matches.findById(matchId)?.score?.valueFor(TeamId("red"))).`as`("kills still counted").isEqualTo(20)
 
-            // Reaching the top Norma level only stops levelling (ADR-0273); the match keeps running.
+            // Reaching the top Norma level only stops levelling (ADR-0288); the match keeps running.
             val stars = sim.services.getOrThrow<IMatchStarStore>()
             stars.add(matchId, red.id, 100)
             repeat(4) {

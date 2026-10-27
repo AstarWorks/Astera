@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.domain.norma.NormaUnlock
 
 /**
- * What a Norma level opens for a player (ADR-0273): the gated bindings (`min_norma_level`) of the items they carry
+ * What a Norma level opens for a player (ADR-0288): the gated bindings (`min_norma_level`) of the items they carry
  * whose gate is exactly that level. Empty when the item ports are not wired.
  */
 public class NormaUnlocks(

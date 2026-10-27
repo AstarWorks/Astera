@@ -6,7 +6,7 @@
 #
 # These are the DEFAULTS. A game mode overrides any key in its own `default_config` (content/game-modes/<id>.yaml);
 # the common override is `time_limit_seconds: "0"` (the mode has its own clock). Norma levels are in-match power
-# progression (they unlock ultimates and special items, `min_norma_level` on item bindings; ADR-0273) and never win a match. `norma_layer: "false"` takes a mode
+# progression (they unlock ultimates and special items, `min_norma_level` on item bindings; ADR-0288) and never win a match. `norma_layer: "false"` takes a mode
 # out of the layer altogether (PvE waves: co-op against mobs, no player-vs-player race).
 # Reload: `/astera reload norma-layer`.
 defaults:

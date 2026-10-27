@@ -97,7 +97,7 @@ public object MatchSidebarModel {
                     val key = if (norma.goal == NormaGoal.STAR) "astera.hud.sidebar.objective-star" else "astera.hud.sidebar.objective-kill"
                     add(HudComponent.Text(MessageKey(key), placeholders = mapOf("progress" to norma.progress.toString(), "target" to norma.target.toString())))
                 }
-                // What the next level opens for this player (ADR-0273): an ultimate or special they carry.
+                // What the next level opens for this player (ADR-0288): an ultimate or special they carry.
                 norma.nextUnlock?.let {
                     add(
                         HudComponent.Text(

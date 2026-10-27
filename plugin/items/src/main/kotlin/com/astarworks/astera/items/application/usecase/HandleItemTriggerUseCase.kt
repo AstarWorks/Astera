@@ -86,7 +86,7 @@ public class HandleItemTriggerUseCase(
         if (matchingBindings.isEmpty()) return false
 
         for (binding in matchingBindings) {
-            // Norma level gate (ADR-0273): a locked binding is refused with feedback; the input is still swallowed.
+            // Norma level gate (ADR-0288): a locked binding is refused with feedback; the input is still swallowed.
             if (binding.minNormaLevel > 1 && levelGate()?.denyIfLocked(playerId, binding.minNormaLevel) == true) continue
             eventBus.publish(
                 SkillCastRequested(

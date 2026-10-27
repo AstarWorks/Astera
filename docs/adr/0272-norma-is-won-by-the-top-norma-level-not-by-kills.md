@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Accepted. Supersedes, for the Norma mode only, the "first team to N kills wins" rule recorded in ADR-0027 (score
+Accepted. The "won by the top Norma level" win rule is superseded by ADR-0288 (Norma levels unlock power, they never end a match); the rest stands. Supersedes, for the Norma mode only, the "first team to N kills wins" rule recorded in ADR-0027 (score
 threshold 10), ADR-0117 Axis 5 (`NormaVictoryConditionEvaluatorListener`) and the Norma HUD / `EndReason.NormaReached`
 parts of ADR-0244. Those ADRs stay immutable; this one wins on conflict.
 
