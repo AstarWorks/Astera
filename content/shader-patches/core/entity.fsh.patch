@@ -4,8 +4,26 @@
 # The body runs to the next `@@` line (or the end of file).
 @@ before: #ifndef OIT_ALPHA_ONLY
 layout(location = 8) flat in int rigPart;
+layout(location = 9) in vec3 rigViewPos;
 
 @@ before: vec4 calculateFinalColor(vec4 color) {
+// Astera skin rig first-person hiding (ADR-0284). The server cannot know the client's camera perspective, so the
+// rig fades by distance to the camera instead: the owner's own rig surrounds / touches the first-person camera
+// (hidden), a third-person (F5) camera is 3+ blocks away (fully visible), other players' rigs are never this close.
+// Tuning constants (blocks): fully discarded below *_NEAR, fully visible from *_FAR, ordered-dither in between.
+const float RIG_BODY_NEAR = 0.6;  // head, torso, legs
+const float RIG_BODY_FAR = 1.2;
+const float RIG_ARM_NEAR = 0.25;  // arms fade more gently so the first-person swing stays visible
+const float RIG_ARM_FAR = 0.6;
+
+// 4x4 Bayer threshold in (0, 1) for this screen pixel.
+float rigBayer(vec2 fragCoord) {
+    ivec2 p = ivec2(mod(fragCoord, 4.0));
+    int i = p.x + p.y * 4;
+    int m[16] = int[16](0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5);
+    return (float(m[i]) + 0.5) / 16.0;
+}
+
 // Astera skin rig (ADR-0250): a rig display is drawn with the vanilla player-head cube, whose UVs lie in the
 // head box layout of the 64x64 skin (base layer at u 0..32, hat layer at u 32..64, v 0..16). Each fragment
 // finds the face of that 8x8x8 box it lies in and the position inside the face, then samples the same face of
@@ -92,10 +110,15 @@ vec2 rigRemap(vec2 uv, int part) {
 
 @@ replace: vec4 color = texture(Sampler0, texCoord0);
     vec2 skinUV = texCoord0;
-    if (rigPart == -2) {
-        discard;
-    }
     if (rigPart >= 0) {
+        int rigBone = rigPart & 7;
+        bool rigArm = rigBone == 2 || rigBone == 3;
+        float rigNear = rigArm ? RIG_ARM_NEAR : RIG_BODY_NEAR;
+        float rigFar = rigArm ? RIG_ARM_FAR : RIG_BODY_FAR;
+        float rigVisible = clamp((length(rigViewPos) - rigNear) / (rigFar - rigNear), 0.0, 1.0);
+        if (rigVisible <= rigBayer(gl_FragCoord.xy)) {
+            discard;
+        }
         skinUV = rigRemap(texCoord0, rigPart);
         if (skinUV.x < 0.0) {
             discard;
