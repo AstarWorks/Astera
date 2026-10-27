@@ -80,14 +80,19 @@ public enum class SkinRigBone(public val yamlName: String, public val id: Int) {
 /**
  * How the server marks a rig display for the client shader without any custom packet: the
  * display's brightness override (`block`, `sky`) arrives in the vertex shader as the light UV.
- * Block light 15 is the marker (only an entity standing inside a light-15 source ever has it),
- * and the sky value carries `bone id + 8 when the arm is slim`.
+ * Block light 14 is the marker, and the sky value carries `bone id + 8 when the arm is slim`.
+ *
+ * Not 15: burning entities, blazes, magma cubes, fireballs and glow item frames are all drawn at block light 15
+ * with any sky value, so a 15 marker would remap their skins as rig bones. Block 14 is only ever produced by a
+ * world light source (a torch cell), never by an entity-side override. Brightness cannot carry more than 16 x 16
+ * values (the client unpacks it to two nibbles), so no value is physically unreachable by natural light; this is
+ * the rarest one. `PackValidationTest` pins the shader's block value to this constant and rejects 15.
  *
  * The shader patch (`content/shader-patches/core/entity.vsh.patch`) decodes exactly this;
  * change both together.
  */
 public object SkinRigMarker {
-    public const val BLOCK_LIGHT: Int = 15
+    public const val BLOCK_LIGHT: Int = 14
     public const val SLIM_BIT: Int = 8
 
     /**

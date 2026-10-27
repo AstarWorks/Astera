@@ -533,9 +533,21 @@ internal object MatchGameplayWiring {
         }
         // MatchStarted publishes before the roster fills (entries follow), so each entry is the reliable hook;
         // the MatchStarted sweep covers a roster that was already assembled.
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class) { resetWeaponState(it.playerId) }
+        // The game mode is saved with the player: one left spectating by an earlier match (eliminated team, disconnect
+        // while waiting to respawn) can neither touch a star nor play, so every match entry and every match end leaves
+        // spectator mode (on the player's own region thread).
+        fun leaveSpectatorMode(pid: com.astarworks.astera.core.domain.player.PlayerId) {
+            val spectator = spectatorPort ?: return
+            scheduler.run(com.astarworks.astera.core.application.port.outbound.ExecutionScope.Entity(pid.uuid), kotlin.time.Duration.ZERO) {
+                spectator.stopSpectating(pid)
+            }
+        }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class) { resetWeaponState(it.playerId); leaveSpectatorMode(it.playerId) }
         subscriptions += eventBus.subscribe(MatchStarted::class) { started ->
-            matches.findById(started.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { resetWeaponState(it) }
+            matches.findById(started.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { resetWeaponState(it); leaveSpectatorMode(it) }
+        }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) { ended ->
+            matches.findById(ended.matchId)?.teams.orEmpty().flatMap { it.members }.forEach { leaveSpectatorMode(it) }
         }
         subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { matchCueListener.onKilled(it) }
         subscriptions += eventBus.subscribe(com.astarworks.astera.match.domain.event.PhaseChanged::class) { matchCueListener.onPhaseChanged(it) }
