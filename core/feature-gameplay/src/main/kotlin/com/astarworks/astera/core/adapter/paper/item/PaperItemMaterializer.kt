@@ -8,6 +8,11 @@ import com.astarworks.astera.core.domain.item.ItemAttributes
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
+import io.papermc.paper.datacomponent.DataComponentType
+import io.papermc.paper.datacomponent.DataComponentTypes
+import io.papermc.paper.datacomponent.item.TooltipDisplay
+import io.papermc.paper.registry.RegistryAccess
+import io.papermc.paper.registry.RegistryKey
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
@@ -87,6 +92,7 @@ public class PaperItemMaterializer(
         val stack = baseStack(blueprint, amount)
         applyMeta(stack, blueprint)
         stack.editMeta { it.tooltipStyle = NamespacedKey("astera", spec.rarity.name.lowercase()) }
+        hideVanillaMetadata(stack)
         return stack
     }
 
@@ -111,7 +117,23 @@ public class PaperItemMaterializer(
             @Suppress("DEPRECATION")
             if (fresh.hasCustomModelData()) meta.setCustomModelData(fresh.customModelData)
         }
+        hideVanillaMetadata(stack)
         return stack.itemMeta != before
+    }
+
+    /**
+     * Hides every vanilla metadata tooltip line (attributes, enchantments, durability, dye, trim, potion, ...)
+     * through the `tooltip_display` component: every registered component type is hidden except the ones whose
+     * lines Astera authors itself ([VISIBLE_COMPONENTS]). Future vanilla components are covered automatically.
+     */
+    private fun hideVanillaMetadata(stack: ItemStack) {
+        stack.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay().hiddenComponents(hiddenComponents).build())
+    }
+
+    private val hiddenComponents: Set<DataComponentType> by lazy {
+        RegistryAccess.registryAccess().getRegistry(RegistryKey.DATA_COMPONENT_TYPE).stream()
+            .filter { it !in VISIBLE_COMPONENTS }
+            .toList().toSet()
     }
 
     private fun baseStack(blueprint: ItemBlueprint, amount: Int): ItemStack {
@@ -287,6 +309,10 @@ public class PaperItemMaterializer(
         public const val ENCHANTABLE_KEY: String = "enchantable"
         public const val KEEP_ON_DEATH_KEY: String = "keep_on_death"
         private const val MAX_DURABILITY_KEY: String = "max_durability"
+        /** Components whose tooltip lines are Astera's own text: name and lore (the frame is `tooltip_style`). */
+        private val VISIBLE_COMPONENTS: Set<DataComponentType> = setOf(
+            DataComponentTypes.CUSTOM_NAME, DataComponentTypes.ITEM_NAME, DataComponentTypes.LORE,
+        )
         private const val BASE_COOLDOWN_SECONDS: Float = 0.05f
 
         @Suppress("FunctionName")
