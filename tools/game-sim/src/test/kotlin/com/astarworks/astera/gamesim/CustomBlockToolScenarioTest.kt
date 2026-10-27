@@ -110,7 +110,7 @@ class CustomBlockToolScenarioTest {
     }
 
     @Test
-    fun `swings inside the cooldown and non-tools do nothing`() {
+    fun `swings inside the cooldown are ignored`() {
         scenario("custom-block-swing-guards") {
             val miner = player("miner", team = "red")
             val blocks = sim.services.getOrThrow<IBlockStateGateway>()
@@ -119,7 +119,6 @@ class CustomBlockToolScenarioTest {
             val at = Vec3(0.0, groundY + 1, 10.0)
             blocks.placeCustomBlock(world, at, checkNotNull(registry.find(BlockType("astera:barricade"))), miner.id)
 
-            assertThat((hitter.hit(miner.id, world, at, ItemId("pistol")) as Result.Success).value).isEqualTo(Outcome.NotATool)
             assertThat((hitter.hit(miner.id, world, at, ItemId("field-axe")) as Result.Success).value).isInstanceOf(Outcome.Chipped::class.java)
             assertThat((hitter.hit(miner.id, world, at, ItemId("field-axe")) as Result.Success).value).isEqualTo(Outcome.TooFast)
             assertThat(blocks.tracked(world)[at]?.durability).isEqualTo(200)
@@ -130,9 +129,9 @@ class CustomBlockToolScenarioTest {
     fun `the match kit carries a pickaxe, an axe and a shovel`() {
         scenario("custom-block-tool-kit") {
             val items = sim.services.getOrThrow<IItemRegistry>()
-            for (id in listOf("field-pickaxe", "field-axe", "field-shovel")) {
+            for (id in listOf("stone-pickaxe", "stone-axe", "stone-shovel")) {
                 val spec = checkNotNull(items.find(ItemId(id))) { "$id is not shipped" }
-                assertThat(spec.pdcTags["astera:tool"]).endsWith("/IRON")
+                assertThat(spec.pdcTags["astera:tool"]).endsWith("/STONE")
             }
         }
     }

@@ -2670,3 +2670,4 @@ astera:
   armor.diamond-champion-chestplate.name: "Diamond Champion Chestplate"
   armor.diamond-champion-leggings.name: "Diamond Champion Leggings"
   armor.diamond-champion-boots.name: "Diamond Champion Boots"
+  ore.needs-tier: "<gray>Needs a <white>{tier}</white> pickaxe or better to mine this ore.</gray>"

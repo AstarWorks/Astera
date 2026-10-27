@@ -1,0 +1,11 @@
+# Team base iron generator of siege-isles: only red can collect it (iron is fast); drops the ore-iron item, not a star.
+id: siege-isles-base-red-iron
+match_stage_id: siege-isles
+position: { x: -81.5, y: 65.0, z: -6.0 }
+period_seconds: 6.0
+amount: 1
+tier: iron
+drop_item: ore-iron
+affiliation:
+  kind: team
+  team_id: red
