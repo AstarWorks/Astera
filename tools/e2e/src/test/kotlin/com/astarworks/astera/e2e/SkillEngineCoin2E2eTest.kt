@@ -29,18 +29,23 @@ class SkillEngineCoin2E2eTest : E2eBase() {
         val a = bot("Coin")
         op(a)
         Thread.sleep(500)
-        val ax = a.x
-        val ay = a.y
-        val az = a.z
+        // Stage in the flat overworld arena like WeaponsE2eTest: the lobby has geometry that can stop the flying pieces and cancels damage.
+        val ax = 0.5
+        val ay = -60
+        val az = 0.5
         // Caster looks south (yaw 0); the dummy stands 6 blocks ahead at +z.
-        rcon("tp ${a.name} $ax $ay $az 0 0")
         rcon("kill @e[type=minecraft:zombie,tag=coin2_dummy]")
-        rcon("summon minecraft:zombie $ax $ay ${az + 6} {NoAI:1b,Silent:1b,PersistenceRequired:1b,Tags:[\"coin2_dummy\"],Attributes:[{id:\"minecraft:max_health\",base:200.0d}],Health:200.0f}")
+        rcon("execute in minecraft:overworld run tp ${a.name} $ax $ay $az 0 0")
+        Thread.sleep(800)
+        // 26.x entity NBT uses lowercase `attributes` / `active_effects`. Fire resistance keeps the zombie from burning in daylight
+        // (a burning dummy loses 1 HP per second, which looks exactly like damage over time).
+        rcon("execute in minecraft:overworld run summon minecraft:zombie $ax $ay ${az + 6} {NoAI:1b,Silent:1b,PersistenceRequired:1b,Tags:[\"coin2_dummy\"],attributes:[{id:\"minecraft:max_health\",base:200}],Health:200f,active_effects:[{id:\"minecraft:fire_resistance\",duration:100000,show_particles:0b}]}")
         Thread.sleep(1_000)
         val before = healthOf("@e[type=minecraft:zombie,tag=coin2_dummy,limit=1]")
 
         E2eReport.check(suite, "dummy spawned with full health", "RCON data get entity") {
             assertThat(before).describedAs("dummy health").isNotNull()
+            assertThat(before!!).describedAs("max_health 200 applied (attributes NBT key)").isGreaterThan(100.0)
             "health $before"
         }
 
@@ -67,7 +72,7 @@ class SkillEngineCoin2E2eTest : E2eBase() {
         }
 
         E2eReport.check(suite, "no skill-engine error in the server log", "server log") {
-            val errors = ServerLog.read().lineSequence().drop(logMark).toList().filter { it.contains("skillengine", ignoreCase = true) && (it.contains("ERROR") || it.contains("WARN")) }
+            val errors = ServerLog.read().lineSequence().drop(logMark).toList().filter { (it.contains("skillengine", ignoreCase = true) || it.contains("skill engine", ignoreCase = true)) && (it.contains("ERROR") || it.contains("WARN")) }
             assertThat(errors).describedAs("skill-engine log problems").isEmpty()
             "clean"
         }
