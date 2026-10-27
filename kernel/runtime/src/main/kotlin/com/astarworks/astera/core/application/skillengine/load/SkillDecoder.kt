@@ -35,6 +35,9 @@ public sealed interface SkillDecodeError {
         override val message: String get() = "undefined frame/point/param '$ref'"
     }
 
+    /** Any other rule violation (`fail(message)` from an op decoder, skin patch touching gameplay, bad `at:`, ...). */
+    public data class Invalid(override val skillId: String, override val path: String, override val message: String) : SkillDecodeError
+
     public data class BadExpr(override val skillId: String, override val path: String, val error: ExprError) : SkillDecodeError {
         override val message: String get() = error.message
     }

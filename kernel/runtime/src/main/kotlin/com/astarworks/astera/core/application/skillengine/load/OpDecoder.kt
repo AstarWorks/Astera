@@ -20,6 +20,9 @@ public interface OpReader {
     public fun requireNumber(key: String): Value<Double>
     public fun vec3(key: String): Value<Vec3>?
     public fun boolValue(key: String): Value<Boolean>?
+
+    /** A string that may also be a `${param}` or `= expr` (e.g. colors); a plain string is a literal. */
+    public fun textValue(key: String): Value<String>?
     public fun point(key: String): PointRef?
     public fun stringList(key: String): List<String>?
 
