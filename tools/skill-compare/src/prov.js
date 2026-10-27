@@ -9,6 +9,7 @@ export function renderProv(box, p) {
   if (p.kind === "preview") chip("PREVIEW・実機ではありません", "pvw", "skill-preview（クライアント非使用の近似描画）。実機の見た目の判断材料にしない");
   if (p.caseRev === "unknown") chip("case 版 不明", "warn", "この撮影は参照動画/ケースの revision を記録していない。ケースと一致するか未確認");
   else if (p.caseRev === "stale") chip("case 版 STALE", "bad", "参照動画/トリムがこの撮影の後に変わった(skill content の版とは無関係)");
+  if (p.failure) chip("旧版・最新の撮影は失敗 " + (p.failure.sha || "").slice(0, 7), "bad", "farm の撮影が失敗したため、この映像は以前の撮影のまま: " + (p.failure.reason || "") + " (" + (p.failure.at || "") + ")");
   if (p.auto) {
     chip("auto " + (p.auto.sha ? p.auto.sha.slice(0, 7) : "?"), "ok", "capture farm: push 後に自動撮影・自動公開 (" + (p.auto.at || "") + ")");
     if (p.auto.kind === "preview") chip("PREVIEW（リアルタイム・暫定）", "pvw", "リアルタイム撮影の暫定版。tick 抜けがあり得る。段階撮影版が後で置き換える");

@@ -7,6 +7,13 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
 
+// A failed farm capture: current.json stays the last valid capture; <view>/failure.json tells skill-compare to show it as the old version.
+export function recordFailure(root, skill, view, sha, reason) {
+  const parent = join(root, skill, view);
+  mkdirSync(parent, { recursive: true });
+  writeFileSync(join(parent, 'failure.json'), JSON.stringify({ sha, reason, at: new Date().toISOString() }));
+}
+
 export function publishCapture(source, root, skill, view, opts = {}) {
   if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill) || !['compare', 'input', 'caster', 'opponent', 'side', 'front', 'back', 'right', 'high', 'near', 'top'].includes(view)) throw Error('Invalid capture identity');
   const raw = readFileSync(join(source, 'meta.json'), 'utf8');
@@ -15,6 +22,11 @@ export function publishCapture(source, root, skill, view, opts = {}) {
     const c = JSON.parse(readFileSync(join(fileURLToPath(new URL('../data', import.meta.url)), opts.case, 'case.json'), 'utf8'));
     meta.referenceRevision ??= c.referenceRevision ?? null;
     meta.caseContentRevision ??= c.contentRevision ?? null;
+  }
+  if (opts.preview) {
+    // a realtime preview only fills an empty slot: it never replaces a stepped / valid capture (only an earlier preview)
+    const cur = join(root, skill, view, 'current.json');
+    try { if (JSON.parse(readFileSync(cur, 'utf8')).meta?.auto?.kind !== 'preview') return { kept: true }; } catch (e) { if (e.code !== 'ENOENT') return { kept: true }; }
   }
   if (opts.auto || opts.preview) meta.auto = { sha: opts.auto ?? null, at: new Date().toISOString(), kind: opts.preview ? 'preview' : 'stepped' };
   if ((meta.captureQuality?.invalid && !opts.preview) || !Number.isInteger(meta.frames) || meta.frames < 1 || meta.frames > 10000) throw Error('Capture incomplete or invalid');
@@ -45,6 +57,7 @@ export function publishCapture(source, root, skill, view, opts = {}) {
     const pointer = join(parent, `.current-${randomUUID()}.json`);
     writeFileSync(pointer, JSON.stringify(manifest));
     renameSync(pointer, join(parent, 'current.json'));
+    if (!opts.preview) rmSync(join(parent, 'failure.json'), { force: true });
     return manifest;
   } finally { rmSync(staging, { recursive: true, force: true }); }
 }
@@ -55,9 +68,12 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     if (args[i] === '--auto') opts.auto = args[++i];
     else if (args[i] === '--case') opts.case = args[++i];
     else if (args[i] === '--preview') opts.preview = true;
+    else if (args[i] === '--failed') opts.failed = args[++i];
     else pos.push(args[i]);
   }
   if (pos.length !== 4 || (opts.auto !== undefined && !/^[0-9a-f]{7,40}$/.test(opts.auto))) throw Error('Usage: publish-capture.mjs <capture-dir> <published-root> <skill> <view> [--auto <sha>] [--preview]');
+  if (opts.failed) { recordFailure(pos[1], pos[2], pos[3], opts.auto ?? null, opts.failed); console.log(JSON.stringify({ failed: true })); process.exit(0); }
   const result = publishCapture(...pos, opts);
+  if (result.kept) { console.log(JSON.stringify({ kept: true })); process.exit(0); }
   console.log(JSON.stringify({ revision: result.revision, count: result.meta.frames, extension: result.extension }));
 }
