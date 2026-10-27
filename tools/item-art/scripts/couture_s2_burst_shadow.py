@@ -69,12 +69,12 @@ def plume():
     rnd = random.Random(11)
     ca, cb = canvas(), canvas()
     da, db = ImageDraw.Draw(ca), ImageDraw.Draw(cb)
-    n = 30
+    n = 14
     for i in range(n):
         ang = math.radians(-27 + 54 * i / (n - 1) + rnd.uniform(-1.2, 1.2))
         mid = 1 - abs(i - (n - 1) / 2) / ((n - 1) / 2)
-        L = 96 + 28 * mid * rnd.uniform(0.85, 1.0) - (rnd.choice([0, 18, 34]) if i % 2 else 0)
-        hw = rnd.uniform(2.6, 4.2)
+        L = rnd.choice([70, 90, 106, 124]) * rnd.uniform(0.92, 1.0)
+        hw = rnd.uniform(1.7, 2.8)
         tri(da, 128, 128, ang, L, hw, r0=0, grow=0.8)
         tri(db, 128, 128, ang, L + 4, hw + 1.6, r0=0, grow=0.8)
     disc(da, 128, 128, 8); disc(db, 128, 128, 11)
@@ -86,6 +86,46 @@ def shard():
     ca = canvas(); da = ImageDraw.Draw(ca)
     pts = [(24, 128), (70, 100), (230, 128), (70, 156)]
     da.polygon([(x * SS, y * SS) for x, y in pts], fill=255)
+    return rgba(down(ca), down(ca), (255, 255, 255), (255, 255, 255))
+
+
+def core():
+    """hot white centre -> yellow -> orange soft glow with short orange spikes (translucent edge)."""
+    yy, xx = np.mgrid[0:N, 0:N].astype(np.float32)
+    r = np.hypot(xx - 127.5, yy - 127.5)
+    ang = np.arctan2(yy - 127.5, xx - 127.5)
+    spike = 1 + 0.55 * np.maximum(0, np.cos(ang * 8)) ** 6
+    rr = r / spike
+    a = np.clip((118 - rr) / 90, 0, 1) ** 1.3
+    t = np.clip(rr / 100, 0, 1)
+    out = np.zeros((N, N, 4), np.float32)
+    out[..., 0] = 1.0
+    out[..., 1] = 1.0 - 0.55 * t
+    out[..., 2] = np.clip(0.95 - 1.5 * t, 0.05, 1)
+    out[..., 3] = a
+    return Image.fromarray((out * 255 + 0.5).astype(np.uint8), "RGBA")
+
+
+def soft():
+    """big soft white feather: wide leaf, tip at +x, base at centre; blurred edge, alpha <= 0.8."""
+    from PIL import ImageFilter
+    c = Image.new("L", (N, N), 0); d = ImageDraw.Draw(c)
+    d.polygon([(128, 128), (170, 96), (230, 122), (246, 128), (230, 134), (170, 160)], fill=255)
+    c = c.filter(ImageFilter.GaussianBlur(5))
+    a = np.asarray(c).astype(np.float32) / 255 * 0.3
+    out = np.ones((N, N, 4), np.float32)
+    out[..., 2] = 0.97
+    out[..., 3] = a
+    return Image.fromarray((out * 255 + 0.5).astype(np.uint8), "RGBA")
+
+
+def flare():
+    """sharp star flare: 6 long thin tapered rays (uneven) + tiny hot core."""
+    ca = canvas(); da = ImageDraw.Draw(ca)
+    for ang, L, hw in ((0, 126, 3.4), (62, 112, 3.0), (118, 122, 3.2), (180, 108, 3.0), (242, 126, 3.4), (300, 96, 2.8),
+                       (30, 56, 2.0), (150, 62, 2.0), (210, 52, 2.0), (330, 58, 2.0)):
+        tri(da, 128, 128, math.radians(ang), L, hw, grow=0.7)
+    disc(da, 128, 128, 7)
     return rgba(down(ca), down(ca), (255, 255, 255), (255, 255, 255))
 
 
@@ -112,6 +152,6 @@ def shadow():
 
 
 if __name__ == "__main__":
-    for name, im in (("burst-star", star()), ("burst-plume", plume()), ("burst-shard", shard()), ("shadow-spikes", shadow())):
+    for name, im in (("burst-star", star()), ("burst-plume", plume()), ("burst-shard", shard()), ("burst-core", core()), ("burst-soft", soft()), ("burst-flare", flare()), ("shadow-spikes", shadow())):
         im.save(os.path.join(OUT, f"couture-s2-{name}.png"))
         print(name, im.size)
