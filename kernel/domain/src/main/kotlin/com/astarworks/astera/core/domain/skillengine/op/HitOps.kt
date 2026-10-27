@@ -1,0 +1,18 @@
+package com.astarworks.astera.core.domain.skillengine.op
+
+import com.astarworks.astera.core.domain.skillengine.hit.HitVolume
+import com.astarworks.astera.core.domain.skillengine.hit.HitWindow
+import com.astarworks.astera.core.domain.skillengine.model.Value
+
+/** Ops that register hit volumes. Family owner: hit worker. */
+public sealed interface HitOp : GameplayOp {
+
+    /** Register a hit volume on [frames]; its contacts carry `event.source == id`. */
+    public data class Hit(
+        override val id: String,
+        override val whenExpr: Value<Boolean>?,
+        val frames: List<String>,
+        val volume: HitVolume,
+        val window: HitWindow,
+    ) : HitOp
+}
