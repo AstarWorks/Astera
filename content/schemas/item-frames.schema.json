@@ -1,0 +1,73 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/item-frames.schema.json",
+    "title": "Item point table (kind ItemFrames, content/frames/<item>.yaml)",
+    "type": "object",
+    "required": [
+        "apiVersion",
+        "kind",
+        "item",
+        "parts"
+    ],
+    "properties": {
+        "apiVersion": {
+            "const": "astera/v2"
+        },
+        "kind": {
+            "const": "ItemFrames"
+        },
+        "item": {
+            "type": "string",
+            "minLength": 1
+        },
+        "parts": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+                "type": "object",
+                "required": [
+                    "points"
+                ],
+                "properties": {
+                    "model": {
+                        "type": "string"
+                    },
+                    "display": {
+                        "type": "string"
+                    },
+                    "length": {
+                        "type": "number"
+                    },
+                    "points": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            },
+                            "minItems": 3,
+                            "maxItems": 3
+                        }
+                    },
+                    "axes": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            },
+                            "minItems": 3,
+                            "maxItems": 3
+                        }
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "defs": {}
+    },
+    "additionalProperties": false,
+    "patternProperties": {
+        "^(x-|_)": {}
+    }
+}

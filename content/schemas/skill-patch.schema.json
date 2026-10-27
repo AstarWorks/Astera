@@ -1,0 +1,3840 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/skill-patch.schema.json",
+    "title": "Patch document (kind Patch, patchKind skin|balance)",
+    "type": "object",
+    "required": [
+        "apiVersion",
+        "kind",
+        "target",
+        "patchKind"
+    ],
+    "properties": {
+        "apiVersion": {
+            "const": "astera/v2"
+        },
+        "kind": {
+            "const": "Patch"
+        },
+        "target": {
+            "type": "string",
+            "minLength": 1
+        },
+        "variant": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^@]+$"
+        },
+        "patchKind": {
+            "enum": [
+                "skin",
+                "balance"
+            ]
+        },
+        "frames": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/FrameDeclPatch"
+            }
+        },
+        "gameplay": {
+            "type": "object",
+            "properties": {
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "boolean"
+                            }
+                        ]
+                    }
+                },
+                "expose": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ExposedParamPatch"
+                    }
+                },
+                "timeline": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayRowPatch"
+                    }
+                },
+                "on": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/GameplayOp"
+                        }
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "presentation": {
+            "type": "object",
+            "properties": {
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "boolean"
+                            }
+                        ]
+                    }
+                },
+                "body_anim": {
+                    "type": "string"
+                },
+                "timeline": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PresentationRowPatch"
+                    }
+                },
+                "on": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/PresentationOp"
+                        }
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "defs": {}
+    },
+    "additionalProperties": false,
+    "patternProperties": {
+        "^(x-|_)": {}
+    },
+    "if": {
+        "properties": {
+            "patchKind": {
+                "const": "skin"
+            }
+        },
+        "required": [
+            "patchKind"
+        ]
+    },
+    "then": {
+        "properties": {
+            "gameplay": false,
+            "frames": false
+        }
+    },
+    "definitions": {
+        "AlignSpecPatch": {
+            "type": "object",
+            "properties": {
+                "axis": {
+                    "type": "string"
+                },
+                "up": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": true
+        },
+        "CapsulePatch": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "radius": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "additionalProperties": true
+        },
+        "DamageComponentSpecPatch": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string"
+                },
+                "amount": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "additionalProperties": true
+        },
+        "ExposedParamPatch": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "param": {
+                    "type": "string"
+                },
+                "min": {
+                    "type": "number"
+                },
+                "max": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "id"
+            ],
+            "additionalProperties": true
+        },
+        "FrameDeclPatch": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "world",
+                        "caster",
+                        "bone",
+                        "item",
+                        "part",
+                        "body",
+                        "enemy",
+                        "contact",
+                        "point"
+                    ]
+                },
+                "parent": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "part": {
+                    "type": "string"
+                },
+                "offset": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                },
+                "inactive": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "id"
+            ],
+            "additionalProperties": true
+        },
+        "GameplayOp": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "$patch": {
+                    "enum": [
+                        "delete"
+                    ]
+                }
+            },
+            "if": {
+                "required": [
+                    "op"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "op": {
+                        "type": "string",
+                        "enum": [
+                            "aoe",
+                            "apply_status",
+                            "break_area",
+                            "cast_skill",
+                            "choose",
+                            "cleanse",
+                            "consume_item",
+                            "counter",
+                            "damage",
+                            "dash_strike",
+                            "explode",
+                            "fly",
+                            "follow",
+                            "for_each",
+                            "freeze",
+                            "give_item",
+                            "heal",
+                            "hit",
+                            "if",
+                            "ignite",
+                            "impulse",
+                            "knockback",
+                            "knockup",
+                            "leap",
+                            "loop",
+                            "modify_attribute",
+                            "path",
+                            "place",
+                            "place_shape",
+                            "pose",
+                            "projectile",
+                            "propel",
+                            "raise_event",
+                            "reel",
+                            "remove_block",
+                            "remove_status",
+                            "reparent",
+                            "restore_resource",
+                            "resurrect",
+                            "schedule",
+                            "set_block",
+                            "set_cooldown",
+                            "set_velocity",
+                            "silence",
+                            "spin",
+                            "stick",
+                            "summon",
+                            "summon_lightning",
+                            "teleport",
+                            "weighted_branch"
+                        ]
+                    }
+                },
+                "allOf": [
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "aoe"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_aoe"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "apply_status"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_apply_status"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "break_area"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_break_area"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "cast_skill"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_cast_skill"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "choose"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_choose"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "cleanse"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_cleanse"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "consume_item"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_consume_item"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "counter"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_counter"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "damage"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_damage"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "dash_strike"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_dash_strike"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "explode"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_explode"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "fly"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_fly"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "follow"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_follow"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "for_each"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_for_each"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "freeze"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_freeze"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "give_item"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_give_item"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "heal"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_heal"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "hit"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_hit"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "if"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_if"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "ignite"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_ignite"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "impulse"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_impulse"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "knockback"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_knockback"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "knockup"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_knockup"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "leap"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_leap"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "loop"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_loop"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "modify_attribute"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_modify_attribute"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "path"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_path"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "place"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_place"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "place_shape"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_place_shape"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "pose"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_pose"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "projectile"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_projectile"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "propel"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_propel"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "raise_event"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_raise_event"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "reel"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_reel"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "remove_block"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_remove_block"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "remove_status"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_remove_status"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "reparent"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_reparent"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "restore_resource"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_restore_resource"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "resurrect"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_resurrect"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "schedule"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_schedule"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "set_block"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_set_block"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "set_cooldown"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_set_cooldown"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "set_velocity"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_set_velocity"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "silence"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_silence"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "spin"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_spin"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "stick"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_stick"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "summon"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_summon"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "summon_lightning"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_summon_lightning"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "teleport"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_teleport"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "weighted_branch"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_weighted_branch"
+                        }
+                    }
+                ]
+            }
+        },
+        "GameplayRowPatch": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "at": {
+                    "anyOf": [
+                        {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^[A-Za-z_][A-Za-z0-9_]*([+-][0-9]+)?$"
+                        }
+                    ]
+                },
+                "do": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                },
+                "every": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "until": {
+                    "type": "string"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                }
+            },
+            "required": [
+                "id"
+            ],
+            "additionalProperties": false
+        },
+        "PoseKeyPatch": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "integer"
+                },
+                "rotate": {
+                    "$ref": "#/definitions/RotateKeyPatch"
+                },
+                "offset": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "align": {
+                    "$ref": "#/definitions/AlignSpecPatch"
+                },
+                "ease": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": true
+        },
+        "PresentationOp": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "$patch": {
+                    "enum": [
+                        "delete"
+                    ]
+                }
+            },
+            "if": {
+                "required": [
+                    "op"
+                ]
+            },
+            "then": {
+                "properties": {
+                    "op": {
+                        "type": "string",
+                        "enum": [
+                            "action_bar",
+                            "camera_shake",
+                            "caster_anim",
+                            "emit",
+                            "line",
+                            "mesh",
+                            "plate",
+                            "remove",
+                            "sound",
+                            "title",
+                            "trail",
+                            "victim_anim"
+                        ]
+                    }
+                },
+                "allOf": [
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "action_bar"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_action_bar"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "camera_shake"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_camera_shake"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "caster_anim"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_caster_anim"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "emit"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_emit"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "line"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_line"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "mesh"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_mesh"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "plate"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_plate"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "remove"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_remove"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "sound"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_sound"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "title"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_title"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "trail"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_trail"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
+                                    "const": "victim_anim"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_victim_anim"
+                        }
+                    }
+                ]
+            }
+        },
+        "PresentationRowPatch": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "at": {
+                    "anyOf": [
+                        {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^[A-Za-z_][A-Za-z0-9_]*([+-][0-9]+)?$"
+                        }
+                    ]
+                },
+                "do": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PresentationOp"
+                    }
+                },
+                "every": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "until": {
+                    "type": "string"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                }
+            },
+            "required": [
+                "id"
+            ],
+            "additionalProperties": false
+        },
+        "RotateKeyPatch": {
+            "type": "object",
+            "properties": {
+                "axis": {
+                    "type": "string"
+                },
+                "deg": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "additionalProperties": true
+        },
+        "SectorPatch": {
+            "type": "object",
+            "properties": {
+                "frame": {
+                    "type": "string"
+                },
+                "forward": {
+                    "type": "string"
+                },
+                "left": {
+                    "type": "string"
+                },
+                "angle_deg": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "range": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "height": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "additionalProperties": true
+        },
+        "SnapSpecPatch": {
+            "type": "object",
+            "properties": {
+                "point": {
+                    "type": "string"
+                },
+                "depth": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "additionalProperties": true
+        },
+        "SpherePatch": {
+            "type": "object",
+            "properties": {
+                "at": {
+                    "type": "string"
+                },
+                "radius": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "additionalProperties": true
+        },
+        "Value_any": {
+            "description": "literal, ${param} or = CEL expression"
+        },
+        "Value_boolean": {
+            "anyOf": [
+                {
+                    "type": "boolean"
+                },
+                {
+                    "type": "string",
+                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*\\}$",
+                    "description": "${param}: whole-string reference to a params entry"
+                },
+                {
+                    "type": "string",
+                    "pattern": "^= ?.+",
+                    "description": "= <CEL expression>, compiled once at load"
+                }
+            ]
+        },
+        "Value_integer": {
+            "anyOf": [
+                {
+                    "type": "integer"
+                },
+                {
+                    "type": "string",
+                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*\\}$",
+                    "description": "${param}: whole-string reference to a params entry"
+                },
+                {
+                    "type": "string",
+                    "pattern": "^= ?.+",
+                    "description": "= <CEL expression>, compiled once at load"
+                }
+            ]
+        },
+        "Value_number": {
+            "anyOf": [
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "string",
+                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*\\}$",
+                    "description": "${param}: whole-string reference to a params entry"
+                },
+                {
+                    "type": "string",
+                    "pattern": "^= ?.+",
+                    "description": "= <CEL expression>, compiled once at load"
+                }
+            ]
+        },
+        "Value_quat": {
+            "anyOf": [
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 4,
+                    "maxItems": 4
+                },
+                {
+                    "type": "string",
+                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*\\}$",
+                    "description": "${param}: whole-string reference to a params entry"
+                },
+                {
+                    "type": "string",
+                    "pattern": "^= ?.+",
+                    "description": "= <CEL expression>, compiled once at load"
+                }
+            ]
+        },
+        "Value_vec3": {
+            "anyOf": [
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                },
+                {
+                    "type": "string",
+                    "pattern": "^\\$\\{[A-Za-z_][A-Za-z0-9_]*\\}$",
+                    "description": "${param}: whole-string reference to a params entry"
+                },
+                {
+                    "type": "string",
+                    "pattern": "^= ?.+",
+                    "description": "= <CEL expression>, compiled once at load"
+                }
+            ]
+        },
+        "op_action_bar": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "action_bar"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "text": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_aoe": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "aoe"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "at": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
+                },
+                "capsule": {
+                    "$ref": "#/definitions/CapsulePatch"
+                },
+                "sector": {
+                    "$ref": "#/definitions/SectorPatch"
+                },
+                "sphere": {
+                    "$ref": "#/definitions/SpherePatch"
+                },
+                "on_hit": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true,
+            "oneOf": [
+                {
+                    "required": [
+                        "capsule"
+                    ]
+                },
+                {
+                    "required": [
+                        "sector"
+                    ]
+                },
+                {
+                    "required": [
+                        "sphere"
+                    ]
+                }
+            ]
+        },
+        "op_apply_status": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "apply_status"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "status_id": {
+                    "type": "string"
+                },
+                "stacks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "duration_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "chance": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_break_area": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "break_area"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "at": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
+                },
+                "shape": {
+                    "type": "string",
+                    "enum": [
+                        "sphere",
+                        "line",
+                        "box"
+                    ]
+                },
+                "radius": {
+                    "type": "number"
+                },
+                "length": {
+                    "type": "number"
+                },
+                "width": {
+                    "type": "number"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "tool_class": {
+                    "type": "string"
+                },
+                "block_damage": {
+                    "type": "integer"
+                },
+                "revert_after_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "outside_arena": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_camera_shake": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "camera_shake"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "intensity": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "ticks": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_cast_skill": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "cast_skill"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "skill": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_caster_anim": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "caster_anim"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "anim": {
+                    "type": "string"
+                },
+                "speed": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_choose": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "choose"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "cases": {
+                    "type": "array",
+                    "items": {}
+                },
+                "otherwise": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_cleanse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "cleanse"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "negative_only": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_consume_item": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "consume_item"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "item": {
+                    "type": "string"
+                },
+                "count": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_counter": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "counter"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "delta": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_damage": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "damage"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "components": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DamageComponentSpecPatch"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_dash_strike": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "dash_strike"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "distance": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "radius": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "hit_once": {
+                    "type": "boolean"
+                },
+                "invulnerable": {
+                    "type": "boolean"
+                },
+                "stop_on_block": {
+                    "type": "boolean"
+                },
+                "follow_pitch": {
+                    "type": "boolean"
+                },
+                "stop_before_target": {
+                    "type": "number"
+                },
+                "local_direction": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                },
+                "face_movement": {
+                    "type": "boolean"
+                },
+                "on_hit": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_emit": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "emit"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "at": {
+                    "type": "string"
+                },
+                "particle": {
+                    "type": "string"
+                },
+                "count": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "dir": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "spread_deg": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "speed": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "inherit_velocity": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "seed": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_explode": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "explode"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "power": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "break_blocks": {
+                    "type": "boolean"
+                },
+                "incendiary": {
+                    "type": "boolean"
+                },
+                "radius": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "components": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DamageComponentSpecPatch"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_fly": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "fly"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frame": {
+                    "type": "string"
+                },
+                "velocity": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "gravity": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "drag": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "align": {
+                    "$ref": "#/definitions/AlignSpecPatch"
+                },
+                "max_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_follow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "follow"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frame": {
+                    "type": "string"
+                },
+                "target": {
+                    "type": "string"
+                },
+                "offset": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "lag": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_for_each": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "for_each"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "targets": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "body": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_freeze": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "freeze"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "scope": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_give_item": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "give_item"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "item": {
+                    "type": "string"
+                },
+                "count": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_heal": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "heal"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "amount": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_hit": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "hit"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "capsule": {
+                    "$ref": "#/definitions/CapsulePatch"
+                },
+                "sector": {
+                    "$ref": "#/definitions/SectorPatch"
+                },
+                "sphere": {
+                    "$ref": "#/definitions/SpherePatch"
+                },
+                "window": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: every_ticks, once, per_part"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true,
+            "oneOf": [
+                {
+                    "required": [
+                        "capsule"
+                    ]
+                },
+                {
+                    "required": [
+                        "sector"
+                    ]
+                },
+                {
+                    "required": [
+                        "sphere"
+                    ]
+                }
+            ]
+        },
+        "op_if": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "if"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "condition": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "then": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                },
+                "otherwise": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_ignite": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "ignite"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "duration_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_impulse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "impulse"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "vector": {
+                    "$ref": "#/definitions/Value_vec3"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_knockback": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "knockback"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "direction": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "strength": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_knockup": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "knockup"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "strength": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_leap": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "leap"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "destination": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
+                },
+                "arc_height": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_line": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "line"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "thickness": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "face": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: plane, viewer_axis, viewer_center, viewer_vertical"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_loop": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "loop"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "count": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "every": {
+                    "type": "integer"
+                },
+                "body": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_mesh": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "mesh"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frame": {
+                    "type": "string"
+                },
+                "item": {
+                    "type": "string"
+                },
+                "part": {
+                    "type": "string"
+                },
+                "scale": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_modify_attribute": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "modify_attribute"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "attribute": {
+                    "type": "string"
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "amount": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "duration_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_path": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "path"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frame": {
+                    "type": "string"
+                },
+                "curve": {
+                    "type": "string"
+                },
+                "duration_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "ease": {
+                    "type": "string"
+                },
+                "align_tangent": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_place": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "place"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frame": {
+                    "type": "string"
+                },
+                "like": {
+                    "type": "string"
+                },
+                "offset": {
+                    "$ref": "#/definitions/Value_vec3"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_place_shape": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "place_shape"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "at": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
+                },
+                "shape": {
+                    "type": "string",
+                    "enum": [
+                        "wall",
+                        "bridge",
+                        "pillar",
+                        "platform"
+                    ]
+                },
+                "block": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "length": {
+                    "type": "integer"
+                },
+                "consume_item": {
+                    "type": "string"
+                },
+                "revert_after_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "outside_arena": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_plate": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "plate"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "parent": {
+                    "type": "string"
+                },
+                "face": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: plane, viewer_axis, viewer_center, viewer_vertical"
+                },
+                "sprite": {
+                    "type": "string"
+                },
+                "size_frac": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "alpha": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_pose": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "pose"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frame": {
+                    "type": "string"
+                },
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PoseKeyPatch"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_projectile": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "projectile"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
+                },
+                "velocity": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "gravity": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "drag": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "max_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "capsule": {
+                    "$ref": "#/definitions/CapsulePatch"
+                },
+                "sector": {
+                    "$ref": "#/definitions/SectorPatch"
+                },
+                "sphere": {
+                    "$ref": "#/definitions/SpherePatch"
+                },
+                "pierce": {
+                    "type": "integer"
+                },
+                "on_hit": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                },
+                "on_block": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                },
+                "on_expire": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GameplayOp"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true,
+            "oneOf": [
+                {
+                    "required": [
+                        "capsule"
+                    ]
+                },
+                {
+                    "required": [
+                        "sector"
+                    ]
+                },
+                {
+                    "required": [
+                        "sphere"
+                    ]
+                }
+            ]
+        },
+        "op_propel": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "propel"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "direction": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "strength": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_raise_event": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "raise_event"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "event": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_reel": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "reel"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frame": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "speed": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "ease": {
+                    "type": "string"
+                },
+                "align": {
+                    "$ref": "#/definitions/AlignSpecPatch"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_remove": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "remove"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_remove_block": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "remove_block"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "at": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
+                },
+                "revert_after_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "outside_arena": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_remove_status": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "remove_status"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "status_id": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_reparent": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "reparent"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "to": {
+                    "type": "string"
+                },
+                "keep_world": {
+                    "type": "boolean"
+                },
+                "snap": {
+                    "$ref": "#/definitions/SnapSpecPatch"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_restore_resource": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "restore_resource"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "resource": {
+                    "type": "string"
+                },
+                "amount": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_resurrect": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "resurrect"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "health_fraction": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_schedule": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "schedule"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "after": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "event": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_set_block": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "set_block"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "at": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
+                },
+                "block": {
+                    "type": "string"
+                },
+                "revert_after_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "outside_arena": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_set_cooldown": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "set_cooldown"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "skill": {
+                    "type": "string"
+                },
+                "ticks": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_set_velocity": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "set_velocity"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "direction": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "magnitude": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_silence": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "silence"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "duration_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_sound": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "sound"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "sound": {
+                    "type": "string"
+                },
+                "at": {
+                    "type": "string"
+                },
+                "volume": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "pitch": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "every": {
+                    "type": "integer"
+                },
+                "until": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_spin": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "spin"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frame": {
+                    "type": "string"
+                },
+                "axis": {
+                    "type": "string"
+                },
+                "deg_per_tick": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "until": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_stick": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "stick"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "frame": {
+                    "type": "string"
+                },
+                "parent": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_summon": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "summon"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "at": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
+                },
+                "entity_type": {
+                    "type": "string"
+                },
+                "count": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "lifetime_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_summon_lightning": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "summon_lightning"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "at": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
+                },
+                "visual_only": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_teleport": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "teleport"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "destination": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: at_point, at_value"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_title": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "title"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "subtitle": {
+                    "type": "string"
+                },
+                "ticks": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_trail": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "trail"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "of": {
+                    "type": "string"
+                },
+                "root": {
+                    "type": "string"
+                },
+                "ticks": {
+                    "type": "integer"
+                },
+                "width_frac": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "alpha": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "until": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_victim_anim": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "victim_anim"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "anim": {
+                    "type": "string"
+                },
+                "strength": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_weighted_branch": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "weighted_branch"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "branches": {
+                    "type": "array",
+                    "items": {}
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        }
+    }
+}

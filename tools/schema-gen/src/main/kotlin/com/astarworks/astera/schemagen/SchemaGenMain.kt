@@ -1,7 +1,6 @@
 package com.astarworks.astera.schemagen
 
 import com.astarworks.astera.combat.application.config.ElementMatrixYamlConfig
-import com.astarworks.astera.combat.application.config.SkillYamlConfig
 import com.astarworks.astera.combat.application.config.StatusEffectYamlConfig
 import com.astarworks.astera.core.application.config.BlockDurabilityYamlConfig
 import com.astarworks.astera.core.application.config.GuiYamlConfig
@@ -10,7 +9,6 @@ import com.astarworks.astera.core.application.config.ParticleSkinYamlConfig
 import com.astarworks.astera.core.application.config.ParticleYamlConfig
 import com.astarworks.astera.core.application.config.SpriteYamlConfig
 import com.astarworks.astera.core.application.config.SkinRigAnimationYamlConfig
-import com.astarworks.astera.core.application.config.VfxYamlConfig
 import com.astarworks.astera.economy.application.config.ShopYamlConfig
 import com.astarworks.astera.match.application.config.AnomalyScheduleYamlConfig
 import com.astarworks.astera.match.application.config.GeneratorYamlConfig
@@ -41,13 +39,6 @@ fun main(args: Array<String>) {
             "https://astera.astarworks.com/schemas/block.schema.json"),
         SchemaEntry("chat", serializer<com.astarworks.astera.chat.application.config.ChatConfig>(),
             "https://astera.astarworks.com/schemas/chat.schema.json"),
-        // Wave _items-1 (ADR-0073): WeaponYamlConfig was removed; Item is the
-        // canonical content type now and carries skill bindings + attributes.
-        SchemaEntry(
-            name = "skill",
-            serializer = serializer<SkillYamlConfig>(),
-            schemaId = "https://astera.astarworks.com/schemas/skill.schema.json",
-        ),
         SchemaEntry(
             name = "status-effect",
             serializer = serializer<StatusEffectYamlConfig>(),
@@ -109,11 +100,6 @@ fun main(args: Array<String>) {
             schemaId = "https://astera.astarworks.com/schemas/particle-skin.schema.json",
         ),
         SchemaEntry(
-            name = "vfx",
-            serializer = serializer<VfxYamlConfig>(),
-            schemaId = "https://astera.astarworks.com/schemas/vfx.schema.json",
-        ),
-        SchemaEntry(
             name = "animation",
             serializer = serializer<SkinRigAnimationYamlConfig>(),
             schemaId = "https://astera.astarworks.com/schemas/animation.schema.json",
@@ -131,7 +117,11 @@ fun main(args: Array<String>) {
         println("Generated: $outputPath")
     }
 
-    println("Done. ${schemas.size} schema(s) written to $outputDir")
+    // Skill engine v2 (ADR-0299): skill / skill-patch / item-frames, derived by reflection over the op hierarchy.
+    val skillSchemas = SkillSchemaGenerator.generate(outputDir)
+    for (name in skillSchemas) println("Generated: ${outputDir.resolve("$name.schema.json")}")
+
+    println("Done. ${schemas.size + skillSchemas.size} schema(s) written to $outputDir")
 }
 
 /** Holds one schema generation job. Typed so [SchemaGenerator.generate] stays generic. */

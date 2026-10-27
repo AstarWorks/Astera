@@ -32,19 +32,9 @@ fun main(args: Array<String>) {
     val parsed = CliArgs.parse(args)
     val report = LintRunner(parsed).run()
     report.print(System.out)
-    val vfx = com.astarworks.astera.core.application.contents.VfxContents()
-    val vfxLoad = vfx.bootstrap(parsed.contentDir.resolve("vfx"))
     val particles = com.astarworks.astera.core.application.contents.ParticleContents()
     val particleLoad = particles.bootstrap(parsed.contentDir.resolve("particles"))
-    val skills = com.astarworks.astera.combat.application.contents.SkillContents(vfx = vfx, particles = particles)
-    val skillLoad = skills.bootstrap(parsed.contentDir.resolve("skills"))
-    println("Top 10 skill lifetime cost estimates (unbounded includes unconstrained candidate queries / dependent fan-out):")
-    println(com.astarworks.astera.combat.application.contents.SkillCostReport.format(
-        com.astarworks.astera.combat.application.contents.SkillCostReport.top(skills, vfx, particles),
-    ))
-    val runtime = RuntimeDecode.run(parsed.contentDir, listOf(
-        "vfx" to vfxLoad, "particles" to particleLoad, "skills" to skillLoad,
-    ))
+    val runtime = RuntimeDecode.run(parsed.contentDir, listOf("particles" to particleLoad))
     exitProcess(if (report.failed == 0 && runtime == 0) 0 else 1)
 }
 
@@ -55,10 +45,7 @@ fun main(args: Array<String>) {
 internal data class CliArgs(
     val contentDir: Path,
     val schemasDir: Path,
-    /**
-     * Reserved for future schema warnings. Skill cost estimates remain advisory,
-     * including with --strict (T8a does not enforce the cost cap yet).
-     */
+    /** Reserved for future schema warnings. */
     @Suppress("unused") val strict: Boolean,
 ) {
     companion object {
@@ -78,7 +65,6 @@ internal data class CliArgs(
                         i += 2
                     }
                     "--strict" -> {
-                        // Skill cost warnings remain advisory even in strict mode.
                         strict = true
                         i += 1
                     }
@@ -150,7 +136,6 @@ internal data class SchemaTarget(
 internal object SchemaMapping {
     val all: List<SchemaTarget> = listOf(
         SchemaTarget("chat.schema.json", "chat", singleFile = "chat.yaml"),
-        SchemaTarget("skill.schema.json", "skills"),
         SchemaTarget("block.schema.json", "blocks"),
         SchemaTarget("block-durability.schema.json", "balance", singleFile = "block-durability.yaml"),
         SchemaTarget("status-effect.schema.json", "status"),
@@ -166,8 +151,6 @@ internal object SchemaMapping {
         // Wave 5f (ADR-0035, RTM #21): particles are per-file definitions
         // mirroring the weapon / skill shape.
         SchemaTarget("particle.schema.json", "particles"),
-        // ADR-0220: display choreographies, one definition per file.
-        SchemaTarget("vfx.schema.json", "vfx"),
         // ADR-0250: keyframed skin-rig player animations, one per file.
         SchemaTarget("animation.schema.json", "animations"),
         // ADR-0239: generated particle sprite metadata (written by :tools:item-art).
@@ -219,7 +202,12 @@ internal class LintRunner(private val cli: CliArgs) {
 
         results += semanticResults()
 
-        return LintReport(results, missingSchemas, skinNotices())
+        // Skill engine v2 (ADR-0299): content/skills/ and content/frames/, dispatched by `kind`.
+        val v2 = SkillV2Lint(cli.contentDir, cli.schemasDir).run()
+        results += v2.results
+        missingSchemas += v2.missingSchemas
+
+        return LintReport(results, missingSchemas, skinNotices() + v2.notices + itemSkillNotices(v2.skillIds))
     }
 
     /**
@@ -244,32 +232,34 @@ internal class LintRunner(private val cli: CliArgs) {
     }
 
     /**
-     * Runtime-support and cross-reference checks for skills + items (see
-     * [SemanticChecks]). Reported as a separate result per file so schema
-     * and semantic failures are both visible.
+     * Item text checks the schema cannot express (see [SemanticChecks]). Reported as a separate result per file
+     * so schema and semantic failures are both visible.
      */
     private fun semanticResults(): List<FileResult> {
-        val known = SemanticChecks.KnownIds(
-            skills = idsIn("skills"),
-            statuses = idsIn("status"),
-            particles = idsIn("particles"),
-            vfx = idsIn("vfx"),
-            sprites = idsIn("sprites"),
-            animations = idsIn("animations"),
-        )
         val out = mutableListOf<FileResult>()
-        for (dir in listOf("skills", "items", "vfx")) {
-            for (yaml in yamlFilesIn(dir)) {
-                val node = try {
-                    yaml.reader().use { YamlToJson.parse(it) }
-                } catch (_: Exception) {
-                    continue // already reported by the schema pass
-                }
-                val errors = SemanticChecks.check(node, known) + if (dir == "items") SemanticChecks.checkItemText(node) else emptyList()
-                if (errors.isNotEmpty()) out += FileResult(file = yaml, errors = errors)
+        for (yaml in yamlFilesIn("items")) {
+            val node = try {
+                yaml.reader().use { YamlToJson.parse(it) }
+            } catch (_: Exception) {
+                continue // already reported by the schema pass
             }
+            val errors = SemanticChecks.checkItemText(node)
+            if (errors.isNotEmpty()) out += FileResult(file = yaml, errors = errors)
         }
         return out
+    }
+
+    /** Items still bind skill ids that have no v2 `kind: Skill` document yet (SKL-09 ports them); advisory only. */
+    private fun itemSkillNotices(v2SkillIds: Set<String>): List<String> {
+        val baseIds = v2SkillIds.map { it.substringBefore('@') }.toSet()
+        val missing = linkedMapOf<String, Set<String>>()
+        for (yaml in yamlFilesIn("items")) {
+            val node = runCatching { yaml.reader().use { YamlToJson.parse(it) } }.getOrNull() ?: continue
+            val unresolved = SemanticChecks.itemSkillIds(node).filter { it !in baseIds }.toSet()
+            if (unresolved.isNotEmpty()) missing[yaml.name] = unresolved
+        }
+        if (missing.isEmpty()) return emptyList()
+        return listOf("item-skill: ${missing.size} item file(s) bind ${missing.values.flatten().toSet().size} skill id(s) without a v2 skill document (advisory until SKL-09 ports them)")
     }
 
     private fun yamlFilesIn(dir: String): List<Path> {
@@ -279,10 +269,6 @@ internal class LintRunner(private val cli: CliArgs) {
             .filter { it.isRegularFile() && (it.name.endsWith(".yaml") || it.name.endsWith(".yml")) }
             .sortedBy { it.name }
     }
-
-    private fun idsIn(dir: String): Set<String> = yamlFilesIn(dir).mapNotNull { f ->
-        runCatching { f.reader().use { YamlToJson.parse(it) }.get("id")?.asText() }.getOrNull()
-    }.toSet()
 
     private fun loadSchema(path: Path): JsonSchema {
         // Read schema as a raw JSON string; networknt resolves $ref's
