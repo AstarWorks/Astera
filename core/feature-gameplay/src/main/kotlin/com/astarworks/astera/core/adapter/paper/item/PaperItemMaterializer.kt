@@ -107,7 +107,7 @@ public class PaperItemMaterializer(
             meta.lore(fresh.lore())
             meta.tooltipStyle = fresh.tooltipStyle
             meta.setEquippable(if (fresh.hasEquippable()) fresh.equippable else null)
-            if (fresh.hasItemModel()) meta.itemModel = fresh.itemModel
+            meta.itemModel = if (fresh.hasItemModel()) fresh.itemModel else null
             @Suppress("DEPRECATION")
             if (fresh.hasCustomModelData()) meta.setCustomModelData(fresh.customModelData)
         }
