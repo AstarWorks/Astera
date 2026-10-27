@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-swift
+material: SUGAR
+name:
+  ja: "<white>加速</white>"
+  en: "<white>Hasted</white>"

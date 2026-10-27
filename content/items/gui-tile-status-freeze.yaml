@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-freeze
+material: BLUE_ICE
+name:
+  ja: "<aqua>凍結</aqua>"
+  en: "<aqua>Frozen</aqua>"

@@ -2726,3 +2726,15 @@ astera:
   command.help.chat-japanize-off: "この接続中の日本語変換を無効にします。"
   command.help.chat-title: "指定サーバーまたは全サーバーに画面タイトルを送ります。"
   command.help.chat-japanize: "この接続中の日本語変換を切り替えます。"
+
+  # UI-12: 状態異常の効果をすぐ調べる (付与時のチャット / /astera status / 状態異常図鑑 GUI)。効果文は statusdesc.*
+  statuscodex.title: "状態異常図鑑"
+  statuscodex.applied: "<gray>状態異常: </gray><click:run_command:'/astera status {id}'><hover:show_text:'<yellow>{name}</yellow><newline><white>{desc_q}</white><newline><dark_gray>クリックで詳しく見る</dark_gray>'><yellow><underlined>[{name}]</underlined></yellow></hover></click> <dark_gray>(カーソルで効果 / クリックで詳細)</dark_gray>"
+  statuscodex.list.header: "<gold>状態異常の一覧</gold> <gray>- 名前をクリックで詳細</gray>"
+  statuscodex.list.line: "<click:run_command:'/astera status {id}'><hover:show_text:'<white>{desc_q}</white>'><yellow>{name}</yellow></hover></click><gray> - {desc}</gray>"
+  statuscodex.list.footer: "<gray>/astera status [名前]</gray> で 1 つの効果を詳しく、<gray>/astera status codex</gray> で図鑑画面を開きます。"
+  statuscodex.detail: "<yellow>{name}</yellow> <gray>-</gray> <white>{desc}</white>"
+  statuscodex.unknown: "<red>「{query}」という状態異常はありません。/astera status で一覧を確認できます。</red>"
+  statuscodex.hint: "<gray>/astera status</gray> - 状態異常の効果を調べる / <click:run_command:'/astera status codex'><hover:show_text:'/astera status codex'><yellow>[図鑑を開く]</yellow></hover></click>"
+  command.help.status: "状態異常の効果を調べる"
+  command.help.status-codex: "状態異常図鑑の画面を開く"

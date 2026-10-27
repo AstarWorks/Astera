@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-sinking
+material: ANVIL
+name:
+  ja: "<dark_gray>沈降</dark_gray>"
+  en: "<dark_gray>Sinking</dark_gray>"
