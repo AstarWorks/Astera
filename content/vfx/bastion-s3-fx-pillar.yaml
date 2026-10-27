@@ -1,3 +1,4 @@
+# r5: pillar plane 1.54 x 5.76 block (bright yellow/white core ~1.0-1.3 block wide, ~3x character height), 3 px dark rim only, spikes 1.5x longer + thin dark edge, 8x supersampled sprites. Same display count.
 # Bastion S3 beat 11 (video n99-132, pillar peak t66-68): THICK vertical gold light pillar (bastion-s3-pillar: dark rim + gold + white core, 0.9 block wide, 4.6 high, 2 crossing front+back plane pairs) rising at the planted sword (1.4 forward), horizontal cross bar (bastion-s3-bar, 4 planes), radial jagged lightning spikes (bastion-s3-spikes, 2 sizes), then electric gold floor sparks until ~t84.
 # r4: spikes = straight BLADE triangles (dark edge, gold core, 9 per frame, 1.5-3 blocks at scale 1, base >= 0.45 block), bar 5.6 x 0.75 block hexagon blade, pillar 1.28 block wide with dark slivers; same 9 peak displays.
 # r3: bar = 1 crisp center-billboard bastion-s3-pillar-bar (4+ blocks wide, y 1.4); spikes = bastion-s3-pillar-spikes (UP/outward from the base, 2 sprites); floor electricity = bastion-s3-pillar-crackle (ticks 8-24 = t71-87, 4 frames dense -> sparse) + spark particles to tick 24. Peak displays: 4 pillar + 1 bar + 2 spikes + root flash + crackle = 9.
@@ -21,18 +22,18 @@ elements:
     rotate: [90, 0, 0]
     scale: [0.06, 0.06, 1]
   - t: 2
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [90, 0, 0]
-    scale: [0.2, 0.72, 1]
+    scale: [0.24, 0.9, 1]
     ease: out_expo
   - t: 10
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [90, 0, 0]
-    scale: [0.17, 0.72, 1]
+    scale: [0.21, 0.9, 1]
   - t: 13
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [90, 0, 0]
-    scale: [0.03, 0.72, 1]
+    scale: [0.03, 0.9, 1]
     ease: in_quad
 - id: s3p-col-b
   kind: {type: sprite, sprite: bastion-s3-pillar, frame_ticks: 1, loop: false, see_through: true}
@@ -46,18 +47,18 @@ elements:
     rotate: [-90, 0, 0]
     scale: [0.06, 0.06, 1]
   - t: 2
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [-90, 0, 0]
-    scale: [0.2, 0.72, 1]
+    scale: [0.24, 0.9, 1]
     ease: out_expo
   - t: 10
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [-90, 0, 0]
-    scale: [0.17, 0.72, 1]
+    scale: [0.21, 0.9, 1]
   - t: 13
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [-90, 0, 0]
-    scale: [0.03, 0.72, 1]
+    scale: [0.03, 0.9, 1]
     ease: in_quad
 - id: s3p-col-c
   kind: {type: sprite, sprite: bastion-s3-pillar, frame_ticks: 1, loop: false, see_through: true}
@@ -71,18 +72,18 @@ elements:
     rotate: [0, 0, 0]
     scale: [0.06, 0.06, 1]
   - t: 2
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.2, 0.72, 1]
+    scale: [0.24, 0.9, 1]
     ease: out_expo
   - t: 10
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.17, 0.72, 1]
+    scale: [0.21, 0.9, 1]
   - t: 13
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [0, 0, 0]
-    scale: [0.03, 0.72, 1]
+    scale: [0.03, 0.9, 1]
     ease: in_quad
 - id: s3p-col-d
   kind: {type: sprite, sprite: bastion-s3-pillar, frame_ticks: 1, loop: false, see_through: true}
@@ -96,18 +97,18 @@ elements:
     rotate: [180, 0, 0]
     scale: [0.06, 0.06, 1]
   - t: 2
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [180, 0, 0]
-    scale: [0.2, 0.72, 1]
+    scale: [0.24, 0.9, 1]
     ease: out_expo
   - t: 10
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [180, 0, 0]
-    scale: [0.17, 0.72, 1]
+    scale: [0.21, 0.9, 1]
   - t: 13
-    translate: [0, 2.3, 1.4]
+    translate: [0, 2.88, 1.4]
     rotate: [180, 0, 0]
-    scale: [0.03, 0.72, 1]
+    scale: [0.03, 0.9, 1]
     ease: in_quad
 - id: s3p-root-flash
   kind: {type: sprite, sprite: bastion-s1-flare, frame_ticks: 1, loop: false, see_through: true, color: '#FFF2B8'}

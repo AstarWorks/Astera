@@ -1,5 +1,5 @@
 # Bastion S3 beat 6 (video n57-59, skill t38-41): r4 WORLD-ANCHORED (follow: false) along the dash path. cause of r3 miss: follow:true teleports every element to anchor + offset each tick and the anchor (the server caster) is already at the landing point at t38, so every plate sat at the enemy as one static blob. Now the plates are fixed in the cast frame (+z = dash direction) at z 0.3 / 2.1 / 3.9 (ticks 1 / 2 / 3, the caster covers ~1.8 blocks per tick) and fade FRONT-first (first spawned collapses first), life 5 ticks (t38-42). Black-edged jagged slabs (front+back pair, vertical, side cam) + one flat slab each on the floor (top cam) + gold crescent sweeps ahead of them, pop flash and streaks along the path.
-# Played at skill tick 37 (effect tick 1 = t38). Peak displays: 6 slabs + 3 flat + 6 sweeps + 1 pop + 3 streaks = 19 (r3: 14).
+# r5: clean pointed blade plates (4x supersampled, 3 px rim), 5 plates travelling z 0.3 -> 5.4, one per tick (start ticks 1..5, each grows in over 1 tick, holds, shrinks), plate 0 starts tiny so the first clear plate is tick 2; one continuous sweep streak links them. Peak displays: 3 plates x 3 + 2 sweep + 1 pop + 3 streaks = 15.
 id: bastion-s3-fx-dash
 duration_ticks: 10
 orient: yaw
@@ -11,300 +11,433 @@ elements:
   billboard: fixed
   brightness: 15
   start_tick: 1
-  end_tick: 6
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [0, 1.0, 0.3]
+    translate: [0, 1.05, 0.3]
     rotate: [90, 0, 0]
-    scale: [0.9, 0.42, 1]
+    scale: [0.06, 0.041, 1]
+  - t: 1
+    translate: [0, 1.05, 0.3]
+    rotate: [90, 0, 0]
+    scale: [0.5, 0.34, 1]
+    ease: out_quad
   - t: 2
-    translate: [0, 1.0, 0.3]
+    translate: [0, 1.05, 0.3]
     rotate: [90, 0, 0]
-    scale: [0.9, 0.42, 1]
-  - t: 4
-    translate: [0, 1.0, 0.3]
+    scale: [0.5, 0.34, 1]
+  - t: 3
+    translate: [0, 1.05, 0.3]
     rotate: [90, 0, 0]
-    scale: [0.828, 0.034, 1]
+    scale: [0.4, 0.014, 1]
     ease: in_quad
 - id: s3d-slab-0b
   kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 1
-  end_tick: 6
+  end_tick: 5
   keyframes:
   - t: 0
-    translate: [0, 1.0, 0.3]
+    translate: [0, 1.05, 0.3]
     rotate: [-90, 0, 0]
-    scale: [0.9, 0.42, 1]
+    scale: [0.06, 0.041, 1]
+  - t: 1
+    translate: [0, 1.05, 0.3]
+    rotate: [-90, 0, 0]
+    scale: [0.5, 0.34, 1]
+    ease: out_quad
   - t: 2
-    translate: [0, 1.0, 0.3]
+    translate: [0, 1.05, 0.3]
     rotate: [-90, 0, 0]
-    scale: [0.9, 0.42, 1]
-  - t: 4
-    translate: [0, 1.0, 0.3]
+    scale: [0.5, 0.34, 1]
+  - t: 3
+    translate: [0, 1.05, 0.3]
     rotate: [-90, 0, 0]
-    scale: [0.828, 0.034, 1]
+    scale: [0.4, 0.014, 1]
     ease: in_quad
 - id: s3d-flat-0
   kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 1
-  end_tick: 6
+  end_tick: 5
   keyframes:
   - t: 0
     translate: [0, 0.07, 0.3]
     rotate: [0, 90, 0]
-    scale: [0.7200000000000001, 0.504, 1]
+    scale: [0.048, 0.049, 1]
+  - t: 1
+    translate: [0, 0.07, 0.3]
+    rotate: [0, 90, 0]
+    scale: [0.4, 0.408, 1]
+    ease: out_quad
   - t: 2
     translate: [0, 0.07, 0.3]
     rotate: [0, 90, 0]
-    scale: [0.7200000000000001, 0.504, 1]
-  - t: 4
+    scale: [0.4, 0.408, 1]
+  - t: 3
     translate: [0, 0.07, 0.3]
     rotate: [0, 90, 0]
-    scale: [0.662, 0.04, 1]
+    scale: [0.32, 0.016, 1]
     ease: in_quad
 - id: s3d-slab-1f
   kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 2
-  end_tick: 7
+  end_tick: 6
   keyframes:
   - t: 0
-    translate: [0, 1.05, 2.1]
+    translate: [0, 1.05, 1.6]
     rotate: [90, 0, 0]
-    scale: [0.7, 0.36, 1]
+    scale: [0.175, 0.119, 1]
+  - t: 1
+    translate: [0, 1.05, 1.6]
+    rotate: [90, 0, 0]
+    scale: [0.5, 0.34, 1]
+    ease: out_quad
   - t: 2
-    translate: [0, 1.05, 2.1]
+    translate: [0, 1.05, 1.6]
     rotate: [90, 0, 0]
-    scale: [0.7, 0.36, 1]
-  - t: 4
-    translate: [0, 1.05, 2.1]
+    scale: [0.5, 0.34, 1]
+  - t: 3
+    translate: [0, 1.05, 1.6]
     rotate: [90, 0, 0]
-    scale: [0.644, 0.029, 1]
+    scale: [0.4, 0.014, 1]
     ease: in_quad
 - id: s3d-slab-1b
   kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 2
-  end_tick: 7
+  end_tick: 6
   keyframes:
   - t: 0
-    translate: [0, 1.05, 2.1]
+    translate: [0, 1.05, 1.6]
     rotate: [-90, 0, 0]
-    scale: [0.7, 0.36, 1]
+    scale: [0.175, 0.119, 1]
+  - t: 1
+    translate: [0, 1.05, 1.6]
+    rotate: [-90, 0, 0]
+    scale: [0.5, 0.34, 1]
+    ease: out_quad
   - t: 2
-    translate: [0, 1.05, 2.1]
+    translate: [0, 1.05, 1.6]
     rotate: [-90, 0, 0]
-    scale: [0.7, 0.36, 1]
-  - t: 4
-    translate: [0, 1.05, 2.1]
+    scale: [0.5, 0.34, 1]
+  - t: 3
+    translate: [0, 1.05, 1.6]
     rotate: [-90, 0, 0]
-    scale: [0.644, 0.029, 1]
+    scale: [0.4, 0.014, 1]
     ease: in_quad
 - id: s3d-flat-1
   kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 2
-  end_tick: 7
+  end_tick: 6
   keyframes:
   - t: 0
-    translate: [0, 0.07, 2.1]
+    translate: [0, 0.07, 1.6]
     rotate: [0, 90, 0]
-    scale: [0.5599999999999999, 0.432, 1]
+    scale: [0.14, 0.143, 1]
+  - t: 1
+    translate: [0, 0.07, 1.6]
+    rotate: [0, 90, 0]
+    scale: [0.4, 0.408, 1]
+    ease: out_quad
   - t: 2
-    translate: [0, 0.07, 2.1]
+    translate: [0, 0.07, 1.6]
     rotate: [0, 90, 0]
-    scale: [0.5599999999999999, 0.432, 1]
-  - t: 4
-    translate: [0, 0.07, 2.1]
+    scale: [0.4, 0.408, 1]
+  - t: 3
+    translate: [0, 0.07, 1.6]
     rotate: [0, 90, 0]
-    scale: [0.515, 0.035, 1]
+    scale: [0.32, 0.016, 1]
     ease: in_quad
 - id: s3d-slab-2f
   kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 3
-  end_tick: 8
+  end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.1, 3.9]
+    translate: [0, 1.05, 2.9]
     rotate: [90, 0, 0]
-    scale: [0.56, 0.3, 1]
+    scale: [0.175, 0.119, 1]
+  - t: 1
+    translate: [0, 1.05, 2.9]
+    rotate: [90, 0, 0]
+    scale: [0.5, 0.34, 1]
+    ease: out_quad
   - t: 2
-    translate: [0, 1.1, 3.9]
+    translate: [0, 1.05, 2.9]
     rotate: [90, 0, 0]
-    scale: [0.56, 0.3, 1]
-  - t: 4
-    translate: [0, 1.1, 3.9]
+    scale: [0.5, 0.34, 1]
+  - t: 3
+    translate: [0, 1.05, 2.9]
     rotate: [90, 0, 0]
-    scale: [0.515, 0.024, 1]
+    scale: [0.4, 0.014, 1]
     ease: in_quad
 - id: s3d-slab-2b
   kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 3
-  end_tick: 8
+  end_tick: 7
   keyframes:
   - t: 0
-    translate: [0, 1.1, 3.9]
+    translate: [0, 1.05, 2.9]
     rotate: [-90, 0, 0]
-    scale: [0.56, 0.3, 1]
+    scale: [0.175, 0.119, 1]
+  - t: 1
+    translate: [0, 1.05, 2.9]
+    rotate: [-90, 0, 0]
+    scale: [0.5, 0.34, 1]
+    ease: out_quad
   - t: 2
-    translate: [0, 1.1, 3.9]
+    translate: [0, 1.05, 2.9]
     rotate: [-90, 0, 0]
-    scale: [0.56, 0.3, 1]
-  - t: 4
-    translate: [0, 1.1, 3.9]
+    scale: [0.5, 0.34, 1]
+  - t: 3
+    translate: [0, 1.05, 2.9]
     rotate: [-90, 0, 0]
-    scale: [0.515, 0.024, 1]
+    scale: [0.4, 0.014, 1]
     ease: in_quad
 - id: s3d-flat-2
   kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 3
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0, 0.07, 2.9]
+    rotate: [0, 90, 0]
+    scale: [0.14, 0.143, 1]
+  - t: 1
+    translate: [0, 0.07, 2.9]
+    rotate: [0, 90, 0]
+    scale: [0.4, 0.408, 1]
+    ease: out_quad
+  - t: 2
+    translate: [0, 0.07, 2.9]
+    rotate: [0, 90, 0]
+    scale: [0.4, 0.408, 1]
+  - t: 3
+    translate: [0, 0.07, 2.9]
+    rotate: [0, 90, 0]
+    scale: [0.32, 0.016, 1]
+    ease: in_quad
+- id: s3d-slab-3f
+  kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 4
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0, 0.07, 3.9]
-    rotate: [0, 90, 0]
-    scale: [0.44800000000000006, 0.36, 1]
+    translate: [0, 1.05, 4.2]
+    rotate: [90, 0, 0]
+    scale: [0.175, 0.119, 1]
+  - t: 1
+    translate: [0, 1.05, 4.2]
+    rotate: [90, 0, 0]
+    scale: [0.5, 0.34, 1]
+    ease: out_quad
   - t: 2
-    translate: [0, 0.07, 3.9]
+    translate: [0, 1.05, 4.2]
+    rotate: [90, 0, 0]
+    scale: [0.5, 0.34, 1]
+  - t: 3
+    translate: [0, 1.05, 4.2]
+    rotate: [90, 0, 0]
+    scale: [0.4, 0.014, 1]
+    ease: in_quad
+- id: s3d-slab-3b
+  kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 4
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0, 1.05, 4.2]
+    rotate: [-90, 0, 0]
+    scale: [0.175, 0.119, 1]
+  - t: 1
+    translate: [0, 1.05, 4.2]
+    rotate: [-90, 0, 0]
+    scale: [0.5, 0.34, 1]
+    ease: out_quad
+  - t: 2
+    translate: [0, 1.05, 4.2]
+    rotate: [-90, 0, 0]
+    scale: [0.5, 0.34, 1]
+  - t: 3
+    translate: [0, 1.05, 4.2]
+    rotate: [-90, 0, 0]
+    scale: [0.4, 0.014, 1]
+    ease: in_quad
+- id: s3d-flat-3
+  kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 4
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0, 0.07, 4.2]
     rotate: [0, 90, 0]
-    scale: [0.44800000000000006, 0.36, 1]
-  - t: 4
-    translate: [0, 0.07, 3.9]
+    scale: [0.14, 0.143, 1]
+  - t: 1
+    translate: [0, 0.07, 4.2]
     rotate: [0, 90, 0]
-    scale: [0.412, 0.029, 1]
+    scale: [0.4, 0.408, 1]
+    ease: out_quad
+  - t: 2
+    translate: [0, 0.07, 4.2]
+    rotate: [0, 90, 0]
+    scale: [0.4, 0.408, 1]
+  - t: 3
+    translate: [0, 0.07, 4.2]
+    rotate: [0, 90, 0]
+    scale: [0.32, 0.016, 1]
+    ease: in_quad
+- id: s3d-slab-4f
+  kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 5
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.05, 5.4]
+    rotate: [90, 0, 0]
+    scale: [0.175, 0.119, 1]
+  - t: 1
+    translate: [0, 1.05, 5.4]
+    rotate: [90, 0, 0]
+    scale: [0.5, 0.34, 1]
+    ease: out_quad
+  - t: 2
+    translate: [0, 1.05, 5.4]
+    rotate: [90, 0, 0]
+    scale: [0.5, 0.34, 1]
+  - t: 3
+    translate: [0, 1.05, 5.4]
+    rotate: [90, 0, 0]
+    scale: [0.4, 0.014, 1]
+    ease: in_quad
+- id: s3d-slab-4b
+  kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 5
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.05, 5.4]
+    rotate: [-90, 0, 0]
+    scale: [0.175, 0.119, 1]
+  - t: 1
+    translate: [0, 1.05, 5.4]
+    rotate: [-90, 0, 0]
+    scale: [0.5, 0.34, 1]
+    ease: out_quad
+  - t: 2
+    translate: [0, 1.05, 5.4]
+    rotate: [-90, 0, 0]
+    scale: [0.5, 0.34, 1]
+  - t: 3
+    translate: [0, 1.05, 5.4]
+    rotate: [-90, 0, 0]
+    scale: [0.4, 0.014, 1]
+    ease: in_quad
+- id: s3d-flat-4
+  kind: {type: sprite, sprite: bastion-s3-dash-slab, frame_ticks: 1, loop: false, see_through: true}
+  billboard: fixed
+  brightness: 15
+  start_tick: 5
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 0.07, 5.4]
+    rotate: [0, 90, 0]
+    scale: [0.14, 0.143, 1]
+  - t: 1
+    translate: [0, 0.07, 5.4]
+    rotate: [0, 90, 0]
+    scale: [0.4, 0.408, 1]
+    ease: out_quad
+  - t: 2
+    translate: [0, 0.07, 5.4]
+    rotate: [0, 90, 0]
+    scale: [0.4, 0.408, 1]
+  - t: 3
+    translate: [0, 0.07, 5.4]
+    rotate: [0, 90, 0]
+    scale: [0.32, 0.016, 1]
     ease: in_quad
 - id: s3d-sweep-0f
   kind: {type: sprite, sprite: bastion-s3-dash-sweep, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 1
-  end_tick: 5
+  end_tick: 6
   keyframes:
   - t: 0
-    translate: [0, 1.25, 0.8]
+    translate: [0, 1.25, 0.6]
     rotate: [90, 0, 0]
-    scale: [0.85, 0.48, 1]
+    scale: [0.2, 0.2, 1]
   - t: 1
-    translate: [0, 1.25, 0.8]
+    translate: [0, 1.25, 2.4]
     rotate: [90, 0, 0]
-    scale: [0.85, 0.48, 1]
+    scale: [0.7, 0.3, 1]
+    ease: out_quad
+  - t: 2
+    translate: [0, 1.25, 3.3]
+    rotate: [90, 0, 0]
+    scale: [0.9, 0.3, 1]
   - t: 3
-    translate: [0, 1.25, 0.8]
+    translate: [0, 1.25, 4.6]
     rotate: [90, 0, 0]
-    scale: [0.782, 0.038, 1]
+    scale: [0.7, 0.2, 1]
+  - t: 4
+    translate: [0, 1.25, 5.8]
+    rotate: [90, 0, 0]
+    scale: [0.3, 0.03, 1]
     ease: in_quad
 - id: s3d-sweep-0b
   kind: {type: sprite, sprite: bastion-s3-dash-sweep, frame_ticks: 1, loop: false, see_through: true}
   billboard: fixed
   brightness: 15
   start_tick: 1
-  end_tick: 5
-  keyframes:
-  - t: 0
-    translate: [0, 1.25, 0.8]
-    rotate: [-90, 0, 0]
-    scale: [0.85, 0.48, 1]
-  - t: 1
-    translate: [0, 1.25, 0.8]
-    rotate: [-90, 0, 0]
-    scale: [0.85, 0.48, 1]
-  - t: 3
-    translate: [0, 1.25, 0.8]
-    rotate: [-90, 0, 0]
-    scale: [0.782, 0.038, 1]
-    ease: in_quad
-- id: s3d-sweep-1f
-  kind: {type: sprite, sprite: bastion-s3-dash-sweep, frame_ticks: 1, loop: false, see_through: true}
-  billboard: fixed
-  brightness: 15
-  start_tick: 2
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [0, 1.3, 2.6]
-    rotate: [90, 0, 0]
-    scale: [0.72, 0.42, 1]
+    translate: [0, 1.25, 0.6]
+    rotate: [-90, 0, 0]
+    scale: [0.2, 0.2, 1]
   - t: 1
-    translate: [0, 1.3, 2.6]
-    rotate: [90, 0, 0]
-    scale: [0.72, 0.42, 1]
+    translate: [0, 1.25, 2.4]
+    rotate: [-90, 0, 0]
+    scale: [0.7, 0.3, 1]
+    ease: out_quad
+  - t: 2
+    translate: [0, 1.25, 3.3]
+    rotate: [-90, 0, 0]
+    scale: [0.9, 0.3, 1]
   - t: 3
-    translate: [0, 1.3, 2.6]
-    rotate: [90, 0, 0]
-    scale: [0.662, 0.034, 1]
-    ease: in_quad
-- id: s3d-sweep-1b
-  kind: {type: sprite, sprite: bastion-s3-dash-sweep, frame_ticks: 1, loop: false, see_through: true}
-  billboard: fixed
-  brightness: 15
-  start_tick: 2
-  end_tick: 6
-  keyframes:
-  - t: 0
-    translate: [0, 1.3, 2.6]
+    translate: [0, 1.25, 4.6]
     rotate: [-90, 0, 0]
-    scale: [0.72, 0.42, 1]
-  - t: 1
-    translate: [0, 1.3, 2.6]
+    scale: [0.7, 0.2, 1]
+  - t: 4
+    translate: [0, 1.25, 5.8]
     rotate: [-90, 0, 0]
-    scale: [0.72, 0.42, 1]
-  - t: 3
-    translate: [0, 1.3, 2.6]
-    rotate: [-90, 0, 0]
-    scale: [0.662, 0.034, 1]
-    ease: in_quad
-- id: s3d-sweep-2f
-  kind: {type: sprite, sprite: bastion-s3-dash-sweep, frame_ticks: 1, loop: false, see_through: true}
-  billboard: fixed
-  brightness: 15
-  start_tick: 3
-  end_tick: 7
-  keyframes:
-  - t: 0
-    translate: [0, 1.35, 4.4]
-    rotate: [90, 0, 0]
-    scale: [0.6, 0.36, 1]
-  - t: 1
-    translate: [0, 1.35, 4.4]
-    rotate: [90, 0, 0]
-    scale: [0.6, 0.36, 1]
-  - t: 3
-    translate: [0, 1.35, 4.4]
-    rotate: [90, 0, 0]
-    scale: [0.552, 0.029, 1]
-    ease: in_quad
-- id: s3d-sweep-2b
-  kind: {type: sprite, sprite: bastion-s3-dash-sweep, frame_ticks: 1, loop: false, see_through: true}
-  billboard: fixed
-  brightness: 15
-  start_tick: 3
-  end_tick: 7
-  keyframes:
-  - t: 0
-    translate: [0, 1.35, 4.4]
-    rotate: [-90, 0, 0]
-    scale: [0.6, 0.36, 1]
-  - t: 1
-    translate: [0, 1.35, 4.4]
-    rotate: [-90, 0, 0]
-    scale: [0.6, 0.36, 1]
-  - t: 3
-    translate: [0, 1.35, 4.4]
-    rotate: [-90, 0, 0]
-    scale: [0.552, 0.029, 1]
+    scale: [0.3, 0.03, 1]
     ease: in_quad
 - id: s3d-pop
   kind: {type: sprite, sprite: bastion-s1-ink, frame_ticks: 1, loop: false, see_through: true, color: '#FFF2B8'}
