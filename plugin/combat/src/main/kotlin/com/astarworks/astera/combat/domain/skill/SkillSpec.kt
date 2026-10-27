@@ -4,7 +4,6 @@ import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.core.domain.skill.SkillId
-import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
 
 /**
  * Immutable skill definition.
@@ -25,7 +24,6 @@ import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
  *  - [archetype] / [params] — independently validated; pairing enforced by
  *    YAML loader.
  *  - [tags] — free-form designer-facing classifiers (see [SkillTag]).
- *  - [phases] — per-phase mechanic lists.
  *  - [resourceType] / [resourceCost] — what a cast spends from the caster's
  *    resource pool (ammo / energy). `resourceType == null` means "the
  *    resource of the item the cast comes from"; `resourceCost == null` means
@@ -51,7 +49,6 @@ public data class SkillSpec(
     val cooldownTicks: Int,
     val params: SkillParams,
     val tags: Set<SkillTag> = emptySet(),
-    val phases: PhaseMechanics,
     val resourceType: ResourceType? = null,
     val resourceCost: Int? = null,
     val reloadTicks: Int? = null,

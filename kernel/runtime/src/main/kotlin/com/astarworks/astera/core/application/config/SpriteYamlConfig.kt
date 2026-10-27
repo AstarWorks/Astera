@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.application.config
 
 import com.astarworks.astera.core.application.contents.SpriteDefinition
-import com.astarworks.astera.core.domain.effect.vfx.SpriteId
+import com.astarworks.astera.core.domain.sprite.SpriteId
 import kotlinx.serialization.Serializable
 
 /**

@@ -18,8 +18,6 @@ import com.astarworks.astera.core.domain.effect.sound.ScheduledSoundSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
-import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
-import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -50,22 +48,11 @@ public interface ProjectileImpactHandler {
  *
  *  1. the spec's [OnHitEffect] list (damage / status / sound / particle) on
  *     entity or block hits — `Explode` / `SpawnChild` are still held;
- *  2. the skill lifecycle phases from [ProjectileSpec.skill] through
- *     [MechanicDispatcher]:
- *     - entity hit  -> `hit_entity`
- *     - block hit   -> `hit_block`, then `miss`
- *     - lifetime end-> `expire`, then `miss`
- *
- *     (`miss` = the projectile ended without striking an entity.)
- *
- * Phase mechanics run with a [MechanicContext] anchored at the caster's cast
- * origin (`Caster` / `Origin`), `hitLocation` at the impact point and
- * `targetId` at the struck player (hit_entity only).
+ *  2. cover chipping for skill-bound projectiles (ADR-0280).
  *
  * Callers own idempotency (untrack the projectile after the call).
  */
 public class ProjectileImpactResolver(
-    private val dispatcher: MechanicDispatcher,
     private val applyDamage: ApplyDamageUseCase,
     private val applyStatus: ApplyStatusUseCase,
     private val scheduler: IScheduler,
@@ -92,7 +79,6 @@ public class ProjectileImpactResolver(
      */
     override fun onHitEntity(flight: Flight, target: PlayerId?, at: Vec3) {
         runOnHitEffects(flight, target, at)
-        runPhase(flight, at, target) { it.hitEntity }
         chipCover(flight, at)
     }
 
@@ -102,14 +88,11 @@ public class ProjectileImpactResolver(
         structureNear(flight, at)?.let { return onHitEntity(flight, it, at) }
         chipCover(flight, at)
         runOnHitEffects(flight, null, at)
-        runPhase(flight, at, null) { it.hitBlock }
-        runPhase(flight, at, null) { it.miss }
     }
 
     /** The projectile's lifetime ended in flight at [at] without striking anything. */
     override fun onExpire(flight: Flight, at: Vec3) {
-        runPhase(flight, at, null) { it.expire }
-        runPhase(flight, at, null) { it.miss }
+        // Nothing to resolve: an expired projectile has no on-hit effects.
     }
 
     private fun chipCover(flight: Flight, at: Vec3) {
@@ -119,27 +102,6 @@ public class ProjectileImpactResolver(
 
     private fun structureNear(flight: Flight, at: Vec3): PlayerId? =
         structures()?.findInRadius(at, STRUCTURE_HIT_RADIUS, flight.spec.skill?.worldId)?.minByOrNull { it.position.distanceSquared(at) }?.id
-
-    private fun runPhase(
-        flight: Flight,
-        at: Vec3,
-        target: PlayerId?,
-        select: (PhaseMechanics.Projectile) -> List<Mechanic>,
-    ) {
-        val binding = flight.spec.skill ?: return
-        val mechanics = select(binding.phases)
-        if (mechanics.isEmpty()) return
-        val ctx = MechanicContext(
-            actorId = flight.owner,
-            targetId = target,
-            origin = binding.castOrigin,
-            worldId = binding.worldId,
-            castedSkills = setOf(binding.skillId),
-            pose = binding.pose,
-            hitLocation = at,
-        )
-        dispatcher.dispatch(mechanics, ctx)
-    }
 
     private fun runOnHitEffects(flight: Flight, targetPlayerId: PlayerId?, impactPos: Vec3) {
         val spec = flight.spec

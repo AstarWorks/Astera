@@ -9,9 +9,7 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.AudienceResolver
-import com.astarworks.astera.core.domain.effect.vfx.VfxIntensity
-import com.astarworks.astera.core.domain.effect.vfx.VfxLane
-import com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile
+import com.astarworks.astera.core.domain.effect.VfxIntensity
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigBone
 import com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
@@ -109,37 +107,6 @@ public class PaperDisplayEntityGateway(
 
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): DisplayHandle? =
         spawn(world, at, spec, renderedLines, null)
-
-    /**
-     * Audience-scoped spawn. The display is created `visibleByDefault = false` (before it is added to the world, so no
-     * tracker ever sends it unasked) and revealed with `Player.showEntity` to exactly the resolved viewers: the audience
-     * relative to the caster / target, minus viewers whose `vfx_intensity` drops [lane]. Candidates are the players near
-     * the display (read in the owning region) plus the caster and target. Each reveal runs on that viewer's entity
-     * scheduler; no player set is looped and mutated from one thread.
-     */
-    override fun spawn(
-        world: WorldId,
-        at: Vec3,
-        spec: DisplaySpec,
-        renderedLines: List<String>,
-        audience: Audience,
-        caster: PlayerId?,
-        target: PlayerId?,
-        lane: VfxLane,
-    ): DisplayHandle? {
-        if (audience == Audience.ALL && lane == VfxLane.CORE) return spawn(world, at, spec, renderedLines)
-        val bukkitWorld = server.getWorld(world.value) ?: return null
-        val handle = spawn(world, at, spec, renderedLines, null, hidden = true) ?: return null
-        val display = server.getEntity(handle.id) ?: return handle
-        val nearby = bukkitWorld.getNearbyPlayers(Location(bukkitWorld, at.x, at.y, at.z), VIEWER_RADIUS).map { PlayerId(it.uniqueId) }
-        val candidates = AudienceResolver.select(AudienceResolver.displayPool(nearby, caster, target), audience, caster, target)
-        for (viewer in VfxQualityProfile.filterViewers(candidates, lane, intensityOf)) {
-            scheduler.run(ExecutionScope.Entity(viewer.uuid), ticks(0)) {
-                server.getPlayer(viewer.uuid)?.takeIf { display.isValid }?.showEntity(plugin, display)
-            }
-        }
-        return handle
-    }
 
     private fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>, owner: Player?, hidden: Boolean = false): DisplayHandle? {
         val bukkitWorld = server.getWorld(world.value) ?: return null
@@ -290,7 +257,7 @@ public class PaperDisplayEntityGateway(
         if (textRgb != null) display.text(display.text().color(TextColor.color(textRgb)))
     }
 
-    override fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
+    override fun moveTo(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
         val display = server.getEntity(handle.id) as? Display ?: return
         val attachment = attachments[handle]
         if (attachment != null) {

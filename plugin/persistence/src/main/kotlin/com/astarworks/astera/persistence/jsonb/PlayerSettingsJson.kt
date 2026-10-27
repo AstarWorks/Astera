@@ -73,7 +73,7 @@ public data class PlayerSettingsJson(
         hpLineVisible = hpLineVisible,
         damageNumbersVisible = damageNumbersVisible,
         tutorialHintsEnabled = tutorialHintsEnabled,
-        vfxIntensity = com.astarworks.astera.core.domain.effect.vfx.VfxIntensity.parseOrDefault(vfxIntensity),
+        vfxIntensity = com.astarworks.astera.core.domain.effect.VfxIntensity.parseOrDefault(vfxIntensity),
     )
 
     public companion object {

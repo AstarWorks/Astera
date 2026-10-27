@@ -75,7 +75,6 @@ class ProjectileLifecycleScenarioTest {
                 onHit = emptyList(),
                 skill = com.astarworks.astera.combat.domain.projectile.ProjectileSkillBinding(
                     skillId = com.astarworks.astera.core.domain.skill.SkillId("pistol-shot"),
-                    phases = com.astarworks.astera.core.domain.skill.phase.PhaseMechanics.Projectile(),
                     castOrigin = shooter.position,
                     worldId = null,
                 ),

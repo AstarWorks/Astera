@@ -15,7 +15,6 @@ import com.astarworks.astera.combat.domain.skill.params.ProjectileVisualParams
 import com.astarworks.astera.core.application.config.skill.toAnimation
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.core.application.config.skill.DamageComponentYaml
-import com.astarworks.astera.core.application.config.skill.PhaseMechanicsYaml
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.effect.ParticleId
@@ -24,13 +23,7 @@ import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.core.domain.skill.SkillId
-import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
 import com.astarworks.astera.core.domain.effect.SoundId
-import com.astarworks.astera.core.domain.effect.vfx.VfxDefinition
-import com.astarworks.astera.core.domain.effect.vfx.VfxId
-import com.astarworks.astera.core.domain.effect.vfx.telegraph.TelegraphShape
-import com.astarworks.astera.core.domain.effect.vfx.telegraph.TelegraphTeam
-import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
 import com.astarworks.astera.core.domain.skill.targeter.Targeter
 import com.astarworks.astera.core.domain.skill.value.IntValue
 import com.astarworks.astera.core.domain.skill.value.NumericValue
@@ -39,6 +32,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import com.charleskorn.kaml.YamlNode
 
 /**
  * YAML-shaped DTO for `content/skills/` definition files (Wave _skills-2 /
@@ -107,7 +101,8 @@ public data class SkillYamlConfig(
     public val archetype: String,
     @SerialName("cooldown_ticks") public val cooldownTicks: Int,
     public val params: SkillParamsYaml,
-    public val phases: PhaseMechanicsYaml,
+    /** v1 phase block, kept as an opaque node so v1 files still load (header only) until the SKL-09 converter ports them. */
+    public val phases: YamlNode? = null,
     @SerialName("resource_type") public val resourceType: String? = null,
     @SerialName("resource_cost") public val resourceCost: Int? = null,
     @SerialName("reload_ticks") public val reloadTicks: Int? = null,
@@ -118,7 +113,7 @@ public data class SkillYamlConfig(
     @SerialName("block_place") public val blockPlace: BlockPlaceYaml? = null,
     public val tags: List<String> = emptyList(),
     /** Telegraphed wind-up before impact (sound arc, ground warning, vfx). DTO only: desugared into cast-phase mechanics later. */
-    public val windup: WindupYaml? = null,
+    public val windup: YamlNode? = null,
     /** Skill rank 1..10 (docs/contributing/vfx-art-direction.md). Read by tools/skill-lint (windup > 20 ticks needs >= 9); no runtime effect. */
     public val importance: Int? = null,
 ) {
@@ -131,13 +126,9 @@ public data class SkillYamlConfig(
     public fun toSpec(): SkillSpec {
         val parsedArchetype = SkillArchetype.valueOf(archetype.trim().uppercase())
         val domainParams = params.toDomain()
-        val domainPhases = phases.toDomain().let { base -> windup?.let { applyWindup(parsedArchetype, base, it) } ?: base }
 
         require(matchesParams(parsedArchetype, domainParams)) {
             "Skill '$id' archetype=$parsedArchetype does not match params=${domainParams::class.simpleName}"
-        }
-        require(matchesPhases(parsedArchetype, domainPhases)) {
-            "Skill '$id' archetype=$parsedArchetype does not match phases=${domainPhases::class.simpleName}"
         }
 
         val variant = chargeTicks
@@ -152,7 +143,6 @@ public data class SkillYamlConfig(
             cooldownTicks = cooldownTicks,
             params = domainParams,
             tags = tags.map { SkillTag(it) }.toSet(),
-            phases = domainPhases,
             resourceType = resourceType?.let {
                 ResourceType.fromKey(it)
                     ?: throw IllegalArgumentException("Skill '$id': unknown resource_type '$it' (ammo / energy)")
@@ -167,60 +157,6 @@ public data class SkillYamlConfig(
         )
     }
 
-    /**
-     * Desugars the skill-level `windup:` block into cast-phase mechanics (ADR-0290): the sound, telegraph and vfx start at cast
-     * tick 0, `stop_sound` cuts the sound at the impact tick, and the existing cast mechanics are shifted by `windup.ticks`
-     * (wrapped in a delayed one-iteration loop). Only `sequence` skills qualify: melee / aoe / projectile apply their baseline
-     * damage in the archetype handler, outside the mechanics, so their impact cannot be moved from here.
-     */
-    private fun applyWindup(archetype: SkillArchetype, base: PhaseMechanics, windup: WindupYaml): PhaseMechanics {
-        require(windup.ticks in 1..VfxDefinition.MAX_DURATION_TICKS) { "Skill '$id': windup.ticks must be 1..${VfxDefinition.MAX_DURATION_TICKS}: ${windup.ticks}" }
-        require(archetype == SkillArchetype.SEQUENCE && base is PhaseMechanics.Sequence) {
-            "Skill '$id': windup is supported on archetype=sequence only (got $archetype); its baseline damage cannot be delayed"
-        }
-        val caster = Targeter.Caster
-        val lead = ArrayList<Mechanic>()
-        windup.sound?.let { sound ->
-            val soundId = SoundId(sound.soundId)
-            lead += Mechanic.PlaySound(
-                targets = caster,
-                soundId = soundId,
-                volume = NumericValue.Literal(sound.volume),
-                pitch = NumericValue.Literal(sound.pitch),
-                pitchArc = sound.pitchArc?.toDomain(),
-            )
-            if (sound.stopAtImpact) {
-                lead += Mechanic.StopSound(targets = caster, soundId = soundId, delayTicks = IntValue.Literal(windup.ticks))
-            }
-        }
-        windup.telegraph?.let { t ->
-            lead += Mechanic.Telegraph(
-                targets = caster,
-                shape = TelegraphShape.fromYaml(t.shape),
-                radius = NumericValue.Literal(t.radius),
-                angleDegrees = NumericValue.Literal(t.angleDegrees),
-                width = NumericValue.Literal(t.width),
-                ticks = IntValue.Literal(windup.ticks),
-                impactTick = IntValue.Literal(windup.ticks),
-                teamColor = TelegraphTeam.fromYaml(t.teamColor),
-            )
-        }
-        windup.vfx?.let { lead += Mechanic.PlayVfx(targets = caster, vfxId = VfxId(it)) }
-        val shifted = if (base.cast.isEmpty()) {
-            emptyList()
-        } else {
-            listOf(
-                Mechanic.Loop(
-                    targets = caster,
-                    count = IntValue.Literal(1),
-                    mechanics = base.cast,
-                    delayTicks = IntValue.Literal(windup.ticks),
-                ),
-            )
-        }
-        return base.copy(cast = lead + shifted)
-    }
-
     private fun matchesParams(archetype: SkillArchetype, params: SkillParams): Boolean = when (archetype) {
         SkillArchetype.PROJECTILE -> params is SkillParams.ProjectileParams
         SkillArchetype.MELEE -> params is SkillParams.MeleeParams
@@ -229,16 +165,6 @@ public data class SkillYamlConfig(
         SkillArchetype.TELEPORT -> params is SkillParams.TeleportParams
         SkillArchetype.SUMMON -> params is SkillParams.SummonParams
         SkillArchetype.SEQUENCE -> params is SkillParams.SequenceParams
-    }
-
-    private fun matchesPhases(archetype: SkillArchetype, phases: PhaseMechanics): Boolean = when (archetype) {
-        SkillArchetype.PROJECTILE -> phases is PhaseMechanics.Projectile
-        SkillArchetype.MELEE -> phases is PhaseMechanics.Melee
-        SkillArchetype.AOE -> phases is PhaseMechanics.Aoe
-        SkillArchetype.BUFF -> phases is PhaseMechanics.Buff
-        SkillArchetype.TELEPORT -> phases is PhaseMechanics.Teleport
-        SkillArchetype.SUMMON -> phases is PhaseMechanics.Summon
-        SkillArchetype.SEQUENCE -> phases is PhaseMechanics.Sequence
     }
 
     private fun Map<String, String>.toLocalizedText(): LocalizedText =
@@ -314,14 +240,11 @@ public sealed class SkillParamsYaml {
         /** Blocks between trail plays along the tick's segment (0 = one play per tick). */
         @SerialName("trail_spacing") public val trailSpacing: Double = ProjectileVisualParams.DEFAULT_TRAIL_SPACING,
         public val display: ProjectileDisplayYaml? = null,
-        /** A `content/vfx` choreography that rides the projectile for its whole flight and ends when it ends (hit, miss, expiry). */
-        public val vfx: String? = null,
     ) {
         public fun toDomain(): ProjectileVisualParams = ProjectileVisualParams(
             trail = trail?.toAnimation(),
             trailSpacing = trailSpacing,
             display = display?.toDomain(),
-            vfx = vfx?.let { com.astarworks.astera.core.domain.effect.vfx.VfxId(it) },
         )
     }
 
@@ -442,34 +365,3 @@ public data class BlockPlaceYaml(
     internal fun toDomain(): BlockPlaceSpec = BlockPlaceSpec(block, distance, width, height)
 }
 
-/**
- * Skill-level `windup:` block. [ticks] is the wind-up length: the sound / telegraph / vfx play from cast tick 0 and
- * the damaging mechanics shift by [ticks].
- */
-@Serializable
-public data class WindupYaml(
-    public val ticks: Int,
-    public val sound: WindupSoundYaml? = null,
-    public val telegraph: WindupTelegraphYaml? = null,
-    /** `content/vfx` id played at tick 0. */
-    public val vfx: String? = null,
-)
-
-@Serializable
-public data class WindupSoundYaml(
-    @SerialName("sound_id") public val soundId: String,
-    public val volume: Double = 1.0,
-    public val pitch: Double = 1.0,
-    @SerialName("pitch_arc") public val pitchArc: com.astarworks.astera.core.application.config.skill.PitchArcYaml? = null,
-    /** Cut the sound at the impact tick (`stop_sound`). */
-    @SerialName("stop_at_impact") public val stopAtImpact: Boolean = true,
-)
-
-@Serializable
-public data class WindupTelegraphYaml(
-    public val shape: String = "circle",
-    public val radius: Double,
-    @SerialName("angle_degrees") public val angleDegrees: Double = 60.0,
-    public val width: Double = 2.0,
-    @SerialName("team_color") public val teamColor: String = "enemy",
-)

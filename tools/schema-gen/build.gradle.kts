@@ -20,6 +20,7 @@ dependencies {
     implementation(project(":plugin:chat"))
 
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlin.reflect)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)

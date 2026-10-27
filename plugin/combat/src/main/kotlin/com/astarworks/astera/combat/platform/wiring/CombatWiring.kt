@@ -34,7 +34,6 @@ import com.astarworks.astera.combat.application.service.InMemoryDamageHistorySer
 import com.astarworks.astera.combat.application.service.JumpCountTracker
 import com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer
 import com.astarworks.astera.combat.application.service.ArenaBlockEditGuard
-import com.astarworks.astera.combat.application.service.MechanicDispatcher
 import com.astarworks.astera.combat.application.service.SummonRegistry
 import com.astarworks.astera.combat.application.service.NoOpKnockbackGateway
 import com.astarworks.astera.combat.application.service.StubArmorEquipmentProvider
@@ -57,14 +56,6 @@ import com.astarworks.astera.combat.application.usecase.damage.AssistAttribution
 import com.astarworks.astera.combat.application.usecase.damage.RecordDamageHistoryOnDamageDealtListener
 import com.astarworks.astera.combat.application.usecase.equipment.ApplyArmorModifiersUseCase
 import com.astarworks.astera.combat.application.usecase.skill.CastSkillUseCase
-import com.astarworks.astera.combat.application.usecase.skill.dispatch.AoeHandler
-import com.astarworks.astera.combat.application.usecase.skill.dispatch.BuffHandler
-import com.astarworks.astera.combat.application.usecase.skill.dispatch.MeleeHandler
-import com.astarworks.astera.combat.application.usecase.skill.dispatch.ProjectileHandler
-import com.astarworks.astera.combat.application.usecase.skill.dispatch.SkillCastDispatcher
-import com.astarworks.astera.combat.application.usecase.skill.dispatch.SummonHandler
-import com.astarworks.astera.combat.application.usecase.skill.dispatch.SequenceHandler
-import com.astarworks.astera.combat.application.usecase.skill.dispatch.TeleportHandler
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.application.usecase.status.TickCooldownUseCase
 import com.astarworks.astera.combat.domain.event.DamageDealt
@@ -104,7 +95,6 @@ public class CombatWiringResult(
     public val applyDamage: ApplyDamageUseCase?,
     public val applyStatus: ApplyStatusUseCase?,
     public val castSkill: CastSkillUseCase?,
-    public val mechanicDispatcher: MechanicDispatcher?,
     /** F3-11: keeps the lobby training dummies alive; `null` when the host supplied no dummy bodies. */
     public val trainingRange: com.astarworks.astera.combat.application.service.training.TrainingRangeService?,
     private val shutdownHooks: List<() -> Unit>,
@@ -140,14 +130,9 @@ public object CombatWiring {
         // in the unified /astera reload <category> dispatcher.
         val skillsContentDir = ctx.contentDir.resolve("skills")
         val contentCelEvaluator = services.get<ICelEvaluator>() ?: StubCelEvaluator()
-        val skillVfx = services.get<com.astarworks.astera.core.application.port.outbound.IVfxRegistry>()
-        val skillParticles = services.get<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>()
-        val skillContents = SkillContents(contentCelEvaluator, skillVfx, skillParticles)
+        val skillContents = SkillContents(contentCelEvaluator)
         val skillReport = skillContents.bootstrap(skillsContentDir)
         logger.info("Skills loaded: ${skillReport.loaded} ok, ${skillReport.failed} failed")
-        logger.info("Top 10 skill lifetime cost estimates:\n" + com.astarworks.astera.combat.application.contents.SkillCostReport.format(
-            com.astarworks.astera.combat.application.contents.SkillCostReport.top(skillContents, skillVfx, skillParticles),
-        ))
 
         val statusContentDir = ctx.contentDir.resolve("status")
         val statusContents = StatusContents()
@@ -195,11 +180,6 @@ public object CombatWiring {
         // 3. Register Combat ports onto the shared registry --------------------
         registrations += services.register<ISkillRegistry>(skillContents)
         registrations += services.register<IStatusEffectRegistry>(statusContents)
-        // Item tooltips: Core owns the layout, Combat supplies "what this skill does" from content.
-        services.get<com.astarworks.astera.core.application.service.item.ItemBlueprintFactory>()?.skillTooltips =
-            services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()?.let {
-                com.astarworks.astera.combat.application.service.SkillTooltipSummary(skillContents, statusContents, it, armorContents)
-            }
         // Also published so Match can wipe fire / glow / freeze when a match ends or a player leaves it.
         val entityEffects = ports.entityEffectsGateway?.invoke(services)
         if (entityEffects != null) registrations += services.register<com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway>(entityEffects)
@@ -485,7 +465,6 @@ public object CombatWiring {
         var applyDamageOut: ApplyDamageUseCase? = null
         var applyStatusOut: ApplyStatusUseCase? = null
         var castSkillOut: CastSkillUseCase? = null
-        var mechanicDispatcherOut: MechanicDispatcher? = null
 
         if (damageGateway != null && statusContainer != null && cooldownTracker != null) {
             val applyStatus = ApplyStatusUseCase(
@@ -560,78 +539,6 @@ public object CombatWiring {
                 services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry>()
             val summonRegistry = SummonRegistry { services.get<IMatchTeamLookup>() }
             registrations += services.register<SummonRegistry>(summonRegistry)
-            val mechanicDispatcher = MechanicDispatcher(
-                applyDamage = applyDamage,
-                applyStatus = applyStatus,
-                worldGateway = worldGateway,
-                knockbackGateway = knockbackGateway,
-                nearbyQuery = nearbyQuery,
-                broadcaster = broadcaster,
-                celEvaluator = celEvaluator,
-                bakedSkills = skillContents,
-                scheduler = scheduler,
-                eventBus = eventBus,
-                playerAnimation = services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>(),
-                particleScheduler = particleScheduler,
-                particleAnimator = services.get<com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator>(),
-                particleRegistry = particleRegistry,
-                soundRegistry = soundRegistry,
-                soundScheduler = services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>(),
-                poseLookup = casterPoses,
-                // Match registers IMatchTeamLookup after Combat enables (softdepend
-                // order), so resolve it per call instead of at wiring time.
-                teamLookup = IMatchTeamLookup { playerId -> services.get<IMatchTeamLookup>()?.teamOf(playerId) },
-                // WP4 mechanics batch A.
-                statusContainer = statusContainer,
-                statusRegistry = statusContents,
-                entityEffects = entityEffects,
-                feedback = ports.playerFeedbackGateway?.invoke(services),
-                messageRenderer = services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
-                playerGateway = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>(),
-                cooldownTracker = cooldownTracker,
-                attributeStore = services.get<IPlayerAttributeContainerStore>(),
-                playerHealth = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>() },
-                entityHealth = { services.get<IEntityDamageGateway>() },
-                // WP5 mechanics batch B. Explosion / lightning resolve lazily: the Paper
-                // overlays register at priority 100 and must win over the InMemory defaults.
-                explosionGateway = { services.get<IExplosionGateway>() },
-                lightningGateway = { services.get<ILightningGateway>() },
-                resourcePool = { services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>() },
-                blockEditGuard = ports.blockEditGuard?.invoke(services) ?: ArenaBlockEditGuard(
-                    regionIndex = { services.get<com.astarworks.astera.core.application.port.outbound.IStageRegionIndex>() },
-                    teamLookup = { services.get<IMatchTeamLookup>() },
-                ),
-                displayGateway = ports.displayEntityGateway?.invoke(services),
-                vfxRegistry = services.get<com.astarworks.astera.core.application.port.outbound.IVfxRegistry>(),
-                spriteFrames = services.get<com.astarworks.astera.core.application.port.outbound.ISpriteRegistry>()
-                    ?: com.astarworks.astera.core.domain.effect.vfx.SpriteFrames.NONE,
-                summonGateway = ports.summonGateway?.invoke(services),
-                summonRegistry = summonRegistry,
-                randomizer = damageRandomizer,
-                presentation = { services.get<com.astarworks.astera.core.application.port.outbound.presentation.IPlayerPresentation>() },
-                skinBodies = { id -> services.get<com.astarworks.astera.core.application.port.outbound.ISkinRigRegistry>()?.find(id) },
-                itemRemoval = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval>() },
-                playerSound = { services.get<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>() },
-                teamColors = { services.get<com.astarworks.astera.core.application.port.outbound.ITeamColorLookup>() },
-                consumptionRecorder = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder>() },
-                toolBlocks = ports.toolBlocks?.invoke(services),
-                coverService = { services.get<com.astarworks.astera.core.application.service.CoverBlockService>() },
-                blockStates = { services.get<com.astarworks.astera.core.application.port.outbound.IBlockStateGateway>() },
-                customBlocks = { services.get<com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry>() },
-                itemRegistry = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
-                areaBreakExclusion = { services.get<com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion>() },
-            )
-            registrations += services.register<MechanicDispatcher>(mechanicDispatcher)
-            // ADR-0276: every way a performance can end goes through VfxPlayer.finish in the tick it happens.
-            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { event ->
-                mechanicDispatcher.endPerformances(event.victim)
-            }
-            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { event ->
-                mechanicDispatcher.endPerformances(event.playerId)
-            }
-            // Temporary blocks, displays and summons must not outlive the plugin.
-            shutdownHooks += { mechanicDispatcher.shutdown() }
-
             // Shared by every host: Paper's ProjectileHitListener and the
             // headless simulator's projectile stepper both resolve impacts here.
             // ADR-0280: opt-in cover damage / placement for skills (the CoverBlockService is Core's, resolved lazily).
@@ -644,7 +551,6 @@ public object CombatWiring {
             if (particleSchedulerForImpacts != null && soundSchedulerForImpacts != null) {
                 registrations += services.register<com.astarworks.astera.combat.application.service.ProjectileImpactResolver>(
                     com.astarworks.astera.combat.application.service.ProjectileImpactResolver(
-                        dispatcher = mechanicDispatcher,
                         applyDamage = applyDamage,
                         applyStatus = applyStatus,
                         scheduler = scheduler,
@@ -666,8 +572,6 @@ public object CombatWiring {
                 items = services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
                 poseLookup = casterPoses,
                 egoGauge = services.get<com.astarworks.astera.core.application.port.outbound.IEgoGauge>(),
-                // skillCastDispatcher injected after construction below to
-                // break the wiring cycle (dispatcher needs ProjectileHandler
                 // which needs the projectile service which we resolve next).
             )
             val chargeTracker = ChargeTracker(scheduler)
@@ -695,53 +599,6 @@ public object CombatWiring {
             ) { tickCooldown.execute() }
             shutdownHooks += { tickCooldownHandle.cancel() }
 
-            // Wave _skills-2 (ADR-0077) — archetype handlers, each holding a
-            // reference to the shared MechanicDispatcher.
-            val projectileHandler = ProjectileHandler(
-                projectileService,
-                mechanicDispatcher,
-                services.get<com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator>()?.let {
-                    com.astarworks.astera.combat.application.service.ProjectileTrailFollower(scheduler, it)
-                },
-            )
-            val meleeHandler = MeleeHandler(
-                nearbyQuery,
-                applyDamage,
-                mechanicDispatcher,
-                casterPoses,
-            )
-            val aoeHandler = AoeHandler(nearbyQuery, applyDamage, mechanicDispatcher)
-            val buffHandler = BuffHandler(applyStatus, scheduler, mechanicDispatcher)
-            val teleportHandler = TeleportHandler(worldGateway, mechanicDispatcher)
-            val summonHandler = SummonHandler(mechanicDispatcher)
-            val sequenceHandler = SequenceHandler(mechanicDispatcher)
-
-            val dispatcher = SkillCastDispatcher(
-                skillRegistry = skillContents,
-                projectileHandler = projectileHandler,
-                meleeHandler = meleeHandler,
-                aoeHandler = aoeHandler,
-                buffHandler = buffHandler,
-                teleportHandler = teleportHandler,
-                sequenceHandler = sequenceHandler,
-                summonHandler = summonHandler,
-                eventBus = eventBus,
-                coverEffects = coverEffects,
-            )
-            subscriptions += dispatcher.start()
-
-            // Wire CastSkillUseCase ↔ SkillCastDispatcher for PhaseOverrides
-            // hand-off + MechanicDispatcher ↔ CastSkillUseCase for
-            // Mechanic.CastSkill recursion (closing the loop).
-            castSkill.bindSkillCastDispatcher(dispatcher)
-            mechanicDispatcher.setCastSkillInvoker { invokedSkillId, _, invokeCtx ->
-                castSkill.execute(
-                    casterId = invokeCtx.actorId,
-                    skillId = invokedSkillId,
-                    at = invokeCtx.origin,
-                )
-            }
-
             // Wave _items-1 (ADR-0073) — subscribe CastSkillUseCase to the
             // cross-plugin SkillCastRequested event. Items publishes this
             // when a bound input fires; we translate it into a
@@ -753,7 +610,6 @@ public object CombatWiring {
                     casterId = event.actorId,
                     skillId = event.skillId,
                     at = event.origin,
-                    phaseOverrides = event.phaseOverrides,
                     sourceItemId = event.sourceItemId,
                     cooldownOverrideTicks = event.cooldownOverrideTicks,
                     trigger = event.trigger,
@@ -818,7 +674,7 @@ public object CombatWiring {
             logger.info(
                 "Astera-Combat use cases wired: " +
                     "ApplyDamage, CastSkill (resource-aware), ApplyStatus, TickCooldown, " +
-                    "ChargedSkillCast, SkillCastDispatcher (6 archetypes), " +
+                    "ChargedSkillCast, " +
                     "DamageHistory + AssistAttribution, " +
                     "ApplyArmorModifiers (Wave 5e, ADR-0058), JumpCountTracker (Wave 5e).",
             )
@@ -826,7 +682,6 @@ public object CombatWiring {
             applyDamageOut = applyDamage
             applyStatusOut = applyStatus
             castSkillOut = castSkill
-            mechanicDispatcherOut = mechanicDispatcher
         } else {
             logger.warning(
                 "Combat use cases unwired until Stage 7-改. " +
@@ -926,7 +781,6 @@ public object CombatWiring {
             applyDamage = applyDamageOut,
             applyStatus = applyStatusOut,
             castSkill = castSkillOut,
-            mechanicDispatcher = mechanicDispatcherOut,
             trainingRange = trainingService,
             shutdownHooks = shutdownHooks.toList(),
         )

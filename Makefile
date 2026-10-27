@@ -306,16 +306,9 @@ skill-pairs: ## Video vs MC frame pairs at video times -> build/pairs/<case>.png
 	@test -n "$(CASE)" -a -n "$(AT)" || { echo "usage: make skill-pairs CASE=<id> [SKILL=<skill>] AT=\"19.7:hit1 20.9:hit2\" (t = video seconds)"; exit 2; }
 	python3 -I tools/skill-compare/scripts/pairs.py --case "$(CASE)" $(if $(SKILL),--skill "$(SKILL)") --out "build/pairs/$(CASE).png" $(AT)
 
-.PHONY: skill-lint-plan
-skill-lint-plan: ## Writes build/skill-lint/<skill>/plan.json (headless cast: body bones, weapon, visibleWeapons per tick): make skill-lint-plan SKILL=<skill-id>
-	@test -n "$(SKILL)" || { echo "usage: make skill-lint-plan SKILL=<skill-id>"; exit 2; }
-	./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q
-
 .PHONY: skill-lint
-skill-lint: ## Preflight of a VFX skill before any capture (workflow v4): held weapons = the case inventory, grip from the item data (one-handed weapons keep the left hand free), feet on floor, display budget, event-bound hits, inventory models exist and are shown, no capture-distance bake (exit 1 on FAIL); writes build/skill-lint/<skill>/report.json and publishes it to skill-compare (PUBLISH=0 skips): make skill-lint SKILL=<skill-id> [CASE=<case-id>] [PLAN=<plan.json>]
-	@test -n "$(SKILL)" || { echo "usage: make skill-lint SKILL=<skill-id> [CASE=<case-id>] [PLAN=<plan.json>]"; exit 2; }
-	@python3 tools/skill-lint/skill_lint.py "$(SKILL)" $(if $(CASE),--case "$(CASE)") $(if $(PLAN),--plan "$(PLAN)"); rc=$$?; \
-	  if [ "$(PUBLISH)" != "0" ]; then node tools/skill-compare/scripts/publish-lint.mjs "$(SKILL)" || echo "warn: lint publish to skill-compare failed"; fi; exit $$rc
+skill-lint: ## Structural lint of skill engine v2 skills (ADR-0299; exit 1 on FAIL): make skill-lint [ROOT=content/skills] [BALANCE=1]
+	./gradlew :tools:skill-lint:run --args="--root $(or $(ROOT),content/skills) $(if $(BALANCE),--balance)" -q
 
 .PHONY: particle-sim
 particle-sim: ## Run the real vanilla particle classes (local 26.3 client jar) for a skill's emissions -> build/skill-preview/<skill>/particles.json: make particle-sim SKILL=<skill-id> [REUSE=1 keeps plan.json] [SEED=<n>]

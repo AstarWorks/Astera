@@ -10,9 +10,8 @@ import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
-import com.astarworks.astera.core.domain.effect.vfx.SpriteGlyphs
-import com.astarworks.astera.core.domain.effect.vfx.SpriteId
-import com.astarworks.astera.core.domain.effect.vfx.VfxQuad
+import com.astarworks.astera.core.domain.sprite.SpriteGlyphs
+import com.astarworks.astera.core.domain.sprite.SpriteId
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
@@ -140,13 +139,13 @@ public class PaperSkillVisualGateway(
         when (val e = entries[handle.id]) {
             is MeshEntry -> {
                 e.rotation = pose.rotation
-                displays.teleport(e.handle, pose.origin, 0f, 0f, interpolationTicks)
+                displays.moveTo(e.handle, pose.origin, 0f, 0f, interpolationTicks)
                 displays.update(e.handle, DisplayTransform(Vec3.ZERO, pose.rotation, uniform(e.scale)), interpolationTicks)
             }
             is PlateEntry -> {
                 val placed = PlateOrientation.forPlate(pose, e.face, viewerEye(e.world, pose.origin))
                 e.rotation = placed.rotation
-                displays.teleport(e.handle, pose.origin, 0f, 0f, interpolationTicks)
+                displays.moveTo(e.handle, pose.origin, 0f, 0f, interpolationTicks)
                 displays.update(e.handle, plateTransform(placed.rotation, e.size), interpolationTicks)
             }
             else -> Unit
@@ -169,7 +168,7 @@ public class PaperSkillVisualGateway(
 
     override fun updateLine(handle: VisualHandle, from: Vec3, to: Vec3) {
         val e = entries[handle.id] as? LineEntry ?: return
-        displays.teleport(e.handle, (from + to) * 0.5, 0f, 0f, 1)
+        displays.moveTo(e.handle, (from + to) * 0.5, 0f, 0f, 1)
         displays.update(e.handle, lineTransform(from, to, e.thickness, e.face, e.world), 1)
     }
 
@@ -210,23 +209,23 @@ public class PaperSkillVisualGateway(
     // ---- geometry ----------------------------------------------------------------
 
     private fun plateTransform(rotation: com.astarworks.astera.core.domain.geometry.math.Quaternion, size: Double): DisplayTransform {
-        val s = size * VfxQuad.GLYPH_SCALE
-        val centre = Vec3(-VfxQuad.CENTER_X_PER_SCALE * s, -VfxQuad.CENTER_Y_PER_SCALE * s, 0.0)
+        val s = size * Quad.GLYPH_SCALE
+        val centre = Vec3(-Quad.CENTER_X_PER_SCALE * s, -Quad.CENTER_Y_PER_SCALE * s, 0.0)
         return DisplayTransform(rotation.rotate(centre), rotation, Vec3(s, s, 1.0))
     }
 
     private fun lineTransform(from: Vec3, to: Vec3, thickness: Double, face: PlateFace, world: World): DisplayTransform {
         val rotation = PlateOrientation.forLine(from, to, face, viewerEye(world, (from + to) * 0.5))
-        val sx = from.distance(to) * VfxQuad.SOLID_SCALE_X
-        val sy = thickness * VfxQuad.SOLID_SCALE_Y
-        val centre = Vec3(-VfxQuad.CENTER_X_PER_SCALE * sx, -VfxQuad.CENTER_Y_PER_SCALE * sy, 0.0)
+        val sx = from.distance(to) * Quad.SOLID_SCALE_X
+        val sy = thickness * Quad.SOLID_SCALE_Y
+        val centre = Vec3(-Quad.CENTER_X_PER_SCALE * sx, -Quad.CENTER_Y_PER_SCALE * sy, 0.0)
         return DisplayTransform(rotation.rotate(centre), rotation, Vec3(sx, sy, 1.0))
     }
 
     private fun spawnSegment(t: TrailEntry, s: RibbonMesh.Segment): UUID? {
-        val col0 = s.u * VfxQuad.SOLID_SCALE_X
-        val col1 = s.v * VfxQuad.SOLID_SCALE_Y
-        val shift = col0 * -VfxQuad.CENTER_X_PER_SCALE + col1 * -VfxQuad.CENTER_Y_PER_SCALE
+        val col0 = s.u * Quad.SOLID_SCALE_X
+        val col1 = s.v * Quad.SOLID_SCALE_Y
+        val shift = col0 * -Quad.CENTER_X_PER_SCALE + col1 * -Quad.CENTER_Y_PER_SCALE
         val matrix = Matrix4f(
             col0.x.toFloat(), col0.y.toFloat(), col0.z.toFloat(), 0f,
             col1.x.toFloat(), col1.y.toFloat(), col1.z.toFloat(), 0f,
@@ -252,9 +251,19 @@ public class PaperSkillVisualGateway(
 
     // ---- helpers -----------------------------------------------------------------
 
+    /** TextDisplay quad maths (MC 26.3 one-line text centre, calibrated against a real-client capture). */
+    private object Quad {
+        const val SOLID_SCALE_X: Double = 8.0
+        const val SOLID_SCALE_Y: Double = 4.0
+        const val GLYPH_SCALE: Double = 5.0
+        const val CENTER_X_PER_SCALE: Double = 0.0125
+        const val CENTER_Y_PER_SCALE: Double = 0.125
+        const val MIN_TEXT_OPACITY: Int = 4
+    }
+
     private fun uniform(scale: Double) = Vec3(scale, scale, scale)
 
-    private fun opacity(alpha: Double): Int = (alpha.coerceIn(0.0, 1.0) * 255.0).roundToInt().coerceAtLeast(VfxQuad.MIN_TEXT_OPACITY)
+    private fun opacity(alpha: Double): Int = (alpha.coerceIn(0.0, 1.0) * 255.0).roundToInt().coerceAtLeast(Quad.MIN_TEXT_OPACITY)
 
     /** `#rrggbb` or `#rrggbbaa` (alpha last) to ARGB; a malformed value is white. */
     private fun argb(hex: String): Int {

@@ -50,6 +50,10 @@ else
   skills=("${!seen[@]}")
 fi
 # only skills a skill-compare case plays
+# SKL-08 (ADR-0299): the v1 plan dump (SkillLintPlanDump / :tools:game-sim:skillLintPlan) was deleted with the old engine and the
+# v2 trace feed for skill-viewer is not wired yet, so no preview can be produced. Skip loudly instead of failing every push.
+log "preview-skip ${sha}: skill-preview pipeline disabled until the v2 trace feed lands (SKL-08)"
+exit 0
 cases=()
 for s in "${skills[@]}"; do
   [ -f "content/skills/$s.yaml" ] || continue

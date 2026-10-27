@@ -50,39 +50,10 @@ tasks.withType<Test>().configureEach {
     // The long annihilation pillar scenarios produce traces that do not fit the 512 MB default test heap.
     maxHeapSize = "2g"
 }
-
-// V-1 (ADR-0225): only the per-skill showcase traces, for :tools:skill-viewer. Not part of `check`
-// (the same scenarios also run in `test`).
-tasks.register<Test>("showcase") {
-    group = "verification"
-    description = "Writes build/sim-traces/showcase-<skill>.json for every skill in content/skills"
-    val testSet = sourceSets.test.get()
-    testClassesDirs = testSet.output.classesDirs
-    classpath = testSet.runtimeClasspath
-    useJUnitPlatform()
-    filter { includeTestsMatching("*SkillShowcaseScenarioTest") }
-}
-
-// ADR-0276: writes build/skill-lint/<skill>/plan.json for tools/skill-lint (a headless cast of the real skill; not a test).
-//   ./gradlew :tools:game-sim:skillLintPlan -Pskill=bastion-greatsword-s1      (or: make skill-lint-plan SKILL=...)
 // Warm path of scripts/skill-preview-auto.sh: prints the runtime classpath (Gradle compiles once per code change), so plan dumps
 // run as a bare `java -cp` with no Gradle startup per skill.
 tasks.register("previewClasspath") {
     val cp = sourceSets.main.get().runtimeClasspath
     dependsOn(cp)
     doLast { println(cp.files.joinToString(":") { it.absolutePath }) }
-}
-
-tasks.register<JavaExec>("skillLintPlan") {
-    group = "verification"
-    description = "Writes build/skill-lint/<skill>/plan.json (body bones, weapon, visibleWeapons per tick) for skill-lint"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.astarworks.astera.gamesim.SkillLintPlanDump")
-    systemProperty("astera.sim.contentDir", rootProject.file("content").absolutePath)
-    systemProperty("astera.sim.traceDir", layout.buildDirectory.dir("sim-traces").get().asFile.absolutePath)
-    val skill = providers.gradleProperty("skill")
-    doFirst {
-        require(skill.isPresent) { "pass -Pskill=<skill-id>" }
-        args(skill.get(), rootProject.layout.buildDirectory.dir("skill-lint").get().asFile.absolutePath)
-    }
 }

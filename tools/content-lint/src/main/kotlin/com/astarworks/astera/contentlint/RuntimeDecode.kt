@@ -51,7 +51,7 @@ import kotlin.io.path.isDirectory
  */
 internal object RuntimeDecode {
 
-    /** [alreadyLoaded]: categories [main] bootstrapped itself (skills need vfx + particles); reported here only. */
+    /** [alreadyLoaded]: categories [main] bootstrapped itself (particles); reported here only. */
     fun run(contentDir: Path, alreadyLoaded: List<Pair<String, ContentLoader.LoadReport>>): Int {
         val cases: List<Pair<String, (Path) -> ContentLoader.LoadReport>> = listOf(
             "chat" to { d ->

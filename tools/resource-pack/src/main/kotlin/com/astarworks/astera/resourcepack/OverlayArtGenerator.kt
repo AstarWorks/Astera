@@ -1,6 +1,6 @@
 package com.astarworks.astera.resourcepack
 
-import com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay
+import com.astarworks.astera.core.domain.effect.ScreenOverlay
 import com.fasterxml.jackson.core.util.DefaultIndenter
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
 import com.fasterxml.jackson.databind.json.JsonMapper

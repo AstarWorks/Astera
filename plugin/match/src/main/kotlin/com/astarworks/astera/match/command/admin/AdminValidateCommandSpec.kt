@@ -59,7 +59,6 @@ public class AdminValidateCommandSpec(
                 val line = when (issue) {
                     is ValidationIssue.UnknownSkillReference ->
                         "item ${issue.itemId.value} -> unknown skill ${issue.missingSkillId.value}"
-                    is ValidationIssue.UnsupportedContent -> "${issue.owner} -> ${issue.problem}"
                 }
                 log.warn("  {}", line)
                 ctx.reply(MessageKey("astera.command.reply.admin-validate-issue"), mapOf("issue" to line))

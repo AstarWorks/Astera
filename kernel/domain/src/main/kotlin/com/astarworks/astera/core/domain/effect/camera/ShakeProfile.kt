@@ -1,7 +1,5 @@
 package com.astarworks.astera.core.domain.effect.camera
 
-import com.astarworks.astera.core.domain.skill.mechanic.ShakeDirection
-import com.astarworks.astera.core.domain.skill.mechanic.ShakeShape
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -106,4 +104,30 @@ public object ShakeProfile {
 
     private const val EPS: Double = 1e-9
     private const val TICKS_PER_SECOND: Int = 20
+}
+
+/** Camera-shake envelope: `DECAY` rings out smoothly, `IMPULSE` is one sharp kick that settles. */
+public enum class ShakeShape(public val yamlName: String) {
+    DECAY("decay"),
+    IMPULSE("impulse"),
+    ;
+
+    public companion object {
+        public fun fromYaml(raw: String): ShakeShape =
+            entries.firstOrNull { it.yamlName.equals(raw.trim(), ignoreCase = true) }
+                ?: throw IllegalArgumentException("Unknown shake shape '$raw' (expected: ${entries.joinToString("/") { it.yamlName }})")
+    }
+}
+
+/** Direction of a camera shake: `NONE` = random jitter, `FROM_HIT` = kicked away from the hit source. */
+public enum class ShakeDirection(public val yamlName: String) {
+    NONE("none"),
+    FROM_HIT("from_hit"),
+    ;
+
+    public companion object {
+        public fun fromYaml(raw: String): ShakeDirection =
+            entries.firstOrNull { it.yamlName.equals(raw.trim(), ignoreCase = true) }
+                ?: throw IllegalArgumentException("Unknown shake direction '$raw' (expected: ${entries.joinToString("/") { it.yamlName }})")
+    }
 }

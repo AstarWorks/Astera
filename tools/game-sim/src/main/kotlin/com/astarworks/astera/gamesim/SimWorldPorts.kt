@@ -125,11 +125,6 @@ public class SimDisplayGateway(
     public val teleports: MutableList<Teleport> = mutableListOf()
     public val styles: MutableList<Style> = mutableListOf()
 
-    /** Audience an audience-scoped spawn was made with (displays spawned without one are absent = everyone). */
-    public data class Viewing(val audience: com.astarworks.astera.core.domain.effect.Audience, val caster: PlayerId?, val target: PlayerId?)
-
-    public val viewing: MutableMap<IDisplayEntityGateway.DisplayHandle, Viewing> = linkedMapOf()
-
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): IDisplayEntityGateway.DisplayHandle {
         val handle = IDisplayEntityGateway.DisplayHandle(UUID.randomUUID())
         spec.viewRange?.let { viewRanges[handle] = it }
@@ -173,39 +168,6 @@ public class SimDisplayGateway(
                 put("lifetime", spec.lifetimeTicks)
             },
         )
-        return handle
-    }
-
-    /** Players that could see a world display (the sim has no range; every online player is "near"). Wired by [GameSim]. */
-    public var nearbyPlayers: () -> Collection<com.astarworks.astera.core.domain.player.PlayerId> = { emptyList() }
-
-    /** Per-viewer `vfx_intensity`; absent = full. Scenarios set it, mirroring the player's settings. */
-    public val intensity: MutableMap<com.astarworks.astera.core.domain.player.PlayerId, com.astarworks.astera.core.domain.effect.vfx.VfxIntensity> = linkedMapOf()
-
-    /** Server-wide intensity floor (the display-budget downgrade). */
-    public var serverFloor: com.astarworks.astera.core.domain.effect.vfx.VfxIntensity = com.astarworks.astera.core.domain.effect.vfx.VfxIntensity.FULL
-
-    /** Who is shown each audience-scoped display, as the Paper gateway's show/hide would decide. */
-    public val viewers: MutableMap<IDisplayEntityGateway.DisplayHandle, Set<com.astarworks.astera.core.domain.player.PlayerId>> = linkedMapOf()
-
-    override fun spawn(
-        world: WorldId,
-        at: Vec3,
-        spec: DisplaySpec,
-        renderedLines: List<String>,
-        audience: com.astarworks.astera.core.domain.effect.Audience,
-        caster: com.astarworks.astera.core.domain.player.PlayerId?,
-        target: com.astarworks.astera.core.domain.player.PlayerId?,
-        lane: com.astarworks.astera.core.domain.effect.vfx.VfxLane,
-    ): IDisplayEntityGateway.DisplayHandle? {
-        val pool = com.astarworks.astera.core.domain.effect.AudienceResolver.displayPool(nearbyPlayers(), caster, target)
-        val selected = com.astarworks.astera.core.domain.effect.AudienceResolver.select(pool, audience, caster, target)
-        val shown = com.astarworks.astera.core.domain.effect.vfx.VfxQualityProfile.filterViewers(
-            selected, lane, { intensity[it] ?: com.astarworks.astera.core.domain.effect.vfx.VfxIntensity.FULL }, serverFloor,
-        )
-        val handle = spawn(world, at, spec, renderedLines)
-        viewers[handle] = shown
-        viewing[handle] = Viewing(audience, caster, target)
         return handle
     }
 
@@ -279,7 +241,7 @@ public class SimDisplayGateway(
         recorder.recordEffect(scheduler.currentTick(), "display_style", record.at, "${handle.id} bg=${Integer.toHexString(backgroundArgb)} opacity=$textOpacity")
     }
 
-    override fun teleport(handle: IDisplayEntityGateway.DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
+    override fun moveTo(handle: IDisplayEntityGateway.DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
         if (handle !in active) return
         teleports += Teleport(handle, scheduler.currentTick(), at, teleportTicks)
         recorder.recordEffect(scheduler.currentTick(), "display_teleport", at, "${handle.id} over=$teleportTicks")
