@@ -8,4 +8,16 @@ package com.astarworks.astera.core.domain.item
  * pure vocabulary; visual treatment (lore colour, glint default, drop chance
  * weighting) is decided downstream by renderers / loot tables.
  */
-public enum class Rarity { COMMON, UNCOMMON, RARE, EPIC, LEGENDARY }
+public enum class Rarity(
+    /**
+     * The one rarity colour table: the MiniMessage named colour (vanilla values) used for the item name, the header
+     * rarity word and the tooltip frame. Hex: white #FFFFFF, green #55FF55, aqua #55FFFF, light_purple #FF55FF, gold #FFAA00.
+     */
+    public val colourTag: String,
+) {
+    COMMON("white"),
+    UNCOMMON("green"),
+    RARE("aqua"),
+    EPIC("light_purple"),
+    LEGENDARY("gold"),
+}

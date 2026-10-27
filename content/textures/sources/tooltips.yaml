@@ -1,5 +1,5 @@
 # gen_sheet.py tools/item-art/sheets/tooltip-v1.yaml --prompt-only; generate that prompt with image_gen.
-# Colours come from astera.item.tooltip.rarity in languages/en.yaml, shared with lore.
+# Colours come from Rarity.colourTag (kernel domain), the same table the in-game tooltip uses.
 sources:
   tooltip-v1:
     file: sheets/tooltip-v1.png

@@ -1,7 +1,7 @@
 package com.astarworks.astera.itemart
 
 import com.astarworks.astera.core.domain.item.Rarity
-import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.format.NamedTextColor
 import org.yaml.snakeyaml.Yaml
 import java.awt.Color
 import java.awt.Font
@@ -10,7 +10,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import javax.imageio.ImageIO
 
-/** Nine-slice tooltip art from the generated sheet; colour is read from the shipped lore. */
+/** Nine-slice tooltip art from the generated sheet; colour is the in-game rarity colour (Rarity.colourTag). */
 internal object TooltipArt {
     private const val DIR = "textures/gui/sprites/tooltip"
     private const val SIZE = 64
@@ -18,18 +18,12 @@ internal object TooltipArt {
     private val metadata = """{"gui":{"scaling":{"type":"nine_slice","width":64,"height":64,"border":8,"stretch_inner":true}}}
 """.toByteArray()
 
-    private fun colours(content: Path): Map<String, Int> {
-        var node: Any? = Yaml().load<Any>(Files.readString(content.resolve("languages/en.yaml")))
-        for (key in listOf("astera", "item", "tooltip", "rarity")) node = (node as Map<*, *>)[key]
-        return Rarity.entries.associate { rarity ->
-            val id = rarity.name.lowercase()
-            val text = MiniMessage.miniMessage().deserialize(requireNotNull((node as Map<*, *>)[id]).toString())
-            val colour = requireNotNull(text.color() ?: text.children().firstNotNullOfOrNull { it.color() }) {
-                "rarity $id needs a lore colour"
-            }
-            id to colour.value()
+    /** Frame colour per rarity: the same named colour the in-game tooltip uses ([Rarity.colourTag]). */
+    private fun colours(@Suppress("UNUSED_PARAMETER") content: Path): Map<String, Int> =
+        Rarity.entries.associate { rarity ->
+            val colour = requireNotNull(NamedTextColor.NAMES.value(rarity.colourTag)) { "rarity ${rarity.name} has no named colour ${rarity.colourTag}" }
+            rarity.name.lowercase() to colour.value()
         }
-    }
 
     fun renderAll(content: Path): Map<String, ByteArray> {
         val manifest = "textures/sources/tooltips.yaml"

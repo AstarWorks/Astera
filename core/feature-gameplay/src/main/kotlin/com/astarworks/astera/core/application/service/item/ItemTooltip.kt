@@ -169,16 +169,7 @@ public class ItemTooltip(
         private val HEADER = MessageKey("astera.item.tooltip.header")
         private val EGO_NOTE = MessageKey("astera.skillbrief.ego_note")
 
-        /**
-         * The one rarity colour table (MiniMessage named colours, vanilla values): name, header rarity word and
-         * the tooltip frame accent. Hex: white #FFFFFF, green #55FF55, aqua #55FFFF, light_purple #FF55FF, gold #FFAA00.
-         */
-        public fun rarityTag(rarity: Rarity): String = when (rarity) {
-            Rarity.COMMON -> "white"
-            Rarity.UNCOMMON -> "green"
-            Rarity.RARE -> "aqua"
-            Rarity.EPIC -> "light_purple"
-            Rarity.LEGENDARY -> "gold"
-        }
+        /** The rarity colour tag, from the single table on [Rarity.colourTag]. */
+        public fun rarityTag(rarity: Rarity): String = rarity.colourTag
     }
 }
