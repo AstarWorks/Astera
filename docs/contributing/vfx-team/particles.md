@@ -10,6 +10,10 @@ Founder 2026-10-24: "Display builds the VFX core; particles reinforce it for pol
 
 Consequences: the core always comes from `vfx-artist`; particles are attached to a core element and never substitute for it; vanilla first; the custom-particle foundation is a long-running goal tracked below.
 
+Founder 2026-10-27: 「パーティクルは多分Limbusのほうに似せずに、LLM側のセンスでここにこういうパーティクルをこの速度で散らすのが見栄えが良くなるだろうみたいな、Limbus参考なしでコンセプトから自ら考えたほうが良いものができる。あとはアニメーションや武器の先端等に連動させて行う程度で」.
+
+Consequences: the reference governs pose, timing, camera and the large forms only. Particles are free design from the skill concept: choose the type, emission point, count, speed, spread, lifetime and colour for good looks in Minecraft, without copying Limbus frames. Anchor them to the animation and the weapon: blade tip / edge trail along the rig path, the contact point, the dash vector, the landing. The round note's "Medium" section carries a `particle concept:` line per beat (intent, anchor, params; gate-checked, [round-template.md](round-template.md)); the reviewer judges whether they look good and read as motion-linked, never resemblance to the reference.
+
 ## Vanilla particle catalog
 
 Only facts verified from repo docs or earlier runs are filled in. `?` = unknown, to be filled by a measured capture (note date and case when you do). "Server-controllable" = what `content/particles/*.yaml` can drive (`data`, `velocity`, `speed`, `size`, `shape`).

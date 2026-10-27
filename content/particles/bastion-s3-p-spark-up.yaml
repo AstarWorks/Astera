@@ -1,9 +1,0 @@
-# S3 floor spark: orange crit flecks kicked up off the floor where the blade tip scrapes (reads as hot metal sparks).
-id: bastion-s3-p-spark-up
-shape: { kind: burst, spread_blocks: 0.06 }
-color: { r: 255, g: 255, b: 255 }
-count: 3
-lifetime_ticks: 7
-vanilla_particle: crit
-velocity: { direction: up, speed: 0.3, spread_degrees: 55, speed_jitter: 0.5 }
-force: true

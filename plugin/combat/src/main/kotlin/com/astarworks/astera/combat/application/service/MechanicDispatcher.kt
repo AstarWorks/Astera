@@ -944,10 +944,13 @@ public class MechanicDispatcher(
 
             is Mechanic.ForEachTarget -> {
                 val targets = living(targeterResolver.resolvePlayers(mechanic.targets, ctx)).distinct()
+                var bound = 0
                 for (target in targets) {
                     val targetPose = poseLookup?.poseOf(target) ?: continue
+                    bound++
                     dispatch(mechanic.mechanics, ctx.copy(targetId = target, boundTargetWorld = targetPose.world, boundTargetOrigin = targetPose.position, boundTargetState = BoundTargetState()))
                 }
+                if (bound == 0 && mechanic.ifEmpty.isNotEmpty()) dispatch(mechanic.ifEmpty, ctx)
             }
 
             is Mechanic.IfThen -> {

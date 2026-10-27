@@ -92,7 +92,7 @@ class PerformanceScenarioTest {
     }
 
     @Test
-    fun `the ghost body afterimage shows six decorative bones on skill ticks 63 to 70 and never takes the lease`() {
+    fun `the ghost body afterimage shows six decorative bones on skill ticks 63 to 74 and never takes the lease`() {
         scenario("performance-ghost-body") {
             val caster = player("caster", team = "red")
             val probe = PerformanceProbe(sim, caster)
@@ -101,7 +101,7 @@ class PerformanceScenarioTest {
             fun ghosts() = sim.displays.active.values.filter { (it.spec.kind as? DisplayKind.SkinBone)?.ghost == true }
             repeat(80) {
                 val skillTick = sim.tick - castTick
-                val expected = if (skillTick in 63..69) 6 else 0
+                val expected = if (skillTick in 63..74) 6 else 0
                 assertThat(ghosts()).describedAs("ghost bones at skill tick $skillTick").hasSize(expected)
                 // the afterimage never adds a weapon, never changes who holds the lease
                 assertOneWeapon(probe, "skill tick $skillTick")

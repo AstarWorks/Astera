@@ -89,6 +89,7 @@ process() { # sha [base]
   fi
   [ -n "$base" ] || base="$(cat "$FSTATE/done-sha" 2>/dev/null)"
   skills="$(python3 -I "$HERE/changed-skills.py" --root "$FARM_ROOT" "$base" "$sha")" || { flog "changed-skills failed ($base..$sha)"; return 1; }
+  [ -z "${FARM_ONLY_SKILL:-}" ] || skills="$FARM_ONLY_SKILL"   # one-off: film this skill regardless of the diff (`once` only)
   skills="$(printf '%s\n' "$skills" | sed '/^$/d' | head -n "$MAX_SKILLS")"
   flog "deployed ${sha:0:8} (log $deploy_ts) base=${base:0:8} skills: $(echo $skills)"
   if [ -n "$skills" ]; then

@@ -591,6 +591,7 @@ public data class VfxGhostBodyYaml(
     @SerialName("delay_ticks") public val delayTicks: Int = 0,
     @SerialName("start_tick") public val startTick: Int = 0,
     @SerialName("end_tick") public val endTick: Int? = null,
+    public val scale: Double = 1.0,
 ) {
     public fun toDomain(): VfxGhostBody = VfxGhostBody(
         id = id,
@@ -601,6 +602,7 @@ public data class VfxGhostBodyYaml(
         delayTicks = delayTicks,
         startTick = startTick,
         endTick = endTick,
+        scale = scale,
     )
 }
 
