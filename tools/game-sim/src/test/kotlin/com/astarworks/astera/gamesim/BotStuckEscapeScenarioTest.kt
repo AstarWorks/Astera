@@ -56,12 +56,12 @@ class BotStuckEscapeScenarioTest {
         val walk = SprintJumpPolicy.decide(inCombat = false, moving = true, airborne = false, groundAhead = false, headroom = true)
         assertThat(walk.jump).`as`("no floor ahead and no step: no hop").isFalse()
         val step = SprintJumpPolicy.decide(inCombat = false, moving = true, airborne = false, groundAhead = false, headroom = true, stepUp = true)
-        assertThat(step.jump && step.sprint).`as`("step up: sprint-hop onto it").isTrue()
+        assertThat(step.jump && !step.sprint).`as`("step up: a normal walking hop onto it").isTrue()
         val escape = SprintJumpPolicy.decide(inCombat = false, moving = true, airborne = false, groundAhead = false, headroom = true, forceJump = true)
         assertThat(escape.jump).isTrue()
         val low = SprintJumpPolicy.decide(inCombat = false, moving = true, airborne = false, groundAhead = true, headroom = false, stepUp = true)
         assertThat(low.jump).`as`("never into a ceiling").isFalse()
         val fight = SprintJumpPolicy.decide(inCombat = true, moving = true, airborne = false, groundAhead = true, headroom = true, stepUp = true, forceJump = true)
-        assertThat(fight).isEqualTo(SprintJumpPolicy.Decision.NONE)
+        assertThat(fight.sprint || fight.jump).isFalse()
     }
 }

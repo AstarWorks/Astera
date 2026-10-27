@@ -53,7 +53,12 @@ object SprintJumpPolicy {
         distance: Double = 0.0, dashing: Boolean = false, walkSpeed: Double = WALK_SPEED,
     ): Decision {
         if (inCombat || !moving) return Decision(false, false, walkSpeed)
-        return Decision(sprint = true, jump = !airborne && headroom && (groundAhead || stepUp || forceJump), speed = walkSpeed)
+        if (airborne) return if (dashing) Decision(true, false, DASH_JUMP_SPEED) else Decision(false, false, walkSpeed)
+        if (distance >= DASH_MIN_DISTANCE) {
+            val jump = headroom && groundAhead
+            return Decision(sprint = true, jump = jump, speed = if (jump) DASH_JUMP_SPEED else SPRINT_SPEED)
+        }
+        return Decision(sprint = false, jump = headroom && (stepUp || forceJump), speed = walkSpeed)
     }
 
     /** Height above the floor for each tick of a vanilla jump (initial velocity 0.42, gravity 0.08, drag 0.98); ends with 0.0 (landed). */
