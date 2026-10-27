@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0294: Ampersand-only chat decoration controlled by rank
+# ADR-0299: Ampersand-only chat decoration controlled by rank
 
 ## Context
 
