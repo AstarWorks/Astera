@@ -8,7 +8,7 @@ follow: true
 sample_ticks: 1
 elements:
 - id: shears
-  kind: {type: item, item: shears, item_model: astera:couture-rapier, display_mode: fixed}
+  kind: {type: item, item: shears, item_model: astera:couture-rapier-thrown-flight, display_mode: fixed}
   brightness: 15
   start_tick: 0
   end_tick: 40
