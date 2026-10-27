@@ -6,26 +6,18 @@
   "soundKind": "vanilla tuned",
   "reviewer": {
     "verdict": "fail",
-    "head": "fbb9f7920",
-    "rows": {
-      "identity": "o",
-      "motion": "x (animation)",
-      "shape_texture": "x (texture/particles)",
-      "timing": "x (integration: coin2 burst 1 tick late, no streaks at t41, no X at t46)",
-      "hit": "x coin3 / o coin1",
-      "one_weapon": "o t24, x t46-60 (linked shears + shadow missing)",
-      "coin3_turn": "x (animation)",
-      "remote_lock": "o"
-    },
+    "round": "r2",
+    "head": "40a0dcb5e",
+    "note": "capture contentDirty (reviewed b1807a604+dirty)",
     "diffs": [
-      "particles: coin3 smear = hard white bars covering view; need soft pink-white streaks 2 ticks then X + yellow ring",
-      "texture: crescent flat opaque, no glow/erosion t11-16",
-      "particles: t24-33 big glowing crescent loop + two mirrored disc loops missing",
-      "integration: coin2 converging streaks at t41, star to X by t46",
-      "animation: poses t16 stand, t60 arm raised, t64-71 low back-turned",
-      "particles: orange spark trail lingers at t16",
-      "model/particles: dark linked shears + black jagged shadow at t52-60",
-      "particles: purple haze t3/t64-68"
+      "P0 t22 two weapons (animation/model)",
+      "P0 overhead loops thin slivers, white blades 1px lines (texture/particles)",
+      "P0 coin2 t41 burst missing, rays overshoot, no X by t46 (particles/integration)",
+      "P1 shadow straight bar not jagged, ends t64 (model/particles)",
+      "P1 linked shears tiny, line only t60 (model/particles)",
+      "P1 dash smear still bars at t72 in dirty capture (particles)",
+      "P1 back-turned ghost fan t64-71 (animation/particles)",
+      "P2 purple haze t2-5, orange trail t16-24, crescent 1-2 ticks early"
     ]
   }
 }
