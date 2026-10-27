@@ -389,7 +389,7 @@ elements:
 - id: loop-a
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-overhead-slash
     frame_ticks: 1
     loop: false
     see_through: true
@@ -408,8 +408,8 @@ elements:
     - 0
     - 0
     scale:
-    - 0.48400000000000004
-    - 0.75
+    - 0.4000
+    - 0.4000
     - 1
   - t: 1
     translate:
@@ -421,8 +421,8 @@ elements:
     - 0
     - -60
     scale:
-    - 0.47727777777777786
-    - 0.75
+    - 0.3983
+    - 0.3983
     - 1
   - t: 2
     translate:
@@ -434,8 +434,8 @@ elements:
     - 0
     - -120
     scale:
-    - 0.45711111111111113
-    - 0.75
+    - 0.3933
+    - 0.3933
     - 1
   - t: 3
     translate:
@@ -447,8 +447,8 @@ elements:
     - 0
     - -180
     scale:
-    - 0.42350000000000004
-    - 0.75
+    - 0.3850
+    - 0.3850
     - 1
   - t: 4
     translate:
@@ -460,8 +460,8 @@ elements:
     - 0
     - -240
     scale:
-    - 0.37644444444444447
-    - 0.75
+    - 0.3734
+    - 0.3734
     - 1
   - t: 5
     translate:
@@ -473,8 +473,8 @@ elements:
     - 0
     - -300
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
   - t: 6
     translate:
@@ -486,13 +486,13 @@ elements:
     - 0
     - -360
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
 - id: loop-a-m
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-overhead-slash
     frame_ticks: 1
     loop: false
     see_through: true
@@ -511,8 +511,8 @@ elements:
     - 0
     - 0
     scale:
-    - 0.48400000000000004
-    - 0.75
+    - 0.4000
+    - 0.4000
     - 1
   - t: 1
     translate:
@@ -524,8 +524,8 @@ elements:
     - 0
     - 60
     scale:
-    - 0.47727777777777786
-    - 0.75
+    - 0.3983
+    - 0.3983
     - 1
   - t: 2
     translate:
@@ -537,8 +537,8 @@ elements:
     - 0
     - 120
     scale:
-    - 0.45711111111111113
-    - 0.75
+    - 0.3933
+    - 0.3933
     - 1
   - t: 3
     translate:
@@ -550,8 +550,8 @@ elements:
     - 0
     - 180
     scale:
-    - 0.42350000000000004
-    - 0.75
+    - 0.3850
+    - 0.3850
     - 1
   - t: 4
     translate:
@@ -563,8 +563,8 @@ elements:
     - 0
     - 240
     scale:
-    - 0.37644444444444447
-    - 0.75
+    - 0.3734
+    - 0.3734
     - 1
   - t: 5
     translate:
@@ -576,8 +576,8 @@ elements:
     - 0
     - 300
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
   - t: 6
     translate:
@@ -589,13 +589,13 @@ elements:
     - 0
     - 360
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
 - id: loop-b
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-overhead-slash
     frame_ticks: 1
     loop: false
     see_through: true
@@ -614,8 +614,8 @@ elements:
     - 0
     - 180
     scale:
-    - 0.396
-    - 0.75
+    - 0.3782
+    - 0.3782
     - 1
   - t: 1
     translate:
@@ -627,8 +627,8 @@ elements:
     - 0
     - 120
     scale:
-    - 0.38362500000000005
-    - 0.75
+    - 0.3751
+    - 0.3751
     - 1
   - t: 2
     translate:
@@ -640,8 +640,8 @@ elements:
     - 0
     - 60
     scale:
-    - 0.34650000000000003
-    - 0.75
+    - 0.3659
+    - 0.3659
     - 1
   - t: 3
     translate:
@@ -653,8 +653,8 @@ elements:
     - 0
     - 0
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
   - t: 4
     translate:
@@ -666,13 +666,13 @@ elements:
     - 0
     - -60
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
 - id: loop-b-m
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-overhead-slash
     frame_ticks: 1
     loop: false
     see_through: true
@@ -691,8 +691,8 @@ elements:
     - 0
     - -180
     scale:
-    - 0.396
-    - 0.75
+    - 0.3782
+    - 0.3782
     - 1
   - t: 1
     translate:
@@ -704,8 +704,8 @@ elements:
     - 0
     - -120
     scale:
-    - 0.38362500000000005
-    - 0.75
+    - 0.3751
+    - 0.3751
     - 1
   - t: 2
     translate:
@@ -717,8 +717,8 @@ elements:
     - 0
     - -60
     scale:
-    - 0.34650000000000003
-    - 0.75
+    - 0.3659
+    - 0.3659
     - 1
   - t: 3
     translate:
@@ -730,8 +730,8 @@ elements:
     - 0
     - 0
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
   - t: 4
     translate:
@@ -743,13 +743,13 @@ elements:
     - 0
     - 60
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
 - id: loop-c
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-overhead-slash
     frame_ticks: 1
     loop: false
     see_through: true
@@ -768,8 +768,8 @@ elements:
     - 0
     - 0
     scale:
-    - 0.44000000000000006
-    - 0.75
+    - 0.3891
+    - 0.3891
     - 1
   - t: 1
     translate:
@@ -781,8 +781,8 @@ elements:
     - 0
     - -60
     scale:
-    - 0.4312
-    - 0.75
+    - 0.3869
+    - 0.3869
     - 1
   - t: 2
     translate:
@@ -794,8 +794,8 @@ elements:
     - 0
     - -120
     scale:
-    - 0.40480000000000005
-    - 0.75
+    - 0.3804
+    - 0.3804
     - 1
   - t: 3
     translate:
@@ -807,8 +807,8 @@ elements:
     - 0
     - -180
     scale:
-    - 0.3608000000000001
-    - 0.75
+    - 0.3695
+    - 0.3695
     - 1
   - t: 4
     translate:
@@ -820,8 +820,8 @@ elements:
     - 0
     - -240
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
   - t: 5
     translate:
@@ -833,13 +833,13 @@ elements:
     - 0
     - -300
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
 - id: loop-c-m
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-overhead-slash
     frame_ticks: 1
     loop: false
     see_through: true
@@ -858,8 +858,8 @@ elements:
     - 0
     - 0
     scale:
-    - 0.44000000000000006
-    - 0.75
+    - 0.3891
+    - 0.3891
     - 1
   - t: 1
     translate:
@@ -871,8 +871,8 @@ elements:
     - 0
     - 60
     scale:
-    - 0.4312
-    - 0.75
+    - 0.3869
+    - 0.3869
     - 1
   - t: 2
     translate:
@@ -884,8 +884,8 @@ elements:
     - 0
     - 120
     scale:
-    - 0.40480000000000005
-    - 0.75
+    - 0.3804
+    - 0.3804
     - 1
   - t: 3
     translate:
@@ -897,8 +897,8 @@ elements:
     - 0
     - 180
     scale:
-    - 0.3608000000000001
-    - 0.75
+    - 0.3695
+    - 0.3695
     - 1
   - t: 4
     translate:
@@ -910,8 +910,8 @@ elements:
     - 0
     - 240
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
   - t: 5
     translate:
@@ -923,13 +923,13 @@ elements:
     - 0
     - 300
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
 - id: loop-d
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-overhead-slash
     frame_ticks: 1
     loop: false
     see_through: true
@@ -948,8 +948,8 @@ elements:
     - 0
     - 180
     scale:
-    - 0.44000000000000006
-    - 0.75
+    - 0.3891
+    - 0.3891
     - 1
   - t: 1
     translate:
@@ -961,8 +961,8 @@ elements:
     - 0
     - 240
     scale:
-    - 0.4312
-    - 0.75
+    - 0.3869
+    - 0.3869
     - 1
   - t: 2
     translate:
@@ -974,8 +974,8 @@ elements:
     - 0
     - 300
     scale:
-    - 0.40480000000000005
-    - 0.75
+    - 0.3804
+    - 0.3804
     - 1
   - t: 3
     translate:
@@ -987,8 +987,8 @@ elements:
     - 0
     - 360
     scale:
-    - 0.3608000000000001
-    - 0.75
+    - 0.3695
+    - 0.3695
     - 1
   - t: 4
     translate:
@@ -1000,8 +1000,8 @@ elements:
     - 0
     - 420
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
   - t: 5
     translate:
@@ -1013,13 +1013,13 @@ elements:
     - 0
     - 480
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
 - id: loop-d-m
   kind:
     type: sprite
-    sprite: couture-s2-crescent
+    sprite: couture-s2-overhead-slash
     frame_ticks: 1
     loop: false
     see_through: true
@@ -1038,8 +1038,8 @@ elements:
     - 0
     - -180
     scale:
-    - 0.44000000000000006
-    - 0.75
+    - 0.3891
+    - 0.3891
     - 1
   - t: 1
     translate:
@@ -1051,8 +1051,8 @@ elements:
     - 0
     - -240
     scale:
-    - 0.4312
-    - 0.75
+    - 0.3869
+    - 0.3869
     - 1
   - t: 2
     translate:
@@ -1064,8 +1064,8 @@ elements:
     - 0
     - -300
     scale:
-    - 0.40480000000000005
-    - 0.75
+    - 0.3804
+    - 0.3804
     - 1
   - t: 3
     translate:
@@ -1077,8 +1077,8 @@ elements:
     - 0
     - -360
     scale:
-    - 0.3608000000000001
-    - 0.75
+    - 0.3695
+    - 0.3695
     - 1
   - t: 4
     translate:
@@ -1090,8 +1090,8 @@ elements:
     - 0
     - -420
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
   - t: 5
     translate:
@@ -1103,8 +1103,8 @@ elements:
     - 0
     - -480
     scale:
-    - 0.34
-    - 0.75
+    - 0.3643
+    - 0.3643
     - 1
 - id: linked-shears
   kind:

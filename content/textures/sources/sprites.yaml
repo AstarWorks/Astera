@@ -10,6 +10,7 @@ sources:
   vfx-v1: { file: sheets/vfx-v1.png, grid: [6, 6] }
   bastion-s1-crescent: { file: images/bastion-s1-crescent.png }
   couture-s2-crescent: { file: images/couture-s2-crescent.png }
+  couture-s2-overhead-slash: { file: images/couture-s2-overhead-slash.png }
   couture-s2-feather: { file: images/couture-s2-feather.png }
   couture-s2-feather-warm: { file: images/couture-s2-feather-warm.png }
   couture-s2-smear: { file: images/couture-s2-smear.png }
@@ -81,6 +82,7 @@ sprites:
   glint: { draw: glint, frames: 6, color: "#e8f6ff" }
   slash: { draw: slash, frames: 6, color: "#d8e4ff" }
   couture-s2-crescent: { from: couture-s2-crescent, raw: true, frames: 1, size: 256 }
+  couture-s2-overhead-slash: { from: couture-s2-overhead-slash, raw: true, frames: 1, size: 256 }
   couture-s2-feather: { from: couture-s2-feather, raw: true, frames: 1, size: 256 }
   couture-s2-feather-warm: { from: couture-s2-feather-warm, raw: true, frames: 1, size: 256 }
   couture-s2-smear: { from: couture-s2-smear, raw: true, frames: 1, size: 256 }
