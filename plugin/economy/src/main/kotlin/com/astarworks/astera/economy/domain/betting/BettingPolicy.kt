@@ -24,7 +24,7 @@ import kotlin.time.Duration.Companion.seconds
  * | [acceptanceTimeout]         | 10 min          | 申請 timeout (ADR-0103 §"Workflow" step 2)                  |
  * | [lossStreakLimit]           | 5                | 連敗時の auto-disable 閾値                                  |
  * | [lossStreakCooldown]        | 24 h             | 連敗時の disable 期間                                       |
- * | [allowedCurrencies]         | GOLD            | GEM (paid premium) は domain で hard-rejected                |
+ * | [allowedCurrencies]         | GOLD            | (GOLD のみ)                                                  |
  * | [payoutSplit]               | 1.0 (winner all) | Phase 1: house cut なし。Phase 4 で tunable に               |
  *
  * `payoutSplit < 1.0` means a fraction goes to the server vault (Phase 4 hook;
@@ -61,10 +61,6 @@ public data class BettingPolicy(
         require(lossStreakLimit > 0) { "lossStreakLimit must be > 0, got $lossStreakLimit" }
         require(lossStreakCooldown >= Duration.ZERO) { "lossStreakCooldown must be >= 0" }
         require(allowedCurrencies.isNotEmpty()) { "allowedCurrencies must not be empty" }
-        require(Currency.GEM !in allowedCurrencies) {
-            "Currency.GEM is not eligible for betting (paid premium currency, " +
-                "ADR-0103 / ADR-0035 JP compliance)"
-        }
         require(payoutSplit > 0.0 && payoutSplit <= 1.0) {
             "payoutSplit must be in (0.0, 1.0], got $payoutSplit"
         }

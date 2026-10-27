@@ -1,0 +1,571 @@
+{
+  "credit": "Astera / Codex (gpt-6.1-sol)",
+  "textures": {
+    "clay": "minecraft:block/white_concrete",
+    "material_iron_block": "minecraft:block/iron_block",
+    "material_gold_block": "minecraft:block/gold_block",
+    "material_white_wool": "minecraft:block/white_wool"
+  },
+  "elements": [
+    {
+      "name": "grip",
+      "from": [
+        7.0,
+        4.0,
+        7.0
+      ],
+      "to": [
+        9.0,
+        10.0,
+        9.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_white_wool",
+          "uv": [
+            6,
+            0,
+            8.0,
+            6.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#material_white_wool",
+          "uv": [
+            1,
+            8,
+            3.0,
+            14.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#material_white_wool",
+          "uv": [
+            6,
+            0,
+            8.0,
+            6.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#material_white_wool",
+          "uv": [
+            5,
+            1,
+            7.0,
+            7.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "pommel",
+      "from": [
+        6.8,
+        3.0,
+        6.8
+      ],
+      "to": [
+        9.2,
+        4.5,
+        9.2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            1,
+            13,
+            3.3999999999999995,
+            14.5
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            5,
+            7,
+            7.3999999999999995,
+            8.5
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            1,
+            7,
+            3.3999999999999995,
+            8.5
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            3,
+            3,
+            5.3999999999999995,
+            4.5
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            8,
+            10,
+            10.399999999999999,
+            12.399999999999999
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            0,
+            6,
+            2.3999999999999995,
+            8.399999999999999
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "guard",
+      "from": [
+        3.5,
+        10.0,
+        6.8
+      ],
+      "to": [
+        12.5,
+        11.2,
+        9.2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_gold_block",
+          "uv": [
+            4,
+            7,
+            13.0,
+            8.2
+          ],
+          "rotation": 0
+        },
+        "south": {
+          "texture": "#material_gold_block",
+          "uv": [
+            3,
+            2,
+            12.0,
+            3.1999999999999993
+          ],
+          "rotation": 0
+        },
+        "east": {
+          "texture": "#material_gold_block",
+          "uv": [
+            6,
+            7,
+            8.399999999999999,
+            8.2
+          ],
+          "rotation": 0
+        },
+        "west": {
+          "texture": "#material_gold_block",
+          "uv": [
+            7,
+            3,
+            9.399999999999999,
+            4.199999999999999
+          ],
+          "rotation": 0
+        },
+        "up": {
+          "texture": "#material_gold_block",
+          "uv": [
+            2,
+            8,
+            11.0,
+            10.399999999999999
+          ],
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#material_gold_block",
+          "uv": [
+            0,
+            4,
+            9.0,
+            6.3999999999999995
+          ],
+          "rotation": 0
+        }
+      }
+    },
+    {
+      "name": "blade",
+      "from": [
+        6.5,
+        11.2,
+        7.35
+      ],
+      "to": [
+        9.5,
+        24.0,
+        8.65
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            9,
+            3,
+            12.0,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            0,
+            3,
+            3.0,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            8,
+            3,
+            9.3,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            3,
+            11.3,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            7,
+            13,
+            10.0,
+            14.3
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "point",
+      "from": [
+        7.5,
+        24.0,
+        7.45
+      ],
+      "to": [
+        8.5,
+        26.0,
+        8.55
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            7,
+            1,
+            8.0,
+            3.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            3,
+            7,
+            4.0,
+            9.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            12,
+            2,
+            13.100000000000001,
+            4.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            12,
+            14,
+            13.100000000000001,
+            16.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            11,
+            2,
+            12.0,
+            3.1000000000000005
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "ridge",
+      "from": [
+        7.65,
+        11.2,
+        7.15
+      ],
+      "to": [
+        8.35,
+        23.0,
+        8.85
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            11,
+            2,
+            11.7,
+            13.8
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            15,
+            1,
+            15.7,
+            12.8
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            2,
+            4,
+            3.6999999999999993,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            3,
+            4,
+            4.699999999999999,
+            15.8
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            9,
+            10.7,
+            10.7
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    },
+    {
+      "name": "tapered shoulder",
+      "from": [
+        7.0,
+        23.0,
+        7.4
+      ],
+      "to": [
+        9.0,
+        24.0,
+        8.6
+      ],
+      "faces": {}
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        10,
+        -15,
+        -35
+      ],
+      "translation": [
+        -1.8789,
+        -2.6484,
+        -0.9782
+      ],
+      "scale": [
+        0.5217391304347826,
+        0.5217391304347826,
+        0.5217391304347826
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -35,
+        12
+      ],
+      "translation": [
+        0,
+        0,
+        -3.2
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -35,
+        12
+      ],
+      "translation": [
+        0,
+        0,
+        -3.2
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        35,
+        -90,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        35,
+        -90,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "ground": {
+      "rotation": [
+        75,
+        0,
+        -90
+      ],
+      "translation": [
+        -2.2609,
+        2.5,
+        -0.0
+      ],
+      "scale": [
+        0.34782608695652173,
+        0.34782608695652173,
+        0.34782608695652173
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        -35
+      ],
+      "translation": [
+        2.4315,
+        -3.4725,
+        0.0
+      ],
+      "scale": [
+        0.6521739130434783,
+        0.6521739130434783,
+        0.6521739130434783
+      ]
+    }
+  },
+  "astera_tints": [
+    12372944,
+    15594997,
+    4608862,
+    6439471
+  ]
+}

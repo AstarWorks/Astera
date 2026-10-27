@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-charge
+material: GLOWSTONE_DUST
+name:
+  ja: "<yellow>チャージ</yellow>"
+  en: "<yellow>Charge</yellow>"

@@ -14,6 +14,11 @@ class ShopPurchaseE2eTest : E2eBase() {
 
     private val suite = "Shop purchase"
 
+    private companion object {
+        /** content/balance/starter-grant.yaml wallet_grants.GOLD (ECO-11). */
+        const val STARTER_GOLD = 150L
+    }
+
     private fun openShop(b: Bot): ScreenView {
         Thread.sleep(1_100) // vanilla chat spam kick pacing
         val before = b.screens.size
@@ -42,11 +47,12 @@ class ShopPurchaseE2eTest : E2eBase() {
         Regex("GOLD:\\s*(\\d+)").find(plain(listOf(rcon("astera economy balance gold ${b.name}"))).first())?.groupValues?.get(1)?.toLong() ?: -1L
 
     /**
-     * The daily login bonus (10 GOLD, ClaimLoginBonusOnJoinListener) lands ~5 s after the join. Wait for it, then grant [amount]
-     * and return the wallet the player held before the grant, so the checks do not race the bonus.
+     * A first-time player holds the starter GOLD (STARTER_GOLD, content/balance/starter-grant.yaml) at once; the daily login bonus
+     * (10 GOLD, ClaimLoginBonusOnJoinListener) lands ~5 s after the join. Wait for both, then grant [amount] and return the wallet
+     * the player held before the grant, so the checks do not race the bonus.
      */
     private fun fund(b: Bot, amount: Long): Long {
-        check(b.waitUntil(15_000) { gold(b) >= 10L }) { "the daily login bonus never reached ${b.name}'s wallet" }
+        check(b.waitUntil(15_000) { gold(b) >= STARTER_GOLD + 10L }) { "the starter GOLD and login bonus never reached ${b.name}'s wallet (gold=${gold(b)})" }
         val base = gold(b)
         rcon("astera economy grant ${b.name} GOLD $amount")
         b.waitUntil(3_000) { gold(b) == base + amount }
@@ -57,12 +63,37 @@ class ShopPurchaseE2eTest : E2eBase() {
         listOf("container.*", "hotbar.*").any { rcon("execute if items entity ${b.name} $it minecraft:blaze_rod").contains("passed") }
 
     @Test
+    fun `a brand-new player buys the recommended first offer with the starter GOLD alone`() {
+        val b = bot("Newbie")
+        E2eReport.check(suite, "ECO-11: a fresh player holds the starter GOLD, enough for the 150 GOLD recommended staff, without any grant", "RCON balance") {
+            assertThat(b.waitUntil(15_000) { gold(b) >= STARTER_GOLD }).describedAs("starter GOLD missing, gold=${gold(b)}").isTrue()
+            "gold=${gold(b)}"
+        }
+        val s = openShop(b)
+        val staffSlot = slotWithLore(b, s, "Recommended first buy")
+        // the login bonus may land meanwhile: only the delta of the purchase is asserted
+        val before = gold(b)
+        E2eReport.check(suite, "ECO-11: two clicks on the recommended staff pay 150 GOLD from the starter money and deliver it", "SystemChat + RCON balance + inventory") {
+            val chatFrom = b.chat.size
+            click(b, s, staffSlot)
+            Thread.sleep(600)
+            click(b, s, staffSlot)
+            val lines = plain(b.chatSince(chatFrom))
+            assertThat(lines.any { it.contains("Purchased") }).describedAs("no purchase confirmation; chat=$lines").isTrue()
+            b.waitUntil(3_000) { hasStaff(b) }
+            assertThat(hasStaff(b)).describedAs("no blaze rod (frost-staff) in the inventory").isTrue()
+            assertThat(gold(b)).describedAs("GOLD after paying 150").isGreaterThanOrEqualTo(before - 150L).isLessThan(before)
+            "chat=$lines"
+        }
+    }
+
+    @Test
     fun `buying a shop weapon asks to confirm, charges the price and delivers the item`() {
         val b = bot("Shopper")
         val base = fund(b, 150L)
 
         var shop: ScreenView? = null
-        E2eReport.check(suite, "a newcomer sees the recommended staff first (150 GOLD), no GEM in the wallet, no raw keys", "ClientboundOpenScreen + SetContainerContent") {
+        E2eReport.check(suite, "a newcomer sees the recommended staff first (150 GOLD), no raw keys", "ClientboundOpenScreen + SetContainerContent") {
             val s = openShop(b)
             shop = s
             val items = b.contents[s.containerId].orEmpty()

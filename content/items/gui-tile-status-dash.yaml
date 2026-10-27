@@ -1,0 +1,7 @@
+# UI-12 status codex tile icon. Vanilla material until item-art draws a glyph.
+
+id: gui-tile-status-dash
+material: FEATHER
+name:
+  ja: "<white>ダッシュ</white>"
+  en: "<white>Dashing</white>"

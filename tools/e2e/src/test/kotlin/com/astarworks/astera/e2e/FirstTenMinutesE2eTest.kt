@@ -91,6 +91,11 @@ class FirstTenMinutesE2eTest : PlaythroughBase() {
             assertThat(rawKeys(lores.values)).isEmpty()
             "hotbar=$hb lores=$lores"
         }
+        E2eReport.check(suite, "join: a first-time player already holds the starter GOLD for a first shop purchase (ECO-11)", "RCON astera economy balance") {
+            val gold = { Regex("GOLD:\\s*(\\d+)").find(rcon("astera economy balance gold ${first.name}").replace(Regex("§."), ""))?.groupValues?.get(1)?.toLong() ?: -1L }
+            assertThat(first.waitUntil(10_000) { gold() >= 150L }).describedAs("starter GOLD missing: ${gold()}").isTrue()
+            "gold=${gold()}"
+        }
         E2eReport.check(suite, "join: the lobby sidebar is shown and the guided first-steps hint reaches the player", "SetScore + title/action bar/chat") {
             assertThat(first.sidebarLines()).describedAs("no lobby sidebar").isNotEmpty()
             val hint = Regex("first steps|lobby menu|press F|はじめの|最初の", RegexOption.IGNORE_CASE)

@@ -23,7 +23,7 @@ target:
   count: 5
 
 # Reward granted on completion. currency_id is opaque to Stats — the
-# Economy plugin resolves it (e.g. "GOLD", "GEM"). Omit currency_id for
+# Economy plugin resolves it (e.g. "GOLD"). Omit currency_id for
 # XP-only rewards.
 reward:
   currency_id: GOLD

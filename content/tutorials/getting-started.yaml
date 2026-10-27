@@ -1,16 +1,23 @@
-# Guided lobby onboarding (5 essential steps). Tokens are emitted only by successful game operations (ADR-0242).
-# menu -> hit the training dummy -> main skill -> read the HUD / energy -> queue (bot match). The skip line is shown
-# on every step (TutorialGuide).
+# UI-11 - the "how to progress" guide (7 steps). Tokens are emitted only by successful game operations (ADR-0242).
+# menu -> join a match (queue) -> finish it -> check the result -> buy one item with the starting GOLD ->
+# equip it -> look at the missions. TutorialGuide shows a per-player speech bubble + bobbing arrow for the
+# current step, the sidebar carries the "next step" line, and the skip line is shown on every step.
+# Action tokens: menu (F opens the menu) / queue (queued) / match (the match ended) / result (last-result tile) /
+# shop (a GOLD purchase) / equip (a weapon is selected) / missions (Daily/Quests tile). See CoreWiringTutorial.
 id: getting-started
 displayKey: astera.tutorial.getting_started.title
 steps:
   - type: wait_for_action
     actionId: menu
   - type: wait_for_action
-    actionId: primary
-  - type: wait_for_action
-    actionId: secondary
-  - type: wait_for_action
-    actionId: hud
-  - type: wait_for_action
     actionId: queue
+  - type: wait_for_action
+    actionId: match
+  - type: wait_for_action
+    actionId: result
+  - type: wait_for_action
+    actionId: shop
+  - type: wait_for_action
+    actionId: equip
+  - type: wait_for_action
+    actionId: missions

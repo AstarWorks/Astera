@@ -36,7 +36,7 @@ class CommandTreeTest {
             assertThat(tree.keys).containsExactlyInAnyOrder(
                 "help", "menu", "settings", "social", "travel", "vault", "lang", "volume", "friend", "party", "chat", "tutorial",
                 "news", "patch", "report", "queue", "match", "items", "shop", "economy", "stats", "mod", "admin", "skill",
-                "daily", "missions", "quests", "achievements",
+                "daily", "missions", "quests", "achievements", "status",
             )
             assertThat(tree.getValue("queue")).containsExactlyInAnyOrder("join", "leave", "status")
             assertThat(tree.getValue("match")).contains(

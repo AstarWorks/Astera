@@ -1,0 +1,8 @@
+--- a/tools/item-art/src/main/kotlin/com/astarworks/astera/itemart/ItemArt.kt
++++ b/tools/item-art/src/main/kotlin/com/astarworks/astera/itemart/ItemArt.kt
+@@ -142 +142,4 @@
+-            if (id == null || skills.isNullOrEmpty()) null else ItemRecord(id, doc["material"]?.toString().orEmpty())
++            // Native use renderers own pulling, charging and blocking model states.
++            val material = doc["material"]?.toString().orEmpty()
++            if (id == null || skills.isNullOrEmpty() || material in setOf("BOW", "CROSSBOW", "SHIELD")) null
++            else ItemRecord(id, material)

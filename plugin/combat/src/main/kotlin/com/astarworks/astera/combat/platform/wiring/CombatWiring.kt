@@ -789,6 +789,19 @@ public object CombatWiring {
                 subscriptions += eventBus.subscribe(PlayerKilled::class) { clearStatuses.handle(it) }
             }
 
+            // UI-12: one clickable chat line naming a status when it lands on a player.
+            val lookupMessages = services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()
+            val lookupPlayers = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>()
+            if (lookupMessages != null && lookupPlayers != null) {
+                val lookup = com.astarworks.astera.combat.application.eventbus.listeners.status
+                    .StatusAppliedLookupListener(
+                        com.astarworks.astera.combat.application.service.StatusCodex(statusContents, lookupMessages),
+                        lookupPlayers,
+                    )
+                subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.StatusApplied::class) { lookup.handle(it) }
+                subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { lookup.forget(it.playerId) }
+            }
+
             // Wave 5e: ApplyArmorModifiersUseCase + JumpCountTracker.
             // The use case is instantiated here for future Paper-side equip
             // wiring (Wave 6b's BukkitEventAdapter publishes LoadoutChanged
@@ -889,6 +902,21 @@ public object CombatWiring {
                 previewService,
             ),
         )
+        // UI-12: `/astera status [id]` lookup and `/astera status codex` (the status codex GUI).
+        val statusMessages = services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()
+        val statusPlayers = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>()
+        if (statusMessages != null && statusPlayers != null) {
+            val guiRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiRegistry>()
+            ctx.commandMount("Astera-Combat").register(
+                com.astarworks.astera.combat.command.statusCommandSpec(
+                    codex = com.astarworks.astera.combat.application.service.StatusCodex(statusContents, statusMessages),
+                    players = statusPlayers,
+                    guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
+                    server = services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
+                    codexSpec = { guiRegistry.find(it) },
+                ),
+            )
+        }
 
         return CombatWiringResult(
             skillContents = skillContents,

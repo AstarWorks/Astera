@@ -25,6 +25,31 @@ class PackValidationTest {
         if (ref.startsWith("astera:")) "assets/astera/models/${ref.removePrefix("astera:")}.json" else null
 
     @Test
+    fun `every rarity ships readable tooltip layers with nine slice metadata`() {
+        for (rarity in com.astarworks.astera.core.domain.item.Rarity.entries) {
+            for (part in listOf("background", "frame")) {
+                val path = "assets/astera/textures/gui/sprites/tooltip/${rarity.name.lowercase()}_$part.png"
+                val image = javax.imageio.ImageIO.read(java.io.ByteArrayInputStream(files.getValue(path)))
+                val scaling = json("$path.mcmeta").path("gui").path("scaling")
+                assertThat(scaling.path("type").asText()).isEqualTo("nine_slice")
+                assertThat(scaling.path("width").asInt()).isEqualTo(image.width)
+                assertThat(scaling.path("height").asInt()).isEqualTo(image.height)
+                assertThat(scaling.path("border").asInt()).isBetween(1, image.width / 2 - 1)
+                val centre = image.getRGB(image.width / 2, image.height / 2)
+                if (part == "background") {
+                    assertThat(centre ushr 24).isBetween(240, 254)
+                    assertThat(maxOf(centre shr 16 and 255, centre shr 8 and 255, centre and 255)).isLessThan(24)
+                } else {
+                    assertThat(centre ushr 24).isZero()
+                    assertThat((0 until image.height).any { y ->
+                        (0 until image.width).any { x -> image.getRGB(x, y) ushr 24 > 0 }
+                    }).isTrue()
+                }
+            }
+        }
+    }
+
+    @Test
     fun `every astera texture and parent a packed model references is in the pack`() {
         val models = files.keys.filter { it.startsWith("assets/astera/models/") && it.endsWith(".json") }
         assertThat(models).isNotEmpty()

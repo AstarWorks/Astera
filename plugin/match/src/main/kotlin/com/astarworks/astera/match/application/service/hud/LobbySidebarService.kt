@@ -55,6 +55,8 @@ public class LobbySidebarService(
     private val settings: () -> QueueSettings = { QueueSettings.DEFAULT },
     private val progress: () -> IQueueProgress? = { null },
     private val clock: () -> Instant = { Instant.now() },
+    /** UI-11: the i18n key of the player's current tutorial step as a one-line "next step", or null when there is none. */
+    private val nextStep: (PlayerId) -> String? = { null },
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -134,6 +136,11 @@ public class LobbySidebarService(
                 add(text("astera.hud.lobby.queue.players", "players" to wait.queued.toString(), "required" to wait.required.toString()))
                 add(text("astera.hud.lobby.queue.elapsed", "time" to wait.elapsed))
                 add(text(wait.statusKey, "seconds" to (wait.seconds ?: 0).toString()))
+            }
+            // UI-11: the persistent "next step" line of the how-to-progress tutorial.
+            nextStep(playerId)?.let { key ->
+                add(text("astera.hud.sidebar.spacer"))
+                add(text(key))
             }
             // GOLD (quests / top-tier shop items); hidden while the player has none. Stars are an in-match item only.
             gold(playerId)?.takeIf { g -> g > 0L }?.let { g ->

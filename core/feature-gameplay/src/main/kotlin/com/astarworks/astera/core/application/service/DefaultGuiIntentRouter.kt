@@ -52,6 +52,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 public class DefaultGuiIntentRouter(
     private val adapterProvider: () -> IGuiAdapter,
     private val presentation: () -> IPresentation? = { null },
+    /** Called after a matched handler ran (UI-11 tutorial tokens for menu tiles); never for unhandled keys. */
+    private val afterDispatch: (IMcPlayer, GuiIntent) -> Unit = { _, _ -> },
 ) : IGuiIntentRouter {
 
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -103,6 +105,7 @@ public class DefaultGuiIntentRouter(
         val watch = GuiRefusalProbe.begin()
         try {
             match.handler(intent, player)
+            afterDispatch(player, intent)
         } finally {
             // A handler that refused (red message) without playing deny itself gets the one central deny cue.
             if (GuiRefusalProbe.finish(watch)) presentation()?.play(PresentationMoments.UI_DENY, player.id)

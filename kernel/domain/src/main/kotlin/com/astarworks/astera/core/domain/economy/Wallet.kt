@@ -61,7 +61,6 @@ public class Wallet(public val container: IAttributeContainer) {
 
         public fun walletKeyFor(currency: Currency): AttributeKey = when (currency) {
             Currency.GOLD -> Attributes.WALLET_GOLD
-            Currency.GEM -> Attributes.WALLET_GEM
         }
     }
 }

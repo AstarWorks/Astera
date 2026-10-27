@@ -1,0 +1,662 @@
+{
+  "credit": "Astera / Codex (gpt-6.1-sol)",
+  "textures": {
+    "clay": "minecraft:block/white_concrete",
+    "material_stripped_oak_log": "minecraft:block/stripped_oak_log",
+    "material_stripped_oak_log_top": "minecraft:block/stripped_oak_log_top",
+    "material_white_wool": "minecraft:block/white_wool",
+    "material_iron_block": "minecraft:block/iron_block"
+  },
+  "elements": [
+    {
+      "name": "haft",
+      "from": [
+        7.2,
+        4.0,
+        7.2
+      ],
+      "to": [
+        8.8,
+        19.0,
+        8.8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            6,
+            0,
+            7.6000000000000005,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            1,
+            0,
+            2.6000000000000005,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            6,
+            1,
+            7.6000000000000005,
+            16.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            5,
+            1,
+            6.6000000000000005,
+            16.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#material_iron_block",
+          "uv": [
+            12,
+            9,
+            13.600000000000001,
+            10.600000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "grip",
+      "from": [
+        7.0,
+        5.5,
+        7.0
+      ],
+      "to": [
+        9.0,
+        10.0,
+        9.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_white_wool",
+          "uv": [
+            11,
+            10,
+            13.0,
+            14.5
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#material_white_wool",
+          "uv": [
+            13,
+            1,
+            15.0,
+            5.5
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#material_white_wool",
+          "uv": [
+            8,
+            4,
+            10.0,
+            8.5
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#material_white_wool",
+          "uv": [
+            5,
+            6,
+            7.0,
+            10.5
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#material_white_wool",
+          "uv": [
+            3,
+            3,
+            5.0,
+            5.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#material_white_wool",
+          "uv": [
+            5,
+            11,
+            7.0,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    },
+    {
+      "name": "focus collar",
+      "from": [
+        6.5,
+        17.0,
+        6.5
+      ],
+      "to": [
+        9.5,
+        19.0,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            7,
+            13.0,
+            9.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            3,
+            2,
+            6.0,
+            4.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            6,
+            7,
+            9.0,
+            9.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            7,
+            3,
+            10.0,
+            5.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            6,
+            8,
+            9.0,
+            11.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#material_iron_block",
+          "uv": [
+            8,
+            4,
+            11.0,
+            7.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "fork base",
+      "from": [
+        4.5,
+        19.0,
+        7.0
+      ],
+      "to": [
+        11.5,
+        20.0,
+        9.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            9,
+            11,
+            16.0,
+            12.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            6,
+            3,
+            13.0,
+            4.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            8,
+            3,
+            10.0,
+            4.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            15,
+            12.0,
+            16.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            3,
+            13,
+            10.0,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "down": {
+          "texture": "#material_iron_block",
+          "uv": [
+            2,
+            0,
+            9.0,
+            2.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "fork left",
+      "from": [
+        4.5,
+        20.0,
+        7.0
+      ],
+      "to": [
+        6.0,
+        25.0,
+        9.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            11,
+            1,
+            12.5,
+            6.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            1,
+            4,
+            2.5,
+            9.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            12,
+            2,
+            14.0,
+            7.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            12,
+            11,
+            14.0,
+            16.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            6,
+            2,
+            7.5,
+            4.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "fork right",
+      "from": [
+        10.0,
+        20.0,
+        7.0
+      ],
+      "to": [
+        11.5,
+        25.0,
+        9.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            11,
+            2,
+            12.5,
+            7.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            7,
+            8,
+            8.5,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            2,
+            10,
+            4.0,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            3,
+            1,
+            5.0,
+            6.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            1,
+            9,
+            2.5,
+            11.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "central lightning prong",
+      "from": [
+        7.3,
+        20.0,
+        7.0
+      ],
+      "to": [
+        8.7,
+        26.0,
+        9.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            7,
+            11.399999999999999,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            14,
+            6,
+            15.399999999999999,
+            12.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            5,
+            6,
+            7.0,
+            12.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            4,
+            10,
+            6.0,
+            16.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            14,
+            11,
+            15.399999999999999,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        10,
+        -15,
+        -35
+      ],
+      "translation": [
+        -2.0578,
+        -2.9006,
+        -1.0714
+      ],
+      "scale": [
+        0.5714285714285714,
+        0.5714285714285714,
+        0.5714285714285714
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -35,
+        12
+      ],
+      "translation": [
+        0,
+        0,
+        -3.2
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -35,
+        12
+      ],
+      "translation": [
+        0,
+        0,
+        -3.2
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        35,
+        -90,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        35,
+        -90,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "ground": {
+      "rotation": [
+        75,
+        0,
+        -90
+      ],
+      "translation": [
+        -2.4762,
+        2.5,
+        -0.0
+      ],
+      "scale": [
+        0.38095238095238093,
+        0.38095238095238093,
+        0.38095238095238093
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        -35
+      ],
+      "translation": [
+        2.663,
+        -3.8032,
+        0.0
+      ],
+      "scale": [
+        0.7142857142857143,
+        0.7142857142857143,
+        0.7142857142857143
+      ]
+    }
+  },
+  "astera_tints": [
+    6439471,
+    16176219,
+    3235484,
+    5401993
+  ]
+}
