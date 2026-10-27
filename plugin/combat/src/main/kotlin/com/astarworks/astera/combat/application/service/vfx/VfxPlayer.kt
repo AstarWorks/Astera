@@ -128,6 +128,9 @@ public class VfxPlayer(
     private val liveLook: ((PlayerId) -> Vec3?)? = null,
 ) {
 
+    /** `ASTERA_VFX_TRACE=1`: log the server tick of every play and every element spawn (proof of fx timing vs the plan). */
+    private val trace: Boolean = System.getenv("ASTERA_VFX_TRACE") == "1"
+
     private class ElementState(val plan: VfxElementPlan) {
         var handle: DisplayHandle? = null
         var nextUpdate: Int = 0
@@ -247,6 +250,7 @@ public class VfxPlayer(
             return Result.failure(VfxPlayError.OverCapacity(remaining, plan.displayCount, maxLiveDisplays))
         }
         // Keep the current effect if the new plan cannot fit; only replace after admission.
+        if (trace) log.info("[vfx-trace] play {} tick={}", request.vfxId, scheduler.currentTick())
         val instance = Instance(request, plan, scheduler.currentTick(),
             def.targetReference?.let { frame.rotation.rotate(it * request.scale) },
             def.elements.filter { it.targetTrack.isNotEmpty() }.associate { it.id to it.targetTrack },
@@ -383,6 +387,9 @@ public class VfxPlayer(
             live - (instance.position + (instance.targetReference ?: return true))
         }
         val anchor = instance.request.anchor
+        if (trace && plan.performance) {
+            log.info("[vfx-trace] pos {} age={} tick={} caster={} target={}", instance.request.vfxId, age, scheduler.currentTick(), anchor?.invoke(), instance.request.target?.invoke())
+        }
         updateYaw(instance)
         if (plan.follow && anchor != null) {
             anchor()?.let { instance.position = it }
@@ -562,6 +569,7 @@ public class VfxPlayer(
 
     private fun spawn(instance: Instance, state: ElementState) {
         val e = state.plan
+        if (trace) log.info("[vfx-trace] spawn {} {} age={} planSpawn={} tick={} started={}", instance.request.vfxId, e.elementId, instance.age, e.spawnTick, scheduler.currentTick(), instance.startedAt)
         val spec = DisplaySpec(
             kind = displayKind(e.kind) ?: return,
             transform = state.lineCorrection?.let { lineTransform(e.initial, it) } ?: e.initial,

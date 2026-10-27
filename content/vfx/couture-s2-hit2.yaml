@@ -14,18 +14,18 @@ elements:
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [0.0, 1.3, -2.4]
+    translate: [0.0, 1.365, -1.94]
     rotate: [0, 0, 8]
-    scale: [0.1, 0.1, 1]
+    scale: [0.062, 0.019, 1]
   - t: 1
-    translate: [0.0, 1.3, -1.0]
+    translate: [0.0, 1.656, 0.133]
     rotate: [0, 0, 8]
-    scale: [0.55, 1.1, 1]
+    scale: [0.341, 0.214, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 1.3, -0.8]
+    translate: [0.0, 1.691, 0.385]
     rotate: [0, 0, 8]
-    scale: [0.6050000000000001, 0.02, 1]
+    scale: [0.375, 0.004, 1]
     ease: in_quad
 - id: core-1
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -35,18 +35,18 @@ elements:
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [0.0, 1.3, -2.4]
+    translate: [0.0, 1.3, -1.935]
     rotate: [0, 0, 0]
-    scale: [0.1, 0.1, 1]
+    scale: [0.062, 0.019, 1]
   - t: 1
-    translate: [0.0, 1.3, -1.0]
+    translate: [0.0, 1.3, 0.855]
     rotate: [0, 0, 0]
-    scale: [0.7, 1.4, 1]
+    scale: [0.434, 0.273, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 1.3, -0.8]
+    translate: [0.0, 1.3, 1.177]
     rotate: [0, 0, 0]
-    scale: [0.77, 0.02, 1]
+    scale: [0.477, 0.004, 1]
     ease: in_quad
 - id: core-0
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -56,18 +56,18 @@ elements:
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [0.0, 1.3, -2.4]
+    translate: [0.0, 1.235, -1.94]
     rotate: [0, 0, -8]
-    scale: [0.1, 0.1, 1]
+    scale: [0.062, 0.019, 1]
   - t: 1
-    translate: [0.0, 1.3, -1.0]
+    translate: [0.0, 0.944, 0.133]
     rotate: [0, 0, -8]
-    scale: [0.55, 1.1, 1]
+    scale: [0.341, 0.214, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 1.3, -0.8]
+    translate: [0.0, 0.909, 0.385]
     rotate: [0, 0, -8]
-    scale: [0.6050000000000001, 0.02, 1]
+    scale: [0.375, 0.004, 1]
     ease: in_quad
 - id: fan-0
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -77,23 +77,23 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0.0, 1.176, -2.231]
+    translate: [0.0, 1.025, -2.025]
     rotate: [0, 0, -36.2]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 0.537, -1.358]
+    translate: [0.0, -0.388, -0.094]
     rotate: [0, 0, -36.2]
-    scale: [0.615, 0.425, 1]
+    scale: [0.381, 0.21, 1]
     ease: out_expo
   - t: 2
-    translate: [0.0, 0.461, -1.254]
+    translate: [0.0, -0.556, 0.136]
     rotate: [0, 0, -36.2]
-    scale: [0.676, 0.34, 1]
+    scale: [0.419, 0.187, 1]
     ease: out_quad
   - t: 4
-    translate: [0.0, 0.422, -1.202]
+    translate: [0.0, -0.64, 0.251]
     rotate: [0, 0, -36.2]
-    scale: [0.707, 0.02, 1]
+    scale: [0.438, 0.01, 1]
     ease: in_quad
 - id: fan-1
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -103,23 +103,23 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.0, 1.187, -2.223]
+    translate: [0.0, 1.049, -2.008]
     rotate: [0, 0, -32.6]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 0.422, -1.025]
+    translate: [0.0, -0.648, 0.645]
     rotate: [0, 0, -32.6]
-    scale: [0.777, 0.661, 1]
+    scale: [0.482, 0.273, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 0.334, -0.887]
+    translate: [0.0, -0.842, 0.949]
     rotate: [0, 0, -32.6]
-    scale: [0.855, 0.529, 1]
+    scale: [0.53, 0.238, 1]
     ease: out_quad
   - t: 5
-    translate: [0.0, 0.29, -0.818]
+    translate: [0.0, -0.939, 1.1]
     rotate: [0, 0, -32.6]
-    scale: [0.894, 0.02, 1]
+    scale: [0.554, 0.01, 1]
     ease: in_quad
 - id: fan-2
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -129,23 +129,23 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.0, 1.193, -2.219]
+    translate: [0.0, 1.063, -2.0]
     rotate: [0, 0, -30.6]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 0.524, -1.085]
+    translate: [0.0, -0.422, 0.511]
     rotate: [0, 0, -30.6]
-    scale: [0.727, 0.679, 1]
+    scale: [0.451, 0.278, 1]
     ease: out_expo
   - t: 4
-    translate: [0.0, 0.446, -0.954]
+    translate: [0.0, -0.594, 0.802]
     rotate: [0, 0, -30.6]
-    scale: [0.8, 0.543, 1]
+    scale: [0.496, 0.241, 1]
     ease: out_quad
   - t: 6
-    translate: [0.0, 0.407, -0.888]
+    translate: [0.0, -0.678, 0.944]
     rotate: [0, 0, -30.6]
-    scale: [0.836, 0.02, 1]
+    scale: [0.518, 0.01, 1]
     ease: in_quad
 - id: fan-3
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -155,23 +155,23 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.202, -2.214]
+    translate: [0.0, 1.082, -1.989]
     rotate: [0, 0, -27.9]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 0.407, -0.71]
+    translate: [0.0, -0.679, 1.338]
     rotate: [0, 0, -27.9]
-    scale: [0.91, 0.648, 1]
+    scale: [0.564, 0.269, 1]
     ease: out_expo
   - t: 2
-    translate: [0.0, 0.318, -0.542]
+    translate: [0.0, -0.879, 1.716]
     rotate: [0, 0, -27.9]
-    scale: [1.001, 0.518, 1]
+    scale: [0.621, 0.235, 1]
     ease: out_quad
   - t: 4
-    translate: [0.0, 0.273, -0.457]
+    translate: [0.0, -0.978, 1.902]
     rotate: [0, 0, -27.9]
-    scale: [1.046, 0.02, 1]
+    scale: [0.649, 0.01, 1]
     ease: in_quad
 - id: fan-4
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -181,23 +181,23 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.212, -2.209]
+    translate: [0.0, 1.106, -1.978]
     rotate: [0, 0, -24.7]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 0.588, -0.853]
+    translate: [0.0, -0.276, 1.027]
     rotate: [0, 0, -24.7]
-    scale: [0.811, 0.42, 1]
+    scale: [0.503, 0.209, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 0.517, -0.698]
+    translate: [0.0, -0.433, 1.368]
     rotate: [0, 0, -24.7]
-    scale: [0.892, 0.336, 1]
+    scale: [0.553, 0.186, 1]
     ease: out_quad
   - t: 5
-    translate: [0.0, 0.482, -0.621]
+    translate: [0.0, -0.511, 1.538]
     rotate: [0, 0, -24.7]
-    scale: [0.933, 0.02, 1]
+    scale: [0.578, 0.01, 1]
     ease: in_quad
 - id: fan-5
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -207,23 +207,23 @@ elements:
   end_tick: 10
   keyframes:
   - t: 0
-    translate: [0.0, 1.217, -2.207]
+    translate: [0.0, 1.116, -1.973]
     rotate: [0, 0, -23.3]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 0.515, -0.58]
+    translate: [0.0, -0.435, 1.63]
     rotate: [0, 0, -23.3]
-    scale: [0.944, 0.425, 1]
+    scale: [0.585, 0.21, 1]
     ease: out_expo
   - t: 4
-    translate: [0.0, 0.437, -0.398]
+    translate: [0.0, -0.61, 2.036]
     rotate: [0, 0, -23.3]
-    scale: [1.038, 0.34, 1]
+    scale: [0.644, 0.187, 1]
     ease: out_quad
   - t: 6
-    translate: [0.0, 0.398, -0.306]
+    translate: [0.0, -0.697, 2.236]
     rotate: [0, 0, -23.3]
-    scale: [1.086, 0.02, 1]
+    scale: [0.673, 0.01, 1]
     ease: in_quad
 - id: fan-6
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -233,23 +233,23 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0.0, 1.229, -2.202]
+    translate: [0.0, 1.143, -1.962]
     rotate: [0, 0, -19.7]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 0.631, -0.534]
+    translate: [0.0, -0.179, 1.731]
     rotate: [0, 0, -19.7]
-    scale: [0.944, 0.377, 1]
+    scale: [0.585, 0.197, 1]
     ease: out_expo
   - t: 2
-    translate: [0.0, 0.565, -0.347]
+    translate: [0.0, -0.328, 2.147]
     rotate: [0, 0, -19.7]
-    scale: [1.038, 0.302, 1]
+    scale: [0.644, 0.177, 1]
     ease: out_quad
   - t: 4
-    translate: [0.0, 0.531, -0.254]
+    translate: [0.0, -0.401, 2.352]
     rotate: [0, 0, -19.7]
-    scale: [1.086, 0.02, 1]
+    scale: [0.673, 0.01, 1]
     ease: in_quad
 - id: fan-7
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -259,23 +259,23 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.0, 1.239, -2.199]
+    translate: [0.0, 1.166, -1.955]
     rotate: [0, 0, -16.8]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 0.867, -0.965]
+    translate: [0.0, 0.34, 0.781]
     rotate: [0, 0, -16.8]
-    scale: [0.714, 0.74, 1]
+    scale: [0.443, 0.28, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 0.823, -0.821]
+    translate: [0.0, 0.244, 1.097]
     rotate: [0, 0, -16.8]
-    scale: [0.785, 0.592, 1]
+    scale: [0.487, 0.254, 1]
     ease: out_quad
   - t: 5
-    translate: [0.0, 0.802, -0.749]
+    translate: [0.0, 0.197, 1.255]
     rotate: [0, 0, -16.8]
-    scale: [0.821, 0.02, 1]
+    scale: [0.509, 0.01, 1]
     ease: in_quad
 - id: fan-8
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -285,23 +285,23 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.0, 1.249, -2.196]
+    translate: [0.0, 1.188, -1.949]
     rotate: [0, 0, -14.0]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 0.882, -0.725]
+    translate: [0.0, 0.375, 1.311]
     rotate: [0, 0, -14.0]
-    scale: [0.822, 0.677, 1]
+    scale: [0.51, 0.277, 1]
     ease: out_expo
   - t: 4
-    translate: [0.0, 0.84, -0.558]
+    translate: [0.0, 0.284, 1.675]
     rotate: [0, 0, -14.0]
-    scale: [0.904, 0.542, 1]
+    scale: [0.56, 0.241, 1]
     ease: out_quad
   - t: 6
-    translate: [0.0, 0.819, -0.474]
+    translate: [0.0, 0.237, 1.864]
     rotate: [0, 0, -14.0]
-    scale: [0.945, 0.02, 1]
+    scale: [0.586, 0.01, 1]
     ease: in_quad
 - id: fan-9
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -311,23 +311,23 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.258, -2.194]
+    translate: [0.0, 1.206, -1.944]
     rotate: [0, 0, -11.6]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 0.962, -0.748]
+    translate: [0.0, 0.549, 1.259]
     rotate: [0, 0, -11.6]
-    scale: [0.803, 0.651, 1]
+    scale: [0.498, 0.27, 1]
     ease: out_expo
   - t: 2
-    translate: [0.0, 0.928, -0.583]
+    translate: [0.0, 0.475, 1.619]
     rotate: [0, 0, -11.6]
-    scale: [0.883, 0.521, 1]
+    scale: [0.547, 0.236, 1]
     ease: out_quad
   - t: 4
-    translate: [0.0, 0.911, -0.5]
+    translate: [0.0, 0.437, 1.802]
     rotate: [0, 0, -11.6]
-    scale: [0.923, 0.02, 1]
+    scale: [0.572, 0.01, 1]
     ease: in_quad
 - id: fan-10
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -337,23 +337,23 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.263, -2.193]
+    translate: [0.0, 1.219, -1.942]
     rotate: [0, 0, -10.0]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 0.861, 0.079]
+    translate: [0.0, 0.332, 3.088]
     rotate: [0, 0, -10.0]
-    scale: [1.199, 0.66, 1]
+    scale: [0.743, 0.273, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 0.817, 0.327]
+    translate: [0.0, 0.235, 3.642]
     rotate: [0, 0, -10.0]
-    scale: [1.319, 0.528, 1]
+    scale: [0.818, 0.237, 1]
     ease: out_quad
   - t: 5
-    translate: [0.0, 0.795, 0.451]
+    translate: [0.0, 0.186, 3.915]
     rotate: [0, 0, -10.0]
-    scale: [1.379, 0.02, 1]
+    scale: [0.855, 0.01, 1]
     ease: in_quad
 - id: fan-11
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -363,23 +363,23 @@ elements:
   end_tick: 10
   keyframes:
   - t: 0
-    translate: [0.0, 1.279, -2.191]
+    translate: [0.0, 1.253, -1.937]
     rotate: [0, 0, -5.8]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 1.127, -0.689]
+    translate: [0.0, 0.915, 1.39]
     rotate: [0, 0, -5.8]
-    scale: [0.819, 0.493, 1]
+    scale: [0.508, 0.228, 1]
     ease: out_expo
   - t: 4
-    translate: [0.0, 1.11, -0.518]
+    translate: [0.0, 0.876, 1.771]
     rotate: [0, 0, -5.8]
-    scale: [0.901, 0.394, 1]
+    scale: [0.559, 0.202, 1]
     ease: out_quad
   - t: 6
-    translate: [0.0, 1.101, -0.432]
+    translate: [0.0, 0.857, 1.958]
     rotate: [0, 0, -5.8]
-    scale: [0.942, 0.02, 1]
+    scale: [0.584, 0.01, 1]
     ease: in_quad
 - id: fan-12
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -389,23 +389,23 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0.0, 1.286, -2.19]
+    translate: [0.0, 1.269, -1.936]
     rotate: [0, 0, -3.8]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 1.145, -0.045]
+    translate: [0.0, 0.954, 2.816]
     rotate: [0, 0, -3.8]
-    scale: [1.124, 0.432, 1]
+    scale: [0.697, 0.212, 1]
     ease: out_expo
   - t: 2
-    translate: [0.0, 1.129, 0.191]
+    translate: [0.0, 0.919, 3.332]
     rotate: [0, 0, -3.8]
-    scale: [1.236, 0.346, 1]
+    scale: [0.766, 0.189, 1]
     ease: out_quad
   - t: 4
-    translate: [0.0, 1.121, 0.309]
+    translate: [0.0, 0.901, 3.602]
     rotate: [0, 0, -3.8]
-    scale: [1.293, 0.02, 1]
+    scale: [0.802, 0.01, 1]
     ease: in_quad
 - id: fan-13
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -415,23 +415,23 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.0, 1.298, -2.19]
+    translate: [0.0, 1.295, -1.935]
     rotate: [0, 0, -0.6]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 1.271, 0.307]
+    translate: [0.0, 1.237, 3.592]
     rotate: [0, 0, -0.6]
-    scale: [1.289, 0.486, 1]
+    scale: [0.799, 0.226, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 1.268, 0.577]
+    translate: [0.0, 1.231, 4.192]
     rotate: [0, 0, -0.6]
-    scale: [1.418, 0.389, 1]
+    scale: [0.879, 0.2, 1]
     ease: out_quad
   - t: 5
-    translate: [0.0, 1.267, 0.713]
+    translate: [0.0, 1.228, 4.492]
     rotate: [0, 0, -0.6]
-    scale: [1.482, 0.02, 1]
+    scale: [0.919, 0.01, 1]
     ease: in_quad
 - id: fan-14
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -441,23 +441,23 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.0, 1.302, -2.19]
+    translate: [0.0, 1.306, -1.935]
     rotate: [0, 0, 0.7]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 1.329, 0.103]
+    translate: [0.0, 1.368, 3.142]
     rotate: [0, 0, 0.7]
-    scale: [1.192, 0.533, 1]
+    scale: [0.739, 0.239, 1]
     ease: out_expo
   - t: 4
-    translate: [0.0, 1.332, 0.353]
+    translate: [0.0, 1.374, 3.697]
     rotate: [0, 0, 0.7]
-    scale: [1.311, 0.426, 1]
+    scale: [0.813, 0.21, 1]
     ease: out_quad
   - t: 6
-    translate: [0.0, 1.334, 0.478]
+    translate: [0.0, 1.378, 3.975]
     rotate: [0, 0, 0.7]
-    scale: [1.371, 0.02, 1]
+    scale: [0.85, 0.01, 1]
     ease: in_quad
 - id: fan-15
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -467,23 +467,23 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.316, -2.191]
+    translate: [0.0, 1.335, -1.936]
     rotate: [0, 0, 4.3]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 1.467, -0.182]
+    translate: [0.0, 1.669, 2.514]
     rotate: [0, 0, 4.3]
-    scale: [1.059, 0.528, 1]
+    scale: [0.657, 0.237, 1]
     ease: out_expo
   - t: 2
-    translate: [0.0, 1.484, 0.039]
+    translate: [0.0, 1.706, 3.0]
     rotate: [0, 0, 4.3]
-    scale: [1.165, 0.422, 1]
+    scale: [0.722, 0.209, 1]
     ease: out_quad
   - t: 4
-    translate: [0.0, 1.492, 0.15]
+    translate: [0.0, 1.725, 3.247]
     rotate: [0, 0, 4.3]
-    scale: [1.218, 0.02, 1]
+    scale: [0.755, 0.01, 1]
     ease: in_quad
 - id: fan-16
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -493,23 +493,23 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.321, -2.191]
+    translate: [0.0, 1.347, -1.937]
     rotate: [0, 0, 5.8]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 1.482, -0.603]
+    translate: [0.0, 1.704, 1.577]
     rotate: [0, 0, 5.8]
-    scale: [0.86, 0.556, 1]
+    scale: [0.533, 0.245, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 1.5, -0.423]
+    translate: [0.0, 1.745, 1.98]
     rotate: [0, 0, 5.8]
-    scale: [0.946, 0.445, 1]
+    scale: [0.587, 0.215, 1]
     ease: out_quad
   - t: 5
-    translate: [0.0, 1.509, -0.334]
+    translate: [0.0, 1.765, 2.174]
     rotate: [0, 0, 5.8]
-    scale: [0.989, 0.02, 1]
+    scale: [0.613, 0.01, 1]
     ease: in_quad
 - id: fan-17
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -519,23 +519,23 @@ elements:
   end_tick: 10
   keyframes:
   - t: 0
-    translate: [0.0, 1.336, -2.193]
+    translate: [0.0, 1.379, -1.942]
     rotate: [0, 0, 9.8]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 1.644, -0.403]
+    translate: [0.0, 2.063, 2.02]
     rotate: [0, 0, 9.8]
-    scale: [0.965, 0.685, 1]
+    scale: [0.598, 0.279, 1]
     ease: out_expo
   - t: 4
-    translate: [0.0, 1.678, -0.203]
+    translate: [0.0, 2.14, 2.463]
     rotate: [0, 0, 9.8]
-    scale: [1.062, 0.548, 1]
+    scale: [0.658, 0.243, 1]
     ease: out_quad
   - t: 6
-    translate: [0.0, 1.695, -0.103]
+    translate: [0.0, 2.178, 2.685]
     rotate: [0, 0, 9.8]
-    scale: [1.11, 0.02, 1]
+    scale: [0.688, 0.01, 1]
     ease: in_quad
 - id: fan-18
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -545,23 +545,23 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0.0, 1.344, -2.195]
+    translate: [0.0, 1.397, -1.945]
     rotate: [0, 0, 12.1]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 1.808, -0.024]
+    translate: [0.0, 2.427, 2.858]
     rotate: [0, 0, 12.1]
-    scale: [1.157, 0.645, 1]
+    scale: [0.717, 0.269, 1]
     ease: out_expo
   - t: 2
-    translate: [0.0, 1.859, 0.214]
+    translate: [0.0, 2.54, 3.386]
     rotate: [0, 0, 12.1]
-    scale: [1.273, 0.516, 1]
+    scale: [0.789, 0.234, 1]
     ease: out_quad
   - t: 4
-    translate: [0.0, 1.884, 0.332]
+    translate: [0.0, 2.597, 3.65]
     rotate: [0, 0, 12.1]
-    scale: [1.331, 0.02, 1]
+    scale: [0.825, 0.01, 1]
     ease: in_quad
 - id: fan-19
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -571,23 +571,23 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.0, 1.352, -2.197]
+    translate: [0.0, 1.415, -1.949]
     rotate: [0, 0, 14.3]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 1.708, -0.805]
+    translate: [0.0, 2.2, 1.132]
     rotate: [0, 0, 14.3]
-    scale: [0.784, 0.38, 1]
+    scale: [0.486, 0.198, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 1.748, -0.645]
+    translate: [0.0, 2.289, 1.481]
     rotate: [0, 0, 14.3]
-    scale: [0.862, 0.304, 1]
+    scale: [0.534, 0.178, 1]
     ease: out_quad
   - t: 5
-    translate: [0.0, 1.769, -0.566]
+    translate: [0.0, 2.336, 1.663]
     rotate: [0, 0, 14.3]
-    scale: [0.902, 0.02, 1]
+    scale: [0.559, 0.01, 1]
     ease: in_quad
 - id: fan-20
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -597,23 +597,23 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.0, 1.36, -2.199]
+    translate: [0.0, 1.432, -1.954]
     rotate: [0, 0, 16.5]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 1.95, -0.203]
+    translate: [0.0, 2.74, 2.461]
     rotate: [0, 0, 16.5]
-    scale: [1.091, 0.744, 1]
+    scale: [0.676, 0.28, 1]
     ease: out_expo
   - t: 4
-    translate: [0.0, 2.015, 0.017]
+    translate: [0.0, 2.885, 2.95]
     rotate: [0, 0, 16.5]
-    scale: [1.2, 0.595, 1]
+    scale: [0.744, 0.255, 1]
     ease: out_quad
   - t: 6
-    translate: [0.0, 2.047, 0.127]
+    translate: [0.0, 2.957, 3.195]
     rotate: [0, 0, 16.5]
-    scale: [1.255, 0.02, 1]
+    scale: [0.778, 0.01, 1]
     ease: in_quad
 - id: fan-21
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -623,23 +623,23 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.373, -2.203]
+    translate: [0.0, 1.463, -1.964]
     rotate: [0, 0, 20.5]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 1.825, -0.993]
+    translate: [0.0, 2.464, 0.712]
     rotate: [0, 0, 20.5]
-    scale: [0.715, 0.647, 1]
+    scale: [0.443, 0.269, 1]
     ease: out_expo
   - t: 2
-    translate: [0.0, 1.878, -0.853]
+    translate: [0.0, 2.579, 1.021]
     rotate: [0, 0, 20.5]
-    scale: [0.786, 0.518, 1]
+    scale: [0.487, 0.235, 1]
     ease: out_quad
   - t: 4
-    translate: [0.0, 1.904, -0.782]
+    translate: [0.0, 2.64, 1.183]
     rotate: [0, 0, 20.5]
-    scale: [0.822, 0.02, 1]
+    scale: [0.51, 0.01, 1]
     ease: in_quad
 - id: fan-22
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -649,23 +649,23 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.379, -2.205]
+    translate: [0.0, 1.474, -1.969]
     rotate: [0, 0, 22.0]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 2.109, -0.394]
+    translate: [0.0, 3.095, 2.044]
     rotate: [0, 0, 22.0]
-    scale: [1.03, 0.645, 1]
+    scale: [0.639, 0.269, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 2.19, -0.194]
+    translate: [0.0, 3.272, 2.482]
     rotate: [0, 0, 22.0]
-    scale: [1.133, 0.516, 1]
+    scale: [0.702, 0.234, 1]
     ease: out_quad
   - t: 5
-    translate: [0.0, 2.231, -0.093]
+    translate: [0.0, 3.362, 2.704]
     rotate: [0, 0, 22.0]
-    scale: [1.184, 0.02, 1]
+    scale: [0.734, 0.01, 1]
     ease: in_quad
 - id: fan-23
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -675,23 +675,23 @@ elements:
   end_tick: 10
   keyframes:
   - t: 0
-    translate: [0.0, 1.391, -2.211]
+    translate: [0.0, 1.502, -1.981]
     rotate: [0, 0, 25.8]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 2.092, -0.761]
+    translate: [0.0, 3.056, 1.233]
     rotate: [0, 0, 25.8]
-    scale: [0.867, 0.538, 1]
+    scale: [0.538, 0.24, 1]
     ease: out_expo
   - t: 4
-    translate: [0.0, 2.172, -0.597]
+    translate: [0.0, 3.229, 1.591]
     rotate: [0, 0, 25.8]
-    scale: [0.954, 0.43, 1]
+    scale: [0.591, 0.211, 1]
     ease: out_quad
   - t: 6
-    translate: [0.0, 2.211, -0.515]
+    translate: [0.0, 3.317, 1.773]
     rotate: [0, 0, 25.8]
-    scale: [0.997, 0.02, 1]
+    scale: [0.618, 0.01, 1]
     ease: in_quad
 - id: fan-24
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -701,23 +701,23 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0.0, 1.401, -2.216]
+    translate: [0.0, 1.523, -1.992]
     rotate: [0, 0, 28.7]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 2.277, -0.612]
+    translate: [0.0, 3.465, 1.554]
     rotate: [0, 0, 28.7]
-    scale: [0.97, 0.459, 1]
+    scale: [0.601, 0.219, 1]
     ease: out_expo
   - t: 2
-    translate: [0.0, 2.374, -0.434]
+    translate: [0.0, 3.684, 1.955]
     rotate: [0, 0, 28.7]
-    scale: [1.067, 0.367, 1]
+    scale: [0.662, 0.195, 1]
     ease: out_quad
   - t: 4
-    translate: [0.0, 2.423, -0.344]
+    translate: [0.0, 3.789, 2.146]
     rotate: [0, 0, 28.7]
-    scale: [1.115, 0.02, 1]
+    scale: [0.691, 0.01, 1]
     ease: in_quad
 - id: fan-25
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -727,23 +727,23 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.0, 1.407, -2.219]
+    translate: [0.0, 1.536, -1.999]
     rotate: [0, 0, 30.5]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 2.216, -0.848]
+    translate: [0.0, 3.325, 1.038]
     rotate: [0, 0, 30.5]
-    scale: [0.858, 0.656, 1]
+    scale: [0.532, 0.272, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 2.307, -0.693]
+    translate: [0.0, 3.527, 1.38]
     rotate: [0, 0, 30.5]
-    scale: [0.944, 0.525, 1]
+    scale: [0.585, 0.237, 1]
     ease: out_quad
   - t: 5
-    translate: [0.0, 2.353, -0.616]
+    translate: [0.0, 3.63, 1.555]
     rotate: [0, 0, 30.5]
-    scale: [0.987, 0.02, 1]
+    scale: [0.612, 0.01, 1]
     ease: in_quad
 - id: fan-26
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -753,23 +753,23 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0.0, 1.415, -2.224]
+    translate: [0.0, 1.555, -2.011]
     rotate: [0, 0, 33.2]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 2.132, -1.127]
+    translate: [0.0, 3.144, 0.418]
     rotate: [0, 0, 33.2]
-    scale: [0.724, 0.785, 1]
+    scale: [0.449, 0.28, 1]
     ease: out_expo
   - t: 4
-    translate: [0.0, 2.215, -1.0]
+    translate: [0.0, 3.329, 0.7]
     rotate: [0, 0, 33.2]
-    scale: [0.796, 0.628, 1]
+    scale: [0.494, 0.264, 1]
     ease: out_quad
   - t: 6
-    translate: [0.0, 2.257, -0.936]
+    translate: [0.0, 3.419, 0.838]
     rotate: [0, 0, 33.2]
-    scale: [0.833, 0.02, 1]
+    scale: [0.516, 0.01, 1]
     ease: in_quad
 - id: fan-27
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -779,23 +779,23 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.0, 1.422, -2.229]
+    translate: [0.0, 1.571, -2.022]
     rotate: [0, 0, 35.6]
-    scale: [0.1, 0.05, 1]
+    scale: [0.062, 0.11, 1]
   - t: 1
-    translate: [0.0, 2.051, -1.35]
+    translate: [0.0, 2.963, -0.077]
     rotate: [0, 0, 35.6]
-    scale: [0.615, 0.659, 1]
+    scale: [0.381, 0.272, 1]
     ease: out_expo
   - t: 2
-    translate: [0.0, 2.127, -1.245]
+    translate: [0.0, 3.129, 0.155]
     rotate: [0, 0, 35.6]
-    scale: [0.676, 0.527, 1]
+    scale: [0.419, 0.237, 1]
     ease: out_quad
   - t: 4
-    translate: [0.0, 2.164, -1.192]
+    translate: [0.0, 3.212, 0.271]
     rotate: [0, 0, 35.6]
-    scale: [0.707, 0.02, 1]
+    scale: [0.438, 0.01, 1]
     ease: in_quad
 - id: flash-0
   kind: {type: sprite, sprite: couture-s2-feather, frame_ticks: 1, loop: false, see_through: true}
@@ -807,18 +807,18 @@ elements:
   - t: 0
     translate: [0.0, 1.2, 0.0]
     rotate: [0, 0, 0]
-    scale: [0.06375, 0.010000000000000002, 1]
+    scale: [0.019, 0.002, 1]
     alpha: 0.0
   - t: 1
     translate: [0.0, 1.2, 0.0]
     rotate: [0, 0, 0]
-    scale: [0.68, 0.16000000000000003, 1]
+    scale: [0.204, 0.026, 1]
     ease: out_expo
     alpha: 0.9
   - t: 6
     translate: [0.0, 1.2, 0.0]
     rotate: [0, 0, 0]
-    scale: [0.8800000000000001, 0.005, 1]
+    scale: [0.264, 0.001, 1]
     ease: in_quad
     alpha: 0.0
 - id: flash-1
@@ -831,18 +831,18 @@ elements:
   - t: 0
     translate: [0.0, 1.2, 0.0]
     rotate: [0, 0, 60]
-    scale: [0.06375, 0.010000000000000002, 1]
+    scale: [0.019, 0.002, 1]
     alpha: 0.0
   - t: 1
     translate: [0.0, 1.2, 0.0]
     rotate: [0, 0, 60]
-    scale: [0.68, 0.16000000000000003, 1]
+    scale: [0.204, 0.026, 1]
     ease: out_expo
     alpha: 0.9
   - t: 6
     translate: [0.0, 1.2, 0.0]
     rotate: [0, 0, 60]
-    scale: [0.8800000000000001, 0.005, 1]
+    scale: [0.264, 0.001, 1]
     ease: in_quad
     alpha: 0.0
 - id: flash-2
@@ -855,18 +855,18 @@ elements:
   - t: 0
     translate: [0.0, 1.2, 0.0]
     rotate: [0, 0, 120]
-    scale: [0.06375, 0.010000000000000002, 1]
+    scale: [0.019, 0.002, 1]
     alpha: 0.0
   - t: 1
     translate: [0.0, 1.2, 0.0]
     rotate: [0, 0, 120]
-    scale: [0.68, 0.16000000000000003, 1]
+    scale: [0.204, 0.026, 1]
     ease: out_expo
     alpha: 0.9
   - t: 6
     translate: [0.0, 1.2, 0.0]
     rotate: [0, 0, 120]
-    scale: [0.8800000000000001, 0.005, 1]
+    scale: [0.264, 0.001, 1]
     ease: in_quad
     alpha: 0.0
 - id: x-a

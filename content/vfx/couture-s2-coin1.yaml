@@ -14,22 +14,22 @@ elements:
   end_tick: 6
   keyframes:
   - t: 0
-    translate: [0.0, 1.5, 1.0]
-    rotate: [0, 0, -90]
+    translate: [0.0, 1.6, 1.8]
+    rotate: [0, 0, -115]
     scale: [0.5, 0.9, 1]
   - t: 1
-    translate: [0.0, 1.6, 1.6]
-    rotate: [0, 0, -90]
+    translate: [0.0, 1.7, 2.6]
+    rotate: [0, 0, -115]
     scale: [0.7, 1.15, 1]
     ease: out_expo
   - t: 3
-    translate: [0.0, 1.6, 2.3]
-    rotate: [0, 0, -90]
+    translate: [0.0, 1.7, 3.3]
+    rotate: [0, 0, -115]
     scale: [0.6, 1.2, 1]
     ease: out_quad
   - t: 5
-    translate: [0.0, 1.6, 2.9]
-    rotate: [0, 0, -90]
+    translate: [0.0, 1.7, 3.9]
+    rotate: [0, 0, -115]
     scale: [0.1, 1.2, 1]
     ease: in_quad
 - id: line
