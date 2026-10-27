@@ -1,0 +1,800 @@
+{
+  "credit": "Astera / Codex (gpt-6.1-sol)",
+  "textures": {
+    "clay": "minecraft:block/white_concrete",
+    "material_iron_block": "minecraft:block/iron_block",
+    "material_white_wool": "minecraft:block/white_wool"
+  },
+  "elements": [
+    {
+      "name": "dagger grip",
+      "from": [
+        4.9,
+        4.0,
+        6.2
+      ],
+      "to": [
+        6.5,
+        10.0,
+        7.8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_white_wool",
+          "uv": [
+            6,
+            0,
+            7.6,
+            6.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#material_white_wool",
+          "uv": [
+            1,
+            8,
+            2.5999999999999996,
+            14.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#material_white_wool",
+          "uv": [
+            6,
+            0,
+            7.6,
+            6.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#material_white_wool",
+          "uv": [
+            5,
+            1,
+            6.6,
+            7.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#material_white_wool",
+          "uv": [
+            12,
+            9,
+            13.6,
+            10.6
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "dagger guard",
+      "from": [
+        3.7,
+        10.0,
+        6.0
+      ],
+      "to": [
+        7.7,
+        11.0,
+        8.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            6,
+            14,
+            10.0,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            12,
+            1,
+            16.0,
+            2.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            8,
+            0,
+            10.0,
+            1.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            5,
+            6,
+            7.0,
+            7.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            0,
+            3,
+            4.0,
+            5.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            11,
+            14.0,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    },
+    {
+      "name": "dagger blade",
+      "from": [
+        4.6,
+        11.0,
+        6.4
+      ],
+      "to": [
+        6.800000000000001,
+        20.0,
+        7.6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            6,
+            12.200000000000001,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            3,
+            7,
+            5.200000000000001,
+            16.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            9,
+            5,
+            10.2,
+            14.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            3,
+            11.2,
+            12.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            6,
+            14,
+            8.200000000000001,
+            15.2
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "dagger tip",
+      "from": [
+        5.25,
+        20.0,
+        6.5
+      ],
+      "to": [
+        6.15,
+        22.0,
+        7.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            15,
+            11,
+            15.9,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            14,
+            8,
+            14.9,
+            10.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            11,
+            11,
+            12.0,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            4,
+            11,
+            5.0,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            15,
+            14,
+            15.9,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "dagger grip",
+      "from": [
+        9.5,
+        4.0,
+        8.2
+      ],
+      "to": [
+        11.100000000000001,
+        10.0,
+        9.8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_white_wool",
+          "uv": [
+            11,
+            5,
+            12.600000000000001,
+            11.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "south": {
+          "texture": "#material_white_wool",
+          "uv": [
+            1,
+            1,
+            2.6000000000000014,
+            7.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "east": {
+          "texture": "#material_white_wool",
+          "uv": [
+            12,
+            6,
+            13.600000000000001,
+            12.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "west": {
+          "texture": "#material_white_wool",
+          "uv": [
+            12,
+            8,
+            13.600000000000001,
+            14.0
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        },
+        "down": {
+          "texture": "#material_white_wool",
+          "uv": [
+            3,
+            1,
+            4.600000000000001,
+            2.6000000000000014
+          ],
+          "rotation": 0,
+          "tintindex": 3
+        }
+      }
+    },
+    {
+      "name": "dagger guard",
+      "from": [
+        8.3,
+        10.0,
+        8.0
+      ],
+      "to": [
+        12.3,
+        11.0,
+        10.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            11,
+            6,
+            15.0,
+            7.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            12,
+            14.0,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            2,
+            10,
+            4.0,
+            11.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            3,
+            5,
+            5.0,
+            6.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            2,
+            9,
+            6.0,
+            11.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#material_iron_block",
+          "uv": [
+            4,
+            4,
+            8.0,
+            6.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    },
+    {
+      "name": "dagger blade",
+      "from": [
+        9.200000000000001,
+        11.0,
+        8.4
+      ],
+      "to": [
+        11.4,
+        20.0,
+        9.6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            13,
+            4,
+            15.2,
+            13.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            8,
+            7,
+            10.2,
+            16.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            11,
+            1,
+            12.2,
+            10.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            9,
+            1,
+            10.2,
+            10.0
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            9,
+            11,
+            11.2,
+            12.2
+          ],
+          "rotation": 0,
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "name": "dagger tip",
+      "from": [
+        9.850000000000001,
+        20.0,
+        8.5
+      ],
+      "to": [
+        10.75,
+        22.0,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            13,
+            10.899999999999999,
+            15.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            13,
+            9,
+            13.899999999999999,
+            11.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            8,
+            1,
+            9.0,
+            3.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            0,
+            9,
+            1.0,
+            11.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            13,
+            0,
+            13.899999999999999,
+            1.0
+          ],
+          "rotation": 0,
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "name": "paired grip bridge",
+      "from": [
+        5.7,
+        7.5,
+        7.1
+      ],
+      "to": [
+        10.3,
+        8.5,
+        8.9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#material_iron_block",
+          "uv": [
+            6,
+            4,
+            10.600000000000001,
+            5.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "south": {
+          "texture": "#material_iron_block",
+          "uv": [
+            7,
+            2,
+            11.600000000000001,
+            3.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "east": {
+          "texture": "#material_iron_block",
+          "uv": [
+            13,
+            0,
+            14.8,
+            1.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "west": {
+          "texture": "#material_iron_block",
+          "uv": [
+            3,
+            0,
+            4.800000000000001,
+            1.0
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "up": {
+          "texture": "#material_iron_block",
+          "uv": [
+            10,
+            12,
+            14.600000000000001,
+            13.8
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        },
+        "down": {
+          "texture": "#material_iron_block",
+          "uv": [
+            5,
+            5,
+            9.600000000000001,
+            6.800000000000001
+          ],
+          "rotation": 0,
+          "tintindex": 2
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        10,
+        -15,
+        -35
+      ],
+      "translation": [
+        -1.8468,
+        -2.6031,
+        -0.9615
+      ],
+      "scale": [
+        0.6666666666666666,
+        0.6666666666666666,
+        0.6666666666666666
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -35,
+        12
+      ],
+      "translation": [
+        0,
+        0,
+        -3.2
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -35,
+        12
+      ],
+      "translation": [
+        0,
+        0,
+        -3.2
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        35,
+        -90,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        35,
+        -90,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "ground": {
+      "rotation": [
+        75,
+        0,
+        -90
+      ],
+      "translation": [
+        -2.2222,
+        2.5,
+        -0.0
+      ],
+      "scale": [
+        0.4444444444444444,
+        0.4444444444444444,
+        0.4444444444444444
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        -35
+      ],
+      "translation": [
+        2.3899,
+        -3.4131,
+        0.0
+      ],
+      "scale": [
+        0.8333333333333334,
+        0.8333333333333334,
+        0.8333333333333334
+      ]
+    }
+  },
+  "astera_tints": [
+    12372944,
+    15594997,
+    4608862,
+    6439471
+  ]
+}
