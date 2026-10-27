@@ -7,6 +7,9 @@ import java.nio.file.Path
 /** [allowBalancePatches]: `patchKind: balance` documents are applied only when true (dev flag); otherwise skipped. */
 data class ComposeOptions(val allowBalancePatches: Boolean = false)
 
+/** Key of the composition metadata added to every composed tree. */
+const val PATCH_META = "_patch"
+
 /**
  * kustomize-like composition of `astera/v2` YAML into generic trees, one [ComposedSkill] per skill id and variant.
  * No typed decoding happens here.
@@ -120,35 +123,76 @@ class SkillComposer(private val root: Path, private val options: ComposeOptions 
         for (d in skillDocs) base = mergeOrFail(base, d, errors) ?: return null
         val sources = skillDocs.map { it.file }.toMutableList()
 
+        val baseApplied = ArrayList<Doc>()
         for (p in patches) {
             if (p.variant != null) continue
             if (!checkAllowed(p, errors)) continue
-            run {
-                base = mergeOrFail(base, p, errors) ?: continue
-                sources += p.file
-            }
+            base = mergeOrFail(base, p, errors) ?: continue
+            baseApplied += p
+            sources += p.file
         }
         val variants = LinkedHashMap<String, Map<String, Any?>>()
+        val variantApplied = LinkedHashMap<String, MutableList<Doc>>()
         val variantSources = LinkedHashMap<String, MutableList<String>>()
         for (p in patches) {
             val v = p.variant ?: continue
             if (!checkAllowed(p, errors)) continue
             val current = variants[v] ?: base
             variants[v] = mergeOrFail(current, p, errors) ?: continue
+            variantApplied.getOrPut(v) { ArrayList() } += p
             variantSources.getOrPut(v) { ArrayList() } += p.file
         }
         if (errors.size > errorsBefore) return null
 
         val result = ArrayList<ComposedSkill>()
-        result += ComposedSkill(id, withId(base, id), sources.distinct())
-        for ((v, tree) in variants) result += ComposedSkill("$id@$v", withId(tree, "$id@$v"), (sources + variantSources.getValue(v)).distinct())
+        result += ComposedSkill(id, withMeta(base, id, baseApplied), sources.distinct())
+        for ((v, tree) in variants) {
+            val applied = baseApplied + variantApplied.getValue(v)
+            result += ComposedSkill("$id@$v", withMeta(tree, "$id@$v", applied), (sources + variantSources.getValue(v)).distinct())
+        }
         return result
     }
 
-    private fun withId(tree: Map<String, Any?>, id: String): Map<String, Any?> {
+    /**
+     * Sets `id` first and adds `_patch: {kind, touched}` last. `kind` is the strongest patch kind applied (`balance` >
+     * `skin` > `base` for no patch); `touched` is the sorted set of dotted paths the applied patch bodies name.
+     * Decoders must ignore `_patch`: it is composition metadata, not skill content.
+     */
+    private fun withMeta(tree: Map<String, Any?>, id: String, applied: List<Doc>): Map<String, Any?> {
         val out = LinkedHashMap<String, Any?>()
         out["id"] = id
         tree.forEach { (k, v) -> if (k != "id") out[k] = v }
+        val kind = when {
+            applied.any { it.patchKind == "balance" } -> "balance"
+            applied.any { it.patchKind == "skin" } -> "skin"
+            else -> "base"
+        }
+        out[PATCH_META] = mapOf("kind" to kind, "touched" to applied.flatMap { touchedPaths(it.body, "") }.distinct().sorted())
+        return out
+    }
+
+    /** Dotted paths named by a patch body; a delete / replace directive records the path of its own entry. */
+    private fun touchedPaths(body: Map<*, *>, prefix: String): List<String> {
+        val out = ArrayList<String>()
+        for ((k, v) in body) {
+            val key = k as? String ?: continue
+            if (key == StrategicMerge.DIRECTIVE) continue
+            val path = if (prefix.isEmpty()) key else "$prefix.$key"
+            when {
+                v is Map<*, *> && v[StrategicMerge.DIRECTIVE] != null -> out += path
+                v is Map<*, *> -> out += touchedPaths(v, path)
+                v is List<*> && v.any { it is Map<*, *> } -> v.forEach { e ->
+                    val m = e as? Map<*, *>
+                    val entryId = m?.get("id") as? String
+                    when {
+                        m == null || entryId == null -> out += path
+                        m[StrategicMerge.DIRECTIVE] != null -> out += "$path[$entryId]"
+                        else -> out += touchedPaths(m.filterKeys { it != "id" }, "$path[$entryId]")
+                    }
+                }
+                else -> out += path
+            }
+        }
         return out
     }
 
