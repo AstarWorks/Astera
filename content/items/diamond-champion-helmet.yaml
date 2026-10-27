@@ -24,6 +24,7 @@ enchantable: false
 drop_on_death: false
 keep_on_death: false
 armor_piece: diamond-champion-helmet
+equipment_asset: diamond-champion
 
 pdc_tags:
   astera:rarity: rare

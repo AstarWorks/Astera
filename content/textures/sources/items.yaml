@@ -10,6 +10,11 @@ sources:
     grid: [5, 5]
     cells: [bastion-greatsword, couture-rapier, crimson-chain-axe, dagger, edict-blade, ember-gauntlet, fire-staff, frost-staff, gossamer-katana, greatsword, knight-sword, orrery-staff, pistol, rifle, rtm-blaster, shotgun, sigil-rifle, thunder-staff, vendetta-rifle, verdant-staff, verdict-hammer]
 
+  armor-v1:
+    file: sheets/armor-v1.png
+    grid: [4, 4]
+    cells: [leather-scout-helmet, leather-scout-chestplate, leather-scout-leggings, leather-scout-boots, chain-guard-helmet, chain-guard-chestplate, chain-guard-leggings, chain-guard-boots, iron-warden-helmet, iron-warden-chestplate, iron-warden-leggings, iron-warden-boots, diamond-champion-helmet, diamond-champion-chestplate, diamond-champion-leggings, diamond-champion-boots]
+
 items:
   bastion-greatsword: weapons-v1
   crimson-chain-axe: weapons-v1
@@ -30,3 +35,21 @@ items:
   vendetta-rifle: weapons-v1
   verdant-staff: weapons-v1
   verdict-hammer: weapons-v1
+
+  # Armor lane: generated inventory art.
+  leather-scout-helmet: armor-v1
+  leather-scout-chestplate: armor-v1
+  leather-scout-leggings: armor-v1
+  leather-scout-boots: armor-v1
+  chain-guard-helmet: armor-v1
+  chain-guard-chestplate: armor-v1
+  chain-guard-leggings: armor-v1
+  chain-guard-boots: armor-v1
+  iron-warden-helmet: armor-v1
+  iron-warden-chestplate: armor-v1
+  iron-warden-leggings: armor-v1
+  iron-warden-boots: armor-v1
+  diamond-champion-helmet: armor-v1
+  diamond-champion-chestplate: armor-v1
+  diamond-champion-leggings: armor-v1
+  diamond-champion-boots: armor-v1

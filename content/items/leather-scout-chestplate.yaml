@@ -24,6 +24,7 @@ enchantable: false
 drop_on_death: false
 keep_on_death: false
 armor_piece: leather-scout-chestplate
+equipment_asset: leather-scout
 
 pdc_tags:
   astera:rarity: common
