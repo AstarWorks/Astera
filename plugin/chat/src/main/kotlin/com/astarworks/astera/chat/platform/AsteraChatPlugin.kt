@@ -21,7 +21,7 @@ import java.time.Duration
 
 public class AsteraChatPlugin : JavaPlugin() {
     private var relay: ChatRelay? = null
-    private var discord: DiscordBridge? = null
+    @Volatile private var discord: DiscordBridge? = null
     private var commands: ServiceRegistry.Registration? = null
     private var http: HttpClient? = null
 

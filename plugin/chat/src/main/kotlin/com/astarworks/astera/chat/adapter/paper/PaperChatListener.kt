@@ -23,15 +23,16 @@ public class PaperChatListener(
         event.isCancelled = true
         val player = event.player
         val message = PlainTextComponentSerializer.plainText().serialize(event.message()).take(256)
-        // Permission and role lookups may touch the player's host handle; resolve on its owning region.
+        // Snapshot handle data on its owning region; repository lookups belong off-thread.
         player.scheduler.run(plugin, {
             val id = PlayerId(player.uniqueId)
-            val rank = relay.rank(permissions.rolesOf(id).map { it.value }.toSet())
-            val color = permissions.check(id, Permission("astera.chat.color")) || player.hasPermission("astera.chat.color")
+            val handleColor = player.hasPermission("astera.chat.color")
             val name = player.name
-            val (cosmeticTitle, nameColor) = appearance(id)
             plugin.server.asyncScheduler.runNow(plugin) {
-                relay.send(player.uniqueId, name, message, rank.copy(prefix = rank.prefix + cosmeticTitle), color, nameColor).exceptionally {
+                val rank = relay.rank(permissions.rolesOf(id).map { it.value }.toSet())
+                val color = handleColor || permissions.check(id, Permission("astera.chat.color"))
+                val (cosmeticTitle, nameColor) = appearance(id)
+                relay.send(id.uuid, name, message, rank.copy(prefix = rank.prefix + cosmeticTitle), color, nameColor).exceptionally {
                     plugin.logger.warning("Chat delivery failed (${it.javaClass.simpleName})")
                     null
                 }

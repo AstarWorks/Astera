@@ -21,9 +21,10 @@ public class GoogleKanjiConverter(private val http: HttpClient) : IKanjiConverte
         val request = HttpRequest.newBuilder(URI.create("https://www.google.com/transliterate?langpair=ja-Hira%7Cja&text=$encoded"))
             .timeout(Duration.ofSeconds(2)).GET().build()
         return try {
-            http.sendAsync(request, HttpResponse.BodyHandlers.ofString()).orTimeout(2500, java.util.concurrent.TimeUnit.MILLISECONDS)
+            http.sendAsync(request, HttpResponse.BodyHandlers.limiting(HttpResponse.BodyHandlers.ofString(), 65536))
+                .orTimeout(2500, java.util.concurrent.TimeUnit.MILLISECONDS)
                 .thenApply { response ->
-                    if (response.statusCode() != 200 || response.body().length > 65536) kana
+                    if (response.statusCode() != 200) kana
                     else runCatching {
                         val segments = Json.parseToJsonElement(response.body()).jsonArray
                         require(segments.isNotEmpty())

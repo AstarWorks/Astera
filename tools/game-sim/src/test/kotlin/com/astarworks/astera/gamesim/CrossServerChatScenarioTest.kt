@@ -51,6 +51,8 @@ class CrossServerChatScenarioTest {
                 "konnichiha" to "こんにちは (konnichiha)", "nya" to "にゃ (nya)", "n'ya" to "んや (n'ya)",
                 "#konnichiwa" to "#konnichiwa", "こんにちは" to "こんにちは",
                 "https://example.com" to "https://example.com", "/spawn" to "/spawn",
+                "example.dev" to "example.dev", "EXAMPLE.TECH/path" to "EXAMPLE.TECH/path",
+                "see example.museum/path" to "see example.museum/path",
                 "<red>hi</red>" to "<れd>ひ</れd> (<red>hi</red>)",
             )
             samples.forEach { (input, output) ->

@@ -13,6 +13,8 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.kyori.adventure.title.Title
@@ -25,6 +27,12 @@ public class PaperChatDisplay(
     private val messages: IMessageRenderer,
 ) {
     private val mini = MiniMessage.miniMessage()
+    private val titleMini = MiniMessage.builder().tags(TagResolver.resolver(
+        StandardTags.color(), StandardTags.decorations(), StandardTags.gradient(), StandardTags.rainbow(),
+    )).build()
+    private val titleInteractions = MiniMessage.builder().tags(TagResolver.resolver(
+        StandardTags.clickEvent(), StandardTags.hoverEvent(), StandardTags.insertion(),
+    )).build()
     private val legacy = LegacyComponentSerializer.legacyAmpersand()
     private val plain = PlainTextComponentSerializer.plainText()
 
@@ -37,7 +45,7 @@ public class PaperChatDisplay(
         Placeholder.component("message", if (frame.color) legacy.deserialize(frame.message) else Component.text(frame.message)),
     )
 
-    /** Preserve the previous Core formatter's equipped cosmetics and team name colour. */
+    /** Preserve equipped cosmetics and team name colour; repository reads must run off-thread. */
     public fun appearance(player: PlayerId, matches: IMatchRepository?, cosmetics: CosmeticService?): Pair<String, String> {
         val team = matches?.findMatchOf(player)?.teams?.firstOrNull { player in it.members }
         val teamColor = team?.let { NamedTextColor.NAMES.value(messages.render(null, it.colorKey).lowercase()) }
@@ -68,7 +76,8 @@ public class PaperChatDisplay(
     }
 
     public fun title(frame: TitleFrame) {
-        val title = Title.title(mini.deserialize(frame.title), mini.deserialize(frame.subtitle),
+        val title = Title.title(titleMini.deserialize(titleInteractions.stripTags(frame.title)),
+            titleMini.deserialize(titleInteractions.stripTags(frame.subtitle)),
             Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(1000)))
         plugin.server.onlinePlayers.forEach { player -> player.scheduler.run(plugin, { player.showTitle(title) }, null) }
     }

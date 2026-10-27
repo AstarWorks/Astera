@@ -25,7 +25,7 @@ public object Romaji {
             "xtsu" to "っ", "ltsu" to "っ", "xtu" to "っ", "ltu" to "っ", "xya" to "ゃ", "xyu" to "ゅ", "xyo" to "ょ",
             "lya" to "ゃ", "lyu" to "ゅ", "lyo" to "ょ", "va" to "ゔぁ", "vi" to "ゔぃ", "vu" to "ゔ", "ve" to "ゔぇ", "vo" to "ゔぉ", "-" to "ー"))
     }
-    private val url = Regex("(?i)(https?://|www\\.|[a-z0-9-]+\\.(com|net|org|jp|gg)(/|\\b))")
+    private val url = Regex("(?i)(https?://|www\\.|\\S+\\.[a-z]{2,}(/\\S*)?)")
 
     /** Null means the input is deliberately bypassed or contains no convertible syllables. */
     public fun hiragana(message: String): String? {

@@ -193,15 +193,18 @@ public class DiscordBridge(
         if (webhook == null) builder.header("Authorization", "Bot $token")
         http.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString()).whenComplete { response, error ->
             execute {
-                var delay = 500L
+                var delay = 0L
                 if (error == null && response.statusCode() == 429) {
                     val retry = runCatching { Json.parseToJsonElement(response.body()).jsonObject["retry_after"]!!.jsonPrimitive.double }.getOrDefault(5.0)
-                    delay = (retry.coerceIn(0.5, 120.0) * 1000).toLong()
+                    delay = kotlin.math.ceil(retry.coerceAtLeast(0.0) * 1000).toLong()
                 } else {
                     outgoing.removeFirst()
-                    if (error != null || response.statusCode() !in 200..299) log.warning("Discord outbound message failed; message dropped")
+                    if (error != null || response.statusCode() !in 200..299) {
+                        log.warning("Discord outbound message failed; message dropped")
+                        delay = 500L
+                    }
                 }
-                executor.schedule({ pump() }, delay, TimeUnit.MILLISECONDS)
+                if (delay == 0L) pump() else executor.schedule({ pump() }, delay, TimeUnit.MILLISECONDS)
             }
         }
     }
