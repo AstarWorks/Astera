@@ -24,6 +24,8 @@ public data class Stage(
     val templateId: StageId = id,
     val origin: com.astarworks.astera.core.domain.geometry.Vec3 = com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 0.0),
     val warmSlots: Int? = null,
+    /** In-match ore-shop NPC spots, stage-local (add [origin] x/z); the NPC serves its own team only. */
+    val shopNpcs: List<StageShopNpc> = emptyList(),
 ) {
     /** The region the stage YAML named [name], or `null`. */
     public fun region(name: String): Region? = regions.firstOrNull { it.name == name }
@@ -41,3 +43,12 @@ public data class Stage(
         public const val DEFAULT_WORLD: String = "world"
     }
 }
+
+/** One in-match shop NPC spot: [team] is the only team allowed to use it; [x]/[y]/[z] are stage-local. */
+public data class StageShopNpc(
+    val team: com.astarworks.astera.core.domain.match.TeamId,
+    val x: Double,
+    val y: Double,
+    val z: Double,
+    val yaw: Float = 0f,
+)

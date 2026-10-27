@@ -639,6 +639,31 @@ astera:
     currency:
       gold: "<gold>GOLD</gold>"
       gem: "<light_purple>GEM</light_purple>"
+    matchshop:
+      title: "Ore Shop"
+      npc: "<gold>Ore Shop</gold>"
+      tab:
+        weapons: "<red>Weapons</red>"
+        tools: "<yellow>Tools</yellow>"
+        blocks: "<aqua>Blocks</aqua>"
+        armor: "<green>Armor</green>"
+        current: "<gray>Showing this tab.</gray>"
+        switch: "<yellow>Click to open this tab.</yellow>"
+      ore:
+        ore-iron: "Iron"
+        ore-gold: "Gold"
+        ore-diamond: "Diamond"
+        ore-emerald: "Emerald"
+      lore:
+        price: "<gray>Price: <white>{price}</white></gray>"
+        stack: "<gray>You get: <white>x{amount}</white></gray>"
+        buy: "<yellow>Click to buy.</yellow>"
+        short: "<red>Not enough ore.</red>"
+      bought: "<green>Bought {item} x{amount}.</green>"
+      short: "<red>You need {need} {ore} ore but carry {have}.</red>"
+      wrong-team: "<red>This is the {team} team's shop. Use your own base's shop.</red>"
+      not-in-match: "<red>The ore shop only works inside a match.</red>"
+      failed: "<red>The purchase failed. Nothing was taken.</red>"
     shop:
       example-shop:
         title: "Example Shop"

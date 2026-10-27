@@ -356,3 +356,15 @@ spawn_points:
 - role: spectator
   position: {x: 0.5, y: 100.0, z: 0.5}
   pitch: 60.0
+# In-match ore shop (stage-local; inside base-<team>). Only the own team can open it.
+shop_npcs:
+- team: red
+  x: -84.5
+  y: 65.0
+  z: 7.5
+  yaw: 270.0
+- team: blue
+  x: 84.5
+  y: 65.0
+  z: 7.5
+  yaw: 90.0

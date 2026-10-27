@@ -1,10 +1,33 @@
-# In-match ore shop (wp/match-arsenal). Offers: {item_id, price: {<ore item>: n}, tab, stack}.
-# W1 owns the loader and may merge this header; W3 owns the offers below.
+# In-match ore shop (wp/match-arsenal). Opened from the shop NPC in each team's base; priced in ore items
+# (ore-iron / ore-gold / ore-diamond / ore-emerald), never GOLD. The lobby GOLD shops are the other files in this folder.
+# Offer shape: {item_id, price: {<ore item>: n}, tab: weapons|tools|blocks|armor, stack}. One offer per block.
 id: match-shop
 
 offers:
-# --- W3 offers ---
-# Weapons / tools / blocks / armor. Prices: iron = basic, gold = mid, diamond = top. Stone tools are a free loan, not sold.
+  - item_id: dagger
+    price: { ore-iron: 6 }
+    tab: weapons
+    stack: 1
+  - item_id: knight-sword
+    price: { ore-iron: 14 }
+    tab: weapons
+    stack: 1
+  - item_id: pistol
+    price: { ore-gold: 5 }
+    tab: weapons
+    stack: 1
+  - item_id: field-pickaxe
+    price: { ore-iron: 6 }
+    tab: tools
+    stack: 1
+  - item_id: field-axe
+    price: { ore-iron: 6 }
+    tab: tools
+    stack: 1
+  - item_id: field-shovel
+    price: { ore-iron: 6 }
+    tab: tools
+    stack: 1
   - item_id: throwing-knives
     price: { ore-iron: 8 }
     tab: weapons
@@ -169,4 +192,3 @@ offers:
     price: { ore-diamond: 2 }
     tab: armor
     stack: 1
-# --- end W3 offers ---

@@ -30,6 +30,7 @@ import com.astarworks.astera.core.application.service.mob.pve.LootTableLoaderSer
 import com.astarworks.astera.economy.application.contents.betting.BettingPolicyContents
 import com.astarworks.astera.economy.application.service.InMemoryShopRegistry
 import com.astarworks.astera.economy.application.service.InMemoryShopStockRepository
+import com.astarworks.astera.economy.application.service.MatchShopLoaderService
 import com.astarworks.astera.economy.application.service.ShopLoaderService
 import com.astarworks.astera.match.application.contents.AnomalyContents
 import com.astarworks.astera.match.application.contents.GameModeContents
@@ -87,6 +88,10 @@ internal object RuntimeDecode {
             "bet-policies" to { d -> BettingPolicyContents().bootstrap(d) },
             "shops" to { d ->
                 val r = ShopLoaderService(InMemoryShopRegistry(), InMemoryShopStockRepository()).loadFrom(d)
+                ContentLoader.LoadReport(r.loaded, r.failed, r.failures)
+            },
+            "shops" to { d ->
+                val r = MatchShopLoaderService().loadFrom(d)
                 ContentLoader.LoadReport(r.loaded, r.failed, r.failures)
             },
             // permissions.yaml sits at the content root.
