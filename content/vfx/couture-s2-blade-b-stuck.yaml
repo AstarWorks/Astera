@@ -17,7 +17,7 @@ elements:
   keyframes:
   - t: 0
     translate:
-    - 0.35
+    - 0.6
     - 1.48
     - -0.3
     rotate:
@@ -30,7 +30,7 @@ elements:
     - 1.15
   - t: 2
     translate:
-    - 0.35
+    - 0.6
     - 1.48
     - 0.05
     rotate:
@@ -44,7 +44,7 @@ elements:
     ease: out_back
   - t: 12
     translate:
-    - 0.35
+    - 0.6
     - 1.48
     - 0.05
     rotate:

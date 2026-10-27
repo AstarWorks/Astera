@@ -17,9 +17,9 @@ elements:
   keyframes:
   - t: 0
     translate:
-    - 0.7
-    - 0
-    - 0
+    - 1.0
+    - -0.3
+    - 0.5
     rotate:
     - 90
     - 0
@@ -30,9 +30,9 @@ elements:
     - 1
   - t: 40
     translate:
-    - 0.7
-    - 0
-    - 0
+    - 1.0
+    - -0.3
+    - 0.5
     rotate:
     - 90
     - 0

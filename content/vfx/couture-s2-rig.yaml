@@ -180,9 +180,9 @@ elements:
     ease: out_cubic
   - t: 6
     translate:
-    - -0.35
-    - 3.6
-    - 0.2
+    - -0.525
+    - 3.75
+    - -0.05
     rotate:
     - 0
     - 0
@@ -194,9 +194,9 @@ elements:
     ease: out_back
   - t: 10
     translate:
-    - -0.7
-    - 3.7
-    - 0.2
+    - -1.05
+    - 4.0
+    - -0.3
     rotate:
     - 0
     - 30
@@ -208,9 +208,9 @@ elements:
     ease: in_out_sine
   - t: 11
     translate:
-    - -0.7
-    - 3.65
-    - 0.2
+    - -1.05
+    - 3.95
+    - -0.3
     rotate:
     - 0
     - 0
@@ -222,9 +222,9 @@ elements:
     ease: in_out_sine
   - t: 12
     translate:
-    - -0.7
-    - 3.6
-    - 0.4
+    - -1.05
+    - 3.9
+    - -0.1
     rotate:
     - 90
     - 0
@@ -273,9 +273,9 @@ elements:
     ease: out_cubic
   - t: 6
     translate:
-    - 0.35
-    - 3.6
-    - 0.2
+    - 0.525
+    - 3.45
+    - 0.45
     rotate:
     - 0
     - 0
@@ -287,9 +287,9 @@ elements:
     ease: out_back
   - t: 10
     translate:
+    - 1.05
+    - 3.4
     - 0.7
-    - 3.7
-    - 0.2
     rotate:
     - 0
     - 30
@@ -301,9 +301,9 @@ elements:
     ease: in_out_sine
   - t: 11
     translate:
+    - 1.05
+    - 3.35
     - 0.7
-    - 3.65
-    - 0.2
     rotate:
     - 0
     - 0
@@ -315,9 +315,9 @@ elements:
     ease: in_out_sine
   - t: 12
     translate:
-    - 0.7
-    - 3.6
-    - 0.4
+    - 1.05
+    - 3.3
+    - 0.9
     rotate:
     - 90
     - 0
