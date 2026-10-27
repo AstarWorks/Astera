@@ -65,7 +65,10 @@ internal class DefaultOpReader(
 
     private fun at(key: String) = if (path.isEmpty()) key else "$path.$key"
 
+    private val children = ArrayList<DefaultOpReader>()
+
     fun failOnUnconsumed() {
+        children.forEach { it.failOnUnconsumed() }
         val extra = map.keys.map { it.toString() }.firstOrNull { it !in consumed } ?: return
         throw DecodeAbort(SkillDecodeError.UnknownKey(skillId, path, extra))
     }
@@ -135,6 +138,15 @@ internal class DefaultOpReader(
     }
 
     override fun ops(key: String): List<SkillOp> = ctx.decodeOps(section, take(key), at(key))
+
+    override fun entries(key: String): List<OpReader> {
+        val raw = take(key) ?: return emptyList()
+        val list = raw as? List<*> ?: ValueDecoding.mismatch(skillId, at(key), "list", raw)
+        return list.mapIndexed { i, item ->
+            val m = item as? Map<*, *> ?: ValueDecoding.mismatch(skillId, "${at(key)}[$i]", "map", item)
+            DefaultOpReader(ctx, section, "${at(key)}[$i]", m).also { children += it }
+        }
+    }
 
     override fun raw(key: String): Any? = take(key)
 

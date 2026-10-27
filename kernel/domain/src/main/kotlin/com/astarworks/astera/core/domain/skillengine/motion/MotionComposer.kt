@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnv
 import com.astarworks.astera.core.domain.skillengine.expr.ExprValue
+import com.astarworks.astera.core.domain.skillengine.expr.FrameLookup
 import com.astarworks.astera.core.domain.skillengine.frame.FrameId
 import com.astarworks.astera.core.domain.skillengine.frame.FrameTree
 import com.astarworks.astera.core.domain.skillengine.model.AxisRef
@@ -36,7 +37,7 @@ public object MotionAxes {
     public fun resolve(name: AxisRef, ctx: MotionContext, velocity: Vec3? = null): Vec3? = resolve(name.name, ctx, velocity)
 
     public fun resolve(name: String, ctx: MotionContext, velocity: Vec3? = null): Vec3? {
-        val vel = velocity ?: (ctx.env.get("velocity") as? ExprValue.Vec3)?.value
+        val vel = velocity ?: (ctx.env.variables["velocity"] as? ExprValue.Vec3)?.value
         when (name) {
             "world.up" -> return UP
             "world.down" -> return UP * -1.0
@@ -162,7 +163,7 @@ public class MotionComposer(
             }
             var cur = Frame(local.origin, st.base ?: local.rotation)
             val parentWorld = node.parent?.let { tree.worldOf(it).getOrNull() } ?: Frame(Vec3.ZERO)
-            val env = FrameEnv(baseEnv(frame), st.velocity)
+            val env = frameEnv(baseEnv(frame), st.velocity)
 
             for (phase in MotionPhase.entries) {
                 if (phase == MotionPhase.ROTATE) st.base = cur.rotation
@@ -198,14 +199,8 @@ public class MotionComposer(
         if (st.laws.none { it.law is RotationContribution }) st.lastWritten?.let { st.base = it.rotation }
     }
 
-    private object EmptyEnv : ExprEnv {
-        override fun get(name: String): ExprValue? = null
-    }
-
-    private class FrameEnv(private val base: ExprEnv, private val velocity: Vec3) : ExprEnv {
-        override fun get(name: String): ExprValue? =
-            if (name == "velocity" && velocity.lengthSquared() > 0.0) ExprValue.Vec3(velocity) else base.get(name)
-    }
+    private fun frameEnv(base: ExprEnv, velocity: Vec3): ExprEnv =
+        if (velocity.lengthSquared() > 0.0) ExprEnv(base.variables + ("velocity" to ExprValue.Vec3(velocity)), base.frames, base.seed) else base
 
     private class Ctx(
         override val tick: Int,
@@ -218,3 +213,10 @@ public class MotionComposer(
     ) : MotionContext
 }
 
+
+private object NoFrames : FrameLookup {
+    override fun worldPose(frame: String, point: String?): Frame? = null
+    override fun velocity(frame: String, point: String?): Vec3 = Vec3.ZERO
+}
+
+private val EmptyEnv = ExprEnv(emptyMap(), NoFrames)

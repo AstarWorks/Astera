@@ -101,12 +101,19 @@ class MovementOpsScenarioTest {
             override fun releaseInvulnerable(entity: UUID) { w.immune = false }
         }
         val gameplay = object : ISkillGameplayGateway {
+            override fun removeStatus(victim: UUID, statusId: String) = Unit
+            override fun cleanse(victim: UUID, negativeOnly: Boolean) = Unit
+            override fun ignite(caster: UUID, victim: UUID, durationTicks: Int) = Unit
+            override fun silence(caster: UUID, victim: UUID, durationTicks: Int) = Unit
+            override fun modifyAttribute(caster: UUID, victim: UUID, attribute: String, operation: String, amount: Double, durationTicks: Int?) = Unit
+            override fun restoreResource(victim: UUID, resource: String, amount: Double) = Unit
             override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) = Unit
             override fun applyStatus(caster: UUID, victim: UUID, statusId: String, stacks: Int, durationTicks: Int) = Unit
             override fun impulse(victim: UUID, vector: Vec3) { w.impulses += victim to vector }
             override fun freezeEntities(entities: List<UUID>, ticks: Int) = Unit
         }
         val visuals = object : ISkillVisualGateway {
+            override fun updateScale(handle: VisualHandle, scale: Double) = Unit
             override fun spawnMesh(castOwner: UUID, item: String, part: String?, scale: Double, pose: Frame) = VisualHandle(0)
             override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame) = VisualHandle(0)
             override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace) = VisualHandle(0)
@@ -151,6 +158,7 @@ class MovementOpsScenarioTest {
     }
 
     private fun ctxOf(e: Env) = object : OpContext {
+        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
         override val cast = CastId(1)
         override val tree: FrameTree get() = error("movement ops never touch the frame tree")
         override val values = literals
@@ -280,6 +288,8 @@ class MovementOpsScenarioTest {
     }
 
     private class MapReader(val map: Map<String, Any>) : OpReader {
+        override fun textValue(key: String): Value<String>? = null
+        override fun entries(key: String): List<OpReader> = emptyList()
         override val path = "test"
         private fun numOf(v: Any) = literal((v as Number).toDouble())
         override fun string(key: String) = map[key] as? String

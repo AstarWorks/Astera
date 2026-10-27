@@ -2,8 +2,20 @@ package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.application.skillengine.compose.ComposedSkill
 import com.astarworks.astera.core.application.skillengine.compose.SkillComposer
-import com.astarworks.astera.core.application.skillengine.load.SkillCompiler
-import com.astarworks.astera.core.application.skillengine.load.SkillDecoder
+import com.astarworks.astera.core.application.skillengine.expr.cel.CelExprCompiler
+import com.astarworks.astera.core.application.skillengine.load.DefaultOpRegistries
+import com.astarworks.astera.core.application.skillengine.load.DefaultSkillCompiler
+import com.astarworks.astera.core.application.skillengine.load.ItemFramesDecoder
+import com.astarworks.astera.core.application.skillengine.load.YamlSkillDecoder
+import com.astarworks.astera.core.application.skillengine.load.ops.damageDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.movementDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.ControlOpDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.FrameOpDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.HitOpDecoders
+import com.astarworks.astera.core.application.skillengine.load.presentation.presentationDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.spawnDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.statusDecoders
+import com.astarworks.astera.core.application.skillengine.load.worldDecoders
 import com.astarworks.astera.core.domain.Result
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -13,8 +25,7 @@ import java.nio.file.Path
  * SKL-08 W8: the shipped coin-2 content (`content/skills/couture-rapier-s2/`) goes through the real loaders:
  * compose (skill.yaml + look.yaml + patches/crimson.yaml) -> decode -> compile, base and `@crimson` variant.
  *
- * Needs to run: W3a's `YamlSkillDecoder` and `DefaultSkillCompiler` (no-arg constructors, resolved by name below so this file
- * compiles against the contract interfaces alone). The composer-level checks need nothing else.
+ * Uses the production decoder registry (every op family) and the shipped `content/frames` point tables.
  */
 class Coin2ContentScenario {
 
@@ -109,8 +120,15 @@ class Coin2ContentScenario {
 
     @Test
     fun `base and crimson decode and compile`() {
-        val decoder = instantiate<SkillDecoder>("com.astarworks.astera.core.application.skillengine.load.YamlSkillDecoder")
-        val compiler = instantiate<SkillCompiler>("com.astarworks.astera.core.application.skillengine.load.DefaultSkillCompiler")
+        val decoder = YamlSkillDecoder(
+            DefaultOpRegistries.decoders(
+                movementDecoders(), statusDecoders(), worldDecoders(), spawnDecoders(), damageDecoders(), presentationDecoders(),
+                listOf(FrameOpDecoders(), HitOpDecoders(), ControlOpDecoders()),
+            ),
+        )
+        val (tables, tableErrors) = ItemFramesDecoder.loadDirectory(skillsRoot.resolveSibling("frames"))
+        check(tableErrors.isEmpty()) { "frame tables: $tableErrors" }
+        val compiler = DefaultSkillCompiler(CelExprCompiler()) { tables[it] }
         val all = composed()
         for (id in listOf("couture-rapier-s2", "couture-rapier-s2@crimson")) {
             val def = when (val d = decoder.decode(checkNotNull(all[id]))) {
@@ -126,7 +144,4 @@ class Coin2ContentScenario {
             assertThat(compiled.exprs).isNotEmpty()
         }
     }
-
-    private inline fun <reified T> instantiate(className: String): T =
-        Class.forName(className).getDeclaredConstructor().newInstance() as T
 }

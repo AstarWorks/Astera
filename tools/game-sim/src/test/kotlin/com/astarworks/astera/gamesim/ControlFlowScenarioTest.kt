@@ -259,6 +259,7 @@ class ControlFlowScenarioTest {
         override fun requireString(key: String): String = string(key) ?: fail("missing '$key'")
         override fun int(key: String): Int? = (take(key) as Number?)?.toInt()
         override fun bool(key: String): Boolean? = take(key) as Boolean?
+        override fun textValue(key: String): Value<String>? = take(key)?.let { value<String>(it) }
         override fun number(key: String): Value<Double>? = take(key)?.let { value<Double>(it) }
         override fun requireNumber(key: String): Value<Double> = number(key) ?: fail("missing '$key'")
         override fun vec3(key: String): Value<Vec3>? = take(key)?.let { raw ->

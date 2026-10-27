@@ -1,28 +1,32 @@
 package com.astarworks.astera.skilllint
 
 import com.astarworks.astera.core.application.skillengine.compose.ComposeOptions
+import com.astarworks.astera.core.application.skillengine.load.DefaultOpRegistries
+import com.astarworks.astera.core.application.skillengine.load.YamlSkillDecoder
+import com.astarworks.astera.core.application.skillengine.load.ops.damageDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.movementDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.ControlOpDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.FrameOpDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.HitOpDecoders
+import com.astarworks.astera.core.application.skillengine.load.presentation.presentationDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.spawnDecoders
+import com.astarworks.astera.core.application.skillengine.load.ops.statusDecoders
+import com.astarworks.astera.core.application.skillengine.load.worldDecoders
 import com.astarworks.astera.core.application.skillengine.load.SkillDecoder
 import java.nio.file.Path
 import kotlin.system.exitProcess
 
 /**
  * The one place that names the production decoder. The lint rules themselves only know [SkillDecoder].
- * The class is resolved by name so this module compiles while the decoder is built in parallel (W3a);
- * once merged, replace the body with a direct construction if its constructor needs arguments.
+ * Every op family is registered; the frame point tables are the compiler's concern, not the decoder's.
  */
 object ProductionDecoder {
-    private const val CLASS_NAME = "com.astarworks.astera.core.application.skillengine.load.YamlSkillDecoder"
-
-    fun create(): SkillDecoder {
-        val cls = try {
-            Class.forName(CLASS_NAME)
-        } catch (e: ClassNotFoundException) {
-            error("$CLASS_NAME is not on the classpath; skill-lint needs the production SkillDecoder")
-        }
-        val ctor = cls.constructors.firstOrNull { it.parameterCount == 0 }
-            ?: error("$CLASS_NAME has no no-arg constructor; construct it in ProductionDecoder.create()")
-        return ctor.newInstance() as SkillDecoder
-    }
+    fun create(): SkillDecoder = YamlSkillDecoder(
+        DefaultOpRegistries.decoders(
+            movementDecoders(), statusDecoders(), worldDecoders(), spawnDecoders(), damageDecoders(), presentationDecoders(),
+            listOf(FrameOpDecoders(), HitOpDecoders(), ControlOpDecoders()),
+        ),
+    )
 }
 
 /**

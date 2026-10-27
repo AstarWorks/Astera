@@ -82,6 +82,7 @@ class StatusOpsScenarioTest {
             victimAnim = unused<ISkillVictimAnimGateway>(),
         )
         return object : OpContext {
+        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
             override val cast = CastId(cast)
             override val tree: FrameTree = unused<FrameTree>()
             override val values = resolver
@@ -100,6 +101,8 @@ class StatusOpsScenarioTest {
             else -> error("bad $key")
         }
         return object : OpReader {
+        override fun textValue(key: String): Value<String>? = null
+        override fun entries(key: String): List<OpReader> = emptyList()
             override val path = "gameplay.on.hit[test]"
             override fun string(key: String) = map[key] as? String
             override fun requireString(key: String) = string(key) ?: fail("$path.$key: missing")

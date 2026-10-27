@@ -6,6 +6,7 @@ import com.astarworks.astera.core.domain.skillengine.expr.ExprCompiler
 import com.astarworks.astera.core.domain.skillengine.expr.ExprEnvSpec
 import com.astarworks.astera.core.domain.skillengine.expr.ExprType
 import com.astarworks.astera.core.domain.skillengine.frame.FrameKind
+import com.astarworks.astera.core.domain.skillengine.motion.AlignSpec
 import com.astarworks.astera.core.domain.skillengine.model.FrameDecl
 import com.astarworks.astera.core.domain.skillengine.model.ParamValue
 import com.astarworks.astera.core.domain.skillengine.model.PointRef
@@ -158,7 +159,8 @@ public class DefaultSkillCompiler(
                     f.isAccessible = true
                     val v = f.get(node)
                     val p = "$path.${f.name}"
-                    if (f.name in FRAME_NAME_FIELDS) checkFrameNames(v, p)
+                    // AlignSpec.to is an axis name (world.up, velocity, shears.axis), not a frame.
+                    if (f.name in FRAME_NAME_FIELDS && node !is AlignSpec) checkFrameNames(v, p)
                     walk(v, p)
                 }
                 cls = cls.superclass

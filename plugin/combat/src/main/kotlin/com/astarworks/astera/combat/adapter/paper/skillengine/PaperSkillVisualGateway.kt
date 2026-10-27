@@ -15,6 +15,7 @@ import com.astarworks.astera.core.domain.effect.vfx.SpriteId
 import com.astarworks.astera.core.domain.effect.vfx.VfxQuad
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.item.ItemId
@@ -63,8 +64,8 @@ public class PaperSkillVisualGateway(
     public fun activeWorld(): WorldId? = lastWorld
 
     private sealed interface Entry
-    private class MeshEntry(val handle: DisplayHandle, val scale: Double) : Entry
-    private class PlateEntry(val handle: DisplayHandle, val face: PlateFace, val size: Double, val world: World) : Entry
+    private class MeshEntry(val handle: DisplayHandle, var scale: Double, var rotation: Quaternion) : Entry
+    private class PlateEntry(val handle: DisplayHandle, val face: PlateFace, var size: Double, val world: World, var rotation: Quaternion) : Entry
     private class LineEntry(val handle: DisplayHandle, val face: PlateFace, val thickness: Double, val world: World) : Entry
     private class Seg(val display: UUID, var age: Int)
     private class TrailEntry(
@@ -84,7 +85,7 @@ public class PaperSkillVisualGateway(
             weaponRigShading = true,
         )
         val handle = displays.spawn(WorldId(world.name), pose.origin, spec, emptyList()) ?: return dead("mesh $item")
-        return register(MeshEntry(handle, scale))
+        return register(MeshEntry(handle, scale, pose.rotation))
     }
 
     override fun spawnPlate(castOwner: UUID, sprite: String, face: PlateFace, size: Double, alpha: Double, pose: Frame): VisualHandle {
@@ -105,7 +106,7 @@ public class PaperSkillVisualGateway(
             brightness = 15,
         )
         val handle = displays.spawn(WorldId(world.name), pose.origin, spec, listOf(glyph)) ?: return dead("plate $sprite")
-        return register(PlateEntry(handle, face, size, world))
+        return register(PlateEntry(handle, face, size, world, placed.rotation))
     }
 
     override fun spawnLine(castOwner: UUID, from: Vec3, to: Vec3, thickness: Double, colorHex: String, face: PlateFace): VisualHandle {
@@ -138,13 +139,29 @@ public class PaperSkillVisualGateway(
     override fun updatePose(handle: VisualHandle, pose: Frame, interpolationTicks: Int) {
         when (val e = entries[handle.id]) {
             is MeshEntry -> {
+                e.rotation = pose.rotation
                 displays.teleport(e.handle, pose.origin, 0f, 0f, interpolationTicks)
                 displays.update(e.handle, DisplayTransform(Vec3.ZERO, pose.rotation, uniform(e.scale)), interpolationTicks)
             }
             is PlateEntry -> {
                 val placed = PlateOrientation.forPlate(pose, e.face, viewerEye(e.world, pose.origin))
+                e.rotation = placed.rotation
                 displays.teleport(e.handle, pose.origin, 0f, 0f, interpolationTicks)
                 displays.update(e.handle, plateTransform(placed.rotation, e.size), interpolationTicks)
+            }
+            else -> Unit
+        }
+    }
+
+    override fun updateScale(handle: VisualHandle, scale: Double) {
+        when (val e = entries[handle.id]) {
+            is MeshEntry -> {
+                e.scale = scale
+                displays.update(e.handle, DisplayTransform(Vec3.ZERO, e.rotation, uniform(scale)), SCALE_INTERPOLATION_TICKS)
+            }
+            is PlateEntry -> {
+                e.size = scale
+                displays.update(e.handle, plateTransform(e.rotation, scale), SCALE_INTERPOLATION_TICKS)
             }
             else -> Unit
         }
@@ -275,6 +292,7 @@ public class PaperSkillVisualGateway(
 
     private companion object {
         const val LIFETIME: Long = 1_000_000L
+        const val SCALE_INTERPOLATION_TICKS: Int = 2
         const val VIEWER_RADIUS = 96.0
     }
 }

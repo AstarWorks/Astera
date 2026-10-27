@@ -67,6 +67,7 @@ class ProjectileAoeScenarioTest {
     private class Flight(val frame: FrameId, val spec: MotionSpec.Fly, var velocity: Vec3, var age: Int = 0)
 
     private class Cast(victims: List<Victim>) : OpContext, SkillCastScope {
+        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
         val casterId: UUID = UUID.randomUUID()
         val victimList = victims
         val damaged = mutableListOf<Pair<UUID, Double>>()
@@ -90,6 +91,12 @@ class ProjectileAoeScenarioTest {
             visuals = unused(), particles = unused<ISkillParticleGateway>(), sounds = unused<ISkillSoundGateway>(),
             victimAnim = unused<ISkillVictimAnimGateway>(),
             gameplay = object : ISkillGameplayGateway {
+            override fun removeStatus(victim: UUID, statusId: String) = Unit
+            override fun cleanse(victim: UUID, negativeOnly: Boolean) = Unit
+            override fun ignite(caster: UUID, victim: UUID, durationTicks: Int) = Unit
+            override fun silence(caster: UUID, victim: UUID, durationTicks: Int) = Unit
+            override fun modifyAttribute(caster: UUID, victim: UUID, attribute: String, operation: String, amount: Double, durationTicks: Int?) = Unit
+            override fun restoreResource(victim: UUID, resource: String, amount: Double) = Unit
                 override fun damage(caster: UUID, victim: UUID, components: List<SkillDamage>, hitPoint: Vec3) {
                     damaged += victim to components.sumOf { it.amount }
                 }

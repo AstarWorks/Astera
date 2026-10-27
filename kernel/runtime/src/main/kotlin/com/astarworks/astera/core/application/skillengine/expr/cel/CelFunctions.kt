@@ -20,7 +20,9 @@ import kotlin.math.acos
 import kotlin.math.asin
 import kotlin.math.atan
 import kotlin.math.atan2
+import kotlin.math.ceil
 import kotlin.math.cos
+import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -115,6 +117,9 @@ internal object CelFunctions {
         def("cross", "cross_vec3", VEC3, listOf(VEC3, VEC3), listOf(V, V)) { (it[0] as Vec3).cross(it[1] as Vec3) }
         def("len", "len_vec3", D, listOf(VEC3), listOf(V)) { (it[0] as Vec3).length() }
         def("norm", "norm_vec3", VEC3, listOf(VEC3), listOf(V)) { (it[0] as Vec3).normalize() }
+        // spec names (territories.md): `normalize` and `length` are the authoring spellings of norm / len
+        def("normalize", "normalize_vec3", VEC3, listOf(VEC3), listOf(V)) { (it[0] as Vec3).normalize() }
+        def("length", "length_vec3", D, listOf(VEC3), listOf(V)) { (it[0] as Vec3).length() }
         def("lerp", "lerp_vec3", VEC3, listOf(VEC3, VEC3, NUM), listOf(V, V, OBJ)) {
             val a = it[0] as Vec3
             val b = it[1] as Vec3
@@ -173,6 +178,8 @@ internal object CelFunctions {
         scalar2("atan2", ::atan2)
         scalar1("sqrt", ::sqrt)
         scalar1("abs", ::abs)
+        scalar1("ceil", ::ceil)
+        scalar1("floor", ::floor)
         scalar2("min") { a, b -> min(a, b) }
         scalar2("max") { a, b -> max(a, b) }
         scalar2("pow") { a, b -> a.pow(b) }

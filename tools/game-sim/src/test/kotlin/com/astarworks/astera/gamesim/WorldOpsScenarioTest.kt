@@ -85,6 +85,7 @@ class WorldOpsScenarioTest {
         private val tree = FakeTree()
         private val executors = worldExecutors(editor)
         private val ctx = object : OpContext {
+        override val host: com.astarworks.astera.core.application.skillengine.runtime.OpHost get() = error("this scenario never reaches the cast host")
             override val cast = CastId(1)
             override val tree: FrameTree = this@Fixture.tree
             override val values: ValueResolver = Literals
@@ -189,6 +190,8 @@ class WorldOpsScenarioTest {
             "tool_class" to "shovel", "block_damage" to 40, "breaks" to false,
         )
         val reader = object : OpReader {
+        override fun textValue(key: String): Value<String>? = null
+        override fun entries(key: String): List<OpReader> = emptyList()
             override val path = "gameplay.on.release[dig]"
             override fun string(key: String) = keys[key] as? String
             override fun requireString(key: String) = string(key) ?: fail("missing $key")
