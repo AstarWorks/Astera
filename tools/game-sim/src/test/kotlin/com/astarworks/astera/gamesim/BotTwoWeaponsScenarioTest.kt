@@ -59,8 +59,8 @@ class BotTwoWeaponsScenarioTest {
 
     private fun ScenarioScope.fatten(entity: SimEntity) {
         val container = sim.services.getOrThrow<IPlayerAttributeContainerStore>().containerFor(entity.id)
-        container.set(Attributes.MAX_HP, AttributeValue.NumberValue(500.0))
-        container.set(Attributes.CURRENT_HP, AttributeValue.NumberValue(500.0))
+        container.set(Attributes.MAX_HP, AttributeValue.NumberValue(5000.0))
+        container.set(Attributes.CURRENT_HP, AttributeValue.NumberValue(5000.0))
     }
 
     @Test
