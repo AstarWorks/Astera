@@ -6,13 +6,13 @@ import com.astarworks.astera.core.application.port.outbound.IActionBarChannel
 import com.astarworks.astera.core.application.port.outbound.postRendered
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay
+import io.papermc.paper.math.Angle
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.title.Title
 import net.kyori.adventure.util.Ticks
 import org.bukkit.Server
-import java.util.concurrent.ThreadLocalRandom
 
 /**
  * Paper concrete of [IPlayerFeedbackGateway] (WP4): Adventure action bar and
@@ -75,19 +75,11 @@ public class PaperPlayerFeedbackGateway(
         )
     }
 
-    override fun cameraKick(target: PlayerId, intensity: Double) {
-        // Approximation of a screen shake: a small random view nudge per call.
+    override fun cameraKick(target: PlayerId, dx: Double, dy: Double) {
+        // Paper's relative Angle sends the delta to the client (forceSetRotation with relative flags), so it is added to the
+        // view the player really has; an absolute setRotation would snap to the server's stale copy. No teleport, no
+        // PlayerTeleportEvent. TeleportFlag.Relative only covers velocity in this Paper (X/Y/Z/YAW/PITCH alias VELOCITY_*).
         val player = server.getPlayer(target.uuid) ?: return
-        val rng = ThreadLocalRandom.current()
-        val spread = intensity.coerceIn(0.0, 1.0) * MAX_JITTER_DEGREES
-        val loc = player.location
-        val yaw = loc.yaw + ((rng.nextDouble() * 2.0 - 1.0) * spread).toFloat()
-        val pitch = (loc.pitch + ((rng.nextDouble() * 2.0 - 1.0) * spread).toFloat()).coerceIn(-90f, 90f)
-        player.setRotation(yaw, pitch)
-    }
-
-    private companion object {
-        /** View jitter (degrees, per axis) at full intensity. */
-        const val MAX_JITTER_DEGREES: Double = 4.0
+        player.setRotation(Angle.relative(dx.toFloat()), Angle.relative(dy.toFloat()))
     }
 }

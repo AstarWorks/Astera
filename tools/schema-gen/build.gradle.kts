@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":plugin:match"))
     implementation(project(":plugin:stats"))
     implementation(project(":plugin:economy"))
+    implementation(project(":plugin:chat"))
 
     implementation(libs.kotlinx.serialization.json)
 

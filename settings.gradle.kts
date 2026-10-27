@@ -63,6 +63,7 @@ include(
     ":plugin:core",
 
     // Feature plugins (each optional, soft-depended where coupled):
+    ":plugin:chat",        // depend [Core]; cross-server chat and titles
     ":plugin:items",       // depend [Core]; Item-centric content (ADR-0073),
                            //                 /astera-items give, click → skill bind.
     ":plugin:combat",      // depend [Core], softdepend [Items]

@@ -1,0 +1,7 @@
+# Settings tile icon (vfx_intensity). Vanilla material until item-art draws a glyph.
+
+id: gui-tile-vfx-quality
+material: GLOWSTONE_DUST
+name:
+  ja: "<gold>エフェクト品質</gold>"
+  en: "<gold>Effect quality</gold>"

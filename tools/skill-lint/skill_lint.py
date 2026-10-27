@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""skill-lint: preflight for a VFX skill, run BEFORE every capture. Seven invariants, nothing else.
+"""skill-lint: preflight for a VFX skill, run BEFORE every capture. Eight invariants, nothing else.
 
     python3 tools/skill-lint/skill_lint.py <skill-id> [--plan plan.json] [--case <case>]
     make skill-lint SKILL=bastion-greatsword-s1 [PLAN=<plan.json>] [CASE=<case>]
@@ -33,6 +33,9 @@ Checks (each prints PASS / FAIL / NOT CHECKED; exit 1 on any FAIL):
   7 distance bake  no keyframe / offset in the skill or its vfx carries the capture DISTANCE (the enemy x of the case intent)
                    as a literal: an object that goes "to where the dummy stood" is a camera-tuned fake. NOT CHECKED without
                    a case intent.
+  8 windup length  a skill-level `windup: {ticks}` is at most WINDUP_MAX_TICKS (20) ticks, unless the skill's top-level `importance:` is
+                   >= WINDUP_LONG_IMPORTANCE (9): a long frozen telegraph is a big-move privilege (vfx-art-direction.md, telegraph rules).
+                   PASS with "no windup" when the skill has none.
 
 There are no per-skill targets. Facts about the REFERENCE (blade angle, torso lean, ...) are judged on skill-compare,
 not here. Plan dump (written by the runtime, build/skill-lint/<skill>/plan.json): docs/contributing/vfx-team/skill-lint.md.
@@ -72,6 +75,9 @@ HEAVY_ATTACK_SPEED = 1.0
 HELD_WORDS = ("手持ち", "握", "手に", "両手", "右手", "左手", "held", "hand", "grip")
 OBJECT_3D_WORDS = ("3d", "物体", "model", "itemdisplay")
 MODEL_ID_RE = re.compile(r"astera:([a-z0-9][a-z0-9-]*)|`([a-z0-9][a-z0-9-]*)`")
+# Check 8: windup length (ticks) and the importance (1-10, skill YAML `importance:`) that earns a longer one.
+WINDUP_MAX_TICKS = 20
+WINDUP_LONG_IMPORTANCE = 9
 # Check 7: a translate / offset component this close to the capture DISTANCE is the dummy's position baked into content.
 DISTANCE_TOL = 0.2
 DISTANCE_MIN = 1.5         # below this the enemy stands in melee reach and any offset is ambiguous
@@ -686,6 +692,25 @@ def write_report(skill_id, plan_path):
     print("report    %s" % out.relative_to(ROOT))
 
 
+# ---- check 8 ------------------------------------------------------------------------------------------------------
+def check_windup(skill):
+    c = "8 windup length"
+    windup = skill.doc.get("windup")
+    if not windup:
+        emit(c, "PASS", "no windup block")
+        return
+    ticks = int(lit(windup.get("ticks"), 0))
+    raw = skill.doc.get("importance")
+    importance = int(lit(raw, 0)) if raw is not None else None
+    if ticks <= WINDUP_MAX_TICKS:
+        emit(c, "PASS", "windup %d ticks (limit %d)" % (ticks, WINDUP_MAX_TICKS))
+    elif importance is not None and importance >= WINDUP_LONG_IMPORTANCE:
+        emit(c, "PASS", "windup %d ticks > %d allowed by importance %d (>= %d)" % (ticks, WINDUP_MAX_TICKS, importance, WINDUP_LONG_IMPORTANCE))
+    else:
+        emit(c, "FAIL", "windup %d ticks exceeds %d and importance is %s (needs >= %d): shorten the windup or set `importance:`" % (
+            ticks, WINDUP_MAX_TICKS, importance if importance is not None else "unset", WINDUP_LONG_IMPORTANCE), ticks=[ticks])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("skill")
@@ -707,6 +732,7 @@ def main():
     check_hit_events(skill)
     check_inventory_models(skill, inventory, case)
     check_distance_bake(skill, case)
+    check_windup(skill)
     if not a.no_report:
         write_report(a.skill, plan_path)
     fails = [r for r in RESULTS if r[1] == "FAIL"]

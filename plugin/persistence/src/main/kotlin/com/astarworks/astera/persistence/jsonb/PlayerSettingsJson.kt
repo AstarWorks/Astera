@@ -53,6 +53,8 @@ public data class PlayerSettingsJson(
     val hpLineVisible: Boolean = true,
     val damageNumbersVisible: Boolean = true,
     val tutorialHintsEnabled: Boolean = true,
+    // `full` | `reduced` | `minimal`; missing or unknown on older rows decodes as full.
+    val vfxIntensity: String = "full",
 ) {
 
     public fun toDomain(playerId: PlayerId): PlayerSettings = PlayerSettings(
@@ -71,6 +73,7 @@ public data class PlayerSettingsJson(
         hpLineVisible = hpLineVisible,
         damageNumbersVisible = damageNumbersVisible,
         tutorialHintsEnabled = tutorialHintsEnabled,
+        vfxIntensity = com.astarworks.astera.core.domain.effect.vfx.VfxIntensity.parseOrDefault(vfxIntensity),
     )
 
     public companion object {
@@ -87,6 +90,7 @@ public data class PlayerSettingsJson(
             hpLineVisible = settings.hpLineVisible,
             damageNumbersVisible = settings.damageNumbersVisible,
             tutorialHintsEnabled = settings.tutorialHintsEnabled,
+            vfxIntensity = settings.vfxIntensity.yamlName,
         )
     }
 }

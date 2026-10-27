@@ -1,6 +1,15 @@
 package com.astarworks.astera.core.application.config.skill
 
+import com.astarworks.astera.core.domain.animation.Easing
+import com.astarworks.astera.core.domain.effect.Audience
 import com.astarworks.astera.core.domain.effect.DisplaySpec
+import com.astarworks.astera.core.domain.effect.sound.PitchArc
+import com.astarworks.astera.core.domain.effect.sound.SoundScale
+import com.astarworks.astera.core.domain.effect.vfx.SpriteId
+import com.astarworks.astera.core.domain.effect.vfx.telegraph.TelegraphShape
+import com.astarworks.astera.core.domain.effect.vfx.telegraph.TelegraphTeam
+import com.astarworks.astera.core.domain.skill.mechanic.ShakeDirection
+import com.astarworks.astera.core.domain.skill.mechanic.ShakeShape
 import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.effect.SoundId
 import com.astarworks.astera.core.domain.i18n.LocaleCode
@@ -439,6 +448,7 @@ public sealed class MechanicYaml {
         public val targets: TargeterYaml,
         public val ticks: Int = 3,
         @SerialName("include_caster") public val includeCaster: Boolean = false,
+        @SerialName("freeze_animation") public val freezeAnimation: Boolean = false,
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -449,6 +459,7 @@ public sealed class MechanicYaml {
             targets = targets.toDomain(),
             ticks = com.astarworks.astera.core.domain.skill.value.IntValue.Literal(ticks),
             includeCaster = com.astarworks.astera.core.domain.skill.value.BoolValue.Literal(includeCaster),
+            freezeAnimation = freezeAnimation,
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
@@ -882,6 +893,9 @@ public sealed class MechanicYaml {
         @SerialName("sound_id") public val soundId: String,
         public val volume: NumericValueYaml = NumericValueYaml.Literal(1.0),
         public val pitch: NumericValueYaml = NumericValueYaml.Literal(1.0),
+        @SerialName("pitch_arc") public val pitchArc: PitchArcYaml? = null,
+        public val scale: SoundScaleYaml? = null,
+        public val viewers: String = "all",
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -893,6 +907,9 @@ public sealed class MechanicYaml {
             soundId = SoundId(soundId),
             volume = volume.toDomain(),
             pitch = pitch.toDomain(),
+            pitchArc = pitchArc?.toDomain(),
+            scale = scale?.toDomain(),
+            viewers = Audience.fromYaml(viewers),
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
@@ -912,6 +929,7 @@ public sealed class MechanicYaml {
     public data class SpawnDisplay(
         public val targets: TargeterYaml,
         public val display: DisplaySpecYaml,
+        public val viewers: String = "all",
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -921,6 +939,7 @@ public sealed class MechanicYaml {
         override fun toDomain(): Mechanic = Mechanic.SpawnDisplay(
             targets = targets.toDomain(),
             display = display.toDomain(),
+            viewers = Audience.fromYaml(viewers),
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
@@ -940,6 +959,7 @@ public sealed class MechanicYaml {
         public val follow: BoolValueYaml? = null,
         /** Hit-stop windows `[{at, ticks}]` (effect ticks) freezing the rigs that set `respect_hit_stop`. */
         public val freeze: List<com.astarworks.astera.core.application.config.VfxFreezeYaml> = emptyList(),
+        public val viewers: String = "all",
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -953,6 +973,7 @@ public sealed class MechanicYaml {
             scale = scale.toDomain(),
             follow = follow?.toDomain(),
             freeze = freeze.map { it.toDomain() },
+            viewers = Audience.fromYaml(viewers),
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
@@ -1011,6 +1032,13 @@ public sealed class MechanicYaml {
         public val targets: TargeterYaml,
         public val intensity: NumericValueYaml,
         public val ticks: IntValueYaml,
+        /** `decay` (default) | `impulse`. */
+        public val shape: String = "decay",
+        /** `none` (default) | `from_hit`. */
+        public val direction: String = "none",
+        /** Oscillations per second; `0` = the profile default. */
+        public val frequency: NumericValueYaml = NumericValueYaml.Literal(0.0),
+        public val viewers: String = "all",
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -1021,6 +1049,10 @@ public sealed class MechanicYaml {
             targets = targets.toDomain(),
             intensity = intensity.toDomain(),
             ticks = ticks.toDomain(),
+            shape = ShakeShape.fromYaml(shape),
+            direction = ShakeDirection.fromYaml(direction),
+            frequency = frequency.toDomain(),
+            viewers = Audience.fromYaml(viewers),
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
@@ -1040,6 +1072,7 @@ public sealed class MechanicYaml {
         @SerialName("fade_in") public val fadeIn: IntValueYaml = IntValueYaml.Literal(0),
         public val stay: IntValueYaml = IntValueYaml.Literal(1),
         @SerialName("fade_out") public val fadeOut: IntValueYaml = IntValueYaml.Literal(2),
+        public val viewers: String = "all",
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -1058,6 +1091,7 @@ public sealed class MechanicYaml {
             fadeInTicks = fadeIn.toDomain(),
             stayTicks = stay.toDomain(),
             fadeOutTicks = fadeOut.toDomain(),
+            viewers = Audience.fromYaml(viewers),
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
@@ -1068,6 +1102,106 @@ public sealed class MechanicYaml {
         private companion object {
             val HEX_COLOR = Regex("#[0-9a-fA-F]{6}")
         }
+    }
+
+    @Serializable
+    @SerialName("stop_sound")
+    public data class StopSound(
+        public val targets: TargeterYaml,
+        @SerialName("sound_id") public val soundId: String,
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.StopSound(
+            targets = targets.toDomain(),
+            soundId = SoundId(soundId),
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
+        )
+    }
+
+    /** Camera-anchored sprite veil (ADR-0291); viewers default to the caster. */
+    @Serializable
+    @SerialName("screen_veil")
+    public data class ScreenVeil(
+        public val targets: TargeterYaml,
+        public val sprite: String,
+        public val distance: NumericValueYaml = NumericValueYaml.Literal(0.6),
+        public val scale: NumericValueYaml = NumericValueYaml.Literal(1.0),
+        public val ticks: IntValueYaml,
+        /** `#RRGGBB` tint; omitted = the sprite's own colours. */
+        public val color: String? = null,
+        public val viewers: String = "caster",
+        @SerialName("max_screen_fraction") public val maxScreenFraction: NumericValueYaml = NumericValueYaml.Literal(0.15),
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.ScreenVeil(
+            targets = targets.toDomain(),
+            sprite = SpriteId(sprite),
+            distance = distance.toDomain(),
+            scale = scale.toDomain(),
+            ticks = ticks.toDomain(),
+            colorRgb = color?.let {
+                require(Regex("#[0-9a-fA-F]{6}").matches(it)) { "screen_veil: color '$it' is not #RRGGBB" }
+                it.substring(1).toInt(16)
+            },
+            viewers = Audience.fromYaml(viewers),
+            maxScreenFraction = maxScreenFraction.toDomain(),
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
+        )
+    }
+
+    /** Ground warning marker (circle / cone / line) that fills until impact. */
+    @Serializable
+    @SerialName("telegraph")
+    public data class Telegraph(
+        public val targets: TargeterYaml,
+        /** `circle` (default) | `cone` | `line`. */
+        public val shape: String = "circle",
+        public val radius: NumericValueYaml,
+        @SerialName("angle_degrees") public val angleDegrees: NumericValueYaml = NumericValueYaml.Literal(60.0),
+        public val width: NumericValueYaml = NumericValueYaml.Literal(2.0),
+        public val ticks: IntValueYaml,
+        @SerialName("impact_tick") public val impactTick: IntValueYaml? = null,
+        /** `enemy` (default) | `ally`. */
+        @SerialName("team_color") public val teamColor: String = "enemy",
+        public val viewers: String = "all",
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.Telegraph(
+            targets = targets.toDomain(),
+            shape = TelegraphShape.fromYaml(shape),
+            radius = radius.toDomain(),
+            angleDegrees = angleDegrees.toDomain(),
+            width = width.toDomain(),
+            ticks = ticks.toDomain(),
+            impactTick = impactTick?.toDomain(),
+            teamColor = TelegraphTeam.fromYaml(teamColor),
+            viewers = Audience.fromYaml(viewers),
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
+        )
     }
 
     // ───────────────────────── Messages (3) ─────────────────────────
@@ -1395,4 +1529,31 @@ public data class QuaternionYaml(
 ) {
     public fun toDomain(): com.astarworks.astera.core.domain.geometry.math.Quaternion =
         com.astarworks.astera.core.domain.geometry.math.Quaternion(x, y, z, w)
+}
+
+/** `pitch_arc: {from, to, ticks, ease}`: glide of a `play_sound` pitch (also used by the skill `windup` block). */
+@Serializable
+public data class PitchArcYaml(
+    public val from: Double,
+    public val to: Double,
+    public val ticks: Int,
+    public val ease: String? = null,
+    @SerialName("interval_ticks") public val intervalTicks: Int = 1,
+) {
+    public fun toDomain(): PitchArc = PitchArc(
+        from = from,
+        to = to,
+        ticks = ticks,
+        ease = ease?.let { Easing.fromKey(it) ?: throw IllegalArgumentException("unknown ease '$it'") } ?: Easing.LINEAR,
+        intervalTicks = intervalTicks,
+    )
+}
+
+/** `scale: {root, steps}`: semitone steps above the root pitch multiplier. */
+@Serializable
+public data class SoundScaleYaml(
+    public val root: Double = 1.0,
+    public val steps: List<Int>,
+) {
+    public fun toDomain(): SoundScale = SoundScale(root, steps)
 }

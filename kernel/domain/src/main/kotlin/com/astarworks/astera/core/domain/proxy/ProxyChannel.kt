@@ -27,6 +27,9 @@ public value class ProxyChannel(public val name: String) {
     public companion object {
         private val VALID = Regex("^[a-z][a-z0-9_-]*(\\.[a-z0-9_-]+)*$")
 
+        public val CHAT: ProxyChannel = ProxyChannel("astera.chat")
+        public val TITLE: ProxyChannel = ProxyChannel("astera.chat.title")
+
         /** Reserved channel for cross-server transfer commands. */
         public val TRANSFER: ProxyChannel = ProxyChannel("astera.transfer")
 

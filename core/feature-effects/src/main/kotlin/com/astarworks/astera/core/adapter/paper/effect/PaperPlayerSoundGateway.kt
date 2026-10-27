@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.effect
 
+import com.astarworks.astera.core.application.port.outbound.ExecutionScope
+import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway
 import com.astarworks.astera.core.domain.effect.SoundSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -61,6 +63,7 @@ import org.slf4j.LoggerFactory
  */
 public class PaperPlayerSoundGateway(
     private val server: Server,
+    private val scheduler: IScheduler,
 ) : IPlayerSoundGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -102,5 +105,15 @@ public class PaperPlayerSoundGateway(
             sound.volume.toFloat(),
             sound.pitch.toFloat(),
         )
+    }
+
+    /**
+     * `Player.stopSound(key, MASTER)` (the category [playForViewer] plays in) on the viewer's entity scheduler, so it is
+     * region-safe on Folia. Offline player: no-op.
+     */
+    override fun stop(playerId: PlayerId, key: String) {
+        scheduler.run(ExecutionScope.Entity(playerId.uuid), kotlin.time.Duration.ZERO) {
+            server.getPlayer(playerId.uuid)?.stopSound(key, SoundCategory.MASTER)
+        }
     }
 }

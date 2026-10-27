@@ -10,4 +10,4 @@ depend: [Astera-Core]
 # Overlays are registered in onLoad (ADR-0195), before any plugin's onEnable, so
 # Core and the feature plugins resolve the final repositories. loadbefore only
 # keeps the enable order stable.
-loadbefore: [Astera-Items, Astera-Combat, Astera-Match, Astera-Stats, Astera-Economy]
+loadbefore: [Astera-Chat, Astera-Items, Astera-Combat, Astera-Match, Astera-Stats, Astera-Economy]

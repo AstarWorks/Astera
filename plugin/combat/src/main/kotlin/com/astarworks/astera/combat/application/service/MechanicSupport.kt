@@ -76,7 +76,9 @@ public object MechanicSupport {
         // WP5 batch B: implemented in WorldMechanics.
         is Mechanic.Heal, is Mechanic.SummonLightning, is Mechanic.Summon, is Mechanic.SetBlock,
         is Mechanic.RemoveBlock, is Mechanic.BreakArea, is Mechanic.PlaceShape, is Mechanic.Explode, is Mechanic.SpawnDisplay, is Mechanic.PlayVfx, is Mechanic.Glow, is Mechanic.HideHeldItem,
-        is Mechanic.CameraShake, is Mechanic.ScreenFlash -> false
+        is Mechanic.CameraShake, is Mechanic.ScreenFlash,
+        // vfx-primitives: handlers live in service/primitives.
+        is Mechanic.StopSound, is Mechanic.ScreenVeil, is Mechanic.Telegraph -> false
         is Mechanic.Damage, is Mechanic.ApplyStatus, is Mechanic.Knockback, is Mechanic.Knockup,
         is Mechanic.RemoveStatus, is Mechanic.Cleanse, is Mechanic.Ignite, is Mechanic.Freeze,
         is Mechanic.Silence, is Mechanic.SetVelocity, is Mechanic.Propel, is Mechanic.Leap,
