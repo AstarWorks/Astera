@@ -194,7 +194,7 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         }
         val pile = Pile(run.nextPileId++, landing, gems.toMutableList(), now)
         run.piles += pile
-        kit.marker(match.id, "$PILE_KEY${pile.id}", run.stage.world, landing, LOOK)
+        kit.marker(match.id, "$PILE_KEY${pile.id}", run.stage.world, landing, LOOK.copy(loose = true))
         tellMatch(match, KEY_DROPPED, mapOf("team" to (teamOf(match, victim)?.value ?: "")))
         kit.broadcast(match.teams.flatMap { it.members }, PresentationMoments.OBJECTIVE_DROP, at = landing, world = run.stage.world)
     }

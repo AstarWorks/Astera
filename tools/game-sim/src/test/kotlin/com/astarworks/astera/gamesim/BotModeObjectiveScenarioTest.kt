@@ -30,8 +30,15 @@ class BotModeObjectiveScenarioTest {
     private fun ScenarioScope.drive(runner: SimEntity, planner: ModePlanner, maxRounds: Int, done: () -> Boolean): List<String> {
         val kinds = ArrayList<String>()
         var now = 0L
+        var held = 0
+        var confirmed = 0
         repeat(maxRounds) {
             if (done()) return kinds
+            // The server confirms a pickup to the holder: the sim's carried count rising is that signal.
+            val have = sim.objectiveStage.carriedCount(runner.id)
+            if (have > held) confirmed += have - held
+            held = have
+            planner.noteConfirmed(confirmed)
             val step = checkNotNull(planner.step(now, runner.position.x, runner.position.z)) { "mode has a plan" }
             if (kinds.lastOrNull() != step.kind) kinds += step.kind
             runner.moveTo(Vec3(step.x, 65.0, step.z))

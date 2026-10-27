@@ -257,7 +257,13 @@ class SiegeModesScenarioTest {
             val src = checkNotNull(StageObjectives.load(GameSim.defaultContentDir().toFile(), "steal-jewelry")) { "stage did not load" }
             val plan = ModePlanner("steal-jewelry", "runner", "red", listOf("blue"), checkNotNull(src.zones()))
             var now = 0L
+            var held = 0
+            var confirmed = 0
             fun round(): ModePlanner.Step {
+                val have = sim.objectiveStage.carriedCount(runner.id)
+                if (have > held) confirmed += have - held
+                held = have
+                plan.noteConfirmed(confirmed)
                 val step = checkNotNull(plan.step(now, runner.position.x, runner.position.z))
                 runner.moveTo(Vec3(step.x, 65.0, step.z))
                 advance(10)

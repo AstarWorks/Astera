@@ -15,6 +15,8 @@ public enum class ObjectiveBarColor { WHITE, RED, BLUE, GREEN, YELLOW, PURPLE, P
  * @property glow glow colour name (`red`, `blue`, `gold`, ...) of a world marker; `null` = white.
  * @property scale edge length of the shown block, in blocks.
  * @property spin a world marker turns slowly and bobs (a treasure on a pedestal); only meaningful for markers.
+ * @property loose true for a dropped objective lying free to pick up (bots find it by the tag the Paper stage puts on it);
+ *   pedestals, goal markers and carried stacks are never loose.
  * @property label rendered MiniMessage line floating over a world marker (a count at a pedestal); `null` = none.
  */
 public data class ObjectiveLook(
@@ -23,6 +25,7 @@ public data class ObjectiveLook(
     val scale: Double = 0.8,
     val spin: Boolean = false,
     val label: String? = null,
+    val loose: Boolean = false,
 )
 
 /**

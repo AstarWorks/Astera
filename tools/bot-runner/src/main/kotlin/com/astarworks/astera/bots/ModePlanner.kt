@@ -66,15 +66,38 @@ class ModePlanner(
         if (holdingTnt || (modeId == "steal-jewelry" && carried > 0)) {
             lostX = x; lostZ = z; lostPending = true; recoverUntil = 0L
         }
-        carried = 0; holdingTnt = false; holdSince = 0L; dwellSince = 0L
+        carried = 0; holdingTnt = false; holdSince = 0L; dwellSince = 0L; awaitingSince = 0L
     }
 
-    /** Positions of block-display markers in sight; the ones that are not a fixed stage point are loose objectives. */
+    /**
+     * Positions of the loose objective markers in sight (the mode tags exactly these entities, see [LOOSE_TAG]; carried
+     * stacks, pedestals and goal markers are never tagged, so carriers are not mistaken for dropped objectives).
+     */
     fun noteMarkers(markers: List<Pair<Double, Double>>) {
-        if (modeId != "carry-tnt" && modeId != "steal-jewelry") { looseSeen = emptyList(); return }
-        val fixed = (zones.names("jewelry-") + zones.names("base-") + zones.names("wool-") + zones.names("core-") + TNT_SPAWN)
-            .mapNotNull { zones.point(it) }
-        looseSeen = markers.filter { m -> fixed.none { hypot(it.first - m.first, it.third - m.second) <= FIXED_CLEARANCE } }
+        looseSeen = if (modeId == "carry-tnt" || modeId == "steal-jewelry") markers else emptyList()
+    }
+
+    /** Total pickups the environment has confirmed so far (the pickup cue the server plays for the holder only). */
+    fun noteConfirmed(total: Int) { confirmed = total }
+
+    private var confirmed = 0
+    private var seenConfirmed = 0
+    private var awaitingSince = 0L
+
+    /**
+     * A pickup counts only once the server confirmed it: after the hold completes the bot keeps standing on [s] until
+     * [noteConfirmed] advances (then [apply] runs and true is returned), or [CONFIRM_MS] pass and the hold is retried.
+     */
+    private fun pickedUp(s: Step, now: Long, x: Double, z: Double, apply: () -> Unit): Boolean {
+        if (awaitingSince != 0L) {
+            if (confirmed > seenConfirmed) {
+                seenConfirmed = confirmed; awaitingSince = 0L; apply(); return true
+            }
+            if (now - awaitingSince > CONFIRM_MS) awaitingSince = 0L
+            return false
+        }
+        if (held(s, now, x, z)) awaitingSince = now
+        return false
     }
 
     /** Heads for a dropped objective (own death spot first, else the nearest loose marker); null when there is none to chase. */
@@ -91,11 +114,7 @@ class ModePlanner(
         }
         val y = zones.point(if (modeId == "carry-tnt") TNT_SPAWN else "base-$ownTeam")?.second ?: return null
         val s = Step("loose", tx, y, tz, 1.5, "recover")
-        if (held(s, now, x, z)) {
-            lostPending = false
-            if (modeId == "carry-tnt") holdingTnt = true else carried = 1
-            return step(now, x, z)
-        }
+        if (pickedUp(s, now, x, z) { lostPending = false; if (modeId == "carry-tnt") holdingTnt = true else carried = 1 }) return step(now, x, z)
         return s
     }
 
@@ -141,7 +160,7 @@ class ModePlanner(
             return s
         }
         val s = step(TNT_SPAWN, "tnt", 1.5) ?: return null
-        if (held(s, now, x, z)) { holdingTnt = true; return carryTnt(now, x, z) }
+        if (pickedUp(s, now, x, z) { holdingTnt = true }) return carryTnt(now, x, z)
         return s
     }
 
@@ -156,10 +175,7 @@ class ModePlanner(
         }
         val target = nearest(free.ifEmpty { pickups }, x, z) ?: return null
         val s = step(target, "pickup", 1.5) ?: return null
-        if (target in free && held(s, now, x, z)) {
-            takenAt[target] = now; carried++
-            return miniTnt(now, x, z)
-        }
+        if (target in free && pickedUp(s, now, x, z) { takenAt[target] = now; carried++ }) return miniTnt(now, x, z)
         return s
     }
 
@@ -171,7 +187,7 @@ class ModePlanner(
         }
         val zone = nearestEnemy("jewelry-", x, z) ?: return null
         val s = step(zone, "jewel", 1.5) ?: return null
-        if (held(s, now, x, z)) { carried = 1; return jewelry(now, x, z) }
+        if (pickedUp(s, now, x, z) { carried = 1 }) return jewelry(now, x, z)
         return s
     }
 
@@ -192,9 +208,11 @@ class ModePlanner(
         const val BASE_RADIUS = 3.0
         const val DEFEND_RADIUS = 7.0
         const val HOLD_MS = 1_500L
+        const val CONFIRM_MS = 4_000L
+        /** Custom name the mode puts on loose (dropped) objective markers; keep equal to `PaperObjectiveStage.LOOSE_TAG`. */
+        const val LOOSE_TAG = "astera:objective-loose"
         const val RECOVER_MS = 25_000L
         const val LOOSE_RANGE = 40.0
-        const val FIXED_CLEARANCE = 5.0
         const val WOOL_HOLD_MS = 12_000L
     }
 }
