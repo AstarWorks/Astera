@@ -1,0 +1,46 @@
+# Point table for the couture-rapier shears (SKL-08 F-3).
+# Frame: item-display-local, block units, origin = Display entity origin with an identity entity transform.
+# Chain applied to a model point p (pixels, 16 px = 1 block): q = RotY(180) * ( T + Rxyz * ( S * (p/16 - 0.5) ) ),
+# where RotY(180) is what ItemDisplay always draws after the entity transform and T/R/S are the model's own
+# display.<display> block (identical in held / blade-a / blade-b / body models). Rxyz = JOML rotationXYZ(degrees).
+# +X/+Y/+Z are the Display entity's local axes (Y up, item facing -Z before the display roll).
+# Pieces reuse the held model's coordinates unchanged, so held == body + blade_a + blade_b (108 = 56 + 26 + 26 elements).
+apiVersion: astera/v2
+kind: ItemFrames
+item: couture-rapier
+parts:
+  # content/models/items/couture-rapier.model.json (all 108 elements). pivot=centre of a_hub_diamond/b_hub_diamond (8,7.7,8); grip=centroid of the 8 ring boxes a_ring_*/b_ring_* (8,-3.165,8); tip=midpoint of a_tip/b_tip (centres y=32); long=model +Y, edge=model +X; length=ring bottom y=-8.4434 to blade tip y=32.
+  held:
+    model: astera:couture-rapier
+    display: fixed
+    length: 1.5672
+    points: { grip: [-0.2482, -0.4794, 0.075], pivot: [-0.0067, -0.1345, 0.075], tip: [0.5334, 0.6368, 0.075] }
+    axes: { long: [0.5736, 0.8192, 0], edge: [0.8192, -0.5736, 0] }
+  # content/models/items/couture-s2-body.model.json (a_hub..a_heart + b_hub..b_heart, 56 elements). pivot as held; grip=ring centroid; long=model +Y (ring -> hub top y=10.4); edge=model +X; length=ring bottom y=-8.4434 to hub top y=10.4.
+  body:
+    model: astera:couture-s2-body
+    display: fixed
+    length: 0.7302
+    points: { grip: [-0.2482, -0.4794, 0.075], pivot: [-0.0067, -0.1345, 0.075] }
+    axes: { long: [0.5736, 0.8192, 0], edge: [0.8192, -0.5736, 0] }
+  # content/models/items/couture-rapier-blade-a.model.json (a_blade0..a_blade7, a_tip, a_edge2..7, a_edge_base). root=centre of a_blade0 at y=6 (x 4.6..7.5, z 8..9) = (6.05,6,8.5); tip=centre of a_tip (6.5184,32,8.5); long=root->tip; edge=+x side (a_edge*), perpendicular to long in the blade plane; length=|tip-root|.
+  blade_a:
+    model: astera:couture-rapier-blade-a
+    display: fixed
+    length: 1.0077
+    points: { root: [-0.1063, -0.1451, 0.0944], tip: [0.4864, 0.6697, 0.0944], pivot: [-0.0067, -0.1345, 0.075] }
+    axes: { long: [0.5882, 0.8087, 0], edge: [0.8087, -0.5882, 0] }
+  # content/models/items/couture-rapier-blade-b.model.json (b_blade0..b_blade7, b_tip, b_edge2..7, b_edge_base). root=centre of b_blade0 at y=6 (x 8.5..11.4, z 7..8) = (9.95,6,7.5); tip=centre of b_tip (9.4816,32,7.5); long=root->tip; edge=-x side (b_edge*); length=|tip-root|.
+  blade_b:
+    model: astera:couture-rapier-blade-b
+    display: fixed
+    length: 1.0077
+    points: { root: [0.0174, -0.2318, 0.0556], tip: [0.5805, 0.6039, 0.0556], pivot: [-0.0067, -0.1345, 0.075] }
+    axes: { long: [0.5587, 0.8294, 0], edge: [-0.8294, 0.5587, 0] }
+  # same elements as held, but under the thirdperson_righthand display transform (AnchorMainHand display: rot [35,-90,0], tr [0,2.4,1.5], scale 0.75). hand_anchor = model centre (8,8,8), the point the hand frame sits on.
+  held_hand:
+    model: astera:couture-rapier
+    display: thirdperson_righthand
+    length: 1.8958
+    points: { grip: [0, -0.2787, 0.2064], pivot: [0, 0.1385, -0.0857], tip: [0, 1.0715, -0.739], hand_anchor: [0, 0.15, -0.0938] }
+    axes: { long: [0, 0.8192, -0.5736], edge: [0, -0.5736, -0.8192] }

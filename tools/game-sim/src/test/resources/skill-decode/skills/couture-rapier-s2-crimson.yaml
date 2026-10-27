@@ -1,0 +1,11 @@
+apiVersion: astera/v2
+kind: Patch
+target: couture-rapier-s2
+variant: crimson
+patchKind: skin
+presentation:
+  params: {thread_color: "#d0203a"}
+  timeline:
+    - id: spin_fx
+      do:
+        - {id: tick_snd, $patch: delete}

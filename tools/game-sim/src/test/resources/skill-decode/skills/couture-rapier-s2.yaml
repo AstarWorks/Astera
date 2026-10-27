@@ -1,0 +1,54 @@
+# Fixture: coin 2 of couture-rapier-s2 in the frozen grammar, trimmed to the ops the scenario's tiny decoder knows.
+apiVersion: astera/v2
+kind: Skill
+id: couture-rapier-s2
+item: couture-rapier
+importance: 8
+
+frames:
+  - {id: shears,  kind: item, parent: caster.right_hand, model: couture-rapier}
+  - {id: blade_a, kind: part, parent: shears, model: couture-rapier, part: blade_a}
+  - {id: blade_b, kind: part, parent: shears, model: couture-rapier, part: blade_b}
+  - {id: body,    kind: part, parent: shears, model: couture-rapier, part: body}
+  - {id: volley,  kind: body, parent: world, inactive: true}
+  - {id: palm,    kind: point, parent: caster.right_hand, offset: [0, 0, 0]}
+
+gameplay:
+  params: {throw_speed: 1.7, throw_range: 7.0, spin_dpt: 54, stick_ticks: 10, dmg_throw: 18}
+  expose:
+    - {id: range, param: throw_range, min: 2.0, max: 12.0}
+    - {id: damage, param: dmg_throw}
+  timeline:
+    - id: spin_up
+      at: 4
+      do:
+        - {id: spin_shears, op: spin, frame: shears, axis: shears.axis, deg_per_tick: "${spin_dpt}", until: release}
+    - id: let_go
+      at: 8
+      do: [{id: raise_release, op: event, name: release}]
+    - id: coin3
+      at: "arrive+2"
+      do: [{id: raise_coin3, op: event, name: coin3_start}]
+  on:
+    release:
+      - {id: place_volley, op: place, frame: volley, like: shears}
+      - {id: take_off, op: reparent, frames: [body, blade_a, blade_b], to: volley, keep_world: true}
+      - {id: spin_volley, op: spin, frame: volley, axis: volley.left, deg_per_tick: "${spin_dpt}"}
+      - {id: throw_hit, op: hit, frames: [blade_a, blade_b], capsule: {from: self.root, to: self.tip, radius: 0.22}, window: once}
+    hit:
+      - {id: reel_later, op: schedule, when: "= event.source == 'throw_hit'", after: "${stick_ticks}", event: reel}
+
+presentation:
+  params: {thread_color: "#ff5fa2", spark_count: 14}
+  body_anim: couture-s2-coin2
+  timeline:
+    - id: spin_fx
+      at: 4
+      do:
+        - {id: whoosh, op: sound, sound: couture.whoosh, at: shears.tip, every: 4, until: release,
+           volume: "= clamp(speed(shears.tip) / 1.5, 0.2, 1.0)", pitch: "= 0.9 + 0.3 * clamp(speed(shears.tip) / 2.0, 0.0, 1.0)"}
+        - {id: tick_snd, op: sound, sound: couture.tick, at: blade_a.tip, volume: "= tick / 10.0"}
+  on:
+    hit:
+      - {id: stab_snd, op: sound, when: "= event.source == 'throw_hit'", sound: couture.stab, at: contact.point, pitch: "= 1.2 - 0.2 * clamp(len(contact.rel_velocity) / 2.0, 0.0, 1.0)"}
+      - {id: fan_off, op: remove, ids: [whoosh]}
