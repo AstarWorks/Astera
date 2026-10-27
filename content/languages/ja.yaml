@@ -2612,3 +2612,4 @@ astera:
   progress.gui.quest.progress: "<yellow>{current}/{required}</yellow>"
   progress.gui.quest.complete: "<green>クリア</green>"
   cover.wrong-tool: "<gray>この道具ではこのブロックを壊せない。別の道具を試そう。</gray>"
+  ore.needs-tier: "<gray>この鉱石を掘るには <white>{tier}</white> 以上のツルハシが必要。</gray>"

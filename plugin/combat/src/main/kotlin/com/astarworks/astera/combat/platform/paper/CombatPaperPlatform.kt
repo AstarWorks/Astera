@@ -136,6 +136,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             statusContainer = container
             container
         },
+        wornItems = { com.astarworks.astera.combat.adapter.paper.PaperWornItems(plugin.server) },
         knockbackGateway = { PaperKnockbackGateway(plugin.server) },
         explosionGateway = { services, damageApplier ->
             val gateway = PaperExplosionGateway(

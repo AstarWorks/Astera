@@ -2624,3 +2624,4 @@ astera:
   progress.gui.quest.progress: "<yellow>{current}/{required}</yellow>"
   progress.gui.quest.complete: "<green>Complete</green>"
   cover.wrong-tool: "<gray>That tool does not work on this block - try another one.</gray>"
+  ore.needs-tier: "<gray>Needs a <white>{tier}</white> pickaxe or better to mine this ore.</gray>"

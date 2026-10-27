@@ -52,6 +52,7 @@ public class SpawnResourceUseCase(
                 position = generator.position,
                 amount = finalAmount,
                 atTick = scheduler.currentTick(),
+                dropItem = generator.dropItem,
             ),
         )
     }

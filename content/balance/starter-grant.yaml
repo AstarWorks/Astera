@@ -28,9 +28,9 @@ starter_items:
 # and they are lent after the entry snapshot, so the match-end restore removes them again.
 # They break the custom cover blocks (content/blocks/) of a stage; see ADR-0090.
 match_tools:
-  - field-pickaxe
-  - field-axe
-  - field-shovel
+  - stone-pickaxe
+  - stone-axe
+  - stone-shovel
 
 # Per-currency initial balance. Currency keys must match `Currency` enum
 # constants (GOLD / GEM); values are 64-bit non-negative integers.

@@ -80,6 +80,7 @@ internal object RuntimeDecode {
             "stages" to { d -> StageContents().bootstrap(d) },
             "anomaly" to { d -> AnomalyContents().bootstrap(d) },
             "generators" to { d -> GeneratorContents().bootstrap(d) },
+            "ore-nodes" to { d -> com.astarworks.astera.match.application.contents.OreNodeContents().bootstrap(d) },
             "game-modes" to { d -> GameModeContents().bootstrap(d) },
             "norma" to { d -> NormaContents().bootstrap(d) },
             "skills-progression" to { d -> SkillProgressionContents().bootstrap(d) },

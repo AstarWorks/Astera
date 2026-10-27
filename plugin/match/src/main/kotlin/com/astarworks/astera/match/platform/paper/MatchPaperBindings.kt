@@ -46,6 +46,14 @@ internal object MatchPaperBindings {
         spectator = { services -> PaperSpectator(plugin.server, services.getOrThrow<IScheduler>()) },
         playerPositions = { PaperMatchPlayerPositions(plugin.server) },
         starDropWorld = { PaperStarDropWorld(plugin) },
+        oreNodeWorld = { com.astarworks.astera.match.adapter.paper.PaperOreNodeWorld(plugin) },
+        generatorItemDrop = { services ->
+            com.astarworks.astera.match.adapter.paper.PaperGeneratorItemDrop(
+                server = plugin.server,
+                items = { services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>() },
+                materializer = { services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>() },
+            )
+        },
         objectiveStage = { PaperObjectiveStage(plugin) },
         normaPresentation = { services -> PaperNormaPresentation(
                 plugin,
@@ -74,6 +82,8 @@ internal object MatchPaperBindings {
         ).start(plugin)
         // WP10: enemy block breaks on Annihilation pillar blocks damage the pillar.
         PaperPillarBlockListener(wired.pillarTargets).start(plugin)
+        // Mid ore nodes: tier-gated mining with regrow.
+        com.astarworks.astera.match.adapter.paper.PaperOreNodeListener { ctx.services.get<com.astarworks.astera.match.application.service.OreNodeService>() }.start(plugin)
         // Game servers: lobby hand-off arrivals appear on their team's arena spawn and are shielded until start.
         ctx.services.get(com.astarworks.astera.match.application.service.matchmaking.IArrivalSpawns::class)
             ?.let { com.astarworks.astera.match.adapter.paper.PaperArrivalSpawnListener(it).start(plugin) }
