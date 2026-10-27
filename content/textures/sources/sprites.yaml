@@ -12,6 +12,7 @@ sources:
   couture-s2-crescent: { file: images/couture-s2-crescent.png }
   couture-s2-crescent-core: { file: images/couture-s2-crescent-core.png }
   couture-s2-streak: { file: images/couture-s2-streak.png }
+  couture-s2-petal-spark: { file: images/couture-s2-petal-spark.png }
   couture-s2-overhead-slash: { file: images/couture-s2-overhead-slash.png }
   couture-s2-feather: { file: images/couture-s2-feather.png }
   couture-s2-feather-warm: { file: images/couture-s2-feather-warm.png }
@@ -90,6 +91,7 @@ sprites:
   couture-s2-crescent: { from: couture-s2-crescent, raw: true, frames: 1, size: 256 }
   couture-s2-crescent-core: { from: couture-s2-crescent-core, raw: true, frames: 1, size: 256 }
   couture-s2-streak: { from: couture-s2-streak, raw: true, frames: 1, size: 256 }
+  couture-s2-petal-spark: { from: couture-s2-petal-spark, raw: true, frames: 1, size: 256 }
   couture-s2-overhead-slash: { from: couture-s2-overhead-slash, raw: true, frames: 1, size: 256 }
   couture-s2-feather: { from: couture-s2-feather, raw: true, frames: 1, size: 256 }
   couture-s2-feather-warm: { from: couture-s2-feather-warm, raw: true, frames: 1, size: 256 }

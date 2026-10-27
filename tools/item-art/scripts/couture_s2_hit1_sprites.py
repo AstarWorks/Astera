@@ -41,24 +41,44 @@ def save(name, rgb, a):
     Image.fromarray(out).save(os.path.join(OUT, name + ".png"))
 
 
-# crescent-core
-body = small(mask(crescent(10)))
-core = small(mask(crescent(10, 0)).filter(ImageFilter.MinFilter(15)))  # inner white band
-glow = blur(small(mask(crescent(14))), 9)
-rim = np.clip(small(mask(crescent(6))) - body, 0, 1)
-rim = np.clip(blur(rim, 0.8) * 3, 0, 1)
-a = np.clip(np.maximum(np.maximum(body, glow * 0.9), rim * 0.55), 0, 1)
-white = np.clip(core * 1.0 + body * 0.35, 0, 1)
+# crescent-core: THIN arc. Leading rim (+x) hot white, trailing gradient fading to full transparency inward.
+yy, xx = np.mgrid[0:N, 0:N].astype(np.float32)
+R, R2, off = 112.0, 100.0, 30.0
+r1 = np.hypot(xx - 128, yy - 128)
+r2 = np.hypot(xx - 128 + off, yy - 128)
+d = R - r1                                   # depth under the outer rim
+inside = np.clip(d * 2 + 0.5, 0, 1)          # anti-aliased outer edge
+cut = np.clip((r2 - R2) * 2 + 0.5, 0, 1)     # keep only outside the inner circle (pointed tips)
+band = np.clip(1 - np.exp(-np.maximum(r2 - R2, 0) / 5.0) * 0 , 0, 1)
+grad = np.exp(-np.maximum(d, 0) / 9.0)       # bright at the rim, fading inward
+hot = np.clip(1 - d / 3.5, 0, 1)             # 3 px white-hot rim
+a = np.clip(inside * cut * grad, 0, 1)
+a = np.maximum(a, inside * hot * cut)
+a = a * np.clip((xx - 40) / 60, 0.25, 1)     # trailing tips thinner/dimmer
+glow = blur(inside * cut, 5) * 0.25 * np.clip(1 - np.maximum(d, 0) / 30, 0, 1) + blur(np.clip(1 - np.abs(d) / 6, 0, 1) * cut, 4) * 0.35
+a = np.clip(np.maximum(a, glow), 0, 1)
 rgb = np.zeros((N, N, 3), np.float32)
-glow_col = np.array([255, 214, 170], np.float32)
-body_col = np.array([255, 246, 232], np.float32)
-rim_col = np.array([60, 30, 70], np.float32)
-for i in range(3):
-    c = glow_col[i] * (1 - body) + body_col[i] * body
-    c = c * (1 - white) + 255 * white
-    c = c * (1 - rim * (1 - body)) + rim_col[i] * rim * (1 - body)
-    rgb[..., i] = c
+w = np.clip(hot * 1.0 + grad * 0.35, 0, 1)
+for i, (g, h) in enumerate(zip((255, 205, 150), (255, 255, 255))):
+    rgb[..., i] = g * (1 - w) + h * w
 save("couture-s2-crescent-core", rgb, a)
+
+# petal: small pointed teardrop, white with pale pink tip
+pm = Image.new("L", (N * SS, N * SS), 0)
+dd = ImageDraw.Draw(pm)
+import math
+pts = []
+for k in range(41):
+    u = k / 40 * 2 * math.pi
+    pts.append(((128 + 70 * math.cos(u) * (1 if math.cos(u) > 0 else 0.7)) * SS, (128 + 30 * math.sin(u) * (1 - 0.5 * max(0, math.cos(u)) ** 3)) * SS))
+dd.polygon(pts, fill=255)
+cov = small(pm)
+xn = np.clip((xx - 58) / 140, 0, 1)
+rgb = np.zeros((N, N, 3), np.float32)
+rgb[..., 0] = 255
+rgb[..., 1] = 255 - 45 * xn
+rgb[..., 2] = 255 - 30 * xn
+save("couture-s2-petal-spark", rgb, cov)
 
 # streak
 yy, xx = np.mgrid[0:N, 0:N].astype(np.float32)
