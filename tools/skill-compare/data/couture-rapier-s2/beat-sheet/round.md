@@ -124,3 +124,11 @@ reviewer r1 は FAIL (開始は上の WIP r1)。r2 で直した点:
 
 直った点: t62 の体の点滅 (rig-b を 61 開始)、t19-22 と t56-64 の武器 1 本、黒い連結ハサミ (新モデル astera:couture-shears-linked、t46-57)、コイン 2 は敵の位置で星から X へ。
 残り (reviewer): 頭上ループが円盤と軌跡になっていない・縦の白い棒の混入 (texture/particles)、影が板状 (jagged と花びら)、t72 の飽和した白ピンクのフラッシュと暗いハサミの断面 (particles)、t63-70 の紫のゴーストと靄 (particles)、t16-20 の腕上げ (animation)、橙火花と黄色い四角の残り (particles)、側面カメラで突進後に術者がフレームアウト (integration: top 視点で確認する)。
+
+## WIP r4
+
+- Coin 2 direction settled from reference t41/t43: the white streaks form a fan whose tip is on the enemy and whose rays spread back toward the upper left (above the caster), not up-right. The reviewer was right; the fan and axis sparks were mirrored (z and rot z negated). Recapture t43/t45 now matches.
+- Overhead loops: mirrored wide discs (a/b/c/d plus mirrored twins); vertical white rods (white-blade-0/1) removed.
+- Ground shadow: 10 jagged black rays (len 2.2-4.6) at hit2; the side/top cameras crop the enemy feet so it is not visible in captures (capture framing, not content).
+- t72 full-screen pink-white flash added (4 ticks); purple haze emitters in rig-b t0-8.
+- Not done: t16-20 arm raise (animator), flying shears arrive t38 vs ref t41, top camera cuts the enemy.
