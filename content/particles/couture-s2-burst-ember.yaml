@@ -1,0 +1,14 @@
+# orange sparks thrown up-left from the contact
+id: couture-s2-burst-ember
+shape: {kind: burst, spread_blocks: 0.25}
+color: {r: 255, g: 150, b: 50}
+count: 5
+lifetime_ticks: 7
+vanilla_particle: dust
+data:
+  kind: dust
+  color: {r: 255, g: 150, b: 50}
+  scale: 0.9
+speed: 0.0
+velocity: {direction: outward, speed: 0.3, spread_degrees: 0, speed_jitter: 0.6}
+force: true

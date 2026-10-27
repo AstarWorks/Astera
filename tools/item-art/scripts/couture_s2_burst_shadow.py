@@ -89,6 +89,36 @@ def shard():
     return rgba(down(ca), down(ca), (255, 255, 255), (255, 255, 255))
 
 
+def core():
+    """hot white centre -> yellow -> orange soft glow with short orange spikes (translucent edge)."""
+    yy, xx = np.mgrid[0:N, 0:N].astype(np.float32)
+    r = np.hypot(xx - 127.5, yy - 127.5)
+    ang = np.arctan2(yy - 127.5, xx - 127.5)
+    spike = 1 + 0.55 * np.maximum(0, np.cos(ang * 8)) ** 6
+    rr = r / spike
+    a = np.clip((118 - rr) / 90, 0, 1) ** 1.3
+    t = np.clip(rr / 100, 0, 1)
+    out = np.zeros((N, N, 4), np.float32)
+    out[..., 0] = 1.0
+    out[..., 1] = 1.0 - 0.55 * t
+    out[..., 2] = np.clip(0.95 - 1.5 * t, 0.05, 1)
+    out[..., 3] = a
+    return Image.fromarray((out * 255 + 0.5).astype(np.uint8), "RGBA")
+
+
+def soft():
+    """big soft white feather: wide leaf, tip at +x, base at centre; blurred edge, alpha <= 0.8."""
+    from PIL import ImageFilter
+    c = Image.new("L", (N, N), 0); d = ImageDraw.Draw(c)
+    d.polygon([(128, 128), (170, 96), (230, 122), (246, 128), (230, 134), (170, 160)], fill=255)
+    c = c.filter(ImageFilter.GaussianBlur(5))
+    a = np.asarray(c).astype(np.float32) / 255 * 0.8
+    out = np.ones((N, N, 4), np.float32)
+    out[..., 2] = 0.97
+    out[..., 3] = a
+    return Image.fromarray((out * 255 + 0.5).astype(np.uint8), "RGBA")
+
+
 def shadow():
     rnd = random.Random(23)
     ca = canvas(); da = ImageDraw.Draw(ca)
@@ -112,6 +142,6 @@ def shadow():
 
 
 if __name__ == "__main__":
-    for name, im in (("burst-star", star()), ("burst-plume", plume()), ("burst-shard", shard()), ("shadow-spikes", shadow())):
+    for name, im in (("burst-star", star()), ("burst-plume", plume()), ("burst-shard", shard()), ("burst-core", core()), ("burst-soft", soft()), ("shadow-spikes", shadow())):
         im.save(os.path.join(OUT, f"couture-s2-{name}.png"))
         print(name, im.size)
