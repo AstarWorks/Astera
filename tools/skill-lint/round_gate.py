@@ -131,17 +131,21 @@ def check_compare(sections, note_dir, case):
         problems.append(f"source: names another case (expected {case})")
     if not re.search(r"\bprevious:\s*\S+", body):
         problems.append("previous: <revision> (or none) missing")
+    # compare.json = the JSON of GET /api/cases/<id>/compare (tools/skill-compare/lib/compare.mjs):
+    # `regression: true` + `regressions: [{tick, view, round, vs, flags: ["fx_pct 2.37 -> 0.4 (-83%)", ..]}]`.
     cmp_json = note_dir / "compare" / "compare.json"
     flags = []
     if cmp_json.exists():
         try:
             data = json.loads(cmp_json.read_text())
-            reg = data.get("regression") or {}
-            flags = [k for k, v in (reg.items() if isinstance(reg, dict) else []) if v]
+            if data.get("regression"):
+                for r in data.get("regressions") or []:
+                    flags.append(f"t{r.get('tick')} {r.get('view')}: " + ", ".join(r.get("flags") or []))
+                flags = flags or ["regression: true"]
         except (json.JSONDecodeError, AttributeError) as e:
             problems.append(f"compare.json unreadable: {e}")
     if flags:
-        problems.append("compare.json regression flags set: " + ", ".join(flags))
+        problems.append("compare API flags a regression vs the previous round: " + "; ".join(flags))
     if problems:
         report("compare", "FAIL", "; ".join(problems))
     else:
