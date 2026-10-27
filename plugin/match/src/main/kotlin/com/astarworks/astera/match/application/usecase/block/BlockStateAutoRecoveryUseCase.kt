@@ -18,7 +18,7 @@ import com.astarworks.astera.core.domain.world.WorldId
  * max) and broken blocks (`durability == 0`) are skipped — the former have
  * nothing to regen, the latter need an explicit
  * [com.astarworks.astera.core.domain.event.BlockBroken] + restoration flow
- * (handled by the BreakCore listener + post-match `BlockChangeJournal`
+ * (handled by the block-break listener + post-match `BlockChangeJournal`
  * rewind).
  *
  * The scheduler ([BlockRecoveryScheduler]) drives the cycle period — this

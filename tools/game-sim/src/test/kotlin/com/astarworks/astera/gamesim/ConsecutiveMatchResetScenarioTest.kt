@@ -18,24 +18,35 @@ import org.junit.jupiter.api.Test
  * wounded players, spectating state) must be gone when the second one starts.
  */
 class ConsecutiveMatchResetScenarioTest {
-    private val redCore = Vec3(-90.0, 65.0, 0.0)
-    private val blueCore = Vec3(90.0, 65.0, 0.0)
+    private val tntSpawn = Vec3(0.0, 65.0, -6.0)
+    private val blueBase = Vec3(85.0, 65.0, 0.0)
+    private val nowhere = Vec3(0.0, 65.0, -50.0)
+
+    /** [who] (red) carries the TNT to the blue base twice, which wins the match. */
+    private fun ScenarioScope.deliverTwice(who: SimEntity) {
+        repeat(2) {
+            who.moveTo(tntSpawn)
+            advance(40)
+            who.moveTo(blueBase)
+            advance(40)
+        }
+    }
 
     @Test
-    fun `the second match on a stage starts with the objective blocks back and the players clean`() {
+    fun `the second match on a stage starts with the objective marker back and the players clean`() {
         scenario("consecutive-match-reset") {
-            val attacker = player("attacker")
-            val defender = player("defender")
+            val attacker = player("attacker", at = nowhere)
+            val defender = player("defender", at = nowhere)
             val teams = mapOf(attacker to "red", defender to "blue")
             val burn = checkNotNull(sim.services.getOrThrow<IStatusEffectRegistry>().find(StatusEffectId("burn")))
             val statuses = sim.services.getOrThrow<IStatusEffectContainer>()
             val health = sim.services.getOrThrow<IPlayerHealthGateway>()
 
-            val first = startMatch("break-core", teams)
-            // Leave the first match wounded and burning, with a destroyed core.
+            val first = startMatch("carry-tnt", teams, stage = "siege-isles-tnt")
+            // Leave the first match wounded and burning, having delivered the TNT.
             statuses.apply(StatusEffectInstance(burn, defender.id, 400, 1, sim.tick))
             health.setHealth(defender.id, 1.0, HealthChangeSource.Other("test"))
-            attacker.breaks(blueCore)
+            deliverTwice(attacker)
             assertThat(eventsOf<MatchEnded>().single().matchId).isEqualTo(first)
             advance(20)
 
@@ -43,17 +54,16 @@ class ConsecutiveMatchResetScenarioTest {
             assertThat(hp(defender)).`as`("HP is restored at match end").isGreaterThan(1.0)
             assertThat(sim.spectator.isSpectating(defender.id)).isFalse()
 
-            val second = startMatch("break-core", teams)
+            val second = startMatch("carry-tnt", teams, stage = "siege-isles-tnt")
             assertThat(second).isNotEqualTo(first)
             assertThat(eventsOf<MatchStarted>()).hasSize(2)
-            assertThat(blockAt(redCore)).`as`("red core is back for match 2").isEqualTo("minecraft:emerald_block")
-            assertThat(blockAt(blueCore)).`as`("destroyed blue core is back for match 2").isEqualTo("minecraft:emerald_block")
+            assertThat(blockAt(tntSpawn.copy(y = 64.0))).`as`("the TNT marker is back for match 2").isEqualTo("minecraft:tnt")
             assertThat(statuses.has(defender.id, StatusEffectId("burn"))).isFalse()
             assertThat(sim.isAlive(attacker.id)).isTrue()
             assertThat(sim.isAlive(defender.id)).isTrue()
 
             // And match 2 is a real match: the same objective still ends it.
-            attacker.breaks(blueCore)
+            deliverTwice(attacker)
             assertThat(eventsOf<MatchEnded>()).hasSize(2)
             assertThat(eventsOf<MatchEnded>().last().matchId).isEqualTo(second)
         }

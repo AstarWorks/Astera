@@ -167,9 +167,6 @@ moments:
     cue: "astera:objective/capture"
     action_bar: "astera.objective.moment.capture.bar"
     particle: objective-burst
-  objective-core-alarm:
-    cue: "astera:objective/core-alarm"
-    action_bar: "astera.objective.moment.core-alarm.bar"
 
 
   # Queue: a short confirmation when queued; "match found" (title + sting) for everyone in the formed roster.

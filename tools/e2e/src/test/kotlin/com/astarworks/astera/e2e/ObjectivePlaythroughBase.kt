@@ -6,7 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import java.io.File
 
 /**
- * Shared frame of the objective-mode playthroughs (carry-tnt, capture-wool, steal-jewelry, battle-loyal): two protocol bots queue
+ * Shared frame of the objective-mode playthroughs (carry-tnt, capture-wool, steal-jewelry, carry-tnt): two protocol bots queue
  * into the lane, the match goes ACTIVE, one bot (the red side) drives the mode's objective by walking the stage's regions with the
  * A* [ObjectiveWalker] while the other stands still, and the match must end by itself with the usual summary / rewards / way back.
  *

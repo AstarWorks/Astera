@@ -6,7 +6,7 @@
 #
 # Row 0 (slots 0..8): ops-only Admin (0) and Item catalog (8) via `visible_if: permission:astera.admin.panel`
 #   (ADR-0240), and "Leave queue" (4), shown only while the viewer waits in a queue (`visible_if: state:queued`, ADR-0248).
-# Row 1 (slots 10..17): Play (ADR-0248, the first and most prominent tile), Shop, Vault, Travel, Training, Profile, Settings,
+# Row 1 (slots 9..17): PvE adventure (9, queues the pve-waves lane; it is not in the Play picker), Play (ADR-0248, the first and most prominent tile), Shop, Vault, Travel, Training, Profile, Settings,
 #   Cosmetics (UI-08; the same screen the profile card's button opens).
 # Row 2 (slots 19..23): Party, Friends, Achievements, Daily/Quests, Help.
 #
@@ -49,6 +49,14 @@ slots:
       key: lobby.queue.show
     tooltip:
       - astera.gui.main-menu.queue.tooltip
+  - type: static
+    index: 9
+    item: gui-tile-travel-pve
+    on_left:
+      key: lobby.queue.join
+      payload: { lane: pve-waves }
+    tooltip:
+      - astera.gui.main-menu.pve.tooltip
   - type: static
     index: 11
     item: gui-tile-shop

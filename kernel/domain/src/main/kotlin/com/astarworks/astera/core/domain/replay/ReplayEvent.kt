@@ -148,7 +148,7 @@ public sealed interface ReplayEvent {
 
     /**
      * Pillar / objective capture in Annihilation-style game modes. The
-     * recorder treats pillarId as opaque; Wave 5c BreakCore / CaptureWool
+     * recorder treats pillarId as opaque; Wave 5c CaptureWool
      * listeners publish a sibling `PillarCaptured` core domain event that
      * the recorder mirrors here.
      */

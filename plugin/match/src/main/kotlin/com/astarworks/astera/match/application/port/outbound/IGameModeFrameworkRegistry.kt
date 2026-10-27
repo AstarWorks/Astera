@@ -8,7 +8,7 @@ import com.astarworks.astera.match.domain.mode.GameModeId
  * (ADR-0106, Wave 5gamemode).
  *
  * Distinct from the existing legacy [IGameModeRegistry] which keys the
- * `sealed class GameMode` value carriers (BattleLoyal, BreakCore, …) used by
+ * `sealed class GameMode` value carriers (Annihilation, CarryTnt, …) used by
  * per-mode-config listeners. This registry tracks the *behavioural* framework
  * impls (NormaGameMode in Phase 1 PoC, Siege/DM/TDM/CTF/BR in Phase 3+).
  *

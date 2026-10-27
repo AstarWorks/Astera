@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
  * `content/arenas/<id>.yaml`: a pre-built world (ADR-0281) in run-length layers.
  *
  * ```yaml
- * id: medieval-village
+ * id: temple-trouble
  * credits: { title: ..., authors: [...], source: <url>, license: CC-BY-SA-4.0, modified: <what changed> }
  * origin: [-34, 53, -44]     # x, y, z of the first cell
  * size: [59, 26, 123]        # x, y, z extent

@@ -28,7 +28,7 @@ class StarsNormaScenarioTest {
         scenario("stars-and-norma") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val matchId = startMatch("battle-loyal", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             val stars = sim.services.getOrThrow<IMatchStarStore>()
             val norma = sim.services.getOrThrow<IMatchNormaStore>()
             assertThat(stars.get(matchId, red.id)).`as`("0 stars at the start").isEqualTo(0)
@@ -109,7 +109,7 @@ class StarsNormaScenarioTest {
         scenario("norma-time-limit-level") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val matchId = startMatch("battle-loyal", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             val stars = sim.services.getOrThrow<IMatchStarStore>()
 
             // Red clears level 1 (10 stars); blue carries 9 stars at level 1. Level beats stars.
@@ -128,7 +128,7 @@ class StarsNormaScenarioTest {
         scenario("norma-time-limit-stars") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val matchId = startMatch("battle-loyal", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             val stars = sim.services.getOrThrow<IMatchStarStore>()
             stars.add(matchId, blue.id, 2)
             advance(12_100)
@@ -138,7 +138,7 @@ class StarsNormaScenarioTest {
         scenario("norma-time-limit-draw") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val matchId = startMatch("battle-loyal", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val matchId = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             advance(12_100)
             val ended = eventsOf<MatchEnded>().single { it.matchId == matchId }
             assertThat(ended.reason).isEqualTo(EndReason.NormaTimeLimit(null))
@@ -151,7 +151,7 @@ class StarsNormaScenarioTest {
         scenario("stars-second-match") {
             val red = player("red-1", team = "red")
             val blue = player("blue-1", team = "blue")
-            val first = startMatch("battle-loyal", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val first = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             val stars = sim.services.getOrThrow<IMatchStarStore>()
             // Pops pile up unattended in the first match, then it ends on the time limit.
             advance(450)
@@ -161,7 +161,7 @@ class StarsNormaScenarioTest {
             assertThat(sim.starDrops.lying()).`as`("no star of the ended match is left lying").isEmpty()
 
             // A fresh match on the same stage: its pops are collected as usual.
-            val second = startMatch("battle-loyal", mapOf(red to "red", blue to "blue"), stage = "example-arena")
+            val second = startMatch("carry-tnt", mapOf(red to "red", blue to "blue"), stage = "example-arena")
             val generators = sim.services.getOrThrow<IGeneratorRepository>().listForMatch(second)
             val spot = generators.maxBy { it.position.x }.position
             red.moveTo(spot)

@@ -78,13 +78,13 @@ class CommandsE2eTest : E2eBase() {
         E2eReport.check(suite, "tab-complete `/astera queue join ` suggests lanes", "ServerboundCommandSuggestion") {
             val r = admin.complete("/astera queue join ")
             assertThat(r).describedAs("no reply").isNotNull()
-            assertThat(r!!.matches.toList()).contains("battle-loyal")
+            assertThat(r!!.matches.toList()).contains("carry-tnt")
             "matches=${r.matches.toList()}"
         }
         E2eReport.check(suite, "tab-complete `/play ` (shortcut redirect) suggests the same lanes", "ServerboundCommandSuggestion (ADR-0234)") {
             val r = admin.complete("/play ")
             assertThat(r).describedAs("no reply").isNotNull()
-            assertThat(r!!.matches.toList()).contains("battle-loyal")
+            assertThat(r!!.matches.toList()).contains("carry-tnt")
             "matches=${r.matches.toList()}"
         }
     }

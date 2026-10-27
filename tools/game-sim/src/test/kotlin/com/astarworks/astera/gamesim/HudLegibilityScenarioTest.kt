@@ -21,7 +21,7 @@ class HudLegibilityScenarioTest {
         scenario("hud-legibility") {
             val shooter = player("shooter", team = "red", at = Vec3(0.0, groundY, 0.0))
             val victim = player("victim", team = "blue", at = Vec3(0.0, groundY, 10.0))
-            startMatch("battle-loyal", mapOf(shooter to "red", victim to "blue"))
+            startMatch("carry-tnt", mapOf(shooter to "red", victim to "blue"))
             advance(40)
 
             val labels = sim.services.getOrThrow<IPlayerLabelGateway>() as InMemoryPlayerLabelGateway
@@ -66,7 +66,7 @@ class HudLegibilityScenarioTest {
         scenario("hud-legibility-end") {
             val a = player("a", team = "red", at = Vec3(0.0, groundY, 0.0))
             val b = player("b", team = "blue", at = Vec3(0.0, groundY, 10.0))
-            val matchId = startMatch("battle-loyal", mapOf(a to "red", b to "blue"))
+            val matchId = startMatch("carry-tnt", mapOf(a to "red", b to "blue"))
             advance(40)
             val labels = sim.services.getOrThrow<IPlayerLabelGateway>() as InMemoryPlayerLabelGateway
             assertThat(labels.labelsOf(a.id)).isNotEmpty()

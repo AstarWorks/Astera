@@ -6,9 +6,9 @@ import com.astarworks.astera.match.domain.mode.GameModeId
  * What a player is queueing into (Wave 5w / ADR-0089).
  *
  * Distinct from [com.astarworks.astera.match.domain.mode.GameMode] sealed
- * (Wave 5c, ADR-0032): GameMode names the in-match rules (Battle Loyal,
- * Break Core, …); MatchmakingMode names the **queue lane** (a game-mode lane,
- * tournament bracket). The default lane is battle-loyal ([BATTLE_LOYAL]); Norma is
+ * (Wave 5c, ADR-0032): GameMode names the in-match rules (Carry TNT,
+ * Annihilation, …); MatchmakingMode names the **queue lane** (a game-mode lane,
+ * tournament bracket). The default lane is carry-tnt ([CARRY_TNT]); Norma is
  * a layer of every mode, not a lane (MODE-15).
  *
  * Phase 2 adds rating-based queue split (Elo / Glicko2) — that arrives as a
@@ -30,8 +30,8 @@ public sealed interface MatchmakingMode {
     }
 
     public companion object {
-        /** The default 2-team lane: battle-loyal. */
-        public val BATTLE_LOYAL: MatchmakingMode = Custom(GameModeId("battle-loyal"))
+        /** The default 2-team lane: carry-tnt. */
+        public val CARRY_TNT: MatchmakingMode = Custom(GameModeId("carry-tnt"))
 
         /**
          * Parse the wire form shared by `/astera queue join` and the lobby GUI:

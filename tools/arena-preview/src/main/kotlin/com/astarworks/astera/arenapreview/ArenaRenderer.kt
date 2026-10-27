@@ -43,9 +43,6 @@ object ArenaRenderer {
         stage.spawnPoints.filter { it.team != null }.groupBy { it.team }.values.forEach { group ->
             val p = group.first().position; label(p.x.toInt(), p.z.toInt(), "spawn ${group.first().team!!.value}", Color.GREEN)
         }
-        stage.regions.filter { it.name?.startsWith("core-") == true }.forEach {
-            label(((it.min.x + it.max.x) / 2).toInt(), ((it.min.z + it.max.z) / 2).toInt(), it.name!!, Color.RED)
-        }
         g.dispose()
         return image
     }

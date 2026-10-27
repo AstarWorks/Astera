@@ -21,7 +21,7 @@ class EnemyConcealedFromTabScenarioTest {
             val r2 = player("r2", team = "red", at = Vec3(2.0, groundY, 0.0))
             val b1 = player("b1", team = "blue", at = Vec3(0.0, groundY, 10.0))
             val b2 = player("b2", team = "blue", at = Vec3(2.0, groundY, 10.0))
-            startMatch("battle-loyal", mapOf(r1 to "red", r2 to "red", b1 to "blue", b2 to "blue"))
+            startMatch("carry-tnt", mapOf(r1 to "red", r2 to "red", b1 to "blue", b2 to "blue"))
             advance(40)
 
             val labels = sim.services.getOrThrow<IPlayerLabelGateway>() as InMemoryPlayerLabelGateway

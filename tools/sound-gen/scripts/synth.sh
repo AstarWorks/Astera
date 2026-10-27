@@ -429,11 +429,6 @@ objective_capture() {  # zone captured: upward whoosh into a ringing major chord
     gen b 1.0 "$(bell 1047 5)"; gen c 1.0 "$(bell 1319 5.5)"; gen d 1.0 "$(bell 1568 6)"
     mix cp 1.1 a:0:0.6 b:300:0.9 c:300:0.8 d:300:0.7; finish objective/capture cp
 }
-objective_core_alarm() {  # the core is breached: heavy impact and a siren wail
-    gen a 0.5 "$(sweep 150 40 0.2 8)"; noise b 0.4 "lowpass=f=1500,volume='exp(-t*9)':eval=frame" 123
-    gen c 0.9 "sin(2*PI*(500*t+120*sin(2*PI*3*t)*0.2+(700-500)*t*t/(2*0.9)))*min(t/0.05,1)*exp(-1.6*t)*0.35"
-    mix ca 0.9 a:0:1 b:0:0.6 c:150:0.8; finish objective/core-alarm ca
-}
 
 ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-up norma/level-max
      match/countdown-tick match/go combat/kill match/death match/win match/lose
@@ -446,7 +441,7 @@ ALL=(ui/click ui/confirm ui/deny ui/purchase star/pickup star/burst norma/level-
      norma/burst norma/burst-max norma/choice-open norma/choice-picked norma/choice-defaulted
      ui/level-up ui/login-bonus ui/quest-complete star/burst-gain star/burst-boom match/sudden-death ui/queue-join match/found
      objective/channel-start objective/pickup objective/drop objective/return objective/bank objective/loss objective/warn
-     objective/tension objective/capture objective/core-alarm)
+     objective/tension objective/capture)
 
 targets=("$@"); [[ ${#targets[@]} -gt 0 ]] || targets=("${ALL[@]}")
 for name in "${targets[@]}"; do
