@@ -1,0 +1,15 @@
+# Converted from content/skills/sword-dash.yaml by tools/skill-convert/convert.py (v1 archetype: buff). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# also bound to items: knight-sword
+# CONVERT-TODO meta: no SkillDef home for name / description / cooldown / cost / tags (cooldown and cost live on the item binding): cooldown_ticks=100; resource_cost=30; tags=buff,movement,sword
+# CONVERT-TODO meta: name={"en": "Dash", "ja": "ダッシュ"} | description={"en": "A brief burst of speed.", "ja": "一瞬だけ素早く駆け出す。"}
+apiVersion: "astera/v2"
+kind: Skill
+id: sword-dash
+item: dagger
+gameplay:
+  params: {dash_ticks: 20, propel: 1.1}
+  expose:
+    - {id: duration, param: dash_ticks}
+  timeline:
+    - {id: t0, at: 0, do: [{id: buff, op: status, target: caster, status: dash, duration_ticks: "${dash_ticks}"}, {id: propel, op: propel, direction: "= axis(caster, \"forward\")", strength: "${propel}"}]}

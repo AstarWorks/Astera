@@ -1,0 +1,27 @@
+# Converted from content/skills/edict-s1.yaml + content/vfx/* by tools/skill-convert/convert.py (v1 archetype: sequence). Grep CONVERT-TODO / CONVERT-PRESENT before hand-editing.
+# Generated point-frame offsets are [left, up, forward] in the parent frame.
+# CONVERT-PRESENT vfx frame orient (frames carry no orientation / scale) (x7): orient="yaw"
+# CONVERT-PRESENT block element (mesh takes an item model, plate takes a sprite: no block / solid-colour primitive) (x82): white_stained_glass | white_concrete
+# CONVERT-PRESENT element formation (no v2 equivalent) (x1): {"curve": {"from": [0.0, 0.0, 0.0], "to": [0.0, 0.0, -2.2], 
+# CONVERT-PRESENT element count (no v2 equivalent) (x1): 3
+# CONVERT-PRESENT element slot_lifetime_ticks (no v2 equivalent) (x1): 14
+# CONVERT-PRESENT element brightness (no v2 equivalent) (x61): 15
+# CONVERT-PRESENT element kind text (text) has no v2 op (x1): {"background": "#00000000", "see_through": true, "shadow": false, "text": "<#4f8
+# CONVERT-PRESENT vfx follow=false (anchored at world, no place-at-spawn) (x4): edict-cuff-sweep | edict-impact
+# CONVERT-PRESENT quad element (plate takes a sprite: no solid-colour quad / glyph) (x2): {"color": "#FFFFFF", "glyph": "✦"}
+apiVersion: "astera/v2"
+kind: Skill
+id: edict-s1
+frames:
+  - {id: fx1_edict_ghost, kind: body, parent: caster}
+  - {id: fx2_edict_fists_down, kind: body, parent: caster}
+  - {id: fx3_edict_cuff_sweep, kind: body, parent: world}
+  - {id: fx4_edict_impact, kind: body, parent: world}
+  - {id: fx5_edict_fists_return, kind: body, parent: caster}
+  - {id: fx6_edict_cuff_sweep, kind: body, parent: world}
+  - {id: fx7_edict_impact, kind: body, parent: world}
+presentation:
+  "on":
+    hit:
+      - {id: snd, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel'"}
+      - {id: snd_2, op: sound, sound: entity.player.attack.strong, at: contact.point, volume: 0.7, pitch: 1.1, when: "= event.source == 'sel_2'"}

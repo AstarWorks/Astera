@@ -151,6 +151,9 @@
                 },
                 "up": {
                     "type": "string"
+                },
+                "to": {
+                    "type": "string"
                 }
             },
             "additionalProperties": true
@@ -277,7 +280,6 @@
                         "type": "string",
                         "enum": [
                             "aoe",
-                            "apply_status",
                             "break_area",
                             "cast_skill",
                             "choose",
@@ -321,6 +323,7 @@
                             "set_velocity",
                             "silence",
                             "spin",
+                            "status",
                             "stick",
                             "summon",
                             "summon_lightning",
@@ -343,21 +346,6 @@
                         },
                         "then": {
                             "$ref": "#/definitions/op_aoe"
-                        }
-                    },
-                    {
-                        "if": {
-                            "properties": {
-                                "op": {
-                                    "const": "apply_status"
-                                }
-                            },
-                            "required": [
-                                "op"
-                            ]
-                        },
-                        "then": {
-                            "$ref": "#/definitions/op_apply_status"
                         }
                     },
                     {
@@ -1009,6 +997,21 @@
                         "if": {
                             "properties": {
                                 "op": {
+                                    "const": "status"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_status"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
                                     "const": "stick"
                                 }
                             },
@@ -1183,6 +1186,7 @@
                             "remove",
                             "sound",
                             "title",
+                            "track",
                             "trail",
                             "victim_anim"
                         ]
@@ -1343,6 +1347,21 @@
                         "if": {
                             "properties": {
                                 "op": {
+                                    "const": "track"
+                                }
+                            },
+                            "required": [
+                                "op"
+                            ]
+                        },
+                        "then": {
+                            "$ref": "#/definitions/op_track"
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "op": {
                                     "const": "trail"
                                 }
                             },
@@ -1470,6 +1489,27 @@
                 },
                 "radius": {
                     "$ref": "#/definitions/Value_number"
+                }
+            },
+            "additionalProperties": true
+        },
+        "TrackKeyPatch": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "rotation": {
+                    "$ref": "#/definitions/Value_vec3"
+                },
+                "scale": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "ease": {
+                    "type": "string"
                 }
             },
             "additionalProperties": true
@@ -1633,6 +1673,9 @@
                 "sphere": {
                     "$ref": "#/definitions/SpherePatch"
                 },
+                "radius": {
+                    "$ref": "#/definitions/Value_number"
+                },
                 "on_hit": {
                     "type": "array",
                     "items": {
@@ -1660,48 +1703,13 @@
                     "required": [
                         "sphere"
                     ]
+                },
+                {
+                    "required": [
+                        "radius"
+                    ]
                 }
             ]
-        },
-        "op_apply_status": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "unique within the skill (patches address ops by id)"
-                },
-                "op": {
-                    "const": "apply_status"
-                },
-                "when": {
-                    "$ref": "#/definitions/Value_boolean"
-                },
-                "target": {
-                    "type": [
-                        "string",
-                        "object"
-                    ],
-                    "description": "one of: allies, caster, enemies, victim"
-                },
-                "status_id": {
-                    "type": "string"
-                },
-                "stacks": {
-                    "$ref": "#/definitions/Value_number"
-                },
-                "duration_ticks": {
-                    "$ref": "#/definitions/Value_number"
-                },
-                "chance": {
-                    "$ref": "#/definitions/Value_number"
-                }
-            },
-            "required": [
-                "id",
-                "op"
-            ],
-            "additionalProperties": true
         },
         "op_break_area": {
             "type": "object",
@@ -1749,6 +1757,9 @@
                 },
                 "block_damage": {
                     "type": "integer"
+                },
+                "breaks_blocks": {
+                    "type": "boolean"
                 },
                 "revert_after_ticks": {
                     "$ref": "#/definitions/Value_number"
@@ -3008,6 +3019,9 @@
                 "sphere": {
                     "$ref": "#/definitions/SpherePatch"
                 },
+                "radius": {
+                    "$ref": "#/definitions/Value_number"
+                },
                 "pierce": {
                     "type": "integer"
                 },
@@ -3049,6 +3063,11 @@
                 {
                     "required": [
                         "sphere"
+                    ]
+                },
+                {
+                    "required": [
+                        "radius"
                     ]
                 }
             ]
@@ -3194,6 +3213,9 @@
                         "object"
                     ],
                     "description": "one of: at_point, at_value"
+                },
+                "breaks_blocks": {
+                    "type": "boolean"
                 },
                 "revert_after_ticks": {
                     "$ref": "#/definitions/Value_number"
@@ -3568,6 +3590,46 @@
             ],
             "additionalProperties": true
         },
+        "op_status": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "status"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": [
+                        "string",
+                        "object"
+                    ],
+                    "description": "one of: allies, caster, enemies, victim"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "stacks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "duration_ticks": {
+                    "$ref": "#/definitions/Value_number"
+                },
+                "chance": {
+                    "$ref": "#/definitions/Value_number"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
         "op_stick": {
             "type": "object",
             "properties": {
@@ -3727,6 +3789,39 @@
                 },
                 "ticks": {
                     "type": "integer"
+                }
+            },
+            "required": [
+                "id",
+                "op"
+            ],
+            "additionalProperties": true
+        },
+        "op_track": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "unique within the skill (patches address ops by id)"
+                },
+                "op": {
+                    "const": "track"
+                },
+                "when": {
+                    "$ref": "#/definitions/Value_boolean"
+                },
+                "target": {
+                    "type": "string"
+                },
+                "keys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TrackKeyPatch"
+                    }
+                },
+                "space": {
+                    "type": "string"
                 }
             },
             "required": [
