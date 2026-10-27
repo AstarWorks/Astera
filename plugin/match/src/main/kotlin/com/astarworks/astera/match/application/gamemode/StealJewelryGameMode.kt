@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.presentation.PresentationMoments
 import com.astarworks.astera.core.domain.stage.Region
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.match.application.gamemode.siege.ObjectiveKit
+import com.astarworks.astera.match.application.gamemode.siege.ObjectiveSnapshot
 import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
 import com.astarworks.astera.match.application.gamemode.siege.SiegeGameMode
 import com.astarworks.astera.match.application.gamemode.siege.SiegeRun
@@ -20,7 +21,7 @@ import kotlin.math.abs
 
 /**
  * Steal Jewelry: each team keeps `gems_per_team` jewels on its pedestal (stage region `jewelry-<team>`). Holding an
- * enemy pedestal zone for `channel_ticks` takes one of its jewels; holding your own `base-<team>` zone banks what you
+ * enemy pedestal zone for `steal_channel_ticks` (damage interrupts) takes one of its jewels; holding your own `base-<team>` zone banks what you
  * carry. Every jewel slows and lights up the carrier a little more. A carrier who falls drops the jewels in a pile
  * where they died: the pile's owners recover their own jewels by touching it, anyone else can steal the rest, and what
  * is left returns to the pedestals after `drop_return_seconds`. Every banked jewel takes `count_per_gem` off the
@@ -56,12 +57,21 @@ public class StealJewelryGameMode @JvmOverloads constructor(
 
     private fun gemsPerTeam(): Int = env?.int("gems_per_team", DEFAULT_GEMS) ?: DEFAULT_GEMS
 
+    /** Hold time (ticks) to lift a jewel off an enemy pedestal; taking damage interrupts it. */
+    private fun stealChannelTicks(): Long = (env?.int("steal_channel_ticks", DEFAULT_STEAL_TICKS) ?: DEFAULT_STEAL_TICKS).toLong()
+
+    override fun damaged(run: Run, match: Match, victim: PlayerId, attacker: PlayerId?, amount: Double) {
+        if (amount > 0.0 && kit.isChanneling(victim)) kit.interruptChannel(victim)
+    }
+
     override fun createRun(match: Match, stage: Stage): Run? {
         val regions = match.teams.mapNotNull { team ->
             stage.region("$PEDESTAL_PREFIX${team.id.value}")?.let { team.id to it }
         }.toMap()
-        if (regions.size != match.teams.size) return null
-        val bases = match.teams.associate { it.id to (stage.region("$BASE_PREFIX${it.id.value}") ?: return null) }
+        val missing = match.teams.flatMap { listOf("$PEDESTAL_PREFIX${it.id.value}", "$BASE_PREFIX${it.id.value}") }
+            .filter { stage.region(it) == null }
+        if (missing.isNotEmpty()) return missingRegions(stage, missing)
+        val bases = match.teams.associate { it.id to stage.region("$BASE_PREFIX${it.id.value}")!! }
         return Run(match.id, stage, regions.mapValues { cellOf(it.value) }, regions, bases, gemsPerTeam())
     }
 
@@ -90,7 +100,9 @@ public class StealJewelryGameMode @JvmOverloads constructor(
             for (member in team.members) {
                 if (run.ended) return
                 val target = kit.positionOf(member)?.let { targetOf(run, member, team.id, it) }
-                if (kit.channel(member, target, if (target?.startsWith(BANK) == true) LABEL_BANK else LABEL_STEAL)) {
+                val stealing = target?.startsWith(STEAL) == true
+                val need = if (stealing) stealChannelTicks() else kit.channelTicks
+                if (kit.channel(member, target, if (target?.startsWith(BANK) == true) LABEL_BANK else LABEL_STEAL, needTicks = need)) {
                     complete(run, match, member, team.id, target ?: continue)
                 }
             }
@@ -162,6 +174,7 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         kit.broadcast(match.teams.firstOrNull { it.id == team }?.members.orEmpty(), PresentationMoments.OBJECTIVE_DELIVER, args, burst, run.stage.world)
         kit.broadcast(match.teams.filter { it.id != team }.flatMap { it.members }, PresentationMoments.OBJECTIVE_DELIVER_AGAINST, args, burst, run.stage.world)
         countEvent(run, match, team, EVENT_GEM, times = gems.size, at = burst)
+        if (run.ended) tellMatch(match, KEY_BANKED, args)
     }
 
     // ---- drops ----------------------------------------------------------------
@@ -272,6 +285,12 @@ public class StealJewelryGameMode @JvmOverloads constructor(
 
     override fun hudLines(run: Run, match: Match): List<HudLine> = emptyList()
 
+    override fun snapshotOf(run: Run, match: Match): ObjectiveSnapshot = ObjectiveSnapshot.Jewels(
+        onPedestal = run.onPedestal.toMap(),
+        pedestals = run.pedestalRegions.mapValues { ObjectiveKit.centreOf(it.value, 1.0) },
+        carried = run.carried.mapValues { it.value.size },
+    )
+
     override fun finish(run: Run) {
         run.pedestals.values.forEach { setBlock(run, it, floorBlock()) }
     }
@@ -298,8 +317,9 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         private const val PILE: String = "pile:"
         private const val PILE_KEY: String = "pile-"
         private const val PEDESTAL_KEY: String = "pedestal-"
-        private const val DEFAULT_GEMS: Int = 3
+        private const val DEFAULT_GEMS: Int = 6
         private const val EVENT_GEM: String = "gem"
+        private const val DEFAULT_STEAL_TICKS: Int = 80
         private const val FAST_TICKS: Long = 5L
         private const val TRAIL_TICKS: Long = 5L
         private const val WARN_INTERVAL_TICKS: Long = 40L

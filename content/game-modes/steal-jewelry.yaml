@@ -3,11 +3,12 @@
 # Each team keeps `gems_per_team` jewels on its pedestal (stage region
 # `jewelry-<team>`). Walk into an enemy pedestal zone to take a jewel, walk
 # into your own `base-<team>` zone to bank what you carry. A carrier who dies
-# returns the jewels. Each banked jewel takes `count_per_gem` off the team's count (3 jewels = knockout).
+# returns the jewels. Each banked jewel takes `count_per_gem` off the team's count (5 jewels = knockout).
 # Implementation: StealJewelryGameMode.
 #
 # default_config
-#   gems_per_team  jewels on each pedestal
+#   gems_per_team       jewels on each pedestal
+#   steal_channel_ticks hold time to take a jewel (damage interrupts)
 id: steal-jewelry
 title_key: astera.gamemode.steal-jewelry.title
 impl_class: com.astarworks.astera.match.application.gamemode.StealJewelryGameMode
@@ -24,13 +25,16 @@ default_config:
   count_start: "100"
   count_low_at: "34"
   overtime_max_seconds: "60"
-  gems_per_team: "3"
-  count_per_gem: "34"
+  gems_per_team: "6"
+  # Hold time (ticks) to lift a jewel off an enemy pedestal; damage cancels it. Banking and piles use channel_ticks.
+  steal_channel_ticks: "80"
+  # Each banked jewel takes this off the count: 5 jewels (of 6 on the enemy pedestal) = knockout.
+  count_per_gem: "20"
   # Objective feel (ObjectiveKit): hold time at a pickup / goal in ticks, how long a dropped objective lies before it
   # goes home (seconds), reach of a pile pickup (blocks), distance at which defenders get a gate warning (blocks).
   channel_ticks: "15"
   drop_return_seconds: "20"
   pickup_radius: "3"
   warn_distance: "24"
-  carrier_slow_pct_per_item: "10"
+  carrier_slow_pct_per_item: "12"
   carrier_min_speed_pct: "60"

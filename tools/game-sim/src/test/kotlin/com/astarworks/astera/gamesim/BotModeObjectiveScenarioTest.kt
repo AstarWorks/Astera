@@ -13,7 +13,8 @@ import org.junit.jupiter.api.Test
 /**
  * Bots play the mode's objective, not just "find enemies" (item 25d). The planner ([ModePlanner], the object BotBrain asks
  * for its destination) is fed the REAL stage regions (StageObjectives.load) and drives a sim player through the REAL
- * mode: in carry-mini-tnt it must collect mini TNT and plant it in the enemy base until the base blows up.
+ * mode:
+ * in carry-tnt it wears the shield down, holds the enemy checkpoints and the deliver pedestal (the goal is a knockout).
  * Also: the Tab-list independent target fallback.
  */
 class BotModeObjectiveScenarioTest {
@@ -49,29 +50,12 @@ class BotModeObjectiveScenarioTest {
     }
 
     @Test
-    fun `carry-mini-tnt bot collects and plants mini TNT until the enemy base blows up`() {
-        scenario("bot-mini-tnt-objective") {
-            val runner = player("runner", at = Vec3(0.0, 65.0, -50.0))
-            val guard = player("guard", at = Vec3(0.0, 65.0, -50.0))
-            startMatch("carry-mini-tnt", mapOf(runner to "red", guard to "blue"))
-            val p = planner("carry-mini-tnt", "runner", "red", "blue")
-
-            val kinds = drive(runner, p, 800) { eventsOf<MatchEnded>().isNotEmpty() }
-
-            val end = eventsOf<MatchEnded>().singleOrNull()
-            assertThat(end).`as`("the planner alone wins the mode (trace: $kinds)").isNotNull()
-            assertThat(end!!.winningTeam).isEqualTo(TeamId("red"))
-            assertThat(kinds.take(3)).containsExactly("pickup", "deliver", "pickup")
-        }
-    }
-
-    @Test
-    fun `carry-tnt bot takes the TNT to the enemy base`() {
+    fun `carry-tnt bot breaks the shield, holds the checkpoints and reaches the goal`() {
         scenario("bot-tnt-objective") {
             val runner = player("runner", at = Vec3(0.0, 65.0, -50.0))
             val guard = player("guard", at = Vec3(0.0, 65.0, -50.0))
             startMatch("carry-tnt", mapOf(runner to "red", guard to "blue"), stage = "siege-isles-tnt")
-            val kinds = drive(runner, planner("carry-tnt", "runner", "red", "blue"), 40) { eventsOf<MatchEnded>().isNotEmpty() }
+            val kinds = drive(runner, planner("carry-tnt", "runner", "red", "blue"), 900) { eventsOf<MatchEnded>().isNotEmpty() }
             assertThat(kinds.filter { it != "checkpoint" }.take(2)).containsExactly("tnt", "deliver")
             assertThat(eventsOf<MatchEnded>().singleOrNull()?.winningTeam).isEqualTo(TeamId("red"))
         }

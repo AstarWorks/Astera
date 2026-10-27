@@ -1,11 +1,11 @@
 # Imported world (ADR-0281): "Temple Trouble" by Salgadoh, CC BY-SA 4.0, modified.
 # The blocks live in content/arenas/temple-trouble.yaml (credits there and in content/stages/NOTICE.md).
 # Cropped to the central play area (|x| <= 27, |z| <= 64) so a match is not a 185-block walk (stage shrink); the spawn islands and the isolated side islands are gone.
-# Stage x/z equal the map's own x/z; the map is moved up so its spawn floor is y=64. wool-* zones are control points.
+# Stage x/z equal the map's own x/z; the map is moved up so its spawn floor is y=64. wool-* zones are control points: a 5x5 pad at y=58 (the grass layer) under a 20-block beam, visible from the spawn deck at y=65 (zone cell = centre column of the region, pad = cell +-2).
 id: temple-trouble
 display_name_key: astera.stage.temple-trouble.name
 layout:
-  marker_version: 2
+  marker_version: 3
   seed: 20261027
   surface_y: 64
   kill_y: 30
@@ -21,17 +21,17 @@ regions:
   min: {x: -30.0, y: 30.0, z: -68.0}
   max: {x: 30.0, y: 120.0, z: 68.0}
 - name: wool-a
-  min: {x: -24.0, y: 59.0, z: -1.0}
-  max: {x: -22.0, y: 65.0, z: 1.0}
+  min: {x: -25.0, y: 58.0, z: -2.0}
+  max: {x: -20.0, y: 65.0, z: 3.0}
 - name: wool-b
-  min: {x: 22.0, y: 59.0, z: -1.0}
-  max: {x: 24.0, y: 65.0, z: 1.0}
+  min: {x: 21.0, y: 58.0, z: -2.0}
+  max: {x: 26.0, y: 65.0, z: 3.0}
 - name: wool-c
-  min: {x: -1.0, y: 59.0, z: -7.0}
-  max: {x: 1.0, y: 65.0, z: -5.0}
+  min: {x: -2.0, y: 58.0, z: -8.0}
+  max: {x: 3.0, y: 65.0, z: -3.0}
 - name: wool-d
-  min: {x: -4.0, y: 59.0, z: 5.0}
-  max: {x: -2.0, y: 65.0, z: 7.0}
+  min: {x: -5.0, y: 58.0, z: 4.0}
+  max: {x: 0.0, y: 65.0, z: 9.0}
 spawn_points:
 - team: red
   position: {x: -5.5, y: 65.0, z: -61.5}
