@@ -11,6 +11,8 @@ Metrics (all on the frame downscaled to <=320 px wide, so they are comparable be
   fx_pct                  % of pixels that are emissive AND new vs the clip's median background: luma >= 190, or saturated and bright (max-min >= 140 and max >= 160)
   mover_h_pct             vertical extent of the rows that differ from the clip's median background, as % of the frame height
                           (the caster/weapon silhouette in the fixed-camera views; null when >50% of the frame changed = camera cut/move)
+caster_bbox_pct         height of the caster's key-colour mask (compact saturated hair/outfit hues found in the pre-cast tick-0 frame of the same source,
+                          or case.json caster_key) as % of the frame height; a stable, motion-independent framing measure. null when the mask is empty.
 Regression flags (cell vs the paired row at the same tick): fx_pct / mean_luma / peak_luma down more than 20% (relative; ignored below
 a floor so noise on near-black frames does not flag).
 """
@@ -67,9 +69,97 @@ def metrics(im, bg):
     return out
 
 
+def hsv_planes(im):
+    hsv = np.asarray(im.convert("HSV")).astype(np.float32)
+    return hsv[..., 0] * 360 / 255, hsv[..., 1] / 255, hsv[..., 2] / 255
+
+
+CELL = 3
+CUT = 0.74  # rows below this fraction hold subtitles / hotbar / health bar
+
+
+def biggest_cluster(m):
+    """Largest 8-connected group of >=25%-filled CELLxCELL blocks of mask m (drops sparse particles / specks).
+    Returns (pixels, (x0, y0, x1, y1)) in pixel coords, or None."""
+    H, Wd = m.shape
+    gh, gw = H // CELL, Wd // CELL
+    if gh < 2 or gw < 2:
+        return None
+    fill = m[: gh * CELL, : gw * CELL].reshape(gh, CELL, gw, CELL).mean(axis=(1, 3)) >= 0.25
+    seen = np.zeros_like(fill)
+    best = None
+    for y in range(gh):
+        for x in range(gw):
+            if not fill[y, x] or seen[y, x]:
+                continue
+            stack, cells = [(y, x)], []
+            seen[y, x] = True
+            while stack:
+                cy, cx = stack.pop()
+                cells.append((cy, cx))
+                for dy in (-1, 0, 1):
+                    for dx in (-1, 0, 1):
+                        ny, nx = cy + dy, cx + dx
+                        if 0 <= ny < gh and 0 <= nx < gw and fill[ny, nx] and not seen[ny, nx]:
+                            seen[ny, nx] = True
+                            stack.append((ny, nx))
+            if best is None or len(cells) > len(best):
+                best = cells
+    if not best:
+        return None
+    ys = [c[0] for c in best]
+    xs = [c[1] for c in best]
+    return len(best) * CELL * CELL, (min(xs) * CELL, min(ys) * CELL, (max(xs) + 1) * CELL, (max(ys) + 1) * CELL)
+
+
+def caster_key(im, override=None):
+    """Hue ranges (degrees) of the caster, taken from the pre-cast frame: the biggest compact saturated colour clusters (hair/outfit).
+    Sky/water blue and grass/foliage green are never the caster; clusters wider than 45% or taller than 55% of the frame are scenery.
+    `override` = [lo, hi] from case.json caster_key."""
+    if override:
+        return [(float(override[0]), float(override[1]))]
+    h, s, v = hsv_planes(im)
+    H, Wd = h.shape
+    cand = (s >= 0.45) & (v >= 0.30)
+    cand[: int(H * 0.10)] = False
+    cand[int(H * CUT):] = False
+    scored = []
+    for b in range(36):
+        if 90 <= b * 10 < 250:
+            continue
+        cl = biggest_cluster(cand & (h >= b * 10) & (h < b * 10 + 10))
+        if not cl:
+            continue
+        px, (x0, y0, x1, y1) = cl
+        if (x1 - x0) > 0.45 * Wd or (y1 - y0) > 0.55 * H:
+            continue
+        scored.append((px, b * 10))
+    if not scored:
+        return []
+    scored.sort(reverse=True)
+    return [(b, b + 10) for px, b in scored if px >= 0.4 * scored[0][0]][:3]
+
+
+def caster_bbox(im, key):
+    """Height/width of the caster's key-colour cluster as % of the frame (sparse fx pixels are ignored); null when there is none."""
+    if not key:
+        return None
+    h, s, v = hsv_planes(im)
+    m = np.zeros(h.shape, bool)
+    for lo, hi in key:
+        m |= (h >= lo) & (h < hi)
+    m &= (s >= 0.40) & (v >= 0.25)
+    m[int(h.shape[0] * CUT):] = False
+    cl = biggest_cluster(m)
+    if not cl:
+        return {"caster_bbox_pct": None}
+    px, (x0, y0, x1, y1) = cl
+    return {"caster_bbox_pct": round(float((y1 - y0) / h.shape[0] * 100), 1), "caster_bbox_w_pct": round(float((x1 - x0) / h.shape[1] * 100), 1), "caster_mask_px": px}
+
+
 def compare(cur, prev):
     d, flags = {}, []
-    for k in ("fx_pct", "mean_luma", "peak_luma", "mover_h_pct"):
+    for k in ("fx_pct", "mean_luma", "peak_luma"):
         a, b = cur.get(k), prev.get(k)
         if a is None or b is None:
             continue
@@ -118,7 +208,8 @@ def sheet(spec, rows, result):
             if bad:
                 dr.rectangle([x0, y0, x0 + cw - 1, y0 + ch - 1], outline=(235, 70, 70), width=3)
             m = cell["metrics"]
-            txt = "-" if not m else f"fx {m['fx_pct']:.1f}%  L {m['mean_luma']:.0f}/{m['peak_luma']:.0f}  h {m['mover_h_pct'] if m['mover_h_pct'] is not None else '-'}%"
+            cb = m.get("caster_bbox_pct") if m else None
+            txt = "-" if not m else f"fx {m['fx_pct']:.1f}%  L {m['mean_luma']:.0f}/{m['peak_luma']:.0f}  caster {cb if cb is not None else '-'}%"
             dr.text((x0 + 2, y0 + ch + 2), txt, fill=(235, 235, 240), font=f9)
             if bad:
                 dr.text((x0 + 2, y0 + ch + 14), "REGRESSION " + "; ".join(cell["flags"])[: cw // 5], fill=(255, 110, 110), font=f9)
@@ -134,11 +225,16 @@ def main():
     result = []
     for row in rows:
         bg = background(row.get("bg") or [])
+        kim = load(row["keyPath"]) if row.get("keyPath") else None
+        key = caster_key(kim, row.get("hue")) if kim is not None else []
         cells = []
         for fr in row["frames"]:
             im = load(fr["path"]) if fr.get("path") else None
-            cells.append({"tick": fr["tick"], "metrics": metrics(im, bg) if im is not None else None, "delta": None, "flags": []})
-        result.append({"id": row["id"], "cells": cells})
+            mt = metrics(im, bg) if im is not None else None
+            if mt is not None:
+                mt.update(caster_bbox(im, key) or {"caster_bbox_pct": None})
+            cells.append({"tick": fr["tick"], "metrics": mt, "delta": None, "flags": []})
+        result.append({"id": row["id"], "casterKey": [list(k) for k in key], "cells": cells})
     for ri, row in enumerate(rows):
         p = row.get("pair")
         if p is None:
