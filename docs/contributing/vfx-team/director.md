@@ -188,3 +188,9 @@ Look at edges on native crops before handing a round over: add `&zoom=native&cro
 - 2026-10-27 (couture-s2 r5/r6): rig `weapon_model` keys show on screen 1-2 ticks after their `t`; item `end_tick` removes the element on that tick. Gap-free hand-over: re-show key t57 with the carried item's end_tick 58 (key t56 gives two weapons at t57). Verify with a REF/OURS sheet of every tick.
 - DISTANCE in vfx-shot is caster-to-target blocks (cone range); FOV 90 + DISTANCE 5.4 frames S2. Vanilla dust particles outlive their lifetime (lingering squares): use sprites. `couture-s2-smear` sprite works as a brush wedge; a near-total white-out = 6 stacked smear sprites sx 80, sy 12-44, alpha 0.9 for 2 ticks, then alpha 0. Streak layers above alpha 0.35 each keep the screen pink past t74.
 - Afterimage is the engine `ghost_body` element (rig-b `ghost_bodies:`); no pillar quads remain in rig-b.
+
+- 2026-10-27 (S2 r7-r9): `couture-s2-burst-soft` source PNG is off-centre (right half only); never use it for centred haze/petals, make a centred radial sprite (`couture-s2-haze-soft`, size 256, raw). Small hip haze: scale 0.4->0.8 blocks, alpha 0.3, otherwise it reads as a pillar.
+- Two coplanar quads (dark rim behind white core) z-fight: one X bar rendered fully dark even at z -0.06; drop the rim, use a single white quad.
+- `./gradlew :tools:item-art:run` regenerates unrelated items/sprites; keep only the new sprite files (`git restore --pathspec-from-file`, rm the untracked unrelated outputs), then `make vfx-shot-down` so the new font loads.
+- Thin ring: hand-made 256px PNG (gaussian core 1.6px + glow, `raw: true, frames: 1`) via sprites.yaml `from:`; the old `couture-orbit` was a low-res jagged band when scaled up.
+- hit3 plays from the dash_strike on_hit; after real-projectile knockback (ADR-0287) the dash can miss the dummy and hit3 never spawns (no `spawn couture-s2-hit3` in the server log). Check the log before judging hit3 art.
