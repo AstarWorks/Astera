@@ -84,7 +84,7 @@ class PackValidationTest {
         assertThat(fsh).contains("layout(location = 8) flat in int rigPart;")
         // The marker the shader tests is exactly the one the server writes, and it is not block light 15, which burning
         // entities, blazes, magma cubes, fireballs and glow item frames are drawn with (any sky value).
-        val shaderBlock = Regex("""rigPart = -1;\s*if \(UV2\.x == (\d+)\)""").find(vsh)!!.groupValues[1].toInt()
+        val shaderBlock = Regex("""rigPart = -1;[\s\S]*?if \(UV2\.x == (\d+)\b""").find(vsh)!!.groupValues[1].toInt()
         assertThat(shaderBlock).isEqualTo(com.astarworks.astera.core.domain.animation.skinrig.SkinRigMarker.BLOCK_LIGHT * 16)
         assertThat(shaderBlock).`as`("block light 15 is what burning/emissive entities carry").isNotEqualTo(15 * 16)
         assertThat(vsh).doesNotContain("UV2.x == 240")
