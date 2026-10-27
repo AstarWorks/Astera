@@ -261,13 +261,14 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             assertThat(slot).describedAs("no stone pickaxe in the hotbar").isNotNull()
             fun solid() = (65..67).flatMap { y -> (4..6).map { z -> y to z } }.count { (y, z) -> arenaSolid(-60, y, z) }
             val before = solid()
-            a.useItem(270f, 0f)
-            Thread.sleep(1_500)
-            // Glass is cover (tempered-glass, 250 HP): one stone-pickaxe bore chips it, a second one (after the 8 s cooldown) breaks it.
-            if (solid() == before) {
-                Thread.sleep(7_000)
+            // Glass is cover (tempered-glass, 250 HP): a stone-pickaxe bore chips 60 HP of it per cast (8 s cooldown, the previous
+            // check's cast may still be cooling down), so keep casting until a cell breaks.
+            var casts = 0
+            while (casts < 6 && solid() == before) {
+                Thread.sleep(8_500)
                 a.useItem(270f, 0f)
                 Thread.sleep(1_500)
+                casts++
             }
             val after = solid()
             assertThat(before).describedAs("test wall was not placed").isEqualTo(9)
@@ -317,12 +318,14 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             inArena("run setblock ${-60 + originX} 66 ${30 + originZ} minecraft:glass")
             tpArena(a.name, -63.5, 65.0, 30.5, 270f, 0f)
             selectTool(a, "stone_pickaxe")
-            repeat(2) {
-                Thread.sleep(8_000)
+            var casts = 0
+            while (casts < 6 && arenaSolid(-60, 66, 30)) {
+                Thread.sleep(8_500)
                 a.useItem(270f, 0f)
                 Thread.sleep(1_500)
+                casts++
             }
-            assertThat(arenaSolid(-60, 66, 30)).isFalse()
+            assertThat(arenaSolid(-60, 66, 30)).describedAs("tempered glass still standing after $casts bore casts").isFalse()
             val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${30 + originZ},distance=..3,limit=1] Item"))
             assertThat(loot).contains("tempered-glass-block")
             "tempered glass yielded its content item with placement identity"

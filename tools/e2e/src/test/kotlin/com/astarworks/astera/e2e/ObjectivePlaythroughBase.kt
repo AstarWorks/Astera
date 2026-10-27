@@ -68,13 +68,15 @@ abstract class ObjectivePlaythroughBase : PlaythroughBase() {
             assertThat(listOfNotNull(actor, idle)).describedAs("sides: ${sideOf.mapKeys { it.key.name }}").hasSize(2)
             "red=${actor?.name} blue=${idle?.name}"
         }
-        E2eReport.check(suite, "the client got the how-to-win briefing in chat and the sidebar shows the clock limit and the rival Norma level", "SystemChat + scoreboard packets") {
+        E2eReport.check(suite, "the client got the rule card (goal, how to win) in chat and the sidebar shows the time left, the count and the Norma level", "SystemChat + scoreboard packets") {
             val ansi = Regex("§.|\u001B\\[[0-9;]*m")
             val briefing = bots.associateWith { b -> b.chat.drop(chatFrom.getValue(b)).map { it.text.replace(ansi, "") } }
-            bots.forEach { b -> assertThat(briefing.getValue(b).any { it.contains("How to win") }).describedAs("${b.name} got no briefing; chat=${briefing.getValue(b).takeLast(8)}").isTrue() }
+            bots.forEach { b -> assertThat(briefing.getValue(b).any { it.contains("== Rules ==") }).describedAs("${b.name} got no rule card; chat=${briefing.getValue(b).takeLast(8)}").isTrue() }
+            bots.forEach { b -> assertThat(briefing.getValue(b).any { it.startsWith("How ") }).describedAs("${b.name} rule card has no how-to-win line; chat=${briefing.getValue(b).takeLast(8)}").isTrue() }
+            bots.forEach { b -> assertThat(briefing.getValue(b).filter { it.contains("{") }).describedAs("${b.name} chat has unrendered placeholders").isEmpty() }
             val side = bots.associateWith { it.sidebarLines().joinToString("\n") { l -> l.replace(ansi, "") } }
             bots.forEach { b ->
-                assertThat(side.getValue(b)).describedAs("${b.name} sidebar:\n${side.getValue(b)}").containsPattern("\\d+:\\d{2} ?/ ?\\d+:\\d{2}").contains("Norma Lv")
+                assertThat(side.getValue(b)).describedAs("${b.name} sidebar:\n${side.getValue(b)}").containsPattern("Left \\d+:\\d{2}").containsPattern("(Red|Blue): \\d+").contains("Norma Lv").doesNotContain("{")
             }
             "briefing + sidebar ok: ${side.getValue(bots[0]).lines().take(3)}"
         }

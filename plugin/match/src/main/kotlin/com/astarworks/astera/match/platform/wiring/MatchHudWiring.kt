@@ -70,6 +70,7 @@ internal object MatchHudWiring {
             timeLimitTicks = { id ->
                 if (env.normaLayerOf(id)) (env.modeConfigOf(id)["time_limit_seconds"]?.toLongOrNull()?.takeIf { it >= 0 } ?: 600L) * 20L else 0L
             },
+            objectiveParams = { id -> com.astarworks.astera.match.application.gamemode.siege.CountRules.briefingParams(env.modeConfigOf(id)) },
             scheduler = env.scheduler,
         )
         env.shutdownHooks += { matchSidebar.stop() }

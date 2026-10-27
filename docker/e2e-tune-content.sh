@@ -82,6 +82,8 @@ patch game-modes/capture-wool.yaml 's/^(  count_per_second:).*/\1 "5"/' '^  coun
 
 # carry-mini-tnt: the bot needs four laps over the compact stage to pool 10 pieces, so the pickup spots regrow in 3 s instead of 15 s.
 patch game-modes/carry-mini-tnt.yaml 's/^(  respawn_seconds:).*/\1 "3"/' '^  respawn_seconds:'
+# The suite collects clams for about 200 s and only the clock ends the match (no power TNT from one bot): 900 s -> 300 s, plus up to 60 s overtime.
+patch game-modes/carry-mini-tnt.yaml 's/^(  time_limit_seconds:).*/\1 "300"/' '^  time_limit_seconds:'
 
 # Star generators (in-match stars): 30s -> 3s so a bot standing on a pedestal collects within the suite.
 for gf in "$root"/generators/*.yaml; do
