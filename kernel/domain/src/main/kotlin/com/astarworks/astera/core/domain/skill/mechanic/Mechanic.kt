@@ -407,7 +407,9 @@ public sealed class Mechanic {
      * SPHERE: [radius] around the point [length] ahead; LINE: a [length]-long tube of [width] along the look
      * direction; BOX: [width] x [height] x [length] ahead. [power] is the hardness ceiling (1 = soil / wood / wool /
      * glass, 2 = + stone and ores, 3 = anything not protected) and [toolClass] (PICKAXE / AXE / SHOVEL) narrows the
-     * cut to what that tool class digs. Edits revert like [RemoveBlock] and only touch arena blocks the edit guard allows.
+     * cut to what that tool class digs. Custom cover blocks (`content/blocks/`) ignore [power]: each takes damage from
+     * the (tool class, tier of the casting item) cell of its `tool_effectiveness` scaled by [coverDamage] / 100 per
+     * cast, and breaks only once its durability is gone; ore nodes are never touched. Edits to plain blocks revert like [RemoveBlock] and only touch arena blocks the edit guard allows.
      */
     public data class BreakArea(
         val shape: AreaShape,
@@ -417,6 +419,7 @@ public sealed class Mechanic {
         val height: Double = 3.0,
         val power: Double = 2.0,
         val toolClass: String? = null,
+        val coverDamage: Int = 100,
         val revertAfterTicks: IntValue = IntValue.Literal(0),
         val outsideArena: BoolValue = BoolValue.Literal(false),
         override val targets: Targeter = Targeter.Caster,
@@ -427,6 +430,7 @@ public sealed class Mechanic {
         override val snapshotPose: Boolean = false,
     ) : Mechanic() {
         init {
+            require(coverDamage in 0..2000) { "Mechanic.BreakArea.coverDamage must be in 0..2000: $coverDamage" }
             require(radius in 0.0..16.0) { "Mechanic.BreakArea.radius must be in 0..16: $radius" }
             require(length in 0.0..32.0) { "Mechanic.BreakArea.length must be in 0..32: $length" }
             require(width in 1.0..16.0) { "Mechanic.BreakArea.width must be in 1..16: $width" }

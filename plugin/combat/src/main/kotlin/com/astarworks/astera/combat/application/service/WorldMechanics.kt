@@ -13,6 +13,17 @@ import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGate
 import com.astarworks.astera.combat.domain.aoe.BlockDamagePolicy
 import com.astarworks.astera.combat.domain.aoe.ExplosionSpec
 import com.astarworks.astera.combat.domain.damage.DamageSource
+import com.astarworks.astera.core.application.port.outbound.IAreaBreakExclusion
+import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
+import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.service.CoverBlockService
+import com.astarworks.astera.core.application.usecase.block.HitCustomBlockUseCase
+import com.astarworks.astera.core.domain.block.BlockDamageProfile
+import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.core.domain.world.ToolKind
+import com.astarworks.astera.core.domain.world.ToolTier
+import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
@@ -67,8 +78,22 @@ internal class WorldMechanics(
     private val living: (List<PlayerId>) -> List<PlayerId>,
     private val itemRemoval: () -> com.astarworks.astera.core.application.port.outbound.item.IOwnedItemRemoval?,
     private val consumptionRecorder: () -> com.astarworks.astera.core.application.port.outbound.item.IItemConsumptionRecorder?,
+    private val coverBlocks: CoverBlocks,
     private val log: Logger,
 ) {
+
+    /** Lazily resolved Core ports that let area skills treat custom cover blocks properly. */
+    class CoverBlocks(
+        val cover: () -> CoverBlockService?,
+        val blocks: () -> IBlockStateGateway?,
+        val registry: () -> ICustomBlockRegistry?,
+        val items: () -> IItemRegistry?,
+        val exclusion: () -> IAreaBreakExclusion?,
+    ) {
+        companion object {
+            val NONE: CoverBlocks = CoverBlocks({ null }, { null }, { null }, { null }, { null })
+        }
+    }
 
     private data class BlockKey(val world: WorldId, val x: Int, val y: Int, val z: Int)
 
@@ -192,13 +217,42 @@ internal class WorldMechanics(
         val revert = revertTicks(host.resolveInt(m.revertAfterTicks, ctx))
         val anywhere = host.resolveBool(m.outsideArena, ctx)
         val aim = aim(ctx)
+        val tool = toolOf(m.toolClass, ctx)
+        val skillId = ctx.castedSkills.firstOrNull() ?: MechanicDispatcher.FALLBACK_SKILL_ID
         for (cell in breakCells(m, aim)) {
             if (!mayEdit(ctx, world, cell, anywhere)) continue
+            // Ore nodes are mined one at a time; they also look like cover (same base material), so rule them out first.
+            if (coverBlocks.exclusion()?.isExcluded(world, cell) == true) continue
+            // A custom cover block takes tool-matrix damage and stands until its durability is used up.
+            if (coverBlocks.blocks()?.isCover(world, cell) == true) {
+                strikeCover(ctx, world, cell, skillId, m.coverDamage, tool)
+                continue
+            }
             val current = worldGateway.blockAt(world, cell)
             if (current == null || isAir(current) || isIndestructible(current)) continue
             if (!breakable(current, m.power, m.toolClass)) continue
             edit(world, cell, revert) { worldGateway.removeBlock(world, cell) }
         }
+    }
+
+    /**
+     * What the cast counts as against the tool matrix: the skill's [toolClass] at the tier of the casting item
+     * (its `tool` field; a stone tier when the item is no tool). No class = bare hand.
+     */
+    private fun toolOf(toolClass: String?, ctx: MechanicContext): ToolType {
+        val held = ctx.sourceItemId?.let { id -> coverBlocks.items()?.let { HitCustomBlockUseCase.toolOf(it, id) } }
+        val kind = toolClass?.let { runCatching { ToolKind.valueOf(it) }.getOrNull() } ?: held?.kind ?: return ToolType.NONE
+        if (kind == ToolKind.NONE) return ToolType.NONE
+        return ToolType(kind, held?.tier ?: ToolTier.STONE)
+    }
+
+    private fun strikeCover(ctx: MechanicContext, world: WorldId, cell: Vec3, skillId: SkillId, damage: Int, tool: ToolType) {
+        val service = coverBlocks.cover() ?: return
+        service.strikeCell(
+            ctx.actorId, world, cell, skillId,
+            BlockDamageProfile(damage, tool),
+            CoverBlockService.Feedback.swing(tool.kind),
+        )
     }
 
     private fun breakCells(m: Mechanic.BreakArea, aim: Aim): List<Vec3> {
@@ -249,27 +303,37 @@ internal class WorldMechanics(
             log.warn("PlaceShape dropped: invalid block key '{}'", m.blockKey)
             return
         }
-        if (isIndestructible(type)) {
+        // A custom block (content/blocks) is placed as temporary cover with its own durability; the match-end
+        // rebuild removes it, so revert_after_ticks does not apply to it.
+        val custom = coverBlocks.registry()?.find(type)
+        if (custom == null && isIndestructible(type)) {
             log.warn("PlaceShape dropped: '{}' may not be placed by a skill", m.blockKey)
             return
         }
         val removal = if (m.consumeFromInventory) itemRemoval() ?: return warnMissing("PlaceShape", "IOwnedItemRemoval") else null
         val itemId = if (m.consumeFromInventory) {
-            runCatching { com.astarworks.astera.core.domain.item.ItemId(m.itemId ?: type.identifier) }.getOrNull() ?: return
+            runCatching { com.astarworks.astera.core.domain.item.ItemId(m.itemId ?: custom?.placedFrom?.value ?: type.identifier) }.getOrNull() ?: return
         } else {
             null
         }
         val revert = revertTicks(host.resolveInt(m.revertAfterTicks, ctx))
         val anywhere = host.resolveBool(m.outsideArena, ctx)
+        val gateway = coverBlocks.blocks()
+        if (custom != null && gateway == null) return warnMissing("PlaceShape", "IBlockStateGateway")
         for (cell in buildCells(m, aim(ctx))) {
             if (!mayEdit(ctx, world, cell, anywhere)) continue
             val current = worldGateway.blockAt(world, cell)
             if (current != null && !isReplaceable(current)) continue
+            if (custom != null && gateway != null && !gateway.canPlaceAt(world, cell)) continue
             if (removal != null && itemId != null) {
                 if (!removal.removeOne(ctx.actorId, itemId)) return
                 consumptionRecorder()?.record(ctx.actorId, itemId)
             }
-            edit(world, cell, revert) { worldGateway.placeBlock(world, cell, type) }
+            if (custom != null && gateway != null) {
+                gateway.placeTemporaryBlock(world, cell, custom, ctx.actorId)
+            } else {
+                edit(world, cell, revert) { worldGateway.placeBlock(world, cell, type) }
+            }
         }
     }
 
