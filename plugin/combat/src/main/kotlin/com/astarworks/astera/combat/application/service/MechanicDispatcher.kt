@@ -254,8 +254,7 @@ public class MechanicDispatcher(
     )
 
     /** vfx-primitives (ADR-0288 / ADR-0289): `stop_sound`, `telegraph`, `screen_veil` handlers, one file each. */
-    private val primitives = com.astarworks.astera.combat.application.service.primitives.PrimitiveMechanics(
-        com.astarworks.astera.combat.application.service.primitives.PrimitiveDeps(
+    private val primitiveDeps = com.astarworks.astera.combat.application.service.primitives.PrimitiveDeps(
             host = this,
             targeters = targeterResolver,
             scheduler = scheduler,
@@ -270,8 +269,11 @@ public class MechanicDispatcher(
             teamLookup = teamLookup,
             poseLookup = poseLookup,
             log = log,
-        ),
-    )
+        )
+
+    private val primitives = com.astarworks.astera.combat.application.service.primitives.PrimitiveMechanics(primitiveDeps)
+
+    private val soundMechanics = com.astarworks.astera.combat.application.service.primitives.SoundMechanics(primitiveDeps)
 
     /** `hide_held_item` (rig-less skills): a timed lease; a performance claims its own lease in [VfxPlayer]. */
     private val heldItemHider: HeldItemHider? = presentation?.let { HeldItemHider(it, scheduler) }
@@ -859,40 +861,7 @@ public class MechanicDispatcher(
                     }
                 }
             }
-            is Mechanic.PlaySound -> {
-                val locations = targeterResolver.resolveLocations(mechanic.targets, ctx)
-                if (locations.isEmpty()) return
-                if (ctx.worldId == null) {
-                    log.debug("PlaySound {} dropped: ctx.worldId is null", mechanic.soundId)
-                    return
-                }
-                val definition = soundRegistry?.find(mechanic.soundId)
-                val volume = resolveDouble(mechanic.volume, ctx)
-                    .takeIf { it > 0.0 } ?: (definition?.defaultVolume ?: 1.0)
-                val pitch = resolveDouble(mechanic.pitch, ctx)
-                    .takeIf { it > 0.0 } ?: (definition?.defaultPitch ?: 1.0)
-                val key = definition?.resourceKey ?: mechanic.soundId.value
-                val spec = SoundSpec(
-                    key = key,
-                    volume = volume.coerceIn(0.0, SoundSpec.PRACTICAL_MAX_VOLUME),
-                    pitch = pitch.coerceIn(SoundSpec.MIN_PITCH, SoundSpec.MAX_PITCH),
-                )
-                val ss = soundScheduler
-                for (loc in locations) {
-                    if (ss != null) {
-                        ss.schedule(
-                            ScheduledSoundSpec.EmitOnce(
-                                sound = spec,
-                                position = loc,
-                                atTick = scheduler.currentTick(),
-                                world = ctx.worldId,
-                            ),
-                        )
-                    } else {
-                        worldGateway.playSound(ctx.worldId, loc, spec)
-                    }
-                }
-            }
+            is Mechanic.PlaySound -> soundMechanics.play(mechanic, ctx)
 
             is Mechanic.SpawnDisplay -> worldMechanics.display(mechanic, ctx)
             is Mechanic.PlayVfx -> {
@@ -959,7 +928,10 @@ public class MechanicDispatcher(
                 val stay = resolveInt(mechanic.stayTicks, ctx).coerceAtLeast(0)
                 val fadeOut = resolveInt(mechanic.fadeOutTicks, ctx).coerceAtLeast(0)
                 val color = mechanic.colorRgb ?: mechanic.overlay.defaultColor
-                for (target in targeterResolver.resolveViewers(mechanic.targets, ctx)) {
+                val flashViewers = com.astarworks.astera.core.domain.effect.AudienceResolver.select(
+                    targeterResolver.resolveViewers(mechanic.targets, ctx), mechanic.viewers, ctx.actorId, ctx.targetId,
+                )
+                for (target in flashViewers) {
                     out.sendScreenFlash(target, mechanic.overlay, color, fadeIn, stay, fadeOut)
                 }
             }

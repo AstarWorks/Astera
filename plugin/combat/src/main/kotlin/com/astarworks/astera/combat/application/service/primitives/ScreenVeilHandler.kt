@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.vfx.SpriteGlyphs
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
+import com.astarworks.astera.core.domain.effect.vfx.VfxLane
 import com.astarworks.astera.core.domain.effect.vfx.VfxQuad
 import com.astarworks.astera.core.domain.effect.vfx.veil.ScreenVeilMath
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -28,6 +29,8 @@ import kotlin.math.sqrt
  * re-anchored every tick through teleport interpolation, visible only to the mechanic's `viewers` (audience-scoped spawn)
  * and fading out over `ticks`. Its side is clamped so the projected area stays within `max_screen_fraction`
  * ([ScreenVeilMath], FOV 70, 16:9).
+ *
+ * Lane `accent`: a viewer at `vfx_intensity: minimal` is not shown the veil (reduced still is).
  *
  * The per-tick follow runs on the target's entity scheduler (Folia). A viewer holds at most [MAX_CONCURRENT] veils.
  */
@@ -71,7 +74,7 @@ internal class ScreenVeilHandler(private val deps: PrimitiveDeps) : PrimitiveHan
                 brightness = 15,
                 viewRange = 8f,
             )
-            val handle = displays.spawn(world, anchor(pose, distance), spec, listOf(text), mechanic.viewers, ctx.actorId, viewer)
+            val handle = displays.spawn(world, anchor(pose, distance), spec, listOf(text), mechanic.viewers, ctx.actorId, viewer, VfxLane.ACCENT)
             if (handle == null) {
                 counter.decrementAndGet()
                 deps.log.warn("[cue-dropped] screen_veil: display was not spawned for {}", viewer)

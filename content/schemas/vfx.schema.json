@@ -738,6 +738,12 @@
                         },
                         "sprite": {
                             "type": "string"
+                        },
+                        "color": {
+                            "type": "string"
+                        },
+                        "size": {
+                            "type": "number"
                         }
                     },
                     "required": [
@@ -900,6 +906,15 @@
                         },
                         "width": {
                             "type": "number"
+                        },
+                        "color": {
+                            "type": "string"
+                        },
+                        "alpha": {
+                            "type": "number"
+                        },
+                        "see_through": {
+                            "type": "boolean"
                         }
                     },
                     "required": [

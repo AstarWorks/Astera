@@ -11,8 +11,11 @@ public data class PitchArc(
     public val to: Double,
     public val ticks: Int,
     public val ease: Easing = Easing.LINEAR,
+    /** Ticks between emissions along the glide; raise it for long samples so they do not overlap. */
+    public val intervalTicks: Int = 1,
 ) {
     init {
+        require(intervalTicks >= 1) { "pitch_arc interval_ticks must be >= 1: $intervalTicks" }
         require(ticks >= 1) { "pitch_arc ticks must be >= 1: $ticks" }
         require(from > 0.0 && to > 0.0) { "pitch_arc from/to must be > 0: $from -> $to" }
     }

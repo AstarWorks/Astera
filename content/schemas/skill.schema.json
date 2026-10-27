@@ -62,6 +62,9 @@
         },
         "windup": {
             "$ref": "#/definitions/com.astarworks.astera.combat.application.config.WindupYaml"
+        },
+        "importance": {
+            "type": "integer"
         }
     },
     "required": [
@@ -3551,6 +3554,9 @@
                 },
                 "ease": {
                     "type": "string"
+                },
+                "interval_ticks": {
+                    "type": "integer"
                 }
             },
             "required": [

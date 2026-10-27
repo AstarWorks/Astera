@@ -13,7 +13,6 @@ import com.astarworks.astera.core.domain.effect.vfx.VfxDefinition
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.effect.vfx.telegraph.TelegraphPlanner
 import com.astarworks.astera.core.domain.geometry.Vec3
-import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
@@ -73,7 +72,7 @@ internal class TelegraphHandler(private val deps: PrimitiveDeps) : PrimitiveHand
         val registry = OneShotRegistry(definition)
         val player = VfxPlayer(
             scheduler = deps.scheduler,
-            displays = AudienceDisplays(displays, viewers, ctx.actorId, ctx.targetId),
+            displays = displays,
             registry = registry,
             emitParticle = {},
             log = deps.log,
@@ -86,6 +85,8 @@ internal class TelegraphHandler(private val deps: PrimitiveDeps) : PrimitiveHand
                 look = look,
                 toTarget = look,
                 caster = ctx.actorId,
+                viewers = viewers,
+                targetPlayer = ctx.targetId,
                 seed = definition.id.hashCode().toLong(),
             ),
         )
@@ -102,21 +103,6 @@ internal class TelegraphHandler(private val deps: PrimitiveDeps) : PrimitiveHand
     private class OneShotRegistry(private val definition: VfxDefinition) : IVfxRegistry {
         override fun find(key: VfxId): VfxDefinition? = definition.takeIf { it.id == key }
         override fun all(): Collection<VfxDefinition> = listOf(definition)
-    }
-
-    /** Applies [audience] to every display the VFX player spawns (T3's display audience, relative to [caster] / [target]). */
-    private class AudienceDisplays(
-        private val inner: IDisplayEntityGateway,
-        private val audience: Audience,
-        private val caster: PlayerId?,
-        private val target: PlayerId?,
-    ) : IDisplayEntityGateway by inner {
-        override fun spawn(
-            world: com.astarworks.astera.core.domain.world.WorldId,
-            at: Vec3,
-            spec: com.astarworks.astera.core.domain.effect.DisplaySpec,
-            renderedLines: List<String>,
-        ): IDisplayEntityGateway.DisplayHandle? = inner.spawn(world, at, spec, renderedLines, audience, caster, target)
     }
 
     private companion object {

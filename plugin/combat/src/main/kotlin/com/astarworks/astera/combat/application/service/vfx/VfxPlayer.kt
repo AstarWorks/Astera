@@ -96,6 +96,8 @@ public class VfxRequest(
     public val target: (() -> Vec3?)? = null,
     /** Polled once per tick: `true` ends the effect now (a projectile-riding effect ends with its projectile). */
     public val endWhen: (() -> Boolean)? = null,
+    /** The stage's `vfx_palette` tag (picks the `id@<tag>` palette variant); null = the base variant. No stage feeds it yet. */
+    public val stageVfxPalette: String? = null,
 )
 
 /** One particle element emission handed to the runtime (which plans it through `ParticleEmitter`). */
@@ -225,7 +227,10 @@ public class VfxPlayer(
         ExecutionCosts.measure("vfx.play", request.vfxId.value) { playEffect(request) }
 
     private fun playEffect(request: VfxRequest): Result<Unit, VfxPlayError> {
-        val def = registry.find(request.vfxId) ?: return Result.failure(VfxPlayError.UnknownVfx(request.vfxId))
+        val resolvedId = com.astarworks.astera.core.domain.effect.vfx.VfxPaletteSelector.select(
+            request.vfxId, request.stageVfxPalette,
+        ) { registry.find(it) != null }
+        val def = registry.find(resolvedId) ?: return Result.failure(VfxPlayError.UnknownVfx(request.vfxId))
         // Capture-time switch (vfx-shot SHOT_NO_FX=1): motion-only footage plays the performance (body + weapon) and nothing else.
         if (PERFORMANCE_ONLY && def.body == null && def.rigs.none { it.weapon != null }) return Result.success(Unit)
         if ((request.target != null) != (def.targetReference != null) ||

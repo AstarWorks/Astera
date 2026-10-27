@@ -1458,12 +1458,14 @@ public data class PitchArcYaml(
     public val to: Double,
     public val ticks: Int,
     public val ease: String? = null,
+    @SerialName("interval_ticks") public val intervalTicks: Int = 1,
 ) {
     public fun toDomain(): PitchArc = PitchArc(
         from = from,
         to = to,
         ticks = ticks,
         ease = ease?.let { Easing.fromKey(it) ?: throw IllegalArgumentException("unknown ease '$it'") } ?: Easing.LINEAR,
+        intervalTicks = intervalTicks,
     )
 }
 

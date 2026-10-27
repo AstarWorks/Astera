@@ -3274,6 +3274,9 @@
                 },
                 "ease": {
                     "type": "string"
+                },
+                "interval_ticks": {
+                    "type": "integer"
                 }
             },
             "required": [

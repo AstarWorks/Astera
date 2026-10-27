@@ -130,20 +130,6 @@ public class SimDisplayGateway(
 
     public val viewing: MutableMap<IDisplayEntityGateway.DisplayHandle, Viewing> = linkedMapOf()
 
-    override fun spawn(
-        world: WorldId,
-        at: Vec3,
-        spec: DisplaySpec,
-        renderedLines: List<String>,
-        audience: com.astarworks.astera.core.domain.effect.Audience,
-        caster: PlayerId?,
-        target: PlayerId?,
-    ): IDisplayEntityGateway.DisplayHandle {
-        val handle = spawn(world, at, spec, renderedLines)
-        viewing[handle] = Viewing(audience, caster, target)
-        return handle
-    }
-
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): IDisplayEntityGateway.DisplayHandle {
         val handle = IDisplayEntityGateway.DisplayHandle(UUID.randomUUID())
         spec.viewRange?.let { viewRanges[handle] = it }
@@ -219,6 +205,7 @@ public class SimDisplayGateway(
         )
         val handle = spawn(world, at, spec, renderedLines)
         viewers[handle] = shown
+        viewing[handle] = Viewing(audience, caster, target)
         return handle
     }
 

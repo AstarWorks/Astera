@@ -24,7 +24,7 @@ public object SoundPlanner {
      * The pitch of [arc] for each emission: tick 0, [intervalTicks], 2x[intervalTicks] ... and always the final tick
      * [PitchArc.ticks] (so the glide reaches `to`). Keys are the tick offsets.
      */
-    public fun arcPitches(arc: PitchArc, intervalTicks: Int = 1): List<Pair<Int, Double>> {
+    public fun arcPitches(arc: PitchArc, intervalTicks: Int = arc.intervalTicks): List<Pair<Int, Double>> {
         require(intervalTicks >= 1) { "intervalTicks must be >= 1: $intervalTicks" }
         val offsets = (0 until arc.ticks step intervalTicks).toMutableList()
         offsets += arc.ticks
@@ -41,7 +41,7 @@ public object SoundPlanner {
         arc: PitchArc,
         position: Vec3,
         world: WorldId? = null,
-        intervalTicks: Int = 1,
+        intervalTicks: Int = arc.intervalTicks,
     ): ScheduledSoundSpec.Sequence = ScheduledSoundSpec.Sequence(
         steps = arcPitches(arc, intervalTicks).map { (tick, pitch) ->
             TimedSound(SoundSpec(key, volume, pitch), position, tick.toLong())
