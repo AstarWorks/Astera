@@ -11,7 +11,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0289: a Norma level opens weapon rarities (`rarity_levels` of `content/norma-layer/layer.yaml`: common 1,
+ * ADR-0292: a Norma level opens weapon rarities (`rarity_levels` of `content/norma-layer/layer.yaml`: common 1,
  * uncommon 2, rare 3, epic 4, legendary 5). An epic weapon (ember-gauntlet) does nothing - no attack, no skill - until
  * its holder reaches Lv 4, with a deny line naming the level and rarity; a common weapon works from Lv 1. The level-up
  * names the rarity it opened. Outside a match nothing is gated.

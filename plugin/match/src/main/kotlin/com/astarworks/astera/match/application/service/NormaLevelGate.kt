@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.domain.norma.NormaConfig
 
 /**
- * [IMatchLevelGate] backed by the in-match Norma level and the layer's `rarity_levels` (ADR-0289). A player outside a
+ * [IMatchLevelGate] backed by the in-match Norma level and the layer's `rarity_levels` (ADR-0292). A player outside a
  * Norma match is never gated. [layerDefaults] answers [requiredLevel] where no match is known (item tooltips);
  * [onDenied] gives the player the "Lv N で <rarity> 解放" feedback.
  */

@@ -81,7 +81,7 @@ public class ItemTooltip(
         return out
     }
 
-    /** One greyed line when the item's rarity opens above Norma level 1 (ADR-0289): usable only from that in-match level. */
+    /** One greyed line when the item's rarity opens above Norma level 1 (ADR-0292): usable only from that in-match level. */
     private fun lockedLines(spec: ItemSpec, viewer: PlayerId?): List<String> {
         val required = levelGate()?.requiredLevel(spec.rarity) ?: return emptyList()
         if (required <= 1 || spec.skillBindings.isEmpty()) return emptyList()

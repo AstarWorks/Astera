@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Norma rarity gate (ADR-0289): a weapon is usable once the holder's in-match Norma level reaches the level its
+ * Norma rarity gate (ADR-0292): a weapon is usable once the holder's in-match Norma level reaches the level its
  * [Rarity] opens at (`rarity_levels` of `content/norma-layer/layer.yaml`).
  *
  * Lives in core so the Items plugin can ask without depending on the Match plugin (ADR-0022); Match implements it

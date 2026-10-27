@@ -6,7 +6,7 @@
 #
 # These are the DEFAULTS. A game mode overrides any key in its own `default_config` (content/game-modes/<id>.yaml);
 # the common override is `time_limit_seconds: "0"` (the mode has its own clock). Norma levels are in-match power
-# progression (a level unlocks weapon rarities, `rarity_levels` below; ADR-0289) and never win a match. `norma_layer: "false"` takes a mode
+# progression (a level unlocks weapon rarities, `rarity_levels` below; ADR-0292) and never win a match. `norma_layer: "false"` takes a mode
 # out of the layer altogether (PvE waves: co-op against mobs, no player-vs-player race).
 # Reload: `/astera reload norma-layer`.
 defaults:
@@ -43,7 +43,7 @@ defaults:
   # (restored at match end) and further pickups are refused. A mode overrides it, or sets "" to lift the cap.
   weapon_limits: "gun:1,sword:1,staff:1,total:2"
 
-  # Weapon rarity gate (ADR-0289): `rarity:level` pairs. A weapon is usable (attacks and every skill) once its holder's
+  # Weapon rarity gate (ADR-0292): `rarity:level` pairs. A weapon is usable (attacks and every skill) once its holder's
   # in-match Norma level reaches the level its item `rarity:` opens at; below it the use is refused (deny sound, action bar
   # "Lv N で <rarity> 解放") but the weapon stays holdable. Missing rarities keep the default ladder; a mode may override.
   rarity_levels: "common:1,uncommon:2,rare:3,epic:4,legendary:5"

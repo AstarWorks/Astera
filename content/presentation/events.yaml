@@ -106,7 +106,7 @@ moments:
     title_stay_ticks: 80
     particle: norma-level-max
   norma-locked:
-    # A weapon used below the Norma level its rarity opens at (ADR-0289): deny sound and "Lv N で <rarity> 解放".
+    # A weapon used below the Norma level its rarity opens at (ADR-0292): deny sound and "Lv N で <rarity> 解放".
     cue: "astera:ui/deny"
     action_bar: "astera.match.norma-locked.bar"
   norma-choice-open:
