@@ -43,24 +43,22 @@ def save(name, rgb, a):
 
 # crescent-core: THIN arc. Leading rim (+x) hot white, trailing gradient fading to full transparency inward.
 yy, xx = np.mgrid[0:N, 0:N].astype(np.float32)
-R, R2, off = 112.0, 100.0, 30.0
+R, R2, off = 112.0, 96.0, 34.0
 r1 = np.hypot(xx - 128, yy - 128)
 r2 = np.hypot(xx - 128 + off, yy - 128)
 d = R - r1                                   # depth under the outer rim
-inside = np.clip(d * 2 + 0.5, 0, 1)          # anti-aliased outer edge
-cut = np.clip((r2 - R2) * 2 + 0.5, 0, 1)     # keep only outside the inner circle (pointed tips)
-band = np.clip(1 - np.exp(-np.maximum(r2 - R2, 0) / 5.0) * 0 , 0, 1)
-grad = np.exp(-np.maximum(d, 0) / 9.0)       # bright at the rim, fading inward
-hot = np.clip(1 - d / 3.5, 0, 1)             # 3 px white-hot rim
-a = np.clip(inside * cut * grad, 0, 1)
-a = np.maximum(a, inside * hot * cut)
-a = a * np.clip((xx - 40) / 60, 0.25, 1)     # trailing tips thinner/dimmer
-glow = blur(inside * cut, 5) * 0.25 * np.clip(1 - np.maximum(d, 0) / 30, 0, 1) + blur(np.clip(1 - np.abs(d) / 6, 0, 1) * cut, 4) * 0.35
-a = np.clip(np.maximum(a, glow), 0, 1)
-rgb = np.zeros((N, N, 3), np.float32)
-w = np.clip(hot * 1.0 + grad * 0.35, 0, 1)
-for i, (g, h) in enumerate(zip((255, 205, 150), (255, 255, 255))):
-    rgb[..., i] = g * (1 - w) + h * w
+inside = np.clip(d * 2 + 0.5, 0, 1)
+cut = np.clip((r2 - R2) * 2 + 0.5, 0, 1)     # pointed tips
+dm = np.maximum(d, 0)
+hot = np.clip((9.0 - dm) / 3.0, 0, 1)        # 9 px pure-white rim, soft inner shoulder
+grad = np.exp(-dm / 22.0) * np.clip((r2 - R2) / 8.0, 0, 1)   # one long soft trail body, thinning toward the tips
+a = np.clip(inside * cut * np.maximum(hot, grad * 0.75), 0, 1)
+a = a * np.clip((xx - 36) / 70, 0.3, 1)      # tips dimmer
+bloom = blur(np.clip(1 - np.abs(d - 3) / 14, 0, 1) * cut, 6) * 0.7
+a = np.clip(np.maximum(a, bloom), 0, 1)
+rgb = np.zeros((N, N, 3), np.float32) + 255  # pure white
+rgb[..., 2] = 255 - 18 * np.clip(1 - np.maximum(hot, grad), 0, 1)
+rgb[..., 1] = 255 - 8 * np.clip(1 - np.maximum(hot, grad), 0, 1)
 save("couture-s2-crescent-core", rgb, a)
 
 # petal: small pointed teardrop, white with pale pink tip
@@ -78,7 +76,8 @@ rgb = np.zeros((N, N, 3), np.float32)
 rgb[..., 0] = 255
 rgb[..., 1] = 255 - 45 * xn
 rgb[..., 2] = 255 - 30 * xn
-save("couture-s2-petal-spark", rgb, cov)
+halo = blur(cov, 9) * 0.55
+save("couture-s2-petal-spark", rgb, np.clip(np.maximum(cov, halo), 0, 1))
 
 # streak
 yy, xx = np.mgrid[0:N, 0:N].astype(np.float32)

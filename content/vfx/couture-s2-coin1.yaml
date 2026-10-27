@@ -225,92 +225,32 @@ elements:
     alpha: 0.0
 - id: core
   kind: {type: sprite, sprite: couture-s2-crescent-core, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
+  billboard: fixed
   brightness: 15
   start_tick: 0
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [0.0, 1.15, 1.0]
-    rotate: [0, 0, -98]
-    scale: [0.30, 0.45, 1]
-    alpha: 0.0
-  - t: 1
-    translate: [0.0, 1.15, 2.2]
-    rotate: [0, 0, -98]
-    scale: [0.34, 0.62, 1]
-    ease: out_expo
-    alpha: 1.0
-  - t: 5
-    translate: [0.0, 1.15, 2.7]
-    rotate: [0, 0, -98]
-    scale: [0.30, 0.66, 1]
-    ease: out_quad
-    alpha: 0.70
-  - t: 8
-    translate: [0.0, 1.15, 3.0]
-    rotate: [0, 0, -98]
-    scale: [0.12, 0.66, 1]
-    ease: in_quad
-    alpha: 0.0
-- id: core-echo-0
-  kind: {type: sprite, sprite: couture-s2-crescent-core, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 1
   end_tick: 10
   keyframes:
   - t: 0
-    translate: [0.0, 1.0, 0.8]
-    rotate: [0, 0, -98]
-    scale: [0.30, 0.45, 1]
+    translate: [0.0, 0.7, 0.0]
+    rotate: [38, 0, -98]
+    scale: [0.35, 0.7, 1]
     alpha: 0.0
   - t: 1
-    translate: [0.0, 1.0, 2.0]
-    rotate: [0, 0, -98]
-    scale: [0.34, 0.62, 1]
+    translate: [0.0, 0.7, 1.2]
+    rotate: [38, 0, -98]
+    scale: [0.5, 1.0, 1]
     ease: out_expo
-    alpha: 0.55
+    alpha: 1.0
   - t: 5
-    translate: [0.0, 1.0, 2.5]
-    rotate: [0, 0, -98]
-    scale: [0.30, 0.66, 1]
+    translate: [0.0, 0.7, 2.2]
+    rotate: [38, 0, -98]
+    scale: [0.46, 1.05, 1]
     ease: out_quad
-    alpha: 0.39
-  - t: 8
-    translate: [0.0, 1.0, 2.8]
-    rotate: [0, 0, -98]
-    scale: [0.12, 0.66, 1]
-    ease: in_quad
-    alpha: 0.0
-- id: core-echo-1
-  kind: {type: sprite, sprite: couture-s2-crescent-core, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 2
-  end_tick: 11
-  keyframes:
-  - t: 0
-    translate: [0.0, 0.85, 0.6]
-    rotate: [0, 0, -98]
-    scale: [0.30, 0.45, 1]
-    alpha: 0.0
-  - t: 1
-    translate: [0.0, 0.85, 1.8]
-    rotate: [0, 0, -98]
-    scale: [0.34, 0.62, 1]
-    ease: out_expo
-    alpha: 0.35
-  - t: 5
-    translate: [0.0, 0.85, 2.3]
-    rotate: [0, 0, -98]
-    scale: [0.30, 0.66, 1]
-    ease: out_quad
-    alpha: 0.24
-  - t: 8
-    translate: [0.0, 0.85, 2.6]
-    rotate: [0, 0, -98]
-    scale: [0.12, 0.66, 1]
+    alpha: 0.85
+  - t: 10
+    translate: [0.0, 0.7, 3.2]
+    rotate: [38, 0, -98]
+    scale: [0.14, 1.05, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-0
@@ -321,20 +261,20 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [-0.12, 0.73, 1.51]
-    rotate: [0, 0, 148]
-    scale: [0.029, 0.029, 1]
+    translate: [-0.65, 0.65, 1.68]
+    rotate: [0, 0, 309]
+    scale: [0.026, 0.026, 1]
     alpha: 0.0
   - t: 1
-    translate: [-0.12, 0.73, 1.71]
-    rotate: [0, 0, 188]
-    scale: [0.073, 0.058, 1]
+    translate: [-0.65, 0.65, 1.88]
+    rotate: [0, 0, 349]
+    scale: [0.064, 0.051, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.22, 0.87, 2.46]
-    rotate: [0, 0, 348]
-    scale: [0.051, 0.037, 1]
+    translate: [-0.65, 0.76, 3.52]
+    rotate: [0, 0, 509]
+    scale: [0.045, 0.032, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-1
@@ -345,20 +285,20 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.04, 0.89, 3.10]
-    rotate: [0, 0, 109]
-    scale: [0.031, 0.031, 1]
+    translate: [-0.83, 0.98, 2.11]
+    rotate: [0, 0, 216]
+    scale: [0.027, 0.027, 1]
     alpha: 0.0
   - t: 1
-    translate: [0.04, 0.89, 3.30]
-    rotate: [0, 0, 149]
-    scale: [0.078, 0.062, 1]
+    translate: [-0.83, 0.98, 2.31]
+    rotate: [0, 0, 256]
+    scale: [0.068, 0.054, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.35, 1.09, 4.17]
-    rotate: [0, 0, 309]
-    scale: [0.055, 0.039, 1]
+    translate: [-0.88, 1.43, 3.36]
+    rotate: [0, 0, 416]
+    scale: [0.048, 0.034, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-2
@@ -369,20 +309,20 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [-0.29, 1.43, 0.88]
-    rotate: [0, 0, 190]
-    scale: [0.019, 0.019, 1]
+    translate: [0.01, 0.30, 0.62]
+    rotate: [0, 0, 196]
+    scale: [0.040, 0.040, 1]
     alpha: 0.0
   - t: 1
-    translate: [-0.29, 1.43, 1.08]
-    rotate: [0, 0, 230]
-    scale: [0.048, 0.038, 1]
+    translate: [0.01, 0.30, 0.82]
+    rotate: [0, 0, 236]
+    scale: [0.099, 0.080, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.50, 1.63, 1.95]
-    rotate: [0, 0, 390]
-    scale: [0.034, 0.024, 1]
+    translate: [0.34, 0.69, 2.53]
+    rotate: [0, 0, 396]
+    scale: [0.070, 0.050, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-3
@@ -393,215 +333,167 @@ elements:
   end_tick: 10
   keyframes:
   - t: 0
-    translate: [0.01, 1.47, 2.62]
-    rotate: [0, 0, 280]
-    scale: [0.030, 0.030, 1]
+    translate: [-0.53, 1.39, 3.67]
+    rotate: [0, 0, 136]
+    scale: [0.042, 0.042, 1]
     alpha: 0.0
   - t: 1
-    translate: [0.01, 1.47, 2.82]
-    rotate: [0, 0, 320]
-    scale: [0.074, 0.060, 1]
+    translate: [-0.53, 1.39, 3.87]
+    rotate: [0, 0, 176]
+    scale: [0.106, 0.084, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.40, 1.86, 3.60]
-    rotate: [0, 0, 480]
-    scale: [0.052, 0.037, 1]
+    translate: [-0.06, 1.89, 4.74]
+    rotate: [0, 0, 336]
+    scale: [0.074, 0.053, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-4
   kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
-  start_tick: 1
-  end_tick: 7
+  start_tick: 5
+  end_tick: 11
   keyframes:
   - t: 0
-    translate: [0.25, 0.98, 0.82]
-    rotate: [0, 0, 216]
-    scale: [0.026, 0.026, 1]
+    translate: [-0.82, 0.61, 1.36]
+    rotate: [0, 0, 193]
+    scale: [0.041, 0.041, 1]
     alpha: 0.0
   - t: 1
-    translate: [0.25, 0.98, 1.02]
-    rotate: [0, 0, 256]
-    scale: [0.066, 0.053, 1]
+    translate: [-0.82, 0.61, 1.56]
+    rotate: [0, 0, 233]
+    scale: [0.102, 0.082, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.06, 1.54, 1.93]
-    rotate: [0, 0, 416]
-    scale: [0.046, 0.033, 1]
+    translate: [-0.93, 0.71, 3.01]
+    rotate: [0, 0, 393]
+    scale: [0.072, 0.051, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-5
   kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
-  start_tick: 2
-  end_tick: 8
+  start_tick: 1
+  end_tick: 7
   keyframes:
   - t: 0
-    translate: [-0.23, 0.81, 2.09]
-    rotate: [0, 0, 320]
-    scale: [0.032, 0.032, 1]
+    translate: [0.43, 0.47, 0.15]
+    rotate: [0, 0, 296]
+    scale: [0.028, 0.028, 1]
     alpha: 0.0
   - t: 1
-    translate: [-0.23, 0.81, 2.29]
-    rotate: [0, 0, 360]
-    scale: [0.080, 0.064, 1]
+    translate: [0.43, 0.47, 0.35]
+    rotate: [0, 0, 336]
+    scale: [0.070, 0.056, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.69, 0.94, 3.71]
-    rotate: [0, 0, 520]
-    scale: [0.056, 0.040, 1]
+    translate: [-0.17, 1.05, 1.97]
+    rotate: [0, 0, 496]
+    scale: [0.049, 0.035, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-6
   kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
-  start_tick: 3
-  end_tick: 9
+  start_tick: 2
+  end_tick: 8
   keyframes:
   - t: 0
-    translate: [0.24, 1.44, 2.36]
-    rotate: [0, 0, 103]
-    scale: [0.027, 0.027, 1]
+    translate: [0.71, 0.60, 3.51]
+    rotate: [0, 0, 293]
+    scale: [0.034, 0.034, 1]
     alpha: 0.0
   - t: 1
-    translate: [0.24, 1.44, 2.56]
-    rotate: [0, 0, 143]
-    scale: [0.067, 0.054, 1]
+    translate: [0.71, 0.60, 3.71]
+    rotate: [0, 0, 333]
+    scale: [0.085, 0.068, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.19, 1.95, 3.30]
-    rotate: [0, 0, 303]
-    scale: [0.047, 0.034, 1]
+    translate: [0.71, 1.15, 4.47]
+    rotate: [0, 0, 493]
+    scale: [0.059, 0.042, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-7
   kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
-  start_tick: 4
-  end_tick: 10
+  start_tick: 3
+  end_tick: 9
   keyframes:
   - t: 0
-    translate: [-0.08, 0.84, 2.12]
-    rotate: [0, 0, 165]
-    scale: [0.019, 0.019, 1]
+    translate: [-0.18, 0.72, 3.83]
+    rotate: [0, 0, 88]
+    scale: [0.043, 0.043, 1]
     alpha: 0.0
   - t: 1
-    translate: [-0.08, 0.84, 2.32]
-    rotate: [0, 0, 205]
-    scale: [0.049, 0.039, 1]
+    translate: [-0.18, 0.72, 4.03]
+    rotate: [0, 0, 128]
+    scale: [0.107, 0.086, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.38, 1.32, 3.51]
-    rotate: [0, 0, 365]
-    scale: [0.034, 0.024, 1]
+    translate: [-0.09, 0.86, 5.39]
+    rotate: [0, 0, 288]
+    scale: [0.075, 0.053, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-8
   kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
-  start_tick: 1
-  end_tick: 7
+  start_tick: 4
+  end_tick: 10
   keyframes:
   - t: 0
-    translate: [0.32, 0.90, 0.98]
-    rotate: [0, 0, 90]
-    scale: [0.022, 0.022, 1]
+    translate: [-0.41, 0.21, 2.88]
+    rotate: [0, 0, 294]
+    scale: [0.044, 0.044, 1]
     alpha: 0.0
   - t: 1
-    translate: [0.32, 0.90, 1.18]
-    rotate: [0, 0, 130]
-    scale: [0.055, 0.044, 1]
+    translate: [-0.41, 0.21, 3.08]
+    rotate: [0, 0, 334]
+    scale: [0.110, 0.088, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [0.15, 1.14, 2.40]
-    rotate: [0, 0, 290]
-    scale: [0.039, 0.028, 1]
+    translate: [-0.12, 0.73, 4.50]
+    rotate: [0, 0, 494]
+    scale: [0.077, 0.055, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-9
   kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
-  start_tick: 2
-  end_tick: 8
+  start_tick: 5
+  end_tick: 11
   keyframes:
   - t: 0
-    translate: [-0.50, 1.06, 0.88]
-    rotate: [0, 0, 167]
-    scale: [0.018, 0.018, 1]
+    translate: [0.81, 1.10, 0.07]
+    rotate: [0, 0, 187]
+    scale: [0.041, 0.041, 1]
     alpha: 0.0
   - t: 1
-    translate: [-0.50, 1.06, 1.08]
-    rotate: [0, 0, 207]
-    scale: [0.046, 0.037, 1]
+    translate: [0.81, 1.10, 0.27]
+    rotate: [0, 0, 227]
+    scale: [0.102, 0.082, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.33, 1.34, 2.64]
-    rotate: [0, 0, 367]
-    scale: [0.032, 0.023, 1]
+    translate: [0.26, 1.51, 1.15]
+    rotate: [0, 0, 387]
+    scale: [0.072, 0.051, 1]
     ease: in_quad
     alpha: 0.0
 - id: petal-10
-  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 3
-  end_tick: 9
-  keyframes:
-  - t: 0
-    translate: [0.33, 1.86, 1.67]
-    rotate: [0, 0, 39]
-    scale: [0.022, 0.022, 1]
-    alpha: 0.0
-  - t: 1
-    translate: [0.33, 1.86, 1.87]
-    rotate: [0, 0, 79]
-    scale: [0.055, 0.044, 1]
-    ease: out_quad
-    alpha: 1.0
-  - t: 5
-    translate: [0.45, 2.52, 2.88]
-    rotate: [0, 0, 239]
-    scale: [0.039, 0.028, 1]
-    ease: in_quad
-    alpha: 0.0
-- id: petal-11
-  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
-  billboard: center
-  brightness: 15
-  start_tick: 4
-  end_tick: 10
-  keyframes:
-  - t: 0
-    translate: [-0.44, 1.18, 1.37]
-    rotate: [0, 0, 4]
-    scale: [0.023, 0.023, 1]
-    alpha: 0.0
-  - t: 1
-    translate: [-0.44, 1.18, 1.57]
-    rotate: [0, 0, 44]
-    scale: [0.058, 0.046, 1]
-    ease: out_quad
-    alpha: 1.0
-  - t: 5
-    translate: [-0.60, 1.85, 2.56]
-    rotate: [0, 0, 204]
-    scale: [0.040, 0.029, 1]
-    ease: in_quad
-    alpha: 0.0
-- id: petal-12
   kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
@@ -609,23 +501,23 @@ elements:
   end_tick: 7
   keyframes:
   - t: 0
-    translate: [0.37, 1.07, 2.16]
-    rotate: [0, 0, 106]
-    scale: [0.024, 0.024, 1]
+    translate: [0.34, 0.91, 1.95]
+    rotate: [0, 0, 187]
+    scale: [0.033, 0.033, 1]
     alpha: 0.0
   - t: 1
-    translate: [0.37, 1.07, 2.36]
-    rotate: [0, 0, 146]
-    scale: [0.060, 0.048, 1]
+    translate: [0.34, 0.91, 2.15]
+    rotate: [0, 0, 227]
+    scale: [0.083, 0.066, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [0.30, 1.52, 3.96]
-    rotate: [0, 0, 306]
-    scale: [0.042, 0.030, 1]
+    translate: [0.80, 1.07, 3.79]
+    rotate: [0, 0, 387]
+    scale: [0.058, 0.041, 1]
     ease: in_quad
     alpha: 0.0
-- id: petal-13
+- id: petal-11
   kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
@@ -633,23 +525,23 @@ elements:
   end_tick: 8
   keyframes:
   - t: 0
-    translate: [-0.53, 0.68, 1.42]
-    rotate: [0, 0, 20]
+    translate: [0.13, 1.48, 1.39]
+    rotate: [0, 0, 221]
     scale: [0.026, 0.026, 1]
     alpha: 0.0
   - t: 1
-    translate: [-0.53, 0.68, 1.62]
-    rotate: [0, 0, 60]
-    scale: [0.064, 0.051, 1]
+    translate: [0.13, 1.48, 1.59]
+    rotate: [0, 0, 261]
+    scale: [0.066, 0.052, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.88, 1.18, 2.39]
-    rotate: [0, 0, 220]
-    scale: [0.045, 0.032, 1]
+    translate: [-0.07, 1.98, 2.21]
+    rotate: [0, 0, 421]
+    scale: [0.046, 0.033, 1]
     ease: in_quad
     alpha: 0.0
-- id: petal-14
+- id: petal-12
   kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
@@ -657,23 +549,23 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [-0.56, 1.02, 2.55]
-    rotate: [0, 0, 333]
-    scale: [0.032, 0.032, 1]
+    translate: [0.57, 0.51, 0.54]
+    rotate: [0, 0, 28]
+    scale: [0.025, 0.025, 1]
     alpha: 0.0
   - t: 1
-    translate: [-0.56, 1.02, 2.75]
-    rotate: [0, 0, 373]
-    scale: [0.080, 0.064, 1]
+    translate: [0.57, 0.51, 0.74]
+    rotate: [0, 0, 68]
+    scale: [0.061, 0.049, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.06, 1.29, 4.18]
-    rotate: [0, 0, 533]
-    scale: [0.056, 0.040, 1]
+    translate: [0.59, 0.76, 1.71]
+    rotate: [0, 0, 228]
+    scale: [0.043, 0.031, 1]
     ease: in_quad
     alpha: 0.0
-- id: petal-15
+- id: petal-13
   kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
   billboard: center
   brightness: 15
@@ -681,19 +573,451 @@ elements:
   end_tick: 10
   keyframes:
   - t: 0
-    translate: [-0.11, 0.91, 2.23]
-    rotate: [0, 0, 219]
+    translate: [-0.00, 1.24, 3.17]
+    rotate: [0, 0, 217]
+    scale: [0.037, 0.037, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [-0.00, 1.24, 3.37]
+    rotate: [0, 0, 257]
+    scale: [0.092, 0.074, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [0.28, 1.46, 4.82]
+    rotate: [0, 0, 417]
+    scale: [0.065, 0.046, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-14
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 5
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0.02, 1.18, -0.05]
+    rotate: [0, 0, 148]
+    scale: [0.027, 0.027, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.02, 1.18, 0.15]
+    rotate: [0, 0, 188]
+    scale: [0.069, 0.055, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [-0.42, 1.56, 1.90]
+    rotate: [0, 0, 348]
+    scale: [0.048, 0.034, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-15
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [-0.81, 0.50, 3.46]
+    rotate: [0, 0, 61]
+    scale: [0.036, 0.036, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [-0.81, 0.50, 3.66]
+    rotate: [0, 0, 101]
+    scale: [0.090, 0.072, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [-0.27, 0.69, 5.43]
+    rotate: [0, 0, 261]
+    scale: [0.063, 0.045, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-16
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [-0.52, 0.23, -0.44]
+    rotate: [0, 0, 181]
     scale: [0.030, 0.030, 1]
     alpha: 0.0
   - t: 1
-    translate: [-0.11, 0.91, 2.43]
-    rotate: [0, 0, 259]
+    translate: [-0.52, 0.23, -0.24]
+    rotate: [0, 0, 221]
     scale: [0.074, 0.059, 1]
     ease: out_quad
     alpha: 1.0
   - t: 5
-    translate: [-0.36, 1.27, 3.07]
-    rotate: [0, 0, 419]
+    translate: [0.04, 0.64, 0.82]
+    rotate: [0, 0, 381]
+    scale: [0.052, 0.037, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-17
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.83, 0.52, 1.76]
+    rotate: [0, 0, 215]
+    scale: [0.033, 0.033, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.83, 0.52, 1.96]
+    rotate: [0, 0, 255]
+    scale: [0.083, 0.066, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [0.37, 0.77, 3.46]
+    rotate: [0, 0, 415]
+    scale: [0.058, 0.041, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-18
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 4
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [-0.21, 1.18, 2.81]
+    rotate: [0, 0, 305]
+    scale: [0.042, 0.042, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [-0.21, 1.18, 3.01]
+    rotate: [0, 0, 345]
+    scale: [0.104, 0.083, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [0.05, 1.37, 4.67]
+    rotate: [0, 0, 505]
+    scale: [0.073, 0.052, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-19
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 5
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [-0.81, 0.28, 1.82]
+    rotate: [0, 0, 43]
+    scale: [0.027, 0.027, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [-0.81, 0.28, 2.02]
+    rotate: [0, 0, 83]
+    scale: [0.068, 0.054, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [-0.66, 0.47, 3.26]
+    rotate: [0, 0, 243]
+    scale: [0.048, 0.034, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-20
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [-0.53, 1.31, 3.21]
+    rotate: [0, 0, 42]
+    scale: [0.027, 0.027, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [-0.53, 1.31, 3.41]
+    rotate: [0, 0, 82]
+    scale: [0.069, 0.055, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [-0.48, 1.71, 4.58]
+    rotate: [0, 0, 242]
+    scale: [0.048, 0.034, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-21
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [0.06, 1.43, 1.77]
+    rotate: [0, 0, 223]
+    scale: [0.035, 0.035, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.06, 1.43, 1.97]
+    rotate: [0, 0, 263]
+    scale: [0.087, 0.070, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [0.66, 1.54, 3.70]
+    rotate: [0, 0, 423]
+    scale: [0.061, 0.044, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-22
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.74, 0.88, 1.96]
+    rotate: [0, 0, 153]
+    scale: [0.025, 0.025, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.74, 0.88, 2.16]
+    rotate: [0, 0, 193]
+    scale: [0.063, 0.051, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [0.79, 1.30, 2.84]
+    rotate: [0, 0, 353]
+    scale: [0.044, 0.032, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-23
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 4
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [-0.72, 0.34, 0.55]
+    rotate: [0, 0, 27]
+    scale: [0.038, 0.038, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [-0.72, 0.34, 0.75]
+    rotate: [0, 0, 67]
+    scale: [0.094, 0.075, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [-0.25, 0.47, 1.94]
+    rotate: [0, 0, 227]
+    scale: [0.066, 0.047, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-24
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 5
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [-0.07, 0.48, -0.36]
+    rotate: [0, 0, 253]
+    scale: [0.042, 0.042, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [-0.07, 0.48, -0.16]
+    rotate: [0, 0, 293]
+    scale: [0.104, 0.083, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [0.01, 1.06, 0.88]
+    rotate: [0, 0, 453]
+    scale: [0.073, 0.052, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-25
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.20, 0.96, -0.33]
+    rotate: [0, 0, 96]
+    scale: [0.025, 0.025, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.20, 0.96, -0.13]
+    rotate: [0, 0, 136]
+    scale: [0.062, 0.049, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [-0.31, 1.26, 1.28]
+    rotate: [0, 0, 296]
+    scale: [0.043, 0.031, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-26
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [-0.85, 0.26, 3.04]
+    rotate: [0, 0, 38]
+    scale: [0.031, 0.031, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [-0.85, 0.26, 3.24]
+    rotate: [0, 0, 78]
+    scale: [0.077, 0.061, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [-0.88, 0.64, 4.59]
+    rotate: [0, 0, 238]
+    scale: [0.054, 0.038, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-27
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0.82, 0.16, 3.18]
+    rotate: [0, 0, 70]
+    scale: [0.026, 0.026, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.82, 0.16, 3.38]
+    rotate: [0, 0, 110]
+    scale: [0.065, 0.052, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [1.40, 0.75, 4.69]
+    rotate: [0, 0, 270]
+    scale: [0.046, 0.033, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-28
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 4
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0.50, 0.46, 1.14]
+    rotate: [0, 0, 61]
+    scale: [0.025, 0.025, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.50, 0.46, 1.34]
+    rotate: [0, 0, 101]
+    scale: [0.064, 0.051, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [0.04, 0.67, 2.17]
+    rotate: [0, 0, 261]
+    scale: [0.045, 0.032, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-29
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 5
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [-0.71, 0.26, 2.53]
+    rotate: [0, 0, 324]
+    scale: [0.026, 0.026, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [-0.71, 0.26, 2.73]
+    rotate: [0, 0, 364]
+    scale: [0.064, 0.051, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [-1.07, 0.67, 3.36]
+    rotate: [0, 0, 524]
+    scale: [0.045, 0.032, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-30
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate: [0.33, 1.18, -0.47]
+    rotate: [0, 0, 52]
+    scale: [0.034, 0.034, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [0.33, 1.18, -0.27]
+    rotate: [0, 0, 92]
+    scale: [0.086, 0.069, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [0.46, 1.41, 0.34]
+    rotate: [0, 0, 252]
+    scale: [0.060, 0.043, 1]
+    ease: in_quad
+    alpha: 0.0
+- id: petal-31
+  kind: {type: sprite, sprite: couture-s2-petal-spark, frame_ticks: 1, loop: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate: [-0.04, 1.36, 1.46]
+    rotate: [0, 0, 348]
+    scale: [0.030, 0.030, 1]
+    alpha: 0.0
+  - t: 1
+    translate: [-0.04, 1.36, 1.66]
+    rotate: [0, 0, 388]
+    scale: [0.074, 0.059, 1]
+    ease: out_quad
+    alpha: 1.0
+  - t: 5
+    translate: [0.12, 1.90, 2.64]
+    rotate: [0, 0, 548]
     scale: [0.052, 0.037, 1]
     ease: in_quad
     alpha: 0.0
