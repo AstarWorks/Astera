@@ -6,16 +6,21 @@
 
 Template and meaning of every section: docs/contributing/vfx-team/round-template.md. Why: retro-2026-10-27.md.
 
-Checks (PASS / FAIL / NOT CHECKED per line; exit 1 on any FAIL):
+Checks (PASS / FAIL / ADVISORY / NOT CHECKED per line; exit 1 on any FAIL; ADVISORY is printed and never fails):
+  0 inventory      (workflow v4, judged before everything else) the `## Inventory` table
+                   `| 行 | 参照 (数/色/付く先) | build (構成/数/付く先) | ok/ng |` has one row per row of the case's
+                   inventory.md (tools/skill-compare/data/<case>/inventory.md) and every row is ok; `structure: <sha>` names
+                   the structure commit; `skill-3d:` names the orbit and top stills of `make skill-3d` beside the note.
+                   An inventory diff (count, colour, anchor) is the first and only reason a round is refused on content.
   1 sections       every mandatory section exists and is not empty
   2 compare        the ref | this | previous sheet comes from the compare API (sheet.png beside the note, source line);
-                   compare.json (when present) has no regression flag set
+                   compare.json regression flags (fx_pct / luma) are printed as ADVISORY: they never pass or fail a round
   3 trace          every vfx_id the skill plays is quoted with its server-side `cast+N`; a moving skill quotes `travel:` from trace
   4 scene          capture scene facts: DISTANCE stated, skippedTicks=0
   5 framing        caster height (`framing[].casterHeightPct`) `this` is within 0.8x-1.25x of `ref` (review validity)
   6 fidelity       every mechanic type in the skill YAML has a shown / not shown line
-  7 regression     `weaker than previous: none` (or `previous: none` on the first round); fx_pct / coverage is never
-                   quoted there as an improvement (coverage is a floor signal, not quality)
+  7 regression     `weaker than previous: none` (or `previous: none` on the first round); fx_pct / coverage quoted there
+                   is ADVISORY (coverage is a floor signal, not quality, and never a gate condition)
   8 sibling        a row of accepted frames from a sibling skill of the same weapon (`sibling: <case>`), the six
                    art-language lines (stroke/fill, bands, taper, core line, glow, outline) and `art language: same`
   9 medium         right medium per element: `main body:` names what each beat's main body is made of, `sprites:` says where
@@ -39,8 +44,8 @@ Checks (PASS / FAIL / NOT CHECKED per line; exit 1 on any FAIL):
                    `moving target:` what shows when the enemy is off-axis / at another distance / moving (capture, or the
                    vfx-shot request it waits on): hit effects, stuck objects and the thrown weapon must stay bound to the
                    real hit / entity, never to a tick offset that only works at the capture DISTANCE
- 11 review         (stage manager only) review.json reviewer.overall == ok, reviewer.regression == none,
-                   reviewer.sibling.v == ok
+ 11 review         (stage manager only) review.json reviewer.inventory.v == ok (the reviewer's own inventory diff,
+                   judged first), reviewer.overall == ok, reviewer.regression == none, reviewer.sibling.v == ok
 
 The gate never judges quality. It only refuses a round whose facts are missing, so nobody can report a round
 that was not compared with the reference and with the previous round, or whose timing was read by eye.
@@ -57,6 +62,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 
 SECTIONS = {
+    "inventory": "Inventory",
     "compare": "Compare",
     "trace": "Trace",
     "scene": "Capture scene",
@@ -212,6 +218,67 @@ def scan_displays(vid, path):
     return found
 
 
+def load_inventory_rows(case):
+    """Row numbers of the 物体台帳 table of the case's inventory.md, or None when the file does not exist."""
+    path = ROOT / "tools" / "skill-compare" / "data" / case / "inventory.md"
+    if not path.exists():
+        return None
+    rows, header_seen = [], False
+    for line in path.read_text().splitlines():
+        if not line.strip().startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if not header_seen:
+            header_seen = len(cells) >= 8 and "物体" in cells[1] and "数" in cells[2]
+            continue
+        if all(set(c) <= set("-: ") for c in cells):
+            continue
+        rows.append(cells[0])
+    return rows
+
+
+def check_inventory(sections, note_dir, case):
+    body = find_section(sections, SECTIONS["inventory"]) or ""
+    problems = []
+    inv_rows = load_inventory_rows(case)
+    if inv_rows is None:
+        problems.append(f"tools/skill-compare/data/{case}/inventory.md missing: no round without a gate-1 inventory (workflow v4)")
+    table = [l for l in body.splitlines() if l.strip().startswith("|")]
+    data = [l for l in table[1:] if not all(set(c.strip()) <= set("-: ") for c in l.strip().strip("|").split("|"))]
+    if not table or not all(w in table[0] for w in ("行", "参照", "build", "ok")):
+        problems.append("table `| 行 | 参照 (数/色/付く先) | build (構成/数/付く先) | ok/ng |` missing")
+    elif not data:
+        problems.append("inventory table has no rows")
+    else:
+        ng, seen = [], []
+        for l in data:
+            cells = [c.strip() for c in l.strip().strip("|").split("|")]
+            cells += [""] * (4 - len(cells))
+            seen.append(cells[0])
+            if cells[3].lower() != "ok":
+                ng.append(f"row {cells[0]}: ref {cells[1]} / build {cells[2]} -> {cells[3] or '?'}")
+        if ng:
+            problems.append("inventory diff: " + "; ".join(ng))
+        if inv_rows is not None:
+            missing = [r for r in inv_rows if r not in seen]
+            if missing:
+                problems.append("inventory rows not judged: " + ", ".join(missing))
+    if not re.search(r"^structure:\s*[0-9a-f]{7,40}\b", body, re.M | re.I):
+        problems.append("structure: <sha> missing (the structure commit: one object per inventory row, zero sprites)")
+    m = re.search(r"^skill-3d:\s*(.+)$", body, re.M | re.I)
+    stills = re.findall(r"\S+\.png", m.group(1)) if m else []
+    if len(stills) < 2:
+        problems.append("skill-3d: <orbit.png> <top.png> missing (make skill-3d stills are the review surface of the structure)")
+    else:
+        lost = [s_ for s_ in stills if not (note_dir / s_).exists()]
+        if lost:
+            problems.append("skill-3d stills not beside the note: " + ", ".join(lost))
+    if problems:
+        report("inventory", "FAIL", "; ".join(problems))
+    else:
+        report("inventory", "PASS", f"{len(data)} inventory row(s) ok, structure commit and skill-3d stills present")
+
+
 def check_sections(sections):
     missing = [title for title in SECTIONS.values() if not find_section(sections, title)]
     if missing:
@@ -248,12 +315,12 @@ def check_compare(sections, note_dir, case):
                 flags = flags or ["regression: true"]
         except (json.JSONDecodeError, AttributeError) as e:
             problems.append(f"compare.json unreadable: {e}")
-    if flags:
-        problems.append("compare API flags a regression vs the previous round: " + "; ".join(flags))
     if problems:
         report("compare", "FAIL", "; ".join(problems))
     else:
-        report("compare", "PASS", "API sheet present" + (" (compare.json flags clear)" if cmp_json.exists() else " (no compare.json yet)"))
+        report("compare", "PASS", "API sheet present" + (" (compare.json read)" if cmp_json.exists() else " (no compare.json yet)"))
+    if flags:
+        report("compare", "ADVISORY", "compare API luma / fx_pct flags vs the previous round (informational, judged by eye on the sheet): " + "; ".join(flags))
 
 
 def check_trace(sections, skill_info):
@@ -332,12 +399,12 @@ def check_regression(sections, header):
         report("regression", "FAIL", "`weaker than previous: none` line missing")
         return
     value = m.group(1).strip()
-    if re.search(r"fx_pct|coverage", body, re.I):
-        report("regression", "FAIL", "coverage is not quality: fx_pct / coverage must not appear in the Regression section (it is a floor signal in Compare only)")
-    elif value.lower() == "none":
+    if value.lower() == "none":
         report("regression", "PASS", "weaker than previous: none")
     else:
         report("regression", "FAIL", f"round is weaker than the previous one: {value}")
+    if re.search(r"fx_pct|coverage", body, re.I):
+        report("regression", "ADVISORY", "fx_pct / coverage quoted in Regression: a floor signal, not quality; it neither passes nor fails the round")
 
 
 def check_sibling(sections, note_dir):
@@ -549,10 +616,15 @@ def check_review(case, stage):
         report("review", "FAIL", f"review.json unreadable: {e}")
         return
     rev = data.get("reviewer") or {}
+    inventory = rev.get("inventory")
     overall = rev.get("overall")
     regression = rev.get("regression")
     sibling = rev.get("sibling")
     problems = []
+    if not isinstance(inventory, dict) or inventory.get("v") not in ("ok", "ng") or not inventory.get("reason"):
+        problems.append("reviewer.inventory {v: ok|ng, reason} missing (the reviewer's own object count / colour / anchor diff, judged first)")
+    elif inventory["v"] != "ok":
+        problems.append("reviewer.inventory is ng: " + str(inventory.get("reason")))
     if not isinstance(overall, dict) or overall.get("v") not in ("ok", "ng") or not overall.get("reason"):
         problems.append("reviewer.overall {v: ok|ng, reason} missing (whole-impression verdict)")
     elif overall["v"] != "ok":
@@ -568,7 +640,7 @@ def check_review(case, stage):
     if problems:
         report("review", "FAIL", "; ".join(problems))
     else:
-        report("review", "PASS", "reviewer overall ok, regression none, sibling ok")
+        report("review", "PASS", "reviewer inventory ok, overall ok, regression none, sibling ok")
 
 
 def main():
@@ -589,6 +661,7 @@ def main():
     skill_info = load_skill(args.skill)
 
     print(f"round-gate {args.skill} ({note.relative_to(ROOT) if note.is_relative_to(ROOT) else note}, stage {args.stage})")
+    check_inventory(sections, note.parent, case)
     check_sections(sections)
     check_compare(sections, note.parent, case)
     check_trace(sections, skill_info)

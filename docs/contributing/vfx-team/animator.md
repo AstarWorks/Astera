@@ -9,7 +9,7 @@ Optional helper agent: `.claude/agents/limbus-animator.md` (advice only, not an 
 1. Weapon rig swing keyframes in a VFX file's `rigs:` block (`swing`, with `pivot`, `rest`, `tilt`).
 2. Caster movement vectors in the skill YAML (`dash_strike`, `propel`, `leap`, `set_velocity`), each as distance / ticks / direction.
 
-Workflow v3: build to the approved beat sheet ([beat-sheet.md](beat-sheet.md)): its tip path, rotation direction (camera and top-down), edge facing, reversals and swing count are the target, not a list of end poses. Plot the tip path from above before handing back.
+Workflow v4: build to the approved inventory and beat sheet ([beat-sheet.md](beat-sheet.md)): the inventory says which object is the one held weapon (the only object that gets rig keys unless it says otherwise; a thrown or split blade is a projectile / anchored object, never a second set of weapon keys) and the sheet's 動き一文 / 振り数・方向 cells (tip path, rotation direction camera and top-down, edge facing, reversals, swing count) are the target, not a list of end poses. Plot the tip path from above before handing back.
 
 ## Principles (source: [vfx-art-direction.md](../vfx-art-direction.md) sections 0, 0.5, 7)
 

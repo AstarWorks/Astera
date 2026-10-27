@@ -1,29 +1,94 @@
-# Beat sheet (workflow v3, step 1-3)
+# Inventory and beat sheet (workflow v4, step 0.5-3)
 
-Team overview: [README.md](README.md). The skill author and every reviewer read this before touching a skill. Founder decision 2026-10-26; process re-confirmed 2026-10-27 after the S1 retrospectives (two independent ones, merged here).
+Team overview: [README.md](README.md). The skill author and every reviewer read this before touching a skill. Founder decision 2026-10-26; v3 re-confirmed 2026-10-27 after the S1 retrospectives; **v4 (inventory first) approved 2026-10-27** after the couture-rapier S2 shears retro ([retro-2026-10-27-fable-characteristics.md](retro-2026-10-27-fable-characteristics.md) §4).
 
 ## Why it exists
 
-About 30 rounds of bastion-greatsword S1 failed for the same reason: the reference was read as a **list of poses** ("pose A, pose B"), so nobody described the travel between poses. The direction of rotation was never written down (cut 1 spins counter-clockwise relative to the camera; cut 2 reverses the body and spins clockwise; the founder had to say so), a cut went missing because nobody counted the swings, particles were judged from the right-side camera only (a side camera cannot tell clockwise from counter-clockwise), and a self-graded numeric lint passed 31/31. The beat sheet makes the motion, not the poses, the thing that is written, checked and approved.
+About 30 rounds of bastion-greatsword S1 failed because the reference was read as a **list of poses**, so nobody described the travel between poses, the direction of rotation was never written down, a cut went missing because nobody counted the swings, and a self-graded numeric lint passed 31/31. The beat sheet made the motion the thing that is written, checked and approved.
 
-## Workflow v3 in one screen
+Then couture-rapier S2 matched the sheet's frames at ticks 9 / 41 / 72 and was still wrong: the reference throws **three separate needle blades** that stick in the enemy, and the build showed one rapier plus a sprite, because the sheet (ticks, coordinates, angles: the measurable surface) never asked **how many objects there are, what colour each is, what each is attached to, and whether it is a 3D thing or a plane**. The inventory (step 0.5) asks exactly that, before any frame is stepped, and it is what gate 1 approves. The beat sheet is now the motion annex of the inventory.
+
+## Workflow v4 in one screen
 
 ```
-1. Observe        the author writes the sheet from the REFERENCE ONLY (this template, no blank cell, every cell
-                  marked observed / inferred / unknown). No skill key exists yet.
-2. Two checks     (a) reverse read: a fresh reviewer sees ONLY the sheet and re-describes the motion
-                  (b) fact check: a second fresh reviewer sees reference + sheet and lists every disagreement
-3. Founder gate 1 the sheet + top-down / side / front stick figures on the skill-compare page; approval FREEZES this version
-4. Build          one author end to end; each commit goes live on dev (make dev-content / dev-pack / dev-plugins) with the reload verified
-5. Capture        side, front, back, TOP-DOWN (mandatory), 45 deg high, eye height, via the real player path; skippedTicks = 0;
-                  enemy at the intent distance, caster framing within 0.8x-1.25x of the reference
-5b. Round gate    round note (round-template.md): compare sheet ref | this | previous from the API, trace cast+N, framing,
-                  tool fidelity, "weaker than previous: none"; `make round-gate` must PASS before any reviewer
-6. Visual review  a fresh reviewer (new every round): whole impression, regression vs previous, then every sheet row ○ / × with evidence
-7. Founder gate 2 in game, on dev. Final.
+0.5 Inventory      the author watches the WHOLE reference 3 times at normal speed and writes inventory.md (this doc,
+                   "Inventory"): the motion in 3-5 sentences, then one row per object: count, colour, shape, motion,
+                   anchor, 3D object / plane / line / particles, engine construction. No frame numbers, no ticks,
+                   no coordinates. Counts and colours are [O] or a question to the founder, never a guess.
+0.6 Inventory diff a fresh agent writes its own inventory from the reference, never seeing the author's; the author
+                   diffs them (inventory-check.md). Any count / colour / anchor mismatch blocks gate 1.
+1.  Beat sheet     the motion annex (8 columns, below), written from the reference only, every beat pointing at the
+                   inventory rows it moves. No skill key exists yet.
+3.  Founder gate 1 inventory + inventory diff + beat sheet + stick figures on the skill-compare page; approval FREEZES
+                   both files.
+4a. Structure      first build commit: one object per inventory row in its native construction (model / projectile /
+                   anchored line), zero sprites, zero particles, checked in `make skill-3d` (orbit + top stills).
+4b. Visuals        motion, then colour and shape, then detail; every commit live on dev with the reload verified.
+5.  Capture        side, front, back, TOP-DOWN (mandatory), 45 deg high, eye height; skippedTicks = 0; enemy at the
+                   intent distance, caster framing within 0.8x-1.25x of the reference.
+5b. Round gate     round note (round-template.md): `## Inventory` diff first (every row ok, structure sha, skill-3d
+                   stills), then compare sheet ref | this | previous, trace cast+N, framing, fidelity, "weaker than
+                   previous: none"; `make round-gate` must PASS before any reviewer.
+6.  Review         a fresh reviewer (new every round): inventory diff first ("row N: ref 2, build 0"), whole impression,
+                   regression vs previous, then every sheet row ○ / × with evidence.
+7.  Founder gate 2 in game, on dev. Final.
 ```
 
-Do not start step 4 until step 2 passes and gate 1 is approved. Lint (`make skill-lint`) is only a preflight of 4 invariants (one sword, both hands on the grip, feet on the floor, display budget); it says nothing about whether the skill matches the reference. Priority when things conflict: sword > VFX > particles > posture. The pose library (keypoints, `tools/pose-solve/`) is a tool the author composes from; it is no longer a founder gate.
+Do not start step 4 until the inventory diff is clean and gate 1 is approved. Lint (`make skill-lint`) is a preflight of invariants (held-weapon count from the inventory, grip from the item data, feet on the floor, display budget, event-bound hits, inventory models exist and are shown, no capture-distance bake); it says nothing about whether the skill matches the reference. **Priority: inventory (count, anchor) > motion > colour and shape > detail. A detail round before the inventory passes is wasted.** The pose library (keypoints, `tools/pose-solve/`) is a tool the author composes from; it is no longer a founder gate.
+
+## Inventory (step 0.5): `tools/skill-compare/data/<case>/inventory.md`
+
+Watch the whole reference 3 times at normal speed first. Frame stepping is for confirming a row, never for discovering one. At most 25 lines; no frame numbers, no ticks, no coordinates, no angles (those are the beat sheet's job and they hide the structure). The file is what gate 1 approves and what every reviewer diffs first.
+
+```markdown
+# Inventory: <case>   Reference: <video id> t=<a>..<b>   Watched: 3x normal speed
+
+## 動き
+<3-5 sentences: what the character does, in order, as a person would describe it to someone who has not seen it.>
+
+## 物体台帳
+| # | 物体 | 数 | 色 | 形 | 動き | 誰に/どこに付く | 3D物体/面/線/粒子 | 構成案 |
+|---|---|---|---|---|---|---|---|---|
+| 1 | rapier | 1 [O] | silver, gold guard [O] | thin straight blade | held, thrusts | caster right hand (held) | 3D object | item model `astera:couture-rapier` (held item) |
+| 2 | needle blade | 3 [O] | pale gold [O] | needle, 1/3 blade length | flies to the enemy, sticks | enemy body (on hit) | 3D object | `projectile` skill x3, `astera:<model>` in visual.vfx, `hit_entity:` sticks it |
+| 3 | thread | 3 [O] | white [O] | straight line | taut from hand to each needle | caster hand -> needle | line | two-end anchored line (caster bone -> hit entity) |
+| 4 | slash arc | 2 [O] | white core, gold rim [O] | crescent | follows swing 1 and 2 | blade tip plane | plane | fixed-plane sprite on the swing plane |
+| 5 | sparks | - | gold [O] | grain | burst from contact | contact point | particles | vanilla / display particles, anchor: contact |
+
+## つながり
+<which rows move together: thread 3 follows needle 2; sparks 5 fire on the hit of row 2.>
+
+## 再現しないもの
+<camera and edit phenomena: white-out, camera punch-in, close-ups, UI markers, hit-stop. Listed so nobody builds them as geometry.>
+
+## 数えきれなかったもの
+<each count or colour that could not be read: what was tried, the candidates; the founder decides at gate 1. Never a guess.>
+```
+
+Column rules:
+
+- **数 (count)**: an integer with `[O]`, or a candidate list in 「数えきれなかったもの」. A count is never `[I]`: if the reference does not show it, ask the founder. Particles write `-`.
+- **色 (colour)**: named colour with `[O]`; same rule.
+- **誰に/どこに付く (anchor)**: who or what the object is attached to and when it changes hands (held in the hand / caster body / enemy body on hit / the ground / the swing plane / free flight). A thrown or split blade is **an object with its own row**, not a second held weapon. Exactly one row is the held weapon unless the reference plainly shows otherwise (the founder decides).
+- **3D物体/面/線/粒子 (medium)**: `3D object` (has volume, seen from more than one side: a blade, a hammer head, a stuck needle), `plane` (slash arcs, rings, flashes that are a drawn plane), `line` (a thread, a chain, a beam with two ends), `particles` (grain). This column decides the construction; it is never changed to make the build easier.
+- **構成案 (construction)**: the engine construction of that row: `3D object` = ItemDisplay with a model (`kind: {type: item, item_model: astera:<model-id>, display_mode: fixed}`), the held one is the item itself; a flying object = a `projectile` archetype skill (`params.visual.vfx`, phases `hit_entity:` / `hit_block:` / `miss:` / `expire:`); `line` = two-end anchored element; enemy-attached = `on_hit:` / `targets: {type: target}` / `follow`; `plane` = fixed-plane sprite; `particles` = particle elements. Every 3D row names its model id: search `content/models/items/` (and `manifest.json`) for an existing model first; a model that is built must be written back into this column (lint check 6 fails a listed model the skill never shows, and a shown model no row lists).
+
+**Independent inventory (step 0.6)**: start a fresh agent with the reference only (never the author's inventory, sheet or notes) and the same template; it writes its own inventory. The author puts both side by side in `inventory-check.md` (`| 行 | author | fresh | agree / disagree |` per count, colour, anchor, medium) and resolves every disagreement by watching the reference again, not by argument. Anything that stays disputed goes to 「数えきれなかったもの」 for the founder. A count, colour or anchor mismatch blocks gate 1.
+
+### Starting a new weapon under v4 (checklist for the pilot director)
+
+Follow verbatim, in this order; each line names the file or command that proves it was done.
+
+1. `make skill-compare-case ...` exists for the case; watch the whole reference 3 times at normal speed, not frame by frame.
+2. Write `tools/skill-compare/data/<case>/inventory.md` with the template above (motion in 3-5 sentences, one row per object with count / colour / shape / motion / anchor / medium / construction, つながり, 再現しないもの, 数えきれなかったもの). No frame numbers, ticks or coordinates. Search `content/models/items/` and write the model id of every existing 3D object into 構成案.
+3. Start a fresh agent (`limbus-reviewer`, mode "inventory") with the reference only; save its inventory and your diff as `inventory-check.md`. Fix count / colour / anchor disagreements from the reference; unresolved ones go to the founder in 「数えきれなかったもの」.
+4. Write `beat-sheet.md` (8 columns, below) with every beat pointing at the inventory rows it moves; mirror tick ranges into `case.json` `beats`.
+5. **Gate 1**: `make skill-round SKILL=<s> FILE=<inventory.md>` (attach the beat sheet and stick figures as further files / images), report to the manager, wait. Approval freezes `inventory.md` and `beat-sheet.md`.
+6. **Structure commit**: one object per inventory row in its native construction (held item, `projectile` sub-skill with its model, anchored line, enemy-attached `on_hit:` element), zero sprites, zero particles. Check it with `make skill-3d SKILL=<skill> CASE=<case> SHOTS=<dir> VIEWS=orbit,top TICKS=<key ticks>`; the orbit and top stills go beside the round note. `make skill-lint SKILL=<skill> CASE=<case>` checks 1 (held weapons = inventory), 6 (inventory models exist and are shown) and 7 (no capture-distance bake) must PASS. Commit with `structure:` in the subject.
+7. **Visuals**: motion, then colour and shape, then detail; every commit `make skill-lint` then `make dev-content` (or dev-pack / dev-plugins) with the reload verified.
+8. **Capture** (side, front, back, top, high, caster; `DISTANCE=<intent enemy x>`; `skippedTicks = 0`), publish.
+9. **Round note** (`round.md`): `## Inventory` first (one line per inventory row, ok / ng, `structure: <sha>`, `skill-3d: <orbit.png> <top.png>`), then the v3 sections; `make round-gate SKILL=<skill>` PASS.
+10. **Fresh reviewer**, inventory first: its report's first line is `Inventory diff: ok | ng - row N: ref X, build Y`; a ng there returns to step 6 before any detail is discussed. Then gate 2 in game.
 
 **Limit: at most 2 rounds per gate.** If a gate is not passed after 2 rounds, stop and escalate to the founder with ONE question (what must be decided, the evidence for each candidate, the recommendation). Never invent a new answer and start round 3.
 
@@ -31,26 +96,22 @@ Do not start step 4 until step 2 passes and gate 1 is approved. Lint (`make skil
 
 `tools/skill-compare/scripts/prepare.mjs` now extracts the reference at the source stream's native resolution and fps as lossless PNG from the best yt-dlp stream (YouTube offers 1080p at most for every reference video; no 1440p/4K/60 fps exists). Rotation direction, contact timing and blade detail must be judged from **full-resolution single frames or zoomed crops** of those frames (`tools/skill-compare/cache/<case>/frames/frame_NNNNN.jpg`). Never judge them from downscaled contact sheets or strips alone: a 6-up sheet is about 480 px per frame and hides exactly the detail (blade edge, hand grip, foot contact) the beat sheet is supposed to record. Sheets are fine to find the frame; the cell evidence cites the full-resolution frame number.
 
-## Template
+## Beat sheet template (step 1): `tools/skill-compare/data/<case>/beat-sheet.md`
 
 One row per beat. A beat is one continuous motion segment (wind-up, cut 1, turn, cut 2, recovery, ...), not one frame. **No blank cell.** If a cell cannot be filled, look at the reference again (frame by frame, successive frames, not stills). "n/a" is allowed only with a reason ("n/a: blade not moving, held"). **Every cell ends with one status mark:** `[O]` observed (visible in the reference frames; cite the frame or time), `[I]` inferred (3D filled in from cues such as body twist or overlap; name the cue), `[U]` unknown (not decidable from the reference; write what was tried and the candidates). `[U]` is the only allowed hole and is decided by the founder at gate 1. A top-down view is a hypothesis drawn from the reference, never extra evidence from it.
 
+Eight columns. Coordinates, angles and camera columns are gone (v4): they described the capture, not the reference, and the one coordinate that mattered (`敵 (5.4, 0, 1.0)`) was the capture distance. The tip path and its rotation direction (camera and top) live in the 動き一文 and 振り数・方向 cells in words, with the vocabulary below.
+
 | Column | What goes in it |
 |---|---|
-| beat | short name and number (`B3 cut 2`) |
-| tick range | `a-b` skill ticks (20 TPS) the beat spans, from the reference time and the case's `start_s` |
-| swing # | which swing of the skill this beat belongs to (`1`, `2`), or `-` for non-swing beats. Count all swings first (rule 2) |
-| blade-tip start -> end (3D) | caster-local `(forward, right, up)` in blocks or in units of the blade length, for start, one or more mid points on the path, and end. Example `(0.3, 1.2, 0.8) -> (1.5, 0.0, 0.2) -> (0.6, -1.1, 0.7)`. Also name the path in words (`arc over the right shoulder, down to the left hip`) |
-| rotation direction | **camera:** CW / CCW as seen in the skill-compare camera. **top:** CW / CCW seen from above (world +Y looking down). Both, always; write `none` when the tip does not rotate about the body in that view, and why |
-| rotation angle | total angle the tip sweeps about the body/pivot in this beat (degrees), plus the blade's own roll about its long axis if any |
-| edge facing | `edge-leading` or `flat`; and which face is visible to the camera (`flat face toward camera`, `edge toward camera`, `back of blade`). Mid-beat changes are written as `edge -> flat` |
-| reverses previous beat? | `yes` / `no`. `yes` means the rotation direction (either view) or the body turn is opposite to the previous beat; say which |
-| body facing and twist | torso yaw from the caster's forward at the beat start and end (degrees, + = toward caster's left), hip/shoulder twist, lean |
-| foot positions | each foot relative to the caster origin `(forward, right)`, planted / lifted / sliding; step or pivot |
-| hit (contact) tick | the tick the blade contacts (`t=7`), or `-` |
-| travel | how far and in which direction the caster moves in this beat (dash, step, lunge): distance in blocks and caster-local direction, or `none` |
-| VFX & particles | what the beat shows: smear/ring shape and which way it travels, particle emitters with their direction of travel, flash. Each effect is tied to the swing it follows |
-| sound events | every sound of the beat with its tick and character (`t=6 low whoosh, rising`; `t=7 heavy metal impact + low thump`), or `none` |
+| beat | short name, number and tick range (`B3 cut 2, t14-19`; 20 TPS from the reference time and the case's `start_s`) |
+| 動き一文 | one sentence of the travel: where the tip / object goes (`arc over the right shoulder, down to the left hip`), whether the blade slices or slaps (edge-leading / flat), lean and twist of the body |
+| 振り数・方向 | which swing of the skill this beat is (`1`, `2`, or `-`; count all swings first, rule 2), **camera:** CW / CCW, **top:** CW / CCW (both, always; `none` with a reason when the tip does not rotate in that view), and `reverses: yes (<what>)` / `no` |
+| 接触 | the contact tick (`t=7`), or `-`; what is hit and which inventory row hits it |
+| 移動 | how far and in which direction the caster moves (dash, step, lunge): distance in blocks and caster-local direction, or `none` |
+| 体 | feet (planted / lifted / sliding, step or pivot) and the body silhouette at the start and end of the beat, in words |
+| 台帳行の参照 | the inventory rows this beat moves, appears or attaches (`#2 x3 leave the hand`, `#3 taut`, `#4 follows swing 1`). Every visible object in the beat is a row; a beat that shows something with no row is a gate-1 defect of the inventory |
+| 音 | every sound of the beat with its tick and character (`t=6 low whoosh, rising`; `t=7 heavy metal impact + low thump`), or `none` |
 
 ## Vocabulary (reference frames)
 
@@ -80,73 +141,30 @@ All positions are **caster-local**: `forward` = where the caster faces at cast t
 1. **No blank cells, every cell marked.** Look again instead of guessing; if the reference truly does not show it, mark it `[U]` with what was tried and flag it for the founder at gate 1. That is the only allowed hole.
 2. **Count the swings first.** Before any row, step the whole reference and write `Swings: N` at the top with the tick where each one starts. A sheet whose swing count is not stated is rejected. A missing cut is a gate-1 defect, not a polish issue.
 3. **Direction from successive frames.** For every smear frame infer the direction from the frames before and after it, never from one still. Write the evidence (`head at frame 41 is ahead of head at frame 40`).
-4. **Both views, every beat.** Camera CW/CCW and top CW/CCW are separate cells because the side camera alone cannot tell them apart.
-5. **Reversals are explicit.** Whenever the body turns back or the rotation sense flips between swings, `reverses previous beat?` says `yes` and the body column says by how many degrees.
-6. **Trajectory, not poses.** The tip start -> mid -> end and the rotation cells describe the *travel*. A row that only restates the end pose is incomplete.
-7. **Particles and VFX belong to a swing.** Write which way each one travels; judging particles from the side camera alone is forbidden (see the review rules in [reviewer.md](reviewer.md)).
-8. The sheet is the build target and the review checklist: the author implements it, the reviewer marks its rows. If the build disagrees with the sheet, fix the build.
-9. **Observation comes from the reference only.** Write the sheet before any key for the skill exists. Never derive a cell from shipped keys, and never write numbers back into the sheet after a build (that turns the sheet into a description of what was built, and a reverse read of it only proves it is self-consistent). The S1 r3 sheet was derived from shipped keys and was wrong for exactly this reason.
-10. **Gate 1 freezes the approved version.** After approval the observation cells are read-only. If the founder, a reviewer or the author finds the sheet wrong, make a new version with a diff that states which reference frame was read again and what changed, repeat both checks and gate 1. Never edit the approved version to match the build; never reuse approval of an old version for a new one.
+4. **Both views, every beat.** Camera CW/CCW and top CW/CCW are both written in 振り数・方向 because the side camera alone cannot tell them apart.
+5. **Reversals are explicit.** Whenever the body turns back or the rotation sense flips between swings, 振り数・方向 says `reverses: yes (<what>)`.
+6. **Trajectory, not poses.** 動き一文 describes the *travel*. A row that only restates the end pose is incomplete.
+7. **Every object in a beat is an inventory row.** 台帳行の参照 names the rows; an effect the inventory has no row for is a defect of the inventory (go back to step 0.5), not a new column. Judging particles from the side camera alone is forbidden (see the review rules in [reviewer.md](reviewer.md)).
+8. The inventory and the sheet are the build target and the review checklist: the author implements them, the reviewer diffs the inventory and marks the sheet rows. If the build disagrees, fix the build.
+9. **Observation comes from the reference only.** Write the inventory and the sheet before any key for the skill exists. Never derive a cell from shipped keys, and never write numbers back after a build (that turns the sheet into a description of what was built). The S1 r3 sheet was derived from shipped keys and was wrong for exactly this reason.
+10. **Gate 1 freezes the approved version** of both files. After approval the observation cells are read-only. If the founder, a reviewer or the author finds them wrong, make a new version with a diff that states which part of the reference was watched again and what changed, repeat the inventory diff and gate 1. Never edit the approved version to match the build; never reuse approval of an old version for a new one.
 11. **At most 2 rounds per gate**, then escalate with one question (see the workflow section).
-
-The required columns are: rotation direction from the camera and from above, swing count, edge facing, reversals, contact tick, travel, sound events (plus tip path, angle, body and feet). All of them in every row.
+12. **Camera and edit phenomena are never built.** White-out, camera punch-in, close-ups, hit-stop, UI markers go to the inventory's 「再現しないもの」, never into a beat as geometry.
 
 Sheet header (above the table):
 
 ```
-Case: <id>   Reference: <video id> t=<a>..<b>   Mirrored: yes|no
+Case: <id>   Reference: <video id> t=<a>..<b>   Mirrored: yes|no   Inventory: inventory.md v<N> (approved <date>)
 Swings: N (starts at ticks ...)
-Priority: sword > VFX > particles > posture
 Notes: cues used for depth, conversions, unknowns
 Diagrams: top-down / side / front stick figures (below or attached)
 ```
 
-Stick diagrams (gate 1): one per swing, three views (top-down, side, front), body as a stick figure, tip path as an arrow with its start/end ticks and the CW/CCW mark. ASCII in the sheet is enough for the reverse check; the founder sees the same on skill-compare. Round notes hold text (max 20 kB) and up to 12 images (see [skill-compare-views.md](skill-compare-views.md)), so a skill's sheet is published with `make skill-round SKILL=<s> FILE=<beat-sheet.md>` and the stick figures can be attached as images.
+Stick diagrams (gate 1): one per swing, three views (top-down, side, front), body as a stick figure, tip path as an arrow with its start/end ticks and the CW/CCW mark, each object drawn as its inventory row number. ASCII in the sheet is enough; the founder sees the same on skill-compare. Round notes hold text (max 20 kB) and up to 12 images (see [skill-compare-views.md](skill-compare-views.md)), so the inventory and the sheet are published with `make skill-round SKILL=<s> FILE=<inventory.md>` and the stick figures can be attached as images.
 
-## Check A: reverse read (step 2a)
+## The two-way inventory check replaces the sheet checks
 
-Purpose: prove the sheet carries the motion without the author's private context. It does not prove the sheet is true to the reference (Check B does). The checker is a **different AI** (fresh reviewer) that never sees the reference video, frames, case data, the author's notes or briefs. It receives only the sheet text (header, table, diagrams).
-
-Prompt to give the checker, verbatim:
-
-```
-You are given a beat sheet for a sword skill, written in caster-local coordinates
-(forward, right, up). You have not seen the original animation and must not guess
-from names. Using ONLY the sheet:
-1. State how many swings there are and at which ticks they start.
-2. For every beat, in plain words (2-3 sentences): where the blade tip goes, which
-   way it rotates seen from the right side camera (clockwise / counter-clockwise)
-   and seen from above, whether the blade slices or slaps, which way the body turns,
-   what the feet do, and what the particles do.
-3. List every place where the body or the rotation reverses.
-4. List every cell that was ambiguous, contradictory, or that you had to assume,
-   and which beat boundary has a jump you could not connect.
-5. Draw a top-down ASCII path of the tip for each swing.
-Do not invent anything the sheet does not say. If the sheet does not let you decide,
-say "cannot tell".
-```
-
-Diff procedure (the author does it):
-
-| Compare | Mismatch means |
-|---|---|
-| swing count and start ticks | a swing missing or merged: re-count the reference |
-| per beat camera CW/CCW and top CW/CCW | the sheet's vocabulary or the author's reading is wrong: re-observe that beat's successive frames |
-| reversal list vs the `reverses previous beat?` column | a reversal is not stated clearly enough |
-| top-down ASCII path vs the author's own diagram | the path is under-specified |
-| checker's "cannot tell" / ambiguity list | each item is a blank in disguise: fill it from the reference |
-| edge-leading / flat, visible face | the face convention is not clear |
-| the checker's prose vs the author's intent | any difference in meaning (not wording) is a gap |
-
-Pass: swing count, every direction cell (both views), every reversal and every hit tick agree, and the ambiguity list is empty or contains only items the author re-checked in the reference and resolved in the sheet. Otherwise re-observe, edit the sheet, and run a new checker (a fresh agent each time, never the same one with memory). Record the checker's output and the verdict in the case directory (`beat-sheet-check.md`) so the founder sees it at gate 1.
-
-## Check B: independent reference-vs-sheet fact check (step 2b)
-
-Purpose: prove the sheet is **true**. A second fresh reviewer (not the Check A reader, not the author) receives the reference frames at native fps and the sheet. It first counts the swings and reads each beat's direction from the reference itself, writes that down, and only then compares with the sheet. Output `beat-sheet-factcheck.md`: one line per row and column, agree / disagree with the reference frame or time as evidence, and a status check (is every `[I]` justified, is every `[U]` really undecidable). It also flags any cell that looks derived from implementation rather than from the reference.
-
-Pass: swing count, every direction cell (both views), every reversal, every contact tick, travel and sound event agree, and every disagreement is resolved by re-reading the reference (not by the checker's say-so). Anything that stays disputed becomes `[U]` and goes to the founder.
-
-Both checks must pass before gate 1. Show both records on the page. Each check counts as one of the 2 rounds of that gate when it sends the sheet back.
+v3 had a reverse read (sheet only) and a fact check (reference + sheet) of the beat sheet. Both only ever confirmed that the sheet's ticks and directions were consistent; neither asked how many objects there were. v4 folds them into the **independent inventory** (step 0.6, "Inventory" above): a fresh agent writes its own inventory from the reference, the author diffs count / colour / anchor / medium per row in `inventory-check.md`, and the beat sheet is checked by the same fresh agent in the same pass (swing count, direction in both views, reversals, contact ticks, 台帳行の参照 consistent with its own inventory). One record, one gate.
 
 ## Worked example: bastion-greatsword S1
 
@@ -167,15 +185,15 @@ Nothing says which way either cut turns, that cut 2 reverses, or how many swings
 
 `Swings: 2 (cut 1 starts tick TBD, cut 2 starts tick TBD)`
 
-| beat | tick range | swing # | tip start -> end | rotation direction | angle | edge facing | reverses prev? | body | feet | hit | VFX & particles |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| B1 wind-up | TBD | - | TBD | camera: TBD; top: TBD | TBD | TBD | no | TBD | TBD | - | TBD |
-| B2 cut 1 | TBD | 1 | TBD | **camera: CCW**; top: TBD | TBD | TBD | no | TBD | TBD | TBD | TBD |
-| B3 turn | TBD | - | TBD | camera: TBD; top: TBD | TBD | TBD | **yes: body reverses** | TBD | TBD | - | TBD |
-| B4 cut 2 | TBD | 2 | TBD | **camera: CW**; top: TBD | TBD | TBD | **yes: body reverses, rotation reverses** | TBD | TBD | TBD | TBD |
-| B5 recovery | TBD | - | TBD | TBD | TBD | TBD | TBD | TBD | TBD | - | TBD |
+| beat | 動き一文 | 振り数・方向 | 接触 | 移動 | 体 | 台帳行の参照 | 音 |
+|---|---|---|---|---|---|---|---|
+| B1 wind-up, tTBD | TBD | -; camera: TBD; top: TBD; reverses: no | - | TBD | TBD | #1 greatsword | TBD |
+| B2 cut 1, tTBD | TBD | 1; **camera: CCW**; top: TBD; reverses: no | TBD | TBD | TBD | #1, #<arc row> | TBD |
+| B3 turn, tTBD | TBD | -; camera: TBD; top: TBD; **reverses: yes (body)** | - | TBD | TBD | #1 | TBD |
+| B4 cut 2, tTBD | TBD | 2; **camera: CW**; top: TBD; **reverses: yes (body, rotation)** | TBD | TBD | TBD | #1, #<arc row> | TBD |
+| B5 recovery, tTBD | TBD | -; TBD | - | TBD | TBD | #1 | TBD |
 
-TBD — filled from the approved S1 beat sheet. The two bold cells are the founder-confirmed facts the skeleton must keep: cut 1 rotates counter-clockwise relative to the camera; cut 2 reverses the body and rotates clockwise. The top-down cells for both cuts are mandatory in the real sheet because the camera column cannot carry them.
+TBD — filled from the approved S1 beat sheet. The bold cells are the founder-confirmed facts the skeleton must keep: cut 1 rotates counter-clockwise relative to the camera; cut 2 reverses the body and rotates clockwise. The top direction of both cuts is mandatory in the real sheet because the camera direction cannot carry it.
 
 ## Learnings log
 
@@ -186,4 +204,5 @@ TBD — filled from the approved S1 beat sheet. The two bold cells are the found
 - 2026-10-27 bastion-greatsword-s2 r2: a rotation direction that looks undecidable on one frame is usually decided by the erosion order of the effect tail across the whole sequence (compare the same effect in an earlier swing) plus which side the effect rises from; write the frame numbers and a confidence in an evidence block. Contact-sheet labels drift when batches are concatenated: re-derive n = base + index per batch before quoting frame numbers.
 - 2026-10-27 bastion-greatsword-s2: a second skill of the same weapon reuses the first skill's blade path (re-timed via `tools/pose-solve/author_bastion_s2.py`, imports `author_bastion_s1`) and its ring fx (copied, ids renamed) instead of regenerating sprites; the skill-lint left-hand/feet checks fail on long linear gaps between two very different poses (coil -> crouch), so add the crouch beat 1 tick earlier.
 - 2026-10-27 bastion-greatsword-s2 round 2: stepped captures of S2 showed ring 1 about 9 ticks early and no ring-2 / chop fx and no visible rig motion after ~t13, while the dev server log showed three skill attacks 1 s apart (damage steps on time) and the founder saw the skill live as good. Treat the stepped capture's delayed-step timing as unverified until the runtime agent confirms; do not tune fx art from it. A later `SHOT_KEEP=1 TICKS=40` run overwrites `build/vfx-shot/<skill>/<view>` with a 41-frame set: publish first, and check `meta.json` `frames`. Captures do not take the e2e flock (vfx-shot README). The position trace is not recorded; read `data get entity Caster Pos` on a kept stack for net travel.
+- 2026-10-27 workflow v4: inventory (count / colour / anchor / medium per object, watched 3x at normal speed, no frame numbers) before any beat sheet; independent inventory diff replaces Check A/B; beat sheet 15 -> 8 columns (coordinates and camera columns dropped); structure commit in `make skill-3d` before visuals; reviewer's first line is the inventory diff. Source: couture-rapier S2 shears (ref 3 needle blades stuck in the enemy; build 1 rapier + sprite, every frame tick matched).
 - 2026-10-27 couture-rapier-s2 gate 1: tick = round((f-start)*2/3) at 29.97 fps; check the tick of every range END against the formula (Check A caught two off-by-one ends). The reference camera pans and punches in, so crop wide or view full frames; narrow crops lose the caster. Facing is read from face/hair/arm over 3+ frames, never one still: my first read of B9 (f893-904) was wrong (she faces screen-left, back to the enemy, same back-first dash as S1) and only the fact-check agent plus a re-look at f896/f900/f903 fixed it. A skill can have 0 body swings and 3 contacts (effect-driven coins): write "Swings: 3 = coins" and say the swing # column is the coin number. Mark a one-frame effect pop (f811) as "no sweep visible" instead of inventing a direction. Audio onsets live in the sibling analysis cache (`tools/skill-compare/cache/<case>/analysis.json`, onset s * 29.97 = f); hit ticks usually have no isolated onset (music floor). make-figures.py: use a collision-avoiding label helper and fixed-position note rows; S1's overview labels overlapped.

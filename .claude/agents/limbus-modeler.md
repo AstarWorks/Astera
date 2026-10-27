@@ -13,6 +13,8 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 
 Produce a weapon model that matches the reference silhouette and holds up in the hand, in the inventory and on the ground. Quality bar: 80-200 elements for a hero prop, stepped bevels, separate ornament pieces, 64-128 px textures, several materials (metal vs cloth vs gem vs emissive), edge highlights, never a single-colour slab. The grip sits in the hand with the blade pointing the right way in first and third person, both hands.
 
+**Workflow v4 (inventory first):** you work from the case's object inventory (`tools/skill-compare/data/<case>/inventory.md`, template in `docs/contributing/vfx-team/beat-sheet.md` "Inventory"). Every row whose medium is `3D object` (the held weapon, a thrown or split blade, a stuck needle, a hammer head that leaves the haft) is one model; a row's count is how many instances the skill shows, not how many models you build. Before building, search `content/models/items/` (and `manifest.json`) for an existing model that fits the row and prefer it. Write the model id of every model you build or pick into that row's 構成案 column (`astera:<id>`), and report back which models of the weapon's directory the inventory does not use (the author decides whether they are dead). Never build a model for a plane (slash arc), a line (thread, chain) or particles, and never for a camera / edit phenomenon listed under 「再現しないもの」.
+
 ## Required reading
 
 1. `docs/contributing/vfx-team/modeler.md` (read the Learnings log) and `docs/contributing/vfx-team/README.md`.
@@ -22,11 +24,12 @@ Produce a weapon model that matches the reference silhouette and holds up in the
 
 ## Scope when consulted
 
-- Create/edit: `content/models/**` for your weapon, its model-forge project directory, and the item model/texture files your brief names.
-- Never touch skill YAML, `content/vfx`, sprites, particles, sounds, or `tools/skill-compare/data/`.
+- Create/edit: `content/models/**` for your weapon, its model-forge project directory, and the item model/texture files your brief names; the 構成案 column of the rows you modelled in `tools/skill-compare/data/<case>/inventory.md` (model ids only, nothing else in that file).
+- Never touch skill YAML, `content/vfx`, sprites, particles, sounds, or any other file under `tools/skill-compare/data/`.
 
 ## Self-check before handing back
 
+- Every `3D object` row of the inventory you were asked about has a model id in its 構成案 column (existing model searched first); unused models of the weapon are listed in your report.
 - Followed the AGENT.md round: observe, 8-view board, critic (at most 3 fixes), edit, look again, verifier. Opened the actual PNGs.
 - `context_preview.py` boards opened for both hands, first and third person, GUI, ground, fixed; grip direction confirmed against the brief.
 - `validate` has no unexplained errors; Z-fighting handled per the README (not by viewer depth bias).

@@ -312,9 +312,9 @@ skill-lint-plan: ## Writes build/skill-lint/<skill>/plan.json (headless cast: bo
 	./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q
 
 .PHONY: skill-lint
-skill-lint: ## Preflight of a VFX skill before any capture: one weapon, both hands on the grip, feet on floor, display budget (exit 1 on FAIL); writes build/skill-lint/<skill>/report.json and publishes it to skill-compare (PUBLISH=0 skips): make skill-lint SKILL=<skill-id> [PLAN=<plan.json>]
-	@test -n "$(SKILL)" || { echo "usage: make skill-lint SKILL=<skill-id> [PLAN=<plan.json>]"; exit 2; }
-	@python3 tools/skill-lint/skill_lint.py "$(SKILL)" $(if $(PLAN),--plan "$(PLAN)"); rc=$$?; \
+skill-lint: ## Preflight of a VFX skill before any capture (workflow v4): held weapons = the case inventory, grip from the item data (one-handed weapons keep the left hand free), feet on floor, display budget, event-bound hits, inventory models exist and are shown, no capture-distance bake (exit 1 on FAIL); writes build/skill-lint/<skill>/report.json and publishes it to skill-compare (PUBLISH=0 skips): make skill-lint SKILL=<skill-id> [CASE=<case-id>] [PLAN=<plan.json>]
+	@test -n "$(SKILL)" || { echo "usage: make skill-lint SKILL=<skill-id> [CASE=<case-id>] [PLAN=<plan.json>]"; exit 2; }
+	@python3 tools/skill-lint/skill_lint.py "$(SKILL)" $(if $(CASE),--case "$(CASE)") $(if $(PLAN),--plan "$(PLAN)"); rc=$$?; \
 	  if [ "$(PUBLISH)" != "0" ]; then node tools/skill-compare/scripts/publish-lint.mjs "$(SKILL)" || echo "warn: lint publish to skill-compare failed"; fi; exit $$rc
 
 .PHONY: particle-sim
@@ -331,7 +331,7 @@ skill-preview: ## Render a skill from the skill-compare camera without the clien
 	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" && node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" --src "build/skill-preview/$(SKILL)/side" --kind preview-side)
 
 .PHONY: skill-3d
-skill-3d: ## Interactive 3D inspection page (orbit/free/first-person camera, scrub, layers, hit events, real particles) at http://localhost:8765: make skill-3d SKILL=<skill-id> [PORT=8765] [REUSE=1 keeps plan.json] [FORCE=1 re-simulates] [NOOPEN=1] [CASE=<id>] [SHOTS=<dir> VIEWS=side,top TICKS=10,40 headless PNGs instead]
+skill-3d: ## Interactive 3D inspection page (orbit/free/first-person camera, scrub, layers, hit events, real particles) at http://localhost:8765; with SHOTS= the headless orbit + top stills that review the workflow-v4 structure commit (one object per inventory row): make skill-3d SKILL=<skill-id> [PORT=8765] [REUSE=1 keeps plan.json] [FORCE=1 re-simulates] [NOOPEN=1] [CASE=<id>] [SHOTS=<dir> VIEWS=orbit,top TICKS=10,40 headless PNGs instead]
 	@test -n "$(SKILL)" || { echo "usage: make skill-3d SKILL=<skill-id> [PORT=n] [REUSE=1] [FORCE=1] [NOOPEN=1] [SHOTS=dir VIEWS=a,b TICKS=n,m]"; exit 2; }
 	cd tools/skill-viewer && bun scripts/skill-3d.mjs --skill "$(SKILL)" $(if $(PORT),--port "$(PORT)") $(if $(REUSE),--reuse) $(if $(FORCE),--force) $(if $(NOOPEN),--no-open) $(if $(CASE),--case "$(CASE)") $(if $(SHOTS),--shots "$(abspath $(SHOTS))") $(if $(VIEWS),--views "$(VIEWS)") $(if $(TICKS),--tick "$(TICKS)")
 
@@ -352,7 +352,7 @@ skill-round: ## Publish the director's round notes (tools/skill-compare/data/<ca
 	node tools/skill-compare/scripts/publish-round.mjs "$(SKILL)" $(FILE)
 
 .PHONY: round-gate
-round-gate: ## A build round is finished only if its round note has the mandatory facts (compare sheet from the API, trace cast+N, framing, fidelity, "weaker than previous: none"); exit 1 otherwise: make round-gate SKILL=<skill-id> [FILE=<round.md>] [CASE=<case>] [STAGE=manager]
+round-gate: ## A build round is finished only if its round note has the mandatory facts (workflow v4: inventory diff with every row ok + structure sha + skill-3d stills first; then compare sheet from the API, trace cast+N, framing, fidelity, "weaker than previous: none"; luma / fx_pct are advisory only); exit 1 otherwise: make round-gate SKILL=<skill-id> [FILE=<round.md>] [CASE=<case>] [STAGE=manager]
 	@test -n "$(SKILL)" || { echo "usage: make round-gate SKILL=<skill-id> [FILE=<round.md>] [CASE=<case>] [STAGE=author|manager]"; exit 2; }
 	python3 tools/skill-lint/round_gate.py "$(SKILL)" $(if $(FILE),--file "$(FILE)") $(if $(CASE),--case "$(CASE)") $(if $(STAGE),--stage "$(STAGE)")
 
