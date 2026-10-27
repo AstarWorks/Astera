@@ -60,8 +60,8 @@ export function renderFresh(box, f) {
     b.textContent = "生成中… (旧版を表示中)";
     small.textContent = [f.stage === "running" ? "描画/撮影を実行中" : "順番待ち", f.stalled ? "デプロイから30分以上: 生成が止まっている可能性" : "", versions].filter(Boolean).join(" · ");
   } else {
-    b.textContent = "失敗";
-    small.textContent = [f.reason ? String(f.reason).slice(0, 220) : "原因不明 (ログ参照)", "旧版を表示中", versions].join(" · ");
+    b.textContent = `旧版表示中 · 最新の撮影は失敗${f.failedSha ? " (" + sha7(f.failedSha) + ")" : ""}`;
+    small.textContent = [f.reason ? String(f.reason).slice(0, 220) : "原因不明 (ログ参照)", versions].join(" · ");
   }
   box.append(b, small);
 }
