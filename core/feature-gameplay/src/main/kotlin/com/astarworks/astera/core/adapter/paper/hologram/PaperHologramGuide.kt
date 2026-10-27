@@ -102,7 +102,7 @@ public class PaperHologramGuide(
 
         val existing = guide.display?.let { server.getEntity(it) } as? TextDisplay
         val display = if (existing != null && existing.isValid && existing.world == eye.world) {
-            existing.teleport(at)
+            existing.teleportAsync(at)
             existing
         } else {
             removeDisplay(guide)

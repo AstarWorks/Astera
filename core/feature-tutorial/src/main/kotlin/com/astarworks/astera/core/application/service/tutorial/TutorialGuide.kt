@@ -12,7 +12,6 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.tutorial.TutorialStep
-import org.joml.Quaternionf
 import kotlin.math.sin
 
 /**
@@ -129,7 +128,7 @@ public class TutorialGuide(
                     position = Vec3(anchor.x, anchor.y + ARROW_HEIGHT, anchor.z),
                     kind = HologramKind.Item(ARROW_ITEM, ItemDisplayMode.FIXED),
                     // The vanilla arrow sprite points up-right; roll it so the tip points straight down at the target.
-                    transform = HologramTransform(leftRotation = Quaternionf().rotateZ(Math.toRadians(-135.0).toFloat()), scale = Vec3(1.2, 1.2, 1.2)),
+                    transform = HologramTransform.rolledZ(-135.0, Vec3(1.2, 1.2, 1.2)),
                     billboard = BillboardMode.CENTER,
                     interpolation = HologramInterpolation(teleportDurationTicks = 10),
                     visibilityScope = HologramVisibilityScope.PerPlayer(setOf(id)),
