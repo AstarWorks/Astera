@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 /**
  * Bots play the mode's objective, not just "find enemies" (item 25d). The planner ([ModePlanner], the object BotBrain asks
  * for its destination) is fed the REAL stage regions (StageObjectives.load) and drives a sim player through the REAL
- * mode: in carry-mini-tnt it must collect mini TNT, bank it, fetch the combined TNT and win at the enemy base.
+ * mode: in carry-mini-tnt it must collect mini TNT and plant it in the enemy base until the base blows up.
  * Also: core roles, and the Tab-list independent target fallback.
  */
 class BotModeObjectiveScenarioTest {
@@ -26,7 +26,7 @@ class BotModeObjectiveScenarioTest {
         return ModePlanner(mode, name, team, listOf(enemy), checkNotNull(src.zones()))
     }
 
-    /** Teleports the sim player to each destination the planner names (region entry is what the mode rewards). */
+    /** Teleports the sim player to each destination the planner names; the planner holds there (pickups and deliveries are short holds). */
     private fun ScenarioScope.drive(runner: SimEntity, planner: ModePlanner, maxRounds: Int, done: () -> Boolean): List<String> {
         val kinds = ArrayList<String>()
         var now = 0L
@@ -42,21 +42,19 @@ class BotModeObjectiveScenarioTest {
     }
 
     @Test
-    fun `carry-mini-tnt bot collects banks fetches the TNT and wins at the enemy base`() {
+    fun `carry-mini-tnt bot collects and plants mini TNT until the enemy base blows up`() {
         scenario("bot-mini-tnt-objective") {
             val runner = player("runner", at = Vec3(0.0, 65.0, -50.0))
             val guard = player("guard", at = Vec3(0.0, 65.0, -50.0))
             startMatch("carry-mini-tnt", mapOf(runner to "red", guard to "blue"))
             val p = planner("carry-mini-tnt", "runner", "red", "blue")
 
-            val kinds = drive(runner, p, 400) { eventsOf<MatchEnded>().isNotEmpty() }
+            val kinds = drive(runner, p, 800) { eventsOf<MatchEnded>().isNotEmpty() }
 
             val end = eventsOf<MatchEnded>().singleOrNull()
             assertThat(end).`as`("the planner alone wins the mode (trace: $kinds)").isNotNull()
             assertThat(end!!.winningTeam).isEqualTo(TeamId("red"))
-            assertThat(kinds.take(3)).containsExactly("pickup", "bank", "pickup")
-            assertThat(kinds).contains("tnt", "deliver")
-            assertThat(kinds.indexOf("tnt")).isGreaterThan(kinds.indexOf("bank"))
+            assertThat(kinds.take(3)).containsExactly("pickup", "deliver", "pickup")
         }
     }
 

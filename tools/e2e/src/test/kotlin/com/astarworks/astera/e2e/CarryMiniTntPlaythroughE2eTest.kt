@@ -24,9 +24,14 @@ class CarryMiniTntPlaythroughE2eTest : ObjectivePlaythroughBase() {
         var laps = 0
         while (ctx.chatCount("blew up") < 1 && laps < MAX_LAPS) {
             laps++
-            for ((sx, sz) in spots) ctx.walker.walkTo(sx, sz, 1.2, 120_000, others) { ctx.chatCount("blew up") >= 1 }
+            for ((sx, sz) in spots) {
+                val before = ctx.chatCount("mini-TNT picked up")
+                ctx.walker.walkTo(sx, sz, 1.2, 120_000, others) { ctx.chatCount("blew up") >= 1 }
+                // A pickup is a short hold: stay on the spot until the piece is in the bag.
+                a.waitUntil(3_000) { ctx.chatCount("mini-TNT picked up") > before || ctx.chatCount("blew up") >= 1 }
+            }
             ctx.walker.walkTo(bx, bz, 2.0, 120_000, others) { ctx.chatCount("blew up") >= 1 }
-            a.waitUntil(3_000) { ctx.chatCount("planted", a) >= laps || ctx.chatCount("blew up") >= 1 }
+            a.waitUntil(4_000) { ctx.chatCount("planted", a) >= laps || ctx.chatCount("blew up") >= 1 }
         }
         E2eReport.check(suite, "collecting pieces and planting them in the enemy base (plant progress on chat and sidebar)", "SystemChat / sidebar") {
             assertThat(ctx.chatCount("mini-TNT picked up")).describedAs("no piece picked up; chat=${ctx.chat().takeLast(6)}").isGreaterThanOrEqualTo(3)
