@@ -47,6 +47,33 @@ class ArsenalToolsScenarioTest {
     }
 
     @Test
+    fun `vanilla stone survives the cast tick and diamond mines faster than iron and stone`() {
+        scenario("arsenal-timed-tier-mining") {
+            val caster = player("caster", team = "red")
+            val at = Vec3(2.0, groundY + 1, 0.0)
+            val stone = BlockType("minecraft:stone")
+            val dispatcher = checkNotNull(sim.combat.mechanicDispatcher)
+            val times = listOf("stone", "iron", "diamond").associateWith { tier ->
+                sim.world.placeBlock(caster.world, at, stone)
+                dispatcher.dispatch(
+                    listOf(Mechanic.BreakArea(shape = Mechanic.AreaShape.SPHERE, radius = 0.0, length = 0.0, power = 1.0, toolClass = "PICKAXE")),
+                    MechanicContext(actorId = caster.id, targetId = null, origin = at - Vec3(0.0, 1.62, 0.0), worldId = caster.world, sourceItemId = ItemId("$tier-pickaxe")),
+                )
+                assertThat(sim.world.blockAt(caster.world, at)).isEqualTo(stone)
+                var ticks = 0
+                while (sim.world.blockAt(caster.world, at) == stone && ticks < 30) {
+                    advance(1)
+                    ticks++
+                }
+                assertThat(sim.world.blockAt(caster.world, at)).isNull()
+                ticks
+            }
+            assertThat(times.getValue("diamond")).isLessThan(times.getValue("iron"))
+            assertThat(times.getValue("iron")).isLessThan(times.getValue("stone"))
+        }
+    }
+
+    @Test
     fun `break_area removes breakable blocks inside the arena and leaves bedrock-class and outside cells`() {
         scenario("arsenal-break-area") {
             val caster = player("caster", team = "red")
@@ -61,12 +88,14 @@ class ArsenalToolsScenarioTest {
             val dispatcher = checkNotNull(sim.combat.mechanicDispatcher)
             fun run(who: SimEntity, m: Mechanic) = dispatcher.dispatch(
                 listOf(m),
-                MechanicContext(actorId = who.id, targetId = null, origin = centre, worldId = who.world),
+                MechanicContext(actorId = who.id, targetId = null, origin = centre, worldId = who.world, sourceItemId = ItemId("stone-pickaxe")),
             )
 
-            // Power 2 breaks soil and stone, not obsidian. Sphere centred at the origin (pose is absent: length 0 look +X).
-            val sphere = Mechanic.BreakArea(shape = Mechanic.AreaShape.SPHERE, radius = 2.0, length = 0.0, power = 2.0)
+            // Power 1 breaks soil and stone, not obsidian. Sphere centred at the origin (pose is absent: length 0 look +X).
+            val sphere = Mechanic.BreakArea(shape = Mechanic.AreaShape.SPHERE, radius = 2.0, length = 0.0, power = 1.0)
             run(caster, sphere)
+            assertThat(sim.world.blockAt(caster.world, centre)).isEqualTo(stone)
+            advance(30)
             assertThat(sim.world.blockAt(caster.world, centre)).isNull()
             assertThat(sim.world.blockAt(caster.world, centre + Vec3(1.0, 0.0, 0.0))).isNull()
             assertThat(sim.world.blockAt(caster.world, centre + Vec3(0.0, 0.0, 1.0))).isEqualTo(obsidian)

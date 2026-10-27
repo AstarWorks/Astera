@@ -241,6 +241,16 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             "second cycle ok: +2 iron, cobblestone, ore back"
         }
 
+        E2eReport.check(suite, "bore leaves ore-node cells untouched", "ore-node exclusion after timed cast") {
+            tpArena(a.name, 1.5, 65.0, 5.5, 270f, 0f)
+            selectTool(a, "stone_pickaxe")
+            Thread.sleep(8_000)
+            a.useItem(270f, 0f)
+            Thread.sleep(1_500)
+            assertThat(arenaBlockIs(5, 65, 5, "minecraft:iron_ore")).isTrue()
+            "iron node survived the entire bore"
+        }
+
         // --- 6. tool skill break_area ---------------------------------------------------------------------------------------
         E2eReport.check(suite, "a stone pickaxe right-click (bore) removes the blocks in front inside the arena", "RCON execute if block") {
             // A 3x3 glass wall at x=-60, the bot stands at x=-63.5 facing east (yaw 270), bore reaches 4 blocks.
@@ -284,6 +294,40 @@ class MatchArsenalE2eTest : ObjectivePlaythroughBase() {
             assertThat(after).describedAs("bore left vanilla stone cells standing; chat=${a.chatTexts().takeLast(3)}").isZero()
             "vanilla wall solid cells 9 -> $after"
         }
+        E2eReport.check(suite, "stone bore progresses over time, drops cobblestone and cannot break obsidian", "RCON blocks and item entities") {
+            inArena("run kill @e[type=minecraft:item,x=${-60 + originX},y=65,z=${24 + originZ},distance=..8]")
+            inArena("run setblock ${-60 + originX} 66 ${24 + originZ} minecraft:stone")
+            inArena("run setblock ${-60 + originX} 66 ${25 + originZ} minecraft:obsidian")
+            tpArena(a.name, -63.5, 65.0, 24.5, 270f, 0f)
+            selectTool(a, "stone_pickaxe")
+            Thread.sleep(8_000)
+            // Console cast acknowledges dispatch before querying the cell; the scheduled mining must still be in flight.
+            rcon("astera skill cast pickaxe-bore-stone ${a.name} --force")
+            assertThat(arenaBlockIs(-60, 66, 24, "minecraft:stone")).describedAs("stone vanished on dispatch").isTrue()
+            Thread.sleep(1_500)
+            assertThat(arenaSolid(-60, 66, 24)).isFalse()
+            assertThat(arenaBlockIs(-60, 66, 25, "minecraft:obsidian")).isTrue()
+            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${24 + originZ},distance=..3,limit=1,nbt={Item:{id:\"minecraft:cobblestone\"}}] Item.id"))
+            assertThat(loot).contains("minecraft:cobblestone")
+            "stone survived dispatch, broke by 30 ticks, dropped cobblestone; obsidian survived"
+        }
+
+        E2eReport.check(suite, "custom cover drops its reusable placement item", "RCON custom item identity") {
+            inArena("run kill @e[type=minecraft:item,x=${-60 + originX},y=65,z=${30 + originZ},distance=..5]")
+            inArena("run setblock ${-60 + originX} 66 ${30 + originZ} minecraft:glass")
+            tpArena(a.name, -63.5, 65.0, 30.5, 270f, 0f)
+            selectTool(a, "stone_pickaxe")
+            repeat(2) {
+                Thread.sleep(8_000)
+                a.useItem(270f, 0f)
+                Thread.sleep(1_500)
+            }
+            assertThat(arenaSolid(-60, 66, 30)).isFalse()
+            val loot = clean(inArena("run data get entity @e[type=minecraft:item,x=${-60 + originX},y=66,z=${30 + originZ},distance=..3,limit=1] Item"))
+            assertThat(loot).contains("tempered-glass-block")
+            "tempered glass yielded its content item with placement identity"
+        }
+
         E2eReport.check(suite, "a stone shovel excavate removes plain vanilla dirt", "RCON execute if block") {
             for (x in -62..-59) for (y in 65..67) for (z in 16..18) inArena("run setblock ${x + originX} $y ${z + originZ} minecraft:dirt")
             tpArena(a.name, -64.5, 65.0, 17.5, 270f, 0f)
