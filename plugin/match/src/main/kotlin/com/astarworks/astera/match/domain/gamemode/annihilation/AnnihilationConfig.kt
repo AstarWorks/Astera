@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.domain.gamemode.annihilation
 
+import com.astarworks.astera.core.domain.nexus.NexusPillarTier
+
 /**
  * Configuration knobs for an Astera Annihilation match (ADR-0108,
  * Wave 5annihilation).
@@ -28,9 +30,11 @@ package com.astarworks.astera.match.domain.gamemode.annihilation
  * @property pillarCount Number of pillars per team. Always 3 in Phase 1 PoC;
  *   exposed as a constructor parameter so a future YAML can opt into 2- or
  *   4-pillar variants without a breaking change.
- * @property pillarHp HP per pillar. Same for all tiers in Phase 1 PoC; Phase
- *   2 may add per-tier HP scaling (Tier 3 = the "real" Nexus, may justify
- *   higher HP). Default 500.
+ * @property pillarHp HP of a Tier 1 pillar, and of every tier that has no
+ *   [pillarHpTier2] / [pillarHpTier3] of its own. Default 500.
+ * @property pillarHpTier2 HP of a Tier 2 pillar; null = [pillarHp].
+ * @property pillarHpTier3 HP of a Tier 3 pillar (the Nexus proper); null = [pillarHp].
+ *   A stage `pillars[].hp` still beats all three.
  * @property buildPhaseTicks Duration of [com.astarworks.astera.core.domain.nexus.NexusPhase.Phase1Build]
  *   in server ticks (20 ticks = 1 sec). Default 6000 = 5 min.
  * @property engagePhaseTicks Duration of [com.astarworks.astera.core.domain.nexus.NexusPhase.Phase2Engage]
@@ -60,6 +64,8 @@ public data class AnnihilationConfig(
     public val suddenDeathDotPerTick: Int = 5,
     public val respawnDelaySecondsTier1Lost: Int = 2,
     public val resourceRegenMultTier2Lost: Double = 0.5,
+    public val pillarHpTier2: Int? = null,
+    public val pillarHpTier3: Int? = null,
 ) {
     init {
         require(pillarCount == 3) {
@@ -67,6 +73,8 @@ public data class AnnihilationConfig(
         }
         require(pillarBreakDamage > 0) { "AnnihilationConfig.pillarBreakDamage must be > 0 (got=$pillarBreakDamage)" }
         require(pillarHp > 0) { "AnnihilationConfig.pillarHp must be > 0 (got=$pillarHp)" }
+        require((pillarHpTier2 ?: 1) > 0) { "AnnihilationConfig.pillarHpTier2 must be > 0 (got=$pillarHpTier2)" }
+        require((pillarHpTier3 ?: 1) > 0) { "AnnihilationConfig.pillarHpTier3 must be > 0 (got=$pillarHpTier3)" }
         require(buildPhaseTicks >= 0) { "AnnihilationConfig.buildPhaseTicks must be >= 0 (got=$buildPhaseTicks)" }
         require(engagePhaseTicks > 0) { "AnnihilationConfig.engagePhaseTicks must be > 0 (got=$engagePhaseTicks)" }
         require(tier3PhaseTicks > 0) { "AnnihilationConfig.tier3PhaseTicks must be > 0 (got=$tier3PhaseTicks)" }
@@ -80,6 +88,13 @@ public data class AnnihilationConfig(
         require(resourceRegenMultTier2Lost in 0.0..1.0) {
             "AnnihilationConfig.resourceRegenMultTier2Lost must be in 0.0..1.0 (got=$resourceRegenMultTier2Lost)"
         }
+    }
+
+    /** Starting HP of a pillar of [tier] (before any stage override). */
+    public fun hpOf(tier: NexusPillarTier): Int = when (tier) {
+        NexusPillarTier.TIER_1 -> pillarHp
+        NexusPillarTier.TIER_2 -> pillarHpTier2 ?: pillarHp
+        NexusPillarTier.TIER_3 -> pillarHpTier3 ?: pillarHp
     }
 
     public companion object {
