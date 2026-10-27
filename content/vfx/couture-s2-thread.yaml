@@ -1,6 +1,6 @@
 # S2 coin 2: the pink thread. A static 3D line (target_line was tried and flips the line backward with orient yaw, so it is fixed to the reference 5.4 ahead) from the caster hand to the live target, played on the caster inside for_each_target with track_bound_target. It exists from the throw (tick 34), holds while the three objects fly and stick, then the three objects are pulled back along it to the hand (return-*, target_track weight 1 -> 0) and the thread shortens.
 id: couture-s2-thread
-duration_ticks: 24
+duration_ticks: 22
 orient: yaw
 follow: false
 sample_ticks: 1
@@ -15,7 +15,7 @@ elements:
     block: pink_concrete
   brightness: 15
   start_tick: 0
-  end_tick: 23
+  end_tick: 21
   keyframes:
   - t: 0
     translate:
@@ -30,7 +30,7 @@ elements:
     - 0.04
     - 0.04
     - 5.0
-  - t: 17
+  - t: 15
     translate:
     - -0.02
     - 1.38
@@ -43,7 +43,7 @@ elements:
     - 0.04
     - 0.04
     - 5.0
-  - t: 22
+  - t: 20
     translate:
     - -0.02
     - 1.38
@@ -57,7 +57,7 @@ elements:
     - 0.04
     - 1.0
     ease: in_quad
-  - t: 23
+  - t: 21
     translate:
     - 0
     - 1.4
@@ -77,8 +77,8 @@ elements:
     item_model: astera:couture-shears-linked
     display_mode: fixed
   brightness: 15
-  start_tick: 17
-  end_tick: 23
+  start_tick: 15
+  end_tick: 21
   keyframes:
   - t: 0
     translate:
@@ -119,8 +119,8 @@ elements:
     item_model: astera:couture-rapier-blade-a
     display_mode: fixed
   brightness: 15
-  start_tick: 17
-  end_tick: 23
+  start_tick: 15
+  end_tick: 21
   keyframes:
   - t: 0
     translate:
@@ -161,8 +161,8 @@ elements:
     item_model: astera:couture-rapier-blade-b
     display_mode: fixed
   brightness: 15
-  start_tick: 17
-  end_tick: 23
+  start_tick: 15
+  end_tick: 21
   keyframes:
   - t: 0
     translate:

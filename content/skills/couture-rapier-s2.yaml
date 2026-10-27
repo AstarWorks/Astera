@@ -32,7 +32,7 @@ phases:
   - type: for_each_target
     targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 9}, angle_degrees: {type: literal, value: 30}, max_count: 1}
     snapshot_pose: true
-    delay_ticks: {type: literal, value: 34}
+    delay_ticks: {type: literal, value: 36}
     mechanics:
     - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-thread, track_bound_target: true}
   - {type: play_vfx, targets: {type: caster}, vfx_id: couture-s2-haze, delay_ticks: {type: literal, value: 3}, follow: {type: literal, value: true}}

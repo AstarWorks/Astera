@@ -81,3 +81,7 @@ capture miss: capture-miss.png
 - 敵に刺さる 3 物: 本体 = `couture-shears-linked`、刃 = `couture-rapier-blade-a` / `-b`。ただし linked 自体が刃 2 枚と輪を含むため、敵の所で刃が重複して見える。本体はピボット (花) だけの専用モデルが要る (modeler への依頼待ち)。
 - miss (敵なし): 3 つとも前へ飛び続け、最大射程/期限で消える。糸は出ない (標的が無い)。frame 042-046。
 - hit2 の星 (白い放射) は 30% に縮小。
+
+### 構成コミット: 持つ鋏の決定と糸の出現 tick
+- 持つ武器は `couture-rapier` (1 本の鋏) のまま。t20 に隠し、t22 の頭上分裂で本体 + 刃 A + 刃 B の 3 つに入れ替える。3 つを重ねると `couture-rapier` と同じ形に戻る条件を modeler brief に入れた (`briefs/model.md`)。本体の台帳行: `understanding-body.md`。
+- 糸は投擲の 2 tick 後 (t36、3 つが飛び始めた後) から出す。投擲前 (t34) には出さない。戻りは t51-57。
