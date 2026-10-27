@@ -32,15 +32,6 @@ anim-import: ## Import Blockbench player animations: make anim-import BB=path.bb
 	@test -n "$(BB)" || { echo "usage: make anim-import BB=<path.bbmodel> [OUT=content/animations]"; exit 2; }
 	$(GRADLEW) :tools:anim-import:importAnimations -Pbb="$(BB)" -PanimOut="$(or $(OUT),content/animations)"
 
-.PHONY: skill-frames
-skill-frames: ## Render PNG frames + contact sheet + GIF for one skill: make skill-frames SKILL=simple-shoot
-	@test -n "$(SKILL)" || { echo "usage: make skill-frames SKILL=<skill id>"; exit 2; }
-	$(GRADLEW) :tools:skill-viewer:render -Pscenario=$(SKILL)
-
-.PHONY: skill-frames-all
-skill-frames-all: ## Contact sheets for every skill (tools/skill-viewer/build/skill-frames/<skill>/sheet.png)
-	$(GRADLEW) :tools:skill-viewer:render
-
 .PHONY: check
 check: ## Run unit tests + Konsist architecture tests
 	$(GRADLEW) check
@@ -310,33 +301,23 @@ skill-pairs: ## Video vs MC frame pairs at video times -> build/pairs/<case>.png
 skill-lint: ## Structural lint of skill engine v2 skills (ADR-0299; exit 1 on FAIL): make skill-lint [ROOT=content/skills] [BALANCE=1]
 	./gradlew :tools:skill-lint:run --args="--root $(or $(ROOT),content/skills) $(if $(BALANCE),--balance)" -q
 
-.PHONY: particle-sim
-particle-sim: ## Run the real vanilla particle classes (local 26.3 client jar) for a skill's emissions -> build/skill-preview/<skill>/particles.json: make particle-sim SKILL=<skill-id> [REUSE=1 keeps plan.json] [SEED=<n>]
-	@test -n "$(SKILL)" || { echo "usage: make particle-sim SKILL=<skill-id> [REUSE=1] [SEED=n]"; exit 2; }
-	$(if $(REUSE),,./gradlew :tools:game-sim:skillLintPlan -Pskill="$(SKILL)" -q --offline 2>&1 | grep -v ' INFO \| DEBUG \| WARN ' || true)
-	./gradlew :tools:particle-sim:run --args="$(SKILL) $(if $(SEED),--seed $(SEED))" -q 2>&1 | grep -v '^WARNING'
+.PHONY: skill-trace
+skill-trace: ## Cast a v2 skill once in game-sim (real cast runner, dummy 6 blocks ahead) -> tools/game-sim/build/sim-traces/v2/<skill>.json (astera-sim-trace/2): make skill-trace SKILL=<skill-id>[,<skill-id>...]
+	@test -n "$(SKILL)" || { echo "usage: make skill-trace SKILL=<skill-id>[,<skill-id>...]"; exit 2; }
+	$(GRADLEW) :tools:game-sim:test --tests '*SkillTraceExportScenarioTest' -Pskill="$(SKILL)" --offline -q
+	@for s in $$(echo "$(SKILL)" | tr ',' ' '); do python3 -I tools/vfx-shot/trace_v2.py "tools/game-sim/build/sim-traces/v2/$$s.json" && echo "trace ok: tools/game-sim/build/sim-traces/v2/$$s.json"; done
 
 .PHONY: skill-preview
-skill-preview: ## Render a skill from the skill-compare camera without the client and publish it as the PREVIEW + PREVIEW-SIDE (fixed side camera) views of skill-compare (PUBLISH=0 skips): make skill-preview SKILL=<skill-id> [TRACE=<astera-sim-trace/2 file>] [CASE=<case id>] [TICKS=0-53] [EVERY=4] [FOV=<deg>]
-	@test -n "$(SKILL)" || { echo "usage: make skill-preview SKILL=<skill-id> [TRACE=f] [CASE=..] [TICKS=a-b] [EVERY=n] [FOV=deg]"; exit 2; }
-	cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null && bun run build >/dev/null && bun scripts/trace-preview.mjs --skill "$(SKILL)" $(if $(TRACE),--trace "$(abspath $(TRACE))") $(if $(CASE),--case "$(CASE)") $(if $(TICKS),--ticks "$(TICKS)") $(if $(EVERY),--every "$(EVERY)") $(if $(FOV),--fov "$(FOV)") && bun scripts/trace-preview.mjs --skill "$(SKILL)" $(if $(TRACE),--trace "$(abspath $(TRACE))") --no-ref --camera side --out "$(CURDIR)/build/skill-preview/$(SKILL)/side"
-	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" && node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" --src "build/skill-preview/$(SKILL)/side" --kind preview-side)
-
-.PHONY: skill-3d
-skill-3d: ## Interactive 3D inspection page (orbit/free/first-person camera, scrub, layers, hit events, real particles) at http://localhost:8765; with SHOTS= the headless orbit + top stills that review the workflow-v4 structure commit (one object per inventory row): make skill-3d SKILL=<skill-id> [PORT=8765] [REUSE=1 keeps plan.json] [FORCE=1 re-simulates] [NOOPEN=1] [CASE=<id>] [SHOTS=<dir> VIEWS=orbit,top TICKS=10,40 headless PNGs instead]
-	@test -n "$(SKILL)" || { echo "usage: make skill-3d SKILL=<skill-id> [PORT=n] [REUSE=1] [FORCE=1] [NOOPEN=1] [SHOTS=dir VIEWS=a,b TICKS=n,m]"; exit 2; }
-	cd tools/skill-viewer && bun scripts/skill-3d.mjs --skill "$(SKILL)" $(if $(PORT),--port "$(PORT)") $(if $(REUSE),--reuse) $(if $(FORCE),--force) $(if $(NOOPEN),--no-open) $(if $(CASE),--case "$(CASE)") $(if $(SHOTS),--shots "$(abspath $(SHOTS))") $(if $(VIEWS),--views "$(VIEWS)") $(if $(TICKS),--tick "$(TICKS)")
+skill-preview: ## Cast a v2 skill in game-sim (skill-trace), render it from the skill-compare camera without the client and publish PREVIEW + PREVIEW-SIDE (+ the hit-volume OVERLAY as the lint view with OVERLAY=1) to skill-compare (PUBLISH=0 skips): make skill-preview SKILL=<skill-id> [TRACE=<astera-sim-trace/2 file>] [CASE=<case id>] [TICKS=0-53] [EVERY=4] [FOV=<deg>] [OVERLAY=1] [NOREF=1]
+	@test -n "$(SKILL)" || { echo "usage: make skill-preview SKILL=<skill-id> [TRACE=f] [CASE=..] [TICKS=a-b] [EVERY=n] [FOV=deg] [OVERLAY=1] [NOREF=1]"; exit 2; }
+	$(if $(TRACE),,$(MAKE) skill-trace SKILL="$(SKILL)")
+	cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null && bun run build >/dev/null && bun scripts/trace-preview.mjs --skill "$(SKILL)" $(if $(TRACE),--trace "$(abspath $(TRACE))") $(if $(CASE),--case "$(CASE)") $(if $(TICKS),--ticks "$(TICKS)") $(if $(EVERY),--every "$(EVERY)") $(if $(FOV),--fov "$(FOV)") $(if $(NOREF),--no-ref) $(if $(OVERLAY),--overlay) && bun scripts/trace-preview.mjs --skill "$(SKILL)" $(if $(TRACE),--trace "$(abspath $(TRACE))") --no-ref --camera side --out "$(CURDIR)/build/skill-preview/$(SKILL)/side"
+	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" && node tools/skill-compare/scripts/publish-preview.mjs "$(SKILL)" --src "build/skill-preview/$(SKILL)/side" --kind preview-side$(if $(OVERLAY), && node tools/skill-compare/scripts/publish-lint.mjs "$(SKILL)" --overlay "build/skill-preview/$(SKILL)/overlay"))
 
 .PHONY: pose-solve
 pose-solve: ## Reference keypoints -> skin-rig body keys + wrist keys in content/skill-lint/solved/ (never overwrites shipped keys): make pose-solve SKILL=<skill-id>
 	@test -n "$(SKILL)" || { echo "usage: make pose-solve SKILL=<skill-id>"; exit 2; }
 	python3 tools/pose-solve/solve.py "$(SKILL)"
-
-.PHONY: skill-overlay
-skill-overlay: ## Project a plan dump (or a numpy simulation of content/) onto the annotated reference frames, PNG per beat: make skill-overlay SKILL=<skill-id> [PLAN=<plan.json>]
-	@test -n "$(SKILL)" || { echo "usage: make skill-overlay SKILL=<skill-id> [PLAN=<plan.json>]"; exit 2; }
-	python3 tools/pose-solve/overlay.py "$(SKILL)" $(if $(PLAN),--plan "$(PLAN)",--simulate)
-	$(if $(filter 0,$(PUBLISH)),,node tools/skill-compare/scripts/publish-lint.mjs "$(SKILL)")
 
 .PHONY: skill-round
 skill-round: ## Publish the director's round notes (tools/skill-compare/data/<case>/round.md) to skill-compare: make skill-round SKILL=<skill-id> [FILE=<round.md>]

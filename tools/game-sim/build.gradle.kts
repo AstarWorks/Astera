@@ -49,11 +49,6 @@ tasks.withType<Test>().configureEach {
     outputs.upToDateWhen { false }
     // The long annihilation pillar scenarios produce traces that do not fit the 512 MB default test heap.
     maxHeapSize = "2g"
-}
-// Warm path of scripts/skill-preview-auto.sh: prints the runtime classpath (Gradle compiles once per code change), so plan dumps
-// run as a bare `java -cp` with no Gradle startup per skill.
-tasks.register("previewClasspath") {
-    val cp = sourceSets.main.get().runtimeClasspath
-    dependsOn(cp)
-    doLast { println(cp.files.joinToString(":") { it.absolutePath }) }
+    // `make skill-trace SKILL=<id>` -> SkillTraceExportScenarioTest writes build/sim-traces/v2/<id>.json (ADR-0299 preview feed).
+    providers.gradleProperty("skill").orNull?.let { systemProperty("astera.sim.skill", it) }
 }

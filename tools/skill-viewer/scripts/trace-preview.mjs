@@ -2,7 +2,7 @@
 // skill-compare camera, without the Minecraft client; plus a reference | preview | real-client strip.
 //
 //   bun scripts/trace-preview.mjs --skill couture-rapier-s2 [--trace <trace.json>] [--case <case id>] [--out <dir>] [--size 1280x720]
-//        [--ticks 0-53] [--every 4] [--no-ref] [--client <compare capture dir>] [--skin <png>] [--camera side|<preset>] [--fov <deg>]
+//        [--ticks 0-53] [--every 4] [--no-ref] [--client <compare capture dir>] [--skin <png>] [--camera side|<preset>] [--fov <deg>] [--overlay]
 //
 // Trace default: tools/game-sim/build/sim-traces/v2/<skill>.json (written by the game-sim cast scenario). Output (same shape the
 // skill-compare publisher reads): build/skill-preview/<skill>/{frames,ref,strip.png,meta.json}.
@@ -28,6 +28,7 @@ const tracePath = resolve(args.trace && args.trace !== true ? String(args.trace)
 if (!existsSync(tracePath)) { console.error(`sim trace missing: ${tracePath}\n  the game-sim cast scenario writes it (tools/vfx-shot/SIM-TRACE-V2.md); python3 -I tools/vfx-shot/trace_v2.py --sample <out> makes a synthetic one`); process.exit(2); }
 const trace = readJson(tracePath);
 if (trace.format !== 'astera-sim-trace/2') { console.error(`${tracePath}: format ${trace.format}, need astera-sim-trace/2`); process.exit(2); }
+for (const d of trace.diagnostics ?? []) warnings.push(`cast diagnostic: ${d}`);
 
 const casesDir = join(repo, 'tools/skill-compare/data');
 const caseIds = readdirSync(casesDir).filter((d) => existsSync(join(casesDir, d, 'case.json')));
@@ -178,6 +179,22 @@ for (let t = tFrom; t <= tTo; t++) {
 }
 mark('frames', t1);
 
+// --overlay: the same ticks again with the hit volumes (cyan), victim hitboxes (yellow) and contacts (red) drawn; published as the
+// "lint" view of skill-compare (overlay/t<tick>.png, every <every> ticks plus the contact ticks).
+const overlayTicks = [];
+if (args.overlay) {
+  const t = performance.now();
+  mkdirSync(join(out, 'overlay'), { recursive: true });
+  const contactTicks = new Set(trace.ticks.filter((r) => (r.contacts ?? []).length).map((r) => r.tick - trace.castTick));
+  for (const k of ticks) {
+    if (k % every !== 0 && !contactTicks.has(k)) continue;
+    await page.evaluate((x) => window.preview.draw(x, true), k);
+    await page.screenshot({ path: join(out, 'overlay', `t${frameName(k)}.png`) });
+    overlayTicks.push(k);
+  }
+  mark('overlay', t);
+}
+
 // ---------------------------------------------------------------- strip
 const t2 = performance.now();
 const picked = ticks.filter((t, i) => i % every === 0 || t === tTo);
@@ -220,6 +237,7 @@ const meta = {
 writeFileSync(join(out, 'meta.json'), JSON.stringify(meta, null, 2));
 console.log(`trace-preview ${skill}: ${ticks.length} frames ${W}x${H} -> ${join(out, 'frames')}`);
 console.log(`  strip     ${join(out, 'strip.png')}`);
+if (overlayTicks.length) console.log(`  overlay   ${join(out, 'overlay')} (${overlayTicks.length} stills)`);
 console.log(`  trace ${meta.trace}, presentation objects ${setup.fx}, particles ${setup.particles}, reference ${refAvailable ? 'yes' : 'no'}, real client ${clientAvailable ? clientDir : 'no'}`);
 console.log(`  time setup ${timings.setup}s, frames ${timings.frames}s (${meta.timings.perFrame}s/frame), total ${total.toFixed(1)}s`);
 for (const w of meta.warnings) console.log(`  warn: ${w}`);

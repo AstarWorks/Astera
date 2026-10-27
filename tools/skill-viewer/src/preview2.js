@@ -211,6 +211,8 @@ class Preview2 {
     this.fxGroup = new THREE.Group();   // contact bursts + particle bursts
     this.G.add(this.fxGroup);
     this.fxPool = [];
+    this.overlay = new THREE.Group();   // hit volumes + victim hitboxes + contacts (draw(t, true))
+    this.G.add(this.overlay);
     return { fx: this.fxCount, particles: trace.ticks.reduce((n, t) => n + (t.particles ?? []).reduce((m, p) => m + p.count, 0), 0), warnings: [...this.warnings] };
   }
 
@@ -374,8 +376,65 @@ class Preview2 {
     });
   }
 
+  /** Wireframe overlay: the hit volume each hit registration tested this tick, victim hitboxes, contacts (point + normal) of the last 12 ticks. */
+  drawOverlay(n) {
+    for (const c of [...this.overlay.children]) { this.overlay.remove(c); c.geometry?.dispose(); c.material?.dispose(); }
+    const seg = (pts, color) => {
+      const g = new THREE.BufferGeometry().setFromPoints(pts);
+      const l = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color, depthTest: false, transparent: true }));
+      l.renderOrder = 10; l.frustumCulled = false;
+      this.overlay.add(l);
+    };
+    const ring = (c, ax, r, color, n2 = 24) => {
+      const u = new THREE.Vector3().crossVectors(ax, Math.abs(ax.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0)).normalize();
+      const v = new THREE.Vector3().crossVectors(ax, u);
+      const pts = [];
+      for (let i = 0; i < n2; i++) {
+        for (const k of [i, i + 1]) { const a = (k / n2) * Math.PI * 2; pts.push(c.clone().add(u.clone().multiplyScalar(Math.cos(a) * r)).add(v.clone().multiplyScalar(Math.sin(a) * r))); }
+      }
+      seg(pts, color);
+    };
+    const rec = this.byTick.get(n);
+    for (const hv of rec?.hitVolumes ?? []) {
+      const color = 0x35e0ff;
+      if (hv.type === 'capsule') {
+        const a = V(hv.a), b = V(hv.b), ax = b.clone().sub(a);
+        if (ax.lengthSq() < 1e-12) ax.set(0, 1, 0);
+        ax.normalize();
+        ring(a, ax, hv.radius, color); ring(b, ax, hv.radius, color);
+        ring(a.clone().lerp(b, 0.5), ax, hv.radius, color);
+        const u = new THREE.Vector3().crossVectors(ax, Math.abs(ax.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0)).normalize();
+        const v = new THREE.Vector3().crossVectors(ax, u);
+        seg([...[u, v, u.clone().negate(), v.clone().negate()].flatMap((d) => [a.clone().add(d.clone().multiplyScalar(hv.radius)), b.clone().add(d.clone().multiplyScalar(hv.radius))]), a, b], color);
+      } else if (hv.type === 'sphere') {
+        const c = V(hv.center);
+        for (const ax of [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1)]) ring(c, ax, hv.radius, color);
+      } else if (hv.type === 'sector') {
+        const o = V(hv.origin), f = V(hv.forward).normalize(), l = V(hv.left).normalize(), half = (hv.angleDeg / 2) * Math.PI / 180;
+        const pts = [];
+        const rim = (y) => Array.from({ length: 17 }, (_, i) => { const a = -half + (i / 16) * 2 * half; return o.clone().add(f.clone().multiplyScalar(Math.cos(a) * hv.range)).add(l.clone().multiplyScalar(-Math.sin(a) * hv.range)).add(new THREE.Vector3(0, y, 0)); });
+        for (const y of [0, hv.height]) { const r = rim(y); for (let i = 0; i < 16; i++) pts.push(r[i], r[i + 1]); pts.push(o.clone().add(new THREE.Vector3(0, y, 0)), r[0], o.clone().add(new THREE.Vector3(0, y, 0)), r[16]); }
+        seg(pts, color);
+      }
+    }
+    for (const [id, dummy] of this.victims) {
+      if (!dummy.visible) continue;
+      const p = dummy.position, h = (this.trace.victims.find((x) => x.id === id)?.height ?? 1.8), w = 0.3;
+      const c = [[-w, 0, -w], [w, 0, -w], [w, 0, w], [-w, 0, w]].map(([x, y, z]) => new THREE.Vector3(p.x + x, p.y + y, p.z + z));
+      const t = c.map((q) => q.clone().setY(p.y + h));
+      seg([...c.flatMap((q, i) => [q, c[(i + 1) % 4]]), ...t.flatMap((q, i) => [q, t[(i + 1) % 4]]), ...c.flatMap((q, i) => [q, t[i]])], 0xffd24d);
+    }
+    for (let k = Math.max(this.firstTick, n - 12); k <= n; k++) {
+      for (const c of this.byTick.get(k)?.contacts ?? []) {
+        const p = V(c.point), nm = V(c.normal).normalize().multiplyScalar(0.4), r = 0.08;
+        seg([p.clone().add(new THREE.Vector3(r, 0, 0)), p.clone().sub(new THREE.Vector3(r, 0, 0)), p.clone().add(new THREE.Vector3(0, r, 0)), p.clone().sub(new THREE.Vector3(0, r, 0)),
+          p.clone().add(new THREE.Vector3(0, 0, r)), p.clone().sub(new THREE.Vector3(0, 0, r)), p, p.clone().add(nm)], 0xff3b6b);
+      }
+    }
+  }
+
   /** Poses everything for skill tick [t] (0 = cast) and renders one frame. */
-  draw(t) {
+  draw(t, overlay = false) {
     const cam = this.cameraAt(t);
     this.camera.position.set(...cam.pos);
     this.camera.lookAt(new THREE.Vector3(...cam.target));
@@ -388,6 +447,8 @@ class Preview2 {
     this.G.updateMatrixWorld(true);
     this.drawObjects(n);
     this.drawFx(n);
+    this.overlay.visible = overlay;
+    if (overlay) this.drawOverlay(n);
     this.renderer.render(this.scene, this.camera);
   }
 }

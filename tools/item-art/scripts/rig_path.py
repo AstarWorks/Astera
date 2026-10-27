@@ -177,13 +177,6 @@ class RigPath:
             self.dashes.append((int(_literal(s.get("delay_ticks"))), int(s["ticks"]), d))
             left -= d
         self.distance = distance
-        # pose-to-pose rigs (ADR-0276: skin-rig body, ease: step keys) hang the blade off the HAND: the plan dump written by the
-        # runtime (make skill-lint-plan) is the ground truth for where the blade is, whole tick by whole tick.
-        self.plan = None
-        pf = ROOT / "build/skill-lint" / skill_id / "plan.json"
-        if pf.exists() and self.rig.get("weapon"):
-            import json
-            self.plan = {t["tick"]: t["weapon"] for t in json.loads(pf.read_text())["ticks"] if t.get("weapon")}
 
     # ---- runtime clock ---------------------------------------------------------------------------------------
     @staticmethod
@@ -278,54 +271,14 @@ class RigPath:
         """Point on the blade (frac 0 = guard top, 1 = tip; or `radius` blocks from the pivot) at fractional fx tick,
         in the fx file's anchor frame."""
         s = self.skill_tick(fx_tick)
-        if self.plan:
-            return self._plan_point(s, frac, radius)
         q = self.rotation_at(self.rig_tick(s - self.rig_delay))
         r = radius if radius is not None else self.root_local + (self.tip_local - self.root_local) * frac
         v = qrot(q, (0.0, r, 0.0))
         dz = (self.dash_offset(s) - self.dash_offset(self.fx_delay)) if self.follow else 0.0
         return (self.pivot[0] + v[0], self.pivot[1] + v[1], self.pivot[2] + v[2] + dz)
 
-    def _plan_seg(self, skill_tick):
-        """(grip, unit direction, length) of the blade at skill tick `skill_tick` in this fx file's frame (x = left). Whole
-        ticks are the plan dump; between two whole ticks the direction is slerped and the grip lerped (r28, ADR-0278: the
-        per-tick swing keys are interpolated by the client, so a 80 deg/tick sweep has a real arc between the dumps; a held
-        pose or an `ease: step` cut is equal at both ends, i.e. unchanged)."""
-        T0 = int(math.floor(skill_tick + 1e-9))
-        f = skill_tick - T0
-        g0, d0, L0 = self._plan_seg_whole(T0)
-        if f < 1e-9 or (T0 + 1) > max(self.plan):
-            return g0, d0, L0
-        g1, d1, L1 = self._plan_seg_whole(T0 + 1)
-        c = max(-1.0, min(1.0, sum(a * b for a, b in zip(d0, d1))))
-        om = math.acos(c)
-        if om < 1e-6:
-            d = d0
-        else:
-            k0, k1 = math.sin((1 - f) * om) / math.sin(om), math.sin(f * om) / math.sin(om)
-            d = tuple(k0 * a + k1 * b for a, b in zip(d0, d1))
-        g = tuple(a + (b - a) * f for a, b in zip(g0, g1))
-        return g, d, L0 + (L1 - L0) * f
-
-    def _plan_seg_whole(self, T):
-        T = max(min(T, max(self.plan)), min(self.plan))
-        w = self.plan[T]
-        dz = 0.0 if FX_FOLLOW else self.dash_offset(T) - self.dash_offset(self.fx_delay)
-        g = (-w["pos"][0], w["pos"][1], w["pos"][2] + dz)
-        t = (-w["tip"][0], w["tip"][1], w["tip"][2] + dz)
-        d = [t[k] - g[k] for k in range(3)]
-        L = math.sqrt(sum(x * x for x in d)) or 1.0
-        return g, tuple(x / L for x in d), L
-
-    def _plan_point(self, skill_tick, frac, radius):
-        g, d, L = self._plan_seg(skill_tick)
-        r = radius if radius is not None else L * frac
-        return tuple(g[k] + d[k] * r for k in range(3))
-
     def blade_dir(self, fx_tick):
         s = self.skill_tick(fx_tick)
-        if self.plan:
-            return self._plan_seg(s)[1]
         return qrot(self.rotation_at(self.rig_tick(s - self.rig_delay)), (0.0, 1.0, 0.0))
 
     def tip_speed(self, fx_tick, frac=1.0, h=0.25):

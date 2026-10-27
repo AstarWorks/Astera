@@ -2,16 +2,15 @@
 # Minecraft-free skill-compare previews, rendered + published for the skills a push touched.
 #   scripts/skill-preview-auto.sh <from-sha> <to-sha>     skills affected by that range (run from a checkout of <to-sha>)
 #   scripts/skill-preview-auto.sh --skills a,b,c [--sha <sha>]
-# Per skill that has a skill-compare case: plan dump -> particle-sim -> skill-preview (compare camera) || (fixed side camera) ->
-# publish views `preview` and `preview-side` with provenance (git sha, content revision).
-# Fast path: Gradle only compiles (once per code change) and prints the two runtime classpaths into build/skill-preview-cp/;
-# every skill then runs as bare `java -cp` (no Gradle startup), skills in parallel (PREVIEW_JOBS, default 4), the two cameras in parallel.
+# Per skill that has a skill-compare case: ONE game-sim run casts every skill (v2 sim trace, astera-sim-trace/2, SKL-08 / ADR-0299)
+# -> trace-preview (compare camera + hit-volume overlay) || (fixed side camera) -> publish views `preview`, `preview-side` and the
+# overlay as `lint`, with provenance (git sha, content revision). Renders run in parallel (PREVIEW_JOBS, default 4).
 # Never fails the caller. preview.log lines (format is a contract for the skill-compare page):
 #   preview-started <sha> <skill>
 #   preview-published <sha> <skill> (<n>s) [warn: ...] <publish output>
 #   preview-FAILED <sha> <skill> <stage>: <reason> (see <log>)
 #   preview-skip <sha>: ...
-# A lint finding or particle-sim failure never blocks the preview: the plan is the only hard requirement, other findings become
+# Cast diagnostics (unknown points, ...) never block the preview: the trace is the only hard requirement, other findings become
 # `warnings` in the published provenance. Triggered by scripts/skill-preview-watch.sh (on origin/main moving).
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -50,10 +49,6 @@ else
   skills=("${!seen[@]}")
 fi
 # only skills a skill-compare case plays
-# SKL-08 (ADR-0299): the v1 plan dump (SkillLintPlanDump / :tools:game-sim:skillLintPlan) was deleted with the old engine and the
-# v2 trace feed for skill-viewer is not wired yet, so no preview can be produced. Skip loudly instead of failing every push.
-log "preview-skip ${sha}: skill-preview pipeline disabled until the v2 trace feed lands (SKL-08)"
-exit 0
 cases=()
 for s in "${skills[@]}"; do
   [ -f "content/skills/$s.yaml" ] || continue
@@ -65,48 +60,30 @@ for s in "${cases[@]}"; do log "preview-started $sha $s"; done
 
 exec 7>/tmp/claude-1000/astera-skill-preview.lock
 flock 7
-CP=$REPO/build/skill-preview-cp
-mkdir -p "$CP"
-# Compile + classpath only when code changed (content-only pushes keep the warm classpath).
-code=$(git rev-parse HEAD:plugin HEAD:tools/game-sim HEAD:tools/particle-sim HEAD:buildSrc HEAD:gradle 2>/dev/null | tr -d '\n')
-if [ "$(cat "$CP/stamp" 2>/dev/null)" != "$code" ] || [ ! -s "$CP/sim.cp" ] || [ ! -s "$CP/particle.cp" ]; then
-  if ./gradlew -q --offline :tools:game-sim:previewClasspath > "$CP/sim.cp.tmp" 2> "$CP/gradle.log" \
-     && ./gradlew -q --offline :tools:particle-sim:previewClasspath > "$CP/particle.cp.tmp" 2>> "$CP/gradle.log"; then
-    tail -n1 "$CP/sim.cp.tmp" > "$CP/sim.cp"
-    tail -n1 "$CP/particle.cp.tmp" > "$CP/particle.cp"
-    printf '%s' "$code" > "$CP/stamp"
-  else
-    for s in "${cases[@]}"; do log "preview-FAILED $sha $s compile: $(grep -E 'error:|^e: |FAILED' "$CP/gradle.log" | head -n 1 | cut -c1-240)"; done
-    exit 0
-  fi
+# One Gradle run casts all skills (the game-sim scenario compiles incrementally; content-only pushes recompile nothing).
+if ! ./gradlew -q --offline :tools:game-sim:test --tests '*SkillTraceExportScenarioTest' -Pskill="$(IFS=,; echo "${cases[*]}")" \
+     > "$STATE/preview-trace.log" 2>&1; then
+  for s in "${cases[@]}"; do log "preview-FAILED $sha $s trace: $(grep -E 'error:|^e: |FAILED|Exception' "$STATE/preview-trace.log" | head -n 1 | cut -c1-240) (see $STATE/preview-trace.log)"; done
+  exit 0
 fi
 if ! (cd tools/skill-viewer && bun install --frozen-lockfile >/dev/null 2>&1 && bun run build >/dev/null 2>&1); then
   for s in "${cases[@]}"; do log "preview-FAILED $sha $s skill-viewer build"; done
   exit 0
 fi
-SIMCP=$(cat "$CP/sim.cp")
-PARTCP=$(cat "$CP/particle.cp")
-JVM=(-XX:TieredStopAtLevel=1 -XX:+UseSerialGC -Djava.awt.headless=true)
 
 reason() { # first meaningful failure line of a log
-  grep -E 'ENOENT|Exception|error:|^e: |FAILED|Error' "$1" | grep -v 'WARN\|INFO' | head -n 1 | cut -c1-240
+  grep -E 'ENOENT|Exception|error:|^e: |FAILED|Error|missing' "$1" | grep -v 'WARN\|INFO' | head -n 1 | cut -c1-240
 }
 one() { # one <skill>
-  local s=$1 t0=$SECONDS out=build/skill-preview/$1 lg=$STATE/preview-$1.log warn=""
+  local s=$1 t0=$SECONDS out=build/skill-preview/$1 lg=$STATE/preview-$1.log
   : > "$lg"
-  rm -f "build/skill-preview/$s/particles.json" "build/skill-lint/$s/plan.json"
-  if ! java "${JVM[@]}" -Dastera.sim.contentDir="$REPO/content" -Dastera.sim.traceDir="$REPO/build/sim-traces" -cp "$SIMCP" \
-        com.astarworks.astera.gamesim.SkillLintPlanDump "$s" "$REPO/build/skill-lint" >> "$lg" 2>&1; then
-    log "preview-FAILED $sha $s plan: $(reason "$lg") (see $lg)"
+  if [ ! -s "tools/game-sim/build/sim-traces/v2/$s.json" ]; then
+    log "preview-FAILED $sha $s trace: no tools/game-sim/build/sim-traces/v2/$s.json (is it a v2 skill?)"
     return
   fi
-  if ! java "${JVM[@]}" -cp "$PARTCP" com.astarworks.astera.particlesim.MainKt "$s" >> "$lg" 2>&1; then
-    warn="particle-sim failed ($(reason "$lg")): particles not drawn"
-    rm -f "build/skill-preview/$s/particles.json"
-  fi
-  (cd tools/skill-viewer && bun scripts/skill-preview.mjs --skill "$s" --no-ref ${warn:+--warn "$warn"} > "$lg.a" 2>&1) &
+  (cd tools/skill-viewer && bun scripts/trace-preview.mjs --skill "$s" --no-ref --overlay > "$lg.a" 2>&1) &
   local pa=$!
-  (cd tools/skill-viewer && bun scripts/skill-preview.mjs --skill "$s" --no-ref --camera side --out "$REPO/$out/side" ${warn:+--warn "$warn"} > "$lg.b" 2>&1) &
+  (cd tools/skill-viewer && bun scripts/trace-preview.mjs --skill "$s" --no-ref --camera side --out "$REPO/$out/side" > "$lg.b" 2>&1) &
   local pb=$!
   local ok=1
   wait $pa || ok=0
@@ -115,8 +92,9 @@ one() { # one <skill>
   rm -f "$lg.a" "$lg.b"
   if [ "$ok" = 1 ] \
      && node tools/skill-compare/scripts/publish-preview.mjs "$s" >> "$lg" 2>&1 \
-     && node tools/skill-compare/scripts/publish-preview.mjs "$s" --src "$out/side" --kind preview-side >> "$lg" 2>&1; then
-    log "preview-published $sha $s ($((SECONDS - t0))s)${warn:+ [warn: $warn]} $(tail -n1 "$lg")"
+     && node tools/skill-compare/scripts/publish-preview.mjs "$s" --src "$out/side" --kind preview-side >> "$lg" 2>&1 \
+     && node tools/skill-compare/scripts/publish-lint.mjs "$s" --overlay "$out/overlay" >> "$lg" 2>&1; then
+    log "preview-published $sha $s ($((SECONDS - t0))s) $(tail -n1 "$lg")"
   else
     log "preview-FAILED $sha $s render/publish: $(reason "$lg") (see $lg)"
   fi
